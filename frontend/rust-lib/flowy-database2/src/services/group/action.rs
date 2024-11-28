@@ -98,6 +98,7 @@ pub trait GroupCustomize: Send + Sync {
 /// while a `URL` group controller will be a `DefaultGroupController`.
 #[async_trait]
 pub trait GroupController: Send + Sync {
+  async fn load_group_data(&mut self) -> FlowyResult<()>;
   /// Returns the id of field that is being used to group the rows
   fn get_grouping_field_id(&self) -> &str;
 

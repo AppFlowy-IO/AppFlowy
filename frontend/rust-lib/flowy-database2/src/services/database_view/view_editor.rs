@@ -70,6 +70,14 @@ impl Drop for DatabaseViewEditor {
 }
 
 impl DatabaseViewEditor {
+  /// Create a new Database View Editor.
+  ///
+  /// After creating the editor, you must call [DatabaseViewEditor::initialize] to properly initialize it.
+  /// This initialization step will load essential data, such as group information.
+  ///
+  /// Avoid calling any methods of [DatabaseViewOperation] before the editor is fully initialized,
+  /// as some actions may rely on the current editor state. Failing to follow this order could result
+  /// in unexpected behavior, including potential deadlocks.
   pub async fn new(
     database_id: String,
     view_id: String,
@@ -99,7 +107,15 @@ impl DatabaseViewEditor {
     .await;
 
     // Group
-    let group_controller = Arc::new(RwLock::new(None));
+    let group_controller = Arc::new(RwLock::new(
+      new_group_controller(
+        view_id.clone(),
+        delegate.clone(),
+        filter_controller.clone(),
+        None,
+      )
+      .await?,
+    ));
 
     // Calculations
     let calculations_controller =
@@ -119,16 +135,12 @@ impl DatabaseViewEditor {
     })
   }
 
-  pub async fn post_init(&self) -> FlowyResult<()> {
-    let group_controller = new_group_controller(
-      self.view_id.clone(),
-      self.delegate.clone(),
-      self.filter_controller.clone(),
-      None,
-    )
-    .await?;
-
-    *self.group_controller.write().await = group_controller;
+  /// Initialize the editor after creating it
+  /// You should call [DatabaseViewEditor::initialize] after creating the editor
+  pub async fn initialize(&self) -> FlowyResult<()> {
+    if let Some(group) = self.group_controller.write().await.as_mut() {
+      group.load_group_data().await?;
+    }
 
     Ok(())
   }

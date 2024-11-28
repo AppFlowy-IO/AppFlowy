@@ -34,7 +34,6 @@ pub async fn new_group_controller(
     Some(field) => Some(field),
     None => {
       let group_setting = controller_delegate.get_group_setting(&view_id).await;
-
       let fields = delegate.get_fields(&view_id, None).await;
 
       group_setting

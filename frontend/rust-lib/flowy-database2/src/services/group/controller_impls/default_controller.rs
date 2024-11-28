@@ -41,6 +41,10 @@ impl DefaultGroupController {
 
 #[async_trait]
 impl GroupController for DefaultGroupController {
+  async fn load_group_data(&mut self) -> FlowyResult<()> {
+    Ok(())
+  }
+
   fn get_grouping_field_id(&self) -> &str {
     &self.field_id
   }
