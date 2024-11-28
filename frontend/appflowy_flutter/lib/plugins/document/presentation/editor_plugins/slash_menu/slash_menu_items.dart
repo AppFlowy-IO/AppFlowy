@@ -9,8 +9,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/sl
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_cell_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_row_block_component.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_menu_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -599,55 +597,31 @@ SelectionMenuItem tableSlashMenuItem = SelectionMenuItem(
       return;
     }
 
-    final tableNode = simpleTableBlockNode(
-      children: [
-        simpleTableRowBlockNode(
-          children: [
-            simpleTableCellBlockNode(
-              children: [
-                paragraphNode(),
-              ],
-            ),
-            simpleTableCellBlockNode(
-              children: [
-                paragraphNode(),
-              ],
-            ),
-          ],
-        ),
-        simpleTableRowBlockNode(
-          children: [
-            simpleTableCellBlockNode(
-              children: [
-                paragraphNode(),
-              ],
-            ),
-            simpleTableCellBlockNode(
-              children: [
-                paragraphNode(),
-              ],
-            ),
-          ],
-        ),
-      ],
+    // create a simple table with 2 columns and 2 rows
+    final tableNode = createSimpleTableBlockNode(
+      columnCount: 2,
+      rowCount: 2,
     );
 
     final transaction = editorState.transaction;
     final delta = currentNode.delta;
     if (delta != null && delta.isEmpty) {
+      final path = selection.end.path;
       transaction
-        ..insertNode(selection.end.path, tableNode)
+        ..insertNode(path, tableNode)
         ..deleteNode(currentNode);
       transaction.afterSelection = Selection.collapsed(
         Position(
-          path: selection.end.path + [0, 0],
+          // the first cell of the table
+          path: path + [0, 0, 0],
         ),
       );
     } else {
-      transaction.insertNode(selection.end.path.next, tableNode);
+      final path = selection.end.path.next;
+      transaction.insertNode(path, tableNode);
       transaction.afterSelection = Selection.collapsed(
         Position(
-          path: selection.end.path.next + [0, 0],
+          path: path.next + [0, 0, 0],
         ),
       );
     }
