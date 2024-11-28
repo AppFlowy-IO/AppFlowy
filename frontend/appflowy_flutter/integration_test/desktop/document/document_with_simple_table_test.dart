@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_cell_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,6 +35,12 @@ void main() {
         editorState.selection,
         // table -> row -> cell -> paragraph
         Selection.collapsed(Position(path: [0, 0, 0, 0])),
+      );
+
+      final firstCell = find.byType(SimpleTableCellBlockWidget).first;
+      expect(
+        tester.state<SimpleTableCellBlockWidgetState>(firstCell).isEditing,
+        isTrue,
       );
     });
   });

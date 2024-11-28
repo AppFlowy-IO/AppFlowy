@@ -61,10 +61,11 @@ class SimpleTableCellBlockWidget extends BlockComponentStatefulWidget {
 
   @override
   State<SimpleTableCellBlockWidget> createState() =>
-      _SimpleTableCellBlockWidgetState();
+      SimpleTableCellBlockWidgetState();
 }
 
-class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
+@visibleForTesting
+class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     with
         BlockComponentConfigurable,
         BlockComponentTextDirectionMixin,
@@ -297,28 +298,14 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   /// the border wrapping the cell 2 and cell 4 is the column border
   Border _buildColumnBorder() {
     return Border(
-      left: BorderSide(
-        color: Theme.of(context).colorScheme.primary,
-        width: 2,
-      ),
-      right: BorderSide(
-        color: Theme.of(context).colorScheme.primary,
-        width: 2.5,
-      ),
+      left: _buildHighlightBorderSide(),
+      right: _buildHighlightBorderSide(),
       top: node.rowIndex == 0
-          ? BorderSide(
-              color: Theme.of(context).colorScheme.primary,
-              width: 2,
-            )
-          : BorderSide(
-              color: context.simpleTableBorderColor,
-            ),
+          ? _buildHighlightBorderSide()
+          : _buildDefaultBorderSide(),
       bottom: node.rowIndex + 1 == node.parentTableNode?.rowLength
-          ? BorderSide(
-              color: Theme.of(context).colorScheme.primary,
-              width: 2,
-            )
-          : BorderSide.none,
+          ? _buildHighlightBorderSide()
+          : _buildDefaultBorderSide(),
     );
   }
 
@@ -332,65 +319,31 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   /// the border wrapping the cell 1 and cell 2 is the row border
   Border _buildRowBorder() {
     return Border(
-      top: BorderSide(
-        color: Theme.of(context).colorScheme.primary,
-        width: 2,
-      ),
-      bottom: BorderSide(
-        color: Theme.of(context).colorScheme.primary,
-        width: 2.5,
-      ),
+      top: _buildHighlightBorderSide(),
+      bottom: _buildHighlightBorderSide(),
       left: node.columnIndex == 0
-          ? BorderSide(
-              color: Theme.of(context).colorScheme.primary,
-              width: 2,
-            )
-          : BorderSide(
-              color: context.simpleTableBorderColor,
-            ),
+          ? _buildHighlightBorderSide()
+          : _buildDefaultBorderSide(),
       right: node.columnIndex + 1 == node.parentTableNode?.columnLength
-          ? BorderSide(
-              color: Theme.of(context).colorScheme.primary,
-              width: 2,
-            )
-          : BorderSide.none,
+          ? _buildHighlightBorderSide()
+          : _buildDefaultBorderSide(),
     );
   }
 
   Border _buildCellBorder() {
     return Border(
       top: node.rowIndex == 0
-          ? BorderSide(
-              color: context.simpleTableBorderColor,
-            )
-          : BorderSide(
-              color: context.simpleTableBorderColor,
-              width: 0.5,
-            ),
+          ? _buildDefaultBorderSide()
+          : _buildLightBorderSide(),
       bottom: node.rowIndex + 1 == node.parentTableNode?.rowLength
-          ? BorderSide(
-              color: context.simpleTableBorderColor,
-            )
-          : BorderSide(
-              color: context.simpleTableBorderColor,
-              width: 0.5,
-            ),
+          ? _buildDefaultBorderSide()
+          : _buildLightBorderSide(),
       left: node.columnIndex == 0
-          ? BorderSide(
-              color: context.simpleTableBorderColor,
-            )
-          : BorderSide(
-              color: context.simpleTableBorderColor,
-              width: 0.5,
-            ),
+          ? _buildDefaultBorderSide()
+          : _buildLightBorderSide(),
       right: node.columnIndex + 1 == node.parentTableNode?.columnLength
-          ? BorderSide(
-              color: context.simpleTableBorderColor,
-            )
-          : BorderSide(
-              color: context.simpleTableBorderColor,
-              width: 0.5,
-            ),
+          ? _buildDefaultBorderSide()
+          : _buildLightBorderSide(),
     );
   }
 
@@ -406,37 +359,37 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     final columnIndex = node.columnIndex;
 
     return Border(
-      top: rowIndex == 0
-          ? _buildDefaultBorderSide()
-          : BorderSide(
-              color: context.simpleTableBorderColor,
-              width: 0.5,
-            ),
+      top:
+          rowIndex == 0 ? _buildHighlightBorderSide() : _buildLightBorderSide(),
       bottom: rowIndex + 1 == node.parentTableNode?.rowLength
-          ? _buildDefaultBorderSide()
-          : BorderSide(
-              color: context.simpleTableBorderColor,
-              width: 0.5,
-            ),
+          ? _buildHighlightBorderSide()
+          : _buildLightBorderSide(),
       left: columnIndex == 0
-          ? _buildDefaultBorderSide()
-          : BorderSide(
-              color: context.simpleTableBorderColor,
-              width: 0.5,
-            ),
+          ? _buildHighlightBorderSide()
+          : _buildLightBorderSide(),
       right: columnIndex + 1 == node.parentTableNode?.columnLength
-          ? _buildDefaultBorderSide()
-          : BorderSide(
-              color: context.simpleTableBorderColor,
-              width: 0.5,
-            ),
+          ? _buildHighlightBorderSide()
+          : _buildLightBorderSide(),
+    );
+  }
+
+  BorderSide _buildHighlightBorderSide() {
+    return BorderSide(
+      color: Theme.of(context).colorScheme.primary,
+      width: 2,
+    );
+  }
+
+  BorderSide _buildLightBorderSide() {
+    return BorderSide(
+      color: context.simpleTableBorderColor,
+      width: 0.5,
     );
   }
 
   BorderSide _buildDefaultBorderSide() {
     return BorderSide(
-      color: Theme.of(context).colorScheme.primary,
-      width: 2,
+      color: context.simpleTableBorderColor,
     );
   }
 
