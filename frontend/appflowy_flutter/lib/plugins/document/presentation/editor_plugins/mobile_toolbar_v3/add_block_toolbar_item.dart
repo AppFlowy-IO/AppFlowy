@@ -392,22 +392,3 @@ class AddBlockMenu extends StatelessWidget {
     };
   }
 }
-
-extension on EditorState {
-  Future<void> insertBlockAfterCurrentSelection(
-    Selection selection,
-    Node node,
-  ) async {
-    final path = selection.end.path.next;
-    final transaction = this.transaction;
-    transaction.insertNode(
-      path,
-      node,
-    );
-    transaction.afterSelection = Selection.collapsed(
-      Position(path: path),
-    );
-    transaction.selectionExtraInfo = {};
-    await apply(transaction);
-  }
-}

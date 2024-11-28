@@ -12,6 +12,7 @@ final _defaultToolbarItems = [
   aaToolbarItem,
   todoListToolbarItem,
   bulletedListToolbarItem,
+  addAttachmentItem,
   numberedListToolbarItem,
   boldToolbarItem,
   italicToolbarItem,
@@ -35,6 +36,7 @@ final _listToolbarItems = [
   underlineToolbarItem,
   strikethroughToolbarItem,
   colorToolbarItem,
+  addAttachmentItem,
   undoToolbarItem,
   redoToolbarItem,
 ];
