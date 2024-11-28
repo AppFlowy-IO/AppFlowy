@@ -78,24 +78,22 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   @override
   late EditorState editorState = context.read<EditorState>();
 
+  late SimpleTableContext simpleTableContext =
+      context.read<SimpleTableContext>();
+
   @override
   void initState() {
     super.initState();
 
-    context
-        .read<SimpleTableContext>()
-        .isSelectingTable
-        .addListener(_onSelectingTableChanged);
-
+    simpleTableContext.isSelectingTable.addListener(_onSelectingTableChanged);
     node.parentTableNode?.addListener(_onSelectingTableChanged);
   }
 
   @override
   void dispose() {
-    context
-        .read<SimpleTableContext>()
-        .isSelectingTable
-        .removeListener(_onSelectingTableChanged);
+    simpleTableContext.isSelectingTable.removeListener(
+      _onSelectingTableChanged,
+    );
     node.parentTableNode?.removeListener(_onSelectingTableChanged);
 
     super.dispose();
@@ -105,8 +103,7 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   Widget build(BuildContext context) {
     return MouseRegion(
       hitTestBehavior: HitTestBehavior.opaque,
-      onEnter: (event) =>
-          context.read<SimpleTableContext>().hoveringTableCell.value = node,
+      onEnter: (event) => simpleTableContext.hoveringTableCell.value = node,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -138,10 +135,10 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
   Widget _buildCell() {
     return ValueListenableBuilder(
-      valueListenable: context.read<SimpleTableContext>().selectingColumn,
+      valueListenable: simpleTableContext.selectingColumn,
       builder: (context, selectingColumn, child) {
         return ValueListenableBuilder(
-          valueListenable: context.read<SimpleTableContext>().selectingRow,
+          valueListenable: simpleTableContext.selectingRow,
           builder: (context, selectingRow, _) {
             return DecoratedBox(
               decoration: _buildDecoration(),

@@ -1,10 +1,12 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/shared_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_operations.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +22,7 @@ enum SimpleTableMoreActionType {
           SimpleTableMoreAction.addAbove,
           SimpleTableMoreAction.addBelow,
           SimpleTableMoreAction.duplicate,
-          SimpleTableMoreAction.clearContent,
+          SimpleTableMoreAction.clearContents,
           SimpleTableMoreAction.delete,
           SimpleTableMoreAction.divider,
           SimpleTableMoreAction.align,
@@ -31,7 +33,7 @@ enum SimpleTableMoreActionType {
           SimpleTableMoreAction.addLeft,
           SimpleTableMoreAction.addRight,
           SimpleTableMoreAction.duplicate,
-          SimpleTableMoreAction.clearContent,
+          SimpleTableMoreAction.clearContents,
           SimpleTableMoreAction.delete,
           SimpleTableMoreAction.divider,
           SimpleTableMoreAction.align,
@@ -56,7 +58,7 @@ enum SimpleTableMoreAction {
   addAbove,
   addBelow,
   duplicate,
-  clearContent,
+  clearContents,
   delete,
   align,
   backgroundColor,
@@ -66,17 +68,28 @@ enum SimpleTableMoreAction {
 
   String get name {
     return switch (this) {
-      SimpleTableMoreAction.align => 'Align',
-      SimpleTableMoreAction.backgroundColor => 'Color',
-      SimpleTableMoreAction.enableHeaderColumn => 'Header Column',
-      SimpleTableMoreAction.enableHeaderRow => 'Header Row',
-      SimpleTableMoreAction.addLeft => 'Insert left',
-      SimpleTableMoreAction.addRight => 'Insert right',
-      SimpleTableMoreAction.addBelow => 'Insert below',
-      SimpleTableMoreAction.addAbove => 'Insert above',
-      SimpleTableMoreAction.clearContent => 'Clear content',
-      SimpleTableMoreAction.delete => 'Delete',
-      SimpleTableMoreAction.duplicate => 'Duplicate',
+      SimpleTableMoreAction.align =>
+        LocaleKeys.document_plugins_simpleTable_moreActions_align.tr(),
+      SimpleTableMoreAction.backgroundColor =>
+        LocaleKeys.document_plugins_simpleTable_moreActions_color.tr(),
+      SimpleTableMoreAction.enableHeaderColumn =>
+        LocaleKeys.document_plugins_simpleTable_moreActions_headerColumn.tr(),
+      SimpleTableMoreAction.enableHeaderRow =>
+        LocaleKeys.document_plugins_simpleTable_moreActions_headerRow.tr(),
+      SimpleTableMoreAction.addLeft =>
+        LocaleKeys.document_plugins_simpleTable_clickToAddNewColumn.tr(),
+      SimpleTableMoreAction.addRight =>
+        LocaleKeys.document_plugins_simpleTable_clickToAddNewColumn.tr(),
+      SimpleTableMoreAction.addBelow =>
+        LocaleKeys.document_plugins_simpleTable_clickToAddNewRow.tr(),
+      SimpleTableMoreAction.addAbove =>
+        LocaleKeys.document_plugins_simpleTable_clickToAddNewRow.tr(),
+      SimpleTableMoreAction.clearContents =>
+        LocaleKeys.document_plugins_simpleTable_moreActions_clearContents.tr(),
+      SimpleTableMoreAction.delete =>
+        LocaleKeys.document_plugins_simpleTable_moreActions_delete.tr(),
+      SimpleTableMoreAction.duplicate =>
+        LocaleKeys.document_plugins_simpleTable_moreActions_duplicate.tr(),
       SimpleTableMoreAction.divider => throw UnimplementedError(),
     };
   }
@@ -88,7 +101,7 @@ enum SimpleTableMoreAction {
       SimpleTableMoreAction.addAbove => FlowySvgs.table_insert_above_s,
       SimpleTableMoreAction.addBelow => FlowySvgs.table_insert_below_s,
       SimpleTableMoreAction.duplicate => FlowySvgs.duplicate_s,
-      SimpleTableMoreAction.clearContent => FlowySvgs.table_clear_content_s,
+      SimpleTableMoreAction.clearContents => FlowySvgs.table_clear_content_s,
       SimpleTableMoreAction.delete => FlowySvgs.trash_s,
       SimpleTableMoreAction.enableHeaderColumn =>
         FlowySvgs.table_header_column_s,
@@ -437,7 +450,7 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
       case SimpleTableMoreAction.addBelow:
         _insertRowBelow();
         break;
-      case SimpleTableMoreAction.clearContent:
+      case SimpleTableMoreAction.clearContents:
         _clearContent();
         break;
       case SimpleTableMoreAction.duplicate:

@@ -1711,6 +1711,24 @@
       "bulletedList": "Bulleted list",
       "todoList": "Todo list",
       "callout": "Callout",
+      "simpleTable": {
+        "moreActions": {
+          "color": "Color",
+          "align": "Align",
+          "delete": "Delete",
+          "duplicate": "Duplicate",
+          "insertLeft": "Insert left",
+          "insertRight": "Insert right",
+          "insertAbove": "Insert above",
+          "insertBelow": "Insert below",
+          "headerColumn": "Header column",
+          "headerRow": "Header row",
+          "clearContents": "Clear contents"
+        },
+        "clickToAddNewRow": "Click to add a new row",
+        "clickToAddNewColumn": "Click to add a new column",
+        "clickToAddNewRowAndColumn": "Click to add a new row and column"
+      },
       "cover": {
         "changeCover": "Change Cover",
         "colors": "Colors",

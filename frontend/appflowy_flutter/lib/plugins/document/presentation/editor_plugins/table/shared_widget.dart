@@ -100,7 +100,7 @@ class SimpleTableAddRowButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyTooltip(
-      message: 'Click to add a new row',
+      message: LocaleKeys.document_plugins_simpleTable_clickToAddNewRow.tr(),
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: onTap,
@@ -177,7 +177,7 @@ class SimpleTableAddColumnButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyTooltip(
-      message: 'Click to add a new column',
+      message: LocaleKeys.document_plugins_simpleTable_clickToAddNewColumn.tr(),
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: onTap,
@@ -250,7 +250,8 @@ class SimpleTableAddColumnAndRowButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyTooltip(
-      message: 'Click to add a new column and row',
+      message: LocaleKeys.document_plugins_simpleTable_clickToAddNewRowAndColumn
+          .tr(),
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: onTap,
@@ -329,7 +330,7 @@ class _SimpleTableAlignMenuState extends State<SimpleTableAlignMenu> {
       controller: controller,
       child: SimpleTableBasicButton(
         leftIconSvg: align.leftIconSvg,
-        text: 'Align',
+        text: LocaleKeys.document_plugins_simpleTable_moreActions_align.tr(),
         onTap: () {
           if (!isOpen) {
             controller.show();
@@ -549,7 +550,7 @@ class _SimpleTableBackgroundColorMenuState
         leftIconBuilder: (onHover) => ColorOptionIcon(
           color: backgroundColor ?? Colors.transparent,
         ),
-        text: 'Color',
+        text: LocaleKeys.document_plugins_simpleTable_moreActions_color.tr(),
         onTap: () {
           if (!isOpen) {
             controller.show();

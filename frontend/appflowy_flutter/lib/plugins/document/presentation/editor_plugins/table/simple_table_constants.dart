@@ -108,7 +108,7 @@ class SimpleTableConstants {
 
   // Table cell
   static const cellEdgePadding = EdgeInsets.symmetric(
-    horizontal: 8.0,
+    horizontal: 9.0,
     vertical: 2.0,
   );
   static const cellBorderWidth = 1.0;
