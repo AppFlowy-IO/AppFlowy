@@ -252,11 +252,11 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
       configuration,
       styleCustomizer,
     ),
-    AutoCompletionBlockKeys.type: _buildAutoCompletionBlockComponentBuilder(
+    AIWriterBlockKeys.type: _buildAIWriterBlockComponentBuilder(
       context,
       configuration,
     ),
-    SmartEditBlockKeys.type: _buildSmartEditBlockComponentBuilder(
+    AskAIBlockKeys.type: _buildAskAIBlockComponentBuilder(
       context,
       configuration,
     ),
@@ -546,33 +546,25 @@ CodeBlockComponentBuilder _buildCodeBlockComponentBuilder(
   EditorStyleCustomizer styleCustomizer,
 ) {
   return CodeBlockComponentBuilder(
-    configuration: configuration.copyWith(
-      textStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
-      placeholderTextStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
-    ),
-    styleBuilder: () => CodeBlockStyle(
-      backgroundColor: AFThemeExtension.of(context).calloutBGColor,
-      foregroundColor: AFThemeExtension.of(context).textColor.withAlpha(155),
-    ),
+    styleBuilder: styleCustomizer.codeBlockStyleBuilder,
     padding: const EdgeInsets.only(left: 20, right: 30, bottom: 34),
     languagePickerBuilder: codeBlockLanguagePickerBuilder,
     copyButtonBuilder: codeBlockCopyBuilder,
-    showLineNumbers: false,
   );
 }
 
-AutoCompletionBlockComponentBuilder _buildAutoCompletionBlockComponentBuilder(
+AIWriterBlockComponentBuilder _buildAIWriterBlockComponentBuilder(
   BuildContext context,
   BlockComponentConfiguration configuration,
 ) {
-  return AutoCompletionBlockComponentBuilder();
+  return AIWriterBlockComponentBuilder();
 }
 
-SmartEditBlockComponentBuilder _buildSmartEditBlockComponentBuilder(
+AskAIBlockComponentBuilder _buildAskAIBlockComponentBuilder(
   BuildContext context,
   BlockComponentConfiguration configuration,
 ) {
-  return SmartEditBlockComponentBuilder();
+  return AskAIBlockComponentBuilder();
 }
 
 ToggleListBlockComponentBuilder _buildToggleListBlockComponentBuilder(

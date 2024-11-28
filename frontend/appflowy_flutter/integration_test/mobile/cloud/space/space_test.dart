@@ -280,7 +280,6 @@ void main() {
       await tester.pumpUntilNotFound(deleteSuccess);
 
       // check the space is deleted
-      await openSpaceMenu(tester);
       final spaceItems4 = find.byType(MobileSpaceMenuItem);
       expect(spaceItems4, findsNWidgets(3));
     });

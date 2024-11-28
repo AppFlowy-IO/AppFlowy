@@ -417,7 +417,7 @@ impl DocumentManager {
   ) -> FlowyResult<CreatedUpload> {
     let storage_service = self.storage_service_upgrade()?;
     let upload = storage_service
-      .create_upload(&workspace_id, document_id, local_file_path, false)
+      .create_upload(&workspace_id, document_id, local_file_path)
       .await?
       .0;
     Ok(upload)
@@ -429,9 +429,9 @@ impl DocumentManager {
     Ok(())
   }
 
-  pub async fn delete_file(&self, local_file_path: String, url: String) -> FlowyResult<()> {
+  pub async fn delete_file(&self, url: String) -> FlowyResult<()> {
     let storage_service = self.storage_service_upgrade()?;
-    storage_service.delete_object(url, local_file_path)?;
+    storage_service.delete_object(url).await?;
     Ok(())
   }
 

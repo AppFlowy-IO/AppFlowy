@@ -36,6 +36,9 @@ class StoreageNotificationListener {
                     case StorageNotification.FileStorageLimitExceeded:
                       onError?.call(FlowyError.fromBuffer(data));
                       break;
+                    case StorageNotification.SingleFileLimitExceeded:
+                      onError?.call(FlowyError.fromBuffer(data));
+                      break;
                   }
                 } catch (e) {
                   Log.error(

@@ -279,16 +279,10 @@ class _HomePageState extends State<_HomePage> {
     ToastificationType toastType = ToastificationType.success;
     switch (actionType) {
       case UserWorkspaceActionType.open:
-        message = result.fold(
-          (s) {
-            toastType = ToastificationType.success;
-            return LocaleKeys.workspace_openSuccess.tr();
-          },
-          (e) {
-            toastType = ToastificationType.error;
-            return '${LocaleKeys.workspace_openFailed.tr()}: ${e.msg}';
-          },
-        );
+        message = result.onFailure((e) {
+          toastType = ToastificationType.error;
+          return '${LocaleKeys.workspace_openFailed.tr()}: ${e.msg}';
+        });
         break;
       case UserWorkspaceActionType.delete:
         message = result.fold(

@@ -7,11 +7,11 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:nanoid/nanoid.dart';
 
 /// Indicate file source from appflowy document
-const appflowySoruce = "appflowy";
+const appflowySource = "appflowy";
 
 List<ChatFile> fileListFromMessageMetadata(
   Map<String, dynamic>? map,
@@ -66,78 +66,101 @@ ChatFile? chatFileFromMap(Map<String, dynamic>? map) {
   return ChatFile.fromFilePath(filePath);
 }
 
-List<ChatMessageRefSource> messageReferenceSource(String? s) {
-  if (s == null || s.isEmpty || s == "null") {
-    return [];
+class MetadataCollection {
+  MetadataCollection({
+    required this.sources,
+    this.progress,
+  });
+  final List<ChatMessageRefSource> sources;
+  final AIChatProgress? progress;
+}
+
+MetadataCollection parseMetadata(String? s) {
+  if (s == null || s.trim().isEmpty || s.toLowerCase() == "null") {
+    return MetadataCollection(sources: []);
   }
 
   final List<ChatMessageRefSource> metadata = [];
-  try {
-    final metadataJson = jsonDecode(s);
-    if (metadataJson == null) {
-      Log.warn("metadata is null");
-      return [];
-    }
-    // [{"id":null,"name":"The Five Dysfunctions of a Team.pdf","source":"/Users/weidongfu/Desktop/The Five Dysfunctions of a Team.pdf"}]
+  AIChatProgress? progress;
 
-    if (metadataJson is Map<String, dynamic>) {
-      if (metadataJson.isNotEmpty) {
-        metadata.add(ChatMessageRefSource.fromJson(metadataJson));
-      }
-    } else if (metadataJson is List) {
-      metadata.addAll(
-        metadataJson.map(
-          (e) => ChatMessageRefSource.fromJson(e as Map<String, dynamic>),
-        ),
-      );
-    } else {
-      Log.error("Invalid metadata: $metadataJson");
+  try {
+    final dynamic decodedJson = jsonDecode(s);
+    if (decodedJson == null) {
+      return MetadataCollection(sources: []);
     }
-  } catch (e) {
-    Log.error("Failed to parse metadata: $e");
+
+    void processMap(Map<String, dynamic> map) {
+      if (map.containsKey("step") && map["step"] != null) {
+        progress = AIChatProgress.fromJson(map);
+      } else if (map.containsKey("id") && map["id"] != null) {
+        metadata.add(ChatMessageRefSource.fromJson(map));
+      } else {
+        Log.info("Unsupported metadata format: $map");
+      }
+    }
+
+    if (decodedJson is Map<String, dynamic>) {
+      processMap(decodedJson);
+    } else if (decodedJson is List) {
+      for (final element in decodedJson) {
+        if (element is Map<String, dynamic>) {
+          processMap(element);
+        } else {
+          Log.error("Invalid metadata element: $element");
+        }
+      }
+    } else {
+      Log.error("Invalid metadata format: $decodedJson");
+    }
+  } catch (e, stacktrace) {
+    Log.error("Failed to parse metadata: $e, input: $s");
+    Log.debug(stacktrace.toString());
   }
 
-  return metadata;
+  return MetadataCollection(sources: metadata, progress: progress);
 }
 
 Future<List<ChatMessageMetaPB>> metadataPBFromMetadata(
   Map<String, dynamic>? map,
 ) async {
+  if (map == null) return [];
+
   final List<ChatMessageMetaPB> metadata = [];
-  if (map != null) {
-    for (final entry in map.entries) {
-      if (entry.value is ViewActionPage) {
-        if (entry.value.page is ViewPB) {
-          final view = entry.value.page as ViewPB;
-          if (view.layout.isDocumentView) {
-            final payload = OpenDocumentPayloadPB(documentId: view.id);
-            final result = await DocumentEventGetDocumentText(payload).send();
-            result.fold((pb) {
-              metadata.add(
-                ChatMessageMetaPB(
-                  id: view.id,
-                  name: view.name,
-                  data: pb.text,
-                  dataType: ChatMessageMetaTypePB.Txt,
-                  source: appflowySoruce,
-                ),
-              );
-            }, (err) {
-              Log.error('Failed to get document text: $err');
-            });
-          }
-        }
-      } else if (entry.value is ChatFile) {
+
+  for (final value in map.values) {
+    switch (value) {
+      case ViewActionPage(view: final view) when view.layout.isDocumentView:
+        final payload = OpenDocumentPayloadPB(documentId: view.id);
+        await DocumentEventGetDocumentText(payload).send().fold(
+          (pb) {
+            metadata.add(
+              ChatMessageMetaPB(
+                id: view.id,
+                name: view.name,
+                data: pb.text,
+                dataType: ChatMessageMetaTypePB.Txt,
+                source: appflowySource,
+              ),
+            );
+          },
+          (err) => Log.error('Failed to get document text: $err'),
+        );
+        break;
+      case ChatFile(
+          filePath: final filePath,
+          fileName: final fileName,
+          fileType: final fileType,
+        ):
         metadata.add(
           ChatMessageMetaPB(
             id: nanoid(8),
-            name: entry.value.fileName,
-            data: entry.value.filePath,
-            dataType: entry.value.fileType,
-            source: entry.value.filePath,
+            name: fileName,
+            data: filePath,
+            dataType: fileType,
+            source: filePath,
           ),
         );
-      }
+        break;
     }
   }
 

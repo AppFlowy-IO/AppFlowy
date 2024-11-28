@@ -1,5 +1,5 @@
 use collab_database::fields::media_type_option::MediaCellData;
-use collab_database::rows::{Cell, CoverType, RowCover, RowId};
+use collab_database::rows::{Cell, RowCover, RowId};
 use lib_infra::box_any::BoxAny;
 use std::sync::{Arc, Weak};
 use tokio::sync::oneshot;
@@ -1319,34 +1319,6 @@ pub(crate) async fn update_media_cell_handler(
       BoxAny::new(cell_changeset),
     )
     .await?;
-
-  let image_file = params
-    .inserted_files
-    .iter()
-    .find(|file| file.file_type == MediaFileTypePB::Image);
-  let row_meta = database_editor
-    .get_row_meta(&cell_id.view_id, &cell_id.row_id)
-    .await;
-
-  if let (Some(row_meta), Some(file)) = (row_meta, image_file) {
-    let row_meta = row_meta.clone();
-    if row_meta.cover.is_none() {
-      let update_row_meta = UpdateRowMetaParams {
-        id: cell_id.row_id.clone().into(),
-        view_id: cell_id.view_id.clone(),
-        cover: Some(RowCover {
-          data: file.url.clone(),
-          upload_type: file.upload_type.into(),
-          cover_type: CoverType::FileCover,
-        }),
-        ..UpdateRowMetaParams::default()
-      };
-
-      database_editor
-        .update_row_meta(&cell_id.row_id, update_row_meta)
-        .await;
-    }
-  }
 
   Ok(())
 }

@@ -39,5 +39,8 @@ class _ViewTabBarItemState extends State<ViewTabBarItem> {
   }
 
   @override
-  Widget build(BuildContext context) => FlowyText.medium(view.nameOrDefault);
+  Widget build(BuildContext context) => FlowyText.medium(
+        view.nameOrDefault,
+        overflow: TextOverflow.ellipsis,
+      );
 }

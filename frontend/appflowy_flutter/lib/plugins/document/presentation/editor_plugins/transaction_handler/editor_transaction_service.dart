@@ -40,7 +40,7 @@ class EditorTransactionService extends StatefulWidget {
 }
 
 class _EditorTransactionServiceState extends State<EditorTransactionService> {
-  StreamSubscription<(TransactionTime, Transaction)>? transactionSubscription;
+  StreamSubscription<EditorTransactionValue>? transactionSubscription;
 
   bool isUndoRedo = false;
   bool isPaste = false;
@@ -87,7 +87,10 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
       redoCommand.execute(widget.editorState);
     } else if (type == EditorNotificationType.exitEditing &&
         widget.editorState.selection != null) {
-      widget.editorState.selection = null;
+      // If the editor is disposed, we don't need to reset the selection.
+      if (!widget.editorState.isDisposed) {
+        widget.editorState.selection = null;
+      }
     }
   }
 
@@ -128,8 +131,11 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
     return matchingNodes;
   }
 
-  void onEditorTransaction((TransactionTime, Transaction) event) {
-    if (event.$1 == TransactionTime.before) {
+  void onEditorTransaction(EditorTransactionValue event) {
+    final time = event.$1;
+    final transaction = event.$2;
+
+    if (time == TransactionTime.before) {
       return;
     }
 
@@ -142,7 +148,7 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
         handler.type: handler.livesInDelta ? <MentionBlockData>[] : <Node>[],
     };
 
-    for (final op in event.$2.operations) {
+    for (final op in transaction.operations) {
       if (op is InsertOperation) {
         for (final n in op.nodes) {
           for (final handler in _transactionHandlers) {

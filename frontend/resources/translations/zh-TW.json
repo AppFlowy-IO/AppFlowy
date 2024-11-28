@@ -179,7 +179,6 @@
     "aiMistakePrompt": "AI 可能會犯錯，請檢查重要資訊。",
     "clickToMention": "單擊以提及頁面",
     "uploadFile": "上傳 PDF、md 或 txt 檔案以進行聊天",
-    "questionTitle": "想法",
     "questionDetail": "{} 你好！我能為您提供什麼幫助？"
   },
   "trash": {

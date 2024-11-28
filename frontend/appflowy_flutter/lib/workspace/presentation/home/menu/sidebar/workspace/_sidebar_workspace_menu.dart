@@ -3,6 +3,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
@@ -25,7 +26,7 @@ const createWorkspaceButtonKey = ValueKey('createWorkspaceButton');
 @visibleForTesting
 const importNotionButtonKey = ValueKey('importNotinoButton');
 
-class WorkspacesMenu extends StatelessWidget {
+class WorkspacesMenu extends StatefulWidget {
   const WorkspacesMenu({
     super.key,
     required this.userProfile,
@@ -36,6 +37,19 @@ class WorkspacesMenu extends StatelessWidget {
   final UserProfilePB userProfile;
   final UserWorkspacePB currentWorkspace;
   final List<UserWorkspacePB> workspaces;
+
+  @override
+  State<WorkspacesMenu> createState() => _WorkspacesMenuState();
+}
+
+class _WorkspacesMenuState extends State<WorkspacesMenu> {
+  final ValueNotifier<bool> isShowingMoreActions = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    isShowingMoreActions.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,13 +86,14 @@ class WorkspacesMenu extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                for (final workspace in workspaces) ...[
+                for (final workspace in widget.workspaces) ...[
                   WorkspaceMenuItem(
                     key: ValueKey(workspace.workspaceId),
                     workspace: workspace,
-                    userProfile: userProfile,
-                    isSelected:
-                        workspace.workspaceId == currentWorkspace.workspaceId,
+                    userProfile: widget.userProfile,
+                    isSelected: workspace.workspaceId ==
+                        widget.currentWorkspace.workspaceId,
+                    isShowingMoreActions: isShowingMoreActions,
                   ),
                   const VSpace(6.0),
                 ],
@@ -99,12 +114,12 @@ class WorkspacesMenu extends StatelessWidget {
   }
 
   String _getUserInfo() {
-    if (userProfile.email.isNotEmpty) {
-      return userProfile.email;
+    if (widget.userProfile.email.isNotEmpty) {
+      return widget.userProfile.email;
     }
 
-    if (userProfile.name.isNotEmpty) {
-      return userProfile.name;
+    if (widget.userProfile.name.isNotEmpty) {
+      return widget.userProfile.name;
     }
 
     return LocaleKeys.defaultUsername.tr();
@@ -117,11 +132,13 @@ class WorkspaceMenuItem extends StatefulWidget {
     required this.workspace,
     required this.userProfile,
     required this.isSelected,
+    required this.isShowingMoreActions,
   });
 
   final UserProfilePB userProfile;
   final UserWorkspacePB workspace;
   final bool isSelected;
+  final ValueNotifier<bool> isShowingMoreActions;
 
   @override
   State<WorkspaceMenuItem> createState() => _WorkspaceMenuItemState();
@@ -211,7 +228,10 @@ class _WorkspaceMenuItemState extends State<WorkspaceMenuItem> {
                 ),
               );
             },
-            child: WorkspaceMoreActionList(workspace: widget.workspace),
+            child: WorkspaceMoreActionList(
+              workspace: widget.workspace,
+              isShowingMoreActions: widget.isShowingMoreActions,
+            ),
           ),
         const HSpace(8.0),
         if (widget.isSelected) ...[
@@ -278,12 +298,16 @@ class _WorkspaceInfo extends StatelessWidget {
 
   void _openWorkspace(BuildContext context) {
     if (!isSelected) {
+      // close the other tabs before opening another workspace.
+      getIt<TabsBloc>().add(const TabsEvent.closeOtherTabs(''));
+
       Log.info('open workspace: ${workspace.workspaceId}');
       context.read<UserWorkspaceBloc>().add(
             UserWorkspaceEvent.openWorkspace(
               workspace.workspaceId,
             ),
           );
+
       PopoverContainer.of(context).closeAll();
     }
   }

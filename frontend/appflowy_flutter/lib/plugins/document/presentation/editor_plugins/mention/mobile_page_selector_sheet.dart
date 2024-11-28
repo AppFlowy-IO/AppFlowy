@@ -25,8 +25,9 @@ Future<ViewPB?> showPageSelectorSheet(
     showHeader: true,
     showCloseButton: true,
     showDragHandle: true,
-    builder: (context) => Container(
-      margin: const EdgeInsets.only(top: 12.0),
+    useSafeArea: false,
+    backgroundColor: Theme.of(context).colorScheme.surface,
+    builder: (context) => ConstrainedBox(
       constraints: const BoxConstraints(
         maxHeight: 340,
         minHeight: 80,
@@ -112,27 +113,29 @@ class _MobilePageSelectorBodyState extends State<_MobilePageSelectorBody> {
             }
 
             return Flexible(
-              child: ListView(
-                children: filtered
-                    .map(
-                      (view) => FlowyOptionTile.checkbox(
-                        leftIcon: view.icon.value.isNotEmpty
-                            ? EmojiText(
-                                emoji: view.icon.value,
-                                fontSize: 18,
-                                textAlign: TextAlign.center,
-                                lineHeight: 1.3,
-                              )
-                            : FlowySvg(
-                                view.layout.icon,
-                                size: const Size.square(20),
-                              ),
-                        text: view.name,
-                        isSelected: view.id == widget.selectedViewId,
-                        onTap: () => Navigator.of(context).pop(view),
-                      ),
-                    )
-                    .toList(),
+              child: ListView.builder(
+                itemCount: filtered.length,
+                itemBuilder: (context, index) {
+                  final view = filtered.elementAt(index);
+                  return FlowyOptionTile.checkbox(
+                    leftIcon: view.icon.value.isNotEmpty
+                        ? EmojiText(
+                            emoji: view.icon.value,
+                            fontSize: 18,
+                            textAlign: TextAlign.center,
+                            lineHeight: 1.3,
+                          )
+                        : FlowySvg(
+                            view.layout.icon,
+                            size: const Size.square(20),
+                          ),
+                    text: view.name,
+                    showTopBorder: index != 0,
+                    showBottomBorder: false,
+                    isSelected: view.id == widget.selectedViewId,
+                    onTap: () => Navigator.of(context).pop(view),
+                  );
+                },
               ),
             );
           },

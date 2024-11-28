@@ -7,8 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flowy_infra/size.dart';
 
 class FlowyFormTextInput extends StatelessWidget {
-  static EdgeInsets kDefaultTextInputPadding =
-      EdgeInsets.only(bottom: Insets.sm, top: 4);
+  static EdgeInsets kDefaultTextInputPadding = const EdgeInsets.only(bottom: 2);
 
   final String? label;
   final bool? autoFocus;

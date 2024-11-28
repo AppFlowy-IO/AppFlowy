@@ -42,7 +42,7 @@ async fn test_insert_new_upload() {
 
   // select
   let conn = db.get_connection().unwrap();
-  let records = batch_select_upload_file(conn, 100, false).unwrap();
+  let records = batch_select_upload_file(conn, &workspace_id, 100, false).unwrap();
 
   assert_eq!(records.len(), 5);
   // compare the upload id order is the same as upload_ids
@@ -55,7 +55,7 @@ async fn test_insert_new_upload() {
   }
 
   let conn = db.get_connection().unwrap();
-  let records = batch_select_upload_file(conn, 100, false).unwrap();
+  let records = batch_select_upload_file(conn, &workspace_id, 100, false).unwrap();
   assert!(records.is_empty());
 }
 
@@ -153,7 +153,7 @@ pub async fn create_upload_file_record(
   local_file_path: String,
 ) -> UploadFileTable {
   // Create ChunkedBytes from file
-  let chunked_bytes = ChunkedBytes::from_file(&local_file_path, MIN_CHUNK_SIZE as i32)
+  let chunked_bytes = ChunkedBytes::from_file(&local_file_path, MIN_CHUNK_SIZE)
     .await
     .unwrap();
 
@@ -162,8 +162,17 @@ pub async fn create_upload_file_record(
     .first_or_octet_stream()
     .to_string();
 
+  // let mut file_path = temp_dir();
+  // file_path.push("test_large_file_with_many_chunks");
+  // let mut file = File::create(&file_path).await.unwrap();
+  // file.write_all(&vec![0; 50 * 1024 * 1024]).await.unwrap(); // 50 MB
+  // file.flush().await.unwrap();
+
   // Calculate file ID
-  let file_id = FileId::from_bytes(&chunked_bytes.data, "b".to_string());
+  let file_id = FileId::from_path(&PathBuf::from(&local_file_path))
+    .await
+    .unwrap();
+  let num_chunk = chunked_bytes.total_chunks();
 
   // Create UploadFileTable record
   UploadFileTable {
@@ -174,7 +183,7 @@ pub async fn create_upload_file_record(
     local_file_path,
     content_type,
     chunk_size: MIN_CHUNK_SIZE as i32,
-    num_chunk: chunked_bytes.offsets.len() as i32,
+    num_chunk: num_chunk as i32,
     created_at: chrono::Utc::now().timestamp(),
     is_finish: false,
   }
