@@ -61,6 +61,7 @@ export interface AppContextType {
   loadViews?: (variant?: UIVariant) => Promise<View[] | undefined>;
   createSpace?: (payload: CreateSpacePayload) => Promise<string>;
   updateSpace?: (payload: UpdateSpacePayload) => Promise<void>;
+  uploadFile?: (viewId: string, file: File, onProgress?: (n: number) => void) => Promise<string>;
 }
 
 const USER_NO_ACCESS_CODE = [1024, 1012];
@@ -592,6 +593,20 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [currentWorkspaceId, service, loadOutline]);
 
+  const uploadFile = useCallback(async (viewId: string, file: File, onProgress?: (n: number) => void) => {
+    if (!currentWorkspaceId || !service) {
+      throw new Error('No workspace or service found');
+    }
+
+    try {
+      const res = await service.uploadFile(currentWorkspaceId, viewId, file, onProgress);
+
+      return res;
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }, [currentWorkspaceId, service]);
+
   return <AppContext.Provider
     value={{
       currentWorkspaceId,
@@ -628,10 +643,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       setWordCount,
       createSpace,
       updateSpace,
+      uploadFile,
     }}
   >
     {requestAccessOpened ? <RequestAccess /> : children}
-    {openModalViewId && <Suspense><ViewModal
+    {<Suspense><ViewModal
       open={!!openModalViewId}
       viewId={openModalViewId}
       onClose={() => {
@@ -768,6 +784,7 @@ export function useAppHandlers () {
     setWordCount: context.setWordCount,
     createSpace: context.createSpace,
     updateSpace: context.updateSpace,
+    uploadFile: context.uploadFile,
   };
 }
 

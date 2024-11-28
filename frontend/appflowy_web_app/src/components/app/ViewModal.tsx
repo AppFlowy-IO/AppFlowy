@@ -12,20 +12,34 @@ import MoreActions from '@/components/app/header/MoreActions';
 import MovePagePopover from '@/components/app/view-actions/MovePagePopover';
 import { Document } from '@/components/document';
 import RecordNotFound from '@/components/error/RecordNotFound';
-import { Button, Dialog, Divider, IconButton, Tooltip } from '@mui/material';
+import { Button, Dialog, Divider, IconButton, Tooltip, Zoom } from '@mui/material';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as ExpandMoreIcon } from '$icons/16x/full_view.svg';
 import ShareButton from 'src/components/app/share/ShareButton';
 import { ReactComponent as CloseIcon } from '@/assets/close.svg';
 import { ReactComponent as ArrowRightIcon } from '@/assets/arrow_right.svg';
+import { TransitionProps } from '@mui/material/transitions';
+
+const Transition = React.forwardRef(function Transition (
+  props: TransitionProps & {
+    children: React.ReactElement;
+  },
+  ref: React.Ref<unknown>,
+) {
+  return <Zoom
+
+    ref={ref}
+    {...props}
+  />;
+});
 
 function ViewModal ({
   viewId,
   open,
   onClose,
 }: {
-  viewId: string;
+  viewId?: string;
   open: boolean;
   onClose: () => void;
 }) {
@@ -41,6 +55,7 @@ function ViewModal ({
     openPageModal,
     loadViews,
     setWordCount,
+    uploadFile,
   } = useAppHandlers();
   const outline = useAppOutline();
   const [doc, setDoc] = React.useState<YDoc | undefined>(undefined);
@@ -84,7 +99,13 @@ function ViewModal ({
       extra: view.extra,
     } : null;
   }, [view]);
+  const handleUploadFile = useCallback((file: File) => {
+    if (view && uploadFile) {
+      return uploadFile(view.view_id, file);
+    }
 
+    return Promise.reject();
+  }, [uploadFile, view]);
   const [movePopoverAnchorEl, setMovePopoverAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const onMoved = useCallback(() => {
@@ -92,6 +113,7 @@ function ViewModal ({
   }, []);
 
   const modalTitle = useMemo(() => {
+    if (!viewId) return null;
     const space = findAncestors(outline || [], viewId)?.find(item => item.extra?.is_space);
 
     return (
@@ -100,10 +122,9 @@ function ViewModal ({
           <Tooltip title={t('tooltip.openAsPage')}>
             <IconButton
               size={'small'}
-              onClick={() => {
+              onClick={async () => {
+                await toView(viewId);
                 onClose();
-
-                void toView(viewId);
               }}
             >
               <ExpandMoreIcon className={'text-text-title opacity-80 h-5 w-5'} />
@@ -172,7 +193,6 @@ function ViewModal ({
   }, [layout]) as React.FC<ViewComponentProps>;
 
   const viewDom = useMemo(() => {
-
     if (!doc || !viewMeta) return null;
     return <View
       doc={doc}
@@ -188,14 +208,16 @@ function ViewModal ({
       openPageModal={openPageModal}
       loadViews={loadViews}
       onWordCountChange={setWordCount}
+      uploadFile={handleUploadFile}
     />;
-  }, [openPageModal, setWordCount, loadViews, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, loadView, updatePage, addPage, deletePage]);
+  }, [openPageModal, handleUploadFile, setWordCount, loadViews, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, loadView, updatePage, addPage, deletePage]);
 
   return (
     <Dialog
       open={open}
       onClose={onClose}
       fullWidth={true}
+      TransitionComponent={Transition}
       PaperProps={{
         className: `max-w-[70vw] w-[1188px] flex flex-col h-[80vh] appflowy-scroller`,
       }}
@@ -208,13 +230,14 @@ function ViewModal ({
           {viewDom}
         </div>
       )}
-      <MovePagePopover
+      {viewId && <MovePagePopover
         viewId={viewId}
         open={Boolean(movePopoverAnchorEl)}
         anchorEl={movePopoverAnchorEl}
         onClose={() => setMovePopoverAnchorEl(null)}
         onMoved={onMoved}
-      />
+      />}
+
     </Dialog>
   );
 }

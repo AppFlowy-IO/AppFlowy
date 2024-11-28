@@ -112,6 +112,11 @@
 .block-element[data-block-type="todo_list"] .checked > .text-element .text-content {
   text-decoration: line-through;
   color: var(--text-caption);
+
+  .mention-content {
+    color: var(--text-caption);
+    text-decoration: line-through;
+  }
 }
 
 .block-element .collapsed .block-element {
@@ -286,6 +291,8 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   height: inherit;
   overflow: hidden;
   @apply inline-flex gap-1 relative truncate max-w-full;
+  text-underline-offset: 1px;
+  text-underline-position: under;
 
   .mention-icon {
     @apply absolute top-1/2 transform -translate-y-1/2;
@@ -381,38 +388,44 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 
 .toggle-heading {
   &.level-1 {
+    @apply py-[8px];
     > .text-element {
-      @apply text-[1.75rem] max-md:text-[24px] pt-[10px] max-md:pt-[1.5vw] pb-[4px] max-md:pb-[1vw] font-bold;
+      @apply text-[1.75rem] max-md:text-[24px] font-bold;
     }
   }
 
   &.level-2 {
+    @apply py-[6px];
     > .text-element {
-      @apply text-[1.55rem] max-md:text-[22px] pt-[8px] max-md:pt-[1vw] pb-[2px] max-md:pb-[0.5vw] font-bold;
+      @apply text-[1.55rem] max-md:text-[22px] font-bold;
     }
   }
 
   &.level-3 {
+    @apply py-[4px];
     > .text-element {
-      @apply text-[1.35rem] max-md:text-[20px] pt-[4px] font-bold;
+      @apply text-[1.35rem] max-md:text-[20px] font-bold;
     }
   }
 
   &.level-4 {
+    @apply py-[4px];
     > .text-element {
-      @apply text-[1.25rem] max-md:text-[16px] pt-[4px] font-bold;
+      @apply text-[1.25rem] max-md:text-[16px] font-bold;
     }
   }
 
   &.level-5 {
+    @apply py-[2px];
     > .text-element {
-      @apply text-[1.15rem] pt-[4px] font-bold;
+      @apply text-[1.15rem] font-bold;
     }
   }
 
   &.level-6 {
+    @apply py-[2px];
     > .text-element {
-      @apply text-[1.05rem] pt-[4px] font-bold;
+      @apply text-[1.05rem] font-bold;
     }
   }
 }

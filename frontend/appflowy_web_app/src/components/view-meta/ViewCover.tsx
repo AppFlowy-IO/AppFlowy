@@ -1,10 +1,8 @@
 import { ViewMetaCover } from '@/application/types';
 import ImageRender from '@/components/_shared/image-render/ImageRender';
 import { renderColor } from '@/utils/color';
-import { PopoverProps } from '@mui/material/Popover';
 import React, { lazy, useCallback, useRef, useState, Suspense } from 'react';
 
-const CoverPopover = lazy(() => import('@/components/view-meta/CoverPopover'));
 const ViewCoverActions = lazy(() => import('@/components/view-meta/ViewCoverActions'));
 
 function ViewCover ({ coverValue, coverType, onUpdateCover, onRemoveCover, readOnly = true }: {
@@ -39,17 +37,8 @@ function ViewCover ({ coverValue, coverType, onUpdateCover, onRemoveCover, readO
   }, []);
 
   const [showAction, setShowAction] = useState(false);
-  const [anchorPosition, setAnchorPosition] = useState<PopoverProps['anchorPosition']>(undefined);
-  const showPopover = Boolean(anchorPosition);
-  const actionRef = useRef<HTMLDivElement>(null);
 
-  const handleClickChange = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
-    if (readOnly) return;
-    setAnchorPosition({
-      top: event.clientY,
-      left: event.clientX,
-    });
-  }, [readOnly]);
+  const actionRef = useRef<HTMLDivElement>(null);
 
   if (!coverType || !coverValue) {
     return null;
@@ -71,24 +60,15 @@ function ViewCover ({ coverValue, coverType, onUpdateCover, onRemoveCover, readO
     >
       {coverType === 'color' && renderCoverColor(coverValue)}
       {(coverType === 'custom' || coverType === 'built_in') && renderCoverImage(coverValue)}
-      <Suspense>
+      {!readOnly && <Suspense>
         <ViewCoverActions
           show={showAction}
           ref={actionRef}
-          onRemove={onRemoveCover}
-          onClick={handleClickChange}
-        />
-        {showPopover && <CoverPopover
-          anchorPosition={anchorPosition}
-          open={
-            showPopover
-          }
-          onClose={
-            () => setAnchorPosition(undefined)
-          }
           onUpdateCover={onUpdateCover}
-        />}
+          onRemove={onRemoveCover}
+        />
       </Suspense>
+      }
 
     </div>
   );

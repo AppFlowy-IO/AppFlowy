@@ -1,4 +1,4 @@
-import { DatabaseContext, useRowMetaSelector } from '@/application/database-yjs';
+import { DatabaseContext, useDatabaseViewId, useRowMetaSelector } from '@/application/database-yjs';
 import { TextCell as CellType, CellProps } from '@/application/database-yjs/cell.type';
 import { TextCell } from '@/components/database/components/cell/text';
 import OpenAction from '@/components/database/components/database-row/OpenAction';
@@ -14,11 +14,12 @@ export function PrimaryCell (props: CellProps<CellType> & {
   const navigateToRow = useContext(DatabaseContext)?.navigateToRow;
   const hasDocument = meta?.isEmptyDocument === false;
   const icon = meta?.icon;
+  const viewId = useDatabaseViewId();
 
   const [hover, setHover] = useState(false);
 
   useEffect(() => {
-    const table = document.querySelector('.grid-table');
+    const table = document.querySelector(`.grid-table-${viewId}`);
 
     if (!table) {
       return;
@@ -44,7 +45,7 @@ export function PrimaryCell (props: CellProps<CellType> & {
       table.removeEventListener('mousemove', onMouseMove);
       table.removeEventListener('mouseleave', onMouseLeave);
     };
-  }, [rowId]);
+  }, [rowId, viewId]);
 
   const isMobile = useMemo(() => {
     return getPlatform()?.isMobile;

@@ -43,6 +43,7 @@ export function MentionPanel () {
     viewId,
     loadViews,
     addPage,
+    openPageModal,
   } = useEditorContext();
   const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
@@ -153,10 +154,11 @@ export function MentionPanel () {
       const newViewId = await addPage(viewId, { name: searchText, layout: ViewLayout.Document });
 
       handleSelectedPage(newViewId, type);
+      openPageModal?.(newViewId);
     } catch (e) {
       console.error(e);
     }
-  }, [addPage, searchText, handleSelectedPage, viewId]);
+  }, [addPage, searchText, handleSelectedPage, viewId, openPageModal]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

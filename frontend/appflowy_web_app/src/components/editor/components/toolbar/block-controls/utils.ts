@@ -25,9 +25,11 @@ export function getBlockActionsPosition (editor: ReactEditor, blockElement: HTML
 }
 
 export function getBlockCssProperty (node: Element) {
+  if ((node as HeadingNode).data.level) {
+    return `${getHeadingCssProperty((node as HeadingNode).data.level)} mt-[3px]`;
+  }
+
   switch (node.type) {
-    case BlockType.HeadingBlock:
-      return `${getHeadingCssProperty((node as HeadingNode).data.level)} mt-[3px]`;
     case BlockType.CodeBlock:
     case BlockType.OutlineBlock:
       return 'my-2';
