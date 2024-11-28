@@ -6,7 +6,10 @@ import { useTranslation } from 'react-i18next';
 export const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
 export const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
 
-export function UploadImage ({ onDone }: { onDone?: (url: string) => void }) {
+export function UploadImage ({ onDone, uploadAction }: {
+  onDone?: (url: string) => void;
+  uploadAction?: (file: File) => Promise<string>
+}) {
   const { t } = useTranslation();
   const handleFileChange = useCallback(async (files: File[]) => {
     const file = files[0];
@@ -19,9 +22,22 @@ export function UploadImage ({ onDone }: { onDone?: (url: string) => void }) {
       return;
     }
 
-    onDone?.(URL.createObjectURL(file));
+    try {
+      const url = await uploadAction?.(file);
 
-  }, [onDone]);
+      if (!url) {
+        onDone?.(URL.createObjectURL(file));
+        return;
+      }
+
+      onDone?.(url);
+      // eslint-disable-next-line
+    } catch (e: any) {
+      notify.error(e.message);
+      onDone?.(URL.createObjectURL(file));
+    }
+
+  }, [onDone, uploadAction]);
 
   return (
     <div className={'px-4 pb-4'}>

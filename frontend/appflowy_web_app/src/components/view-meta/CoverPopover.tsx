@@ -1,4 +1,5 @@
 import { CoverType, ViewMetaCover } from '@/application/types';
+import { useAppHandlers, useAppViewId, useOpenModalViewId } from '@/components/app/app.hooks';
 import React, { useMemo } from 'react';
 import { PopoverOrigin, PopoverProps } from '@mui/material/Popover';
 import { EmbedLink, Unsplash, UploadTabs, TabOption, TAB_KEY, UploadImage } from '@/components/_shared/image-upload';
@@ -31,6 +32,13 @@ function CoverPopover ({
   onUpdateCover?: (cover: ViewMetaCover) => void;
 }) {
   const { t } = useTranslation();
+  const {
+    uploadFile,
+  } = useAppHandlers();
+  const appViewId = useAppViewId();
+  const modalViewId = useOpenModalViewId();
+  const viewId = modalViewId || appViewId;
+
   const tabOptions: TabOption[] = useMemo(() => {
     return [
       {
@@ -48,6 +56,10 @@ function CoverPopover ({
         label: t('button.upload'),
         key: TAB_KEY.UPLOAD,
         Component: UploadImage,
+        uploadAction: (file: File) => {
+          if (!viewId || !uploadFile) return Promise.reject();
+          return uploadFile(viewId, file);
+        },
         onDone: (value: string) => {
           onUpdateCover?.({
             type: CoverType.CustomImage,
@@ -80,7 +92,7 @@ function CoverPopover ({
         },
       },
     ];
-  }, [onClose, onUpdateCover, t]);
+  }, [onClose, onUpdateCover, t, uploadFile, viewId]);
 
   return (
     <UploadTabs

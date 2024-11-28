@@ -620,14 +620,11 @@ export function deleteRangeInBlock (
 ) {
   const textId = getTextIdFromSlateNode(block);
 
-  if (!textId) {
-    throw new Error('Text id not found');
+  if (textId) {
+    const yText = getText(textId, sharedRoot);
+
+    yText.delete(start, end - start);
   }
-
-  const yText = getText(textId, sharedRoot);
-
-  yText.delete(start, end - start);
-
 }
 
 export function mergeBlocks (
@@ -639,7 +636,7 @@ export function mergeBlocks (
   const targetTextId = getTextIdFromSlateNode(targetBlock);
 
   if (!sourceTextId || !targetTextId) {
-    throw new Error('Text id not found');
+    return;
   }
 
   const sourceYText = getText(sourceTextId, sharedRoot);
@@ -899,7 +896,9 @@ function deepCopyChildren (sharedRoot: YSharedRoot, sourceArray: Y.Array<string>
       const sourceText = getText(sourceChild.get(YjsEditorKey.block_external_id), sharedRoot);
       const targetText = getText(newChild.get(YjsEditorKey.block_external_id), sharedRoot);
 
-      targetText.applyDelta(sourceText.toDelta());
+      if (sourceText && targetText) {
+        targetText.applyDelta(sourceText.toDelta());
+      }
 
       const sourceChildrenArray = getChildrenArray(childId, sharedRoot);
 
@@ -1049,7 +1048,18 @@ export function handleMergeBlockBackwardWithTxn (editor: YjsEditor, node: Elemen
   const sharedRoot = getSharedRoot(editor);
 
   try {
-    const prevPoint = Editor.before(editor, point);
+    const prevText = Editor.previous(editor, {
+      at: point,
+      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.textId !== undefined,
+      voids: true,
+    });
+
+    if (!prevText) {
+      return;
+    }
+
+    const [, prevPath] = prevText as NodeEntry<Element>;
+    const prevPoint = Editor.end(editor, prevPath);
 
     if (!prevPoint) {
       throw new Error('prevPoint not found');
@@ -1067,7 +1077,7 @@ export function handleMergeBlockBackwardWithTxn (editor: YjsEditor, node: Elemen
     const [targetNode] = target as NodeEntry<Element>;
 
     operations.push(() => {
-      Transforms.move(editor, { distance: 1, reverse: true });
+      Transforms.select(editor, prevPoint);
       mergeBlocks(sharedRoot, node, targetNode);
     });
   } catch (e) {

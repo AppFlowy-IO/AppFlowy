@@ -11,6 +11,7 @@ import { AppContext, useAppHandlers, useAppOutline, useAppViewId } from '@/compo
 import DatabaseView from '@/components/app/DatabaseView';
 import { Document } from '@/components/document';
 import RecordNotFound from '@/components/error/RecordNotFound';
+import { getPlatform } from '@/utils/platform';
 import React, { lazy, memo, Suspense, useCallback, useContext, useEffect, useMemo } from 'react';
 
 const ViewHelmet = lazy(() => import('@/components/_shared/helmet/ViewHelmet'));
@@ -31,6 +32,7 @@ function AppPage () {
     openPageModal,
     loadViews,
     setWordCount,
+    uploadFile,
   } = useAppHandlers();
   const view = useMemo(() => {
     if (!outline || !viewId) return;
@@ -95,12 +97,21 @@ function AppPage () {
     } : null;
   }, [view]);
 
+  const handleUploadFile = useCallback((file: File) => {
+    if (view && uploadFile) {
+      return uploadFile(view.view_id, file);
+    }
+
+    return Promise.reject();
+  }, [uploadFile, view]);
+
   const viewDom = useMemo(() => {
+    const isMobile = getPlatform().isMobile;
 
     return doc && viewMeta && View ? (
       <View
         doc={doc}
-        readOnly={false}
+        readOnly={Boolean(isMobile)}
         viewMeta={viewMeta}
         navigateToView={toView}
         loadViewMeta={loadViewMeta}
@@ -114,9 +125,10 @@ function AppPage () {
         openPageModal={openPageModal}
         loadViews={loadViews}
         onWordCountChange={setWordCount}
+        uploadFile={handleUploadFile}
       />
     ) : null;
-  }, [addPage, loadViews, setWordCount, openPageModal, deletePage, updatePage, onRendered, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, appendBreadcrumb, loadView]);
+  }, [addPage, handleUploadFile, loadViews, setWordCount, openPageModal, deletePage, updatePage, onRendered, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, appendBreadcrumb, loadView]);
 
   useEffect(() => {
     if (!View || !viewId || !doc) return;

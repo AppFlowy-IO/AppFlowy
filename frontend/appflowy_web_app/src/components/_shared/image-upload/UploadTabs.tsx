@@ -17,8 +17,10 @@ export type TabOption = {
   Component: React.ComponentType<{
     onDone?: (value: string) => void;
     onEscape?: () => void;
+    uploadAction?: (file: File) => Promise<string>;
   }>;
   onDone?: (value: string) => void;
+  uploadAction?: (file: File) => Promise<string>;
 };
 
 export function UploadTabs ({
@@ -99,7 +101,7 @@ export function UploadTabs ({
     >
       <div
         style={containerStyle}
-        className={'flex flex-col min-w-[600px] gap-4 overflow-hidden'}
+        className={'flex flex-col min-w-[600px] max-md:min-w-full gap-4 overflow-hidden'}
       >
         <div className={'flex w-full pt-1 items-center justify-center gap-2 border-b border-line-divider'}>
           <ViewTabs
@@ -149,6 +151,7 @@ export function UploadTabs ({
                 >
                   <Component
                     onDone={onDone}
+                    uploadAction={tab.uploadAction}
                     onEscape={() => popoverProps?.onClose?.({}, 'escapeKeyDown')}
                   />
                 </TabPanel>

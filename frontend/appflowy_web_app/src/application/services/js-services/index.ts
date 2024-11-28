@@ -512,4 +512,8 @@ export class AFClientService implements AFService {
   async movePage (workspaceId: string, viewId: string, parentId: string) {
     return APIService.movePageTo(workspaceId, viewId, parentId);
   }
+
+  async uploadFile (workspaceId: string, viewId: string, file: File, onProgress?: (progress: number) => void) {
+    return APIService.uploadFile(workspaceId, viewId, file, onProgress);
+  }
 }

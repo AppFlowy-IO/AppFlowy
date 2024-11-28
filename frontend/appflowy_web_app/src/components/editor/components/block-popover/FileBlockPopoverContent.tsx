@@ -5,6 +5,7 @@ import { FieldURLType, FileBlockData } from '@/application/types';
 import FileDropzone from '@/components/_shared/file-dropzone/FileDropzone';
 import { notify } from '@/components/_shared/notify';
 import { TabPanel, ViewTab, ViewTabs } from '@/components/_shared/tabs/ViewTabs';
+import { useEditorContext } from '@/components/editor/EditorContext';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSlateStatic } from 'slate-react';
@@ -27,7 +28,7 @@ function FileBlockPopoverContent ({
 }) {
 
   const editor = useSlateStatic() as YjsEditor;
-
+  const { uploadFile } = useEditorContext();
   const entry = useMemo(() => {
     try {
       return findSlateEntryByBlockId(editor, blockId);
@@ -54,7 +55,7 @@ function FileBlockPopoverContent ({
     onClose();
   }, [blockId, editor, onClose]);
 
-  const handleChangeUploadFile = useCallback((files: File[]) => {
+  const handleChangeUploadFile = useCallback(async (files: File[]) => {
     const file = files[0];
 
     if (!file) return;
@@ -65,16 +66,27 @@ function FileBlockPopoverContent ({
       return;
     }
 
-    const url = URL.createObjectURL(file);
+    let url = URL.createObjectURL(file);
+
+    try {
+      if (uploadFile) {
+        url = await uploadFile(file);
+      }
+      // eslint-disable-next-line
+    } catch (e: any) {
+      notify.error(e.message);
+
+      return;
+    }
 
     CustomEditor.setBlockData(editor, blockId, {
       url,
-      name: getFileName(url),
+      name: file.name,
       uploaded_at: Date.now(),
       url_type: FieldURLType.Upload,
     } as FileBlockData);
     onClose();
-  }, [blockId, onClose, editor]);
+  }, [editor, blockId, onClose, uploadFile]);
 
   const tabOptions = useMemo(() => {
     return [

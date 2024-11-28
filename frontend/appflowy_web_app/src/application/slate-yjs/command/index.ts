@@ -479,6 +479,40 @@ export const CustomEditor = {
     return marks ? !!marks[key] : false;
   },
 
+  addChildBlock (editor: YjsEditor, blockId: string, type: BlockType, data: BlockData) {
+    const sharedRoot = getSharedRoot(editor);
+    const parent = getBlock(blockId, sharedRoot);
+
+    if (!parent) {
+      console.warn('Parent block not found');
+      return;
+    }
+
+    const newBlockId = addBlock(editor, {
+      ty: type,
+      data,
+    }, parent, 0);
+
+    if (!newBlockId) {
+      console.warn('Failed to add block');
+      return;
+    }
+
+    try {
+      const [, path] = findSlateEntryByBlockId(editor, newBlockId);
+
+      if (path) {
+        ReactEditor.focus(editor);
+        const point = editor.start(path);
+
+        Transforms.select(editor, point);
+        return newBlockId;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  },
+
   addBlock (editor: YjsEditor, blockId: string, direction: 'below' | 'above', type: BlockType, data: BlockData) {
     const parent = getParent(blockId, editor.sharedRoot);
     const index = getBlockIndex(blockId, editor.sharedRoot);

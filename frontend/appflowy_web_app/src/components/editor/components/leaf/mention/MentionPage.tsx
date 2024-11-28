@@ -10,13 +10,13 @@ import { useEditorContext } from '@/components/editor/EditorContext';
 import { isFlagEmoji } from '@/utils/emoji';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSlateStatic } from 'slate-react';
+import { useReadOnly, useSlateStatic } from 'slate-react';
 
 function MentionPage ({ pageId, blockId, type }: { pageId: string; blockId?: string; type?: MentionType }) {
   const context = useEditorContext();
   const editor = useSlateStatic();
   const currentViewId = context.viewId;
-  const { navigateToView, loadViewMeta, loadView } = context;
+  const { navigateToView, loadViewMeta, loadView, openPageModal } = context;
   const [noAccess, setNoAccess] = useState(false);
   const [meta, setMeta] = useState<View | null>(null);
   const [content, setContent] = useState<string>('');
@@ -111,11 +111,18 @@ function MentionPage ({ pageId, blockId, type }: { pageId: string; blockId?: str
     </>;
   }, [blockId, currentViewId, icon?.value, meta?.layout, pageId, type]);
 
+  const readOnly = useReadOnly();
+
   return (
     <span
       onClick={(e) => {
         e.stopPropagation();
-        void navigateToView?.(pageId, blockId);
+        if (readOnly) {
+
+          void navigateToView?.(pageId, blockId);
+        } else {
+          openPageModal?.(pageId);
+        }
       }}
       className={`mention-inline cursor-pointer pr-1 underline`}
       contentEditable={false}

@@ -83,6 +83,7 @@ export interface AppService {
   moveToTrash: (workspaceId: string, viewId: string) => Promise<void>;
   restoreFromTrash: (workspaceId: string, viewId?: string) => Promise<void>;
   movePage: (workspaceId: string, viewId: string, parentId: string) => Promise<void>;
+  uploadFile: (workspaceId: string, viewId: string, file: File, onProgress?: (progress: number) => void) => Promise<string>;
 }
 
 export interface TemplateService {

@@ -1365,3 +1365,37 @@ export async function updateSpace (workspaceId: string, payload: UpdateSpacePayl
 
   return Promise.reject(response?.data);
 }
+
+export async function uploadFile (workspaceId: string, viewId: string, file: File, onProgress?: (progress: number) => void) {
+  const url = `/api/file_storage/${workspaceId}/v1/blob/${viewId}`;
+  const formData = new FormData();
+
+  formData.append('file', file);
+
+  const response = await axiosInstance?.put<{
+    code: number;
+    message: string;
+    data: {
+      file_id: string;
+    }
+  }>(url, file, {
+    onUploadProgress: (progressEvent) => {
+      const { progress = 0 } = progressEvent;
+
+      onProgress?.(progress);
+    },
+    headers: {
+      'Content-Type': file.type,
+    },
+  });
+
+  if (response?.data.code === 0) {
+    const baseURL = axiosInstance?.defaults.baseURL;
+    const url = `${baseURL}/api/file_storage/${workspaceId}/v1/blob/${viewId}/${response?.data.data.file_id}`;
+
+    console.log('Upload file success:', url);
+    return url;
+  }
+
+  return Promise.reject(response?.data);
+}

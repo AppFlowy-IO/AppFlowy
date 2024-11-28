@@ -47,36 +47,51 @@ export function Unsplash ({ onDone, onEscape }: { onDone?: (value: string) => vo
     [onEscape],
   );
 
-  const debounceSearchPhotos = useMemo(() => {
-    return debounce(async (searchValue: string) => {
-      const request = searchValue
-        ? unsplash.search.getPhotos({ query: searchValue ?? undefined, perPage: 32 })
-        : unsplash.photos.list({ perPage: 32 });
+  const loadPhotos = useCallback(async (searchValue: string) => {
+    const pages = 4;
+    const perPage = 30;
+    const requests = Array.from({ length: pages }, (_, i) =>
+      searchValue ? unsplash.search.getPhotos({
+        query: searchValue,
+        perPage,
+        page: i + 1,
+      }) : unsplash.photos.list({ perPage, page: i + 1 }),
+    );
 
-      setError('');
-      setLoading(true);
-      await request.then((result) => {
-        if (result.errors) {
-          setError(result.errors[0]);
-        } else {
-          setPhotos(
-            result.response.results.map((photo) => ({
-              id: photo.id,
-              thumb: photo.urls.thumb,
-              full: photo.urls.full,
-              alt: photo.alt_description,
-              user: {
-                name: photo.user.name,
-                link: photo.user.links.html,
-              },
-            })),
-          );
-        }
+    setError('');
+    setLoading(true);
 
-        setLoading(false);
-      });
-    }, SEARCH_DEBOUNCE_TIME);
+    const results = await Promise.all(requests);
+
+    setLoading(false);
+
+    const photos = results.flatMap((result) => {
+      if (result.errors) {
+        setError(result.errors[0]);
+        return [];
+      }
+
+      return result.response.results.map((photo) => ({
+        id: photo.id,
+        thumb: photo.urls.thumb,
+        full: photo.urls.full,
+        alt: photo.alt_description,
+        user: {
+          name: photo.user.name,
+          link: photo.user.links.html,
+        },
+      }));
+    });
+
+    setPhotos(photos);
+
+    return photos;
+
   }, []);
+
+  const debounceSearchPhotos = useMemo(() => {
+    return debounce(loadPhotos, SEARCH_DEBOUNCE_TIME);
+  }, [loadPhotos]);
 
   useEffect(() => {
     void debounceSearchPhotos(searchValue);
@@ -116,16 +131,7 @@ export function Unsplash ({ onDone, onEscape }: { onDone?: (value: string) => vo
           {photos.length > 0 ? (
             <>
               <div
-                className={`
-        grid 
-        gap-4 
-        w-full
-        grid-cols-1
-        sm:grid-cols-2 
-        md:grid-cols-3 
-        lg:grid-cols-4
-        auto-rows-fr
-      `}
+                className={`grid gap-4 w-full grid-cols-4 max-sm:grid-cols-3`}
               >
                 {photos.map((photo) => (
                   <div
@@ -139,26 +145,19 @@ export function Unsplash ({ onDone, onEscape }: { onDone?: (value: string) => vo
                         }}
                         src={photo.thumb}
                         alt={photo.alt ?? ''}
-                        className={`
-                  absolute top-0 left-0 
-                  w-full h-full 
-                  rounded object-cover 
-                  cursor-pointer
-                  hover:opacity-80 
-                  transition-opacity
-                `}
+                        className={`absolute top-0 left-0 w-[128px] h-full rounded object-cover cursor-pointer hover:opacity-80 transition-opacity`}
                       />
                     </div>
                     <div className={'w-full truncate text-xs text-text-caption'}>
-                      by{' '}
+                      by
                       <span
                         onClick={() => {
                           void open(photo.user.link);
                         }}
-                        className={'underline hover:text-function-info'}
+                        className={'underline cursor-pointer underline-offset-[3px] ml-2 hover:text-function-info'}
                       >
-                {photo.user.name}
-              </span>
+                        {photo.user.name}
+                      </span>
                     </div>
                   </div>
                 ))}

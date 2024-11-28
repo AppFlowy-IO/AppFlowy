@@ -51,6 +51,7 @@ export interface EditorContextState {
   openPageModal?: (viewId: string) => void;
   loadViews?: (variant?: UIVariant) => Promise<View[] | undefined>;
   onWordCountChange?: (viewId: string, props: TextCount) => void;
+  uploadFile?: (file: File) => Promise<string>;
 }
 
 export const EditorContext = createContext<EditorContextState>({
