@@ -472,4 +472,29 @@ extension TableNodeExtension on Node {
   bool get isFirstCellInTable {
     return columnIndex == 0 && rowIndex == 0;
   }
+
+  /// Get the table cell node by the row index and column index.
+  ///
+  /// If the current node is not a table cell node, it will return null.
+  /// Or if the row index or column index is out of range, it will return null.
+  Node? getTableCellNode({
+    required int rowIndex,
+    required int columnIndex,
+  }) {
+    assert(type == SimpleTableBlockKeys.type);
+
+    if (type != SimpleTableBlockKeys.type) {
+      return null;
+    }
+
+    if (rowIndex < 0 || rowIndex >= rowLength) {
+      return null;
+    }
+
+    if (columnIndex < 0 || columnIndex >= columnLength) {
+      return null;
+    }
+
+    return children[rowIndex].children[columnIndex];
+  }
 }

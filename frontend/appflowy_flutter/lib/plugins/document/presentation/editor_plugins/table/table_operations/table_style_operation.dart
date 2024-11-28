@@ -65,20 +65,21 @@ extension TableOptionOperation on EditorState {
       return;
     }
 
-    final cellPosition = tableCellNode.cellPosition;
-    final rowIndex = cellPosition.$2;
+    final columnIndex = tableCellNode.columnIndex;
     final parentTableNode = tableCellNode.parentTableNode;
     if (parentTableNode == null) {
       Log.warn('parent table node is null');
       return;
     }
 
-    final width = tableCellNode.columnWidth;
     final transaction = this.transaction;
+    final columnWidths =
+        parentTableNode.attributes[SimpleTableBlockKeys.columnWidths] ??
+            SimpleTableColumnWidthMap();
     transaction.updateNode(parentTableNode, {
       SimpleTableBlockKeys.columnWidths: {
-        ...parentTableNode.attributes[SimpleTableBlockKeys.columnWidths],
-        rowIndex.toString(): width.clamp(
+        ...columnWidths,
+        columnIndex.toString(): width.clamp(
           SimpleTableConstants.minimumColumnWidth,
           double.infinity,
         ),

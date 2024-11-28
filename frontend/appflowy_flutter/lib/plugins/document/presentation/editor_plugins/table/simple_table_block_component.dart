@@ -61,15 +61,6 @@ Node simpleTableBlockNode({
 }) {
   assert(children.every((e) => e.type == SimpleTableRowBlockKeys.type));
 
-  // if the column widths is not provided, we will use the default value 100
-  columnWidths ??= Map.fromEntries(
-    Iterable.generate(
-      children.first.children.length,
-      (index) =>
-          MapEntry(index.toString(), SimpleTableConstants.defaultColumnWidth),
-    ),
-  );
-
   return Node(
     type: SimpleTableBlockKeys.type,
     attributes: {
