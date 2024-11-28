@@ -19,8 +19,8 @@ enum SimpleTableMoreActionType {
     switch (this) {
       case SimpleTableMoreActionType.row:
         return [
-          SimpleTableMoreAction.addAbove,
-          SimpleTableMoreAction.addBelow,
+          SimpleTableMoreAction.insertAbove,
+          SimpleTableMoreAction.insertBelow,
           SimpleTableMoreAction.duplicate,
           SimpleTableMoreAction.clearContents,
           SimpleTableMoreAction.delete,
@@ -30,8 +30,8 @@ enum SimpleTableMoreActionType {
         ];
       case SimpleTableMoreActionType.column:
         return [
-          SimpleTableMoreAction.addLeft,
-          SimpleTableMoreAction.addRight,
+          SimpleTableMoreAction.insertLeft,
+          SimpleTableMoreAction.insertRight,
           SimpleTableMoreAction.duplicate,
           SimpleTableMoreAction.clearContents,
           SimpleTableMoreAction.delete,
@@ -53,10 +53,10 @@ enum SimpleTableMoreActionType {
 }
 
 enum SimpleTableMoreAction {
-  addLeft,
-  addRight,
-  addAbove,
-  addBelow,
+  insertLeft,
+  insertRight,
+  insertAbove,
+  insertBelow,
   duplicate,
   clearContents,
   delete,
@@ -76,14 +76,14 @@ enum SimpleTableMoreAction {
         LocaleKeys.document_plugins_simpleTable_moreActions_headerColumn.tr(),
       SimpleTableMoreAction.enableHeaderRow =>
         LocaleKeys.document_plugins_simpleTable_moreActions_headerRow.tr(),
-      SimpleTableMoreAction.addLeft =>
-        LocaleKeys.document_plugins_simpleTable_clickToAddNewColumn.tr(),
-      SimpleTableMoreAction.addRight =>
-        LocaleKeys.document_plugins_simpleTable_clickToAddNewColumn.tr(),
-      SimpleTableMoreAction.addBelow =>
-        LocaleKeys.document_plugins_simpleTable_clickToAddNewRow.tr(),
-      SimpleTableMoreAction.addAbove =>
-        LocaleKeys.document_plugins_simpleTable_clickToAddNewRow.tr(),
+      SimpleTableMoreAction.insertLeft =>
+        LocaleKeys.document_plugins_simpleTable_moreActions_insertLeft.tr(),
+      SimpleTableMoreAction.insertRight =>
+        LocaleKeys.document_plugins_simpleTable_moreActions_insertRight.tr(),
+      SimpleTableMoreAction.insertBelow =>
+        LocaleKeys.document_plugins_simpleTable_moreActions_insertBelow.tr(),
+      SimpleTableMoreAction.insertAbove =>
+        LocaleKeys.document_plugins_simpleTable_moreActions_insertAbove.tr(),
       SimpleTableMoreAction.clearContents =>
         LocaleKeys.document_plugins_simpleTable_moreActions_clearContents.tr(),
       SimpleTableMoreAction.delete =>
@@ -96,10 +96,10 @@ enum SimpleTableMoreAction {
 
   FlowySvgData get leftIconSvg {
     return switch (this) {
-      SimpleTableMoreAction.addLeft => FlowySvgs.table_insert_left_s,
-      SimpleTableMoreAction.addRight => FlowySvgs.table_insert_right_s,
-      SimpleTableMoreAction.addAbove => FlowySvgs.table_insert_above_s,
-      SimpleTableMoreAction.addBelow => FlowySvgs.table_insert_below_s,
+      SimpleTableMoreAction.insertLeft => FlowySvgs.table_insert_left_s,
+      SimpleTableMoreAction.insertRight => FlowySvgs.table_insert_right_s,
+      SimpleTableMoreAction.insertAbove => FlowySvgs.table_insert_above_s,
+      SimpleTableMoreAction.insertBelow => FlowySvgs.table_insert_below_s,
       SimpleTableMoreAction.duplicate => FlowySvgs.duplicate_s,
       SimpleTableMoreAction.clearContents => FlowySvgs.table_clear_content_s,
       SimpleTableMoreAction.delete => FlowySvgs.trash_s,
@@ -196,6 +196,37 @@ class SimpleTableMoreActionPopup extends StatefulWidget {
 
 class _SimpleTableMoreActionPopupState
     extends State<SimpleTableMoreActionPopup> {
+  late final editorState = context.read<EditorState>();
+  SelectionGestureInterceptor? gestureInterceptor;
+
+  RenderBox? get renderBox => context.findRenderObject() as RenderBox?;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final tableCellNode =
+        context.read<SimpleTableContext>().hoveringTableCell.value;
+    gestureInterceptor = SelectionGestureInterceptor(
+      key: 'simple_table_more_action_popup_interceptor_${tableCellNode?.id}',
+      canTap: (details) => !_isTapInBounds(details.globalPosition),
+    );
+    editorState.service.selectionService.registerGestureInterceptor(
+      gestureInterceptor!,
+    );
+  }
+
+  @override
+  void dispose() {
+    if (gestureInterceptor != null) {
+      editorState.service.selectionService.unregisterGestureInterceptor(
+        gestureInterceptor!.key,
+      );
+    }
+
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final tableCellNode =
@@ -250,6 +281,19 @@ class _SimpleTableMoreActionPopupState
         type: widget.type,
       ),
     );
+  }
+
+  bool _isTapInBounds(Offset offset) {
+    if (renderBox == null) {
+      return false;
+    }
+
+    final localPosition = renderBox!.globalToLocal(offset);
+    final result = renderBox!.paintBounds.contains(localPosition);
+    if (result) {
+      editorState.selection = null;
+    }
+    return result;
   }
 }
 
@@ -438,16 +482,16 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
             break;
         }
         break;
-      case SimpleTableMoreAction.addLeft:
+      case SimpleTableMoreAction.insertLeft:
         _insertColumnLeft();
         break;
-      case SimpleTableMoreAction.addRight:
+      case SimpleTableMoreAction.insertRight:
         _insertColumnRight();
         break;
-      case SimpleTableMoreAction.addAbove:
+      case SimpleTableMoreAction.insertAbove:
         _insertRowAbove();
         break;
-      case SimpleTableMoreAction.addBelow:
+      case SimpleTableMoreAction.insertBelow:
         _insertRowBelow();
         break;
       case SimpleTableMoreAction.clearContents:
