@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/shared_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_cell_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_row_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -82,6 +83,33 @@ Node simpleTableBlockNode({
     },
     children: children,
   );
+}
+
+/// Create a simple table block node with the given column and row count.
+///
+/// The table will have cells filled with paragraph nodes.
+///
+/// For example, if you want to create a table with 2 columns and 3 rows, you can use:
+/// ```dart
+/// final table = createSimpleTableBlockNode(columnCount: 2, rowCount: 3);
+/// ```
+///
+/// | cell 1 | cell 2 |
+/// | cell 3 | cell 4 |
+/// | cell 5 | cell 6 |
+Node createSimpleTableBlockNode({
+  required int columnCount,
+  required int rowCount,
+}) {
+  final rows = List.generate(rowCount, (_) {
+    final cells = List.generate(
+      columnCount,
+      (_) => simpleTableCellBlockNode(children: [paragraphNode()]),
+    );
+    return simpleTableRowBlockNode(children: cells);
+  });
+
+  return simpleTableBlockNode(children: rows);
 }
 
 class SimpleTableBlockComponentBuilder extends BlockComponentBuilder {

@@ -599,11 +599,6 @@ SelectionMenuItem tableSlashMenuItem = SelectionMenuItem(
       return;
     }
 
-    // final tableNode = TableNode.fromList([
-    //   ['', ''],
-    //   ['', ''],
-    // ]);
-
     final tableNode = simpleTableBlockNode(
       children: [
         simpleTableRowBlockNode(
