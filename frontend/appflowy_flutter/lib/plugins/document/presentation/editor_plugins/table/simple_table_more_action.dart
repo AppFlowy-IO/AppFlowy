@@ -254,8 +254,24 @@ class SimpleTableMoreActionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: _buildActions()
+          .map(
+            (action) => SimpleTableMoreActionItem(
+              type: type,
+              action: action,
+              tableCellNode: tableCellNode,
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  List<SimpleTableMoreAction> _buildActions() {
     final actions = type.actions;
 
+    // if the index is 0, add the divider and enable header action
     if (index == 0) {
       actions.addAll([
         SimpleTableMoreAction.divider,
@@ -266,18 +282,17 @@ class SimpleTableMoreActionList extends StatelessWidget {
       ]);
     }
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: actions
-          .map(
-            (action) => SimpleTableMoreActionItem(
-              type: type,
-              action: action,
-              tableCellNode: tableCellNode,
-            ),
-          )
-          .toList(),
-    );
+    // if the table only contains one row or one column, remove the delete action
+    if (tableCellNode.rowLength == 1 && type == SimpleTableMoreActionType.row) {
+      actions.remove(SimpleTableMoreAction.delete);
+    }
+
+    if (tableCellNode.columnLength == 1 &&
+        type == SimpleTableMoreActionType.column) {
+      actions.remove(SimpleTableMoreAction.delete);
+    }
+
+    return actions;
   }
 }
 
