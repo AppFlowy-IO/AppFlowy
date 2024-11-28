@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/table/tabl
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_node_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 extension TableOptionOperation on EditorState {
   /// Update the column width of the table in memory. Call this function when dragging the table column.
@@ -14,6 +15,11 @@ extension TableOptionOperation on EditorState {
     required Node tableCellNode,
     required double deltaX,
   }) async {
+    // Disable in mobile
+    if (UniversalPlatform.isMobile) {
+      return;
+    }
+
     assert(tableCellNode.type == SimpleTableCellBlockKeys.type);
 
     if (tableCellNode.type != SimpleTableCellBlockKeys.type) {
@@ -59,6 +65,11 @@ extension TableOptionOperation on EditorState {
     required Node tableCellNode,
     required double width,
   }) async {
+    // Disable in mobile
+    if (UniversalPlatform.isMobile) {
+      return;
+    }
+
     assert(tableCellNode.type == SimpleTableCellBlockKeys.type);
 
     if (tableCellNode.type != SimpleTableCellBlockKeys.type) {

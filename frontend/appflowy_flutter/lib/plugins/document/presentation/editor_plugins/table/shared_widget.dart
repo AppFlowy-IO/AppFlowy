@@ -72,9 +72,13 @@ class SimpleTableAddRowHoverButton extends StatelessWidget {
     }
 
     return ValueListenableBuilder(
-      valueListenable: context.read<SimpleTableContext>().isHoveringOnTable,
-      builder: (context, value, child) {
-        return value
+      valueListenable: context.read<SimpleTableContext>().hoveringTableCell,
+      builder: (context, tableCell, child) {
+        if (tableCell == null) {
+          return const SizedBox.shrink();
+        }
+        final showRowButton = tableCell.rowIndex + 1 == tableCell.rowLength;
+        return showRowButton
             ? Positioned(
                 bottom: 0,
                 left: SimpleTableConstants.tableLeftPadding -
@@ -147,9 +151,14 @@ class SimpleTableAddColumnHoverButton extends StatelessWidget {
     }
 
     return ValueListenableBuilder(
-      valueListenable: context.read<SimpleTableContext>().isHoveringOnTable,
-      builder: (context, value, child) {
-        return value
+      valueListenable: context.read<SimpleTableContext>().hoveringTableCell,
+      builder: (context, tableCell, child) {
+        if (tableCell == null) {
+          return const SizedBox.shrink();
+        }
+        final showColumnButton =
+            tableCell.columnIndex + 1 == tableCell.columnLength;
+        return showColumnButton
             ? Positioned(
                 top: SimpleTableConstants.tableTopPadding -
                     SimpleTableConstants.cellBorderWidth,
@@ -224,9 +233,15 @@ class SimpleTableAddColumnAndRowHoverButton extends StatelessWidget {
     }
 
     return ValueListenableBuilder(
-      valueListenable: context.read<SimpleTableContext>().isHoveringOnTable,
-      builder: (context, value, child) {
-        return value
+      valueListenable: context.read<SimpleTableContext>().hoveringTableCell,
+      builder: (context, tableCell, child) {
+        if (tableCell == null) {
+          return const SizedBox.shrink();
+        }
+        final showAddColumnAndRowButton =
+            tableCell.rowIndex + 1 == tableCell.rowLength ||
+                tableCell.columnIndex + 1 == tableCell.columnLength;
+        return showAddColumnAndRowButton
             ? Positioned(
                 bottom: SimpleTableConstants.addRowButtonPadding,
                 right: SimpleTableConstants.addColumnButtonPadding,

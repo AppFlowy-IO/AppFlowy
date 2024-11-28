@@ -161,6 +161,7 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
   final tableKey = GlobalKey();
 
   final simpleTableContext = SimpleTableContext();
+  final scrollController = ScrollController();
 
   @override
   void initState() {
@@ -173,6 +174,7 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
   void dispose() {
     simpleTableContext.dispose();
     editorState.selectionNotifier.removeListener(_onSelectionChanged);
+    scrollController.dispose();
 
     super.dispose();
   }
@@ -220,8 +222,10 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
         },
         child: Stack(
           children: [
-            SingleChildScrollView(
+            Scrollbar(
+              controller: scrollController,
               child: SingleChildScrollView(
+                controller: scrollController,
                 scrollDirection: Axis.horizontal,
                 child: Padding(
                   padding: const EdgeInsets.only(

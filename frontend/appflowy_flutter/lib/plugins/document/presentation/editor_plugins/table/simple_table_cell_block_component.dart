@@ -390,6 +390,8 @@ class _SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   }
 
   void _onSelectingTableChanged() {
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 }
