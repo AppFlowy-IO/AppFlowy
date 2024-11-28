@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -27,6 +28,13 @@ void main() {
 
       // validate the table is inserted
       expect(find.byType(SimpleTableBlockWidget), findsOneWidget);
+
+      final editorState = tester.editor.getCurrentEditorState();
+      expect(
+        editorState.selection,
+        // table -> row -> cell -> paragraph
+        Selection.collapsed(Position(path: [0, 0, 0, 0])),
+      );
     });
   });
 }

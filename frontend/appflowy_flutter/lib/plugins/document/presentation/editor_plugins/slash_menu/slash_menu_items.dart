@@ -612,8 +612,8 @@ SelectionMenuItem tableSlashMenuItem = SelectionMenuItem(
         ..deleteNode(currentNode);
       transaction.afterSelection = Selection.collapsed(
         Position(
-          // the first cell of the table
-          path: path + [0, 0, 0],
+          // table -> row -> cell -> paragraph
+          path: path + [0, 0, 0, 0],
         ),
       );
     } else {
@@ -621,7 +621,8 @@ SelectionMenuItem tableSlashMenuItem = SelectionMenuItem(
       transaction.insertNode(path, tableNode);
       transaction.afterSelection = Selection.collapsed(
         Position(
-          path: path.next + [0, 0, 0],
+          // table -> row -> cell -> paragraph
+          path: path.next + [0, 0, 0, 0],
         ),
       );
     }
