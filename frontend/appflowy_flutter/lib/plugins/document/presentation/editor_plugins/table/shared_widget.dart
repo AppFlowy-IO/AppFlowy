@@ -39,11 +39,12 @@ class SimpleTableReorderButton extends StatelessWidget {
                 color: context.simpleTableMoreActionBorderColor,
               ),
             ),
-            width: 16,
-            height: 16,
+            height: 16.0,
+            width: 16.0,
             child: FlowySvg(
               type.reorderIconSvg,
               color: isShowingMenu ? Colors.white : null,
+              size: const Size.square(16.0),
             ),
           ),
         );
@@ -307,10 +308,12 @@ class SimpleTableAlignMenu extends StatefulWidget {
     super.key,
     required this.type,
     required this.tableCellNode,
+    this.mutex,
   });
 
   final SimpleTableMoreActionType type;
   final Node tableCellNode;
+  final PopoverMutex? mutex;
 
   @override
   State<SimpleTableAlignMenu> createState() => _SimpleTableAlignMenuState();
@@ -328,6 +331,8 @@ class _SimpleTableAlignMenuState extends State<SimpleTableAlignMenu> {
     };
     return AppFlowyPopover(
       controller: controller,
+      asBarrier: true,
+      mutex: widget.mutex,
       child: SimpleTableBasicButton(
         leftIconSvg: align.leftIconSvg,
         text: LocaleKeys.document_plugins_simpleTable_moreActions_align.tr(),
@@ -509,10 +514,12 @@ class SimpleTableBackgroundColorMenu extends StatefulWidget {
     super.key,
     required this.type,
     required this.tableCellNode,
+    this.mutex,
   });
 
   final SimpleTableMoreActionType type;
   final Node tableCellNode;
+  final PopoverMutex? mutex;
 
   @override
   State<SimpleTableBackgroundColorMenu> createState() =>
@@ -534,6 +541,8 @@ class _SimpleTableBackgroundColorMenuState
     };
     return AppFlowyPopover(
       controller: controller,
+      mutex: widget.mutex,
+      asBarrier: true,
       popupBuilder: (_) {
         isOpen = true;
         return _buildColorOptionMenu(

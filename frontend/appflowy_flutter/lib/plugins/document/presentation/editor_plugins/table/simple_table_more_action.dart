@@ -371,6 +371,9 @@ class SimpleTableMoreActionItem extends StatefulWidget {
 }
 
 class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
+  // ensure the background color menu and align menu exclusive
+  final mutex = PopoverMutex();
+
   ValueNotifier<bool> isEnableHeader = ValueNotifier(false);
 
   @override
@@ -416,6 +419,7 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     return SimpleTableAlignMenu(
       type: widget.type,
       tableCellNode: widget.tableCellNode,
+      mutex: mutex,
     );
   }
 
@@ -423,6 +427,7 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     return SimpleTableBackgroundColorMenu(
       type: widget.type,
       tableCellNode: widget.tableCellNode,
+      mutex: mutex,
     );
   }
 
