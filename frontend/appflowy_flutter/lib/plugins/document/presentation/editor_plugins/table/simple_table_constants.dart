@@ -1,15 +1,20 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_node_extension.dart';
 import 'package:appflowy/util/theme_extension.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
+const enableTableDebugLog = false;
+
 class SimpleTableContext {
   SimpleTableContext() {
-    isHoveringOnTable.addListener(_onHoveringOnTableChanged);
-    hoveringTableCell.addListener(_onHoveringTableNodeChanged);
-    selectingColumn.addListener(_onSelectingColumnChanged);
-    selectingRow.addListener(_onSelectingRowChanged);
-    isSelectingTable.addListener(_onSelectingTableChanged);
+    if (enableTableDebugLog) {
+      isHoveringOnTable.addListener(_onHoveringOnTableChanged);
+      hoveringTableCell.addListener(_onHoveringTableNodeChanged);
+      selectingColumn.addListener(_onSelectingColumnChanged);
+      selectingRow.addListener(_onSelectingRowChanged);
+      isSelectingTable.addListener(_onSelectingTableChanged);
+    }
   }
 
   final ValueNotifier<bool> isHoveringOnTable = ValueNotifier(false);
@@ -20,28 +25,48 @@ class SimpleTableContext {
   final ValueNotifier<bool> isSelectingTable = ValueNotifier(false);
 
   void _onHoveringOnTableChanged() {
-    debugPrint('isHoveringOnTable: ${isHoveringOnTable.value}');
+    if (!enableTableDebugLog) {
+      return;
+    }
+
+    Log.debug('isHoveringOnTable: ${isHoveringOnTable.value}');
   }
 
   void _onHoveringTableNodeChanged() {
+    if (!enableTableDebugLog) {
+      return;
+    }
+
     final node = hoveringTableCell.value;
     if (node == null) {
       return;
     }
 
-    debugPrint('hoveringTableNode: $node, ${node.cellPosition}');
+    Log.debug('hoveringTableNode: $node, ${node.cellPosition}');
   }
 
   void _onSelectingColumnChanged() {
-    debugPrint('selectingColumn: ${selectingColumn.value}');
+    if (!enableTableDebugLog) {
+      return;
+    }
+
+    Log.debug('selectingColumn: ${selectingColumn.value}');
   }
 
   void _onSelectingRowChanged() {
-    debugPrint('selectingRow: ${selectingRow.value}');
+    if (!enableTableDebugLog) {
+      return;
+    }
+
+    Log.debug('selectingRow: ${selectingRow.value}');
   }
 
   void _onSelectingTableChanged() {
-    debugPrint('isSelectingTable: ${isSelectingTable.value}');
+    if (!enableTableDebugLog) {
+      return;
+    }
+
+    Log.debug('isSelectingTable: ${isSelectingTable.value}');
   }
 
   void dispose() {
