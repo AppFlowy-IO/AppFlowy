@@ -71,9 +71,11 @@ impl DatabaseViews {
       )
       .await?,
     );
-    let mut editor_map = self.view_editors.write().await;
-    editor_map.insert(view_id.to_owned(), editor.clone());
-    drop(editor_map);
+    let _ = self
+      .view_editors
+      .write()
+      .await
+      .insert(view_id.to_owned(), editor.clone());
     editor.post_init().await?;
     Ok(editor)
   }
