@@ -1,11 +1,12 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_cell_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_row_block_component.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flutter/material.dart';
 
 /// Copy.
 ///
@@ -59,11 +60,12 @@ KeyEventResult handleCopyCommand(
     // plain text.
     text = editorState.getTextInSelection(selection).join('\n');
 
-    final selectedNodes = editorState.getSelectedNodes(selection: selection);
-    final nodes = _handleSubPageNodes(selectedNodes, isCut);
-    final document = Document.blank()..insert([0], nodes);
+    final document = _buildCopiedDocument(
+      editorState,
+      selection,
+      isCut: isCut,
+    );
 
-    // in app json
     inAppJson = jsonEncode(document.toJson());
 
     // html
@@ -81,6 +83,34 @@ KeyEventResult handleCopyCommand(
   }();
 
   return KeyEventResult.handled;
+}
+
+Document _buildCopiedDocument(
+  EditorState editorState,
+  Selection selection, {
+  bool isCut = false,
+}) {
+  // filter the table nodes
+  final filteredNodes = <Node>[];
+  final selectedNodes = editorState.getSelectedNodes(selection: selection);
+  final nodes = _handleSubPageNodes(selectedNodes, isCut);
+  for (final node in nodes) {
+    if (node.type == SimpleTableCellBlockKeys.type) {
+      // if the node is a table cell, we will fetch its children instead.
+      filteredNodes.addAll(node.children);
+    } else if (node.type == SimpleTableRowBlockKeys.type) {
+      // if the node is a table row, we will fetch its children instead.
+      filteredNodes.addAll(node.children.expand((e) => e.children));
+    } else {
+      filteredNodes.add(node);
+    }
+  }
+  final document = Document.blank()
+    ..insert(
+      [0],
+      filteredNodes.map((e) => e.copyWith()),
+    );
+  return document;
 }
 
 List<Node> _handleSubPageNodes(List<Node> nodes, [bool isCut = false]) {

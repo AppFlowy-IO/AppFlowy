@@ -165,6 +165,8 @@ extension TableNodeExtension on Node {
       tableNode = parent;
     } else if (type == SimpleTableCellBlockKeys.type) {
       tableNode = parent?.parent;
+    } else {
+      return parent?.parentTableNode;
     }
 
     if (tableNode == null || tableNode.type != SimpleTableBlockKeys.type) {
