@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/flowy_tab.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
@@ -144,6 +145,93 @@ void main() {
       // Expect second tab to be current page (current page has breadcrumb, cover title,
       //  and in this case view name in sidebar)
       expect(find.text(gettingStarted), findsNWidgets(3));
+    });
+
+    testWidgets('cannot close pinned tabs', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      expect(
+        find.descendant(
+          of: find.byType(TabsManager),
+          matching: find.byType(TabBar),
+        ),
+        findsNothing,
+      );
+
+      await tester.createNewPageWithNameUnderParent(name: _documentName);
+      await tester.createNewPageWithNameUnderParent(name: _documentTwoName);
+
+      // Open second menu item in a new tab
+      await tester.openAppInNewTab(gettingStarted, ViewLayoutPB.Document);
+
+      // Open third menu item in a new tab
+      await tester.openAppInNewTab(_documentName, ViewLayoutPB.Document);
+
+      expect(
+        find.descendant(
+          of: find.byType(TabsManager),
+          matching: find.byType(FlowyTab),
+        ),
+        findsNWidgets(3),
+      );
+
+      final firstTabFinder = find.descendant(
+        of: find.byType(FlowyTab),
+        matching: find.text(_documentTwoName),
+      );
+      final secondTabFinder = find.descendant(
+        of: find.byType(FlowyTab),
+        matching: find.text(gettingStarted),
+      );
+      final thirdTabFinder = find.descendant(
+        of: find.byType(FlowyTab),
+        matching: find.text(_documentName),
+      );
+
+      expect(firstTabFinder, findsOneWidget);
+      expect(secondTabFinder, findsOneWidget);
+      expect(thirdTabFinder, findsOneWidget);
+
+      // We expect not to see the pinned svg
+      expect(find.byFlowySvg(FlowySvgs.pinned_s), findsNothing);
+
+      // Right click on second tab
+      await tester.tap(
+        buttons: kSecondaryButton,
+        find.descendant(
+          of: find.byType(FlowyTab),
+          matching: find.text(gettingStarted),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(TabMenu), findsOneWidget);
+
+      // Pin second tab
+      await tester.tap(find.text(LocaleKeys.tabMenu_pinTab.tr()));
+      await tester.pumpAndSettle();
+
+      // We expect to see the pinned svg
+      expect(find.byFlowySvg(FlowySvgs.pinned_s), findsOneWidget);
+
+      /// Right click on first tab
+      await tester.tap(
+        buttons: kSecondaryButton,
+        find.descendant(
+          of: find.byType(FlowyTab),
+          matching: find.text(_documentTwoName),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Close others than first tab
+      await tester.tap(find.text(LocaleKeys.tabMenu_closeOthers.tr()));
+      await tester.pumpAndSettle();
+
+      // We expect to find 2 tabs, the first tab and the pinned second tab
+      expect(firstTabFinder, findsOneWidget);
+      expect(secondTabFinder, findsOneWidget);
+      expect(thirdTabFinder, findsNothing);
     });
   });
 }

@@ -1983,6 +1983,11 @@
       "title": "Select page",
       "failedToLoad": "Failed to load page list",
       "noPagesFound": "No pages found"
+    },
+    "attachmentMenu": {
+      "choosePhoto": "Choose photo",
+      "takePicture": "Take a picture",
+      "chooseFile": "Choose file"
     }
   },
   "board": {
@@ -2473,9 +2478,11 @@
     "unsplash": "Unsplash",
     "pageCover": "Page cover",
     "none": "None",
-    "photoPermissionDescription": "@:appName needs access to your photos to let you add images to your documents",
     "openSettings": "Open Settings",
     "photoPermissionTitle": "@:appName would like to access your photo library",
+    "photoPermissionDescription": "@:appName needs access to your photos to let you add images to your documents",
+    "cameraPermissionTitle": "@:appName would like to access your camera",
+    "cameraPermissionDescription": "@:appName needs access to your camera to let you add images to your documents from the camera",
     "doNotAllow": "Don't Allow",
     "image": "Image"
   },
@@ -2865,6 +2872,8 @@
     "closeOthers": "Close other tabs",
     "favorite": "Favorite",
     "unfavorite": "Unfavorite",
-    "favoriteDisabledHint": "Cannot favorite this view"
+    "favoriteDisabledHint": "Cannot favorite this view",
+    "pinTab": "Pin",
+    "unpinTab": "Unpin"
   }
 }

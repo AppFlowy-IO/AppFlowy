@@ -283,6 +283,8 @@ class PageManager {
 
   PageNotifier get notifier => _notifier;
 
+  bool isPinned = false;
+
   Widget title() {
     return _notifier.plugin.widgetBuilder.leftBarItem;
   }
