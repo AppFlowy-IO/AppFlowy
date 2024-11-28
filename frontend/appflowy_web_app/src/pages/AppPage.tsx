@@ -6,10 +6,7 @@ import {
 } from '@/application/types';
 import Help from '@/components/_shared/help/Help';
 import { findView } from '@/components/_shared/outline/utils';
-import CalendarSkeleton from '@/components/_shared/skeleton/CalendarSkeleton';
-import DocumentSkeleton from '@/components/_shared/skeleton/DocumentSkeleton';
-import GridSkeleton from '@/components/_shared/skeleton/GridSkeleton';
-import KanbanSkeleton from '@/components/_shared/skeleton/KanbanSkeleton';
+
 import { AppContext, useAppHandlers, useAppOutline, useAppViewId } from '@/components/app/app.hooks';
 import DatabaseView from '@/components/app/DatabaseView';
 import { Document } from '@/components/document';
@@ -98,26 +95,6 @@ function AppPage () {
     } : null;
   }, [view]);
 
-  const skeleton = useMemo(() => {
-    if (!viewMeta) {
-      return null;
-    }
-
-    switch (viewMeta.layout) {
-      case ViewLayout.Document:
-        return <DocumentSkeleton />;
-      case ViewLayout.Grid:
-        return <GridSkeleton />;
-      case ViewLayout.Board:
-        return <KanbanSkeleton />;
-      case ViewLayout.Calendar:
-        return <CalendarSkeleton />;
-      default:
-        return null;
-    }
-
-  }, [viewMeta]);
-
   const viewDom = useMemo(() => {
 
     return doc && viewMeta && View ? (
@@ -138,8 +115,8 @@ function AppPage () {
         loadViews={loadViews}
         onWordCountChange={setWordCount}
       />
-    ) : skeleton;
-  }, [addPage, loadViews, setWordCount, openPageModal, deletePage, updatePage, onRendered, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, appendBreadcrumb, loadView, skeleton]);
+    ) : null;
+  }, [addPage, loadViews, setWordCount, openPageModal, deletePage, updatePage, onRendered, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, appendBreadcrumb, loadView]);
 
   useEffect(() => {
     if (!View || !viewId || !doc) return;

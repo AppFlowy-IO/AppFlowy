@@ -1,3 +1,4 @@
+import { getScrollParent } from '@/components/global-comment/utils';
 import { debounce } from 'lodash-es';
 import React, { memo, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -58,7 +59,12 @@ function TitleEditable ({
   }, [name]);
 
   const focusedTextbox = () => {
-    const textbox = document.querySelector('[role="textbox"]') as HTMLElement;
+    const contentBox = contentRef.current;
+
+    if (!contentBox) return;
+
+    const scrollElement = getScrollParent(contentBox) as HTMLElement;
+    const textbox = scrollElement.querySelector('[role="textbox"]') as HTMLElement;
 
     textbox?.focus();
   };

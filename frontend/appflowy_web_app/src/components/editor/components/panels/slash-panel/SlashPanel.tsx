@@ -6,7 +6,7 @@ import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
 import {
   BlockData,
   BlockType,
-  CalloutBlockData,
+  CalloutBlockData, DatabaseNodeData,
   HeadingBlockData,
   SubpageNodeData,
   ToggleListBlockData,
@@ -24,6 +24,8 @@ import { ReactComponent as DocumentIcon } from '@/assets/slash_menu_icon_doc.svg
 import { ReactComponent as EmojiIcon } from '@/assets/slash_menu_icon_emoji.svg';
 import { ReactComponent as FileIcon } from '@/assets/slash_menu_icon_file.svg';
 import { ReactComponent as GridIcon } from '@/assets/slash_menu_icon_grid.svg';
+import { ReactComponent as BoardIcon } from '@/assets/slash_menu_icon_kanban.svg';
+import { ReactComponent as CalendarIcon } from '@/assets/slash_menu_icon_calendar.svg';
 import { ReactComponent as Heading1Icon } from '@/assets/slash_menu_icon_h1.svg';
 import { ReactComponent as Heading2Icon } from '@/assets/slash_menu_icon_h2.svg';
 import { ReactComponent as Heading3Icon } from '@/assets/slash_menu_icon_h3.svg';
@@ -257,12 +259,86 @@ export function SlashPanel ({
       label: t('document.slashMenu.name.grid'),
       key: 'grid',
       icon: <GridIcon />,
-      keywords: ['grid'],
+      keywords: ['grid', 'table'],
+      onClick: async () => {
+        if (!viewId || !addPage || !openPageModal) return;
+        try {
+          const newViewId = await addPage(viewId, {
+            layout: ViewLayout.Grid,
+            name: 'Table',
+          });
+
+          turnInto(BlockType.GridBlock, {
+            view_id: newViewId,
+          } as DatabaseNodeData);
+
+          openPageModal(newViewId);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (e: any) {
+          notify.error(e.message);
+        }
+      },
     }, {
       label: t('document.slashMenu.name.linkedGrid'),
       key: 'linkedGrid',
       icon: <GridIcon />,
-      keywords: ['linked', 'grid'],
+      keywords: ['linked', 'grid', 'table'],
+    }, {
+      label: t('document.slashMenu.name.kanban'),
+      key: 'board',
+      icon: <BoardIcon />,
+      keywords: ['board', 'kanban'],
+      onClick: async () => {
+        if (!viewId || !addPage || !openPageModal) return;
+        try {
+          const newViewId = await addPage(viewId, {
+            layout: ViewLayout.Board,
+            name: 'Board',
+          });
+
+          turnInto(BlockType.BoardBlock, {
+            view_id: newViewId,
+          } as DatabaseNodeData);
+
+          openPageModal(newViewId);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (e: any) {
+          notify.error(e.message);
+        }
+      },
+    }, {
+      label: t('document.slashMenu.name.linkedKanban'),
+      key: 'linkedKanban',
+      icon: <BoardIcon />,
+      keywords: ['linked', 'kanban', 'board'],
+    }, {
+      label: t('document.slashMenu.name.calendar'),
+      key: 'calendar',
+      icon: <BoardIcon />,
+      keywords: ['calendar', 'date'],
+      onClick: async () => {
+        if (!viewId || !addPage || !openPageModal) return;
+        try {
+          const newViewId = await addPage(viewId, {
+            layout: ViewLayout.Calendar,
+            name: 'Calendar',
+          });
+
+          turnInto(BlockType.BoardBlock, {
+            view_id: newViewId,
+          } as DatabaseNodeData);
+
+          openPageModal(newViewId);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (e: any) {
+          notify.error(e.message);
+        }
+      },
+    }, {
+      label: t('document.slashMenu.name.linkedCalendar'),
+      key: 'linkedCalendar',
+      icon: <CalendarIcon />,
+      keywords: ['linked', 'calendar', 'date'],
     }, {
       label: t('document.slashMenu.name.callout'),
       key: 'callout',

@@ -40,6 +40,7 @@ export function useHoverControls ({ disabled }: { disabled: boolean; }) {
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
+      if (disabled) return;
       const el = ref.current;
 
       if (!el) return;
