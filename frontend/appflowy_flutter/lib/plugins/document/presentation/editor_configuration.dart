@@ -5,6 +5,10 @@ import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_block_copy_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_cell_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_row_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_operations.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -125,8 +129,9 @@ void _customBlockOptionActions(
     final actions = _buildOptionActions(context, entry.key);
 
     if (UniversalPlatform.isDesktop) {
-      builder.showActions =
-          (node) => node.parent?.type != TableCellBlockKeys.type;
+      builder.showActions = (node) =>
+          node.parent?.type != TableCellBlockKeys.type &&
+          node.parent?.type != SimpleTableCellBlockKeys.type;
       builder.configuration = builder.configuration.copyWith(
         blockSelectionAreaMargin: (_) => const EdgeInsets.symmetric(
           vertical: 1,
@@ -286,6 +291,18 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
     errorBlockComponentBuilderKey: ErrorBlockComponentBuilder(
       configuration: configuration,
     ),
+    SimpleTableBlockKeys.type: _buildSimpleTableBlockComponentBuilder(
+      context,
+      configuration,
+    ),
+    SimpleTableRowBlockKeys.type: _buildSimpleTableRowBlockComponentBuilder(
+      context,
+      configuration,
+    ),
+    SimpleTableCellBlockKeys.type: _buildSimpleTableCellBlockComponentBuilder(
+      context,
+      configuration,
+    ),
   };
 
   final builders = {
@@ -296,6 +313,27 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
   return builders;
 }
 
+SimpleTableBlockComponentBuilder _buildSimpleTableBlockComponentBuilder(
+  BuildContext context,
+  BlockComponentConfiguration configuration,
+) {
+  return SimpleTableBlockComponentBuilder(configuration: configuration);
+}
+
+SimpleTableRowBlockComponentBuilder _buildSimpleTableRowBlockComponentBuilder(
+  BuildContext context,
+  BlockComponentConfiguration configuration,
+) {
+  return SimpleTableRowBlockComponentBuilder(configuration: configuration);
+}
+
+SimpleTableCellBlockComponentBuilder _buildSimpleTableCellBlockComponentBuilder(
+  BuildContext context,
+  BlockComponentConfiguration configuration,
+) {
+  return SimpleTableCellBlockComponentBuilder(configuration: configuration);
+}
+
 ParagraphBlockComponentBuilder _buildParagraphBlockComponentBuilder(
   BuildContext context,
   BlockComponentConfiguration configuration,
@@ -303,7 +341,17 @@ ParagraphBlockComponentBuilder _buildParagraphBlockComponentBuilder(
   String Function(Node)? placeholderText,
 ) {
   return ParagraphBlockComponentBuilder(
-    configuration: configuration.copyWith(placeholderText: placeholderText),
+    configuration: configuration.copyWith(
+      placeholderText: placeholderText,
+      textStyle: (node) {
+        if (node.isInHeaderColumn || node.isInHeaderRow) {
+          return configuration.textStyle(node).copyWith(
+                fontWeight: FontWeight.bold,
+              );
+        }
+        return configuration.textStyle(node);
+      },
+    ),
     showPlaceholder: showParagraphPlaceholder,
   );
 }
@@ -315,6 +363,14 @@ TodoListBlockComponentBuilder _buildTodoListBlockComponentBuilder(
   return TodoListBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_todoList.tr(),
+      textStyle: (node) {
+        if (node.isInHeaderColumn || node.isInHeaderRow) {
+          return configuration.textStyle(node).copyWith(
+                fontWeight: FontWeight.bold,
+              );
+        }
+        return configuration.textStyle(node);
+      },
     ),
     iconBuilder: (_, node, onCheck) => TodoListIcon(
       node: node,
@@ -335,6 +391,14 @@ BulletedListBlockComponentBuilder _buildBulletedListBlockComponentBuilder(
   return BulletedListBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_bulletList.tr(),
+      textStyle: (node) {
+        if (node.isInHeaderColumn || node.isInHeaderRow) {
+          return configuration.textStyle(node).copyWith(
+                fontWeight: FontWeight.bold,
+              );
+        }
+        return configuration.textStyle(node);
+      },
     ),
     iconBuilder: (_, node) => BulletedListIcon(node: node),
   );
@@ -347,6 +411,14 @@ NumberedListBlockComponentBuilder _buildNumberedListBlockComponentBuilder(
   return NumberedListBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_numberList.tr(),
+      textStyle: (node) {
+        if (node.isInHeaderColumn || node.isInHeaderRow) {
+          return configuration.textStyle(node).copyWith(
+                fontWeight: FontWeight.bold,
+              );
+        }
+        return configuration.textStyle(node);
+      },
     ),
     iconBuilder: (_, node, textDirection) => NumberedListIcon(
       node: node,
@@ -362,6 +434,14 @@ QuoteBlockComponentBuilder _buildQuoteBlockComponentBuilder(
   return QuoteBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_quote.tr(),
+      textStyle: (node) {
+        if (node.isInHeaderColumn || node.isInHeaderRow) {
+          return configuration.textStyle(node).copyWith(
+                fontWeight: FontWeight.bold,
+              );
+        }
+        return configuration.textStyle(node);
+      },
     ),
   );
 }

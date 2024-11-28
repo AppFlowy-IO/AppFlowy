@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/table/shortcuts/table_command_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +14,34 @@ class EditorKeyboardInterceptor extends AppFlowyKeyboardServiceInterceptor {
       editorState,
       nonTextUpdate,
     );
+  }
+
+  @override
+  Future<bool> interceptDelete(
+    TextEditingDeltaDeletion deletion,
+    EditorState editorState,
+  ) async {
+    // check if the current selection is in a code block
+    final (isInTableCell, selection, tableCellNode, node) =
+        editorState.isCurrentSelectionInTableCell();
+    if (!isInTableCell ||
+        selection == null ||
+        tableCellNode == null ||
+        node == null) {
+      return false;
+    }
+
+    final onlyContainsOneChild = tableCellNode.children.length == 1;
+    final isParagraphNode =
+        tableCellNode.children.first.type == ParagraphBlockKeys.type;
+    if (onlyContainsOneChild &&
+        selection.isCollapsed &&
+        selection.end.offset == 0 &&
+        isParagraphNode) {
+      return true;
+    }
+
+    return false;
   }
 
   /// Check if the backtick pressed event should be handled

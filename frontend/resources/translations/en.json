@@ -1704,13 +1704,31 @@
       "insertDate": "Insert date",
       "emoji": "Emoji",
       "toggleList": "Toggle list",
-      "emptyToggleHeading": "Empty toggle heading {}. Click to add content",
-      "emptyToggleList": "Empty toggle list. Click to add content",
+      "emptyToggleHeading": "Empty toggle h{}. Click to add content.",
+      "emptyToggleList": "Empty toggle list. Click to add content.",
       "quoteList": "Quote list",
       "numberedList": "Numbered list",
       "bulletedList": "Bulleted list",
       "todoList": "Todo list",
       "callout": "Callout",
+      "simpleTable": {
+        "moreActions": {
+          "color": "Color",
+          "align": "Align",
+          "delete": "Delete",
+          "duplicate": "Duplicate",
+          "insertLeft": "Insert left",
+          "insertRight": "Insert right",
+          "insertAbove": "Insert above",
+          "insertBelow": "Insert below",
+          "headerColumn": "Header column",
+          "headerRow": "Header row",
+          "clearContents": "Clear contents"
+        },
+        "clickToAddNewRow": "Click to add a new row",
+        "clickToAddNewColumn": "Click to add a new column",
+        "clickToAddNewRowAndColumn": "Click to add a new row and column"
+      },
       "cover": {
         "changeCover": "Change Cover",
         "colors": "Colors",
