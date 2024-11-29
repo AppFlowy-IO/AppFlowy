@@ -92,8 +92,11 @@
       "exportLogFiles": "ส่งออกไฟล์บันทึก",
       "reachOut": "ติดต่อได้ที่ Discord"
     },
+    "menuTitle": "พื้นที่ทำงาน",
+    "deleteWorkspaceHintText": "คุณแน่ใจหรือไม่ว่าต้องการลบพื้นที่ทำงาน? การกระทำนี้ไม่สามารถย้อนกลับได้ และทุกหน้าที่คุณเผยแพร่จะถูกยกเลิกการเผยแพร่",
     "createSuccess": "สร้างพื้นที่ทำงานสำเร็จแล้ว",
     "createFailed": "ไม่สามารถสร้างพื้นที่ทำงานได้",
+    "createLimitExceeded": "คุณถึงขีดจำกัดสูงสุดของพื้นที่ทำงานที่บัญชีของคุณสามารถสร้างได้แล้ว หากคุณต้องการพื้นที่ทำงานเพิ่มเติมเพื่อดำเนินการต่อ โปรดส่งคำขอบน Github",
     "deleteSuccess": "ลบพื้นที่ทำงานสำเร็จแล้ว",
     "deleteFailed": "ไม่สามารถลบพื้นที่ทำงานได้",
     "openSuccess": "เปิดพื้นที่ทำงานได้สำเร็จ",
@@ -141,6 +144,9 @@
     "fontSize": "ขนาดตัวอักษร",
     "import": "นำเข้า",
     "moreOptions": "ตัวเลือกเพิ่มเติม",
+    "wordCount": "จำนวนคำ: {}",
+    "charCount": "จำนวนตัวอักษร: {}",
+    "createdAt": "สร้างแล้ว: {}",
     "deleteView": "ลบ",
     "duplicateView": "ทำสำเนา"
   },
@@ -172,13 +178,41 @@
   "newCalendarText": "ปฏิทินใหม่",
   "newBoardText": "กระดานใหม่",
   "chat": {
+    "newChat": "แชท AI",
+    "inputMessageHint": "ถาม @:appName AI",
+    "inputLocalAIMessageHint": "ถาม @:appName Local AI",
+    "unsupportedCloudPrompt": "คุณสมบัตินี้ใช้ได้เมื่อใช้ @:appName Cloud เท่านั้น",
     "relatedQuestion": "ข้อเสนอแนะ",
+    "serverUnavailable": "บริการไม่สามารถใช้งานได้ชั่วคราว กรุณาลองใหม่อีกครั้งในภายหลัง",
+    "aiServerUnavailable": "การเชื่อมต่อขาดหาย กรุณาตรวจสอบอินเทอร์เน็ตของคุณ",
     "retry": "ลองใหม่อีกครั้ง",
-    "clickToRetry": "คลิกเพื่อลองใหม่อีกครั้ง"
+    "clickToRetry": "คลิกเพื่อลองใหม่อีกครั้ง",
+    "regenerateAnswer": "สร้างใหม่",
+    "question1": "วิธีการใช้ Kanban เพื่อจัดการงาน",
+    "question2": "อธิบายวิธี GTD",
+    "question3": "เหตุใดจึงใช้ Rust",
+    "question4": "สูตรอาหารจากสิ่งที่มีในครัวของฉัน",
+    "question5": "สร้างภาพประกอบให้กับหน้าของฉัน",
+    "question6": "จัดทำรายการสิ่งที่ต้องทำสำหรับสัปดาห์หน้าของฉัน",
+    "aiMistakePrompt": "AI อาจทำผิดพลาดได้ กรุณาตรวจสอบข้อมูลที่สำคัญ",
+    "chatWithFilePrompt": "คุณต้องการแชทกับไฟล์หรือไม่?",
+    "indexFileSuccess": "สร้างดัชนีไฟล์สำเร็จแล้ว",
+    "inputActionNoPages": "ไม่พบผลลัพธ์จากหน้า",
+    "referenceSource": {
+      "zero": "ไม่พบแหล่งข้อมูล 0 รายการ",
+      "one": "พบแหล่งข้อมูล {count} รายการ",
+      "other": "พบแหล่งข้อมูล {count} รายการ"
+    },
+    "clickToMention": "อ้างอิงถึงหน้า",
+    "uploadFile": "แนบไฟล์ PDF, ข้อความ หรือไฟล์ Markdown",
+    "questionDetail": "สวัสดี {}! วันนี้ฉันสามารถช่วยอะไรคุณได้บ้าง?",
+    "indexingFile": "การจัดทำดัชนี {}",
+    "generatingResponse": "กำลังสร้างการตอบกลับ"
   },
   "trash": {
     "text": "ขยะ",
     "restoreAll": "กู้คืนทั้งหมด",
+    "restore": "กู้คืน",
     "deleteAll": "ลบทั้งหมด",
     "pageHeader": {
       "fileName": "ชื่อไฟล์",
@@ -193,18 +227,24 @@
       "title": "คุณแน่ใจหรือว่าจะกู้คืนทุกหน้าในถังขยะ",
       "caption": "การดำเนินการนี้ไม่สามารถยกเลิกได้"
     },
+    "restorePage": {
+      "title": "กู้คืน: {}",
+      "caption": "คุณแน่ใจหรือไม่ว่าต้องการกู้คืนหน้านี้?"
+    },
     "mobile": {
       "actions": "การดำเนินการถังขยะ",
       "empty": "ถังขยะว่างเปล่า",
       "emptyDescription": "คุณไม่มีไฟล์ที่ถูกลบ",
       "isDeleted": "ถูกลบแล้ว",
       "isRestored": "ถูกกู้คืนแล้ว"
-    }
+    },
+    "confirmDeleteTitle": "คุณแน่ใจหรือไม่ว่าต้องการลบหน้านี้อย่างถาวร?"
   },
   "deletePagePrompt": {
     "text": "หน้านี้อยู่ในถังขยะ",
     "restore": "กู้คืนหน้า",
-    "deletePermanent": "ลบถาวร"
+    "deletePermanent": "ลบถาวร",
+    "deletePermanentDescription": "คุณแน่ใจหรือไม่ว่าต้องการลบหน้านี้อย่างถาวร? การกระทำนี้ไม่สามารถย้อนกลับได้"
   },
   "dialogCreatePageNameHint": "ชื่อหน้า",
   "questionBubble": {
@@ -253,17 +293,56 @@
     "dragRow": "กดค้างเพื่อเรียงลำดับแถวใหม่",
     "viewDataBase": "ดูฐานข้อมูล",
     "referencePage": "{name} ถูกอ้างอิงถึง",
-    "addBlockBelow": "เพิ่มบล็อกด้านล่าง"
+    "addBlockBelow": "เพิ่มบล็อกด้านล่าง",
+    "aiGenerate": "สร้าง"
   },
   "sideBar": {
     "closeSidebar": "ปิดแถบด้านข้าง",
     "openSidebar": "เปิดแถบด้านข้าง",
     "personal": "ส่วนบุคคล",
+    "private": "ส่วนตัว",
+    "workspace": "พื้นที่ทำงาน",
     "favorites": "รายการโปรด",
+    "clickToHidePrivate": "คลิกเพื่อซ่อนพื้นที่ส่วนตัว\nหน้าที่คุณสร้างที่นี่จะแสดงให้เห็นเฉพาะคุณเท่านั้น",
+    "clickToHideWorkspace": "คลิกเพื่อซ่อนพื้นที่ทำงาน\nหน้าที่คุณสร้างที่นี่จะแสดงให้สมาชิกทุกคนเห็น",
     "clickToHidePersonal": "คลิกเพื่อซ่อนส่วนส่วนบุคคล",
     "clickToHideFavorites": "คลิกเพื่อซ่อนส่วนรายการโปรด",
     "addAPage": "เพิ่มหน้า",
-    "recent": "ล่าสุด"
+    "addAPageToPrivate": "เพิ่มหน้าไปยังพื้นที่ส่วนตัว",
+    "addAPageToWorkspace": "เพิ่มหน้าไปยังพื้นที่ทำงาน",
+    "recent": "ล่าสุด",
+    "today": "วันนี้",
+    "thisWeek": "สัปดาห์นี้",
+    "others": "รายการโปรดก่อนหน้านี้",
+    "earlier": "ก่อนหน้านี้",
+    "justNow": "เมื่อสักครู่",
+    "minutesAgo": "{count} นาทีที่ผ่านมา",
+    "lastViewed": "ดูล่าสุด",
+    "favoriteAt": "รายการโปรด",
+    "emptyRecent": "ไม่มีหน้าล่าสุด",
+    "emptyRecentDescription": "เมื่อคุณดูหน้าเพจ หน้าเหล่านั้นจะปรากฏที่นี่เพื่อให้คุณสามารถเรียกดูได้ง่าย",
+    "emptyFavorite": "ไม่มีหน้าโปรด",
+    "emptyFavoriteDescription": "ทำเครื่องหมายหน้าเป็นรายการโปรด—หน้าเหล่านี้จะแสดงไว้ที่นี่เพื่อการเข้าถึงอย่างรวดเร็ว!",
+    "removePageFromRecent": "ลบหน้านี้ออกจากรายการล่าสุดหรือไม่?",
+    "removeSuccess": "ลบสำเร็จ",
+    "favoriteSpace": "รายการโปรด",
+    "RecentSpace": "ล่าสุด",
+    "Spaces": "พื้นที่",
+    "upgradeToPro": "อัพเกรดเป็น Pro",
+    "upgradeToAIMax": "ปลดล็อค AI แบบไม่จำกัด",
+    "storageLimitDialogTitle": "คุณใช้พื้นที่จัดเก็บฟรีหมดแล้ว กรุณาอัปเกรดเพื่อปลดล็อกพื้นที่จัดเก็บแบบไม่จำกัด",
+    "storageLimitDialogTitleIOS": "คุณใช้พื้นที่จัดเก็บฟรีหมดแล้ว",
+    "aiResponseLimitTitle": "คุณใช้จำนวนการตอบกลับ AI ฟรีหมดแล้ว กรุณาอัปเกรดเป็นแผน Pro หรือซื้อส่วนเสริม AI เพื่อปลดล็อกการตอบกลับไม่จำกัด",
+    "aiResponseLimitTitleIOS": "คุณใช้จำนวนการตอบกลับ AI ฟรีหมดแล้ว",
+    "aiResponseLimitDialogTitle": "ถึงขีดจำกัดการตอบกลับ AI แล้ว",
+    "aiResponseLimit": "คุณใช้จำนวนการตอบกลับ AI ฟรีหมดแล้ว\nไปที่ การตั้งค่า -> แผน -> คลิก AI Max หรือแผน Pro เพื่อรับการตอบกลับ AI เพิ่มเติม",
+    "askOwnerToUpgradeToPro": "พื้นที่จัดเก็บฟรีในพื้นที่ทำงานของคุณกำลังจะหมด กรุณาขอให้เจ้าของพื้นที่ทำงานของคุณอัปเกรดเป็นแผน Pro",
+    "askOwnerToUpgradeToProIOS": "พื้นที่จัดเก็บฟรีในพื้นที่ทำงานของคุณกำลังจะหมด",
+    "askOwnerToUpgradeToAIMax": "พื้นที่ทำงานของคุณใช้จำนวนการตอบกลับ AI ฟรีหมดแล้ว กรุณาขอให้เจ้าของพื้นที่ทำงานของคุณอัปเกรดแผนหรือซื้อส่วนเสริม AI",
+    "askOwnerToUpgradeToAIMaxIOS": "จำนวนการตอบกลับ AI ฟรี ในพื้นที่ทำงานของคุณใกล้หมดแล้ว",
+    "purchaseStorageSpace": "ซื้อพื้นที่จัดเก็บข้อมูล",
+    "singleFileProPlanLimitationDescription": "คุณอัปโหลดไฟล์เกินขนาดสูงสุดที่อนุญาตในแผนฟรี โปรดอัปเกรดเป็นแผน Pro เพื่ออัปโหลดไฟล์ขนาดใหญ่ขึ้น",
+    "purchaseAIResponse": "ซื้อ "
   },
   "notifications": {
     "export": {
@@ -279,6 +358,7 @@
   },
   "button": {
     "ok": "ตกลง",
+    "confirm": "ยืนยัน",
     "done": "เสร็จแล้ว",
     "cancel": "ยกเลิก",
     "signIn": "ลงชื่อเข้าใช้",
@@ -296,16 +376,45 @@
     "upload": "อัปโหลด",
     "edit": "แก้ไข",
     "delete": "ลบ",
+    "copy": "คัดลอก",
     "duplicate": "ทำสำเนา",
     "putback": "นำกลับมา",
     "update": "อัปโหลด",
     "share": "แชร์",
     "removeFromFavorites": "ลบออกจากรายการโปรด",
+    "removeFromRecent": "ลบออกจากรายการล่าสุด",
     "addToFavorites": "เพิ่มในรายการโปรด",
+    "favoriteSuccessfully": "เพิ่มในรายการที่ชื่นชอบสำเร็จ",
+    "unfavoriteSuccessfully": "นำออกจากรายการที่ชื่นชอบสำเร็จ",
+    "duplicateSuccessfully": "ทำสำเนาสำเร็จแล้ว",
     "rename": "เปลี่ยนชื่อ",
     "helpCenter": "ศูนย์ช่วยเหลือ",
     "add": "เพิ่ม",
-    "yes": "ใช่"
+    "yes": "ใช่",
+    "no": "ไม่",
+    "clear": "ล้าง",
+    "remove": "ลบ",
+    "dontRemove": "ไม่ลบ",
+    "copyLink": "คัดลอกลิงค์",
+    "align": "จัดตำแหน่ง",
+    "login": "เข้าสู่ระบบ",
+    "logout": "ออกจากระบบ",
+    "deleteAccount": "ลบบัญชี",
+    "back": "กลับ",
+    "signInGoogle": "ดำเนินการต่อด้วย Google",
+    "signInGithub": "ดำเนินการต่อด้วย GitHub",
+    "signInDiscord": "ดำเนินการต่อด้วย Discord",
+    "more": "เพิ่มเติม",
+    "create": "สร้าง",
+    "close": "ปิด",
+    "next": "ถัดไป",
+    "previous": "ก่อนหน้า",
+    "submit": "ส่ง",
+    "download": "ดาวน์โหลด",
+    "backToHome": "กลับสู่หน้าแรก",
+    "viewing": "การดู",
+    "editing": "การแก้ไข",
+    "gotIt": "เข้าใจแล้ว"
   },
   "label": {
     "welcome": "ยินดีต้อนรับ!",
@@ -329,6 +438,41 @@
   },
   "settings": {
     "title": "การตั้งค่า",
+    "popupMenuItem": {
+      "settings": "การตั้งค่า",
+      "members": "สมาชิก",
+      "trash": "ถังขยะ",
+      "helpAndSupport": "ความช่วยเหลือ & การสนับสนุน"
+    },
+    "sites": {
+      "title": "ไซต์",
+      "namespaceTitle": "เนมสเปซ",
+      "namespaceDescription": "จัดการเนมสเปซและโฮมเพจของคุณ",
+      "namespaceHeader": "เนมสเปซ",
+      "homepageHeader": "หน้าแรก",
+      "updateNamespace": "อัปเดตเนมสเปซ",
+      "removeHomepage": "ลบหน้าแรก",
+      "selectHomePage": "เลือกหน้า",
+      "clearHomePage": "ล้างโฮมเพจสำหรับเนมสเปซนี้",
+      "customUrl": "URL แบบกำหนดเอง",
+      "publishedPage": {
+        "title": "หน้าที่เผยแพร่ทั้งหมด",
+        "description": "จัดการหน้าที่เผยแพร่ของคุณ",
+        "page": "หน้า",
+        "pathName": "ชื่อเส้นทาง",
+        "date": "วันที่เผยแพร่",
+        "emptyHinText": "คุณไม่มีหน้าที่เผยแพร่ในพื้นที่ทำงานนี้",
+        "noPublishedPages": "ยังไม่มีหน้าที่เผยแพร่",
+        "settings": "การตั้งค่าการเผยแพร่",
+        "clickToOpenPageInApp": "เปิดหน้าในแอป",
+        "clickToOpenPageInBrowser": "เปิดหน้าในเบราว์เซอร์"
+      },
+      "error": {
+        "failedToGeneratePaymentLink": "ไม่สามารถสร้างลิงก์การชำระเงินสำหรับแผน Pro ได้",
+        "failedToUpdateNamespace": "ไม่สามารถอัปเดตเนมสเปซได้",
+        "proPlanLimitation": "คุณต้องอัปเกรดเป็นแผน Pro เพื่ออัปเดตเนมสเปซ"
+      }
+    },
     "menu": {
       "appearance": "รูปลักษณ์",
       "language": "ภาษา",
