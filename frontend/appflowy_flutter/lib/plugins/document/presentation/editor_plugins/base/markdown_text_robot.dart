@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/foundation.dart';
@@ -8,7 +9,7 @@ import 'package:synchronized/synchronized.dart';
 class MarkdownTextRobot {
   MarkdownTextRobot({
     required this.editorState,
-    this.enableDebug = false,
+    this.enableDebug = true,
   });
 
   final EditorState editorState;
@@ -92,7 +93,7 @@ class MarkdownTextRobot {
     final transaction = editorState.transaction;
 
     // Convert markdown and deep copy nodes
-    final nodes = markdownToDocument(_markdownText).root.children.map(
+    final nodes = customMarkdownToDocument(_markdownText).root.children.map(
           (node) => node.copyWith(),
         ); // deep copy the nodes to avoid the linked entities being changed.
 
