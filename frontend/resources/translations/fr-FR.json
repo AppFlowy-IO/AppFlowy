@@ -2280,9 +2280,9 @@
     "unsplash": "Unsplash",
     "pageCover": "Couverture de page",
     "none": "Aucun",
-    "photoPermissionDescription": "Autoriser l'accès à la photothèque pour le téléchargement d'images.",
     "openSettings": "Ouvrir les paramètres",
     "photoPermissionTitle": "@:appName souhaite accéder à votre photothèque",
+    "photoPermissionDescription": "Autoriser l'accès à la photothèque pour le téléchargement d'images.",
     "doNotAllow": "Ne pas autoriser",
     "image": "Image"
   },

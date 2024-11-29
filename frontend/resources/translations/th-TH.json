@@ -2,12 +2,14 @@
   "appName": "AppFlowy",
   "defaultUsername": "ฉัน",
   "welcomeText": "ยินดีต้อนรับเข้าสู่ @:appName",
+  "welcomeTo": "ยินดีต้อนรับเข้าสู่",
   "githubStarText": "กดดาวบน GitHub",
   "subscribeNewsletterText": "สมัครรับจดหมายข่าว",
   "letsGoButtonText": "เริ่มต้นอย่างรวดเร็ว",
   "title": "ชื่อ",
   "youCanAlso": "นอกจากนี้คุณยังสามารถ",
   "and": "และ",
+  "failedToOpenUrl": "ไม่สามารถเปิด url ได้: {}",
   "blockActions": {
     "addBelowTooltip": "คลิกเพื่อเพิ่มด้านล่าง",
     "addAboveCmd": "Alt+click",
@@ -21,12 +23,12 @@
     "title": "ลงทะเบียนเพื่อใช้ @:appName",
     "getStartedText": "เริ่มต้น",
     "emptyPasswordError": "รหัสผ่านต้องไม่เว้นว่าง",
-    "repeatPasswordEmptyError": "รหัสผ่านซ้ำต้องไม่เว้นว่าง",
-    "unmatchedPasswordError": "รหัสผ่านซ้ำไม่เท่ากับรหัสผ่าน",
+    "repeatPasswordEmptyError": "ช่องยืนยันรหัสผ่านต้องไม่เว้นว่าง",
+    "unmatchedPasswordError": "รหัสผ่านที่ยืนยันไม่ตรงกับรหัสผ่าน",
     "alreadyHaveAnAccount": "มีบัญชีอยู่แล้วหรือไม่?",
     "emailHint": "อีเมล",
     "passwordHint": "รหัสผ่าน",
-    "repeatPasswordHint": "รหัสผ่านซ้ำ",
+    "repeatPasswordHint": "ยืนยันรหัสผ่าน",
     "signUpWith": "ลงทะเบียนกับ:"
   },
   "signIn": {
@@ -34,30 +36,60 @@
     "loginButtonText": "เข้าสู่ระบบ",
     "loginStartWithAnonymous": "เริ่มต้นด้วยเซสชั่นแบบไม่ระบุตัวตน",
     "continueAnonymousUser": "ดำเนินการต่อด้วยเซสชันแบบไม่ระบุตัวตน",
+    "anonymous": "ไม่ระบุตัวตน",
     "buttonText": "เข้าสู่ระบบ",
+    "signingInText": "กำลังลงชื่อเข้าใช้...",
     "forgotPassword": "ลืมรหัสผ่านหรือไม่?",
     "emailHint": "อีเมล",
     "passwordHint": "รหัสผ่าน",
     "dontHaveAnAccount": "ยังไม่มีบัญชีใช่หรือไม่?",
-    "repeatPasswordEmptyError": "รหัสผ่านซ้ำต้องไม่เว้นว่าง",
-    "unmatchedPasswordError": "รหัสผ่านซ้ำไม่เท่ากับรหัสผ่าน",
-    "syncPromptMessage": "การซิงค์ข้อมูลอาจใช้เวลาสักครู่ กรุณาอย่าปิดหน้านี้",
+    "createAccount": "สร้างบัญชี",
+    "repeatPasswordEmptyError": "ช่องยืนยันรหัสผ่านต้องไม่เว้นว่าง",
+    "unmatchedPasswordError": "รหัสผ่านที่ยืนยันไม่ตรงกับรหัสผ่าน",
+    "syncPromptMessage": "กำลังซิงค์ข้อมูล ซึ่งอาจใช้เวลาสักครู่ กรุณาอย่าปิดหน้านี้",
     "or": "หรือ",
+    "signInWithGoogle": "ดำเนินการต่อด้วย Google",
+    "signInWithGithub": "ดำเนินการต่อด้วย GitHub",
+    "signInWithDiscord": "ดำเนินการต่อด้วย Discord",
+    "signInWithApple": "ดำเนินการต่อด้วย Apple",
+    "continueAnotherWay": "ลองวิธีอื่นเพื่อดำเนินการต่อ",
+    "signUpWithGoogle": "ลงทะเบียนด้วย Google",
+    "signUpWithGithub": "ลงทะเบียนด้วย Github",
+    "signUpWithDiscord": "ลงทะเบียนด้วย Discord",
+    "signInWith": "ลงชื่อเข้าใช้ด้วย:",
+    "signInWithEmail": "ดำเนินการต่อด้วยอีเมล์",
+    "signInWithMagicLink": "ดำเนินการต่อ",
+    "signUpWithMagicLink": "ลงทะเบียนด้วย Magic Link",
+    "pleaseInputYourEmail": "กรุณากรอกที่อยู่อีเมล์ของคุณ",
+    "settings": "การตั้งค่า",
+    "magicLinkSent": "ส่ง Magic Link แล้ว!",
+    "invalidEmail": "กรุณากรอกอีเมลที่ถูกต้อง",
+    "alreadyHaveAnAccount": "มีบัญชีอยู่แล้วใช่ไหม?",
+    "logIn": "เข้าสู่ระบบ",
+    "generalError": "มีบางอย่างผิดพลาด โปรดลองอีกครั้งในภายหลัง",
+    "limitRateError": "ด้วยเหตุผลด้านความปลอดภัย คุณสามารถขอ Magic Link ได้ทุกๆ 60 วินาทีเท่านั้น",
+    "magicLinkSentDescription": "Magic Link ถูกส่งไปยังอีเมลของคุณแล้ว กรุณาคลิกลิงก์เพื่อเข้าสู่ระบบ ลิงก์จะหมดอายุภายใน 5 นาที",
     "LogInWithGoogle": "เข้าสู่ระบบด้วย Google",
     "LogInWithGithub": "เข้าสู่ระบบด้วย Github",
-    "LogInWithDiscord": "เข้าสู่ระบบด้วย Discord",
-    "signInWith": "ลงชื่อเข้าใช้ด้วย:"
+    "LogInWithDiscord": "เข้าสู่ระบบด้วย Discord"
   },
   "workspace": {
     "chooseWorkspace": "เลือกพื้นที่ทำงานของคุณ",
+    "defaultName": "พื้นที่ทำงานของฉัน",
     "create": "สร้างพื้นที่ทำงาน",
+    "importFromNotion": "นำเข้าจาก Notion",
+    "learnMore": "เรียนรู้เพิ่มเติม",
     "reset": "รีเซ็ตพื้นที่ทำงาน",
-    "resetWorkspacePrompt": "การรีเซ็ตพื้นที่ทำงานจะลบหน้าและข้อมูลทั้งหมดภายในนั้น คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ตพื้นที่ทำงาน หรือคุณสามารถติดต่อทีมสนับสนุนเพื่อกู้คืนพื้นที่ทำงาน",
+    "renameWorkspace": "เปลี่ยนชื่อพื้นที่ทำงาน",
+    "workspaceNameCannotBeEmpty": "ชื่อพื้นที่ทำงานไม่สามารถเว้นว่างได้",
+    "resetWorkspacePrompt": "การรีเซ็ตพื้นที่ทำงานจะลบทุกหน้าและข้อมูลภายในนั้น คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ตพื้นที่ทำงาน? หรือคุณสามารถติดต่อทีมสนับสนุนเพื่อกู้คืนพื้นที่ทำงานได้",
     "hint": "พื้นที่ทำงาน",
     "notFoundError": "ไม่พบพื้นที่ทำงาน",
-    "failedToLoad": "เกิดข้อผิดพลาด! ไม่สามารถโหลดพื้นที่ทำงานได้ โปรดปิดแอปพลิเคชัน AppFlowy ใดๆ ที่เปิดอยู่แล้วลองอีกครั้ง",
+    "failedToLoad": "เกิดข้อผิดพลาด! ไม่สามารถโหลดพื้นที่ทำงานได้ โปรดปิดแอปพลิเคชัน @:appName ที่เปิดอยู่ทั้งหมดแล้วลองอีกครั้ง",
     "errorActions": {
       "reportIssue": "รายงานปัญหา",
+      "reportIssueOnGithub": "รายงานปัญหาบน Github",
+      "exportLogFiles": "ส่งออกไฟล์บันทึก",
       "reachOut": "ติดต่อได้ที่ Discord"
     }
   },
@@ -329,12 +361,12 @@
         "button": "อัปโหลด",
         "uploadTheme": "อัปโหลดธีม",
         "description": "อัปโหลดธีม AppFlowy ของคุณเองโดยใช้ปุ่มด้านล่าง",
-        "failure": "ธีมที่อัปโหลดมีรูปแบบที่ไม่ถูกต้อง",
         "loading": "โปรดรอสักครู่ในขณะที่เราตรวจสอบและอัปโหลดธีมของคุณ...",
         "uploadSuccess": "อัปโหลดธีมของคุณสำเร็จแล้ว",
         "deletionFailure": "ไม่สามารถลบธีมได้ ลองลบมันด้วยตนเอง",
         "filePickerDialogTitle": "เลือกไฟล์ .flowy_plugin",
-        "urlUploadFailure": "ไม่สามารถเปิด URL: {} ได้"
+        "urlUploadFailure": "ไม่สามารถเปิด URL: {} ได้",
+        "failure": "ธีมที่อัปโหลดมีรูปแบบที่ไม่ถูกต้อง"
       },
       "theme": "ธีม",
       "builtInsLabel": "ธีมในตัวแอป",
@@ -396,19 +428,8 @@
       "tooltipSelectIcon": "เลือกไอคอน",
       "selectAnIcon": "เลือกไอคอน",
       "pleaseInputYourOpenAIKey": "โปรดระบุคีย์ AI ของคุณ",
-      "pleaseInputYourStabilityAIKey": "โปรดระบุคีย์ Stability AI ของคุณ",
-      "clickToLogout": "คลิกเพื่อออกจากระบบผู้ใช้ปัจจุบัน"
-    },
-    "shortcuts": {
-      "shortcutsLabel": "ทางลัด",
-      "command": "คำสั่ง",
-      "keyBinding": "การผูกแป้นพิมพ์",
-      "addNewCommand": "เพิ่มคำสั่งใหม่",
-      "updateShortcutStep": "กดปุ่มแป้นพิมพ์ที่ต้องการแล้วกด ENTER",
-      "shortcutIsAlreadyUsed": "ทางลัดนี้ถูกใช้แล้วสำหรับ: {conflict}",
-      "resetToDefault": "รีเซ็ตการกำหนดแป้นพิมพ์เป็นค่าเริ่มต้น",
-      "couldNotLoadErrorMsg": "ไม่สามารถโหลดทางลัดได้ ลองอีกครั้ง",
-      "couldNotSaveErrorMsg": "ไม่สามารถบันทึกทางลัดได้ ลองอีกครั้ง"
+      "clickToLogout": "คลิกเพื่อออกจากระบบผู้ใช้ปัจจุบัน",
+      "pleaseInputYourStabilityAIKey": "โปรดระบุคีย์ Stability AI ของคุณ"
     },
     "mobile": {
       "personalInfo": "ข้อมูลส่วนตัว",
@@ -424,6 +445,17 @@
       "userprofileErrorDescription": "โปรดลองออกจากระบบแล้วเข้าสู่ระบบอีกครั้งเพื่อตรวจสอบว่าปัญหายังคงอยู่หรือไม่",
       "selectLayout": "เลือกเค้าโครง",
       "selectStartingDay": "เลือกวันเริ่มต้น"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "ทางลัด",
+      "command": "คำสั่ง",
+      "keyBinding": "การผูกแป้นพิมพ์",
+      "addNewCommand": "เพิ่มคำสั่งใหม่",
+      "updateShortcutStep": "กดปุ่มแป้นพิมพ์ที่ต้องการแล้วกด ENTER",
+      "shortcutIsAlreadyUsed": "ทางลัดนี้ถูกใช้แล้วสำหรับ: {conflict}",
+      "resetToDefault": "รีเซ็ตการกำหนดแป้นพิมพ์เป็นค่าเริ่มต้น",
+      "couldNotLoadErrorMsg": "ไม่สามารถโหลดทางลัดได้ ลองอีกครั้ง",
+      "couldNotSaveErrorMsg": "ไม่สามารถบันทึกทางลัดได้ ลองอีกครั้ง"
     }
   },
   "grid": {
@@ -715,8 +747,8 @@
         "defaultColor": "สีเริ่มต้น"
       },
       "image": {
-        "copiedToPasteBoard": "ลิงก์รูปภาพถูกคัดลอกไปที่คลิปบอร์ดแล้ว",
-        "addAnImage": "เพิ่มรูปภาพ"
+        "addAnImage": "เพิ่มรูปภาพ",
+        "copiedToPasteBoard": "ลิงก์รูปภาพถูกคัดลอกไปที่คลิปบอร์ดแล้ว"
       },
       "outline": {
         "addHeadingToCreateOutline": "เพิ่มหัวข้อเพื่อสร้างสารบัญ"
@@ -776,11 +808,11 @@
       },
       "searchForAnImage": "ค้นหารูปภาพ",
       "pleaseInputYourOpenAIKey": "โปรดระบุคีย์ AI ของคุณในหน้าการตั้งค่า",
-      "pleaseInputYourStabilityAIKey": "โปรดระบุคีย์ Stability AI ของคุณในหน้าการตั้งค่า",
       "saveImageToGallery": "บันทึกภาพ",
       "failedToAddImageToGallery": "ไม่สามารถเพิ่มรูปภาพลงในแกลเลอรี่ได้",
       "successToAddImageToGallery": "เพิ่มรูปภาพลงในแกลเลอรี่เรียบร้อยแล้ว",
-      "unableToLoadImage": "ไม่สามารถโหลดรูปภาพได้"
+      "unableToLoadImage": "ไม่สามารถโหลดรูปภาพได้",
+      "pleaseInputYourStabilityAIKey": "โปรดระบุคีย์ Stability AI ของคุณในหน้าการตั้งค่า"
     },
     "codeBlock": {
       "language": {
@@ -826,10 +858,10 @@
       "addToColumnBottomTooltip": "เพิ่มการ์ดใหม่ที่ด้านล่างสุด",
       "renameColumn": "เปลี่ยนชื่อ",
       "hideColumn": "ซ่อน",
-      "groupActions": "กลุ่มการดำเนินการ",
       "newGroup": "กลุ่มใหม่",
       "deleteColumn": "ลบ",
-      "deleteColumnConfirmation": "การดำเนินการนี้จะลบกลุ่มนี้และการ์ดทั้งหมดในกลุ่ม\nคุณแน่ใจหรือไม่ว่าต้องการดำเนินการต่อ?"
+      "deleteColumnConfirmation": "การดำเนินการนี้จะลบกลุ่มนี้และการ์ดทั้งหมดในกลุ่ม\nคุณแน่ใจหรือไม่ว่าต้องการดำเนินการต่อ?",
+      "groupActions": "กลุ่มการดำเนินการ"
     },
     "hiddenGroupSection": {
       "sectionTitle": "กลุ่มที่ซ่อนไว้",
