@@ -4,7 +4,7 @@ import { SOFT_BREAK_TYPES } from '@/application/slate-yjs/command/const';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
 import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
 import { AlignType, BlockType } from '@/application/types';
-import { getScrollParent } from '@/components/global-comment/utils';
+import { useEditorContext } from '@/components/editor/EditorContext';
 import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
 import { openUrl } from '@/utils/url';
 import { KeyboardEvent, useCallback } from 'react';
@@ -14,13 +14,12 @@ import smoothScrollIntoViewIfNeeded from 'smooth-scroll-into-view-if-needed';
 
 export function useShortcuts (editor: ReactEditor) {
   const yjsEditor = editor as YjsEditor;
+  const { viewId } = useEditorContext();
   const readOnly = useReadOnly();
 
   const focusedFocusableElement = useCallback((toStart?: boolean) => {
     if (readOnly) return;
-    const slateDom = ReactEditor.toDOMNode(editor, editor);
-    const scrollElement = getScrollParent(slateDom) as HTMLElement;
-    const title = scrollElement?.querySelector('#editor-title');
+    const title = document.getElementById(`editor-title-${viewId}`);
 
     if (!title) return;
 
@@ -32,7 +31,7 @@ export function useShortcuts (editor: ReactEditor) {
     range.setStart(textNode, toStart ? 0 : (textNode?.textContent?.length || 0));
     selection?.removeAllRanges();
     selection?.addRange(range);
-  }, [readOnly, editor]);
+  }, [readOnly, viewId]);
 
   const onKeyDown = useCallback((event: KeyboardEvent<HTMLDivElement>) => {
     const e = event.nativeEvent;

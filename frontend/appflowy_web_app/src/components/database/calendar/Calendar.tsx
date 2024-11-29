@@ -1,16 +1,16 @@
-import { DatabaseContext } from '@/application/database-yjs';
+import { useDatabaseContext } from '@/application/database-yjs';
 import { useCalendarSetup } from '@/components/database/calendar/Calendar.hooks';
 import { Toolbar, Event } from '@/components/database/components/calendar';
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Calendar as BigCalendar } from 'react-big-calendar';
 import './calendar.scss';
 
 export function Calendar () {
   const { dayPropGetter, localizer, formats, events, emptyEvents } = useCalendarSetup();
-  const scrollLeft = useContext(DatabaseContext)?.scrollLeft;
-  const isDocumentBlock = useContext(DatabaseContext)?.isDocumentBlock;
+  const scrollLeft = useDatabaseContext().scrollLeft;
+  const isDocumentBlock = useDatabaseContext().isDocumentBlock;
   const ref = useRef<HTMLDivElement>(null);
-  const onRendered = useContext(DatabaseContext)?.onRendered;
+  const onRendered = useDatabaseContext().onRendered;
 
   useEffect(() => {
     const el = ref.current;

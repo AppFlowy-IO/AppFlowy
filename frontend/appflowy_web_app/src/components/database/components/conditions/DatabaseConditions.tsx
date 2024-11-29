@@ -1,8 +1,13 @@
-import { DatabaseContext, useDatabaseView, useFiltersSelector, useSortsSelector } from '@/application/database-yjs';
+import {
+  useDatabaseContext,
+  useDatabaseView,
+  useFiltersSelector,
+  useSortsSelector,
+} from '@/application/database-yjs';
 import { DatabaseViewLayout, YjsDatabaseKey } from '@/application/types';
 import { AFScroller } from '@/components/_shared/scroller';
 import { useConditionsContext } from '@/components/database/components/conditions/context';
-import React, { useContext, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import Filters from 'src/components/database/components/filters/Filters';
 import Sorts from 'src/components/database/components/sorts/Sorts';
 
@@ -12,7 +17,7 @@ export function DatabaseConditions () {
   const sorts = useSortsSelector();
   const filters = useFiltersSelector();
   const view = useDatabaseView();
-  const scrollLeft = useContext(DatabaseContext)?.scrollLeft;
+  const scrollLeft = useDatabaseContext().scrollLeft;
   const layout = Number(view?.get(YjsDatabaseKey.layout));
   const className = useMemo(() => {
     const classList = ['database-conditions min-w-0 max-w-full relative transform overflow-hidden transition-all'];

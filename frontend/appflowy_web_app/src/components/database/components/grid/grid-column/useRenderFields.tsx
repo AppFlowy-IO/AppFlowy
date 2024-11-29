@@ -1,8 +1,8 @@
-import { DatabaseContext } from '@/application/database-yjs';
+import { useDatabaseContext } from '@/application/database-yjs';
 import { FieldId } from '@/application/types';
 import { FieldVisibility } from '@/application/database-yjs/database.type';
 import { useFieldsSelector } from '@/application/database-yjs/selector';
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 export enum GridColumnType {
   Action,
@@ -20,7 +20,8 @@ export type RenderColumn = {
 
 export function useRenderFields () {
   const fields = useFieldsSelector();
-  const scrollLeft = useContext(DatabaseContext)?.scrollLeft;
+  const context = useDatabaseContext();
+  const scrollLeft = context.scrollLeft;
   const renderColumns = useMemo(() => {
     const data = fields.map((column) => ({
       ...column,
@@ -55,7 +56,7 @@ export function useRenderFields () {
         return remainingWidth > 0 ? remainingWidth + width : width;
       }
 
-      if (type === GridColumnType.Action && containerWidth < 800) {
+      if (index > 0 && type === GridColumnType.Action && containerWidth < 800) {
         return 16;
       }
 

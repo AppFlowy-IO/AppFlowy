@@ -1,11 +1,11 @@
-import { useDatabase, useViewId } from '@/application/database-yjs';
+import { useDatabase, useDatabaseViewId } from '@/application/database-yjs';
 import { useRenderFields, GridHeader, GridTable } from '@/components/database/components/grid';
 import { CircularProgress } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 
 export function Grid () {
   const database = useDatabase();
-  const viewId = useViewId() || '';
+  const viewId = useDatabaseViewId() || '';
   const [scrollLeft, setScrollLeft] = useState(0);
 
   const { fields, columnWidth } = useRenderFields();

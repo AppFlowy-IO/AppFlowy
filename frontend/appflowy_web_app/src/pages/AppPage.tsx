@@ -1,9 +1,4 @@
-import {
-  ViewComponentProps,
-  ViewLayout,
-  YDoc,
-  ViewMetaProps,
-} from '@/application/types';
+import { UIVariant, ViewComponentProps, ViewLayout, ViewMetaProps, YDoc } from '@/application/types';
 import Help from '@/components/_shared/help/Help';
 import { findView } from '@/components/_shared/outline/utils';
 
@@ -126,6 +121,7 @@ function AppPage () {
         loadViews={loadViews}
         onWordCountChange={setWordCount}
         uploadFile={handleUploadFile}
+        variant={UIVariant.App}
       />
     ) : null;
   }, [addPage, handleUploadFile, loadViews, setWordCount, openPageModal, deletePage, updatePage, onRendered, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, appendBreadcrumb, loadView]);

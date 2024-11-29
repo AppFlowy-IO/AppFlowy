@@ -30,8 +30,10 @@ export function useVisible () {
     if (forceShow) return true;
     if (!focus) return false;
 
+    if (document.getSelection()?.isCollapsed) return false;
+
     return Boolean(selectedText && isExpanded && !isDragging);
-  }, [focus, selectedText, forceShow, isExpanded, isDragging]);
+  }, [forceShow, focus, selectedText, isExpanded, isDragging]);
 
   useEffect(() => {
     if (!visible) {
