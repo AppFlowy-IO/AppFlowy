@@ -773,6 +773,34 @@
       "couldNotLoadErrorMsg": "ไม่สามารถโหลดทางลัดได้ ลองอีกครั้ง",
       "couldNotSaveErrorMsg": "ไม่สามารถบันทึกทางลัดได้ โปรดลองอีกครั้ง"
     },
+    "aiPage": {
+      "title": "การตั้งค่า AI",
+      "menuLabel": "การตั้งค่า AI",
+      "keys": {
+        "enableAISearchTitle": "การค้นหาด้วย AI",
+        "aiSettingsDescription": "เลือกโมเดลที่คุณต้องการใช้เพื่อขับเคลื่อน AppFlowy AI ขณะนี้มี GPT-4, Claude 3.5, Llama 3.1, และ Mistral 7B",
+        "loginToEnableAIFeature": "คุณสมบัติ AI จะเปิดใช้งานได้หลังจากเข้าสู่ระบบด้วย @:appName Cloud เท่านั้น หากคุณไม่มีบัญชี @:appName ให้ไปที่ 'บัญชีของฉัน' เพื่อลงทะเบียน",
+        "llmModel": "โมเดลภาษา",
+        "llmModelType": "ประเภทของโมเดลภาษา",
+        "downloadLLMPrompt": "ดาวน์โหลด {}",
+        "downloadAppFlowyOfflineAI": "การดาวน์โหลดแพ็กเกจ AI แบบออฟไลน์จะทำให้ AI สามารถทำงานบนอุปกรณ์ของคุณได้ คุณต้องการดำเนินการต่อหรือไม่?",
+        "downloadLLMPromptDetail": "การดาวน์โหลดโมเดล {} ในเครื่องของคุณ จะใช้พื้นที่เก็บข้อมูลสูงสุด {} คุณต้องการดำเนินการต่อหรือไม่",
+        "downloadBigFilePrompt": "การดาวน์โหลดอาจใช้เวลาประมาณ 10 นาทีให้เสร็จสิ้น",
+        "downloadAIModelButton": "ดาวน์โหลด",
+        "downloadingModel": "กำลังดาวน์โหลด",
+        "localAILoaded": "เพิ่มโมเดล AI ในเครื่องสำเร็จ และพร้อมใช้งานแล้ว",
+        "localAIStart": "การแชท Local AI กำลังเริ่มต้น...",
+        "localAILoading": "กำลังโหลดโมเดลแชท Local AI...",
+        "localAIStopped": "Local AI หยุดทำงานแล้ว",
+        "failToLoadLocalAI": "ไม่สามารถเริ่มต้น Local AI ได้",
+        "restartLocalAI": "เริ่มต้น Local AI ใหม่",
+        "disableLocalAITitle": "ปิดการใช้งาน Local AI",
+        "disableLocalAIDescription": "คุณต้องการปิดการใช้งาน Local AI หรือไม่?",
+        "localAIToggleTitle": "สลับเพื่อเปิดหรือปิดใช้งาน Local AI",
+        "offlineAIInstruction3": "เพื่อเปิดใช้งาน AI แบบออฟไลน์",
+        "offlineAIDownload2": "ดาวน์โหลด"
+      }
+    },
     "menu": {
       "appearance": "รูปลักษณ์",
       "language": "ภาษา",
@@ -1721,5 +1749,13 @@
     "cameraPermissionDescription": "@:appName ต้องการเข้าถึงกล้องของคุณเพื่อให้คุณสามารถเพิ่มรูปภาพลงในเอกสารจากกล้องได้",
     "doNotAllow": "ไม่อนุญาต",
     "image": "รูปภาพ"
+  },
+  "globalComment": {
+    "showSeconds": {
+      "zero": "เมื่อสักครู่"
+    }
+  },
+  "time": {
+    "justNow": "เมื่อสักครู่"
   }
 }
