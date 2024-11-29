@@ -1,7 +1,7 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/shared_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_cell_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_row_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/_shared_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_cell_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_constants.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_row_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,9 +10,6 @@ typedef SimpleTableColumnWidthMap = Map<String, double>;
 typedef SimpleTableRowAlignMap = Map<String, String>;
 typedef SimpleTableColumnAlignMap = Map<String, String>;
 typedef SimpleTableColorMap = Map<String, String>;
-
-// enable the debug border, the table will highlight with different background.
-bool _enableTableDebugBorder = false;
 
 class SimpleTableBlockKeys {
   const SimpleTableBlockKeys._();

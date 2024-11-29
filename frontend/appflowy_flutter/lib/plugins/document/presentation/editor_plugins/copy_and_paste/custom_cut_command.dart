@@ -1,5 +1,4 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_operations.dart';
 import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';

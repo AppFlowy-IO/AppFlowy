@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/shared_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_operations.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/_shared_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_constants.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_operations/simple_table_operations.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';

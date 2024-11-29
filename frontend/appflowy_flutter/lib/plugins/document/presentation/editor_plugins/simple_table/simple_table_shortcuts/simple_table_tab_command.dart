@@ -1,5 +1,5 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/shortcuts/table_command_extension.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_operations.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_shortcuts/simple_table_command_extension.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_operations/simple_table_operations.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 final CommandShortcutEvent tabInTableCell = CommandShortcutEvent(

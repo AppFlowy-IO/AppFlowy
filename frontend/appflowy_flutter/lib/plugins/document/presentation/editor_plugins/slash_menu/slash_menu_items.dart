@@ -8,7 +8,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/imag
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/slash_menu_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_menu_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
