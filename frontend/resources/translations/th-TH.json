@@ -91,14 +91,48 @@
       "reportIssueOnGithub": "รายงานปัญหาบน Github",
       "exportLogFiles": "ส่งออกไฟล์บันทึก",
       "reachOut": "ติดต่อได้ที่ Discord"
-    }
+    },
+    "createSuccess": "สร้างพื้นที่ทำงานสำเร็จแล้ว",
+    "createFailed": "ไม่สามารถสร้างพื้นที่ทำงานได้",
+    "deleteSuccess": "ลบพื้นที่ทำงานสำเร็จแล้ว",
+    "deleteFailed": "ไม่สามารถลบพื้นที่ทำงานได้",
+    "openSuccess": "เปิดพื้นที่ทำงานได้สำเร็จ",
+    "openFailed": "ไม่สามารถเปิดพื้นที่ทำงานได้",
+    "renameSuccess": "เปลี่ยนชื่อพื้นที่ทำงานสำเร็จแล้ว",
+    "renameFailed": "ไม่สามารถเปลี่ยนชื่อพื้นที่ทำงานได้",
+    "updateIconSuccess": "อัปเดตไอคอนพื้นที่ทำงานสำเร็จแล้ว",
+    "updateIconFailed": "ไม่สามารถอัปเดตไอคอนพื้นที่ทำงานได้",
+    "cannotDeleteTheOnlyWorkspace": "ไม่สามารถลบพื้นที่ทำงานเพียงอย่างเดียวได้",
+    "fetchWorkspacesFailed": "ไม่สามารถดึงข้อมูลพื้นที่ทำงานได้",
+    "leaveCurrentWorkspace": "ออกจากพื้นที่ทำงาน",
+    "leaveCurrentWorkspacePrompt": "คุณแน่ใจหรือไม่ว่าต้องการออกจากพื้นที่ทำงานปัจจุบัน?"
   },
   "shareAction": {
     "buttonText": "แชร์",
     "workInProgress": "เร็วๆ นี้",
     "markdown": "Markdown",
+    "html": "HTML",
+    "clipboard": "คัดลอกไปยังคลิปบอร์ด",
     "csv": "CSV",
-    "copyLink": "คัดลอกลิงค์"
+    "copyLink": "คัดลอกลิงค์",
+    "publishToTheWeb": "เผยแพร่สู่เว็บ",
+    "publishToTheWebHint": "สร้างเว็บไซต์ด้วย AppFlowy",
+    "publish": "เผยแพร่",
+    "unPublish": "ยกเลิกการเผยแพร่",
+    "visitSite": "เยี่ยมชมเว็บไซต์",
+    "exportAsTab": "ส่งออกเป็น",
+    "publishTab": "เผยแพร่",
+    "shareTab": "แชร์",
+    "publishOnAppFlowy": "เผยแพร่บน AppFlowy",
+    "shareTabTitle": "เชิญเพื่อการทำงานร่วมกัน",
+    "shareTabDescription": "เพื่อการทำงานร่วมกันอย่างง่ายดายกับใครก็ได้",
+    "copyLinkSuccess": "คัดลอกลิงก์ไปยังคลิปบอร์ดแล้ว",
+    "copyShareLink": "คัดลอกลิงก์แชร์",
+    "copyLinkFailed": "ไม่สามารถคัดลอกลิงก์ไปยังคลิปบอร์ดได้",
+    "copyLinkToBlockSuccess": "คัดลอกลิงก์บล็อกไปยังคลิปบอร์ดแล้ว",
+    "copyLinkToBlockFailed": "ไม่สามารถคัดลอกลิงก์บล็อกไปยังคลิปบอร์ด",
+    "manageAllSites": "จัดการไซต์ทั้งหมด",
+    "updatePathName": "อัปเดตชื่อเส้นทาง"
   },
   "moreAction": {
     "small": "เล็ก",
@@ -106,12 +140,15 @@
     "large": "ใหญ่",
     "fontSize": "ขนาดตัวอักษร",
     "import": "นำเข้า",
-    "moreOptions": "ตัวเลือกเพิ่มเติม"
+    "moreOptions": "ตัวเลือกเพิ่มเติม",
+    "deleteView": "ลบ",
+    "duplicateView": "ทำสำเนา"
   },
   "importPanel": {
     "textAndMarkdown": "ข้อความ & Markdown",
     "documentFromV010": "เอกสารจาก v0.1.0",
     "databaseFromV010": "ฐานข้อมูลจาก v0.1.0",
+    "notionZip": "ไฟล์ Zip ที่ส่งออกจาก Notion",
     "csv": "CSV",
     "database": "ฐานข้อมูล"
   },
@@ -124,7 +161,9 @@
     "openNewTab": "เปิดในแท็บใหม่",
     "moveTo": "ย้ายไปยัง",
     "addToFavorites": "เพิ่มในรายการโปรด",
-    "copyLink": "คัดลอกลิงค์"
+    "copyLink": "คัดลอกลิงค์",
+    "changeIcon": "เปลี่ยนไอคอน",
+    "collapseAllPages": "ยุบหน้าย่อยทั้งหมด"
   },
   "blankPageTitle": "หน้าเปล่า",
   "newPageText": "หน้าใหม่",
@@ -132,6 +171,11 @@
   "newGridText": "ตารางใหม่",
   "newCalendarText": "ปฏิทินใหม่",
   "newBoardText": "กระดานใหม่",
+  "chat": {
+    "relatedQuestion": "ข้อเสนอแนะ",
+    "retry": "ลองใหม่อีกครั้ง",
+    "clickToRetry": "คลิกเพื่อลองใหม่อีกครั้ง"
+  },
   "trash": {
     "text": "ขยะ",
     "restoreAll": "กู้คืนทั้งหมด",
