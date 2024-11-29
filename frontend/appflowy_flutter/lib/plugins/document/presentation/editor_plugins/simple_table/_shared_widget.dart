@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
@@ -569,15 +571,25 @@ class _SimpleTableColumnResizeHandleState
       },
       child: GestureDetector(
         onHorizontalDragStart: (details) {
+          // disable the two-finger drag on trackpad
+          if (details.kind == PointerDeviceKind.trackpad) {
+            return;
+          }
           isStartDragging = true;
         },
         onHorizontalDragUpdate: (details) {
+          if (!isStartDragging) {
+            return;
+          }
           context.read<EditorState>().updateColumnWidthInMemory(
                 tableCellNode: widget.node,
                 deltaX: details.delta.dx,
               );
         },
         onHorizontalDragEnd: (details) {
+          if (!isStartDragging) {
+            return;
+          }
           context.read<SimpleTableContext>().hoveringOnResizeHandle.value =
               null;
           isStartDragging = false;
