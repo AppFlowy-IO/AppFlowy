@@ -92,12 +92,17 @@ Node createSimpleTableBlockNode({
   required int columnCount,
   required int rowCount,
   String? defaultContent,
+  String Function(int rowIndex, int columnIndex)? contentBuilder,
 }) {
-  final rows = List.generate(rowCount, (_) {
+  final rows = List.generate(rowCount, (rowIndex) {
     final cells = List.generate(
       columnCount,
-      (_) => simpleTableCellBlockNode(
-        children: [paragraphNode(text: defaultContent)],
+      (columnIndex) => simpleTableCellBlockNode(
+        children: [
+          paragraphNode(
+            text: defaultContent ?? contentBuilder?.call(rowIndex, columnIndex),
+          ),
+        ],
       ),
     );
     return simpleTableRowBlockNode(children: cells);
