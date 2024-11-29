@@ -342,7 +342,10 @@
     "askOwnerToUpgradeToAIMaxIOS": "จำนวนการตอบกลับ AI ฟรี ในพื้นที่ทำงานของคุณใกล้หมดแล้ว",
     "purchaseStorageSpace": "ซื้อพื้นที่จัดเก็บข้อมูล",
     "singleFileProPlanLimitationDescription": "คุณอัปโหลดไฟล์เกินขนาดสูงสุดที่อนุญาตในแผนฟรี โปรดอัปเกรดเป็นแผน Pro เพื่ออัปโหลดไฟล์ขนาดใหญ่ขึ้น",
-    "purchaseAIResponse": "ซื้อ "
+    "purchaseAIResponse": "ซื้อ ",
+    "askOwnerToUpgradeToLocalAI": "กรุณาขอให้เจ้าของพื้นที่ทำงานเปิดใช้งาน AI บนอุปกรณ์",
+    "upgradeToAILocal": "เรียกใช้โมเดลบนอุปกรณ์ของคุณเพื่อความเป็นส่วนตัวสูงสุด",
+    "upgradeToAILocalDesc": "สนทนากับ PDFs ปรับปรุงการเขียนของคุณ และเติมข้อมูลในตารางอัตโนมัติด้วย AI ภายในเครื่อง"
   },
   "notifications": {
     "export": {
@@ -455,6 +458,15 @@
       "selectHomePage": "เลือกหน้า",
       "clearHomePage": "ล้างโฮมเพจสำหรับเนมสเปซนี้",
       "customUrl": "URL แบบกำหนดเอง",
+      "namespace": {
+        "description": "การเปลี่ยนแปลงนี้จะมีผลกับหน้าที่เผยแพร่ทั้งหมดที่เปิดใช้งานในพื้นที่นี้",
+        "tooltip": "เราขอสงวนสิทธิ์ในการลบเนมสเปซที่ไม่เหมาะสม",
+        "updateExistingNamespace": "อัปเดตเนมสเปซที่มีอยู่",
+        "upgradeToPro": "อัปเกรดเป็นแผน Pro เพื่อกำหนดหน้าโฮมเพจ",
+        "redirectToPayment": "กำลังเปลี่ยนเส้นทางไปยังหน้าชำระเงิน...",
+        "onlyWorkspaceOwnerCanSetHomePage": "เฉพาะเจ้าของพื้นที่ทำงานเท่านั้นที่สามารถกำหนดหน้าโฮมเพจได้",
+        "pleaseAskOwnerToSetHomePage": "กรุณาขอให้เจ้าของพื้นที่ทำงานอัปเกรดเป็นแผน Pro"
+      },
       "publishedPage": {
         "title": "หน้าที่เผยแพร่ทั้งหมด",
         "description": "จัดการหน้าที่เผยแพร่ของคุณ",
@@ -470,7 +482,165 @@
       "error": {
         "failedToGeneratePaymentLink": "ไม่สามารถสร้างลิงก์การชำระเงินสำหรับแผน Pro ได้",
         "failedToUpdateNamespace": "ไม่สามารถอัปเดตเนมสเปซได้",
-        "proPlanLimitation": "คุณต้องอัปเกรดเป็นแผน Pro เพื่ออัปเดตเนมสเปซ"
+        "proPlanLimitation": "คุณต้องอัปเกรดเป็นแผน Pro เพื่ออัปเดตเนมสเปซ",
+        "namespaceAlreadyInUse": "เนมสเปซนี้ถูกใช้ไปแล้ว กรุณาลองชื่ออื่น",
+        "invalidNamespace": "เนมสเปซไม่ถูกต้อง กรุณาลองชื่ออื่น",
+        "namespaceLengthAtLeast2Characters": "เนมสเปซต้องมีความยาวอย่างน้อย 2 ตัวอักษร",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "เฉพาะเจ้าของพื้นที่ทำงานเท่านั้นที่สามารถอัปเดตเนมสเปซได้",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "เฉพาะเจ้าของพื้นที่ทำงานเท่านั้นที่สามารถลบหน้าโฮมเพจได้",
+        "setHomepageFailed": "ไม่สามารถตั้งค่าหน้าแรกได้",
+        "namespaceTooLong": "เนมสเปซยาวเกินไป กรุณาลองชื่ออื่น",
+        "namespaceTooShort": "เนมสเปซสั้นเกินไป กรุณาลองชื่ออื่น",
+        "namespaceIsReserved": "เนมสเปซนี้ถูกจองไว้แล้ว กรุณาลองชื่ออื่น",
+        "updatePathNameFailed": "ไม่สามารถอัปเดตชื่อเส้นทางได้",
+        "removeHomePageFailed": "ไม่สามารถลบหน้าแรกได้",
+        "publishNameContainsInvalidCharacters": "ชื่อเส้นทางมีอักขระที่ไม่ถูกต้อง โปรดลองอักขระอื่น",
+        "publishNameTooShort": "ชื่อเส้นทางสั้นเกินไป กรุณาลองชื่ออื่น",
+        "publishNameTooLong": "ชื่อเส้นทางยาวเกินไป กรุณาลองชื่ออื่น",
+        "publishNameAlreadyInUse": "ชื่อเส้นทางนี้ถูกใช้ไปแล้ว กรุณาลองชื่ออื่น",
+        "namespaceContainsInvalidCharacters": "เนมสเปซมีอักขระที่ไม่ถูกต้อง โปรดลองอักขระอื่น",
+        "publishPermissionDenied": "เฉพาะเจ้าของพื้นที่ทำงานหรือผู้เผยแพร่เพจเท่านั้นที่สามารถจัดการการตั้งค่าการเผยแพร่ได้",
+        "publishNameCannotBeEmpty": "ชื่อเส้นทางไม่สามารถเว้นว่างได้ กรุณาลองชื่ออื่น"
+      },
+      "success": {
+        "namespaceUpdated": "อัปเดตเนมสเปซสำเร็จ",
+        "setHomepageSuccess": "ตั้งค่าหน้าแรกสำเร็จ",
+        "updatePathNameSuccess": "อัปเดตชื่อเส้นทางสำเร็จ",
+        "removeHomePageSuccess": "ลบหน้าแรกสำเร็จ"
+      }
+    },
+    "accountPage": {
+      "menuLabel": "บัญชีของฉัน",
+      "title": "บัญชีของฉัน",
+      "general": {
+        "title": "ชื่อบัญชีและรูปโปรไฟล์",
+        "changeProfilePicture": "เปลี่ยนรูปโปรไฟล์"
+      },
+      "email": {
+        "title": "อีเมล",
+        "actions": {
+          "change": "เปลี่ยนอีเมล"
+        }
+      },
+      "login": {
+        "title": "การเข้าสู่ระบบบัญชี",
+        "loginLabel": "เข้าสู่ระบบ",
+        "logoutLabel": "ออกจากระบบ"
+      }
+    },
+    "workspacePage": {
+      "menuLabel": "พื้นที่ทำงาน",
+      "title": "พื้นที่ทำงาน",
+      "description": "ปรับแต่งรูปลักษณ์ของพื้นที่ทำงาน ธีม แบบอักษร เค้าโครงข้อความ รูปแบบวันที่/เวลา และภาษา",
+      "workspaceName": {
+        "title": "ชื่อพื้นที่ทำงาน"
+      },
+      "workspaceIcon": {
+        "title": "ไอคอนพื้นที่ทำงาน",
+        "description": "อัปโหลดรูปภาพหรือใช้อีโมจิสำหรับพื้นที่ทำงานของคุณ ไอคอนจะแสดงในแถบด้านข้างและการแจ้งเตือนของคุณ"
+      },
+      "appearance": {
+        "title": "ลักษณะการแสดงผล",
+        "description": "ปรับแต่งรูปลักษณ์พื้นที่ทำงาน ธีม แบบอักษร เค้าโครงข้อความ วันที่ เวลา และภาษาของคุณ",
+        "options": {
+          "system": "อัตโนมัติ",
+          "light": "สว่าง",
+          "dark": "มืด"
+        }
+      },
+      "resetCursorColor": {
+        "title": "รีเซ็ตสีของเคอร์เซอร์ในเอกสาร",
+        "description": "คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ตสีของเคอร์เซอร์?"
+      },
+      "resetSelectionColor": {
+        "title": "รีเซ็ตสีการเลือกในเอกสาร",
+        "description": "คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ตสีการเลือก?"
+      },
+      "resetWidth": {
+        "resetSuccess": "รีเซ็ตความกว้างของเอกสารสำเร็จ"
+      },
+      "theme": {
+        "title": "ธีม",
+        "description": "เลือกธีมที่ตั้งไว้ล่วงหน้าหรืออัปโหลดธีมที่คุณกำหนดเอง",
+        "uploadCustomThemeTooltip": "อัพโหลดธีมที่กำหนดเอง"
+      },
+      "workspaceFont": {
+        "title": "ฟอนต์ของพื้นที่ทำงาน",
+        "noFontHint": "ไม่พบฟอนต์ กรุณาลองคำค้นหาอื่น"
+      },
+      "textDirection": {
+        "title": "ทิศทางข้อความ",
+        "leftToRight": "จากซ้ายไปขวา",
+        "rightToLeft": "จากขวาไปซ้าย",
+        "auto": "อัตโนมัติ",
+        "enableRTLItems": "เปิดใช้งานรายการเครื่องมือ RTL (จากขวาไปซ้าย)"
+      },
+      "layoutDirection": {
+        "title": "ทิศทางการจัดวาง",
+        "leftToRight": "จากซ้ายไปขวา",
+        "rightToLeft": "จากขวาไปซ้าย"
+      },
+      "dateTime": {
+        "title": "วันที่และเวลา",
+        "example": "{} ที่ {} ({})",
+        "24HourTime": "เวลาแบบ 24 ชั่วโมง",
+        "dateFormat": {
+          "label": "รูปแบบวันที่",
+          "local": "ท้องถิ่น",
+          "us": "US",
+          "iso": "ISO",
+          "friendly": "ที่เข้าใจง่าย",
+          "dmy": "D/M/Y"
+        }
+      },
+      "language": {
+        "title": "ภาษา"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "ลบพื้นที่ทำงาน",
+        "content": "คุณแน่ใจหรือไม่ว่าต้องการลบพื้นที่ทำงานนี้? การดำเนินการนี้ไม่สามารถย้อนกลับได้ และหน้าใดๆ ที่คุณเผยแพร่ไปแล้วจะถูกยกเลิกการเผยแพร่"
+      },
+      "leaveWorkspacePrompt": {
+        "title": "ออกจากพื้นที่ทำงาน",
+        "content": "คุณแน่ใจหรือไม่ว่าต้องการออกจากพื้นที่ทำงานนี้? คุณจะสูญเสียการเข้าถึงหน้าและข้อมูลทั้งหมดภายในพื้นที่นี้",
+        "success": "คุณได้ออกจากพื้นที่ทำงานเรียบร้อยแล้ว",
+        "fail": "ไม่สามารถออกจากพื้นที่ทำงานได้"
+      },
+      "manageWorkspace": {
+        "title": "จัดการพื้นที่ทำงาน",
+        "leaveWorkspace": "ออกจากพื้นที่ทำงาน",
+        "deleteWorkspace": "ลบพื้นที่ทำงาน"
+      }
+    },
+    "manageDataPage": {
+      "menuLabel": "การจัดการข้อมูล",
+      "title": "การจัดการข้อมูล",
+      "description": "จัดการพื้นที่จัดเก็บข้อมูลในเครื่องหรือนำเข้าข้อมูลที่มีอยู่ของคุณลงใน @:appName",
+      "dataStorage": {
+        "title": "ตำแหน่งจัดเก็บไฟล์",
+        "tooltip": "ตำแหน่งที่จัดเก็บไฟล์ของคุณ",
+        "actions": {
+          "change": "เปลี่ยนเส้นทาง",
+          "open": "เปิดโฟลเดอร์",
+          "openTooltip": "เปิดตำแหน่งโฟลเดอร์ข้อมูลปัจจุบัน",
+          "copy": "คัดลอกเส้นทาง",
+          "copiedHint": "คัดลอกเส้นทางแล้ว!",
+          "resetTooltip": "รีเซ็ตเป็นตำแหน่งเริ่มต้น"
+        },
+        "resetDialog": {
+          "title": "คุณแน่ใจหรือไม่?",
+          "description": "การรีเซ็ตเส้นทางไปยังตำแหน่งข้อมูลเริ่มต้นจะไม่ลบข้อมูลของคุณ หากคุณต้องการนำเข้าข้อมูลปัจจุบันอีกครั้ง ควรคัดลอกเส้นทางของตำแหน่งปัจจุบันก่อน"
+        }
+      },
+      "importData": {
+        "title": "นำเข้าข้อมูล",
+        "tooltip": "นำเข้าข้อมูลจากการสำรองข้อมูล/โฟลเดอร์ข้อมูล @:appName"
+      }
+    },
+    "shortcutsPage": {
+      "searchHint": "ค้นหา",
+      "actions": {
+        "resetDefault": "รีเซ็ตค่าเริ่มต้น"
       }
     },
     "menu": {
@@ -1005,7 +1175,8 @@
     "codeBlock": {
       "language": {
         "label": "ภาษา",
-        "placeholder": "เลือกภาษา"
+        "placeholder": "เลือกภาษา",
+        "auto": "อัตโนมัติ"
       }
     },
     "inlineLink": {
@@ -1370,5 +1541,43 @@
     "date": "วันที่",
     "addField": "เพิ่มฟิลด์",
     "userIcon": "ไอคอนผู้ใช้งาน"
+  },
+  "newSettings": {
+    "workplace": {
+      "subtitle": "ปรับแต่งรูปลักษณ์พื้นที่ทำงาน ธีม แบบอักษร เค้าโครงข้อความ วันที่ เวลา และภาษาของคุณ",
+      "renameError": "ไม่สามารถเปลี่ยนชื่อสถานที่ทำงานได้",
+      "updateIconError": "ไม่สามารถอัปเดตไอคอนได้",
+      "chooseAnIcon": "เลือกไอคอน",
+      "appearance": {
+        "name": "ลักษณะการแสดงผล",
+        "themeMode": {
+          "auto": "อัตโนมัติ",
+          "light": "สว่าง",
+          "dark": "มืด"
+        },
+        "language": "ภาษา"
+      }
+    }
+  },
+  "pageStyle": {
+    "title": "รูปแบบหน้า",
+    "layout": "เค้าโครง",
+    "coverImage": "ภาพปก",
+    "pageIcon": "ไอคอนหน้าเพจ",
+    "colors": "สีสัน",
+    "gradient": "การไล่ระดับ",
+    "backgroundImage": "ภาพพื้นหลัง",
+    "presets": "พรีเซ็ต",
+    "photo": "รูปถ่าย",
+    "unsplash": "อันสแปลช",
+    "pageCover": "ปกหน้า",
+    "none": "ไม่มี",
+    "openSettings": "เปิดการตั้งค่า",
+    "photoPermissionTitle": "@:appName ต้องการเข้าถึงคลังรูปภาพของคุณ",
+    "photoPermissionDescription": "@:appName ต้องการเข้าถึงรูปภาพของคุณเพื่อให้คุณสามารถเพิ่มภาพลงในเอกสารของคุณได้",
+    "cameraPermissionTitle": "@:appName ต้องการเข้าถึงกล้องของคุณ",
+    "cameraPermissionDescription": "@:appName ต้องการเข้าถึงกล้องของคุณเพื่อให้คุณสามารถเพิ่มรูปภาพลงในเอกสารจากกล้องได้",
+    "doNotAllow": "ไม่อนุญาต",
+    "image": "รูปภาพ"
   }
 }
