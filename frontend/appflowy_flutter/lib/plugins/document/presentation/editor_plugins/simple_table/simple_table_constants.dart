@@ -14,6 +14,7 @@ class SimpleTableContext {
       selectingColumn.addListener(_onSelectingColumnChanged);
       selectingRow.addListener(_onSelectingRowChanged);
       isSelectingTable.addListener(_onSelectingTableChanged);
+      isHoveringOnTableBlock.addListener(_onHoveringOnTableBlockChanged);
     }
   }
 
@@ -23,6 +24,7 @@ class SimpleTableContext {
   final ValueNotifier<int?> selectingColumn = ValueNotifier(null);
   final ValueNotifier<int?> selectingRow = ValueNotifier(null);
   final ValueNotifier<bool> isSelectingTable = ValueNotifier(false);
+  final ValueNotifier<bool> isHoveringOnTableBlock = ValueNotifier(false);
 
   void _onHoveringOnTableChanged() {
     if (!enableTableDebugLog) {
@@ -69,6 +71,14 @@ class SimpleTableContext {
     Log.debug('isSelectingTable: ${isSelectingTable.value}');
   }
 
+  void _onHoveringOnTableBlockChanged() {
+    if (!enableTableDebugLog) {
+      return;
+    }
+
+    Log.debug('isHoveringOnTableBlock: ${isHoveringOnTableBlock.value}');
+  }
+
   void dispose() {
     isHoveringOnTable.dispose();
     hoveringTableCell.dispose();
@@ -76,6 +86,7 @@ class SimpleTableContext {
     selectingColumn.dispose();
     selectingRow.dispose();
     isSelectingTable.dispose();
+    isHoveringOnTableBlock.dispose();
   }
 }
 

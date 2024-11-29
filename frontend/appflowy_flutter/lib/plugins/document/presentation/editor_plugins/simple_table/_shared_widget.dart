@@ -103,25 +103,32 @@ class _SimpleTableAddRowHoverButtonState
     }
 
     return ValueListenableBuilder(
-      valueListenable: context.read<SimpleTableContext>().hoveringTableCell,
-      builder: (context, tableCell, child) {
-        if (tableCell == null) {
-          return const SizedBox.shrink();
-        }
-        final showRowButton = tableCell.rowIndex + 1 == tableCell.rowLength;
-        return showRowButton
-            ? Positioned(
-                bottom: 2 * SimpleTableConstants.addRowButtonPadding,
-                left: SimpleTableConstants.tableLeftPadding -
-                    SimpleTableConstants.cellBorderWidth,
-                right: SimpleTableConstants.addRowButtonRightPadding,
-                child: SimpleTableAddRowButton(
-                  onTap: () => widget.editorState.addRowInTable(
-                    widget.tableNode,
-                  ),
-                ),
-              )
-            : const SizedBox.shrink();
+      valueListenable:
+          context.read<SimpleTableContext>().isHoveringOnTableBlock,
+      builder: (context, isHoveringOnTableBlock, child) {
+        return ValueListenableBuilder(
+          valueListenable: context.read<SimpleTableContext>().hoveringTableCell,
+          builder: (context, tableCell, child) {
+            bool showRowButton = isHoveringOnTableBlock;
+            if (tableCell != null) {
+              showRowButton = showRowButton &&
+                  tableCell.rowIndex + 1 == tableCell.rowLength;
+            }
+            return showRowButton
+                ? Positioned(
+                    bottom: 2 * SimpleTableConstants.addRowButtonPadding,
+                    left: SimpleTableConstants.tableLeftPadding -
+                        SimpleTableConstants.cellBorderWidth,
+                    right: SimpleTableConstants.addRowButtonRightPadding,
+                    child: SimpleTableAddRowButton(
+                      onTap: () => widget.editorState.addRowInTable(
+                        widget.tableNode,
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink();
+          },
+        );
       },
     );
   }
