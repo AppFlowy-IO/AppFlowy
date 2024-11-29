@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/markdown_code_parser.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 Document customMarkdownToDocument(String markdown) {
@@ -6,6 +6,19 @@ Document customMarkdownToDocument(String markdown) {
     markdown,
     markdownParsers: [
       const MarkdownCodeBlockParser(),
+    ],
+  );
+}
+
+String customDocumentToMarkdown(Document document) {
+  return documentToMarkdown(
+    document,
+    customParsers: [
+      const MathEquationNodeParser(),
+      const CalloutNodeParser(),
+      const ToggleListNodeParser(),
+      const CustomImageNodeParser(),
+      const SimpleTableNodeParser(),
     ],
   );
 }
