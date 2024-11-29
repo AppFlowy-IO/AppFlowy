@@ -87,9 +87,21 @@ class SimpleTableConstants {
   static const tableTopPadding = 8.0;
   static const tableLeftPadding = 8.0;
 
+  static const tableBottomPadding =
+      addRowButtonHeight + 3 * addRowButtonPadding;
+  static const tableRightPadding =
+      addColumnButtonWidth + 2 * SimpleTableConstants.addColumnButtonPadding;
+
+  static const tablePadding = EdgeInsets.only(
+    top: tableTopPadding,
+    bottom: tableBottomPadding,
+    left: tableLeftPadding,
+    right: tableRightPadding,
+  );
+
   // Add row button
   static const addRowButtonHeight = 16.0;
-  static const addRowButtonPadding = 2.0;
+  static const addRowButtonPadding = 4.0;
   static const addRowButtonRadius = 4.0;
   static const addRowButtonRightPadding =
       addColumnButtonWidth + addColumnButtonPadding * 2;
@@ -99,12 +111,13 @@ class SimpleTableConstants {
   static const addColumnButtonPadding = 2.0;
   static const addColumnButtonRadius = 4.0;
   static const addColumnButtonBottomPadding =
-      addRowButtonHeight + addRowButtonPadding * 2;
+      addRowButtonHeight + 3 * addRowButtonPadding;
 
   // Add column and row button
   static const addColumnAndRowButtonWidth = addColumnButtonWidth;
   static const addColumnAndRowButtonHeight = addRowButtonHeight;
   static const addColumnAndRowButtonCornerRadius = addColumnButtonWidth / 2.0;
+  static const addColumnAndRowButtonBottomPadding = 2.5 * addRowButtonPadding;
 
   // Table cell
   static const cellEdgePadding = EdgeInsets.symmetric(

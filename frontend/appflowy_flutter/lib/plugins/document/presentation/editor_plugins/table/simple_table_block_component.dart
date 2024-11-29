@@ -11,6 +11,9 @@ typedef SimpleTableRowAlignMap = Map<String, String>;
 typedef SimpleTableColumnAlignMap = Map<String, String>;
 typedef SimpleTableColorMap = Map<String, String>;
 
+// enable the debug border, the table will highlight with different background.
+bool _enableTableDebugBorder = false;
+
 class SimpleTableBlockKeys {
   const SimpleTableBlockKeys._();
 
@@ -207,10 +210,6 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
   }
 
   Widget _buildTable() {
-    const bottomPadding = SimpleTableConstants.addRowButtonHeight +
-        2 * SimpleTableConstants.addRowButtonPadding;
-    const rightPadding = SimpleTableConstants.addColumnButtonWidth +
-        2 * SimpleTableConstants.addColumnButtonPadding;
     // IntrinsicWidth and IntrinsicHeight are used to make the table size fit the content.
     return Provider.value(
       value: simpleTableContext,
@@ -228,12 +227,7 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
                 controller: scrollController,
                 scrollDirection: Axis.horizontal,
                 child: Padding(
-                  padding: const EdgeInsets.only(
-                    top: SimpleTableConstants.tableTopPadding,
-                    left: SimpleTableConstants.tableLeftPadding,
-                    bottom: bottomPadding,
-                    right: rightPadding,
-                  ),
+                  padding: SimpleTableConstants.tablePadding,
                   child: IntrinsicWidth(
                     child: IntrinsicHeight(
                       child: Column(

@@ -113,7 +113,7 @@ class _SimpleTableAddRowHoverButtonState
         final showRowButton = tableCell.rowIndex + 1 == tableCell.rowLength;
         return showRowButton
             ? Positioned(
-                bottom: 0,
+                bottom: 2 * SimpleTableConstants.addRowButtonPadding,
                 left: SimpleTableConstants.tableLeftPadding -
                     SimpleTableConstants.cellBorderWidth,
                 right: SimpleTableConstants.addRowButtonRightPadding,
@@ -161,7 +161,7 @@ class SimpleTableAddRowButton extends StatelessWidget {
           child: Container(
             height: SimpleTableConstants.addRowButtonHeight,
             margin: const EdgeInsets.symmetric(
-              vertical: SimpleTableConstants.addRowButtonPadding,
+              vertical: SimpleTableConstants.addColumnButtonPadding,
             ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(
@@ -335,7 +335,7 @@ class SimpleTableAddColumnAndRowHoverButton extends StatelessWidget {
                 tableCell.columnIndex + 1 == tableCell.columnLength;
         return showAddColumnAndRowButton
             ? Positioned(
-                bottom: SimpleTableConstants.addRowButtonPadding,
+                bottom: SimpleTableConstants.addColumnAndRowButtonBottomPadding,
                 right: SimpleTableConstants.addColumnButtonPadding,
                 child: SimpleTableAddColumnAndRowButton(
                   onTap: () => editorState.addColumnAndRowInTable(node),
