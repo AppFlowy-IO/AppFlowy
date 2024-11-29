@@ -1,6 +1,6 @@
-import { DatabaseContext, useRowsByGroup } from '@/application/database-yjs';
+import { useDatabaseContext, useRowsByGroup } from '@/application/database-yjs';
 import { AFScroller } from '@/components/_shared/scroller';
-import React, { useCallback, useContext, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Column } from '../column';
 
@@ -11,8 +11,8 @@ export interface GroupProps {
 export const Group = ({ groupId }: GroupProps) => {
   const { columns, groupResult, fieldId, notFound } = useRowsByGroup(groupId);
   const { t } = useTranslation();
-  const context = useContext(DatabaseContext);
-  const scrollLeft = useContext(DatabaseContext)?.scrollLeft;
+  const context = useDatabaseContext();
+  const scrollLeft = context.scrollLeft;
   const maxHeightRef = useRef<number>(0);
 
   const onRendered = useCallback((height: number) => {

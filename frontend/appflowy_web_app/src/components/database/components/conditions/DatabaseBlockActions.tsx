@@ -1,17 +1,17 @@
 import { ReactComponent as ExpandMoreIcon } from '@/assets/full_view.svg';
-import { DatabaseContext } from '@/application/database-yjs';
+import { useDatabaseContext } from '@/application/database-yjs';
 import { IconButton, Tooltip } from '@mui/material';
-import React, { useContext } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 function DatabaseBlockActions () {
   const { t } = useTranslation();
-  const context = useContext(DatabaseContext);
+  const context = useDatabaseContext();
   const navigateToView = context?.navigateToView;
   const viewId = context?.viewId;
 
   return (
-    <div className={'flex items-center gap-2'}>
+    <div className={'flex items-center gap-1.5'}>
       <Tooltip
         placement={'bottom'}
         title={t('tooltip.openAsPage')}

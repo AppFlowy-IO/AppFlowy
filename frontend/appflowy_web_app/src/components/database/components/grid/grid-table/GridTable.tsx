@@ -1,7 +1,7 @@
-import { DatabaseContext, useDatabaseViewId } from '@/application/database-yjs';
+import { useDatabaseContext, useDatabaseViewId } from '@/application/database-yjs';
 import { AFScroller } from '@/components/_shared/scroller';
 import { useMeasureHeight } from '@/components/database/components/cell/useMeasure';
-import React, { useCallback, useContext, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { GridChildComponentProps, VariableSizeGrid } from 'react-window';
 import { GridColumnType, RenderColumn } from '../grid-column';
@@ -26,10 +26,10 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
   }, []);
 
   const { rowHeight, onResize } = useMeasureHeight({ forceUpdate, rows });
-  const context = useContext(DatabaseContext);
-  const onRendered = context?.onRendered;
-  const isDocumentBlock = context?.isDocumentBlock;
-  const readOnly = context?.readOnly;
+  const context = useDatabaseContext();
+  const onRendered = context.onRendered;
+  const isDocumentBlock = context.isDocumentBlock;
+  const readOnly = context.readOnly;
 
   const calculateTableHeight = useCallback(() => {
     const table = document.querySelector(`.grid-table-${viewId}`);
@@ -110,7 +110,7 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
       }
 
       if (column.type === GridColumnType.Field) {
-        classList.push('border-b', 'border-line-divider', 'px-2');
+        classList.push('border-b', 'border-line-divider', 'px-2', 'grid-row-filed-cell');
       }
 
       if (column.type === GridColumnType.NewProperty) {

@@ -1,5 +1,5 @@
 import { DatabaseViewLayout, View, YDatabaseView, YjsDatabaseKey } from '@/application/types';
-import { DatabaseContext, useDatabase, useDatabaseView } from '@/application/database-yjs';
+import { useDatabase, useDatabaseContext, useDatabaseView } from '@/application/database-yjs';
 import { DatabaseActions } from '@/components/database/components/conditions';
 import DatabaseBlockActions from '@/components/database/components/conditions/DatabaseBlockActions';
 import { Tooltip } from '@mui/material';
@@ -8,7 +8,6 @@ import {
   FunctionComponent,
   SVGProps,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
@@ -42,11 +41,12 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
     const { t } = useTranslation();
     const view = useDatabaseView();
     const views = useDatabase().get(YjsDatabaseKey.views);
-    const loadViewMeta = useContext(DatabaseContext)?.loadViewMeta;
+    const context = useDatabaseContext();
+    const loadViewMeta = context.loadViewMeta;
     const [meta, setMeta] = useState<View | null>(null);
     const layout = Number(view?.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
-    const scrollLeft = useContext(DatabaseContext)?.scrollLeft;
-    const isDocumentBlock = useContext(DatabaseContext)?.isDocumentBlock;
+    const scrollLeft = context.scrollLeft;
+    const isDocumentBlock = context.isDocumentBlock;
     const handleChange = (_: React.SyntheticEvent, newValue: string) => {
       setSelectedViewId?.(newValue);
     };
@@ -66,7 +66,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
     }, [loadViewMeta, iidIndex]);
 
     const className = useMemo(() => {
-      const classList = ['-mb-[0.5px] gap-2 flex items-center overflow-hidden border-line-divider text-text-title  max-sm:!px-6 min-w-0 overflow-hidden'];
+      const classList = ['-mb-[0.5px] gap-1.5 flex items-center overflow-hidden border-line-divider text-text-title  max-sm:!px-6 min-w-0 overflow-hidden'];
 
       return classList.join(' ');
     }, []);
@@ -100,7 +100,7 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
           style={{
             width: showActions ? `auto` : '100%',
           }}
-          className="flex flex-1 items-center"
+          className="flex flex-1 items-center database-tabs"
         >
           <ViewTabs
             scrollButtons={false}

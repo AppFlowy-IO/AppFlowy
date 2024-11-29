@@ -2,7 +2,7 @@ import {
   ViewComponentProps,
   ViewLayout,
   YDoc,
-  ViewMetaProps,
+  ViewMetaProps, UIVariant,
 } from '@/application/types';
 import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
 import { findAncestors, findView } from '@/components/_shared/outline/utils';
@@ -209,6 +209,7 @@ function ViewModal ({
       loadViews={loadViews}
       onWordCountChange={setWordCount}
       uploadFile={handleUploadFile}
+      variant={UIVariant.App}
     />;
   }, [openPageModal, handleUploadFile, setWordCount, loadViews, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, loadView, updatePage, addPage, deletePage]);
 

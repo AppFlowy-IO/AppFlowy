@@ -32,7 +32,7 @@ export interface EditorContextState {
   layoutStyle?: EditorLayoutStyle;
   codeGrammars?: Record<string, string>;
   addCodeGrammars?: (blockId: string, grammar: string) => void;
-  navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
+  navigateToView?: (viewId: string, blockOrRowId?: string) => Promise<void>;
   loadViewMeta?: LoadViewMeta;
   loadView?: LoadView;
   createRowDoc?: CreateRowDoc;

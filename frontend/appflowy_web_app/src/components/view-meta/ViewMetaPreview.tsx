@@ -174,7 +174,8 @@ export function ViewMetaPreview ({
                 }}
                 className={`view-icon flex h-[1.25em] px-1.5 items-center justify-center ${readOnly ? 'cursor-default' : 'cursor-pointer hover:bg-fill-list-hover '} ${isFlag ? 'icon' : ''}`}
               >{icon?.value}</div> : null}
-            {!readOnly ? <TitleEditable
+            {!readOnly && viewId ? <TitleEditable
+                viewId={viewId}
                 name={name || ''}
                 onUpdateName={handleUpdateName}
                 onEnter={onEnter}

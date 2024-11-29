@@ -1,6 +1,11 @@
-import { DatabaseContext, RowMeta, useFieldsSelector, useRowMetaSelector } from '@/application/database-yjs';
+import {
+  RowMeta,
+  useDatabaseContext,
+  useFieldsSelector,
+  useRowMetaSelector,
+} from '@/application/database-yjs';
 import CardField from '@/components/database/components/field/CardField';
-import React, { memo, useCallback, useContext, useEffect, useMemo } from 'react';
+import React, { memo, useCallback, useEffect, useMemo } from 'react';
 import { RowCoverType } from '@/application/types';
 import { renderColor } from '@/utils/color';
 import ImageRender from '@/components/_shared/image-render/ImageRender';
@@ -37,7 +42,7 @@ export const Card = memo(({ groupFieldId, rowId, onResize, isDragging }: CardPro
     };
   }, [onResize, isDragging]);
 
-  const navigateToRow = useContext(DatabaseContext)?.navigateToRow;
+  const navigateToRow = useDatabaseContext().navigateToRow;
   const className = useMemo(() => {
     const classList = ['relative shadow-sm flex flex-col gap-2 overflow-hidden rounded-[8px] border border-line-divider text-xs'];
 
@@ -48,8 +53,7 @@ export const Card = memo(({ groupFieldId, rowId, onResize, isDragging }: CardPro
     return classList.join(' ');
   }, [navigateToRow]);
 
-
-  const renderCoverImage = useCallback((cover: RowMeta["cover"]) => {
+  const renderCoverImage = useCallback((cover: RowMeta['cover']) => {
     if (!cover) return null;
 
     if (cover.cover_type === RowCoverType.GradientCover || cover.cover_type === RowCoverType.ColorCover) {
@@ -58,7 +62,7 @@ export const Card = memo(({ groupFieldId, rowId, onResize, isDragging }: CardPro
           background: renderColor(cover.data),
         }}
         className={`h-full w-full`}
-      />  ;
+      />;
     }
 
     let url: string | undefined = cover.data;
@@ -71,14 +75,19 @@ export const Card = memo(({ groupFieldId, rowId, onResize, isDragging }: CardPro
         4: '/covers/m_cover_image_4.png',
         5: '/covers/m_cover_image_5.png',
         6: '/covers/m_cover_image_6.png',
-      }[Number(cover.data)]
+      }[Number(cover.data)];
     }
 
     if (!url) return null;
 
     return (
       <>
-        <ImageRender draggable={false} src={url} alt={''} className={'h-full w-full object-cover'} />
+        <ImageRender
+          draggable={false}
+          src={url}
+          alt={''}
+          className={'h-full w-full object-cover'}
+        />
       </>
     );
   }, []);
@@ -103,7 +112,12 @@ export const Card = memo(({ groupFieldId, rowId, onResize, isDragging }: CardPro
       )}
       <div className={'flex flex-col gap-2 py-2 px-3'}>
         {showFields.map((field, index) => {
-          return <CardField index={index} key={field.fieldId} rowId={rowId} fieldId={field.fieldId} />;
+          return <CardField
+            index={index}
+            key={field.fieldId}
+            rowId={rowId}
+            fieldId={field.fieldId}
+          />;
         })}
       </div>
 

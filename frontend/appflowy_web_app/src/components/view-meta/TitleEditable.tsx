@@ -1,4 +1,3 @@
-import { getScrollParent } from '@/components/global-comment/utils';
 import { debounce } from 'lodash-es';
 import React, { memo, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,10 +24,12 @@ const getCursorOffset = () => {
 };
 
 function TitleEditable ({
+  viewId,
   name,
   onUpdateName,
   onEnter,
 }: {
+  viewId: string;
   name: string;
   onUpdateName: (name: string) => void;
   onEnter?: (text: string) => void;
@@ -63,8 +64,7 @@ function TitleEditable ({
 
     if (!contentBox) return;
 
-    const scrollElement = getScrollParent(contentBox) as HTMLElement;
-    const textbox = scrollElement.querySelector('[role="textbox"]') as HTMLElement;
+    const textbox = document.getElementById(`editor-${viewId}`) as HTMLElement;
 
     textbox?.focus();
   };
@@ -73,7 +73,7 @@ function TitleEditable ({
     <div
       ref={contentRef}
       suppressContentEditableWarning={true}
-      id={'editor-title'}
+      id={`editor-title-${viewId}`}
       className={'relative flex-1 cursor-text focus:outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-text-placeholder'}
       data-placeholder={t('menuAppHeader.defaultNewPageName')}
       contentEditable={true}

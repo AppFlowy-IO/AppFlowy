@@ -1,4 +1,4 @@
-import { UIVariant, View, YDoc } from '@/application/types';
+import { DatabaseViewLayout, UIVariant, View, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/types';
 import { Database } from '@/components/database';
 import TableContainer from '@/components/editor/components/table-container/TableContainer';
 import { DatabaseNode, EditorElementProps } from '@/components/editor/editor.type';
@@ -79,11 +79,11 @@ export const DatabaseBlock = memo(
     }, [loadViewMeta, viewId]);
 
     const handleNavigateToRow = useCallback(
-      (rowId: string) => {
-        if (!viewId || variant !== 'app') return;
-        window.open(`${window.origin}/app/${viewId}?r=${rowId}`, '_blank');
+      async (rowId: string) => {
+        if (!viewId) return;
+        await navigateToView?.(viewId, rowId);
       },
-      [variant, viewId],
+      [navigateToView, viewId],
     );
     const readOnly = useReadOnly();
 
@@ -106,13 +106,16 @@ export const DatabaseBlock = memo(
     useEffect(() => {
       const editorDom = ReactEditor.toDOMNode(editor, editor);
       const scrollContainer = getScrollParent(editorDom) as HTMLElement;
-      const scrollRect = scrollContainer.getBoundingClientRect();
-
-      setScrollLeft(editorDom.getBoundingClientRect().left - scrollRect.left);
+      const view = doc?.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.database)?.get(YjsDatabaseKey.views)?.get(selectedViewId);
+      const layout = Number(view?.get(YjsDatabaseKey.layout));
 
       const onResize = () => {
-        setScrollLeft(editorDom.getBoundingClientRect().left - scrollRect.left);
+        const scrollRect = scrollContainer.getBoundingClientRect();
+
+        setScrollLeft(Math.max(editorDom.getBoundingClientRect().left - scrollRect.left, layout === DatabaseViewLayout.Grid ? 64 : 0));
       };
+
+      onResize();
 
       const resizeObserver = new ResizeObserver(onResize);
 
@@ -120,14 +123,14 @@ export const DatabaseBlock = memo(
       return () => {
         resizeObserver.disconnect();
       };
-    }, [editor]);
+    }, [editor, selectedViewId, doc]);
 
     return (
       <>
         <div
           {...attributes}
           contentEditable={readOnly ? false : undefined}
-          className={`relative w-full cursor-pointer py-4`}
+          className={`relative w-full cursor-pointer`}
         >
           <div
             ref={ref}
@@ -143,7 +146,7 @@ export const DatabaseBlock = memo(
             <div
               contentEditable={false}
               ref={containerRef}
-              className={`container-bg h-[550px] my-1 appflowy-scroller overflow-y-auto overflow-x-hidden relative flex w-full flex-col`}
+              className={`container-bg select-none h-[550px] my-1 appflowy-scroller overflow-y-auto overflow-x-hidden relative flex w-full flex-col`}
             >
               {selectedViewId && doc ? (
                 <>
@@ -154,7 +157,7 @@ export const DatabaseBlock = memo(
                     createRowDoc={createRowDoc}
                     loadView={loadView}
                     navigateToView={navigateToView}
-                    onOpenRow={variant === UIVariant.App ? handleNavigateToRow : undefined}
+                    onOpenRow={handleNavigateToRow}
                     loadViewMeta={loadViewMeta}
                     iidName={iidName}
                     visibleViewIds={visibleViewIds}

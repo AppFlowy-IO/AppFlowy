@@ -47,7 +47,7 @@ export const ToggleList = memo(
                 CustomEditor.addChildBlock(editor, blockId, BlockType.Paragraph, {});
               }}
               contentEditable={false}
-              className={'text-text-caption select-none text-sm hover:bg-fill-list-hover rounded-[6px] cursor-pointer flex items-center h-[28px] px-[0.5em] ml-[1.45em]'}
+              className={'text-text-caption select-none text-sm hover:bg-fill-list-hover rounded-[6px] cursor-pointer flex items-center h-[36px] px-[0.5em] ml-[1.45em]'}
             >
               {
                 level === 0 ?

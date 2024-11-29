@@ -314,7 +314,7 @@ export function SlashPanel ({
     }, {
       label: t('document.slashMenu.name.calendar'),
       key: 'calendar',
-      icon: <BoardIcon />,
+      icon: <CalendarIcon />,
       keywords: ['calendar', 'date'],
       onClick: async () => {
         if (!viewId || !addPage || !openPageModal) return;

@@ -1,17 +1,18 @@
 import { YDoc } from '@/application/types';
-import { DatabaseContext, useReadOnly, useRowMetaSelector } from '@/application/database-yjs';
+import { useDatabaseContext, useReadOnly, useRowMetaSelector } from '@/application/database-yjs';
 import EditorSkeleton from '@/components/_shared/skeleton/EditorSkeleton';
 import { Editor } from '@/components/editor';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 export function DatabaseRowSubDocument ({ rowId }: { rowId: string }) {
   const meta = useRowMetaSelector(rowId);
   const readOnly = useReadOnly();
   const documentId = meta?.documentId;
-  const loadView = useContext(DatabaseContext)?.loadView;
-  const createRowDoc = useContext(DatabaseContext)?.createRowDoc;
-  const navigateToView = useContext(DatabaseContext)?.navigateToView;
-  const loadViewMeta = useContext(DatabaseContext)?.loadViewMeta;
+  const context = useDatabaseContext();
+  const loadView = context.loadView;
+  const createRowDoc = context.createRowDoc;
+  const navigateToView = context.navigateToView;
+  const loadViewMeta = context.loadViewMeta;
 
   const [loading, setLoading] = useState(true);
   const [doc, setDoc] = useState<YDoc | null>(null);

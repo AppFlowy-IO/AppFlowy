@@ -19,7 +19,9 @@ function TableContainer ({ blockId, readSummary, children, paddingLeft = 0 }: {
     const scrollRect = scrollContainer.getBoundingClientRect();
 
     setWidth(scrollRect.width - 196 + paddingLeft);
-    offsetLeftRef.current = editorDom.getBoundingClientRect().left - scrollRect.left + paddingLeft;
+    const offsetLeft = editorDom.getBoundingClientRect().left - scrollRect.left;
+
+    offsetLeftRef.current = offsetLeft + paddingLeft;
   }, [paddingLeft]);
 
   useEffect(() => {
@@ -50,7 +52,7 @@ function TableContainer ({ blockId, readSummary, children, paddingLeft = 0 }: {
       onMouseLeave={() => {
         setShowControl(false);
       }}
-      className={`relative w-full`}
+      className={`relative w-full `}
       style={{
         width,
         maxWidth: width,

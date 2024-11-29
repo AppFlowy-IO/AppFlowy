@@ -1,6 +1,6 @@
 import { ViewMetaCover } from '@/application/types';
 import { PopoverProps } from '@mui/material/Popover';
-import React, { forwardRef, lazy, useState } from 'react';
+import React, { forwardRef, useState } from 'react';
 import Button from '@mui/material/Button';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as DeleteIcon } from '@/assets/trash.svg';

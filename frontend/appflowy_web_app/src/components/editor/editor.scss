@@ -45,6 +45,13 @@
     @apply bg-content-blue-50;
     border-radius: 0 !important;
   }
+
+  &.block-element[data-block-type="grid"] {
+    .database-tabs, .grid-row-filed-cell {
+      @apply bg-content-blue-50;
+    }
+
+  }
 }
 
 .block-element .block-element:not([data-block-type="table/cell"]) {

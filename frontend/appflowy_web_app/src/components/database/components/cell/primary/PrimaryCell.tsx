@@ -1,9 +1,9 @@
-import { DatabaseContext, useDatabaseViewId, useRowMetaSelector } from '@/application/database-yjs';
+import { useDatabaseContext, useDatabaseViewId, useRowMetaSelector } from '@/application/database-yjs';
 import { TextCell as CellType, CellProps } from '@/application/database-yjs/cell.type';
 import { TextCell } from '@/components/database/components/cell/text';
 import OpenAction from '@/components/database/components/database-row/OpenAction';
 import { getPlatform } from '@/utils/platform';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ReactComponent as DocumentSvg } from '@/assets/notes.svg';
 
 export function PrimaryCell (props: CellProps<CellType> & {
@@ -11,7 +11,7 @@ export function PrimaryCell (props: CellProps<CellType> & {
 }) {
   const { rowId, showDocumentIcon } = props;
   const meta = useRowMetaSelector(rowId);
-  const navigateToRow = useContext(DatabaseContext)?.navigateToRow;
+  const navigateToRow = useDatabaseContext().navigateToRow;
   const hasDocument = meta?.isEmptyDocument === false;
   const icon = meta?.icon;
   const viewId = useDatabaseViewId();

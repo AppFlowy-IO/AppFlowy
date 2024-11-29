@@ -164,22 +164,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     });
   }, []);
 
-  const toView = useCallback(async (viewId: string, blockId?: string, keepSearch?: boolean) => {
-    let url = `/app/${currentWorkspaceId}/${viewId}`;
-
-    const searchParams = new URLSearchParams(keepSearch ? window.location.search : undefined);
-
-    if (blockId) {
-      searchParams.set('blockId', blockId);
-    }
-
-    if (searchParams.toString()) {
-      url += `?${searchParams.toString()}`;
-    }
-
-    navigate(url);
-  }, [currentWorkspaceId, navigate]);
-
   const loadViewMeta = useCallback(async (viewId: string, callback?: (meta: View) => void) => {
     const view = findView(outline || [], viewId);
 
@@ -199,6 +183,34 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       database_relations: workspaceDatabases,
     };
   }, [outline, workspaceDatabases]);
+
+  const toView = useCallback(async (viewId: string, blockId?: string, keepSearch?: boolean) => {
+    let url = `/app/${currentWorkspaceId}/${viewId}`;
+    const view = await loadViewMeta(viewId);
+
+    const searchParams = new URLSearchParams(keepSearch ? window.location.search : undefined);
+
+    if (blockId) {
+      switch (view.layout) {
+        case ViewLayout.Document:
+          searchParams.set('blockId', blockId);
+          break;
+        case ViewLayout.Grid:
+        case ViewLayout.Board:
+        case ViewLayout.Calendar:
+          searchParams.set('r', blockId);
+          break;
+        default:
+          break;
+      }
+    }
+
+    if (searchParams.toString()) {
+      url += `?${searchParams.toString()}`;
+    }
+
+    navigate(url);
+  }, [currentWorkspaceId, loadViewMeta, navigate]);
 
   const loadView = useCallback(async (id: string) => {
 
