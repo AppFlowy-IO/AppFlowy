@@ -15,6 +15,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -107,6 +108,8 @@ class _AIWriterBlockComponentState extends State<AIWriterBlockComponent> {
     return null;
   }
 
+  bool isGenerating = false;
+
   @override
   void initState() {
     super.initState();
@@ -134,34 +137,48 @@ class _AIWriterBlockComponentState extends State<AIWriterBlockComponent> {
       return const SizedBox.shrink();
     }
 
-    final child = Card(
-      elevation: 5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      color: Theme.of(context).colorScheme.surface,
-      child: Container(
-        margin: const EdgeInsets.all(10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const AIWriterBlockHeader(),
-            const Space(0, 10),
-            if (prompt.isEmpty && generationCount < 1) ...[
-              _buildInputWidget(context),
+    final child = Focus(
+      onKeyEvent: (node, event) {
+        if (event is! KeyDownEvent) {
+          return KeyEventResult.ignored;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.enter) {
+          if (!isGenerating) {
+            _onGenerate();
+          }
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+      child: Card(
+        elevation: 5,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        color: Theme.of(context).colorScheme.surface,
+        child: Container(
+          margin: const EdgeInsets.all(10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const AIWriterBlockHeader(),
               const Space(0, 10),
-              AIWriterBlockInputField(
-                onGenerate: _onGenerate,
-                onExit: _onExit,
-              ),
-            ] else ...[
-              AIWriterBlockFooter(
-                onKeep: _onExit,
-                onRewrite: _onRewrite,
-                onDiscard: _onDiscard,
-              ),
+              if (prompt.isEmpty && generationCount < 1) ...[
+                _buildInputWidget(context),
+                const Space(0, 10),
+                AIWriterBlockInputField(
+                  onGenerate: _onGenerate,
+                  onExit: _onExit,
+                ),
+              ] else ...[
+                AIWriterBlockFooter(
+                  onKeep: _onExit,
+                  onRewrite: _onRewrite,
+                  onDiscard: _onDiscard,
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -188,6 +205,12 @@ class _AIWriterBlockComponentState extends State<AIWriterBlockComponent> {
   }
 
   Future<void> _onGenerate() async {
+    if (isGenerating) {
+      return;
+    }
+
+    isGenerating = true;
+
     await aiWriterOperations.updatePromptText(controller.text);
 
     if (!_isAIWriterEnabled) {
@@ -219,6 +242,7 @@ class _AIWriterBlockComponentState extends State<AIWriterBlockComponent> {
       onEnd: () async {
         barrierDialog?.dismiss();
         await markdownTextRobot.stop();
+        editorState.service.keyboardService?.enable();
       },
       onError: (error) async {
         barrierDialog?.dismiss();
@@ -227,6 +251,8 @@ class _AIWriterBlockComponentState extends State<AIWriterBlockComponent> {
     );
 
     await aiWriterOperations.updateGenerationCount(generationCount + 1);
+
+    isGenerating = false;
   }
 
   Future<void> _onDiscard() async {
@@ -238,6 +264,12 @@ class _AIWriterBlockComponentState extends State<AIWriterBlockComponent> {
   }
 
   Future<void> _onRewrite() async {
+    if (isGenerating) {
+      return;
+    }
+
+    isGenerating = true;
+
     final previousOutput = _getPreviousOutput();
     if (previousOutput == null) {
       return;
@@ -277,6 +309,8 @@ class _AIWriterBlockComponentState extends State<AIWriterBlockComponent> {
     );
 
     await aiWriterOperations.updateGenerationCount(generationCount + 1);
+
+    isGenerating = false;
   }
 
   String? _getPreviousOutput() {
