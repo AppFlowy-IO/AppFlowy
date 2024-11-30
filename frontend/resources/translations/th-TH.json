@@ -824,14 +824,26 @@
         "proBadge": "Pro",
         "aiMaxBadge": "AI Max",
         "aiOnDeviceBadge": "AI บนอุปกรณ์สำหรับ Mac",
+        "memberProToggle": "สมาชิกมากขึ้น และ AI ไม่จำกัด",
+        "aiMaxToggle": "AI ไม่จำกัด และการเข้าถึงโมเดลขั้นสูง",
+        "aiOnDeviceToggle": "Local AI เพื่อความเป็นส่วนตัวสูงสุด",
         "aiCredit": {
-          "price": "{}"
+          "title": "เพิ่ม @:appName AI เครดิต",
+          "price": "{}",
+          "priceDescription": "สำหรับ 1,000 เครดิต",
+          "purchase": "ซื้อ AI",
+          "info": "เพิ่มเครดิต AI 1,000 เครดิตต่อพื้นที่ทำงาน และผสานรวม AI ที่สามารถปรับแต่งได้ เข้าไปในกระบวนการทำงานของคุณได้อย่างราบรื่น เพื่อผลลัพธ์ที่ชาญฉลาด และรวดเร็วยิ่งขึ้นด้วย สูงสุดถึง:",
+          "infoItemOne": "10,000 การตอบกลับต่อฐานข้อมูล",
+          "infoItemTwo": "1,000  การตอบกลับต่อพื้นที่ทำงาน"
         },
         "currentPlan": {
           "bannerLabel": "แผนปัจจุบัน",
           "freeTitle": "Free",
           "proTitle": "Pro",
           "teamTitle": "Team",
+          "freeInfo": "เหมาะสำหรับบุคคลที่มีสมาชิกสูงสุด 2 คน เพื่อจัดระเบียบทุกอย่าง",
+          "proInfo": "เหมาะสำหรับทีมขนาดเล็ก และขนาดกลางที่มีสมาชิกไม่เกิน 10 คน",
+          "teamInfo": "เหมาะสำหรับทีมที่มีประสิทธิภาพ และการจัดระเบียบที่ดี",
           "upgrade": "เปลี่ยนแผน",
           "canceledInfo": "แผนของคุณถูกยกเลิก คุณจะถูกปรับลดเป็นแผน Free ในวันที่ {}"
         },
@@ -841,13 +853,22 @@
           "activeLabel": "เพิ่มแล้ว",
           "aiMax": {
             "title": "AI Max",
-            "price": "{}"
+            "description": "การตอบกลับ AI แบบไม่จำกัด ที่ขับเคลื่อนโดย GPT-4o, Claude 3.5 Sonnet และอื่นๆ",
+            "price": "{}",
+            "priceInfo": "ต่อผู้ใช้ ต่อเดือน เก็บค่าบริการเป็นรายปี"
           },
           "aiOnDevice": {
-            "price": "{}"
+            "title": "AI บนอุปกรณ์สำหรับ Mac",
+            "description": "เรียกใช้ Mistral 7B, LLAMA 3 และโมเดล local อื่น ๆ บนเครื่องของคุณ",
+            "price": "{}",
+            "priceInfo": "ต่อผู้ใช้ ต่อเดือน เก็บค่าบริการเป็นรายปี",
+            "recommend": "แนะนำ M1 หรือใหม่กว่า"
           }
         },
         "deal": {
+          "bannerLabel": "ดีลปีใหม่!",
+          "title": "ขยายทีมของคุณ!",
+          "info": "อัปเกรด และรับส่วนลด 10% สำหรับแผน Pro และ Team! เพิ่มประสิทธิภาพการทำงานในพื้นที่ทำงานของคุณด้วยฟีเจอร์ใหม่อันทรงพลัง รวมถึง @:appName AI",
           "viewPlans": "ดูแผน"
         }
       }
@@ -859,7 +880,14 @@
         "title": "แผน",
         "freeLabel": "Free",
         "proLabel": "Pro",
-        "planButtonLabel": "เปลี่ยนแผน"
+        "planButtonLabel": "เปลี่ยนแผน",
+        "billingPeriod": "รอบบิล",
+        "periodButtonLabel": "แก้ไขช่วงเวลา"
+      },
+      "paymentDetails": {
+        "title": "รายละเอียดการชำระเงิน",
+        "methodLabel": "วิธีการชำระเงิน",
+        "methodButtonLabel": "แก้ไขวิธีการ"
       },
       "addons": {
         "title": "ส่วนเสริม",
@@ -867,12 +895,17 @@
         "removeLabel": "ลบ",
         "renewLabel": "ต่ออายุ",
         "aiMax": {
-          "label": "AI Max"
+          "label": "AI Max",
+          "description": "ปลดล็อค AI และโมเดลขั้นสูงแบบไม่จำกัด"
         },
         "removeDialog": {
           "title": "ลบ {}"
         }
-      }
+      },
+      "monthlyInterval": "รายเดือน",
+      "monthlyPriceInfo": "คิดค่าบริการต่อที่นั่งแบบรายเดือน",
+      "annualInterval": "รายปี",
+      "annualPriceInfo": "คิดค่าบริการต่อที่นั่งแบบรายปี"
     },
     "comparePlanDialog": {
       "title": "เปรียบเทียบและเลือกแผน",
@@ -880,32 +913,49 @@
       "current": "ปัจจุบัน",
       "actions": {
         "upgrade": "อัพเกรด",
-        "downgrade": "ลดระดับ"
+        "downgrade": "ลดระดับ",
+        "current": "ปัจจุบัน"
       },
       "freePlan": {
         "title": "Free",
-        "price": "{}"
+        "description": "สำหรับบุคคลตั้งแต่ 2 คนขึ้นไป เพื่อจัดระเบียบทุกอย่าง",
+        "price": "{}",
+        "priceInfo": "ฟรีตลอดไป"
       },
       "proPlan": {
         "title": "Pro",
-        "price": "{}"
+        "description": "สำหรับทีมขนาดเล็กเพื่อจัดการโครงการและความรู้ของทีม",
+        "price": "{}",
+        "priceInfo": "ต่อผู้ใช้ ต่อเดือน\nเรียกเก็บค่าบริการรายปี\n{} เรียกเก็บค่าบริการรายเดือน"
       },
       "planLabels": {
         "itemOne": "พื้นที่ทำงาน",
         "itemTwo": "สมาชิก",
         "itemThree": "พื้นที่จัดเก็บ",
-        "itemSix": "การตอบกลับของ AI"
+        "itemFour": "การทำงานร่วมกันแบบเรียลไทม์",
+        "itemFive": "แอพมือถือ",
+        "itemSix": "การตอบกลับของ AI",
+        "itemFileUpload": "การอัพโหลดไฟล์",
+        "customNamespace": "เนมสเปซที่กำหนดเอง",
+        "intelligentSearch": "การค้นหาอัจฉริยะ"
       },
       "freeLabels": {
+        "itemTwo": "สูงสุด 2",
+        "itemThree": "5 GB",
         "itemFour": "ใช่",
-        "itemFive": "ใช่"
+        "itemFive": "ใช่",
+        "itemSix": "20 ตลอดชีพ",
+        "itemFileUpload": "ไม่เกิน 7 MB",
+        "intelligentSearch": "การค้นหาอัจฉริยะ"
       },
       "proLabels": {
+        "itemTwo": "สูงถึง 10",
         "itemThree": "ไม่จำกัด",
         "itemFour": "ใช่",
         "itemFive": "ใช่",
         "itemSix": "ไม่จำกัด",
-        "itemFileUpload": "ไม่จำกัด"
+        "itemFileUpload": "ไม่จำกัด",
+        "intelligentSearch": "การค้นหาอัจฉริยะ"
       },
       "downgradeDialog": {
         "downgradeLabel": "การลดระดับแผน"
