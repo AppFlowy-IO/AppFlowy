@@ -899,7 +899,8 @@
           "description": "ปลดล็อค AI และโมเดลขั้นสูงแบบไม่จำกัด"
         },
         "removeDialog": {
-          "title": "ลบ {}"
+          "title": "ลบ {}",
+          "description": "คุณแน่ใจหรือไม่ว่าต้องการลบ {plan}? คุณจะสูญเสียการเข้าถึงฟีเจอร์ และสิทธิประโยชน์ของ {plan} ทันที"
         }
       },
       "monthlyInterval": "รายเดือน",
@@ -958,6 +959,7 @@
         "intelligentSearch": "การค้นหาอัจฉริยะ"
       },
       "downgradeDialog": {
+        "title": "คุณแน่ใจหรือไม่ว่าต้องการลดระดับแผนของคุณ?",
         "downgradeLabel": "การลดระดับแผน"
       }
     },
@@ -1151,7 +1153,8 @@
         "memberLimitExceededProContact": "support@appflowy.io",
         "failedToAddMember": "เพิ่มสมาชิกไม่สำเร็จ",
         "addMemberSuccess": "เพิ่มสมาชิกสำเร็จ",
-        "removeMember": "ลบสมาชิก"
+        "removeMember": "ลบสมาชิก",
+        "areYouSureToRemoveMember": "คุณแน่ใจหรือไม่ว่าต้องการลบสมาชิกคนนี้ออก?"
       }
     },
     "files": {
@@ -1390,6 +1393,8 @@
       "action": "การดำเนินการ",
       "add": "คลิกเพิ่มด้านล่าง",
       "drag": "ลากเพื่อย้าย",
+      "deleteRowPrompt": "คุณแน่ใจหรือไม่ว่าต้องการลบแถวนี้? การกระทำนี้ไม่สามารถย้อนกลับได้",
+      "deleteCardPrompt": "คุณแน่ใจหรือไม่ว่าต้องการลบการ์ดนี้? การกระทำนี้ไม่สามารถย้อนกลับได้",
       "dragAndClick": "ลากเพื่อย้ายคลิกเพื่อเปิดเมนู",
       "insertRecordAbove": "แทรกเวิ่นระเบียนด้านบน",
       "insertRecordBelow": "แทรกเวิ่นระเบียนด้านล่าง",
@@ -2201,6 +2206,7 @@
         "title": "ลบบัญชี",
         "deleteMyAccount": "ลบบัญชีของฉัน",
         "dialogTitle": "ลบบัญชี",
+        "dialogContent1": "คุณแน่ใจหรือไม่ว่าต้องการลบบัญชีของคุณอย่างถาวร?",
         "deleteAccountSuccess": "ลบบัญชีสำเร็จแล้ว"
       }
     },
@@ -2381,6 +2387,7 @@
     },
     "reply": "ตอบกลับ",
     "deleteComment": "ลบความคิดเห็น",
+    "confirmDeleteDescription": "คุณแน่ใจหรือไม่ว่าต้องการลบความคิดเห็นนี้?",
     "hasBeenDeleted": "ลบแล้ว",
     "readMore": "อ่านเพิ่มเติม"
   },
@@ -2401,12 +2408,14 @@
       "label": "ผู้สร้างเทมเพลต",
       "name": "ชื่อผู้สร้าง",
       "deleteCreator": "ลบผู้สร้าง",
+      "deleteCreatorDescription": "คุณแน่ใจหรือไม่ว่าต้องการลบผู้สร้างรายนี้?",
       "typeToSearch": "พิมพ์เพื่อค้นหาผู้สร้าง..."
     },
     "uploadSuccess": "อัพโหลดเทมเพลตสำเร็จ",
     "viewTemplate": "ดูเทมเพลต",
     "deleteTemplate": "ลบเทมเพลต",
     "deleteSuccess": "ลบเทมเพลตสำเร็จ",
+    "deleteTemplateDescription": "การกระทำนี้จะไม่ส่งผลกระทบต่อหน้าปัจจุบัน หรือสถานะการเผยแพร่ คุณแน่ใจหรือไม่ว่าต้องการลบเทมเพลตนี้?",
     "addRelatedTemplate": "เพิ่มเทมเพลตที่เกี่ยวข้อง",
     "removeRelatedTemplate": "ลบเทมเพลตที่เกี่ยวข้อง",
     "searchInCategory": "ค้นหาใน {category}",
