@@ -277,7 +277,7 @@
     "bulletList": "รายการลำดับหัวข้อย่อย",
     "checkList": "รายการลำดับ Check",
     "inlineCode": "อินไลน์โค้ด",
-    "quote": "บล็อกอ้างอิง",
+    "quote": "บล็อกคำกล่าว",
     "header": "หัวข้อ",
     "highlight": "ไฮไลท์",
     "color": "สี",
@@ -537,7 +537,7 @@
       },
       "workspaceIcon": {
         "title": "ไอคอนพื้นที่ทำงาน",
-        "description": "อัปโหลดรูปภาพหรือใช้อีโมจิสำหรับพื้นที่ทำงานของคุณ ไอคอนจะแสดงในแถบด้านข้างและการแจ้งเตือนของคุณ"
+        "description": "อัปโหลดรูปภาพ หรือใช้อีโมจิสำหรับพื้นที่ทำงานของคุณ ไอคอนจะแสดงในแถบด้านข้าง และการแจ้งเตือนของคุณ"
       },
       "appearance": {
         "title": "ลักษณะการแสดงผล",
@@ -779,7 +779,7 @@
       "keys": {
         "enableAISearchTitle": "การค้นหาด้วย AI",
         "aiSettingsDescription": "เลือกโมเดลที่คุณต้องการใช้เพื่อขับเคลื่อน AppFlowy AI ขณะนี้มี GPT-4, Claude 3.5, Llama 3.1, และ Mistral 7B",
-        "loginToEnableAIFeature": "คุณสมบัติ AI จะเปิดใช้งานได้หลังจากเข้าสู่ระบบด้วย @:appName Cloud เท่านั้น หากคุณไม่มีบัญชี @:appName ให้ไปที่ 'บัญชีของฉัน' เพื่อลงทะเบียน",
+        "loginToEnableAIFeature": "ฟีเจอร์ AI จะเปิดใช้งานได้หลังจากเข้าสู่ระบบด้วย @:appName Cloud เท่านั้น หากคุณไม่มีบัญชี @:appName ให้ไปที่ 'บัญชีของฉัน' เพื่อลงทะเบียน",
         "llmModel": "โมเดลภาษา",
         "llmModelType": "ประเภทของโมเดลภาษา",
         "downloadLLMPrompt": "ดาวน์โหลด {}",
@@ -920,7 +920,7 @@
     },
     "comparePlanDialog": {
       "title": "เปรียบเทียบและเลือกแผน",
-      "planFeatures": "แผน\nคุณสมบัติ",
+      "planFeatures": "แผน\nฟีเจอร์",
       "current": "ปัจจุบัน",
       "actions": {
         "upgrade": "อัพเกรด",
@@ -1343,6 +1343,8 @@
         "other": "{count} มุมมอง"
       },
       "editView": "แก้ไขมุมมอง",
+      "boardSettings": "การตั้งค่าบอร์ด",
+      "calendarSettings": "การตั้งค่าปฏิทิน",
       "createView": "มุมมองใหม่",
       "duplicateView": "ทำสำเนามุมมอง",
       "deleteView": "ลบมุมมอง",
@@ -1351,7 +1353,9 @@
     "filter": {
       "empty": "ไม่มีตัวกรองที่ใช้งานอยู่",
       "addFilter": "เพิ่มตัวกรอง",
-      "cannotFindCreatableField": "ไม่พบฟิลด์ที่เหมาะสมในการกรอง"
+      "cannotFindCreatableField": "ไม่พบฟิลด์ที่เหมาะสมในการกรอง",
+      "conditon": "เงื่อนไข",
+      "where": "โดยที่"
     },
     "textFilter": {
       "contains": "ประกอบด้วย",
@@ -1398,6 +1402,8 @@
       "between": "อยู่ระหว่าง",
       "empty": "มันว่างเปล่า",
       "notEmpty": "มันไม่ว่างเปล่า",
+      "startDate": "วันที่เริ่มต้น",
+      "endDate": "วันที่สิ้นสุด",
       "choicechipPrefix": {
         "before": "ก่อน",
         "after": "หลังจาก",
@@ -1408,13 +1414,27 @@
         "isNotEmpty": "ไม่ว่างเปล่า"
       }
     },
+    "numberFilter": {
+      "equal": "เท่ากับ",
+      "notEqual": "ไม่เท่ากับ",
+      "lessThan": "น้อยกว่า",
+      "greaterThan": "มากกว่า",
+      "lessThanOrEqualTo": "น้อยกว่าหรือเท่ากับ",
+      "greaterThanOrEqualTo": "มากกว่าหรือเท่ากับ",
+      "isEmpty": "ว่างเปล่า",
+      "isNotEmpty": "ไม่ว่างเปล่า"
+    },
     "field": {
+      "label": "คุณสมบัติ",
       "hide": "ซ่อน",
       "show": "แสดง",
       "insertLeft": "แทรกทางซ้าย",
       "insertRight": "แทรกทางขวา",
       "duplicate": "ทำสำเนา",
       "delete": "ลบ",
+      "wrapCellContent": "ตัดข้อความ",
+      "clear": "ล้างเซลล์",
+      "switchPrimaryFieldTooltip": "ไม่สามารถเปลี่ยนประเภทฟิลด์ของฟิลด์หลักได้",
       "textFieldName": "ข้อความ",
       "checkboxFieldName": "กล่องกาเครื่องหมาย",
       "dateFieldName": "วันที่",
@@ -1461,8 +1481,10 @@
       "newProperty": "คุณสมบัติใหม่",
       "openRowDocument": "เปิดเป็นหน้า",
       "deleteFieldPromptMessage": "แน่ใจหรือไม่? คุณสมบัติเหล่านี้จะถูกลบ",
+      "clearFieldPromptMessage": "คุณแน่ใจหรือไม่ฦ เซลล์ทั้งหมดในคอลัมน์นี้จะถูกล้างข้อมูล",
       "newColumn": "คอลัมน์ใหม่",
-      "format": "รูปแบบ"
+      "format": "รูปแบบ",
+      "optionAlreadyExist": "ตัวเลือกมีอยู่แล้ว"
     },
     "rowPage": {
       "newField": "เพิ่มฟิลด์ใหม่",
@@ -1476,14 +1498,20 @@
         "one": "ซ่อนฟิลด์ที่ซ่อนอยู่ {count} ฟิลด์",
         "many": "ซ่อนฟิลด์ที่ซ่อนอยู่ {count} ฟิลด์",
         "other": "ซ่อนฟิลด์ที่ซ่อนอยู่ {count} ฟิลด์"
-      }
+      },
+      "openAsFullPage": "เปิดแบบเต็มหน้า",
+      "moreRowActions": "การดำเนินการแถวเพิ่มเติม"
     },
     "sort": {
       "ascending": "เรียงลำดับจากน้อยไปมาก",
       "descending": "เรียงลำดับจากมากไปน้อย",
       "by": "โดย",
+      "empty": "ไม่มีการเรียงลำดับที่ใช้งานอยู่",
+      "cannotFindCreatableField": "ไม่พบฟิลด์ที่เหมาะสมในการเรียงลำดับ",
       "deleteAllSorts": "ลบการเรียงลำดับทั้งหมด",
-      "addSort": "เพิ่มการเรียงลำดับ"
+      "addSort": "เพิ่มการเรียงลำดับ",
+      "removeSorting": "คุณต้องการลบการจัดเรียงทั้งหมดในมุมมองนี้ และดำเนินการต่อหรือไม่?",
+      "fieldInUse": "คุณกำลังเรียงลำดับตามฟิลด์นี้อยู่แล้ว"
     },
     "row": {
       "label": "แถว",
@@ -1544,7 +1572,11 @@
     "relation": {
       "relatedDatabasePlaceLabel": "ฐานข้อมูลที่เกี่ยวข้อง",
       "relatedDatabasePlaceholder": "ไม่มี",
+      "inRelatedDatabase": "ใน",
       "rowSearchTextFieldPlaceholder": "ค้นหา",
+      "noDatabaseSelected": "ยังไม่ได้เลือกฐานข้อมูล กรุณาเลือกฐานข้อมูลหนึ่งรายการจากรายการด้านล่างก่อน",
+      "emptySearchResult": "ไม่พบข้อมูล",
+      "linkedRowListLabel": "{count} แถวที่เชื่อมโยง",
       "unlinkedRowListLabel": "เชื่อมโยงแถวอื่น"
     },
     "menuName": "ตาราง",
@@ -1608,9 +1640,30 @@
         "heading2": "หัวข้อที่ 2",
         "heading3": "หัวข้อที่ 3",
         "image": "รูปภาพ",
+        "bulletedList": "รายการลำดับหัวข้อย่อย",
+        "numberedList": "รายการลำดับตัวเลข",
+        "todoList": "รายการสิ่งที่ต้องทำ",
+        "doc": "เอกสาร",
+        "linkedDoc": "ลิงค์ไปยังหน้า",
+        "grid": "กริด",
+        "linkedGrid": "กริดที่เชื่อมโยง",
+        "kanban": "คันบัน",
+        "linkedKanban": "คันบันที่เชื่อมโยง",
         "calendar": "ปฏิทิน",
+        "linkedCalendar": "ปฏิทินที่เชื่อมโยง",
+        "quote": "คำกล่าว",
+        "divider": "ตัวคั่น",
+        "table": "ตาราง",
+        "callout": "การเน้นข้อความ",
+        "outline": "โครงร่าง",
+        "mathEquation": "สมการคณิตศาสตร์",
         "code": "โค้ด",
+        "toggleList": "สลับรายการ",
+        "toggleHeading1": "สลับหัวข้อ 1",
+        "toggleHeading2": "สลับหัวข้อ 2",
+        "toggleHeading3": "สลับหัวข้อ 3",
         "emoji": "อิโมจิ",
+        "aiWriter": "นักเขียน AI",
         "photoGallery": "แกลอรี่รูปภาพ",
         "file": "ไฟล์"
       },
@@ -1651,15 +1704,16 @@
       "smartEditCouldNotFetchResult": "ไม่สามารถดึงผลลัพธ์จาก AI ได้",
       "smartEditCouldNotFetchKey": "ไม่สามารถดึงคีย์ AI ได้",
       "smartEditDisabled": "เชื่อมต่อ AI ในการตั้งค่า",
+      "appflowyAIEditDisabled": "ลงชื่อเข้าใช้เพื่อเปิดใช้งานฟีเจอร์ AI",
       "discardResponse": "คุณต้องการทิ้งการตอบกลับของ AI หรือไม่",
       "createInlineMathEquation": "สร้างสมการ",
       "fonts": "แบบอักษร",
       "insertDate": "ใส่วันที่",
       "emoji": "อิโมจิ",
       "toggleList": "สลับรายการ",
-      "quoteList": "รายการอ้างอิง",
-      "numberedList": "รายการแบบมีหมายเลข",
-      "bulletedList": "รายการแบบมีจุด",
+      "quoteList": "รายการคำกล่าว",
+      "numberedList": "รายการลำดับตัวเลข",
+      "bulletedList": "รายการลำดับหัวข้อย่อย",
       "todoList": "รายการสิ่งที่ต้องทำ",
       "callout": "คำอธิบายประกอบ",
       "simpleTable": {
@@ -1673,8 +1727,12 @@
           "insertAbove": "แทรกด้านบน",
           "insertBelow": "แทรกด้านล่าง",
           "headerColumn": "ส่วนหัวของคอลัมน์",
-          "headerRow": "ส่วนหัวของแถว"
-        }
+          "headerRow": "ส่วนหัวของแถว",
+          "clearContents": "ล้างเนื้อหา"
+        },
+        "clickToAddNewRow": "คลิกเพื่อเพิ่มแถวใหม่",
+        "clickToAddNewColumn": "คลิกเพื่อเพิ่มคอลัมน์ใหม่",
+        "clickToAddNewRowAndColumn": "คลิกเพื่อเพิ่มแถว และคอลัมน์ใหม่"
       },
       "cover": {
         "changeCover": "เปลี่ยนปก",
@@ -1691,6 +1749,7 @@
         "back": "ย้อนกลับ",
         "saveToGallery": "บันทึกลงในแกลเลอรี่",
         "removeIcon": "ลบไอคอน",
+        "removeCover": "ลบปก",
         "pasteImageUrl": "วาง URL รูปภาพ",
         "or": "หรือ",
         "pickFromFiles": "เลือกจากไฟล์",
@@ -1709,6 +1768,8 @@
       "optionAction": {
         "click": "คลิก",
         "toOpenMenu": " เพื่อเปิดเมนู",
+        "drag": "ลาก",
+        "toMove": " เพื่อย้าย",
         "delete": "ลบ",
         "duplicate": "ทำสำเนา",
         "turnInto": "แปลงเป็น",
@@ -1720,12 +1781,15 @@
         "center": "กึ่งกลาง",
         "right": "ขวา",
         "defaultColor": "สีเริ่มต้น",
+        "depth": "ความลึก",
         "copyLinkToBlock": "คัดลอกลิงก์ไปยังบล็อก"
       },
       "image": {
         "addAnImage": "เพิ่มรูปภาพ",
         "copiedToPasteBoard": "ลิงก์รูปภาพถูกคัดลอกไปที่คลิปบอร์ดแล้ว",
         "addAnImageDesktop": "เพิ่มรูปภาพ",
+        "addAnImageMobile": "คลิกเพื่อเพิ่มรูปภาพหนึ่งรูป หรือมากกว่า",
+        "dropImageToInsert": "วางภาพเพื่อแทรก",
         "imageUploadFailed": "อัพโหลดรูปภาพไม่สำเร็จ",
         "imageDownloadFailed": "ดาวน์โหลดรูปภาพล้มเหลว กรุณาลองอีกครั้ง",
         "imageDownloadFailedToken": "การดาวน์โหลดภาพล้มเหลวเนื่องจากขาดโทเค็นผู้ใช้ โปรดลองอีกครั้ง",
@@ -1736,7 +1800,20 @@
         "imageKeyword": "รูปภาพ",
         "imageGalleryKeyword": "แกลอรี่รูปภาพ",
         "photoKeyword": "ภาพถ่าย",
-        "addImageTooltip": "เพิ่มรูปภาพ"
+        "photoBrowserKeyword": "เบราว์เซอร์รูปภาพ",
+        "galleryKeyword": "แกลเลอรี่",
+        "addImageTooltip": "เพิ่มรูปภาพ",
+        "changeLayoutTooltip": "เปลี่ยนเค้าโครง",
+        "browserLayout": "เบราว์เซอร์",
+        "gridLayout": "กริด",
+        "deleteBlockTooltip": "ลบทั้งแกลอรี่"
+      },
+      "math": {
+        "copiedToPasteBoard": "คัดลอกสมการคณิตศาสตร์ไปยังคลิปบอร์ดแล้ว"
+      },
+      "urlPreview": {
+        "copiedToPasteBoard": "คัดลอกลิงก์ไปยังคลิปบอร์ดแล้ว",
+        "convertToLink": "แปลงเป็นลิงค์ฝัง"
       },
       "outline": {
         "addHeadingToCreateOutline": "เพิ่มหัวข้อเพื่อสร้างสารบัญ"
@@ -1768,7 +1845,8 @@
         "label": "วีดีโอ",
         "emptyLabel": "เพิ่มวิดีโอ",
         "placeholder": "วางลิงค์วิดีโอ",
-        "insertVideo": "เพิ่มวีดีโอ"
+        "insertVideo": "เพิ่มวีดีโอ",
+        "supportedFormats": "รูปแบบที่รองรับ: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
       },
       "file": {
         "name": "ไฟล์",
@@ -1782,10 +1860,13 @@
         "fileUploadHint": "ลากและวางไฟล์หรือคลิกเพื่อ ",
         "fileUploadHintSuffix": "เรียกดู",
         "networkHint": "วางลิงก์ไฟล์",
+        "networkUrlInvalid": "URL ไม่ถูกต้อง ตรวจสอบ URL และลองอีกครั้ง",
         "networkAction": "ฝัง",
         "fileTooBigError": "ขนาดไฟล์ใหญ่เกินไป กรุณาอัพโหลดไฟล์ที่มีขนาดน้อยกว่า 10MB",
         "renameFile": {
-          "title": "เปลี่ยนชื่อไฟล์"
+          "title": "เปลี่ยนชื่อไฟล์",
+          "description": "ป้อนชื่อใหม่สำหรับไฟล์นี้",
+          "nameEmptyError": "ชื่อไฟล์ไม่สามารถเว้นว่างได้"
         },
         "uploadedAt": "อัพโหลดเมื่อ {}",
         "linkedAt": "ลิงก์ถูกเพิ่มเมื่อ {}",
@@ -1961,6 +2042,7 @@
     "ungroupedButtonTooltip": "ประกอบด้วยการ์ดที่ไม่อยู่ในกลุ่มใดๆ",
     "ungroupedItemsTitle": "คลิกเพื่อเพิ่มไปยังกระดาน",
     "groupBy": "จัดกลุ่มตาม",
+    "groupCondition": "เงื่อนไขการจัดกลุ่ม",
     "referencedBoardPrefix": "มุมมองของ",
     "notesTooltip": "บันทึกย่อข้างใน",
     "mobile": {
@@ -1979,6 +2061,8 @@
       "lastThirtyDays": "30 วันที่ผ่านมา",
       "nextThirtyDays": "30 วันถัดไป"
     },
+    "noGroup": "ไม่มีการจัดกลุ่มตามคุณสมบัติ",
+    "noGroupDesc": "มุมมองบอร์ดต้องการคุณสมบัติสำหรับการจัดกลุ่มเพื่อแสดงผล",
     "media": {
       "cardText": "{} {}",
       "fallbackName": "ไฟล์"
@@ -2009,6 +2093,7 @@
       "showWeekends": "แสดงวันหยุดสุดสัปดาห์",
       "firstDayOfWeek": "เริ่มต้นสัปดาห์ในวัน",
       "layoutDateField": "จัดรูปแบบปฏิทินตาม",
+      "changeLayoutDateField": "เปลี่ยนเค้าโครงฟิลด์",
       "noDateTitle": "ไม่มีวันที่",
       "noDateHint": {
         "zero": "กิจกรรมที่ไม่ได้กำหนดวันจะแสดงที่นี่",
@@ -2017,18 +2102,23 @@
       },
       "unscheduledEventsTitle": "เหตุการณ์ที่ไม่ได้กำหนดไว้",
       "clickToAdd": "คลิกเพื่อเพิ่มไปยังปฏิทิน",
-      "name": "การตั้งค่าปฏิทิน"
+      "name": "การตั้งค่าปฏิทิน",
+      "clickToOpen": "คลิกเพื่อเปิดบันทึก"
     },
     "referencedCalendarPrefix": "มุมมองของ",
-    "quickJumpYear": "ข้ามไปที่"
+    "quickJumpYear": "ข้ามไปที่",
+    "duplicateEvent": "ทำสำเนาเหตุการณ์"
   },
   "errorDialog": {
     "title": "ข้อผิดพลาด AppFlowy",
     "howToFixFallback": "ขออภัยในความไม่สะดวก! ส่งปัญหาบนหน้า GitHub ของเราอธิบายถึงข้อผิดพลาดของคุณ",
+    "howToFixFallbackHint1": "ขออภัยในความไม่สะดวก! ส่งปัญหาของคุณมาที่ ",
+    "howToFixFallbackHint2": " หน้าที่อธิบายข้อผิดพลาดของคุณ",
     "github": "ดูบน GitHub"
   },
   "search": {
     "label": "ค้นหา",
+    "sidebarSearchIcon": "ค้นหาและไปยังหน้านั้นอย่างรวดเร็ว",
     "placeholder": {
       "actions": "ค้นหาการการดำเนินการ..."
     }
@@ -2086,12 +2176,17 @@
       "medium": "ปานกลาง",
       "mediumDark": "ปานกลางเข้ม",
       "dark": "เข้ม"
-    }
+    },
+    "openSourceIconsFrom": "ไอคอนโอเพ่นซอร์สจาก"
   },
   "inlineActions": {
     "noResults": "ไม่พบผลลัพธ์",
     "recentPages": "หน้าล่าสุด",
     "pageReference": "อ้างอิงหน้า",
+    "docReference": "การอ้างอิงเอกสาร",
+    "boardReference": "การอ้างอิงบอร์ด",
+    "calReference": "การอ้างอิงปฏิทิน",
+    "gridReference": "การอ้างอิงตาราง",
     "date": "วันที่",
     "reminder": {
       "groupTitle": "ตัวเตือน",
@@ -2196,6 +2291,10 @@
     "italic": "ตัวเอียง",
     "link": "ลิงก์",
     "numberedList": "รายการลำดับตัวเลข",
+    "numberedListShortForm": "แบบระบุหมายเลข",
+    "toggleHeading1ShortForm": "สลับหัวข้อ h1",
+    "toggleHeading2ShortForm": "สลับหัวข้อ h2",
+    "toggleHeading3ShortForm": "สลับหัวข้อ h3",
     "quote": "คำกล่าว",
     "strikethrough": "ขีดฆ่า",
     "text": "ข้อความ",
@@ -2220,6 +2319,8 @@
     "backgroundColorPurple": "พื้นหลังสีม่วง",
     "backgroundColorPink": "พื้นหลังสีชมพู",
     "backgroundColorRed": "พื้นหลังสีแดง",
+    "backgroundColorLime": "พื้นหลังสีเขียวมะนาว",
+    "backgroundColorAqua": "พื้นหลังสีฟ้าน้ำทะเล",
     "done": "เสร็จสิ้น",
     "cancel": "ยกเลิก",
     "tint1": "สีจาง 1",
@@ -2297,6 +2398,9 @@
     "rowClear": "ล้างเนื้อหา",
     "slashPlaceHolder": "พิมพ์ / เพื่อแทรกบล็อก หรือเริ่มพิมพ์",
     "typeSomething": "พิมพ์อะไรบางอย่าง...",
+    "toggleListShortForm": "สลับ",
+    "quoteListShortForm": "คำกล่าว",
+    "mathEquationShortForm": "สูตร",
     "codeBlockShortForm": "โค้ด"
   },
   "favorite": {
@@ -2324,10 +2428,12 @@
     "addField": "เพิ่มฟิลด์",
     "userIcon": "ไอคอนผู้ใช้งาน"
   },
+  "noLogFiles": "ไม่มีไฟล์บันทึก",
   "newSettings": {
     "myAccount": {
       "title": "บัญชีของฉัน",
       "subtitle": "ปรับแต่งโปรไฟล์ของคุณ จัดการความปลอดภัยบัญชี เปิดคีย์ AI หรือเข้าสู่ระบบบัญชีของคุณ",
+      "profileLabel": "ชื่อบัญชีและรูปโปรไฟล์",
       "profileNamePlaceholder": "กรุณากรอกชื่อของคุณ",
       "accountSecurity": "ความปลอดภัยของบัญชี",
       "2FA": "การยืนยันตัวตน 2 ขั้นตอน",
@@ -2359,6 +2465,7 @@
       "workplaceName": "ชื่อพื้นไที่ทำงาน",
       "workplaceNamePlaceholder": "กรอกชื่อพื้นที่ทำงาน",
       "workplaceIcon": "ไอคอนพื้นที่ทำงาน",
+      "workplaceIconSubtitle": "อัปโหลดรูปภาพ หรือใช้อีโมจิสำหรับพื้นที่ทำงานของคุณ ไอคอนจะแสดงในแถบด้านข้าง และการแจ้งเตือนของคุณ",
       "renameError": "ไม่สามารถเปลี่ยนชื่อสถานที่ทำงานได้",
       "updateIconError": "ไม่สามารถอัปเดตไอคอนได้",
       "chooseAnIcon": "เลือกไอคอน",
@@ -2373,6 +2480,8 @@
       }
     },
     "syncState": {
+      "syncing": "กำลังซิงค์",
+      "synced": "ซิงค์แล้ว",
       "noNetworkConnected": "ไม่มีการเชื่อมต่อเครือข่าย"
     }
   },
@@ -2400,6 +2509,8 @@
   "commandPalette": {
     "placeholder": "พิมพ์เพื่อค้นหา...",
     "bestMatches": "การจับคู่ที่ดีที่สุด",
+    "recentHistory": "ประวัติล่าสุด",
+    "navigateHint": "เพื่อนำทาง",
     "loadingTooltip": "เรากำลังมองหาผลลัพธ์...",
     "betaLabel": "BETA",
     "betaTooltip": "ปัจจุบันเรารองรับเฉพาะการค้นหาหน้า หรือเนื้อหาภายในเอกสารเท่านั้น",
