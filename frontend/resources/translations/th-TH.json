@@ -2323,6 +2323,7 @@
       "many": "เผยแพร่ {} มุมมองที่เลือก",
       "other": "เผยแพร่ {} มุมมองที่เลือก"
     },
+    "saveThisPage": "เริ่มต้นด้วยเทมเพลตนี้",
     "selectWorkspace": "เลือกพื้นที่ทำงาน",
     "addTo": "เพิ่มไปยัง",
     "duplicateSuccessfully": "เพิ่มไปที่พื้นที่ทำงานของคุณแล้ว",
@@ -2345,7 +2346,16 @@
     "continueWithDiscord": "ดำเนินการต่อด้วย Discord",
     "continueWithApple": "ดำเนินการต่อด้วย Apple ",
     "moreOptions": "ตัวเลือกเพิ่มเติม",
+    "signInAgreement": "โดยการคลิก \"ดำเนินการต่อ\" ด้านบน, คุณตกลงตามข้อกำหนดของ AppFlowy",
     "and": "และ",
+    "termOfUse": "เงื่อนไข",
+    "privacyPolicy": "นโยบายความเป็นส่วนตัว",
+    "signInError": "เกิดข้อผิดพลาดในการเข้าสู่ระบบ",
+    "login": "ลงทะเบียนหรือเข้าสู่ระบบ",
+    "fileBlock": {
+      "uploadedAt": "อัพโหลดเมื่อ {เวลา}",
+      "linkedAt": "เพิ่มลิงก์เมื่อ {เวลา}"
+    },
     "importNotion": "นำเข้าจาก Notion",
     "import": "นำเข้า",
     "importSuccess": "อัพโหลดสำเร็จ"
@@ -2471,10 +2481,12 @@
       "many": "{count} สมาชิก",
       "other": "{count} สมาชิก"
     },
+    "requestToJoin": "ขอเข้าร่วม",
     "asMember": "ในฐานะสมาชิก"
   },
   "upgradePlanModal": {
     "title": "อัพเกรดเป็น Pro",
+    "message": "{name} ได้ถึงขีดจำกัดของสมาชิกฟรีแล้ว อัปเกรดเป็นแผน Pro เพื่อเชิญสมาชิกเพิ่ม",
     "upgradeSteps": "วิธีอัพเกรดแผนของคุณบน AppFlowy:",
     "step1": "1. ไปที่การตั้งค่า",
     "step2": "2. คลิกที่ 'แผน'",
@@ -2483,6 +2495,7 @@
     "actionButton": "อัพเกรด",
     "downloadLink": "ดาวน์โหลดแอป",
     "laterButton": "ภายหลัง",
+    "refreshNote": "หลังจากอัปเกรดสำเร็จแล้ว คลิก <refresh/> เพื่อเปิดใช้งานฟีเจอร์ใหม่ของคุณ",
     "refresh": "ที่นี่"
   },
   "breadcrumbs": {
