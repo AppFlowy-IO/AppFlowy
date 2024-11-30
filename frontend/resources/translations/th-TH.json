@@ -2,12 +2,14 @@
   "appName": "AppFlowy",
   "defaultUsername": "ฉัน",
   "welcomeText": "ยินดีต้อนรับเข้าสู่ @:appName",
+  "welcomeTo": "ยินดีต้อนรับเข้าสู่",
   "githubStarText": "กดดาวบน GitHub",
   "subscribeNewsletterText": "สมัครรับจดหมายข่าว",
   "letsGoButtonText": "เริ่มต้นอย่างรวดเร็ว",
   "title": "ชื่อ",
   "youCanAlso": "นอกจากนี้คุณยังสามารถ",
   "and": "และ",
+  "failedToOpenUrl": "ไม่สามารถเปิด url ได้: {}",
   "blockActions": {
     "addBelowTooltip": "คลิกเพื่อเพิ่มด้านล่าง",
     "addAboveCmd": "Alt+click",
@@ -21,12 +23,12 @@
     "title": "ลงทะเบียนเพื่อใช้ @:appName",
     "getStartedText": "เริ่มต้น",
     "emptyPasswordError": "รหัสผ่านต้องไม่เว้นว่าง",
-    "repeatPasswordEmptyError": "รหัสผ่านซ้ำต้องไม่เว้นว่าง",
-    "unmatchedPasswordError": "รหัสผ่านซ้ำไม่เท่ากับรหัสผ่าน",
+    "repeatPasswordEmptyError": "ช่องยืนยันรหัสผ่านต้องไม่เว้นว่าง",
+    "unmatchedPasswordError": "รหัสผ่านที่ยืนยันไม่ตรงกับรหัสผ่าน",
     "alreadyHaveAnAccount": "มีบัญชีอยู่แล้วหรือไม่?",
     "emailHint": "อีเมล",
     "passwordHint": "รหัสผ่าน",
-    "repeatPasswordHint": "รหัสผ่านซ้ำ",
+    "repeatPasswordHint": "ยืนยันรหัสผ่าน",
     "signUpWith": "ลงทะเบียนกับ:"
   },
   "signIn": {
@@ -34,39 +36,106 @@
     "loginButtonText": "เข้าสู่ระบบ",
     "loginStartWithAnonymous": "เริ่มต้นด้วยเซสชั่นแบบไม่ระบุตัวตน",
     "continueAnonymousUser": "ดำเนินการต่อด้วยเซสชันแบบไม่ระบุตัวตน",
+    "anonymous": "ไม่ระบุตัวตน",
     "buttonText": "เข้าสู่ระบบ",
+    "signingInText": "กำลังลงชื่อเข้าใช้...",
     "forgotPassword": "ลืมรหัสผ่านหรือไม่?",
     "emailHint": "อีเมล",
     "passwordHint": "รหัสผ่าน",
     "dontHaveAnAccount": "ยังไม่มีบัญชีใช่หรือไม่?",
-    "repeatPasswordEmptyError": "รหัสผ่านซ้ำต้องไม่เว้นว่าง",
-    "unmatchedPasswordError": "รหัสผ่านซ้ำไม่เท่ากับรหัสผ่าน",
-    "syncPromptMessage": "การซิงค์ข้อมูลอาจใช้เวลาสักครู่ กรุณาอย่าปิดหน้านี้",
+    "createAccount": "สร้างบัญชี",
+    "repeatPasswordEmptyError": "ช่องยืนยันรหัสผ่านต้องไม่เว้นว่าง",
+    "unmatchedPasswordError": "รหัสผ่านที่ยืนยันไม่ตรงกับรหัสผ่าน",
+    "syncPromptMessage": "กำลังซิงค์ข้อมูล ซึ่งอาจใช้เวลาสักครู่ กรุณาอย่าปิดหน้านี้",
     "or": "หรือ",
+    "signInWithGoogle": "ดำเนินการต่อด้วย Google",
+    "signInWithGithub": "ดำเนินการต่อด้วย GitHub",
+    "signInWithDiscord": "ดำเนินการต่อด้วย Discord",
+    "signInWithApple": "ดำเนินการต่อด้วย Apple",
+    "continueAnotherWay": "ลองวิธีอื่นเพื่อดำเนินการต่อ",
+    "signUpWithGoogle": "ลงทะเบียนด้วย Google",
+    "signUpWithGithub": "ลงทะเบียนด้วย Github",
+    "signUpWithDiscord": "ลงทะเบียนด้วย Discord",
+    "signInWith": "ลงชื่อเข้าใช้ด้วย:",
+    "signInWithEmail": "ดำเนินการต่อด้วยอีเมล์",
+    "signInWithMagicLink": "ดำเนินการต่อ",
+    "signUpWithMagicLink": "ลงทะเบียนด้วย Magic Link",
+    "pleaseInputYourEmail": "กรุณากรอกที่อยู่อีเมล์ของคุณ",
+    "settings": "การตั้งค่า",
+    "magicLinkSent": "ส่ง Magic Link แล้ว!",
+    "invalidEmail": "กรุณากรอกอีเมลที่ถูกต้อง",
+    "alreadyHaveAnAccount": "มีบัญชีอยู่แล้วใช่ไหม?",
+    "logIn": "เข้าสู่ระบบ",
+    "generalError": "มีบางอย่างผิดพลาด โปรดลองอีกครั้งในภายหลัง",
+    "limitRateError": "ด้วยเหตุผลด้านความปลอดภัย คุณสามารถขอ Magic Link ได้ทุกๆ 60 วินาทีเท่านั้น",
+    "magicLinkSentDescription": "Magic Link ถูกส่งไปยังอีเมลของคุณแล้ว กรุณาคลิกลิงก์เพื่อเข้าสู่ระบบ ลิงก์จะหมดอายุภายใน 5 นาที",
     "LogInWithGoogle": "เข้าสู่ระบบด้วย Google",
     "LogInWithGithub": "เข้าสู่ระบบด้วย Github",
-    "LogInWithDiscord": "เข้าสู่ระบบด้วย Discord",
-    "signInWith": "ลงชื่อเข้าใช้ด้วย:"
+    "LogInWithDiscord": "เข้าสู่ระบบด้วย Discord"
   },
   "workspace": {
     "chooseWorkspace": "เลือกพื้นที่ทำงานของคุณ",
+    "defaultName": "พื้นที่ทำงานของฉัน",
     "create": "สร้างพื้นที่ทำงาน",
+    "importFromNotion": "นำเข้าจาก Notion",
+    "learnMore": "เรียนรู้เพิ่มเติม",
     "reset": "รีเซ็ตพื้นที่ทำงาน",
-    "resetWorkspacePrompt": "การรีเซ็ตพื้นที่ทำงานจะลบหน้าและข้อมูลทั้งหมดภายในนั้น คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ตพื้นที่ทำงาน หรือคุณสามารถติดต่อทีมสนับสนุนเพื่อกู้คืนพื้นที่ทำงาน",
+    "renameWorkspace": "เปลี่ยนชื่อพื้นที่ทำงาน",
+    "workspaceNameCannotBeEmpty": "ชื่อพื้นที่ทำงานไม่สามารถเว้นว่างได้",
+    "resetWorkspacePrompt": "การรีเซ็ตพื้นที่ทำงานจะลบทุกหน้าและข้อมูลภายในนั้น คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ตพื้นที่ทำงาน? หรือคุณสามารถติดต่อทีมสนับสนุนเพื่อกู้คืนพื้นที่ทำงานได้",
     "hint": "พื้นที่ทำงาน",
     "notFoundError": "ไม่พบพื้นที่ทำงาน",
-    "failedToLoad": "เกิดข้อผิดพลาด! ไม่สามารถโหลดพื้นที่ทำงานได้ โปรดปิดแอปพลิเคชัน AppFlowy ใดๆ ที่เปิดอยู่แล้วลองอีกครั้ง",
+    "failedToLoad": "เกิดข้อผิดพลาด! ไม่สามารถโหลดพื้นที่ทำงานได้ โปรดปิดแอปพลิเคชัน @:appName ที่เปิดอยู่ทั้งหมดแล้วลองอีกครั้ง",
     "errorActions": {
       "reportIssue": "รายงานปัญหา",
+      "reportIssueOnGithub": "รายงานปัญหาบน Github",
+      "exportLogFiles": "ส่งออกไฟล์บันทึก",
       "reachOut": "ติดต่อได้ที่ Discord"
-    }
+    },
+    "menuTitle": "พื้นที่ทำงาน",
+    "deleteWorkspaceHintText": "คุณแน่ใจหรือไม่ว่าต้องการลบพื้นที่ทำงาน? การกระทำนี้ไม่สามารถย้อนกลับได้ และทุกหน้าที่คุณเผยแพร่จะถูกยกเลิกการเผยแพร่",
+    "createSuccess": "สร้างพื้นที่ทำงานสำเร็จแล้ว",
+    "createFailed": "ไม่สามารถสร้างพื้นที่ทำงานได้",
+    "createLimitExceeded": "คุณถึงขีดจำกัดสูงสุดของพื้นที่ทำงานที่บัญชีของคุณสามารถสร้างได้แล้ว หากคุณต้องการพื้นที่ทำงานเพิ่มเติมเพื่อดำเนินการต่อ โปรดส่งคำขอบน Github",
+    "deleteSuccess": "ลบพื้นที่ทำงานสำเร็จแล้ว",
+    "deleteFailed": "ไม่สามารถลบพื้นที่ทำงานได้",
+    "openSuccess": "เปิดพื้นที่ทำงานได้สำเร็จ",
+    "openFailed": "ไม่สามารถเปิดพื้นที่ทำงานได้",
+    "renameSuccess": "เปลี่ยนชื่อพื้นที่ทำงานสำเร็จแล้ว",
+    "renameFailed": "ไม่สามารถเปลี่ยนชื่อพื้นที่ทำงานได้",
+    "updateIconSuccess": "อัปเดตไอคอนพื้นที่ทำงานสำเร็จแล้ว",
+    "updateIconFailed": "ไม่สามารถอัปเดตไอคอนพื้นที่ทำงานได้",
+    "cannotDeleteTheOnlyWorkspace": "ไม่สามารถลบพื้นที่ทำงานเพียงอย่างเดียวได้",
+    "fetchWorkspacesFailed": "ไม่สามารถดึงข้อมูลพื้นที่ทำงานได้",
+    "leaveCurrentWorkspace": "ออกจากพื้นที่ทำงาน",
+    "leaveCurrentWorkspacePrompt": "คุณแน่ใจหรือไม่ว่าต้องการออกจากพื้นที่ทำงานปัจจุบัน?"
   },
   "shareAction": {
     "buttonText": "แชร์",
     "workInProgress": "เร็วๆ นี้",
     "markdown": "Markdown",
+    "html": "HTML",
+    "clipboard": "คัดลอกไปยังคลิปบอร์ด",
     "csv": "CSV",
-    "copyLink": "คัดลอกลิงค์"
+    "copyLink": "คัดลอกลิงค์",
+    "publishToTheWeb": "เผยแพร่สู่เว็บ",
+    "publishToTheWebHint": "สร้างเว็บไซต์ด้วย AppFlowy",
+    "publish": "เผยแพร่",
+    "unPublish": "ยกเลิกการเผยแพร่",
+    "visitSite": "เยี่ยมชมเว็บไซต์",
+    "exportAsTab": "ส่งออกเป็น",
+    "publishTab": "เผยแพร่",
+    "shareTab": "แชร์",
+    "publishOnAppFlowy": "เผยแพร่บน AppFlowy",
+    "shareTabTitle": "เชิญเพื่อการทำงานร่วมกัน",
+    "shareTabDescription": "เพื่อการทำงานร่วมกันอย่างง่ายดายกับใครก็ได้",
+    "copyLinkSuccess": "คัดลอกลิงก์ไปยังคลิปบอร์ดแล้ว",
+    "copyShareLink": "คัดลอกลิงก์แชร์",
+    "copyLinkFailed": "ไม่สามารถคัดลอกลิงก์ไปยังคลิปบอร์ดได้",
+    "copyLinkToBlockSuccess": "คัดลอกลิงก์บล็อกไปยังคลิปบอร์ดแล้ว",
+    "copyLinkToBlockFailed": "ไม่สามารถคัดลอกลิงก์บล็อกไปยังคลิปบอร์ด",
+    "manageAllSites": "จัดการไซต์ทั้งหมด",
+    "updatePathName": "อัปเดตชื่อเส้นทาง"
   },
   "moreAction": {
     "small": "เล็ก",
@@ -74,12 +143,18 @@
     "large": "ใหญ่",
     "fontSize": "ขนาดตัวอักษร",
     "import": "นำเข้า",
-    "moreOptions": "ตัวเลือกเพิ่มเติม"
+    "moreOptions": "ตัวเลือกเพิ่มเติม",
+    "wordCount": "จำนวนคำ: {}",
+    "charCount": "จำนวนตัวอักษร: {}",
+    "createdAt": "สร้างแล้ว: {}",
+    "deleteView": "ลบ",
+    "duplicateView": "ทำสำเนา"
   },
   "importPanel": {
     "textAndMarkdown": "ข้อความ & Markdown",
     "documentFromV010": "เอกสารจาก v0.1.0",
     "databaseFromV010": "ฐานข้อมูลจาก v0.1.0",
+    "notionZip": "ไฟล์ Zip ที่ส่งออกจาก Notion",
     "csv": "CSV",
     "database": "ฐานข้อมูล"
   },
@@ -92,7 +167,9 @@
     "openNewTab": "เปิดในแท็บใหม่",
     "moveTo": "ย้ายไปยัง",
     "addToFavorites": "เพิ่มในรายการโปรด",
-    "copyLink": "คัดลอกลิงค์"
+    "copyLink": "คัดลอกลิงค์",
+    "changeIcon": "เปลี่ยนไอคอน",
+    "collapseAllPages": "ยุบหน้าย่อยทั้งหมด"
   },
   "blankPageTitle": "หน้าเปล่า",
   "newPageText": "หน้าใหม่",
@@ -100,9 +177,42 @@
   "newGridText": "ตารางใหม่",
   "newCalendarText": "ปฏิทินใหม่",
   "newBoardText": "กระดานใหม่",
+  "chat": {
+    "newChat": "แชท AI",
+    "inputMessageHint": "ถาม @:appName AI",
+    "inputLocalAIMessageHint": "ถาม @:appName Local AI",
+    "unsupportedCloudPrompt": "คุณสมบัตินี้ใช้ได้เมื่อใช้ @:appName Cloud เท่านั้น",
+    "relatedQuestion": "ข้อเสนอแนะ",
+    "serverUnavailable": "บริการไม่สามารถใช้งานได้ชั่วคราว กรุณาลองใหม่อีกครั้งในภายหลัง",
+    "aiServerUnavailable": "การเชื่อมต่อขาดหาย กรุณาตรวจสอบอินเทอร์เน็ตของคุณ",
+    "retry": "ลองใหม่อีกครั้ง",
+    "clickToRetry": "คลิกเพื่อลองใหม่อีกครั้ง",
+    "regenerateAnswer": "สร้างใหม่",
+    "question1": "วิธีการใช้ Kanban เพื่อจัดการงาน",
+    "question2": "อธิบายวิธี GTD",
+    "question3": "เหตุใดจึงใช้ Rust",
+    "question4": "สูตรอาหารจากสิ่งที่มีในครัวของฉัน",
+    "question5": "สร้างภาพประกอบให้กับหน้าของฉัน",
+    "question6": "จัดทำรายการสิ่งที่ต้องทำสำหรับสัปดาห์หน้าของฉัน",
+    "aiMistakePrompt": "AI อาจทำผิดพลาดได้ กรุณาตรวจสอบข้อมูลที่สำคัญ",
+    "chatWithFilePrompt": "คุณต้องการแชทกับไฟล์หรือไม่?",
+    "indexFileSuccess": "สร้างดัชนีไฟล์สำเร็จแล้ว",
+    "inputActionNoPages": "ไม่พบผลลัพธ์จากหน้า",
+    "referenceSource": {
+      "zero": "ไม่พบแหล่งข้อมูล 0 รายการ",
+      "one": "พบแหล่งข้อมูล {count} รายการ",
+      "other": "พบแหล่งข้อมูล {count} รายการ"
+    },
+    "clickToMention": "อ้างอิงถึงหน้า",
+    "uploadFile": "แนบไฟล์ PDF, ข้อความ หรือไฟล์ Markdown",
+    "questionDetail": "สวัสดี {}! วันนี้ฉันสามารถช่วยอะไรคุณได้บ้าง?",
+    "indexingFile": "การจัดทำดัชนี {}",
+    "generatingResponse": "กำลังสร้างการตอบกลับ"
+  },
   "trash": {
     "text": "ขยะ",
     "restoreAll": "กู้คืนทั้งหมด",
+    "restore": "กู้คืน",
     "deleteAll": "ลบทั้งหมด",
     "pageHeader": {
       "fileName": "ชื่อไฟล์",
@@ -117,18 +227,24 @@
       "title": "คุณแน่ใจหรือว่าจะกู้คืนทุกหน้าในถังขยะ",
       "caption": "การดำเนินการนี้ไม่สามารถยกเลิกได้"
     },
+    "restorePage": {
+      "title": "กู้คืน: {}",
+      "caption": "คุณแน่ใจหรือไม่ว่าต้องการกู้คืนหน้านี้?"
+    },
     "mobile": {
       "actions": "การดำเนินการถังขยะ",
       "empty": "ถังขยะว่างเปล่า",
       "emptyDescription": "คุณไม่มีไฟล์ที่ถูกลบ",
       "isDeleted": "ถูกลบแล้ว",
       "isRestored": "ถูกกู้คืนแล้ว"
-    }
+    },
+    "confirmDeleteTitle": "คุณแน่ใจหรือไม่ว่าต้องการลบหน้านี้อย่างถาวร?"
   },
   "deletePagePrompt": {
     "text": "หน้านี้อยู่ในถังขยะ",
     "restore": "กู้คืนหน้า",
-    "deletePermanent": "ลบถาวร"
+    "deletePermanent": "ลบถาวร",
+    "deletePermanentDescription": "คุณแน่ใจหรือไม่ว่าต้องการลบหน้านี้อย่างถาวร? การกระทำนี้ไม่สามารถย้อนกลับได้"
   },
   "dialogCreatePageNameHint": "ชื่อหน้า",
   "questionBubble": {
@@ -177,17 +293,59 @@
     "dragRow": "กดค้างเพื่อเรียงลำดับแถวใหม่",
     "viewDataBase": "ดูฐานข้อมูล",
     "referencePage": "{name} ถูกอ้างอิงถึง",
-    "addBlockBelow": "เพิ่มบล็อกด้านล่าง"
+    "addBlockBelow": "เพิ่มบล็อกด้านล่าง",
+    "aiGenerate": "สร้าง"
   },
   "sideBar": {
     "closeSidebar": "ปิดแถบด้านข้าง",
     "openSidebar": "เปิดแถบด้านข้าง",
     "personal": "ส่วนบุคคล",
+    "private": "ส่วนตัว",
+    "workspace": "พื้นที่ทำงาน",
     "favorites": "รายการโปรด",
+    "clickToHidePrivate": "คลิกเพื่อซ่อนพื้นที่ส่วนตัว\nหน้าที่คุณสร้างที่นี่จะแสดงให้เห็นเฉพาะคุณเท่านั้น",
+    "clickToHideWorkspace": "คลิกเพื่อซ่อนพื้นที่ทำงาน\nหน้าที่คุณสร้างที่นี่จะแสดงให้สมาชิกทุกคนเห็น",
     "clickToHidePersonal": "คลิกเพื่อซ่อนส่วนส่วนบุคคล",
     "clickToHideFavorites": "คลิกเพื่อซ่อนส่วนรายการโปรด",
     "addAPage": "เพิ่มหน้า",
-    "recent": "ล่าสุด"
+    "addAPageToPrivate": "เพิ่มหน้าไปยังพื้นที่ส่วนตัว",
+    "addAPageToWorkspace": "เพิ่มหน้าไปยังพื้นที่ทำงาน",
+    "recent": "ล่าสุด",
+    "today": "วันนี้",
+    "thisWeek": "สัปดาห์นี้",
+    "others": "รายการโปรดก่อนหน้านี้",
+    "earlier": "ก่อนหน้านี้",
+    "justNow": "เมื่อสักครู่",
+    "minutesAgo": "{count} นาทีที่ผ่านมา",
+    "lastViewed": "ดูล่าสุด",
+    "favoriteAt": "รายการโปรด",
+    "emptyRecent": "ไม่มีหน้าล่าสุด",
+    "emptyRecentDescription": "เมื่อคุณดูหน้าเพจ หน้าเหล่านั้นจะปรากฏที่นี่เพื่อให้คุณสามารถเรียกดูได้ง่าย",
+    "emptyFavorite": "ไม่มีหน้าโปรด",
+    "emptyFavoriteDescription": "ทำเครื่องหมายหน้าเป็นรายการโปรด—หน้าเหล่านี้จะแสดงไว้ที่นี่เพื่อการเข้าถึงอย่างรวดเร็ว!",
+    "removePageFromRecent": "ลบหน้านี้ออกจากรายการล่าสุดหรือไม่?",
+    "removeSuccess": "ลบสำเร็จ",
+    "favoriteSpace": "รายการโปรด",
+    "RecentSpace": "ล่าสุด",
+    "Spaces": "พื้นที่",
+    "upgradeToPro": "อัพเกรดเป็น Pro",
+    "upgradeToAIMax": "ปลดล็อค AI แบบไม่จำกัด",
+    "storageLimitDialogTitle": "คุณใช้พื้นที่จัดเก็บฟรีหมดแล้ว กรุณาอัปเกรดเพื่อปลดล็อกพื้นที่จัดเก็บแบบไม่จำกัด",
+    "storageLimitDialogTitleIOS": "คุณใช้พื้นที่จัดเก็บฟรีหมดแล้ว",
+    "aiResponseLimitTitle": "คุณใช้จำนวนการตอบกลับ AI ฟรีหมดแล้ว กรุณาอัปเกรดเป็นแผน Pro หรือซื้อส่วนเสริม AI เพื่อปลดล็อกการตอบกลับไม่จำกัด",
+    "aiResponseLimitTitleIOS": "คุณใช้จำนวนการตอบกลับ AI ฟรีหมดแล้ว",
+    "aiResponseLimitDialogTitle": "ถึงขีดจำกัดการตอบกลับ AI แล้ว",
+    "aiResponseLimit": "คุณใช้จำนวนการตอบกลับ AI ฟรีหมดแล้ว\nไปที่ การตั้งค่า -> แผน -> คลิก AI Max หรือแผน Pro เพื่อรับการตอบกลับ AI เพิ่มเติม",
+    "askOwnerToUpgradeToPro": "พื้นที่จัดเก็บฟรีในพื้นที่ทำงานของคุณกำลังจะหมด กรุณาขอให้เจ้าของพื้นที่ทำงานของคุณอัปเกรดเป็นแผน Pro",
+    "askOwnerToUpgradeToProIOS": "พื้นที่จัดเก็บฟรีในพื้นที่ทำงานของคุณกำลังจะหมด",
+    "askOwnerToUpgradeToAIMax": "พื้นที่ทำงานของคุณใช้จำนวนการตอบกลับ AI ฟรีหมดแล้ว กรุณาขอให้เจ้าของพื้นที่ทำงานของคุณอัปเกรดแผนหรือซื้อส่วนเสริม AI",
+    "askOwnerToUpgradeToAIMaxIOS": "จำนวนการตอบกลับ AI ฟรี ในพื้นที่ทำงานของคุณใกล้หมดแล้ว",
+    "purchaseStorageSpace": "ซื้อพื้นที่จัดเก็บข้อมูล",
+    "singleFileProPlanLimitationDescription": "คุณอัปโหลดไฟล์เกินขนาดสูงสุดที่อนุญาตในแผนฟรี โปรดอัปเกรดเป็นแผน Pro เพื่ออัปโหลดไฟล์ขนาดใหญ่ขึ้น",
+    "purchaseAIResponse": "ซื้อ ",
+    "askOwnerToUpgradeToLocalAI": "กรุณาขอให้เจ้าของพื้นที่ทำงานเปิดใช้งาน AI บนอุปกรณ์",
+    "upgradeToAILocal": "เรียกใช้โมเดลบนอุปกรณ์ของคุณเพื่อความเป็นส่วนตัวสูงสุด",
+    "upgradeToAILocalDesc": "สนทนากับ PDFs ปรับปรุงการเขียนของคุณ และเติมข้อมูลในตารางอัตโนมัติด้วย AI ภายในเครื่อง"
   },
   "notifications": {
     "export": {
@@ -203,6 +361,7 @@
   },
   "button": {
     "ok": "ตกลง",
+    "confirm": "ยืนยัน",
     "done": "เสร็จแล้ว",
     "cancel": "ยกเลิก",
     "signIn": "ลงชื่อเข้าใช้",
@@ -220,16 +379,45 @@
     "upload": "อัปโหลด",
     "edit": "แก้ไข",
     "delete": "ลบ",
+    "copy": "คัดลอก",
     "duplicate": "ทำสำเนา",
     "putback": "นำกลับมา",
     "update": "อัปโหลด",
     "share": "แชร์",
     "removeFromFavorites": "ลบออกจากรายการโปรด",
+    "removeFromRecent": "ลบออกจากรายการล่าสุด",
     "addToFavorites": "เพิ่มในรายการโปรด",
+    "favoriteSuccessfully": "เพิ่มในรายการที่ชื่นชอบสำเร็จ",
+    "unfavoriteSuccessfully": "นำออกจากรายการที่ชื่นชอบสำเร็จ",
+    "duplicateSuccessfully": "ทำสำเนาสำเร็จแล้ว",
     "rename": "เปลี่ยนชื่อ",
     "helpCenter": "ศูนย์ช่วยเหลือ",
     "add": "เพิ่ม",
-    "yes": "ใช่"
+    "yes": "ใช่",
+    "no": "ไม่",
+    "clear": "ล้าง",
+    "remove": "ลบ",
+    "dontRemove": "ไม่ลบ",
+    "copyLink": "คัดลอกลิงค์",
+    "align": "จัดตำแหน่ง",
+    "login": "เข้าสู่ระบบ",
+    "logout": "ออกจากระบบ",
+    "deleteAccount": "ลบบัญชี",
+    "back": "กลับ",
+    "signInGoogle": "ดำเนินการต่อด้วย Google",
+    "signInGithub": "ดำเนินการต่อด้วย GitHub",
+    "signInDiscord": "ดำเนินการต่อด้วย Discord",
+    "more": "เพิ่มเติม",
+    "create": "สร้าง",
+    "close": "ปิด",
+    "next": "ถัดไป",
+    "previous": "ก่อนหน้า",
+    "submit": "ส่ง",
+    "download": "ดาวน์โหลด",
+    "backToHome": "กลับสู่หน้าแรก",
+    "viewing": "การดู",
+    "editing": "การแก้ไข",
+    "gotIt": "เข้าใจแล้ว"
   },
   "label": {
     "welcome": "ยินดีต้อนรับ!",
@@ -253,6 +441,499 @@
   },
   "settings": {
     "title": "การตั้งค่า",
+    "popupMenuItem": {
+      "settings": "การตั้งค่า",
+      "members": "สมาชิก",
+      "trash": "ถังขยะ",
+      "helpAndSupport": "ความช่วยเหลือ & การสนับสนุน"
+    },
+    "sites": {
+      "title": "ไซต์",
+      "namespaceTitle": "เนมสเปซ",
+      "namespaceDescription": "จัดการเนมสเปซและโฮมเพจของคุณ",
+      "namespaceHeader": "เนมสเปซ",
+      "homepageHeader": "หน้าแรก",
+      "updateNamespace": "อัปเดตเนมสเปซ",
+      "removeHomepage": "ลบหน้าแรก",
+      "selectHomePage": "เลือกหน้า",
+      "clearHomePage": "ล้างโฮมเพจสำหรับเนมสเปซนี้",
+      "customUrl": "URL แบบกำหนดเอง",
+      "namespace": {
+        "description": "การเปลี่ยนแปลงนี้จะมีผลกับหน้าที่เผยแพร่ทั้งหมดที่เปิดใช้งานในพื้นที่นี้",
+        "tooltip": "เราขอสงวนสิทธิ์ในการลบเนมสเปซที่ไม่เหมาะสม",
+        "updateExistingNamespace": "อัปเดตเนมสเปซที่มีอยู่",
+        "upgradeToPro": "อัปเกรดเป็นแผน Pro เพื่อกำหนดหน้าโฮมเพจ",
+        "redirectToPayment": "กำลังเปลี่ยนเส้นทางไปยังหน้าชำระเงิน...",
+        "onlyWorkspaceOwnerCanSetHomePage": "เฉพาะเจ้าของพื้นที่ทำงานเท่านั้นที่สามารถกำหนดหน้าโฮมเพจได้",
+        "pleaseAskOwnerToSetHomePage": "กรุณาขอให้เจ้าของพื้นที่ทำงานอัปเกรดเป็นแผน Pro"
+      },
+      "publishedPage": {
+        "title": "หน้าที่เผยแพร่ทั้งหมด",
+        "description": "จัดการหน้าที่เผยแพร่ของคุณ",
+        "page": "หน้า",
+        "pathName": "ชื่อเส้นทาง",
+        "date": "วันที่เผยแพร่",
+        "emptyHinText": "คุณไม่มีหน้าที่เผยแพร่ในพื้นที่ทำงานนี้",
+        "noPublishedPages": "ยังไม่มีหน้าที่เผยแพร่",
+        "settings": "การตั้งค่าการเผยแพร่",
+        "clickToOpenPageInApp": "เปิดหน้าในแอป",
+        "clickToOpenPageInBrowser": "เปิดหน้าในเบราว์เซอร์"
+      },
+      "error": {
+        "failedToGeneratePaymentLink": "ไม่สามารถสร้างลิงก์การชำระเงินสำหรับแผน Pro ได้",
+        "failedToUpdateNamespace": "ไม่สามารถอัปเดตเนมสเปซได้",
+        "proPlanLimitation": "คุณต้องอัปเกรดเป็นแผน Pro เพื่ออัปเดตเนมสเปซ",
+        "namespaceAlreadyInUse": "เนมสเปซนี้ถูกใช้ไปแล้ว กรุณาลองชื่ออื่น",
+        "invalidNamespace": "เนมสเปซไม่ถูกต้อง กรุณาลองชื่ออื่น",
+        "namespaceLengthAtLeast2Characters": "เนมสเปซต้องมีความยาวอย่างน้อย 2 ตัวอักษร",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "เฉพาะเจ้าของพื้นที่ทำงานเท่านั้นที่สามารถอัปเดตเนมสเปซได้",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "เฉพาะเจ้าของพื้นที่ทำงานเท่านั้นที่สามารถลบหน้าโฮมเพจได้",
+        "setHomepageFailed": "ไม่สามารถตั้งค่าหน้าแรกได้",
+        "namespaceTooLong": "เนมสเปซยาวเกินไป กรุณาลองชื่ออื่น",
+        "namespaceTooShort": "เนมสเปซสั้นเกินไป กรุณาลองชื่ออื่น",
+        "namespaceIsReserved": "เนมสเปซนี้ถูกจองไว้แล้ว กรุณาลองชื่ออื่น",
+        "updatePathNameFailed": "ไม่สามารถอัปเดตชื่อเส้นทางได้",
+        "removeHomePageFailed": "ไม่สามารถลบหน้าแรกได้",
+        "publishNameContainsInvalidCharacters": "ชื่อเส้นทางมีอักขระที่ไม่ถูกต้อง โปรดลองอักขระอื่น",
+        "publishNameTooShort": "ชื่อเส้นทางสั้นเกินไป กรุณาลองชื่ออื่น",
+        "publishNameTooLong": "ชื่อเส้นทางยาวเกินไป กรุณาลองชื่ออื่น",
+        "publishNameAlreadyInUse": "ชื่อเส้นทางนี้ถูกใช้ไปแล้ว กรุณาลองชื่ออื่น",
+        "namespaceContainsInvalidCharacters": "เนมสเปซมีอักขระที่ไม่ถูกต้อง โปรดลองอักขระอื่น",
+        "publishPermissionDenied": "เฉพาะเจ้าของพื้นที่ทำงานหรือผู้เผยแพร่เพจเท่านั้นที่สามารถจัดการการตั้งค่าการเผยแพร่ได้",
+        "publishNameCannotBeEmpty": "ชื่อเส้นทางไม่สามารถเว้นว่างได้ กรุณาลองชื่ออื่น"
+      },
+      "success": {
+        "namespaceUpdated": "อัปเดตเนมสเปซสำเร็จ",
+        "setHomepageSuccess": "ตั้งค่าหน้าแรกสำเร็จ",
+        "updatePathNameSuccess": "อัปเดตชื่อเส้นทางสำเร็จ",
+        "removeHomePageSuccess": "ลบหน้าแรกสำเร็จ"
+      }
+    },
+    "accountPage": {
+      "menuLabel": "บัญชีของฉัน",
+      "title": "บัญชีของฉัน",
+      "general": {
+        "title": "ชื่อบัญชีและรูปโปรไฟล์",
+        "changeProfilePicture": "เปลี่ยนรูปโปรไฟล์"
+      },
+      "email": {
+        "title": "อีเมล",
+        "actions": {
+          "change": "เปลี่ยนอีเมล"
+        }
+      },
+      "login": {
+        "title": "การเข้าสู่ระบบบัญชี",
+        "loginLabel": "เข้าสู่ระบบ",
+        "logoutLabel": "ออกจากระบบ"
+      }
+    },
+    "workspacePage": {
+      "menuLabel": "พื้นที่ทำงาน",
+      "title": "พื้นที่ทำงาน",
+      "description": "ปรับแต่งรูปลักษณ์ของพื้นที่ทำงาน ธีม แบบอักษร เค้าโครงข้อความ รูปแบบวันที่/เวลา และภาษา",
+      "workspaceName": {
+        "title": "ชื่อพื้นที่ทำงาน"
+      },
+      "workspaceIcon": {
+        "title": "ไอคอนพื้นที่ทำงาน",
+        "description": "อัปโหลดรูปภาพหรือใช้อีโมจิสำหรับพื้นที่ทำงานของคุณ ไอคอนจะแสดงในแถบด้านข้างและการแจ้งเตือนของคุณ"
+      },
+      "appearance": {
+        "title": "ลักษณะการแสดงผล",
+        "description": "ปรับแต่งรูปลักษณ์พื้นที่ทำงาน ธีม แบบอักษร เค้าโครงข้อความ วันที่ เวลา และภาษาของคุณ",
+        "options": {
+          "system": "อัตโนมัติ",
+          "light": "สว่าง",
+          "dark": "มืด"
+        }
+      },
+      "resetCursorColor": {
+        "title": "รีเซ็ตสีของเคอร์เซอร์ในเอกสาร",
+        "description": "คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ตสีของเคอร์เซอร์?"
+      },
+      "resetSelectionColor": {
+        "title": "รีเซ็ตสีการเลือกในเอกสาร",
+        "description": "คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ตสีการเลือก?"
+      },
+      "resetWidth": {
+        "resetSuccess": "รีเซ็ตความกว้างของเอกสารสำเร็จ"
+      },
+      "theme": {
+        "title": "ธีม",
+        "description": "เลือกธีมที่ตั้งไว้ล่วงหน้าหรืออัปโหลดธีมที่คุณกำหนดเอง",
+        "uploadCustomThemeTooltip": "อัพโหลดธีมที่กำหนดเอง"
+      },
+      "workspaceFont": {
+        "title": "ฟอนต์ของพื้นที่ทำงาน",
+        "noFontHint": "ไม่พบฟอนต์ กรุณาลองคำค้นหาอื่น"
+      },
+      "textDirection": {
+        "title": "ทิศทางข้อความ",
+        "leftToRight": "จากซ้ายไปขวา",
+        "rightToLeft": "จากขวาไปซ้าย",
+        "auto": "อัตโนมัติ",
+        "enableRTLItems": "เปิดใช้งานรายการเครื่องมือ RTL (จากขวาไปซ้าย)"
+      },
+      "layoutDirection": {
+        "title": "ทิศทางการจัดวาง",
+        "leftToRight": "จากซ้ายไปขวา",
+        "rightToLeft": "จากขวาไปซ้าย"
+      },
+      "dateTime": {
+        "title": "วันที่และเวลา",
+        "example": "{} ที่ {} ({})",
+        "24HourTime": "เวลาแบบ 24 ชั่วโมง",
+        "dateFormat": {
+          "label": "รูปแบบวันที่",
+          "local": "ท้องถิ่น",
+          "us": "US",
+          "iso": "ISO",
+          "friendly": "ที่เข้าใจง่าย",
+          "dmy": "D/M/Y"
+        }
+      },
+      "language": {
+        "title": "ภาษา"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "ลบพื้นที่ทำงาน",
+        "content": "คุณแน่ใจหรือไม่ว่าต้องการลบพื้นที่ทำงานนี้? การดำเนินการนี้ไม่สามารถย้อนกลับได้ และหน้าใดๆ ที่คุณเผยแพร่ไปแล้วจะถูกยกเลิกการเผยแพร่"
+      },
+      "leaveWorkspacePrompt": {
+        "title": "ออกจากพื้นที่ทำงาน",
+        "content": "คุณแน่ใจหรือไม่ว่าต้องการออกจากพื้นที่ทำงานนี้? คุณจะสูญเสียการเข้าถึงหน้าและข้อมูลทั้งหมดภายในพื้นที่นี้",
+        "success": "คุณได้ออกจากพื้นที่ทำงานเรียบร้อยแล้ว",
+        "fail": "ไม่สามารถออกจากพื้นที่ทำงานได้"
+      },
+      "manageWorkspace": {
+        "title": "จัดการพื้นที่ทำงาน",
+        "leaveWorkspace": "ออกจากพื้นที่ทำงาน",
+        "deleteWorkspace": "ลบพื้นที่ทำงาน"
+      }
+    },
+    "manageDataPage": {
+      "menuLabel": "การจัดการข้อมูล",
+      "title": "การจัดการข้อมูล",
+      "description": "จัดการพื้นที่จัดเก็บข้อมูลในเครื่องหรือนำเข้าข้อมูลที่มีอยู่ของคุณลงใน @:appName",
+      "dataStorage": {
+        "title": "ตำแหน่งจัดเก็บไฟล์",
+        "tooltip": "ตำแหน่งที่จัดเก็บไฟล์ของคุณ",
+        "actions": {
+          "change": "เปลี่ยนเส้นทาง",
+          "open": "เปิดโฟลเดอร์",
+          "openTooltip": "เปิดตำแหน่งโฟลเดอร์ข้อมูลปัจจุบัน",
+          "copy": "คัดลอกเส้นทาง",
+          "copiedHint": "คัดลอกเส้นทางแล้ว!",
+          "resetTooltip": "รีเซ็ตเป็นตำแหน่งเริ่มต้น"
+        },
+        "resetDialog": {
+          "title": "คุณแน่ใจหรือไม่?",
+          "description": "การรีเซ็ตเส้นทางไปยังตำแหน่งข้อมูลเริ่มต้นจะไม่ลบข้อมูลของคุณ หากคุณต้องการนำเข้าข้อมูลปัจจุบันอีกครั้ง ควรคัดลอกเส้นทางของตำแหน่งปัจจุบันก่อน"
+        }
+      },
+      "importData": {
+        "title": "นำเข้าข้อมูล",
+        "tooltip": "นำเข้าข้อมูลจากการสำรองข้อมูล/โฟลเดอร์ข้อมูล @:appName",
+        "description": "คัดลอกข้อมูลจากโฟลเดอร์ข้อมูลภายนอกของ @:appName",
+        "action": "เรียกดูไฟล์"
+      },
+      "encryption": {
+        "title": "การเข้ารหัส",
+        "tooltip": "จัดการวิธีการจัดเก็บและเข้ารหัสข้อมูลของคุณ",
+        "descriptionNoEncryption": "การเปิดใช้งานการเข้ารหัสจะทำให้ข้อมูลทั้งหมดถูกเข้ารหัส การกระทำนี้ไม่สามารถย้อนกลับได้",
+        "descriptionEncrypted": "ข้อมูลของคุณได้รับการเข้ารหัสแล้ว",
+        "action": "เข้ารหัสข้อมูล",
+        "dialog": {
+          "title": "ต้องการเข้ารหัสข้อมูลทั้งหมดของคุณหรือไม่?",
+          "description": "การเข้ารหัสข้อมูลทั้งหมดของคุณจะช่วยให้ข้อมูลของคุณปลอดภัยและมั่นคง การดำเนินการนี้ไม่สามารถย้อนกลับได้ คุณแน่ใจหรือไม่ว่าต้องการดำเนินการต่อ?"
+        }
+      },
+      "cache": {
+        "title": "ล้างแคช",
+        "description": "ช่วยแก้ไขปัญหาต่างๆ เช่น รูปภาพไม่โหลด หน้าหายไปในช่องว่าง และฟอนต์ไม่โหลด ซึ่งจะไม่กระทบกับข้อมูลของคุณ",
+        "dialog": {
+          "title": "ล้างแคช",
+          "description": "ช่วยแก้ไขปัญหาต่างๆ เช่น รูปภาพไม่โหลด หน้าหายไปในช่องว่าง และฟอนต์ไม่โหลด ซึ่งจะไม่กระทบกับข้อมูลของคุณ",
+          "successHint": "ล้างแคชแล้ว!"
+        }
+      },
+      "data": {
+        "fixYourData": "ซ่อมแซมข้อมูลของคุณ",
+        "fixButton": "ซ่อมแซม",
+        "fixYourDataDescription": "หากคุณพบปัญหากับข้อมูลของคุณ คุณสามารถลองแก้ไขได้ที่นี่"
+      }
+    },
+    "shortcutsPage": {
+      "menuLabel": "ทางลัด",
+      "title": "ทางลัด",
+      "editBindingHint": "ป้อนการผูกปุ่มลัดใหม่",
+      "searchHint": "ค้นหา",
+      "actions": {
+        "resetDefault": "รีเซ็ตค่าเริ่มต้น"
+      },
+      "errorPage": {
+        "message": "ไม่สามารถโหลดทางลัดได้: {}",
+        "howToFix": "โปรดลองอีกครั้ง หากปัญหายังคงอยู่ โปรดติดต่อบน GitHub"
+      },
+      "resetDialog": {
+        "title": "รีเซ็ตทางลัด",
+        "description": "การดำเนินการนี้จะรีเซ็ตการตั้งค่าปุ่มทั้งหมดของคุณเป็นค่าเริ่มต้น คุณไม่สามารถย้อนกลับได้ในภายหลัง คุณแน่ใจหรือไม่ว่าต้องการดำเนินการต่อ?",
+        "buttonLabel": "รีเซ็ต"
+      },
+      "conflictDialog": {
+        "title": "{} กำลังใช้งานอยู่ในขณะนี้",
+        "descriptionPrefix": "การกำหนดปุ่มลัดนี้กำลังถูกใช้งานโดย",
+        "descriptionSuffix": ". หากคุณแทนที่ปุ่มลัดนี้ ปุ่มลัดนี้จะถูกลบออกจาก {}",
+        "confirmLabel": "ดำเนินการต่อ"
+      },
+      "editTooltip": "กดเพื่อเริ่มแก้ไขปุ่มลัด",
+      "keybindings": {
+        "toggleToDoList": "สลับรายการสิ่งที่ต้องทำ",
+        "insertNewParagraphInCodeblock": "แทรกย่อหน้าใหม่",
+        "pasteInCodeblock": "วางในโค้ดบล็อค",
+        "selectAllCodeblock": "เลือกทั้งหมด",
+        "indentLineCodeblock": "แทรกช่องว่างสองช่องที่จุดเริ่มต้นของบรรทัด",
+        "outdentLineCodeblock": "ลบช่องว่างสองช่องที่จุดเริ่มต้นของบรรทัด",
+        "twoSpacesCursorCodeblock": "แทรกช่องว่างสองช่องที่เคอร์เซอร์",
+        "copy": "คัดลอกการเลือก",
+        "paste": "วางในเนื้อหา",
+        "cut": "ตัดการเลือก",
+        "alignLeft": "จัดข้อความให้ชิดซ้าย",
+        "alignCenter": "จัดตำแหน่งข้อความให้อยู่กึ่งกลาง",
+        "alignRight": "จัดข้อความให้ชิดขวา",
+        "undo": "เลิกทำ",
+        "redo": "ทำซ้ำ",
+        "convertToParagraph": "แปลงบล็อกเป็นย่อหน้า",
+        "backspace": "ลบ",
+        "deleteLeftWord": "ลบคำซ้าย",
+        "deleteLeftSentence": "ลบประโยคซ้าย",
+        "delete": "ลบตัวอักษรขวา",
+        "deleteMacOS": "ลบตัวอักษรซ้าย",
+        "deleteRightWord": "ลบคำขวา",
+        "moveCursorLeft": "เลื่อนเคอร์เซอร์ไปทางซ้าย",
+        "moveCursorBeginning": "เลื่อนเคอร์เซอร์ไปที่จุดเริ่มต้น",
+        "moveCursorLeftWord": "เลื่อนเคอร์เซอร์ไปทางซ้ายหนึ่งคำ",
+        "moveCursorLeftSelect": "เลือกและเลื่อนเคอร์เซอร์ไปทางซ้าย",
+        "moveCursorBeginSelect": "เลือกและเลื่อนเคอร์เซอร์ไปที่จุดเริ่มต้น",
+        "moveCursorLeftWordSelect": "เลือกและเลื่อนเคอร์เซอร์ไปทางซ้ายหนึ่งคำ",
+        "moveCursorRight": "เลื่อนเคอร์เซอร์ไปทางขวา",
+        "moveCursorEnd": "เลื่อนเคอร์เซอร์ไปที่ท้ายสุด",
+        "moveCursorRightWord": "เลื่อนเคอร์เซอร์ไปทางขวาหนึ่งคำ",
+        "moveCursorRightSelect": "เลือกและเลื่อนเคอร์เซอร์ไปทางขวาหนึ่งช่อง",
+        "moveCursorEndSelect": "เลือกและเลื่อนเคอร์เซอร์ไปที่จุดสิ้นสุด",
+        "moveCursorRightWordSelect": "เลือกและเลื่อนเคอร์เซอร์ไปทางขวาหนึ่งคำ",
+        "moveCursorUp": "เลื่อนเคอร์เซอร์ขึ้น",
+        "moveCursorTopSelect": "เลือกและเลื่อนเคอร์เซอร์ไปด้านบน",
+        "moveCursorTop": "เลื่อนเคอร์เซอร์ไปด้านบน",
+        "moveCursorUpSelect": "เลือกและเลื่อนเคอร์เซอร์ขึ้น",
+        "moveCursorBottomSelect": "เลือกและเลื่อนเคอร์เซอร์ไปที่ด้านล่าง",
+        "moveCursorBottom": "เลื่อนเคอร์เซอร์ไปที่ด้านล่าง",
+        "moveCursorDown": "เลื่อนเคอร์เซอร์ลง",
+        "moveCursorDownSelect": "เลือกและเลื่อนเคอร์เซอร์ลง",
+        "home": "เลื่อนไปด้านบน",
+        "end": "เลื่อนไปด้านล่าง",
+        "toggleBold": "สลับตัวหนา",
+        "toggleItalic": "สลับตัวเอียง",
+        "toggleUnderline": "สลับขีดเส้นใต้",
+        "toggleStrikethrough": "สลับการขีดฆ่า",
+        "toggleCode": "สลับโค้ดในบรรทัด",
+        "toggleHighlight": "สลับไฮไลท์",
+        "showLinkMenu": "แสดงลิงค์เมนู",
+        "openInlineLink": "เปิดลิงก์ในบรรทัด",
+        "openLinks": "เปิดลิงก์ที่เลือกทั้งหมด",
+        "indent": "เยื้อง",
+        "outdent": "เยื้องออก",
+        "exit": "ออกจากการแก้ไข",
+        "pageUp": "เลื่อนขึ้นไปหนึ่งหน้า",
+        "pageDown": "เลื่อนลงมาหนึ่งหน้า",
+        "selectAll": "เลือกทั้งหมด",
+        "pasteWithoutFormatting": "วางเนื้อหาที่ไม่มีการจัดรูปแบบ",
+        "showEmojiPicker": "แสดงตัวเลือกอีโมจิ",
+        "enterInTableCell": "เพิ่มการแบ่งบรรทัดในตาราง",
+        "leftInTableCell": "เลื่อนไปทางซ้ายหนึ่งเซลล์ในตาราง",
+        "rightInTableCell": "เลื่อนไปทางขวาหนึ่งเซลล์ในตาราง",
+        "upInTableCell": "เลื่อนขึ้นหนึ่งเซลล์ในตาราง",
+        "downInTableCell": "เลื่อนลงหนึ่งเซลล์ในตาราง",
+        "tabInTableCell": "ไปยังเซลล์ถัดไปที่ว่างในตาราง",
+        "shiftTabInTableCell": "ไปยังเซลล์ก่อนหน้าที่ว่างในตาราง",
+        "backSpaceInTableCell": "หยุดที่จุดเริ่มต้นของเซลล์"
+      },
+      "commands": {
+        "codeBlockNewParagraph": "แทรกย่อหน้าใหม่ถัดจากโค้ดบล็อก",
+        "codeBlockIndentLines": "แทรกช่องว่างสองช่องที่จุดเริ่มต้นบรรทัดในโค้ดบล็อก",
+        "codeBlockOutdentLines": "ลบช่องว่างสองช่องที่จุดเริ่มต้นบรรทัดในโค้ดบล็อค",
+        "codeBlockAddTwoSpaces": "แทรกช่องว่างสองช่องที่ตำแหน่งเคอร์เซอร์ในโค้ดบล็อก",
+        "codeBlockSelectAll": "เลือกเนื้อหาทั้งหมดภายในโค้ดบล็อก",
+        "codeBlockPasteText": "วางข้อความลงในโค้ดบล็อค",
+        "textAlignLeft": "จัดตำแหน่งข้อความให้ชิดซ้าย",
+        "textAlignCenter": "จัดตำแหน่งข้อความให้อยู่กึ่งกลาง",
+        "textAlignRight": "จัดตำแหน่งข้อความให้ชิดขวา"
+      },
+      "couldNotLoadErrorMsg": "ไม่สามารถโหลดทางลัดได้ ลองอีกครั้ง",
+      "couldNotSaveErrorMsg": "ไม่สามารถบันทึกทางลัดได้ โปรดลองอีกครั้ง"
+    },
+    "aiPage": {
+      "title": "การตั้งค่า AI",
+      "menuLabel": "การตั้งค่า AI",
+      "keys": {
+        "enableAISearchTitle": "การค้นหาด้วย AI",
+        "aiSettingsDescription": "เลือกโมเดลที่คุณต้องการใช้เพื่อขับเคลื่อน AppFlowy AI ขณะนี้มี GPT-4, Claude 3.5, Llama 3.1, และ Mistral 7B",
+        "loginToEnableAIFeature": "คุณสมบัติ AI จะเปิดใช้งานได้หลังจากเข้าสู่ระบบด้วย @:appName Cloud เท่านั้น หากคุณไม่มีบัญชี @:appName ให้ไปที่ 'บัญชีของฉัน' เพื่อลงทะเบียน",
+        "llmModel": "โมเดลภาษา",
+        "llmModelType": "ประเภทของโมเดลภาษา",
+        "downloadLLMPrompt": "ดาวน์โหลด {}",
+        "downloadAppFlowyOfflineAI": "การดาวน์โหลดแพ็กเกจ AI แบบออฟไลน์จะทำให้ AI สามารถทำงานบนอุปกรณ์ของคุณได้ คุณต้องการดำเนินการต่อหรือไม่?",
+        "downloadLLMPromptDetail": "การดาวน์โหลดโมเดล {} ในเครื่องของคุณ จะใช้พื้นที่เก็บข้อมูลสูงสุด {} คุณต้องการดำเนินการต่อหรือไม่",
+        "downloadBigFilePrompt": "การดาวน์โหลดอาจใช้เวลาประมาณ 10 นาทีให้เสร็จสิ้น",
+        "downloadAIModelButton": "ดาวน์โหลด",
+        "downloadingModel": "กำลังดาวน์โหลด",
+        "localAILoaded": "เพิ่มโมเดล AI ในเครื่องสำเร็จ และพร้อมใช้งานแล้ว",
+        "localAIStart": "การแชท Local AI กำลังเริ่มต้น...",
+        "localAILoading": "กำลังโหลดโมเดลแชท Local AI...",
+        "localAIStopped": "Local AI หยุดทำงานแล้ว",
+        "failToLoadLocalAI": "ไม่สามารถเริ่มต้น Local AI ได้",
+        "restartLocalAI": "เริ่มต้น Local AI ใหม่",
+        "disableLocalAITitle": "ปิดการใช้งาน Local AI",
+        "disableLocalAIDescription": "คุณต้องการปิดการใช้งาน Local AI หรือไม่?",
+        "localAIToggleTitle": "สลับเพื่อเปิดหรือปิดใช้งาน Local AI",
+        "offlineAIInstruction1": "ติดตาม",
+        "offlineAIInstruction2": "คำแนะนำ",
+        "offlineAIInstruction3": "เพื่อเปิดใช้งาน AI แบบออฟไลน์",
+        "offlineAIDownload1": "หากคุณยังไม่ได้ดาวน์โหลด AppFlowy AI, กรุณา",
+        "offlineAIDownload2": "ดาวน์โหลด",
+        "offlineAIDownload3": "เป็นอันดับแรก",
+        "activeOfflineAI": "ใช้งานอยู่",
+        "downloadOfflineAI": "ดาวน์โหลด",
+        "openModelDirectory": "เปิดโฟลเดอร์"
+      }
+    },
+    "planPage": {
+      "menuLabel": "แผน",
+      "title": "แผนราคา",
+      "planUsage": {
+        "title": "สรุปการใช้งานแผน",
+        "storageLabel": "พื้นที่จัดเก็บ",
+        "storageUsage": "{} จาก {} GB",
+        "unlimitedStorageLabel": "พื้นที่เก็บข้อมูลไม่จำกัด",
+        "collaboratorsLabel": "สมาชิก",
+        "collaboratorsUsage": "{} จาก {}",
+        "aiResponseLabel": "การตอบกลับของ AI",
+        "aiResponseUsage": "{} จาก {}",
+        "unlimitedAILabel": "การตอบกลับแบบไม่จำกัด",
+        "proBadge": "Pro",
+        "aiMaxBadge": "AI Max",
+        "aiOnDeviceBadge": "AI บนอุปกรณ์สำหรับ Mac",
+        "aiCredit": {
+          "price": "{}"
+        },
+        "currentPlan": {
+          "bannerLabel": "แผนปัจจุบัน",
+          "freeTitle": "Free",
+          "proTitle": "Pro",
+          "teamTitle": "Team",
+          "upgrade": "เปลี่ยนแผน",
+          "canceledInfo": "แผนของคุณถูกยกเลิก คุณจะถูกปรับลดเป็นแผน Free ในวันที่ {}"
+        },
+        "addons": {
+          "title": "ส่วนเสริม",
+          "addLabel": "เพิ่ม",
+          "activeLabel": "เพิ่มแล้ว",
+          "aiMax": {
+            "title": "AI Max",
+            "price": "{}"
+          },
+          "aiOnDevice": {
+            "price": "{}"
+          }
+        },
+        "deal": {
+          "viewPlans": "ดูแผน"
+        }
+      }
+    },
+    "billingPage": {
+      "menuLabel": "การเรียกเก็บเงิน",
+      "title": "การเรียกเก็บเงิน",
+      "plan": {
+        "title": "แผน",
+        "freeLabel": "Free",
+        "proLabel": "Pro",
+        "planButtonLabel": "เปลี่ยนแผน"
+      },
+      "addons": {
+        "title": "ส่วนเสริม",
+        "addLabel": "เพิ่ม",
+        "removeLabel": "ลบ",
+        "renewLabel": "ต่ออายุ",
+        "aiMax": {
+          "label": "AI Max"
+        },
+        "removeDialog": {
+          "title": "ลบ {}"
+        }
+      }
+    },
+    "comparePlanDialog": {
+      "title": "เปรียบเทียบและเลือกแผน",
+      "planFeatures": "แผน\nคุณสมบัติ",
+      "current": "ปัจจุบัน",
+      "actions": {
+        "upgrade": "อัพเกรด",
+        "downgrade": "ลดระดับ"
+      },
+      "freePlan": {
+        "title": "Free",
+        "price": "{}"
+      },
+      "proPlan": {
+        "title": "Pro",
+        "price": "{}"
+      },
+      "planLabels": {
+        "itemOne": "พื้นที่ทำงาน",
+        "itemTwo": "สมาชิก",
+        "itemThree": "พื้นที่จัดเก็บ",
+        "itemSix": "การตอบกลับของ AI"
+      },
+      "freeLabels": {
+        "itemFour": "ใช่",
+        "itemFive": "ใช่"
+      },
+      "proLabels": {
+        "itemThree": "ไม่จำกัด",
+        "itemFour": "ใช่",
+        "itemFive": "ใช่",
+        "itemSix": "ไม่จำกัด",
+        "itemFileUpload": "ไม่จำกัด"
+      },
+      "downgradeDialog": {
+        "downgradeLabel": "การลดระดับแผน"
+      }
+    },
+    "cancelSurveyDialog": {
+      "questionTwo": {
+        "question": "คุณมีความเป็นไปได้มากแค่ไหนที่จะพิจารณากลับไปสมัครสมาชิก @:appName Pro ในอนาคต?",
+        "answerOne": "เป็นไปได้มาก",
+        "answerTwo": "ค่อนข้างจะเป็นไปได้",
+        "answerThree": "ไม่แน่ใจ",
+        "answerFour": "ไม่น่าจะเป็นไปได้",
+        "answerFive": "ไม่น่าจะเป็นไปได้มาก"
+      },
+      "questionThree": {
+        "answerThree": "การตอบกลับของ AI ไม่จำกัด"
+      },
+      "questionFour": {
+        "answerOne": "ยอดเยี่ยม",
+        "answerTwo": "ดี",
+        "answerThree": "ปานกลาง",
+        "answerFour": "ต่ำกว่าค่าเฉลี่ย",
+        "answerFive": "ไม่พึงพอใจ"
+      }
+    },
+    "common": {
+      "reset": "รีเซ็ต"
+    },
     "menu": {
       "appearance": "รูปลักษณ์",
       "language": "ภาษา",
@@ -297,19 +978,59 @@
       "enableNotifications": {
         "label": "เปิดใช้งานการแจ้งเตือน",
         "hint": "ปิดเพื่อหยุดไม่ให้แสดงการแจ้งเตือนในเครื่องของคุณ"
+      },
+      "archiveNotifications": {
+        "allSuccess": "จัดเก็บการแจ้งเตือนทั้งหมดเรียบร้อยแล้ว",
+        "success": "จัดเก็บการแจ้งเตือนเรียบร้อยแล้ว"
+      },
+      "markAsReadNotifications": {
+        "allSuccess": "ทำเครื่องหมายทั้งหมดว่าอ่านแล้วสำเร็จแล้ว",
+        "success": "ทำเครื่องหมายว่าอ่านแล้วสำเร็จ"
+      },
+      "action": {
+        "markAsRead": "ทำเครื่องหมายว่าอ่านแล้ว",
+        "multipleChoice": "เลือกเพิ่มเติม",
+        "archive": "คลังเก็บเอกสารสำคัญ"
+      },
+      "settings": {
+        "settings": "การตั้งค่า",
+        "markAllAsRead": "ทำเครื่องหมายทั้งหมดว่าอ่านแล้ว",
+        "archiveAll": "เก็บถาวรทั้งหมด"
+      },
+      "emptyInbox": {
+        "title": "กล่องข้อความว่างเปล่า"
+      },
+      "emptyArchived": {
+        "title": "ไม่มีการเก็บถาวร"
+      },
+      "tabs": {
+        "inbox": "กล่องข้อความ",
+        "unread": "ยังไม่ได้อ่าน",
+        "archived": "เก็บถาวร"
+      },
+      "refreshSuccess": "รีเฟรชการแจ้งเตือนสำเร็จ",
+      "titles": {
+        "notifications": "การแจ้งเตือน",
+        "reminder": "การเตือน"
       }
     },
     "appearance": {
       "resetSetting": "รีเซ็ตการตั้งค่านี้",
       "fontFamily": {
         "label": "แบบตัวอักษร",
-        "search": "ค้นหา"
+        "search": "ค้นหา",
+        "defaultFont": "ระบบ"
       },
       "themeMode": {
         "label": "โหมดธีม",
         "light": "โหมดสว่าง",
         "dark": "โหมดมืด",
         "system": "ใช้ตามระบบ"
+      },
+      "documentSettings": {
+        "app": "App",
+        "flowy": "Flowy",
+        "apply": "นำไปใช้"
       },
       "layoutDirection": {
         "label": "ทิศทางของเค้าโครง",
@@ -329,12 +1050,12 @@
         "button": "อัปโหลด",
         "uploadTheme": "อัปโหลดธีม",
         "description": "อัปโหลดธีม AppFlowy ของคุณเองโดยใช้ปุ่มด้านล่าง",
-        "failure": "ธีมที่อัปโหลดมีรูปแบบที่ไม่ถูกต้อง",
         "loading": "โปรดรอสักครู่ในขณะที่เราตรวจสอบและอัปโหลดธีมของคุณ...",
         "uploadSuccess": "อัปโหลดธีมของคุณสำเร็จแล้ว",
         "deletionFailure": "ไม่สามารถลบธีมได้ ลองลบมันด้วยตนเอง",
         "filePickerDialogTitle": "เลือกไฟล์ .flowy_plugin",
-        "urlUploadFailure": "ไม่สามารถเปิด URL: {} ได้"
+        "urlUploadFailure": "ไม่สามารถเปิด URL: {} ได้",
+        "failure": "ธีมที่อัปโหลดมีรูปแบบที่ไม่ถูกต้อง"
       },
       "theme": "ธีม",
       "builtInsLabel": "ธีมในตัวแอป",
@@ -352,7 +1073,36 @@
         "twelveHour": "สิบสองชั่วโมง",
         "twentyFourHour": "ยี่สิบสี่ชั่วโมง"
       },
-      "showNamingDialogWhenCreatingPage": "แสดงกล่องโต้ตอบการตั้งชื่อเมื่อสร้างหน้า"
+      "showNamingDialogWhenCreatingPage": "แสดงกล่องโต้ตอบการตั้งชื่อเมื่อสร้างหน้า",
+      "members": {
+        "title": "การตั้งค่าสมาชิก",
+        "inviteMembers": "ส่งคำเชิญสมาชิก",
+        "inviteHint": "ส่งคำเชิญทางอีเมล",
+        "sendInvite": "ส่งคำเชิญ",
+        "copyInviteLink": "คัดลอกลิงค์คำเชิญ",
+        "label": "สมาชิก",
+        "user": "ผู้ใช้",
+        "role": "บทบาท",
+        "removeFromWorkspace": "ลบออกจากพื้นที่ทำงาน",
+        "removeFromWorkspaceSuccess": "ลบออกจากพื้นที่ทำงานสำเร็จ",
+        "removeFromWorkspaceFailed": "ลบออกจากพื้นที่ทำงานไม่สำเร็จ",
+        "owner": "เจ้าของ",
+        "guest": "ผู้เยี่ยมชม",
+        "member": "สมาชิก",
+        "memberHintText": "สมาชิกสามารถอ่านและแก้ไขหน้าได้",
+        "guestHintText": "ผู้เยี่ยมชมสามารถอ่าน ตอบสนอง แสดงความคิดเห็น และแก้ไขหน้าบางหน้าได้ด้วยการอนุญาต",
+        "members": "สมาชิก",
+        "membersCount": {
+          "zero": "{} สมาชิก",
+          "one": "{} สมาชิก",
+          "other": "{} สมาชิก"
+        },
+        "memberLimitExceededUpgrade": "อัพเกรด",
+        "memberLimitExceededProContact": "support@appflowy.io",
+        "failedToAddMember": "เพิ่มสมาชิกไม่สำเร็จ",
+        "addMemberSuccess": "เพิ่มสมาชิกสำเร็จ",
+        "removeMember": "ลบสมาชิก"
+      }
     },
     "files": {
       "copy": "คัดลอก",
@@ -396,19 +1146,8 @@
       "tooltipSelectIcon": "เลือกไอคอน",
       "selectAnIcon": "เลือกไอคอน",
       "pleaseInputYourOpenAIKey": "โปรดระบุคีย์ AI ของคุณ",
-      "pleaseInputYourStabilityAIKey": "โปรดระบุคีย์ Stability AI ของคุณ",
-      "clickToLogout": "คลิกเพื่อออกจากระบบผู้ใช้ปัจจุบัน"
-    },
-    "shortcuts": {
-      "shortcutsLabel": "ทางลัด",
-      "command": "คำสั่ง",
-      "keyBinding": "การผูกแป้นพิมพ์",
-      "addNewCommand": "เพิ่มคำสั่งใหม่",
-      "updateShortcutStep": "กดปุ่มแป้นพิมพ์ที่ต้องการแล้วกด ENTER",
-      "shortcutIsAlreadyUsed": "ทางลัดนี้ถูกใช้แล้วสำหรับ: {conflict}",
-      "resetToDefault": "รีเซ็ตการกำหนดแป้นพิมพ์เป็นค่าเริ่มต้น",
-      "couldNotLoadErrorMsg": "ไม่สามารถโหลดทางลัดได้ ลองอีกครั้ง",
-      "couldNotSaveErrorMsg": "ไม่สามารถบันทึกทางลัดได้ ลองอีกครั้ง"
+      "clickToLogout": "คลิกเพื่อออกจากระบบผู้ใช้ปัจจุบัน",
+      "pleaseInputYourStabilityAIKey": "โปรดระบุคีย์ Stability AI ของคุณ"
     },
     "mobile": {
       "personalInfo": "ข้อมูลส่วนตัว",
@@ -424,6 +1163,17 @@
       "userprofileErrorDescription": "โปรดลองออกจากระบบแล้วเข้าสู่ระบบอีกครั้งเพื่อตรวจสอบว่าปัญหายังคงอยู่หรือไม่",
       "selectLayout": "เลือกเค้าโครง",
       "selectStartingDay": "เลือกวันเริ่มต้น"
+    },
+    "shortcuts": {
+      "shortcutsLabel": "ทางลัด",
+      "command": "คำสั่ง",
+      "keyBinding": "การผูกแป้นพิมพ์",
+      "addNewCommand": "เพิ่มคำสั่งใหม่",
+      "updateShortcutStep": "กดปุ่มแป้นพิมพ์ที่ต้องการแล้วกด ENTER",
+      "shortcutIsAlreadyUsed": "ทางลัดนี้ถูกใช้แล้วสำหรับ: {conflict}",
+      "resetToDefault": "รีเซ็ตการกำหนดแป้นพิมพ์เป็นค่าเริ่มต้น",
+      "couldNotLoadErrorMsg": "ไม่สามารถโหลดทางลัดได้ ลองอีกครั้ง",
+      "couldNotSaveErrorMsg": "ไม่สามารถบันทึกทางลัดได้ ลองอีกครั้ง"
     }
   },
   "grid": {
@@ -490,7 +1240,16 @@
       "onOrAfter": "อยู่ในหรือหลังจาก",
       "between": "อยู่ระหว่าง",
       "empty": "มันว่างเปล่า",
-      "notEmpty": "มันไม่ว่างเปล่า"
+      "notEmpty": "มันไม่ว่างเปล่า",
+      "choicechipPrefix": {
+        "before": "ก่อน",
+        "after": "หลังจาก",
+        "between": "ระหว่าง",
+        "onOrBefore": "ภายในหรือก่อน",
+        "onOrAfter": "ภายในหรือหลัง",
+        "isEmpty": "ว่างเปล่า",
+        "isNotEmpty": "ไม่ว่างเปล่า"
+      }
     },
     "field": {
       "hide": "ซ่อน",
@@ -509,6 +1268,12 @@
       "multiSelectFieldName": "การเลือกหลายรายการ",
       "urlFieldName": "URL",
       "checklistFieldName": "รายการตรวจสอบ",
+      "relationFieldName": "ความสัมพันธ์",
+      "summaryFieldName": "AI สรุป",
+      "timeFieldName": "เวลา",
+      "mediaFieldName": "ไฟล์และสื่อ",
+      "translateFieldName": "AI แปล",
+      "translateTo": "แปลเป็น",
       "numberFormat": "รูปแบบตัวเลข",
       "dateFormat": "รูปแบบวันที่",
       "includeTime": "รวมเวลา",
@@ -537,6 +1302,7 @@
       "addOption": "เพิ่มตัวเลือก",
       "editProperty": "แก้ไขคุณสมบัติ",
       "newProperty": "คุณสมบัติใหม่",
+      "openRowDocument": "เปิดเป็นหน้า",
       "deleteFieldPromptMessage": "แน่ใจหรือไม่? คุณสมบัติเหล่านี้จะถูกลบ",
       "newColumn": "คอลัมน์ใหม่",
       "format": "รูปแบบ"
@@ -558,10 +1324,12 @@
     "sort": {
       "ascending": "เรียงลำดับจากน้อยไปมาก",
       "descending": "เรียงลำดับจากมากไปน้อย",
+      "by": "โดย",
       "deleteAllSorts": "ลบการเรียงลำดับทั้งหมด",
       "addSort": "เพิ่มการเรียงลำดับ"
     },
     "row": {
+      "label": "แถว",
       "duplicate": "ทำสำเนา",
       "delete": "ลบ",
       "titlePlaceholder": "ไม่มีชื่อ",
@@ -574,7 +1342,11 @@
       "drag": "ลากเพื่อย้าย",
       "dragAndClick": "ลากเพื่อย้ายคลิกเพื่อเปิดเมนู",
       "insertRecordAbove": "แทรกเวิ่นระเบียนด้านบน",
-      "insertRecordBelow": "แทรกเวิ่นระเบียนด้านล่าง"
+      "insertRecordBelow": "แทรกเวิ่นระเบียนด้านล่าง",
+      "noContent": "ไม่มีเนื้อหา",
+      "reorderRowDescription": "เรียงลำดับแถวใหม่",
+      "createRowAboveDescription": "สร้างแถวด้านบน",
+      "createRowBelowDescription": "สร้างแถวด้านล่าง"
     },
     "selectOption": {
       "create": "สร้าง",
@@ -606,10 +1378,48 @@
     },
     "url": {
       "launch": "เปิดในเบราว์เซอร์",
-      "copy": "คัดลอก URL"
+      "copy": "คัดลอก URL",
+      "textFieldHint": "ป้อน URL",
+      "copiedNotification": "คัดลอกไปยังคลิปบอร์ดแล้ว!"
+    },
+    "relation": {
+      "relatedDatabasePlaceLabel": "ฐานข้อมูลที่เกี่ยวข้อง",
+      "relatedDatabasePlaceholder": "ไม่มี",
+      "rowSearchTextFieldPlaceholder": "ค้นหา",
+      "unlinkedRowListLabel": "เชื่อมโยงแถวอื่น"
     },
     "menuName": "ตาราง",
-    "referencedGridPrefix": "มุมมองของ"
+    "referencedGridPrefix": "มุมมองของ",
+    "calculate": "คำนวณ",
+    "calculationTypeLabel": {
+      "none": "ไม่มี",
+      "average": "เฉลี่ย",
+      "max": "สูงสุด",
+      "median": "มัธยฐาน",
+      "min": "ต่ำสุด",
+      "sum": "ผลรวม",
+      "count": "นับ",
+      "countEmpty": "นับที่ว่าง",
+      "countNonEmpty": "นับที่ไม่ว่าง"
+    },
+    "media": {
+      "rename": "เปลี่ยนชื่อ",
+      "download": "ดาวน์โหลด",
+      "expand": "ขยาย",
+      "delete": "ลบ",
+      "moreFilesHint": "+{}",
+      "addFileOrImage": "เพิ่มไฟล์หรือลิงค์",
+      "attachmentsHint": "{}",
+      "addFileMobile": "เพิ่มไฟล์",
+      "extraCount": "+{}",
+      "deleteFileDescription": "คุณแน่ใจหรือไม่ว่าต้องการลบไฟล์นี้? การกระทำนี้ไม่สามารถย้อนกลับได้",
+      "showFileNames": "แสดงชื่อไฟล์",
+      "downloadSuccess": "ดาวน์โหลดไฟล์แล้ว",
+      "downloadFailedToken": "ไม่สามารถดาวน์โหลดไฟล์ได้ โทเค็นผู้ใช้ไม่พร้อมใช้งาน",
+      "setAsCover": "ตั้งเป็นปก",
+      "openInBrowser": "เปิดในเบราว์เซอร์",
+      "embedLink": "ฝังลิงค์ไฟล์"
+    }
   },
   "document": {
     "menuName": "เอกสาร",
@@ -632,6 +1442,22 @@
       },
       "document": {
         "selectADocumentToLinkTo": "เลือกเอกสารเพื่อเชื่อมโยง"
+      },
+      "name": {
+        "text": "ข้อความ",
+        "heading1": "หัวข้อที่ 1",
+        "heading2": "หัวข้อที่ 2",
+        "heading3": "หัวข้อที่ 3",
+        "image": "รูปภาพ",
+        "calendar": "ปฏิทิน",
+        "code": "โค้ด",
+        "emoji": "อิโมจิ",
+        "photoGallery": "แกลอรี่รูปภาพ",
+        "file": "ไฟล์"
+      },
+      "subPage": {
+        "keyword1": "หน้าย่อย",
+        "keyword2": "หน้า"
       }
     },
     "selectionMenu": {
@@ -663,12 +1489,28 @@
       "discardResponse": "คุณต้องการทิ้งการตอบกลับของ AI หรือไม่",
       "createInlineMathEquation": "สร้างสมการ",
       "fonts": "แบบอักษร",
+      "insertDate": "ใส่วันที่",
+      "emoji": "อิโมจิ",
       "toggleList": "สลับรายการ",
       "quoteList": "รายการอ้างอิง",
       "numberedList": "รายการแบบมีหมายเลข",
       "bulletedList": "รายการแบบมีจุด",
       "todoList": "รายการสิ่งที่ต้องทำ",
       "callout": "คำอธิบายประกอบ",
+      "simpleTable": {
+        "moreActions": {
+          "color": "สี",
+          "align": "จัดตำแหน่ง",
+          "delete": "ลบ",
+          "duplicate": "ทำสำเนา",
+          "insertLeft": "แทรกซ้าย",
+          "insertRight": "แทรกขวา",
+          "insertAbove": "แทรกด้านบน",
+          "insertBelow": "แทรกด้านล่าง",
+          "headerColumn": "ส่วนหัวของคอลัมน์",
+          "headerRow": "ส่วนหัวของแถว"
+        }
+      },
       "cover": {
         "changeCover": "เปลี่ยนปก",
         "colors": "สี",
@@ -715,8 +1557,16 @@
         "defaultColor": "สีเริ่มต้น"
       },
       "image": {
+        "addAnImage": "เพิ่มรูปภาพ",
         "copiedToPasteBoard": "ลิงก์รูปภาพถูกคัดลอกไปที่คลิปบอร์ดแล้ว",
-        "addAnImage": "เพิ่มรูปภาพ"
+        "errorCode": "รหัสข้อผิดพลาด"
+      },
+      "photoGallery": {
+        "name": "แกลอรี่รูปภาพ",
+        "imageKeyword": "รูปภาพ",
+        "imageGalleryKeyword": "แกลอรี่รูปภาพ",
+        "photoKeyword": "ภาพถ่าย",
+        "addImageTooltip": "เพิ่มรูปภาพ"
       },
       "outline": {
         "addHeadingToCreateOutline": "เพิ่มหัวข้อเพื่อสร้างสารบัญ"
@@ -734,7 +1584,53 @@
         "cut": "ตัด",
         "paste": "วาง"
       },
-      "action": "การดำเนินการ"
+      "action": "การดำเนินการ",
+      "database": {
+        "selectDataSource": "เลือกแหล่งข้อมูล",
+        "noDataSource": "ไม่มีแหล่งข้อมูล",
+        "selectADataSource": "เลือกแหล่งข้อมูล",
+        "toContinue": "เพื่อดำเนินการต่อ",
+        "newDatabase": "ฐานข้อมูลใหม่",
+        "linkToDatabase": "ลิงค์ไปยังฐานข้อมูล"
+      },
+      "date": "วันที่",
+      "video": {
+        "label": "วีดีโอ",
+        "emptyLabel": "เพิ่มวิดีโอ",
+        "placeholder": "วางลิงค์วิดีโอ",
+        "insertVideo": "เพิ่มวีดีโอ"
+      },
+      "file": {
+        "name": "ไฟล์",
+        "uploadTab": "อัพโหลด",
+        "uploadMobile": "เลือกไฟล์",
+        "uploadMobileGallery": "จากแกลเลอรี่รูปภาพ",
+        "networkTab": "ฝังลิงค์",
+        "placeholderText": "อัพโหลดหรือฝังไฟล์",
+        "placeholderDragging": "วางไฟล์เพื่ออัพโหลด",
+        "dropFileToUpload": "วางไฟล์เพื่ออัพโหลด",
+        "fileUploadHint": "ลากและวางไฟล์หรือคลิกเพื่อ ",
+        "fileUploadHintSuffix": "เรียกดู",
+        "networkHint": "วางลิงก์ไฟล์",
+        "networkAction": "ฝัง",
+        "renameFile": {
+          "title": "เปลี่ยนชื่อไฟล์"
+        },
+        "uploadedAt": "อัพโหลดเมื่อ {}",
+        "linkedAt": "ลิงก์ถูกเพิ่มเมื่อ {}"
+      },
+      "subPage": {
+        "handlingPasteHint": " - (การจัดการการวาง)",
+        "errors": {
+          "failedDeletePage": "ลบหน้าไม่สำเร็จ",
+          "failedCreatePage": "สร้างหน้าไม่สำเร็จ",
+          "failedDuplicatePage": "ทำสำเนาหน้าไม่สำเร็จ",
+          "failedDuplicateFindView": "ทำสำเนาหน้าไม่สำเร็จ - ไม่พบมุมมองต้นฉบับ"
+        }
+      }
+    },
+    "outlineBlock": {
+      "placeholder": "สารบัญ"
     },
     "textBlock": {
       "placeholder": "พิมพ์ '/' เพื่อดูคำสั่ง"
@@ -765,7 +1661,8 @@
         "invalidImage": "รูปภาพไม่ถูกต้อง",
         "invalidImageSize": "ขนาดรูปภาพต้องไม่เกิน 5MB",
         "invalidImageFormat": "ไม่รองรับรูปแบบรูปภาพนี้ รูปแบบที่รองรับ: JPEG, PNG, GIF, SVG",
-        "invalidImageUrl": "URL รูปภาพไม่ถูกต้อง"
+        "invalidImageUrl": "URL รูปภาพไม่ถูกต้อง",
+        "noImage": "ไม่มีไฟล์หรือไดเร็กทอรีดังกล่าว"
       },
       "embedLink": {
         "label": "ฝังลิงก์",
@@ -776,17 +1673,36 @@
       },
       "searchForAnImage": "ค้นหารูปภาพ",
       "pleaseInputYourOpenAIKey": "โปรดระบุคีย์ AI ของคุณในหน้าการตั้งค่า",
-      "pleaseInputYourStabilityAIKey": "โปรดระบุคีย์ Stability AI ของคุณในหน้าการตั้งค่า",
       "saveImageToGallery": "บันทึกภาพ",
       "failedToAddImageToGallery": "ไม่สามารถเพิ่มรูปภาพลงในแกลเลอรี่ได้",
       "successToAddImageToGallery": "เพิ่มรูปภาพลงในแกลเลอรี่เรียบร้อยแล้ว",
-      "unableToLoadImage": "ไม่สามารถโหลดรูปภาพได้"
+      "unableToLoadImage": "ไม่สามารถโหลดรูปภาพได้",
+      "imageIsUploading": "กำลังอัพโหลดรูปภาพ",
+      "openFullScreen": "เปิดแบบเต็มจอ",
+      "interactiveViewer": {
+        "toolbar": {
+          "previousImageTooltip": "ภาพก่อนหน้า",
+          "nextImageTooltip": "ภาพถัดไป",
+          "zoomOutTooltip": "ซูมออก",
+          "zoomInTooltip": "ซูมเข้า",
+          "changeZoomLevelTooltip": "เปลี่ยนระดับการซูม",
+          "openLocalImage": "เปิดภาพ",
+          "downloadImage": "ดาวน์โหลดภาพ",
+          "scalePercentage": "{}%",
+          "deleteImageTooltip": "ลบรูปภาพ"
+        }
+      },
+      "pleaseInputYourStabilityAIKey": "โปรดระบุคีย์ Stability AI ของคุณในหน้าการตั้งค่า"
     },
     "codeBlock": {
       "language": {
         "label": "ภาษา",
-        "placeholder": "เลือกภาษา"
-      }
+        "placeholder": "เลือกภาษา",
+        "auto": "อัตโนมัติ"
+      },
+      "copyTooltip": "สำเนา",
+      "searchLanguageHint": "ค้นหาภาษา",
+      "codeCopiedSnackbar": "คัดลอกโค้ดไปยังคลิปบอร์ดแล้ว!"
     },
     "inlineLink": {
       "placeholder": "วางหรือพิมพ์ลิงก์",
@@ -807,7 +1723,11 @@
       "page": {
         "label": "ลิงก์ไปยังหน้า",
         "tooltip": "คลิกเพื่อเปิดหน้า"
-      }
+      },
+      "deleted": "ลบแล้ว",
+      "noAccess": "ไม่มีการเข้าถึง",
+      "deletedPage": "หน้าที่ถูกลบ",
+      "trashHint": " - ในถังขยะ"
     },
     "toolbar": {
       "resetToDefaultFont": "รีเซ็ตเป็นค่าเริ่มต้น"
@@ -815,10 +1735,20 @@
     "errorBlock": {
       "theBlockIsNotSupported": "เวอร์ชันปัจจุบันไม่รองรับบล็อกนี้",
       "blockContentHasBeenCopied": "เนื้อหาบล็อกได้รับการคัดลอกแล้ว"
+    },
+    "mobilePageSelector": {
+      "title": "เลือกหน้า",
+      "noPagesFound": "ไม่พบหน้าใดๆ"
+    },
+    "attachmentMenu": {
+      "choosePhoto": "เลือกภาพถ่าย",
+      "takePicture": "ถ่ายรูป",
+      "chooseFile": "เลือกไฟล์"
     }
   },
   "board": {
     "column": {
+      "label": "คอลัมน์",
       "createNewCard": "สร้างใหม่",
       "renameGroupTooltip": "กดเพื่อเปลี่ยนชื่อกลุ่ม",
       "createNewColumn": "เพิ่มกลุ่มใหม่",
@@ -826,10 +1756,10 @@
       "addToColumnBottomTooltip": "เพิ่มการ์ดใหม่ที่ด้านล่างสุด",
       "renameColumn": "เปลี่ยนชื่อ",
       "hideColumn": "ซ่อน",
-      "groupActions": "กลุ่มการดำเนินการ",
       "newGroup": "กลุ่มใหม่",
       "deleteColumn": "ลบ",
-      "deleteColumnConfirmation": "การดำเนินการนี้จะลบกลุ่มนี้และการ์ดทั้งหมดในกลุ่ม\nคุณแน่ใจหรือไม่ว่าต้องการดำเนินการต่อ?"
+      "deleteColumnConfirmation": "การดำเนินการนี้จะลบกลุ่มนี้และการ์ดทั้งหมดในกลุ่ม\nคุณแน่ใจหรือไม่ว่าต้องการดำเนินการต่อ?",
+      "groupActions": "กลุ่มการดำเนินการ"
     },
     "hiddenGroupSection": {
       "sectionTitle": "กลุ่มที่ซ่อนไว้",
@@ -856,6 +1786,20 @@
       "showGroup": "เลิกซ่อนกลุ่ม",
       "showGroupContent": "คุณแน่ใจหรือไม่ว่าต้องการแสดงกลุ่มนี้บนกระดาน?",
       "failedToLoad": "โหลดมุมมองกระดานไม่สำเร็จ"
+    },
+    "dateCondition": {
+      "weekOf": "สัปดาห์ที่ {} - {}",
+      "today": "วันนี้",
+      "yesterday": "เมื่อวาน",
+      "tomorrow": "พรุ่งนี้",
+      "lastSevenDays": "7 วันที่ผ่านมา",
+      "nextSevenDays": "7 วันถัดไป",
+      "lastThirtyDays": "30 วันที่ผ่านมา",
+      "nextThirtyDays": "30 วันถัดไป"
+    },
+    "media": {
+      "cardText": "{} {}",
+      "fallbackName": "ไฟล์"
     }
   },
   "calendar": {
@@ -866,7 +1810,13 @@
       "today": "วันนี้",
       "jumpToday": "ข้ามไปยังวันนี้",
       "previousMonth": "เดือนก่อนหน้า",
-      "nextMonth": "เดือนถัดไป"
+      "nextMonth": "เดือนถัดไป",
+      "views": {
+        "day": "วัน",
+        "week": "สัปดาห์",
+        "month": "เดือน",
+        "year": "ปี"
+      }
     },
     "settings": {
       "showWeekNumbers": "แสดงหมายเลขสัปดาห์",
@@ -954,15 +1904,39 @@
   },
   "inlineActions": {
     "noResults": "ไม่พบผลลัพธ์",
+    "recentPages": "หน้าล่าสุด",
     "pageReference": "อ้างอิงหน้า",
     "date": "วันที่",
     "reminder": {
       "groupTitle": "ตัวเตือน",
       "shortKeyword": "ตัวเตือน"
-    }
+    },
+    "createPage": "สร้าง \"{}\" หน้าย่อย"
   },
   "datePicker": {
-    "dateTimeFormatTooltip": "เปลี่ยนรูปแบบวันที่และเวลาในการตั้งค่า"
+    "dateTimeFormatTooltip": "เปลี่ยนรูปแบบวันที่และเวลาในการตั้งค่า",
+    "dateFormat": "รูปแบบวันที่",
+    "includeTime": "รวมถึงเวลา",
+    "isRange": "วันที่สิ้นสุด",
+    "timeFormat": "รูปแบบเวลา",
+    "clearDate": "ล้างวันที่",
+    "reminderLabel": "การเตือน",
+    "selectReminder": "เลือกการเตือน",
+    "reminderOptions": {
+      "none": "ไม่มี",
+      "atTimeOfEvent": "เวลาของงาน",
+      "fiveMinsBefore": "5 นาทีก่อน",
+      "tenMinsBefore": "10 นาทีก่อน",
+      "fifteenMinsBefore": "15 นาทีก่อน",
+      "thirtyMinsBefore": "30 นาทีก่อน",
+      "oneHourBefore": "1 ชั่วโมงก่อน",
+      "twoHoursBefore": "2 ชั่วโมงก่อน",
+      "onDayOfEvent": "ในวันที่มีงาน",
+      "oneDayBefore": "1 วันก่อน",
+      "twoDaysBefore": "2 วันก่อน",
+      "oneWeekBefore": "1 สัปดาห์ก่อน",
+      "custom": "กำหนดเอง"
+    }
   },
   "relativeDates": {
     "yesterday": "เมื่อวานนี้",
@@ -1009,15 +1983,20 @@
     "replace": "แทนที่",
     "replaceAll": "แทนที่ทั้งหมด",
     "noResult": "ไม่มีผลลัพธ์",
-    "caseSensitive": "แบบเจาะจง"
+    "caseSensitive": "แบบเจาะจง",
+    "searchMore": "ค้นหาเพื่อหาผลลัพธ์เพิ่มเติม"
   },
   "error": {
     "weAreSorry": "ขออภัย",
-    "loadingViewError": "เรากำลังพบปัญหาในการโหลดมุมมองนี้ โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณ โหลดแอปซ้ำ และอย่าลังเลที่จะติดต่อทีมงานหากปัญหายังคงไม่หาย"
+    "loadingViewError": "เรากำลังพบปัญหาในการโหลดมุมมองนี้ โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณ โหลดแอปซ้ำ และอย่าลังเลที่จะติดต่อทีมงานหากปัญหายังคงไม่หาย",
+    "syncError": "ข้อมูลไม่ได้รับการซิงค์จากอุปกรณ์อื่น",
+    "syncErrorHint": "โปรดเปิดหน้านี้อีกครั้งบนอุปกรณ์ที่แก้ไขล่าสุด จากนั้นเปิดอีกครั้งบนอุปกรณ์ปัจจุบัน",
+    "clickToCopy": "คลิกเพื่อคัดลอกรหัสข้อผิดพลาด"
   },
   "editor": {
     "bold": "ตัวหนา",
     "bulletedList": "รายการลำดับหัวข้อย่อย",
+    "bulletedListShortForm": "รายการสัญลักษณ์จุด",
     "checkbox": "กล่องกาเครื่องหมาย",
     "embedCode": "ฝังโค้ด",
     "heading1": "H1",
@@ -1026,6 +2005,8 @@
     "highlight": "ไฮไลท์",
     "color": "สี",
     "image": "รูปภาพ",
+    "date": "วันที่",
+    "page": "หน้า",
     "italic": "ตัวเอียง",
     "link": "ลิงก์",
     "numberedList": "รายการลำดับตัวเลข",
@@ -1100,6 +2081,8 @@
     "copy": "คัดลอก",
     "paste": "วาง",
     "find": "ค้นหา",
+    "select": "เลือก",
+    "selectAll": "เลือกทั้งหมด",
     "previousMatch": "จับคู่ก่อนหน้า",
     "nextMatch": "จับคู่ถัดไป",
     "closeFind": "ปิด",
@@ -1126,11 +2109,15 @@
     "rowDuplicate": "ทำซ้ำ",
     "colClear": "ล้างเนื้อหา",
     "rowClear": "ล้างเนื้อหา",
-    "slashPlaceHolder": "พิมพ์ / เพื่อแทรกบล็อก หรือเริ่มพิมพ์"
+    "slashPlaceHolder": "พิมพ์ / เพื่อแทรกบล็อก หรือเริ่มพิมพ์",
+    "typeSomething": "พิมพ์อะไรบางอย่าง...",
+    "codeBlockShortForm": "โค้ด"
   },
   "favorite": {
     "noFavorite": "ไม่มีหน้ารายการโปรด",
-    "noFavoriteHintText": "ปัดหน้าไปทางซ้ายเพื่อเพิ่มลงในรายการโปรด"
+    "noFavoriteHintText": "ปัดหน้าไปทางซ้ายเพื่อเพิ่มลงในรายการโปรด",
+    "removeFromSidebar": "ลบออกจากแถบด้านข้าง",
+    "addToSidebar": "ปักหมุดไปที่แถบด้านข้าง"
   },
   "cardDetails": {
     "notesPlaceholder": "ป้อน / เพื่อแทรกบล็อก หรือเริ่มพิมพ์"
@@ -1150,5 +2137,345 @@
     "date": "วันที่",
     "addField": "เพิ่มฟิลด์",
     "userIcon": "ไอคอนผู้ใช้งาน"
+  },
+  "newSettings": {
+    "myAccount": {
+      "title": "บัญชีของฉัน",
+      "subtitle": "ปรับแต่งโปรไฟล์ของคุณ จัดการความปลอดภัยบัญชี เปิดคีย์ AI หรือเข้าสู่ระบบบัญชีของคุณ",
+      "profileNamePlaceholder": "กรุณากรอกชื่อของคุณ",
+      "accountSecurity": "ความปลอดภัยของบัญชี",
+      "2FA": "การยืนยันตัวตน 2 ขั้นตอน",
+      "aiKeys": "คีย์ AI",
+      "accountLogin": "การเข้าสู่ระบบบัญชี",
+      "deleteAccount": {
+        "title": "ลบบัญชี",
+        "deleteMyAccount": "ลบบัญชีของฉัน",
+        "dialogTitle": "ลบบัญชี",
+        "deleteAccountSuccess": "ลบบัญชีสำเร็จแล้ว"
+      }
+    },
+    "workplace": {
+      "name": "พื้นไที่ทำงาน",
+      "title": "การตั้งค่าพื้นไที่ทำงาน",
+      "subtitle": "ปรับแต่งรูปลักษณ์พื้นที่ทำงาน ธีม แบบอักษร เค้าโครงข้อความ วันที่ เวลา และภาษาของคุณ",
+      "workplaceName": "ชื่อพื้นไที่ทำงาน",
+      "renameError": "ไม่สามารถเปลี่ยนชื่อสถานที่ทำงานได้",
+      "updateIconError": "ไม่สามารถอัปเดตไอคอนได้",
+      "chooseAnIcon": "เลือกไอคอน",
+      "appearance": {
+        "name": "ลักษณะการแสดงผล",
+        "themeMode": {
+          "auto": "อัตโนมัติ",
+          "light": "สว่าง",
+          "dark": "มืด"
+        },
+        "language": "ภาษา"
+      }
+    },
+    "syncState": {
+      "noNetworkConnected": "ไม่มีการเชื่อมต่อเครือข่าย"
+    }
+  },
+  "pageStyle": {
+    "title": "รูปแบบหน้า",
+    "layout": "เค้าโครง",
+    "coverImage": "ภาพปก",
+    "pageIcon": "ไอคอนหน้าเพจ",
+    "colors": "สีสัน",
+    "gradient": "การไล่ระดับ",
+    "backgroundImage": "ภาพพื้นหลัง",
+    "presets": "พรีเซ็ต",
+    "photo": "รูปถ่าย",
+    "unsplash": "อันสแปลช",
+    "pageCover": "ปกหน้า",
+    "none": "ไม่มี",
+    "openSettings": "เปิดการตั้งค่า",
+    "photoPermissionTitle": "@:appName ต้องการเข้าถึงคลังรูปภาพของคุณ",
+    "photoPermissionDescription": "@:appName ต้องการเข้าถึงรูปภาพของคุณเพื่อให้คุณสามารถเพิ่มภาพลงในเอกสารของคุณได้",
+    "cameraPermissionTitle": "@:appName ต้องการเข้าถึงกล้องของคุณ",
+    "cameraPermissionDescription": "@:appName ต้องการเข้าถึงกล้องของคุณเพื่อให้คุณสามารถเพิ่มรูปภาพลงในเอกสารจากกล้องได้",
+    "doNotAllow": "ไม่อนุญาต",
+    "image": "รูปภาพ"
+  },
+  "commandPalette": {
+    "placeholder": "พิมพ์เพื่อค้นหา...",
+    "bestMatches": "การจับคู่ที่ดีที่สุด",
+    "betaLabel": "BETA",
+    "fromTrashHint": "จากถังขยะ",
+    "clearSearchTooltip": "ล้างช่องค้นหา"
+  },
+  "space": {
+    "delete": "ลบ",
+    "deleteConfirmation": "ลบ: ",
+    "rename": "เปลี่ยนชื่อพื้นที่",
+    "changeIcon": "เปลี่ยนไอคอน",
+    "manage": "จัดการพื้นที่",
+    "addNewSpace": "สร้างพื้นที่",
+    "collapseAllSubPages": "ยุบหน้าย่อยทั้งหมด",
+    "createNewSpace": "สร้างพื้นที่ใหม่",
+    "spaceName": "ชื่อพื้นที่",
+    "spaceNamePlaceholder": "เช่น การตลาด วิศวกรรม ทรัพยากรบุคคล",
+    "permission": "การอนุญาตใช้พื้นที่",
+    "publicPermission": "สาธารณะ",
+    "publicPermissionDescription": "สมาชิกพื้นที่ทำงานทั้งหมดที่มีสิทธิ์เข้าถึงเต็มรูปแบบ",
+    "privatePermission": "ส่วนตัว",
+    "privatePermissionDescription": "เฉพาะคุณเท่านั้นที่สามารถเข้าถึงพื้นที่นี้ได้",
+    "spaceIconBackground": "สีพื้นหลัง",
+    "spaceIcon": "ไอคอน",
+    "dangerZone": "โซนอันตราย",
+    "title": "พื้นที่",
+    "defaultSpaceName": "ทั่วไป",
+    "upgradeSpaceTitle": "เปิดใช้งานพื้นที่",
+    "upgradeSpaceDescription": "สร้างพื้นที่สาธารณะ และส่วนตัวหลายแห่ง เพื่อจัดระเบียบพื้นที่ทำงานของคุณได้ดีขึ้น",
+    "upgrade": "อัปเดต",
+    "duplicate": "ทำสำเนาพื้นที่",
+    "switchSpace": "สลับพื้นที่",
+    "spaceNameCannotBeEmpty": "ชื่อพื้นที่ไม่สามารถปล่อยว่างได้",
+    "success": {
+      "deleteSpace": "ลบพื้นที่สำเร็จ",
+      "renameSpace": "เปลี่ยนชื่อพื้นที่สำเร็จ",
+      "duplicateSpace": "คัดลอกพื้นที่สำเร็จ",
+      "updateSpace": "อัปเดตพื้นที่สำเร็จ"
+    },
+    "error": {
+      "deleteSpace": "ลบพื้นที่ไม่สำเร็จ",
+      "renameSpace": "เปลี่ยนชื่อพื้นที่ไม่สำเร็จ",
+      "duplicateSpace": "ทำสำเนาพื้นที่ไม่สำเร็จ",
+      "updateSpace": "อัปเดตพื้นที่ไม่สำเร็จ"
+    },
+    "createSpace": "สร้างพื้นที่",
+    "manageSpace": "จัดการพื้นที่",
+    "renameSpace": "เปลี่ยนชื่อพื้นที่",
+    "mSpaceIconColor": "สีไอคอนพื้นที่",
+    "mSpaceIcon": "ไอคอนพื้นที่"
+  },
+  "publish": {
+    "reportPage": "รายงานหน้า",
+    "createdWith": "สร้างด้วย",
+    "downloadApp": "ดาวน์โหลด AppFlowy",
+    "copy": {
+      "codeBlock": "คัดลอกเนื้อหาของโค้ดบล็อคไปยังคลิปบอร์ดแล้ว"
+    },
+    "publishSuccessfully": "เผยแพร่สำเร็จ",
+    "unpublishSuccessfully": "ยกเลิกการเผยแพร่สำเร็จ",
+    "publishFailed": "เผยแพร่ไม่สำเร็จ",
+    "unpublishFailed": "ยกเลิกการเผยแพร่ไม่สำเร็จ",
+    "tryItNow": "ลองเลยตอนนี้",
+    "database": {
+      "zero": "เผยแพร่ {} มุมมองที่เลือก",
+      "one": "เผยแพร่ {} มุมมองที่เลือก",
+      "many": "เผยแพร่ {} มุมมองที่เลือก",
+      "other": "เผยแพร่ {} มุมมองที่เลือก"
+    },
+    "selectWorkspace": "เลือกพื้นที่ทำงาน",
+    "addTo": "เพิ่มไปยัง",
+    "duplicateSuccessfully": "เพิ่มไปที่พื้นที่ทำงานของคุณแล้ว",
+    "downloadIt": "ดาวน์โหลด",
+    "openApp": "เปิดในแอป",
+    "duplicateFailed": "ทำสำเนาไม่สำเร็จ",
+    "membersCount": {
+      "zero": "ไม่มีสมาชิก",
+      "one": "1 สมาชิก",
+      "many": "{count} สมาชิก",
+      "other": "{count} สมาชิก"
+    },
+    "useThisTemplate": "ใช้เทมเพลต"
+  },
+  "web": {
+    "continue": "ดำเนินการต่อ",
+    "or": "หรือ",
+    "continueWithGoogle": "ดำเนินการต่อด้วย Google",
+    "continueWithGithub": "ดำเนินการต่อด้วย GitHub",
+    "continueWithDiscord": "ดำเนินการต่อด้วย Discord",
+    "continueWithApple": "ดำเนินการต่อด้วย Apple ",
+    "moreOptions": "ตัวเลือกเพิ่มเติม",
+    "and": "และ",
+    "importNotion": "นำเข้าจาก Notion",
+    "import": "นำเข้า",
+    "importSuccess": "อัพโหลดสำเร็จ"
+  },
+  "globalComment": {
+    "comments": "ความคิดเห็น",
+    "addComment": "เพิ่มความคิดเห็น",
+    "reactedByMore": "และอีก {count}",
+    "showSeconds": {
+      "one": "1 วินาทีที่แล้ว",
+      "other": "{count} วินาทีที่ผ่านมา",
+      "zero": "เมื่อสักครู่",
+      "many": "{count} วินาทีที่ผ่านมา"
+    },
+    "showMinutes": {
+      "one": "1 นาทีที่แล้ว",
+      "other": "{count} นาทีที่ผ่านมา",
+      "many": "{count} นาทีที่ผ่านมา"
+    },
+    "showHours": {
+      "one": "1 ชั่วโมงที่แล้ว",
+      "other": "{count} ชั่วโมงที่ผ่านมา",
+      "many": "{count} ชั่วโมงที่ผ่านมา"
+    },
+    "showDays": {
+      "one": "1 วันที่ผ่านมา",
+      "other": "{count} วันที่ผ่านมา",
+      "many": "{count} วันที่ผ่านมา"
+    },
+    "showMonths": {
+      "one": "1 เดือนที่ผ่านมา",
+      "other": "{count} เดือนที่ผ่านมา",
+      "many": "{count} เดือนที่ผ่านมา"
+    },
+    "showYears": {
+      "one": "1 ปีที่ผ่านมา",
+      "other": "{count} ปีที่ผ่านมา",
+      "many": "{count} ปีที่ผ่านมา"
+    },
+    "reply": "ตอบกลับ",
+    "deleteComment": "ลบความคิดเห็น",
+    "hasBeenDeleted": "ลบแล้ว",
+    "readMore": "อ่านเพิ่มเติม"
+  },
+  "template": {
+    "asTemplate": "บันทึกเป็นเทมเพลต",
+    "name": "ชื่อเทมเพลต",
+    "description": "คำอธิบายเทมเพลต",
+    "about": "เทมเพลตเกี่ยวกับ",
+    "deleteFromTemplate": "ลบออกจากเทมเพลต",
+    "preview": "ตัวอย่างเทมเพลต",
+    "categories": "หมวดหมู่เทมเพลต",
+    "category": {
+      "deleteCategory": "ลบหมวดหมู่",
+      "deleteCategoryDescription": "คุณแน่ใจหรือไม่ว่าต้องการลบหมวดหมู่นี้?",
+      "typeToSearch": "พิมพ์เพื่อค้นหาหมวดหมู่..."
+    },
+    "creator": {
+      "label": "ผู้สร้างเทมเพลต",
+      "name": "ชื่อผู้สร้าง",
+      "deleteCreator": "ลบผู้สร้าง",
+      "typeToSearch": "พิมพ์เพื่อค้นหาผู้สร้าง..."
+    },
+    "uploadSuccess": "อัพโหลดเทมเพลตสำเร็จ",
+    "viewTemplate": "ดูเทมเพลต",
+    "deleteTemplate": "ลบเทมเพลต",
+    "deleteSuccess": "ลบเทมเพลตสำเร็จ",
+    "addRelatedTemplate": "เพิ่มเทมเพลตที่เกี่ยวข้อง",
+    "removeRelatedTemplate": "ลบเทมเพลตที่เกี่ยวข้อง",
+    "searchInCategory": "ค้นหาใน {category}",
+    "label": "เทมเพลต"
+  },
+  "fileDropzone": {
+    "uploading": "กำลังอัพโหลด...",
+    "uploadFailed": "อัพโหลดไม่สำเร็จ",
+    "uploadSuccess": "อัพโหลดสำเร็จ",
+    "uploadFailedDescription": "อัพโหลดไฟล์ไม่สำเร็จ",
+    "uploadingDescription": "ไฟล์กำลังถูกอัพโหลด"
+  },
+  "gallery": {
+    "preview": "เปิดแบบเต็มจอ",
+    "copy": "สำเนา",
+    "download": "ดาวน์โหลด",
+    "prev": "ก่อนหน้า",
+    "next": "ถัดไป",
+    "resetZoom": "รีเซ็ตการซูม",
+    "zoomIn": "ซูมเข้า",
+    "zoomOut": "ซูมออก"
+  },
+  "invitation": {
+    "join": "เข้าร่วม",
+    "on": "บน",
+    "invitedBy": "ได้รับเชิญโดย",
+    "membersCount": {
+      "zero": "{count} สมาชิก",
+      "one": "{count} สมาชิก",
+      "many": "{count} สมาชิก",
+      "other": "{count} สมาชิก"
+    },
+    "joinWorkspace": "เข้าร่วมพื้นที่ทำงาน",
+    "openWorkspace": "เปิด AppFlowy",
+    "errorModal": {
+      "title": "มีบางอย่างผิดพลาด",
+      "contactOwner": "ติดต่อเจ้าของ",
+      "close": "กลับสู่หน้าแรก",
+      "changeAccount": "เปลี่ยนบัญชี"
+    }
+  },
+  "requestAccess": {
+    "backToHome": "กลับสู่หน้าแรก"
+  },
+  "approveAccess": {
+    "upgrade": "อัพเกรด",
+    "downloadApp": "ดาวน์โหลด AppFlowy",
+    "approveButton": "อนุมัติ",
+    "approveSuccess": "ได้รับการอนุมัติเรียบร้อยแล้ว",
+    "memberCount": {
+      "zero": "ไม่มีสมาชิก",
+      "one": "1 สมาชิก",
+      "many": "{count} สมาชิก",
+      "other": "{count} สมาชิก"
+    },
+    "asMember": "ในฐานะสมาชิก"
+  },
+  "upgradePlanModal": {
+    "title": "อัพเกรดเป็น Pro",
+    "upgradeSteps": "วิธีอัพเกรดแผนของคุณบน AppFlowy:",
+    "step1": "1. ไปที่การตั้งค่า",
+    "step2": "2. คลิกที่ 'แผน'",
+    "step3": "3. เลือก 'เปลี่ยนแผน'",
+    "appNote": "บันทึก: ",
+    "actionButton": "อัพเกรด",
+    "downloadLink": "ดาวน์โหลดแอป",
+    "laterButton": "ภายหลัง",
+    "refresh": "ที่นี่"
+  },
+  "breadcrumbs": {
+    "label": "เส้นทางนำทาง"
+  },
+  "time": {
+    "justNow": "เมื่อสักครู่",
+    "seconds": {
+      "one": "1 วินาที",
+      "other": "{count} วินาที"
+    },
+    "minutes": {
+      "one": "1 นาที",
+      "other": "{count} นาที"
+    },
+    "hours": {
+      "one": "1 ชั่วโมง",
+      "other": "{count} ชั่วโมง"
+    },
+    "days": {
+      "one": "1 วัน",
+      "other": "{จำนวน} วัน"
+    },
+    "weeks": {
+      "one": "1 สัปดาห์",
+      "other": "{count} สัปดาห์"
+    },
+    "months": {
+      "one": "1 เดือน",
+      "other": "{count} เดือน"
+    },
+    "years": {
+      "one": "1 ปี",
+      "other": "{count} ปี"
+    },
+    "ago": "ที่ผ่านมา",
+    "yesterday": "เมื่อวาน",
+    "today": "วันนี้"
+  },
+  "members": {
+    "zero": "ไม่มีสมาชิก",
+    "one": "1 สมาชิก",
+    "many": "{count} สมาชิก",
+    "other": "{count} สมาชิก"
+  },
+  "tabMenu": {
+    "close": "ปิด",
+    "closeOthers": "ปิดแท็บอื่น ๆ",
+    "favorite": "รายการโปรด",
+    "unfavorite": "ยกเลิกรายการโปรด",
+    "favoriteDisabledHint": "ไม่สามารถเพิ่มมุมมองนี้เป็นรายการโปรดได้",
+    "pinTab": "ปักหมุด",
+    "unpinTab": "ยกเลิกการปักหมุด"
   }
 }

@@ -1533,9 +1533,9 @@
     "photo": "圖片",
     "pageCover": "封面",
     "none": "無",
-    "photoPermissionDescription": "允許存取圖片庫以上傳圖片",
     "openSettings": "打開設定",
     "photoPermissionTitle": "@:appName 希望存取您的圖片庫",
+    "photoPermissionDescription": "允許存取圖片庫以上傳圖片",
     "doNotAllow": "不允許"
   },
   "commandPalette": {

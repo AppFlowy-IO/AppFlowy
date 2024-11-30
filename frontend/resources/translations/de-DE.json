@@ -2338,9 +2338,9 @@
     "unsplash": "Unsplash",
     "pageCover": "Deckblatt",
     "none": "Keines",
-    "photoPermissionDescription": "Erlaube den Zugriff auf die Fotobibliothek zum Hochladen von Bildern.",
     "openSettings": "Einstellungen öffnen",
     "photoPermissionTitle": "@:appName möchte auf deine Fotobibliothek zugreifen",
+    "photoPermissionDescription": "Erlaube den Zugriff auf die Fotobibliothek zum Hochladen von Bildern.",
     "doNotAllow": "Nicht zulassen",
     "image": "Bild"
   },
