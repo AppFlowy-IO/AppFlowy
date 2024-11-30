@@ -1068,7 +1068,13 @@
       "historicalUserList": "ประวัติการเข้าสู่ระบบของผู้ใช้",
       "historicalUserListTooltip": "รายการนี้จะแสดงบัญชีที่ไม่ระบุตัวตนของคุณ คุณสามารถคลิกที่บัญชีเพื่อดูรายละเอียดได้ บัญชีที่ไม่เปิดเผยตัวตนถูกสร้างขึ้นโดยการคลิกปุ่ม 'เริ่มต้น'",
       "openHistoricalUser": "คลิกเพื่อเปิดบัญชีที่ไม่ระบุตัวตน",
-      "customPathPrompt": "การจัดเก็บโฟลเดอร์ข้อมูลของ AppFlowy ไว้ในโฟลเดอร์ที่ซิงค์บนคลาวด์ เช่น Google Drive อาจทำให้เกิดความเสี่ยงได้ หากมีการเข้าถึงหรือแก้ไขฐานข้อมูลภายในโฟลเดอร์นี้จากหลายตำแหน่งพร้อมกัน อาจส่งผลให้เกิดความขัดแย้งในการซิงโครไนซ์และข้อมูลอาจเสียหายได้"
+      "customPathPrompt": "การจัดเก็บโฟลเดอร์ข้อมูลของ AppFlowy ไว้ในโฟลเดอร์ที่ซิงค์บนคลาวด์ เช่น Google Drive อาจทำให้เกิดความเสี่ยงได้ หากมีการเข้าถึงหรือแก้ไขฐานข้อมูลภายในโฟลเดอร์นี้จากหลายตำแหน่งพร้อมกัน อาจส่งผลให้เกิดความขัดแย้งในการซิงโครไนซ์และข้อมูลอาจเสียหายได้",
+      "importAppFlowyData": "นำเข้าข้อมูลจากโฟลเดอร์ @:appName ภายนอก",
+      "importingAppFlowyDataTip": "กำลังดำเนินการนำเข้าข้อมูล โปรดอย่าปิดแอป",
+      "importAppFlowyDataDescription": "คัดลอกข้อมูลจากโฟลเดอร์ข้อมูลภายนอกของ @:appName และนำเข้าไปยังโฟลเดอร์ข้อมูล AppFlowy ปัจจุบัน",
+      "importSuccess": "นำเข้าโฟลเดอร์ข้อมูล @:appName สำเร็จแล้ว",
+      "importFailed": "การนำเข้าโฟลเดอร์ข้อมูล @:appName ล้มเหลว",
+      "importGuide": "สำหรับรายละเอียดเพิ่มเติม โปรดตรวจสอบเอกสารอ้างอิง"
     },
     "notifications": {
       "enableNotifications": {
@@ -1229,7 +1235,7 @@
         "removeMember": "ลบสมาชิก",
         "areYouSureToRemoveMember": "คุณแน่ใจหรือไม่ว่าต้องการลบสมาชิกคนนี้ออก?",
         "inviteMemberSuccess": "ส่งคำเชิญเรียบร้อยแล้ว",
-        "failedToInviteMember": "ไม่สามารถเชิญสมาชิกได้",
+        "failedToInviteMember": "เชิญสมาชิกไม่สำเร็จ",
         "workspaceMembersError": "อุ๊ปส์, มีบางอย่างผิดปกติ",
         "workspaceMembersErrorDescription": "เราไม่สามารถโหลดรายชื่อสมาชิกได้ในขณะนี้ กรุณาลองอีกครั้งในภายหลัง"
       }
@@ -1344,7 +1350,8 @@
     },
     "filter": {
       "empty": "ไม่มีตัวกรองที่ใช้งานอยู่",
-      "addFilter": "เพิ่มตัวกรอง"
+      "addFilter": "เพิ่มตัวกรอง",
+      "cannotFindCreatableField": "ไม่พบฟิลด์ที่เหมาะสมในการกรอง"
     },
     "textFilter": {
       "contains": "ประกอบด้วย",
@@ -1719,6 +1726,9 @@
         "addAnImage": "เพิ่มรูปภาพ",
         "copiedToPasteBoard": "ลิงก์รูปภาพถูกคัดลอกไปที่คลิปบอร์ดแล้ว",
         "addAnImageDesktop": "เพิ่มรูปภาพ",
+        "imageUploadFailed": "อัพโหลดรูปภาพไม่สำเร็จ",
+        "imageDownloadFailed": "ดาวน์โหลดรูปภาพล้มเหลว กรุณาลองอีกครั้ง",
+        "imageDownloadFailedToken": "การดาวน์โหลดภาพล้มเหลวเนื่องจากขาดโทเค็นผู้ใช้ โปรดลองอีกครั้ง",
         "errorCode": "รหัสข้อผิดพลาด"
       },
       "photoGallery": {
@@ -1773,17 +1783,20 @@
         "fileUploadHintSuffix": "เรียกดู",
         "networkHint": "วางลิงก์ไฟล์",
         "networkAction": "ฝัง",
+        "fileTooBigError": "ขนาดไฟล์ใหญ่เกินไป กรุณาอัพโหลดไฟล์ที่มีขนาดน้อยกว่า 10MB",
         "renameFile": {
           "title": "เปลี่ยนชื่อไฟล์"
         },
         "uploadedAt": "อัพโหลดเมื่อ {}",
-        "linkedAt": "ลิงก์ถูกเพิ่มเมื่อ {}"
+        "linkedAt": "ลิงก์ถูกเพิ่มเมื่อ {}",
+        "failedToOpenMsg": "ไม่สามารถเปิดได้ ไม่พบไฟล์"
       },
       "subPage": {
         "handlingPasteHint": " - (การจัดการการวาง)",
         "errors": {
           "failedDeletePage": "ลบหน้าไม่สำเร็จ",
           "failedCreatePage": "สร้างหน้าไม่สำเร็จ",
+          "failedMovePage": "ย้ายหน้ามายังเอกสารนี้ไม่สำเร็จ",
           "failedDuplicatePage": "ทำสำเนาหน้าไม่สำเร็จ",
           "failedDuplicateFindView": "ทำสำเนาหน้าไม่สำเร็จ - ไม่พบมุมมองต้นฉบับ"
         }
@@ -1822,7 +1835,8 @@
         "invalidImageSize": "ขนาดรูปภาพต้องไม่เกิน 5MB",
         "invalidImageFormat": "ไม่รองรับรูปแบบรูปภาพนี้ รูปแบบที่รองรับ: JPEG, PNG, GIF, SVG",
         "invalidImageUrl": "URL รูปภาพไม่ถูกต้อง",
-        "noImage": "ไม่มีไฟล์หรือไดเร็กทอรีดังกล่าว"
+        "noImage": "ไม่มีไฟล์หรือไดเร็กทอรีดังกล่าว",
+        "multipleImagesFailed": "มีภาพหนึ่งหรือมากกว่าที่ไม่สามารถอัปโหลดได้ กรุณาลองใหม่อีกครั้ง"
       },
       "embedLink": {
         "label": "ฝังลิงก์",
@@ -1837,6 +1851,8 @@
       "failedToAddImageToGallery": "ไม่สามารถเพิ่มรูปภาพลงในแกลเลอรี่ได้",
       "successToAddImageToGallery": "เพิ่มรูปภาพลงในแกลเลอรี่เรียบร้อยแล้ว",
       "unableToLoadImage": "ไม่สามารถโหลดรูปภาพได้",
+      "maximumImageSize": "ขนาดรูปภาพอัปโหลดที่รองรับสูงสุดคือ 10MB",
+      "uploadImageErrorImageSizeTooBig": "ขนาดรูปภาพต้องน้อยกว่า 10MB",
       "imageIsUploading": "กำลังอัพโหลดรูปภาพ",
       "openFullScreen": "เปิดแบบเต็มจอ",
       "interactiveViewer": {
@@ -1848,6 +1864,7 @@
           "changeZoomLevelTooltip": "เปลี่ยนระดับการซูม",
           "openLocalImage": "เปิดภาพ",
           "downloadImage": "ดาวน์โหลดภาพ",
+          "closeViewer": "ปิดโปรแกรมดูแบบโต้ตอบ",
           "scalePercentage": "{}%",
           "deleteImageTooltip": "ลบรูปภาพ"
         }
@@ -1885,6 +1902,7 @@
         "tooltip": "คลิกเพื่อเปิดหน้า"
       },
       "deleted": "ลบแล้ว",
+      "deletedContent": "เนื้อหานี้ไม่มีอยู่หรือถูกลบไปแล้ว",
       "noAccess": "ไม่มีการเข้าถึง",
       "deletedPage": "หน้าที่ถูกลบ",
       "trashHint": " - ในถังขยะ"
@@ -1894,10 +1912,14 @@
     },
     "errorBlock": {
       "theBlockIsNotSupported": "เวอร์ชันปัจจุบันไม่รองรับบล็อกนี้",
-      "blockContentHasBeenCopied": "เนื้อหาบล็อกได้รับการคัดลอกแล้ว"
+      "clickToCopyTheBlockContent": "คลิกเพื่อคัดลอกเนื้อหาบล็อค",
+      "blockContentHasBeenCopied": "เนื้อหาบล็อกได้รับการคัดลอกแล้ว",
+      "parseError": "เกิดข้อผิดพลาดขณะทำการแยกข้อมูลบล็อก {}",
+      "copyBlockContent": "คัดลอกเนื้อหาบล็อค"
     },
     "mobilePageSelector": {
       "title": "เลือกหน้า",
+      "failedToLoad": "โหลดรายการหน้าไม่สำเร็จ",
       "noPagesFound": "ไม่พบหน้าใดๆ"
     },
     "attachmentMenu": {
@@ -2378,19 +2400,24 @@
   "commandPalette": {
     "placeholder": "พิมพ์เพื่อค้นหา...",
     "bestMatches": "การจับคู่ที่ดีที่สุด",
+    "loadingTooltip": "เรากำลังมองหาผลลัพธ์...",
     "betaLabel": "BETA",
+    "betaTooltip": "ปัจจุบันเรารองรับเฉพาะการค้นหาหน้า หรือเนื้อหาภายในเอกสารเท่านั้น",
     "fromTrashHint": "จากถังขยะ",
+    "noResultsHint": "เราไม่พบสิ่งที่คุณกำลังมองหา ลองค้นหาด้วยคำอื่นดู",
     "clearSearchTooltip": "ล้างช่องค้นหา"
   },
   "space": {
     "delete": "ลบ",
     "deleteConfirmation": "ลบ: ",
+    "deleteConfirmationDescription": "หน้าทั้งหมดในพื้นที่นี้จะถูกลบออก และย้ายไปยังถังขยะ และหน้าที่เผยแพร่ทั้งหมดจะถูกยกเลิกการเผยแพร่",
     "rename": "เปลี่ยนชื่อพื้นที่",
     "changeIcon": "เปลี่ยนไอคอน",
     "manage": "จัดการพื้นที่",
     "addNewSpace": "สร้างพื้นที่",
     "collapseAllSubPages": "ยุบหน้าย่อยทั้งหมด",
     "createNewSpace": "สร้างพื้นที่ใหม่",
+    "createSpaceDescription": "สร้างพื้นที่สาธารณะ และส่วนตัวหลายแห่ง เพื่อจัดระเบียบงานของคุณได้ดีขึ้น",
     "spaceName": "ชื่อพื้นที่",
     "spaceNamePlaceholder": "เช่น การตลาด วิศวกรรม ทรัพยากรบุคคล",
     "permission": "การอนุญาตใช้พื้นที่",
@@ -2401,12 +2428,19 @@
     "spaceIconBackground": "สีพื้นหลัง",
     "spaceIcon": "ไอคอน",
     "dangerZone": "โซนอันตราย",
+    "unableToDeleteLastSpace": "ไม่สามารถลบพื้นที่สุดท้ายได้",
+    "unableToDeleteSpaceNotCreatedByYou": "ไม่สามารถลบพื้นที่ที่สร้างโดยผู้อื่นได้",
+    "enableSpacesForYourWorkspace": "เปิดใช้งานพื้นที่สำหรับพื้นที่ทำงานของคุณ",
     "title": "พื้นที่",
     "defaultSpaceName": "ทั่วไป",
     "upgradeSpaceTitle": "เปิดใช้งานพื้นที่",
     "upgradeSpaceDescription": "สร้างพื้นที่สาธารณะ และส่วนตัวหลายแห่ง เพื่อจัดระเบียบพื้นที่ทำงานของคุณได้ดีขึ้น",
     "upgrade": "อัปเดต",
+    "upgradeYourSpace": "สร้างหลายพื้นที่",
+    "quicklySwitch": "สลับไปยังพื้นที่ถัดไปอย่างรวดเร็ว",
     "duplicate": "ทำสำเนาพื้นที่",
+    "movePageToSpace": "ย้ายหน้าไปยังพื้นที่",
+    "cannotMovePageToDatabase": "ไม่สามารถย้ายหน้าไปยังฐานข้อมูลได้",
     "switchSpace": "สลับพื้นที่",
     "spaceNameCannotBeEmpty": "ชื่อพื้นที่ไม่สามารถปล่อยว่างได้",
     "success": {
@@ -2428,7 +2462,10 @@
     "mSpaceIcon": "ไอคอนพื้นที่"
   },
   "publish": {
+    "hasNotBeenPublished": "หน้านี้ยังไม่ได้เผยแพร่",
+    "spaceHasNotBeenPublished": "ยังไม่รองรับการเผยแพร่พื้นที่",
     "reportPage": "รายงานหน้า",
+    "databaseHasNotBeenPublished": "ยังไม่รองรับการเผยแพร่ฐานข้อมูล",
     "createdWith": "สร้างด้วย",
     "downloadApp": "ดาวน์โหลด AppFlowy",
     "copy": {
@@ -2437,6 +2474,7 @@
       "mathBlock": "คัดลอกสมการคณิตศาสตร์ไปยังคลิปบอร์ดแล้ว",
       "fileBlock": "คัดลอกลิงก์ไฟล์ไปยังคลิปบอร์ดแล้ว"
     },
+    "containsPublishedPage": "หน้านี้มีหน้าที่เผยแพร่แล้วหนึ่งหน้าขึ้นไป หากคุณดำเนินการต่อ หน้าเหล่านั้นจะถูกยกเลิกการเผยแพร่ คุณต้องการดำเนินการลบหรือไม่",
     "publishSuccessfully": "เผยแพร่สำเร็จ",
     "unpublishSuccessfully": "ยกเลิกการเผยแพร่สำเร็จ",
     "publishFailed": "เผยแพร่ไม่สำเร็จ",
@@ -2445,16 +2483,22 @@
     "createWithAppFlowy": "สร้างเว็บไซต์ด้วย AppFlowy",
     "fastWithAI": "รวดเร็วและง่ายดายด้วย AI",
     "tryItNow": "ลองเลยตอนนี้",
+    "onlyGridViewCanBePublished": "สามารถเผยแพร่ได้เฉพาะมุมมองแบบกริดเท่านั้น",
     "database": {
       "zero": "เผยแพร่ {} มุมมองที่เลือก",
       "one": "เผยแพร่ {} มุมมองที่เลือก",
       "many": "เผยแพร่ {} มุมมองที่เลือก",
       "other": "เผยแพร่ {} มุมมองที่เลือก"
     },
+    "mustSelectPrimaryDatabase": "ต้องเลือกมุมมองหลัก",
+    "noDatabaseSelected": "ยังไม่ได้เลือกฐานข้อมูล กรุณาเลือกอย่างน้อยหนึ่งฐานข้อมูล",
+    "unableToDeselectPrimaryDatabase": "ไม่สามารถยกเลิกการเลือกฐานข้อมูลหลักได้",
     "saveThisPage": "เริ่มต้นด้วยเทมเพลตนี้",
+    "duplicateTitle": "คุณต้องการเพิ่มที่ไหน",
     "selectWorkspace": "เลือกพื้นที่ทำงาน",
     "addTo": "เพิ่มไปยัง",
     "duplicateSuccessfully": "เพิ่มไปที่พื้นที่ทำงานของคุณแล้ว",
+    "duplicateSuccessfullyDescription": "ยังไม่ได้ติดตั้ง AppFlowy ใช่ไหม? การดาวน์โหลดจะเริ่มต้นโดยอัตโนมัติหลังจากที่คุณคลิก 'ดาวน์โหลด'",
     "downloadIt": "ดาวน์โหลด",
     "openApp": "เปิดในแอป",
     "duplicateFailed": "ทำสำเนาไม่สำเร็จ",
@@ -2489,6 +2533,8 @@
     "importNotion": "นำเข้าจาก Notion",
     "import": "นำเข้า",
     "importSuccess": "อัพโหลดสำเร็จ",
+    "importSuccessMessage": "เราจะแจ้งให้คุณทราบเมื่อการนำเข้าเสร็จสมบูรณ์ หลังจากนั้นคุณสามารถดูหน้าที่นำเข้าได้ในแถบด้านข้าง",
+    "importFailed": "การนำเข้าไม่สำเร็จ กรุณาตรวจสอบรูปแบบไฟล์",
     "dropNotionFile": "วางไฟล์ zip ของ Notion ไว้ที่นี่เพื่ออัพโหลด หรือคลิกเพื่อเรียกดู"
   },
   "globalComment": {
@@ -2538,7 +2584,8 @@
     "collapse": "ยุบ",
     "readMore": "อ่านเพิ่มเติม",
     "failedToAddComment": "เพิ่มความคิดเห็นไม่สำเร็จ",
-    "commentAddedSuccessfully": "เพิ่มความคิดเห็นสำเร็จ"
+    "commentAddedSuccessfully": "เพิ่มความคิดเห็นสำเร็จ",
+    "commentAddedSuccessTip": "คุณเพิ่งเพิ่ม หรือตอบกลับความคิดเห็น คุณต้องการข้ามไปที่ด้านบนเพื่อดูความคิดเห็นล่าสุดหรือไม่"
   },
   "template": {
     "asTemplate": "บันทึกเป็นเทมเพลต",
@@ -2548,6 +2595,8 @@
     "deleteFromTemplate": "ลบออกจากเทมเพลต",
     "preview": "ตัวอย่างเทมเพลต",
     "categories": "หมวดหมู่เทมเพลต",
+    "isNewTemplate": "PIN ไปยังเทมเพลตใหม่",
+    "featured": "PIN ไปที่ฟีเจอร์",
     "relatedTemplates": "เทมเพลตที่เกี่ยวข้อง",
     "requiredField": "{field} จำเป็นต้องกรอก",
     "addCategory": "เพิ่ม \"{category}\"",

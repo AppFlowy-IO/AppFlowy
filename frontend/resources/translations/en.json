@@ -1043,7 +1043,7 @@
       "cloudServerTypeTip": "Please note that it might log out your current account after switching the cloud server",
       "cloudLocal": "Local",
       "cloudAppFlowy": "@:appName Cloud",
-      "cloudAppFlowySelfHost": "@:appName Cloud Self-hosted",
+      "cloudAppFlowySelfHost": "@:appName@:appName@:appName@:appName@:appName",
       "appFlowyCloudUrlCanNotBeEmpty": "The cloud url can't be empty",
       "clickToCopy": "Copy to clipboard",
       "selfHostStart": "If you don't have a server, please refer to the",
