@@ -67,20 +67,28 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             }
           },
           closeOtherTabs: (String pluginId) {
-            final pagesToClose = [
+            final pageManagers = [
               ...state._pageManagers
-                  .where((pm) => pm.plugin.id != pluginId && !pm.isPinned),
+                  .where((pm) => pm.plugin.id == pluginId || pm.isPinned),
             ];
 
-            if (pagesToClose.isEmpty) {
-              return;
+            int newIndex;
+            if (state.currentPageManager.isPinned) {
+              // Retain current index if it's already pinned
+              newIndex = state.currentIndex;
+            } else {
+              final pm = state._pageManagers
+                  .firstWhereOrNull((pm) => pm.plugin.id == pluginId);
+              newIndex = pm != null ? pageManagers.indexOf(pm) : 0;
             }
 
-            final newstate = state;
-            for (final pm in pagesToClose) {
-              newstate.closeView(pm.plugin.id);
-            }
-            emit(newstate.copyWith(currentIndex: 0));
+            emit(
+              state.copyWith(
+                currentIndex: newIndex,
+                pageManagers: pageManagers,
+              ),
+            );
+
             _setLatestOpenView();
           },
           togglePin: (String pluginId) {

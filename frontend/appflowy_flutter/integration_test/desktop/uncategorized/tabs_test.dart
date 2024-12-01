@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/flowy_tab.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
@@ -177,62 +176,37 @@ void main() {
         findsNWidgets(3),
       );
 
-      final firstTabFinder = find.descendant(
-        of: find.byType(FlowyTab),
-        matching: find.text(_documentTwoName),
-      );
-      final secondTabFinder = find.descendant(
-        of: find.byType(FlowyTab),
-        matching: find.text(gettingStarted),
-      );
-      final thirdTabFinder = find.descendant(
-        of: find.byType(FlowyTab),
-        matching: find.text(_documentName),
-      );
+      const firstTab = _documentTwoName;
+      const secondTab = gettingStarted;
+      const thirdTab = _documentName;
 
-      expect(firstTabFinder, findsOneWidget);
-      expect(secondTabFinder, findsOneWidget);
-      expect(thirdTabFinder, findsOneWidget);
+      expect(tester.isTabAtIndex(firstTab, 0), isTrue);
+      expect(tester.isTabAtIndex(secondTab, 1), isTrue);
+      expect(tester.isTabAtIndex(thirdTab, 2), isTrue);
 
-      // We expect not to see the pinned svg
-      expect(find.byFlowySvg(FlowySvgs.pinned_s), findsNothing);
+      expect(tester.isTabPinned(gettingStarted), isFalse);
 
       // Right click on second tab
-      await tester.tap(
-        buttons: kSecondaryButton,
-        find.descendant(
-          of: find.byType(FlowyTab),
-          matching: find.text(gettingStarted),
-        ),
-      );
-      await tester.pumpAndSettle();
+      await tester.openTabMenu(gettingStarted);
       expect(find.byType(TabMenu), findsOneWidget);
 
       // Pin second tab
       await tester.tap(find.text(LocaleKeys.tabMenu_pinTab.tr()));
       await tester.pumpAndSettle();
 
-      // We expect to see the pinned svg
-      expect(find.byFlowySvg(FlowySvgs.pinned_s), findsOneWidget);
+      expect(tester.isTabPinned(gettingStarted), isTrue);
 
-      /// Right click on first tab
-      await tester.tap(
-        buttons: kSecondaryButton,
-        find.descendant(
-          of: find.byType(FlowyTab),
-          matching: find.text(_documentTwoName),
-        ),
-      );
-      await tester.pumpAndSettle();
+      /// Right click on first unpinned tab (second tab)
+      await tester.openTabMenu(_documentTwoName);
 
-      // Close others than first tab
+      // Close others
       await tester.tap(find.text(LocaleKeys.tabMenu_closeOthers.tr()));
       await tester.pumpAndSettle();
 
-      // We expect to find 2 tabs, the first tab and the pinned second tab
-      expect(firstTabFinder, findsOneWidget);
-      expect(secondTabFinder, findsOneWidget);
-      expect(thirdTabFinder, findsNothing);
+      // We expect to find 2 tabs, the first pinned tab and the second tab
+      expect(find.byType(FlowyTab), findsNWidgets(2));
+      expect(tester.isTabAtIndex(gettingStarted, 0), isTrue);
+      expect(tester.isTabAtIndex(_documentTwoName, 1), isTrue);
     });
 
     testWidgets('pin/unpin tabs proper order', (tester) async {
