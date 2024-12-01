@@ -46,7 +46,8 @@ class _ViewTabBarItemState extends State<ViewTabBarItem> {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment:
+          widget.shortForm ? MainAxisAlignment.center : MainAxisAlignment.start,
       children: [
         if (widget.view.icon.value.isNotEmpty)
           FlowyText.emoji(

@@ -39,7 +39,7 @@ class _FlowyTabState extends State<FlowyTab> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: widget.pageManager.isPinned ? 52 : null,
+      width: widget.pageManager.isPinned ? 54 : null,
       child: _wrapInTooltip(
         widget.pageManager.plugin.widgetBuilder.viewName,
         child: FlowyHover(
@@ -85,7 +85,7 @@ class _FlowyTabState extends State<FlowyTab> {
                       child: Container(
                         constraints: BoxConstraints(
                           maxWidth: HomeSizes.tabBarWidth,
-                          minWidth: widget.pageManager.isPinned ? 52 : 100,
+                          minWidth: widget.pageManager.isPinned ? 54 : 100,
                         ),
                         height: HomeSizes.tabBarHeight,
                         child: Row(
