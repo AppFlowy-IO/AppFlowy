@@ -258,11 +258,15 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
   final String? initialRowId;
 
   @override
+  String? get viewName => notifier.view.nameOrDefault;
+
+  @override
   Widget get leftBarItem =>
       ViewTitleBar(key: ValueKey(notifier.view.id), view: notifier.view);
 
   @override
-  Widget tabBarItem(String pluginId) => ViewTabBarItem(view: notifier.view);
+  Widget tabBarItem(String pluginId, [bool shortForm = false]) =>
+      ViewTabBarItem(view: notifier.view, shortForm: shortForm);
 
   @override
   Widget buildWidget({

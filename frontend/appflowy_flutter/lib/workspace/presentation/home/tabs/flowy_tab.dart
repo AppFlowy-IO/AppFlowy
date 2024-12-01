@@ -18,11 +18,16 @@ class FlowyTab extends StatefulWidget {
     required this.pageManager,
     required this.isCurrent,
     required this.onTap,
+    required this.isAllPinned,
   });
 
   final PageManager pageManager;
   final bool isCurrent;
   final VoidCallback onTap;
+
+  /// Signifies whether all tabs are pinned
+  ///
+  final bool isAllPinned;
 
   @override
   State<FlowyTab> createState() => _FlowyTabState();
@@ -33,80 +38,84 @@ class _FlowyTabState extends State<FlowyTab> {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyHover(
-      resetHoverOnRebuild: false,
-      style: HoverStyle(
-        borderRadius: BorderRadius.zero,
-        backgroundColor: widget.isCurrent
-            ? Theme.of(context).colorScheme.surface
-            : Theme.of(context).colorScheme.surfaceContainerHighest,
-        hoverColor:
-            widget.isCurrent ? Theme.of(context).colorScheme.surface : null,
-      ),
-      builder: (context, isHovering) => AppFlowyPopover(
-        controller: controller,
-        offset: const Offset(4, 4),
-        triggerActions: PopoverTriggerFlags.secondaryClick,
-        showAtCursor: true,
-        popupBuilder: (_) => BlocProvider.value(
-          value: context.read<TabsBloc>(),
-          child: TabMenu(
-            controller: controller,
-            pageId: widget.pageManager.plugin.id,
-            isPinned: widget.pageManager.isPinned,
+    return SizedBox(
+      width: widget.pageManager.isPinned ? 52 : null,
+      child: _wrapInTooltip(
+        widget.pageManager.plugin.widgetBuilder.viewName,
+        child: FlowyHover(
+          resetHoverOnRebuild: false,
+          style: HoverStyle(
+            borderRadius: BorderRadius.zero,
+            backgroundColor: widget.isCurrent
+                ? Theme.of(context).colorScheme.surface
+                : Theme.of(context).colorScheme.surfaceContainerHighest,
+            hoverColor:
+                widget.isCurrent ? Theme.of(context).colorScheme.surface : null,
           ),
-        ),
-        child: ChangeNotifierProvider.value(
-          value: widget.pageManager.notifier,
-          child: Consumer<PageNotifier>(
-            builder: (context, value, _) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              // We use a Listener to avoid gesture detector onPanStart debounce
-              child: Listener(
-                onPointerDown: (event) {
-                  if (event.buttons == kPrimaryButton) {
-                    widget.onTap();
-                  }
-                },
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  // Stop move window detector
-                  onPanStart: (_) {},
-                  child: Container(
-                    constraints: const BoxConstraints(
-                      maxWidth: HomeSizes.tabBarWidth,
-                      minWidth: 100,
-                    ),
-                    height: HomeSizes.tabBarHeight,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: widget.pageManager.notifier
-                              .tabBarWidget(widget.pageManager.plugin.id),
+          builder: (context, isHovering) => AppFlowyPopover(
+            controller: controller,
+            offset: const Offset(4, 4),
+            triggerActions: PopoverTriggerFlags.secondaryClick,
+            showAtCursor: true,
+            popupBuilder: (_) => BlocProvider.value(
+              value: context.read<TabsBloc>(),
+              child: TabMenu(
+                controller: controller,
+                pageId: widget.pageManager.plugin.id,
+                isPinned: widget.pageManager.isPinned,
+                isAllPinned: widget.isAllPinned,
+              ),
+            ),
+            child: ChangeNotifierProvider.value(
+              value: widget.pageManager.notifier,
+              child: Consumer<PageNotifier>(
+                builder: (context, value, _) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  // We use a Listener to avoid gesture detector onPanStart debounce
+                  child: Listener(
+                    onPointerDown: (event) {
+                      if (event.buttons == kPrimaryButton) {
+                        widget.onTap();
+                      }
+                    },
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      // Stop move window detector
+                      onPanStart: (_) {},
+                      child: Container(
+                        constraints: BoxConstraints(
+                          maxWidth: HomeSizes.tabBarWidth,
+                          minWidth: widget.pageManager.isPinned ? 52 : 100,
                         ),
-                        if (widget.pageManager.isPinned) ...[
-                          const FlowySvg(
-                            FlowySvgs.pinned_s,
-                            size: Size.square(16),
-                          ),
-                        ] else ...[
-                          Visibility(
-                            visible: isHovering,
-                            child: SizedBox(
-                              width: 26,
-                              height: 26,
-                              child: FlowyIconButton(
-                                onPressed: () => _closeTab(context),
-                                icon: const FlowySvg(
-                                  FlowySvgs.close_s,
-                                  size: Size.square(22),
-                                ),
+                        height: HomeSizes.tabBarHeight,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: widget.pageManager.notifier.tabBarWidget(
+                                widget.pageManager.plugin.id,
+                                widget.pageManager.isPinned,
                               ),
                             ),
-                          ),
-                        ],
-                      ],
+                            if (!widget.pageManager.isPinned) ...[
+                              Visibility(
+                                visible: isHovering,
+                                child: SizedBox(
+                                  width: 26,
+                                  height: 26,
+                                  child: FlowyIconButton(
+                                    onPressed: () => _closeTab(context),
+                                    icon: const FlowySvg(
+                                      FlowySvgs.close_s,
+                                      size: Size.square(22),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -121,6 +130,17 @@ class _FlowyTabState extends State<FlowyTab> {
   void _closeTab(BuildContext context) => context
       .read<TabsBloc>()
       .add(TabsEvent.closeTab(widget.pageManager.plugin.id));
+
+  Widget _wrapInTooltip(String? viewName, {required Widget child}) {
+    if (viewName != null) {
+      return FlowyTooltip(
+        message: viewName,
+        child: child,
+      );
+    }
+
+    return child;
+  }
 }
 
 @visibleForTesting
@@ -130,11 +150,13 @@ class TabMenu extends StatelessWidget {
     required this.controller,
     required this.pageId,
     required this.isPinned,
+    required this.isAllPinned,
   });
 
   final PopoverController controller;
   final String pageId;
   final bool isPinned;
+  final bool isAllPinned;
 
   @override
   Widget build(BuildContext context) {
@@ -142,15 +164,33 @@ class TabMenu extends StatelessWidget {
       separatorBuilder: () => const VSpace(4),
       mainAxisSize: MainAxisSize.min,
       children: [
-        FlowyButton(
-          text: FlowyText.regular(LocaleKeys.tabMenu_close.tr()),
-          onTap: () => _closeTab(context),
-        ),
-        FlowyButton(
-          text: FlowyText.regular(
-            LocaleKeys.tabMenu_closeOthers.tr(),
+        Opacity(
+          opacity: isPinned ? 0.5 : 1,
+          child: _wrapInTooltip(
+            shouldWrap: isPinned,
+            message: LocaleKeys.tabMenu_closeDisabledHint.tr(),
+            child: FlowyButton(
+              text: FlowyText.regular(LocaleKeys.tabMenu_close.tr()),
+              onTap: () => _closeTab(context),
+              disable: isPinned,
+            ),
           ),
-          onTap: () => _closeOtherTabs(context),
+        ),
+        Opacity(
+          opacity: isAllPinned ? 0.5 : 1,
+          child: _wrapInTooltip(
+            shouldWrap: true,
+            message: isAllPinned
+                ? LocaleKeys.tabMenu_closeOthersDisabledHint.tr()
+                : LocaleKeys.tabMenu_closeOthersHint.tr(),
+            child: FlowyButton(
+              text: FlowyText.regular(
+                LocaleKeys.tabMenu_closeOthers.tr(),
+              ),
+              onTap: () => _closeOtherTabs(context),
+              disable: isAllPinned,
+            ),
+          ),
         ),
         const Divider(height: 0.5),
         FlowyButton(
@@ -165,11 +205,30 @@ class TabMenu extends StatelessWidget {
     );
   }
 
-  void _closeTab(BuildContext context) =>
-      context.read<TabsBloc>().add(TabsEvent.closeTab(pageId));
+  Widget _wrapInTooltip({
+    required bool shouldWrap,
+    String? message,
+    required Widget child,
+  }) {
+    if (shouldWrap) {
+      return FlowyTooltip(
+        message: message,
+        child: child,
+      );
+    }
 
-  void _closeOtherTabs(BuildContext context) =>
-      context.read<TabsBloc>().add(TabsEvent.closeOtherTabs(pageId));
+    return child;
+  }
+
+  void _closeTab(BuildContext context) {
+    context.read<TabsBloc>().add(TabsEvent.closeTab(pageId));
+    controller.close();
+  }
+
+  void _closeOtherTabs(BuildContext context) {
+    context.read<TabsBloc>().add(TabsEvent.closeOtherTabs(pageId));
+    controller.close();
+  }
 
   void _togglePin(BuildContext context) {
     context.read<TabsBloc>().add(TabsEvent.togglePin(pageId));
