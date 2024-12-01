@@ -208,7 +208,17 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
       );
     }
 
-    return child;
+    return Provider.value(
+      value: simpleTableContext,
+      child: MouseRegion(
+        onEnter: (event) =>
+            simpleTableContext.isHoveringOnTableBlock.value = true,
+        onExit: (event) {
+          simpleTableContext.isHoveringOnTableBlock.value = false;
+        },
+        child: child,
+      ),
+    );
   }
 
   Widget _buildTable() {
