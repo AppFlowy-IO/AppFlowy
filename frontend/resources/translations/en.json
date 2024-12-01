@@ -2887,7 +2887,10 @@
   },
   "tabMenu": {
     "close": "Close",
+    "closeDisabledHint": "Cannot close a pinned tab, please unpin first",
     "closeOthers": "Close other tabs",
+    "closeOthersHint": "This will close all unpinned tabs except this one",
+    "closeOthersDisabledHint": "All tabs are pinned, cannot find any tabs to close",
     "favorite": "Favorite",
     "unfavorite": "Unfavorite",
     "favoriteDisabledHint": "Cannot favorite this view",
