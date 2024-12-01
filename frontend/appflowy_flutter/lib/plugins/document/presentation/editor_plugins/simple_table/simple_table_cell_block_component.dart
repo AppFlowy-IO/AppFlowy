@@ -124,7 +124,6 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
           Positioned(
             left: 0,
             right: 0,
-            top: -SimpleTableConstants.tableTopPadding,
             child: _buildColumnMoreActionButton(),
           ),
           Positioned(
@@ -145,21 +144,29 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       return const SizedBox.shrink();
     }
 
-    return ValueListenableBuilder(
-      valueListenable: simpleTableContext!.selectingColumn,
-      builder: (context, selectingColumn, child) {
-        return ValueListenableBuilder(
-          valueListenable: simpleTableContext!.selectingRow,
-          builder: (context, selectingRow, _) {
-            return DecoratedBox(
-              decoration: _buildDecoration(),
-              child: child!,
-            );
-          },
-        );
-      },
-      child: Column(
-        children: node.children.map(_buildCellContent).toList(),
+    return Padding(
+      // add padding to the top of the cell if it is the first row, otherwise the
+      //  column action button is not clickable.
+      // issue: https://github.com/flutter/flutter/issues/75747
+      padding: EdgeInsets.only(
+        top: node.rowIndex == 0 ? SimpleTableConstants.tableTopPadding : 0,
+      ),
+      child: ValueListenableBuilder(
+        valueListenable: simpleTableContext!.selectingColumn,
+        builder: (context, selectingColumn, child) {
+          return ValueListenableBuilder(
+            valueListenable: simpleTableContext!.selectingRow,
+            builder: (context, selectingRow, _) {
+              return DecoratedBox(
+                decoration: _buildDecoration(),
+                child: child!,
+              );
+            },
+          );
+        },
+        child: Column(
+          children: node.children.map(_buildCellContent).toList(),
+        ),
       ),
     );
   }

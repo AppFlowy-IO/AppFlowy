@@ -104,7 +104,8 @@ class SimpleTableConstants {
       addColumnButtonWidth + 2 * SimpleTableConstants.addColumnButtonPadding;
 
   static const tablePadding = EdgeInsets.only(
-    top: tableTopPadding,
+    // don't add padding to the top of the table, the first row will have padding
+    //  to make the column action button clickable.
     bottom: tableBottomPadding,
     left: tableLeftPadding,
     right: tableRightPadding,
