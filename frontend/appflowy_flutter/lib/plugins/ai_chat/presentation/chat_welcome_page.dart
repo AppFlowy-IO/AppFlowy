@@ -180,7 +180,7 @@ class WelcomeSampleQuestion extends StatelessWidget {
   }
 }
 
-class _AutoScrollingSampleQuestions extends StatelessWidget {
+class _AutoScrollingSampleQuestions extends StatefulWidget {
   const _AutoScrollingSampleQuestions({
     super.key,
     required this.questions,
@@ -195,16 +195,28 @@ class _AutoScrollingSampleQuestions extends StatelessWidget {
   final bool reverse;
 
   @override
+  State<_AutoScrollingSampleQuestions> createState() =>
+      _AutoScrollingSampleQuestionsState();
+}
+
+class _AutoScrollingSampleQuestionsState
+    extends State<_AutoScrollingSampleQuestions> {
+  late final scrollController = ScrollController(
+    initialScrollOffset: widget.offset,
+  );
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 36,
       child: InfiniteScrollView(
+        scrollController: scrollController,
         centerKey: UniqueKey(),
-        itemCount: questions.length,
+        itemCount: widget.questions.length,
         itemBuilder: (context, index) {
           return WelcomeSampleQuestion(
-            question: questions[index],
-            onSelected: onSelected,
+            question: widget.questions[index],
+            onSelected: widget.onSelected,
           );
         },
         separatorBuilder: (context, index) => const HSpace(8),
