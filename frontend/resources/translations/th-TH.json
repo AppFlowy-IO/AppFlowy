@@ -253,9 +253,9 @@
     "help": "ช่วยเหลือและสนับสนุน",
     "markdown": "Markdown",
     "debug": {
-      "name": "ข้อมูล debug",
-      "success": "คัดลอกข้อมูล debug ไปยังคลิปบอร์ดแล้ว!",
-      "fail": "คัดลอกข้อมูล debug ไปยังคลิปบอร์ดไม่ได้"
+      "name": "ข้อมูลดีบัก",
+      "success": "คัดลอกข้อมูลดีบักไปยังคลิปบอร์ดแล้ว!",
+      "fail": "ไม่สามารถคัดลอกข้อมูลดีบักไปยังคลิปบอร์ด"
     },
     "feedback": "ข้อเสนอแนะ"
   },
@@ -573,7 +573,7 @@
         "leftToRight": "จากซ้ายไปขวา",
         "rightToLeft": "จากขวาไปซ้าย",
         "auto": "อัตโนมัติ",
-        "enableRTLItems": "เปิดใช้งานรายการเครื่องมือ RTL (จากขวาไปซ้าย)"
+        "enableRTLItems": "เปิดใช้งานแถบเครื่องมือ RTL (จากขวาไปซ้าย)"
       },
       "layoutDirection": {
         "title": "ทิศทางการจัดวาง",
@@ -689,7 +689,7 @@
       },
       "editTooltip": "กดเพื่อเริ่มแก้ไขปุ่มลัด",
       "keybindings": {
-        "toggleToDoList": "สลับรายการสิ่งที่ต้องทำ",
+        "toggleToDoList": "เปิดปิดรายการสิ่งที่ต้องทำ",
         "insertNewParagraphInCodeblock": "แทรกย่อหน้าใหม่",
         "pasteInCodeblock": "วางในโค้ดบล็อค",
         "selectAllCodeblock": "เลือกทั้งหมด",
@@ -733,12 +733,12 @@
         "moveCursorDownSelect": "เลือกและเลื่อนเคอร์เซอร์ลง",
         "home": "เลื่อนไปด้านบน",
         "end": "เลื่อนไปด้านล่าง",
-        "toggleBold": "สลับตัวหนา",
-        "toggleItalic": "สลับตัวเอียง",
-        "toggleUnderline": "สลับขีดเส้นใต้",
-        "toggleStrikethrough": "สลับการขีดฆ่า",
-        "toggleCode": "สลับโค้ดในบรรทัด",
-        "toggleHighlight": "สลับไฮไลท์",
+        "toggleBold": "เปิดปิดตัวหนา",
+        "toggleItalic": "เปิดปิดตัวเอียง",
+        "toggleUnderline": "เปิดปิดขีดเส้นใต้",
+        "toggleStrikethrough": "เปิดปิดการขีดฆ่า",
+        "toggleCode": "เปิดปิดโค้ดในบรรทัด",
+        "toggleHighlight": "เปิดปิดไฮไลท์",
         "showLinkMenu": "แสดงลิงค์เมนู",
         "openInlineLink": "เปิดลิงก์ในบรรทัด",
         "openLinks": "เปิดลิงก์ที่เลือกทั้งหมด",
@@ -911,6 +911,7 @@
           "description": "คุณแน่ใจหรือไม่ว่าต้องการลบ {plan}? คุณจะสูญเสียการเข้าถึงฟีเจอร์ และสิทธิประโยชน์ของ {plan} ทันที"
         }
       },
+      "currentPeriodBadge": "ปัจจุบัน",
       "changePeriod": "การเปลี่ยนแปลงช่วงเวลา",
       "planPeriod": "{} รอบ",
       "monthlyInterval": "รายเดือน",
@@ -1104,7 +1105,8 @@
         "archiveAll": "เก็บถาวรทั้งหมด"
       },
       "emptyInbox": {
-        "title": "กล่องข้อความว่างเปล่า"
+        "title": "กล่องข้อความว่างเปล่า",
+        "description": "ตั้งค่าการเตือนเพื่อรับการแจ้งเตือนที่นี่"
       },
       "emptyUnread": {
         "title": "ไม่มีการแจ้งเตือนที่ยังไม่ได้อ่าน",
@@ -1198,6 +1200,7 @@
         "twentyFourHour": "ยี่สิบสี่ชั่วโมง"
       },
       "showNamingDialogWhenCreatingPage": "แสดงกล่องโต้ตอบการตั้งชื่อเมื่อสร้างหน้า",
+      "enableRTLToolbarItems": "เปิดใช้งานแถบเครื่องมือ RTL (จากขวาไปซ้าย)",
       "members": {
         "title": "การตั้งค่าสมาชิก",
         "inviteMembers": "ส่งคำเชิญสมาชิก",
@@ -1484,6 +1487,7 @@
       "clearFieldPromptMessage": "คุณแน่ใจหรือไม่ฦ เซลล์ทั้งหมดในคอลัมน์นี้จะถูกล้างข้อมูล",
       "newColumn": "คอลัมน์ใหม่",
       "format": "รูปแบบ",
+      "reminderOnDateTooltip": "เซลล์นี้มีการตั้งค่าการเตือนในวันที่กำหนด",
       "optionAlreadyExist": "ตัวเลือกมีอยู่แล้ว"
     },
     "rowPage": {
@@ -1510,6 +1514,7 @@
       "cannotFindCreatableField": "ไม่พบฟิลด์ที่เหมาะสมในการเรียงลำดับ",
       "deleteAllSorts": "ลบการเรียงลำดับทั้งหมด",
       "addSort": "เพิ่มการเรียงลำดับ",
+      "sortsActive": "ไม่สามารถ {intention} ขณะทำการจัดเรียง",
       "removeSorting": "คุณต้องการลบการจัดเรียงทั้งหมดในมุมมองนี้ และดำเนินการต่อหรือไม่?",
       "fieldInUse": "คุณกำลังเรียงลำดับตามฟิลด์นี้อยู่แล้ว"
     },
@@ -1591,7 +1596,9 @@
       "sum": "ผลรวม",
       "count": "นับ",
       "countEmpty": "นับที่ว่าง",
-      "countNonEmpty": "นับที่ไม่ว่าง"
+      "countEmptyShort": "ว่างเปล่า",
+      "countNonEmpty": "นับที่ไม่ว่าง",
+      "countNonEmptyShort": "เติมแล้ว"
     },
     "media": {
       "rename": "เปลี่ยนชื่อ",
@@ -1658,12 +1665,13 @@
         "outline": "โครงร่าง",
         "mathEquation": "สมการคณิตศาสตร์",
         "code": "โค้ด",
-        "toggleList": "สลับรายการ",
-        "toggleHeading1": "สลับหัวข้อ 1",
-        "toggleHeading2": "สลับหัวข้อ 2",
-        "toggleHeading3": "สลับหัวข้อ 3",
+        "toggleList": "ตัวเปิดปิดรายการ",
+        "toggleHeading1": "ตัวเปิดปิดหัวข้อ 1",
+        "toggleHeading2": "ตัวเปิดปิดหัวข้อ 2",
+        "toggleHeading3": "ตัวเปิดปิดหัวข้อ 3",
         "emoji": "อิโมจิ",
         "aiWriter": "นักเขียน AI",
+        "dateOrReminder": "วันที่หรือการเตือน",
         "photoGallery": "แกลอรี่รูปภาพ",
         "file": "ไฟล์"
       },
@@ -1671,6 +1679,7 @@
         "name": "เอกสาร",
         "keyword1": "หน้าย่อย",
         "keyword2": "หน้า",
+        "keyword3": "หน้าย่อย",
         "keyword4": "แทรกหน้า",
         "keyword5": "ฝังหน้า",
         "keyword6": "หน้าใหม่",
@@ -1710,7 +1719,9 @@
       "fonts": "แบบอักษร",
       "insertDate": "ใส่วันที่",
       "emoji": "อิโมจิ",
-      "toggleList": "สลับรายการ",
+      "toggleList": "ตัวเปิดปิดรายการ",
+      "emptyToggleHeading": "ตัวเปิดปิด h{} ว่างเปล่า คลิกเพื่อเพิ่มเนื้อหา",
+      "emptyToggleList": "ตัวเปิดปิดรายการว่างเปล่า คลิกเพื่อเพิ่มเนื้อหา",
       "quoteList": "รายการคำกล่าว",
       "numberedList": "รายการลำดับตัวเลข",
       "bulletedList": "รายการลำดับหัวข้อย่อย",
@@ -1816,7 +1827,8 @@
         "convertToLink": "แปลงเป็นลิงค์ฝัง"
       },
       "outline": {
-        "addHeadingToCreateOutline": "เพิ่มหัวข้อเพื่อสร้างสารบัญ"
+        "addHeadingToCreateOutline": "เพิ่มหัวข้อเพื่อสร้างสารบัญ",
+        "noMatchHeadings": "ไม่พบหัวข้อที่ตรงกัน"
       },
       "table": {
         "addAfter": "เพิ่มหลัง",
@@ -1845,7 +1857,10 @@
         "label": "วีดีโอ",
         "emptyLabel": "เพิ่มวิดีโอ",
         "placeholder": "วางลิงค์วิดีโอ",
+        "copiedToPasteBoard": "คัดลอกลิงก์วิดีโอไปยังคลิปบอร์ดแล้ว",
         "insertVideo": "เพิ่มวีดีโอ",
+        "invalidVideoUrl": "URL แหล่งที่มายังไม่รองรับในขณะนี้",
+        "invalidVideoUrlYouTube": "YouTube ยังไม่รองรับ",
         "supportedFormats": "รูปแบบที่รองรับ: MP4, WebM, MOV, AVI, FLV, MPEG/M4V, H.264"
       },
       "file": {
@@ -1881,7 +1896,8 @@
           "failedDuplicatePage": "ทำสำเนาหน้าไม่สำเร็จ",
           "failedDuplicateFindView": "ทำสำเนาหน้าไม่สำเร็จ - ไม่พบมุมมองต้นฉบับ"
         }
-      }
+      },
+      "cannotMoveToItsChildren": "ไม่สามารถย้ายไปยังหน้าย่อยได้"
     },
     "outlineBlock": {
       "placeholder": "สารบัญ"
@@ -2292,9 +2308,9 @@
     "link": "ลิงก์",
     "numberedList": "รายการลำดับตัวเลข",
     "numberedListShortForm": "แบบระบุหมายเลข",
-    "toggleHeading1ShortForm": "สลับหัวข้อ h1",
-    "toggleHeading2ShortForm": "สลับหัวข้อ h2",
-    "toggleHeading3ShortForm": "สลับหัวข้อ h3",
+    "toggleHeading1ShortForm": "ตัวเปิดปิดหัวข้อ h1",
+    "toggleHeading2ShortForm": "ตัวเปิดปิดหัวข้อ h2",
+    "toggleHeading3ShortForm": "ตัวเปิดปิดหัวข้อ h3",
     "quote": "คำกล่าว",
     "strikethrough": "ขีดฆ่า",
     "text": "ข้อความ",
