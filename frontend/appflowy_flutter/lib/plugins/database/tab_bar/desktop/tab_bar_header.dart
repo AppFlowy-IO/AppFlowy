@@ -219,9 +219,7 @@ class TabBarItemButton extends StatelessWidget {
               color: color,
             ),
             text: FlowyText(
-              view.name.isEmpty
-                  ? LocaleKeys.document_title_placeholder.tr()
-                  : view.name,
+              view.nameOrDefault,
               lineHeight: 1.0,
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
@@ -236,9 +234,7 @@ class TabBarItemButton extends StatelessWidget {
           case TabBarViewAction.rename:
             NavigatorTextFieldDialog(
               title: LocaleKeys.menuAppHeader_renameDialog.tr(),
-              value: view.name.isEmpty
-                  ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
-                  : view.name,
+              value: view.nameOrDefault,
               onConfirm: (newValue, _) {
                 context.read<DatabaseTabBarBloc>().add(
                       DatabaseTabBarEvent.renameView(view.id, newValue),

@@ -105,9 +105,7 @@ class _NavigatorTextFieldDialogState extends State<NavigatorTextFieldDialog> {
   @override
   void initState() {
     super.initState();
-    newValue = widget.value.isEmpty
-        ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
-        : widget.value;
+    newValue = widget.value;
     controller.text = newValue;
     if (widget.autoSelectAllText) {
       controller.selection = TextSelection(

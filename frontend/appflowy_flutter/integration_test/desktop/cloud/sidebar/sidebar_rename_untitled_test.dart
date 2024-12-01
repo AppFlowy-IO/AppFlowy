@@ -25,7 +25,7 @@ void main() {
       layout: ViewLayoutPB.Document,
     );
 
-    // click the ... button and move to Getting started
+    // click the ... button and open rename dialog
     await tester.hoverOnPageName(
       LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
       onHover: () async {
