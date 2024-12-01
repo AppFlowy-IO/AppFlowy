@@ -1,6 +1,9 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view_title/view_title_bar_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
@@ -235,7 +238,7 @@ class _ChatMentionPageListState extends State<ChatMentionPageList> {
                   index: index,
                   controller: autoScrollController,
                   child: _ChatMentionPageItem(
-                    item: view,
+                    view: view,
                     onTap: () => widget.onPageSelected(view),
                     isSelected: focusedViewIndex == index,
                   ),
@@ -252,19 +255,19 @@ class _ChatMentionPageListState extends State<ChatMentionPageList> {
 
 class _ChatMentionPageItem extends StatelessWidget {
   const _ChatMentionPageItem({
-    required this.item,
+    required this.view,
     required this.isSelected,
     required this.onTap,
   });
 
-  final ViewPB item;
+  final ViewPB view;
   final bool isSelected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return FlowyTooltip(
-      message: item.name,
+      message: view.name,
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
@@ -281,33 +284,133 @@ class _ChatMentionPageItem extends StatelessWidget {
             padding: const EdgeInsets.all(4.0),
             child: Row(
               children: [
-                item.defaultIcon(),
+                _buildIcon(context, view),
                 const HSpace(8.0),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      FlowyText(
-                        item.name.isEmpty
-                            ? LocaleKeys.document_title_placeholder.tr()
-                            : item.name,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      FlowyText(
-                        item.name.isEmpty
-                            ? LocaleKeys.document_title_placeholder.tr()
-                            : item.name,
-                        color: Theme.of(context).hintColor,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
+                Expanded(child: _ViewTitleAndAncestors(view: view)),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildIcon(BuildContext context, ViewPB view) {
+    final spaceIcon = view.buildSpaceIconSvg(context);
+
+    if (view.icon.value.isNotEmpty) {
+      return FlowyText.emoji(
+        view.icon.value,
+        fontSize: 14.0,
+        figmaLineHeight: 18.0,
+      );
+    }
+
+    if (view.isSpace == true && spaceIcon != null) {
+      return SpaceIcon(
+        dimension: 16.0,
+        svgSize: 9.68,
+        space: view,
+        cornerRadius: 4,
+      );
+    }
+
+    return FlowySvg(
+      view.layout.icon,
+      size: const Size.square(16),
+      color: Theme.of(context).hintColor,
+    );
+  }
+}
+
+class _ViewTitleAndAncestors extends StatelessWidget {
+  const _ViewTitleAndAncestors({
+    required this.view,
+  });
+
+  final ViewPB view;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) =>
+          ViewTitleBarBloc(view: view)..add(const ViewTitleBarEvent.initial()),
+      child: BlocBuilder<ViewTitleBarBloc, ViewTitleBarState>(
+        builder: (context, state) {
+          final nonEmptyName = view.name.isEmpty
+              ? LocaleKeys.document_title_placeholder.tr()
+              : view.name;
+
+          final ancestorList = _getViewAncestorList(state.ancestors);
+
+          if (state.ancestors.isEmpty || ancestorList.trim().isEmpty) {
+            return FlowyText(
+              nonEmptyName,
+              overflow: TextOverflow.ellipsis,
+            );
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FlowyText(
+                nonEmptyName,
+                figmaLineHeight: 20.0,
+                overflow: TextOverflow.ellipsis,
+              ),
+              FlowyText(
+                ancestorList,
+                fontSize: 12.0,
+                figmaLineHeight: 16.0,
+                color: Theme.of(context).hintColor,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  /// see workspace/presentation/widgets/view_title_bar.dart, upon which this
+  /// function was based. This version doesn't include the current view in the
+  /// result, and returns a string rather than a list of widgets
+  String _getViewAncestorList(
+    List<ViewPB> views,
+  ) {
+    const lowerBound = 2;
+    final upperBound = views.length - 2;
+    bool hasAddedEllipsis = false;
+    String result = "";
+
+    if (views.length <= 1) {
+      return "";
+    }
+
+    // ignore the workspace name, use section name instead in the future
+    // skip the workspace view
+    for (var i = 1; i < views.length - 1; i++) {
+      final view = views[i];
+
+      if (i >= lowerBound && i < upperBound) {
+        if (!hasAddedEllipsis) {
+          hasAddedEllipsis = true;
+          result += "… / ";
+        }
+        continue;
+      }
+
+      final nonEmptyName = view.name.isEmpty
+          ? LocaleKeys.document_title_placeholder.tr()
+          : view.name;
+
+      result += nonEmptyName;
+
+      if (i != views.length - 2) {
+        // if not the last one, add a divider
+        result += " / ";
+      }
+    }
+    return result;
   }
 }
