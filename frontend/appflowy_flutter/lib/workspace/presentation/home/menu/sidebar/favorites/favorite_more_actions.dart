@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
@@ -43,7 +44,7 @@ class FavoriteMoreActions extends StatelessWidget {
               NavigatorTextFieldDialog(
                 title: LocaleKeys.disclosureAction_rename.tr(),
                 autoSelectAllText: true,
-                value: view.name,
+                value: view.nameOrDefault,
                 maxLength: 256,
                 onConfirm: (newValue, _) {
                   // can not use bloc here because it has been disposed.

@@ -26,7 +26,7 @@ Future<void> createViewAndShowRenameDialogIfNeeded(
   if (context.mounted && showRenameDialog) {
     await NavigatorTextFieldDialog(
       title: dialogTitle,
-      value: defaultName,
+      value: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
       autoSelectAllText: true,
       onConfirm: createView,
     ).show(context);
