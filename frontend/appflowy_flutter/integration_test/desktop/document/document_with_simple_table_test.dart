@@ -26,7 +26,7 @@ void main() {
       );
 
       await tester.editor.tapLineOfEditorAt(0);
-      await insertTableInDocument(tester);
+      await tester.insertTableInDocument();
 
       // validate the table is inserted
       expect(find.byType(SimpleTableBlockWidget), findsOneWidget);
@@ -62,7 +62,7 @@ void main() {
       await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
       await tester.pumpAndSettle();
       await tester.editor.tapLineOfEditorAt(1);
-      await insertTableInDocument(tester);
+      await tester.insertTableInDocument();
       await tester.ime.insertText(cell1Content);
       await tester.pumpAndSettle();
       // Select all in the cell
@@ -113,7 +113,7 @@ void main() {
       );
 
       await tester.editor.tapLineOfEditorAt(0);
-      await insertTableInDocument(tester);
+      await tester.insertTableInDocument();
 
       // hover on the table
       final tableBlock = find.byType(SimpleTableBlockWidget).first;
@@ -142,44 +142,20 @@ void main() {
       expect(tableNode.rowLength, 4);
 
       // delete the last row
-      final lastRow = find.byWidgetPredicate((w) {
-        return w is SimpleTableRowBlockWidget &&
-            w.node.rowIndex == tableNode.rowLength - 1;
-      });
-      await tester.hoverOnWidget(
-        lastRow,
-        onHover: () async {
-          // click the more action button
-          final moreActionButton = find.byWidgetPredicate((w) {
-            return w is SimpleTableMoreActionMenu &&
-                w.type == SimpleTableMoreActionType.row &&
-                w.index == tableNode.rowLength - 1;
-          });
-          await tester.tapButton(moreActionButton);
-          await tester.tapButton(find.text(SimpleTableMoreAction.delete.name));
-        },
+      await tester.clickMoreActionItemInTableMenu(
+        type: SimpleTableMoreActionType.row,
+        index: tableNode.rowLength - 1,
+        action: SimpleTableMoreAction.delete,
       );
       await tester.pumpAndSettle();
-
       expect(tableNode.rowLength, 3);
       expect(tableNode.columnLength, 4);
 
       // delete the last column
-      final lastColumn = find.byWidgetPredicate((w) {
-        return w is SimpleTableCellBlockWidget &&
-            w.node.columnIndex == tableNode.columnLength - 1;
-      }).first;
-      await tester.hoverOnWidget(
-        lastColumn,
-        onHover: () async {
-          final moreActionButton = find.byWidgetPredicate((w) {
-            return w is SimpleTableMoreActionMenu &&
-                w.type == SimpleTableMoreActionType.column &&
-                w.index == tableNode.columnLength - 1;
-          });
-          await tester.tapButton(moreActionButton);
-          await tester.tapButton(find.text(SimpleTableMoreAction.delete.name));
-        },
+      await tester.clickMoreActionItemInTableMenu(
+        type: SimpleTableMoreActionType.column,
+        index: tableNode.columnLength - 1,
+        action: SimpleTableMoreAction.delete,
       );
       await tester.pumpAndSettle();
 
@@ -195,47 +171,20 @@ void main() {
       );
 
       await tester.editor.tapLineOfEditorAt(0);
-      await insertTableInDocument(tester);
+      await tester.insertTableInDocument();
 
-      // hover on the first row
-      final firstRow = find.byWidgetPredicate((w) {
-        return w is SimpleTableRowBlockWidget && w.node.rowIndex == 0;
-      });
-      await tester.hoverOnWidget(
-        firstRow,
-        onHover: () async {
-          final moreActionButton = find.byWidgetPredicate((w) {
-            return w is SimpleTableMoreActionMenu &&
-                w.type == SimpleTableMoreActionType.row &&
-                w.index == 0;
-          });
-          await tester.tapButton(moreActionButton);
-          await tester.tapButton(
-            find.text(SimpleTableMoreAction.enableHeaderRow.name),
-          );
-        },
+      // enable the header row
+      await tester.clickMoreActionItemInTableMenu(
+        type: SimpleTableMoreActionType.row,
+        index: 0,
+        action: SimpleTableMoreAction.enableHeaderRow,
       );
       await tester.pumpAndSettle();
-      // cancel the popup
-      await tester.tapAt(Offset.zero);
-
-      // hover on the first column
-      final firstColumn = find.byWidgetPredicate((w) {
-        return w is SimpleTableCellBlockWidget && w.node.columnIndex == 0;
-      }).first;
-      await tester.hoverOnWidget(
-        firstColumn,
-        onHover: () async {
-          final moreActionButton = find.byWidgetPredicate((w) {
-            return w is SimpleTableMoreActionMenu &&
-                w.type == SimpleTableMoreActionType.column &&
-                w.index == 0;
-          });
-          await tester.tapButton(moreActionButton);
-          await tester.tapButton(
-            find.text(SimpleTableMoreAction.enableHeaderColumn.name),
-          );
-        },
+      // enable the header column
+      await tester.clickMoreActionItemInTableMenu(
+        type: SimpleTableMoreActionType.column,
+        index: 0,
+        action: SimpleTableMoreAction.enableHeaderColumn,
       );
       await tester.pumpAndSettle();
 
@@ -244,16 +193,178 @@ void main() {
 
       expect(tableNode.isHeaderColumnEnabled, isTrue);
       expect(tableNode.isHeaderRowEnabled, isTrue);
+
+      // disable the header row
+      await tester.clickMoreActionItemInTableMenu(
+        type: SimpleTableMoreActionType.row,
+        index: 0,
+        action: SimpleTableMoreAction.enableHeaderRow,
+      );
+      await tester.pumpAndSettle();
+      expect(tableNode.isHeaderColumnEnabled, isTrue);
+      expect(tableNode.isHeaderRowEnabled, isFalse);
+
+      // disable the header column
+      await tester.clickMoreActionItemInTableMenu(
+        type: SimpleTableMoreActionType.column,
+        index: 0,
+        action: SimpleTableMoreAction.enableHeaderColumn,
+      );
+      await tester.pumpAndSettle();
+      expect(tableNode.isHeaderColumnEnabled, isFalse);
+      expect(tableNode.isHeaderRowEnabled, isFalse);
+    });
+
+    testWidgets('duplicate a column / row', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+      await tester.createNewPageWithNameUnderParent(
+        name: 'simple_table_test',
+      );
+
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.insertTableInDocument();
+
+      // duplicate the row
+      await tester.clickMoreActionItemInTableMenu(
+        type: SimpleTableMoreActionType.row,
+        index: 0,
+        action: SimpleTableMoreAction.duplicate,
+      );
+      await tester.pumpAndSettle();
+
+      // duplicate the column
+      await tester.clickMoreActionItemInTableMenu(
+        type: SimpleTableMoreActionType.column,
+        index: 0,
+        action: SimpleTableMoreAction.duplicate,
+      );
+      await tester.pumpAndSettle();
+
+      final tableNode =
+          tester.editor.getCurrentEditorState().document.nodeAtPath([0])!;
+      expect(tableNode.columnLength, 3);
+      expect(tableNode.rowLength, 3);
+    });
+
+    testWidgets('insert left / insert right', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+      await tester.createNewPageWithNameUnderParent(
+        name: 'simple_table_test',
+      );
+
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.insertTableInDocument();
+
+      // insert left
+      await tester.clickMoreActionItemInTableMenu(
+        type: SimpleTableMoreActionType.column,
+        index: 0,
+        action: SimpleTableMoreAction.insertLeft,
+      );
+      await tester.pumpAndSettle();
+
+      // insert right
+      await tester.clickMoreActionItemInTableMenu(
+        type: SimpleTableMoreActionType.column,
+        index: 0,
+        action: SimpleTableMoreAction.insertRight,
+      );
+      await tester.pumpAndSettle();
+
+      final tableNode =
+          tester.editor.getCurrentEditorState().document.nodeAtPath([0])!;
+      expect(tableNode.columnLength, 4);
+      expect(tableNode.rowLength, 2);
+    });
+
+    testWidgets('insert above / insert below', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+      await tester.createNewPageWithNameUnderParent(
+        name: 'simple_table_test',
+      );
+
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.insertTableInDocument();
+
+      // insert above
+      await tester.clickMoreActionItemInTableMenu(
+        type: SimpleTableMoreActionType.row,
+        index: 0,
+        action: SimpleTableMoreAction.insertAbove,
+      );
+      await tester.pumpAndSettle();
+
+      // insert below
+      await tester.clickMoreActionItemInTableMenu(
+        type: SimpleTableMoreActionType.row,
+        index: 0,
+        action: SimpleTableMoreAction.insertBelow,
+      );
+      await tester.pumpAndSettle();
+
+      final tableNode =
+          tester.editor.getCurrentEditorState().document.nodeAtPath([0])!;
+      expect(tableNode.rowLength, 4);
+      expect(tableNode.columnLength, 2);
     });
   });
 }
 
-/// Insert a table in the document
-Future<void> insertTableInDocument(WidgetTester tester) async {
-  // open the actions menu and insert the outline block
-  await tester.editor.showSlashMenu();
-  await tester.editor.tapSlashMenuItemWithName(
-    LocaleKeys.document_slashMenu_name_table.tr(),
-  );
-  await tester.pumpAndSettle();
+extension on WidgetTester {
+  /// Insert a table in the document
+  Future<void> insertTableInDocument() async {
+    // open the actions menu and insert the outline block
+    await editor.showSlashMenu();
+    await editor.tapSlashMenuItemWithName(
+      LocaleKeys.document_slashMenu_name_table.tr(),
+    );
+    await pumpAndSettle();
+  }
+
+  Future<void> clickMoreActionItemInTableMenu({
+    required SimpleTableMoreActionType type,
+    required int index,
+    required SimpleTableMoreAction action,
+  }) async {
+    if (type == SimpleTableMoreActionType.row) {
+      final row = find.byWidgetPredicate((w) {
+        return w is SimpleTableRowBlockWidget && w.node.rowIndex == index;
+      });
+      await hoverOnWidget(
+        row,
+        onHover: () async {
+          final moreActionButton = find.byWidgetPredicate((w) {
+            return w is SimpleTableMoreActionMenu &&
+                w.type == SimpleTableMoreActionType.row &&
+                w.index == index;
+          });
+          await tapButton(moreActionButton);
+          await tapButton(find.text(action.name));
+        },
+      );
+      await pumpAndSettle();
+    } else if (type == SimpleTableMoreActionType.column) {
+      final column = find.byWidgetPredicate((w) {
+        return w is SimpleTableCellBlockWidget && w.node.columnIndex == index;
+      }).first;
+      await hoverOnWidget(
+        column,
+        onHover: () async {
+          final moreActionButton = find.byWidgetPredicate((w) {
+            return w is SimpleTableMoreActionMenu &&
+                w.type == SimpleTableMoreActionType.column &&
+                w.index == index;
+          });
+          await tapButton(moreActionButton);
+          await tapButton(find.text(action.name));
+        },
+      );
+      await pumpAndSettle();
+    }
+
+    await tapAt(Offset.zero);
+  }
 }
