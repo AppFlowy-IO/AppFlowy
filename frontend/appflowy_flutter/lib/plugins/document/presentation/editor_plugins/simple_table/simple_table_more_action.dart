@@ -166,6 +166,7 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
               return child!;
             },
             child: SimpleTableMoreActionPopup(
+              key: ValueKey(widget.type.name + widget.index.toString()),
               index: widget.index,
               isShowingMenu: this.isShowingMenu,
               type: widget.type,

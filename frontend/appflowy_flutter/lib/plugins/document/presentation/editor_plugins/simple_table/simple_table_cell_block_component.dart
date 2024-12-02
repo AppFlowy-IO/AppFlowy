@@ -80,7 +80,7 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   late SimpleTableContext? simpleTableContext =
       context.read<SimpleTableContext?>();
 
-  bool isEditing = false;
+  ValueNotifier<bool> isEditingCellNotifier = ValueNotifier(false);
 
   @override
   void initState() {
@@ -102,6 +102,7 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     );
     node.parentTableNode?.removeListener(_onSelectingTableChanged);
     editorState.selectionNotifier.removeListener(_onSelectionChanged);
+    isEditingCellNotifier.dispose();
 
     super.dispose();
   }
@@ -155,22 +156,27 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       padding: EdgeInsets.only(
         top: node.rowIndex == 0 ? SimpleTableConstants.tableTopPadding : 0,
       ),
-      child: ValueListenableBuilder(
-        valueListenable: simpleTableContext!.selectingColumn,
-        builder: (context, selectingColumn, child) {
+      child: ValueListenableBuilder<bool>(
+        valueListenable: isEditingCellNotifier,
+        builder: (context, isEditingCell, child) {
           return ValueListenableBuilder(
-            valueListenable: simpleTableContext!.selectingRow,
-            builder: (context, selectingRow, _) {
-              return DecoratedBox(
-                decoration: _buildDecoration(),
-                child: child!,
+            valueListenable: simpleTableContext!.selectingColumn,
+            builder: (context, selectingColumn, child) {
+              return ValueListenableBuilder(
+                valueListenable: simpleTableContext!.selectingRow,
+                builder: (context, selectingRow, _) {
+                  return DecoratedBox(
+                    decoration: _buildDecoration(),
+                    child: child!,
+                  );
+                },
               );
             },
+            child: Column(
+              children: node.children.map(_buildCellContent).toList(),
+            ),
           );
         },
-        child: Column(
-          children: node.children.map(_buildCellContent).toList(),
-        ),
       ),
     );
   }
@@ -279,7 +285,7 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       return _buildColumnBorder();
     } else if (isCellInSelectedRow) {
       return _buildRowBorder();
-    } else if (isEditing) {
+    } else if (isEditingCellNotifier.value) {
       return _buildEditingBorder();
     } else {
       return _buildCellBorder();
@@ -409,19 +415,15 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   }
 
   void _onSelectionChanged() {
-    if (mounted) {
-      setState(() {
-        final selection = editorState.selection;
+    final selection = editorState.selection;
 
-        // check if the selection is in the cell
-        if (selection != null &&
-            node.path.isAncestorOf(selection.start.path) &&
-            node.path.isAncestorOf(selection.end.path)) {
-          isEditing = true;
-        } else {
-          isEditing = false;
-        }
-      });
+    // check if the selection is in the cell
+    if (selection != null &&
+        node.path.isAncestorOf(selection.start.path) &&
+        node.path.isAncestorOf(selection.end.path)) {
+      isEditingCellNotifier.value = true;
+    } else {
+      isEditingCellNotifier.value = false;
     }
   }
 }

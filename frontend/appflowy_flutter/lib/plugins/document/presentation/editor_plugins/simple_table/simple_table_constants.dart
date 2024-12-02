@@ -4,7 +4,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
-const enableTableDebugLog = false;
+const enableTableDebugLog = true;
 
 class SimpleTableContext {
   SimpleTableContext() {
