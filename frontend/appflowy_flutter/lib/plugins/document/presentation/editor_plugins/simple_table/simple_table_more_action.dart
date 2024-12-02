@@ -303,11 +303,13 @@ class SimpleTableMoreActionList extends StatelessWidget {
     required this.type,
     required this.index,
     required this.tableCellNode,
+    this.mutex,
   });
 
   final SimpleTableMoreActionType type;
   final int index;
   final Node tableCellNode;
+  final PopoverMutex? mutex;
 
   @override
   Widget build(BuildContext context) {

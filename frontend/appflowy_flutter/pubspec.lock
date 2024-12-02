@@ -61,8 +61,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "14bbc2e"
-      resolved-ref: "14bbc2e660bc78868308936284623915545d4aa6"
+      ref: "817c965"
+      resolved-ref: "817c965f26804efc09ecf97b1fb9d7d4e139ef4b"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "4.0.0"
@@ -434,6 +434,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.10"
+  defer_pointer:
+    dependency: "direct main"
+    description:
+      name: defer_pointer
+      sha256: d69e6f8c1d0f052d2616cc1db3782e0ea73f42e4c6f6122fd1a548dfe79faf02
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   desktop_drop:
     dependency: "direct main"
     description:

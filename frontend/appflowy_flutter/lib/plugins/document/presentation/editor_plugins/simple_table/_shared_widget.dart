@@ -636,6 +636,7 @@ class _SimpleTableBackgroundColorMenuState
 
   @override
   Widget build(BuildContext context) {
+    final theme = AFThemeExtension.of(context);
     final backgroundColor = switch (widget.type) {
       SimpleTableMoreActionType.row =>
         widget.tableCellNode.buildRowColor(context),
@@ -650,7 +651,8 @@ class _SimpleTableBackgroundColorMenuState
         isOpen = true;
         return _buildColorOptionMenu(
           context,
-          controller,
+          controller: controller,
+          theme: theme,
         );
       },
       onClose: () => isOpen = false,
@@ -673,9 +675,10 @@ class _SimpleTableBackgroundColorMenuState
   }
 
   Widget _buildColorOptionMenu(
-    BuildContext context,
-    PopoverController controller,
-  ) {
+    BuildContext context, {
+    required PopoverController controller,
+    required AFThemeExtension theme,
+  }) {
     final colors = [
       // reset to default background color
       FlowyColorOption(
@@ -685,7 +688,7 @@ class _SimpleTableBackgroundColorMenuState
       ),
       ...FlowyTint.values.map(
         (e) => FlowyColorOption(
-          color: e.color(context),
+          color: e.color(context, theme: theme),
           i18n: e.tintName(AppFlowyEditorL10n.current),
           id: e.id,
         ),
@@ -695,7 +698,7 @@ class _SimpleTableBackgroundColorMenuState
     return FlowyColorPicker(
       colors: colors,
       border: Border.all(
-        color: AFThemeExtension.of(context).onBackground,
+        color: theme.onBackground,
       ),
       onTap: (option, index) {
         switch (widget.type) {

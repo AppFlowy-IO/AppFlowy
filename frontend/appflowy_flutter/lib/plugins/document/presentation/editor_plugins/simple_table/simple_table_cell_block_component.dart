@@ -128,7 +128,7 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
           ),
           Positioned(
             right: 0,
-            top: 0,
+            top: node.rowIndex == 0 ? SimpleTableConstants.tableTopPadding : 0,
             bottom: 0,
             child: SimpleTableColumnResizeHandle(
               node: node,

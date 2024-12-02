@@ -248,16 +248,17 @@ enum FlowyTint {
     return null;
   }
 
-  Color color(BuildContext context) => switch (this) {
-        FlowyTint.tint1 => AFThemeExtension.of(context).tint1,
-        FlowyTint.tint2 => AFThemeExtension.of(context).tint2,
-        FlowyTint.tint3 => AFThemeExtension.of(context).tint3,
-        FlowyTint.tint4 => AFThemeExtension.of(context).tint4,
-        FlowyTint.tint5 => AFThemeExtension.of(context).tint5,
-        FlowyTint.tint6 => AFThemeExtension.of(context).tint6,
-        FlowyTint.tint7 => AFThemeExtension.of(context).tint7,
-        FlowyTint.tint8 => AFThemeExtension.of(context).tint8,
-        FlowyTint.tint9 => AFThemeExtension.of(context).tint9,
+  Color color(BuildContext context, {AFThemeExtension? theme}) =>
+      switch (this) {
+        FlowyTint.tint1 => theme?.tint1 ?? AFThemeExtension.of(context).tint1,
+        FlowyTint.tint2 => theme?.tint2 ?? AFThemeExtension.of(context).tint2,
+        FlowyTint.tint3 => theme?.tint3 ?? AFThemeExtension.of(context).tint3,
+        FlowyTint.tint4 => theme?.tint4 ?? AFThemeExtension.of(context).tint4,
+        FlowyTint.tint5 => theme?.tint5 ?? AFThemeExtension.of(context).tint5,
+        FlowyTint.tint6 => theme?.tint6 ?? AFThemeExtension.of(context).tint6,
+        FlowyTint.tint7 => theme?.tint7 ?? AFThemeExtension.of(context).tint7,
+        FlowyTint.tint8 => theme?.tint8 ?? AFThemeExtension.of(context).tint8,
+        FlowyTint.tint9 => theme?.tint9 ?? AFThemeExtension.of(context).tint9,
       };
 
   String get id => switch (this) {
