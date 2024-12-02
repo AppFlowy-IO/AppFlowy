@@ -57,7 +57,7 @@ function Database ({
   variant = UIVariant.App,
   scrollLeft,
   isDocumentBlock,
-  showActions = true,
+  showActions,
 }: Database2Props) {
   const database = doc.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.database) as YDatabase;
   const view = database.get(YjsDatabaseKey.views).get(iidIndex);
