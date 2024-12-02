@@ -4,7 +4,7 @@ import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtil
 import { MathEquationBlockData } from '@/application/types';
 import { MathEquationNode } from '@/components/editor/editor.type';
 import { Button, TextField } from '@mui/material';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NodeEntry } from 'slate';
 import { useSlateStatic } from 'slate-react';
@@ -44,19 +44,32 @@ function MathEquationPopoverContent ({
     setFormula(node.data?.formula || '');
   }, [blockId, editor]);
 
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+
   return (
     <div className={'flex flex-col p-4 gap-3 w-[560px] max-w-[964px]'}>
       <TextField
+        inputRef={(input: HTMLTextAreaElement) => {
+          if (!input) return;
+          if (!inputRef.current) {
+            setTimeout(() => {
+              input.setSelectionRange(0, input.value.length);
+            }, 50);
+            inputRef.current = input;
+          }
+
+        }}
         rows={4}
         multiline
         fullWidth
+        autoFocus={true}
         value={formula}
         onChange={(e) => setFormula(e.target.value)}
         placeholder={`E.g. x^2 + y^2 = z^2`}
         autoComplete={'off'}
         spellCheck={false}
         onKeyDown={e => {
-          if (e.key === 'Enter') {
+          if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSave(formula);
           }
