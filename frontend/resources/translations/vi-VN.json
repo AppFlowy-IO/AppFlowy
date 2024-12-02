@@ -2276,9 +2276,9 @@
     "unsplash": "Bỏ qua",
     "pageCover": "Trang bìa",
     "none": "Không có",
-    "photoPermissionDescription": "Cho phép truy cập vào thư viện ảnh để tải ảnh lên.",
     "openSettings": "Mở Cài đặt",
     "photoPermissionTitle": "@:appName muốn truy cập vào thư viện ảnh của bạn",
+    "photoPermissionDescription": "Cho phép truy cập vào thư viện ảnh để tải ảnh lên.",
     "doNotAllow": "Không cho phép",
     "image": "Hình ảnh"
   },

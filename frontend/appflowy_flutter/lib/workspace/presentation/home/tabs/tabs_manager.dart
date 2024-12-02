@@ -25,6 +25,8 @@ class TabsManager extends StatelessWidget {
               return const SizedBox.shrink();
             }
 
+            final isAllPinned = state.isAllPinned;
+
             return Container(
               alignment: Alignment.bottomLeft,
               height: HomeSizes.tabBarHeight,
@@ -43,6 +45,7 @@ class TabsManager extends StatelessWidget {
                           key: ValueKey('tab-${pm.plugin.id}'),
                           pageManager: pm,
                           isCurrent: state.currentPageManager == pm,
+                          isAllPinned: isAllPinned,
                           onTap: () {
                             if (state.currentPageManager != pm) {
                               final index = state.pageManagers.indexOf(pm);

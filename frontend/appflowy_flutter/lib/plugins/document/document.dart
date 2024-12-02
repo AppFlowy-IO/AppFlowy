@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/shared/share/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/favorite_button.dart';
@@ -146,10 +147,14 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   }
 
   @override
+  String? get viewName => notifier.view.nameOrDefault;
+
+  @override
   Widget get leftBarItem => ViewTitleBar(key: ValueKey(view.id), view: view);
 
   @override
-  Widget tabBarItem(String pluginId) => ViewTabBarItem(view: notifier.view);
+  Widget tabBarItem(String pluginId, [bool shortForm = false]) =>
+      ViewTabBarItem(view: notifier.view, shortForm: shortForm);
 
   @override
   Widget? get rightBarItem {

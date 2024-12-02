@@ -477,7 +477,7 @@
         "clickToOpenPageInBrowser": "Open page in browser"
       },
       "error": {
-        "failedToGeneratePaymentLink": "Failed to generate payment link for pro plan",
+        "failedToGeneratePaymentLink": "Failed to generate payment link for Pro Plan",
         "failedToUpdateNamespace": "Failed to update namespace",
         "proPlanLimitation": "You need to upgrade to Pro Plan to update the namespace",
         "namespaceAlreadyInUse": "The namespace is already taken, please try another one",
@@ -2887,7 +2887,10 @@
   },
   "tabMenu": {
     "close": "Close",
+    "closeDisabledHint": "Cannot close a pinned tab, please unpin first",
     "closeOthers": "Close other tabs",
+    "closeOthersHint": "This will close all unpinned tabs except this one",
+    "closeOthersDisabledHint": "All tabs are pinned, cannot find any tabs to close",
     "favorite": "Favorite",
     "unfavorite": "Unfavorite",
     "favoriteDisabledHint": "Cannot favorite this view",

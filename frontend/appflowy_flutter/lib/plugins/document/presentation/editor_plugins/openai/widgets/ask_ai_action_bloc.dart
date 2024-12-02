@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/ser
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/user/application/ai_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -141,7 +142,7 @@ class AskAIActionBloc extends Bloc<AskAIEvent, AskAIState> {
     if (selection == null) {
       return;
     }
-    final nodes = markdownToDocument(state.result)
+    final nodes = customMarkdownToDocument(state.result)
         .root
         .children
         .map((e) => e.copyWith())
@@ -178,7 +179,7 @@ class AskAIActionBloc extends Bloc<AskAIEvent, AskAIState> {
       return;
     }
 
-    final nodes = markdownToDocument(state.result)
+    final nodes = customMarkdownToDocument(state.result)
         .root
         .children
         .map((e) => e.copyWith())

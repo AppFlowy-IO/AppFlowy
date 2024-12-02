@@ -196,13 +196,13 @@
     "chatWithFilePrompt": "你想与文件对话吗？",
     "indexFileSuccess": "文件索引成功",
     "inputActionNoPages": "无页面结果",
-    "referenceSource": "找到 {} 个来源",
-    "referenceSources": "找到 {} 个来源",
     "clickToMention": "点击以提及页面",
     "uploadFile": "上传聊天使用的 PDF、md 或 txt 文件",
-    "questionTitle": "想法",
     "questionDetail": "{} 你好！我能怎么帮到你？",
-    "indexingFile": "正在索引 {}"
+    "indexingFile": "正在索引 {}",
+    "referenceSource": "找到 {} 个来源",
+    "referenceSources": "找到 {} 个来源",
+    "questionTitle": "想法"
   },
   "trash": {
     "text": "回收站",
@@ -1182,8 +1182,8 @@
     "media": {
       "rename": "重命名",
       "download": "下载",
-      "open": "打开",
-      "delete": "删除"
+      "delete": "删除",
+      "open": "打开"
     },
     "singleSelectOptionFilter": {
       "is": "等于",

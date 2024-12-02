@@ -58,7 +58,10 @@ class _HomeStackState extends State<HomeStack> {
     return BlocProvider<TabsBloc>.value(
       value: getIt<TabsBloc>(),
       child: BlocBuilder<TabsBloc, TabsState>(
-        buildWhen: (prev, curr) => prev.currentIndex != curr.currentIndex,
+        buildWhen: (prev, curr) =>
+            prev.currentIndex != curr.currentIndex &&
+            prev.currentPageManager.plugin.id !=
+                curr.currentPageManager.plugin.id,
         builder: (context, state) => Column(
           children: [
             if (Platform.isWindows)
@@ -239,9 +242,10 @@ class FadingIndexedStackState extends State<FadingIndexedStack> {
 }
 
 abstract mixin class NavigationItem {
+  String? get viewName;
   Widget get leftBarItem;
   Widget? get rightBarItem => null;
-  Widget tabBarItem(String pluginId);
+  Widget tabBarItem(String pluginId, [bool shortForm = false]);
 
   NavigationCallback get action => (id) => throw UnimplementedError();
 }
@@ -254,8 +258,11 @@ class PageNotifier extends ChangeNotifier {
 
   Widget get titleWidget => _plugin.widgetBuilder.leftBarItem;
 
-  Widget tabBarWidget(String pluginId) =>
-      _plugin.widgetBuilder.tabBarItem(pluginId);
+  Widget tabBarWidget(
+    String pluginId, [
+    bool shortForm = false,
+  ]) =>
+      _plugin.widgetBuilder.tabBarItem(pluginId, shortForm);
 
   /// This is the only place where the plugin is set.
   /// No need compare the old plugin with the new plugin. Just set it.

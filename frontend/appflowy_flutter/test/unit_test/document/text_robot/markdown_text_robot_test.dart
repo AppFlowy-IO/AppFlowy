@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/markdown_text_robot.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -236,6 +237,63 @@ void main() {
         },
       );
     });
+
+    // Partial sample
+    // Sure, let's provide an alternative Rust implementation for the Two Sum problem, focusing on clarity and efficiency but with a slightly different approach:
+    // ```rust
+    // fn two_sum(nums: &[i32], target: i32) -> Vec<(usize, usize)> {
+    //     let mut results = Vec::new();
+    //     let mut map = std::collections::HashMap::new();
+    //
+    //     for (i, &num) in nums.iter().enumerate() {
+    //         let complement = target - num;
+    //         if let Some(&j) = map.get(&complement) {
+    //             results.push((j, i));
+    //         }
+    //         map.insert(num, i);
+    //     }
+    //
+    //     results
+    // }
+    //
+    // fn main() {
+    //     let nums = vec![2, 7, 11, 15];
+    //     let target = 9;
+    //
+    //     let pairs = two_sum(&nums, target);
+    //     if pairs.is_empty() {
+    //         println!("No two sum solution found");
+    //     } else {
+    //         for (i, j) in pairs {
+    //             println!("Indices: {}, {}", i, j);
+    //         }
+    //     }
+    // }
+    // ```
+    test('live refresh (4)', () async {
+      await testLiveRefresh(
+        _liveRefreshSample4,
+        expect: (editorState) {
+          final nodes = editorState.document.root.children;
+          expect(nodes.length, 3);
+
+          final n1 = nodes[0];
+          expect(n1.type, ParagraphBlockKeys.type);
+          expect(
+            n1.delta!.toPlainText(),
+            '''Sure, let's provide an alternative Rust implementation for the Two Sum problem, focusing on clarity and efficiency but with a slightly different approach:''',
+          );
+
+          final n2 = nodes[1];
+          expect(n2.type, CodeBlockKeys.type);
+          expect(
+            n2.delta!.toPlainText(),
+            isNotEmpty,
+          );
+          expect(n2.attributes[CodeBlockKeys.language], 'rust');
+        },
+      );
+    });
   });
 }
 
@@ -371,4 +429,154 @@ const _liveRefreshSample3 = [
   " -",
   " Enhanced",
   " survival skills",
+];
+
+const _liveRefreshSample4 = [
+  "Sure",
+  ", let's",
+  " provide an",
+  " alternative Rust",
+  " implementation for the Two",
+  " Sum",
+  " problem",
+  ",",
+  " focusing",
+  " on",
+  " clarity",
+  " and efficiency",
+  " but with",
+  " a slightly",
+  " different approach",
+  ":\n\n",
+  "```",
+  "rust",
+  "\nfn two",
+  "_sum",
+  "(nums",
+  ": &[",
+  "i",
+  "32",
+  "],",
+  " target",
+  ":",
+  " i",
+  "32",
+  ")",
+  " ->",
+  " Vec",
+  "<(usize",
+  ", usize",
+  ")>",
+  " {\n",
+  "   ",
+  " let",
+  " mut results",
+  " = Vec::",
+  "new",
+  "();\n",
+  "   ",
+  " let mut",
+  " map",
+  " =",
+  " std::collections",
+  "::",
+  "HashMap",
+  "::",
+  "new",
+  "();\n\n   ",
+  " for (",
+  "i,",
+  " &num",
+  ") in",
+  " nums.iter",
+  "().enumer",
+  "ate()",
+  " {\n        let",
+  " complement",
+  " = target",
+  " - num",
+  ";\n",
+  "       ",
+  " if",
+  " let",
+  " Some(&",
+  "j)",
+  " =",
+  " map",
+  ".get(&",
+  "complement",
+  ") {\n",
+  "            results",
+  ".push((",
+  "j",
+  ",",
+  " i));\n        }\n",
+  "       ",
+  " map",
+  ".insert",
+  "(num",
+  ", i",
+  ");\n",
+  "   ",
+  " }\n\n   ",
+  " results\n",
+  "}\n\n",
+  "fn",
+  " main()",
+  " {\n",
+  "   ",
+  " let",
+  " nums",
+  " =",
+  " vec![2, ",
+  "7",
+  ",",
+  " 11, 15];\n",
+  "    let",
+  " target",
+  " =",
+  " ",
+  "9",
+  ";\n\n",
+  "   ",
+  " let",
+  " pairs",
+  " = two",
+  "_sum",
+  "(&",
+  "nums",
+  ",",
+  " target);\n",
+  "   ",
+  " if",
+  " pairs",
+  ".is",
+  "_empty()",
+  " {\n       ",
+  " println",
+  "!(\"",
+  "No",
+  " two",
+  " sum solution",
+  " found\");\n",
+  "   ",
+  " }",
+  " else {\n        for",
+  " (",
+  "i",
+  ", j",
+  ") in",
+  " pairs {\n",
+  "            println",
+  "!(\"Indices",
+  ":",
+  " {},",
+  " {}\",",
+  " i",
+  ",",
+  " j",
+  ");\n       ",
+  " }\n   ",
+  " }\n}\n",
+  "```\n\n",
 ];
