@@ -19,14 +19,12 @@ function DatabaseViews ({
   iidIndex,
   viewName,
   visibleViewIds,
-  hideConditions = false,
 }: {
   onChangeView: (viewId: string) => void;
   viewId: string;
   iidIndex: string;
   viewName?: string;
   visibleViewIds?: string[];
-  hideConditions?: boolean;
 }) {
   const { childViews, viewIds } = useDatabaseViewsSelector(iidIndex, visibleViewIds);
 
@@ -55,7 +53,6 @@ function DatabaseViews ({
     switch (layout) {
       case DatabaseViewLayout.Grid:
         return <Grid
-
         />;
       case DatabaseViewLayout.Board:
         return <Board
@@ -102,15 +99,15 @@ function DatabaseViews ({
           selectedViewId={viewId}
           setSelectedViewId={onChangeView}
           viewIds={viewIds}
-          hideConditions={hideConditions}
         />
-        {layout === DatabaseViewLayout.Calendar || hideConditions ? null : <DatabaseConditions />}
+        <DatabaseConditions />
+
+        <div className={'flex h-full w-full flex-1 flex-col overflow-hidden'}>
+          <Suspense fallback={skeleton}>
+            <ErrorBoundary fallbackRender={ElementFallbackRender}>{view}</ErrorBoundary>
+          </Suspense>
+        </div>
       </DatabaseConditionsContext.Provider>
-      <div className={'flex h-full w-full flex-1 flex-col overflow-hidden'}>
-        <Suspense fallback={skeleton}>
-          <ErrorBoundary fallbackRender={ElementFallbackRender}>{view}</ErrorBoundary>
-        </Suspense>
-      </div>
     </>
   );
 }

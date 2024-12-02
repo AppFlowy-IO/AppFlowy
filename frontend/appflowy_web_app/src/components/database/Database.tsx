@@ -31,7 +31,6 @@ export interface Database2Props {
   onOpenRow?: (rowId: string) => void;
   visibleViewIds: string[];
   iidIndex: string;
-  hideConditions?: boolean;
   variant?: UIVariant;
   onRendered?: (height: number) => void;
   isDocumentBlock?: boolean;
@@ -52,7 +51,6 @@ function Database ({
   rowId,
   onChangeView,
   onOpenRow,
-  hideConditions,
   appendBreadcrumb,
   onRendered,
   readOnly = true,
@@ -151,7 +149,6 @@ function Database ({
               viewName={iidName}
               onChangeView={onChangeView}
               viewId={viewId}
-              hideConditions={hideConditions}
             />
           </div>
         )}

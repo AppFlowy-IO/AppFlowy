@@ -21,7 +21,7 @@ export const ListItem = memo(
           ...style,
           width: 'calc(100% - 2px)',
         }}
-        className={`w-full bg-bg-body list-item`}
+        className={`w-full list-item`}
       >
         {item?.id ? <Card
           onResize={onResize}

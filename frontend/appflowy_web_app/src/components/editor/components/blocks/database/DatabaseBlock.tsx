@@ -22,6 +22,7 @@ export const DatabaseBlock = memo(
     const variant = context.variant;
 
     const [notFound, setNotFound] = useState(false);
+    const [showActions, setShowActions] = useState(false);
     const [doc, setDoc] = useState<YDoc | null>(null);
 
     useEffect(() => {
@@ -131,6 +132,8 @@ export const DatabaseBlock = memo(
           {...attributes}
           contentEditable={readOnly ? false : undefined}
           className={`relative w-full cursor-pointer`}
+          onMouseEnter={() => setShowActions(true)}
+          onMouseLeave={() => setShowActions(false)}
         >
           <div
             ref={ref}
@@ -146,7 +149,7 @@ export const DatabaseBlock = memo(
             <div
               contentEditable={false}
               ref={containerRef}
-              className={`container-bg select-none h-[550px] my-1 appflowy-scroller overflow-y-auto overflow-x-hidden relative flex w-full flex-col`}
+              className={`container-bg select-none h-[550px] min-h-[270px] my-1 appflowy-scroller overflow-y-auto overflow-x-hidden relative flex w-full flex-col`}
             >
               {selectedViewId && doc ? (
                 <>
@@ -162,7 +165,7 @@ export const DatabaseBlock = memo(
                     iidName={iidName}
                     visibleViewIds={visibleViewIds}
                     onChangeView={setSelectedViewId}
-                    hideConditions={variant === UIVariant.Publish}
+                    showActions={showActions}
                     onRendered={handleRendered}
                     scrollLeft={scrollLeft}
                     isDocumentBlock={true}

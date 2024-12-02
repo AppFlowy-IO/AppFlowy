@@ -46,7 +46,7 @@ export function DatabaseConditions () {
     >
       <AFScroller
         overflowYHidden
-        className={`flex border-t border-line-divider ${layout === DatabaseViewLayout.Grid ? 'max-sm:pr-6 pr-24' : ''} items-center gap-2`}
+        className={`flex items-center gap-2`}
       >
         <Sorts />
         {sorts.length > 0 && filters.length > 0 && <div className="h-[20px] w-0 border border-line-divider" />}
