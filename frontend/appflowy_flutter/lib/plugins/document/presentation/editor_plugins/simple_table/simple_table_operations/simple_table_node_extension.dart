@@ -83,8 +83,12 @@ extension TableNodeExtension on Node {
   }
 
   int get rowIndex {
-    assert(type == SimpleTableCellBlockKeys.type);
-    return path.parent.last;
+    if (type == SimpleTableCellBlockKeys.type) {
+      return path.parent.last;
+    } else if (type == SimpleTableRowBlockKeys.type) {
+      return path.last;
+    }
+    return -1;
   }
 
   int get columnIndex {

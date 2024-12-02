@@ -96,8 +96,16 @@ void main() {
       );
     });
 
-    testWidgets('insert rows, columns in table, and delete them',
-        (tester) async {
+    testWidgets('''
+1. hover on the table
+  1.1 click the add row button
+  1.2 click the add column button
+  1.3 click the add row and column button
+2. validate the table is updated
+3. delete the last column
+4. delete the last row
+5. validate the table is updated
+''', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
       await tester.createNewPageWithNameUnderParent(
@@ -132,6 +140,51 @@ void main() {
           tester.editor.getCurrentEditorState().document.nodeAtPath([0])!;
       expect(tableNode.columnLength, 4);
       expect(tableNode.rowLength, 4);
+
+      // delete the last row
+      final lastRow = find.byWidgetPredicate((w) {
+        return w is SimpleTableRowBlockWidget &&
+            w.node.rowIndex == tableNode.rowLength - 1;
+      });
+      await tester.hoverOnWidget(
+        lastRow,
+        onHover: () async {
+          // click the more action button
+          final moreActionButton = find.byWidgetPredicate((w) {
+            return w is SimpleTableMoreActionMenu &&
+                w.type == SimpleTableMoreActionType.row &&
+                w.index == tableNode.rowLength - 1;
+          });
+          await tester.tapButton(moreActionButton);
+          await tester.tapButton(find.text(SimpleTableMoreAction.delete.name));
+        },
+      );
+      await tester.pumpAndSettle();
+
+      expect(tableNode.rowLength, 3);
+      expect(tableNode.columnLength, 4);
+
+      // delete the last column
+      final lastColumn = find.byWidgetPredicate((w) {
+        return w is SimpleTableCellBlockWidget &&
+            w.node.columnIndex == tableNode.columnLength - 1;
+      }).first;
+      await tester.hoverOnWidget(
+        lastColumn,
+        onHover: () async {
+          final moreActionButton = find.byWidgetPredicate((w) {
+            return w is SimpleTableMoreActionMenu &&
+                w.type == SimpleTableMoreActionType.column &&
+                w.index == tableNode.columnLength - 1;
+          });
+          await tester.tapButton(moreActionButton);
+          await tester.tapButton(find.text(SimpleTableMoreAction.delete.name));
+        },
+      );
+      await tester.pumpAndSettle();
+
+      expect(tableNode.columnLength, 3);
+      expect(tableNode.rowLength, 3);
     });
   });
 }
