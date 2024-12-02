@@ -638,7 +638,7 @@ export function mergeBlocks (
   if (!sourceTextId || !targetTextId) {
     return;
   }
-
+  
   const sourceYText = getText(sourceTextId, sharedRoot);
   const targetYText = getText(targetTextId, sharedRoot);
 
@@ -1050,7 +1050,9 @@ export function handleMergeBlockBackwardWithTxn (editor: YjsEditor, node: Elemen
   try {
     const prevText = Editor.previous(editor, {
       at: point,
-      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.textId !== undefined,
+      match: (n) => {
+        return !Editor.isEditor(n) && Element.isElement(n) && n.textId !== undefined;
+      },
       voids: true,
     });
 

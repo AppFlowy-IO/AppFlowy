@@ -32,7 +32,7 @@ export const CodeBlock = memo(
         </div>}
 
         <div {...attributes} ref={ref}
-             className={`${attributes.className ?? ''} flex w-full bg-bg-body pb-2`}
+             className={`${attributes.className ?? ''} flex w-full`}
         >
           <pre
             spellCheck={false}
