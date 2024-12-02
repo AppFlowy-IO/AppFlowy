@@ -9,7 +9,6 @@ export function HoverControls () {
     disabled: openMenu,
   });
 
-  console.log('cssProperty', cssProperty);
   return (
     <>
       <div

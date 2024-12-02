@@ -69,7 +69,7 @@ export const Group = ({ groupId }: GroupProps) => {
         }}
       >
         <div
-          className="columns flex h-full w-fit min-w-full gap-4 py-4"
+          className="columns flex h-full w-fit min-w-full gap-4 py-[10px]"
         >
           {columns.map((data) => (
             <Column

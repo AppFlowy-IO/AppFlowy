@@ -44,7 +44,7 @@ export const Card = memo(({ groupFieldId, rowId, onResize, isDragging }: CardPro
 
   const navigateToRow = useDatabaseContext().navigateToRow;
   const className = useMemo(() => {
-    const classList = ['relative shadow-sm flex flex-col gap-2 overflow-hidden rounded-[8px] border border-line-divider text-xs'];
+    const classList = ['relative board-card flex flex-col gap-2 overflow-hidden rounded-[6px] border border-line-card text-xs'];
 
     if (navigateToRow) {
       classList.push('cursor-pointer hover:bg-fill-list-hover');
@@ -98,9 +98,6 @@ export const Card = memo(({ groupFieldId, rowId, onResize, isDragging }: CardPro
         navigateToRow?.(rowId);
       }}
       ref={ref}
-      style={{
-        minHeight: '38px',
-      }}
       className={className}
     >
       {cover && (

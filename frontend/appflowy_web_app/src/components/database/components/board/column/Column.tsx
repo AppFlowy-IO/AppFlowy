@@ -110,7 +110,7 @@ export const Column = memo(
       <div
         ref={containerRef}
         key={id}
-        className="column rounded-[8px] flex w-[230px] flex-col gap-4"
+        className="column rounded-[8px] flex w-[230px] flex-col gap-[10px]"
       >
         <div
           className="column-header flex overflow-hidden items-center gap-2 text-sm font-medium whitespace-nowrap"
