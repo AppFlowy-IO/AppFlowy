@@ -1,7 +1,5 @@
 import { useDatabaseContext, useRowsByGroup } from '@/application/database-yjs';
 import { AFScroller } from '@/components/_shared/scroller';
-import { useConditionsContext } from '@/components/database/components/conditions/context';
-import { debounce } from 'lodash-es';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Column } from '../column';
@@ -17,8 +15,6 @@ export const Group = ({ groupId }: GroupProps) => {
   const scrollLeft = context.scrollLeft;
   const ref = useRef<HTMLDivElement>(null);
   const maxHeightRef = useRef<number>(0);
-  const conditionsContext = useConditionsContext();
-  const expanded = conditionsContext?.expanded ?? false;
   const onRendered = context?.onRendered;
   const isDocumentBlock = context.isDocumentBlock;
 
@@ -33,18 +29,8 @@ export const Group = ({ groupId }: GroupProps) => {
 
     if (!el || !isDocumentBlock) return;
 
-    const onResize = debounce(() => {
-      const conditionHeight = expanded ? el.closest('.appflowy-database')?.querySelector('.database-conditions')?.clientHeight || 0 : 0;
-
-      handleRendered(conditionHeight + maxHeightRef.current);
-    }, 100);
-
-    onResize();
-
-    return () => {
-      onResize.cancel();
-    };
-  }, [isDocumentBlock, expanded, handleRendered, onRendered]);
+    handleRendered(el.clientHeight);
+  }, [isDocumentBlock, handleRendered]);
 
   if (notFound) {
     return (
