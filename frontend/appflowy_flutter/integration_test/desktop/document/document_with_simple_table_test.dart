@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/_shared_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -39,7 +40,10 @@ void main() {
 
       final firstCell = find.byType(SimpleTableCellBlockWidget).first;
       expect(
-        tester.state<SimpleTableCellBlockWidgetState>(firstCell).isEditing,
+        tester
+            .state<SimpleTableCellBlockWidgetState>(firstCell)
+            .isEditingCellNotifier
+            .value,
         isTrue,
       );
     });
@@ -90,6 +94,44 @@ void main() {
           end: Position(path: [1, 1, 1, 0]),
         ),
       );
+    });
+
+    testWidgets('insert rows, columns in table, and delete them',
+        (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+      await tester.createNewPageWithNameUnderParent(
+        name: 'simple_table_test',
+      );
+
+      await tester.editor.tapLineOfEditorAt(0);
+      await insertTableInDocument(tester);
+
+      // hover on the table
+      final tableBlock = find.byType(SimpleTableBlockWidget).first;
+      await tester.hoverOnWidget(
+        tableBlock,
+        onHover: () async {
+          // click the add row button
+          final addRowButton = find.byType(SimpleTableAddRowButton).first;
+          await tester.tap(addRowButton);
+
+          // click the add column button
+          final addColumnButton = find.byType(SimpleTableAddColumnButton).first;
+          await tester.tap(addColumnButton);
+
+          // click the add row and column button
+          final addRowAndColumnButton =
+              find.byType(SimpleTableAddColumnAndRowButton).first;
+          await tester.tap(addRowAndColumnButton);
+        },
+      );
+      await tester.pumpAndSettle();
+
+      final tableNode =
+          tester.editor.getCurrentEditorState().document.nodeAtPath([0])!;
+      expect(tableNode.columnLength, 4);
+      expect(tableNode.rowLength, 4);
     });
   });
 }
