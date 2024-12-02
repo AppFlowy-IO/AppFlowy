@@ -160,7 +160,10 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
           onScroll={({ scrollLeft }) => onScrollLeft(scrollLeft)}
           rowCount={rows.length}
           columnCount={columns.length}
-          columnWidth={(index) => columnWidth(index, width)}
+          columnWidth={(index) => {
+
+            return columnWidth(index, width);
+          }}
           rowHeight={rowHeight}
           className={`grid-table grid-table-${viewId}`}
           overscanRowCount={5}
