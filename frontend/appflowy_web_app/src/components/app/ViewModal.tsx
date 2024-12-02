@@ -218,6 +218,7 @@ function ViewModal ({
       open={open}
       onClose={onClose}
       fullWidth={true}
+      disableRestoreFocus={true}
       TransitionComponent={Transition}
       PaperProps={{
         className: `max-w-[70vw] w-[1188px] flex flex-col h-[80vh] appflowy-scroller`,
