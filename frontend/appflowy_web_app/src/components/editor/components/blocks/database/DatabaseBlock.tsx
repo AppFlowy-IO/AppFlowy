@@ -1,4 +1,4 @@
-import { DatabaseViewLayout, UIVariant, View, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/types';
+import { DatabaseViewLayout, View, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/types';
 import { Database } from '@/components/database';
 import TableContainer from '@/components/editor/components/table-container/TableContainer';
 import { DatabaseNode, EditorElementProps } from '@/components/editor/editor.type';
@@ -19,7 +19,6 @@ export const DatabaseBlock = memo(
     const createRowDoc = context?.createRowDoc;
     const loadViewMeta = context?.loadViewMeta;
     const readSummary = context.readSummary;
-    const variant = context.variant;
 
     const [notFound, setNotFound] = useState(false);
     const [showActions, setShowActions] = useState(false);
