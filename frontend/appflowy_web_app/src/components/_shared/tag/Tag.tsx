@@ -10,10 +10,10 @@ export interface TagProps {
 
 export const Tag: FC<TagProps> = ({ color, size = 'small', label, badge }) => {
   const className = useMemo(() => {
-    const classList = ['rounded-[8px]', 'font-medium', 'leading-[1.5em]', 'flex items-center gap-1 max-w-full'];
+    const classList = ['rounded-[6px]', 'font-medium', 'leading-[1.35em]', 'flex items-center gap-0.5 max-w-full'];
 
     if (color) classList.push(`text-text-title`);
-    if (size === 'small') classList.push('px-2', 'py-1');
+    if (size === 'small') classList.push('px-2', 'py-0.5');
     if (size === 'medium') classList.push('px-3', 'py-1');
     if (badge) classList.push('pr-4');
     return classList.join(' ');
