@@ -89,6 +89,10 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     simpleTableContext?.isSelectingTable.addListener(_onSelectingTableChanged);
     node.parentTableNode?.addListener(_onSelectingTableChanged);
     editorState.selectionNotifier.addListener(_onSelectionChanged);
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _onSelectionChanged();
+    });
   }
 
   @override
