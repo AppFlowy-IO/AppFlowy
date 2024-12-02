@@ -21,6 +21,8 @@ export type RenderColumn = {
 export function useRenderFields () {
   const fields = useFieldsSelector();
   const context = useDatabaseContext();
+  const isDocumentBlock = context.isDocumentBlock;
+  const viewId = context.viewId;
   const scrollLeft = context.scrollLeft;
   const renderColumns = useMemo(() => {
     const data = fields.map((column) => ({
@@ -49,12 +51,14 @@ export function useRenderFields () {
     (index: number, containerWidth: number) => {
       const { type, width } = renderColumns[index];
 
-      // if (type === GridColumnType.NewProperty) {
-      //   const totalWidth = renderColumns.reduce((acc, column) => acc + column.width, 0);
-      //   const remainingWidth = containerWidth - totalWidth;
-      //
-      //   return remainingWidth > 0 ? remainingWidth + width : width;
-      // }
+      if (type === GridColumnType.NewProperty) {
+        const totalWidth = renderColumns.reduce((acc, column) => acc + column.width, 0);
+        const tabWidth = document.querySelector(`.grid-table-${viewId}`)?.closest('.appflowy-database')?.querySelector('.database-tabs')?.clientWidth || 0;
+        const documentWidth = tabWidth + (scrollLeft || 0);
+        const remainingWidth = (isDocumentBlock ? documentWidth : tabWidth + 96) - totalWidth;
+
+        return remainingWidth > 0 ? remainingWidth + width : width;
+      }
 
       if (index > 0 && type === GridColumnType.Action && containerWidth < 800) {
         return 16;
@@ -62,7 +66,7 @@ export function useRenderFields () {
 
       return width;
     },
-    [renderColumns],
+    [isDocumentBlock, renderColumns, scrollLeft, viewId],
   );
 
   return {

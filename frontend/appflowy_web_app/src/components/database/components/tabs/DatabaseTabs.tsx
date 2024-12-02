@@ -100,16 +100,16 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
         }}
       >
         <div
-          className={`flex items-center w-full gap-1.5 ${expanded || [
+          className={`flex items-center  database-tabs w-full gap-1.5 ${expanded || [
             ViewLayout.Board,
             ViewLayout.Calendar,
-          ].includes(layout as ViewLayout) || isDocumentBlock ? 'border-b' : ''} border-line-divider `}
+          ].includes(layout as ViewLayout) ? 'border-b' : ''} border-line-divider `}
         >
           <div
             style={{
               width: showActions ? `auto` : '100%',
             }}
-            className="flex flex-1 items-center database-tabs "
+            className="flex flex-1 items-center "
           >
             <ViewTabs
               scrollButtons={false}
