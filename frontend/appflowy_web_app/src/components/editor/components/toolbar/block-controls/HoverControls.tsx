@@ -9,6 +9,7 @@ export function HoverControls () {
     disabled: openMenu,
   });
 
+  console.log('cssProperty', cssProperty);
   return (
     <>
       <div
@@ -19,10 +20,10 @@ export function HoverControls () {
         onMouseDown={(e) => {
           e.preventDefault();
         }}
-        className={`absolute w-[64px] px-1 z-10 opacity-0 flex items-center justify-end ${cssProperty}`}
+        className={`absolute hover-controls w-[64px] px-1 z-10 opacity-0 flex items-center justify-end ${cssProperty}`}
       >
         {/* Ensure the toolbar in middle */}
-        <div className={`invisible`}>$</div>
+        <div className={`invisible hover-controls-placeholder`}>$</div>
         <ControlActions
           setOpenMenu={setOpenMenu}
           blockId={hoveredBlockId}

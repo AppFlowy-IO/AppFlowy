@@ -46,8 +46,8 @@
     border-radius: 0 !important;
   }
 
-  &.block-element[data-block-type="grid"] {
-    .database-tabs, .grid-row-filed-cell {
+  &.block-element[data-block-type="grid"], &.block-element[data-block-type="board"], &.block-element[data-block-type="calendar"] {
+    .database-tabs, .grid-row-filed-cell, .column {
       @apply bg-content-blue-50;
     }
 
@@ -393,46 +393,52 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   }
 }
 
-.toggle-heading {
+.toggle-heading, .heading, .hover-controls {
   &.level-1 {
     @apply py-[8px];
+    > .hover-controls-placeholder,
     > .text-element {
-      @apply text-[1.75rem] max-md:text-[24px] font-bold;
+      @apply text-[2rem] max-md:text-[24px] font-semibold;
     }
   }
 
   &.level-2 {
     @apply py-[6px];
+    > .hover-controls-placeholder,
     > .text-element {
-      @apply text-[1.55rem] max-md:text-[22px] font-bold;
+      @apply text-[1.75rem] max-md:text-[22px] font-semibold;
     }
   }
 
   &.level-3 {
     @apply py-[4px];
+    > .hover-controls-placeholder,
     > .text-element {
-      @apply text-[1.35rem] max-md:text-[20px] font-bold;
+      @apply text-[1.5rem] max-md:text-[20px] font-semibold;
     }
   }
 
   &.level-4 {
     @apply py-[4px];
+    > .hover-controls-placeholder,
     > .text-element {
-      @apply text-[1.25rem] max-md:text-[16px] font-bold;
+      @apply text-[1.25rem] max-md:text-[16px] font-semibold;
     }
   }
 
   &.level-5 {
     @apply py-[2px];
+    > .hover-controls-placeholder,
     > .text-element {
-      @apply text-[1.15rem] font-bold;
+      @apply text-[1.125rem] font-semibold;
     }
   }
 
   &.level-6 {
     @apply py-[2px];
+    > .hover-controls-placeholder,
     > .text-element {
-      @apply text-[1.05rem] font-bold;
+      @apply text-[1rem] font-semibold;
     }
   }
 }

@@ -1,6 +1,7 @@
-import { DatabaseViewLayout, View, YDatabaseView, YjsDatabaseKey } from '@/application/types';
-import { useDatabase, useDatabaseContext, useDatabaseView } from '@/application/database-yjs';
+import { DatabaseViewLayout, View, ViewLayout, YDatabaseView, YjsDatabaseKey } from '@/application/types';
+import { useDatabase, useDatabaseContext } from '@/application/database-yjs';
 import { DatabaseActions } from '@/components/database/components/conditions';
+import { useConditionsContext } from '@/components/database/components/conditions/context';
 import DatabaseBlockActions from '@/components/database/components/conditions/DatabaseBlockActions';
 import { Tooltip } from '@mui/material';
 import {
@@ -37,14 +38,14 @@ const DatabaseIcons: {
 };
 
 export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
-  ({ viewIds, viewName, hideConditions, iidIndex, selectedViewId, setSelectedViewId }, ref) => {
+  ({ viewIds, viewName, iidIndex, selectedViewId, setSelectedViewId }, ref) => {
     const { t } = useTranslation();
-    const view = useDatabaseView();
     const views = useDatabase().get(YjsDatabaseKey.views);
+    const conditionsContext = useConditionsContext();
+    const expanded = conditionsContext?.expanded ?? false;
     const context = useDatabaseContext();
     const loadViewMeta = context.loadViewMeta;
     const [meta, setMeta] = useState<View | null>(null);
-    const layout = Number(view?.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
     const scrollLeft = context.scrollLeft;
     const isDocumentBlock = context.isDocumentBlock;
     const handleChange = (_: React.SyntheticEvent, newValue: string) => {
@@ -66,12 +67,12 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
     }, [loadViewMeta, iidIndex]);
 
     const className = useMemo(() => {
-      const classList = ['-mb-[0.5px] gap-1.5 flex items-center overflow-hidden border-line-divider text-text-title  max-sm:!px-6 min-w-0 overflow-hidden'];
+      const classList = ['-mb-[0.5px] gap-1.5 flex items-center overflow-hidden text-text-title  max-sm:!px-6 min-w-0 overflow-hidden'];
 
       return classList.join(' ');
     }, []);
 
-    const showActions = !hideConditions && layout !== DatabaseViewLayout.Calendar;
+    const showActions = useDatabaseContext().showActions;
 
     const getSelectedTabIndicatorProps = useCallback(() => {
       const selectedTab = document.getElementById(`view-tab-${selectedViewId}`);
@@ -86,6 +87,8 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
       };
     }, [selectedViewId]);
 
+    const layout = meta?.layout;
+
     if (viewIds.length === 0) return null;
     return (
       <div
@@ -97,53 +100,65 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
         }}
       >
         <div
-          style={{
-            width: showActions ? `auto` : '100%',
-          }}
-          className="flex flex-1 items-center database-tabs"
+          className={`flex items-center w-full gap-1.5 ${expanded || [
+            ViewLayout.Board,
+            ViewLayout.Calendar,
+          ].includes(layout as ViewLayout) || isDocumentBlock ? 'border-b' : ''} border-line-divider `}
         >
-          <ViewTabs
-            scrollButtons={false}
-            variant="scrollable"
-            allowScrollButtonsMobile
-            value={selectedViewId}
-            onChange={handleChange}
-            TabIndicatorProps={getSelectedTabIndicatorProps()}
+          <div
+            style={{
+              width: showActions ? `auto` : '100%',
+            }}
+            className="flex flex-1 items-center database-tabs "
           >
-            {viewIds.map((viewId) => {
-              const view = views?.get(viewId) as YDatabaseView | null;
+            <ViewTabs
+              scrollButtons={false}
+              variant="scrollable"
+              allowScrollButtonsMobile
+              value={selectedViewId}
+              onChange={handleChange}
+              TabIndicatorProps={getSelectedTabIndicatorProps()}
+            >
+              {viewIds.map((viewId) => {
+                const view = views?.get(viewId) as YDatabaseView | null;
 
-              if (!view) return null;
-              const layout = Number(view.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
-              const Icon = DatabaseIcons[layout];
-              const name = viewId === iidIndex ? viewName : meta?.children?.find((v) => v.view_id === viewId)?.name;
+                if (!view) return null;
+                const layout = Number(view.get(YjsDatabaseKey.layout)) as DatabaseViewLayout;
+                const Icon = DatabaseIcons[layout];
+                const name = viewId === iidIndex ? viewName : meta?.children?.find((v) => v.view_id === viewId)?.name;
 
-              return (
-                <ViewTab
-                  key={viewId}
-                  id={`view-tab-${viewId}`}
-                  data-testid={`view-tab-${viewId}`}
-                  icon={<Icon className={'h-4 w-4'} />}
-                  iconPosition="start"
-                  color="inherit"
-                  label={
-                    <Tooltip
-                      title={name}
-                      enterDelay={1000}
-                      enterNextDelay={1000}
-                      placement={'right'}
-                    >
-                      <span className={'max-w-[120px] truncate'}>{name || t('grid.title.placeholder')}</span>
-                    </Tooltip>
-                  }
-                  value={viewId}
-                />
-              );
-            })}
-          </ViewTabs>
+                return (
+                  <ViewTab
+                    key={viewId}
+                    id={`view-tab-${viewId}`}
+                    data-testid={`view-tab-${viewId}`}
+                    icon={<Icon className={'h-4 w-4'} />}
+                    iconPosition="start"
+                    color="inherit"
+                    label={
+                      <Tooltip
+                        title={name}
+                        enterDelay={1000}
+                        enterNextDelay={1000}
+                        placement={'right'}
+                      >
+                        <span className={'max-w-[120px] truncate'}>{name || t('grid.title.placeholder')}</span>
+                      </Tooltip>
+                    }
+                    value={viewId}
+                  />
+                );
+              })}
+            </ViewTabs>
+          </div>
+
+          {showActions ? <>
+            <DatabaseActions />
+            {isDocumentBlock && <DatabaseBlockActions />}
+          </> : null}
         </div>
-        {showActions ? <DatabaseActions /> : null}
-        {isDocumentBlock && <DatabaseBlockActions />}
+
+
       </div>
     );
   },

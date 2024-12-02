@@ -1,7 +1,8 @@
 import { useDatabaseContext, useDatabaseViewId } from '@/application/database-yjs';
 import { AFScroller } from '@/components/_shared/scroller';
 import { useMeasureHeight } from '@/components/database/components/cell/useMeasure';
-import React, { useCallback, useEffect, useRef } from 'react';
+import { debounce } from 'lodash-es';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { GridChildComponentProps, VariableSizeGrid } from 'react-window';
 import { GridColumnType, RenderColumn } from '../grid-column';
@@ -31,7 +32,7 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
   const isDocumentBlock = context.isDocumentBlock;
   const readOnly = context.readOnly;
 
-  const calculateTableHeight = useCallback(() => {
+  const calculateTableHeight = useMemo(() => debounce(() => {
     const table = document.querySelector(`.grid-table-${viewId}`);
     const tableRect = table?.getBoundingClientRect();
     const theLastRow = table?.querySelector('.calculate-row-cell');
@@ -50,7 +51,7 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
       onRendered?.(tableRect.height + 80);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewId, readOnly]);
+  }, 200), [viewId, readOnly]);
 
   useEffect(() => {
     if (ref.current) {
@@ -64,12 +65,9 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
 
   useEffect(() => {
     resetGrid();
-    const timeout = setTimeout(() => {
-      calculateTableHeight();
-    }, 500);
-
+    calculateTableHeight();
     return () => {
-      clearTimeout(timeout);
+      calculateTableHeight.cancel();
     };
 
   }, [columns, resetGrid, calculateTableHeight]);

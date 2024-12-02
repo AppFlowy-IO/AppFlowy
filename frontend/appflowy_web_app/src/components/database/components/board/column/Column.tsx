@@ -1,4 +1,4 @@
-import { Row } from '@/application/database-yjs';
+import { Row, useDatabaseContext } from '@/application/database-yjs';
 import { AFScroller } from '@/components/_shared/scroller';
 import ListItem from '@/components/database/components/board/column/ListItem';
 import { useRenderColumn } from '@/components/database/components/board/column/useRenderColumn';
@@ -6,6 +6,7 @@ import { useMeasureHeight } from '@/components/database/components/cell/useMeasu
 import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { VariableSizeList } from 'react-window';
+import { debounce } from 'lodash-es';
 
 export interface ColumnProps {
   id: string;
@@ -22,6 +23,8 @@ export const Column = memo(
     const forceUpdate = useCallback((index: number) => {
       ref.current?.resetAfterIndex(index, true);
     }, []);
+    const context = useDatabaseContext();
+    const isDocumentBlock = context.isDocumentBlock;
 
     useEffect(() => {
       forceUpdate(0);
@@ -37,34 +40,34 @@ export const Column = memo(
       [rows],
     );
     const { rowHeight, onResize } = useMeasureHeight({ forceUpdate, rows: measureRows });
+    const rowCount = rows?.length || 0;
 
-    useEffect(() => {
+    const calculateHeight = useMemo(() => debounce(() => {
       const el = containerRef.current;
 
       if (!el) return;
 
-      const calculateHeight = () => {
-        const rows = el.querySelectorAll('.list-item');
+      if (rowCount === 0 || !isDocumentBlock) {
+        onRendered?.(100);
+        return;
+      }
 
-        if (!rows || rows.length === 0) {
-          onRendered?.(150);
-          return;
-        }
+      const rows = el.querySelectorAll('.list-item');
 
-        const maxBottom = Math.max(...Array.from(rows).map((row) => row.getBoundingClientRect().bottom));
-        const height = maxBottom - el.getBoundingClientRect().top;
+      const maxBottom = Math.max(...Array.from(rows).map((row) => row.getBoundingClientRect().bottom));
+      const height = maxBottom - el.getBoundingClientRect().top;
 
-        onRendered?.(height + 150);
-      };
+      onRendered?.(height + 100);
+    }, 500), [onRendered, rowCount, isDocumentBlock]);
 
-      const timeout = setTimeout(() => {
-        calculateHeight();
-      }, 500);
+    useEffect(() => {
+
+      calculateHeight();
 
       return () => {
-        clearTimeout(timeout);
+        calculateHeight.cancel();
       };
-    }, [onRendered]);
+    }, [calculateHeight]);
 
     const Row = useCallback(
       ({ index, style, data }: { index: number; style: React.CSSProperties; data: Row[] }) => {
@@ -102,13 +105,12 @@ export const Column = memo(
       },
       [rowHeight, rows],
     );
-    const rowCount = rows?.length || 0;
 
     return (
       <div
         ref={containerRef}
         key={id}
-        className="column flex w-[230px] flex-col gap-4"
+        className="column rounded-[8px] flex w-[230px] flex-col gap-4"
       >
         <div
           className="column-header flex overflow-hidden items-center gap-2 text-sm font-medium whitespace-nowrap"

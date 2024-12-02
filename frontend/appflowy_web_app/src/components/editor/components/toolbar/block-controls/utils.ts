@@ -1,5 +1,4 @@
 import { BlockType } from '@/application/types';
-import { getHeadingCssProperty } from '@/components/editor/components/blocks/heading';
 import { HeadingNode, ImageBlockNode } from '@/components/editor/editor.type';
 import { ReactEditor } from 'slate-react';
 import { Element } from 'slate';
@@ -26,7 +25,7 @@ export function getBlockActionsPosition (editor: ReactEditor, blockElement: HTML
 
 export function getBlockCssProperty (node: Element) {
   if ((node as HeadingNode).data.level) {
-    return `${getHeadingCssProperty((node as HeadingNode).data.level)} mt-[3px]`;
+    return `level-${(node as HeadingNode).data.level} mt-[3px]`;
   }
 
   switch (node.type) {

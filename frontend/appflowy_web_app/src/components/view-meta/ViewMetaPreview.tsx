@@ -163,7 +163,7 @@ export function ViewMetaPreview ({
               width: maxWidth || '100%',
             }}
             className={
-              'flex gap-4 max-sm:px-6 px-24 min-w-0 max-w-full overflow-hidden whitespace-pre-wrap break-words break-all text-[2.25rem] font-bold max-md:text-[26px]'
+              'flex gap-4 max-sm:px-6 px-24 min-w-0 max-w-full overflow-hidden whitespace-pre-wrap break-words break-all text-[2.5rem] font-bold max-md:text-[26px]'
             }
           >
             {icon?.value ?
@@ -173,7 +173,11 @@ export function ViewMetaPreview ({
                   setIconAnchorEl(e.currentTarget);
                 }}
                 className={`view-icon flex h-[1.25em] px-1.5 items-center justify-center ${readOnly ? 'cursor-default' : 'cursor-pointer hover:bg-fill-list-hover '} ${isFlag ? 'icon' : ''}`}
-              >{icon?.value}</div> : null}
+              >
+                {icon?.value}
+              </div>
+              : null
+            }
             {!readOnly && viewId ? <TitleEditable
                 viewId={viewId}
                 name={name || ''}
@@ -186,12 +190,11 @@ export function ViewMetaPreview ({
                 contentEditable={false}
               >
                 {name}
-              </div>}
+              </div>
+            }
           </h1>
         </div>
       </div>
-
-
     </div>
   );
 }

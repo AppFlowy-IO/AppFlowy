@@ -49,12 +49,12 @@ export function useRenderFields () {
     (index: number, containerWidth: number) => {
       const { type, width } = renderColumns[index];
 
-      if (type === GridColumnType.NewProperty) {
-        const totalWidth = renderColumns.reduce((acc, column) => acc + column.width, 0);
-        const remainingWidth = containerWidth - totalWidth;
-
-        return remainingWidth > 0 ? remainingWidth + width : width;
-      }
+      // if (type === GridColumnType.NewProperty) {
+      //   const totalWidth = renderColumns.reduce((acc, column) => acc + column.width, 0);
+      //   const remainingWidth = containerWidth - totalWidth;
+      //
+      //   return remainingWidth > 0 ? remainingWidth + width : width;
+      // }
 
       if (index > 0 && type === GridColumnType.Action && containerWidth < 800) {
         return 16;

@@ -1,6 +1,8 @@
 import { useDatabaseContext, useRowsByGroup } from '@/application/database-yjs';
 import { AFScroller } from '@/components/_shared/scroller';
-import React, { useCallback, useRef } from 'react';
+import { useConditionsContext } from '@/components/database/components/conditions/context';
+import { debounce } from 'lodash-es';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Column } from '../column';
 
@@ -13,13 +15,36 @@ export const Group = ({ groupId }: GroupProps) => {
   const { t } = useTranslation();
   const context = useDatabaseContext();
   const scrollLeft = context.scrollLeft;
+  const ref = useRef<HTMLDivElement>(null);
   const maxHeightRef = useRef<number>(0);
+  const conditionsContext = useConditionsContext();
+  const expanded = conditionsContext?.expanded ?? false;
+  const onRendered = context?.onRendered;
+  const isDocumentBlock = context.isDocumentBlock;
 
-  const onRendered = useCallback((height: number) => {
+  const handleRendered = useCallback((height: number) => {
     maxHeightRef.current = Math.max(maxHeightRef.current, height);
 
-    context?.onRendered?.(maxHeightRef.current);
-  }, [context]);
+    onRendered?.(maxHeightRef.current);
+  }, [onRendered]);
+
+  useEffect(() => {
+    const el = ref.current;
+
+    if (!el || !isDocumentBlock) return;
+
+    const onResize = debounce(() => {
+      const conditionHeight = expanded ? el.closest('.appflowy-database')?.querySelector('.database-conditions')?.clientHeight || 0 : 0;
+
+      handleRendered(conditionHeight + maxHeightRef.current);
+    }, 100);
+
+    onResize();
+
+    return () => {
+      onResize.cancel();
+    };
+  }, [isDocumentBlock, expanded, handleRendered, onRendered]);
 
   if (notFound) {
     return (
@@ -37,13 +62,14 @@ export const Group = ({ groupId }: GroupProps) => {
       className={`relative  h-full`}
     >
       <div
+        ref={ref}
         className={'max-sm:!px-6 px-24 h-full'}
         style={{
           paddingInline: scrollLeft === undefined ? undefined : scrollLeft,
         }}
       >
         <div
-          className="columns flex h-full w-fit min-w-full gap-4 border-t border-line-divider py-4"
+          className="columns flex h-full w-fit min-w-full gap-4 py-4"
         >
           {columns.map((data) => (
             <Column
@@ -51,7 +77,7 @@ export const Group = ({ groupId }: GroupProps) => {
               id={data.id}
               fieldId={fieldId}
               rows={groupResult.get(data.id)}
-              onRendered={onRendered}
+              onRendered={handleRendered}
             />
           ))}
         </div>
