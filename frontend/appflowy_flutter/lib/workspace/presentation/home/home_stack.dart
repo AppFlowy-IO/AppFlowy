@@ -25,6 +25,7 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:time/time.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'home_layout.dart';
 
@@ -64,7 +65,7 @@ class _HomeStackState extends State<HomeStack> {
                 curr.currentPageManager.plugin.id,
         builder: (context, state) => Column(
           children: [
-            if (Platform.isWindows)
+            if (UniversalPlatform.isWindows)
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -303,8 +304,8 @@ class PageManager {
   }
 
   Widget stackTopBar({required HomeLayout layout}) {
-    return MultiProvider(
-      providers: [ChangeNotifierProvider.value(value: _notifier)],
+    return ChangeNotifierProvider.value(
+      value: _notifier,
       child: Selector<PageNotifier, Widget>(
         selector: (context, notifier) => notifier.titleWidget,
         builder: (_, __, child) => MoveWindowDetector(
@@ -318,10 +319,10 @@ class PageManager {
     required UserProfilePB userProfile,
     required Function(ViewPB, int?) onDeleted,
   }) {
-    return MultiProvider(
-      providers: [ChangeNotifierProvider.value(value: _notifier)],
-      child: Consumer(
-        builder: (_, PageNotifier notifier, __) {
+    return ChangeNotifierProvider.value(
+      value: _notifier,
+      child: Consumer<PageNotifier>(
+        builder: (_, notifier, __) {
           return FadingIndexedStack(
             index: getIt<PluginSandbox>().indexOf(notifier.plugin.pluginType),
             children: getIt<PluginSandbox>().supportPluginTypes.map(
