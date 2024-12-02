@@ -621,7 +621,7 @@ SelectionMenuItem tableSlashMenuItem = SelectionMenuItem(
       transaction.afterSelection = Selection.collapsed(
         Position(
           // table -> row -> cell -> paragraph
-          path: path.next + [0, 0, 0],
+          path: path + [0, 0, 0],
         ),
       );
     }

@@ -55,10 +55,12 @@ void main() {
 
       await tester.editor.tapLineOfEditorAt(0);
       await tester.ime.insertText('New Table');
+      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
       await tester.editor.tapLineOfEditorAt(1);
       await insertTableInDocument(tester);
       await tester.ime.insertText(cell1Content);
-
+      await tester.pumpAndSettle();
       // Select all in the cell
       await tester.simulateKeyEvent(
         LogicalKeyboardKey.keyA,
@@ -69,8 +71,8 @@ void main() {
       expect(
         tester.editor.getCurrentEditorState().selection,
         Selection(
-          start: Position(path: [0, 0, 0, 0]),
-          end: Position(path: [0, 0, 0, 0], offset: cell1Content.length),
+          start: Position(path: [1, 0, 0, 0]),
+          end: Position(path: [1, 0, 0, 0], offset: cell1Content.length),
         ),
       );
 
@@ -85,7 +87,7 @@ void main() {
         tester.editor.getCurrentEditorState().selection,
         Selection(
           start: Position(path: [0]),
-          end: Position(path: [2]),
+          end: Position(path: [1, 1, 1, 0]),
         ),
       );
     });
