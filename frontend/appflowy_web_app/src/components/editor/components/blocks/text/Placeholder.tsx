@@ -55,6 +55,12 @@ function Placeholder ({ node, ...attributes }: { node: Element; className?: stri
             return t('editor.mobileHeading2');
           case 3:
             return t('editor.mobileHeading3');
+          case 4:
+            return t('editor.mobileHeading4');
+          case 5:
+            return t('editor.mobileHeading5');
+          case 6:
+            return t('editor.mobileHeading6');
           default:
             return t('blockPlaceholders.bulletList');
         }
@@ -78,6 +84,12 @@ function Placeholder ({ node, ...attributes }: { node: Element; className?: stri
             return t('editor.mobileHeading2');
           case 3:
             return t('editor.mobileHeading3');
+          case 4:
+            return t('editor.mobileHeading4');
+          case 5:
+            return t('editor.mobileHeading5');
+          case 6:
+            return t('editor.mobileHeading6');
           default:
             return '';
         }
