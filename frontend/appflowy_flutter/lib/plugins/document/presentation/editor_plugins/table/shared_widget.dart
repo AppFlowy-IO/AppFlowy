@@ -335,9 +335,6 @@ class SimpleTableAlignMenu extends StatefulWidget {
 }
 
 class _SimpleTableAlignMenuState extends State<SimpleTableAlignMenu> {
-  final PopoverController controller = PopoverController();
-  bool isOpen = false;
-
   @override
   Widget build(BuildContext context) {
     final align = switch (widget.type) {
@@ -345,34 +342,31 @@ class _SimpleTableAlignMenuState extends State<SimpleTableAlignMenu> {
       SimpleTableMoreActionType.row => widget.tableCellNode.rowAlign,
     };
     return AppFlowyPopover(
-      controller: controller,
-      asBarrier: true,
       mutex: widget.mutex,
       child: SimpleTableBasicButton(
         leftIconSvg: align.leftIconSvg,
         text: LocaleKeys.document_plugins_simpleTable_moreActions_align.tr(),
-        onTap: () {
-          if (!isOpen) {
-            controller.show();
-          }
-        },
+        onTap: () {},
       ),
-      onClose: () => isOpen = false,
-      popupBuilder: (_) {
-        isOpen = true;
+      popupBuilder: (popoverContext) {
+        void onClose() => PopoverContainer.of(popoverContext).closeAll();
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildAlignButton(context, TableAlign.left),
-            _buildAlignButton(context, TableAlign.center),
-            _buildAlignButton(context, TableAlign.right),
+            _buildAlignButton(context, TableAlign.left, onClose),
+            _buildAlignButton(context, TableAlign.center, onClose),
+            _buildAlignButton(context, TableAlign.right, onClose),
           ],
         );
       },
     );
   }
 
-  Widget _buildAlignButton(BuildContext context, TableAlign align) {
+  Widget _buildAlignButton(
+    BuildContext context,
+    TableAlign align,
+    VoidCallback onClose,
+  ) {
     return SimpleTableBasicButton(
       leftIconSvg: align.leftIconSvg,
       text: align.name,
@@ -392,7 +386,7 @@ class _SimpleTableAlignMenuState extends State<SimpleTableAlignMenu> {
             break;
         }
 
-        PopoverContainer.of(context).close();
+        onClose();
       },
     );
   }
@@ -543,9 +537,6 @@ class SimpleTableBackgroundColorMenu extends StatefulWidget {
 
 class _SimpleTableBackgroundColorMenuState
     extends State<SimpleTableBackgroundColorMenu> {
-  final PopoverController controller = PopoverController();
-  bool isOpen = false;
-
   @override
   Widget build(BuildContext context) {
     final backgroundColor = switch (widget.type) {
@@ -555,38 +546,27 @@ class _SimpleTableBackgroundColorMenuState
         widget.tableCellNode.buildColumnColor(context),
     };
     return AppFlowyPopover(
-      controller: controller,
       mutex: widget.mutex,
-      asBarrier: true,
-      popupBuilder: (_) {
-        isOpen = true;
+      popupBuilder: (popoverContext) {
         return _buildColorOptionMenu(
           context,
-          controller,
+          () => PopoverContainer.of(popoverContext).closeAll(),
         );
       },
-      onClose: () => isOpen = false,
       direction: PopoverDirection.rightWithCenterAligned,
-      animationDuration: Durations.short3,
-      beginScaleFactor: 1.0,
-      beginOpacity: 0.8,
       child: SimpleTableBasicButton(
         leftIconBuilder: (onHover) => ColorOptionIcon(
           color: backgroundColor ?? Colors.transparent,
         ),
         text: LocaleKeys.document_plugins_simpleTable_moreActions_color.tr(),
-        onTap: () {
-          if (!isOpen) {
-            controller.show();
-          }
-        },
+        onTap: () {},
       ),
     );
   }
 
   Widget _buildColorOptionMenu(
     BuildContext context,
-    PopoverController controller,
+    VoidCallback onClose,
   ) {
     final colors = [
       // reset to default background color
@@ -625,8 +605,7 @@ class _SimpleTableBackgroundColorMenuState
             break;
         }
 
-        controller.close();
-        PopoverContainer.of(context).close();
+        onClose();
       },
     );
   }
