@@ -1,4 +1,4 @@
-import { DatabaseViewLayout, View, ViewLayout, YDatabaseView, YjsDatabaseKey } from '@/application/types';
+import { DatabaseViewLayout, View, YDatabaseView, YjsDatabaseKey } from '@/application/types';
 import { useDatabase, useDatabaseContext } from '@/application/database-yjs';
 import { DatabaseActions } from '@/components/database/components/conditions';
 import { useConditionsContext } from '@/components/database/components/conditions/context';
@@ -87,7 +87,9 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
       };
     }, [selectedViewId]);
 
-    const layout = meta?.layout;
+    const layout = useMemo(() => {
+      return selectedViewId ? Number(views?.get(selectedViewId)?.get(YjsDatabaseKey.layout)) as DatabaseViewLayout : DatabaseViewLayout.Grid;
+    }, [selectedViewId, views]);
 
     if (viewIds.length === 0) return null;
     return (
@@ -101,9 +103,9 @@ export const DatabaseTabs = forwardRef<HTMLDivElement, DatabaseTabBarProps>(
       >
         <div
           className={`flex items-center  database-tabs w-full gap-1.5 ${expanded || [
-            ViewLayout.Board,
-            ViewLayout.Calendar,
-          ].includes(layout as ViewLayout) ? 'border-b' : ''} border-line-divider `}
+            DatabaseViewLayout.Board,
+            DatabaseViewLayout.Calendar,
+          ].includes(layout as DatabaseViewLayout) ? 'border-b' : ''} border-line-divider `}
         >
           <div
             style={{
