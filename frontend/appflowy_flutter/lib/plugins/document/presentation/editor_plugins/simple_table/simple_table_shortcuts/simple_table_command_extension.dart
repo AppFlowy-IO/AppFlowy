@@ -1,5 +1,5 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_cell_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_operations.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_cell_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_operations/simple_table_operations.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -18,16 +18,33 @@ extension TableCommandExtension on EditorState {
   /// The third element is the node that is the current selection.
   IsInTableCellResult isCurrentSelectionInTableCell() {
     final selection = this.selection;
-    if (selection == null || !selection.isCollapsed) {
+    if (selection == null) {
       return (false, null, null, null);
     }
 
-    final node = document.nodeAtPath(selection.end.path);
-    final tableCellParent = node?.findParent(
-      (node) => node.type == SimpleTableCellBlockKeys.type,
-    );
-    final isInTableCell = tableCellParent != null;
-    return (isInTableCell, selection, tableCellParent, node);
+    if (selection.isCollapsed) {
+      // if the selection is collapsed, check if the node is in a table cell
+      final node = document.nodeAtPath(selection.end.path);
+      final tableCellParent = node?.findParent(
+        (node) => node.type == SimpleTableCellBlockKeys.type,
+      );
+      final isInTableCell = tableCellParent != null;
+      return (isInTableCell, selection, tableCellParent, node);
+    } else {
+      // if the selection is not collapsed, check if the start and end nodes are in a table cell
+      final startNode = document.nodeAtPath(selection.start.path);
+      final endNode = document.nodeAtPath(selection.end.path);
+      final startNodeInTableCell = startNode?.findParent(
+        (node) => node.type == SimpleTableCellBlockKeys.type,
+      );
+      final endNodeInTableCell = endNode?.findParent(
+        (node) => node.type == SimpleTableCellBlockKeys.type,
+      );
+      final isInSameTableCell = startNodeInTableCell != null &&
+          endNodeInTableCell != null &&
+          startNodeInTableCell.path.equals(endNodeInTableCell.path);
+      return (isInSameTableCell, selection, startNodeInTableCell, endNode);
+    }
   }
 
   /// Move the selection to the previous cell

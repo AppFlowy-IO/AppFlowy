@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_cell_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_row_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_cell_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_constants.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_row_block_component.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -83,8 +83,12 @@ extension TableNodeExtension on Node {
   }
 
   int get rowIndex {
-    assert(type == SimpleTableCellBlockKeys.type);
-    return path.parent.last;
+    if (type == SimpleTableCellBlockKeys.type) {
+      return path.parent.last;
+    } else if (type == SimpleTableRowBlockKeys.type) {
+      return path.last;
+    }
+    return -1;
   }
 
   int get columnIndex {
@@ -165,6 +169,8 @@ extension TableNodeExtension on Node {
       tableNode = parent;
     } else if (type == SimpleTableCellBlockKeys.type) {
       tableNode = parent?.parent;
+    } else {
+      return parent?.parentTableNode;
     }
 
     if (tableNode == null || tableNode.type != SimpleTableBlockKeys.type) {

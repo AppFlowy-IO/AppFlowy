@@ -86,6 +86,11 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
         Log.error('Block type $type is not valid');
         if (node.type == TableBlockKeys.type) {
           copiedNode = _fixTableBlock(node);
+          copiedNode = _convertTableToSimpleTable(copiedNode);
+        }
+      } else {
+        if (node.type == TableBlockKeys.type) {
+          copiedNode = _convertTableToSimpleTable(node);
         }
       }
     }
@@ -135,6 +140,44 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
         TableBlockKeys.colsLen: colsLen,
         TableBlockKeys.rowsLen: rowsLen,
       },
+    );
+  }
+
+  Node _convertTableToSimpleTable(Node node) {
+    if (node.type != TableBlockKeys.type) {
+      return node;
+    }
+
+    // the table node should contains colsLen and rowsLen
+    final colsLen = node.attributes[TableBlockKeys.colsLen];
+    final rowsLen = node.attributes[TableBlockKeys.rowsLen];
+    if (colsLen == null || rowsLen == null) {
+      return node;
+    }
+
+    final rows = <List<Node>>[];
+    final children = node.children;
+    for (var i = 0; i < rowsLen; i++) {
+      final row = <Node>[];
+      for (var j = 0; j < colsLen; j++) {
+        final cell = children
+            .where(
+              (n) =>
+                  n.attributes[TableCellBlockKeys.rowPosition] == i &&
+                  n.attributes[TableCellBlockKeys.colPosition] == j,
+            )
+            .firstOrNull;
+        row.add(
+          simpleTableCellBlockNode(
+            children: [cell?.children.first.copyWith() ?? paragraphNode()],
+          ),
+        );
+      }
+      rows.add(row);
+    }
+
+    return simpleTableBlockNode(
+      children: rows.map((e) => simpleTableRowBlockNode(children: e)).toList(),
     );
   }
 
@@ -447,7 +490,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
         // We move views after applying transaction to avoid performing side-effects on the views
         final viewIdsToMove = _extractChildViewIds(selectedNodes);
         for (final viewId in viewIdsToMove) {
-          // Attempt to put back from trash if neccessary
+          // Attempt to put back from trash if necessary
           await TrashService.putback(viewId);
 
           await ViewBackendService.moveViewV2(

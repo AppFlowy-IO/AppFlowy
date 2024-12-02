@@ -1,16 +1,18 @@
+import 'dart:ui';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_more_action.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_operations.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+/// Only displaying the add row / add column / add column and row button
+///   when hovering on the last row / last column / last cell.
+bool _enableHoveringLogicV2 = true;
 
 class SimpleTableReorderButton extends StatelessWidget {
   const SimpleTableReorderButton({
@@ -53,44 +55,98 @@ class SimpleTableReorderButton extends StatelessWidget {
   }
 }
 
-class SimpleTableAddRowHoverButton extends StatelessWidget {
+class SimpleTableAddRowHoverButton extends StatefulWidget {
   const SimpleTableAddRowHoverButton({
     super.key,
     required this.editorState,
-    required this.node,
+    required this.tableNode,
   });
 
   final EditorState editorState;
-  final Node node;
+  final Node tableNode;
+
+  @override
+  State<SimpleTableAddRowHoverButton> createState() =>
+      _SimpleTableAddRowHoverButtonState();
+}
+
+class _SimpleTableAddRowHoverButtonState
+    extends State<SimpleTableAddRowHoverButton> {
+  late final interceptorKey =
+      'simple_table_add_row_hover_button_${widget.tableNode.id}';
+
+  SelectionGestureInterceptor? interceptor;
+
+  @override
+  void initState() {
+    super.initState();
+
+    interceptor = SelectionGestureInterceptor(
+      key: interceptorKey,
+      canTap: (details) => !_isTapInBounds(details.globalPosition),
+    );
+    widget.editorState.service.selectionService
+        .registerGestureInterceptor(interceptor!);
+  }
+
+  @override
+  void dispose() {
+    widget.editorState.service.selectionService.unregisterGestureInterceptor(
+      interceptorKey,
+    );
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    assert(node.type == SimpleTableBlockKeys.type);
+    assert(widget.tableNode.type == SimpleTableBlockKeys.type);
 
-    if (node.type != SimpleTableBlockKeys.type) {
+    if (widget.tableNode.type != SimpleTableBlockKeys.type) {
       return const SizedBox.shrink();
     }
 
+    final simpleTableContext = context.read<SimpleTableContext>();
     return ValueListenableBuilder(
-      valueListenable: context.read<SimpleTableContext>().hoveringTableCell,
-      builder: (context, tableCell, child) {
-        if (tableCell == null) {
-          return const SizedBox.shrink();
-        }
-        final showRowButton = tableCell.rowIndex + 1 == tableCell.rowLength;
-        return showRowButton
-            ? Positioned(
-                bottom: 0,
-                left: SimpleTableConstants.tableLeftPadding -
-                    SimpleTableConstants.cellBorderWidth,
-                right: SimpleTableConstants.addRowButtonRightPadding,
-                child: SimpleTableAddRowButton(
-                  onTap: () => editorState.addRowInTable(node),
-                ),
-              )
-            : const SizedBox.shrink();
+      valueListenable: simpleTableContext.isHoveringOnTableBlock,
+      builder: (context, isHoveringOnTableBlock, child) {
+        return ValueListenableBuilder(
+          valueListenable: simpleTableContext.hoveringTableCell,
+          builder: (context, hoveringTableCell, child) {
+            bool shouldShow = isHoveringOnTableBlock;
+            if (hoveringTableCell != null && _enableHoveringLogicV2) {
+              shouldShow =
+                  hoveringTableCell.rowIndex + 1 == hoveringTableCell.rowLength;
+            }
+            return shouldShow
+                ? Positioned(
+                    bottom: 2 * SimpleTableConstants.addRowButtonPadding,
+                    left: SimpleTableConstants.tableLeftPadding -
+                        SimpleTableConstants.cellBorderWidth,
+                    right: SimpleTableConstants.addRowButtonRightPadding,
+                    child: SimpleTableAddRowButton(
+                      onTap: () => widget.editorState.addRowInTable(
+                        widget.tableNode,
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink();
+          },
+        );
       },
     );
+  }
+
+  bool _isTapInBounds(Offset offset) {
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) {
+      return false;
+    }
+
+    final localPosition = renderBox.globalToLocal(offset);
+    final result = renderBox.paintBounds.contains(localPosition);
+
+    return result;
   }
 }
 
@@ -107,14 +163,14 @@ class SimpleTableAddRowButton extends StatelessWidget {
     return FlowyTooltip(
       message: LocaleKeys.document_plugins_simpleTable_clickToAddNewRow.tr(),
       child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
+        behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: Container(
             height: SimpleTableConstants.addRowButtonHeight,
             margin: const EdgeInsets.symmetric(
-              vertical: SimpleTableConstants.addRowButtonPadding,
+              vertical: SimpleTableConstants.addColumnButtonPadding,
             ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(
@@ -132,7 +188,7 @@ class SimpleTableAddRowButton extends StatelessWidget {
   }
 }
 
-class SimpleTableAddColumnHoverButton extends StatelessWidget {
+class SimpleTableAddColumnHoverButton extends StatefulWidget {
   const SimpleTableAddColumnHoverButton({
     super.key,
     required this.editorState,
@@ -143,36 +199,87 @@ class SimpleTableAddColumnHoverButton extends StatelessWidget {
   final Node node;
 
   @override
-  Widget build(BuildContext context) {
-    assert(node.type == SimpleTableBlockKeys.type);
+  State<SimpleTableAddColumnHoverButton> createState() =>
+      _SimpleTableAddColumnHoverButtonState();
+}
 
-    if (node.type != SimpleTableBlockKeys.type) {
+class _SimpleTableAddColumnHoverButtonState
+    extends State<SimpleTableAddColumnHoverButton> {
+  late final interceptorKey =
+      'simple_table_add_column_hover_button_${widget.node.id}';
+
+  SelectionGestureInterceptor? interceptor;
+
+  @override
+  void initState() {
+    super.initState();
+
+    interceptor = SelectionGestureInterceptor(
+      key: interceptorKey,
+      canTap: (details) => !_isTapInBounds(details.globalPosition),
+    );
+    widget.editorState.service.selectionService
+        .registerGestureInterceptor(interceptor!);
+  }
+
+  @override
+  void dispose() {
+    widget.editorState.service.selectionService.unregisterGestureInterceptor(
+      interceptorKey,
+    );
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    assert(widget.node.type == SimpleTableBlockKeys.type);
+
+    if (widget.node.type != SimpleTableBlockKeys.type) {
       return const SizedBox.shrink();
     }
 
     return ValueListenableBuilder(
-      valueListenable: context.read<SimpleTableContext>().hoveringTableCell,
-      builder: (context, tableCell, child) {
-        if (tableCell == null) {
-          return const SizedBox.shrink();
-        }
-        final showColumnButton =
-            tableCell.columnIndex + 1 == tableCell.columnLength;
-        return showColumnButton
-            ? Positioned(
-                top: SimpleTableConstants.tableTopPadding -
-                    SimpleTableConstants.cellBorderWidth,
-                bottom: SimpleTableConstants.addColumnButtonBottomPadding,
-                right: 0,
-                child: SimpleTableAddColumnButton(
-                  onTap: () {
-                    editorState.addColumnInTable(node);
-                  },
-                ),
-              )
-            : const SizedBox.shrink();
+      valueListenable:
+          context.read<SimpleTableContext>().isHoveringOnTableBlock,
+      builder: (context, isHoveringOnTableBlock, _) {
+        return ValueListenableBuilder(
+          valueListenable: context.read<SimpleTableContext>().hoveringTableCell,
+          builder: (context, hoveringTableCell, _) {
+            bool shouldShow = isHoveringOnTableBlock;
+            if (hoveringTableCell != null && _enableHoveringLogicV2) {
+              shouldShow = hoveringTableCell.columnIndex + 1 ==
+                  hoveringTableCell.columnLength;
+            }
+            return shouldShow
+                ? Positioned(
+                    top: SimpleTableConstants.tableTopPadding -
+                        SimpleTableConstants.cellBorderWidth,
+                    bottom: SimpleTableConstants.addColumnButtonBottomPadding,
+                    right: 0,
+                    child: SimpleTableAddColumnButton(
+                      onTap: () {
+                        widget.editorState.addColumnInTable(widget.node);
+                      },
+                    ),
+                  )
+                : const SizedBox.shrink();
+          },
+        );
       },
     );
+  }
+
+  bool _isTapInBounds(Offset offset) {
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) {
+      return false;
+    }
+
+    final localPosition = renderBox.globalToLocal(offset);
+    final result = renderBox.paintBounds.contains(localPosition);
+
+    return result;
   }
 }
 
@@ -233,23 +340,28 @@ class SimpleTableAddColumnAndRowHoverButton extends StatelessWidget {
     }
 
     return ValueListenableBuilder(
-      valueListenable: context.read<SimpleTableContext>().hoveringTableCell,
-      builder: (context, tableCell, child) {
-        if (tableCell == null) {
-          return const SizedBox.shrink();
-        }
-        final showAddColumnAndRowButton =
-            tableCell.rowIndex + 1 == tableCell.rowLength ||
-                tableCell.columnIndex + 1 == tableCell.columnLength;
-        return showAddColumnAndRowButton
-            ? Positioned(
-                bottom: SimpleTableConstants.addRowButtonPadding,
-                right: SimpleTableConstants.addColumnButtonPadding,
-                child: SimpleTableAddColumnAndRowButton(
-                  onTap: () => editorState.addColumnAndRowInTable(node),
-                ),
-              )
-            : const SizedBox.shrink();
+      valueListenable:
+          context.read<SimpleTableContext>().isHoveringOnTableBlock,
+      builder: (context, isHoveringOnTableBlock, child) {
+        return ValueListenableBuilder(
+          valueListenable: context.read<SimpleTableContext>().hoveringTableCell,
+          builder: (context, hoveringTableCell, child) {
+            bool shouldShow = isHoveringOnTableBlock;
+            if (hoveringTableCell != null && _enableHoveringLogicV2) {
+              shouldShow = hoveringTableCell.isLastCellInTable;
+            }
+            return shouldShow
+                ? Positioned(
+                    bottom:
+                        SimpleTableConstants.addColumnAndRowButtonBottomPadding,
+                    right: SimpleTableConstants.addColumnButtonPadding,
+                    child: SimpleTableAddColumnAndRowButton(
+                      onTap: () => editorState.addColumnAndRowInTable(node),
+                    ),
+                  )
+                : const SizedBox.shrink();
+          },
+        );
       },
     );
   }
@@ -335,9 +447,6 @@ class SimpleTableAlignMenu extends StatefulWidget {
 }
 
 class _SimpleTableAlignMenuState extends State<SimpleTableAlignMenu> {
-  final PopoverController controller = PopoverController();
-  bool isOpen = false;
-
   @override
   Widget build(BuildContext context) {
     final align = switch (widget.type) {
@@ -345,34 +454,31 @@ class _SimpleTableAlignMenuState extends State<SimpleTableAlignMenu> {
       SimpleTableMoreActionType.row => widget.tableCellNode.rowAlign,
     };
     return AppFlowyPopover(
-      controller: controller,
-      asBarrier: true,
       mutex: widget.mutex,
       child: SimpleTableBasicButton(
         leftIconSvg: align.leftIconSvg,
         text: LocaleKeys.document_plugins_simpleTable_moreActions_align.tr(),
-        onTap: () {
-          if (!isOpen) {
-            controller.show();
-          }
-        },
+        onTap: () {},
       ),
-      onClose: () => isOpen = false,
-      popupBuilder: (_) {
-        isOpen = true;
+      popupBuilder: (popoverContext) {
+        void onClose() => PopoverContainer.of(popoverContext).closeAll();
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildAlignButton(context, TableAlign.left),
-            _buildAlignButton(context, TableAlign.center),
-            _buildAlignButton(context, TableAlign.right),
+            _buildAlignButton(context, TableAlign.left, onClose),
+            _buildAlignButton(context, TableAlign.center, onClose),
+            _buildAlignButton(context, TableAlign.right, onClose),
           ],
         );
       },
     );
   }
 
-  Widget _buildAlignButton(BuildContext context, TableAlign align) {
+  Widget _buildAlignButton(
+    BuildContext context,
+    TableAlign align,
+    VoidCallback onClose,
+  ) {
     return SimpleTableBasicButton(
       leftIconSvg: align.leftIconSvg,
       text: align.name,
@@ -392,7 +498,7 @@ class _SimpleTableAlignMenuState extends State<SimpleTableAlignMenu> {
             break;
         }
 
-        PopoverContainer.of(context).close();
+        onClose();
       },
     );
   }
@@ -481,15 +587,25 @@ class _SimpleTableColumnResizeHandleState
       },
       child: GestureDetector(
         onHorizontalDragStart: (details) {
+          // disable the two-finger drag on trackpad
+          if (details.kind == PointerDeviceKind.trackpad) {
+            return;
+          }
           isStartDragging = true;
         },
         onHorizontalDragUpdate: (details) {
+          if (!isStartDragging) {
+            return;
+          }
           context.read<EditorState>().updateColumnWidthInMemory(
                 tableCellNode: widget.node,
                 deltaX: details.delta.dx,
               );
         },
         onHorizontalDragEnd: (details) {
+          if (!isStartDragging) {
+            return;
+          }
           context.read<SimpleTableContext>().hoveringOnResizeHandle.value =
               null;
           isStartDragging = false;
@@ -543,11 +659,9 @@ class SimpleTableBackgroundColorMenu extends StatefulWidget {
 
 class _SimpleTableBackgroundColorMenuState
     extends State<SimpleTableBackgroundColorMenu> {
-  final PopoverController controller = PopoverController();
-  bool isOpen = false;
-
   @override
   Widget build(BuildContext context) {
+    final theme = AFThemeExtension.of(context);
     final backgroundColor = switch (widget.type) {
       SimpleTableMoreActionType.row =>
         widget.tableCellNode.buildRowColor(context),
@@ -555,39 +669,30 @@ class _SimpleTableBackgroundColorMenuState
         widget.tableCellNode.buildColumnColor(context),
     };
     return AppFlowyPopover(
-      controller: controller,
       mutex: widget.mutex,
-      asBarrier: true,
-      popupBuilder: (_) {
-        isOpen = true;
+      popupBuilder: (popoverContext) {
         return _buildColorOptionMenu(
           context,
-          controller,
+          theme: theme,
+          onClose: () => PopoverContainer.of(popoverContext).closeAll(),
         );
       },
-      onClose: () => isOpen = false,
       direction: PopoverDirection.rightWithCenterAligned,
-      animationDuration: Durations.short3,
-      beginScaleFactor: 1.0,
-      beginOpacity: 0.8,
       child: SimpleTableBasicButton(
         leftIconBuilder: (onHover) => ColorOptionIcon(
           color: backgroundColor ?? Colors.transparent,
         ),
         text: LocaleKeys.document_plugins_simpleTable_moreActions_color.tr(),
-        onTap: () {
-          if (!isOpen) {
-            controller.show();
-          }
-        },
+        onTap: () {},
       ),
     );
   }
 
   Widget _buildColorOptionMenu(
-    BuildContext context,
-    PopoverController controller,
-  ) {
+    BuildContext context, {
+    required AFThemeExtension theme,
+    required VoidCallback onClose,
+  }) {
     final colors = [
       // reset to default background color
       FlowyColorOption(
@@ -597,7 +702,7 @@ class _SimpleTableBackgroundColorMenuState
       ),
       ...FlowyTint.values.map(
         (e) => FlowyColorOption(
-          color: e.color(context),
+          color: e.color(context, theme: theme),
           i18n: e.tintName(AppFlowyEditorL10n.current),
           id: e.id,
         ),
@@ -607,7 +712,7 @@ class _SimpleTableBackgroundColorMenuState
     return FlowyColorPicker(
       colors: colors,
       border: Border.all(
-        color: AFThemeExtension.of(context).onBackground,
+        color: theme.onBackground,
       ),
       onTap: (option, index) {
         switch (widget.type) {
@@ -625,8 +730,7 @@ class _SimpleTableBackgroundColorMenuState
             break;
         }
 
-        controller.close();
-        PopoverContainer.of(context).close();
+        onClose();
       },
     );
   }

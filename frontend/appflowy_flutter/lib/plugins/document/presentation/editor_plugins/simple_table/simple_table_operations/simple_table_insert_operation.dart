@@ -1,8 +1,8 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_cell_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_row_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_map_operation.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_node_extension.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_cell_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_row_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_operations/simple_table_map_operation.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_operations/simple_table_node_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
@@ -20,15 +20,15 @@ extension TableInsertionOperations on EditorState {
   /// Row 2: |   |   |   |
   /// Row 3: |   |   |   | ← New row
   ///
-  Future<void> addRowInTable(Node node) async {
-    assert(node.type == SimpleTableBlockKeys.type);
+  Future<void> addRowInTable(Node tableNode) async {
+    assert(tableNode.type == SimpleTableBlockKeys.type);
 
-    if (node.type != SimpleTableBlockKeys.type) {
-      Log.warn('node is not a table node: ${node.type}');
+    if (tableNode.type != SimpleTableBlockKeys.type) {
+      Log.warn('node is not a table node: ${tableNode.type}');
       return;
     }
 
-    await insertRowInTable(node, node.rowLength);
+    await insertRowInTable(tableNode, tableNode.rowLength);
   }
 
   /// Add a column at the end of the table.

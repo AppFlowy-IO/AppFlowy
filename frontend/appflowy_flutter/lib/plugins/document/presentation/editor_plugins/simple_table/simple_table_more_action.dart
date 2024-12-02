@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/shared_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/table_operations/table_operations.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/_shared_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_constants.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_operations/simple_table_operations.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -166,6 +166,7 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
               return child!;
             },
             child: SimpleTableMoreActionPopup(
+              key: ValueKey(widget.type.name + widget.index.toString()),
               index: widget.index,
               isShowingMenu: this.isShowingMenu,
               type: widget.type,
@@ -242,6 +243,13 @@ class _SimpleTableMoreActionPopupState
             context.read<SimpleTableContext>().selectingRow.value =
                 tableCellNode?.rowIndex;
         }
+
+        // Workaround to clear the selection after the menu is opened.
+        Future.delayed(Durations.short3, () {
+          if (!editorState.isDisposed) {
+            editorState.selection = null;
+          }
+        });
       },
       onClose: () {
         widget.isShowingMenu.value = false;
@@ -297,17 +305,28 @@ class _SimpleTableMoreActionPopupState
   }
 }
 
-class SimpleTableMoreActionList extends StatelessWidget {
+class SimpleTableMoreActionList extends StatefulWidget {
   const SimpleTableMoreActionList({
     super.key,
     required this.type,
     required this.index,
     required this.tableCellNode,
+    this.mutex,
   });
 
   final SimpleTableMoreActionType type;
   final int index;
   final Node tableCellNode;
+  final PopoverMutex? mutex;
+
+  @override
+  State<SimpleTableMoreActionList> createState() =>
+      _SimpleTableMoreActionListState();
+}
+
+class _SimpleTableMoreActionListState extends State<SimpleTableMoreActionList> {
+  // ensure the background color menu and align menu exclusive
+  final mutex = PopoverMutex();
 
   @override
   Widget build(BuildContext context) {
@@ -316,9 +335,10 @@ class SimpleTableMoreActionList extends StatelessWidget {
       children: _buildActions()
           .map(
             (action) => SimpleTableMoreActionItem(
-              type: type,
+              type: widget.type,
               action: action,
-              tableCellNode: tableCellNode,
+              tableCellNode: widget.tableCellNode,
+              popoverMutex: mutex,
             ),
           )
           .toList(),
@@ -326,26 +346,27 @@ class SimpleTableMoreActionList extends StatelessWidget {
   }
 
   List<SimpleTableMoreAction> _buildActions() {
-    final actions = type.actions;
+    final actions = widget.type.actions;
 
     // if the index is 0, add the divider and enable header action
-    if (index == 0) {
+    if (widget.index == 0) {
       actions.addAll([
         SimpleTableMoreAction.divider,
-        if (type == SimpleTableMoreActionType.column)
+        if (widget.type == SimpleTableMoreActionType.column)
           SimpleTableMoreAction.enableHeaderColumn,
-        if (type == SimpleTableMoreActionType.row)
+        if (widget.type == SimpleTableMoreActionType.row)
           SimpleTableMoreAction.enableHeaderRow,
       ]);
     }
 
     // if the table only contains one row or one column, remove the delete action
-    if (tableCellNode.rowLength == 1 && type == SimpleTableMoreActionType.row) {
+    if (widget.tableCellNode.rowLength == 1 &&
+        widget.type == SimpleTableMoreActionType.row) {
       actions.remove(SimpleTableMoreAction.delete);
     }
 
-    if (tableCellNode.columnLength == 1 &&
-        type == SimpleTableMoreActionType.column) {
+    if (widget.tableCellNode.columnLength == 1 &&
+        widget.type == SimpleTableMoreActionType.column) {
       actions.remove(SimpleTableMoreAction.delete);
     }
 
@@ -359,11 +380,13 @@ class SimpleTableMoreActionItem extends StatefulWidget {
     required this.type,
     required this.action,
     required this.tableCellNode,
+    required this.popoverMutex,
   });
 
   final SimpleTableMoreActionType type;
   final SimpleTableMoreAction action;
   final Node tableCellNode;
+  final PopoverMutex popoverMutex;
 
   @override
   State<SimpleTableMoreActionItem> createState() =>
@@ -371,10 +394,7 @@ class SimpleTableMoreActionItem extends StatefulWidget {
 }
 
 class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
-  // ensure the background color menu and align menu exclusive
-  final mutex = PopoverMutex();
-
-  ValueNotifier<bool> isEnableHeader = ValueNotifier(false);
+  final isEnableHeader = ValueNotifier(false);
 
   @override
   void initState() {
@@ -419,7 +439,7 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     return SimpleTableAlignMenu(
       type: widget.type,
       tableCellNode: widget.tableCellNode,
-      mutex: mutex,
+      mutex: widget.popoverMutex,
     );
   }
 
@@ -427,7 +447,7 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     return SimpleTableBackgroundColorMenu(
       type: widget.type,
       tableCellNode: widget.tableCellNode,
-      mutex: mutex,
+      mutex: widget.popoverMutex,
     );
   }
 

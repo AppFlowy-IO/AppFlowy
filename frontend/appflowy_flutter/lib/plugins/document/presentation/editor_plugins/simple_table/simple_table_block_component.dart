@@ -1,7 +1,7 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/shared_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_cell_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_constants.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/table/simple_table_row_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/_shared_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_cell_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_constants.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_row_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -92,12 +92,17 @@ Node createSimpleTableBlockNode({
   required int columnCount,
   required int rowCount,
   String? defaultContent,
+  String Function(int rowIndex, int columnIndex)? contentBuilder,
 }) {
-  final rows = List.generate(rowCount, (_) {
+  final rows = List.generate(rowCount, (rowIndex) {
     final cells = List.generate(
       columnCount,
-      (_) => simpleTableCellBlockNode(
-        children: [paragraphNode(text: defaultContent)],
+      (columnIndex) => simpleTableCellBlockNode(
+        children: [
+          paragraphNode(
+            text: defaultContent ?? contentBuilder?.call(rowIndex, columnIndex),
+          ),
+        ],
       ),
     );
     return simpleTableRowBlockNode(children: cells);
@@ -203,37 +208,39 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
       );
     }
 
-    return child;
-  }
-
-  Widget _buildTable() {
-    const bottomPadding = SimpleTableConstants.addRowButtonHeight +
-        2 * SimpleTableConstants.addRowButtonPadding;
-    const rightPadding = SimpleTableConstants.addColumnButtonWidth +
-        2 * SimpleTableConstants.addColumnButtonPadding;
-    // IntrinsicWidth and IntrinsicHeight are used to make the table size fit the content.
     return Provider.value(
       value: simpleTableContext,
       child: MouseRegion(
-        onEnter: (event) => simpleTableContext.isHoveringOnTable.value = true,
+        onEnter: (event) =>
+            simpleTableContext.isHoveringOnTableBlock.value = true,
         onExit: (event) {
-          simpleTableContext.isHoveringOnTable.value = false;
-          simpleTableContext.hoveringTableCell.value = null;
+          simpleTableContext.isHoveringOnTableBlock.value = false;
         },
-        child: Stack(
-          children: [
-            Scrollbar(
+        child: child,
+      ),
+    );
+  }
+
+  Widget _buildTable() {
+    // IntrinsicWidth and IntrinsicHeight are used to make the table size fit the content.
+    return Provider.value(
+      value: simpleTableContext,
+      child: Stack(
+        children: [
+          MouseRegion(
+            onEnter: (event) =>
+                simpleTableContext.isHoveringOnTable.value = true,
+            onExit: (event) {
+              simpleTableContext.isHoveringOnTable.value = false;
+              simpleTableContext.hoveringTableCell.value = null;
+            },
+            child: Scrollbar(
               controller: scrollController,
               child: SingleChildScrollView(
                 controller: scrollController,
                 scrollDirection: Axis.horizontal,
                 child: Padding(
-                  padding: const EdgeInsets.only(
-                    top: SimpleTableConstants.tableTopPadding,
-                    left: SimpleTableConstants.tableLeftPadding,
-                    bottom: bottomPadding,
-                    right: rightPadding,
-                  ),
+                  padding: SimpleTableConstants.tablePadding,
                   child: IntrinsicWidth(
                     child: IntrinsicHeight(
                       child: Column(
@@ -246,20 +253,20 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
                 ),
               ),
             ),
-            SimpleTableAddColumnHoverButton(
-              editorState: editorState,
-              node: node,
-            ),
-            SimpleTableAddRowHoverButton(
-              editorState: editorState,
-              node: node,
-            ),
-            SimpleTableAddColumnAndRowHoverButton(
-              editorState: editorState,
-              node: node,
-            ),
-          ],
-        ),
+          ),
+          SimpleTableAddColumnHoverButton(
+            editorState: editorState,
+            node: node,
+          ),
+          SimpleTableAddRowHoverButton(
+            editorState: editorState,
+            tableNode: node,
+          ),
+          SimpleTableAddColumnAndRowHoverButton(
+            editorState: editorState,
+            node: node,
+          ),
+        ],
       ),
     );
   }
