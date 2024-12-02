@@ -1,5 +1,5 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/markdown_parsers.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -38,6 +38,16 @@ void main() {
 |9|C2dE4dEEc489ae0|Sheryl|Meyers|Browning-Simon|Robersonstad|Cyprus|
 |10|8C2811a503C7c5a|Michelle|Gallagher|Beck-Hendrix|Elaineberg|Timor-Leste|
 ''');
+    });
+
+    test('convert markdown to simple table (1)', () async {
+      final document = customMarkdownToDocument(_sampleMarkdown1);
+      expect(document, isNotNull);
+      final tableNode = document.nodeAtPath([0])!;
+      expect(tableNode, isNotNull);
+      expect(tableNode.type, equals(SimpleTableBlockKeys.type));
+      expect(tableNode.rowLength, equals(4));
+      expect(tableNode.columnLength, equals(4));
     });
   });
 }
@@ -143,3 +153,10 @@ const _sampleContents = <List<String>>[
     "Timor-Leste",
   ],
 ];
+
+const _sampleMarkdown1 = '''|A|B|C||
+|---|---|---|---|
+|D|E|F||
+|1|2|3||
+|||||
+''';

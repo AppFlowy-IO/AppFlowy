@@ -6,6 +6,7 @@ Document customMarkdownToDocument(String markdown) {
     markdown,
     markdownParsers: [
       const MarkdownCodeBlockParser(),
+      const MarkdownSimpleTableParser(),
     ],
   );
 }

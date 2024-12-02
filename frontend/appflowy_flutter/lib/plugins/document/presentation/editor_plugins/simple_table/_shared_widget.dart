@@ -12,7 +12,7 @@ import 'package:provider/provider.dart';
 
 /// Only displaying the add row / add column / add column and row button
 ///   when hovering on the last row / last column / last cell.
-bool _enableHoveringLogicV2 = false;
+bool _enableHoveringLogicV2 = true;
 
 class SimpleTableReorderButton extends StatelessWidget {
   const SimpleTableReorderButton({
