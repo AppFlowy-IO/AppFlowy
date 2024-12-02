@@ -299,10 +299,13 @@ class _ChatMentionPageItem extends StatelessWidget {
     final spaceIcon = view.buildSpaceIconSvg(context);
 
     if (view.icon.value.isNotEmpty) {
-      return FlowyText.emoji(
-        view.icon.value,
-        fontSize: 14.0,
-        figmaLineHeight: 18.0,
+      return SizedBox(
+        width: 16.0,
+        child: FlowyText.emoji(
+          view.icon.value,
+          fontSize: 14.0,
+          figmaLineHeight: 21.0,
+        ),
       );
     }
 
