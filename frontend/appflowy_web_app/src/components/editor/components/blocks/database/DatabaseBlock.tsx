@@ -5,7 +5,7 @@ import { DatabaseNode, EditorElementProps } from '@/components/editor/editor.typ
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { getScrollParent } from '@/components/global-comment/utils';
 import CircularProgress from '@mui/material/CircularProgress';
-import React, { forwardRef, memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactEditor, useReadOnly, useSlateStatic } from 'slate-react';
 
@@ -89,6 +89,11 @@ export const DatabaseBlock = memo(
     const readOnly = useReadOnly();
 
     const containerRef = useRef<HTMLDivElement | null>(null);
+    const selectedView = useMemo(() => {
+      const database = doc?.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.database);
+
+      return database?.get(YjsDatabaseKey.views)?.get(selectedViewId);
+    }, [doc, selectedViewId]);
     const handleRendered = useCallback(async (height: number) => {
       const container = containerRef.current;
 
@@ -97,9 +102,13 @@ export const DatabaseBlock = memo(
         container.style.height = `${height}px`;
       }
 
-      container.style.maxHeight = '550px';
+      const layout = Number(selectedView?.get(YjsDatabaseKey.layout));
 
-    }, []);
+      if (layout !== DatabaseViewLayout.Calendar) {
+        container.style.maxHeight = '550px';
+      }
+
+    }, [selectedView]);
 
     const [scrollLeft, setScrollLeft] = useState(0);
     const editor = useSlateStatic();
@@ -107,8 +116,7 @@ export const DatabaseBlock = memo(
     useEffect(() => {
       const editorDom = ReactEditor.toDOMNode(editor, editor);
       const scrollContainer = getScrollParent(editorDom) as HTMLElement;
-      const view = doc?.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.database)?.get(YjsDatabaseKey.views)?.get(selectedViewId);
-      const layout = Number(view?.get(YjsDatabaseKey.layout));
+      const layout = Number(selectedView?.get(YjsDatabaseKey.layout));
 
       const onResize = () => {
         const scrollRect = scrollContainer.getBoundingClientRect();
@@ -124,7 +132,7 @@ export const DatabaseBlock = memo(
       return () => {
         resizeObserver.disconnect();
       };
-    }, [editor, selectedViewId, doc]);
+    }, [editor, selectedView]);
 
     return (
       <>

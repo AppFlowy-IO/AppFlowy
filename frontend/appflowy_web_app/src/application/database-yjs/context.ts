@@ -94,3 +94,9 @@ export function useDatabaseFields () {
 
   return database.get(YjsDatabaseKey.fields);
 }
+
+export const useDatabaseSelectedView = (viewId: string) => {
+  const database = useDatabase();
+
+  return database.get(YjsDatabaseKey.views).get(viewId);
+};
