@@ -276,6 +276,13 @@ export function handleCollapsedBreakWithTxn (editor: YjsEditor, sharedRoot: YSha
   if (yText.length === 0) {
     const point = Editor.start(editor, at);
 
+    const parent = getParent(blockId, sharedRoot);
+
+    if (blockType !== BlockType.Paragraph && parent?.get(YjsEditorKey.block_type) === BlockType.QuoteBlock && ListBlockTypes.includes(blockType)) {
+      handleNonParagraphBlockBackspaceAndEnterWithTxn(editor, sharedRoot, block, point);
+      return;
+    }
+
     if (path.length > 1 && handleLiftBlockOnBackspaceAndEnterWithTxn(editor, sharedRoot, block, point)) {
       return;
     }
@@ -638,7 +645,7 @@ export function mergeBlocks (
   if (!sourceTextId || !targetTextId) {
     return;
   }
-  
+
   const sourceYText = getText(sourceTextId, sharedRoot);
   const targetYText = getText(targetTextId, sharedRoot);
 

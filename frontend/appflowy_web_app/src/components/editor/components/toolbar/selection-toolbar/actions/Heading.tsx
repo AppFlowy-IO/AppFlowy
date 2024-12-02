@@ -14,9 +14,6 @@ import { useSlateStatic } from 'slate-react';
 import { ReactComponent as Heading1Svg } from '@/assets/h1.svg';
 import { ReactComponent as Heading2Svg } from '@/assets/h2.svg';
 import { ReactComponent as Heading3Svg } from '@/assets/h3.svg';
-import { ReactComponent as Heading4Svg } from '@/assets/h4.svg';
-import { ReactComponent as Heading5Svg } from '@/assets/h5.svg';
-import { ReactComponent as Heading6Svg } from '@/assets/h6.svg';
 import { ReactComponent as RightIcon } from '@/assets/arrow_right.svg';
 
 const popoverProps: Partial<PopoverProps> = {
@@ -95,19 +92,7 @@ export function Heading () {
       return <Heading3Svg className={'text-fill-default'} />;
     }
 
-    if (isActivated(4)) {
-      return <Heading4Svg className={'text-fill-default'} />;
-    }
-
-    if (isActivated(5)) {
-      return <Heading5Svg className={'text-fill-default'} />;
-    }
-
-    if (isActivated(6)) {
-      return <Heading6Svg className={'text-fill-default'} />;
-    }
-
-    return <Heading1Svg />;
+    return <Heading3Svg />;
   }, [isActivated]);
 
   const [open, setOpen] = useState(false);

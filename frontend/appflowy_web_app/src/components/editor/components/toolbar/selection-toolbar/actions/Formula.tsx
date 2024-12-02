@@ -90,7 +90,7 @@ function Formula () {
     <ActionButton
       onClick={onClick}
       active={isActivated}
-      disabled={hasFormulaActivated || hasMentionActivated}
+      disabled={!isActivated && (hasFormulaActivated || hasMentionActivated)}
       tooltip={t('document.plugins.createInlineMathEquation')}
     >
       <MathSvg />

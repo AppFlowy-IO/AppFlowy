@@ -29,7 +29,7 @@ export function getSelectionPosition (editor: ReactEditor) {
     const relativeDomLeft = rect.left - domNodeRect.left;
 
     // if the range is above the window, move the toolbar to the bottom of range
-    if (rect.top < gap) {
+    if (rect.top < gap && rect.bottom > 48) {
       relativeDomTop = -domNodeRect.top + gap;
     }
 

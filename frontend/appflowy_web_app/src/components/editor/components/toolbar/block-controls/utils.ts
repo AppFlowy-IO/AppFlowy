@@ -1,5 +1,5 @@
 import { BlockType } from '@/application/types';
-import { HeadingNode, ImageBlockNode } from '@/components/editor/editor.type';
+import { HeadingNode } from '@/components/editor/editor.type';
 import { ReactEditor } from 'slate-react';
 import { Element } from 'slate';
 
@@ -29,24 +29,23 @@ export function getBlockCssProperty (node: Element) {
   }
 
   switch (node.type) {
-    case BlockType.CodeBlock:
-    case BlockType.OutlineBlock:
-      return 'my-2';
+    case BlockType.Paragraph:
+    case BlockType.NumberedListBlock:
+    case BlockType.BulletedListBlock:
+    case BlockType.TodoListBlock:
+    case BlockType.ToggleListBlock:
+    case BlockType.QuoteBlock:
+      return 'py-[2.5px]';
     case BlockType.GridBlock:
     case BlockType.CalloutBlock:
     case BlockType.TableBlock:
       return 'my-3';
     case BlockType.GalleryBlock:
       return 'my-4';
-    case BlockType.EquationBlock:
-    case BlockType.FileBlock:
-      return 'my-6';
-    case BlockType.ImageBlock:
-      return (node as ImageBlockNode).data?.url ? 'my-2' : 'my-6';
     case BlockType.DividerBlock:
       return 'my-[-4px]';
     default:
-      return 'pt-[3px]';
+      return 'my-2';
   }
 }
 

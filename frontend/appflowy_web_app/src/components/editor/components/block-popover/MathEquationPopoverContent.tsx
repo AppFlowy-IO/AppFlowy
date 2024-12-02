@@ -4,7 +4,8 @@ import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtil
 import { MathEquationBlockData } from '@/application/types';
 import { MathEquationNode } from '@/components/editor/editor.type';
 import { Button, TextField } from '@mui/material';
-import React, { useCallback, useEffect, useRef } from 'react';
+import { debounce } from 'lodash-es';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NodeEntry } from 'slate';
 import { useSlateStatic } from 'slate-react';
@@ -30,6 +31,14 @@ function MathEquationPopoverContent ({
     } as MathEquationBlockData);
     handleClose();
   }, [blockId, handleClose, editor]);
+
+  const debounceSave = useMemo(() => {
+    return debounce((formula: string) => {
+      CustomEditor.setBlockData(editor, blockId, {
+        formula,
+      } as MathEquationBlockData);
+    }, 300);
+  }, [blockId, editor]);
 
   useEffect(() => {
     const entry = findSlateEntryByBlockId(editor, blockId) as NodeEntry<MathEquationNode>;
@@ -64,7 +73,10 @@ function MathEquationPopoverContent ({
         fullWidth
         autoFocus={true}
         value={formula}
-        onChange={(e) => setFormula(e.target.value)}
+        onChange={(e) => {
+          setFormula(e.target.value);
+          debounceSave(e.target.value);
+        }}
         placeholder={`E.g. x^2 + y^2 = z^2`}
         autoComplete={'off'}
         spellCheck={false}
