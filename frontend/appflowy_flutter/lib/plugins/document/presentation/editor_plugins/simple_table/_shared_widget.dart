@@ -10,6 +10,10 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+/// Only displaying the add row / add column / add column and row button
+///   when hovering on the last row / last column / last cell.
+bool _enableHoveringLogicV2 = false;
+
 class SimpleTableReorderButton extends StatelessWidget {
   const SimpleTableReorderButton({
     super.key,
@@ -102,23 +106,33 @@ class _SimpleTableAddRowHoverButtonState
       return const SizedBox.shrink();
     }
 
+    final simpleTableContext = context.read<SimpleTableContext>();
     return ValueListenableBuilder(
-      valueListenable:
-          context.read<SimpleTableContext>().isHoveringOnTableBlock,
+      valueListenable: simpleTableContext.isHoveringOnTableBlock,
       builder: (context, isHoveringOnTableBlock, child) {
-        return isHoveringOnTableBlock
-            ? Positioned(
-                bottom: 2 * SimpleTableConstants.addRowButtonPadding,
-                left: SimpleTableConstants.tableLeftPadding -
-                    SimpleTableConstants.cellBorderWidth,
-                right: SimpleTableConstants.addRowButtonRightPadding,
-                child: SimpleTableAddRowButton(
-                  onTap: () => widget.editorState.addRowInTable(
-                    widget.tableNode,
-                  ),
-                ),
-              )
-            : const SizedBox.shrink();
+        return ValueListenableBuilder(
+          valueListenable: simpleTableContext.hoveringTableCell,
+          builder: (context, hoveringTableCell, child) {
+            bool shouldShow = isHoveringOnTableBlock;
+            if (hoveringTableCell != null && _enableHoveringLogicV2) {
+              shouldShow =
+                  hoveringTableCell.rowIndex + 1 == hoveringTableCell.rowLength;
+            }
+            return shouldShow
+                ? Positioned(
+                    bottom: 2 * SimpleTableConstants.addRowButtonPadding,
+                    left: SimpleTableConstants.tableLeftPadding -
+                        SimpleTableConstants.cellBorderWidth,
+                    right: SimpleTableConstants.addRowButtonRightPadding,
+                    child: SimpleTableAddRowButton(
+                      onTap: () => widget.editorState.addRowInTable(
+                        widget.tableNode,
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink();
+          },
+        );
       },
     );
   }
@@ -229,19 +243,29 @@ class _SimpleTableAddColumnHoverButtonState
       valueListenable:
           context.read<SimpleTableContext>().isHoveringOnTableBlock,
       builder: (context, isHoveringOnTableBlock, _) {
-        return isHoveringOnTableBlock
-            ? Positioned(
-                top: SimpleTableConstants.tableTopPadding -
-                    SimpleTableConstants.cellBorderWidth,
-                bottom: SimpleTableConstants.addColumnButtonBottomPadding,
-                right: 0,
-                child: SimpleTableAddColumnButton(
-                  onTap: () {
-                    widget.editorState.addColumnInTable(widget.node);
-                  },
-                ),
-              )
-            : const SizedBox.shrink();
+        return ValueListenableBuilder(
+          valueListenable: context.read<SimpleTableContext>().hoveringTableCell,
+          builder: (context, hoveringTableCell, _) {
+            bool shouldShow = isHoveringOnTableBlock;
+            if (hoveringTableCell != null && _enableHoveringLogicV2) {
+              shouldShow = hoveringTableCell.columnIndex + 1 ==
+                  hoveringTableCell.columnLength;
+            }
+            return shouldShow
+                ? Positioned(
+                    top: SimpleTableConstants.tableTopPadding -
+                        SimpleTableConstants.cellBorderWidth,
+                    bottom: SimpleTableConstants.addColumnButtonBottomPadding,
+                    right: 0,
+                    child: SimpleTableAddColumnButton(
+                      onTap: () {
+                        widget.editorState.addColumnInTable(widget.node);
+                      },
+                    ),
+                  )
+                : const SizedBox.shrink();
+          },
+        );
       },
     );
   }
@@ -319,15 +343,25 @@ class SimpleTableAddColumnAndRowHoverButton extends StatelessWidget {
       valueListenable:
           context.read<SimpleTableContext>().isHoveringOnTableBlock,
       builder: (context, isHoveringOnTableBlock, child) {
-        return isHoveringOnTableBlock
-            ? Positioned(
-                bottom: SimpleTableConstants.addColumnAndRowButtonBottomPadding,
-                right: SimpleTableConstants.addColumnButtonPadding,
-                child: SimpleTableAddColumnAndRowButton(
-                  onTap: () => editorState.addColumnAndRowInTable(node),
-                ),
-              )
-            : const SizedBox.shrink();
+        return ValueListenableBuilder(
+          valueListenable: context.read<SimpleTableContext>().hoveringTableCell,
+          builder: (context, hoveringTableCell, child) {
+            bool shouldShow = isHoveringOnTableBlock;
+            if (hoveringTableCell != null && _enableHoveringLogicV2) {
+              shouldShow = hoveringTableCell.isLastCellInTable;
+            }
+            return shouldShow
+                ? Positioned(
+                    bottom:
+                        SimpleTableConstants.addColumnAndRowButtonBottomPadding,
+                    right: SimpleTableConstants.addColumnButtonPadding,
+                    child: SimpleTableAddColumnAndRowButton(
+                      onTap: () => editorState.addColumnAndRowInTable(node),
+                    ),
+                  )
+                : const SizedBox.shrink();
+          },
+        );
       },
     );
   }

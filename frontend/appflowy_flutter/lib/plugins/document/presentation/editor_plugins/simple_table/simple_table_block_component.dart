@@ -225,55 +225,48 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
     // IntrinsicWidth and IntrinsicHeight are used to make the table size fit the content.
     return Provider.value(
       value: simpleTableContext,
-      child: MouseRegion(
-        onEnter: (event) =>
-            simpleTableContext.isHoveringOnTableBlock.value = true,
-        onExit: (event) {
-          simpleTableContext.isHoveringOnTableBlock.value = false;
-        },
-        child: Stack(
-          children: [
-            MouseRegion(
-              onEnter: (event) =>
-                  simpleTableContext.isHoveringOnTable.value = true,
-              onExit: (event) {
-                simpleTableContext.isHoveringOnTable.value = false;
-                simpleTableContext.hoveringTableCell.value = null;
-              },
-              child: Scrollbar(
+      child: Stack(
+        children: [
+          MouseRegion(
+            onEnter: (event) =>
+                simpleTableContext.isHoveringOnTable.value = true,
+            onExit: (event) {
+              simpleTableContext.isHoveringOnTable.value = false;
+              simpleTableContext.hoveringTableCell.value = null;
+            },
+            child: Scrollbar(
+              controller: scrollController,
+              child: SingleChildScrollView(
                 controller: scrollController,
-                child: SingleChildScrollView(
-                  controller: scrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: Padding(
-                    padding: SimpleTableConstants.tablePadding,
-                    child: IntrinsicWidth(
-                      child: IntrinsicHeight(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: _buildRows(),
-                        ),
+                scrollDirection: Axis.horizontal,
+                child: Padding(
+                  padding: SimpleTableConstants.tablePadding,
+                  child: IntrinsicWidth(
+                    child: IntrinsicHeight(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: _buildRows(),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-            SimpleTableAddColumnHoverButton(
-              editorState: editorState,
-              node: node,
-            ),
-            SimpleTableAddRowHoverButton(
-              editorState: editorState,
-              tableNode: node,
-            ),
-            SimpleTableAddColumnAndRowHoverButton(
-              editorState: editorState,
-              node: node,
-            ),
-          ],
-        ),
+          ),
+          SimpleTableAddColumnHoverButton(
+            editorState: editorState,
+            node: node,
+          ),
+          SimpleTableAddRowHoverButton(
+            editorState: editorState,
+            tableNode: node,
+          ),
+          SimpleTableAddColumnAndRowHoverButton(
+            editorState: editorState,
+            node: node,
+          ),
+        ],
       ),
     );
   }
