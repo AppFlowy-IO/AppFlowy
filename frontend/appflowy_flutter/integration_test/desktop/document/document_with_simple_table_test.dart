@@ -186,6 +186,65 @@ void main() {
       expect(tableNode.columnLength, 3);
       expect(tableNode.rowLength, 3);
     });
+
+    testWidgets('enable header column and header row', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+      await tester.createNewPageWithNameUnderParent(
+        name: 'simple_table_test',
+      );
+
+      await tester.editor.tapLineOfEditorAt(0);
+      await insertTableInDocument(tester);
+
+      // hover on the first row
+      final firstRow = find.byWidgetPredicate((w) {
+        return w is SimpleTableRowBlockWidget && w.node.rowIndex == 0;
+      });
+      await tester.hoverOnWidget(
+        firstRow,
+        onHover: () async {
+          final moreActionButton = find.byWidgetPredicate((w) {
+            return w is SimpleTableMoreActionMenu &&
+                w.type == SimpleTableMoreActionType.row &&
+                w.index == 0;
+          });
+          await tester.tapButton(moreActionButton);
+          await tester.tapButton(
+            find.text(SimpleTableMoreAction.enableHeaderRow.name),
+          );
+        },
+      );
+      await tester.pumpAndSettle();
+      // cancel the popup
+      await tester.tapAt(Offset.zero);
+
+      // hover on the first column
+      final firstColumn = find.byWidgetPredicate((w) {
+        return w is SimpleTableCellBlockWidget && w.node.columnIndex == 0;
+      }).first;
+      await tester.hoverOnWidget(
+        firstColumn,
+        onHover: () async {
+          final moreActionButton = find.byWidgetPredicate((w) {
+            return w is SimpleTableMoreActionMenu &&
+                w.type == SimpleTableMoreActionType.column &&
+                w.index == 0;
+          });
+          await tester.tapButton(moreActionButton);
+          await tester.tapButton(
+            find.text(SimpleTableMoreAction.enableHeaderColumn.name),
+          );
+        },
+      );
+      await tester.pumpAndSettle();
+
+      final tableNode =
+          tester.editor.getCurrentEditorState().document.nodeAtPath([0])!;
+
+      expect(tableNode.isHeaderColumnEnabled, isTrue);
+      expect(tableNode.isHeaderRowEnabled, isTrue);
+    });
   });
 }
 
