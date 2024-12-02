@@ -242,6 +242,13 @@ class _SimpleTableMoreActionPopupState
             context.read<SimpleTableContext>().selectingRow.value =
                 tableCellNode?.rowIndex;
         }
+
+        // Workaround to clear the selection after the menu is opened.
+        Future.delayed(Durations.short3, () {
+          if (!editorState.isDisposed) {
+            editorState.selection = null;
+          }
+        });
       },
       onClose: () {
         widget.isShowingMenu.value = false;

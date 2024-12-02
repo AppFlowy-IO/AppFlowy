@@ -691,9 +691,6 @@ class _SimpleTableBackgroundColorMenuState
       },
       onClose: () => isOpen = false,
       direction: PopoverDirection.rightWithCenterAligned,
-      animationDuration: Durations.short3,
-      beginScaleFactor: 1.0,
-      beginOpacity: 0.8,
       child: SimpleTableBasicButton(
         leftIconBuilder: (onHover) => ColorOptionIcon(
           color: backgroundColor ?? Colors.transparent,
