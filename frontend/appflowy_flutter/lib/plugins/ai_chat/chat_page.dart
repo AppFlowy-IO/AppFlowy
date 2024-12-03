@@ -76,7 +76,7 @@ class AIChatPage extends StatelessWidget {
                 for (final file in detail.files) {
                   context
                       .read<AIPromptInputBloc>()
-                      .add(AIPromptInputEvent.newFile(file.path, file.name));
+                      .add(AIPromptInputEvent.attachFile(file.path, file.name));
                 }
               }
             },
@@ -345,7 +345,6 @@ class _ChatContentPage extends StatelessWidget {
           return UniversalPlatform.isDesktop
               ? DesktopAIPromptInput(
                   chatId: view.id,
-                  indicateFocus: true,
                   onSubmitted: (text, metadata) {
                     context.read<ChatBloc>().add(
                           ChatEvent.sendMessage(
