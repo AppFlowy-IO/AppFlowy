@@ -4,12 +4,17 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
-const enableTableDebugLog = true;
+const enableTableDebugLog = false;
 
 class SimpleTableContext {
   SimpleTableContext() {
     if (enableTableDebugLog) {
-      isHoveringOnTable.addListener(_onHoveringOnTableChanged);
+      isHoveringOnColumnsAndRows.addListener(
+        _onHoveringOnColumnsAndRowsChanged,
+      );
+      isHoveringOnTableArea.addListener(
+        _onHoveringOnTableAreaChanged,
+      );
       hoveringTableCell.addListener(_onHoveringTableNodeChanged);
       selectingColumn.addListener(_onSelectingColumnChanged);
       selectingRow.addListener(_onSelectingRowChanged);
@@ -18,20 +23,40 @@ class SimpleTableContext {
     }
   }
 
-  final ValueNotifier<bool> isHoveringOnTable = ValueNotifier(false);
-  final ValueNotifier<Node?> hoveringTableCell = ValueNotifier(null);
-  final ValueNotifier<Node?> hoveringOnResizeHandle = ValueNotifier(null);
-  final ValueNotifier<int?> selectingColumn = ValueNotifier(null);
-  final ValueNotifier<int?> selectingRow = ValueNotifier(null);
-  final ValueNotifier<bool> isSelectingTable = ValueNotifier(false);
+  // the area only contains the columns and rows,
+  //  the add row button, add column button, and add column and row button are not part of the table area
+  final ValueNotifier<bool> isHoveringOnColumnsAndRows = ValueNotifier(false);
+
+  // the table area contains the columns and rows,
+  //  the add row button, add column button, and add column and row button are not part of the table area,
+  //  not including the selection area and padding
+  final ValueNotifier<bool> isHoveringOnTableArea = ValueNotifier(false);
+
+  // the table block area contains the table area and the add row button, add column button, and add column and row button
+  //  also, the table block area contains the selection area and padding
   final ValueNotifier<bool> isHoveringOnTableBlock = ValueNotifier(false);
 
-  void _onHoveringOnTableChanged() {
+  // the hovering table cell is the cell that the mouse is hovering on
+  final ValueNotifier<Node?> hoveringTableCell = ValueNotifier(null);
+
+  // the hovering on resize handle is the resize handle that the mouse is hovering on
+  final ValueNotifier<Node?> hoveringOnResizeHandle = ValueNotifier(null);
+
+  // the selecting column is the column that the user is selecting
+  final ValueNotifier<int?> selectingColumn = ValueNotifier(null);
+
+  // the selecting row is the row that the user is selecting
+  final ValueNotifier<int?> selectingRow = ValueNotifier(null);
+
+  // the is selecting table is the table that the user is selecting
+  final ValueNotifier<bool> isSelectingTable = ValueNotifier(false);
+
+  void _onHoveringOnColumnsAndRowsChanged() {
     if (!enableTableDebugLog) {
       return;
     }
 
-    Log.debug('isHoveringOnTable: ${isHoveringOnTable.value}');
+    Log.debug('isHoveringOnTable: ${isHoveringOnColumnsAndRows.value}');
   }
 
   void _onHoveringTableNodeChanged() {
@@ -79,14 +104,23 @@ class SimpleTableContext {
     Log.debug('isHoveringOnTableBlock: ${isHoveringOnTableBlock.value}');
   }
 
+  void _onHoveringOnTableAreaChanged() {
+    if (!enableTableDebugLog) {
+      return;
+    }
+
+    Log.debug('isHoveringOnTableArea: ${isHoveringOnTableArea.value}');
+  }
+
   void dispose() {
-    isHoveringOnTable.dispose();
+    isHoveringOnColumnsAndRows.dispose();
+    isHoveringOnTableBlock.dispose();
+    isHoveringOnTableArea.dispose();
     hoveringTableCell.dispose();
     hoveringOnResizeHandle.dispose();
     selectingColumn.dispose();
     selectingRow.dispose();
     isSelectingTable.dispose();
-    isHoveringOnTableBlock.dispose();
   }
 }
 

@@ -16,9 +16,9 @@ enum TableAlign {
   right;
 
   String get name => switch (this) {
-        TableAlign.left => 'Left',
-        TableAlign.center => 'Center',
-        TableAlign.right => 'Right',
+        TableAlign.left => 'left',
+        TableAlign.center => 'center',
+        TableAlign.right => 'right',
       };
 
   FlowySvgData get leftIconSvg => switch (this) {

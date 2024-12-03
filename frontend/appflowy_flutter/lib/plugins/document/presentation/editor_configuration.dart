@@ -160,6 +160,7 @@ void _customBlockOptionActions(
                 ? () => customSlashCommand(
                       slashMenuItems,
                       shouldInsertSlash: false,
+                      deleteKeywordsByDefault: true,
                       style: styleCustomizer.selectionMenuStyleBuilder(),
                     ).handler.call(editorState)
                 : () {},
