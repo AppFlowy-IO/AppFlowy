@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 
@@ -8,8 +7,6 @@ import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/database/domain/sort_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculations_row.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
-import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
@@ -51,58 +48,6 @@ class ToggleExtensionNotifier extends ChangeNotifier {
   }
 }
 
-class DesktopGridTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
-  final _toggleExtension = ToggleExtensionNotifier();
-
-  @override
-  Widget content(
-    BuildContext context,
-    ViewPB view,
-    DatabaseController controller,
-    bool shrinkWrap,
-    String? initialRowId,
-  ) {
-    return GridPage(
-      key: _makeValueKey(controller),
-      view: view,
-      databaseController: controller,
-      initialRowId: initialRowId,
-    );
-  }
-
-  @override
-  Widget settingBar(BuildContext context, DatabaseController controller) {
-    return GridSettingBar(
-      key: _makeValueKey(controller),
-      controller: controller,
-      toggleExtension: _toggleExtension,
-    );
-  }
-
-  @override
-  Widget settingBarExtension(
-    BuildContext context,
-    DatabaseController controller,
-  ) {
-    return DatabaseViewSettingExtension(
-      key: _makeValueKey(controller),
-      viewId: controller.viewId,
-      databaseController: controller,
-      toggleExtension: _toggleExtension,
-    );
-  }
-
-  @override
-  void dispose() {
-    _toggleExtension.dispose();
-    super.dispose();
-  }
-
-  ValueKey _makeValueKey(DatabaseController controller) {
-    return ValueKey(controller.viewId);
-  }
-}
-
 class GridPage extends StatefulWidget {
   const GridPage({
     super.key,
@@ -110,12 +55,14 @@ class GridPage extends StatefulWidget {
     required this.databaseController,
     this.onDeleted,
     this.initialRowId,
+    this.shrinkWrap = false,
   });
 
   final ViewPB view;
   final DatabaseController databaseController;
   final VoidCallback? onDeleted;
   final String? initialRowId;
+  final bool shrinkWrap;
 
   @override
   State<GridPage> createState() => _GridPageState();
@@ -124,13 +71,22 @@ class GridPage extends StatefulWidget {
 class _GridPageState extends State<GridPage> {
   bool _didOpenInitialRow = false;
 
+  late final GridBloc gridBloc = GridBloc(
+    view: widget.view,
+    databaseController: widget.databaseController,
+    shrinkWrapped: widget.shrinkWrap,
+  )..add(const GridEvent.initial());
+
+  @override
+  void dispose() {
+    gridBloc.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider<GridBloc>(
-      create: (context) => GridBloc(
-        view: widget.view,
-        databaseController: widget.databaseController,
-      )..add(const GridEvent.initial()),
+      create: (_) => gridBloc,
       child: BlocListener<ActionNavigationBloc, ActionNavigationState>(
         listener: (context, state) {
           final action = state.action;
@@ -147,6 +103,7 @@ class _GridPageState extends State<GridPage> {
         child: BlocConsumer<GridBloc, GridState>(
           listener: listener,
           builder: (context, state) => state.loadingState.map(
+            idle: (_) => const SizedBox.shrink(),
             loading: (_) => const Center(
               child: CircularProgressIndicator.adaptive(),
             ),
@@ -155,25 +112,18 @@ class _GridPageState extends State<GridPage> {
                 child: GridPageContent(
                   key: ValueKey(widget.view.id),
                   view: widget.view,
+                  shrinkWrap: widget.shrinkWrap,
                 ),
               ),
-              (err) => Center(
-                child: AppFlowyErrorPage(
-                  error: err,
-                ),
-              ),
+              (err) => Center(child: AppFlowyErrorPage(error: err)),
             ),
-            idle: (_) => const SizedBox.shrink(),
           ),
         ),
       ),
     );
   }
 
-  void _openRow(
-    BuildContext context,
-    String rowId,
-  ) {
+  void _openRow(BuildContext context, String rowId) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final gridBloc = context.read<GridBloc>();
       final rowCache = gridBloc.rowCache;
@@ -249,9 +199,11 @@ class GridPageContent extends StatefulWidget {
   const GridPageContent({
     super.key,
     required this.view,
+    this.shrinkWrap = false,
   });
 
   final ViewPB view;
+  final bool shrinkWrap;
 
   @override
   State<GridPageContent> createState() => _GridPageContentState();
@@ -279,13 +231,13 @@ class _GridPageContentState extends State<GridPageContent> {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        _GridHeader(
-          headerScrollController: headerScrollController,
-        ),
+        _GridHeader(headerScrollController: headerScrollController),
         _GridRows(
           viewId: widget.view.id,
           scrollController: _scrollController,
+          shrinkWrap: widget.shrinkWrap,
         ),
       ],
     );
@@ -300,12 +252,10 @@ class _GridHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<GridBloc, GridState>(
-      builder: (context, state) {
-        return GridHeaderSliverAdaptor(
-          viewId: state.viewId,
-          anchorScrollController: headerScrollController,
-        );
-      },
+      builder: (_, state) => GridHeaderSliverAdaptor(
+        viewId: state.viewId,
+        anchorScrollController: headerScrollController,
+      ),
     );
   }
 }
@@ -314,10 +264,16 @@ class _GridRows extends StatefulWidget {
   const _GridRows({
     required this.viewId,
     required this.scrollController,
+    this.shrinkWrap = false,
   });
 
   final String viewId;
   final GridScrollController scrollController;
+
+  /// When [shrinkWrap] is active, the Grid will show items according to
+  /// GridState.visibleRows and will not have a vertical scroll area.
+  ///
+  final bool shrinkWrap;
 
   @override
   State<_GridRows> createState() => _GridRowsState();
@@ -330,8 +286,10 @@ class _GridRowsState extends State<_GridRows> {
   @override
   void initState() {
     super.initState();
-    _evaluateFloatingCalculations();
-    widget.scrollController.verticalController.addListener(_onScrollChanged);
+    if (!widget.shrinkWrap) {
+      _evaluateFloatingCalculations();
+      widget.scrollController.verticalController.addListener(_onScrollChanged);
+    }
   }
 
   void _onScrollChanged() {
@@ -345,13 +303,16 @@ class _GridRowsState extends State<_GridRows> {
 
   @override
   void dispose() {
-    widget.scrollController.verticalController.removeListener(_onScrollChanged);
+    if (!widget.shrinkWrap) {
+      widget.scrollController.verticalController
+          .removeListener(_onScrollChanged);
+    }
     super.dispose();
   }
 
   void _evaluateFloatingCalculations() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
+      if (mounted && !widget.shrinkWrap) {
         setState(() {
           final verticalController = widget.scrollController.verticalController;
           // maxScrollExtent is 0.0 if scrolling is not possible
@@ -367,127 +328,143 @@ class _GridRowsState extends State<_GridRows> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GridBloc, GridState>(
-      buildWhen: (previous, current) => previous.fields != current.fields,
-      builder: (context, state) {
-        return Flexible(
-          child: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints layoutConstraits) {
-              return _WrapScrollView(
-                scrollController: widget.scrollController,
-                contentWidth: GridLayout.headerWidth(
-                  context
-                      .read<DatabasePluginWidgetBuilderSize>()
-                      .horizontalPadding,
-                  state.fields,
-                ),
-                child: BlocConsumer<GridBloc, GridState>(
-                  listenWhen: (previous, current) =>
-                      previous.rowCount != current.rowCount,
-                  listener: (context, state) => _evaluateFloatingCalculations(),
-                  builder: (context, state) {
-                    return ScrollConfiguration(
-                      behavior: ScrollConfiguration.of(context).copyWith(
-                        scrollbars: false,
-                      ),
-                      child: _renderList(context, state, layoutConstraits),
-                    );
-                  },
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _renderList(
-    BuildContext context,
-    GridState state,
-    BoxConstraints layoutConstraints,
-  ) {
-    // 1. GridRowBottomBar
-    // 2. GridCalculationsRow
-    final itemCount =
-        state.rowInfos.length + (showFloatingCalculations ? 1 : 2);
-    return Column(
-      children: [
-        Expanded(
-          child: ReorderableListView.builder(
-            ///  This is a workaround related to
-            ///  https://github.com/flutter/flutter/issues/25652
-            cacheExtent: max(layoutConstraints.maxHeight, 500),
-            scrollController: widget.scrollController.verticalController,
-            physics: const ClampingScrollPhysics(),
-            buildDefaultDragHandles: false,
-            proxyDecorator: (child, _, __) => Provider.value(
-              value: context.read<DatabasePluginWidgetBuilderSize>(),
-              child: Material(
-                color: Colors.white.withOpacity(.1),
-                child: Opacity(opacity: .5, child: child),
-              ),
+    Widget child;
+    if (widget.shrinkWrap) {
+      child = SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        controller: widget.scrollController.horizontalController,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: GridLayout.headerWidth(
+              context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding,
+              context.read<GridBloc>().state.fields,
             ),
-            onReorder: (fromIndex, newIndex) {
-              void moveRow() {
-                final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
-                if (fromIndex != toIndex) {
-                  context
-                      .read<GridBloc>()
-                      .add(GridEvent.moveRow(fromIndex, toIndex));
-                }
-              }
-
-              if (state.sorts.isNotEmpty) {
-                showCancelAndDeleteDialog(
-                  context: context,
-                  title: LocaleKeys.grid_sort_sortsActive.tr(
-                    namedArgs: {
-                      'intention':
-                          LocaleKeys.grid_row_reorderRowDescription.tr(),
-                    },
-                  ),
-                  description: LocaleKeys.grid_sort_removeSorting.tr(),
-                  confirmLabel: LocaleKeys.button_remove.tr(),
-                  closeOnAction: true,
-                  onDelete: () {
-                    SortBackendService(viewId: widget.viewId).deleteAllSorts();
-                    moveRow();
-                  },
-                );
-              } else {
-                moveRow();
-              }
-            },
-            itemCount: itemCount,
-            itemBuilder: (context, index) {
-              if (index == state.rowInfos.length) {
-                return const GridRowBottomBar(key: Key('grid_footer'));
-              }
-
-              if (index == state.rowInfos.length + 1 &&
-                  !showFloatingCalculations) {
-                return GridCalculationsRow(
-                  key: const Key('grid_calculations'),
-                  viewId: widget.viewId,
-                );
-              }
-
-              return _renderRow(
-                context,
-                state.rowInfos[index].rowId,
-                index: index,
-              );
-            },
+          ),
+          child: _renderList(context),
+        ),
+      );
+    } else {
+      child = _WrapScrollView(
+        scrollController: widget.scrollController,
+        contentWidth: GridLayout.headerWidth(
+          context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding,
+          context.read<GridBloc>().state.fields,
+        ),
+        child: BlocListener<GridBloc, GridState>(
+          listenWhen: (previous, current) =>
+              previous.rowCount != current.rowCount,
+          listener: (context, state) => _evaluateFloatingCalculations(),
+          child: ScrollConfiguration(
+            behavior:
+                ScrollConfiguration.of(context).copyWith(scrollbars: false),
+            child: _renderList(context),
           ),
         ),
-        if (showFloatingCalculations) ...[
+      );
+    }
+
+    if (widget.shrinkWrap) {
+      return child;
+    }
+
+    return Flexible(child: child);
+  }
+
+  Widget _renderList(BuildContext context) {
+    final state = context.read<GridBloc>().state;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        widget.shrinkWrap
+            ? _reorderableListView(state)
+            : Expanded(child: _reorderableListView(state)),
+        if (widget.shrinkWrap) ...[
+          GridCalculationsRow(viewId: widget.viewId),
+        ],
+        if (showFloatingCalculations && !widget.shrinkWrap) ...[
           _PositionedCalculationsRow(
             viewId: widget.viewId,
             isAtBottom: isAtBottom,
           ),
         ],
       ],
+    );
+  }
+
+  Widget _reorderableListView(GridState state) {
+    int itemCount;
+    if (widget.shrinkWrap) {
+      itemCount = state.visibleRows < state.rowInfos.length
+          // We add 3 to the visibleRows to show New row, Load more rows, and Calculations
+          ? state.visibleRows + 3
+          : state.rowInfos.length + 1;
+    } else {
+      itemCount = state.rowInfos.length + (showFloatingCalculations ? 1 : 2);
+    }
+
+    return ReorderableListView.builder(
+      cacheExtent: 500,
+      scrollController: widget.scrollController.verticalController,
+      physics: const ClampingScrollPhysics(),
+      buildDefaultDragHandles: false,
+      shrinkWrap: widget.shrinkWrap,
+      proxyDecorator: (child, _, __) => Provider.value(
+        value: context.read<DatabasePluginWidgetBuilderSize>(),
+        child: Material(
+          color: Colors.white.withOpacity(.1),
+          child: Opacity(opacity: .5, child: child),
+        ),
+      ),
+      onReorder: (fromIndex, newIndex) {
+        final toIndex = newIndex > fromIndex ? newIndex - 1 : newIndex;
+
+        if (state.sorts.isNotEmpty) {
+          showCancelAndDeleteDialog(
+            context: context,
+            title: LocaleKeys.grid_sort_sortsActive.tr(
+              namedArgs: {
+                'intention': LocaleKeys.grid_row_reorderRowDescription.tr(),
+              },
+            ),
+            description: LocaleKeys.grid_sort_removeSorting.tr(),
+            confirmLabel: LocaleKeys.button_remove.tr(),
+            closeOnAction: true,
+            onDelete: () {
+              SortBackendService(viewId: widget.viewId).deleteAllSorts();
+              moveRow(fromIndex, toIndex);
+            },
+          );
+        } else {
+          moveRow(fromIndex, toIndex);
+        }
+      },
+      itemCount: itemCount,
+      itemBuilder: (context, index) {
+        if ((widget.shrinkWrap && index == state.visibleRows) ||
+            index == state.rowInfos.length) {
+          return const GridRowBottomBar(key: Key('grid_footer'));
+        }
+
+        if (widget.shrinkWrap &&
+            state.visibleRows < state.rowInfos.length &&
+            index == state.rowInfos.length + 1) {
+          return const GridRowLoadMoreButton(key: Key('grid_load_more'));
+        }
+
+        if (index >= state.rowInfos.length && !showFloatingCalculations) {
+          return GridCalculationsRow(
+            key: const Key('grid_calculations'),
+            viewId: widget.viewId,
+          );
+        }
+
+        return _renderRow(
+          context,
+          state.rowInfos[index].rowId,
+          index: index,
+        );
+      },
     );
   }
 
@@ -509,6 +486,7 @@ class _GridRowsState extends State<_GridRows> {
 
     final child = GridRow(
       key: ValueKey("grid_row_$rowId"),
+      shrinkWrap: widget.shrinkWrap,
       fieldController: databaseController.fieldController,
       rowId: rowId,
       viewId: viewId,
@@ -523,20 +501,22 @@ class _GridRowsState extends State<_GridRows> {
         context: rowDetailContext,
         builder: (_) {
           final rowMeta = rowCache.getRow(rowId)?.rowMeta;
-          return rowMeta == null
-              ? const SizedBox.shrink()
-              : BlocProvider.value(
-                  value: context.read<ViewBloc>(),
-                  child: RowDetailPage(
-                    rowController: RowController(
-                      viewId: viewId,
-                      rowMeta: rowMeta,
-                      rowCache: rowCache,
-                    ),
-                    databaseController: databaseController,
-                    userProfile: context.read<GridBloc>().userProfile,
-                  ),
-                );
+          if (rowMeta == null) {
+            return const SizedBox.shrink();
+          }
+
+          return BlocProvider.value(
+            value: context.read<ViewBloc>(),
+            child: RowDetailPage(
+              rowController: RowController(
+                viewId: viewId,
+                rowMeta: rowMeta,
+                rowCache: rowCache,
+              ),
+              databaseController: databaseController,
+              userProfile: context.read<GridBloc>().userProfile,
+            ),
+          );
         },
       ),
     );
@@ -546,6 +526,12 @@ class _GridRowsState extends State<_GridRows> {
     }
 
     return child;
+  }
+
+  void moveRow(int from, int to) {
+    if (from != to) {
+      context.read<GridBloc>().add(GridEvent.moveRow(from, to));
+    }
   }
 }
 

@@ -57,3 +57,40 @@ class GridRowBottomBar extends StatelessWidget {
     );
   }
 }
+
+class GridRowLoadMoreButton extends StatelessWidget {
+  const GridRowLoadMoreButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final padding =
+        context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding;
+    final color = Theme.of(context).brightness == Brightness.light
+        ? const Color(0xFF171717).withOpacity(0.4)
+        : const Color(0xFFFFFFFF).withOpacity(0.4);
+
+    return Container(
+      padding: GridSize.footerContentInsets.copyWith(left: 0) +
+          EdgeInsets.only(left: padding),
+      height: GridSize.footerHeight,
+      child: FlowyButton(
+        radius: BorderRadius.zero,
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: AFThemeExtension.of(context).borderColor),
+          ),
+        ),
+        text: FlowyText(lineHeight: 1.0, 'Load more rows', color: color),
+        margin: const EdgeInsets.symmetric(horizontal: 12),
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        onTap: () => context.read<GridBloc>().add(
+              const GridEvent.loadMoreRows(),
+            ),
+        leftIcon: FlowySvg(
+          FlowySvgs.load_more_s,
+          color: color,
+        ),
+      ),
+    );
+  }
+}

@@ -107,12 +107,13 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
             },
           ),
         ],
-        child: Column(
-          children: [
-            if (UniversalPlatform.isMobile) const VSpace(12),
-            BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-              builder: (context, state) {
-                return ValueListenableBuilder<bool>(
+        child: BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
+          builder: (_, state) {
+            final layout = state.tabBars[state.selectedIndex].layout;
+            return Column(
+              children: [
+                if (UniversalPlatform.isMobile) const VSpace(12),
+                ValueListenableBuilder<bool>(
                   valueListenable: state
                       .tabBarControllerByViewId[state.parentView.id]!
                       .controller
@@ -126,33 +127,31 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                         ? const TabBarHeader()
                         : const MobileTabBarHeader();
                   },
-                );
-              },
-            ),
-            BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-              builder: (context, state) =>
-                  pageSettingBarExtensionFromState(state),
-            ),
-            BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-              builder: (context, state) {
-                final content = PageView(
-                  controller: _pageController,
-                  pageSnapping: false,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: pageContentFromState(state),
-                );
-
-                if (widget.shrinkWrap) {
-                  final layout = state.tabBars[state.selectedIndex].layout;
-                  return SizedBox(height: layout.pluginHeight, child: content);
-                }
-
-                return Expanded(child: content);
-              },
-            ),
-          ],
+                ),
+                pageSettingBarExtensionFromState(state),
+                wrapContent(
+                  layout: layout,
+                  child: IndexedStack(
+                    index: state.selectedIndex,
+                    children: pageContentFromState(state),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
+    );
+  }
+
+  Widget wrapContent({required ViewLayoutPB layout, required Widget child}) {
+    if (widget.shrinkWrap && layout.shrinkWrappable) {
+      return child;
+    }
+
+    return SizedBox(
+      height: layout.pluginHeight,
+      child: child,
     );
   }
 

@@ -6,7 +6,7 @@ import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.
 import 'package:appflowy/plugins/ai_chat/chat.dart';
 import 'package:appflowy/plugins/database/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database/calendar/presentation/calendar_page.dart';
-import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database/grid/presentation/built_in_grid_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/mobile_grid_page.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/document.dart';
@@ -88,6 +88,13 @@ extension ViewExtension on ViewPB {
         ViewLayoutPB.Document => PluginType.document,
         ViewLayoutPB.Grid => PluginType.grid,
         ViewLayoutPB.Chat => PluginType.chat,
+        _ => throw UnimplementedError(),
+      };
+
+  double get pluginHeight => switch (layout) {
+        ViewLayoutPB.Board || ViewLayoutPB.Document || ViewLayoutPB.Chat => 400,
+        ViewLayoutPB.Calendar => 700,
+        ViewLayoutPB.Grid => double.infinity,
         _ => throw UnimplementedError(),
       };
 
@@ -325,13 +332,15 @@ extension ViewLayoutExtension on ViewLayoutPB {
         _ => LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
       };
 
+  bool get shrinkWrappable => switch (this) {
+        ViewLayoutPB.Grid => true,
+        _ => false,
+      };
+
   double get pluginHeight => switch (this) {
-        ViewLayoutPB.Grid ||
-        ViewLayoutPB.Board ||
-        ViewLayoutPB.Document ||
-        ViewLayoutPB.Chat =>
-          450,
+        ViewLayoutPB.Document || ViewLayoutPB.Board || ViewLayoutPB.Chat => 450,
         ViewLayoutPB.Calendar => 650,
+        ViewLayoutPB.Grid => double.infinity,
         _ => throw UnimplementedError(),
       };
 }
