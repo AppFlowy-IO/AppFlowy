@@ -105,8 +105,13 @@ const EditorEditable = () => {
     if (e.clientY > bottomArea) {
       const lastBlock = editor.children[editor.children.length - 1] as SlateElement;
       const isEmptyLine = CustomEditor.getBlockTextContent(lastBlock) === '';
+      const type = lastBlock.type;
 
-      if (!lastBlock || isEmptyLine) return;
+      if (!lastBlock) return;
+      if (isEmptyLine && type === BlockType.Paragraph) {
+        editor.select(editor.end([editor.children.length - 1]));
+        return;
+      }
 
       CustomEditor.addBelowBlock(editor as YjsEditor, lastBlock.blockId as string, BlockType.Paragraph, {});
     }
