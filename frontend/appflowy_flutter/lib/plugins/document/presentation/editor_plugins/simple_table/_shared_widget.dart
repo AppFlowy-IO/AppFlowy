@@ -14,6 +14,39 @@ import 'package:provider/provider.dart';
 ///   when hovering on the last row / last column / last cell.
 bool _enableHoveringLogicV2 = true;
 
+class SimpleTableDraggableReorderButton extends StatelessWidget {
+  const SimpleTableDraggableReorderButton({
+    super.key,
+    required this.index,
+    required this.isShowingMenu,
+    required this.type,
+  });
+
+  final int index;
+  final ValueNotifier<bool> isShowingMenu;
+  final SimpleTableMoreActionType type;
+
+  @override
+  Widget build(BuildContext context) {
+    return Draggable<int>(
+      data: index,
+      feedback: Container(
+        color: Colors.red,
+        width: 100,
+        height: 100,
+      ),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {},
+        child: SimpleTableReorderButton(
+          isShowingMenu: isShowingMenu,
+          type: type,
+        ),
+      ),
+    );
+  }
+}
+
 class SimpleTableReorderButton extends StatelessWidget {
   const SimpleTableReorderButton({
     super.key,

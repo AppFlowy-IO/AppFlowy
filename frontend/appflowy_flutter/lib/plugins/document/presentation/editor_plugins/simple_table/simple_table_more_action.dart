@@ -165,44 +165,13 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
 
               return child!;
             },
-            child: SimpleTableDraggableMoreActionPopup(
-              key: ValueKey(widget.type.name + widget.index.toString()),
+            child: SimpleTableMoreActionPopup(
               index: widget.index,
               isShowingMenu: this.isShowingMenu,
               type: widget.type,
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-class SimpleTableDraggableMoreActionPopup extends StatelessWidget {
-  const SimpleTableDraggableMoreActionPopup({
-    super.key,
-    required this.index,
-    required this.isShowingMenu,
-    required this.type,
-  });
-
-  final int index;
-  final ValueNotifier<bool> isShowingMenu;
-  final SimpleTableMoreActionType type;
-
-  @override
-  Widget build(BuildContext context) {
-    return Draggable<int>(
-      data: index,
-      feedback: Container(
-        color: Colors.red,
-        width: 100,
-        height: 100,
-      ),
-      child: SimpleTableMoreActionPopup(
-        index: index,
-        isShowingMenu: isShowingMenu,
-        type: type,
       ),
     );
   }
@@ -265,62 +234,72 @@ class _SimpleTableMoreActionPopupState
     final tableCellNode =
         context.read<SimpleTableContext>().hoveringTableCell.value;
     return AppFlowyPopover(
-      onOpen: () {
-        widget.isShowingMenu.value = true;
-        switch (widget.type) {
-          case SimpleTableMoreActionType.column:
-            context.read<SimpleTableContext>().selectingColumn.value =
-                tableCellNode?.columnIndex;
-          case SimpleTableMoreActionType.row:
-            context.read<SimpleTableContext>().selectingRow.value =
-                tableCellNode?.rowIndex;
-        }
-
-        // Workaround to clear the selection after the menu is opened.
-        Future.delayed(Durations.short3, () {
-          if (!editorState.isDisposed) {
-            editorState.selection = null;
-          }
-        });
-      },
-      onClose: () {
-        widget.isShowingMenu.value = false;
-
-        // clear the selecting index
-        context.read<SimpleTableContext>().selectingColumn.value = null;
-        context.read<SimpleTableContext>().selectingRow.value = null;
-      },
+      controller: popoverController,
+      onOpen: () => _onOpen(tableCellNode: tableCellNode),
+      onClose: () => _onClose(),
       direction: widget.type == SimpleTableMoreActionType.row
           ? PopoverDirection.bottomWithCenterAligned
           : PopoverDirection.bottomWithLeftAligned,
       offset: widget.type == SimpleTableMoreActionType.row
           ? const Offset(24, 14)
           : const Offset(-14, 8),
-      popupBuilder: (_) {
-        if (tableCellNode == null) {
-          return const SizedBox.shrink();
-        }
-        return MultiProvider(
-          providers: [
-            Provider.value(
-              value: context.read<SimpleTableContext>(),
-            ),
-            Provider.value(
-              value: context.read<EditorState>(),
-            ),
-          ],
-          child: SimpleTableMoreActionList(
-            type: widget.type,
-            index: widget.index,
-            tableCellNode: tableCellNode,
-          ),
-        );
-      },
-      child: SimpleTableReorderButton(
+      clickHandler: PopoverClickHandler.gestureDetector,
+      popupBuilder: (_) => _buildPopup(tableCellNode: tableCellNode),
+      child: SimpleTableDraggableReorderButton(
+        index: widget.index,
         isShowingMenu: widget.isShowingMenu,
         type: widget.type,
       ),
     );
+  }
+
+  Widget _buildPopup({Node? tableCellNode}) {
+    if (tableCellNode == null) {
+      return const SizedBox.shrink();
+    }
+    return MultiProvider(
+      providers: [
+        Provider.value(
+          value: context.read<SimpleTableContext>(),
+        ),
+        Provider.value(
+          value: context.read<EditorState>(),
+        ),
+      ],
+      child: SimpleTableMoreActionList(
+        type: widget.type,
+        index: widget.index,
+        tableCellNode: tableCellNode,
+      ),
+    );
+  }
+
+  void _onOpen({Node? tableCellNode}) {
+    widget.isShowingMenu.value = true;
+
+    switch (widget.type) {
+      case SimpleTableMoreActionType.column:
+        context.read<SimpleTableContext>().selectingColumn.value =
+            tableCellNode?.columnIndex;
+      case SimpleTableMoreActionType.row:
+        context.read<SimpleTableContext>().selectingRow.value =
+            tableCellNode?.rowIndex;
+    }
+
+    // Workaround to clear the selection after the menu is opened.
+    Future.delayed(Durations.short3, () {
+      if (!editorState.isDisposed) {
+        editorState.selection = null;
+      }
+    });
+  }
+
+  void _onClose() {
+    widget.isShowingMenu.value = false;
+
+    // clear the selecting index
+    context.read<SimpleTableContext>().selectingColumn.value = null;
+    context.read<SimpleTableContext>().selectingRow.value = null;
   }
 
   bool _isTapInBounds(Offset offset) {
