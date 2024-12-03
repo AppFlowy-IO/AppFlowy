@@ -7,63 +7,10 @@ use crate::services::field::{
   TypeOptionCellDataSerde, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
-use collab::preclude::encoding::serde::from_any;
-use collab::preclude::Any;
-use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
+use collab_database::fields::translate_type_option::TranslateTypeOption;
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
-use serde::Deserialize;
 use std::cmp::Ordering;
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct TranslateTypeOption {
-  #[serde(default)]
-  pub auto_fill: bool,
-  /// Use [TranslateTypeOption::language_from_type] to get the language name
-  #[serde(default, rename = "language")]
-  pub language_type: i64,
-}
-
-impl TranslateTypeOption {
-  pub fn language_from_type(language_type: i64) -> &'static str {
-    match language_type {
-      0 => "Traditional Chinese",
-      1 => "English",
-      2 => "French",
-      3 => "German",
-      4 => "Hindi",
-      5 => "Spanish",
-      6 => "Portuguese",
-      7 => "Standard Arabic",
-      8 => "Simplified Chinese",
-      _ => "English",
-    }
-  }
-}
-
-impl Default for TranslateTypeOption {
-  fn default() -> Self {
-    Self {
-      auto_fill: false,
-      language_type: 1,
-    }
-  }
-}
-
-impl From<TypeOptionData> for TranslateTypeOption {
-  fn from(value: TypeOptionData) -> Self {
-    from_any(&Any::from(value)).unwrap()
-  }
-}
-
-impl From<TranslateTypeOption> for TypeOptionData {
-  fn from(value: TranslateTypeOption) -> Self {
-    TypeOptionDataBuilder::from([
-      ("auto_fill".into(), value.auto_fill.into()),
-      ("language".into(), Any::BigInt(value.language_type)),
-    ])
-  }
-}
 
 impl TypeOption for TranslateTypeOption {
   type CellData = TranslateCellData;

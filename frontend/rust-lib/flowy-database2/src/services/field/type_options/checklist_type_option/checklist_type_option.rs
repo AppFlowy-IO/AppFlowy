@@ -6,32 +6,17 @@ use crate::services::field::{
   TypeOptionCellDataSerde, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
+use collab_database::fields::checklist_type_option::ChecklistTypeOption;
 use collab_database::fields::select_type_option::{SelectOption, SELECTION_IDS_SEPARATOR};
-use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
 use std::cmp::Ordering;
-
-#[derive(Debug, Clone, Default)]
-pub struct ChecklistTypeOption;
 
 impl TypeOption for ChecklistTypeOption {
   type CellData = ChecklistCellData;
   type CellChangeset = ChecklistCellChangeset;
   type CellProtobufType = ChecklistCellDataPB;
   type CellFilter = ChecklistFilterPB;
-}
-
-impl From<TypeOptionData> for ChecklistTypeOption {
-  fn from(_data: TypeOptionData) -> Self {
-    Self
-  }
-}
-
-impl From<ChecklistTypeOption> for TypeOptionData {
-  fn from(_data: ChecklistTypeOption) -> Self {
-    TypeOptionDataBuilder::new()
-  }
 }
 
 impl TypeOptionCellDataSerde for ChecklistTypeOption {

@@ -1,5 +1,6 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::entity::DatabaseView;
+use collab_database::fields::checklist_type_option::ChecklistTypeOption;
 use collab_database::fields::date_type_option::{
   DateFormat, DateTypeOption, TimeFormat, TimeTypeOption,
 };
@@ -17,9 +18,7 @@ use event_integration_test::database_event::TestRowBuilder;
 use flowy_database2::entities::FieldType;
 use flowy_database2::services::field::summary_type_option::summary::SummarizationTypeOption;
 use flowy_database2::services::field::translate_type_option::translate::TranslateTypeOption;
-use flowy_database2::services::field::{
-  ChecklistCellInsertChangeset, ChecklistTypeOption, FieldBuilder, RelationTypeOption,
-};
+use flowy_database2::services::field::{ChecklistCellInsertChangeset, FieldBuilder};
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 
 pub fn make_test_grid() -> DatabaseData {
