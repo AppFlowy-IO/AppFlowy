@@ -81,6 +81,13 @@ function TitleEditable ({
       onInput={() => {
         if (!contentRef.current) return;
         debounceUpdateName(contentRef.current.textContent || '');
+        if (contentRef.current.innerHTML === '<br>') {
+          contentRef.current.innerHTML = '';
+        }
+      }}
+      onBlur={() => {
+        if (!contentRef.current) return;
+        onUpdateName(contentRef.current.textContent || '');
       }}
       onKeyDown={(e) => {
         if (!contentRef.current) return;

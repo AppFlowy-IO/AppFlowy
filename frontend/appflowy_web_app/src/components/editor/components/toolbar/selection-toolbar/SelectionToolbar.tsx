@@ -1,6 +1,6 @@
 import ToolbarActions from '@/components/editor/components/toolbar/selection-toolbar/ToolbarActions';
 import { SelectionToolbarContext, useToolbarPosition, useVisible } from './SelectionToolbar.hooks';
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 
 export function SelectionToolbar () {
   const { visible, forceShow } = useVisible();
@@ -25,14 +25,22 @@ export function SelectionToolbar () {
       showToolbar(el);
       window.addEventListener('scroll', onScroll, true);
     }
-    
+
     return () => {
       window.removeEventListener('scroll', onScroll, true);
     };
   }, [hideToolbar, showToolbar, visible]);
 
+  const rePosition = useCallback(() => {
+    const el = ref.current;
+
+    if (!el) return;
+
+    showToolbar(el);
+  }, [showToolbar]);
+
   return (
-    <SelectionToolbarContext.Provider value={{ visible, forceShow }}>
+    <SelectionToolbarContext.Provider value={{ visible, forceShow, rePosition }}>
       <div
         ref={ref}
         className={

@@ -7,6 +7,9 @@ import { ReactComponent as AlignCenterSvg } from '@/assets/toolbar_align_center.
 import { ReactComponent as AlignLeftSvg } from '@/assets/toolbar_align_left.svg';
 import { ReactComponent as AlignRightSvg } from '@/assets/toolbar_align_right.svg';
 import { Popover } from '@/components/_shared/popover';
+import {
+  useSelectionToolbarContext,
+} from '@/components/editor/components/toolbar/selection-toolbar/SelectionToolbar.hooks';
 import { PopoverProps } from '@mui/material/Popover';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -90,6 +93,8 @@ export function Align ({
     }
   }, [getAlign]);
 
+  const { rePosition } = useSelectionToolbarContext();
+
   const toggleAlign = useCallback(
     (align: AlignType) => {
       return () => {
@@ -101,13 +106,14 @@ export function Align ({
           });
           handleClose();
 
+          rePosition();
         } catch (e) {
           return;
         }
 
       };
     },
-    [editor, handleClose, getNode],
+    [getNode, editor, handleClose, rePosition],
   );
 
   useEffect(() => {

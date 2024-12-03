@@ -98,7 +98,7 @@ export function useHoverControls ({ disabled }: { disabled: boolean; }) {
       const blockElement = ReactEditor.toDOMNode(editor, node);
 
       if (!blockElement) return;
-      const shouldSkipTypes = [BlockType.TableBlock, BlockType.GridBlock, BlockType.CalendarBlock, BlockType.BoardBlock];
+      const shouldSkipTypes = [BlockType.TableBlock, BlockType.GridBlock, BlockType.CalendarBlock, BlockType.BoardBlock, BlockType.SimpleTableBlock];
 
       if (shouldSkipTypes.some((type) => blockElement.closest(`[data-block-type="${type}"]`))) {
         close();

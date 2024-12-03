@@ -2,7 +2,7 @@ import { BlockType, ToggleListBlockData } from '@/application/types';
 import { HeadingNode, ToggleListNode } from '@/components/editor/editor.type';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import React, { CSSProperties, useEffect, useMemo, useState } from 'react';
-import { ReactEditor, useSelected, useSlate } from 'slate-react';
+import { ReactEditor, useFocused, useSelected, useSlate } from 'slate-react';
 import { Editor, Element, Range } from 'slate';
 import { useTranslation } from 'react-i18next';
 
@@ -10,9 +10,11 @@ function Placeholder ({ node, ...attributes }: { node: Element; className?: stri
   const { t } = useTranslation();
   const { readOnly } = useEditorContext();
   const editor = useSlate();
-
-  const selected = useSelected() && !readOnly && !!editor.selection && Range.isCollapsed(editor.selection);
+  const focus = useFocused();
+  const blockSelected = useSelected();
   const [isComposing, setIsComposing] = useState(false);
+  const selected = focus && blockSelected && editor.selection && Range.isCollapsed(editor.selection);
+
   const block = useMemo(() => {
     const path = ReactEditor.findPath(editor, node);
     const match = Editor.above(editor, {
@@ -38,10 +40,6 @@ function Placeholder ({ node, ...attributes }: { node: Element; className?: stri
   const unSelectedPlaceholder = useMemo(() => {
     switch (block?.type) {
       case BlockType.Paragraph: {
-        if (editor.children.length === 1 && !readOnly) {
-          return t('editor.slashPlaceHolder');
-        }
-
         return '';
       }
 
@@ -100,7 +98,7 @@ function Placeholder ({ node, ...attributes }: { node: Element; className?: stri
       default:
         return '';
     }
-  }, [readOnly, block, t, editor.children.length]);
+  }, [block, t]);
 
   const selectedPlaceholder = useMemo(() => {
     if (block?.type === BlockType.ToggleListBlock && (block?.data as ToggleListBlockData).level) {

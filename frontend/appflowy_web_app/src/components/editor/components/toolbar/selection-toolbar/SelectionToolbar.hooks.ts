@@ -32,7 +32,9 @@ export function useVisible () {
 
     if (document.getSelection()?.isCollapsed) return false;
 
-    return Boolean(selectedText && isExpanded && !isDragging);
+    const show = Boolean(selectedText && isExpanded && !isDragging);
+
+    return show;
   }, [forceShow, focus, selectedText, isExpanded, isDragging]);
 
   useEffect(() => {
@@ -232,9 +234,11 @@ export function useToolbarPosition () {
 export const SelectionToolbarContext = createContext<{
   visible: boolean;
   forceShow: (forceVisible: boolean) => void;
+  rePosition: () => void;
 }>({
   visible: false,
   forceShow: () => undefined,
+  rePosition: () => undefined,
 });
 
 export function useSelectionToolbarContext () {

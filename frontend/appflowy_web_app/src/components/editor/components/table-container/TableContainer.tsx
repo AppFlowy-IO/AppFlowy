@@ -42,6 +42,12 @@ function TableContainer ({ blockId, readSummary, children, paddingLeft = 0 }: {
       resizeObserver.disconnect();
     };
   }, [calcTableWidth, editor, readSummary]);
+  const handleToggleMenu = useCallback((open: boolean) => {
+    if (!open) {
+      setShowControl(false);
+    }
+  }, []);
+
   return (
     <div
       draggable={false}
@@ -67,13 +73,16 @@ function TableContainer ({ blockId, readSummary, children, paddingLeft = 0 }: {
           display: showControl ? 'block' : 'none',
         }}
         contentEditable={false}
-        className={'absolute z-[10] w-[64px] top-2'}
+        className={'absolute z-[10] w-[64px] top-2 pr-1'}
       >
-        <ControlActions blockId={blockId} />
+        <ControlActions
+          setOpenMenu={handleToggleMenu}
+          blockId={blockId}
+        />
       </div>
       <div
         draggable={false}
-        contentEditable={false}
+        contentEditable={readOnly ? false : undefined}
         onScroll={e => {
           const isHorizontal = e.currentTarget.scrollLeft > 0;
           const controlEl = controlRef.current;

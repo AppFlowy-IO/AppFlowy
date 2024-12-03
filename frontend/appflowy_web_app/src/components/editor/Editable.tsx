@@ -98,6 +98,30 @@ const EditorEditable = () => {
     };
   }, [editor, debounceCalculateWordCount, readOnly]);
 
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    const currentTarget = e.currentTarget as HTMLElement;
+    const bottomArea = currentTarget.getBoundingClientRect().bottom - 36 * 4;
+
+    if (e.clientY > bottomArea) {
+      const lastBlock = editor.children[editor.children.length - 1] as SlateElement;
+      const isEmptyLine = CustomEditor.getBlockTextContent(lastBlock) === '';
+
+      if (!lastBlock || isEmptyLine) return;
+
+      CustomEditor.addBelowBlock(editor as YjsEditor, lastBlock.blockId as string, BlockType.Paragraph, {});
+    }
+
+  }, [editor]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    const detail = e.detail;
+
+    if (detail >= 3) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  }, []);
+
   return (
     <PanelProvider editor={editor}>
       <BlockPopoverProvider editor={editor}>
@@ -119,17 +143,8 @@ const EditorEditable = () => {
           autoComplete={'off'}
           onCompositionStart={onCompositionStart}
           onKeyDown={onKeyDown}
-          onClick={e => {
-            const currentTarget = e.currentTarget as HTMLElement;
-            const bottomArea = currentTarget.getBoundingClientRect().bottom - 36 * 4;
-
-            if (e.clientY > bottomArea) {
-              const lastBlockId = (editor.children[editor.children.length - 1] as SlateElement).blockId as string;
-
-              if (!lastBlockId) return;
-              CustomEditor.addBelowBlock(editor as YjsEditor, lastBlockId, BlockType.Paragraph, {});
-            }
-          }}
+          onMouseDown={handleMouseDown}
+          onClick={handleClick}
         />
         {!readOnly &&
           <Suspense><EditorOverlay /></Suspense>

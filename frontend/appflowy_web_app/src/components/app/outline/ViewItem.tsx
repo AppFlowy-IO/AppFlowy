@@ -49,7 +49,7 @@ function ViewItem ({ view, width, level = 0, renderExtra, expandIds, toggleExpan
   const openIconPopover = Boolean(iconPopoverAnchorEl);
 
   const getIcon = useCallback(() => {
-    return <span className={'text-sm h-full flex items-center justify-center pl-0.5'}><OutlineIcon
+    return <span className={'text-sm h-full flex items-center justify-end w-5'}><OutlineIcon
       level={level}
       isExpanded={isExpanded}
       setIsExpanded={(status) => {
@@ -67,7 +67,7 @@ function ViewItem ({ view, width, level = 0, renderExtra, expandIds, toggleExpan
         style={{
           backgroundColor: selected ? 'var(--fill-list-hover)' : undefined,
           cursor: view.layout === ViewLayout.AIChat ? 'not-allowed' : 'pointer',
-          paddingLeft: view.children?.length ? 0 : 1.25 * (level + 1) + 'em',
+          paddingLeft: view.children?.length ? 0 : (level + 1) + 'em',
         }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}

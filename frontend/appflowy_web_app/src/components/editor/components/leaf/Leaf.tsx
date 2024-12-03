@@ -61,12 +61,12 @@ export function Leaf ({ attributes, children, leaf, text }: RenderLeafProps) {
     /> : null;
 
     newChildren = <>
-      {node}
       <span
-        className={'absolute opacity-0 left-0 w-0 overflow-hidden'}
+        className={'absolute opacity-0 left-0 overflow-hidden'}
       >
         {newChildren}
       </span>
+      {node}
     </>;
   }
 

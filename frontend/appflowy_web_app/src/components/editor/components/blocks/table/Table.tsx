@@ -44,7 +44,8 @@ const Table = memo(
     return (
       <div
         ref={ref} {...attributes}
-        className={`table-block relative my-2 w-full px-1 ${className || ''}`}
+        contentEditable={false}
+        className={`table-block relative select-none my-2 w-full px-1 ${className || ''}`}
       >
         <TableContainer
           blockId={node.blockId}
