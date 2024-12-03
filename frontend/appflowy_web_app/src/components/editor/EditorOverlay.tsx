@@ -1,4 +1,3 @@
-import { ElementFallbackRender } from '@/components/error/ElementFallbackRender';
 import React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import Toolbars from './components/toolbar';
@@ -8,7 +7,7 @@ import BlockPopover from './components/block-popover';
 function EditorOverlay () {
 
   return (
-    <ErrorBoundary fallbackRender={ElementFallbackRender}>
+    <ErrorBoundary fallbackRender={() => null}>
       <Toolbars />
       <Panels />
       <BlockPopover />

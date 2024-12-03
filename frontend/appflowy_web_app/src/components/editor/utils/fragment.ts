@@ -1,3 +1,4 @@
+import { TEXT_BLOCK_TYPES } from '@/application/slate-yjs/command/const';
 import { yDocToSlateContent } from '@/application/slate-yjs/utils/convert';
 import {
   createBlock,
@@ -18,7 +19,6 @@ import {
   YjsEditorKey,
   YSharedRoot,
 } from '@/application/types';
-import { DeltaOperation } from 'quill';
 
 export function deserialize (body: HTMLElement, sharedRoot: YSharedRoot) {
   const pageId = getPageId(sharedRoot);
@@ -94,9 +94,20 @@ function deserializeNode (node: Node, parentBlock: YBlock, sharedRoot: YSharedRo
 
     if (textContent.trim()) {
       console.log('===textContent', node, textContent);
-      const attributes = getInlineAttributes(node.parentElement as HTMLElement);
 
-      applyTextToDelta(currentBlock, sharedRoot, textContent, attributes);
+      if (TEXT_BLOCK_TYPES.includes(currentBlock.get(YjsEditorKey.block_type))) {
+        const attributes = getInlineAttributes(node.parentElement as HTMLElement);
+
+        applyTextToDelta(currentBlock, sharedRoot, textContent, attributes);
+      } else {
+        const block = createBlock(sharedRoot, { ty: BlockType.Paragraph, data: {} });
+
+        applyTextToDelta(block, sharedRoot, textContent);
+        const index = getChildrenArray(currentBlock.get(YjsEditorKey.block_children), sharedRoot)?.length || 0;
+
+        updateBlockParent(sharedRoot, block, currentBlock, index);
+      }
+
     }
   }
 }
@@ -194,14 +205,7 @@ function applyTextToDelta (block: YBlock, sharedRoot: YSharedRoot, text: string,
   const yText = getText(textId, sharedRoot);
 
   if (yText) {
-    const oldOps = yText.toDelta();
-    const delta: DeltaOperation[] = [{ insert: text, attributes }];
-
-    yText.delete(0, yText.length);
-    yText.applyDelta([
-      ...oldOps,
-      ...delta,
-    ]);
+    yText.insert(yText.length, text, attributes);
 
   }
 }

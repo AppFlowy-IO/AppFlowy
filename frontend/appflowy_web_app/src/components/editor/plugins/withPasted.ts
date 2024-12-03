@@ -1,6 +1,6 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { slateContentInsertToYData } from '@/application/slate-yjs/utils/convert';
-import { beforePasted } from '@/application/slate-yjs/utils/slateUtils';
+import { beforePasted, findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import {
   assertDocExists,
   getBlock,
@@ -28,7 +28,11 @@ export const withPasted = (editor: ReactEditor) => {
       console.log('insertTextData', {
         lines,
       });
-      if (lines.filter(Boolean).length > 1) {
+      const html = data.getData('text/html');
+
+      const lineLength = lines.filter(Boolean).length;
+
+      if (lineLength > 1 && html) {
         return insertHtmlData(editor, data);
       }
 
@@ -65,7 +69,11 @@ export const withPasted = (editor: ReactEditor) => {
         const point = editor.selection?.anchor as BasePoint;
 
         if (line) {
-          Transforms.insertNodes(editor, { text: line }, { at: point, select: true, voids: false });
+          Transforms.insertNodes(editor, { text: `${line}${lineLength > 1 ? `\n` : ''}` }, {
+            at: point,
+            select: true,
+            voids: false,
+          });
         }
       }
 
@@ -112,14 +120,19 @@ function insertFragment (editor: ReactEditor, fragment: Node[], options = {}) {
   const index = parentChildren.toArray().findIndex((id) => id === block.get(YjsEditorKey.block_id));
   const doc = assertDocExists(sharedRoot);
 
+  let lastBlockId = blockId;
+
   doc.transact(() => {
-    slateContentInsertToYData(block.get(YjsEditorKey.block_parent), index + 1, fragment, doc);
+    const newBlockIds = slateContentInsertToYData(block.get(YjsEditorKey.block_parent), index + 1, fragment, doc);
+
+    lastBlockId = newBlockIds[newBlockIds.length - 1];
   });
 
-  Transforms.move(editor, {
-    distance: 1,
-    unit: 'line',
-  });
+  setTimeout(() => {
+    const [, path] = findSlateEntryByBlockId(editor as YjsEditor, lastBlockId);
+
+    editor.select(editor.end(path));
+  }, 50);
 
   return;
 }

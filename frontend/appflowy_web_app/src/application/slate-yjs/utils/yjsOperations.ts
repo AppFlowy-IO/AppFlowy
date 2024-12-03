@@ -650,14 +650,12 @@ export function mergeBlocks (
   const targetYText = getText(targetTextId, sharedRoot);
 
   const sourceOps = sourceYText.toDelta() as Op[];
-  const targetOps = targetYText.toDelta() as Op[];
 
-  const sourceDelta = new Delta(sourceOps);
-  const targetDelta = new Delta(targetOps);
-  const concat = targetDelta.concat(sourceDelta);
-
-  targetYText.delete(0, targetYText.length);
-  targetYText.applyDelta(concat.ops);
+  sourceOps.forEach((op) => {
+    if (op.insert && typeof op.insert === 'string') {
+      targetYText.insert(targetYText.length, op.insert);
+    }
+  });
 
   const sourceBlockId = sourceBlock.blockId as string;
   const targetBlockId = targetBlock.blockId as string;
@@ -1085,8 +1083,9 @@ export function handleMergeBlockBackwardWithTxn (editor: YjsEditor, node: Elemen
 
     const [targetNode] = target as NodeEntry<Element>;
 
+    Transforms.select(editor, prevPoint);
+
     operations.push(() => {
-      Transforms.select(editor, prevPoint);
       mergeBlocks(sharedRoot, node, targetNode);
     });
   } catch (e) {

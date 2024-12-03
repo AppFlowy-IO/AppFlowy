@@ -18,6 +18,18 @@ export const CONTAINER_BLOCK_TYPES = [
 ];
 export const SOFT_BREAK_TYPES = [BlockType.CodeBlock];
 
+export const TEXT_BLOCK_TYPES = [
+  BlockType.ToggleListBlock,
+  BlockType.TodoListBlock,
+  BlockType.Paragraph,
+  BlockType.QuoteBlock,
+  BlockType.BulletedListBlock,
+  BlockType.NumberedListBlock,
+  BlockType.CalloutBlock,
+  BlockType.CodeBlock,
+  BlockType.HeadingBlock,
+];
+
 export const isEmbedBlockTypes = (type: BlockType) => {
   return ![...ListBlockTypes, ...CONTAINER_BLOCK_TYPES, ...SOFT_BREAK_TYPES, BlockType.HeadingBlock].includes(type);
 };

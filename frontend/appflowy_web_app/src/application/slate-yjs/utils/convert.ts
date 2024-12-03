@@ -209,11 +209,17 @@ export function slateContentInsertToYData (
 
     updateBlockParent(sharedRoot, block, parent, index);
 
-    children.forEach((child, i) => processNode(child as Element, block.get(YjsEditorKey.block_id), i));
+    children.forEach((child, i) => {
+      if (Element.isElement(child)) {
+        processNode(child, block.get(YjsEditorKey.block_id), i);
+      }
+    });
 
     return block.get(YjsEditorKey.block_id);
   }
 
   // Process each top-level node in slateContent
-  return slateContent.map((node, i) => processNode(node as Element, parentBlockId, index + i));
+  return slateContent.map((node, i) => {
+    return processNode(node as Element, parentBlockId, index + i);
+  });
 }
