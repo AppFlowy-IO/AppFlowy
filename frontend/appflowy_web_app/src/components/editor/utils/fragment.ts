@@ -19,6 +19,7 @@ import {
   YjsEditorKey,
   YSharedRoot,
 } from '@/application/types';
+import { filter } from 'lodash-es';
 
 export function deserialize (body: HTMLElement, sharedRoot: YSharedRoot) {
   const pageId = getPageId(sharedRoot);
@@ -84,6 +85,25 @@ function deserializeNode (node: Node, parentBlock: YBlock, sharedRoot: YSharedRo
         return;
       }
 
+    }
+
+    if (tagName === 'span') {
+      const children = getChildrenArray(currentBlock.get(YjsEditorKey.block_children), sharedRoot);
+      const lastChildId = children?.toArray()[children?.length - 1];
+      const lastChild = getBlock(lastChildId, sharedRoot);
+      const attributes = getInlineAttributes(element);
+
+      if (lastChild && (filter(TEXT_BLOCK_TYPES, n => n !== BlockType.CodeBlock).includes(lastChild.get(YjsEditorKey.block_type)))) {
+        applyTextToDelta(lastChild, sharedRoot, element.textContent || '', attributes);
+        return;
+      } else {
+        const block = createBlock(sharedRoot, { ty: BlockType.Paragraph, data: {} });
+
+        applyTextToDelta(block, sharedRoot, element.textContent || '', attributes);
+
+        updateBlockParent(sharedRoot, block, currentBlock, children?.length);
+        return;
+      }
     }
 
     Array.from(node.childNodes).forEach(childNode => {

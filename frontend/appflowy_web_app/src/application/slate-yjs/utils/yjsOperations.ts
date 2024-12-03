@@ -1,7 +1,7 @@
 import {
   CONTAINER_BLOCK_TYPES,
   isEmbedBlockTypes,
-  ListBlockTypes,
+  LIST_BLOCK_TYPES,
   TOGGLE_BLOCK_TYPES,
 } from '@/application/slate-yjs/command/const';
 import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
@@ -278,7 +278,7 @@ export function handleCollapsedBreakWithTxn (editor: YjsEditor, sharedRoot: YSha
 
     const parent = getParent(blockId, sharedRoot);
 
-    if (blockType !== BlockType.Paragraph && parent?.get(YjsEditorKey.block_type) === BlockType.QuoteBlock && ListBlockTypes.includes(blockType)) {
+    if (blockType !== BlockType.Paragraph && parent?.get(YjsEditorKey.block_type) === BlockType.QuoteBlock && LIST_BLOCK_TYPES.includes(blockType)) {
       handleNonParagraphBlockBackspaceAndEnterWithTxn(editor, sharedRoot, block, point);
       return;
     }
@@ -475,7 +475,7 @@ function getSplitBlockOperations (sharedRoot: YSharedRoot, block: YBlock, offset
     operations.push(() => {
       const type = block.get(YjsEditorKey.block_type);
       const data = dataStringTOJson(block.get(YjsEditorKey.block_data));
-      const isList = ListBlockTypes.includes(type);
+      const isList = LIST_BLOCK_TYPES.includes(type);
       const newBlock = createBlock(sharedRoot, {
         ty: isList ? type : BlockType.Paragraph,
         data: isList ? data : {},

@@ -1,4 +1,4 @@
-import { ListBlockTypes } from '@/application/slate-yjs/command/const';
+import { LIST_BLOCK_TYPES } from '@/application/slate-yjs/command/const';
 import { YjsEditor } from '@/application/slate-yjs/plugins/withYjs';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
 import {
@@ -166,7 +166,7 @@ export const CustomEditor = {
       const blockType = block.get(YjsEditorKey.block_type) as BlockType;
       const parent = getParent(node.blockId as string, sharedRoot);
 
-      if (blockType !== BlockType.Paragraph && parent?.get(YjsEditorKey.block_type) === BlockType.QuoteBlock && ListBlockTypes.includes(blockType)) {
+      if (blockType !== BlockType.Paragraph && parent?.get(YjsEditorKey.block_type) === BlockType.QuoteBlock && LIST_BLOCK_TYPES.includes(blockType)) {
         handleNonParagraphBlockBackspaceAndEnterWithTxn(editor, sharedRoot, block, point);
         return;
       }

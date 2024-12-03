@@ -1,7 +1,7 @@
 import { BlockType } from '@/application/types';
 
 /** List block types */
-export const ListBlockTypes = [BlockType.TodoListBlock, BlockType.BulletedListBlock, BlockType.NumberedListBlock];
+export const LIST_BLOCK_TYPES = [BlockType.TodoListBlock, BlockType.BulletedListBlock, BlockType.NumberedListBlock];
 
 export const TOGGLE_BLOCK_TYPES = [BlockType.ToggleListBlock, BlockType.QuoteBlock, BlockType.CalloutBlock];
 
@@ -31,5 +31,5 @@ export const TEXT_BLOCK_TYPES = [
 ];
 
 export const isEmbedBlockTypes = (type: BlockType) => {
-  return ![...ListBlockTypes, ...CONTAINER_BLOCK_TYPES, ...SOFT_BREAK_TYPES, BlockType.HeadingBlock].includes(type);
+  return ![...LIST_BLOCK_TYPES, ...CONTAINER_BLOCK_TYPES, ...SOFT_BREAK_TYPES, BlockType.HeadingBlock].includes(type);
 };
