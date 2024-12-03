@@ -165,7 +165,7 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
 
               return child!;
             },
-            child: SimpleTableMoreActionPopup(
+            child: SimpleTableDraggableMoreActionPopup(
               key: ValueKey(widget.type.name + widget.index.toString()),
               index: widget.index,
               isShowingMenu: this.isShowingMenu,
@@ -173,6 +173,36 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class SimpleTableDraggableMoreActionPopup extends StatelessWidget {
+  const SimpleTableDraggableMoreActionPopup({
+    super.key,
+    required this.index,
+    required this.isShowingMenu,
+    required this.type,
+  });
+
+  final int index;
+  final ValueNotifier<bool> isShowingMenu;
+  final SimpleTableMoreActionType type;
+
+  @override
+  Widget build(BuildContext context) {
+    return Draggable<int>(
+      data: index,
+      feedback: Container(
+        color: Colors.red,
+        width: 100,
+        height: 100,
+      ),
+      child: SimpleTableMoreActionPopup(
+        index: index,
+        isShowingMenu: isShowingMenu,
+        type: type,
       ),
     );
   }
@@ -198,6 +228,8 @@ class SimpleTableMoreActionPopup extends StatefulWidget {
 class _SimpleTableMoreActionPopupState
     extends State<SimpleTableMoreActionPopup> {
   late final editorState = context.read<EditorState>();
+  final popoverController = PopoverController();
+
   SelectionGestureInterceptor? gestureInterceptor;
 
   RenderBox? get renderBox => context.findRenderObject() as RenderBox?;
