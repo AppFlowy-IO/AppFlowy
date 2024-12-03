@@ -316,7 +316,17 @@ SimpleTableBlockComponentBuilder _buildSimpleTableBlockComponentBuilder(
   BuildContext context,
   BlockComponentConfiguration configuration,
 ) {
-  return SimpleTableBlockComponentBuilder(configuration: configuration);
+  final copiedConfiguration = configuration.copyWith(
+    padding: (node) {
+      final padding = configuration.padding(node);
+      if (UniversalPlatform.isDesktop) {
+        return padding;
+      } else {
+        return padding.copyWith(right: padding.left);
+      }
+    },
+  );
+  return SimpleTableBlockComponentBuilder(configuration: copiedConfiguration);
 }
 
 SimpleTableRowBlockComponentBuilder _buildSimpleTableRowBlockComponentBuilder(
