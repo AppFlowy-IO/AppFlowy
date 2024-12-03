@@ -87,14 +87,14 @@ void main() {
         align: TableAlign.center,
       );
       expect(tableNode.rowAligns, {
-        '0': TableAlign.center.name,
+        '0': TableAlign.center.key,
       });
       await editorState.insertRowInTable(tableNode, 0);
       expect(tableNode.rowColors, {
         '1': '0xFF0000FF',
       });
       expect(tableNode.rowAligns, {
-        '1': TableAlign.center.name,
+        '1': TableAlign.center.key,
       });
     });
 
@@ -118,14 +118,14 @@ void main() {
         align: TableAlign.center,
       );
       expect(tableNode.rowAligns, {
-        '0': TableAlign.center.name,
+        '0': TableAlign.center.key,
       });
       await editorState.insertRowInTable(tableNode, 1);
       expect(tableNode.rowColors, {
         '0': '0xFF0000FF',
       });
       expect(tableNode.rowAligns, {
-        '0': TableAlign.center.name,
+        '0': TableAlign.center.key,
       });
     });
 
@@ -149,14 +149,14 @@ void main() {
         '0': '0xFF0000FF',
       });
       expect(tableNode.columnAligns, {
-        '0': TableAlign.center.name,
+        '0': TableAlign.center.key,
       });
       await editorState.insertColumnInTable(tableNode, 0);
       expect(tableNode.columnColors, {
         '1': '0xFF0000FF',
       });
       expect(tableNode.columnAligns, {
-        '1': TableAlign.center.name,
+        '1': TableAlign.center.key,
       });
     });
 
@@ -180,14 +180,14 @@ void main() {
         '0': '0xFF0000FF',
       });
       expect(tableNode.columnAligns, {
-        '0': TableAlign.center.name,
+        '0': TableAlign.center.key,
       });
       await editorState.insertColumnInTable(tableNode, 1);
       expect(tableNode.columnColors, {
         '0': '0xFF0000FF',
       });
       expect(tableNode.columnAligns, {
-        '0': TableAlign.center.name,
+        '0': TableAlign.center.key,
       });
     });
   });

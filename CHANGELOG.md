@@ -1,4 +1,13 @@
 # Release Notes
+## Version 0.7.6 - 03/12/2024
+### New Features
+- Revamped the simple table UI
+- Added support for capturing images from camera on mobile
+### Bug Fixes
+- Improved markdown rendering capabilities in AI writer
+- Fixed an issue where pressing Enter on a collapsed toggle list would add an unnecessary new line
+- Fixed an issue where creating a document from slash menu could insert content at incorrect position
+
 ## Version 0.7.5 - 25/11/2024
 ### Bug Fixes
 - Improved chat response parsing

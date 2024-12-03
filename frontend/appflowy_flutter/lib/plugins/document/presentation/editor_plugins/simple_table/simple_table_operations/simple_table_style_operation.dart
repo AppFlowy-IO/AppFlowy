@@ -129,7 +129,7 @@ extension TableOptionOperation on EditorState {
     final attributes = parentTableNode.attributes.mergeValues(
       SimpleTableBlockKeys.columnAligns,
       parentTableNode.columnAligns,
-      duplicatedEntry: MapEntry(columnIndex.toString(), align.name),
+      duplicatedEntry: MapEntry(columnIndex.toString(), align.key),
     );
     transaction.updateNode(parentTableNode, attributes);
     await apply(transaction);
@@ -167,7 +167,7 @@ extension TableOptionOperation on EditorState {
     final attributes = parentTableNode.attributes.mergeValues(
       SimpleTableBlockKeys.rowAligns,
       parentTableNode.rowAligns,
-      duplicatedEntry: MapEntry(rowIndex.toString(), align.name),
+      duplicatedEntry: MapEntry(rowIndex.toString(), align.key),
     );
     transaction.updateNode(parentTableNode, attributes);
     await apply(transaction);
