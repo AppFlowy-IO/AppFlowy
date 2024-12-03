@@ -16,6 +16,17 @@ enum TableAlign {
   right;
 
   String get name => switch (this) {
+        TableAlign.left => 'Left',
+        TableAlign.center => 'Center',
+        TableAlign.right => 'Right',
+      };
+
+  // The key used in the attributes of the table node.
+  //
+  // Example:
+  //
+  // attributes[SimpleTableBlockKeys.columnAligns] = {0: 'left', 1: 'center', 2: 'right'}
+  String get key => switch (this) {
         TableAlign.left => 'left',
         TableAlign.center => 'center',
         TableAlign.right => 'right',
@@ -130,7 +141,7 @@ extension TableNodeExtension on Node {
           parentTableNode.attributes[SimpleTableBlockKeys.rowAligns];
       final align = rowAligns?[rowIndex.toString()];
       return TableAlign.values.firstWhere(
-        (e) => e.name == align,
+        (e) => e.key == align,
         orElse: () => TableAlign.left,
       );
     } catch (e) {
@@ -151,7 +162,7 @@ extension TableNodeExtension on Node {
           parentTableNode.attributes[SimpleTableBlockKeys.columnAligns];
       final align = columnAligns?[columnIndex.toString()];
       return TableAlign.values.firstWhere(
-        (e) => e.name == align,
+        (e) => e.key == align,
         orElse: () => TableAlign.left,
       );
     } catch (e) {

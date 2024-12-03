@@ -202,7 +202,11 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
         onExit: (event) {
           simpleTableContext.isHoveringOnTableBlock.value = false;
         },
-        child: child,
+        child: Container(
+          alignment: Alignment.topLeft,
+          padding: padding,
+          child: child,
+        ),
       ),
     );
 
