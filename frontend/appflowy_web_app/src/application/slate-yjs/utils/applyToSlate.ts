@@ -132,6 +132,12 @@ function handleNewBlock (editor: YjsEditor, key: string, keyPath: Record<string,
   const parentId = block.get(YjsEditorKey.block_parent);
   const pageId = getPageId(editor.sharedRoot);
   const parent = getBlock(parentId, editor.sharedRoot);
+
+  if (!parent) {
+    console.error('Parent block not found', parentId, block.toJSON());
+    return;
+  }
+
   const parentChildren = getChildrenArray(parent.get(YjsEditorKey.block_children), editor.sharedRoot);
   const index = parentChildren.toArray().findIndex((child) => child === key);
   const slateNode = blockToSlateNode(block.toJSON() as BlockJson);

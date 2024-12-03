@@ -28,7 +28,12 @@ export function useShortcuts (editor: ReactEditor) {
 
     const textNode = title.childNodes[0] as Node;
 
-    range.setStart(textNode, toStart ? 0 : (textNode?.textContent?.length || 0));
+    if (textNode) {
+      range.setStart(textNode, toStart ? 0 : (textNode?.textContent?.length || 0));
+    } else {
+      range.setStart(title, 0);
+    }
+
     selection?.removeAllRanges();
     selection?.addRange(range);
   }, [readOnly, viewId]);

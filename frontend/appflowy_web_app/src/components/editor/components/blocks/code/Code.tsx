@@ -32,11 +32,11 @@ export const CodeBlock = memo(
         </div>}
 
         <div {...attributes} ref={ref}
-             className={`${attributes.className ?? ''} flex w-full`}
+             className={`${attributes.className ?? ''}  flex w-full`}
         >
           <pre
             spellCheck={false}
-            className={`flex w-full overflow-hidden rounded-[8px] border border-line-divider bg-fill-list-active p-5 pt-12`}
+            className={`flex w-full overflow-auto rounded-[8px]  appflowy-scroller border border-line-divider bg-fill-list-active p-5 pt-12`}
           >
             <code>{children}</code>
           </pre>
