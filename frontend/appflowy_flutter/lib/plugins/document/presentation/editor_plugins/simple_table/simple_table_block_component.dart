@@ -194,21 +194,7 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
       child: _buildTable(),
     );
 
-    child = Container(
-      alignment: Alignment.topLeft,
-      padding: padding,
-      child: child,
-    );
-
-    if (widget.showActions && widget.actionBuilder != null) {
-      child = BlockComponentActionWrapper(
-        node: node,
-        actionBuilder: widget.actionBuilder!,
-        child: child,
-      );
-    }
-
-    return Provider.value(
+    child = Provider.value(
       value: simpleTableContext,
       child: MouseRegion(
         onEnter: (event) =>
@@ -219,54 +205,71 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
         child: child,
       ),
     );
+
+    if (widget.showActions && widget.actionBuilder != null) {
+      child = BlockComponentActionWrapper(
+        node: node,
+        actionBuilder: widget.actionBuilder!,
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   Widget _buildTable() {
     // IntrinsicWidth and IntrinsicHeight are used to make the table size fit the content.
-    return Provider.value(
-      value: simpleTableContext,
-      child: Stack(
-        children: [
-          MouseRegion(
-            onEnter: (event) =>
-                simpleTableContext.isHoveringOnTable.value = true,
-            onExit: (event) {
-              simpleTableContext.isHoveringOnTable.value = false;
-              simpleTableContext.hoveringTableCell.value = null;
-            },
-            child: Scrollbar(
-              controller: scrollController,
-              child: SingleChildScrollView(
+    return MouseRegion(
+      onEnter: (event) => simpleTableContext.isHoveringOnTableArea.value = true,
+      onExit: (event) {
+        simpleTableContext.isHoveringOnTableArea.value = false;
+      },
+      child: Provider.value(
+        value: simpleTableContext,
+        child: Stack(
+          children: [
+            MouseRegion(
+              hitTestBehavior: HitTestBehavior.opaque,
+              onEnter: (event) =>
+                  simpleTableContext.isHoveringOnColumnsAndRows.value = true,
+              onExit: (event) {
+                simpleTableContext.isHoveringOnColumnsAndRows.value = false;
+                simpleTableContext.hoveringTableCell.value = null;
+              },
+              child: Scrollbar(
                 controller: scrollController,
-                scrollDirection: Axis.horizontal,
-                child: Padding(
-                  padding: SimpleTableConstants.tablePadding,
-                  child: IntrinsicWidth(
-                    child: IntrinsicHeight(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: _buildRows(),
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  scrollDirection: Axis.horizontal,
+                  child: Padding(
+                    padding: SimpleTableConstants.tablePadding,
+                    child: IntrinsicWidth(
+                      child: IntrinsicHeight(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: _buildRows(),
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-          SimpleTableAddColumnHoverButton(
-            editorState: editorState,
-            node: node,
-          ),
-          SimpleTableAddRowHoverButton(
-            editorState: editorState,
-            tableNode: node,
-          ),
-          SimpleTableAddColumnAndRowHoverButton(
-            editorState: editorState,
-            node: node,
-          ),
-        ],
+            SimpleTableAddColumnHoverButton(
+              editorState: editorState,
+              node: node,
+            ),
+            SimpleTableAddRowHoverButton(
+              editorState: editorState,
+              tableNode: node,
+            ),
+            SimpleTableAddColumnAndRowHoverButton(
+              editorState: editorState,
+              node: node,
+            ),
+          ],
+        ),
       ),
     );
   }

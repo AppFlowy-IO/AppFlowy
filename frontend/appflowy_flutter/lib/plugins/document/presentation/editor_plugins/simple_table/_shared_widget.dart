@@ -108,12 +108,12 @@ class _SimpleTableAddRowHoverButtonState
 
     final simpleTableContext = context.read<SimpleTableContext>();
     return ValueListenableBuilder(
-      valueListenable: simpleTableContext.isHoveringOnTableBlock,
-      builder: (context, isHoveringOnTableBlock, child) {
+      valueListenable: simpleTableContext.isHoveringOnTableArea,
+      builder: (context, isHoveringOnTableArea, child) {
         return ValueListenableBuilder(
           valueListenable: simpleTableContext.hoveringTableCell,
           builder: (context, hoveringTableCell, child) {
-            bool shouldShow = isHoveringOnTableBlock;
+            bool shouldShow = isHoveringOnTableArea;
             if (hoveringTableCell != null && _enableHoveringLogicV2) {
               shouldShow =
                   hoveringTableCell.rowIndex + 1 == hoveringTableCell.rowLength;
@@ -240,30 +240,30 @@ class _SimpleTableAddColumnHoverButtonState
     }
 
     return ValueListenableBuilder(
-      valueListenable:
-          context.read<SimpleTableContext>().isHoveringOnTableBlock,
-      builder: (context, isHoveringOnTableBlock, _) {
+      valueListenable: context.read<SimpleTableContext>().isHoveringOnTableArea,
+      builder: (context, isHoveringOnTableArea, _) {
         return ValueListenableBuilder(
           valueListenable: context.read<SimpleTableContext>().hoveringTableCell,
           builder: (context, hoveringTableCell, _) {
-            bool shouldShow = isHoveringOnTableBlock;
+            bool shouldShow = isHoveringOnTableArea;
             if (hoveringTableCell != null && _enableHoveringLogicV2) {
               shouldShow = hoveringTableCell.columnIndex + 1 ==
                   hoveringTableCell.columnLength;
             }
-            return shouldShow
-                ? Positioned(
-                    top: SimpleTableConstants.tableTopPadding -
-                        SimpleTableConstants.cellBorderWidth,
-                    bottom: SimpleTableConstants.addColumnButtonBottomPadding,
-                    right: 0,
-                    child: SimpleTableAddColumnButton(
-                      onTap: () {
-                        widget.editorState.addColumnInTable(widget.node);
-                      },
-                    ),
-                  )
-                : const SizedBox.shrink();
+            return Positioned(
+              top: SimpleTableConstants.tableTopPadding -
+                  SimpleTableConstants.cellBorderWidth,
+              bottom: SimpleTableConstants.addColumnButtonBottomPadding,
+              right: 0,
+              child: Opacity(
+                opacity: shouldShow ? 1.0 : 0.0,
+                child: SimpleTableAddColumnButton(
+                  onTap: () {
+                    widget.editorState.addColumnInTable(widget.node);
+                  },
+                ),
+              ),
+            );
           },
         );
       },
@@ -340,13 +340,12 @@ class SimpleTableAddColumnAndRowHoverButton extends StatelessWidget {
     }
 
     return ValueListenableBuilder(
-      valueListenable:
-          context.read<SimpleTableContext>().isHoveringOnTableBlock,
-      builder: (context, isHoveringOnTableBlock, child) {
+      valueListenable: context.read<SimpleTableContext>().isHoveringOnTableArea,
+      builder: (context, isHoveringOnTableArea, child) {
         return ValueListenableBuilder(
           valueListenable: context.read<SimpleTableContext>().hoveringTableCell,
           builder: (context, hoveringTableCell, child) {
-            bool shouldShow = isHoveringOnTableBlock;
+            bool shouldShow = isHoveringOnTableArea;
             if (hoveringTableCell != null && _enableHoveringLogicV2) {
               shouldShow = hoveringTableCell.isLastCellInTable;
             }
