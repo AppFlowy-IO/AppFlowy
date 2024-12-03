@@ -15,8 +15,11 @@ final List<CommandShortcutEvent> defaultCommandShortcutEvents = [
 
 // Command shortcuts are order-sensitive. Verify order when modifying.
 List<CommandShortcutEvent> commandShortcutEvents = [
+  ...simpleTableCommands,
+
   customExitEditingCommand,
   backspaceToTitle,
+  removeToggleHeadingStyle,
 
   arrowUpToTitle,
   arrowLeftToTitle,
@@ -44,6 +47,7 @@ List<CommandShortcutEvent> commandShortcutEvents = [
         undoCommand,
         redoCommand,
         exitEditingCommand,
+        // ...tableCommands,
       ].contains(shortcut),
     ),
 

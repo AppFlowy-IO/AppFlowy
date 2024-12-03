@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -213,6 +215,74 @@ void main() {
       );
 
       expectToggleListOpened();
+    });
+
+    Future<void> prepareToggleHeadingBlock(
+      WidgetTester tester,
+      String text,
+    ) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent();
+
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.ime.insertText(text);
+    }
+
+    testWidgets('> + # to toggle heading 1 block', (tester) async {
+      await prepareToggleHeadingBlock(tester, '> # Hello');
+      final editorState = tester.editor.getCurrentEditorState();
+      final node = editorState.getNodeAtPath([0])!;
+      expect(node.type, ToggleListBlockKeys.type);
+      expect(node.attributes[ToggleListBlockKeys.level], 1);
+      expect(node.delta!.toPlainText(), 'Hello');
+    });
+
+    testWidgets('> + ### to toggle heading 3 block', (tester) async {
+      await prepareToggleHeadingBlock(tester, '> ### Hello');
+      final editorState = tester.editor.getCurrentEditorState();
+      final node = editorState.getNodeAtPath([0])!;
+      expect(node.type, ToggleListBlockKeys.type);
+      expect(node.attributes[ToggleListBlockKeys.level], 3);
+      expect(node.delta!.toPlainText(), 'Hello');
+    });
+
+    testWidgets('# + > to toggle heading 1 block', (tester) async {
+      await prepareToggleHeadingBlock(tester, '# > Hello');
+      final editorState = tester.editor.getCurrentEditorState();
+      final node = editorState.getNodeAtPath([0])!;
+      expect(node.type, ToggleListBlockKeys.type);
+      expect(node.attributes[ToggleListBlockKeys.level], 1);
+      expect(node.delta!.toPlainText(), 'Hello');
+    });
+
+    testWidgets('### + > to toggle heading 3 block', (tester) async {
+      await prepareToggleHeadingBlock(tester, '### > Hello');
+      final editorState = tester.editor.getCurrentEditorState();
+      final node = editorState.getNodeAtPath([0])!;
+      expect(node.type, ToggleListBlockKeys.type);
+      expect(node.attributes[ToggleListBlockKeys.level], 3);
+      expect(node.delta!.toPlainText(), 'Hello');
+    });
+
+    testWidgets('click the toggle list to create a new paragraph',
+        (tester) async {
+      await prepareToggleHeadingBlock(tester, '> # Hello');
+      final emptyHintText = find.text(
+        LocaleKeys.document_plugins_emptyToggleHeading.tr(
+          args: ['1'],
+        ),
+      );
+      expect(emptyHintText, findsOneWidget);
+
+      await tester.tapButton(emptyHintText);
+      await tester.pumpAndSettle();
+
+      // check the new paragraph is created
+      final editorState = tester.editor.getCurrentEditorState();
+      final node = editorState.getNodeAtPath([0, 0])!;
+      expect(node.type, ParagraphBlockKeys.type);
     });
   });
 }

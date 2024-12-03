@@ -4,10 +4,7 @@ import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_block_copy_button.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -96,9 +93,7 @@ List<OptionAction> _buildOptionActions(BuildContext context, String type) {
     standardActions.add(OptionAction.copyLinkToBlock);
   }
 
-  if (EditorOptionActionType.turnInto.supportTypes.contains(type)) {
-    standardActions.add(OptionAction.turnInto);
-  }
+  standardActions.add(OptionAction.turnInto);
 
   if (EditorOptionActionType.color.supportTypes.contains(type)) {
     standardActions.addAll([OptionAction.divider, OptionAction.color]);
@@ -130,8 +125,9 @@ void _customBlockOptionActions(
     final actions = _buildOptionActions(context, entry.key);
 
     if (UniversalPlatform.isDesktop) {
-      builder.showActions =
-          (node) => node.parent?.type != TableCellBlockKeys.type;
+      builder.showActions = (node) =>
+          node.parent?.type != TableCellBlockKeys.type &&
+          node.parent?.type != SimpleTableCellBlockKeys.type;
       builder.configuration = builder.configuration.copyWith(
         blockSelectionAreaMargin: (_) => const EdgeInsets.symmetric(
           vertical: 1,
@@ -139,12 +135,21 @@ void _customBlockOptionActions(
       );
 
       builder.actionBuilder = (context, state) {
-        final top = builder.configuration.padding(context.node).top;
-        final padding = context.node.type == HeadingBlockKeys.type
-            ? EdgeInsets.only(top: top + 8.0)
-            : EdgeInsets.only(top: top + 2.0);
+        double top = builder.configuration.padding(context.node).top;
+        final type = context.node.type;
+        final level = context.node.attributes[HeadingBlockKeys.level] ?? 0;
+        if ((type == HeadingBlockKeys.type ||
+                type == ToggleListBlockKeys.type) &&
+            level > 0) {
+          final offset = [14.0, 11.0, 8.0, 6.0, 4.0, 2.0];
+          top += offset[level - 1];
+        } else if (type == SimpleTableBlockKeys.type) {
+          top += 8.0;
+        } else {
+          top += 2.0;
+        }
         return Padding(
-          padding: padding,
+          padding: EdgeInsets.only(top: top),
           child: BlockActionList(
             blockComponentContext: context,
             blockComponentState: state,
@@ -155,6 +160,7 @@ void _customBlockOptionActions(
                 ? () => customSlashCommand(
                       slashMenuItems,
                       shouldInsertSlash: false,
+                      deleteKeywordsByDefault: true,
                       style: styleCustomizer.selectionMenuStyleBuilder(),
                     ).handler.call(editorState)
                 : () {},
@@ -250,17 +256,19 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
       configuration,
       styleCustomizer,
     ),
-    AutoCompletionBlockKeys.type: _buildAutoCompletionBlockComponentBuilder(
+    AIWriterBlockKeys.type: _buildAIWriterBlockComponentBuilder(
       context,
       configuration,
     ),
-    SmartEditBlockKeys.type: _buildSmartEditBlockComponentBuilder(
+    AskAIBlockKeys.type: _buildAskAIBlockComponentBuilder(
       context,
       configuration,
     ),
     ToggleListBlockKeys.type: _buildToggleListBlockComponentBuilder(
       context,
       configuration,
+      styleCustomizer,
+      customHeadingPadding,
     ),
     OutlineBlockKeys.type: _buildOutlineBlockComponentBuilder(
       context,
@@ -282,6 +290,18 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
     errorBlockComponentBuilderKey: ErrorBlockComponentBuilder(
       configuration: configuration,
     ),
+    SimpleTableBlockKeys.type: _buildSimpleTableBlockComponentBuilder(
+      context,
+      configuration,
+    ),
+    SimpleTableRowBlockKeys.type: _buildSimpleTableRowBlockComponentBuilder(
+      context,
+      configuration,
+    ),
+    SimpleTableCellBlockKeys.type: _buildSimpleTableCellBlockComponentBuilder(
+      context,
+      configuration,
+    ),
   };
 
   final builders = {
@@ -292,6 +312,27 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
   return builders;
 }
 
+SimpleTableBlockComponentBuilder _buildSimpleTableBlockComponentBuilder(
+  BuildContext context,
+  BlockComponentConfiguration configuration,
+) {
+  return SimpleTableBlockComponentBuilder(configuration: configuration);
+}
+
+SimpleTableRowBlockComponentBuilder _buildSimpleTableRowBlockComponentBuilder(
+  BuildContext context,
+  BlockComponentConfiguration configuration,
+) {
+  return SimpleTableRowBlockComponentBuilder(configuration: configuration);
+}
+
+SimpleTableCellBlockComponentBuilder _buildSimpleTableCellBlockComponentBuilder(
+  BuildContext context,
+  BlockComponentConfiguration configuration,
+) {
+  return SimpleTableCellBlockComponentBuilder(configuration: configuration);
+}
+
 ParagraphBlockComponentBuilder _buildParagraphBlockComponentBuilder(
   BuildContext context,
   BlockComponentConfiguration configuration,
@@ -299,7 +340,17 @@ ParagraphBlockComponentBuilder _buildParagraphBlockComponentBuilder(
   String Function(Node)? placeholderText,
 ) {
   return ParagraphBlockComponentBuilder(
-    configuration: configuration.copyWith(placeholderText: placeholderText),
+    configuration: configuration.copyWith(
+      placeholderText: placeholderText,
+      textStyle: (node) {
+        if (node.isInHeaderColumn || node.isInHeaderRow) {
+          return configuration.textStyle(node).copyWith(
+                fontWeight: FontWeight.bold,
+              );
+        }
+        return configuration.textStyle(node);
+      },
+    ),
     showPlaceholder: showParagraphPlaceholder,
   );
 }
@@ -311,6 +362,14 @@ TodoListBlockComponentBuilder _buildTodoListBlockComponentBuilder(
   return TodoListBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_todoList.tr(),
+      textStyle: (node) {
+        if (node.isInHeaderColumn || node.isInHeaderRow) {
+          return configuration.textStyle(node).copyWith(
+                fontWeight: FontWeight.bold,
+              );
+        }
+        return configuration.textStyle(node);
+      },
     ),
     iconBuilder: (_, node, onCheck) => TodoListIcon(
       node: node,
@@ -331,6 +390,14 @@ BulletedListBlockComponentBuilder _buildBulletedListBlockComponentBuilder(
   return BulletedListBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_bulletList.tr(),
+      textStyle: (node) {
+        if (node.isInHeaderColumn || node.isInHeaderRow) {
+          return configuration.textStyle(node).copyWith(
+                fontWeight: FontWeight.bold,
+              );
+        }
+        return configuration.textStyle(node);
+      },
     ),
     iconBuilder: (_, node) => BulletedListIcon(node: node),
   );
@@ -343,6 +410,14 @@ NumberedListBlockComponentBuilder _buildNumberedListBlockComponentBuilder(
   return NumberedListBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_numberList.tr(),
+      textStyle: (node) {
+        if (node.isInHeaderColumn || node.isInHeaderRow) {
+          return configuration.textStyle(node).copyWith(
+                fontWeight: FontWeight.bold,
+              );
+        }
+        return configuration.textStyle(node);
+      },
     ),
     iconBuilder: (_, node, textDirection) => NumberedListIcon(
       node: node,
@@ -358,6 +433,14 @@ QuoteBlockComponentBuilder _buildQuoteBlockComponentBuilder(
   return QuoteBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_quote.tr(),
+      textStyle: (node) {
+        if (node.isInHeaderColumn || node.isInHeaderRow) {
+          return configuration.textStyle(node).copyWith(
+                fontWeight: FontWeight.bold,
+              );
+        }
+        return configuration.textStyle(node);
+      },
     ),
   );
 }
@@ -542,41 +625,71 @@ CodeBlockComponentBuilder _buildCodeBlockComponentBuilder(
   EditorStyleCustomizer styleCustomizer,
 ) {
   return CodeBlockComponentBuilder(
-    configuration: configuration.copyWith(
-      textStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
-      placeholderTextStyle: (_) => styleCustomizer.codeBlockStyleBuilder(),
-    ),
-    styleBuilder: () => CodeBlockStyle(
-      backgroundColor: AFThemeExtension.of(context).calloutBGColor,
-      foregroundColor: AFThemeExtension.of(context).textColor.withAlpha(155),
-    ),
+    styleBuilder: styleCustomizer.codeBlockStyleBuilder,
     padding: const EdgeInsets.only(left: 20, right: 30, bottom: 34),
     languagePickerBuilder: codeBlockLanguagePickerBuilder,
     copyButtonBuilder: codeBlockCopyBuilder,
-    showLineNumbers: false,
   );
 }
 
-AutoCompletionBlockComponentBuilder _buildAutoCompletionBlockComponentBuilder(
+AIWriterBlockComponentBuilder _buildAIWriterBlockComponentBuilder(
   BuildContext context,
   BlockComponentConfiguration configuration,
 ) {
-  return AutoCompletionBlockComponentBuilder();
+  return AIWriterBlockComponentBuilder();
 }
 
-SmartEditBlockComponentBuilder _buildSmartEditBlockComponentBuilder(
+AskAIBlockComponentBuilder _buildAskAIBlockComponentBuilder(
   BuildContext context,
   BlockComponentConfiguration configuration,
 ) {
-  return SmartEditBlockComponentBuilder();
+  return AskAIBlockComponentBuilder();
 }
 
 ToggleListBlockComponentBuilder _buildToggleListBlockComponentBuilder(
   BuildContext context,
   BlockComponentConfiguration configuration,
+  EditorStyleCustomizer styleCustomizer,
+  EdgeInsets? customHeadingPadding,
 ) {
   return ToggleListBlockComponentBuilder(
-    configuration: configuration,
+    configuration: configuration.copyWith(
+      padding: (node) {
+        if (customHeadingPadding != null) {
+          return customHeadingPadding;
+        }
+
+        if (UniversalPlatform.isMobile) {
+          final pageStyle = context.read<DocumentPageStyleBloc>().state;
+          final factor = pageStyle.fontLayout.factor;
+          final headingPaddings =
+              pageStyle.lineHeightLayout.headingPaddings.map((e) => e * factor);
+          int level = node.attributes[HeadingBlockKeys.level] ?? 6;
+          level = level.clamp(1, 6);
+          return EdgeInsets.only(top: headingPaddings.elementAt(level - 1));
+        }
+
+        return const EdgeInsets.only(top: 12.0, bottom: 4.0);
+      },
+      textStyle: (node) {
+        final level = node.attributes[ToggleListBlockKeys.level] as int?;
+        if (level == null) {
+          return configuration.textStyle(node);
+        }
+        return styleCustomizer.headingStyleBuilder(level);
+      },
+      placeholderText: (node) {
+        int? level = node.attributes[ToggleListBlockKeys.level];
+        if (level == null) {
+          return configuration.placeholderText(node);
+        }
+        level = level.clamp(1, 6);
+        return LocaleKeys.blockPlaceholders_heading.tr(
+          args: [level.toString()],
+        );
+      },
+    ),
+    textStyleBuilder: (level) => styleCustomizer.headingStyleBuilder(level),
   );
 }
 

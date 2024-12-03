@@ -7,8 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flowy_infra/size.dart';
 
 class FlowyFormTextInput extends StatelessWidget {
-  static EdgeInsets kDefaultTextInputPadding =
-      EdgeInsets.only(bottom: Insets.sm, top: 4);
+  static EdgeInsets kDefaultTextInputPadding = const EdgeInsets.only(bottom: 2);
 
   final String? label;
   final bool? autoFocus;
@@ -178,19 +177,21 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
       },
     );
     // Listen for focus out events
-    _focusNode
-        .addListener(() => widget.onFocusChanged?.call(_focusNode.hasFocus));
+    _focusNode.addListener(_onFocusChanged);
     widget.onFocusCreated?.call(_focusNode);
     if (widget.autoFocus ?? false) {
       scheduleMicrotask(() => _focusNode.requestFocus());
     }
   }
 
+  void _onFocusChanged() => widget.onFocusChanged?.call(_focusNode.hasFocus);
+
   @override
   void dispose() {
     if (widget.controller == null) {
       _controller.dispose();
     }
+    _focusNode.removeListener(_onFocusChanged);
     _focusNode.dispose();
     super.dispose();
   }

@@ -157,6 +157,7 @@ function handleNewBlock (editor: YjsEditor, key: string, keyPath: Record<string,
     const [parentEntry] = editor.nodes({
       match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId === parentId,
       mode: 'all',
+      at: [],
     });
 
     if (!parentEntry) {

@@ -219,7 +219,7 @@ impl GroupCustomize for DateGroupController {
   fn will_create_row(&self, cells: &mut Cells, field: &Field, group_id: &str) {
     match self.context.get_group(group_id) {
       None => tracing::warn!("Can not find the group: {}", group_id),
-      Some((_, _)) => {
+      _ => {
         let date = DateTime::parse_from_str(group_id, GROUP_ID_DATE_FORMAT).unwrap();
         let cell = insert_date_cell(date.timestamp(), None, Some(false), field);
         cells.insert(field.id.clone(), cell);

@@ -276,7 +276,9 @@ class _MobileToolbarState extends State<_MobileToolbar>
     if (!closeKeyboardInitiative &&
         cachedKeyboardHeight.value != 0 &&
         height == 0) {
-      widget.editorState.selection = null;
+      if (!widget.editorState.isDisposed) {
+        widget.editorState.selection = null;
+      }
     }
 
     // if the menu is shown and the height is not 0, we need to close the menu

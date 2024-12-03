@@ -89,6 +89,6 @@ class _UploadError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyText(error.msg);
+    return FlowyText(error.msg, maxLines: 10);
   }
 }

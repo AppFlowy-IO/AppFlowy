@@ -53,13 +53,8 @@ impl UserManager {
 
     let cloned_current_session = current_session.clone();
     let import_data = tokio::task::spawn_blocking(move || {
-      generate_import_data(
-        &cloned_current_session,
-        &cloned_current_session.user_workspace.id,
-        &user_collab_db,
-        imported_folder,
-      )
-      .map_err(|err| FlowyError::new(ErrorCode::AppFlowyDataFolderImportError, err.to_string()))
+      generate_import_data(&cloned_current_session, &user_collab_db, imported_folder)
+        .map_err(|err| FlowyError::new(ErrorCode::AppFlowyDataFolderImportError, err.to_string()))
     })
     .await??;
 
@@ -684,6 +679,7 @@ pub fn save_user_workspace(
       user_workspace_table::created_at.eq(&user_workspace.created_at),
       user_workspace_table::database_storage_id.eq(&user_workspace.database_storage_id),
       user_workspace_table::icon.eq(&user_workspace.icon),
+      user_workspace_table::member_count.eq(&user_workspace.member_count),
     ))
     .execute(conn)?;
 
@@ -734,6 +730,7 @@ pub fn save_all_user_workspaces(
         user_workspace_table::created_at.eq(&user_workspace.created_at),
         user_workspace_table::database_storage_id.eq(&user_workspace.database_storage_id),
         user_workspace_table::icon.eq(&user_workspace.icon),
+        user_workspace_table::member_count.eq(&user_workspace.member_count),
       ))
       .execute(conn)?;
 

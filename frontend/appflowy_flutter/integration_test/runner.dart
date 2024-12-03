@@ -4,7 +4,12 @@ import 'desktop_runner_1.dart';
 import 'desktop_runner_2.dart';
 import 'desktop_runner_3.dart';
 import 'desktop_runner_4.dart';
-import 'mobile_runner.dart';
+import 'desktop_runner_5.dart';
+import 'desktop_runner_6.dart';
+import 'desktop_runner_7.dart';
+import 'desktop_runner_8.dart';
+import 'desktop_runner_9.dart';
+import 'mobile_runner_1.dart';
 
 /// The main task runner for all integration tests in AppFlowy.
 ///
@@ -19,8 +24,13 @@ Future<void> main() async {
     await runIntegration2OnDesktop();
     await runIntegration3OnDesktop();
     await runIntegration4OnDesktop();
+    await runIntegration5OnDesktop();
+    await runIntegration6OnDesktop();
+    await runIntegration7OnDesktop();
+    await runIntegration8OnDesktop();
+    await runIntegration9OnDesktop();
   } else if (Platform.isIOS || Platform.isAndroid) {
-    await runIntegrationOnMobile();
+    await runIntegration1OnMobile();
   } else {
     throw Exception('Unsupported platform');
   }

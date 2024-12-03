@@ -27,6 +27,16 @@ impl From<AppResponseError> for FlowyError {
       AppErrorCode::AIResponseLimitExceeded => ErrorCode::AIResponseLimitExceeded,
       AppErrorCode::FileStorageLimitExceeded => ErrorCode::FileStorageLimitExceeded,
       AppErrorCode::SingleUploadLimitExceeded => ErrorCode::SingleUploadLimitExceeded,
+      AppErrorCode::CustomNamespaceDisabled => ErrorCode::CustomNamespaceRequirePlanUpgrade,
+      AppErrorCode::CustomNamespaceDisallowed => ErrorCode::CustomNamespaceNotAllowed,
+      AppErrorCode::PublishNamespaceAlreadyTaken => ErrorCode::CustomNamespaceAlreadyTaken,
+      AppErrorCode::CustomNamespaceTooShort => ErrorCode::CustomNamespaceTooShort,
+      AppErrorCode::CustomNamespaceTooLong => ErrorCode::CustomNamespaceTooLong,
+      AppErrorCode::CustomNamespaceReserved => ErrorCode::CustomNamespaceReserved,
+      AppErrorCode::PublishNameAlreadyExists => ErrorCode::PublishNameAlreadyExists,
+      AppErrorCode::PublishNameInvalidCharacter => ErrorCode::PublishNameInvalidCharacter,
+      AppErrorCode::PublishNameTooLong => ErrorCode::PublishNameTooLong,
+      AppErrorCode::CustomNamespaceInvalidCharacter => ErrorCode::CustomNamespaceInvalidCharacter,
       _ => ErrorCode::Internal,
     };
 

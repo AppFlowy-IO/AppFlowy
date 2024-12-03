@@ -9,7 +9,8 @@ enum EditorNotificationType {
   exitEditing,
   paste,
   dragStart,
-  dragEnd
+  dragEnd,
+  turnInto,
 }
 
 class EditorNotification {
@@ -21,6 +22,7 @@ class EditorNotification {
   EditorNotification.paste() : type = EditorNotificationType.paste;
   EditorNotification.dragStart() : type = EditorNotificationType.dragStart;
   EditorNotification.dragEnd() : type = EditorNotificationType.dragEnd;
+  EditorNotification.turnInto() : type = EditorNotificationType.turnInto;
 
   static final PropertyValueNotifier<EditorNotificationType> _notifier =
       PropertyValueNotifier(EditorNotificationType.none);

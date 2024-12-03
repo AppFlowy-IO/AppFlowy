@@ -5,13 +5,14 @@ use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver};
 use tracing::{error, trace};
 
 #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+#[allow(dead_code)]
 pub struct WatchContext {
-  #[allow(dead_code)]
   watcher: notify::RecommendedWatcher,
   pub path: PathBuf,
 }
 
 #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+#[allow(dead_code)]
 pub fn watch_offline_app() -> FlowyResult<(WatchContext, UnboundedReceiver<WatchDiskEvent>)> {
   use notify::{Event, Watcher};
 

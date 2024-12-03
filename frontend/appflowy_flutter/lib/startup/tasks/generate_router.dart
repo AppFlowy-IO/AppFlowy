@@ -51,7 +51,7 @@ GoRouter generateRouter(Widget child) {
       _encryptSecretScreenRoute(),
       _workspaceErrorScreenRoute(),
       // Desktop only
-      if (!UniversalPlatform.isMobile) _desktopHomeScreenRoute(),
+      if (UniversalPlatform.isDesktop) _desktopHomeScreenRoute(),
       // Mobile only
       if (UniversalPlatform.isMobile) ...[
         // settings
@@ -499,6 +499,8 @@ GoRoute _mobileEditorScreenRoute() {
       );
       final fixedTitle =
           state.uri.queryParameters[MobileDocumentScreen.viewFixedTitle];
+      final blockId =
+          state.uri.queryParameters[MobileDocumentScreen.viewBlockId];
 
       return MaterialExtendedPage(
         child: MobileDocumentScreen(
@@ -506,6 +508,7 @@ GoRoute _mobileEditorScreenRoute() {
           title: title,
           showMoreButton: showMoreButton ?? true,
           fixedTitle: fixedTitle,
+          blockId: blockId,
         ),
       );
     },

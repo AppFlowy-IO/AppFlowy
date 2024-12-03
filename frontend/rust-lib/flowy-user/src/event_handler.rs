@@ -277,9 +277,13 @@ pub async fn import_appflowy_data_folder_handler(
   af_spawn(async move {
     let result = async {
       let manager = upgrade_manager(manager)?;
-      let imported_folder = prepare_import(&data.path, data.parent_view_id)
-        .map_err(|err| FlowyError::new(ErrorCode::AppFlowyDataFolderImportError, err.to_string()))?
-        .with_container_name(data.import_container_name);
+      let imported_folder = prepare_import(
+        &data.path,
+        data.parent_view_id,
+        &manager.authenticate_user.user_config.app_version,
+      )
+      .map_err(|err| FlowyError::new(ErrorCode::AppFlowyDataFolderImportError, err.to_string()))?
+      .with_container_name(data.import_container_name);
 
       manager.perform_import(imported_folder).await?;
       Ok::<(), FlowyError>(())

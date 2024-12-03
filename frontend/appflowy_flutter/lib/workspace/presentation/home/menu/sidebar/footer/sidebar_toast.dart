@@ -11,7 +11,6 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -31,6 +30,10 @@ class SidebarToast extends StatelessWidget {
           storageLimitHit: () => WidgetsBinding.instance.addPostFrameCallback(
             (_) => _showStorageLimitDialog(context),
           ),
+          singleFileLimitHit: () =>
+              WidgetsBinding.instance.addPostFrameCallback(
+            (_) => _showSingleFileLimitDialog(context),
+          ),
           orElse: () {},
         );
       },
@@ -49,6 +52,7 @@ class SidebarToast extends StatelessWidget {
             onTap: () => _handleOnTap(context, SubscriptionPlanPB.AiMax),
             reason: LocaleKeys.sideBar_aiResponseLimitTitle.tr(),
           ),
+          singleFileLimitHit: () => const SizedBox.shrink(),
         );
       },
     );
@@ -58,6 +62,20 @@ class SidebarToast extends StatelessWidget {
         context: context,
         title: LocaleKeys.sideBar_purchaseStorageSpace.tr(),
         description: LocaleKeys.sideBar_storageLimitDialogTitle.tr(),
+        confirmLabel:
+            LocaleKeys.settings_comparePlanDialog_actions_upgrade.tr(),
+        onConfirm: () {
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) => _handleOnTap(context, SubscriptionPlanPB.Pro),
+          );
+        },
+      );
+
+  void _showSingleFileLimitDialog(BuildContext context) => showConfirmDialog(
+        context: context,
+        title: LocaleKeys.sideBar_upgradeToPro.tr(),
+        description:
+            LocaleKeys.sideBar_singleFileProPlanLimitationDescription.tr(),
         confirmLabel:
             LocaleKeys.settings_comparePlanDialog_actions_upgrade.tr(),
         onConfirm: () {

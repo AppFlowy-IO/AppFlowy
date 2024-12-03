@@ -4,8 +4,10 @@ import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/type_option_menu_item.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji_picker_button.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/add_block_toolbar_item.dart';
 import 'package:appflowy/plugins/shared/share/share_button.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/shared/text_field/text_filed_with_metric_lines.dart';
@@ -42,6 +44,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'emoji.dart';
 import 'util.dart';
@@ -192,8 +195,13 @@ extension CommonOperations on WidgetTester {
     ViewLayoutPB layout = ViewLayoutPB.Document,
   }) async {
     final page = findPageName(name, layout: layout);
-    await tap(page, buttons: kSecondaryMouseButton);
-    await pumpAndSettle();
+    await hoverOnPageName(
+      name,
+      onHover: () async {
+        await tap(page, buttons: kSecondaryMouseButton);
+        await pumpAndSettle();
+      },
+    );
   }
 
   /// open the page with given name.
@@ -214,7 +222,7 @@ extension CommonOperations on WidgetTester {
       of: find.byType(ViewMoreActionPopover),
       matching: find.byFlowySvg(FlowySvgs.workspace_three_dots_s),
     );
-    await tapButton(optionButton, warnIfMissed: true);
+    await tapButton(optionButton);
   }
 
   /// Tap the delete page button.
@@ -309,6 +317,15 @@ extension CommonOperations on WidgetTester {
       (widget) => widget is ShareButton,
     );
     await tapButton(shareButton);
+  }
+
+  // open the share menu and then click the publish tab
+  Future<void> openPublishMenu() async {
+    await tapShareButton();
+    final publishButton = find.textContaining(
+      LocaleKeys.shareAction_publishTab.tr(),
+    );
+    await tapButton(publishButton);
   }
 
   /// Tap the export markdown button
@@ -760,6 +777,69 @@ extension CommonOperations on WidgetTester {
     );
     await tap(button);
     await pump();
+  }
+
+  Future<void> tapFileUploadHint() async {
+    final finder = find.byWidgetPredicate(
+      (w) =>
+          w is RichText &&
+          w.text.toPlainText().contains(
+                LocaleKeys.document_plugins_file_fileUploadHint.tr(),
+              ),
+    );
+    await tap(finder);
+    await pumpAndSettle(const Duration(seconds: 2));
+  }
+
+  /// Create a new document on mobile
+  Future<void> createNewDocumentOnMobile(String name) async {
+    final createPageButton = find.byKey(
+      BottomNavigationBarItemType.add.valueKey,
+    );
+    await tapButton(createPageButton);
+    expect(find.byType(MobileDocumentScreen), findsOneWidget);
+
+    final title = editor.findDocumentTitle('');
+    expect(title, findsOneWidget);
+    final textField = widget<TextField>(title);
+    expect(textField.focusNode!.hasFocus, isTrue);
+
+    // input new name and press done button
+    await enterText(title, name);
+    await testTextInput.receiveAction(TextInputAction.done);
+    await pumpAndSettle();
+    final newTitle = editor.findDocumentTitle(name);
+    expect(newTitle, findsOneWidget);
+    expect(textField.controller!.text, name);
+  }
+
+  /// Open the plus menu
+  Future<void> openPlusMenuAndClickButton(String buttonName) async {
+    assert(
+      UniversalPlatform.isMobile,
+      'This method is only supported on mobile platforms',
+    );
+
+    final plusMenuButton = find.byKey(addBlockToolbarItemKey);
+    final addMenuItem = find.byType(AddBlockMenu);
+    await tapButton(plusMenuButton);
+    await pumpUntilFound(addMenuItem);
+
+    final toggleHeading1 = find.byWidgetPredicate(
+      (widget) =>
+          widget is TypeOptionMenuItem && widget.value.text == buttonName,
+    );
+    final scrollable = find.ancestor(
+      of: find.byType(TypeOptionGridView),
+      matching: find.byType(Scrollable),
+    );
+    await scrollUntilVisible(
+      toggleHeading1,
+      100,
+      scrollable: scrollable,
+    );
+    await tapButton(toggleHeading1);
+    await pumpUntilNotFound(addMenuItem);
   }
 }
 

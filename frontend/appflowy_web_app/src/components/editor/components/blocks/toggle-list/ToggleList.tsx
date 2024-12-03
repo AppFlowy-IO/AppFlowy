@@ -3,17 +3,39 @@ import { EditorElementProps, ToggleListNode } from '@/components/editor/editor.t
 
 export const ToggleList = memo(
   forwardRef<HTMLDivElement, EditorElementProps<ToggleListNode>>(({ node, children, ...attributes }, ref) => {
-    const { collapsed } = useMemo(() => node.data || {}, [node.data]);
-    const className = `${attributes.className ?? ''} flex w-full flex-col ${collapsed ? 'collapsed' : ''}`;
+    const { collapsed, level = 0 } = useMemo(() => node.data || {}, [node.data]);
+    const className = useMemo(() => {
+
+      const classList = ['flex w-full flex-col'];
+
+      if (attributes.className) {
+        classList.push(attributes.className);
+      }
+
+      if (collapsed) {
+        classList.push('collapsed');
+      }
+
+      if (level) {
+        classList.push(`toggle-heading level-${level}`);
+      }
+
+      return classList.join(' ');
+
+    }, [collapsed, level, attributes.className]);
 
     return (
       <>
-        <div {...attributes} ref={ref} className={className}>
+        <div
+          {...attributes}
+          ref={ref}
+          className={className}
+        >
           {children}
         </div>
       </>
     );
-  })
+  }),
 );
 
 export default ToggleList;

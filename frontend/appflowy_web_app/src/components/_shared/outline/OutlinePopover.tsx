@@ -28,7 +28,7 @@ export function OutlinePopover ({
       <div
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
-        className={'flex h-fit max-h-[590px] flex-col overflow-y-auto overflow-x-hidden appflowy-scroller'}
+        className={'flex h-fit max-h-[590px] w-[268px] flex-col overflow-y-auto overflow-x-hidden appflowy-scroller'}
       >
         {content}
         {variant === 'publish' && <AppFlowyPower />}
@@ -41,7 +41,11 @@ export function OutlinePopover ({
     <RichTooltip
       PaperProps={{
         className: 'rounded-[14px] border border-tint-purple bg-bg-body m-2 overflow-hidden',
-      }} open={open} onClose={onClose} content={popoverContent} placement={placement}
+      }}
+      open={open}
+      onClose={onClose}
+      content={popoverContent}
+      placement={placement}
     >
       {children}
     </RichTooltip>

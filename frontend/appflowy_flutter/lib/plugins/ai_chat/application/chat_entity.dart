@@ -1,18 +1,15 @@
 import 'dart:io';
 
-import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:path/path.dart' as path;
 
 part 'chat_entity.g.dart';
 part 'chat_entity.freezed.dart';
 
-const sendMessageErrorKey = "sendMessageError";
+const errorMessageTextKey = "errorMessageText";
 const systemUserId = "system";
 const aiResponseUserId = "0";
 
@@ -42,16 +39,25 @@ class ChatMessageRefSource {
   Map<String, dynamic> toJson() => _$ChatMessageRefSourceToJson(this);
 }
 
-@freezed
-class StreamingState with _$StreamingState {
-  const factory StreamingState.streaming() = _Streaming;
-  const factory StreamingState.done({FlowyError? error}) = _StreamDone;
+@JsonSerializable()
+class AIChatProgress {
+  AIChatProgress({
+    required this.step,
+  });
+
+  factory AIChatProgress.fromJson(Map<String, dynamic> json) =>
+      _$AIChatProgressFromJson(json);
+
+  final String step;
+
+  Map<String, dynamic> toJson() => _$AIChatProgressToJson(this);
 }
 
-@freezed
-class SendMessageState with _$SendMessageState {
-  const factory SendMessageState.sending() = _Sending;
-  const factory SendMessageState.done({FlowyError? error}) = _SendDone;
+enum PromptResponseState {
+  ready,
+  sendingQuestion,
+  awaitingAnswer,
+  streamingAnswer,
 }
 
 class ChatFile extends Equatable {
@@ -100,30 +106,6 @@ class ChatFile extends Equatable {
   List<Object?> get props => [filePath];
 }
 
-extension ChatFileTypeExtension on ChatMessageMetaTypePB {
-  Widget get icon {
-    switch (this) {
-      case ChatMessageMetaTypePB.PDF:
-        return const FlowySvg(
-          FlowySvgs.file_pdf_s,
-          color: Color(0xff00BCF0),
-        );
-      case ChatMessageMetaTypePB.Txt:
-        return const FlowySvg(
-          FlowySvgs.file_txt_s,
-          color: Color(0xff00BCF0),
-        );
-      case ChatMessageMetaTypePB.Markdown:
-        return const FlowySvg(
-          FlowySvgs.file_md_s,
-          color: Color(0xff00BCF0),
-        );
-      default:
-        return const FlowySvg(FlowySvgs.file_unknown_s);
-    }
-  }
-}
-
 typedef ChatInputFileMetadata = Map<String, ChatFile>;
 
 @freezed
@@ -138,45 +120,13 @@ extension ChatLoadingStateExtension on ChatLoadingState {
 }
 
 enum OnetimeShotType {
-  unknown,
   sendingMessage,
   relatedQuestion,
-  invalidSendMesssage,
+  error,
 }
 
 const onetimeShotType = "OnetimeShotType";
 
-extension OnetimeMessageTypeExtension on OnetimeShotType {
-  static OnetimeShotType fromString(String value) {
-    switch (value) {
-      case 'OnetimeShotType.sendingMessage':
-        return OnetimeShotType.sendingMessage;
-      case 'OnetimeShotType.relatedQuestion':
-        return OnetimeShotType.relatedQuestion;
-      case 'OnetimeShotType.invalidSendMesssage':
-        return OnetimeShotType.invalidSendMesssage;
-      default:
-        Log.error('Unknown OnetimeShotType: $value');
-        return OnetimeShotType.unknown;
-    }
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      onetimeShotType: toString(),
-    };
-  }
-}
-
 OnetimeShotType? onetimeMessageTypeFromMeta(Map<String, dynamic>? metadata) {
-  if (metadata == null) {
-    return null;
-  }
-
-  for (final entry in metadata.entries) {
-    if (entry.key == onetimeShotType) {
-      return OnetimeMessageTypeExtension.fromString(entry.value as String);
-    }
-  }
-  return null;
+  return metadata?[onetimeShotType];
 }

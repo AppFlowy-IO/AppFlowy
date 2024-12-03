@@ -40,28 +40,30 @@ class _WindowTitleBarState extends State<WindowTitleBar> {
     if (UniversalPlatform.isWindows || UniversalPlatform.isLinux) {
       windowsButtonListener = WindowsButtonListener();
       windowManager.addListener(windowsButtonListener!);
-      windowsButtonListener!.isMaximized.addListener(() {
-        if (mounted) {
-          setState(
-            () => isMaximized = windowsButtonListener!.isMaximized.value,
-          );
-        }
-      });
+      windowsButtonListener!.isMaximized.addListener(_isMaximizedChanged);
     } else {
       windowsButtonListener = null;
     }
 
-    windowManager.isMaximized().then(
-          (v) => mounted ? setState(() => isMaximized = v) : null,
-        );
+    windowManager
+        .isMaximized()
+        .then((v) => mounted ? setState(() => isMaximized = v) : null);
+  }
+
+  void _isMaximizedChanged() {
+    if (mounted) {
+      setState(() => isMaximized = windowsButtonListener!.isMaximized.value);
+    }
   }
 
   @override
   void dispose() {
     if (windowsButtonListener != null) {
       windowManager.removeListener(windowsButtonListener!);
+      windowsButtonListener!.isMaximized.removeListener(_isMaximizedChanged);
       windowsButtonListener?.dispose();
     }
+
     super.dispose();
   }
 

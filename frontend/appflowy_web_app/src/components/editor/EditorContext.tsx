@@ -31,11 +31,12 @@ interface Decorate {
 }
 
 export interface EditorContextState {
+  viewId: string;
   readOnly: boolean;
   layoutStyle?: EditorLayoutStyle;
   codeGrammars?: Record<string, string>;
   addCodeGrammars?: (blockId: string, grammar: string) => void;
-  navigateToView?: (viewId: string) => Promise<void>;
+  navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
   loadViewMeta?: LoadViewMeta;
   loadView?: LoadView;
   createRowDoc?: CreateRowDoc;
@@ -53,6 +54,7 @@ export const EditorContext = createContext<EditorContextState>({
   readOnly: true,
   layoutStyle: defaultLayoutStyle,
   codeGrammars: {},
+  viewId: '',
 });
 
 export const EditorContextProvider = ({ children, ...props }: EditorContextState & { children: React.ReactNode }) => {

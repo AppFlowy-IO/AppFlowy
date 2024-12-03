@@ -10,7 +10,6 @@ import 'package:appflowy/shared/icon_emoji_picker/icon_search_bar.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -238,8 +237,8 @@ class _IconPickerState extends State<IconPicker> {
               ).toList(),
             ),
             const VSpace(12.0),
-            if (index == widget.iconGroups.length - 1) ...[
-              const _StreamlinePermit(),
+            if (index == kIconGroups!.length - 1) ...[
+              const StreamlinePermit(),
               const VSpace(12.0),
             ],
           ],
@@ -320,8 +319,10 @@ class _IconState extends State<_Icon> {
   }
 }
 
-class _StreamlinePermit extends StatelessWidget {
-  const _StreamlinePermit();
+class StreamlinePermit extends StatelessWidget {
+  const StreamlinePermit({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

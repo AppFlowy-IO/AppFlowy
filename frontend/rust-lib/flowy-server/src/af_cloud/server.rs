@@ -270,7 +270,10 @@ impl AppFlowyServer for AppFlowyCloudServer {
     let client = AFServerImpl {
       client: self.get_client(),
     };
-    Some(Arc::new(AFCloudFileStorageServiceImpl::new(client)))
+    Some(Arc::new(AFCloudFileStorageServiceImpl::new(
+      client,
+      self.config.maximum_upload_file_size_in_bytes,
+    )))
   }
 
   fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {

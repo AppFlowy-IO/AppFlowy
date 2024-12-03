@@ -72,7 +72,7 @@ function insertText (ydoc: Y.Doc, editor: Editor, { path, offset, text, attribut
 
   console.log('beforeAttributes', relativeOffset, beforeAttributes);
 
-  if (beforeAttributes && ('formula' in beforeAttributes || 'mention' in beforeAttributes)) {
+  if (beforeAttributes && ('formula' in beforeAttributes || 'mention' in beforeAttributes || 'href' in beforeAttributes)) {
     const newAttributes = {
       ...attributes,
     };
@@ -86,6 +86,12 @@ function insertText (ydoc: Y.Doc, editor: Editor, { path, offset, text, attribut
     if ('mention' in beforeAttributes) {
       Object.assign({
         mention: null,
+      });
+    }
+
+    if ('href' in beforeAttributes) {
+      Object.assign({
+        href: null,
       });
     }
 

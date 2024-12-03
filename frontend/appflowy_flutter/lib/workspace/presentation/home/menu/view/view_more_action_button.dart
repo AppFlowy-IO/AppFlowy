@@ -7,7 +7,6 @@ import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,35 +16,38 @@ class ViewMoreActionPopover extends StatelessWidget {
   const ViewMoreActionPopover({
     super.key,
     required this.view,
+    this.controller,
     required this.onEditing,
     required this.onAction,
     required this.spaceType,
     required this.isExpanded,
-    this.showAtCursor = false,
     required this.buildChild,
+    this.showAtCursor = false,
   });
 
   final ViewPB view;
+  final PopoverController? controller;
   final void Function(bool value) onEditing;
   final void Function(ViewMoreActionType type, dynamic data) onAction;
   final FolderSpaceType spaceType;
   final bool isExpanded;
-  final bool showAtCursor;
   final Widget Function(PopoverController) buildChild;
+  final bool showAtCursor;
 
   @override
   Widget build(BuildContext context) {
     final wrappers = _buildActionTypeWrappers();
     return PopoverActionList<ViewMoreActionTypeWrapper>(
+      controller: controller,
       direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 8),
       actions: wrappers,
       constraints: const BoxConstraints(minWidth: 260),
-      showAtCursor: showAtCursor,
       onPopupBuilder: () => onEditing(true),
       buildChild: buildChild,
       onSelected: (_, __) {},
       onClosed: () => onEditing(false),
+      showAtCursor: showAtCursor,
     );
   }
 

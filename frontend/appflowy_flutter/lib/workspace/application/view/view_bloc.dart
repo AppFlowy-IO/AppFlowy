@@ -154,6 +154,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
                 (l) {
                   return state.copyWith(
                     successOrFailure: FlowyResult.success(null),
+                    isDeleted: true,
                   );
                 },
                 (error) => state.copyWith(
@@ -208,7 +209,6 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
             final result = await ViewBackendService.createView(
               parentViewId: view.id,
               name: e.name,
-              desc: '',
               layoutType: e.layoutType,
               ext: {},
               openAfterCreate: e.openAfterCreated,
@@ -478,6 +478,7 @@ class ViewState with _$ViewState {
     required bool isEditing,
     required bool isExpanded,
     required FlowyResult<void, FlowyError> successOrFailure,
+    @Default(false) bool isDeleted,
     @Default(true) bool isLoading,
     @Default(null) ViewPB? lastCreatedView,
   }) = _ViewState;

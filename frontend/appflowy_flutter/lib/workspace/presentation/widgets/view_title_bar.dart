@@ -12,7 +12,6 @@ import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
 import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

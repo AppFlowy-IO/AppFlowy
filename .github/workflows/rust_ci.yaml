@@ -15,12 +15,10 @@ on:
       - "main"
       - "develop"
       - "release/*"
-    paths:
-      - "frontend/rust-lib/**"
 
 env:
   CARGO_TERM_COLOR: always
-  CLOUD_VERSION: 0.6.34-amd64
+  CLOUD_VERSION: 0.7.6-amd64
   RUST_TOOLCHAIN: "1.77.2"
 
 jobs:
@@ -43,6 +41,7 @@ jobs:
           cp deploy.env .env
           sed -i '' 's|RUST_LOG=.*|RUST_LOG=trace|' .env
           sed -i '' 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
+          sed -i '' 's|APPFLOWY_AI_OPENAI_API_KEY=.*|APPFLOWY_AI_OPENAI_API_KEY=${{ secrets.CI_OPENAI_API_KEY }}|' .env
 
       - name: Ensure AppFlowy-Cloud is Running with Correct Version
         working-directory: AppFlowy-Cloud
@@ -66,6 +65,8 @@ jobs:
               docker compose up -d
               echo "Waiting for the container to be ready..."
               sleep 10
+              docker ps -a
+              docker compose logs
             else
               echo "AppFlowy-Cloud is running with the correct version."
             fi
@@ -135,7 +136,7 @@ jobs:
         run: |
           cp deploy.env .env
           sed -i 's|RUST_LOG=.*|RUST_LOG=trace|' .env
-          sed -i 's|GOTRUE_MAILER_AUTOCONFIRM=.*|GOTRUE_MAILER_AUTOCONFIRM=true|' .env 
+          sed -i 's|GOTRUE_MAILER_AUTOCONFIRM=.*|GOTRUE_MAILER_AUTOCONFIRM=true|' .env
           sed -i 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
 
       - name: Ensure AppFlowy-Cloud is Running with Correct Version
@@ -145,25 +146,26 @@ jobs:
           APPFLOWY_HISTORY_VERSION: ${{ env.CLOUD_VERSION }}
           APPFLOWY_WORKER_VERSION: ${{ env.CLOUD_VERSION }}
         run: |
-          container_id=$(docker ps --filter name=appflowy-cloud-appflowy_cloud-1 -q)
-          if [ -z "$container_id" ]; then
-            echo "AppFlowy-Cloud container is not running. Pulling and starting the container..."
-            docker compose pull
-            docker compose up -d
-            echo "Waiting for the container to be ready..."
-            sleep 10
+          # Remove all containers if any exist
+          if [ "$(docker ps -aq)" ]; then
+            docker rm -f $(docker ps -aq)
           else
-            running_image=$(docker inspect --format='{{index .Config.Image}}' "$container_id")
-            if [ "$running_image" != "appflowy-cloud:$APPFLOWY_CLOUD_VERSION" ]; then
-              echo "AppFlowy-Cloud is running with an incorrect version. Pulling the correct version..."
-              docker compose pull
-              docker compose up -d
-              echo "Waiting for the container to be ready..."
-              sleep 10
-            else
-              echo "AppFlowy-Cloud is running with the correct version."
-            fi
+            echo "No containers to remove."
           fi
+
+          # Remove all volumes if any exist
+          if [ "$(docker volume ls -q)" ]; then
+            docker volume rm $(docker volume ls -q)
+          else
+            echo "No volumes to remove."
+          fi
+
+          docker compose pull
+          docker compose up -d
+          echo "Waiting for the container to be ready..."
+          sleep 10
+          docker ps -a
+          docker compose logs
 
       - name: Run rust-lib tests
         working-directory: frontend/rust-lib

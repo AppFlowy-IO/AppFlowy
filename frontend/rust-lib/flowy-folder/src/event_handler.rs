@@ -458,6 +458,17 @@ pub(crate) async fn get_publish_info_handler(
   data_result_ok(PublishInfoResponsePB::from(info))
 }
 
+#[tracing::instrument(level = "debug", skip(data, folder))]
+pub(crate) async fn set_publish_name_handler(
+  data: AFPluginData<SetPublishNamePB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let SetPublishNamePB { view_id, new_name } = data.into_inner();
+  folder.set_publish_name(view_id, new_name).await?;
+  Ok(())
+}
+
 #[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn set_publish_namespace_handler(
   data: AFPluginData<SetPublishNamespacePayloadPB>,
@@ -476,4 +487,49 @@ pub(crate) async fn get_publish_namespace_handler(
   let folder = upgrade_folder(folder)?;
   let namespace = folder.get_publish_namespace().await?;
   data_result_ok(PublishNamespacePB { namespace })
+}
+
+#[tracing::instrument(level = "debug", skip(folder), err)]
+pub(crate) async fn list_published_views_handler(
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<RepeatedPublishInfoViewPB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let published_views = folder.list_published_views().await?;
+  let items: Vec<PublishInfoViewPB> = published_views
+    .into_iter()
+    .map(|view| view.into())
+    .collect();
+  data_result_ok(RepeatedPublishInfoViewPB { items })
+}
+
+#[tracing::instrument(level = "debug", skip(folder))]
+pub(crate) async fn get_default_publish_info_handler(
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<PublishInfoResponsePB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let default_published_view = folder.get_default_published_view_info().await?;
+  data_result_ok(default_published_view.into())
+}
+
+#[tracing::instrument(level = "debug", skip(folder))]
+pub(crate) async fn set_default_publish_view_handler(
+  data: AFPluginData<ViewIdPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let view_id: uuid::Uuid = data.into_inner().value.parse().map_err(|err| {
+    tracing::error!("Failed to parse view id: {}", err);
+    FlowyError::invalid_data()
+  })?;
+  folder.set_default_published_view(view_id).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(folder))]
+pub(crate) async fn remove_default_publish_view_handler(
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  folder.remove_default_published_view().await?;
+  Ok(())
 }

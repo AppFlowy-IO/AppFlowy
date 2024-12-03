@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_handler.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
@@ -12,20 +11,12 @@ import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-/// The data used to handle transactions for mentions.
-///
-/// [Node] is the block node.
-/// [Map] is the data of the mention block.
-/// [int] is the index of the mention block in the list of deltas (after transaction apply).
-///
-typedef MentionBlockData = (Node, Map<String, dynamic>, int);
+import '../transaction_handler/mention_transaction_handler.dart';
 
 const _pasteIdentifier = 'child_page_transaction';
 
-class ChildPageTransactionHandler
-    extends EditorTransactionHandler<MentionBlockData> {
-  ChildPageTransactionHandler()
-      : super(type: MentionBlockKeys.mention, livesInDelta: true);
+class ChildPageTransactionHandler extends MentionTransactionHandler {
+  ChildPageTransactionHandler() : super(subType: MentionType.childPage.name);
 
   @override
   Future<void> onTransaction(
@@ -37,9 +28,10 @@ class ChildPageTransactionHandler
     bool isUndoRedo = false,
     bool isPaste = false,
     bool isDraggingNode = false,
+    bool isTurnInto = false,
     String? parentViewId,
   }) async {
-    if (isDraggingNode) {
+    if (isDraggingNode || isTurnInto) {
       return;
     }
 

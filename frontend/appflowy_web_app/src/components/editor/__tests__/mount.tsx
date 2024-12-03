@@ -58,7 +58,7 @@ export const initialEditorTest = () => {
   const initializeEditor = (data: FromBlockJSON[]) => {
     documentTest = new DocumentTest();
     documentTest.fromJSON(data);
-    mountEditor({ readOnly: false, doc: documentTest.doc });
+    mountEditor({ readOnly: false, doc: documentTest.doc, viewId: 'test' });
     cy.get('[role="textbox"]').should('exist');
   };
 

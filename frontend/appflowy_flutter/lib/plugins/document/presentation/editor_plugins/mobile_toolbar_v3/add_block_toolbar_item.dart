@@ -1,15 +1,11 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/type_option_menu_item.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_placeholder.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mobile_page_selector_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/mobile_add_block_toolbar_item.dart';
@@ -21,11 +17,16 @@ import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
+@visibleForTesting
+const addBlockToolbarItemKey = ValueKey('add_block_toolbar_item');
 
 final addBlockToolbarItem = AppFlowyMobileToolbarItem(
   itemBuilder: (context, editorState, service, __, onAction) {
     return AppFlowyMobileToolbarIconItem(
+      key: addBlockToolbarItemKey,
       editorState: editorState,
       icon: FlowySvgs.m_toolbar_add_m,
       onTap: () {
@@ -77,12 +78,13 @@ Future<bool?> showAddBlockMenu(
       enableDraggableScrollable: true,
       builder: (_) => Padding(
         padding: EdgeInsets.all(16 * context.scale),
-        child: _AddBlockMenu(selection: selection, editorState: editorState),
+        child: AddBlockMenu(selection: selection, editorState: editorState),
       ),
     );
 
-class _AddBlockMenu extends StatelessWidget {
-  const _AddBlockMenu({
+class AddBlockMenu extends StatelessWidget {
+  const AddBlockMenu({
+    super.key,
     required this.selection,
     required this.editorState,
   });
@@ -102,7 +104,32 @@ class _AddBlockMenu extends StatelessWidget {
     AppGlobals.rootNavKey.currentContext?.pop(true);
     Future.delayed(
       const Duration(milliseconds: 100),
-      () => editorState.insertBlockAfterCurrentSelection(selection, node),
+      () async {
+        // if current selected block is a empty paragraph block, replace it with the new block.
+        if (selection.isCollapsed) {
+          final currentNode = editorState.getNodeAtPath(selection.end.path);
+          final text = currentNode?.delta?.toPlainText();
+          if (currentNode != null &&
+              currentNode.type == ParagraphBlockKeys.type &&
+              text != null &&
+              text.isEmpty) {
+            final transaction = editorState.transaction;
+            transaction.insertNode(
+              selection.end.path.next,
+              node,
+            );
+            transaction.deleteNode(currentNode);
+            transaction.afterSelection = Selection.collapsed(
+              Position(path: selection.end.path),
+            );
+            transaction.selectionExtraInfo = {};
+            await editorState.apply(transaction);
+            return;
+          }
+        }
+
+        await editorState.insertBlockAfterCurrentSelection(selection, node);
+      },
     );
   }
 
@@ -184,6 +211,32 @@ class _AddBlockMenu extends StatelessWidget {
         onTap: (_, __) => _insertBlock(toggleListBlockNode()),
       ),
 
+      // toggle headings
+      TypeOptionMenuItemValue(
+        value: ToggleListBlockKeys.type,
+        backgroundColor: colorMap[ToggleListBlockKeys.type]!,
+        text: LocaleKeys.editor_toggleHeading1ShortForm.tr(),
+        icon: FlowySvgs.toggle_heading1_s,
+        iconPadding: const EdgeInsets.all(3),
+        onTap: (_, __) => _insertBlock(toggleHeadingNode()),
+      ),
+      TypeOptionMenuItemValue(
+        value: ToggleListBlockKeys.type,
+        backgroundColor: colorMap[ToggleListBlockKeys.type]!,
+        text: LocaleKeys.editor_toggleHeading2ShortForm.tr(),
+        icon: FlowySvgs.toggle_heading2_s,
+        iconPadding: const EdgeInsets.all(3),
+        onTap: (_, __) => _insertBlock(toggleHeadingNode(level: 2)),
+      ),
+      TypeOptionMenuItemValue(
+        value: ToggleListBlockKeys.type,
+        backgroundColor: colorMap[ToggleListBlockKeys.type]!,
+        text: LocaleKeys.editor_toggleHeading3ShortForm.tr(),
+        icon: FlowySvgs.toggle_heading3_s,
+        iconPadding: const EdgeInsets.all(3),
+        onTap: (_, __) => _insertBlock(toggleHeadingNode(level: 3)),
+      ),
+
       // image
       TypeOptionMenuItemValue(
         value: ImageBlockKeys.type,
@@ -238,7 +291,7 @@ class _AddBlockMenu extends StatelessWidget {
         value: ParagraphBlockKeys.type,
         backgroundColor: colorMap[MentionBlockKeys.type]!,
         text: LocaleKeys.editor_page.tr(),
-        icon: FlowySvgs.document_s,
+        icon: FlowySvgs.icon_document_s,
         onTap: (_, __) async {
           AppGlobals.rootNavKey.currentContext?.pop(true);
 
@@ -337,24 +390,5 @@ class _AddBlockMenu extends StatelessWidget {
       CodeBlockKeys.type: const Color(0xFFCABDFF),
       MathEquationBlockKeys.type: const Color(0xFFCABDFF),
     };
-  }
-}
-
-extension on EditorState {
-  Future<void> insertBlockAfterCurrentSelection(
-    Selection selection,
-    Node node,
-  ) async {
-    final path = selection.end.path.next;
-    final transaction = this.transaction;
-    transaction.insertNode(
-      path,
-      node,
-    );
-    transaction.afterSelection = Selection.collapsed(
-      Position(path: path),
-    );
-    transaction.selectionExtraInfo = {};
-    await apply(transaction);
   }
 }

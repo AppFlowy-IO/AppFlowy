@@ -192,4 +192,65 @@ describe('Shift+Tab key behavior', () => {
     // cy.matchImageSnapshot('behavior/ShiftTabKeyBehavior/should-not-outdent-at-top-level');
   });
 
+  describe('Tab key behavior with range selections', () => {
+
+    it('should indent multiple blocks when tab at start', () => {
+      cy.selectMultipleText(['Toggle list', 'Final outer paragraph']);
+      cy.wait(100);
+      cy.get('@editor').realPress('Tab');
+      assertJSON([
+        {
+          ...initialData[0],
+          children: [initialData[1], initialData[2]],
+        },
+      ]);
+      cy.get('@editor').realPress(['Shift', 'Tab']);
+      assertJSON(initialData);
+    });
+
+    it('should indent ancestor block when tab at start', () => {
+      cy.selectMultipleText(['Toggle list', 'Nested paragraph 1']);
+      cy.wait(100);
+      cy.get('@editor').realPress('Tab');
+      assertJSON([
+        {
+          ...initialData[0],
+          children: [
+            initialData[1],
+          ],
+        },
+        initialData[2],
+      ]);
+      cy.get('@editor').realPress(['Shift', 'Tab']);
+      assertJSON(initialData);
+    });
+
+    it('should indent different levels of nested blocks when tab at start', () => {
+      cy.selectMultipleText(['Nested toggle list', 'Final outer paragraph']);
+      cy.wait(100);
+      cy.get('@editor').realPress('Tab');
+      assertJSON([
+        initialData[0],
+        {
+          ...initialData[1],
+          children: [
+            {
+              ...initialData[1].children[0],
+              children: [
+                initialData[1].children[0].children[0],
+                initialData[1].children[1],
+                initialData[1].children[2],
+              ],
+            },
+
+            initialData[2],
+          ],
+        },
+      ]);
+      cy.get('@editor').realPress(['Shift', 'Tab']);
+      assertJSON(initialData);
+    });
+  });
+
 });
+

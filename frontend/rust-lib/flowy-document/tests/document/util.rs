@@ -21,7 +21,6 @@ use flowy_document::entities::{DocumentSnapshotData, DocumentSnapshotMeta};
 use flowy_document::manager::{DocumentManager, DocumentSnapshotService, DocumentUserService};
 use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_storage_pub::chunked_byte::ChunkedBytes;
 use flowy_storage_pub::storage::{CreatedUpload, FileProgressReceiver, StorageService};
 use lib_infra::async_trait::async_trait;
 use lib_infra::box_any::BoxAny;
@@ -161,7 +160,7 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
     _document_id: &str,
     _limit: usize,
     _workspace_id: &str,
-  ) -> Result<Vec<DocumentSnapshot>, Error> {
+  ) -> Result<Vec<DocumentSnapshot>, FlowyError> {
     Ok(vec![])
   }
 
@@ -169,7 +168,7 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
     &self,
     _document_id: &str,
     _workspace_id: &str,
-  ) -> Result<Option<DocumentData>, Error> {
+  ) -> Result<Option<DocumentData>, FlowyError> {
     Ok(None)
   }
 
@@ -178,7 +177,7 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
     _workspace_id: &str,
     _document_id: &str,
     _encoded_collab: EncodedCollab,
-  ) -> Result<(), Error> {
+  ) -> Result<(), FlowyError> {
     Ok(())
   }
 }
@@ -187,7 +186,7 @@ pub struct DocumentTestFileStorageService;
 
 #[async_trait]
 impl StorageService for DocumentTestFileStorageService {
-  fn delete_object(&self, _url: String, _local_file_path: String) -> FlowyResult<()> {
+  async fn delete_object(&self, _url: String) -> FlowyResult<()> {
     todo!()
   }
 
@@ -200,12 +199,11 @@ impl StorageService for DocumentTestFileStorageService {
     _workspace_id: &str,
     _parent_dir: &str,
     _local_file_path: &str,
-    _upload_immediately: bool,
   ) -> Result<(CreatedUpload, Option<FileProgressReceiver>), flowy_error::FlowyError> {
     todo!()
   }
 
-  async fn start_upload(&self, _chunks: ChunkedBytes, _record: &BoxAny) -> Result<(), FlowyError> {
+  async fn start_upload(&self, _record: &BoxAny) -> Result<(), FlowyError> {
     todo!()
   }
 

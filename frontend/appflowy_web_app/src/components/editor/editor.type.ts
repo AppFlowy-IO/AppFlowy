@@ -9,15 +9,13 @@ import {
   TodoListBlockData,
   ToggleListBlockData,
   YjsEditorKey,
-  InlineBlockType,
-  Mention,
   OutlineBlockData,
   TableBlockData,
   TableCellBlockData,
   BlockId,
   BlockData,
   DatabaseNodeData,
-  LinkPreviewBlockData, FileBlockData, GalleryBlockData,
+  LinkPreviewBlockData, FileBlockData, GalleryBlockData, SubpageNodeData,
 } from '@/application/types';
 import { HTMLAttributes } from 'react';
 import { Element } from 'slate';
@@ -146,18 +144,14 @@ export interface DatabaseNode extends BlockNode {
   data: DatabaseNodeData;
 }
 
+export interface SubpageNode extends BlockNode {
+  type: BlockType.SubpageBlock;
+  blockId: string;
+  data: SubpageNodeData;
+}
+
 export interface EditorElementProps<T = Element> extends HTMLAttributes<HTMLDivElement> {
   node: T;
 }
 
-type FormulaValue = string;
 
-export interface FormulaNode extends Element {
-  type: InlineBlockType.Formula;
-  data: FormulaValue;
-}
-
-export interface MentionNode extends Element {
-  type: InlineBlockType.Mention;
-  data: Mention;
-}

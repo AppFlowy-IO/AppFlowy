@@ -7,7 +7,6 @@ import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart' hide Icon;
@@ -225,18 +224,24 @@ class _SpaceIconPickerState extends State<SpaceIconPicker> {
       widget.onIconChanged(selectedIcon.value, selectedColor.value);
     }
 
-    selectedColor.addListener(() {
-      widget.onIconChanged(selectedIcon.value, selectedColor.value);
-    });
+    selectedColor.addListener(_onColorChanged);
+    selectedIcon.addListener(_onIconChanged);
+  }
 
-    selectedIcon.addListener(() {
-      widget.onIconChanged(selectedIcon.value, selectedColor.value);
-    });
+  void _onColorChanged() {
+    widget.onIconChanged(selectedIcon.value, selectedColor.value);
+  }
+
+  void _onIconChanged() {
+    widget.onIconChanged(selectedIcon.value, selectedColor.value);
   }
 
   @override
   void dispose() {
+    selectedColor.removeListener(_onColorChanged);
     selectedColor.dispose();
+
+    selectedIcon.removeListener(_onIconChanged);
     selectedIcon.dispose();
     super.dispose();
   }
@@ -254,9 +259,7 @@ class _SpaceIconPickerState extends State<SpaceIconPicker> {
         const VSpace(10.0),
         _Colors(
           selectedColor: selectedColor.value,
-          onColorSelected: (color) {
-            selectedColor.value = color;
-          },
+          onColorSelected: (color) => selectedColor.value = color,
         ),
         const VSpace(12.0),
         FlowyText.regular(
@@ -269,9 +272,7 @@ class _SpaceIconPickerState extends State<SpaceIconPicker> {
           builder: (_, value, ___) => _Icons(
             selectedColor: value,
             selectedIcon: selectedIcon.value,
-            onIconSelected: (icon) {
-              selectedIcon.value = icon;
-            },
+            onIconSelected: (icon) => selectedIcon.value = icon,
           ),
         ),
       ],
@@ -304,9 +305,7 @@ class _ColorsState extends State<_Colors> {
       children: builtInSpaceColors.map((color) {
         return GestureDetector(
           onTap: () {
-            setState(() {
-              selectedColor = color;
-            });
+            setState(() => selectedColor = color);
 
             widget.onColorSelected(color);
           },
@@ -366,9 +365,7 @@ class _IconsState extends State<_Icons> {
       children: builtInSpaceIcons.map((icon) {
         return GestureDetector(
           onTap: () {
-            setState(() {
-              selectedIcon = icon;
-            });
+            setState(() => selectedIcon = icon);
 
             widget.onIconSelected(icon);
           },

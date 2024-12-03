@@ -1,3 +1,5 @@
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -26,9 +28,10 @@ class SubPageTransactionHandler extends BlockTransactionHandler {
     bool isUndoRedo = false,
     bool isPaste = false,
     bool isDraggingNode = false,
+    bool isTurnInto = false,
     String? parentViewId,
   }) async {
-    if (isDraggingNode) {
+    if (isDraggingNode || isTurnInto) {
       return;
     }
 
@@ -96,9 +99,9 @@ class SubPageTransactionHandler extends BlockTransactionHandler {
 
       // This is a new Node, we need to create the view
       final viewOrResult = await ViewBackendService.createView(
+        name: '',
         layoutType: ViewLayoutPB.Document,
         parentViewId: parentViewId,
-        name: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
       );
 
       await viewOrResult.fold(
@@ -111,6 +114,9 @@ class SubPageTransactionHandler extends BlockTransactionHandler {
             options: const ApplyOptions(recordUndo: false),
           );
           editorState.reload();
+
+          // Open view
+          getIt<TabsBloc>().openPlugin(view);
         },
         (error) async {
           Log.error(error);
@@ -131,10 +137,7 @@ class SubPageTransactionHandler extends BlockTransactionHandler {
 
       _beingCreated.remove(node.id);
     } else if (isPaste) {
-      // final wasCut = node.attributes[SubPageBlockKeys.wasCut];
-
       if (isCut && parentViewId != null) {
-        // Just in case, we try to put back from trash before moving
         await TrashService.putback(viewId);
 
         final viewOrResult = await ViewBackendService.moveViewV2(

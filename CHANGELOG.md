@@ -1,4 +1,38 @@
 # Release Notes
+## Version 0.7.5 - 25/11/2024
+### Bug Fixes
+- Improved chat response parsing
+- Fixed toggle list icon direction for RTL mode
+- Fixed cross blocks formatting not reflecting in float toolbar
+- Fixed unable to click inside the toggle list to create a new paragraph
+- Fixed open file error 50 on macOS
+- Fixed upload file exceed limit error
+
+## Version 0.7.4 - 19/11/2024
+### New Features
+- Support uploading WebP and BMP images
+- Support managing workspaces on mobile
+- Support adding toggle headings on mobile
+- Improve the AI chat page UI
+### Bug Fixes
+- Optimized the workspace menu loading performance
+- Optimized tab switching performance
+- Fixed searching issues in Document page
+
+## Version 0.7.3 - 07/11/2024
+### New Features
+- Enable custom URLs for published pages
+- Support toggling headings
+- Create a subpage by typing in the document
+- Turn selected blocks into a subpage
+- Add a manual date picker for the Date property
+
+### Bug Fixes
+- Fixed an issue where the workspace owner was unable to delete spaces created by others
+- Fixed cursor height inconsistencies with text height
+- Fixed editing issues in Kanban cards
+- Fixed an issue preventing images or files from being dropped into empty paragraphs
+
 ## Version 0.7.2 - 22/10/2024
 ### New Features
 - Copy link to block

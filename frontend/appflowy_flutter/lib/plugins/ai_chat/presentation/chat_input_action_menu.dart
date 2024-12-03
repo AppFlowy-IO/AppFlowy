@@ -4,8 +4,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_action_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_action_control.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -151,15 +150,21 @@ class _ActionItem extends StatelessWidget {
             : Colors.transparent,
         borderRadius: BorderRadius.circular(4.0),
       ),
-      child: FlowyButton(
-        leftIcon: item.icon,
-        margin: const EdgeInsets.symmetric(horizontal: 6),
-        iconPadding: 10.0,
-        text: FlowyText.regular(
-          lineHeight: 1.0,
-          item.title,
+      child: FlowyTooltip(
+        message: item.title,
+        child: FlowyButton(
+          leftIcon: item.icon,
+          margin: const EdgeInsets.symmetric(horizontal: 6),
+          iconPadding: 10.0,
+          text: FlowyText(
+            item.title.isEmpty
+                ? LocaleKeys.document_title_placeholder.tr()
+                : item.title,
+            lineHeight: 1.0,
+            overflow: TextOverflow.ellipsis,
+          ),
+          onTap: onTap,
         ),
-        onTap: onTap,
       ),
     );
   }

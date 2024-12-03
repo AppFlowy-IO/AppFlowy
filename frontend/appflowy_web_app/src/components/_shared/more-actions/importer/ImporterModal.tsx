@@ -16,7 +16,7 @@ export function ImporterModal ({
   onClose: () => void,
   source?: string,
   onSuccess: () => void,
-  disableClose: boolean
+  disableClose?: boolean
 }) {
   const { t } = useTranslation();
 

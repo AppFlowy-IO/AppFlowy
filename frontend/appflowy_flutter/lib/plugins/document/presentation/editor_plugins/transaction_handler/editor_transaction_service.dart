@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/document/presentation/editor_notification.dart'
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/child_page_transaction_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_transaction_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_handler.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/mention_transaction_handler.dart';
 import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -39,11 +40,12 @@ class EditorTransactionService extends StatefulWidget {
 }
 
 class _EditorTransactionServiceState extends State<EditorTransactionService> {
-  StreamSubscription<(TransactionTime, Transaction)>? transactionSubscription;
+  StreamSubscription<EditorTransactionValue>? transactionSubscription;
 
   bool isUndoRedo = false;
   bool isPaste = false;
   bool isDraggingNode = false;
+  bool isTurnInto = false;
 
   @override
   void initState() {
@@ -75,6 +77,8 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
       isDraggingNode = true;
     } else if (type == EditorNotificationType.dragEnd) {
       isDraggingNode = false;
+    } else if (type == EditorNotificationType.turnInto) {
+      isTurnInto = true;
     }
 
     if (type == EditorNotificationType.undo) {
@@ -83,7 +87,10 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
       redoCommand.execute(widget.editorState);
     } else if (type == EditorNotificationType.exitEditing &&
         widget.editorState.selection != null) {
-      widget.editorState.selection = null;
+      // If the editor is disposed, we don't need to reset the selection.
+      if (!widget.editorState.isDisposed) {
+        widget.editorState.selection = null;
+      }
     }
   }
 
@@ -124,21 +131,24 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
     return matchingNodes;
   }
 
-  void onEditorTransaction((TransactionTime, Transaction) event) {
-    if (event.$1 == TransactionTime.before) {
+  void onEditorTransaction(EditorTransactionValue event) {
+    final time = event.$1;
+    final transaction = event.$2;
+
+    if (time == TransactionTime.before) {
       return;
     }
 
     final Map<String, dynamic> added = {
       for (final handler in _transactionHandlers)
-        handler.type: handler.livesInDelta ? <MentionBlockData>[] : [],
+        handler.type: handler.livesInDelta ? <MentionBlockData>[] : <Node>[],
     };
     final Map<String, dynamic> removed = {
       for (final handler in _transactionHandlers)
-        handler.type: handler.livesInDelta ? <MentionBlockData>[] : [],
+        handler.type: handler.livesInDelta ? <MentionBlockData>[] : <Node>[],
     };
 
-    for (final op in event.$2.operations) {
+    for (final op in transaction.operations) {
       if (op is InsertOperation) {
         for (final n in op.nodes) {
           for (final handler in _transactionHandlers) {
@@ -223,12 +233,14 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
         isUndoRedo: isUndoRedo,
         isPaste: isPaste,
         isDraggingNode: isDraggingNode,
+        isTurnInto: isTurnInto,
         parentViewId: widget.viewId,
       );
     }
 
     isUndoRedo = false;
     isPaste = false;
+    isTurnInto = false;
   }
 
   /// Takes an iterable of [TextInsert] and returns a list of [MentionBlockData].

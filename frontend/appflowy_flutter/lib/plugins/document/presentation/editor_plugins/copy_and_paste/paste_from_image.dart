@@ -22,7 +22,7 @@ import 'package:universal_platform/universal_platform.dart';
 
 extension PasteFromImage on EditorState {
   Future<void> dropImages(
-    Node dropNode,
+    List<int> dropPath,
     List<XFile> files,
     String documentId,
     bool isLocalMode,
@@ -50,7 +50,7 @@ extension PasteFromImage on EditorState {
 
       final t = transaction
         ..insertNode(
-          dropNode.path,
+          dropPath,
           customImageNode(url: path, type: type),
         );
       await apply(t);

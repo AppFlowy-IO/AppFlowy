@@ -6,7 +6,6 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -47,16 +46,15 @@ class TabBarHeader extends StatelessWidget {
               const Expanded(
                 child: DatabaseTabBar(),
               ),
-              BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-                builder: (context, state) {
-                  return SizedBox(
-                    width: 200,
-                    child: Padding(
+              Flexible(
+                child: BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
+                  builder: (context, state) {
+                    return Padding(
                       padding: const EdgeInsets.only(top: 6.0),
                       child: pageSettingBarFromState(context, state),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -221,7 +219,9 @@ class TabBarItemButton extends StatelessWidget {
               color: color,
             ),
             text: FlowyText(
-              view.name,
+              view.name.isEmpty
+                  ? LocaleKeys.document_title_placeholder.tr()
+                  : view.name,
               lineHeight: 1.0,
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,

@@ -9,7 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'drag_to_reorder/draggable_option_button.dart';
 
-class BlockOptionButton extends StatelessWidget {
+class BlockOptionButton extends StatefulWidget {
   const BlockOptionButton({
     super.key,
     required this.blockComponentContext,
@@ -26,6 +26,16 @@ class BlockOptionButton extends StatelessWidget {
   final Map<String, BlockComponentBuilder> blockComponentBuilder;
 
   @override
+  State<BlockOptionButton> createState() => _BlockOptionButtonState();
+}
+
+class _BlockOptionButtonState extends State<BlockOptionButton> {
+  // the mutex is used to ensure that only one popover is open at a time
+  // for example, when the user is selecting the color, the turn into option
+  // should not be shown.
+  final mutex = PopoverMutex();
+
+  @override
   Widget build(BuildContext context) {
     final direction =
         context.read<AppearanceSettingsCubit>().state.layoutDirection ==
@@ -34,8 +44,8 @@ class BlockOptionButton extends StatelessWidget {
             : PopoverDirection.leftWithCenterAligned;
     return BlocProvider(
       create: (context) => BlockActionOptionCubit(
-        editorState: editorState,
-        blockComponentBuilder: blockComponentBuilder,
+        editorState: widget.editorState,
+        blockComponentBuilder: widget.blockComponentBuilder,
       ),
       child: BlocBuilder<BlockActionOptionCubit, BlockActionOptionState>(
         builder: (context, _) => PopoverActionList<PopoverAction>(
@@ -55,30 +65,41 @@ class BlockOptionButton extends StatelessWidget {
           ),
           buildChild: (controller) => DraggableOptionButton(
             controller: controller,
-            editorState: editorState,
-            blockComponentContext: blockComponentContext,
-            blockComponentBuilder: blockComponentBuilder,
+            editorState: widget.editorState,
+            blockComponentContext: widget.blockComponentContext,
+            blockComponentBuilder: widget.blockComponentBuilder,
           ),
         ),
       ),
     );
   }
 
+  @override
+  void dispose() {
+    mutex.dispose();
+
+    super.dispose();
+  }
+
   List<PopoverAction> _buildPopoverActions(BuildContext context) {
-    return actions.map((e) {
+    return widget.actions.map((e) {
       switch (e) {
         case OptionAction.divider:
           return DividerOptionAction();
         case OptionAction.color:
-          return ColorOptionAction(editorState: editorState);
+          return ColorOptionAction(
+            editorState: widget.editorState,
+            mutex: mutex,
+          );
         case OptionAction.align:
-          return AlignOptionAction(editorState: editorState);
+          return AlignOptionAction(editorState: widget.editorState);
         case OptionAction.depth:
-          return DepthOptionAction(editorState: editorState);
+          return DepthOptionAction(editorState: widget.editorState);
         case OptionAction.turnInto:
           return TurnIntoOptionAction(
-            editorState: editorState,
-            blockComponentBuilder: blockComponentBuilder,
+            editorState: widget.editorState,
+            blockComponentBuilder: widget.blockComponentBuilder,
+            mutex: mutex,
           );
         default:
           return OptionActionWrapper(e);
@@ -88,15 +109,17 @@ class BlockOptionButton extends StatelessWidget {
 
   void _onPopoverBuilder() {
     keepEditorFocusNotifier.increase();
-    blockComponentState.alwaysShowActions = true;
+    widget.blockComponentState.alwaysShowActions = true;
   }
 
   void _onPopoverClosed(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      editorState.selectionType = null;
-      editorState.selection = null;
-      blockComponentState.alwaysShowActions = false;
+      widget.editorState.selectionType = null;
+      widget.editorState.selection = null;
+      widget.blockComponentState.alwaysShowActions = false;
     });
+
+    PopoverContainer.maybeOf(context)?.closeAll();
   }
 
   void _onActionSelected(
@@ -110,7 +133,7 @@ class BlockOptionButton extends StatelessWidget {
 
     context.read<BlockActionOptionCubit>().handleAction(
           action.inner,
-          blockComponentContext.node,
+          widget.blockComponentContext.node,
         );
     controller.close();
   }

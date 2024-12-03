@@ -4,7 +4,7 @@ description: Bring projects, wikis, and teams together with AI. AppFlowy is an
   your data. The best open source alternative to Notion.
 publish_to: "none"
 
-version: 0.7.2
+version: 0.7.6
 
 environment:
   flutter: ">=3.22.0"
@@ -43,8 +43,10 @@ dependencies:
   cross_file: ^0.3.4+1
 
   # Desktop Drop uses Cross File (XFile) data type
+  defer_pointer: ^0.0.2
   desktop_drop: ^0.4.4
   device_info_plus:
+  diffutil_dart: ^4.0.1
   dotted_border: ^2.0.0+3
   easy_localization: ^3.0.2
   envied: ^0.5.2
@@ -66,8 +68,8 @@ dependencies:
   flutter_animate: ^4.5.0
   flutter_bloc: ^8.1.3
   flutter_cache_manager: ^3.3.1
-  flutter_chat_types: ^3.6.2
-  flutter_chat_ui: ^1.6.13
+  flutter_chat_core: ^0.0.2
+  flutter_chat_ui: 2.0.0-dev.1
   flutter_emoji_mart:
     git:
       url: https://github.com/LucasXu0/emoji_mart.git
@@ -123,7 +125,6 @@ dependencies:
   share_plus: ^10.0.2
   shared_preferences: ^2.2.2
   sheet:
-  shimmer: ^3.0.0
   sized_context: ^1.0.0+4
   string_validator: ^1.0.0
   styled_widget: ^0.4.1
@@ -172,13 +173,13 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "e7d9560"
+      ref: "ac3b090"
 
   appflowy_editor_plugins:
     git:
       url: https://github.com/AppFlowy-IO/AppFlowy-plugins.git
       path: "packages/appflowy_editor_plugins"
-      ref: "2d3d4fb"
+      ref: "3f82111"
 
   sheet:
     git:

@@ -211,8 +211,7 @@ void main() {
       await tester.toggleIncludeTime();
 
       // Select a date
-      final now = DateTime.now();
-      final expected = DateTime(now.year, now.month, now.day);
+      DateTime now = DateTime.now();
       await tester.selectDay(content: now.day);
 
       await tester.dismissCellEditor();
@@ -220,13 +219,13 @@ void main() {
       tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.DateTime,
-        content: DateFormat('MMM dd, y').format(expected),
+        content: DateFormat('MMM dd, y').format(now),
       );
 
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
 
       // Toggle include time
-      // When toggling include time, the time value is from the previous existing date time, not the current time
+      now = DateTime.now();
       await tester.toggleIncludeTime();
 
       await tester.dismissCellEditor();
@@ -234,7 +233,7 @@ void main() {
       tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.DateTime,
-        content: DateFormat('MMM dd, y HH:mm').format(expected),
+        content: DateFormat('MMM dd, y HH:mm').format(now),
       );
 
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
@@ -249,7 +248,7 @@ void main() {
       tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.DateTime,
-        content: DateFormat('dd/MM/y HH:mm').format(expected),
+        content: DateFormat('dd/MM/y HH:mm').format(now),
       );
 
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
@@ -264,7 +263,7 @@ void main() {
       tester.assertCellContent(
         rowIndex: 0,
         fieldType: FieldType.DateTime,
-        content: DateFormat('dd/MM/y hh:mm a').format(expected),
+        content: DateFormat('dd/MM/y hh:mm a').format(now),
       );
 
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);

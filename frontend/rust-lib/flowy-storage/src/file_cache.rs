@@ -27,6 +27,7 @@ impl FileTempStorage {
   }
 
   /// Creates a temporary file from an existing local file path.
+  #[allow(dead_code)]
   pub async fn create_temp_file_from_existing(
     &self,
     existing_file_path: &Path,

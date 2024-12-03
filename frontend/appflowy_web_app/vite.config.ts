@@ -6,13 +6,36 @@ import usePluginImport from 'vite-plugin-importer';
 import { totalBundleSize } from 'vite-plugin-total-bundle-size';
 import path from 'path';
 import istanbul from 'vite-plugin-istanbul';
+import { createHtmlPlugin } from 'vite-plugin-html';
+import { viteExternalsPlugin } from 'vite-plugin-externals';
 
 const resourcesPath = path.resolve(__dirname, '../resources');
 const isDev = process.env.NODE_ENV === 'development';
+const isProd = process.env.NODE_ENV === 'production';
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
+    createHtmlPlugin({
+      inject: {
+        data: {
+          injectCdn: isProd,
+          cdnLinks: isProd ? `
+              <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+              <link rel="preconnect" href="//cdn.jsdelivr.net">
+              
+              <script crossorigin src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+              <script crossorigin src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+            ` : '',
+        },
+      },
+    }),
+    isProd ? viteExternalsPlugin({
+      react: 'React',
+      'react-dom': 'ReactDOM',
+
+    }) : undefined,
     svgr({
       svgrOptions: {
         prettier: false,
@@ -107,7 +130,7 @@ export default defineConfig({
       target: `esnext`,
       reportCompressedSize: true,
       sourcemap: isDev,
-      rollupOptions: !isDev
+      rollupOptions: isProd
         ? {
           output: {
             chunkFileNames: 'static/js/[name]-[hash].js',
@@ -115,8 +138,8 @@ export default defineConfig({
             assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
             manualChunks (id) {
               if (
-                id.includes('/react@') ||
-                id.includes('/react-dom@') ||
+                // id.includes('/react@') ||
+                // id.includes('/react-dom@') ||
                 id.includes('/react-is@') ||
                 id.includes('/yjs@') ||
                 id.includes('/y-indexeddb@') ||
@@ -127,6 +150,8 @@ export default defineConfig({
                 id.includes('/smooth-scroll-into-view-if-needed') ||
                 id.includes('/react-virtualized-auto-sizer') ||
                 id.includes('/react-window')
+                || id.includes('/@popperjs')
+                || id.includes('/@mui/material/Dialog')
               ) {
                 return 'common';
               }

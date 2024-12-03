@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/plan/settings_plan_bloc.dart';
@@ -11,6 +9,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../generated/locale_keys.g.dart';
@@ -671,6 +670,13 @@ final _planLabels = [
   _PlanItem(
     label: LocaleKeys.settings_comparePlanDialog_planLabels_itemFileUpload.tr(),
   ),
+  _PlanItem(
+    label:
+        LocaleKeys.settings_comparePlanDialog_planLabels_customNamespace.tr(),
+    tooltip: LocaleKeys
+        .settings_comparePlanDialog_planLabels_customNamespaceTooltip
+        .tr(),
+  ),
 ];
 
 class _CellItem {
@@ -709,6 +715,9 @@ final List<_CellItem> _freeLabels = [
   _CellItem(
     label: LocaleKeys.settings_comparePlanDialog_freeLabels_itemFileUpload.tr(),
   ),
+  const _CellItem(
+    label: '',
+  ),
 ];
 
 final List<_CellItem> _proLabels = [
@@ -739,5 +748,9 @@ final List<_CellItem> _proLabels = [
   ),
   _CellItem(
     label: LocaleKeys.settings_comparePlanDialog_proLabels_itemFileUpload.tr(),
+  ),
+  const _CellItem(
+    label: '',
+    icon: FlowySvgs.check_m,
   ),
 ];

@@ -3,6 +3,7 @@ import { CustomEditor } from '@/application/slate-yjs/command';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
 import { getBlock, getBlockEntry, getSharedRoot, getText } from '@/application/slate-yjs/utils/yjsOperations';
 import {
+  BlockData,
   BlockType,
   HeadingBlockData,
   NumberedListBlockData,
@@ -12,8 +13,13 @@ import {
 } from '@/application/types';
 import { Editor, Range, Transforms } from 'slate';
 
+enum SpecialSymbol {
+  EM_DASH = '—',
+  RIGHTWARDS_DOUBLE_ARROW = '⇒',
+}
+
 type TriggerHotKey = {
-  [key in BlockType | EditorMarkFormat]?: string[];
+  [key in BlockType | EditorMarkFormat | SpecialSymbol]?: string[];
 };
 
 const defaultTriggerChar: TriggerHotKey = {
@@ -30,6 +36,9 @@ const defaultTriggerChar: TriggerHotKey = {
   [EditorMarkFormat.StrikeThrough]: ['~'],
   [EditorMarkFormat.Code]: ['`'],
   [EditorMarkFormat.Formula]: ['$'],
+  [EditorMarkFormat.Href]: [')'],
+  [SpecialSymbol.EM_DASH]: ['-'],
+  [SpecialSymbol.RIGHTWARDS_DOUBLE_ARROW]: ['>'],
 };
 
 // create a set of all trigger characters
@@ -37,7 +46,7 @@ export const allTriggerChars = new Set(Object.values(defaultTriggerChar).flat())
 
 // Define the rules for markdown shortcuts
 type Rule = {
-  type: 'block' | 'mark'
+  type: 'block' | 'mark' | 'symbol';
   match: RegExp
   format: string
   transform?: (editor: YjsEditor, match: RegExpMatchArray) => void
@@ -66,16 +75,16 @@ function getNodeType (editor: YjsEditor) {
 function getBlockData (editor: YjsEditor) {
   const [node] = getBlockEntry(editor);
 
-  return node.data;
+  return node.data as BlockData;
 }
 
-function isEmptyLine (editor: YjsEditor, offset: number) {
+function getLineText (editor: YjsEditor) {
   const [node] = getBlockEntry(editor);
   const sharedRoot = getSharedRoot(editor);
   const block = getBlock(node.blockId as string, sharedRoot);
   const yText = getText(block.get(YjsEditorKey.block_external_id), sharedRoot);
 
-  return yText.toJSON().length === offset;
+  return yText.toJSON();
 }
 
 const rules: Rule[] = [
@@ -94,9 +103,40 @@ const rules: Rule[] = [
     transform: (editor, match) => {
       const level = match[1].length;
       const [node] = getBlockEntry(editor);
+      const blockType = getNodeType(editor);
+
+      // If the current block is a toggle list block, we don't need to change the block type
+      if (blockType === BlockType.ToggleListBlock) {
+        CustomEditor.setBlockData(editor, node.blockId as string, { level });
+        deletePrefix(editor, level);
+        return;
+      }
 
       CustomEditor.turnToBlock<HeadingBlockData>(editor, node.blockId as string, BlockType.HeadingBlock, { level });
       deletePrefix(editor, level);
+    },
+  },
+  {
+    type: 'block',
+    match: /^>\s/,
+    format: BlockType.ToggleListBlock,
+    filter: (editor) => {
+      return getNodeType(editor) === BlockType.ToggleListBlock;
+    },
+    transform: (editor) => {
+      const type = getNodeType(editor);
+      let level: number | undefined;
+
+      // If the current block is a heading block, we need to get the level of the heading block
+      if (type === BlockType.HeadingBlock) {
+        level = (getBlockData(editor) as HeadingBlockData).level;
+      }
+
+      CustomEditor.turnToBlock<ToggleListBlockData>(editor, getBlockEntry(editor)[0].blockId as string, BlockType.ToggleListBlock, {
+        collapsed: false,
+        level,
+      });
+      deletePrefix(editor, 1);
     },
   },
   {
@@ -130,25 +170,15 @@ const rules: Rule[] = [
       deletePrefix(editor, match[0].length - 1);
     },
   },
-  {
-    type: 'block',
-    match: /^>\s/,
-    format: BlockType.ToggleListBlock,
-    filter: (editor) => {
-      return getNodeType(editor) === BlockType.ToggleListBlock;
-    },
-    transform: (editor) => {
-      CustomEditor.turnToBlock<ToggleListBlockData>(editor, getBlockEntry(editor)[0].blockId as string, BlockType.ToggleListBlock, { collapsed: false });
-      deletePrefix(editor, 1);
 
-    },
-  },
   {
     type: 'block',
     match: /^(`){3,}$/,
     format: BlockType.CodeBlock,
     filter: (editor) => {
-      return !isEmptyLine(editor, 2) || getNodeType(editor) === BlockType.CodeBlock;
+      const text = getLineText(editor);
+
+      return text !== '``' || getNodeType(editor) === BlockType.CodeBlock;
     },
     transform: (editor) => {
 
@@ -178,7 +208,7 @@ const rules: Rule[] = [
       const blockType = getNodeType(editor);
       const blockData = getBlockData(editor);
 
-      return blockType === BlockType.HeadingBlock || (blockType === BlockType.NumberedListBlock && (blockData as NumberedListBlockData).number === start);
+      return ('level' in blockData && (blockData as HeadingBlockData).level > 0) || (blockType === BlockType.NumberedListBlock && (blockData as NumberedListBlockData).number === start);
     },
     transform: (editor, match) => {
       const start = parseInt(match[1]);
@@ -190,15 +220,17 @@ const rules: Rule[] = [
 
   {
     type: 'block',
-    match: /^([-*_]){3,}$/,
+    match: /^([-*_]){3,}|(—-+)$/,
     format: BlockType.DividerBlock,
     filter: (editor) => {
-      return !isEmptyLine(editor, 2) || getNodeType(editor) === BlockType.DividerBlock;
+      const text = getLineText(editor);
+
+      return (['--', '**', '__', '—'].every(t => t !== text)) || getNodeType(editor) === BlockType.DividerBlock;
     },
-    transform: (editor) => {
+    transform: (editor, match) => {
 
       CustomEditor.turnToBlock(editor, getBlockEntry(editor)[0].blockId as string, BlockType.DividerBlock, {});
-      deletePrefix(editor, 2);
+      deletePrefix(editor, match[0].length - 1);
     },
   },
 
@@ -238,6 +270,34 @@ const rules: Rule[] = [
   },
   {
     type: 'mark',
+    match: /\[(.*?)\]\((.*?)\)/,
+    format: EditorMarkFormat.Href,
+    filter: (_editor, match) => {
+      const href = match[2];
+
+      return href.length === 0;
+    },
+    transform: (editor, match) => {
+      const href = match[2];
+      const text = match[1];
+      const { selection } = editor;
+
+      if (!selection) return;
+      const path = selection.anchor.path;
+      const start = match.index!;
+
+      editor.insertText(text);
+      Transforms.select(editor, {
+        anchor: { path, offset: start },
+        focus: { path, offset: start + text.length },
+      });
+
+      CustomEditor.addMark(editor, { key: EditorMarkFormat.Href, value: href });
+
+    },
+  },
+  {
+    type: 'mark',
     match: /\$(.*?)\$/,
     format: EditorMarkFormat.Formula,
     transform: (editor, match) => {
@@ -257,6 +317,32 @@ const rules: Rule[] = [
       CustomEditor.addMark(editor, { key: EditorMarkFormat.Formula, value: formula });
     },
   },
+  {
+    type: 'symbol',
+    match: /--/,
+    format: SpecialSymbol.EM_DASH,
+    transform: (editor) => {
+
+      editor.delete({
+        unit: 'character',
+        reverse: true,
+      });
+      editor.insertText('—');
+    },
+  },
+  {
+    type: 'symbol',
+    match: /=>/,
+    format: SpecialSymbol.RIGHTWARDS_DOUBLE_ARROW,
+    transform: (editor) => {
+      editor.delete({
+        unit: 'character',
+        reverse: true,
+      });
+      editor.insertText('⇒');
+    },
+  },
+
 ];
 
 export const applyMarkdown = (editor: YjsEditor, insertText: string): boolean => {
@@ -328,6 +414,26 @@ export const applyMarkdown = (editor: YjsEditor, insertText: string): boolean =>
         return true;
       }
 
+    } else if (rule.type === 'symbol') {
+      const path = selection.anchor.path;
+      const text = editor.string({
+        anchor: {
+          path,
+          offset: 0,
+        },
+        focus: selection.focus,
+      }) + insertText;
+      const match = text.match(rule.match);
+
+      if (match) {
+        if (rule.transform) {
+          rule.transform(editor, match);
+        }
+
+        return true;
+      }
+
+      console.log('symbol text', text, match);
     }
   }
 

@@ -8,8 +8,8 @@ use std::collections::HashMap;
 
 use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, CompletionType,
-  CreateTextChatContext, LocalAIConfig, MessageCursor, RelatedQuestion, RepeatedChatMessage,
-  RepeatedRelatedQuestion, StreamAnswer, StreamComplete, SubscriptionPlan,
+  LocalAIConfig, MessageCursor, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
+  StreamAnswer, StreamComplete, SubscriptionPlan,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use futures::{stream, Sink, StreamExt, TryStreamExt};
@@ -306,22 +306,6 @@ impl ChatCloudService for AICloudServiceMiddleware {
 
   async fn get_local_ai_config(&self, workspace_id: &str) -> Result<LocalAIConfig, FlowyError> {
     self.cloud_service.get_local_ai_config(workspace_id).await
-  }
-
-  async fn create_chat_context(
-    &self,
-    workspace_id: &str,
-    chat_context: CreateTextChatContext,
-  ) -> Result<(), FlowyError> {
-    if self.local_llm_controller.is_running() {
-      // TODO(nathan): support offline ai context
-      Ok(())
-    } else {
-      self
-        .cloud_service
-        .create_chat_context(workspace_id, chat_context)
-        .await
-    }
   }
 
   async fn get_workspace_plan(

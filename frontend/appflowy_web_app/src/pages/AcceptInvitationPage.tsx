@@ -90,11 +90,11 @@ function AcceptInvitationPage () {
         >
           {t('invitation.join')}
           {' '}
-          <span className={'font-semibold'}>{currentUser?.name}</span>
+          <span className={'font-semibold'}>{invitation?.workspace_name}</span>
           {' '}
           {t('invitation.on')}
           {' '}
-          <span className={'whitespace-nowrap'}>{invitation?.workspace_name}</span>
+          <span className={'whitespace-nowrap'}>AppFlowy</span>
 
         </div>
         <Divider className={'max-w-full w-[400px]'} />
