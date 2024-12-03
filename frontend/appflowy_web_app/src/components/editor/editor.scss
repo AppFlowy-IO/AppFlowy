@@ -34,7 +34,7 @@
 
 
 .block-element.selected {
-  &:not([data-block-type="table"]):not([data-block-type="grid"]):not([data-block-type="board"]):not([data-block-type="calendar"]) {
+  &:not([data-block-type="table"]):not([data-block-type="simple_table"]):not([data-block-type="grid"]):not([data-block-type="board"]):not([data-block-type="calendar"]) {
     @apply bg-content-blue-100;
     .embed-block {
       @apply bg-content-blue-50;
@@ -50,7 +50,12 @@
     .database-tabs, .grid-row-filed-cell, .column {
       @apply bg-content-blue-50;
     }
+  }
 
+  &.block-element[data-block-type="simple_table"] {
+    table {
+      @apply bg-content-blue-50;
+    }
   }
 }
 

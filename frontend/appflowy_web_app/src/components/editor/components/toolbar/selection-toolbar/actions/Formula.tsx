@@ -5,7 +5,7 @@ import ActionButton from '@/components/editor/components/toolbar/selection-toolb
 import {
   useSelectionToolbarContext,
 } from '@/components/editor/components/toolbar/selection-toolbar/SelectionToolbar.hooks';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Transforms, Text, Editor } from 'slate';
 import { useSlateStatic } from 'slate-react';
@@ -17,17 +17,15 @@ function Formula () {
   const {
     visible,
   } = useSelectionToolbarContext();
+  const [state, setState] = React.useState({
+    isActivated: false,
+    hasFormulaActivated: false,
+    hasMentionActivated: false,
+  });
 
-  const {
-    isActivated,
-    hasFormulaActivated,
-    hasMentionActivated,
-  } = useMemo(() => {
-    if (!visible) return {
-      isActivated: false,
-      hasFormulaActivated: false,
-      hasMentionActivated: false,
-    };
+  const { isActivated, hasFormulaActivated, hasMentionActivated } = state;
+
+  const getState = useCallback(() => {
     const isActivated = CustomEditor.isMarkActive(editor, EditorMarkFormat.Formula);
     const hasFormulaActivated = CustomEditor.hasMark(editor, EditorMarkFormat.Formula);
     const hasMentionActivated = CustomEditor.hasMark(editor, EditorMarkFormat.Mention);
@@ -37,12 +35,19 @@ function Formula () {
       hasFormulaActivated,
       hasMentionActivated,
     };
-  }, [editor, visible]);
+  }, [editor]);
+
+  useEffect(() => {
+    if (!visible) return;
+    setState(getState());
+  }, [visible, getState]);
 
   const onClick = useCallback(() => {
     const { selection } = editor;
 
     if (!selection) return;
+
+    const isActivated = CustomEditor.isMarkActive(editor, EditorMarkFormat.Formula);
 
     if (!isActivated) {
       const start = editor.start(selection);
@@ -84,7 +89,8 @@ function Formula () {
       editor.insertText(formula);
     }
 
-  }, [editor, isActivated]);
+    setState(getState());
+  }, [editor, getState]);
 
   return (
     <ActionButton

@@ -18,7 +18,7 @@ function OutlineIcon ({ isExpanded, setIsExpanded, level }: {
         }}
         className={'opacity-50 hover:opacity-100'}
       >
-        <ChevronDownIcon className={'h-[1em] w-[1em]'} />
+        <ChevronDownIcon className={'h-[1em] w-[1em]  hover:bg-fill-list-hover rounded-[2px]'} />
       </button>
     );
   }

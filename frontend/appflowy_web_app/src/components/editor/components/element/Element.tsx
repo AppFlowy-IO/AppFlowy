@@ -57,6 +57,7 @@ export const Element = ({
       BlockType.HeadingBlock,
       BlockType.TableBlock,
       BlockType.TableCell,
+      BlockType.SimpleTableBlock,
     ].includes(type as BlockType)) return false;
     return isSelected;
   }, [blockId, selectedBlockIds, type, isSelected]);
