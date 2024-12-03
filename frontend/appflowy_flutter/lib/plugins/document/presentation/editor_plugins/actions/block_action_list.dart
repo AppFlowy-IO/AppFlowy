@@ -34,6 +34,7 @@ class BlockActionList extends StatelessWidget {
           editorState: editorState,
           showSlashMenu: showSlashMenu,
         ),
+        const HSpace(2.0),
         BlockOptionButton(
           blockComponentContext: blockComponentContext,
           blockComponentState: blockComponentState,
