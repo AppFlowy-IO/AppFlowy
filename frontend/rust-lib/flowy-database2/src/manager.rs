@@ -496,15 +496,6 @@ impl DatabaseManager {
     Ok(result)
   }
 
-  // will implement soon
-  pub async fn import_csv_from_file(
-    &self,
-    _file_path: String,
-    _format: CSVFormat,
-  ) -> FlowyResult<()> {
-    Ok(())
-  }
-
   pub async fn export_csv(&self, view_id: &str, style: CSVFormat) -> FlowyResult<String> {
     let database = self.get_database_editor_with_view_id(view_id).await?;
     database.export_csv(style).await

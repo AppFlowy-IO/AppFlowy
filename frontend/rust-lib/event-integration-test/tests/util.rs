@@ -161,13 +161,13 @@ pub fn generate_test_email() -> String {
 }
 
 pub fn gen_csv_import_data(file_name: &str, workspace_id: &str) -> ImportPayloadPB {
-  let file_path = unzip("./tests/asset", file_name).unwrap();
+  let file_path = format!("./tests/asset/{}", file_name);
   ImportPayloadPB {
     parent_view_id: workspace_id.to_string(),
     values: vec![ImportValuePayloadPB {
       name: file_name.to_string(),
       data: None,
-      file_path: Some(file_path.to_str().unwrap().to_string()),
+      file_path: Some(file_path),
       view_layout: ViewLayoutPB::Grid,
       import_type: ImportTypePB::CSV,
     }],

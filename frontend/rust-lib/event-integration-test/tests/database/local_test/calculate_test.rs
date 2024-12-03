@@ -9,9 +9,10 @@ async fn calculation_integration_test1() {
   test.sign_up_as_anon().await;
 
   let workspace_id = test.get_current_workspace().await.id;
-  let payload = gen_csv_import_data("project&task", &workspace_id);
+  let payload = gen_csv_import_data("project.csv", &workspace_id);
   let view = test.import_data(payload).await.pop().unwrap();
   test.open_database(&view.id).await;
+  let database = test.get_database(&view.id).await;
 
   // create calculation tests here
 }

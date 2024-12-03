@@ -28,6 +28,7 @@ use flowy_user::services::data_import::{load_collab_by_object_id, load_collab_by
 use lib_dispatch::prelude::ToBytes;
 use std::collections::HashMap;
 use std::convert::TryFrom;
+use std::path::Path;
 use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
 
@@ -547,11 +548,23 @@ impl FolderOperationHandler for DatabaseFolderOperation {
 
   async fn import_from_file_path(
     &self,
-    _view_id: &str,
+    view_id: &str,
     _name: &str,
     path: String,
   ) -> Result<(), FlowyError> {
-    self.0.import_csv_from_file(path, CSVFormat::META).await?;
+    let file_path = Path::new(&path);
+    if !file_path.exists() {
+      return Err(FlowyError::record_not_found().with_context("File not found"));
+    }
+
+    let data = tokio::fs::read(file_path).await?;
+    let content =
+      String::from_utf8(data).map_err(|e| FlowyError::invalid_data().with_context(e))?;
+    let _ = self
+      .0
+      .import_csv(view_id.to_string(), content, CSVFormat::Original)
+      .await?;
+
     Ok(())
   }
 
