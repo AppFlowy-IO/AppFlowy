@@ -6,6 +6,8 @@ import { useCallback, useEffect } from 'react';
 import { ReactEditor, useSlateStatic } from 'slate-react';
 import Prism from 'prismjs';
 
+Prism.languages.delphi = Prism.languages.pascal;
+
 export function useCodeBlock (node: CodeNode) {
   const language = node.data.language;
   const editor = useSlateStatic() as ReactEditor;
@@ -33,11 +35,15 @@ export function useCodeBlock (node: CodeNode) {
         detectedLanguage = window.hljs.highlightAuto(codeSnippet).language || 'plaintext';
       }
 
+      if (detectedLanguage === 'delphi') {
+        detectedLanguage = 'pascal';
+      }
+
       const prismLanguage = Prism.languages[detectedLanguage.toLowerCase()];
 
       if (!prismLanguage) {
         const script = document.createElement('script');
-
+        
         script.src = `https://cdnjs.cloudflare.com/ajax/libs/prism/1.26.0/components/prism-${detectedLanguage.toLowerCase()}.min.js`;
         document.body.appendChild(script);
         script.onload = () => {

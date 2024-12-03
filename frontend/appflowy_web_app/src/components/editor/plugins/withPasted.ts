@@ -8,7 +8,7 @@ import {
   getChildrenArray,
   getSharedRoot,
 } from '@/application/slate-yjs/utils/yjsOperations';
-import { MentionType, YjsEditorKey } from '@/application/types';
+import { BlockType, MentionType, YjsEditorKey } from '@/application/types';
 import { deserializeHTML } from '@/components/editor/utils/fragment';
 import { BasePoint, Node, Transforms } from 'slate';
 import { ReactEditor } from 'slate-react';
@@ -31,8 +31,10 @@ export const withPasted = (editor: ReactEditor) => {
       const html = data.getData('text/html');
 
       const lineLength = lines.filter(Boolean).length;
+      const point = editor.selection?.anchor as BasePoint;
+      const [node] = getBlockEntry(editor as YjsEditor, point);
 
-      if (lineLength > 1 && html) {
+      if (lineLength > 1 && html && node.type !== BlockType.CodeBlock) {
         return insertHtmlData(editor, data);
       }
 
