@@ -54,7 +54,7 @@ void main() {
         align: TableAlign.center,
       );
       expect(tableNode.rowAligns, {
-        '1': TableAlign.center.name,
+        '1': TableAlign.center.key,
       });
       await editorState.duplicateRowInTable(tableNode, 1);
       expect(tableCellNode.rowColors, {
@@ -62,8 +62,8 @@ void main() {
         '2': '0xFF0000FF',
       });
       expect(tableNode.rowAligns, {
-        '1': TableAlign.center.name,
-        '2': TableAlign.center.name,
+        '1': TableAlign.center.key,
+        '2': TableAlign.center.key,
       });
     });
 
@@ -87,14 +87,14 @@ void main() {
         align: TableAlign.center,
       );
       expect(tableNode.rowAligns, {
-        '1': TableAlign.center.name,
+        '1': TableAlign.center.key,
       });
       await editorState.duplicateRowInTable(tableNode, 2);
       expect(tableCellNode.rowColors, {
         '1': '0xFF0000FF',
       });
       expect(tableNode.rowAligns, {
-        '1': TableAlign.center.name,
+        '1': TableAlign.center.key,
       });
     });
 
@@ -118,7 +118,7 @@ void main() {
         '1': '0xFF0000FF',
       });
       expect(tableNode.columnAligns, {
-        '1': TableAlign.center.name,
+        '1': TableAlign.center.key,
       });
       await editorState.duplicateColumnInTable(tableNode, 1);
       expect(tableCellNode.columnColors, {
@@ -126,8 +126,8 @@ void main() {
         '2': '0xFF0000FF',
       });
       expect(tableNode.columnAligns, {
-        '1': TableAlign.center.name,
-        '2': TableAlign.center.name,
+        '1': TableAlign.center.key,
+        '2': TableAlign.center.key,
       });
     });
 
@@ -151,14 +151,14 @@ void main() {
         '1': '0xFF0000FF',
       });
       expect(tableNode.columnAligns, {
-        '1': TableAlign.center.name,
+        '1': TableAlign.center.key,
       });
       await editorState.duplicateColumnInTable(tableNode, 2);
       expect(tableCellNode.columnColors, {
         '1': '0xFF0000FF',
       });
       expect(tableNode.columnAligns, {
-        '1': TableAlign.center.name,
+        '1': TableAlign.center.key,
       });
     });
   });
