@@ -2,7 +2,6 @@
 
 .block-element:not([data-block-type="table/cell"]) {
   @apply my-[4px];
-
 }
 
 .block-element .block-element:not([data-block-type="table/cell"]) {
