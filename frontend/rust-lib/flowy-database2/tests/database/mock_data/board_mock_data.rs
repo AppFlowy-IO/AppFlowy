@@ -1,9 +1,12 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::entity::DatabaseView;
+use collab_database::fields::checklist_type_option::ChecklistTypeOption;
 use collab_database::fields::date_type_option::{DateFormat, DateTypeOption, TimeFormat};
+use collab_database::fields::relation_type_option::RelationTypeOption;
 use collab_database::fields::select_type_option::{
   MultiSelectTypeOption, SelectOption, SelectOptionColor, SingleSelectTypeOption,
 };
+use collab_database::fields::summary_type_option::SummarizationTypeOption;
 use collab_database::fields::timestamp_type_option::TimestampTypeOption;
 use collab_database::views::{DatabaseLayout, LayoutSetting, LayoutSettings};
 use strum::IntoEnumIterator;
@@ -11,9 +14,7 @@ use strum::IntoEnumIterator;
 use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, TWITTER};
 use event_integration_test::database_event::TestRowBuilder;
 use flowy_database2::entities::FieldType;
-use flowy_database2::services::field::checklist_type_option::ChecklistTypeOption;
-use flowy_database2::services::field::summary_type_option::summary::SummarizationTypeOption;
-use flowy_database2::services::field::{FieldBuilder, RelationTypeOption};
+use flowy_database2::services::field::FieldBuilder;
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 use flowy_database2::services::setting::BoardLayoutSetting;
 

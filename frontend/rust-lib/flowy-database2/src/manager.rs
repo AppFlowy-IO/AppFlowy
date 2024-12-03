@@ -8,6 +8,7 @@ use collab::preclude::Collab;
 use collab_database::database::{Database, DatabaseData};
 use collab_database::entity::{CreateDatabaseParams, CreateViewParams};
 use collab_database::error::DatabaseError;
+use collab_database::fields::translate_type_option::TranslateTypeOption;
 use collab_database::rows::RowId;
 use collab_database::template::csv::CSVTemplate;
 use collab_database::views::DatabaseLayout;
@@ -38,7 +39,6 @@ use crate::entities::{DatabaseLayoutPB, DatabaseSnapshotPB, FieldType, RowMetaPB
 use crate::services::cell::stringify_cell;
 use crate::services::database::DatabaseEditor;
 use crate::services::database_view::DatabaseLayoutDepsResolver;
-use crate::services::field::translate_type_option::translate::TranslateTypeOption;
 use crate::services::field_settings::default_field_settings_by_layout_map;
 use crate::services::share::csv::{CSVFormat, CSVImporter, ImportResult};
 use tokio::sync::RwLock as TokioRwLock;
