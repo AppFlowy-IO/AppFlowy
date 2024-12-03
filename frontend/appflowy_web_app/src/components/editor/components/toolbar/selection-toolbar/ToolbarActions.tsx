@@ -113,8 +113,8 @@ function ToolbarActions () {
       {
         !isAcrossBlock && !isCodeBlock && groupThree
       }
-      {groupFour}
-      {!isCodeBlock && <Color />}
+      {!isCodeBlock && groupFour}
+      <Color />
     </div>
   );
 }
