@@ -1,9 +1,12 @@
+import { CustomEditor } from '@/application/slate-yjs/command';
 import { useCodeBlock } from '@/components/editor/components/blocks/code/Code.hooks';
 import CodeToolbar from './CodeToolbar';
 import { CodeNode, EditorElementProps } from '@/components/editor/editor.type';
-import React, { forwardRef, memo, useState } from 'react';
+import React, { forwardRef, memo, useState, lazy, Suspense, useMemo } from 'react';
 import { useReadOnly } from 'slate-react';
 import LanguageSelect from './SelectLanguage';
+
+const MermaidChat = lazy(() => import('./MermaidChat'));
 
 export const CodeBlock = memo(
   forwardRef<HTMLDivElement, EditorElementProps<CodeNode>>(({ node, children, ...attributes }, ref) => {
@@ -11,6 +14,10 @@ export const CodeBlock = memo(
     const [showToolbar, setShowToolbar] = useState(false);
 
     const readOnly = useReadOnly();
+
+    const diagram = useMemo(() => {
+      return CustomEditor.getBlockTextContent(node);
+    }, [node]);
 
     return (
       <div
@@ -31,16 +38,23 @@ export const CodeBlock = memo(
           />
         </div>}
 
-        <div {...attributes} ref={ref}
-             className={`${attributes.className ?? ''}  flex w-full`}
+        <div
+          {...attributes}
+          ref={ref}
+          className={`${attributes.className ?? ''} flex w-full`}
         >
           <pre
             spellCheck={false}
-            className={`flex w-full overflow-auto rounded-[8px]  appflowy-scroller border border-line-divider bg-fill-list-active p-5 pt-12`}
+            className={`flex w-full flex-col overflow-auto rounded-[8px]  appflowy-scroller border border-line-divider bg-fill-list-active p-5 pt-12`}
           >
             <code>{children}</code>
+            {language === 'mermaid' && <Suspense><MermaidChat
+              id={node.blockId}
+              diagram={diagram}
+            /></Suspense>}
           </pre>
         </div>
+
         {showToolbar && <CodeToolbar node={node} />}
       </div>
     );

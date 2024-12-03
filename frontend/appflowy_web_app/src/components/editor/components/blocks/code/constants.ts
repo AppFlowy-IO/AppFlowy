@@ -151,4 +151,12 @@ export const supportLanguages = [
     id: 'yaml',
     title: 'YAML',
   },
+  {
+    id: 'mermaid',
+    title: 'Mermaid',
+  },
+  {
+    id: 'delphi',
+    title: 'Delphi',
+  },
 ];

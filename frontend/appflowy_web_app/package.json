@@ -64,6 +64,7 @@
     "katex": "^0.16.7",
     "lightgallery": "^2.7.2",
     "lodash-es": "^4.17.21",
+    "mermaid": "^11.4.1",
     "nanoid": "^4.0.0",
     "notistack": "^3.0.1",
     "numeral": "^2.0.6",
