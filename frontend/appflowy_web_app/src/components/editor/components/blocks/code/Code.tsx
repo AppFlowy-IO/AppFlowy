@@ -1,8 +1,7 @@
-import { CustomEditor } from '@/application/slate-yjs/command';
 import { useCodeBlock } from '@/components/editor/components/blocks/code/Code.hooks';
 import CodeToolbar from './CodeToolbar';
 import { CodeNode, EditorElementProps } from '@/components/editor/editor.type';
-import React, { forwardRef, memo, useState, lazy, Suspense, useMemo } from 'react';
+import React, { forwardRef, memo, useState, lazy, Suspense } from 'react';
 import { useReadOnly } from 'slate-react';
 import LanguageSelect from './SelectLanguage';
 
@@ -14,10 +13,6 @@ export const CodeBlock = memo(
     const [showToolbar, setShowToolbar] = useState(false);
 
     const readOnly = useReadOnly();
-
-    const diagram = useMemo(() => {
-      return CustomEditor.getBlockTextContent(node);
-    }, [node]);
 
     return (
       <div
@@ -49,8 +44,7 @@ export const CodeBlock = memo(
           >
             <code>{children}</code>
             {language === 'mermaid' && <Suspense><MermaidChat
-              id={node.blockId}
-              diagram={diagram}
+              node={node}
             /></Suspense>}
           </pre>
         </div>
