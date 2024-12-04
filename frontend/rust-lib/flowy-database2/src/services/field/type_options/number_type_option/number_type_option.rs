@@ -1,18 +1,17 @@
 use async_trait::async_trait;
 
-use collab::util::AnyMapExt;
 use collab_database::database::Database;
 use collab_database::fields::number_type_option::{
   NumberCellFormat, NumberFormat, NumberTypeOption,
 };
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{new_cell_builder, Cell};
+use collab_database::rows::Cell;
 use fancy_regex::Regex;
 use flowy_error::FlowyResult;
 use lazy_static::lazy_static;
 
+use collab_database::template::number_parse::NumberCellData;
 use std::cmp::Ordering;
-use std::default::Default;
 
 use tracing::info;
 
@@ -21,50 +20,9 @@ use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
   TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform, CELL_DATA,
+  TypeOptionCellDataSerde, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
-
-#[derive(Clone, Debug, Default)]
-pub struct NumberCellData(pub String);
-
-impl TypeOptionCellData for NumberCellData {
-  fn is_cell_empty(&self) -> bool {
-    self.0.is_empty()
-  }
-}
-
-impl AsRef<str> for NumberCellData {
-  fn as_ref(&self) -> &str {
-    &self.0
-  }
-}
-
-impl From<&Cell> for NumberCellData {
-  fn from(cell: &Cell) -> Self {
-    Self(cell.get_as(CELL_DATA).unwrap_or_default())
-  }
-}
-
-impl From<NumberCellData> for Cell {
-  fn from(data: NumberCellData) -> Self {
-    let mut cell = new_cell_builder(FieldType::Number);
-    cell.insert(CELL_DATA.into(), data.0.into());
-    cell
-  }
-}
-
-impl std::convert::From<String> for NumberCellData {
-  fn from(s: String) -> Self {
-    Self(s)
-  }
-}
-
-impl ToString for NumberCellData {
-  fn to_string(&self) -> String {
-    self.0.clone()
-  }
-}
 
 impl TypeOption for NumberTypeOption {
   type CellData = NumberCellData;
@@ -219,7 +177,7 @@ impl TypeOptionCellDataCompare for NumberTypeOption {
     other_cell_data: &<Self as TypeOption>::CellData,
     sort_condition: SortCondition,
   ) -> Ordering {
-    match (cell_data.is_cell_empty(), other_cell_data.is_cell_empty()) {
+    match (cell_data.is_empty(), other_cell_data.is_empty()) {
       (true, true) => Ordering::Equal,
       (true, false) => Ordering::Greater,
       (false, true) => Ordering::Less,

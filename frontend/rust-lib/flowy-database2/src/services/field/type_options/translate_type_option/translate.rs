@@ -1,6 +1,5 @@
 use crate::entities::TextFilterPB;
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
-use crate::services::field::type_options::translate_type_option::translate_entities::TranslateCellData;
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
   TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
@@ -9,6 +8,7 @@ use crate::services::field::{
 use crate::services::sort::SortCondition;
 use collab_database::fields::translate_type_option::TranslateTypeOption;
 use collab_database::rows::Cell;
+use collab_database::template::translate_parse::TranslateCellData;
 use flowy_error::FlowyResult;
 use std::cmp::Ordering;
 
@@ -47,7 +47,7 @@ impl TypeOptionCellDataCompare for TranslateTypeOption {
     other_cell_data: &<Self as TypeOption>::CellData,
     sort_condition: SortCondition,
   ) -> Ordering {
-    match (cell_data.is_cell_empty(), other_cell_data.is_cell_empty()) {
+    match (cell_data.is_empty(), other_cell_data.is_empty()) {
       (true, true) => Ordering::Equal,
       (true, false) => Ordering::Greater,
       (false, true) => Ordering::Less,

@@ -335,7 +335,7 @@ where
     // remove row from its group if it is in a group
     if let Some(cell) = row.cells.get(&self.grouping_field_id) {
       let cell_data = <T as TypeOption>::CellData::from(cell);
-      if !cell_data.is_cell_empty() {
+      if !cell_data.is_empty() {
         (result.deleted_group, result.row_changesets) = self.delete_row(row, &cell_data);
         return Ok(result);
       }

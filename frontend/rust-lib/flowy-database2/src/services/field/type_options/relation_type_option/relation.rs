@@ -3,6 +3,7 @@ use std::cmp::Ordering;
 use collab_database::fields::relation_type_option::RelationTypeOption;
 
 use collab_database::rows::Cell;
+use collab_database::template::relation_parse::RelationCellData;
 use flowy_error::FlowyResult;
 
 use crate::entities::{RelationCellDataPB, RelationFilterPB};
@@ -13,7 +14,7 @@ use crate::services::field::{
 };
 use crate::services::sort::SortCondition;
 
-use super::{RelationCellChangeset, RelationCellData};
+use super::RelationCellChangeset;
 
 impl TypeOption for RelationTypeOption {
   type CellData = RelationCellData;

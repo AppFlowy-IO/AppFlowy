@@ -89,7 +89,7 @@ impl CellDataChangeset for MultiSelectTypeOption {
       },
     };
     Ok((
-      select_option_ids.to_cell_data(FieldType::MultiSelect),
+      select_option_ids.to_cell(FieldType::MultiSelect),
       select_option_ids,
     ))
   }

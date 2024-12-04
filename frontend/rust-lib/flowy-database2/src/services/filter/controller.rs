@@ -7,6 +7,7 @@ use collab::lock::RwLock;
 use collab_database::database::gen_database_filter_id;
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Cells, Row, RowDetail, RowId};
+use collab_database::template::timestamp_parse::TimestampCellData;
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
@@ -20,7 +21,7 @@ use crate::entities::filter_entities::*;
 use crate::entities::{FieldType, InsertedRowPB, RowMetaPB};
 use crate::services::cell::CellCache;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
-use crate::services::field::{TimestampCellData, TimestampCellDataWrapper, TypeOptionCellExt};
+use crate::services::field::TypeOptionCellExt;
 use crate::services::filter::{Filter, FilterChangeset, FilterInner, FilterResultNotification};
 
 #[async_trait]
@@ -523,8 +524,7 @@ fn apply_filter(
           } else {
             row.modified_at
           };
-          let cell =
-            TimestampCellDataWrapper::from((*field_type, TimestampCellData::new(timestamp)));
+          let cell = TimestampCellData::new(Some(timestamp)).to_cell(field.field_type);
           Some(cell.into())
         },
         _ => None,

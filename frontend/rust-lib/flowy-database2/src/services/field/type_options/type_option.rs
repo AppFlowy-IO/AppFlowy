@@ -24,6 +24,7 @@ use collab_database::fields::translate_type_option::TranslateTypeOption;
 use collab_database::fields::url_type_option::URLTypeOption;
 use collab_database::fields::TypeOptionData;
 use collab_database::rows::Cell;
+pub use collab_database::template::util::TypeOptionCellData;
 use flowy_error::FlowyResult;
 use protobuf::ProtobufError;
 use std::cmp::Ordering;
@@ -87,14 +88,14 @@ pub trait TypeOptionCellDataSerde: TypeOption {
   fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData>;
 }
 
-/// This trait that provides methods to extend the [TypeOption::CellData] functionalities.
-pub trait TypeOptionCellData {
-  /// Checks if the cell content is considered empty based on certain criteria. e.g. empty text,
-  /// no date selected, no selected options
-  fn is_cell_empty(&self) -> bool {
-    false
-  }
-}
+// /// This trait that provides methods to extend the [TypeOption::CellData] functionalities.
+// pub trait TypeOptionCellData {
+//   /// Checks if the cell content is considered empty based on certain criteria. e.g. empty text,
+//   /// no date selected, no selected options
+//   fn is_empty(&self) -> bool {
+//     false
+//   }
+// }
 
 #[async_trait]
 pub trait TypeOptionTransform: TypeOption + Send + Sync {
@@ -152,8 +153,8 @@ pub trait TypeOptionCellDataCompare: TypeOption {
     _sort_condition: SortCondition,
   ) -> Ordering {
     match (cell_data, other_cell_data) {
-      (None, Some(cell_data)) if !cell_data.is_cell_empty() => Ordering::Greater,
-      (Some(cell_data), None) if !cell_data.is_cell_empty() => Ordering::Less,
+      (None, Some(cell_data)) if !cell_data.is_empty() => Ordering::Greater,
+      (Some(cell_data), None) if !cell_data.is_empty() => Ordering::Less,
       _ => Ordering::Equal,
     }
   }

@@ -2,7 +2,7 @@ use crate::entities::{CheckboxCellDataPB, FieldType, SelectOptionCellDataPB};
 use crate::services::cell::{CellDataDecoder, CellProtobufBlobParser};
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
 use crate::services::field::{
-  StringCellData, TypeOption, TypeOptionCellData, TypeOptionCellDataSerde, TypeOptionTransform,
+  StringCellData, TypeOption, TypeOptionCellDataSerde, TypeOptionTransform,
 };
 use async_trait::async_trait;
 use bytes::Bytes;
@@ -15,12 +15,6 @@ use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::Cell;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 use std::str::FromStr;
-
-impl TypeOptionCellData for SelectOptionIds {
-  fn is_cell_empty(&self) -> bool {
-    self.is_empty()
-  }
-}
 
 /// Defines the shared actions used by SingleSelect or Multi-Select.
 pub trait SelectTypeOptionSharedAction: Send + Sync {

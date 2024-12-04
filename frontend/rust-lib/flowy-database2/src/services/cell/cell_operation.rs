@@ -5,12 +5,16 @@ use collab_database::fields::media_type_option::MediaCellData;
 use collab_database::fields::select_type_option::SelectOptionIds;
 use collab_database::fields::Field;
 use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
-
+use collab_database::template::relation_parse::RelationCellData;
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::box_any::BoxAny;
 
 use crate::entities::{CheckboxCellDataPB, FieldType};
 use crate::services::cell::{CellCache, CellProtobufBlob};
+use crate::services::field::checklist_filter::{
+  ChecklistCellChangeset, ChecklistCellInsertChangeset,
+};
+use crate::services::field::date_filter::DateCellChangeset;
 use crate::services::field::*;
 use crate::services::group::make_no_status_group;
 
@@ -262,7 +266,7 @@ impl<'a> CellBuilder<'a> {
             }
           },
           FieldType::Relation => {
-            cells.insert(field_id, (&RelationCellData::from(cell_str)).into());
+            cells.insert(field_id, RelationCellData::from(cell_str).into());
           },
           FieldType::Media => {
             cells.insert(field_id, MediaCellData::from(cell_str).into());

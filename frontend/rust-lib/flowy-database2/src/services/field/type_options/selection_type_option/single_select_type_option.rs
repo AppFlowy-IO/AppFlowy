@@ -84,7 +84,7 @@ impl CellDataChangeset for SingleSelectTypeOption {
       SelectOptionIds::from(insert_option_ids)
     };
     Ok((
-      select_option_ids.to_cell_data(FieldType::SingleSelect),
+      select_option_ids.to_cell(FieldType::SingleSelect),
       select_option_ids,
     ))
   }
@@ -168,6 +168,6 @@ mod tests {
     // delete
     let changeset = SelectOptionCellChangeset::from_delete_options(option_ids);
     let select_option_ids = single_select.apply_changeset(changeset, None).unwrap().1;
-    assert!(select_option_ids.is_cell_empty());
+    assert!(select_option_ids.is_empty());
   }
 }

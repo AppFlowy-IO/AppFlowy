@@ -1,14 +1,16 @@
 use crate::entities::{ChecklistCellDataPB, ChecklistFilterPB, SelectOptionPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
-use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
+use crate::services::field::checklist_filter::{checklist_from_options, ChecklistCellChangeset};
 use crate::services::field::{
-  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform,
+  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
 use collab_database::fields::checklist_type_option::ChecklistTypeOption;
 use collab_database::fields::select_type_option::{SelectOption, SELECTION_IDS_SEPARATOR};
 use collab_database::rows::Cell;
+use collab_database::template::check_list_parse::ChecklistCellData;
+use collab_database::template::util::TypeOptionCellData;
 use flowy_error::FlowyResult;
 use std::cmp::Ordering;
 
@@ -63,7 +65,7 @@ impl CellDataChangeset for ChecklistTypeOption {
         Ok((Cell::from(cell_data.clone()), cell_data))
       },
       None => {
-        let cell_data = ChecklistCellData::from_options(changeset.insert_tasks);
+        let cell_data = checklist_from_options(changeset.insert_tasks);
         Ok((Cell::from(cell_data.clone()), cell_data))
       },
     }
@@ -179,7 +181,7 @@ impl TypeOptionCellDataCompare for ChecklistTypeOption {
     other_cell_data: &<Self as TypeOption>::CellData,
     sort_condition: SortCondition,
   ) -> Ordering {
-    match (cell_data.is_cell_empty(), other_cell_data.is_cell_empty()) {
+    match (cell_data.is_empty(), other_cell_data.is_empty()) {
       (true, true) => Ordering::Equal,
       (true, false) => Ordering::Greater,
       (false, true) => Ordering::Less,

@@ -95,7 +95,7 @@ pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
 
   fn handle_numeric_cell(&self, cell: &Cell) -> Option<f64>;
 
-  fn handle_is_cell_empty(&self, cell: &Cell, field: &Field) -> bool;
+  fn handle_is_empty(&self, cell: &Cell, field: &Field) -> bool;
 }
 
 #[derive(Debug)]
@@ -255,6 +255,7 @@ where
     + TypeOptionTransform
     + TypeOptionCellDataFilter
     + TypeOptionCellDataCompare
+    // + TypeOptionCellReader
     + Send
     + Sync
     + 'static,
@@ -333,6 +334,8 @@ where
   ///
   fn handle_stringify_cell(&self, cell: &Cell, field: &Field) -> String {
     if is_type_option_cell_transformable(self.field_type, FieldType::RichText) {
+      // return self.stringify_cell(cell);
+
       let cell_data = self.get_cell_data(cell, field);
       if let Some(cell_data) = cell_data {
         return self.stringify_cell_data(cell_data);
@@ -345,10 +348,10 @@ where
     self.numeric_cell(cell)
   }
 
-  fn handle_is_cell_empty(&self, cell: &Cell, field: &Field) -> bool {
+  fn handle_is_empty(&self, cell: &Cell, field: &Field) -> bool {
     let cell_data = self.get_cell_data(cell, field).unwrap_or_default();
 
-    cell_data.is_cell_empty()
+    cell_data.is_empty()
   }
 }
 

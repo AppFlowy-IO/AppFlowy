@@ -1,8 +1,8 @@
 use crate::entities::{TimeCellDataPB, TimeFilterPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  TimeCellData, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform,
+  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
 use collab_database::fields::date_type_option::TimeTypeOption;
@@ -10,6 +10,7 @@ use collab_database::fields::date_type_option::TimeTypeOption;
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
 
+use collab_database::template::time_parse::TimeCellData;
 use std::cmp::Ordering;
 
 impl TypeOption for TimeTypeOption {
