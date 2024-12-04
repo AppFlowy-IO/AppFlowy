@@ -91,6 +91,7 @@ class _SimpleTableWidgetState extends State<SimpleTableWidget> {
         ),
       );
     }
+
     // table content
     Widget child = Scrollbar(
       controller: scrollController,

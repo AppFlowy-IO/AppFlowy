@@ -1,5 +1,5 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/_shared_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_widgets/simple_table_column_resize_handle.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

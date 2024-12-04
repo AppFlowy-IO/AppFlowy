@@ -21,6 +21,8 @@ class SimpleTableContext {
       selectingRow.addListener(_onSelectingRowChanged);
       isSelectingTable.addListener(_onSelectingTableChanged);
       isHoveringOnTableBlock.addListener(_onHoveringOnTableBlockChanged);
+      isDraggingColumn.addListener(_onDraggingColumnChanged);
+      isDraggingRow.addListener(_onDraggingRowChanged);
     }
   }
 
@@ -51,6 +53,13 @@ class SimpleTableContext {
 
   // the is selecting table is the table that the user is selecting
   final ValueNotifier<bool> isSelectingTable = ValueNotifier(false);
+
+  // isDraggingColumn is a tuple of (isDragging, columnIndex)
+  final ValueNotifier<(bool, int)> isDraggingColumn =
+      ValueNotifier((false, -1));
+
+  // isDraggingRow is a tuple of (isDragging, rowIndex)
+  final ValueNotifier<(bool, int)> isDraggingRow = ValueNotifier((false, -1));
 
   void _onHoveringOnColumnsAndRowsChanged() {
     if (!enableTableDebugLog) {
@@ -113,6 +122,22 @@ class SimpleTableContext {
     Log.debug('isHoveringOnTableArea: ${isHoveringOnTableArea.value}');
   }
 
+  void _onDraggingColumnChanged() {
+    if (!enableTableDebugLog) {
+      return;
+    }
+
+    Log.debug('isDraggingColumn: ${isDraggingColumn.value}');
+  }
+
+  void _onDraggingRowChanged() {
+    if (!enableTableDebugLog) {
+      return;
+    }
+
+    Log.debug('isDraggingRow: ${isDraggingRow.value}');
+  }
+
   void dispose() {
     isHoveringOnColumnsAndRows.dispose();
     isHoveringOnTableBlock.dispose();
@@ -122,6 +147,8 @@ class SimpleTableContext {
     selectingColumn.dispose();
     selectingRow.dispose();
     isSelectingTable.dispose();
+    isDraggingColumn.dispose();
+    isDraggingRow.dispose();
   }
 }
 

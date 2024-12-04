@@ -51,6 +51,14 @@ enum SimpleTableMoreActionType {
         return FlowySvgs.table_reorder_row_s;
     }
   }
+
+  @override
+  String toString() {
+    return switch (this) {
+      SimpleTableMoreActionType.column => 'column',
+      SimpleTableMoreActionType.row => 'row',
+    };
+  }
 }
 
 enum SimpleTableMoreAction {
@@ -232,8 +240,8 @@ class _SimpleTableMoreActionPopupState
 
   @override
   Widget build(BuildContext context) {
-    final tableCellNode =
-        context.read<SimpleTableContext>().hoveringTableCell.value;
+    final simpleTableContext = context.read<SimpleTableContext>();
+    final tableCellNode = simpleTableContext.hoveringTableCell.value;
     final tableNode = tableCellNode?.parentTableNode;
 
     if (tableNode == null) {
@@ -254,6 +262,7 @@ class _SimpleTableMoreActionPopupState
       popupBuilder: (_) => _buildPopup(tableCellNode: tableCellNode),
       child: SimpleTableDraggableReorderButton(
         editorState: editorState,
+        simpleTableContext: simpleTableContext,
         node: tableNode,
         index: widget.index,
         isShowingMenu: widget.isShowingMenu,

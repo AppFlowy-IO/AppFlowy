@@ -1,9 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_widgets/simple_table_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class SimpleTableDraggableReorderButton extends StatelessWidget {
   const SimpleTableDraggableReorderButton({
@@ -13,6 +12,7 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
     required this.isShowingMenu,
     required this.type,
     required this.editorState,
+    required this.simpleTableContext,
   });
 
   final Node node;
@@ -20,6 +20,7 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
   final ValueNotifier<bool> isShowingMenu;
   final SimpleTableMoreActionType type;
   final EditorState editorState;
+  final SimpleTableContext simpleTableContext;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +32,9 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
         type: type,
         index: index,
       ),
+      onDragStarted: _startDragging,
+      onDragCompleted: _stopDragging,
+      onDraggableCanceled: (_, __) => _stopDragging(),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {},
@@ -40,6 +44,24 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _startDragging() {
+    switch (type) {
+      case SimpleTableMoreActionType.column:
+        simpleTableContext.isDraggingColumn.value = (true, index);
+      case SimpleTableMoreActionType.row:
+        simpleTableContext.isDraggingRow.value = (true, index);
+    }
+  }
+
+  void _stopDragging() {
+    switch (type) {
+      case SimpleTableMoreActionType.column:
+        simpleTableContext.isDraggingColumn.value = (false, -1);
+      case SimpleTableMoreActionType.row:
+        simpleTableContext.isDraggingRow.value = (false, -1);
+    }
   }
 }
 
@@ -138,19 +160,23 @@ class _SimpleTableFeedbackState extends State<SimpleTableFeedback> {
       color: Colors.red.withOpacity(0.2),
       width: 200,
       height: 100,
-      alignment: Alignment.topLeft,
-      child: Provider.value(
-        value: widget.editorState,
-        child: SimpleTableWidget(
-          node: dummyNode,
-          simpleTableContext: simpleTableContext,
-          enableAddColumnButton: false,
-          enableAddRowButton: false,
-          enableAddColumnAndRowButton: false,
-          enableHoverEffect: false,
-          isFeedback: true,
-        ),
+      alignment: Alignment.center,
+      child: FlowyText(
+        '${widget.type.toString()} - ${widget.index}',
+        fontSize: 18.0,
       ),
+      // Provider.value(
+      //   value: widget.editorState,
+      //   child: SimpleTableWidget(
+      //     node: dummyNode,
+      //     simpleTableContext: simpleTableContext,
+      //     enableAddColumnButton: false,
+      //     enableAddRowButton: false,
+      //     enableAddColumnAndRowButton: false,
+      //     enableHoverEffect: false,
+      //     isFeedback: true,
+      //   ),
+      // ),
     );
   }
 
