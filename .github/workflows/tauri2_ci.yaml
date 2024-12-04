@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/tauri2_ci.yaml"
       - "frontend/rust-lib/**"
+    paths-ignore:
       - "frontend/appflowy_web_app/**"
       - "frontend/resources/**"
 
