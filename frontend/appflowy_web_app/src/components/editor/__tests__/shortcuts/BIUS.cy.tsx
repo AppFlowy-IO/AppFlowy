@@ -67,11 +67,17 @@ describe('BIUS.cy', () => {
 
   it('should handle `Mod+B/I/U` and `Mod + Shift + S` key press', () => {
     cy.selectMultipleText(['ter parag']);
+
     cy.get('@editor').focus();
+    cy.wait(500);
     cy.get('@editor').realPress([getModKey(), 'b']);
+    cy.wait(50);
     cy.get('@editor').realPress([getModKey(), 'i']);
+    cy.wait(50);
     cy.get('@editor').realPress([getModKey(), 'u']);
+    cy.wait(50);
     cy.get('@editor').realPress([getModKey(), 'Shift', 's']);
+    cy.wait(50);
     assertJSON([
       {
         ...initialData[0],
@@ -85,10 +91,15 @@ describe('BIUS.cy', () => {
     ]);
 
     cy.selectMultipleText(['sted toggle list', 'paragraph 2']);
+    cy.wait(50);
     cy.get('@editor').realPress([getModKey(), 'b']);
+    cy.wait(50);
     cy.get('@editor').realPress([getModKey(), 'i']);
+    cy.wait(50);
     cy.get('@editor').realPress([getModKey(), 'u']);
+    cy.wait(50);
     cy.get('@editor').realPress([getModKey(), 'Shift', 's']);
+    cy.wait(50);
     assertJSON([
       {
         ...initialData[0],

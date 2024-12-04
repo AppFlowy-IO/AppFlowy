@@ -102,7 +102,7 @@ const EditorEditable = () => {
     const currentTarget = e.currentTarget as HTMLElement;
     const bottomArea = currentTarget.getBoundingClientRect().bottom - 36 * 4;
 
-    if (e.clientY > bottomArea) {
+    if (e.clientY > bottomArea && e.clientY < (bottomArea + 36)) {
       const lastBlock = editor.children[editor.children.length - 1] as SlateElement;
       const isEmptyLine = CustomEditor.getBlockTextContent(lastBlock) === '';
       const type = lastBlock.type;

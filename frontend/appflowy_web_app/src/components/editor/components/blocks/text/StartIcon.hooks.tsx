@@ -40,7 +40,7 @@ export function useStartIcon (node: TextNode) {
       return null;
     }
 
-    const classList = ['text-block-icon relative w-6 h-6'];
+    const classList = ['text-block-icon relative select-none w-6 h-6'];
 
     return <Component
       className={classList.join(' ')}

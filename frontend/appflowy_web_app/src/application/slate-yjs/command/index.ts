@@ -151,6 +151,8 @@ export const CustomEditor = {
   },
 
   deleteBlockBackward (editor: YjsEditor, at?: BaseRange) {
+    console.trace('deleteBlockBackward', editor.selection, at);
+
     const sharedRoot = getSharedRoot(editor);
     const newAt = getSelectionOrThrow(editor, at);
 

@@ -30,7 +30,7 @@ describe('Markdown editing', () => {
     expectedJson = [{
       type: 'paragraph',
       data: {},
-      text: [{ insert: 'First ' }, { insert: 'bold', attributes: { bold: true } }, { insert: 'paragraph' }],
+      text: [{ insert: 'First ' }, { insert: 'bold', attributes: { bold: true } }, { insert: '\u200Cparagraph' }],
       children: [],
     }];
     assertJSON(expectedJson);
@@ -213,7 +213,7 @@ describe('Markdown editing', () => {
       {
         type: 'paragraph',
         data: {},
-        text: [{ insert: 'italic', attributes: { italic: true } }],
+        text: [{ insert: 'italic', attributes: { italic: true } }, { insert: '\u200C' }],
         children: [],
       },
     ];
@@ -225,10 +225,15 @@ describe('Markdown editing', () => {
       {
         type: 'paragraph',
         data: {},
-        text: [{ insert: 'italic', attributes: { italic: true } }, {
-          insert: 'bold italic',
-          attributes: { bold: true, italic: true },
-        }],
+        text: [
+          { insert: 'italic', attributes: { italic: true } },
+          { insert: '\u200C' },
+          {
+            insert: 'bold italic',
+            attributes: { bold: true },
+          }, {
+            insert: '\u200C',
+          }],
         children: [],
       },
     ];
@@ -241,14 +246,17 @@ describe('Markdown editing', () => {
       {
         type: 'paragraph',
         data: {},
-        text: [{ insert: 'italic', attributes: { italic: true } }, {
-          insert: 'bold italic ',
-          attributes: { bold: true, italic: true },
-        },
+        text: [{ insert: 'italic', attributes: { italic: true } },
+          { insert: '\u200C' },
+          {
+            insert: 'bold italic',
+            attributes: { bold: true },
+          },
+          { insert: '\u200C ' },
           {
             insert: 'code',
-            attributes: { code: true, italic: true, bold: true },
-          }],
+            attributes: { code: true },
+          }, { insert: '\u200C' }],
         children: [],
       },
     ];
@@ -278,7 +286,7 @@ describe('Markdown editing', () => {
       {
         type: 'paragraph',
         data: {},
-        text: [{ insert: 'strikethrough', attributes: { strikethrough: true } }],
+        text: [{ insert: 'strikethrough', attributes: { strikethrough: true } }, { insert: '\u200C' }],
         children: [],
       },
     ];
@@ -569,7 +577,7 @@ describe('Markdown editing', () => {
         text: [{ insert: 'Link: ' }, {
           insert: 'Click here',
           attributes: { href: 'https://example.com' },
-        }],
+        }, { insert: '\u200C' }],
         children: [],
       },
     ]);
@@ -582,7 +590,7 @@ describe('Markdown editing', () => {
         text: [{ insert: 'Link: ' }, {
           insert: 'Click here',
           attributes: { href: 'https://example.com' },
-        }, { insert: 'link anchor' }],
+        }, { insert: '\u200Clink anchor' }],
         children: [],
       },
     ];

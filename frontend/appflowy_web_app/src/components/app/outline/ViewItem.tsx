@@ -67,7 +67,7 @@ function ViewItem ({ view, width, level = 0, renderExtra, expandIds, toggleExpan
         style={{
           backgroundColor: selected ? 'var(--fill-list-hover)' : undefined,
           cursor: view.layout === ViewLayout.AIChat ? 'not-allowed' : 'pointer',
-          paddingLeft: view.children?.length ? 0 : (level + 1) + 'em',
+          paddingLeft: view.children?.length ? ((level * 16) + 'px') : ((level * 16) + 24) + 'px',
         }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}

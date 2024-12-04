@@ -1,5 +1,6 @@
 import { PopoverOrigin } from '@mui/material/Popover/Popover';
-import React, { useState } from 'react';
+import isEqual from 'lodash-es/isEqual';
+import React, { useEffect, useState } from 'react';
 import { Popover as PopoverComponent, PopoverProps as PopoverComponentProps } from '@mui/material';
 
 const defaultProps: Partial<PopoverComponentProps> = {
@@ -145,6 +146,22 @@ export function Popover ({
 
     setOrigins(newOrigins);
   };
+
+  useEffect(() => {
+    if (!adjustOrigins) {
+      setOrigins(prev => {
+        if (isEqual(prev.anchorOrigin, anchorOrigin) && isEqual(prev.transformOrigin, transformOrigin)) {
+          return prev;
+        }
+
+        return {
+          anchorOrigin,
+          transformOrigin,
+        };
+      });
+    }
+
+  }, [adjustOrigins, transformOrigin, anchorOrigin]);
 
   return (
     <PopoverComponent

@@ -74,7 +74,7 @@
 
 .block-element[data-block-type="callout"] {
   > div > .block-element {
-    margin-left: 38px !important;
+    margin-left: 58px !important;
   }
 }
 
@@ -140,6 +140,12 @@
     @apply my-1;
     &::selection {
       @apply bg-transparent;
+    }
+
+    .text-block-icon {
+      &::selection {
+        @apply bg-transparent;
+      }
     }
   }
 }

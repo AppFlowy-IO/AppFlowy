@@ -20,6 +20,7 @@ export function withDelete (editor: ReactEditor) {
 
     const [node] = getBlockEntry(editor as YjsEditor);
 
+    console.log('===selection', selection);
     if (Range.isCollapsed(selection)) {
       if (editor.isElementReadOnly(node) && node.blockId) {
 
@@ -54,6 +55,7 @@ export function withDelete (editor: ReactEditor) {
     const { selection } = editor;
 
     if (!selection) return;
+
     if (options?.direction === 'backward') {
       CustomEditor.deleteBlockBackward(editor as YjsEditor, selection);
     } else {

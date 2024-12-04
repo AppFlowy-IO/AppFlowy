@@ -34,7 +34,7 @@ function OutlineIcon ({ isExpanded, setIsExpanded, level }: {
         setIsExpanded(true);
       }}
     >
-      <ChevronDownIcon className={'h-[1em] w-[1em] -rotate-90 transform'} />
+      <ChevronDownIcon className={'h-[1em] w-[1em] -rotate-90 transform  hover:bg-fill-list-hover rounded-[2px]'} />
     </button>
   );
 }

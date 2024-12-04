@@ -1,14 +1,26 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import { BlockType } from '@/application/types';
-import { Popover } from '@/components/_shared/popover';
+import { Origins, Popover } from '@/components/_shared/popover';
 import { usePopoverContext } from '@/components/editor/components/block-popover/BlockPopoverContext';
 import FileBlockPopoverContent from '@/components/editor/components/block-popover/FileBlockPopoverContent';
 import ImageBlockPopoverContent from '@/components/editor/components/block-popover/ImageBlockPopoverContent';
 import { useEditorContext } from '@/components/editor/EditorContext';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import { debounce } from 'lodash-es';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ReactEditor, useSlateStatic } from 'slate-react';
 import MathEquationPopoverContent from './MathEquationPopoverContent';
+
+const defaultOrigins: Origins = {
+  anchorOrigin: {
+    vertical: 'bottom',
+    horizontal: 'center',
+  },
+  transformOrigin: {
+    vertical: 'top',
+    horizontal: 'center',
+  },
+};
 
 function BlockPopover () {
   const {
@@ -20,6 +32,7 @@ function BlockPopover () {
   } = usePopoverContext();
   const { setSelectedBlockIds } = useEditorContext();
   const editor = useSlateStatic() as YjsEditor;
+  const [origins, setOrigins] = React.useState<Origins>(defaultOrigins);
 
   const handleClose = useCallback(() => {
     window.getSelection()?.removeAllRanges();
@@ -55,26 +68,61 @@ function BlockPopover () {
     }
   }, [type, blockId, handleClose]);
 
+  const paperRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (blockId) {
+
       setSelectedBlockIds?.([blockId]);
     } else {
       setSelectedBlockIds?.([]);
     }
   }, [blockId, setSelectedBlockIds]);
 
+  const debouncePosition = useMemo(() => {
+    return debounce(() => {
+      if (!anchorEl || !paperRef.current) return;
+
+      const rect = anchorEl.getBoundingClientRect();
+      const paperRect = paperRef.current.getBoundingClientRect();
+
+      if (rect.bottom + paperRect.height > window.innerHeight) {
+        setOrigins({
+          anchorOrigin: {
+            vertical: -8,
+            horizontal: 'center',
+          },
+          transformOrigin: {
+            vertical: 'bottom',
+            horizontal: 'center',
+          },
+        });
+        return;
+      }
+
+    }, 50);
+  }, [anchorEl]);
+
+  useEffect(() => {
+    if (!open) return;
+    editor.deselect();
+  }, [open, editor]);
+
   return <Popover
     open={open}
     onClose={handleClose}
     anchorEl={anchorEl}
-    transformOrigin={{
-      vertical: 'top',
-      horizontal: 'center',
+    adjustOrigins={false}
+    slotProps={{
+      paper: {
+        ref: paperRef,
+      },
     }}
-    anchorOrigin={{
-      vertical: 'bottom',
-      horizontal: 'center',
+    onTransitionEnter={() => {
+      setOrigins(defaultOrigins);
     }}
+    onTransitionEnd={debouncePosition}
+    {...origins}
     disableRestoreFocus={true}
   >
     {content}

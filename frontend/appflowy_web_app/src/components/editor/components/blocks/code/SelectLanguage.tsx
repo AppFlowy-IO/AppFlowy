@@ -10,10 +10,12 @@ function SelectLanguage ({
   readOnly,
   language = 'Auto',
   onChangeLanguage,
+  onClose,
 }: {
   readOnly?: boolean;
   language: string;
   onChangeLanguage: (language: string) => void;
+  onClose?: () => void;
 }) {
   const { t } = useTranslation();
   const ref = useRef<HTMLButtonElement>(null);
@@ -36,7 +38,8 @@ function SelectLanguage ({
   const handleClose = useCallback(() => {
     setOpen(false);
     setSearch('');
-  }, []);
+    onClose?.();
+  }, [onClose]);
 
   const handleConfirm = useCallback(
     (key: string) => {

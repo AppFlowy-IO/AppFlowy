@@ -1,7 +1,7 @@
 import {
   CONTAINER_BLOCK_TYPES,
   isEmbedBlockTypes,
-  LIST_BLOCK_TYPES,
+  LIST_BLOCK_TYPES, TEXT_BLOCK_TYPES,
   TOGGLE_BLOCK_TYPES,
 } from '@/application/slate-yjs/command/const';
 import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
@@ -277,8 +277,9 @@ export function handleCollapsedBreakWithTxn (editor: YjsEditor, sharedRoot: YSha
     const point = Editor.start(editor, at);
 
     const parent = getParent(blockId, sharedRoot);
+    const parentType = parent?.get(YjsEditorKey.block_type);
 
-    if (blockType !== BlockType.Paragraph && parent?.get(YjsEditorKey.block_type) === BlockType.QuoteBlock && LIST_BLOCK_TYPES.includes(blockType)) {
+    if (blockType !== BlockType.Paragraph && parentType && [BlockType.QuoteBlock, BlockType.CalloutBlock].includes(parentType)) {
       handleNonParagraphBlockBackspaceAndEnterWithTxn(editor, sharedRoot, block, point);
       return;
     }
@@ -311,6 +312,7 @@ export function removeRangeWithTxn (editor: YjsEditor, sharedRoot: YSharedRoot, 
   const operations: (() => void)[] = [];
   const isSameBlock = startBlock[0].blockId === endBlock[0].blockId;
 
+  console.log('startBlock', { startBlock, startRange });
   operations.push(() => {
     deleteSlateRangeInBlock(sharedRoot, editor, startBlock[0], startRange);
     if (!isSameBlock) {
@@ -555,6 +557,19 @@ export function getNextSiblingBlockPath (editor: Editor, blockId: string) {
   return nextPath;
 }
 
+export function getBlockTextRange (editor: YjsEditor, entry: NodeEntry<Element>) {
+  const [node, path] = entry;
+  const textId = TEXT_BLOCK_TYPES.includes(node.type as BlockType) ? (node.children[0] as Element)?.textId : null;
+
+  const start = Editor.start(editor, path);
+
+  if (!textId) {
+    return [start, editor.end(path)];
+  }
+
+  return [start, Editor.end(editor, [...path, 0])];
+}
+
 export function getAffectedBlocks (editor: YjsEditor, range: Range): {
   startBlock: NodeEntry<Element>;
   endBlock: NodeEntry<Element>;
@@ -563,8 +578,6 @@ export function getAffectedBlocks (editor: YjsEditor, range: Range): {
   endRange: BaseRange;
 } {
   const [start, end] = Range.edges(range);
-  let startRange = range;
-  let endRange = range;
 
   const startBlock = Editor.above(editor, {
     at: start,
@@ -575,6 +588,9 @@ export function getAffectedBlocks (editor: YjsEditor, range: Range): {
     at: end,
     match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined,
   }) as NodeEntry<Element>;
+
+  let startRange = range;
+  let endRange = range;
 
   const middleBlocks: NodeEntry<Element>[] = [];
 
@@ -593,8 +609,14 @@ export function getAffectedBlocks (editor: YjsEditor, range: Range): {
       }
     }
 
-    startRange = Editor.range(editor, start, Editor.end(editor, startBlock[1]));
-    endRange = Editor.range(editor, Editor.start(editor, endBlock[1]), end);
+    startRange = {
+      anchor: start,
+      focus: getBlockTextRange(editor, startBlock)[1],
+    };
+    endRange = {
+      anchor: Editor.start(editor, endBlock[1]),
+      focus: end,
+    };
   }
 
   return { startBlock, endBlock, middleBlocks, startRange, endRange };

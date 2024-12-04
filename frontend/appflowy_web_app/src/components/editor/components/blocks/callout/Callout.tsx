@@ -5,7 +5,6 @@ export const Callout = memo(
   forwardRef<HTMLDivElement, EditorElementProps<CalloutNode>>(({ node: _node, children, ...attributes }, ref) => {
     return (
       <>
-
         <div
           ref={ref}
           {...attributes}

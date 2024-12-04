@@ -36,9 +36,9 @@ import { ReactComponent as OutlineIcon } from '@/assets/slash_menu_icon_outline.
 import { ReactComponent as QuoteIcon } from '@/assets/slash_menu_icon_quote.svg';
 import { ReactComponent as TextIcon } from '@/assets/slash_menu_icon_text.svg';
 import { ReactComponent as ToggleListIcon } from '@/assets/slash_menu_icon_toggle.svg';
-import { ReactComponent as ToggleHeading1Icon } from '@/assets/slash_menu_icon_toggle_heading1.svg';
-import { ReactComponent as ToggleHeading2Icon } from '@/assets/slash_menu_icon_toggle_heading2.svg';
-import { ReactComponent as ToggleHeading3Icon } from '@/assets/slash_menu_icon_toggle_heading3.svg';
+import { ReactComponent as ToggleHeading1Icon } from '@/assets/toggle_heading1.svg';
+import { ReactComponent as ToggleHeading2Icon } from '@/assets/toggle_heading2.svg';
+import { ReactComponent as ToggleHeading3Icon } from '@/assets/toggle_heading3.svg';
 import { ReactComponent as MathIcon } from '@/assets/slash_menu_icon_math_equation.svg';
 import { notify } from '@/components/_shared/notify';
 import { Popover } from '@/components/_shared/popover';

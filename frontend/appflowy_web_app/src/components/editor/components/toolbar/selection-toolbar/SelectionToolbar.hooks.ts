@@ -21,7 +21,7 @@ export function useVisible () {
   const focus = useFocused();
 
   const isExpanded = selection ? Range.isExpanded(selection) : false;
-
+  
   const selectedText = selection ? editor.string(selection, {
     voids: true,
   }) : '';

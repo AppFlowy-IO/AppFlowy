@@ -19,7 +19,7 @@ export const MathEquation = memo(
       const newClassName = useMemo(() => {
         const classList = [
           className,
-          'w-full bg-bg-body py-2',
+          'w-full',
         ];
 
         if (!readOnly) {
