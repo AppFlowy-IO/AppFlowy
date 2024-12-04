@@ -74,7 +74,7 @@ function TitleEditable ({
       ref={contentRef}
       suppressContentEditableWarning={true}
       id={`editor-title-${viewId}`}
-      className={'relative flex-1 cursor-text focus:outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-text-placeholder'}
+      className={'relative flex-1 custom-caret cursor-text focus:outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-text-placeholder'}
       data-placeholder={t('menuAppHeader.defaultNewPageName')}
       contentEditable={true}
       aria-readonly={false}

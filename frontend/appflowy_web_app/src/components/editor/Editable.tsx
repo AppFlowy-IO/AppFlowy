@@ -139,7 +139,7 @@ const EditorEditable = () => {
             return [...codeDecoration, ...decoration];
           }}
           id={`editor-${viewId}`}
-          className={'outline-none scroll-mb-[100px] scroll-mt-[300px] pb-36 min-w-0 max-w-full w-[988px] max-sm:px-6 px-24 focus:outline-none'}
+          className={'outline-none custom-caret scroll-mb-[100px] scroll-mt-[300px] pb-36 min-w-0 max-w-full w-[988px] max-sm:px-6 px-24 focus:outline-none'}
           renderLeaf={Leaf}
           renderElement={renderElement}
           readOnly={readOnly}

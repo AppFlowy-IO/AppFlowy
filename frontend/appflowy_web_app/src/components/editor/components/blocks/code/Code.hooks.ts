@@ -43,7 +43,7 @@ export function useCodeBlock (node: CodeNode) {
 
       if (!prismLanguage) {
         const script = document.createElement('script');
-        
+
         script.src = `https://cdnjs.cloudflare.com/ajax/libs/prism/1.26.0/components/prism-${detectedLanguage.toLowerCase()}.min.js`;
         document.body.appendChild(script);
         script.onload = () => {

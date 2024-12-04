@@ -6,14 +6,15 @@ import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
 import {
   BlockData,
   BlockType,
-  CalloutBlockData, DatabaseNodeData,
+  CalloutBlockData,
   HeadingBlockData,
   SubpageNodeData,
   ToggleListBlockData,
   ViewLayout,
+  // DatabaseNodeData
 } from '@/application/types';
 import { ReactComponent as AddDocumentIcon } from '@/assets/slash_menu_icon_add_doc.svg';
-import { ReactComponent as AIWriterIcon } from '@/assets/slash_menu_icon_ai_writer.svg';
+// import { ReactComponent as AIWriterIcon } from '@/assets/slash_menu_icon_ai_writer.svg';
 import { ReactComponent as BulletedListIcon } from '@/assets/slash_menu_icon_bulleted_list.svg';
 import { ReactComponent as CalloutIcon } from '@/assets/slash_menu_icon_callout.svg';
 import { ReactComponent as TodoListIcon } from '@/assets/slash_menu_icon_checkbox.svg';
@@ -23,9 +24,9 @@ import { ReactComponent as DocumentIcon } from '@/assets/slash_menu_icon_doc.svg
 
 import { ReactComponent as EmojiIcon } from '@/assets/slash_menu_icon_emoji.svg';
 import { ReactComponent as FileIcon } from '@/assets/slash_menu_icon_file.svg';
-import { ReactComponent as GridIcon } from '@/assets/slash_menu_icon_grid.svg';
-import { ReactComponent as BoardIcon } from '@/assets/slash_menu_icon_kanban.svg';
-import { ReactComponent as CalendarIcon } from '@/assets/slash_menu_icon_calendar.svg';
+// import { ReactComponent as GridIcon } from '@/assets/slash_menu_icon_grid.svg';
+// import { ReactComponent as BoardIcon } from '@/assets/slash_menu_icon_kanban.svg';
+// import { ReactComponent as CalendarIcon } from '@/assets/slash_menu_icon_calendar.svg';
 import { ReactComponent as Heading1Icon } from '@/assets/slash_menu_icon_h1.svg';
 import { ReactComponent as Heading2Icon } from '@/assets/slash_menu_icon_h2.svg';
 import { ReactComponent as Heading3Icon } from '@/assets/slash_menu_icon_h3.svg';
@@ -131,317 +132,321 @@ export function SlashPanel ({
     keywords: string[];
     onClick?: () => void;
   }[] = useMemo(() => {
-    return [{
-      label: t('document.slashMenu.name.aiWriter'),
-      key: 'aiWriter',
-      icon: <AIWriterIcon />,
-      keywords: ['ai', 'writer'],
-    }, {
-      label: t('document.slashMenu.name.text'),
-      key: 'text',
-      icon: <TextIcon />,
-      onClick: () => {
-        turnInto(BlockType.Paragraph, {});
-      },
-      keywords: ['text', 'paragraph'],
-    }, {
-      label: t('document.slashMenu.name.heading1'),
-      key: 'heading1',
-      icon: <Heading1Icon />,
-      keywords: ['heading1', 'h1', 'heading'],
-      onClick: () => {
-        turnInto(BlockType.HeadingBlock, {
-          level: 1,
-        } as HeadingBlockData);
-      },
-    }, {
-      label: t('document.slashMenu.name.heading2'),
-      key: 'heading2',
-      icon: <Heading2Icon />,
-      keywords: ['heading2', 'h2', 'subheading', 'heading'],
-      onClick: () => {
-        turnInto(BlockType.HeadingBlock, {
-          level: 2,
-        } as HeadingBlockData);
-      },
-    }, {
-      label: t('document.slashMenu.name.heading3'),
-      key: 'heading3',
-      icon: <Heading3Icon />,
-      keywords: ['heading3', 'h3', 'subheading', 'heading'],
-      onClick: () => {
-        turnInto(BlockType.HeadingBlock, {
-          level: 3,
-        } as HeadingBlockData);
-      },
-    }, {
-      label: t('document.slashMenu.name.image'),
-      key: 'image',
-      icon: <ImageIcon />,
-      keywords: ['image', 'img'],
-      onClick: () => {
-        turnInto(BlockType.ImageBlock, {});
-      },
-    }, {
-      label: t('document.slashMenu.name.bulletedList'),
-      key: 'bulletedList',
-      icon: <BulletedListIcon />,
-      keywords: ['bulleted', 'list'],
-      onClick: () => {
-        turnInto(BlockType.BulletedListBlock, {});
-      },
-    }, {
-      label: t('document.slashMenu.name.numberedList'),
-      key: 'numberedList',
-      icon: <NumberedListIcon />,
-      keywords: ['numbered', 'list'],
-      onClick: () => {
-        turnInto(BlockType.NumberedListBlock, {});
-      },
-    }, {
-      label: t('document.slashMenu.name.todoList'),
-      key: 'todoList',
-      icon: <TodoListIcon />,
-      keywords: ['todo', 'list'],
-      onClick: () => {
-        turnInto(BlockType.TodoListBlock, {});
-      },
-    }, {
-      label: t('document.slashMenu.name.divider'),
-      key: 'divider',
-      icon: <DividerIcon />,
-      keywords: ['divider', 'line'],
-      onClick: () => {
-        turnInto(BlockType.DividerBlock, {});
-      },
-    }, {
-      label: t('document.slashMenu.name.quote'),
-      key: 'quote',
-      icon: <QuoteIcon />,
-      keywords: ['quote'],
-      onClick: () => {
-        turnInto(BlockType.QuoteBlock, {});
-      },
-    }, {
-      label: t('document.slashMenu.name.linkedDoc'),
-      key: 'linkedDoc',
-      icon: <DocumentIcon />,
-      keywords: ['linked', 'doc'],
-      onClick: () => {
-        const rect = getRangeRect();
-
-        if (!rect) return;
-        openPanel(PanelType.PageReference, { top: rect.top, left: rect.left });
-      },
-    }, {
-      label: t('document.menuName'),
-      key: 'document',
-      icon: <AddDocumentIcon />,
-      keywords: ['document', 'doc', 'page'],
-      onClick: async () => {
-        if (!viewId || !addPage || !openPageModal) return;
-        try {
-          const newViewId = await addPage(viewId, {
-            layout: ViewLayout.Document,
-          });
-
-          turnInto(BlockType.SubpageBlock, {
-            view_id: newViewId,
-          } as SubpageNodeData);
-
-          openPageModal(newViewId);
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (e: any) {
-          notify.error(e.message);
-        }
-      },
-    }, {
-      label: t('document.slashMenu.name.grid'),
-      key: 'grid',
-      icon: <GridIcon />,
-      keywords: ['grid', 'table'],
-      onClick: async () => {
-        if (!viewId || !addPage || !openPageModal) return;
-        try {
-          const newViewId = await addPage(viewId, {
-            layout: ViewLayout.Grid,
-            name: 'Table',
-          });
-
-          turnInto(BlockType.GridBlock, {
-            view_id: newViewId,
-          } as DatabaseNodeData);
-
-          openPageModal(newViewId);
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (e: any) {
-          notify.error(e.message);
-        }
-      },
-    }, {
-      label: t('document.slashMenu.name.linkedGrid'),
-      key: 'linkedGrid',
-      icon: <GridIcon />,
-      keywords: ['linked', 'grid', 'table'],
-    }, {
-      label: t('document.slashMenu.name.kanban'),
-      key: 'board',
-      icon: <BoardIcon />,
-      keywords: ['board', 'kanban'],
-      onClick: async () => {
-        if (!viewId || !addPage || !openPageModal) return;
-        try {
-          const newViewId = await addPage(viewId, {
-            layout: ViewLayout.Board,
-            name: 'Board',
-          });
-
-          turnInto(BlockType.BoardBlock, {
-            view_id: newViewId,
-          } as DatabaseNodeData);
-
-          openPageModal(newViewId);
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (e: any) {
-          notify.error(e.message);
-        }
-      },
-    }, {
-      label: t('document.slashMenu.name.linkedKanban'),
-      key: 'linkedKanban',
-      icon: <BoardIcon />,
-      keywords: ['linked', 'kanban', 'board'],
-    }, {
-      label: t('document.slashMenu.name.calendar'),
-      key: 'calendar',
-      icon: <CalendarIcon />,
-      keywords: ['calendar', 'date'],
-      onClick: async () => {
-        if (!viewId || !addPage || !openPageModal) return;
-        try {
-          const newViewId = await addPage(viewId, {
-            layout: ViewLayout.Calendar,
-            name: 'Calendar',
-          });
-
-          turnInto(BlockType.BoardBlock, {
-            view_id: newViewId,
-          } as DatabaseNodeData);
-
-          openPageModal(newViewId);
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (e: any) {
-          notify.error(e.message);
-        }
-      },
-    }, {
-      label: t('document.slashMenu.name.linkedCalendar'),
-      key: 'linkedCalendar',
-      icon: <CalendarIcon />,
-      keywords: ['linked', 'calendar', 'date'],
-    }, {
-      label: t('document.slashMenu.name.callout'),
-      key: 'callout',
-      icon: <CalloutIcon />,
-      keywords: ['callout'],
-      onClick: () => {
-        turnInto(BlockType.CalloutBlock, {
-          icon: '📌',
-        } as CalloutBlockData);
-      },
-    }, {
-      label: t('document.slashMenu.name.outline'),
-      key: 'outline',
-      icon: <OutlineIcon />,
-      keywords: ['outline', 'table', 'contents'],
-      onClick: () => {
-        turnInto(BlockType.OutlineBlock, {});
-      },
-    }, {
-      label: t('document.slashMenu.name.mathEquation'),
-      key: 'math',
-      icon: <MathIcon />,
-      keywords: ['math', 'equation', 'formula'],
-      onClick: () => {
-        turnInto(BlockType.EquationBlock, {});
-      },
-    }, {
-      label: t('document.slashMenu.name.code'),
-      key: 'code',
-      icon: <CodeIcon />,
-      keywords: ['code', 'block'],
-      onClick: () => {
-        turnInto(BlockType.CodeBlock, {});
-      },
-    }, {
-      label: t('document.slashMenu.name.toggleList'),
-      key: 'toggleList',
-      icon: <ToggleListIcon />,
-      keywords: ['toggle', 'list'],
-      onClick: () => {
-        turnInto(BlockType.ToggleListBlock, {
-          collapsed: false,
-        } as ToggleListBlockData);
-      },
-    }, {
-      label: t('document.slashMenu.name.toggleHeading1'),
-      key: 'toggleHeading1',
-      icon: <ToggleHeading1Icon />,
-      keywords: ['toggle', 'heading1', 'h1', 'heading'],
-      onClick: () => {
-        turnInto(BlockType.ToggleListBlock, {
-          collapsed: false,
-          level: 1,
-        } as ToggleListBlockData);
-      },
-    }, {
-      label: t('document.slashMenu.name.toggleHeading2'),
-      key: 'toggleHeading2',
-      icon: <ToggleHeading2Icon />,
-      keywords: ['toggle', 'heading2', 'h2', 'subheading', 'heading'],
-      onClick: () => {
-        turnInto(BlockType.ToggleListBlock, {
-          collapsed: false,
-          level: 2,
-        } as ToggleListBlockData);
-      },
-    }, {
-      label: t('document.slashMenu.name.toggleHeading3'),
-      key: 'toggleHeading3',
-      icon: <ToggleHeading3Icon />,
-      keywords: ['toggle', 'heading3', 'h3', 'subheading', 'heading'],
-      onClick: () => {
-        turnInto(BlockType.ToggleListBlock, {
-          collapsed: false,
-          level: 3,
-        } as ToggleListBlockData);
-      },
-    }, {
-      label: t('document.slashMenu.name.emoji'),
-      key: 'emoji',
-      icon: <EmojiIcon />,
-      keywords: ['emoji'],
-      onClick: () => {
-        setTimeout(() => {
+    return [
+      //   {
+      //   label: t('document.slashMenu.name.aiWriter'),
+      //   key: 'aiWriter',
+      //   icon: <AIWriterIcon />,
+      //   keywords: ['ai', 'writer'],
+      // },
+      {
+        label: t('document.slashMenu.name.text'),
+        key: 'text',
+        icon: <TextIcon />,
+        onClick: () => {
+          turnInto(BlockType.Paragraph, {});
+        },
+        keywords: ['text', 'paragraph'],
+      }, {
+        label: t('document.slashMenu.name.heading1'),
+        key: 'heading1',
+        icon: <Heading1Icon />,
+        keywords: ['heading1', 'h1', 'heading'],
+        onClick: () => {
+          turnInto(BlockType.HeadingBlock, {
+            level: 1,
+          } as HeadingBlockData);
+        },
+      }, {
+        label: t('document.slashMenu.name.heading2'),
+        key: 'heading2',
+        icon: <Heading2Icon />,
+        keywords: ['heading2', 'h2', 'subheading', 'heading'],
+        onClick: () => {
+          turnInto(BlockType.HeadingBlock, {
+            level: 2,
+          } as HeadingBlockData);
+        },
+      }, {
+        label: t('document.slashMenu.name.heading3'),
+        key: 'heading3',
+        icon: <Heading3Icon />,
+        keywords: ['heading3', 'h3', 'subheading', 'heading'],
+        onClick: () => {
+          turnInto(BlockType.HeadingBlock, {
+            level: 3,
+          } as HeadingBlockData);
+        },
+      }, {
+        label: t('document.slashMenu.name.image'),
+        key: 'image',
+        icon: <ImageIcon />,
+        keywords: ['image', 'img'],
+        onClick: () => {
+          turnInto(BlockType.ImageBlock, {});
+        },
+      }, {
+        label: t('document.slashMenu.name.bulletedList'),
+        key: 'bulletedList',
+        icon: <BulletedListIcon />,
+        keywords: ['bulleted', 'list'],
+        onClick: () => {
+          turnInto(BlockType.BulletedListBlock, {});
+        },
+      }, {
+        label: t('document.slashMenu.name.numberedList'),
+        key: 'numberedList',
+        icon: <NumberedListIcon />,
+        keywords: ['numbered', 'list'],
+        onClick: () => {
+          turnInto(BlockType.NumberedListBlock, {});
+        },
+      }, {
+        label: t('document.slashMenu.name.todoList'),
+        key: 'todoList',
+        icon: <TodoListIcon />,
+        keywords: ['todo', 'list'],
+        onClick: () => {
+          turnInto(BlockType.TodoListBlock, {});
+        },
+      }, {
+        label: t('document.slashMenu.name.divider'),
+        key: 'divider',
+        icon: <DividerIcon />,
+        keywords: ['divider', 'line'],
+        onClick: () => {
+          turnInto(BlockType.DividerBlock, {});
+        },
+      }, {
+        label: t('document.slashMenu.name.quote'),
+        key: 'quote',
+        icon: <QuoteIcon />,
+        keywords: ['quote'],
+        onClick: () => {
+          turnInto(BlockType.QuoteBlock, {});
+        },
+      }, {
+        label: t('document.slashMenu.name.linkedDoc'),
+        key: 'linkedDoc',
+        icon: <DocumentIcon />,
+        keywords: ['linked', 'doc', 'page', 'document'],
+        onClick: () => {
           const rect = getRangeRect();
 
           if (!rect) return;
-          setEmojiPosition({
-            top: rect.top,
-            left: rect.left,
-          });
-        }, 50);
+          openPanel(PanelType.PageReference, { top: rect.top, left: rect.left });
+        },
+      }, {
+        label: t('document.menuName'),
+        key: 'document',
+        icon: <AddDocumentIcon />,
+        keywords: ['document', 'doc', 'page', 'create', 'add'],
+        onClick: async () => {
+          if (!viewId || !addPage || !openPageModal) return;
+          try {
+            const newViewId = await addPage(viewId, {
+              layout: ViewLayout.Document,
+            });
 
+            turnInto(BlockType.SubpageBlock, {
+              view_id: newViewId,
+            } as SubpageNodeData);
+
+            openPageModal(newViewId);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } catch (e: any) {
+            notify.error(e.message);
+          }
+        },
       },
-    }, {
-      label: t('document.slashMenu.name.file'),
-      key: 'file',
-      icon: <FileIcon />,
-      keywords: ['file', 'upload'],
-      onClick: () => {
-        turnInto(BlockType.FileBlock, {});
-      },
-    }].filter((option) => {
+      //   {
+      //   label: t('document.slashMenu.name.grid'),
+      //   key: 'grid',
+      //   icon: <GridIcon />,
+      //   keywords: ['grid', 'table'],
+      //   onClick: async () => {
+      //     if (!viewId || !addPage || !openPageModal) return;
+      //     try {
+      //       const newViewId = await addPage(viewId, {
+      //         layout: ViewLayout.Grid,
+      //         name: 'Table',
+      //       });
+      //
+      //       turnInto(BlockType.GridBlock, {
+      //         view_id: newViewId,
+      //       } as DatabaseNodeData);
+      //
+      //       openPageModal(newViewId);
+      //       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      //     } catch (e: any) {
+      //       notify.error(e.message);
+      //     }
+      //   },
+      // }, {
+      //   label: t('document.slashMenu.name.linkedGrid'),
+      //   key: 'linkedGrid',
+      //   icon: <GridIcon />,
+      //   keywords: ['linked', 'grid', 'table'],
+      // }, {
+      //   label: t('document.slashMenu.name.kanban'),
+      //   key: 'board',
+      //   icon: <BoardIcon />,
+      //   keywords: ['board', 'kanban'],
+      //   onClick: async () => {
+      //     if (!viewId || !addPage || !openPageModal) return;
+      //     try {
+      //       const newViewId = await addPage(viewId, {
+      //         layout: ViewLayout.Board,
+      //         name: 'Board',
+      //       });
+      //
+      //       turnInto(BlockType.BoardBlock, {
+      //         view_id: newViewId,
+      //       } as DatabaseNodeData);
+      //
+      //       openPageModal(newViewId);
+      //       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      //     } catch (e: any) {
+      //       notify.error(e.message);
+      //     }
+      //   },
+      // }, {
+      //   label: t('document.slashMenu.name.linkedKanban'),
+      //   key: 'linkedKanban',
+      //   icon: <BoardIcon />,
+      //   keywords: ['linked', 'kanban', 'board'],
+      // }, {
+      //   label: t('document.slashMenu.name.calendar'),
+      //   key: 'calendar',
+      //   icon: <CalendarIcon />,
+      //   keywords: ['calendar', 'date'],
+      //   onClick: async () => {
+      //     if (!viewId || !addPage || !openPageModal) return;
+      //     try {
+      //       const newViewId = await addPage(viewId, {
+      //         layout: ViewLayout.Calendar,
+      //         name: 'Calendar',
+      //       });
+      //
+      //       turnInto(BlockType.BoardBlock, {
+      //         view_id: newViewId,
+      //       } as DatabaseNodeData);
+      //
+      //       openPageModal(newViewId);
+      //       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      //     } catch (e: any) {
+      //       notify.error(e.message);
+      //     }
+      //   },
+      // }, {
+      //   label: t('document.slashMenu.name.linkedCalendar'),
+      //   key: 'linkedCalendar',
+      //   icon: <CalendarIcon />,
+      //   keywords: ['linked', 'calendar', 'date'],
+      // },
+      {
+        label: t('document.slashMenu.name.callout'),
+        key: 'callout',
+        icon: <CalloutIcon />,
+        keywords: ['callout'],
+        onClick: () => {
+          turnInto(BlockType.CalloutBlock, {
+            icon: '📌',
+          } as CalloutBlockData);
+        },
+      }, {
+        label: t('document.slashMenu.name.outline'),
+        key: 'outline',
+        icon: <OutlineIcon />,
+        keywords: ['outline', 'table', 'contents'],
+        onClick: () => {
+          turnInto(BlockType.OutlineBlock, {});
+        },
+      }, {
+        label: t('document.slashMenu.name.mathEquation'),
+        key: 'math',
+        icon: <MathIcon />,
+        keywords: ['math', 'equation', 'formula'],
+        onClick: () => {
+          turnInto(BlockType.EquationBlock, {});
+        },
+      }, {
+        label: t('document.slashMenu.name.code'),
+        key: 'code',
+        icon: <CodeIcon />,
+        keywords: ['code', 'block'],
+        onClick: () => {
+          turnInto(BlockType.CodeBlock, {});
+        },
+      }, {
+        label: t('document.slashMenu.name.toggleList'),
+        key: 'toggleList',
+        icon: <ToggleListIcon />,
+        keywords: ['toggle', 'list'],
+        onClick: () => {
+          turnInto(BlockType.ToggleListBlock, {
+            collapsed: false,
+          } as ToggleListBlockData);
+        },
+      }, {
+        label: t('document.slashMenu.name.toggleHeading1'),
+        key: 'toggleHeading1',
+        icon: <ToggleHeading1Icon />,
+        keywords: ['toggle', 'heading1', 'h1', 'heading'],
+        onClick: () => {
+          turnInto(BlockType.ToggleListBlock, {
+            collapsed: false,
+            level: 1,
+          } as ToggleListBlockData);
+        },
+      }, {
+        label: t('document.slashMenu.name.toggleHeading2'),
+        key: 'toggleHeading2',
+        icon: <ToggleHeading2Icon />,
+        keywords: ['toggle', 'heading2', 'h2', 'subheading', 'heading'],
+        onClick: () => {
+          turnInto(BlockType.ToggleListBlock, {
+            collapsed: false,
+            level: 2,
+          } as ToggleListBlockData);
+        },
+      }, {
+        label: t('document.slashMenu.name.toggleHeading3'),
+        key: 'toggleHeading3',
+        icon: <ToggleHeading3Icon />,
+        keywords: ['toggle', 'heading3', 'h3', 'subheading', 'heading'],
+        onClick: () => {
+          turnInto(BlockType.ToggleListBlock, {
+            collapsed: false,
+            level: 3,
+          } as ToggleListBlockData);
+        },
+      }, {
+        label: t('document.slashMenu.name.emoji'),
+        key: 'emoji',
+        icon: <EmojiIcon />,
+        keywords: ['emoji'],
+        onClick: () => {
+          setTimeout(() => {
+            const rect = getRangeRect();
+
+            if (!rect) return;
+            setEmojiPosition({
+              top: rect.top,
+              left: rect.left,
+            });
+          }, 50);
+
+        },
+      }, {
+        label: t('document.slashMenu.name.file'),
+        key: 'file',
+        icon: <FileIcon />,
+        keywords: ['file', 'upload'],
+        onClick: () => {
+          turnInto(BlockType.FileBlock, {});
+        },
+      }].filter((option) => {
       if (!searchText) return true;
       return option.keywords.some((keyword: string) => {
         return keyword.toLowerCase().includes(searchText.toLowerCase());

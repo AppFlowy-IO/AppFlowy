@@ -35,9 +35,12 @@ export function getBlockCssProperty (node: Element) {
     case BlockType.TodoListBlock:
     case BlockType.ToggleListBlock:
     case BlockType.QuoteBlock:
-      return 'py-[2.5px]';
-    case BlockType.GridBlock:
+    case BlockType.SubpageBlock:
     case BlockType.CalloutBlock:
+      return 'py-[2.5px]';
+    case BlockType.OutlineBlock:
+      return 'py-[7px]';
+    case BlockType.GridBlock:
     case BlockType.TableBlock:
       return 'my-3';
     case BlockType.GalleryBlock:
