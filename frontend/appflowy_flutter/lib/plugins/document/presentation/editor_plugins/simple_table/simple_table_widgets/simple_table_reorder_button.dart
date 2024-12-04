@@ -28,14 +28,29 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('[x] render type: ${type.toString()}');
     return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onVerticalDragStart: (_) => _startDragging(),
-      onVerticalDragUpdate: _onDragUpdate,
-      onVerticalDragEnd: (_) => _stopDragging(),
-      onHorizontalDragStart: (_) => _startDragging(),
-      onHorizontalDragUpdate: _onDragUpdate,
-      onHorizontalDragEnd: (_) => _stopDragging(),
+      behavior: HitTestBehavior.translucent,
+      // onVerticalDragStart: type == SimpleTableMoreActionType.row
+      //     ? (_) => _startDragging()
+      //     : null,
+      // onVerticalDragUpdate:
+      //     type == SimpleTableMoreActionType.row ? _onDragUpdate : null,
+      // onVerticalDragEnd:
+      //     type == SimpleTableMoreActionType.row ? (_) => _stopDragging() : null,
+      // onVerticalDragCancel:
+      //     type == SimpleTableMoreActionType.row ? () => _stopDragging() : null,
+      onHorizontalDragStart: type == SimpleTableMoreActionType.column
+          ? (_) => _startDragging()
+          : null,
+      onHorizontalDragUpdate:
+          type == SimpleTableMoreActionType.column ? _onDragUpdate : null,
+      onHorizontalDragEnd: type == SimpleTableMoreActionType.column
+          ? (_) => _stopDragging()
+          : null,
+      // onHorizontalDragCancel: type == SimpleTableMoreActionType.column
+      //     ? () => _stopDragging()
+      //     : null,
       onTap: () {},
       child: SimpleTableReorderButton(
         isShowingMenu: isShowingMenu,
@@ -49,22 +64,27 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
     switch (type) {
       case SimpleTableMoreActionType.column:
         simpleTableContext.isReorderingColumn.value = (true, index);
+        break;
       case SimpleTableMoreActionType.row:
         simpleTableContext.isReorderingRow.value = (true, index);
+        break;
     }
   }
 
   void _onDragUpdate(DragUpdateDetails details) {
-    // debugPrint('[x] onDragUpdate: $details');
     simpleTableContext.reorderingOffset.value = details.globalPosition;
   }
 
   void _stopDragging() {
+    debugPrint('[x] stopDragging');
+    simpleTableContext.reorderingOffset.value = Offset.zero;
     switch (type) {
       case SimpleTableMoreActionType.column:
         simpleTableContext.isReorderingColumn.value = (false, -1);
+        break;
       case SimpleTableMoreActionType.row:
         simpleTableContext.isReorderingRow.value = (false, -1);
+        break;
     }
   }
 }
