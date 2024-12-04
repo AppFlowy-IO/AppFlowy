@@ -3,6 +3,7 @@ import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 const enableTableDebugLog = false;
 
@@ -166,10 +167,16 @@ class SimpleTableConstants {
   static const addColumnAndRowButtonBottomPadding = 2.5 * addRowButtonPadding;
 
   // Table cell
-  static const cellEdgePadding = EdgeInsets.symmetric(
-    horizontal: 9.0,
-    vertical: 2.0,
-  );
+  static EdgeInsets get cellEdgePadding => UniversalPlatform.isDesktop
+      ? const EdgeInsets.symmetric(
+          horizontal: 9.0,
+          vertical: 2.0,
+        )
+      : const EdgeInsets.only(
+          left: 8.0,
+          right: 8.0,
+          bottom: 6.0,
+        );
   static const cellBorderWidth = 1.0;
   static const resizeHandleWidth = 3.0;
 

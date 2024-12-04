@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:equatable/equatable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:path/path.dart' as path;
@@ -106,7 +107,8 @@ class ChatFile extends Equatable {
   List<Object?> get props => [filePath];
 }
 
-typedef ChatInputFileMetadata = Map<String, ChatFile>;
+typedef ChatFileMap = Map<String, ChatFile>;
+typedef ChatMentionedPageMap = Map<String, ViewPB>;
 
 @freezed
 class ChatLoadingState with _$ChatLoadingState {

@@ -1,4 +1,4 @@
-use crate::services::field::translate_type_option::translate::TranslateTypeOption;
+use collab_database::fields::translate_type_option::TranslateTypeOption;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
 #[derive(Debug, Clone, Default, ProtoBuf)]

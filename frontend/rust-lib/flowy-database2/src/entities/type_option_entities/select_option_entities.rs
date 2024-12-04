@@ -1,6 +1,6 @@
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{CellIdPB, CellIdParams};
-use crate::services::field::checklist_type_option::ChecklistTypeOption;
+use collab_database::fields::checklist_type_option::ChecklistTypeOption;
 use collab_database::fields::select_type_option::{
   MultiSelectTypeOption, SelectOption, SelectOptionColor, SelectTypeOption, SingleSelectTypeOption,
 };

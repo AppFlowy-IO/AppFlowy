@@ -7,29 +7,10 @@ use crate::services::field::{
   TypeOptionCellDataSerde, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
-use collab::util::AnyMapExt;
-use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
+use collab_database::fields::summary_type_option::SummarizationTypeOption;
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
 use std::cmp::Ordering;
-
-#[derive(Default, Debug, Clone)]
-pub struct SummarizationTypeOption {
-  pub auto_fill: bool,
-}
-
-impl From<TypeOptionData> for SummarizationTypeOption {
-  fn from(value: TypeOptionData) -> Self {
-    let auto_fill: bool = value.get_as("auto_fill").unwrap_or_default();
-    Self { auto_fill }
-  }
-}
-
-impl From<SummarizationTypeOption> for TypeOptionData {
-  fn from(value: SummarizationTypeOption) -> Self {
-    TypeOptionDataBuilder::from([("auto_fill".into(), value.auto_fill.into())])
-  }
-}
 
 impl TypeOption for SummarizationTypeOption {
   type CellData = SummaryCellData;

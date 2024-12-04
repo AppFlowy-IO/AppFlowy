@@ -115,19 +115,41 @@ void main() {
       await tester.editor.tapLineOfEditorAt(0);
       await tester.insertTableInDocument();
 
-      // hover on the table
-      final tableBlock = find.byType(SimpleTableBlockWidget).first;
+      // add a new row
+      final row = find.byWidgetPredicate((w) {
+        return w is SimpleTableRowBlockWidget && w.node.rowIndex == 1;
+      });
       await tester.hoverOnWidget(
-        tableBlock,
+        row,
         onHover: () async {
-          // click the add row button
           final addRowButton = find.byType(SimpleTableAddRowButton).first;
           await tester.tap(addRowButton);
+        },
+      );
+      await tester.pumpAndSettle();
 
-          // click the add column button
+      // add a new column
+      final column = find.byWidgetPredicate((w) {
+        return w is SimpleTableCellBlockWidget && w.node.columnIndex == 1;
+      }).first;
+      await tester.hoverOnWidget(
+        column,
+        onHover: () async {
           final addColumnButton = find.byType(SimpleTableAddColumnButton).first;
           await tester.tap(addColumnButton);
+        },
+      );
+      await tester.pumpAndSettle();
 
+      // add a new row and a new column
+      final row2 = find.byWidgetPredicate((w) {
+        return w is SimpleTableCellBlockWidget &&
+            w.node.rowIndex == 2 &&
+            w.node.columnIndex == 2;
+      }).first;
+      await tester.hoverOnWidget(
+        row2,
+        onHover: () async {
           // click the add row and column button
           final addRowAndColumnButton =
               find.byType(SimpleTableAddColumnAndRowButton).first;
