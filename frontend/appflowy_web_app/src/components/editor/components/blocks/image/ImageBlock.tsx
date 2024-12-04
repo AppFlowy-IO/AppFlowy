@@ -27,7 +27,7 @@ export const ImageBlock = memo(
     }, [editor, node]);
 
     const className = useMemo(() => {
-      const classList = ['w-full bg-bg-body py-2'];
+      const classList = ['w-full'];
 
       if (!readOnly) {
         classList.push('cursor-pointer');

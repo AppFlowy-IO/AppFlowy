@@ -67,12 +67,9 @@ function insertText (ydoc: Y.Doc, editor: Editor, { path, offset, text, attribut
 
   const relativeOffset = Math.min(calculateOffsetRelativeToParent(node, point), yText.toJSON().length);
 
-  console.log('insertText', point, node);
   const beforeAttributes = getAttributesAtOffset(yText, relativeOffset - 1);
 
-  console.log('beforeAttributes', relativeOffset, beforeAttributes);
-
-  if (beforeAttributes && ('formula' in beforeAttributes || 'mention' in beforeAttributes || 'href' in beforeAttributes)) {
+  if (beforeAttributes && ('formula' in beforeAttributes || 'mention' in beforeAttributes)) {
     const newAttributes = {
       ...attributes,
     };
@@ -86,12 +83,6 @@ function insertText (ydoc: Y.Doc, editor: Editor, { path, offset, text, attribut
     if ('mention' in beforeAttributes) {
       Object.assign({
         mention: null,
-      });
-    }
-
-    if ('href' in beforeAttributes) {
-      Object.assign({
-        href: null,
       });
     }
 

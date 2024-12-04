@@ -418,6 +418,9 @@ export const applyMarkdown = (editor: YjsEditor, insertText: string): boolean =>
 
           Transforms.collapse(editor, { edge: 'end' });
 
+          if (editor.selection && rule.format !== EditorMarkFormat.Formula) {
+            Transforms.insertNodes(editor, { text: '\u200C' }, { at: editor.selection, select: true, voids: false });
+          }
         }
 
         return true;

@@ -2,7 +2,7 @@ import { useCodeBlock } from '@/components/editor/components/blocks/code/Code.ho
 import CodeToolbar from './CodeToolbar';
 import { CodeNode, EditorElementProps } from '@/components/editor/editor.type';
 import React, { forwardRef, memo, useState, lazy, Suspense } from 'react';
-import { useReadOnly } from 'slate-react';
+import { ReactEditor, useReadOnly, useSlateStatic } from 'slate-react';
 import LanguageSelect from './SelectLanguage';
 
 const MermaidChat = lazy(() => import('./MermaidChat'));
@@ -12,6 +12,7 @@ export const CodeBlock = memo(
     const { language, handleChangeLanguage } = useCodeBlock(node);
     const [showToolbar, setShowToolbar] = useState(false);
 
+    const editor = useSlateStatic();
     const readOnly = useReadOnly();
 
     return (
@@ -30,6 +31,13 @@ export const CodeBlock = memo(
             readOnly={readOnly}
             language={language}
             onChangeLanguage={handleChangeLanguage}
+            onClose={() => {
+              window.getSelection()?.removeAllRanges();
+              ReactEditor.focus(editor);
+              const path = ReactEditor.findPath(editor, node);
+
+              editor.select(editor.start(path));
+            }}
           />
         </div>}
 

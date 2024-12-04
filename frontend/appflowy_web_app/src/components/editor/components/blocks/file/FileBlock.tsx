@@ -18,7 +18,7 @@ export const FileBlock = memo(
     const [showToolbar, setShowToolbar] = useState(false);
 
     const className = useMemo(() => {
-      const classList = ['w-full bg-bg-body py-2'];
+      const classList = ['w-full'];
 
       if (url) {
         classList.push('cursor-pointer');
