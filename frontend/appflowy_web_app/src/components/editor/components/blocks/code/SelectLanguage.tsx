@@ -139,7 +139,7 @@ function SelectLanguage ({
                 data-key={item.key}
                 key={item.key}
                 onClick={() => handleConfirm(item.key)}
-                className={`p-2 ${selectLanguage === item.key ? 'bg-fill-list-hover' : ''} text-sm rounded-[8px] flex justify-between cursor-pointer hover:bg-gray-100`}
+                className={`p-2 ${selectLanguage === item.key ? 'bg-fill-list-hover' : ''} text-sm rounded-[8px] flex justify-between cursor-pointer hover:bg-fill-list-hover`}
               >
                 <div className={'flex-1'}>{item.content}</div>
 
