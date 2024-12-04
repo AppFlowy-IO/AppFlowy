@@ -24,6 +24,8 @@ class _SimpleTableColumnResizeHandleState
 
   @override
   Widget build(BuildContext context) {
+    final simpleTableContext = context.read<SimpleTableContext>();
+
     return MouseRegion(
       cursor: SystemMouseCursors.resizeColumn,
       onEnter: (_) => _onEnterHoverArea(),
@@ -33,11 +35,12 @@ class _SimpleTableColumnResizeHandleState
         onHorizontalDragUpdate: _onHorizontalDragUpdate,
         onHorizontalDragEnd: _onHorizontalDragEnd,
         child: ValueListenableBuilder(
-          valueListenable:
-              context.read<SimpleTableContext>().hoveringOnResizeHandle,
+          valueListenable: simpleTableContext.hoveringOnResizeHandle,
           builder: (context, hoveringOnResizeHandle, child) {
-            final isSameRowIndex =
-                hoveringOnResizeHandle?.columnIndex == widget.node.columnIndex;
+            // when reordering a column, the resize handle should not be shown
+            final isSameRowIndex = hoveringOnResizeHandle?.columnIndex ==
+                    widget.node.columnIndex &&
+                !simpleTableContext.isReordering;
             return Opacity(
               opacity: isSameRowIndex ? 1.0 : 0.0,
               child: child,

@@ -1,8 +1,12 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/util/throttle.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
+
+final Throttler throttler =
+    Throttler(duration: const Duration(milliseconds: 100));
 
 class SimpleTableDraggableReorderButton extends StatelessWidget {
   const SimpleTableDraggableReorderButton({
@@ -24,43 +28,43 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Draggable<int>(
-      data: index,
-      feedback: SimpleTableFeedback(
-        editorState: editorState,
-        node: node,
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onVerticalDragStart: (_) => _startDragging(),
+      onVerticalDragUpdate: _onDragUpdate,
+      onVerticalDragEnd: (_) => _stopDragging(),
+      onHorizontalDragStart: (_) => _startDragging(),
+      onHorizontalDragUpdate: _onDragUpdate,
+      onHorizontalDragEnd: (_) => _stopDragging(),
+      onTap: () {},
+      child: SimpleTableReorderButton(
+        isShowingMenu: isShowingMenu,
         type: type,
-        index: index,
-      ),
-      onDragStarted: _startDragging,
-      onDragCompleted: _stopDragging,
-      onDraggableCanceled: (_, __) => _stopDragging(),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () {},
-        child: SimpleTableReorderButton(
-          isShowingMenu: isShowingMenu,
-          type: type,
-        ),
       ),
     );
   }
 
   void _startDragging() {
+    debugPrint('[x] startDragging');
     switch (type) {
       case SimpleTableMoreActionType.column:
-        simpleTableContext.isDraggingColumn.value = (true, index);
+        simpleTableContext.isReorderingColumn.value = (true, index);
       case SimpleTableMoreActionType.row:
-        simpleTableContext.isDraggingRow.value = (true, index);
+        simpleTableContext.isReorderingRow.value = (true, index);
     }
+  }
+
+  void _onDragUpdate(DragUpdateDetails details) {
+    // debugPrint('[x] onDragUpdate: $details');
+    simpleTableContext.reorderingOffset.value = details.globalPosition;
   }
 
   void _stopDragging() {
     switch (type) {
       case SimpleTableMoreActionType.column:
-        simpleTableContext.isDraggingColumn.value = (false, -1);
+        simpleTableContext.isReorderingColumn.value = (false, -1);
       case SimpleTableMoreActionType.row:
-        simpleTableContext.isDraggingRow.value = (false, -1);
+        simpleTableContext.isReorderingRow.value = (false, -1);
     }
   }
 }

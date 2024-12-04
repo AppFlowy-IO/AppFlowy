@@ -156,27 +156,51 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       padding: EdgeInsets.only(
         top: node.rowIndex == 0 ? SimpleTableConstants.tableTopPadding : 0,
       ),
+      // TODO(Lucas): find a better way to handle the multiple value listenable builder
+      // There's flutter pub can do that.
       child: ValueListenableBuilder<bool>(
         valueListenable: isEditingCellNotifier,
         builder: (context, isEditingCell, child) {
           return ValueListenableBuilder(
             valueListenable: simpleTableContext!.selectingColumn,
-            builder: (context, selectingColumn, child) {
+            builder: (context, selectingColumn, _) {
               return ValueListenableBuilder(
                 valueListenable: simpleTableContext!.selectingRow,
                 builder: (context, selectingRow, _) {
-                  return DecoratedBox(
-                    decoration: _buildDecoration(),
-                    child: child!,
+                  return ValueListenableBuilder(
+                    valueListenable: simpleTableContext!.isReorderingColumn,
+                    builder: (context, isReorderingColumn, _) {
+                      return ValueListenableBuilder(
+                        valueListenable: simpleTableContext!.isReorderingRow,
+                        builder: (context, isReorderingRow, _) {
+                          return ValueListenableBuilder(
+                            valueListenable:
+                                simpleTableContext!.reorderingOffset,
+                            builder: (context, reorderingOffset, _) {
+                              return ValueListenableBuilder(
+                                valueListenable:
+                                    simpleTableContext!.hoveringTableCell,
+                                builder: (context, hoveringTableCell, _) {
+                                  return DecoratedBox(
+                                    decoration: _buildDecoration(),
+                                    child: child!,
+                                  );
+                                },
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
                   );
                 },
               );
             },
-            child: Column(
-              children: node.children.map(_buildCellContent).toList(),
-            ),
           );
         },
+        child: Column(
+          children: node.children.map(_buildCellContent).toList(),
+        ),
       ),
     );
   }
@@ -275,11 +299,28 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     }
 
     final tableContext = context.watch<SimpleTableContext>();
+
+    // check if the cell is in the selected column
     final isCellInSelectedColumn =
         node.columnIndex == tableContext.selectingColumn.value;
+
+    // check if the cell is in the selected row
     final isCellInSelectedRow =
         node.rowIndex == tableContext.selectingRow.value;
-    if (tableContext.isSelectingTable.value) {
+
+    // check if the cell is in the hovering column
+    final isCellInHoveringColumn =
+        tableContext.hoveringTableCell.value?.columnIndex == node.columnIndex;
+
+    // check if the cell is in the reordering column
+    final isReordering = tableContext.isReordering;
+
+    if (isReordering && isCellInHoveringColumn) {
+      debugPrint(
+        'reorderingOffset: ${tableContext.reorderingOffset.value}',
+      );
+      return _buildReorderingBorder();
+    } else if (tableContext.isSelectingTable.value) {
       return _buildSelectingTableBorder();
     } else if (isCellInSelectedColumn) {
       return _buildColumnBorder();
@@ -342,6 +383,69 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       right: node.columnIndex + 1 == node.parentTableNode?.columnLength
           ? _buildHighlightBorderSide()
           : _buildDefaultBorderSide(),
+    );
+  }
+
+  Border _buildReorderingBorder() {
+    final isReorderingColumnValue =
+        simpleTableContext!.isReorderingColumn.value;
+    final isReorderingRowValue = simpleTableContext!.isReorderingRow.value;
+    final isReorderingColumn = isReorderingColumnValue.$1;
+    final isReorderingRow = isReorderingRowValue.$1;
+    final reorderingColumnIndex = isReorderingColumnValue.$2;
+    final reorderingRowIndex = isReorderingRowValue.$2;
+
+    if (isReorderingColumn) {
+      return _buildColumnReorderingBorder();
+    } else if (isReorderingRow) {
+      return _buildRowReorderingBorder();
+    }
+
+    return Border.all(
+      color: Colors.transparent,
+    );
+  }
+
+  Border _buildColumnReorderingBorder() {
+    assert(simpleTableContext!.isReordering);
+
+    final isDraggingColumn =
+        simpleTableContext!.isReorderingColumn.value.$2 == node.columnIndex;
+    // if the dragging column is the current column, don't show the highlight border
+    if (isDraggingColumn) {
+      return _buildCellBorder();
+    }
+
+    final hoveringTableCell = simpleTableContext!.hoveringTableCell.value;
+    // if the hovering column is not the current column, don't show the highlight border
+    final isHitCurrentCell = hoveringTableCell?.columnIndex == node.columnIndex;
+    if (!isHitCurrentCell) {
+      return _buildCellBorder();
+    }
+
+    // if the dragging column index is less than the current column index, show the
+    // highlight border on the left side
+    final isLeftSide =
+        simpleTableContext!.isReorderingColumn.value.$2 > node.columnIndex;
+    // if the dragging column index is greater than the current column index, show
+    // the highlight border on the right side
+    final isRightSide =
+        simpleTableContext!.isReorderingColumn.value.$2 < node.columnIndex;
+
+    return Border(
+      top: _buildDefaultBorderSide(),
+      bottom: _buildDefaultBorderSide(),
+      left:
+          isLeftSide ? _buildHighlightBorderSide() : _buildDefaultBorderSide(),
+      right:
+          isRightSide ? _buildHighlightBorderSide() : _buildDefaultBorderSide(),
+    );
+  }
+
+  Border _buildRowReorderingBorder() {
+    return Border(
+      top: _buildHighlightBorderSide(),
+      bottom: _buildHighlightBorderSide(),
     );
   }
 
