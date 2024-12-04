@@ -10,10 +10,10 @@ function Placeholder ({ node, ...attributes }: { node: Element; className?: stri
   const { t } = useTranslation();
   const { readOnly } = useEditorContext();
   const editor = useSlate();
-  const focus = useFocused();
+  const focused = useFocused();
   const blockSelected = useSelected();
   const [isComposing, setIsComposing] = useState(false);
-  const selected = focus && blockSelected && editor.selection && Range.isCollapsed(editor.selection);
+  const selected = focused && blockSelected && editor.selection && Range.isCollapsed(editor.selection);
 
   const block = useMemo(() => {
     const path = ReactEditor.findPath(editor, node);

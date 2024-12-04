@@ -15,6 +15,10 @@
   border-color: var(--line-divider) !important;
 }
 
+.custom-caret {
+  @apply caret-fill-default;
+}
+
 .sketch-picker [id^='rc-editable-input'] {
   background-color: var(--bg-body) !important;
   border-color: var(--line-divider) !important;

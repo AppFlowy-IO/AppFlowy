@@ -30,7 +30,7 @@ function AddIconCover ({
       style={{
         width: maxWidth ? `${maxWidth}px` : '100%',
       }}
-      className={'max-sm:px-6 px-24 flex items-start min-w-0 max-w-full gap-2 justify-start max-sm:hidden'}
+      className={'max-sm:px-6 px-24 flex items-end min-w-0 max-w-full gap-2 justify-start max-sm:hidden'}
     >
       {!hasIcon && <Button
         color={'inherit'}
