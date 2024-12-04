@@ -14,6 +14,7 @@ class SimpleTableWidget extends StatefulWidget {
     this.enableAddRowButton = true,
     this.enableAddColumnAndRowButton = true,
     this.enableHoverEffect = true,
+    this.isFeedback = false,
   });
 
   /// The node of the table.
@@ -44,6 +45,9 @@ class SimpleTableWidget extends StatefulWidget {
   /// For the feedback widget builder, it should be false.
   final bool enableHoverEffect;
 
+  /// Whether the widget is a feedback widget.
+  final bool isFeedback;
+
   @override
   State<SimpleTableWidget> createState() => _SimpleTableWidgetState();
 }
@@ -69,6 +73,24 @@ class _SimpleTableWidgetState extends State<SimpleTableWidget> {
   }
 
   Widget _buildDesktopTable() {
+    if (widget.isFeedback) {
+      debugPrint('widget.isFeedback: ${widget.isFeedback}');
+      return Container(
+        color: Colors.blue.withOpacity(0.2),
+        width: 300,
+        height: 300,
+        alignment: Alignment.topLeft,
+        child: IntrinsicWidth(
+          child: IntrinsicHeight(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: _buildRows(),
+            ),
+          ),
+        ),
+      );
+    }
     // table content
     Widget child = Scrollbar(
       controller: scrollController,

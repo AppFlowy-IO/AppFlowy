@@ -1,27 +1,35 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_widgets/simple_table_widget.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SimpleTableDraggableReorderButton extends StatelessWidget {
   const SimpleTableDraggableReorderButton({
     super.key,
+    required this.node,
     required this.index,
     required this.isShowingMenu,
     required this.type,
+    required this.editorState,
   });
 
+  final Node node;
   final int index;
   final ValueNotifier<bool> isShowingMenu;
   final SimpleTableMoreActionType type;
+  final EditorState editorState;
 
   @override
   Widget build(BuildContext context) {
     return Draggable<int>(
       data: index,
-      feedback: Container(
-        color: Colors.red,
-        width: 100,
-        height: 100,
+      feedback: SimpleTableFeedback(
+        editorState: editorState,
+        node: node,
+        type: type,
+        index: index,
       ),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -73,5 +81,108 @@ class SimpleTableReorderButton extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+class SimpleTableFeedback extends StatefulWidget {
+  const SimpleTableFeedback({
+    super.key,
+    required this.editorState,
+    required this.node,
+    required this.type,
+    required this.index,
+  });
+
+  /// The node of the table.
+  /// Its type must be [SimpleTableBlockKeys.type].
+  final Node node;
+
+  /// The type of the more action.
+  ///
+  /// If the type is [SimpleTableMoreActionType.column], the feedback will use index as column index.
+  /// If the type is [SimpleTableMoreActionType.row], the feedback will use index as row index.
+  final SimpleTableMoreActionType type;
+
+  /// The index of the column or row.
+  final int index;
+
+  final EditorState editorState;
+
+  @override
+  State<SimpleTableFeedback> createState() => _SimpleTableFeedbackState();
+}
+
+class _SimpleTableFeedbackState extends State<SimpleTableFeedback> {
+  final simpleTableContext = SimpleTableContext();
+  late final Node dummyNode;
+
+  @override
+  void initState() {
+    super.initState();
+
+    dummyNode = _buildDummyNode();
+    debugPrint('dummyNode: ${dummyNode.toJson()}');
+  }
+
+  @override
+  void dispose() {
+    simpleTableContext.dispose();
+    dummyNode.dispose();
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.red.withOpacity(0.2),
+      width: 200,
+      height: 100,
+      alignment: Alignment.topLeft,
+      child: Provider.value(
+        value: widget.editorState,
+        child: SimpleTableWidget(
+          node: dummyNode,
+          simpleTableContext: simpleTableContext,
+          enableAddColumnButton: false,
+          enableAddRowButton: false,
+          enableAddColumnAndRowButton: false,
+          enableHoverEffect: false,
+          isFeedback: true,
+        ),
+      ),
+    );
+  }
+
+  /// Build the dummy node for the feedback.
+  ///
+  /// For example,
+  ///
+  /// If the type is [SimpleTableMoreActionType.row], we should build the dummy table node using the data from the first row of the table node.
+  /// If the type is [SimpleTableMoreActionType.column], we should build the dummy table node using the data from the first column of the table node.
+  Node _buildDummyNode() {
+    // deep copy the table node to avoid mutating the original node
+    final tableNode = widget.node.copyWith();
+
+    switch (widget.type) {
+      case SimpleTableMoreActionType.row:
+        if (widget.index >= tableNode.rowLength || widget.index < 0) {
+          return simpleTableBlockNode(children: []);
+        }
+
+        final row = tableNode.children[widget.index];
+        return simpleTableBlockNode(children: [row]);
+
+      case SimpleTableMoreActionType.column:
+        if (widget.index >= tableNode.columnLength || widget.index < 0) {
+          return simpleTableBlockNode(children: []);
+        }
+
+        final rows = tableNode.children.map((row) {
+          final cell = row.children[widget.index];
+          return simpleTableRowBlockNode(children: [cell]);
+        }).toList();
+        return simpleTableBlockNode(children: rows);
+    }
   }
 }

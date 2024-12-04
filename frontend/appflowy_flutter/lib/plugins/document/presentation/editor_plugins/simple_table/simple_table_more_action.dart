@@ -234,6 +234,12 @@ class _SimpleTableMoreActionPopupState
   Widget build(BuildContext context) {
     final tableCellNode =
         context.read<SimpleTableContext>().hoveringTableCell.value;
+    final tableNode = tableCellNode?.parentTableNode;
+
+    if (tableNode == null) {
+      return const SizedBox.shrink();
+    }
+
     return AppFlowyPopover(
       controller: popoverController,
       onOpen: () => _onOpen(tableCellNode: tableCellNode),
@@ -247,6 +253,8 @@ class _SimpleTableMoreActionPopupState
       clickHandler: PopoverClickHandler.gestureDetector,
       popupBuilder: (_) => _buildPopup(tableCellNode: tableCellNode),
       child: SimpleTableDraggableReorderButton(
+        editorState: editorState,
+        node: tableNode,
         index: widget.index,
         isShowingMenu: widget.isShowingMenu,
         type: widget.type,
