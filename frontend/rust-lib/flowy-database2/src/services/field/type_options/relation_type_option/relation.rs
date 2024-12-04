@@ -33,8 +33,7 @@ impl CellDataChangeset for RelationTypeOption {
       let cell_data = RelationCellData {
         row_ids: changeset.inserted_row_ids,
       };
-
-      return Ok(((&cell_data).into(), cell_data));
+      return Ok(((cell_data.clone()).into(), cell_data));
     }
 
     let cell_data: RelationCellData = cell.as_ref().unwrap().into();
@@ -52,7 +51,7 @@ impl CellDataChangeset for RelationTypeOption {
 
     let cell_data = RelationCellData { row_ids };
 
-    Ok(((&cell_data).into(), cell_data))
+    Ok(((cell_data.clone()).into(), cell_data))
   }
 }
 
