@@ -1,4 +1,4 @@
-import { BlockType, TableAlignType } from '@/application/types';
+import { BlockType } from '@/application/types';
 import { EditorElementProps, SimpleTableNode, SimpleTableRowNode } from '@/components/editor/editor.type';
 import { renderColor } from '@/utils/color';
 import React, { forwardRef, useMemo } from 'react';
@@ -38,8 +38,8 @@ const SimpleTableRow =
 
       const { align, bgColor } = useMemo(() => {
         if (!parent) return {
-          align: TableAlignType.Left,
-          bgColor: '',
+          align: undefined,
+          bgColor: undefined,
         };
 
         const [parentElement] = parent;
