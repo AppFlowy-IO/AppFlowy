@@ -56,14 +56,15 @@ impl EventIntegrationTest {
       .parse::<ViewPB>()
   }
 
-  pub async fn open_database(&self, view_id: &str) {
+  pub async fn open_database(&self, view_id: &str) -> DatabasePB {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::GetDatabase)
       .payload(DatabaseViewIdPB {
         value: view_id.to_string(),
       })
       .async_send()
-      .await;
+      .await
+      .parse()
   }
 
   pub async fn create_board(&self, parent_id: &str, name: String, initial_data: Vec<u8>) -> ViewPB {
@@ -171,22 +172,39 @@ impl EventIntegrationTest {
       .error()
   }
 
-  pub async fn remove_calculate(&self, changeset: RemoveCalculationChangesetPB) {
-    // #[event(input = "RemoveCalculationChangesetPB")]
-    // RemoveCalculation = 165,
-    todo!()
+  pub async fn remove_calculate(
+    &self,
+    changeset: RemoveCalculationChangesetPB,
+  ) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::RemoveCalculation)
+      .payload(changeset)
+      .async_send()
+      .await
+      .error()
   }
 
-  pub async fn get_all_calculations(&self) -> RepeatedCalculationsPB {
-    // #[event(input = "DatabaseViewIdPB", output = "RepeatedCalculationsPB")]
-    // GetAllCalculations = 163,
-    todo!()
+  pub async fn get_all_calculations(&self, database_view_id: &str) -> RepeatedCalculationsPB {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::GetAllCalculations)
+      .payload(DatabaseViewIdPB {
+        value: database_view_id.to_string(),
+      })
+      .async_send()
+      .await
+      .parse()
   }
 
-  pub async fn update_calculation(&self, changeset: UpdateCalculationChangesetPB) {
-    // #[event(input = "UpdateCalculationChangesetPB")]
-    // UpdateCalculation = 164,
-    todo!()
+  pub async fn update_calculation(
+    &self,
+    changeset: UpdateCalculationChangesetPB,
+  ) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::UpdateCalculation)
+      .payload(changeset)
+      .async_send()
+      .await
+      .error()
   }
 
   pub async fn update_field_type(
