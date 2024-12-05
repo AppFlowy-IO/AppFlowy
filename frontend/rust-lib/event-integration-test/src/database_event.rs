@@ -64,7 +64,7 @@ impl EventIntegrationTest {
       })
       .async_send()
       .await
-      .parse()
+      .parse::<DatabasePB>()
   }
 
   pub async fn create_board(&self, parent_id: &str, name: String, initial_data: Vec<u8>) -> ViewPB {
@@ -192,7 +192,7 @@ impl EventIntegrationTest {
       })
       .async_send()
       .await
-      .parse()
+      .parse::<RepeatedCalculationsPB>()
   }
 
   pub async fn update_calculation(
