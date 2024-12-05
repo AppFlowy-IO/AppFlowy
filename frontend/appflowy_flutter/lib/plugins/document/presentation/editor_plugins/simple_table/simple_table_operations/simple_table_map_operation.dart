@@ -55,7 +55,7 @@ extension TableMapOperation on Node {
 
     // clear the attributes that are null
     attributes?.removeWhere(
-      (key, value) => value == null || (value is Map && value.isEmpty),
+      (key, value) => value == null,
     );
 
     return attributes;
@@ -424,6 +424,7 @@ extension TableMapOperation on Node {
         comparator: (iKey, index) => iKey > index,
         filterIndex: index,
       );
+
       final rowAligns = _remapSource(
         this.rowAligns,
         index,
@@ -521,40 +522,51 @@ extension TableMapOperation on Node {
       final duplicatedColumnAlign = this.columnAligns[fromIndex.toString()];
       final duplicatedColumnWidth = this.columnWidths[fromIndex.toString()];
 
-      // example 1:
-      // there're 4 columns, fromIndex = 2, toIndex = 0
-      // columnColors = {
-      //   0: "#FF0000", <- to
-      //   1: "#00FF00",
-      //   2: "#0000FF", <- from
-      //   3: "#0000FF",
-      // }
-      //
-      // so we need to update the index if the current cell index >= toIndex and < fromIndex
-      // the columnColors after remap:
-      // columnColors = {
-      //   0: "#FF0000", <- from
-      //   1: "#00FF00", <- to
-      //   2: "#0000FF",
-      //   3: "#0000FF",
-      // }
-      //
-      //
-      // example 2:
-      // there're 4 columns, fromIndex = 0, toIndex = 2
-      // columnColors = {
-      //   0: "#FF0000", <- from
-      //   1: "#00FF00",
-      //   2: "#0000FF", <- to
-      //   3: "#0000FF",
-      // }
-      //
-      // so we need to update the index if the current cell index > fromIndex and <= toIndex
-      // the columnColors after remap:
-      //   0: "#FF0000",
-      //   1: "#0000FF", <- to
-      //   2: "#FF0000", <- from
-      //   3: "#0000FF",
+      /// Case 1: fromIndex > toIndex
+      /// Before:
+      /// Row 0: | 0 | 1 | 2 |
+      /// Row 1: | 3 | 4 | 5 |
+      /// Row 2: | 6 | 7 | 8 |
+      ///
+      /// columnColors = {
+      ///   "0": "#FF0000",
+      ///   "1": "#00FF00",
+      ///   "2": "#0000FF" ← Move this column (index 2)
+      /// }
+      ///
+      /// Move column 2 to index 0:
+      /// Row 0: | 2 | 0 | 1 |
+      /// Row 1: | 5 | 3 | 4 |
+      /// Row 2: | 8 | 6 | 7 |
+      ///
+      /// columnColors = {
+      ///   "0": "#0000FF", ← Moved here
+      ///   "1": "#FF0000",
+      ///   "2": "#00FF00"
+      /// }
+      ///
+      /// Case 2: fromIndex < toIndex
+      /// Before:
+      /// Row 0: | 0 | 1 | 2 |
+      /// Row 1: | 3 | 4 | 5 |
+      /// Row 2: | 6 | 7 | 8 |
+      ///
+      /// columnColors = {
+      ///   "0": "#FF0000" ← Move this column (index 0)
+      ///   "1": "#00FF00",
+      ///   "2": "#0000FF"
+      /// }
+      ///
+      /// Move column 0 to index 2:
+      /// Row 0: | 1 | 2 | 0 |
+      /// Row 1: | 4 | 5 | 3 |
+      /// Row 2: | 7 | 8 | 6 |
+      ///
+      /// columnColors = {
+      ///   "0": "#00FF00",
+      ///   "1": "#0000FF",
+      ///   "2": "#FF0000" ← Moved here
+      /// }
       final columnColors = _remapSource(
         this.columnColors,
         fromIndex,
