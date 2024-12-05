@@ -102,8 +102,10 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
           BlocListener<DatabaseTabBarBloc, DatabaseTabBarState>(
             listenWhen: (p, c) => p.selectedIndex != c.selectedIndex,
             listener: (_, state) {
-              _initialRowId = null;
-              _pageController.jumpToPage(state.selectedIndex);
+              if (_pageController.hasClients) {
+                _initialRowId = null;
+                _pageController.jumpToPage(state.selectedIndex);
+              }
             },
           ),
         ],
@@ -111,6 +113,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
           builder: (_, state) {
             final layout = state.tabBars[state.selectedIndex].layout;
             return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (UniversalPlatform.isMobile) const VSpace(12),
                 ValueListenableBuilder<bool>(
@@ -145,14 +148,18 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
   }
 
   Widget wrapContent({required ViewLayoutPB layout, required Widget child}) {
-    if (widget.shrinkWrap && layout.shrinkWrappable) {
-      return child;
+    if (widget.shrinkWrap) {
+      if (layout.shrinkWrappable) {
+        return child;
+      }
+
+      return SizedBox(
+        height: layout.pluginHeight,
+        child: child,
+      );
     }
 
-    return SizedBox(
-      height: layout.pluginHeight,
-      child: child,
-    );
+    return Expanded(child: child);
   }
 
   List<Widget> pageContentFromState(DatabaseTabBarState state) {

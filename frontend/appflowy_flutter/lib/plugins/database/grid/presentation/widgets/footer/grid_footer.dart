@@ -80,7 +80,11 @@ class GridRowLoadMoreButton extends StatelessWidget {
             bottom: BorderSide(color: AFThemeExtension.of(context).borderColor),
           ),
         ),
-        text: FlowyText(lineHeight: 1.0, 'Load more rows', color: color),
+        text: FlowyText(
+          lineHeight: 1.0,
+          LocaleKeys.grid_row_loadMore.tr(),
+          color: color,
+        ),
         margin: const EdgeInsets.symmetric(horizontal: 12),
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         onTap: () => context.read<GridBloc>().add(

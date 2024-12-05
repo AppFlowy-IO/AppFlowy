@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
+import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -45,6 +47,59 @@ class ToggleExtensionNotifier extends ChangeNotifier {
   void toggle() {
     _isToggled = !_isToggled;
     notifyListeners();
+  }
+}
+
+class DesktopGridTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
+  final _toggleExtension = ToggleExtensionNotifier();
+
+  @override
+  Widget content(
+    BuildContext context,
+    ViewPB view,
+    DatabaseController controller,
+    bool shrinkWrap,
+    String? initialRowId,
+  ) {
+    return GridPage(
+      key: _makeValueKey(controller),
+      view: view,
+      databaseController: controller,
+      initialRowId: initialRowId,
+      shrinkWrap: shrinkWrap,
+    );
+  }
+
+  @override
+  Widget settingBar(BuildContext context, DatabaseController controller) {
+    return GridSettingBar(
+      key: _makeValueKey(controller),
+      controller: controller,
+      toggleExtension: _toggleExtension,
+    );
+  }
+
+  @override
+  Widget settingBarExtension(
+    BuildContext context,
+    DatabaseController controller,
+  ) {
+    return DatabaseViewSettingExtension(
+      key: _makeValueKey(controller),
+      viewId: controller.viewId,
+      databaseController: controller,
+      toggleExtension: _toggleExtension,
+    );
+  }
+
+  @override
+  void dispose() {
+    _toggleExtension.dispose();
+    super.dispose();
+  }
+
+  ValueKey _makeValueKey(DatabaseController controller) {
+    return ValueKey(controller.viewId);
   }
 }
 
@@ -375,13 +430,11 @@ class _GridRowsState extends State<_GridRows> {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         widget.shrinkWrap
             ? _reorderableListView(state)
             : Expanded(child: _reorderableListView(state)),
-        if (widget.shrinkWrap) ...[
-          GridCalculationsRow(viewId: widget.viewId),
-        ],
         if (showFloatingCalculations && !widget.shrinkWrap) ...[
           _PositionedCalculationsRow(
             viewId: widget.viewId,
@@ -393,15 +446,19 @@ class _GridRowsState extends State<_GridRows> {
   }
 
   Widget _reorderableListView(GridState state) {
-    int itemCount;
-    if (widget.shrinkWrap) {
-      itemCount = state.visibleRows < state.rowInfos.length
-          // We add 3 to the visibleRows to show New row, Load more rows, and Calculations
-          ? state.visibleRows + 3
-          : state.rowInfos.length + 1;
-    } else {
-      itemCount = state.rowInfos.length + (showFloatingCalculations ? 1 : 2);
-    }
+    final List<Widget> footer = [
+      const GridRowBottomBar(),
+      if (widget.shrinkWrap && state.visibleRows < state.rowInfos.length)
+        const GridRowLoadMoreButton(),
+      if (!showFloatingCalculations) GridCalculationsRow(viewId: widget.viewId),
+    ];
+
+    // If we are using shrinkWrap, we need to show at most
+    // state.visibleRows + 1 items. The visibleRows can be larger
+    // than the actual rowInfos length.
+    final itemCount = widget.shrinkWrap
+        ? (state.visibleRows + 1).clamp(0, state.rowInfos.length + 1)
+        : state.rowInfos.length + 1;
 
     return ReorderableListView.builder(
       cacheExtent: 500,
@@ -441,21 +498,12 @@ class _GridRowsState extends State<_GridRows> {
       },
       itemCount: itemCount,
       itemBuilder: (context, index) {
-        if ((widget.shrinkWrap && index == state.visibleRows) ||
-            index == state.rowInfos.length) {
-          return const GridRowBottomBar(key: Key('grid_footer'));
-        }
-
-        if (widget.shrinkWrap &&
-            state.visibleRows < state.rowInfos.length &&
-            index == state.rowInfos.length + 1) {
-          return const GridRowLoadMoreButton(key: Key('grid_load_more'));
-        }
-
-        if (index >= state.rowInfos.length && !showFloatingCalculations) {
-          return GridCalculationsRow(
-            key: const Key('grid_calculations'),
-            viewId: widget.viewId,
+        if (index == itemCount - 1) {
+          return Column(
+            key: const Key('grid_footer'),
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: footer,
           );
         }
 
