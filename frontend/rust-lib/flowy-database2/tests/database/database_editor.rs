@@ -17,7 +17,7 @@ use event_integration_test::EventIntegrationTest;
 use flowy_database2::entities::{DatabasePB, FieldType, FilterPB, RowMetaPB};
 
 use flowy_database2::services::database::DatabaseEditor;
-use flowy_database2::services::field::checklist_type_option::ChecklistCellChangeset;
+use flowy_database2::services::field::checklist_filter::ChecklistCellChangeset;
 use flowy_database2::services::field::SelectOptionCellChangeset;
 use flowy_database2::services::share::csv::{CSVFormat, ImportResult};
 use flowy_error::FlowyResult;

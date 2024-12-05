@@ -11,7 +11,7 @@ use collab_database::rows::{Row, RowId};
 use flowy_database2::entities::*;
 use flowy_database2::event_map::DatabaseEvent;
 use flowy_database2::services::cell::CellBuilder;
-use flowy_database2::services::field::ChecklistCellInsertChangeset;
+use flowy_database2::services::field::checklist_filter::ChecklistCellInsertChangeset;
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_folder::entities::*;
 use flowy_folder::event_map::FolderEvent;

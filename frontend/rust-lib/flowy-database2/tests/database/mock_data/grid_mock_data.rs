@@ -19,7 +19,8 @@ use strum::IntoEnumIterator;
 use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, TWITTER};
 use event_integration_test::database_event::TestRowBuilder;
 use flowy_database2::entities::FieldType;
-use flowy_database2::services::field::{ChecklistCellInsertChangeset, FieldBuilder};
+use flowy_database2::services::field::checklist_filter::ChecklistCellInsertChangeset;
+use flowy_database2::services::field::FieldBuilder;
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 
 pub fn make_test_grid() -> DatabaseData {
@@ -67,6 +68,7 @@ pub fn make_test_grid() -> DatabaseData {
           time_format: TimeFormat::TwentyFourHour,
           include_time: true,
           field_type: field_type.into(),
+          timezone: None,
         };
         let name = match field_type {
           FieldType::LastEditedTime => "Last Modified",

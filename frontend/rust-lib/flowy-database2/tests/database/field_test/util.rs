@@ -78,6 +78,7 @@ pub fn create_timestamp_field(grid_id: &str, field_type: FieldType) -> (CreateFi
     time_format: TimeFormat::TwentyFourHour,
     include_time: true,
     field_type: field_type.into(),
+    timezone: None,
   };
 
   let field: Field = match field_type {
