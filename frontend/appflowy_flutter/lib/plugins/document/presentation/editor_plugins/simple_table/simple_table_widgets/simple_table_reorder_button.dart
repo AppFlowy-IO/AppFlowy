@@ -1,13 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_widgets/simple_table_widget.dart';
-import 'package:appflowy/util/throttle.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-final Throttler throttler =
-    Throttler(duration: const Duration(milliseconds: 100));
 
 class SimpleTableDraggableReorderButton extends StatelessWidget {
   const SimpleTableDraggableReorderButton({
@@ -18,7 +14,6 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
     required this.type,
     required this.editorState,
     required this.simpleTableContext,
-    required this.onTap,
   });
 
   final Node node;
@@ -27,7 +22,6 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
   final SimpleTableMoreActionType type;
   final EditorState editorState;
   final SimpleTableContext simpleTableContext;
-  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

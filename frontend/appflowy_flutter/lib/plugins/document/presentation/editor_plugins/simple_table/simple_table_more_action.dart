@@ -222,7 +222,6 @@ class SimpleTableMoreActionPopup extends StatefulWidget {
 class _SimpleTableMoreActionPopupState
     extends State<SimpleTableMoreActionPopup> {
   late final editorState = context.read<EditorState>();
-  final popoverController = PopoverController();
 
   SelectionGestureInterceptor? gestureInterceptor;
 
@@ -265,7 +264,6 @@ class _SimpleTableMoreActionPopupState
     }
 
     return AppFlowyPopover(
-      controller: popoverController,
       onOpen: () => _onOpen(tableCellNode: tableCellNode),
       onClose: () => _onClose(),
       direction: widget.type == SimpleTableMoreActionType.row
@@ -283,10 +281,6 @@ class _SimpleTableMoreActionPopupState
         index: widget.index,
         isShowingMenu: widget.isShowingMenu,
         type: widget.type,
-        onTap: () {
-          widget.isShowingMenu.value = true;
-          popoverController.show();
-        },
       ),
     );
   }
@@ -555,22 +549,16 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
             _deleteRow();
             break;
         }
-        break;
       case SimpleTableMoreAction.insertLeft:
         _insertColumnLeft();
-        break;
       case SimpleTableMoreAction.insertRight:
         _insertColumnRight();
-        break;
       case SimpleTableMoreAction.insertAbove:
         _insertRowAbove();
-        break;
       case SimpleTableMoreAction.insertBelow:
         _insertRowBelow();
-        break;
       case SimpleTableMoreAction.clearContents:
         _clearContent();
-        break;
       case SimpleTableMoreAction.duplicate:
         switch (widget.type) {
           case SimpleTableMoreActionType.column:
@@ -580,7 +568,6 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
             _duplicateRow();
             break;
         }
-        break;
       default:
         break;
     }
@@ -630,6 +617,8 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
           isEnableHeader.value,
         );
     }
+
+    PopoverContainer.of(context).close();
   }
 
   void _clearContent() {
