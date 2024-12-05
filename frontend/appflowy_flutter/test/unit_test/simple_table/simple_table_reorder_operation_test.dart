@@ -88,7 +88,7 @@ void main() {
       });
 
       test(
-          'reorder column from index 0 to index 2 with align/color/width attributes',
+          'reorder column from index 0 to index 2 with align/color/width attributes (1)',
           () async {
         final (editorState, tableNode) = createEditorStateAndTable(
           rowCount: 4,
@@ -150,6 +150,58 @@ void main() {
           "2": 100,
         });
       });
+
+      test(
+          'reorder column from index 0 to index 2 and reorder it back to index 0',
+          () async {
+        final (editorState, tableNode) = createEditorStateAndTable(
+          rowCount: 2,
+          columnCount: 3,
+          contentBuilder: (rowIndex, columnIndex) =>
+              'cell $rowIndex-$columnIndex',
+        );
+
+        // before reorder
+        // Column 0: null
+        // Column 1: align: center, color: 0x0000FF, width: 200
+        // Column 2: align: right, color: 0x0000FF, width: 250
+        await updateTableColumnAttributes(
+          editorState,
+          tableNode,
+          columnIndex: 1,
+          align: TableAlign.center,
+          color: '#FF0000',
+          width: 200,
+        );
+        await updateTableColumnAttributes(
+          editorState,
+          tableNode,
+          columnIndex: 2,
+          align: TableAlign.right,
+          color: '#0000FF',
+          width: 250,
+        );
+
+        // move column from index 0 to index 2
+        await editorState.reorderColumn(tableNode, fromIndex: 0, toIndex: 2);
+        // move column from index 2 to index 0
+        await editorState.reorderColumn(tableNode, fromIndex: 2, toIndex: 0);
+        expect(tableNode.columnLength, 3);
+        expect(tableNode.rowLength, 2);
+
+        expect(tableNode.columnAligns, {
+          "1": TableAlign.center.key,
+          "2": TableAlign.right.key,
+        });
+        expect(tableNode.columnColors, {
+          "1": '#FF0000',
+          "2": '#0000FF',
+        });
+        expect(tableNode.columnWidths, {
+          "1": 200,
+          "2": 250,
+        });
+      });
     });
 
     group('reorder row', () {
@@ -201,8 +253,7 @@ void main() {
         );
       });
 
-      test('reorder row from index 0 to index 2 with align/color attributes',
-          () async {
+      test('reorder row with same', () async {
         final (editorState, tableNode) = createEditorStateAndTable(
           rowCount: 3,
           columnCount: 2,
