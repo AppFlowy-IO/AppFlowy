@@ -13,8 +13,8 @@ class FlowyIconTextButton extends StatelessWidget {
   final VoidCallback? onSecondaryTap;
   final void Function(bool)? onHover;
   final EdgeInsets? margin;
-  final Widget Function(bool onHover)? leftIconBuilder;
-  final Widget Function(bool onHover)? rightIconBuilder;
+  final Widget? Function(bool onHover)? leftIconBuilder;
+  final Widget? Function(bool onHover)? rightIconBuilder;
   final Color? hoverColor;
   final bool isSelected;
   final BorderRadius? radius;
@@ -29,6 +29,7 @@ class FlowyIconTextButton extends StatelessWidget {
   final double iconPadding;
   final bool expand;
   final Color? borderColor;
+  final bool resetHoverOnRebuild;
 
   const FlowyIconTextButton({
     super.key,
@@ -53,6 +54,7 @@ class FlowyIconTextButton extends StatelessWidget {
     this.iconPadding = 6,
     this.expand = false,
     this.borderColor,
+    this.resetHoverOnRebuild = true,
   });
 
   @override
@@ -64,6 +66,7 @@ class FlowyIconTextButton extends StatelessWidget {
       onTap: disable ? null : onTap,
       onSecondaryTap: disable ? null : onSecondaryTap,
       child: FlowyHover(
+        resetHoverOnRebuild: resetHoverOnRebuild,
         cursor:
             disable ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
         style: HoverStyle(
@@ -81,11 +84,12 @@ class FlowyIconTextButton extends StatelessWidget {
   Widget _render(BuildContext context, bool onHover) {
     final List<Widget> children = [];
 
-    if (leftIconBuilder != null) {
+    final Widget? leftIcon = leftIconBuilder?.call(onHover);
+    if (leftIcon != null) {
       children.add(
         SizedBox.fromSize(
           size: leftIconSize,
-          child: leftIconBuilder!(onHover),
+          child: leftIcon,
         ),
       );
       children.add(HSpace(iconPadding));
@@ -97,10 +101,11 @@ class FlowyIconTextButton extends StatelessWidget {
       children.add(textBuilder(onHover));
     }
 
-    if (rightIconBuilder != null) {
+    final Widget? rightIcon = rightIconBuilder?.call(onHover);
+    if (rightIcon != null) {
       children.add(HSpace(iconPadding));
       // No need to define the size of rightIcon. Just use its intrinsic width
-      children.add(rightIconBuilder!(onHover));
+      children.add(rightIcon);
     }
 
     Widget child = Row(
