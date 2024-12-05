@@ -144,10 +144,6 @@ where
       .collect::<Vec<String>>()
       .join(SELECTION_IDS_SEPARATOR)
   }
-
-  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
-    None
-  }
 }
 
 pub fn select_type_option_from_field(

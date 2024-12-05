@@ -8,7 +8,7 @@ use crate::{
   services::{
     cell::{CellDataChangeset, CellDataDecoder},
     field::{
-      default_order, StringCellData, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+      default_order, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
       TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform,
     },
     sort::SortCondition,
@@ -69,10 +69,6 @@ impl CellDataDecoder for MediaTypeOption {
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     cell_data.to_string()
-  }
-
-  fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
-    StringCellData::from(cell).0.parse::<f64>().ok()
   }
 }
 

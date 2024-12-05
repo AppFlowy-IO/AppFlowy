@@ -156,11 +156,6 @@ impl CellDataDecoder for ChecklistTypeOption {
       .collect::<Vec<_>>()
       .join(SELECTION_IDS_SEPARATOR)
   }
-
-  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
-    // return the percentage complete if needed
-    None
-  }
 }
 
 impl TypeOptionCellDataFilter for ChecklistTypeOption {

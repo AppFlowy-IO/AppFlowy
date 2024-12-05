@@ -309,7 +309,7 @@ fn cmp_row(
             TimestampCellData::new(left_cell).to_cell(field_rev.field_type),
             TimestampCellData::new(right_cell).to_cell(field_rev.field_type),
           );
-          Some((Some(left_cell.into()), Some(right_cell.into())))
+          Some((Some(left_cell), Some(right_cell)))
         },
         _ => None,
       };

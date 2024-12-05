@@ -51,11 +51,6 @@ impl CellDataDecoder for TimeTypeOption {
     }
     "".to_string()
   }
-
-  fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
-    let time_cell_data = self.parse_cell(cell).ok()?;
-    Some(time_cell_data.0.unwrap() as f64)
-  }
 }
 
 pub type TimeCellChangeset = String;

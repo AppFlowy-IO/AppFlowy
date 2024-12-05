@@ -116,11 +116,6 @@ impl CellDataDecoder for NumberTypeOption {
       self.format_cell_data(num_cell).ok()?.to_string(),
     ))
   }
-
-  fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
-    let num_cell_data = self.parse_cell(cell).ok()?;
-    num_cell_data.0.parse::<f64>().ok()
-  }
 }
 
 pub type NumberCellChangeset = String;

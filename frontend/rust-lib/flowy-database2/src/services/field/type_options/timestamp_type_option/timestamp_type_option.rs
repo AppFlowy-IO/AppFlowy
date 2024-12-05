@@ -53,10 +53,6 @@ impl CellDataDecoder for TimestampTypeOption {
       date_string
     }
   }
-
-  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
-    None
-  }
 }
 
 impl CellDataChangeset for TimestampTypeOption {

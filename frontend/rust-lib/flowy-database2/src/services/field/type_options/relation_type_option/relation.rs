@@ -63,10 +63,6 @@ impl CellDataDecoder for RelationTypeOption {
   fn stringify_cell_data(&self, cell_data: RelationCellData) -> String {
     cell_data.to_string()
   }
-
-  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
-    None
-  }
 }
 
 impl TypeOptionCellDataCompare for RelationTypeOption {

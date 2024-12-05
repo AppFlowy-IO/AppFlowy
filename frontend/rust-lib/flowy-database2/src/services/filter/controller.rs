@@ -525,7 +525,7 @@ fn apply_filter(
             row.modified_at
           };
           let cell = TimestampCellData::new(Some(timestamp)).to_cell(field.field_type);
-          Some(cell.into())
+          Some(cell)
         },
         _ => None,
       };

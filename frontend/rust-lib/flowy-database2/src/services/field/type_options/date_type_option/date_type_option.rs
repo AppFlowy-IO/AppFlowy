@@ -147,10 +147,6 @@ impl CellDataDecoder for DateTypeOption {
     let timestamp = cast_string_to_timestamp(&s)?;
     Some(DateCellData::from_timestamp(timestamp))
   }
-
-  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
-    None
-  }
 }
 
 impl CellDataChangeset for DateTypeOption {

@@ -95,10 +95,6 @@ impl CellDataDecoder for URLTypeOption {
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     cell_data.data
   }
-
-  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
-    None
-  }
 }
 
 pub type URLCellChangeset = String;

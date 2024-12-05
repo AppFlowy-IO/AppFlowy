@@ -255,7 +255,6 @@ where
     + TypeOptionTransform
     + TypeOptionCellDataFilter
     + TypeOptionCellDataCompare
-    // + TypeOptionCellReader
     + Send
     + Sync
     + 'static,

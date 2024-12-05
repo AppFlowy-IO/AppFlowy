@@ -58,15 +58,6 @@ impl CellDataDecoder for CheckboxTypeOption {
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     cell_data.to_string()
   }
-
-  fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
-    let cell_data = self.parse_cell(cell).ok()?;
-    if cell_data.is_checked {
-      Some(1.0)
-    } else {
-      Some(0.0)
-    }
-  }
 }
 
 pub type CheckboxCellChangeset = String;

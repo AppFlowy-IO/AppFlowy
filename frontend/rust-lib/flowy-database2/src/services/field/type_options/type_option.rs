@@ -22,7 +22,7 @@ use collab_database::fields::text_type_option::RichTextTypeOption;
 use collab_database::fields::timestamp_type_option::TimestampTypeOption;
 use collab_database::fields::translate_type_option::TranslateTypeOption;
 use collab_database::fields::url_type_option::URLTypeOption;
-use collab_database::fields::TypeOptionData;
+use collab_database::fields::{TypeOptionCellReader, TypeOptionData};
 use collab_database::rows::Cell;
 pub use collab_database::template::util::TypeOptionCellData;
 use flowy_error::FlowyResult;
@@ -30,7 +30,7 @@ use protobuf::ProtobufError;
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
-pub trait TypeOption: From<TypeOptionData> + Into<TypeOptionData> {
+pub trait TypeOption: From<TypeOptionData> + Into<TypeOptionData> + TypeOptionCellReader {
   /// `CellData` represents the decoded model for the current type option. Each of them must
   /// implement the From<&Cell> trait. If the `Cell` cannot be decoded into this type, the default
   /// value will be returned.

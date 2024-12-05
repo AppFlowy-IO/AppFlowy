@@ -67,10 +67,6 @@ impl CellDataDecoder for SummarizationTypeOption {
   fn stringify_cell_data(&self, cell_data: SummaryCellData) -> String {
     cell_data.to_string()
   }
-
-  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
-    None
-  }
 }
 impl TypeOptionTransform for SummarizationTypeOption {}
 
