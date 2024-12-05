@@ -183,6 +183,7 @@ class _SimpleTableFeedbackState extends State<SimpleTableFeedback> {
   void initState() {
     super.initState();
 
+    simpleTableContext.isSelectingTable.value = true;
     dummyNode = _buildDummyNode();
   }
 
@@ -196,22 +197,16 @@ class _SimpleTableFeedbackState extends State<SimpleTableFeedback> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.red.withOpacity(0.2),
-      width: 200,
-      height: 400,
-      alignment: Alignment.center,
-      child: Provider.value(
-        value: widget.editorState,
-        child: SimpleTableWidget(
-          node: dummyNode,
-          simpleTableContext: simpleTableContext,
-          enableAddColumnButton: false,
-          enableAddRowButton: false,
-          enableAddColumnAndRowButton: false,
-          enableHoverEffect: false,
-          isFeedback: true,
-        ),
+    return Provider.value(
+      value: widget.editorState,
+      child: SimpleTableWidget(
+        node: dummyNode,
+        simpleTableContext: simpleTableContext,
+        enableAddColumnButton: false,
+        enableAddRowButton: false,
+        enableAddColumnAndRowButton: false,
+        enableHoverEffect: false,
+        isFeedback: true,
       ),
     );
   }
@@ -233,8 +228,13 @@ class _SimpleTableFeedbackState extends State<SimpleTableFeedback> {
         }
 
         final row = tableNode.children[widget.index];
-        return simpleTableBlockNode(children: [row]);
-
+        return tableNode.copyWith(
+          children: [row],
+          attributes: {
+            ...tableNode.attributes,
+            if (widget.index != 0) SimpleTableBlockKeys.enableHeaderRow: false,
+          },
+        );
       case SimpleTableMoreActionType.column:
         if (widget.index >= tableNode.columnLength || widget.index < 0) {
           return simpleTableBlockNode(children: []);
@@ -244,7 +244,15 @@ class _SimpleTableFeedbackState extends State<SimpleTableFeedback> {
           final cell = row.children[widget.index];
           return simpleTableRowBlockNode(children: [cell]);
         }).toList();
-        return simpleTableBlockNode(children: rows);
+
+        return tableNode.copyWith(
+          children: rows,
+          attributes: {
+            ...tableNode.attributes,
+            if (widget.index != 0)
+              SimpleTableBlockKeys.enableHeaderColumn: false,
+          },
+        );
     }
   }
 }

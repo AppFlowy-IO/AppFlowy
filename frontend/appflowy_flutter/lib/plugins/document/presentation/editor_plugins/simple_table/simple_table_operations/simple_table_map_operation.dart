@@ -607,6 +607,7 @@ extension TableMapOperation on Node {
                     duplicatedColumnColor,
                   )
                 : null,
+            removeNullValue: true,
           )
           .mergeValues(
             SimpleTableBlockKeys.columnAligns,
@@ -617,6 +618,7 @@ extension TableMapOperation on Node {
                     duplicatedColumnAlign,
                   )
                 : null,
+            removeNullValue: true,
           )
           .mergeValues(
             SimpleTableBlockKeys.columnWidths,
@@ -627,6 +629,7 @@ extension TableMapOperation on Node {
                     duplicatedColumnWidth,
                   )
                 : null,
+            removeNullValue: true,
           );
     } catch (e) {
       Log.warn('Failed to map column deletion attributes: $e');
@@ -643,6 +646,52 @@ extension TableMapOperation on Node {
       final duplicatedRowColor = this.rowColors[fromIndex.toString()];
       final duplicatedRowAlign = this.rowAligns[fromIndex.toString()];
 
+      /// Example:
+      /// Case 1: fromIndex > toIndex
+      /// Before:
+      /// Row 0: | 0 | 1 | 2 |
+      /// Row 1: | 3 | 4 | 5 | ← Move this row (index 1)
+      /// Row 2: | 6 | 7 | 8 |
+      ///
+      /// rowColors = {
+      ///   "0": "#FF0000",
+      ///   "1": "#00FF00", ← This will be moved
+      ///   "2": "#0000FF"
+      /// }
+      ///
+      /// Move row 1 to index 0:
+      /// Row 0: | 3 | 4 | 5 | ← Moved here
+      /// Row 1: | 0 | 1 | 2 |
+      /// Row 2: | 6 | 7 | 8 |
+      ///
+      /// rowColors = {
+      ///   "0": "#00FF00", ← Moved here
+      ///   "1": "#FF0000",
+      ///   "2": "#0000FF"
+      /// }
+      ///
+      /// Case 2: fromIndex < toIndex
+      /// Before:
+      /// Row 0: | 0 | 1 | 2 |
+      /// Row 1: | 3 | 4 | 5 | ← Move this row (index 1)
+      /// Row 2: | 6 | 7 | 8 |
+      ///
+      /// rowColors = {
+      ///   "0": "#FF0000",
+      ///   "1": "#00FF00", ← This will be moved
+      ///   "2": "#0000FF"
+      /// }
+      ///
+      /// Move row 1 to index 2:
+      /// Row 0: | 0 | 1 | 2 |
+      /// Row 1: | 3 | 4 | 5 |
+      /// Row 2: | 6 | 7 | 8 | ← Moved here
+      ///
+      /// rowColors = {
+      ///   "0": "#FF0000",
+      ///   "1": "#0000FF",
+      ///   "2": "#00FF00" ← Moved here
+      /// }
       final rowColors = _remapSource(
         this.rowColors,
         fromIndex,
@@ -675,18 +724,24 @@ extension TableMapOperation on Node {
           .mergeValues(
             SimpleTableBlockKeys.rowColors,
             rowColors,
-            duplicatedEntry: MapEntry(
-              toIndex.toString(),
-              duplicatedRowColor,
-            ),
+            duplicatedEntry: duplicatedRowColor != null
+                ? MapEntry(
+                    toIndex.toString(),
+                    duplicatedRowColor,
+                  )
+                : null,
+            removeNullValue: true,
           )
           .mergeValues(
             SimpleTableBlockKeys.rowAligns,
             rowAligns,
-            duplicatedEntry: MapEntry(
-              toIndex.toString(),
-              duplicatedRowAlign,
-            ),
+            duplicatedEntry: duplicatedRowAlign != null
+                ? MapEntry(
+                    toIndex.toString(),
+                    duplicatedRowAlign,
+                  )
+                : null,
+            removeNullValue: true,
           );
     } catch (e) {
       Log.warn('Failed to map row reordering attributes: $e');
@@ -747,6 +802,7 @@ extension TableMapOperationAttributes on Attributes {
     String key,
     Map<String, dynamic> newSource, {
     MapEntry? duplicatedEntry,
+    bool removeNullValue = false,
   }) {
     final result = {...this};
 
@@ -754,8 +810,10 @@ extension TableMapOperationAttributes on Attributes {
       newSource[duplicatedEntry.key] = duplicatedEntry.value;
     }
 
-    // remove the null value
-    newSource.removeWhere((key, value) => value == null);
+    if (removeNullValue) {
+      // remove the null value
+      newSource.removeWhere((key, value) => value == null);
+    }
 
     result[key] = newSource;
 
