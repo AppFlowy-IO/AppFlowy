@@ -14,7 +14,7 @@ pub const CHECK: &str = "Yes";
 pub const UNCHECK: &str = "No";
 
 impl TypeOptionCellData for CheckboxCellDataPB {
-  fn is_empty(&self) -> bool {
+  fn is_cell_empty(&self) -> bool {
     false
   }
 }

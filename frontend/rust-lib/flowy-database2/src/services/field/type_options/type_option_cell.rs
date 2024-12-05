@@ -351,7 +351,7 @@ where
   fn handle_is_empty(&self, cell: &Cell, field: &Field) -> bool {
     let cell_data = self.get_cell_data(cell, field).unwrap_or_default();
 
-    cell_data.is_empty()
+    cell_data.is_cell_empty()
   }
 }
 

@@ -2,8 +2,8 @@ use crate::entities::TextFilterPB;
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
-  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform,
+  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
 use collab_database::fields::translate_type_option::TranslateTypeOption;

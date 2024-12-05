@@ -112,7 +112,7 @@ impl TypeOptionCellDataCompare for RichTextTypeOption {
     other_cell_data: &<Self as TypeOption>::CellData,
     sort_condition: SortCondition,
   ) -> Ordering {
-    match (cell_data.is_empty(), other_cell_data.is_empty()) {
+    match (cell_data.is_cell_empty(), other_cell_data.is_cell_empty()) {
       (true, true) => Ordering::Equal,
       (true, false) => Ordering::Greater,
       (false, true) => Ordering::Less,
@@ -140,7 +140,7 @@ impl std::ops::Deref for StringCellData {
 }
 
 impl TypeOptionCellData for StringCellData {
-  fn is_empty(&self) -> bool {
+  fn is_cell_empty(&self) -> bool {
     self.0.is_empty()
   }
 }

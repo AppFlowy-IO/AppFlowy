@@ -126,7 +126,7 @@ impl TypeOptionCellDataCompare for MediaTypeOption {
     other_cell_data: &<Self as TypeOption>::CellData,
     _sort_condition: SortCondition,
   ) -> Ordering {
-    match (cell_data.files.is_empty(), other_cell_data.is_empty()) {
+    match (cell_data.files.is_empty(), other_cell_data.is_cell_empty()) {
       (true, true) => Ordering::Equal,
       (true, false) => Ordering::Greater,
       (false, true) => Ordering::Less,
