@@ -60,6 +60,7 @@ pub fn make_test_board() -> DatabaseData {
           time_format: TimeFormat::TwentyFourHour,
           include_time: true,
           field_type: field_type.into(),
+          timezone: None,
         };
         let name = match field_type {
           FieldType::LastEditedTime => "Last Modified",

@@ -1,4 +1,6 @@
 .simple-table {
+  font-size: 14px;
+
   &.enable-header-column {
     tr [data-block-type="simple_table_cell"]:first-child {
       @apply font-semibold;
@@ -32,6 +34,15 @@
     }
   }
 
+  tr[data-table-row-horizontal-align="left"] {
+    .block-element {
+      > div > .text-element {
+        text-align: left;
+        justify-content: flex-start;
+      }
+    }
+  }
+
   tr[data-table-row-horizontal-align="center"] {
     .block-element {
       > div > .text-element {
@@ -46,6 +57,15 @@
       > div > .text-element {
         text-align: right;
         justify-content: flex-end;
+      }
+    }
+  }
+
+  td[data-table-cell-horizontal-align="left"] {
+    .block-element {
+      > div > .text-element {
+        text-align: left;
+        justify-content: flex-start;
       }
     }
   }
@@ -69,11 +89,12 @@
     }
   }
 
+
   td .cell-children {
-    @apply min-w-[120px] leading-[1.8em];
+    @apply leading-[1.7em];
   }
 
   td {
-    @apply p-2;
+    @apply px-2 py-0.5;
   }
 }

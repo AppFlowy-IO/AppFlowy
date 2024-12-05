@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_tab
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 typedef SimpleTableColumnWidthMap = Map<String, double>;
 typedef SimpleTableRowAlignMap = Map<String, String>;
@@ -187,28 +188,34 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
   @override
   Widget build(BuildContext context) {
     Widget child = Transform.translate(
-      offset: const Offset(
-        -SimpleTableConstants.tableLeftPadding,
+      offset: Offset(
+        UniversalPlatform.isDesktop
+            ? -SimpleTableConstants.tableLeftPadding
+            : 0,
         0,
       ),
       child: _buildTable(),
     );
 
-    child = Provider.value(
-      value: simpleTableContext,
-      child: MouseRegion(
-        onEnter: (event) =>
-            simpleTableContext.isHoveringOnTableBlock.value = true,
-        onExit: (event) {
-          simpleTableContext.isHoveringOnTableBlock.value = false;
-        },
-        child: Container(
-          alignment: Alignment.topLeft,
-          padding: padding,
+    child = Container(
+      alignment: Alignment.topLeft,
+      padding: padding,
+      child: child,
+    );
+
+    if (UniversalPlatform.isDesktop) {
+      child = Provider.value(
+        value: simpleTableContext,
+        child: MouseRegion(
+          onEnter: (event) =>
+              simpleTableContext.isHoveringOnTableBlock.value = true,
+          onExit: (event) {
+            simpleTableContext.isHoveringOnTableBlock.value = false;
+          },
           child: child,
         ),
-      ),
-    );
+      );
+    }
 
     if (widget.showActions && widget.actionBuilder != null) {
       child = BlockComponentActionWrapper(
@@ -222,6 +229,14 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
   }
 
   Widget _buildTable() {
+    if (UniversalPlatform.isDesktop) {
+      return _buildDesktopTable();
+    } else {
+      return _buildMobileTable();
+    }
+  }
+
+  Widget _buildDesktopTable() {
     // IntrinsicWidth and IntrinsicHeight are used to make the table size fit the content.
     return MouseRegion(
       onEnter: (event) => simpleTableContext.isHoveringOnTableArea.value = true,
@@ -260,19 +275,40 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
                 ),
               ),
             ),
-            SimpleTableAddColumnHoverButton(
-              editorState: editorState,
-              node: node,
-            ),
-            SimpleTableAddRowHoverButton(
-              editorState: editorState,
-              tableNode: node,
-            ),
-            SimpleTableAddColumnAndRowHoverButton(
-              editorState: editorState,
-              node: node,
-            ),
+            if (UniversalPlatform.isDesktop) ...[
+              SimpleTableAddColumnHoverButton(
+                editorState: editorState,
+                node: node,
+              ),
+              SimpleTableAddRowHoverButton(
+                editorState: editorState,
+                tableNode: node,
+              ),
+              SimpleTableAddColumnAndRowHoverButton(
+                editorState: editorState,
+                node: node,
+              ),
+            ],
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileTable() {
+    return Provider.value(
+      value: simpleTableContext,
+      child: SingleChildScrollView(
+        controller: scrollController,
+        scrollDirection: Axis.horizontal,
+        child: IntrinsicWidth(
+          child: IntrinsicHeight(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: _buildRows(),
+            ),
+          ),
         ),
       ),
     );

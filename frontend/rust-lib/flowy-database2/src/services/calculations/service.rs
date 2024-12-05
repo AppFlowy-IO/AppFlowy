@@ -95,7 +95,7 @@ impl CalculationsService {
     if let Some(handler) = TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler() {
       let empty_count = cells
         .par_iter()
-        .filter(|cell| handler.handle_is_cell_empty(cell, field))
+        .filter(|cell| handler.handle_is_empty(cell, field))
         .count();
       empty_count.to_string()
     } else {
@@ -107,7 +107,7 @@ impl CalculationsService {
     if let Some(handler) = TypeOptionCellExt::new(field, None).get_type_option_cell_data_handler() {
       let non_empty_count = cells
         .par_iter()
-        .filter(|cell| !handler.handle_is_cell_empty(cell, field))
+        .filter(|cell| !handler.handle_is_empty(cell, field))
         .count();
       non_empty_count.to_string()
     } else {

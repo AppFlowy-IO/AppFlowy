@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_related_question.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:desktop_drop/desktop_drop.dart';
@@ -14,8 +17,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart'
     hide ChatAnimatedListReversed;
+import 'package:string_validator/string_validator.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'application/chat_member_bloc.dart';
 import 'application/chat_side_panel_bloc.dart';
@@ -76,7 +81,7 @@ class AIChatPage extends StatelessWidget {
                 for (final file in detail.files) {
                   context
                       .read<AIPromptInputBloc>()
-                      .add(AIPromptInputEvent.newFile(file.path, file.name));
+                      .add(AIPromptInputEvent.attachFile(file.path, file.name));
                 }
               }
             },
@@ -273,10 +278,26 @@ class _ChatContentPage extends StatelessWidget {
           chatId: view.id,
           refSourceJsonString: refSourceJsonString,
           isLastMessage: isLastMessage,
-          onSelectedMetadata: (metadata) {
-            context
-                .read<ChatSidePanelBloc>()
-                .add(ChatSidePanelEvent.selectedMetadata(metadata));
+          onSelectedMetadata: (metadata) async {
+            if (isURL(metadata.name)) {
+              late Uri uri;
+
+              try {
+                uri = Uri.parse(metadata.name);
+                // `Uri` identifies `localhost` as a scheme
+                if (!uri.hasScheme || uri.scheme == 'localhost') {
+                  uri = Uri.parse("http://${metadata.name}");
+                  await InternetAddress.lookup(uri.host);
+                }
+                await launchUrl(uri);
+              } catch (err) {
+                Log.error("failed to open url $err");
+              }
+            } else {
+              context
+                  .read<ChatSidePanelBloc>()
+                  .add(ChatSidePanelEvent.selectedMetadata(metadata));
+            }
           },
         );
       },
@@ -345,7 +366,6 @@ class _ChatContentPage extends StatelessWidget {
           return UniversalPlatform.isDesktop
               ? DesktopAIPromptInput(
                   chatId: view.id,
-                  indicateFocus: true,
                   onSubmitted: (text, metadata) {
                     context.read<ChatBloc>().add(
                           ChatEvent.sendMessage(

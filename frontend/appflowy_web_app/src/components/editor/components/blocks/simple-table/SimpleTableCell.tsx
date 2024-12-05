@@ -1,4 +1,4 @@
-import { BlockType, TableAlignType } from '@/application/types';
+import { BlockType } from '@/application/types';
 import { EditorElementProps, SimpleTableCellBlockNode, SimpleTableNode } from '@/components/editor/editor.type';
 import { renderColor } from '@/utils/color';
 import React, { forwardRef, useMemo } from 'react';
@@ -51,8 +51,8 @@ const SimpleTableCell =
 
       const { horizontalAlign, bgColor } = useMemo(() => {
         if (!table || !row) return {
-          bgColor: '',
-          horizontalAlign: TableAlignType.Left,
+          bgColor: undefined,
+          horizontalAlign: undefined,
         };
 
         const [parentElement] = table;

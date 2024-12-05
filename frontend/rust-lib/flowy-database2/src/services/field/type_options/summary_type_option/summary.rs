@@ -1,14 +1,14 @@
 use crate::entities::TextFilterPB;
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
-use crate::services::field::summary_type_option::summary_entities::SummaryCellData;
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
-  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform,
+  CellDataProtobufEncoder, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
 use collab_database::fields::summary_type_option::SummarizationTypeOption;
 use collab_database::rows::Cell;
+use collab_database::template::summary_parse::SummaryCellData;
 use flowy_error::FlowyResult;
 use std::cmp::Ordering;
 
@@ -60,29 +60,17 @@ impl TypeOptionCellDataCompare for SummarizationTypeOption {
 }
 
 impl CellDataDecoder for SummarizationTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<SummaryCellData> {
-    Ok(SummaryCellData::from(cell))
-  }
-
   fn stringify_cell_data(&self, cell_data: SummaryCellData) -> String {
     cell_data.to_string()
-  }
-
-  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
-    None
   }
 }
 impl TypeOptionTransform for SummarizationTypeOption {}
 
-impl TypeOptionCellDataSerde for SummarizationTypeOption {
+impl CellDataProtobufEncoder for SummarizationTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     ProtobufStr::from(cell_data.0)
-  }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(SummaryCellData::from(cell))
   }
 }
