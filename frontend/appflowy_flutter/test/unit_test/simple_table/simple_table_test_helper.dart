@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 (EditorState editorState, Node tableNode) createEditorStateAndTable({
@@ -21,4 +21,39 @@ import 'package:appflowy_editor/appflowy_editor.dart';
     );
   final editorState = EditorState(document: document);
   return (editorState, document.nodeAtPath([0])!);
+}
+
+Future<void> updateTableColumnAttributes(
+  EditorState editorState,
+  Node tableNode, {
+  required int columnIndex,
+  TableAlign? align,
+  String? color,
+  double? width,
+}) async {
+  final cell = tableNode.getTableCellNode(
+    rowIndex: 0,
+    columnIndex: columnIndex,
+  )!;
+
+  if (align != null) {
+    await editorState.updateColumnAlign(
+      tableCellNode: cell,
+      align: align,
+    );
+  }
+
+  if (color != null) {
+    await editorState.updateColumnBackgroundColor(
+      tableCellNode: cell,
+      color: color,
+    );
+  }
+
+  if (width != null) {
+    await editorState.updateColumnWidth(
+      tableCellNode: cell,
+      width: width,
+    );
+  }
 }

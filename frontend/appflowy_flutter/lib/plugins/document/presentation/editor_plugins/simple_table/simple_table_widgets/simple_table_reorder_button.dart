@@ -31,8 +31,6 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('[x] render type: ${type.toString()}');
-
     return Draggable<int>(
       data: index,
       onDragStarted: () => _startDragging(),
@@ -52,7 +50,6 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
   }
 
   void _startDragging() {
-    debugPrint('[x] startDragging');
     switch (type) {
       case SimpleTableMoreActionType.column:
         simpleTableContext.isReorderingColumn.value = (true, index);
@@ -75,7 +72,6 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
         _reorderRow();
     }
 
-    debugPrint('[x] stopDragging');
     simpleTableContext.reorderingOffset.value = Offset.zero;
     switch (type) {
       case SimpleTableMoreActionType.column:
@@ -94,17 +90,11 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
       return;
     }
 
-    if (toIndex < fromIndex) {
-      // move to the left side
-      editorState.reorderColumn(node, fromIndex: fromIndex, toIndex: toIndex);
-    } else {
-      // move to the right side
-      editorState.reorderColumn(
-        node,
-        fromIndex: fromIndex,
-        toIndex: toIndex + 1,
-      );
-    }
+    editorState.reorderColumn(
+      node,
+      fromIndex: fromIndex,
+      toIndex: toIndex,
+    );
   }
 
   void _reorderRow() {}
@@ -188,7 +178,6 @@ class _SimpleTableFeedbackState extends State<SimpleTableFeedback> {
     super.initState();
 
     dummyNode = _buildDummyNode();
-    debugPrint('dummyNode: ${dummyNode.toJson()}');
   }
 
   @override

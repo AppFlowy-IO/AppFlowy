@@ -74,7 +74,6 @@ class _SimpleTableWidgetState extends State<SimpleTableWidget> {
 
   Widget _buildDesktopTable() {
     if (widget.isFeedback) {
-      debugPrint('widget.isFeedback: ${widget.isFeedback}');
       return Container(
         color: Colors.blue.withOpacity(0.2),
         width: 300,

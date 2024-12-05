@@ -516,8 +516,40 @@ extension TableMapOperation on Node {
   Attributes? _mapColumnReorderingAttributes(int fromIndex, int toIndex) {
     final attributes = this.attributes;
     try {
+      final duplicatedColumnColor = this.columnColors[fromIndex.toString()];
+      final duplicatedColumnAlign = this.columnAligns[fromIndex.toString()];
+      final duplicatedColumnWidth = this.columnWidths[fromIndex.toString()];
+
       final columnColors = _remapSource(
         this.columnColors,
+        fromIndex,
+        increment: fromIndex > toIndex,
+        comparator: (iKey, index) {
+          if (fromIndex > toIndex) {
+            return iKey < fromIndex && iKey >= toIndex;
+          } else {
+            return iKey > fromIndex && iKey <= toIndex;
+          }
+        },
+        filterIndex: fromIndex,
+      );
+
+      final columnAligns = _remapSource(
+        this.columnAligns,
+        fromIndex,
+        increment: fromIndex > toIndex,
+        comparator: (iKey, index) {
+          if (fromIndex > toIndex) {
+            return iKey < fromIndex && iKey >= toIndex;
+          } else {
+            return iKey > fromIndex && iKey <= toIndex;
+          }
+        },
+        filterIndex: fromIndex,
+      );
+
+      final columnWidths = _remapSource(
+        this.columnWidths,
         fromIndex,
         increment: fromIndex > toIndex,
         comparator: (iKey, index) {
@@ -534,14 +566,26 @@ extension TableMapOperation on Node {
           .mergeValues(
             SimpleTableBlockKeys.columnColors,
             columnColors,
+            duplicatedEntry: MapEntry(
+              toIndex.toString(),
+              duplicatedColumnColor,
+            ),
           )
           .mergeValues(
             SimpleTableBlockKeys.columnAligns,
             columnAligns,
+            duplicatedEntry: MapEntry(
+              toIndex.toString(),
+              duplicatedColumnAlign,
+            ),
           )
           .mergeValues(
             SimpleTableBlockKeys.columnWidths,
             columnWidths,
+            duplicatedEntry: MapEntry(
+              toIndex.toString(),
+              duplicatedColumnWidth,
+            ),
           );
     } catch (e) {
       Log.warn('Failed to map column deletion attributes: $e');

@@ -26,11 +26,11 @@ extension SimpleTableReorderOperation on EditorState {
     final rowLength = node.rowLength;
 
     if (fromIndex < 0 ||
-        fromIndex >= rowLength ||
+        fromIndex >= columnLength ||
         toIndex < 0 ||
-        toIndex >= rowLength) {
+        toIndex >= columnLength) {
       Log.warn(
-        'reorder column: index out of range: fromIndex: $fromIndex, toIndex: $toIndex, column length: $rowLength',
+        'reorder column: index out of range: fromIndex: $fromIndex, toIndex: $toIndex, column length: $columnLength',
       );
       return;
     }
@@ -47,7 +47,7 @@ extension SimpleTableReorderOperation on EditorState {
     );
 
     final transaction = this.transaction;
-    for (var i = 0; i < columnLength; i++) {
+    for (var i = 0; i < rowLength; i++) {
       final row = node.children[i];
       final from = row.children[fromIndex];
       final to = row.children[toIndex];
@@ -55,7 +55,7 @@ extension SimpleTableReorderOperation on EditorState {
       if (fromIndex < toIndex) {
         toPath = toPath.next;
       } else {
-        toPath = toPath.previous;
+        toPath = toPath;
       }
       transaction.insertNode(toPath, from.copyWith());
       transaction.deleteNode(from);

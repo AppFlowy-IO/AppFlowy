@@ -264,10 +264,6 @@ class _SimpleTableMoreActionPopupState
       return const SizedBox.shrink();
     }
 
-    debugPrint(
-      '[x] tableCellNode: ${tableCellNode?.rowIndex} ${tableCellNode?.columnIndex}',
-    );
-
     return AppFlowyPopover(
       controller: popoverController,
       onOpen: () => _onOpen(tableCellNode: tableCellNode),
@@ -317,9 +313,6 @@ class _SimpleTableMoreActionPopupState
   }
 
   void _onOpen({Node? tableCellNode}) {
-    debugPrint(
-      '[x] _onOpen: ${tableCellNode?.rowIndex} ${tableCellNode?.columnIndex}',
-    );
     widget.isShowingMenu.value = true;
 
     switch (widget.type) {
