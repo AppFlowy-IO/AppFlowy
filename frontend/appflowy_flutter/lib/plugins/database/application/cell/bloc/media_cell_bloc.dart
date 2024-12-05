@@ -189,13 +189,22 @@ class MediaCellBloc extends Bloc<MediaCellEvent, MediaCellState> {
                 return;
               }
 
-              mediaUploadProgress ??= MediaUploadProgress(
-                fileId: id,
-                uploadState: progress.progress >= 1
-                    ? MediaUploadState.completed
-                    : MediaUploadState.uploading,
-                fileProgress: progress,
-              );
+              if (mediaUploadProgress == null) {
+                mediaUploadProgress ??= MediaUploadProgress(
+                  fileId: id,
+                  uploadState: progress.progress >= 1
+                      ? MediaUploadState.completed
+                      : MediaUploadState.uploading,
+                  fileProgress: progress,
+                );
+              } else {
+                mediaUploadProgress = mediaUploadProgress.copyWith(
+                  uploadState: progress.progress >= 1
+                      ? MediaUploadState.completed
+                      : MediaUploadState.uploading,
+                  fileProgress: progress,
+                );
+              }
 
               final uploadProgress = [...state.uploadProgress];
               uploadProgress
@@ -246,8 +255,17 @@ class MediaCellBloc extends Bloc<MediaCellEvent, MediaCellState> {
     add(MediaCellEvent.onProgressUpdate(file.id));
   }
 
-  void _onProgressChanged(String id) =>
-      add(MediaCellEvent.onProgressUpdate(id));
+  void _onProgressChanged(String id) {
+    // Ignore events if the file is already uploaded
+    final progress =
+        state.uploadProgress.firstWhereOrNull((u) => u.fileId == id);
+    if (progress == null ||
+        progress.uploadState == MediaUploadState.completed) {
+      return;
+    }
+
+    add(MediaCellEvent.onProgressUpdate(id));
+  }
 
   /// Removes and disposes of a progress notifier if found
   ///
@@ -347,4 +365,19 @@ class MediaUploadProgress {
   final String fileId;
   final MediaUploadState uploadState;
   final FileProgress fileProgress;
+
+  @override
+  String toString() =>
+      'MediaUploadProgress(fileId: $fileId, uploadState: $uploadState, fileProgress: $fileProgress)';
+
+  MediaUploadProgress copyWith({
+    MediaUploadState? uploadState,
+    FileProgress? fileProgress,
+  }) {
+    return MediaUploadProgress(
+      fileId: fileId,
+      uploadState: uploadState ?? this.uploadState,
+      fileProgress: fileProgress ?? this.fileProgress,
+    );
+  }
 }
