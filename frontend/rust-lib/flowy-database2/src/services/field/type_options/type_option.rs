@@ -25,7 +25,6 @@ use collab_database::fields::url_type_option::URLTypeOption;
 use collab_database::fields::{TypeOptionCellReader, TypeOptionData};
 use collab_database::rows::Cell;
 pub use collab_database::template::util::TypeOptionCellData;
-use flowy_error::FlowyResult;
 use protobuf::ProtobufError;
 use std::cmp::Ordering;
 use std::fmt::Debug;
@@ -72,7 +71,7 @@ pub trait TypeOption: From<TypeOptionData> + Into<TypeOptionData> + TypeOptionCe
 ///
 /// This trait ensures that a type which implements both `TypeOption` and `TypeOptionCellDataSerde` can
 /// be converted to and from a corresponding `Protobuf struct`, and can be parsed from an opaque [Cell] structure.
-pub trait TypeOptionCellDataSerde: TypeOption {
+pub trait CellDataProtobufEncoder: TypeOption {
   /// Encode the cell data into corresponding `Protobuf struct`.
   /// For example:
   ///    FieldType::URL => URLCellDataPB
@@ -81,11 +80,6 @@ pub trait TypeOptionCellDataSerde: TypeOption {
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType;
-
-  /// Parse the opaque [Cell] to corresponding data struct.
-  /// The [Cell] is a map that stores list of key/value data. Each [TypeOption::CellData]
-  /// should implement the From<&Cell> trait to parse the [Cell] to corresponding data struct.
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData>;
 }
 
 #[async_trait]

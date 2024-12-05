@@ -10,7 +10,7 @@ use flowy_error::FlowyResult;
 use crate::entities::{CheckboxCellDataPB, CheckboxFilterPB, FieldType};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
   TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
@@ -24,24 +24,16 @@ impl TypeOption for CheckboxTypeOption {
 
 impl TypeOptionTransform for CheckboxTypeOption {}
 
-impl TypeOptionCellDataSerde for CheckboxTypeOption {
+impl CellDataProtobufEncoder for CheckboxTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     cell_data
   }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(CheckboxCellDataPB::from(cell))
-  }
 }
 
 impl CellDataDecoder for CheckboxTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    self.parse_cell(cell)
-  }
-
   fn decode_cell_with_transform(
     &self,
     cell: &Cell,

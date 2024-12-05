@@ -14,8 +14,8 @@ use crate::entities::{DateCellDataPB, DateFilterPB, FieldType};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::date_type_option::date_filter::DateCellChangeset;
 use crate::services::field::{
-  default_order, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform, CELL_DATA,
+  default_order, CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionTransform, CELL_DATA,
 };
 use crate::services::sort::SortCondition;
 
@@ -26,7 +26,7 @@ impl TypeOption for DateTypeOption {
   type CellFilter = DateFilterPB;
 }
 
-impl TypeOptionCellDataSerde for DateTypeOption {
+impl CellDataProtobufEncoder for DateTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -50,10 +50,6 @@ impl TypeOptionCellDataSerde for DateTypeOption {
       is_range,
       reminder_id,
     }
-  }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(DateCellData::from(cell))
   }
 }
 
@@ -105,10 +101,6 @@ impl TypeOptionTransform for DateTypeOption {
 }
 
 impl CellDataDecoder for DateTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    self.parse_cell(cell)
-  }
-
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     let include_time = cell_data.include_time;
     let timestamp = cell_data.timestamp;

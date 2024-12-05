@@ -1,8 +1,8 @@
 use crate::entities::{FieldType, SelectOptionCellDataPB, SelectOptionFilterPB};
 use crate::services::cell::CellDataChangeset;
 use crate::services::field::{
-  default_order, SelectOptionCellChangeset, SelectTypeOptionSharedAction, TypeOption,
-  TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  default_order, CellDataProtobufEncoder, SelectOptionCellChangeset, SelectTypeOptionSharedAction,
+  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
 };
 use crate::services::sort::SortCondition;
 
@@ -22,16 +22,12 @@ impl TypeOption for MultiSelectTypeOption {
   type CellFilter = SelectOptionFilterPB;
 }
 
-impl TypeOptionCellDataSerde for MultiSelectTypeOption {
+impl CellDataProtobufEncoder for MultiSelectTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     self.get_selected_options(cell_data).into()
-  }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(SelectOptionIds::from(cell))
   }
 }
 

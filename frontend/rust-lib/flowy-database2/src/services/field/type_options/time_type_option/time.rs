@@ -1,7 +1,7 @@
 use crate::entities::{TimeCellDataPB, TimeFilterPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
   TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
@@ -20,7 +20,7 @@ impl TypeOption for TimeTypeOption {
   type CellFilter = TimeFilterPB;
 }
 
-impl TypeOptionCellDataSerde for TimeTypeOption {
+impl CellDataProtobufEncoder for TimeTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -32,19 +32,11 @@ impl TypeOptionCellDataSerde for TimeTypeOption {
       time: i64::default(),
     }
   }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(TimeCellData::from(cell))
-  }
 }
 
 impl TypeOptionTransform for TimeTypeOption {}
 
 impl CellDataDecoder for TimeTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    self.parse_cell(cell)
-  }
-
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     if let Some(time) = cell_data.0 {
       return time.to_string();

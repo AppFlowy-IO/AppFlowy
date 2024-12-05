@@ -8,8 +8,8 @@ use crate::{
   services::{
     cell::{CellDataChangeset, CellDataDecoder},
     field::{
-      default_order, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-      TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform,
+      default_order, CellDataProtobufEncoder, TypeOption, TypeOptionCellData,
+      TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform,
     },
     sort::SortCondition,
   },
@@ -24,24 +24,16 @@ impl TypeOption for MediaTypeOption {
 
 impl TypeOptionTransform for MediaTypeOption {}
 
-impl TypeOptionCellDataSerde for MediaTypeOption {
+impl CellDataProtobufEncoder for MediaTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     cell_data.into()
   }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(cell.into())
-  }
 }
 
 impl CellDataDecoder for MediaTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    self.parse_cell(cell)
-  }
-
   fn decode_cell_with_transform(
     &self,
     _cell: &Cell,

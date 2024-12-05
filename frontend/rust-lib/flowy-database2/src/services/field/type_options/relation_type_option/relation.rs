@@ -9,8 +9,8 @@ use flowy_error::FlowyResult;
 use crate::entities::{RelationCellDataPB, RelationFilterPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  default_order, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform,
+  default_order, CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
 
@@ -56,10 +56,6 @@ impl CellDataChangeset for RelationTypeOption {
 }
 
 impl CellDataDecoder for RelationTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<RelationCellData> {
-    Ok(cell.into())
-  }
-
   fn stringify_cell_data(&self, cell_data: RelationCellData) -> String {
     cell_data.to_string()
   }
@@ -84,12 +80,8 @@ impl TypeOptionCellDataFilter for RelationTypeOption {
 
 impl TypeOptionTransform for RelationTypeOption {}
 
-impl TypeOptionCellDataSerde for RelationTypeOption {
+impl CellDataProtobufEncoder for RelationTypeOption {
   fn protobuf_encode(&self, cell_data: RelationCellData) -> RelationCellDataPB {
     cell_data.into()
-  }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<RelationCellData> {
-    Ok(cell.into())
   }
 }

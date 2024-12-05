@@ -1,8 +1,8 @@
 use crate::entities::{DateFilterPB, TimestampCellDataPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  default_order, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform,
+  default_order, CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
 use collab_database::fields::timestamp_type_option::TimestampTypeOption;
@@ -18,7 +18,7 @@ impl TypeOption for TimestampTypeOption {
   type CellFilter = DateFilterPB;
 }
 
-impl TypeOptionCellDataSerde for TimestampTypeOption {
+impl CellDataProtobufEncoder for TimestampTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -31,19 +31,11 @@ impl TypeOptionCellDataSerde for TimestampTypeOption {
       timestamp,
     }
   }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(TimestampCellData::from(cell))
-  }
 }
 
 impl TypeOptionTransform for TimestampTypeOption {}
 
 impl CellDataDecoder for TimestampTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    self.parse_cell(cell)
-  }
-
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     let timestamp = cell_data.timestamp;
     let (date_string, time_string) = self.formatted_date_time_from_timestamp(&timestamp);

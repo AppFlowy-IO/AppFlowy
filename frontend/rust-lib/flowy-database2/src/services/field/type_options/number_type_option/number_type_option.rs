@@ -19,8 +19,8 @@ use crate::entities::{FieldType, NumberFilterPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
-  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform,
+  CellDataProtobufEncoder, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
 
@@ -31,16 +31,12 @@ impl TypeOption for NumberTypeOption {
   type CellFilter = NumberFilterPB;
 }
 
-impl TypeOptionCellDataSerde for NumberTypeOption {
+impl CellDataProtobufEncoder for NumberTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     ProtobufStr::from(cell_data.0)
-  }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(NumberCellData::from(cell))
   }
 }
 
@@ -70,7 +66,7 @@ impl TypeOptionTransform for NumberTypeOption {
         );
         for (row_id, cell_data) in rows {
           if let Ok(num_cell) = self
-            .parse_cell(&cell_data)
+            .decode_cell(&cell_data)
             .and_then(|num_cell_data| self.format_cell_data(num_cell_data).map_err(Into::into))
           {
             database
@@ -92,7 +88,7 @@ impl TypeOptionTransform for NumberTypeOption {
 
 impl CellDataDecoder for NumberTypeOption {
   fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    let num_cell_data = self.parse_cell(cell)?;
+    let num_cell_data = Self::CellData::from(cell);
     Ok(NumberCellData::from(
       self.format_cell_data(num_cell_data)?.to_string(),
     ))

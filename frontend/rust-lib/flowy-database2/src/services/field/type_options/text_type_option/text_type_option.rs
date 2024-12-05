@@ -11,8 +11,8 @@ use crate::entities::{FieldType, TextFilterPB};
 use crate::services::cell::{stringify_cell, CellDataChangeset, CellDataDecoder};
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
-  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform, CELL_DATA,
+  CellDataProtobufEncoder, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionTransform, CELL_DATA,
 };
 use crate::services::sort::SortCondition;
 
@@ -25,24 +25,16 @@ impl TypeOption for RichTextTypeOption {
 
 impl TypeOptionTransform for RichTextTypeOption {}
 
-impl TypeOptionCellDataSerde for RichTextTypeOption {
+impl CellDataProtobufEncoder for RichTextTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     ProtobufStr::from(cell_data.0)
   }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(StringCellData::from(cell))
-  }
 }
 
 impl CellDataDecoder for RichTextTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(StringCellData::from(cell))
-  }
-
   fn decode_cell_with_transform(
     &self,
     cell: &Cell,

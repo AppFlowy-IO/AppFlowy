@@ -2,7 +2,7 @@ use crate::entities::TextFilterPB;
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
-  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
   TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
@@ -60,25 +60,17 @@ impl TypeOptionCellDataCompare for TranslateTypeOption {
 }
 
 impl CellDataDecoder for TranslateTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<TranslateCellData> {
-    Ok(TranslateCellData::from(cell))
-  }
-
   fn stringify_cell_data(&self, cell_data: TranslateCellData) -> String {
     cell_data.to_string()
   }
 }
 impl TypeOptionTransform for TranslateTypeOption {}
 
-impl TypeOptionCellDataSerde for TranslateTypeOption {
+impl CellDataProtobufEncoder for TranslateTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     ProtobufStr::from(cell_data.0)
-  }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(TranslateCellData::from(cell))
   }
 }

@@ -2,7 +2,7 @@ use crate::entities::{CheckboxCellDataPB, FieldType, SelectOptionCellDataPB};
 use crate::services::cell::{CellDataDecoder, CellProtobufBlobParser};
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
 use crate::services::field::{
-  StringCellData, TypeOption, TypeOptionCellDataSerde, TypeOptionTransform,
+  CellDataProtobufEncoder, StringCellData, TypeOption, TypeOptionTransform,
 };
 use async_trait::async_trait;
 use bytes::Bytes;
@@ -99,12 +99,8 @@ where
 impl<T> CellDataDecoder for T
 where
   T:
-    SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + TypeOptionCellDataSerde,
+    SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + CellDataProtobufEncoder,
 {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    self.parse_cell(cell)
-  }
-
   fn decode_cell_with_transform(
     &self,
     cell: &Cell,

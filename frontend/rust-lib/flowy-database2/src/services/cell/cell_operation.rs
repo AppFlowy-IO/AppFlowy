@@ -8,6 +8,7 @@ use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
 use collab_database::template::relation_parse::RelationCellData;
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::box_any::BoxAny;
+use tracing::trace;
 
 use crate::entities::{CheckboxCellDataPB, FieldType};
 use crate::services::cell::{CellCache, CellProtobufBlob};
@@ -28,7 +29,9 @@ pub trait CellDataDecoder: TypeOption {
   ///
   /// * `cell`: the cell to be decoded
   ///
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData>;
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
+    Ok(Self::CellData::from(cell))
+  }
 
   /// Decodes the [Cell] that is of a particular field type into a `CellData` of this `TypeOption`'s field type.
   ///
@@ -221,6 +224,7 @@ impl<'a> CellBuilder<'a> {
     for (field_id, cell_str) in cell_by_field_id {
       if let Some(field) = field_maps.get(&field_id) {
         let field_type = FieldType::from(field.field_type);
+        trace!("Field type: {:?}, cell_str: {}", field_type, cell_str);
         match field_type {
           FieldType::RichText | FieldType::Translate | FieldType::Summary => {
             cells.insert(field_id, insert_text_cell(cell_str, field));
@@ -260,10 +264,14 @@ impl<'a> CellBuilder<'a> {
             }
           },
           FieldType::Relation => {
-            cells.insert(field_id, RelationCellData::from(cell_str).into());
+            if let Ok(cell_data) = RelationCellData::from_str(&cell_str) {
+              cells.insert(field_id, cell_data.into());
+            }
           },
           FieldType::Media => {
-            cells.insert(field_id, MediaCellData::from(cell_str).into());
+            if let Ok(cell_data) = MediaCellData::from_str(&cell_str) {
+              cells.insert(field_id, cell_data.into());
+            }
           },
         }
       }

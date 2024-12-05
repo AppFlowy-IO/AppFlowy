@@ -2,7 +2,7 @@ use crate::entities::{ChecklistCellDataPB, ChecklistFilterPB, SelectOptionPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::checklist_filter::{checklist_from_options, ChecklistCellChangeset};
 use crate::services::field::{
-  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
   TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
@@ -21,7 +21,7 @@ impl TypeOption for ChecklistTypeOption {
   type CellFilter = ChecklistFilterPB;
 }
 
-impl TypeOptionCellDataSerde for ChecklistTypeOption {
+impl CellDataProtobufEncoder for ChecklistTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -46,10 +46,6 @@ impl TypeOptionCellDataSerde for ChecklistTypeOption {
       percentage,
     }
   }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(ChecklistCellData::from(cell))
-  }
 }
 
 impl CellDataChangeset for ChecklistTypeOption {
@@ -60,7 +56,7 @@ impl CellDataChangeset for ChecklistTypeOption {
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     match cell {
       Some(cell) => {
-        let mut cell_data = self.parse_cell(&cell)?;
+        let mut cell_data = self.decode_cell(&cell)?;
         update_cell_data_with_changeset(&mut cell_data, changeset);
         Ok((Cell::from(cell_data.clone()), cell_data))
       },
@@ -144,10 +140,6 @@ fn update_cell_data_with_changeset(
 }
 
 impl CellDataDecoder for ChecklistTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    self.parse_cell(cell)
-  }
-
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     cell_data
       .options

@@ -1,8 +1,8 @@
 use crate::entities::FieldType;
 use crate::services::cell::{CellCache, CellDataChangeset, CellDataDecoder, CellProtobufBlob};
 use crate::services::field::{
-  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform,
+  CellDataProtobufEncoder, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
 use collab::preclude::Any;
@@ -155,7 +155,7 @@ where
   T: TypeOption
     + CellDataDecoder
     + CellDataChangeset
-    + TypeOptionCellDataSerde
+    + CellDataProtobufEncoder
     + TypeOptionTransform
     + TypeOptionCellDataFilter
     + TypeOptionCellDataCompare
@@ -251,7 +251,7 @@ where
   T: TypeOption
     + CellDataDecoder
     + CellDataChangeset
-    + TypeOptionCellDataSerde
+    + CellDataProtobufEncoder
     + TypeOptionTransform
     + TypeOptionCellDataFilter
     + TypeOptionCellDataCompare
@@ -270,7 +270,6 @@ where
     field_rev: &Field,
   ) -> FlowyResult<CellProtobufBlob> {
     let cell_data = self.get_cell_data(cell, field_rev).unwrap_or_default();
-
     CellProtobufBlob::from(self.protobuf_encode(cell_data))
   }
 
@@ -333,8 +332,6 @@ where
   ///
   fn handle_stringify_cell(&self, cell: &Cell, field: &Field) -> String {
     if is_type_option_cell_transformable(self.field_type, FieldType::RichText) {
-      // return self.stringify_cell(cell);
-
       let cell_data = self.get_cell_data(cell, field);
       if let Some(cell_data) = cell_data {
         return self.stringify_cell_data(cell_data);
