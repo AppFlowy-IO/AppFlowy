@@ -57,3 +57,30 @@ Future<void> updateTableColumnAttributes(
     );
   }
 }
+
+Future<void> updateTableRowAttributes(
+  EditorState editorState,
+  Node tableNode, {
+  required int rowIndex,
+  TableAlign? align,
+  String? color,
+}) async {
+  final cell = tableNode.getTableCellNode(
+    rowIndex: rowIndex,
+    columnIndex: 0,
+  )!;
+
+  if (align != null) {
+    await editorState.updateRowAlign(
+      tableCellNode: cell,
+      align: align,
+    );
+  }
+
+  if (color != null) {
+    await editorState.updateRowBackgroundColor(
+      tableCellNode: cell,
+      color: color,
+    );
+  }
+}
