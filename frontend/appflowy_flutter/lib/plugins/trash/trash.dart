@@ -54,10 +54,13 @@ class TrashPlugin extends Plugin {
 
 class TrashPluginDisplay extends PluginWidgetBuilder {
   @override
+  String? get viewName => LocaleKeys.trash_text.tr();
+
+  @override
   Widget get leftBarItem => FlowyText.medium(LocaleKeys.trash_text.tr());
 
   @override
-  Widget tabBarItem(String pluginId) => leftBarItem;
+  Widget tabBarItem(String pluginId, [bool shortForm = false]) => leftBarItem;
 
   @override
   Widget? get rightBarItem => null;
@@ -68,9 +71,7 @@ class TrashPluginDisplay extends PluginWidgetBuilder {
     required bool shrinkWrap,
     Map<String, dynamic>? data,
   }) =>
-      const TrashPage(
-        key: ValueKey('TrashPage'),
-      );
+      const TrashPage(key: ValueKey('TrashPage'));
 
   @override
   List<NavigationItem> get navigationItems => [this];

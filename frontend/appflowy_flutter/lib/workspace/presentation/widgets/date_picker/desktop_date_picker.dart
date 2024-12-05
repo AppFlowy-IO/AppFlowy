@@ -228,12 +228,11 @@ class DesktopAppFlowyDatePickerState
 
   @override
   void onDateTimeInputSubmitted(DateTime value) {
-    refreshStartTextFieldNotifier.refresh();
     if (isRange) {
       DateTime end = endDateTime ?? value;
       if (end.isBefore(value)) {
         (value, end) = (end, value);
-        refreshEndTextFieldNotifier.refresh();
+        refreshStartTextFieldNotifier.refresh();
       }
 
       widget.onRangeSelected?.call(value, end);
@@ -255,7 +254,6 @@ class DesktopAppFlowyDatePickerState
 
   @override
   void onEndDateTimeInputSubmitted(DateTime value) {
-    refreshEndTextFieldNotifier.refresh();
     if (isRange) {
       if (endDateTime == null) {
         value = combineDateTimes(value, widget.endDateTime);
@@ -263,7 +261,7 @@ class DesktopAppFlowyDatePickerState
       DateTime start = startDateTime ?? value;
       if (value.isBefore(start)) {
         (start, value) = (value, start);
-        refreshStartTextFieldNotifier.refresh();
+        refreshEndTextFieldNotifier.refresh();
       }
 
       widget.onRangeSelected?.call(start, value);

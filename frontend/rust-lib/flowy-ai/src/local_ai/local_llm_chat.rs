@@ -7,8 +7,8 @@ use appflowy_local_ai::chat_plugin::{AIPluginConfig, AppFlowyLocalAI};
 use appflowy_plugin::manager::PluginManager;
 use appflowy_plugin::util::is_apple_silicon;
 use flowy_ai_pub::cloud::{
-  AppFlowyOfflineAI, ChatCloudService, ChatMessageMetadata, ChatMetadataContentType, LLMModel,
-  LocalAIConfig, SubscriptionPlan,
+  AppFlowyOfflineAI, ChatCloudService, ChatMessageMetadata, ContextLoader, LLMModel, LocalAIConfig,
+  SubscriptionPlan,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
@@ -430,13 +430,13 @@ impl LocalAIController {
       index_metadata.insert("at_name".to_string(), json!(format!("@{}", &metadata.name)));
       index_metadata.insert("source".to_string(), json!(&metadata.source));
       match &metadata.data.content_type {
-        ChatMetadataContentType::Unknown => {
+        ContextLoader::Unknown => {
           error!(
             "[AI Plugin] unsupported content type: {:?}",
             metadata.data.content_type
           );
         },
-        ChatMetadataContentType::Text | ChatMetadataContentType::Markdown => {
+        ContextLoader::Text | ContextLoader::Markdown => {
           trace!("[AI Plugin]: index text: {}", metadata.data.content);
           self
             .process_index_file(
@@ -449,7 +449,7 @@ impl LocalAIController {
             )
             .await?;
         },
-        ChatMetadataContentType::PDF => {
+        ContextLoader::PDF => {
           trace!("[AI Plugin]: index pdf file: {}", metadata.data.content);
           let file_path = Path::new(&metadata.data.content);
           if file_path.exists() {

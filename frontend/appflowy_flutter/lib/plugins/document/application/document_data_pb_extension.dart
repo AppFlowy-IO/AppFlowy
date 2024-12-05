@@ -204,6 +204,19 @@ extension NodeToBlock on Node {
   }
 
   String _dataAdapter(String type, Attributes attributes) {
-    return jsonEncode(attributes);
+    try {
+      return jsonEncode(
+        attributes,
+        toEncodable: (value) {
+          if (value is Map) {
+            return jsonEncode(value);
+          }
+          return value;
+        },
+      );
+    } catch (e) {
+      Log.error('encode attributes error: $e');
+      return '{}';
+    }
   }
 }

@@ -22,9 +22,11 @@ class WorkspaceMoreActionList extends StatelessWidget {
   const WorkspaceMoreActionList({
     super.key,
     required this.workspace,
+    required this.isShowingMoreActions,
   });
 
   final UserWorkspacePB workspace;
+  final ValueNotifier<bool> isShowingMoreActions;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +48,13 @@ class WorkspaceMoreActionList extends StatelessWidget {
           .map((e) => _WorkspaceMoreActionWrapper(e, workspace))
           .toList(),
       constraints: const BoxConstraints(minWidth: 220),
+      animationDuration: Durations.short3,
+      slideDistance: 2,
+      beginScaleFactor: 1.0,
+      beginOpacity: 0.8,
+      onClosed: () {
+        isShowingMoreActions.value = false;
+      },
       buildChild: (controller) {
         return SizedBox.square(
           dimension: 24.0,
@@ -55,7 +64,11 @@ class WorkspaceMoreActionList extends StatelessWidget {
               FlowySvgs.workspace_three_dots_s,
             ),
             onTap: () {
-              controller.show();
+              if (!isShowingMoreActions.value) {
+                controller.show();
+              }
+
+              isShowingMoreActions.value = true;
             },
           ),
         );
@@ -170,7 +183,7 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
     switch (inner) {
       case WorkspaceMoreAction.delete:
         return FlowySvg(
-          FlowySvgs.delete_s,
+          FlowySvgs.trash_s,
           color: onHover ? Theme.of(context).colorScheme.error : null,
         );
       case WorkspaceMoreAction.rename:

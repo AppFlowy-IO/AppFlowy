@@ -2,7 +2,9 @@ import 'package:appflowy/plugins/database/application/cell/bloc/date_cell_editor
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:time/time.dart';
 
@@ -248,6 +250,142 @@ void main() {
         bloc.state.dateTypeOptionPB.timeFormat,
         TimeFormatPB.TwelveHour,
       );
+    });
+
+    test('set reminder option', () async {
+      final reminderBloc = ReminderBloc();
+      final bloc = DateCellEditorBloc(
+        cellController: cellController,
+        reminderBloc: reminderBloc,
+      );
+      await gridResponseFuture();
+
+      expect(reminderBloc.state.reminders.length, 0);
+
+      final now = DateTime.now();
+      final threeDaysFromToday = DateTime(now.year, now.month, now.day + 3);
+      final fourDaysFromToday = DateTime(now.year, now.month, now.day + 4);
+      final fiveDaysFromToday = DateTime(now.year, now.month, now.day + 5);
+
+      bloc.add(DateCellEditorEvent.updateDateTime(threeDaysFromToday));
+      await gridResponseFuture();
+
+      bloc.add(
+        const DateCellEditorEvent.setReminderOption(
+          ReminderOption.onDayOfEvent,
+        ),
+      );
+      await gridResponseFuture();
+
+      expect(reminderBloc.state.reminders.length, 1);
+      expect(
+        reminderBloc.state.reminders.first.scheduledAt,
+        Int64(
+          threeDaysFromToday
+                  .add(const Duration(hours: 9))
+                  .millisecondsSinceEpoch ~/
+              1000,
+        ),
+      );
+
+      reminderBloc.add(const ReminderEvent.refresh());
+      await gridResponseFuture();
+
+      expect(reminderBloc.state.reminders.length, 1);
+      expect(
+        reminderBloc.state.reminders.first.scheduledAt,
+        Int64(
+          threeDaysFromToday
+                  .add(const Duration(hours: 9))
+                  .millisecondsSinceEpoch ~/
+              1000,
+        ),
+      );
+
+      bloc.add(DateCellEditorEvent.updateDateTime(fourDaysFromToday));
+      await gridResponseFuture();
+      expect(reminderBloc.state.reminders.length, 1);
+      expect(
+        reminderBloc.state.reminders.first.scheduledAt,
+        Int64(
+          fourDaysFromToday
+                  .add(const Duration(hours: 9))
+                  .millisecondsSinceEpoch ~/
+              1000,
+        ),
+      );
+
+      bloc.add(DateCellEditorEvent.updateDateTime(fiveDaysFromToday));
+      await gridResponseFuture();
+      reminderBloc.add(const ReminderEvent.refresh());
+      await gridResponseFuture();
+      expect(reminderBloc.state.reminders.length, 1);
+      expect(
+        reminderBloc.state.reminders.first.scheduledAt,
+        Int64(
+          fiveDaysFromToday
+                  .add(const Duration(hours: 9))
+                  .millisecondsSinceEpoch ~/
+              1000,
+        ),
+      );
+
+      bloc.add(
+        const DateCellEditorEvent.setReminderOption(
+          ReminderOption.twoDaysBefore,
+        ),
+      );
+      await gridResponseFuture();
+      expect(reminderBloc.state.reminders.length, 1);
+      expect(
+        reminderBloc.state.reminders.first.scheduledAt,
+        Int64(
+          threeDaysFromToday
+                  .add(const Duration(hours: 9))
+                  .millisecondsSinceEpoch ~/
+              1000,
+        ),
+      );
+
+      bloc.add(
+        const DateCellEditorEvent.setReminderOption(ReminderOption.none),
+      );
+      await gridResponseFuture();
+      expect(reminderBloc.state.reminders.length, 0);
+      reminderBloc.add(const ReminderEvent.refresh());
+      await gridResponseFuture();
+      expect(reminderBloc.state.reminders.length, 0);
+    });
+
+    test('set reminder option from empty', () async {
+      final reminderBloc = ReminderBloc();
+      final bloc = DateCellEditorBloc(
+        cellController: cellController,
+        reminderBloc: reminderBloc,
+      );
+      await gridResponseFuture();
+
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      bloc.add(
+        const DateCellEditorEvent.setReminderOption(
+          ReminderOption.onDayOfEvent,
+        ),
+      );
+      await gridResponseFuture();
+
+      expect(bloc.state.dateTime, today);
+      expect(reminderBloc.state.reminders.length, 1);
+      expect(
+        reminderBloc.state.reminders.first.scheduledAt,
+        Int64(
+          today.add(const Duration(hours: 9)).millisecondsSinceEpoch ~/ 1000,
+        ),
+      );
+
+      bloc.add(const DateCellEditorEvent.clearDate());
+      await gridResponseFuture();
+      expect(reminderBloc.state.reminders.length, 0);
     });
   });
 }

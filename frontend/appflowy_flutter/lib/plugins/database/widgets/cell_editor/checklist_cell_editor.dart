@@ -442,7 +442,7 @@ class _NewTaskItemState extends State<NewTaskItem> {
                 ? Theme.of(context).colorScheme.primaryContainer
                 : Theme.of(context).disabledColor,
             fontColor: Theme.of(context).colorScheme.onPrimary,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             onPressed: isCreateButtonEnabled
                 ? () {
                     context.read<ChecklistCellBloc>().add(

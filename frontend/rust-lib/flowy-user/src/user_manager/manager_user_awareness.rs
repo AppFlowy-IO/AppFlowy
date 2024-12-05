@@ -73,8 +73,16 @@ impl UserManager {
     let reminder = Reminder::from(reminder_pb);
     self
       .mut_awareness(|user_awareness| {
-        user_awareness.update_reminder(&reminder.id, |new_reminder| {
-          new_reminder.clone_from(&reminder)
+        user_awareness.update_reminder(&reminder.id, |update| {
+          update
+            .set_object_id(&reminder.object_id)
+            .set_title(&reminder.title)
+            .set_message(&reminder.message)
+            .set_is_ack(reminder.is_ack)
+            .set_is_read(reminder.is_read)
+            .set_scheduled_at(reminder.scheduled_at)
+            .set_type(reminder.ty)
+            .set_meta(reminder.meta.clone().into_inner());
         });
       })
       .await?;

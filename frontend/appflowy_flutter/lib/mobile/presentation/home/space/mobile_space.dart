@@ -17,7 +17,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MobileSpace extends StatelessWidget {
-  const MobileSpace({super.key});
+  const MobileSpace({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +65,8 @@ class MobileSpace extends StatelessWidget {
       useRootNavigator: true,
       title: LocaleKeys.space_title.tr(),
       backgroundColor: Theme.of(context).colorScheme.surface,
+      enableScrollable: true,
+      bottomSheetPadding: context.bottomSheetPadding(),
       builder: (_) {
         return BlocProvider.value(
           value: context.read<SpaceBloc>(),
@@ -96,6 +100,7 @@ class MobileSpace extends StatelessWidget {
                     name: layout.defaultName,
                     layout: layout,
                     index: 0,
+                    openAfterCreate: true,
                   ),
                 );
             context.read<SpaceBloc>().add(

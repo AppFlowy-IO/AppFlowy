@@ -124,10 +124,14 @@ enum ReminderOption {
     required this.time,
     this.withoutTime = false,
     this.requiresNoTime = false,
-  });
+  }) : assert(!requiresNoTime || withoutTime);
 
   final Duration time;
+
+  /// If true, don't consider the time component of the dateTime
   final bool withoutTime;
+
+  /// If true, [withoutTime] must be true as well. Will add time instead of subtract to get notification time.
   final bool requiresNoTime;
 
   bool get timeExempt =>
@@ -190,10 +194,11 @@ enum ReminderOption {
         _ => ReminderOption.custom,
       };
 
-  DateTime getNotificationDateTime(DateTime date) => switch (withoutTime) {
-        true => requiresNoTime
+  DateTime getNotificationDateTime(DateTime date) {
+    return withoutTime
+        ? requiresNoTime
             ? date.withoutTime.add(time)
-            : date.withoutTime.subtract(time),
-        _ => date.subtract(time),
-      };
+            : date.withoutTime.subtract(time)
+        : date.subtract(time);
+  }
 }

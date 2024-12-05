@@ -411,7 +411,7 @@ impl LocalAIResourceController {
     Ok(())
   }
 
-  #[instrument(level = "info", skip_all, err)]
+  #[instrument(level = "info", skip_all)]
   pub fn get_chat_config(&self, rag_enabled: bool) -> FlowyResult<AIPluginConfig> {
     if !self.is_resource_ready() {
       return Err(FlowyError::local_ai().with_context("Local AI resources are not ready"));

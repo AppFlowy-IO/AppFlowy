@@ -32,6 +32,9 @@ class EditWorkspaceNameBottomSheet extends StatefulWidget {
     required this.type,
     required this.onSubmitted,
     required this.workspaceName,
+    this.hintText,
+    this.validator,
+    this.validatorBuilder,
   });
 
   final EditWorkspaceNameType type;
@@ -39,6 +42,12 @@ class EditWorkspaceNameBottomSheet extends StatefulWidget {
 
   // if the workspace name is not empty, it will be used as the initial value of the text field.
   final String? workspaceName;
+
+  final String? hintText;
+
+  final String? Function(String?)? validator;
+
+  final WidgetBuilder? validatorBuilder;
 
   @override
   State<EditWorkspaceNameBottomSheet> createState() =>
@@ -68,6 +77,7 @@ class _EditWorkspaceNameBottomSheetState
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         Form(
@@ -77,17 +87,24 @@ class _EditWorkspaceNameBottomSheetState
             controller: _textFieldController,
             keyboardType: TextInputType.text,
             decoration: InputDecoration(
-              hintText: LocaleKeys.workspace_defaultName.tr(),
+              hintText:
+                  widget.hintText ?? LocaleKeys.workspace_defaultName.tr(),
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return LocaleKeys.workspace_workspaceNameCannotBeEmpty.tr();
-              }
-              return null;
-            },
+            validator: widget.validator ??
+                (value) {
+                  if (value == null || value.isEmpty) {
+                    return LocaleKeys.workspace_workspaceNameCannotBeEmpty.tr();
+                  }
+                  return null;
+                },
             onEditingComplete: _onSubmit,
           ),
         ),
+        if (widget.validatorBuilder != null) ...[
+          const VSpace(4),
+          widget.validatorBuilder!(context),
+          const VSpace(4),
+        ],
         const VSpace(16),
         SizedBox(
           width: double.infinity,

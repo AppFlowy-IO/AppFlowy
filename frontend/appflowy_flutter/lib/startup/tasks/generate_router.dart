@@ -51,7 +51,7 @@ GoRouter generateRouter(Widget child) {
       _encryptSecretScreenRoute(),
       _workspaceErrorScreenRoute(),
       // Desktop only
-      if (!UniversalPlatform.isMobile) _desktopHomeScreenRoute(),
+      if (UniversalPlatform.isDesktop) _desktopHomeScreenRoute(),
       // Mobile only
       if (UniversalPlatform.isMobile) ...[
         // settings

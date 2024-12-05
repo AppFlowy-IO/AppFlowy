@@ -1,6 +1,6 @@
 use crate::af_cloud::AFServer;
 use client_api::entity::ai_dto::{CompleteTextParams, CompletionType, RepeatedRelatedQuestion};
-use client_api::entity::{
+use client_api::entity::chat_dto::{
   CreateAnswerMessageParams, CreateChatMessageParams, CreateChatParams, MessageCursor,
   RepeatedChatMessage,
 };
@@ -12,7 +12,7 @@ use flowy_error::FlowyError;
 use futures_util::{StreamExt, TryStreamExt};
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::{get_operating_system, OperatingSystem};
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::collections::HashMap;
 use std::path::Path;
 
@@ -60,7 +60,7 @@ where
     let params = CreateChatMessageParams {
       content: message.to_string(),
       message_type,
-      metadata: Some(json!(metadata)),
+      metadata: metadata.to_vec(),
     };
 
     let message = try_get_client?

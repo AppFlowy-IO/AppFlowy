@@ -2,7 +2,7 @@ use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use client_api::entity::ai_dto::{CompletionType, RepeatedRelatedQuestion};
 use client_api::entity::search_dto::SearchDocumentResponseItem;
 use client_api::entity::workspace_dto::PublishInfoView;
-use client_api::entity::{ChatMessageType, PublishInfo};
+use client_api::entity::PublishInfo;
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::entity::EncodedCollab;
 use collab::preclude::CollabPlugin;
@@ -21,8 +21,8 @@ use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageMetadata, LocalAIConfig, MessageCursor,
-  RepeatedChatMessage, StreamAnswer, StreamComplete, SubscriptionPlan,
+  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, LocalAIConfig,
+  MessageCursor, RepeatedChatMessage, StreamAnswer, StreamComplete, SubscriptionPlan,
 };
 use flowy_database_pub::cloud::{
   DatabaseAIService, DatabaseCloudService, DatabaseSnapshot, EncodeCollabByOid, SummaryRowContent,
@@ -106,11 +106,12 @@ impl StorageCloudService for ServerProvider {
     parent_dir: &str,
     file_id: &str,
     content_type: &str,
+    file_size: u64,
   ) -> Result<CreateUploadResponse, FlowyError> {
-    let server = self.get_server();
-    let storage = server?.file_storage().ok_or(FlowyError::internal())?;
+    let server = self.get_server()?;
+    let storage = server.file_storage().ok_or(FlowyError::internal())?;
     storage
-      .create_upload(workspace_id, parent_dir, file_id, content_type)
+      .create_upload(workspace_id, parent_dir, file_id, content_type, file_size)
       .await
   }
 

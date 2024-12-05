@@ -131,7 +131,8 @@
     "copyLinkFailed": "Failed to copy link to clipboard",
     "copyLinkToBlockSuccess": "Copied block link to clipboard",
     "copyLinkToBlockFailed": "Failed to copy block link to clipboard",
-    "manageAllSites": "Manage all sites"
+    "manageAllSites": "Manage all sites",
+    "updatePathName": "Update path name"
   },
   "moreAction": {
     "small": "small",
@@ -178,26 +179,32 @@
     "inputMessageHint": "Ask @:appName AI",
     "inputLocalAIMessageHint": "Ask @:appName Local AI",
     "unsupportedCloudPrompt": "This feature is only available when using @:appName Cloud",
-    "relatedQuestion": "Related",
+    "relatedQuestion": "Suggested",
     "serverUnavailable": "Service Temporarily Unavailable. Please try again later.",
-    "aiServerUnavailable": "🌈 Uh-oh! 🌈. A unicorn ate our response. Please retry!",
+    "aiServerUnavailable": "Connection lost. Please check your internet and",
+    "retry": "Retry",
     "clickToRetry": "Click to retry",
     "regenerateAnswer": "Regenerate",
     "question1": "How to use Kanban to manage tasks",
     "question2": "Explain the GTD method",
     "question3": "Why use Rust",
     "question4": "Recipe with what's in my kitchen",
+    "question5": "Create an illustration for my page",
+    "question6": "Draw up a to-do list for my upcoming week",
     "aiMistakePrompt": "AI can make mistakes. Check important info.",
     "chatWithFilePrompt": "Do you want to chat with the file?",
     "indexFileSuccess": "Indexing file successfully",
     "inputActionNoPages": "No page results",
-    "referenceSource": "{} source found",
-    "referenceSources": "{} sources found",
-    "clickToMention": "Click to mention a page",
-    "uploadFile": "Upload PDFs, md or txt files to chat with",
-    "questionTitle": "Ideas",
+    "referenceSource": {
+      "zero": "0 sources gefunden",
+      "one": "{count} source found",
+      "other": "{count} sources found"
+    },
+    "clickToMention": "Mention a page",
+    "uploadFile": "Attach PDFs, text or markdown files",
     "questionDetail": "Hi {}! How can I help you today?",
-    "indexingFile": "Indexing {}"
+    "indexingFile": "Indexing {}",
+    "generatingResponse": "Generating response"
   },
   "trash": {
     "text": "Trash",
@@ -263,8 +270,8 @@
     "italic": "Italic",
     "underline": "Underline",
     "strike": "Strikethrough",
-    "numList": "Numbered List",
-    "bulletList": "Bulleted List",
+    "numList": "Numbered list",
+    "bulletList": "Bulleted list",
     "checkList": "Check List",
     "inlineCode": "Inline Code",
     "quote": "Quote Block",
@@ -328,9 +335,10 @@
     "aiResponseLimit": "You have run out of free AI responses.\n\nGo to Settings -> Plan -> Click AI Max or Pro Plan to get more AI responses",
     "askOwnerToUpgradeToPro": "Your workspace is running out of free storage. Please ask your workspace owner to upgrade to the Pro Plan",
     "askOwnerToUpgradeToProIOS": "Your workspace is running out of free storage.",
-    "askOwnerToUpgradeToAIMax": "Your workspace is running out of free AI responses. Please ask your workspace owner to upgrade the plan or purchase AI add-ons",
+    "askOwnerToUpgradeToAIMax": "Your workspace has ran out of free AI responses. Please ask your workspace owner to upgrade the plan or purchase AI add-ons",
     "askOwnerToUpgradeToAIMaxIOS": "Your workspace is running out of free AI responses.",
     "purchaseStorageSpace": "Purchase Storage Space",
+    "singleFileProPlanLimitationDescription": "You have exceeded the maximum file upload size allowed in the free plan. Please upgrade to the Pro Plan to upload larger files",
     "purchaseAIResponse": "Purchase ",
     "askOwnerToUpgradeToLocalAI": "Ask workspace owner to enable AI On-device",
     "upgradeToAILocal": "Run local models on your device for ultimate privacy",
@@ -368,6 +376,7 @@
     "upload": "Upload",
     "edit": "Edit",
     "delete": "Delete",
+    "copy": "Copy",
     "duplicate": "Duplicate",
     "putback": "Put Back",
     "update": "Update",
@@ -468,7 +477,7 @@
         "clickToOpenPageInBrowser": "Open page in browser"
       },
       "error": {
-        "failedToGeneratePaymentLink": "Failed to generate payment link for pro plan",
+        "failedToGeneratePaymentLink": "Failed to generate payment link for Pro Plan",
         "failedToUpdateNamespace": "Failed to update namespace",
         "proPlanLimitation": "You need to upgrade to Pro Plan to update the namespace",
         "namespaceAlreadyInUse": "The namespace is already taken, please try another one",
@@ -487,7 +496,8 @@
         "publishNameTooLong": "The path name is too long, please try another one",
         "publishNameAlreadyInUse": "The path name is already in use, please try another one",
         "namespaceContainsInvalidCharacters": "The namespace contains invalid character(s), please try another one",
-        "publishPermissionDenied": "Only the workspace owner or page publisher can manage the publish settings"
+        "publishPermissionDenied": "Only the workspace owner or page publisher can manage the publish settings",
+        "publishNameCannotBeEmpty": "The path name cannot be empty, please try another one"
       },
       "success": {
         "namespaceUpdated": "Updated namespace successfully",
@@ -935,9 +945,11 @@
         "itemFive": "Mobile app",
         "itemSix": "AI Responses",
         "itemFileUpload": "File uploads",
+        "customNamespace": "Custom namespace",
         "tooltipSix": "Lifetime means the number of responses never reset",
         "intelligentSearch": "Intelligent search",
-        "tooltipSeven": "Allows you to customize part of the URL for your workspace"
+        "tooltipSeven": "Allows you to customize part of the URL for your workspace",
+        "customNamespaceTooltip": "Custom published site URL"
       },
       "freeLabels": {
         "itemOne": "Charged per workspace",
@@ -1033,7 +1045,7 @@
       "cloudAppFlowy": "@:appName Cloud",
       "cloudAppFlowySelfHost": "@:appName Cloud Self-hosted",
       "appFlowyCloudUrlCanNotBeEmpty": "The cloud url can't be empty",
-      "clickToCopy": "Click to copy",
+      "clickToCopy": "Copy to clipboard",
       "selfHostStart": "If you don't have a server, please refer to the",
       "selfHostContent": "document",
       "selfHostEnd": "for guidance on how to self-host your own server",
@@ -1619,9 +1631,9 @@
         "heading2": "Heading 2",
         "heading3": "Heading 3",
         "image": "Image",
-        "bulletedList": "Bulleted List",
-        "numberedList": "Numbered List",
-        "todoList": "To-do List",
+        "bulletedList": "Bulleted list",
+        "numberedList": "Numbered list",
+        "todoList": "To-do list",
         "doc": "Doc",
         "linkedDoc": "Link to page",
         "grid": "Grid",
@@ -1692,11 +1704,31 @@
       "insertDate": "Insert date",
       "emoji": "Emoji",
       "toggleList": "Toggle list",
+      "emptyToggleHeading": "Empty toggle h{}. Click to add content.",
+      "emptyToggleList": "Empty toggle list. Click to add content.",
       "quoteList": "Quote list",
       "numberedList": "Numbered list",
       "bulletedList": "Bulleted list",
-      "todoList": "Todo List",
+      "todoList": "Todo list",
       "callout": "Callout",
+      "simpleTable": {
+        "moreActions": {
+          "color": "Color",
+          "align": "Align",
+          "delete": "Delete",
+          "duplicate": "Duplicate",
+          "insertLeft": "Insert left",
+          "insertRight": "Insert right",
+          "insertAbove": "Insert above",
+          "insertBelow": "Insert below",
+          "headerColumn": "Header column",
+          "headerRow": "Header row",
+          "clearContents": "Clear contents"
+        },
+        "clickToAddNewRow": "Click to add a new row",
+        "clickToAddNewColumn": "Click to add a new column",
+        "clickToAddNewRowAndColumn": "Click to add a new row and column"
+      },
       "cover": {
         "changeCover": "Change Cover",
         "colors": "Colors",
@@ -1969,6 +2001,11 @@
       "title": "Select page",
       "failedToLoad": "Failed to load page list",
       "noPagesFound": "No pages found"
+    },
+    "attachmentMenu": {
+      "choosePhoto": "Choose photo",
+      "takePicture": "Take a picture",
+      "chooseFile": "Choose file"
     }
   },
   "board": {
@@ -2237,7 +2274,7 @@
   },
   "editor": {
     "bold": "Bold",
-    "bulletedList": "Bulleted List",
+    "bulletedList": "Bulleted list",
     "bulletedListShortForm": "Bulleted",
     "checkbox": "Checkbox",
     "embedCode": "Embed Code",
@@ -2251,8 +2288,11 @@
     "page": "Page",
     "italic": "Italic",
     "link": "Link",
-    "numberedList": "Numbered List",
+    "numberedList": "Numbered list",
     "numberedListShortForm": "Numbered",
+    "toggleHeading1ShortForm": "Toggle h1",
+    "toggleHeading2ShortForm": "Toggle h2",
+    "toggleHeading3ShortForm": "Toggle h3",
     "quote": "Quote",
     "strikethrough": "Strikethrough",
     "text": "Text",
@@ -2456,9 +2496,11 @@
     "unsplash": "Unsplash",
     "pageCover": "Page cover",
     "none": "None",
-    "photoPermissionDescription": "@:appName needs access to your photos to let you add images to your documents",
     "openSettings": "Open Settings",
     "photoPermissionTitle": "@:appName would like to access your photo library",
+    "photoPermissionDescription": "@:appName needs access to your photos to let you add images to your documents",
+    "cameraPermissionTitle": "@:appName would like to access your camera",
+    "cameraPermissionDescription": "@:appName needs access to your camera to let you add images to your documents from the camera",
     "doNotAllow": "Don't Allow",
     "image": "Image"
   },
@@ -2487,7 +2529,7 @@
     "createSpaceDescription": "Create multiple public and private spaces to better organize your work.",
     "spaceName": "Space name",
     "spaceNamePlaceholder": "e.g. Marketing, Engineering, HR",
-    "permission": "Permission",
+    "permission": "Space permission",
     "publicPermission": "Public",
     "publicPermissionDescription": "All workspace members with full access",
     "privatePermission": "Private",
@@ -2509,7 +2551,24 @@
     "movePageToSpace": "Move page to space",
     "cannotMovePageToDatabase": "Cannot move page to database",
     "switchSpace": "Switch space",
-    "spaceNameCannotBeEmpty": "Space name cannot be empty"
+    "spaceNameCannotBeEmpty": "Space name cannot be empty",
+    "success": {
+      "deleteSpace": "Space deleted successfully",
+      "renameSpace": "Space renamed successfully",
+      "duplicateSpace": "Space duplicated successfully",
+      "updateSpace": "Space updated successfully"
+    },
+    "error": {
+      "deleteSpace": "Failed to delete space",
+      "renameSpace": "Failed to rename space",
+      "duplicateSpace": "Failed to duplicate space",
+      "updateSpace": "Failed to update space"
+    },
+    "createSpace": "Create space",
+    "manageSpace": "Manage space",
+    "renameSpace": "Rename space",
+    "mSpaceIconColor": "Space icon color",
+    "mSpaceIcon": "Space icon"
   },
   "publish": {
     "hasNotBeenPublished": "This page hasn't been published yet",
@@ -2825,5 +2884,17 @@
     "one": "1 member",
     "many": "{count} members",
     "other": "{count} members"
+  },
+  "tabMenu": {
+    "close": "Close",
+    "closeDisabledHint": "Cannot close a pinned tab, please unpin first",
+    "closeOthers": "Close other tabs",
+    "closeOthersHint": "This will close all unpinned tabs except this one",
+    "closeOthersDisabledHint": "All tabs are pinned, cannot find any tabs to close",
+    "favorite": "Favorite",
+    "unfavorite": "Unfavorite",
+    "favoriteDisabledHint": "Cannot favorite this view",
+    "pinTab": "Pin",
+    "unpinTab": "Unpin"
   }
 }

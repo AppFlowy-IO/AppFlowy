@@ -379,6 +379,7 @@ void showToastNotification(
         message: message,
         type: type,
         bottomPadding: bottomPadding,
+        description: description,
       ),
     );
     return;
@@ -416,11 +417,13 @@ class _MToast extends StatelessWidget {
     required this.message,
     this.type = ToastificationType.success,
     this.bottomPadding = 100,
+    this.description,
   });
 
   final String message;
   final ToastificationType type;
   final double bottomPadding;
+  final String? description;
 
   @override
   Widget build(BuildContext context) {
@@ -431,30 +434,65 @@ class _MToast extends StatelessWidget {
       color: Colors.white,
       maxLines: 10,
     );
+    final descriptionText = description != null
+        ? FlowyText.regular(
+            description!,
+            fontSize: 12,
+            color: Colors.white,
+            maxLines: 10,
+          )
+        : null;
     return Container(
       alignment: Alignment.bottomCenter,
-      padding: EdgeInsets.only(bottom: bottomPadding, left: 16, right: 16),
+      padding: EdgeInsets.only(
+        bottom: bottomPadding,
+        left: 16,
+        right: 16,
+      ),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 13.0),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 12.0,
+          vertical: 13.0,
+        ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12.0),
           color: const Color(0xE5171717),
         ),
         child: type == ToastificationType.success
-            ? Row(
+            ? Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (type == ToastificationType.success) ...[
-                    const FlowySvg(
-                      FlowySvgs.success_s,
-                      blendMode: null,
-                    ),
-                    const HSpace(8.0),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (type == ToastificationType.success) ...[
+                        const FlowySvg(
+                          FlowySvgs.success_s,
+                          blendMode: null,
+                        ),
+                        const HSpace(8.0),
+                      ],
+                      Expanded(child: hintText),
+                    ],
+                  ),
+                  if (descriptionText != null) ...[
+                    const VSpace(4.0),
+                    descriptionText,
                   ],
-                  Expanded(child: hintText),
                 ],
               )
-            : hintText,
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  hintText,
+                  if (descriptionText != null) ...[
+                    const VSpace(4.0),
+                    descriptionText,
+                  ],
+                ],
+              ),
       ),
     );
   }

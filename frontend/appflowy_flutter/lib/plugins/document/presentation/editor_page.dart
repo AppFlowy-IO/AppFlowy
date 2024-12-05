@@ -19,7 +19,6 @@ import 'package:appflowy/workspace/presentation/home/af_focus_manager.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -80,7 +79,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
   ];
 
   final List<ToolbarItem> toolbarItems = [
-    smartEditItem..isActive = onlyShowInTextType,
+    askAIItem..isActive = onlyShowInTextType,
     paragraphItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
     headingsToolbarItem
       ..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
@@ -93,9 +92,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
     inlineMathEquationItem,
     linkItem,
     alignToolbarItem,
-    buildTextColorItem(),
-    buildHighlightColorItem(),
-    customizeFontToolbarItem,
+    buildTextColorItem()..isActive = showInAnyTextType,
+    buildHighlightColorItem()..isActive = showInAnyTextType,
+    customizeFontToolbarItem..isActive = showInAnyTextType,
   ];
 
   late List<SelectionMenuItem> slashMenuItems;
@@ -165,6 +164,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       ToggleListBlockKeys.type,
       CalloutBlockKeys.type,
       TableBlockKeys.type,
+      SimpleTableBlockKeys.type,
+      SimpleTableCellBlockKeys.type,
+      SimpleTableRowBlockKeys.type,
     ]);
     AppFlowyRichTextKeys.supportSliced.add(AppFlowyRichTextKeys.fontFamily);
 
@@ -348,7 +350,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
             // if the last one isn't a empty node, insert a new empty node.
             await _focusOnLastEmptyParagraph();
           },
-          child: VSpace(UniversalPlatform.isDesktopOrWeb ? 200 : 400),
+          child: SizedBox(
+            width: double.infinity,
+            height: UniversalPlatform.isDesktopOrWeb ? 200 : 400,
+          ),
         ),
         dropTargetStyle: AppFlowyDropTargetStyle(
           color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
@@ -402,8 +407,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
   }
 
   List<SelectionMenuItem> _customSlashMenuItems() {
+    final isLocalMode = context.read<DocumentBloc>().isLocalMode;
     return [
-      aiWriterSlashMenuItem,
+      if (!isLocalMode) aiWriterSlashMenuItem,
       textSlashMenuItem,
       heading1SlashMenuItem,
       heading2SlashMenuItem,
@@ -485,6 +491,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
               borderRadius: BorderRadius.circular(4),
             ),
             child: FindAndReplaceMenuWidget(
+              showReplaceMenu: showReplaceMenu,
               editorState: editorState,
               onDismiss: onDismiss,
             ),

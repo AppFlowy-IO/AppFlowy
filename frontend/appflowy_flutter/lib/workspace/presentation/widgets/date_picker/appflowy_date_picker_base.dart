@@ -271,7 +271,7 @@ abstract class AppFlowyDatePickerState<T extends AppFlowyDatePicker>
 
     setState(() {
       isRange = value;
-      dateTime = newDateTime;
+      dateTime = focusedDateTime = newDateTime;
       if (value) {
         startDateTime = endDateTime = newDateTime;
       } else {

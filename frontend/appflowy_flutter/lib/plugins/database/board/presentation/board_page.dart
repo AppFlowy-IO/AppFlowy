@@ -179,9 +179,7 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
     _focusScope.dispose();
     _boardBloc.close();
     _boardActionsCubit.close();
-    _didCreateRow
-      ..removeListener(_handleDidCreateRow)
-      ..dispose();
+    _didCreateRow.dispose();
     super.dispose();
   }
 
@@ -189,7 +187,7 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<BoardBloc>.value(
+        BlocProvider.value(
           value: _boardBloc,
         ),
         BlocProvider.value(

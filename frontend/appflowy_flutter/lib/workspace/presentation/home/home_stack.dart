@@ -34,7 +34,7 @@ abstract class HomeStackDelegate {
   void didDeleteStackWidget(ViewPB view, int? index);
 }
 
-class HomeStack extends StatelessWidget {
+class HomeStack extends StatefulWidget {
   const HomeStack({
     super.key,
     required this.delegate,
@@ -47,49 +47,69 @@ class HomeStack extends StatelessWidget {
   final UserProfilePB userProfile;
 
   @override
-  Widget build(BuildContext context) {
-    final pageController = PageController();
+  State<HomeStack> createState() => _HomeStackState();
+}
 
+class _HomeStackState extends State<HomeStack> {
+  int selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
     return BlocProvider<TabsBloc>.value(
       value: getIt<TabsBloc>(),
       child: BlocBuilder<TabsBloc, TabsState>(
-        builder: (context, state) {
-          return Column(
-            children: [
-              if (Platform.isWindows)
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    WindowTitleBar(
-                      leftChildren: [
-                        _buildToggleMenuButton(context),
-                      ],
-                    ),
-                  ],
-                ),
-              Padding(
-                padding: EdgeInsets.only(left: layout.menuSpacing),
-                child: TabsManager(pageController: pageController),
+        buildWhen: (prev, curr) =>
+            prev.currentIndex != curr.currentIndex &&
+            prev.currentPageManager.plugin.id !=
+                curr.currentPageManager.plugin.id,
+        builder: (context, state) => Column(
+          children: [
+            if (Platform.isWindows)
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  WindowTitleBar(
+                    leftChildren: [_buildToggleMenuButton(context)],
+                  ),
+                ],
               ),
-              state.currentPageManager.stackTopBar(layout: layout),
-              Expanded(
-                child: PageView(
-                  physics: const NeverScrollableScrollPhysics(),
-                  controller: pageController,
-                  children: state.pageManagers
-                      .map(
-                        (pm) => PageStack(
-                          pageManager: pm,
-                          delegate: delegate,
-                          userProfile: userProfile,
-                        ),
-                      )
-                      .toList(),
-                ),
+            Padding(
+              padding: EdgeInsets.only(left: widget.layout.menuSpacing),
+              child: TabsManager(
+                onIndexChanged: (index) {
+                  if (selectedIndex != index) {
+                    // Unfocus editor to hide selection toolbar
+                    FocusScope.of(context).unfocus();
+
+                    context.read<TabsBloc>().add(TabsEvent.selectTab(index));
+                    setState(() => selectedIndex = index);
+                  }
+                },
               ),
-            ],
-          );
-        },
+            ),
+            Expanded(
+              child: IndexedStack(
+                index: selectedIndex,
+                children: state.pageManagers
+                    .map(
+                      (pm) => Column(
+                        children: [
+                          pm.stackTopBar(layout: widget.layout),
+                          Expanded(
+                            child: PageStack(
+                              pageManager: pm,
+                              delegate: widget.delegate,
+                              userProfile: widget.userProfile,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -145,7 +165,6 @@ class PageStack extends StatefulWidget {
   });
 
   final PageManager pageManager;
-
   final HomeStackDelegate delegate;
   final UserProfilePB userProfile;
 
@@ -216,18 +235,17 @@ class FadingIndexedStackState extends State<FadingIndexedStack> {
     return TweenAnimationBuilder<double>(
       duration: _targetOpacity > 0 ? widget.duration : 0.milliseconds,
       tween: Tween(begin: 0, end: _targetOpacity),
-      builder: (_, value, child) {
-        return Opacity(opacity: value, child: child);
-      },
+      builder: (_, value, child) => Opacity(opacity: value, child: child),
       child: IndexedStack(index: widget.index, children: widget.children),
     );
   }
 }
 
 abstract mixin class NavigationItem {
+  String? get viewName;
   Widget get leftBarItem;
   Widget? get rightBarItem => null;
-  Widget tabBarItem(String pluginId);
+  Widget tabBarItem(String pluginId, [bool shortForm = false]);
 
   NavigationCallback get action => (id) => throw UnimplementedError();
 }
@@ -240,8 +258,11 @@ class PageNotifier extends ChangeNotifier {
 
   Widget get titleWidget => _plugin.widgetBuilder.leftBarItem;
 
-  Widget tabBarWidget(String pluginId) =>
-      _plugin.widgetBuilder.tabBarItem(pluginId);
+  Widget tabBarWidget(
+    String pluginId, [
+    bool shortForm = false,
+  ]) =>
+      _plugin.widgetBuilder.tabBarItem(pluginId, shortForm);
 
   /// This is the only place where the plugin is set.
   /// No need compare the old plugin with the new plugin. Just set it.
@@ -269,6 +290,8 @@ class PageManager {
 
   PageNotifier get notifier => _notifier;
 
+  bool isPinned = false;
+
   Widget title() {
     return _notifier.plugin.widgetBuilder.leftBarItem;
   }
@@ -279,15 +302,9 @@ class PageManager {
     _notifier.setPlugin(newPlugin, setLatest);
   }
 
-  void setStackWithId(String id) {
-    // Navigate to the page with id
-  }
-
   Widget stackTopBar({required HomeLayout layout}) {
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider.value(value: _notifier),
-      ],
+      providers: [ChangeNotifierProvider.value(value: _notifier)],
       child: Selector<PageNotifier, Widget>(
         selector: (context, notifier) => notifier.titleWidget,
         builder: (_, __, child) => MoveWindowDetector(
@@ -319,7 +336,6 @@ class PageManager {
                     shrinkWrap: false,
                   );
 
-                  // TODO(Xazin): Board should fill up full width
                   return Padding(
                     padding: builder.contentPadding,
                     child: pluginWidget,
@@ -340,13 +356,21 @@ class PageManager {
   }
 }
 
-class HomeTopBar extends StatelessWidget {
+class HomeTopBar extends StatefulWidget {
   const HomeTopBar({super.key, required this.layout});
 
   final HomeLayout layout;
 
   @override
+  State<HomeTopBar> createState() => _HomeTopBarState();
+}
+
+class _HomeTopBarState extends State<HomeTopBar>
+    with AutomaticKeepAliveClientMixin {
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -359,7 +383,7 @@ class HomeTopBar extends StatelessWidget {
         ),
         child: Row(
           children: [
-            HSpace(layout.menuSpacing),
+            HSpace(widget.layout.menuSpacing),
             const FlowyNavigation(),
             const HSpace(16),
             ChangeNotifierProvider.value(
@@ -375,4 +399,7 @@ class HomeTopBar extends StatelessWidget {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

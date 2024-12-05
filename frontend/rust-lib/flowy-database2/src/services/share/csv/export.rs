@@ -1,6 +1,7 @@
 use collab_database::database::Database;
 use collab_database::fields::Field;
 use collab_database::rows::Cell;
+use collab_database::template::timestamp_parse::TimestampCellData;
 use futures::StreamExt;
 use indexmap::IndexMap;
 
@@ -8,7 +9,6 @@ use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::FieldType;
 use crate::services::cell::stringify_cell;
-use crate::services::field::{TimestampCellData, TimestampCellDataWrapper};
 
 #[derive(Debug, Clone, Copy)]
 pub enum CSVFormat {
@@ -72,7 +72,7 @@ impl CSVExport {
               } else {
                 TimestampCellData::new(row.modified_at)
               };
-              let cell = Cell::from(TimestampCellDataWrapper::from((field_type, cell_data)));
+              let cell = cell_data.to_cell(field.field_type);
               stringify(&cell, field, style)
             },
             _ => match row.cells.get(field_id) {

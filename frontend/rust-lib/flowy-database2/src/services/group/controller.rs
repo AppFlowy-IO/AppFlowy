@@ -54,20 +54,12 @@ where
 {
   pub async fn new(
     grouping_field: &Field,
-    mut configuration: GroupControllerContext<C>,
+    context: GroupControllerContext<C>,
     delegate: Arc<dyn GroupControllerDelegate>,
   ) -> FlowyResult<Self> {
-    let field_type = FieldType::from(grouping_field.field_type);
-    let type_option = grouping_field
-      .get_type_option::<T>(&field_type)
-      .unwrap_or_else(|| T::from(default_type_option_data_from_type(field_type)));
-
-    let generated_groups = G::build(grouping_field, &configuration, &type_option).await;
-    let _ = configuration.init_groups(generated_groups)?;
-
     Ok(Self {
       grouping_field_id: grouping_field.id.clone(),
-      context: configuration,
+      context,
       group_builder_phantom: PhantomData,
       cell_parser_phantom: PhantomData,
       delegate,
@@ -163,6 +155,30 @@ where
   G: GroupsBuilder<Context = GroupControllerContext<C>, GroupTypeOption = T>,
   Self: GroupCustomize<GroupTypeOption = T>,
 {
+  async fn load_group_data(&mut self) -> FlowyResult<()> {
+    let grouping_field = self
+      .delegate
+      .get_field(&self.grouping_field_id)
+      .await
+      .ok_or_else(|| FlowyError::internal().with_context("Failed to get grouping field"))?;
+
+    let field_type = FieldType::from(grouping_field.field_type);
+    let type_option = grouping_field
+      .get_type_option::<T>(&field_type)
+      .unwrap_or_else(|| T::from(default_type_option_data_from_type(field_type)));
+
+    let generated_groups = G::build(&grouping_field, &self.context, &type_option).await;
+    let _ = self.context.init_groups(generated_groups)?;
+
+    let row_details = self.delegate.get_all_rows(&self.context.view_id).await;
+    let rows = row_details
+      .iter()
+      .map(|row| row.as_ref())
+      .collect::<Vec<_>>();
+    self.fill_groups(rows.as_slice(), &grouping_field)?;
+    Ok(())
+  }
+
   fn get_grouping_field_id(&self) -> &str {
     &self.grouping_field_id
   }

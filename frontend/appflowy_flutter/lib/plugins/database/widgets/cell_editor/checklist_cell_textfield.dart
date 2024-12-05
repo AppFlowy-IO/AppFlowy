@@ -42,7 +42,7 @@ class ChecklistCellTextfield extends StatelessWidget {
     required this.focusNode,
     this.onChanged,
     this.contentPadding = const EdgeInsets.symmetric(
-      vertical: 10,
+      vertical: 8,
       horizontal: 2,
     ),
     this.onSubmitted,

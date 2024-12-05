@@ -1,21 +1,12 @@
-// ignore_for_file: unused_import
-
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/auth/af_cloud_mock_auth_service.dart';
-import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/account/account.dart';
-import 'package:appflowy/workspace/presentation/settings/pages/settings_account_view.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/uuid.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:path/path.dart' as p;
 
-import '../../../shared/mock/mock_file_picker.dart';
 import '../../../shared/util.dart';
 
 void main() {

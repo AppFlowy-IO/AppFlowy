@@ -1,62 +1,39 @@
-import 'dart:math';
+import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_file_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_input_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_related_question.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/message/ai_message_bubble.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/message/other_user_message_bubble.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/message/user_message_bubble.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:flutter_chat_types/flutter_chat_types.dart';
-import 'package:flutter_chat_ui/flutter_chat_ui.dart' show Chat;
+import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:flutter_chat_ui/flutter_chat_ui.dart'
+    hide ChatAnimatedListReversed;
+import 'package:string_validator/string_validator.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'application/chat_member_bloc.dart';
-import 'application/chat_side_pannel_bloc.dart';
-import 'presentation/chat_input/chat_input.dart';
-import 'presentation/chat_side_pannel.dart';
-import 'presentation/chat_theme.dart';
-import 'presentation/chat_user_invalid_message.dart';
+import 'application/chat_side_panel_bloc.dart';
+import 'presentation/animated_chat_list.dart';
+import 'presentation/chat_input/desktop_ai_prompt_input.dart';
+import 'presentation/chat_input/mobile_ai_prompt_input.dart';
+import 'presentation/chat_side_panel.dart';
 import 'presentation/chat_welcome_page.dart';
+import 'presentation/layout_define.dart';
 import 'presentation/message/ai_text_message.dart';
+import 'presentation/message/error_text_message.dart';
 import 'presentation/message/user_text_message.dart';
-
-class AIChatUILayout {
-  static EdgeInsets get chatPadding =>
-      isMobile ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 20);
-
-  static EdgeInsets get welcomePagePadding => isMobile
-      ? const EdgeInsets.symmetric(horizontal: 20)
-      : const EdgeInsets.symmetric(horizontal: 50);
-
-  static double get messageWidthRatio => 0.85;
-
-  static EdgeInsets safeAreaInsets(BuildContext context) {
-    final query = MediaQuery.of(context);
-    return isMobile
-        ? EdgeInsets.fromLTRB(
-            query.padding.left,
-            0,
-            query.padding.right,
-            query.viewInsets.bottom + query.padding.bottom,
-          )
-        : const EdgeInsets.symmetric(horizontal: 50) +
-            const EdgeInsets.only(bottom: 20);
-  }
-}
+import 'presentation/scroll_to_bottom.dart';
 
 class AIChatPage extends StatelessWidget {
   const AIChatPage({
@@ -72,62 +49,54 @@ class AIChatPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) {
-      return MultiBlocProvider(
-        providers: [
-          /// [ChatBloc] is used to handle chat messages including send/receive message
-          BlocProvider(
-            create: (_) => ChatBloc(
-              view: view,
-              userProfile: userProfile,
-            )..add(const ChatEvent.initialLoad()),
-          ),
-
-          /// [ChatFileBloc] is used to handle file indexing as a chat context
-          BlocProvider(
-            create: (_) => ChatFileBloc()..add(const ChatFileEvent.initial()),
-          ),
-
-          /// [ChatInputStateBloc] is used to handle chat input text field state
-          BlocProvider(
-            create: (_) =>
-                ChatInputStateBloc()..add(const ChatInputStateEvent.started()),
-          ),
-          BlocProvider(create: (_) => ChatSidePannelBloc(chatId: view.id)),
-          BlocProvider(create: (_) => ChatMemberBloc()),
-        ],
-        child: BlocBuilder<ChatFileBloc, ChatFileState>(
-          builder: (context, state) {
-            return DropTarget(
-              onDragDone: (DropDoneDetails detail) async {
-                if (state.supportChatWithFile) {
-                  for (final file in detail.files) {
-                    context
-                        .read<ChatFileBloc>()
-                        .add(ChatFileEvent.newFile(file.path, file.name));
-                  }
-                }
-              },
-              child: _ChatContentPage(
-                view: view,
-                userProfile: userProfile,
-              ),
-            );
-          },
+    if (userProfile.authenticator != AuthenticatorPB.AppFlowyCloud) {
+      return Center(
+        child: FlowyText(
+          LocaleKeys.chat_unsupportedCloudPrompt.tr(),
+          fontSize: 20,
         ),
       );
     }
 
-    return Center(
-      child: FlowyText(
-        LocaleKeys.chat_unsupportedCloudPrompt.tr(),
-        fontSize: 20,
+    return MultiBlocProvider(
+      providers: [
+        /// [ChatBloc] is used to handle chat messages including send/receive message
+        BlocProvider(
+          create: (_) => ChatBloc(
+            chatId: view.id,
+            userId: userProfile.id.toString(),
+          ),
+        ),
+
+        /// [AIPromptInputBloc] is used to handle the user prompt
+        BlocProvider(create: (_) => AIPromptInputBloc()),
+        BlocProvider(create: (_) => ChatSidePanelBloc(chatId: view.id)),
+        BlocProvider(create: (_) => ChatMemberBloc()),
+      ],
+      child: Builder(
+        builder: (context) {
+          return DropTarget(
+            onDragDone: (DropDoneDetails detail) async {
+              if (context.read<AIPromptInputBloc>().state.supportChatWithFile) {
+                for (final file in detail.files) {
+                  context
+                      .read<AIPromptInputBloc>()
+                      .add(AIPromptInputEvent.attachFile(file.path, file.name));
+                }
+              }
+            },
+            child: _ChatContentPage(
+              view: view,
+              userProfile: userProfile,
+            ),
+          );
+        },
       ),
     );
   }
 }
 
-class _ChatContentPage extends StatefulWidget {
+class _ChatContentPage extends StatelessWidget {
   const _ChatContentPage({
     required this.view,
     required this.userProfile,
@@ -137,353 +106,296 @@ class _ChatContentPage extends StatefulWidget {
   final ViewPB view;
 
   @override
-  State<_ChatContentPage> createState() => _ChatContentPageState();
-}
-
-class _ChatContentPageState extends State<_ChatContentPage> {
-  late types.User _user;
-
-  @override
-  void initState() {
-    super.initState();
-    _user = types.User(id: widget.userProfile.id.toString());
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (widget.userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) {
-      if (UniversalPlatform.isDesktop) {
-        return BlocSelector<ChatSidePannelBloc, ChatSidePannelState, bool>(
-          selector: (state) => state.isShowPannel,
-          builder: (context, isShowPannel) {
-            return LayoutBuilder(
-              builder: (BuildContext context, BoxConstraints constraints) {
-                final double chatOffsetX = isShowPannel
-                    ? 60
-                    : (constraints.maxWidth > 784
-                        ? (constraints.maxWidth - 784) / 2.0
-                        : 60);
+    if (UniversalPlatform.isDesktop) {
+      return BlocSelector<ChatSidePanelBloc, ChatSidePanelState, bool>(
+        selector: (state) => state.isShowPanel,
+        builder: (context, isShowPanel) {
+          return LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              final sidePanelRatio = isShowPanel ? 0.33 : 0.0;
+              final chatWidth = constraints.maxWidth * (1 - sidePanelRatio);
+              final sidePanelWidth =
+                  constraints.maxWidth * sidePanelRatio - 1.0;
 
-                final double width = isShowPannel
-                    ? (constraints.maxWidth - chatOffsetX * 2) * 0.46
-                    : min(constraints.maxWidth - chatOffsetX * 2, 784);
-
-                final double sidePannelOffsetX = chatOffsetX + width;
-
-                return Stack(
-                  alignment: AlignmentDirectional.centerStart,
-                  children: [
-                    buildChatWidget()
-                        .constrained(width: width)
-                        .positioned(
-                          top: 0,
-                          bottom: 0,
-                          left: chatOffsetX,
-                          animate: true,
+              return Row(
+                children: [
+                  Center(
+                    child: buildChatWidget(context)
+                        .constrained(
+                          maxWidth: 784,
                         )
+                        .padding(horizontal: 60)
                         .animate(
                           const Duration(milliseconds: 200),
                           Curves.easeOut,
                         ),
-                    if (isShowPannel)
-                      buildChatSidePannel()
-                          .positioned(
-                            left: sidePannelOffsetX,
-                            right: 0,
-                            top: 0,
-                            bottom: 0,
-                            animate: true,
-                          )
-                          .animate(
-                            const Duration(milliseconds: 200),
-                            Curves.easeOut,
-                          ),
+                  ).constrained(width: chatWidth),
+                  if (isShowPanel) ...[
+                    const VerticalDivider(
+                      width: 1.0,
+                      thickness: 1.0,
+                    ),
+                    buildChatSidePanel()
+                        .constrained(width: sidePanelWidth)
+                        .animate(
+                          const Duration(milliseconds: 200),
+                          Curves.easeOut,
+                        ),
                   ],
-                );
-              },
-            );
-          },
-        );
-      } else {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Flexible(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 784),
-                child: buildChatWidget(),
-              ),
-            ),
-          ],
-        );
-      }
-    }
-
-    return Center(
-      child: FlowyText(
-        LocaleKeys.chat_unsupportedCloudPrompt.tr(),
-        fontSize: 20,
-      ),
-    );
-  }
-
-  Widget buildChatSidePannel() {
-    if (UniversalPlatform.isDesktop) {
-      return BlocBuilder<ChatSidePannelBloc, ChatSidePannelState>(
-        builder: (context, state) {
-          if (state.metadata != null) {
-            return const ChatSidePannel();
-          } else {
-            return const SizedBox.shrink();
-          }
-        },
-      );
-    } else {
-      // TODO(lucas): implement mobile chat side panel
-      return const SizedBox.shrink();
-    }
-  }
-
-  Widget buildChatWidget() {
-    return BlocBuilder<ChatBloc, ChatState>(
-      builder: (blocContext, state) => Chat(
-        key: ValueKey(widget.view.id),
-        messages: state.messages,
-        onSendPressed: (_) {
-          // We use custom bottom widget for chat input, so
-          // do not need to handle this event.
-        },
-        customBottomWidget: _buildBottom(blocContext),
-        user: _user,
-        theme: buildTheme(context),
-        onEndReached: () async {
-          if (state.hasMorePrevMessage &&
-              state.loadingPreviousStatus.isFinish) {
-            blocContext
-                .read<ChatBloc>()
-                .add(const ChatEvent.startLoadingPrevMessage());
-          }
-        },
-        emptyState: BlocBuilder<ChatBloc, ChatState>(
-          builder: (_, state) => state.initialLoadingStatus.isFinish
-              ? Padding(
-                  padding: AIChatUILayout.welcomePagePadding,
-                  child: ChatWelcomePage(
-                    userProfile: widget.userProfile,
-                    onSelectedQuestion: (question) => blocContext
-                        .read<ChatBloc>()
-                        .add(ChatEvent.sendMessage(message: question)),
-                  ),
-                )
-              : const Center(
-                  child: CircularProgressIndicator.adaptive(),
-                ),
-        ),
-        messageWidthRatio: AIChatUILayout.messageWidthRatio,
-        textMessageBuilder: (
-          textMessage, {
-          required messageWidth,
-          required showName,
-        }) =>
-            _buildTextMessage(blocContext, textMessage),
-        bubbleBuilder: (
-          child, {
-          required message,
-          required nextMessageInGroup,
-        }) =>
-            _buildBubble(blocContext, message, child, state),
-      ),
-    );
-  }
-
-  Widget _buildBubble(
-    BuildContext blocContext,
-    Message message,
-    Widget child,
-    ChatState state,
-  ) {
-    if (message.author.id == _user.id) {
-      return ChatUserMessageBubble(
-        message: message,
-        child: child,
-      );
-    } else if (isOtherUserMessage(message)) {
-      return OtherUserMessageBubble(
-        message: message,
-        child: child,
-      );
-    } else {
-      return _buildAIBubble(message, blocContext, state, child);
-    }
-  }
-
-  Widget _buildTextMessage(BuildContext context, TextMessage message) {
-    if (message.author.id == _user.id) {
-      final stream = message.metadata?["$QuestionStream"];
-      return ChatUserMessageWidget(
-        key: ValueKey(message.id),
-        user: message.author,
-        message: stream is QuestionStream ? stream : message.text,
-      );
-    } else {
-      final stream = message.metadata?["$AnswerStream"];
-      final questionId = message.metadata?[messageQuestionIdKey];
-      final refSourceJsonString =
-          message.metadata?[messageRefSourceJsonStringKey] as String?;
-      return ChatAIMessageWidget(
-        user: message.author,
-        messageUserId: message.id,
-        message: stream is AnswerStream ? stream : message.text,
-        key: ValueKey(message.id),
-        questionId: questionId,
-        chatId: widget.view.id,
-        refSourceJsonString: refSourceJsonString,
-        onSelectedMetadata: (ChatMessageRefSource metadata) {
-          context.read<ChatSidePannelBloc>().add(
-                ChatSidePannelEvent.selectedMetadata(metadata),
+                ],
               );
+            },
+          );
         },
+      );
+    } else {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Flexible(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 784),
+              child: buildChatWidget(context),
+            ),
+          ),
+        ],
       );
     }
   }
 
-  Widget _buildAIBubble(
-    Message message,
-    BuildContext blocContext,
-    ChatState state,
-    Widget child,
+  Widget buildChatSidePanel() {
+    return BlocBuilder<ChatSidePanelBloc, ChatSidePanelState>(
+      builder: (context, state) {
+        if (state.metadata == null) {
+          return const SizedBox.shrink();
+        }
+        return const ChatSidePanel();
+      },
+    );
+  }
+
+  Widget buildChatWidget(BuildContext context) {
+    return ScrollConfiguration(
+      behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+      child: BlocBuilder<ChatBloc, ChatState>(
+        builder: (context, state) {
+          return state.loadingState.when(
+            loading: () {
+              return const Center(
+                child: CircularProgressIndicator.adaptive(),
+              );
+            },
+            finish: (_) {
+              final chatController = context.read<ChatBloc>().chatController;
+              return Column(
+                children: [
+                  Expanded(
+                    child: Chat(
+                      chatController: chatController,
+                      user: User(id: userProfile.id.toString()),
+                      darkTheme: ChatTheme.fromThemeData(Theme.of(context)),
+                      theme: ChatTheme.fromThemeData(Theme.of(context)),
+                      builders: Builders(
+                        inputBuilder: (_) => const SizedBox.shrink(),
+                        textMessageBuilder: _buildTextMessage,
+                        chatMessageBuilder: _buildChatMessage,
+                        scrollToBottomBuilder: _buildScrollToBottom,
+                        chatAnimatedListBuilder: _buildChatAnimatedList,
+                      ),
+                    ),
+                  ),
+                  _buildInput(context),
+                ],
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildTextMessage(
+    BuildContext context,
+    TextMessage message,
   ) {
     final messageType = onetimeMessageTypeFromMeta(
       message.metadata,
     );
 
-    if (messageType == OnetimeShotType.invalidSendMesssage) {
-      return ChatInvalidUserMessage(
-        message: message,
+    if (messageType == OnetimeShotType.error) {
+      return ChatErrorMessageWidget(
+        errorMessage: message.metadata?[errorMessageTextKey] ?? "",
       );
     }
 
     if (messageType == OnetimeShotType.relatedQuestion) {
       return RelatedQuestionList(
+        relatedQuestions: message.metadata!['questions'],
         onQuestionSelected: (question) {
-          blocContext
+          context
               .read<ChatBloc>()
               .add(ChatEvent.sendMessage(message: question));
-          blocContext
-              .read<ChatBloc>()
-              .add(const ChatEvent.clearReleatedQuestion());
         },
-        chatId: widget.view.id,
-        relatedQuestions: state.relatedQuestions,
       );
     }
 
-    return ChatAIMessageBubble(
+    if (message.author.id == userProfile.id.toString()) {
+      return ChatUserMessageWidget(
+        user: message.author,
+        message: message,
+        isCurrentUser: true,
+      );
+    }
+
+    if (isOtherUserMessage(message)) {
+      return ChatUserMessageWidget(
+        user: message.author,
+        message: message,
+        isCurrentUser: false,
+      );
+    }
+
+    final stream = message.metadata?["$AnswerStream"];
+    final questionId = message.metadata?[messageQuestionIdKey];
+    final refSourceJsonString =
+        message.metadata?[messageRefSourceJsonStringKey] as String?;
+
+    return BlocSelector<ChatBloc, ChatState, bool>(
+      selector: (state) {
+        final chatController = context.read<ChatBloc>().chatController;
+        final messages = chatController.messages
+            .where((e) => onetimeMessageTypeFromMeta(e.metadata) == null);
+        return messages.isEmpty ? false : messages.last.id == message.id;
+      },
+      builder: (context, isLastMessage) {
+        return ChatAIMessageWidget(
+          user: message.author,
+          messageUserId: message.id,
+          message: message,
+          stream: stream is AnswerStream ? stream : null,
+          questionId: questionId,
+          chatId: view.id,
+          refSourceJsonString: refSourceJsonString,
+          isLastMessage: isLastMessage,
+          onSelectedMetadata: (metadata) async {
+            if (isURL(metadata.name)) {
+              late Uri uri;
+
+              try {
+                uri = Uri.parse(metadata.name);
+                // `Uri` identifies `localhost` as a scheme
+                if (!uri.hasScheme || uri.scheme == 'localhost') {
+                  uri = Uri.parse("http://${metadata.name}");
+                  await InternetAddress.lookup(uri.host);
+                }
+                await launchUrl(uri);
+              } catch (err) {
+                Log.error("failed to open url $err");
+              }
+            } else {
+              context
+                  .read<ChatSidePanelBloc>()
+                  .add(ChatSidePanelEvent.selectedMetadata(metadata));
+            }
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildChatMessage(
+    BuildContext context,
+    Message message,
+    Animation<double> animation,
+    Widget child,
+  ) {
+    return ChatMessage(
       message: message,
-      customMessageType: messageType,
+      animation: animation,
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      receivedMessageScaleAnimationAlignment: Alignment.center,
       child: child,
     );
   }
 
-  Widget _buildBottom(BuildContext context) {
-    return ClipRect(
-      child: Padding(
-        padding: AIChatUILayout.safeAreaInsets(context),
-        child: BlocBuilder<ChatInputStateBloc, ChatInputStateState>(
-          builder: (context, state) {
-            // Show different hint text based on the AI type
-            final aiType = state.aiType;
-            final hintText = state.aiType.when(
-              appflowyAI: () => LocaleKeys.chat_inputMessageHint.tr(),
-              localAI: () => LocaleKeys.chat_inputLocalAIMessageHint.tr(),
-            );
+  Widget _buildScrollToBottom(
+    BuildContext context,
+    Animation<double> animation,
+    VoidCallback onPressed,
+  ) {
+    return CustomScrollToBottom(
+      animation: animation,
+      onPressed: onPressed,
+    );
+  }
 
-            return Column(
-              children: [
-                BlocSelector<ChatBloc, ChatState, bool>(
-                  selector: (state) => state.canSendMessage,
-                  builder: (context, canSendMessage) {
-                    return ChatInput(
-                      aiType: aiType,
-                      chatId: widget.view.id,
-                      onSendPressed: (message) {
-                        context.read<ChatBloc>().add(
-                              ChatEvent.sendMessage(
-                                message: message.text,
-                                metadata: message.metadata,
-                              ),
-                            );
-                      },
-                      isStreaming: !canSendMessage,
-                      onStopStreaming: () {
-                        context
-                            .read<ChatBloc>()
-                            .add(const ChatEvent.stopStream());
-                      },
-                      hintText: hintText,
-                    );
+  Widget _buildChatAnimatedList(
+    BuildContext context,
+    ScrollController scrollController,
+    ChatItem itemBuilder,
+  ) {
+    final bloc = context.read<ChatBloc>();
+
+    if (bloc.chatController.messages.isEmpty) {
+      return ChatWelcomePage(
+        userProfile: userProfile,
+        onSelectedQuestion: (question) {
+          bloc.add(ChatEvent.sendMessage(message: question));
+        },
+      );
+    }
+
+    return ChatAnimatedListReversed(
+      scrollController: scrollController,
+      itemBuilder: itemBuilder,
+      onLoadPreviousMessages: () {
+        bloc.add(const ChatEvent.loadPreviousMessages());
+      },
+    );
+  }
+
+  Widget _buildInput(BuildContext context) {
+    return Padding(
+      padding: AIChatUILayout.safeAreaInsets(context),
+      child: BlocSelector<ChatBloc, ChatState, bool>(
+        selector: (state) {
+          return state.promptResponseState == PromptResponseState.ready;
+        },
+        builder: (context, canSendMessage) {
+          return UniversalPlatform.isDesktop
+              ? DesktopAIPromptInput(
+                  chatId: view.id,
+                  onSubmitted: (text, metadata) {
+                    context.read<ChatBloc>().add(
+                          ChatEvent.sendMessage(
+                            message: text,
+                            metadata: metadata,
+                          ),
+                        );
                   },
-                ),
-                const VSpace(6),
-                if (UniversalPlatform.isDesktop)
-                  Opacity(
-                    opacity: 0.6,
-                    child: FlowyText(
-                      LocaleKeys.chat_aiMistakePrompt.tr(),
-                      fontSize: 12,
-                    ),
-                  ),
-              ],
-            );
-          },
-        ),
+                  isStreaming: !canSendMessage,
+                  onStopStreaming: () {
+                    context.read<ChatBloc>().add(const ChatEvent.stopStream());
+                  },
+                )
+              : MobileAIPromptInput(
+                  chatId: view.id,
+                  onSubmitted: (text, metadata) {
+                    context.read<ChatBloc>().add(
+                          ChatEvent.sendMessage(
+                            message: text,
+                            metadata: metadata,
+                          ),
+                        );
+                  },
+                  isStreaming: !canSendMessage,
+                  onStopStreaming: () {
+                    context.read<ChatBloc>().add(const ChatEvent.stopStream());
+                  },
+                );
+        },
       ),
     );
   }
-}
-
-AFDefaultChatTheme buildTheme(BuildContext context) {
-  return AFDefaultChatTheme(
-    backgroundColor: AFThemeExtension.of(context).background,
-    primaryColor: Theme.of(context).colorScheme.primary,
-    secondaryColor: AFThemeExtension.of(context).tint1,
-    receivedMessageDocumentIconColor: Theme.of(context).primaryColor,
-    receivedMessageCaptionTextStyle: TextStyle(
-      color: AFThemeExtension.of(context).textColor,
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      height: 1.5,
-    ),
-    receivedMessageBodyTextStyle: TextStyle(
-      color: AFThemeExtension.of(context).textColor,
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      height: 1.5,
-    ),
-    receivedMessageLinkTitleTextStyle: TextStyle(
-      color: AFThemeExtension.of(context).textColor,
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      height: 1.5,
-    ),
-    receivedMessageBodyLinkTextStyle: const TextStyle(
-      color: Colors.lightBlue,
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      height: 1.5,
-    ),
-    sentMessageBodyTextStyle: TextStyle(
-      color: AFThemeExtension.of(context).textColor,
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      height: 1.5,
-    ),
-    sentMessageBodyLinkTextStyle: const TextStyle(
-      color: Colors.blue,
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      height: 1.5,
-    ),
-    inputElevation: 2,
-  );
 }

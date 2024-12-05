@@ -1,5 +1,5 @@
 import {
-  FieldId,
+  FieldId, RowCoverType,
   SortId,
   YDatabase,
   YDatabaseField, YDatabaseMetas, YDatabaseRow,
@@ -641,7 +641,10 @@ export function usePrimaryFieldId () {
 
 export interface RowMeta {
   documentId: string;
-  cover: string;
+  cover: {
+    data: string,
+    cover_type: RowCoverType,
+  } | null;
   icon: string;
   isEmptyDocument: boolean;
 }
@@ -691,10 +694,10 @@ export const useRowMetaSelector = (rowId: string) => {
     const metaJson = yMeta.toJSON();
 
     const icon = metaJson[iconKey];
-    let cover = '';
+    let cover = null;
 
     try {
-      cover = metaJson[coverKey] ? JSON.parse(metaJson[coverKey])?.url : '';
+      cover = metaJson[coverKey] ? JSON.parse(metaJson[coverKey]) : null;
     } catch (e) {
       // do nothing
     }

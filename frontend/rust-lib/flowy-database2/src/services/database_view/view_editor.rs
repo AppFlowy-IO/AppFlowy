@@ -70,6 +70,14 @@ impl Drop for DatabaseViewEditor {
 }
 
 impl DatabaseViewEditor {
+  /// Create a new Database View Editor.
+  ///
+  /// After creating the editor, you must call [DatabaseViewEditor::initialize] to properly initialize it.
+  /// This initialization step will load essential data, such as group information.
+  ///
+  /// Avoid calling any methods of [DatabaseViewOperation] before the editor is fully initialized,
+  /// as some actions may rely on the current editor state. Failing to follow this order could result
+  /// in unexpected behavior, including potential deadlocks.
   pub async fn new(
     database_id: String,
     view_id: String,
@@ -125,6 +133,16 @@ impl DatabaseViewEditor {
       row_by_row_id: Default::default(),
       notifier,
     })
+  }
+
+  /// Initialize the editor after creating it
+  /// You should call [DatabaseViewEditor::initialize] after creating the editor
+  pub async fn initialize(&self) -> FlowyResult<()> {
+    if let Some(group) = self.group_controller.write().await.as_mut() {
+      group.load_group_data().await?;
+    }
+
+    Ok(())
   }
 
   pub async fn insert_row(&self, row: Option<Arc<Row>>, index: u32, row_order: &RowOrder) {
@@ -975,7 +993,7 @@ impl DatabaseViewEditor {
     if let Some(field) = self.delegate.get_field(field_id).await {
       tracing::trace!("create new group controller");
 
-      let new_group_controller = new_group_controller(
+      let mut new_group_controller = new_group_controller(
         self.view_id.clone(),
         self.delegate.clone(),
         self.filter_controller.clone(),
@@ -983,7 +1001,9 @@ impl DatabaseViewEditor {
       )
       .await?;
 
-      if let Some(controller) = &new_group_controller {
+      if let Some(controller) = &mut new_group_controller {
+        (*controller).load_group_data().await?;
+
         let new_groups = controller
           .get_all_groups()
           .into_iter()
@@ -1113,13 +1133,22 @@ impl DatabaseViewEditor {
     }
 
     // initialize the group controller if the current layout support grouping
-    *self.group_controller.write().await = new_group_controller(
+    let new_group_controller = match new_group_controller(
       self.view_id.clone(),
       self.delegate.clone(),
       self.filter_controller.clone(),
       None,
     )
-    .await?;
+    .await?
+    {
+      Some(mut controller) => {
+        controller.load_group_data().await?;
+        Some(controller)
+      },
+      None => None,
+    };
+
+    *self.group_controller.write().await = new_group_controller;
 
     let payload = DatabaseLayoutMetaPB {
       view_id: self.view_id.clone(),
