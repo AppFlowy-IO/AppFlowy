@@ -17,6 +17,7 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
     required this.type,
     required this.editorState,
     required this.simpleTableContext,
+    required this.onTap,
   });
 
   final Node node;
@@ -25,38 +26,58 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
   final SimpleTableMoreActionType type;
   final EditorState editorState;
   final SimpleTableContext simpleTableContext;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     debugPrint('[x] render type: ${type.toString()}');
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      // onVerticalDragStart: type == SimpleTableMoreActionType.row
-      //     ? (_) => _startDragging()
-      //     : null,
-      // onVerticalDragUpdate:
-      //     type == SimpleTableMoreActionType.row ? _onDragUpdate : null,
-      // onVerticalDragEnd:
-      //     type == SimpleTableMoreActionType.row ? (_) => _stopDragging() : null,
-      // onVerticalDragCancel:
-      //     type == SimpleTableMoreActionType.row ? () => _stopDragging() : null,
-      onHorizontalDragStart: type == SimpleTableMoreActionType.column
-          ? (_) => _startDragging()
-          : null,
-      onHorizontalDragUpdate:
-          type == SimpleTableMoreActionType.column ? _onDragUpdate : null,
-      onHorizontalDragEnd: type == SimpleTableMoreActionType.column
-          ? (_) => _stopDragging()
-          : null,
-      // onHorizontalDragCancel: type == SimpleTableMoreActionType.column
-      //     ? () => _stopDragging()
-      //     : null,
-      onTap: () {},
+
+    return Draggable<int>(
+      data: index,
+      onDragStarted: () => _startDragging(),
+      onDragUpdate: (details) => _onDragUpdate(details),
+      onDragEnd: (_) => _stopDragging(),
+      feedback: SimpleTableFeedback(
+        editorState: editorState,
+        node: node,
+        type: type,
+        index: index,
+      ),
       child: SimpleTableReorderButton(
         isShowingMenu: isShowingMenu,
         type: type,
       ),
     );
+
+    // plan 2: use gesture detector to handle the drag event.
+    // return GestureDetector(
+    //   behavior: HitTestBehavior.translucent,
+    //   // onVerticalDragStart: type == SimpleTableMoreActionType.row
+    //   //     ? (_) => _startDragging()
+    //   //     : null,
+    //   // onVerticalDragUpdate:
+    //   //     type == SimpleTableMoreActionType.row ? _onDragUpdate : null,
+    //   // onVerticalDragEnd:
+    //   //     type == SimpleTableMoreActionType.row ? (_) => _stopDragging() : null,
+    //   // onVerticalDragCancel:
+    //   //     type == SimpleTableMoreActionType.row ? () => _stopDragging() : null,
+    //   onHorizontalDragStart: type == SimpleTableMoreActionType.column
+    //       ? (_) => _startDragging()
+    //       : null,
+    //   onHorizontalDragUpdate:
+    //       type == SimpleTableMoreActionType.column ? _onDragUpdate : null,
+    //   onHorizontalDragEnd: type == SimpleTableMoreActionType.column
+    //       ? (_) => _stopDragging()
+    //       : null,
+    //   // onHorizontalDragCancel: type == SimpleTableMoreActionType.column
+    //   //     ? () => _stopDragging()
+    //   //     : null,
+    //   onTap: onTap,
+    //   child: SimpleTableReorderButton(
+    //     isShowingMenu: isShowingMenu,
+    //     type: type,
+    //   ),
+    // );
   }
 
   void _startDragging() {

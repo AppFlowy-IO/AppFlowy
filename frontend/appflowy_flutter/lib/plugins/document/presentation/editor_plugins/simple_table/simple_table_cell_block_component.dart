@@ -126,17 +126,19 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
         clipBehavior: Clip.none,
         children: [
           _buildCell(),
-          Positioned(
-            top: 0,
-            bottom: 0,
-            left: -SimpleTableConstants.tableLeftPadding,
-            child: _buildRowMoreActionButton(),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            child: _buildColumnMoreActionButton(),
-          ),
+          if (node.columnIndex == 0)
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: -SimpleTableConstants.tableLeftPadding,
+              child: _buildRowMoreActionButton(),
+            ),
+          if (node.rowIndex == 0)
+            Positioned(
+              left: 0,
+              right: 0,
+              child: _buildColumnMoreActionButton(),
+            ),
           Positioned(
             right: 0,
             top: node.rowIndex == 0 ? SimpleTableConstants.tableTopPadding : 0,
@@ -217,12 +219,7 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   }
 
   Widget _buildRowMoreActionButton() {
-    final columnIndex = node.columnIndex;
     final rowIndex = node.rowIndex;
-
-    if (columnIndex != 0) {
-      return const SizedBox.shrink();
-    }
 
     return SimpleTableMoreActionMenu(
       index: rowIndex,
@@ -232,11 +229,6 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
   Widget _buildColumnMoreActionButton() {
     final columnIndex = node.columnIndex;
-    final rowIndex = node.rowIndex;
-
-    if (rowIndex != 0) {
-      return const SizedBox.shrink();
-    }
 
     return SimpleTableMoreActionMenu(
       index: columnIndex,

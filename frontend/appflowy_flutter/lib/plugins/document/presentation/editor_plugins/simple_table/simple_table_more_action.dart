@@ -152,6 +152,7 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
 
   @override
   Widget build(BuildContext context) {
+    final simpleTableContext = context.read<SimpleTableContext>();
     return Align(
       alignment: widget.type == SimpleTableMoreActionType.row
           ? Alignment.centerLeft
@@ -160,9 +161,24 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
         valueListenable: isShowingMenu,
         builder: (context, isShowingMenu, child) {
           return ValueListenableBuilder(
-            valueListenable:
-                context.read<SimpleTableContext>().hoveringTableCell,
+            valueListenable: simpleTableContext.hoveringTableCell,
             builder: (context, hoveringTableNode, child) {
+              final reorderingIndex = switch (widget.type) {
+                SimpleTableMoreActionType.column =>
+                  simpleTableContext.isReorderingColumn.value.$2,
+                SimpleTableMoreActionType.row =>
+                  simpleTableContext.isReorderingRow.value.$2,
+              };
+              final isReordering = simpleTableContext.isReordering;
+              if (isReordering) {
+                // when reordering, hide the menu for another column or row that is not the current dragging one.
+                if (reorderingIndex != widget.index) {
+                  return const SizedBox.shrink();
+                } else {
+                  return child!;
+                }
+              }
+
               final hoveringIndex =
                   widget.type == SimpleTableMoreActionType.column
                       ? hoveringTableNode?.columnIndex
@@ -248,6 +264,10 @@ class _SimpleTableMoreActionPopupState
       return const SizedBox.shrink();
     }
 
+    debugPrint(
+      '[x] tableCellNode: ${tableCellNode?.rowIndex} ${tableCellNode?.columnIndex}',
+    );
+
     return AppFlowyPopover(
       controller: popoverController,
       onOpen: () => _onOpen(tableCellNode: tableCellNode),
@@ -267,6 +287,10 @@ class _SimpleTableMoreActionPopupState
         index: widget.index,
         isShowingMenu: widget.isShowingMenu,
         type: widget.type,
+        onTap: () {
+          widget.isShowingMenu.value = true;
+          popoverController.show();
+        },
       ),
     );
   }
@@ -293,6 +317,9 @@ class _SimpleTableMoreActionPopupState
   }
 
   void _onOpen({Node? tableCellNode}) {
+    debugPrint(
+      '[x] _onOpen: ${tableCellNode?.rowIndex} ${tableCellNode?.columnIndex}',
+    );
     widget.isShowingMenu.value = true;
 
     switch (widget.type) {
