@@ -75,7 +75,7 @@ class _SimpleTableRowBlockWidgetState extends State<SimpleTableRowBlockWidget>
   Widget build(BuildContext context) {
     return IntrinsicHeight(
       child: Row(
-        // crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: _buildCells(),
       ),
     );

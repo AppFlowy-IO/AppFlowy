@@ -5,6 +5,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
   required int rowCount,
   required int columnCount,
   String? defaultContent,
+  String Function(int rowIndex, int columnIndex)? contentBuilder,
 }) {
   final document = Document.blank()
     ..insert(
@@ -14,6 +15,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
           columnCount: columnCount,
           rowCount: rowCount,
           defaultContent: defaultContent,
+          contentBuilder: contentBuilder,
         ),
       ],
     );

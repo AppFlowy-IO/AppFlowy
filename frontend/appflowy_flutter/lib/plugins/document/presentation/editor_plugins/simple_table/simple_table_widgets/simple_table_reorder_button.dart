@@ -1,9 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_widgets/simple_table_widget.dart';
 import 'package:appflowy/util/throttle.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 final Throttler throttler =
     Throttler(duration: const Duration(milliseconds: 100));
@@ -48,36 +49,6 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
         type: type,
       ),
     );
-
-    // plan 2: use gesture detector to handle the drag event.
-    // return GestureDetector(
-    //   behavior: HitTestBehavior.translucent,
-    //   // onVerticalDragStart: type == SimpleTableMoreActionType.row
-    //   //     ? (_) => _startDragging()
-    //   //     : null,
-    //   // onVerticalDragUpdate:
-    //   //     type == SimpleTableMoreActionType.row ? _onDragUpdate : null,
-    //   // onVerticalDragEnd:
-    //   //     type == SimpleTableMoreActionType.row ? (_) => _stopDragging() : null,
-    //   // onVerticalDragCancel:
-    //   //     type == SimpleTableMoreActionType.row ? () => _stopDragging() : null,
-    //   onHorizontalDragStart: type == SimpleTableMoreActionType.column
-    //       ? (_) => _startDragging()
-    //       : null,
-    //   onHorizontalDragUpdate:
-    //       type == SimpleTableMoreActionType.column ? _onDragUpdate : null,
-    //   onHorizontalDragEnd: type == SimpleTableMoreActionType.column
-    //       ? (_) => _stopDragging()
-    //       : null,
-    //   // onHorizontalDragCancel: type == SimpleTableMoreActionType.column
-    //   //     ? () => _stopDragging()
-    //   //     : null,
-    //   onTap: onTap,
-    //   child: SimpleTableReorderButton(
-    //     isShowingMenu: isShowingMenu,
-    //     type: type,
-    //   ),
-    // );
   }
 
   void _startDragging() {
@@ -97,6 +68,13 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
   }
 
   void _stopDragging() {
+    switch (type) {
+      case SimpleTableMoreActionType.column:
+        _reorderColumn();
+      case SimpleTableMoreActionType.row:
+        _reorderRow();
+    }
+
     debugPrint('[x] stopDragging');
     simpleTableContext.reorderingOffset.value = Offset.zero;
     switch (type) {
@@ -108,6 +86,28 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
         break;
     }
   }
+
+  void _reorderColumn() {
+    final fromIndex = simpleTableContext.isReorderingColumn.value.$2;
+    final toIndex = simpleTableContext.hoveringTableCell.value?.columnIndex;
+    if (toIndex == null) {
+      return;
+    }
+
+    if (toIndex < fromIndex) {
+      // move to the left side
+      editorState.reorderColumn(node, fromIndex: fromIndex, toIndex: toIndex);
+    } else {
+      // move to the right side
+      editorState.reorderColumn(
+        node,
+        fromIndex: fromIndex,
+        toIndex: toIndex + 1,
+      );
+    }
+  }
+
+  void _reorderRow() {}
 }
 
 class SimpleTableReorderButton extends StatelessWidget {
@@ -204,24 +204,20 @@ class _SimpleTableFeedbackState extends State<SimpleTableFeedback> {
     return Container(
       color: Colors.red.withOpacity(0.2),
       width: 200,
-      height: 100,
+      height: 400,
       alignment: Alignment.center,
-      child: FlowyText(
-        '${widget.type.toString()} - ${widget.index}',
-        fontSize: 18.0,
+      child: Provider.value(
+        value: widget.editorState,
+        child: SimpleTableWidget(
+          node: dummyNode,
+          simpleTableContext: simpleTableContext,
+          enableAddColumnButton: false,
+          enableAddRowButton: false,
+          enableAddColumnAndRowButton: false,
+          enableHoverEffect: false,
+          isFeedback: true,
+        ),
       ),
-      // Provider.value(
-      //   value: widget.editorState,
-      //   child: SimpleTableWidget(
-      //     node: dummyNode,
-      //     simpleTableContext: simpleTableContext,
-      //     enableAddColumnButton: false,
-      //     enableAddRowButton: false,
-      //     enableAddColumnAndRowButton: false,
-      //     enableHoverEffect: false,
-      //     isFeedback: true,
-      //   ),
-      // ),
     );
   }
 

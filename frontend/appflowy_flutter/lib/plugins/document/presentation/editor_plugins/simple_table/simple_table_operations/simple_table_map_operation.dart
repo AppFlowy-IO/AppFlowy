@@ -10,6 +10,8 @@ enum TableMapOperationType {
   deleteColumn,
   duplicateRow,
   duplicateColumn,
+  reorderColumn,
+  reorderRow,
 }
 
 extension TableMapOperation on Node {
@@ -17,6 +19,8 @@ extension TableMapOperation on Node {
     Node node, {
     required TableMapOperationType type,
     required int index,
+    // Only used for reorder column operation
+    int? toIndex,
   }) {
     assert(this.type == SimpleTableBlockKeys.type);
 
@@ -39,10 +43,19 @@ extension TableMapOperation on Node {
         attributes = _mapRowDeletionAttributes(index);
       case TableMapOperationType.deleteColumn:
         attributes = _mapColumnDeletionAttributes(index);
+      case TableMapOperationType.reorderColumn:
+        if (toIndex != null) {
+          attributes = _mapColumnReorderingAttributes(index, toIndex);
+        }
+
+      case TableMapOperationType.reorderRow:
+      // attributes = _mapRowReorderingAttributes(index);
     }
 
     // clear the attributes that are null
-    attributes?.removeWhere((key, value) => value == null);
+    attributes?.removeWhere(
+      (key, value) => value == null,
+    );
 
     return attributes;
   }
@@ -429,6 +442,109 @@ extension TableMapOperation on Node {
           );
     } catch (e) {
       Log.warn('Failed to map row deletion attributes: $e');
+      return attributes;
+    }
+  }
+
+  /// Map the attributes of a column reordering operation.
+  ///
+  ///
+  /// Examples:
+  /// Case 1:
+  ///
+  /// When reordering a column, if the from index is greater than the to index,
+  /// the attributes of the table before the from index should be updated.
+  ///
+  /// Before:
+  ///          ↓ reorder this column from index 1 to index 0
+  /// |  0  |  1  |  2  |
+  /// |  3  |  4  |  5  |
+  ///
+  /// The original attributes of the table:
+  /// {
+  ///   "rowColors": {
+  ///     0: "#FF0000",
+  ///     1: "#00FF00",
+  ///     2: "#0000FF",
+  ///   }
+  /// }
+  ///
+  /// After reordering:
+  /// |  1  |  0  |  2  |
+  /// |  4  |  3  |  5  |
+  ///
+  /// The new attributes of the table:
+  /// {
+  ///   "rowColors": {
+  ///     0: "#00FF00", ← The attributes of the original second column
+  ///     1: "#FF0000", ← The attributes of the original first column
+  ///     2: "#0000FF",
+  ///   }
+  /// }
+  ///
+  /// Case 2:
+  ///
+  /// When reordering a column, if the from index is less than the to index,
+  /// the attributes of the table after the from index should be updated.
+  ///
+  /// Before:
+  ///          ↓ reorder this column from index 1 to index 2
+  /// |  0  |  1  |  2  |
+  /// |  3  |  4  |  5  |
+  ///
+  /// The original attributes of the table:
+  /// {
+  ///   "columnColors": {
+  ///     0: "#FF0000",
+  ///     1: "#00FF00",
+  ///     2: "#0000FF",
+  ///   }
+  /// }
+  ///
+  /// After reordering:
+  /// |  0  |  2  |  1  |
+  /// |  3  |  5  |  4  |
+  ///
+  /// The new attributes of the table:
+  /// {
+  ///   "columnColors": {
+  ///     0: "#FF0000",
+  ///     1: "#0000FF", ← The attributes of the original third column
+  ///     2: "#00FF00", ← The attributes of the original second column
+  ///   }
+  /// }
+  Attributes? _mapColumnReorderingAttributes(int fromIndex, int toIndex) {
+    final attributes = this.attributes;
+    try {
+      final columnColors = _remapSource(
+        this.columnColors,
+        fromIndex,
+        increment: fromIndex > toIndex,
+        comparator: (iKey, index) {
+          if (fromIndex > toIndex) {
+            return iKey < fromIndex && iKey >= toIndex;
+          } else {
+            return iKey > fromIndex && iKey <= toIndex;
+          }
+        },
+        filterIndex: fromIndex,
+      );
+
+      return attributes
+          .mergeValues(
+            SimpleTableBlockKeys.columnColors,
+            columnColors,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.columnAligns,
+            columnAligns,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.columnWidths,
+            columnWidths,
+          );
+    } catch (e) {
+      Log.warn('Failed to map column deletion attributes: $e');
       return attributes;
     }
   }
