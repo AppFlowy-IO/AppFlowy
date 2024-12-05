@@ -176,16 +176,11 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
                 valueListenable: simpleTableContext!.selectingRow,
                 builder: (context, selectingRow, _) {
                   return ValueListenableBuilder(
-                    valueListenable: simpleTableContext!.reorderingOffset,
-                    builder: (context, reorderingOffset, _) {
-                      return ValueListenableBuilder(
-                        valueListenable: simpleTableContext!.hoveringTableCell,
-                        builder: (context, hoveringTableCell, _) {
-                          return DecoratedBox(
-                            decoration: _buildDecoration(),
-                            child: child!,
-                          );
-                        },
+                    valueListenable: simpleTableContext!.hoveringTableCell,
+                    builder: (context, hoveringTableCell, _) {
+                      return DecoratedBox(
+                        decoration: _buildDecoration(),
+                        child: child!,
                       );
                     },
                   );
