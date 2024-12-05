@@ -1,8 +1,8 @@
 use crate::entities::{TimeCellDataPB, TimeFilterPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  TimeCellData, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform,
+  CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
 use collab_database::fields::date_type_option::TimeTypeOption;
@@ -10,6 +10,7 @@ use collab_database::fields::date_type_option::TimeTypeOption;
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
 
+use collab_database::template::time_parse::TimeCellData;
 use std::cmp::Ordering;
 
 impl TypeOption for TimeTypeOption {
@@ -19,7 +20,7 @@ impl TypeOption for TimeTypeOption {
   type CellFilter = TimeFilterPB;
 }
 
-impl TypeOptionCellDataSerde for TimeTypeOption {
+impl CellDataProtobufEncoder for TimeTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -31,29 +32,16 @@ impl TypeOptionCellDataSerde for TimeTypeOption {
       time: i64::default(),
     }
   }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(TimeCellData::from(cell))
-  }
 }
 
 impl TypeOptionTransform for TimeTypeOption {}
 
 impl CellDataDecoder for TimeTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    self.parse_cell(cell)
-  }
-
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     if let Some(time) = cell_data.0 {
       return time.to_string();
     }
     "".to_string()
-  }
-
-  fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
-    let time_cell_data = self.parse_cell(cell).ok()?;
-    Some(time_cell_data.0.unwrap() as f64)
   }
 }
 

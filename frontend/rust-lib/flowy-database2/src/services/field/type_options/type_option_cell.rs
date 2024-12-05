@@ -1,8 +1,8 @@
 use crate::entities::FieldType;
 use crate::services::cell::{CellCache, CellDataChangeset, CellDataDecoder, CellProtobufBlob};
 use crate::services::field::{
-  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform,
+  CellDataProtobufEncoder, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
 use collab::preclude::Any;
@@ -95,7 +95,7 @@ pub trait TypeOptionCellDataHandler: Send + Sync + 'static {
 
   fn handle_numeric_cell(&self, cell: &Cell) -> Option<f64>;
 
-  fn handle_is_cell_empty(&self, cell: &Cell, field: &Field) -> bool;
+  fn handle_is_empty(&self, cell: &Cell, field: &Field) -> bool;
 }
 
 #[derive(Debug)]
@@ -155,7 +155,7 @@ where
   T: TypeOption
     + CellDataDecoder
     + CellDataChangeset
-    + TypeOptionCellDataSerde
+    + CellDataProtobufEncoder
     + TypeOptionTransform
     + TypeOptionCellDataFilter
     + TypeOptionCellDataCompare
@@ -251,7 +251,7 @@ where
   T: TypeOption
     + CellDataDecoder
     + CellDataChangeset
-    + TypeOptionCellDataSerde
+    + CellDataProtobufEncoder
     + TypeOptionTransform
     + TypeOptionCellDataFilter
     + TypeOptionCellDataCompare
@@ -270,7 +270,6 @@ where
     field_rev: &Field,
   ) -> FlowyResult<CellProtobufBlob> {
     let cell_data = self.get_cell_data(cell, field_rev).unwrap_or_default();
-
     CellProtobufBlob::from(self.protobuf_encode(cell_data))
   }
 
@@ -345,7 +344,7 @@ where
     self.numeric_cell(cell)
   }
 
-  fn handle_is_cell_empty(&self, cell: &Cell, field: &Field) -> bool {
+  fn handle_is_empty(&self, cell: &Cell, field: &Field) -> bool {
     let cell_data = self.get_cell_data(cell, field).unwrap_or_default();
 
     cell_data.is_cell_empty()

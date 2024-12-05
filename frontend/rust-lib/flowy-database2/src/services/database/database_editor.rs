@@ -7,11 +7,11 @@ use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database_view::{
   DatabaseViewChanged, DatabaseViewEditor, DatabaseViewOperation, DatabaseViews, EditorByViewId,
 };
+use crate::services::field::checklist_filter::ChecklistCellChangeset;
 use crate::services::field::type_option_transform::transform_type_option;
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, type_option_data_from_pb,
-  ChecklistCellChangeset, SelectOptionCellChangeset, StringCellData, TimestampCellData,
-  TimestampCellDataWrapper, TypeOptionCellDataHandler, TypeOptionCellExt,
+  SelectOptionCellChangeset, StringCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
 use crate::services::field_settings::{default_field_settings_by_layout_map, FieldSettings};
 use crate::services::filter::{Filter, FilterChangeset};
@@ -30,6 +30,7 @@ use collab_database::fields::media_type_option::MediaCellData;
 use collab_database::fields::relation_type_option::RelationTypeOption;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, DatabaseRow, Row, RowCell, RowDetail, RowId, RowUpdate};
+use collab_database::template::timestamp_parse::TimestampCellData;
 use collab_database::views::{
   DatabaseLayout, FilterMap, LayoutSetting, OrderObjectPosition, RowOrder,
 };
@@ -891,12 +892,12 @@ impl DatabaseEditor {
     match field_type {
       FieldType::LastEditedTime | FieldType::CreatedTime => {
         let row = database.get_row(row_id).await;
-        let wrapped_cell_data = if field_type.is_created_time() {
-          TimestampCellDataWrapper::from((field_type, TimestampCellData::new(row.created_at)))
+        let cell_data = if field_type.is_created_time() {
+          TimestampCellData::new(row.created_at)
         } else {
-          TimestampCellDataWrapper::from((field_type, TimestampCellData::new(row.modified_at)))
+          TimestampCellData::new(row.modified_at)
         };
-        Some(Cell::from(wrapped_cell_data))
+        Some(cell_data.to_cell(field.field_type))
       },
       _ => database.get_cell(field_id, row_id).await.cell,
     }
@@ -938,7 +939,7 @@ impl DatabaseEditor {
                   };
                   Some(RowCell {
                     row_id: row.id,
-                    cell: Some(Cell::from(data)),
+                    cell: Some(data.to_cell(field.field_type)),
                   })
                 },
                 Err(_) => None,

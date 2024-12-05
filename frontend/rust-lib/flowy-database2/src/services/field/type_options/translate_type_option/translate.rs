@@ -1,14 +1,14 @@
 use crate::entities::TextFilterPB;
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
-use crate::services::field::type_options::translate_type_option::translate_entities::TranslateCellData;
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
-  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform,
+  CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
 use collab_database::fields::translate_type_option::TranslateTypeOption;
 use collab_database::rows::Cell;
+use collab_database::template::translate_parse::TranslateCellData;
 use flowy_error::FlowyResult;
 use std::cmp::Ordering;
 
@@ -47,7 +47,7 @@ impl TypeOptionCellDataCompare for TranslateTypeOption {
     other_cell_data: &<Self as TypeOption>::CellData,
     sort_condition: SortCondition,
   ) -> Ordering {
-    match (cell_data.is_cell_empty(), other_cell_data.is_cell_empty()) {
+    match (cell_data.is_empty(), other_cell_data.is_empty()) {
       (true, true) => Ordering::Equal,
       (true, false) => Ordering::Greater,
       (false, true) => Ordering::Less,
@@ -60,29 +60,17 @@ impl TypeOptionCellDataCompare for TranslateTypeOption {
 }
 
 impl CellDataDecoder for TranslateTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<TranslateCellData> {
-    Ok(TranslateCellData::from(cell))
-  }
-
   fn stringify_cell_data(&self, cell_data: TranslateCellData) -> String {
     cell_data.to_string()
-  }
-
-  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
-    None
   }
 }
 impl TypeOptionTransform for TranslateTypeOption {}
 
-impl TypeOptionCellDataSerde for TranslateTypeOption {
+impl CellDataProtobufEncoder for TranslateTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     ProtobufStr::from(cell_data.0)
-  }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(TranslateCellData::from(cell))
   }
 }

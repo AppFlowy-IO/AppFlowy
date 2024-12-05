@@ -3,7 +3,7 @@ mod tests {
   use collab_database::rows::Cell;
 
   use crate::services::cell::{CellDataChangeset, CellDataDecoder};
-  use crate::services::field::DateCellChangeset;
+  use crate::services::field::date_type_option::date_filter::DateCellChangeset;
   use collab_database::fields::date_type_option::{DateCellData, DateTypeOption};
 
   #[test]
