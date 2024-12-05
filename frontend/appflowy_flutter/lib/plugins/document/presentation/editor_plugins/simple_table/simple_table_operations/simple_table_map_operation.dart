@@ -47,9 +47,10 @@ extension TableMapOperation on Node {
         if (toIndex != null) {
           attributes = _mapColumnReorderingAttributes(index, toIndex);
         }
-
       case TableMapOperationType.reorderRow:
-      // attributes = _mapRowReorderingAttributes(index);
+        if (toIndex != null) {
+          attributes = _mapRowReorderingAttributes(index, toIndex);
+        }
     }
 
     // clear the attributes that are null
@@ -589,6 +590,66 @@ extension TableMapOperation on Node {
           );
     } catch (e) {
       Log.warn('Failed to map column deletion attributes: $e');
+      return attributes;
+    }
+  }
+
+  /// Map the attributes of a row reordering operation.
+  ///
+  /// See [_mapColumnReorderingAttributes] for more details.
+  Attributes? _mapRowReorderingAttributes(int fromIndex, int toIndex) {
+    final attributes = this.attributes;
+    try {
+      final duplicatedRowColor = this.rowColors[fromIndex.toString()];
+      final duplicatedRowAlign = this.rowAligns[fromIndex.toString()];
+
+      final rowColors = _remapSource(
+        this.rowColors,
+        fromIndex,
+        increment: fromIndex > toIndex,
+        comparator: (iKey, index) {
+          if (fromIndex > toIndex) {
+            return iKey < fromIndex && iKey >= toIndex;
+          } else {
+            return iKey > fromIndex && iKey <= toIndex;
+          }
+        },
+        filterIndex: fromIndex,
+      );
+
+      final rowAligns = _remapSource(
+        this.rowAligns,
+        fromIndex,
+        increment: fromIndex > toIndex,
+        comparator: (iKey, index) {
+          if (fromIndex > toIndex) {
+            return iKey < fromIndex && iKey >= toIndex;
+          } else {
+            return iKey > fromIndex && iKey <= toIndex;
+          }
+        },
+        filterIndex: fromIndex,
+      );
+
+      return attributes
+          .mergeValues(
+            SimpleTableBlockKeys.rowColors,
+            rowColors,
+            duplicatedEntry: MapEntry(
+              toIndex.toString(),
+              duplicatedRowColor,
+            ),
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.rowAligns,
+            rowAligns,
+            duplicatedEntry: MapEntry(
+              toIndex.toString(),
+              duplicatedRowAlign,
+            ),
+          );
+    } catch (e) {
+      Log.warn('Failed to map row reordering attributes: $e');
       return attributes;
     }
   }

@@ -16,14 +16,15 @@ extension SimpleTableReorderOperation on EditorState {
       return;
     }
 
-    assert(node.type == SimpleTableBlockKeys.type);
+    final tableNode = node.parentTableNode;
 
-    if (node.type != SimpleTableBlockKeys.type) {
+    if (tableNode == null) {
+      assert(tableNode == null);
       return;
     }
 
-    final columnLength = node.columnLength;
-    final rowLength = node.rowLength;
+    final columnLength = tableNode.columnLength;
+    final rowLength = tableNode.rowLength;
 
     if (fromIndex < 0 ||
         fromIndex >= columnLength ||
@@ -39,8 +40,8 @@ extension SimpleTableReorderOperation on EditorState {
       'reorder column in table ${node.id} at fromIndex: $fromIndex, toIndex: $toIndex, column length: $columnLength, row length: $rowLength',
     );
 
-    final attributes = node.mapTableAttributes(
-      node,
+    final attributes = tableNode.mapTableAttributes(
+      tableNode,
       type: TableMapOperationType.reorderColumn,
       index: fromIndex,
       toIndex: toIndex,
@@ -48,7 +49,7 @@ extension SimpleTableReorderOperation on EditorState {
 
     final transaction = this.transaction;
     for (var i = 0; i < rowLength; i++) {
-      final row = node.children[i];
+      final row = tableNode.children[i];
       final from = row.children[fromIndex];
       final to = row.children[toIndex];
       Path toPath = to.path;
@@ -61,7 +62,68 @@ extension SimpleTableReorderOperation on EditorState {
       transaction.deleteNode(from);
     }
     if (attributes != null) {
-      transaction.updateNode(node, attributes);
+      transaction.updateNode(tableNode, attributes);
+    }
+    await apply(transaction);
+  }
+
+  /// Reorder the row of the table.
+  ///
+  /// If the from index is equal to the to index, do nothing.
+  /// The node's type can be [SimpleTableCellBlockKeys.type] or [SimpleTableRowBlockKeys.type] or [SimpleTableBlockKeys.type].
+  Future<void> reorderRow(
+    Node node, {
+    required int fromIndex,
+    required int toIndex,
+  }) async {
+    if (fromIndex == toIndex) {
+      return;
+    }
+
+    final tableNode = node.parentTableNode;
+
+    if (tableNode == null) {
+      assert(tableNode == null);
+      return;
+    }
+
+    final columnLength = tableNode.columnLength;
+    final rowLength = tableNode.rowLength;
+
+    if (fromIndex < 0 ||
+        fromIndex >= rowLength ||
+        toIndex < 0 ||
+        toIndex >= rowLength) {
+      Log.warn(
+        'reorder row: index out of range: fromIndex: $fromIndex, toIndex: $toIndex, row length: $rowLength',
+      );
+      return;
+    }
+
+    Log.info(
+      'reorder row in table ${node.id} at fromIndex: $fromIndex, toIndex: $toIndex, column length: $columnLength, row length: $rowLength',
+    );
+
+    final attributes = tableNode.mapTableAttributes(
+      tableNode,
+      type: TableMapOperationType.reorderRow,
+      index: fromIndex,
+      toIndex: toIndex,
+    );
+
+    final transaction = this.transaction;
+    final from = tableNode.children[fromIndex];
+    final to = tableNode.children[toIndex];
+    Path toPath = to.path;
+    if (fromIndex < toIndex) {
+      toPath = toPath.next;
+    } else {
+      toPath = toPath;
+    }
+    transaction.insertNode(toPath, from.copyWith());
+    transaction.deleteNode(from);
+    if (attributes != null) {
+      transaction.updateNode(tableNode, attributes);
     }
     await apply(transaction);
   }

@@ -97,7 +97,19 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
     );
   }
 
-  void _reorderRow() {}
+  void _reorderRow() {
+    final fromIndex = simpleTableContext.isReorderingRow.value.$2;
+    final toIndex = simpleTableContext.hoveringTableCell.value?.rowIndex;
+    if (toIndex == null) {
+      return;
+    }
+
+    editorState.reorderRow(
+      node,
+      fromIndex: fromIndex,
+      toIndex: toIndex,
+    );
+  }
 }
 
 class SimpleTableReorderButton extends StatelessWidget {

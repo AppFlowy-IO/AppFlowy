@@ -32,10 +32,13 @@ class SimpleTableBorderBuilder {
         simpleTableContext.hoveringTableCell.value?.columnIndex ==
             node.columnIndex;
 
+    final isCellInHoveringRow =
+        simpleTableContext.hoveringTableCell.value?.rowIndex == node.rowIndex;
+
     // check if the cell is in the reordering column
     final isReordering = simpleTableContext.isReordering;
 
-    if (isReordering && isCellInHoveringColumn) {
+    if (isReordering && (isCellInHoveringColumn || isCellInHoveringRow)) {
       return buildReorderingBorder();
     } else if (simpleTableContext.isSelectingTable.value) {
       return buildSelectingTableBorder();
