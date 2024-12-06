@@ -1,10 +1,12 @@
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 
@@ -18,6 +20,43 @@ Future<bool> afLaunchUrl(
   String? webOnlyWindowName,
   bool addingHttpSchemeWhenFailed = false,
 }) async {
+  final url = uri.toString();
+
+  // check if the uri is the local file path
+  if (localPathRegex.hasMatch(url)) {
+    // open the file with the OpenfileX
+    final result = await OpenFilex.open(url);
+    // show the toast if the file is not found
+    String message = '';
+    switch (result.type) {
+      case ResultType.done:
+        message = LocaleKeys.openFileMessage_success.tr();
+      case ResultType.fileNotFound:
+        message = LocaleKeys.openFileMessage_fileNotFound.tr();
+      case ResultType.noAppToOpen:
+        message = LocaleKeys.openFileMessage_noAppToOpenFile.tr();
+      case ResultType.permissionDenied:
+        message = LocaleKeys.openFileMessage_permissionDenied.tr();
+      case ResultType.error:
+        message = LocaleKeys.failedToOpenUrl.tr();
+    }
+    if (context != null && context.mounted) {
+      showToastNotification(
+        context,
+        message: message,
+        type: result.type == ResultType.done
+            ? ToastificationType.success
+            : ToastificationType.error,
+      );
+    }
+    final openFileSuccess = result.type == ResultType.done;
+    if (!openFileSuccess && onFailure != null) {
+      onFailure(uri);
+      Log.error('Failed to open file: $result.message');
+    }
+    return openFileSuccess;
+  }
+
   // try to launch the uri directly
   bool result;
   try {
@@ -32,7 +71,7 @@ Future<bool> afLaunchUrl(
   }
 
   // if the uri is not a valid url, try to launch it with http scheme
-  final url = uri.toString();
+
   if (addingHttpSchemeWhenFailed &&
       !result &&
       !isURL(url, {'require_protocol': true})) {
