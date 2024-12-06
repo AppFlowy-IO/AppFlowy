@@ -15,6 +15,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
@@ -356,17 +357,32 @@ class FileBlockComponentState extends State<FileBlockComponent>
       final name = node.attributes[FileBlockKeys.name] as String;
       return [
         Expanded(
-          child: FlowyText(
-            name,
-            overflow: TextOverflow.ellipsis,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FlowyText(
+                name,
+                overflow: TextOverflow.ellipsis,
+                color: AFThemeExtension.of(context).strongText,
+              ),
+              // TODO(Nathan): Provide error message to show the error hint.
+              // Optionally you can make the string hardcoded in the FlowyText and just
+              // use a boolean, if we're only going to show this one message.
+              _buildUploadErrorText(),
+            ],
           ),
         ),
+        // TODO(Nathan): provide upload progress and boolean value for if it failed
+        _buildProgressOrRetry(),
+
         const HSpace(8),
         if (UniversalPlatform.isDesktopOrWeb) ...[
           ValueListenableBuilder<bool>(
             valueListenable: showActionsNotifier,
             builder: (_, value, __) {
               final url = node.attributes[FileBlockKeys.url];
+              // TODO(Nathan): If upload failed, return an empty SizedBox
               if (!value || url == null || url.isEmpty) {
                 return const SizedBox.shrink();
               }
@@ -415,6 +431,43 @@ class FileBlockComponentState extends State<FileBlockComponent>
         ),
       ];
     }
+  }
+
+  Widget _buildUploadErrorText({String? error}) {
+    if (error == null) {
+      return const SizedBox.shrink();
+    }
+
+    return FlowyText.regular(
+      error,
+      fontSize: 11,
+      color: Theme.of(context).colorScheme.error,
+    );
+  }
+
+  Widget _buildProgressOrRetry({double? progress, bool didError = false}) {
+    if (progress == null && !didError) {
+      return const SizedBox.shrink();
+    }
+
+    if (didError) {
+      return GestureDetector(
+        onTap: () {
+          // TODO(Nathan): Retry event
+        },
+        child: const FlowySvg(FlowySvgs.retry_s),
+      );
+    }
+
+    return SizedBox(
+      width: 16,
+      height: 16,
+      child: CircularProgressIndicator(
+        value: progress,
+        strokeWidth: 3,
+        color: const Color(0xFF8F959E),
+      ),
+    );
   }
 
   // only used on mobile platform

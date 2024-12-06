@@ -3,7 +3,6 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_media_upl
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -45,18 +44,23 @@ class GridMediaCellSkin extends IEditableMediaCellSkin {
         final wrapContent = context.read<MediaCellBloc>().wrapContent;
         final List<Widget> children = state.files.map<Widget>(
           (file) {
-            final fileUploadProgress = state.uploadProgress
-                .firstWhereOrNull((u) => u.fileId == file.id);
-
             return GestureDetector(
-              onTap: () => _openOrExpandFile(context, file, state.files),
+              onTap: () {
+                // TODO(Nathan): Add retry event if file upload failed
+                // if (uploadFailed) {
+                //   return add_event_here;
+                // }
+
+                _openOrExpandFile(context, file, state.files);
+              },
               child: Padding(
                 padding: wrapContent
                     ? const EdgeInsets.only(right: 4)
                     : EdgeInsets.zero,
                 child: _FilePreviewRender(
                   file: file,
-                  progress: fileUploadProgress,
+                  // TODO(Nathan): Add error value for this file
+                  didError: false,
                 ),
               ),
             );
@@ -228,53 +232,36 @@ class GridMediaCellSkin extends IEditableMediaCellSkin {
 }
 
 class _FilePreviewRender extends StatelessWidget {
-  const _FilePreviewRender({required this.file, this.progress});
+  const _FilePreviewRender({required this.file, this.didError = false});
 
   final MediaFilePB file;
-  final MediaUploadProgress? progress;
+  final bool didError;
 
   @override
   Widget build(BuildContext context) {
-    if (progress != null &&
-        progress!.uploadState != MediaUploadState.completed) {
-      return Container(
-        margin: const EdgeInsets.symmetric(vertical: 2),
-        height: 24,
-        width: 24,
-        child: Stack(
-          children: [
-            CircularProgressIndicator(
-              value: progress!.fileProgress.progress,
-              strokeWidth: 1.5,
-            ),
-            Center(
-              child: FlowyText(
-                '${progress!.fileProgress.progress.floor() * 100}%',
-                fontSize: 8,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (file.fileType != MediaFileTypePB.Image) {
+    if (file.fileType != MediaFileTypePB.Image || didError) {
       return FlowyTooltip(
-        message: file.name,
+        message: didError ? LocaleKeys.grid_media_uploadFailed.tr() : file.name,
         child: Container(
           height: 28,
           width: 28,
           clipBehavior: Clip.antiAlias,
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(didError ? 6 : 8),
           decoration: BoxDecoration(
             color: AFThemeExtension.of(context).greyHover,
             borderRadius: BorderRadius.circular(4),
           ),
-          child: FlowySvg(
-            file.fileType.icon,
-            size: const Size.square(12),
-            color: AFThemeExtension.of(context).textColor,
-          ),
+          child: didError
+              ? const FlowySvg(
+                  FlowySvgs.notice_s,
+                  size: Size.square(16),
+                  blendMode: BlendMode.dstIn,
+                )
+              : FlowySvg(
+                  file.fileType.icon,
+                  size: const Size.square(12),
+                  color: AFThemeExtension.of(context).textColor,
+                ),
         ),
       );
     }
