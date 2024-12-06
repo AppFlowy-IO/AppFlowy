@@ -1,8 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -28,6 +25,8 @@ import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -450,7 +449,7 @@ class _DataPathActions extends StatelessWidget {
           label:
               LocaleKeys.settings_manageDataPage_dataStorage_actions_open.tr(),
           icon: const FlowySvg(FlowySvgs.folder_m, size: Size.square(20)),
-          onPressed: () => afLaunchUrl(Uri.file(currentPath)),
+          onPressed: () => afLaunchUri(Uri.file(currentPath)),
         ),
       ],
     );
