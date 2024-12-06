@@ -23,7 +23,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 use tokio::sync::Mutex;
-use tracing::{error, info, instrument, trace, warn};
+use tracing::{error, info, instrument, trace};
 
 use collab_integrate::collab_builder::{AppFlowyCollabBuilder, CollabBuilderConfig};
 use collab_integrate::{CollabKVAction, CollabKVDB};
@@ -776,13 +776,6 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
   ) -> Result<Collab, DatabaseError> {
     let object = self.build_collab_object(object_id, collab_type.clone())?;
     let data_source = if self.persistence.is_collab_exist(object_id) {
-      if encoded_collab.is_some() {
-        warn!(
-          "build collab: {}:{} with both local and remote encode collab",
-          collab_type, object_id
-        );
-      }
-
       trace!(
         "build collab: {}:{} from local encode collab",
         collab_type,
@@ -903,18 +896,21 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
       encoded_collab_by_id.insert(k, v);
     }
 
-    // 2. Fetch remaining collabs from remote
-    let remote_collabs = self
-      .batch_get_encode_collab(object_ids, collab_type)
-      .await?;
+    if !object_ids.is_empty() {
+      // 2. Fetch remaining collabs from remote
+      let remote_collabs = self
+        .batch_get_encode_collab(object_ids, collab_type)
+        .await?;
 
-    trace!(
-      "[Database]: load {} database row from remote",
-      remote_collabs.len()
-    );
-    for (k, v) in remote_collabs {
-      encoded_collab_by_id.insert(k, v);
+      trace!(
+        "[Database]: load {} database row from remote",
+        remote_collabs.len()
+      );
+      for (k, v) in remote_collabs {
+        encoded_collab_by_id.insert(k, v);
+      }
     }
+
     Ok(encoded_collab_by_id)
   }
 
