@@ -103,7 +103,7 @@ pub trait FolderOperationHandler {
   /// Create a view with the pre-defined data.
   /// For example, the initial data of the grid/calendar/kanban board when
   /// you create a new view.
-  async fn create_view_with_default_data(
+  async fn create_default_view(
     &self,
     user_id: i64,
     view_id: &str,

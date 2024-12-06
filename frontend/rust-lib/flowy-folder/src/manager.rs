@@ -13,7 +13,7 @@ use crate::notification::{
   send_current_workspace_notification, send_notification, FolderNotification,
 };
 use crate::publish_util::{generate_publish_name, view_pb_to_publish_view};
-use crate::share::{ImportParams, ImportValue};
+use crate::share::{ImportData, ImportItem, ImportParams};
 use crate::util::{folder_not_init_error, workspace_data_not_sync_error};
 use crate::view_operation::{
   create_view, EncodedCollabWrapper, FolderOperationHandler, FolderOperationHandlers, ViewData,
@@ -517,7 +517,7 @@ impl FolderManager {
     );
     if params.meta.is_empty() && params.initial_data.is_empty() {
       handler
-        .create_view_with_default_data(user_id, &params.view_id, &params.name, view_layout.clone())
+        .create_default_view(user_id, &params.view_id, &params.name, view_layout.clone())
         .await?;
     } else {
       encoded_collab = handler
@@ -555,7 +555,7 @@ impl FolderManager {
     let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
     handler
-      .create_view_with_default_data(user_id, &params.view_id, &params.name, view_layout.clone())
+      .create_default_view(user_id, &params.view_id, &params.name, view_layout.clone())
       .await?;
 
     let view = create_view(self.user.user_id()?, params, view_layout);
@@ -1625,39 +1625,30 @@ impl FolderManager {
   pub(crate) async fn import_single_file(
     &self,
     parent_view_id: String,
-    import_data: ImportValue,
+    import_data: ImportItem,
   ) -> FlowyResult<(View, Vec<(String, CollabType, EncodedCollab)>)> {
-    // Ensure either data or file_path is provided
-    if import_data.data.is_none() && import_data.file_path.is_none() {
-      return Err(FlowyError::new(
-        ErrorCode::InvalidParams,
-        "Either data or file_path is required",
-      ));
-    }
-
     let handler = self.get_handler(&import_data.view_layout)?;
     let view_id = gen_view_id().to_string();
     let uid = self.user.user_id()?;
     let mut encoded_collab = vec![];
 
-    // Import data from bytes if available
-    if let Some(data) = import_data.data {
-      encoded_collab = handler
-        .import_from_bytes(
-          uid,
-          &view_id,
-          &import_data.name,
-          import_data.import_type,
-          data,
-        )
-        .await?;
-    }
-
-    // Import data from file path if available
-    if let Some(file_path) = import_data.file_path {
-      handler
-        .import_from_file_path(&view_id, &import_data.name, file_path)
-        .await?;
+    match import_data.data {
+      ImportData::FilePath { file_path } => {
+        handler
+          .import_from_file_path(&view_id, &import_data.name, file_path)
+          .await?;
+      },
+      ImportData::Bytes { bytes } => {
+        encoded_collab = handler
+          .import_from_bytes(
+            uid,
+            &view_id,
+            &import_data.name,
+            import_data.import_type,
+            bytes,
+          )
+          .await?;
+      },
     }
 
     let params = CreateViewParams {
@@ -1695,7 +1686,7 @@ impl FolderManager {
     let workspace_id = self.user.workspace_id()?;
     let mut objects = vec![];
     let mut views = vec![];
-    for data in import_data.values {
+    for data in import_data.items {
       // Import a single file and get the view and encoded collab data
       let (view, encoded_collabs) = self
         .import_single_file(import_data.parent_view_id.clone(), data)

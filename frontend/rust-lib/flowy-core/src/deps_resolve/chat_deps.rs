@@ -1,4 +1,4 @@
-use flowy_ai::ai_manager::{AIManager, AIUserService};
+use flowy_ai::ai_manager::{AIManager, AIQueryService, AIUserService};
 use flowy_ai_pub::cloud::ChatCloudService;
 use flowy_error::FlowyError;
 use flowy_sqlite::kv::KVStorePreferences;
@@ -23,7 +23,16 @@ impl ChatDepsResolver {
       user_service,
       store_preferences,
       storage_service,
+      ChatQueryServiceImpl,
     ))
+  }
+}
+
+struct ChatQueryServiceImpl;
+
+impl AIQueryService for ChatQueryServiceImpl {
+  fn query_chat_rag_ids(&self, _chat_id: &str) -> Result<Vec<String>, FlowyError> {
+    Ok(vec![])
   }
 }
 

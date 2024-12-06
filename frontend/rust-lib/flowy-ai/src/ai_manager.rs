@@ -27,9 +27,14 @@ pub trait AIUserService: Send + Sync + 'static {
   fn application_root_dir(&self) -> Result<PathBuf, FlowyError>;
 }
 
+pub trait AIQueryService: Send + Sync + 'static {
+  fn query_chat_rag_ids(&self, chat_id: &str) -> Result<Vec<String>, FlowyError>;
+}
+
 pub struct AIManager {
   pub cloud_service_wm: Arc<AICloudServiceMiddleware>,
   pub user_service: Arc<dyn AIUserService>,
+  pub query_service: Arc<dyn AIQueryService>,
   chats: Arc<DashMap<String, Arc<Chat>>>,
   pub local_ai_controller: Arc<LocalAIController>,
 }
@@ -40,6 +45,7 @@ impl AIManager {
     user_service: impl AIUserService,
     store_preferences: Arc<KVStorePreferences>,
     storage_service: Weak<dyn StorageService>,
+    query_service: impl AIQueryService,
   ) -> AIManager {
     let user_service = Arc::new(user_service);
     let plugin_manager = Arc::new(PluginManager::new());
@@ -49,6 +55,7 @@ impl AIManager {
       user_service.clone(),
       chat_cloud_service.clone(),
     ));
+    let query_service = Arc::new(query_service);
 
     // setup local chat service
     let cloud_service_wm = Arc::new(AICloudServiceMiddleware::new(
@@ -63,6 +70,7 @@ impl AIManager {
       user_service,
       chats: Arc::new(DashMap::new()),
       local_ai_controller,
+      query_service,
     }
   }
 

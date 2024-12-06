@@ -21,8 +21,9 @@ use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, LocalAIConfig,
+  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings, LocalAIConfig,
   MessageCursor, RepeatedChatMessage, StreamAnswer, StreamComplete, SubscriptionPlan,
+  UpdateChatParams,
 };
 use flowy_database_pub::cloud::{
   DatabaseAIService, DatabaseCloudService, DatabaseSnapshot, EncodeCollabByOid, SummaryRowContent,
@@ -784,6 +785,31 @@ impl ChatCloudService for ServerProvider {
       .get_server()?
       .chat_service()
       .get_workspace_plan(workspace_id)
+      .await
+  }
+
+  async fn get_chat_settings(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+  ) -> Result<ChatSettings, FlowyError> {
+    self
+      .get_server()?
+      .chat_service()
+      .get_chat_settings(workspace_id, chat_id)
+      .await
+  }
+
+  async fn update_chat_settings(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    params: UpdateChatParams,
+  ) -> Result<(), FlowyError> {
+    self
+      .get_server()?
+      .chat_service()
+      .update_chat_settings(workspace_id, chat_id, params)
       .await
   }
 }

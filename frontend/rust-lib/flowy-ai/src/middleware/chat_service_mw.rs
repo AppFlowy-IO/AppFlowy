@@ -7,9 +7,9 @@ use appflowy_plugin::error::PluginError;
 use std::collections::HashMap;
 
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, CompletionType,
-  LocalAIConfig, MessageCursor, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
-  StreamAnswer, StreamComplete, SubscriptionPlan,
+  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
+  CompletionType, LocalAIConfig, MessageCursor, RelatedQuestion, RepeatedChatMessage,
+  RepeatedRelatedQuestion, StreamAnswer, StreamComplete, SubscriptionPlan, UpdateChatParams,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use futures::{stream, Sink, StreamExt, TryStreamExt};
@@ -313,5 +313,28 @@ impl ChatCloudService for AICloudServiceMiddleware {
     workspace_id: &str,
   ) -> Result<Vec<SubscriptionPlan>, FlowyError> {
     self.cloud_service.get_workspace_plan(workspace_id).await
+  }
+
+  async fn get_chat_settings(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+  ) -> Result<ChatSettings, FlowyError> {
+    self
+      .cloud_service
+      .get_chat_settings(workspace_id, chat_id)
+      .await
+  }
+
+  async fn update_chat_settings(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    params: UpdateChatParams,
+  ) -> Result<(), FlowyError> {
+    self
+      .cloud_service
+      .update_chat_settings(workspace_id, chat_id, params)
+      .await
   }
 }

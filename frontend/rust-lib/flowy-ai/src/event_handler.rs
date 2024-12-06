@@ -34,15 +34,16 @@ pub(crate) async fn stream_chat_message_handler(
     ChatMessageTypePB::System => ChatMessageType::System,
     ChatMessageTypePB::User => ChatMessageType::User,
   };
+
   let metadata = data
     .metadata
     .into_iter()
     .map(|metadata| {
-      let (content_type, content_len) = match metadata.data_type {
-        ChatMessageMetaTypePB::Txt => (ContextLoader::Text, metadata.data.len()),
-        ChatMessageMetaTypePB::Markdown => (ContextLoader::Markdown, metadata.data.len()),
-        ChatMessageMetaTypePB::PDF => (ContextLoader::PDF, 0),
-        ChatMessageMetaTypePB::UnknownMetaType => (ContextLoader::Unknown, 0),
+      let (content_type, content_len) = match metadata.loader_type {
+        ContextLoaderTypePB::Txt => (ContextLoader::Text, metadata.data.len()),
+        ContextLoaderTypePB::Markdown => (ContextLoader::Markdown, metadata.data.len()),
+        ContextLoaderTypePB::PDF => (ContextLoader::PDF, 0),
+        ContextLoaderTypePB::UnknownLoaderType => (ContextLoader::Unknown, 0),
       };
 
       ChatMessageMetadata {

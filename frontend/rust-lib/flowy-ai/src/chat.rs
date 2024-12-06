@@ -86,10 +86,6 @@ impl Chat {
     question_stream_port: i64,
     metadata: Vec<ChatMessageMetadata>,
   ) -> Result<ChatMessagePB, FlowyError> {
-    if message.len() > 2000 {
-      return Err(FlowyError::text_too_long().with_context("Exceeds maximum message 2000 length"));
-    }
-
     trace!(
       "[Chat] stream chat message: chat_id={}, message={}, message_type={:?}, metadata={:?}",
       self.chat_id,

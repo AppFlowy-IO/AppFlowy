@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use collab_folder::ViewLayout;
 use event_integration_test::EventIntegrationTest;
 use flowy_folder::entities::{
-  ImportPayloadPB, ImportTypePB, ImportValuePayloadPB, ViewLayoutPB, ViewPB,
+  ImportItemPayloadPB, ImportPayloadPB, ImportTypePB, ViewLayoutPB, ViewPB,
 };
 use flowy_folder::view_operation::EncodedCollabWrapper;
 
@@ -144,7 +144,7 @@ async fn import_csv(file_name: &str, test: &EventIntegrationTest) -> ViewPB {
 fn gen_import_data(file_name: String, csv_string: String, workspace_id: String) -> ImportPayloadPB {
   ImportPayloadPB {
     parent_view_id: workspace_id.clone(),
-    values: vec![ImportValuePayloadPB {
+    items: vec![ImportItemPayloadPB {
       name: file_name,
       data: Some(csv_string.as_bytes().to_vec()),
       file_path: None,

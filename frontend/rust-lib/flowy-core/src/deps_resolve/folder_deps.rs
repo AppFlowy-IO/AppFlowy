@@ -190,6 +190,27 @@ impl FolderOperationHandler for DocumentFolderOperation {
     Ok(Some(encoded_collab))
   }
 
+  /// Create a view with built-in data.
+  async fn create_default_view(
+    &self,
+    user_id: i64,
+    view_id: &str,
+    _name: &str,
+    layout: ViewLayout,
+  ) -> Result<(), FlowyError> {
+    debug_assert_eq!(layout, ViewLayout::Document);
+    match self.0.create_document(user_id, view_id, None).await {
+      Ok(_) => Ok(()),
+      Err(err) => {
+        if err.is_already_exists() {
+          Ok(())
+        } else {
+          Err(err)
+        }
+      },
+    }
+  }
+
   async fn get_encoded_collab_v1_from_disk(
     &self,
     user: Arc<dyn FolderUser>,
@@ -231,27 +252,6 @@ impl FolderOperationHandler for DocumentFolderOperation {
     }))
   }
 
-  /// Create a view with built-in data.
-  async fn create_view_with_default_data(
-    &self,
-    user_id: i64,
-    view_id: &str,
-    _name: &str,
-    layout: ViewLayout,
-  ) -> Result<(), FlowyError> {
-    debug_assert_eq!(layout, ViewLayout::Document);
-    match self.0.create_document(user_id, view_id, None).await {
-      Ok(_) => Ok(()),
-      Err(err) => {
-        if err.is_already_exists() {
-          Ok(())
-        } else {
-          Err(err)
-        }
-      },
-    }
-  }
-
   async fn import_from_bytes(
     &self,
     uid: i64,
@@ -272,13 +272,13 @@ impl FolderOperationHandler for DocumentFolderOperation {
     )])
   }
 
-  // will implement soon
   async fn import_from_file_path(
     &self,
-    _view_id: &str,
-    _name: &str,
-    _path: String,
+    view_id: &str,
+    name: &str,
+    path: String,
   ) -> Result<(), FlowyError> {
+    // TODO(lucas): import file from local markdown file
     Ok(())
   }
 
@@ -478,7 +478,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
   /// If the ext contains the {"database_id": "xx"}, then it will link to
   /// the existing database. The data of the database will be shared within
   /// these references views.
-  async fn create_view_with_default_data(
+  async fn create_default_view(
     &self,
     _user_id: i64,
     view_id: &str,
@@ -625,7 +625,7 @@ impl FolderOperationHandler for ChatFolderOperation {
     Err(FlowyError::not_support())
   }
 
-  async fn create_view_with_default_data(
+  async fn create_default_view(
     &self,
     user_id: i64,
     view_id: &str,

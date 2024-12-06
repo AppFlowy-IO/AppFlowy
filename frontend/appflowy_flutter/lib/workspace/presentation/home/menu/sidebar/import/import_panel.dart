@@ -151,7 +151,7 @@ class _ImportPanelState extends State<ImportPanel> {
 
     showLoading.value = true;
 
-    final importValues = <ImportValuePayloadPB>[];
+    final importValues = <ImportItemPayloadPB>[];
     for (final file in result.files) {
       final path = file.path;
       if (path == null) {
@@ -163,7 +163,7 @@ class _ImportPanelState extends State<ImportPanel> {
         case ImportType.historyDatabase:
           final data = await File(path).readAsString();
           importValues.add(
-            ImportValuePayloadPB.create()
+            ImportItemPayloadPB.create()
               ..name = name
               ..data = utf8.encode(data)
               ..viewLayout = ViewLayoutPB.Grid

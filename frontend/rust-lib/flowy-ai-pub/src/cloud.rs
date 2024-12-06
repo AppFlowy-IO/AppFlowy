@@ -5,8 +5,8 @@ pub use client_api::entity::ai_dto::{
 };
 pub use client_api::entity::billing_dto::SubscriptionPlan;
 pub use client_api::entity::chat_dto::{
-  ChatMessage, ChatMessageMetadata, ChatMessageType, ChatRAGData, ContextLoader, MessageCursor,
-  RepeatedChatMessage,
+  ChatMessage, ChatMessageMetadata, ChatMessageType, ChatRAGData, ChatSettings, ContextLoader,
+  MessageCursor, RepeatedChatMessage, UpdateChatParams,
 };
 pub use client_api::entity::QuestionStreamValue;
 use client_api::error::AppResponseError;
@@ -97,4 +97,17 @@ pub trait ChatCloudService: Send + Sync + 'static {
     &self,
     workspace_id: &str,
   ) -> Result<Vec<SubscriptionPlan>, FlowyError>;
+
+  async fn get_chat_settings(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+  ) -> Result<ChatSettings, FlowyError>;
+
+  async fn update_chat_settings(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    params: UpdateChatParams,
+  ) -> Result<(), FlowyError>;
 }

@@ -6,7 +6,7 @@ use collab::core::origin::CollabOrigin;
 use collab::lock::RwLock;
 use collab::preclude::Collab;
 use collab_database::database::{Database, DatabaseData};
-use collab_database::entity::{CreateDatabaseParams, CreateViewParams};
+use collab_database::entity::{CreateDatabaseParams, CreateViewParams, EncodedDatabase};
 use collab_database::error::DatabaseError;
 use collab_database::fields::translate_type_option::TranslateTypeOption;
 use collab_database::rows::RowId;
@@ -187,6 +187,17 @@ impl DatabaseManager {
       FlowyError::record_not_found()
         .with_context(format!("The database for view id: {} not found", view_id))
     })
+  }
+
+  pub async fn encode_database(&self, view_id: &str) -> FlowyResult<EncodedDatabase> {
+    let editor = self.get_database_editor_with_view_id(view_id).await?;
+    let collabs = editor
+      .database
+      .read()
+      .await
+      .encode_database_collabs()
+      .await?;
+    Ok(collabs)
   }
 
   pub async fn get_database_row_ids_with_view_id(&self, view_id: &str) -> FlowyResult<Vec<RowId>> {
