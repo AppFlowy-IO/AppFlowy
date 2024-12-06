@@ -101,7 +101,7 @@ Future<void> downloadMediaFile(
     FileUploadTypePB.LocalFile,
   ].contains(file.uploadType)) {
     /// When the file is a network file or a local file, we can directly open the file.
-    await afLaunchUri(Uri.parse(file.url));
+    await afLaunchUrlString(file.url);
   } else {
     if (userProfile == null) {
       return showToastNotification(
