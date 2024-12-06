@@ -11,6 +11,7 @@ use crate::entities::{AIModelPB, AuthenticatorPB};
 use crate::errors::ErrorCode;
 
 use super::parser::UserStabilityAIKey;
+use super::AFRolePB;
 
 #[derive(Default, ProtoBuf)]
 pub struct UserTokenPB {
@@ -237,6 +238,9 @@ pub struct UserWorkspacePB {
 
   #[pb(index = 5)]
   pub member_count: i64,
+
+  #[pb(index = 6, one_of)]
+  pub role: Option<AFRolePB>,
 }
 
 impl From<UserWorkspace> for UserWorkspacePB {
@@ -247,6 +251,7 @@ impl From<UserWorkspace> for UserWorkspacePB {
       created_at_timestamp: value.created_at.timestamp(),
       icon: value.icon,
       member_count: value.member_count,
+      role: value.role.map(AFRolePB::from),
     }
   }
 }

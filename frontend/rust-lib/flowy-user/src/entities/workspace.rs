@@ -147,7 +147,7 @@ pub struct UpdateWorkspaceMemberPB {
 }
 
 // Workspace Role
-#[derive(ProtoBuf_Enum, Clone, Default)]
+#[derive(Debug, ProtoBuf_Enum, Clone, Default)]
 pub enum AFRolePB {
   Owner = 0,
   Member = 1,

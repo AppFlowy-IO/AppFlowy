@@ -102,6 +102,7 @@ diesel::table! {
         database_storage_id -> Text,
         icon -> Text,
         member_count -> BigInt,
+        role -> Nullable<Integer>,
     }
 }
 
