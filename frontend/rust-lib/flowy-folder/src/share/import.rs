@@ -1,4 +1,5 @@
 use collab_folder::ViewLayout;
+use std::fmt::{Display, Formatter};
 
 #[derive(Clone, Debug)]
 pub enum ImportType {
@@ -21,6 +22,15 @@ pub struct ImportItem {
 pub enum ImportData {
   FilePath { file_path: String },
   Bytes { bytes: Vec<u8> },
+}
+
+impl Display for ImportData {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    match self {
+      ImportData::FilePath { file_path } => write!(f, "file: {}", file_path),
+      ImportData::Bytes { .. } => write!(f, "binary"),
+    }
+  }
 }
 
 #[derive(Clone, Debug)]

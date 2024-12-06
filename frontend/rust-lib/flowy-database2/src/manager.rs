@@ -909,22 +909,25 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
       "[Database]: load {} database row from local disk",
       local_disk_encoded_collab.len()
     );
+
     object_ids.retain(|object_id| !local_disk_encoded_collab.contains_key(object_id));
     for (k, v) in local_disk_encoded_collab {
       encoded_collab_by_id.insert(k, v);
     }
 
     // 2. Fetch remaining collabs from remote
-    let remote_collabs = self
-      .batch_get_encode_collab(object_ids, collab_type)
-      .await?;
+    if !object_ids.is_empty() {
+      let remote_collabs = self
+        .batch_get_encode_collab(object_ids, collab_type)
+        .await?;
 
-    trace!(
-      "[Database]: load {} database row from remote",
-      remote_collabs.len()
-    );
-    for (k, v) in remote_collabs {
-      encoded_collab_by_id.insert(k, v);
+      trace!(
+        "[Database]: load {} database row from remote",
+        remote_collabs.len()
+      );
+      for (k, v) in remote_collabs {
+        encoded_collab_by_id.insert(k, v);
+      }
     }
     Ok(encoded_collab_by_id)
   }

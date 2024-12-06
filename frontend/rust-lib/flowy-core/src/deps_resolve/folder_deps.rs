@@ -551,7 +551,10 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     _name: &str,
     path: String,
   ) -> Result<(), FlowyError> {
-    self.0.import_csv_from_file(path, CSVFormat::META).await?;
+    self
+      .0
+      .import_csv_from_file(path, CSVFormat::Original)
+      .await?;
     Ok(())
   }
 

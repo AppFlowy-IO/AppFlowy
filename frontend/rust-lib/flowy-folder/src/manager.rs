@@ -1622,6 +1622,7 @@ impl FolderManager {
   }
 
   /// Imports a single file to the folder and returns the encoded collab for immediate cloud sync.
+  #[instrument(level = "debug", skip_all, err)]
   pub(crate) async fn import_single_file(
     &self,
     parent_view_id: String,
@@ -1632,6 +1633,7 @@ impl FolderManager {
     let uid = self.user.user_id()?;
     let mut encoded_collab = vec![];
 
+    info!("import single file from:{}", import_data.data);
     match import_data.data {
       ImportData::FilePath { file_path } => {
         handler
