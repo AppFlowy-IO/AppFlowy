@@ -21,6 +21,7 @@ class ChildPageTransactionHandler extends MentionTransactionHandler {
   @override
   Future<void> onTransaction(
     BuildContext context,
+    String viewId,
     EditorState editorState,
     List<MentionBlockData> added,
     List<MentionBlockData> removed, {

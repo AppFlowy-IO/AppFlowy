@@ -2,20 +2,23 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/child_page_transaction_handler.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/date_transaction_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_transaction_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_handler.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/mention_transaction_handler.dart';
 import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'mention_transaction_handler.dart';
+
 final _transactionHandlers = <EditorTransactionHandler>[
   if (FeatureFlag.inlineSubPageMention.isOn) ...[
     SubPageTransactionHandler(),
     ChildPageTransactionHandler(),
   ],
+  DateTransactionHandler(),
 ];
 
 /// Handles delegating transactions to appropriate handlers.
@@ -151,10 +154,15 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
     for (final op in transaction.operations) {
       if (op is InsertOperation) {
         for (final n in op.nodes) {
+          bool fetchedMentions = false;
           for (final handler in _transactionHandlers) {
             if (handler.livesInDelta) {
+              if (fetchedMentions) {
+                continue;
+              }
               added[handler.type]!
                   .addAll(extractMentionsForType(n, handler.type));
+              fetchedMentions = true;
             } else {
               added[handler.type]!
                   .addAll(collectMatchingNodes(n, handler.type));
@@ -163,11 +171,16 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
         }
       } else if (op is DeleteOperation) {
         for (final n in op.nodes) {
+          bool fetchedMentions = false;
           for (final handler in _transactionHandlers) {
             if (handler.livesInDelta) {
+              if (fetchedMentions) {
+                continue;
+              }
               removed[handler.type]!.addAll(
                 extractMentionsForType(n, handler.type, false),
               );
+              fetchedMentions = true;
             } else {
               removed[handler.type]!
                   .addAll(collectMatchingNodes(n, handler.type));
@@ -191,8 +204,9 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
 
         final (add, del) = diffDeltas(deltaBefore, deltaAfter);
 
+        bool fetchedMentions = false;
         for (final handler in _transactionHandlers) {
-          if (!handler.livesInDelta) {
+          if (!handler.livesInDelta || fetchedMentions) {
             continue;
           }
 
@@ -212,6 +226,8 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
 
             removed[handler.type]!.addAll(mentionBlockDatas);
           }
+
+          fetchedMentions = true;
         }
       }
     }
@@ -226,6 +242,7 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
 
       handler.onTransaction(
         context,
+        widget.viewId,
         widget.editorState,
         additions,
         removals,
