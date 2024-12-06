@@ -274,9 +274,9 @@ impl FolderOperationHandler for DocumentFolderOperation {
 
   async fn import_from_file_path(
     &self,
-    view_id: &str,
-    name: &str,
-    path: String,
+    _view_id: &str,
+    _name: &str,
+    _path: String,
   ) -> Result<(), FlowyError> {
     // TODO(lucas): import file from local markdown file
     Ok(())

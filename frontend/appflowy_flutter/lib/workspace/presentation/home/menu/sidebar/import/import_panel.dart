@@ -176,7 +176,7 @@ class _ImportPanelState extends State<ImportPanel> {
           final bytes = _documentDataFrom(importType, data);
           if (bytes != null) {
             importValues.add(
-              ImportValuePayloadPB.create()
+              ImportItemPayloadPB.create()
                 ..name = name
                 ..data = bytes
                 ..viewLayout = ViewLayoutPB.Document
@@ -187,7 +187,7 @@ class _ImportPanelState extends State<ImportPanel> {
         case ImportType.csv:
           final data = await File(path).readAsString();
           importValues.add(
-            ImportValuePayloadPB.create()
+            ImportItemPayloadPB.create()
               ..name = name
               ..data = utf8.encode(data)
               ..viewLayout = ViewLayoutPB.Grid
@@ -197,7 +197,7 @@ class _ImportPanelState extends State<ImportPanel> {
         case ImportType.afDatabase:
           final data = await File(path).readAsString();
           importValues.add(
-            ImportValuePayloadPB.create()
+            ImportItemPayloadPB.create()
               ..name = name
               ..data = utf8.encode(data)
               ..viewLayout = ViewLayoutPB.Grid

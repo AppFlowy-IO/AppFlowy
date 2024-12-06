@@ -119,17 +119,17 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
 
   async fn get_chat_settings(
     &self,
-    workspace_id: &str,
-    chat_id: &str,
+    _workspace_id: &str,
+    _chat_id: &str,
   ) -> Result<ChatSettings, FlowyError> {
     Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
 
   async fn update_chat_settings(
     &self,
-    workspace_id: &str,
-    chat_id: &str,
-    params: UpdateChatParams,
+    _workspace_id: &str,
+    _chat_id: &str,
+    _params: UpdateChatParams,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
