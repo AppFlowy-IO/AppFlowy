@@ -5,11 +5,11 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-const enableTableDebugLog = false;
+const _enableTableDebugLog = false;
 
 class SimpleTableContext {
   SimpleTableContext() {
-    if (enableTableDebugLog) {
+    if (_enableTableDebugLog) {
       isHoveringOnColumnsAndRows.addListener(
         _onHoveringOnColumnsAndRowsChanged,
       );
@@ -21,39 +21,56 @@ class SimpleTableContext {
       selectingRow.addListener(_onSelectingRowChanged);
       isSelectingTable.addListener(_onSelectingTableChanged);
       isHoveringOnTableBlock.addListener(_onHoveringOnTableBlockChanged);
+      isReorderingColumn.addListener(_onDraggingColumnChanged);
+      isReorderingRow.addListener(_onDraggingRowChanged);
     }
   }
 
-  // the area only contains the columns and rows,
-  //  the add row button, add column button, and add column and row button are not part of the table area
+  /// the area only contains the columns and rows,
+  ///  the add row button, add column button, and add column and row button are not part of the table area
   final ValueNotifier<bool> isHoveringOnColumnsAndRows = ValueNotifier(false);
 
-  // the table area contains the columns and rows,
-  //  the add row button, add column button, and add column and row button are not part of the table area,
-  //  not including the selection area and padding
+  /// the table area contains the columns and rows,
+  ///  the add row button, add column button, and add column and row button are not part of the table area,
+  ///  not including the selection area and padding
   final ValueNotifier<bool> isHoveringOnTableArea = ValueNotifier(false);
 
-  // the table block area contains the table area and the add row button, add column button, and add column and row button
-  //  also, the table block area contains the selection area and padding
+  /// the table block area contains the table area and the add row button, add column button, and add column and row button
+  ///  also, the table block area contains the selection area and padding
   final ValueNotifier<bool> isHoveringOnTableBlock = ValueNotifier(false);
 
-  // the hovering table cell is the cell that the mouse is hovering on
+  /// the hovering table cell is the cell that the mouse is hovering on
   final ValueNotifier<Node?> hoveringTableCell = ValueNotifier(null);
 
-  // the hovering on resize handle is the resize handle that the mouse is hovering on
+  /// the hovering on resize handle is the resize handle that the mouse is hovering on
   final ValueNotifier<Node?> hoveringOnResizeHandle = ValueNotifier(null);
 
-  // the selecting column is the column that the user is selecting
+  /// the selecting column is the column that the user is selecting
   final ValueNotifier<int?> selectingColumn = ValueNotifier(null);
 
-  // the selecting row is the row that the user is selecting
+  /// the selecting row is the row that the user is selecting
   final ValueNotifier<int?> selectingRow = ValueNotifier(null);
 
-  // the is selecting table is the table that the user is selecting
+  /// the is selecting table is the table that the user is selecting
   final ValueNotifier<bool> isSelectingTable = ValueNotifier(false);
 
+  /// isReorderingColumn is a tuple of (isReordering, columnIndex)
+  final ValueNotifier<(bool, int)> isReorderingColumn =
+      ValueNotifier((false, -1));
+
+  /// isReorderingRow is a tuple of (isReordering, rowIndex)
+  final ValueNotifier<(bool, int)> isReorderingRow = ValueNotifier((false, -1));
+
+  /// reorderingOffset is the offset of the reordering
+  //
+  /// This value is only available when isReordering is true
+  final ValueNotifier<Offset> reorderingOffset = ValueNotifier(Offset.zero);
+
+  bool get isReordering =>
+      isReorderingColumn.value.$1 || isReorderingRow.value.$1;
+
   void _onHoveringOnColumnsAndRowsChanged() {
-    if (!enableTableDebugLog) {
+    if (!_enableTableDebugLog) {
       return;
     }
 
@@ -61,7 +78,7 @@ class SimpleTableContext {
   }
 
   void _onHoveringTableNodeChanged() {
-    if (!enableTableDebugLog) {
+    if (!_enableTableDebugLog) {
       return;
     }
 
@@ -74,7 +91,7 @@ class SimpleTableContext {
   }
 
   void _onSelectingColumnChanged() {
-    if (!enableTableDebugLog) {
+    if (!_enableTableDebugLog) {
       return;
     }
 
@@ -82,7 +99,7 @@ class SimpleTableContext {
   }
 
   void _onSelectingRowChanged() {
-    if (!enableTableDebugLog) {
+    if (!_enableTableDebugLog) {
       return;
     }
 
@@ -90,7 +107,7 @@ class SimpleTableContext {
   }
 
   void _onSelectingTableChanged() {
-    if (!enableTableDebugLog) {
+    if (!_enableTableDebugLog) {
       return;
     }
 
@@ -98,7 +115,7 @@ class SimpleTableContext {
   }
 
   void _onHoveringOnTableBlockChanged() {
-    if (!enableTableDebugLog) {
+    if (!_enableTableDebugLog) {
       return;
     }
 
@@ -106,11 +123,27 @@ class SimpleTableContext {
   }
 
   void _onHoveringOnTableAreaChanged() {
-    if (!enableTableDebugLog) {
+    if (!_enableTableDebugLog) {
       return;
     }
 
     Log.debug('isHoveringOnTableArea: ${isHoveringOnTableArea.value}');
+  }
+
+  void _onDraggingColumnChanged() {
+    if (!_enableTableDebugLog) {
+      return;
+    }
+
+    Log.debug('isDraggingColumn: ${isReorderingColumn.value}');
+  }
+
+  void _onDraggingRowChanged() {
+    if (!_enableTableDebugLog) {
+      return;
+    }
+
+    Log.debug('isDraggingRow: ${isReorderingRow.value}');
   }
 
   void dispose() {
@@ -122,11 +155,14 @@ class SimpleTableContext {
     selectingColumn.dispose();
     selectingRow.dispose();
     isSelectingTable.dispose();
+    isReorderingColumn.dispose();
+    isReorderingRow.dispose();
+    reorderingOffset.dispose();
   }
 }
 
 class SimpleTableConstants {
-  // Table
+  /// Table
   static const defaultColumnWidth = 120.0;
   static const minimumColumnWidth = 36.0;
 

@@ -1,5 +1,6 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/_shared_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_widgets/simple_table_border_builder.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_widgets/simple_table_column_resize_handle.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -79,6 +80,11 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
   late SimpleTableContext? simpleTableContext =
       context.read<SimpleTableContext?>();
+  late final borderBuilder = SimpleTableBorderBuilder(
+    context: context,
+    simpleTableContext: simpleTableContext!,
+    node: node,
+  );
 
   ValueNotifier<bool> isEditingCellNotifier = ValueNotifier(false);
 
@@ -120,17 +126,19 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
         clipBehavior: Clip.none,
         children: [
           _buildCell(),
-          Positioned(
-            top: 0,
-            bottom: 0,
-            left: -SimpleTableConstants.tableLeftPadding,
-            child: _buildRowMoreActionButton(),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            child: _buildColumnMoreActionButton(),
-          ),
+          if (node.columnIndex == 0)
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: -SimpleTableConstants.tableLeftPadding,
+              child: _buildRowMoreActionButton(),
+            ),
+          if (node.rowIndex == 0)
+            Positioned(
+              left: 0,
+              right: 0,
+              child: _buildColumnMoreActionButton(),
+            ),
           Positioned(
             right: 0,
             top: node.rowIndex == 0 ? SimpleTableConstants.tableTopPadding : 0,
@@ -156,27 +164,34 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       padding: EdgeInsets.only(
         top: node.rowIndex == 0 ? SimpleTableConstants.tableTopPadding : 0,
       ),
+      // TODO(Lucas): find a better way to handle the multiple value listenable builder
+      // There's flutter pub can do that.
       child: ValueListenableBuilder<bool>(
         valueListenable: isEditingCellNotifier,
         builder: (context, isEditingCell, child) {
           return ValueListenableBuilder(
             valueListenable: simpleTableContext!.selectingColumn,
-            builder: (context, selectingColumn, child) {
+            builder: (context, selectingColumn, _) {
               return ValueListenableBuilder(
                 valueListenable: simpleTableContext!.selectingRow,
                 builder: (context, selectingRow, _) {
-                  return DecoratedBox(
-                    decoration: _buildDecoration(),
-                    child: child!,
+                  return ValueListenableBuilder(
+                    valueListenable: simpleTableContext!.hoveringTableCell,
+                    builder: (context, hoveringTableCell, _) {
+                      return DecoratedBox(
+                        decoration: _buildDecoration(),
+                        child: child!,
+                      );
+                    },
                   );
                 },
               );
             },
-            child: Column(
-              children: node.children.map(_buildCellContent).toList(),
-            ),
           );
         },
+        child: Column(
+          children: node.children.map(_buildCellContent).toList(),
+        ),
       ),
     );
   }
@@ -199,12 +214,7 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   }
 
   Widget _buildRowMoreActionButton() {
-    final columnIndex = node.columnIndex;
     final rowIndex = node.rowIndex;
-
-    if (columnIndex != 0) {
-      return const SizedBox.shrink();
-    }
 
     return SimpleTableMoreActionMenu(
       index: rowIndex,
@@ -214,11 +224,6 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
   Widget _buildColumnMoreActionButton() {
     final columnIndex = node.columnIndex;
-    final rowIndex = node.rowIndex;
-
-    if (rowIndex != 0) {
-      return const SizedBox.shrink();
-    }
 
     return SimpleTableMoreActionMenu(
       index: columnIndex,
@@ -238,7 +243,9 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
   Decoration _buildDecoration() {
     final backgroundColor = _buildBackgroundColor();
-    final border = _buildBorder();
+    final border = borderBuilder.buildBorder(
+      isEditingCell: isEditingCellNotifier.value,
+    );
 
     return BoxDecoration(
       border: border,
@@ -269,29 +276,6 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     return Theme.of(context).colorScheme.surface;
   }
 
-  Border? _buildBorder() {
-    if (SimpleTableConstants.borderType != SimpleTableBorderRenderType.cell) {
-      return null;
-    }
-
-    final tableContext = context.watch<SimpleTableContext>();
-    final isCellInSelectedColumn =
-        node.columnIndex == tableContext.selectingColumn.value;
-    final isCellInSelectedRow =
-        node.rowIndex == tableContext.selectingRow.value;
-    if (tableContext.isSelectingTable.value) {
-      return _buildSelectingTableBorder();
-    } else if (isCellInSelectedColumn) {
-      return _buildColumnBorder();
-    } else if (isCellInSelectedRow) {
-      return _buildRowBorder();
-    } else if (isEditingCellNotifier.value) {
-      return _buildEditingBorder();
-    } else {
-      return _buildCellBorder();
-    }
-  }
-
   bool _isInHeader() {
     final isHeaderColumnEnabled = node.isHeaderColumnEnabled;
     final isHeaderRowEnabled = node.isHeaderRowEnabled;
@@ -301,111 +285,6 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
     return isHeaderColumnEnabled && isFirstRow ||
         isHeaderRowEnabled && isFirstColumn;
-  }
-
-  /// the column border means the `VERTICAL` border of the cell
-  ///
-  ///      ____
-  /// | 1 | 2 |
-  /// | 3 | 4 |
-  ///     |___|
-  ///
-  /// the border wrapping the cell 2 and cell 4 is the column border
-  Border _buildColumnBorder() {
-    return Border(
-      left: _buildHighlightBorderSide(),
-      right: _buildHighlightBorderSide(),
-      top: node.rowIndex == 0
-          ? _buildHighlightBorderSide()
-          : _buildDefaultBorderSide(),
-      bottom: node.rowIndex + 1 == node.parentTableNode?.rowLength
-          ? _buildHighlightBorderSide()
-          : _buildDefaultBorderSide(),
-    );
-  }
-
-  /// the row border means the `HORIZONTAL` border of the cell
-  ///
-  ///  ________
-  /// | 1 | 2 |
-  /// |_______|
-  /// | 3 | 4 |
-  ///
-  /// the border wrapping the cell 1 and cell 2 is the row border
-  Border _buildRowBorder() {
-    return Border(
-      top: _buildHighlightBorderSide(),
-      bottom: _buildHighlightBorderSide(),
-      left: node.columnIndex == 0
-          ? _buildHighlightBorderSide()
-          : _buildDefaultBorderSide(),
-      right: node.columnIndex + 1 == node.parentTableNode?.columnLength
-          ? _buildHighlightBorderSide()
-          : _buildDefaultBorderSide(),
-    );
-  }
-
-  Border _buildCellBorder() {
-    return Border(
-      top: node.rowIndex == 0
-          ? _buildDefaultBorderSide()
-          : _buildLightBorderSide(),
-      bottom: node.rowIndex + 1 == node.parentTableNode?.rowLength
-          ? _buildDefaultBorderSide()
-          : _buildLightBorderSide(),
-      left: node.columnIndex == 0
-          ? _buildDefaultBorderSide()
-          : _buildLightBorderSide(),
-      right: node.columnIndex + 1 == node.parentTableNode?.columnLength
-          ? _buildDefaultBorderSide()
-          : _buildLightBorderSide(),
-    );
-  }
-
-  Border _buildEditingBorder() {
-    return Border.all(
-      color: Theme.of(context).colorScheme.primary,
-      width: 2,
-    );
-  }
-
-  Border _buildSelectingTableBorder() {
-    final rowIndex = node.rowIndex;
-    final columnIndex = node.columnIndex;
-
-    return Border(
-      top:
-          rowIndex == 0 ? _buildHighlightBorderSide() : _buildLightBorderSide(),
-      bottom: rowIndex + 1 == node.parentTableNode?.rowLength
-          ? _buildHighlightBorderSide()
-          : _buildLightBorderSide(),
-      left: columnIndex == 0
-          ? _buildHighlightBorderSide()
-          : _buildLightBorderSide(),
-      right: columnIndex + 1 == node.parentTableNode?.columnLength
-          ? _buildHighlightBorderSide()
-          : _buildLightBorderSide(),
-    );
-  }
-
-  BorderSide _buildHighlightBorderSide() {
-    return BorderSide(
-      color: Theme.of(context).colorScheme.primary,
-      width: 2,
-    );
-  }
-
-  BorderSide _buildLightBorderSide() {
-    return BorderSide(
-      color: context.simpleTableBorderColor,
-      width: 0.5,
-    );
-  }
-
-  BorderSide _buildDefaultBorderSide() {
-    return BorderSide(
-      color: context.simpleTableBorderColor,
-    );
   }
 
   void _onSelectingTableChanged() {

@@ -1,7 +1,7 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/_shared_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_cell_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_constants.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_row_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_widgets/simple_table_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -187,15 +187,20 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
 
   @override
   Widget build(BuildContext context) {
-    Widget child = Transform.translate(
-      offset: Offset(
-        UniversalPlatform.isDesktop
-            ? -SimpleTableConstants.tableLeftPadding
-            : 0,
-        0,
-      ),
-      child: _buildTable(),
+    Widget child = SimpleTableWidget(
+      node: node,
+      simpleTableContext: simpleTableContext,
     );
+
+    if (UniversalPlatform.isDesktop) {
+      child = Transform.translate(
+        offset: const Offset(
+          -SimpleTableConstants.tableLeftPadding,
+          0,
+        ),
+        child: child,
+      );
+    }
 
     child = Container(
       alignment: Alignment.topLeft,
@@ -226,111 +231,6 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
     }
 
     return child;
-  }
-
-  Widget _buildTable() {
-    if (UniversalPlatform.isDesktop) {
-      return _buildDesktopTable();
-    } else {
-      return _buildMobileTable();
-    }
-  }
-
-  Widget _buildDesktopTable() {
-    // IntrinsicWidth and IntrinsicHeight are used to make the table size fit the content.
-    return MouseRegion(
-      onEnter: (event) => simpleTableContext.isHoveringOnTableArea.value = true,
-      onExit: (event) {
-        simpleTableContext.isHoveringOnTableArea.value = false;
-      },
-      child: Provider.value(
-        value: simpleTableContext,
-        child: Stack(
-          children: [
-            MouseRegion(
-              hitTestBehavior: HitTestBehavior.opaque,
-              onEnter: (event) =>
-                  simpleTableContext.isHoveringOnColumnsAndRows.value = true,
-              onExit: (event) {
-                simpleTableContext.isHoveringOnColumnsAndRows.value = false;
-                simpleTableContext.hoveringTableCell.value = null;
-              },
-              child: Scrollbar(
-                controller: scrollController,
-                child: SingleChildScrollView(
-                  controller: scrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: Padding(
-                    padding: SimpleTableConstants.tablePadding,
-                    child: IntrinsicWidth(
-                      child: IntrinsicHeight(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: _buildRows(),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            if (UniversalPlatform.isDesktop) ...[
-              SimpleTableAddColumnHoverButton(
-                editorState: editorState,
-                node: node,
-              ),
-              SimpleTableAddRowHoverButton(
-                editorState: editorState,
-                tableNode: node,
-              ),
-              SimpleTableAddColumnAndRowHoverButton(
-                editorState: editorState,
-                node: node,
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMobileTable() {
-    return Provider.value(
-      value: simpleTableContext,
-      child: SingleChildScrollView(
-        controller: scrollController,
-        scrollDirection: Axis.horizontal,
-        child: IntrinsicWidth(
-          child: IntrinsicHeight(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: _buildRows(),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  List<Widget> _buildRows() {
-    final List<Widget> rows = [];
-
-    if (SimpleTableConstants.borderType == SimpleTableBorderRenderType.table) {
-      rows.add(const SimpleTableColumnDivider());
-    }
-
-    for (final child in node.children) {
-      rows.add(editorState.renderer.build(context, child));
-
-      if (SimpleTableConstants.borderType ==
-          SimpleTableBorderRenderType.table) {
-        rows.add(const SimpleTableColumnDivider());
-      }
-    }
-
-    return rows;
   }
 
   void _onSelectionChanged() {
