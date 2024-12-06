@@ -478,7 +478,7 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
                 ? null
                 : () {
                     if (file.uploadType == FileUploadTypePB.LocalFile) {
-                      afLaunchLocalUri(Uri.parse(file.url));
+                      afLaunchUrlString(file.url);
                       return;
                     }
 

@@ -67,7 +67,7 @@ Future<void> shareLogFiles(BuildContext? context) async {
       await zipFile.delete();
     } else {
       // open the directory
-      await afLaunchLocalUri(zipFile.uri);
+      await afLaunchUri(zipFile.uri);
     }
   } catch (e) {
     if (context != null && context.mounted) {

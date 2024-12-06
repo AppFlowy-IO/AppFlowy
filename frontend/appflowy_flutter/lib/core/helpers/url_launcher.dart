@@ -14,7 +14,11 @@ import 'package:url_launcher/url_launcher.dart' as launcher;
 
 typedef OnFailureCallback = void Function(Uri uri);
 
-Future<bool> afLaunchUrl(
+/// Launch the uri
+///
+/// If the uri is a local file path, it will be opened with the OpenFilex.
+/// Otherwise, it will be launched with the url_launcher.
+Future<bool> afLaunchUri(
   Uri uri, {
   BuildContext? context,
   OnFailureCallback? onFailure,
@@ -27,7 +31,7 @@ Future<bool> afLaunchUrl(
 
   // check if the uri is the local file path
   if (localPathRegex.hasMatch(decodedUrl)) {
-    return afLaunchLocalUri(
+    return _afLaunchLocalUri(
       uri,
       context: context,
       onFailure: onFailure,
@@ -70,6 +74,9 @@ Future<bool> afLaunchUrl(
   return result;
 }
 
+/// Launch the url string
+///
+/// See [afLaunchUri] for more details.
 Future<bool> afLaunchUrlString(
   String url, {
   bool addingHttpSchemeWhenFailed = false,
@@ -85,7 +92,7 @@ Future<bool> afLaunchUrlString(
   }
 
   // try to launch the uri directly
-  return afLaunchUrl(
+  return afLaunchUri(
     uri,
     addingHttpSchemeWhenFailed: addingHttpSchemeWhenFailed,
     context: context,
@@ -93,7 +100,10 @@ Future<bool> afLaunchUrlString(
   );
 }
 
-Future<bool> afLaunchLocalUri(
+/// Launch the local uri
+///
+/// See [afLaunchUri] for more details.
+Future<bool> _afLaunchLocalUri(
   Uri uri, {
   BuildContext? context,
   OnFailureCallback? onFailure,

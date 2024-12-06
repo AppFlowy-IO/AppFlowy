@@ -43,5 +43,5 @@ final appflowySharePageLinkRegex = RegExp(appflowySharePageLinkPattern);
 const _numberedListPattern = r'^(\d+)\.';
 final numberedListRegex = RegExp(_numberedListPattern);
 
-const _localPathPattern = r'^(/|\\|[a-zA-Z]:[/\\]|\.{1,2}[/\\])';
+const _localPathPattern = r'^(file:\/\/|\/|\\|[a-zA-Z]:[/\\]|\.{1,2}[/\\])';
 final localPathRegex = RegExp(_localPathPattern, caseSensitive: false);

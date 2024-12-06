@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_service.dart';
@@ -22,6 +20,7 @@ import 'package:cross_file/cross_file.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra/uuid.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
 import 'package:universal_platform/universal_platform.dart';
@@ -102,7 +101,7 @@ Future<void> downloadMediaFile(
     FileUploadTypePB.LocalFile,
   ].contains(file.uploadType)) {
     /// When the file is a network file or a local file, we can directly open the file.
-    await afLaunchUrl(Uri.parse(file.url));
+    await afLaunchUri(Uri.parse(file.url));
   } else {
     if (userProfile == null) {
       return showToastNotification(
