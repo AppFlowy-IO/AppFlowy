@@ -27,7 +27,7 @@ Future<bool> afLaunchUrl(
 
   // check if the uri is the local file path
   if (localPathRegex.hasMatch(decodedUrl)) {
-    return afLaunchLocalPath(
+    return afLaunchLocalUri(
       uri,
       context: context,
       onFailure: onFailure,
@@ -93,7 +93,7 @@ Future<bool> afLaunchUrlString(
   );
 }
 
-Future<bool> afLaunchLocalPath(
+Future<bool> afLaunchLocalUri(
   Uri uri, {
   BuildContext? context,
   OnFailureCallback? onFailure,
