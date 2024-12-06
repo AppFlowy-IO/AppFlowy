@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
@@ -21,40 +23,15 @@ Future<bool> afLaunchUrl(
   bool addingHttpSchemeWhenFailed = false,
 }) async {
   final url = uri.toString();
+  final decodedUrl = Uri.decodeComponent(url);
 
   // check if the uri is the local file path
-  if (localPathRegex.hasMatch(url)) {
-    // open the file with the OpenfileX
-    final result = await OpenFilex.open(url);
-    // show the toast if the file is not found
-    String message = '';
-    switch (result.type) {
-      case ResultType.done:
-        message = LocaleKeys.openFileMessage_success.tr();
-      case ResultType.fileNotFound:
-        message = LocaleKeys.openFileMessage_fileNotFound.tr();
-      case ResultType.noAppToOpen:
-        message = LocaleKeys.openFileMessage_noAppToOpenFile.tr();
-      case ResultType.permissionDenied:
-        message = LocaleKeys.openFileMessage_permissionDenied.tr();
-      case ResultType.error:
-        message = LocaleKeys.failedToOpenUrl.tr();
-    }
-    if (context != null && context.mounted) {
-      showToastNotification(
-        context,
-        message: message,
-        type: result.type == ResultType.done
-            ? ToastificationType.success
-            : ToastificationType.error,
-      );
-    }
-    final openFileSuccess = result.type == ResultType.done;
-    if (!openFileSuccess && onFailure != null) {
-      onFailure(uri);
-      Log.error('Failed to open file: $result.message');
-    }
-    return openFileSuccess;
+  if (localPathRegex.hasMatch(decodedUrl)) {
+    return afLaunchLocalPath(
+      uri,
+      context: context,
+      onFailure: onFailure,
+    );
   }
 
   // try to launch the uri directly
@@ -96,6 +73,8 @@ Future<bool> afLaunchUrl(
 Future<bool> afLaunchUrlString(
   String url, {
   bool addingHttpSchemeWhenFailed = false,
+  BuildContext? context,
+  OnFailureCallback? onFailure,
 }) async {
   final Uri uri;
   try {
@@ -109,7 +88,48 @@ Future<bool> afLaunchUrlString(
   return afLaunchUrl(
     uri,
     addingHttpSchemeWhenFailed: addingHttpSchemeWhenFailed,
+    context: context,
+    onFailure: onFailure,
   );
+}
+
+Future<bool> afLaunchLocalPath(
+  Uri uri, {
+  BuildContext? context,
+  OnFailureCallback? onFailure,
+}) async {
+  final decodedUrl = Uri.decodeComponent(uri.toString());
+  // open the file with the OpenfileX
+  var result = await OpenFilex.open(decodedUrl);
+  if (result.type != ResultType.done) {
+    // For the file cant be opened, fallback to open the folder
+    final parentFolder = Directory(decodedUrl).parent.path;
+    result = await OpenFilex.open(parentFolder);
+  }
+  // show the toast if the file is not found
+  final message = switch (result.type) {
+    ResultType.done => LocaleKeys.openFileMessage_success.tr(),
+    ResultType.fileNotFound => LocaleKeys.openFileMessage_fileNotFound.tr(),
+    ResultType.noAppToOpen => LocaleKeys.openFileMessage_noAppToOpenFile.tr(),
+    ResultType.permissionDenied =>
+      LocaleKeys.openFileMessage_permissionDenied.tr(),
+    ResultType.error => LocaleKeys.failedToOpenUrl.tr(),
+  };
+  if (context != null && context.mounted) {
+    showToastNotification(
+      context,
+      message: message,
+      type: result.type == ResultType.done
+          ? ToastificationType.success
+          : ToastificationType.error,
+    );
+  }
+  final openFileSuccess = result.type == ResultType.done;
+  if (!openFileSuccess && onFailure != null) {
+    onFailure(uri);
+    Log.error('Failed to open file: $result.message');
+  }
+  return openFileSuccess;
 }
 
 void _errorHandler(
