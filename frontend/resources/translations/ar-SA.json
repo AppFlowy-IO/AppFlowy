@@ -125,7 +125,8 @@
     "publishTab": "نشر",
     "shareTab": "مشاركة",
     "publishOnAppFlowy": "نشر على AppFlowy",
-    "shareTabTitle": "دعوة للتعاون"
+    "shareTabTitle": "دعوة للتعاون",
+    "shareTabDescription": "من أجل التعاون السهل مع أي شخص"
   },
   "moreAction": {
     "small": "صغير",
