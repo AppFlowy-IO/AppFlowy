@@ -75,15 +75,16 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
     );
   }
 
-  Widget _build(BuildContext context, ViewPB view) {
+  Widget _build(BuildContext context, ViewPB viewPB) {
     return MouseRegion(
       onEnter: (_) => widget.editorState.service.scrollService?.disable(),
       onExit: (_) => widget.editorState.service.scrollService?.enable(),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildMenu(context, view),
-          _buildPage(context, view),
+          _buildMenu(context, viewPB),
+          Flexible(child: _buildPage(context, viewPB)),
         ],
       ),
     );

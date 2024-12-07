@@ -102,17 +102,21 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
           BlocListener<DatabaseTabBarBloc, DatabaseTabBarState>(
             listenWhen: (p, c) => p.selectedIndex != c.selectedIndex,
             listener: (_, state) {
-              _initialRowId = null;
-              _pageController.jumpToPage(state.selectedIndex);
+              if (_pageController.hasClients) {
+                _initialRowId = null;
+                _pageController.jumpToPage(state.selectedIndex);
+              }
             },
           ),
         ],
-        child: Column(
-          children: [
-            if (UniversalPlatform.isMobile) const VSpace(12),
-            BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-              builder: (context, state) {
-                return ValueListenableBuilder<bool>(
+        child: BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
+          builder: (_, state) {
+            final layout = state.tabBars[state.selectedIndex].layout;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (UniversalPlatform.isMobile) const VSpace(12),
+                ValueListenableBuilder<bool>(
                   valueListenable: state
                       .tabBarControllerByViewId[state.parentView.id]!
                       .controller
@@ -126,34 +130,36 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                         ? const TabBarHeader()
                         : const MobileTabBarHeader();
                   },
-                );
-              },
-            ),
-            BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-              builder: (context, state) =>
-                  pageSettingBarExtensionFromState(state),
-            ),
-            BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-              builder: (context, state) {
-                final content = PageView(
-                  controller: _pageController,
-                  pageSnapping: false,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: pageContentFromState(state),
-                );
-
-                if (widget.shrinkWrap) {
-                  final layout = state.tabBars[state.selectedIndex].layout;
-                  return SizedBox(height: layout.pluginHeight, child: content);
-                }
-
-                return Expanded(child: content);
-              },
-            ),
-          ],
+                ),
+                pageSettingBarExtensionFromState(state),
+                wrapContent(
+                  layout: layout,
+                  child: IndexedStack(
+                    index: state.selectedIndex,
+                    children: pageContentFromState(state),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
+  }
+
+  Widget wrapContent({required ViewLayoutPB layout, required Widget child}) {
+    if (widget.shrinkWrap) {
+      if (layout.shrinkWrappable) {
+        return child;
+      }
+
+      return SizedBox(
+        height: layout.pluginHeight,
+        child: child,
+      );
+    }
+
+    return Expanded(child: child);
   }
 
   List<Widget> pageContentFromState(DatabaseTabBarState state) {
