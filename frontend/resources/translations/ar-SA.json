@@ -128,7 +128,10 @@
     "shareTabTitle": "دعوة للتعاون",
     "shareTabDescription": "من أجل التعاون السهل مع أي شخص",
     "copyLinkSuccess": "تم نسخ الرابط إلى الحافظة",
-    "copyShareLink": "نسخ رابط المشاركة"
+    "copyShareLink": "نسخ رابط المشاركة",
+    "copyLinkFailed": "فشل في نسخ الرابط إلى الحافظة",
+    "manageAllSites": "إدارة كافة المواقع",
+    "updatePathName": "تحديث اسم المسار"
   },
   "moreAction": {
     "small": "صغير",
@@ -147,6 +150,7 @@
     "textAndMarkdown": "نص و Markdown",
     "documentFromV010": "مستند من الإصدار 0.1.0",
     "databaseFromV010": "قاعدة بيانات من الإصدار 0.1.0",
+    "notionZip": "ملف Zip المُصدَّر من Notion",
     "csv": "CSV",
     "database": "قاعدة البيانات"
   },
