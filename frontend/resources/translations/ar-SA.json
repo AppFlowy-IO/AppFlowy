@@ -181,7 +181,17 @@
     "aiServerUnavailable": "تم فقد الاتصال. يرجى التحقق من اتصالك بالإنترنت",
     "retry": "إعادة المحاولة",
     "clickToRetry": "انقر لإعادة المحاولة",
-    "regenerateAnswer": "إعادة توليد"
+    "regenerateAnswer": "إعادة توليد",
+    "question3": "لماذا تستخدم Rust",
+    "question4": "وصفة بما في مطبخي",
+    "aiMistakePrompt": "الذكاء الاصطناعي قد يرتكب أخطاء. تحقق من المعلومات المهمة.",
+    "chatWithFilePrompt": "هل تريد الدردشة مع الملف؟",
+    "indexFileSuccess": "تم فهرسة الملف بنجاح",
+    "inputActionNoPages": "لا توجد نتائج للصفحة",
+    "referenceSource": {
+      "one": "تم العثور على {count} مصدر",
+      "other": "تم العثور على {count} مصادر"
+    }
   },
   "trash": {
     "text": "المهملات",
