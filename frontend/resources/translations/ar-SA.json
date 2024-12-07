@@ -124,7 +124,8 @@
     "exportAsTab": "تصدير كـ",
     "publishTab": "نشر",
     "shareTab": "مشاركة",
-    "publishOnAppFlowy": "نشر على AppFlowy"
+    "publishOnAppFlowy": "نشر على AppFlowy",
+    "shareTabTitle": "دعوة للتعاون"
   },
   "moreAction": {
     "small": "صغير",
