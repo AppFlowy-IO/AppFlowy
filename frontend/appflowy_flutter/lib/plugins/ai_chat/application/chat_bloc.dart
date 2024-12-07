@@ -86,11 +86,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               await chatController.insert(message, index: 0);
             }
 
-            if (initialFetchCounter < 2) {
-              initialFetchCounter++;
-            }
+            // if (initialFetchCounter < 2) {
+            //   initialFetchCounter++;
+            // }
 
-            if (state.loadingState.isLoading && initialFetchCounter >= 2) {
+            if (state.loadingState.isLoading) {
               emit(
                 state.copyWith(loadingState: const ChatLoadingState.finish()),
               );
