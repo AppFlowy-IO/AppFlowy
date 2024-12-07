@@ -175,8 +175,13 @@
   "newBoardText": "سبورة جديدة",
   "chat": {
     "newChat": "الدردشة بالذكاء الاصطناعي",
+    "unsupportedCloudPrompt": "هذه الميزة متاحة فقط عند استخدام @:appName Cloud",
     "relatedQuestion": "ذات صلة",
-    "serverUnavailable": "الخدمة غير متاحة مؤقتًا. يرجى المحاولة مرة أخرى لاحقًا."
+    "serverUnavailable": "الخدمة غير متاحة مؤقتًا. يرجى المحاولة مرة أخرى لاحقًا.",
+    "aiServerUnavailable": "تم فقد الاتصال. يرجى التحقق من اتصالك بالإنترنت",
+    "retry": "إعادة المحاولة",
+    "clickToRetry": "انقر لإعادة المحاولة",
+    "regenerateAnswer": "إعادة توليد"
   },
   "trash": {
     "text": "المهملات",
