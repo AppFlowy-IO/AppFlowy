@@ -126,7 +126,9 @@
     "shareTab": "مشاركة",
     "publishOnAppFlowy": "نشر على AppFlowy",
     "shareTabTitle": "دعوة للتعاون",
-    "shareTabDescription": "من أجل التعاون السهل مع أي شخص"
+    "shareTabDescription": "من أجل التعاون السهل مع أي شخص",
+    "copyLinkSuccess": "تم نسخ الرابط إلى الحافظة",
+    "copyShareLink": "نسخ رابط المشاركة"
   },
   "moreAction": {
     "small": "صغير",
