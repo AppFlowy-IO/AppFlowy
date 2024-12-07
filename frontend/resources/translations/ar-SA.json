@@ -9,6 +9,7 @@
   "title": "عنوان",
   "youCanAlso": "بامكانك ايضا",
   "and": "و",
+  "failedToOpenUrl": "فشل في فتح الرابط: {}",
   "blockActions": {
     "addBelowTooltip": "انقر للإضافة أدناه",
     "addAboveCmd": "Alt + انقر",
