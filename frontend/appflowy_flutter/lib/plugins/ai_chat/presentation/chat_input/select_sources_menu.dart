@@ -1,0 +1,514 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_select_sources_cubit.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'chat_mention_page_menu.dart';
+
+class PromptInputSelectSourcesButton extends StatefulWidget {
+  const PromptInputSelectSourcesButton({
+    super.key,
+    required this.chatId,
+    required this.onUpdateSelectedSources,
+  });
+
+  final String chatId;
+  final void Function(List<String>) onUpdateSelectedSources;
+
+  @override
+  State<PromptInputSelectSourcesButton> createState() =>
+      _PromptInputSelectSourcesButtonState();
+}
+
+class _PromptInputSelectSourcesButtonState
+    extends State<PromptInputSelectSourcesButton> {
+  late final cubit = ChatSettingsCubit(chatId: widget.chatId);
+  final popoverController = PopoverController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      cubit.updateSelectedSources(
+        context.read<ChatBloc>().state.selectedSourceIds,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    cubit.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final userWorkspaceBloc = context.read<UserWorkspaceBloc>();
+    final userProfile = userWorkspaceBloc.userProfile;
+    final workspaceId =
+        userWorkspaceBloc.state.currentWorkspace?.workspaceId ?? '';
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => SpaceBloc(
+            userProfile: userProfile,
+            workspaceId: workspaceId,
+          )..add(const SpaceEvent.initial(openFirstPage: false)),
+        ),
+        BlocProvider.value(
+          value: cubit,
+        ),
+      ],
+      child: BlocSelector<SpaceBloc, SpaceState, ViewPB?>(
+        selector: (state) => state.currentSpace,
+        builder: (context, spaceView) {
+          return BlocListener<ChatBloc, ChatState>(
+            listener: (context, state) {
+              cubit
+                ..updateSelectedSources(state.selectedSourceIds)
+                ..updateSelectedStatus();
+            },
+            child: AppFlowyPopover(
+              constraints: BoxConstraints.loose(const Size(320, 380)),
+              offset: const Offset(0.0, -10.0),
+              direction: PopoverDirection.topWithCenterAligned,
+              margin: EdgeInsets.zero,
+              controller: popoverController,
+              onOpen: () {
+                if (spaceView != null) {
+                  context.read<ChatSettingsCubit>().refreshSources(spaceView);
+                }
+              },
+              popupBuilder: (_) {
+                return BlocProvider.value(
+                  value: context.read<ChatSettingsCubit>(),
+                  child: _PopoverContent(
+                    onUpdateSelectedSources: widget.onUpdateSelectedSources,
+                  ),
+                );
+              },
+              child: BlocBuilder<ChatSettingsCubit, ChatSettingsState>(
+                builder: (context, state) {
+                  return _IndicatorButton(
+                    onTap: () => popoverController.show(),
+                  );
+                },
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _IndicatorButton extends StatelessWidget {
+  const _IndicatorButton({
+    required this.onTap,
+  });
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        height: 24,
+        child: FlowyHover(
+          style: const HoverStyle(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+          ),
+          child: Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 2, 4),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FlowySvg(
+                  FlowySvgs.ai_page_s,
+                  color: Theme.of(context).iconTheme.color,
+                ),
+                const HSpace(2.0),
+                BlocBuilder<ChatBloc, ChatState>(
+                  builder: (context, state) {
+                    return FlowyText(
+                      state.selectedSourceIds.length.toString(),
+                      fontSize: 14,
+                      figmaLineHeight: 16,
+                      color: Theme.of(context).hintColor,
+                    );
+                  },
+                ),
+                const HSpace(2.0),
+                FlowySvg(
+                  FlowySvgs.ai_source_drop_down_s,
+                  color: Theme.of(context).hintColor,
+                  size: const Size.square(10),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PopoverContent extends StatelessWidget {
+  const _PopoverContent({
+    required this.onUpdateSelectedSources,
+  });
+
+  final void Function(List<String>) onUpdateSelectedSources;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ChatSettingsCubit, ChatSettingsState>(
+      builder: (context, state) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
+              child: SpaceSearchField(
+                width: 600,
+                onSearch: (context, value) =>
+                    context.read<ChatSettingsCubit>().updateFilter(value),
+              ),
+            ),
+            _buildDivider(),
+            Flexible(
+              child: ListView(
+                shrinkWrap: true,
+                padding: const EdgeInsets.fromLTRB(8, 4, 8, 12),
+                children: [
+                  ..._buildSelectedSources(context, state),
+                  if (state.selectedSources.isNotEmpty &&
+                      state.visibleSources.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: _buildDivider(),
+                    ),
+                  ..._buildVisibleSources(context, state),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildDivider() {
+    return const Divider(
+      height: 1.0,
+      thickness: 1.0,
+      indent: 8.0,
+      endIndent: 8.0,
+    );
+  }
+
+  Iterable<Widget> _buildSelectedSources(
+    BuildContext context,
+    ChatSettingsState state,
+  ) {
+    return state.selectedSources.map(
+      (e) => ChatSourceTreeItem(
+        key: ValueKey(
+          'selected_select_sources_tree_item_${e.view.id}',
+        ),
+        chatSource: e,
+        level: 0,
+        isSelectedSection: true,
+        onSelected: (chatSource) {
+          final cubit = context.read<ChatSettingsCubit>();
+          cubit.toggleSelectedStatus(chatSource);
+          onUpdateSelectedSources(cubit.selectedSourceIds);
+        },
+        visibilityGetter: (view) {
+          if (view.id == context.read<ChatSettingsCubit>().chatId) {
+            return IgnoreViewType.hide;
+          }
+
+          return view.layout.isDocumentView
+              ? IgnoreViewType.none
+              : IgnoreViewType.disable;
+        },
+      ),
+    );
+  }
+
+  Iterable<Widget> _buildVisibleSources(
+    BuildContext context,
+    ChatSettingsState state,
+  ) {
+    return state.visibleSources.map(
+      (e) => ChatSourceTreeItem(
+        key: ValueKey(
+          'visible_select_sources_tree_item_${e.view.id}',
+        ),
+        chatSource: e,
+        level: 0,
+        isSelectedSection: false,
+        onSelected: (chatSource) {
+          final cubit = context.read<ChatSettingsCubit>();
+          cubit.toggleSelectedStatus(chatSource);
+          onUpdateSelectedSources(cubit.selectedSourceIds);
+        },
+        visibilityGetter: (view) {
+          if (view.id == context.read<ChatSettingsCubit>().chatId) {
+            return IgnoreViewType.hide;
+          }
+
+          return view.layout.isDocumentView
+              ? IgnoreViewType.none
+              : IgnoreViewType.disable;
+        },
+      ),
+    );
+  }
+}
+
+class ChatSourceTreeItem extends StatefulWidget {
+  const ChatSourceTreeItem({
+    super.key,
+    required this.chatSource,
+    required this.level,
+    required this.isSelectedSection,
+    required this.onSelected,
+    this.visibilityGetter,
+  });
+
+  final ChatSource chatSource;
+
+  /// nested level of the view item
+  final int level;
+
+  final bool isSelectedSection;
+
+  final void Function(ChatSource chatSource) onSelected;
+
+  final IgnoreViewType Function(ViewPB view)? visibilityGetter;
+
+  @override
+  State<ChatSourceTreeItem> createState() => _ChatSourceTreeItemState();
+}
+
+class _ChatSourceTreeItemState extends State<ChatSourceTreeItem> {
+  @override
+  Widget build(BuildContext context) {
+    final child = ChatSourceTreeItemInner(
+      chatSource: widget.chatSource,
+      level: widget.level,
+      isSelectedSection: widget.isSelectedSection,
+      onSelected: widget.onSelected,
+    );
+
+    final viewVisibility =
+        widget.visibilityGetter?.call(widget.chatSource.view) ??
+            IgnoreViewType.none;
+
+    final disabledEnabledChild = viewVisibility == IgnoreViewType.disable
+        ? Opacity(
+            opacity: 0.5,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.forbidden,
+              child: IgnorePointer(child: child),
+            ),
+          )
+        : child;
+
+    return ValueListenableBuilder(
+      valueListenable: widget.chatSource.isExpandedNotifier,
+      builder: (context, isExpanded, child) {
+        // filter the child views that should be ignored
+        final childViews = [...widget.chatSource.children];
+        if (widget.visibilityGetter != null) {
+          childViews.retainWhere(
+            (v) => widget.visibilityGetter!(v.view) != IgnoreViewType.hide,
+          );
+        }
+
+        if (!isExpanded || childViews.isEmpty) {
+          return disabledEnabledChild;
+        }
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            disabledEnabledChild,
+            ...childViews.map(
+              (childSource) => ChatSourceTreeItem(
+                key: ValueKey(
+                  'select_sources_tree_item_${childSource.view.id}',
+                ),
+                chatSource: childSource,
+                level: widget.level + 1,
+                isSelectedSection: widget.isSelectedSection,
+                onSelected: widget.onSelected,
+                visibilityGetter: widget.visibilityGetter,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class ChatSourceTreeItemInner extends StatelessWidget {
+  const ChatSourceTreeItemInner({
+    super.key,
+    required this.chatSource,
+    required this.level,
+    required this.isSelectedSection,
+    this.onSelected,
+  });
+
+  final ChatSource chatSource;
+  final int level;
+  final bool isSelectedSection;
+  final void Function(ChatSource)? onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyHover(
+      style: HoverStyle(
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+      ),
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => onSelected?.call(chatSource),
+        child: SizedBox(
+          height: 30.0,
+          child: Row(
+            children: [
+              const HSpace(4.0),
+              HSpace(20.0 * level),
+              // builds the >, ^ or · button
+              ToggleIsExpandedButton(
+                chatSource: chatSource,
+                isSelectedSection: isSelectedSection,
+              ),
+              const HSpace(2.0),
+              // checkbox
+              SourceSelectedStatusCheckbox(
+                chatSource: chatSource,
+              ),
+              const HSpace(4.0),
+              // icon
+              MentionViewIcon(
+                view: chatSource.view,
+              ),
+              const HSpace(6.0),
+              // title
+              Expanded(
+                child: FlowyText(
+                  chatSource.view.nameOrDefault,
+                  overflow: TextOverflow.ellipsis,
+                  fontSize: 14.0,
+                  figmaLineHeight: 18.0,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ToggleIsExpandedButton extends StatelessWidget {
+  const ToggleIsExpandedButton({
+    super.key,
+    required this.chatSource,
+    required this.isSelectedSection,
+  });
+
+  final ChatSource chatSource;
+  final bool isSelectedSection;
+
+  @override
+  Widget build(BuildContext context) {
+    if (isReferencedDatabaseView(chatSource.view, chatSource.parentView)) {
+      return const _DotIconWidget();
+    }
+
+    if (chatSource.children.isEmpty) {
+      return const SizedBox.square(dimension: 16.0);
+    }
+
+    return FlowyHover(
+      child: GestureDetector(
+        child: ValueListenableBuilder(
+          valueListenable: chatSource.isExpandedNotifier,
+          builder: (context, value, _) => FlowySvg(
+            value
+                ? FlowySvgs.view_item_expand_s
+                : FlowySvgs.view_item_unexpand_s,
+            size: const Size.square(16.0),
+          ),
+        ),
+        onTap: () => context
+            .read<ChatSettingsCubit>()
+            .toggleIsExpanded(chatSource, isSelectedSection),
+      ),
+    );
+  }
+}
+
+class _DotIconWidget extends StatelessWidget {
+  const _DotIconWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(6.0),
+      child: Container(
+        width: 4,
+        height: 4,
+        decoration: BoxDecoration(
+          color: Theme.of(context).iconTheme.color,
+          borderRadius: BorderRadius.circular(2),
+        ),
+      ),
+    );
+  }
+}
+
+class SourceSelectedStatusCheckbox extends StatelessWidget {
+  const SourceSelectedStatusCheckbox({
+    super.key,
+    required this.chatSource,
+  });
+
+  final ChatSource chatSource;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: chatSource.selectedStatusNotifier,
+      builder: (context, selectedStatus, _) => FlowySvg(
+        switch (selectedStatus) {
+          SourceSelectedStatus.unselected => FlowySvgs.uncheck_s,
+          SourceSelectedStatus.selected => FlowySvgs.check_filled_s,
+          SourceSelectedStatus.partiallySelected => FlowySvgs.check_partial_s,
+        },
+        size: const Size.square(18.0),
+        blendMode: null,
+      ),
+    );
+  }
+}

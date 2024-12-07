@@ -12,11 +12,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-import 'chat_mention_page_menu.dart';
 import '../layout_define.dart';
 import 'ai_prompt_buttons.dart';
 import 'chat_input_file.dart';
 import 'chat_input_span.dart';
+import 'chat_mention_page_menu.dart';
+import 'select_sources_menu.dart';
 
 class DesktopAIPromptInput extends StatefulWidget {
   const DesktopAIPromptInput({
@@ -25,12 +26,14 @@ class DesktopAIPromptInput extends StatefulWidget {
     required this.isStreaming,
     required this.onStopStreaming,
     required this.onSubmitted,
+    required this.onUpdateSelectedSources,
   });
 
   final String chatId;
   final bool isStreaming;
   final void Function() onStopStreaming;
   final void Function(String, Map<String, dynamic>) onSubmitted;
+  final void Function(List<String>) onUpdateSelectedSources;
 
   @override
   State<DesktopAIPromptInput> createState() => _DesktopAIPromptInputState();
@@ -147,12 +150,15 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
                       top: null,
                       child: TextFieldTapRegion(
                         child: _PromptBottomActions(
+                          chatId: widget.chatId,
                           textController: textController,
                           overlayController: overlayController,
                           focusNode: focusNode,
                           sendButtonState: sendButtonState,
                           onSendPressed: handleSendPressed,
                           onStopStreaming: widget.onStopStreaming,
+                          onUpdateSelectedSources:
+                              widget.onUpdateSelectedSources,
                         ),
                       ),
                     ),
@@ -469,20 +475,24 @@ class _FocusNextItemIntent extends Intent {
 
 class _PromptBottomActions extends StatelessWidget {
   const _PromptBottomActions({
+    required this.chatId,
     required this.textController,
     required this.overlayController,
     required this.focusNode,
     required this.sendButtonState,
     required this.onSendPressed,
     required this.onStopStreaming,
+    required this.onUpdateSelectedSources,
   });
 
+  final String chatId;
   final TextEditingController textController;
   final OverlayPortalController overlayController;
   final FocusNode focusNode;
   final SendButtonState sendButtonState;
   final void Function() onSendPressed;
   final void Function() onStopStreaming;
+  final void Function(List<String>) onUpdateSelectedSources;
 
   @override
   Widget build(BuildContext context) {
@@ -496,6 +506,10 @@ class _PromptBottomActions extends StatelessWidget {
             children: [
               // predefinedFormatButton(),
               const Spacer(),
+              _selectSourcesButton(context),
+              const HSpace(
+                DesktopAIPromptSizes.actionBarButtonSpacing,
+              ),
               _mentionButton(context),
               const HSpace(
                 DesktopAIPromptSizes.actionBarButtonSpacing,
@@ -511,6 +525,13 @@ class _PromptBottomActions extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+
+  Widget _selectSourcesButton(BuildContext context) {
+    return PromptInputSelectSourcesButton(
+      chatId: chatId,
+      onUpdateSelectedSources: onUpdateSelectedSources,
     );
   }
 

@@ -525,3 +525,19 @@ pub struct CreateChatContextPB {
   #[validate(custom(function = "required_not_empty_str"))]
   pub chat_id: String,
 }
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct ChatSettingsPB {
+  #[pb(index = 1)]
+  pub rag_ids: Vec<String>,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug, Validate)]
+pub struct UpdateChatSettingsPB {
+  #[pb(index = 1)]
+  #[validate(nested)]
+  pub chat_id: ChatId,
+
+  #[pb(index = 2)]
+  pub rag_ids: Vec<String>,
+}

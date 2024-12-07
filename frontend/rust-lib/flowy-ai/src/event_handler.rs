@@ -420,3 +420,29 @@ pub(crate) async fn get_chat_info_handler(
   let pb = ai_manager.get_chat_info(&chat_id).await?;
   data_result_ok(pb)
 }
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_chat_settings_handler(
+  data: AFPluginData<ChatId>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> DataResult<ChatSettingsPB, FlowyError> {
+  let chat_id = data.try_into_inner()?.value;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let rag_ids = ai_manager.get_rag_ids(&chat_id).await?;
+  let pb = ChatSettingsPB { rag_ids };
+  data_result_ok(pb)
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn update_chat_settings_handler(
+  data: AFPluginData<UpdateChatSettingsPB>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> FlowyResult<()> {
+  let params = data.try_into_inner()?;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  ai_manager
+    .update_rag_ids(&params.chat_id.value, params.rag_ids)
+    .await?;
+
+  Ok(())
+}
