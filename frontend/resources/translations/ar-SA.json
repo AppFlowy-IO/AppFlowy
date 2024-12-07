@@ -191,11 +191,17 @@
     "referenceSource": {
       "one": "تم العثور على {count} مصدر",
       "other": "تم العثور على {count} مصادر"
-    }
+    },
+    "clickToMention": "اذكر صفحة",
+    "uploadFile": "إرفاق ملفات PDF أو ملفات نصية أو ملفات Markdown",
+    "questionDetail": "مرحبًا {}! كيف يمكنني مساعدتك اليوم؟",
+    "indexingFile": "الفهرسة {}",
+    "generatingResponse": "توليد الاستجابة"
   },
   "trash": {
     "text": "المهملات",
     "restoreAll": "استعادة الكل",
+    "restore": "إسترجاع",
     "deleteAll": "حذف الكل",
     "pageHeader": {
       "fileName": "اسم الملف",
@@ -209,6 +215,10 @@
     "confirmRestoreAll": {
       "title": "هل أنت متأكد من استعادة جميع الصفحات في المهملات؟",
       "caption": "لا يمكن التراجع عن هذا الإجراء."
+    },
+    "restorePage": {
+      "title": "إسترجاع: {}",
+      "caption": "هل أنت متأكد أنك تريد استعادة هذه الصفحة؟"
     },
     "mobile": {
       "actions": "إجراءات سلة المهملات",
