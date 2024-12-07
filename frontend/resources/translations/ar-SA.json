@@ -123,7 +123,8 @@
     "visitSite": "زيارة الموقع",
     "exportAsTab": "تصدير كـ",
     "publishTab": "نشر",
-    "shareTab": "مشاركة"
+    "shareTab": "مشاركة",
+    "publishOnAppFlowy": "نشر على AppFlowy"
   },
   "moreAction": {
     "small": "صغير",
