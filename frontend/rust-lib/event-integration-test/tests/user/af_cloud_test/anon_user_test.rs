@@ -7,7 +7,7 @@ use crate::util::unzip;
 
 #[tokio::test]
 async fn reading_039_anon_user_data_test() {
-  let (cleaner, user_db_path) = unzip("./tests/asset", "039_local").unwrap();
+  let user_db_path = unzip("./tests/asset", "039_local").unwrap();
   let test =
     EventIntegrationTest::new_with_user_data_path(user_db_path, DEFAULT_NAME.to_string()).await;
   let first_level_views = test.get_all_workspace_views().await;
@@ -36,13 +36,11 @@ async fn reading_039_anon_user_data_test() {
 
   let trash_items = test.get_trash().await.items;
   assert_eq!(trash_items.len(), 1);
-
-  drop(cleaner);
 }
 
 #[tokio::test]
 async fn migrate_anon_user_data_to_af_cloud_test() {
-  let (cleaner, user_db_path) = unzip("./tests/asset", "040_local").unwrap();
+  let user_db_path = unzip("./tests/asset", "040_local").unwrap();
   // In the 040_local, the structure is:
   // workspace:
   //  view: Document1
@@ -113,6 +111,4 @@ async fn migrate_anon_user_data_to_af_cloud_test() {
   assert_eq!(anon_third_level_views.len(), 2);
   assert_eq!(user_third_level_views[0].name, "Grid1".to_string());
   assert_eq!(user_third_level_views[1].name, "Grid2".to_string());
-
-  drop(cleaner);
 }

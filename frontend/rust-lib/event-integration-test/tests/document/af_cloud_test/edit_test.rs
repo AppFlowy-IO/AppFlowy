@@ -42,7 +42,7 @@ async fn af_cloud_edit_document_test() {
 
 #[tokio::test]
 async fn af_cloud_sync_anon_user_document_test() {
-  let (cleaner, user_db_path) = unzip("./tests/asset", "040_sync_local_document").unwrap();
+  let user_db_path = unzip("./tests/asset", "040_sync_local_document").unwrap();
   use_localhost_af_cloud().await;
   let test =
     EventIntegrationTest::new_with_user_data_path(user_db_path.clone(), DEFAULT_NAME.to_string())
@@ -77,8 +77,6 @@ async fn af_cloud_sync_anon_user_document_test() {
     &document_id,
     expected_040_sync_local_document_data(),
   );
-
-  drop(cleaner);
 }
 
 fn expected_040_sync_local_document_data() -> DocumentData {

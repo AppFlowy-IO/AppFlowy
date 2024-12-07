@@ -7,7 +7,7 @@ use flowy_folder::entities::{ImportPayloadPB, ImportTypePB, ImportValuePayloadPB
 async fn import_492_row_csv_file_test() {
   // csv_500r_15c.csv is a file with 492 rows and 17 columns
   let file_name = "csv_492r_17c.csv".to_string();
-  let (cleaner, csv_file_path) = unzip("./tests/asset", &file_name).unwrap();
+  let csv_file_path = unzip("./tests/asset", &file_name).unwrap();
 
   let csv_string = std::fs::read_to_string(csv_file_path).unwrap();
   let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
@@ -20,14 +20,13 @@ async fn import_492_row_csv_file_test() {
   let view_id = views[0].clone().id;
   let database = test.get_database(&view_id).await;
   assert_eq!(database.rows.len(), 492);
-  drop(cleaner);
 }
 
 #[tokio::test]
 async fn import_10240_row_csv_file_test() {
   // csv_22577r_15c.csv is a file with 10240 rows and 15 columns
   let file_name = "csv_10240r_15c.csv".to_string();
-  let (cleaner, csv_file_path) = unzip("./tests/asset", &file_name).unwrap();
+  let csv_file_path = unzip("./tests/asset", &file_name).unwrap();
 
   let csv_string = std::fs::read_to_string(csv_file_path).unwrap();
   let test = EventIntegrationTest::new_with_name(DEFAULT_NAME).await;
@@ -40,8 +39,6 @@ async fn import_10240_row_csv_file_test() {
   let view_id = views[0].clone().id;
   let database = test.get_database(&view_id).await;
   assert_eq!(database.rows.len(), 10240);
-
-  drop(cleaner);
 }
 
 fn gen_import_data(file_name: String, csv_string: String, workspace_id: String) -> ImportPayloadPB {

@@ -11,7 +11,7 @@ use async_stream::stream;
 use futures::stream::StreamExt;
 use tokio::sync::broadcast;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum DatabaseViewChanged {
   FilterNotification(FilterResultNotification),
   ReorderAllRowsNotification(ReorderAllRowsResult),
