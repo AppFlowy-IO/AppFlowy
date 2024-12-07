@@ -226,7 +226,8 @@
       "emptyDescription": "ليس لديك أي ملفات محذوفة",
       "isDeleted": "محذوف",
       "isRestored": "تمت استعادته"
-    }
+    },
+    "confirmDeleteTitle": "هل أنت متأكد أنك تريد حذف هذه الصفحة نهائياً؟"
   },
   "deletePagePrompt": {
     "text": "هذه الصفحة في المهملات",
