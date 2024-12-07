@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_tab
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_constants.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_operations/simple_table_operations.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_widgets/simple_table_reorder_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -49,6 +50,14 @@ enum SimpleTableMoreActionType {
       case SimpleTableMoreActionType.row:
         return FlowySvgs.table_reorder_row_s;
     }
+  }
+
+  @override
+  String toString() {
+    return switch (this) {
+      SimpleTableMoreActionType.column => 'column',
+      SimpleTableMoreActionType.row => 'row',
+    };
   }
 }
 
@@ -143,6 +152,7 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
 
   @override
   Widget build(BuildContext context) {
+    final simpleTableContext = context.read<SimpleTableContext>();
     return Align(
       alignment: widget.type == SimpleTableMoreActionType.row
           ? Alignment.centerLeft
@@ -151,9 +161,24 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
         valueListenable: isShowingMenu,
         builder: (context, isShowingMenu, child) {
           return ValueListenableBuilder(
-            valueListenable:
-                context.read<SimpleTableContext>().hoveringTableCell,
+            valueListenable: simpleTableContext.hoveringTableCell,
             builder: (context, hoveringTableNode, child) {
+              final reorderingIndex = switch (widget.type) {
+                SimpleTableMoreActionType.column =>
+                  simpleTableContext.isReorderingColumn.value.$2,
+                SimpleTableMoreActionType.row =>
+                  simpleTableContext.isReorderingRow.value.$2,
+              };
+              final isReordering = simpleTableContext.isReordering;
+              if (isReordering) {
+                // when reordering, hide the menu for another column or row that is not the current dragging one.
+                if (reorderingIndex != widget.index) {
+                  return const SizedBox.shrink();
+                } else {
+                  return child!;
+                }
+              }
+
               final hoveringIndex =
                   widget.type == SimpleTableMoreActionType.column
                       ? hoveringTableNode?.columnIndex
@@ -166,7 +191,6 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
               return child!;
             },
             child: SimpleTableMoreActionPopup(
-              key: ValueKey(widget.type.name + widget.index.toString()),
               index: widget.index,
               isShowingMenu: this.isShowingMenu,
               type: widget.type,
@@ -198,6 +222,7 @@ class SimpleTableMoreActionPopup extends StatefulWidget {
 class _SimpleTableMoreActionPopupState
     extends State<SimpleTableMoreActionPopup> {
   late final editorState = context.read<EditorState>();
+
   SelectionGestureInterceptor? gestureInterceptor;
 
   RenderBox? get renderBox => context.findRenderObject() as RenderBox?;
@@ -230,65 +255,83 @@ class _SimpleTableMoreActionPopupState
 
   @override
   Widget build(BuildContext context) {
-    final tableCellNode =
-        context.read<SimpleTableContext>().hoveringTableCell.value;
+    final simpleTableContext = context.read<SimpleTableContext>();
+    final tableCellNode = simpleTableContext.hoveringTableCell.value;
+    final tableNode = tableCellNode?.parentTableNode;
+
+    if (tableNode == null) {
+      return const SizedBox.shrink();
+    }
+
     return AppFlowyPopover(
-      onOpen: () {
-        widget.isShowingMenu.value = true;
-        switch (widget.type) {
-          case SimpleTableMoreActionType.column:
-            context.read<SimpleTableContext>().selectingColumn.value =
-                tableCellNode?.columnIndex;
-          case SimpleTableMoreActionType.row:
-            context.read<SimpleTableContext>().selectingRow.value =
-                tableCellNode?.rowIndex;
-        }
-
-        // Workaround to clear the selection after the menu is opened.
-        Future.delayed(Durations.short3, () {
-          if (!editorState.isDisposed) {
-            editorState.selection = null;
-          }
-        });
-      },
-      onClose: () {
-        widget.isShowingMenu.value = false;
-
-        // clear the selecting index
-        context.read<SimpleTableContext>().selectingColumn.value = null;
-        context.read<SimpleTableContext>().selectingRow.value = null;
-      },
+      onOpen: () => _onOpen(tableCellNode: tableCellNode),
+      onClose: () => _onClose(),
       direction: widget.type == SimpleTableMoreActionType.row
           ? PopoverDirection.bottomWithCenterAligned
           : PopoverDirection.bottomWithLeftAligned,
       offset: widget.type == SimpleTableMoreActionType.row
           ? const Offset(24, 14)
           : const Offset(-14, 8),
-      popupBuilder: (_) {
-        if (tableCellNode == null) {
-          return const SizedBox.shrink();
-        }
-        return MultiProvider(
-          providers: [
-            Provider.value(
-              value: context.read<SimpleTableContext>(),
-            ),
-            Provider.value(
-              value: context.read<EditorState>(),
-            ),
-          ],
-          child: SimpleTableMoreActionList(
-            type: widget.type,
-            index: widget.index,
-            tableCellNode: tableCellNode,
-          ),
-        );
-      },
-      child: SimpleTableReorderButton(
+      clickHandler: PopoverClickHandler.gestureDetector,
+      popupBuilder: (_) => _buildPopup(tableCellNode: tableCellNode),
+      child: SimpleTableDraggableReorderButton(
+        editorState: editorState,
+        simpleTableContext: simpleTableContext,
+        node: tableNode,
+        index: widget.index,
         isShowingMenu: widget.isShowingMenu,
         type: widget.type,
       ),
     );
+  }
+
+  Widget _buildPopup({Node? tableCellNode}) {
+    if (tableCellNode == null) {
+      return const SizedBox.shrink();
+    }
+    return MultiProvider(
+      providers: [
+        Provider.value(
+          value: context.read<SimpleTableContext>(),
+        ),
+        Provider.value(
+          value: context.read<EditorState>(),
+        ),
+      ],
+      child: SimpleTableMoreActionList(
+        type: widget.type,
+        index: widget.index,
+        tableCellNode: tableCellNode,
+      ),
+    );
+  }
+
+  void _onOpen({Node? tableCellNode}) {
+    widget.isShowingMenu.value = true;
+
+    switch (widget.type) {
+      case SimpleTableMoreActionType.column:
+        context.read<SimpleTableContext>().selectingColumn.value =
+            tableCellNode?.columnIndex;
+      case SimpleTableMoreActionType.row:
+        context.read<SimpleTableContext>().selectingRow.value =
+            tableCellNode?.rowIndex;
+    }
+
+    // Workaround to clear the selection after the menu is opened.
+    Future.delayed(Durations.short3, () {
+      if (!editorState.isDisposed) {
+        editorState.selection = null;
+      }
+    });
+  }
+
+  void _onClose() {
+    widget.isShowingMenu.value = false;
+
+    // clear the selecting index
+    context.read<SimpleTableContext>().selectingColumn.value = null;
+    context.read<SimpleTableContext>().selectingRow.value = null;
   }
 
   bool _isTapInBounds(Offset offset) {
@@ -506,22 +549,16 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
             _deleteRow();
             break;
         }
-        break;
       case SimpleTableMoreAction.insertLeft:
         _insertColumnLeft();
-        break;
       case SimpleTableMoreAction.insertRight:
         _insertColumnRight();
-        break;
       case SimpleTableMoreAction.insertAbove:
         _insertRowAbove();
-        break;
       case SimpleTableMoreAction.insertBelow:
         _insertRowBelow();
-        break;
       case SimpleTableMoreAction.clearContents:
         _clearContent();
-        break;
       case SimpleTableMoreAction.duplicate:
         switch (widget.type) {
           case SimpleTableMoreActionType.column:
@@ -531,7 +568,6 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
             _duplicateRow();
             break;
         }
-        break;
       default:
         break;
     }
@@ -581,6 +617,8 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
           isEnableHeader.value,
         );
     }
+
+    PopoverContainer.of(context).close();
   }
 
   void _clearContent() {

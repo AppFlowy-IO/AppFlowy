@@ -109,18 +109,12 @@ class TextRobot {
       Position(path: next),
     );
     await editorState.apply(transaction);
-    debugPrint(
-      'AI insertNewParagraph: path: ${editorState.selection!.end.path}, index: ${editorState.selection!.endIndex}',
-    );
     await Future.delayed(const Duration(milliseconds: 10));
   }
 
   Future<void> insertText(String text, Duration delay) async {
     final selection = editorState.selection;
-    debugPrint(
-      'AI insertText: get selection, path: ${selection!.end.path}, index: ${selection.endIndex}',
-    );
-    if (!selection.isCollapsed) {
+    if (selection == null || !selection.isCollapsed) {
       return;
     }
     final node = editorState.getNodeAtPath(selection.end.path);

@@ -10,6 +10,8 @@ enum TableMapOperationType {
   deleteColumn,
   duplicateRow,
   duplicateColumn,
+  reorderColumn,
+  reorderRow,
 }
 
 extension TableMapOperation on Node {
@@ -17,6 +19,8 @@ extension TableMapOperation on Node {
     Node node, {
     required TableMapOperationType type,
     required int index,
+    // Only used for reorder column operation
+    int? toIndex,
   }) {
     assert(this.type == SimpleTableBlockKeys.type);
 
@@ -39,10 +43,20 @@ extension TableMapOperation on Node {
         attributes = _mapRowDeletionAttributes(index);
       case TableMapOperationType.deleteColumn:
         attributes = _mapColumnDeletionAttributes(index);
+      case TableMapOperationType.reorderColumn:
+        if (toIndex != null) {
+          attributes = _mapColumnReorderingAttributes(index, toIndex);
+        }
+      case TableMapOperationType.reorderRow:
+        if (toIndex != null) {
+          attributes = _mapRowReorderingAttributes(index, toIndex);
+        }
     }
 
     // clear the attributes that are null
-    attributes?.removeWhere((key, value) => value == null);
+    attributes?.removeWhere(
+      (key, value) => value == null,
+    );
 
     return attributes;
   }
@@ -410,6 +424,7 @@ extension TableMapOperation on Node {
         comparator: (iKey, index) => iKey > index,
         filterIndex: index,
       );
+
       final rowAligns = _remapSource(
         this.rowAligns,
         index,
@@ -429,6 +444,319 @@ extension TableMapOperation on Node {
           );
     } catch (e) {
       Log.warn('Failed to map row deletion attributes: $e');
+      return attributes;
+    }
+  }
+
+  /// Map the attributes of a column reordering operation.
+  ///
+  ///
+  /// Examples:
+  /// Case 1:
+  ///
+  /// When reordering a column, if the from index is greater than the to index,
+  /// the attributes of the table before the from index should be updated.
+  ///
+  /// Before:
+  ///          ↓ reorder this column from index 1 to index 0
+  /// |  0  |  1  |  2  |
+  /// |  3  |  4  |  5  |
+  ///
+  /// The original attributes of the table:
+  /// {
+  ///   "rowColors": {
+  ///     0: "#FF0000",
+  ///     1: "#00FF00",
+  ///     2: "#0000FF",
+  ///   }
+  /// }
+  ///
+  /// After reordering:
+  /// |  1  |  0  |  2  |
+  /// |  4  |  3  |  5  |
+  ///
+  /// The new attributes of the table:
+  /// {
+  ///   "rowColors": {
+  ///     0: "#00FF00", ← The attributes of the original second column
+  ///     1: "#FF0000", ← The attributes of the original first column
+  ///     2: "#0000FF",
+  ///   }
+  /// }
+  ///
+  /// Case 2:
+  ///
+  /// When reordering a column, if the from index is less than the to index,
+  /// the attributes of the table after the from index should be updated.
+  ///
+  /// Before:
+  ///          ↓ reorder this column from index 1 to index 2
+  /// |  0  |  1  |  2  |
+  /// |  3  |  4  |  5  |
+  ///
+  /// The original attributes of the table:
+  /// {
+  ///   "columnColors": {
+  ///     0: "#FF0000",
+  ///     1: "#00FF00",
+  ///     2: "#0000FF",
+  ///   }
+  /// }
+  ///
+  /// After reordering:
+  /// |  0  |  2  |  1  |
+  /// |  3  |  5  |  4  |
+  ///
+  /// The new attributes of the table:
+  /// {
+  ///   "columnColors": {
+  ///     0: "#FF0000",
+  ///     1: "#0000FF", ← The attributes of the original third column
+  ///     2: "#00FF00", ← The attributes of the original second column
+  ///   }
+  /// }
+  Attributes? _mapColumnReorderingAttributes(int fromIndex, int toIndex) {
+    final attributes = this.attributes;
+    try {
+      final duplicatedColumnColor = this.columnColors[fromIndex.toString()];
+      final duplicatedColumnAlign = this.columnAligns[fromIndex.toString()];
+      final duplicatedColumnWidth = this.columnWidths[fromIndex.toString()];
+
+      /// Case 1: fromIndex > toIndex
+      /// Before:
+      /// Row 0: | 0 | 1 | 2 |
+      /// Row 1: | 3 | 4 | 5 |
+      /// Row 2: | 6 | 7 | 8 |
+      ///
+      /// columnColors = {
+      ///   "0": "#FF0000",
+      ///   "1": "#00FF00",
+      ///   "2": "#0000FF" ← Move this column (index 2)
+      /// }
+      ///
+      /// Move column 2 to index 0:
+      /// Row 0: | 2 | 0 | 1 |
+      /// Row 1: | 5 | 3 | 4 |
+      /// Row 2: | 8 | 6 | 7 |
+      ///
+      /// columnColors = {
+      ///   "0": "#0000FF", ← Moved here
+      ///   "1": "#FF0000",
+      ///   "2": "#00FF00"
+      /// }
+      ///
+      /// Case 2: fromIndex < toIndex
+      /// Before:
+      /// Row 0: | 0 | 1 | 2 |
+      /// Row 1: | 3 | 4 | 5 |
+      /// Row 2: | 6 | 7 | 8 |
+      ///
+      /// columnColors = {
+      ///   "0": "#FF0000" ← Move this column (index 0)
+      ///   "1": "#00FF00",
+      ///   "2": "#0000FF"
+      /// }
+      ///
+      /// Move column 0 to index 2:
+      /// Row 0: | 1 | 2 | 0 |
+      /// Row 1: | 4 | 5 | 3 |
+      /// Row 2: | 7 | 8 | 6 |
+      ///
+      /// columnColors = {
+      ///   "0": "#00FF00",
+      ///   "1": "#0000FF",
+      ///   "2": "#FF0000" ← Moved here
+      /// }
+      final columnColors = _remapSource(
+        this.columnColors,
+        fromIndex,
+        increment: fromIndex > toIndex,
+        comparator: (iKey, index) {
+          if (fromIndex > toIndex) {
+            return iKey < fromIndex && iKey >= toIndex;
+          } else {
+            return iKey > fromIndex && iKey <= toIndex;
+          }
+        },
+        filterIndex: fromIndex,
+      );
+
+      final columnAligns = _remapSource(
+        this.columnAligns,
+        fromIndex,
+        increment: fromIndex > toIndex,
+        comparator: (iKey, index) {
+          if (fromIndex > toIndex) {
+            return iKey < fromIndex && iKey >= toIndex;
+          } else {
+            return iKey > fromIndex && iKey <= toIndex;
+          }
+        },
+        filterIndex: fromIndex,
+      );
+
+      final columnWidths = _remapSource(
+        this.columnWidths,
+        fromIndex,
+        increment: fromIndex > toIndex,
+        comparator: (iKey, index) {
+          if (fromIndex > toIndex) {
+            return iKey < fromIndex && iKey >= toIndex;
+          } else {
+            return iKey > fromIndex && iKey <= toIndex;
+          }
+        },
+        filterIndex: fromIndex,
+      );
+
+      return attributes
+          .mergeValues(
+            SimpleTableBlockKeys.columnColors,
+            columnColors,
+            duplicatedEntry: duplicatedColumnColor != null
+                ? MapEntry(
+                    toIndex.toString(),
+                    duplicatedColumnColor,
+                  )
+                : null,
+            removeNullValue: true,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.columnAligns,
+            columnAligns,
+            duplicatedEntry: duplicatedColumnAlign != null
+                ? MapEntry(
+                    toIndex.toString(),
+                    duplicatedColumnAlign,
+                  )
+                : null,
+            removeNullValue: true,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.columnWidths,
+            columnWidths,
+            duplicatedEntry: duplicatedColumnWidth != null
+                ? MapEntry(
+                    toIndex.toString(),
+                    duplicatedColumnWidth,
+                  )
+                : null,
+            removeNullValue: true,
+          );
+    } catch (e) {
+      Log.warn('Failed to map column deletion attributes: $e');
+      return attributes;
+    }
+  }
+
+  /// Map the attributes of a row reordering operation.
+  ///
+  /// See [_mapColumnReorderingAttributes] for more details.
+  Attributes? _mapRowReorderingAttributes(int fromIndex, int toIndex) {
+    final attributes = this.attributes;
+    try {
+      final duplicatedRowColor = this.rowColors[fromIndex.toString()];
+      final duplicatedRowAlign = this.rowAligns[fromIndex.toString()];
+
+      /// Example:
+      /// Case 1: fromIndex > toIndex
+      /// Before:
+      /// Row 0: | 0 | 1 | 2 |
+      /// Row 1: | 3 | 4 | 5 | ← Move this row (index 1)
+      /// Row 2: | 6 | 7 | 8 |
+      ///
+      /// rowColors = {
+      ///   "0": "#FF0000",
+      ///   "1": "#00FF00", ← This will be moved
+      ///   "2": "#0000FF"
+      /// }
+      ///
+      /// Move row 1 to index 0:
+      /// Row 0: | 3 | 4 | 5 | ← Moved here
+      /// Row 1: | 0 | 1 | 2 |
+      /// Row 2: | 6 | 7 | 8 |
+      ///
+      /// rowColors = {
+      ///   "0": "#00FF00", ← Moved here
+      ///   "1": "#FF0000",
+      ///   "2": "#0000FF"
+      /// }
+      ///
+      /// Case 2: fromIndex < toIndex
+      /// Before:
+      /// Row 0: | 0 | 1 | 2 |
+      /// Row 1: | 3 | 4 | 5 | ← Move this row (index 1)
+      /// Row 2: | 6 | 7 | 8 |
+      ///
+      /// rowColors = {
+      ///   "0": "#FF0000",
+      ///   "1": "#00FF00", ← This will be moved
+      ///   "2": "#0000FF"
+      /// }
+      ///
+      /// Move row 1 to index 2:
+      /// Row 0: | 0 | 1 | 2 |
+      /// Row 1: | 3 | 4 | 5 |
+      /// Row 2: | 6 | 7 | 8 | ← Moved here
+      ///
+      /// rowColors = {
+      ///   "0": "#FF0000",
+      ///   "1": "#0000FF",
+      ///   "2": "#00FF00" ← Moved here
+      /// }
+      final rowColors = _remapSource(
+        this.rowColors,
+        fromIndex,
+        increment: fromIndex > toIndex,
+        comparator: (iKey, index) {
+          if (fromIndex > toIndex) {
+            return iKey < fromIndex && iKey >= toIndex;
+          } else {
+            return iKey > fromIndex && iKey <= toIndex;
+          }
+        },
+        filterIndex: fromIndex,
+      );
+
+      final rowAligns = _remapSource(
+        this.rowAligns,
+        fromIndex,
+        increment: fromIndex > toIndex,
+        comparator: (iKey, index) {
+          if (fromIndex > toIndex) {
+            return iKey < fromIndex && iKey >= toIndex;
+          } else {
+            return iKey > fromIndex && iKey <= toIndex;
+          }
+        },
+        filterIndex: fromIndex,
+      );
+
+      return attributes
+          .mergeValues(
+            SimpleTableBlockKeys.rowColors,
+            rowColors,
+            duplicatedEntry: duplicatedRowColor != null
+                ? MapEntry(
+                    toIndex.toString(),
+                    duplicatedRowColor,
+                  )
+                : null,
+            removeNullValue: true,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.rowAligns,
+            rowAligns,
+            duplicatedEntry: duplicatedRowAlign != null
+                ? MapEntry(
+                    toIndex.toString(),
+                    duplicatedRowAlign,
+                  )
+                : null,
+            removeNullValue: true,
+          );
+    } catch (e) {
+      Log.warn('Failed to map row reordering attributes: $e');
       return attributes;
     }
   }
@@ -486,11 +814,17 @@ extension TableMapOperationAttributes on Attributes {
     String key,
     Map<String, dynamic> newSource, {
     MapEntry? duplicatedEntry,
+    bool removeNullValue = false,
   }) {
     final result = {...this};
 
     if (duplicatedEntry != null) {
       newSource[duplicatedEntry.key] = duplicatedEntry.value;
+    }
+
+    if (removeNullValue) {
+      // remove the null value
+      newSource.removeWhere((key, value) => value == null);
     }
 
     result[key] = newSource;

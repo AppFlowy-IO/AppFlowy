@@ -2896,5 +2896,12 @@
     "favoriteDisabledHint": "Cannot favorite this view",
     "pinTab": "Pin",
     "unpinTab": "Unpin"
+  },
+  "openFileMessage": {
+    "success": "File opened successfully",
+    "fileNotFound": "File not found",
+    "noAppToOpenFile": "No app to open this file",
+    "permissionDenied": "No permission to open this file",
+    "unknownError": "File open failed"
   }
 }

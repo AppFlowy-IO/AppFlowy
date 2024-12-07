@@ -514,4 +514,19 @@ extension TableNodeExtension on Node {
 
     return children[rowIndex].children[columnIndex];
   }
+
+  String? getTableCellContent({
+    required int rowIndex,
+    required int columnIndex,
+  }) {
+    final cell = getTableCellNode(rowIndex: rowIndex, columnIndex: columnIndex);
+    if (cell == null) {
+      return null;
+    }
+    final content = cell.children
+        .map((e) => e.delta?.toPlainText())
+        .where((e) => e != null)
+        .join('\n');
+    return content;
+  }
 }

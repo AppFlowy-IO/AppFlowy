@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
@@ -13,47 +11,6 @@ import 'package:provider/provider.dart';
 /// Only displaying the add row / add column / add column and row button
 ///   when hovering on the last row / last column / last cell.
 bool _enableHoveringLogicV2 = true;
-
-class SimpleTableReorderButton extends StatelessWidget {
-  const SimpleTableReorderButton({
-    super.key,
-    required this.isShowingMenu,
-    required this.type,
-  });
-
-  final ValueNotifier<bool> isShowingMenu;
-  final SimpleTableMoreActionType type;
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: isShowingMenu,
-      builder: (context, isShowingMenu, child) {
-        return MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: Container(
-            decoration: BoxDecoration(
-              color: isShowingMenu
-                  ? context.simpleTableMoreActionHoverColor
-                  : Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(8.0),
-              border: Border.all(
-                color: context.simpleTableMoreActionBorderColor,
-              ),
-            ),
-            height: 16.0,
-            width: 16.0,
-            child: FlowySvg(
-              type.reorderIconSvg,
-              color: isShowingMenu ? Colors.white : null,
-              size: const Size.square(16.0),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
 
 class SimpleTableAddRowHoverButton extends StatefulWidget {
   const SimpleTableAddRowHoverButton({
@@ -546,96 +503,6 @@ class SimpleTableBasicButton extends StatelessWidget {
     return leftIconSvg != null
         ? FlowySvg(leftIconSvg!)
         : const SizedBox.shrink();
-  }
-}
-
-class SimpleTableColumnResizeHandle extends StatefulWidget {
-  const SimpleTableColumnResizeHandle({
-    super.key,
-    required this.node,
-  });
-
-  final Node node;
-
-  @override
-  State<SimpleTableColumnResizeHandle> createState() =>
-      _SimpleTableColumnResizeHandleState();
-}
-
-class _SimpleTableColumnResizeHandleState
-    extends State<SimpleTableColumnResizeHandle> {
-  bool isStartDragging = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.resizeColumn,
-      onEnter: (event) => context
-          .read<SimpleTableContext>()
-          .hoveringOnResizeHandle
-          .value = widget.node,
-      onExit: (event) {
-        Future.delayed(const Duration(milliseconds: 100), () {
-          // the onExit event will be triggered before dragging started.
-          // delay the hiding of the resize handle to avoid flickering.
-          if (!isStartDragging) {
-            context.read<SimpleTableContext>().hoveringOnResizeHandle.value =
-                null;
-          }
-        });
-      },
-      child: GestureDetector(
-        onHorizontalDragStart: (details) {
-          // disable the two-finger drag on trackpad
-          if (details.kind == PointerDeviceKind.trackpad) {
-            return;
-          }
-          isStartDragging = true;
-        },
-        onHorizontalDragUpdate: (details) {
-          if (!isStartDragging) {
-            return;
-          }
-          context.read<EditorState>().updateColumnWidthInMemory(
-                tableCellNode: widget.node,
-                deltaX: details.delta.dx,
-              );
-        },
-        onHorizontalDragEnd: (details) {
-          if (!isStartDragging) {
-            return;
-          }
-          context.read<SimpleTableContext>().hoveringOnResizeHandle.value =
-              null;
-          isStartDragging = false;
-          context.read<EditorState>().updateColumnWidth(
-                tableCellNode: widget.node,
-                width: widget.node.columnWidth,
-              );
-        },
-        child: ValueListenableBuilder<Node?>(
-          valueListenable: context.read<SimpleTableContext>().hoveringTableCell,
-          builder: (context, hoveringCell, child) {
-            return ValueListenableBuilder(
-              valueListenable:
-                  context.read<SimpleTableContext>().hoveringOnResizeHandle,
-              builder: (context, hoveringOnResizeHandle, child) {
-                final isSameRowIndex = hoveringOnResizeHandle?.columnIndex ==
-                    widget.node.columnIndex;
-                return Opacity(
-                  opacity: isSameRowIndex ? 1.0 : 0.0,
-                  child: Container(
-                    height: double.infinity,
-                    width: SimpleTableConstants.resizeHandleWidth,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                );
-              },
-            );
-          },
-        ),
-      ),
-    );
   }
 }
 
