@@ -17,7 +17,7 @@ import '../transaction_handler/mention_transaction_handler.dart';
 const _pasteIdentifier = 'date_transaction';
 
 class DateTransactionHandler extends MentionTransactionHandler {
-  DateTransactionHandler() : super(subType: MentionType.date.name);
+  DateTransactionHandler();
 
   @override
   Future<void> onTransaction(

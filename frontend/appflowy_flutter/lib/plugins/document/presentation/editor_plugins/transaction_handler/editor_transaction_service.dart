@@ -151,18 +151,19 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
         handler.type: handler.livesInDelta ? <MentionBlockData>[] : <Node>[],
     };
 
+    // based on the type of the transaction handler
+    final uniqueTransactionHandlers = <String, EditorTransactionHandler>{};
+    for (final handler in _transactionHandlers) {
+      uniqueTransactionHandlers.putIfAbsent(handler.type, () => handler);
+    }
+
     for (final op in transaction.operations) {
       if (op is InsertOperation) {
         for (final n in op.nodes) {
-          bool fetchedMentions = false;
-          for (final handler in _transactionHandlers) {
+          for (final handler in uniqueTransactionHandlers.values) {
             if (handler.livesInDelta) {
-              if (fetchedMentions) {
-                continue;
-              }
               added[handler.type]!
                   .addAll(extractMentionsForType(n, handler.type));
-              fetchedMentions = true;
             } else {
               added[handler.type]!
                   .addAll(collectMatchingNodes(n, handler.type));
@@ -171,16 +172,11 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
         }
       } else if (op is DeleteOperation) {
         for (final n in op.nodes) {
-          bool fetchedMentions = false;
-          for (final handler in _transactionHandlers) {
+          for (final handler in uniqueTransactionHandlers.values) {
             if (handler.livesInDelta) {
-              if (fetchedMentions) {
-                continue;
-              }
               removed[handler.type]!.addAll(
                 extractMentionsForType(n, handler.type, false),
               );
-              fetchedMentions = true;
             } else {
               removed[handler.type]!
                   .addAll(collectMatchingNodes(n, handler.type));
