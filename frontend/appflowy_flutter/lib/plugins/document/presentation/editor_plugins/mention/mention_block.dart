@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 
 enum MentionType {
   page,
-  reminder,
   date,
   childPage;
 

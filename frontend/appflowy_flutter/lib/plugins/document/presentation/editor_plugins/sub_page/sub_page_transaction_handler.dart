@@ -21,6 +21,7 @@ class SubPageTransactionHandler extends BlockTransactionHandler {
   @override
   Future<void> onTransaction(
     BuildContext context,
+    String viewId,
     EditorState editorState,
     List<Node> added,
     List<Node> removed, {

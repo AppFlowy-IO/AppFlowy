@@ -16,11 +16,12 @@ import '../transaction_handler/mention_transaction_handler.dart';
 const _pasteIdentifier = 'child_page_transaction';
 
 class ChildPageTransactionHandler extends MentionTransactionHandler {
-  ChildPageTransactionHandler() : super(subType: MentionType.childPage.name);
+  ChildPageTransactionHandler();
 
   @override
   Future<void> onTransaction(
     BuildContext context,
+    String viewId,
     EditorState editorState,
     List<MentionBlockData> added,
     List<MentionBlockData> removed, {

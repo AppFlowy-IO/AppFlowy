@@ -12,12 +12,6 @@ typedef MentionBlockData = (Node, Map<String, dynamic>, int);
 
 abstract class MentionTransactionHandler
     extends EditorTransactionHandler<MentionBlockData> {
-  const MentionTransactionHandler({
-    required this.subType,
-  })
+  const MentionTransactionHandler()
       : super(type: MentionBlockKeys.mention, livesInDelta: true);
-
-  final String subType;
-
-  MentionType get mentionType => MentionType.fromString(subType);
 }
