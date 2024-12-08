@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -241,7 +242,7 @@ class _SecondaryViewState extends State<SecondaryView>
     widget.pageManager.showSecondaryPluginNotifier
         .addListener(onShowSecondaryChanged);
     final width = widget.pageManager.showSecondaryPluginNotifier.value
-        ? widget.adaptedPercentageWidth
+        ? max(450.0, widget.adaptedPercentageWidth)
         : 0.0;
     widthNotifier = ValueNotifier<double>(width)
       ..addListener(updateWidthAnimation);
@@ -271,7 +272,7 @@ class _SecondaryViewState extends State<SecondaryView>
 
   void onShowSecondaryChanged() async {
     if (widget.pageManager.showSecondaryPluginNotifier.value) {
-      widthNotifier.value = widget.adaptedPercentageWidth;
+      widthNotifier.value = max(450.0, widget.adaptedPercentageWidth);
       updateWidthAnimation();
       await animationController.forward();
     } else {
@@ -393,15 +394,15 @@ class _SecondaryViewResizerState extends State<SecondaryViewResizer> {
               },
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onHorizontalDragStart: (_) => isDragging = true,
+                onHorizontalDragStart: (_) => setState(() => isDragging = true),
                 onHorizontalDragUpdate: (details) {
                   final newWidth = MediaQuery.sizeOf(context).width -
                       details.globalPosition.dx;
-                  if (newWidth > 0) {
+                  if (newWidth >= 450.0) {
                     widget.notifier.value = newWidth;
                   }
                 },
-                onHorizontalDragEnd: (_) => isDragging = false,
+                onHorizontalDragEnd: (_) => setState(() => isDragging = false),
                 child: TweenAnimationBuilder(
                   tween: ColorTween(
                     end: isHover || isDragging
