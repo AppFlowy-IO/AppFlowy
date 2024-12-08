@@ -28,7 +28,6 @@ pub trait LLMResourceService: Send + Sync + 'static {
   async fn fetch_local_ai_config(&self) -> Result<LocalAIConfig, anyhow::Error>;
   fn store_setting(&self, setting: LLMSetting) -> Result<(), anyhow::Error>;
   fn retrieve_setting(&self) -> Option<LLMSetting>;
-  fn is_rag_enabled(&self) -> bool;
 }
 
 const LLM_MODEL_DIR: &str = "models";

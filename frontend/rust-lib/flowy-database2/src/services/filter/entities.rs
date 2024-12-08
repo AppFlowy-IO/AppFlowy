@@ -8,6 +8,7 @@ use collab::util::AnyMapExt;
 use collab_database::database::gen_database_filter_id;
 use collab_database::fields::select_type_option::SelectOptionIds;
 use collab_database::rows::RowId;
+use collab_database::template::util::ToCellString;
 use collab_database::views::{FilterMap, FilterMapBuilder};
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::box_any::BoxAny;
@@ -365,12 +366,12 @@ impl<'a> From<&'a Filter> for FilterMap {
                 end: filter.end,
                 timestamp: filter.timestamp,
               }
-              .to_string();
+              .to_json_string();
               (filter.condition as u8, content)
             },
             FieldType::SingleSelect | FieldType::MultiSelect => {
               let filter = condition_and_content.cloned::<SelectOptionFilterPB>()?;
-              let content = SelectOptionIds::from(filter.option_ids).to_string();
+              let content = SelectOptionIds::from(filter.option_ids).to_cell_string();
               (filter.condition as u8, content)
             },
             FieldType::Checkbox => {

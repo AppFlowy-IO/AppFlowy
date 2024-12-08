@@ -4,7 +4,7 @@ use std::str::FromStr;
 use collab_database::fields::checkbox_type_option::CheckboxTypeOption;
 use collab_database::fields::Field;
 use collab_database::rows::Cell;
-
+use collab_database::template::util::ToCellString;
 use flowy_error::FlowyResult;
 
 use crate::entities::{CheckboxCellDataPB, CheckboxFilterPB, FieldType};
@@ -48,7 +48,7 @@ impl CellDataDecoder for CheckboxTypeOption {
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
-    cell_data.to_string()
+    cell_data.to_cell_string()
   }
 }
 

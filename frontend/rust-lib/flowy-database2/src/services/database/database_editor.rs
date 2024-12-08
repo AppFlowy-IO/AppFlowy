@@ -226,7 +226,7 @@ impl DatabaseEditor {
         let field_type = FieldType::from(field.field_type);
         setting_content = group_config_pb_to_json_str(data, &field_type)?;
         let mut group_setting = default_group_setting(&field);
-        group_setting.content = setting_content.clone();
+        group_setting.content.clone_from(&setting_content);
         database.update_database_view(view_id, |view| {
           view.set_groups(vec![group_setting.into()]);
         });

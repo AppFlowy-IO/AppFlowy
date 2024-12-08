@@ -13,6 +13,7 @@ use collab_database::fields::TypeOptionData;
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
 
+use collab_database::template::util::ToCellString;
 use std::cmp::Ordering;
 
 impl TypeOption for MultiSelectTypeOption {
@@ -80,7 +81,7 @@ impl CellDataChangeset for MultiSelectTypeOption {
           select_ids.retain(|id| id != &delete_option_id);
         }
 
-        tracing::trace!("Multi-select cell data: {}", select_ids.to_string());
+        tracing::trace!("Multi-select cell data: {}", select_ids.to_cell_string());
         select_ids
       },
     };

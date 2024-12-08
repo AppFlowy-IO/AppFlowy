@@ -398,7 +398,7 @@ impl FolderManager {
       .ok_or_else(|| FlowyError::internal().with_context("Cannot find the workspace ID"))?;
 
     views.iter_mut().for_each(|view| {
-      view.view.parent_view_id = workspace_id.clone();
+      view.view.parent_view_id.clone_from(&workspace_id);
       view.view.extra = Some(
         serde_json::to_string(
           &ViewExtraBuilder::new()
@@ -486,7 +486,7 @@ impl FolderManager {
           latest_view.space_info(),
         );
         views.iter_mut().for_each(|child_view| {
-          child_view.view.parent_view_id = latest_view.id.clone();
+          child_view.view.parent_view_id.clone_from(&latest_view.id);
         });
       },
     }
@@ -745,7 +745,7 @@ impl FolderManager {
           break;
         }
         ancestors.push(view_pb_without_child_views(view.as_ref().clone()));
-        parent_view_id = view.parent_view_id.clone();
+        parent_view_id.clone_from(&view.parent_view_id);
       }
       ancestors.reverse();
     }
@@ -1118,7 +1118,7 @@ impl FolderManager {
         .await?;
 
       if is_source_view {
-        new_view_id = duplicated_view.id.clone();
+        new_view_id.clone_from(&duplicated_view.id);
       }
 
       if sync_after_create {
@@ -1300,7 +1300,9 @@ impl FolderManager {
         .into_iter()
         .map(|mut p| {
           if let PublishPayload::Database(p) = &mut p {
-            p.data.visible_database_view_ids = selected_view_ids.clone();
+            p.data
+              .visible_database_view_ids
+              .clone_from(&selected_view_ids);
           }
           p
         })
@@ -1674,6 +1676,7 @@ impl FolderManager {
   }
 
   /// Imports a single file to the folder and returns the encoded collab for immediate cloud sync.
+  #[allow(clippy::type_complexity)]
   #[instrument(level = "debug", skip_all, err)]
   pub(crate) async fn import_single_file(
     &self,

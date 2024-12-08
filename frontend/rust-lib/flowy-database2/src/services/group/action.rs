@@ -4,7 +4,7 @@ use collab_database::rows::{Cell, Cells, Row, RowId};
 
 use flowy_error::FlowyResult;
 
-use crate::entities::{GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB};
+use crate::entities::{GroupPB, GroupRowsNotificationPB, InsertedGroupPB};
 use crate::services::field::TypeOption;
 use crate::services::group::{GroupChangeset, GroupData, MoveGroupRowContext};
 
@@ -165,11 +165,6 @@ pub trait GroupController: Send + Sync {
   ///
   /// * `context`: information about the row being moved and its destination
   fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<DidMoveGroupRowResult>;
-
-  /// Updates the groups after a field change. (currently never does anything)
-  ///
-  /// * `field`: new changeset
-  fn did_update_group_field(&mut self, field: &Field) -> FlowyResult<Option<GroupChangesPB>>;
 
   /// Delete a group from the group configuration.
   ///

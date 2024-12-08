@@ -592,12 +592,6 @@ impl LLMResourceService for LLMResourceServiceImpl {
       .store_preferences
       .get_object::<LLMSetting>(LOCAL_AI_SETTING_KEY)
   }
-
-  fn is_rag_enabled(&self) -> bool {
-    self
-      .store_preferences
-      .get_bool_or_default(APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED)
-  }
 }
 
 fn local_ai_enabled_key(workspace_id: &str) -> String {

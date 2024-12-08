@@ -347,7 +347,10 @@ pub(crate) fn generate_import_data(
       invalid_orphan_views
         .iter_mut()
         .for_each(|parent_child_views| {
-          parent_child_views.view.parent_view_id = other_view_id.clone();
+          parent_child_views
+            .view
+            .parent_view_id
+            .clone_from(&other_view_id);
         });
       let mut other_view = create_new_container_view(
         current_session,
@@ -364,7 +367,10 @@ pub(crate) fn generate_import_data(
         views.push(other_view);
       } else {
         let first_view = views.first_mut().unwrap();
-        other_view.view.parent_view_id = first_view.view.id.clone();
+        other_view
+          .view
+          .parent_view_id
+          .clone_from(&first_view.view.id);
         first_view.children.push(other_view);
       }
     }

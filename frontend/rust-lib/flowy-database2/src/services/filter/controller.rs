@@ -131,7 +131,7 @@ impl FilterController {
     let task = Task::new(
       &self.handler_id,
       task_id,
-      TaskContent::Text(task_type.to_string()),
+      TaskContent::Text(task_type.to_json_string()),
       qos,
     );
     self.task_scheduler.write().await.add_task(task);
@@ -547,8 +547,8 @@ enum FilterEvent {
   RowDidChanged(RowId),
 }
 
-impl ToString for FilterEvent {
-  fn to_string(&self) -> String {
+impl FilterEvent {
+  fn to_json_string(&self) -> String {
     serde_json::to_string(self).unwrap()
   }
 }

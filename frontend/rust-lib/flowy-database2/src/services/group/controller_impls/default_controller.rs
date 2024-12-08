@@ -6,9 +6,7 @@ use collab_database::rows::{Cells, Row, RowId};
 use flowy_error::FlowyResult;
 use tracing::trace;
 
-use crate::entities::{
-  GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB,
-};
+use crate::entities::{GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB};
 use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupController,
 };
@@ -138,10 +136,6 @@ impl GroupController for DefaultGroupController {
       deleted_group: None,
       row_changesets: vec![],
     })
-  }
-
-  fn did_update_group_field(&mut self, _field: &Field) -> FlowyResult<Option<GroupChangesPB>> {
-    Ok(None)
   }
 
   async fn delete_group(
