@@ -2,11 +2,14 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -110,7 +113,14 @@ class _ResizableImageState extends State<ResizableImage> {
     }
     return Stack(
       children: [
-        child,
+        Container(
+          // TODO(Nathan): When image uplaod failed, show this foreground decoration
+          // foregroundDecoration: BoxDecoration(
+          //   color: Colors.white.withOpacity(0.6),
+          // ),
+          child: child,
+        ),
+        // TODO(Nathan): Should we disable edge gestures if image is uploading/failed?
         if (widget.editable) ...[
           _buildEdgeGesture(
             context,
@@ -129,6 +139,10 @@ class _ResizableImageState extends State<ResizableImage> {
             onUpdate: (distance) => setState(() => moveDistance = -distance),
           ),
         ],
+        // TODO(Nathan): Provide error message and progress value
+        // If there is no error and no progress == complete/redundant, then it doesn't show.
+        // Optionally you can make `error` into a boolean value and just hardcode the "Upload failed" message
+        buildProgressOverlay(),
       ],
     );
   }
@@ -202,6 +216,78 @@ class _ResizableImageState extends State<ResizableImage> {
                   ),
                 )
               : null,
+        ),
+      ),
+    );
+  }
+
+  Widget buildProgressOverlay({double? progress, String? error}) {
+    Widget content;
+    if (error != null) {
+      content = Row(
+        children: [
+          Stack(
+            children: [
+              Container(
+                width: 12,
+                height: 12,
+                margin: const EdgeInsets.all(1),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: Corners.s8Border,
+                ),
+              ),
+              const FlowySvg(
+                FlowySvgs.notice_s,
+                size: Size.square(16),
+                blendMode: BlendMode.dstIn,
+              ),
+            ],
+          ),
+          const HSpace(4),
+          FlowyText.regular(
+            error,
+            fontSize: 11,
+            figmaLineHeight: 16,
+            color: Colors.white,
+          ),
+          const HSpace(8),
+          GestureDetector(
+            onTap: () {
+              // TODO(Nathan): Retry event
+            },
+            child: FlowyText.regular(
+              LocaleKeys.button_retry.tr(),
+              fontSize: 11,
+              figmaLineHeight: 16,
+              color: const Color(0xFF49CFF4),
+            ),
+          ),
+        ],
+      );
+    } else if (progress != null) {
+      content = CircularProgressIndicator(
+        value: progress,
+        color: Colors.white,
+        strokeWidth: 1.5,
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
+
+    return Positioned(
+      right: 6,
+      bottom: 6,
+      child: Container(
+        width: error != null ? null : 20,
+        height: error != null ? 26 : 20,
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.6),
+          borderRadius: Corners.s4Border,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(5),
+          child: content,
         ),
       ),
     );

@@ -143,12 +143,11 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
   @override
   Node get node => widget.node;
 
-  final imageKey = GlobalKey();
   RenderBox? get _renderBox => context.findRenderObject() as RenderBox?;
 
-  late final editorState = Provider.of<EditorState>(context, listen: false);
-
+  final imageKey = GlobalKey();
   final showActionsNotifier = ValueNotifier<bool>(false);
+  late final editorState = Provider.of<EditorState>(context, listen: false);
 
   bool alwaysShowMenu = false;
 
