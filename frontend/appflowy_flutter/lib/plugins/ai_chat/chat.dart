@@ -110,7 +110,7 @@ class AIChatPagePluginWidgetBuilder extends PluginWidgetBuilder
       return const SizedBox();
     }
 
-    return BlocProvider<ViewInfoBloc>.value(
+    return BlocProvider.value(
       value: bloc,
       child: AIChatPage(
         userProfile: context.userProfile!,
