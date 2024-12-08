@@ -322,7 +322,7 @@ impl CalculationsController {
   ) -> Vec<CalculationPB> {
     let mut updates = vec![];
     let update = self
-      .update_calculation(calculation, &field, field_cells)
+      .update_calculation(calculation, field, field_cells)
       .await;
     if let Some(update) = update {
       updates.push(CalculationPB::from(&update));

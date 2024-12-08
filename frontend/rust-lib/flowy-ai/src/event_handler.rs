@@ -5,7 +5,9 @@ use crate::ai_manager::AIManager;
 use crate::completion::AICompletion;
 use crate::entities::*;
 use crate::local_ai::local_llm_chat::LLMModelInfo;
-use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
+use crate::notification::{
+  chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
+};
 use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{ChatMessageMetadata, ChatMessageType, ChatRAGData, ContextLoader};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -299,7 +301,7 @@ pub(crate) async fn toggle_local_ai_chat_handler(
     file_enabled,
     plugin_state,
   };
-  make_notification(
+  chat_notification_builder(
     APPFLOWY_AI_NOTIFICATION_KEY,
     ChatNotification::UpdateLocalChatAI,
   )
@@ -324,7 +326,7 @@ pub(crate) async fn toggle_local_ai_chat_file_handler(
     file_enabled,
     plugin_state,
   };
-  make_notification(
+  chat_notification_builder(
     APPFLOWY_AI_NOTIFICATION_KEY,
     ChatNotification::UpdateLocalChatAI,
   )

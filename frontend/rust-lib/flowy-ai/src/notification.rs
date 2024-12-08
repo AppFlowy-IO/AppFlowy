@@ -37,6 +37,6 @@ impl std::convert::From<i32> for ChatNotification {
 }
 
 #[tracing::instrument(level = "trace")]
-pub(crate) fn make_notification(id: &str, ty: ChatNotification) -> NotificationBuilder {
+pub(crate) fn chat_notification_builder(id: &str, ty: ChatNotification) -> NotificationBuilder {
   NotificationBuilder::new(id, ty, CHAT_OBSERVABLE_SOURCE)
 }

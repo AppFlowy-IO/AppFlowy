@@ -1,7 +1,9 @@
 use crate::ai_manager::AIUserService;
 use crate::entities::{ChatStatePB, ModelTypePB};
 use crate::local_ai::local_llm_chat::LocalAIController;
-use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
+use crate::notification::{
+  chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
+};
 use crate::persistence::{select_single_message, ChatMessageTable};
 use appflowy_plugin::error::PluginError;
 use std::collections::HashMap;
@@ -92,7 +94,7 @@ impl AICloudServiceMiddleware {
       err,
       PluginError::PluginNotConnected | PluginError::PeerDisconnect
     ) {
-      make_notification(
+      chat_notification_builder(
         APPFLOWY_AI_NOTIFICATION_KEY,
         ChatNotification::UpdateChatPluginState,
       )
@@ -112,10 +114,11 @@ impl ChatCloudService for AICloudServiceMiddleware {
     uid: &i64,
     workspace_id: &str,
     chat_id: &str,
+    rag_ids: Vec<String>,
   ) -> Result<(), FlowyError> {
     self
       .cloud_service
-      .create_chat(uid, workspace_id, chat_id)
+      .create_chat(uid, workspace_id, chat_id, rag_ids)
       .await
   }
 

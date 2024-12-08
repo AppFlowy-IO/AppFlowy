@@ -1250,7 +1250,7 @@ pub async fn upload_collab_objects_data(
 
     // Spawn a new task to upload the collab objects data in the background. If the
     // upload fails, we will retry the upload later.
-    // af_spawn(async move {
+    // tokio::spawn(async move {
     if !objects.is_empty() {
       batch_create(
         uid,

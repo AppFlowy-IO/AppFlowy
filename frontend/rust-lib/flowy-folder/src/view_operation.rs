@@ -5,6 +5,7 @@ use collab_entity::CollabType;
 use collab_folder::hierarchy_builder::NestedViewBuilder;
 pub use collab_folder::View;
 use collab_folder::ViewLayout;
+use dashmap::DashMap;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -18,7 +19,7 @@ use crate::manager::FolderUser;
 use crate::share::ImportType;
 
 #[derive(Debug, Clone)]
-pub enum EncodedCollabWrapper {
+pub enum EncodedCollabType {
   Document(DocumentEncodedCollab),
   Database(DatabaseEncodedCollab),
   Unknown,
@@ -43,7 +44,7 @@ pub type ImportedData = (String, CollabType, EncodedCollab);
 /// view layout. Each [ViewLayout] will have a handler. So when creating a new
 /// view, the [ViewLayout] will be used to get the handler.
 #[async_trait]
-pub trait FolderOperationHandler {
+pub trait FolderOperationHandler: Send + Sync {
   fn name(&self) -> &str;
   /// Create the view for the workspace of new user.
   /// Only called once when the user is created.
@@ -70,9 +71,9 @@ pub trait FolderOperationHandler {
   /// get the encoded collab data from the disk.
   async fn get_encoded_collab_v1_from_disk(
     &self,
-    _user: Arc<dyn FolderUser>,
+    _user: &Arc<dyn FolderUser>,
     _view_id: &str,
-  ) -> Result<EncodedCollabWrapper, FlowyError> {
+  ) -> Result<EncodedCollabType, FlowyError> {
     Err(FlowyError::not_support())
   }
 
@@ -106,6 +107,7 @@ pub trait FolderOperationHandler {
   async fn create_default_view(
     &self,
     user_id: i64,
+    parent_view_id: &str,
     view_id: &str,
     name: &str,
     layout: ViewLayout,
@@ -138,7 +140,7 @@ pub trait FolderOperationHandler {
 }
 
 pub type FolderOperationHandlers =
-  Arc<HashMap<ViewLayout, Arc<dyn FolderOperationHandler + Send + Sync>>>;
+  Arc<DashMap<ViewLayout, Arc<dyn FolderOperationHandler + Send + Sync>>>;
 
 impl From<ViewLayoutPB> for ViewLayout {
   fn from(pb: ViewLayoutPB) -> Self {

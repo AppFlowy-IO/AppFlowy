@@ -5,7 +5,7 @@ use event_integration_test::EventIntegrationTest;
 use flowy_folder::entities::{
   ImportItemPayloadPB, ImportPayloadPB, ImportTypePB, ViewLayoutPB, ViewPB,
 };
-use flowy_folder::view_operation::EncodedCollabWrapper;
+use flowy_folder::view_operation::EncodedCollabType;
 
 use crate::util::unzip;
 
@@ -22,7 +22,7 @@ async fn publish_single_database_test() {
     .await;
 
   match grid_encoded_collab {
-    EncodedCollabWrapper::Database(encoded_collab) => {
+    EncodedCollabType::Database(encoded_collab) => {
       // the len of row collabs should be the same as the number of rows in the csv file
       let rows_len = encoded_collab.database_row_encoded_collabs.len();
       assert_eq!(rows_len, 18);
@@ -110,7 +110,7 @@ async fn test_publish_encode_collab_result(
       .await;
 
     match encoded_collab {
-      EncodedCollabWrapper::Database(encoded_collab) => {
+      EncodedCollabType::Database(encoded_collab) => {
         if let Some(rows_len) = expectations.get(&view.name.as_str()) {
           assert_eq!(encoded_collab.database_row_encoded_collabs.len(), *rows_len);
         }

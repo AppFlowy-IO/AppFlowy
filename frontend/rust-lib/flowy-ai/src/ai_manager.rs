@@ -8,12 +8,15 @@ use crate::persistence::{insert_chat, read_chat_metadata, ChatTable};
 
 use appflowy_plugin::manager::PluginManager;
 use dashmap::DashMap;
-use flowy_ai_pub::cloud::{ChatCloudService, ChatMessageMetadata, ChatMessageType};
+use flowy_ai_pub::cloud::{
+  ChatCloudService, ChatMessageMetadata, ChatMessageType, UpdateChatParams,
+};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 
 use flowy_storage_pub::storage::StorageService;
+use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
@@ -27,8 +30,13 @@ pub trait AIUserService: Send + Sync + 'static {
   fn application_root_dir(&self) -> Result<PathBuf, FlowyError>;
 }
 
+#[async_trait]
 pub trait AIQueryService: Send + Sync + 'static {
-  fn query_chat_rag_ids(&self, chat_id: &str) -> Result<Vec<String>, FlowyError>;
+  async fn query_chat_rag_ids(
+    &self,
+    parent_view_id: &str,
+    chat_id: &str,
+  ) -> Result<Vec<String>, FlowyError>;
 }
 
 pub struct AIManager {
@@ -81,7 +89,6 @@ impl AIManager {
   }
 
   pub async fn open_chat(&self, chat_id: &str) -> Result<(), FlowyError> {
-    trace!("open chat: {}", chat_id);
     self.chats.entry(chat_id.to_string()).or_insert_with(|| {
       Arc::new(Chat::new(
         self.user_service.user_id().unwrap(),
@@ -134,11 +141,23 @@ impl AIManager {
     })
   }
 
-  pub async fn create_chat(&self, uid: &i64, chat_id: &str) -> Result<Arc<Chat>, FlowyError> {
+  pub async fn create_chat(
+    &self,
+    uid: &i64,
+    parent_view_id: &str,
+    chat_id: &str,
+  ) -> Result<Arc<Chat>, FlowyError> {
     let workspace_id = self.user_service.workspace_id()?;
+    let rag_ids = self
+      .query_service
+      .query_chat_rag_ids(parent_view_id, chat_id)
+      .await
+      .unwrap_or_default();
+    info!("[Chat] create chat with rag_ids: {:?}", rag_ids);
+
     self
       .cloud_service_wm
-      .create_chat(uid, &workspace_id, chat_id)
+      .create_chat(uid, &workspace_id, chat_id, rag_ids)
       .await?;
     save_chat(self.user_service.sqlite_connection(*uid)?, chat_id)?;
 
@@ -265,6 +284,22 @@ impl AIManager {
   }
 
   pub fn local_ai_purchased(&self) {}
+
+  pub async fn update_rag_ids(&self, chat_id: &str, rag_ids: Vec<String>) -> FlowyResult<()> {
+    if !rag_ids.is_empty() {
+      let workspace_id = self.user_service.workspace_id()?;
+      let update_setting = UpdateChatParams {
+        name: None,
+        metadata: None,
+        rag_ids: Some(rag_ids),
+      };
+      self
+        .cloud_service_wm
+        .update_chat_settings(&workspace_id, chat_id, update_setting)
+        .await?;
+    }
+    Ok(())
+  }
 }
 
 fn save_chat(conn: DBConnection, chat_id: &str) -> FlowyResult<()> {

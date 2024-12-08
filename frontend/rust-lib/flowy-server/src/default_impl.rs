@@ -18,6 +18,7 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     _uid: &i64,
     _workspace_id: &str,
     _chat_id: &str,
+    _rag_ids: Vec<String>,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }

@@ -2349,6 +2349,7 @@ dependencies = [
  "collab-folder",
  "collab-integrate",
  "collab-plugins",
+ "dashmap 6.0.1",
  "flowy-codegen",
  "flowy-derive",
  "flowy-error",

@@ -1,10 +1,12 @@
 use flowy_ai::ai_manager::{AIManager, AIQueryService, AIUserService};
 use flowy_ai_pub::cloud::ChatCloudService;
 use flowy_error::FlowyError;
+use flowy_folder_pub::query::FolderQueryService;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 use flowy_storage_pub::storage::StorageService;
 use flowy_user::services::authenticate_user::AuthenticateUser;
+use lib_infra::async_trait::async_trait;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 
@@ -16,6 +18,7 @@ impl ChatDepsResolver {
     cloud_service: Arc<dyn ChatCloudService>,
     store_preferences: Arc<KVStorePreferences>,
     storage_service: Weak<dyn StorageService>,
+    folder_query: impl FolderQueryService,
   ) -> Arc<AIManager> {
     let user_service = ChatUserServiceImpl(authenticate_user);
     Arc::new(AIManager::new(
@@ -23,16 +26,31 @@ impl ChatDepsResolver {
       user_service,
       store_preferences,
       storage_service,
-      ChatQueryServiceImpl,
+      ChatQueryServiceImpl {
+        folder_query: Box::new(folder_query),
+      },
     ))
   }
 }
 
-struct ChatQueryServiceImpl;
+struct ChatQueryServiceImpl {
+  folder_query: Box<dyn FolderQueryService>,
+}
 
+#[async_trait]
 impl AIQueryService for ChatQueryServiceImpl {
-  fn query_chat_rag_ids(&self, _chat_id: &str) -> Result<Vec<String>, FlowyError> {
-    Ok(vec![])
+  async fn query_chat_rag_ids(
+    &self,
+    parent_view_id: &str,
+    chat_id: &str,
+  ) -> Result<Vec<String>, FlowyError> {
+    let mut ids = self.folder_query.get_sibling_ids(parent_view_id).await;
+
+    if !ids.is_empty() {
+      ids.retain(|id| id != chat_id);
+    }
+
+    Ok(ids)
   }
 }
 

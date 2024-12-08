@@ -31,7 +31,7 @@ use flowy_database_pub::cloud::{
   DatabaseAIService, DatabaseCloudService, SummaryRowContent, TranslateItem, TranslateRowContent,
 };
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use lib_dispatch::prelude::af_spawn;
+
 use lib_infra::box_any::BoxAny;
 use lib_infra::priority_task::TaskDispatcher;
 
@@ -327,7 +327,7 @@ impl DatabaseManager {
 
           let weak_workspace_database = Arc::downgrade(&self.workspace_database()?);
           let weak_removing_editors = Arc::downgrade(&self.removing_editor);
-          af_spawn(async move {
+          tokio::spawn(async move {
             tokio::time::sleep(std::time::Duration::from_secs(120)).await;
             if let Some(removing_editors) = weak_removing_editors.upgrade() {
               if removing_editors.lock().await.remove(&database_id).is_some() {

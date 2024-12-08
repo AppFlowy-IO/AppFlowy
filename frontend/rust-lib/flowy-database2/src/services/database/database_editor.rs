@@ -1,5 +1,5 @@
 use crate::entities::*;
-use crate::notification::{send_notification, DatabaseNotification};
+use crate::notification::{database_notification_builder, DatabaseNotification};
 use crate::services::calculations::Calculation;
 use crate::services::cell::{apply_cell_changeset, get_cell_protobuf, CellCache};
 use crate::services::database::database_observe::*;
@@ -252,7 +252,7 @@ impl DatabaseEditor {
     let changes = view_editor.v_delete_group(&params.group_id).await?;
     if !changes.is_empty() {
       for view in self.database_views.editors().await {
-        send_notification(&view.view_id, DatabaseNotification::DidUpdateRow)
+        database_notification_builder(&view.view_id, DatabaseNotification::DidUpdateRow)
           .payload(changes.clone())
           .send();
       }
@@ -762,7 +762,7 @@ impl DatabaseEditor {
         updated_fields: vec![],
       };
 
-      send_notification(&params.view_id, DatabaseNotification::DidUpdateFields)
+      database_notification_builder(&params.view_id, DatabaseNotification::DidUpdateFields)
         .payload(notified_changeset)
         .send();
     }
@@ -879,7 +879,7 @@ impl DatabaseEditor {
       }
 
       // Notifies the client that the row meta has been updated.
-      send_notification(row_id.as_str(), DatabaseNotification::DidUpdateRowMeta)
+      database_notification_builder(row_id.as_str(), DatabaseNotification::DidUpdateRowMeta)
         .payload(RowMetaPB::from(row_detail))
         .send();
     }
@@ -1403,7 +1403,7 @@ impl DatabaseEditor {
   ) -> FlowyResult<()> {
     let views = self.database.read().await.get_all_database_views_meta();
     for view in views {
-      send_notification(&view.id, DatabaseNotification::DidUpdateFields)
+      database_notification_builder(&view.id, DatabaseNotification::DidUpdateFields)
         .payload(changeset.clone())
         .send();
     }
@@ -1649,7 +1649,7 @@ impl DatabaseEditor {
 
         let new_loaded_rows: Vec<Arc<Row>> = database
           .read()
-          .awaitt
+          .await
           .init_database_rows(row_ids, chunk_row_orders.len(), None)
           .filter_map(|result| async {
             let database_row = result.ok()?;
@@ -2219,7 +2219,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
       new_field_settings.clone(),
     );
 
-    send_notification(
+    database_notification_builder(
       &params.view_id,
       DatabaseNotification::DidUpdateFieldSettings,
     )
@@ -2290,12 +2290,12 @@ fn notify_did_update_database_field(database: &Database, field_id: &str) -> Flow
       DatabaseFieldChangesetPB::update(&database_id, vec![updated_field.clone()]);
 
     for view in views {
-      send_notification(&view.id, DatabaseNotification::DidUpdateFields)
+      database_notification_builder(&view.id, DatabaseNotification::DidUpdateFields)
         .payload(notified_changeset.clone())
         .send();
     }
 
-    send_notification(field_id, DatabaseNotification::DidUpdateField)
+    database_notification_builder(field_id, DatabaseNotification::DidUpdateField)
       .payload(updated_field)
       .send();
   }

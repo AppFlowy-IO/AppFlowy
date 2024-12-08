@@ -644,11 +644,12 @@ impl ChatCloudService for ServerProvider {
     uid: &i64,
     workspace_id: &str,
     chat_id: &str,
+    rag_ids: Vec<String>,
   ) -> Result<(), FlowyError> {
     let server = self.get_server();
     server?
       .chat_service()
-      .create_chat(uid, workspace_id, chat_id)
+      .create_chat(uid, workspace_id, chat_id, rag_ids)
       .await
   }
 

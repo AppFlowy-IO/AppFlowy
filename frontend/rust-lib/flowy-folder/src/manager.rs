@@ -10,13 +10,13 @@ use crate::manager_observer::{
   ChildViewChangeReason,
 };
 use crate::notification::{
-  send_current_workspace_notification, send_notification, FolderNotification,
+  folder_notification_builder, send_current_workspace_notification, FolderNotification,
 };
 use crate::publish_util::{generate_publish_name, view_pb_to_publish_view};
 use crate::share::{ImportData, ImportItem, ImportParams};
 use crate::util::{folder_not_init_error, workspace_data_not_sync_error};
 use crate::view_operation::{
-  create_view, EncodedCollabWrapper, FolderOperationHandler, FolderOperationHandlers, ViewData,
+  create_view, EncodedCollabType, FolderOperationHandler, FolderOperationHandlers, ViewData,
 };
 use arc_swap::ArcSwapOption;
 use client_api::entity::workspace_dto::PublishInfoView;
@@ -57,11 +57,6 @@ pub trait FolderUser: Send + Sync {
 }
 
 pub struct FolderManager {
-  //FIXME: there's no sense in having a mutex_folder behind an RwLock. It's being obtained multiple
-  // times in the same function. FolderManager itself should be hidden behind RwLock if necessary.
-  // Unfortunately, this would require a changing the SyncPlugin architecture which requires access
-  // to Arc<RwLock<BorrowMut<Collab>>>. Eventually SyncPlugin should be refactored.
-  /// MutexFolder is the folder that is used to store the data.
   pub(crate) mutex_folder: ArcSwapOption<RwLock<Folder>>,
   pub(crate) collab_builder: Arc<AppFlowyCollabBuilder>,
   pub(crate) user: Arc<dyn FolderUser>,
@@ -75,7 +70,6 @@ impl FolderManager {
   pub fn new(
     user: Arc<dyn FolderUser>,
     collab_builder: Arc<AppFlowyCollabBuilder>,
-    operation_handlers: FolderOperationHandlers,
     cloud_service: Arc<dyn FolderCloudService>,
     folder_indexer: Arc<dyn FolderIndexManager>,
     store_preferences: Arc<KVStorePreferences>,
@@ -84,7 +78,7 @@ impl FolderManager {
       user,
       mutex_folder: Default::default(),
       collab_builder,
-      operation_handlers,
+      operation_handlers: Default::default(),
       cloud_service,
       folder_indexer,
       store_preferences,
@@ -93,10 +87,17 @@ impl FolderManager {
     Ok(manager)
   }
 
+  pub fn register_operation_handler(
+    &self,
+    layout: ViewLayout,
+    handler: Arc<dyn FolderOperationHandler + Send + Sync>,
+  ) {
+    self.operation_handlers.insert(layout, handler);
+  }
+
   #[instrument(level = "debug", skip(self), err)]
   pub async fn get_current_workspace(&self) -> FlowyResult<WorkspacePB> {
     let workspace_id = self.user.workspace_id()?;
-
     match self.mutex_folder.load_full() {
       None => {
         let uid = self.user.user_id()?;
@@ -116,6 +117,31 @@ impl FolderManager {
         }
       },
     }
+  }
+
+  pub async fn get_folder_data(&self) -> FlowyResult<FolderData> {
+    let workspace_id = self.user.workspace_id()?;
+    let data = self
+      .mutex_folder
+      .load_full()
+      .ok_or_else(|| internal_error("The folder is not initialized"))?
+      .read()
+      .await
+      .get_folder_data(&workspace_id)
+      .ok_or_else(|| internal_error("Workspace id not match the id in current folder"))?;
+    Ok(data)
+  }
+
+  pub async fn get_encode_collab_from_disk(
+    &self,
+    view_id: &str,
+    layout: &ViewLayout,
+  ) -> FlowyResult<EncodedCollabType> {
+    let handler = self.get_handler(layout)?;
+    let encoded_collab = handler
+      .get_encoded_collab_v1_from_disk(&self.user, view_id)
+      .await?;
+    Ok(encoded_collab)
   }
 
   /// Return a list of views of the current workspace.
@@ -517,7 +543,13 @@ impl FolderManager {
     );
     if params.meta.is_empty() && params.initial_data.is_empty() {
       handler
-        .create_default_view(user_id, &params.view_id, &params.name, view_layout.clone())
+        .create_default_view(
+          user_id,
+          &params.parent_view_id,
+          &params.view_id,
+          &params.name,
+          view_layout.clone(),
+        )
         .await?;
     } else {
       encoded_collab = handler
@@ -555,7 +587,13 @@ impl FolderManager {
     let handler = self.get_handler(&view_layout)?;
     let user_id = self.user.user_id()?;
     handler
-      .create_default_view(user_id, &params.view_id, &params.name, view_layout.clone())
+      .create_default_view(
+        user_id,
+        &params.parent_view_id,
+        &params.view_id,
+        &params.name,
+        view_layout.clone(),
+      )
       .await?;
 
     let view = create_view(self.user.user_id()?, params, view_layout);
@@ -740,7 +778,7 @@ impl FolderManager {
         drop(folder);
 
         // notify the parent view that the view is moved to trash
-        send_notification(view_id, FolderNotification::DidMoveViewToTrash)
+        folder_notification_builder(view_id, FolderNotification::DidMoveViewToTrash)
           .payload(DeletedViewPB {
             view_id: view_id.to_string(),
             index: None,
@@ -774,7 +812,7 @@ impl FolderManager {
           .map(|v| v.id.clone())
           .collect(),
       );
-      send_notification("favorite", FolderNotification::DidUnfavoriteView)
+      folder_notification_builder("favorite", FolderNotification::DidUnfavoriteView)
         .payload(RepeatedViewPB {
           items: favorite_descendant_views,
         })
@@ -878,6 +916,20 @@ impl FolderManager {
     match self.mutex_folder.load_full() {
       Some(folder) => Ok(folder.read().await.get_views_belong_to(parent_view_id)),
       None => Ok(Vec::default()),
+    }
+  }
+
+  pub async fn get_view(&self, view_id: &str) -> FlowyResult<Arc<View>> {
+    match self.mutex_folder.load_full() {
+      Some(folder) => {
+        let folder = folder.read().await;
+        Ok(
+          folder
+            .get_view(view_id)
+            .ok_or_else(FlowyError::record_not_found)?,
+        )
+      },
+      None => Err(FlowyError::internal().with_context("The folder is not initialized")),
     }
   }
 
@@ -1448,9 +1500,9 @@ impl FolderManager {
     publish_name: Option<String>,
     layout: ViewLayout,
   ) -> FlowyResult<PublishPayload> {
-    let handler: Arc<dyn FolderOperationHandler + Sync + Send> = self.get_handler(&layout)?;
-    let encoded_collab_wrapper: EncodedCollabWrapper = handler
-      .get_encoded_collab_v1_from_disk(self.user.clone(), view_id)
+    let handler = self.get_handler(&layout)?;
+    let encoded_collab_wrapper: EncodedCollabType = handler
+      .get_encoded_collab_v1_from_disk(&self.user, view_id)
       .await?;
     let view = self.get_view_pb(view_id).await?;
 
@@ -1481,7 +1533,7 @@ impl FolderManager {
     };
 
     let payload = match encoded_collab_wrapper {
-      EncodedCollabWrapper::Database(v) => {
+      EncodedCollabType::Database(v) => {
         let database_collab = v.database_encoded_collab.doc_state.to_vec();
         let database_relations = v.database_relations;
         let database_row_collabs = v
@@ -1504,11 +1556,11 @@ impl FolderManager {
         };
         PublishPayload::Database(PublishDatabasePayload { meta, data })
       },
-      EncodedCollabWrapper::Document(v) => {
+      EncodedCollabType::Document(v) => {
         let data = v.document_encoded_collab.doc_state.to_vec();
         PublishPayload::Document(PublishDocumentPayload { meta, data })
       },
-      EncodedCollabWrapper::Unknown => PublishPayload::Unknown,
+      EncodedCollabType::Unknown => PublishPayload::Unknown,
     };
 
     Ok(payload)
@@ -1522,13 +1574,13 @@ impl FolderManager {
       } else {
         FolderNotification::DidUnfavoriteView
       };
-      send_notification("favorite", notification_type)
+      folder_notification_builder("favorite", notification_type)
         .payload(RepeatedViewPB {
           items: vec![view.clone()],
         })
         .send();
 
-      send_notification(&view.id, FolderNotification::DidUpdateView)
+      folder_notification_builder(&view.id, FolderNotification::DidUpdateView)
         .payload(view)
         .send()
     }
@@ -1536,7 +1588,7 @@ impl FolderManager {
 
   async fn send_update_recent_views_notification(&self) {
     let recent_views = self.get_my_recent_sections().await;
-    send_notification("recent_views", FolderNotification::DidUpdateRecentViews)
+    folder_notification_builder("recent_views", FolderNotification::DidUpdateRecentViews)
       .payload(RepeatedViewIdPB {
         items: recent_views.into_iter().map(|item| item.id).collect(),
       })
@@ -1566,7 +1618,7 @@ impl FolderManager {
     if let Some(lock) = self.mutex_folder.load_full() {
       let mut folder = lock.write().await;
       folder.remove_all_my_trash_sections();
-      send_notification("trash", FolderNotification::DidUpdateTrash)
+      folder_notification_builder("trash", FolderNotification::DidUpdateTrash)
         .payload(RepeatedTrashPB { items: vec![] })
         .send();
     }
@@ -1592,7 +1644,7 @@ impl FolderManager {
       for trash in deleted_trash {
         let _ = self.delete_trash(&trash.id).await;
       }
-      send_notification("trash", FolderNotification::DidUpdateTrash)
+      folder_notification_builder("trash", FolderNotification::DidUpdateTrash)
         .payload(RepeatedTrashPB { items: vec![] })
         .send();
     }
@@ -1744,7 +1796,7 @@ impl FolderManager {
     }
 
     if let Ok(view_pb) = self.get_view_pb(view_id).await {
-      send_notification(&view_pb.id, FolderNotification::DidUpdateView)
+      folder_notification_builder(&view_pb.id, FolderNotification::DidUpdateView)
         .payload(view_pb)
         .send();
 
@@ -1758,10 +1810,7 @@ impl FolderManager {
   }
 
   /// Returns a handler that implements the [FolderOperationHandler] trait
-  fn get_handler(
-    &self,
-    view_layout: &ViewLayout,
-  ) -> FlowyResult<Arc<dyn FolderOperationHandler + Send + Sync>> {
+  fn get_handler(&self, view_layout: &ViewLayout) -> FlowyResult<Arc<dyn FolderOperationHandler>> {
     match self.operation_handlers.get(view_layout) {
       None => Err(FlowyError::internal().with_context(format!(
         "Get data processor failed. Unknown layout type: {:?}",

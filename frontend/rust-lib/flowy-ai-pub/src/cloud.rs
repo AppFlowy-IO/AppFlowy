@@ -27,6 +27,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
     uid: &i64,
     workspace_id: &str,
     chat_id: &str,
+    rag_ids: Vec<String>,
   ) -> Result<(), FlowyError>;
 
   async fn create_question(

@@ -30,13 +30,14 @@ where
     _uid: &i64,
     workspace_id: &str,
     chat_id: &str,
+    rag_ids: Vec<String>,
   ) -> Result<(), FlowyError> {
     let chat_id = chat_id.to_string();
     let try_get_client = self.inner.try_get_client();
     let params = CreateChatParams {
       chat_id,
       name: "".to_string(),
-      rag_ids: vec![],
+      rag_ids,
     };
     try_get_client?
       .create_chat(workspace_id, params)

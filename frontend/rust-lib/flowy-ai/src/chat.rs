@@ -3,7 +3,7 @@ use crate::entities::{
   ChatMessageErrorPB, ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB,
 };
 use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
-use crate::notification::{make_notification, ChatNotification};
+use crate::notification::{chat_notification_builder, ChatNotification};
 use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessageTable};
 use crate::stream_message::StreamMessage;
 use allo_isolate::Isolate;
@@ -177,7 +177,7 @@ impl Chat {
                   chat_id: chat_id.clone(),
                   error_message: err.to_string(),
                 };
-                make_notification(&chat_id, ChatNotification::StreamChatMessageError)
+                chat_notification_builder(&chat_id, ChatNotification::StreamChatMessageError)
                   .payload(pb)
                   .send();
                 return Err(err);
@@ -197,14 +197,14 @@ impl Chat {
             chat_id: chat_id.clone(),
             error_message: err.to_string(),
           };
-          make_notification(&chat_id, ChatNotification::StreamChatMessageError)
+          chat_notification_builder(&chat_id, ChatNotification::StreamChatMessageError)
             .payload(pb)
             .send();
           return Err(err);
         },
       }
 
-      make_notification(&chat_id, ChatNotification::FinishStreaming).send();
+      chat_notification_builder(&chat_id, ChatNotification::FinishStreaming).send();
       if answer_stream_buffer.lock().await.is_empty() {
         return Ok(());
       }
@@ -256,7 +256,7 @@ impl Chat {
         has_more: true,
         total: 0,
       };
-      make_notification(&self.chat_id, ChatNotification::DidLoadPrevChatMessage)
+      chat_notification_builder(&self.chat_id, ChatNotification::DidLoadPrevChatMessage)
         .payload(pb.clone())
         .send();
       return Ok(pb);
@@ -377,11 +377,11 @@ impl Chat {
             } else {
               *prev_message_state.write().await = PrevMessageState::NoMore;
             }
-            make_notification(&chat_id, ChatNotification::DidLoadPrevChatMessage)
+            chat_notification_builder(&chat_id, ChatNotification::DidLoadPrevChatMessage)
               .payload(pb)
               .send();
           } else {
-            make_notification(&chat_id, ChatNotification::DidLoadLatestChatMessage)
+            chat_notification_builder(&chat_id, ChatNotification::DidLoadLatestChatMessage)
               .payload(pb)
               .send();
           }
@@ -567,7 +567,7 @@ pub(crate) fn save_and_notify_message(
     vec![message.clone()],
   )?;
   let pb = ChatMessagePB::from(message);
-  make_notification(chat_id, ChatNotification::DidReceiveChatMessage)
+  chat_notification_builder(chat_id, ChatNotification::DidReceiveChatMessage)
     .payload(pb)
     .send();
 

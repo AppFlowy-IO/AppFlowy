@@ -128,11 +128,6 @@ impl FolderManager {
       folder_state_rx,
       Arc::downgrade(&self.user),
     );
-    subscribe_folder_snapshot_state_changed(
-      workspace_id.clone(),
-      weak_mutex_folder.clone(),
-      Arc::downgrade(&self.user),
-    );
     subscribe_folder_trash_changed(
       workspace_id.clone(),
       section_change_rx,
