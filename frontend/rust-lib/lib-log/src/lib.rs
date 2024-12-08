@@ -57,7 +57,7 @@ impl Builder {
   }
 
   pub fn env_filter(mut self, env_filter: &str) -> Self {
-    self.env_filter = env_filter.to_owned();
+    env_filter.clone_into(&mut self.env_filter);
     self
   }
 

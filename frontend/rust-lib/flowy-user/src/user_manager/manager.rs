@@ -23,7 +23,6 @@ use tokio::sync::Mutex;
 use tokio_stream::StreamExt;
 use tracing::{debug, error, event, info, instrument, warn};
 
-use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
 
 use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
@@ -91,7 +90,7 @@ impl UserManager {
     let weak_user_manager = Arc::downgrade(&user_manager);
     if let Ok(user_service) = user_manager.cloud_services.get_user_service() {
       if let Some(mut rx) = user_service.subscribe_user_update() {
-        af_spawn(async move {
+        tokio::spawn(async move {
           while let Some(update) = rx.recv().await {
             if let Some(user_manager) = weak_user_manager.upgrade() {
               if let Err(err) = user_manager.handler_user_update(update).await {
@@ -184,7 +183,7 @@ impl UserManager {
           event!(tracing::Level::DEBUG, "Listen token state change");
           let user_uid = user.uid;
           let local_token = user.token.clone();
-          af_spawn(async move {
+          tokio::spawn(async move {
             while let Some(token_state) = token_state_rx.next().await {
               debug!("Token state changed: {:?}", token_state);
               match token_state {
@@ -678,7 +677,7 @@ impl UserManager {
     params: UpdateUserProfileParams,
   ) -> Result<(), FlowyError> {
     let server = self.cloud_services.get_user_service()?;
-    af_spawn(async move {
+    tokio::spawn(async move {
       let credentials = UserCredentials::new(Some(token), Some(uid), None);
       server.update_user(credentials, params).await
     })

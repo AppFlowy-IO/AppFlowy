@@ -138,7 +138,7 @@ Future<List<ChatMessageMetaPB>> metadataPBFromMetadata(
                 id: value.id,
                 name: value.name,
                 data: pb.text,
-                dataType: ChatMessageMetaTypePB.Txt,
+                loaderType: ContextLoaderTypePB.Txt,
                 source: appflowySource,
               ),
             );
@@ -156,7 +156,7 @@ Future<List<ChatMessageMetaPB>> metadataPBFromMetadata(
             id: nanoid(8),
             name: fileName,
             data: filePath,
-            dataType: fileType,
+            loaderType: fileType,
             source: filePath,
           ),
         );

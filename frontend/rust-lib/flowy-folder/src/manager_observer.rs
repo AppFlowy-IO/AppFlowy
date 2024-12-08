@@ -1,16 +1,16 @@
 use crate::entities::{
-  view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, FolderSnapshotStatePB,
-  FolderSyncStatePB, RepeatedTrashPB, RepeatedViewPB, SectionViewsPB, ViewPB, ViewSectionPB,
+  view_pb_with_child_views, view_pb_without_child_views, ChildViewUpdatePB, FolderSyncStatePB,
+  RepeatedTrashPB, RepeatedViewPB, SectionViewsPB, ViewPB, ViewSectionPB,
 };
 use crate::manager::{get_workspace_private_view_pbs, get_workspace_public_view_pbs, FolderUser};
-use crate::notification::{send_notification, FolderNotification};
+use crate::notification::{folder_notification_builder, FolderNotification};
 use collab::core::collab_state::SyncState;
 use collab::lock::RwLock;
 use collab_folder::{
   Folder, SectionChange, SectionChangeReceiver, TrashSectionChange, View, ViewChange,
   ViewChangeReceiver,
 };
-use lib_dispatch::prelude::af_spawn;
+
 use std::collections::HashSet;
 use std::sync::Weak;
 use tokio_stream::wrappers::WatchStream;
@@ -24,7 +24,7 @@ pub(crate) fn subscribe_folder_view_changed(
   weak_mutex_folder: Weak<RwLock<Folder>>,
   user: Weak<dyn FolderUser>,
 ) {
-  af_spawn(async move {
+  tokio::spawn(async move {
     while let Ok(value) = rx.recv().await {
       if let Some(user) = user.upgrade() {
         if let Ok(actual_workspace_id) = user.workspace_id() {
@@ -37,7 +37,7 @@ pub(crate) fn subscribe_folder_view_changed(
       }
 
       if let Some(lock) = weak_mutex_folder.upgrade() {
-        tracing::trace!("Did receive view change: {:?}", value);
+        trace!("Did receive view change: {:?}", value);
         match value {
           ViewChange::DidCreateView { view } => {
             notify_child_views_changed(
@@ -70,44 +70,12 @@ pub(crate) fn subscribe_folder_view_changed(
   });
 }
 
-pub(crate) fn subscribe_folder_snapshot_state_changed(
-  workspace_id: String,
-  weak_mutex_folder: Weak<RwLock<Folder>>,
-  user: Weak<dyn FolderUser>,
-) {
-  af_spawn(async move {
-    if let Some(folder) = weak_mutex_folder.upgrade() {
-      let mut state_stream = folder.read().await.subscribe_snapshot_state();
-
-      while let Some(snapshot_state) = state_stream.next().await {
-        if let Some(user) = user.upgrade() {
-          if let Ok(actual_workspace_id) = user.workspace_id() {
-            if actual_workspace_id != workspace_id {
-              // break the loop when the workspace id is not matched.
-              break;
-            }
-          }
-        }
-        if let Some(new_snapshot_id) = snapshot_state.snapshot_id() {
-          tracing::debug!("Did create folder remote snapshot: {}", new_snapshot_id);
-          send_notification(
-            &workspace_id,
-            FolderNotification::DidUpdateFolderSnapshotState,
-          )
-          .payload(FolderSnapshotStatePB { new_snapshot_id })
-          .send();
-        }
-      }
-    }
-  });
-}
-
 pub(crate) fn subscribe_folder_sync_state_changed(
   workspace_id: String,
   mut folder_sync_state_rx: WatchStream<SyncState>,
   user: Weak<dyn FolderUser>,
 ) {
-  af_spawn(async move {
+  tokio::spawn(async move {
     while let Some(state) = folder_sync_state_rx.next().await {
       if let Some(user) = user.upgrade() {
         if let Ok(actual_workspace_id) = user.workspace_id() {
@@ -118,7 +86,7 @@ pub(crate) fn subscribe_folder_sync_state_changed(
         }
       }
 
-      send_notification(&workspace_id, FolderNotification::DidUpdateFolderSyncUpdate)
+      folder_notification_builder(&workspace_id, FolderNotification::DidUpdateFolderSyncUpdate)
         .payload(FolderSyncStatePB::from(state))
         .send();
     }
@@ -132,7 +100,7 @@ pub(crate) fn subscribe_folder_trash_changed(
   weak_mutex_folder: Weak<RwLock<Folder>>,
   user: Weak<dyn FolderUser>,
 ) {
-  af_spawn(async move {
+  tokio::spawn(async move {
     while let Ok(value) = rx.recv().await {
       if let Some(user) = user.upgrade() {
         if let Ok(actual_workspace_id) = user.workspace_id() {
@@ -160,7 +128,7 @@ pub(crate) fn subscribe_folder_trash_changed(
             }
 
             let repeated_trash: RepeatedTrashPB = folder.get_my_trash_info().into();
-            send_notification("trash", FolderNotification::DidUpdateTrash)
+            folder_notification_builder("trash", FolderNotification::DidUpdateTrash)
               .payload(repeated_trash)
               .send();
 
@@ -204,7 +172,7 @@ pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
 
       // Post the notification
       let parent_view_pb = view_pb_with_child_views(parent_view, child_views);
-      send_notification(parent_view_id, FolderNotification::DidUpdateView)
+      folder_notification_builder(parent_view_id, FolderNotification::DidUpdateView)
         .payload(parent_view_pb)
         .send();
     }
@@ -216,14 +184,14 @@ pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
 pub(crate) fn notify_did_update_section_views(workspace_id: &str, folder: &Folder) {
   let public_views = get_workspace_public_view_pbs(workspace_id, folder);
   let private_views = get_workspace_private_view_pbs(workspace_id, folder);
-  tracing::trace!(
+  trace!(
     "Did update section views: public len = {}, private len = {}",
     public_views.len(),
     private_views.len()
   );
 
   // Notify the public views
-  send_notification(workspace_id, FolderNotification::DidUpdateSectionViews)
+  folder_notification_builder(workspace_id, FolderNotification::DidUpdateSectionViews)
     .payload(SectionViewsPB {
       section: ViewSectionPB::Public,
       views: public_views,
@@ -231,7 +199,7 @@ pub(crate) fn notify_did_update_section_views(workspace_id: &str, folder: &Folde
     .send();
 
   // Notify the private views
-  send_notification(workspace_id, FolderNotification::DidUpdateSectionViews)
+  folder_notification_builder(workspace_id, FolderNotification::DidUpdateSectionViews)
     .payload(SectionViewsPB {
       section: ViewSectionPB::Private,
       views: private_views,
@@ -241,7 +209,7 @@ pub(crate) fn notify_did_update_section_views(workspace_id: &str, folder: &Folde
 
 pub(crate) fn notify_did_update_workspace(workspace_id: &str, folder: &Folder) {
   let repeated_view: RepeatedViewPB = get_workspace_public_view_pbs(workspace_id, folder).into();
-  send_notification(workspace_id, FolderNotification::DidUpdateWorkspaceViews)
+  folder_notification_builder(workspace_id, FolderNotification::DidUpdateWorkspaceViews)
     .payload(repeated_view)
     .send();
 }
@@ -249,7 +217,7 @@ pub(crate) fn notify_did_update_workspace(workspace_id: &str, folder: &Folder) {
 fn notify_view_did_change(view: View) -> Option<()> {
   let view_id = view.id.clone();
   let view_pb = view_pb_without_child_views(view);
-  send_notification(&view_id, FolderNotification::DidUpdateView)
+  folder_notification_builder(&view_id, FolderNotification::DidUpdateView)
     .payload(view_pb)
     .send();
   None
@@ -282,7 +250,7 @@ pub(crate) fn notify_child_views_changed(view_pb: ViewPB, reason: ChildViewChang
     },
   }
 
-  send_notification(&parent_view_id, FolderNotification::DidUpdateChildViews)
+  folder_notification_builder(&parent_view_id, FolderNotification::DidUpdateChildViews)
     .payload(payload)
     .send();
 }

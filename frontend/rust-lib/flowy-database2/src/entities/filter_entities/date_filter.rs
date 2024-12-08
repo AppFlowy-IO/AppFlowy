@@ -29,8 +29,8 @@ pub struct DateFilterContent {
   pub timestamp: Option<i64>,
 }
 
-impl ToString for DateFilterContent {
-  fn to_string(&self) -> String {
+impl DateFilterContent {
+  pub fn to_json_string(&self) -> String {
     serde_json::to_string(self).unwrap()
   }
 }

@@ -86,7 +86,7 @@ impl CalculationsController {
     let task = Task::new(
       &self.handler_id,
       task_id,
-      TaskContent::Text(task_type.to_string()),
+      TaskContent::Text(task_type.to_json_string()),
       qos,
     );
     self.task_scheduler.write().await.add_task(task);
@@ -322,7 +322,7 @@ impl CalculationsController {
   ) -> Vec<CalculationPB> {
     let mut updates = vec![];
     let update = self
-      .update_calculation(calculation, &field, field_cells)
+      .update_calculation(calculation, field, field_cells)
       .await;
     if let Some(update) = update {
       updates.push(CalculationPB::from(&update));
@@ -415,8 +415,8 @@ pub(crate) enum CalculationEvent {
   FieldDeleted(String),
 }
 
-impl ToString for CalculationEvent {
-  fn to_string(&self) -> String {
+impl CalculationEvent {
+  fn to_json_string(&self) -> String {
     serde_json::to_string(self).unwrap()
   }
 }

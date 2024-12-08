@@ -1,7 +1,9 @@
 use crate::ai_manager::AIUserService;
 use crate::entities::{LocalAIPluginStatePB, LocalModelResourcePB, RunningStatePB};
 use crate::local_ai::local_llm_resource::{LLMResourceService, LocalAIResourceController};
-use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
+use crate::notification::{
+  chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
+};
 use anyhow::Error;
 use appflowy_local_ai::chat_plugin::{AIPluginConfig, AppFlowyLocalAI};
 use appflowy_plugin::manager::PluginManager;
@@ -90,7 +92,7 @@ impl LocalAIController {
         info!("[AI Plugin] state: {:?}", state);
         let offline_ai_ready = cloned_llm_res.is_offline_app_ready();
         let new_state = RunningStatePB::from(state);
-        make_notification(
+        chat_notification_builder(
           APPFLOWY_AI_NOTIFICATION_KEY,
           ChatNotification::UpdateChatPluginState,
         )
@@ -589,12 +591,6 @@ impl LLMResourceService for LLMResourceServiceImpl {
     self
       .store_preferences
       .get_object::<LLMSetting>(LOCAL_AI_SETTING_KEY)
-  }
-
-  fn is_rag_enabled(&self) -> bool {
-    self
-      .store_preferences
-      .get_bool_or_default(APPFLOWY_LOCAL_AI_CHAT_RAG_ENABLED)
   }
 }
 

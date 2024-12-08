@@ -4,6 +4,7 @@ use collab_database::fields::relation_type_option::RelationTypeOption;
 
 use collab_database::rows::Cell;
 use collab_database::template::relation_parse::RelationCellData;
+use collab_database::template::util::ToCellString;
 use flowy_error::FlowyResult;
 
 use crate::entities::{RelationCellDataPB, RelationFilterPB};
@@ -57,7 +58,7 @@ impl CellDataChangeset for RelationTypeOption {
 
 impl CellDataDecoder for RelationTypeOption {
   fn stringify_cell_data(&self, cell_data: RelationCellData) -> String {
-    cell_data.to_string()
+    cell_data.to_cell_string()
   }
 }
 
