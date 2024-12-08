@@ -10,6 +10,7 @@ mod tests {
   use crate::services::field::type_options::checkbox_type_option::*;
   use crate::services::field::FieldBuilder;
   use collab_database::fields::checkbox_type_option::CheckboxTypeOption;
+  use collab_database::template::util::ToCellString;
 
   #[test]
   fn checkout_box_description_test() {
@@ -46,7 +47,7 @@ mod tests {
       type_option
         .decode_cell(&CheckboxCellDataPB::from_str(input_str).unwrap().into())
         .unwrap()
-        .to_string(),
+        .to_cell_string(),
       expected_str.to_owned()
     );
   }

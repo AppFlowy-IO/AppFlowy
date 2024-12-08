@@ -154,6 +154,7 @@ mod tests {
   use collab_database::fields::select_type_option::{
     MultiSelectTypeOption, SelectOption, SelectOptionIds, SelectTypeOption,
   };
+  use collab_database::template::util::ToCellString;
 
   #[test]
   fn multi_select_insert_multi_option_test() {
@@ -203,7 +204,7 @@ mod tests {
 
     let changeset = SelectOptionCellChangeset::from_insert_option_id(&google.id);
     let select_option_ids = multi_select.apply_changeset(changeset, None).unwrap().1;
-    assert_eq!(select_option_ids.to_string(), google.id);
+    assert_eq!(select_option_ids.to_cell_string(), google.id);
   }
 
   #[test]
