@@ -18,7 +18,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  CLOUD_VERSION: 0.7.6-amd64
+  CLOUD_VERSION: 0.8.3-amd64
   RUST_TOOLCHAIN: "1.80.1"
 
 jobs:
