@@ -7,6 +7,7 @@ use tracing::{Event, Id, Subscriber};
 use tracing_bunyan_formatter::JsonStorage;
 use tracing_core::metadata::Level;
 use tracing_core::span::Attributes;
+use tracing_core::Metadata;
 use tracing_subscriber::{fmt::MakeWriter, layer::Context, registry::SpanRef, Layer};
 
 const LEVEL: &str = "level";
@@ -22,6 +23,7 @@ const IGNORE_FIELDS: [&str; 2] = [LOG_MODULE_PATH, LOG_TARGET_PATH];
 pub struct FlowyFormattingLayer<'a, W: MakeWriter<'static> + 'static> {
   make_writer: W,
   with_target: bool,
+  target_filter: Option<Box<dyn Fn(&str) -> bool + Send + Sync>>,
   phantom: std::marker::PhantomData<&'a ()>,
 }
 
@@ -34,8 +36,24 @@ where
     Self {
       make_writer,
       with_target: true,
+      target_filter: None,
       phantom: std::marker::PhantomData,
     }
+  }
+
+  pub fn with_target_filter<F>(mut self, filter: F) -> Self
+  where
+    F: Fn(&str) -> bool + Send + Sync + 'static,
+  {
+    self.target_filter = Some(Box::new(filter));
+    self
+  }
+
+  fn should_log(&self, metadata: &Metadata<'_>) -> bool {
+    self
+      .target_filter
+      .as_ref()
+      .map_or(true, |f| f(metadata.target()))
   }
 
   fn serialize_fields(
@@ -45,7 +63,6 @@ where
     _level: &Level,
   ) -> Result<(), std::io::Error> {
     map_serializer.serialize_entry(MESSAGE, &message)?;
-    // map_serializer.serialize_entry(LEVEL, &format!("{}", level))?;
     map_serializer.serialize_entry(TIME, &Local::now().format("%m-%d %H:%M:%S").to_string())?;
     Ok(())
   }
@@ -160,6 +177,10 @@ where
   W: for<'writer> MakeWriter<'writer> + 'static,
 {
   fn on_event(&self, event: &Event<'_>, ctx: Context<'_, S>) {
+    if !self.should_log(event.metadata()) {
+      return;
+    }
+
     // Events do not necessarily happen in the context of a span, hence
     // lookup_current returns an `Option<SpanRef<_>>` instead of a
     // `SpanRef<_>`.
@@ -177,14 +198,9 @@ where
 
       let message = format_event_message(&current_span, event, &event_visitor, &ctx);
       self.serialize_fields(&mut map_serializer, &message, event.metadata().level())?;
-      // Additional metadata useful for debugging
-      // They should be nested under `src` (see https://github.com/trentm/node-bunyan#src )
-      // but `tracing` does not support nested values yet
-
       if self.with_target {
         map_serializer.serialize_entry("target", event.metadata().target())?;
       }
-
       // map_serializer.serialize_entry("line", &event.metadata().line())?;
       // map_serializer.serialize_entry("file", &event.metadata().file())?;
 
@@ -224,6 +240,9 @@ where
 
   fn on_new_span(&self, _attrs: &Attributes, id: &Id, ctx: Context<'_, S>) {
     let span = ctx.span(id).expect("Span not found, this is a bug");
+    if !self.should_log(span.metadata()) {
+      return;
+    }
     if let Ok(serialized) = self.serialize_span(&span, Type::EnterSpan, &ctx) {
       let _ = self.emit(serialized);
     }
@@ -231,6 +250,9 @@ where
 
   fn on_close(&self, id: Id, ctx: Context<'_, S>) {
     let span = ctx.span(&id).expect("Span not found, this is a bug");
+    if !self.should_log(span.metadata()) {
+      return;
+    }
     if let Ok(serialized) = self.serialize_span(&span, Type::ExitSpan, &ctx) {
       let _ = self.emit(serialized);
     }

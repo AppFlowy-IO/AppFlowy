@@ -1,3 +1,5 @@
+use tracing::info;
+
 #[macro_export]
 macro_rules! if_native {
     ($($item:item)*) => {$(
@@ -135,4 +137,11 @@ pub fn get_operating_system() -> OperatingSystem {
           OperatingSystem::Unknown
       }
   }
+}
+
+#[macro_export]
+macro_rules! sync_trace {
+    ($($arg:tt)*) => {
+        info!(target: "collab", $($arg)*);
+    };
 }
