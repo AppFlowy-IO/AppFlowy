@@ -60,7 +60,7 @@ impl AFCloudConfiguration {
 
     let enable_sync_trace = std::env::var(APPFLOWY_ENABLE_SYNC_TRACE)
       .map(|v| v == "true" || v == "1")
-      .unwrap_or(true);
+      .unwrap_or(false);
 
     Ok(Self {
       base_url,

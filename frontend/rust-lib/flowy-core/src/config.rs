@@ -40,6 +40,7 @@ impl fmt::Debug for AppFlowyCoreConfig {
       debug.field("base_url", &config.base_url);
       debug.field("ws_url", &config.ws_base_url);
       debug.field("gotrue_url", &config.gotrue_url);
+      debug.field("enable_sync_trace", &config.enable_sync_trace);
     }
     debug.finish()
   }
@@ -87,7 +88,9 @@ impl AppFlowyCoreConfig {
     let storage_path = match &cloud_config {
       None => custom_application_path,
       Some(config) => {
-        log_crates.push("sync_trace_log".to_string());
+        if config.enable_sync_trace {
+          log_crates.push("sync_trace_log".to_string());
+        }
         make_user_data_folder(&custom_application_path, &config.base_url)
       },
     };

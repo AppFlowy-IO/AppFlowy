@@ -1,3 +1,4 @@
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/cloud_setting_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -14,7 +15,7 @@ class AppFlowyCloudSettingBloc
     extends Bloc<AppFlowyCloudSettingEvent, AppFlowyCloudSettingState> {
   AppFlowyCloudSettingBloc(CloudSettingPB setting)
       : _listener = UserCloudConfigListener(),
-        super(AppFlowyCloudSettingState.initial(setting)) {
+        super(AppFlowyCloudSettingState.initial(setting, false)) {
     _dispatch();
   }
 
@@ -31,6 +32,10 @@ class AppFlowyCloudSettingBloc
       (event, emit) async {
         await event.when(
           initial: () async {
+            await getSyncLogEnabled().then((value) {
+              emit(state.copyWith(isSyncLogEnabled: value));
+            });
+
             _listener.start(
               onSettingChanged: (result) {
                 if (isClosed) {
@@ -47,6 +52,10 @@ class AppFlowyCloudSettingBloc
           enableSync: (isEnable) async {
             final config = UpdateCloudConfigPB.create()..enableSync = isEnable;
             await UserEventSetCloudConfig(config).send();
+          },
+          enableSyncLog: (isEnable) async {
+            await setSyncLogEnabled(isEnable);
+            emit(state.copyWith(isSyncLogEnabled: isEnable));
           },
           didReceiveSetting: (CloudSettingPB setting) {
             emit(
@@ -67,6 +76,8 @@ class AppFlowyCloudSettingEvent with _$AppFlowyCloudSettingEvent {
   const factory AppFlowyCloudSettingEvent.initial() = _Initial;
   const factory AppFlowyCloudSettingEvent.enableSync(bool isEnable) =
       _EnableSync;
+  const factory AppFlowyCloudSettingEvent.enableSyncLog(bool isEnable) =
+      _EnableSyncLog;
   const factory AppFlowyCloudSettingEvent.didReceiveSetting(
     CloudSettingPB setting,
   ) = _DidUpdateSetting;
@@ -77,12 +88,17 @@ class AppFlowyCloudSettingState with _$AppFlowyCloudSettingState {
   const factory AppFlowyCloudSettingState({
     required CloudSettingPB setting,
     required bool showRestartHint,
+    required bool isSyncLogEnabled,
   }) = _AppFlowyCloudSettingState;
 
-  factory AppFlowyCloudSettingState.initial(CloudSettingPB setting) =>
+  factory AppFlowyCloudSettingState.initial(
+    CloudSettingPB setting,
+    bool isSyncLogEnabled,
+  ) =>
       AppFlowyCloudSettingState(
         setting: setting,
         showRestartHint: setting.serverUrl.isNotEmpty,
+        isSyncLogEnabled: isSyncLogEnabled,
       );
 }
 

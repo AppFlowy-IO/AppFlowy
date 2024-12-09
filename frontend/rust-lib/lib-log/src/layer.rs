@@ -23,6 +23,7 @@ const IGNORE_FIELDS: [&str; 2] = [LOG_MODULE_PATH, LOG_TARGET_PATH];
 pub struct FlowyFormattingLayer<'a, W: MakeWriter<'static> + 'static> {
   make_writer: W,
   with_target: bool,
+  #[allow(clippy::type_complexity)]
   target_filter: Option<Box<dyn Fn(&str) -> bool + Send + Sync>>,
   phantom: std::marker::PhantomData<&'a ()>,
 }
