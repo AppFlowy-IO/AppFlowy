@@ -252,6 +252,7 @@ class _AddFileButtonState extends State<_AddFileButton> {
       direction: widget.direction,
       constraints: const BoxConstraints(maxWidth: _menuWidth),
       margin: EdgeInsets.zero,
+      asBarrier: true,
       onClose: () =>
           context.read<EditorDropManagerState>().remove(_dropFileKey),
       popupBuilder: (_) {
@@ -458,6 +459,7 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
           offset: const Offset(0, 5),
           triggerActions: PopoverTriggerFlags.none,
           onClose: () => setState(() => isSelected = false),
+          asBarrier: true,
           popupBuilder: (popoverContext) => MultiBlocProvider(
             providers: [
               BlocProvider.value(value: context.read<RowDetailBloc>()),

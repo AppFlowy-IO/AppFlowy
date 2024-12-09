@@ -31,6 +31,7 @@ class DesktopRowDetailDateCellSkin extends IEditableDateCellSkin {
       direction: PopoverDirection.bottomWithLeftAligned,
       constraints: BoxConstraints.loose(const Size(260, 620)),
       margin: EdgeInsets.zero,
+      asBarrier: true,
       child: Container(
         alignment: AlignmentDirectional.centerStart,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
