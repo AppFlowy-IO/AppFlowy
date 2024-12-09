@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mobile_page_selector_sheet.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:extended_text_field/extended_text_field.dart';
@@ -13,6 +12,7 @@ import '../layout_define.dart';
 import 'ai_prompt_buttons.dart';
 import 'chat_input_file.dart';
 import 'chat_input_span.dart';
+import 'chat_mention_page_bottom_sheet.dart';
 
 class MobileAIPromptInput extends StatefulWidget {
   const MobileAIPromptInput({
