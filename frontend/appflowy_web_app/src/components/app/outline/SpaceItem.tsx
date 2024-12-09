@@ -5,7 +5,7 @@ import React, { useMemo } from 'react';
 import { View } from '@/application/types';
 import { ReactComponent as PrivateIcon } from '@/assets/lock.svg';
 
-function SpaceItem ({
+function SpaceItem({
   view,
   width,
   renderExtra,
@@ -52,7 +52,7 @@ function SpaceItem ({
         }
       >
         <SpaceIcon
-          className={'icon h-5 mr-1.5 w-5'}
+          className={'icon !rounded-[8px] !h-5 mr-2 !w-5'}
           bgColor={extra?.space_icon_color}
           value={extra?.space_icon || ''}
           char={extra?.space_icon ? undefined : name.slice(0, 1)}
@@ -62,11 +62,11 @@ function SpaceItem ({
           disableInteractive={true}
         >
           <div className={'items-center gap-1 text-sm flex-1 justify-start flex overflow-hidden'}>
-            <div className={'truncate w-auto'}>{name}</div>
+            <div className={'truncate w-auto font-medium'}>{name}</div>
 
             {isPrivate &&
               <div className={'h-4 w-4 text-base min-w-4 text-text-title opacity-80'}>
-                <PrivateIcon />
+                <PrivateIcon/>
               </div>
             }
           </div>

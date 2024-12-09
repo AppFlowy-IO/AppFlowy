@@ -65,7 +65,7 @@ function NewPage () {
         onClick={() => setOpen(true)}
         startIcon={<Add className={'w-5 h-5'} />}
         size={'small'}
-        className={'justify-start w-full hover:bg-content-blue-50'}
+        className={'text-sm font-normal justify-start w-full hover:bg-content-blue-50'}
         color={'inherit'}
       >
         {t('newPageText')}

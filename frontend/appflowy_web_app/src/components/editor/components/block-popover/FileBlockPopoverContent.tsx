@@ -1,7 +1,7 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
-import { FieldURLType, FileBlockData } from '@/application/types';
+import { BlockType, FieldURLType, FileBlockData } from '@/application/types';
 import FileDropzone from '@/components/_shared/file-dropzone/FileDropzone';
 import { notify } from '@/components/_shared/notify';
 import { TabPanel, ViewTab, ViewTabs } from '@/components/_shared/tabs/ViewTabs';
@@ -10,16 +10,18 @@ import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSlateStatic } from 'slate-react';
 import EmbedLink from 'src/components/_shared/image-upload/EmbedLink';
+import { FileHandler } from '@/utils/file';
 
-export const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
-export function getFileName (url: string) {
+export const MAX_FILE_SIZE = 7 * 1024 * 1024; // 7MB
+
+export function getFileName(url: string) {
   const urlObj = new URL(url);
   const name = urlObj.pathname.split('/').pop();
 
   return name;
 }
 
-function FileBlockPopoverContent ({
+function FileBlockPopoverContent({
   blockId,
   onClose,
 }: {
@@ -55,38 +57,63 @@ function FileBlockPopoverContent ({
     onClose();
   }, [blockId, editor, onClose]);
 
-  const handleChangeUploadFile = useCallback(async (files: File[]) => {
-    const file = files[0];
-
-    if (!file) return;
-
-    if (file.size > MAX_IMAGE_SIZE) {
-      notify.error('File size is too large, please upload a file less than 10MB');
+  const uploadFileRemote = useCallback(async (file: File) => {
+    if (file.size > MAX_FILE_SIZE) {
+      notify.error(`File size is too large, please upload a file less than ${MAX_FILE_SIZE / 1024 / 1024}MB`);
 
       return;
     }
-
-    let url = URL.createObjectURL(file);
 
     try {
       if (uploadFile) {
-        url = await uploadFile(file);
+        return await uploadFile(file);
       }
       // eslint-disable-next-line
     } catch (e: any) {
-      notify.error(e.message);
-
       return;
     }
+  }, [uploadFile]);
 
-    CustomEditor.setBlockData(editor, blockId, {
-      url,
+  const getData = useCallback(async (file: File, remoteUrl?: string) => {
+    const data = {
+      url: remoteUrl,
       name: file.name,
       uploaded_at: Date.now(),
       url_type: FieldURLType.Upload,
-    } as FileBlockData);
+    } as FileBlockData;
+
+    if (!remoteUrl) {
+      const fileHandler = new FileHandler();
+      const res = await fileHandler.handleFileUpload(file);
+
+      data.retry_local_url = res.id;
+    }
+
+    return data;
+  }, []);
+
+  const insertFileBlock = useCallback(async (file: File) => {
+    const url = await uploadFileRemote(file);
+    const data = await getData(file, url);
+
+    CustomEditor.addBelowBlock(editor, blockId, BlockType.FileBlock, data);
+  }, [blockId, editor, getData, uploadFileRemote]);
+
+  const handleChangeUploadFiles = useCallback(async (files: File[]) => {
+    if (!files.length) return;
+
+    const [file, ...otherFiles] = files;
+    const url = await uploadFileRemote(file);
+    const data = await getData(file, url);
+
+    CustomEditor.setBlockData(editor, blockId, data);
+
+    for (const file of otherFiles.reverse()) {
+      await insertFileBlock(file);
+    }
+
     onClose();
-  }, [editor, blockId, onClose, uploadFile]);
+  }, [blockId, editor, getData, insertFileBlock, onClose, uploadFileRemote]);
 
   const tabOptions = useMemo(() => {
     return [
@@ -94,11 +121,12 @@ function FileBlockPopoverContent ({
         key: 'upload',
         label: t('button.upload'),
         panel: <FileDropzone
+          multiple={true}
           placeholder={<span>
             {t('document.plugins.file.fileUploadHint')}
             <span className={'text-fill-default'}>{t('document.plugins.photoGallery.browserLayout')}</span>
           </span>}
-          onChange={handleChangeUploadFile}
+          onChange={handleChangeUploadFiles}
         />,
       },
       {
@@ -111,7 +139,7 @@ function FileBlockPopoverContent ({
         />,
       },
     ];
-  }, [entry, handleChangeUploadFile, handleInsertEmbedLink, t]);
+  }, [entry, handleChangeUploadFiles, handleInsertEmbedLink, t]);
 
   const selectedIndex = tabOptions.findIndex((tab) => tab.key === tabValue);
 

@@ -32,7 +32,7 @@ const popoverProps: Partial<PopoverProps> = {
   disableEnforceFocus: true,
 };
 
-function ControlsMenu ({ open, onClose, anchorEl }: {
+function ControlsMenu({ open, onClose, anchorEl }: {
   open: boolean;
   onClose: () => void;
   anchorEl: HTMLElement | null;
@@ -53,7 +53,7 @@ function ControlsMenu ({ open, onClose, anchorEl }: {
     return [{
       key: 'delete',
       content: t('button.delete'),
-      icon: <DeleteIcon />,
+      icon: <DeleteIcon/>,
       onClick: () => {
         selectedBlockIds?.forEach((blockId) => {
           CustomEditor.deleteBlock(editor, blockId);
@@ -62,7 +62,7 @@ function ControlsMenu ({ open, onClose, anchorEl }: {
     }, {
       key: 'duplicate',
       content: t('button.duplicate'),
-      icon: <DuplicateIcon />,
+      icon: <DuplicateIcon/>,
       onClick: () => {
         const newBlockIds: string[] = [];
         const prevId = selectedBlockIds?.[selectedBlockIds.length - 1];
@@ -82,9 +82,10 @@ function ControlsMenu ({ open, onClose, anchorEl }: {
     }, onlySingleBlockSelected && {
       key: 'copyLinkToBlock',
       content: t('document.plugins.optionAction.copyLinkToBlock'),
-      icon: <CopyLinkIcon />,
+      icon: <CopyLinkIcon/>,
       onClick: async () => {
         const blockId = selectedBlockIds?.[0];
+
         const url = new URL(window.location.href);
 
         url.searchParams.set('blockId', blockId);
@@ -144,7 +145,7 @@ function ControlsMenu ({ open, onClose, anchorEl }: {
         })}
 
         {node?.[0]?.type === BlockType.OutlineBlock && onlySingleBlockSelected && (
-          <Depth node={node[0] as OutlineNode} />
+          <Depth node={node[0] as OutlineNode}/>
         )}
       </div>
     </Popover>

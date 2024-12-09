@@ -7,7 +7,7 @@ import { FileNode } from '@/components/editor/editor.type';
 import { copyTextToClipboard } from '@/utils/copy';
 import { downloadFile } from '@/utils/download';
 import { OutlinedInput } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as CopyIcon } from '@/assets/copy.svg';
 import { ReactComponent as DownloadIcon } from '@/assets/download.svg';
@@ -16,7 +16,7 @@ import { ReactComponent as EditIcon } from '@/assets/edit.svg';
 
 import { useReadOnly, useSlateStatic } from 'slate-react';
 
-function FileToolbar ({ node }: {
+function FileToolbar({ node }: {
   node: FileNode
 }) {
   const editor = useSlateStatic() as YjsEditor;
@@ -47,6 +47,14 @@ function FileToolbar ({ node }: {
     setOpen(false);
   };
 
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (!open) {
+      inputRef.current = null;
+    }
+  }, [open]);
+
   return (
     <div
       onClick={e => e.stopPropagation()}
@@ -57,14 +65,14 @@ function FileToolbar ({ node }: {
           onClick={onDownload}
           tooltip={t('button.download')}
         >
-          <DownloadIcon />
+          <DownloadIcon/>
         </ActionButton>
 
         <ActionButton
           onClick={onCopy}
-          tooltip={t('editor.copy')}
+          tooltip={t('button.copyLinkOriginal')}
         >
-          <CopyIcon />
+          <CopyIcon/>
         </ActionButton>
 
         {!readOnly && <>
@@ -74,21 +82,23 @@ function FileToolbar ({ node }: {
             }}
             tooltip={t('document.plugins.file.renameFile.title')}
           >
-            <EditIcon />
+            <EditIcon/>
           </ActionButton>
           <ActionButton
             onClick={onDelete}
             tooltip={t('button.delete')}
           >
-            <DeleteIcon />
+            <DeleteIcon/>
           </ActionButton>
           <NormalModal
             open={open}
+            disableRestoreFocus={true}
             onClose={() => setOpen(false)}
             okText={t('button.save')}
             onOk={onUpdateName}
             title={
-              <div className={'flex justify-start items-center font-semibold'}>{t('document.plugins.file.renameFile.title')}</div>
+              <div
+                className={'flex justify-start items-center font-semibold'}>{t('document.plugins.file.renameFile.title')}</div>
             }
           >
             <div className={'flex flex-col gap-2 w-[560px] max-w-full'}>
@@ -96,6 +106,25 @@ function FileToolbar ({ node }: {
               <OutlinedInput
                 value={fileName}
                 fullWidth={true}
+                autoFocus={open}
+                inputRef={(input: HTMLInputElement) => {
+                  if (!input) return;
+                  if (!inputRef.current) {
+                    setTimeout(() => {
+                      input.setSelectionRange(0, input.value.length);
+                    }, 50);
+
+                    inputRef.current = input;
+                  }
+                }}
+                onClick={(e) => {
+                  if (e.detail > 2) {
+                    const target = e.target as HTMLInputElement;
+
+                    // select all text on triple click
+                    target.setSelectionRange(0, target.value.length);
+                  }
+                }}
                 onChange={(e) => setFileName(e.target.value)}
                 size={'small'}
               />

@@ -12,12 +12,14 @@ import { useSlateStatic } from 'slate-react';
 
 const MIN_WIDTH = 100;
 
-function ImageRender ({
+function ImageRender({
   selected,
   node,
   showToolbar,
+  localUrl,
 }: {
   selected: boolean;
+  localUrl?: string;
   node: ImageBlockNode;
   showToolbar?: boolean;
 }) {
@@ -26,7 +28,8 @@ function ImageRender ({
   const editor = useSlateStatic() as YjsEditor;
 
   const imgRef = useRef<HTMLImageElement>(null);
-  const { url = '', width: imageWidth } = useMemo(() => node.data || {}, [node.data]);
+  const { width: imageWidth } = useMemo(() => node.data || {}, [node.data]);
+  const url = node.data.url || localUrl;
   const { t } = useTranslation();
   const blockId = node.blockId;
   const [initialWidth, setInitialWidth] = useState<number | null>(null);
@@ -66,7 +69,7 @@ function ImageRender ({
           'flex h-[48px] w-full items-center justify-center gap-2 rounded border border-function-error bg-red-50'
         }
       >
-        <ErrorOutline className={'text-function-error'} />
+        <ErrorOutline className={'text-function-error'}/>
         <div className={'text-function-error'}>{t('editor.imageLoadFailed')}</div>
       </div>
     );
@@ -117,7 +120,7 @@ function ImageRender ({
           />
         </>
       )}
-      {showToolbar && <ImageToolbar node={node} />}
+      {showToolbar && <ImageToolbar node={node}/>}
       {hasError ? renderErrorNode() : loading ? <Skeleton
         variant="rounded"
         width={'100%'}

@@ -13,7 +13,7 @@ import {
   SubscriptionPlan,
   SubscriptionInterval,
   Types,
-  UpdatePagePayload, CreatePagePayload, CreateSpacePayload, UpdateSpacePayload,
+  UpdatePagePayload, CreatePagePayload, CreateSpacePayload, UpdateSpacePayload, WorkspaceMember,
 } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
@@ -25,7 +25,7 @@ import {
   UploadTemplatePayload,
 } from '@/application/template.type';
 
-export type AFService = PublishService & AppService & TemplateService & {
+export type AFService = PublishService & AppService & WorkspaceService & TemplateService & {
   getClientId: () => string;
 };
 
@@ -39,8 +39,15 @@ export interface AFCloudConfig {
   wsURL: string;
 }
 
-export interface AppService {
+export interface WorkspaceService {
   openWorkspace: (workspaceId: string) => Promise<void>;
+  leaveWorkspace: (workspaceId: string) => Promise<void>;
+  deleteWorkspace: (workspaceId: string) => Promise<void>;
+  getWorkspaceMembers: (workspaceId: string) => Promise<WorkspaceMember[]>;
+  inviteMembers: (workspaceId: string, emails: string[]) => Promise<void>;
+}
+
+export interface AppService {
   getPageDoc: (workspaceId: string, viewId: string, errorCallback?: (error: {
     code: number;
   }) => void) => Promise<YDoc>;

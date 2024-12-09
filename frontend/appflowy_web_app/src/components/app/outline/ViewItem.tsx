@@ -22,7 +22,7 @@ const popoverProps: Origins = {
   },
 };
 
-function ViewItem ({ view, width, level = 0, renderExtra, expandIds, toggleExpand, onClickView }: {
+function ViewItem({ view, width, level = 0, renderExtra, expandIds, toggleExpand, onClickView }: {
   view: View;
   width: number;
   level?: number;
@@ -75,7 +75,7 @@ function ViewItem ({ view, width, level = 0, renderExtra, expandIds, toggleExpan
           onClickView?.(viewId);
         }}
         className={
-          'flex items-center select-none my-0.5 overflow-hidden cursor-pointer min-h-[34px] w-full gap-1 rounded-[8px] py-1.5 px-0.5 text-sm hover:bg-fill-list-hover focus:outline-none'
+          'flex items-center select-none overflow-hidden cursor-pointer min-h-[34px] w-full gap-1 rounded-[8px] py-1.5 px-0.5 text-sm hover:bg-fill-list-hover focus:outline-none'
         }
       >
         {view.children?.length ? getIcon() : null}
@@ -89,7 +89,7 @@ function ViewItem ({ view, width, level = 0, renderExtra, expandIds, toggleExpan
           {icon?.value || <ViewIcon
             layout={layout}
             size={'medium'}
-            className={'mr-1'}
+            className={'mr-1 opacity-60'}
           />}
         </div>
         <Tooltip
@@ -109,7 +109,7 @@ function ViewItem ({ view, width, level = 0, renderExtra, expandIds, toggleExpan
 
   const renderChildren = useMemo(() => {
     return <div
-      className={'flex transform overflow-hidden w-full flex-col gap-2 transition-all'}
+      className={'flex transform overflow-hidden w-full flex-col transition-all'}
       style={{
         display: isExpanded ? 'block' : 'none',
       }}

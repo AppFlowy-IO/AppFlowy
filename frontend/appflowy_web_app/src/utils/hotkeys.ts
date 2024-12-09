@@ -61,6 +61,7 @@ export enum HOT_KEY_NAME {
    */
   TOGGLE_THEME = 'toggle-theme',
   TOGGLE_SIDEBAR = 'toggle-sidebar',
+  QUICK_NOTE = 'quick-note',
 }
 
 const defaultHotKeys = {
@@ -108,6 +109,7 @@ const defaultHotKeys = {
   [HOT_KEY_NAME.MOVE_CURSOR_TO_BOTTOM]: ['mod+down'],
   [HOT_KEY_NAME.MOVE_CURSOR_TO_TOP]: ['mod+up'],
   [HOT_KEY_NAME.ENTER]: ['enter'],
+  [HOT_KEY_NAME.QUICK_NOTE]: ['mod+/'],
 };
 
 const replaceModifier = (hotkey: string) => {
@@ -123,6 +125,7 @@ const replaceModifier = (hotkey: string) => {
 export const createHotkey = (hotkeyName: HOT_KEY_NAME, customHotKeys?: Record<HOT_KEY_NAME, string[]>) => {
   const keys = customHotKeys || defaultHotKeys;
   const hotkeys = keys[hotkeyName];
+
 
   return (event: KeyboardEvent) => {
     return hotkeys.some((hotkey) => {

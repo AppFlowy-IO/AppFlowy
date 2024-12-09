@@ -54,7 +54,7 @@ type Rule = {
   filter?: (editor: YjsEditor, match: RegExpMatchArray) => boolean
 }
 
-function deletePrefix (editor: YjsEditor, offset: number) {
+function deletePrefix(editor: YjsEditor, offset: number) {
   const [, path] = getBlockEntry(editor);
 
   const { selection } = editor;
@@ -67,19 +67,19 @@ function deletePrefix (editor: YjsEditor, offset: number) {
   editor.delete();
 }
 
-function getNodeType (editor: YjsEditor) {
+function getNodeType(editor: YjsEditor) {
   const [node] = getBlockEntry(editor);
 
   return node.type as BlockType;
 }
 
-function getBlockData (editor: YjsEditor) {
+function getBlockData(editor: YjsEditor) {
   const [node] = getBlockEntry(editor);
 
   return node.data as BlockData;
 }
 
-function getLineText (editor: YjsEditor) {
+function getLineText(editor: YjsEditor) {
   const [node] = getBlockEntry(editor);
   const sharedRoot = getSharedRoot(editor);
   const block = getBlock(node.blockId as string, sharedRoot);
@@ -402,6 +402,8 @@ export const applyMarkdown = (editor: YjsEditor, insertText: string): boolean =>
           Transforms.select(editor, matchRange);
           editor.delete();
 
+          let marked = false;
+          
           if (rule.transform) {
             rule.transform(editor, match);
           } else {
@@ -412,13 +414,13 @@ export const applyMarkdown = (editor: YjsEditor, insertText: string): boolean =>
               anchor: { path, offset: start },
               focus: { path, offset: start + formatText.length },
             });
-
-            CustomEditor.addMark(editor, { key: rule.format as EditorMarkFormat, value: true });
+            marked = CustomEditor.isMarkActive(editor, rule.format);
+            CustomEditor.toggleMark(editor, { key: rule.format as EditorMarkFormat, value: true });
           }
 
           Transforms.collapse(editor, { edge: 'end' });
 
-          if (editor.selection && rule.format !== EditorMarkFormat.Formula) {
+          if (editor.selection && rule.format !== EditorMarkFormat.Formula && !marked) {
             Transforms.insertNodes(editor, { text: '\u200C' }, { at: editor.selection, select: true, voids: false });
           }
         }

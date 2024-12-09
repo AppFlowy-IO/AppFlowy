@@ -422,7 +422,10 @@
     "backToHome": "Back to Home",
     "viewing": "Viewing",
     "editing": "Editing",
-    "gotIt": "Got it"
+    "gotIt": "Got it",
+    "retry": "Retry",
+    "uploadFailed": "Upload failed.",
+    "copyLinkOriginal": "Copy link to original"
   },
   "label": {
     "welcome": "Welcome!",
@@ -2664,7 +2667,9 @@
     "fileBlock": {
       "uploadedAt": "Uploaded on {time}",
       "linkedAt": "Link added on {time}",
-      "empty": "Upload or embed a file"
+      "empty": "Upload or embed a file",
+      "uploadFailed": "Upload failed, please try again",
+      "retry": "Retry"
     },
     "importNotion": "Import from Notion",
     "import": "Import",
@@ -2933,5 +2938,19 @@
     "noAppToOpenFile": "No app to open this file",
     "permissionDenied": "No permission to open this file",
     "unknownError": "File open failed"
+  },
+  "inviteMember": {
+    "requestInviteMembers": "Request to invite members",
+    "addEmail": "Enter emails, separated by `,`",
+    "requestInvites": "Request invites",
+    "inviteAlready": "You've already invited this email: {email}",
+    "inviteSuccess": "Invitation sent successfully"
+  },
+  "quickNote": {
+    "label": "Quick note",
+    "quickNotes": "Quick notes",
+    "search": "Search quick notes",
+    "collapseFullView": "Collapse full view",
+    "expandFullView": "Expand full view"
   }
 }

@@ -7,7 +7,7 @@ import React, { useCallback, Suspense } from 'react';
 
 const ViewActions = React.lazy(() => import('@/components/app/view-actions/ViewActions'));
 
-export function Outline ({
+export function Outline({
   width,
 }: {
   width: number;
@@ -37,12 +37,12 @@ export function Outline ({
   }, [toView]);
 
   return (
-    <div className={'flex folder-views w-full flex-1 flex-col gap-1 py-[10px] px-[10px]'}>
+    <div className={'flex folder-views w-full flex-1 flex-col py-[10px] px-[10px]'}>
       {!outline || outline.length === 0 ? <div
           style={{
             width: width - 20,
           }}
-        ><DirectoryStructure />
+        ><DirectoryStructure/>
         </div> :
         outline.map((view) => <SpaceItem
           view={view}

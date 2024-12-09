@@ -104,6 +104,7 @@ export interface FileBlockData extends BlockData {
   uploaded_at?: number;
   url?: string;
   url_type?: FieldURLType;
+  retry_local_url?: string;
 }
 
 export enum ImageType {
@@ -118,6 +119,7 @@ export interface ImageBlockData extends BlockData {
   align?: AlignType;
   image_type?: ImageType;
   height?: number;
+  retry_local_url?: string;
 }
 
 export enum GalleryLayout {
@@ -881,6 +883,19 @@ export enum RequestAccessInfoStatus {
   Pending = 0,
   Accepted = 1,
   Rejected = 2,
+}
+
+export enum Role {
+  Owner = 'Owner',
+  Member = 'Member',
+  Guest = 'Guest',
+}
+
+export interface WorkspaceMember {
+  name: string;
+  email: string;
+  avatar_url: string;
+  role: Role;
 }
 
 export interface GetRequestAccessInfoResponse {

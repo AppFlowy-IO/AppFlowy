@@ -41,6 +41,7 @@ function Panels () {
       <MentionPanel />
       <SlashPanel setEmojiPosition={setEmojiPosition} />
       <ChangeIconPopover
+        hideRemove
         anchorPosition={emojiPosition || undefined}
         open={showEmoji}
         onClose={() => {
