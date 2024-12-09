@@ -33,7 +33,7 @@ import {
   DatabaseRelations,
   DuplicatePublishView,
   SubscriptionInterval, SubscriptionPlan,
-  Types, UpdatePagePayload, UpdateSpacePayload,
+  Types, UpdatePagePayload, UpdateSpacePayload, WorkspaceMember,
   YjsEditorKey,
 } from '@/application/types';
 import { applyYDoc } from '@/application/ydoc/apply';
@@ -515,5 +515,21 @@ export class AFClientService implements AFService {
 
   async uploadFile (workspaceId: string, viewId: string, file: File, onProgress?: (progress: number) => void) {
     return APIService.uploadFile(workspaceId, viewId, file, onProgress);
+  }
+
+  deleteWorkspace(workspaceId: string): Promise<void> {
+    return APIService.deleteWorkspace(workspaceId);
+  }
+
+  leaveWorkspace(workspaceId: string): Promise<void> {
+    return APIService.leaveWorkspace(workspaceId);
+  }
+
+  inviteMembers(workspaceId: string, emails: string[]): Promise<void> {
+    return APIService.inviteMembers(workspaceId, emails);
+  }
+
+  getWorkspaceMembers(workspaceId: string): Promise<WorkspaceMember[]> {
+    return APIService.getMembers(workspaceId);
   }
 }

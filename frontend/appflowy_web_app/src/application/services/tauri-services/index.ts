@@ -297,4 +297,8 @@ export class AFClientService implements AFService {
   updateSpace (): Promise<void> {
     return Promise.reject(undefined);
   }
+
+  uploadFile(): Promise<string> {
+    return Promise.reject('');
+  }
 }

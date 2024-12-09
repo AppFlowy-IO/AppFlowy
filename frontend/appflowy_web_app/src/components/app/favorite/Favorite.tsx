@@ -103,7 +103,7 @@ export function Favorite () {
   }, [groupByViewsWithDay, navigateToView, t]);
 
   return (
-    <div className={'flex w-full flex-col py-[10px] px-[10px]'}>
+    <div className={'flex w-full flex-col px-[10px]'}>
       <div
         onClick={handleToggleExpand}
         className={'flex h-fit my-0.5 w-full flex-col gap-2 cursor-pointer'}

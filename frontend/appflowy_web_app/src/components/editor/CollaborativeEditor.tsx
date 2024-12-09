@@ -12,9 +12,10 @@ import * as Y from 'yjs';
 
 const defaultInitialValue: Descendant[] = [];
 
-function CollaborativeEditor ({ doc }: { doc: Y.Doc }) {
+function CollaborativeEditor({ doc }: { doc: Y.Doc }) {
   const context = useEditorContext();
   const readSummary = context.readSummary;
+  const uploadFile = context.uploadFile;
   const readOnly = context.readOnly;
   const viewId = context.viewId;
   const onWordCountChange = context.onWordCountChange;
@@ -26,7 +27,7 @@ function CollaborativeEditor ({ doc }: { doc: Y.Doc }) {
     onWordCountChange?.(viewId, wordCount);
     setClock((prev) => prev + 1);
   }, [onWordCountChange, viewId]);
-  
+
   const editor = useMemo(
     () =>
       doc &&
@@ -34,16 +35,17 @@ function CollaborativeEditor ({ doc }: { doc: Y.Doc }) {
         withReact(
           withYHistory(
             withYjs(createEditor(), doc, {
-              readOnly: readOnly,
+              readOnly,
               localOrigin,
               readSummary,
               onContentChange,
+              uploadFile,
             }),
           ),
           'x-appflowy-fragment',
         ),
       ) as YjsEditor),
-    [doc, readOnly, localOrigin, readSummary, onContentChange],
+    [doc, uploadFile, readOnly, localOrigin, readSummary, onContentChange],
   );
   const [, setIsConnected] = useState(false);
 
@@ -63,7 +65,7 @@ function CollaborativeEditor ({ doc }: { doc: Y.Doc }) {
       editor={editor}
       initialValue={defaultInitialValue}
     >
-      <EditorEditable />
+      <EditorEditable/>
     </Slate>
 
   );

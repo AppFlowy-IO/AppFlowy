@@ -3,10 +3,10 @@ import { notify } from '@/components/_shared/notify';
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+export const MAX_IMAGE_SIZE = 7 * 1024 * 1024; // 7MB
 export const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
 
-export function UploadImage ({ onDone, uploadAction }: {
+export function UploadImage({ onDone, uploadAction }: {
   onDone?: (url: string) => void;
   uploadAction?: (file: File) => Promise<string>
 }) {
@@ -17,7 +17,7 @@ export function UploadImage ({ onDone, uploadAction }: {
     if (!file) return;
 
     if (file.size > MAX_IMAGE_SIZE) {
-      notify.error('File size is too large, please upload a file less than 10MB');
+      notify.error(`File size is too large, please upload a file less than ${MAX_IMAGE_SIZE / 1024 / 1024}MB`);
 
       return;
     }

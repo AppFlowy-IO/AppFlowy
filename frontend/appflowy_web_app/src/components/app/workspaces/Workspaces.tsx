@@ -11,11 +11,11 @@ import { Button, Divider, IconButton, Tooltip } from '@mui/material';
 import React, { useCallback, useMemo } from 'react';
 import { ReactComponent as ArrowRightSvg } from '@/assets/arrow_right.svg';
 import { ReactComponent as AddIcon } from '@/assets/add.svg';
-import { ReactComponent as AddUserIcon } from '@/assets/add_user.svg';
 import { ReactComponent as TipIcon } from '@/assets/warning.svg';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as SignOutIcon } from '@/assets/sign_out.svg';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import InviteMember from '@/components/app/workspaces/InviteMember';
 
 export function Workspaces () {
   const { t } = useTranslation();
@@ -85,7 +85,7 @@ export function Workspaces () {
       onClose={() => setOpen(false)}
     >
       <div
-        className={'flex text-[14px] w-[288px] flex-col gap-2 p-2 max-h-[600px] min-h-[303px] overflow-hidden'}
+        className={'flex text-[14px] w-[288px] flex-col gap-2 p-2 max-h-[380px] min-h-[303px] overflow-hidden'}
       >
         <div className={'flex p-2 text-text-caption items-center justify-between'}>
           <span className={'font-medium flex-1 text-sm'}>{currentUser?.email}</span>
@@ -100,15 +100,7 @@ export function Workspaces () {
         </div>
 
         <Divider className={'w-full mt-1'} />
-        <Button
-          size={'small'}
-          className={'justify-start px-2'}
-          color={'inherit'}
-          onClick={() => {
-            //
-          }}
-          startIcon={<AddUserIcon />}
-        >{t('settings.appearance.members.inviteMembers')}</Button>
+        {selectedWorkspace && <InviteMember workspace={selectedWorkspace} />}
         <Button
           size={'small'}
           component={'div'}

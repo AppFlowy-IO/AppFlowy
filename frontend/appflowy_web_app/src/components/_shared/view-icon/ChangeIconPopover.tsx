@@ -19,6 +19,7 @@ function ChangeIconPopover ({
   onSelectIcon,
   removeIcon,
   anchorPosition,
+  hideRemove
 }: {
   open: boolean,
   anchorEl?: HTMLElement | null,
@@ -30,6 +31,7 @@ function ChangeIconPopover ({
   popoverProps?: Partial<PopoverProps>,
   onSelectIcon?: (icon: { ty: ViewIconType, value: string, color?: string }) => void,
   removeIcon?: () => void,
+  hideRemove?: boolean,
 }) {
   const [value, setValue] = useState(defaultType);
   const { t } = useTranslation();
@@ -69,7 +71,7 @@ function ChangeIconPopover ({
           }
 
         </ViewTabs>
-        <Button
+        {!hideRemove && <Button
           variant={'text'}
           color={'inherit'}
           size={'small'}
@@ -79,7 +81,8 @@ function ChangeIconPopover ({
           }}
         >
           {t('button.remove')}
-        </Button>
+        </Button>}
+
       </div>
 
       {iconEnabled && <TabPanel

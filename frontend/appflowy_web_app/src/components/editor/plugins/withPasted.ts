@@ -15,7 +15,6 @@ import { ReactEditor } from 'slate-react';
 import isURL from 'validator/lib/isURL';
 
 export const withPasted = (editor: ReactEditor) => {
-
   editor.insertTextData = (data: DataTransfer) => {
     if (!beforePasted(editor))
       return false;
@@ -25,9 +24,6 @@ export const withPasted = (editor: ReactEditor) => {
 
       const lines = text.split(/\r\n|\r|\n/);
 
-      console.log('insertTextData', {
-        lines,
-      });
       const html = data.getData('text/html');
 
       const lineLength = lines.filter(Boolean).length;
@@ -92,7 +88,7 @@ export const withPasted = (editor: ReactEditor) => {
   return editor;
 };
 
-function insertHtmlData (editor: ReactEditor, data: DataTransfer) {
+function insertHtmlData(editor: ReactEditor, data: DataTransfer) {
   const html = data.getData('text/html');
 
   if (html) {
@@ -107,7 +103,7 @@ function insertHtmlData (editor: ReactEditor, data: DataTransfer) {
   return false;
 }
 
-function insertFragment (editor: ReactEditor, fragment: Node[], options = {}) {
+function insertFragment(editor: ReactEditor, fragment: Node[], options = {}) {
   console.log('insertFragment', fragment, options);
   if (!beforePasted(editor))
     return;

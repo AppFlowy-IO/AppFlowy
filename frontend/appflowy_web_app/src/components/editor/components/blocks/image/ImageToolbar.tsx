@@ -14,7 +14,7 @@ import { ReactComponent as PreviewIcon } from '@/assets/full_view.svg';
 import { ReactComponent as DeleteIcon } from '@/assets/trash.svg';
 import { useReadOnly, useSlateStatic } from 'slate-react';
 
-function ImageToolbar ({ node }: {
+function ImageToolbar({ node }: {
   node: ImageBlockNode
 }) {
   const editor = useSlateStatic() as YjsEditor;
@@ -42,14 +42,14 @@ function ImageToolbar ({ node }: {
           onClick={onOpenPreview}
           tooltip={t('document.imageBlock.openFullScreen')}
         >
-          <PreviewIcon />
+          <PreviewIcon/>
         </ActionButton>}
 
         <ActionButton
           onClick={onCopy}
-          tooltip={t('editor.copy')}
+          tooltip={t('button.copyLinkOriginal')}
         >
-          <CopyIcon />
+          <CopyIcon/>
         </ActionButton>
 
         {!readOnly && <>
@@ -65,7 +65,7 @@ function ImageToolbar ({ node }: {
             onClick={onDelete}
             tooltip={t('button.delete')}
           >
-            <DeleteIcon />
+            <DeleteIcon/>
           </ActionButton></>}
 
       </div>
