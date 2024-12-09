@@ -34,6 +34,7 @@ class GridRow extends StatelessWidget {
     required this.cellBuilder,
     required this.openDetailPage,
     required this.index,
+    this.shrinkWrap = false,
   });
 
   final FieldController fieldController;
@@ -43,9 +44,20 @@ class GridRow extends StatelessWidget {
   final EditableCellBuilder cellBuilder;
   final void Function(BuildContext context) openDetailPage;
   final int index;
+  final bool shrinkWrap;
 
   @override
   Widget build(BuildContext context) {
+    Widget rowContent = RowContent(
+      fieldController: fieldController,
+      cellBuilder: cellBuilder,
+      onExpand: () => openDetailPage(context),
+    );
+
+    if (!shrinkWrap) {
+      rowContent = Expanded(child: rowContent);
+    }
+
     return BlocProvider(
       create: (_) => RowBloc(
         fieldController: fieldController,
@@ -56,17 +68,8 @@ class GridRow extends StatelessWidget {
       child: _RowEnterRegion(
         child: Row(
           children: [
-            _RowLeading(
-              viewId: viewId,
-              index: index,
-            ),
-            Expanded(
-              child: RowContent(
-                fieldController: fieldController,
-                cellBuilder: cellBuilder,
-                onExpand: () => openDetailPage(context),
-              ),
-            ),
+            _RowLeading(viewId: viewId, index: index),
+            rowContent,
           ],
         ),
       ),
