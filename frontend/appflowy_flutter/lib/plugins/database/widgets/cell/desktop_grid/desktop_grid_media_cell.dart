@@ -41,19 +41,30 @@ class GridMediaCellSkin extends IEditableMediaCellSkin {
     Widget child = BlocBuilder<MediaCellBloc, MediaCellState>(
       builder: (context, state) {
         final wrapContent = context.read<MediaCellBloc>().wrapContent;
-        final List<Widget> children = state.files
-            .map<Widget>(
-              (file) => GestureDetector(
-                onTap: () => _openOrExpandFile(context, file, state.files),
-                child: Padding(
-                  padding: wrapContent
-                      ? const EdgeInsets.only(right: 4)
-                      : EdgeInsets.zero,
-                  child: _FilePreviewRender(file: file),
+        final List<Widget> children = state.files.map<Widget>(
+          (file) {
+            return GestureDetector(
+              onTap: () {
+                // TODO(Nathan): Add retry event if file upload failed
+                // if (uploadFailed) {
+                //   return add_event_here;
+                // }
+
+                _openOrExpandFile(context, file, state.files);
+              },
+              child: Padding(
+                padding: wrapContent
+                    ? const EdgeInsets.only(right: 4)
+                    : EdgeInsets.zero,
+                child: _FilePreviewRender(
+                  file: file,
+                  // TODO(Nathan): Add error value for this file
+                  didError: false,
                 ),
               ),
-            )
-            .toList();
+            );
+          },
+        ).toList();
 
         if (isMobileRowDetail && state.files.isEmpty) {
           children.add(
@@ -220,29 +231,36 @@ class GridMediaCellSkin extends IEditableMediaCellSkin {
 }
 
 class _FilePreviewRender extends StatelessWidget {
-  const _FilePreviewRender({required this.file});
+  const _FilePreviewRender({required this.file, this.didError = false});
 
   final MediaFilePB file;
+  final bool didError;
 
   @override
   Widget build(BuildContext context) {
-    if (file.fileType != MediaFileTypePB.Image) {
+    if (file.fileType != MediaFileTypePB.Image || didError) {
       return FlowyTooltip(
-        message: file.name,
+        message: didError ? LocaleKeys.grid_media_uploadFailed.tr() : file.name,
         child: Container(
           height: 28,
           width: 28,
           clipBehavior: Clip.antiAlias,
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(didError ? 6 : 8),
           decoration: BoxDecoration(
             color: AFThemeExtension.of(context).greyHover,
             borderRadius: BorderRadius.circular(4),
           ),
-          child: FlowySvg(
-            file.fileType.icon,
-            size: const Size.square(12),
-            color: AFThemeExtension.of(context).textColor,
-          ),
+          child: didError
+              ? const FlowySvg(
+                  FlowySvgs.notice_s,
+                  size: Size.square(16),
+                  blendMode: BlendMode.dstIn,
+                )
+              : FlowySvg(
+                  file.fileType.icon,
+                  size: const Size.square(12),
+                  color: AFThemeExtension.of(context).textColor,
+                ),
         ),
       );
     }
