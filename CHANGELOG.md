@@ -1,5 +1,9 @@
 # Release Notes
 ## Version 0.7.6 - 03/12/2024
+### Bug Fixes
+
+
+## Version 0.7.6 - 03/12/2024
 ### New Features
 - Revamped the simple table UI
 - Added support for capturing images from camera on mobile
