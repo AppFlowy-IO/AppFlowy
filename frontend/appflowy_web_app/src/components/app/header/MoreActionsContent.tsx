@@ -22,7 +22,7 @@ function MoreActionsContent ({ itemClicked, viewId, movePopoverOrigins, onDelete
     <div className={'flex flex-col gap-2'}>
       <Button
         size={'small'}
-        className={'px-3 py-1 justify-start '}
+        className={'px-3 hidden py-1 justify-start '}
         color={'inherit'}
         onClick={() => {
           itemClicked?.();

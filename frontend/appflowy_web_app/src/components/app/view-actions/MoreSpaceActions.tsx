@@ -31,10 +31,12 @@ function MoreSpaceActions ({
     }, {
       label: t('space.duplicate'),
       icon: <DuplicateIcon />,
+      hidden: true,
       onClick: () => {
         //
       },
-    }];
+    }
+    ];
   }, [t]);
 
   return (
@@ -44,7 +46,7 @@ function MoreSpaceActions ({
           key={action.label}
           size={'small'}
           onClick={action.onClick}
-          className={`px-3 py-1 justify-start `}
+          className={`px-3 py-1 ${action.hidden ? 'hidden' : ''} justify-start `}
           color={'inherit'}
           startIcon={action.icon}
         >

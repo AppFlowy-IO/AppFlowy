@@ -75,7 +75,7 @@ function ViewItem ({ view, width, level = 0, renderExtra, expandIds, toggleExpan
           onClickView?.(viewId);
         }}
         className={
-          'flex items-center my-0.5 overflow-hidden cursor-pointer min-h-[34px] w-full gap-1 rounded-[8px] py-1.5 px-0.5 text-sm hover:bg-fill-list-hover focus:outline-none'
+          'flex items-center select-none my-0.5 overflow-hidden cursor-pointer min-h-[34px] w-full gap-1 rounded-[8px] py-1.5 px-0.5 text-sm hover:bg-fill-list-hover focus:outline-none'
         }
       >
         {view.children?.length ? getIcon() : null}
