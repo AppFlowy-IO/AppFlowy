@@ -166,6 +166,10 @@ class DateTransactionHandler extends MentionTransactionHandler {
   ) async {
     final dateTime = DateTime.tryParse(data.dateString);
 
+    if (node.delta == null) {
+      return;
+    }
+
     if (data.reminderId == null || dateTime == null) {
       return;
     }
