@@ -143,10 +143,13 @@ void _customBlockOptionActions(
     final actions = _buildOptionActions(context, entry.key);
 
     if (UniversalPlatform.isDesktop) {
-      builder.showActions = (node) =>
-          node.parent?.type != TableCellBlockKeys.type &&
-          node.parent?.type != SimpleTableCellBlockKeys.type &&
-          node.parentTableNode == null;
+      builder.showActions = (node) {
+        final parentTableNode = node.parentTableNode;
+        if (node.type != SimpleTableBlockKeys.type && parentTableNode != null) {
+          return false;
+        }
+        return true;
+      };
       builder.configuration = builder.configuration.copyWith(
         blockSelectionAreaMargin: (_) => const EdgeInsets.symmetric(
           vertical: 1,

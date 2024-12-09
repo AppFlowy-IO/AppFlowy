@@ -1,8 +1,8 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_cell_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_row_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_operations/simple_table_map_operation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_operations/simple_table_node_extension.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_row_block_component.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
@@ -149,7 +149,11 @@ extension TableInsertionOperations on EditorState {
   /// Row 1: |   |   |
   /// Row 2: |   |   |
   /// Row 3: |   |   | ← New row
-  Future<void> insertRowInTable(Node node, int index) async {
+  Future<void> insertRowInTable(
+    Node node,
+    int index, {
+    bool inMemoryUpdate = false,
+  }) async {
     assert(node.type == SimpleTableBlockKeys.type);
 
     if (node.type != SimpleTableBlockKeys.type) {
@@ -190,6 +194,9 @@ extension TableInsertionOperations on EditorState {
     if (attributes != null) {
       transaction.updateNode(node, attributes);
     }
-    await apply(transaction);
+    await apply(transaction,
+        options: ApplyOptions(
+          inMemoryUpdate: inMemoryUpdate,
+        ));
   }
 }

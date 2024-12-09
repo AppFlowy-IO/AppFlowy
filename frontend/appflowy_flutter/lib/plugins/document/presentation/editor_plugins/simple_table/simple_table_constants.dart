@@ -66,6 +66,9 @@ class SimpleTableContext {
   /// This value is only available when isReordering is true
   final ValueNotifier<Offset> reorderingOffset = ValueNotifier(Offset.zero);
 
+  /// isDraggingRow to expand the rows of the table
+  bool isDraggingRow = false;
+
   bool get isReordering =>
       isReorderingColumn.value.$1 || isReorderingRow.value.$1;
 
@@ -223,6 +226,10 @@ class SimpleTableConstants {
   static const moreActionPadding = EdgeInsets.symmetric(vertical: 2.0);
   static const moreActionHorizontalMargin =
       EdgeInsets.symmetric(horizontal: 6.0);
+
+  /// Only displaying the add row / add column / add column and row button
+  ///   when hovering on the last row / last column / last cell.
+  static const enableHoveringLogicV2 = true;
 }
 
 enum SimpleTableBorderRenderType {
