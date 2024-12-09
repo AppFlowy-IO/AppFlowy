@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/flowy_search_text_field.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
+import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -18,20 +19,29 @@ Future<ViewPB?> showPageSelectorSheet(
 
   return showMobileBottomSheet<ViewPB>(
     context,
-    // title: LocaleKeys.document_mobilePageSelector_title.tr(),
     backgroundColor: Theme.of(context).colorScheme.surface,
     maxChildSize: 0.98,
     enableDraggableScrollable: true,
-    builder: (context) => _MobilePageSelectorBody(filter: filter),
+    scrollableWidgetBuilder: (context, scrollController) {
+      return Expanded(
+        child: _MobilePageSelectorBody(
+          filter: filter,
+          scrollController: scrollController,
+        ),
+      );
+    },
+    builder: (context) => const SizedBox.shrink(),
   );
 }
 
 class _MobilePageSelectorBody extends StatefulWidget {
   const _MobilePageSelectorBody({
     this.filter,
+    this.scrollController,
   });
 
   final bool Function(ViewPB view)? filter;
+  final ScrollController? scrollController;
 
   @override
   State<_MobilePageSelectorBody> createState() =>
@@ -50,27 +60,61 @@ class _MobilePageSelectorBodyState extends State<_MobilePageSelectorBody> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          height: 44.0,
-          child: FlowySearchTextField(
-            controller: textController,
-            onChanged: (_) => setState(() {}),
+    return CustomScrollView(
+      controller: widget.scrollController,
+      shrinkWrap: true,
+      slivers: [
+        SliverPersistentHeader(
+          pinned: true,
+          delegate: _Header(
+            child: ColoredBox(
+              color: Theme.of(context).cardColor,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const DragHandle(),
+                  SizedBox(
+                    height: 44.0,
+                    child: Center(
+                      child: FlowyText.medium(
+                        LocaleKeys.document_mobilePageSelector_title.tr(),
+                        fontSize: 16.0,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 8.0,
+                    ),
+                    child: SizedBox(
+                      height: 44.0,
+                      child: FlowySearchTextField(
+                        controller: textController,
+                        onChanged: (_) => setState(() {}),
+                      ),
+                    ),
+                  ),
+                  const Divider(height: 0.5, thickness: 0.5),
+                ],
+              ),
+            ),
           ),
         ),
         FutureBuilder(
           future: _viewsFuture,
           builder: (_, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator.adaptive();
+              return const SliverToBoxAdapter(
+                child: CircularProgressIndicator.adaptive(),
+              );
             }
 
             if (snapshot.hasError || snapshot.data == null) {
-              return FlowyText(
-                LocaleKeys.document_mobilePageSelector_failedToLoad.tr(),
+              return SliverToBoxAdapter(
+                child: FlowyText(
+                  LocaleKeys.document_mobilePageSelector_failedToLoad.tr(),
+                ),
               );
             }
 
@@ -87,37 +131,42 @@ class _MobilePageSelectorBodyState extends State<_MobilePageSelectorBody> {
             );
 
             if (filtered.isEmpty) {
-              return FlowyText(
-                LocaleKeys.document_mobilePageSelector_noPagesFound.tr(),
+              return SliverToBoxAdapter(
+                child: FlowyText(
+                  LocaleKeys.document_mobilePageSelector_noPagesFound.tr(),
+                ),
               );
             }
 
-            return ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: filtered.length,
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              itemBuilder: (context, index) {
-                final view = filtered.elementAt(index);
-                return InkWell(
-                  onTap: () => Navigator.of(context).pop(view),
-                  borderRadius: BorderRadius.circular(12),
-                  splashColor: Colors.transparent,
-                  child: Container(
-                    height: 44,
-                    padding: const EdgeInsets.all(4.0),
-                    child: Row(
-                      children: [
-                        MentionViewIcon(view: view),
-                        const HSpace(8),
-                        Expanded(
-                          child: MentionViewTitleAndAncestors(view: view),
+            return SliverPadding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final view = filtered.elementAt(index);
+                    return InkWell(
+                      onTap: () => Navigator.of(context).pop(view),
+                      borderRadius: BorderRadius.circular(12),
+                      splashColor: Colors.transparent,
+                      child: Container(
+                        height: 44,
+                        padding: const EdgeInsets.all(4.0),
+                        child: Row(
+                          children: [
+                            MentionViewIcon(view: view),
+                            const HSpace(8),
+                            Expanded(
+                              child: MentionViewTitleAndAncestors(view: view),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+                      ),
+                    );
+                  },
+                  childCount: filtered.length,
+                ),
+              ),
             );
           },
         ),
@@ -127,4 +176,32 @@ class _MobilePageSelectorBodyState extends State<_MobilePageSelectorBody> {
 
   Future<List<ViewPB>> _fetchViews() async =>
       (await ViewBackendService.getAllViews()).toNullable()?.items ?? [];
+}
+
+class _Header extends SliverPersistentHeaderDelegate {
+  const _Header({
+    required this.child,
+  });
+
+  final Widget child;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return child;
+  }
+
+  @override
+  double get maxExtent => 120.5;
+
+  @override
+  double get minExtent => 120.5;
+
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
+    return false;
+  }
 }
