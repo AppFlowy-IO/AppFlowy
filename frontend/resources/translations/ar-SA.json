@@ -402,7 +402,20 @@
       "namespace": {
         "onlyWorkspaceOwnerCanSetHomePage": "يمكن فقط لمالك مساحة العمل تعيين الصفحة الرئيسية",
         "pleaseAskOwnerToSetHomePage": "يرجى طلب الترقية إلى الخطة الاحترافية من مالك مساحة العمل"
+      },
+      "publishedPage": {
+        "emptyHinText": "ليس لديك صفحات منشورة في مساحة العمل هذه"
+      },
+      "error": {
+        "onlyWorkspaceOwnerCanUpdateNamespace": "يمكن فقط لمالك مساحة العمل تحديث مساحة الاسم",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "لا يمكن إلا لمالك مساحة العمل إزالة الصفحة الرئيسية",
+        "publishPermissionDenied": "يمكن فقط لمالك مساحة العمل أو ناشر الصفحة إدارة إعدادات النشر"
       }
+    },
+    "workspacePage": {
+      "menuLabel": "مساحة العمل",
+      "title": "مساحة العمل",
+      "description": "قم بتخصيص مظهر مساحة العمل الخاصة بك، والموضوع، والخط، وتخطيط النص، وتنسيق التاريخ/الوقت، واللغة."
     },
     "menu": {
       "appearance": "مظهر",
