@@ -24,6 +24,7 @@ class DesktopRowDetailRelationCellSkin extends IEditableRelationCellSkin {
       direction: PopoverDirection.bottomWithLeftAligned,
       constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
       margin: EdgeInsets.zero,
+      asBarrier: true,
       onClose: () => cellContainerNotifier.isFocus = false,
       popupBuilder: (context) {
         return BlocProvider.value(
