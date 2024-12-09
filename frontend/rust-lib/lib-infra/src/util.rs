@@ -1,3 +1,4 @@
+#[allow(unused_imports)]
 use tracing::info;
 
 #[macro_export]
@@ -142,6 +143,6 @@ pub fn get_operating_system() -> OperatingSystem {
 #[macro_export]
 macro_rules! sync_trace {
     ($($arg:tt)*) => {
-        info!(target: "collab", $($arg)*);
+        tracing::info!(target: "sync_trace_log", $($arg)*);
     };
 }

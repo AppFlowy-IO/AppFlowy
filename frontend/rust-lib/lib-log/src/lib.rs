@@ -34,7 +34,7 @@ pub struct Builder {
   stream_log_sender: Option<Arc<dyn StreamLogSender>>,
 }
 
-const SYNC_TARGET: &str = "collab";
+const SYNC_TARGET: &str = "sync_trace_log";
 impl Builder {
   pub fn new(
     name: &str,
@@ -83,6 +83,7 @@ impl Builder {
     let (sync_log_non_blocking, sync_log_guard) =
       tracing_appender::non_blocking(self.sync_log_appender);
     *COLLAB_SYNC_LOG_GUARD.write().unwrap() = Some(sync_log_guard);
+
     let collab_sync_file_layer = FlowyFormattingLayer::new(sync_log_non_blocking)
       .with_target_filter(|target| target == SYNC_TARGET);
 

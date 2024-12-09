@@ -212,6 +212,7 @@ class AppFlowyCloudSharedEnv {
         base_url: Env.afCloudUrl,
         ws_base_url: await _getAppFlowyCloudWSUrl(Env.afCloudUrl),
         gotrue_url: await _getAppFlowyCloudGotrueUrl(Env.afCloudUrl),
+        enable_sync_trace: true,
       );
 
       return AppFlowyCloudSharedEnv(
@@ -241,12 +242,14 @@ Future<AppFlowyCloudConfiguration> configurationFromUri(
       base_url: "$baseUrl:8000",
       ws_base_url: "ws://${baseUri.host}:8000/ws/v1",
       gotrue_url: "$baseUrl:9999",
+      enable_sync_trace: true,
     );
   } else {
     return AppFlowyCloudConfiguration(
       base_url: baseUrl,
       ws_base_url: await _getAppFlowyCloudWSUrl(baseUrl),
       gotrue_url: await _getAppFlowyCloudGotrueUrl(baseUrl),
+      enable_sync_trace: await _getEnableSyncTrace(),
     );
   }
 }
@@ -269,6 +272,20 @@ Future<String> getAppFlowyCloudUrl() async {
   final result =
       await getIt<KeyValueStorage>().get(KVKeys.kAppflowyCloudBaseURL);
   return result ?? kAppflowyCloudUrl;
+}
+
+Future<bool> _getEnableSyncTrace() async {
+  final result =
+      await getIt<KeyValueStorage>().get(KVKeys.kAppFlowyEnableSyncTrace);
+
+  return result?.toLowerCase() == "true";
+}
+
+Future<void> setEnableSyncTrace(bool enable) async {
+  await getIt<KeyValueStorage>().set(
+    KVKeys.kAppFlowyEnableSyncTrace,
+    enable.toString().toLowerCase(),
+  );
 }
 
 Future<String> _getAppFlowyCloudWSUrl(String baseURL) async {

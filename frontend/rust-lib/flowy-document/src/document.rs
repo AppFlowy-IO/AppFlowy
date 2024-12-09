@@ -10,7 +10,11 @@ use lib_infra::sync_trace;
 pub fn subscribe_document_changed(doc_id: &str, document: &mut Document) {
   let doc_id_clone_for_block_changed = doc_id.to_owned();
   document.subscribe_block_changed("key", move |events, is_remote| {
-    sync_trace!("document block changed: {:?}", events);
+    sync_trace!(
+      "[Document] block changed: is_remote: {}, {:?}",
+      is_remote,
+      events
+    );
 
     // send notification to the client.
     document_notification_builder(
