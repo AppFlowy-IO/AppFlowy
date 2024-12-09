@@ -197,8 +197,20 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
       (p) => false,
     );
 
-    Log.info(
-      'get publish info: $publishInfo for view: ${view.name}(${view.id})',
+    // skip the "Record not found" error, it's because the view is not published yet
+    publishInfo.fold(
+      (s) {
+        Log.info(
+          'get publish info success: $publishInfo for view: ${view.name}(${view.id})',
+        );
+      },
+      (f) {
+        if (f.code != ErrorCode.RecordNotFound) {
+          Log.info(
+            'get publish info failed: $f for view: ${view.name}(${view.id})',
+          );
+        }
+      },
     );
 
     String workspaceId = state.workspaceId;
