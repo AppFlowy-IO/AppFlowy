@@ -171,7 +171,8 @@
     "copyLink": "Copy link",
     "changeIcon": "Change icon",
     "collapseAllPages": "Collapse all subpages",
-    "movePageTo": "Move page to"
+    "movePageTo": "Move page to",
+    "move": "Move"
   },
   "blankPageTitle": "Blank page",
   "newPageText": "New page",

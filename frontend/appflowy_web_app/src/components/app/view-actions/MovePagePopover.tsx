@@ -112,7 +112,7 @@ function MovePagePopover ({
         <Divider className={'mb-1'} />
         <div className={'flex items-center justify-end'}>
           <Button onClick={handleMoveTo} size={'small'} color={'primary'} variant={'contained'}>
-            {t('disclosureAction.moveTo')}
+            {t('disclosureAction.move')}
           </Button>
         </div>
       </div>
