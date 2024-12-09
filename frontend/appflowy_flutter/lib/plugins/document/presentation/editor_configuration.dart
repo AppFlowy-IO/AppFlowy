@@ -15,6 +15,24 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+/// The node types that support slash menu.
+final Set<String> supportSlashMenuNodeTypes = {
+  ParagraphBlockKeys.type,
+  HeadingBlockKeys.type,
+
+  // Lists
+  TodoListBlockKeys.type,
+  BulletedListBlockKeys.type,
+  NumberedListBlockKeys.type,
+  QuoteBlockKeys.type,
+  ToggleListBlockKeys.type,
+
+  // Simple table
+  SimpleTableBlockKeys.type,
+  SimpleTableRowBlockKeys.type,
+  SimpleTableCellBlockKeys.type,
+};
+
 /// Build the block component builders.
 ///
 /// Every block type should have a corresponding builder in the map.
@@ -162,6 +180,7 @@ void _customBlockOptionActions(
                       shouldInsertSlash: false,
                       deleteKeywordsByDefault: true,
                       style: styleCustomizer.selectionMenuStyleBuilder(),
+                      supportSlashMenuNodeTypes: supportSlashMenuNodeTypes,
                     ).handler.call(editorState)
                 : () {},
           ),
