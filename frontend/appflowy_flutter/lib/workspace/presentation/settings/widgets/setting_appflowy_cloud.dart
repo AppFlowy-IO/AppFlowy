@@ -346,9 +346,26 @@ class AppFlowyCloudSyncLogEnabled extends StatelessWidget {
             const Spacer(),
             Toggle(
               value: state.isSyncLogEnabled,
-              onChanged: (value) => context
-                  .read<AppFlowyCloudSettingBloc>()
-                  .add(AppFlowyCloudSettingEvent.enableSyncLog(value)),
+              onChanged: (value) {
+                if (value) {
+                  showCancelAndConfirmDialog(
+                    context: context,
+                    title: LocaleKeys.settings_menu_enableSyncLog.tr(),
+                    description:
+                        LocaleKeys.settings_menu_enableSyncLogWarning.tr(),
+                    confirmLabel: LocaleKeys.button_confirm.tr(),
+                    onConfirm: () {
+                      context
+                          .read<AppFlowyCloudSettingBloc>()
+                          .add(AppFlowyCloudSettingEvent.enableSyncLog(value));
+                    },
+                  );
+                } else {
+                  context
+                      .read<AppFlowyCloudSettingBloc>()
+                      .add(AppFlowyCloudSettingEvent.enableSyncLog(value));
+                }
+              },
             ),
           ],
         );

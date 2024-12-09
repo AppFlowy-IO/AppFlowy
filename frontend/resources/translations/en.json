@@ -1037,7 +1037,7 @@
       "cloudSettings": "Cloud Settings",
       "enableSync": "Enable sync",
       "enableSyncLog": "Enable sync logging",
-      "enableSyncLogWarning": "Enable sync logging to help diagnose synchronization issues. Note that this may log your document or database data to a local file. Please exercise caution if you plan to share these logs with others",
+      "enableSyncLogWarning": "Thank you for helping diagnose sync issues. This will log your document edits to a local file. Please quit and reopen the app after enabling",
       "enableEncrypt": "Encrypt data",
       "cloudURL": "Base URL",
       "invalidCloudURLScheme": "Invalid Scheme",

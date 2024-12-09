@@ -242,7 +242,7 @@ Future<AppFlowyCloudConfiguration> configurationFromUri(
       base_url: "$baseUrl:8000",
       ws_base_url: "ws://${baseUri.host}:8000/ws/v1",
       gotrue_url: "$baseUrl:9999",
-      enable_sync_trace: await getSyncLogEnabled(),
+      enable_sync_trace: true,
     );
   } else {
     return AppFlowyCloudConfiguration(
