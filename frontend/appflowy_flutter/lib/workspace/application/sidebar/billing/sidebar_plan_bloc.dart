@@ -12,7 +12,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
 part 'sidebar_plan_bloc.freezed.dart';
 
 class SidebarPlanBloc extends Bloc<SidebarPlanEvent, SidebarPlanState> {
@@ -114,8 +113,7 @@ class SidebarPlanBloc extends Bloc<SidebarPlanEvent, SidebarPlanState> {
         } else if (error.code == ErrorCode.SingleUploadLimitExceeded) {
           emit(
             state.copyWith(
-              tierIndicator:
-                  const SidebarToastTierIndicator.singleFileLimitHit(),
+              tierIndicator: const SidebarToastTierIndicator.singleFileLimitHit(),
             ),
           );
         } else {
@@ -186,9 +184,12 @@ class SidebarPlanBloc extends Bloc<SidebarPlanEvent, SidebarPlanState> {
     if (state.workspaceId != null) {
       final payload = UserWorkspaceIdPB(workspaceId: state.workspaceId!);
       UserEventGetWorkspaceUsage(payload).send().then((result) {
-        result.onSuccess(
+        result.fold(
           (usage) {
             add(SidebarPlanEvent.updateWorkspaceUsage(usage));
+          },
+          (error) {
+            Log.error("Failed to get workspace usage, error: $error");
           },
         );
       });
@@ -230,8 +231,7 @@ class SidebarPlanState with _$SidebarPlanState {
 @freezed
 class SidebarToastTierIndicator with _$SidebarToastTierIndicator {
   const factory SidebarToastTierIndicator.storageLimitHit() = _StorageLimitHit;
-  const factory SidebarToastTierIndicator.singleFileLimitHit() =
-      _SingleFileLimitHit;
+  const factory SidebarToastTierIndicator.singleFileLimitHit() = _SingleFileLimitHit;
   const factory SidebarToastTierIndicator.aiMaxiLimitHit() = _aiMaxLimitHit;
   const factory SidebarToastTierIndicator.loading() = _Loading;
 }

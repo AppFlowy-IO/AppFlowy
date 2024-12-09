@@ -117,40 +117,10 @@ Future<bool> inlinePageReferenceCommandHandler(
       initialResults: initialResults,
       style: style,
       startCharAmount: previousChar != null ? 2 : 1,
-      cancelBySpaceHandler: () {
-        if (character == _plusChar) {
-          final currentSelection = editorState.selection;
-          if (currentSelection == null) {
-            return false;
-          }
-          // check if the space is after the character
-          if (currentSelection.isCollapsed &&
-              currentSelection.start.offset ==
-                  selection.start.offset + character.length) {
-            _cancelInlinePageReferenceMenu(editorState);
-            return true;
-          }
-        }
-        return false;
-      },
     );
 
     selectionMenuService?.show();
   }
 
   return true;
-}
-
-void _cancelInlinePageReferenceMenu(EditorState editorState) {
-  selectionMenuService?.dismiss();
-  selectionMenuService = null;
-
-  // re-focus the selection
-  final selection = editorState.selection;
-  if (selection != null) {
-    editorState.updateSelectionWithReason(
-      selection,
-      reason: SelectionUpdateReason.uiEvent,
-    );
-  }
 }

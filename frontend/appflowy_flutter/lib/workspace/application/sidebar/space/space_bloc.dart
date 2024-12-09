@@ -329,15 +329,14 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             final (spaces, _, _) = await _getSpaces();
             final currentSpace = await _getLastOpenedSpace(spaces);
 
-            Log.info(
-              'receive space update, current space: ${currentSpace?.name}(${currentSpace?.id})',
-            );
-
             for (var i = 0; i < spaces.length; i++) {
               Log.info(
-                'receive space update[$i]: ${spaces[i].name}(${spaces[i].id})',
+                'did receive space update[$i]: ${spaces[i].name}(${spaces[i].id})',
               );
             }
+            Log.info(
+              'did receive space update, current space: ${currentSpace?.name}(${currentSpace?.id})',
+            );
 
             emit(
               state.copyWith(

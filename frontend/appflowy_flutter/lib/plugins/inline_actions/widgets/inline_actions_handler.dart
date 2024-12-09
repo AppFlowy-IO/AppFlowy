@@ -62,7 +62,6 @@ class InlineActionsHandler extends StatefulWidget {
     required this.onSelectionUpdate,
     required this.style,
     this.startCharAmount = 1,
-    this.cancelBySpaceHandler,
   });
 
   final InlineActionsService service;
@@ -73,7 +72,6 @@ class InlineActionsHandler extends StatefulWidget {
   final VoidCallback onSelectionUpdate;
   final InlineActionsMenuStyle style;
   final int startCharAmount;
-  final bool Function()? cancelBySpaceHandler;
 
   @override
   State<InlineActionsHandler> createState() => _InlineActionsHandlerState();
@@ -290,17 +288,12 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
       /// that the selection change occurred from the handler.
       widget.onSelectionUpdate();
 
-      if (event.logicalKey == LogicalKeyboardKey.space) {
-        final cancelBySpaceHandler = widget.cancelBySpaceHandler;
-        if (cancelBySpaceHandler != null && cancelBySpaceHandler()) {
-          return KeyEventResult.handled;
-        }
-      }
-
       // Interpolation to avoid having a getter for private variable
       _insertCharacter(event.character!);
       return KeyEventResult.handled;
-    } else if (moveKeys.contains(event.logicalKey)) {
+    }
+
+    if (moveKeys.contains(event.logicalKey)) {
       _moveSelection(event.logicalKey);
       return KeyEventResult.handled;
     }

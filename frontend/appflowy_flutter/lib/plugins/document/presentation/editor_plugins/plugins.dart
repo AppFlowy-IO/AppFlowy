@@ -57,7 +57,6 @@ export 'openai/widgets/ai_writer_block_component.dart';
 export 'openai/widgets/ask_ai_block_component.dart';
 export 'openai/widgets/ask_ai_toolbar_item.dart';
 export 'outline/outline_block_component.dart';
-export 'parsers/document_markdown_parsers.dart';
 export 'parsers/markdown_parsers.dart';
 export 'parsers/markdown_simple_table_parser.dart';
 export 'quote/quote_block_shortcuts.dart';

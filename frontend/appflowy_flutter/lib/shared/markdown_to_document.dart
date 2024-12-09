@@ -20,8 +20,6 @@ String customDocumentToMarkdown(Document document) {
       const ToggleListNodeParser(),
       const CustomImageNodeParser(),
       const SimpleTableNodeParser(),
-      const LinkPreviewNodeParser(),
-      const FileBlockNodeParser(),
     ],
   );
 }
