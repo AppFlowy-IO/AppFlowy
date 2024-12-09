@@ -220,12 +220,12 @@ class InteractiveImageToolbar extends StatelessWidget {
   Future<void> _locateOrDownloadImage(BuildContext context) async {
     if (currentImage.isLocal) {
       /// If the image type is local, we simply open the image
-      await afLaunchUrl(Uri.file(currentImage.url));
+      await afLaunchUri(Uri.file(currentImage.url));
     } else if (currentImage.isNotInternal) {
       // In case of eg. Unsplash images (images without extension type in URL),
       // we don't know their mimetype. In the future we can write a parser
       // using the Mime package and read the image to get the proper extension.
-      await afLaunchUrl(Uri.parse(currentImage.url));
+      await afLaunchUri(Uri.parse(currentImage.url));
     } else {
       if (userProfile == null) {
         return showSnapBar(

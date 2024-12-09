@@ -25,6 +25,7 @@ abstract class EditorTransactionHandler<T> {
 
   Future<void> onTransaction(
     BuildContext context,
+    String viewId,
     EditorState editorState,
     List<T> added,
     List<T> removed, {
