@@ -4,16 +4,18 @@ import { filterOutByCondition } from '@/components/_shared/outline/utils';
 import { Popover } from '@/components/_shared/popover';
 import { useAppHandlers, useAppOutline } from '@/components/app/app.hooks';
 import SpaceItem from '@/components/app/outline/SpaceItem';
-import { IconButton, OutlinedInput, Tooltip } from '@mui/material';
+import { Button, Divider, OutlinedInput } from '@mui/material';
 import { PopoverProps } from '@mui/material/Popover';
 import React, { useMemo } from 'react';
 import { ReactComponent as SearchOutlined } from '@/assets/search.svg';
 import { useTranslation } from 'react-i18next';
-import { ReactComponent as MoveIcon } from '@/assets/move_down.svg';
+import OutlineIcon from '@/components/_shared/outline/OutlineIcon';
+import { ReactComponent as SelectedIcon } from '@/assets/selected.svg';
 
 function MovePagePopover ({
   viewId,
   onMoved,
+  onClose,
   ...props
 }: PopoverProps & {
   viewId: string;
@@ -39,38 +41,31 @@ function MovePagePopover ({
     });
   }, []);
 
-  const renderExtra = React.useCallback(({ hovered, view }: {
-    hovered: boolean;
-    view: View
-  }) => {
-    if (!hovered) return null;
-    return <Tooltip
-      disableInteractive={true}
-      title={t('disclosureAction.moveTo') + `: ${view.name || t('menuAppHeader.defaultNewPageName')}`}
-    ><IconButton
-      size={'small'}
-      className={'move-to-icon mx-2'}
-      onClick={async (e) => {
-        e.stopPropagation();
-        try {
-          await movePage?.(viewId, view.view_id);
-          props.onClose?.(e, 'backdropClick');
-          onMoved?.();
-          // eslint-disable-next-line
-        } catch (e: any) {
-          notify.error(e.message);
-        }
-      }}
-    >
-      <MoveIcon />
-    </IconButton></Tooltip>;
-  }, [movePage, onMoved, props, t, viewId]);
+  const [selectedViewId, setSelectedViewId] = React.useState<string | null>(null);
+
+  const handleMoveTo = React.useCallback(async () => {
+    if (selectedViewId) {
+      try {
+        await movePage?.(viewId, selectedViewId);
+        onClose?.({}, 'backdropClick');
+        onMoved?.();
+        // eslint-disable-next-line
+      } catch (e: any) {
+        notify.error(e.message);
+      }
+    }
+  }, [movePage, onMoved, onClose, selectedViewId, viewId]);
+
+  const renderExtra = React.useCallback(({ view }: { view: View }) => {
+    if (view.view_id !== selectedViewId) return null;
+    return <SelectedIcon className={'w-5 h-5 text-fill-default mx-2'} />;
+  }, [selectedViewId]);
 
   return (
-    <Popover {...props}>
-      <div className={'flex folder-views w-full flex-1 flex-col gap-1 py-[10px] px-[10px]'}>
+    <Popover {...props} onClose={onClose}>
+      <div className={'flex folder-views w-[320px] flex-1 flex-col gap-1 py-[10px] px-[10px]'}>
         <OutlinedInput
-          startAdornment={<SearchOutlined className={'h-6 h-6'} />}
+          startAdornment={<SearchOutlined className={'h-4 w-4'} />}
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
@@ -82,19 +77,44 @@ function MovePagePopover ({
           autoComplete={'off'}
           spellCheck={false}
           inputProps={{
-            className: 'px-2 py-1.5 text-base',
+            className: 'px-2 py-1.5 text-sm',
           }}
           className={'search-emoji-input'}
-          placeholder={t('search.label')}
+          placeholder={t('disclosureAction.movePageTo')}
         />
-        {views.map((view) => <SpaceItem
-          view={view}
-          key={view.view_id}
-          width={268}
-          expandIds={expandViewIds}
-          toggleExpand={toggleExpandView}
-          renderExtra={renderExtra}
-        />)}
+        <div className={'flex-1 max-h-[400px] overflow-x-hidden overflow-y-auto appflowy-custom-scroller'}>
+          {views.map((view) => {
+            const isExpanded = expandViewIds.includes(view.view_id);
+
+            return <div className={'flex items-start gap-1'}>
+              <div className={'h-[34px] flex items-center'}>
+                <OutlineIcon isExpanded={isExpanded} setIsExpanded={(status) => {
+                  toggleExpandView(view.view_id, status);
+                }} level={0} />
+              </div>
+
+              <SpaceItem
+                view={view}
+                key={view.view_id}
+                width={268}
+                expandIds={expandViewIds}
+                toggleExpand={toggleExpandView}
+                onClickView={viewId => {
+                  toggleExpandView(viewId, !expandViewIds.includes(viewId));
+                  setSelectedViewId(viewId);
+                }}
+                onClickSpace={setSelectedViewId}
+                renderExtra={renderExtra}
+              /></div>
+          })}
+        </div>
+
+        <Divider className={'mb-1'} />
+        <div className={'flex items-center justify-end'}>
+          <Button onClick={handleMoveTo} size={'small'} color={'primary'} variant={'contained'}>
+            {t('disclosureAction.moveTo')}
+          </Button>
+        </div>
       </div>
     </Popover>
   );

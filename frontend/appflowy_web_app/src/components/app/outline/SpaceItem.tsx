@@ -12,6 +12,7 @@ function SpaceItem ({
   expandIds,
   toggleExpand,
   onClickView,
+  onClickSpace,
 }: {
   view: View;
   width: number;
@@ -25,6 +26,7 @@ function SpaceItem ({
     view: View
   }) => React.ReactNode;
   onClickView?: (viewId: string) => void;
+  onClickSpace?: (viewId: string) => void;
 }) {
   const [hovered, setHovered] = React.useState<boolean>(false);
   const isExpanded = expandIds.includes(view.view_id);
@@ -41,11 +43,12 @@ function SpaceItem ({
         }}
         onClick={() => {
           toggleExpand(view.view_id, !isExpanded);
+          onClickSpace?.(view.view_id);
         }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         className={
-          'flex items-center px-1 truncate cursor-pointer min-h-[34px] w-full gap-0.5 rounded-[8px] py-1.5  text-sm hover:bg-fill-list-hover focus:bg-content-blue-50 focus:outline-none'
+          'flex items-center select-none px-1 truncate cursor-pointer min-h-[34px] w-full gap-0.5 rounded-[8px] py-1.5  text-sm hover:bg-fill-list-hover focus:bg-content-blue-50 focus:outline-none'
         }
       >
         <SpaceIcon
@@ -72,7 +75,7 @@ function SpaceItem ({
           renderExtra && renderExtra({ hovered, view })}
       </div>
     );
-  }, [hovered, isExpanded, isPrivate, renderExtra, toggleExpand, view, width]);
+  }, [hovered, isExpanded, isPrivate, onClickSpace, renderExtra, toggleExpand, view, width]);
 
   const renderChildren = useMemo(() => {
     return <div
