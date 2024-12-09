@@ -5,8 +5,8 @@ use client_api::entity::chat_dto::{
   RepeatedChatMessage,
 };
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, LocalAIConfig, StreamAnswer,
-  StreamComplete, SubscriptionPlan,
+  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings, LocalAIConfig,
+  StreamAnswer, StreamComplete, SubscriptionPlan, UpdateChatParams,
 };
 use flowy_error::FlowyError;
 use futures_util::{StreamExt, TryStreamExt};
@@ -30,13 +30,14 @@ where
     _uid: &i64,
     workspace_id: &str,
     chat_id: &str,
+    rag_ids: Vec<String>,
   ) -> Result<(), FlowyError> {
     let chat_id = chat_id.to_string();
     let try_get_client = self.inner.try_get_client();
     let params = CreateChatParams {
       chat_id,
       name: "".to_string(),
-      rag_ids: vec![],
+      rag_ids,
     };
     try_get_client?
       .create_chat(workspace_id, params)
@@ -215,5 +216,32 @@ where
       .get_active_workspace_subscriptions(workspace_id)
       .await?;
     Ok(plans)
+  }
+
+  async fn get_chat_settings(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+  ) -> Result<ChatSettings, FlowyError> {
+    let settings = self
+      .inner
+      .try_get_client()?
+      .get_chat_settings(workspace_id, chat_id)
+      .await?;
+    Ok(settings)
+  }
+
+  async fn update_chat_settings(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    params: UpdateChatParams,
+  ) -> Result<(), FlowyError> {
+    self
+      .inner
+      .try_get_client()?
+      .update_chat_settings(workspace_id, chat_id, params)
+      .await?;
+    Ok(())
   }
 }

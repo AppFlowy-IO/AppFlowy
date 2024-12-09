@@ -10,8 +10,7 @@ use serde::Serialize;
 use tracing::trace;
 
 use crate::entities::{
-  FieldType, GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB,
-  RowMetaPB,
+  FieldType, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB, RowMetaPB,
 };
 use crate::services::cell::{get_cell_protobuf, CellProtobufBlobParser};
 use crate::services::field::{default_type_option_data_from_type, TypeOption, TypeOptionCellData};
@@ -380,10 +379,6 @@ where
       tracing::warn!("Unexpected moving group row, changes should not be empty");
     }
     Ok(result)
-  }
-
-  fn did_update_group_field(&mut self, _field: &Field) -> FlowyResult<Option<GroupChangesPB>> {
-    Ok(None)
   }
 
   async fn delete_group(

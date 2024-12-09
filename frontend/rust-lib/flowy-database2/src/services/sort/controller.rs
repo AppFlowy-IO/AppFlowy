@@ -177,7 +177,7 @@ impl SortController {
     let task = Task::new(
       &self.handler_id,
       task_id,
-      TaskContent::Text(task_type.to_string()),
+      TaskContent::Text(task_type.to_json_string()),
       qos,
     );
     self.task_scheduler.write().await.add_task(task);
@@ -351,8 +351,8 @@ enum SortEvent {
   DeleteAllSorts,
 }
 
-impl ToString for SortEvent {
-  fn to_string(&self) -> String {
+impl SortEvent {
+  fn to_json_string(&self) -> String {
     serde_json::to_string(self).unwrap()
   }
 }

@@ -2,18 +2,16 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use super::notify_did_update_calculation;
+use super::{notify_did_update_calculation, DatabaseViewChanged};
 use crate::entities::{
-  CalendarEventPB, CreateRowPayloadPB, DatabaseLayoutMetaPB, DatabaseLayoutSettingPB,
-  DeleteSortPayloadPB, FieldSettingsChangesetPB, FieldType, GroupChangesPB, GroupPB, InsertedRowPB,
-  LayoutSettingChangeset, LayoutSettingParams, RemoveCalculationChangesetPB, ReorderSortPayloadPB,
-  RowMetaPB, RowsChangePB, SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB,
-  UpdateSortPayloadPB,
+  CalculationChangesetNotificationPB, CalendarEventPB, CreateRowPayloadPB, DatabaseLayoutMetaPB,
+  DatabaseLayoutSettingPB, DeleteSortPayloadPB, FieldSettingsChangesetPB, FieldType,
+  GroupChangesPB, GroupPB, InsertedRowPB, LayoutSettingChangeset, LayoutSettingParams,
+  RemoveCalculationChangesetPB, ReorderSortPayloadPB, RowMetaPB, RowsChangePB,
+  SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB, UpdateSortPayloadPB,
 };
-use crate::notification::{send_notification, DatabaseNotification};
-use crate::services::calculations::{
-  Calculation, CalculationChangeset, CalculationEvent, CalculationsController,
-};
+use crate::notification::{database_notification_builder, DatabaseNotification};
+use crate::services::calculations::{Calculation, CalculationChangeset, CalculationsController};
 use crate::services::cell::{CellBuilder, CellCache};
 use crate::services::database::{database_view_setting_pb_from_view, DatabaseRowEvent, UpdatedRow};
 use crate::services::database_view::view_calculations::make_calculations_controller;
@@ -36,14 +34,14 @@ use crate::services::sort::{Sort, SortChangeset, SortController};
 use collab_database::database::{gen_database_calculation_id, gen_database_sort_id, gen_row_id};
 use collab_database::entity::DatabaseView;
 use collab_database::fields::Field;
-use collab_database::rows::{Cells, CreateRowParams, Row, RowCell, RowDetail, RowId};
+use collab_database::rows::{Cell, Cells, CreateRowParams, Row, RowCell, RowDetail, RowId};
 use collab_database::views::{DatabaseLayout, RowOrder};
 use dashmap::DashMap;
 use flowy_error::{FlowyError, FlowyResult};
-use lib_infra::priority_task::QualityOfService;
+
 use lib_infra::util::timestamp;
 use tokio::sync::{broadcast, RwLock};
-use tracing::{instrument, trace, warn};
+use tracing::{error, instrument, trace, warn};
 
 pub struct DatabaseViewEditor {
   database_id: String,
@@ -235,7 +233,7 @@ impl DatabaseViewEditor {
     if rows.pop().is_some() {
       let update_row = UpdatedRow::new(row_id.as_str()).with_row_meta(row_detail.clone());
       let changeset = RowsChangePB::from_update(update_row.into());
-      send_notification(&self.view_id, DatabaseNotification::DidUpdateRow)
+      database_notification_builder(&self.view_id, DatabaseNotification::DidUpdateRow)
         .payload(changeset)
         .send();
     }
@@ -695,14 +693,57 @@ impl DatabaseViewEditor {
     Ok(())
   }
 
-  pub async fn v_calculate_rows(&self, rows: Vec<Arc<Row>>) -> FlowyResult<()> {
-    self
-      .calculations_controller
-      .gen_task(
-        CalculationEvent::InitialRows(rows),
-        QualityOfService::UserInteractive,
-      )
-      .await;
+  pub async fn v_calculate_rows(&self, fields: Vec<Field>, rows: Vec<Arc<Row>>) -> FlowyResult<()> {
+    let mut updates = vec![];
+    // Filter fields to only those with calculations
+    let fields_with_calculations: Vec<(&Field, Calculation)> =
+      futures::future::join_all(fields.iter().map(|field| async move {
+        self
+          .delegate
+          .get_calculation(&self.view_id, &field.id)
+          .await
+          .map(|cal| (field, cal))
+      }))
+      .await
+      .into_iter()
+      .flatten()
+      .collect();
+
+    // Pre-compute cells by field ID only for fields that have calculations
+    let mut cells_by_field_id: HashMap<String, Vec<Arc<Cell>>> = fields_with_calculations
+      .iter()
+      .map(|(field, _)| {
+        let cells = rows
+          .iter()
+          .filter_map(|row| row.cells.get(&field.id).cloned().map(Arc::new))
+          .collect::<Vec<Arc<Cell>>>();
+        (field.id.clone(), cells)
+      })
+      .collect();
+
+    // Perform calculations for the filtered fields
+    for (field, calculation) in fields_with_calculations {
+      if let Some(cells) = cells_by_field_id.remove(&field.id) {
+        let changes = self
+          .calculations_controller
+          .handle_cells_changed(field, &calculation, cells)
+          .await;
+        updates.extend(changes);
+      }
+    }
+
+    // Send notification if updates were made
+    if !updates.is_empty() {
+      let notification = CalculationChangesetNotificationPB::from_update(&self.view_id, updates);
+      if let Err(_err) = self
+        .notifier
+        .send(DatabaseViewChanged::CalculationValueNotification(
+          notification,
+        ))
+      {
+        error!("Failed to send CalculationValueNotification");
+      }
+    }
 
     Ok(())
   }
@@ -805,7 +846,8 @@ impl DatabaseViewEditor {
 
     let row_orders = self.delegate.get_all_row_orders(&self.view_id).await;
     let rows = self.delegate.get_all_rows(&self.view_id, row_orders).await;
-    self.v_calculate_rows(rows).await?;
+    let fields = self.delegate.get_fields(&self.view_id, None).await;
+    self.v_calculate_rows(fields, rows).await?;
     Ok(())
   }
 
@@ -898,7 +940,7 @@ impl DatabaseViewEditor {
     };
 
     if let Some(payload) = layout_setting_pb {
-      send_notification(&self.view_id, DatabaseNotification::DidUpdateLayoutSettings)
+      database_notification_builder(&self.view_id, DatabaseNotification::DidUpdateLayoutSettings)
         .payload(payload)
         .send();
     }
@@ -1018,7 +1060,7 @@ impl DatabaseViewEditor {
 
         debug_assert!(!changeset.is_empty());
         if !changeset.is_empty() {
-          send_notification(&changeset.view_id, DatabaseNotification::DidGroupByField)
+          database_notification_builder(&changeset.view_id, DatabaseNotification::DidGroupByField)
             .payload(changeset)
             .send();
         }
@@ -1154,7 +1196,7 @@ impl DatabaseViewEditor {
       view_id: self.view_id.clone(),
       layout: new_layout_type.into(),
     };
-    send_notification(&self.view_id, DatabaseNotification::DidUpdateDatabaseLayout)
+    database_notification_builder(&self.view_id, DatabaseNotification::DidUpdateDatabaseLayout)
       .payload(payload)
       .send();
 
@@ -1172,7 +1214,7 @@ impl DatabaseViewEditor {
       } => RowsChangePB::from_move(vec![deleted_row_id.into_inner()], vec![inserted_row.into()]),
     };
 
-    send_notification(&self.view_id, DatabaseNotification::DidUpdateRow)
+    database_notification_builder(&self.view_id, DatabaseNotification::DidUpdateRow)
       .payload(changeset)
       .send();
   }

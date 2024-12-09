@@ -86,7 +86,7 @@ impl CalculationsController {
     let task = Task::new(
       &self.handler_id,
       task_id,
-      TaskContent::Text(task_type.to_string()),
+      TaskContent::Text(task_type.to_json_string()),
       qos,
     );
     self.task_scheduler.write().await.add_task(task);
@@ -109,11 +109,6 @@ impl CalculationsController {
         self
           .handle_field_type_changed(field_id, new_field_type)
           .await
-      },
-      CalculationEvent::InitialRows(rows) => {
-        for row in rows {
-          self.handle_row_changed(row.as_ref()).await;
-        }
       },
     }
 
@@ -214,7 +209,10 @@ impl CalculationsController {
           .await;
 
         // Update the calculation
-        if let Some(update) = self.update_calculation(calculation, &field, cells).await {
+        if let Some(update) = self
+          .update_calculation(calculation.as_ref(), &field, cells)
+          .await
+        {
           self
             .delegate
             .update_calculation(&self.view_id, update.clone())
@@ -255,10 +253,16 @@ impl CalculationsController {
     if cells.is_empty() {
       let calculations = self.delegate.get_all_calculations(&self.view_id).await;
       for calculation in calculations.into_iter() {
-        let cells = self
-          .get_or_fetch_cells(&calculation.field_id, &mut cells_by_field)
-          .await;
-        updates.extend(self.handle_cells_changed(calculation, cells).await);
+        if let Some(field) = self.delegate.get_field(&calculation.field_id).await {
+          let cells = self
+            .get_or_fetch_cells(&calculation.field_id, &mut cells_by_field)
+            .await;
+          updates.extend(
+            self
+              .handle_cells_changed(&field, calculation.as_ref(), cells)
+              .await,
+          );
+        }
       }
     }
 
@@ -270,8 +274,13 @@ impl CalculationsController {
         let cells = self
           .get_or_fetch_cells(&calculation.field_id, &mut cells_by_field)
           .await;
-        let changes = self.handle_cells_changed(calculation, cells).await;
-        updates.extend(changes);
+
+        if let Some(field) = self.delegate.get_field(field_id).await {
+          let changes = self
+            .handle_cells_changed(&field, calculation.as_ref(), cells)
+            .await;
+          updates.extend(changes);
+        }
       }
     }
 
@@ -305,23 +314,22 @@ impl CalculationsController {
   }
 
   /// field_cells will be the cells that belong to the field with field_id
-  async fn handle_cells_changed(
+  pub async fn handle_cells_changed(
     &self,
-    calculation: Arc<Calculation>,
+    field: &Field,
+    calculation: &Calculation,
     field_cells: Vec<Arc<Cell>>,
   ) -> Vec<CalculationPB> {
     let mut updates = vec![];
-    if let Some(field) = self.delegate.get_field(&calculation.field_id).await {
-      let update = self
-        .update_calculation(calculation, &field, field_cells)
+    let update = self
+      .update_calculation(calculation, field, field_cells)
+      .await;
+    if let Some(update) = update {
+      updates.push(CalculationPB::from(&update));
+      self
+        .delegate
+        .update_calculation(&self.view_id, update)
         .await;
-      if let Some(update) = update {
-        updates.push(CalculationPB::from(&update));
-        self
-          .delegate
-          .update_calculation(&self.view_id, update)
-          .await;
-      }
     }
 
     updates
@@ -330,7 +338,7 @@ impl CalculationsController {
   #[instrument(level = "trace", skip_all)]
   async fn update_calculation(
     &self,
-    calculation: Arc<Calculation>,
+    calculation: &Calculation,
     field: &Field,
     cells: Vec<Arc<Cell>>,
   ) -> Option<Calculation> {
@@ -401,15 +409,14 @@ impl CalculationsController {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub(crate) enum CalculationEvent {
-  InitialRows(Vec<Arc<Row>>),
   RowChanged(Row),
   CellUpdated(String),
   FieldTypeChanged(String, FieldType),
   FieldDeleted(String),
 }
 
-impl ToString for CalculationEvent {
-  fn to_string(&self) -> String {
+impl CalculationEvent {
+  fn to_json_string(&self) -> String {
     serde_json::to_string(self).unwrap()
   }
 }

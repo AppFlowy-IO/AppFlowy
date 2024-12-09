@@ -49,7 +49,7 @@ impl CSVExport {
       field_by_field_id.insert(field.id.clone(), field);
     });
     let rows = database
-      .get_rows_for_view(&inline_view_id, None)
+      .get_rows_for_view(&inline_view_id, 20, None)
       .await
       .filter_map(|result| async { result.ok() })
       .collect::<Vec<_>>()

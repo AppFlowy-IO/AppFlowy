@@ -22,7 +22,7 @@ impl FieldBuilder {
   }
 
   pub fn name(mut self, name: &str) -> Self {
-    self.field.name = name.to_owned();
+    name.clone_into(&mut self.field.name);
     self
   }
 
