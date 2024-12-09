@@ -311,7 +311,9 @@
     "askOwnerToUpgradeToPro": "مساحة العمل الخاصة بك نفدت من مساحة التخزين المجانية. يرجى مطالبة مالك مساحة العمل الخاصة بك بالترقية إلى الخطة الاحترافية",
     "askOwnerToUpgradeToProIOS": "مساحة العمل الخاصة بك على وشك النفاد من مساحة التخزين المجانية.",
     "askOwnerToUpgradeToAIMax": "لقد نفدت الاستجابات المجانية للذكاء الاصطناعي من مساحة العمل الخاصة بك. يرجى مطالبة مالك مساحة العمل الخاصة بك بترقية الخطة أو شراء إضافات الذكاء الاصطناعي",
-    "purchaseAIResponse": "شراء"
+    "askOwnerToUpgradeToAIMaxIOS": "مساحة العمل الخاصة بك تفتقر إلى الاستجابات المجانية للذكاء الاصطناعي.",
+    "purchaseAIResponse": "شراء",
+    "askOwnerToUpgradeToLocalAI": "اطلب من مالك مساحة العمل تمكين الذكاء الاصطناعي على الجهاز"
   },
   "notifications": {
     "export": {
@@ -395,6 +397,12 @@
     "popupMenuItem": {
       "settings": "إعدادات",
       "members": "الأعضاء"
+    },
+    "sites": {
+      "namespace": {
+        "onlyWorkspaceOwnerCanSetHomePage": "يمكن فقط لمالك مساحة العمل تعيين الصفحة الرئيسية",
+        "pleaseAskOwnerToSetHomePage": "يرجى طلب الترقية إلى الخطة الاحترافية من مالك مساحة العمل"
+      }
     },
     "menu": {
       "appearance": "مظهر",
