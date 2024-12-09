@@ -7,7 +7,7 @@ use tokio::sync::RwLock;
 use lib_infra::util::timestamp;
 
 use crate::entities::{view_pb_with_child_views, ViewPB};
-use crate::view_operation::FolderOperationHandlers;
+use crate::view_operation::{FolderOperationHandler, FolderOperationHandlers};
 
 pub struct DefaultFolderBuilder();
 impl DefaultFolderBuilder {
@@ -20,7 +20,19 @@ impl DefaultFolderBuilder {
       workspace_id.clone(),
       uid,
     )));
-    for handler in handlers.values() {
+
+    // Collect all handlers from the DashMap into a vector.
+    //
+    // - `DashMap::iter()` returns references to the stored values, which are not `Send`
+    //   and can cause issues in an `async` context where thread-safety is required.
+    // - By cloning the values into a `Vec`, we ensure they are owned and implement
+    //   `Send + Sync`, making them safe to use in asynchronous operations.
+    // - This avoids lifetime conflicts and allows the handlers to be used in the
+    //   asynchronous loop without tying their lifetimes to the DashMap.
+    //
+    let handler_clones: Vec<Arc<dyn FolderOperationHandler + Send + Sync>> =
+      handlers.iter().map(|entry| entry.value().clone()).collect();
+    for handler in handler_clones {
       let _ = handler
         .create_workspace_view(uid, workspace_view_builder.clone())
         .await;

@@ -285,7 +285,7 @@ impl<'a> CellBuilder<'a> {
   }
 
   pub fn insert_text_cell(&mut self, field_id: &str, data: String) {
-    match self.field_maps.get(&field_id.to_owned()) {
+    match self.field_maps.get(field_id) {
       None => tracing::warn!("Can't find the text field with id: {}", field_id),
       Some(field) => {
         self
@@ -296,7 +296,7 @@ impl<'a> CellBuilder<'a> {
   }
 
   pub fn insert_url_cell(&mut self, field_id: &str, data: String) {
-    match self.field_maps.get(&field_id.to_owned()) {
+    match self.field_maps.get(field_id) {
       None => tracing::warn!("Can't find the url field with id: {}", field_id),
       Some(field) => {
         self
@@ -307,7 +307,7 @@ impl<'a> CellBuilder<'a> {
   }
 
   pub fn insert_number_cell(&mut self, field_id: &str, num: i64) {
-    match self.field_maps.get(&field_id.to_owned()) {
+    match self.field_maps.get(field_id) {
       None => tracing::warn!("Can't find the number field with id: {}", field_id),
       Some(field) => {
         self
@@ -318,7 +318,7 @@ impl<'a> CellBuilder<'a> {
   }
 
   pub fn insert_checkbox_cell(&mut self, field_id: &str, is_checked: bool) {
-    match self.field_maps.get(&field_id.to_owned()) {
+    match self.field_maps.get(field_id) {
       None => tracing::warn!("Can't find the checkbox field with id: {}", field_id),
       Some(field) => {
         self
@@ -329,7 +329,7 @@ impl<'a> CellBuilder<'a> {
   }
 
   pub fn insert_date_cell(&mut self, field_id: &str, timestamp: i64, include_time: Option<bool>) {
-    match self.field_maps.get(&field_id.to_owned()) {
+    match self.field_maps.get(field_id) {
       None => tracing::warn!("Can't find the date field with id: {}", field_id),
       Some(field) => {
         self.cells.insert(
@@ -341,7 +341,7 @@ impl<'a> CellBuilder<'a> {
   }
 
   pub fn insert_select_option_cell(&mut self, field_id: &str, option_ids: Vec<String>) {
-    match self.field_maps.get(&field_id.to_owned()) {
+    match self.field_maps.get(field_id) {
       None => tracing::warn!("Can't find the select option field with id: {}", field_id),
       Some(field) => {
         self.cells.insert(
@@ -356,7 +356,7 @@ impl<'a> CellBuilder<'a> {
     field_id: &str,
     new_tasks: Vec<ChecklistCellInsertChangeset>,
   ) {
-    match self.field_maps.get(&field_id.to_owned()) {
+    match self.field_maps.get(field_id) {
       None => tracing::warn!("Can't find the field with id: {}", field_id),
       Some(field) => {
         self

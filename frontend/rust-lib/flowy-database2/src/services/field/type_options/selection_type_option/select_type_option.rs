@@ -13,6 +13,7 @@ use collab_database::fields::select_type_option::{
 };
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::Cell;
+use collab_database::template::util::ToCellString;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 use std::str::FromStr;
 
@@ -118,7 +119,7 @@ where
         Some(SelectOptionIds::from(transformed_ids))
       },
       FieldType::Checkbox => {
-        let cell_content = CheckboxCellDataPB::from(cell).to_string();
+        let cell_content = CheckboxCellDataPB::from(cell).to_cell_string();
         let mut transformed_ids = Vec::new();
         let options = self.options();
         if let Some(option) = options.iter().find(|option| option.name == cell_content) {

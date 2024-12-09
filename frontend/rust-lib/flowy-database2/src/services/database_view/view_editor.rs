@@ -10,7 +10,7 @@ use crate::entities::{
   RemoveCalculationChangesetPB, ReorderSortPayloadPB, RowMetaPB, RowsChangePB,
   SortChangesetNotificationPB, SortPB, UpdateCalculationChangesetPB, UpdateSortPayloadPB,
 };
-use crate::notification::{send_notification, DatabaseNotification};
+use crate::notification::{database_notification_builder, DatabaseNotification};
 use crate::services::calculations::{Calculation, CalculationChangeset, CalculationsController};
 use crate::services::cell::{CellBuilder, CellCache};
 use crate::services::database::{database_view_setting_pb_from_view, DatabaseRowEvent, UpdatedRow};
@@ -233,7 +233,7 @@ impl DatabaseViewEditor {
     if rows.pop().is_some() {
       let update_row = UpdatedRow::new(row_id.as_str()).with_row_meta(row_detail.clone());
       let changeset = RowsChangePB::from_update(update_row.into());
-      send_notification(&self.view_id, DatabaseNotification::DidUpdateRow)
+      database_notification_builder(&self.view_id, DatabaseNotification::DidUpdateRow)
         .payload(changeset)
         .send();
     }
@@ -706,7 +706,7 @@ impl DatabaseViewEditor {
       }))
       .await
       .into_iter()
-      .filter_map(|result| result)
+      .flatten()
       .collect();
 
     // Pre-compute cells by field ID only for fields that have calculations
@@ -940,7 +940,7 @@ impl DatabaseViewEditor {
     };
 
     if let Some(payload) = layout_setting_pb {
-      send_notification(&self.view_id, DatabaseNotification::DidUpdateLayoutSettings)
+      database_notification_builder(&self.view_id, DatabaseNotification::DidUpdateLayoutSettings)
         .payload(payload)
         .send();
     }
@@ -1060,7 +1060,7 @@ impl DatabaseViewEditor {
 
         debug_assert!(!changeset.is_empty());
         if !changeset.is_empty() {
-          send_notification(&changeset.view_id, DatabaseNotification::DidGroupByField)
+          database_notification_builder(&changeset.view_id, DatabaseNotification::DidGroupByField)
             .payload(changeset)
             .send();
         }
@@ -1196,7 +1196,7 @@ impl DatabaseViewEditor {
       view_id: self.view_id.clone(),
       layout: new_layout_type.into(),
     };
-    send_notification(&self.view_id, DatabaseNotification::DidUpdateDatabaseLayout)
+    database_notification_builder(&self.view_id, DatabaseNotification::DidUpdateDatabaseLayout)
       .payload(payload)
       .send();
 
@@ -1214,7 +1214,7 @@ impl DatabaseViewEditor {
       } => RowsChangePB::from_move(vec![deleted_row_id.into_inner()], vec![inserted_row.into()]),
     };
 
-    send_notification(&self.view_id, DatabaseNotification::DidUpdateRow)
+    database_notification_builder(&self.view_id, DatabaseNotification::DidUpdateRow)
       .payload(changeset)
       .send();
   }

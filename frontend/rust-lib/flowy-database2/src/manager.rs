@@ -6,7 +6,7 @@ use collab::core::origin::CollabOrigin;
 use collab::lock::RwLock;
 use collab::preclude::Collab;
 use collab_database::database::{Database, DatabaseData};
-use collab_database::entity::{CreateDatabaseParams, CreateViewParams};
+use collab_database::entity::{CreateDatabaseParams, CreateViewParams, EncodedDatabase};
 use collab_database::error::DatabaseError;
 use collab_database::fields::translate_type_option::TranslateTypeOption;
 use collab_database::rows::RowId;
@@ -31,7 +31,7 @@ use flowy_database_pub::cloud::{
   DatabaseAIService, DatabaseCloudService, SummaryRowContent, TranslateItem, TranslateRowContent,
 };
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use lib_dispatch::prelude::af_spawn;
+
 use lib_infra::box_any::BoxAny;
 use lib_infra::priority_task::TaskDispatcher;
 
@@ -189,6 +189,17 @@ impl DatabaseManager {
     })
   }
 
+  pub async fn encode_database(&self, view_id: &str) -> FlowyResult<EncodedDatabase> {
+    let editor = self.get_database_editor_with_view_id(view_id).await?;
+    let collabs = editor
+      .database
+      .read()
+      .await
+      .encode_database_collabs()
+      .await?;
+    Ok(collabs)
+  }
+
   pub async fn get_database_row_ids_with_view_id(&self, view_id: &str) -> FlowyResult<Vec<RowId>> {
     let database = self.get_database_editor_with_view_id(view_id).await?;
     Ok(database.get_row_ids().await)
@@ -316,7 +327,7 @@ impl DatabaseManager {
 
           let weak_workspace_database = Arc::downgrade(&self.workspace_database()?);
           let weak_removing_editors = Arc::downgrade(&self.removing_editor);
-          af_spawn(async move {
+          tokio::spawn(async move {
             tokio::time::sleep(std::time::Duration::from_secs(120)).await;
             if let Some(removing_editors) = weak_removing_editors.upgrade() {
               if removing_editors.lock().await.remove(&database_id).is_some() {
@@ -891,6 +902,7 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
       "[Database]: load {} database row from local disk",
       local_disk_encoded_collab.len()
     );
+
     object_ids.retain(|object_id| !local_disk_encoded_collab.contains_key(object_id));
     for (k, v) in local_disk_encoded_collab {
       encoded_collab_by_id.insert(k, v);

@@ -4,7 +4,7 @@ use std::cmp::Ordering;
 use collab_database::fields::text_type_option::RichTextTypeOption;
 use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell};
-
+use collab_database::template::util::ToCellString;
 use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::{FieldType, TextFilterPB};
@@ -159,8 +159,8 @@ impl std::convert::From<String> for StringCellData {
   }
 }
 
-impl ToString for StringCellData {
-  fn to_string(&self) -> String {
+impl ToCellString for StringCellData {
+  fn to_cell_string(&self) -> String {
     self.0.clone()
   }
 }

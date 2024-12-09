@@ -2,7 +2,7 @@ use collab_folder::ViewLayout;
 use event_integration_test::EventIntegrationTest;
 use flowy_folder::entities::{ViewLayoutPB, ViewPB};
 use flowy_folder::publish_util::generate_publish_name;
-use flowy_folder::view_operation::EncodedCollabWrapper;
+use flowy_folder::view_operation::EncodedCollabType;
 use flowy_folder_pub::entities::{
   PublishDocumentPayload, PublishPayload, PublishViewInfo, PublishViewMeta, PublishViewMetaData,
 };
@@ -29,7 +29,7 @@ async fn mock_single_document_view_publish_payload(
   };
 
   let data = match view_encoded_collab {
-    EncodedCollabWrapper::Document(doc) => doc.document_encoded_collab.doc_state.to_vec(),
+    EncodedCollabType::Document(doc) => doc.document_encoded_collab.doc_state.to_vec(),
     _ => panic!("Expected document collab"),
   };
 
@@ -89,12 +89,12 @@ async fn mock_nested_document_view_publish_payload(
   let child_publish_name = generate_publish_name(&child_view.id, &child_view.name);
 
   let data = match view_encoded_collab {
-    EncodedCollabWrapper::Document(doc) => doc.document_encoded_collab.doc_state.to_vec(),
+    EncodedCollabType::Document(doc) => doc.document_encoded_collab.doc_state.to_vec(),
     _ => panic!("Expected document collab"),
   };
 
   let child_data = match child_view_encoded_collab {
-    EncodedCollabWrapper::Document(doc) => doc.document_encoded_collab.doc_state.to_vec(),
+    EncodedCollabType::Document(doc) => doc.document_encoded_collab.doc_state.to_vec(),
     _ => panic!("Expected document collab"),
   };
 
