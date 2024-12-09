@@ -205,7 +205,10 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
         );
       },
       (f) {
-        if (f.code != ErrorCode.RecordNotFound) {
+        if (![
+          ErrorCode.RecordNotFound,
+          ErrorCode.LocalVersionNotSupport,
+        ].contains(f.code)) {
           Log.info(
             'get publish info failed: $f for view: ${view.name}(${view.id})',
           );
