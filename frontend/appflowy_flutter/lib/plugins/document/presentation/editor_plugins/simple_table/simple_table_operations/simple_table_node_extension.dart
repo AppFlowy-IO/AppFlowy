@@ -191,6 +191,18 @@ extension TableNodeExtension on Node {
     return tableNode;
   }
 
+  Node? get parentTableCellNode {
+    Node? tableCellNode;
+
+    if (type == SimpleTableCellBlockKeys.type) {
+      tableCellNode = this;
+    } else {
+      return parent?.parentTableCellNode;
+    }
+
+    return tableCellNode;
+  }
+
   double get columnWidth {
     final parentTableNode = this.parentTableNode;
 
@@ -260,7 +272,8 @@ extension TableNodeExtension on Node {
         parentTableNode.type != SimpleTableBlockKeys.type) {
       return false;
     }
-    return parentTableNode.isHeaderColumnEnabled && parent?.columnIndex == 0;
+    return parentTableNode.isHeaderColumnEnabled &&
+        parentTableCellNode?.columnIndex == 0;
   }
 
   /// Whether the current node is in the header row.
@@ -272,7 +285,8 @@ extension TableNodeExtension on Node {
         parentTableNode.type != SimpleTableBlockKeys.type) {
       return false;
     }
-    return parentTableNode.isHeaderRowEnabled && parent?.rowIndex == 0;
+    return parentTableNode.isHeaderRowEnabled &&
+        parentTableCellNode?.rowIndex == 0;
   }
 
   SimpleTableRowAlignMap get rowAligns {

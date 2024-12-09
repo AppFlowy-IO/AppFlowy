@@ -28,9 +28,9 @@ final Set<String> supportSlashMenuNodeTypes = {
   ToggleListBlockKeys.type,
 
   // Simple table
-  SimpleTableBlockKeys.type,
-  SimpleTableRowBlockKeys.type,
-  SimpleTableCellBlockKeys.type,
+  // SimpleTableBlockKeys.type,
+  // SimpleTableRowBlockKeys.type,
+  // SimpleTableCellBlockKeys.type,
 };
 
 /// Build the block component builders.
@@ -145,7 +145,8 @@ void _customBlockOptionActions(
     if (UniversalPlatform.isDesktop) {
       builder.showActions = (node) =>
           node.parent?.type != TableCellBlockKeys.type &&
-          node.parent?.type != SimpleTableCellBlockKeys.type;
+          node.parent?.type != SimpleTableCellBlockKeys.type &&
+          node.parentTableNode == null;
       builder.configuration = builder.configuration.copyWith(
         blockSelectionAreaMargin: (_) => const EdgeInsets.symmetric(
           vertical: 1,
@@ -448,10 +449,19 @@ NumberedListBlockComponentBuilder _buildNumberedListBlockComponentBuilder(
         return configuration.textStyle(node);
       },
     ),
-    iconBuilder: (_, node, textDirection) => NumberedListIcon(
-      node: node,
-      textDirection: textDirection,
-    ),
+    iconBuilder: (_, node, textDirection) {
+      TextStyle? textStyle;
+      if (node.isInHeaderColumn || node.isInHeaderRow) {
+        textStyle = configuration.textStyle(node).copyWith(
+              fontWeight: FontWeight.bold,
+            );
+      }
+      return NumberedListIcon(
+        node: node,
+        textDirection: textDirection,
+        textStyle: textStyle,
+      );
+    },
   );
 }
 
