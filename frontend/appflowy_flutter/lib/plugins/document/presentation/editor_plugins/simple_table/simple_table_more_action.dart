@@ -31,7 +31,7 @@ enum SimpleTableMoreActionType {
           SimpleTableMoreAction.align,
           SimpleTableMoreAction.divider,
           SimpleTableMoreAction.setToPageWidth,
-          // SimpleTableMoreAction.distributeColumnsEvenly,
+          SimpleTableMoreAction.distributeColumnsEvenly,
           SimpleTableMoreAction.divider,
           SimpleTableMoreAction.duplicate,
           SimpleTableMoreAction.clearContents,
@@ -594,7 +594,9 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     if (value == null) {
       return;
     }
-    // todo: waiting for the definition of distribute columns evenly
+    final (table, _, _) = value;
+    final editorState = context.read<EditorState>();
+    editorState.distributeColumnWidthToPageWidth(tableNode: table);
   }
 
   void _duplicateRow() {

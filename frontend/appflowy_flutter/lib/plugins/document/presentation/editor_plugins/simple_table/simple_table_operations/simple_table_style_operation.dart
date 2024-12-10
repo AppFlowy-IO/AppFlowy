@@ -245,6 +245,8 @@ extension TableOptionOperation on EditorState {
   /// After:
   /// |  0  |    1    | <- the column's width will be expanded based on the percentage of the page width
   /// |  3  |    4    |
+  ///
+  /// This function will update the table width.
   Future<void> setColumnWidthToPageWidth({
     required Node tableNode,
   }) async {
@@ -271,6 +273,45 @@ extension TableOptionOperation on EditorState {
         SimpleTableConstants.minimumColumnWidth,
         double.infinity,
       );
+    }
+    transaction.updateNode(tableNode, {
+      SimpleTableBlockKeys.columnWidths: columnWidths,
+    });
+    await apply(transaction);
+  }
+
+  /// Distribute the column width of the table to the page width.
+  ///
+  /// Example:
+  ///
+  /// Before:
+  /// Before:
+  /// | 0 |   1   |
+  /// | 3 |   4   |
+  ///
+  /// After:
+  /// |  0  |  1  | <- the column's width will be expanded based on the percentage of the page width
+  /// |  3  |  4  |
+  ///
+  /// This function will not update table width.
+  Future<void> distributeColumnWidthToPageWidth({
+    required Node tableNode,
+  }) async {
+    // Disable in mobile
+    if (UniversalPlatform.isMobile) {
+      return;
+    }
+
+    final columnLength = tableNode.columnLength;
+    final tableWidth = tableNode.width;
+    final columnWidth = (tableWidth / columnLength).clamp(
+      SimpleTableConstants.minimumColumnWidth,
+      double.infinity,
+    );
+    final transaction = this.transaction;
+    final columnWidths = tableNode.columnWidths;
+    for (var i = 0; i < columnLength; i++) {
+      columnWidths[i.toString()] = columnWidth;
     }
     transaction.updateNode(tableNode, {
       SimpleTableBlockKeys.columnWidths: columnWidths,
