@@ -332,6 +332,56 @@ void main() {
       expect(tableNode.columnLength, 2);
     });
   });
+
+  testWidgets('set column width to page width (1)', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+
+    final tableNode = tester.editor.getNodeAtPath([0]);
+    final beforeWidth = tableNode.width;
+
+    // set the column width to page width
+    await tester.clickMoreActionItemInTableMenu(
+      type: SimpleTableMoreActionType.column,
+      index: 0,
+      action: SimpleTableMoreAction.setToPageWidth,
+    );
+    await tester.pumpAndSettle();
+
+    final afterWidth = tableNode.width;
+    expect(afterWidth, greaterThan(beforeWidth));
+  });
+
+  testWidgets('set column width to page width (2)', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+
+    final tableNode = tester.editor.getNodeAtPath([0]);
+    final beforeWidth = tableNode.width;
+
+    // set the column width to page width
+    await tester.clickMoreActionItemInTableMenu(
+      type: SimpleTableMoreActionType.row,
+      index: 0,
+      action: SimpleTableMoreAction.setToPageWidth,
+    );
+    await tester.pumpAndSettle();
+
+    final afterWidth = tableNode.width;
+    expect(afterWidth, greaterThan(beforeWidth));
+  });
 }
 
 extension on WidgetTester {
