@@ -102,7 +102,9 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
             if (openFirstPage) {
               if (currentSpace != null) {
-                add(SpaceEvent.open(currentSpace));
+                if (!isClosed) {
+                  add(SpaceEvent.open(currentSpace));
+                }
               }
             }
           },

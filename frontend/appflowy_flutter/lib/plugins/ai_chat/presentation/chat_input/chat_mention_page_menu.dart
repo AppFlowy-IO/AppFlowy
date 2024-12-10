@@ -284,9 +284,9 @@ class _ChatMentionPageItem extends StatelessWidget {
             padding: const EdgeInsets.all(4.0),
             child: Row(
               children: [
-                _buildIcon(context, view),
+                MentionViewIcon(view: view),
                 const HSpace(8.0),
-                Expanded(child: _ViewTitleAndAncestors(view: view)),
+                Expanded(child: MentionViewTitleAndAncestors(view: view)),
               ],
             ),
           ),
@@ -294,8 +294,18 @@ class _ChatMentionPageItem extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildIcon(BuildContext context, ViewPB view) {
+class MentionViewIcon extends StatelessWidget {
+  const MentionViewIcon({
+    super.key,
+    required this.view,
+  });
+
+  final ViewPB view;
+
+  @override
+  Widget build(BuildContext context) {
     final spaceIcon = view.buildSpaceIconSvg(context);
 
     if (view.icon.value.isNotEmpty) {
@@ -326,8 +336,9 @@ class _ChatMentionPageItem extends StatelessWidget {
   }
 }
 
-class _ViewTitleAndAncestors extends StatelessWidget {
-  const _ViewTitleAndAncestors({
+class MentionViewTitleAndAncestors extends StatelessWidget {
+  const MentionViewTitleAndAncestors({
+    super.key,
     required this.view,
   });
 
@@ -349,6 +360,7 @@ class _ViewTitleAndAncestors extends StatelessWidget {
           if (state.ancestors.isEmpty || ancestorList.trim().isEmpty) {
             return FlowyText(
               nonEmptyName,
+              fontSize: 14.0,
               overflow: TextOverflow.ellipsis,
             );
           }
@@ -358,6 +370,7 @@ class _ViewTitleAndAncestors extends StatelessWidget {
             children: [
               FlowyText(
                 nonEmptyName,
+                fontSize: 14.0,
                 figmaLineHeight: 20.0,
                 overflow: TextOverflow.ellipsis,
               ),

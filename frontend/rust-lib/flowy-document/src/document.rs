@@ -5,12 +5,17 @@ use crate::notification::{document_notification_builder, DocumentNotification};
 use collab::preclude::Collab;
 use collab_document::document::Document;
 use futures::StreamExt;
+use lib_infra::sync_trace;
 
 pub fn subscribe_document_changed(doc_id: &str, document: &mut Document) {
   let doc_id_clone_for_block_changed = doc_id.to_owned();
   document.subscribe_block_changed("key", move |events, is_remote| {
-    #[cfg(feature = "verbose_log")]
-    tracing::trace!("subscribe_document_changed: {:?}", events);
+    sync_trace!(
+      "[Document] block changed in doc_id: {}, is_remote: {}, events: {:?}",
+      doc_id_clone_for_block_changed,
+      is_remote,
+      events
+    );
 
     // send notification to the client.
     document_notification_builder(
@@ -23,8 +28,12 @@ pub fn subscribe_document_changed(doc_id: &str, document: &mut Document) {
 
   let doc_id_clone_for_awareness_state = doc_id.to_owned();
   document.subscribe_awareness_state("key", move |events| {
-    #[cfg(feature = "verbose_log")]
-    tracing::trace!("subscribe_awareness_state: {:?}", events);
+    sync_trace!(
+      "[Document] awareness state in doc_id: {}, events: {:?}",
+      doc_id_clone_for_awareness_state,
+      events
+    );
+
     document_notification_builder(
       &doc_id_clone_for_awareness_state,
       DocumentNotification::DidUpdateDocumentAwarenessState,
