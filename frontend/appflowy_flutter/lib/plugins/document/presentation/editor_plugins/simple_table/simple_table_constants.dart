@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
+import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -189,6 +190,9 @@ class SimpleTableConstants {
     left: tableLeftPadding,
     right: tableRightPadding,
   );
+
+  static double get tablePageOffset =>
+      EditorStyleCustomizer.optionMenuWidth + 12;
 
   // Add row button
   static const addRowButtonHeight = 16.0;

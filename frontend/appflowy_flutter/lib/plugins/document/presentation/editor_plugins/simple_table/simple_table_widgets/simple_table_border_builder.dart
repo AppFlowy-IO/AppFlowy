@@ -185,12 +185,15 @@ class SimpleTableBorderBuilder {
         simpleTableContext.isReorderingColumn.value.$2 < node.columnIndex;
 
     return Border(
-      top: _buildDefaultBorderSide(),
-      bottom: _buildDefaultBorderSide(),
-      left:
-          isLeftSide ? _buildHighlightBorderSide() : _buildDefaultBorderSide(),
+      top: node.rowIndex == 0
+          ? _buildDefaultBorderSide()
+          : _buildLightBorderSide(),
+      bottom: node.rowIndex + 1 == node.parentTableNode?.rowLength
+          ? _buildDefaultBorderSide()
+          : _buildLightBorderSide(),
+      left: isLeftSide ? _buildHighlightBorderSide() : _buildLightBorderSide(),
       right:
-          isRightSide ? _buildHighlightBorderSide() : _buildDefaultBorderSide(),
+          isRightSide ? _buildHighlightBorderSide() : _buildLightBorderSide(),
     );
   }
 
@@ -216,12 +219,15 @@ class SimpleTableBorderBuilder {
         simpleTableContext.isReorderingRow.value.$2 < node.rowIndex;
 
     return Border(
-      top: isTopSide ? _buildHighlightBorderSide() : _buildDefaultBorderSide(),
-      bottom: isBottomSide
-          ? _buildHighlightBorderSide()
-          : _buildDefaultBorderSide(),
-      left: _buildDefaultBorderSide(),
-      right: _buildDefaultBorderSide(),
+      top: isTopSide ? _buildHighlightBorderSide() : _buildLightBorderSide(),
+      bottom:
+          isBottomSide ? _buildHighlightBorderSide() : _buildLightBorderSide(),
+      left: node.columnIndex == 0
+          ? _buildDefaultBorderSide()
+          : _buildLightBorderSide(),
+      right: node.columnIndex + 1 == node.parentTableNode?.columnLength
+          ? _buildDefaultBorderSide()
+          : _buildLightBorderSide(),
     );
   }
 

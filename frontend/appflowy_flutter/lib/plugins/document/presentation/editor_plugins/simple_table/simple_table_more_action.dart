@@ -1,10 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/_shared_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_constants.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_operations/simple_table_operations.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_widgets/simple_table_reorder_button.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -16,29 +12,45 @@ enum SimpleTableMoreActionType {
   column,
   row;
 
-  List<SimpleTableMoreAction> get actions {
+  List<SimpleTableMoreAction> buildActions({
+    required int index,
+    required int columnLength,
+    required int rowLength,
+  }) {
+    // there're two special cases:
+    // 1. if the table only contains one row or one column, remove the delete action
+    // 2. if the index is 0, add the enable header action
     switch (this) {
       case SimpleTableMoreActionType.row:
         return [
           SimpleTableMoreAction.insertAbove,
           SimpleTableMoreAction.insertBelow,
+          SimpleTableMoreAction.divider,
+          if (index == 0) SimpleTableMoreAction.enableHeaderRow,
+          SimpleTableMoreAction.backgroundColor,
+          SimpleTableMoreAction.align,
+          SimpleTableMoreAction.divider,
+          SimpleTableMoreAction.setToPageWidth,
+          SimpleTableMoreAction.distributeColumnsEvenly,
+          SimpleTableMoreAction.divider,
           SimpleTableMoreAction.duplicate,
           SimpleTableMoreAction.clearContents,
-          SimpleTableMoreAction.delete,
-          SimpleTableMoreAction.divider,
-          SimpleTableMoreAction.align,
-          SimpleTableMoreAction.backgroundColor,
+          if (rowLength > 1) SimpleTableMoreAction.delete,
         ];
       case SimpleTableMoreActionType.column:
         return [
           SimpleTableMoreAction.insertLeft,
           SimpleTableMoreAction.insertRight,
+          SimpleTableMoreAction.divider,
+          if (index == 0) SimpleTableMoreAction.enableHeaderColumn,
+          SimpleTableMoreAction.backgroundColor,
+          SimpleTableMoreAction.align,
+          SimpleTableMoreAction.divider,
+          SimpleTableMoreAction.setToPageWidth,
+          SimpleTableMoreAction.divider,
           SimpleTableMoreAction.duplicate,
           SimpleTableMoreAction.clearContents,
-          SimpleTableMoreAction.delete,
-          SimpleTableMoreAction.divider,
-          SimpleTableMoreAction.align,
-          SimpleTableMoreAction.backgroundColor,
+          if (columnLength > 1) SimpleTableMoreAction.delete,
         ];
     }
   }
@@ -73,6 +85,8 @@ enum SimpleTableMoreAction {
   backgroundColor,
   enableHeaderColumn,
   enableHeaderRow,
+  setToPageWidth,
+  distributeColumnsEvenly,
   divider;
 
   String get name {
@@ -99,6 +113,11 @@ enum SimpleTableMoreAction {
         LocaleKeys.document_plugins_simpleTable_moreActions_delete.tr(),
       SimpleTableMoreAction.duplicate =>
         LocaleKeys.document_plugins_simpleTable_moreActions_duplicate.tr(),
+      SimpleTableMoreAction.setToPageWidth =>
+        LocaleKeys.document_plugins_simpleTable_moreActions_setToPageWidth.tr(),
+      SimpleTableMoreAction.distributeColumnsEvenly => LocaleKeys
+          .document_plugins_simpleTable_moreActions_distributeColumnsWidth
+          .tr(),
       SimpleTableMoreAction.divider => throw UnimplementedError(),
     };
   }
@@ -112,6 +131,10 @@ enum SimpleTableMoreAction {
       SimpleTableMoreAction.duplicate => FlowySvgs.duplicate_s,
       SimpleTableMoreAction.clearContents => FlowySvgs.table_clear_content_s,
       SimpleTableMoreAction.delete => FlowySvgs.trash_s,
+      SimpleTableMoreAction.setToPageWidth =>
+        FlowySvgs.table_set_to_page_width_s,
+      SimpleTableMoreAction.distributeColumnsEvenly =>
+        FlowySvgs.table_distribute_columns_evenly_s,
       SimpleTableMoreAction.enableHeaderColumn =>
         FlowySvgs.table_header_column_s,
       SimpleTableMoreAction.enableHeaderRow => FlowySvgs.table_header_row_s,
@@ -375,7 +398,12 @@ class _SimpleTableMoreActionListState extends State<SimpleTableMoreActionList> {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: _buildActions()
+      children: widget.type
+          .buildActions(
+            index: widget.index,
+            columnLength: widget.tableCellNode.columnLength,
+            rowLength: widget.tableCellNode.rowLength,
+          )
           .map(
             (action) => SimpleTableMoreActionItem(
               type: widget.type,
@@ -386,34 +414,6 @@ class _SimpleTableMoreActionListState extends State<SimpleTableMoreActionList> {
           )
           .toList(),
     );
-  }
-
-  List<SimpleTableMoreAction> _buildActions() {
-    final actions = widget.type.actions;
-
-    // if the index is 0, add the divider and enable header action
-    if (widget.index == 0) {
-      actions.addAll([
-        SimpleTableMoreAction.divider,
-        if (widget.type == SimpleTableMoreActionType.column)
-          SimpleTableMoreAction.enableHeaderColumn,
-        if (widget.type == SimpleTableMoreActionType.row)
-          SimpleTableMoreAction.enableHeaderRow,
-      ]);
-    }
-
-    // if the table only contains one row or one column, remove the delete action
-    if (widget.tableCellNode.rowLength == 1 &&
-        widget.type == SimpleTableMoreActionType.row) {
-      actions.remove(SimpleTableMoreAction.delete);
-    }
-
-    if (widget.tableCellNode.columnLength == 1 &&
-        widget.type == SimpleTableMoreActionType.column) {
-      actions.remove(SimpleTableMoreAction.delete);
-    }
-
-    return actions;
   }
 }
 
@@ -568,11 +568,35 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
             _duplicateRow();
             break;
         }
+      case SimpleTableMoreAction.setToPageWidth:
+        _setToPageWidth();
+      case SimpleTableMoreAction.distributeColumnsEvenly:
+        _distributeColumnsEvenly();
       default:
         break;
     }
 
     PopoverContainer.of(context).close();
+  }
+
+  void _setToPageWidth() {
+    final value = _getTableAndTableCellAndCellPosition();
+    if (value == null) {
+      return;
+    }
+    final (table, _, _) = value;
+    final editorState = context.read<EditorState>();
+    editorState.setColumnWidthToPageWidth(tableNode: table);
+  }
+
+  void _distributeColumnsEvenly() {
+    final value = _getTableAndTableCellAndCellPosition();
+    if (value == null) {
+      return;
+    }
+    final (table, _, _) = value;
+    final editorState = context.read<EditorState>();
+    editorState.distributeColumnWidthToPageWidth(tableNode: table);
   }
 
   void _duplicateRow() {

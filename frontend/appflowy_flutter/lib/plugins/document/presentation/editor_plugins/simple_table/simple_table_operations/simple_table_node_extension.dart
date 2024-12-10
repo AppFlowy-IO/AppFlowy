@@ -366,6 +366,16 @@ extension TableNodeExtension on Node {
     }
   }
 
+  double get width {
+    double currentColumnWidth = 0;
+    for (var i = 0; i < columnLength; i++) {
+      final columnWidth =
+          columnWidths[i.toString()] ?? SimpleTableConstants.defaultColumnWidth;
+      currentColumnWidth += columnWidth;
+    }
+    return currentColumnWidth;
+  }
+
   /// Get the previous cell in the same column. If the row index is 0, it will return the same cell.
   Node? getPreviousCellInSameColumn() {
     assert(type == SimpleTableCellBlockKeys.type);
