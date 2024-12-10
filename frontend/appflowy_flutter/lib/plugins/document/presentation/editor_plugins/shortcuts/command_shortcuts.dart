@@ -52,6 +52,8 @@ List<CommandShortcutEvent> commandShortcutEvents = [
     ),
 
   emojiShortcutEvent,
+
+  customCopyToClipboardCommand, // Added new shortcut for 'Copy to clipboard'
 ];
 
 final _codeBlockLocalization = CodeBlockLocalizations(
@@ -71,4 +73,15 @@ final _codeBlockLocalization = CodeBlockLocalizations(
 
 final localizedCodeBlockCommands = codeBlockCommands(
   localizations: _codeBlockLocalization,
+);
+
+final CommandShortcutEvent customCopyToClipboardCommand = CommandShortcutEvent(
+  key: 'copy to clipboard',
+  getDescription: () => 'Copy to clipboard',
+  command: 'ctrl+shift+c',
+  handler: (editorState) {
+    // Implement the handler for the 'Copy to clipboard' functionality
+    // This is a placeholder implementation
+    return KeyEventResult.handled;
+  },
 );
