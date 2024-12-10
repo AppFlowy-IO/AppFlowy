@@ -134,7 +134,7 @@ class _SimpleTableWidgetState extends State<SimpleTableWidget> {
               if (widget.enableAddColumnButton)
                 SimpleTableAddColumnHoverButton(
                   editorState: editorState,
-                  node: widget.node,
+                  tableNode: widget.node,
                 ),
               if (widget.enableAddRowButton)
                 SimpleTableAddRowHoverButton(

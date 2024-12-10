@@ -20,12 +20,12 @@ class SimpleTableColumnResizeHandle extends StatefulWidget {
 
 class _SimpleTableColumnResizeHandleState
     extends State<SimpleTableColumnResizeHandle> {
+  late final simpleTableContext = context.read<SimpleTableContext>();
+
   bool isStartDragging = false;
 
   @override
   Widget build(BuildContext context) {
-    final simpleTableContext = context.read<SimpleTableContext>();
-
     return MouseRegion(
       cursor: SystemMouseCursors.resizeColumn,
       onEnter: (_) => _onEnterHoverArea(),
@@ -57,8 +57,7 @@ class _SimpleTableColumnResizeHandleState
   }
 
   void _onEnterHoverArea() {
-    context.read<SimpleTableContext>().hoveringOnResizeHandle.value =
-        widget.node;
+    simpleTableContext.hoveringOnResizeHandle.value = widget.node;
   }
 
   void _onExitHoverArea() {
@@ -66,7 +65,7 @@ class _SimpleTableColumnResizeHandleState
       // the onExit event will be triggered before dragging started.
       // delay the hiding of the resize handle to avoid flickering.
       if (!isStartDragging) {
-        context.read<SimpleTableContext>().hoveringOnResizeHandle.value = null;
+        simpleTableContext.hoveringOnResizeHandle.value = null;
       }
     });
   }
