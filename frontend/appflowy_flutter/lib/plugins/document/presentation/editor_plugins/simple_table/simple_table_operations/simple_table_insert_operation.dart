@@ -90,7 +90,11 @@ extension TableInsertionOperations on EditorState {
   /// After:       ↓ New column
   /// Row 1: | 0 |   | 1 |
   /// Row 2: |   |   |   |
-  Future<void> insertColumnInTable(Node node, int index) async {
+  Future<void> insertColumnInTable(
+    Node node,
+    int index, {
+    bool inMemoryUpdate = false,
+  }) async {
     assert(node.type == SimpleTableBlockKeys.type);
 
     if (node.type != SimpleTableBlockKeys.type) {
@@ -133,7 +137,12 @@ extension TableInsertionOperations on EditorState {
     if (attributes != null) {
       transaction.updateNode(node, attributes);
     }
-    await apply(transaction);
+    await apply(
+      transaction,
+      options: ApplyOptions(
+        inMemoryUpdate: inMemoryUpdate,
+      ),
+    );
   }
 
   /// Add a row at the given index.
@@ -194,9 +203,11 @@ extension TableInsertionOperations on EditorState {
     if (attributes != null) {
       transaction.updateNode(node, attributes);
     }
-    await apply(transaction,
-        options: ApplyOptions(
-          inMemoryUpdate: inMemoryUpdate,
-        ));
+    await apply(
+      transaction,
+      options: ApplyOptions(
+        inMemoryUpdate: inMemoryUpdate,
+      ),
+    );
   }
 }

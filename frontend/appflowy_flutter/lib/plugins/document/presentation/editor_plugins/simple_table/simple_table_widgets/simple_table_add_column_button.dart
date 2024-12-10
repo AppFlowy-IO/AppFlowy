@@ -11,11 +11,11 @@ class SimpleTableAddColumnHoverButton extends StatefulWidget {
   const SimpleTableAddColumnHoverButton({
     super.key,
     required this.editorState,
-    required this.node,
+    required this.tableNode,
   });
 
   final EditorState editorState;
-  final Node node;
+  final Node tableNode;
 
   @override
   State<SimpleTableAddColumnHoverButton> createState() =>
@@ -25,9 +25,12 @@ class SimpleTableAddColumnHoverButton extends StatefulWidget {
 class _SimpleTableAddColumnHoverButtonState
     extends State<SimpleTableAddColumnHoverButton> {
   late final interceptorKey =
-      'simple_table_add_column_hover_button_${widget.node.id}';
+      'simple_table_add_column_hover_button_${widget.tableNode.id}';
 
   SelectionGestureInterceptor? interceptor;
+
+  Offset? startDraggingOffset;
+  int? initialColumnCount;
 
   @override
   void initState() {
@@ -52,9 +55,9 @@ class _SimpleTableAddColumnHoverButtonState
 
   @override
   Widget build(BuildContext context) {
-    assert(widget.node.type == SimpleTableBlockKeys.type);
+    assert(widget.tableNode.type == SimpleTableBlockKeys.type);
 
-    if (widget.node.type != SimpleTableBlockKeys.type) {
+    if (widget.tableNode.type != SimpleTableBlockKeys.type) {
       return const SizedBox.shrink();
     }
 
@@ -78,8 +81,18 @@ class _SimpleTableAddColumnHoverButtonState
               child: Opacity(
                 opacity: shouldShow ? 1.0 : 0.0,
                 child: SimpleTableAddColumnButton(
-                  onTap: () {
-                    widget.editorState.addColumnInTable(widget.node);
+                  onTap: () =>
+                      widget.editorState.addColumnInTable(widget.tableNode),
+                  onHorizontalDragStart: (details) {
+                    context.read<SimpleTableContext>().isDraggingColumn = true;
+                    startDraggingOffset = details.globalPosition;
+                    initialColumnCount = widget.tableNode.columnLength;
+                  },
+                  onHorizontalDragEnd: (details) {
+                    context.read<SimpleTableContext>().isDraggingColumn = false;
+                  },
+                  onHorizontalDragUpdate: (details) {
+                    _insertColumnInMemory(details);
                   },
                 ),
               ),
@@ -101,15 +114,76 @@ class _SimpleTableAddColumnHoverButtonState
 
     return result;
   }
+
+  void _insertColumnInMemory(DragUpdateDetails details) {
+    if (!SimpleTableConstants.enableDragToExpandTable) {
+      return;
+    }
+
+    if (startDraggingOffset == null || initialColumnCount == null) {
+      return;
+    }
+
+    // calculate the horizontal offset from the start dragging offset
+    final horizontalOffset =
+        details.globalPosition.dx - startDraggingOffset!.dx;
+
+    const columnWidth = SimpleTableConstants.defaultColumnWidth;
+    final columnDelta = (horizontalOffset / columnWidth).round();
+
+    // if the change is less than 1 column, skip the operation
+    if (columnDelta.abs() < 1) {
+      return;
+    }
+
+    final firstEmptyColumnFromRight =
+        widget.tableNode.getFirstEmptyColumnFromRight();
+    if (firstEmptyColumnFromRight == null) {
+      return;
+    }
+
+    final currentColumnCount = widget.tableNode.columnLength;
+    final targetColumnCount = initialColumnCount! + columnDelta;
+
+    // There're 3 cases that we don't want to proceed:
+    // 1. targetColumnCount < 0: the table at least has 1 column
+    // 2. targetColumnCount == currentColumnCount: the table has no change
+    // 3. targetColumnCount <= initialColumnCount: the table has less columns than the initial column count
+    if (targetColumnCount <= 0 ||
+        targetColumnCount == currentColumnCount ||
+        targetColumnCount <= firstEmptyColumnFromRight) {
+      return;
+    }
+
+    if (targetColumnCount > currentColumnCount) {
+      widget.editorState.insertColumnInTable(
+        widget.tableNode,
+        targetColumnCount,
+        inMemoryUpdate: true,
+      );
+    } else {
+      widget.editorState.deleteColumnInTable(
+        widget.tableNode,
+        targetColumnCount,
+        inMemoryUpdate: true,
+      );
+    }
+  }
 }
 
 class SimpleTableAddColumnButton extends StatelessWidget {
   const SimpleTableAddColumnButton({
     super.key,
     this.onTap,
+    required this.onHorizontalDragStart,
+    required this.onHorizontalDragEnd,
+    required this.onHorizontalDragUpdate,
   });
 
   final VoidCallback? onTap;
+  final void Function(DragStartDetails) onHorizontalDragStart;
+  final void Function(DragEndDetails) onHorizontalDragEnd;
+  final void Function(DragUpdateDetails) onHorizontalDragUpdate;
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +192,9 @@ class SimpleTableAddColumnButton extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: onTap,
+        onHorizontalDragStart: onHorizontalDragStart,
+        onHorizontalDragEnd: onHorizontalDragEnd,
+        onHorizontalDragUpdate: onHorizontalDragUpdate,
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: Container(

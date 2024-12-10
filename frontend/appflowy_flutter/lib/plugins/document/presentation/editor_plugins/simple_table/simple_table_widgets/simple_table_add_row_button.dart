@@ -119,27 +119,41 @@ class _SimpleTableAddRowHoverButtonState
   }
 
   void _insertRowInMemory(DragUpdateDetails details) {
-    // Skip if no starting drag offset
-    if (startDraggingOffset == null) {
+    if (!SimpleTableConstants.enableDragToExpandTable) {
       return;
     }
 
-    // Calculate vertical offset from drag start position
+    if (startDraggingOffset == null || initialRowCount == null) {
+      return;
+    }
+
+    // calculate the vertical offset from the start dragging offset
     final verticalOffset = details.globalPosition.dy - startDraggingOffset!.dy;
 
-    // Use row height of 36 to determine number of rows to add/remove
-    const rowHeight = 36.0;
+    const rowHeight = SimpleTableConstants.defaultRowHeight;
     final rowDelta = (verticalOffset / rowHeight).round();
 
-    // Only proceed if offset indicates at least 1 row change
+    // if the change is less than 1 row, skip the operation
     if (rowDelta.abs() < 1) {
+      return;
+    }
+
+    final firstEmptyRowFromBottom =
+        widget.tableNode.getFirstEmptyRowFromBottom();
+    if (firstEmptyRowFromBottom == null) {
       return;
     }
 
     final currentRowCount = widget.tableNode.children.length;
     final targetRowCount = initialRowCount! + rowDelta;
 
-    if (targetRowCount < 0 || targetRowCount == currentRowCount) {
+    // There're 3 cases that we don't want to proceed:
+    // 1. targetRowCount < 0: the table at least has 1 row
+    // 2. targetRowCount == currentRowCount: the table has no change
+    // 3. targetRowCount <= initialRowCount: the table has less rows than the initial row count
+    if (targetRowCount <= 0 ||
+        targetRowCount == currentRowCount ||
+        targetRowCount <= firstEmptyRowFromBottom.$1) {
       return;
     }
 
@@ -152,7 +166,7 @@ class _SimpleTableAddRowHoverButtonState
     } else {
       widget.editorState.deleteRowInTable(
         widget.tableNode,
-        targetRowCount - 1,
+        targetRowCount,
         inMemoryUpdate: true,
       );
     }

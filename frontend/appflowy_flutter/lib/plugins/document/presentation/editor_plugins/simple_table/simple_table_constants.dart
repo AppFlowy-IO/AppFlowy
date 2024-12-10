@@ -69,6 +69,9 @@ class SimpleTableContext {
   /// isDraggingRow to expand the rows of the table
   bool isDraggingRow = false;
 
+  /// isDraggingColumn to expand the columns of the table
+  bool isDraggingColumn = false;
+
   bool get isReordering =>
       isReorderingColumn.value.$1 || isReorderingRow.value.$1;
 
@@ -169,6 +172,8 @@ class SimpleTableConstants {
   static const defaultColumnWidth = 120.0;
   static const minimumColumnWidth = 36.0;
 
+  static const defaultRowHeight = 36.0;
+
   static const tableTopPadding = 8.0;
   static const tableLeftPadding = 8.0;
 
@@ -230,6 +235,9 @@ class SimpleTableConstants {
   /// Only displaying the add row / add column / add column and row button
   ///   when hovering on the last row / last column / last cell.
   static const enableHoveringLogicV2 = true;
+
+  /// Enable the drag to expand the table
+  static const enableDragToExpandTable = false;
 }
 
 enum SimpleTableBorderRenderType {
