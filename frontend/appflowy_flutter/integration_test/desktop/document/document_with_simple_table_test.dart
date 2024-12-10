@@ -382,6 +382,31 @@ void main() {
     final afterWidth = tableNode.width;
     expect(afterWidth, greaterThan(beforeWidth));
   });
+
+  testWidgets('distribute columns evenly (1)', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+
+    final tableNode = tester.editor.getNodeAtPath([0]);
+    final beforeWidth = tableNode.width;
+
+    // set the column width to page width
+    await tester.clickMoreActionItemInTableMenu(
+      type: SimpleTableMoreActionType.row,
+      index: 0,
+      action: SimpleTableMoreAction.distributeColumnsEvenly,
+    );
+    await tester.pumpAndSettle();
+
+    final afterWidth = tableNode.width;
+    expect(afterWidth, equals(beforeWidth));
+  });
 }
 
 extension on WidgetTester {
