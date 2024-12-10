@@ -233,4 +233,34 @@ extension TableOptionOperation on EditorState {
     transaction.updateNode(parentTableNode, attributes);
     await apply(transaction);
   }
+
+  /// Set the column width of the table to the page width.
+  Future<void> setColumnWidthToPageWidth({
+    required Node tableNode,
+  }) async {
+    // Disable in mobile
+    if (UniversalPlatform.isMobile) {
+      return;
+    }
+
+    final columnLength = tableNode.columnLength;
+    final double? pageWidth = tableNode.renderBox?.size.width;
+    if (pageWidth == null) {
+      Log.warn('table node render box is null');
+      return;
+    }
+    final columnWidth =
+        (pageWidth - SimpleTableConstants.tablePageOffset) / columnLength;
+
+    final transaction = this.transaction;
+    final columnWidths = tableNode.columnWidths;
+    for (var i = 0; i < columnLength; i++) {
+      columnWidths[i.toString()] = columnWidth;
+    }
+
+    transaction.updateNode(tableNode, {
+      SimpleTableBlockKeys.columnWidths: columnWidths,
+    });
+    await apply(transaction);
+  }
 }

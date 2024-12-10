@@ -1725,7 +1725,9 @@
           "insertBelow": "Insert below",
           "headerColumn": "Header column",
           "headerRow": "Header row",
-          "clearContents": "Clear contents"
+          "clearContents": "Clear contents",
+          "setToPageWidth": "Set to page width",
+          "distributeColumnsWidth": "Distribute columns evenly"
         },
         "clickToAddNewRow": "Click to add a new row",
         "clickToAddNewColumn": "Click to add a new column",
