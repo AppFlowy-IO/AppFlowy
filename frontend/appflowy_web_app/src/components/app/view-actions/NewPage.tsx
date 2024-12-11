@@ -9,7 +9,7 @@ import { Button } from '@mui/material';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-function NewPage () {
+function NewPage() {
   const { t } = useTranslation();
   const [open, setOpen] = React.useState<boolean>(false);
   const [loading, setLoading] = React.useState<boolean>(false);
@@ -63,7 +63,7 @@ function NewPage () {
     <div className={'w-full px-[10px]'}>
       <Button
         onClick={() => setOpen(true)}
-        startIcon={<Add className={'w-5 h-5'} />}
+        startIcon={<Add className={'w-5 h-5 mr-1'}/>}
         size={'small'}
         className={'text-sm font-normal justify-start w-full hover:bg-content-blue-50'}
         color={'inherit'}

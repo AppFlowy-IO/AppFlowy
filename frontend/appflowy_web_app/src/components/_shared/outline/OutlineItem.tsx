@@ -5,7 +5,7 @@ import OutlineItemContent from '@/components/_shared/outline/OutlineItemContent'
 import { getOutlineExpands, setOutlineExpands } from '@/components/_shared/outline/utils';
 import React, { useCallback, useEffect, useMemo } from 'react';
 
-function OutlineItem ({ view, level = 0, width, navigateToView, selectedViewId, variant }: {
+function OutlineItem({ view, level = 0, width, navigateToView, selectedViewId, variant }: {
   view: View;
   width?: number;
   level?: number;
@@ -23,7 +23,7 @@ function OutlineItem ({ view, level = 0, width, navigateToView, selectedViewId, 
   }, [isExpanded, view.view_id]);
 
   const getIcon = useCallback(() => {
-    return <span className={'text-sm'}><OutlineIcon
+    return <span className={'text-sm mt-1'}><OutlineIcon
       level={level}
       isExpanded={isExpanded}
       setIsExpanded={setIsExpanded}
@@ -54,7 +54,7 @@ function OutlineItem ({ view, level = 0, width, navigateToView, selectedViewId, 
             level={level}
             setIsExpanded={setIsExpanded}
           />
-          {item.is_private && <PrivateIcon className={'h-4 w-4 text-text-caption'} />}
+          {item.is_private && <PrivateIcon className={'h-4 w-4 text-text-caption'}/>}
         </div>
       </div>
     );

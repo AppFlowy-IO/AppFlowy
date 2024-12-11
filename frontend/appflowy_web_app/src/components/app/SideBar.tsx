@@ -22,6 +22,12 @@ function SideBar({
   onResizeDrawerWidth,
 }: SideBarProps) {
 
+  const [scrollTop, setScrollTop] = React.useState<number>(0);
+
+  const handleOnScroll = React.useCallback((scrollTop: number) => {
+    setScrollTop(scrollTop);
+  }, []);
+
   return (
     <OutlineDrawer
       onResizeWidth={onResizeDrawerWidth}
@@ -30,12 +36,16 @@ function SideBar({
       variant={UIVariant.App}
       onClose={() => toggleOpenDrawer(false)}
       header={<Workspaces/>}
+      onScroll={handleOnScroll}
     >
       <div
         className={'flex w-full gap-1 flex-1 flex-col'}
       >
         <div
-          className={'flex bg-bg-base z-[1] pb-4 flex-col gap-1 justify-around items-center sticky top-12'}
+          style={{
+            borderColor: scrollTop > 10 ? 'var(--line-divider)' : undefined,
+          }}
+          className={'flex border-b border-transparent bg-bg-base z-[1] pb-4 flex-col gap-1 justify-around items-center sticky top-12'}
         >
           <Favorite/>
           <NewPage/>

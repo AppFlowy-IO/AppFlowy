@@ -17,7 +17,7 @@ import { ReactComponent as SignOutIcon } from '@/assets/sign_out.svg';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import InviteMember from '@/components/app/workspaces/InviteMember';
 
-export function Workspaces () {
+export function Workspaces() {
   const { t } = useTranslation();
   const userWorkspaceInfo = useUserWorkspaceInfo();
   const currentWorkspaceId = useCurrentWorkspaceId();
@@ -68,15 +68,15 @@ export function Workspaces () {
       onClick={() => setOpen(true)}
       className={'flex px-1 w-full cursor-pointer justify-start py-1 items-center gap-1 mx-2 text-text-title'}
     >
-      <div className={'flex items-center gap-1.5 text-text-title overflow-hidden'}>
+      <div className={'flex items-center gap-1.5 text-[15px] text-text-title overflow-hidden'}>
         <CurrentWorkspace
           userWorkspaceInfo={userWorkspaceInfo}
           selectedWorkspace={selectedWorkspace}
           onChangeWorkspace={handleChange}
-          avatarSize={20}
+          avatarSize={24}
         />
 
-        {hoveredHeader && <ArrowRightSvg className={'w-4 h-4 transform rotate-90'} />}
+        {hoveredHeader && <ArrowRightSvg className={'w-4 h-4 transform rotate-90'}/>}
       </div>
     </Button>
     <Popover
@@ -99,12 +99,12 @@ export function Workspaces () {
           />}
         </div>
 
-        <Divider className={'w-full mt-1'} />
-        {selectedWorkspace && <InviteMember workspace={selectedWorkspace} />}
+        <Divider className={'w-full mt-1'}/>
+        {selectedWorkspace && <InviteMember workspace={selectedWorkspace}/>}
         <Button
           size={'small'}
           component={'div'}
-          startIcon={<AddIcon />}
+          startIcon={<AddIcon/>}
           color={'inherit'}
           className={'justify-start px-2'}
           onClick={handleOpenImport}
@@ -123,7 +123,7 @@ export function Workspaces () {
               size={'small'}
               className={'mx-2'}
             >
-              <TipIcon className={'w-4 h-4'} />
+              <TipIcon className={'w-4 h-4'}/>
             </IconButton>
           </Tooltip>
         </Button>
@@ -132,12 +132,12 @@ export function Workspaces () {
           className={'justify-start px-2'}
           color={'inherit'}
           onClick={handleSignOut}
-          startIcon={<SignOutIcon />}
+          startIcon={<SignOutIcon/>}
         >{t('button.signOut')}</Button>
       </div>
 
     </Popover>
-    <Import />
+    <Import/>
   </>;
 }
 

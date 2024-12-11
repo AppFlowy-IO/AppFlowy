@@ -4,7 +4,7 @@ import { Avatar } from '@mui/material';
 import React from 'react';
 import { ReactComponent as AppFlowyLogo } from '@/assets/appflowy.svg';
 
-function CurrentWorkspace ({
+function CurrentWorkspace({
   userWorkspaceInfo,
   selectedWorkspace,
   onChangeWorkspace,
@@ -27,7 +27,7 @@ function CurrentWorkspace ({
         void onChangeWorkspace(selectedId);
       }}
     >
-      <AppFlowyLogo className={'w-[88px]'} />
+      <AppFlowyLogo className={'w-[88px]'}/>
     </div>;
   }
 
@@ -42,7 +42,7 @@ function CurrentWorkspace ({
         fontSize: avatarSize / 1.2,
       }}
     />
-    <div className={'text-text-title flex-1 truncate font-semibold'}>{selectedWorkspace.name}</div>
+    <div className={'text-text-title flex-1 truncate font-medium'}>{selectedWorkspace.name}</div>
   </div>;
 }
 
