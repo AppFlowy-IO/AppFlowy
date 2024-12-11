@@ -30,7 +30,7 @@ enum FavoriteGroup {
   Others = 'Others',
 }
 
-export function Favorite () {
+export function Favorite() {
   const {
     favoriteViews,
     loadFavoriteViews,
@@ -113,11 +113,11 @@ export function Favorite () {
             'flex items-center w-full gap-2 rounded-[8px] py-1.5 px-0.5 text-sm hover:bg-content-blue-50 focus:bg-content-blue-50 focus:outline-none'
           }
         >
-          <FavoritedIcon className={'h-5 w-5'} />
+          <FavoritedIcon className={'h-5 w-5 mr-1'}/>
           <div className={'flex-1 truncate'}>{t('sideBar.favorites')}</div>
         </div>
       </div>
-      {!favoriteViews ? <RecentListSkeleton rows={3} /> : <Collapse
+      {!favoriteViews ? <RecentListSkeleton rows={3}/> : <Collapse
         in={isExpanded}
         className={'flex px-1 transform flex-col gap-2 transition-all'}
       >
@@ -139,7 +139,7 @@ export function Favorite () {
           ref={moreButtonRef}
           className={'flex items-center w-full gap-2 rounded-[8px] px-2 py-1.5 text-sm cursor-pointer hover:bg-content-blue-50 focus:bg-content-blue-50 focus:outline-none'}
         >
-          <MoreIcon className={'h-4 w-4 text-text-caption'} />
+          <MoreIcon className={'h-4 w-4 text-text-caption'}/>
           <div>{t('button.more')}</div>
 
         </div>}

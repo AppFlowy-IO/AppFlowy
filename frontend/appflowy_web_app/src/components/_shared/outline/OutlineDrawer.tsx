@@ -8,7 +8,7 @@ import { Drawer, IconButton, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { UIVariant } from '@/application/types';
 
-export function OutlineDrawer({ header, variant, open, width, onClose, children, onResizeWidth }: {
+export function OutlineDrawer({ onScroll, header, variant, open, width, onClose, children, onResizeWidth }: {
   open: boolean;
   width: number;
   onClose: () => void;
@@ -16,6 +16,7 @@ export function OutlineDrawer({ header, variant, open, width, onClose, children,
   onResizeWidth: (width: number) => void;
   header?: React.ReactNode;
   variant?: UIVariant;
+  onScroll?: (scrollTop: number) => void;
 }) {
   const { t } = useTranslation();
 
@@ -47,7 +48,9 @@ export function OutlineDrawer({ header, variant, open, width, onClose, children,
       }}
     >
 
-      <div className={'flex h-full relative min-h-full flex-col overflow-y-auto overflow-x-hidden appflowy-scroller'}>
+      <div onScroll={e => {
+        onScroll?.((e.target as HTMLDivElement).scrollTop);
+      }} className={'flex h-full relative min-h-full flex-col overflow-y-auto overflow-x-hidden appflowy-scroller'}>
         <div
           style={{
             backdropFilter: variant === UIVariant.Publish ? 'blur(4px)' : undefined,
