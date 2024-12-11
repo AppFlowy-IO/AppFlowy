@@ -9,6 +9,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { createEditor, Descendant } from 'slate';
 import { Slate, withReact } from 'slate-react';
 import * as Y from 'yjs';
+import { clipboardFormatKey } from '@/components/editor/plugins/withCopy';
 
 const defaultInitialValue: Descendant[] = [];
 
@@ -42,7 +43,7 @@ function CollaborativeEditor({ doc }: { doc: Y.Doc }) {
               uploadFile,
             }),
           ),
-          'x-appflowy-fragment',
+          clipboardFormatKey,
         ),
       ) as YjsEditor),
     [doc, uploadFile, readOnly, localOrigin, readSummary, onContentChange],

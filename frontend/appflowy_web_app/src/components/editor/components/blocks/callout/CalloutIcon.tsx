@@ -6,7 +6,7 @@ import { CalloutNode } from '@/components/editor/editor.type';
 import React, { useCallback, useRef } from 'react';
 import { useReadOnly, useSlateStatic } from 'slate-react';
 
-function CalloutIcon ({ block: node, className }: { block: CalloutNode; className: string }) {
+function CalloutIcon({ block: node, className }: { block: CalloutNode; className: string }) {
   const ref = useRef<HTMLButtonElement>(null);
   const readOnly = useReadOnly();
   const editor = useSlateStatic();
@@ -33,12 +33,14 @@ function CalloutIcon ({ block: node, className }: { block: CalloutNode; classNam
         }}
         contentEditable={false}
         ref={ref}
-        className={`icon ${className} ${readOnly ? '' : 'cursor-pointer'} flex h-6 items-center`}
+        className={`icon ${className} ${readOnly ? '' : 'cursor-pointer'} flex h-[24px] max-h-full items-center`}
         style={{
-          width: '3.5em',
+          width: '58px',
         }}
       >
-        {node.data.icon || `📌`}
+        <span
+          className={`text-[20px] p-1 px-2 ${readOnly ? '' : 'hover:bg-fill-list-hover rounded-[6px]'}`}>{node.data.icon || `📌`}</span>
+
       </span>
       <ChangeIconPopover
         open={open}

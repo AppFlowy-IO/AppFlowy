@@ -67,7 +67,7 @@ function ImageBlockPopoverContent({
 
   const getData = useCallback(async (file: File, remoteUrl?: string) => {
     const data = {
-      url: remoteUrl,
+      url: remoteUrl || '',
       image_type: ImageType.External,
     } as ImageBlockData;
 
@@ -76,6 +76,7 @@ function ImageBlockPopoverContent({
       const res = await fileHandler.handleFileUpload(file);
 
       data.retry_local_url = res.id;
+      data.image_type = undefined;
     }
 
     return data;

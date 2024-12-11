@@ -4,14 +4,15 @@ import { isEmbedBlockTypes } from '@/application/slate-yjs/command/const';
 import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
 import {
+  AlignType,
   BlockData,
   BlockType,
   CalloutBlockData,
   HeadingBlockData,
+  ImageBlockData,
   SubpageNodeData,
   ToggleListBlockData,
   ViewLayout,
-  // DatabaseNodeData
 } from '@/application/types';
 import { ReactComponent as AddDocumentIcon } from '@/assets/slash_menu_icon_add_doc.svg';
 // import { ReactComponent as AIWriterIcon } from '@/assets/slash_menu_icon_ai_writer.svg';
@@ -52,7 +53,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactEditor, useSlateStatic } from 'slate-react';
 
-export function SlashPanel ({
+export function SlashPanel({
   setEmojiPosition,
 }: {
   setEmojiPosition: (position: { top: number; left: number }) => void;
@@ -142,7 +143,7 @@ export function SlashPanel ({
       {
         label: t('document.slashMenu.name.text'),
         key: 'text',
-        icon: <TextIcon />,
+        icon: <TextIcon/>,
         onClick: () => {
           turnInto(BlockType.Paragraph, {});
         },
@@ -150,7 +151,7 @@ export function SlashPanel ({
       }, {
         label: t('document.slashMenu.name.heading1'),
         key: 'heading1',
-        icon: <Heading1Icon />,
+        icon: <Heading1Icon/>,
         keywords: ['heading1', 'h1', 'heading'],
         onClick: () => {
           turnInto(BlockType.HeadingBlock, {
@@ -160,7 +161,7 @@ export function SlashPanel ({
       }, {
         label: t('document.slashMenu.name.heading2'),
         key: 'heading2',
-        icon: <Heading2Icon />,
+        icon: <Heading2Icon/>,
         keywords: ['heading2', 'h2', 'subheading', 'heading'],
         onClick: () => {
           turnInto(BlockType.HeadingBlock, {
@@ -170,7 +171,7 @@ export function SlashPanel ({
       }, {
         label: t('document.slashMenu.name.heading3'),
         key: 'heading3',
-        icon: <Heading3Icon />,
+        icon: <Heading3Icon/>,
         keywords: ['heading3', 'h3', 'subheading', 'heading'],
         onClick: () => {
           turnInto(BlockType.HeadingBlock, {
@@ -180,15 +181,18 @@ export function SlashPanel ({
       }, {
         label: t('document.slashMenu.name.image'),
         key: 'image',
-        icon: <ImageIcon />,
+        icon: <ImageIcon/>,
         keywords: ['image', 'img'],
         onClick: () => {
-          turnInto(BlockType.ImageBlock, {});
+          turnInto(BlockType.ImageBlock, {
+            url: '',
+            align: AlignType.Center,
+          } as ImageBlockData);
         },
       }, {
         label: t('document.slashMenu.name.bulletedList'),
         key: 'bulletedList',
-        icon: <BulletedListIcon />,
+        icon: <BulletedListIcon/>,
         keywords: ['bulleted', 'list'],
         onClick: () => {
           turnInto(BlockType.BulletedListBlock, {});
@@ -196,7 +200,7 @@ export function SlashPanel ({
       }, {
         label: t('document.slashMenu.name.numberedList'),
         key: 'numberedList',
-        icon: <NumberedListIcon />,
+        icon: <NumberedListIcon/>,
         keywords: ['numbered', 'list'],
         onClick: () => {
           turnInto(BlockType.NumberedListBlock, {});
@@ -204,7 +208,7 @@ export function SlashPanel ({
       }, {
         label: t('document.slashMenu.name.todoList'),
         key: 'todoList',
-        icon: <TodoListIcon />,
+        icon: <TodoListIcon/>,
         keywords: ['todo', 'list'],
         onClick: () => {
           turnInto(BlockType.TodoListBlock, {});
@@ -212,7 +216,7 @@ export function SlashPanel ({
       }, {
         label: t('document.slashMenu.name.divider'),
         key: 'divider',
-        icon: <DividerIcon />,
+        icon: <DividerIcon/>,
         keywords: ['divider', 'line'],
         onClick: () => {
           turnInto(BlockType.DividerBlock, {});
@@ -220,7 +224,7 @@ export function SlashPanel ({
       }, {
         label: t('document.slashMenu.name.quote'),
         key: 'quote',
-        icon: <QuoteIcon />,
+        icon: <QuoteIcon/>,
         keywords: ['quote'],
         onClick: () => {
           turnInto(BlockType.QuoteBlock, {});
@@ -228,7 +232,7 @@ export function SlashPanel ({
       }, {
         label: t('document.slashMenu.name.linkedDoc'),
         key: 'linkedDoc',
-        icon: <DocumentIcon />,
+        icon: <DocumentIcon/>,
         keywords: ['linked', 'doc', 'page', 'document'],
         onClick: () => {
           const rect = getRangeRect();
@@ -239,7 +243,7 @@ export function SlashPanel ({
       }, {
         label: t('document.menuName'),
         key: 'document',
-        icon: <AddDocumentIcon />,
+        icon: <AddDocumentIcon/>,
         keywords: ['document', 'doc', 'page', 'create', 'add'],
         onClick: async () => {
           if (!viewId || !addPage || !openPageModal) return;
@@ -347,7 +351,7 @@ export function SlashPanel ({
       {
         label: t('document.slashMenu.name.callout'),
         key: 'callout',
-        icon: <CalloutIcon />,
+        icon: <CalloutIcon/>,
         keywords: ['callout'],
         onClick: () => {
           turnInto(BlockType.CalloutBlock, {
@@ -357,7 +361,7 @@ export function SlashPanel ({
       }, {
         label: t('document.slashMenu.name.outline'),
         key: 'outline',
-        icon: <OutlineIcon />,
+        icon: <OutlineIcon/>,
         keywords: ['outline', 'table', 'contents'],
         onClick: () => {
           turnInto(BlockType.OutlineBlock, {});
@@ -365,7 +369,7 @@ export function SlashPanel ({
       }, {
         label: t('document.slashMenu.name.mathEquation'),
         key: 'math',
-        icon: <MathIcon />,
+        icon: <MathIcon/>,
         keywords: ['math', 'equation', 'formula'],
         onClick: () => {
           turnInto(BlockType.EquationBlock, {});
@@ -373,7 +377,7 @@ export function SlashPanel ({
       }, {
         label: t('document.slashMenu.name.code'),
         key: 'code',
-        icon: <CodeIcon />,
+        icon: <CodeIcon/>,
         keywords: ['code', 'block'],
         onClick: () => {
           turnInto(BlockType.CodeBlock, {});
@@ -381,7 +385,7 @@ export function SlashPanel ({
       }, {
         label: t('document.slashMenu.name.toggleList'),
         key: 'toggleList',
-        icon: <ToggleListIcon />,
+        icon: <ToggleListIcon/>,
         keywords: ['toggle', 'list'],
         onClick: () => {
           turnInto(BlockType.ToggleListBlock, {
@@ -391,7 +395,7 @@ export function SlashPanel ({
       }, {
         label: t('document.slashMenu.name.toggleHeading1'),
         key: 'toggleHeading1',
-        icon: <ToggleHeading1Icon />,
+        icon: <ToggleHeading1Icon/>,
         keywords: ['toggle', 'heading1', 'h1', 'heading'],
         onClick: () => {
           turnInto(BlockType.ToggleListBlock, {
@@ -402,7 +406,7 @@ export function SlashPanel ({
       }, {
         label: t('document.slashMenu.name.toggleHeading2'),
         key: 'toggleHeading2',
-        icon: <ToggleHeading2Icon />,
+        icon: <ToggleHeading2Icon/>,
         keywords: ['toggle', 'heading2', 'h2', 'subheading', 'heading'],
         onClick: () => {
           turnInto(BlockType.ToggleListBlock, {
@@ -413,7 +417,7 @@ export function SlashPanel ({
       }, {
         label: t('document.slashMenu.name.toggleHeading3'),
         key: 'toggleHeading3',
-        icon: <ToggleHeading3Icon />,
+        icon: <ToggleHeading3Icon/>,
         keywords: ['toggle', 'heading3', 'h3', 'subheading', 'heading'],
         onClick: () => {
           turnInto(BlockType.ToggleListBlock, {
@@ -424,7 +428,7 @@ export function SlashPanel ({
       }, {
         label: t('document.slashMenu.name.emoji'),
         key: 'emoji',
-        icon: <EmojiIcon />,
+        icon: <EmojiIcon/>,
         keywords: ['emoji'],
         onClick: () => {
           setTimeout(() => {
@@ -441,7 +445,7 @@ export function SlashPanel ({
       }, {
         label: t('document.slashMenu.name.file'),
         key: 'file',
-        icon: <FileIcon />,
+        icon: <FileIcon/>,
         keywords: ['file', 'upload'],
         onClick: () => {
           turnInto(BlockType.FileBlock, {});
@@ -576,7 +580,8 @@ export function SlashPanel ({
               {option.label}
             </Button>
           )) :
-          <div className={'text-text-caption text-sm flex justify-center items-center py-4'}>{t('findAndReplace.noResult')}</div>}
+          <div
+            className={'text-text-caption text-sm flex justify-center items-center py-4'}>{t('findAndReplace.noResult')}</div>}
       </div>
 
 
