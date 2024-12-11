@@ -132,11 +132,15 @@ export default defineConfig({
       sourcemap: isDev,
       rollupOptions: isProd
         ? {
+          input: {
+            main: path.resolve(__dirname, 'index.html'),
+            'apple-app-site-association': '.well-known/apple-app-site-association',
+          },
           output: {
             chunkFileNames: 'static/js/[name]-[hash].js',
             entryFileNames: 'static/js/[name]-[hash].js',
             assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
-            manualChunks (id) {
+            manualChunks(id) {
               if (
                 // id.includes('/react@') ||
                 // id.includes('/react-dom@') ||

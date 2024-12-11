@@ -8,6 +8,7 @@ import { Drawer, IconButton, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { UIVariant } from '@/application/types';
 import { useState } from 'react';
+import { AFScroller } from '@/components/_shared/scroller';
 
 export function OutlineDrawer({ onScroll, header, variant, open, width, onClose, children, onResizeWidth }: {
   open: boolean;
@@ -50,9 +51,9 @@ export function OutlineDrawer({ onScroll, header, variant, open, width, onClose,
       }}
     >
 
-      <div onScroll={e => {
+      <AFScroller overflowXHidden onScroll={e => {
         onScroll?.((e.target as HTMLDivElement).scrollTop);
-      }} className={'flex h-full relative min-h-full flex-col overflow-y-auto overflow-x-hidden appflowy-scroller'}>
+      }} className={'flex h-full relative min-h-full w-full flex-col'}>
         <div
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
@@ -95,7 +96,7 @@ export function OutlineDrawer({ onScroll, header, variant, open, width, onClose,
         {variant === 'publish' && <AppFlowyPower width={width}/>}
 
 
-      </div>
+      </AFScroller>
       <Resizer
         drawerWidth={width}
         onResize={onResizeWidth}
