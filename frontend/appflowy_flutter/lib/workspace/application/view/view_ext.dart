@@ -91,13 +91,6 @@ extension ViewExtension on ViewPB {
         _ => throw UnimplementedError(),
       };
 
-  double get pluginHeight => switch (layout) {
-        ViewLayoutPB.Board || ViewLayoutPB.Document || ViewLayoutPB.Chat => 400,
-        ViewLayoutPB.Calendar => 700,
-        ViewLayoutPB.Grid => double.infinity,
-        _ => throw UnimplementedError(),
-      };
-
   Plugin plugin({
     Map<String, dynamic> arguments = const {},
   }) {

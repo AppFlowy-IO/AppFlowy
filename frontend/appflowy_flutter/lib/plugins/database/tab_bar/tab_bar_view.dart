@@ -134,8 +134,10 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                 pageSettingBarExtensionFromState(state),
                 wrapContent(
                   layout: layout,
-                  child: IndexedStack(
-                    index: state.selectedIndex,
+                  child: PageView(
+                    controller: _pageController,
+                    pageSnapping: false,
+                    physics: const NeverScrollableScrollPhysics(),
                     children: pageContentFromState(state),
                   ),
                 ),
