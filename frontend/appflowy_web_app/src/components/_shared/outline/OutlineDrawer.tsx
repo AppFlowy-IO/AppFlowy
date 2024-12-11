@@ -7,6 +7,7 @@ import { createHotKeyLabel, HOT_KEY_NAME } from '@/utils/hotkeys';
 import { Drawer, IconButton, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { UIVariant } from '@/application/types';
+import { useState } from 'react';
 
 export function OutlineDrawer({ onScroll, header, variant, open, width, onClose, children, onResizeWidth }: {
   open: boolean;
@@ -20,6 +21,7 @@ export function OutlineDrawer({ onScroll, header, variant, open, width, onClose,
 }) {
   const { t } = useTranslation();
 
+  const [hovered, setHovered] = useState<boolean>(false);
   const navigate = useNavigate();
 
   return (
@@ -52,11 +54,13 @@ export function OutlineDrawer({ onScroll, header, variant, open, width, onClose,
         onScroll?.((e.target as HTMLDivElement).scrollTop);
       }} className={'flex h-full relative min-h-full flex-col overflow-y-auto overflow-x-hidden appflowy-scroller'}>
         <div
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
           style={{
             backdropFilter: variant === UIVariant.Publish ? 'blur(4px)' : undefined,
             backgroundColor: variant === UIVariant.App ? 'var(--bg-base)' : undefined,
           }}
-          className={'flex transform-gpu z-10 h-[48px] sticky top-0 items-center justify-between'}
+          className={'flex transform-gpu z-10 min-h-[48px] h-[48px] sticky top-0 items-center justify-between'}
         >
           {header ? header : <div
             className={'flex p-4 cursor-pointer items-center gap-1 text-text-title'}
@@ -67,7 +71,7 @@ export function OutlineDrawer({ onScroll, header, variant, open, width, onClose,
             <AppFlowyLogo className={'w-[88px]'}/>
           </div>}
 
-          <Tooltip
+          {hovered && <Tooltip
             title={
               <div className={'flex flex-col'}>
                 <span>{t('sideBar.closeSidebar')}</span>
@@ -82,7 +86,8 @@ export function OutlineDrawer({ onScroll, header, variant, open, width, onClose,
             >
               <SideOutlined className={'text-text-caption w-4 h-4 rotate-180 transform'}/>
             </IconButton>
-          </Tooltip>
+          </Tooltip>}
+
         </div>
         <div className={'flex h-fit flex-1 flex-col'}>
           {children}
