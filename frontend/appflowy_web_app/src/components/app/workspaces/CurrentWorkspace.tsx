@@ -31,7 +31,7 @@ function CurrentWorkspace({
     </div>;
   }
 
-  return <div className={'flex items-center gap-2'}>
+  return <div className={'flex items-center gap-1.5'}>
     <Avatar
       variant={'rounded'}
       className={`flex items-center justify-center border-none p-1 border-line-divider rounded-[8px] ${selectedWorkspace.icon ? 'bg-transparent' : ''}`}

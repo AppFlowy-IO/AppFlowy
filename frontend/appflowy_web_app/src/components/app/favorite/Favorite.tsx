@@ -114,10 +114,10 @@ export function Favorite() {
       >
         <div
           className={
-            'flex items-center w-full gap-2 rounded-[8px] px-0.5 text-sm hover:bg-content-blue-50 focus:bg-content-blue-50 focus:outline-none'
+            'flex items-center w-full gap-2 rounded-[8px] p-1 hover:bg-fill-list-hover text-sm focus:outline-none'
           }
         >
-          <FavoritedIcon className={'h-5 w-5 mr-1'}/>
+          <FavoritedIcon className={'h-5 w-5 mr-[1px]'}/>
           <div className={'flex-1 truncate'}>{t('sideBar.favorites')}</div>
         </div>
       </div>

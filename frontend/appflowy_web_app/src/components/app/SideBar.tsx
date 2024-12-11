@@ -1,7 +1,6 @@
 import { OutlineDrawer } from '@/components/_shared/outline';
 import NewPage from '@/components/app/view-actions/NewPage';
 import React, { lazy } from 'react';
-import { Favorite } from '@/components/app/favorite';
 import { Workspaces } from '@/components/app/workspaces';
 import Outline from 'src/components/app/outline/Outline';
 import { UIVariant } from '@/application/types';
