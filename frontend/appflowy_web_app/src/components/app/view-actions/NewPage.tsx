@@ -63,9 +63,9 @@ function NewPage() {
     <div className={'w-full px-[10px]'}>
       <Button
         onClick={() => setOpen(true)}
-        startIcon={<Add className={'w-5 h-5 mr-1'}/>}
+        startIcon={<Add className={'w-5 h-5 mr-[1px]'}/>}
         size={'small'}
-        className={'text-sm font-normal justify-start w-full hover:bg-content-blue-50'}
+        className={'text-sm font-normal  py-1 justify-start w-full hover:bg-fill-list-hover'}
         color={'inherit'}
       >
         {t('newPageText')}
