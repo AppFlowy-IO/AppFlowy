@@ -101,15 +101,16 @@ export const openAppOrDownload = (config: AppConfig): void => {
   };
 };
 
-export function openOnly (schema?: string) {
+export function openOnly(schema?: string) {
 
   return openAppOrDownload({
     appScheme: schema || openAppFlowySchema,
   });
 }
 
-export function openOrDownload (schema?: string) {
+export function openOrDownload(schema?: string) {
   const os = getOS();
+  
   const downloadUrl = os === 'ios' ? iosDownloadLink : os === 'android' ? androidDownloadLink : desktopDownloadLink;
 
   return openAppOrDownload({

@@ -1,6 +1,7 @@
 import { useAppView } from '@/components/app/app.hooks';
 import PublishPanel from '@/components/app/share/PublishPanel';
 import TemplatePanel from '@/components/app/share/TemplatePanel';
+import SharePanel from '@/components/app/share/SharePanel';
 import { useCurrentUser } from '@/components/main/app.hooks';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -9,26 +10,31 @@ import { ReactComponent as Templates } from '@/assets/template.svg';
 import { ReactComponent as PublishedWithChanges } from '@/assets/published_with_changes.svg';
 
 enum TabKey {
+  SHARE = 'share',
   PUBLISH = 'publish',
   TEMPLATE = 'template',
 }
 
-function ShareTabs ({ viewId }: { viewId: string }) {
+function ShareTabs({ viewId }: { viewId: string }) {
   const { t } = useTranslation();
   const view = useAppView(viewId);
-  const [value, setValue] = React.useState<TabKey>(TabKey.PUBLISH);
+  const [value, setValue] = React.useState<TabKey>(TabKey.SHARE);
   const currentUser = useCurrentUser();
 
   const options = useMemo(() => {
     return [{
+      value: TabKey.SHARE,
+      label: t('shareAction.shareTab'),
+      Panel: SharePanel,
+    }, {
       value: TabKey.PUBLISH,
       label: t('shareAction.publish'),
-      icon: view?.is_published ? <PublishedWithChanges className={'w-4 h-4 text-function-success mb-0'} /> : undefined,
+      icon: view?.is_published ? <PublishedWithChanges className={'w-4 h-4 text-function-success mb-0'}/> : undefined,
       Panel: PublishPanel,
     }, currentUser?.email?.endsWith('appflowy.io') && view?.is_published && {
       value: TabKey.TEMPLATE,
       label: t('template.asTemplate'),
-      icon: <Templates className={'w-4 h-4 mb-0'} />,
+      icon: <Templates className={'w-4 h-4 mb-0'}/>,
       Panel: TemplatePanel,
     }].filter(Boolean) as {
       value: TabKey;
@@ -63,12 +69,12 @@ function ShareTabs ({ viewId }: { viewId: string }) {
       <div className={'p-2'}>
         {options.map((option) => (
           <TabPanel
-            className={'min-w-[360px] max-sm:min-w-[80vw]'}
+            className={'min-w-[460px] max-sm:min-w-[80vw]'}
             key={option.value}
             index={option.value}
             value={value}
           >
-            <option.Panel viewId={viewId} />
+            <option.Panel viewId={viewId}/>
           </TabPanel>
         ))}
       </div>

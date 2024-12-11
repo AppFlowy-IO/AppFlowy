@@ -55,7 +55,7 @@ export interface AppContextType {
   updatePage?: (viewId: string, payload: UpdatePagePayload) => Promise<void>;
   deleteTrash?: (viewId?: string) => Promise<void>;
   restorePage?: (viewId?: string) => Promise<void>;
-  movePage?: (viewId: string, parentId: string) => Promise<void>;
+  movePage?: (viewId: string, parentId: string, prevViewId?: string) => Promise<void>;
   openPageModal?: (viewId: string) => void;
   openPageModalViewId?: string;
   loadViews?: (variant?: UIVariant) => Promise<View[] | undefined>;
@@ -536,20 +536,23 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [currentWorkspaceId, service, loadOutline]);
 
-  const movePage = useCallback(async (viewId: string, parentId: string) => {
+  const movePage = useCallback(async (viewId: string, parentId: string, prevViewId?: string) => {
     if (!currentWorkspaceId || !service) {
       throw new Error('No workspace or service found');
     }
 
     try {
-      await service.movePage(currentWorkspaceId, viewId, parentId);
+      const lastChild = findView(outline || [], parentId)?.children?.slice(-1)[0];
+      const prevId = prevViewId || lastChild?.view_id;
+
+      await service.movePage(currentWorkspaceId, viewId, parentId, prevId);
 
       void loadOutline(currentWorkspaceId, false);
       return;
     } catch (e) {
       return Promise.reject(e);
     }
-  }, [currentWorkspaceId, service, loadOutline]);
+  }, [currentWorkspaceId, service, outline, loadOutline]);
 
   const loadViews = useCallback(async (varient?: UIVariant) => {
     if (!varient) {
@@ -658,22 +661,24 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       uploadFile,
     }}
   >
-    {requestAccessOpened ? <RequestAccess /> : children}
-    {<Suspense><ViewModal
-      open={!!openModalViewId}
-      viewId={openModalViewId}
-      onClose={() => {
-        setOpenModalViewId(undefined);
-      }}
-    /></Suspense>}
+    {requestAccessOpened ? <RequestAccess/> : children}
+    {<Suspense>
+      <ViewModal
+        open={!!openModalViewId}
+        viewId={openModalViewId}
+        onClose={() => {
+          setOpenModalViewId(undefined);
+        }}
+      />
+    </Suspense>}
   </AppContext.Provider>;
 };
 
-export function useViewErrorStatus () {
+export function useViewErrorStatus() {
   const context = useContext(AppContext);
 
   if (!context) {
-    throw new Error('useBreadcrumb must be used within an AppProvider');
+    throw new Error('useViewErrorStatus must be used within an AppProvider');
   }
 
   return {
@@ -682,17 +687,13 @@ export function useViewErrorStatus () {
   };
 }
 
-export function useBreadcrumb () {
+export function useBreadcrumb() {
   const context = useContext(AppContext);
 
-  if (!context) {
-    throw new Error('useBreadcrumb must be used within an AppProvider');
-  }
-
-  return context.breadcrumbs;
+  return context?.breadcrumbs;
 }
 
-export function useUserWorkspaceInfo () {
+export function useUserWorkspaceInfo() {
   const context = useContext(AppContext);
 
   if (!context) {
@@ -702,7 +703,7 @@ export function useUserWorkspaceInfo () {
   return context.userWorkspaceInfo;
 }
 
-export function useAppOutline () {
+export function useAppOutline() {
   const context = useContext(AppContext);
 
   if (!context) {
@@ -712,7 +713,7 @@ export function useAppOutline () {
   return context.outline;
 }
 
-export function useAppViewId () {
+export function useAppViewId() {
   const context = useContext(AppContext);
 
   if (!context) {
@@ -722,7 +723,7 @@ export function useAppViewId () {
   return context.viewId;
 }
 
-export function useAppWordCount (viewId?: string | null) {
+export function useAppWordCount(viewId?: string | null) {
   const context = useContext(AppContext);
 
   if (!context) {
@@ -736,7 +737,7 @@ export function useAppWordCount (viewId?: string | null) {
   return context.wordCount?.[viewId];
 }
 
-export function useOpenModalViewId () {
+export function useOpenModalViewId() {
   const context = useContext(AppContext);
 
   if (!context) {
@@ -746,7 +747,7 @@ export function useOpenModalViewId () {
   return context.openPageModalViewId;
 }
 
-export function useAppView (viewId?: string) {
+export function useAppView(viewId?: string) {
   const context = useContext(AppContext);
 
   if (!context) {
@@ -760,7 +761,7 @@ export function useAppView (viewId?: string) {
   return findView(context.outline || [], viewId);
 }
 
-export function useCurrentWorkspaceId () {
+export function useCurrentWorkspaceId() {
   const context = useContext(AppContext);
 
   if (!context) {
@@ -770,7 +771,7 @@ export function useCurrentWorkspaceId () {
   return context.currentWorkspaceId;
 }
 
-export function useAppHandlers () {
+export function useAppHandlers() {
   const context = useContext(AppContext);
 
   if (!context) {
@@ -800,7 +801,7 @@ export function useAppHandlers () {
   };
 }
 
-export function useAppFavorites () {
+export function useAppFavorites() {
   const context = useContext(AppContext);
 
   if (!context) {
@@ -813,7 +814,7 @@ export function useAppFavorites () {
   };
 }
 
-export function useAppRecent () {
+export function useAppRecent() {
   const context = useContext(AppContext);
 
   if (!context) {
@@ -826,7 +827,7 @@ export function useAppRecent () {
   };
 }
 
-export function useAppTrash () {
+export function useAppTrash() {
   const context = useContext(AppContext);
 
   if (!context) {

@@ -1324,13 +1324,14 @@ export async function moveToTrash(workspaceId: string, viewId: string) {
   return Promise.reject(response?.data);
 }
 
-export async function movePageTo(workspaceId: string, viewId: string, parentViewId: string) {
+export async function movePageTo(workspaceId: string, viewId: string, parentViewId: string, prevViewId?: string) {
   const url = `/api/workspace/${workspaceId}/page-view/${viewId}/move`;
   const response = await axiosInstance?.post<{
     code: number;
     message: string;
   }>(url, {
     parent_view_id: parentViewId,
+    prev_view_id: prevViewId,
   });
 
   if (response?.data.code === 0) {

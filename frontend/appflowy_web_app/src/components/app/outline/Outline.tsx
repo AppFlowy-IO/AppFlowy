@@ -38,7 +38,7 @@ export function Outline({
   }, [toView]);
 
   return (
-    <div className={'flex folder-views w-full flex-1 flex-col py-[8px] px-[8px]'}>
+    <div className={'flex folder-views w-full flex-1 flex-col pb-[10px] pt-1 px-[8px]'}>
       <Favorite/>
       {!outline || outline.length === 0 ? <div
           style={{
