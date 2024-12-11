@@ -132,10 +132,7 @@ export default defineConfig({
       sourcemap: isDev,
       rollupOptions: isProd
         ? {
-          input: {
-            main: path.resolve(__dirname, 'index.html'),
-            'apple-app-site-association': '.well-known/apple-app-site-association',
-          },
+        
           output: {
             chunkFileNames: 'static/js/[name]-[hash].js',
             entryFileNames: 'static/js/[name]-[hash].js',
