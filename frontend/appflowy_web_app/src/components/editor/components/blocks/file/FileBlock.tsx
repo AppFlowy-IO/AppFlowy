@@ -10,7 +10,7 @@ import React, { forwardRef, memo, useCallback, useEffect, useMemo, useRef, useSt
 import { useTranslation } from 'react-i18next';
 import { useReadOnly, useSlateStatic } from 'slate-react';
 import { openUrl } from '@/utils/url';
-import { IconButton, Tooltip } from '@mui/material';
+import { CircularProgress, IconButton, Tooltip } from '@mui/material';
 import { MAX_FILE_SIZE } from '@/components/editor/components/block-popover/FileBlockPopoverContent';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { YjsEditor } from '@/application/slate-yjs';
@@ -25,7 +25,7 @@ export const FileBlock = memo(
     const [needRetry, setNeedRetry] = useState(false);
     const fileHandler = useMemo(() => new FileHandler(), []);
     const [localUrl, setLocalUrl] = useState<string | undefined>(undefined);
-
+    const [loading, setLoading] = useState(false);
     const { url, name, retry_local_url } = useMemo(() => data || {}, [data]);
     const readOnly = useReadOnly();
     const emptyRef = useRef<HTMLDivElement>(null);
@@ -78,6 +78,7 @@ export const FileBlock = memo(
     }, [url, needRetry, localUrl, readOnly, openPopover, blockId]);
 
     useEffect(() => {
+      if (readOnly) return;
       void (async () => {
         if (retry_local_url) {
           const fileData = await fileHandler.getStoredFile(retry_local_url);
@@ -88,7 +89,7 @@ export const FileBlock = memo(
           setNeedRetry(false);
         }
       })();
-    }, [retry_local_url, fileHandler]);
+    }, [readOnly, retry_local_url, fileHandler]);
 
     const uploadFileRemote = useCallback(async (file: File) => {
       if (file.size > MAX_FILE_SIZE) {
@@ -121,14 +122,22 @@ export const FileBlock = memo(
         return;
       }
 
-      await fileHandler.cleanup(retry_local_url);
-      CustomEditor.setBlockData(editor, blockId, {
-        url,
-        name,
-        uploaded_at: Date.now(),
-        url_type: FieldURLType.Upload,
-        retry_local_url: '',
-      } as FileBlockData);
+      setLoading(true);
+      try {
+        await fileHandler.cleanup(retry_local_url);
+        CustomEditor.setBlockData(editor, blockId, {
+          url,
+          name,
+          uploaded_at: Date.now(),
+          url_type: FieldURLType.Upload,
+          retry_local_url: '',
+        } as FileBlockData);
+      } catch (e) {
+        // do nothing
+      } finally {
+        setLoading(false);
+      }
+
     }, [blockId, editor, fileHandler, name, retry_local_url, uploadFileRemote]);
 
     return (
@@ -165,12 +174,12 @@ export const FileBlock = memo(
           </div>
 
           {needRetry && (
-            <Tooltip placement={'top'} title={t('web.fileBlock.retry')}>
-              <IconButton onClick={handleRetry} size={'small'} color={'error'}>
-                <ReloadIcon/>
-              </IconButton>
-            </Tooltip>
-
+            loading ? (<CircularProgress size={16}/>) :
+              <Tooltip placement={'top'} title={t('web.fileBlock.retry')}>
+                <IconButton onClick={handleRetry} size={'small'} color={'error'}>
+                  <ReloadIcon/>
+                </IconButton>
+              </Tooltip>
           )}
           {showToolbar && url && (
             <FileToolbar node={node}/>

@@ -8,7 +8,7 @@ import React, { Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { Text } from 'slate';
 import { ReactEditor, useReadOnly, useSlateStatic } from 'slate-react';
 
-function FormulaLeaf ({ formula, text }: {
+function FormulaLeaf({ formula, text }: {
   formula: string;
   text: Text;
 }) {
@@ -84,6 +84,7 @@ function FormulaLeaf ({ formula, text }: {
       <span
         ref={ref}
         onClick={() => {
+          editor.deselect();
           openPopover();
         }}
         contentEditable={false}

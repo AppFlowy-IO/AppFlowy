@@ -5,6 +5,8 @@ import { YjsEditor } from '@/application/slate-yjs';
 import { isEmbedBlockTypes } from '@/application/slate-yjs/command/const';
 import { BlockType } from '@/application/types';
 
+export const clipboardFormatKey = 'x-appflowy-fragment';
+
 export const withCopy = (editor: ReactEditor) => {
   const { setFragmentData } = editor;
 
@@ -23,7 +25,7 @@ export const withCopy = (editor: ReactEditor) => {
         const string = JSON.stringify(fragment);
         const encoded = window.btoa(encodeURIComponent(string));
 
-        data.setData(`application/x-appflowy-fragment`, encoded);
+        data.setData(`application/${clipboardFormatKey}`, encoded);
       }
 
       return;
