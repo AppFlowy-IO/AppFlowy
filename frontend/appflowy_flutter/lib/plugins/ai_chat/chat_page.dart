@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
@@ -219,7 +221,8 @@ class _ChatContentPage extends StatelessWidget {
           chatId: view.id,
           refSourceJsonString: refSourceJsonString,
           isLastMessage: isLastMessage,
-          onSelectedMetadata: _onSelectMetadata,
+          onSelectedMetadata: (metadata) =>
+              _onSelectMetadata(context, metadata),
         );
       },
     );
@@ -320,7 +323,10 @@ class _ChatContentPage extends StatelessWidget {
     );
   }
 
-  void _onSelectMetadata(ChatMessageRefSource metadata) async {
+  void _onSelectMetadata(
+    BuildContext context,
+    ChatMessageRefSource metadata,
+  ) async {
     if (isURL(metadata.name)) {
       late Uri uri;
       try {
@@ -335,16 +341,22 @@ class _ChatContentPage extends StatelessWidget {
         Log.error("failed to open url $err");
       }
     } else {
-      await ViewBackendService.getView(metadata.id).fold(
-        (sidebarView) {
-          getIt<TabsBloc>().add(
-            TabsEvent.openSecondaryPlugin(
-              plugin: sidebarView.plugin(),
-            ),
-          );
-        },
-        (err) => Log.error("Failed to get view: $err"),
-      );
+      final sidebarView =
+          await ViewBackendService.getView(metadata.id).toNullable();
+      if (sidebarView == null) {
+        return;
+      }
+      if (UniversalPlatform.isDesktop) {
+        getIt<TabsBloc>().add(
+          TabsEvent.openSecondaryPlugin(
+            plugin: sidebarView.plugin(),
+          ),
+        );
+      } else {
+        if (context.mounted) {
+          unawaited(context.pushView(sidebarView));
+        }
+      }
     }
   }
 }
