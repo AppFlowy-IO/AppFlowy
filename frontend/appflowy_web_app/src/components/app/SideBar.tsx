@@ -41,12 +41,14 @@ function SideBar({
         className={'flex w-full gap-1 flex-1 flex-col'}
       >
         <div
-          style={{
-            borderColor: scrollTop > 10 ? 'var(--line-divider)' : undefined,
-          }}
-          className={'flex border-b border-transparent bg-bg-base z-[1] flex-col pb-1 gap-1 justify-around items-center sticky top-12'}
+          className={'px-[10px] bg-bg-base z-[1] flex-col gap-1 justify-around items-center sticky top-12'}
         >
-          <NewPage/>
+          <div style={{
+            borderColor: scrollTop > 10 ? 'var(--line-divider)' : undefined,
+          }} className={'flex border-b pb-1 w-full border-transparent'}>
+            <NewPage/>
+          </div>
+
         </div>
 
         <Outline
