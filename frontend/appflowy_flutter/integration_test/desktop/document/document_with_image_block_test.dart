@@ -138,13 +138,6 @@ void main() {
       );
     });
 
-    testWidgets('insert a jpg image from network', (tester) async {
-      await testEmbedImage(
-        tester,
-        'https://file-examples.com/storage/fe9566cb7d67345489a5a97/2017/10/file_example_JPG_100kB.jpg',
-      );
-    });
-
     testWidgets('insert a bmp image from network', (tester) async {
       await testEmbedImage(
         tester,

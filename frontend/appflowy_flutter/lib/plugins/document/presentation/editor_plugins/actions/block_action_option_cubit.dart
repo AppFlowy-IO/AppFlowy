@@ -87,13 +87,14 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
 
   void _validateNode(Node node) {
     final type = node.type;
-    final builder = editorState.renderer.blockComponentBuilder(type);
+    final builder = blockComponentBuilder[type];
 
     if (builder == null) {
       Log.error('Block type $type is not supported');
+      return;
     }
 
-    final valid = builder!.validate(node);
+    final valid = builder.validate(node);
     if (!valid) {
       Log.error('Block type $type is not valid');
     }
@@ -103,7 +104,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     Node copiedNode = node.copyWith();
 
     final type = node.type;
-    final builder = editorState.renderer.blockComponentBuilder(type);
+    final builder = blockComponentBuilder[type];
 
     if (builder == null) {
       Log.error('Block type $type is not supported');
