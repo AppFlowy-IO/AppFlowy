@@ -1,18 +1,17 @@
 use async_trait::async_trait;
 
-use collab::util::AnyMapExt;
 use collab_database::database::Database;
 use collab_database::fields::number_type_option::{
   NumberCellFormat, NumberFormat, NumberTypeOption,
 };
 use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::{new_cell_builder, Cell};
+use collab_database::rows::Cell;
 use fancy_regex::Regex;
 use flowy_error::FlowyResult;
 use lazy_static::lazy_static;
 
+use collab_database::template::number_parse::NumberCellData;
 use std::cmp::Ordering;
-use std::default::Default;
 
 use tracing::info;
 
@@ -20,51 +19,10 @@ use crate::entities::{FieldType, NumberFilterPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
-  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform, CELL_DATA,
+  CellDataProtobufEncoder, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
-
-#[derive(Clone, Debug, Default)]
-pub struct NumberCellData(pub String);
-
-impl TypeOptionCellData for NumberCellData {
-  fn is_cell_empty(&self) -> bool {
-    self.0.is_empty()
-  }
-}
-
-impl AsRef<str> for NumberCellData {
-  fn as_ref(&self) -> &str {
-    &self.0
-  }
-}
-
-impl From<&Cell> for NumberCellData {
-  fn from(cell: &Cell) -> Self {
-    Self(cell.get_as(CELL_DATA).unwrap_or_default())
-  }
-}
-
-impl From<NumberCellData> for Cell {
-  fn from(data: NumberCellData) -> Self {
-    let mut cell = new_cell_builder(FieldType::Number);
-    cell.insert(CELL_DATA.into(), data.0.into());
-    cell
-  }
-}
-
-impl std::convert::From<String> for NumberCellData {
-  fn from(s: String) -> Self {
-    Self(s)
-  }
-}
-
-impl ToString for NumberCellData {
-  fn to_string(&self) -> String {
-    self.0.clone()
-  }
-}
 
 impl TypeOption for NumberTypeOption {
   type CellData = NumberCellData;
@@ -73,16 +31,12 @@ impl TypeOption for NumberTypeOption {
   type CellFilter = NumberFilterPB;
 }
 
-impl TypeOptionCellDataSerde for NumberTypeOption {
+impl CellDataProtobufEncoder for NumberTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     ProtobufStr::from(cell_data.0)
-  }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(NumberCellData::from(cell))
   }
 }
 
@@ -112,7 +66,7 @@ impl TypeOptionTransform for NumberTypeOption {
         );
         for (row_id, cell_data) in rows {
           if let Ok(num_cell) = self
-            .parse_cell(&cell_data)
+            .decode_cell(&cell_data)
             .and_then(|num_cell_data| self.format_cell_data(num_cell_data).map_err(Into::into))
           {
             database
@@ -134,7 +88,7 @@ impl TypeOptionTransform for NumberTypeOption {
 
 impl CellDataDecoder for NumberTypeOption {
   fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    let num_cell_data = self.parse_cell(cell)?;
+    let num_cell_data = Self::CellData::from(cell);
     Ok(NumberCellData::from(
       self.format_cell_data(num_cell_data)?.to_string(),
     ))
@@ -157,11 +111,6 @@ impl CellDataDecoder for NumberTypeOption {
     Some(Self::CellData::from(
       self.format_cell_data(num_cell).ok()?.to_string(),
     ))
-  }
-
-  fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
-    let num_cell_data = self.parse_cell(cell).ok()?;
-    num_cell_data.0.parse::<f64>().ok()
   }
 }
 

@@ -21,8 +21,8 @@ arc-swap.workspace = true
 unicode-segmentation = "1.10"
 tracing.workspace = true
 flowy-error = { path = "../flowy-error", features = [
-    "impl_from_dispatch_error",
-    "impl_from_collab_folder",
+  "impl_from_dispatch_error",
+  "impl_from_collab_folder",
 ] }
 lib-dispatch = { workspace = true }
 bytes.workspace = true
@@ -42,6 +42,7 @@ async-trait.workspace = true
 client-api = { workspace = true }
 regex = "1.9.5"
 futures = "0.3.30"
+dashmap.workspace = true
 
 
 [build-dependencies]

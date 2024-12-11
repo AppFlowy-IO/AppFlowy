@@ -1,18 +1,19 @@
 use collab_database::fields::media_type_option::MediaCellData;
-use collab_database::rows::{Cell, CoverType, RowCover, RowId};
+use collab_database::rows::{Cell, RowCover, RowId};
 use lib_infra::box_any::BoxAny;
 use std::sync::{Arc, Weak};
 use tokio::sync::oneshot;
 use tracing::{info, instrument};
 
 use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::{af_spawn, data_result_ok, AFPluginData, AFPluginState, DataResult};
+use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 use crate::entities::*;
 use crate::manager::DatabaseManager;
+use crate::services::field::checklist_filter::ChecklistCellChangeset;
+use crate::services::field::date_filter::DateCellChangeset;
 use crate::services::field::{
-  type_option_data_from_pb, ChecklistCellChangeset, DateCellChangeset, RelationCellChangeset,
-  SelectOptionCellChangeset, TypeOptionCellExt,
+  type_option_data_from_pb, RelationCellChangeset, SelectOptionCellChangeset, TypeOptionCellExt,
 };
 use crate::services::group::GroupChangeset;
 use crate::services::share::csv::CSVFormat;
@@ -1259,7 +1260,7 @@ pub(crate) async fn summarize_row_handler(
   let data = data.into_inner();
   let row_id = RowId::from(data.row_id);
   let (tx, rx) = oneshot::channel();
-  af_spawn(async move {
+  tokio::spawn(async move {
     let result = manager
       .summarize_row(data.view_id, row_id, data.field_id)
       .await;
@@ -1278,7 +1279,7 @@ pub(crate) async fn translate_row_handler(
   let data = data.try_into_inner()?;
   let row_id = RowId::from(data.row_id);
   let (tx, rx) = oneshot::channel();
-  af_spawn(async move {
+  tokio::spawn(async move {
     let result = manager
       .translate_row(data.view_id, row_id, data.field_id)
       .await;
@@ -1319,34 +1320,6 @@ pub(crate) async fn update_media_cell_handler(
       BoxAny::new(cell_changeset),
     )
     .await?;
-
-  let image_file = params
-    .inserted_files
-    .iter()
-    .find(|file| file.file_type == MediaFileTypePB::Image);
-  let row_meta = database_editor
-    .get_row_meta(&cell_id.view_id, &cell_id.row_id)
-    .await;
-
-  if let (Some(row_meta), Some(file)) = (row_meta, image_file) {
-    let row_meta = row_meta.clone();
-    if row_meta.cover.is_none() {
-      let update_row_meta = UpdateRowMetaParams {
-        id: cell_id.row_id.clone().into(),
-        view_id: cell_id.view_id.clone(),
-        cover: Some(RowCover {
-          data: file.url.clone(),
-          upload_type: file.upload_type.into(),
-          cover_type: CoverType::FileCover,
-        }),
-        ..UpdateRowMetaParams::default()
-      };
-
-      database_editor
-        .update_row_meta(&cell_id.row_id, update_row_meta)
-        .await;
-    }
-  }
 
   Ok(())
 }

@@ -2098,9 +2098,9 @@
     "unsplash": "Unsplash",
     "pageCover": "Обложка страницы",
     "none": "Ничего",
-    "photoPermissionDescription": "Разрешите доступ к библиотеке фотографий для загрузки изображений.",
     "openSettings": "Открыть настройки",
     "photoPermissionTitle": "@:appName хочет получить доступ к вашей библиотеке фотографий",
+    "photoPermissionDescription": "Разрешите доступ к библиотеке фотографий для загрузки изображений.",
     "doNotAllow": "Не разрешать",
     "image": "Изображение"
   },

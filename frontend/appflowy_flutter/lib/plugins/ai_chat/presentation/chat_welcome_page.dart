@@ -1,14 +1,11 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:time/time.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 class ChatWelcomePage extends StatelessWidget {
@@ -204,86 +201,27 @@ class _AutoScrollingSampleQuestions extends StatefulWidget {
 
 class _AutoScrollingSampleQuestionsState
     extends State<_AutoScrollingSampleQuestions> {
-  final restartAutoScrollDebounce = Debounce(duration: 3.seconds);
-  late final ScrollController scrollController;
-
-  bool userIntervened = false;
-
-  @override
-  void initState() {
-    super.initState();
-    scrollController = ScrollController(
-      onAttach: (_) => startScroll(),
-      initialScrollOffset: widget.offset,
-    );
-  }
-
-  @override
-  void dispose() {
-    scrollController.dispose();
-    super.dispose();
-  }
+  late final scrollController = ScrollController(
+    initialScrollOffset: widget.offset,
+  );
 
   @override
   Widget build(BuildContext context) {
-    return NotificationListener<ScrollNotification>(
-      onNotification: (notification) {
-        if (notification is ScrollUpdateNotification) {
-          return false;
-        }
-        if (notification is ScrollEndNotification && !userIntervened) {
-          startScroll();
-        } else if (notification is UserScrollNotification &&
-            notification.direction == ScrollDirection.idle) {
-          scheduleRestart();
-        }
-        return false;
-      },
-      child: SizedBox(
-        height: 36,
-        child: Stack(
-          children: [
-            InfiniteScrollView(
-              centerKey: UniqueKey(),
-              scrollController: scrollController,
-              itemCount: widget.questions.length,
-              itemBuilder: (context, index) {
-                return WelcomeSampleQuestion(
-                  question: widget.questions[index],
-                  onSelected: widget.onSelected,
-                );
-              },
-              separatorBuilder: (context, index) => const HSpace(8),
-            ),
-            Listener(
-              behavior: HitTestBehavior.translucent,
-              onPointerDown: (event) {
-                userIntervened = true;
-                scrollController.jumpTo(scrollController.offset);
-              },
-            ),
-          ],
-        ),
+    return SizedBox(
+      height: 36,
+      child: InfiniteScrollView(
+        scrollController: scrollController,
+        centerKey: UniqueKey(),
+        itemCount: widget.questions.length,
+        itemBuilder: (context, index) {
+          return WelcomeSampleQuestion(
+            question: widget.questions[index],
+            onSelected: widget.onSelected,
+          );
+        },
+        separatorBuilder: (context, index) => const HSpace(8),
       ),
     );
-  }
-
-  void startScroll() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final delta = widget.reverse ? -250 : 250;
-      scrollController.animateTo(
-        scrollController.offset + delta,
-        duration: 20.seconds,
-        curve: Curves.linear,
-      );
-    });
-  }
-
-  void scheduleRestart() {
-    restartAutoScrollDebounce.call(() {
-      userIntervened = false;
-      startScroll();
-    });
   }
 }
 

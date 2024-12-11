@@ -89,7 +89,7 @@ impl AFPlugin {
   }
 
   pub fn name(mut self, s: &str) -> Self {
-    self.name = s.to_owned();
+    s.clone_into(&mut self.name);
     self
   }
 

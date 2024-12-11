@@ -4,6 +4,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -98,6 +99,9 @@ class DatabaseDocumentPluginWidgetBuilder extends PluginWidgetBuilder
   final Selection? initialSelection;
 
   @override
+  String? get viewName => view.nameOrDefault;
+
+  @override
   EdgeInsets get contentPadding => EdgeInsets.zero;
 
   @override
@@ -123,7 +127,8 @@ class DatabaseDocumentPluginWidgetBuilder extends PluginWidgetBuilder
       ViewTitleBarWithRow(view: view, databaseId: databaseId, rowId: rowId);
 
   @override
-  Widget tabBarItem(String pluginId) => const SizedBox.shrink();
+  Widget tabBarItem(String pluginId, [bool shortForm = false]) =>
+      const SizedBox.shrink();
 
   @override
   Widget? get rightBarItem => const SizedBox.shrink();

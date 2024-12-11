@@ -36,6 +36,7 @@ function MoreActions () {
           onClose={handleClose}
           slotProps={{ root: { className: 'text-sm' } }}
         >
+
           <MoreActionsContent
             itemClicked={() => {
               handleClose();

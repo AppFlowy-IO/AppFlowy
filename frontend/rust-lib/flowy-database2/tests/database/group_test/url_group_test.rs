@@ -78,3 +78,25 @@ async fn group_move_url_group_row_test() {
   test.assert_group_row_count(1, 3).await;
   test.assert_group_row_count(2, 1).await;
 }
+
+// Create a URL field in the default board and then set it as the grouping field.
+#[tokio::test]
+async fn set_group_by_url_field_test() {
+  let test = DatabaseGroupTest::new().await;
+  let url_field = test.get_url_field().await;
+
+  // group by URL field
+  test
+    .editor
+    .set_group_by_field(&test.view_id, &url_field.id, vec![])
+    .await
+    .unwrap();
+
+  // assert number of groups
+  test.assert_group_count(3).await;
+
+  // close the database view
+  test.editor.close_view(&test.view_id).await;
+
+  test.assert_group_count(3).await;
+}

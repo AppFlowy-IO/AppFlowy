@@ -324,6 +324,16 @@ extension ViewLayoutExtension on ViewLayoutPB {
         ViewLayoutPB.Document => '',
         _ => LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
       };
+
+  double get pluginHeight => switch (this) {
+        ViewLayoutPB.Grid ||
+        ViewLayoutPB.Board ||
+        ViewLayoutPB.Document ||
+        ViewLayoutPB.Chat =>
+          450,
+        ViewLayoutPB.Calendar => 650,
+        _ => throw UnimplementedError(),
+      };
 }
 
 extension ViewFinder on List<ViewPB> {

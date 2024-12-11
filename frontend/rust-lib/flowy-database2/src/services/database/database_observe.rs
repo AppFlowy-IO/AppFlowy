@@ -1,5 +1,7 @@
 use crate::entities::{DatabaseSyncStatePB, DidFetchRowPB, RowsChangePB};
-use crate::notification::{send_notification, DatabaseNotification, DATABASE_OBSERVABLE_SOURCE};
+use crate::notification::{
+  database_notification_builder, DatabaseNotification, DATABASE_OBSERVABLE_SOURCE,
+};
 use crate::services::database::{DatabaseEditor, UpdatedRow};
 use crate::services::database_view::DatabaseViewEditor;
 use collab::lock::RwLock;
@@ -11,7 +13,7 @@ use collab_database::views::{DatabaseViewChange, RowOrder};
 use dashmap::DashMap;
 use flowy_notification::{DebounceNotificationSender, NotificationBuilder};
 use futures::StreamExt;
-use lib_dispatch::prelude::af_spawn;
+
 use std::sync::Arc;
 use tracing::{error, trace, warn};
 
@@ -19,13 +21,13 @@ pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<RwLock<
   let weak_database = Arc::downgrade(database);
   let mut sync_state = database.read().await.subscribe_sync_state();
   let database_id = database_id.to_string();
-  af_spawn(async move {
+  tokio::spawn(async move {
     while let Some(sync_state) = sync_state.next().await {
       if weak_database.upgrade().is_none() {
         break;
       }
 
-      send_notification(
+      database_notification_builder(
         &database_id,
         DatabaseNotification::DidUpdateDatabaseSyncUpdate,
       )
@@ -45,7 +47,7 @@ pub(crate) async fn observe_rows_change(
   let weak_database = Arc::downgrade(database);
   let sub = database.read().await.subscribe_row_change();
   if let Some(mut row_change) = sub {
-    af_spawn(async move {
+    tokio::spawn(async move {
       while let Ok(row_change) = row_change.recv().await {
         trace!(
           "[Database Observe]: {} row change:{:?}",
@@ -88,7 +90,7 @@ pub(crate) async fn observe_field_change(database_id: &str, database: &Arc<RwLoc
   let weak_database = Arc::downgrade(database);
   let sub = database.read().await.subscribe_field_change();
   if let Some(mut field_change) = sub {
-    af_spawn(async move {
+    tokio::spawn(async move {
       while let Ok(field_change) = field_change.recv().await {
         if weak_database.upgrade().is_none() {
           break;
@@ -120,7 +122,7 @@ pub(crate) async fn observe_view_change(database_id: &str, database_editor: &Arc
     .subscribe_view_change();
 
   if let Some(mut view_change) = view_change {
-    af_spawn(async move {
+    tokio::spawn(async move {
       while let Ok(view_change) = view_change.recv().await {
         trace!(
           "[Database View Observe]: {} view change:{:?}",
@@ -281,7 +283,7 @@ async fn handle_did_update_row_orders(
   for entry in row_changes.into_iter() {
     let (view_id, changes) = entry;
     trace!("[RowOrder]: {}", changes);
-    send_notification(&view_id, DatabaseNotification::DidUpdateRow)
+    database_notification_builder(&view_id, DatabaseNotification::DidUpdateRow)
       .payload(changes)
       .send();
   }
@@ -295,7 +297,7 @@ pub(crate) async fn observe_block_event(database_id: &str, database_editor: &Arc
     .await
     .subscribe_block_event();
   let database_editor = Arc::downgrade(database_editor);
-  af_spawn(async move {
+  tokio::spawn(async move {
     while let Ok(event) = block_event_rx.recv().await {
       if database_editor.upgrade().is_none() {
         break;
@@ -312,7 +314,7 @@ pub(crate) async fn observe_block_event(database_id: &str, database_editor: &Arc
             trace!("Did fetch row: {:?}", row_detail.row.id);
             let row_id = row_detail.row.id.clone();
             let pb = DidFetchRowPB::from(row_detail);
-            send_notification(&row_id, DatabaseNotification::DidFetchRow)
+            database_notification_builder(&row_id, DatabaseNotification::DidFetchRow)
               .payload(pb)
               .send();
           }

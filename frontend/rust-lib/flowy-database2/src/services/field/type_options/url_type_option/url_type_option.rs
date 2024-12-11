@@ -1,7 +1,7 @@
 use crate::entities::{FieldType, TextFilterPB, URLCellDataPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
   TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
@@ -63,23 +63,16 @@ impl TypeOptionTransform for URLTypeOption {
   }
 }
 
-impl TypeOptionCellDataSerde for URLTypeOption {
+impl CellDataProtobufEncoder for URLTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     cell_data.into()
   }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(URLCellData::from(cell))
-  }
 }
 
 impl CellDataDecoder for URLTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    self.parse_cell(cell)
-  }
   fn decode_cell_with_transform(
     &self,
     cell: &Cell,
@@ -94,10 +87,6 @@ impl CellDataDecoder for URLTypeOption {
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     cell_data.data
-  }
-
-  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
-    None
   }
 }
 

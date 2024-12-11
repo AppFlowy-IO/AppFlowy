@@ -14,6 +14,7 @@ import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -194,14 +195,19 @@ class EditorStyleCustomizer {
     );
   }
 
-  TextStyle codeBlockStyleBuilder() {
+  CodeBlockStyle codeBlockStyleBuilder() {
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     final fontFamily =
         context.read<DocumentAppearanceCubit>().state.codeFontFamily;
-    return baseTextStyle(fontFamily).copyWith(
-      fontSize: fontSize,
-      height: 1.5,
-      color: AFThemeExtension.of(context).onBackground,
+
+    return CodeBlockStyle(
+      textStyle: baseTextStyle(fontFamily).copyWith(
+        fontSize: fontSize,
+        height: 1.5,
+        color: AFThemeExtension.of(context).onBackground,
+      ),
+      backgroundColor: AFThemeExtension.of(context).calloutBGColor,
+      foregroundColor: AFThemeExtension.of(context).textColor.withAlpha(155),
     );
   }
 

@@ -29,7 +29,6 @@ use collab_integrate::collab_builder::{
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_storage_pub::storage::{CreatedUpload, StorageService};
-use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::UpdateDocumentAwarenessStatePB;
 use crate::entities::{
@@ -328,7 +327,7 @@ impl DocumentManager {
       self.removing_documents.insert(doc_id, document);
 
       let weak_removing_documents = Arc::downgrade(&self.removing_documents);
-      af_spawn(async move {
+      tokio::spawn(async move {
         tokio::time::sleep(std::time::Duration::from_secs(120)).await;
         if let Some(removing_documents) = weak_removing_documents.upgrade() {
           if removing_documents.remove(&clone_doc_id).is_some() {
@@ -417,7 +416,7 @@ impl DocumentManager {
   ) -> FlowyResult<CreatedUpload> {
     let storage_service = self.storage_service_upgrade()?;
     let upload = storage_service
-      .create_upload(&workspace_id, document_id, local_file_path, false)
+      .create_upload(&workspace_id, document_id, local_file_path)
       .await?
       .0;
     Ok(upload)
@@ -429,9 +428,9 @@ impl DocumentManager {
     Ok(())
   }
 
-  pub async fn delete_file(&self, local_file_path: String, url: String) -> FlowyResult<()> {
+  pub async fn delete_file(&self, url: String) -> FlowyResult<()> {
     let storage_service = self.storage_service_upgrade()?;
-    storage_service.delete_object(url, local_file_path)?;
+    storage_service.delete_object(url).await?;
     Ok(())
   }
 

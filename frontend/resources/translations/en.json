@@ -131,7 +131,8 @@
     "copyLinkFailed": "Failed to copy link to clipboard",
     "copyLinkToBlockSuccess": "Copied block link to clipboard",
     "copyLinkToBlockFailed": "Failed to copy block link to clipboard",
-    "manageAllSites": "Manage all sites"
+    "manageAllSites": "Manage all sites",
+    "updatePathName": "Update path name"
   },
   "moreAction": {
     "small": "small",
@@ -269,8 +270,8 @@
     "italic": "Italic",
     "underline": "Underline",
     "strike": "Strikethrough",
-    "numList": "Numbered List",
-    "bulletList": "Bulleted List",
+    "numList": "Numbered list",
+    "bulletList": "Bulleted list",
     "checkList": "Check List",
     "inlineCode": "Inline Code",
     "quote": "Quote Block",
@@ -337,6 +338,7 @@
     "askOwnerToUpgradeToAIMax": "Your workspace has ran out of free AI responses. Please ask your workspace owner to upgrade the plan or purchase AI add-ons",
     "askOwnerToUpgradeToAIMaxIOS": "Your workspace is running out of free AI responses.",
     "purchaseStorageSpace": "Purchase Storage Space",
+    "singleFileProPlanLimitationDescription": "You have exceeded the maximum file upload size allowed in the free plan. Please upgrade to the Pro Plan to upload larger files",
     "purchaseAIResponse": "Purchase ",
     "askOwnerToUpgradeToLocalAI": "Ask workspace owner to enable AI On-device",
     "upgradeToAILocal": "Run local models on your device for ultimate privacy",
@@ -475,7 +477,7 @@
         "clickToOpenPageInBrowser": "Open page in browser"
       },
       "error": {
-        "failedToGeneratePaymentLink": "Failed to generate payment link for pro plan",
+        "failedToGeneratePaymentLink": "Failed to generate payment link for Pro Plan",
         "failedToUpdateNamespace": "Failed to update namespace",
         "proPlanLimitation": "You need to upgrade to Pro Plan to update the namespace",
         "namespaceAlreadyInUse": "The namespace is already taken, please try another one",
@@ -1034,6 +1036,8 @@
       "syncSetting": "Sync Setting",
       "cloudSettings": "Cloud Settings",
       "enableSync": "Enable sync",
+      "enableSyncLog": "Enable sync logging",
+      "enableSyncLogWarning": "Thank you for helping diagnose sync issues. This will log your document edits to a local file. Please quit and reopen the app after enabling",
       "enableEncrypt": "Encrypt data",
       "cloudURL": "Base URL",
       "invalidCloudURLScheme": "Invalid Scheme",
@@ -1629,9 +1633,9 @@
         "heading2": "Heading 2",
         "heading3": "Heading 3",
         "image": "Image",
-        "bulletedList": "Bulleted List",
-        "numberedList": "Numbered List",
-        "todoList": "To-do List",
+        "bulletedList": "Bulleted list",
+        "numberedList": "Numbered list",
+        "todoList": "To-do list",
         "doc": "Doc",
         "linkedDoc": "Link to page",
         "grid": "Grid",
@@ -1702,11 +1706,31 @@
       "insertDate": "Insert date",
       "emoji": "Emoji",
       "toggleList": "Toggle list",
+      "emptyToggleHeading": "Empty toggle h{}. Click to add content.",
+      "emptyToggleList": "Empty toggle list. Click to add content.",
       "quoteList": "Quote list",
       "numberedList": "Numbered list",
       "bulletedList": "Bulleted list",
-      "todoList": "Todo List",
+      "todoList": "Todo list",
       "callout": "Callout",
+      "simpleTable": {
+        "moreActions": {
+          "color": "Color",
+          "align": "Align",
+          "delete": "Delete",
+          "duplicate": "Duplicate",
+          "insertLeft": "Insert left",
+          "insertRight": "Insert right",
+          "insertAbove": "Insert above",
+          "insertBelow": "Insert below",
+          "headerColumn": "Header column",
+          "headerRow": "Header row",
+          "clearContents": "Clear contents"
+        },
+        "clickToAddNewRow": "Click to add a new row",
+        "clickToAddNewColumn": "Click to add a new column",
+        "clickToAddNewRowAndColumn": "Click to add a new row and column"
+      },
       "cover": {
         "changeCover": "Change Cover",
         "colors": "Colors",
@@ -1979,6 +2003,11 @@
       "title": "Select page",
       "failedToLoad": "Failed to load page list",
       "noPagesFound": "No pages found"
+    },
+    "attachmentMenu": {
+      "choosePhoto": "Choose photo",
+      "takePicture": "Take a picture",
+      "chooseFile": "Choose file"
     }
   },
   "board": {
@@ -2247,7 +2276,7 @@
   },
   "editor": {
     "bold": "Bold",
-    "bulletedList": "Bulleted List",
+    "bulletedList": "Bulleted list",
     "bulletedListShortForm": "Bulleted",
     "checkbox": "Checkbox",
     "embedCode": "Embed Code",
@@ -2261,8 +2290,11 @@
     "page": "Page",
     "italic": "Italic",
     "link": "Link",
-    "numberedList": "Numbered List",
+    "numberedList": "Numbered list",
     "numberedListShortForm": "Numbered",
+    "toggleHeading1ShortForm": "Toggle h1",
+    "toggleHeading2ShortForm": "Toggle h2",
+    "toggleHeading3ShortForm": "Toggle h3",
     "quote": "Quote",
     "strikethrough": "Strikethrough",
     "text": "Text",
@@ -2466,9 +2498,11 @@
     "unsplash": "Unsplash",
     "pageCover": "Page cover",
     "none": "None",
-    "photoPermissionDescription": "@:appName needs access to your photos to let you add images to your documents",
     "openSettings": "Open Settings",
     "photoPermissionTitle": "@:appName would like to access your photo library",
+    "photoPermissionDescription": "@:appName needs access to your photos to let you add images to your documents",
+    "cameraPermissionTitle": "@:appName would like to access your camera",
+    "cameraPermissionDescription": "@:appName needs access to your camera to let you add images to your documents from the camera",
     "doNotAllow": "Don't Allow",
     "image": "Image"
   },
@@ -2855,9 +2889,21 @@
   },
   "tabMenu": {
     "close": "Close",
+    "closeDisabledHint": "Cannot close a pinned tab, please unpin first",
     "closeOthers": "Close other tabs",
+    "closeOthersHint": "This will close all unpinned tabs except this one",
+    "closeOthersDisabledHint": "All tabs are pinned, cannot find any tabs to close",
     "favorite": "Favorite",
     "unfavorite": "Unfavorite",
-    "favoriteDisabledHint": "Cannot favorite this view"
+    "favoriteDisabledHint": "Cannot favorite this view",
+    "pinTab": "Pin",
+    "unpinTab": "Unpin"
+  },
+  "openFileMessage": {
+    "success": "File opened successfully",
+    "fileNotFound": "File not found",
+    "noAppToOpenFile": "No app to open this file",
+    "permissionDenied": "No permission to open this file",
+    "unknownError": "File open failed"
   }
 }

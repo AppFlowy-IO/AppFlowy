@@ -314,16 +314,18 @@ class _WorkspaceMenuItemTrailing extends StatelessWidget {
             size: iconSize,
             blendMode: null,
           ),
-        const HSpace(15.0),
+        const HSpace(8.0),
         // more options button
         AnimatedGestureDetector(
           onTapUp: () => _showMoreOptions(context),
-          child: const FlowySvg(
-            FlowySvgs.workspace_three_dots_s,
-            size: iconSize,
+          child: const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: FlowySvg(
+              FlowySvgs.workspace_three_dots_s,
+              size: iconSize,
+            ),
           ),
         ),
-        const HSpace(8.0),
       ],
     );
   }

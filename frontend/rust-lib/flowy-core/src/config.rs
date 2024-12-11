@@ -27,7 +27,7 @@ pub struct AppFlowyCoreConfig {
   /// the origin_application_path.
   pub application_path: String,
   pub(crate) log_filter: String,
-  cloud_config: Option<AFCloudConfiguration>,
+  pub cloud_config: Option<AFCloudConfiguration>,
 }
 
 impl fmt::Debug for AppFlowyCoreConfig {
@@ -40,6 +40,7 @@ impl fmt::Debug for AppFlowyCoreConfig {
       debug.field("base_url", &config.base_url);
       debug.field("ws_url", &config.ws_base_url);
       debug.field("gotrue_url", &config.gotrue_url);
+      debug.field("enable_sync_trace", &config.enable_sync_trace);
     }
     debug.finish()
   }
@@ -83,11 +84,22 @@ impl AppFlowyCoreConfig {
     name: String,
   ) -> Self {
     let cloud_config = AFCloudConfiguration::from_env().ok();
+    let mut log_crates = vec![];
     let storage_path = match &cloud_config {
       None => custom_application_path,
-      Some(config) => make_user_data_folder(&custom_application_path, &config.base_url),
+      Some(config) => {
+        if config.enable_sync_trace {
+          log_crates.push("sync_trace_log".to_string());
+        }
+        make_user_data_folder(&custom_application_path, &config.base_url)
+      },
     };
-    let log_filter = create_log_filter("info".to_owned(), vec![], OperatingSystem::from(&platform));
+
+    let log_filter = create_log_filter(
+      "info".to_owned(),
+      log_crates,
+      OperatingSystem::from(&platform),
+    );
 
     AppFlowyCoreConfig {
       app_version,

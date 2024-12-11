@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
@@ -46,7 +48,7 @@ class VisualDragArea extends StatelessWidget {
 
     Widget child = Container(
       height: 2,
-      width: width,
+      width: max(width, 0.0),
       color: Theme.of(context).colorScheme.primary,
     );
 

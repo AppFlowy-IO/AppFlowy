@@ -1,67 +1,54 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_member_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_user_message_bubble_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/chat_avatar.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/layout_define.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart';
-import 'package:universal_platform/universal_platform.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
+
+import '../chat_avatar.dart';
+import '../layout_define.dart';
 
 class ChatUserMessageBubble extends StatelessWidget {
   const ChatUserMessageBubble({
     super.key,
     required this.message,
     required this.child,
-    this.isCurrentUser = true,
+    required this.isCurrentUser,
+    this.files = const [],
   });
 
   final Message message;
   final Widget child;
   final bool isCurrentUser;
+  final List<ChatFile> files;
 
   @override
   Widget build(BuildContext context) {
-    if (context.read<ChatMemberBloc>().state.members[message.author.id] ==
-        null) {
-      context
-          .read<ChatMemberBloc>()
-          .add(ChatMemberEvent.getMemberInfo(message.author.id));
-    }
+    context
+        .read<ChatMemberBloc>()
+        .add(ChatMemberEvent.getMemberInfo(message.author.id));
 
-    return BlocProvider(
-      create: (context) => ChatUserMessageBubbleBloc(
-        message: message,
-      ),
-      child: BlocBuilder<ChatUserMessageBubbleBloc, ChatUserMessageBubbleState>(
-        builder: (context, state) {
-          return Padding(
-            padding: UniversalPlatform.isMobile
-                ? const EdgeInsets.symmetric(horizontal: 16)
-                : EdgeInsets.zero,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                if (state.files.isNotEmpty) ...[
-                  Padding(
-                    padding: const EdgeInsets.only(right: 32),
-                    child: _MessageFileList(files: state.files),
-                  ),
-                  const VSpace(6),
-                ],
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: getChildren(context),
-                ),
-              ],
+    return Padding(
+      padding: AIChatUILayout.messageMargin,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (files.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.only(right: 32),
+              child: _MessageFileList(files: files),
             ),
-          );
-        },
+            const VSpace(6),
+          ],
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: getChildren(context),
+          ),
+        ],
       ),
     );
   }

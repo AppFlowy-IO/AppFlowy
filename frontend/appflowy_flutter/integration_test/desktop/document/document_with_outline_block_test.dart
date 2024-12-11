@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -43,6 +44,9 @@ void main() {
       * # Heading 1
       * ## Heading 2
       * ### Heading 3
+      * > # Heading 1
+      * > ## Heading 2
+      * > ### Heading 3
       */
 
       await tester.editor.tapLineOfEditorAt(3);
@@ -53,7 +57,7 @@ void main() {
           of: find.byType(OutlineBlockWidget),
           matching: find.text(heading1),
         ),
-        findsOneWidget,
+        findsNWidgets(2),
       );
 
       // Heading 2 is prefixed with a bullet
@@ -62,7 +66,7 @@ void main() {
           of: find.byType(OutlineBlockWidget),
           matching: find.text(heading2),
         ),
-        findsOneWidget,
+        findsNWidgets(2),
       );
 
       // Heading 3 is prefixed with a dash
@@ -71,7 +75,7 @@ void main() {
           of: find.byType(OutlineBlockWidget),
           matching: find.text(heading3),
         ),
-        findsOneWidget,
+        findsNWidgets(2),
       );
 
       // update the Heading 1 to Heading 1Hello world
@@ -99,13 +103,16 @@ void main() {
         * # Heading 1
         * ## Heading 2
         * ### Heading 3
+        * > # Heading 1
+        * > ## Heading 2
+        * > ### Heading 3
       */
 
-      await tester.editor.tapLineOfEditorAt(3);
+      await tester.editor.tapLineOfEditorAt(7);
       await insertOutlineInDocument(tester);
 
       // expect to find only the `heading1` widget under the [OutlineBlockWidget]
-      await hoverAndClickDepthOptionAction(tester, [3], 1);
+      await hoverAndClickDepthOptionAction(tester, [6], 1);
       expect(
         find.descendant(
           of: find.byType(OutlineBlockWidget),
@@ -123,7 +130,7 @@ void main() {
       //////
 
       /// expect to find only the 'heading1' and 'heading2' under the [OutlineBlockWidget]
-      await hoverAndClickDepthOptionAction(tester, [3], 2);
+      await hoverAndClickDepthOptionAction(tester, [6], 2);
       expect(
         find.descendant(
           of: find.byType(OutlineBlockWidget),
@@ -134,13 +141,13 @@ void main() {
       //////
 
       // expect to find all the headings under the [OutlineBlockWidget]
-      await hoverAndClickDepthOptionAction(tester, [3], 3);
+      await hoverAndClickDepthOptionAction(tester, [6], 3);
       expect(
         find.descendant(
           of: find.byType(OutlineBlockWidget),
           matching: find.text(heading1),
         ),
-        findsOneWidget,
+        findsNWidgets(2),
       );
 
       expect(
@@ -148,7 +155,7 @@ void main() {
           of: find.byType(OutlineBlockWidget),
           matching: find.text(heading2),
         ),
-        findsOneWidget,
+        findsNWidgets(2),
       );
 
       expect(
@@ -156,7 +163,7 @@ void main() {
           of: find.byType(OutlineBlockWidget),
           matching: find.text(heading3),
         ),
-        findsOneWidget,
+        findsNWidgets(2),
       );
       //////
     });
@@ -186,7 +193,17 @@ Future<void> hoverAndClickDepthOptionAction(
 
 Future<void> insertHeadingComponent(WidgetTester tester) async {
   await tester.editor.tapLineOfEditorAt(0);
+
+  // # heading 1-3
   await tester.ime.insertText('# $heading1\n');
   await tester.ime.insertText('## $heading2\n');
   await tester.ime.insertText('### $heading3\n');
+
+  // > # toggle heading 1-3
+  await tester.ime.insertText('> # $heading1\n');
+  await tester.simulateKeyEvent(LogicalKeyboardKey.backspace);
+  await tester.ime.insertText('> ## $heading2\n');
+  await tester.simulateKeyEvent(LogicalKeyboardKey.backspace);
+  await tester.ime.insertText('> ### $heading3\n');
+  await tester.simulateKeyEvent(LogicalKeyboardKey.backspace);
 }

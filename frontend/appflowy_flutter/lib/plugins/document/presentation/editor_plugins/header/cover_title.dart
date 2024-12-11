@@ -12,6 +12,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class CoverTitle extends StatelessWidget {
   const CoverTitle({
@@ -63,6 +64,8 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
       ..addListener(_onFocusChanged);
 
     editorState.selectionNotifier.addListener(_onSelectionChanged);
+
+    _requestInitialFocus();
   }
 
   @override
@@ -73,14 +76,6 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     titleTextController.dispose();
     editorState.selectionNotifier.removeListener(_onSelectionChanged);
     super.dispose();
-  }
-
-  void _onSelectionChanged() {
-    // if title is focused and the selection is not null, clear the selection
-    if (editorState.selection != null && titleFocusNode.hasFocus) {
-      Log.info('title is focused, clear the editor selection');
-      editorState.selection = null;
-    }
   }
 
   @override
@@ -127,6 +122,36 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     );
   }
 
+  void _requestInitialFocus() {
+    if (editorContext.requestCoverTitleFocus) {
+      void requestFocus() {
+        titleFocusNode.canRequestFocus = true;
+        titleFocusNode.requestFocus();
+        editorContext.requestCoverTitleFocus = false;
+      }
+
+      // on macOS, if we gain focus immediately, the focus won't work.
+      // It's a workaround to delay the focus request.
+      if (UniversalPlatform.isMacOS) {
+        Future.delayed(Durations.short4, () {
+          requestFocus();
+        });
+      } else {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          requestFocus();
+        });
+      }
+    }
+  }
+
+  void _onSelectionChanged() {
+    // if title is focused and the selection is not null, clear the selection
+    if (editorState.selection != null && titleFocusNode.hasFocus) {
+      Log.info('title is focused, clear the editor selection');
+      editorState.selection = null;
+    }
+  }
+
   void _onListen(BuildContext context, ViewState state) {
     _requestFocusIfNeeded(widget.view, state);
 
@@ -137,6 +162,10 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
 
   bool _shouldFocus(ViewPB view, ViewState? state) {
     final name = state?.view.name ?? view.name;
+
+    if (editorState.document.root.children.isNotEmpty) {
+      return false;
+    }
 
     // if the view's name is empty, focus on the title
     if (name.isEmpty) {
@@ -155,6 +184,15 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
 
   void _onFocusChanged() {
     if (titleFocusNode.hasFocus) {
+      // if the document is empty, disable the keyboard service
+      final children = editorState.document.root.children;
+      final firstDelta = children.firstOrNull?.delta;
+      final isEmptyDocument =
+          children.length == 1 && (firstDelta == null || firstDelta.isEmpty);
+      if (!isEmptyDocument) {
+        return;
+      }
+
       if (editorState.selection != null) {
         Log.info('cover title got focus, clear the editor selection');
         editorState.selection = null;

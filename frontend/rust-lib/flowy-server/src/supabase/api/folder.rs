@@ -14,7 +14,7 @@ use flowy_folder_pub::cloud::{
   Workspace, WorkspaceRecord,
 };
 use flowy_folder_pub::entities::PublishPayload;
-use lib_dispatch::prelude::af_spawn;
+
 use lib_infra::future::FutureResult;
 use lib_infra::util::timestamp;
 
@@ -144,7 +144,7 @@ where
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let object_id = object_id.to_string();
     let (tx, rx) = channel();
-    af_spawn(async move {
+    tokio::spawn(async move {
       tx.send(
         async move {
           let postgrest = try_get_postgrest?;

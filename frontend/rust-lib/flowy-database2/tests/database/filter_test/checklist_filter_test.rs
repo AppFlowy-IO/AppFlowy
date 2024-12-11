@@ -1,6 +1,6 @@
 use crate::database::filter_test::script::{DatabaseFilterTest, FilterRowChanged};
+use collab_database::template::check_list_parse::ChecklistCellData;
 use flowy_database2::entities::{ChecklistFilterConditionPB, ChecklistFilterPB, FieldType};
-use flowy_database2::services::field::checklist_type_option::ChecklistCellData;
 use lib_infra::box_any::BoxAny;
 
 #[tokio::test]

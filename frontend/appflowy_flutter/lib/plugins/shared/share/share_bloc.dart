@@ -74,6 +74,13 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
           pathName,
           emit,
         ),
+        clearPathNameResult: () async {
+          emit(
+            state.copyWith(
+              updatePathNameResult: null,
+            ),
+          );
+        },
       );
     });
   }
@@ -190,8 +197,23 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
       (p) => false,
     );
 
-    Log.info(
-      'get publish info: $publishInfo for view: ${view.name}(${view.id})',
+    // skip the "Record not found" error, it's because the view is not published yet
+    publishInfo.fold(
+      (s) {
+        Log.info(
+          'get publish info success: $publishInfo for view: ${view.name}(${view.id})',
+        );
+      },
+      (f) {
+        if (![
+          ErrorCode.RecordNotFound,
+          ErrorCode.LocalVersionNotSupport,
+        ].contains(f.code)) {
+          Log.info(
+            'get publish info failed: $f for view: ${view.name}(${view.id})',
+          );
+        }
+      },
     );
 
     String workspaceId = state.workspaceId;
@@ -381,6 +403,7 @@ class ShareEvent with _$ShareEvent {
   const factory ShareEvent.setPublishStatus(bool isPublished) =
       _SetPublishStatus;
   const factory ShareEvent.updatePathName(String pathName) = _UpdatePathName;
+  const factory ShareEvent.clearPathNameResult() = _ClearPathNameResult;
 }
 
 @freezed

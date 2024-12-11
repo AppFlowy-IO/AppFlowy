@@ -21,8 +21,9 @@ use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, LocalAIConfig,
+  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings, LocalAIConfig,
   MessageCursor, RepeatedChatMessage, StreamAnswer, StreamComplete, SubscriptionPlan,
+  UpdateChatParams,
 };
 use flowy_database_pub::cloud::{
   DatabaseAIService, DatabaseCloudService, DatabaseSnapshot, EncodeCollabByOid, SummaryRowContent,
@@ -106,11 +107,12 @@ impl StorageCloudService for ServerProvider {
     parent_dir: &str,
     file_id: &str,
     content_type: &str,
+    file_size: u64,
   ) -> Result<CreateUploadResponse, FlowyError> {
-    let server = self.get_server();
-    let storage = server?.file_storage().ok_or(FlowyError::internal())?;
+    let server = self.get_server()?;
+    let storage = server.file_storage().ok_or(FlowyError::internal())?;
     storage
-      .create_upload(workspace_id, parent_dir, file_id, content_type)
+      .create_upload(workspace_id, parent_dir, file_id, content_type, file_size)
       .await
   }
 
@@ -642,11 +644,12 @@ impl ChatCloudService for ServerProvider {
     uid: &i64,
     workspace_id: &str,
     chat_id: &str,
+    rag_ids: Vec<String>,
   ) -> Result<(), FlowyError> {
     let server = self.get_server();
     server?
       .chat_service()
-      .create_chat(uid, workspace_id, chat_id)
+      .create_chat(uid, workspace_id, chat_id, rag_ids)
       .await
   }
 
@@ -783,6 +786,31 @@ impl ChatCloudService for ServerProvider {
       .get_server()?
       .chat_service()
       .get_workspace_plan(workspace_id)
+      .await
+  }
+
+  async fn get_chat_settings(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+  ) -> Result<ChatSettings, FlowyError> {
+    self
+      .get_server()?
+      .chat_service()
+      .get_chat_settings(workspace_id, chat_id)
+      .await
+  }
+
+  async fn update_chat_settings(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    params: UpdateChatParams,
+  ) -> Result<(), FlowyError> {
+    self
+      .get_server()?
+      .chat_service()
+      .update_chat_settings(workspace_id, chat_id, params)
       .await
   }
 }

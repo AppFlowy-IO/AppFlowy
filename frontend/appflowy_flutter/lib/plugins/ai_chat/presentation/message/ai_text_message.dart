@@ -1,22 +1,20 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/chat_loading.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/message/ai_markdown_text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/gestures.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart';
-import 'package:universal_platform/universal_platform.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 
+import '../layout_define.dart';
+import 'ai_markdown_text.dart';
 import 'ai_message_bubble.dart';
 import 'ai_metadata.dart';
+import 'loading_indicator.dart';
+import 'error_text_message.dart';
 
 /// [ChatAIMessageWidget] includes both the text of the AI response as well as
 /// the avatar, decorations and hover effects that are also rendered. This is
@@ -33,7 +31,7 @@ class ChatAIMessageWidget extends StatelessWidget {
     required this.questionId,
     required this.chatId,
     required this.refSourceJsonString,
-    required this.onSelectedMetadata,
+    this.onSelectedMetadata,
     this.isLastMessage = false,
   });
 
@@ -45,7 +43,7 @@ class ChatAIMessageWidget extends StatelessWidget {
   final Int64? questionId;
   final String chatId;
   final String? refSourceJsonString;
-  final void Function(ChatMessageRefSource metadata) onSelectedMetadata;
+  final void Function(ChatMessageRefSource metadata)? onSelectedMetadata;
   final bool isLastMessage;
 
   @override
@@ -59,24 +57,24 @@ class ChatAIMessageWidget extends StatelessWidget {
       ),
       child: BlocBuilder<ChatAIMessageBloc, ChatAIMessageState>(
         builder: (context, state) {
+          final loadingText =
+              state.progress?.step ?? LocaleKeys.chat_generatingResponse.tr();
+
           return Padding(
-            padding: UniversalPlatform.isMobile
-                ? const EdgeInsets.symmetric(horizontal: 16)
-                : EdgeInsets.zero,
+            padding: AIChatUILayout.messageMargin,
             child: state.messageState.when(
-              loading: () {
-                return ChatAIMessageBubble(
-                  message: message,
-                  showActions: false,
-                  child: const Padding(
-                    padding: EdgeInsets.only(top: 8.0),
-                    child: ChatAILoading(),
-                  ),
-                );
-              },
+              loading: () => ChatAIMessageBubble(
+                message: message,
+                showActions: false,
+                child: ChatAILoading(text: loadingText),
+              ),
               ready: () {
                 return state.text.isEmpty
-                    ? const SizedBox.shrink()
+                    ? ChatAIMessageBubble(
+                        message: message,
+                        showActions: false,
+                        child: ChatAILoading(text: loadingText),
+                      )
                     : ChatAIMessageBubble(
                         message: message,
                         isLastMessage: isLastMessage,
@@ -90,12 +88,15 @@ class ChatAIMessageWidget extends StatelessWidget {
                                 sources: state.sources,
                                 onSelectedMetadata: onSelectedMetadata,
                               ),
+                            if (state.sources.isNotEmpty && !isLastMessage)
+                              const VSpace(16.0),
                           ],
                         ),
                       );
               },
-              onError: (err) {
-                return StreamingError(
+              onError: (error) {
+                return ChatErrorMessageWidget(
+                  errorMessage: LocaleKeys.chat_aiServerUnavailable.tr(),
                   onRetry: () {
                     context
                         .read<ChatAIMessageBloc>()
@@ -104,7 +105,10 @@ class ChatAIMessageWidget extends StatelessWidget {
                 );
               },
               onAIResponseLimit: () {
-                return const AIResponseLimitReachedError();
+                return ChatErrorMessageWidget(
+                  errorMessage:
+                      LocaleKeys.sideBar_askOwnerToUpgradeToAIMax.tr(),
+                );
               },
             ),
           );
@@ -112,126 +116,4 @@ class ChatAIMessageWidget extends StatelessWidget {
       ),
     );
   }
-}
-
-class StreamingError extends StatefulWidget {
-  const StreamingError({
-    required this.onRetry,
-    super.key,
-  });
-
-  final VoidCallback onRetry;
-
-  @override
-  State<StreamingError> createState() => _StreamingErrorState();
-}
-
-class _StreamingErrorState extends State<StreamingError> {
-  late final TapGestureRecognizer recognizer;
-
-  @override
-  void initState() {
-    super.initState();
-    recognizer = TapGestureRecognizer()..onTap = widget.onRetry;
-  }
-
-  @override
-  void dispose() {
-    recognizer.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        margin: const EdgeInsets.only(top: 16.0, bottom: 24.0),
-        padding: const EdgeInsets.all(8.0),
-        decoration: const BoxDecoration(
-          color: Color(0x80FFE7EE),
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-        ),
-        constraints: _errorConstraints(),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const FlowySvg(
-              FlowySvgs.warning_filled_s,
-              blendMode: null,
-            ),
-            const HSpace(8.0),
-            Flexible(
-              child: RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: LocaleKeys.chat_aiServerUnavailable.tr(),
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    TextSpan(
-                      text: " ",
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    TextSpan(
-                      text: LocaleKeys.chat_retry.tr(),
-                      recognizer: recognizer,
-                      mouseCursor: SystemMouseCursors.click,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            decoration: TextDecoration.underline,
-                          ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class AIResponseLimitReachedError extends StatelessWidget {
-  const AIResponseLimitReachedError({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        margin: const EdgeInsets.only(top: 16.0, bottom: 24.0),
-        constraints: _errorConstraints(),
-        padding: const EdgeInsets.all(8.0),
-        decoration: const BoxDecoration(
-          color: Color(0x80FFE7EE),
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const FlowySvg(
-              FlowySvgs.warning_filled_s,
-              blendMode: null,
-            ),
-            const HSpace(8.0),
-            Flexible(
-              child: FlowyText(
-                LocaleKeys.sideBar_askOwnerToUpgradeToAIMax.tr(),
-                lineHeight: 1.4,
-                maxLines: null,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-BoxConstraints _errorConstraints() {
-  return UniversalPlatform.isDesktop
-      ? const BoxConstraints(maxWidth: 480)
-      : const BoxConstraints();
 }

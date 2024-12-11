@@ -1,46 +1,49 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
+import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:nanoid/nanoid.dart';
 
 import 'chat_entity.dart';
 import 'chat_message_listener.dart';
 import 'chat_message_service.dart';
+import 'chat_message_stream.dart';
 
 part 'chat_bloc.freezed.dart';
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc({
-    required ViewPB view,
-    required UserProfilePB userProfile,
-  })  : listener = ChatMessageListener(chatId: view.id),
-        chatId = view.id,
-        super(
-          ChatState.initial(view, userProfile),
-        ) {
+    required this.chatId,
+    required this.userId,
+  })  : chatController = InMemoryChatController(),
+        listener = ChatMessageListener(chatId: chatId),
+        super(ChatState.initial()) {
     _startListening();
     _dispatch();
+    _init();
   }
 
-  final ChatMessageListener listener;
   final String chatId;
+  final String userId;
+  final ChatMessageListener listener;
+
+  final ChatController chatController;
 
   /// The last streaming message id
   String answerStreamMessageId = '';
   String questionStreamMessageId = '';
+
+  ChatMessagePB? lastSentMessage;
 
   /// Using a temporary map to associate the real message ID with the last streaming message ID.
   ///
@@ -51,11 +54,24 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   /// is 3 (AI response).
   final HashMap<String, String> temporaryMessageIDMap = HashMap();
 
+  bool isLoadingPreviousMessages = false;
+  bool hasMorePreviousMessages = true;
+  AnswerStream? answerStream;
+  int numSendMessage = 0;
+
+  /// a counter used to determine whether the initial loading state should be
+  /// set to finish. It should hit two before we emit: one for the local fetch
+  /// and another for the server fetch.
+  ///
+  /// This is to work around a bug where if an ai chat that is not yet on the
+  /// user local storage is opened but has messages in the server, it will
+  /// remain stuck on the welcome screen until the user switches to another page
+  /// then come back.
+  int initialFetchCounter = 0;
+
   @override
   Future<void> close() async {
-    if (state.answerStream != null) {
-      await state.answerStream?.dispose();
-    }
+    await answerStream?.dispose();
     await listener.stop();
     return super.close();
   }
@@ -64,197 +80,170 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<ChatEvent>(
       (event, emit) async {
         await event.when(
-          initialLoad: () {
-            final payload = LoadNextChatMessagePB(
-              chatId: state.view.id,
-              limit: Int64(10),
-            );
-            AIEventLoadNextMessage(payload).send().then(
-              (result) {
-                result.fold((list) {
-                  if (!isClosed) {
-                    final messages =
-                        list.messages.map(_createTextMessage).toList();
-                    add(ChatEvent.didLoadLatestMessages(messages));
-                  }
-                }, (err) {
-                  Log.error("Failed to load messages: $err");
-                });
-              },
-            );
-          },
           // Loading messages
-          startLoadingPrevMessage: () async {
-            Int64? beforeMessageId;
-            final oldestMessage = _getOlderstMessage();
-            if (oldestMessage != null) {
-              try {
-                beforeMessageId = Int64.parseInt(oldestMessage.id);
-              } catch (e) {
-                Log.error(
-                  "Failed to parse message id: $e, messaeg_id: ${oldestMessage.id}",
-                );
-              }
-            }
-            _loadPrevMessage(beforeMessageId);
-            emit(
-              state.copyWith(
-                loadingPreviousStatus: const ChatLoadingState.loading(),
-              ),
-            );
-          },
-          didLoadPreviousMessages: (List<Message> messages, bool hasMore) {
-            Log.debug("did load previous messages: ${messages.length}");
-            final onetimeMessages = _getOnetimeMessages();
-            final allMessages = _permanentMessages();
-            final uniqueMessages = {...allMessages, ...messages}.toList()
-              ..sort((a, b) => b.id.compareTo(a.id));
-
-            uniqueMessages.insertAll(0, onetimeMessages);
-
-            emit(
-              state.copyWith(
-                messages: uniqueMessages,
-                loadingPreviousStatus: const ChatLoadingState.finish(),
-                hasMorePrevMessage: hasMore,
-              ),
-            );
-          },
-          didLoadLatestMessages: (List<Message> messages) {
-            final onetimeMessages = _getOnetimeMessages();
-            final allMessages = _permanentMessages();
-            final uniqueMessages = {...allMessages, ...messages}.toList()
-              ..sort((a, b) => b.id.compareTo(a.id));
-            uniqueMessages.insertAll(0, onetimeMessages);
-            emit(
-              state.copyWith(
-                messages: uniqueMessages,
-                initialLoadingStatus: const ChatLoadingState.finish(),
-              ),
-            );
-          },
-          // streaming message
-          finishAnswerStreaming: () {
-            emit(
-              state.copyWith(
-                streamingState: const StreamingState.done(),
-                acceptRelatedQuestion: true,
-                canSendMessage:
-                    state.sendingState == const SendMessageState.done(),
-              ),
-            );
-          },
-          didUpdateAnswerStream: (AnswerStream stream) {
-            emit(state.copyWith(answerStream: stream));
-          },
-          stopStream: () async {
-            if (state.answerStream == null) {
-              return;
+          didLoadLatestMessages: (List<Message> messages) async {
+            for (final message in messages) {
+              await chatController.insert(message, index: 0);
             }
 
-            final payload = StopStreamPB(chatId: chatId);
-            await AIEventStopStream(payload).send();
-            final allMessages = _permanentMessages();
-            if (state.streamingState != const StreamingState.done()) {
-              // If the streaming is not started, remove the message from the list
-              if (!state.answerStream!.hasStarted) {
-                allMessages.removeWhere(
-                  (element) => element.id == answerStreamMessageId,
-                );
-                answerStreamMessageId = "";
-              }
+            if (initialFetchCounter < 2) {
+              initialFetchCounter++;
+            }
 
-              // when stop stream, we will set the answer stream to null. Which means the streaming
-              // is finished or canceled.
+            if (state.loadingState.isLoading && initialFetchCounter >= 2) {
               emit(
-                state.copyWith(
-                  messages: allMessages,
-                  answerStream: null,
-                  streamingState: const StreamingState.done(),
-                ),
+                state.copyWith(loadingState: const ChatLoadingState.finish()),
               );
             }
           },
-          receiveMessage: (Message message) {
-            final allMessages = _permanentMessages();
-            // remove message with the same id
-            allMessages.removeWhere((element) => element.id == message.id);
-            allMessages.insert(0, message);
+          loadPreviousMessages: () {
+            if (isLoadingPreviousMessages) {
+              return;
+            }
+
+            final oldestMessage = _getOldestMessage();
+
+            if (oldestMessage != null) {
+              final oldestMessageId = Int64.tryParseInt(oldestMessage.id);
+              if (oldestMessageId == null) {
+                Log.error("Failed to parse message_id: ${oldestMessage.id}");
+                return;
+              }
+              isLoadingPreviousMessages = true;
+              _loadPreviousMessages(oldestMessageId);
+            }
+          },
+          didLoadPreviousMessages: (messages, hasMore) {
+            Log.debug("did load previous messages: ${messages.length}");
+
+            for (final message in messages) {
+              chatController.insert(message, index: 0);
+            }
+
+            isLoadingPreviousMessages = false;
+            hasMorePreviousMessages = hasMore;
+          },
+          didFinishAnswerStream: () {
             emit(
-              state.copyWith(
-                messages: allMessages,
-              ),
+              state.copyWith(promptResponseState: PromptResponseState.ready),
             );
           },
-          startAnswerStreaming: (Message message) {
-            final allMessages = _permanentMessages();
-            allMessages.insert(0, message);
-            emit(
-              state.copyWith(
-                messages: allMessages,
-                streamingState: const StreamingState.streaming(),
-                canSendMessage: false,
-              ),
-            );
-          },
-          sendMessage: (String message, Map<String, dynamic>? metadata) async {
-            unawaited(_startStreamingMessage(message, metadata, emit));
-            final allMessages = _permanentMessages();
-            emit(
-              state.copyWith(
-                lastSentMessage: null,
-                messages: allMessages,
-                relatedQuestions: [],
-                acceptRelatedQuestion: false,
-                sendingState: const SendMessageState.sending(),
-                canSendMessage: false,
-              ),
-            );
-          },
-          finishSending: (ChatMessagePB message) {
-            emit(
-              state.copyWith(
-                lastSentMessage: message,
-                sendingState: const SendMessageState.done(),
-                canSendMessage:
-                    state.streamingState == const StreamingState.done(),
-              ),
-            );
-          },
-          failedSending: () {
-            emit(
-              state.copyWith(
-                messages: _permanentMessages()..removeAt(0),
-                sendingState: const SendMessageState.done(),
-                canSendMessage: true,
-              ),
-            );
-          },
-          // related question
-          didReceiveRelatedQuestion: (List<RelatedQuestionPB> questions) {
+          didReceiveRelatedQuestions: (List<String> questions) {
             if (questions.isEmpty) {
               return;
             }
 
-            final allMessages = _permanentMessages();
-            final message = CustomMessage(
-              metadata: OnetimeShotType.relatedQuestion.toMap(),
+            final metadata = {
+              onetimeShotType: OnetimeShotType.relatedQuestion,
+              'questions': questions,
+            };
+
+            final createdAt = DateTime.now();
+
+            final message = TextMessage(
+              id: "related_question_$createdAt",
+              text: '',
+              metadata: metadata,
               author: const User(id: systemUserId),
-              showStatus: false,
-              id: systemUserId,
+              createdAt: createdAt,
             );
-            allMessages.insert(0, message);
+
+            chatController.insert(message);
+          },
+          receiveMessage: (Message message) {
+            final oldMessage = chatController.messages
+                .firstWhereOrNull((m) => m.id == message.id);
+            if (oldMessage == null) {
+              chatController.insert(message);
+            } else {
+              chatController.update(oldMessage, message);
+            }
+          },
+          sendMessage: (
+            String message,
+            Map<String, dynamic>? metadata,
+          ) {
+            numSendMessage += 1;
+
+            final relatedQuestionMessages = chatController.messages
+                .where(
+                  (message) =>
+                      onetimeMessageTypeFromMeta(message.metadata) ==
+                      OnetimeShotType.relatedQuestion,
+                )
+                .toList();
+
+            for (final message in relatedQuestionMessages) {
+              chatController.remove(message);
+            }
+
+            _startStreamingMessage(message, metadata);
+            lastSentMessage = null;
+
             emit(
               state.copyWith(
-                messages: allMessages,
-                relatedQuestions: questions,
+                promptResponseState: PromptResponseState.sendingQuestion,
               ),
             );
           },
-          clearRelatedQuestions: () {
+          finishSending: (ChatMessagePB message) {
+            lastSentMessage = message;
             emit(
               state.copyWith(
-                relatedQuestions: [],
+                promptResponseState: PromptResponseState.awaitingAnswer,
+              ),
+            );
+          },
+          stopStream: () async {
+            if (answerStream == null) {
+              return;
+            }
+
+            // tell backend to stop
+            final payload = StopStreamPB(chatId: chatId);
+            await AIEventStopStream(payload).send();
+
+            // allow user input
+            emit(
+              state.copyWith(
+                promptResponseState: PromptResponseState.ready,
+              ),
+            );
+
+            // no need to remove old message if stream has started already
+            if (answerStream!.hasStarted) {
+              return;
+            }
+
+            // remove the non-started message from the list
+            final message = chatController.messages.lastWhereOrNull(
+              (e) => e.id == answerStreamMessageId,
+            );
+            if (message != null) {
+              await chatController.remove(message);
+            }
+
+            // set answer stream to null
+            await answerStream?.dispose();
+            answerStream = null;
+            answerStreamMessageId = '';
+          },
+          startAnswerStreaming: (Message message) {
+            chatController.insert(message);
+            emit(
+              state.copyWith(
+                promptResponseState: PromptResponseState.streamingAnswer,
+              ),
+            );
+          },
+          failedSending: () {
+            final lastMessage = chatController.messages.lastOrNull;
+            if (lastMessage != null) {
+              chatController.remove(lastMessage);
+            }
+            emit(
+              state.copyWith(
+                promptResponseState: PromptResponseState.ready,
               ),
             );
           },
@@ -266,29 +255,31 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   void _startListening() {
     listener.start(
       chatMessageCallback: (pb) {
-        if (!isClosed) {
-          // 3 mean message response from AI
-          if (pb.authorType == 3 && answerStreamMessageId.isNotEmpty) {
-            temporaryMessageIDMap[pb.messageId.toString()] =
-                answerStreamMessageId;
-            answerStreamMessageId = "";
-          }
-
-          // 1 mean message response from User
-          if (pb.authorType == 1 && questionStreamMessageId.isNotEmpty) {
-            temporaryMessageIDMap[pb.messageId.toString()] =
-                questionStreamMessageId;
-            questionStreamMessageId = "";
-          }
-
-          final message = _createTextMessage(pb);
-          add(ChatEvent.receiveMessage(message));
+        if (isClosed) {
+          return;
         }
+
+        // 3 mean message response from AI
+        if (pb.authorType == 3 && answerStreamMessageId.isNotEmpty) {
+          temporaryMessageIDMap[pb.messageId.toString()] =
+              answerStreamMessageId;
+          answerStreamMessageId = '';
+        }
+
+        // 1 mean message response from User
+        if (pb.authorType == 1 && questionStreamMessageId.isNotEmpty) {
+          temporaryMessageIDMap[pb.messageId.toString()] =
+              questionStreamMessageId;
+          questionStreamMessageId = '';
+        }
+
+        final message = _createTextMessage(pb);
+        add(ChatEvent.receiveMessage(message));
       },
       chatErrorMessageCallback: (err) {
         if (!isClosed) {
           Log.error("chat error: ${err.errorMessage}");
-          add(const ChatEvent.finishAnswerStreaming());
+          add(const ChatEvent.didFinishAnswerStream());
         }
       },
       latestMessageCallback: (list) {
@@ -303,65 +294,74 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           add(ChatEvent.didLoadPreviousMessages(messages, list.hasMore));
         }
       },
-      finishStreamingCallback: () {
-        if (!isClosed) {
-          add(const ChatEvent.finishAnswerStreaming());
-          // The answer strema will bet set to null after the streaming is finished or canceled.
-          // so if the answer stream is null, we will not get related question.
-          if (state.lastSentMessage != null && state.answerStream != null) {
-            final payload = ChatMessageIdPB(
-              chatId: chatId,
-              messageId: state.lastSentMessage!.messageId,
-            );
-            //  When user message was sent to the server, we start gettting related question
-            AIEventGetRelatedQuestion(payload).send().then((result) {
-              if (!isClosed) {
-                result.fold(
-                  (list) {
-                    if (state.acceptRelatedQuestion) {
-                      add(ChatEvent.didReceiveRelatedQuestion(list.items));
-                    }
-                  },
-                  (err) {
-                    Log.error("Failed to get related question: $err");
-                  },
-                );
-              }
-            });
-          }
+      finishStreamingCallback: () async {
+        if (isClosed) {
+          return;
         }
+
+        add(const ChatEvent.didFinishAnswerStream());
+
+        // The answer stream will bet set to null after the streaming has
+        // finished, got cancelled, or errored. In this case, don't retrieve
+        // related questions.
+        if (answerStream == null || lastSentMessage == null) {
+          return;
+        }
+
+        final payload = ChatMessageIdPB(
+          chatId: chatId,
+          messageId: lastSentMessage!.messageId,
+        );
+
+        // when previous numSendMessage is not equal to current numSendMessage, it means that the user
+        // has sent a new message. So we don't need to get related questions.
+        final preNumSendMessage = numSendMessage;
+        await AIEventGetRelatedQuestion(payload).send().fold(
+          (list) {
+            if (!isClosed && preNumSendMessage == numSendMessage) {
+              add(
+                ChatEvent.didReceiveRelatedQuestions(
+                  list.items.map((e) => e.content).toList(),
+                ),
+              );
+            }
+          },
+          (err) => Log.error("Failed to get related questions: $err"),
+        );
       },
     );
   }
 
-// Returns the list of messages that are not include one-time messages.
-  List<Message> _permanentMessages() {
-    final allMessages = state.messages.where((element) {
-      return !(element.metadata?.containsKey(onetimeShotType) == true);
-    }).toList();
-
-    return allMessages;
+  void _init() async {
+    final payload = LoadNextChatMessagePB(
+      chatId: chatId,
+      limit: Int64(10),
+    );
+    await AIEventLoadNextMessage(payload).send().fold(
+      (list) {
+        if (!isClosed) {
+          final messages = list.messages.map(_createTextMessage).toList();
+          add(ChatEvent.didLoadLatestMessages(messages));
+        }
+      },
+      (err) => Log.error("Failed to load messages: $err"),
+    );
   }
 
-  List<Message> _getOnetimeMessages() {
-    final messages = state.messages.where((element) {
-      return (element.metadata?.containsKey(onetimeShotType) == true);
-    }).toList();
-
-    return messages;
+  bool _isOneTimeMessage(Message message) {
+    return message.metadata != null &&
+        message.metadata!.containsKey(onetimeShotType);
   }
 
-  Message? _getOlderstMessage() {
-    // get the last message that is not a one-time message
-    final message = state.messages.lastWhereOrNull((element) {
-      return !(element.metadata?.containsKey(onetimeShotType) == true);
-    });
-    return message;
+  /// get the last message that is not a one-time message
+  Message? _getOldestMessage() {
+    return chatController.messages
+        .firstWhereOrNull((message) => !_isOneTimeMessage(message));
   }
 
-  void _loadPrevMessage(Int64? beforeMessageId) {
+  void _loadPreviousMessages(Int64? beforeMessageId) {
     final payload = LoadPrevChatMessagePB(
-      chatId: state.view.id,
+      chatId: chatId,
       limit: Int64(10),
       beforeMessageId: beforeMessageId,
     );
@@ -371,59 +371,56 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   Future<void> _startStreamingMessage(
     String message,
     Map<String, dynamic>? metadata,
-    Emitter<ChatState> emit,
   ) async {
-    if (state.answerStream != null) {
-      await state.answerStream?.dispose();
-    }
+    await answerStream?.dispose();
 
-    final answerStream = AnswerStream();
+    answerStream = AnswerStream();
     final questionStream = QuestionStream();
-    add(ChatEvent.didUpdateAnswerStream(answerStream));
 
-    final payload = StreamChatPayloadPB(
-      chatId: state.view.id,
-      message: message,
-      messageType: ChatMessageTypePB.User,
-      questionStreamPort: Int64(questionStream.nativePort),
-      answerStreamPort: Int64(answerStream.nativePort),
-      metadata: await metadataPBFromMetadata(metadata),
-    );
-
+    // add a streaming question message
     final questionStreamMessage = _createQuestionStreamMessage(
       questionStream,
       metadata,
     );
     add(ChatEvent.receiveMessage(questionStreamMessage));
 
-    // Stream message to the server
-    final result = await AIEventStreamMessage(payload).send();
-    result.fold(
-      (ChatMessagePB question) {
+    final payload = StreamChatPayloadPB(
+      chatId: chatId,
+      message: message,
+      messageType: ChatMessageTypePB.User,
+      questionStreamPort: Int64(questionStream.nativePort),
+      answerStreamPort: Int64(answerStream!.nativePort),
+      metadata: await metadataPBFromMetadata(metadata),
+    );
+
+    // stream the question to the server
+    await AIEventStreamMessage(payload).send().fold(
+      (question) {
         if (!isClosed) {
+          final streamAnswer = _createAnswerStreamMessage(
+            answerStream!,
+            question.messageId,
+          );
+
           add(ChatEvent.finishSending(question));
-
-          // final message = _createTextMessage(question);
-          // add(ChatEvent.receiveMessage(message));
-
-          final streamAnswer =
-              _createAnswerStreamMessage(answerStream, question.messageId);
           add(ChatEvent.startAnswerStreaming(streamAnswer));
         }
       },
       (err) {
         if (!isClosed) {
           Log.error("Failed to send message: ${err.msg}");
-          final metadata = OnetimeShotType.invalidSendMesssage.toMap();
-          if (err.code != ErrorCode.Internal) {
-            metadata[sendMessageErrorKey] = err.msg;
-          }
 
-          final error = CustomMessage(
+          final metadata = {
+            onetimeShotType: OnetimeShotType.error,
+            if (err.code != ErrorCode.Internal) errorMessageTextKey: err.msg,
+          };
+
+          final error = TextMessage(
+            text: '',
             metadata: metadata,
             author: const User(id: systemUserId),
-            showStatus: false,
             id: systemUserId,
+            createdAt: DateTime.now(),
           );
 
           add(const ChatEvent.failedSending());
@@ -437,20 +434,18 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     AnswerStream stream,
     Int64 questionMessageId,
   ) {
-    final streamMessageId = (questionMessageId + 1).toString();
-    answerStreamMessageId = streamMessageId;
+    answerStreamMessageId = (questionMessageId + 1).toString();
 
     return TextMessage(
+      id: answerStreamMessageId,
+      text: '',
       author: User(id: "streamId:${nanoid()}"),
       metadata: {
         "$AnswerStream": stream,
         messageQuestionIdKey: questionMessageId,
         "chatId": chatId,
       },
-      id: streamMessageId,
-      showStatus: false,
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-      text: '',
+      createdAt: DateTime.now(),
     );
   }
 
@@ -459,24 +454,18 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     Map<String, dynamic>? sentMetadata,
   ) {
     final now = DateTime.now();
-    final timestamp = now.millisecondsSinceEpoch;
-    questionStreamMessageId = timestamp.toString();
-    final Map<String, dynamic> metadata = {};
 
-    // if (sentMetadata != null) {
-    //   metadata[messageMetadataJsonStringKey] = sentMetadata;
-    // }
+    questionStreamMessageId = (now.millisecondsSinceEpoch ~/ 1000).toString();
 
-    metadata["$QuestionStream"] = stream;
-    metadata["chatId"] = chatId;
-    metadata[messageChatFileListKey] =
-        chatFilesFromMessageMetadata(sentMetadata);
     return TextMessage(
-      author: User(id: state.userProfile.id.toString()),
-      metadata: metadata,
+      author: User(id: userId),
+      metadata: {
+        "$QuestionStream": stream,
+        "chatId": chatId,
+        messageChatFileListKey: chatFilesFromMessageMetadata(sentMetadata),
+      },
       id: questionStreamMessageId,
-      showStatus: false,
-      createdAt: DateTime.now().millisecondsSinceEpoch,
+      createdAt: now,
       text: '',
     );
   }
@@ -493,8 +482,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       author: User(id: message.authorId),
       id: messageId,
       text: message.content,
-      createdAt: message.createdAt.toInt() * 1000,
-      showStatus: false,
+      createdAt: message.createdAt.toDateTime(),
       metadata: {
         messageRefSourceJsonStringKey: message.metadata,
       },
@@ -504,8 +492,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
 @freezed
 class ChatEvent with _$ChatEvent {
-  const factory ChatEvent.initialLoad() = _InitialLoadMessage;
-
   // send message
   const factory ChatEvent.sendMessage({
     required String message,
@@ -515,71 +501,40 @@ class ChatEvent with _$ChatEvent {
       _FinishSendMessage;
   const factory ChatEvent.failedSending() = _FailSendMessage;
 
-// receive message
+  // streaming answer
   const factory ChatEvent.startAnswerStreaming(Message message) =
       _StartAnswerStreaming;
-  const factory ChatEvent.receiveMessage(Message message) = _ReceiveMessage;
-  const factory ChatEvent.finishAnswerStreaming() = _FinishAnswerStreaming;
+  const factory ChatEvent.stopStream() = _StopStream;
+  const factory ChatEvent.didFinishAnswerStream() = _DidFinishAnswerStream;
 
-// loading messages
-  const factory ChatEvent.startLoadingPrevMessage() = _StartLoadPrevMessage;
+  // receive message
+  const factory ChatEvent.receiveMessage(Message message) = _ReceiveMessage;
+
+  // loading messages
+  const factory ChatEvent.didLoadLatestMessages(List<Message> messages) =
+      _DidLoadMessages;
+  const factory ChatEvent.loadPreviousMessages() = _LoadPreviousMessages;
   const factory ChatEvent.didLoadPreviousMessages(
     List<Message> messages,
     bool hasMore,
   ) = _DidLoadPreviousMessages;
-  const factory ChatEvent.didLoadLatestMessages(List<Message> messages) =
-      _DidLoadMessages;
 
-// related questions
-  const factory ChatEvent.didReceiveRelatedQuestion(
-    List<RelatedQuestionPB> questions,
+  // related questions
+  const factory ChatEvent.didReceiveRelatedQuestions(
+    List<String> questions,
   ) = _DidReceiveRelatedQueston;
-  const factory ChatEvent.clearRelatedQuestions() = _ClearRelatedQuestions;
-
-  const factory ChatEvent.didUpdateAnswerStream(
-    AnswerStream stream,
-  ) = _DidUpdateAnswerStream;
-  const factory ChatEvent.stopStream() = _StopStream;
 }
 
 @freezed
 class ChatState with _$ChatState {
   const factory ChatState({
-    required ViewPB view,
-    required List<Message> messages,
-    required UserProfilePB userProfile,
-    // When opening the chat, the initial loading status will be set as loading.
-    //After the initial loading is done, the status will be set as finished.
-    required ChatLoadingState initialLoadingStatus,
-    // When loading previous messages, the status will be set as loading.
-    // After the loading is done, the status will be set as finished.
-    required ChatLoadingState loadingPreviousStatus,
-    // When sending a user message, the status will be set as loading.
-    // After the message is sent, the status will be set as finished.
-    required StreamingState streamingState,
-    required SendMessageState sendingState,
-    // Indicate whether there are more previous messages to load.
-    required bool hasMorePrevMessage,
-    // The related questions that are received after the user message is sent.
-    required List<RelatedQuestionPB> relatedQuestions,
-    @Default(false) bool acceptRelatedQuestion,
-    // The last user message that is sent to the server.
-    ChatMessagePB? lastSentMessage,
-    AnswerStream? answerStream,
-    @Default(true) bool canSendMessage,
+    required ChatLoadingState loadingState,
+    required PromptResponseState promptResponseState,
   }) = _ChatState;
 
-  factory ChatState.initial(ViewPB view, UserProfilePB userProfile) =>
-      ChatState(
-        view: view,
-        messages: [],
-        userProfile: userProfile,
-        initialLoadingStatus: const ChatLoadingState.finish(),
-        loadingPreviousStatus: const ChatLoadingState.finish(),
-        streamingState: const StreamingState.done(),
-        sendingState: const SendMessageState.done(),
-        hasMorePrevMessage: true,
-        relatedQuestions: [],
+  factory ChatState.initial() => const ChatState(
+        loadingState: ChatLoadingState.loading(),
+        promptResponseState: PromptResponseState.ready,
       );
 }
 

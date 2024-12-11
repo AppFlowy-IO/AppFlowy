@@ -21,7 +21,7 @@ use flowy_folder_pub::cloud::{Folder, FolderData, Workspace};
 use flowy_user_pub::cloud::*;
 use flowy_user_pub::entities::*;
 use flowy_user_pub::DEFAULT_USER_NAME;
-use lib_dispatch::prelude::af_spawn;
+
 use lib_infra::box_any::BoxAny;
 use lib_infra::future::FutureResult;
 
@@ -271,7 +271,7 @@ where
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let (tx, rx) = channel();
     let object_id = object_id.to_string();
-    af_spawn(async move {
+    tokio::spawn(async move {
       tx.send(
         async move {
           let postgrest = try_get_postgrest?;
@@ -313,7 +313,7 @@ where
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let (tx, rx) = channel();
     let init_update = default_workspace_doc_state(&collab_object);
-    af_spawn(async move {
+    tokio::spawn(async move {
       tx.send(
         async move {
           let postgrest = try_get_postgrest?
@@ -351,7 +351,7 @@ where
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let cloned_collab_object = collab_object.clone();
     let (tx, rx) = channel();
-    af_spawn(async move {
+    tokio::spawn(async move {
       tx.send(
         async move {
           CreateCollabAction::new(cloned_collab_object, try_get_postgrest?, data)
