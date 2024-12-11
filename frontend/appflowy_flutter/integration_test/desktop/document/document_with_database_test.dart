@@ -1,12 +1,15 @@
 import 'package:appflowy/plugins/database/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database/calendar/presentation/calendar_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/footer/grid_footer.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/row/row.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
 import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/uuid.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -174,7 +177,108 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets('insert a referenced grid with many rows (load more option)',
+        (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await insertLinkedDatabase(tester, ViewLayoutPB.Grid);
+
+      // validate the referenced grid is inserted
+      expect(
+        find.descendant(
+          of: find.byType(AppFlowyEditor),
+          matching: find.byType(GridPage),
+        ),
+        findsOneWidget,
+      );
+
+      // https://github.com/AppFlowy-IO/AppFlowy/issues/3533
+      // test: the selection of editor should be clear when editing the grid
+      await tester.editor.updateSelection(
+        Selection.collapsed(
+          Position(path: [1]),
+        ),
+      );
+      final gridTextCell = find.byType(EditableTextCell).first;
+      await tester.tapButton(gridTextCell);
+
+      expect(tester.editor.getCurrentEditorState().selection, isNull);
+
+      final editorScrollable = find
+          .descendant(
+            of: find.byType(AppFlowyEditor),
+            matching: find.byWidgetPredicate(
+              (w) => w is Scrollable && w.axis == Axis.vertical,
+            ),
+          )
+          .first;
+
+      // Add 100 Rows to the linked database
+      final addRowFinder = find.byType(GridAddRowButton);
+      for (var i = 0; i < 100; i++) {
+        await tester.scrollUntilVisible(
+          addRowFinder,
+          100,
+          scrollable: editorScrollable,
+        );
+        await tester.tapButton(addRowFinder);
+        await tester.pumpAndSettle();
+      }
+
+      // Since all rows visible are those we added, we should see all of them
+      expect(find.byType(GridRow), findsNWidgets(103));
+
+      // Navigate to getting started
+      await tester.openPage(gettingStarted);
+
+      // Navigate back to the document
+      await tester.openPage('insert_a_reference_${ViewLayoutPB.Grid.name}');
+
+      // We see only 25 Grid Rows
+      expect(find.byType(GridRow), findsNWidgets(25));
+
+      // We see Add row and load more button
+      expect(find.byType(GridAddRowButton), findsOneWidget);
+      expect(find.byType(GridRowLoadMoreButton), findsOneWidget);
+
+      // Load more rows, expect 50 visible
+      await _loadMoreRows(tester, editorScrollable, 50);
+
+      // Load more rows, expect 75 visible
+      await _loadMoreRows(tester, editorScrollable, 75);
+
+      // Load more rows, expect 100 visible
+      await _loadMoreRows(tester, editorScrollable, 100);
+
+      // Load more rows, expect 103 visible
+      await _loadMoreRows(tester, editorScrollable, 103);
+
+      // We no longer see load more option
+      expect(find.byType(GridRowLoadMoreButton), findsNothing);
+    });
   });
+}
+
+Future<void> _loadMoreRows(
+  WidgetTester tester,
+  Finder scrollable, [
+  int? expectedRows,
+]) async {
+  await tester.scrollUntilVisible(
+    find.byType(GridRowLoadMoreButton),
+    100,
+    scrollable: scrollable,
+  );
+  await tester.pumpAndSettle();
+
+  await tester.tap(find.byType(GridRowLoadMoreButton));
+  await tester.pumpAndSettle();
+
+  if (expectedRows != null) {
+    expect(find.byType(GridRow), findsNWidgets(expectedRows));
+  }
 }
 
 /// Insert a referenced database of [layout] into the document
