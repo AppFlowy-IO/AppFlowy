@@ -25,6 +25,7 @@ class DraggableOptionButton extends StatefulWidget {
   final EditorState editorState;
   final BlockComponentContext blockComponentContext;
   final Map<String, BlockComponentBuilder> blockComponentBuilder;
+
   @override
   State<DraggableOptionButton> createState() => _DraggableOptionButtonState();
 }
