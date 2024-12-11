@@ -1,20 +1,21 @@
 import { View } from '@/application/types';
-import { IconButton, Tooltip } from '@mui/material';
+import { CircularProgress, IconButton, Tooltip } from '@mui/material';
 import React from 'react';
 import { ReactComponent as MoreIcon } from '@/assets/more.svg';
 import { ReactComponent as AddIcon } from '@/assets/add.svg';
 import { useTranslation } from 'react-i18next';
 
-function SpaceActions ({
+function SpaceActions({
   onClickMore,
   onClickAdd,
 }: {
   view: View;
-  onClickAdd: (e: React.MouseEvent<HTMLElement>) => void;
+  onClickAdd: (e: React.MouseEvent<HTMLElement>) => Promise<void>;
   onClickMore: (e: React.MouseEvent<HTMLElement>) => void;
 }) {
 
   const { t } = useTranslation();
+  const [loading, setLoading] = React.useState<boolean>(false);
 
   return (
     <div
@@ -32,22 +33,28 @@ function SpaceActions ({
           }}
           size={'small'}
         >
-          <MoreIcon />
+          <MoreIcon/>
         </IconButton>
       </Tooltip>
       <Tooltip
         disableInteractive={true}
         title={t('sideBar.addAPage')}
       >
-        <IconButton
-          onClick={e => {
+        {loading ? <CircularProgress size={16}/> : <IconButton
+          onClick={async (e) => {
             e.stopPropagation();
-            onClickAdd(e);
+            setLoading(true);
+            try {
+              await onClickAdd(e);
+            } finally {
+              setLoading(false);
+            }
           }}
           size={'small'}
         >
-          <AddIcon />
-        </IconButton>
+          <AddIcon/>
+        </IconButton>}
+
       </Tooltip>
     </div>
   );

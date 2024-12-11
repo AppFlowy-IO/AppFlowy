@@ -57,15 +57,15 @@ export class AFClientService implements AFService {
     }
   > = new Map();
 
-  constructor (config: AFServiceConfig) {
+  constructor(config: AFServiceConfig) {
     APIService.initAPIService(config.cloudConfig);
   }
 
-  getClientId () {
+  getClientId() {
     return this.clientId;
   }
 
-  async getPublishViewMeta (namespace: string, publishName: string) {
+  async getPublishViewMeta(namespace: string, publishName: string) {
     const name = `${namespace}_${publishName}`;
 
     const isLoaded = this.publishViewLoaded.has(name);
@@ -87,7 +87,7 @@ export class AFClientService implements AFService {
     return viewMeta;
   }
 
-  async getPublishView (namespace: string, publishName: string) {
+  async getPublishView(namespace: string, publishName: string) {
     const name = `${namespace}_${publishName}`;
 
     const isLoaded = this.publishViewLoaded.has(name);
@@ -122,7 +122,7 @@ export class AFClientService implements AFService {
     return doc;
   }
 
-  async getPublishRowDocument (viewId: string) {
+  async getPublishRowDocument(viewId: string) {
     const doc = await openCollabDB(viewId);
 
     if (hasCollabCache(doc)) {
@@ -133,15 +133,15 @@ export class AFClientService implements AFService {
 
   }
 
-  async createRowDoc (rowKey: string) {
+  async createRowDoc(rowKey: string) {
     return createRowDoc(rowKey);
   }
 
-  deleteRowDoc (rowKey: string) {
+  deleteRowDoc(rowKey: string) {
     return deleteRowDoc(rowKey);
   }
 
-  async getAppDatabaseViewRelations (workspaceId: string, databaseStorageId: string) {
+  async getAppDatabaseViewRelations(workspaceId: string, databaseStorageId: string) {
 
     const res = await APIService.getCollab(workspaceId, databaseStorageId, Types.WorkspaceDatabase);
     const doc = new Y.Doc();
@@ -160,7 +160,7 @@ export class AFClientService implements AFService {
     return result;
   }
 
-  async getPublishInfo (viewId: string) {
+  async getPublishInfo(viewId: string) {
     if (this.publishViewInfo.has(viewId)) {
       return this.publishViewInfo.get(viewId) as {
         namespace: string;
@@ -186,31 +186,31 @@ export class AFClientService implements AFService {
     return data;
   }
 
-  async getPublishOutline (namespace: string) {
+  async getPublishOutline(namespace: string) {
     return APIService.getPublishOutline(namespace);
   }
 
-  async getAppOutline (workspaceId: string) {
+  async getAppOutline(workspaceId: string) {
     return APIService.getAppOutline(workspaceId);
   }
 
-  async getAppView (workspaceId: string, viewId: string) {
+  async getAppView(workspaceId: string, viewId: string) {
     return APIService.getView(workspaceId, viewId);
   }
 
-  async getAppFavorites (workspaceId: string) {
+  async getAppFavorites(workspaceId: string) {
     return APIService.getAppFavorites(workspaceId);
   }
 
-  async getAppRecent (workspaceId: string) {
+  async getAppRecent(workspaceId: string) {
     return APIService.getAppRecent(workspaceId);
   }
 
-  async getAppTrash (workspaceId: string) {
+  async getAppTrash(workspaceId: string) {
     return APIService.getAppTrash(workspaceId);
   }
 
-  async loginAuth (url: string) {
+  async loginAuth(url: string) {
     try {
       await APIService.signInWithUrl(url);
       emit(EventType.SESSION_VALID);
@@ -223,43 +223,43 @@ export class AFClientService implements AFService {
   }
 
   @withSignIn()
-  async signInMagicLink ({ email }: { email: string; redirectTo: string }) {
+  async signInMagicLink({ email }: { email: string; redirectTo: string }) {
     return await APIService.signInWithMagicLink(email, AUTH_CALLBACK_URL);
   }
 
   @withSignIn()
-  async signInGoogle (_: { redirectTo: string }) {
+  async signInGoogle(_: { redirectTo: string }) {
     return APIService.signInGoogle(AUTH_CALLBACK_URL);
   }
 
   @withSignIn()
-  async signInApple (_: { redirectTo: string }) {
+  async signInApple(_: { redirectTo: string }) {
     return APIService.signInApple(AUTH_CALLBACK_URL);
   }
 
   @withSignIn()
-  async signInGithub (_: { redirectTo: string }) {
+  async signInGithub(_: { redirectTo: string }) {
     return APIService.signInGithub(AUTH_CALLBACK_URL);
   }
 
   @withSignIn()
-  async signInDiscord (_: { redirectTo: string }) {
+  async signInDiscord(_: { redirectTo: string }) {
     return APIService.signInDiscord(AUTH_CALLBACK_URL);
   }
 
-  async getWorkspaces () {
+  async getWorkspaces() {
     const data = APIService.getWorkspaces();
 
     return data;
   }
 
-  async getWorkspaceFolder (workspaceId: string) {
+  async getWorkspaceFolder(workspaceId: string) {
     const data = await APIService.getWorkspaceFolder(workspaceId);
 
     return data;
   }
 
-  async getCurrentUser () {
+  async getCurrentUser() {
     const token = getTokenParsed();
     const userId = token?.user?.id;
 
@@ -276,11 +276,11 @@ export class AFClientService implements AFService {
     return user;
   }
 
-  async openWorkspace (workspaceId: string) {
+  async openWorkspace(workspaceId: string) {
     return APIService.openWorkspace(workspaceId);
   }
 
-  async getUserWorkspaceInfo () {
+  async getUserWorkspaceInfo() {
     const workspaceInfo = await APIService.getUserWorkspaceInfo();
 
     if (!workspaceInfo) {
@@ -294,7 +294,7 @@ export class AFClientService implements AFService {
     };
   }
 
-  async duplicatePublishView (params: DuplicatePublishView) {
+  async duplicatePublishView(params: DuplicatePublishView) {
     return APIService.duplicatePublishView(params.workspaceId, {
       dest_view_id: params.spaceViewId,
       published_view_id: params.viewId,
@@ -302,90 +302,90 @@ export class AFClientService implements AFService {
     });
   }
 
-  createCommentOnPublishView (viewId: string, content: string, replyCommentId: string | undefined): Promise<void> {
+  createCommentOnPublishView(viewId: string, content: string, replyCommentId: string | undefined): Promise<void> {
     return APIService.createGlobalCommentOnPublishView(viewId, content, replyCommentId);
   }
 
-  deleteCommentOnPublishView (viewId: string, commentId: string): Promise<void> {
+  deleteCommentOnPublishView(viewId: string, commentId: string): Promise<void> {
     return APIService.deleteGlobalCommentOnPublishView(viewId, commentId);
   }
 
-  getPublishViewGlobalComments (viewId: string): Promise<GlobalComment[]> {
+  getPublishViewGlobalComments(viewId: string): Promise<GlobalComment[]> {
     return APIService.getPublishViewComments(viewId);
   }
 
-  getPublishViewReactions (viewId: string, commentId?: string): Promise<Record<string, Reaction[]>> {
+  getPublishViewReactions(viewId: string, commentId?: string): Promise<Record<string, Reaction[]>> {
     return APIService.getReactions(viewId, commentId);
   }
 
-  addPublishViewReaction (viewId: string, commentId: string, reactionType: string): Promise<void> {
+  addPublishViewReaction(viewId: string, commentId: string, reactionType: string): Promise<void> {
     return APIService.addReaction(viewId, commentId, reactionType);
   }
 
-  removePublishViewReaction (viewId: string, commentId: string, reactionType: string): Promise<void> {
+  removePublishViewReaction(viewId: string, commentId: string, reactionType: string): Promise<void> {
     return APIService.removeReaction(viewId, commentId, reactionType);
   }
 
-  async getTemplateCategories () {
+  async getTemplateCategories() {
     return APIService.getTemplateCategories();
   }
 
-  async getTemplateCreators () {
+  async getTemplateCreators() {
     return APIService.getTemplateCreators();
   }
 
-  async createTemplate (template: UploadTemplatePayload) {
+  async createTemplate(template: UploadTemplatePayload) {
     return APIService.createTemplate(template);
   }
 
-  async updateTemplate (id: string, template: UploadTemplatePayload) {
+  async updateTemplate(id: string, template: UploadTemplatePayload) {
     return APIService.updateTemplate(id, template);
   }
 
-  async getTemplateById (id: string) {
+  async getTemplateById(id: string) {
     return APIService.getTemplateById(id);
   }
 
-  async getTemplates (params: {
+  async getTemplates(params: {
     categoryId?: string;
     nameContains?: string;
   }) {
     return APIService.getTemplates(params);
   }
 
-  async deleteTemplate (id: string) {
+  async deleteTemplate(id: string) {
     return APIService.deleteTemplate(id);
   }
 
-  async addTemplateCategory (category: TemplateCategoryFormValues) {
+  async addTemplateCategory(category: TemplateCategoryFormValues) {
     return APIService.addTemplateCategory(category);
   }
 
-  async updateTemplateCategory (categoryId: string, category: TemplateCategoryFormValues) {
+  async updateTemplateCategory(categoryId: string, category: TemplateCategoryFormValues) {
     return APIService.updateTemplateCategory(categoryId, category);
   }
 
-  async deleteTemplateCategory (categoryId: string) {
+  async deleteTemplateCategory(categoryId: string) {
     return APIService.deleteTemplateCategory(categoryId);
   }
 
-  async updateTemplateCreator (creatorId: string, creator: TemplateCreatorFormValues) {
+  async updateTemplateCreator(creatorId: string, creator: TemplateCreatorFormValues) {
     return APIService.updateTemplateCreator(creatorId, creator);
   }
 
-  async createTemplateCreator (creator: TemplateCreatorFormValues) {
+  async createTemplateCreator(creator: TemplateCreatorFormValues) {
     return APIService.createTemplateCreator(creator);
   }
 
-  async deleteTemplateCreator (creatorId: string) {
+  async deleteTemplateCreator(creatorId: string) {
     return APIService.deleteTemplateCreator(creatorId);
   }
 
-  async uploadTemplateAvatar (file: File) {
+  async uploadTemplateAvatar(file: File) {
     return APIService.uploadTemplateAvatar(file);
   }
 
-  async getPageDoc (workspaceId: string, viewId: string, errorCallback?: (error: {
+  async getPageDoc(workspaceId: string, viewId: string, errorCallback?: (error: {
     code: number;
   }) => void) {
 
@@ -428,39 +428,39 @@ export class AFClientService implements AFService {
     return doc;
   }
 
-  async getInvitation (invitationId: string) {
+  async getInvitation(invitationId: string) {
     return APIService.getInvitation(invitationId);
   }
 
-  async acceptInvitation (invitationId: string) {
+  async acceptInvitation(invitationId: string) {
     return APIService.acceptInvitation(invitationId);
   }
 
-  approveRequestAccess (requestId: string): Promise<void> {
+  approveRequestAccess(requestId: string): Promise<void> {
     return APIService.approveRequestAccess(requestId);
   }
 
-  getRequestAccessInfo (requestId: string) {
+  getRequestAccessInfo(requestId: string) {
     return APIService.getRequestAccessInfo(requestId);
   }
 
-  sendRequestAccess (workspaceId: string, viewId: string): Promise<void> {
+  sendRequestAccess(workspaceId: string, viewId: string): Promise<void> {
     return APIService.sendRequestAccess(workspaceId, viewId);
   }
 
-  getSubscriptionLink (workspaceId: string, plan: SubscriptionPlan, interval: SubscriptionInterval) {
+  getSubscriptionLink(workspaceId: string, plan: SubscriptionPlan, interval: SubscriptionInterval) {
     return APIService.getSubscriptionLink(workspaceId, plan, interval);
   }
 
-  getSubscriptions () {
+  getSubscriptions() {
     return APIService.getSubscriptions();
   }
 
-  getActiveSubscription (workspaceId: string) {
+  getActiveSubscription(workspaceId: string) {
     return APIService.getActiveSubscription(workspaceId);
   }
 
-  registerDocUpdate (doc: Y.Doc, context: {
+  registerDocUpdate(doc: Y.Doc, context: {
     workspaceId: string, objectId: string, collabType: Types
   }) {
     const token = getTokenParsed();
@@ -475,45 +475,45 @@ export class AFClientService implements AFService {
     sync.initialize();
   }
 
-  async importFile (file: File, onProgress: (progress: number) => void) {
+  async importFile(file: File, onProgress: (progress: number) => void) {
     const task = await APIService.createImportTask(file);
 
     await APIService.uploadImportFile(task.presignedUrl, file, onProgress);
   }
 
-  async createSpace (workspaceId: string, payload: CreateSpacePayload) {
+  async createSpace(workspaceId: string, payload: CreateSpacePayload) {
     return APIService.createSpace(workspaceId, payload);
   }
 
-  async updateSpace (workspaceId: string, payload: UpdateSpacePayload) {
+  async updateSpace(workspaceId: string, payload: UpdateSpacePayload) {
     return APIService.updateSpace(workspaceId, payload);
   }
 
-  async addAppPage (workspaceId: string, parentViewId: string, payload: CreatePagePayload) {
+  async addAppPage(workspaceId: string, parentViewId: string, payload: CreatePagePayload) {
     return APIService.addAppPage(workspaceId, parentViewId, payload);
   }
 
-  async updateAppPage (workspaceId: string, viewId: string, data: UpdatePagePayload) {
+  async updateAppPage(workspaceId: string, viewId: string, data: UpdatePagePayload) {
     return APIService.updatePage(workspaceId, viewId, data);
   }
 
-  async deleteTrash (workspaceId: string, viewId?: string) {
+  async deleteTrash(workspaceId: string, viewId?: string) {
     return APIService.deleteTrash(workspaceId, viewId);
   }
 
-  async moveToTrash (workspaceId: string, viewId: string) {
+  async moveToTrash(workspaceId: string, viewId: string) {
     return APIService.moveToTrash(workspaceId, viewId);
   }
 
-  async restoreFromTrash (workspaceId: string, viewId?: string) {
+  async restoreFromTrash(workspaceId: string, viewId?: string) {
     return APIService.restorePage(workspaceId, viewId);
   }
 
-  async movePage (workspaceId: string, viewId: string, parentId: string) {
-    return APIService.movePageTo(workspaceId, viewId, parentId);
+  async movePage(workspaceId: string, viewId: string, parentId: string, prevViewId?: string) {
+    return APIService.movePageTo(workspaceId, viewId, parentId, prevViewId);
   }
 
-  async uploadFile (workspaceId: string, viewId: string, file: File, onProgress?: (progress: number) => void) {
+  async uploadFile(workspaceId: string, viewId: string, file: File, onProgress?: (progress: number) => void) {
     return APIService.uploadFile(workspaceId, viewId, file, onProgress);
   }
 

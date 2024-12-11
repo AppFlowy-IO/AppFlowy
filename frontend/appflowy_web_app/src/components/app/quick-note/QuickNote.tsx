@@ -40,9 +40,9 @@ export function QuickNote() {
 
   const handleClose = () => {
     setOpen(false);
-    dragStartPos.current = { x: 0, y: 0 };
-    setPosition(undefined);
-    setExpand(false);
+    // dragStartPos.current = { x: 0, y: 0 };
+    // setPosition(undefined);
+    // setExpand(false);
   };
 
   const resetPosition = useCallback(() => {
@@ -67,10 +67,11 @@ export function QuickNote() {
   }, [expand]);
 
   useEffect(() => {
-    if (open) {
-      resetPosition();
-    }
-  }, [open, resetPosition]);
+    resetPosition();
+    // if (open) {
+    //   resetPosition();
+    // }
+  }, [resetPosition]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -142,6 +143,10 @@ export function QuickNote() {
 
     return <NoteListHeader
       onClose={handleClose}
+      expand={expand}
+      onToggleExpand={() => {
+        setExpand(prev => !prev);
+      }}
       onEnterNote={() => {
         setRoute(QuickNoteRoute.NOTE);
       }}/>;
@@ -158,7 +163,6 @@ export function QuickNote() {
         <IconButton
           size={'small'}
           onClick={() => {
-            setRoute(QuickNoteRoute.NOTE);
             setOpen(true);
           }}
         >

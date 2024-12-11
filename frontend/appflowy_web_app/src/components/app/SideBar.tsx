@@ -45,7 +45,7 @@ function SideBar({
         >
           <div style={{
             borderColor: scrollTop > 10 ? 'var(--line-divider)' : undefined,
-          }} className={'flex border-b pb-1 w-full border-transparent'}>
+          }} className={'flex border-b pb-2 w-full border-transparent'}>
             <NewPage/>
           </div>
 

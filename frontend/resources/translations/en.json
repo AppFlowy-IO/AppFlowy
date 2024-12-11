@@ -2933,7 +2933,9 @@
     "addEmail": "Enter emails, separated by `,`",
     "requestInvites": "Request invites",
     "inviteAlready": "You've already invited this email: {email}",
-    "inviteSuccess": "Invitation sent successfully"
+    "inviteSuccess": "Invitation sent successfully",
+    "description": "Input emails below with commas between them. Charges are based on member count.",
+    "emails": "Emails"
   },
   "quickNote": {
     "label": "Quick note",

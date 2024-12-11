@@ -7,10 +7,10 @@ import { notify } from '@/components/_shared/notify';
 import { useCurrentUser, useService } from '@/components/main/app.hooks';
 import { Workspace, WorkspaceMember } from '@/application/types';
 
-function InviteMember({workspace}: {
+function InviteMember({ workspace }: {
   workspace: Workspace;
 }) {
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState('');
   const [loading, setLoading] = React.useState(false);
@@ -38,7 +38,7 @@ function InviteMember({workspace}: {
       const hadInvited = emails.filter(e => memberListRef.current.find(m => m.email === e));
 
       if (hadInvited.length > 0) {
-        notify.warning(t('inviteMember.inviteAlready', {email: hadInvited[0]}));
+        notify.warning(t('inviteMember.inviteAlready', { email: hadInvited[0] }));
         return;
       }
 
@@ -52,7 +52,7 @@ function InviteMember({workspace}: {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     if (!open) {
@@ -74,7 +74,7 @@ function InviteMember({workspace}: {
         onClick={() => {
           setOpen(true);
         }}
-        startIcon={<AddUserIcon />}
+        startIcon={<AddUserIcon/>}
       >{t('settings.appearance.members.inviteMembers')}
       </Button>
       <NormalModal
@@ -82,10 +82,10 @@ function InviteMember({workspace}: {
         open={open}
         okLoading={loading}
         okButtonProps={{
-          disabled: !value || loading
+          disabled: !value || loading,
         }}
         cancelButtonProps={{
-          className: 'hidden'
+          className: 'hidden',
         }}
         onClose={() => setOpen(false)}
         title={<div className={'flex items-center font-medium w-[320px]'}>
@@ -93,7 +93,12 @@ function InviteMember({workspace}: {
         </div>}
         okText={t('inviteMember.requestInvites')}
         onOk={handleOk}>
-        <OutlinedInput fullWidth={true} size={'small'} value={value} onChange={e => setValue(e.target.value)} placeholder={t('inviteMember.addEmail')} />
+        <div className={'text-text-caption mb-8'}>{t('inviteMember.description')}</div>
+        <div className={'text-text-caption text-xs mb-1'}>{t('inviteMember.emails')}</div>
+        <OutlinedInput
+          fullWidth={true} size={'small'} value={value} onChange={e => setValue(e.target.value)}
+          placeholder={t('inviteMember.addEmail')}
+        />
       </NormalModal>
     </>
   );

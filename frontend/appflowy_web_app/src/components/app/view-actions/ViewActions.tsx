@@ -1,4 +1,4 @@
-import { View } from '@/application/types';
+import { View, ViewLayout } from '@/application/types';
 import { Popover } from '@/components/_shared/popover';
 import AddPageActions from '@/components/app/view-actions/AddPageActions';
 import MorePageActions from '@/components/app/view-actions/MorePageActions';
@@ -7,6 +7,8 @@ import PageActions from '@/components/app/view-actions/PageActions';
 import SpaceActions from '@/components/app/view-actions/SpaceActions';
 import { PopoverProps } from '@mui/material/Popover';
 import React, { useCallback, useMemo } from 'react';
+import { useAppHandlers } from '@/components/app/app.hooks';
+import { notify } from '@/components/_shared/notify';
 
 const popoverProps: Partial<PopoverProps> = {
   transformOrigin: {
@@ -19,7 +21,7 @@ const popoverProps: Partial<PopoverProps> = {
   },
 };
 
-export function ViewActions ({ view, hovered }: {
+export function ViewActions({ view, hovered }: {
   view: View;
   hovered?: boolean;
 }) {
@@ -37,6 +39,23 @@ export function ViewActions ({ view, hovered }: {
     setAnchorPosition(undefined);
   };
 
+  const {
+    addPage,
+    openPageModal,
+  } = useAppHandlers();
+  const handleAddPage = useCallback(async (layout: ViewLayout, name?: string) => {
+    if (!addPage || !openPageModal) return;
+    try {
+      const viewId = await addPage(view.view_id, { layout, name });
+
+      openPageModal(viewId);
+      // eslint-disable-next-line
+    } catch (e: any) {
+      notify.error(e.message);
+    }
+
+  }, [addPage, openPageModal, view.view_id]);
+
   const handleClick = useCallback((e: React.MouseEvent, popoverType: {
     category: 'space' | 'page';
     type: 'more' | 'add';
@@ -50,8 +69,9 @@ export function ViewActions ({ view, hovered }: {
   const renderButton = useMemo(() => {
     if (!hovered || !view) return null;
     if (isSpace) return <SpaceActions
-      onClickAdd={(e) => {
-        handleClick(e, { category: 'space', type: 'add' });
+      onClickAdd={async () => {
+        // handleClick(e, { category: 'space', type: 'add' });
+        await handleAddPage(ViewLayout.Document);
       }}
       onClickMore={(e) => {
         handleClick(e, { category: 'space', type: 'more' });
@@ -59,15 +79,16 @@ export function ViewActions ({ view, hovered }: {
       view={view}
     />;
     return <PageActions
-      onClickAdd={(e) => {
-        handleClick(e, { category: 'page', type: 'add' });
+      onClickAdd={async () => {
+        // handleClick(e, { category: 'page', type: 'add' });
+        await handleAddPage(ViewLayout.Document);
       }}
       onClickMore={(e) => {
         handleClick(e, { category: 'page', type: 'more' });
       }}
       view={view}
     />;
-  }, [handleClick, hovered, isSpace, view]);
+  }, [handleClick, hovered, isSpace, view, handleAddPage]);
 
   const popoverContent = useMemo(() => {
     if (!popoverType) return null;

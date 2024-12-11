@@ -89,7 +89,7 @@ export interface AppService {
   deleteTrash: (workspaceId: string, viewId?: string) => Promise<void>;
   moveToTrash: (workspaceId: string, viewId: string) => Promise<void>;
   restoreFromTrash: (workspaceId: string, viewId?: string) => Promise<void>;
-  movePage: (workspaceId: string, viewId: string, parentId: string) => Promise<void>;
+  movePage: (workspaceId: string, viewId: string, parentId: string, prevViewId?: string) => Promise<void>;
   uploadFile: (workspaceId: string, viewId: string, file: File, onProgress?: (progress: number) => void) => Promise<string>;
 }
 
@@ -119,7 +119,7 @@ export interface PublishService {
   getPublishRowDocument: (viewId: string) => Promise<YDoc>;
   getPublishInfo: (viewId: string) => Promise<{ namespace: string; publishName: string }>;
 
-  getPublishOutline (namespace: string): Promise<View[]>;
+  getPublishOutline(namespace: string): Promise<View[]>;
 
   getPublishViewGlobalComments: (viewId: string) => Promise<GlobalComment[]>;
   createCommentOnPublishView: (viewId: string, content: string, replyCommentId?: string) => Promise<void>;

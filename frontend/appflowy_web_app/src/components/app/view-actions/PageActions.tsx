@@ -1,20 +1,21 @@
 import { View, ViewLayout } from '@/application/types';
 import { ReactComponent as AddIcon } from '@/assets/add.svg';
 import { ReactComponent as MoreIcon } from '@/assets/more.svg';
-import { IconButton, Tooltip } from '@mui/material';
+import { CircularProgress, IconButton, Tooltip } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-function PageActions ({
+function PageActions({
   onClickMore,
   onClickAdd,
   view,
 }: {
   view: View;
-  onClickAdd: (e: React.MouseEvent<HTMLElement>) => void;
+  onClickAdd: (e: React.MouseEvent<HTMLElement>) => Promise<void>;
   onClickMore: (e: React.MouseEvent<HTMLElement>) => void;
 }) {
   const { t } = useTranslation();
+  const [loading, setLoading] = React.useState<boolean>(false);
 
   return (
     <div
@@ -32,22 +33,27 @@ function PageActions ({
           }}
           size={'small'}
         >
-          <MoreIcon />
+          <MoreIcon/>
         </IconButton>
       </Tooltip>
       {view.layout === ViewLayout.Document && <Tooltip
         disableInteractive={true}
         title={t('menuAppHeader.addPageTooltip')}
       >
-        <IconButton
-          onClick={e => {
+        {loading ? <CircularProgress size={16}/> : <IconButton
+          onClick={async (e) => {
             e.stopPropagation();
-            onClickAdd(e);
+            setLoading(true);
+            try {
+              await onClickAdd(e);
+            } finally {
+              setLoading(false);
+            }
           }}
           size={'small'}
         >
-          <AddIcon />
-        </IconButton>
+          <AddIcon/>
+        </IconButton>}
       </Tooltip>}
 
     </div>
