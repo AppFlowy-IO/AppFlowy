@@ -314,7 +314,7 @@ export async function updateCollab(workspaceId: string, objectId: string, collab
 }) {
   const url = `/api/workspace/v1/${workspaceId}/collab/${objectId}/web-update`;
   let deviceId = localStorage.getItem('x-device-id');
-  
+
   if (!deviceId) {
     deviceId = nanoid(8);
     localStorage.setItem('x-device-id', deviceId);
@@ -1388,9 +1388,6 @@ export async function updateSpace(workspaceId: string, payload: UpdateSpacePaylo
 
 export async function uploadFile(workspaceId: string, viewId: string, file: File, onProgress?: (progress: number) => void) {
   const url = `/api/file_storage/${workspaceId}/v1/blob/${viewId}`;
-  const formData = new FormData();
-
-  formData.append('file', file);
 
   const response = await axiosInstance?.put<{
     code: number;
@@ -1405,7 +1402,7 @@ export async function uploadFile(workspaceId: string, viewId: string, file: File
       onProgress?.(progress);
     },
     headers: {
-      'Content-Type': file.type,
+      'Content-Type': file.type || 'application/octet-stream',
     },
   });
 
