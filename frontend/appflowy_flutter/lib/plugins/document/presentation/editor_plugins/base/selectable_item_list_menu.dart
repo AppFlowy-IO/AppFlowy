@@ -1,7 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class SelectableItemListMenu extends StatelessWidget {
   const SelectableItemListMenu({
@@ -10,11 +12,13 @@ class SelectableItemListMenu extends StatelessWidget {
     required this.selectedIndex,
     required this.onSelected,
     this.shrinkWrap = false,
+    this.controller,
   });
 
   final List<String> items;
   final int selectedIndex;
   final void Function(int) onSelected;
+  final ItemScrollController? controller;
 
   /// shrinkWrapping is useful in cases where you have a list of
   /// limited amount of items. It will make the list take the minimum
@@ -24,9 +28,11 @@ class SelectableItemListMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
+    return ScrollablePositionedList.builder(
       shrinkWrap: shrinkWrap,
       itemCount: items.length,
+      itemScrollController: controller,
+      initialScrollIndex: max(0, selectedIndex),
       itemBuilder: (context, index) => SelectableItem(
         isSelected: index == selectedIndex,
         item: items[index],
@@ -57,7 +63,7 @@ class SelectableItem extends StatelessWidget {
           item,
           lineHeight: 1.0,
         ),
-        rightIcon: isSelected ? const FlowySvg(FlowySvgs.check_s) : null,
+        isSelected: isSelected,
         onTap: onTap,
       ),
     );
