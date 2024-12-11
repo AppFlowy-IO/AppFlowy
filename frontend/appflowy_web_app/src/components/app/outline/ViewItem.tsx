@@ -84,12 +84,12 @@ function ViewItem({ view, width, level = 0, renderExtra, expandIds, toggleExpand
             e.stopPropagation();
             setIconPopoverAnchorEl(e.currentTarget);
           }}
-          className={`${icon && isFlagEmoji(icon.value) ? 'icon' : ''}`}
+          className={`${icon && isFlagEmoji(icon.value) ? 'icon' : ''} text-[18px] mr-1 `}
         >
           {icon?.value || <ViewIcon
             layout={layout}
-            size={'medium'}
-            className={'mr-1 opacity-60'}
+            size={18}
+            className={'opacity-60'}
           />}
         </div>
         <Tooltip
