@@ -3,6 +3,7 @@ import { FieldId } from '@/application/types';
 import { FieldVisibility } from '@/application/database-yjs/database.type';
 import { useFieldsSelector } from '@/application/database-yjs/selector';
 import { useCallback, useMemo } from 'react';
+import { getPlatform } from '@/utils/platform';
 
 export enum GridColumnType {
   Action,
@@ -18,12 +19,13 @@ export type RenderColumn = {
   wrap?: boolean;
 };
 
-export function useRenderFields () {
+export function useRenderFields() {
   const fields = useFieldsSelector();
   const context = useDatabaseContext();
   const isDocumentBlock = context.isDocumentBlock;
   const viewId = context.viewId;
   const scrollLeft = context.scrollLeft;
+  const isMobile = getPlatform().isMobile;
   const renderColumns = useMemo(() => {
     const data = fields.map((column) => ({
       ...column,
@@ -33,7 +35,7 @@ export function useRenderFields () {
     return [
       {
         type: GridColumnType.Action,
-        width: scrollLeft === undefined ? 96 : scrollLeft,
+        width: isMobile ? 16 : (scrollLeft === undefined ? 96 : scrollLeft),
       },
       ...data,
       {
@@ -45,7 +47,7 @@ export function useRenderFields () {
       //   width: 64,
       // },
     ].filter(Boolean) as RenderColumn[];
-  }, [fields, scrollLeft]);
+  }, [isMobile, fields, scrollLeft]);
 
   const columnWidth = useCallback(
     (index: number, containerWidth: number) => {

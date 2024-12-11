@@ -45,11 +45,11 @@ function SideBar({
           style={{
             borderColor: scrollTop > 10 ? 'var(--line-divider)' : undefined,
           }}
-          className={'flex border-b border-transparent bg-bg-base z-[1] pb-4 flex-col gap-1 justify-around items-center sticky top-12'}
+          className={'flex border-b border-transparent bg-bg-base z-[1] flex-col pb-1 gap-1 justify-around items-center sticky top-12'}
         >
-          <Favorite/>
           <NewPage/>
         </div>
+
         <Outline
           width={drawerWidth}
         />
