@@ -3,7 +3,7 @@ import { getScrollParent } from '@/components/global-comment/utils';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { ReactEditor, useReadOnly, useSlateStatic } from 'slate-react';
 
-function TableContainer ({ blockId, readSummary, children, paddingLeft = 0 }: {
+function TableContainer({ blockId, readSummary, children, paddingLeft = 0 }: {
   blockId: string;
   readSummary?: boolean;
   children?: React.ReactNode;
@@ -13,10 +13,15 @@ function TableContainer ({ blockId, readSummary, children, paddingLeft = 0 }: {
   const editor = useSlateStatic();
   const [showControl, setShowControl] = React.useState(false);
   const controlRef = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = React.useState<number | undefined>(undefined);
+  const [width, setWidth] = React.useState<number | string | undefined>(undefined);
   const offsetLeftRef = useRef(paddingLeft);
   const calcTableWidth = useCallback((editorDom: HTMLElement, scrollContainer: HTMLElement) => {
     const scrollRect = scrollContainer.getBoundingClientRect();
+
+    if (scrollRect.width < 768) {
+      setWidth('100%');
+      return;
+    }
 
     setWidth(scrollRect.width - 196 + paddingLeft);
     const offsetLeft = editorDom.getBoundingClientRect().left - scrollRect.left;

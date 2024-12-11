@@ -102,15 +102,19 @@ export function Favorite() {
     });
   }, [groupByViewsWithDay, navigateToView, t]);
 
+  if (!favoriteViews || favoriteViews.length === 0) {
+    return null;
+  }
+
   return (
-    <div className={'flex w-full flex-col px-[10px]'}>
+    <div className={'flex w-full flex-col mb-3'}>
       <div
         onClick={handleToggleExpand}
         className={'flex h-fit my-0.5 w-full flex-col gap-2 cursor-pointer'}
       >
         <div
           className={
-            'flex items-center w-full gap-2 rounded-[8px] py-1.5 px-0.5 text-sm hover:bg-content-blue-50 focus:bg-content-blue-50 focus:outline-none'
+            'flex items-center w-full gap-2 rounded-[8px] px-0.5 text-sm hover:bg-content-blue-50 focus:bg-content-blue-50 focus:outline-none'
           }
         >
           <FavoritedIcon className={'h-5 w-5 mr-1'}/>

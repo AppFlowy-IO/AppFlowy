@@ -4,6 +4,7 @@ import DirectoryStructure from '@/components/_shared/skeleton/DirectoryStructure
 import { useAppHandlers, useAppOutline } from '@/components/app/app.hooks';
 import SpaceItem from '@/components/app/outline/SpaceItem';
 import React, { useCallback, Suspense } from 'react';
+import { Favorite } from '@/components/app/favorite';
 
 const ViewActions = React.lazy(() => import('@/components/app/view-actions/ViewActions'));
 
@@ -38,6 +39,7 @@ export function Outline({
 
   return (
     <div className={'flex folder-views w-full flex-1 flex-col py-[10px] px-[10px]'}>
+      <Favorite/>
       {!outline || outline.length === 0 ? <div
           style={{
             width: width - 20,
