@@ -60,7 +60,7 @@ function NewPage() {
   }, [addPage, openPageModal, onClose]);
 
   return (
-    <div className={'w-full px-[10px]'}>
+    <>
       <Button
         onClick={() => setOpen(true)}
         startIcon={<Add className={'w-5 h-5 mr-[1px]'}/>}
@@ -106,7 +106,7 @@ function NewPage() {
           void handleAddPage(spaceId);
         }}
       />
-    </div>
+    </>
   );
 }
 
