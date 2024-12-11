@@ -6,37 +6,43 @@ import { useNavigate } from 'react-router-dom';
 import { ReactComponent as TrashIcon } from '@/assets/trash.svg';
 import { QuickNote } from '@/components/app/quick-note';
 
-function SideBarBottom () {
+function SideBarBottom() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
     <div
-      className={'flex border-t border-line-divider py-4 px-4 gap-1 justify-around items-center sticky bottom-0 bg-bg-base'}
+      className={'px-4 sticky bottom-0 bg-bg-base'}
     >
-      <Tooltip title={t('template.label')}>
-        <IconButton
-          size={'small'}
-          onClick={() => {
-            window.open('https://appflowy.io/templates', '_blank');
-          }}
-        >
-          <TemplateIcon />
-        </IconButton>
-      </Tooltip>
+      <div
+        className={'flex py-4  border-t border-line-divider gap-1 justify-around items-center'}
 
-      <Tooltip title={t('trash.text')}>
-        <IconButton
-          size={'small'}
-          onClick={() => {
-            navigate('/app/trash');
-          }}
-        >
-          <TrashIcon />
-        </IconButton>
-      </Tooltip>
+      >
+        <Tooltip title={t('template.label')}>
+          <IconButton
+            size={'small'}
+            onClick={() => {
+              window.open('https://appflowy.io/templates', '_blank');
+            }}
+          >
+            <TemplateIcon/>
+          </IconButton>
+        </Tooltip>
 
-      <QuickNote />
+        <Tooltip title={t('trash.text')}>
+          <IconButton
+            size={'small'}
+            onClick={() => {
+              navigate('/app/trash');
+            }}
+          >
+            <TrashIcon/>
+          </IconButton>
+        </Tooltip>
+
+        <QuickNote/>
+      </div>
+
     </div>
   );
 }
