@@ -596,27 +596,32 @@ SelectionMenuItem tableSlashMenuItem = SelectionMenuItem(
       return;
     }
 
-    final tableNode = TableNode.fromList([
-      ['', ''],
-      ['', ''],
-    ]);
+    // create a simple table with 2 columns and 2 rows
+    final tableNode = createSimpleTableBlockNode(
+      columnCount: 2,
+      rowCount: 2,
+    );
 
     final transaction = editorState.transaction;
     final delta = currentNode.delta;
     if (delta != null && delta.isEmpty) {
+      final path = selection.end.path;
       transaction
-        ..insertNode(selection.end.path, tableNode.node)
+        ..insertNode(path, tableNode)
         ..deleteNode(currentNode);
       transaction.afterSelection = Selection.collapsed(
         Position(
-          path: selection.end.path + [0, 0],
+          // table -> row -> cell -> paragraph
+          path: path + [0, 0, 0],
         ),
       );
     } else {
-      transaction.insertNode(selection.end.path.next, tableNode.node);
+      final path = selection.end.path.next;
+      transaction.insertNode(path, tableNode);
       transaction.afterSelection = Selection.collapsed(
         Position(
-          path: selection.end.path.next + [0, 0],
+          // table -> row -> cell -> paragraph
+          path: path + [0, 0, 0],
         ),
       );
     }

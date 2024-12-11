@@ -12,7 +12,8 @@ use crate::entities::{
   FieldType, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB, RowMetaPB,
 };
 use crate::services::cell::insert_date_cell;
-use crate::services::field::{DateCellDataParser, TypeOption};
+use crate::services::field::date_filter::DateCellDataParser;
+use crate::services::field::TypeOption;
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::configuration::GroupControllerContext;
 use crate::services::group::controller::BaseGroupController;
@@ -219,7 +220,7 @@ impl GroupCustomize for DateGroupController {
   fn will_create_row(&self, cells: &mut Cells, field: &Field, group_id: &str) {
     match self.context.get_group(group_id) {
       None => tracing::warn!("Can not find the group: {}", group_id),
-      Some((_, _)) => {
+      _ => {
         let date = DateTime::parse_from_str(group_id, GROUP_ID_DATE_FORMAT).unwrap();
         let cell = insert_date_cell(date.timestamp(), None, Some(false), field);
         cells.insert(field.id.clone(), cell);

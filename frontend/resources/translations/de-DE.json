@@ -130,7 +130,9 @@
     "copyShareLink": "Link zum Teilen kopieren",
     "copyLinkFailed": "Link konnte nicht in die Zwischenablage kopiert werden",
     "copyLinkToBlockSuccess": "Blocklink in die Zwischenablage kopiert",
-    "copyLinkToBlockFailed": "Blocklink konnte nicht in die Zwischenablage kopiert werden"
+    "copyLinkToBlockFailed": "Blocklink konnte nicht in die Zwischenablage kopiert werden",
+    "manageAllSites": "Alle Seiten verwalten",
+    "updatePathName": "Pfadnamen aktualisieren"
   },
   "moreAction": {
     "small": "klein",
@@ -180,12 +182,15 @@
     "relatedQuestion": "Verwandt",
     "serverUnavailable": "Dienst vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
     "aiServerUnavailable": "Beim Generieren einer Antwort ist ein Fehler aufgetreten.",
+    "retry": "Wiederholen",
     "clickToRetry": "Erneut versuchen",
     "regenerateAnswer": "Regenerieren",
     "question1": "Wie verwendet man Kanban zur Aufgabenverwaltung?",
     "question2": "Erkläre mir die GTD-Methode",
     "question3": "Warum sollte ich Rust verwenden?",
     "question4": "Gebe mir ein Rezept mit dem, was in meiner Küche ist",
+    "question5": "Eine Illustration für meine Seite erstellen",
+    "question6": "Erstelle eine To-Do-Liste für meine kommende Woche",
     "aiMistakePrompt": "KI kann Fehler machen. Überprüfe wichtige Informationen.",
     "chatWithFilePrompt": "Möchtest du mit der Datei chatten?",
     "indexFileSuccess": "Datei erfolgreich indiziert",
@@ -198,7 +203,8 @@
     "clickToMention": "Klicke hier, um eine Seite zu erwähnen",
     "uploadFile": "Lade PDF-, md- oder txt-Dateien in den Chat hoch",
     "questionDetail": "Hallo {}! Wie kann ich dir heute helfen?",
-    "indexingFile": "Indizierung {}"
+    "indexingFile": "Indizierung {}",
+    "generatingResponse": "Antwort generieren"
   },
   "trash": {
     "text": "Papierkorb",
@@ -335,6 +341,7 @@
     "askOwnerToUpgradeToAIMax": "In deinem Arbeitsbereich sind die kostenlosen KI-Antworten aufgebraucht. Bitte den Eigentümer deines Arbeitsbereichs, den Plan zu wechseln oder KI-Add-ons zu erwerben.",
     "askOwnerToUpgradeToAIMaxIOS": "In Ihrem Arbeitsbereich gehen die kostenlosen KI-Antworten aus.",
     "purchaseStorageSpace": "Speicherplatz kaufen",
+    "singleFileProPlanLimitationDescription": "Sie haben die maximal zulässige Datei-Uploadgröße im kostenlosen Plan überschritten. Bitte aktualisieren Sie auf den Pro-Plan, um größere Dateien hochzuladen",
     "purchaseAIResponse": "Kaufen ",
     "askOwnerToUpgradeToLocalAI": "Bitte den Arbeitsbereichsbesitzer, KI auf dem Gerät zu aktivieren.",
     "upgradeToAILocal": "KI offline auf Ihrem Gerät",
@@ -375,6 +382,7 @@
     "upload": "Hochladen",
     "edit": "Bearbeiten",
     "delete": "Löschen",
+    "copy": "kopieren",
     "duplicate": "Duplikat",
     "putback": "wieder zurückgeben",
     "update": "Update",
@@ -410,6 +418,7 @@
     "submit": "Einreichen",
     "download": "Herunterladen",
     "backToHome": "Zurück zur Startseite",
+    "viewing": "anschauen",
     "editing": "Bearbeiten",
     "gotIt": "Verstanden"
   },
@@ -440,6 +449,68 @@
       "members": "Mitglieder",
       "trash": "Müll",
       "helpAndSupport": "Hilfe & Unterstützung"
+    },
+    "sites": {
+      "title": "Seiten",
+      "namespaceTitle": "Namensraum",
+      "namespaceDescription": "Verwalten Sie Ihren Namespace und Ihre Startseite",
+      "namespaceHeader": "Namensraum",
+      "homepageHeader": "Startseite",
+      "updateNamespace": "Namespace aktualisieren",
+      "removeHomepage": "Startseite entfernen",
+      "selectHomePage": "Seite auswählen",
+      "clearHomePage": "Löschen Sie die Startseite für diesen Namensraum",
+      "customUrl": "Benutzerdefinierte URL",
+      "namespace": {
+        "description": "Diese Änderung gilt für alle veröffentlichten Seiten in diesem Namespace.",
+        "tooltip": "Wir behalten uns das Recht vor, unangemessene Namespaces zu entfernen",
+        "updateExistingNamespace": "Vorhandenen Namensraum aktualisieren",
+        "upgradeToPro": "Aktualisieren Sie auf den Pro-Plan, um eine Startseite einzurichten",
+        "redirectToPayment": "Weiterleitung zur Zahlungsseite ...",
+        "onlyWorkspaceOwnerCanSetHomePage": "Nur der Arbeitsbereichsbesitzer kann eine Startseite festlegen",
+        "pleaseAskOwnerToSetHomePage": "Bitten Sie den Arbeitsbereichsbesitzer, auf den Pro-Plan zu aktualisieren"
+      },
+      "publishedPage": {
+        "title": "Alle veröffentlichten Seiten",
+        "description": "Verwalten Sie Ihre veröffentlichten Seiten",
+        "page": "Seite",
+        "pathName": "Pfadname",
+        "date": "Veröffentlichungsdatum",
+        "emptyHinText": "Sie haben keine veröffentlichten Seiten in diesem Arbeitsbereich",
+        "noPublishedPages": "Keine veröffentlichten Seiten",
+        "settings": "Veröffentlichungseinstellungen",
+        "clickToOpenPageInApp": "Seite in App öffnen",
+        "clickToOpenPageInBrowser": "Seite im Browser öffnen"
+      },
+      "error": {
+        "failedToGeneratePaymentLink": "Zahlungslink für Pro Plan konnte nicht generiert werden",
+        "failedToUpdateNamespace": "Namensraum konnte nicht aktualisiert werden",
+        "proPlanLimitation": "Sie müssen auf den Pro-Plan upgraden, um den Namespace zu aktualisieren",
+        "namespaceAlreadyInUse": "Der Namespace ist bereits vergeben, bitte versuchen Sie es mit einem anderen",
+        "invalidNamespace": "Ungültiger Namensraum, bitte versuchen Sie einen anderen",
+        "namespaceLengthAtLeast2Characters": "Der Namensraum muss mindestens 2 Zeichen lang sein",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "Nur der Arbeitsbereichsbesitzer kann den Namespace aktualisieren",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "Nur der Arbeitsbereichsbesitzer kann die Homepage entfernen",
+        "setHomepageFailed": "Startseite konnte nicht eingerichtet werden",
+        "namespaceTooLong": "Der Namensraum ist zu lang. Bitte versuchen Sie es mit einem anderen.",
+        "namespaceTooShort": "Der Namensraum ist zu kurz, bitte versuchen Sie es mit einem anderen",
+        "namespaceIsReserved": "Der Namensraum ist reserviert, bitte versuchen Sie es mit einem anderen",
+        "updatePathNameFailed": "Pfadname konnte nicht aktualisiert werden",
+        "removeHomePageFailed": "Startseite konnte nicht entfernt werden",
+        "publishNameContainsInvalidCharacters": "Der Pfadname enthält ungültige Zeichen. Bitte versuchen Sie es mit einem anderen.",
+        "publishNameTooShort": "Der Pfadname ist zu kurz, bitte versuchen Sie es mit einem anderen",
+        "publishNameTooLong": "Der Pfadname ist zu lang, bitte versuchen Sie es mit einem anderen",
+        "publishNameAlreadyInUse": "Der Pfadname wird bereits verwendet. Bitte versuchen Sie einen anderen.",
+        "namespaceContainsInvalidCharacters": "Der Namespace enthält ungültige Zeichen. Bitte versuchen Sie es mit einem anderen.",
+        "publishPermissionDenied": "Nur der Arbeitsbereichsbesitzer oder Seitenherausgeber kann die Veröffentlichungseinstellungen verwalten",
+        "publishNameCannotBeEmpty": "Der Pfadname darf nicht leer sein. Bitte versuchen Sie es mit einem anderen."
+      },
+      "success": {
+        "namespaceUpdated": "Namensraum erfolgreich aktualisiert",
+        "setHomepageSuccess": "Startseite erfolgreich eingerichtet",
+        "updatePathNameSuccess": "Pfadname erfolgreich aktualisiert",
+        "removeHomePageSuccess": "Startseite erfolgreich entfernt"
+      }
     },
     "accountPage": {
       "menuLabel": "Mein Konto",
@@ -905,9 +976,11 @@
         "itemFive": "Speicher",
         "itemSix": "Zusammenarbeit in Echtzeit",
         "itemFileUpload": "Datei-Uploads",
+        "customNamespace": "Benutzerdefinierter Namensraum",
         "tooltipSix": "Lebenslang bedeutet, dass die Anzahl der Antworten nie zurückgesetzt wird",
         "intelligentSearch": "Intelligente Suche",
         "tooltipSeven": "Ermöglicht dir, einen Teil der URL für deinen Arbeitsbereich anzupassen",
+        "customNamespaceTooltip": "Benutzerdefinierte veröffentlichte Seiten-URL",
         "itemSeven": "Mobile App",
         "tooltipThree": "Gäste haben nur Leserechte für die speziell freigegebenen Inhalte",
         "tooltipFour": "Gäste werden als ein Sitzplatz abgerechnet",
@@ -1017,6 +1090,7 @@
       "selfHostContent": "Dokument",
       "selfHostEnd": "um einen einen eigenen Server aufzusetzen",
       "pleaseInputValidURL": "Bitte geben Sie eine gültige URL ein",
+      "changeUrl": "Ändern Sie die selbst gehostete URL in {}",
       "cloudURLHint": "Eingabe der Basis- URL Ihres Servers",
       "cloudWSURL": "Websocket URL",
       "cloudWSURLHint": "Eingbe der Websocket Adresse Ihres Servers",
@@ -1329,7 +1403,9 @@
     },
     "filter": {
       "empty": "Keine aktiven Filter",
-      "addFilter": "Filter hinzufügen"
+      "addFilter": "Filter hinzufügen",
+      "cannotFindCreatableField": "Es wurde kein geeignetes Feld zum Filtern gefunden.",
+      "where": "Wo"
     },
     "textFilter": {
       "contains": "Enthält",
@@ -1376,9 +1452,12 @@
       "between": "Ist zwischen",
       "empty": "Ist leer",
       "notEmpty": "Ist nicht leer",
+      "startDate": "Startdatum",
+      "endDate": "Enddatum",
       "choicechipPrefix": {
         "before": "Vorher",
         "after": "Danach",
+        "between": "Zwischen",
         "onOrBefore": "Am oder davor",
         "onOrAfter": "Während oder danach",
         "isEmpty": "leer",
@@ -1404,6 +1483,7 @@
       "delete": "Löschen",
       "wrapCellContent": "Zeilenumbruch",
       "clear": " Zelleninhalte löschen",
+      "switchPrimaryFieldTooltip": "Feldtyp des Primärfelds kann nicht geändert werden",
       "textFieldName": "Text",
       "checkboxFieldName": "Kontrollkästchen",
       "dateFieldName": "Datum",
@@ -1417,6 +1497,7 @@
       "relationFieldName": "Beziehung",
       "summaryFieldName": "KI-Zusammenfassung",
       "timeFieldName": "Zeit",
+      "mediaFieldName": "Dateien und Medien",
       "translateFieldName": "AI-Übersetzen",
       "translateTo": "Übersetzen in",
       "numberFormat": "Zahlenformat",
@@ -1447,6 +1528,7 @@
       "addOption": "Option hinzufügen",
       "editProperty": "Eigenschaft bearbeiten",
       "newProperty": "Neue Eigenschaft",
+      "openRowDocument": "Als Seite öffnen",
       "deleteFieldPromptMessage": "Sicher? Diese Eigenschaft wird gelöscht",
       "clearFieldPromptMessage": "Bist du dir sicher? Alle Zelleninhalte in dieser Spalte werden gelöscht!",
       "newColumn": "Neue Spalte",
@@ -1482,6 +1564,7 @@
       "fieldInUse": "Du sortierst bereits nach diesem Feld"
     },
     "row": {
+      "label": "Reihe",
       "duplicate": "Duplikat",
       "delete": "Löschen",
       "titlePlaceholder": "Unbenannt",
@@ -1497,7 +1580,10 @@
       "dragAndClick": "Ziehen, um zu verschieben. Klicke, um das Menü zu öffnen",
       "insertRecordAbove": "Füge Datensatz oben ein",
       "insertRecordBelow": "Füge Datensatz unten ein",
-      "noContent": "Kein Inhalt"
+      "noContent": "Kein Inhalt",
+      "reorderRowDescription": "Zeile neu anordnen",
+      "createRowAboveDescription": "Erstelle oben eine Zeile",
+      "createRowBelowDescription": "Unten eine Zeile einfügen"
     },
     "selectOption": {
       "create": "Erstellen",
@@ -1558,6 +1644,23 @@
       "countEmptyShort": "leer",
       "countNonEmpty": "Zahl nicht leer",
       "countNonEmptyShort": "nicht leer"
+    },
+    "media": {
+      "rename": "Umbenennen",
+      "download": "Herunterladen",
+      "expand": "Erweitern",
+      "delete": "Löschen",
+      "moreFilesHint": "+{}",
+      "addFileOrImage": "Datei oder Link hinzufügen",
+      "attachmentsHint": "{}",
+      "addFileMobile": "Datei hinzufügen",
+      "extraCount": "+{}",
+      "deleteFileDescription": "Möchten Sie diese Datei wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "showFileNames": "Dateinamen anzeigen",
+      "downloadSuccess": "Datei heruntergeladen",
+      "downloadFailedToken": "Datei konnte nicht heruntergeladen werden, Benutzertoken nicht verfügbar",
+      "openInBrowser": "Im Browser öffnen",
+      "embedLink": "Dateilink einbetten"
     }
   },
   "document": {
@@ -1581,6 +1684,29 @@
       },
       "document": {
         "selectADocumentToLinkTo": "Eine Datentabelle zum Verknüpfen auswählen"
+      },
+      "name": {
+        "text": "Text",
+        "heading1": "Überschrift 1",
+        "heading2": "Überschrift 2",
+        "heading3": "Überschrift 3",
+        "image": "Bild",
+        "bulletedList": "Aufzählungsliste",
+        "numberedList": "Nummerierte Liste",
+        "todoList": "Aufgabenliste",
+        "doc": "Dokument",
+        "linkedDoc": "Link zur Seite",
+        "grid": "Raster",
+        "linkedGrid": "Verknüpftes Raster",
+        "kanban": "Kanban",
+        "linkedKanban": "Verknüpftes Kanban",
+        "calendar": "Kalender",
+        "linkedCalendar": "Verknüpfter Kalender",
+        "quote": "Zitat",
+        "divider": "Trenner",
+        "outline": "Gliederung",
+        "mathEquation": "Mathematische Gleichung",
+        "code": "Code"
       }
     },
     "selectionMenu": {
@@ -2338,9 +2464,9 @@
     "unsplash": "Unsplash",
     "pageCover": "Deckblatt",
     "none": "Keines",
-    "photoPermissionDescription": "Erlaube den Zugriff auf die Fotobibliothek zum Hochladen von Bildern.",
     "openSettings": "Einstellungen öffnen",
     "photoPermissionTitle": "@:appName möchte auf deine Fotobibliothek zugreifen",
+    "photoPermissionDescription": "Erlaube den Zugriff auf die Fotobibliothek zum Hochladen von Bildern.",
     "doNotAllow": "Nicht zulassen",
     "image": "Bild"
   },

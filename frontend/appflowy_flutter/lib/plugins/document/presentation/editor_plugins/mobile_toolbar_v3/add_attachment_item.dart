@@ -84,14 +84,11 @@ Future<bool?> showAddAttachmentMenu(
       elevation: 20,
       isScrollControlled: false,
       enableDraggableScrollable: true,
-      builder: (_) => Padding(
-        padding: EdgeInsets.all(16 * context.scale),
-        child: _AddAttachmentMenu(
-          documentId: documentId,
-          isLocalMode: isLocalMode,
-          editorState: editorState,
-          selection: selection,
-        ),
+      builder: (_) => _AddAttachmentMenu(
+        documentId: documentId,
+        isLocalMode: isLocalMode,
+        editorState: editorState,
+        selection: selection,
       ),
     );
 

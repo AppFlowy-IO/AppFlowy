@@ -5,7 +5,6 @@ import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/rename_view_dialog.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -57,35 +56,28 @@ class _SidebarNewPageButtonState extends State<SidebarNewPageButton> {
   }
 
   Future<void> _createNewPage() async {
-    return createViewAndShowRenameDialogIfNeeded(
-      context,
-      LocaleKeys.newPageText.tr(),
-      (_, __) {
-        // if the workspace is collaborative, create the view in the private section by default.
-        final section =
-            context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn
-                ? ViewSectionPB.Private
-                : ViewSectionPB.Public;
-        final spaceState = context.read<SpaceBloc>().state;
-        if (spaceState.spaces.isNotEmpty) {
-          context.read<SpaceBloc>().add(
-                const SpaceEvent.createPage(
-                  name: '',
-                  index: 0,
-                  layout: ViewLayoutPB.Document,
-                  openAfterCreate: true,
-                ),
-              );
-        } else {
-          context.read<SidebarSectionsBloc>().add(
-                SidebarSectionsEvent.createRootViewInSection(
-                  name: '',
-                  viewSection: section,
-                  index: 0,
-                ),
-              );
-        }
-      },
-    );
+    // if the workspace is collaborative, create the view in the private section by default.
+    final section = context.read<UserWorkspaceBloc>().state.isCollabWorkspaceOn
+        ? ViewSectionPB.Private
+        : ViewSectionPB.Public;
+    final spaceState = context.read<SpaceBloc>().state;
+    if (spaceState.spaces.isNotEmpty) {
+      context.read<SpaceBloc>().add(
+            const SpaceEvent.createPage(
+              name: '',
+              index: 0,
+              layout: ViewLayoutPB.Document,
+              openAfterCreate: true,
+            ),
+          );
+    } else {
+      context.read<SidebarSectionsBloc>().add(
+            SidebarSectionsEvent.createRootViewInSection(
+              name: '',
+              viewSection: section,
+              index: 0,
+            ),
+          );
+    }
   }
 }

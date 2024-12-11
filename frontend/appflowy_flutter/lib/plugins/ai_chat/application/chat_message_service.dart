@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_input_action_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:nanoid/nanoid.dart';
 
@@ -129,16 +129,16 @@ Future<List<ChatMessageMetaPB>> metadataPBFromMetadata(
 
   for (final value in map.values) {
     switch (value) {
-      case ViewActionPage(view: final view) when view.layout.isDocumentView:
-        final payload = OpenDocumentPayloadPB(documentId: view.id);
+      case ViewPB _ when value.layout.isDocumentView:
+        final payload = OpenDocumentPayloadPB(documentId: value.id);
         await DocumentEventGetDocumentText(payload).send().fold(
           (pb) {
             metadata.add(
               ChatMessageMetaPB(
-                id: view.id,
-                name: view.name,
+                id: value.id,
+                name: value.name,
                 data: pb.text,
-                dataType: ChatMessageMetaTypePB.Txt,
+                loaderType: ContextLoaderTypePB.Txt,
                 source: appflowySource,
               ),
             );
@@ -156,7 +156,7 @@ Future<List<ChatMessageMetaPB>> metadataPBFromMetadata(
             id: nanoid(8),
             name: fileName,
             data: filePath,
-            dataType: fileType,
+            loaderType: fileType,
             source: filePath,
           ),
         );

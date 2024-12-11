@@ -1,19 +1,18 @@
 use crate::entities::{ChecklistCellDataPB, ChecklistFilterPB, SelectOptionPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
-use crate::services::field::checklist_type_option::{ChecklistCellChangeset, ChecklistCellData};
+use crate::services::field::checklist_filter::{checklist_from_options, ChecklistCellChangeset};
 use crate::services::field::{
-  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform,
+  CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
+use collab_database::fields::checklist_type_option::ChecklistTypeOption;
 use collab_database::fields::select_type_option::{SelectOption, SELECTION_IDS_SEPARATOR};
-use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
 use collab_database::rows::Cell;
+use collab_database::template::check_list_parse::ChecklistCellData;
+use collab_database::template::util::TypeOptionCellData;
 use flowy_error::FlowyResult;
 use std::cmp::Ordering;
-
-#[derive(Debug, Clone, Default)]
-pub struct ChecklistTypeOption;
 
 impl TypeOption for ChecklistTypeOption {
   type CellData = ChecklistCellData;
@@ -22,19 +21,7 @@ impl TypeOption for ChecklistTypeOption {
   type CellFilter = ChecklistFilterPB;
 }
 
-impl From<TypeOptionData> for ChecklistTypeOption {
-  fn from(_data: TypeOptionData) -> Self {
-    Self
-  }
-}
-
-impl From<ChecklistTypeOption> for TypeOptionData {
-  fn from(_data: ChecklistTypeOption) -> Self {
-    TypeOptionDataBuilder::new()
-  }
-}
-
-impl TypeOptionCellDataSerde for ChecklistTypeOption {
+impl CellDataProtobufEncoder for ChecklistTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
@@ -59,10 +46,6 @@ impl TypeOptionCellDataSerde for ChecklistTypeOption {
       percentage,
     }
   }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(ChecklistCellData::from(cell))
-  }
 }
 
 impl CellDataChangeset for ChecklistTypeOption {
@@ -73,12 +56,12 @@ impl CellDataChangeset for ChecklistTypeOption {
   ) -> FlowyResult<(Cell, <Self as TypeOption>::CellData)> {
     match cell {
       Some(cell) => {
-        let mut cell_data = self.parse_cell(&cell)?;
+        let mut cell_data = self.decode_cell(&cell)?;
         update_cell_data_with_changeset(&mut cell_data, changeset);
         Ok((Cell::from(cell_data.clone()), cell_data))
       },
       None => {
-        let cell_data = ChecklistCellData::from_options(changeset.insert_tasks);
+        let cell_data = checklist_from_options(changeset.insert_tasks);
         Ok((Cell::from(cell_data.clone()), cell_data))
       },
     }
@@ -157,10 +140,6 @@ fn update_cell_data_with_changeset(
 }
 
 impl CellDataDecoder for ChecklistTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    self.parse_cell(cell)
-  }
-
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     cell_data
       .options
@@ -168,11 +147,6 @@ impl CellDataDecoder for ChecklistTypeOption {
       .map(|option| option.name)
       .collect::<Vec<_>>()
       .join(SELECTION_IDS_SEPARATOR)
-  }
-
-  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
-    // return the percentage complete if needed
-    None
   }
 }
 

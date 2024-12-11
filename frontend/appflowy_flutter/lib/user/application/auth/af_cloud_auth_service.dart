@@ -56,7 +56,7 @@ class AppFlowyCloudAuthService implements AuthService {
       (data) async {
         // Open the webview with oauth url
         final uri = Uri.parse(data.oauthUrl);
-        final isSuccess = await afLaunchUrl(
+        final isSuccess = await afLaunchUri(
           uri,
           mode: LaunchMode.externalApplication,
           webOnlyWindowName: '_self',

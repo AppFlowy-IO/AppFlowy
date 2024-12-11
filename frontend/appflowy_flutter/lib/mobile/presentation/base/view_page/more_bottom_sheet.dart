@@ -189,7 +189,7 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
     final url = context.read<ShareBloc>().state.url;
     if (url.isNotEmpty) {
       unawaited(
-        afLaunchUrl(
+        afLaunchUri(
           Uri.parse(url),
           mode: LaunchMode.externalApplication,
         ),

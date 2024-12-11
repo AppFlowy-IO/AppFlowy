@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/ai_chat/chat_page.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
@@ -86,11 +87,15 @@ class AIChatPagePluginWidgetBuilder extends PluginWidgetBuilder
   int? deletedViewIndex;
 
   @override
+  String? get viewName => notifier.view.nameOrDefault;
+
+  @override
   Widget get leftBarItem =>
       ViewTitleBar(key: ValueKey(notifier.view.id), view: notifier.view);
 
   @override
-  Widget tabBarItem(String pluginId) => ViewTabBarItem(view: notifier.view);
+  Widget tabBarItem(String pluginId, [bool shortForm = false]) =>
+      ViewTabBarItem(view: notifier.view, shortForm: shortForm);
 
   @override
   Widget buildWidget({
@@ -105,7 +110,7 @@ class AIChatPagePluginWidgetBuilder extends PluginWidgetBuilder
       return const SizedBox();
     }
 
-    return BlocProvider<ViewInfoBloc>.value(
+    return BlocProvider.value(
       value: bloc,
       child: AIChatPage(
         userProfile: context.userProfile!,

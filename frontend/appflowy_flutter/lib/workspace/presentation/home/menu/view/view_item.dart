@@ -14,7 +14,6 @@ import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/rename_view_dialog.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
@@ -692,26 +691,18 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   ) {
     final viewBloc = context.read<ViewBloc>();
 
-    if (createNewView) {
-      createViewAndShowRenameDialogIfNeeded(
-        context,
-        _convertLayoutToHintText(pluginBuilder.layoutType!),
-        (viewName, _) {
-          // the name of new document should be empty
-          if (pluginBuilder.layoutType == ViewLayoutPB.Document) {
-            viewName = '';
-          }
-          viewBloc.add(
-            ViewEvent.createView(
-              viewName,
-              pluginBuilder.layoutType!,
-              openAfterCreated: openAfterCreated,
-              section: widget.spaceType.toViewSectionPB,
-            ),
-          );
-        },
-      );
-    }
+    // the name of new document should be empty
+    final viewName = pluginBuilder.layoutType != ViewLayoutPB.Document
+        ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
+        : '';
+    viewBloc.add(
+      ViewEvent.createView(
+        viewName,
+        pluginBuilder.layoutType!,
+        openAfterCreated: openAfterCreated,
+        section: widget.spaceType.toViewSectionPB,
+      ),
+    );
 
     viewBloc.add(const ViewEvent.setIsExpanded(true));
   }
@@ -814,22 +805,6 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         },
       ),
     );
-  }
-
-  String _convertLayoutToHintText(ViewLayoutPB layout) {
-    switch (layout) {
-      case ViewLayoutPB.Document:
-        return LocaleKeys.newDocumentText.tr();
-      case ViewLayoutPB.Grid:
-        return LocaleKeys.newGridText.tr();
-      case ViewLayoutPB.Board:
-        return LocaleKeys.newBoardText.tr();
-      case ViewLayoutPB.Calendar:
-        return LocaleKeys.newCalendarText.tr();
-      case ViewLayoutPB.Chat:
-        return LocaleKeys.chat_newChat.tr();
-    }
-    return LocaleKeys.newPageText.tr();
   }
 }
 

@@ -36,6 +36,9 @@ export enum BlockType {
   FileBlock = 'file',
   GalleryBlock = 'multi_image',
   SubpageBlock = 'sub_page',
+  SimpleTableBlock = 'simple_table',
+  SimpleTableRowBlock = 'simple_table_row',
+  SimpleTableCellBlock = 'simple_table_cell',
 }
 
 export enum InlineBlockType {
@@ -138,6 +141,22 @@ export interface TableBlockData extends BlockData {
   colsLen: number;
   rowDefaultHeight: number;
   rowsLen: number;
+}
+
+export enum TableAlignType {
+  Left = 'Left',
+  Center = 'Center',
+  Right = 'Right',
+}
+
+export interface SimpleTableData extends BlockData {
+  column_widths: Record<string, number>;
+  enable_header_row: boolean;
+  row_colors: Record<string, string>;
+  enable_header_column: boolean;
+  column_aligns: Record<string, TableAlignType>;
+  column_colors: Record<string, string>;
+  row_aligns: Record<string, TableAlignType>;
 }
 
 export interface TableCellBlockData extends BlockData {

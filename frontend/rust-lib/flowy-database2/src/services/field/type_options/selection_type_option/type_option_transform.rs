@@ -74,7 +74,7 @@ impl SelectOptionTypeOptionTransformHelper {
               row.update_cells(|cell| {
                 cell.insert(
                   field_id,
-                  SelectOptionIds::from(transformed_ids).to_cell_data(new_field_type),
+                  SelectOptionIds::from(transformed_ids).to_cell(new_field_type),
                 );
               });
             })

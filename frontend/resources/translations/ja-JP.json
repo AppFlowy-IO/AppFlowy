@@ -1462,12 +1462,12 @@
     "media": {
       "rename": "名前を変更",
       "download": "ダウンロード",
-      "open": "開く",
       "delete": "削除",
       "moreFilesHint": "+{} ファイル",
       "addFileOrImage": "ファイル、画像、またはリンクを追加",
       "attachmentsHint": "{} 添付ファイル",
       "addFileMobile": "ファイルを追加",
+      "open": "開く",
       "showMore": "{} ファイルがさらにあります。クリックして表示"
     }
   },
@@ -2300,9 +2300,9 @@
     "unsplash": "Unsplash",
     "pageCover": "ページカバー",
     "none": "なし",
-    "photoPermissionDescription": "@:appName に写真へのアクセス権が必要です。写真をドキュメントに追加するには許可が必要です。",
     "openSettings": "設定を開く",
     "photoPermissionTitle": "@:appName はフォトライブラリへのアクセスを希望します",
+    "photoPermissionDescription": "@:appName に写真へのアクセス権が必要です。写真をドキュメントに追加するには許可が必要です。",
     "doNotAllow": "許可しない",
     "image": "画像"
   },

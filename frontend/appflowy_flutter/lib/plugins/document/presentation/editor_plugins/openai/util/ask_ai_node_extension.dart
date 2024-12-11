@@ -1,3 +1,4 @@
+import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 extension AskAINodeExtension on EditorState {
@@ -32,7 +33,7 @@ extension AskAINodeExtension on EditorState {
       slicedNodes.add(copiedNode);
     }
 
-    final markdown = documentToMarkdown(
+    final markdown = customDocumentToMarkdown(
       Document.blank()..insert([0], slicedNodes),
     );
 

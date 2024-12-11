@@ -28,12 +28,11 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     final transaction = editorState.transaction;
     switch (action) {
       case OptionAction.delete:
-        transaction.deleteNode(node);
+        _deleteBlocks(transaction, node);
         break;
       case OptionAction.duplicate:
         await _duplicateBlock(transaction, node);
         EditorNotification.paste().post();
-
         break;
       case OptionAction.moveUp:
         transaction.moveNode(node.path.previous, node);
@@ -55,9 +54,40 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     await editorState.apply(transaction);
   }
 
+  /// If the selection is a block selection, delete the selected blocks.
+  /// Otherwise, delete the selected block.
+  void _deleteBlocks(Transaction transaction, Node selectedNode) {
+    final selection = editorState.selection;
+    final selectionType = editorState.selectionType;
+    if (selectionType == SelectionType.block && selection != null) {
+      final nodes = editorState.getNodesInSelection(selection.normalized);
+      transaction.deleteNodes(nodes);
+    } else {
+      transaction.deleteNode(selectedNode);
+    }
+  }
+
   Future<void> _duplicateBlock(Transaction transaction, Node node) async {
+    final selection = editorState.selection;
+    final selectionType = editorState.selectionType;
+    if (selectionType == SelectionType.block && selection != null) {
+      final nodes = editorState.getNodesInSelection(selection.normalized);
+      for (final node in nodes) {
+        _validateNode(node);
+      }
+      transaction.insertNodes(
+        selection.normalized.end.path.next,
+        nodes.map((e) => _copyBlock(e)).toList(),
+      );
+    } else {
+      _validateNode(node);
+      transaction.insertNode(node.path.next, _copyBlock(node));
+    }
+  }
+
+  void _validateNode(Node node) {
     final type = node.type;
-    final builder = editorState.renderer.blockComponentBuilder(type);
+    final builder = blockComponentBuilder[type];
 
     if (builder == null) {
       Log.error('Block type $type is not supported');
@@ -68,15 +98,13 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     if (!valid) {
       Log.error('Block type $type is not valid');
     }
-
-    transaction.insertNode(node.path.next, _copyBlock(node));
   }
 
   Node _copyBlock(Node node) {
     Node copiedNode = node.copyWith();
 
     final type = node.type;
-    final builder = editorState.renderer.blockComponentBuilder(type);
+    final builder = blockComponentBuilder[type];
 
     if (builder == null) {
       Log.error('Block type $type is not supported');
@@ -86,6 +114,11 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
         Log.error('Block type $type is not valid');
         if (node.type == TableBlockKeys.type) {
           copiedNode = _fixTableBlock(node);
+          copiedNode = _convertTableToSimpleTable(copiedNode);
+        }
+      } else {
+        if (node.type == TableBlockKeys.type) {
+          copiedNode = _convertTableToSimpleTable(node);
         }
       }
     }
@@ -138,7 +171,53 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     );
   }
 
+  Node _convertTableToSimpleTable(Node node) {
+    if (node.type != TableBlockKeys.type) {
+      return node;
+    }
+
+    // the table node should contains colsLen and rowsLen
+    final colsLen = node.attributes[TableBlockKeys.colsLen];
+    final rowsLen = node.attributes[TableBlockKeys.rowsLen];
+    if (colsLen == null || rowsLen == null) {
+      return node;
+    }
+
+    final rows = <List<Node>>[];
+    final children = node.children;
+    for (var i = 0; i < rowsLen; i++) {
+      final row = <Node>[];
+      for (var j = 0; j < colsLen; j++) {
+        final cell = children
+            .where(
+              (n) =>
+                  n.attributes[TableCellBlockKeys.rowPosition] == i &&
+                  n.attributes[TableCellBlockKeys.colPosition] == j,
+            )
+            .firstOrNull;
+        row.add(
+          simpleTableCellBlockNode(
+            children: [cell?.children.first.copyWith() ?? paragraphNode()],
+          ),
+        );
+      }
+      rows.add(row);
+    }
+
+    return simpleTableBlockNode(
+      children: rows.map((e) => simpleTableRowBlockNode(children: e)).toList(),
+    );
+  }
+
   Future<void> _copyLinkToBlock(Node node) async {
+    List<Node> nodes = [node];
+
+    final selection = editorState.selection;
+    final selectionType = editorState.selectionType;
+    if (selectionType == SelectionType.block && selection != null) {
+      nodes = editorState.getNodesInSelection(selection.normalized);
+    }
+
     final context = editorState.document.root.context;
     final viewId = context?.read<DocumentBloc>().documentId;
     if (viewId == null) {
@@ -157,13 +236,17 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       return;
     }
 
-    final link = ShareConstants.buildShareUrl(
-      workspaceId: workspaceId,
-      viewId: viewId,
-      blockId: node.id,
+    final blockIds = nodes.map((e) => e.id);
+    final links = blockIds.map(
+      (e) => ShareConstants.buildShareUrl(
+        workspaceId: workspaceId,
+        viewId: viewId,
+        blockId: e,
+      ),
     );
+
     await getIt<ClipboardService>().setData(
-      ClipboardServiceData(plainText: link),
+      ClipboardServiceData(plainText: links.join('\n')),
     );
 
     emit(BlockActionOptionState()); // Emit a new state to trigger UI update
@@ -447,7 +530,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
         // We move views after applying transaction to avoid performing side-effects on the views
         final viewIdsToMove = _extractChildViewIds(selectedNodes);
         for (final viewId in viewIdsToMove) {
-          // Attempt to put back from trash if neccessary
+          // Attempt to put back from trash if necessary
           await TrashService.putback(viewId);
 
           await ViewBackendService.moveViewV2(

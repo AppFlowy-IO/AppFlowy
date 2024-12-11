@@ -49,6 +49,7 @@ class KVKeys {
   ///  {'SidebarFolderCategoryType.value': true}
   static const String expandedFolders = 'expandedFolders';
 
+  /// @deprecated in version 0.7.6
   /// The key for saving if showing the rename dialog when creating a new file
   ///
   /// The value is a boolean string.
@@ -57,6 +58,7 @@ class KVKeys {
 
   static const String kCloudType = 'kCloudType';
   static const String kAppflowyCloudBaseURL = 'kAppFlowyCloudBaseURL';
+  static const String kAppFlowyEnableSyncTrace = 'kAppFlowyEnableSyncTrace';
 
   /// The key for saving the text scale factor.
   ///

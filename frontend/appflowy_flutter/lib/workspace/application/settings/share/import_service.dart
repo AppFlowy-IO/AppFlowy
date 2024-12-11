@@ -18,11 +18,11 @@ class ImportPayload {
 class ImportBackendService {
   static Future<FlowyResult<RepeatedViewPB, FlowyError>> importPages(
     String parentViewId,
-    List<ImportValuePayloadPB> values,
+    List<ImportItemPayloadPB> values,
   ) async {
     final request = ImportPayloadPB(
       parentViewId: parentViewId,
-      values: values,
+      items: values,
     );
 
     return FolderEventImportData(request).send();

@@ -23,7 +23,7 @@ class ChatInputFile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocSelector<AIPromptInputBloc, AIPromptInputState, List<ChatFile>>(
-      selector: (state) => state.uploadFiles,
+      selector: (state) => state.attachedFiles,
       builder: (context, files) {
         if (files.isEmpty) {
           return const SizedBox.shrink();

@@ -92,9 +92,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
     inlineMathEquationItem,
     linkItem,
     alignToolbarItem,
-    buildTextColorItem(),
-    buildHighlightColorItem(),
-    customizeFontToolbarItem,
+    buildTextColorItem()..isActive = showInAnyTextType,
+    buildHighlightColorItem()..isActive = showInAnyTextType,
+    customizeFontToolbarItem..isActive = showInAnyTextType,
   ];
 
   late List<SelectionMenuItem> slashMenuItems;
@@ -122,6 +122,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
         slashMenuItems,
         shouldInsertSlash: false,
         style: styleCustomizer.selectionMenuStyleBuilder(),
+        supportSlashMenuNodeTypes: supportSlashMenuNodeTypes,
       ).handler(editorState);
 
   AFFocusManager? focusManager;
@@ -156,14 +157,13 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       scrollController: effectiveScrollController,
     );
 
-    // keep the previous font style when typing new text.
-    supportSlashMenuNodeWhiteList.addAll([
-      ToggleListBlockKeys.type,
-    ]);
     toolbarItemWhiteList.addAll([
       ToggleListBlockKeys.type,
       CalloutBlockKeys.type,
       TableBlockKeys.type,
+      SimpleTableBlockKeys.type,
+      SimpleTableCellBlockKeys.type,
+      SimpleTableRowBlockKeys.type,
     ]);
     AppFlowyRichTextKeys.supportSliced.add(AppFlowyRichTextKeys.fontFamily);
 

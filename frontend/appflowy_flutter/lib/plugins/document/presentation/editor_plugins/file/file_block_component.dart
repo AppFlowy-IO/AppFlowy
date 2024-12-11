@@ -10,7 +10,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_util.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
@@ -19,7 +18,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -323,22 +321,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
     FileUrlType urlType,
     String url,
   ) async {
-    if ([FileUrlType.cloud, FileUrlType.network].contains(urlType)) {
-      await afLaunchUrlString(url);
-    } else {
-      final result = await OpenFilex.open(url);
-      if (result.type == ResultType.done) {
-        return;
-      }
-
-      if (context.mounted) {
-        showToastNotification(
-          context,
-          message: LocaleKeys.document_plugins_file_failedToOpenMsg.tr(),
-          type: ToastificationType.error,
-        );
-      }
-    }
+    await afLaunchUrlString(url, context: context);
   }
 
   void _openMenu() {
@@ -346,6 +329,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
       controller.show();
       dropManagerState?.add(FileBlockKeys.type);
     } else {
+      editorState.updateSelectionWithReason(null, extraInfo: {});
       showUploadFileMobileMenu();
     }
   }

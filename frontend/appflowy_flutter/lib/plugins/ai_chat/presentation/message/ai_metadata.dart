@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_message_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -43,6 +42,7 @@ class _AIMessageMetadataState extends State<AIMessageMetadata> {
             child: FlowyButton(
               margin: const EdgeInsets.all(4.0),
               useIntrinsicWidth: true,
+              hoverColor: Colors.transparent,
               radius: BorderRadius.circular(8.0),
               text: FlowyText(
                 LocaleKeys.chat_referenceSource.plural(
@@ -87,11 +87,7 @@ class _AIMessageMetadataState extends State<AIMessageMetadata> {
                         size: const Size.square(16),
                         color: Theme.of(context).hintColor,
                       ),
-                      disable: m.source != appflowySource,
                       onTap: () {
-                        if (m.source != appflowySource) {
-                          return;
-                        }
                         widget.onSelectedMetadata?.call(m);
                       },
                     ),
