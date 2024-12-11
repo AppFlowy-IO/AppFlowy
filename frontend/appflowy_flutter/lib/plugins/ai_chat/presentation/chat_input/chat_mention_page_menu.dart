@@ -6,8 +6,8 @@ import 'package:appflowy/workspace/application/view_title/view_title_bar_bloc.da
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
@@ -273,21 +273,18 @@ class _ChatMentionPageItem extends StatelessWidget {
         child: GestureDetector(
           onTap: onTap,
           behavior: HitTestBehavior.opaque,
-          child: Container(
-            height: _itemHeight,
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? AFThemeExtension.of(context).lightGreyHover
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(4.0),
-            ),
-            padding: const EdgeInsets.all(4.0),
-            child: Row(
-              children: [
-                MentionViewIcon(view: view),
-                const HSpace(8.0),
-                Expanded(child: MentionViewTitleAndAncestors(view: view)),
-              ],
+          child: FlowyHover(
+            isSelected: () => isSelected,
+            child: Container(
+              height: _itemHeight,
+              padding: const EdgeInsets.all(4.0),
+              child: Row(
+                children: [
+                  MentionViewIcon(view: view),
+                  const HSpace(8.0),
+                  Expanded(child: MentionViewTitleAndAncestors(view: view)),
+                ],
+              ),
             ),
           ),
         ),
