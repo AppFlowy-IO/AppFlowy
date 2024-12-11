@@ -147,10 +147,25 @@ class _ColorOptionButtonState extends State<ColorOptionButton> {
         color: AFThemeExtension.of(context).onBackground,
       ),
       onTap: (option, index) async {
-        final transaction = widget.editorState.transaction;
-        transaction.updateNode(node, {
-          blockComponentBackgroundColor: option.id,
-        });
+        final editorState = widget.editorState;
+        final transaction = editorState.transaction;
+        final selectionType = editorState.selectionType;
+        final selection = editorState.selection;
+
+        // In multiple selection, we need to update all the nodes in the selection
+        if (selectionType == SelectionType.block && selection != null) {
+          final nodes = editorState.getNodesInSelection(selection.normalized);
+          for (final node in nodes) {
+            transaction.updateNode(node, {
+              blockComponentBackgroundColor: option.id,
+            });
+          }
+        } else {
+          transaction.updateNode(node, {
+            blockComponentBackgroundColor: option.id,
+          });
+        }
+
         await widget.editorState.apply(transaction);
 
         innerController.close();
