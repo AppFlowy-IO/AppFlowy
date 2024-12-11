@@ -7,7 +7,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-function AddPageActions ({ view, onClose }: {
+function AddPageActions({ view, onClose }: {
   view: View;
   onClose: () => void;
 }) {
@@ -21,7 +21,7 @@ function AddPageActions ({ view, onClose }: {
     if (!addPage || !openPageModal) return;
     notify.default(
       <span>
-        <CircularProgress size={20} />
+        <CircularProgress size={20}/>
         <span className={'ml-2'}>{t('document.creating')}</span>
       </span>,
     );
@@ -40,6 +40,7 @@ function AddPageActions ({ view, onClose }: {
   const actions: {
     label: string;
     icon: React.ReactNode;
+    disabled?: boolean;
     onClick: (e: React.MouseEvent) => void;
   }[] = useMemo(() => [
     {
@@ -54,6 +55,7 @@ function AddPageActions ({ view, onClose }: {
     },
     {
       label: t('grid.menuName'),
+      disabled: true,
       icon: <ViewIcon
         layout={ViewLayout.Grid}
         size={'medium'}
@@ -64,6 +66,7 @@ function AddPageActions ({ view, onClose }: {
     },
     {
       label: t('board.menuName'),
+      disabled: true,
       icon: <ViewIcon
         layout={ViewLayout.Board}
         size={'medium'}
@@ -74,6 +77,7 @@ function AddPageActions ({ view, onClose }: {
     },
     {
       label: t('calendar.menuName'),
+      disabled: true,
       icon: <ViewIcon
         layout={ViewLayout.Calendar}
         size={'medium'}
@@ -90,6 +94,7 @@ function AddPageActions ({ view, onClose }: {
         <Button
           key={action.label}
           size={'small'}
+          disabled={action.disabled}
           onClick={(e) => {
             action.onClick(e);
             onClose();

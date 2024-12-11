@@ -402,8 +402,6 @@ export const applyMarkdown = (editor: YjsEditor, insertText: string): boolean =>
           Transforms.select(editor, matchRange);
           editor.delete();
 
-          let marked = false;
-          
           if (rule.transform) {
             rule.transform(editor, match);
           } else {
@@ -414,15 +412,10 @@ export const applyMarkdown = (editor: YjsEditor, insertText: string): boolean =>
               anchor: { path, offset: start },
               focus: { path, offset: start + formatText.length },
             });
-            marked = CustomEditor.isMarkActive(editor, rule.format);
             CustomEditor.toggleMark(editor, { key: rule.format as EditorMarkFormat, value: true });
           }
 
           Transforms.collapse(editor, { edge: 'end' });
-
-          if (editor.selection && rule.format !== EditorMarkFormat.Formula && !marked) {
-            Transforms.insertNodes(editor, { text: '\u200C' }, { at: editor.selection, select: true, voids: false });
-          }
         }
 
         return true;

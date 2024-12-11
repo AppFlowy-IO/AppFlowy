@@ -30,7 +30,7 @@ describe('Markdown editing', () => {
     expectedJson = [{
       type: 'paragraph',
       data: {},
-      text: [{ insert: 'First ' }, { insert: 'bold', attributes: { bold: true } }, { insert: '\u200Cparagraph' }],
+      text: [{ insert: 'First ' }, { insert: 'bold', attributes: { bold: true } }, { insert: 'paragraph' }],
       children: [],
     }];
     assertJSON(expectedJson);
@@ -213,7 +213,7 @@ describe('Markdown editing', () => {
       {
         type: 'paragraph',
         data: {},
-        text: [{ insert: 'italic', attributes: { italic: true } }, { insert: '\u200C' }],
+        text: [{ insert: 'italic', attributes: { italic: true } }],
         children: [],
       },
     ];
@@ -227,12 +227,9 @@ describe('Markdown editing', () => {
         data: {},
         text: [
           { insert: 'italic', attributes: { italic: true } },
-          { insert: '\u200C' },
           {
             insert: 'bold italic',
-            attributes: { bold: true },
-          }, {
-            insert: '\u200C',
+            attributes: { bold: true, italic: true },
           }],
         children: [],
       },
@@ -247,16 +244,16 @@ describe('Markdown editing', () => {
         type: 'paragraph',
         data: {},
         text: [{ insert: 'italic', attributes: { italic: true } },
-          { insert: '\u200C' },
           {
-            insert: 'bold italic',
-            attributes: { bold: true },
+            insert: 'bold italic ',
+            attributes: { bold: true, italic: true },
           },
-          { insert: '\u200C ' },
           {
             insert: 'code',
-            attributes: { code: true },
-          }, { insert: '\u200C' }],
+            attributes: { code: true, bold: true, italic: true },
+          }, {
+            insert: '\u200C',
+          }],
         children: [],
       },
     ];
@@ -286,7 +283,7 @@ describe('Markdown editing', () => {
       {
         type: 'paragraph',
         data: {},
-        text: [{ insert: 'strikethrough', attributes: { strikethrough: true } }, { insert: '\u200C' }],
+        text: [{ insert: 'strikethrough', attributes: { strikethrough: true } }],
         children: [],
       },
     ];
