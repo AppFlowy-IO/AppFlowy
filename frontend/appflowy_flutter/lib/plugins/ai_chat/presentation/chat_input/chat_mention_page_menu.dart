@@ -15,7 +15,7 @@ import 'package:scroll_to_index/scroll_to_index.dart';
 const double _itemHeight = 44.0;
 const double _noPageHeight = 20.0;
 const double _fixedWidth = 360.0;
-const double _maxHeight = 600.0;
+const double _maxHeight = 328.0;
 
 class ChatInputAnchor {
   ChatInputAnchor(this.anchorKey, this.layerLink);
