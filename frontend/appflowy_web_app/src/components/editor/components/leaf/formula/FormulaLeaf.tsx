@@ -5,19 +5,20 @@ import FormulaPopover from '@/components/editor/components/leaf/formula/FormulaP
 import { useLeafSelected } from '@/components/editor/components/leaf/leaf.hooks';
 import { PopoverPosition } from '@mui/material';
 import React, { Suspense, useCallback, useMemo, useRef, useState } from 'react';
-import { Text } from 'slate';
+import { Text, Element } from 'slate';
 import { ReactEditor, useReadOnly, useSlateStatic } from 'slate-react';
 
-function FormulaLeaf({ formula, text }: {
+function FormulaLeaf({ formula, text, children }: {
   formula: string;
   text: Text;
+  children: React.ReactNode;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
   const editor = useSlateStatic();
-  const { isSelected, isCursorAfter, isCursorBefore } = useLeafSelected(text);
+  const { isSelected, isCursorBefore } = useLeafSelected(text);
   const [anchorPosition, setAnchorPosition] = useState<PopoverPosition | undefined>(undefined);
   const open = Boolean(anchorPosition);
-  const readonly = useReadOnly();
+  const readonly = useReadOnly() || editor.isElementReadOnly(text as unknown as Element);
   const className = useMemo(() => {
     const classList = ['formula-inline', 'relative', 'rounded', 'p-0.5'];
 
@@ -28,10 +29,8 @@ function FormulaLeaf({ formula, text }: {
     }
 
     if (isSelected || open) classList.push('selected');
-    if (isCursorAfter) classList.push('cursor-after');
-    if (isCursorBefore) classList.push('cursor-before');
     return classList.join(' ');
-  }, [open, readonly, isSelected, isCursorAfter, isCursorBefore]);
+  }, [open, readonly, isSelected]);
 
   const handleClose = useCallback(() => {
     window.getSelection()?.removeAllRanges();
@@ -45,13 +44,14 @@ function FormulaLeaf({ formula, text }: {
 
   const openPopover = useCallback(() => {
     if (readonly) return;
+
     const rect = ref.current?.getBoundingClientRect();
 
     if (!rect) return;
 
     setAnchorPosition({
       top: rect.top + rect.height,
-      left: rect.left + rect.width / 2,
+      left: rect.left,
     });
   }, [readonly]);
 
@@ -81,6 +81,10 @@ function FormulaLeaf({ formula, text }: {
 
   return (
     <>
+      {isCursorBefore && <span data-slate-string="true">{
+        `\u200B`
+      }</span>}
+
       <span
         ref={ref}
         onClick={() => {
@@ -97,6 +101,11 @@ function FormulaLeaf({ formula, text }: {
           isInline
         />
         </Suspense>
+      </span>
+      <span
+        className={'absolute right-0 text-transparent w-[1px] overflow-hidden'}
+      >
+        {children}
       </span>
       {
         open && <FormulaPopover

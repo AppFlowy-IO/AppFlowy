@@ -115,7 +115,7 @@ describe('BlockControls', () => {
     const meta = getModKey();
 
     cy.realPress([meta, 'v']);
-
+    cy.wait(50);
     cy.wrap(null).then(() => {
       const finalJson = getFinalJSON();
 

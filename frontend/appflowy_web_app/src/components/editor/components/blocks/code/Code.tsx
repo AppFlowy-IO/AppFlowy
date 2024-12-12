@@ -4,6 +4,7 @@ import { CodeNode, EditorElementProps } from '@/components/editor/editor.type';
 import React, { forwardRef, memo, useState, lazy, Suspense } from 'react';
 import { ReactEditor, useReadOnly, useSlateStatic } from 'slate-react';
 import LanguageSelect from './SelectLanguage';
+import { Element } from 'slate';
 
 const MermaidChat = lazy(() => import('./MermaidChat'));
 
@@ -13,7 +14,7 @@ export const CodeBlock = memo(
     const [showToolbar, setShowToolbar] = useState(false);
 
     const editor = useSlateStatic();
-    const readOnly = useReadOnly();
+    const readOnly = useReadOnly() || editor.isElementReadOnly(node as unknown as Element);
 
     return (
       <div
@@ -57,7 +58,7 @@ export const CodeBlock = memo(
           </pre>
         </div>
 
-        {showToolbar && <CodeToolbar node={node} />}
+        {showToolbar && <CodeToolbar node={node}/>}
       </div>
     );
   }),

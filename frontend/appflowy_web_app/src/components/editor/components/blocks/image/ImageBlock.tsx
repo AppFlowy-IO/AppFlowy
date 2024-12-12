@@ -14,6 +14,7 @@ import { MAX_IMAGE_SIZE } from '@/components/_shared/image-upload';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as ErrorIcon } from '@/assets/error.svg';
 import { CircularProgress } from '@mui/material';
+import { Element } from 'slate';
 
 export const ImageBlock = memo(
   forwardRef<HTMLDivElement, EditorElementProps<ImageBlockNode>>(({
@@ -32,7 +33,7 @@ export const ImageBlock = memo(
     const [loading, setLoading] = useState(false);
 
     const fileHandler = useMemo(() => new FileHandler(), []);
-    const readOnly = useReadOnly();
+    const readOnly = useReadOnly() || editor.isElementReadOnly(node as unknown as Element);
     const selected = useSelected();
     const { url, align } = useMemo(() => data || {}, [data]);
     const containerRef = useRef<HTMLDivElement>(null);

@@ -5,11 +5,12 @@ import React, { useCallback } from 'react';
 import { ReactComponent as CheckboxCheckSvg } from '$icons/16x/check_filled.svg';
 import { ReactComponent as CheckboxUncheckSvg } from '$icons/16x/uncheck.svg';
 import { useReadOnly, useSlateStatic } from 'slate-react';
+import { Element } from 'slate';
 
-function CheckboxIcon ({ block, className }: { block: TodoListNode; className: string }) {
+function CheckboxIcon({ block, className }: { block: TodoListNode; className: string }) {
   const { checked } = block.data;
   const editor = useSlateStatic();
-  const readOnly = useReadOnly();
+  const readOnly = useReadOnly() || editor.isElementReadOnly(block as unknown as Element);
 
   const handleClick = useCallback((e: React.MouseEvent) => {
     if (readOnly) {
@@ -32,7 +33,7 @@ function CheckboxIcon ({ block, className }: { block: TodoListNode; className: s
       }}
       className={`${className} ${readOnly ? '' : 'cursor-pointer hover:text-fill-default'} pr-1 text-xl`}
     >
-      {checked ? <CheckboxCheckSvg /> : <CheckboxUncheckSvg />}
+      {checked ? <CheckboxCheckSvg/> : <CheckboxUncheckSvg/>}
     </span>
   );
 }

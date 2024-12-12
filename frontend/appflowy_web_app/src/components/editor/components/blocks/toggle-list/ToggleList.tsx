@@ -5,6 +5,7 @@ import React, { forwardRef, memo, useMemo } from 'react';
 import { EditorElementProps, ToggleListNode } from '@/components/editor/editor.type';
 import { useTranslation } from 'react-i18next';
 import { useReadOnly, useSlateStatic } from 'slate-react';
+import { Element } from 'slate';
 
 export const ToggleList = memo(
   forwardRef<HTMLDivElement, EditorElementProps<ToggleListNode>>(({ node, children, ...attributes }, ref) => {
@@ -12,7 +13,8 @@ export const ToggleList = memo(
     const editor = useSlateStatic() as YjsEditor;
     const { collapsed, level = 0 } = useMemo(() => node.data || {}, [node.data]);
     const { t } = useTranslation();
-    const readOnly = useReadOnly();
+    const readOnly = useReadOnly() || editor.isElementReadOnly(node as unknown as Element);
+
     const className = useMemo(() => {
 
       const classList = ['flex w-full flex-col'];

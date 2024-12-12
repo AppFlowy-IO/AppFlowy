@@ -55,19 +55,14 @@ export function Leaf({ attributes, children, leaf, text }: RenderLeafProps) {
     const node = leaf.mention ? <MentionLeaf
       text={text}
       mention={leaf.mention as Mention}
-    /> : leaf.formula ? <FormulaLeaf
+    >
+      {newChildren}
+    </MentionLeaf> : leaf.formula ? <FormulaLeaf
       formula={leaf.formula}
       text={text}
-    /> : null;
+    >{newChildren}</FormulaLeaf> : null;
 
-    newChildren = <>
-      <span
-        className={'absolute opacity-0 left-0 overflow-hidden'}
-      >
-        {newChildren}
-      </span>
-      {node}
-    </>;
+    newChildren = node;
   }
 
   return (

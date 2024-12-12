@@ -4,7 +4,6 @@ import { ReactComponent as DateSvg } from '@/assets/date.svg';
 import { ReactComponent as ReminderSvg } from '@/assets/reminder_clock.svg';
 
 function MentionDate({ date, reminder }: { date: string; reminder?: { id: string; option: string } }) {
-  console.log('date', date);
   const dateFormat = useMemo(() => {
 
     return renderDate(date, 'MMM D, YYYY');

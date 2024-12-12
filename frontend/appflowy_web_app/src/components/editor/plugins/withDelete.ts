@@ -9,8 +9,10 @@ import {
 import { TextUnit, Range, EditorFragmentDeletionOptions } from 'slate';
 import { ReactEditor } from 'slate-react';
 import { TextDeleteOptions } from 'slate/dist/interfaces/transforms/text';
+import { isEmbedBlockTypes } from '@/application/slate-yjs/command/const';
+import { BlockType } from '@/application/types';
 
-export function withDelete (editor: ReactEditor) {
+export function withDelete(editor: ReactEditor) {
   const { deleteForward, deleteBackward, delete: deleteText } = editor;
 
   editor.delete = (options?: TextDeleteOptions) => {
@@ -20,9 +22,8 @@ export function withDelete (editor: ReactEditor) {
 
     const [node] = getBlockEntry(editor as YjsEditor);
 
-    console.log('===selection', selection);
     if (Range.isCollapsed(selection)) {
-      if (editor.isElementReadOnly(node) && node.blockId) {
+      if (isEmbedBlockTypes(node.type as BlockType) && node.blockId) {
 
         CustomEditor.deleteBlock(editor as YjsEditor, node.blockId);
         return;
@@ -90,7 +91,7 @@ export function withDelete (editor: ReactEditor) {
 
     const nextBlock = getBlockEntry(editor as YjsEditor, after)[0];
 
-    if (editor.isElementReadOnly(nextBlock) && nextBlock.blockId) {
+    if (isEmbedBlockTypes(nextBlock.type as BlockType) && nextBlock.blockId) {
       CustomEditor.deleteBlock(editor as YjsEditor, nextBlock.blockId);
       return;
     }
