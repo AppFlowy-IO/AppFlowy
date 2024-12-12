@@ -686,7 +686,10 @@ impl FolderQueryService for FolderQueryServiceImpl {
       Some(folder_manager) => {
         if let Ok(parent_view) = folder_manager.get_view(parent_view_id).await {
           if parent_view.space_info().is_none() {
-            if let Ok(views) = folder_manager.get_views_belong_to(parent_view_id).await {
+            if let Ok(views) = folder_manager
+              .get_untrashed_views_belong_to(parent_view_id)
+              .await
+            {
               return views
                 .into_iter()
                 .filter_map(|child| {
