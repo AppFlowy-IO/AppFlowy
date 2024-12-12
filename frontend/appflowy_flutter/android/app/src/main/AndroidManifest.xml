@@ -40,7 +40,6 @@
         <data android:scheme="https" android:host="appflowy.io" />
         <data android:scheme="https" android:host="test.appflowy.com" />
         <data android:scheme="https" android:host="appflowy.com" />
-        <!-- <data android:host="login-callback" /> -->
       </intent-filter>
     </activity>
     <!--
