@@ -171,8 +171,8 @@ class _ChatMentionPageListState extends State<ChatMentionPageList> {
     return BlocConsumer<ChatInputControlCubit, ChatInputControlState>(
       listenWhen: (previous, current) {
         return previous.maybeWhen(
-          ready: (pVisibleViews, pFocusedViewIndex) => current.maybeWhen(
-            ready: (cIsibleViews, cFocusedViewIndex) =>
+          ready: (_, pFocusedViewIndex) => current.maybeWhen(
+            ready: (_, cFocusedViewIndex) =>
                 pFocusedViewIndex != cFocusedViewIndex,
             orElse: () => false,
           ),
@@ -228,8 +228,6 @@ class _ChatMentionPageListState extends State<ChatMentionPageList> {
 
             return ListView.builder(
               shrinkWrap: true,
-              cacheExtent: 1,
-              addAutomaticKeepAlives: false,
               controller: autoScrollController,
               padding: const EdgeInsets.all(8.0),
               itemCount: views.length,
@@ -346,8 +344,7 @@ class MentionViewTitleAndAncestors extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          ViewTitleBarBloc(view: view)..add(const ViewTitleBarEvent.initial()),
+      create: (_) => ViewTitleBarBloc(view: view),
       child: BlocBuilder<ViewTitleBarBloc, ViewTitleBarState>(
         builder: (context, state) {
           final nonEmptyName = view.name.isEmpty
