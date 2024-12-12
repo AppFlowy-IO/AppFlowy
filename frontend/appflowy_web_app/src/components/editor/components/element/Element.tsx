@@ -22,7 +22,7 @@ import { TableBlock, TableCellBlock } from '@/components/editor/components/block
 import { Text } from '@/components/editor/components/blocks/text';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { ElementFallbackRender } from '@/components/error/ElementFallbackRender';
-import { ErrorBoundary } from 'react-error-boundary';
+import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import smoothScrollIntoViewIfNeeded from 'smooth-scroll-into-view-if-needed';
 import SubPage from 'src/components/editor/components/blocks/sub-page/SubPage';
 import { TodoList } from 'src/components/editor/components/blocks/todo-list';
@@ -178,6 +178,14 @@ export const Element = ({
     };
   }, [node.data, selected]);
 
+  const fallbackRender = useMemo(() => {
+    return (props: FallbackProps) => {
+      return (
+        <ElementFallbackRender {...props} description={JSON.stringify(node)}/>
+      );
+    };
+  }, [node]);
+
   if (type === YjsEditorKey.text) {
     return (
       <Text {...attributes} node={node as TextNode}>
@@ -198,7 +206,7 @@ export const Element = ({
   }
 
   return (
-    <ErrorBoundary fallbackRender={ElementFallbackRender}>
+    <ErrorBoundary fallbackRender={fallbackRender}>
       <div
         {...attributes}
         data-block-type={type}

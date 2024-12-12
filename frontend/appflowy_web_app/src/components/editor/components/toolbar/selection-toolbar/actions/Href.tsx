@@ -69,6 +69,7 @@ export function Href() {
     const onKeyDown = (e: KeyboardEvent) => {
       if (createHotkey(HOT_KEY_NAME.FORMAT_LINK)(e)) {
         e.preventDefault();
+        forceShow(true);
         setOpen(true);
       }
     };
@@ -81,7 +82,7 @@ export function Href() {
     return () => {
       slateDom.removeEventListener('keydown', onKeyDown);
     };
-  }, [editor]);
+  }, [editor, forceShow]);
 
   const handleUpdatedSelection = useCallback(() => {
     forceShow(true);

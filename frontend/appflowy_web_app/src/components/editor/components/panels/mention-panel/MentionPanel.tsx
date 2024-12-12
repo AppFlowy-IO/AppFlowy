@@ -1,7 +1,7 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
-import { MentionType, View, ViewLayout } from '@/application/types';
+import { Mention, MentionType, View, ViewLayout } from '@/application/types';
 import { flattenViews } from '@/components/_shared/outline/utils';
 import { ViewIcon } from '@/components/_shared/view-icon';
 import { usePanelContext } from '@/components/editor/components/panels/Panels.hooks';
@@ -18,12 +18,14 @@ import { ReactComponent as AddIcon } from '@/assets/add.svg';
 import { ReactComponent as ArrowIcon } from '@/assets/north_east.svg';
 import { ReactComponent as MoreIcon } from '@/assets/more.svg';
 import { Popover } from '@/components/_shared/popover';
+import dayjs from 'dayjs';
 
 enum MentionTag {
-  Reminer = 'reminder',
+  Reminder = 'reminder',
   User = 'user',
   Page = 'page',
   NewPage = 'newPage',
+  Date = 'date',
 }
 
 interface Option {
@@ -31,14 +33,43 @@ interface Option {
   index: number;
 }
 
-export function MentionPanel () {
+function createMentionOptions({
+  viewsLength,
+  dateLength,
+  newPageLength,
+}: {
+  viewsLength: number;
+  dateLength: number;
+  newPageLength: number;
+}) {
+  const options: Option[] = [
+    ...Array(viewsLength).fill(0).map((_, index) => ({
+      category: MentionTag.Page,
+      index,
+    })),
+    ...Array(dateLength).fill(0).map((_, index) => ({
+      category: MentionTag.Date,
+      index,
+    })),
+    ...Array(newPageLength).fill(0).map((_, index) => ({
+      category: MentionTag.NewPage,
+      index,
+    })),
+  ];
+
+  return options;
+}
+
+export function MentionPanel() {
   const {
     isPanelOpen,
     panelPosition,
     closePanel,
     searchText,
     removeContent,
+    activePanel,
   } = usePanelContext();
+  const showDate = activePanel === PanelType.Mention;
   const {
     viewId,
     loadViews,
@@ -112,7 +143,7 @@ export function MentionPanel () {
     });
   }, [selectedOption]);
 
-  const handleSelectedPage = useCallback((viewId: string, type = MentionType.PageRef) => {
+  const handleAddMention = useCallback((mention: Mention) => {
     removeContent();
     closePanel();
     editor.flushLocalChanges();
@@ -137,16 +168,20 @@ export function MentionPanel () {
     });
     CustomEditor.addMark(editor, {
       key: EditorMarkFormat.Mention,
-      value: {
-        page_id: viewId,
-        type,
-      },
+      value: mention,
     });
 
     Transforms.collapse(editor, {
       edge: 'end',
     });
   }, [closePanel, removeContent, editor]);
+
+  const handleSelectedPage = useCallback((viewId: string, type = MentionType.PageRef) => {
+    handleAddMention({
+      page_id: viewId,
+      type,
+    });
+  }, [handleAddMention]);
 
   const handleAddPage = useCallback(async (type = MentionType.PageRef) => {
     if (!addPage || !viewId) return;
@@ -159,6 +194,52 @@ export function MentionPanel () {
       console.error(e);
     }
   }, [addPage, searchText, handleSelectedPage, viewId, openPageModal]);
+  const dateOptions = useMemo(() => {
+    if (!showDate) return [];
+    const onClick = (value: string) => {
+      let date: string | undefined;
+
+      switch (value) {
+        case 'today':
+          date = dayjs().toISOString();
+          break;
+        case 'tomorrow':
+          date = dayjs().add(1, 'day').toISOString();
+          break;
+        case 'yesterday':
+          date = dayjs().subtract(1, 'day').toISOString();
+          break;
+        default:
+          break;
+      }
+
+      if (!date) return;
+
+      handleAddMention({
+        date,
+        type: MentionType.Date,
+      });
+
+    };
+
+    return [
+      {
+        name: t('relativeDates.today'),
+        value: 'today',
+        onClick: () => onClick('today'),
+      },
+      {
+        name: t('relativeDates.tomorrow'),
+        value: 'tomorrow',
+        onClick: () => onClick('tomorrow'),
+      },
+      {
+        name: t('relativeDates.yesterday'),
+        value: 'yesterday',
+        onClick: () => onClick('yesterday'),
+      },
+    ].filter(option => searchText ? option.name.toLowerCase().includes(searchText.toLowerCase()) : true);
+  }, [handleAddMention, t, showDate, searchText]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -173,10 +254,13 @@ export function MentionPanel () {
 
             if (selectedOptionRef.current.category === MentionTag.NewPage) {
               void handleAddPage(index === 0 ? MentionType.childPage : MentionType.PageRef);
-            } else {
+            } else if (selectedOptionRef.current.category === MentionTag.Page) {
               const viewId = splicedViews[index].view_id;
 
               handleSelectedPage(viewId, MentionType.PageRef);
+            } else if (selectedOptionRef.current.category === MentionTag.Date) {
+
+              dateOptions[index].onClick();
             }
           }
 
@@ -185,64 +269,27 @@ export function MentionPanel () {
         case 'ArrowDown': {
           e.stopPropagation();
           e.preventDefault();
+          const options = createMentionOptions({
+            viewsLength: splicedViews.length,
+            dateLength: dateOptions.length,
+            newPageLength: 2,
+          });
+
           if (!selectedOptionRef.current) {
-            e.key === 'ArrowDown' ? setSelectedOption({
-              category: MentionTag.Page,
-              index: 0,
-            }) : setSelectedOption({
-              category: MentionTag.NewPage,
-              index: 1,
-            });
+            if (e.key === 'ArrowDown') {
+              setSelectedOption(options[0]);
+            } else {
+              setSelectedOption(options[options.length - 1]);
+            }
+
             break;
           }
 
           const { category, index } = selectedOptionRef.current;
+          const currentIndex = options.findIndex(option => option.category === category && option.index === index);
+          const nextIndex = e.key === 'ArrowDown' ? (currentIndex + 1) % options.length : (currentIndex - 1 + options.length) % options.length;
 
-          if (category === MentionTag.Page) {
-            if (index === 0 && e.key === 'ArrowUp') {
-              setSelectedOption({
-                category: MentionTag.NewPage,
-                index: 1,
-              });
-              break;
-            } else if (index === splicedViews.length - 1 && e.key === 'ArrowDown') {
-              setSelectedOption({
-                category: MentionTag.NewPage,
-                index: 0,
-              });
-              break;
-            } else {
-              const nextIndex = e.key === 'ArrowDown' ? (index + 1) % splicedViews.length : (index - 1 + splicedViews.length) % splicedViews.length;
-
-              setSelectedOption({
-                category: MentionTag.Page,
-                index: nextIndex,
-              });
-              break;
-            }
-          }
-
-          if (category === MentionTag.NewPage) {
-            if (index === 0 && e.key === 'ArrowUp') {
-              setSelectedOption({
-                category: MentionTag.Page,
-                index: splicedViews.length - 1,
-              });
-              break;
-            } else if (index === 1 && e.key === 'ArrowDown') {
-              setSelectedOption({
-                category: MentionTag.Page,
-                index: 0,
-              });
-              break;
-            } else {
-              setSelectedOption({
-                category: MentionTag.NewPage,
-                index: index === 0 ? 1 : 0,
-              });
-              break;
-            }
-          }
+          setSelectedOption(options[nextIndex]);
 
           break;
         }
@@ -260,7 +307,7 @@ export function MentionPanel () {
     return () => {
       slateDom.removeEventListener('keydown', handleKeyDown);
     };
-  }, [closePanel, editor, open, splicedViews, handleSelectedPage, handleAddPage]);
+  }, [editor, handleAddPage, handleSelectedPage, open, selectedOptionRef, splicedViews, dateOptions]);
 
   return (
     <Popover
@@ -297,12 +344,14 @@ export function MentionPanel () {
                     key={view.view_id}
                     data-option-index={index}
                     startIcon={
-                      <span className={`${view.icon && isFlagEmoji(view.icon.value) ? 'icon' : ''} flex h-5 w-5 min-w-5 items-center justify-center`}>
-                {view.icon?.value || <ViewIcon
-                  layout={view.layout}
-                  size={'small'}
-                />}
-              </span>}
+                      <span
+                        className={`${view.icon && isFlagEmoji(view.icon.value) ? 'icon' : ''} flex h-5 w-5 min-w-5 items-center justify-center`}>
+                        {view.icon?.value || <ViewIcon
+                          layout={view.layout}
+                          size={'small'}
+                        />}
+                      </span>
+                    }
                     className={`justify-start truncate scroll-m-2 min-h-[32px] hover:bg-content-blue-50 ${selectedOption?.index === index && selectedOption?.category === MentionTag.Page ? 'bg-fill-list-hover' : ''}`}
                     onClick={() => handleSelectedPage(view.view_id)}
                   >
@@ -311,27 +360,49 @@ export function MentionPanel () {
                 ))}
               </div>
             ) :
-            <div className={'text-text-caption text-sm flex justify-center items-center p-2'}>{t('findAndReplace.noResult')}</div>
+            <div
+              className={'text-text-caption text-sm flex justify-center items-center p-2'}>{t('findAndReplace.noResult')}</div>
           }
           {showMore &&
             <Button
               color={'inherit'}
               size={'small'}
-              startIcon={<MoreIcon />}
+              startIcon={<MoreIcon/>}
               className={'justify-start scroll-m-2 min-h-[32px] hover:bg-fill-list-hover'}
               onClick={handleClickMore}
             >
               {filteredViews.length - moreCount} {t('web.moreOptions')}
             </Button>}
         </div>
+        {showDate && <div className={'flex flex-col gap-2'} data-option-categor={MentionTag.Date}>
+          <div className={'text-text-caption scroll-my-10 px-1'}>{t('inlineActions.date')}</div>
+          {
+            dateOptions.map((option, index) => (
+              <Button
+                key={option.value}
+                color={'inherit'}
+                size={'small'}
+                data-option-index={index}
+                className={`justify-start scroll-m-2 min-h-[32px] hover:bg-fill-list-hover ${
+                  selectedOption?.index === index && selectedOption?.category === MentionTag.Date ? 'bg-fill-list-hover' : ''
+                }`}
+                onClick={option.onClick}
+              >
+                {option.name}
+              </Button>
+            ))
+          }
+
+        </div>}
+
         <div
           data-option-category={MentionTag.NewPage}
           className={'flex w-full flex-col gap-2'}
         >
-          <Divider />
+          <Divider/>
           <Button
             color={'inherit'}
-            startIcon={<AddIcon />}
+            startIcon={<AddIcon/>}
             size={'small'}
             data-option-index={0}
             className={`justify-start scroll-m-2 min-h-[32px] hover:bg-fill-list-hover ${selectedOption?.index === 0 && selectedOption?.category === MentionTag.NewPage ? 'bg-fill-list-hover' : ''}`}
@@ -350,7 +421,7 @@ export function MentionPanel () {
 
           <Button
             color={'inherit'}
-            startIcon={<ArrowIcon className={' text-content-blue-900 w-[0.75em] h-[0.75em] mx-0.5'} />}
+            startIcon={<ArrowIcon className={' text-content-blue-900 w-[0.75em] h-[0.75em] mx-0.5'}/>}
             size={'small'}
             data-option-index={1}
             className={`justify-start scroll-m-2 min-h-[32px] hover:bg-fill-list-hover ${selectedOption?.index === 1 && selectedOption?.category === MentionTag.NewPage ? 'bg-fill-list-hover' : ''}`}

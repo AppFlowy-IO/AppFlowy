@@ -173,6 +173,14 @@ function HrefPopover({
 
     const text = editor.string(editor.selection);
 
+    const saveLink = (value: string) => {
+      if (value === hrefNode.href || !urlValid) return;
+      CustomEditor.addMark(editor, {
+        key: EditorMarkFormat.Href,
+        value,
+      });
+    };
+
     return (
       <div className={'flex flex-col gap-4'}>
         <div className={'flex flex-col gap-1'}>
@@ -185,11 +193,7 @@ function HrefPopover({
             }}
             defaultValue={hrefNode.href}
             onBlur={e => {
-              if (e.target.value === hrefNode.href || !urlValid) return;
-              CustomEditor.addMark(editor, {
-                key: EditorMarkFormat.Href,
-                value: e.currentTarget.value,
-              });
+              saveLink(e.currentTarget.value);
             }}
             onInput={e => {
               const target = e.target as HTMLInputElement;
@@ -212,6 +216,8 @@ function HrefPopover({
                 e.preventDefault();
                 e.stopPropagation();
                 textRef.current?.focus();
+              } else if (createHotkey(HOT_KEY_NAME.ESCAPE)(e.nativeEvent)) {
+                saveLink(e.currentTarget.value);
               }
             }}
             size={'small'}
