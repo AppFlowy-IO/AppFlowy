@@ -6,13 +6,17 @@ import MathEquationToolbar from '@/components/editor/components/blocks/math-equa
 import { EditorElementProps, MathEquationNode } from '@/components/editor/editor.type';
 import React, { forwardRef, memo, Suspense, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useReadOnly } from 'slate-react';
+import { useReadOnly, useSlateStatic } from 'slate-react';
+import { Element } from 'slate';
 
 export const MathEquation = memo(
   forwardRef<HTMLDivElement, EditorElementProps<MathEquationNode>>(
     ({ node, children, className, ...attributes }, ref) => {
       const formula = node.data.formula;
-      const readOnly = useReadOnly();
+      const editor = useSlateStatic();
+
+      const readOnly = useReadOnly() || editor.isElementReadOnly(node as unknown as Element);
+
       const { t } = useTranslation();
       const containerRef = useRef<HTMLDivElement>(null);
       const [showToolbar, setShowToolbar] = useState(false);
@@ -59,13 +63,13 @@ export const MathEquation = memo(
               {formula ? (
                 <div className={'flex items-center w-full justify-center'}>
                   <Suspense fallback={formula}>
-                    <KatexMath latex={formula} />
+                    <KatexMath latex={formula}/>
                   </Suspense>
                 </div>
 
               ) : (
                 <div className={'flex items-center gap-4 text-text-caption'}>
-                  <MathSvg className={'h-6 w-6'} />
+                  <MathSvg className={'h-6 w-6'}/>
                   {t('document.plugins.mathEquation.addMathEquation')}
                 </div>
               )}
@@ -78,7 +82,7 @@ export const MathEquation = memo(
               {children}
             </div>
             {showToolbar && (
-              <MathEquationToolbar node={node} />
+              <MathEquationToolbar node={node}/>
             )}
           </div>
         </>

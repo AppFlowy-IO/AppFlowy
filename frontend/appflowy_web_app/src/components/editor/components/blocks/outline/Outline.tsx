@@ -4,13 +4,14 @@ import React, { forwardRef, memo, useCallback, useEffect, useState } from 'react
 import { useTranslation } from 'react-i18next';
 import { useReadOnly, useSlate } from 'slate-react';
 import smoothScrollIntoViewIfNeeded from 'smooth-scroll-into-view-if-needed';
+import { Element } from 'slate';
 
 export const Outline = memo(
   forwardRef<HTMLDivElement, EditorElementProps<OutlineNode>>(({ node, children, className, ...attributes }, ref) => {
     const editor = useSlate();
     const [root, setRoot] = useState<HeadingNode[]>([]);
     const { t } = useTranslation();
-    const readOnly = useReadOnly();
+    const readOnly = useReadOnly() || editor.isElementReadOnly(node as unknown as Element);
 
     useEffect(() => {
       const root = nestHeadings(extractHeadings(editor, node.data.depth || 6));

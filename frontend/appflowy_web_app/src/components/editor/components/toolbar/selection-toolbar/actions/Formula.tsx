@@ -11,7 +11,7 @@ import { Transforms, Text, Editor } from 'slate';
 import { useSlateStatic } from 'slate-react';
 import { ReactComponent as MathSvg } from '@/assets/math.svg';
 
-function Formula () {
+function Formula() {
   const { t } = useTranslation();
   const editor = useSlateStatic() as YjsEditor;
   const {
@@ -80,13 +80,10 @@ function Formula () {
 
       if (!entry) return;
 
-      const [node] = entry;
-      const formula = (node as unknown as Text).formula || '';
+      const [, path] = entry;
 
+      editor.select(path);
       CustomEditor.removeMark(editor, EditorMarkFormat.Formula);
-
-      editor.delete();
-      editor.insertText(formula);
     }
 
     setState(getState());
@@ -99,7 +96,7 @@ function Formula () {
       disabled={!isActivated && (hasFormulaActivated || hasMentionActivated)}
       tooltip={t('document.plugins.createInlineMathEquation')}
     >
-      <MathSvg />
+      <MathSvg/>
     </ActionButton>
   );
 }

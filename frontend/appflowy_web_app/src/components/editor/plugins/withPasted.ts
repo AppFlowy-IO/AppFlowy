@@ -30,37 +30,39 @@ export const withPasted = (editor: ReactEditor) => {
       const point = editor.selection?.anchor as BasePoint;
       const [node] = getBlockEntry(editor as YjsEditor, point);
 
-      if (lineLength > 1 && html && node.type !== BlockType.CodeBlock) {
-        return insertHtmlData(editor, data);
+      if (lineLength === 1) {
+        const isUrl = isURL(text, {
+          host_whitelist: ['localhost', 'appflowy.com', 'test.appflowy.com', 'beta.appflowy.com'],
+        });
+
+        console.log('insertTextData', {
+          text, isUrl,
+        });
+
+        if (isUrl) {
+          const url = new URL(text);
+          const blockId = url.searchParams.get('blockId');
+
+          if (blockId) {
+            const pageId = url.pathname.split('/').pop();
+            const point = editor.selection?.anchor as BasePoint;
+
+            Transforms.insertNodes(editor, {
+              text: '@', mention: {
+                type: MentionType.PageRef,
+                page_id: pageId,
+                block_id: blockId,
+              },
+            }, { at: point, select: true, voids: false });
+
+          }
+
+          return true;
+        }
       }
 
-      const isUrl = isURL(text, {
-        host_whitelist: ['localhost', 'appflowy.com', '*.appflowy.com'],
-      });
-
-      console.log('insertTextData', {
-        text, isUrl,
-      });
-
-      if (isUrl) {
-        const url = new URL(text);
-        const blockId = url.searchParams.get('blockId');
-
-        if (blockId) {
-          const pageId = url.pathname.split('/').pop();
-          const point = editor.selection?.anchor as BasePoint;
-
-          Transforms.insertNodes(editor, {
-            text: '@', mention: {
-              type: MentionType.PageRef,
-              page_id: pageId,
-              block_id: blockId,
-            },
-          }, { at: point, select: true, voids: false });
-
-        }
-
-        return true;
+      if (lineLength > 1 && html && node.type !== BlockType.CodeBlock) {
+        return insertHtmlData(editor, data);
       }
 
       for (const line of lines) {

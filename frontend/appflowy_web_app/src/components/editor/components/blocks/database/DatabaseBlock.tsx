@@ -8,6 +8,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import React, { forwardRef, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactEditor, useReadOnly, useSlateStatic } from 'slate-react';
+import { Element } from 'slate';
 
 export const DatabaseBlock = memo(
   forwardRef<HTMLDivElement, EditorElementProps<DatabaseNode>>(({ node, children, ...attributes }, ref) => {
@@ -86,7 +87,8 @@ export const DatabaseBlock = memo(
       },
       [navigateToView, viewId],
     );
-    const readOnly = useReadOnly();
+    const editor = useSlateStatic();
+    const readOnly = useReadOnly() || editor.isElementReadOnly(node as unknown as Element);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const selectedView = useMemo(() => {
@@ -111,7 +113,6 @@ export const DatabaseBlock = memo(
     }, [selectedView]);
 
     const [scrollLeft, setScrollLeft] = useState(0);
-    const editor = useSlateStatic();
 
     useEffect(() => {
       const editorDom = ReactEditor.toDOMNode(editor, editor);
@@ -195,7 +196,7 @@ export const DatabaseBlock = memo(
                       <div className={'text-base font-medium'}>{t('publish.hasNotBeenPublished')}</div>
                     </>
                   ) : (
-                    <CircularProgress />
+                    <CircularProgress/>
                   )}
                 </div>
               )}

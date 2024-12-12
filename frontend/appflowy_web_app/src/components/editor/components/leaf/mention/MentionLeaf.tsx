@@ -2,15 +2,17 @@ import { Mention, MentionType } from '@/application/types';
 import { useLeafSelected } from '@/components/editor/components/leaf/leaf.hooks';
 import MentionDate from '@/components/editor/components/leaf/mention/MentionDate';
 import MentionPage from '@/components/editor/components/leaf/mention/MentionPage';
-import { useMemo } from 'react';
-import { Text } from 'slate';
-import { useReadOnly } from 'slate-react';
+import React, { useMemo } from 'react';
+import { Element, Text } from 'slate';
+import { useReadOnly, useSlateStatic } from 'slate-react';
 
-export function MentionLeaf ({ mention, text }: {
+export function MentionLeaf({ mention, text, children }: {
   mention: Mention;
   text: Text;
+  children: React.ReactNode;
 }) {
-  const readonly = useReadOnly();
+  const editor = useSlateStatic();
+  const readonly = useReadOnly() || editor.isElementReadOnly(text as unknown as Element);
   const { type, date, page_id, reminder_id, reminder_option, block_id } = mention;
 
   const reminder = useMemo(() => {
@@ -20,6 +22,7 @@ export function MentionLeaf ({ mention, text }: {
   const content = useMemo(() => {
     if ([MentionType.PageRef, MentionType.childPage].includes(type) && page_id) {
       return <MentionPage
+        text={text}
         type={type}
         pageId={page_id}
         blockId={block_id}
@@ -32,29 +35,37 @@ export function MentionLeaf ({ mention, text }: {
         reminder={reminder}
       />;
     }
-  }, [date, page_id, reminder, type, block_id]);
+  }, [text, date, page_id, reminder, type, block_id]);
 
   // check if the mention is selected
-  const { isSelected, select, isCursorAfter, isCursorBefore } = useLeafSelected(text);
+  const { isSelected, select, isCursorBefore } = useLeafSelected(text);
   const className = useMemo(() => {
     const classList = ['w-fit mention', 'relative', 'rounded', 'py-0.5'];
 
     if (readonly) classList.push('cursor-default');
-    else classList.push('cursor-pointer');
+    else if (type !== MentionType.Date) classList.push('cursor-pointer');
 
-    if (isSelected) classList.push('selected');
-    if (isCursorAfter) classList.push('cursor-after');
-    if (isCursorBefore) classList.push('cursor-before');
+    if (isSelected && type !== MentionType.Date) classList.push('selected');
     return classList.join(' ');
-  }, [readonly, isSelected, isCursorAfter, isCursorBefore]);
+  }, [type, readonly, isSelected]);
 
-  return <span
-    onClick={select}
-    contentEditable={false}
-    className={className}
-  >
+  return <>
+    {isCursorBefore && <span data-slate-string="true">{
+      `\u200B`
+    }</span>}
+    <span
+      onClick={select}
+      contentEditable={false}
+      className={className}
+    >
     {content}
-  </span>;
+  </span>
+    <span
+      className={'absolute right-0 text-transparent w-[1px] overflow-hidden'}
+    >
+        {children}
+      </span>
+  </>;
 }
 
 export default MentionLeaf;

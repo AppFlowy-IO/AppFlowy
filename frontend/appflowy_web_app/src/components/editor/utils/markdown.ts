@@ -439,8 +439,6 @@ export const applyMarkdown = (editor: YjsEditor, insertText: string): boolean =>
 
         return true;
       }
-
-      console.log('symbol text', text, match);
     }
   }
 

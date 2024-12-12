@@ -26,7 +26,7 @@ export const SubPage = memo(
         >
           {children}
         </div>
-        <MentionPage pageId={pageId} />
+        <MentionPage text={node} pageId={pageId}/>
       </div>
     );
   }),

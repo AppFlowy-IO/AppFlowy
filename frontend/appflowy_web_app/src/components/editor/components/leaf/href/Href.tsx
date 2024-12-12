@@ -1,6 +1,6 @@
 import { openUrl } from '@/utils/url';
 import React, { memo, useEffect, useMemo, useRef } from 'react';
-import { Text } from 'slate';
+import { Element, Text } from 'slate';
 import { ReactEditor, useReadOnly, useSlateStatic } from 'slate-react';
 import { Popover } from '@/components/_shared/popover';
 import { ReactComponent as CopyIcon } from '@/assets/copy.svg';
@@ -14,14 +14,16 @@ import { debounce } from 'lodash-es';
 import { useLeafContext } from '@/components/editor/components/leaf/leaf.hooks';
 
 export const Href = memo(({ text, children, leaf }: { leaf: Text; children: React.ReactNode; text: Text; }) => {
-  const readOnly = useReadOnly();
+  const editor = useSlateStatic() as YjsEditor;
+
+  const readOnly = useReadOnly() || editor.isElementReadOnly(text as unknown as Element);
+
   const {
     linkOpen,
     openLinkPopover,
   } = useLeafContext();
   const [hovered, setHovered] = React.useState(false);
   const ref = useRef<HTMLSpanElement | null>(null);
-  const editor = useSlateStatic() as YjsEditor;
   const [selected, setSelected] = React.useState(false);
   const { t } = useTranslation();
 

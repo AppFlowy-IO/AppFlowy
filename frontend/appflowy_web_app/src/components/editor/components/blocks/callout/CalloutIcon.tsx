@@ -5,11 +5,12 @@ import ChangeIconPopover from '@/components/_shared/view-icon/ChangeIconPopover'
 import { CalloutNode } from '@/components/editor/editor.type';
 import React, { useCallback, useRef } from 'react';
 import { useReadOnly, useSlateStatic } from 'slate-react';
+import { Element } from 'slate';
 
 function CalloutIcon({ block: node, className }: { block: CalloutNode; className: string }) {
   const ref = useRef<HTMLButtonElement>(null);
-  const readOnly = useReadOnly();
   const editor = useSlateStatic();
+  const readOnly = useReadOnly() || editor.isElementReadOnly(node as unknown as Element);
   const blockId = node.blockId;
 
   const [open, setOpen] = React.useState(false);

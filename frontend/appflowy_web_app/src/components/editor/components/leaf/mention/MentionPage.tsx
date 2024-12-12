@@ -11,8 +11,14 @@ import { isFlagEmoji } from '@/utils/emoji';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useReadOnly, useSlateStatic } from 'slate-react';
+import { Element, Text } from 'slate';
 
-function MentionPage ({ pageId, blockId, type }: { pageId: string; blockId?: string; type?: MentionType }) {
+function MentionPage({ text, pageId, blockId, type }: {
+  text: Text | Element;
+  pageId: string;
+  blockId?: string;
+  type?: MentionType
+}) {
   const context = useEditorContext();
   const editor = useSlateStatic();
   const currentViewId = context.viewId;
@@ -94,7 +100,7 @@ function MentionPage ({ pageId, blockId, type }: { pageId: string; blockId?: str
 
   const mentionIcon = useMemo(() => {
     if (pageId === currentViewId && blockId) {
-      return <MarkIcon className={'text-icon-primary ml-0.5 opacity-70'} />;
+      return <MarkIcon className={'text-icon-primary ml-0.5 opacity-70'}/>;
     }
 
     return <>
@@ -105,13 +111,13 @@ function MentionPage ({ pageId, blockId, type }: { pageId: string; blockId?: str
       />}
       {type === MentionType.PageRef &&
         <span className={`absolute ${icon?.value ? 'right-0 bottom-0' : '-right-[1px] -bottom-[1px]'}`}>
-          <NorthEast className={'w-[0.7em] h-[0.7em] text-content-blue-900'} />
+          <NorthEast className={'w-[0.7em] h-[0.7em] text-content-blue-900'}/>
         </span>
       }
     </>;
   }, [blockId, currentViewId, icon?.value, meta?.layout, pageId, type]);
 
-  const readOnly = useReadOnly();
+  const readOnly = useReadOnly() || editor.isElementReadOnly(text as unknown as Element);
 
   return (
     <span

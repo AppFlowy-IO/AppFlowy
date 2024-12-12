@@ -4,11 +4,12 @@ import { ToggleListNode } from '@/components/editor/editor.type';
 import React, { useCallback } from 'react';
 import { ReactComponent as ExpandSvg } from '$icons/16x/drop_menu_show.svg';
 import { useReadOnly, useSlateStatic } from 'slate-react';
+import { Element } from 'slate';
 
-function ToggleIcon ({ block, className }: { block: ToggleListNode; className: string }) {
+function ToggleIcon({ block, className }: { block: ToggleListNode; className: string }) {
   const { collapsed } = block.data;
   const editor = useSlateStatic();
-  const readOnly = useReadOnly();
+  const readOnly = useReadOnly() || editor.isElementReadOnly(block as unknown as Element);
 
   const handleClick = useCallback((e: React.MouseEvent) => {
     if (readOnly) {
@@ -31,7 +32,7 @@ function ToggleIcon ({ block, className }: { block: ToggleListNode; className: s
       }}
       className={`${className} ${readOnly ? '' : 'cursor-pointer hover:text-fill-default'} pr-1 text-xl h-full`}
     >
-      {collapsed ? <ExpandSvg className={'-rotate-90 transform'} /> : <ExpandSvg />}
+      {collapsed ? <ExpandSvg className={'-rotate-90 transform'}/> : <ExpandSvg/>}
     </span>
   );
 }

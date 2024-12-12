@@ -269,6 +269,10 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   }
 }
 
+.formula-inline {
+  @apply whitespace-pre;
+}
+
 
 .numbered-icon {
   &:after {
@@ -359,19 +363,6 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   @include mixin.scrollbar-style;
 }
 
-
-.cursor-before::before,
-.cursor-after::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  margin-top: 2px;
-  margin-bottom: 2px;
-  background-color: var(--text-title);
-  animation: blink 1s step-end infinite;
-}
 
 .cursor-before::before {
   left: -1px;
