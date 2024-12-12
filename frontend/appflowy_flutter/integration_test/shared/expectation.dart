@@ -6,7 +6,6 @@ import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_cover_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy/workspace/presentation/notifications/widgets/notification_item.dart';
@@ -197,7 +196,7 @@ extension Expectation on WidgetTester {
         return find.byWidgetPredicate(
           (widget) =>
               widget is SingleInnerViewItem &&
-              widget.view.nameOrDefault == name &&
+              widget.view.name == name &&
               widget.view.layout == layout,
           skipOffstage: false,
         );
@@ -207,7 +206,7 @@ extension Expectation on WidgetTester {
         of: find.byWidgetPredicate(
           (widget) =>
               widget is InnerViewItem &&
-              widget.view.nameOrDefault == parentName &&
+              widget.view.name == parentName &&
               widget.view.layout == parentLayout,
           skipOffstage: false,
         ),

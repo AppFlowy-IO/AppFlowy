@@ -1,5 +1,6 @@
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -27,7 +28,7 @@ void main() {
 
     // click the ... button and open rename dialog
     await tester.hoverOnPageName(
-      LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+      ViewLayoutPB.Document.defaultName,
       onHover: () async {
         await tester.tapPageOptionButton();
         await tester.tapButtonWithName(
