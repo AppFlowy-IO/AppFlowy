@@ -1,7 +1,9 @@
 import { Alert } from '@mui/material';
 import { FallbackProps } from 'react-error-boundary';
 
-export function ElementFallbackRender ({ error }: FallbackProps) {
+export function ElementFallbackRender({ error, description }: FallbackProps & {
+  description?: string;
+}) {
   return (
     <Alert
       severity={'error'}
@@ -11,6 +13,7 @@ export function ElementFallbackRender ({ error }: FallbackProps) {
     >
       <p>Something went wrong:</p>
       <pre>{error.message}</pre>
+      {description && <pre>{description}</pre>}
     </Alert>
   );
 }
