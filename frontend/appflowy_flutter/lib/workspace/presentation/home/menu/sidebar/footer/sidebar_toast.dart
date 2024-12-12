@@ -94,15 +94,15 @@ class SidebarToast extends StatelessWidget {
     }
 
     final userWorkspaceBloc = context.read<UserWorkspaceBloc>();
-    final member = userWorkspaceBloc.state.currentWorkspaceMember;
-    if (member == null) {
+    final role = userWorkspaceBloc.state.currentWorkspace?.role;
+    if (role == null) {
       return Log.error(
         "Member is null. It should not happen. If you see this error, it's a bug",
       );
     }
 
     // Only if the user is the workspace owner will we navigate to the plan page.
-    if (member.role.isOwner) {
+    if (role.isOwner) {
       showSettingsDialog(
         context,
         userProfile,

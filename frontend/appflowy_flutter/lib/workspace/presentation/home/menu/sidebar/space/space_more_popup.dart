@@ -152,7 +152,7 @@ class SpaceMoreActionTypeWrapper extends CustomActionCell {
     final isOwner = context
             .read<UserWorkspaceBloc?>()
             ?.state
-            .currentWorkspaceMember
+            .currentWorkspace
             ?.role
             .isOwner ??
         false;

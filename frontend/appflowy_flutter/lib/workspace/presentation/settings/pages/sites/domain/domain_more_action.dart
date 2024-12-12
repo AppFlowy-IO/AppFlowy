@@ -82,7 +82,7 @@ class _DomainMoreActionState extends State<DomainMoreAction> {
     final isOwner = context
             .watch<UserWorkspaceBloc>()
             .state
-            .currentWorkspaceMember
+            .currentWorkspace
             ?.role
             .isOwner ??
         false;

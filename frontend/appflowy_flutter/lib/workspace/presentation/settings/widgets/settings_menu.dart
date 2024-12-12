@@ -16,14 +16,12 @@ class SettingsMenu extends StatelessWidget {
     required this.currentPage,
     required this.userProfile,
     required this.isBillingEnabled,
-    this.member,
   });
 
   final Function changeSelectedPage;
   final SettingsPage currentPage;
   final UserProfilePB userProfile;
   final bool isBillingEnabled;
-  final WorkspaceMemberPB? member;
 
   @override
   Widget build(BuildContext context) {
