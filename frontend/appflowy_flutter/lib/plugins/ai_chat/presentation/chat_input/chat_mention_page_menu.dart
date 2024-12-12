@@ -154,8 +154,10 @@ class ChatMentionPageList extends StatefulWidget {
 }
 
 class _ChatMentionPageListState extends State<ChatMentionPageList> {
-  final autoScrollController = AutoScrollController(
+  final autoScrollController = SimpleAutoScrollController(
     suggestedRowHeight: _itemHeight,
+    beginGetter: (rect) => rect.top + 8.0,
+    endGetter: (rect) => rect.bottom - 8.0,
   );
 
   @override
