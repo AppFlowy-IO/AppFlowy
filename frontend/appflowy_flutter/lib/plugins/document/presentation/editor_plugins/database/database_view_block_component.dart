@@ -71,12 +71,7 @@ class _DatabaseBlockComponentWidgetState
     Widget child = BuiltInPageWidget(
       node: widget.node,
       editorState: editorState,
-      builder: (viewPB) {
-        return DatabaseViewWidget(
-          key: ValueKey(viewPB.id),
-          view: viewPB,
-        );
-      },
+      builder: (view) => DatabaseViewWidget(key: ValueKey(view.id), view: view),
     );
 
     child = Padding(
