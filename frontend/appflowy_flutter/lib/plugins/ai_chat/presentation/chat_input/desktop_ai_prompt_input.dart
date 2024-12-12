@@ -519,6 +519,9 @@ class _PromptBottomActions extends StatelessWidget {
       iconSize: DesktopAIPromptSizes.actionBarIconSize,
       buttonSize: DesktopAIPromptSizes.actionBarButtonSize,
       onTap: () {
+        if (overlayController.isShowing) {
+          return;
+        }
         if (!focusNode.hasFocus) {
           focusNode.requestFocus();
         }
