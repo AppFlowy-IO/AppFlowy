@@ -74,6 +74,7 @@ export function withYjs<T extends Editor>(
   editor: T,
   doc: Y.Doc,
   opts?: {
+    id?: string;
     readOnly: boolean;
     localOrigin: CollabOrigin;
     readSummary?: boolean;
@@ -81,7 +82,14 @@ export function withYjs<T extends Editor>(
     uploadFile?: (file: File) => Promise<string>;
   },
 ): T & YjsEditor {
-  const { uploadFile, localOrigin = CollabOrigin.Local, readSummary, onContentChange, readOnly = true } = opts ?? {};
+  const {
+    id,
+    uploadFile,
+    localOrigin = CollabOrigin.Local,
+    readSummary,
+    onContentChange,
+    readOnly = true,
+  } = opts ?? {};
   const e = editor as T & YjsEditor;
   const { apply, onChange } = e;
 
@@ -138,6 +146,7 @@ export function withYjs<T extends Editor>(
 
     // Initialize or update the document content to ensure it is in the correct state before applying remote events
     if (transaction.origin === CollabOrigin.Remote) {
+
       initializeDocumentContent();
     } else {
       const selection = editor.selection;
@@ -170,6 +179,7 @@ export function withYjs<T extends Editor>(
       throw new Error('Already connected');
     }
 
+    console.log('===connect', id);
     initializeDocumentContent();
     e.sharedRoot.observeDeep(handleYEvents);
     connectSet.add(e);

@@ -2,8 +2,8 @@ import ToolbarActions from '@/components/editor/components/toolbar/selection-too
 import { SelectionToolbarContext, useToolbarPosition, useVisible } from './SelectionToolbar.hooks';
 import React, { useCallback, useEffect, useRef } from 'react';
 
-export function SelectionToolbar () {
-  const { visible, forceShow } = useVisible();
+export function SelectionToolbar() {
+  const { visible, forceShow, getDecorateState } = useVisible();
   const ref = useRef<HTMLDivElement | null>(null);
   const {
     hideToolbar,
@@ -40,7 +40,7 @@ export function SelectionToolbar () {
   }, [showToolbar]);
 
   return (
-    <SelectionToolbarContext.Provider value={{ visible, forceShow, rePosition }}>
+    <SelectionToolbarContext.Provider value={{ visible, forceShow, rePosition, getDecorateState }}>
       <div
         ref={ref}
         className={
@@ -52,7 +52,7 @@ export function SelectionToolbar () {
           e.stopPropagation();
         }}
       >
-        <ToolbarActions />
+        <ToolbarActions/>
       </div>
     </SelectionToolbarContext.Provider>
   );

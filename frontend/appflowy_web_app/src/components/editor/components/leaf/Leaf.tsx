@@ -7,7 +7,7 @@ import React, { CSSProperties } from 'react';
 import { RenderLeafProps } from 'slate-react';
 import { renderColor } from '@/utils/color';
 
-export function Leaf ({ attributes, children, leaf, text }: RenderLeafProps) {
+export function Leaf({ attributes, children, leaf, text }: RenderLeafProps) {
   let newChildren = children;
 
   const classList = [leaf.prism_token, leaf.prism_token && 'token', leaf.class_name].filter(Boolean);
@@ -43,7 +43,7 @@ export function Leaf ({ attributes, children, leaf, text }: RenderLeafProps) {
   }
 
   if (leaf.href) {
-    newChildren = <Href leaf={leaf}>{newChildren}</Href>;
+    newChildren = <Href text={text} leaf={leaf}>{newChildren}</Href>;
   }
 
   if (leaf.font_family) {

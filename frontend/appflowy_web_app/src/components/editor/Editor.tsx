@@ -27,7 +27,7 @@ export const Editor = memo(({ doc, layoutStyle = defaultLayoutStyle, onRendered,
       addCodeGrammars={handleAddCodeGrammars}
       layoutStyle={layoutStyle}
     >
-      <CollaborativeEditor doc={doc} />
+      <CollaborativeEditor doc={doc}/>
     </EditorContextProvider>
   );
 });

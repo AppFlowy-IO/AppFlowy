@@ -12,9 +12,11 @@ import { getTextCount } from '@/utils/word';
 import { Skeleton } from '@mui/material';
 import { debounce } from 'lodash-es';
 import React, { lazy, Suspense, useCallback, useEffect, useMemo } from 'react';
-import { BaseRange, Editor, NodeEntry, Range, Element as SlateElement } from 'slate';
+import { BaseRange, Editor, NodeEntry, Range, Element as SlateElement, Text } from 'slate';
 import { Editable, RenderElementProps, useSlate } from 'slate-react';
 import { Element } from './components/element';
+import { LeafContext } from '@/components/editor/components/leaf/leaf.hooks';
+import HrefPopover from '@/components/editor/components/leaf/href/HrefPopover';
 
 const EditorOverlay = lazy(() => import('@/components/editor/EditorOverlay'));
 
@@ -127,33 +129,55 @@ const EditorEditable = () => {
     }
   }, []);
 
+  const [linkOpen, setLinkOpen] = React.useState<Text | undefined>(undefined);
+  const handleOpenLinkPopover = useCallback((text: Text) => {
+    setLinkOpen(text);
+  }, []);
+
+  const handleCloseLinkPopover = useCallback(() => {
+    setLinkOpen(undefined);
+  }, []);
+
   return (
     <PanelProvider editor={editor}>
       <BlockPopoverProvider editor={editor}>
-        <Editable
-          role={'textbox'}
-          decorate={(entry: NodeEntry) => {
-            const codeDecoration = codeDecorate?.(entry);
-            const decoration = decorate(entry);
+        <LeafContext.Provider value={{
+          linkOpen,
+          openLinkPopover: handleOpenLinkPopover,
+          closeLinkPopover: handleCloseLinkPopover,
+        }}>
+          <Editable
+            role={'textbox'}
+            decorate={(entry: NodeEntry) => {
+              const codeDecoration = codeDecorate?.(entry);
+              const decoration = decorate(entry);
 
-            return [...codeDecoration, ...decoration];
-          }}
-          id={`editor-${viewId}`}
-          className={'outline-none custom-caret scroll-mb-[100px] scroll-mt-[300px] pb-36 min-w-0 max-w-full w-[988px] max-sm:px-6 px-24 focus:outline-none'}
-          renderLeaf={Leaf}
-          renderElement={renderElement}
-          readOnly={readOnly}
-          spellCheck={false}
-          autoCorrect={'off'}
-          autoComplete={'off'}
-          onCompositionStart={onCompositionStart}
-          onKeyDown={onKeyDown}
-          onMouseDown={handleMouseDown}
-          onClick={handleClick}
-        />
-        {!readOnly &&
-          <Suspense><EditorOverlay /></Suspense>
-        }
+              return [...codeDecoration, ...decoration];
+            }}
+            id={`editor-${viewId}`}
+            className={'outline-none custom-caret scroll-mb-[100px] scroll-mt-[300px] pb-36 min-w-0 max-w-full w-[988px] max-sm:px-6 px-24 focus:outline-none'}
+            renderLeaf={Leaf}
+            renderElement={renderElement}
+            readOnly={readOnly}
+            spellCheck={false}
+            autoCorrect={'off'}
+            autoComplete={'off'}
+            onCompositionStart={onCompositionStart}
+            onKeyDown={onKeyDown}
+            onMouseDown={handleMouseDown}
+            onClick={handleClick}
+          />
+          {!readOnly &&
+            <Suspense>
+              <EditorOverlay/>
+              <HrefPopover
+                open={!!linkOpen}
+                onClose={handleCloseLinkPopover}
+              />
+            </Suspense>
+          }
+
+        </LeafContext.Provider>
       </BlockPopoverProvider>
     </PanelProvider>
   );

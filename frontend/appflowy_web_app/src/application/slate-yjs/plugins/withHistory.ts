@@ -16,7 +16,7 @@ export type YHistoryEditor = YjsEditor & {
 };
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const YHistoryEditor = {
-  isYHistoryEditor (value: unknown): value is YHistoryEditor {
+  isYHistoryEditor(value: unknown): value is YHistoryEditor {
     return (
       YjsEditor.isYjsEditor(value) &&
       'undoManager' in value &&
@@ -25,16 +25,16 @@ export const YHistoryEditor = {
     );
   },
 
-  canUndo (editor: YHistoryEditor) {
+  canUndo(editor: YHistoryEditor) {
     return editor.undoManager.undoStack.length > 0;
   },
 
-  canRedo (editor: YHistoryEditor) {
+  canRedo(editor: YHistoryEditor) {
     return editor.undoManager.redoStack.length > 0;
   },
 };
 
-export function withYHistory<T extends YjsEditor> (
+export function withYHistory<T extends YjsEditor>(
   editor: T,
 ): T & YHistoryEditor {
   const e = editor as T & YHistoryEditor;
@@ -102,7 +102,6 @@ export function withYHistory<T extends YjsEditor> (
 
     const selection = relativeRangeToSlateRange(
       e.sharedRoot,
-      e,
       relativeSelection,
     );
 

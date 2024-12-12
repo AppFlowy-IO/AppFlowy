@@ -1,27 +1,24 @@
-import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
-import { getOffsetPointFromSlateRange } from '@/application/slate-yjs/utils/yjsOperations';
-import { getRangeRect, getSelectionPosition } from '@/components/editor/components/toolbar/selection-toolbar/utils';
-import { useEditorContext } from '@/components/editor/EditorContext';
+import { getSelectionPosition } from '@/components/editor/components/toolbar/selection-toolbar/utils';
+import { Decorate, useEditorContext } from '@/components/editor/EditorContext';
 import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
-import { PopoverPosition } from '@mui/material';
 import { debounce } from 'lodash-es';
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Range } from 'slate';
 import { ReactEditor, useFocused, useSlate, useSlateStatic } from 'slate-react';
 
-export function useVisible () {
+export function useVisible() {
   const editor = useSlate();
   const selection = editor.selection;
-  const { addDecorate, removeDecorate } = useEditorContext();
+  const { decorateState, addDecorate, removeDecorate } = useEditorContext();
   const [forceShow, setForceShow] = useState<boolean>(false);
   const [isDragging, setDragging] = useState<boolean>(false);
 
   const focus = useFocused();
 
   const isExpanded = selection ? Range.isExpanded(selection) : false;
-  
+
   const selectedText = selection ? editor.string(selection, {
     voids: true,
   }) : '';
@@ -82,7 +79,11 @@ export function useVisible () {
     } else {
       setForceShow(false);
     }
-  }, [addDecorate, editor.selection]);
+  }, [addDecorate, editor]);
+
+  const getDecorateState = useCallback(() => {
+    return decorateState?.['selection-toolbar'];
+  }, [decorateState]);
 
   useEffect(() => {
     if (!visible) return;
@@ -173,11 +174,12 @@ export function useVisible () {
   return {
     visible,
     forceShow: handleForceShow,
+    getDecorateState,
   };
 
 }
 
-export function useToolbarPosition () {
+export function useToolbarPosition() {
   const editor = useSlateStatic();
 
   const setPosition = useCallback((toolbarEl: HTMLDivElement, position: {
@@ -235,60 +237,14 @@ export const SelectionToolbarContext = createContext<{
   visible: boolean;
   forceShow: (forceVisible: boolean) => void;
   rePosition: () => void;
+  getDecorateState: () => Decorate | undefined;
 }>({
   visible: false,
   forceShow: () => undefined,
   rePosition: () => undefined,
+  getDecorateState: () => undefined,
 });
 
-export function useSelectionToolbarContext () {
+export function useSelectionToolbarContext() {
   return useContext(SelectionToolbarContext);
-}
-
-interface RelativeRange {
-  offset: number;
-  textId: string;
-}
-
-export function useToolbarPopover (editor: YjsEditor) {
-  const { forceShow } = useSelectionToolbarContext();
-  const [anchorPosition, setAnchorPosition] = useState<PopoverPosition | undefined>(undefined);
-  const rangeRef = useRef<{ start: RelativeRange; end: RelativeRange } | null>(null);
-
-  const open = Boolean(anchorPosition);
-
-  const handleClose = useCallback(() => {
-    setAnchorPosition(undefined);
-    forceShow(false);
-  }, [forceShow]);
-
-  const openPopover = useCallback(() => {
-    if (!editor.selection) return;
-    const rect = getRangeRect();
-
-    if (!rect) return;
-
-    try {
-      rangeRef.current = {
-        start: getOffsetPointFromSlateRange(editor, editor.start(editor.selection)),
-        end: getOffsetPointFromSlateRange(editor, editor.end(editor.selection)),
-      };
-    } catch (e) {
-      rangeRef.current = null;
-    }
-
-    forceShow(true);
-
-    setAnchorPosition({
-      top: rect.top + rect.height,
-      left: rect.left + rect.width / 2,
-    });
-  }, [editor, forceShow]);
-
-  return {
-    open,
-    anchorPosition,
-    handleClose,
-    openPopover,
-  };
 }

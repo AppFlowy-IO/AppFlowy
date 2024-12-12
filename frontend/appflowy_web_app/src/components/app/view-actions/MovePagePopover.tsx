@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import OutlineIcon from '@/components/_shared/outline/OutlineIcon';
 import { ReactComponent as SelectedIcon } from '@/assets/selected.svg';
 
-function MovePagePopover ({
+function MovePagePopover({
   viewId,
   onMoved,
   onClose,
@@ -58,14 +58,14 @@ function MovePagePopover ({
 
   const renderExtra = React.useCallback(({ view }: { view: View }) => {
     if (view.view_id !== selectedViewId) return null;
-    return <SelectedIcon className={'w-5 h-5 text-fill-default mx-2'} />;
+    return <SelectedIcon className={'w-5 h-5 text-fill-default mx-2'}/>;
   }, [selectedViewId]);
 
   return (
     <Popover {...props} onClose={onClose}>
       <div className={'flex folder-views w-[320px] flex-1 flex-col gap-1 py-[10px] px-[10px]'}>
         <OutlinedInput
-          startAdornment={<SearchOutlined className={'h-4 w-4'} />}
+          startAdornment={<SearchOutlined className={'h-4 w-4'}/>}
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
@@ -86,11 +86,11 @@ function MovePagePopover ({
           {views.map((view) => {
             const isExpanded = expandViewIds.includes(view.view_id);
 
-            return <div className={'flex items-start gap-1'}>
+            return <div key={view.view_id} className={'flex items-start gap-1'}>
               <div className={'h-[34px] flex items-center'}>
                 <OutlineIcon isExpanded={isExpanded} setIsExpanded={(status) => {
                   toggleExpandView(view.view_id, status);
-                }} level={0} />
+                }} level={0}/>
               </div>
 
               <SpaceItem
@@ -105,11 +105,11 @@ function MovePagePopover ({
                 }}
                 onClickSpace={setSelectedViewId}
                 renderExtra={renderExtra}
-              /></div>
+              /></div>;
           })}
         </div>
 
-        <Divider className={'mb-1'} />
+        <Divider className={'mb-1'}/>
         <div className={'flex items-center justify-end'}>
           <Button onClick={handleMoveTo} size={'small'} color={'primary'} variant={'contained'}>
             {t('disclosureAction.move')}

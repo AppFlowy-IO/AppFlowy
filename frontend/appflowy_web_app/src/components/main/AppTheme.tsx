@@ -7,7 +7,7 @@ import '@/i18n/config';
 import 'src/styles/tailwind.css';
 import 'src/styles/template.css';
 
-function AppTheme ({ children }: { children: React.ReactNode; }) {
+function AppTheme({ children }: { children: React.ReactNode; }) {
   const { isDark, setIsDark } = useAppThemeMode();
 
   const theme = useMemo(
@@ -47,7 +47,7 @@ function AppTheme ({ children }: { children: React.ReactNode; }) {
           MuiIconButton: {
             styleOverrides: {
               root: {
-                '&:hover': {
+                '&:hover, &:focus': {
                   backgroundColor: 'var(--fill-list-hover)',
                 },
                 borderRadius: '4px',

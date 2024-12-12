@@ -15,7 +15,7 @@ import {
 import * as Y from 'yjs';
 
 // transform slate op to yjs op and apply it to ydoc
-export function applyToYjs (ydoc: Y.Doc, editor: Editor, op: Operation, slateContent: Descendant[]) {
+export function applyToYjs(ydoc: Y.Doc, editor: Editor, op: Operation, slateContent: Descendant[]) {
   if (op.type === 'set_selection') return;
   console.log('applySlateOp', op, slateContent);
 
@@ -33,7 +33,7 @@ export function applyToYjs (ydoc: Y.Doc, editor: Editor, op: Operation, slateCon
   }
 }
 
-function getAttributesAtOffset (ytext: Y.Text, offset: number): object | null {
+function getAttributesAtOffset(ytext: Y.Text, offset: number): object | null {
   const delta = ytext.toDelta();
   let currentOffset = 0;
 
@@ -52,7 +52,7 @@ function getAttributesAtOffset (ytext: Y.Text, offset: number): object | null {
   return null;
 }
 
-function insertText (ydoc: Y.Doc, editor: Editor, { path, offset, text, attributes }: InsertTextOperation & {
+function insertText(ydoc: Y.Doc, editor: Editor, { path, offset, text, attributes }: InsertTextOperation & {
   attributes?: object;
 }, slateContent: Descendant[]) {
   const node = getNodeAtPath(slateContent, path.slice(0, -1)) as Element;
@@ -95,13 +95,13 @@ function insertText (ydoc: Y.Doc, editor: Editor, { path, offset, text, attribut
 
 }
 
-function applyInsertText (ydoc: Y.Doc, editor: Editor, op: InsertTextOperation, slateContent: Descendant[]) {
+function applyInsertText(ydoc: Y.Doc, editor: Editor, op: InsertTextOperation, slateContent: Descendant[]) {
   const { path, offset, text } = op;
 
   insertText(ydoc, editor, { path, offset, text, type: 'insert_text' }, slateContent);
 }
 
-function applyInsertNode (ydoc: Y.Doc, editor: Editor, op: InsertNodeOperation, slateContent: Descendant[]) {
+function applyInsertNode(ydoc: Y.Doc, editor: Editor, op: InsertNodeOperation, slateContent: Descendant[]) {
   const { path, node } = op;
 
   if (!Text.isText(node)) return;
@@ -113,7 +113,7 @@ function applyInsertNode (ydoc: Y.Doc, editor: Editor, op: InsertNodeOperation, 
   }, slateContent);
 }
 
-function applyRemoveText (ydoc: Y.Doc, editor: Editor, op: RemoveTextOperation, slateContent: Descendant[]) {
+function applyRemoveText(ydoc: Y.Doc, editor: Editor, op: RemoveTextOperation, slateContent: Descendant[]) {
   const { path, offset, text } = op;
 
   const node = getNodeAtPath(slateContent, path.slice(0, -1)) as Element;
@@ -142,7 +142,7 @@ function applyRemoveText (ydoc: Y.Doc, editor: Editor, op: RemoveTextOperation, 
   console.log('applyRemoveText', op, yText.toDelta());
 }
 
-function applySetNode (ydoc: Y.Doc, editor: Editor, op: SetNodeOperation, slateContent: Descendant[]) {
+function applySetNode(ydoc: Y.Doc, editor: Editor, op: SetNodeOperation, slateContent: Descendant[]) {
   const { newProperties, path, properties } = op;
   const leafKeys = Object.values(EditorMarkFormat) as string[];
 

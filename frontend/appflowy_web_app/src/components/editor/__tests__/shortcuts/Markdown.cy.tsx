@@ -251,8 +251,6 @@ describe('Markdown editing', () => {
           {
             insert: 'code',
             attributes: { code: true, bold: true, italic: true },
-          }, {
-            insert: '\u200C',
           }],
         children: [],
       },
@@ -574,7 +572,7 @@ describe('Markdown editing', () => {
         text: [{ insert: 'Link: ' }, {
           insert: 'Click here',
           attributes: { href: 'https://example.com' },
-        }, { insert: '\u200C' }],
+        }],
         children: [],
       },
     ]);
@@ -587,7 +585,7 @@ describe('Markdown editing', () => {
         text: [{ insert: 'Link: ' }, {
           insert: 'Click here',
           attributes: { href: 'https://example.com' },
-        }, { insert: '\u200Clink anchor' }],
+        }, { insert: 'link anchor' }],
         children: [],
       },
     ];

@@ -1,8 +1,22 @@
-import { useCallback, useMemo } from 'react';
+import { createContext, useCallback, useMemo, useContext } from 'react';
 import { Editor, Range, Text, Transforms } from 'slate';
 import { ReactEditor, useReadOnly, useSelected, useSlate } from 'slate-react';
 
-export function useLeafSelected (text: Text) {
+export const LeafContext = createContext<{
+  openLinkPopover?: (text: Text) => void;
+  closeLinkPopover?: () => void;
+  linkOpen?: Text;
+} | undefined>(undefined);
+
+export function useLeafContext() {
+  return useContext(LeafContext) || {
+    openLinkPopover: () => undefined,
+    closeLinkPopover: () => undefined,
+    linkOpen: undefined,
+  };
+}
+
+export function useLeafSelected(text: Text) {
   const readonly = useReadOnly();
   const editor = useSlate();
   const elementIsSelected = useSelected();
