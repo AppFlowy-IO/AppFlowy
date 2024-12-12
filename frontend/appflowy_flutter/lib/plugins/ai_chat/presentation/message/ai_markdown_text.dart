@@ -8,6 +8,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../chat_editor_style.dart';
 
@@ -106,7 +107,7 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
         shrinkWrap: true,
         // the editor is not editable in the chat
         editable: false,
-        disableKeyboardService: true,
+        disableKeyboardService: UniversalPlatform.isMobile,
         editorStyle: editorStyle,
         editorScrollController: scrollController,
         blockComponentBuilders: blockBuilders,

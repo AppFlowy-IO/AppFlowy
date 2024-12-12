@@ -739,7 +739,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
                 NavigatorTextFieldDialog(
                   title: LocaleKeys.disclosureAction_rename.tr(),
                   autoSelectAllText: true,
-                  value: widget.view.name,
+                  value: widget.view.nameOrDefault,
                   maxLength: 256,
                   onConfirm: (newValue, _) {
                     context.read<ViewBloc>().add(ViewEvent.rename(newValue));

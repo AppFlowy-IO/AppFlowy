@@ -425,9 +425,7 @@ class ChatAIMessagePopup extends StatelessWidget {
           },
         );
       },
-      child: IgnorePointer(
-        child: child,
-      ),
+      child: child,
     );
   }
 }

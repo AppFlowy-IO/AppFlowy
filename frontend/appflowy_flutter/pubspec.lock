@@ -61,8 +61,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: f32762e
-      resolved-ref: f32762eae0a703e15ae681947ad1ff110d2e477a
+      ref: "954ffa5"
+      resolved-ref: "954ffa538e0788a5d25dc16555ff80a3afae5ea3"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "4.0.0"
@@ -318,10 +318,10 @@ packages:
     dependency: transitive
     description:
       name: charcode
-      sha256: fb98c0f6d12c920a02ee2d998da788bca066ca5f148492b7085ee23372b12306
+      sha256: fb0f1107cac15a5ea6ef0a6ef71a807b9e4267c713bb93e00e92d737cc8dbd8a
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.1"
+    version: "1.4.0"
   checked_yaml:
     dependency: transitive
     description:
