@@ -375,30 +375,16 @@ export const CustomEditor = {
     }
   },
 
+  getTextNodes(editor: ReactEditor) {
+    return getSelectionTexts(editor);
+  },
+
   addMark(editor: ReactEditor, {
     key, value,
   }: {
     key: EditorMarkFormat, value: boolean | string | Mention
   }) {
     editor.addMark(key, value);
-    if ([EditorMarkFormat.Code, EditorMarkFormat.Href].includes(key) && editor.selection) {
-      const [start, end] = editor.edges(editor.selection);
-
-      Transforms.insertNodes(editor, { text: '\u200C' }, { at: end, voids: false });
-
-      try {
-        Transforms.select(editor, {
-          anchor: start,
-          focus: {
-            path: Path.next(end.path),
-            offset: 1,
-          },
-        });
-      } catch (e) {
-        // do nothing
-      }
-
-    }
   },
 
   removeMark(editor: ReactEditor, key: EditorMarkFormat) {

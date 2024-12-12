@@ -7,7 +7,7 @@ import {
 } from '@/application/types';
 import { TextCount } from '@/utils/word';
 import { createContext, useCallback, useContext, useState } from 'react';
-import { BaseRange } from 'slate';
+import { BaseRange, Range } from 'slate';
 
 export interface EditorLayoutStyle {
   fontLayout: FontLayout;
@@ -21,7 +21,7 @@ export const defaultLayoutStyle: EditorLayoutStyle = {
   lineHeightLayout: LineHeightLayout.normal,
 };
 
-interface Decorate {
+export interface Decorate {
   range: BaseRange;
   class_name: string;
 }
@@ -44,6 +44,7 @@ export interface EditorContextState {
   decorateState?: Record<string, Decorate>;
   addDecorate?: (range: BaseRange, class_name: string, type: string) => void;
   removeDecorate?: (type: string) => void;
+
   selectedBlockIds?: string[];
   setSelectedBlockIds?: React.Dispatch<React.SetStateAction<string[]>>;
   addPage?: (parentId: string, payload: CreatePagePayload) => Promise<string>;
@@ -66,13 +67,21 @@ export const EditorContextProvider = ({ children, ...props }: EditorContextState
   const [selectedBlockIds, setSelectedBlockIds] = useState<string[]>([]);
 
   const addDecorate = useCallback((range: BaseRange, class_name: string, type: string) => {
-    setDecorateState((prev) => ({
-      ...prev,
-      [type]: {
-        range,
-        class_name,
-      },
-    }));
+    setDecorateState((prev) => {
+      const oldValue = prev[type];
+
+      if (oldValue && Range.equals(oldValue.range, range) && oldValue.class_name === class_name) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        [type]: {
+          range,
+          class_name,
+        },
+      };
+    });
   }, []);
 
   const removeDecorate = useCallback((type: string) => {
@@ -100,11 +109,11 @@ export const EditorContextProvider = ({ children, ...props }: EditorContextState
   >{children}</EditorContext.Provider>;
 };
 
-export function useEditorContext () {
+export function useEditorContext() {
   return useContext(EditorContext);
 }
 
-export function useBlockSelected (blockId: string) {
+export function useBlockSelected(blockId: string) {
   const { selectedBlockIds } = useEditorContext();
 
   return selectedBlockIds?.includes(blockId);

@@ -45,7 +45,7 @@ import {
   slatePointToRelativePosition,
 } from './positions';
 
-export function createEmptyDocument () {
+export function createEmptyDocument() {
   const doc = new Y.Doc();
   const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
   const document = new Y.Map();
@@ -76,21 +76,21 @@ export function createEmptyDocument () {
   return doc;
 }
 
-export function getTextMap (sharedRoot: YSharedRoot) {
+export function getTextMap(sharedRoot: YSharedRoot) {
   const document = sharedRoot.get(YjsEditorKey.document);
   const meta = document.get(YjsEditorKey.meta) as YMeta;
 
   return meta.get(YjsEditorKey.text_map) as YTextMap;
 }
 
-export function getText (textId: string, sharedRoot: YSharedRoot) {
+export function getText(textId: string, sharedRoot: YSharedRoot) {
 
   const textMap = getTextMap(sharedRoot);
 
   return textMap.get(textId);
 }
 
-export function assertDocExists (sharedRoot: YSharedRoot): YDoc {
+export function assertDocExists(sharedRoot: YSharedRoot): YDoc {
   const doc = sharedRoot.doc;
 
   if (!doc) {
@@ -100,7 +100,7 @@ export function assertDocExists (sharedRoot: YSharedRoot): YDoc {
   return doc;
 }
 
-export function getChildrenMap (sharedRoot: YSharedRoot) {
+export function getChildrenMap(sharedRoot: YSharedRoot) {
   const document = sharedRoot.get(YjsEditorKey.document);
   const meta = document.get(YjsEditorKey.meta) as YMeta;
   const childrenMap = meta.get(YjsEditorKey.children_map) as YChildrenMap;
@@ -108,28 +108,28 @@ export function getChildrenMap (sharedRoot: YSharedRoot) {
   return childrenMap;
 }
 
-export function getChildrenArray (childrenId: string, sharedRoot: YSharedRoot) {
+export function getChildrenArray(childrenId: string, sharedRoot: YSharedRoot) {
   const childrenMap = getChildrenMap(sharedRoot);
 
   return childrenMap.get(childrenId);
 }
 
-export function getDocument (sharedRoot: YSharedRoot) {
+export function getDocument(sharedRoot: YSharedRoot) {
   return sharedRoot.get(YjsEditorKey.document);
 }
 
-export function getBlock (blockId: string, sharedRoot: YSharedRoot) {
+export function getBlock(blockId: string, sharedRoot: YSharedRoot) {
   const document = sharedRoot.get(YjsEditorKey.document);
   const blocks = document.get(YjsEditorKey.blocks) as YBlocks;
 
   return blocks.get(blockId);
 }
 
-export function generateBlockId () {
+export function generateBlockId() {
   return nanoid(8);
 }
 
-export function getBlockIndex (blockId: string, sharedRoot: YSharedRoot) {
+export function getBlockIndex(blockId: string, sharedRoot: YSharedRoot) {
   const block = getBlock(blockId, sharedRoot);
   const parent = getBlock(block.get(YjsEditorKey.block_parent), sharedRoot);
   const parentChildren = getChildrenArray(parent.get(YjsEditorKey.block_children), sharedRoot);
@@ -137,7 +137,7 @@ export function getBlockIndex (blockId: string, sharedRoot: YSharedRoot) {
   return parentChildren.toArray().findIndex((id) => id === blockId);
 }
 
-export function createBlock (sharedRoot: YSharedRoot, {
+export function createBlock(sharedRoot: YSharedRoot, {
   ty,
   data,
 }: {
@@ -173,7 +173,7 @@ export function createBlock (sharedRoot: YSharedRoot, {
   return block as YBlock;
 }
 
-export function updateBlockParent (sharedRoot: YSharedRoot, block: YBlock, parent: YBlock, index: number) {
+export function updateBlockParent(sharedRoot: YSharedRoot, block: YBlock, parent: YBlock, index: number) {
   block.set(YjsEditorKey.block_parent, parent.get(YjsEditorKey.block_id));
   const parentChildren = getChildrenArray(parent.get(YjsEditorKey.block_children), sharedRoot);
 
@@ -185,7 +185,7 @@ export function updateBlockParent (sharedRoot: YSharedRoot, block: YBlock, paren
   parentChildren.insert(index, [block.get(YjsEditorKey.block_id)]);
 }
 
-export function ensureBlockText (editor: YjsEditor) {
+export function ensureBlockText(editor: YjsEditor) {
   const { selection } = editor;
 
   if (!selection) {
@@ -232,7 +232,7 @@ export function ensureBlockText (editor: YjsEditor) {
   });
 }
 
-export function compatibleDataDeltaToYText (sharedRoot: YSharedRoot, ops: Op[], blockId: string) {
+export function compatibleDataDeltaToYText(sharedRoot: YSharedRoot, ops: Op[], blockId: string) {
   const yText = new Y.Text();
 
   executeOperations(sharedRoot, [() => {
@@ -251,7 +251,7 @@ export function compatibleDataDeltaToYText (sharedRoot: YSharedRoot, ops: Op[], 
   return yText;
 }
 
-export function handleCollapsedBreakWithTxn (editor: YjsEditor, sharedRoot: YSharedRoot, at: BaseRange) {
+export function handleCollapsedBreakWithTxn(editor: YjsEditor, sharedRoot: YSharedRoot, at: BaseRange) {
   const { startBlock, startOffset } = getBreakInfo(editor, sharedRoot, at);
   const [blockNode, path] = startBlock;
   const blockId = blockNode.blockId as string;
@@ -307,7 +307,7 @@ export function handleCollapsedBreakWithTxn (editor: YjsEditor, sharedRoot: YSha
 
 }
 
-export function removeRangeWithTxn (editor: YjsEditor, sharedRoot: YSharedRoot, range: Range) {
+export function removeRangeWithTxn(editor: YjsEditor, sharedRoot: YSharedRoot, range: Range) {
   const { startBlock, endBlock, middleBlocks, startRange, endRange } = getAffectedBlocks(editor, range);
   const operations: (() => void)[] = [];
   const isSameBlock = startBlock[0].blockId === endBlock[0].blockId;
@@ -329,7 +329,7 @@ export function removeRangeWithTxn (editor: YjsEditor, sharedRoot: YSharedRoot, 
 
 }
 
-export function liftChildren (sharedRoot: YSharedRoot, sourceBlock: YBlock, targetBlock: YBlock) {
+export function liftChildren(sharedRoot: YSharedRoot, sourceBlock: YBlock, targetBlock: YBlock) {
   const sourceChildrenArray = getChildrenArray(sourceBlock.get(YjsEditorKey.block_children), sharedRoot);
   const targetParent = getBlock(targetBlock.get(YjsEditorKey.block_parent), sharedRoot);
   const targetChildrenArray = getChildrenArray(targetParent.get(YjsEditorKey.block_children), sharedRoot);
@@ -347,7 +347,7 @@ export function liftChildren (sharedRoot: YSharedRoot, sourceBlock: YBlock, targ
   }
 }
 
-export function handleRangeBreak (editor: YjsEditor, sharedRoot: YSharedRoot, range: Range) {
+export function handleRangeBreak(editor: YjsEditor, sharedRoot: YSharedRoot, range: Range) {
   removeRangeWithTxn(editor, sharedRoot, range);
 
   const selection = editor.selection;
@@ -357,7 +357,7 @@ export function handleRangeBreak (editor: YjsEditor, sharedRoot: YSharedRoot, ra
   handleCollapsedBreakWithTxn(editor, sharedRoot, selection);
 }
 
-export function copyBlockText (sharedRoot: YSharedRoot, sourceBlock: YBlock, targetBlock: YBlock) {
+export function copyBlockText(sharedRoot: YSharedRoot, sourceBlock: YBlock, targetBlock: YBlock) {
   const sourceTextId = sourceBlock.get(YjsEditorKey.block_external_id);
   const targetTextId = targetBlock.get(YjsEditorKey.block_external_id);
 
@@ -375,7 +375,7 @@ export function copyBlockText (sharedRoot: YSharedRoot, sourceBlock: YBlock, tar
   targetText.applyDelta(sourceText.toDelta());
 }
 
-export function turnToBlock<T extends BlockData> (sharedRoot: YSharedRoot, sourceBlock: YBlock, type: BlockType, data: T) {
+export function turnToBlock<T extends BlockData>(sharedRoot: YSharedRoot, sourceBlock: YBlock, type: BlockType, data: T) {
   const newBlock = createBlock(sharedRoot, {
     ty: type,
     data,
@@ -411,7 +411,7 @@ export function turnToBlock<T extends BlockData> (sharedRoot: YSharedRoot, sourc
   return newBlockId;
 }
 
-function extendNextSiblingsToToggleHeading (sharedRoot: YSharedRoot, block: YBlock) {
+function extendNextSiblingsToToggleHeading(sharedRoot: YSharedRoot, block: YBlock) {
   const type = block.get(YjsEditorKey.block_type);
   const data = dataStringTOJson(block.get(YjsEditorKey.block_data)) as ToggleListBlockData;
 
@@ -444,7 +444,7 @@ function extendNextSiblingsToToggleHeading (sharedRoot: YSharedRoot, block: YBlo
   });
 }
 
-export function getPreviousSiblingBlock (sharedRoot: YSharedRoot, block: YBlock) {
+export function getPreviousSiblingBlock(sharedRoot: YSharedRoot, block: YBlock) {
   const parent = getBlock(block.get(YjsEditorKey.block_parent), sharedRoot);
 
   if (!parent) return;
@@ -456,7 +456,7 @@ export function getPreviousSiblingBlock (sharedRoot: YSharedRoot, block: YBlock)
   return parentChildren.get(index - 1);
 }
 
-function getNextSiblings (sharedRoot: YSharedRoot, block: YBlock) {
+function getNextSiblings(sharedRoot: YSharedRoot, block: YBlock) {
   const parent = getBlock(block.get(YjsEditorKey.block_parent), sharedRoot);
 
   if (!parent) return;
@@ -467,7 +467,7 @@ function getNextSiblings (sharedRoot: YSharedRoot, block: YBlock) {
   return parentChildren.toArray().slice(index + 1);
 }
 
-function getSplitBlockOperations (sharedRoot: YSharedRoot, block: YBlock, offset: number): {
+function getSplitBlockOperations(sharedRoot: YSharedRoot, block: YBlock, offset: number): {
   select: boolean;
   operations: (() => void)[];
 } {
@@ -500,7 +500,7 @@ function getSplitBlockOperations (sharedRoot: YSharedRoot, block: YBlock, offset
   return { operations, select: true };
 }
 
-function moveToNextLine (editor: Editor, block: YBlock, at: BaseRange, blockId: string) {
+function moveToNextLine(editor: Editor, block: YBlock, at: BaseRange, blockId: string) {
   const { selection } = editor;
 
   if (!selection) return;
@@ -536,7 +536,7 @@ function moveToNextLine (editor: Editor, block: YBlock, at: BaseRange, blockId: 
   Transforms.move(editor, { distance: 1, unit: 'line' });
 }
 
-export function getNextSiblingBlockPath (editor: Editor, blockId: string) {
+export function getNextSiblingBlockPath(editor: Editor, blockId: string) {
   const [blockSlateNode] = editor.nodes({
     match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId === blockId,
   });
@@ -557,7 +557,7 @@ export function getNextSiblingBlockPath (editor: Editor, blockId: string) {
   return nextPath;
 }
 
-export function getBlockTextRange (editor: YjsEditor, entry: NodeEntry<Element>) {
+export function getBlockTextRange(editor: YjsEditor, entry: NodeEntry<Element>) {
   const [node, path] = entry;
   const textId = TEXT_BLOCK_TYPES.includes(node.type as BlockType) ? (node.children[0] as Element)?.textId : null;
 
@@ -570,7 +570,7 @@ export function getBlockTextRange (editor: YjsEditor, entry: NodeEntry<Element>)
   return [start, Editor.end(editor, [...path, 0])];
 }
 
-export function getAffectedBlocks (editor: YjsEditor, range: Range): {
+export function getAffectedBlocks(editor: YjsEditor, range: Range): {
   startBlock: NodeEntry<Element>;
   endBlock: NodeEntry<Element>;
   middleBlocks: NodeEntry<Element>[];
@@ -622,11 +622,11 @@ export function getAffectedBlocks (editor: YjsEditor, range: Range): {
   return { startBlock, endBlock, middleBlocks, startRange, endRange };
 }
 
-function getTextIdFromSlateNode (node: Element) {
+function getTextIdFromSlateNode(node: Element) {
   return node.textId ?? (node.children[0] as Element).textId;
 }
 
-export function deleteSlateRangeInBlock (sharedRoot: YSharedRoot, editor: Editor, block: Element, range: BaseRange) {
+export function deleteSlateRangeInBlock(sharedRoot: YSharedRoot, editor: Editor, block: Element, range: BaseRange) {
   const [start, end] = Editor.edges(editor, range);
 
   const relativeOffset = slatePointToRelativePosition(sharedRoot, editor, start);
@@ -641,7 +641,7 @@ export function deleteSlateRangeInBlock (sharedRoot: YSharedRoot, editor: Editor
   deleteRangeInBlock(sharedRoot, block, startPos.index, endPos.index);
 }
 
-export function deleteRangeInBlock (
+export function deleteRangeInBlock(
   sharedRoot: YSharedRoot,
   block: Element,
   start: number,
@@ -656,7 +656,7 @@ export function deleteRangeInBlock (
   }
 }
 
-export function mergeBlocks (
+export function mergeBlocks(
   sharedRoot: YSharedRoot,
   sourceBlock: Element,
   targetBlock: Element,
@@ -686,7 +686,7 @@ export function mergeBlocks (
   deleteBlock(sharedRoot, sourceBlock.blockId as string);
 }
 
-function mergeBlockChildren (sharedRoot: YSharedRoot, sourceBlock: YBlock, targetBlock: YBlock) {
+function mergeBlockChildren(sharedRoot: YSharedRoot, sourceBlock: YBlock, targetBlock: YBlock) {
   const targetType = targetBlock.get(YjsEditorKey.block_type);
 
   if (CONTAINER_BLOCK_TYPES.includes(targetType)) {
@@ -696,7 +696,7 @@ function mergeBlockChildren (sharedRoot: YSharedRoot, sourceBlock: YBlock, targe
   }
 }
 
-export function deleteBlock (sharedRoot: YSharedRoot, blockId: string) {
+export function deleteBlock(sharedRoot: YSharedRoot, blockId: string) {
   const block = getBlock(blockId, sharedRoot);
 
   if (!block) return;
@@ -733,7 +733,7 @@ export function deleteBlock (sharedRoot: YSharedRoot, blockId: string) {
 
 }
 
-export function getBreakInfo (editor: YjsEditor, sharedRoot: YSharedRoot, at: BaseRange) {
+export function getBreakInfo(editor: YjsEditor, sharedRoot: YSharedRoot, at: BaseRange) {
   const startPoint = Editor.start(editor, at);
   const doc = assertDocExists(sharedRoot);
 
@@ -776,7 +776,7 @@ export function getBreakInfo (editor: YjsEditor, sharedRoot: YSharedRoot, at: Ba
   return { startBlock, startOffset };
 }
 
-export function prepareBreakOperation (sharedRoot: YSharedRoot, block: YBlock, offset: number) {
+export function prepareBreakOperation(sharedRoot: YSharedRoot, block: YBlock, offset: number) {
   const yText = getText(block.get(YjsEditorKey.block_external_id), sharedRoot);
   const ops = yText.toDelta() as Op[];
   const delta = new Delta(ops);
@@ -795,7 +795,7 @@ export function prepareBreakOperation (sharedRoot: YSharedRoot, block: YBlock, o
   return { nextLineDelta, parentInfo: { parent, targetIndex, parentChildren } };
 }
 
-export function getSplitBlockType (block: YBlock) {
+export function getSplitBlockType(block: YBlock) {
   switch (block.get(YjsEditorKey.block_type)) {
     case BlockType.ToggleListBlock: {
       const data = dataStringTOJson(block.get(YjsEditorKey.block_data)) as ToggleListBlockData;
@@ -817,7 +817,7 @@ export function getSplitBlockType (block: YBlock) {
   }
 }
 
-export function splitBlock (sharedRoot: YSharedRoot, block: YBlock, offset: number, nextLineDelta: Delta, parentInfo: {
+export function splitBlock(sharedRoot: YSharedRoot, block: YBlock, offset: number, nextLineDelta: Delta, parentInfo: {
   parent: YBlock,
   targetIndex: number,
   parentChildren: Y.Array<string>
@@ -859,7 +859,7 @@ export function splitBlock (sharedRoot: YSharedRoot, block: YBlock, offset: numb
   updateBlockParent(sharedRoot, newBlock, parent, index);
 }
 
-function ensureBlockHasChildren (sharedRoot: YSharedRoot, block: YBlock) {
+function ensureBlockHasChildren(sharedRoot: YSharedRoot, block: YBlock) {
   const childrenArray = getChildrenArray(block.get(YjsEditorKey.block_children), sharedRoot);
 
   if (!childrenArray) {
@@ -872,7 +872,7 @@ function ensureBlockHasChildren (sharedRoot: YSharedRoot, block: YBlock) {
   return getChildrenArray(block.get(YjsEditorKey.block_children), sharedRoot);
 }
 
-export function transferChildren (sharedRoot: YSharedRoot, sourceBlock: YBlock, targetBlock: YBlock, index?: number) {
+export function transferChildren(sharedRoot: YSharedRoot, sourceBlock: YBlock, targetBlock: YBlock, index?: number) {
   const sourceChildrenArray = getChildrenArray(sourceBlock.get(YjsEditorKey.block_children), sharedRoot);
 
   const targetChildrenArray = ensureBlockHasChildren(sharedRoot, targetBlock);
@@ -887,7 +887,7 @@ export function transferChildren (sharedRoot: YSharedRoot, sourceBlock: YBlock, 
   }
 }
 
-export function executeOperations (sharedRoot: YSharedRoot, operations: (() => void)[], operationName: string) {
+export function executeOperations(sharedRoot: YSharedRoot, operations: (() => void)[], operationName: string) {
   console.time(operationName);
   const doc = assertDocExists(sharedRoot);
 
@@ -898,7 +898,7 @@ export function executeOperations (sharedRoot: YSharedRoot, operations: (() => v
   console.timeEnd(operationName);
 }
 
-export function dataStringTOJson (data: string): object {
+export function dataStringTOJson(data: string): object {
   try {
     return JSON.parse(data);
   } catch (e) {
@@ -906,7 +906,7 @@ export function dataStringTOJson (data: string): object {
   }
 }
 
-function deepCopyChildren (sharedRoot: YSharedRoot, sourceArray: Y.Array<string>, targetArray: Y.Array<string>, targetBlockId: string, index?: number) {
+function deepCopyChildren(sharedRoot: YSharedRoot, sourceArray: Y.Array<string>, targetArray: Y.Array<string>, targetBlockId: string, index?: number) {
 
   const sourceArraySorted = index === undefined ? sourceArray.toArray() : sourceArray.toArray().reverse();
 
@@ -944,7 +944,7 @@ function deepCopyChildren (sharedRoot: YSharedRoot, sourceArray: Y.Array<string>
   });
 }
 
-export function isAtBlockStart (editor: Editor, point: Point) {
+export function isAtBlockStart(editor: Editor, point: Point) {
   const entry = Editor.above(editor, {
     at: point,
     match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.textId !== undefined,
@@ -958,7 +958,7 @@ export function isAtBlockStart (editor: Editor, point: Point) {
   return Point.equals(point, start);
 }
 
-export function isAtBlockEnd (editor: Editor, point: Point) {
+export function isAtBlockEnd(editor: Editor, point: Point) {
   const entry = Editor.above(editor, {
     at: point,
     match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.textId !== undefined,
@@ -972,7 +972,7 @@ export function isAtBlockEnd (editor: Editor, point: Point) {
   return Point.equals(point, end);
 }
 
-export function getSharedRoot (editor: YjsEditor) {
+export function getSharedRoot(editor: YjsEditor) {
   if (!editor.sharedRoot || !editor.sharedRoot.doc) {
     throw new Error('Shared root not found');
   }
@@ -980,7 +980,7 @@ export function getSharedRoot (editor: YjsEditor) {
   return editor.sharedRoot;
 }
 
-export function getSelectionOrThrow (editor: YjsEditor, at?: BaseRange) {
+export function getSelectionOrThrow(editor: YjsEditor, at?: BaseRange) {
   const newAt = at || editor.selection;
 
   if (!newAt) {
@@ -990,7 +990,7 @@ export function getSelectionOrThrow (editor: YjsEditor, at?: BaseRange) {
   return newAt;
 }
 
-export function getBlockEntry (editor: YjsEditor, point?: Point) {
+export function getBlockEntry(editor: YjsEditor, point?: Point) {
   const { selection } = editor;
   const at = point || (selection ? Editor.start(editor, selection) : null);
 
@@ -1010,7 +1010,7 @@ export function getBlockEntry (editor: YjsEditor, point?: Point) {
   return blockEntry as NodeEntry<Element>;
 }
 
-export function handleNonParagraphBlockBackspaceAndEnterWithTxn (editor: YjsEditor, sharedRoot: YSharedRoot, block: YBlock, point: BasePoint) {
+export function handleNonParagraphBlockBackspaceAndEnterWithTxn(editor: YjsEditor, sharedRoot: YSharedRoot, block: YBlock, point: BasePoint) {
   const data = dataStringTOJson(block.get(YjsEditorKey.block_data));
   const blockType = block.get(YjsEditorKey.block_type);
 
@@ -1034,7 +1034,7 @@ export function handleNonParagraphBlockBackspaceAndEnterWithTxn (editor: YjsEdit
   executeOperations(sharedRoot, operations, 'turnToBlock');
 }
 
-export function handleLiftBlockOnBackspaceAndEnterWithTxn (editor: YjsEditor, sharedRoot: YSharedRoot, block: YBlock, point: Point) {
+export function handleLiftBlockOnBackspaceAndEnterWithTxn(editor: YjsEditor, sharedRoot: YSharedRoot, block: YBlock, point: Point) {
   const operations: (() => void)[] = [];
   const parent = getBlock(block.get(YjsEditorKey.block_parent), sharedRoot);
   const parentChildren = getChildrenArray(parent.get(YjsEditorKey.block_children), sharedRoot);
@@ -1070,7 +1070,7 @@ export function handleLiftBlockOnBackspaceAndEnterWithTxn (editor: YjsEditor, sh
   return false;
 }
 
-export function handleMergeBlockBackwardWithTxn (editor: YjsEditor, node: Element, point: Point) {
+export function handleMergeBlockBackwardWithTxn(editor: YjsEditor, node: Element, point: Point) {
   const operations: (() => void)[] = [];
   const sharedRoot = getSharedRoot(editor);
 
@@ -1118,7 +1118,7 @@ export function handleMergeBlockBackwardWithTxn (editor: YjsEditor, node: Elemen
   executeOperations(sharedRoot, operations, 'deleteBlockBackward');
 }
 
-export function handleMergeBlockForwardWithTxn (editor: YjsEditor, node: Element, point: Point) {
+export function handleMergeBlockForwardWithTxn(editor: YjsEditor, node: Element, point: Point) {
   const operations: (() => void)[] = [];
   const sharedRoot = getSharedRoot(editor);
 
@@ -1151,7 +1151,7 @@ export function handleMergeBlockForwardWithTxn (editor: YjsEditor, node: Element
   executeOperations(sharedRoot, operations, 'deleteBlockForward');
 }
 
-export function preventIndentNode (editor: YjsEditor, blockId: string) {
+export function preventIndentNode(editor: YjsEditor, blockId: string) {
   const sharedRoot = getSharedRoot(editor);
   const block = getBlock(blockId, sharedRoot);
   const parent = getBlock(block.get(YjsEditorKey.block_parent), sharedRoot);
@@ -1178,7 +1178,7 @@ export function preventIndentNode (editor: YjsEditor, blockId: string) {
   return false;
 }
 
-export function preventLiftNode (editor: YjsEditor, blockId: string) {
+export function preventLiftNode(editor: YjsEditor, blockId: string) {
   const [, path] = findSlateEntryByBlockId(editor, blockId);
   const level = path.length;
 
@@ -1189,7 +1189,7 @@ export function preventLiftNode (editor: YjsEditor, blockId: string) {
   return false;
 }
 
-export function liftEditorNode (editor: YjsEditor, sharedRoot: YSharedRoot, block: YBlock, point: Point) {
+export function liftEditorNode(editor: YjsEditor, sharedRoot: YSharedRoot, block: YBlock, point: Point) {
   if (preventLiftNode(editor, block.get(YjsEditorKey.block_id))) {
     return;
   }
@@ -1210,7 +1210,7 @@ export function liftEditorNode (editor: YjsEditor, sharedRoot: YSharedRoot, bloc
 
 }
 
-export function liftBlock (sharedRoot: YSharedRoot, block: YBlock, offset?: number) {
+export function liftBlock(sharedRoot: YSharedRoot, block: YBlock, offset?: number) {
   const parentId = block.get(YjsEditorKey.block_parent);
   const parent = getBlock(parentId, sharedRoot);
 
@@ -1244,7 +1244,7 @@ export function liftBlock (sharedRoot: YSharedRoot, block: YBlock, offset?: numb
   return moveNode(sharedRoot, block, grandParent, parentIndex + 1 + (offset || 0));
 }
 
-export function indentBlock (sharedRoot: YSharedRoot, block: YBlock) {
+export function indentBlock(sharedRoot: YSharedRoot, block: YBlock) {
 
   const parentId = block.get(YjsEditorKey.block_parent);
   const parent = getBlock(parentId, sharedRoot);
@@ -1291,7 +1291,7 @@ export function indentBlock (sharedRoot: YSharedRoot, block: YBlock) {
   return moveNode(sharedRoot, block, previousSibling, previousSiblingChildrenArray.length);
 }
 
-export function moveNode (sharedRoot: YSharedRoot, sourceBlock: YBlock, targetParent: YBlock, targetIndex: number) {
+export function moveNode(sharedRoot: YSharedRoot, sourceBlock: YBlock, targetParent: YBlock, targetIndex: number) {
   console.log('moveNode:', sourceBlock.get(YjsEditorKey.block_id), 'to', targetParent.get(YjsEditorKey.block_id), 'at index', targetIndex);
 
   const copiedBlockId = deepCopyBlock(sharedRoot, sourceBlock);
@@ -1315,7 +1315,7 @@ export function moveNode (sharedRoot: YSharedRoot, sourceBlock: YBlock, targetPa
   return copiedBlockId;
 }
 
-export function deepCopyBlock (sharedRoot: YSharedRoot, sourceBlock: YBlock): string | null {
+export function deepCopyBlock(sharedRoot: YSharedRoot, sourceBlock: YBlock): string | null {
   try {
     const newBlock = createBlock(sharedRoot, {
       ty: sourceBlock.get(YjsEditorKey.block_type),
@@ -1339,7 +1339,7 @@ export function deepCopyBlock (sharedRoot: YSharedRoot, sourceBlock: YBlock): st
   }
 }
 
-export function isEntireDocumentSelected (editor: YjsEditor) {
+export function isEntireDocumentSelected(editor: YjsEditor) {
   const selection = getSelectionOrThrow(editor);
   const [start, end] = Editor.edges(editor, selection);
   const startEdge = Editor.start(editor, []);
@@ -1348,13 +1348,13 @@ export function isEntireDocumentSelected (editor: YjsEditor) {
   return Point.equals(start, startEdge) && Point.equals(end, endEdge);
 }
 
-export function getBlocks (sharedRoot: YSharedRoot) {
+export function getBlocks(sharedRoot: YSharedRoot) {
   const document = getDocument(sharedRoot);
 
   return document.get(YjsEditorKey.blocks) as YBlocks;
 }
 
-export function getPageId (sharedRoot: YSharedRoot) {
+export function getPageId(sharedRoot: YSharedRoot) {
   const document = getDocument(sharedRoot);
 
   if (!document) {
@@ -1366,7 +1366,7 @@ export function getPageId (sharedRoot: YSharedRoot) {
   return pageId;
 }
 
-export function appendEmptyParagraph (sharedRoot: YSharedRoot): string {
+export function appendEmptyParagraph(sharedRoot: YSharedRoot): string {
   const pageId = getPageId(sharedRoot);
   const page = getBlock(pageId, sharedRoot);
   const newBlock = createBlock(sharedRoot, {
@@ -1379,7 +1379,7 @@ export function appendEmptyParagraph (sharedRoot: YSharedRoot): string {
   return newBlock.get(YjsEditorKey.block_id);
 }
 
-export function handleDeleteEntireDocumentWithTxn (editor: YjsEditor) {
+export function handleDeleteEntireDocumentWithTxn(editor: YjsEditor) {
   const sharedRoot = getSharedRoot(editor);
   const operations = [() => {
     editor.deselect();
@@ -1400,7 +1400,7 @@ export function handleDeleteEntireDocumentWithTxn (editor: YjsEditor) {
   Transforms.select(editor, Editor.start(editor, [0]));
 }
 
-export function getNodeAtPath (children: Descendant[], path: Path): Descendant | null {
+export function getNodeAtPath(children: Descendant[], path: Path): Descendant | null {
   let currentNode: Descendant | null = null;
   let currentChildren = children;
 
@@ -1426,7 +1426,7 @@ export function getNodeAtPath (children: Descendant[], path: Path): Descendant |
   return currentNode;
 }
 
-export function getSelectionTexts (editor: ReactEditor) {
+export function getSelectionTexts(editor: ReactEditor) {
   const selection = editor.selection;
 
   if (!selection) return [];
@@ -1436,32 +1436,22 @@ export function getSelectionTexts (editor: ReactEditor) {
   const isExpanded = Range.isExpanded(selection);
 
   if (isExpanded) {
-    let anchor = Range.start(selection);
-    const focus = Range.end(selection);
-    const isEnd = Editor.isEnd(editor, anchor, anchor.path);
-
-    if (isEnd) {
-      const after = Editor.after(editor, anchor);
-
-      if (after) {
-        anchor = after;
-      }
-    }
+    const start = Range.start(selection);
+    const end = Range.end(selection);
 
     Array.from(
       Editor.nodes(editor, {
         at: {
-          anchor,
-          focus,
+          anchor: start,
+          focus: end,
         },
+        match: (n) => Text.isText(n),
       }),
     ).forEach((match) => {
       const node = match[0] as Element;
 
       if (Text.isText(node)) {
         texts.push(node);
-      } else if (Editor.isInline(editor, node)) {
-        texts.push(...(node.children as Text[]));
       }
     });
   }
@@ -1469,7 +1459,7 @@ export function getSelectionTexts (editor: ReactEditor) {
   return texts;
 }
 
-export function getOffsetPointFromSlateRange (editor: YjsEditor, point: BasePoint): { offset: number; textId: string } {
+export function getOffsetPointFromSlateRange(editor: YjsEditor, point: BasePoint): { offset: number; textId: string } {
 
   const [node] = editor.nodes({
     at: point,
@@ -1488,7 +1478,7 @@ export function getOffsetPointFromSlateRange (editor: YjsEditor, point: BasePoin
   };
 }
 
-export function getSlatePointFromOffset (editor: YjsEditor, range: { offset: number; textId: string }): BasePoint {
+export function getSlatePointFromOffset(editor: YjsEditor, range: { offset: number; textId: string }): BasePoint {
   const [node] = editor.nodes({
     match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.textId === range.textId,
   });
@@ -1504,7 +1494,7 @@ export function getSlatePointFromOffset (editor: YjsEditor, range: { offset: num
   return start;
 }
 
-export function getParent (blockId: string, sharedRoot: YSharedRoot) {
+export function getParent(blockId: string, sharedRoot: YSharedRoot) {
   const block = getBlock(blockId, sharedRoot);
 
   if (!block) {
@@ -1516,7 +1506,7 @@ export function getParent (blockId: string, sharedRoot: YSharedRoot) {
   return getBlock(parentId, sharedRoot);
 }
 
-export function addBlock (editor: YjsEditor, {
+export function addBlock(editor: YjsEditor, {
   ty,
   data,
 }: {
@@ -1546,7 +1536,7 @@ export function addBlock (editor: YjsEditor, {
   return newBlockId;
 }
 
-export function appendFirstEmptyParagraph (sharedRoot: YSharedRoot, defaultText: string) {
+export function appendFirstEmptyParagraph(sharedRoot: YSharedRoot, defaultText: string) {
   const pageId = getPageId(sharedRoot);
   const page = getBlock(pageId, sharedRoot);
 

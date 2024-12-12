@@ -1,49 +1,58 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
-import { Popover } from '@/components/_shared/popover';
 import {
   useSelectionToolbarContext,
 } from '@/components/editor/components/toolbar/selection-toolbar/SelectionToolbar.hooks';
-import { getRangeRect } from '@/components/editor/components/toolbar/selection-toolbar/utils';
 import { createHotkey, getModifier, HOT_KEY_NAME } from '@/utils/hotkeys';
-import { PopoverPosition } from '@mui/material';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import ActionButton from './ActionButton';
 import { useTranslation } from 'react-i18next';
 import { ReactEditor, useSlateStatic } from 'slate-react';
 import { ReactComponent as LinkSvg } from '@/assets/link.svg';
+import HrefPopover from '@/components/editor/components/leaf/href/HrefPopover';
 
-export function Href () {
+export function Href() {
   const { t } = useTranslation();
   const { forceShow } = useSelectionToolbarContext();
+
   const editor = useSlateStatic() as YjsEditor;
-  const hasActivatedInline = CustomEditor.hasMark(editor, EditorMarkFormat.Formula) || CustomEditor.hasMark(editor, EditorMarkFormat.Mention);
-  const isActivated = CustomEditor.isMarkActive(editor, EditorMarkFormat.Href);
-  const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined);
-  const open = Boolean(anchorPosition);
-  const handleClose = useCallback(() => {
-    setAnchorPosition(undefined);
-  }, []);
 
-  const formatLink = useCallback(() => {
-    if (!editor.selection || hasActivatedInline) return;
-    const rect = getRangeRect();
+  const {
+    visible,
+  } = useSelectionToolbarContext();
+  const [state, setState] = React.useState({
+    isActivated: false,
+    hasFormulaActivated: false,
+    hasMentionActivated: false,
+  });
 
-    if (!rect) return;
-    forceShow(true);
+  const [open, setOpen] = React.useState(false);
+  const { isActivated, hasFormulaActivated, hasMentionActivated } = state;
 
-    setAnchorPosition({
-      top: rect.top + rect.height,
-      left: rect.left + rect.width / 2,
-    });
-  }, [editor, hasActivatedInline, forceShow]);
+  const getState = useCallback(() => {
+    const isActivated = CustomEditor.isMarkActive(editor, EditorMarkFormat.Href);
+    const hasFormulaActivated = CustomEditor.hasMark(editor, EditorMarkFormat.Formula);
+    const hasMentionActivated = CustomEditor.hasMark(editor, EditorMarkFormat.Mention);
+
+    return {
+      isActivated,
+      hasFormulaActivated,
+      hasMentionActivated,
+    };
+  }, [editor]);
+
+  useEffect(() => {
+    if (!visible) return;
+    setState(getState());
+  }, [visible, getState]);
 
   const onClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    formatLink();
-  }, [formatLink]);
+    setOpen(true);
+    forceShow(true);
+  }, [forceShow]);
 
   const tooltip = useMemo(() => {
     const modifier = getModifier();
@@ -60,7 +69,7 @@ export function Href () {
     const onKeyDown = (e: KeyboardEvent) => {
       if (createHotkey(HOT_KEY_NAME.FORMAT_LINK)(e)) {
         e.preventDefault();
-        formatLink();
+        setOpen(true);
       }
     };
 
@@ -72,34 +81,32 @@ export function Href () {
     return () => {
       slateDom.removeEventListener('keydown', onKeyDown);
     };
-  }, [editor, formatLink]);
+  }, [editor]);
+
+  const handleUpdatedSelection = useCallback(() => {
+    forceShow(true);
+  }, [forceShow]);
 
   return (
     <>
       <ActionButton
-        disabled={hasActivatedInline}
+        disabled={hasFormulaActivated || hasMentionActivated}
         onClick={onClick}
         active={isActivated}
         tooltip={tooltip}
       >
-        <LinkSvg />
+        <LinkSvg/>
       </ActionButton>
-      {open && <Popover
-        onMouseDown={e => e.stopPropagation()}
-        onMouseUp={e => e.stopPropagation()}
-        disableRestoreFocus={true}
-        open={open}
-        onClose={handleClose}
-        anchorPosition={anchorPosition}
-        anchorReference={'anchorPosition'}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}
-      >
-        <input />
-      </Popover>}
 
+      <HrefPopover
+        open={open}
+        updatedSelection={handleUpdatedSelection}
+        onClose={() => {
+          setOpen(false);
+          forceShow(false);
+          setState(getState());
+        }}
+      />
     </>
   );
 }

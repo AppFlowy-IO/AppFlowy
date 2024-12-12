@@ -5,7 +5,7 @@ import EditorEditable from '@/components/editor/Editable';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { withPlugins } from '@/components/editor/plugins';
 import { getTextCount } from '@/utils/word';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { createEditor, Descendant } from 'slate';
 import { Slate, withReact } from 'slate-react';
 import * as Y from 'yjs';
@@ -20,7 +20,6 @@ function CollaborativeEditor({ doc }: { doc: Y.Doc }) {
   const readOnly = context.readOnly;
   const viewId = context.viewId;
   const onWordCountChange = context.onWordCountChange;
-  const localOrigin = CollabOrigin.Local;
   const [, setClock] = useState(0);
   const onContentChange = useCallback((content: Descendant[]) => {
     const wordCount = getTextCount(content);
@@ -37,16 +36,18 @@ function CollaborativeEditor({ doc }: { doc: Y.Doc }) {
           withYHistory(
             withYjs(createEditor(), doc, {
               readOnly,
-              localOrigin,
+              localOrigin: CollabOrigin.Local,
               readSummary,
               onContentChange,
               uploadFile,
+              id: viewId,
             }),
           ),
           clipboardFormatKey,
         ),
       ) as YjsEditor),
-    [doc, uploadFile, readOnly, localOrigin, readSummary, onContentChange],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [viewId, doc],
   );
   const [, setIsConnected] = useState(false);
 
@@ -72,4 +73,4 @@ function CollaborativeEditor({ doc }: { doc: Y.Doc }) {
   );
 }
 
-export default CollaborativeEditor;
+export default memo(CollaborativeEditor);

@@ -1330,7 +1330,7 @@ export async function movePageTo(workspaceId: string, viewId: string, parentView
     code: number;
     message: string;
   }>(url, {
-    parent_view_id: parentViewId,
+    new_parent_view_id: parentViewId,
     prev_view_id: prevViewId,
   });
 

@@ -4,7 +4,7 @@ import { BlockType } from '@/application/types';
 import Align from '@/components/editor/components/toolbar/selection-toolbar/actions/Align';
 import Bold from '@/components/editor/components/toolbar/selection-toolbar/actions/Bold';
 import BulletedList from '@/components/editor/components/toolbar/selection-toolbar/actions/BulletedList';
-// import Href from '@/components/editor/components/toolbar/selection-toolbar/actions/Href';
+import Href from '@/components/editor/components/toolbar/selection-toolbar/actions/Href';
 import Color from '@/components/editor/components/toolbar/selection-toolbar/actions/Color';
 import Formula from '@/components/editor/components/toolbar/selection-toolbar/actions/Formula';
 import Heading from '@/components/editor/components/toolbar/selection-toolbar/actions/Heading';
@@ -23,7 +23,7 @@ import Paragraph from './actions/Paragraph';
 import React, { useMemo } from 'react';
 import { useSlate } from 'slate-react';
 
-function ToolbarActions () {
+function ToolbarActions() {
   const editor = useSlate() as YjsEditor;
   const selection = editor.selection;
   const start = useMemo(() => selection ? editor.start(selection) : null, [editor, selection]);
@@ -62,15 +62,15 @@ function ToolbarActions () {
   }, [editor, end, start]);
 
   const groupTwo = <>
-    <Underline />
-    <Bold />
-    <Italic />
-    <StrikeThrough />
+    <Underline/>
+    <Bold/>
+    <Italic/>
+    <StrikeThrough/>
   </>;
 
   const groupOne = <>
-    <Paragraph />
-    <Heading />
+    <Paragraph/>
+    <Heading/>
     <Divider
       className={'my-1.5 bg-line-on-toolbar'}
       orientation={'vertical'}
@@ -84,21 +84,21 @@ function ToolbarActions () {
       orientation={'vertical'}
       flexItem={true}
     />
-    <Quote />
-    <BulletedList />
-    <NumberedList />
+    <Quote/>
+    <BulletedList/>
+    <NumberedList/>
     <Divider
       className={'my-1.5 bg-line-on-toolbar'}
       orientation={'vertical'}
       flexItem={true}
     />
-    {/*<Href />*/}
+    <Href/>
   </>;
   const {
     visible: toolbarVisible,
   } = useSelectionToolbarContext();
 
-  const groupFour = <><Align enabled={toolbarVisible} /></>;
+  const groupFour = <><Align enabled={toolbarVisible}/></>;
 
   return (
     <div
@@ -108,13 +108,13 @@ function ToolbarActions () {
         !isAcrossBlock && !isCodeBlock && groupOne
       }
       {groupTwo}
-      {!isCodeBlock && <InlineCode />}
-      {!isCodeBlock && !isAcrossBlock && <Formula />}
+      {!isCodeBlock && <InlineCode/>}
+      {!isCodeBlock && !isAcrossBlock && <Formula/>}
       {
         !isAcrossBlock && !isCodeBlock && groupThree
       }
       {!isCodeBlock && groupFour}
-      <Color />
+      <Color/>
     </div>
   );
 }
