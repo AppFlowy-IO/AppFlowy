@@ -193,6 +193,7 @@
     "question3": "لماذا تستخدم Rust",
     "question4": "وصفة بما في مطبخي",
     "question5": "إنشاء رسم توضيحي لصفحتي",
+    "question6": "قم بإعداد قائمة بالمهام التي يجب القيام بها خلال الأسبوع القادم",
     "aiMistakePrompt": "الذكاء الاصطناعي قد يرتكب أخطاء. تحقق من المعلومات المهمة.",
     "chatWithFilePrompt": "هل تريد الدردشة مع الملف؟",
     "indexFileSuccess": "تم فهرسة الملف بنجاح",
@@ -241,7 +242,8 @@
   "deletePagePrompt": {
     "text": "هذه الصفحة في المهملات",
     "restore": "استعادة الصفحة",
-    "deletePermanent": "الحذف بشكل نهائي"
+    "deletePermanent": "الحذف بشكل نهائي",
+    "deletePermanentDescription": "هل أنت متأكد أنك تريد حذف هذه الصفحة بشكل دائم؟ هذا لا يمكن التراجع عنه."
   },
   "dialogCreatePageNameHint": "اسم الصفحة",
   "questionBubble": {
@@ -290,7 +292,8 @@
     "dragRow": "اضغط مطولاً لإعادة ترتيب الصف",
     "viewDataBase": "عرض قاعدة البيانات",
     "referencePage": "تمت الإشارة إلى هذا {name}",
-    "addBlockBelow": "إضافة كتلة أدناه"
+    "addBlockBelow": "إضافة كتلة أدناه",
+    "aiGenerate": "توليد"
   },
   "sideBar": {
     "closeSidebar": "إغلاق الشريط الجانبي",
@@ -299,6 +302,7 @@
     "private": "خاص",
     "workspace": "مساحة العمل",
     "favorites": "المفضلة",
+    "clickToHidePrivate": "انقر لإخفاء المساحة الخاصة\nالصفحات التي قمت بإنشائها هنا مرئية لك فقط",
     "clickToHideWorkspace": "انقر لإخفاء مساحة العمل\nالصفحات التي قمت بإنشائها هنا تكون مرئية لكل الأعضاء",
     "clickToHidePersonal": "انقر لإخفاء القسم الشخصي",
     "clickToHideFavorites": "انقر لإخفاء القسم المفضل",
