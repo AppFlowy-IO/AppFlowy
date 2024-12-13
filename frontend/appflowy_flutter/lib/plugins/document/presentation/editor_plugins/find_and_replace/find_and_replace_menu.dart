@@ -4,6 +4,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class FindAndReplaceMenuWidget extends StatefulWidget {
   const FindAndReplaceMenuWidget({
@@ -55,35 +56,47 @@ class _FindAndReplaceMenuWidgetState extends State<FindAndReplaceMenuWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return TextFieldTapRegion(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: FindMenu(
-              onDismiss: widget.onDismiss,
-              editorState: widget.editorState,
-              searchService: searchService,
-              focusNode: findFocusNode,
-              showReplaceMenu: showReplaceMenu,
-              onToggleShowReplace: () => setState(() {
-                showReplaceMenu = !showReplaceMenu;
-              }),
-            ),
+    return Shortcuts(
+      shortcuts: const {
+        SingleActivator(LogicalKeyboardKey.escape): DismissIntent(),
+      },
+      child: Actions(
+        actions: {
+          DismissIntent: CallbackAction<DismissIntent>(
+            onInvoke: (t) => widget.onDismiss.call(),
           ),
-          if (showReplaceMenu)
-            Padding(
-              padding: const EdgeInsets.only(
-                bottom: 8.0,
+        },
+        child: TextFieldTapRegion(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: FindMenu(
+                  onDismiss: widget.onDismiss,
+                  editorState: widget.editorState,
+                  searchService: searchService,
+                  focusNode: findFocusNode,
+                  showReplaceMenu: showReplaceMenu,
+                  onToggleShowReplace: () => setState(() {
+                    showReplaceMenu = !showReplaceMenu;
+                  }),
+                ),
               ),
-              child: ReplaceMenu(
-                editorState: widget.editorState,
-                searchService: searchService,
-                focusNode: replaceFocusNode,
-              ),
-            ),
-        ],
+              if (showReplaceMenu)
+                Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 8.0,
+                  ),
+                  child: ReplaceMenu(
+                    editorState: widget.editorState,
+                    searchService: searchService,
+                    focusNode: replaceFocusNode,
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

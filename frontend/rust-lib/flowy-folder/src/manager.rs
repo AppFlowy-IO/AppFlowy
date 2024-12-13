@@ -919,6 +919,27 @@ impl FolderManager {
     }
   }
 
+  /// Return a list of views that belong to the given parent view id, and not
+  /// in the trash section.
+  pub async fn get_untrashed_views_belong_to(
+    &self,
+    parent_view_id: &str,
+  ) -> FlowyResult<Vec<Arc<View>>> {
+    match self.mutex_folder.load_full() {
+      Some(folder) => {
+        let folder = folder.read().await;
+        let views = folder
+          .get_views_belong_to(parent_view_id)
+          .into_iter()
+          .filter(|view| !folder.is_view_in_section(Section::Trash, &view.id))
+          .collect();
+
+        Ok(views)
+      },
+      None => Ok(vec![]),
+    }
+  }
+
   pub async fn get_view(&self, view_id: &str) -> FlowyResult<Arc<View>> {
     match self.mutex_folder.load_full() {
       Some(folder) => {
@@ -1188,7 +1209,7 @@ impl FolderManager {
     if let Some(view) = &view {
       let view_layout: ViewLayout = view.layout.clone().into();
       if let Some(handle) = self.operation_handlers.get(&view_layout) {
-        info!("Open view: {}", view.id);
+        info!("Open view: {}-{}", view.name, view.id);
         if let Err(err) = handle.open_view(&view_id).await {
           error!("Open view error: {:?}", err);
         }

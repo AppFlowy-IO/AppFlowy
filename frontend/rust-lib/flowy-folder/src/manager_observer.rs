@@ -10,6 +10,7 @@ use collab_folder::{
   Folder, SectionChange, SectionChangeReceiver, TrashSectionChange, View, ViewChange,
   ViewChangeReceiver,
 };
+use lib_infra::sync_trace;
 
 use std::collections::HashSet;
 use std::sync::Weak;
@@ -45,10 +46,14 @@ pub(crate) fn subscribe_folder_view_changed(
               ChildViewChangeReason::Create,
             );
             let folder = lock.read().await;
-            notify_parent_view_did_change(&workspace_id, &folder, vec![view.parent_view_id]);
+            let parent_view_id = view.parent_view_id.clone();
+            notify_parent_view_did_change(&workspace_id, &folder, vec![parent_view_id]);
+            sync_trace!("[Folder] create view: {:?}", view);
           },
           ViewChange::DidDeleteView { views } => {
             for view in views {
+              sync_trace!("[Folder] delete view: {:?}", view);
+
               notify_child_views_changed(
                 view_pb_without_child_views(view.as_ref().clone()),
                 ChildViewChangeReason::Delete,
@@ -56,6 +61,8 @@ pub(crate) fn subscribe_folder_view_changed(
             }
           },
           ViewChange::DidUpdate { view } => {
+            sync_trace!("[Folder] update view: {:?}", view);
+
             notify_view_did_change(view.clone());
             notify_child_views_changed(
               view_pb_without_child_views(view.clone()),

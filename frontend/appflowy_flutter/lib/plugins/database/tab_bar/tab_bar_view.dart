@@ -55,7 +55,7 @@ abstract class DatabaseTabBarItemBuilder {
   void dispose() {}
 }
 
-class DatabaseTabBarView extends StatefulWidget {
+class DatabaseTabBarView extends StatelessWidget {
   const DatabaseTabBarView({
     super.key,
     required this.view,
@@ -71,107 +71,83 @@ class DatabaseTabBarView extends StatefulWidget {
   final String? initialRowId;
 
   @override
-  State<DatabaseTabBarView> createState() => _DatabaseTabBarViewState();
-}
-
-class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
-  final PageController _pageController = PageController();
-  late String? _initialRowId = widget.initialRowId;
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider<DatabaseTabBarBloc>(
-          create: (_) => DatabaseTabBarBloc(view: widget.view)
+          create: (_) => DatabaseTabBarBloc(view: view)
             ..add(const DatabaseTabBarEvent.initial()),
         ),
         BlocProvider<ViewBloc>(
-          create: (_) =>
-              ViewBloc(view: widget.view)..add(const ViewEvent.initial()),
+          create: (_) => ViewBloc(view: view)..add(const ViewEvent.initial()),
         ),
       ],
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<DatabaseTabBarBloc, DatabaseTabBarState>(
-            listenWhen: (p, c) => p.selectedIndex != c.selectedIndex,
-            listener: (_, state) {
-              _initialRowId = null;
-              _pageController.jumpToPage(state.selectedIndex);
-            },
-          ),
-        ],
-        child: Column(
-          children: [
-            if (UniversalPlatform.isMobile) const VSpace(12),
-            BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-              builder: (context, state) {
-                return ValueListenableBuilder<bool>(
-                  valueListenable: state
-                      .tabBarControllerByViewId[state.parentView.id]!
-                      .controller
-                      .isLoading,
-                  builder: (_, value, ___) {
-                    if (value) {
-                      return const SizedBox.shrink();
-                    }
+      child: BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
+        builder: (_, state) {
+          final layout = state.tabBars[state.selectedIndex].layout;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (UniversalPlatform.isMobile) const VSpace(12),
+              ValueListenableBuilder<bool>(
+                valueListenable: state
+                    .tabBarControllerByViewId[state.parentView.id]!
+                    .controller
+                    .isLoading,
+                builder: (_, value, ___) {
+                  if (value) {
+                    return const SizedBox.shrink();
+                  }
 
-                    return UniversalPlatform.isDesktop
-                        ? const TabBarHeader()
-                        : const MobileTabBarHeader();
-                  },
-                );
-              },
-            ),
-            BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-              builder: (context, state) =>
-                  pageSettingBarExtensionFromState(state),
-            ),
-            BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-              builder: (context, state) {
-                final content = PageView(
-                  controller: _pageController,
-                  pageSnapping: false,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: pageContentFromState(state),
-                );
-
-                if (widget.shrinkWrap) {
-                  final layout = state.tabBars[state.selectedIndex].layout;
-                  return SizedBox(height: layout.pluginHeight, child: content);
-                }
-
-                return Expanded(child: content);
-              },
-            ),
-          ],
-        ),
+                  return UniversalPlatform.isDesktop
+                      ? const TabBarHeader()
+                      : const MobileTabBarHeader();
+                },
+              ),
+              pageSettingBarExtensionFromState(context, state),
+              wrapContent(
+                layout: layout,
+                child: pageContentFromState(context, state),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  List<Widget> pageContentFromState(DatabaseTabBarState state) {
-    return state.tabBars.map((tabBar) {
-      final controller =
-          state.tabBarControllerByViewId[tabBar.viewId]!.controller;
+  Widget wrapContent({required ViewLayoutPB layout, required Widget child}) {
+    if (shrinkWrap) {
+      if (layout.shrinkWrappable) {
+        return child;
+      }
 
-      return tabBar.builder.content(
-        context,
-        tabBar.view,
-        controller,
-        widget.shrinkWrap,
-        _initialRowId,
+      return SizedBox(
+        height: layout.pluginHeight,
+        child: child,
       );
-    }).toList();
+    }
+
+    return Expanded(child: child);
   }
 
-  Widget pageSettingBarExtensionFromState(DatabaseTabBarState state) {
+  Widget pageContentFromState(BuildContext context, DatabaseTabBarState state) {
+    final tab = state.tabBars[state.selectedIndex];
+    final controller = state.tabBarControllerByViewId[tab.viewId]!.controller;
+
+    return tab.builder.content(
+      context,
+      tab.view,
+      controller,
+      shrinkWrap,
+      initialRowId,
+    );
+  }
+
+  Widget pageSettingBarExtensionFromState(
+    BuildContext context,
+    DatabaseTabBarState state,
+  ) {
     if (state.tabBars.length < state.selectedIndex) {
       return const SizedBox.shrink();
     }

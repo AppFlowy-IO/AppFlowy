@@ -19,12 +19,14 @@ class InlineActionsMenu extends InlineActionsMenuService {
     required this.initialResults,
     required this.style,
     this.startCharAmount = 1,
+    this.cancelBySpaceHandler,
   });
 
   final BuildContext context;
   final EditorState editorState;
   final InlineActionsService service;
   final List<InlineActionsResult> initialResults;
+  final bool Function()? cancelBySpaceHandler;
 
   @override
   final InlineActionsMenuStyle style;
@@ -137,6 +139,7 @@ class InlineActionsMenu extends InlineActionsMenuService {
                     onSelectionUpdate: _onSelectionUpdate,
                     style: style,
                     startCharAmount: startCharAmount,
+                    cancelBySpaceHandler: cancelBySpaceHandler,
                   ),
                 ),
               ),

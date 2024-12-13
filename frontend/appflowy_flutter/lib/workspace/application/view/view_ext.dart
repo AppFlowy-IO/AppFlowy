@@ -325,13 +325,15 @@ extension ViewLayoutExtension on ViewLayoutPB {
         _ => LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
       };
 
+  bool get shrinkWrappable => switch (this) {
+        ViewLayoutPB.Grid => true,
+        _ => false,
+      };
+
   double get pluginHeight => switch (this) {
-        ViewLayoutPB.Grid ||
-        ViewLayoutPB.Board ||
-        ViewLayoutPB.Document ||
-        ViewLayoutPB.Chat =>
-          450,
+        ViewLayoutPB.Document || ViewLayoutPB.Board || ViewLayoutPB.Chat => 450,
         ViewLayoutPB.Calendar => 650,
+        ViewLayoutPB.Grid => double.infinity,
         _ => throw UnimplementedError(),
       };
 }

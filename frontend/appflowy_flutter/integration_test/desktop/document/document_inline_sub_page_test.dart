@@ -2,12 +2,12 @@ import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
+import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
-
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -329,6 +329,23 @@ void main() {
       expect(find.text(_createdPageName), findsOneWidget);
       expect(find.text("$_createdPageName (copy)"), findsNWidgets(2));
       expect(find.text("$_createdPageName (copy) (copy)"), findsOneWidget);
+    });
+
+    testWidgets('Cancel inline page reference menu by space', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+      await tester.createOpenRenameDocumentUnderParent(name: _firstDocName);
+
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.editor.showPlusMenu();
+
+      // Cancel by space
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.space,
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(InlineActionsMenu), findsNothing);
     });
   });
 }

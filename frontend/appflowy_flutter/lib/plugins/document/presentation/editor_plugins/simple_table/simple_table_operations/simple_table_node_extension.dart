@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_tab
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_row_block_component.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 typedef TableCellPosition = (int, int);
@@ -95,6 +96,9 @@ extension TableNodeExtension on Node {
 
   int get rowIndex {
     if (type == SimpleTableCellBlockKeys.type) {
+      if (path.parent.isEmpty) {
+        return -1;
+      }
       return path.parent.last;
     } else if (type == SimpleTableRowBlockKeys.type) {
       return path.last;
@@ -104,6 +108,9 @@ extension TableNodeExtension on Node {
 
   int get columnIndex {
     assert(type == SimpleTableCellBlockKeys.type);
+    if (path.isEmpty) {
+      return -1;
+    }
     return path.last;
   }
 
@@ -191,6 +198,18 @@ extension TableNodeExtension on Node {
     return tableNode;
   }
 
+  Node? get parentTableCellNode {
+    Node? tableCellNode;
+
+    if (type == SimpleTableCellBlockKeys.type) {
+      tableCellNode = this;
+    } else {
+      return parent?.parentTableCellNode;
+    }
+
+    return tableCellNode;
+  }
+
   double get columnWidth {
     final parentTableNode = this.parentTableNode;
 
@@ -260,7 +279,8 @@ extension TableNodeExtension on Node {
         parentTableNode.type != SimpleTableBlockKeys.type) {
       return false;
     }
-    return parentTableNode.isHeaderColumnEnabled && parent?.columnIndex == 0;
+    return parentTableNode.isHeaderColumnEnabled &&
+        parentTableCellNode?.columnIndex == 0;
   }
 
   /// Whether the current node is in the header row.
@@ -272,7 +292,8 @@ extension TableNodeExtension on Node {
         parentTableNode.type != SimpleTableBlockKeys.type) {
       return false;
     }
-    return parentTableNode.isHeaderRowEnabled && parent?.rowIndex == 0;
+    return parentTableNode.isHeaderRowEnabled &&
+        parentTableCellNode?.rowIndex == 0;
   }
 
   SimpleTableRowAlignMap get rowAligns {
@@ -343,6 +364,16 @@ extension TableNodeExtension on Node {
       Log.warn('get column widths: $e');
       return SimpleTableColumnWidthMap();
     }
+  }
+
+  double get width {
+    double currentColumnWidth = 0;
+    for (var i = 0; i < columnLength; i++) {
+      final columnWidth =
+          columnWidths[i.toString()] ?? SimpleTableConstants.defaultColumnWidth;
+      currentColumnWidth += columnWidth;
+    }
+    return currentColumnWidth;
   }
 
   /// Get the previous cell in the same column. If the row index is 0, it will return the same cell.
@@ -528,5 +559,96 @@ extension TableNodeExtension on Node {
         .where((e) => e != null)
         .join('\n');
     return content;
+  }
+
+  /// Return the first empty row in the table from bottom to top.
+  ///
+  /// Example:
+  ///
+  /// | A | B | C |
+  /// |   |   |   |
+  /// | E | F | G |
+  /// | H | I | J |
+  /// |   |   |   | <--- The first empty row is the row at index 3.
+  /// |   |   |   |
+  ///
+  /// The first empty row is the row at index 3.
+  (int, Node)? getFirstEmptyRowFromBottom() {
+    assert(type == SimpleTableBlockKeys.type);
+
+    if (type != SimpleTableBlockKeys.type) {
+      return null;
+    }
+
+    (int, Node)? result;
+
+    for (var i = children.length - 1; i >= 0; i--) {
+      final row = children[i];
+
+      // Check if all cells in this row are empty
+      final hasContent = row.children.any((cell) {
+        final content = getTableCellContent(
+          rowIndex: i,
+          columnIndex: row.children.indexOf(cell),
+        );
+        return content != null && content.isNotEmpty;
+      });
+
+      if (!hasContent) {
+        if (result != null) {
+          final (index, _) = result;
+          if (i <= index) {
+            result = (i, row);
+          }
+        } else {
+          result = (i, row);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /// Return the first empty column in the table from right to left.
+  ///
+  /// Example:
+  ///                  ↓ The first empty column is the column at index 3.
+  /// | A | C |  | E |  |  |
+  /// | B | D |  | F |  |  |
+  ///
+  /// The first empty column is the column at index 3.
+  int? getFirstEmptyColumnFromRight() {
+    assert(type == SimpleTableBlockKeys.type);
+
+    if (type != SimpleTableBlockKeys.type) {
+      return null;
+    }
+
+    int? result;
+
+    for (var i = columnLength - 1; i >= 0; i--) {
+      bool hasContent = false;
+      for (var j = 0; j < rowLength; j++) {
+        final content = getTableCellContent(
+          rowIndex: j,
+          columnIndex: i,
+        );
+        if (content != null && content.isNotEmpty) {
+          hasContent = true;
+        }
+      }
+      if (!hasContent) {
+        if (result != null) {
+          final index = result;
+          if (i <= index) {
+            result = i;
+          }
+        } else {
+          result = i;
+        }
+      }
+    }
+
+    return result;
   }
 }

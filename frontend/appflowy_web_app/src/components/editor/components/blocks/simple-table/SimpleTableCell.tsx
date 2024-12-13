@@ -4,6 +4,7 @@ import { renderColor } from '@/utils/color';
 import React, { forwardRef, useMemo } from 'react';
 import { Editor, Element, NodeEntry } from 'slate';
 import { ReactEditor, useSlate } from 'slate-react';
+import { MIN_WIDTH } from '@/components/editor/components/blocks/simple-table/const';
 
 const SimpleTableCell =
   forwardRef<HTMLTableCellElement, EditorElementProps<SimpleTableCellBlockNode>>(({
@@ -49,20 +50,24 @@ const SimpleTableCell =
         return (parentElement.children as Element[]).findIndex((n) => n.blockId === node.blockId);
       }, [node, row]);
 
-      const { horizontalAlign, bgColor } = useMemo(() => {
+      const { horizontalAlign, bgColor, width } = useMemo(() => {
         if (!table || !row) return {
           bgColor: undefined,
           horizontalAlign: undefined,
+          width: undefined,
         };
 
         const [parentElement] = table;
 
-        const horizontalAlign = (parentElement as SimpleTableNode).data.column_aligns[colIndex];
-        const bgColor = (parentElement as SimpleTableNode).data.column_colors[colIndex];
+        const horizontalAlign = (parentElement as SimpleTableNode).data.column_aligns?.[colIndex];
+        const bgColor = (parentElement as SimpleTableNode).data.column_colors?.[colIndex];
+
+        const width = (parentElement as SimpleTableNode).data.column_widths?.[colIndex] || MIN_WIDTH;
 
         return {
           horizontalAlign,
           bgColor,
+          width,
         };
       }, [colIndex, row, table]);
 
@@ -79,9 +84,12 @@ const SimpleTableCell =
           style={{
             ...attributes.style,
             backgroundColor: bgColor ? renderColor(bgColor) : undefined,
+            maxWidth: width ? `${width}px` : undefined,
           }}
         >
-          <div className={'cell-children'}>
+          <div
+            className={'cell-children'}
+          >
             {children}
           </div>
         </td>

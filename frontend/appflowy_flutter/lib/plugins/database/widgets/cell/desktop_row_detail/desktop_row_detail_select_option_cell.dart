@@ -25,6 +25,7 @@ class DesktopRowDetailSelectOptionCellSkin
       controller: popoverController,
       constraints: const BoxConstraints.tightFor(width: 300),
       margin: EdgeInsets.zero,
+      asBarrier: true,
       triggerActions: PopoverTriggerFlags.none,
       direction: PopoverDirection.bottomWithLeftAligned,
       onClose: () => cellContainerNotifier.isFocus = false,

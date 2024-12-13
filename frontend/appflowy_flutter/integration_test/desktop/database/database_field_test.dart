@@ -538,8 +538,8 @@ void main() {
 
       // edit the first date cell
       await tester.tapCellInGrid(rowIndex: 0, fieldType: FieldType.DateTime);
-      await tester.toggleIncludeTime();
       final now = DateTime.now();
+      await tester.toggleIncludeTime();
       await tester.selectDay(content: now.day);
 
       await tester.dismissCellEditor();

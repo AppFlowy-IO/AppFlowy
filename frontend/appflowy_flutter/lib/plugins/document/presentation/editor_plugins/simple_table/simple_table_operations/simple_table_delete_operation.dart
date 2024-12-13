@@ -18,8 +18,9 @@ extension TableDeletionOperations on EditorState {
   /// Row 1: |   |   |   |
   Future<void> deleteRowInTable(
     Node node,
-    int index,
-  ) async {
+    int index, {
+    bool inMemoryUpdate = false,
+  }) async {
     assert(node.type == SimpleTableBlockKeys.type);
 
     if (node.type != SimpleTableBlockKeys.type) {
@@ -48,7 +49,12 @@ extension TableDeletionOperations on EditorState {
     if (attributes != null) {
       transaction.updateNode(node, attributes);
     }
-    await apply(transaction);
+    await apply(
+      transaction,
+      options: ApplyOptions(
+        inMemoryUpdate: inMemoryUpdate,
+      ),
+    );
   }
 
   /// Delete a column at the given index.
@@ -64,7 +70,11 @@ extension TableDeletionOperations on EditorState {
   /// After:
   /// Row 1: | 0 | 1 |
   /// Row 2: |   |   |
-  Future<void> deleteColumnInTable(Node node, int index) async {
+  Future<void> deleteColumnInTable(
+    Node node,
+    int index, {
+    bool inMemoryUpdate = false,
+  }) async {
     assert(node.type == SimpleTableBlockKeys.type);
 
     if (node.type != SimpleTableBlockKeys.type) {
@@ -96,6 +106,11 @@ extension TableDeletionOperations on EditorState {
     if (attributes != null) {
       transaction.updateNode(node, attributes);
     }
-    await apply(transaction);
+    await apply(
+      transaction,
+      options: ApplyOptions(
+        inMemoryUpdate: inMemoryUpdate,
+      ),
+    );
   }
 }

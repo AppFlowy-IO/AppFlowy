@@ -45,8 +45,8 @@ const SimpleTableRow =
         const [parentElement] = parent;
 
         return {
-          align: (parentElement as SimpleTableNode).data.row_aligns[index],
-          bgColor: (parentElement as SimpleTableNode).data.row_colors[index],
+          align: (parentElement as SimpleTableNode).data.row_aligns?.[index],
+          bgColor: (parentElement as SimpleTableNode).data.row_colors?.[index],
         };
       }, [index, parent]);
 
@@ -57,6 +57,7 @@ const SimpleTableRow =
           ref={ref}
           {...attributes}
           data-table-row={blockId}
+
           data-table-row-horizontal-align={align?.toLowerCase()}
           style={{
             ...attributes.style,

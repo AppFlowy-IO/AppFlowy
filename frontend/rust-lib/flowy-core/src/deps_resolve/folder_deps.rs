@@ -676,16 +676,29 @@ impl FolderQueryServiceImpl {
 
 #[async_trait]
 impl FolderQueryService for FolderQueryServiceImpl {
-  async fn get_sibling_ids(&self, parent_view_id: &str) -> Vec<String> {
+  async fn get_sibling_ids_with_view_layout(
+    &self,
+    parent_view_id: &str,
+    view_layout: ViewLayout,
+  ) -> Vec<String> {
     match self.folder_manager.upgrade() {
       None => vec![],
       Some(folder_manager) => {
         if let Ok(parent_view) = folder_manager.get_view(parent_view_id).await {
           if parent_view.space_info().is_none() {
-            if let Ok(views) = folder_manager.get_views_belong_to(parent_view_id).await {
+            if let Ok(views) = folder_manager
+              .get_untrashed_views_belong_to(parent_view_id)
+              .await
+            {
               return views
                 .into_iter()
-                .map(|child| child.id.clone())
+                .filter_map(|child| {
+                  if child.layout == view_layout {
+                    Some(child.id.clone())
+                  } else {
+                    None
+                  }
+                })
                 .collect::<Vec<String>>();
             }
           }

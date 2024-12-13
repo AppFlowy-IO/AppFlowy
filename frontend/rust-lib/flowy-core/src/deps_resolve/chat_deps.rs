@@ -1,6 +1,7 @@
 use flowy_ai::ai_manager::{AIManager, AIQueryService, AIUserService};
 use flowy_ai_pub::cloud::ChatCloudService;
 use flowy_error::FlowyError;
+use flowy_folder::ViewLayout;
 use flowy_folder_pub::query::FolderQueryService;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
@@ -44,7 +45,10 @@ impl AIQueryService for ChatQueryServiceImpl {
     parent_view_id: &str,
     chat_id: &str,
   ) -> Result<Vec<String>, FlowyError> {
-    let mut ids = self.folder_query.get_sibling_ids(parent_view_id).await;
+    let mut ids = self
+      .folder_query
+      .get_sibling_ids_with_view_layout(parent_view_id, ViewLayout::Document)
+      .await;
 
     if !ids.is_empty() {
       ids.retain(|id| id != chat_id);
