@@ -470,6 +470,37 @@ void main() {
     final afterWidth2 = editorState.document.nodeAtPath([0])!.width;
     expect(afterWidth2, equals(afterWidth));
   });
+
+  testWidgets('insert a table and use select all the delete it',
+      (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+
+    await tester.editor.tapLineOfEditorAt(1);
+    await tester.ime.insertText('Hello World');
+
+    // select all
+    await tester.simulateKeyEvent(
+      LogicalKeyboardKey.keyA,
+      isMetaPressed: UniversalPlatform.isMacOS,
+      isControlPressed: !UniversalPlatform.isMacOS,
+    );
+
+    await tester.simulateKeyEvent(LogicalKeyboardKey.backspace);
+    await tester.pumpAndSettle();
+
+    final editorState = tester.editor.getCurrentEditorState();
+    // only one paragraph left
+    expect(editorState.document.root.children.length, 1);
+    final paragraphNode = editorState.document.nodeAtPath([0])!;
+    expect(paragraphNode.delta, isNull);
+  });
 }
 
 extension on WidgetTester {
