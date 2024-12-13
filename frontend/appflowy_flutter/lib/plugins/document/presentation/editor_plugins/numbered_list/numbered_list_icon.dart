@@ -30,7 +30,7 @@ class NumberedListIcon extends StatelessWidget {
         minWidth: size,
         minHeight: size,
       ),
-      margin: const EdgeInsets.only(right: 8.0),
+      margin: const EdgeInsets.only(top: 0.5, right: 8.0),
       alignment: Alignment.center,
       child: Center(
         child: Text(

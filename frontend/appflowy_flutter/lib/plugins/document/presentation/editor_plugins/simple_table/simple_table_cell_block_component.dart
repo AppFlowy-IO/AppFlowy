@@ -209,9 +209,7 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     return Align(
       alignment: alignment,
       child: IntrinsicWidth(
-        child: IntrinsicHeight(
-          child: editorState.renderer.build(context, childNode),
-        ),
+        child: editorState.renderer.build(context, childNode),
       ),
     );
   }
