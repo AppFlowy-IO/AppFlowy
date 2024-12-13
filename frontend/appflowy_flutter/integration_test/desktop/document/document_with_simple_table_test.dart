@@ -407,6 +407,44 @@ void main() {
     final afterWidth = tableNode.width;
     expect(afterWidth, equals(beforeWidth));
   });
+
+  testWidgets('using option menu to set column width', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+    await tester.editor.hoverAndClickOptionMenuButton([0]);
+
+    final editorState = tester.editor.getCurrentEditorState();
+    final beforeWidth = editorState.document.nodeAtPath([0])!.width;
+
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_simpleTable_moreActions_setToPageWidth.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final afterWidth = editorState.document.nodeAtPath([0])!.width;
+    expect(afterWidth, greaterThan(beforeWidth));
+
+    await tester.editor.hoverAndClickOptionMenuButton([0]);
+    await tester.tapButton(
+      find.text(
+        LocaleKeys
+            .document_plugins_simpleTable_moreActions_distributeColumnsWidth
+            .tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final afterWidth2 = editorState.document.nodeAtPath([0])!.width;
+    expect(afterWidth2, equals(afterWidth));
+  });
 }
 
 extension on WidgetTester {
