@@ -15,7 +15,7 @@ import 'package:scroll_to_index/scroll_to_index.dart';
 const double _itemHeight = 44.0;
 const double _noPageHeight = 20.0;
 const double _fixedWidth = 360.0;
-const double _maxHeight = 600.0;
+const double _maxHeight = 328.0;
 
 class ChatInputAnchor {
   ChatInputAnchor(this.anchorKey, this.layerLink);
@@ -154,8 +154,10 @@ class ChatMentionPageList extends StatefulWidget {
 }
 
 class _ChatMentionPageListState extends State<ChatMentionPageList> {
-  final autoScrollController = AutoScrollController(
+  final autoScrollController = SimpleAutoScrollController(
     suggestedRowHeight: _itemHeight,
+    beginGetter: (rect) => rect.top + 8.0,
+    endGetter: (rect) => rect.bottom - 8.0,
   );
 
   @override
@@ -169,8 +171,8 @@ class _ChatMentionPageListState extends State<ChatMentionPageList> {
     return BlocConsumer<ChatInputControlCubit, ChatInputControlState>(
       listenWhen: (previous, current) {
         return previous.maybeWhen(
-          ready: (pVisibleViews, pFocusedViewIndex) => current.maybeWhen(
-            ready: (cIsibleViews, cFocusedViewIndex) =>
+          ready: (_, pFocusedViewIndex) => current.maybeWhen(
+            ready: (_, cFocusedViewIndex) =>
                 pFocusedViewIndex != cFocusedViewIndex,
             orElse: () => false,
           ),
@@ -226,8 +228,6 @@ class _ChatMentionPageListState extends State<ChatMentionPageList> {
 
             return ListView.builder(
               shrinkWrap: true,
-              cacheExtent: 1,
-              addAutomaticKeepAlives: false,
               controller: autoScrollController,
               padding: const EdgeInsets.all(8.0),
               itemCount: views.length,
@@ -344,8 +344,7 @@ class MentionViewTitleAndAncestors extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          ViewTitleBarBloc(view: view)..add(const ViewTitleBarEvent.initial()),
+      create: (_) => ViewTitleBarBloc(view: view),
       child: BlocBuilder<ViewTitleBarBloc, ViewTitleBarState>(
         builder: (context, state) {
           final nonEmptyName = view.name.isEmpty

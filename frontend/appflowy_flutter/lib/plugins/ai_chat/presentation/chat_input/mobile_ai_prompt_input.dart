@@ -198,7 +198,7 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
         context,
         filter: (view) =>
             view.layout.isDocumentView &&
-            view.parentViewId.isNotEmpty &&
+            view.parentViewId != view.id &&
             !inputControlCubit.selectedViewIds.contains(view.id),
       );
       if (selectedView != null) {
