@@ -126,6 +126,10 @@ extension TableCommandExtension on EditorState {
 
     Selection? newSelection;
 
+    if (isIndentable(editorState)) {
+      return indentCommand.execute(editorState);
+    }
+
     final nextCell = tableCellNode.getNextCellInSameRow();
     if (nextCell != null && !nextCell.path.equals(tableCellNode.path)) {
       // get the first children of the next cell
