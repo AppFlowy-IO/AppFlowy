@@ -125,6 +125,14 @@ List<OptionAction> _buildOptionActions(BuildContext context, String type) {
     standardActions.addAll([OptionAction.divider, OptionAction.depth]);
   }
 
+  if (SimpleTableBlockKeys.type == type) {
+    standardActions.addAll([
+      OptionAction.divider,
+      OptionAction.setToPageWidth,
+      OptionAction.distributeColumnsEvenly,
+    ]);
+  }
+
   return standardActions;
 }
 
@@ -150,6 +158,7 @@ void _customBlockOptionActions(
         }
         return true;
       };
+
       builder.configuration = builder.configuration.copyWith(
         blockSelectionAreaMargin: (_) => const EdgeInsets.symmetric(
           vertical: 1,
