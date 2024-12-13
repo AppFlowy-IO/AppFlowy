@@ -187,8 +187,15 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
             },
           );
         },
-        child: Column(
-          children: node.children.map(_buildCellContent).toList(),
+        child: Container(
+          padding: SimpleTableConstants.cellEdgePadding,
+          constraints: const BoxConstraints(
+            minWidth: SimpleTableConstants.minimumColumnWidth,
+          ),
+          width: node.columnWidth,
+          child: Column(
+            children: node.children.map(_buildCellContent).toList(),
+          ),
         ),
       ),
     );
@@ -196,12 +203,8 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
   Widget _buildCellContent(Node childNode) {
     final alignment = _buildAlignment();
-    return Container(
-      padding: SimpleTableConstants.cellEdgePadding,
-      constraints: const BoxConstraints(
-        minWidth: SimpleTableConstants.minimumColumnWidth,
-      ),
-      width: node.columnWidth,
+
+    return Align(
       alignment: alignment,
       child: IntrinsicWidth(
         child: IntrinsicHeight(
