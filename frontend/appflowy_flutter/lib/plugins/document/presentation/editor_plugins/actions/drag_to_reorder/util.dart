@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +44,11 @@ Future<void> dragToMoveNode(
   }
 
   // Check if the drop should be ignored
-  if (shouldIgnoreDragTarget(node, newPath)) {
+  if (shouldIgnoreDragTarget(
+    editorState: editorState,
+    dragNode: node,
+    targetPath: newPath,
+  )) {
     Log.info(
       'Drop ignored: node($node, ${node.path}), path($acceptedPath)',
     );
@@ -110,7 +115,11 @@ Future<void> dragToMoveNode(
   return (verticalPosition, horizontalPosition, globalBlockRect);
 }
 
-bool shouldIgnoreDragTarget(Node dragNode, Path? targetPath) {
+bool shouldIgnoreDragTarget({
+  required EditorState editorState,
+  required Node dragNode,
+  required Path? targetPath,
+}) {
   if (targetPath == null) {
     return true;
   }
@@ -120,6 +129,15 @@ bool shouldIgnoreDragTarget(Node dragNode, Path? targetPath) {
   }
 
   if (dragNode.path.isAncestorOf(targetPath)) {
+    return true;
+  }
+
+  final targetNode = editorState.getNodeAtPath(targetPath);
+  if (targetNode == null) {
+    return true;
+  }
+
+  if (targetNode.isInTable) {
     return true;
   }
 

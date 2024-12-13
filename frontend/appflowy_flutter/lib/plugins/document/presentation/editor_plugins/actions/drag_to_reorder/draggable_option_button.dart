@@ -86,6 +86,7 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
       details.globalPosition,
       builder: (context, data) {
         return VisualDragArea(
+          editorState: widget.editorState,
           data: data,
           dragNode: widget.blockComponentContext.node,
         );
