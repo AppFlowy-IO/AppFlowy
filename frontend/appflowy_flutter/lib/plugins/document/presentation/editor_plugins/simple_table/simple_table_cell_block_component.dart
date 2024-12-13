@@ -193,9 +193,11 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
             minWidth: SimpleTableConstants.minimumColumnWidth,
           ),
           width: node.columnWidth,
-          child: Column(
-            children: node.children.map(_buildCellContent).toList(),
-          ),
+          child: node.children.isEmpty
+              ? _buildEmptyCellContent()
+              : Column(
+                  children: node.children.map(_buildCellContent).toList(),
+                ),
         ),
       ),
     );
@@ -211,6 +213,24 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
           child: editorState.renderer.build(context, childNode),
         ),
       ),
+    );
+  }
+
+  Widget _buildEmptyCellContent() {
+    // if the table cell is empty, we should allow the user to tap on it to create a new paragraph.
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        final transaction = editorState.transaction;
+        final path = node.path.child(0);
+        transaction
+          ..insertNode(
+            path,
+            paragraphNode(),
+          )
+          ..afterSelection = Selection.collapsed(Position(path: path));
+        editorState.apply(transaction);
+      },
     );
   }
 
