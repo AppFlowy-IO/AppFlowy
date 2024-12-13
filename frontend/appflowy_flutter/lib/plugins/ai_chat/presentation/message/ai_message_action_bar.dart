@@ -488,7 +488,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
   Widget buildPopover(BuildContext context) {
     return BlocProvider.value(
       value: context.read<ChatSettingsCubit>(),
-      child: _SaveToPagePopoverContent(
+      child: SaveToPagePopoverContent(
         onAddToNewPage: (parentViewId) {
           addMessageToNewPage(context, parentViewId);
           popoverController.close();
@@ -511,9 +511,9 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
     BuildContext context,
     String documentId,
   ) async {
-    await ChatEditDocumentService.addMessageToPage(
+    await ChatEditDocumentService.addMessagesToPage(
       documentId,
-      widget.textMessage,
+      [widget.textMessage],
     );
     await Future.delayed(const Duration(milliseconds: 500));
     final view = await ViewBackendService.getView(documentId).toNullable();
@@ -539,35 +539,6 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
         openPageFromMessage(context, newView);
       }
     }
-  }
-
-  void showSaveMessageSuccessToast(BuildContext context, ViewPB? view) {
-    if (view == null) {
-      return;
-    }
-    showToastNotification(
-      context,
-      richMessage: TextSpan(
-        children: [
-          TextSpan(
-            text: LocaleKeys.chat_addToNewPageSuccessToast.tr(),
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFFFFFFFF),
-                ),
-          ),
-          const TextSpan(
-            text: ' ',
-          ),
-          TextSpan(
-            text: view.nameOrDefault,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFFFFFFFF),
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-        ],
-      ),
-    );
   }
 
   Future<void> forceReload(String documentId) async {
@@ -605,8 +576,9 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
   }
 }
 
-class _SaveToPagePopoverContent extends StatelessWidget {
-  const _SaveToPagePopoverContent({
+class SaveToPagePopoverContent extends StatelessWidget {
+  const SaveToPagePopoverContent({
+    super.key,
     required this.onAddToNewPage,
     required this.onAddToExistingPage,
   });
