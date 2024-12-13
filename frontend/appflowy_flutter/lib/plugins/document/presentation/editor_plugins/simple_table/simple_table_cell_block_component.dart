@@ -273,7 +273,12 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   }
 
   Color? _buildBackgroundColor() {
-    // Priority: column color > row color > header color > default color
+    // Priority: highlight color > column color > row color > header color > default color
+    final isSelectingTable =
+        simpleTableContext?.isSelectingTable.value ?? false;
+    if (isSelectingTable) {
+      return Theme.of(context).colorScheme.primary.withOpacity(0.1);
+    }
 
     final columnColor = node.buildColumnColor(context);
     if (columnColor != null && columnColor != Colors.transparent) {
