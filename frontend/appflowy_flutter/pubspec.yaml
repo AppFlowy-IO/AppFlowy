@@ -171,10 +171,9 @@ dependency_overrides:
       commit: 737681d
 
   appflowy_editor:
-    path: /Users/lucas.xu/Desktop/appflowy-editor
-    # git:
-    #   url: https://github.com/AppFlowy-IO/appflowy-editor.git
-    #   ref: "954ffa5"
+    git:
+      url: https://github.com/AppFlowy-IO/appflowy-editor.git
+      ref: "ca04a67"
 
   appflowy_editor_plugins:
     git:
