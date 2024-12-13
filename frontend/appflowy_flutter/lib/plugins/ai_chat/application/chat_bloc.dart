@@ -165,18 +165,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           ) {
             numSendMessage += 1;
 
-            final relatedQuestionMessages = chatController.messages
-                .where(
-                  (message) =>
-                      onetimeMessageTypeFromMeta(message.metadata) ==
-                      OnetimeShotType.relatedQuestion,
-                )
-                .toList();
-
-            for (final message in relatedQuestionMessages) {
-              chatController.remove(message);
-            }
-
+            _clearRelatedQuestions();
             _startStreamingMessage(message, metadata);
             lastSentMessage = null;
 
@@ -229,7 +218,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             answerStreamMessageId = '';
           },
           startAnswerStreaming: (Message message) {
-            chatController.insert(message);
             emit(
               state.copyWith(
                 promptResponseState: PromptResponseState.streamingAnswer,
@@ -244,6 +232,17 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             emit(
               state.copyWith(
                 promptResponseState: PromptResponseState.ready,
+              ),
+            );
+          },
+          regenerateAnswer: (id) {
+            _clearRelatedQuestions();
+            _regenerateAnswer(id);
+            lastSentMessage = null;
+
+            emit(
+              state.copyWith(
+                promptResponseState: PromptResponseState.sendingQuestion,
               ),
             );
           },
@@ -433,6 +432,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           );
 
           add(ChatEvent.finishSending(question));
+          add(ChatEvent.receiveMessage(streamAnswer));
           add(ChatEvent.startAnswerStreaming(streamAnswer));
         }
       },
@@ -457,6 +457,37 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           add(ChatEvent.receiveMessage(error));
         }
       },
+    );
+  }
+
+  void _regenerateAnswer(String answerMessageIdString) async {
+    final answerMessageId = Int64.tryParseInt(answerMessageIdString);
+    if (answerMessageId == null) {
+      return;
+    }
+
+    await answerStream?.dispose();
+    answerStream = AnswerStream();
+
+    final payload = RegenerateResponsePB(
+      chatId: chatId,
+      answerMessageId: answerMessageId,
+      answerStreamPort: Int64(answerStream!.nativePort),
+    );
+
+    await AIEventRegenerateResponse(payload).send().fold(
+      (success) {
+        if (!isClosed) {
+          final streamAnswer = _createAnswerStreamMessage(
+            answerStream!,
+            answerMessageId - 1,
+          );
+
+          add(ChatEvent.receiveMessage(streamAnswer));
+          add(ChatEvent.startAnswerStreaming(streamAnswer));
+        }
+      },
+      (err) => Log.error("Failed to send message: ${err.msg}"),
     );
   }
 
@@ -518,6 +549,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       },
     );
   }
+
+  void _clearRelatedQuestions() {
+    final relatedQuestionMessages = chatController.messages
+        .where(
+          (message) =>
+              onetimeMessageTypeFromMeta(message.metadata) ==
+              OnetimeShotType.relatedQuestion,
+        )
+        .toList();
+
+    for (final message in relatedQuestionMessages) {
+      chatController.remove(message);
+    }
+  }
 }
 
 @freezed
@@ -538,6 +583,9 @@ class ChatEvent with _$ChatEvent {
   const factory ChatEvent.finishSending(ChatMessagePB message) =
       _FinishSendMessage;
   const factory ChatEvent.failedSending() = _FailSendMessage;
+
+  // regenerate
+  const factory ChatEvent.regenerateAnswer(String id) = _RegenerateAnswer;
 
   // streaming answer
   const factory ChatEvent.startAnswerStreaming(Message message) =

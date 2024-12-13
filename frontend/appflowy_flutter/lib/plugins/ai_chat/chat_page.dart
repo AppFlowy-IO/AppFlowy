@@ -223,6 +223,8 @@ class _ChatContentPage extends StatelessWidget {
           isLastMessage: isLastMessage,
           onSelectedMetadata: (metadata) =>
               _onSelectMetadata(context, metadata),
+          onRegenerate: (id) =>
+              context.read<ChatBloc>().add(ChatEvent.regenerateAnswer(id)),
         );
       },
     );

@@ -59,6 +59,7 @@ pub fn init(ai_manager: Weak<AIManager>) -> AFPlugin {
     .event(AIEvent::GetChatInfo, create_chat_context_handler)
     .event(AIEvent::GetChatSettings, get_chat_settings_handler)
     .event(AIEvent::UpdateChatSettings, update_chat_settings_handler)
+    .event(AIEvent::RegenerateResponse, regenerate_response_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -150,4 +151,7 @@ pub enum AIEvent {
 
   #[event(input = "UpdateChatSettingsPB")]
   UpdateChatSettings = 26,
+
+  #[event(input = "RegenerateResponsePB")]
+  RegenerateResponse = 27,
 }

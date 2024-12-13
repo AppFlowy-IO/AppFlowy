@@ -222,6 +222,110 @@ impl Chat {
     Ok(question_pb)
   }
 
+  #[instrument(level = "info", skip_all, err)]
+  pub async fn stream_regenerate_response(
+    &self,
+    question_id: i64,
+    answer_stream_port: i64,
+  ) -> FlowyResult<()> {
+    trace!(
+      "[Chat] regenerate and stream chat message: chat_id={}",
+      self.chat_id,
+    );
+
+    // clear
+    self
+      .stop_stream
+      .store(false, std::sync::atomic::Ordering::SeqCst);
+    self.stream_buffer.lock().await.clear();
+
+    let answer_stream_buffer = self.stream_buffer.clone();
+    let uid = self.user_service.user_id()?;
+    let workspace_id = self.user_service.workspace_id()?;
+
+    let stop_stream = self.stop_stream.clone();
+    let chat_id = self.chat_id.clone();
+    let cloud_service = self.chat_service.clone();
+    let user_service = self.user_service.clone();
+
+    tokio::spawn(async move {
+      let mut answer_sink = IsolateSink::new(Isolate::new(answer_stream_port));
+      match cloud_service
+        .stream_answer(&workspace_id, &chat_id, question_id)
+        .await
+      {
+        Ok(mut stream) => {
+          while let Some(message) = stream.next().await {
+            match message {
+              Ok(message) => {
+                if stop_stream.load(std::sync::atomic::Ordering::Relaxed) {
+                  trace!("[Chat] client stop streaming message");
+                  break;
+                }
+                match message {
+                  QuestionStreamValue::Answer { value } => {
+                    answer_stream_buffer.lock().await.push_str(&value);
+                    let _ = answer_sink.send(format!("data:{}", value)).await;
+                  },
+                  QuestionStreamValue::Metadata { value } => {
+                    if let Ok(s) = serde_json::to_string(&value) {
+                      answer_stream_buffer.lock().await.set_metadata(value);
+                      let _ = answer_sink.send(format!("metadata:{}", s)).await;
+                    }
+                  },
+                }
+              },
+              Err(err) => {
+                error!("[Chat] failed to stream answer: {}", err);
+                let _ = answer_sink.send(format!("error:{}", err)).await;
+                let pb = ChatMessageErrorPB {
+                  chat_id: chat_id.clone(),
+                  error_message: err.to_string(),
+                };
+                chat_notification_builder(&chat_id, ChatNotification::StreamChatMessageError)
+                  .payload(pb)
+                  .send();
+                return Err(err);
+              },
+            }
+          }
+        },
+        Err(err) => {
+          error!("[Chat] failed to start streaming: {}", err);
+          if err.is_ai_response_limit_exceeded() {
+            let _ = answer_sink.send("AI_RESPONSE_LIMIT".to_string()).await;
+          } else {
+            let _ = answer_sink.send(format!("error:{}", err)).await;
+          }
+
+          let pb = ChatMessageErrorPB {
+            chat_id: chat_id.clone(),
+            error_message: err.to_string(),
+          };
+          chat_notification_builder(&chat_id, ChatNotification::StreamChatMessageError)
+            .payload(pb)
+            .send();
+          return Err(err);
+        },
+      }
+
+      chat_notification_builder(&chat_id, ChatNotification::FinishStreaming).send();
+      if answer_stream_buffer.lock().await.is_empty() {
+        return Ok(());
+      }
+      let content = answer_stream_buffer.lock().await.take_content();
+      let metadata = answer_stream_buffer.lock().await.take_metadata();
+
+      let answer = cloud_service
+        .create_answer(&workspace_id, &chat_id, &content, question_id, metadata)
+        .await?;
+      save_and_notify_message(uid, &chat_id, &user_service, answer)?;
+      Ok::<(), FlowyError>(())
+    });
+
+    Ok(())
+  }
+
   /// Load chat messages for a given `chat_id`.
   ///
   /// 1. When opening a chat:

@@ -30,12 +30,14 @@ class ChatAIMessageBubble extends StatelessWidget {
     required this.child,
     required this.showActions,
     this.isLastMessage = false,
+    this.onRegenerate,
   });
 
   final Message message;
   final Widget child;
   final bool showActions;
   final bool isLastMessage;
+  final void Function(String)? onRegenerate;
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +62,7 @@ class ChatAIMessageBubble extends StatelessWidget {
   Widget _wrapBottomActions(Widget child) {
     return ChatAIBottomInlineActions(
       message: message,
+      onRegenerate: onRegenerate,
       child: child,
     );
   }
@@ -67,6 +70,7 @@ class ChatAIMessageBubble extends StatelessWidget {
   Widget _wrapHover(Widget child) {
     return ChatAIMessageHover(
       message: message,
+      onRegenerate: onRegenerate,
       child: child,
     );
   }
@@ -74,6 +78,7 @@ class ChatAIMessageBubble extends StatelessWidget {
   Widget _wrapPopMenu(Widget child) {
     return ChatAIMessagePopup(
       message: message,
+      onRegenerate: onRegenerate,
       child: child,
     );
   }
@@ -84,10 +89,12 @@ class ChatAIBottomInlineActions extends StatelessWidget {
     super.key,
     required this.child,
     required this.message,
+    this.onRegenerate,
   });
 
   final Widget child;
   final Message message;
+  final void Function(String)? onRegenerate;
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +114,9 @@ class ChatAIBottomInlineActions extends StatelessWidget {
               CopyButton(
                 textMessage: message as TextMessage,
               ),
+              RegenerateButton(
+                onTap: () => onRegenerate?.call(message.id),
+              ),
             ],
           ),
         ),
@@ -121,10 +131,12 @@ class ChatAIMessageHover extends StatefulWidget {
     super.key,
     required this.child,
     required this.message,
+    this.onRegenerate,
   });
 
   final Widget child;
   final Message message;
+  final void Function(String)? onRegenerate;
 
   @override
   State<ChatAIMessageHover> createState() => _ChatAIMessageHoverState();
@@ -205,6 +217,10 @@ class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
                           children: [
                             CopyButton(
                               textMessage: widget.message as TextMessage,
+                            ),
+                            RegenerateButton(
+                              onTap: () =>
+                                  widget.onRegenerate?.call(widget.message.id),
                             ),
                           ],
                         )
@@ -370,15 +386,44 @@ class CopyButton extends StatelessWidget {
   }
 }
 
+class RegenerateButton extends StatelessWidget {
+  const RegenerateButton({
+    super.key,
+    required this.onTap,
+  });
+
+  final void Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyTooltip(
+      message: LocaleKeys.chat_regenerate.tr(),
+      child: FlowyIconButton(
+        width: DesktopAIConvoSizes.actionBarIconSize,
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        radius: DesktopAIConvoSizes.actionBarIconRadius,
+        icon: FlowySvg(
+          FlowySvgs.ai_undo_s,
+          color: Theme.of(context).hintColor,
+          size: const Size.square(16),
+        ),
+        onPressed: onTap,
+      ),
+    );
+  }
+}
+
 class ChatAIMessagePopup extends StatelessWidget {
   const ChatAIMessagePopup({
     super.key,
     required this.child,
     required this.message,
+    this.onRegenerate,
   });
 
   final Widget child;
   final Message message;
+  final void Function(String)? onRegenerate;
 
   @override
   Widget build(BuildContext context) {
@@ -393,39 +438,59 @@ class ChatAIMessagePopup extends StatelessWidget {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                MobileQuickActionButton(
-                  onTap: () async {
-                    if (message is! TextMessage) {
-                      return;
-                    }
-                    final textMessage = message as TextMessage;
-                    final document = customMarkdownToDocument(textMessage.text);
-                    await getIt<ClipboardService>().setData(
-                      ClipboardServiceData(
-                        plainText: textMessage.text,
-                        inAppJson: jsonEncode(document.toJson()),
-                      ),
-                    );
-                    if (bottomSheetContext.mounted) {
-                      Navigator.of(bottomSheetContext).pop();
-                    }
-                    if (context.mounted) {
-                      showToastNotification(
-                        context,
-                        message: LocaleKeys.grid_url_copiedNotification.tr(),
-                      );
-                    }
-                  },
-                  icon: FlowySvgs.copy_s,
-                  iconSize: const Size.square(20),
-                  text: LocaleKeys.button_copy.tr(),
-                ),
+                const VSpace(16.0),
+                _copyButton(context, bottomSheetContext),
+                const Divider(height: 8.5, thickness: 0.5),
+                _regenerateButton(context),
+                const Divider(height: 8.5, thickness: 0.5),
               ],
             );
           },
         );
       },
       child: child,
+    );
+  }
+
+  Widget _copyButton(BuildContext context, BuildContext bottomSheetContext) {
+    return MobileQuickActionButton(
+      onTap: () async {
+        if (message is! TextMessage) {
+          return;
+        }
+        final textMessage = message as TextMessage;
+        final document = customMarkdownToDocument(textMessage.text);
+        await getIt<ClipboardService>().setData(
+          ClipboardServiceData(
+            plainText: textMessage.text,
+            inAppJson: jsonEncode(document.toJson()),
+          ),
+        );
+        if (bottomSheetContext.mounted) {
+          Navigator.of(bottomSheetContext).pop();
+        }
+        if (context.mounted) {
+          showToastNotification(
+            context,
+            message: LocaleKeys.grid_url_copiedNotification.tr(),
+          );
+        }
+      },
+      icon: FlowySvgs.copy_s,
+      iconSize: const Size.square(20),
+      text: LocaleKeys.button_copy.tr(),
+    );
+  }
+
+  Widget _regenerateButton(BuildContext context) {
+    return MobileQuickActionButton(
+      onTap: () {
+        onRegenerate?.call(message.id);
+        Navigator.of(context).pop();
+      },
+      icon: FlowySvgs.ai_undo_s,
+      iconSize: const Size.square(20),
+      text: LocaleKeys.chat_regenerate.tr(),
     );
   }
 }

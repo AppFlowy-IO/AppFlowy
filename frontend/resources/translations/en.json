@@ -205,7 +205,8 @@
     "questionDetail": "Hi {}! How can I help you today?",
     "indexingFile": "Indexing {}",
     "generatingResponse": "Generating response",
-    "selectSources": "Select Sources"
+    "selectSources": "Select Sources",
+    "regenerate": "Try again"
   },
   "trash": {
     "text": "Trash",

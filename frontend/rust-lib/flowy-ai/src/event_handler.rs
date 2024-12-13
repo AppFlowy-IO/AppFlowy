@@ -78,6 +78,24 @@ pub(crate) async fn stream_chat_message_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn regenerate_response_handler(
+  data: AFPluginData<RegenerateResponsePB>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> FlowyResult<()> {
+  let data = data.try_into_inner()?;
+
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  ai_manager
+    .stream_regenerate_response(
+      &data.chat_id,
+      data.answer_message_id - 1,
+      data.answer_stream_port,
+    )
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn load_prev_message_handler(
   data: AFPluginData<LoadPrevChatMessagePB>,
   ai_manager: AFPluginState<Weak<AIManager>>,
