@@ -65,6 +65,10 @@ extension TableCommandExtension on EditorState {
       return KeyEventResult.ignored;
     }
 
+    if (isOutdentable(editorState)) {
+      return outdentCommand.execute(editorState);
+    }
+
     Selection? newSelection;
 
     final previousCell = tableCellNode.getPreviousCellInSameRow();
