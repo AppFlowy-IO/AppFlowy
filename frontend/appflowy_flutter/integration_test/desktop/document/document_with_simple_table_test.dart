@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/_shared_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -332,6 +331,81 @@ void main() {
       expect(tableNode.rowLength, 4);
       expect(tableNode.columnLength, 2);
     });
+  });
+
+  testWidgets('set column width to page width (1)', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+
+    final tableNode = tester.editor.getNodeAtPath([0]);
+    final beforeWidth = tableNode.width;
+
+    // set the column width to page width
+    await tester.clickMoreActionItemInTableMenu(
+      type: SimpleTableMoreActionType.column,
+      index: 0,
+      action: SimpleTableMoreAction.setToPageWidth,
+    );
+    await tester.pumpAndSettle();
+
+    final afterWidth = tableNode.width;
+    expect(afterWidth, greaterThan(beforeWidth));
+  });
+
+  testWidgets('set column width to page width (2)', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+
+    final tableNode = tester.editor.getNodeAtPath([0]);
+    final beforeWidth = tableNode.width;
+
+    // set the column width to page width
+    await tester.clickMoreActionItemInTableMenu(
+      type: SimpleTableMoreActionType.row,
+      index: 0,
+      action: SimpleTableMoreAction.setToPageWidth,
+    );
+    await tester.pumpAndSettle();
+
+    final afterWidth = tableNode.width;
+    expect(afterWidth, greaterThan(beforeWidth));
+  });
+
+  testWidgets('distribute columns evenly (1)', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+
+    final tableNode = tester.editor.getNodeAtPath([0]);
+    final beforeWidth = tableNode.width;
+
+    // set the column width to page width
+    await tester.clickMoreActionItemInTableMenu(
+      type: SimpleTableMoreActionType.row,
+      index: 0,
+      action: SimpleTableMoreAction.distributeColumnsEvenly,
+    );
+    await tester.pumpAndSettle();
+
+    final afterWidth = tableNode.width;
+    expect(afterWidth, equals(beforeWidth));
   });
 }
 

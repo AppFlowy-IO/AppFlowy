@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flutter/material.dart';
 import 'package:synchronized/synchronized.dart';
 
 enum TextRobotInputType {
@@ -125,10 +124,6 @@ class TextRobot {
     transaction.insertText(node, selection.endIndex, text);
     await editorState.apply(transaction);
     await Future.delayed(delay);
-
-    debugPrint(
-      'AI insertText: path: ${selection.end.path}, index: ${selection.endIndex}, text: "$text"',
-    );
   }
 }
 

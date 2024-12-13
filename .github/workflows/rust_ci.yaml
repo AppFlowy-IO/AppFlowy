@@ -18,81 +18,11 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  CLOUD_VERSION: 0.7.6-amd64
+  CLOUD_VERSION: 0.8.3-amd64
   RUST_TOOLCHAIN: "1.80.1"
 
 jobs:
-  self-hosted-job:
-    if: github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: self-hosted
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Checkout Appflowy Cloud
-        uses: actions/checkout@v4
-        with:
-          repository: AppFlowy-IO/AppFlowy-Cloud
-          path: AppFlowy-Cloud
-
-      - name: Prepare Appflowy Cloud env
-        working-directory: AppFlowy-Cloud
-        run: |
-          cp deploy.env .env
-          sed -i '' 's|RUST_LOG=.*|RUST_LOG=trace|' .env
-          sed -i '' 's|API_EXTERNAL_URL=.*|API_EXTERNAL_URL=http://localhost|' .env
-          sed -i '' 's|APPFLOWY_AI_OPENAI_API_KEY=.*|APPFLOWY_AI_OPENAI_API_KEY=${{ secrets.CI_OPENAI_API_KEY }}|' .env
-
-      - name: Ensure AppFlowy-Cloud is Running with Correct Version
-        working-directory: AppFlowy-Cloud
-        env:
-          APPFLOWY_CLOUD_VERSION: ${{ env.CLOUD_VERSION }}
-          APPFLOWY_HISTORY_VERSION: ${{ env.CLOUD_VERSION }}
-          APPFLOWY_WORKER_VERSION: ${{ env.CLOUD_VERSION }}
-        run: |
-          container_id=$(docker ps --filter name=appflowy-cloud-appflowy_cloud-1 -q)
-          if [ -z "$container_id" ]; then
-            echo "AppFlowy-Cloud container is not running. Pulling and starting the container..."
-            docker compose pull
-            docker compose up -d
-            echo "Waiting for the container to be ready..."
-            sleep 10
-          else
-            running_image=$(docker inspect --format='{{index .Config.Image}}' "$container_id")
-            if [ "$running_image" != "appflowy-cloud:$APPFLOWY_CLOUD_VERSION" ]; then
-              echo "AppFlowy-Cloud is running with an incorrect version. Pulling the correct version..."
-              docker compose pull
-              docker compose up -d
-              echo "Waiting for the container to be ready..."
-              sleep 10
-              docker ps -a
-              docker compose logs
-            else
-              echo "AppFlowy-Cloud is running with the correct version."
-            fi
-          fi
-
-      - name: Run rust-lib tests
-        working-directory: frontend/rust-lib
-        env:
-          RUST_LOG: info
-          RUST_BACKTRACE: 1
-          af_cloud_test_base_url: http://localhost
-          af_cloud_test_ws_url: ws://localhost/ws/v1
-          af_cloud_test_gotrue_url: http://localhost/gotrue
-        run: |
-          DISABLE_CI_TEST_LOG="true" cargo test --no-default-features --features="dart"
-
-      - name: rustfmt rust-lib
-        run: cargo fmt --all -- --check
-        working-directory: frontend/rust-lib/
-
-      - name: clippy rust-lib
-        run: cargo clippy --all-targets -- -D warnings
-        working-directory: frontend/rust-lib
-
   ubuntu-job:
-    if: github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-latest
     steps:
       - name: Set timezone for action

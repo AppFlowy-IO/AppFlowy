@@ -301,6 +301,7 @@ void main() {
       await tester.createOption(name: "qwer");
       await tester.selectOption(name: "asdf");
       await tester.dismissCellEditor();
+      await tester.dismissCellEditor();
 
       await tester.tapDatabaseFilterButton();
       await tester.tapCreateFilterByFieldType(FieldType.MultiSelect, "Tags");
@@ -331,6 +332,7 @@ void main() {
       await tester.openCalendarEvent(index: 0, date: secondOfThisMonth);
       await tester.tapButton(finderForFieldType(FieldType.MultiSelect));
       await tester.selectOption(name: "asdf");
+      await tester.dismissCellEditor();
       await tester.dismissCellEditor();
 
       tester.assertNumberOfEventsInCalendar(0);

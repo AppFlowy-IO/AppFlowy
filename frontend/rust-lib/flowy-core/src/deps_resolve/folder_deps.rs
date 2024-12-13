@@ -17,8 +17,8 @@ use flowy_folder::entities::{CreateViewParams, ViewLayoutPB};
 use flowy_folder::manager::{FolderManager, FolderUser};
 use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{
-  DatabaseEncodedCollab, DocumentEncodedCollab, EncodedCollabWrapper, FolderOperationHandler,
-  FolderOperationHandlers, ImportedData, View, ViewData,
+  DatabaseEncodedCollab, DocumentEncodedCollab, EncodedCollabType, FolderOperationHandler,
+  ImportedData, View, ViewData,
 };
 use flowy_folder::ViewLayout;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
@@ -34,6 +34,7 @@ use tokio::sync::RwLock;
 use crate::integrate::server::ServerProvider;
 
 use collab_plugins::local_storage::kv::KVTransactionDB;
+use flowy_folder_pub::query::FolderQueryService;
 use lib_infra::async_trait::async_trait;
 
 pub struct FolderDepsResolver();
@@ -45,7 +46,6 @@ impl FolderDepsResolver {
     server_provider: Arc<ServerProvider>,
     folder_indexer: Arc<FolderIndexManagerImpl>,
     store_preferences: Arc<KVStorePreferences>,
-    operation_handlers: FolderOperationHandlers,
   ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
       authenticate_user: authenticate_user.clone(),
@@ -55,7 +55,6 @@ impl FolderDepsResolver {
       FolderManager::new(
         user.clone(),
         collab_builder,
-        operation_handlers,
         server_provider.clone(),
         folder_indexer,
         store_preferences,
@@ -65,23 +64,21 @@ impl FolderDepsResolver {
   }
 }
 
-pub fn folder_operation_handlers(
+pub fn register_handlers(
+  folder_manager: &Arc<FolderManager>,
   document_manager: Arc<DocumentManager>,
   database_manager: Arc<DatabaseManager>,
   chat_manager: Arc<AIManager>,
-) -> FolderOperationHandlers {
-  let mut map: HashMap<ViewLayout, Arc<dyn FolderOperationHandler + Send + Sync>> = HashMap::new();
-
+) {
   let document_folder_operation = Arc::new(DocumentFolderOperation(document_manager));
-  map.insert(ViewLayout::Document, document_folder_operation);
+  folder_manager.register_operation_handler(ViewLayout::Document, document_folder_operation);
 
   let database_folder_operation = Arc::new(DatabaseFolderOperation(database_manager));
   let chat_folder_operation = Arc::new(ChatFolderOperation(chat_manager));
-  map.insert(ViewLayout::Board, database_folder_operation.clone());
-  map.insert(ViewLayout::Grid, database_folder_operation.clone());
-  map.insert(ViewLayout::Calendar, database_folder_operation);
-  map.insert(ViewLayout::Chat, chat_folder_operation);
-  Arc::new(map)
+  folder_manager.register_operation_handler(ViewLayout::Board, database_folder_operation.clone());
+  folder_manager.register_operation_handler(ViewLayout::Grid, database_folder_operation.clone());
+  folder_manager.register_operation_handler(ViewLayout::Calendar, database_folder_operation);
+  folder_manager.register_operation_handler(ViewLayout::Chat, chat_folder_operation);
 }
 
 struct FolderUserImpl {
@@ -190,11 +187,33 @@ impl FolderOperationHandler for DocumentFolderOperation {
     Ok(Some(encoded_collab))
   }
 
+  /// Create a view with built-in data.
+  async fn create_default_view(
+    &self,
+    user_id: i64,
+    _parent_view_id: &str,
+    view_id: &str,
+    _name: &str,
+    layout: ViewLayout,
+  ) -> Result<(), FlowyError> {
+    debug_assert_eq!(layout, ViewLayout::Document);
+    match self.0.create_document(user_id, view_id, None).await {
+      Ok(_) => Ok(()),
+      Err(err) => {
+        if err.is_already_exists() {
+          Ok(())
+        } else {
+          Err(err)
+        }
+      },
+    }
+  }
+
   async fn get_encoded_collab_v1_from_disk(
     &self,
-    user: Arc<dyn FolderUser>,
+    user: &Arc<dyn FolderUser>,
     view_id: &str,
-  ) -> Result<EncodedCollabWrapper, FlowyError> {
+  ) -> Result<EncodedCollabType, FlowyError> {
     // get the collab_object_id for the document.
     // the collab_object_id for the document is the view_id.
     let workspace_id = user.workspace_id()?;
@@ -226,30 +245,9 @@ impl FolderOperationHandler for DocumentFolderOperation {
           FlowyError::internal().with_context(format!("encode document collab failed: {}", e))
         })?;
 
-    Ok(EncodedCollabWrapper::Document(DocumentEncodedCollab {
+    Ok(EncodedCollabType::Document(DocumentEncodedCollab {
       document_encoded_collab: encoded_collab,
     }))
-  }
-
-  /// Create a view with built-in data.
-  async fn create_view_with_default_data(
-    &self,
-    user_id: i64,
-    view_id: &str,
-    _name: &str,
-    layout: ViewLayout,
-  ) -> Result<(), FlowyError> {
-    debug_assert_eq!(layout, ViewLayout::Document);
-    match self.0.create_document(user_id, view_id, None).await {
-      Ok(_) => Ok(()),
-      Err(err) => {
-        if err.is_already_exists() {
-          Ok(())
-        } else {
-          Err(err)
-        }
-      },
-    }
   }
 
   async fn import_from_bytes(
@@ -272,13 +270,13 @@ impl FolderOperationHandler for DocumentFolderOperation {
     )])
   }
 
-  // will implement soon
   async fn import_from_file_path(
     &self,
     _view_id: &str,
     _name: &str,
     _path: String,
   ) -> Result<(), FlowyError> {
+    // TODO(lucas): import file from local markdown file
     Ok(())
   }
 
@@ -311,9 +309,9 @@ impl FolderOperationHandler for DatabaseFolderOperation {
 
   async fn get_encoded_collab_v1_from_disk(
     &self,
-    user: Arc<dyn FolderUser>,
+    user: &Arc<dyn FolderUser>,
     view_id: &str,
-  ) -> Result<EncodedCollabWrapper, FlowyError> {
+  ) -> Result<EncodedCollabType, FlowyError> {
     let workspace_id = user.workspace_id()?;
     // get the collab_object_id for the database.
     //
@@ -405,7 +403,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
           })
           .collect::<Result<HashMap<_, _>, FlowyError>>()?;
 
-      Ok(EncodedCollabWrapper::Database(DatabaseEncodedCollab {
+      Ok(EncodedCollabType::Database(DatabaseEncodedCollab {
         database_encoded_collab,
         database_row_encoded_collabs,
         database_row_document_encoded_collabs,
@@ -478,9 +476,10 @@ impl FolderOperationHandler for DatabaseFolderOperation {
   /// If the ext contains the {"database_id": "xx"}, then it will link to
   /// the existing database. The data of the database will be shared within
   /// these references views.
-  async fn create_view_with_default_data(
+  async fn create_default_view(
     &self,
     _user_id: i64,
+    _parent_view_id: &str,
     view_id: &str,
     name: &str,
     layout: ViewLayout,
@@ -551,7 +550,10 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     _name: &str,
     path: String,
   ) -> Result<(), FlowyError> {
-    self.0.import_csv_from_file(path, CSVFormat::META).await?;
+    self
+      .0
+      .import_csv_from_file(path, CSVFormat::Original)
+      .await?;
     Ok(())
   }
 
@@ -625,14 +627,18 @@ impl FolderOperationHandler for ChatFolderOperation {
     Err(FlowyError::not_support())
   }
 
-  async fn create_view_with_default_data(
+  async fn create_default_view(
     &self,
     user_id: i64,
+    parent_view_id: &str,
     view_id: &str,
     _name: &str,
     _layout: ViewLayout,
   ) -> Result<(), FlowyError> {
-    self.0.create_chat(&user_id, view_id).await?;
+    self
+      .0
+      .create_chat(&user_id, parent_view_id, view_id)
+      .await?;
     Ok(())
   }
 
@@ -654,5 +660,51 @@ impl FolderOperationHandler for ChatFolderOperation {
     _path: String,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::not_support())
+  }
+}
+
+#[derive(Clone, Debug)]
+pub struct FolderQueryServiceImpl {
+  folder_manager: Weak<FolderManager>,
+}
+
+impl FolderQueryServiceImpl {
+  pub fn new(folder_manager: Weak<FolderManager>) -> Self {
+    Self { folder_manager }
+  }
+}
+
+#[async_trait]
+impl FolderQueryService for FolderQueryServiceImpl {
+  async fn get_sibling_ids_with_view_layout(
+    &self,
+    parent_view_id: &str,
+    view_layout: ViewLayout,
+  ) -> Vec<String> {
+    match self.folder_manager.upgrade() {
+      None => vec![],
+      Some(folder_manager) => {
+        if let Ok(parent_view) = folder_manager.get_view(parent_view_id).await {
+          if parent_view.space_info().is_none() {
+            if let Ok(views) = folder_manager
+              .get_untrashed_views_belong_to(parent_view_id)
+              .await
+            {
+              return views
+                .into_iter()
+                .filter_map(|child| {
+                  if child.layout == view_layout {
+                    Some(child.id.clone())
+                  } else {
+                    None
+                  }
+                })
+                .collect::<Vec<String>>();
+            }
+          }
+        }
+        vec![]
+      },
+    }
   }
 }

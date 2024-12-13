@@ -1,8 +1,3 @@
-use collab_database::fields::media_type_option::{MediaCellData, MediaTypeOption};
-use collab_database::{fields::Field, rows::Cell};
-use flowy_error::FlowyResult;
-use std::cmp::Ordering;
-
 use crate::{
   entities::{FieldType, MediaCellChangeset, MediaCellDataPB, MediaFilterPB},
   services::{
@@ -14,6 +9,11 @@ use crate::{
     sort::SortCondition,
   },
 };
+use collab_database::fields::media_type_option::{MediaCellData, MediaTypeOption};
+use collab_database::template::util::ToCellString;
+use collab_database::{fields::Field, rows::Cell};
+use flowy_error::FlowyResult;
+use std::cmp::Ordering;
 
 impl TypeOption for MediaTypeOption {
   type CellData = MediaCellData;
@@ -60,7 +60,7 @@ impl CellDataDecoder for MediaTypeOption {
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
-    cell_data.to_string()
+    cell_data.to_cell_string()
   }
 }
 

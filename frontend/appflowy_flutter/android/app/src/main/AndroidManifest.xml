@@ -36,7 +36,10 @@
         <data android:scheme="http" />
         <data android:scheme="https" />
         <data android:scheme="appflowy-flutter" />
-        <!-- <data android:host="login-callback" /> -->
+        <data android:scheme="https" android:host="test.appflowy.io" />
+        <data android:scheme="https" android:host="appflowy.io" />
+        <data android:scheme="https" android:host="test.appflowy.com" />
+        <data android:scheme="https" android:host="appflowy.com" />
       </intent-filter>
     </activity>
     <!--
@@ -50,7 +53,8 @@
   <!-- Permission to read files from external storage (outside application container).
   As of Android 12 this permission no longer has any effect. Instead use the
   READ_MEDIA_IMAGES, READ_MEDIA_VIDEO or READM_MEDIA_AUDIO permissions. -->
-  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    android:maxSdkVersion="32" />
   <!-- Permissions to read media files. -->
   <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
   <queries>

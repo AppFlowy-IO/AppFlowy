@@ -83,16 +83,16 @@ pub struct ChatMessageMetaPB {
   pub data: String,
 
   #[pb(index = 4)]
-  pub data_type: ChatMessageMetaTypePB,
+  pub loader_type: ContextLoaderTypePB,
 
   #[pb(index = 5)]
   pub source: String,
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf_Enum, PartialEq, Eq, Copy)]
-pub enum ChatMessageMetaTypePB {
+pub enum ContextLoaderTypePB {
   #[default]
-  UnknownMetaType = 0,
+  UnknownLoaderType = 0,
   Txt = 1,
   Markdown = 2,
   PDF = 3,

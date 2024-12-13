@@ -24,6 +24,7 @@ use collab_database::fields::translate_type_option::TranslateTypeOption;
 use collab_database::fields::url_type_option::URLTypeOption;
 use collab_database::fields::{TypeOptionCellReader, TypeOptionData};
 use collab_database::rows::Cell;
+use collab_database::template::util::ToCellString;
 pub use collab_database::template::util::TypeOptionCellData;
 use protobuf::ProtobufError;
 use std::cmp::Ordering;
@@ -42,7 +43,7 @@ pub trait TypeOption: From<TypeOptionData> + Into<TypeOptionData> + TypeOptionCe
   ///
   type CellData: for<'a> From<&'a Cell>
     + TypeOptionCellData
-    + ToString
+    + ToCellString
     + Default
     + Send
     + Sync

@@ -1,4 +1,5 @@
 use bytes::Bytes;
+use std::fmt::Display;
 
 use flowy_error::{internal_error, FlowyResult};
 
@@ -64,15 +65,10 @@ impl CellProtobufBlob {
   // }
 }
 
-impl ToString for CellProtobufBlob {
-  fn to_string(&self) -> String {
-    match String::from_utf8(self.0.to_vec()) {
-      Ok(s) => s,
-      Err(e) => {
-        tracing::error!("DecodedCellData to string failed: {:?}", e);
-        "".to_string()
-      },
-    }
+impl Display for CellProtobufBlob {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let s = String::from_utf8(self.0.to_vec()).unwrap_or_default();
+    write!(f, "{}", s)
   }
 }
 

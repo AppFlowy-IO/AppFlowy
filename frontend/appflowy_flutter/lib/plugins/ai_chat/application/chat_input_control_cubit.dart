@@ -44,9 +44,11 @@ class ChatInputControlCubit extends Cubit<ChatInputControlState> {
 
   void refreshViews() async {
     final newViews = await ViewBackendService.getAllViews().fold(
-      (result) => result.items
-          .where((v) => v.layout.isDocumentView && v.parentViewId.isNotEmpty)
-          .toList(),
+      (result) {
+        return result.items
+            .where((v) => v.layout.isDocumentView && v.parentViewId != v.id)
+            .toList();
+      },
       (err) {
         Log.error(err);
         return <ViewPB>[];

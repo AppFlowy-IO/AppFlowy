@@ -17,7 +17,6 @@ use flowy_user_pub::entities::{
   Role, UpdateUserProfileParams, UserWorkspace, WorkspaceInvitation, WorkspaceInvitationStatus,
   WorkspaceMember,
 };
-use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{
   RepeatedUserWorkspacePB, ResetWorkspacePB, SubscribeWorkspacePB, SuccessWorkspaceSubscriptionPB,
@@ -395,7 +394,7 @@ impl UserManager {
 
     if let Ok(service) = self.cloud_services.get_user_service() {
       if let Ok(pool) = self.db_pool(uid) {
-        af_spawn(async move {
+        tokio::spawn(async move {
           if let Ok(new_user_workspaces) = service.get_all_workspace(uid).await {
             if let Ok(conn) = pool.get() {
               let _ = save_all_user_workspaces(uid, conn, &new_user_workspaces);

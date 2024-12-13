@@ -139,6 +139,23 @@ void main() {
         ),
         findsOneWidget,
       );
+
+      /// press cmd/ctrl+F to display the find menu
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyF,
+        isControlPressed:
+            UniversalPlatform.isLinux || UniversalPlatform.isWindows,
+        isMetaPressed: UniversalPlatform.isMacOS,
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(FindAndReplaceMenuWidget), findsOneWidget);
+
+      /// press esc to dismiss the find menu
+      await tester.simulateKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.byType(FindAndReplaceMenuWidget), findsNothing);
+
     },
   );
 }

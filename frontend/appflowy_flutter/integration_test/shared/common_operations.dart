@@ -449,11 +449,8 @@ extension CommonOperations on WidgetTester {
 
     // open the page after created
     if (openAfterCreated) {
-      await openPage(
-        // if the name is null, use the default name
-        pageName ?? LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-        layout: layout,
-      );
+      // if the name is null, use empty string
+      await openPage(pageName ?? '', layout: layout);
       await pumpAndSettle();
     }
   }

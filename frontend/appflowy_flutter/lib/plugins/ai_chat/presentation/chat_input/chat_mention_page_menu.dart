@@ -6,8 +6,8 @@ import 'package:appflowy/workspace/application/view_title/view_title_bar_bloc.da
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
@@ -15,7 +15,7 @@ import 'package:scroll_to_index/scroll_to_index.dart';
 const double _itemHeight = 44.0;
 const double _noPageHeight = 20.0;
 const double _fixedWidth = 360.0;
-const double _maxHeight = 600.0;
+const double _maxHeight = 328.0;
 
 class ChatInputAnchor {
   ChatInputAnchor(this.anchorKey, this.layerLink);
@@ -154,8 +154,10 @@ class ChatMentionPageList extends StatefulWidget {
 }
 
 class _ChatMentionPageListState extends State<ChatMentionPageList> {
-  final autoScrollController = AutoScrollController(
+  final autoScrollController = SimpleAutoScrollController(
     suggestedRowHeight: _itemHeight,
+    beginGetter: (rect) => rect.top + 8.0,
+    endGetter: (rect) => rect.bottom - 8.0,
   );
 
   @override
@@ -169,8 +171,8 @@ class _ChatMentionPageListState extends State<ChatMentionPageList> {
     return BlocConsumer<ChatInputControlCubit, ChatInputControlState>(
       listenWhen: (previous, current) {
         return previous.maybeWhen(
-          ready: (pVisibleViews, pFocusedViewIndex) => current.maybeWhen(
-            ready: (cIsibleViews, cFocusedViewIndex) =>
+          ready: (_, pFocusedViewIndex) => current.maybeWhen(
+            ready: (_, cFocusedViewIndex) =>
                 pFocusedViewIndex != cFocusedViewIndex,
             orElse: () => false,
           ),
@@ -226,8 +228,6 @@ class _ChatMentionPageListState extends State<ChatMentionPageList> {
 
             return ListView.builder(
               shrinkWrap: true,
-              cacheExtent: 1,
-              addAutomaticKeepAlives: false,
               controller: autoScrollController,
               padding: const EdgeInsets.all(8.0),
               itemCount: views.length,
@@ -273,29 +273,36 @@ class _ChatMentionPageItem extends StatelessWidget {
         child: GestureDetector(
           onTap: onTap,
           behavior: HitTestBehavior.opaque,
-          child: Container(
-            height: _itemHeight,
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? AFThemeExtension.of(context).lightGreyHover
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(4.0),
-            ),
-            padding: const EdgeInsets.all(4.0),
-            child: Row(
-              children: [
-                _buildIcon(context, view),
-                const HSpace(8.0),
-                Expanded(child: _ViewTitleAndAncestors(view: view)),
-              ],
+          child: FlowyHover(
+            isSelected: () => isSelected,
+            child: Container(
+              height: _itemHeight,
+              padding: const EdgeInsets.all(4.0),
+              child: Row(
+                children: [
+                  MentionViewIcon(view: view),
+                  const HSpace(8.0),
+                  Expanded(child: MentionViewTitleAndAncestors(view: view)),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildIcon(BuildContext context, ViewPB view) {
+class MentionViewIcon extends StatelessWidget {
+  const MentionViewIcon({
+    super.key,
+    required this.view,
+  });
+
+  final ViewPB view;
+
+  @override
+  Widget build(BuildContext context) {
     final spaceIcon = view.buildSpaceIconSvg(context);
 
     if (view.icon.value.isNotEmpty) {
@@ -326,8 +333,9 @@ class _ChatMentionPageItem extends StatelessWidget {
   }
 }
 
-class _ViewTitleAndAncestors extends StatelessWidget {
-  const _ViewTitleAndAncestors({
+class MentionViewTitleAndAncestors extends StatelessWidget {
+  const MentionViewTitleAndAncestors({
+    super.key,
     required this.view,
   });
 
@@ -336,8 +344,7 @@ class _ViewTitleAndAncestors extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          ViewTitleBarBloc(view: view)..add(const ViewTitleBarEvent.initial()),
+      create: (_) => ViewTitleBarBloc(view: view),
       child: BlocBuilder<ViewTitleBarBloc, ViewTitleBarState>(
         builder: (context, state) {
           final nonEmptyName = view.name.isEmpty
@@ -349,6 +356,7 @@ class _ViewTitleAndAncestors extends StatelessWidget {
           if (state.ancestors.isEmpty || ancestorList.trim().isEmpty) {
             return FlowyText(
               nonEmptyName,
+              fontSize: 14.0,
               overflow: TextOverflow.ellipsis,
             );
           }
@@ -358,6 +366,7 @@ class _ViewTitleAndAncestors extends StatelessWidget {
             children: [
               FlowyText(
                 nonEmptyName,
+                fontSize: 14.0,
                 figmaLineHeight: 20.0,
                 overflow: TextOverflow.ellipsis,
               ),

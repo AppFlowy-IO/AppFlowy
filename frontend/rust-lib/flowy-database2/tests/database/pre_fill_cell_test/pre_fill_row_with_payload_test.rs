@@ -1,6 +1,7 @@
 use crate::database::pre_fill_cell_test::script::DatabasePreFillRowCellTest;
 use collab_database::fields::date_type_option::DateCellData;
 use collab_database::fields::select_type_option::SELECTION_IDS_SEPARATOR;
+use collab_database::template::util::ToCellString;
 use flowy_database2::entities::{CreateRowPayloadPB, FieldType};
 use std::collections::HashMap;
 
@@ -182,7 +183,7 @@ async fn row_data_payload_with_invalid_date_time_test() {
     timestamp: Some(1710510086),
     ..Default::default()
   }
-  .to_string();
+  .to_cell_string();
 
   test
     .create_row_with_payload(CreateRowPayloadPB {
