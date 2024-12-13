@@ -408,6 +408,31 @@ void main() {
     expect(afterWidth, equals(beforeWidth));
   });
 
+  testWidgets('distribute columns evenly (2)', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+
+    final tableNode = tester.editor.getNodeAtPath([0]);
+    final beforeWidth = tableNode.width;
+
+    // set the column width to page width
+    await tester.clickMoreActionItemInTableMenu(
+      type: SimpleTableMoreActionType.column,
+      index: 0,
+      action: SimpleTableMoreAction.distributeColumnsEvenly,
+    );
+    await tester.pumpAndSettle();
+
+    final afterWidth = tableNode.width;
+    expect(afterWidth, equals(beforeWidth));
+  });
+
   testWidgets('using option menu to set column width', (tester) async {
     await tester.initializeAppFlowy();
     await tester.tapAnonymousSignInButton();
