@@ -442,9 +442,20 @@
     "title": "إعدادات",
     "popupMenuItem": {
       "settings": "إعدادات",
-      "members": "الأعضاء"
+      "members": "الأعضاء",
+      "helpAndSupport": "المساعدة والدعم"
     },
     "sites": {
+      "title": "المواقع",
+      "namespaceTitle": "مساحة الاسم",
+      "namespaceDescription": "إدارة مساحة الاسم والصفحة الرئيسية الخاصة بك",
+      "namespaceHeader": "مساحة الاسم",
+      "homepageHeader": "الصفحة الرئيسية",
+      "updateNamespace": "تحديث مساحة الاسم",
+      "removeHomepage": "إزالة الصفحة الرئيسية",
+      "selectHomePage": "حدد الصفحة",
+      "clearHomePage": "مسح الصفحة الرئيسية لهذه المساحة الاسمية",
+      "customUrl": "عنوان URL مخصص",
       "namespace": {
         "onlyWorkspaceOwnerCanSetHomePage": "يمكن فقط لمالك مساحة العمل تعيين الصفحة الرئيسية",
         "pleaseAskOwnerToSetHomePage": "يرجى طلب الترقية إلى الخطة الاحترافية من مالك مساحة العمل"
