@@ -486,6 +486,7 @@
         "namespaceLengthAtLeast2Characters": "يجب أن تكون مساحة الاسم بطول حرفين على الأقل",
         "onlyWorkspaceOwnerCanUpdateNamespace": "يمكن فقط لمالك مساحة العمل تحديث مساحة الاسم",
         "onlyWorkspaceOwnerCanRemoveHomepage": "لا يمكن إلا لمالك مساحة العمل إزالة الصفحة الرئيسية",
+        "setHomepageFailed": "فشل في تعيين الصفحة الرئيسية",
         "publishPermissionDenied": "يمكن فقط لمالك مساحة العمل أو ناشر الصفحة إدارة إعدادات النشر"
       }
     },
