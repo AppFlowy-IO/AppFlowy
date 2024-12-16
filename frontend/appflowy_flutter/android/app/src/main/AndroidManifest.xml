@@ -36,10 +36,6 @@
         <data android:scheme="http" />
         <data android:scheme="https" />
         <data android:scheme="appflowy-flutter" />
-        <data android:scheme="https" android:host="test.appflowy.io" />
-        <data android:scheme="https" android:host="appflowy.io" />
-        <data android:scheme="https" android:host="test.appflowy.com" />
-        <data android:scheme="https" android:host="appflowy.com" />
       </intent-filter>
     </activity>
     <!--
