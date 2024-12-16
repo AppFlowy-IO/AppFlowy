@@ -501,6 +501,37 @@ void main() {
     final paragraphNode = editorState.document.nodeAtPath([0])!;
     expect(paragraphNode.delta, isNull);
   });
+
+  testWidgets('use tab or shift+tab to navigate in table', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+
+    await tester.simulateKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pumpAndSettle();
+
+    final editorState = tester.editor.getCurrentEditorState();
+    final selection = editorState.selection;
+    expect(selection, isNotNull);
+    expect(selection!.start.path, [0, 0, 1, 0]);
+    expect(selection.end.path, [0, 0, 1, 0]);
+
+    await tester.simulateKeyEvent(
+      LogicalKeyboardKey.tab,
+      isShiftPressed: true,
+    );
+    await tester.pumpAndSettle();
+
+    final selection2 = editorState.selection;
+    expect(selection2, isNotNull);
+    expect(selection2!.start.path, [0, 0, 0, 0]);
+    expect(selection2.end.path, [0, 0, 0, 0]);
+  });
 }
 
 extension on WidgetTester {
