@@ -124,27 +124,30 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
         clipBehavior: Clip.none,
         children: [
           _buildCell(),
-          if (node.columnIndex == 0)
+          if (editorState.editable) ...[
+            if (node.columnIndex == 0)
+              Positioned(
+                top: 0,
+                bottom: 0,
+                left: -SimpleTableConstants.tableLeftPadding,
+                child: _buildRowMoreActionButton(),
+              ),
+            if (node.rowIndex == 0)
+              Positioned(
+                left: 0,
+                right: 0,
+                child: _buildColumnMoreActionButton(),
+              ),
             Positioned(
-              top: 0,
-              bottom: 0,
-              left: -SimpleTableConstants.tableLeftPadding,
-              child: _buildRowMoreActionButton(),
-            ),
-          if (node.rowIndex == 0)
-            Positioned(
-              left: 0,
               right: 0,
-              child: _buildColumnMoreActionButton(),
+              top:
+                  node.rowIndex == 0 ? SimpleTableConstants.tableTopPadding : 0,
+              bottom: 0,
+              child: SimpleTableColumnResizeHandle(
+                node: node,
+              ),
             ),
-          Positioned(
-            right: 0,
-            top: node.rowIndex == 0 ? SimpleTableConstants.tableTopPadding : 0,
-            bottom: 0,
-            child: SimpleTableColumnResizeHandle(
-              node: node,
-            ),
-          ),
+          ],
         ],
       ),
     );
