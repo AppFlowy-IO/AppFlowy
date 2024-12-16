@@ -140,11 +140,7 @@ bool shouldIgnoreDragTarget({
   }
 
   final targetNode = editorState.getNodeAtPath(targetPath);
-  if (targetNode == null) {
-    return true;
-  }
-
-  if (targetNode.isInTable) {
+  if (targetNode != null && targetNode.isInTable) {
     return true;
   }
 
