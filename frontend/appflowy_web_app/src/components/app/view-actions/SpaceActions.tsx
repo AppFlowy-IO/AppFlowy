@@ -24,6 +24,7 @@ function SpaceActions({
     >
       <Tooltip
         disableInteractive={true}
+        disableFocusListener
         title={t('space.manage')}
       >
         <IconButton
@@ -36,11 +37,12 @@ function SpaceActions({
           <MoreIcon/>
         </IconButton>
       </Tooltip>
-      <Tooltip
+      {loading ? <CircularProgress size={16}/> : <Tooltip
         disableInteractive={true}
+        disableFocusListener
         title={t('sideBar.addAPage')}
       >
-        {loading ? <CircularProgress size={16}/> : <IconButton
+        <IconButton
           onClick={async (e) => {
             e.stopPropagation();
             setLoading(true);
@@ -53,9 +55,10 @@ function SpaceActions({
           size={'small'}
         >
           <AddIcon/>
-        </IconButton>}
+        </IconButton>
 
       </Tooltip>
+      }
     </div>
   );
 }

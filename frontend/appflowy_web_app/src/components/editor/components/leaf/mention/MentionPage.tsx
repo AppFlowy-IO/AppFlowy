@@ -1,7 +1,7 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { traverseBlock } from '@/application/slate-yjs/utils/convert';
-import { MentionType, View, ViewLayout, YjsEditorKey, YSharedRoot } from '@/application/types';
+import { MentionType, UIVariant, View, ViewLayout, YjsEditorKey, YSharedRoot } from '@/application/types';
 import { ReactComponent as NorthEast } from '@/assets/north_east.svg';
 import { ReactComponent as MarkIcon } from '@/assets/paragraph_mark.svg';
 
@@ -10,7 +10,7 @@ import { useEditorContext } from '@/components/editor/EditorContext';
 import { isFlagEmoji } from '@/utils/emoji';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useReadOnly, useSlateStatic } from 'slate-react';
+import { useFocused, useReadOnly, useSlateStatic } from 'slate-react';
 import { Element, Text } from 'slate';
 
 function MentionPage({ text, pageId, blockId, type }: {
@@ -21,7 +21,9 @@ function MentionPage({ text, pageId, blockId, type }: {
 }) {
   const context = useEditorContext();
   const editor = useSlateStatic();
+  const variant = context.variant;
   const currentViewId = context.viewId;
+  const focused = useFocused();
   const { navigateToView, loadViewMeta, loadView, openPageModal } = context;
   const [noAccess, setNoAccess] = useState(false);
   const [meta, setMeta] = useState<View | null>(null);
@@ -37,6 +39,9 @@ function MentionPage({ text, pageId, blockId, type }: {
           setMeta(meta);
         } catch (e) {
           setNoAccess(true);
+          if (e && (e as View).name) {
+            setMeta(e as View);
+          }
         }
       }
     })();
@@ -77,13 +82,21 @@ function MentionPage({ text, pageId, blockId, type }: {
 
               const sharedRoot = otherDoc.getMap(YjsEditorKey.data_section) as YSharedRoot;
 
-              const node = traverseBlock(blockId, sharedRoot);
+              const handleBlockChange = () => {
+                const node = traverseBlock(blockId, sharedRoot);
 
-              if (!node) return;
+                if (!node) {
+                  setContent(pageName);
+                  return;
+                }
 
-              const text = CustomEditor.getBlockTextContent(node, 2);
+                const text = CustomEditor.getBlockTextContent(node, 2);
 
-              setContent(`${pageName}${text ? ` - ${text}` : ''}`);
+                setContent(`${pageName}${text ? ` - ${text}` : ''}`);
+              };
+
+              handleBlockChange();
+
               return;
 
             } catch (e) {
@@ -96,7 +109,7 @@ function MentionPage({ text, pageId, blockId, type }: {
         setContent(pageName);
       }
     )();
-  }, [blockId, currentViewId, editor, loadView, meta?.name, pageId, t]);
+  }, [focused, blockId, currentViewId, editor, loadView, meta?.name, pageId, t]);
 
   const mentionIcon = useMemo(() => {
     if (pageId === currentViewId && blockId) {
@@ -110,8 +123,8 @@ function MentionPage({ text, pageId, blockId, type }: {
         className={'text-text-title ml-0.5'}
       />}
       {type === MentionType.PageRef &&
-        <span className={`absolute ${icon?.value ? 'right-0 bottom-0' : '-right-[1px] -bottom-[1px]'}`}>
-          <NorthEast className={'w-[0.7em] h-[0.7em] text-content-blue-900'}/>
+        <span className={`absolute ${icon?.value ? 'right-0 bottom-0' : 'right-[-2px] bottom-[-2px]'}`}>
+          <NorthEast className={'w-[0.7em] h-[0.7em] text-black'}/>
         </span>
       }
     </>;
@@ -124,25 +137,30 @@ function MentionPage({ text, pageId, blockId, type }: {
       onClick={(e) => {
         e.stopPropagation();
         if (readOnly) {
-
           void navigateToView?.(pageId, blockId);
         } else {
+          if (noAccess) return;
           openPageModal?.(pageId);
         }
+      }}
+      style={{
+        cursor: noAccess ? 'default' : undefined,
       }}
       className={`mention-inline cursor-pointer pr-1 underline`}
       contentEditable={false}
       data-mention-id={pageId}
     >
       {noAccess ? (
-        <span className={'mention-unpublished font-semibold text-text-caption'}>No Access</span>
+        <span className={'mention-unpublished font-semibold text-text-caption'}>{
+          variant === UIVariant.App ? `${content}${t('document.mention.trashHint')}` : t('document.mention.noAccess')
+        }</span>
       ) : (
         <>
           <span className={`mention-icon ${isFlag ? 'icon' : ''}`}>
             {mentionIcon}
           </span>
 
-          <span className={'mention-content opacity-80 hover:opacity-100'}>
+          <span className={'mention-content opacity-80'}>
             {content}
           </span>
         </>

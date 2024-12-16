@@ -3,10 +3,10 @@ import { NormalModal } from '@/components/_shared/modal';
 import { notify } from '@/components/_shared/notify';
 import { useAppHandlers, useAppView } from '@/components/app/app.hooks';
 import { OutlinedInput } from '@mui/material';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
-function RenameModal ({ open, onClose, viewId }: {
+function RenameModal({ open, onClose, viewId }: {
   open: boolean;
   onClose: () => void;
   viewId: string;
@@ -54,6 +54,8 @@ function RenameModal ({ open, onClose, viewId }: {
     }
   }, [view]);
 
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
   return (
     <NormalModal
       keepMounted={false}
@@ -70,9 +72,19 @@ function RenameModal ({ open, onClose, viewId }: {
       classes={{ container: 'items-start max-md:mt-auto max-md:items-center mt-[10%] ' }}
     >
       <OutlinedInput
+        autoFocus
         size={'small'}
         placeholder={'Enter new name'}
         value={newValue}
+        inputRef={(input: HTMLInputElement) => {
+          if (!inputRef.current && input) {
+            setTimeout(() => {
+              input.setSelectionRange(0, input.value.length);
+            }, 100);
+          }
+
+          inputRef.current = input;
+        }}
         onChange={e => setNewValue(e.target.value)}
         fullWidth
         onKeyDown={(e) => {

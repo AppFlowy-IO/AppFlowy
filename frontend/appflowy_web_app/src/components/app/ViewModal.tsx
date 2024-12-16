@@ -21,7 +21,7 @@ import { ReactComponent as CloseIcon } from '@/assets/close.svg';
 import { ReactComponent as ArrowRightIcon } from '@/assets/arrow_right.svg';
 import { TransitionProps } from '@mui/material/transitions';
 
-const Transition = React.forwardRef(function Transition (
+const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
     children: React.ReactElement;
   },
@@ -34,7 +34,7 @@ const Transition = React.forwardRef(function Transition (
   />;
 });
 
-function ViewModal ({
+function ViewModal({
   viewId,
   open,
   onClose,
@@ -127,7 +127,7 @@ function ViewModal ({
                 onClose();
               }}
             >
-              <ExpandMoreIcon className={'text-text-title opacity-80 h-5 w-5'} />
+              <ExpandMoreIcon className={'text-text-title opacity-80 h-5 w-5'}/>
             </IconButton>
           </Tooltip>
           <Divider
@@ -147,13 +147,13 @@ function ViewModal ({
               />}
               color={'inherit'}
               className={'justify-start px-1.5'}
-              endIcon={<ArrowRightIcon className={'transform rotate-90'} />}
+              endIcon={<ArrowRightIcon className={'transform rotate-90'}/>}
             >{space.name}</Button>
           )}
         </div>
 
         <div className={'flex items-center gap-4'}>
-          <ShareButton viewId={viewId} />
+          <ShareButton viewId={viewId}/>
           <MoreActions
             onDeleted={() => {
               onClose();
@@ -169,7 +169,7 @@ function ViewModal ({
             size={'small'}
             onClick={onClose}
           >
-            <CloseIcon />
+            <CloseIcon/>
           </IconButton>
         </div>
 
@@ -218,7 +218,9 @@ function ViewModal ({
       open={open}
       onClose={onClose}
       fullWidth={true}
-      disableRestoreFocus={true}
+      disableAutoFocus={false}
+      disableEnforceFocus={false}
+      // disableRestoreFocus={true}
       TransitionComponent={Transition}
       PaperProps={{
         className: `max-w-[70vw] w-[1188px] flex flex-col h-[80vh] appflowy-scroller`,
@@ -226,7 +228,7 @@ function ViewModal ({
     >
       {modalTitle}
       {notFound ? (
-        <RecordNotFound />
+        <RecordNotFound/>
       ) : (
         <div className={'w-full h-full'}>
           {viewDom}

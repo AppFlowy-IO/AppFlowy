@@ -24,6 +24,7 @@ function PageActions({
     >
       <Tooltip
         disableInteractive={true}
+        disableFocusListener
         title={t('menuAppHeader.moreButtonToolTip')}
       >
         <IconButton
@@ -36,13 +37,13 @@ function PageActions({
           <MoreIcon/>
         </IconButton>
       </Tooltip>
-      {view.layout === ViewLayout.Document && <Tooltip
+      {loading ? <CircularProgress size={16}/> : view.layout === ViewLayout.Document && <Tooltip
+        disableFocusListener
         disableInteractive={true}
         title={t('menuAppHeader.addPageTooltip')}
       >
-        {loading ? <CircularProgress size={16}/> : <IconButton
+        <IconButton
           onClick={async (e) => {
-            e.stopPropagation();
             setLoading(true);
             try {
               await onClickAdd(e);
@@ -53,8 +54,9 @@ function PageActions({
           size={'small'}
         >
           <AddIcon/>
-        </IconButton>}
+        </IconButton>
       </Tooltip>}
+
 
     </div>
   );

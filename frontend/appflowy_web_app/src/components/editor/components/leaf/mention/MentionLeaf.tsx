@@ -50,21 +50,24 @@ export function MentionLeaf({ mention, text, children }: {
   }, [type, readonly, isSelected]);
 
   return <>
-    {isCursorBefore && <span data-slate-string="true">{
+    {isCursorBefore && !isSelected && <span data-slate-string="true">{
       `\u200B`
     }</span>}
+    <span
+      className={'absolute right-0 !text-transparent overflow-hidden'}
+    >
+      {children}
+    </span>
+
     <span
       onClick={select}
       contentEditable={false}
       className={className}
     >
     {content}
+
   </span>
-    <span
-      className={'absolute right-0 text-transparent w-[1px] overflow-hidden'}
-    >
-        {children}
-      </span>
+
   </>;
 }
 

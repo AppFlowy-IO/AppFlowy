@@ -266,6 +266,9 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 .formula-inline, .mention {
   &.selected {
     @apply rounded bg-content-blue-100;
+    .mention-inline {
+      @apply bg-content-blue-100 select-all;
+    }
   }
 }
 
@@ -313,8 +316,9 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
   height: inherit;
   overflow: hidden;
   @apply inline-flex gap-1 relative truncate max-w-full;
-  text-underline-offset: 1px;
   text-underline-position: under;
+  //text-underline-offset: 5px;
+
 
   .mention-icon {
     @apply absolute top-1/2 transform -translate-y-1/2;

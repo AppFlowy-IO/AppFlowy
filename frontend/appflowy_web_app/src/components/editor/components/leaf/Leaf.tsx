@@ -12,7 +12,7 @@ export function Leaf({ attributes, children, leaf, text }: RenderLeafProps) {
 
   const classList = [leaf.prism_token, leaf.prism_token && 'token', leaf.class_name].filter(Boolean);
 
-  if (leaf.code) {
+  if (leaf.code && !(leaf.formula || leaf.mention)) {
     newChildren = <span className={'bg-line-divider font-medium text-[#EB5757]'}>{newChildren}</span>;
   }
 

@@ -16,6 +16,7 @@ const defaultInitialValue: Descendant[] = [];
 function CollaborativeEditor({ doc }: { doc: Y.Doc }) {
   const context = useEditorContext();
   const readSummary = context.readSummary;
+  const onRendered = context.onRendered;
   const uploadFile = context.uploadFile;
   const readOnly = context.readOnly;
   const viewId = context.viewId;
@@ -26,7 +27,8 @@ function CollaborativeEditor({ doc }: { doc: Y.Doc }) {
 
     onWordCountChange?.(viewId, wordCount);
     setClock((prev) => prev + 1);
-  }, [onWordCountChange, viewId]);
+    onRendered?.();
+  }, [onWordCountChange, viewId, onRendered]);
 
   const editor = useMemo(
     () =>
