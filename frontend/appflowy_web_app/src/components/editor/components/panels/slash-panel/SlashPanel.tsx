@@ -1,8 +1,7 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { isEmbedBlockTypes } from '@/application/slate-yjs/command/const';
-import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
-import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
+import { findSlateEntryByBlockId, getBlockEntry } from '@/application/slate-yjs/utils/editor';
 import {
   AlignType,
   BlockData,

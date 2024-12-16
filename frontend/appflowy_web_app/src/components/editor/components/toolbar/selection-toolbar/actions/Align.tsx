@@ -1,7 +1,6 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
-import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
-import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
+import { findSlateEntryByBlockId, getBlockEntry } from '@/application/slate-yjs/utils/editor';
 import { AlignType, BlockData } from '@/application/types';
 import { ReactComponent as AlignCenterSvg } from '@/assets/toolbar_align_center.svg';
 import { ReactComponent as AlignLeftSvg } from '@/assets/toolbar_align_left.svg';
@@ -33,7 +32,7 @@ const popoverProps: Partial<PopoverProps> = {
   },
 };
 
-export function Align ({
+export function Align({
   blockId,
   enabled = true,
 }: {
@@ -83,13 +82,13 @@ export function Align ({
 
     switch (align) {
       case AlignType.Left:
-        return <AlignLeftSvg className={'text-fill-default'} />;
+        return <AlignLeftSvg className={'text-fill-default'}/>;
       case 'center':
-        return <AlignCenterSvg className={'text-fill-default'} />;
+        return <AlignCenterSvg className={'text-fill-default'}/>;
       case 'right':
-        return <AlignRightSvg className={'text-fill-default'} />;
+        return <AlignRightSvg className={'text-fill-default'}/>;
       default:
-        return <AlignLeftSvg />;
+        return <AlignLeftSvg/>;
     }
   }, [getAlign]);
 
@@ -154,21 +153,21 @@ export function Align ({
             tooltip={t('document.plugins.optionAction.left')}
             onClick={toggleAlign(AlignType.Left)}
           >
-            <AlignLeftSvg />
+            <AlignLeftSvg/>
           </ActionButton>
           <ActionButton
             active={getAlign() === AlignType.Center}
             tooltip={t('document.plugins.optionAction.center')}
             onClick={toggleAlign(AlignType.Center)}
           >
-            <AlignCenterSvg />
+            <AlignCenterSvg/>
           </ActionButton>
           <ActionButton
             active={getAlign() === AlignType.Right}
             tooltip={t('document.plugins.optionAction.right')}
             onClick={toggleAlign(AlignType.Right)}
           >
-            <AlignRightSvg />
+            <AlignRightSvg/>
           </ActionButton>
         </div>
       </Popover>

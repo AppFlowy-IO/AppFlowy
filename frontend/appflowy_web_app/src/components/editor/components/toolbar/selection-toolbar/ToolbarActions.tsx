@@ -1,5 +1,5 @@
 import { YjsEditor } from '@/application/slate-yjs';
-import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
+import { getBlockEntry } from '@/application/slate-yjs/utils/editor';
 import { BlockType } from '@/application/types';
 import Align from '@/components/editor/components/toolbar/selection-toolbar/actions/Align';
 import Bold from '@/components/editor/components/toolbar/selection-toolbar/actions/Bold';

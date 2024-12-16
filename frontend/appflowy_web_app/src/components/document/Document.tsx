@@ -1,4 +1,3 @@
-import { appendFirstEmptyParagraph } from '@/application/slate-yjs/utils/yjsOperations';
 import {
   ViewComponentProps,
   YjsEditorKey, YSharedRoot,
@@ -8,6 +7,7 @@ import { Editor } from '@/components/editor';
 import React, { Suspense, useCallback, useRef } from 'react';
 import ViewMetaPreview from '@/components/view-meta/ViewMetaPreview';
 import { useSearchParams } from 'react-router-dom';
+import { appendFirstEmptyParagraph } from '@/application/slate-yjs/utils/yjs';
 
 export type DocumentProps = ViewComponentProps;
 

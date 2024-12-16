@@ -1,6 +1,5 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
-import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import { MathEquationBlockData } from '@/application/types';
 import { MathEquationNode } from '@/components/editor/editor.type';
 import { Button, TextField } from '@mui/material';
@@ -9,8 +8,9 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NodeEntry } from 'slate';
 import { useSlateStatic } from 'slate-react';
+import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/editor';
 
-function MathEquationPopoverContent ({
+function MathEquationPopoverContent({
   blockId,
   onClose,
 }: {

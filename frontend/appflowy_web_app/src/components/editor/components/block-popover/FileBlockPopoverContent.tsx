@@ -1,6 +1,5 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
-import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import { BlockType, FieldURLType, FileBlockData } from '@/application/types';
 import FileDropzone from '@/components/_shared/file-dropzone/FileDropzone';
 import { notify } from '@/components/_shared/notify';
@@ -11,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useSlateStatic } from 'slate-react';
 import EmbedLink from 'src/components/_shared/image-upload/EmbedLink';
 import { FileHandler } from '@/utils/file';
+import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/editor';
 
 export const MAX_FILE_SIZE = 7 * 1024 * 1024; // 7MB
 

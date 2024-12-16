@@ -1,6 +1,6 @@
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { YjsEditor } from '@/application/slate-yjs';
-import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
+import { getBlockEntry } from '@/application/slate-yjs/utils/editor';
 import { ReactEditor } from 'slate-react';
 import { BlockType, FieldURLType, FileBlockData, ImageBlockData, ImageType } from '@/application/types';
 import { MAX_IMAGE_SIZE } from '@/components/_shared/image-upload';

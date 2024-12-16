@@ -1,5 +1,3 @@
-import { TextCount } from '@/utils/word';
-import { Op } from 'quill-delta';
 import * as Y from 'yjs';
 
 export type BlockId = string;
@@ -58,7 +56,10 @@ export interface BlockData {
   bgColor?: string;
   font_color?: string;
   align?: AlignType;
-  delta?: Op[];
+  delta?: {
+    insert: string;
+    attributes: Record<string, unknown>;
+  }[];
 }
 
 export interface HeadingBlockData extends BlockData {
@@ -954,6 +955,11 @@ export interface ViewMetaProps {
   updatePage?: (viewId: string, data: UpdatePagePayload) => Promise<void>;
   onEnter?: (text: string) => void;
   maxWidth?: number;
+}
+
+export interface TextCount {
+  words: number;
+  characters: number;
 }
 
 export interface ViewComponentProps {

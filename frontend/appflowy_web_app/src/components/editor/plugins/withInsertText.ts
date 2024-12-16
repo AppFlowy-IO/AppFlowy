@@ -1,7 +1,7 @@
 import { BaseRange, NodeEntry, Element, Point, Range, Text, Transforms } from 'slate';
 import { ReactEditor } from 'slate-react';
 import { TextInsertTextOptions } from 'slate/dist/interfaces/transforms/text';
-import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
+import { getBlockEntry } from '@/application/slate-yjs/utils/editor';
 import { YjsEditor } from '@/application/slate-yjs';
 import { isEmbedBlockTypes } from '@/application/slate-yjs/command/const';
 import { BlockType } from '@/application/types';

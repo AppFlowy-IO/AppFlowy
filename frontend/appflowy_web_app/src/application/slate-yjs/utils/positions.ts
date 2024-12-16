@@ -1,10 +1,10 @@
 import { CONTAINER_BLOCK_TYPES, SOFT_BREAK_TYPES } from '@/application/slate-yjs/command/const';
 import { slateNodeToDeltaInsert } from '@/application/slate-yjs/utils/convert';
-import { getText, getTextMap } from '@/application/slate-yjs/utils/yjsOperations';
 import { BlockType, YSharedRoot } from '@/application/types';
 import { BasePoint, BaseRange, Node, Element, Editor, NodeEntry, Text } from 'slate';
 import { RelativeRange } from '../types';
 import * as Y from 'yjs';
+import { getText, getTextMap } from '@/application/slate-yjs/utils/yjs';
 
 export function slateRangeToRelativeRange(
   sharedRoot: YSharedRoot,

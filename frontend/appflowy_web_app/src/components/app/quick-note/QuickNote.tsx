@@ -34,7 +34,7 @@ export function QuickNote() {
   const [position, setPosition] = React.useState<{ x: number, y: number } | undefined>(undefined);
   const [isDragging, setIsDragging] = React.useState(false);
   const dragStartPos = useRef({ x: 0, y: 0 });
-  const [route, setRoute] = React.useState<QuickNoteRoute>(QuickNoteRoute.NOTE);
+  const [route, setRoute] = React.useState<QuickNoteRoute>(QuickNoteRoute.LIST);
   const [pageSize, setPageSize] = React.useState(PAPER_SIZE);
   const [expand, setExpand] = React.useState(false);
 

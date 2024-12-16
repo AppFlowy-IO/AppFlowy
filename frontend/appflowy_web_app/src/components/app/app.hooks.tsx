@@ -4,7 +4,7 @@ import {
   CreateRowDoc, CreateSpacePayload,
   DatabaseRelations,
   LoadView,
-  LoadViewMeta,
+  LoadViewMeta, TextCount,
   Types,
   UIVariant,
   UpdatePagePayload, UpdateSpacePayload,
@@ -18,7 +18,6 @@ import {
 import { findAncestors, findView, findViewByLayout } from '@/components/_shared/outline/utils';
 import RequestAccess from '@/components/app/landing-pages/RequestAccess';
 import { AFConfigContext, useService } from '@/components/main/app.hooks';
-import { TextCount } from '@/utils/word';
 import { sortBy, uniqBy } from 'lodash-es';
 import React, { createContext, Suspense, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';

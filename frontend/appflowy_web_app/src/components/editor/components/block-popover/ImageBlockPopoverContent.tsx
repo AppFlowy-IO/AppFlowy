@@ -1,6 +1,5 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
-import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import { BlockType, ImageBlockData, ImageType } from '@/application/types';
 import { ALLOWED_IMAGE_EXTENSIONS, MAX_IMAGE_SIZE, Unsplash } from '@/components/_shared/image-upload';
 import EmbedLink from '@/components/_shared/image-upload/EmbedLink';
@@ -12,6 +11,7 @@ import { useSlateStatic } from 'slate-react';
 import { notify } from '@/components/_shared/notify';
 import { FileHandler } from '@/utils/file';
 import FileDropzone from '@/components/_shared/file-dropzone/FileDropzone';
+import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/editor';
 
 function ImageBlockPopoverContent({
   blockId,

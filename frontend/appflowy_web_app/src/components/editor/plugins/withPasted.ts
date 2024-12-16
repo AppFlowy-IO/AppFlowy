@@ -1,18 +1,16 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { slateContentInsertToYData } from '@/application/slate-yjs/utils/convert';
-import { beforePasted, findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import {
-  assertDocExists,
-  getBlock,
+  beforePasted, findSlateEntryByBlockId,
   getBlockEntry,
-  getChildrenArray,
   getSharedRoot,
-} from '@/application/slate-yjs/utils/yjsOperations';
+} from '@/application/slate-yjs/utils/editor';
 import { BlockType, MentionType, YjsEditorKey } from '@/application/types';
 import { deserializeHTML } from '@/components/editor/utils/fragment';
 import { BasePoint, Node, Transforms } from 'slate';
 import { ReactEditor } from 'slate-react';
 import isURL from 'validator/lib/isURL';
+import { assertDocExists, getBlock, getChildrenArray } from '@/application/slate-yjs/utils/yjs';
 
 export const withPasted = (editor: ReactEditor) => {
   editor.insertTextData = (data: DataTransfer) => {

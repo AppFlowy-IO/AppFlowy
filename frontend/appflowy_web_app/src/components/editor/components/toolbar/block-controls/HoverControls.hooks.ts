@@ -1,13 +1,13 @@
 import { YjsEditor } from '@/application/slate-yjs';
-import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import { BlockType } from '@/application/types';
 import { getScrollParent } from '@/components/global-comment/utils';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Editor, Element, Range } from 'slate';
 import { ReactEditor, useSlateStatic } from 'slate-react';
 import { findEventNode, getBlockActionsPosition, getBlockCssProperty } from './utils';
+import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/editor';
 
-export function useHoverControls ({ disabled }: { disabled: boolean; }) {
+export function useHoverControls({ disabled }: { disabled: boolean; }) {
   const editor = useSlateStatic() as YjsEditor;
   const ref = useRef<HTMLDivElement>(null);
   const [hoveredBlockId, setHoveredBlockId] = useState<string | null>(null);

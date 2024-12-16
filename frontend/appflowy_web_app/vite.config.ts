@@ -92,6 +92,7 @@ export default defineConfig({
     process.env.ANALYZE_MODE
       ? visualizer({
         emitFile: true,
+
       })
       : undefined,
     process.env.ANALYZE_MODE
@@ -132,7 +133,7 @@ export default defineConfig({
       sourcemap: isDev,
       rollupOptions: isProd
         ? {
-        
+
           output: {
             chunkFileNames: 'static/js/[name]-[hash].js',
             entryFileNames: 'static/js/[name]-[hash].js',
@@ -152,7 +153,8 @@ export default defineConfig({
                 id.includes('/react-virtualized-auto-sizer') ||
                 id.includes('/react-window')
                 || id.includes('/@popperjs')
-                || id.includes('/@mui/material/Dialog')
+                || id.includes('/@mui/material/Dialog') ||
+                id.includes('/quill-delta')
               ) {
                 return 'common';
               }
