@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.dart';
@@ -13,6 +14,7 @@ import 'ai_prompt_buttons.dart';
 import 'chat_input_file.dart';
 import 'chat_input_span.dart';
 import 'chat_mention_page_bottom_sheet.dart';
+import 'select_sources_bottom_sheet.dart';
 
 class MobileAIPromptInput extends StatefulWidget {
   const MobileAIPromptInput({
@@ -21,12 +23,14 @@ class MobileAIPromptInput extends StatefulWidget {
     required this.isStreaming,
     required this.onStopStreaming,
     required this.onSubmitted,
+    required this.onUpdateSelectedSources,
   });
 
   final String chatId;
   final bool isStreaming;
   final void Function() onStopStreaming;
   final void Function(String, Map<String, dynamic>) onSubmitted;
+  final void Function(List<String>) onUpdateSelectedSources;
 
   @override
   State<MobileAIPromptInput> createState() => _MobileAIPromptInputState();
@@ -119,16 +123,16 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
                     minHeight: MobileAIPromptSizes.textFieldMinHeight,
                     maxHeight: 220,
                   ),
-                  padding:
-                      const EdgeInsetsDirectional.fromSTEB(0, 8.0, 12.0, 8.0),
                   child: IntrinsicHeight(
                     child: Row(
                       children: [
                         const HSpace(8.0),
-                        Expanded(child: inputTextField(context)),
-                        mentionButton(),
-                        const HSpace(6.0),
+                        leadingButtons(context),
+                        Expanded(
+                          child: inputTextField(context),
+                        ),
                         sendButton(),
+                        const HSpace(12.0),
                       ],
                     ),
                   ),
@@ -259,13 +263,14 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
     );
   }
 
-  Widget mentionButton() {
-    return Align(
+  Widget leadingButtons(BuildContext context) {
+    return Container(
       alignment: Alignment.bottomCenter,
-      child: PromptInputMentionButton(
-        iconSize: MobileAIPromptSizes.mentionIconSize,
-        buttonSize: MobileAIPromptSizes.sendButtonSize,
-        onTap: () {
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: _LeadingActions(
+        chatId: widget.chatId,
+        textController: textController,
+        onMention: () {
           textController.text += '@';
           if (!focusNode.hasFocus) {
             focusNode.requestFocus();
@@ -274,13 +279,15 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
             mentionPage(context);
           });
         },
+        onUpdateSelectedSources: widget.onUpdateSelectedSources,
       ),
     );
   }
 
   Widget sendButton() {
-    return Align(
+    return Container(
       alignment: Alignment.bottomCenter,
+      padding: const EdgeInsets.only(bottom: 8.0),
       child: PromptInputSendButton(
         buttonSize: MobileAIPromptSizes.sendButtonSize,
         iconSize: MobileAIPromptSizes.sendButtonSize,
@@ -289,5 +296,91 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
         state: sendButtonState,
       ),
     );
+  }
+}
+
+class _LeadingActions extends StatefulWidget {
+  const _LeadingActions({
+    required this.chatId,
+    required this.textController,
+    required this.onMention,
+    required this.onUpdateSelectedSources,
+  });
+
+  final String chatId;
+  final TextEditingController textController;
+  final void Function() onMention;
+  final void Function(List<String>) onUpdateSelectedSources;
+
+  @override
+  State<_LeadingActions> createState() => _LeadingActionsState();
+}
+
+class _LeadingActionsState extends State<_LeadingActions> {
+  bool inputNotEmpty = false;
+  bool userExpandOverride = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.textController.addListener(onTextChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.textController.removeListener(onTextChanged);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return !inputNotEmpty || userExpandOverride
+        ? Material(
+            color: Theme.of(context).cardColor,
+            child: SeparatedRow(
+              mainAxisSize: MainAxisSize.min,
+              separatorBuilder: () => const HSpace(4.0),
+              children: [
+                PromptInputMobileSelectSourcesButton(
+                  chatId: widget.chatId,
+                  onUpdateSelectedSources: widget.onUpdateSelectedSources,
+                ),
+                PromptInputMentionButton(
+                  iconSize: MobileAIPromptSizes.mentionIconSize,
+                  buttonSize: MobileAIPromptSizes.sendButtonSize,
+                  onTap: widget.onMention,
+                ),
+              ],
+            ),
+          )
+        : Material(
+            color: Theme.of(context).cardColor,
+            child: SizedBox.square(
+              dimension: 32.0,
+              child: FlowyButton(
+                expandText: false,
+                margin: EdgeInsets.zero,
+                text: const FlowySvg(
+                  FlowySvgs.arrow_right_m,
+                  size: Size.square(24),
+                ),
+                onTap: () {
+                  setState(() => userExpandOverride = true);
+                },
+              ),
+            ),
+          );
+  }
+
+  void onTextChanged() {
+    final actual = widget.textController.text.isNotEmpty;
+    if (inputNotEmpty != actual) {
+      setState(() {
+        inputNotEmpty = actual;
+        if (!inputNotEmpty) {
+          userExpandOverride = false;
+        }
+      });
+    }
   }
 }

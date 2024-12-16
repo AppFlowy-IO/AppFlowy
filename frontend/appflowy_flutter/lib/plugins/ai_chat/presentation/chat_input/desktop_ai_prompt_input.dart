@@ -529,7 +529,7 @@ class _PromptBottomActions extends StatelessWidget {
   }
 
   Widget _selectSourcesButton(BuildContext context) {
-    return PromptInputSelectSourcesButton(
+    return PromptInputDesktopSelectSourcesButton(
       chatId: chatId,
       onUpdateSelectedSources: onUpdateSelectedSources,
     );

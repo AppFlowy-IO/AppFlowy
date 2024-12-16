@@ -15,8 +15,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'chat_mention_page_menu.dart';
 
-class PromptInputSelectSourcesButton extends StatefulWidget {
-  const PromptInputSelectSourcesButton({
+class PromptInputDesktopSelectSourcesButton extends StatefulWidget {
+  const PromptInputDesktopSelectSourcesButton({
     super.key,
     required this.chatId,
     required this.onUpdateSelectedSources,
@@ -26,12 +26,12 @@ class PromptInputSelectSourcesButton extends StatefulWidget {
   final void Function(List<String>) onUpdateSelectedSources;
 
   @override
-  State<PromptInputSelectSourcesButton> createState() =>
-      _PromptInputSelectSourcesButtonState();
+  State<PromptInputDesktopSelectSourcesButton> createState() =>
+      _PromptInputDesktopSelectSourcesButtonState();
 }
 
-class _PromptInputSelectSourcesButtonState
-    extends State<PromptInputSelectSourcesButton> {
+class _PromptInputDesktopSelectSourcesButtonState
+    extends State<PromptInputDesktopSelectSourcesButton> {
   late final cubit = ChatSettingsCubit(chatId: widget.chatId);
   final popoverController = PopoverController();
 
@@ -90,6 +90,11 @@ class _PromptInputSelectSourcesButtonState
                   context.read<ChatSettingsCubit>().refreshSources(spaceView);
                 }
               },
+              onClose: () {
+                if (spaceView != null) {
+                  context.read<ChatSettingsCubit>().refreshSources(spaceView);
+                }
+              },
               popupBuilder: (_) {
                 return BlocProvider.value(
                   value: context.read<ChatSettingsCubit>(),
@@ -98,12 +103,8 @@ class _PromptInputSelectSourcesButtonState
                   ),
                 );
               },
-              child: BlocBuilder<ChatSettingsCubit, ChatSettingsState>(
-                builder: (context, state) {
-                  return _IndicatorButton(
-                    onTap: () => popoverController.show(),
-                  );
-                },
+              child: _IndicatorButton(
+                onTap: () => popoverController.show(),
               ),
             ),
           );
@@ -237,6 +238,7 @@ class _PopoverContent extends StatelessWidget {
           cubit.toggleSelectedStatus(chatSource);
           onUpdateSelectedSources(cubit.selectedSourceIds);
         },
+        height: 30.0,
         visibilityGetter: (view) {
           if (view.id == context.read<ChatSettingsCubit>().chatId) {
             return IgnoreViewType.hide;
@@ -267,6 +269,7 @@ class _PopoverContent extends StatelessWidget {
           cubit.toggleSelectedStatus(chatSource);
           onUpdateSelectedSources(cubit.selectedSourceIds);
         },
+        height: 30.0,
         visibilityGetter: (view) {
           if (view.id == context.read<ChatSettingsCubit>().chatId) {
             return IgnoreViewType.hide;
@@ -288,6 +291,7 @@ class ChatSourceTreeItem extends StatefulWidget {
     required this.level,
     required this.isSelectedSection,
     required this.onSelected,
+    required this.height,
     this.visibilityGetter,
   });
 
@@ -300,6 +304,8 @@ class ChatSourceTreeItem extends StatefulWidget {
 
   final void Function(ChatSource chatSource) onSelected;
 
+  final double height;
+
   final IgnoreViewType Function(ViewPB view)? visibilityGetter;
 
   @override
@@ -309,11 +315,14 @@ class ChatSourceTreeItem extends StatefulWidget {
 class _ChatSourceTreeItemState extends State<ChatSourceTreeItem> {
   @override
   Widget build(BuildContext context) {
-    final child = ChatSourceTreeItemInner(
-      chatSource: widget.chatSource,
-      level: widget.level,
-      isSelectedSection: widget.isSelectedSection,
-      onSelected: widget.onSelected,
+    final child = SizedBox(
+      height: widget.height,
+      child: ChatSourceTreeItemInner(
+        chatSource: widget.chatSource,
+        level: widget.level,
+        isSelectedSection: widget.isSelectedSection,
+        onSelected: widget.onSelected,
+      ),
     );
 
     final viewVisibility =
@@ -358,6 +367,7 @@ class _ChatSourceTreeItemState extends State<ChatSourceTreeItem> {
                 level: widget.level + 1,
                 isSelectedSection: widget.isSelectedSection,
                 onSelected: widget.onSelected,
+                height: widget.height,
                 visibilityGetter: widget.visibilityGetter,
               ),
             ),
@@ -391,39 +401,36 @@ class ChatSourceTreeItemInner extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () => onSelected?.call(chatSource),
-        child: SizedBox(
-          height: 30.0,
-          child: Row(
-            children: [
-              const HSpace(4.0),
-              HSpace(20.0 * level),
-              // builds the >, ^ or · button
-              ToggleIsExpandedButton(
-                chatSource: chatSource,
-                isSelectedSection: isSelectedSection,
+        child: Row(
+          children: [
+            const HSpace(4.0),
+            HSpace(20.0 * level),
+            // builds the >, ^ or · button
+            ToggleIsExpandedButton(
+              chatSource: chatSource,
+              isSelectedSection: isSelectedSection,
+            ),
+            const HSpace(2.0),
+            // checkbox
+            SourceSelectedStatusCheckbox(
+              chatSource: chatSource,
+            ),
+            const HSpace(4.0),
+            // icon
+            MentionViewIcon(
+              view: chatSource.view,
+            ),
+            const HSpace(6.0),
+            // title
+            Expanded(
+              child: FlowyText(
+                chatSource.view.nameOrDefault,
+                overflow: TextOverflow.ellipsis,
+                fontSize: 14.0,
+                figmaLineHeight: 18.0,
               ),
-              const HSpace(2.0),
-              // checkbox
-              SourceSelectedStatusCheckbox(
-                chatSource: chatSource,
-              ),
-              const HSpace(4.0),
-              // icon
-              MentionViewIcon(
-                view: chatSource.view,
-              ),
-              const HSpace(6.0),
-              // title
-              Expanded(
-                child: FlowyText(
-                  chatSource.view.nameOrDefault,
-                  overflow: TextOverflow.ellipsis,
-                  fontSize: 14.0,
-                  figmaLineHeight: 18.0,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

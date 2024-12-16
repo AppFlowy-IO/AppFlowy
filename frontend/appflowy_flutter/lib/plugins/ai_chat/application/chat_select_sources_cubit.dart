@@ -296,7 +296,8 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
 
   List<String> _recursiveGetSourceIds(ChatSource chatSource) {
     return [
-      if (chatSource.view.layout.isDocumentView) chatSource.view.id,
+      if (chatSource.view.layout.isDocumentView && !chatSource.view.isSpace)
+        chatSource.view.id,
       for (final childSource in chatSource.children)
         ..._recursiveGetSourceIds(childSource),
     ];

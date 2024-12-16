@@ -292,6 +292,10 @@ class _ChatContentPage extends StatelessWidget {
           return UniversalPlatform.isDesktop
               ? DesktopAIPromptInput(
                   chatId: view.id,
+                  isStreaming: !canSendMessage,
+                  onStopStreaming: () {
+                    chatBloc.add(const ChatEvent.stopStream());
+                  },
                   onSubmitted: (text, metadata) {
                     chatBloc.add(
                       ChatEvent.sendMessage(
@@ -300,7 +304,6 @@ class _ChatContentPage extends StatelessWidget {
                       ),
                     );
                   },
-                  isStreaming: !canSendMessage,
                   onUpdateSelectedSources: (ids) {
                     chatBloc.add(
                       ChatEvent.updateSelectedSources(
@@ -308,12 +311,13 @@ class _ChatContentPage extends StatelessWidget {
                       ),
                     );
                   },
-                  onStopStreaming: () {
-                    chatBloc.add(const ChatEvent.stopStream());
-                  },
                 )
               : MobileAIPromptInput(
                   chatId: view.id,
+                  isStreaming: !canSendMessage,
+                  onStopStreaming: () {
+                    chatBloc.add(const ChatEvent.stopStream());
+                  },
                   onSubmitted: (text, metadata) {
                     chatBloc.add(
                       ChatEvent.sendMessage(
@@ -322,9 +326,12 @@ class _ChatContentPage extends StatelessWidget {
                       ),
                     );
                   },
-                  isStreaming: !canSendMessage,
-                  onStopStreaming: () {
-                    chatBloc.add(const ChatEvent.stopStream());
+                  onUpdateSelectedSources: (ids) {
+                    chatBloc.add(
+                      ChatEvent.updateSelectedSources(
+                        selectedSourcesIds: ids,
+                      ),
+                    );
                   },
                 );
         },
