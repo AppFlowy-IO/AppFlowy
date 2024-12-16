@@ -342,7 +342,9 @@
     "purchaseStorageSpace": "شراء مساحة تخزين",
     "singleFileProPlanLimitationDescription": "لقد تجاوزت الحد الأقصى لحجم تحميل الملف المسموح به في الخطة المجانية. يرجى الترقية إلى الخطة الاحترافية لتحميل ملفات أكبر حجمًا",
     "purchaseAIResponse": "شراء",
-    "askOwnerToUpgradeToLocalAI": "اطلب من مالك مساحة العمل تمكين الذكاء الاصطناعي على الجهاز"
+    "askOwnerToUpgradeToLocalAI": "اطلب من مالك مساحة العمل تمكين الذكاء الاصطناعي على الجهاز",
+    "upgradeToAILocal": "قم بتشغيل النماذج المحلية على جهازك لتحقيق أقصى قدر من الخصوصية",
+    "upgradeToAILocalDesc": "الدردشة باستخدام ملفات PDF، وتحسين كتابتك، وملء الجداول تلقائيًا باستخدام الذكاء الاصطناعي المحلي"
   },
   "notifications": {
     "export": {
@@ -376,6 +378,7 @@
     "upload": "رفع",
     "edit": "يحرر",
     "delete": "يمسح",
+    "copy": "النسخ",
     "duplicate": "ينسخ",
     "putback": "ضعها بالخلف",
     "update": "تحديث",
