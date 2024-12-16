@@ -213,6 +213,10 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
     setState(() => updateSendButtonState());
 
     // handle text and selection changes ONLY when mentioning a page
+
+    // disable mention
+    return;
+    // ignore: dead_code
     if (!overlayController.isShowing ||
         inputControlCubit.filterStartPosition == -1) {
       return;
@@ -298,12 +302,12 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
                 AIType.appflowyAI => LocaleKeys.chat_inputMessageHint.tr(),
                 AIType.localAI => LocaleKeys.chat_inputLocalAIMessageHint.tr()
               },
-              onStartMentioningPage: () {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  inputControlCubit.startSearching(textController.value);
-                  overlayController.show();
-                });
-              },
+              // onStartMentioningPage: () {
+              //   WidgetsBinding.instance.addPostFrameCallback((_) {
+              //     inputControlCubit.startSearching(textController.value);
+              //     overlayController.show();
+              //   });
+              // },
             );
           },
         ),
@@ -359,14 +363,14 @@ class _PromptTextField extends StatefulWidget {
     required this.cubit,
     required this.textController,
     required this.textFieldFocusNode,
-    required this.onStartMentioningPage,
+    // required this.onStartMentioningPage,
     this.hintText = "",
   });
 
   final ChatInputControlCubit cubit;
   final TextEditingController textController;
   final FocusNode textFieldFocusNode;
-  final void Function() onStartMentioningPage;
+  // final void Function() onStartMentioningPage;
   final String hintText;
 
   @override
@@ -379,13 +383,13 @@ class _PromptTextFieldState extends State<_PromptTextField> {
   @override
   void initState() {
     super.initState();
-    widget.textFieldFocusNode.onKeyEvent = handleKeyEvent;
+    // widget.textFieldFocusNode.onKeyEvent = handleKeyEvent;
     widget.textController.addListener(onTextChanged);
   }
 
   @override
   void dispose() {
-    widget.textFieldFocusNode.onKeyEvent = null;
+    // widget.textFieldFocusNode.onKeyEvent = null;
     widget.textController.removeListener(onTextChanged);
     super.dispose();
   }
@@ -430,12 +434,12 @@ class _PromptTextFieldState extends State<_PromptTextField> {
     );
   }
 
-  KeyEventResult handleKeyEvent(FocusNode node, KeyEvent event) {
-    if (event.character == '@') {
-      widget.onStartMentioningPage();
-    }
-    return KeyEventResult.ignored;
-  }
+  // KeyEventResult handleKeyEvent(FocusNode node, KeyEvent event) {
+  //   if (event.character == '@') {
+  //     widget.onStartMentioningPage();
+  //   }
+  //   return KeyEventResult.ignored;
+  // }
 
   void onTextChanged() {
     setState(
@@ -510,10 +514,10 @@ class _PromptBottomActions extends StatelessWidget {
               const HSpace(
                 DesktopAIPromptSizes.actionBarButtonSpacing,
               ),
-              _mentionButton(context),
-              const HSpace(
-                DesktopAIPromptSizes.actionBarButtonSpacing,
-              ),
+              // _mentionButton(context),
+              // const HSpace(
+              //   DesktopAIPromptSizes.actionBarButtonSpacing,
+              // ),
               if (UniversalPlatform.isDesktop && state.supportChatWithFile) ...[
                 _attachmentButton(context),
                 const HSpace(
@@ -535,27 +539,27 @@ class _PromptBottomActions extends StatelessWidget {
     );
   }
 
-  Widget _mentionButton(BuildContext context) {
-    return PromptInputMentionButton(
-      iconSize: DesktopAIPromptSizes.actionBarIconSize,
-      buttonSize: DesktopAIPromptSizes.actionBarButtonSize,
-      onTap: () {
-        if (overlayController.isShowing) {
-          return;
-        }
-        if (!focusNode.hasFocus) {
-          focusNode.requestFocus();
-        }
-        textController.text += '@';
-        Future.delayed(Duration.zero, () {
-          context
-              .read<ChatInputControlCubit>()
-              .startSearching(textController.value);
-          overlayController.show();
-        });
-      },
-    );
-  }
+  // Widget _mentionButton(BuildContext context) {
+  //   return PromptInputMentionButton(
+  //     iconSize: DesktopAIPromptSizes.actionBarIconSize,
+  //     buttonSize: DesktopAIPromptSizes.actionBarButtonSize,
+  //     onTap: () {
+  //       if (overlayController.isShowing) {
+  //         return;
+  //       }
+  //       if (!focusNode.hasFocus) {
+  //         focusNode.requestFocus();
+  //       }
+  //       textController.text += '@';
+  //       Future.delayed(Duration.zero, () {
+  //         context
+  //             .read<ChatInputControlCubit>()
+  //             .startSearching(textController.value);
+  //         overlayController.show();
+  //       });
+  //     },
+  //   );
+  // }
 
   Widget _attachmentButton(BuildContext context) {
     return PromptInputAttachmentButton(

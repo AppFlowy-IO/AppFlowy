@@ -1,4 +1,3 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.dart';
@@ -48,7 +47,7 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
     super.initState();
 
     textController.addListener(handleTextControllerChange);
-    focusNode.onKeyEvent = handleKeyEvent;
+    // focusNode.onKeyEvent = handleKeyEvent;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       focusNode.requestFocus();
@@ -174,18 +173,18 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
     if (textController.value.isComposingRangeValid) {
       return;
     }
-    inputControlCubit.updateInputText(textController.text);
+    // inputControlCubit.updateInputText(textController.text);
     setState(() => updateSendButtonState());
   }
 
-  KeyEventResult handleKeyEvent(FocusNode node, KeyEvent event) {
-    if (event.character == '@') {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        mentionPage(context);
-      });
-    }
-    return KeyEventResult.ignored;
-  }
+  // KeyEventResult handleKeyEvent(FocusNode node, KeyEvent event) {
+  //   if (event.character == '@') {
+  //     WidgetsBinding.instance.addPostFrameCallback((_) {
+  //       mentionPage(context);
+  //     });
+  //   }
+  //   return KeyEventResult.ignored;
+  // }
 
   Future<void> mentionPage(BuildContext context) async {
     // if the focus node is on focus, unfocus it for better animation
@@ -270,15 +269,15 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
       child: _LeadingActions(
         chatId: widget.chatId,
         textController: textController,
-        onMention: () {
-          textController.text += '@';
-          if (!focusNode.hasFocus) {
-            focusNode.requestFocus();
-          }
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            mentionPage(context);
-          });
-        },
+        // onMention: () {
+        //   textController.text += '@';
+        //   if (!focusNode.hasFocus) {
+        //     focusNode.requestFocus();
+        //   }
+        //   WidgetsBinding.instance.addPostFrameCallback((_) {
+        //     mentionPage(context);
+        //   });
+        // },
         onUpdateSelectedSources: widget.onUpdateSelectedSources,
       ),
     );
@@ -303,13 +302,13 @@ class _LeadingActions extends StatefulWidget {
   const _LeadingActions({
     required this.chatId,
     required this.textController,
-    required this.onMention,
+    // required this.onMention,
     required this.onUpdateSelectedSources,
   });
 
   final String chatId;
   final TextEditingController textController;
-  final void Function() onMention;
+  // final void Function() onMention;
   final void Function(List<String>) onUpdateSelectedSources;
 
   @override
@@ -317,70 +316,78 @@ class _LeadingActions extends StatefulWidget {
 }
 
 class _LeadingActionsState extends State<_LeadingActions> {
-  bool inputNotEmpty = false;
-  bool userExpandOverride = false;
+  // bool inputNotEmpty = false;
+  // bool userExpandOverride = false;
 
-  @override
-  void initState() {
-    super.initState();
-    widget.textController.addListener(onTextChanged);
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   widget.textController.addListener(onTextChanged);
+  // }
 
-  @override
-  void dispose() {
-    widget.textController.removeListener(onTextChanged);
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   widget.textController.removeListener(onTextChanged);
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
-    return !inputNotEmpty || userExpandOverride
-        ? Material(
-            color: Theme.of(context).cardColor,
-            child: SeparatedRow(
-              mainAxisSize: MainAxisSize.min,
-              separatorBuilder: () => const HSpace(4.0),
-              children: [
-                PromptInputMobileSelectSourcesButton(
-                  chatId: widget.chatId,
-                  onUpdateSelectedSources: widget.onUpdateSelectedSources,
-                ),
-                PromptInputMentionButton(
-                  iconSize: MobileAIPromptSizes.mentionIconSize,
-                  buttonSize: MobileAIPromptSizes.sendButtonSize,
-                  onTap: widget.onMention,
-                ),
-              ],
-            ),
-          )
-        : Material(
-            color: Theme.of(context).cardColor,
-            child: SizedBox.square(
-              dimension: 32.0,
-              child: FlowyButton(
-                expandText: false,
-                margin: EdgeInsets.zero,
-                text: const FlowySvg(
-                  FlowySvgs.arrow_right_m,
-                  size: Size.square(24),
-                ),
-                onTap: () {
-                  setState(() => userExpandOverride = true);
-                },
-              ),
-            ),
-          );
+    return Material(
+      color: Theme.of(context).cardColor,
+      child: PromptInputMobileSelectSourcesButton(
+        chatId: widget.chatId,
+        onUpdateSelectedSources: widget.onUpdateSelectedSources,
+      ),
+    );
+
+    // return !inputNotEmpty || userExpandOverride
+    //     ? Material(
+    //         color: Theme.of(context).cardColor,
+    //         child: SeparatedRow(
+    //           mainAxisSize: MainAxisSize.min,
+    //           separatorBuilder: () => const HSpace(4.0),
+    //           children: [
+    //             PromptInputMobileSelectSourcesButton(
+    //               chatId: widget.chatId,
+    //               onUpdateSelectedSources: widget.onUpdateSelectedSources,
+    //             ),
+    //             PromptInputMentionButton(
+    //               iconSize: MobileAIPromptSizes.mentionIconSize,
+    //               buttonSize: MobileAIPromptSizes.sendButtonSize,
+    //               onTap: widget.onMention,
+    //             ),
+    //           ],
+    //         ),
+    //       )
+    //     : Material(
+    //         color: Theme.of(context).cardColor,
+    //         child: SizedBox.square(
+    //           dimension: 32.0,
+    //           child: FlowyButton(
+    //             expandText: false,
+    //             margin: EdgeInsets.zero,
+    //             text: const FlowySvg(
+    //               FlowySvgs.arrow_right_m,
+    //               size: Size.square(24),
+    //             ),
+    //             onTap: () {
+    //               setState(() => userExpandOverride = true);
+    //             },
+    //           ),
+    //         ),
+    //       );
   }
 
-  void onTextChanged() {
-    final actual = widget.textController.text.isNotEmpty;
-    if (inputNotEmpty != actual) {
-      setState(() {
-        inputNotEmpty = actual;
-        if (!inputNotEmpty) {
-          userExpandOverride = false;
-        }
-      });
-    }
-  }
+  // void onTextChanged() {
+  //   final actual = widget.textController.text.isNotEmpty;
+  //   if (inputNotEmpty != actual) {
+  //     setState(() {
+  //       inputNotEmpty = actual;
+  //       if (!inputNotEmpty) {
+  //         userExpandOverride = false;
+  //       }
+  //     });
+  //   }
+  // }
 }
