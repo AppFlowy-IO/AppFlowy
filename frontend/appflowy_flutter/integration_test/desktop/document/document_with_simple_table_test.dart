@@ -406,6 +406,10 @@ void main() {
 
     final afterWidth = tableNode.width;
     expect(afterWidth, equals(beforeWidth));
+
+    final distributeColumnWidthsEvenly =
+        tableNode.attributes[SimpleTableBlockKeys.distributeColumnWidthsEvenly];
+    expect(distributeColumnWidthsEvenly, isTrue);
   });
 
   testWidgets('distribute columns evenly (2)', (tester) async {
@@ -431,6 +435,10 @@ void main() {
 
     final afterWidth = tableNode.width;
     expect(afterWidth, equals(beforeWidth));
+
+    final distributeColumnWidthsEvenly =
+        tableNode.attributes[SimpleTableBlockKeys.distributeColumnWidthsEvenly];
+    expect(distributeColumnWidthsEvenly, isTrue);
   });
 
   testWidgets('using option menu to set column width', (tester) async {
