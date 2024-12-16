@@ -1,4 +1,3 @@
-import { getDocument } from '@/application/slate-yjs/utils/yjsOperations';
 import { relativeRangeToSlateRange, slateRangeToRelativeRange } from '@/application/slate-yjs/utils/positions';
 import { CollabOrigin } from '@/application/types';
 import { Editor, Transforms } from 'slate';
@@ -6,6 +5,8 @@ import { ReactEditor } from 'slate-react';
 import * as Y from 'yjs';
 import { YjsEditor } from './withYjs';
 import { HistoryStackItem, RelativeRange } from '../types';
+
+import { getDocument } from '@/application/slate-yjs/utils/yjs';
 
 const LAST_SELECTION: WeakMap<Editor, RelativeRange | null> = new WeakMap();
 

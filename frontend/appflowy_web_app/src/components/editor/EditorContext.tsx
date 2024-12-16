@@ -3,9 +3,8 @@ import {
   FontLayout,
   LineHeightLayout,
   LoadView,
-  LoadViewMeta, UIVariant, View, CreatePagePayload,
+  LoadViewMeta, UIVariant, View, CreatePagePayload, TextCount,
 } from '@/application/types';
-import { TextCount } from '@/utils/word';
 import { createContext, useCallback, useContext, useState } from 'react';
 import { BaseRange, Range } from 'slate';
 

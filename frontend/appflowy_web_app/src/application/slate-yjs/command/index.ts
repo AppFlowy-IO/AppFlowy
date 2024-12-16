@@ -1,20 +1,11 @@
 import { LIST_BLOCK_TYPES } from '@/application/slate-yjs/command/const';
 import { YjsEditor } from '@/application/slate-yjs/plugins/withYjs';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
-import { beforePasted, findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 
 import {
-  addBlock,
-  dataStringTOJson,
-  deepCopyBlock,
-  deleteBlock,
-  executeOperations,
+  addBlock, beforePasted, findSlateEntryByBlockId,
   getAffectedBlocks,
-  getBlock,
   getBlockEntry,
-  getBlockIndex,
-  getParent,
-  getPreviousSiblingBlock,
   getSelectionOrThrow,
   getSelectionTexts,
   getSharedRoot,
@@ -25,14 +16,11 @@ import {
   handleMergeBlockForwardWithTxn,
   handleNonParagraphBlockBackspaceAndEnterWithTxn,
   handleRangeBreak,
-  indentBlock,
-  liftBlock,
   preventIndentNode,
   preventLiftNode,
   removeRangeWithTxn,
-  turnToBlock,
-  updateBlockParent,
-} from '@/application/slate-yjs/utils/yjsOperations';
+
+} from '@/application/slate-yjs/utils/editor';
 import {
   BlockData,
   BlockType,
@@ -47,6 +35,14 @@ import { renderDate } from '@/utils/time';
 import isEqual from 'lodash-es/isEqual';
 import { BasePoint, BaseRange, Editor, Element, Node, NodeEntry, Path, Range, Text, Transforms } from 'slate';
 import { ReactEditor } from 'slate-react';
+import {
+  dataStringTOJson, deepCopyBlock, deleteBlock,
+  executeOperations,
+  getBlock,
+  getBlockIndex, getParent,
+  getPreviousSiblingBlock, indentBlock, liftBlock, turnToBlock,
+  updateBlockParent,
+} from '@/application/slate-yjs/utils/yjs';
 
 export const CustomEditor = {
   // find entry from blockId

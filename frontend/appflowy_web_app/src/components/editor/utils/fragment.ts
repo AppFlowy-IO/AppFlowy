@@ -1,15 +1,6 @@
 import { TEXT_BLOCK_TYPES } from '@/application/slate-yjs/command/const';
 import { yDocToSlateContent } from '@/application/slate-yjs/utils/convert';
 import {
-  createBlock,
-  createEmptyDocument,
-  getBlock,
-  getChildrenArray,
-  getPageId,
-  getText,
-  updateBlockParent,
-} from '@/application/slate-yjs/utils/yjsOperations';
-import {
   AlignType,
   BlockData,
   BlockType,
@@ -20,8 +11,16 @@ import {
   YSharedRoot,
 } from '@/application/types';
 import { filter } from 'lodash-es';
+import {
+  createBlock, createEmptyDocument,
+  getBlock,
+  getChildrenArray,
+  getPageId,
+  getText,
+  updateBlockParent,
+} from '@/application/slate-yjs/utils/yjs';
 
-export function deserialize (body: HTMLElement, sharedRoot: YSharedRoot) {
+export function deserialize(body: HTMLElement, sharedRoot: YSharedRoot) {
   const pageId = getPageId(sharedRoot);
   const rootBlock = getBlock(pageId, sharedRoot);
 
@@ -32,7 +31,7 @@ export function deserialize (body: HTMLElement, sharedRoot: YSharedRoot) {
 
 const BLOCK_TAGS = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'pre', 'img', 'input'];
 
-function deserializeNode (node: Node, parentBlock: YBlock, sharedRoot: YSharedRoot) {
+function deserializeNode(node: Node, parentBlock: YBlock, sharedRoot: YSharedRoot) {
   let currentBlock = parentBlock;
 
   if (node.nodeType === Node.ELEMENT_NODE) {
@@ -132,7 +131,7 @@ function deserializeNode (node: Node, parentBlock: YBlock, sharedRoot: YSharedRo
   }
 }
 
-function isImageUrl (url: string): boolean {
+function isImageUrl(url: string): boolean {
   if (url.startsWith('https://unsplash.com/') || url.startsWith('https://images.unsplash.com/')) {
     return true;
   }
@@ -146,7 +145,7 @@ function isImageUrl (url: string): boolean {
   return false;
 }
 
-function processTodoList (element: HTMLElement, sharedRoot: YSharedRoot, parentBlock: YBlock, blockData: BlockData) {
+function processTodoList(element: HTMLElement, sharedRoot: YSharedRoot, parentBlock: YBlock, blockData: BlockData) {
 
   const checkboxBlock = createBlock(sharedRoot, { ty: BlockType.TodoListBlock, data: blockData });
 
@@ -159,14 +158,14 @@ function processTodoList (element: HTMLElement, sharedRoot: YSharedRoot, parentB
   }
 }
 
-function processImage (sharedRoot: YSharedRoot, parentBlock: YBlock, data: ImageBlockData) {
+function processImage(sharedRoot: YSharedRoot, parentBlock: YBlock, data: ImageBlockData) {
 
   const imageBlock = createBlock(sharedRoot, { ty: BlockType.ImageBlock, data });
 
   updateBlockParent(sharedRoot, imageBlock, parentBlock, getChildrenArray(parentBlock.get(YjsEditorKey.block_children), sharedRoot)?.length || 0);
 }
 
-function processList (parentEl: HTMLElement, sharedRoot: YSharedRoot, {
+function processList(parentEl: HTMLElement, sharedRoot: YSharedRoot, {
   ty,
   data,
   parent,
@@ -190,7 +189,7 @@ function processList (parentEl: HTMLElement, sharedRoot: YSharedRoot, {
   });
 }
 
-function getInlineAttributes (element: HTMLElement): Record<string, boolean | string | undefined> {
+function getInlineAttributes(element: HTMLElement): Record<string, boolean | string | undefined> {
   const attributes: Record<string, boolean | string | undefined> = {};
 
   if (element.style.fontWeight === 'bold' || element.tagName.toLowerCase() === 'strong') {
@@ -220,7 +219,7 @@ function getInlineAttributes (element: HTMLElement): Record<string, boolean | st
   return attributes;
 }
 
-function applyTextToDelta (block: YBlock, sharedRoot: YSharedRoot, text: string, attributes: object = {}) {
+function applyTextToDelta(block: YBlock, sharedRoot: YSharedRoot, text: string, attributes: object = {}) {
   const textId = block.get(YjsEditorKey.block_external_id);
   const yText = getText(textId, sharedRoot);
 
@@ -230,7 +229,7 @@ function applyTextToDelta (block: YBlock, sharedRoot: YSharedRoot, text: string,
   }
 }
 
-function mapToBlockData<T extends BlockData> (element: HTMLElement): T {
+function mapToBlockData<T extends BlockData>(element: HTMLElement): T {
   const data = {} as T;
 
   const tag = element.tagName.toLowerCase();
@@ -314,7 +313,7 @@ function mapToBlockData<T extends BlockData> (element: HTMLElement): T {
   return data;
 }
 
-function mapTagToBlockType (tag: string, el: HTMLElement): BlockType {
+function mapTagToBlockType(tag: string, el: HTMLElement): BlockType {
   switch (tag) {
     case 'p':
       return BlockType.Paragraph;
@@ -347,7 +346,7 @@ function mapTagToBlockType (tag: string, el: HTMLElement): BlockType {
   }
 }
 
-export function deserializeHTML (html: string) {
+export function deserializeHTML(html: string) {
   const parsed = new DOMParser().parseFromString(html, 'text/html');
   const doc = createEmptyDocument();
   const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;

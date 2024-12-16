@@ -1,6 +1,6 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
-import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
+import { getBlockEntry } from '@/application/slate-yjs/utils/editor';
 import { BlockType, HeadingBlockData } from '@/application/types';
 import { Popover } from '@/components/_shared/popover';
 import {
@@ -32,7 +32,7 @@ const popoverProps: Partial<PopoverProps> = {
   },
 };
 
-export function Heading () {
+export function Heading() {
   const { t } = useTranslation();
   const editor = useSlateStatic() as YjsEditor;
   const {
@@ -81,18 +81,18 @@ export function Heading () {
 
   const getActiveButton = useCallback(() => {
     if (isActivated(1)) {
-      return <Heading1Svg className={'text-fill-default'} />;
+      return <Heading1Svg className={'text-fill-default'}/>;
     }
 
     if (isActivated(2)) {
-      return <Heading2Svg className={'text-fill-default'} />;
+      return <Heading2Svg className={'text-fill-default'}/>;
     }
 
     if (isActivated(3)) {
-      return <Heading3Svg className={'text-fill-default'} />;
+      return <Heading3Svg className={'text-fill-default'}/>;
     }
 
-    return <Heading3Svg />;
+    return <Heading3Svg/>;
   }, [isActivated]);
 
   const [open, setOpen] = useState(false);
@@ -117,7 +117,7 @@ export function Heading () {
       >
         <div className={'flex items-center justify-center'}>
           {getActiveButton()}
-          <RightIcon className={'transform h-3 w-3 rotate-90 text-icon-on-toolbar opacity-80'} />
+          <RightIcon className={'transform h-3 w-3 rotate-90 text-icon-on-toolbar opacity-80'}/>
         </div>
 
       </ActionButton>
@@ -138,21 +138,21 @@ export function Heading () {
             tooltip={t('editor.heading1')}
             onClick={toHeading(1)}
           >
-            <Heading1Svg />
+            <Heading1Svg/>
           </ActionButton>
           <ActionButton
             active={isActivated(2)}
             tooltip={t('editor.heading2')}
             onClick={toHeading(2)}
           >
-            <Heading2Svg />
+            <Heading2Svg/>
           </ActionButton>
           <ActionButton
             active={isActivated(3)}
             tooltip={t('editor.heading3')}
             onClick={toHeading(3)}
           >
-            <Heading3Svg />
+            <Heading3Svg/>
           </ActionButton>
         </div>
       </Popover>}

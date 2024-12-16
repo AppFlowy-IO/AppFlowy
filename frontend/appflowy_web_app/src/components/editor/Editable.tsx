@@ -1,6 +1,6 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
-import { ensureBlockText } from '@/application/slate-yjs/utils/yjsOperations';
+import { ensureBlockText } from '@/application/slate-yjs/utils/editor';
 import { BlockType } from '@/application/types';
 import { BlockPopoverProvider } from '@/components/editor/components/block-popover/BlockPopoverContext';
 import { useDecorate } from '@/components/editor/components/blocks/code/useDecorate';

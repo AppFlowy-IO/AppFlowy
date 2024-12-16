@@ -1,7 +1,7 @@
-import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import { BlockType } from '@/application/types';
 import React, { createContext, useState, useCallback, useContext } from 'react';
 import { ReactEditor } from 'slate-react';
+import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/editor';
 
 export interface BlockPopoverContextType {
   type?: BlockType;
@@ -24,7 +24,7 @@ export const BlockPopoverContext = createContext<BlockPopoverContextType>({
   isOpen: () => false,
 });
 
-export function usePopoverContext () {
+export function usePopoverContext() {
   return useContext(BlockPopoverContext);
 }
 

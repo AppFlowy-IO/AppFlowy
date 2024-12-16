@@ -5,7 +5,7 @@ import {
   isAtBlockEnd,
   isEntireDocumentSelected,
   getBlockEntry,
-} from '@/application/slate-yjs/utils/yjsOperations';
+} from '@/application/slate-yjs/utils/editor';
 import { TextUnit, Range, EditorFragmentDeletionOptions } from 'slate';
 import { ReactEditor } from 'slate-react';
 import { TextDeleteOptions } from 'slate/dist/interfaces/transforms/text';

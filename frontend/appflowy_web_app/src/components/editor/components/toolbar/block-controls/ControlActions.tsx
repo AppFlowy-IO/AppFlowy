@@ -1,7 +1,6 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { CONTAINER_BLOCK_TYPES } from '@/application/slate-yjs/command/const';
-import { filterValidNodes, findSlateEntryByBlockId, getSelectedPaths } from '@/application/slate-yjs/utils/slateUtils';
 import { BlockType } from '@/application/types';
 import { usePanelContext } from '@/components/editor/components/panels/Panels.hooks';
 import { PanelType } from '@/components/editor/components/panels/PanelsContext';
@@ -16,8 +15,9 @@ import { ReactComponent as AddSvg } from '@/assets/add.svg';
 import { ReactComponent as DragSvg } from '@/assets/drag_element.svg';
 import { Transforms } from 'slate';
 import { ReactEditor, useSlateStatic } from 'slate-react';
+import { filterValidNodes, findSlateEntryByBlockId, getSelectedPaths } from '@/application/slate-yjs/utils/editor';
 
-function ControlActions ({ setOpenMenu, blockId }: {
+function ControlActions({ setOpenMenu, blockId }: {
   blockId: string | null;
   setOpenMenu?: (open: boolean) => void;
 }) {
@@ -116,7 +116,7 @@ function ControlActions ({ setOpenMenu, blockId }: {
           size={'small'}
           data-testid={'add-block'}
         >
-          <AddSvg />
+          <AddSvg/>
         </IconButton>
       </Tooltip>
       <Tooltip
@@ -130,7 +130,7 @@ function ControlActions ({ setOpenMenu, blockId }: {
           onClick={onClickOptions}
           size={'small'}
         >
-          <DragSvg />
+          <DragSvg/>
         </IconButton>
       </Tooltip>
       {blockId && openMenu && <ControlsMenu

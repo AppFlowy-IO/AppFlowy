@@ -1,6 +1,6 @@
 import { ReactEditor } from 'slate-react';
 import { Range } from 'slate';
-import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
+import { getBlockEntry } from '@/application/slate-yjs/utils/editor';
 import { YjsEditor } from '@/application/slate-yjs';
 import { isEmbedBlockTypes } from '@/application/slate-yjs/command/const';
 import { BlockType } from '@/application/types';

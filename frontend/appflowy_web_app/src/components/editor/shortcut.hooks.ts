@@ -2,7 +2,7 @@ import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { SOFT_BREAK_TYPES } from '@/application/slate-yjs/command/const';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
-import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
+import { getBlockEntry } from '@/application/slate-yjs/utils/editor';
 import { AlignType, BlockType } from '@/application/types';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
@@ -12,7 +12,7 @@ import { Editor, Text, Range, Transforms, BasePoint, Path } from 'slate';
 import { ReactEditor, useReadOnly } from 'slate-react';
 import smoothScrollIntoViewIfNeeded from 'smooth-scroll-into-view-if-needed';
 
-export function useShortcuts (editor: ReactEditor) {
+export function useShortcuts(editor: ReactEditor) {
   const yjsEditor = editor as YjsEditor;
   const { viewId } = useEditorContext();
   const readOnly = useReadOnly();
@@ -484,7 +484,7 @@ export function useShortcuts (editor: ReactEditor) {
   };
 }
 
-function findInlineTextNode (editor: Editor, point?: BasePoint) {
+function findInlineTextNode(editor: Editor, point?: BasePoint) {
   const [node] = editor.nodes({
     at: point,
     match: (n) => {

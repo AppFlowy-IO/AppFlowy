@@ -1,11 +1,7 @@
-import { Node, Text, Element } from 'slate';
+import { Element, Node, Text } from 'slate';
+import { TextCount } from '@/application/types';
 
-export interface TextCount {
-  words: number;
-  characters: number;
-}
-
-export function getTextCount (nodes: Node[]): TextCount {
+export function getTextCount(nodes: Node[]): TextCount {
   let text = '';
 
   const getAllText = (node: Node): void => {

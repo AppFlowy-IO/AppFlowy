@@ -1,6 +1,5 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
-import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
 import { BlockType } from '@/application/types';
 import { ReactComponent as DuplicateIcon } from '@/assets/duplicate.svg';
 import { ReactComponent as CopyLinkIcon } from '@/assets/link.svg';
@@ -16,6 +15,7 @@ import { PopoverProps } from '@mui/material/Popover';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReactEditor, useSlateStatic } from 'slate-react';
+import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/editor';
 
 const popoverProps: Partial<PopoverProps> = {
   transformOrigin: {

@@ -1,8 +1,7 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
-import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/slateUtils';
-import { getBlock, getBlockEntry, getSharedRoot, getText } from '@/application/slate-yjs/utils/yjsOperations';
+import { findSlateEntryByBlockId, getBlockEntry, getSharedRoot } from '@/application/slate-yjs/utils/editor';
 import {
   BlockData,
   BlockType,
@@ -13,6 +12,7 @@ import {
   YjsEditorKey,
 } from '@/application/types';
 import { Editor, Range, Transforms } from 'slate';
+import { getBlock, getText } from '@/application/slate-yjs/utils/yjs';
 
 enum SpecialSymbol {
   EM_DASH = '—',
