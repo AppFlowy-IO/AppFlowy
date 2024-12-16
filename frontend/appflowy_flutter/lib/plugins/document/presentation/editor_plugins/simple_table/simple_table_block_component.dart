@@ -48,6 +48,13 @@ class SimpleTableBlockKeys {
   // column widths
   // it's a `SimpleTableColumnWidthMap` value, {column_index: width, ...}
   static const String columnWidths = 'column_widths';
+
+  // distribute column widths evenly
+  // if the user distributed the column widths evenly before, the value should be true,
+  // and for the newly added column, using the width of the previous column.
+  // it's a bool value, default is false
+  static const String distributeColumnWidthsEvenly =
+      'distribute_column_widths_evenly';
 }
 
 Node simpleTableBlockNode({

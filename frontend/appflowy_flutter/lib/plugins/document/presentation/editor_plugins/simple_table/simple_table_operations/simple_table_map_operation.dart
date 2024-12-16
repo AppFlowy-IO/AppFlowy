@@ -167,6 +167,16 @@ extension TableMapOperation on Node {
         comparator: (iKey, index) => iKey >= index,
       );
 
+      final bool distributeColumnWidthsEvenly =
+          attributes[SimpleTableBlockKeys.distributeColumnWidthsEvenly] ??
+              false;
+
+      if (distributeColumnWidthsEvenly) {
+        // if the distribute column widths evenly flag is true,
+        // we should distribute the column widths evenly
+        columnWidths[index.toString()] = columnWidths.values.firstOrNull;
+      }
+
       return attributes
           .mergeValues(
             SimpleTableBlockKeys.columnColors,
