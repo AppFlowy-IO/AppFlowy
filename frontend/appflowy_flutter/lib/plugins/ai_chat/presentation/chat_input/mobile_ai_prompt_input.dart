@@ -197,6 +197,7 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
       final selectedView = await showPageSelectorSheet(
         context,
         filter: (view) =>
+            !view.isSpace &&
             view.layout.isDocumentView &&
             view.parentViewId != view.id &&
             !inputControlCubit.selectedViewIds.contains(view.id),

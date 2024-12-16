@@ -359,12 +359,12 @@ class EditorStyleCustomizer {
     final formula = attributes[InlineMathEquationKeys.formula];
     if (formula is String) {
       return WidgetSpan(
-        alignment: PlaceholderAlignment.middle,
+        style: after.style,
         child: InlineMathEquation(
           node: node,
           index: index,
           formula: formula,
-          textStyle: style().textStyleConfiguration.text,
+          textStyle: after.style ?? style().textStyleConfiguration.text,
         ),
       );
     }

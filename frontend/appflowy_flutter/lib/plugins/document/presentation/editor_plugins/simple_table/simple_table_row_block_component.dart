@@ -39,7 +39,7 @@ class SimpleTableRowBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  BlockComponentValidate get validate => (node) => node.children.isNotEmpty;
+  BlockComponentValidate get validate => (_) => true;
 }
 
 class SimpleTableRowBlockWidget extends BlockComponentStatefulWidget {
@@ -72,6 +72,10 @@ class _SimpleTableRowBlockWidgetState extends State<SimpleTableRowBlockWidget>
 
   @override
   Widget build(BuildContext context) {
+    if (node.children.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,

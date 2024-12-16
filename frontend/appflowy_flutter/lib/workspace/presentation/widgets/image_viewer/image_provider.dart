@@ -1,8 +1,8 @@
-import 'package:flutter/widgets.dart';
-
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
+import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:flutter/widgets.dart';
 
 /// Abstract class for providing images to the [InteractiveImageViewer].
 ///
@@ -54,7 +54,8 @@ class AFBlockImageProvider implements AFImageProvider {
   ]) {
     final image = getImage(index);
 
-    if (image.type == CustomImageType.local) {
+    if (image.type == CustomImageType.local &&
+        localPathRegex.hasMatch(image.url)) {
       return Image(image: image.toImageProvider());
     }
 
