@@ -47,6 +47,7 @@ enum SimpleTableMoreActionType {
           SimpleTableMoreAction.align,
           SimpleTableMoreAction.divider,
           SimpleTableMoreAction.setToPageWidth,
+          SimpleTableMoreAction.distributeColumnsEvenly,
           SimpleTableMoreAction.divider,
           SimpleTableMoreAction.duplicate,
           SimpleTableMoreAction.clearContents,

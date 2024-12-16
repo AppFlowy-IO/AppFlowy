@@ -210,6 +210,11 @@ extension TableNodeExtension on Node {
     return tableCellNode;
   }
 
+  /// Whether the current node is in a table.
+  bool get isInTable {
+    return parentTableNode != null;
+  }
+
   double get columnWidth {
     final parentTableNode = this.parentTableNode;
 

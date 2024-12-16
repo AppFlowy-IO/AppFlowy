@@ -21,13 +21,13 @@ KeyEventResult _backspaceInTableCellHandler(EditorState editorState) {
   }
 
   final onlyContainsOneChild = tableCellNode.children.length == 1;
-  final isParagraphNode =
-      tableCellNode.children.first.type == ParagraphBlockKeys.type;
-  final isCodeBlock = tableCellNode.children.first.type == CodeBlockKeys.type;
+  final firstChild = tableCellNode.children.first;
+  final isParagraphNode = firstChild.type == ParagraphBlockKeys.type;
+  final isCodeBlock = firstChild.type == CodeBlockKeys.type;
   if (onlyContainsOneChild &&
       selection.isCollapsed &&
       selection.end.offset == 0) {
-    if (isParagraphNode) {
+    if (isParagraphNode && firstChild.children.isEmpty) {
       return KeyEventResult.skipRemainingHandlers;
     } else if (isCodeBlock) {
       // replace the codeblock with a paragraph
