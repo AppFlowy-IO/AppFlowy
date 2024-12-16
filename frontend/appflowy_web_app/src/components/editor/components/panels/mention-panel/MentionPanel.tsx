@@ -101,7 +101,7 @@ export function MentionPanel() {
     void (async () => {
       try {
         const views = await loadViews();
-        const result = sortBy(uniqBy(flattenViews(views || []), 'view_id'), 'last_edited_time').reverse();
+        const result = sortBy(uniqBy(flattenViews(views || []).filter(view => !view.extra?.is_space), 'view_id'), 'last_edited_time').reverse();
 
         setViews(result);
       } catch (e) {
@@ -113,11 +113,10 @@ export function MentionPanel() {
 
   const filteredViews = useMemo(() => {
     return views.filter(view => {
-      if (view.view_id === viewId) return false;
       if (!searchText) return true;
       return view.name.toLowerCase().includes(searchText.toLowerCase());
     });
-  }, [searchText, viewId, views]);
+  }, [searchText, views]);
 
   const splicedViews = useMemo(() => {
     return filteredViews.slice(0, moreCount);
@@ -371,7 +370,7 @@ export function MentionPanel() {
               className={'justify-start scroll-m-2 min-h-[32px] hover:bg-fill-list-hover'}
               onClick={handleClickMore}
             >
-              {filteredViews.length - moreCount} {t('web.moreOptions')}
+              {filteredViews.length - moreCount} {t('document.mention.morePages')}
             </Button>}
         </div>
         {showDate && <div className={'flex flex-col gap-2'} data-option-categor={MentionTag.Date}>

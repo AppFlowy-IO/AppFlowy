@@ -18,7 +18,7 @@ import {
   useSelectionToolbarContext,
 } from '@/components/editor/components/toolbar/selection-toolbar/SelectionToolbar.hooks';
 import { Divider } from '@mui/material';
-import { Editor, Element } from 'slate';
+import { Editor, Element, Path } from 'slate';
 import Paragraph from './actions/Paragraph';
 import React, { useMemo } from 'react';
 import { useSlate } from 'slate-react';
@@ -26,8 +26,13 @@ import { useSlate } from 'slate-react';
 function ToolbarActions() {
   const editor = useSlate() as YjsEditor;
   const selection = editor.selection;
+  const {
+    visible: toolbarVisible,
+  } = useSelectionToolbarContext();
+
   const start = useMemo(() => selection ? editor.start(selection) : null, [editor, selection]);
   const end = useMemo(() => selection ? editor.end(selection) : null, [editor, selection]);
+
   const startBlock = useMemo(() => {
     if (!start) return null;
     try {
@@ -46,6 +51,7 @@ function ToolbarActions() {
   }, [editor, end]);
 
   const isAcrossBlock = useMemo(() => {
+    if (startBlock && endBlock && Path.equals(startBlock[1], endBlock[1])) return false;
     return startBlock?.[0].blockId !== endBlock?.[0].blockId;
   }, [endBlock, startBlock]);
 
@@ -94,9 +100,6 @@ function ToolbarActions() {
     />
     <Href/>
   </>;
-  const {
-    visible: toolbarVisible,
-  } = useSelectionToolbarContext();
 
   const groupFour = <><Align enabled={toolbarVisible}/></>;
 

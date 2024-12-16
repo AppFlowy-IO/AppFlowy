@@ -23,7 +23,7 @@ const getCursorOffset = () => {
   return range.startOffset;
 };
 
-function TitleEditable ({
+function TitleEditable({
   viewId,
   name,
   onUpdateName,
@@ -69,6 +69,22 @@ function TitleEditable ({
     textbox?.focus();
   };
 
+  useEffect(() => {
+    const contentBox = contentRef.current;
+
+    if (!contentBox) return;
+    contentBox.focus();
+    if (contentBox.textContent !== '') {
+      const range = document.createRange();
+      const sel = window.getSelection();
+
+      range.setStart(contentBox.childNodes[0], contentBox.textContent?.length || 0);
+      range.collapse(true);
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+    }
+  }, []);
+
   return (
     <div
       ref={contentRef}
@@ -78,6 +94,7 @@ function TitleEditable ({
       data-placeholder={t('menuAppHeader.defaultNewPageName')}
       contentEditable={true}
       aria-readonly={false}
+      autoFocus={true}
       onInput={() => {
         if (!contentRef.current) return;
         debounceUpdateName(contentRef.current.textContent || '');

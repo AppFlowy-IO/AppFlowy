@@ -166,6 +166,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const loadViewMeta = useCallback(async (viewId: string, callback?: (meta: View) => void) => {
     const view = findView(outline || [], viewId);
+    const deletedView = trashList?.find((v) => v.view_id === viewId);
+
+    if (deletedView) {
+      return Promise.reject(deletedView);
+    }
 
     if (!view) {
       return Promise.reject('View not found');
@@ -182,7 +187,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       ...view,
       database_relations: workspaceDatabases,
     };
-  }, [outline, workspaceDatabases]);
+  }, [trashList, outline, workspaceDatabases]);
 
   const toView = useCallback(async (viewId: string, blockId?: string, keepSearch?: boolean) => {
     let url = `/app/${currentWorkspaceId}/${viewId}`;

@@ -84,6 +84,11 @@ function FormulaLeaf({ formula, text, children }: {
       {isCursorBefore && <span data-slate-string="true">{
         `\u200B`
       }</span>}
+      <span
+        className={'absolute right-0 !text-transparent overflow-hidden'}
+      >
+      {children}
+    </span>
 
       <span
         ref={ref}
@@ -101,11 +106,6 @@ function FormulaLeaf({ formula, text, children }: {
           isInline
         />
         </Suspense>
-      </span>
-      <span
-        className={'absolute right-0 text-transparent w-[1px] overflow-hidden'}
-      >
-        {children}
       </span>
       {
         open && <FormulaPopover
