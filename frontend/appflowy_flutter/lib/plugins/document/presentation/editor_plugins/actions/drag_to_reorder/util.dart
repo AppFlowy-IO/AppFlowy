@@ -38,9 +38,16 @@ Future<void> dragToMoveNode(
   // Determine the new path based on drop position
   // For VerticalPosition.top, we keep the target node's path
   if (verticalPosition == VerticalPosition.bottom) {
-    newPath = horizontalPosition == HorizontalPosition.left
-        ? newPath.next // Insert after target node
-        : newPath.child(0); // Insert as first child of target node
+    if (horizontalPosition == HorizontalPosition.left) {
+      newPath = newPath.next;
+      final node = editorState.document.nodeAtPath(newPath);
+      if (node == null) {
+        // if node is null, it means the node is the last one of the document.
+        newPath = targetNode.path;
+      }
+    } else {
+      newPath = newPath.child(0);
+    }
   }
 
   // Check if the drop should be ignored

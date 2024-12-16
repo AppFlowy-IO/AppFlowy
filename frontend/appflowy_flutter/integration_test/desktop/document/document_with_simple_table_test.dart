@@ -532,6 +532,27 @@ void main() {
     expect(selection2!.start.path, [0, 0, 0, 0]);
     expect(selection2.end.path, [0, 0, 0, 0]);
   });
+
+  testWidgets('shift+enter to insert a new line in table', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+
+    await tester.simulateKeyEvent(
+      LogicalKeyboardKey.enter,
+      isShiftPressed: true,
+    );
+    await tester.pumpAndSettle();
+
+    final editorState = tester.editor.getCurrentEditorState();
+    final node = editorState.document.nodeAtPath([0, 0, 0])!;
+    expect(node.children.length, 1);
+  });
 }
 
 extension on WidgetTester {
