@@ -459,13 +459,31 @@
       "namespace": {
         "description": "سيتم تطبيق هذا التغيير على جميع الصفحات المنشورة الموجودة على مساحة الاسم هذه بشكل فوري",
         "tooltip": "نحن نحتفظ بالحق في إزالة أي مساحات أسماء غير مناسبة",
+        "updateExistingNamespace": "تحديث مساحة الاسم الحالية",
+        "upgradeToPro": "قم بالترقية إلى الخطة الاحترافية لتعيين الصفحة الرئيسية",
+        "redirectToPayment": "إعادة التوجيه إلى صفحة الدفع...",
         "onlyWorkspaceOwnerCanSetHomePage": "يمكن فقط لمالك مساحة العمل تعيين الصفحة الرئيسية",
         "pleaseAskOwnerToSetHomePage": "يرجى طلب الترقية إلى الخطة الاحترافية من مالك مساحة العمل"
       },
       "publishedPage": {
-        "emptyHinText": "ليس لديك صفحات منشورة في مساحة العمل هذه"
+        "title": "جميع الصفحات المنشورة",
+        "description": "إدارة صفحاتك المنشورة",
+        "page": "صفحة",
+        "pathName": "اسم المسار",
+        "date": "تاريخ النشر",
+        "emptyHinText": "ليس لديك صفحات منشورة في مساحة العمل هذه",
+        "noPublishedPages": "لا توجد صفحات منشورة",
+        "settings": "نشر الإعدادات",
+        "clickToOpenPageInApp": "فتح الصفحة في التطبيق",
+        "clickToOpenPageInBrowser": "فتح الصفحة في المتصفح"
       },
       "error": {
+        "failedToGeneratePaymentLink": "فشل في إنشاء رابط الدفع لخطة الاحترافية",
+        "failedToUpdateNamespace": "فشل في تحديث مساحة الاسم",
+        "proPlanLimitation": "يجب عليك الترقية إلى الخطة الاحترافية لتحديث مساحة الاسم",
+        "namespaceAlreadyInUse": "تم أخذ مساحة الاسم بالفعل، يرجى تجربة مساحة اسم أخرى",
+        "invalidNamespace": "مساحة اسم غير صالحة، يرجى تجربة مساحة اسم أخرى",
+        "namespaceLengthAtLeast2Characters": "يجب أن تكون مساحة الاسم بطول حرفين على الأقل",
         "onlyWorkspaceOwnerCanUpdateNamespace": "يمكن فقط لمالك مساحة العمل تحديث مساحة الاسم",
         "onlyWorkspaceOwnerCanRemoveHomepage": "لا يمكن إلا لمالك مساحة العمل إزالة الصفحة الرئيسية",
         "publishPermissionDenied": "يمكن فقط لمالك مساحة العمل أو ناشر الصفحة إدارة إعدادات النشر"
