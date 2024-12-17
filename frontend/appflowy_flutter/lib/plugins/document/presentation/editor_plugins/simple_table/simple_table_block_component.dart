@@ -201,8 +201,17 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
 
     if (UniversalPlatform.isDesktop) {
       child = Transform.translate(
-        offset: const Offset(
+        offset: Offset(
           -SimpleTableConstants.tableLeftPadding,
+          0,
+        ),
+        child: child,
+      );
+    } else if (UniversalPlatform.isMobile) {
+      child = Transform.translate(
+        offset: const Offset(
+          // todo: don't use magic number here.
+          -12,
           0,
         ),
         child: child,

@@ -127,7 +127,9 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
           if (editorState.editable) ...[
             if (node.columnIndex == 0)
               Positioned(
-                top: 0,
+                top: node.rowIndex == 0
+                    ? SimpleTableConstants.tableHitTestTopPadding
+                    : 0,
                 bottom: 0,
                 left: -SimpleTableConstants.tableLeftPadding,
                 child: _buildRowMoreActionButton(),
@@ -140,8 +142,9 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
               ),
             Positioned(
               right: 0,
-              top:
-                  node.rowIndex == 0 ? SimpleTableConstants.tableTopPadding : 0,
+              top: node.rowIndex == 0
+                  ? SimpleTableConstants.tableHitTestTopPadding
+                  : 0,
               bottom: 0,
               child: SimpleTableColumnResizeHandle(
                 node: node,
@@ -163,7 +166,12 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       //  column action button is not clickable.
       // issue: https://github.com/flutter/flutter/issues/75747
       padding: EdgeInsets.only(
-        top: node.rowIndex == 0 ? SimpleTableConstants.tableTopPadding : 0,
+        top: node.rowIndex == 0
+            ? SimpleTableConstants.tableHitTestTopPadding
+            : 0,
+        left: node.columnIndex == 0
+            ? SimpleTableConstants.tableHitTestLeftPadding
+            : 0,
       ),
       // TODO(Lucas): find a better way to handle the multiple value listenable builder
       // There's flutter pub can do that.
@@ -239,6 +247,7 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     final rowIndex = node.rowIndex;
 
     return SimpleTableMoreActionMenu(
+      tableCellNode: node,
       index: rowIndex,
       type: SimpleTableMoreActionType.row,
     );
@@ -248,6 +257,7 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     final columnIndex = node.columnIndex;
 
     return SimpleTableMoreActionMenu(
+      tableCellNode: node,
       index: columnIndex,
       type: SimpleTableMoreActionType.column,
     );

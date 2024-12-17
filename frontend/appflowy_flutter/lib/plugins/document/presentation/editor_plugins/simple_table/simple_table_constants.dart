@@ -175,21 +175,24 @@ class SimpleTableConstants {
 
   static const defaultRowHeight = 36.0;
 
-  static const tableTopPadding = 8.0;
-  static const tableLeftPadding = 8.0;
+  static double get tableHitTestTopPadding =>
+      UniversalPlatform.isDesktop ? 8.0 : 24.0;
+  static double get tableHitTestLeftPadding =>
+      UniversalPlatform.isDesktop ? 0.0 : 24.0;
+  static double get tableLeftPadding => UniversalPlatform.isDesktop ? 8.0 : 0.0;
 
   static const tableBottomPadding =
       addRowButtonHeight + 3 * addRowButtonPadding;
   static const tableRightPadding =
       addColumnButtonWidth + 2 * SimpleTableConstants.addColumnButtonPadding;
 
-  static const tablePadding = EdgeInsets.only(
-    // don't add padding to the top of the table, the first row will have padding
-    //  to make the column action button clickable.
-    bottom: tableBottomPadding,
-    left: tableLeftPadding,
-    right: tableRightPadding,
-  );
+  static EdgeInsets get tablePadding => EdgeInsets.only(
+        // don't add padding to the top of the table, the first row will have padding
+        //  to make the column action button clickable.
+        bottom: tableBottomPadding,
+        left: tableLeftPadding,
+        right: tableRightPadding,
+      );
 
   static double get tablePageOffset =>
       EditorStyleCustomizer.optionMenuWidth + 12;
@@ -242,6 +245,10 @@ class SimpleTableConstants {
 
   /// Enable the drag to expand the table
   static const enableDragToExpandTable = false;
+
+  /// Action sheet hit test area on Mobile
+  static const rowActionSheetHitTestAreaWidth = 24.0;
+  static const columnActionSheetHitTestAreaHeight = 24.0;
 }
 
 enum SimpleTableBorderRenderType {
