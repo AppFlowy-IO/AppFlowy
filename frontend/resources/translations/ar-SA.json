@@ -688,7 +688,11 @@
       "editTooltip": "اضغط لبدء تحرير ربط المفتاح",
       "keybindings": {
         "toggleToDoList": "التبديل إلى قائمة المهام",
-        "insertNewParagraphInCodeblock": "إدراج فقرة جديدة"
+        "insertNewParagraphInCodeblock": "إدراج فقرة جديدة",
+        "selectAllCodeblock": "حدد الكل",
+        "indentLineCodeblock": "أدخل فراغين فاصلين في بداية السطر",
+        "outdentLineCodeblock": "حذف فراغين فاصلين في بداية السطر",
+        "twoSpacesCursorCodeblock": "إدراج فراغين فاصلين عند المؤشر"
       }
     },
     "comparePlanDialog": {
