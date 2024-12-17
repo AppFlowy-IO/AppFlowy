@@ -487,6 +487,12 @@
         "onlyWorkspaceOwnerCanUpdateNamespace": "يمكن فقط لمالك مساحة العمل تحديث مساحة الاسم",
         "onlyWorkspaceOwnerCanRemoveHomepage": "لا يمكن إلا لمالك مساحة العمل إزالة الصفحة الرئيسية",
         "setHomepageFailed": "فشل في تعيين الصفحة الرئيسية",
+        "namespaceTooLong": "مساحة الاسم طويلة جدًا، يرجى تجربة مساحة اسم أخرى",
+        "namespaceTooShort": "مساحة الاسم قصيرة جدًا، يرجى تجربة مساحة اسم أخرى",
+        "namespaceIsReserved": "تم حجز مساحة الاسم، يرجى تجربة مساحة اسم أخرى",
+        "updatePathNameFailed": "فشل في تحديث اسم المسار",
+        "removeHomePageFailed": "فشل في إزالة الصفحة الرئيسية",
+        "publishNameContainsInvalidCharacters": "يحتوي اسم المسار على أحرف غير صالحة، يرجى تجربة اسم مسار آخر",
         "publishPermissionDenied": "يمكن فقط لمالك مساحة العمل أو ناشر الصفحة إدارة إعدادات النشر"
       }
     },
