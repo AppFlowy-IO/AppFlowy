@@ -1586,6 +1586,9 @@
     "addField": "إضافة حقل",
     "userIcon": "رمز المستخدم"
   },
+  "pageStyle": {
+    "presets": "الإعدادات المسبقة"
+  },
   "gallery": {
     "resetZoom": "إعادة ضبط التكبير"
   }
