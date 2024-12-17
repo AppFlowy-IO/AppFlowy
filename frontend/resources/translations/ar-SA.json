@@ -493,6 +493,9 @@
         "updatePathNameFailed": "فشل في تحديث اسم المسار",
         "removeHomePageFailed": "فشل في إزالة الصفحة الرئيسية",
         "publishNameContainsInvalidCharacters": "يحتوي اسم المسار على أحرف غير صالحة، يرجى تجربة اسم مسار آخر",
+        "publishNameTooShort": "اسم المسار قصير جدًا، يرجى تجربة اسم مسار آخر",
+        "publishNameTooLong": "اسم المسار طويل جدًا، يرجى تجربة اسم مسار آخر",
+        "publishNameAlreadyInUse": "اسم المسار قيد الاستخدام بالفعل، يرجى تجربة اسم مسار آخر",
         "publishPermissionDenied": "يمكن فقط لمالك مساحة العمل أو ناشر الصفحة إدارة إعدادات النشر"
       }
     },
