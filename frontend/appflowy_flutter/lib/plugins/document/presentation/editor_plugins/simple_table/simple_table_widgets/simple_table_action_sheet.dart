@@ -1,3 +1,4 @@
+import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -68,7 +69,7 @@ class _SimpleTableActionSheetState extends State<SimpleTableActionSheet> {
     );
   }
 
-  void _onSelecting() {
+  void _onSelecting() async {
     // update the selecting row or column
     switch (widget.type) {
       case SimpleTableMoreActionType.column:
@@ -85,6 +86,26 @@ class _SimpleTableActionSheetState extends State<SimpleTableActionSheet> {
         editorState.selection = null;
       }
     });
+
+    // show the bottom sheet
+    await showMobileBottomSheet(
+      context,
+      showHeader: true,
+      title: widget.type.name,
+      showCloseButton: true,
+      showDragHandle: true,
+      showDivider: false,
+      builder: (context) => SimpleTableBottomSheet(
+        type: widget.type,
+        node: widget.node,
+      ),
+    );
+
+    // reset the selecting row or column
+    if (mounted) {
+      context.read<SimpleTableContext>().selectingRow.value = null;
+      context.read<SimpleTableContext>().selectingColumn.value = null;
+    }
   }
 
   void _onUpdateShowingMenu() {

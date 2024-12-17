@@ -249,6 +249,11 @@ class SimpleTableConstants {
   /// Action sheet hit test area on Mobile
   static const rowActionSheetHitTestAreaWidth = 24.0;
   static const columnActionSheetHitTestAreaHeight = 24.0;
+
+  static const actionSheetQuickActionSectionHeight = 44.0;
+  static const actionSheetInsertSectionHeight = 52.0;
+  static const actionSheetBIUSectionHeight = 44.0;
+  static const actionSheetNormalActionSectionHeight = 48.0;
 }
 
 enum SimpleTableBorderRenderType {
