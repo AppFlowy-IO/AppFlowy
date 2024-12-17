@@ -1,4 +1,26 @@
 # Release Notes
+## Version 0.7.7 - 09/12/2024
+### New Features
+- Added support "set to page width" and "distribute columns evenly" for table block
+- Added support for reordering column/row in table block
+- Added support inserting multiple lines in table block
+- Revamped the mention page interactions in AI chat page
+- Improve the AI referenced sources UI in AI chat page
+
+### Bug Fixes
+- Fixed an error when opening files in the database in local mode
+- Fixed arrow up/down navigation not working for selecting a language in code block
+- Fixed an issue where deleting multiple blocks using the drag button on the document page didn't work
+
+## Version 0.7.7 - 09/12/2024
+### Bug Fixes
+- Fixed sidebar menu resize regression
+- Fixed AI chat loading issues
+- Fixed inability to open local files in database
+- Fixed mentions remaining in notifications after removal from document
+- Fixed event card closing when clicking on empty space
+- Fixed keyboard shortcut issues
+
 ## Version 0.7.6 - 03/12/2024
 ### New Features
 - Revamped the simple table UI
