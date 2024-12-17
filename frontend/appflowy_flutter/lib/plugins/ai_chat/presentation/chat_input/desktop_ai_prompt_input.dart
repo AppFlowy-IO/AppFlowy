@@ -10,7 +10,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:universal_platform/universal_platform.dart';
 
 import '../layout_define.dart';
 import 'ai_prompt_buttons.dart';
@@ -510,15 +509,17 @@ class _PromptBottomActions extends StatelessWidget {
             children: [
               // predefinedFormatButton(),
               const Spacer(),
-              _selectSourcesButton(context),
-              const HSpace(
-                DesktopAIPromptSizes.actionBarButtonSpacing,
-              ),
+              if (state.aiType == AIType.appflowyAI) ...[
+                _selectSourcesButton(context),
+                const HSpace(
+                  DesktopAIPromptSizes.actionBarButtonSpacing,
+                ),
+              ],
               // _mentionButton(context),
               // const HSpace(
               //   DesktopAIPromptSizes.actionBarButtonSpacing,
               // ),
-              if (UniversalPlatform.isDesktop && state.supportChatWithFile) ...[
+              if (state.supportChatWithFile) ...[
                 _attachmentButton(context),
                 const HSpace(
                   DesktopAIPromptSizes.actionBarButtonSpacing,
