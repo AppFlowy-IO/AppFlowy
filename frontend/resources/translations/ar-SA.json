@@ -684,6 +684,11 @@
         "descriptionPrefix": "يتم استخدام ارتباطات المفاتيح هذه حاليًا بواسطة ",
         "descriptionSuffix": "إذا قمت باستبدال ارتباط المفتاح هذا، فسيتم إزالته من {}.",
         "confirmLabel": "متابعة"
+      },
+      "editTooltip": "اضغط لبدء تحرير ربط المفتاح",
+      "keybindings": {
+        "toggleToDoList": "التبديل إلى قائمة المهام",
+        "insertNewParagraphInCodeblock": "إدراج فقرة جديدة"
       }
     },
     "comparePlanDialog": {
