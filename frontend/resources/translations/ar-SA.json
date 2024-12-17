@@ -570,7 +570,20 @@
         "title": "اتجاه النص",
         "leftToRight": "من اليسار إلى اليمين",
         "rightToLeft": "من اليمين إلى اليسار",
-        "auto": "آلي"
+        "auto": "آلي",
+        "enableRTLItems": "تمكين عناصر شريط أدوات RTL"
+      },
+      "layoutDirection": {
+        "title": "اتجاه التخطيط",
+        "leftToRight": "من اليسار إلى اليمين",
+        "rightToLeft": "من اليمين إلى اليسار"
+      },
+      "dateTime": {
+        "title": "التاريخ والوقت",
+        "example": "{} في {} ({})",
+        "dateFormat": {
+          "label": "تنسيق التاريخ"
+        }
       }
     },
     "menu": {
