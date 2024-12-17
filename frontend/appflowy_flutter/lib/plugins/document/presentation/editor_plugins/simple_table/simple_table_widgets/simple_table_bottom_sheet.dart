@@ -2,7 +2,9 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 
 // Note: This widget is only used for mobile.
 class SimpleTableBottomSheet extends StatelessWidget {
@@ -17,9 +19,13 @@ class SimpleTableBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
-        SimpleTableQuickActions(),
+        // copy, cut, paste, delete
+        const SimpleTableQuickActions(),
+        const VSpace(12),
+        // insert row, insert column
+        SimpleTableInsertActions(type: type),
       ],
     );
   }
@@ -42,7 +48,7 @@ enum SimpleTableQuickActionType {
       };
 
   // todo: i18n
-  String get i18n => switch (this) {
+  String get name => switch (this) {
         copy => 'Copy',
         cut => 'Cut',
         paste => 'Paste',
@@ -104,19 +110,34 @@ class SimpleTableInsertActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       height: SimpleTableConstants.actionSheetInsertSectionHeight,
       child: switch (type) {
-        SimpleTableMoreActionType.row => Row(
+        SimpleTableMoreActionType.row => const Row(
             children: [
-              SimpleTableInsertAction(type: SimpleTableMoreAction.insertAbove),
-              SimpleTableInsertAction(type: SimpleTableMoreAction.insertBelow),
+              SimpleTableInsertAction(
+                type: SimpleTableMoreAction.insertAbove,
+                enableLeftBorder: true,
+              ),
+              HSpace(2),
+              SimpleTableInsertAction(
+                type: SimpleTableMoreAction.insertBelow,
+                enableRightBorder: true,
+              ),
             ],
           ),
-        SimpleTableMoreActionType.column => Row(
+        SimpleTableMoreActionType.column => const Row(
             children: [
-              SimpleTableInsertAction(type: SimpleTableMoreAction.insertLeft),
-              SimpleTableInsertAction(type: SimpleTableMoreAction.insertRight),
+              SimpleTableInsertAction(
+                type: SimpleTableMoreAction.insertLeft,
+                enableLeftBorder: true,
+              ),
+              HSpace(2),
+              SimpleTableInsertAction(
+                type: SimpleTableMoreAction.insertRight,
+                enableRightBorder: true,
+              ),
             ],
           ),
       },
@@ -128,22 +149,57 @@ class SimpleTableInsertAction extends StatelessWidget {
   const SimpleTableInsertAction({
     super.key,
     required this.type,
+    this.enableLeftBorder = false,
+    this.enableRightBorder = false,
   });
 
   final SimpleTableMoreAction type;
+  final bool enableLeftBorder;
+  final bool enableRightBorder;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: AnimatedGestureDetector(
-        child: Column(
-          children: [
-            FlowySvg(type.icon),
-            Text(type.i18n),
-          ],
+      child: DecoratedBox(
+        decoration: ShapeDecoration(
+          // todo: replace with theme color
+          color: Colors.red,
+          shape: _buildBorder(),
         ),
-        onTapUp: () {},
+        child: AnimatedGestureDetector(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FlowySvg(type.leftIconSvg, size: const Size.square(24)),
+              FlowyText(
+                type.name,
+                fontSize: 12,
+                figmaLineHeight: 16,
+              ),
+            ],
+          ),
+          onTapUp: () {},
+        ),
       ),
     );
+  }
+
+  RoundedRectangleBorder _buildBorder() {
+    if (enableLeftBorder) {
+      return const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12),
+          bottomLeft: Radius.circular(12),
+        ),
+      );
+    } else if (enableRightBorder) {
+      return const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(12),
+          bottomRight: Radius.circular(12),
+        ),
+      );
+    }
+    return const RoundedRectangleBorder();
   }
 }
