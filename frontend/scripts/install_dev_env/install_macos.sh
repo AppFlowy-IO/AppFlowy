@@ -86,7 +86,7 @@ cargo install --force cargo-make
 
 # Install duckscript
 printMessage "Installing duckscript."
-cargo install --force duckscript_cli
+cargo install --force --locked duckscript_cli
 
 # Check prerequisites
 printMessage "Checking prerequisites."

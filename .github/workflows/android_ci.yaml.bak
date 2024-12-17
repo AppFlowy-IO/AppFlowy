@@ -152,7 +152,7 @@ jobs:
           rustup target install aarch64-linux-android
           rustup target install x86_64-linux-android
           rustup target add armv7-linux-androideabi
-          cargo install --force duckscript_cli
+          cargo install --force --locked duckscript_cli
           cargo install cargo-ndk
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub

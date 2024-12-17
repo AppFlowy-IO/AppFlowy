@@ -39,8 +39,8 @@ RUN dart pub global activate protoc_plugin 21.1.2
 # Install build dependencies for AppFlowy using pacman
 RUN sudo pacman -S --needed --noconfirm jemalloc git libkeybinder3 sqlite clang rsync libnotify rocksdb zstd mpv
 RUN sudo ln -s /usr/bin/sha1sum /usr/bin/shasum
-RUN source ~/.cargo/env && cargo install cargo-make cargo-binstall
-RUN source ~/.cargo/env && cargo binstall duckscript_cli -y
+RUN source ~/.cargo/env && cargo install cargo-make cargo-binstall --locked
+RUN source ~/.cargo/env && cargo binstall duckscript_cli --locked -y
 
 # Build AppFlowy
 COPY . /appflowy
