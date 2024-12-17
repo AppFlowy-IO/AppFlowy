@@ -127,6 +127,8 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
           if (editorState.editable) ...[
             if (node.columnIndex == 0)
               Positioned(
+                // if the cell is in the first row, add padding to the top of the cell
+                // to make the row action button clickable.
                 top: node.rowIndex == 0
                     ? SimpleTableConstants.tableHitTestTopPadding
                     : 0,
@@ -136,7 +138,9 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
               ),
             if (node.rowIndex == 0)
               Positioned(
-                left: 0,
+                left: node.columnIndex == 0
+                    ? SimpleTableConstants.tableHitTestLeftPadding
+                    : 0,
                 right: 0,
                 child: _buildColumnMoreActionButton(),
               ),
