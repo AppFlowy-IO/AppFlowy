@@ -496,13 +496,43 @@
         "publishNameTooShort": "اسم المسار قصير جدًا، يرجى تجربة اسم مسار آخر",
         "publishNameTooLong": "اسم المسار طويل جدًا، يرجى تجربة اسم مسار آخر",
         "publishNameAlreadyInUse": "اسم المسار قيد الاستخدام بالفعل، يرجى تجربة اسم مسار آخر",
-        "publishPermissionDenied": "يمكن فقط لمالك مساحة العمل أو ناشر الصفحة إدارة إعدادات النشر"
+        "namespaceContainsInvalidCharacters": "تحتوي مساحة الاسم على أحرف غير صالحة، يرجى تجربة مساحة اسم أخرى",
+        "publishPermissionDenied": "يمكن فقط لمالك مساحة العمل أو ناشر الصفحة إدارة إعدادات النشر",
+        "publishNameCannotBeEmpty": "لا يمكن أن يكون اسم المسار فارغًا، يرجى تجربة اسم مسار آخر"
+      },
+      "success": {
+        "namespaceUpdated": "تم تحديث مساحة الاسم بنجاح",
+        "setHomepageSuccess": "تم تعيين الصفحة الرئيسية بنجاح",
+        "updatePathNameSuccess": "تم تحديث اسم المسار بنجاح",
+        "removeHomePageSuccess": "تم إزالة الصفحة الرئيسية بنجاح"
+      }
+    },
+    "accountPage": {
+      "menuLabel": "حسابي",
+      "title": "حسابي",
+      "general": {
+        "title": "اسم الحساب وصورة الملف الشخصي",
+        "changeProfilePicture": "تغيير صورة الملف الشخصي"
+      },
+      "email": {
+        "title": "بريد إلكتروني",
+        "actions": {
+          "change": "تغيير البريد الإلكتروني"
+        }
+      },
+      "login": {
+        "title": "تسجيل الدخول إلى الحساب",
+        "loginLabel": "تسجيل الدخول",
+        "logoutLabel": "تسجيل الخروج"
       }
     },
     "workspacePage": {
       "menuLabel": "مساحة العمل",
       "title": "مساحة العمل",
       "description": "قم بتخصيص مظهر مساحة العمل الخاصة بك، والسمة، والخط، وتخطيط النص، وتنسيق التاريخ/الوقت، واللغة.",
+      "workspaceName": {
+        "title": "اسم مساحة العمل"
+      },
       "appearance": {
         "description": "قم بتخصيص مظهر مساحة العمل الخاصة بك والموضوع والخط وتخطيط النص والتاريخ والوقت واللغة."
       },
