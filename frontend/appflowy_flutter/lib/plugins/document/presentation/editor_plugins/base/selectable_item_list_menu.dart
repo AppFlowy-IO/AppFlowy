@@ -29,6 +29,7 @@ class SelectableItemListMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScrollablePositionedList.builder(
+      physics: const ClampingScrollPhysics(),
       shrinkWrap: shrinkWrap,
       itemCount: items.length,
       itemScrollController: controller,
