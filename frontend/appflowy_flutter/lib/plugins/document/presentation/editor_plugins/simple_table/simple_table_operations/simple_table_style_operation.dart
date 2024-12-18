@@ -252,11 +252,6 @@ extension TableOptionOperation on EditorState {
   Future<void> setColumnWidthToPageWidth({
     required Node tableNode,
   }) async {
-    // Disable in mobile
-    if (UniversalPlatform.isMobile) {
-      return;
-    }
-
     final columnLength = tableNode.columnLength;
     double? pageWidth = tableNode.renderBox?.size.width;
     if (pageWidth == null) {

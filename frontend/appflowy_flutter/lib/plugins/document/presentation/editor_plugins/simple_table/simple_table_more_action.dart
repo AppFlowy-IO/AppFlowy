@@ -71,7 +71,7 @@ enum SimpleTableMoreActionType {
             SimpleTableMoreAction.distributeColumnsEvenly,
           ],
           [
-            SimpleTableMoreAction.duplicate,
+            SimpleTableMoreAction.duplicateRow,
             SimpleTableMoreAction.clearContents,
           ],
         ];
@@ -83,7 +83,7 @@ enum SimpleTableMoreActionType {
             SimpleTableMoreAction.distributeColumnsEvenly,
           ],
           [
-            SimpleTableMoreAction.duplicate,
+            SimpleTableMoreAction.duplicateColumn,
             SimpleTableMoreAction.clearContents,
           ],
         ];
@@ -122,7 +122,11 @@ enum SimpleTableMoreAction {
   enableHeaderRow,
   setToPageWidth,
   distributeColumnsEvenly,
-  divider;
+  divider,
+
+  // this two actions are only available on mobile
+  duplicateRow,
+  duplicateColumn;
 
   String get name {
     return switch (this) {
@@ -153,6 +157,11 @@ enum SimpleTableMoreAction {
       SimpleTableMoreAction.distributeColumnsEvenly => LocaleKeys
           .document_plugins_simpleTable_moreActions_distributeColumnsWidth
           .tr(),
+      SimpleTableMoreAction.duplicateRow =>
+        LocaleKeys.document_plugins_simpleTable_moreActions_duplicateRow.tr(),
+      SimpleTableMoreAction.duplicateColumn => LocaleKeys
+          .document_plugins_simpleTable_moreActions_duplicateColumn
+          .tr(),
       SimpleTableMoreAction.divider => throw UnimplementedError(),
     };
   }
@@ -173,6 +182,8 @@ enum SimpleTableMoreAction {
       SimpleTableMoreAction.enableHeaderColumn =>
         FlowySvgs.table_header_column_s,
       SimpleTableMoreAction.enableHeaderRow => FlowySvgs.table_header_row_s,
+      SimpleTableMoreAction.duplicateRow => FlowySvgs.m_table_duplicate_s,
+      SimpleTableMoreAction.duplicateColumn => FlowySvgs.m_table_duplicate_s,
       SimpleTableMoreAction.divider =>
         throw UnsupportedError('divider icon is not supported'),
       SimpleTableMoreAction.align =>

@@ -98,6 +98,7 @@ class _SimpleTableActionSheetState extends State<SimpleTableActionSheet> {
       builder: (context) => SimpleTableBottomSheet(
         type: widget.type,
         node: widget.node,
+        editorState: editorState,
       ),
     );
 

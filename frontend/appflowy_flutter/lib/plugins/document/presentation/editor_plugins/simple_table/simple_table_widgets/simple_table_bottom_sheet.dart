@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,10 +13,12 @@ class SimpleTableBottomSheet extends StatelessWidget {
     super.key,
     required this.type,
     required this.node,
+    required this.editorState,
   });
 
   final SimpleTableMoreActionType type;
   final Node node;
+  final EditorState editorState;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +34,7 @@ class SimpleTableBottomSheet extends StatelessWidget {
         SimpleTableActionButtons(
           type: type,
           tableCellNode: node,
+          editorState: editorState,
         ),
       ],
     );
@@ -209,10 +213,12 @@ class SimpleTableActionButtons extends StatelessWidget {
     super.key,
     required this.type,
     required this.tableCellNode,
+    required this.editorState,
   });
 
   final SimpleTableMoreActionType type;
   final Node tableCellNode;
+  final EditorState editorState;
 
   @override
   Widget build(BuildContext context) {
@@ -256,11 +262,16 @@ class SimpleTableActionButtons extends StatelessWidget {
             SimpleTableMoreAction.enableHeaderRow =>
               SimpleTableHeaderActionButton(
                 type: action,
+                onTap: (value) => _onActionTap(
+                  action,
+                  toggleHeaderValue: value,
+                ),
               ),
             _ => SimpleTableActionButton(
                 type: action,
                 enableTopBorder: index == 0,
                 enableBottomBorder: index == actionGroup.length - 1,
+                onTap: () => _onActionTap(action),
               ),
           },
         );
@@ -274,15 +285,58 @@ class SimpleTableActionButtons extends StatelessWidget {
 
     return widgets;
   }
+
+  void _onActionTap(
+    SimpleTableMoreAction action, {
+    bool toggleHeaderValue = false,
+  }) {
+    final tableNode = tableCellNode.parentTableNode;
+    if (tableNode == null) {
+      Log.error('unable to find table node when performing action: $action');
+      return;
+    }
+
+    switch (action) {
+      case SimpleTableMoreAction.enableHeaderColumn:
+        editorState.toggleEnableHeaderColumn(
+          tableNode: tableNode,
+          enable: toggleHeaderValue,
+        );
+      case SimpleTableMoreAction.enableHeaderRow:
+        editorState.toggleEnableHeaderRow(
+          tableNode: tableNode,
+          enable: toggleHeaderValue,
+        );
+      case SimpleTableMoreAction.distributeColumnsEvenly:
+        editorState.distributeColumnWidthToPageWidth(tableNode: tableNode);
+      case SimpleTableMoreAction.setToPageWidth:
+        editorState.setColumnWidthToPageWidth(tableNode: tableNode);
+      case SimpleTableMoreAction.duplicateRow:
+        editorState.duplicateRowInTable(
+          tableNode,
+          tableCellNode.rowIndex,
+        );
+      case SimpleTableMoreAction.duplicateColumn:
+        editorState.duplicateColumnInTable(
+          tableNode,
+          tableCellNode.columnIndex,
+        );
+      default:
+        assert(false, 'Unsupported action: $action');
+        break;
+    }
+  }
 }
 
 class SimpleTableHeaderActionButton extends StatefulWidget {
   const SimpleTableHeaderActionButton({
     super.key,
     required this.type,
+    this.onTap,
   });
 
   final SimpleTableMoreAction type;
+  final void Function(bool value)? onTap;
 
   @override
   State<SimpleTableHeaderActionButton> createState() =>
@@ -322,6 +376,8 @@ class _SimpleTableHeaderActionButtonState
     setState(() {
       value = !value;
     });
+
+    widget.onTap?.call(value);
   }
 }
 
@@ -356,10 +412,10 @@ class SimpleTableActionButton extends StatelessWidget {
           children: [
             const HSpace(16),
             Padding(
-              padding: const EdgeInsets.all(3.0),
+              padding: const EdgeInsets.all(1.0),
               child: FlowySvg(
                 type.leftIconSvg,
-                size: const Size.square(18),
+                size: const Size.square(20),
               ),
             ),
             const HSpace(12),

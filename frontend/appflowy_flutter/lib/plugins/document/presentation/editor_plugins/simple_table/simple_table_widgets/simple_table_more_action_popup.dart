@@ -413,13 +413,13 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     switch (widget.type) {
       case SimpleTableMoreActionType.column:
         editorState.toggleEnableHeaderColumn(
-          table,
-          isEnableHeader.value,
+          tableNode: table,
+          enable: isEnableHeader.value,
         );
       case SimpleTableMoreActionType.row:
         editorState.toggleEnableHeaderRow(
-          table,
-          isEnableHeader.value,
+          tableNode: table,
+          enable: isEnableHeader.value,
         );
     }
 

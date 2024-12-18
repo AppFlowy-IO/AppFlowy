@@ -194,8 +194,9 @@ class SimpleTableConstants {
         right: tableRightPadding,
       );
 
-  static double get tablePageOffset =>
-      EditorStyleCustomizer.optionMenuWidth + 12;
+  static double get tablePageOffset => UniversalPlatform.isMobile
+      ? EditorStyleCustomizer.optionMenuWidth + 24
+      : EditorStyleCustomizer.optionMenuWidth + 12;
 
   // Add row button
   static const addRowButtonHeight = 16.0;
