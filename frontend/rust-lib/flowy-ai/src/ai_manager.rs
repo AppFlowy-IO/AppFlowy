@@ -102,6 +102,7 @@ impl AIManager {
     if self.local_ai_controller.is_running() {
       self.local_ai_controller.open_chat(chat_id);
     }
+
     Ok(())
   }
 
