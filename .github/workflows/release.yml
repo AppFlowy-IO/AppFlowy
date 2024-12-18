@@ -73,7 +73,7 @@ jobs:
         working-directory: frontend
         run: |
           vcpkg integrate install
-          cargo install --force cargo-make
+          cargo install --force --locked cargo-make
           cargo install --force --locked duckscript_cli
 
       - name: Build Windows app
@@ -158,7 +158,7 @@ jobs:
       - name: Install prerequisites
         working-directory: frontend
         run: |
-          cargo install --force cargo-make
+          cargo install --force --locked cargo-make
           cargo install --force --locked duckscript_cli
 
       - name: Build AppFlowy
@@ -256,7 +256,7 @@ jobs:
       - name: Install prerequisites
         working-directory: frontend
         run: |
-          cargo install --force cargo-make
+          cargo install --force --locked cargo-make
           cargo install --force --locked duckscript_cli
 
       - name: Build AppFlowy
@@ -370,7 +370,7 @@ jobs:
           sudo apt-get install keybinder-3.0
           sudo apt-get install -y alien libnotify-dev
           source $HOME/.cargo/env
-          cargo install --force cargo-make
+          cargo install --force --locked cargo-make
           cargo install --force --locked duckscript_cli
           rustup target add ${{ matrix.job.target }}
 
