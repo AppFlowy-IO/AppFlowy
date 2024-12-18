@@ -4,8 +4,8 @@ import { ReactComponent as EditIcon } from '@/assets/edit.svg';
 import { useTranslation } from 'react-i18next';
 import { createHotkey, createHotKeyLabel, HOT_KEY_NAME } from '@/utils/hotkeys';
 import Popover from '@mui/material/Popover';
-import NoteHeader from '@/components/app/quick-note/NoteHeader';
-import NoteListHeader from '@/components/app/quick-note/NoteListHeader';
+import NoteHeader from '@/components/quick-note/NoteHeader';
+import NoteListHeader from '@/components/quick-note/NoteListHeader';
 import { TransitionProps } from '@mui/material/transitions';
 
 const PAPER_SIZE = [480, 316];

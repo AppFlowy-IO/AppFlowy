@@ -19,8 +19,12 @@ function CheckboxIcon({ block, className }: { block: TodoListNode; className: st
 
     e.stopPropagation();
     e.preventDefault();
+    editor.collapse({
+      edge: 'end',
+    });
+
     CustomEditor.toggleTodoList(editor as YjsEditor, block.blockId, e.shiftKey);
-  }, [block.blockId, editor, readOnly]);
+  }, [block, editor, readOnly]);
 
   return (
     <span
