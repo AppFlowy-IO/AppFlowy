@@ -47,10 +47,7 @@ class _SimpleTableActionSheetState extends State<SimpleTableActionSheet> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        print('tap ${widget.type.name}, ${widget.index}');
-        _onSelecting();
-      },
+      onTap: _onSelecting,
       child: Container(
         color: Colors.green.withOpacity(0.5),
         height: widget.type == SimpleTableMoreActionType.column

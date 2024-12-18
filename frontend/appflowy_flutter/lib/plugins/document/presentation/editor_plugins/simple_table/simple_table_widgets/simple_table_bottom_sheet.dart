@@ -225,12 +225,12 @@ class SimpleTableActionButtons extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
-        children: _buildActions(),
+        children: _buildActions(context),
       ),
     );
   }
 
-  List<Widget> _buildActions() {
+  List<Widget> _buildActions(BuildContext context) {
     // the actions are grouped into different sections
     // we need to get the index of the table cell node
     // and the length of the columns and rows
@@ -258,12 +258,23 @@ class SimpleTableActionButtons extends StatelessWidget {
         widgets.add(
           // enable the corner border if the cell is the first or last in the group
           switch (action) {
-            SimpleTableMoreAction.enableHeaderColumn ||
+            SimpleTableMoreAction.enableHeaderColumn =>
+              SimpleTableHeaderActionButton(
+                type: action,
+                isEnabled: tableCellNode.isHeaderColumnEnabled,
+                onTap: (value) => _onActionTap(
+                  context,
+                  action: action,
+                  toggleHeaderValue: value,
+                ),
+              ),
             SimpleTableMoreAction.enableHeaderRow =>
               SimpleTableHeaderActionButton(
                 type: action,
+                isEnabled: tableCellNode.isHeaderRowEnabled,
                 onTap: (value) => _onActionTap(
-                  action,
+                  context,
+                  action: action,
                   toggleHeaderValue: value,
                 ),
               ),
@@ -271,7 +282,10 @@ class SimpleTableActionButtons extends StatelessWidget {
                 type: action,
                 enableTopBorder: index == 0,
                 enableBottomBorder: index == actionGroup.length - 1,
-                onTap: () => _onActionTap(action),
+                onTap: () => _onActionTap(
+                  context,
+                  action: action,
+                ),
               ),
           },
         );
@@ -287,7 +301,8 @@ class SimpleTableActionButtons extends StatelessWidget {
   }
 
   void _onActionTap(
-    SimpleTableMoreAction action, {
+    BuildContext context, {
+    required SimpleTableMoreAction action,
     bool toggleHeaderValue = false,
   }) {
     final tableNode = tableCellNode.parentTableNode;
@@ -338,16 +353,21 @@ class SimpleTableActionButtons extends StatelessWidget {
         assert(false, 'Unsupported action: $action');
         break;
     }
+
+    // close the action menu
+    Navigator.of(context).pop();
   }
 }
 
 class SimpleTableHeaderActionButton extends StatefulWidget {
   const SimpleTableHeaderActionButton({
     super.key,
+    required this.isEnabled,
     required this.type,
     this.onTap,
   });
 
+  final bool isEnabled;
   final SimpleTableMoreAction type;
   final void Function(bool value)? onTap;
 
@@ -359,6 +379,13 @@ class SimpleTableHeaderActionButton extends StatefulWidget {
 class _SimpleTableHeaderActionButtonState
     extends State<SimpleTableHeaderActionButton> {
   bool value = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    value = widget.isEnabled;
+  }
 
   @override
   Widget build(BuildContext context) {
