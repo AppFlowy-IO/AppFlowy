@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as TemplateIcon } from '@/assets/template.svg';
 import { useNavigate } from 'react-router-dom';
 import { ReactComponent as TrashIcon } from '@/assets/trash.svg';
-import { QuickNote } from '@/components/app/quick-note';
+import { QuickNote } from '@/components/quick-note';
 
 function SideBarBottom() {
   const { t } = useTranslation();
