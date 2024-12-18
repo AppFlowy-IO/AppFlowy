@@ -6,6 +6,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 // Note: This widget is only used for mobile.
 class SimpleTableBottomSheet extends StatelessWidget {
@@ -28,7 +29,11 @@ class SimpleTableBottomSheet extends StatelessWidget {
         const SimpleTableQuickActions(),
         const VSpace(12),
         // insert row, insert column
-        SimpleTableInsertActions(type: type),
+        SimpleTableInsertActions(
+          type: type,
+          tableCellNode: node,
+          editorState: editorState,
+        ),
         const VSpace(16),
         // action buttons
         SimpleTableActionButtons(
@@ -114,44 +119,60 @@ class SimpleTableInsertActions extends StatelessWidget {
   const SimpleTableInsertActions({
     super.key,
     required this.type,
+    required this.tableCellNode,
+    required this.editorState,
   });
 
   final SimpleTableMoreActionType type;
+  final Node tableCellNode;
+  final EditorState editorState;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       height: SimpleTableConstants.actionSheetInsertSectionHeight,
-      child: switch (type) {
-        SimpleTableMoreActionType.row => const Row(
-            children: [
-              SimpleTableInsertAction(
-                type: SimpleTableMoreAction.insertAbove,
-                enableLeftBorder: true,
-              ),
-              HSpace(2),
-              SimpleTableInsertAction(
-                type: SimpleTableMoreAction.insertBelow,
-                enableRightBorder: true,
-              ),
-            ],
-          ),
-        SimpleTableMoreActionType.column => const Row(
-            children: [
-              SimpleTableInsertAction(
-                type: SimpleTableMoreAction.insertLeft,
-                enableLeftBorder: true,
-              ),
-              HSpace(2),
-              SimpleTableInsertAction(
-                type: SimpleTableMoreAction.insertRight,
-                enableRightBorder: true,
-              ),
-            ],
-          ),
-      },
+      child: _buildAction(),
     );
+  }
+
+  Widget _buildAction() {
+    return switch (type) {
+      SimpleTableMoreActionType.row => Row(
+          children: [
+            SimpleTableInsertAction(
+              type: SimpleTableMoreAction.insertAbove,
+              enableLeftBorder: true,
+              editorState: editorState,
+              tableCellNode: tableCellNode,
+            ),
+            const HSpace(2),
+            SimpleTableInsertAction(
+              type: SimpleTableMoreAction.insertBelow,
+              enableRightBorder: true,
+              editorState: editorState,
+              tableCellNode: tableCellNode,
+            ),
+          ],
+        ),
+      SimpleTableMoreActionType.column => Row(
+          children: [
+            SimpleTableInsertAction(
+              type: SimpleTableMoreAction.insertLeft,
+              enableLeftBorder: true,
+              editorState: editorState,
+              tableCellNode: tableCellNode,
+            ),
+            const HSpace(2),
+            SimpleTableInsertAction(
+              type: SimpleTableMoreAction.insertRight,
+              enableRightBorder: true,
+              editorState: editorState,
+              tableCellNode: tableCellNode,
+            ),
+          ],
+        ),
+    };
   }
 }
 
@@ -159,13 +180,17 @@ class SimpleTableInsertAction extends StatelessWidget {
   const SimpleTableInsertAction({
     super.key,
     required this.type,
+    required this.editorState,
     this.enableLeftBorder = false,
     this.enableRightBorder = false,
+    required this.tableCellNode,
   });
 
   final SimpleTableMoreAction type;
   final bool enableLeftBorder;
   final bool enableRightBorder;
+  final EditorState editorState;
+  final Node tableCellNode;
 
   @override
   Widget build(BuildContext context) {
@@ -176,10 +201,17 @@ class SimpleTableInsertAction extends StatelessWidget {
           shape: _buildBorder(),
         ),
         child: AnimatedGestureDetector(
+          onTapUp: () => _onActionTap(context),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              FlowySvg(type.leftIconSvg, size: const Size.square(24)),
+              Padding(
+                padding: const EdgeInsets.all(1),
+                child: FlowySvg(
+                  type.leftIconSvg,
+                  size: const Size.square(22),
+                ),
+              ),
               FlowyText(
                 type.name,
                 fontSize: 12,
@@ -187,7 +219,6 @@ class SimpleTableInsertAction extends StatelessWidget {
               ),
             ],
           ),
-          onTapUp: () {},
         ),
       ),
     );
@@ -205,6 +236,43 @@ class SimpleTableInsertAction extends StatelessWidget {
         bottomRight: enableRightBorder ? radius : Radius.zero,
       ),
     );
+  }
+
+  void _onActionTap(BuildContext context) {
+    final simpleTableContext = context.read<SimpleTableContext>();
+    final tableNode = tableCellNode.parentTableNode;
+    if (tableNode == null) {
+      Log.error('unable to find table node when performing action: $type');
+      return;
+    }
+
+    switch (type) {
+      case SimpleTableMoreAction.insertAbove:
+        simpleTableContext.selectingRow.value = tableCellNode.rowIndex + 1;
+        editorState.insertRowInTable(
+          tableNode,
+          tableCellNode.rowIndex,
+        );
+      case SimpleTableMoreAction.insertBelow:
+        editorState.insertRowInTable(
+          tableNode,
+          tableCellNode.rowIndex + 1,
+        );
+      case SimpleTableMoreAction.insertLeft:
+        simpleTableContext.selectingColumn.value =
+            tableCellNode.columnIndex + 1;
+        editorState.insertColumnInTable(
+          tableNode,
+          tableCellNode.columnIndex,
+        );
+      case SimpleTableMoreAction.insertRight:
+        editorState.insertColumnInTable(
+          tableNode,
+          tableCellNode.columnIndex + 1,
+        );
+      default:
+        assert(false, 'Unsupported action: $type');
+    }
   }
 }
 

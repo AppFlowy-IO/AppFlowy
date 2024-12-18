@@ -93,10 +93,13 @@ class _SimpleTableActionSheetState extends State<SimpleTableActionSheet> {
       showCloseButton: true,
       showDragHandle: true,
       showDivider: false,
-      builder: (context) => SimpleTableBottomSheet(
-        type: widget.type,
-        node: widget.node,
-        editorState: editorState,
+      builder: (context) => Provider.value(
+        value: simpleTableContext,
+        child: SimpleTableBottomSheet(
+          type: widget.type,
+          node: widget.node,
+          editorState: editorState,
+        ),
       ),
     );
 
