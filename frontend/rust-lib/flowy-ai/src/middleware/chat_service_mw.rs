@@ -224,6 +224,18 @@ impl ChatCloudService for AICloudServiceMiddleware {
       .await
   }
 
+  async fn get_question_from_answer_id(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    answer_id: i64,
+  ) -> Result<ChatMessage, FlowyError> {
+    self
+      .cloud_service
+      .get_question_from_answer_id(workspace_id, chat_id, answer_id)
+      .await
+  }
+
   async fn get_related_message(
     &self,
     workspace_id: &str,

@@ -4,7 +4,10 @@ use crate::entities::{
 };
 use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
 use crate::notification::{chat_notification_builder, ChatNotification};
-use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessageTable};
+use crate::persistence::{
+  insert_chat_messages, select_chat_messages, select_message_where_match_reply_message_id,
+  ChatMessageTable,
+};
 use crate::stream_message::StreamMessage;
 use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{
@@ -495,6 +498,30 @@ impl Chat {
       Ok::<(), FlowyError>(())
     });
     Ok(())
+  }
+
+  pub async fn get_question_id_from_answer_id(
+    &self,
+    answer_message_id: i64,
+  ) -> Result<i64, FlowyError> {
+    let conn = self.user_service.sqlite_connection(self.uid)?;
+
+    let local_result = select_message_where_match_reply_message_id(conn, answer_message_id)?
+      .map(|message| message.message_id);
+
+    if let Some(message_id) = local_result {
+      return Ok(message_id);
+    }
+
+    let workspace_id = self.user_service.workspace_id()?;
+    let chat_id = self.chat_id.clone();
+    let cloud_service = self.chat_service.clone();
+
+    let question = cloud_service
+      .get_question_from_answer_id(&workspace_id, &chat_id, answer_message_id)
+      .await?;
+
+    Ok(question.message_id)
   }
 
   pub async fn get_related_question(

@@ -88,7 +88,7 @@ pub(crate) async fn regenerate_response_handler(
   ai_manager
     .stream_regenerate_response(
       &data.chat_id,
-      data.answer_message_id - 1,
+      data.answer_message_id,
       data.answer_stream_port,
     )
     .await?;
