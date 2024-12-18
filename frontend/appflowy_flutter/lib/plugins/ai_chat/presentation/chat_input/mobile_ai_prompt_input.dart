@@ -298,96 +298,25 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
   }
 }
 
-class _LeadingActions extends StatefulWidget {
+class _LeadingActions extends StatelessWidget {
   const _LeadingActions({
     required this.chatId,
     required this.textController,
-    // required this.onMention,
     required this.onUpdateSelectedSources,
   });
 
   final String chatId;
   final TextEditingController textController;
-  // final void Function() onMention;
   final void Function(List<String>) onUpdateSelectedSources;
-
-  @override
-  State<_LeadingActions> createState() => _LeadingActionsState();
-}
-
-class _LeadingActionsState extends State<_LeadingActions> {
-  // bool inputNotEmpty = false;
-  // bool userExpandOverride = false;
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   widget.textController.addListener(onTextChanged);
-  // }
-
-  // @override
-  // void dispose() {
-  //   widget.textController.removeListener(onTextChanged);
-  //   super.dispose();
-  // }
 
   @override
   Widget build(BuildContext context) {
     return Material(
       color: Theme.of(context).cardColor,
       child: PromptInputMobileSelectSourcesButton(
-        chatId: widget.chatId,
-        onUpdateSelectedSources: widget.onUpdateSelectedSources,
+        chatId: chatId,
+        onUpdateSelectedSources: onUpdateSelectedSources,
       ),
     );
-
-    // return !inputNotEmpty || userExpandOverride
-    //     ? Material(
-    //         color: Theme.of(context).cardColor,
-    //         child: SeparatedRow(
-    //           mainAxisSize: MainAxisSize.min,
-    //           separatorBuilder: () => const HSpace(4.0),
-    //           children: [
-    //             PromptInputMobileSelectSourcesButton(
-    //               chatId: widget.chatId,
-    //               onUpdateSelectedSources: widget.onUpdateSelectedSources,
-    //             ),
-    //             PromptInputMentionButton(
-    //               iconSize: MobileAIPromptSizes.mentionIconSize,
-    //               buttonSize: MobileAIPromptSizes.sendButtonSize,
-    //               onTap: widget.onMention,
-    //             ),
-    //           ],
-    //         ),
-    //       )
-    //     : Material(
-    //         color: Theme.of(context).cardColor,
-    //         child: SizedBox.square(
-    //           dimension: 32.0,
-    //           child: FlowyButton(
-    //             expandText: false,
-    //             margin: EdgeInsets.zero,
-    //             text: const FlowySvg(
-    //               FlowySvgs.arrow_right_m,
-    //               size: Size.square(24),
-    //             ),
-    //             onTap: () {
-    //               setState(() => userExpandOverride = true);
-    //             },
-    //           ),
-    //         ),
-    //       );
   }
-
-  // void onTextChanged() {
-  //   final actual = widget.textController.text.isNotEmpty;
-  //   if (inputNotEmpty != actual) {
-  //     setState(() {
-  //       inputNotEmpty = actual;
-  //       if (!inputNotEmpty) {
-  //         userExpandOverride = false;
-  //       }
-  //     });
-  //   }
-  // }
 }
