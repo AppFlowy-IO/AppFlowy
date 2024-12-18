@@ -31,6 +31,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     _startListening();
     _dispatch();
     _init();
+    _loadSetting();
   }
 
   final String chatId;
@@ -59,16 +60,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   AnswerStream? answerStream;
   int numSendMessage = 0;
 
-  /// a counter used to determine whether the initial loading state should be
-  /// set to finish. It should hit two before we emit: one for the local fetch
-  /// and another for the server fetch.
-  ///
-  /// This is to work around a bug where if an ai chat that is not yet on the
-  /// user local storage is opened but has messages in the server, it will
-  /// remain stuck on the welcome screen until the user switches to another page
-  /// then come back.
-  int initialFetchCounter = 0;
-
   @override
   Future<void> close() async {
     await answerStream?.dispose();
@@ -86,11 +77,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               await chatController.insert(message, index: 0);
             }
 
-            if (initialFetchCounter < 2) {
-              initialFetchCounter++;
-            }
-
-            if (state.loadingState.isLoading && initialFetchCounter >= 2) {
+            if (state.loadingState.isLoading) {
               emit(
                 state.copyWith(loadingState: const ChatLoadingState.finish()),
               );
@@ -347,10 +334,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  void _init() async {
+  void _loadSetting() async {
     final getChatSettingsPayload =
         AIEventGetChatSettings(ChatId(value: chatId));
-    final getChatSettingsFuture = getChatSettingsPayload.send().fold(
+    await getChatSettingsPayload.send().fold(
       (settings) {
         if (!isClosed) {
           add(ChatEvent.didReceiveChatSettings(settings: settings));
@@ -358,7 +345,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       },
       Log.error,
     );
+  }
 
+  void _init() async {
     final loadMessagesPayload = LoadNextChatMessagePB(
       chatId: chatId,
       limit: Int64(10),
@@ -374,7 +363,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       (err) => Log.error("Failed to load messages: $err"),
     );
 
-    await Future.wait([getChatSettingsFuture, loadMessagesFuture]);
+    await Future.wait([loadMessagesFuture]);
   }
 
   bool _isOneTimeMessage(Message message) {
