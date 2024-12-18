@@ -126,7 +126,10 @@ enum SimpleTableMoreAction {
 
   // this two actions are only available on mobile
   duplicateRow,
-  duplicateColumn;
+  duplicateColumn,
+  cut,
+  copy,
+  paste;
 
   String get name {
     return switch (this) {
@@ -162,6 +165,10 @@ enum SimpleTableMoreAction {
       SimpleTableMoreAction.duplicateColumn => LocaleKeys
           .document_plugins_simpleTable_moreActions_duplicateColumn
           .tr(),
+      SimpleTableMoreAction.cut ||
+      SimpleTableMoreAction.copy ||
+      SimpleTableMoreAction.paste =>
+        throw UnimplementedError(),
       SimpleTableMoreAction.divider => throw UnimplementedError(),
     };
   }
@@ -184,6 +191,9 @@ enum SimpleTableMoreAction {
       SimpleTableMoreAction.enableHeaderRow => FlowySvgs.table_header_row_s,
       SimpleTableMoreAction.duplicateRow => FlowySvgs.m_table_duplicate_s,
       SimpleTableMoreAction.duplicateColumn => FlowySvgs.m_table_duplicate_s,
+      SimpleTableMoreAction.cut => FlowySvgs.m_table_quick_action_cut_s,
+      SimpleTableMoreAction.copy => FlowySvgs.m_table_quick_action_copy_s,
+      SimpleTableMoreAction.paste => FlowySvgs.m_table_quick_action_paste_s,
       SimpleTableMoreAction.divider =>
         throw UnsupportedError('divider icon is not supported'),
       SimpleTableMoreAction.align =>
