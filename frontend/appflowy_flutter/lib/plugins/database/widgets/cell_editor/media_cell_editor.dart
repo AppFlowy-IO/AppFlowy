@@ -1,6 +1,7 @@
-import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
+import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 
+import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -69,6 +70,7 @@ class _MediaCellEditorState extends State<MediaCellEditor> {
                       index: index,
                       enableReordering: state.files.length > 1,
                       mutex: itemMutex,
+                      // TODO(Nathan): Add progress and didError value here
                     ),
                   ),
                   itemCount: state.files.length,
@@ -231,6 +233,8 @@ class RenderMedia extends StatefulWidget {
     required this.images,
     required this.enableReordering,
     required this.mutex,
+    this.progress,
+    this.didError = false,
   });
 
   final int index;
@@ -239,17 +243,26 @@ class RenderMedia extends StatefulWidget {
   final bool enableReordering;
   final PopoverMutex mutex;
 
+  /// If the upload is in progress (anything other than null), we show the
+  /// progress indicator
+  ///
+  final double? progress;
+
+  /// Signifies whether the upload failed for this File/Media
+  ///
+  final bool didError;
+
   @override
   State<RenderMedia> createState() => _RenderMediaState();
 }
 
 class _RenderMediaState extends State<RenderMedia> {
+  late final controller = PopoverController();
+
   bool isHovering = false;
   int? imageIndex;
 
   MediaFilePB get file => widget.file;
-
-  late final controller = PopoverController();
 
   @override
   void initState() {
@@ -303,11 +316,65 @@ class _RenderMediaState extends State<RenderMedia> {
                       context,
                       files: widget.images,
                       index: imageIndex!,
-                      child: AFImage(
-                        url: widget.file.url,
-                        uploadType: widget.file.uploadType,
-                        userProfile:
-                            context.read<MediaCellBloc>().state.userProfile,
+                      child: Stack(
+                        children: [
+                          Container(
+                            foregroundDecoration: widget.didError
+                                ? BoxDecoration(
+                                    color: Colors.black.withOpacity(0.4),
+                                  )
+                                : null,
+                            child: AFImage(
+                              url: widget.file.url,
+                              uploadType: widget.file.uploadType,
+                              userProfile: context
+                                  .read<MediaCellBloc>()
+                                  .state
+                                  .userProfile,
+                            ),
+                          ),
+                          if (!widget.didError && widget.progress != null)
+                            Positioned(
+                              right: 6,
+                              bottom: 6,
+                              child: Container(
+                                width: 20,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.6),
+                                  borderRadius: Corners.s4Border,
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5),
+                                  child: CircularProgressIndicator(
+                                    value: widget.progress,
+                                    color: Colors.white,
+                                    strokeWidth: 1.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          if (widget.didError)
+                            Positioned.fill(
+                              child: Center(
+                                child: Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: FlowyIconButton(
+                                    icon: FlowySvg(
+                                      FlowySvgs.retry_s,
+                                      color: AFThemeExtension.of(context)
+                                          .strongText,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ),
@@ -341,6 +408,37 @@ class _RenderMediaState extends State<RenderMedia> {
                     ),
                   ),
                 ),
+                if (widget.didError) ...[
+                  const HSpace(8),
+                  FlowyTooltip(
+                    message: LocaleKeys.grid_media_uploadFailed.tr(),
+                    child: FlowyIconButton(
+                      onPressed: () {
+                        // TODO(Nathan): Add retry event
+                      },
+                      hoverColor: Colors.transparent,
+                      width: 24,
+                      icon: const FlowySvg(
+                        FlowySvgs.notice_s,
+                        size: Size.square(16),
+                        blendMode: BlendMode.dstIn,
+                      ),
+                    ),
+                  ),
+                ],
+                if (!widget.didError && widget.progress != null) ...[
+                  const HSpace(4),
+                  Container(
+                    height: 16,
+                    width: 16,
+                    margin: const EdgeInsets.only(top: 4),
+                    padding: const EdgeInsets.all(2.5),
+                    child: CircularProgressIndicator(
+                      value: widget.progress,
+                      strokeWidth: 2,
+                    ),
+                  ),
+                ],
               ],
               const HSpace(4),
               AppFlowyPopover(
@@ -358,6 +456,7 @@ class _RenderMediaState extends State<RenderMedia> {
                     index: imageIndex ?? -1,
                     closeContext: popoverContext,
                     onAction: () => controller.close(),
+                    didError: widget.didError,
                   ),
                 ),
                 child: FlowyIconButton(
@@ -407,6 +506,7 @@ class MediaItemMenu extends StatefulWidget {
     required this.index,
     this.closeContext,
     this.onAction,
+    this.didError = false,
   });
 
   /// The [MediaFilePB] this menu concerns
@@ -425,6 +525,11 @@ class MediaItemMenu extends StatefulWidget {
   /// Callback to be called when an action is performed
   final VoidCallback? onAction;
 
+  /// If the upload failed, we show very limited options,
+  /// and additionally add the retry option.
+  ///
+  final bool didError;
+
   @override
   State<MediaItemMenu> createState() => _MediaItemMenuState();
 }
@@ -434,6 +539,8 @@ class _MediaItemMenuState extends State<MediaItemMenu> {
   final errorMessage = ValueNotifier<String?>(null);
 
   BuildContext? renameContext;
+
+  bool get didError => widget.didError;
 
   @override
   void dispose() {
@@ -448,60 +555,71 @@ class _MediaItemMenuState extends State<MediaItemMenu> {
       separatorBuilder: () => const VSpace(8),
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (widget.file.fileType == MediaFileTypePB.Image) ...[
-          MediaMenuItem(
-            onTap: () {
-              widget.onAction?.call();
-              _showInteractiveViewer();
-            },
-            icon: FlowySvgs.full_view_s,
-            label: LocaleKeys.grid_media_expand.tr(),
-          ),
-          MediaMenuItem(
-            onTap: () {
-              context.read<MediaCellBloc>().add(
-                    MediaCellEvent.setCover(
-                      RowCoverPB(
-                        data: widget.file.url,
-                        uploadType: widget.file.uploadType,
-                        coverType: CoverTypePB.FileCover,
+        if (!didError) ...[
+          if (widget.file.fileType == MediaFileTypePB.Image) ...[
+            MediaMenuItem(
+              onTap: () {
+                widget.onAction?.call();
+                _showInteractiveViewer();
+              },
+              icon: FlowySvgs.full_view_s,
+              label: LocaleKeys.grid_media_expand.tr(),
+            ),
+            MediaMenuItem(
+              onTap: () {
+                context.read<MediaCellBloc>().add(
+                      MediaCellEvent.setCover(
+                        RowCoverPB(
+                          data: widget.file.url,
+                          uploadType: widget.file.uploadType,
+                          coverType: CoverTypePB.FileCover,
+                        ),
                       ),
-                    ),
-                  );
+                    );
+                widget.onAction?.call();
+              },
+              icon: FlowySvgs.cover_s,
+              label: LocaleKeys.grid_media_setAsCover.tr(),
+            ),
+          ],
+          MediaMenuItem(
+            onTap: () {
               widget.onAction?.call();
+              afLaunchUrlString(widget.file.url);
             },
-            icon: FlowySvgs.cover_s,
-            label: LocaleKeys.grid_media_setAsCover.tr(),
+            icon: FlowySvgs.open_in_browser_s,
+            label: LocaleKeys.grid_media_openInBrowser.tr(),
           ),
-        ],
-        MediaMenuItem(
-          onTap: () {
-            widget.onAction?.call();
-            afLaunchUrlString(widget.file.url);
-          },
-          icon: FlowySvgs.open_in_browser_s,
-          label: LocaleKeys.grid_media_openInBrowser.tr(),
-        ),
-        MediaMenuItem(
-          onTap: () async {
-            await _showRenameDialog();
-            widget.onAction?.call();
-          },
-          icon: FlowySvgs.rename_s,
-          label: LocaleKeys.grid_media_rename.tr(),
-        ),
-        if (widget.file.uploadType == FileUploadTypePB.CloudFile) ...[
           MediaMenuItem(
             onTap: () async {
-              await downloadMediaFile(
-                context,
-                widget.file,
-                userProfile: context.read<MediaCellBloc>().state.userProfile,
-              );
+              await _showRenameDialog();
               widget.onAction?.call();
             },
-            icon: FlowySvgs.save_as_s,
-            label: LocaleKeys.button_download.tr(),
+            icon: FlowySvgs.rename_s,
+            label: LocaleKeys.grid_media_rename.tr(),
+          ),
+          if (widget.file.uploadType == FileUploadTypePB.CloudFile) ...[
+            MediaMenuItem(
+              onTap: () async {
+                await downloadMediaFile(
+                  context,
+                  widget.file,
+                  userProfile: context.read<MediaCellBloc>().state.userProfile,
+                );
+                widget.onAction?.call();
+              },
+              icon: FlowySvgs.save_as_s,
+              label: LocaleKeys.button_download.tr(),
+            ),
+          ],
+        ] else ...[
+          MediaMenuItem(
+            onTap: () async {
+              // TODO(Nathan): Add retry event
+              widget.onAction?.call();
+            },
+            icon: FlowySvgs.retry_s,
+            label: LocaleKeys.button_retry.tr(),
           ),
         ],
         MediaMenuItem(
