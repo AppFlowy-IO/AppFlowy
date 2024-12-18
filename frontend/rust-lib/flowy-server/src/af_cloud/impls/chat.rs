@@ -148,7 +148,7 @@ where
       .get_question_message_from_answer_id(workspace_id, chat_id, answer_message_id)
       .await
       .map_err(FlowyError::from)?
-      .ok_or_else(|| FlowyError::record_not_found())?;
+      .ok_or_else(FlowyError::record_not_found)?;
 
     Ok(resp)
   }
