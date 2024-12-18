@@ -1297,7 +1297,7 @@ export async function updatePage(workspaceId: string, viewId: string, data: Upda
 }
 
 export async function deleteTrash(workspaceId: string, viewId?: string) {
-  const url = `/api/workspace/${workspaceId}/page-view/trash/${viewId}`;
+  const url = `/api/workspace/${workspaceId}/trash/${viewId}`;
   const response = await axiosInstance?.delete<{
     code: number;
     message: string;
