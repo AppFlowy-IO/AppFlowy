@@ -12,6 +12,7 @@ import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -105,6 +106,12 @@ class _MobileViewPageState extends State<MobileViewPage> {
                 create: (_) =>
                     ShareBloc(view: view)..add(const ShareEvent.initial()),
               ),
+              if (state.userProfilePB != null)
+                BlocProvider(
+                  create: (_) =>
+                      UserWorkspaceBloc(userProfile: state.userProfilePB!)
+                        ..add(const UserWorkspaceEvent.initial()),
+                ),
               if (view.layout.isDocumentView)
                 BlocProvider(
                   create: (_) => DocumentPageStyleBloc(view: view)

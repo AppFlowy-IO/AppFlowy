@@ -247,6 +247,22 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ),
             );
           },
+          didReceiveChatSettings: (settings) {
+            emit(
+              state.copyWith(selectedSourceIds: settings.ragIds),
+            );
+          },
+          updateSelectedSources: (selectedSourcesIds) async {
+            emit(state.copyWith(selectedSourceIds: selectedSourcesIds));
+
+            final payload = UpdateChatSettingsPB(
+              chatId: ChatId(value: chatId),
+              ragIds: selectedSourcesIds,
+            );
+            await AIEventUpdateChatSettings(payload)
+                .send()
+                .onFailure(Log.error);
+          },
         );
       },
     );
@@ -333,11 +349,23 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   void _init() async {
-    final payload = LoadNextChatMessagePB(
+    final getChatSettingsPayload =
+        AIEventGetChatSettings(ChatId(value: chatId));
+    final getChatSettingsFuture = getChatSettingsPayload.send().fold(
+      (settings) {
+        if (!isClosed) {
+          add(ChatEvent.didReceiveChatSettings(settings: settings));
+        }
+      },
+      Log.error,
+    );
+
+    final loadMessagesPayload = LoadNextChatMessagePB(
       chatId: chatId,
       limit: Int64(10),
     );
-    await AIEventLoadNextMessage(payload).send().fold(
+    final loadMessagesFuture =
+        AIEventLoadNextMessage(loadMessagesPayload).send().fold(
       (list) {
         if (!isClosed) {
           final messages = list.messages.map(_createTextMessage).toList();
@@ -346,6 +374,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       },
       (err) => Log.error("Failed to load messages: $err"),
     );
+
+    await Future.wait([getChatSettingsFuture, loadMessagesFuture]);
   }
 
   bool _isOneTimeMessage(Message message) {
@@ -492,6 +522,14 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
 @freezed
 class ChatEvent with _$ChatEvent {
+  // chat settings
+  const factory ChatEvent.didReceiveChatSettings({
+    required ChatSettingsPB settings,
+  }) = _DidReceiveChatSettings;
+  const factory ChatEvent.updateSelectedSources({
+    required List<String> selectedSourcesIds,
+  }) = _UpdateSelectedSources;
+
   // send message
   const factory ChatEvent.sendMessage({
     required String message,
@@ -528,11 +566,13 @@ class ChatEvent with _$ChatEvent {
 @freezed
 class ChatState with _$ChatState {
   const factory ChatState({
+    required List<String> selectedSourceIds,
     required ChatLoadingState loadingState,
     required PromptResponseState promptResponseState,
   }) = _ChatState;
 
   factory ChatState.initial() => const ChatState(
+        selectedSourceIds: [],
         loadingState: ChatLoadingState.loading(),
         promptResponseState: PromptResponseState.ready,
       );
