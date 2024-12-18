@@ -2,8 +2,8 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 // Note: This widget is only used for mobile.
@@ -26,6 +26,12 @@ class SimpleTableBottomSheet extends StatelessWidget {
         const VSpace(12),
         // insert row, insert column
         SimpleTableInsertActions(type: type),
+        const VSpace(16),
+        // action buttons
+        SimpleTableActionButtons(
+          type: type,
+          tableCellNode: node,
+        ),
       ],
     );
   }
@@ -111,7 +117,7 @@ class SimpleTableInsertActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       height: SimpleTableConstants.actionSheetInsertSectionHeight,
       child: switch (type) {
         SimpleTableMoreActionType.row => const Row(
@@ -162,8 +168,7 @@ class SimpleTableInsertAction extends StatelessWidget {
     return Expanded(
       child: DecoratedBox(
         decoration: ShapeDecoration(
-          // todo: replace with theme color
-          color: Colors.red,
+          color: context.simpleTableInsertActionBackgroundColor,
           shape: _buildBorder(),
         ),
         child: AnimatedGestureDetector(
@@ -185,21 +190,203 @@ class SimpleTableInsertAction extends StatelessWidget {
   }
 
   RoundedRectangleBorder _buildBorder() {
-    if (enableLeftBorder) {
-      return const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(12),
-          bottomLeft: Radius.circular(12),
+    const radius = Radius.circular(
+      SimpleTableConstants.actionSheetButtonRadius,
+    );
+    return RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+        topLeft: enableLeftBorder ? radius : Radius.zero,
+        bottomLeft: enableLeftBorder ? radius : Radius.zero,
+        topRight: enableRightBorder ? radius : Radius.zero,
+        bottomRight: enableRightBorder ? radius : Radius.zero,
+      ),
+    );
+  }
+}
+
+class SimpleTableActionButtons extends StatelessWidget {
+  const SimpleTableActionButtons({
+    super.key,
+    required this.type,
+    required this.tableCellNode,
+  });
+
+  final SimpleTableMoreActionType type;
+  final Node tableCellNode;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: _buildActions(),
+      ),
+    );
+  }
+
+  List<Widget> _buildActions() {
+    // the actions are grouped into different sections
+    // we need to get the index of the table cell node
+    // and the length of the columns and rows
+    final (index, columnLength, rowLength) = switch (type) {
+      SimpleTableMoreActionType.row => (
+          tableCellNode.rowIndex,
+          tableCellNode.columnLength,
+          tableCellNode.rowLength,
         ),
-      );
-    } else if (enableRightBorder) {
-      return const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topRight: Radius.circular(12),
-          bottomRight: Radius.circular(12),
+      SimpleTableMoreActionType.column => (
+          tableCellNode.columnIndex,
+          tableCellNode.rowLength,
+          tableCellNode.columnLength,
         ),
-      );
+    };
+    final actionGroups = type.buildMobileActions(
+      index: index,
+      columnLength: columnLength,
+      rowLength: rowLength,
+    );
+    final List<Widget> widgets = [];
+
+    for (final actionGroup in actionGroups) {
+      for (final (index, action) in actionGroup.indexed) {
+        widgets.add(
+          // enable the corner border if the cell is the first or last in the group
+          switch (action) {
+            SimpleTableMoreAction.enableHeaderColumn ||
+            SimpleTableMoreAction.enableHeaderRow =>
+              SimpleTableHeaderActionButton(
+                type: action,
+              ),
+            _ => SimpleTableActionButton(
+                type: action,
+                enableTopBorder: index == 0,
+                enableBottomBorder: index == actionGroup.length - 1,
+              ),
+          },
+        );
+        // if the action is not the first or last in the group, add a divider
+        if (index != actionGroup.length - 1) {
+          widgets.add(const FlowyDivider());
+        }
+      }
+      widgets.add(const VSpace(16));
     }
-    return const RoundedRectangleBorder();
+
+    return widgets;
+  }
+}
+
+class SimpleTableHeaderActionButton extends StatefulWidget {
+  const SimpleTableHeaderActionButton({
+    super.key,
+    required this.type,
+  });
+
+  final SimpleTableMoreAction type;
+
+  @override
+  State<SimpleTableHeaderActionButton> createState() =>
+      _SimpleTableHeaderActionButtonState();
+}
+
+class _SimpleTableHeaderActionButtonState
+    extends State<SimpleTableHeaderActionButton> {
+  bool value = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleTableActionButton(
+      type: widget.type,
+      enableTopBorder: true,
+      enableBottomBorder: true,
+      onTap: _toggle,
+      rightIconBuilder: (context) {
+        return Container(
+          width: 36,
+          height: 24,
+          margin: const EdgeInsets.only(right: 16),
+          child: FittedBox(
+            fit: BoxFit.fill,
+            child: CupertinoSwitch(
+              value: value,
+              activeColor: Theme.of(context).colorScheme.primary,
+              onChanged: (_) {},
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _toggle() {
+    setState(() {
+      value = !value;
+    });
+  }
+}
+
+class SimpleTableActionButton extends StatelessWidget {
+  const SimpleTableActionButton({
+    super.key,
+    required this.type,
+    this.enableTopBorder = false,
+    this.enableBottomBorder = false,
+    this.rightIconBuilder,
+    this.onTap,
+  });
+
+  final SimpleTableMoreAction type;
+  final bool enableTopBorder;
+  final bool enableBottomBorder;
+  final WidgetBuilder? rightIconBuilder;
+  final void Function()? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        height: SimpleTableConstants.actionSheetNormalActionSectionHeight,
+        decoration: ShapeDecoration(
+          color: context.simpleTableActionButtonBackgroundColor,
+          shape: _buildBorder(),
+        ),
+        child: Row(
+          children: [
+            const HSpace(16),
+            Padding(
+              padding: const EdgeInsets.all(3.0),
+              child: FlowySvg(
+                type.leftIconSvg,
+                size: const Size.square(18),
+              ),
+            ),
+            const HSpace(12),
+            FlowyText(
+              type.name,
+              fontSize: 14,
+              figmaLineHeight: 20,
+            ),
+            const Spacer(),
+            rightIconBuilder?.call(context) ?? const SizedBox.shrink(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  RoundedRectangleBorder _buildBorder() {
+    const radius = Radius.circular(
+      SimpleTableConstants.actionSheetButtonRadius,
+    );
+    return RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+        topLeft: enableTopBorder ? radius : Radius.zero,
+        topRight: enableTopBorder ? radius : Radius.zero,
+        bottomLeft: enableBottomBorder ? radius : Radius.zero,
+        bottomRight: enableBottomBorder ? radius : Radius.zero,
+      ),
+    );
   }
 }

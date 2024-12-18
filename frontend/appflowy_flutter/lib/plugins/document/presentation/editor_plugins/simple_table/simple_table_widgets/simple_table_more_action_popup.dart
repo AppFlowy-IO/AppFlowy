@@ -180,7 +180,7 @@ class _SimpleTableMoreActionListState extends State<SimpleTableMoreActionList> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: widget.type
-          .buildActions(
+          .buildDesktopActions(
             index: widget.index,
             columnLength: widget.tableCellNode.columnLength,
             rowLength: widget.tableCellNode.rowLength,

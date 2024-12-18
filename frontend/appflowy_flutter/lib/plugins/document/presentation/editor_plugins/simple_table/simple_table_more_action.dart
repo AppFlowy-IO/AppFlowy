@@ -11,7 +11,7 @@ enum SimpleTableMoreActionType {
   column,
   row;
 
-  List<SimpleTableMoreAction> buildActions({
+  List<SimpleTableMoreAction> buildDesktopActions({
     required int index,
     required int columnLength,
     required int rowLength,
@@ -51,6 +51,41 @@ enum SimpleTableMoreActionType {
           SimpleTableMoreAction.duplicate,
           SimpleTableMoreAction.clearContents,
           if (columnLength > 1) SimpleTableMoreAction.delete,
+        ];
+    }
+  }
+
+  List<List<SimpleTableMoreAction>> buildMobileActions({
+    required int index,
+    required int columnLength,
+    required int rowLength,
+  }) {
+    // the actions on mobile are not the same as the desktop ones
+    // the mobile actions are grouped into different sections
+    switch (this) {
+      case SimpleTableMoreActionType.row:
+        return [
+          if (index == 0) [SimpleTableMoreAction.enableHeaderRow],
+          [
+            SimpleTableMoreAction.setToPageWidth,
+            SimpleTableMoreAction.distributeColumnsEvenly,
+          ],
+          [
+            SimpleTableMoreAction.duplicate,
+            SimpleTableMoreAction.clearContents,
+          ],
+        ];
+      case SimpleTableMoreActionType.column:
+        return [
+          if (index == 0) [SimpleTableMoreAction.enableHeaderColumn],
+          [
+            SimpleTableMoreAction.setToPageWidth,
+            SimpleTableMoreAction.distributeColumnsEvenly,
+          ],
+          [
+            SimpleTableMoreAction.duplicate,
+            SimpleTableMoreAction.clearContents,
+          ],
         ];
     }
   }
