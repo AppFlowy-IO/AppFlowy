@@ -216,6 +216,7 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
   ValueNotifier<bool> isEditingCellNotifier = ValueNotifier(false);
 
   late final editorState = context.read<EditorState>();
+  late final simpleTableContext = context.read<SimpleTableContext>();
 
   @override
   void initState() {
@@ -227,6 +228,8 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
   @override
   void dispose() {
     isShowingMenu.dispose();
+    isEditingCellNotifier.dispose();
+
     editorState.selectionNotifier.removeListener(_onSelectionChanged);
 
     super.dispose();
@@ -248,7 +251,6 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
 
   // On desktop, the menu is a popup and only shows when hovering.
   Widget _buildDesktopMenu() {
-    final simpleTableContext = context.read<SimpleTableContext>();
     return ValueListenableBuilder<bool>(
       valueListenable: isShowingMenu,
       builder: (context, isShowingMenu, child) {
@@ -295,19 +297,25 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
   // On mobile, the menu is a action sheet and always shows.
   Widget _buildMobileMenu() {
     return ValueListenableBuilder(
-      valueListenable: isEditingCellNotifier,
-      builder: (context, isEditingCell, child) {
-        // if (!isEditingCell) {
-        //   return const SizedBox.shrink();
-        // }
+      valueListenable: isShowingMenu,
+      builder: (context, isShowingMenu, child) {
+        return ValueListenableBuilder(
+          valueListenable: isEditingCellNotifier,
+          builder: (context, isEditingCell, child) {
+            if (!isEditingCell && !isShowingMenu) {
+              return const SizedBox.shrink();
+            }
 
-        return child!;
+            return child!;
+          },
+          child: SimpleTableActionSheet(
+            index: widget.index,
+            type: widget.type,
+            node: widget.tableCellNode,
+            isShowingMenu: this.isShowingMenu,
+          ),
+        );
       },
-      child: SimpleTableActionSheet(
-        index: widget.index,
-        type: widget.type,
-        node: widget.tableCellNode,
-      ),
     );
   }
 

@@ -76,6 +76,11 @@ class SimpleTableContext {
   bool get isReordering =>
       isReorderingColumn.value.$1 || isReorderingRow.value.$1;
 
+  /// isEditingCell is the cell that the user is editing
+  ///
+  /// This value is available on mobile only
+  final ValueNotifier<Node?> isEditingCell = ValueNotifier(null);
+
   void _onHoveringOnColumnsAndRowsChanged() {
     if (!_enableTableDebugLog) {
       return;
@@ -165,6 +170,7 @@ class SimpleTableContext {
     isReorderingColumn.dispose();
     isReorderingRow.dispose();
     reorderingOffset.dispose();
+    isEditingCell.dispose();
   }
 }
 

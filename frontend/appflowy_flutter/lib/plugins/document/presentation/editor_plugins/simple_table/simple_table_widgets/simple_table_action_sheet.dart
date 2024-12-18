@@ -10,19 +10,19 @@ class SimpleTableActionSheet extends StatefulWidget {
     required this.index,
     required this.type,
     required this.node,
+    required this.isShowingMenu,
   });
 
   final int index;
   final SimpleTableMoreActionType type;
   final Node node;
+  final ValueNotifier<bool> isShowingMenu;
 
   @override
   State<SimpleTableActionSheet> createState() => _SimpleTableActionSheetState();
 }
 
 class _SimpleTableActionSheetState extends State<SimpleTableActionSheet> {
-  final ValueNotifier<bool> isShowingMenu = ValueNotifier(false);
-
   late final EditorState editorState = context.read<EditorState>();
   late final SimpleTableContext simpleTableContext =
       context.read<SimpleTableContext>();
@@ -37,7 +37,6 @@ class _SimpleTableActionSheetState extends State<SimpleTableActionSheet> {
 
   @override
   void dispose() {
-    isShowingMenu.dispose();
     simpleTableContext.selectingRow.removeListener(_onUpdateShowingMenu);
     simpleTableContext.selectingColumn.removeListener(_onUpdateShowingMenu);
 
@@ -47,9 +46,8 @@ class _SimpleTableActionSheetState extends State<SimpleTableActionSheet> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _onSelecting,
-      child: Container(
-        color: Colors.green.withOpacity(0.5),
+      onTap: () async => _onSelecting(),
+      child: SizedBox(
         height: widget.type == SimpleTableMoreActionType.column
             ? SimpleTableConstants.columnActionSheetHitTestAreaHeight
             : null,
@@ -58,7 +56,7 @@ class _SimpleTableActionSheetState extends State<SimpleTableActionSheet> {
             : null,
         child: Align(
           child: SimpleTableReorderButton(
-            isShowingMenu: isShowingMenu,
+            isShowingMenu: widget.isShowingMenu,
             type: widget.type,
           ),
         ),
@@ -66,16 +64,18 @@ class _SimpleTableActionSheetState extends State<SimpleTableActionSheet> {
     );
   }
 
-  void _onSelecting() async {
+  Future<void> _onSelecting() async {
+    widget.isShowingMenu.value = true;
+
     // update the selecting row or column
     switch (widget.type) {
       case SimpleTableMoreActionType.column:
-        context.read<SimpleTableContext>().selectingColumn.value = widget.index;
-        context.read<SimpleTableContext>().selectingRow.value = null;
+        simpleTableContext.selectingColumn.value = widget.index;
+        simpleTableContext.selectingRow.value = null;
         break;
       case SimpleTableMoreActionType.row:
-        context.read<SimpleTableContext>().selectingRow.value = widget.index;
-        context.read<SimpleTableContext>().selectingColumn.value = null;
+        simpleTableContext.selectingRow.value = widget.index;
+        simpleTableContext.selectingColumn.value = null;
     }
 
     Future.delayed(Durations.short3, () {
@@ -100,10 +100,10 @@ class _SimpleTableActionSheetState extends State<SimpleTableActionSheet> {
     );
 
     // reset the selecting row or column
-    if (mounted) {
-      context.read<SimpleTableContext>().selectingRow.value = null;
-      context.read<SimpleTableContext>().selectingColumn.value = null;
-    }
+    simpleTableContext.selectingRow.value = null;
+    simpleTableContext.selectingColumn.value = null;
+
+    widget.isShowingMenu.value = false;
   }
 
   void _onUpdateShowingMenu() {
@@ -113,12 +113,12 @@ class _SimpleTableActionSheetState extends State<SimpleTableActionSheet> {
 
     if (selectingRow == widget.index &&
         widget.type == SimpleTableMoreActionType.row) {
-      isShowingMenu.value = true;
+      widget.isShowingMenu.value = true;
     } else if (selectingColumn == widget.index &&
         widget.type == SimpleTableMoreActionType.column) {
-      isShowingMenu.value = true;
+      widget.isShowingMenu.value = true;
     } else {
-      isShowingMenu.value = false;
+      widget.isShowingMenu.value = false;
     }
   }
 }

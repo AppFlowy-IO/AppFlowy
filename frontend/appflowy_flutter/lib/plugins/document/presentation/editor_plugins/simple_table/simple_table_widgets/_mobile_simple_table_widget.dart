@@ -56,20 +56,17 @@ class _MobileSimpleTableWidgetState extends State<MobileSimpleTableWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.blue.withOpacity(0.5),
-      child: Provider.value(
-        value: simpleTableContext,
-        child: SingleChildScrollView(
-          controller: scrollController,
-          scrollDirection: Axis.horizontal,
-          child: IntrinsicWidth(
-            child: IntrinsicHeight(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: _buildRows(),
-              ),
+    return Provider.value(
+      value: simpleTableContext,
+      child: SingleChildScrollView(
+        controller: scrollController,
+        scrollDirection: Axis.horizontal,
+        child: IntrinsicWidth(
+          child: IntrinsicHeight(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: _buildRows(),
             ),
           ),
         ),

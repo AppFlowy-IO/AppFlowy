@@ -342,8 +342,25 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
         node.path.isAncestorOf(selection.start.path) &&
         node.path.isAncestorOf(selection.end.path)) {
       isEditingCellNotifier.value = true;
+      simpleTableContext?.isEditingCell.value = node;
     } else {
       isEditingCellNotifier.value = false;
+    }
+
+    // if the selection is null or the selection is collapsed, set the isEditingCell to null.
+    if (selection == null) {
+      simpleTableContext?.isEditingCell.value = null;
+    } else if (selection.isCollapsed) {
+      // if the selection is collapsed, check if the selection is in the cell.
+      final node = editorState.getNodesInSelection(selection).firstOrNull;
+      if (node != null) {
+        final tableNode = node.parentTableNode;
+        if (tableNode == null || tableNode.id != node.parentTableNode?.id) {
+          simpleTableContext?.isEditingCell.value = null;
+        }
+      } else {
+        simpleTableContext?.isEditingCell.value = null;
+      }
     }
   }
 }
