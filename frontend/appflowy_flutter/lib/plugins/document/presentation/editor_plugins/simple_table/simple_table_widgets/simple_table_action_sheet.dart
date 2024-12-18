@@ -1,4 +1,5 @@
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -88,7 +89,7 @@ class _SimpleTableActionSheetState extends State<SimpleTableActionSheet> {
     await showMobileBottomSheet(
       context,
       showHeader: true,
-      title: widget.type.name,
+      title: widget.type.name.capitalize(),
       showCloseButton: true,
       showDragHandle: true,
       showDivider: false,
