@@ -265,6 +265,8 @@ where
         vec![WorkspaceMemberInvitation {
           email: invitee_email,
           role: to_af_role(role),
+          skip_email_send: false,
+          wait_email_send: false,
         }],
       )
       .await?;
