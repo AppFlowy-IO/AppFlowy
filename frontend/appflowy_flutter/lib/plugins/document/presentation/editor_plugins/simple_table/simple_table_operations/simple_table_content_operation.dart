@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_tab
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_operations/simple_table_node_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flutter/services.dart';
 
 extension TableContentOperation on EditorState {
   /// Clear the content of the column at the given index.
@@ -85,5 +86,42 @@ extension TableContentOperation on EditorState {
       transaction.deleteNode(cell);
     }
     await apply(transaction);
+  }
+
+  /// Copy the selected column to the clipboard.
+  ///
+  /// Only support plain text.
+  Future<void> copyColumn({
+    required Node tableNode,
+    required int columnIndex,
+  }) async {
+    assert(tableNode.type == SimpleTableBlockKeys.type);
+
+    if (tableNode.type != SimpleTableBlockKeys.type) {
+      return;
+    }
+
+    if (columnIndex < 0 || columnIndex >= tableNode.columnLength) {
+      Log.warn('copy column: index out of range: $columnIndex');
+      return;
+    }
+
+    final List<String> content = [];
+
+    for (var i = 0; i < tableNode.rowLength; i++) {
+      final row = tableNode.children[i];
+      final cell = columnIndex >= row.children.length
+          ? row.children.last
+          : row.children[columnIndex];
+      final plainText = getTextInSelection(
+        Selection(
+          start: Position(path: cell.path),
+          end: Position(path: cell.path.next),
+        ),
+      );
+      content.add(plainText.join('\n'));
+    }
+
+    await Clipboard.setData(ClipboardData(text: content.join('\n')));
   }
 }

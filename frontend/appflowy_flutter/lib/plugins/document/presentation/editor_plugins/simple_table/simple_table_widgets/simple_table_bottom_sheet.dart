@@ -100,6 +100,18 @@ class SimpleTableQuickActions extends StatelessWidget {
     switch (action) {
       case SimpleTableMoreAction.cut:
       case SimpleTableMoreAction.copy:
+        switch (type) {
+          case SimpleTableMoreActionType.column:
+            editorState.copyColumn(
+              tableNode: tableNode,
+              columnIndex: node.columnIndex,
+            );
+          case SimpleTableMoreActionType.row:
+          // editorState.copyRow(
+          //   tableNode: tableNode,
+          //   rowIndex: node.rowIndex,
+          // );
+        }
       case SimpleTableMoreAction.paste:
       case SimpleTableMoreAction.delete:
         switch (type) {
