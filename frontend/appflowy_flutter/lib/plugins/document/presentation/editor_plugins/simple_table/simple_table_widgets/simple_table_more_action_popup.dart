@@ -434,9 +434,15 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     final (table, node, _) = value;
     final editorState = context.read<EditorState>();
     if (widget.type == SimpleTableMoreActionType.column) {
-      editorState.clearContentAtColumnIndex(table, node.columnIndex);
+      editorState.clearContentAtColumnIndex(
+        tableNode: table,
+        columnIndex: node.columnIndex,
+      );
     } else if (widget.type == SimpleTableMoreActionType.row) {
-      editorState.clearContentAtRowIndex(table, node.rowIndex);
+      editorState.clearContentAtRowIndex(
+        tableNode: table,
+        rowIndex: node.rowIndex,
+      );
     }
   }
 

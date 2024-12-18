@@ -321,6 +321,19 @@ class SimpleTableActionButtons extends StatelessWidget {
           tableNode,
           tableCellNode.columnIndex,
         );
+      case SimpleTableMoreAction.clearContents:
+        switch (type) {
+          case SimpleTableMoreActionType.column:
+            editorState.clearContentAtColumnIndex(
+              tableNode: tableNode,
+              columnIndex: tableCellNode.columnIndex,
+            );
+          case SimpleTableMoreActionType.row:
+            editorState.clearContentAtRowIndex(
+              tableNode: tableNode,
+              rowIndex: tableCellNode.rowIndex,
+            );
+        }
       default:
         assert(false, 'Unsupported action: $action');
         break;

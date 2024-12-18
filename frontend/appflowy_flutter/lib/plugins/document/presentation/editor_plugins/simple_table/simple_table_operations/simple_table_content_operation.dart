@@ -17,23 +17,26 @@ extension TableContentOperation on EditorState {
   /// After:
   /// Row 1: |   |   |
   /// Row 2: | 2 | 3 |
-  Future<void> clearContentAtRowIndex(Node node, int index) async {
-    assert(node.type == SimpleTableBlockKeys.type);
+  Future<void> clearContentAtRowIndex({
+    required Node tableNode,
+    required int rowIndex,
+  }) async {
+    assert(tableNode.type == SimpleTableBlockKeys.type);
 
-    if (node.type != SimpleTableBlockKeys.type) {
+    if (tableNode.type != SimpleTableBlockKeys.type) {
       return;
     }
 
-    if (index < 0 || index >= node.columnLength) {
-      Log.warn('clear content in column: index out of range: $index');
+    if (rowIndex < 0 || rowIndex >= tableNode.rowLength) {
+      Log.warn('clear content in row: index out of range: $rowIndex');
       return;
     }
 
-    Log.info('clear content in column: $index in table ${node.id}');
+    Log.info('clear content in row: $rowIndex in table ${tableNode.id}');
 
     final transaction = this.transaction;
 
-    final row = node.children[index];
+    final row = tableNode.children[rowIndex];
     for (var i = 0; i < row.children.length; i++) {
       final cell = row.children[i];
       transaction.insertNode(cell.path.next, simpleTableCellBlockNode());
@@ -55,26 +58,29 @@ extension TableContentOperation on EditorState {
   /// After:
   /// Row 1: | 0 |   |
   /// Row 2: | 2 |   |
-  Future<void> clearContentAtColumnIndex(Node node, int index) async {
-    assert(node.type == SimpleTableBlockKeys.type);
+  Future<void> clearContentAtColumnIndex({
+    required Node tableNode,
+    required int columnIndex,
+  }) async {
+    assert(tableNode.type == SimpleTableBlockKeys.type);
 
-    if (node.type != SimpleTableBlockKeys.type) {
+    if (tableNode.type != SimpleTableBlockKeys.type) {
       return;
     }
 
-    if (index < 0 || index >= node.columnLength) {
-      Log.warn('clear content in column: index out of range: $index');
+    if (columnIndex < 0 || columnIndex >= tableNode.columnLength) {
+      Log.warn('clear content in column: index out of range: $columnIndex');
       return;
     }
 
-    Log.info('clear content in column: $index in table ${node.id}');
+    Log.info('clear content in column: $columnIndex in table ${tableNode.id}');
 
     final transaction = this.transaction;
-    for (var i = 0; i < node.rowLength; i++) {
-      final row = node.children[i];
-      final cell = index >= row.children.length
+    for (var i = 0; i < tableNode.rowLength; i++) {
+      final row = tableNode.children[i];
+      final cell = columnIndex >= row.children.length
           ? row.children.last
-          : row.children[index];
+          : row.children[columnIndex];
       transaction.insertNode(cell.path.next, simpleTableCellBlockNode());
       transaction.deleteNode(cell);
     }
