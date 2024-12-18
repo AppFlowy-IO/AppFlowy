@@ -692,7 +692,11 @@
         "selectAllCodeblock": "حدد الكل",
         "indentLineCodeblock": "أدخل فراغين فاصلين في بداية السطر",
         "outdentLineCodeblock": "حذف فراغين فاصلين في بداية السطر",
-        "twoSpacesCursorCodeblock": "إدراج فراغين فاصلين عند المؤشر"
+        "twoSpacesCursorCodeblock": "إدراج فراغين فاصلين عند المؤشر",
+        "deleteLeftWord": "حذف الكلمة اليسرى"
+      },
+      "commands": {
+        "codeBlockNewParagraph": "إدراج فقرة جديدة بجوار كتلة التعليمات البرمجية"
       }
     },
     "comparePlanDialog": {
