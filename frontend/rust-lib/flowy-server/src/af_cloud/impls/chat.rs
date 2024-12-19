@@ -99,11 +99,11 @@ where
     message_id: i64,
   ) -> Result<StreamAnswer, FlowyError> {
     let try_get_client = self.inner.try_get_client();
-    let stream = try_get_client?
+    let result = try_get_client?
       .stream_answer_v2(workspace_id, chat_id, message_id)
-      .await
-      .map_err(FlowyError::from)?
-      .map_err(FlowyError::from);
+      .await;
+
+    let stream = result.map_err(FlowyError::from)?.map_err(FlowyError::from);
     Ok(stream.boxed())
   }
 

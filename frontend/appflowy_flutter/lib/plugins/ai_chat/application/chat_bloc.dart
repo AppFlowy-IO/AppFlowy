@@ -30,7 +30,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         super(ChatState.initial()) {
     _startListening();
     _dispatch();
-    _init();
+    _loadMessages();
     _loadSetting();
   }
 
@@ -347,7 +347,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  void _init() async {
+  void _loadMessages() async {
     final loadMessagesPayload = LoadNextChatMessagePB(
       chatId: chatId,
       limit: Int64(10),

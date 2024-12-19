@@ -37,6 +37,8 @@ pub trait AIQueryService: Send + Sync + 'static {
     parent_view_id: &str,
     chat_id: &str,
   ) -> Result<Vec<String>, FlowyError>;
+
+  async fn sync_rag_documents(&self, rag_ids: Vec<String>) -> Result<(), FlowyError>;
 }
 
 pub struct AIManager {

@@ -1,6 +1,5 @@
-use client_api::error::{AppResponseError, ErrorCode as AppErrorCode};
-
 use crate::{ErrorCode, FlowyError};
+use client_api::error::{AppResponseError, ErrorCode as AppErrorCode};
 
 impl From<AppResponseError> for FlowyError {
   fn from(error: AppResponseError) -> Self {
@@ -37,6 +36,7 @@ impl From<AppResponseError> for FlowyError {
       AppErrorCode::PublishNameInvalidCharacter => ErrorCode::PublishNameInvalidCharacter,
       AppErrorCode::PublishNameTooLong => ErrorCode::PublishNameTooLong,
       AppErrorCode::CustomNamespaceInvalidCharacter => ErrorCode::CustomNamespaceInvalidCharacter,
+      AppErrorCode::AIServiceUnavailable => ErrorCode::AIServiceUnavailable,
       _ => ErrorCode::Internal,
     };
 
