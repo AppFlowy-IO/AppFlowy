@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:appflowy/plugins/base/emoji/emoji_picker_header.dart';
 import 'package:appflowy/shared/icon_emoji_picker/emoji_search_bar.dart';
 import 'package:appflowy/shared/icon_emoji_picker/emoji_skin_tone.dart';
+import 'package:appflowy/shared/icon_emoji_picker/recent_icons.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +27,32 @@ class FlowyEmojiPicker extends StatefulWidget {
 }
 
 class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
-  EmojiData? emojiData;
+  late EmojiData emojiData;
+  bool loaded = false;
+
+  void loadEmojis(EmojiData data) {
+    RecentIcons.getEmojiIds().then((v) {
+      if (v.isEmpty) {
+        emojiData = data;
+        setState(() {
+          loaded = true;
+        });
+        return;
+      }
+      final categories = List.of(data.categories);
+      categories.insert(
+        0,
+        Category(
+          id: 'Recent',
+          emojiIds: v.sublist(0, min(widget.emojiPerLine, v.length)),
+        ),
+      );
+      emojiData = EmojiData(categories: categories, emojis: data.emojis);
+      setState(() {
+        loaded = true;
+      });
+    });
+  }
 
   @override
   void initState() {
@@ -32,12 +60,12 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
 
     // load the emoji data from cache if it's available
     if (kCachedEmojiData != null) {
-      emojiData = kCachedEmojiData;
+      loadEmojis(kCachedEmojiData!);
     } else {
       EmojiData.builtIn().then(
         (value) {
           kCachedEmojiData = value;
-          setState(() => emojiData = value);
+          loadEmojis(value);
         },
       );
     }
@@ -45,7 +73,7 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
 
   @override
   Widget build(BuildContext context) {
-    if (emojiData == null) {
+    if (!loaded) {
       return const Center(
         child: SizedBox.square(
           dimension: 24.0,
@@ -57,13 +85,15 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
     }
 
     return EmojiPicker(
-      emojiData: emojiData!,
+      emojiData: emojiData,
       configuration: EmojiPickerConfiguration(
         showTabs: false,
         defaultSkinTone: lastSelectedEmojiSkinTone ?? EmojiSkinTone.none,
-        perLine: widget.emojiPerLine,
       ),
-      onEmojiSelected: widget.onEmojiSelected,
+      onEmojiSelected: (id, emoji) {
+        widget.onEmojiSelected.call(id, emoji);
+        RecentIcons.putEmoji(id);
+      },
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       headerBuilder: (context, category) {
         return FlowyEmojiHeader(
@@ -71,7 +101,7 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
         );
       },
       itemBuilder: (context, emojiId, emoji, callback) {
-        final name = emojiData?.emojis[emojiId]?.name ?? '';
+        final name = emojiData.emojis[emojiId]?.name ?? '';
         return SizedBox.square(
           dimension: 36.0,
           child: FlowyButton(
@@ -93,7 +123,7 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: FlowyEmojiSearchBar(
-            emojiData: emojiData!,
+            emojiData: emojiData,
             onKeywordChanged: (value) {
               keyword.value = value;
             },

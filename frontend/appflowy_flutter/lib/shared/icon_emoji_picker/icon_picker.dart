@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/strin
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_search_bar.dart';
+import 'package:appflowy/shared/icon_emoji_picker/recent_icons.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy_backend/log.dart';
@@ -78,31 +79,57 @@ class FlowyIconPicker extends StatefulWidget {
     super.key,
     required this.onSelectedIcon,
     required this.enableBackgroundColorSelection,
+    this.iconPerLine = 9,
   });
 
   final bool enableBackgroundColorSelection;
   final ValueChanged<IconsData> onSelectedIcon;
+  final int iconPerLine;
 
   @override
   State<FlowyIconPicker> createState() => _FlowyIconPickerState();
 }
 
 class _FlowyIconPickerState extends State<FlowyIconPicker> {
-  late final Future<List<IconGroup>> iconGroups;
+  final List<IconGroup> iconGroups = [];
+  bool loaded = false;
   final ValueNotifier<String> keyword = ValueNotifier('');
   final debounce = Debounce(duration: const Duration(milliseconds: 150));
+
+  Future loadIcons() async {
+    final localIcons = await loadIconGroups();
+    final recentIcons = await RecentIcons.getIcons();
+    if (recentIcons.isNotEmpty) {
+      iconGroups.add(
+        IconGroup(
+          name: 'Recent',
+          icons: recentIcons.sublist(
+            0,
+            min(recentIcons.length, widget.iconPerLine),
+          ),
+        ),
+      );
+    }
+    iconGroups.addAll(localIcons);
+    if (mounted) {
+      setState(() {
+        loaded = true;
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-
-    iconGroups = loadIconGroups();
+    loadIcons();
   }
 
   @override
   void dispose() {
     keyword.dispose();
     debounce.dispose();
+    iconGroups.clear();
+    loaded = false;
     super.dispose();
   }
 
@@ -137,24 +164,15 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
           ),
         ),
         Expanded(
-          child: kIconGroups != null
-              ? _buildIcons(kIconGroups!)
-              : FutureBuilder(
-                  future: iconGroups,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState != ConnectionState.done) {
-                      return const Center(
-                        child: SizedBox.square(
-                          dimension: 24.0,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.0,
-                          ),
-                        ),
-                      );
-                    }
-                    final iconGroups = snapshot.data as List<IconGroup>;
-                    return _buildIcons(iconGroups);
-                  },
+          child: loaded
+              ? _buildIcons(iconGroups)
+              : const Center(
+                  child: SizedBox.square(
+                    dimension: 24.0,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.0,
+                    ),
+                  ),
                 ),
         ),
       ],
@@ -175,12 +193,14 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
             enableBackgroundColorSelection:
                 widget.enableBackgroundColorSelection,
             onSelectedIcon: widget.onSelectedIcon,
+            iconPerLine: widget.iconPerLine,
           );
         }
         return IconPicker(
           iconGroups: iconGroups,
           enableBackgroundColorSelection: widget.enableBackgroundColorSelection,
           onSelectedIcon: widget.onSelectedIcon,
+          iconPerLine: widget.iconPerLine,
         );
       },
     );
@@ -220,9 +240,11 @@ class IconPicker extends StatefulWidget {
     required this.onSelectedIcon,
     required this.enableBackgroundColorSelection,
     required this.iconGroups,
+    required this.iconPerLine,
   });
 
   final List<IconGroup> iconGroups;
+  final int iconPerLine;
   final bool enableBackgroundColorSelection;
   final ValueChanged<IconsData> onSelectedIcon;
 
@@ -250,43 +272,49 @@ class _IconPickerState extends State<IconPicker> {
               color: context.pickerTextColor,
             ),
             const VSpace(4.0),
-            Wrap(
-              children: iconGroup.icons.map(
-                (icon) {
-                  return widget.enableBackgroundColorSelection
-                      ? _Icon(
-                          icon: icon,
-                          mutex: mutex,
-                          onSelectedColor: (context, color) {
-                            widget.onSelectedIcon(
-                              IconsData(
-                                iconGroup.name,
-                                icon.content,
-                                icon.name,
-                                color,
-                              ),
-                            );
-                            PopoverContainer.of(context).close();
-                          },
-                        )
-                      : _IconNoBackground(
-                          icon: icon,
-                          onSelectedIcon: () {
-                            widget.onSelectedIcon(
-                              IconsData(
-                                iconGroup.name,
-                                icon.content,
-                                icon.name,
-                                null,
-                              ),
-                            );
-                          },
-                        );
-                },
-              ).toList(),
+            GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: widget.iconPerLine,
+              ),
+              itemCount: iconGroup.icons.length,
+              shrinkWrap: true,
+              itemBuilder: (context, index) {
+                final icon = iconGroup.icons[index];
+                return widget.enableBackgroundColorSelection
+                    ? _Icon(
+                        icon: icon,
+                        mutex: mutex,
+                        onSelectedColor: (context, color) {
+                          widget.onSelectedIcon(
+                            IconsData(
+                              iconGroup.name,
+                              icon.content,
+                              icon.name,
+                              color,
+                            ),
+                          );
+                          RecentIcons.putIcon(icon);
+                          PopoverContainer.of(context).close();
+                        },
+                      )
+                    : _IconNoBackground(
+                        icon: icon,
+                        onSelectedIcon: () {
+                          widget.onSelectedIcon(
+                            IconsData(
+                              iconGroup.name,
+                              icon.content,
+                              icon.name,
+                              null,
+                            ),
+                          );
+                          RecentIcons.putIcon(icon);
+                        },
+                      );
+              },
             ),
             const VSpace(12.0),
-            if (index == kIconGroups!.length - 1) ...[
+            if (index == widget.iconGroups.length - 1) ...[
               const StreamlinePermit(),
               const VSpace(12.0),
             ],
