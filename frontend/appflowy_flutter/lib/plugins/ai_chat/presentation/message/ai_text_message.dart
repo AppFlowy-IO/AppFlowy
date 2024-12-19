@@ -104,11 +104,6 @@ class ChatAIMessageWidget extends StatelessWidget {
               onError: (error) {
                 return ChatErrorMessageWidget(
                   errorMessage: LocaleKeys.chat_aiServerUnavailable.tr(),
-                  onRetry: () {
-                    context
-                        .read<ChatAIMessageBloc>()
-                        .add(const ChatAIMessageEvent.retry());
-                  },
                 );
               },
               onAIResponseLimit: () {
