@@ -385,7 +385,10 @@ ParagraphBlockComponentBuilder _buildParagraphBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: placeholderText,
       textStyle: (node) {
-        if (node.isInHeaderColumn || node.isInHeaderRow) {
+        if (node.isInHeaderColumn ||
+            node.isInHeaderRow ||
+            node.isInBoldColumn ||
+            node.isInBoldRow) {
           return configuration.textStyle(node).copyWith(
                 fontWeight: FontWeight.bold,
               );

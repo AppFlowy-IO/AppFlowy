@@ -664,7 +664,10 @@ class SimpleTableContentActions extends ISimpleTableBottomSheetActions {
       child: Row(
         children: [
           SimpleTableContentBoldAction(
-            onTap: () {},
+            isBold: type == SimpleTableMoreActionType.column
+                ? cellNode.isInBoldColumn
+                : cellNode.isInBoldRow,
+            toggleBold: _toggleBold,
           ),
           const HSpace(2),
           const SimpleTableContentTextColorAction(),
@@ -676,29 +679,66 @@ class SimpleTableContentActions extends ISimpleTableBottomSheetActions {
       ),
     );
   }
+
+  void _toggleBold(bool isBold) {
+    switch (type) {
+      case SimpleTableMoreActionType.column:
+        editorState.toggleColumnBoldAttribute(
+          tableCellNode: cellNode,
+          isBold: isBold,
+        );
+      case SimpleTableMoreActionType.row:
+        editorState.toggleRowBoldAttribute(
+          tableCellNode: cellNode,
+          isBold: isBold,
+        );
+    }
+  }
 }
 
-class SimpleTableContentBoldAction extends StatelessWidget {
+class SimpleTableContentBoldAction extends StatefulWidget {
   const SimpleTableContentBoldAction({
     super.key,
-    required this.onTap,
+    required this.toggleBold,
+    required this.isBold,
   });
 
-  final VoidCallback onTap;
+  final ValueChanged<bool> toggleBold;
+  final bool isBold;
+
+  @override
+  State<SimpleTableContentBoldAction> createState() =>
+      _SimpleTableContentBoldActionState();
+}
+
+class _SimpleTableContentBoldActionState
+    extends State<SimpleTableContentBoldAction> {
+  bool isBold = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    isBold = widget.isBold;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: SimpleTableContentActionDecorator(
+        backgroundColor: isBold ? Theme.of(context).colorScheme.primary : null,
         enableLeftBorder: true,
         child: AnimatedGestureDetector(
-          onTapUp: onTap,
-          child: const Padding(
-            padding: EdgeInsets.all(1),
-            child: FlowySvg(
-              FlowySvgs.m_aa_bold_s,
-              size: Size.square(22),
-            ),
+          onTapUp: () {
+            setState(() {
+              isBold = !isBold;
+            });
+            widget.toggleBold.call(isBold);
+          },
+          child: FlowySvg(
+            FlowySvgs.m_aa_bold_s,
+            size: const Size.square(24),
+            color: isBold ? Theme.of(context).colorScheme.onPrimary : null,
           ),
         ),
       ),
@@ -816,11 +856,13 @@ class SimpleTableContentActionDecorator extends StatelessWidget {
     super.key,
     this.enableLeftBorder = false,
     this.enableRightBorder = false,
+    this.backgroundColor,
     required this.child,
   });
 
   final bool enableLeftBorder;
   final bool enableRightBorder;
+  final Color? backgroundColor;
   final Widget child;
 
   @override
@@ -829,7 +871,8 @@ class SimpleTableContentActionDecorator extends StatelessWidget {
       height: SimpleTableConstants.actionSheetNormalActionSectionHeight,
       padding: const EdgeInsets.symmetric(vertical: 10),
       decoration: ShapeDecoration(
-        color: context.simpleTableInsertActionBackgroundColor,
+        color:
+            backgroundColor ?? context.simpleTableInsertActionBackgroundColor,
         shape: _buildBorder(),
       ),
       child: child,

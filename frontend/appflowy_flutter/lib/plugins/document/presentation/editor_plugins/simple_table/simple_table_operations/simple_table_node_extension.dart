@@ -288,6 +288,40 @@ extension TableNodeExtension on Node {
         parentTableCellNode?.columnIndex == 0;
   }
 
+  /// Whether the current cell is bold in the column.
+  ///
+  /// Default is false.
+  bool get isInBoldColumn {
+    final parentTableCellNode = this.parentTableCellNode;
+    final parentTableNode = this.parentTableNode;
+    if (parentTableCellNode == null ||
+        parentTableNode == null ||
+        parentTableNode.type != SimpleTableBlockKeys.type) {
+      return false;
+    }
+
+    final columnIndex = parentTableCellNode.columnIndex;
+    final columnBoldAttributes = parentTableNode.columnBoldAttributes;
+    return columnBoldAttributes[columnIndex.toString()] ?? false;
+  }
+
+  /// Whether the current cell is bold in the row.
+  ///
+  /// Default is false.
+  bool get isInBoldRow {
+    final parentTableCellNode = this.parentTableCellNode;
+    final parentTableNode = this.parentTableNode;
+    if (parentTableCellNode == null ||
+        parentTableNode == null ||
+        parentTableNode.type != SimpleTableBlockKeys.type) {
+      return false;
+    }
+
+    final rowIndex = parentTableCellNode.rowIndex;
+    final rowBoldAttributes = parentTableNode.rowBoldAttributes;
+    return rowBoldAttributes[rowIndex.toString()] ?? false;
+  }
+
   /// Whether the current node is in the header row.
   ///
   /// Default is false.

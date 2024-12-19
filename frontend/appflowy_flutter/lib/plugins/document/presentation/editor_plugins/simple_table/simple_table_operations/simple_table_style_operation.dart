@@ -292,7 +292,7 @@ extension TableOptionOperation on EditorState {
   }
 
   /// Update the bold attribute of the column
-  Future<void> updateColumnBoldAttribute({
+  Future<void> toggleColumnBoldAttribute({
     required Node tableCellNode,
     required bool isBold,
   }) async {
@@ -306,7 +306,7 @@ extension TableOptionOperation on EditorState {
   }
 
   /// Update the bold attribute of the row
-  Future<void> updateRowBoldAttribute({
+  Future<void> toggleRowBoldAttribute({
     required Node tableCellNode,
     required bool isBold,
   }) async {
