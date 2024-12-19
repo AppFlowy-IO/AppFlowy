@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -77,9 +79,16 @@ class SimpleTableQuickActions extends StatelessWidget {
             type: SimpleTableMoreAction.copy,
             onTap: () => _onActionTap(context, SimpleTableMoreAction.copy),
           ),
-          SimpleTableQuickAction(
-            type: SimpleTableMoreAction.paste,
-            onTap: () => _onActionTap(context, SimpleTableMoreAction.paste),
+          FutureBuilder(
+            future: getIt<ClipboardService>().getData(),
+            builder: (context, snapshot) {
+              final hasContent = snapshot.data?.tableJson != null;
+              return SimpleTableQuickAction(
+                type: SimpleTableMoreAction.paste,
+                onTap: () => _onActionTap(context, SimpleTableMoreAction.paste),
+                isEnabled: hasContent,
+              );
+            },
           ),
           SimpleTableQuickAction(
             type: SimpleTableMoreAction.delete,
@@ -184,20 +193,25 @@ class SimpleTableQuickAction extends StatelessWidget {
     super.key,
     required this.type,
     required this.onTap,
+    this.isEnabled = true,
   });
 
   final SimpleTableMoreAction type;
-  final void Function() onTap;
+  final VoidCallback onTap;
+  final bool isEnabled;
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: AnimatedGestureDetector(
-        onTapUp: onTap,
-        child: FlowySvg(
-          type.leftIconSvg,
-          blendMode: null,
-          size: const Size.square(24),
+    return Opacity(
+      opacity: isEnabled ? 1.0 : 0.5,
+      child: Expanded(
+        child: AnimatedGestureDetector(
+          onTapUp: isEnabled ? onTap : null,
+          child: FlowySvg(
+            type.leftIconSvg,
+            blendMode: null,
+            size: const Size.square(24),
+          ),
         ),
       ),
     );
