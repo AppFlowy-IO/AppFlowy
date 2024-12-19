@@ -77,10 +77,23 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               await chatController.insert(message, index: 0);
             }
 
-            if (state.loadingState.isLoading) {
-              emit(
-                state.copyWith(loadingState: const ChatLoadingState.finish()),
-              );
+            switch (state.loadingState) {
+              case LoadChatMessageStatus.loading
+                  when chatController.messages.isEmpty:
+                emit(
+                  state.copyWith(
+                    loadingState: LoadChatMessageStatus.loadingRemote,
+                  ),
+                );
+                break;
+              case LoadChatMessageStatus.loading:
+              case LoadChatMessageStatus.loadingRemote:
+                emit(
+                  state.copyWith(loadingState: LoadChatMessageStatus.ready),
+                );
+                break;
+              default:
+                break;
             }
           },
           loadPreviousMessages: () {
@@ -352,8 +365,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       chatId: chatId,
       limit: Int64(10),
     );
-    final loadMessagesFuture =
-        AIEventLoadNextMessage(loadMessagesPayload).send().fold(
+    await AIEventLoadNextMessage(loadMessagesPayload).send().fold(
       (list) {
         if (!isClosed) {
           final messages = list.messages.map(_createTextMessage).toList();
@@ -362,8 +374,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       },
       (err) => Log.error("Failed to load messages: $err"),
     );
-
-    await Future.wait([loadMessagesFuture]);
   }
 
   bool _isOneTimeMessage(Message message) {
@@ -604,13 +614,13 @@ class ChatEvent with _$ChatEvent {
 class ChatState with _$ChatState {
   const factory ChatState({
     required List<String> selectedSourceIds,
-    required ChatLoadingState loadingState,
+    required LoadChatMessageStatus loadingState,
     required PromptResponseState promptResponseState,
   }) = _ChatState;
 
   factory ChatState.initial() => const ChatState(
         selectedSourceIds: [],
-        loadingState: ChatLoadingState.loading(),
+        loadingState: LoadChatMessageStatus.loading,
         promptResponseState: PromptResponseState.ready,
       );
 }

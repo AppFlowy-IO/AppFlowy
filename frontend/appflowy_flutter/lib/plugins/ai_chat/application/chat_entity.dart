@@ -132,3 +132,9 @@ const onetimeShotType = "OnetimeShotType";
 OnetimeShotType? onetimeMessageTypeFromMeta(Map<String, dynamic>? metadata) {
   return metadata?[onetimeShotType];
 }
+
+enum LoadChatMessageStatus {
+  loading,
+  loadingRemote,
+  ready,
+}
