@@ -65,7 +65,7 @@ Future<void> dragToMoveNode(
   Log.info('Moving node($node, ${node.path}) to path($newPath)');
 
   final transaction = editorState.transaction;
-  transaction.insertNode(newPath, node.copyWith());
+  transaction.insertNode(newPath, node.deepCopy());
   transaction.deleteNode(node);
   await editorState.apply(transaction);
 }

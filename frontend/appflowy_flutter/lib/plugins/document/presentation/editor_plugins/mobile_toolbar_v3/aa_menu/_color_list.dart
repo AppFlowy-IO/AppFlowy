@@ -83,7 +83,7 @@ class _TextColorAndBackgroundColorState
           ),
         ),
         const VSpace(6.0),
-        _TextColors(
+        EditorTextColorWidget(
           selectedColor: selectedTextColor?.tryToColor(),
           onSelectedColor: (textColor) async {
             final hex = textColor.alpha == 0 ? null : textColor.toHex();
@@ -120,7 +120,7 @@ class _TextColorAndBackgroundColorState
           ),
         ),
         const VSpace(6.0),
-        _BackgroundColors(
+        EditorBackgroundColors(
           selectedColor: selectedBackgroundColor?.tryToColor(),
           onSelectedColor: (backgroundColor) async {
             final hex =
@@ -152,8 +152,9 @@ class _TextColorAndBackgroundColorState
   }
 }
 
-class _BackgroundColors extends StatelessWidget {
-  const _BackgroundColors({
+class EditorBackgroundColors extends StatelessWidget {
+  const EditorBackgroundColors({
+    super.key,
     this.selectedColor,
     required this.onSelectedColor,
   });
@@ -225,8 +226,9 @@ class _BackgroundColorItem extends StatelessWidget {
   }
 }
 
-class _TextColors extends StatelessWidget {
-  _TextColors({
+class EditorTextColorWidget extends StatelessWidget {
+  EditorTextColorWidget({
+    super.key,
     this.selectedColor,
     required this.onSelectedColor,
   });

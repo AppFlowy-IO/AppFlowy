@@ -21,7 +21,10 @@ void main() {
         columnCount: 3,
         defaultContent: defaultContent,
       );
-      await editorState.clearContentAtRowIndex(tableNode, 0);
+      await editorState.clearContentAtRowIndex(
+        tableNode: tableNode,
+        rowIndex: 0,
+      );
       for (var i = 0; i < tableNode.rowLength; i++) {
         for (var j = 0; j < tableNode.columnLength; j++) {
           expect(
@@ -44,7 +47,10 @@ void main() {
         columnCount: 4,
         defaultContent: defaultContent,
       );
-      await editorState.clearContentAtRowIndex(tableNode, 2);
+      await editorState.clearContentAtRowIndex(
+        tableNode: tableNode,
+        rowIndex: 2,
+      );
       for (var i = 0; i < tableNode.rowLength; i++) {
         for (var j = 0; j < tableNode.columnLength; j++) {
           expect(
@@ -67,7 +73,10 @@ void main() {
         columnCount: 3,
         defaultContent: defaultContent,
       );
-      await editorState.clearContentAtColumnIndex(tableNode, 0);
+      await editorState.clearContentAtColumnIndex(
+        tableNode: tableNode,
+        columnIndex: 0,
+      );
       for (var i = 0; i < tableNode.rowLength; i++) {
         for (var j = 0; j < tableNode.columnLength; j++) {
           expect(
@@ -90,7 +99,10 @@ void main() {
         columnCount: 4,
         defaultContent: defaultContent,
       );
-      await editorState.clearContentAtColumnIndex(tableNode, 3);
+      await editorState.clearContentAtColumnIndex(
+        tableNode: tableNode,
+        columnIndex: 3,
+      );
       for (var i = 0; i < tableNode.rowLength; i++) {
         for (var j = 0; j < tableNode.columnLength; j++) {
           expect(

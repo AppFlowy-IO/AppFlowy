@@ -74,10 +74,10 @@ class SimpleTableBorderBuilder {
       right: _buildHighlightBorderSide(),
       top: node.rowIndex == 0
           ? _buildHighlightBorderSide()
-          : _buildDefaultBorderSide(),
+          : _buildLightBorderSide(),
       bottom: node.rowIndex + 1 == node.parentTableNode?.rowLength
           ? _buildHighlightBorderSide()
-          : _buildDefaultBorderSide(),
+          : _buildLightBorderSide(),
     );
   }
 
@@ -95,10 +95,10 @@ class SimpleTableBorderBuilder {
       bottom: _buildHighlightBorderSide(),
       left: node.columnIndex == 0
           ? _buildHighlightBorderSide()
-          : _buildDefaultBorderSide(),
+          : _buildLightBorderSide(),
       right: node.columnIndex + 1 == node.parentTableNode?.columnLength
           ? _buildHighlightBorderSide()
-          : _buildDefaultBorderSide(),
+          : _buildLightBorderSide(),
     );
   }
 

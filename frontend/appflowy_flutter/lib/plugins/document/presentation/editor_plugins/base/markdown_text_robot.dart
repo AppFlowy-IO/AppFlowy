@@ -94,7 +94,7 @@ class MarkdownTextRobot {
 
     // Convert markdown and deep copy nodes
     final nodes = customMarkdownToDocument(_markdownText).root.children.map(
-          (node) => node.copyWith(),
+          (node) => node.deepCopy(),
         ); // deep copy the nodes to avoid the linked entities being changed.
 
     // Insert new nodes at selection start

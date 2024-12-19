@@ -67,7 +67,7 @@ Future<void> _formatGreaterToToggleHeading(
       node.path,
       toggleListBlockNode(
         delta: delta,
-        children: node.children.map((e) => e.copyWith()).toList(),
+        children: node.children.map((e) => e.deepCopy()).toList(),
       ),
     )
     ..deleteNode(node);

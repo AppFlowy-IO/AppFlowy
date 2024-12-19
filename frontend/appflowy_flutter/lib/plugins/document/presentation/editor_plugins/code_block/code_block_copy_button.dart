@@ -35,7 +35,7 @@ class _CopyButton extends StatelessWidget {
             }
 
             final document = Document.blank()
-              ..insert([0], [node.copyWith()])
+              ..insert([0], [node.deepCopy()])
               ..toJson();
 
             await getIt<ClipboardService>().setData(

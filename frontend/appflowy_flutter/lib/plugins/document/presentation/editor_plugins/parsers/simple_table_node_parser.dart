@@ -11,7 +11,7 @@ class SimpleTableNodeParser extends NodeParser {
   @override
   String transform(Node node, DocumentMarkdownEncoder? encoder) {
     try {
-      final tableData = _extractTableData(node);
+      final tableData = _extractTableData(node, encoder);
       if (tableData.isEmpty) {
         return '';
       }
@@ -23,12 +23,15 @@ class SimpleTableNodeParser extends NodeParser {
 
   /// Extracts table data from the node structure into a 2D list of strings
   /// Each inner list represents a row, and each string represents a cell's content
-  List<List<String>> _extractTableData(Node node) {
+  List<List<String>> _extractTableData(
+    Node node,
+    DocumentMarkdownEncoder? encoder,
+  ) {
     final tableData = <List<String>>[];
     final rows = node.children;
 
     for (final row in rows) {
-      final rowData = _extractRowData(row);
+      final rowData = _extractRowData(row, encoder);
       tableData.add(rowData);
     }
 
@@ -36,12 +39,12 @@ class SimpleTableNodeParser extends NodeParser {
   }
 
   /// Extracts data from a single table row
-  List<String> _extractRowData(Node row) {
+  List<String> _extractRowData(Node row, DocumentMarkdownEncoder? encoder) {
     final rowData = <String>[];
     final cells = row.children;
 
     for (final cell in cells) {
-      final content = _extractCellContent(cell);
+      final content = _extractCellContent(cell, encoder);
       rowData.add(content);
     }
 
@@ -49,14 +52,17 @@ class SimpleTableNodeParser extends NodeParser {
   }
 
   /// Extracts and formats content from a single table cell
-  String _extractCellContent(Node cell) {
+  String _extractCellContent(Node cell, DocumentMarkdownEncoder? encoder) {
     final contentBuffer = StringBuffer();
 
     for (final child in cell.children) {
       final delta = child.delta;
-      if (delta == null) continue;
 
-      final content = DeltaMarkdownEncoder().convert(delta);
+      // if the node doesn't contain delta, fallback to the encoder
+      final content = delta != null
+          ? DeltaMarkdownEncoder().convert(delta)
+          : encoder?.convertNodes([child]).trim() ?? '';
+
       // Escape pipe characters to prevent breaking markdown table structure
       contentBuffer.write(content.replaceAll('|', '\\|'));
     }

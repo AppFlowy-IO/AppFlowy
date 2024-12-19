@@ -21,9 +21,15 @@ void main() {
       );
       // default is not header column
       expect(tableNode.isHeaderColumnEnabled, false);
-      await editorState.toggleEnableHeaderColumn(tableNode, true);
+      await editorState.toggleEnableHeaderColumn(
+        tableNode: tableNode,
+        enable: true,
+      );
       expect(tableNode.isHeaderColumnEnabled, true);
-      await editorState.toggleEnableHeaderColumn(tableNode, false);
+      await editorState.toggleEnableHeaderColumn(
+        tableNode: tableNode,
+        enable: false,
+      );
       expect(tableNode.isHeaderColumnEnabled, false);
       expect(tableNode.rowLength, 2);
       expect(tableNode.columnLength, 3);
@@ -36,9 +42,15 @@ void main() {
       );
       // default is not header row
       expect(tableNode.isHeaderRowEnabled, false);
-      await editorState.toggleEnableHeaderRow(tableNode, true);
+      await editorState.toggleEnableHeaderRow(
+        tableNode: tableNode,
+        enable: true,
+      );
       expect(tableNode.isHeaderRowEnabled, true);
-      await editorState.toggleEnableHeaderRow(tableNode, false);
+      await editorState.toggleEnableHeaderRow(
+        tableNode: tableNode,
+        enable: false,
+      );
       expect(tableNode.isHeaderRowEnabled, false);
       expect(tableNode.rowLength, 2);
       expect(tableNode.columnLength, 3);
