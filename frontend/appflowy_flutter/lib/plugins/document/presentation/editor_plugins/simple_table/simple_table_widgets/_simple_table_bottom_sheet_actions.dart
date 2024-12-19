@@ -47,11 +47,17 @@ class SimpleTableQuickActions extends ISimpleTableBottomSheetActions {
         children: [
           SimpleTableQuickAction(
             type: SimpleTableMoreAction.cut,
-            onTap: () => _onActionTap(context, SimpleTableMoreAction.cut),
+            onTap: () => _onActionTap(
+              context,
+              SimpleTableMoreAction.cut,
+            ),
           ),
           SimpleTableQuickAction(
             type: SimpleTableMoreAction.copy,
-            onTap: () => _onActionTap(context, SimpleTableMoreAction.copy),
+            onTap: () => _onActionTap(
+              context,
+              SimpleTableMoreAction.copy,
+            ),
           ),
           FutureBuilder(
             future: getIt<ClipboardService>().getData(),
@@ -59,14 +65,20 @@ class SimpleTableQuickActions extends ISimpleTableBottomSheetActions {
               final hasContent = snapshot.data?.tableJson != null;
               return SimpleTableQuickAction(
                 type: SimpleTableMoreAction.paste,
-                onTap: () => _onActionTap(context, SimpleTableMoreAction.paste),
                 isEnabled: hasContent,
+                onTap: () => _onActionTap(
+                  context,
+                  SimpleTableMoreAction.paste,
+                ),
               );
             },
           ),
           SimpleTableQuickAction(
             type: SimpleTableMoreAction.delete,
-            onTap: () => _onActionTap(context, SimpleTableMoreAction.delete),
+            onTap: () => _onActionTap(
+              context,
+              SimpleTableMoreAction.delete,
+            ),
           ),
         ],
       ),
@@ -654,7 +666,12 @@ class SimpleTableContentActions extends ISimpleTableBottomSheetActions {
     required super.type,
     required super.cellNode,
     required super.editorState,
+    required this.onTextColorSelected,
+    required this.onTextBackgroundColorSelected,
   });
+
+  final VoidCallback onTextColorSelected;
+  final VoidCallback onTextBackgroundColorSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -670,9 +687,13 @@ class SimpleTableContentActions extends ISimpleTableBottomSheetActions {
             toggleBold: _toggleBold,
           ),
           const HSpace(2),
-          const SimpleTableContentTextColorAction(),
+          SimpleTableContentTextColorAction(
+            onTap: onTextColorSelected,
+          ),
           const HSpace(2),
-          const SimpleTableContentTextBackgroundColorAction(),
+          SimpleTableContentTextBackgroundColorAction(
+            onTap: onTextBackgroundColorSelected,
+          ),
           const HSpace(16),
           const SimpleTableContentAlignmentAction(),
         ],
@@ -749,14 +770,17 @@ class _SimpleTableContentBoldActionState
 class SimpleTableContentTextColorAction extends StatelessWidget {
   const SimpleTableContentTextColorAction({
     super.key,
+    required this.onTap,
   });
+
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: SimpleTableContentActionDecorator(
         child: AnimatedGestureDetector(
-          onTapUp: () {},
+          onTapUp: onTap,
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -779,7 +803,10 @@ class SimpleTableContentTextColorAction extends StatelessWidget {
 class SimpleTableContentTextBackgroundColorAction extends StatelessWidget {
   const SimpleTableContentTextBackgroundColorAction({
     super.key,
+    required this.onTap,
   });
+
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -787,7 +814,7 @@ class SimpleTableContentTextBackgroundColorAction extends StatelessWidget {
       child: SimpleTableContentActionDecorator(
         enableRightBorder: true,
         child: AnimatedGestureDetector(
-          onTapUp: () {},
+          onTapUp: onTap,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
