@@ -190,14 +190,12 @@ class SimpleTableQuickAction extends StatelessWidget {
   Widget build(BuildContext context) {
     return Opacity(
       opacity: isEnabled ? 1.0 : 0.5,
-      child: Expanded(
-        child: AnimatedGestureDetector(
-          onTapUp: isEnabled ? onTap : null,
-          child: FlowySvg(
-            type.leftIconSvg,
-            blendMode: null,
-            size: const Size.square(24),
-          ),
+      child: AnimatedGestureDetector(
+        onTapUp: isEnabled ? onTap : null,
+        child: FlowySvg(
+          type.leftIconSvg,
+          blendMode: null,
+          size: const Size.square(24),
         ),
       ),
     );

@@ -384,17 +384,11 @@ ParagraphBlockComponentBuilder _buildParagraphBlockComponentBuilder(
   return ParagraphBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: placeholderText,
-      textStyle: (node) {
-        if (node.isInHeaderColumn ||
-            node.isInHeaderRow ||
-            node.isInBoldColumn ||
-            node.isInBoldRow) {
-          return configuration.textStyle(node).copyWith(
-                fontWeight: FontWeight.bold,
-              );
-        }
-        return configuration.textStyle(node);
-      },
+      textStyle: (node) => _buildTextStyleInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
     ),
     showPlaceholder: showParagraphPlaceholder,
   );
@@ -799,4 +793,35 @@ SubPageBlockComponentBuilder _buildSubPageBlockComponentBuilder(
   BlockComponentConfiguration configuration,
 ) {
   return SubPageBlockComponentBuilder(configuration: configuration);
+}
+
+TextStyle _buildTextStyleInTableCell(
+  BuildContext context, {
+  required Node node,
+  required BlockComponentConfiguration configuration,
+}) {
+  TextStyle textStyle = configuration.textStyle(node);
+
+  if (node.isInHeaderColumn ||
+      node.isInHeaderRow ||
+      node.isInBoldColumn ||
+      node.isInBoldRow) {
+    textStyle = textStyle.copyWith(
+      fontWeight: FontWeight.bold,
+    );
+  }
+
+  final cellTextColor = node.textColorInColumn ?? node.textColorInRow;
+
+  if (cellTextColor != null) {
+    textStyle = textStyle.copyWith(
+      color: buildEditorCustomizedColor(
+        context,
+        node,
+        cellTextColor,
+      ),
+    );
+  }
+
+  return textStyle;
 }

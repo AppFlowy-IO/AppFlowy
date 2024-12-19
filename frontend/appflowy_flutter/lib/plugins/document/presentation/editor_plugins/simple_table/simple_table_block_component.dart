@@ -66,17 +66,6 @@ class SimpleTableBlockKeys {
   /// the attribute should be the color hex color or appflowy_theme_color
   static const String rowTextColors = 'row_text_colors';
 
-  /// column text background color attributes
-  /// it's a [SimpleTableColorMap] value, {column_index: color_hex_code, ...}
-  /// the attribute should be the color hex color or appflowy_theme_color
-  static const String columnTextBackgroundColors =
-      'column_text_background_colors';
-
-  /// row text background color attributes
-  /// it's a [SimpleTableColorMap] value, {row_index: color_hex_code, ...}
-  /// the attribute should be the color hex color or appflowy_theme_color
-  static const String rowTextBackgroundColors = 'row_text_background_colors';
-
   /// column widths
   /// it's a [SimpleTableColumnWidthMap] value, {column_index: width, ...}
   static const String columnWidths = 'column_widths';

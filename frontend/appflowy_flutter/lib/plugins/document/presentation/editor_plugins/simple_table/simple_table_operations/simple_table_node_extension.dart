@@ -322,6 +322,38 @@ extension TableNodeExtension on Node {
     return rowBoldAttributes[rowIndex.toString()] ?? false;
   }
 
+  /// Get the text color of the current cell in the column.
+  ///
+  /// Default is null.
+  String? get textColorInColumn {
+    final parentTableCellNode = this.parentTableCellNode;
+    final parentTableNode = this.parentTableNode;
+    if (parentTableCellNode == null ||
+        parentTableNode == null ||
+        parentTableNode.type != SimpleTableBlockKeys.type) {
+      return null;
+    }
+
+    final columnIndex = parentTableCellNode.columnIndex;
+    return parentTableNode.columnTextColors[columnIndex.toString()];
+  }
+
+  /// Get the text color of the current cell in the row.
+  ///
+  /// Default is null.
+  String? get textColorInRow {
+    final parentTableCellNode = this.parentTableCellNode;
+    final parentTableNode = this.parentTableNode;
+    if (parentTableCellNode == null ||
+        parentTableNode == null ||
+        parentTableNode.type != SimpleTableBlockKeys.type) {
+      return null;
+    }
+
+    final rowIndex = parentTableCellNode.rowIndex;
+    return parentTableNode.rowTextColors[rowIndex.toString()];
+  }
+
   /// Whether the current node is in the header row.
   ///
   /// Default is false.
