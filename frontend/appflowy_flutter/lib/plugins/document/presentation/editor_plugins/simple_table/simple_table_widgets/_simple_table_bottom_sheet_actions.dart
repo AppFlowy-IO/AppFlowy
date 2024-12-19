@@ -670,6 +670,8 @@ class SimpleTableContentActions extends ISimpleTableBottomSheetActions {
           const SimpleTableContentTextColorAction(),
           const HSpace(2),
           const SimpleTableContentTextBackgroundColorAction(),
+          const HSpace(16),
+          const SimpleTableContentAlignmentAction(),
         ],
       ),
     );
@@ -737,6 +739,32 @@ class SimpleTableContentTextBackgroundColorAction extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: SimpleTableContentActionDecorator(
+        enableRightBorder: true,
+        child: AnimatedGestureDetector(
+          onTapUp: () {},
+          child: const Padding(
+            padding: EdgeInsets.all(1),
+            child: FlowySvg(
+              FlowySvgs.m_aa_bold_s,
+              size: Size.square(22),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class SimpleTableContentAlignmentAction extends StatelessWidget {
+  const SimpleTableContentAlignmentAction({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: SimpleTableContentActionDecorator(
+        enableLeftBorder: true,
         enableRightBorder: true,
         child: AnimatedGestureDetector(
           onTapUp: () {},
