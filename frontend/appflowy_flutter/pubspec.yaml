@@ -73,7 +73,7 @@ dependencies:
   flutter_emoji_mart:
     git:
       url: https://github.com/LucasXu0/emoji_mart.git
-      ref: "38c2c42"
+      ref: "8a9fa49"
   flutter_math_fork: ^0.7.3
   flutter_slidable: ^3.0.0
 
