@@ -696,6 +696,7 @@
         "outdentLineCodeblock": "حذف فراغين فاصلين في بداية السطر",
         "twoSpacesCursorCodeblock": "إدراج فراغين فاصلين عند المؤشر",
         "copy": "اختيار النسخ",
+        "paste": "لصق في المحتوى",
         "deleteLeftWord": "حذف الكلمة اليسرى"
       },
       "commands": {
