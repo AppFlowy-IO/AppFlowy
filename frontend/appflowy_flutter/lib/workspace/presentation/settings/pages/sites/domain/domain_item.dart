@@ -109,7 +109,7 @@ class _HomePageButton extends StatelessWidget {
     final isOwner = context
             .watch<UserWorkspaceBloc>()
             .state
-            .currentWorkspaceMember
+            .currentWorkspace
             ?.role
             .isOwner ??
         false;
@@ -227,7 +227,7 @@ class _FreePlanUpgradeButton extends StatelessWidget {
     final isOwner = context
             .watch<UserWorkspaceBloc>()
             .state
-            .currentWorkspaceMember
+            .currentWorkspace
             ?.role
             .isOwner ??
         false;
