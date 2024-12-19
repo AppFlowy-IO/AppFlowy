@@ -92,9 +92,13 @@ extension TableContentOperation on EditorState {
   }
 
   /// Copy the selected column to the clipboard.
+  ///
+  /// If the [clearContent] is true, the content of the column will be cleared after
+  /// copying.
   Future<void> copyColumn({
     required Node tableNode,
     required int columnIndex,
+    bool clearContent = false,
   }) async {
     assert(tableNode.type == SimpleTableBlockKeys.type);
 
@@ -137,12 +141,23 @@ extension TableContentOperation on EditorState {
         tableJson: jsonEncode(document.toJson()),
       ),
     );
+
+    if (clearContent) {
+      await clearContentAtColumnIndex(
+        tableNode: tableNode,
+        columnIndex: columnIndex,
+      );
+    }
   }
 
   /// Copy the selected row to the clipboard.
+  ///
+  /// If the [clearContent] is true, the content of the row will be cleared after
+  /// copying.
   Future<void> copyRow({
     required Node tableNode,
     required int rowIndex,
+    bool clearContent = false,
   }) async {
     assert(tableNode.type == SimpleTableBlockKeys.type);
 
@@ -183,6 +198,13 @@ extension TableContentOperation on EditorState {
         tableJson: jsonEncode(document.toJson()),
       ),
     );
+
+    if (clearContent) {
+      await clearContentAtRowIndex(
+        tableNode: tableNode,
+        rowIndex: rowIndex,
+      );
+    }
   }
 
   /// Paste the clipboard content to the table column.

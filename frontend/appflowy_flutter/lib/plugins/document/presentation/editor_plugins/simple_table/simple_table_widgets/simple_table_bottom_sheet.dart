@@ -99,51 +99,83 @@ class SimpleTableQuickActions extends StatelessWidget {
 
     switch (action) {
       case SimpleTableMoreAction.cut:
+        _onCut(tableNode);
       case SimpleTableMoreAction.copy:
-        switch (type) {
-          case SimpleTableMoreActionType.column:
-            editorState.copyColumn(
-              tableNode: tableNode,
-              columnIndex: node.columnIndex,
-            );
-          case SimpleTableMoreActionType.row:
-            editorState.copyRow(
-              tableNode: tableNode,
-              rowIndex: node.rowIndex,
-            );
-        }
+        _onCopy(tableNode);
       case SimpleTableMoreAction.paste:
-        switch (type) {
-          case SimpleTableMoreActionType.column:
-            editorState.pasteColumn(
-              tableNode: tableNode,
-              columnIndex: node.columnIndex,
-            );
-          case SimpleTableMoreActionType.row:
-            editorState.pasteRow(
-              tableNode: tableNode,
-              rowIndex: node.rowIndex,
-            );
-        }
+        _onPaste(tableNode);
       case SimpleTableMoreAction.delete:
-        switch (type) {
-          case SimpleTableMoreActionType.column:
-            editorState.deleteColumnInTable(
-              tableNode,
-              node.columnIndex,
-            );
-          case SimpleTableMoreActionType.row:
-            editorState.deleteRowInTable(
-              tableNode,
-              node.rowIndex,
-            );
-        }
+        _onDelete(tableNode);
       default:
         assert(false, 'Unsupported action: $type');
     }
 
     // close the action menu
     Navigator.of(context).pop();
+  }
+
+  void _onCut(Node tableNode) {
+    switch (type) {
+      case SimpleTableMoreActionType.column:
+        editorState.copyColumn(
+          tableNode: tableNode,
+          columnIndex: node.columnIndex,
+          clearContent: true,
+        );
+      case SimpleTableMoreActionType.row:
+        editorState.copyRow(
+          tableNode: tableNode,
+          rowIndex: node.rowIndex,
+          clearContent: true,
+        );
+    }
+  }
+
+  void _onCopy(
+    Node tableNode,
+  ) {
+    switch (type) {
+      case SimpleTableMoreActionType.column:
+        editorState.copyColumn(
+          tableNode: tableNode,
+          columnIndex: node.columnIndex,
+        );
+      case SimpleTableMoreActionType.row:
+        editorState.copyRow(
+          tableNode: tableNode,
+          rowIndex: node.rowIndex,
+        );
+    }
+  }
+
+  void _onPaste(Node tableNode) {
+    switch (type) {
+      case SimpleTableMoreActionType.column:
+        editorState.pasteColumn(
+          tableNode: tableNode,
+          columnIndex: node.columnIndex,
+        );
+      case SimpleTableMoreActionType.row:
+        editorState.pasteRow(
+          tableNode: tableNode,
+          rowIndex: node.rowIndex,
+        );
+    }
+  }
+
+  void _onDelete(Node tableNode) {
+    switch (type) {
+      case SimpleTableMoreActionType.column:
+        editorState.deleteColumnInTable(
+          tableNode,
+          node.columnIndex,
+        );
+      case SimpleTableMoreActionType.row:
+        editorState.deleteRowInTable(
+          tableNode,
+          node.rowIndex,
+        );
+    }
   }
 }
 
