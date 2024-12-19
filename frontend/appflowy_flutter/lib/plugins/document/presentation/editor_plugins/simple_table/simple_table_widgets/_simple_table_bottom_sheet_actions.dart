@@ -717,12 +717,18 @@ class SimpleTableContentTextColorAction extends StatelessWidget {
       child: SimpleTableContentActionDecorator(
         child: AnimatedGestureDetector(
           onTapUp: () {},
-          child: const Padding(
-            padding: EdgeInsets.all(1),
-            child: FlowySvg(
-              FlowySvgs.m_aa_bold_s,
-              size: Size.square(22),
-            ),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FlowySvg(
+                FlowySvgs.m_table_text_color_m,
+              ),
+              HSpace(10),
+              FlowySvg(
+                FlowySvgs.m_aa_arrow_right_s,
+                size: Size.square(12),
+              ),
+            ],
           ),
         ),
       ),
@@ -742,13 +748,31 @@ class SimpleTableContentTextBackgroundColorAction extends StatelessWidget {
         enableRightBorder: true,
         child: AnimatedGestureDetector(
           onTapUp: () {},
-          child: const Padding(
-            padding: EdgeInsets.all(1),
-            child: FlowySvg(
-              FlowySvgs.m_aa_bold_s,
-              size: Size.square(22),
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildTextBackgroundColorPreview(),
+              const HSpace(10),
+              const FlowySvg(
+                FlowySvgs.m_aa_arrow_right_s,
+                size: Size.square(12),
+              ),
+            ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextBackgroundColorPreview() {
+    return Container(
+      width: 24,
+      height: 24,
+      decoration: ShapeDecoration(
+        color: const Color(0xFFFFE6FD),
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(color: Color(0xFFCFD3D9)),
+          borderRadius: BorderRadius.circular(100),
         ),
       ),
     );
@@ -768,12 +792,18 @@ class SimpleTableContentAlignmentAction extends StatelessWidget {
         enableRightBorder: true,
         child: AnimatedGestureDetector(
           onTapUp: () {},
-          child: const Padding(
-            padding: EdgeInsets.all(1),
-            child: FlowySvg(
-              FlowySvgs.m_aa_bold_s,
-              size: Size.square(22),
-            ),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FlowySvg(
+                FlowySvgs.m_aa_align_left_m,
+              ),
+              HSpace(10),
+              FlowySvg(
+                FlowySvgs.m_aa_arrow_right_s,
+                size: Size.square(12),
+              ),
+            ],
           ),
         ),
       ),
