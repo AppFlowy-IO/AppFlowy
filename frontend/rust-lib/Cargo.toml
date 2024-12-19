@@ -33,40 +33,41 @@ members = [
   "flowy-ai-pub",
   "flowy-storage-pub",
 ]
+
 resolver = "2"
 
 [workspace.dependencies]
-lib-dispatch = { workspace = true, path = "lib-dispatch" }
-lib-log = { workspace = true, path = "lib-log" }
-lib-infra = { workspace = true, path = "lib-infra" }
-flowy-ast = { workspace = true, path = "build-tool/flowy-ast" }
-flowy-codegen = { workspace = true, path = "build-tool/flowy-codegen" }
-flowy-derive = { workspace = true, path = "build-tool/flowy-derive" }
-flowy-core = { workspace = true, path = "flowy-core" }
-dart-ffi = { workspace = true, path = "dart-ffi" }
-flowy-user = { workspace = true, path = "flowy-user" }
-flowy-user-pub = { workspace = true, path = "flowy-user-pub" }
-flowy-sqlite = { workspace = true, path = "flowy-sqlite" }
-flowy-folder = { workspace = true, path = "flowy-folder" }
-flowy-folder-pub = { workspace = true, path = "flowy-folder-pub" }
-flowy-notification = { workspace = true, path = "flowy-notification" }
-flowy-document = { workspace = true, path = "flowy-document" }
-flowy-document-pub = { workspace = true, path = "flowy-document-pub" }
-flowy-error = { workspace = true, path = "flowy-error" }
-flowy-database2 = { workspace = true, path = "flowy-database2" }
-flowy-database-pub = { workspace = true, path = "flowy-database-pub" }
-flowy-server = { workspace = true, path = "flowy-server" }
-flowy-server-pub = { workspace = true, path = "flowy-server-pub" }
-flowy-config = { workspace = true, path = "flowy-config" }
-flowy-encrypt = { workspace = true, path = "flowy-encrypt" }
-flowy-storage = { workspace = true, path = "flowy-storage" }
-flowy-storage-pub = { workspace = true, path = "flowy-storage-pub" }
-flowy-search = { workspace = true, path = "flowy-search" }
-flowy-search-pub = { workspace = true, path = "flowy-search-pub" }
-collab-integrate = { workspace = true, path = "collab-integrate" }
-flowy-date = { workspace = true, path = "flowy-date" }
-flowy-ai = { workspace = true, path = "flowy-ai" }
-flowy-ai-pub = { workspace = true, path = "flowy-ai-pub" }
+lib-dispatch = { path = "lib-dispatch" }
+lib-log = { path = "lib-log" }
+lib-infra = { path = "lib-infra" }
+flowy-ast = { path = "build-tool/flowy-ast" }
+flowy-codegen = { path = "build-tool/flowy-codegen" }
+flowy-derive = { path = "build-tool/flowy-derive" }
+flowy-core = { path = "flowy-core" }
+dart-ffi = { path = "dart-ffi" }
+flowy-user = { path = "flowy-user" }
+flowy-user-pub = { path = "flowy-user-pub" }
+flowy-sqlite = { path = "flowy-sqlite" }
+flowy-folder = { path = "flowy-folder" }
+flowy-folder-pub = { path = "flowy-folder-pub" }
+flowy-notification = { path = "flowy-notification" }
+flowy-document = { path = "flowy-document" }
+flowy-document-pub = { path = "flowy-document-pub" }
+flowy-error = { path = "flowy-error" }
+flowy-database2 = { path = "flowy-database2" }
+flowy-database-pub = { path = "flowy-database-pub" }
+flowy-server = { path = "flowy-server" }
+flowy-server-pub = { path = "flowy-server-pub" }
+flowy-config = { path = "flowy-config" }
+flowy-encrypt = { path = "flowy-encrypt" }
+flowy-storage = { path = "flowy-storage" }
+flowy-storage-pub = { path = "flowy-storage-pub" }
+flowy-search = { path = "flowy-search" }
+flowy-search-pub = { path = "flowy-search-pub" }
+collab-integrate = { path = "collab-integrate" }
+flowy-date = { path = "flowy-date" }
+flowy-ai = { path = "flowy-ai" }
+flowy-ai-pub = { path = "flowy-ai-pub" }
 anyhow = "1.0"
 arc-swap = "1.7"
 tracing = "0.1.40"
@@ -106,8 +107,8 @@ dashmap = "6.0.1"
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "66deaf3fa30564530160f7ac6de6dd2833d3d211" }
-client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "66deaf3fa30564530160f7ac6de6dd2833d3d211" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "abf827f2a6bebc70ef8829909dcf6acb3ce24715" }
+client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "abf827f2a6bebc70ef8829909dcf6acb3ce24715" }
 
 [profile.dev]
 opt-level = 0

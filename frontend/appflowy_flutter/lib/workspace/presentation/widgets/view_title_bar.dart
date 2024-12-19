@@ -28,8 +28,7 @@ class ViewTitleBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          ViewTitleBarBloc(view: view)..add(const ViewTitleBarEvent.initial()),
+      create: (_) => ViewTitleBarBloc(view: view),
       child: BlocBuilder<ViewTitleBarBloc, ViewTitleBarState>(
         builder: (context, state) {
           final ancestors = state.ancestors;

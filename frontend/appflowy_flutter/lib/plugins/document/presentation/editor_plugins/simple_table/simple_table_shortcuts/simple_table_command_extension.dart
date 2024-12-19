@@ -65,6 +65,10 @@ extension TableCommandExtension on EditorState {
       return KeyEventResult.ignored;
     }
 
+    if (isOutdentable(editorState)) {
+      return outdentCommand.execute(editorState);
+    }
+
     Selection? newSelection;
 
     final previousCell = tableCellNode.getPreviousCellInSameRow();
@@ -125,6 +129,10 @@ extension TableCommandExtension on EditorState {
     }
 
     Selection? newSelection;
+
+    if (isIndentable(editorState)) {
+      return indentCommand.execute(editorState);
+    }
 
     final nextCell = tableCellNode.getNextCellInSameRow();
     if (nextCell != null && !nextCell.path.equals(tableCellNode.path)) {

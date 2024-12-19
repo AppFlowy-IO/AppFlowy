@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SimpleTableBorderBuilder {
   SimpleTableBorderBuilder({
@@ -38,7 +39,13 @@ class SimpleTableBorderBuilder {
     // check if the cell is in the reordering column
     final isReordering = simpleTableContext.isReordering;
 
-    if (isReordering && (isCellInHoveringColumn || isCellInHoveringRow)) {
+    final editorState = context.read<EditorState>();
+    final editable = editorState.editable;
+
+    if (!editable) {
+      return buildCellBorder();
+    } else if (isReordering &&
+        (isCellInHoveringColumn || isCellInHoveringRow)) {
       return buildReorderingBorder();
     } else if (simpleTableContext.isSelectingTable.value) {
       return buildSelectingTableBorder();

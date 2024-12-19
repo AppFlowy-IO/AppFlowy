@@ -1076,6 +1076,7 @@
       "syncSetting": "Sync Einstellung",
       "cloudSettings": "Cloud Einstellungen",
       "enableSync": "Sync aktivieren",
+      "enableSyncLogWarning": "Vielen Dank für Ihre Hilfe bei der Diagnose von Synchronisierungsproblemen. Dadurch werden Ihre Dokumentänderungen in einer lokalen Datei protokolliert. Bitte beenden Sie die App und öffnen Sie sie erneut, nachdem Sie sie aktiviert haben.",
       "enableEncrypt": "Daten verschlüsseln",
       "cloudURL": "Basis URL",
       "invalidCloudURLScheme": "Ungültiges Format",
@@ -1405,6 +1406,7 @@
       "empty": "Keine aktiven Filter",
       "addFilter": "Filter hinzufügen",
       "cannotFindCreatableField": "Es wurde kein geeignetes Feld zum Filtern gefunden.",
+      "conditon": "Bedingung",
       "where": "Wo"
     },
     "textFilter": {
@@ -1475,6 +1477,7 @@
       "isNotEmpty": "nicht leer"
     },
     "field": {
+      "label": "Eigenschaft",
       "hide": "Verstecken",
       "show": "Anzeigen",
       "insertLeft": "Links einfügen",
@@ -1572,6 +1575,7 @@
       "copyProperty": "Eigenschaft in die Zwischenablage kopiert",
       "count": "Zählen",
       "newRow": "Neue Zeile",
+      "loadMore": "Mehr laden",
       "action": "Aktion",
       "add": "Klicken, um unten hinzuzufügen",
       "drag": "Ziehen, um zu verschieben",
@@ -1659,6 +1663,7 @@
       "showFileNames": "Dateinamen anzeigen",
       "downloadSuccess": "Datei heruntergeladen",
       "downloadFailedToken": "Datei konnte nicht heruntergeladen werden, Benutzertoken nicht verfügbar",
+      "setAsCover": "Als Cover festlegen",
       "openInBrowser": "Im Browser öffnen",
       "embedLink": "Dateilink einbetten"
     }
@@ -1706,7 +1711,22 @@
         "divider": "Trenner",
         "outline": "Gliederung",
         "mathEquation": "Mathematische Gleichung",
-        "code": "Code"
+        "code": "Code",
+        "emoji": "Emoji",
+        "aiWriter": "KI-Autor",
+        "dateOrReminder": "Datum oder Erinnerung",
+        "photoGallery": "Fotogalerie",
+        "file": "Datei"
+      },
+      "subPage": {
+        "name": "Dokument",
+        "keyword1": "Unterseite",
+        "keyword2": "Seite",
+        "keyword3": "untergeordnete Seite",
+        "keyword4": "Seite einfügen",
+        "keyword6": "neue Seite",
+        "keyword7": "Seite erstellen",
+        "keyword8": "Dokument"
       }
     },
     "selectionMenu": {
@@ -1747,6 +1767,26 @@
       "bulletedList": "Stichpunktliste",
       "todoList": "Offene Aufgaben Liste",
       "callout": "Hervorhebung",
+      "simpleTable": {
+        "moreActions": {
+          "color": "Farbe",
+          "align": "Ausrichten",
+          "delete": "Löschen",
+          "duplicate": "duplizieren",
+          "insertLeft": "Links einfügen",
+          "insertRight": "Rechts einfügen",
+          "insertAbove": "Oben einfügen",
+          "insertBelow": "Unten einfügen",
+          "headerColumn": "Kopfspalte",
+          "headerRow": "Kopfzeile",
+          "clearContents": "Klarer Inhalt",
+          "setToPageWidth": "Auf Seitenbreite einstellen",
+          "distributeColumnsWidth": "Spalten gleichmäßig verteilen"
+        },
+        "clickToAddNewRow": "Klicken Sie hier, um eine neue Zeile hinzuzufügen",
+        "clickToAddNewColumn": "Klicken Sie hier, um eine neue Spalte hinzuzufügen",
+        "clickToAddNewRowAndColumn": "Klicken Sie hier, um eine neue Zeile und Spalte hinzuzufügen"
+      },
       "cover": {
         "changeCover": "Titelbild wechseln",
         "colors": "Farben",
@@ -1762,6 +1802,7 @@
         "back": "Zurück",
         "saveToGallery": "In der Galerie speichern",
         "removeIcon": "Symbol entfernen",
+        "removeCover": "Cover entfernen",
         "pasteImageUrl": "Bild-URL einfügen",
         "or": "ODER",
         "pickFromFiles": "Dateien auswählen",
@@ -1780,6 +1821,8 @@
       "optionAction": {
         "click": "Klicken",
         "toOpenMenu": " um das Menü zu öffnen",
+        "drag": "Ziehen",
+        "toMove": " bewegen",
         "delete": "Löschen",
         "duplicate": "Duplikat",
         "turnInto": "Einbiegen in",
@@ -1791,7 +1834,8 @@
         "center": "Zentriert",
         "right": "Rechts",
         "defaultColor": "Standard",
-        "depth": "Tiefe"
+        "depth": "Tiefe",
+        "copyLinkToBlock": "Link zum Block kopieren"
       },
       "image": {
         "addAnImage": "Ein Bild hinzufügen",
@@ -1864,11 +1908,14 @@
       "file": {
         "name": "Datei",
         "uploadTab": "Hochladen",
+        "uploadMobile": "Wählen Sie eine Datei",
+        "uploadMobileGallery": "Aus der Fotogalerie",
         "networkTab": "Link integrieren",
         "placeholderText": "Klicke oder ziehe eine Datei hoch, um sie hochzuladen",
         "placeholderDragging": "Lege die hochzuladende Datei hier ab",
         "dropFileToUpload": "Lege die hochzuladende Datei hier ab",
         "fileUploadHint": "Lege die hochzuladende Datei hier ab\noder klicke, um eine Datei auszuwählen.",
+        "fileUploadHintSuffix": "Durchsuchen",
         "networkHint": "Gebe einen Link zu einer Datei ein",
         "networkUrlInvalid": "Ungültige URL. Bitte korrigiere die URL und versuche es erneut.",
         "networkAction": "Dateilink einbetten",
@@ -1879,7 +1926,17 @@
           "nameEmptyError": "Der Dateiname darf nicht leer bleiben."
         },
         "uploadedAt": "Hochgeladen am {}",
-        "linkedAt": "Link hinzugefügt am {}"
+        "linkedAt": "Link hinzugefügt am {}",
+        "failedToOpenMsg": "Öffnen fehlgeschlagen, Datei nicht gefunden"
+      },
+      "subPage": {
+        "errors": {
+          "failedDeletePage": "Seite konnte nicht gelöscht werden",
+          "failedCreatePage": "Seite konnte nicht erstellt werden",
+          "failedMovePage": "Seite konnte nicht in dieses Dokument verschoben werden",
+          "failedDuplicatePage": "Seite konnte nicht dupliziert werden",
+          "failedDuplicateFindView": "Seite konnte nicht dupliziert werden - Originalansicht nicht gefunden"
+        }
       }
     },
     "outlineBlock": {
@@ -1982,7 +2039,10 @@
         "tooltip": "Klicken, um die Seite zu öffnen"
       },
       "deleted": "gelöscht",
-      "deletedContent": "Dieser Inhalt existiert nicht oder wurde gelöscht"
+      "deletedContent": "Dieser Inhalt existiert nicht oder wurde gelöscht",
+      "noAccess": "Kein Zugriff",
+      "deletedPage": "Gelöschte Seite",
+      "trashHint": " - im Papierkorb"
     },
     "toolbar": {
       "resetToDefaultFont": "Auf den Standard zurücksetzen"
@@ -1990,16 +2050,23 @@
     "errorBlock": {
       "theBlockIsNotSupported": "Die aktuelle Version unterstützt diesen Block nicht.",
       "clickToCopyTheBlockContent": "Hier klicken, um den Blockinhalt zu kopieren",
-      "blockContentHasBeenCopied": "Der Blockinhalt wurde kopiert."
+      "blockContentHasBeenCopied": "Der Blockinhalt wurde kopiert.",
+      "copyBlockContent": "Blockinhalt kopieren"
     },
     "mobilePageSelector": {
       "title": "Seite auswählen",
       "failedToLoad": "Seitenliste konnte nicht geladen werden",
       "noPagesFound": "Keine Seiten gefunden"
+    },
+    "attachmentMenu": {
+      "choosePhoto": "Foto auswählen",
+      "takePicture": "Ein Foto machen",
+      "chooseFile": "Datei auswählen"
     }
   },
   "board": {
     "column": {
+      "label": "Spalte",
       "createNewCard": "Neu",
       "renameGroupTooltip": "Drücken, um die Gruppe umzubenennen",
       "createNewColumn": "Eine neue Gruppe hinzufügen",
@@ -2050,7 +2117,11 @@
       "nextThirtyDays": "Nächste 30 Tage"
     },
     "noGroup": "Keine Gruppierung nach Eigenschaft",
-    "noGroupDesc": "Board-Ansichten benötigen eine Eigenschaft zum Gruppieren, um angezeigt zu werden"
+    "noGroupDesc": "Board-Ansichten benötigen eine Eigenschaft zum Gruppieren, um angezeigt zu werden",
+    "media": {
+      "cardText": "{} {}",
+      "fallbackName": "Dateien"
+    }
   },
   "calendar": {
     "menuName": "Kalender",
@@ -2096,10 +2167,13 @@
   "errorDialog": {
     "title": "@:appName-Fehler",
     "howToFixFallback": "Wir entschuldigen uns für die Unannehmlichkeiten! Reiche auf unserer GitHub-Seite ein Problem ein, das deinen Fehler beschreibt.",
+    "howToFixFallbackHint1": "Wir entschuldigen uns für die Unannehmlichkeiten! Melden Sie ein Problem auf unserer ",
+    "howToFixFallbackHint2": " Seite, die Ihren Fehler beschreibt.",
     "github": "Auf GitHub ansehen"
   },
   "search": {
     "label": "Suchen",
+    "sidebarSearchIcon": "Suchen und schnell zu einer Seite springen",
     "placeholder": {
       "actions": "Suchaktionen..."
     }
@@ -2249,7 +2323,9 @@
   },
   "error": {
     "weAreSorry": "Das tut uns leid",
-    "loadingViewError": "Wir haben Schwierigkeiten diese Ansicht zu laden. Bitte prüfe die Internetverbindung, lade die App neu und zögere nicht, das Team zu kontaktieren, falls das Problem weiterhin besteht."
+    "loadingViewError": "Wir haben Schwierigkeiten diese Ansicht zu laden. Bitte prüfe die Internetverbindung, lade die App neu und zögere nicht, das Team zu kontaktieren, falls das Problem weiterhin besteht.",
+    "syncError": "Daten werden nicht von einem anderen Gerät synchronisiert",
+    "clickToCopy": "Klicken Sie hier, um den Fehlercode zu kopieren"
   },
   "editor": {
     "bold": "Fett",
@@ -2421,7 +2497,13 @@
         "deleteMyAccount": "Mein Benutzerkonto löschen",
         "dialogTitle": "Benutzerkonto löschen",
         "dialogContent1": "Bist du sicher, dass du dein Benutzerkonto unwiderruflich löschen möchtest?",
-        "dialogContent2": "Diese Aktion kann nicht rückgängig gemacht werden und führt dazu, dass der Zugriff auf alle Teambereiche aufgehoben wird, dein gesamtes Benutzerkonto, einschließlich privater Arbeitsbereiche, gelöscht wird und du aus allen freigegebenen Arbeitsbereichen entfernt wirst."
+        "dialogContent2": "Diese Aktion kann nicht rückgängig gemacht werden und führt dazu, dass der Zugriff auf alle Teambereiche aufgehoben wird, dein gesamtes Benutzerkonto, einschließlich privater Arbeitsbereiche, gelöscht wird und du aus allen freigegebenen Arbeitsbereichen entfernt wirst.",
+        "confirmHint1": "Geben Sie zur Bestätigung bitte „MEIN KONTO LÖSCHEN“ ein.",
+        "confirmHint3": "MEIN KONTO LÖSCHEN",
+        "checkToConfirmError": "Sie müssen das Kontrollkästchen aktivieren, um das Löschen zu bestätigen",
+        "failedToGetCurrentUser": "Aktuelle Benutzer-E-Mail konnte nicht abgerufen werden.",
+        "confirmTextValidationFailed": "Ihr Bestätigungstext stimmt nicht mit „MEIN KONTO LÖSCHEN“ überein.",
+        "deleteAccountSuccess": "Konto erfolgreich gelöscht"
       }
     },
     "workplace": {
@@ -2467,6 +2549,8 @@
     "openSettings": "Einstellungen öffnen",
     "photoPermissionTitle": "@:appName möchte auf deine Fotobibliothek zugreifen",
     "photoPermissionDescription": "Erlaube den Zugriff auf die Fotobibliothek zum Hochladen von Bildern.",
+    "cameraPermissionTitle": "@:appName möchte auf Ihre Kamera zugreifen",
+    "cameraPermissionDescription": "@:appName benötigt Zugriff auf Ihre Kamera, damit Sie Bilder von der Kamera zu Ihren Dokumenten hinzufügen können.",
     "doNotAllow": "Nicht zulassen",
     "image": "Bild"
   },
@@ -2515,7 +2599,9 @@
     "quicklySwitch": "Schnell zur nächsten Domäne wechseln",
     "duplicate": "Domäne duplizieren",
     "movePageToSpace": "Seite in die Domäne verschieben",
-    "switchSpace": "Domäne wechseln"
+    "cannotMovePageToDatabase": "Seite kann nicht in die Datenbank verschoben werden",
+    "switchSpace": "Domäne wechseln",
+    "spaceNameCannotBeEmpty": "Der Space-Name darf nicht leer sein"
   },
   "publish": {
     "hasNotBeenPublished": "Diese Seite wurde noch nicht veröffentlicht",
@@ -2561,7 +2647,8 @@
       "one": "1 Mitglied",
       "many": "{count} Mitglieder",
       "other": "{count} Mitglieder"
-    }
+    },
+    "useThisTemplate": "Verwenden Sie die Vorlage"
   },
   "web": {
     "continue": "Weiter",
@@ -2569,12 +2656,23 @@
     "continueWithGoogle": "Weiter mit Google",
     "continueWithGithub": "Weiter mit GitHub",
     "continueWithDiscord": "Weiter mit Discord",
+    "continueWithApple": "Weiter mit Apple ",
+    "moreOptions": "Weitere Optionen",
     "signInAgreement": "Wenn du oben auf \"Weiter\" klickst, bestätigst du, dass\ndu folgende Dokumente gelesen, verstanden und akzeptiert hast:\nAppFlowys",
     "and": "und",
     "termOfUse": "Bedingungen",
     "privacyPolicy": "Datenschutzrichtlinie",
     "signInError": "Anmeldefehler",
-    "login": "Registrieren oder anmelden"
+    "login": "Registrieren oder anmelden",
+    "fileBlock": {
+      "uploadedAt": "Hochgeladen am {Zeit}",
+      "linkedAt": "Link hinzugefügt am {Zeit}",
+      "empty": "Hochladen oder Einbetten einer Datei"
+    },
+    "importNotion": "Importieren aus Notion",
+    "import": "Import",
+    "importSuccess": "Erfolgreich hochgeladen",
+    "importFailed": "Import fehlgeschlagen, bitte überprüfen Sie das Dateiformat"
   },
   "globalComment": {
     "comments": "Kommentare",
@@ -2625,5 +2723,10 @@
     "failedToAddComment": "Kommentar konnte nicht hinzugefügt werden",
     "commentAddedSuccessfully": "Kommentar erfolgreich hinzugefügt.",
     "commentAddedSuccessTip": "Du hast gerade einen Kommentar hinzugefügt oder darauf geantwortet. Möchtest du nach oben springen, um die neuesten Kommentare zu sehen?"
+  },
+  "template": {
+    "asTemplate": "Als Vorlage speichern",
+    "name": "Vorlagenname",
+    "description": "Vorlagenbeschreibung"
   }
 }

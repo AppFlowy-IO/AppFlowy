@@ -13,6 +13,7 @@ import 'ai_prompt_buttons.dart';
 import 'chat_input_file.dart';
 import 'chat_input_span.dart';
 import 'chat_mention_page_bottom_sheet.dart';
+import 'select_sources_bottom_sheet.dart';
 
 class MobileAIPromptInput extends StatefulWidget {
   const MobileAIPromptInput({
@@ -21,12 +22,14 @@ class MobileAIPromptInput extends StatefulWidget {
     required this.isStreaming,
     required this.onStopStreaming,
     required this.onSubmitted,
+    required this.onUpdateSelectedSources,
   });
 
   final String chatId;
   final bool isStreaming;
   final void Function() onStopStreaming;
   final void Function(String, Map<String, dynamic>) onSubmitted;
+  final void Function(List<String>) onUpdateSelectedSources;
 
   @override
   State<MobileAIPromptInput> createState() => _MobileAIPromptInputState();
@@ -44,7 +47,7 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
     super.initState();
 
     textController.addListener(handleTextControllerChange);
-    focusNode.onKeyEvent = handleKeyEvent;
+    // focusNode.onKeyEvent = handleKeyEvent;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       focusNode.requestFocus();
@@ -119,16 +122,16 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
                     minHeight: MobileAIPromptSizes.textFieldMinHeight,
                     maxHeight: 220,
                   ),
-                  padding:
-                      const EdgeInsetsDirectional.fromSTEB(0, 8.0, 12.0, 8.0),
                   child: IntrinsicHeight(
                     child: Row(
                       children: [
                         const HSpace(8.0),
-                        Expanded(child: inputTextField(context)),
-                        mentionButton(),
-                        const HSpace(6.0),
+                        leadingButtons(context),
+                        Expanded(
+                          child: inputTextField(context),
+                        ),
                         sendButton(),
+                        const HSpace(12.0),
                       ],
                     ),
                   ),
@@ -170,18 +173,18 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
     if (textController.value.isComposingRangeValid) {
       return;
     }
-    inputControlCubit.updateInputText(textController.text);
+    // inputControlCubit.updateInputText(textController.text);
     setState(() => updateSendButtonState());
   }
 
-  KeyEventResult handleKeyEvent(FocusNode node, KeyEvent event) {
-    if (event.character == '@') {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        mentionPage(context);
-      });
-    }
-    return KeyEventResult.ignored;
-  }
+  // KeyEventResult handleKeyEvent(FocusNode node, KeyEvent event) {
+  //   if (event.character == '@') {
+  //     WidgetsBinding.instance.addPostFrameCallback((_) {
+  //       mentionPage(context);
+  //     });
+  //   }
+  //   return KeyEventResult.ignored;
+  // }
 
   Future<void> mentionPage(BuildContext context) async {
     // if the focus node is on focus, unfocus it for better animation
@@ -197,8 +200,9 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
       final selectedView = await showPageSelectorSheet(
         context,
         filter: (view) =>
+            !view.isSpace &&
             view.layout.isDocumentView &&
-            view.parentViewId.isNotEmpty &&
+            view.parentViewId != view.id &&
             !inputControlCubit.selectedViewIds.contains(view.id),
       );
       if (selectedView != null) {
@@ -258,34 +262,60 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
     );
   }
 
-  Widget mentionButton() {
-    return Align(
+  Widget leadingButtons(BuildContext context) {
+    return Container(
       alignment: Alignment.bottomCenter,
-      child: PromptInputMentionButton(
-        iconSize: MobileAIPromptSizes.mentionIconSize,
-        buttonSize: MobileAIPromptSizes.sendButtonSize,
-        onTap: () {
-          textController.text += '@';
-          if (!focusNode.hasFocus) {
-            focusNode.requestFocus();
-          }
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            mentionPage(context);
-          });
-        },
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: _LeadingActions(
+        chatId: widget.chatId,
+        textController: textController,
+        // onMention: () {
+        //   textController.text += '@';
+        //   if (!focusNode.hasFocus) {
+        //     focusNode.requestFocus();
+        //   }
+        //   WidgetsBinding.instance.addPostFrameCallback((_) {
+        //     mentionPage(context);
+        //   });
+        // },
+        onUpdateSelectedSources: widget.onUpdateSelectedSources,
       ),
     );
   }
 
   Widget sendButton() {
-    return Align(
+    return Container(
       alignment: Alignment.bottomCenter,
+      padding: const EdgeInsets.only(bottom: 8.0),
       child: PromptInputSendButton(
         buttonSize: MobileAIPromptSizes.sendButtonSize,
         iconSize: MobileAIPromptSizes.sendButtonSize,
         onSendPressed: handleSendPressed,
         onStopStreaming: widget.onStopStreaming,
         state: sendButtonState,
+      ),
+    );
+  }
+}
+
+class _LeadingActions extends StatelessWidget {
+  const _LeadingActions({
+    required this.chatId,
+    required this.textController,
+    required this.onUpdateSelectedSources,
+  });
+
+  final String chatId;
+  final TextEditingController textController;
+  final void Function(List<String>) onUpdateSelectedSources;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Theme.of(context).cardColor,
+      child: PromptInputMobileSelectSourcesButton(
+        chatId: chatId,
+        onUpdateSelectedSources: onUpdateSelectedSources,
       ),
     );
   }

@@ -125,6 +125,14 @@ List<OptionAction> _buildOptionActions(BuildContext context, String type) {
     standardActions.addAll([OptionAction.divider, OptionAction.depth]);
   }
 
+  if (SimpleTableBlockKeys.type == type) {
+    standardActions.addAll([
+      OptionAction.divider,
+      OptionAction.setToPageWidth,
+      OptionAction.distributeColumnsEvenly,
+    ]);
+  }
+
   return standardActions;
 }
 
@@ -150,6 +158,7 @@ void _customBlockOptionActions(
         }
         return true;
       };
+
       builder.configuration = builder.configuration.copyWith(
         blockSelectionAreaMargin: (_) => const EdgeInsets.symmetric(
           vertical: 1,
@@ -163,7 +172,7 @@ void _customBlockOptionActions(
         if ((type == HeadingBlockKeys.type ||
                 type == ToggleListBlockKeys.type) &&
             level > 0) {
-          final offset = [14.0, 11.0, 8.0, 6.0, 4.0, 2.0];
+          final offset = [13.0, 11.0, 8.0, 6.0, 4.0, 2.0];
           top += offset[level - 1];
         } else if (type == SimpleTableBlockKeys.type) {
           top += 8.0;

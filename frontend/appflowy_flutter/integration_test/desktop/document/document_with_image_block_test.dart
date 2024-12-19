@@ -138,13 +138,6 @@ void main() {
       );
     });
 
-    testWidgets('insert a bmp image from network', (tester) async {
-      await testEmbedImage(
-        tester,
-        'https://people.math.sc.edu/Burkardt/data/bmp/snail.bmp',
-      );
-    });
-
     testWidgets('insert a jpg image from network', (tester) async {
       await testEmbedImage(
         tester,

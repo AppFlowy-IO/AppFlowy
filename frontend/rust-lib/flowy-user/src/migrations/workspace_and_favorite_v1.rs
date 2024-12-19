@@ -15,7 +15,7 @@ use flowy_user_pub::session::Session;
 
 /// 1. Migrate the workspace: { favorite: [view_id] } to { favorite: { uid: [view_id] } }
 /// 2. Migrate { workspaces: [workspace object] } to { views: { workspace object } }. Make each folder
-/// only have one workspace.
+///    only have one workspace.
 pub struct FavoriteV1AndWorkspaceArrayMigration;
 
 impl UserDataMigration for FavoriteV1AndWorkspaceArrayMigration {

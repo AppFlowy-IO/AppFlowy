@@ -95,6 +95,8 @@ extension TableOptionOperation on EditorState {
           double.infinity,
         ),
       },
+      // reset the distribute column widths evenly flag
+      SimpleTableBlockKeys.distributeColumnWidthsEvenly: false,
     });
     await apply(transaction);
   }
@@ -276,6 +278,7 @@ extension TableOptionOperation on EditorState {
     }
     transaction.updateNode(tableNode, {
       SimpleTableBlockKeys.columnWidths: columnWidths,
+      SimpleTableBlockKeys.distributeColumnWidthsEvenly: false,
     });
     await apply(transaction);
   }
@@ -315,6 +318,7 @@ extension TableOptionOperation on EditorState {
     }
     transaction.updateNode(tableNode, {
       SimpleTableBlockKeys.columnWidths: columnWidths,
+      SimpleTableBlockKeys.distributeColumnWidthsEvenly: true,
     });
     await apply(transaction);
   }

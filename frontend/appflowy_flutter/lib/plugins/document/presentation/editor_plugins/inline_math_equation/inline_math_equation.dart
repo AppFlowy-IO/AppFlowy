@@ -36,7 +36,6 @@ class _InlineMathEquationState extends State<InlineMathEquation> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return _IgnoreParentPointer(
       child: AppFlowyPopover(
         controller: popoverController,
@@ -60,31 +59,40 @@ class _InlineMathEquationState extends State<InlineMathEquation> {
         },
         offset: const Offset(0, 10),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          padding: const EdgeInsets.symmetric(vertical: 2.0),
           child: MouseRegion(
             cursor: SystemMouseCursors.click,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const HSpace(2),
-                Math.tex(
-                  widget.formula,
-                  options: MathOptions(
-                    style: MathStyle.text,
-                    mathFontOptions: const FontOptions(
-                      fontShape: FontStyle.italic,
-                    ),
-                    fontSize: 14.0,
-                    color: widget.textStyle?.color ??
-                        theme.colorScheme.onSurface,
-                  ),
-                ),
-                const HSpace(2),
-              ],
-            ),
+            child: _buildMathEquation(context),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildMathEquation(BuildContext context) {
+    final theme = Theme.of(context);
+    final longEq = Math.tex(
+      widget.formula,
+      textStyle: widget.textStyle,
+      mathStyle: MathStyle.text,
+      options: MathOptions(
+        style: MathStyle.text,
+        mathFontOptions: const FontOptions(
+          fontShape: FontStyle.italic,
+        ),
+        fontSize: 14.0,
+        color: widget.textStyle?.color ?? theme.colorScheme.onSurface,
+      ),
+      onErrorFallback: (errmsg) {
+        return FlowyText(
+          errmsg.message,
+        );
+      },
+    );
+    return Row(
+      children: [
+        longEq,
+      ],
     );
   }
 }

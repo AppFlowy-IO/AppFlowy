@@ -94,6 +94,20 @@ void main() {
       await tester.tapButton(finder);
       expect(find.byType(GridPage), findsOneWidget);
     });
+
+    testWidgets('insert a inline page and type something after the page',
+        (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await insertInlinePage(tester, ViewLayoutPB.Grid);
+
+      await tester.editor.tapLineOfEditorAt(0);
+      const text = 'Hello World';
+      await tester.ime.insertText(text);
+
+      expect(find.textContaining(text, findRichText: true), findsOneWidget);
+    });
   });
 }
 

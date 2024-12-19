@@ -124,27 +124,30 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
         clipBehavior: Clip.none,
         children: [
           _buildCell(),
-          if (node.columnIndex == 0)
+          if (editorState.editable) ...[
+            if (node.columnIndex == 0)
+              Positioned(
+                top: 0,
+                bottom: 0,
+                left: -SimpleTableConstants.tableLeftPadding,
+                child: _buildRowMoreActionButton(),
+              ),
+            if (node.rowIndex == 0)
+              Positioned(
+                left: 0,
+                right: 0,
+                child: _buildColumnMoreActionButton(),
+              ),
             Positioned(
-              top: 0,
-              bottom: 0,
-              left: -SimpleTableConstants.tableLeftPadding,
-              child: _buildRowMoreActionButton(),
-            ),
-          if (node.rowIndex == 0)
-            Positioned(
-              left: 0,
               right: 0,
-              child: _buildColumnMoreActionButton(),
+              top:
+                  node.rowIndex == 0 ? SimpleTableConstants.tableTopPadding : 0,
+              bottom: 0,
+              child: SimpleTableColumnResizeHandle(
+                node: node,
+              ),
             ),
-          Positioned(
-            right: 0,
-            top: node.rowIndex == 0 ? SimpleTableConstants.tableTopPadding : 0,
-            bottom: 0,
-            child: SimpleTableColumnResizeHandle(
-              node: node,
-            ),
-          ),
+          ],
         ],
       ),
     );
@@ -187,8 +190,17 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
             },
           );
         },
-        child: Column(
-          children: node.children.map(_buildCellContent).toList(),
+        child: Container(
+          padding: SimpleTableConstants.cellEdgePadding,
+          constraints: const BoxConstraints(
+            minWidth: SimpleTableConstants.minimumColumnWidth,
+          ),
+          width: node.columnWidth,
+          child: node.children.isEmpty
+              ? _buildEmptyCellContent()
+              : Column(
+                  children: node.children.map(_buildCellContent).toList(),
+                ),
         ),
       ),
     );
@@ -196,18 +208,30 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
   Widget _buildCellContent(Node childNode) {
     final alignment = _buildAlignment();
-    return Container(
-      padding: SimpleTableConstants.cellEdgePadding,
-      constraints: const BoxConstraints(
-        minWidth: SimpleTableConstants.minimumColumnWidth,
-      ),
-      width: node.columnWidth,
+
+    return Align(
       alignment: alignment,
       child: IntrinsicWidth(
-        child: IntrinsicHeight(
-          child: editorState.renderer.build(context, childNode),
-        ),
+        child: editorState.renderer.build(context, childNode),
       ),
+    );
+  }
+
+  Widget _buildEmptyCellContent() {
+    // if the table cell is empty, we should allow the user to tap on it to create a new paragraph.
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        final transaction = editorState.transaction;
+        final path = node.path.child(0);
+        transaction
+          ..insertNode(
+            path,
+            paragraphNode(),
+          )
+          ..afterSelection = Selection.collapsed(Position(path: path));
+        editorState.apply(transaction);
+      },
     );
   }
 
@@ -252,7 +276,12 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   }
 
   Color? _buildBackgroundColor() {
-    // Priority: column color > row color > header color > default color
+    // Priority: highlight color > column color > row color > header color > default color
+    final isSelectingTable =
+        simpleTableContext?.isSelectingTable.value ?? false;
+    if (isSelectingTable) {
+      return Theme.of(context).colorScheme.primary.withOpacity(0.1);
+    }
 
     final columnColor = node.buildColumnColor(context);
     if (columnColor != null && columnColor != Colors.transparent) {

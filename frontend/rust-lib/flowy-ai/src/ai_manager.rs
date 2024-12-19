@@ -285,6 +285,17 @@ impl AIManager {
 
   pub fn local_ai_purchased(&self) {}
 
+  pub async fn get_rag_ids(&self, chat_id: &str) -> FlowyResult<Vec<String>> {
+    let workspace_id = self.user_service.workspace_id()?;
+
+    let settings = self
+      .cloud_service_wm
+      .get_chat_settings(&workspace_id, chat_id)
+      .await?;
+
+    Ok(settings.rag_ids)
+  }
+
   pub async fn update_rag_ids(&self, chat_id: &str, rag_ids: Vec<String>) -> FlowyResult<()> {
     if !rag_ids.is_empty() {
       let workspace_id = self.user_service.workspace_id()?;

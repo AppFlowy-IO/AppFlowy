@@ -43,6 +43,12 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       case OptionAction.copyLinkToBlock:
         await _copyLinkToBlock(node);
         break;
+      case OptionAction.setToPageWidth:
+        await _setToPageWidth(node);
+        break;
+      case OptionAction.distributeColumnsEvenly:
+        await _distributeColumnsEvenly(node);
+        break;
       case OptionAction.align:
       case OptionAction.color:
       case OptionAction.divider:
@@ -656,5 +662,21 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     // if the beforeSelection start with the current block,
     //  then updating the selection with the beforeSelection that may contains multiple blocks
     return beforeSelection;
+  }
+
+  Future<void> _setToPageWidth(Node node) async {
+    if (node.type != SimpleTableBlockKeys.type) {
+      return;
+    }
+
+    await editorState.setColumnWidthToPageWidth(tableNode: node);
+  }
+
+  Future<void> _distributeColumnsEvenly(Node node) async {
+    if (node.type != SimpleTableBlockKeys.type) {
+      return;
+    }
+
+    await editorState.distributeColumnWidthToPageWidth(tableNode: node);
   }
 }

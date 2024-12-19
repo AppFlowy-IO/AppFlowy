@@ -144,6 +144,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
     _initEditorL10n();
     _initializeShortcuts();
 
+    AppFlowyRichTextKeys.partialSliced.addAll([
+      MentionBlockKeys.mention,
+      InlineMathEquationKeys.formula,
+    ]);
+
     indentableBlockTypes.add(ToggleListBlockKeys.type);
     convertibleBlockTypes.add(ToggleListBlockKeys.type);
     slashMenuItems = _customSlashMenuItems();
