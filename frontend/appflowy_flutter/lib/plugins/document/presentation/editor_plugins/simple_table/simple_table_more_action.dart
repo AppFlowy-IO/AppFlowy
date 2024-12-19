@@ -124,12 +124,15 @@ enum SimpleTableMoreAction {
   distributeColumnsEvenly,
   divider,
 
-  // this two actions are only available on mobile
+  // these actions are only available on mobile
   duplicateRow,
   duplicateColumn,
   cut,
   copy,
-  paste;
+  paste,
+  bold,
+  textColor,
+  textBackgroundColor;
 
   String get name {
     return switch (this) {
@@ -165,6 +168,9 @@ enum SimpleTableMoreAction {
       SimpleTableMoreAction.duplicateColumn => LocaleKeys
           .document_plugins_simpleTable_moreActions_duplicateColumn
           .tr(),
+      SimpleTableMoreAction.bold ||
+      SimpleTableMoreAction.textColor ||
+      SimpleTableMoreAction.textBackgroundColor ||
       SimpleTableMoreAction.cut ||
       SimpleTableMoreAction.copy ||
       SimpleTableMoreAction.paste =>
@@ -194,6 +200,11 @@ enum SimpleTableMoreAction {
       SimpleTableMoreAction.cut => FlowySvgs.m_table_quick_action_cut_s,
       SimpleTableMoreAction.copy => FlowySvgs.m_table_quick_action_copy_s,
       SimpleTableMoreAction.paste => FlowySvgs.m_table_quick_action_paste_s,
+      SimpleTableMoreAction.bold => FlowySvgs.m_aa_bold_s,
+      SimpleTableMoreAction.textColor =>
+        throw UnsupportedError('text color icon is not supported'),
+      SimpleTableMoreAction.textBackgroundColor =>
+        throw UnsupportedError('text background color icon is not supported'),
       SimpleTableMoreAction.divider =>
         throw UnsupportedError('divider icon is not supported'),
       SimpleTableMoreAction.align =>

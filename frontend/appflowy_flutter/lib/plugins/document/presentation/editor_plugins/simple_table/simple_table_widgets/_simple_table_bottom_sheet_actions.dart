@@ -658,6 +658,137 @@ class SimpleTableContentActions extends ISimpleTableBottomSheetActions {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Container(
+      height: SimpleTableConstants.actionSheetContentSectionHeight,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          SimpleTableContentBoldAction(
+            onTap: () {},
+          ),
+          const HSpace(2),
+          const SimpleTableContentTextColorAction(),
+          const HSpace(2),
+          const SimpleTableContentTextBackgroundColorAction(),
+        ],
+      ),
+    );
+  }
+}
+
+class SimpleTableContentBoldAction extends StatelessWidget {
+  const SimpleTableContentBoldAction({
+    super.key,
+    required this.onTap,
+  });
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: SimpleTableContentActionDecorator(
+        enableLeftBorder: true,
+        child: AnimatedGestureDetector(
+          onTapUp: onTap,
+          child: const Padding(
+            padding: EdgeInsets.all(1),
+            child: FlowySvg(
+              FlowySvgs.m_aa_bold_s,
+              size: Size.square(22),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class SimpleTableContentTextColorAction extends StatelessWidget {
+  const SimpleTableContentTextColorAction({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: SimpleTableContentActionDecorator(
+        child: AnimatedGestureDetector(
+          onTapUp: () {},
+          child: const Padding(
+            padding: EdgeInsets.all(1),
+            child: FlowySvg(
+              FlowySvgs.m_aa_bold_s,
+              size: Size.square(22),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class SimpleTableContentTextBackgroundColorAction extends StatelessWidget {
+  const SimpleTableContentTextBackgroundColorAction({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: SimpleTableContentActionDecorator(
+        enableRightBorder: true,
+        child: AnimatedGestureDetector(
+          onTapUp: () {},
+          child: const Padding(
+            padding: EdgeInsets.all(1),
+            child: FlowySvg(
+              FlowySvgs.m_aa_bold_s,
+              size: Size.square(22),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class SimpleTableContentActionDecorator extends StatelessWidget {
+  const SimpleTableContentActionDecorator({
+    super.key,
+    this.enableLeftBorder = false,
+    this.enableRightBorder = false,
+    required this.child,
+  });
+
+  final bool enableLeftBorder;
+  final bool enableRightBorder;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: SimpleTableConstants.actionSheetNormalActionSectionHeight,
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: ShapeDecoration(
+        color: context.simpleTableInsertActionBackgroundColor,
+        shape: _buildBorder(),
+      ),
+      child: child,
+    );
+  }
+
+  RoundedRectangleBorder _buildBorder() {
+    const radius = Radius.circular(
+      SimpleTableConstants.actionSheetButtonRadius,
+    );
+    return RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+        topLeft: enableLeftBorder ? radius : Radius.zero,
+        topRight: enableRightBorder ? radius : Radius.zero,
+        bottomLeft: enableLeftBorder ? radius : Radius.zero,
+        bottomRight: enableRightBorder ? radius : Radius.zero,
+      ),
+    );
   }
 }

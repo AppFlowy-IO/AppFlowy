@@ -259,7 +259,7 @@ class SimpleTableConstants {
 
   static const actionSheetQuickActionSectionHeight = 44.0;
   static const actionSheetInsertSectionHeight = 52.0;
-  static const actionSheetBIUSectionHeight = 44.0;
+  static const actionSheetContentSectionHeight = 44.0;
   static const actionSheetNormalActionSectionHeight = 48.0;
   static const actionSheetButtonRadius = 12.0;
 }

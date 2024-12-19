@@ -35,6 +35,13 @@ class SimpleTableBottomSheet extends StatelessWidget {
           cellNode: cellNode,
           editorState: editorState,
         ),
+        const VSpace(12),
+        // content actions
+        SimpleTableContentActions(
+          type: type,
+          cellNode: cellNode,
+          editorState: editorState,
+        ),
         const VSpace(16),
         // action buttons
         SimpleTableActionButtons(
