@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import '../../../../../../shared/icon_emoji_picker/tab.dart';
+
 class WorkspaceIcon extends StatefulWidget {
   const WorkspaceIcon({
     super.key,
@@ -29,7 +31,7 @@ class WorkspaceIcon extends StatefulWidget {
   final bool enableEdit;
   final double fontSize;
   final double? emojiSize;
-  final void Function(EmojiPickerResult) onSelected;
+  final void Function(EmojiIconData) onSelected;
   final double borderRadius;
   final Alignment? alignment;
   final double figmaLineHeight;
@@ -93,6 +95,7 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
         clickHandler: PopoverClickHandler.gestureDetector,
         margin: const EdgeInsets.all(0),
         popupBuilder: (_) => FlowyIconEmojiPicker(
+          tabs: const [PickerTabType.emoji],
           onSelectedEmoji: (result) {
             widget.onSelected(result);
             controller.close();
@@ -107,12 +110,13 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
 
     return GestureDetector(
       onTap: () async {
-        final result = await context.push<EmojiPickerResult>(
+        final result = await context.push<EmojiIconData>(
           Uri(
             path: MobileEmojiPickerScreen.routeName,
             queryParameters: {
               MobileEmojiPickerScreen.pageTitle:
                   LocaleKeys.settings_workspacePage_workspaceIcon_title.tr(),
+              MobileEmojiPickerScreen.selectTabs: [PickerTabType.emoji.name],
             },
           ).toString(),
         );

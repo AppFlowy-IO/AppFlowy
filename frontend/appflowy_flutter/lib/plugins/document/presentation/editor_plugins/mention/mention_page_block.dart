@@ -2,11 +2,13 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mobile_page_selector_sheet.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/shared/clipboard_state.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
@@ -474,12 +476,9 @@ class _MentionPageBlockContent extends StatelessWidget {
         Stack(
           children: [
             view.icon.value.isNotEmpty
-                ? FlowyText.emoji(
-                    view.icon.value,
-                    fontSize: emojiSize,
-                    lineHeight: textStyle?.height,
-                    optimizeEmojiAlign: true,
-                    color: AFThemeExtension.of(context).strongText,
+                ? EmojiIconWidget(
+                    emoji: view.icon.toEmojiIconData(),
+                    emojiSize: emojiSize,
                   )
                 : view.defaultIcon(size: Size.square(iconSize + 2.0)),
             if (!isChildPage) ...[

@@ -3,6 +3,8 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+
 part 'view_title_bloc.freezed.dart';
 
 class ViewTitleBloc extends Bloc<ViewTitleEvent, ViewTitleState> {
@@ -17,7 +19,7 @@ class ViewTitleBloc extends Bloc<ViewTitleEvent, ViewTitleState> {
             emit(
               state.copyWith(
                 name: view.name,
-                icon: view.icon.value,
+                icon: view.icon.toEmojiIconData(),
                 view: view,
               ),
             );
@@ -27,7 +29,7 @@ class ViewTitleBloc extends Bloc<ViewTitleEvent, ViewTitleState> {
                 add(
                   ViewTitleEvent.updateNameOrIcon(
                     view.name,
-                    view.icon.value,
+                    view.icon.toEmojiIconData(),
                     view,
                   ),
                 );
@@ -61,9 +63,10 @@ class ViewTitleBloc extends Bloc<ViewTitleEvent, ViewTitleState> {
 @freezed
 class ViewTitleEvent with _$ViewTitleEvent {
   const factory ViewTitleEvent.initial() = Initial;
+
   const factory ViewTitleEvent.updateNameOrIcon(
     String name,
-    String icon,
+    EmojiIconData icon,
     ViewPB? view,
   ) = UpdateNameOrIcon;
 }
@@ -72,9 +75,12 @@ class ViewTitleEvent with _$ViewTitleEvent {
 class ViewTitleState with _$ViewTitleState {
   const factory ViewTitleState({
     required String name,
-    required String icon,
+    required EmojiIconData icon,
     @Default(null) ViewPB? view,
   }) = _ViewTitleState;
 
-  factory ViewTitleState.initial() => const ViewTitleState(name: '', icon: '');
+  factory ViewTitleState.initial() => ViewTitleState(
+        name: '',
+        icon: EmojiIconData.none(),
+      );
 }

@@ -125,9 +125,7 @@ class SpaceMoreActionTypeWrapper extends CustomActionCell {
       popupBuilder: (context) {
         return FlowyIconEmojiPicker(
           tabs: const [PickerTabType.icon],
-          onSelectedIcon: (group, icon, color) {
-            onTap(controller, (group, icon, color));
-          },
+          onSelectedEmoji: (r) => onTap(controller, r),
         );
       },
       child: child,
