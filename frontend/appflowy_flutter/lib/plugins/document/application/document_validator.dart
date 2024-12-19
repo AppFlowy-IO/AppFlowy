@@ -11,7 +11,7 @@ class DocumentValidator {
 
   Future<bool> validate(Transaction transaction) async {
     // deep copy the document
-    final root = this.editorState.document.root.copyWith();
+    final root = this.editorState.document.root.deepCopy();
     final dummyDocument = Document(root: root);
     if (dummyDocument.isEmpty) {
       return true;
@@ -38,7 +38,7 @@ class DocumentValidator {
 
   Future<bool> applyTransactionInDummyDocument(Transaction transaction) async {
     // deep copy the document
-    final root = this.editorState.document.root.copyWith();
+    final root = this.editorState.document.root.deepCopy();
     final dummyDocument = Document(root: root);
     if (dummyDocument.isEmpty) {
       return true;

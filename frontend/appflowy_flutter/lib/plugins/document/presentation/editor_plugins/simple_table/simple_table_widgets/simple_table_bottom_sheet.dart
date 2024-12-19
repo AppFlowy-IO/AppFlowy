@@ -107,12 +107,24 @@ class SimpleTableQuickActions extends StatelessWidget {
               columnIndex: node.columnIndex,
             );
           case SimpleTableMoreActionType.row:
-          // editorState.copyRow(
-          //   tableNode: tableNode,
-          //   rowIndex: node.rowIndex,
-          // );
+            editorState.copyRow(
+              tableNode: tableNode,
+              rowIndex: node.rowIndex,
+            );
         }
       case SimpleTableMoreAction.paste:
+        switch (type) {
+          case SimpleTableMoreActionType.column:
+            editorState.pasteColumn(
+              tableNode: tableNode,
+              columnIndex: node.columnIndex,
+            );
+          case SimpleTableMoreActionType.row:
+            editorState.pasteRow(
+              tableNode: tableNode,
+              rowIndex: node.rowIndex,
+            );
+        }
       case SimpleTableMoreAction.delete:
         switch (type) {
           case SimpleTableMoreActionType.column:

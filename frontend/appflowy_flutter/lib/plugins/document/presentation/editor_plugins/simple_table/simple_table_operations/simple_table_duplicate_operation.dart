@@ -44,7 +44,7 @@ extension TableDuplicationOperations on EditorState {
       index: index,
     );
 
-    final newRow = node.children[index].copyWith();
+    final newRow = node.children[index].deepCopy();
     final transaction = this.transaction;
     final path = index >= columnLength
         ? node.children.last.path.next
@@ -89,7 +89,7 @@ extension TableDuplicationOperations on EditorState {
       final path = index >= rowLength
           ? row.children.last.path.next
           : row.children[index].path;
-      final newCell = row.children[index].copyWith();
+      final newCell = row.children[index].deepCopy();
       transaction.insertNode(
         path,
         newCell,

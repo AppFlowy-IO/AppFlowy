@@ -218,7 +218,7 @@ class _SimpleTableFeedbackState extends State<SimpleTableFeedback> {
   /// If the type is [SimpleTableMoreActionType.column], we should build the dummy table node using the data from the first column of the table node.
   Node _buildDummyNode() {
     // deep copy the table node to avoid mutating the original node
-    final tableNode = widget.node.copyWith();
+    final tableNode = widget.node.deepCopy();
 
     switch (widget.type) {
       case SimpleTableMoreActionType.row:

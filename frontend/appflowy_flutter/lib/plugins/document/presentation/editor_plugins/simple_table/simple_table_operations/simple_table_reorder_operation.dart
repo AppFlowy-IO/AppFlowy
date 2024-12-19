@@ -53,7 +53,7 @@ extension SimpleTableReorderOperation on EditorState {
       final from = row.children[fromIndex];
       final to = row.children[toIndex];
       final path = fromIndex < toIndex ? to.path.next : to.path;
-      transaction.insertNode(path, from.copyWith());
+      transaction.insertNode(path, from.deepCopy());
       transaction.deleteNode(from);
     }
     if (attributes != null) {
@@ -110,7 +110,7 @@ extension SimpleTableReorderOperation on EditorState {
     final from = tableNode.children[fromIndex];
     final to = tableNode.children[toIndex];
     final path = fromIndex < toIndex ? to.path.next : to.path;
-    transaction.insertNode(path, from.copyWith());
+    transaction.insertNode(path, from.deepCopy());
     transaction.deleteNode(from);
     if (attributes != null) {
       transaction.updateNode(tableNode, attributes);
