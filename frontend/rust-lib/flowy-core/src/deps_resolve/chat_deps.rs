@@ -4,7 +4,7 @@ use flowy_ai_pub::cloud::ChatCloudService;
 use flowy_error::FlowyError;
 use flowy_folder::ViewLayout;
 use flowy_folder_pub::cloud::{FolderCloudService, FullSyncCollabParams};
-use flowy_folder_pub::query::FolderQueryService;
+use flowy_folder_pub::query::FolderService;
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 use flowy_storage_pub::storage::StorageService;
@@ -23,7 +23,7 @@ impl ChatDepsResolver {
     store_preferences: Arc<KVStorePreferences>,
     storage_service: Weak<dyn StorageService>,
     folder_cloud_service: Arc<dyn FolderCloudService>,
-    folder_query: impl FolderQueryService,
+    folder_service: impl FolderService,
   ) -> Arc<AIManager> {
     let user_service = ChatUserServiceImpl(authenticate_user);
     Arc::new(AIManager::new(
@@ -32,7 +32,7 @@ impl ChatDepsResolver {
       store_preferences,
       storage_service,
       ChatQueryServiceImpl {
-        folder_query: Box::new(folder_query),
+        folder_service: Box::new(folder_service),
         folder_cloud_service,
       },
     ))
@@ -40,7 +40,7 @@ impl ChatDepsResolver {
 }
 
 struct ChatQueryServiceImpl {
-  folder_query: Box<dyn FolderQueryService>,
+  folder_service: Box<dyn FolderService>,
   folder_cloud_service: Arc<dyn FolderCloudService>,
 }
 
@@ -52,7 +52,7 @@ impl AIExternalService for ChatQueryServiceImpl {
     chat_id: &str,
   ) -> Result<Vec<String>, FlowyError> {
     let mut ids = self
-      .folder_query
+      .folder_service
       .get_sibling_ids_with_view_layout(parent_view_id, ViewLayout::Document)
       .await;
 
@@ -72,7 +72,7 @@ impl AIExternalService for ChatQueryServiceImpl {
 
     for rag_id in rag_ids.iter() {
       if let Some(query_collab) = self
-        .folder_query
+        .folder_service
         .get_collab(rag_id, CollabType::Document)
         .await
       {
@@ -99,6 +99,10 @@ impl AIExternalService for ChatQueryServiceImpl {
       "notify_did_send_message: chat_id: {}, message: {}",
       chat_id, message
     );
+    self
+      .folder_service
+      .set_view_title_if_empty(chat_id, message)
+      .await?;
     Ok(())
   }
 }

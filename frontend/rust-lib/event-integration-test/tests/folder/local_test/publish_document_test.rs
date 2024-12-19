@@ -29,7 +29,7 @@ async fn mock_single_document_view_publish_payload(
   };
 
   let data = match view_encoded_collab {
-    GatherEncodedCollab::Document(doc) => doc.document_encoded_collab.doc_state.to_vec(),
+    GatherEncodedCollab::Document(doc) => doc.doc_state.to_vec(),
     _ => panic!("Expected document collab"),
   };
 
@@ -89,12 +89,12 @@ async fn mock_nested_document_view_publish_payload(
   let child_publish_name = generate_publish_name(&child_view.id, &child_view.name);
 
   let data = match view_encoded_collab {
-    GatherEncodedCollab::Document(doc) => doc.document_encoded_collab.doc_state.to_vec(),
+    GatherEncodedCollab::Document(doc) => doc.doc_state.to_vec(),
     _ => panic!("Expected document collab"),
   };
 
   let child_data = match child_view_encoded_collab {
-    GatherEncodedCollab::Document(doc) => doc.document_encoded_collab.doc_state.to_vec(),
+    GatherEncodedCollab::Document(doc) => doc.doc_state.to_vec(),
     _ => panic!("Expected document collab"),
   };
 

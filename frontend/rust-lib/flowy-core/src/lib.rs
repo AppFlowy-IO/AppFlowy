@@ -174,7 +174,7 @@ impl AppFlowyCore {
       )
       .await;
 
-      let folder_query_service = FolderQueryServiceImpl::new(
+      let folder_query_service = FolderServiceImpl::new(
         Arc::downgrade(&folder_manager),
         Arc::downgrade(&authenticate_user),
       );

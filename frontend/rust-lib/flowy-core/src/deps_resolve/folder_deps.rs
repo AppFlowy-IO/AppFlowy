@@ -13,7 +13,7 @@ use flowy_document::entities::DocumentDataPB;
 use flowy_document::manager::DocumentManager;
 use flowy_document::parser::json::parser::JsonToDocumentParser;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_folder::entities::{CreateViewParams, ViewLayoutPB};
+use flowy_folder::entities::{CreateViewParams, UpdateViewParams, ViewLayoutPB};
 use flowy_folder::manager::{FolderManager, FolderUser};
 use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{
@@ -33,7 +33,7 @@ use tokio::sync::RwLock;
 use crate::integrate::server::ServerProvider;
 
 use collab_plugins::local_storage::kv::KVTransactionDB;
-use flowy_folder_pub::query::{FolderQueryService, QueryCollab};
+use flowy_folder_pub::query::{FolderQueryService, FolderService, FolderViewEdit, QueryCollab};
 use lib_infra::async_trait::async_trait;
 
 pub struct FolderDepsResolver();
@@ -631,12 +631,13 @@ impl FolderOperationHandler for ChatFolderOperation {
 }
 
 #[derive(Clone)]
-pub struct FolderQueryServiceImpl {
+pub struct FolderServiceImpl {
   folder_manager: Weak<FolderManager>,
   user: Arc<dyn FolderUser>,
 }
+impl FolderService for FolderServiceImpl {}
 
-impl FolderQueryServiceImpl {
+impl FolderServiceImpl {
   pub fn new(
     folder_manager: Weak<FolderManager>,
     authenticate_user: Weak<AuthenticateUser>,
@@ -650,7 +651,41 @@ impl FolderQueryServiceImpl {
 }
 
 #[async_trait]
-impl FolderQueryService for FolderQueryServiceImpl {
+impl FolderViewEdit for FolderServiceImpl {
+  async fn set_view_title_if_empty(&self, view_id: &str, title: &str) -> FlowyResult<()> {
+    if title.is_empty() {
+      return Ok(());
+    }
+
+    if let Some(folder_manager) = self.folder_manager.upgrade() {
+      if let Ok(view) = folder_manager.get_view(view_id).await {
+        if view.name.is_empty() {
+          let title = if title.len() > 50 {
+            title.chars().take(50).collect()
+          } else {
+            title.to_string()
+          };
+
+          folder_manager
+            .update_view_with_params(UpdateViewParams {
+              view_id: view_id.to_string(),
+              name: Some(title),
+              desc: None,
+              thumbnail: None,
+              layout: None,
+              is_favorite: None,
+              extra: None,
+            })
+            .await?;
+        }
+      }
+    }
+    Ok(())
+  }
+}
+
+#[async_trait]
+impl FolderQueryService for FolderServiceImpl {
   async fn get_sibling_ids_with_view_layout(
     &self,
     parent_view_id: &str,
