@@ -206,7 +206,8 @@
     "uploadFile": "إرفاق ملفات PDF أو ملفات نصية أو ملفات Markdown",
     "questionDetail": "مرحبًا {}! كيف يمكنني مساعدتك اليوم؟",
     "indexingFile": "الفهرسة {}",
-    "generatingResponse": "توليد الاستجابة"
+    "generatingResponse": "توليد الاستجابة",
+    "regenerate": "حاول ثانية"
   },
   "trash": {
     "text": "المهملات",
