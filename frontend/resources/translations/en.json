@@ -204,7 +204,8 @@
     "uploadFile": "Attach PDFs, text or markdown files",
     "questionDetail": "Hi {}! How can I help you today?",
     "indexingFile": "Indexing {}",
-    "generatingResponse": "Generating response"
+    "generatingResponse": "Generating response",
+    "selectSources": "Select Sources"
   },
   "trash": {
     "text": "Trash",

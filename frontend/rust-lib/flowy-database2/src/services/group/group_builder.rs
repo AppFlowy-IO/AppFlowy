@@ -72,7 +72,7 @@ where
   D: GroupContextDelegate + GroupControllerDelegate,
 {
   let grouping_field_type = FieldType::from(grouping_field.field_type);
-  tracing::Span::current().record("grouping_field", &grouping_field_type.default_name());
+  tracing::Span::current().record("grouping_field", grouping_field_type.default_name());
 
   let group_controller: Box<dyn GroupController>;
   let delegate = Arc::new(delegate);

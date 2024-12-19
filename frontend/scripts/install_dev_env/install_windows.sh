@@ -100,7 +100,7 @@ $USERPROFILE/.cargo/bin/cargo install --force cargo-make
 
 # Install duckscript
 printMessage "Installing duckscript."
-$USERPROFILE/.cargo/bin/cargo install --force duckscript_cli
+$USERPROFILE/.cargo/bin/cargo install --force --locked duckscript_cli
 
 # Enable vcpkg integration
 # Note: Requires admin
