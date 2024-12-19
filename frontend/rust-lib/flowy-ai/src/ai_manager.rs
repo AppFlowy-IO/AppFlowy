@@ -37,6 +37,8 @@ pub trait AIQueryService: Send + Sync + 'static {
     parent_view_id: &str,
     chat_id: &str,
   ) -> Result<Vec<String>, FlowyError>;
+
+  async fn sync_rag_documents(&self, rag_ids: Vec<String>) -> Result<(), FlowyError>;
 }
 
 pub struct AIManager {
@@ -102,6 +104,7 @@ impl AIManager {
     if self.local_ai_controller.is_running() {
       self.local_ai_controller.open_chat(chat_id);
     }
+
     Ok(())
   }
 
@@ -191,6 +194,22 @@ impl AIManager {
       )
       .await?;
     Ok(question)
+  }
+
+  pub async fn stream_regenerate_response(
+    &self,
+    chat_id: &str,
+    answer_message_id: i64,
+    answer_stream_port: i64,
+  ) -> FlowyResult<()> {
+    let chat = self.get_or_create_chat_instance(chat_id).await?;
+    let question_message_id = chat
+      .get_question_id_from_answer_id(answer_message_id)
+      .await?;
+    chat
+      .stream_regenerate_response(question_message_id, answer_stream_port)
+      .await?;
+    Ok(())
   }
 
   pub async fn get_or_create_chat_instance(&self, chat_id: &str) -> Result<Arc<Chat>, FlowyError> {

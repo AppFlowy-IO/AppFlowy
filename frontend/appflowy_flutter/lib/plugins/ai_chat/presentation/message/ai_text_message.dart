@@ -33,6 +33,7 @@ class ChatAIMessageWidget extends StatelessWidget {
     required this.chatId,
     required this.refSourceJsonString,
     this.onSelectedMetadata,
+    this.onRegenerate,
     this.isLastMessage = false,
   });
 
@@ -45,6 +46,7 @@ class ChatAIMessageWidget extends StatelessWidget {
   final String chatId;
   final String? refSourceJsonString;
   final void Function(ChatMessageRefSource metadata)? onSelectedMetadata;
+  final void Function(String messageId)? onRegenerate;
   final bool isLastMessage;
 
   @override
@@ -80,6 +82,7 @@ class ChatAIMessageWidget extends StatelessWidget {
                         message: message,
                         isLastMessage: isLastMessage,
                         showActions: stream == null && state.text.isNotEmpty,
+                        onRegenerate: onRegenerate,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -101,11 +104,6 @@ class ChatAIMessageWidget extends StatelessWidget {
               onError: (error) {
                 return ChatErrorMessageWidget(
                   errorMessage: LocaleKeys.chat_aiServerUnavailable.tr(),
-                  onRetry: () {
-                    context
-                        .read<ChatAIMessageBloc>()
-                        .add(const ChatAIMessageEvent.retry());
-                  },
                 );
               },
               onAIResponseLimit: () {

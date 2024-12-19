@@ -120,20 +120,13 @@ class _ChatContentPage extends StatelessWidget {
           behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
           child: BlocBuilder<ChatBloc, ChatState>(
             builder: (context, state) {
-              return state.loadingState.when(
-                loading: () {
-                  return const Center(
-                    child: CircularProgressIndicator.adaptive(),
-                  );
-                },
-                finish: (_) {
-                  final chatController =
-                      context.read<ChatBloc>().chatController;
-                  return Column(
+              return switch (state.loadingState) {
+                LoadChatMessageStatus.ready => Column(
                     children: [
                       Expanded(
                         child: Chat(
-                          chatController: chatController,
+                          chatController:
+                              context.read<ChatBloc>().chatController,
                           user: User(id: userProfile.id.toString()),
                           darkTheme: ChatTheme.fromThemeData(Theme.of(context)),
                           theme: ChatTheme.fromThemeData(Theme.of(context)),
@@ -148,9 +141,9 @@ class _ChatContentPage extends StatelessWidget {
                       ),
                       _buildInput(context),
                     ],
-                  );
-                },
-              );
+                  ),
+                _ => const Center(child: CircularProgressIndicator.adaptive()),
+              };
             },
           ),
         ),
@@ -223,6 +216,8 @@ class _ChatContentPage extends StatelessWidget {
           isLastMessage: isLastMessage,
           onSelectedMetadata: (metadata) =>
               _onSelectMetadata(context, metadata),
+          onRegenerate: (id) =>
+              context.read<ChatBloc>().add(ChatEvent.regenerateAnswer(id)),
         );
       },
     );

@@ -34,7 +34,7 @@ use tokio::sync::RwLock;
 use crate::integrate::server::ServerProvider;
 
 use collab_plugins::local_storage::kv::KVTransactionDB;
-use flowy_folder_pub::query::FolderQueryService;
+use flowy_folder_pub::query::{FolderQueryService, QueryCollab};
 use lib_infra::async_trait::async_trait;
 
 pub struct FolderDepsResolver();
@@ -706,5 +706,10 @@ impl FolderQueryService for FolderQueryServiceImpl {
         vec![]
       },
     }
+  }
+
+  async fn get_collab(&self, _object_id: &str) -> Option<QueryCollab> {
+    // TODO(nathan): return query collab
+    None
   }
 }

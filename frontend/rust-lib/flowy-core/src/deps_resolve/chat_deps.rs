@@ -56,6 +56,15 @@ impl AIQueryService for ChatQueryServiceImpl {
 
     Ok(ids)
   }
+
+  async fn sync_rag_documents(&self, rag_ids: Vec<String>) -> Result<(), FlowyError> {
+    for rag_id in rag_ids.iter() {
+      if let Some(_query_collab) = self.folder_query.get_collab(rag_id).await {
+        // TODO(nathan): sync
+      }
+    }
+    Ok(())
+  }
 }
 
 struct ChatUserServiceImpl(Weak<AuthenticateUser>);
