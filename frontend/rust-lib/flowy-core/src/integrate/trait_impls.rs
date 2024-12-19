@@ -33,7 +33,8 @@ use flowy_document::deps::DocumentData;
 use flowy_document_pub::cloud::{DocumentCloudService, DocumentSnapshot};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::{
-  FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace, WorkspaceRecord,
+  FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, FullSyncCollabParams,
+  Workspace, WorkspaceRecord,
 };
 use flowy_folder_pub::entities::PublishPayload;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
@@ -415,6 +416,18 @@ impl FolderCloudService for ServerProvider {
       .get_server()?
       .folder_service()
       .import_zip(file_path)
+      .await
+  }
+
+  async fn full_sync_collab_object(
+    &self,
+    workspace_id: &str,
+    params: FullSyncCollabParams,
+  ) -> Result<(), FlowyError> {
+    self
+      .get_server()?
+      .folder_service()
+      .full_sync_collab_object(workspace_id, params)
       .await
   }
 }

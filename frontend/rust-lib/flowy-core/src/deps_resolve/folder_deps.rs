@@ -12,13 +12,12 @@ use flowy_database2::DatabaseManager;
 use flowy_document::entities::DocumentDataPB;
 use flowy_document::manager::DocumentManager;
 use flowy_document::parser::json::parser::JsonToDocumentParser;
-use flowy_error::{FlowyError, FlowyResult};
-use flowy_folder::entities::{CreateViewParams, ViewLayoutPB};
+use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_folder::entities::{CreateViewParams, UpdateViewParams, ViewLayoutPB};
 use flowy_folder::manager::{FolderManager, FolderUser};
 use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{
-  DatabaseEncodedCollab, DocumentEncodedCollab, EncodedCollabType, FolderOperationHandler,
-  ImportedData, View, ViewData,
+  DatabaseEncodedCollab, FolderOperationHandler, GatherEncodedCollab, ImportedData, View, ViewData,
 };
 use flowy_folder::ViewLayout;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
@@ -34,7 +33,7 @@ use tokio::sync::RwLock;
 use crate::integrate::server::ServerProvider;
 
 use collab_plugins::local_storage::kv::KVTransactionDB;
-use flowy_folder_pub::query::{FolderQueryService, QueryCollab};
+use flowy_folder_pub::query::{FolderQueryService, FolderService, FolderViewEdit, QueryCollab};
 use lib_infra::async_trait::async_trait;
 
 pub struct FolderDepsResolver();
@@ -116,6 +115,10 @@ impl FolderUser for FolderUserImpl {
 struct DocumentFolderOperation(Arc<DocumentManager>);
 #[async_trait]
 impl FolderOperationHandler for DocumentFolderOperation {
+  fn name(&self) -> &str {
+    "DocumentFolderOperationHandler"
+  }
+
   async fn create_workspace_view(
     &self,
     uid: i64,
@@ -169,6 +172,16 @@ impl FolderOperationHandler for DocumentFolderOperation {
     Ok(data_bytes)
   }
 
+  async fn gather_publish_encode_collab(
+    &self,
+    user: &Arc<dyn FolderUser>,
+    view_id: &str,
+  ) -> Result<GatherEncodedCollab, FlowyError> {
+    let encoded_collab =
+      get_encoded_collab_v1_from_disk(user, view_id, CollabType::Document).await?;
+    Ok(GatherEncodedCollab::Document(encoded_collab))
+  }
+
   async fn create_view_with_view_data(
     &self,
     user_id: i64,
@@ -209,47 +222,6 @@ impl FolderOperationHandler for DocumentFolderOperation {
     }
   }
 
-  async fn get_encoded_collab_v1_from_disk(
-    &self,
-    user: &Arc<dyn FolderUser>,
-    view_id: &str,
-  ) -> Result<EncodedCollabType, FlowyError> {
-    // get the collab_object_id for the document.
-    // the collab_object_id for the document is the view_id.
-    let workspace_id = user.workspace_id()?;
-    let uid = user
-      .user_id()
-      .map_err(|e| e.with_context("unable to get the uid: {}"))?;
-
-    // get the collab db
-    let collab_db = user
-      .collab_db(uid)
-      .map_err(|e| e.with_context("unable to get the collab"))?;
-    let collab_db = collab_db.upgrade().ok_or_else(|| {
-      FlowyError::internal().with_context(
-        "The collab db has been dropped, indicating that the user has switched to a new account",
-      )
-    })?;
-    let collab_read_txn = collab_db.read_txn();
-
-    // read the collab from the db
-    let collab =
-      load_collab_by_object_id(uid, &collab_read_txn, &workspace_id, view_id).map_err(|e| {
-        FlowyError::internal().with_context(format!("load document collab failed: {}", e))
-      })?;
-
-    let encoded_collab = collab
-        // encode the collab and check the integrity of the collab
-        .encode_collab_v1(|collab| CollabType::Document.validate_require_data(collab))
-        .map_err(|e| {
-          FlowyError::internal().with_context(format!("encode document collab failed: {}", e))
-        })?;
-
-    Ok(EncodedCollabType::Document(DocumentEncodedCollab {
-      document_encoded_collab: encoded_collab,
-    }))
-  }
-
   async fn import_from_bytes(
     &self,
     uid: i64,
@@ -279,10 +251,6 @@ impl FolderOperationHandler for DocumentFolderOperation {
     // TODO(lucas): import file from local markdown file
     Ok(())
   }
-
-  fn name(&self) -> &str {
-    "DocumentFolderOperationHandler"
-  }
 }
 
 struct DatabaseFolderOperation(Arc<DatabaseManager>);
@@ -307,11 +275,11 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     Ok(())
   }
 
-  async fn get_encoded_collab_v1_from_disk(
+  async fn gather_publish_encode_collab(
     &self,
     user: &Arc<dyn FolderUser>,
     view_id: &str,
-  ) -> Result<EncodedCollabType, FlowyError> {
+  ) -> Result<GatherEncodedCollab, FlowyError> {
     let workspace_id = user.workspace_id()?;
     // get the collab_object_id for the database.
     //
@@ -349,7 +317,6 @@ impl FolderOperationHandler for DatabaseFolderOperation {
 
     tokio::task::spawn_blocking(move || {
       let collab_read_txn = collab_db.read_txn();
-
       let database_collab = load_collab_by_object_id(uid, &collab_read_txn, &workspace_id, &oid)
         .map_err(|e| {
           FlowyError::internal().with_context(format!("load database collab failed: {}", e))
@@ -403,7 +370,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
           })
           .collect::<Result<HashMap<_, _>, FlowyError>>()?;
 
-      Ok(EncodedCollabType::Database(DatabaseEncodedCollab {
+      Ok(GatherEncodedCollab::Database(DatabaseEncodedCollab {
         database_encoded_collab,
         database_row_encoded_collabs,
         database_row_document_encoded_collabs,
@@ -663,19 +630,62 @@ impl FolderOperationHandler for ChatFolderOperation {
   }
 }
 
-#[derive(Clone, Debug)]
-pub struct FolderQueryServiceImpl {
+#[derive(Clone)]
+pub struct FolderServiceImpl {
   folder_manager: Weak<FolderManager>,
+  user: Arc<dyn FolderUser>,
 }
+impl FolderService for FolderServiceImpl {}
 
-impl FolderQueryServiceImpl {
-  pub fn new(folder_manager: Weak<FolderManager>) -> Self {
-    Self { folder_manager }
+impl FolderServiceImpl {
+  pub fn new(
+    folder_manager: Weak<FolderManager>,
+    authenticate_user: Weak<AuthenticateUser>,
+  ) -> Self {
+    let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl { authenticate_user });
+    Self {
+      folder_manager,
+      user,
+    }
   }
 }
 
 #[async_trait]
-impl FolderQueryService for FolderQueryServiceImpl {
+impl FolderViewEdit for FolderServiceImpl {
+  async fn set_view_title_if_empty(&self, view_id: &str, title: &str) -> FlowyResult<()> {
+    if title.is_empty() {
+      return Ok(());
+    }
+
+    if let Some(folder_manager) = self.folder_manager.upgrade() {
+      if let Ok(view) = folder_manager.get_view(view_id).await {
+        if view.name.is_empty() {
+          let title = if title.len() > 50 {
+            title.chars().take(50).collect()
+          } else {
+            title.to_string()
+          };
+
+          folder_manager
+            .update_view_with_params(UpdateViewParams {
+              view_id: view_id.to_string(),
+              name: Some(title),
+              desc: None,
+              thumbnail: None,
+              layout: None,
+              is_favorite: None,
+              extra: None,
+            })
+            .await?;
+        }
+      }
+    }
+    Ok(())
+  }
+}
+
+#[async_trait]
+impl FolderQueryService for FolderServiceImpl {
   async fn get_sibling_ids_with_view_layout(
     &self,
     parent_view_id: &str,
@@ -708,8 +718,52 @@ impl FolderQueryService for FolderQueryServiceImpl {
     }
   }
 
-  async fn get_collab(&self, _object_id: &str) -> Option<QueryCollab> {
-    // TODO(nathan): return query collab
-    None
+  async fn get_collab(&self, object_id: &str, collab_type: CollabType) -> Option<QueryCollab> {
+    let encode_collab = get_encoded_collab_v1_from_disk(&self.user, object_id, collab_type.clone())
+      .await
+      .ok();
+
+    encode_collab.map(|encoded_collab| QueryCollab {
+      collab_type,
+      encoded_collab,
+    })
   }
+}
+
+#[inline]
+async fn get_encoded_collab_v1_from_disk(
+  user: &Arc<dyn FolderUser>,
+  view_id: &str,
+  collab_type: CollabType,
+) -> Result<EncodedCollab, FlowyError> {
+  let workspace_id = user.workspace_id()?;
+  let uid = user
+    .user_id()
+    .map_err(|e| e.with_context("unable to get the uid: {}"))?;
+
+  // get the collab db
+  let collab_db = user
+    .collab_db(uid)
+    .map_err(|e| e.with_context("unable to get the collab"))?;
+  let collab_db = collab_db.upgrade().ok_or_else(|| {
+    FlowyError::internal().with_context(
+      "The collab db has been dropped, indicating that the user has switched to a new account",
+    )
+  })?;
+  let collab_read_txn = collab_db.read_txn();
+  let collab =
+    load_collab_by_object_id(uid, &collab_read_txn, &workspace_id, view_id).map_err(|e| {
+      FlowyError::internal().with_context(format!("load document collab failed: {}", e))
+    })?;
+
+  tokio::task::spawn_blocking(move || {
+    let data = collab
+      .encode_collab_v1(|collab| collab_type.validate_require_data(collab))
+      .map_err(|e| {
+        FlowyError::internal().with_context(format!("encode document collab failed: {}", e))
+      })?;
+    Ok::<_, FlowyError>(data)
+  })
+  .await
+  .map_err(internal_error)?
 }

@@ -174,13 +174,17 @@ impl AppFlowyCore {
       )
       .await;
 
-      let folder_query_service = FolderQueryServiceImpl::new(Arc::downgrade(&folder_manager));
+      let folder_query_service = FolderServiceImpl::new(
+        Arc::downgrade(&folder_manager),
+        Arc::downgrade(&authenticate_user),
+      );
 
       let ai_manager = ChatDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),
         server_provider.clone(),
         store_preference.clone(),
         Arc::downgrade(&storage_manager.storage_service),
+        server_provider.clone(),
         folder_query_service.clone(),
       );
 

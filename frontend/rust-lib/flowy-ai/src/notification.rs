@@ -14,6 +14,7 @@ pub enum ChatNotification {
   FinishStreaming = 5,
   UpdateChatPluginState = 6,
   UpdateLocalChatAI = 7,
+  DidUpdateChatSettings = 8,
 }
 
 impl std::convert::From<ChatNotification> for i32 {

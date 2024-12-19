@@ -5,7 +5,7 @@ use event_integration_test::EventIntegrationTest;
 use flowy_folder::entities::{
   ImportItemPayloadPB, ImportPayloadPB, ImportTypePB, ViewLayoutPB, ViewPB,
 };
-use flowy_folder::view_operation::EncodedCollabType;
+use flowy_folder::view_operation::GatherEncodedCollab;
 
 use crate::util::unzip;
 
@@ -18,11 +18,11 @@ async fn publish_single_database_test() {
   let grid = import_csv("publish_grid_primary.csv", &test).await;
 
   let grid_encoded_collab = test
-    .get_encoded_collab_v1_from_disk(&grid.id, ViewLayout::Grid)
+    .gather_encode_collab_from_disk(&grid.id, ViewLayout::Grid)
     .await;
 
   match grid_encoded_collab {
-    EncodedCollabType::Database(encoded_collab) => {
+    GatherEncodedCollab::Database(encoded_collab) => {
       // the len of row collabs should be the same as the number of rows in the csv file
       let rows_len = encoded_collab.database_row_encoded_collabs.len();
       assert_eq!(rows_len, 18);
@@ -106,11 +106,11 @@ async fn test_publish_encode_collab_result(
     test.open_database(&id).await;
 
     let encoded_collab = test
-      .get_encoded_collab_v1_from_disk(&id, layout.into())
+      .gather_encode_collab_from_disk(&id, layout.into())
       .await;
 
     match encoded_collab {
-      EncodedCollabType::Database(encoded_collab) => {
+      GatherEncodedCollab::Database(encoded_collab) => {
         if let Some(rows_len) = expectations.get(&view.name.as_str()) {
           assert_eq!(encoded_collab.database_row_encoded_collabs.len(), *rows_len);
         }

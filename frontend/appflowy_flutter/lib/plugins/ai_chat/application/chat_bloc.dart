@@ -6,6 +6,7 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:fixnum/fixnum.dart';
@@ -64,6 +65,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   Future<void> close() async {
     await answerStream?.dispose();
     await listener.stop();
+    final request = ViewIdPB(value: chatId);
+    unawaited(FolderEventCloseView(request).send());
+
     return super.close();
   }
 
