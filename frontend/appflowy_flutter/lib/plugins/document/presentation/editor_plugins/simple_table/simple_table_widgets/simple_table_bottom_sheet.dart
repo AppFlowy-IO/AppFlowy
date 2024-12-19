@@ -37,14 +37,23 @@ class _SimpleTableBottomSheetState extends State<SimpleTableBottomSheet> {
       _SimpleTableBottomSheetMenuState.actionMenu;
 
   Color? selectedTextColor;
-  Color? selectedTextBackgroundColor;
+  Color? selectedCellBackgroundColor;
 
   @override
   void initState() {
     super.initState();
 
-    selectedTextColor = widget.cellNode.textColorInColumn?.tryToColor();
-    selectedTextBackgroundColor = widget.cellNode.textColorInRow?.tryToColor();
+    selectedTextColor = switch (widget.type) {
+      SimpleTableMoreActionType.column =>
+        widget.cellNode.textColorInColumn?.tryToColor(),
+      SimpleTableMoreActionType.row =>
+        widget.cellNode.textColorInRow?.tryToColor(),
+    };
+    selectedCellBackgroundColor = switch (widget.type) {
+      SimpleTableMoreActionType.column =>
+        widget.cellNode.buildColumnColor(context),
+      SimpleTableMoreActionType.row => widget.cellNode.buildRowColor(context),
+    };
   }
 
   @override
@@ -121,12 +130,14 @@ class _SimpleTableBottomSheetState extends State<SimpleTableBottomSheet> {
         type: widget.type,
         cellNode: widget.cellNode,
         editorState: widget.editorState,
+        selectedTextColor: selectedTextColor,
+        selectedCellBackgroundColor: selectedCellBackgroundColor,
         onTextColorSelected: () {
           setState(() {
             menuState = _SimpleTableBottomSheetMenuState.textColor;
           });
         },
-        onTextBackgroundColorSelected: () {
+        onCellBackgroundColorSelected: () {
           setState(() {
             menuState = _SimpleTableBottomSheetMenuState.textBackgroundColor;
           });
@@ -186,8 +197,8 @@ class _SimpleTableBottomSheetState extends State<SimpleTableBottomSheet> {
           horizontal: 8.0,
         ),
         child: EditorBackgroundColors(
-          onSelectedColor: _onTextBackgroundColorSelected,
-          selectedColor: selectedTextBackgroundColor,
+          onSelectedColor: _onCellBackgroundColorSelected,
+          selectedColor: selectedCellBackgroundColor,
         ),
       ),
     ];
@@ -213,7 +224,7 @@ class _SimpleTableBottomSheetState extends State<SimpleTableBottomSheet> {
     });
   }
 
-  void _onTextBackgroundColorSelected(Color color) {
+  void _onCellBackgroundColorSelected(Color color) {
     final hex = color.alpha == 0 ? null : color.toHex();
     switch (widget.type) {
       case SimpleTableMoreActionType.column:
@@ -229,7 +240,7 @@ class _SimpleTableBottomSheetState extends State<SimpleTableBottomSheet> {
     }
 
     setState(() {
-      selectedTextBackgroundColor = color;
+      selectedCellBackgroundColor = color;
     });
   }
 }

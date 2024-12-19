@@ -263,34 +263,6 @@ extension TableOptionOperation on EditorState {
     await apply(transaction);
   }
 
-  /// Update the text background color of the column
-  Future<void> updateColumnTextBackgroundColor({
-    required Node tableCellNode,
-    required String color,
-  }) async {
-    final columnIndex = tableCellNode.columnIndex;
-    await _updateTableAttributes(
-      tableCellNode: tableCellNode,
-      attributeKey: SimpleTableBlockKeys.columnTextBackgroundColors,
-      source: tableCellNode.columnTextBackgroundColors,
-      duplicatedEntry: MapEntry(columnIndex.toString(), color),
-    );
-  }
-
-  /// Update the text background color of the row
-  Future<void> updateRowTextBackgroundColor({
-    required Node tableCellNode,
-    required String color,
-  }) async {
-    final rowIndex = tableCellNode.rowIndex;
-    await _updateTableAttributes(
-      tableCellNode: tableCellNode,
-      attributeKey: SimpleTableBlockKeys.rowTextBackgroundColors,
-      source: tableCellNode.rowTextBackgroundColors,
-      duplicatedEntry: MapEntry(rowIndex.toString(), color),
-    );
-  }
-
   /// Update the bold attribute of the column
   Future<void> toggleColumnBoldAttribute({
     required Node tableCellNode,

@@ -472,36 +472,6 @@ extension TableNodeExtension on Node {
     }
   }
 
-  /// Get the row text background colors
-  SimpleTableColorMap get rowTextBackgroundColors {
-    final rawRowTextBackgroundColors = parentTableNode
-        ?.attributes[SimpleTableBlockKeys.rowTextBackgroundColors];
-    if (rawRowTextBackgroundColors == null) {
-      return SimpleTableColorMap();
-    }
-    try {
-      return SimpleTableColorMap.from(rawRowTextBackgroundColors);
-    } catch (e) {
-      Log.warn('get row text background colors: $e');
-      return SimpleTableColorMap();
-    }
-  }
-
-  /// Get the column text background colors
-  SimpleTableColorMap get columnTextBackgroundColors {
-    final rawColumnTextBackgroundColors = parentTableNode
-        ?.attributes[SimpleTableBlockKeys.columnTextBackgroundColors];
-    if (rawColumnTextBackgroundColors == null) {
-      return SimpleTableColorMap();
-    }
-    try {
-      return SimpleTableColorMap.from(rawColumnTextBackgroundColors);
-    } catch (e) {
-      Log.warn('get column text background colors: $e');
-      return SimpleTableColorMap();
-    }
-  }
-
   /// Get the column bold attributes
   SimpleTableAttributeMap get columnBoldAttributes {
     final rawColumnBoldAttributes =

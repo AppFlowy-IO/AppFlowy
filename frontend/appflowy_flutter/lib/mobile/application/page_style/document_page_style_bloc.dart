@@ -26,11 +26,13 @@ class DocumentPageStyleBloc
               if (view.id.isEmpty) {
                 return;
               }
-              final layoutObject =
-                  await ViewBackendService.getView(view.id).fold(
-                (s) => jsonDecode(s.extra),
-                (f) => {},
-              );
+              Map layoutObject = {};
+              try {
+                await ViewBackendService.getView(view.id).fold(
+                  (s) => layoutObject = jsonDecode(s.extra),
+                  (_) {},
+                );
+              } catch (_) {}
               final fontLayout = _getSelectedFontLayout(layoutObject);
               final lineHeightLayout = _getSelectedLineHeightLayout(
                 layoutObject,

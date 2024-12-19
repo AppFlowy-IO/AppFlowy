@@ -665,11 +665,16 @@ class SimpleTableContentActions extends ISimpleTableBottomSheetActions {
     required super.cellNode,
     required super.editorState,
     required this.onTextColorSelected,
-    required this.onTextBackgroundColorSelected,
+    required this.onCellBackgroundColorSelected,
+    this.selectedTextColor,
+    this.selectedCellBackgroundColor,
   });
 
   final VoidCallback onTextColorSelected;
-  final VoidCallback onTextBackgroundColorSelected;
+  final VoidCallback onCellBackgroundColorSelected;
+
+  final Color? selectedTextColor;
+  final Color? selectedCellBackgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -687,10 +692,12 @@ class SimpleTableContentActions extends ISimpleTableBottomSheetActions {
           const HSpace(2),
           SimpleTableContentTextColorAction(
             onTap: onTextColorSelected,
+            selectedTextColor: selectedTextColor,
           ),
           const HSpace(2),
-          SimpleTableContentTextBackgroundColorAction(
-            onTap: onTextBackgroundColorSelected,
+          SimpleTableContentCellBackgroundColorAction(
+            onTap: onCellBackgroundColorSelected,
+            selectedCellBackgroundColor: selectedCellBackgroundColor,
           ),
           const HSpace(16),
           const SimpleTableContentAlignmentAction(),
@@ -769,9 +776,11 @@ class SimpleTableContentTextColorAction extends StatelessWidget {
   const SimpleTableContentTextColorAction({
     super.key,
     required this.onTap,
+    this.selectedTextColor,
   });
 
   final VoidCallback onTap;
+  final Color? selectedTextColor;
 
   @override
   Widget build(BuildContext context) {
@@ -779,14 +788,15 @@ class SimpleTableContentTextColorAction extends StatelessWidget {
       child: SimpleTableContentActionDecorator(
         child: AnimatedGestureDetector(
           onTapUp: onTap,
-          child: const Row(
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               FlowySvg(
                 FlowySvgs.m_table_text_color_m,
+                color: selectedTextColor,
               ),
-              HSpace(10),
-              FlowySvg(
+              const HSpace(10),
+              const FlowySvg(
                 FlowySvgs.m_aa_arrow_right_s,
                 size: Size.square(12),
               ),
@@ -798,13 +808,15 @@ class SimpleTableContentTextColorAction extends StatelessWidget {
   }
 }
 
-class SimpleTableContentTextBackgroundColorAction extends StatelessWidget {
-  const SimpleTableContentTextBackgroundColorAction({
+class SimpleTableContentCellBackgroundColorAction extends StatelessWidget {
+  const SimpleTableContentCellBackgroundColorAction({
     super.key,
     required this.onTap,
+    this.selectedCellBackgroundColor,
   });
 
   final VoidCallback onTap;
+  final Color? selectedCellBackgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -818,9 +830,10 @@ class SimpleTableContentTextBackgroundColorAction extends StatelessWidget {
             children: [
               _buildTextBackgroundColorPreview(),
               const HSpace(10),
-              const FlowySvg(
+              FlowySvg(
                 FlowySvgs.m_aa_arrow_right_s,
-                size: Size.square(12),
+                size: const Size.square(12),
+                color: selectedCellBackgroundColor,
               ),
             ],
           ),
@@ -834,9 +847,11 @@ class SimpleTableContentTextBackgroundColorAction extends StatelessWidget {
       width: 24,
       height: 24,
       decoration: ShapeDecoration(
-        color: const Color(0xFFFFE6FD),
+        color: selectedCellBackgroundColor ?? const Color(0xFFFFE6FD),
         shape: RoundedRectangleBorder(
-          side: const BorderSide(color: Color(0xFFCFD3D9)),
+          side: const BorderSide(
+            color: Color(0xFFCFD3D9),
+          ),
           borderRadius: BorderRadius.circular(100),
         ),
       ),
