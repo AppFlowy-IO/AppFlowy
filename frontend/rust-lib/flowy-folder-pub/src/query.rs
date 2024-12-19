@@ -4,7 +4,6 @@ use collab_folder::ViewLayout;
 use lib_infra::async_trait::async_trait;
 
 pub struct QueryCollab {
-  pub name: String,
   pub collab_type: CollabType,
   pub encoded_collab: EncodedCollab,
 }
@@ -17,5 +16,5 @@ pub trait FolderQueryService: Send + Sync + 'static {
     view_layout: ViewLayout,
   ) -> Vec<String>;
 
-  async fn get_collab(&self, object_id: &str) -> Option<QueryCollab>;
+  async fn get_collab(&self, object_id: &str, collab_type: CollabType) -> Option<QueryCollab>;
 }

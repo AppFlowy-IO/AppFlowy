@@ -19,15 +19,10 @@ use crate::manager::FolderUser;
 use crate::share::ImportType;
 
 #[derive(Debug, Clone)]
-pub enum EncodedCollabType {
-  Document(DocumentEncodedCollab),
+pub enum GatherEncodedCollab {
+  Document(EncodedCollab),
   Database(DatabaseEncodedCollab),
   Unknown,
-}
-
-#[derive(Debug, Clone)]
-pub struct DocumentEncodedCollab {
-  pub document_encoded_collab: EncodedCollab,
 }
 
 #[derive(Debug, Clone)]
@@ -69,11 +64,11 @@ pub trait FolderOperationHandler: Send + Sync {
   async fn duplicate_view(&self, view_id: &str) -> Result<Bytes, FlowyError>;
 
   /// get the encoded collab data from the disk.
-  async fn get_encoded_collab_v1_from_disk(
+  async fn gather_publish_encode_collab(
     &self,
     _user: &Arc<dyn FolderUser>,
     _view_id: &str,
-  ) -> Result<EncodedCollabType, FlowyError> {
+  ) -> Result<GatherEncodedCollab, FlowyError> {
     Err(FlowyError::not_support())
   }
 

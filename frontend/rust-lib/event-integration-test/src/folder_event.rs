@@ -1,4 +1,4 @@
-use flowy_folder::view_operation::{EncodedCollabType, ViewData};
+use flowy_folder::view_operation::{GatherEncodedCollab, ViewData};
 use std::sync::Arc;
 
 use collab_folder::{FolderData, View};
@@ -190,14 +190,14 @@ impl EventIntegrationTest {
     payload.unwrap()
   }
 
-  pub async fn get_encoded_collab_v1_from_disk(
+  pub async fn gather_encode_collab_from_disk(
     &self,
     view_id: &str,
     layout: ViewLayout,
-  ) -> EncodedCollabType {
+  ) -> GatherEncodedCollab {
     self
       .folder_manager
-      .get_encode_collab_from_disk(view_id, &layout)
+      .gather_publish_encode_collab(view_id, &layout)
       .await
       .unwrap()
   }
