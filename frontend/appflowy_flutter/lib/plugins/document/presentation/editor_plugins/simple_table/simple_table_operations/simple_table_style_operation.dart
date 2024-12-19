@@ -117,24 +117,13 @@ extension TableOptionOperation on EditorState {
     required Node tableCellNode,
     required TableAlign align,
   }) async {
-    assert(tableCellNode.type == SimpleTableCellBlockKeys.type);
-
-    final parentTableNode = tableCellNode.parentTableNode;
-
-    if (parentTableNode == null) {
-      Log.warn('parent table node is null');
-      return;
-    }
-
-    final transaction = this.transaction;
     final columnIndex = tableCellNode.columnIndex;
-    final attributes = parentTableNode.attributes.mergeValues(
-      SimpleTableBlockKeys.columnAligns,
-      parentTableNode.columnAligns,
+    await _updateTableAttributes(
+      tableCellNode: tableCellNode,
+      attributeKey: SimpleTableBlockKeys.columnAligns,
+      source: {columnIndex.toString(): align.key},
       duplicatedEntry: MapEntry(columnIndex.toString(), align.key),
     );
-    transaction.updateNode(parentTableNode, attributes);
-    await apply(transaction);
   }
 
   /// Update the align of the row at the index where the table cell node is located.
@@ -155,24 +144,13 @@ extension TableOptionOperation on EditorState {
     required Node tableCellNode,
     required TableAlign align,
   }) async {
-    assert(tableCellNode.type == SimpleTableCellBlockKeys.type);
-
-    final parentTableNode = tableCellNode.parentTableNode;
-
-    if (parentTableNode == null) {
-      Log.warn('parent table node is null');
-      return;
-    }
-
-    final transaction = this.transaction;
     final rowIndex = tableCellNode.rowIndex;
-    final attributes = parentTableNode.attributes.mergeValues(
-      SimpleTableBlockKeys.rowAligns,
-      parentTableNode.rowAligns,
+    await _updateTableAttributes(
+      tableCellNode: tableCellNode,
+      attributeKey: SimpleTableBlockKeys.rowAligns,
+      source: {rowIndex.toString(): align.key},
       duplicatedEntry: MapEntry(rowIndex.toString(), align.key),
     );
-    transaction.updateNode(parentTableNode, attributes);
-    await apply(transaction);
   }
 
   /// Update the background color of the column at the index where the table cell node is located.
@@ -180,29 +158,13 @@ extension TableOptionOperation on EditorState {
     required Node tableCellNode,
     required String color,
   }) async {
-    assert(tableCellNode.type == SimpleTableCellBlockKeys.type);
-
-    final parentTableNode = tableCellNode.parentTableNode;
-
-    if (parentTableNode == null) {
-      Log.warn('parent table node is null');
-      return;
-    }
-
     final columnIndex = tableCellNode.columnIndex;
-
-    Log.info(
-      'update column background color: $color at column $columnIndex in table ${parentTableNode.id}',
-    );
-
-    final transaction = this.transaction;
-    final attributes = parentTableNode.attributes.mergeValues(
-      SimpleTableBlockKeys.columnColors,
-      parentTableNode.columnColors,
+    await _updateTableAttributes(
+      tableCellNode: tableCellNode,
+      attributeKey: SimpleTableBlockKeys.columnColors,
+      source: {columnIndex.toString(): color},
       duplicatedEntry: MapEntry(columnIndex.toString(), color),
     );
-    transaction.updateNode(parentTableNode, attributes);
-    await apply(transaction);
   }
 
   /// Update the background color of the row at the index where the table cell node is located.
@@ -210,30 +172,13 @@ extension TableOptionOperation on EditorState {
     required Node tableCellNode,
     required String color,
   }) async {
-    assert(tableCellNode.type == SimpleTableCellBlockKeys.type);
-
-    final parentTableNode = tableCellNode.parentTableNode;
-
-    if (parentTableNode == null) {
-      Log.warn('parent table node is null');
-      return;
-    }
-
     final rowIndex = tableCellNode.rowIndex;
-
-    Log.info(
-      'update row background color: $color at row $rowIndex in table ${parentTableNode.id}',
-    );
-
-    final transaction = this.transaction;
-
-    final attributes = parentTableNode.attributes.mergeValues(
-      SimpleTableBlockKeys.rowColors,
-      parentTableNode.rowColors,
+    await _updateTableAttributes(
+      tableCellNode: tableCellNode,
+      attributeKey: SimpleTableBlockKeys.rowColors,
+      source: {rowIndex.toString(): color},
       duplicatedEntry: MapEntry(rowIndex.toString(), color),
     );
-    transaction.updateNode(parentTableNode, attributes);
-    await apply(transaction);
   }
 
   /// Set the column width of the table to the page width.
@@ -315,6 +260,128 @@ extension TableOptionOperation on EditorState {
       SimpleTableBlockKeys.columnWidths: columnWidths,
       SimpleTableBlockKeys.distributeColumnWidthsEvenly: true,
     });
+    await apply(transaction);
+  }
+
+  /// Update the text background color of the column
+  Future<void> updateColumnTextBackgroundColor({
+    required Node tableCellNode,
+    required String color,
+  }) async {
+    final columnIndex = tableCellNode.columnIndex;
+    await _updateTableAttributes(
+      tableCellNode: tableCellNode,
+      attributeKey: SimpleTableBlockKeys.columnTextBackgroundColors,
+      source: tableCellNode.columnTextBackgroundColors,
+      duplicatedEntry: MapEntry(columnIndex.toString(), color),
+    );
+  }
+
+  /// Update the text background color of the row
+  Future<void> updateRowTextBackgroundColor({
+    required Node tableCellNode,
+    required String color,
+  }) async {
+    final rowIndex = tableCellNode.rowIndex;
+    await _updateTableAttributes(
+      tableCellNode: tableCellNode,
+      attributeKey: SimpleTableBlockKeys.rowTextBackgroundColors,
+      source: tableCellNode.rowTextBackgroundColors,
+      duplicatedEntry: MapEntry(rowIndex.toString(), color),
+    );
+  }
+
+  /// Update the bold attribute of the column
+  Future<void> updateColumnBoldAttribute({
+    required Node tableCellNode,
+    required bool isBold,
+  }) async {
+    final columnIndex = tableCellNode.columnIndex;
+    await _updateTableAttributes(
+      tableCellNode: tableCellNode,
+      attributeKey: SimpleTableBlockKeys.columnBoldAttributes,
+      source: tableCellNode.columnBoldAttributes,
+      duplicatedEntry: MapEntry(columnIndex.toString(), isBold),
+    );
+  }
+
+  /// Update the bold attribute of the row
+  Future<void> updateRowBoldAttribute({
+    required Node tableCellNode,
+    required bool isBold,
+  }) async {
+    final rowIndex = tableCellNode.rowIndex;
+    await _updateTableAttributes(
+      tableCellNode: tableCellNode,
+      attributeKey: SimpleTableBlockKeys.rowBoldAttributes,
+      source: tableCellNode.rowBoldAttributes,
+      duplicatedEntry: MapEntry(rowIndex.toString(), isBold),
+    );
+  }
+
+  /// Update the text color of the column
+  Future<void> updateColumnTextColor({
+    required Node tableCellNode,
+    required String color,
+  }) async {
+    final columnIndex = tableCellNode.columnIndex;
+    await _updateTableAttributes(
+      tableCellNode: tableCellNode,
+      attributeKey: SimpleTableBlockKeys.columnTextColors,
+      source: tableCellNode.columnTextColors,
+      duplicatedEntry: MapEntry(columnIndex.toString(), color),
+    );
+  }
+
+  /// Update the text color of the row
+  Future<void> updateRowTextColor({
+    required Node tableCellNode,
+    required String color,
+  }) async {
+    final rowIndex = tableCellNode.rowIndex;
+    await _updateTableAttributes(
+      tableCellNode: tableCellNode,
+      attributeKey: SimpleTableBlockKeys.rowTextColors,
+      source: tableCellNode.rowTextColors,
+      duplicatedEntry: MapEntry(rowIndex.toString(), color),
+    );
+  }
+
+  /// Update the attributes of the table.
+  ///
+  /// This function is used to update the attributes of the table.
+  ///
+  /// The attribute key is the key of the attribute to be updated.
+  /// The source is the original value of the attribute.
+  /// The duplicatedEntry is the entry of the attribute to be updated.
+  Future<void> _updateTableAttributes({
+    required Node tableCellNode,
+    required String attributeKey,
+    required Map<String, dynamic> source,
+    MapEntry? duplicatedEntry,
+  }) async {
+    assert(tableCellNode.type == SimpleTableCellBlockKeys.type);
+
+    final parentTableNode = tableCellNode.parentTableNode;
+
+    if (parentTableNode == null) {
+      Log.warn('parent table node is null');
+      return;
+    }
+
+    final columnIndex = tableCellNode.columnIndex;
+
+    Log.info(
+      'update $attributeKey: $source at column $columnIndex in table ${parentTableNode.id}',
+    );
+
+    final transaction = this.transaction;
+    final attributes = parentTableNode.attributes.mergeValues(
+      attributeKey,
+      source,
+      duplicatedEntry: duplicatedEntry,
+    );
+    transaction.updateNode(parentTableNode, attributes);
     await apply(transaction);
   }
 }

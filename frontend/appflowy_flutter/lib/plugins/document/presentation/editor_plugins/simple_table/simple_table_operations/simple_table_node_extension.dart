@@ -301,6 +301,7 @@ extension TableNodeExtension on Node {
         parentTableCellNode?.rowIndex == 0;
   }
 
+  /// Get the row aligns.
   SimpleTableRowAlignMap get rowAligns {
     final rawRowAligns =
         parentTableNode?.attributes[SimpleTableBlockKeys.rowAligns];
@@ -315,6 +316,7 @@ extension TableNodeExtension on Node {
     }
   }
 
+  /// Get the row colors.
   SimpleTableColorMap get rowColors {
     final rawRowColors =
         parentTableNode?.attributes[SimpleTableBlockKeys.rowColors];
@@ -329,6 +331,7 @@ extension TableNodeExtension on Node {
     }
   }
 
+  /// Get the column colors.
   SimpleTableColorMap get columnColors {
     final rawColumnColors =
         parentTableNode?.attributes[SimpleTableBlockKeys.columnColors];
@@ -343,7 +346,8 @@ extension TableNodeExtension on Node {
     }
   }
 
-  SimpleTableRowAlignMap get columnAligns {
+  /// Get the column aligns.
+  SimpleTableColumnAlignMap get columnAligns {
     final rawColumnAligns =
         parentTableNode?.attributes[SimpleTableBlockKeys.columnAligns];
     if (rawColumnAligns == null) {
@@ -357,6 +361,7 @@ extension TableNodeExtension on Node {
     }
   }
 
+  /// Get the column widths.
   SimpleTableColumnWidthMap get columnWidths {
     final rawColumnWidths =
         parentTableNode?.attributes[SimpleTableBlockKeys.columnWidths];
@@ -371,6 +376,97 @@ extension TableNodeExtension on Node {
     }
   }
 
+  /// Get the column text colors
+  SimpleTableColorMap get columnTextColors {
+    final rawColumnTextColors =
+        parentTableNode?.attributes[SimpleTableBlockKeys.columnTextColors];
+    if (rawColumnTextColors == null) {
+      return SimpleTableColorMap();
+    }
+    try {
+      return SimpleTableColorMap.from(rawColumnTextColors);
+    } catch (e) {
+      Log.warn('get column text colors: $e');
+      return SimpleTableColorMap();
+    }
+  }
+
+  /// Get the row text colors
+  SimpleTableColorMap get rowTextColors {
+    final rawRowTextColors =
+        parentTableNode?.attributes[SimpleTableBlockKeys.rowTextColors];
+    if (rawRowTextColors == null) {
+      return SimpleTableColorMap();
+    }
+    try {
+      return SimpleTableColorMap.from(rawRowTextColors);
+    } catch (e) {
+      Log.warn('get row text colors: $e');
+      return SimpleTableColorMap();
+    }
+  }
+
+  /// Get the row text background colors
+  SimpleTableColorMap get rowTextBackgroundColors {
+    final rawRowTextBackgroundColors = parentTableNode
+        ?.attributes[SimpleTableBlockKeys.rowTextBackgroundColors];
+    if (rawRowTextBackgroundColors == null) {
+      return SimpleTableColorMap();
+    }
+    try {
+      return SimpleTableColorMap.from(rawRowTextBackgroundColors);
+    } catch (e) {
+      Log.warn('get row text background colors: $e');
+      return SimpleTableColorMap();
+    }
+  }
+
+  /// Get the column text background colors
+  SimpleTableColorMap get columnTextBackgroundColors {
+    final rawColumnTextBackgroundColors = parentTableNode
+        ?.attributes[SimpleTableBlockKeys.columnTextBackgroundColors];
+    if (rawColumnTextBackgroundColors == null) {
+      return SimpleTableColorMap();
+    }
+    try {
+      return SimpleTableColorMap.from(rawColumnTextBackgroundColors);
+    } catch (e) {
+      Log.warn('get column text background colors: $e');
+      return SimpleTableColorMap();
+    }
+  }
+
+  /// Get the column bold attributes
+  SimpleTableAttributeMap get columnBoldAttributes {
+    final rawColumnBoldAttributes =
+        parentTableNode?.attributes[SimpleTableBlockKeys.columnBoldAttributes];
+    if (rawColumnBoldAttributes == null) {
+      return SimpleTableAttributeMap();
+    }
+    try {
+      return SimpleTableAttributeMap.from(rawColumnBoldAttributes);
+    } catch (e) {
+      Log.warn('get column bold attributes: $e');
+      return SimpleTableAttributeMap();
+    }
+  }
+
+  /// Get the row bold attributes
+  SimpleTableAttributeMap get rowBoldAttributes {
+    final rawRowBoldAttributes =
+        parentTableNode?.attributes[SimpleTableBlockKeys.rowBoldAttributes];
+    if (rawRowBoldAttributes == null) {
+      return SimpleTableAttributeMap();
+    }
+    try {
+      return SimpleTableAttributeMap.from(rawRowBoldAttributes);
+    } catch (e) {
+      Log.warn('get row bold attributes: $e');
+      return SimpleTableAttributeMap();
+    }
+  }
+
+  /// Get the width of the table.
   double get width {
     double currentColumnWidth = 0;
     for (var i = 0; i < columnLength; i++) {
