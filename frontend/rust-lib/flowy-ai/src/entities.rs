@@ -72,6 +72,19 @@ pub struct StreamChatPayloadPB {
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
+pub struct RegenerateResponsePB {
+  #[pb(index = 1)]
+  #[validate(custom(function = "required_not_empty_str"))]
+  pub chat_id: String,
+
+  #[pb(index = 2)]
+  pub answer_message_id: i64,
+
+  #[pb(index = 3)]
+  pub answer_stream_port: i64,
+}
+
+#[derive(Default, ProtoBuf, Validate, Clone, Debug)]
 pub struct ChatMessageMetaPB {
   #[pb(index = 1)]
   pub id: String,

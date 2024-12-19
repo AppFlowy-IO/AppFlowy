@@ -356,6 +356,9 @@ pub enum ErrorCode {
 
   #[error("Requested namespace has one or more invalid characters")]
   CustomNamespaceInvalidCharacter = 122,
+
+  #[error("Requested namespace has one or more invalid characters")]
+  AIServiceUnavailable = 123,
 }
 
 impl ErrorCode {

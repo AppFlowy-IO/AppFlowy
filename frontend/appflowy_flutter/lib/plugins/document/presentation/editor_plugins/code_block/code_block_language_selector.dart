@@ -222,6 +222,9 @@ class _LanguageSelectionPopoverState extends State<_LanguageSelectionPopover> {
   void onArrowKey(AxisDirection direction) {
     if (filteredLanguages.isEmpty) return;
     final isUp = direction == AxisDirection.up;
+    if (selectedIndex < 0) {
+      selectedIndex = isUp ? 0 : -1;
+    }
     final length = filteredLanguages.length;
     setState(() {
       if (isUp) {
@@ -232,6 +235,7 @@ class _LanguageSelectionPopoverState extends State<_LanguageSelectionPopover> {
     });
     languageListController.scrollTo(
       index: selectedIndex,
+      alignment: 0.5,
       duration: const Duration(milliseconds: 300),
     );
   }

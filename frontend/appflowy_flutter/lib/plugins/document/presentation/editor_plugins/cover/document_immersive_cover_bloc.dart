@@ -5,6 +5,8 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../../../shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+
 part 'document_immersive_cover_bloc.freezed.dart';
 
 class DocumentImmersiveCoverBloc
@@ -20,7 +22,7 @@ class DocumentImmersiveCoverBloc
             add(
               DocumentImmersiveCoverEvent.updateCoverAndIcon(
                 view.cover,
-                view.icon.value,
+                EmojiIconData.fromViewIconPB(view.icon),
                 view.name,
               ),
             );
@@ -29,7 +31,7 @@ class DocumentImmersiveCoverBloc
                 add(
                   DocumentImmersiveCoverEvent.updateCoverAndIcon(
                     view.cover,
-                    view.icon.value,
+                    EmojiIconData.fromViewIconPB(view.icon),
                     view.name,
                   ),
                 );
@@ -63,9 +65,10 @@ class DocumentImmersiveCoverBloc
 @freezed
 class DocumentImmersiveCoverEvent with _$DocumentImmersiveCoverEvent {
   const factory DocumentImmersiveCoverEvent.initial() = Initial;
+
   const factory DocumentImmersiveCoverEvent.updateCoverAndIcon(
     PageStyleCover? cover,
-    String? icon,
+    EmojiIconData? icon,
     String? name,
   ) = UpdateCoverAndIcon;
 }
@@ -73,7 +76,7 @@ class DocumentImmersiveCoverEvent with _$DocumentImmersiveCoverEvent {
 @freezed
 class DocumentImmersiveCoverState with _$DocumentImmersiveCoverState {
   const factory DocumentImmersiveCoverState({
-    @Default(null) String? icon,
+    @Default(null) EmojiIconData? icon,
     required PageStyleCover cover,
     @Default('') String name,
   }) = _DocumentImmersiveCoverState;

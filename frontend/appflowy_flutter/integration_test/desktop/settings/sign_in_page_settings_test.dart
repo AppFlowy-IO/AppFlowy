@@ -82,7 +82,7 @@ void main() {
       // reset to appflowy cloud
       await tester.tapButton(
         findServerType(AuthenticatorType.appflowyCloudSelfHost),
-      );    
+      );
       // change the server type to appflowy cloud
       await tester.tapButton(
         findServerType(AuthenticatorType.appflowyCloud),

@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_block_language_selector.dart';
-
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -45,8 +44,10 @@ void main() {
     await onKey(tester, LogicalKeyboardKey.enter);
 
     final editorState = tester.editor.getCurrentEditorState();
-    final language =
-        editorState.getNodeAtPath([0])!.attributes['language'].toString();
+    String language = editorState
+        .getNodeAtPath([0])!
+        .attributes[CodeBlockKeys.language]
+        .toString();
     expect(
       language.toLowerCase(),
       defaultCodeBlockSupportedLanguages.first.toLowerCase(),
@@ -58,14 +59,29 @@ void main() {
     await onKey(tester, LogicalKeyboardKey.arrowUp);
     await onKey(tester, LogicalKeyboardKey.enter);
 
+    language = editorState
+        .getNodeAtPath([0])!
+        .attributes[CodeBlockKeys.language]
+        .toString();
     expect(
-      editorState
-          .getNodeAtPath([0])!
-          .attributes['language']
-          .toString()
-          .toLowerCase(),
+      language.toLowerCase(),
       defaultCodeBlockSupportedLanguages.last.toLowerCase(),
     );
+
+    await tester.hoverOnWidget(find.byType(CodeBlockComponentWidget));
+    await tester.tapButtonWithName(language);
+    tester.testTextInput.enterText("rust");
+    await onKey(tester, LogicalKeyboardKey.delete);
+    await onKey(tester, LogicalKeyboardKey.delete);
+    await onKey(tester, LogicalKeyboardKey.arrowDown);
+    tester.testTextInput.enterText("st");
+    await onKey(tester, LogicalKeyboardKey.arrowDown);
+    await onKey(tester, LogicalKeyboardKey.enter);
+    language = editorState
+        .getNodeAtPath([0])!
+        .attributes[CodeBlockKeys.language]
+        .toString();
+    expect(language.toLowerCase(), 'rust');
   });
 }
 

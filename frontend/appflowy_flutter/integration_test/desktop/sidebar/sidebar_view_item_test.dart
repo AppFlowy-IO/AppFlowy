@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -38,7 +39,11 @@ void main() {
       await tester.tapEmoji(emoji);
       await tester.pumpAndSettle();
 
-      tester.expectViewHasIcon(gettingStarted, ViewLayoutPB.Document, emoji);
+      tester.expectViewHasIcon(
+        gettingStarted,
+        ViewLayoutPB.Document,
+        EmojiIconData.emoji(emoji),
+      );
     });
   });
 }

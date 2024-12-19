@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/add_block_toolbar_item.dart';
 import 'package:appflowy/plugins/shared/share/share_button.dart';
 import 'package:appflowy/shared/feature_flags.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/text_field/text_filed_with_metric_lines.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
@@ -608,7 +609,7 @@ extension CommonOperations on WidgetTester {
     required String name,
     required String parentName,
     required ViewLayoutPB layout,
-    required String icon,
+    required EmojiIconData icon,
   }) async {
     final iconButton = find.descendant(
       of: findPageName(
@@ -620,7 +621,11 @@ extension CommonOperations on WidgetTester {
           find.byTooltip(LocaleKeys.document_plugins_cover_changeIcon.tr()),
     );
     await tapButton(iconButton);
-    await tapEmoji(icon);
+    if (icon.type == FlowyIconType.emoji) {
+      await tapEmoji(icon.emoji);
+    } else if (icon.type == FlowyIconType.icon) {
+      await tapIcon(icon);
+    }
     await pumpAndSettle();
   }
 
@@ -628,7 +633,7 @@ extension CommonOperations on WidgetTester {
   Future<void> updatePageIconInTitleBarByName({
     required String name,
     required ViewLayoutPB layout,
-    required String icon,
+    required EmojiIconData icon,
   }) async {
     await openPage(
       name,
@@ -640,7 +645,11 @@ extension CommonOperations on WidgetTester {
     );
     await tapButton(title);
     await tapButton(find.byType(EmojiPickerButton));
-    await tapEmoji(icon);
+    if (icon.type == FlowyIconType.emoji) {
+      await tapEmoji(icon.emoji);
+    } else if (icon.type == FlowyIconType.icon) {
+      await tapIcon(icon);
+    }
     await pumpAndSettle();
   }
 

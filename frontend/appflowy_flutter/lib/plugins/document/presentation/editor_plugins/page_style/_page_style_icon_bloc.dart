@@ -1,3 +1,4 @@
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -17,7 +18,7 @@ class PageStyleIconBloc extends Bloc<PageStyleIconEvent, PageStyleIconState> {
           initial: () async {
             add(
               PageStyleIconEvent.updateIcon(
-                view.icon.value,
+                view.icon.toEmojiIconData(),
                 false,
               ),
             );
@@ -25,7 +26,7 @@ class PageStyleIconBloc extends Bloc<PageStyleIconEvent, PageStyleIconState> {
               onViewUpdated: (view) {
                 add(
                   PageStyleIconEvent.updateIcon(
-                    view.icon.value,
+                    view.icon.toEmojiIconData(),
                     false,
                   ),
                 );
@@ -63,8 +64,9 @@ class PageStyleIconBloc extends Bloc<PageStyleIconEvent, PageStyleIconState> {
 @freezed
 class PageStyleIconEvent with _$PageStyleIconEvent {
   const factory PageStyleIconEvent.initial() = Initial;
+
   const factory PageStyleIconEvent.updateIcon(
-    String? icon,
+    EmojiIconData? icon,
     bool shouldUpdateRemote,
   ) = UpdateIconInner;
 }
@@ -72,7 +74,7 @@ class PageStyleIconEvent with _$PageStyleIconEvent {
 @freezed
 class PageStyleIconState with _$PageStyleIconState {
   const factory PageStyleIconState({
-    @Default(null) String? icon,
+    @Default(null) EmojiIconData? icon,
   }) = _PageStyleIconState;
 
   factory PageStyleIconState.initial() => const PageStyleIconState();
