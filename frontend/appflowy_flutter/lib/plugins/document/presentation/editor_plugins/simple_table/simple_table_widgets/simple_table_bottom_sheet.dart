@@ -10,12 +10,12 @@ class SimpleTableBottomSheet extends StatelessWidget {
   const SimpleTableBottomSheet({
     super.key,
     required this.type,
-    required this.node,
+    required this.cellNode,
     required this.editorState,
   });
 
   final SimpleTableMoreActionType type;
-  final Node node;
+  final Node cellNode;
   final EditorState editorState;
 
   @override
@@ -25,21 +25,21 @@ class SimpleTableBottomSheet extends StatelessWidget {
         // copy, cut, paste, delete
         SimpleTableQuickActions(
           type: type,
-          node: node,
+          cellNode: cellNode,
           editorState: editorState,
         ),
         const VSpace(12),
         // insert row, insert column
         SimpleTableInsertActions(
           type: type,
-          tableCellNode: node,
+          cellNode: cellNode,
           editorState: editorState,
         ),
         const VSpace(16),
         // action buttons
         SimpleTableActionButtons(
           type: type,
-          tableCellNode: node,
+          cellNode: cellNode,
           editorState: editorState,
         ),
       ],

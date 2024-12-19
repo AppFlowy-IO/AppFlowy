@@ -10,23 +10,33 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+/// Base class for all simple table bottom sheet actions
+abstract class ISimpleTableBottomSheetActions extends StatelessWidget {
+  const ISimpleTableBottomSheetActions({
+    super.key,
+    required this.type,
+    required this.cellNode,
+    required this.editorState,
+  });
+
+  final SimpleTableMoreActionType type;
+  final Node cellNode;
+  final EditorState editorState;
+}
+
 /// Quick actions
 ///
 /// - Copy
 /// - Paste
 /// - Cut
 /// - Delete
-class SimpleTableQuickActions extends StatelessWidget {
+class SimpleTableQuickActions extends ISimpleTableBottomSheetActions {
   const SimpleTableQuickActions({
     super.key,
-    required this.type,
-    required this.node,
-    required this.editorState,
+    required super.type,
+    required super.cellNode,
+    required super.editorState,
   });
-
-  final SimpleTableMoreActionType type;
-  final Node node;
-  final EditorState editorState;
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +74,7 @@ class SimpleTableQuickActions extends StatelessWidget {
   }
 
   void _onActionTap(BuildContext context, SimpleTableMoreAction action) {
-    final tableNode = node.parentTableNode;
+    final tableNode = cellNode.parentTableNode;
     if (tableNode == null) {
       Log.error('unable to find table node when performing action: $action');
       return;
@@ -92,13 +102,13 @@ class SimpleTableQuickActions extends StatelessWidget {
       case SimpleTableMoreActionType.column:
         editorState.copyColumn(
           tableNode: tableNode,
-          columnIndex: node.columnIndex,
+          columnIndex: cellNode.columnIndex,
           clearContent: true,
         );
       case SimpleTableMoreActionType.row:
         editorState.copyRow(
           tableNode: tableNode,
-          rowIndex: node.rowIndex,
+          rowIndex: cellNode.rowIndex,
           clearContent: true,
         );
     }
@@ -111,12 +121,12 @@ class SimpleTableQuickActions extends StatelessWidget {
       case SimpleTableMoreActionType.column:
         editorState.copyColumn(
           tableNode: tableNode,
-          columnIndex: node.columnIndex,
+          columnIndex: cellNode.columnIndex,
         );
       case SimpleTableMoreActionType.row:
         editorState.copyRow(
           tableNode: tableNode,
-          rowIndex: node.rowIndex,
+          rowIndex: cellNode.rowIndex,
         );
     }
   }
@@ -126,12 +136,12 @@ class SimpleTableQuickActions extends StatelessWidget {
       case SimpleTableMoreActionType.column:
         editorState.pasteColumn(
           tableNode: tableNode,
-          columnIndex: node.columnIndex,
+          columnIndex: cellNode.columnIndex,
         );
       case SimpleTableMoreActionType.row:
         editorState.pasteRow(
           tableNode: tableNode,
-          rowIndex: node.rowIndex,
+          rowIndex: cellNode.rowIndex,
         );
     }
   }
@@ -141,12 +151,12 @@ class SimpleTableQuickActions extends StatelessWidget {
       case SimpleTableMoreActionType.column:
         editorState.deleteColumnInTable(
           tableNode,
-          node.columnIndex,
+          cellNode.columnIndex,
         );
       case SimpleTableMoreActionType.row:
         editorState.deleteRowInTable(
           tableNode,
-          node.rowIndex,
+          cellNode.rowIndex,
         );
     }
   }
@@ -186,17 +196,13 @@ class SimpleTableQuickAction extends StatelessWidget {
 ///
 /// - Column: Insert left or insert right
 /// - Row: Insert above or insert below
-class SimpleTableInsertActions extends StatelessWidget {
+class SimpleTableInsertActions extends ISimpleTableBottomSheetActions {
   const SimpleTableInsertActions({
     super.key,
-    required this.type,
-    required this.tableCellNode,
-    required this.editorState,
+    required super.type,
+    required super.cellNode,
+    required super.editorState,
   });
-
-  final SimpleTableMoreActionType type;
-  final Node tableCellNode;
-  final EditorState editorState;
 
   @override
   Widget build(BuildContext context) {
@@ -256,7 +262,7 @@ class SimpleTableInsertActions extends StatelessWidget {
 
   void _onActionTap(BuildContext context, SimpleTableMoreAction type) {
     final simpleTableContext = context.read<SimpleTableContext>();
-    final tableNode = tableCellNode.parentTableNode;
+    final tableNode = cellNode.parentTableNode;
     if (tableNode == null) {
       Log.error('unable to find table node when performing action: $type');
       return;
@@ -265,28 +271,27 @@ class SimpleTableInsertActions extends StatelessWidget {
     switch (type) {
       case SimpleTableMoreAction.insertAbove:
         // update the highlight status for the selecting row
-        simpleTableContext.selectingRow.value = tableCellNode.rowIndex + 1;
+        simpleTableContext.selectingRow.value = cellNode.rowIndex + 1;
         editorState.insertRowInTable(
           tableNode,
-          tableCellNode.rowIndex,
+          cellNode.rowIndex,
         );
       case SimpleTableMoreAction.insertBelow:
         editorState.insertRowInTable(
           tableNode,
-          tableCellNode.rowIndex + 1,
+          cellNode.rowIndex + 1,
         );
       case SimpleTableMoreAction.insertLeft:
         // update the highlight status for the selecting column
-        simpleTableContext.selectingColumn.value =
-            tableCellNode.columnIndex + 1;
+        simpleTableContext.selectingColumn.value = cellNode.columnIndex + 1;
         editorState.insertColumnInTable(
           tableNode,
-          tableCellNode.columnIndex,
+          cellNode.columnIndex,
         );
       case SimpleTableMoreAction.insertRight:
         editorState.insertColumnInTable(
           tableNode,
-          tableCellNode.columnIndex + 1,
+          cellNode.columnIndex + 1,
         );
       default:
         assert(false, 'Unsupported action: $type');
@@ -362,17 +367,13 @@ class SimpleTableInsertAction extends StatelessWidget {
 /// - Duplicate row
 /// - Duplicate column
 /// - Clear contents
-class SimpleTableActionButtons extends StatelessWidget {
+class SimpleTableActionButtons extends ISimpleTableBottomSheetActions {
   const SimpleTableActionButtons({
     super.key,
-    required this.type,
-    required this.tableCellNode,
-    required this.editorState,
+    required super.type,
+    required super.cellNode,
+    required super.editorState,
   });
-
-  final SimpleTableMoreActionType type;
-  final Node tableCellNode;
-  final EditorState editorState;
 
   @override
   Widget build(BuildContext context) {
@@ -390,14 +391,14 @@ class SimpleTableActionButtons extends StatelessWidget {
     // and the length of the columns and rows
     final (index, columnLength, rowLength) = switch (type) {
       SimpleTableMoreActionType.row => (
-          tableCellNode.rowIndex,
-          tableCellNode.columnLength,
-          tableCellNode.rowLength,
+          cellNode.rowIndex,
+          cellNode.columnLength,
+          cellNode.rowLength,
         ),
       SimpleTableMoreActionType.column => (
-          tableCellNode.columnIndex,
-          tableCellNode.rowLength,
-          tableCellNode.columnLength,
+          cellNode.columnIndex,
+          cellNode.rowLength,
+          cellNode.columnLength,
         ),
     };
     final actionGroups = type.buildMobileActions(
@@ -415,7 +416,7 @@ class SimpleTableActionButtons extends StatelessWidget {
             SimpleTableMoreAction.enableHeaderColumn =>
               SimpleTableHeaderActionButton(
                 type: action,
-                isEnabled: tableCellNode.isHeaderColumnEnabled,
+                isEnabled: cellNode.isHeaderColumnEnabled,
                 onTap: (value) => _onActionTap(
                   context,
                   action: action,
@@ -425,7 +426,7 @@ class SimpleTableActionButtons extends StatelessWidget {
             SimpleTableMoreAction.enableHeaderRow =>
               SimpleTableHeaderActionButton(
                 type: action,
-                isEnabled: tableCellNode.isHeaderRowEnabled,
+                isEnabled: cellNode.isHeaderRowEnabled,
                 onTap: (value) => _onActionTap(
                   context,
                   action: action,
@@ -459,7 +460,7 @@ class SimpleTableActionButtons extends StatelessWidget {
     required SimpleTableMoreAction action,
     bool toggleHeaderValue = false,
   }) {
-    final tableNode = tableCellNode.parentTableNode;
+    final tableNode = cellNode.parentTableNode;
     if (tableNode == null) {
       Log.error('unable to find table node when performing action: $action');
       return;
@@ -483,24 +484,24 @@ class SimpleTableActionButtons extends StatelessWidget {
       case SimpleTableMoreAction.duplicateRow:
         editorState.duplicateRowInTable(
           tableNode,
-          tableCellNode.rowIndex,
+          cellNode.rowIndex,
         );
       case SimpleTableMoreAction.duplicateColumn:
         editorState.duplicateColumnInTable(
           tableNode,
-          tableCellNode.columnIndex,
+          cellNode.columnIndex,
         );
       case SimpleTableMoreAction.clearContents:
         switch (type) {
           case SimpleTableMoreActionType.column:
             editorState.clearContentAtColumnIndex(
               tableNode: tableNode,
-              columnIndex: tableCellNode.columnIndex,
+              columnIndex: cellNode.columnIndex,
             );
           case SimpleTableMoreActionType.row:
             editorState.clearContentAtRowIndex(
               tableNode: tableNode,
-              rowIndex: tableCellNode.rowIndex,
+              rowIndex: cellNode.rowIndex,
             );
         }
       default:
@@ -644,5 +645,19 @@ class SimpleTableActionButton extends StatelessWidget {
         bottomRight: enableBottomBorder ? radius : Radius.zero,
       ),
     );
+  }
+}
+
+class SimpleTableContentActions extends ISimpleTableBottomSheetActions {
+  const SimpleTableContentActions({
+    super.key,
+    required super.type,
+    required super.cellNode,
+    required super.editorState,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
   }
 }
