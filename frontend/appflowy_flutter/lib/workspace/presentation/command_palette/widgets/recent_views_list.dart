@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/recent_view_tile.dart';
@@ -44,9 +46,9 @@ class RecentViewsList extends StatelessWidget {
 
               final view = recentViews[index - 1];
               final icon = view.icon.value.isNotEmpty
-                  ? Text(
-                      view.icon.value,
-                      style: const TextStyle(fontSize: 18.0),
+                  ? EmojiIconWidget(
+                      emoji: view.icon.toEmojiIconData(),
+                      emojiSize: 18.0,
                     )
                   : FlowySvg(view.iconData, size: const Size.square(20));
 

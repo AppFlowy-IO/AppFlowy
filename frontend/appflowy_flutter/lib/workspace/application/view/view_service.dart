@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_bloc.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -190,12 +191,9 @@ class ViewBackendService {
 
   static Future<FlowyResult<void, FlowyError>> updateViewIcon({
     required String viewId,
-    required String viewIcon,
-    ViewIconTypePB iconType = ViewIconTypePB.Emoji,
+    required EmojiIconData viewIcon,
   }) {
-    final icon = ViewIconPB()
-      ..ty = iconType
-      ..value = viewIcon;
+    final icon = viewIcon.toViewIcon();
     final payload = UpdateViewIconPayloadPB.create()
       ..viewId = viewId
       ..icon = icon;

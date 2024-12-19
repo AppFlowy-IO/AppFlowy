@@ -109,7 +109,8 @@ class DownloadModelState with _$DownloadModelState {
     // bigger than 1 GB then show download big file prompt
     String? bigFileDownloadPrompt;
     if (model.fileSize > 1 * 1024 * 1024 * 1024) {
-      bigFileDownloadPrompt = LocaleKeys.settings_aiPage_keys_downloadBigFilePrompt.tr();
+      bigFileDownloadPrompt =
+          LocaleKeys.settings_aiPage_keys_downloadBigFilePrompt.tr();
     }
     return DownloadModelState(
       model: model,

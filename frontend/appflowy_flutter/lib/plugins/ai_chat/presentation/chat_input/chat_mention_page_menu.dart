@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bar_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
@@ -308,10 +310,9 @@ class MentionViewIcon extends StatelessWidget {
     if (view.icon.value.isNotEmpty) {
       return SizedBox(
         width: 16.0,
-        child: FlowyText.emoji(
-          view.icon.value,
-          fontSize: 14.0,
-          figmaLineHeight: 21.0,
+        child: EmojiIconWidget(
+          emoji: view.icon.toEmojiIconData(),
+          emojiSize: 14,
         ),
       );
     }

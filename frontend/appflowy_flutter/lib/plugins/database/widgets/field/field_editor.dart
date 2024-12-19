@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -14,6 +15,7 @@ import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -21,6 +23,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../shared/icon_emoji_picker/icon_picker.dart';
 import 'field_type_list.dart';
 import 'type_option_editor/builder.dart';
 
@@ -603,16 +606,22 @@ class _FieldEditIconButtonState extends State<FieldEditIconButton> {
         return FlowyIconEmojiPicker(
           enableBackgroundColorSelection: false,
           tabs: const [PickerTabType.icon],
-          onSelectedIcon: (group, icon, _) {
-            String newIcon = "";
-            if (group != null && icon != null) {
-              newIcon = '${group.name}/${icon.name}';
+          onSelectedEmoji: (r) {
+            if (r.type == FlowyIconType.icon) {
+              try {
+                final iconsData = IconsData.fromJson(jsonDecode(r.emoji));
+                context.read<FieldEditorBloc>().add(
+                      FieldEditorEvent.updateIcon(
+                        '${iconsData.groupName}/${iconsData.iconName}',
+                      ),
+                    );
+              } on FormatException catch (e) {
+                Log.warn('FieldEditIconButton onSelectedEmoji error:$e');
+                context
+                    .read<FieldEditorBloc>()
+                    .add(const FieldEditorEvent.updateIcon(''));
+              }
             }
-
-            context
-                .read<FieldEditorBloc>()
-                .add(FieldEditorEvent.updateIcon(newIcon));
-
             PopoverContainer.of(popoverContext).close();
           },
         );

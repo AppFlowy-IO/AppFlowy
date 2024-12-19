@@ -1,6 +1,6 @@
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -23,10 +23,11 @@ class EmojiPickerButton extends StatelessWidget {
     this.buttonSize,
   });
 
-  final String emoji;
+  final EmojiIconData emoji;
   final double emojiSize;
   final Size emojiPickerSize;
-  final void Function(String emoji, PopoverController? controller) onSubmitted;
+  final void Function(EmojiIconData emoji, PopoverController? controller)
+      onSubmitted;
   final PopoverController popoverController = PopoverController();
   final Widget? defaultIcon;
   final Offset? offset;
@@ -81,10 +82,11 @@ class _DesktopEmojiPickerButton extends StatelessWidget {
     this.buttonSize,
   });
 
-  final String emoji;
+  final EmojiIconData emoji;
   final double emojiSize;
   final Size emojiPickerSize;
-  final void Function(String emoji, PopoverController? controller) onSubmitted;
+  final void Function(EmojiIconData emoji, PopoverController? controller)
+      onSubmitted;
   final PopoverController popoverController = PopoverController();
   final Widget? defaultIcon;
   final Offset? offset;
@@ -93,8 +95,10 @@ class _DesktopEmojiPickerButton extends StatelessWidget {
   final bool showBorder;
   final bool enable;
   final Size? buttonSize;
+
   @override
   Widget build(BuildContext context) {
+    final showDefault = emoji.isEmpty && defaultIcon != null;
     return AppFlowyPopover(
       controller: popoverController,
       constraints: BoxConstraints.expand(
@@ -108,9 +112,10 @@ class _DesktopEmojiPickerButton extends StatelessWidget {
         width: emojiPickerSize.width,
         height: emojiPickerSize.height,
         padding: const EdgeInsets.all(4.0),
-        child: EmojiSelectionMenu(
-          onSubmitted: (emoji) => onSubmitted(emoji, popoverController),
-          onExit: () {},
+        child: FlowyIconEmojiPicker(
+          onSelectedEmoji: (r) {
+            onSubmitted(r, popoverController);
+          },
         ),
       ),
       child: Container(
@@ -129,9 +134,9 @@ class _DesktopEmojiPickerButton extends StatelessWidget {
               ? EdgeInsets.zero
               : const EdgeInsets.only(left: 2.0),
           expandText: false,
-          text: emoji.isEmpty && defaultIcon != null
+          text: showDefault
               ? defaultIcon!
-              : FlowyText.emoji(emoji, fontSize: emojiSize),
+              : RawEmojiIconWidget(emoji: emoji, emojiSize: emojiSize),
           onTap: enable ? popoverController.show : null,
         ),
       ),
@@ -149,9 +154,10 @@ class _MobileEmojiPickerButton extends StatelessWidget {
     this.margin,
   });
 
-  final String emoji;
+  final EmojiIconData emoji;
   final double emojiSize;
-  final void Function(String emoji, PopoverController? controller) onSubmitted;
+  final void Function(EmojiIconData emoji, PopoverController? controller)
+      onSubmitted;
   final String? title;
   final bool enable;
   final EdgeInsets? margin;
@@ -162,21 +168,20 @@ class _MobileEmojiPickerButton extends StatelessWidget {
       useIntrinsicWidth: true,
       margin:
           margin ?? const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
-      text: FlowyText.emoji(
-        emoji,
-        fontSize: emojiSize,
-        optimizeEmojiAlign: true,
+      text: RawEmojiIconWidget(
+        emoji: emoji,
+        emojiSize: emojiSize,
       ),
       onTap: enable
           ? () async {
-              final result = await context.push<EmojiPickerResult>(
+              final result = await context.push<EmojiIconData>(
                 Uri(
                   path: MobileEmojiPickerScreen.routeName,
                   queryParameters: {MobileEmojiPickerScreen.pageTitle: title},
                 ).toString(),
               );
               if (result != null) {
-                onSubmitted(result.emoji, null);
+                onSubmitted(result, null);
               }
             }
           : null,

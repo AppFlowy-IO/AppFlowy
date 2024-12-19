@@ -5,6 +5,7 @@ import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_search_bar.dart';
 import 'package:appflowy/util/debounce.dart';
@@ -80,7 +81,7 @@ class FlowyIconPicker extends StatefulWidget {
   });
 
   final bool enableBackgroundColorSelection;
-  final void Function(IconGroup group, Icon icon, String? color) onSelectedIcon;
+  final ValueChanged<IconsData> onSelectedIcon;
 
   @override
   State<FlowyIconPicker> createState() => _FlowyIconPickerState();
@@ -119,7 +120,14 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
                 return;
               }
               final color = generateRandomSpaceColor();
-              widget.onSelectedIcon(value.$1, value.$2, color);
+              widget.onSelectedIcon(
+                IconsData(
+                  value.$1.name,
+                  value.$2.content,
+                  value.$2.name,
+                  color,
+                ),
+              );
             },
             onKeywordChanged: (keyword) => {
               debounce.call(() {
@@ -179,6 +187,33 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
   }
 }
 
+class IconsData {
+  IconsData(this.groupName, this.iconContent, this.iconName, this.color);
+
+  final String groupName;
+  final String iconContent;
+  final String iconName;
+  final String? color;
+
+  String get iconString => jsonEncode({
+        'groupName': groupName,
+        'iconContent': iconContent,
+        'iconName': iconName,
+        if (color != null) 'color': color,
+      });
+
+  EmojiIconData toEmojiIconData() => EmojiIconData.icon(this);
+
+  static IconsData fromJson(dynamic json) {
+    return IconsData(
+      json['groupName'],
+      json['iconContent'],
+      json['iconName'],
+      json['color'],
+    );
+  }
+}
+
 class IconPicker extends StatefulWidget {
   const IconPicker({
     super.key,
@@ -189,7 +224,7 @@ class IconPicker extends StatefulWidget {
 
   final List<IconGroup> iconGroups;
   final bool enableBackgroundColorSelection;
-  final void Function(IconGroup group, Icon icon, String? color) onSelectedIcon;
+  final ValueChanged<IconsData> onSelectedIcon;
 
   @override
   State<IconPicker> createState() => _IconPickerState();
@@ -223,14 +258,28 @@ class _IconPickerState extends State<IconPicker> {
                           icon: icon,
                           mutex: mutex,
                           onSelectedColor: (context, color) {
-                            widget.onSelectedIcon(iconGroup, icon, color);
+                            widget.onSelectedIcon(
+                              IconsData(
+                                iconGroup.name,
+                                icon.content,
+                                icon.name,
+                                color,
+                              ),
+                            );
                             PopoverContainer.of(context).close();
                           },
                         )
                       : _IconNoBackground(
                           icon: icon,
                           onSelectedIcon: () {
-                            widget.onSelectedIcon(iconGroup, icon, null);
+                            widget.onSelectedIcon(
+                              IconsData(
+                                iconGroup.name,
+                                icon.content,
+                                icon.name,
+                                null,
+                              ),
+                            );
                           },
                         );
                 },
