@@ -156,7 +156,7 @@ export const Element = ({
   const className = useMemo(() => {
     const data = (node.data as BlockData) || {};
     const align = data.align;
-    const classList = ['block-element relative flex rounded-[8px]'];
+    const classList = ['block-element relative flex rounded-[4px]'];
 
     if (selected) {
       classList.push('selected');

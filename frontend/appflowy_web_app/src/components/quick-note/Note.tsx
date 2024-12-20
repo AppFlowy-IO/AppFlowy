@@ -65,12 +65,10 @@ function NoteEditor({
   const isDark = useContext(ThemeModeContext)?.isDark;
   const theme = isDark ? 'dark' : 'light';
 
-  const [, setClock] = React.useState(0);
   const editor = useEditor();
 
   useEffect(() => {
     editor.applyData(note.data as EditorData);
-    setClock(prev => prev + 1);
     // eslint-disable-next-line
   }, [editor, note.id]);
 

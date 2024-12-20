@@ -10,7 +10,7 @@ export const Text = forwardRef<HTMLSpanElement, EditorElementProps<TextNode>>(
     const editor = useSlateStatic();
     const isEmpty = editor.isEmpty(node);
     const className = useMemo(() => {
-      const classList = ['text-element', 'relative', 'flex', 'w-full', 'whitespace-pre-wrap', 'break-word', 'px-1'];
+      const classList = ['text-element', 'relative', 'flex', 'w-full', 'whitespace-pre-wrap', 'break-word'];
 
       if (classNameProp) classList.push(classNameProp);
       if (hasStartIcon) classList.push('has-start-icon');
@@ -19,7 +19,7 @@ export const Text = forwardRef<HTMLSpanElement, EditorElementProps<TextNode>>(
 
     const placeholder = useMemo(() => {
       if (!isEmpty) return null;
-      return <Placeholder node={node} />;
+      return <Placeholder node={node}/>;
     }, [isEmpty, node]);
 
     const content = useMemo(() => {
