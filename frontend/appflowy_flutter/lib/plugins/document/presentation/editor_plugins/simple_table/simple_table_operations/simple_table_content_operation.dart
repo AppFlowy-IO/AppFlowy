@@ -91,6 +91,21 @@ extension TableContentOperation on EditorState {
     await apply(transaction);
   }
 
+  /// Clear the content of the table.
+  Future<void> clearAllContent({
+    required Node tableNode,
+  }) async {
+    assert(tableNode.type == SimpleTableBlockKeys.type);
+
+    if (tableNode.type != SimpleTableBlockKeys.type) {
+      return;
+    }
+
+    for (var i = 0; i < tableNode.rowLength; i++) {
+      await clearContentAtRowIndex(tableNode: tableNode, rowIndex: i);
+    }
+  }
+
   /// Copy the selected column to the clipboard.
   ///
   /// If the [clearContent] is true, the content of the column will be cleared after
@@ -207,6 +222,61 @@ extension TableContentOperation on EditorState {
     }
   }
 
+  /// Copy the selected table to the clipboard.
+  Future<void> copyTable({
+    required Node tableNode,
+    bool clearContent = false,
+  }) async {
+    assert(tableNode.type == SimpleTableBlockKeys.type);
+
+    if (tableNode.type != SimpleTableBlockKeys.type) {
+      return;
+    }
+
+    // the plain text content of the table
+    final List<String> content = [];
+
+    // the cells of the table
+    final List<Node> cells = [];
+
+    for (var i = 0; i < tableNode.rowLength; i++) {
+      final row = tableNode.children[i];
+      for (var j = 0; j < row.children.length; j++) {
+        final cell = row.children[j];
+        final startNode = cell.getFirstChildIndex();
+        final endNode = cell.getLastChildIndex();
+        if (startNode == null || endNode == null) {
+          continue;
+        }
+        final plainText = getTextInSelection(
+          Selection(
+            start: Position(path: startNode.path),
+            end: Position(
+              path: endNode.path,
+              offset: endNode.delta?.length ?? 0,
+            ),
+          ),
+        );
+        content.add(plainText.join('\n'));
+        cells.add(cell.deepCopy());
+      }
+    }
+
+    final plainText = content.join('\n');
+    final document = Document.blank()..insert([0], cells);
+
+    await getIt<ClipboardService>().setData(
+      ClipboardServiceData(
+        plainText: plainText,
+        tableJson: jsonEncode(document.toJson()),
+      ),
+    );
+
+    if (clearContent) {
+      await clearAllContent(tableNode: tableNode);
+    }
+  }
+
   /// Paste the clipboard content to the table column.
   Future<void> pasteColumn({
     required Node tableNode,
@@ -289,6 +359,46 @@ extension TableContentOperation on EditorState {
             nodes,
           );
           transaction.deleteNodes(cell.children);
+        }
+      }
+      await apply(transaction);
+    } catch (e) {
+      Log.error('paste row: failed to paste: $e');
+    }
+  }
+
+  /// Paste the clipboard content to the table.
+  Future<void> pasteTable({
+    required Node tableNode,
+  }) async {
+    assert(tableNode.type == SimpleTableBlockKeys.type);
+
+    if (tableNode.type != SimpleTableBlockKeys.type) {
+      return;
+    }
+
+    final clipboardData = await getIt<ClipboardService>().getData();
+    final tableJson = clipboardData.tableJson;
+    if (tableJson == null) {
+      return;
+    }
+
+    try {
+      final document = Document.fromJson(jsonDecode(tableJson));
+      final cells = document.root.children;
+      final transaction = this.transaction;
+      for (var i = 0; i < tableNode.rowLength; i++) {
+        final row = tableNode.children[i];
+        for (var j = 0; j < row.children.length; j++) {
+          final cell = row.children[j];
+          final node = i + j < cells.length ? cells[i + j] : null;
+          if (node != null && node.children.isNotEmpty) {
+            transaction.insertNodes(
+              cell.path.child(0),
+              node.children,
+            );
+            transaction.deleteNodes(cell.children);
+          }
         }
       }
       await apply(transaction);

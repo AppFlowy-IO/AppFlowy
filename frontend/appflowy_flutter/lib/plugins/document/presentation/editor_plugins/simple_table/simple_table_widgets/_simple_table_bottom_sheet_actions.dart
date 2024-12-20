@@ -1208,13 +1208,22 @@ class SimpleTableQuickActions extends StatelessWidget {
     Navigator.of(context).pop();
   }
 
-  void _onCut(Node tableNode) {}
+  void _onCut(Node tableNode) => editorState.copyTable(
+        tableNode: tableNode,
+        clearContent: true,
+      );
 
-  void _onCopy(
-    Node tableNode,
-  ) {}
+  void _onCopy(Node tableNode) => editorState.copyTable(
+        tableNode: tableNode,
+      );
 
-  void _onPaste(Node tableNode) {}
+  void _onPaste(Node tableNode) => editorState.pasteTable(
+        tableNode: tableNode,
+      );
 
-  void _onDelete(Node tableNode) {}
+  void _onDelete(Node tableNode) {
+    final transaction = editorState.transaction;
+    transaction.deleteNode(tableNode);
+    editorState.apply(transaction);
+  }
 }

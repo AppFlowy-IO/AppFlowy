@@ -788,4 +788,24 @@ extension TableNodeExtension on Node {
 
     return result;
   }
+
+  /// Get first focusable child in the table cell.
+  ///
+  /// If the current node is not a table cell node, it will return null.
+  Node? getFirstChildIndex() {
+    if (children.isEmpty) {
+      return this;
+    }
+    return children.first.getFirstChildIndex();
+  }
+
+  /// Get last focusable child in the table cell.
+  ///
+  /// If the current node is not a table cell node, it will return null.
+  Node? getLastChildIndex() {
+    if (children.isEmpty) {
+      return this;
+    }
+    return children.last.getLastChildIndex();
+  }
 }
