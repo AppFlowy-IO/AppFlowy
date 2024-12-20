@@ -354,7 +354,10 @@ SimpleTableBlockComponentBuilder _buildSimpleTableBlockComponentBuilder(
       if (UniversalPlatform.isDesktop) {
         return padding;
       } else {
-        return padding.copyWith(right: padding.left);
+        return padding.copyWith(
+          left: 0,
+          right: padding.left,
+        );
       }
     },
   );

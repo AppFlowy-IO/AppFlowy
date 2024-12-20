@@ -230,9 +230,8 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
       );
     } else if (UniversalPlatform.isMobile) {
       child = Transform.translate(
-        offset: const Offset(
-          // todo: don't use magic number here.
-          -12,
+        offset: Offset(
+          -SimpleTableConstants.tableHitTestLeftPadding,
           0,
         ),
         child: child,
