@@ -121,7 +121,7 @@ extension TableOptionOperation on EditorState {
     await _updateTableAttributes(
       tableCellNode: tableCellNode,
       attributeKey: SimpleTableBlockKeys.columnAligns,
-      source: {columnIndex.toString(): align.key},
+      source: tableCellNode.columnAligns,
       duplicatedEntry: MapEntry(columnIndex.toString(), align.key),
     );
   }
@@ -148,7 +148,7 @@ extension TableOptionOperation on EditorState {
     await _updateTableAttributes(
       tableCellNode: tableCellNode,
       attributeKey: SimpleTableBlockKeys.rowAligns,
-      source: {rowIndex.toString(): align.key},
+      source: tableCellNode.rowAligns,
       duplicatedEntry: MapEntry(rowIndex.toString(), align.key),
     );
   }
@@ -190,7 +190,7 @@ extension TableOptionOperation on EditorState {
     await _updateTableAttributes(
       tableCellNode: tableCellNode,
       attributeKey: SimpleTableBlockKeys.columnColors,
-      source: {columnIndex.toString(): color},
+      source: tableCellNode.columnColors,
       duplicatedEntry: MapEntry(columnIndex.toString(), color),
     );
   }
@@ -204,7 +204,7 @@ extension TableOptionOperation on EditorState {
     await _updateTableAttributes(
       tableCellNode: tableCellNode,
       attributeKey: SimpleTableBlockKeys.rowColors,
-      source: {rowIndex.toString(): color},
+      source: tableCellNode.rowColors,
       duplicatedEntry: MapEntry(rowIndex.toString(), color),
     );
   }
