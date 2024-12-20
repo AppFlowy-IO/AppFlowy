@@ -697,6 +697,7 @@
         "twoSpacesCursorCodeblock": "إدراج فراغين فاصلين عند المؤشر",
         "copy": "اختيار النسخ",
         "paste": "لصق في المحتوى",
+        "cut": "اختيار القص",
         "deleteLeftWord": "حذف الكلمة اليسرى"
       },
       "commands": {
