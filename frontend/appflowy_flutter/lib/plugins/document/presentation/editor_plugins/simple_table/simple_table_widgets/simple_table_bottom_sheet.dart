@@ -306,7 +306,7 @@ class _SimpleTableBottomSheetState extends State<SimpleTableBottomSheet> {
           showCloseButton: true,
           showDoneButton: false,
           showRemoveButton: false,
-          title: 'Table',
+          title: LocaleKeys.document_plugins_simpleTable_headerName_table.tr(),
           onClose: () => Navigator.pop(context),
         );
       case _SimpleTableBottomSheetMenuState.align:
@@ -315,7 +315,7 @@ class _SimpleTableBottomSheetState extends State<SimpleTableBottomSheet> {
           showCloseButton: false,
           showDoneButton: true,
           showRemoveButton: false,
-          title: 'Align Text',
+          title: LocaleKeys.document_plugins_simpleTable_headerName_table.tr(),
           onBack: () => setState(() {
             menuState = _SimpleTableBottomSheetMenuState.tableActionMenu;
           }),

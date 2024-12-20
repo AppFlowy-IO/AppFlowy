@@ -172,9 +172,10 @@ enum SimpleTableMoreAction {
       SimpleTableMoreAction.duplicateColumn => LocaleKeys
           .document_plugins_simpleTable_moreActions_duplicateColumn
           .tr(),
-      // todo: i18n
-      SimpleTableMoreAction.duplicateTable => 'Duplicate table',
-      SimpleTableMoreAction.copyLinkToBlock => 'Copy link to block',
+      SimpleTableMoreAction.duplicateTable =>
+        LocaleKeys.document_plugins_simpleTable_moreActions_duplicateTable.tr(),
+      SimpleTableMoreAction.copyLinkToBlock =>
+        LocaleKeys.document_plugins_optionAction_copyLinkToBlock.tr(),
       SimpleTableMoreAction.bold ||
       SimpleTableMoreAction.textColor ||
       SimpleTableMoreAction.textBackgroundColor ||
