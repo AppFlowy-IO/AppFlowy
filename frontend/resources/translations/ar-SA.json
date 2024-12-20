@@ -698,7 +698,17 @@
         "copy": "اختيار النسخ",
         "paste": "لصق في المحتوى",
         "cut": "اختيار القص",
-        "deleteLeftWord": "حذف الكلمة اليسرى"
+        "alignLeft": "محاذاة النص إلى اليسار",
+        "alignCenter": "محاذاة النص إلى الوسط",
+        "alignRight": "محاذاة النص إلى اليمين",
+        "undo": "التراجع",
+        "redo": "الإعادة",
+        "backspace": "الحذف",
+        "deleteLeftWord": "حذف الكلمة اليسرى",
+        "deleteLeftSentence": "حذف الجملة اليسرى",
+        "delete": "حذف الحرف الأيمن",
+        "deleteMacOS": "حذف الحرف الأيسر",
+        "deleteRightWord": "حذف الكلمة اليمنى"
       },
       "commands": {
         "codeBlockNewParagraph": "إدراج فقرة جديدة بجوار كتلة التعليمات البرمجية"
