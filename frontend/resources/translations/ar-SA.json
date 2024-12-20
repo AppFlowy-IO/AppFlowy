@@ -9,6 +9,7 @@
   "title": "عنوان",
   "youCanAlso": "بامكانك ايضا",
   "and": "و",
+  "failedToOpenUrl": "فشل في فتح الرابط: {}",
   "blockActions": {
     "addBelowTooltip": "انقر للإضافة أدناه",
     "addAboveCmd": "Alt + انقر",
@@ -75,9 +76,13 @@
   },
   "workspace": {
     "chooseWorkspace": "اختر مساحة العمل الخاصة بك",
+    "defaultName": "مساحة العمل الخاصة بي",
     "create": "قم بإنشاء مساحة عمل",
+    "importFromNotion": "الاستيراد من Notion",
+    "learnMore": "تعلم المزيد",
     "reset": "إعادة تعيين مساحة العمل",
     "renameWorkspace": "إعادة تسمية مساحة العمل",
+    "workspaceNameCannotBeEmpty": "لا يمكن أن يكون اسم مساحة العمل فارغًا",
     "resetWorkspacePrompt": "ستؤدي إعادة تعيين مساحة العمل إلى حذف جميع الصفحات والبيانات الموجودة بداخلها. هل أنت متأكد أنك تريد إعادة تعيين مساحة العمل؟ وبدلاً من ذلك، يمكنك الاتصال بفريق الدعم لاستعادة مساحة العمل",
     "hint": "مساحة العمل",
     "notFoundError": "مساحة العمل غير موجودة",
@@ -92,6 +97,7 @@
     "deleteWorkspaceHintText": " هل أنت متأكد من أنك تريد حذف مساحة العمل؟ لا يمكن التراجع عن هذا الإجراء، وستختفي أي صفحات قمت بنشرها سابقاً.",
     "createSuccess": "تم إنشاء مساحة العمل بنجاح",
     "createFailed": "فشل في إنشاء مساحة العمل",
+    "createLimitExceeded": "لقد وصلت إلى الحد الأقصى لمساحة العمل المسموح بها لحسابك. إذا كنت بحاجة إلى مساحات عمل إضافية لمواصلة عملك، فيرجى تقديم طلب على Github",
     "deleteSuccess": "تم حذف مساحة العمل بنجاح",
     "deleteFailed": "فشل في حذف مساحة العمل",
     "openSuccess": "تم فتح مساحة العمل بنجاح",
@@ -120,7 +126,17 @@
     "visitSite": "زيارة الموقع",
     "exportAsTab": "تصدير كـ",
     "publishTab": "نشر",
-    "shareTab": "مشاركة"
+    "shareTab": "مشاركة",
+    "publishOnAppFlowy": "نشر على AppFlowy",
+    "shareTabTitle": "دعوة للتعاون",
+    "shareTabDescription": "من أجل التعاون السهل مع أي شخص",
+    "copyLinkSuccess": "تم نسخ الرابط إلى الحافظة",
+    "copyShareLink": "نسخ رابط المشاركة",
+    "copyLinkFailed": "فشل في نسخ الرابط إلى الحافظة",
+    "copyLinkToBlockSuccess": "تم نسخ رابط الكتلة إلى الحافظة",
+    "copyLinkToBlockFailed": "فشل في نسخ رابط الكتلة إلى الحافظة",
+    "manageAllSites": "إدارة كافة المواقع",
+    "updatePathName": "تحديث اسم المسار"
   },
   "moreAction": {
     "small": "صغير",
@@ -139,6 +155,7 @@
     "textAndMarkdown": "نص و Markdown",
     "documentFromV010": "مستند من الإصدار 0.1.0",
     "databaseFromV010": "قاعدة بيانات من الإصدار 0.1.0",
+    "notionZip": "ملف Zip المُصدَّر من Notion",
     "csv": "CSV",
     "database": "قاعدة البيانات"
   },
@@ -163,12 +180,40 @@
   "newBoardText": "سبورة جديدة",
   "chat": {
     "newChat": "الدردشة بالذكاء الاصطناعي",
+    "inputMessageHint": "اسأل @:appName AI",
+    "inputLocalAIMessageHint": "اسأل @:appName Local AI",
+    "unsupportedCloudPrompt": "هذه الميزة متاحة فقط عند استخدام @:appName Cloud",
     "relatedQuestion": "ذات صلة",
-    "serverUnavailable": "الخدمة غير متاحة مؤقتًا. يرجى المحاولة مرة أخرى لاحقًا."
+    "serverUnavailable": "الخدمة غير متاحة مؤقتًا. يرجى المحاولة مرة أخرى لاحقًا.",
+    "aiServerUnavailable": "تم فقد الاتصال. يرجى التحقق من اتصالك بالإنترنت",
+    "retry": "إعادة المحاولة",
+    "clickToRetry": "انقر لإعادة المحاولة",
+    "regenerateAnswer": "إعادة توليد",
+    "question1": "كيفية استخدام كانبان لإدارة المهام",
+    "question3": "لماذا تستخدم Rust",
+    "question4": "وصفة بما في مطبخي",
+    "question5": "إنشاء رسم توضيحي لصفحتي",
+    "question6": "قم بإعداد قائمة بالمهام التي يجب القيام بها خلال الأسبوع القادم",
+    "aiMistakePrompt": "الذكاء الاصطناعي قد يرتكب أخطاء. تحقق من المعلومات المهمة.",
+    "chatWithFilePrompt": "هل تريد الدردشة مع الملف؟",
+    "indexFileSuccess": "تم فهرسة الملف بنجاح",
+    "inputActionNoPages": "لا توجد نتائج للصفحة",
+    "referenceSource": {
+      "one": "تم العثور على {count} مصدر",
+      "other": "تم العثور على {count} مصادر"
+    },
+    "clickToMention": "اذكر صفحة",
+    "uploadFile": "إرفاق ملفات PDF أو ملفات نصية أو ملفات Markdown",
+    "questionDetail": "مرحبًا {}! كيف يمكنني مساعدتك اليوم؟",
+    "indexingFile": "الفهرسة {}",
+    "generatingResponse": "توليد الاستجابة",
+    "selectSources": "اختر المصادر",
+    "regenerate": "حاول ثانية"
   },
   "trash": {
     "text": "المهملات",
     "restoreAll": "استعادة الكل",
+    "restore": "إسترجاع",
     "deleteAll": "حذف الكل",
     "pageHeader": {
       "fileName": "اسم الملف",
@@ -183,18 +228,24 @@
       "title": "هل أنت متأكد من استعادة جميع الصفحات في المهملات؟",
       "caption": "لا يمكن التراجع عن هذا الإجراء."
     },
+    "restorePage": {
+      "title": "إسترجاع: {}",
+      "caption": "هل أنت متأكد أنك تريد استعادة هذه الصفحة؟"
+    },
     "mobile": {
       "actions": "إجراءات سلة المهملات",
       "empty": "سلة المهملات فارغة",
       "emptyDescription": "ليس لديك أي ملفات محذوفة",
       "isDeleted": "محذوف",
       "isRestored": "تمت استعادته"
-    }
+    },
+    "confirmDeleteTitle": "هل أنت متأكد أنك تريد حذف هذه الصفحة نهائياً؟"
   },
   "deletePagePrompt": {
     "text": "هذه الصفحة في المهملات",
     "restore": "استعادة الصفحة",
-    "deletePermanent": "الحذف بشكل نهائي"
+    "deletePermanent": "الحذف بشكل نهائي",
+    "deletePermanentDescription": "هل أنت متأكد أنك تريد حذف هذه الصفحة بشكل دائم؟ هذا لا يمكن التراجع عنه."
   },
   "dialogCreatePageNameHint": "اسم الصفحة",
   "questionBubble": {
@@ -243,22 +294,59 @@
     "dragRow": "اضغط مطولاً لإعادة ترتيب الصف",
     "viewDataBase": "عرض قاعدة البيانات",
     "referencePage": "تمت الإشارة إلى هذا {name}",
-    "addBlockBelow": "إضافة كتلة أدناه"
+    "addBlockBelow": "إضافة كتلة أدناه",
+    "aiGenerate": "توليد"
   },
   "sideBar": {
     "closeSidebar": "إغلاق الشريط الجانبي",
     "openSidebar": "فتح الشريط الجانبي",
     "personal": "شخصي",
     "private": "خاص",
+    "workspace": "مساحة العمل",
     "favorites": "المفضلة",
+    "clickToHidePrivate": "انقر لإخفاء المساحة الخاصة\nالصفحات التي قمت بإنشائها هنا مرئية لك فقط",
+    "clickToHideWorkspace": "انقر لإخفاء مساحة العمل\nالصفحات التي قمت بإنشائها هنا تكون مرئية لكل الأعضاء",
     "clickToHidePersonal": "انقر لإخفاء القسم الشخصي",
     "clickToHideFavorites": "انقر لإخفاء القسم المفضل",
     "addAPage": "أضف صفحة",
+    "addAPageToPrivate": "أضف صفحة إلى مساحة خاصة",
+    "addAPageToWorkspace": "إضافة صفحة إلى مساحة العمل",
     "recent": "مؤخرًا",
     "today": "اليوم",
     "thisWeek": "هذا الأسبوع",
+    "others": "المفضلات السابقة",
+    "earlier": "سابقًا",
     "justNow": "الآن",
-    "purchaseAIResponse": "شراء"
+    "minutesAgo": "منذ {count} دقيقة",
+    "lastViewed": "آخر مشاهدة",
+    "favoriteAt": "المفضلة",
+    "emptyRecent": "لا توجد صفحات حديثة",
+    "emptyRecentDescription": "عند عرض الصفحات، ستظهر هنا لسهولة استرجاعها.",
+    "emptyFavorite": "لا توجد صفحات مفضلة",
+    "emptyFavoriteDescription": "قم بوضع علامة على الصفحات كمفضلة - سيتم إدراجها هنا للوصول السريع!",
+    "removePageFromRecent": "هل تريد إزالة هذه الصفحة من القائمة الأخيرة؟",
+    "removeSuccess": "تمت الإزالة بنجاح",
+    "favoriteSpace": "المفضلة",
+    "RecentSpace": "مؤخرًا",
+    "Spaces": "المساحات",
+    "upgradeToPro": "الترقية إلى الإصدار الاحترافي",
+    "upgradeToAIMax": "إلغاء تأمين الذكاء الاصطناعي غير المحدود",
+    "storageLimitDialogTitle": "لقد نفدت مساحة التخزين المجانية لديك. قم بالترقية لإلغاء تأمين مساحة تخزين غير محدودة",
+    "storageLimitDialogTitleIOS": "لقد نفدت مساحة التخزين المجانية.",
+    "aiResponseLimitTitle": "لقد نفدت منك استجابات الذكاء الاصطناعي المجانية. قم بالترقية إلى الخطة الاحترافية أو قم بشراء إضافة الذكاء الاصطناعي لفتح عدد غير محدود من الاستجابات",
+    "aiResponseLimitTitleIOS": "لقد نفدت استجابات الذكاء الاصطناعي المجانية.",
+    "aiResponseLimitDialogTitle": "تم الوصول إلى الحد الأقصى لاستجابات الذكاء الاصطناعي",
+    "aiResponseLimit": "لقد نفدت استجابات الذكاء الاصطناعي المجانية.<inlang-LineFeed>\nانتقل إلى الإعدادات -&gt; الخطة -&gt; انقر فوق AI Max أو Pro Plan للحصول على المزيد من استجابات الذكاء الاصطناعي",
+    "askOwnerToUpgradeToPro": "مساحة العمل الخاصة بك نفدت من مساحة التخزين المجانية. يرجى مطالبة مالك مساحة العمل الخاصة بك بالترقية إلى الخطة الاحترافية",
+    "askOwnerToUpgradeToProIOS": "مساحة العمل الخاصة بك على وشك النفاد من مساحة التخزين المجانية.",
+    "askOwnerToUpgradeToAIMax": "لقد نفدت الاستجابات المجانية للذكاء الاصطناعي من مساحة العمل الخاصة بك. يرجى مطالبة مالك مساحة العمل الخاصة بك بترقية الخطة أو شراء إضافات الذكاء الاصطناعي",
+    "askOwnerToUpgradeToAIMaxIOS": "مساحة العمل الخاصة بك تفتقر إلى الاستجابات المجانية للذكاء الاصطناعي.",
+    "purchaseStorageSpace": "شراء مساحة تخزين",
+    "singleFileProPlanLimitationDescription": "لقد تجاوزت الحد الأقصى لحجم تحميل الملف المسموح به في الخطة المجانية. يرجى الترقية إلى الخطة الاحترافية لتحميل ملفات أكبر حجمًا",
+    "purchaseAIResponse": "شراء",
+    "askOwnerToUpgradeToLocalAI": "اطلب من مالك مساحة العمل تمكين الذكاء الاصطناعي على الجهاز",
+    "upgradeToAILocal": "قم بتشغيل النماذج المحلية على جهازك لتحقيق أقصى قدر من الخصوصية",
+    "upgradeToAILocalDesc": "الدردشة باستخدام ملفات PDF، وتحسين كتابتك، وملء الجداول تلقائيًا باستخدام الذكاء الاصطناعي المحلي"
   },
   "notifications": {
     "export": {
@@ -292,29 +380,44 @@
     "upload": "رفع",
     "edit": "يحرر",
     "delete": "يمسح",
+    "copy": "النسخ",
     "duplicate": "ينسخ",
     "putback": "ضعها بالخلف",
     "update": "تحديث",
     "share": "مشاركة",
     "removeFromFavorites": "إزالة من المفضلة",
+    "removeFromRecent": "إزالة من الأحدث",
     "addToFavorites": "اضافة الى المفضلة",
+    "favoriteSuccessfully": "النجاح المفضل",
+    "unfavoriteSuccessfully": "النجاح غير المفضل",
+    "duplicateSuccessfully": "تم التكرار بنجاح",
     "rename": "إعادة تسمية",
     "helpCenter": "مركز المساعدة",
     "add": "اضافة",
     "yes": "نعم",
     "no": "لا",
     "remove": "حذف",
+    "dontRemove": "لا تقم بالإزالة",
     "copyLink": "نسخ الرابط",
+    "align": "المحاذاة",
     "login": "تسجيل الدخول",
     "logout": "تسجيل الخروج",
     "deleteAccount": "حذف الحساب",
     "back": "خلف",
+    "signInGoogle": "متابعة مع جوجل",
+    "signInGithub": "متابعة مع GitHub",
+    "signInDiscord": "متابعة مع Discord",
     "more": "أكثر",
     "create": "إنشاء",
     "close": "إغلاق",
     "next": "التالي",
     "previous": "السابق",
+    "submit": "إرسال",
     "download": "تحميل",
+    "backToHome": "العودة إلى الصفحة الرئيسية",
+    "viewing": "عرض",
+    "editing": "تحرير",
+    "gotIt": "فهمتها",
     "tryAGain": "حاول ثانية"
   },
   "label": {
@@ -341,7 +444,283 @@
     "title": "إعدادات",
     "popupMenuItem": {
       "settings": "إعدادات",
-      "members": "الأعضاء"
+      "members": "الأعضاء",
+      "helpAndSupport": "المساعدة والدعم"
+    },
+    "sites": {
+      "title": "المواقع",
+      "namespaceTitle": "مساحة الاسم",
+      "namespaceDescription": "إدارة مساحة الاسم والصفحة الرئيسية الخاصة بك",
+      "namespaceHeader": "مساحة الاسم",
+      "homepageHeader": "الصفحة الرئيسية",
+      "updateNamespace": "تحديث مساحة الاسم",
+      "removeHomepage": "إزالة الصفحة الرئيسية",
+      "selectHomePage": "حدد الصفحة",
+      "clearHomePage": "مسح الصفحة الرئيسية لهذه المساحة الاسمية",
+      "customUrl": "عنوان URL مخصص",
+      "namespace": {
+        "description": "سيتم تطبيق هذا التغيير على جميع الصفحات المنشورة الموجودة على مساحة الاسم هذه بشكل فوري",
+        "tooltip": "نحن نحتفظ بالحق في إزالة أي مساحات أسماء غير مناسبة",
+        "updateExistingNamespace": "تحديث مساحة الاسم الحالية",
+        "upgradeToPro": "قم بالترقية إلى الخطة الاحترافية لتعيين الصفحة الرئيسية",
+        "redirectToPayment": "إعادة التوجيه إلى صفحة الدفع...",
+        "onlyWorkspaceOwnerCanSetHomePage": "يمكن فقط لمالك مساحة العمل تعيين الصفحة الرئيسية",
+        "pleaseAskOwnerToSetHomePage": "يرجى طلب الترقية إلى الخطة الاحترافية من مالك مساحة العمل"
+      },
+      "publishedPage": {
+        "title": "جميع الصفحات المنشورة",
+        "description": "إدارة صفحاتك المنشورة",
+        "page": "صفحة",
+        "pathName": "اسم المسار",
+        "date": "تاريخ النشر",
+        "emptyHinText": "ليس لديك صفحات منشورة في مساحة العمل هذه",
+        "noPublishedPages": "لا توجد صفحات منشورة",
+        "settings": "نشر الإعدادات",
+        "clickToOpenPageInApp": "فتح الصفحة في التطبيق",
+        "clickToOpenPageInBrowser": "فتح الصفحة في المتصفح"
+      },
+      "error": {
+        "failedToGeneratePaymentLink": "فشل في إنشاء رابط الدفع لخطة الاحترافية",
+        "failedToUpdateNamespace": "فشل في تحديث مساحة الاسم",
+        "proPlanLimitation": "يجب عليك الترقية إلى الخطة الاحترافية لتحديث مساحة الاسم",
+        "namespaceAlreadyInUse": "تم أخذ مساحة الاسم بالفعل، يرجى تجربة مساحة اسم أخرى",
+        "invalidNamespace": "مساحة اسم غير صالحة، يرجى تجربة مساحة اسم أخرى",
+        "namespaceLengthAtLeast2Characters": "يجب أن تكون مساحة الاسم بطول حرفين على الأقل",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "يمكن فقط لمالك مساحة العمل تحديث مساحة الاسم",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "لا يمكن إلا لمالك مساحة العمل إزالة الصفحة الرئيسية",
+        "setHomepageFailed": "فشل في تعيين الصفحة الرئيسية",
+        "namespaceTooLong": "مساحة الاسم طويلة جدًا، يرجى تجربة مساحة اسم أخرى",
+        "namespaceTooShort": "مساحة الاسم قصيرة جدًا، يرجى تجربة مساحة اسم أخرى",
+        "namespaceIsReserved": "تم حجز مساحة الاسم، يرجى تجربة مساحة اسم أخرى",
+        "updatePathNameFailed": "فشل في تحديث اسم المسار",
+        "removeHomePageFailed": "فشل في إزالة الصفحة الرئيسية",
+        "publishNameContainsInvalidCharacters": "يحتوي اسم المسار على أحرف غير صالحة، يرجى تجربة اسم مسار آخر",
+        "publishNameTooShort": "اسم المسار قصير جدًا، يرجى تجربة اسم مسار آخر",
+        "publishNameTooLong": "اسم المسار طويل جدًا، يرجى تجربة اسم مسار آخر",
+        "publishNameAlreadyInUse": "اسم المسار قيد الاستخدام بالفعل، يرجى تجربة اسم مسار آخر",
+        "namespaceContainsInvalidCharacters": "تحتوي مساحة الاسم على أحرف غير صالحة، يرجى تجربة مساحة اسم أخرى",
+        "publishPermissionDenied": "يمكن فقط لمالك مساحة العمل أو ناشر الصفحة إدارة إعدادات النشر",
+        "publishNameCannotBeEmpty": "لا يمكن أن يكون اسم المسار فارغًا، يرجى تجربة اسم مسار آخر"
+      },
+      "success": {
+        "namespaceUpdated": "تم تحديث مساحة الاسم بنجاح",
+        "setHomepageSuccess": "تم تعيين الصفحة الرئيسية بنجاح",
+        "updatePathNameSuccess": "تم تحديث اسم المسار بنجاح",
+        "removeHomePageSuccess": "تم إزالة الصفحة الرئيسية بنجاح"
+      }
+    },
+    "accountPage": {
+      "menuLabel": "حسابي",
+      "title": "حسابي",
+      "general": {
+        "title": "اسم الحساب وصورة الملف الشخصي",
+        "changeProfilePicture": "تغيير صورة الملف الشخصي"
+      },
+      "email": {
+        "title": "بريد إلكتروني",
+        "actions": {
+          "change": "تغيير البريد الإلكتروني"
+        }
+      },
+      "login": {
+        "title": "تسجيل الدخول إلى الحساب",
+        "loginLabel": "تسجيل الدخول",
+        "logoutLabel": "تسجيل الخروج"
+      }
+    },
+    "workspacePage": {
+      "menuLabel": "مساحة العمل",
+      "title": "مساحة العمل",
+      "description": "قم بتخصيص مظهر مساحة العمل الخاصة بك، والسمة، والخط، وتخطيط النص، وتنسيق التاريخ/الوقت، واللغة.",
+      "workspaceName": {
+        "title": "اسم مساحة العمل"
+      },
+      "workspaceIcon": {
+        "title": "أيقونة مساحة العمل",
+        "description": "قم بتحميل صورة أو استخدم رمزًا تعبيريًا لمساحة عملك. ستظهر الأيقونة في الشريط الجانبي والإشعارات."
+      },
+      "appearance": {
+        "title": "المظهر",
+        "description": "قم بتخصيص مظهر مساحة العمل الخاصة بك والموضوع والخط وتخطيط النص والتاريخ والوقت واللغة.",
+        "options": {
+          "system": "آلي",
+          "light": "فاتح",
+          "dark": "داكن"
+        }
+      },
+      "resetCursorColor": {
+        "title": "إعادة تعيين لون مؤشر المستند",
+        "description": "هل أنت متأكد أنك تريد إعادة تعيين لون المؤشر؟"
+      },
+      "resetSelectionColor": {
+        "title": "إعادة تعيين لون اختيار المستند",
+        "description": "هل أنت متأكد أنك تريد إعادة تعيين لون الإختيار؟"
+      },
+      "resetWidth": {
+        "resetSuccess": "تم إعادة تعيين عرض المستند بنجاح"
+      },
+      "theme": {
+        "title": "السمة",
+        "description": "حدد السمة المحددة مسبقًا، أو قم برفع موضوعك المخصص.",
+        "uploadCustomThemeTooltip": "رفع السمة المخصصة"
+      },
+      "workspaceFont": {
+        "title": "خط مساحة العمل",
+        "noFontHint": "لم يتم العثور على الخط، حاول مصطلحًا آخر."
+      },
+      "textDirection": {
+        "title": "اتجاه النص",
+        "leftToRight": "من اليسار إلى اليمين",
+        "rightToLeft": "من اليمين إلى اليسار",
+        "auto": "آلي",
+        "enableRTLItems": "تمكين عناصر شريط أدوات RTL"
+      },
+      "layoutDirection": {
+        "title": "اتجاه التخطيط",
+        "leftToRight": "من اليسار إلى اليمين",
+        "rightToLeft": "من اليمين إلى اليسار"
+      },
+      "dateTime": {
+        "title": "التاريخ والوقت",
+        "example": "{} في {} ({})",
+        "24HourTime": "الوقت بنظام 24 ساعة",
+        "dateFormat": {
+          "label": "تنسيق التاريخ",
+          "local": "محلي",
+          "us": "US أميركي",
+          "iso": "ايزو",
+          "friendly": "ودي",
+          "dmy": "يوم/شهر/سنة"
+        }
+      },
+      "language": {
+        "title": "اللغة"
+      },
+      "deleteWorkspacePrompt": {
+        "title": "حذف مساحة العمل",
+        "content": "هل أنت متأكد من أنك تريد حذف مساحة العمل هذه؟ لا يمكن التراجع عن هذا الإجراء، وسيتم إلغاء نشر أي صفحات قمت بنشرها."
+      },
+      "leaveWorkspacePrompt": {
+        "title": "مغادرة مساحة العمل",
+        "content": "هل أنت متأكد من أنك تريد مغادرة مساحة العمل هذه؟ ستفقد إمكانية الوصول إلى جميع الصفحات والبيانات الموجودة فيها.",
+        "success": "لقد غادرت مساحة العمل بنجاح.",
+        "fail": "فشل في مغادرة مساحة العمل."
+      },
+      "manageWorkspace": {
+        "title": "إدارة مساحة العمل",
+        "leaveWorkspace": "مغادرة مساحة العمل",
+        "deleteWorkspace": "حذف مساحة العمل"
+      }
+    },
+    "manageDataPage": {
+      "menuLabel": "إدارة البيانات",
+      "title": "إدارة البيانات",
+      "description": "إدارة تخزين البيانات محليًا أو استيراد البيانات الموجودة لديك إلى @:appName .",
+      "dataStorage": {
+        "title": "موقع تخزين الملفات",
+        "tooltip": "الموقع الذي يتم تخزين ملفاتك فيه",
+        "actions": {
+          "change": "تغيير المسار",
+          "open": "افتح المجلد",
+          "openTooltip": "فتح موقع مجلد البيانات الحالي",
+          "copy": "نسخ المسار",
+          "copiedHint": "تم نسخ المسار!",
+          "resetTooltip": "إعادة التعيين إلى الموقع الافتراضي"
+        },
+        "resetDialog": {
+          "title": "هل أنت متأكد؟",
+          "description": "لن يؤدي إعادة تعيين المسار إلى موقع البيانات الافتراضي إلى حذف بياناتك. إذا كنت تريد إعادة استيراد بياناتك الحالية، فيجب عليك نسخ مسار موقعك الحالي أولاً."
+        }
+      },
+      "importData": {
+        "title": "استيراد البيانات",
+        "tooltip": "استيراد البيانات من مجلدات النسخ الاحتياطية/البيانات @:appName",
+        "description": "نسخ البيانات من مجلد بيانات خارجي @:appName",
+        "action": "تصفح الملف"
+      },
+      "encryption": {
+        "title": "التشفير",
+        "tooltip": "إدارة كيفية تخزين بياناتك وتشفيرها",
+        "descriptionNoEncryption": "سيؤدي تشغيل التشفير إلى تشفير كافة البيانات. ولا يمكن التراجع عن هذا الإجراء.",
+        "descriptionEncrypted": "بياناتك مشفرة.",
+        "action": "تشفير البيانات",
+        "dialog": {
+          "title": "هل تريد تشفير كافة بياناتك؟",
+          "description": "سيؤدي تشفير جميع بياناتك إلى الحفاظ على بياناتك آمنة. لا يمكن التراجع عن هذا الإجراء. هل أنت متأكد من أنك تريد المتابعة؟"
+        }
+      },
+      "cache": {
+        "title": "مسح ذاكرة التخزين المؤقت",
+        "description": "ساعد في حل مشكلات مثل عدم تحميل الصور، أو عدم ظهور الصفحات في مساحة، أو عدم تحميل الخطوط. لن يؤثر هذا على بياناتك.",
+        "dialog": {
+          "title": "مسح ذاكرة التخزين المؤقت",
+          "description": "ساعد في حل مشكلات مثل عدم تحميل الصور، أو عدم ظهور الصفحات في مساحة، أو عدم تحميل الخطوط. لن يؤثر هذا على بياناتك.",
+          "successHint": "تم مسح ذاكرة التخزين المؤقت!"
+        }
+      },
+      "data": {
+        "fixYourData": "إصلاح بياناتك",
+        "fixButton": "إصلاح",
+        "fixYourDataDescription": "إذا كنت تواجه مشكلات مع بياناتك، فيمكنك محاولة إصلاحها هنا."
+      }
+    },
+    "shortcutsPage": {
+      "menuLabel": "اختصارات",
+      "title": "اختصارات",
+      "editBindingHint": "إدخال ربط جديد",
+      "searchHint": "بحث",
+      "actions": {
+        "resetDefault": "إعادة ضبط الافتراضي"
+      },
+      "errorPage": {
+        "message": "فشل تحميل الاختصارات: {}",
+        "howToFix": "يرجى المحاولة مرة أخرى، إذا استمرت المشكلة، فيرجى التواصل معنا عبر GitHub."
+      },
+      "resetDialog": {
+        "title": "إعادة ضبط الاختصارات",
+        "description": "سيؤدي هذا إلى إعادة ضبط كافة ارتباطات المفاتيح الخاصة بك إلى الوضع الافتراضي، ولا يمكنك التراجع عن هذا لاحقًا، هل أنت متأكد من أنك تريد المتابعة؟",
+        "buttonLabel": "إعادة ضبط"
+      },
+      "conflictDialog": {
+        "title": "{} قيد الاستخدام حاليًا",
+        "descriptionPrefix": "يتم استخدام ارتباطات المفاتيح هذه حاليًا بواسطة ",
+        "descriptionSuffix": "إذا قمت باستبدال ارتباط المفتاح هذا، فسيتم إزالته من {}.",
+        "confirmLabel": "متابعة"
+      },
+      "editTooltip": "اضغط لبدء تحرير ربط المفتاح",
+      "keybindings": {
+        "toggleToDoList": "التبديل إلى قائمة المهام",
+        "insertNewParagraphInCodeblock": "إدراج فقرة جديدة",
+        "selectAllCodeblock": "حدد الكل",
+        "indentLineCodeblock": "أدخل فراغين فاصلين في بداية السطر",
+        "outdentLineCodeblock": "حذف فراغين فاصلين في بداية السطر",
+        "twoSpacesCursorCodeblock": "إدراج فراغين فاصلين عند المؤشر",
+        "copy": "اختيار النسخ",
+        "paste": "لصق في المحتوى",
+        "cut": "اختيار القص",
+        "alignLeft": "محاذاة النص إلى اليسار",
+        "alignCenter": "محاذاة النص إلى الوسط",
+        "alignRight": "محاذاة النص إلى اليمين",
+        "undo": "التراجع",
+        "redo": "الإعادة",
+        "backspace": "الحذف",
+        "deleteLeftWord": "حذف الكلمة اليسرى",
+        "deleteLeftSentence": "حذف الجملة اليسرى",
+        "delete": "حذف الحرف الأيمن",
+        "deleteMacOS": "حذف الحرف الأيسر",
+        "deleteRightWord": "حذف الكلمة اليمنى"
+      },
+      "commands": {
+        "codeBlockNewParagraph": "إدراج فقرة جديدة بجوار كتلة التعليمات البرمجية"
+      }
+    },
+    "comparePlanDialog": {
+      "planLabels": {
+        "tooltipSix": "تعني مدة الحياة أن عدد الاستجابات لا يتم إعادة ضبطه أبدًا"
+      }
+    },
+    "common": {
+      "reset": "إعادة ضبط"
     },
     "menu": {
       "appearance": "مظهر",
@@ -397,9 +776,9 @@
         "search": "يبحث"
       },
       "themeMode": {
-        "label": "وضع السمة",
-        "light": "وضع الضوء",
-        "dark": "الوضع الداكن",
+        "label": "مظهر السمة",
+        "light": " المظهر الفاتح",
+        "dark": "المظهر الداكن",
         "system": "التكيف مع النظام"
       },
       "layoutDirection": {
@@ -418,10 +797,10 @@
       },
       "themeUpload": {
         "button": "رفع",
-        "uploadTheme": "تحميل الموضوع",
-        "description": "قم بتحميل قالب @:appName الخاص بك باستخدام الزر أدناه.",
-        "loading": "يرجى الانتظار بينما نقوم بالتحقق من صحة السمة الخاصة بك وتحميلها ...",
-        "uploadSuccess": "تم تحميل موضوعك بنجاح",
+        "uploadTheme": "رفع السمة",
+        "description": "قم برفع السمة @:appName الخاص بك باستخدام الزر أدناه.",
+        "loading": "يرجى الانتظار بينما نقوم بالتحقق من صحة السمة الخاصة بك وترفعها ...",
+        "uploadSuccess": "تم رفع سمتك بنجاح",
         "deletionFailure": "فشل حذف الموضوع. حاول حذفه يدويًا.",
         "filePickerDialogTitle": "اختر ملف .flowy_plugin",
         "urlUploadFailure": "فشل فتح عنوان url: {}",
@@ -1248,5 +1627,11 @@
     "date": "تاريخ",
     "addField": "إضافة حقل",
     "userIcon": "رمز المستخدم"
+  },
+  "pageStyle": {
+    "presets": "الإعدادات المسبقة"
+  },
+  "gallery": {
+    "resetZoom": "إعادة ضبط التكبير"
   }
 }
