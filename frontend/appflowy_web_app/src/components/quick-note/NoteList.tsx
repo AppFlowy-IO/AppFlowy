@@ -83,7 +83,7 @@ function NoteList({
                 >
                   <div
                     className={`w-full 
-                    ${index === list.length - 1 ? '' : 'border-b'} py-4 flex justify-center h-[68px] flex-col border-line-card`}>
+                    ${index === list.length - 1 ? '' : 'border-b'} py-4 flex justify-center min-h-[68px] flex-col border-line-card`}>
                     <div className={'font-medium'}>
                       {renderTitle(note.last_updated_at)}
                     </div>
