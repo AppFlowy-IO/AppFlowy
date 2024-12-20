@@ -60,7 +60,11 @@ class DesktopAIConvoSizes {
 
   static const avatarAndChatBubbleSpacing = 12.0;
 
-  static const actionBarIconSize = 24.0;
+  static const actionBarIconSize = 28.0;
   static const actionBarIconSpacing = 8.0;
+  static const hoverActionBarPadding = EdgeInsets.all(2.0);
+  static const hoverActionBarRadius = BorderRadius.all(Radius.circular(8.0));
+  static const hoverActionBarIconRadius =
+      BorderRadius.all(Radius.circular(6.0));
   static const actionBarIconRadius = BorderRadius.all(Radius.circular(8.0));
 }

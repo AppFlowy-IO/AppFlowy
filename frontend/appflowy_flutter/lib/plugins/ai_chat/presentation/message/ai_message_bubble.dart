@@ -109,15 +109,9 @@ class ChatAIBottomInlineActions extends StatelessWidget {
                 DesktopAIConvoSizes.avatarAndChatBubbleSpacing,
           ),
           child: AIResponseActionBar(
+            message: message,
             showDecoration: false,
-            children: [
-              CopyButton(
-                textMessage: message as TextMessage,
-              ),
-              RegenerateButton(
-                onTap: () => onRegenerate?.call(message.id),
-              ),
-            ],
+            onRegenerate: onRegenerate,
           ),
         ),
         const VSpace(32.0),
@@ -206,23 +200,17 @@ class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
                   }
                 },
                 child: Container(
-                  constraints: const BoxConstraints(
+                  constraints: BoxConstraints(
                     maxWidth: 784,
-                    maxHeight: 28,
+                    maxHeight: DesktopAIConvoSizes.actionBarIconSize +
+                        DesktopAIConvoSizes.hoverActionBarPadding.vertical,
                   ),
                   alignment: Alignment.topLeft,
                   child: hoverBubble || hoverActionBar
                       ? AIResponseActionBar(
+                          message: widget.message,
                           showDecoration: true,
-                          children: [
-                            CopyButton(
-                              textMessage: widget.message as TextMessage,
-                            ),
-                            RegenerateButton(
-                              onTap: () =>
-                                  widget.onRegenerate?.call(widget.message.id),
-                            ),
-                          ],
+                          onRegenerate: widget.onRegenerate,
                         )
                       : null,
                 ),
@@ -285,12 +273,14 @@ class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
 class AIResponseActionBar extends StatelessWidget {
   const AIResponseActionBar({
     super.key,
+    required this.message,
     required this.showDecoration,
-    required this.children,
+    this.onRegenerate,
   });
 
-  final List<Widget> children;
+  final Message message;
   final bool showDecoration;
+  final void Function(String)? onRegenerate;
 
   @override
   Widget build(BuildContext context) {
@@ -300,14 +290,14 @@ class AIResponseActionBar extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       separatorBuilder: () =>
           const HSpace(DesktopAIConvoSizes.actionBarIconSpacing),
-      children: children,
+      children: _buildChildren(),
     );
 
     return showDecoration
         ? Container(
             padding: const EdgeInsets.all(2.0),
             decoration: BoxDecoration(
-              borderRadius: DesktopAIConvoSizes.actionBarIconRadius,
+              borderRadius: DesktopAIConvoSizes.hoverActionBarRadius,
               border: Border.all(
                 color: isLightMode
                     ? const Color(0x1F1F2329)
@@ -344,13 +334,29 @@ class AIResponseActionBar extends StatelessWidget {
           )
         : child;
   }
+
+  List<Widget> _buildChildren() {
+    return [
+      CopyButton(
+        isInHoverBar: showDecoration,
+        textMessage: message as TextMessage,
+      ),
+      RegenerateButton(
+        isInHoverBar: showDecoration,
+        onTap: () => onRegenerate?.call(message.id),
+      ),
+    ];
+  }
 }
 
 class CopyButton extends StatelessWidget {
   const CopyButton({
     super.key,
+    required this.isInHoverBar,
     required this.textMessage,
   });
+
+  final bool isInHoverBar;
   final TextMessage textMessage;
 
   @override
@@ -360,7 +366,9 @@ class CopyButton extends StatelessWidget {
       child: FlowyIconButton(
         width: DesktopAIConvoSizes.actionBarIconSize,
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        radius: DesktopAIConvoSizes.actionBarIconRadius,
+        radius: isInHoverBar
+            ? DesktopAIConvoSizes.hoverActionBarIconRadius
+            : DesktopAIConvoSizes.actionBarIconRadius,
         icon: FlowySvg(
           FlowySvgs.copy_s,
           color: Theme.of(context).hintColor,
@@ -389,9 +397,11 @@ class CopyButton extends StatelessWidget {
 class RegenerateButton extends StatelessWidget {
   const RegenerateButton({
     super.key,
+    required this.isInHoverBar,
     required this.onTap,
   });
 
+  final bool isInHoverBar;
   final void Function() onTap;
 
   @override
@@ -401,7 +411,9 @@ class RegenerateButton extends StatelessWidget {
       child: FlowyIconButton(
         width: DesktopAIConvoSizes.actionBarIconSize,
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        radius: DesktopAIConvoSizes.actionBarIconRadius,
+        radius: isInHoverBar
+            ? DesktopAIConvoSizes.hoverActionBarIconRadius
+            : DesktopAIConvoSizes.actionBarIconRadius,
         icon: FlowySvg(
           FlowySvgs.ai_undo_s,
           color: Theme.of(context).hintColor,
