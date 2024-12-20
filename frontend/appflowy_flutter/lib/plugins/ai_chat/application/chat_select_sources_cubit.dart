@@ -72,15 +72,13 @@ class ChatSource {
     return null;
   }
 
-  void resetIgnoreViewTypeRecursive({required String chatId}) {
-    ignoreStatusNotifier.value = view.id == chatId
-        ? IgnoreViewType.hide
-        : view.layout.isDocumentView
-            ? IgnoreViewType.none
-            : IgnoreViewType.disable;
+  void resetIgnoreViewTypeRecursive() {
+    ignoreStatusNotifier.value = view.layout.isDocumentView
+        ? IgnoreViewType.none
+        : IgnoreViewType.disable;
 
     for (final child in children) {
-      child.resetIgnoreViewTypeRecursive(chatId: chatId);
+      child.resetIgnoreViewTypeRecursive();
     }
   }
 
@@ -153,6 +151,9 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
 
     if (childrenViews != null) {
       for (final childView in childrenViews) {
+        if (childView.layout == ViewLayoutPB.Chat) {
+          continue;
+        }
         final childChatSource = await _recursiveBuild(childView, view);
         if (childChatSource.selectedStatus.isSelected) {
           selectedCount++;
@@ -178,11 +179,9 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
       view: view,
       parentView: parentView,
       children: children,
-      ignoreStatus: view.id == chatId
-          ? IgnoreViewType.hide
-          : view.layout.isDocumentView
-              ? IgnoreViewType.none
-              : IgnoreViewType.disable,
+      ignoreStatus: view.layout.isDocumentView
+          ? IgnoreViewType.none
+          : IgnoreViewType.disable,
       isExpanded: false,
       selectedStatus: selectedStatus,
     );
@@ -190,7 +189,7 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
 
   void _restrictSelectionIfNecessary(List<ChatSource> sources) {
     for (final source in sources) {
-      source.resetIgnoreViewTypeRecursive(chatId: chatId);
+      source.resetIgnoreViewTypeRecursive();
     }
     if (sources.where((e) => !e.selectedStatus.isUnselected).length >=
         _kMaxSelectedParentPageCount) {
