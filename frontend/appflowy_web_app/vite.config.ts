@@ -92,7 +92,6 @@ export default defineConfig({
     process.env.ANALYZE_MODE
       ? visualizer({
         emitFile: true,
-
       })
       : undefined,
     process.env.ANALYZE_MODE
@@ -179,6 +178,6 @@ export default defineConfig({
   },
 
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-katex'],
+    include: ['react', 'react-dom', 'react-katex', '@appflowyinc/editor'],
   },
 });

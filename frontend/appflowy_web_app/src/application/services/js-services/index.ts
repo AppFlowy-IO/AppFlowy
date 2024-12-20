@@ -31,7 +31,7 @@ import {
 import {
   CreatePagePayload, CreateSpacePayload,
   DatabaseRelations,
-  DuplicatePublishView,
+  DuplicatePublishView, QuickNoteEditorData,
   SubscriptionInterval, SubscriptionPlan,
   Types, UpdatePagePayload, UpdateSpacePayload, WorkspaceMember,
   YjsEditorKey,
@@ -531,5 +531,25 @@ export class AFClientService implements AFService {
 
   getWorkspaceMembers(workspaceId: string): Promise<WorkspaceMember[]> {
     return APIService.getMembers(workspaceId);
+  }
+
+  getQuickNoteList(workspaceId: string, params: {
+    offset?: number;
+    limit?: number;
+    searchTerm?: string;
+  }) {
+    return APIService.getQuickNoteList(workspaceId, params);
+  }
+
+  createQuickNote(workspaceId: string, data: QuickNoteEditorData[]) {
+    return APIService.createQuickNote(workspaceId, data);
+  }
+
+  updateQuickNote(workspaceId: string, id: string, data: QuickNoteEditorData[]) {
+    return APIService.updateQuickNote(workspaceId, id, data);
+  }
+
+  deleteQuickNote(workspaceId: string, id: string) {
+    return APIService.deleteQuickNote(workspaceId, id);
   }
 }

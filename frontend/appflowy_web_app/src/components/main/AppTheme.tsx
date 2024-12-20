@@ -2,10 +2,13 @@ import { ThemeModeContext, useAppThemeMode } from '@/components/main/useAppTheme
 import React, { useMemo } from 'react';
 import createTheme from '@mui/material/styles/createTheme';
 import ThemeProvider from '@mui/material/styles/ThemeProvider';
-import '@/i18n/config';
+import {
+  i18nInstance,
+} from '@/i18n/config';
 
 import 'src/styles/tailwind.css';
 import 'src/styles/template.css';
+import { I18nextProvider } from 'react-i18next';
 
 function AppTheme({ children }: { children: React.ReactNode; }) {
   const { isDark, setIsDark } = useAppThemeMode();
@@ -167,11 +170,11 @@ function AppTheme({ children }: { children: React.ReactNode; }) {
           MuiTooltip: {
             styleOverrides: {
               arrow: {
-                color: 'var(--bg-tips)',
+                color: 'var(--fill-toolbar)',
               },
               tooltip: {
-                backgroundColor: 'var(--bg-tips)',
-                color: 'var(--text-title)',
+                backgroundColor: 'var(--fill-toolbar)',
+                color: 'white',
                 fontSize: '0.85rem',
                 borderRadius: '8px',
                 fontWeight: 400,
@@ -240,14 +243,16 @@ function AppTheme({ children }: { children: React.ReactNode; }) {
   );
 
   return (
-    <ThemeModeContext.Provider
-      value={{
-        isDark,
-        setDark: setIsDark,
-      }}
-    >
-      <ThemeProvider theme={theme}>{children}</ThemeProvider>
-    </ThemeModeContext.Provider>
+    <I18nextProvider i18n={i18nInstance}>
+      <ThemeModeContext.Provider
+        value={{
+          isDark,
+          setDark: setIsDark,
+        }}
+      >
+        <ThemeProvider theme={theme}>{children}</ThemeProvider>
+      </ThemeModeContext.Provider>
+    </I18nextProvider>
   );
 }
 

@@ -21,7 +21,7 @@ import {
   CreateSpacePayload,
   UpdateSpacePayload,
   Role,
-  WorkspaceMember,
+  WorkspaceMember, QuickNote, QuickNoteEditorData,
 } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { initGrantService, refreshToken } from '@/application/services/js-services/http/gotrue';
@@ -1303,7 +1303,7 @@ export async function deleteTrash(workspaceId: string, viewId?: string) {
       code: number;
       message: string;
     }>(url);
-    
+
     if (response?.data.code === 0) {
       return;
     }
@@ -1484,6 +1484,84 @@ export async function leaveWorkspace(workspaceId: string) {
 
 export async function deleteWorkspace(workspaceId: string) {
   const url = `/api/workspace/${workspaceId}`;
+  const res = await axiosInstance?.delete<{
+    code: number;
+    message: string;
+  }>(url);
+
+  if (res?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(res?.data);
+}
+
+export async function getQuickNoteList(workspaceId: string, params: {
+  offset?: number;
+  limit?: number;
+  searchTerm?: string;
+}) {
+  const url = `/api/workspace/${workspaceId}/quick-note`;
+  const res = await axiosInstance?.get<{
+    code: number;
+    data: {
+      quick_notes: QuickNote[];
+      has_more: boolean;
+    };
+    message: string;
+  }>(url, {
+    params: {
+      offset: params.offset,
+      limit: params.limit,
+      search_term: params.searchTerm || undefined,
+    },
+  });
+
+  if (res?.data.code === 0) {
+    return {
+      data: res?.data.data.quick_notes,
+      has_more: res?.data.data.has_more,
+    };
+  }
+
+  return Promise.reject(res?.data);
+}
+
+export async function createQuickNote(workspaceId: string, payload: QuickNoteEditorData[]): Promise<QuickNote> {
+  const url = `/api/workspace/${workspaceId}/quick-note`;
+  const res = await axiosInstance?.post<{
+    code: number;
+    data: QuickNote;
+    message: string;
+  }>(url, {
+    data: payload,
+  });
+
+  if (res?.data.code === 0) {
+    return res?.data.data;
+  }
+
+  return Promise.reject(res?.data);
+}
+
+export async function updateQuickNote(workspaceId: string, noteId: string, payload: QuickNoteEditorData[]) {
+  const url = `/api/workspace/${workspaceId}/quick-note/${noteId}`;
+  const res = await axiosInstance?.put<{
+    code: number;
+    message: string;
+  }>(url, {
+    data: payload,
+  });
+
+  if (res?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(res?.data);
+}
+
+export async function deleteQuickNote(workspaceId: string, noteId: string) {
+  const url = `/api/workspace/${workspaceId}/quick-note/${noteId}`;
   const res = await axiosInstance?.delete<{
     code: number;
     message: string;

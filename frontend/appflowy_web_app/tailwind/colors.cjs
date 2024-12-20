@@ -1,7 +1,7 @@
 
 /**
 * Do not edit directly
-* Generated on Mon, 09 Dec 2024 08:31:13 GMT
+* Generated on Thu, 19 Dec 2024 03:21:55 GMT
 * Generated from $pnpm css:variables 
 */
 
@@ -96,6 +96,7 @@ module.exports = {
     "track": "var(--scrollbar-track)"
   },
   "note": {
-    "header": "var(--note-header)"
+    "header": "var(--note-header)",
+    "btn": "var(--note-btn)"
   }
 };

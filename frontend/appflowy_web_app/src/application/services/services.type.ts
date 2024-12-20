@@ -13,7 +13,13 @@ import {
   SubscriptionPlan,
   SubscriptionInterval,
   Types,
-  UpdatePagePayload, CreatePagePayload, CreateSpacePayload, UpdateSpacePayload, WorkspaceMember,
+  UpdatePagePayload,
+  CreatePagePayload,
+  CreateSpacePayload,
+  UpdateSpacePayload,
+  WorkspaceMember,
+  QuickNoteEditorData,
+  QuickNote,
 } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
@@ -25,7 +31,7 @@ import {
   UploadTemplatePayload,
 } from '@/application/template.type';
 
-export type AFService = PublishService & AppService & WorkspaceService & TemplateService & {
+export type AFService = PublishService & AppService & WorkspaceService & TemplateService & QuickNoteService & {
   getClientId: () => string;
 };
 
@@ -91,6 +97,20 @@ export interface AppService {
   restoreFromTrash: (workspaceId: string, viewId?: string) => Promise<void>;
   movePage: (workspaceId: string, viewId: string, parentId: string, prevViewId?: string) => Promise<void>;
   uploadFile: (workspaceId: string, viewId: string, file: File, onProgress?: (progress: number) => void) => Promise<string>;
+}
+
+export interface QuickNoteService {
+  getQuickNoteList: (workspaceId: string, params: {
+    offset?: number;
+    limit?: number;
+    searchTerm?: string;
+  }) => Promise<{
+    data: QuickNote[];
+    has_more: boolean;
+  }>;
+  createQuickNote: (workspaceId: string, data: QuickNoteEditorData[]) => Promise<QuickNote>;
+  updateQuickNote: (workspaceId: string, id: string, data: QuickNoteEditorData[]) => Promise<void>;
+  deleteQuickNote: (workspaceId: string, id: string) => Promise<void>;
 }
 
 export interface TemplateService {
