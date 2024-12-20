@@ -98,13 +98,13 @@ class _PromptInputMobileSelectSourcesButtonState
                       ),
                     ],
                   ),
-                  onTap: () {
+                  onTap: () async {
                     if (spaceView != null) {
                       context
                           .read<ChatSettingsCubit>()
                           .refreshSources(spaceView);
                     }
-                    showMobileBottomSheet<void>(
+                    await showMobileBottomSheet<void>(
                       context,
                       backgroundColor: Theme.of(context).colorScheme.surface,
                       maxChildSize: 0.98,
@@ -115,14 +115,15 @@ class _PromptInputMobileSelectSourcesButtonState
                             value: cubit,
                             child: _MobileSelectSourcesSheetBody(
                               scrollController: scrollController,
-                              onUpdateSelectedSources:
-                                  widget.onUpdateSelectedSources,
                             ),
                           ),
                         );
                       },
                       builder: (context) => const SizedBox.shrink(),
                     );
+                    if (context.mounted) {
+                      widget.onUpdateSelectedSources(cubit.selectedSourceIds);
+                    }
                   },
                 ),
               );
@@ -137,11 +138,9 @@ class _PromptInputMobileSelectSourcesButtonState
 class _MobileSelectSourcesSheetBody extends StatefulWidget {
   const _MobileSelectSourcesSheetBody({
     required this.scrollController,
-    required this.onUpdateSelectedSources,
   });
 
   final ScrollController scrollController;
-  final void Function(List<String>) onUpdateSelectedSources;
 
   @override
   State<_MobileSelectSourcesSheetBody> createState() =>
@@ -215,11 +214,13 @@ class _MobileSelectSourcesSheetBodyState
                     ),
                     chatSource: state.visibleSources[index],
                     level: 0,
+                    isDescendentOfSpace:
+                        state.visibleSources[index].view.isSpace,
                     isSelectedSection: false,
                     onSelected: (chatSource) {
-                      final cubit = context.read<ChatSettingsCubit>();
-                      cubit.toggleSelectedStatus(chatSource);
-                      widget.onUpdateSelectedSources(cubit.selectedSourceIds);
+                      context
+                          .read<ChatSettingsCubit>()
+                          .toggleSelectedStatus(chatSource);
                     },
                     height: 40.0,
                     visibilityGetter: (view) {

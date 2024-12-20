@@ -87,51 +87,6 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
     selectedSourceIds = [...newSelectedSourceIds];
   }
 
-  void updateSelectedStatus() {
-    if (source == null) {
-      return;
-    }
-    if (source != null) {
-      _recursiveUpdateSelectedStatus(source!);
-    }
-    for (final source in state.visibleSources) {
-      _recursiveUpdateSelectedStatus(source);
-    }
-    final selected = _buildSelectedSources(source!).toList();
-    emit(state.copyWith(selectedSources: selected));
-    selectedSources
-      ..forEach((e) => e.dispose())
-      ..clear()
-      ..addAll(selected.map((e) => e.copy()));
-  }
-
-  SourceSelectedStatus _recursiveUpdateSelectedStatus(ChatSource chatSource) {
-    SourceSelectedStatus selectedStatus = SourceSelectedStatus.unselected;
-
-    int selectedCount = 0;
-    for (final childSource in chatSource.children) {
-      final childStatus = _recursiveUpdateSelectedStatus(childSource);
-      if (childStatus.isSelected) {
-        selectedCount++;
-      }
-    }
-
-    final isThisSourceSelected = selectedSourceIds.contains(chatSource.view.id);
-    final areAllChildrenSelectedOrNoChildren =
-        chatSource.children.length == selectedCount;
-    final isAnyChildNotUnselected =
-        chatSource.children.any((e) => !e.selectedStatus.isUnselected);
-
-    if (isThisSourceSelected && areAllChildrenSelectedOrNoChildren) {
-      selectedStatus = SourceSelectedStatus.selected;
-    } else if (isThisSourceSelected || isAnyChildNotUnselected) {
-      selectedStatus = SourceSelectedStatus.partiallySelected;
-    }
-
-    chatSource.selectedStatusNotifier.value = selectedStatus;
-    return selectedStatus;
-  }
-
   void refreshSources(ViewPB view) async {
     filter = "";
     final newSource = await _recursiveBuild(view, null);
@@ -250,9 +205,8 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
       children.addAll(_buildSelectedSources(childSource));
     }
 
-    return chatSource.selectedStatus.isUnselected
-        ? children
-        : [
+    return selectedSourceIds.contains(chatSource.view.id)
+        ? [
             ChatSource(
               view: chatSource.view,
               parentView: chatSource.parentView,
@@ -260,10 +214,14 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
               selectedStatus: chatSource.selectedStatus,
               isExpanded: true,
             ),
-          ];
+          ]
+        : children;
   }
 
   void toggleSelectedStatus(ChatSource chatSource) {
+    if (chatSource.view.isSpace) {
+      return;
+    }
     final allIds = _recursiveGetSourceIds(chatSource);
 
     if (chatSource.selectedStatus.isUnselected ||
@@ -281,6 +239,59 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
         }
       }
     }
+
+    updateSelectedStatus();
+  }
+
+  List<String> _recursiveGetSourceIds(ChatSource chatSource) {
+    return [
+      if (chatSource.view.layout.isDocumentView) chatSource.view.id,
+      for (final childSource in chatSource.children)
+        ..._recursiveGetSourceIds(childSource),
+    ];
+  }
+
+  void updateSelectedStatus() {
+    if (source == null) {
+      return;
+    }
+    _recursiveUpdateSelectedStatus(source!);
+    for (final visibleSource in state.visibleSources) {
+      _recursiveUpdateSelectedStatus(visibleSource);
+    }
+    final selected = _buildSelectedSources(source!).toList();
+    emit(state.copyWith(selectedSources: selected));
+    selectedSources
+      ..forEach((e) => e.dispose())
+      ..clear()
+      ..addAll(selected.map((e) => e.copy()));
+  }
+
+  SourceSelectedStatus _recursiveUpdateSelectedStatus(ChatSource chatSource) {
+    SourceSelectedStatus selectedStatus = SourceSelectedStatus.unselected;
+
+    int selectedCount = 0;
+    for (final childSource in chatSource.children) {
+      final childStatus = _recursiveUpdateSelectedStatus(childSource);
+      if (childStatus.isSelected) {
+        selectedCount++;
+      }
+    }
+
+    final isThisSourceSelected = selectedSourceIds.contains(chatSource.view.id);
+    final areAllChildrenSelectedOrNoChildren =
+        chatSource.children.length == selectedCount;
+    final isAnyChildNotUnselected =
+        chatSource.children.any((e) => !e.selectedStatus.isUnselected);
+
+    if (isThisSourceSelected && areAllChildrenSelectedOrNoChildren) {
+      selectedStatus = SourceSelectedStatus.selected;
+    } else if (isThisSourceSelected || isAnyChildNotUnselected) {
+      selectedStatus = SourceSelectedStatus.partiallySelected;
+    }
+
+    chatSource.selectedStatusNotifier.value = selectedStatus;
+    return selectedStatus;
   }
 
   void toggleIsExpanded(ChatSource chatSource, bool isSelectedSection) {
@@ -292,15 +303,6 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
     } else {
       source?.findChildBySourceId(chatSource.view.id)?.toggleIsExpanded();
     }
-  }
-
-  List<String> _recursiveGetSourceIds(ChatSource chatSource) {
-    return [
-      if (chatSource.view.layout.isDocumentView && !chatSource.view.isSpace)
-        chatSource.view.id,
-      for (final childSource in chatSource.children)
-        ..._recursiveGetSourceIds(childSource),
-    ];
   }
 
   @override
