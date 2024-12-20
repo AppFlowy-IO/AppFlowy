@@ -246,7 +246,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
             emit(
               state.copyWith(
-                promptResponseState: PromptResponseState.sendingQuestion,
+                promptResponseState: PromptResponseState.streamingAnswer,
               ),
             );
           },
