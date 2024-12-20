@@ -998,3 +998,17 @@ export interface CreateSpacePayload {
 export interface UpdateSpacePayload extends CreateSpacePayload {
   view_id: string;
 }
+
+export interface QuickNoteEditorData {
+  type: string;
+  delta: { insert: string, attributes?: Record<string, string | boolean | number> }[];
+  data?: BlockData;
+  children: QuickNoteEditorData[];
+}
+
+export interface QuickNote {
+  id: string;
+  data: QuickNoteEditorData[],
+  created_at: string;
+  last_updated_at: string;
+}

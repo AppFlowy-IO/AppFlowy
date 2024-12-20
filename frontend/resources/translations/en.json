@@ -2954,6 +2954,9 @@
     "quickNotes": "Quick notes",
     "search": "Search quick notes",
     "collapseFullView": "Collapse full view",
-    "expandFullView": "Expand full view"
+    "expandFullView": "Expand full view",
+    "createFailed": "Failed to create quick note",
+    "quickNotesEmpty": "No quick notes",
+    "emptyNote": "Empty note"
   }
 }

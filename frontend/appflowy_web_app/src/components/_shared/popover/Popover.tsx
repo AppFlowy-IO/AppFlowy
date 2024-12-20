@@ -33,7 +33,7 @@ const DEFAULT_ORIGINS: Origins = {
   },
 };
 
-function calculateOptimalOrigins (
+function calculateOptimalOrigins(
   position: Position,
   popoverWidth: number,
   popoverHeight: number,
@@ -103,7 +103,7 @@ function calculateOptimalOrigins (
   };
 }
 
-export function Popover ({
+export function Popover({
   children,
   transformOrigin = DEFAULT_ORIGINS.transformOrigin,
   anchorOrigin = DEFAULT_ORIGINS.anchorOrigin,
@@ -141,7 +141,7 @@ export function Popover ({
       width,
       height,
       { anchorOrigin, transformOrigin },
-      anchorPosition ? 20 : 8,
+      anchorPosition ? 8 : 8,
     );
 
     setOrigins(newOrigins);

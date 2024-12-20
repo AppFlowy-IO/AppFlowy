@@ -561,7 +561,7 @@ export function SlashPanel({
     >
       <div
         ref={optionsRef}
-        className={'flex flex-col gap-2 p-2 w-[320px] max-h-[500px] appflowy-scroller overflow-x-hidden overflow-y-auto'}
+        className={'flex flex-col gap-2 p-2 w-[320px] max-h-[400px] appflowy-scroller overflow-x-hidden overflow-y-auto'}
       >
         {options.length > 0 ? options.map((option) => (
             <Button

@@ -77,13 +77,14 @@ function RenameModal({ open, onClose, viewId }: {
         placeholder={'Enter new name'}
         value={newValue}
         inputRef={(input: HTMLInputElement) => {
-          if (!inputRef.current && input) {
+          if (!input) return;
+          if (!inputRef.current) {
             setTimeout(() => {
               input.setSelectionRange(0, input.value.length);
             }, 100);
+            inputRef.current = input;
           }
 
-          inputRef.current = input;
         }}
         onChange={e => setNewValue(e.target.value)}
         fullWidth
