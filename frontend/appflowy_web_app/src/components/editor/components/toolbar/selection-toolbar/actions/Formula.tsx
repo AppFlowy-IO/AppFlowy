@@ -8,12 +8,12 @@ import {
 import React, { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Transforms, Text, Editor } from 'slate';
-import { useSlateStatic } from 'slate-react';
+import { useSlate } from 'slate-react';
 import { ReactComponent as MathSvg } from '@/assets/math.svg';
 
 function Formula() {
   const { t } = useTranslation();
-  const editor = useSlateStatic() as YjsEditor;
+  const editor = useSlate() as YjsEditor;
   const {
     visible,
   } = useSelectionToolbarContext();
@@ -40,7 +40,7 @@ function Formula() {
   useEffect(() => {
     if (!visible) return;
     setState(getState());
-  }, [visible, getState]);
+  }, [visible, getState, editor.selection]);
 
   const onClick = useCallback(() => {
     const { selection } = editor;

@@ -22,7 +22,7 @@ function NoteList({
 }) {
   const { t } = useTranslation();
   const renderTitle = useCallback((last_updated_at: string) => {
-    return dayjs(last_updated_at).format('MMMM d,YYYY');
+    return dayjs(last_updated_at).format('MMMM d, YYYY');
   }, []);
 
   const renderSummary = useCallback((note: QuickNoteType) => {
@@ -32,7 +32,7 @@ function NoteList({
     let text = '';
 
     for (const block of data) {
-      text = block.delta.map((d) => d.insert).join('');
+      text += block.delta.map((d) => d.insert).join('');
     }
 
     return text;
@@ -92,7 +92,7 @@ function NoteList({
                     </div>
                   </div>
                   {hoverId === note.id ? <div
-                    className={'absolute right-4 top-1/2 bg-bg-body border rounded-[8px] p-1 -translate-y-1/2 flex items-center gap-1.5'}>
+                    className={'absolute border-line-divider right-4 top-1/2 bg-bg-body border rounded-[8px] p-1 -translate-y-1/2 flex items-center gap-1.5'}>
                     <Tooltip title={t('button.edit')}>
                       <IconButton onClick={(e) => {
                         e.stopPropagation();

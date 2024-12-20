@@ -123,7 +123,7 @@ export function ViewActions({ view, hovered }: {
     {renderButton}
     <Popover
       {...popoverProps}
-      keepMounted={false}
+      keepMounted={hovered}
       open={open}
       anchorPosition={anchorPosition}
       onClose={handleClosePopover}

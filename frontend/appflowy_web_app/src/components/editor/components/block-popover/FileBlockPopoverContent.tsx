@@ -61,7 +61,7 @@ function FileBlockPopoverContent({
     if (file.size > MAX_FILE_SIZE) {
       notify.error(`File size is too large, please upload a file less than ${MAX_FILE_SIZE / 1024 / 1024}MB`);
 
-      return;
+      throw new Error('File size is too large');
     }
 
     try {

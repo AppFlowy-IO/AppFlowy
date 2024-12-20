@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useMemo } from 'react';
-import { Editor, EditorData, EditorProvider } from '@appflowyinc/editor';
+import { Editor, EditorData, EditorProvider, useEditor } from '@appflowyinc/editor';
 import '@appflowyinc/editor/style';
 
 import { useTranslation } from 'react-i18next';
@@ -17,8 +17,46 @@ function Note({
   onUpdateData: (data: QuickNoteEditorData[]) => void;
 }) {
 
-  const currentWorkspaceId = useCurrentWorkspaceId();
-  const service = useService();
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+
+    if (!el) return;
+
+    setTimeout(() => {
+      const editorDom = el.querySelector('.appflowy-editor div[role="textbox"]') as HTMLElement;
+
+      if (!editorDom) return;
+
+      const sel = window.getSelection();
+      const range = document.createRange();
+
+      range.selectNodeContents(editorDom);
+      range.collapse(true);
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+    }, 200);
+
+    //eslint-disable-next-line
+  }, [note.id]);
+
+  return (
+    <div ref={ref} className={'flex flex-1 overflow-hidden pb-4'}>
+      <EditorProvider>
+        <NoteEditor note={note} onUpdateData={onUpdateData}/>
+      </EditorProvider>
+    </div>
+  );
+}
+
+function NoteEditor({
+  note,
+  onUpdateData,
+}: {
+  note: QuickNote,
+  onUpdateData: (data: QuickNoteEditorData[]) => void;
+}) {
   const { i18n } = useTranslation();
   const locale = useMemo(() => ({
     lang: i18n.language,
@@ -26,6 +64,18 @@ function Note({
 
   const isDark = useContext(ThemeModeContext)?.isDark;
   const theme = isDark ? 'dark' : 'light';
+
+  const [, setClock] = React.useState(0);
+  const editor = useEditor();
+
+  useEffect(() => {
+    editor.applyData(note.data as EditorData);
+    setClock(prev => prev + 1);
+    // eslint-disable-next-line
+  }, [editor, note.id]);
+
+  const currentWorkspaceId = useCurrentWorkspaceId();
+  const service = useService();
 
   const handleUpdate = useCallback(async (data: EditorData) => {
     if (!service || !currentWorkspaceId) return;
@@ -50,40 +100,11 @@ function Note({
     };
   }, [debounceUpdate]);
 
-  const ref = React.useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-
-    if (!el) return;
-
-    setTimeout(() => {
-      const editorDom = el.querySelector('.appflowy-editor div[role="textbox"]') as HTMLElement;
-
-      if (!editorDom) return;
-
-      const sel = window.getSelection();
-      const range = document.createRange();
-
-      range.selectNodeContents(editorDom);
-      range.collapse(true);
-      sel?.removeAllRanges();
-      sel?.addRange(range);
-    }, 200);
-
-  }, []);
-
-  return (
-    <div ref={ref} className={'flex flex-1 overflow-hidden pb-4'}>
-      <EditorProvider>
-        <Editor
-          modalZIndex={1500}
-          initialValue={note.data as EditorData} locale={locale} onChange={handleChange}
-          theme={theme}
-        />
-      </EditorProvider>
-    </div>
-  );
+  return <Editor
+    modalZIndex={1500}
+    initialValue={note.data as EditorData} locale={locale} onChange={handleChange}
+    theme={theme}
+  />;
 }
 
 export default Note;

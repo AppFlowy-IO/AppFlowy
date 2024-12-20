@@ -96,7 +96,7 @@ export const Href = memo(({ text, children, leaf }: { leaf: Text; children: Reac
           onClose={() => setHovered(false)}
         >
           <div className={'p-2 flex items-center gap-2'}>
-            <div className={'text-xs text-text-caption'}>{leaf.href}</div>
+            <div className={'text-xs text-text-caption max-w-[400px] truncate flex-1'}>{leaf.href}</div>
             <IconButton onClick={() => {
               if (!leaf.href) return;
               void copyTextToClipboard(leaf.href);

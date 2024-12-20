@@ -20,7 +20,7 @@ function NoteHeader({ note, onBack, onClose, expand, onToggleExpand }: {
   const { t } = useTranslation();
 
   const title = useMemo(() => {
-    return dayjs(note.last_updated_at).format('MMMM d,YYYY');
+    return dayjs(note.last_updated_at).format('MMMM d, YYYY');
   }, [note.last_updated_at]);
 
   return (

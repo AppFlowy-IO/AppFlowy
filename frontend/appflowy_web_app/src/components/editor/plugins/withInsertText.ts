@@ -44,10 +44,11 @@ export const withInsertText = (editor: ReactEditor) => {
       return;
     }
 
-    const end = editor.end(textPath);
+    const [start, end] = editor.edges(textPath);
 
-    // If the point is after the end of the text node and the text node has a code or href attribute, insert the text as a new node
-    if (!Point.isBefore(point, end) && (textNode.code || textNode.href)) {
+    const inMiddle = Point.isAfter(point, start) && Point.isBefore(point, end);
+    
+    if (!inMiddle && (textNode.code || textNode.href)) {
       Transforms.insertNodes(editor, { text }, { at: point, select: true, voids: false });
       return;
     }
