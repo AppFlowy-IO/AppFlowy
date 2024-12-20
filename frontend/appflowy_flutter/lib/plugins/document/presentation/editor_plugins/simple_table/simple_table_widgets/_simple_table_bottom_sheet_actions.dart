@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_option_cubit.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option/option_actions.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -370,15 +372,15 @@ class SimpleTableInsertAction extends StatelessWidget {
   }
 }
 
-/// Action buttons
+/// Cell Action buttons
 ///
 /// - Distribute columns evenly
 /// - Set to page width
 /// - Duplicate row
 /// - Duplicate column
 /// - Clear contents
-class SimpleTableActionButtons extends ISimpleTableBottomSheetActions {
-  const SimpleTableActionButtons({
+class SimpleTableCellActionButtons extends ISimpleTableBottomSheetActions {
+  const SimpleTableCellActionButtons({
     super.key,
     required super.type,
     required super.cellNode,
@@ -593,6 +595,45 @@ class _SimpleTableHeaderActionButtonState
     });
 
     widget.onTap?.call(value);
+  }
+}
+
+/// Align text action button
+///
+/// - Align text to left
+/// - Align text to center
+/// - Align text to right
+///
+/// Notes: These actions are only available for the table
+class SimpleTableAlignActionButton extends StatefulWidget {
+  const SimpleTableAlignActionButton({
+    super.key,
+    required this.onTap,
+  });
+
+  final VoidCallback onTap;
+
+  @override
+  State<SimpleTableAlignActionButton> createState() =>
+      _SimpleTableAlignActionButtonState();
+}
+
+class _SimpleTableAlignActionButtonState
+    extends State<SimpleTableAlignActionButton> {
+  @override
+  Widget build(BuildContext context) {
+    return SimpleTableActionButton(
+      type: SimpleTableMoreAction.align,
+      enableTopBorder: true,
+      enableBottomBorder: true,
+      onTap: widget.onTap,
+      rightIconBuilder: (context) {
+        return const Padding(
+          padding: EdgeInsets.only(right: 16),
+          child: FlowySvg(FlowySvgs.m_aa_arrow_right_s),
+        );
+      },
+    );
   }
 }
 
@@ -933,6 +974,154 @@ class SimpleTableContentActionDecorator extends StatelessWidget {
         topRight: enableRightBorder ? radius : Radius.zero,
         bottomLeft: enableLeftBorder ? radius : Radius.zero,
         bottomRight: enableRightBorder ? radius : Radius.zero,
+      ),
+    );
+  }
+}
+
+class SimpleTableActionButtons extends StatelessWidget {
+  const SimpleTableActionButtons({
+    super.key,
+    required this.tableNode,
+    required this.editorState,
+    required this.onAlignTap,
+  });
+
+  final Node tableNode;
+  final EditorState editorState;
+  final VoidCallback onAlignTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: _buildActions(context),
+      ),
+    );
+  }
+
+  List<Widget> _buildActions(BuildContext context) {
+    final actionGroups = [
+      [
+        SimpleTableMoreAction.setToPageWidth,
+        SimpleTableMoreAction.distributeColumnsEvenly,
+      ],
+      [
+        SimpleTableMoreAction.align,
+      ],
+      [
+        SimpleTableMoreAction.duplicateTable,
+        SimpleTableMoreAction.copyLinkToBlock,
+      ]
+    ];
+    final List<Widget> widgets = [];
+
+    for (final (actionGroupIndex, actionGroup) in actionGroups.indexed) {
+      for (final (index, action) in actionGroup.indexed) {
+        widgets.add(
+          // enable the corner border if the cell is the first or last in the group
+          switch (action) {
+            SimpleTableMoreAction.align => SimpleTableAlignActionButton(
+                onTap: () => _onActionTap(
+                  context,
+                  action: action,
+                ),
+              ),
+            _ => SimpleTableActionButton(
+                type: action,
+                enableTopBorder: index == 0,
+                enableBottomBorder: index == actionGroup.length - 1,
+                onTap: () => _onActionTap(
+                  context,
+                  action: action,
+                ),
+              ),
+          },
+        );
+        // if the action is not the first or last in the group, add a divider
+        if (index != actionGroup.length - 1) {
+          widgets.add(const FlowyDivider());
+        }
+      }
+
+      // add padding to separate the action groups
+      if (actionGroupIndex != actionGroups.length - 1) {
+        widgets.add(const VSpace(16));
+      }
+    }
+
+    return widgets;
+  }
+
+  void _onActionTap(
+    BuildContext context, {
+    required SimpleTableMoreAction action,
+  }) {
+    final optionCubit = BlockActionOptionCubit(
+      editorState: editorState,
+      blockComponentBuilder: {},
+    );
+    switch (action) {
+      case SimpleTableMoreAction.setToPageWidth:
+        editorState.setColumnWidthToPageWidth(tableNode: tableNode);
+      case SimpleTableMoreAction.distributeColumnsEvenly:
+        editorState.distributeColumnWidthToPageWidth(tableNode: tableNode);
+      case SimpleTableMoreAction.duplicateTable:
+        optionCubit.handleAction(OptionAction.duplicate, tableNode);
+      case SimpleTableMoreAction.copyLinkToBlock:
+        optionCubit.handleAction(OptionAction.copyLinkToBlock, tableNode);
+      case SimpleTableMoreAction.align:
+        onAlignTap();
+      default:
+        assert(false, 'Unsupported action: $action');
+        break;
+    }
+
+    // close the action menu
+    if (action != SimpleTableMoreAction.align) {
+      Navigator.of(context).pop();
+    }
+  }
+}
+
+class SimpleTableContentAlignAction extends StatefulWidget {
+  const SimpleTableContentAlignAction({
+    super.key,
+    required this.isSelected,
+    required this.align,
+    required this.onTap,
+  });
+
+  final bool isSelected;
+  final VoidCallback onTap;
+  final TableAlign align;
+
+  @override
+  State<SimpleTableContentAlignAction> createState() =>
+      _SimpleTableContentAlignActionState();
+}
+
+class _SimpleTableContentAlignActionState
+    extends State<SimpleTableContentAlignAction> {
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: SimpleTableContentActionDecorator(
+        backgroundColor:
+            widget.isSelected ? Theme.of(context).colorScheme.primary : null,
+        enableLeftBorder: widget.align == TableAlign.left,
+        enableRightBorder: widget.align == TableAlign.right,
+        child: AnimatedGestureDetector(
+          onTapUp: widget.onTap,
+          child: FlowySvg(
+            widget.align.leftIconSvg,
+            size: const Size.square(24),
+            color: widget.isSelected
+                ? Theme.of(context).colorScheme.onPrimary
+                : null,
+          ),
+        ),
       ),
     );
   }

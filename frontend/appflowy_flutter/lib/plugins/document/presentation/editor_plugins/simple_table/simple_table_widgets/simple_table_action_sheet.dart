@@ -91,7 +91,7 @@ class _SimpleTableActionSheetState extends State<SimpleTableActionSheet> {
       showDivider: false,
       builder: (context) => Provider.value(
         value: simpleTableContext,
-        child: SimpleTableBottomSheet(
+        child: SimpleTableCellBottomSheet(
           type: widget.type,
           cellNode: widget.node,
           editorState: editorState,

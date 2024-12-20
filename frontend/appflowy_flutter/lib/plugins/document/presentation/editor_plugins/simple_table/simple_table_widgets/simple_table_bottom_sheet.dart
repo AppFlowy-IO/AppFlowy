@@ -10,14 +10,20 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 enum _SimpleTableBottomSheetMenuState {
-  actionMenu,
+  cellActionMenu,
   textColor,
   textBackgroundColor,
+  tableActionMenu,
+  align,
 }
 
-// Note: This widget is only used for mobile.
-class SimpleTableBottomSheet extends StatefulWidget {
-  const SimpleTableBottomSheet({
+/// This bottom sheet is used for the column or row action menu.
+/// When selecting a cell and tapping the action menu button around the cell,
+/// this bottom sheet will be shown.
+///
+/// Note: This widget is only used for mobile.
+class SimpleTableCellBottomSheet extends StatefulWidget {
+  const SimpleTableCellBottomSheet({
     super.key,
     required this.type,
     required this.cellNode,
@@ -29,12 +35,14 @@ class SimpleTableBottomSheet extends StatefulWidget {
   final EditorState editorState;
 
   @override
-  State<SimpleTableBottomSheet> createState() => _SimpleTableBottomSheetState();
+  State<SimpleTableCellBottomSheet> createState() =>
+      _SimpleTableCellBottomSheetState();
 }
 
-class _SimpleTableBottomSheetState extends State<SimpleTableBottomSheet> {
+class _SimpleTableCellBottomSheetState
+    extends State<SimpleTableCellBottomSheet> {
   _SimpleTableBottomSheetMenuState menuState =
-      _SimpleTableBottomSheetMenuState.actionMenu;
+      _SimpleTableBottomSheetMenuState.cellActionMenu;
 
   Color? selectedTextColor;
   Color? selectedCellBackgroundColor;
@@ -73,7 +81,7 @@ class _SimpleTableBottomSheetState extends State<SimpleTableBottomSheet> {
 
   Widget _buildHeader() {
     switch (menuState) {
-      case _SimpleTableBottomSheetMenuState.actionMenu:
+      case _SimpleTableBottomSheetMenuState.cellActionMenu:
         return BottomSheetHeader(
           showBackButton: false,
           showCloseButton: true,
@@ -91,20 +99,24 @@ class _SimpleTableBottomSheetState extends State<SimpleTableBottomSheet> {
           showRemoveButton: false,
           title: widget.type.name.capitalize(),
           onClose: () => setState(() {
-            menuState = _SimpleTableBottomSheetMenuState.actionMenu;
+            menuState = _SimpleTableBottomSheetMenuState.cellActionMenu;
           }),
         );
+      default:
+        throw UnimplementedError('Unsupported menu state: $menuState');
     }
   }
 
   List<Widget> _buildContent() {
     switch (menuState) {
-      case _SimpleTableBottomSheetMenuState.actionMenu:
+      case _SimpleTableBottomSheetMenuState.cellActionMenu:
         return _buildActionButtons();
       case _SimpleTableBottomSheetMenuState.textColor:
         return _buildTextColor();
       case _SimpleTableBottomSheetMenuState.textBackgroundColor:
         return _buildTextBackgroundColor();
+      default:
+        throw UnimplementedError('Unsupported menu state: $menuState');
     }
   }
 
@@ -147,7 +159,7 @@ class _SimpleTableBottomSheetState extends State<SimpleTableBottomSheet> {
       const VSpace(16),
 
       // action buttons
-      SimpleTableActionButtons(
+      SimpleTableCellActionButtons(
         type: widget.type,
         cellNode: widget.cellNode,
         editorState: widget.editorState,
@@ -242,6 +254,136 @@ class _SimpleTableBottomSheetState extends State<SimpleTableBottomSheet> {
 
     setState(() {
       selectedCellBackgroundColor = color;
+    });
+  }
+}
+
+/// This bottom sheet is used for the table action menu.
+/// When selecting a table and tapping the action menu button on the top-left corner of the table,
+/// this bottom sheet will be shown.
+///
+/// Note: This widget is only used for mobile.
+class SimpleTableBottomSheet extends StatefulWidget {
+  const SimpleTableBottomSheet({
+    super.key,
+    required this.tableNode,
+    required this.editorState,
+  });
+
+  final Node tableNode;
+  final EditorState editorState;
+
+  @override
+  State<SimpleTableBottomSheet> createState() => _SimpleTableBottomSheetState();
+}
+
+class _SimpleTableBottomSheetState extends State<SimpleTableBottomSheet> {
+  _SimpleTableBottomSheetMenuState menuState =
+      _SimpleTableBottomSheetMenuState.tableActionMenu;
+
+  TableAlign? selectedAlign;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // header
+        _buildHeader(),
+
+        // content
+        ..._buildContent(),
+      ],
+    );
+  }
+
+  Widget _buildHeader() {
+    switch (menuState) {
+      case _SimpleTableBottomSheetMenuState.tableActionMenu:
+        return BottomSheetHeader(
+          showBackButton: false,
+          showCloseButton: true,
+          showDoneButton: false,
+          showRemoveButton: false,
+          title: 'Table',
+          onClose: () => Navigator.pop(context),
+        );
+      case _SimpleTableBottomSheetMenuState.align:
+        return BottomSheetHeader(
+          showBackButton: true,
+          showCloseButton: false,
+          showDoneButton: true,
+          showRemoveButton: false,
+          title: 'Align Text',
+          onBack: () => setState(() {
+            menuState = _SimpleTableBottomSheetMenuState.tableActionMenu;
+          }),
+          onDone: (_) => Navigator.pop(context),
+        );
+      default:
+        throw UnimplementedError('Unsupported menu state: $menuState');
+    }
+  }
+
+  List<Widget> _buildContent() {
+    switch (menuState) {
+      case _SimpleTableBottomSheetMenuState.tableActionMenu:
+        return _buildActionButtons();
+      case _SimpleTableBottomSheetMenuState.align:
+        return _buildAlign();
+      default:
+        throw UnimplementedError('Unsupported menu state: $menuState');
+    }
+  }
+
+  List<Widget> _buildActionButtons() {
+    return [
+      // action buttons
+      SimpleTableActionButtons(
+        tableNode: widget.tableNode,
+        editorState: widget.editorState,
+        onAlignTap: _onTapAlignButton,
+      ),
+    ];
+  }
+
+  List<Widget> _buildAlign() {
+    return [
+      Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16.0,
+        ),
+        child: Row(
+          children: [
+            _buildAlignButton(TableAlign.left),
+            const HSpace(2),
+            _buildAlignButton(TableAlign.center),
+            const HSpace(2),
+            _buildAlignButton(TableAlign.right),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  Widget _buildAlignButton(TableAlign align) {
+    return SimpleTableContentAlignAction(
+      onTap: () => _onTapAlign(align),
+      align: align,
+      isSelected: selectedAlign == align,
+    );
+  }
+
+  void _onTapAlignButton() {
+    setState(() {
+      menuState = _SimpleTableBottomSheetMenuState.align;
+    });
+  }
+
+  void _onTapAlign(TableAlign align) {
+    setState(() {
+      selectedAlign = align;
     });
   }
 }

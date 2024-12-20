@@ -100,4 +100,22 @@ extension TableDuplicationOperations on EditorState {
     }
     await apply(transaction);
   }
+
+  /// Duplicate the table.
+  ///
+  /// This function will duplicate the table and insert it after the original table.
+  Future<void> duplicateTable({
+    required Node tableNode,
+  }) async {
+    assert(tableNode.type == SimpleTableBlockKeys.type);
+
+    if (tableNode.type != SimpleTableBlockKeys.type) {
+      return;
+    }
+
+    final transaction = this.transaction;
+    final newTable = tableNode.deepCopy();
+    transaction.insertNode(tableNode.path.next, newTable);
+    await apply(transaction);
+  }
 }

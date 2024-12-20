@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -132,7 +134,9 @@ enum SimpleTableMoreAction {
   paste,
   bold,
   textColor,
-  textBackgroundColor;
+  textBackgroundColor,
+  duplicateTable,
+  copyLinkToBlock;
 
   String get name {
     return switch (this) {
@@ -168,6 +172,9 @@ enum SimpleTableMoreAction {
       SimpleTableMoreAction.duplicateColumn => LocaleKeys
           .document_plugins_simpleTable_moreActions_duplicateColumn
           .tr(),
+      // todo: i18n
+      SimpleTableMoreAction.duplicateTable => 'Duplicate table',
+      SimpleTableMoreAction.copyLinkToBlock => 'Copy link to block',
       SimpleTableMoreAction.bold ||
       SimpleTableMoreAction.textColor ||
       SimpleTableMoreAction.textBackgroundColor ||
@@ -201,6 +208,9 @@ enum SimpleTableMoreAction {
       SimpleTableMoreAction.copy => FlowySvgs.m_table_quick_action_copy_s,
       SimpleTableMoreAction.paste => FlowySvgs.m_table_quick_action_paste_s,
       SimpleTableMoreAction.bold => FlowySvgs.m_aa_bold_s,
+      SimpleTableMoreAction.duplicateTable => FlowySvgs.m_table_duplicate_s,
+      SimpleTableMoreAction.copyLinkToBlock => FlowySvgs.m_copy_link_s,
+      SimpleTableMoreAction.align => FlowySvgs.m_aa_align_left_s,
       SimpleTableMoreAction.textColor =>
         throw UnsupportedError('text color icon is not supported'),
       SimpleTableMoreAction.textBackgroundColor =>
@@ -351,5 +361,59 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
     } else {
       isEditingCellNotifier.value = false;
     }
+  }
+}
+
+/// This widget is only used on mobile
+class SimpleTableActionMenu extends StatelessWidget {
+  const SimpleTableActionMenu({
+    super.key,
+    required this.tableNode,
+    required this.editorState,
+  });
+
+  final Node tableNode;
+  final EditorState editorState;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showTableActionBottomSheet(context),
+      child: Container(
+        width: 20,
+        height: 20,
+        alignment: Alignment.center,
+        child: const FlowySvg(
+          FlowySvgs.drag_element_s,
+          size: Size.square(16.0),
+        ),
+      ),
+    );
+  }
+
+  void _showTableActionBottomSheet(BuildContext context) async {
+    // check if the table node is a simple table
+    assert(tableNode.type == SimpleTableBlockKeys.type);
+
+    if (tableNode.type != SimpleTableBlockKeys.type) {
+      Log.error('The table node is not a simple table');
+      return;
+    }
+
+    final simpleTableContext = context.read<SimpleTableContext>();
+
+    // show the bottom sheet
+    await showMobileBottomSheet(
+      context,
+      showDragHandle: true,
+      showDivider: false,
+      builder: (context) => Provider.value(
+        value: simpleTableContext,
+        child: SimpleTableBottomSheet(
+          tableNode: tableNode,
+          editorState: editorState,
+        ),
+      ),
+    );
   }
 }

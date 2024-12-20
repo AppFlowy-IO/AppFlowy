@@ -144,6 +144,13 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
                 right: 0,
                 child: _buildColumnMoreActionButton(),
               ),
+            if (node.columnIndex == 0 && node.rowIndex == 0)
+              Positioned(
+                // todo: don't use hardcoded value
+                left: 6,
+                top: 0,
+                child: _buildTableActionMenu(),
+              ),
             Positioned(
               right: 0,
               top: node.rowIndex == 0
@@ -264,6 +271,18 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       tableCellNode: node,
       index: columnIndex,
       type: SimpleTableMoreActionType.column,
+    );
+  }
+
+  Widget _buildTableActionMenu() {
+    final tableNode = node.parentTableNode;
+    if (tableNode == null) {
+      return const SizedBox.shrink();
+    }
+
+    return SimpleTableActionMenu(
+      tableNode: tableNode,
+      editorState: editorState,
     );
   }
 
