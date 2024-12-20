@@ -317,7 +317,7 @@ export function MentionPanel() {
     return () => {
       slateDom.removeEventListener('keydown', handleKeyDown);
     };
-  }, [editor, handleClickMore, handleAddPage, handleSelectedPage, open, selectedOptionRef, splicedViews, dateOptions]);
+  }, [editor, handleClickMore, handleAddPage, handleSelectedPage, open, selectedOptionRef, splicedViews, dateOptions, showMore]);
 
   return (
     <Popover
