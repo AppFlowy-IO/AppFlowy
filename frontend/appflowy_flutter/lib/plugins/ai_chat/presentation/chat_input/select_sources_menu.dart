@@ -222,60 +222,50 @@ class _PopoverContent extends StatelessWidget {
     BuildContext context,
     ChatSettingsState state,
   ) {
-    return state.selectedSources.map(
-      (e) => ChatSourceTreeItem(
-        key: ValueKey(
-          'selected_select_sources_tree_item_${e.view.id}',
-        ),
-        chatSource: e,
-        level: 0,
-        isDescendentOfSpace: e.view.isSpace,
-        isSelectedSection: true,
-        onSelected: (chatSource) {
-          context.read<ChatSettingsCubit>().toggleSelectedStatus(chatSource);
-        },
-        height: 30.0,
-        visibilityGetter: (view) {
-          if (view.id == context.read<ChatSettingsCubit>().chatId) {
-            return IgnoreViewType.hide;
-          }
-
-          return view.layout.isDocumentView
-              ? IgnoreViewType.none
-              : IgnoreViewType.disable;
-        },
-      ),
-    );
+    return state.selectedSources
+        .where((e) => e.ignoreStatus != IgnoreViewType.hide)
+        .map(
+          (e) => ChatSourceTreeItem(
+            key: ValueKey(
+              'selected_select_sources_tree_item_${e.view.id}',
+            ),
+            chatSource: e,
+            level: 0,
+            isDescendentOfSpace: e.view.isSpace,
+            isSelectedSection: true,
+            onSelected: (chatSource) {
+              context
+                  .read<ChatSettingsCubit>()
+                  .toggleSelectedStatus(chatSource);
+            },
+            height: 30.0,
+          ),
+        );
   }
 
   Iterable<Widget> _buildVisibleSources(
     BuildContext context,
     ChatSettingsState state,
   ) {
-    return state.visibleSources.map(
-      (e) => ChatSourceTreeItem(
-        key: ValueKey(
-          'visible_select_sources_tree_item_${e.view.id}',
-        ),
-        chatSource: e,
-        level: 0,
-        isDescendentOfSpace: e.view.isSpace,
-        isSelectedSection: false,
-        onSelected: (chatSource) {
-          context.read<ChatSettingsCubit>().toggleSelectedStatus(chatSource);
-        },
-        height: 30.0,
-        visibilityGetter: (view) {
-          if (view.id == context.read<ChatSettingsCubit>().chatId) {
-            return IgnoreViewType.hide;
-          }
-
-          return view.layout.isDocumentView
-              ? IgnoreViewType.none
-              : IgnoreViewType.disable;
-        },
-      ),
-    );
+    return state.visibleSources
+        .where((e) => e.ignoreStatus != IgnoreViewType.hide)
+        .map(
+          (e) => ChatSourceTreeItem(
+            key: ValueKey(
+              'visible_select_sources_tree_item_${e.view.id}',
+            ),
+            chatSource: e,
+            level: 0,
+            isDescendentOfSpace: e.view.isSpace,
+            isSelectedSection: false,
+            onSelected: (chatSource) {
+              context
+                  .read<ChatSettingsCubit>()
+                  .toggleSelectedStatus(chatSource);
+            },
+            height: 30.0,
+          ),
+        );
   }
 }
 
@@ -288,7 +278,6 @@ class ChatSourceTreeItem extends StatefulWidget {
     required this.isSelectedSection,
     required this.onSelected,
     required this.height,
-    this.visibilityGetter,
   });
 
   final ChatSource chatSource;
@@ -303,8 +292,6 @@ class ChatSourceTreeItem extends StatefulWidget {
   final void Function(ChatSource chatSource) onSelected;
 
   final double height;
-
-  final IgnoreViewType Function(ViewPB view)? visibilityGetter;
 
   @override
   State<ChatSourceTreeItem> createState() => _ChatSourceTreeItemState();
@@ -324,30 +311,24 @@ class _ChatSourceTreeItemState extends State<ChatSourceTreeItem> {
       ),
     );
 
-    final viewVisibility =
-        widget.visibilityGetter?.call(widget.chatSource.view) ??
-            IgnoreViewType.none;
-
-    final disabledEnabledChild = viewVisibility == IgnoreViewType.disable
-        ? Opacity(
-            opacity: 0.5,
-            child: MouseRegion(
-              cursor: SystemMouseCursors.forbidden,
-              child: IgnorePointer(child: child),
-            ),
-          )
-        : child;
+    final disabledEnabledChild =
+        widget.chatSource.ignoreStatus == IgnoreViewType.disable
+            ? Opacity(
+                opacity: 0.5,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.forbidden,
+                  child: IgnorePointer(child: child),
+                ),
+              )
+            : child;
 
     return ValueListenableBuilder(
       valueListenable: widget.chatSource.isExpandedNotifier,
       builder: (context, isExpanded, child) {
         // filter the child views that should be ignored
-        final childViews = [...widget.chatSource.children];
-        if (widget.visibilityGetter != null) {
-          childViews.retainWhere(
-            (v) => widget.visibilityGetter!(v.view) != IgnoreViewType.hide,
-          );
-        }
+        final childViews = widget.chatSource.children
+            .where((e) => e.ignoreStatus != IgnoreViewType.hide)
+            .toList();
 
         if (!isExpanded || childViews.isEmpty) {
           return disabledEnabledChild;
@@ -368,7 +349,6 @@ class _ChatSourceTreeItemState extends State<ChatSourceTreeItem> {
                 isSelectedSection: widget.isSelectedSection,
                 onSelected: widget.onSelected,
                 height: widget.height,
-                visibilityGetter: widget.visibilityGetter,
               ),
             ),
           ],

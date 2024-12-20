@@ -204,18 +204,20 @@ class _MobileSelectSourcesSheetBodyState
         ),
         BlocBuilder<ChatSettingsCubit, ChatSettingsState>(
           builder: (context, state) {
+            final sources = state.visibleSources
+                .where((e) => e.ignoreStatus != IgnoreViewType.hide)
+                .toList();
             return SliverList(
               delegate: SliverChildBuilderDelegate(
-                childCount: state.visibleSources.length,
+                childCount: sources.length,
                 (context, index) {
                   return ChatSourceTreeItem(
                     key: ValueKey(
-                      'visible_select_sources_tree_item_${state.visibleSources[index].view.id}',
+                      'visible_select_sources_tree_item_${sources[index].view.id}',
                     ),
-                    chatSource: state.visibleSources[index],
+                    chatSource: sources[index],
                     level: 0,
-                    isDescendentOfSpace:
-                        state.visibleSources[index].view.isSpace,
+                    isDescendentOfSpace: sources[index].view.isSpace,
                     isSelectedSection: false,
                     onSelected: (chatSource) {
                       context
@@ -223,15 +225,6 @@ class _MobileSelectSourcesSheetBodyState
                           .toggleSelectedStatus(chatSource);
                     },
                     height: 40.0,
-                    visibilityGetter: (view) {
-                      if (view.id == context.read<ChatSettingsCubit>().chatId) {
-                        return IgnoreViewType.hide;
-                      }
-
-                      return view.layout.isDocumentView
-                          ? IgnoreViewType.none
-                          : IgnoreViewType.disable;
-                    },
                   );
                 },
               ),

@@ -1,5 +1,6 @@
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
@@ -7,6 +8,8 @@ import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'chat_select_sources_cubit.freezed.dart';
+
+const int _kMaxSelectedParentPageCount = 3;
 
 enum SourceSelectedStatus {
   unselected,
@@ -25,17 +28,21 @@ class ChatSource {
     required this.children,
     required bool isExpanded,
     required SourceSelectedStatus selectedStatus,
+    required IgnoreViewType ignoreStatus,
   })  : isExpandedNotifier = ValueNotifier(isExpanded),
-        selectedStatusNotifier = ValueNotifier(selectedStatus);
+        selectedStatusNotifier = ValueNotifier(selectedStatus),
+        ignoreStatusNotifier = ValueNotifier(ignoreStatus);
 
   final ViewPB view;
   final ViewPB? parentView;
   final List<ChatSource> children;
   final ValueNotifier<bool> isExpandedNotifier;
   final ValueNotifier<SourceSelectedStatus> selectedStatusNotifier;
+  final ValueNotifier<IgnoreViewType> ignoreStatusNotifier;
 
   bool get isExpanded => isExpandedNotifier.value;
   SourceSelectedStatus get selectedStatus => selectedStatusNotifier.value;
+  IgnoreViewType get ignoreStatus => ignoreStatusNotifier.value;
 
   void toggleIsExpanded() {
     isExpandedNotifier.value = !isExpanded;
@@ -46,6 +53,7 @@ class ChatSource {
       view: view,
       parentView: parentView,
       children: children.map<ChatSource>((child) => child.copy()).toList(),
+      ignoreStatus: ignoreStatus,
       isExpanded: isExpanded,
       selectedStatus: selectedStatus,
     );
@@ -64,12 +72,32 @@ class ChatSource {
     return null;
   }
 
+  void resetIgnoreViewTypeRecursive({required String chatId}) {
+    ignoreStatusNotifier.value = view.id == chatId
+        ? IgnoreViewType.hide
+        : view.layout.isDocumentView
+            ? IgnoreViewType.none
+            : IgnoreViewType.disable;
+
+    for (final child in children) {
+      child.resetIgnoreViewTypeRecursive(chatId: chatId);
+    }
+  }
+
+  void updateIgnoreViewTypeRecursive(IgnoreViewType newIgnoreViewType) {
+    ignoreStatusNotifier.value = newIgnoreViewType;
+    for (final child in children) {
+      child.updateIgnoreViewTypeRecursive(newIgnoreViewType);
+    }
+  }
+
   void dispose() {
     for (final child in children) {
       child.dispose();
     }
     isExpandedNotifier.dispose();
     selectedStatusNotifier.dispose();
+    ignoreStatusNotifier.dispose();
   }
 }
 
@@ -90,6 +118,9 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
   void refreshSources(ViewPB view) async {
     filter = "";
     final newSource = await _recursiveBuild(view, null);
+
+    _restrictSelectionIfNecessary(newSource.children);
+
     final selected = _buildSelectedSources(newSource).toList();
 
     newSource.toggleIsExpanded();
@@ -147,9 +178,28 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
       view: view,
       parentView: parentView,
       children: children,
+      ignoreStatus: view.id == chatId
+          ? IgnoreViewType.hide
+          : view.layout.isDocumentView
+              ? IgnoreViewType.none
+              : IgnoreViewType.disable,
       isExpanded: false,
       selectedStatus: selectedStatus,
     );
+  }
+
+  void _restrictSelectionIfNecessary(List<ChatSource> sources) {
+    for (final source in sources) {
+      source.resetIgnoreViewTypeRecursive(chatId: chatId);
+    }
+    if (sources.where((e) => !e.selectedStatus.isUnselected).length >=
+        _kMaxSelectedParentPageCount) {
+      sources
+          .where((e) => e.selectedStatus == SourceSelectedStatus.unselected)
+          .forEach(
+            (e) => e.updateIgnoreViewTypeRecursive(IgnoreViewType.disable),
+          );
+    }
   }
 
   void updateFilter(String filter) {
@@ -191,6 +241,7 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
             view: chatSource.view,
             parentView: chatSource.parentView,
             children: childrenResults,
+            ignoreStatus: chatSource.ignoreStatus,
             isExpanded: chatSource.isExpanded,
             selectedStatus: chatSource.selectedStatus,
           )
@@ -211,6 +262,7 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
               view: chatSource.view,
               parentView: chatSource.parentView,
               children: children,
+              ignoreStatus: chatSource.ignoreStatus,
               selectedStatus: chatSource.selectedStatus,
               isExpanded: true,
             ),
@@ -256,15 +308,23 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
       return;
     }
     _recursiveUpdateSelectedStatus(source!);
+    _restrictSelectionIfNecessary(source!.children);
     for (final visibleSource in state.visibleSources) {
-      _recursiveUpdateSelectedStatus(visibleSource);
+      visibleSource.dispose();
     }
-    final selected = _buildSelectedSources(source!).toList();
-    emit(state.copyWith(selectedSources: selected));
+    final visible = [_buildSearchResults(source!)].nonNulls.toList();
+
     selectedSources
       ..forEach((e) => e.dispose())
       ..clear()
-      ..addAll(selected.map((e) => e.copy()));
+      ..addAll(_buildSelectedSources(source!));
+    emit(
+      state.copyWith(
+        visibleSources: visible,
+        selectedSources:
+            selectedSources.map(_buildSearchResults).nonNulls.toList(),
+      ),
+    );
   }
 
   SourceSelectedStatus _recursiveUpdateSelectedStatus(ChatSource chatSource) {
@@ -297,8 +357,10 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
   void toggleIsExpanded(ChatSource chatSource, bool isSelectedSection) {
     chatSource.toggleIsExpanded();
     if (isSelectedSection) {
-      for (final source in selectedSources) {
-        source.findChildBySourceId(chatSource.view.id)?.toggleIsExpanded();
+      for (final selectedSource in selectedSources) {
+        selectedSource
+            .findChildBySourceId(chatSource.view.id)
+            ?.toggleIsExpanded();
       }
     } else {
       source?.findChildBySourceId(chatSource.view.id)?.toggleIsExpanded();
