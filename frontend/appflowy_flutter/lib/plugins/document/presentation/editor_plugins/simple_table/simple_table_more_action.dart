@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
@@ -330,10 +332,28 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
       valueListenable: isShowingMenu,
       builder: (context, isShowingMenu, child) {
         return ValueListenableBuilder(
-          valueListenable: isEditingCellNotifier,
+          valueListenable: simpleTableContext.isEditingCell,
           builder: (context, isEditingCell, child) {
-            if (!isEditingCell && !isShowingMenu) {
+            if (isShowingMenu) {
+              return child!;
+            }
+
+            if (isEditingCell == null) {
               return const SizedBox.shrink();
+            }
+
+            final columnIndex = isEditingCell.columnIndex;
+            final rowIndex = isEditingCell.rowIndex;
+
+            switch (widget.type) {
+              case SimpleTableMoreActionType.column:
+                if (columnIndex != widget.index) {
+                  return const SizedBox.shrink();
+                }
+              case SimpleTableMoreActionType.row:
+                if (rowIndex != widget.index) {
+                  return const SizedBox.shrink();
+                }
             }
 
             return child!;
@@ -378,17 +398,27 @@ class SimpleTableActionMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _showTableActionBottomSheet(context),
-      child: Container(
-        width: 20,
-        height: 20,
-        alignment: Alignment.center,
-        child: const FlowySvg(
-          FlowySvgs.drag_element_s,
-          size: Size.square(18.0),
-        ),
-      ),
+    final simpleTableContext = context.read<SimpleTableContext>();
+    return ValueListenableBuilder<Node?>(
+      valueListenable: simpleTableContext.isEditingCell,
+      builder: (context, isEditingCell, child) {
+        if (isEditingCell == null) {
+          return const SizedBox.shrink();
+        }
+
+        return GestureDetector(
+          onTap: () => _showTableActionBottomSheet(context),
+          child: Container(
+            width: 20,
+            height: 20,
+            alignment: Alignment.center,
+            child: const FlowySvg(
+              FlowySvgs.drag_element_s,
+              size: Size.square(18.0),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -398,6 +428,21 @@ class SimpleTableActionMenu extends StatelessWidget {
 
     if (tableNode.type != SimpleTableBlockKeys.type) {
       Log.error('The table node is not a simple table');
+      return;
+    }
+
+    unawaited(
+      editorState.updateSelectionWithReason(
+        Selection.collapsed(
+          Position(
+            path: tableNode.path,
+          ),
+        ),
+        customSelectionType: SelectionType.block,
+      ),
+    );
+
+    if (!context.mounted) {
       return;
     }
 

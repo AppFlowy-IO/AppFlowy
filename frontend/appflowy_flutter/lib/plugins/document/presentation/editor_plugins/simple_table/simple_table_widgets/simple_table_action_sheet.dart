@@ -151,6 +151,7 @@ class _SimpleTableMobileReorderButtonState
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async => _onSelecting(),
+      behavior: HitTestBehavior.opaque,
       child: SizedBox(
         height: widget.type == SimpleTableMoreActionType.column
             ? SimpleTableConstants.columnActionSheetHitTestAreaHeight
@@ -182,11 +183,7 @@ class _SimpleTableMobileReorderButtonState
         simpleTableContext.selectingColumn.value = null;
     }
 
-    Future.delayed(Durations.short3, () {
-      if (!editorState.isDisposed) {
-        editorState.selection = null;
-      }
-    });
+    editorState.selection = null;
 
     // show the bottom sheet
     await showMobileBottomSheet(

@@ -110,7 +110,7 @@ extension TableContentOperation on EditorState {
   ///
   /// If the [clearContent] is true, the content of the column will be cleared after
   /// copying.
-  Future<void> copyColumn({
+  Future<ClipboardServiceData?> copyColumn({
     required Node tableNode,
     required int columnIndex,
     bool clearContent = false,
@@ -118,12 +118,12 @@ extension TableContentOperation on EditorState {
     assert(tableNode.type == SimpleTableBlockKeys.type);
 
     if (tableNode.type != SimpleTableBlockKeys.type) {
-      return;
+      return null;
     }
 
     if (columnIndex < 0 || columnIndex >= tableNode.columnLength) {
       Log.warn('copy column: index out of range: $columnIndex');
-      return;
+      return null;
     }
 
     // the plain text content of the column
@@ -137,10 +137,18 @@ extension TableContentOperation on EditorState {
       final cell = columnIndex >= row.children.length
           ? row.children.last
           : row.children[columnIndex];
+      final startNode = cell.getFirstChildIndex();
+      final endNode = cell.getLastChildIndex();
+      if (startNode == null || endNode == null) {
+        continue;
+      }
       final plainText = getTextInSelection(
         Selection(
-          start: Position(path: cell.path),
-          end: Position(path: cell.path.next),
+          start: Position(path: startNode.path),
+          end: Position(
+            path: endNode.path,
+            offset: endNode.delta?.length ?? 0,
+          ),
         ),
       );
       content.add(plainText.join('\n'));
@@ -150,26 +158,24 @@ extension TableContentOperation on EditorState {
     final plainText = content.join('\n');
     final document = Document.blank()..insert([0], cells);
 
-    await getIt<ClipboardService>().setData(
-      ClipboardServiceData(
-        plainText: plainText,
-        tableJson: jsonEncode(document.toJson()),
-      ),
-    );
-
     if (clearContent) {
       await clearContentAtColumnIndex(
         tableNode: tableNode,
         columnIndex: columnIndex,
       );
     }
+
+    return ClipboardServiceData(
+      plainText: plainText,
+      tableJson: jsonEncode(document.toJson()),
+    );
   }
 
   /// Copy the selected row to the clipboard.
   ///
   /// If the [clearContent] is true, the content of the row will be cleared after
   /// copying.
-  Future<void> copyRow({
+  Future<ClipboardServiceData?> copyRow({
     required Node tableNode,
     required int rowIndex,
     bool clearContent = false,
@@ -177,12 +183,12 @@ extension TableContentOperation on EditorState {
     assert(tableNode.type == SimpleTableBlockKeys.type);
 
     if (tableNode.type != SimpleTableBlockKeys.type) {
-      return;
+      return null;
     }
 
     if (rowIndex < 0 || rowIndex >= tableNode.rowLength) {
       Log.warn('copy row: index out of range: $rowIndex');
-      return;
+      return null;
     }
 
     // the plain text content of the row
@@ -194,10 +200,18 @@ extension TableContentOperation on EditorState {
     final row = tableNode.children[rowIndex];
     for (var i = 0; i < row.children.length; i++) {
       final cell = row.children[i];
+      final startNode = cell.getFirstChildIndex();
+      final endNode = cell.getLastChildIndex();
+      if (startNode == null || endNode == null) {
+        continue;
+      }
       final plainText = getTextInSelection(
         Selection(
-          start: Position(path: cell.path),
-          end: Position(path: cell.path.next),
+          start: Position(path: startNode.path),
+          end: Position(
+            path: endNode.path,
+            offset: endNode.delta?.length ?? 0,
+          ),
         ),
       );
       content.add(plainText.join('\n'));
@@ -207,30 +221,28 @@ extension TableContentOperation on EditorState {
     final plainText = content.join('\n');
     final document = Document.blank()..insert([0], cells);
 
-    await getIt<ClipboardService>().setData(
-      ClipboardServiceData(
-        plainText: plainText,
-        tableJson: jsonEncode(document.toJson()),
-      ),
-    );
-
     if (clearContent) {
       await clearContentAtRowIndex(
         tableNode: tableNode,
         rowIndex: rowIndex,
       );
     }
+
+    return ClipboardServiceData(
+      plainText: plainText,
+      tableJson: jsonEncode(document.toJson()),
+    );
   }
 
   /// Copy the selected table to the clipboard.
-  Future<void> copyTable({
+  Future<ClipboardServiceData?> copyTable({
     required Node tableNode,
     bool clearContent = false,
   }) async {
     assert(tableNode.type == SimpleTableBlockKeys.type);
 
     if (tableNode.type != SimpleTableBlockKeys.type) {
-      return;
+      return null;
     }
 
     // the plain text content of the table
@@ -265,16 +277,14 @@ extension TableContentOperation on EditorState {
     final plainText = content.join('\n');
     final document = Document.blank()..insert([0], cells);
 
-    await getIt<ClipboardService>().setData(
-      ClipboardServiceData(
-        plainText: plainText,
-        tableJson: jsonEncode(document.toJson()),
-      ),
-    );
-
     if (clearContent) {
       await clearAllContent(tableNode: tableNode);
     }
+
+    return ClipboardServiceData(
+      plainText: plainText,
+      tableJson: jsonEncode(document.toJson()),
+    );
   }
 
   /// Paste the clipboard content to the table column.

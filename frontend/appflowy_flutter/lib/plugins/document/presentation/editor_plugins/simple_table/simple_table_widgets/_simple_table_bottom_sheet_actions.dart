@@ -111,37 +111,49 @@ class SimpleTableCellQuickActions extends ISimpleTableBottomSheetActions {
     Navigator.of(context).pop();
   }
 
-  void _onCut(Node tableNode) {
+  Future<void> _onCut(Node tableNode) async {
+    ClipboardServiceData? data;
+
     switch (type) {
       case SimpleTableMoreActionType.column:
-        editorState.copyColumn(
+        data = await editorState.copyColumn(
           tableNode: tableNode,
           columnIndex: cellNode.columnIndex,
           clearContent: true,
         );
       case SimpleTableMoreActionType.row:
-        editorState.copyRow(
+        data = await editorState.copyRow(
           tableNode: tableNode,
           rowIndex: cellNode.rowIndex,
           clearContent: true,
         );
     }
+
+    if (data != null) {
+      await getIt<ClipboardService>().setData(data);
+    }
   }
 
-  void _onCopy(
+  Future<void> _onCopy(
     Node tableNode,
-  ) {
+  ) async {
+    ClipboardServiceData? data;
+
     switch (type) {
       case SimpleTableMoreActionType.column:
-        editorState.copyColumn(
+        data = await editorState.copyColumn(
           tableNode: tableNode,
           columnIndex: cellNode.columnIndex,
         );
       case SimpleTableMoreActionType.row:
-        editorState.copyRow(
+        data = await editorState.copyRow(
           tableNode: tableNode,
           rowIndex: cellNode.rowIndex,
         );
+    }
+
+    if (data != null) {
+      await getIt<ClipboardService>().setData(data);
     }
   }
 
@@ -1231,14 +1243,24 @@ class SimpleTableQuickActions extends StatelessWidget {
     Navigator.of(context).pop();
   }
 
-  void _onCut(Node tableNode) => editorState.copyTable(
-        tableNode: tableNode,
-        clearContent: true,
-      );
+  Future<void> _onCut(Node tableNode) async {
+    final data = await editorState.copyTable(
+      tableNode: tableNode,
+      clearContent: true,
+    );
+    if (data != null) {
+      await getIt<ClipboardService>().setData(data);
+    }
+  }
 
-  void _onCopy(Node tableNode) => editorState.copyTable(
-        tableNode: tableNode,
-      );
+  Future<void> _onCopy(Node tableNode) async {
+    final data = await editorState.copyTable(
+      tableNode: tableNode,
+    );
+    if (data != null) {
+      await getIt<ClipboardService>().setData(data);
+    }
+  }
 
   void _onPaste(Node tableNode) => editorState.pasteTable(
         tableNode: tableNode,

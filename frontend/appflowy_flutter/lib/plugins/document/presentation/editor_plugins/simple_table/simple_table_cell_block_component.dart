@@ -146,7 +146,6 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
               ),
             if (node.columnIndex == 0 && node.rowIndex == 0)
               Positioned(
-                // todo: don't use hardcoded value
                 left: 2,
                 top: 0,
                 child: _buildTableActionMenu(),
@@ -371,9 +370,10 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       simpleTableContext?.isEditingCell.value = null;
     } else if (selection.isCollapsed) {
       // if the selection is collapsed, check if the selection is in the cell.
-      final node = editorState.getNodesInSelection(selection).firstOrNull;
-      if (node != null) {
-        final tableNode = node.parentTableNode;
+      final selectedNode =
+          editorState.getNodesInSelection(selection).firstOrNull;
+      if (selectedNode != null) {
+        final tableNode = selectedNode.parentTableNode;
         if (tableNode == null || tableNode.id != node.parentTableNode?.id) {
           simpleTableContext?.isEditingCell.value = null;
         }
