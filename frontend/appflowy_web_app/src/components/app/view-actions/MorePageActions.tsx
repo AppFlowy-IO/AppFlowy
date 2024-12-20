@@ -25,7 +25,7 @@ const popoverProps: Origins = {
   },
 };
 
-function MorePageActions ({ view, onClose }: {
+function MorePageActions({ view, onClose }: {
   view: View;
   onClose?: () => void;
 }) {
@@ -63,13 +63,14 @@ function MorePageActions ({ view, onClose }: {
   const actions = useMemo(() => {
     return [{
       label: t('button.rename'),
-      icon: <EditIcon />,
+      icon: <EditIcon/>,
       onClick: () => {
         setRenameModalOpen(true);
+        onClose?.();
       },
     }, {
       label: t('disclosureAction.changeIcon'),
-      icon: <ChangeIcon />,
+      icon: <ChangeIcon/>,
       onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
         setIconPopoverAnchorEl(e.currentTarget);
       },
@@ -95,7 +96,7 @@ function MorePageActions ({ view, onClose }: {
         viewId={view.view_id}
         movePopoverOrigins={popoverProps}
       />
-      <Divider className={'w-full'} />
+      <Divider className={'w-full'}/>
       <Button
         size={'small'}
 
@@ -107,7 +108,7 @@ function MorePageActions ({ view, onClose }: {
           window.open(`/app/${currentWorkspaceId}/${view.view_id}`, '_blank');
 
         }}
-        startIcon={<OpenInBrowserIcon className={'w-4 h-4'} />}
+        startIcon={<OpenInBrowserIcon className={'w-4 h-4'}/>}
       >
         {t('disclosureAction.openNewTab')}
       </Button>

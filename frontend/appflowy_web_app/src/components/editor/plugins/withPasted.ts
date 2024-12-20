@@ -1,18 +1,21 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { slateContentInsertToYData } from '@/application/slate-yjs/utils/convert';
 import {
-  beforePasted, findSlateEntryByBlockId,
+  beforePasted,
+  findSlateEntryByBlockId,
   getBlockEntry,
   getSharedRoot,
 } from '@/application/slate-yjs/utils/editor';
-import { BlockType, MentionType, YjsEditorKey } from '@/application/types';
+import { BlockType, LinkPreviewBlockData, MentionType, YjsEditorKey } from '@/application/types';
 import { deserializeHTML } from '@/components/editor/utils/fragment';
 import { BasePoint, Node, Transforms } from 'slate';
 import { ReactEditor } from 'slate-react';
 import isURL from 'validator/lib/isURL';
 import { assertDocExists, getBlock, getChildrenArray } from '@/application/slate-yjs/utils/yjs';
+import { CustomEditor } from '@/application/slate-yjs/command';
 
 export const withPasted = (editor: ReactEditor) => {
+
   editor.insertTextData = (data: DataTransfer) => {
     if (!beforePasted(editor))
       return false;
@@ -29,15 +32,12 @@ export const withPasted = (editor: ReactEditor) => {
       const [node] = getBlockEntry(editor as YjsEditor, point);
 
       if (lineLength === 1) {
-        const isUrl = isURL(text, {
+        const isBlockLinkUrl = isURL(text, {
           host_whitelist: ['localhost', 'appflowy.com', 'test.appflowy.com', 'beta.appflowy.com'],
         });
+        const isUrl = isURL(text);
 
-        console.log('insertTextData', {
-          text, isUrl,
-        });
-
-        if (isUrl) {
+        if (isBlockLinkUrl) {
           const url = new URL(text);
           const blockId = url.searchParams.get('blockId');
 
@@ -54,6 +54,12 @@ export const withPasted = (editor: ReactEditor) => {
             }, { at: point, select: true, voids: false });
 
           }
+
+          return true;
+        } else if (isUrl) {
+          const currentBlockId = node.blockId as string;
+
+          CustomEditor.addBelowBlock(editor as YjsEditor, currentBlockId, BlockType.LinkPreview, { url: text } as LinkPreviewBlockData);
 
           return true;
         }

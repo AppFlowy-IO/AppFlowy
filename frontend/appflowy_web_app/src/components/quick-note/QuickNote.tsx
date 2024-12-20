@@ -147,11 +147,11 @@ export function QuickNote() {
     if (!main) return;
 
     if (expand) {
-      setPageSize([window.innerWidth * 0.8, window.innerHeight * 0.8]);
+      setPageSize([Math.min(window.innerWidth * 0.8, 840), Math.min(window.innerHeight * 0.9, 760)]);
       // center
       setPosition({
         x: window.innerWidth * 0.1,
-        y: window.innerHeight * 0.1,
+        y: window.innerHeight * 0.05,
       });
 
     } else {
@@ -371,15 +371,11 @@ export function QuickNote() {
                 />
             }
           </div>
-          {
-            route === QuickNoteRoute.LIST && (
-              <div className={'absolute right-4 bottom-7'}>
-                <AddNote onAdd={(note) => {
-                  setNoteList(prev => [note, ...prev]);
-                }} onEnterNote={handleEnterNote}/>
-              </div>
-            )
-          }
+          <div className={'absolute right-4 bottom-7'}>
+            <AddNote onAdd={(note) => {
+              setNoteList(prev => [note, ...prev]);
+            }} onEnterNote={handleEnterNote}/>
+          </div>
 
 
           <Portal container={paper.current}>

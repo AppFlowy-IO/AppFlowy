@@ -72,6 +72,8 @@ function ViewItem({ view, width, level = 0, renderExtra, expandIds, toggleExpand
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         onClick={() => {
+          console.log('view.layout', view.layout);
+          if (layout === ViewLayout.AIChat) return;
           onClickView?.(viewId);
         }}
         className={
@@ -99,7 +101,7 @@ function ViewItem({ view, width, level = 0, renderExtra, expandIds, toggleExpand
           <div
             className={'flex flex-1 overflow-hidden items-center gap-1 text-sm'}
           >
-            <div className={'w-full truncate'}>{view.name || t('menuAppHeader.defaultNewPageName')}</div>
+            <div className={'w-full truncate'}>{view.name.trim() || t('menuAppHeader.defaultNewPageName')}</div>
           </div>
         </Tooltip>
         {renderExtra && renderExtra({ hovered, view })}

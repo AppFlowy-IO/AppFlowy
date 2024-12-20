@@ -15,7 +15,7 @@ import TableRow from '@mui/material/TableRow';
 import { ReactComponent as TrashIcon } from '@/assets/trash.svg';
 import { ReactComponent as RestoreIcon } from '@/assets/restore.svg';
 
-function TrashPage () {
+function TrashPage() {
   const { t } = useTranslation();
 
   const currentWorkspaceId = useCurrentWorkspaceId();
@@ -89,7 +89,7 @@ function TrashPage () {
               }
             }
           >
-            <RestoreIcon />
+            <RestoreIcon/>
           </IconButton>
         </Tooltip>
         <Tooltip title={t('button.delete')}>
@@ -100,7 +100,7 @@ function TrashPage () {
             }}
             className={'hover:text-function-error'}
           >
-            <TrashIcon />
+            <TrashIcon/>
           </IconButton>
         </Tooltip>
       </div>;
@@ -137,21 +137,21 @@ function TrashPage () {
           className={'flex items-center justify-between px-4'}
         >
           <span className={'text-text-title text-xl font-medium'}>{t('trash.text')}</span>
-          {trashList?.length && <div className={'flex gap-2'}>
+          {trashList?.length ? <div className={'flex gap-2'}>
             <Button
               size={'small'}
               onClick={() => handleRestore()}
-              startIcon={<RestoreIcon />}
+              startIcon={<RestoreIcon/>}
               color={'inherit'}
             >{t('trash.restoreAll')}</Button>
             <Button
               size={'small'}
               className={'hover:text-function-error'}
               onClick={() => setDeleteViewId('all')}
-              startIcon={<TrashIcon />}
+              startIcon={<TrashIcon/>}
               color={'inherit'}
             >{t('trash.deleteAll')}</Button>
-          </div>}
+          </div> : null}
 
         </div>
         <div className={'flex flex-col gap-2 w-full flex-1 overflow-hidden'}>
@@ -213,7 +213,8 @@ function TrashPage () {
         danger={true}
         onClose={() => setDeleteViewId(undefined)}
         title={
-          <div className={'flex font-semibold items-center w-full text-left'}>{`${t('button.delete')}: ${deleteView?.name || t('menuAppHeader.defaultNewPageName')}`}</div>
+          <div
+            className={'flex font-semibold items-center w-full text-left'}>{`${t('button.delete')}: ${deleteView?.name || t('menuAppHeader.defaultNewPageName')}`}</div>
         }
         onOk={() => {
           void handleDelete(deleteViewId === 'all' ? undefined : deleteViewId);
@@ -222,7 +223,8 @@ function TrashPage () {
           className: 'w-[420px] max-w-[70vw]',
         }}
       >
-        <div className={'text-text-caption font-normal'}>{deleteViewId === 'all' ? t('trash.confirmDeleteAll.caption') : t('trash.confirmDeleteTitle')}</div>
+        <div
+          className={'text-text-caption font-normal'}>{deleteViewId === 'all' ? t('trash.confirmDeleteAll.caption') : t('trash.confirmDeleteTitle')}</div>
 
       </NormalModal>
     </div>

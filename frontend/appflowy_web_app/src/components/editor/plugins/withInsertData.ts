@@ -1,10 +1,11 @@
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { YjsEditor } from '@/application/slate-yjs';
-import { getBlockEntry } from '@/application/slate-yjs/utils/editor';
+import { findSlateEntryByBlockId, getBlockEntry } from '@/application/slate-yjs/utils/editor';
 import { ReactEditor } from 'slate-react';
 import { BlockType, FieldURLType, FileBlockData, ImageBlockData, ImageType } from '@/application/types';
 import { MAX_IMAGE_SIZE } from '@/components/_shared/image-upload';
 import { FileHandler } from '@/utils/file';
+import { notify } from '@/components/_shared/notify';
 
 export const withInsertData = (editor: ReactEditor) => {
   const { insertData } = editor;
@@ -21,8 +22,11 @@ export const withInsertData = (editor: ReactEditor) => {
 
     if (blockId && fileArray.length > 0 && selection) {
       void (async () => {
+        let newBlockId: string | undefined = blockId;
+
         for (const file of fileArray) {
           if (file.size > MAX_IMAGE_SIZE) {
+            notify.error('File size is too large, max size is 7MB');
             return;
           }
 
@@ -49,7 +53,7 @@ export const withInsertData = (editor: ReactEditor) => {
             }
 
             // Handle images...
-            CustomEditor.addBelowBlock(e, blockId, BlockType.ImageBlock, data);
+            newBlockId = CustomEditor.addBelowBlock(e, blockId, BlockType.ImageBlock, data);
           } else {
             const data = {
               url: url,
@@ -63,10 +67,21 @@ export const withInsertData = (editor: ReactEditor) => {
             }
 
             // Handle files...
-            CustomEditor.addBelowBlock(e, blockId, BlockType.FileBlock, data);
+            newBlockId = CustomEditor.addBelowBlock(e, blockId, BlockType.FileBlock, data);
           }
 
         }
+
+        if (newBlockId) {
+          const id = CustomEditor.addBelowBlock(e, newBlockId, BlockType.Paragraph, {});
+
+          if (!id) return;
+
+          const [, path] = findSlateEntryByBlockId(e, id);
+
+          editor.select(editor.start(path));
+        }
+
       })();
 
     }

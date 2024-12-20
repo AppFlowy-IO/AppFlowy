@@ -24,6 +24,7 @@ enum MentionTag {
   Reminder = 'reminder',
   User = 'user',
   Page = 'page',
+  LoadMore = 'loadMore',
   NewPage = 'newPage',
   Date = 'date',
 }
@@ -34,19 +35,26 @@ interface Option {
 }
 
 function createMentionOptions({
+  showMore,
   viewsLength,
   dateLength,
   newPageLength,
 }: {
+  showMore: boolean;
   viewsLength: number;
   dateLength: number;
   newPageLength: number;
 }) {
-  const options: Option[] = [
+  console.log('viewsLength', viewsLength);
+  const options = [
     ...Array(viewsLength).fill(0).map((_, index) => ({
       category: MentionTag.Page,
       index,
     })),
+    showMore && {
+      category: MentionTag.LoadMore,
+      index: 0,
+    },
     ...Array(dateLength).fill(0).map((_, index) => ({
       category: MentionTag.Date,
       index,
@@ -55,7 +63,7 @@ function createMentionOptions({
       category: MentionTag.NewPage,
       index,
     })),
-  ];
+  ].filter(Boolean) as Option[];
 
   return options;
 }
@@ -260,6 +268,8 @@ export function MentionPanel() {
             } else if (selectedOptionRef.current.category === MentionTag.Date) {
 
               dateOptions[index].onClick();
+            } else if (selectedOptionRef.current.category === MentionTag.LoadMore) {
+              handleClickMore();
             }
           }
 
@@ -272,6 +282,7 @@ export function MentionPanel() {
             viewsLength: splicedViews.length,
             dateLength: dateOptions.length,
             newPageLength: 2,
+            showMore,
           });
 
           if (!selectedOptionRef.current) {
@@ -306,7 +317,7 @@ export function MentionPanel() {
     return () => {
       slateDom.removeEventListener('keydown', handleKeyDown);
     };
-  }, [editor, handleAddPage, handleSelectedPage, open, selectedOptionRef, splicedViews, dateOptions]);
+  }, [editor, handleClickMore, handleAddPage, handleSelectedPage, open, selectedOptionRef, splicedViews, dateOptions]);
 
   return (
     <Popover
@@ -351,7 +362,7 @@ export function MentionPanel() {
                         />}
                       </span>
                     }
-                    className={`justify-start truncate scroll-m-2 min-h-[32px] hover:bg-content-blue-50 ${selectedOption?.index === index && selectedOption?.category === MentionTag.Page ? 'bg-fill-list-hover' : ''}`}
+                    className={`justify-start truncate scroll-m-2 min-h-[32px] hover:bg-fill-list-hover ${selectedOption?.index === index && selectedOption?.category === MentionTag.Page ? 'bg-fill-list-hover' : ''}`}
                     onClick={() => handleSelectedPage(view.view_id)}
                   >
                     {view.name || t('menuAppHeader.defaultNewPageName')}
@@ -363,15 +374,19 @@ export function MentionPanel() {
               className={'text-text-caption text-sm flex justify-center items-center p-2'}>{t('findAndReplace.noResult')}</div>
           }
           {showMore &&
-            <Button
-              color={'inherit'}
-              size={'small'}
-              startIcon={<MoreIcon/>}
-              className={'justify-start scroll-m-2 min-h-[32px] hover:bg-fill-list-hover'}
-              onClick={handleClickMore}
-            >
-              {filteredViews.length - moreCount} {t('document.mention.morePages')}
-            </Button>}
+            <div data-option-category={MentionTag.LoadMore} className={'w-full'}>
+              <Button
+                color={'inherit'}
+                size={'small'}
+                data-option-index={0}
+                startIcon={<MoreIcon/>}
+                className={`justify-start w-full scroll-m-2 min-h-[32px] hover:bg-fill-list-hover ${selectedOption?.index === 0 && selectedOption?.category === MentionTag.LoadMore ? 'bg-fill-list-hover' : ''}`}
+                onClick={handleClickMore}
+              >
+                {filteredViews.length - moreCount} {t('document.mention.morePages')}
+              </Button>
+            </div>
+          }
         </div>
         {showDate && <div className={'flex flex-col gap-2'} data-option-categor={MentionTag.Date}>
           <div className={'text-text-caption scroll-my-10 px-1'}>{t('inlineActions.date')}</div>

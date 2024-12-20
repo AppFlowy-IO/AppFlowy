@@ -891,6 +891,7 @@ export function getSelectionTexts(editor: ReactEditor) {
           anchor: start,
           focus: end,
         },
+        voids: true,
         match: (n) => Text.isText(n),
       }),
     ).forEach((match) => {

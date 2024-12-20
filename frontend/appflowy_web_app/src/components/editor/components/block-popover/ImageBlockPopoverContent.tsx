@@ -52,7 +52,7 @@ function ImageBlockPopoverContent({
     if (file.size > MAX_IMAGE_SIZE) {
       notify.error(`Image size is too large, please upload a file less than ${MAX_IMAGE_SIZE / 1024 / 1024}MB`);
 
-      return;
+      throw new Error('Image size is too large');
     }
 
     try {
@@ -86,7 +86,7 @@ function ImageBlockPopoverContent({
     const url = await uploadFileRemote(file);
     const data = await getData(file, url);
 
-    CustomEditor.addBelowBlock(editor, blockId, BlockType.ImageBlock, data);
+    return CustomEditor.addBelowBlock(editor, blockId, BlockType.ImageBlock, data);
   }, [blockId, editor, getData, uploadFileRemote]);
 
   const handleChangeUploadFiles = useCallback(async (files: File[]) => {
@@ -98,11 +98,24 @@ function ImageBlockPopoverContent({
 
     CustomEditor.setBlockData(editor, blockId, data);
 
-    for (const file of otherFiles.reverse()) {
-      await insertImageBlock(file);
+    let belowBlockId: string | undefined = blockId;
+
+    for (const file of otherFiles) {
+      const newId = await insertImageBlock(file);
+
+      if (newId) {
+        belowBlockId = newId;
+      }
     }
 
+    belowBlockId = CustomEditor.addBelowBlock(editor, belowBlockId, BlockType.Paragraph, {});
+
+    const [, path] = belowBlockId ? findSlateEntryByBlockId(editor, belowBlockId) : [null, null];
+
     onClose();
+    if (path) {
+      editor.select(editor.start(path));
+    }
   }, [blockId, editor, getData, insertImageBlock, onClose, uploadFileRemote]);
 
   const tabOptions = useMemo(() => {

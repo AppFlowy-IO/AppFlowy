@@ -19,9 +19,11 @@ export function useVisible() {
 
   const isExpanded = selection ? Range.isExpanded(selection) : false;
 
-  const selectedText = selection ? editor.string(selection, {
-    voids: true,
-  }) : '';
+  const selectedText = useMemo(() => {
+    if (!selection) return 0;
+
+    return CustomEditor.getTextNodes(editor).length;
+  }, [editor, selection]);
 
   const visible = useMemo(() => {
     if (forceShow) return true;
