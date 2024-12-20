@@ -11,7 +11,7 @@ class AIChatUILayout {
             query.padding.right,
             query.viewInsets.bottom + query.padding.bottom,
           )
-        : const EdgeInsets.only(bottom: 16);
+        : const EdgeInsets.only(bottom: 24);
   }
 
   static EdgeInsets get messageMargin => UniversalPlatform.isMobile
@@ -20,22 +20,23 @@ class AIChatUILayout {
 }
 
 class DesktopAIPromptSizes {
-  static const promptFrameRadius = BorderRadius.all(Radius.circular(8));
+  static const promptFrameRadius = BorderRadius.all(Radius.circular(12.0));
 
   static const attachedFilesBarPadding =
       EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0);
   static const attachedFilesPreviewHeight = 48.0;
   static const attachedFilesPreviewSpacing = 12.0;
 
-  static const textFieldMinHeight = 36.0;
+  static const textFieldMinHeight = 40.0;
   static const textFieldContentPadding =
-      EdgeInsetsDirectional.fromSTEB(12.0, 12.0, 12.0, 4.0);
+      EdgeInsetsDirectional.fromSTEB(14.0, 12.0, 14.0, 8.0);
 
-  static const actionBarHeight = 28.0;
-  static const actionBarButtonSize = 24.0;
+  static const actionBarHeight = 32.0;
+  static const actionBarPadding = EdgeInsetsDirectional.fromSTEB(8, 0, 8, 4);
+  static const actionBarButtonSize = 28.0;
   static const actionBarIconSize = 16.0;
   static const actionBarButtonSpacing = 4.0;
-  static const sendButtonSize = 20.0;
+  static const sendButtonSize = 24.0;
 }
 
 class MobileAIPromptSizes {
