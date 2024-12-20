@@ -46,6 +46,7 @@ class _SimpleTableCellBottomSheetState
 
   Color? selectedTextColor;
   Color? selectedCellBackgroundColor;
+  TableAlign? selectedAlign;
 
   @override
   void initState() {
@@ -57,10 +58,16 @@ class _SimpleTableCellBottomSheetState
       SimpleTableMoreActionType.row =>
         widget.cellNode.textColorInRow?.tryToColor(),
     };
+
     selectedCellBackgroundColor = switch (widget.type) {
       SimpleTableMoreActionType.column =>
         widget.cellNode.buildColumnColor(context),
       SimpleTableMoreActionType.row => widget.cellNode.buildRowColor(context),
+    };
+
+    selectedAlign = switch (widget.type) {
+      SimpleTableMoreActionType.column => widget.cellNode.columnAlign,
+      SimpleTableMoreActionType.row => widget.cellNode.rowAlign,
     };
   }
 
@@ -143,6 +150,7 @@ class _SimpleTableCellBottomSheetState
         type: widget.type,
         cellNode: widget.cellNode,
         editorState: widget.editorState,
+        selectedAlign: selectedAlign,
         selectedTextColor: selectedTextColor,
         selectedCellBackgroundColor: selectedCellBackgroundColor,
         onTextColorSelected: () {
@@ -155,6 +163,7 @@ class _SimpleTableCellBottomSheetState
             menuState = _SimpleTableBottomSheetMenuState.textBackgroundColor;
           });
         },
+        onAlignTap: _onAlignTap,
       ),
       const VSpace(16),
 
@@ -254,6 +263,25 @@ class _SimpleTableCellBottomSheetState
 
     setState(() {
       selectedCellBackgroundColor = color;
+    });
+  }
+
+  void _onAlignTap(TableAlign align) {
+    switch (widget.type) {
+      case SimpleTableMoreActionType.column:
+        widget.editorState.updateColumnAlign(
+          tableCellNode: widget.cellNode,
+          align: align,
+        );
+      case SimpleTableMoreActionType.row:
+        widget.editorState.updateRowAlign(
+          tableCellNode: widget.cellNode,
+          align: align,
+        );
+    }
+
+    setState(() {
+      selectedAlign = align;
     });
   }
 }

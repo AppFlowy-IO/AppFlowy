@@ -4,8 +4,110 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class SimpleTableActionSheet extends StatefulWidget {
-  const SimpleTableActionSheet({
+class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
+  const SimpleTableMobileDraggableReorderButton({
+    super.key,
+    required this.node,
+    required this.index,
+    required this.isShowingMenu,
+    required this.type,
+    required this.editorState,
+    required this.simpleTableContext,
+  });
+
+  final Node node;
+  final int index;
+  final ValueNotifier<bool> isShowingMenu;
+  final SimpleTableMoreActionType type;
+  final EditorState editorState;
+  final SimpleTableContext simpleTableContext;
+
+  @override
+  Widget build(BuildContext context) {
+    return Draggable<int>(
+      data: index,
+      onDragStarted: () => _startDragging(),
+      onDragUpdate: (details) => _onDragUpdate(details),
+      onDragEnd: (_) => _stopDragging(),
+      feedback: SimpleTableFeedback(
+        editorState: editorState,
+        node: node,
+        type: type,
+        index: index,
+      ),
+      child: SimpleTableMobileReorderButton(
+        index: index,
+        type: type,
+        node: node,
+        isShowingMenu: isShowingMenu,
+      ),
+    );
+  }
+
+  void _startDragging() {
+    switch (type) {
+      case SimpleTableMoreActionType.column:
+        simpleTableContext.isReorderingColumn.value = (true, index);
+
+      case SimpleTableMoreActionType.row:
+        simpleTableContext.isReorderingRow.value = (true, index);
+    }
+  }
+
+  void _onDragUpdate(DragUpdateDetails details) {
+    simpleTableContext.reorderingOffset.value = details.globalPosition;
+  }
+
+  void _stopDragging() {
+    switch (type) {
+      case SimpleTableMoreActionType.column:
+        _reorderColumn();
+      case SimpleTableMoreActionType.row:
+        _reorderRow();
+    }
+
+    simpleTableContext.reorderingOffset.value = Offset.zero;
+    switch (type) {
+      case SimpleTableMoreActionType.column:
+        simpleTableContext.isReorderingColumn.value = (false, -1);
+        break;
+      case SimpleTableMoreActionType.row:
+        simpleTableContext.isReorderingRow.value = (false, -1);
+        break;
+    }
+  }
+
+  void _reorderColumn() {
+    final fromIndex = simpleTableContext.isReorderingColumn.value.$2;
+    final toIndex = simpleTableContext.hoveringTableCell.value?.columnIndex;
+    if (toIndex == null) {
+      return;
+    }
+
+    editorState.reorderColumn(
+      node,
+      fromIndex: fromIndex,
+      toIndex: toIndex,
+    );
+  }
+
+  void _reorderRow() {
+    final fromIndex = simpleTableContext.isReorderingRow.value.$2;
+    final toIndex = simpleTableContext.hoveringTableCell.value?.rowIndex;
+    if (toIndex == null) {
+      return;
+    }
+
+    editorState.reorderRow(
+      node,
+      fromIndex: fromIndex,
+      toIndex: toIndex,
+    );
+  }
+}
+
+class SimpleTableMobileReorderButton extends StatefulWidget {
+  const SimpleTableMobileReorderButton({
     super.key,
     required this.index,
     required this.type,
@@ -19,10 +121,12 @@ class SimpleTableActionSheet extends StatefulWidget {
   final ValueNotifier<bool> isShowingMenu;
 
   @override
-  State<SimpleTableActionSheet> createState() => _SimpleTableActionSheetState();
+  State<SimpleTableMobileReorderButton> createState() =>
+      _SimpleTableMobileReorderButtonState();
 }
 
-class _SimpleTableActionSheetState extends State<SimpleTableActionSheet> {
+class _SimpleTableMobileReorderButtonState
+    extends State<SimpleTableMobileReorderButton> {
   late final EditorState editorState = context.read<EditorState>();
   late final SimpleTableContext simpleTableContext =
       context.read<SimpleTableContext>();

@@ -711,15 +711,19 @@ class SimpleTableContentActions extends ISimpleTableBottomSheetActions {
     required super.editorState,
     required this.onTextColorSelected,
     required this.onCellBackgroundColorSelected,
+    required this.onAlignTap,
     this.selectedTextColor,
     this.selectedCellBackgroundColor,
+    this.selectedAlign,
   });
 
   final VoidCallback onTextColorSelected;
   final VoidCallback onCellBackgroundColorSelected;
+  final ValueChanged<TableAlign> onAlignTap;
 
   final Color? selectedTextColor;
   final Color? selectedCellBackgroundColor;
+  final TableAlign? selectedAlign;
 
   @override
   Widget build(BuildContext context) {
@@ -745,7 +749,10 @@ class SimpleTableContentActions extends ISimpleTableBottomSheetActions {
             selectedCellBackgroundColor: selectedCellBackgroundColor,
           ),
           const HSpace(16),
-          const SimpleTableContentAlignmentAction(),
+          SimpleTableContentAlignmentAction(
+            align: selectedAlign ?? TableAlign.left,
+            onTap: onAlignTap,
+          ),
         ],
       ),
     );
@@ -907,7 +914,12 @@ class SimpleTableContentCellBackgroundColorAction extends StatelessWidget {
 class SimpleTableContentAlignmentAction extends StatelessWidget {
   const SimpleTableContentAlignmentAction({
     super.key,
+    this.align = TableAlign.left,
+    required this.onTap,
   });
+
+  final TableAlign align;
+  final ValueChanged<TableAlign> onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -916,15 +928,16 @@ class SimpleTableContentAlignmentAction extends StatelessWidget {
         enableLeftBorder: true,
         enableRightBorder: true,
         child: AnimatedGestureDetector(
-          onTapUp: () {},
-          child: const Row(
+          onTapUp: _onTap,
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               FlowySvg(
-                FlowySvgs.m_aa_align_left_m,
+                align.leftIconSvg,
+                size: const Size.square(24),
               ),
-              HSpace(10),
-              FlowySvg(
+              const HSpace(10),
+              const FlowySvg(
                 FlowySvgs.m_aa_arrow_right_s,
                 size: Size.square(12),
               ),
@@ -933,6 +946,16 @@ class SimpleTableContentAlignmentAction extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _onTap() {
+    final nextAlign = switch (align) {
+      TableAlign.left => TableAlign.center,
+      TableAlign.center => TableAlign.right,
+      TableAlign.right => TableAlign.left,
+    };
+
+    onTap(nextAlign);
   }
 }
 

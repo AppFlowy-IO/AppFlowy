@@ -56,6 +56,25 @@ class _MobileSimpleTableWidgetState extends State<MobileSimpleTableWidget> {
 
   @override
   Widget build(BuildContext context) {
+    return widget.isFeedback ? _buildFeedbackTable() : _buildMobileTable();
+  }
+
+  Widget _buildFeedbackTable() {
+    return Provider.value(
+      value: simpleTableContext,
+      child: IntrinsicWidth(
+        child: IntrinsicHeight(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: _buildRows(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileTable() {
     return Provider.value(
       value: simpleTableContext,
       child: SingleChildScrollView(

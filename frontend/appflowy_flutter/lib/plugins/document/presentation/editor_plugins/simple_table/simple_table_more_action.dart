@@ -340,11 +340,13 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
 
             return child!;
           },
-          child: SimpleTableActionSheet(
+          child: SimpleTableMobileDraggableReorderButton(
             index: widget.index,
             type: widget.type,
             node: widget.tableCellNode,
             isShowingMenu: this.isShowingMenu,
+            editorState: editorState,
+            simpleTableContext: simpleTableContext,
           ),
         );
       },
@@ -381,6 +383,7 @@ class SimpleTableActionMenu extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showTableActionBottomSheet(context),
       child: Container(
+        color: Colors.red,
         width: 20,
         height: 20,
         alignment: Alignment.center,
