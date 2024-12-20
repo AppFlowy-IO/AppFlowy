@@ -35,6 +35,7 @@ class ChatAIMessageWidget extends StatelessWidget {
     this.onSelectedMetadata,
     this.onRegenerate,
     this.isLastMessage = false,
+    this.isStreaming = false,
   });
 
   final User user;
@@ -47,6 +48,7 @@ class ChatAIMessageWidget extends StatelessWidget {
   final String? refSourceJsonString;
   final void Function(ChatMessageRefSource metadata)? onSelectedMetadata;
   final void Function(String messageId)? onRegenerate;
+  final bool isStreaming;
   final bool isLastMessage;
 
   @override
@@ -81,7 +83,9 @@ class ChatAIMessageWidget extends StatelessWidget {
                     : ChatAIMessageBubble(
                         message: message,
                         isLastMessage: isLastMessage,
-                        showActions: stream == null && state.text.isNotEmpty,
+                        showActions: stream == null &&
+                            state.text.isNotEmpty &&
+                            !isStreaming,
                         onRegenerate: onRegenerate,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
