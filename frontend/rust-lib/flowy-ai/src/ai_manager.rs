@@ -365,28 +365,26 @@ impl AIManager {
   pub async fn update_rag_ids(&self, chat_id: &str, rag_ids: Vec<String>) -> FlowyResult<()> {
     info!("[Chat] update chat:{} rag ids: {:?}", chat_id, rag_ids);
 
-    if !rag_ids.is_empty() {
-      let workspace_id = self.user_service.workspace_id()?;
-      let update_setting = UpdateChatParams {
-        name: None,
-        metadata: None,
-        rag_ids: Some(rag_ids.clone()),
-      };
-      self
-        .cloud_service_wm
-        .update_chat_settings(&workspace_id, chat_id, update_setting)
-        .await?;
+    let workspace_id = self.user_service.workspace_id()?;
+    let update_setting = UpdateChatParams {
+      name: None,
+      metadata: None,
+      rag_ids: Some(rag_ids.clone()),
+    };
+    self
+      .cloud_service_wm
+      .update_chat_settings(&workspace_id, chat_id, update_setting)
+      .await?;
 
-      let user_service = self.user_service.clone();
-      let external_service = self.external_service.clone();
-      tokio::spawn(async move {
-        if let Ok(workspace_id) = user_service.workspace_id() {
-          let _ = external_service
-            .sync_rag_documents(&workspace_id, rag_ids)
-            .await;
-        }
-      });
-    }
+    let user_service = self.user_service.clone();
+    let external_service = self.external_service.clone();
+    tokio::spawn(async move {
+      if let Ok(workspace_id) = user_service.workspace_id() {
+        let _ = external_service
+          .sync_rag_documents(&workspace_id, rag_ids)
+          .await;
+      }
+    });
     Ok(())
   }
 }
