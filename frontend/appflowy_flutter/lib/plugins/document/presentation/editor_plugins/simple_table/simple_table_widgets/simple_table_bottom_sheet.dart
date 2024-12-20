@@ -123,7 +123,7 @@ class _SimpleTableCellBottomSheetState
   List<Widget> _buildActionButtons() {
     return [
       // copy, cut, paste, delete
-      SimpleTableQuickActions(
+      SimpleTableCellQuickActions(
         type: widget.type,
         cellNode: widget.cellNode,
         editorState: widget.editorState,
@@ -339,6 +339,14 @@ class _SimpleTableBottomSheetState extends State<SimpleTableBottomSheet> {
 
   List<Widget> _buildActionButtons() {
     return [
+      // quick actions
+      // copy, cut, paste, delete
+      SimpleTableQuickActions(
+        tableNode: widget.tableNode,
+        editorState: widget.editorState,
+      ),
+      const VSpace(24),
+
       // action buttons
       SimpleTableActionButtons(
         tableNode: widget.tableNode,

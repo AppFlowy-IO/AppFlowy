@@ -385,13 +385,13 @@ class SimpleTableActionMenu extends StatelessWidget {
         alignment: Alignment.center,
         child: const FlowySvg(
           FlowySvgs.drag_element_s,
-          size: Size.square(16.0),
+          size: Size.square(18.0),
         ),
       ),
     );
   }
 
-  void _showTableActionBottomSheet(BuildContext context) async {
+  Future<void> _showTableActionBottomSheet(BuildContext context) async {
     // check if the table node is a simple table
     assert(tableNode.type == SimpleTableBlockKeys.type);
 
@@ -401,6 +401,8 @@ class SimpleTableActionMenu extends StatelessWidget {
     }
 
     final simpleTableContext = context.read<SimpleTableContext>();
+
+    simpleTableContext.isSelectingTable.value = true;
 
     // show the bottom sheet
     await showMobileBottomSheet(
@@ -415,5 +417,7 @@ class SimpleTableActionMenu extends StatelessWidget {
         ),
       ),
     );
+
+    simpleTableContext.isSelectingTable.value = false;
   }
 }

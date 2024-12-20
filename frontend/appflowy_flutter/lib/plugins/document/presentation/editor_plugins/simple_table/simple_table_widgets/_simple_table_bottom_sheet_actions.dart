@@ -26,14 +26,14 @@ abstract class ISimpleTableBottomSheetActions extends StatelessWidget {
   final EditorState editorState;
 }
 
-/// Quick actions
+/// Quick actions for the table cell
 ///
 /// - Copy
 /// - Paste
 /// - Cut
 /// - Delete
-class SimpleTableQuickActions extends ISimpleTableBottomSheetActions {
-  const SimpleTableQuickActions({
+class SimpleTableCellQuickActions extends ISimpleTableBottomSheetActions {
+  const SimpleTableCellQuickActions({
     super.key,
     required super.type,
     required super.cellNode,
@@ -1125,4 +1125,96 @@ class _SimpleTableContentAlignActionState
       ),
     );
   }
+}
+
+/// Quick actions for the table
+///
+/// - Copy
+/// - Paste
+/// - Cut
+/// - Delete
+class SimpleTableQuickActions extends StatelessWidget {
+  const SimpleTableQuickActions({
+    super.key,
+    required this.tableNode,
+    required this.editorState,
+  });
+
+  final Node tableNode;
+  final EditorState editorState;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: SimpleTableConstants.actionSheetQuickActionSectionHeight,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          SimpleTableQuickAction(
+            type: SimpleTableMoreAction.cut,
+            onTap: () => _onActionTap(
+              context,
+              SimpleTableMoreAction.cut,
+            ),
+          ),
+          SimpleTableQuickAction(
+            type: SimpleTableMoreAction.copy,
+            onTap: () => _onActionTap(
+              context,
+              SimpleTableMoreAction.copy,
+            ),
+          ),
+          FutureBuilder(
+            future: getIt<ClipboardService>().getData(),
+            builder: (context, snapshot) {
+              final hasContent = snapshot.data?.tableJson != null;
+              return SimpleTableQuickAction(
+                type: SimpleTableMoreAction.paste,
+                isEnabled: hasContent,
+                onTap: () => _onActionTap(
+                  context,
+                  SimpleTableMoreAction.paste,
+                ),
+              );
+            },
+          ),
+          SimpleTableQuickAction(
+            type: SimpleTableMoreAction.delete,
+            onTap: () => _onActionTap(
+              context,
+              SimpleTableMoreAction.delete,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onActionTap(BuildContext context, SimpleTableMoreAction action) {
+    switch (action) {
+      case SimpleTableMoreAction.cut:
+        _onCut(tableNode);
+      case SimpleTableMoreAction.copy:
+        _onCopy(tableNode);
+      case SimpleTableMoreAction.paste:
+        _onPaste(tableNode);
+      case SimpleTableMoreAction.delete:
+        _onDelete(tableNode);
+      default:
+        assert(false, 'Unsupported action: $action');
+    }
+
+    // close the action menu
+    Navigator.of(context).pop();
+  }
+
+  void _onCut(Node tableNode) {}
+
+  void _onCopy(
+    Node tableNode,
+  ) {}
+
+  void _onPaste(Node tableNode) {}
+
+  void _onDelete(Node tableNode) {}
 }
