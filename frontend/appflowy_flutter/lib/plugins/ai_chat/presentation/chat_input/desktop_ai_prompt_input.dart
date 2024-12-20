@@ -189,6 +189,9 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
   }
 
   void handleSendPressed() {
+    if (widget.isStreaming) {
+      return;
+    }
     final trimmedText = inputControlCubit.formatIntputText(
       textController.text.trim(),
     );
