@@ -153,6 +153,34 @@ extension TableOptionOperation on EditorState {
     );
   }
 
+  /// Update the align of the table.
+  ///
+  /// This function will update the align of the table.
+  ///
+  /// The align is the align to be updated.
+  Future<void> updateTableAlign({
+    required Node tableNode,
+    required TableAlign align,
+  }) async {
+    assert(tableNode.type == SimpleTableBlockKeys.type);
+
+    if (tableNode.type != SimpleTableBlockKeys.type) {
+      return;
+    }
+
+    final transaction = this.transaction;
+    Attributes attributes = tableNode.attributes;
+    for (var i = 0; i < tableNode.columnLength; i++) {
+      attributes = attributes.mergeValues(
+        SimpleTableBlockKeys.columnAligns,
+        attributes[SimpleTableBlockKeys.columnAligns],
+        duplicatedEntry: MapEntry(i.toString(), align.key),
+      );
+    }
+    transaction.updateNode(tableNode, attributes);
+    await apply(transaction);
+  }
+
   /// Update the background color of the column at the index where the table cell node is located.
   Future<void> updateColumnBackgroundColor({
     required Node tableCellNode,

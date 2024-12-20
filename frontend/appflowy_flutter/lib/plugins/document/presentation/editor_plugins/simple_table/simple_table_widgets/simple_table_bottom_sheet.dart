@@ -385,5 +385,10 @@ class _SimpleTableBottomSheetState extends State<SimpleTableBottomSheet> {
     setState(() {
       selectedAlign = align;
     });
+
+    widget.editorState.updateTableAlign(
+      tableNode: widget.tableNode,
+      align: align,
+    );
   }
 }
