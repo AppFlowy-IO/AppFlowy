@@ -205,19 +205,19 @@ class _MobileSelectSourcesSheetBodyState
         BlocBuilder<ChatSettingsCubit, ChatSettingsState>(
           builder: (context, state) {
             final sources = state.visibleSources
-                .where((e) => e.ignoreStatus != IgnoreViewType.hide)
-                .toList();
+                .where((e) => e.ignoreStatus != IgnoreViewType.hide);
             return SliverList(
               delegate: SliverChildBuilderDelegate(
                 childCount: sources.length,
                 (context, index) {
+                  final source = sources.elementAt(index);
                   return ChatSourceTreeItem(
                     key: ValueKey(
-                      'visible_select_sources_tree_item_${sources[index].view.id}',
+                      'visible_select_sources_tree_item_${source.view.id}',
                     ),
-                    chatSource: sources[index],
+                    chatSource: source,
                     level: 0,
-                    isDescendentOfSpace: sources[index].view.isSpace,
+                    isDescendentOfSpace: source.view.isSpace,
                     isSelectedSection: false,
                     onSelected: (chatSource) {
                       context
