@@ -418,7 +418,7 @@ class SimpleTableActionButtons extends ISimpleTableBottomSheetActions {
     );
     final List<Widget> widgets = [];
 
-    for (final actionGroup in actionGroups) {
+    for (final (actionGroupIndex, actionGroup) in actionGroups.indexed) {
       for (final (index, action) in actionGroup.indexed) {
         widgets.add(
           // enable the corner border if the cell is the first or last in the group
@@ -459,7 +459,11 @@ class SimpleTableActionButtons extends ISimpleTableBottomSheetActions {
           widgets.add(const FlowyDivider());
         }
       }
-      widgets.add(const VSpace(16));
+
+      // add padding to separate the action groups
+      if (actionGroupIndex != actionGroups.length - 1) {
+        widgets.add(const VSpace(16));
+      }
     }
 
     return widgets;

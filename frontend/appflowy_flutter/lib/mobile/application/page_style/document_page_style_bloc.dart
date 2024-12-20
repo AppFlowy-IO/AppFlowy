@@ -6,7 +6,6 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -27,12 +26,12 @@ class DocumentPageStyleBloc
                 return;
               }
               Map layoutObject = {};
-              try {
-                await ViewBackendService.getView(view.id).fold(
-                  (s) => layoutObject = jsonDecode(s.extra),
-                  (_) {},
-                );
-              } catch (_) {}
+              final data = await ViewBackendService.getView(view.id);
+              data.onSuccess((s) {
+                if (s.extra.isNotEmpty) {
+                  layoutObject = jsonDecode(s.extra);
+                }
+              });
               final fontLayout = _getSelectedFontLayout(layoutObject);
               final lineHeightLayout = _getSelectedLineHeightLayout(
                 layoutObject,

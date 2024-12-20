@@ -59,6 +59,7 @@ class _SimpleTableBottomSheetState extends State<SimpleTableBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // header
