@@ -278,6 +278,13 @@ class _DateTimeTextFieldState extends State<DateTimeTextField> {
                         key: const ValueKey('date_time_text_field_date'),
                         focusNode: dateFocusNode,
                         controller: dateTextController,
+                        maxLength: 12,
+                        inputFormatters: [
+                          // We can be more restrictive according to the DateFormatPB
+                          FilteringTextInputFormatter.allow(
+                            RegExp('[0-9.-/ ]'),
+                          ),
+                        ],
                         style: Theme.of(context).textTheme.bodyMedium,
                         decoration: getInputDecoration(
                           const EdgeInsetsDirectional.fromSTEB(12, 6, 6, 6),
@@ -301,6 +308,14 @@ class _DateTimeTextFieldState extends State<DateTimeTextField> {
                         focusNode: timeFocusNode,
                         controller: timeTextController,
                         style: Theme.of(context).textTheme.bodyMedium,
+                        maxLength: widget.timeFormat == TimeFormatPB.TwelveHour
+                            ? 8 // 12:34 PM = 8 characters
+                            : 5, // 12:34 = 5 characters
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            RegExp('[0-9:AaPpMm]'),
+                          ),
+                        ],
                         decoration: getInputDecoration(
                           const EdgeInsetsDirectional.fromSTEB(6, 6, 12, 6),
                           timeFormat.format(hintDate),
@@ -359,6 +374,7 @@ class _DateTimeTextFieldState extends State<DateTimeTextField> {
       isCollapsed: true,
       isDense: true,
       hintText: widget.showHint ? hintText : null,
+      counterText: "",
       hintStyle: Theme.of(context)
           .textTheme
           .bodyMedium
