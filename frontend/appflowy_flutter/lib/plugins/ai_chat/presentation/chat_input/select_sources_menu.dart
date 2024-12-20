@@ -15,6 +15,7 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../layout_define.dart';
 import 'chat_mention_page_menu.dart';
 
 class PromptInputDesktopSelectSourcesButton extends StatefulWidget {
@@ -128,13 +129,13 @@ class _IndicatorButton extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
-        height: 24,
+        height: DesktopAIPromptSizes.actionBarButtonSize,
         child: FlowyHover(
           style: const HoverStyle(
             borderRadius: BorderRadius.all(Radius.circular(8)),
           ),
           child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 2, 4),
+            padding: const EdgeInsetsDirectional.fromSTEB(6, 6, 4, 6),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

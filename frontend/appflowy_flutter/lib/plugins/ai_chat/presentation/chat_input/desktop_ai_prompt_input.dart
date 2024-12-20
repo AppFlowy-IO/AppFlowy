@@ -114,6 +114,7 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
                 color: focusNode.hasFocus
                     ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.outline,
+                width: focusNode.hasFocus ? 1.5 : 1.0,
               ),
               borderRadius: DesktopAIPromptSizes.promptFrameRadius,
             ),
@@ -138,9 +139,10 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
                 Stack(
                   children: [
                     ConstrainedBox(
-                      constraints: const BoxConstraints(
+                      constraints: BoxConstraints(
                         minHeight: DesktopAIPromptSizes.textFieldMinHeight +
-                            DesktopAIPromptSizes.actionBarHeight,
+                            DesktopAIPromptSizes.actionBarHeight +
+                            DesktopAIPromptSizes.actionBarPadding.vertical,
                         maxHeight: 300,
                       ),
                       child: inputTextField(),
@@ -504,11 +506,10 @@ class _PromptBottomActions extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: DesktopAIPromptSizes.actionBarHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      margin: DesktopAIPromptSizes.actionBarPadding,
       child: BlocBuilder<AIPromptInputBloc, AIPromptInputState>(
         builder: (context, state) {
           return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // predefinedFormatButton(),
               const Spacer(),
