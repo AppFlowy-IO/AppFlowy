@@ -95,12 +95,9 @@ export function QuickNote() {
       setNoteList(notes.data);
       hasMoreRef.current = notes.has_more;
     }
-  }, [loadNoteList]);
 
-  useEffect(() => {
-    if (!open) return;
-    void initNoteList();
-  }, [initNoteList, open]);
+    return notes;
+  }, [loadNoteList]);
 
   const handleEnterNote = useCallback((note: QuickNoteType) => {
     setCurrentNote(note);
@@ -243,6 +240,24 @@ export function QuickNote() {
     });
   }, []);
 
+  const handleAdd = useCallback(async () => {
+    if (!service || !currentWorkspaceId) return;
+    try {
+      const note = await service.createQuickNote(currentWorkspaceId, [{
+        type: 'paragraph',
+        delta: [{ insert: '' }],
+        children: [],
+      }]);
+
+      setNoteList(prev => [note, ...prev]);
+
+      handleEnterNote(note);
+      // eslint-disable-next-line
+    } catch (e: any) {
+      console.error(e);
+      handleOpenToast(e.message);
+    }
+  }, [service, currentWorkspaceId, handleEnterNote, handleOpenToast]);
   const renderHeader = () => {
     if (route === QuickNoteRoute.NOTE && currentNote) {
       return (
@@ -291,16 +306,23 @@ export function QuickNote() {
       }>
         <IconButton
           size={'small'}
-          onClick={(e) => {
+          onClick={async (e) => {
             if (open) {
               handleClose();
               return;
             }
 
-            setOpen(true);
             const rect = e.currentTarget.getBoundingClientRect();
 
             setPosition(prev => !prev ? { x: rect.right + 60, y: rect.bottom - PAPER_SIZE[1] } : prev);
+
+            const list = await initNoteList();
+
+            if (list?.data.length === 0) {
+              await handleAdd();
+            }
+
+            setOpen(true);
           }}
         >
           <EditIcon/>

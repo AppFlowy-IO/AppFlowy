@@ -5,6 +5,10 @@
 }
 
 .block-element {
+  &:has(.embed-block) {
+    //@apply mx-1;
+  }
+
   .embed-block {
     @apply z-[1] hover:bg-content-blue-50 flex relative w-full gap-4 overflow-hidden rounded-[8px] border border-line-divider bg-fill-list-active;
   }
@@ -72,7 +76,12 @@
 
 }
 
+.block-element[data-block-type="code"] {
+  //@apply mx-1;
+}
+
 .block-element[data-block-type="callout"] {
+  //@apply mx-1;
   > div > .block-element {
     margin-left: 58px !important;
   }
@@ -128,6 +137,10 @@
   .mention-content {
     color: var(--text-caption);
     text-decoration: line-through;
+  }
+
+  .text-color > span {
+    color: var(--text-caption) !important;
   }
 }
 

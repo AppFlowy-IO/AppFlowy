@@ -35,6 +35,7 @@ export function Leaf({ attributes, children, leaf, text }: RenderLeafProps) {
   const style: CSSProperties = {};
 
   if (leaf.font_color) {
+    classList.push('text-color');
     style['color'] = renderColor(leaf.font_color);
   }
 
