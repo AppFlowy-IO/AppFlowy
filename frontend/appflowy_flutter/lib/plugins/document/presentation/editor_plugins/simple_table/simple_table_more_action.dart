@@ -218,8 +218,6 @@ enum SimpleTableMoreAction {
         throw UnsupportedError('text background color icon is not supported'),
       SimpleTableMoreAction.divider =>
         throw UnsupportedError('divider icon is not supported'),
-      SimpleTableMoreAction.align =>
-        throw UnsupportedError('align icon is not supported'),
       SimpleTableMoreAction.backgroundColor =>
         throw UnsupportedError('background color icon is not supported'),
     };
@@ -383,7 +381,6 @@ class SimpleTableActionMenu extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showTableActionBottomSheet(context),
       child: Container(
-        color: Colors.red,
         width: 20,
         height: 20,
         alignment: Alignment.center,
