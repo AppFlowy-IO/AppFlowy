@@ -296,7 +296,7 @@ export function QuickNote() {
               handleClose();
               return;
             }
-            
+
             setOpen(true);
             const rect = e.currentTarget.getBoundingClientRect();
 
@@ -371,11 +371,16 @@ export function QuickNote() {
                 />
             }
           </div>
-          <div className={'absolute right-4 bottom-7'}>
-            <AddNote onAdd={(note) => {
-              setNoteList(prev => [note, ...prev]);
-            }} onEnterNote={handleEnterNote}/>
-          </div>
+          {
+            route === QuickNoteRoute.LIST && (
+              <div className={'absolute right-4 bottom-7'}>
+                <AddNote onAdd={(note) => {
+                  setNoteList(prev => [note, ...prev]);
+                }} onEnterNote={handleEnterNote}/>
+              </div>
+            )
+          }
+
 
           <Portal container={paper.current}>
             <Snackbar
