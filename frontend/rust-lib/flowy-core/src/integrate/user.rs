@@ -211,20 +211,14 @@ impl UserStatusCallback for UserStatusCallbackImpl {
 
   fn did_update_plans(&self, plans: Vec<SubscriptionPlan>) {
     let mut storage_plan_changed = false;
-    let mut local_ai_enabled = false;
     for plan in &plans {
       match plan {
         SubscriptionPlan::Pro | SubscriptionPlan::Team => storage_plan_changed = true,
-        SubscriptionPlan::AiLocal => local_ai_enabled = true,
         _ => {},
       }
     }
     if storage_plan_changed {
       self.storage_manager.enable_storage_write_access();
-    }
-
-    if local_ai_enabled {
-      self.ai_manager.local_ai_purchased();
     }
   }
 

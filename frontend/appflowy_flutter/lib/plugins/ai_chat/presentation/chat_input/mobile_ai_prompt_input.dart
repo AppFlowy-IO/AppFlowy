@@ -155,6 +155,9 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
   }
 
   void handleSendPressed() {
+    if (widget.isStreaming) {
+      return;
+    }
     final trimmedText = inputControlCubit.formatIntputText(
       textController.text.trim(),
     );

@@ -16,7 +16,7 @@ use crate::publish_util::{generate_publish_name, view_pb_to_publish_view};
 use crate::share::{ImportData, ImportItem, ImportParams};
 use crate::util::{folder_not_init_error, workspace_data_not_sync_error};
 use crate::view_operation::{
-  create_view, EncodedCollabType, FolderOperationHandler, FolderOperationHandlers, ViewData,
+  create_view, FolderOperationHandler, FolderOperationHandlers, GatherEncodedCollab, ViewData,
 };
 use arc_swap::ArcSwapOption;
 use client_api::entity::workspace_dto::PublishInfoView;
@@ -132,14 +132,14 @@ impl FolderManager {
     Ok(data)
   }
 
-  pub async fn get_encode_collab_from_disk(
+  pub async fn gather_publish_encode_collab(
     &self,
     view_id: &str,
     layout: &ViewLayout,
-  ) -> FlowyResult<EncodedCollabType> {
+  ) -> FlowyResult<GatherEncodedCollab> {
     let handler = self.get_handler(layout)?;
     let encoded_collab = handler
-      .get_encoded_collab_v1_from_disk(&self.user, view_id)
+      .gather_publish_encode_collab(&self.user, view_id)
       .await?;
     Ok(encoded_collab)
   }
@@ -1524,8 +1524,8 @@ impl FolderManager {
     layout: ViewLayout,
   ) -> FlowyResult<PublishPayload> {
     let handler = self.get_handler(&layout)?;
-    let encoded_collab_wrapper: EncodedCollabType = handler
-      .get_encoded_collab_v1_from_disk(&self.user, view_id)
+    let encoded_collab_wrapper: GatherEncodedCollab = handler
+      .gather_publish_encode_collab(&self.user, view_id)
       .await?;
     let view = self.get_view_pb(view_id).await?;
 
@@ -1556,7 +1556,7 @@ impl FolderManager {
     };
 
     let payload = match encoded_collab_wrapper {
-      EncodedCollabType::Database(v) => {
+      GatherEncodedCollab::Database(v) => {
         let database_collab = v.database_encoded_collab.doc_state.to_vec();
         let database_relations = v.database_relations;
         let database_row_collabs = v
@@ -1579,11 +1579,11 @@ impl FolderManager {
         };
         PublishPayload::Database(PublishDatabasePayload { meta, data })
       },
-      EncodedCollabType::Document(v) => {
-        let data = v.document_encoded_collab.doc_state.to_vec();
+      GatherEncodedCollab::Document(v) => {
+        let data = v.doc_state.to_vec();
         PublishPayload::Document(PublishDocumentPayload { meta, data })
       },
-      EncodedCollabType::Unknown => PublishPayload::Unknown,
+      GatherEncodedCollab::Unknown => PublishPayload::Unknown,
     };
 
     Ok(payload)

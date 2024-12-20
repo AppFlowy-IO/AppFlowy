@@ -197,14 +197,13 @@ class _ChatContentPage extends StatelessWidget {
     final refSourceJsonString =
         message.metadata?[messageRefSourceJsonStringKey] as String?;
 
-    return BlocSelector<ChatBloc, ChatState, bool>(
-      selector: (state) {
+    return BlocBuilder<ChatBloc, ChatState>(
+      builder: (context, state) {
         final chatController = context.read<ChatBloc>().chatController;
         final messages = chatController.messages
             .where((e) => onetimeMessageTypeFromMeta(e.metadata) == null);
-        return messages.isEmpty ? false : messages.last.id == message.id;
-      },
-      builder: (context, isLastMessage) {
+        final isLastMessage =
+            messages.isEmpty ? false : messages.last.id == message.id;
         return ChatAIMessageWidget(
           user: message.author,
           messageUserId: message.id,
@@ -213,6 +212,7 @@ class _ChatContentPage extends StatelessWidget {
           questionId: questionId,
           chatId: view.id,
           refSourceJsonString: refSourceJsonString,
+          isStreaming: state.promptResponseState != PromptResponseState.ready,
           isLastMessage: isLastMessage,
           onSelectedMetadata: (metadata) =>
               _onSelectMetadata(context, metadata),

@@ -2,7 +2,7 @@ use collab_folder::ViewLayout;
 use event_integration_test::EventIntegrationTest;
 use flowy_folder::entities::{ViewLayoutPB, ViewPB};
 use flowy_folder::publish_util::generate_publish_name;
-use flowy_folder::view_operation::EncodedCollabType;
+use flowy_folder::view_operation::GatherEncodedCollab;
 use flowy_folder_pub::entities::{
   PublishDocumentPayload, PublishPayload, PublishViewInfo, PublishViewMeta, PublishViewMetaData,
 };
@@ -14,7 +14,7 @@ async fn mock_single_document_view_publish_payload(
 ) -> Vec<PublishPayload> {
   let view_id = &view.id;
   let layout: ViewLayout = view.layout.clone().into();
-  let view_encoded_collab = test.get_encoded_collab_v1_from_disk(view_id, layout).await;
+  let view_encoded_collab = test.gather_encode_collab_from_disk(view_id, layout).await;
   let publish_view_info = PublishViewInfo {
     view_id: view_id.to_string(),
     name: view.name.to_string(),
@@ -29,7 +29,7 @@ async fn mock_single_document_view_publish_payload(
   };
 
   let data = match view_encoded_collab {
-    EncodedCollabType::Document(doc) => doc.document_encoded_collab.doc_state.to_vec(),
+    GatherEncodedCollab::Document(doc) => doc.doc_state.to_vec(),
     _ => panic!("Expected document collab"),
   };
 
@@ -54,7 +54,7 @@ async fn mock_nested_document_view_publish_payload(
 ) -> Vec<PublishPayload> {
   let view_id = &view.id;
   let layout: ViewLayout = view.layout.clone().into();
-  let view_encoded_collab = test.get_encoded_collab_v1_from_disk(view_id, layout).await;
+  let view_encoded_collab = test.gather_encode_collab_from_disk(view_id, layout).await;
   let publish_view_info = PublishViewInfo {
     view_id: view_id.to_string(),
     name: view.name.to_string(),
@@ -72,7 +72,7 @@ async fn mock_nested_document_view_publish_payload(
   let child_view = test.get_view(child_view_id).await;
   let child_layout: ViewLayout = child_view.layout.clone().into();
   let child_view_encoded_collab = test
-    .get_encoded_collab_v1_from_disk(child_view_id, child_layout)
+    .gather_encode_collab_from_disk(child_view_id, child_layout)
     .await;
   let child_publish_view_info = PublishViewInfo {
     view_id: child_view_id.to_string(),
@@ -89,12 +89,12 @@ async fn mock_nested_document_view_publish_payload(
   let child_publish_name = generate_publish_name(&child_view.id, &child_view.name);
 
   let data = match view_encoded_collab {
-    EncodedCollabType::Document(doc) => doc.document_encoded_collab.doc_state.to_vec(),
+    GatherEncodedCollab::Document(doc) => doc.doc_state.to_vec(),
     _ => panic!("Expected document collab"),
   };
 
   let child_data = match child_view_encoded_collab {
-    EncodedCollabType::Document(doc) => doc.document_encoded_collab.doc_state.to_vec(),
+    GatherEncodedCollab::Document(doc) => doc.doc_state.to_vec(),
     _ => panic!("Expected document collab"),
   };
 
