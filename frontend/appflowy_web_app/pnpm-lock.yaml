@@ -2,8 +2,8 @@ lockfileVersion: '6.0'
 
 dependencies:
   '@appflowyinc/editor':
-    specifier: ^0.0.21
-    version: 0.0.21(@types/react-dom@18.2.22)(@types/react@18.2.66)(i18next-resources-to-backend@1.2.1)(i18next@22.5.1)(react-dom@18.2.0)(react-i18next@14.1.2)(react@18.2.0)(slate-dom@0.111.0)
+    specifier: ^0.0.26
+    version: 0.0.26(@types/react-dom@18.2.22)(@types/react@18.2.66)(i18next-resources-to-backend@1.2.1)(i18next@22.5.1)(react-dom@18.2.0)(react-i18next@14.1.2)(react@18.2.0)(slate-dom@0.111.0)
   '@atlaskit/primitives':
     specifier: ^5.5.3
     version: 5.7.0(@types/react@18.2.66)(react@18.2.0)
@@ -535,8 +535,8 @@ packages:
     resolution: {integrity: sha512-+562v9k4aI80m1+VuMHehNJWLOFjBnXn3tdOitzD0il5b7smkSBal4+a3oKiQTbrwMmN/TBUMDvbdoWDehgOww==}
     dev: false
 
-  /@appflowyinc/editor@0.0.21(@types/react-dom@18.2.22)(@types/react@18.2.66)(i18next-resources-to-backend@1.2.1)(i18next@22.5.1)(react-dom@18.2.0)(react-i18next@14.1.2)(react@18.2.0)(slate-dom@0.111.0):
-    resolution: {integrity: sha512-XbUsYkkXaF3EUVl15DfKOFaiNjJq5Nz3vcOfYQR7fsAKdumhxMPdSf+DLIrow/8FO/yFvNzj3VzrxFspWdB2LA==}
+  /@appflowyinc/editor@0.0.26(@types/react-dom@18.2.22)(@types/react@18.2.66)(i18next-resources-to-backend@1.2.1)(i18next@22.5.1)(react-dom@18.2.0)(react-i18next@14.1.2)(react@18.2.0)(slate-dom@0.111.0):
+    resolution: {integrity: sha512-iTAMMsmsBrRfIZ9Kru1s3DLlc918GKbm8Ra55LO3ZTKutUo6V7FhArvZ1TVzfcvdGKW8ujaqh1/FRnhb0qq0KA==}
     peerDependencies:
       i18next: ^22.4.10
       i18next-resources-to-backend: ^1.2.1
