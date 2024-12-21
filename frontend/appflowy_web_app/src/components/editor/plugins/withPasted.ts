@@ -8,7 +8,7 @@ import {
 } from '@/application/slate-yjs/utils/editor';
 import { BlockType, LinkPreviewBlockData, MentionType, YjsEditorKey } from '@/application/types';
 import { deserializeHTML } from '@/components/editor/utils/fragment';
-import { BasePoint, Node, Transforms } from 'slate';
+import { BasePoint, Node, Transforms, Text, Element } from 'slate';
 import { ReactEditor } from 'slate-react';
 import isURL from 'validator/lib/isURL';
 import { assertDocExists, getBlock, getChildrenArray } from '@/application/slate-yjs/utils/yjs';
@@ -123,6 +123,33 @@ function insertFragment(editor: ReactEditor, fragment: Node[], options = {}) {
   const parentChildren = getChildrenArray(parent.get(YjsEditorKey.block_children), sharedRoot);
   const index = parentChildren.toArray().findIndex((id) => id === block.get(YjsEditorKey.block_id));
   const doc = assertDocExists(sharedRoot);
+
+  if (fragment.length === 1) {
+    const firstNode = fragment[0] as Element;
+
+    const findTextNodes = (node: Node): Node[] => {
+      if (Text.isText(node)) {
+        return [];
+      }
+
+      if (Element.isElement(node) && node.textId) {
+        return [node];
+      }
+
+      return node.children.flatMap(findTextNodes);
+    };
+
+    const textNodes = findTextNodes(firstNode);
+
+    if (textNodes.length === 1) {
+      const textNode = textNodes[0] as Element;
+      const texts = textNode.children.filter((node) => Text.isText(node));
+
+      Transforms.insertNodes(editor, texts, { at: point, select: true, voids: false });
+      return;
+    }
+
+  }
 
   let lastBlockId = blockId;
 

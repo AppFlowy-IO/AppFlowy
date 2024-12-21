@@ -1008,6 +1008,7 @@ export interface QuickNoteEditorData {
 
 export interface QuickNote {
   id: string;
+  title: string;
   data: QuickNoteEditorData[],
   created_at: string;
   last_updated_at: string;

@@ -1,13 +1,11 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback } from 'react';
 import { QuickNote as QuickNoteType } from '@/application/types';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { Divider, IconButton, Tooltip } from '@mui/material';
 import { ReactComponent as EditIcon } from '@/assets/edit.svg';
 import { ReactComponent as DeleteIcon } from '@/assets/trash.svg';
-import { ToastContext } from '@/components/quick-note/QuickNote.hooks';
-import { useCurrentWorkspaceId } from '@/components/app/app.hooks';
-import { useService } from '@/components/main/app.hooks';
+import DeleteNoteModal from '@/components/quick-note/DeleteNoteModal';
 
 function NoteList({
   list,
@@ -39,28 +37,9 @@ function NoteList({
 
   }, []);
 
+  const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
+  const [selectedNote, setSelectedNote] = React.useState<QuickNoteType | null>(null);
   const [hoverId, setHoverId] = React.useState<string | null>(null);
-
-  const toast = useContext(ToastContext);
-
-  const [loading, setLoading] = React.useState(false);
-  const currentWorkspaceId = useCurrentWorkspaceId();
-  const service = useService();
-  const handleDelete = async (id: string) => {
-    if (!service || !currentWorkspaceId || loading) return;
-    setLoading(true);
-    try {
-      await service.deleteQuickNote(currentWorkspaceId, id);
-
-      onDelete(id);
-      // eslint-disable-next-line
-    } catch (e: any) {
-      console.error(e);
-      toast.onOpen(e.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (!list || list.length === 0) {
     return <div
@@ -103,10 +82,11 @@ function NoteList({
                     </Tooltip>
                     <Divider orientation={'vertical'} flexItem className={'my-1'}/>
                     <Tooltip title={t('button.delete')}>
-                      <IconButton disabled={loading} onClick={(e) => {
+                      <IconButton onClick={(e) => {
                         e.stopPropagation();
 
-                        void handleDelete(note.id);
+                        setSelectedNote(note);
+                        setOpenDeleteModal(true);
                       }} size={'small'}>
                         <DeleteIcon/>
                       </IconButton>
@@ -119,6 +99,16 @@ function NoteList({
           })
         }
       </div>
+      {selectedNote && <DeleteNoteModal
+        onDelete={onDelete}
+        open={openDeleteModal}
+        onClose={() => {
+          setOpenDeleteModal(false);
+          setSelectedNote(null);
+        }}
+        note={selectedNote}/>
+      }
+
     </div>
   );
 }

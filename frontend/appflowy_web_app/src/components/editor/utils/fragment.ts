@@ -3,9 +3,9 @@ import { yDocToSlateContent } from '@/application/slate-yjs/utils/convert';
 import {
   AlignType,
   BlockData,
-  BlockType,
+  BlockType, HeadingBlockData,
   ImageBlockData,
-  ImageType,
+  ImageType, NumberedListBlockData, TodoListBlockData,
   YBlock,
   YjsEditorKey,
   YSharedRoot,
@@ -19,6 +19,7 @@ import {
   getText,
   updateBlockParent,
 } from '@/application/slate-yjs/utils/yjs';
+import { Op } from 'quill-delta';
 
 export function deserialize(body: HTMLElement, sharedRoot: YSharedRoot) {
   const pageId = getPageId(sharedRoot);
@@ -48,7 +49,9 @@ function deserializeNode(node: Node, parentBlock: YBlock, sharedRoot: YSharedRoo
     }
 
     if (BLOCK_TAGS.includes(tagName)) {
-      const blockType = mapTagToBlockType(tagName, element);
+      let blockType = mapTagToBlockType(tagName, element);
+
+      const textContent = element.textContent || '';
       const blockData = mapToBlockData(element);
 
       if (blockType === BlockType.NumberedListBlock || blockType === BlockType.BulletedListBlock) {
@@ -68,6 +71,36 @@ function deserializeNode(node: Node, parentBlock: YBlock, sharedRoot: YSharedRoo
       if (blockType === BlockType.TodoListBlock) {
         processTodoList(element, sharedRoot, parentBlock, blockData);
         return;
+      }
+
+      if (blockType === BlockType.Paragraph) {
+        if (textContent === '---') {
+          blockType = BlockType.DividerBlock;
+          element.textContent = '';
+        } else if (/^(-)?\[(x| )?\]\s/.test(textContent)) {
+          blockType = BlockType.TodoListBlock;
+          const match = textContent.match(/^(-)?\[(x| )?\]\s/);
+
+          (blockData as TodoListBlockData).checked = match?.[2] === 'x';
+          element.textContent = textContent.replace(/^(-)?\[(x| )?\]\s/, '');
+        } else if (/^\d+\.\s/.test(textContent)) {
+          blockType = BlockType.NumberedListBlock;
+          (blockData as NumberedListBlockData).number = parseInt(textContent.split('.')[0]);
+          element.textContent = textContent.replace(/^\d+\.\s/, '');
+        } else if (/^- /.test(textContent)) {
+          blockType = BlockType.BulletedListBlock;
+          element.textContent = textContent.replace(/^- /, '');
+        } else if (/^> /.test(textContent)) {
+          blockType = BlockType.QuoteBlock;
+          element.textContent = textContent.replace(/^> /, '');
+        } else if (/^```/.test(textContent)) {
+          blockType = BlockType.CodeBlock;
+          element.textContent = textContent.replace(/^```/, '');
+        } else if (/^#{1,6}\s/.test(textContent)) {
+          blockType = BlockType.HeadingBlock;
+          element.textContent = textContent.replace(/^#{1,6}\s/, '');
+          (blockData as HeadingBlockData).level = textContent.split(' ')[0].length;
+        }
       }
 
       currentBlock = createBlock(sharedRoot, { ty: blockType, data: blockData });
@@ -113,11 +146,18 @@ function deserializeNode(node: Node, parentBlock: YBlock, sharedRoot: YSharedRoo
 
     if (textContent.trim()) {
       console.log('===textContent', node, textContent);
+      const { ops } = textContentToDelta(textContent || '');
 
       if (TEXT_BLOCK_TYPES.includes(currentBlock.get(YjsEditorKey.block_type))) {
         const attributes = getInlineAttributes(node.parentElement as HTMLElement);
 
-        applyTextToDelta(currentBlock, sharedRoot, textContent, attributes);
+        ops.forEach(op => {
+          applyTextToDelta(currentBlock, sharedRoot, op.insert as string, {
+            ...op.attributes,
+            ...attributes,
+          });
+        });
+        // applyTextToDelta(currentBlock, sharedRoot, textContent, attributes);
       } else {
         const block = createBlock(sharedRoot, { ty: BlockType.Paragraph, data: {} });
 
@@ -129,6 +169,93 @@ function deserializeNode(node: Node, parentBlock: YBlock, sharedRoot: YSharedRoo
 
     }
   }
+}
+
+function textContentToDelta(text: string) {
+  const ops: Op[] = [];
+  let currentIndex = 0;
+
+  const patterns = [
+    { regex: /\*\*(.*?)\*\*/g, format: 'bold' },     // **bold**
+    { regex: /\*(.*?)\*/g, format: 'italic' },        // *italic*
+    { regex: /__(.*?)__/g, format: 'underline' },     // __underline__
+    { regex: /~~(.*?)~~/g, format: 'strike' },        // ~~strike~~
+  ];
+
+  type Mark = {
+    start: number;
+    end: number;
+    text: string;
+    format: string;
+    length: number;
+  }
+
+  const findMarks = (): Mark[] => {
+    const marks: Mark[] = [];
+
+    patterns.forEach(({ regex, format }) => {
+      let match;
+
+      while ((match = regex.exec(text)) !== null) {
+        marks.push({
+          start: match.index,
+          end: match.index + match[0].length,
+          text: match[1],
+          format,
+          length: match[0].length,
+        });
+      }
+    });
+
+    return marks.sort((a, b) => a.start - b.start);
+  };
+
+  const marks = findMarks();
+
+  const getFormatsAt = (index: number): Record<string, boolean> => {
+    const formats: Record<string, boolean> = {};
+
+    marks.forEach(mark => {
+      if (index >= mark.start && index < mark.end) {
+        formats[mark.format] = true;
+      }
+    });
+    return formats;
+  };
+
+  const findNextBreakPoint = (currentIndex: number): number => {
+    const points = new Set<number>();
+
+    marks.forEach(mark => {
+      if (mark.start > currentIndex) points.add(mark.start);
+      if (mark.end > currentIndex) points.add(mark.end);
+    });
+    const nextPoints = Array.from(points).sort((a, b) => a - b);
+
+    return nextPoints[0] || text.length;
+  };
+
+  while (currentIndex < text.length) {
+    const nextBreak = findNextBreakPoint(currentIndex);
+    const currentFormats = getFormatsAt(currentIndex);
+
+    let segment = text.slice(currentIndex, nextBreak);
+
+    patterns.forEach(({ regex }) => {
+      segment = segment.replace(regex, '$1');
+    });
+
+    if (segment) {
+      ops.push({
+        insert: segment,
+        ...(Object.keys(currentFormats).length > 0 ? { attributes: currentFormats } : {}),
+      });
+    }
+
+    currentIndex = nextBreak;
+  }
+
+  return { ops };
 }
 
 function isImageUrl(url: string): boolean {
@@ -225,7 +352,6 @@ function applyTextToDelta(block: YBlock, sharedRoot: YSharedRoot, text: string, 
 
   if (yText) {
     yText.insert(yText.length, text, attributes);
-
   }
 }
 
