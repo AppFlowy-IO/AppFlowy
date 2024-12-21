@@ -4,7 +4,7 @@ import { ReactComponent as CloseIcon } from '@/assets/close.svg';
 import { ReactComponent as OpenIcon } from '@/assets/full_view.svg';
 import { ReactComponent as CollapseIcon } from '@/assets/collapse_all_page.svg';
 
-import { IconButton, InputBase, Tooltip } from '@mui/material';
+import { IconButton, InputBase } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
 import { debounce } from 'lodash-es';
@@ -69,11 +69,9 @@ function NoteListHeader({
         }
       </div>
 
-      <Tooltip placement={'top'} title={expand ? t('quickNote.collapseFullView') : t('quickNote.expandFullView')}>
-        <IconButton onClick={onToggleExpand} size={'small'}>
-          {expand ? <CollapseIcon className={'transform rotate-45'}/> : <OpenIcon/>}
-        </IconButton>
-      </Tooltip>
+      <IconButton onClick={onToggleExpand} size={'small'}>
+        {expand ? <CollapseIcon className={'transform rotate-45'}/> : <OpenIcon/>}
+      </IconButton>
 
       <IconButton className={'order-2'} onClick={() => {
         if (activeSearch) {

@@ -40,7 +40,7 @@ export function MentionLeaf({ mention, text, children }: {
   // check if the mention is selected
   const { isSelected, select, isCursorBefore } = useLeafSelected(text);
   const className = useMemo(() => {
-    const classList = ['w-fit mention', 'relative', 'rounded', 'py-0.5'];
+    const classList = ['w-fit mention', 'relative', 'rounded', 'py-0.5  px-1'];
 
     if (readonly) classList.push('cursor-default');
     else if (type !== MentionType.Date) classList.push('cursor-pointer');

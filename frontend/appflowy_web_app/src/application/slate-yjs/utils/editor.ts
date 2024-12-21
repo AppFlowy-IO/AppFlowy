@@ -1,4 +1,9 @@
-import { CONTAINER_BLOCK_TYPES, isEmbedBlockTypes, TEXT_BLOCK_TYPES } from '@/application/slate-yjs/command/const';
+import {
+  CONTAINER_BLOCK_TYPES,
+  isEmbedBlockTypes,
+  SOFT_BREAK_TYPES,
+  TEXT_BLOCK_TYPES,
+} from '@/application/slate-yjs/command/const';
 import { BlockData, BlockType, ToggleListBlockData, YBlock, YjsEditorKey, YSharedRoot } from '@/application/types';
 import { uniq } from 'lodash-es';
 import Delta, { Op } from 'quill-delta';
@@ -33,7 +38,7 @@ import {
   deleteBlock,
   executeOperations,
   extendNextSiblingsToToggleHeading,
-  getBlock,
+  getBlock, getBlockIndex,
   getBlocks,
   getChildrenArray,
   getPageId,
@@ -120,6 +125,16 @@ export function handleCollapsedBreakWithTxn(editor: YjsEditor, sharedRoot: YShar
 
     const parent = getParent(blockId, sharedRoot);
     const parentType = parent?.get(YjsEditorKey.block_type);
+    const index = getBlockIndex(blockId, sharedRoot);
+
+    if (SOFT_BREAK_TYPES.includes(blockType) && parent) {
+      addBlock(editor, {
+        ty: BlockType.Paragraph,
+        data: {},
+      }, parent, index + 1);
+      moveToNextLine(editor, block, at, blockId);
+      return;
+    }
 
     if (blockType !== BlockType.Paragraph && parentType && [BlockType.QuoteBlock, BlockType.CalloutBlock].includes(parentType)) {
       handleNonParagraphBlockBackspaceAndEnterWithTxn(editor, sharedRoot, block, point);
