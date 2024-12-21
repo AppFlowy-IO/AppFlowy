@@ -37,7 +37,7 @@ class ChatAIMessageBubble extends StatelessWidget {
   final Widget child;
   final bool showActions;
   final bool isLastMessage;
-  final void Function(String)? onRegenerate;
+  final void Function()? onRegenerate;
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +94,7 @@ class ChatAIBottomInlineActions extends StatelessWidget {
 
   final Widget child;
   final Message message;
-  final void Function(String)? onRegenerate;
+  final void Function()? onRegenerate;
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +130,7 @@ class ChatAIMessageHover extends StatefulWidget {
 
   final Widget child;
   final Message message;
-  final void Function(String)? onRegenerate;
+  final void Function()? onRegenerate;
 
   @override
   State<ChatAIMessageHover> createState() => _ChatAIMessageHoverState();
@@ -280,7 +280,7 @@ class AIResponseActionBar extends StatelessWidget {
 
   final Message message;
   final bool showDecoration;
-  final void Function(String)? onRegenerate;
+  final void Function()? onRegenerate;
 
   @override
   Widget build(BuildContext context) {
@@ -343,7 +343,7 @@ class AIResponseActionBar extends StatelessWidget {
       ),
       RegenerateButton(
         isInHoverBar: showDecoration,
-        onTap: () => onRegenerate?.call(message.id),
+        onTap: () => onRegenerate?.call(),
       ),
     ];
   }
@@ -435,7 +435,7 @@ class ChatAIMessagePopup extends StatelessWidget {
 
   final Widget child;
   final Message message;
-  final void Function(String)? onRegenerate;
+  final void Function()? onRegenerate;
 
   @override
   Widget build(BuildContext context) {
@@ -497,7 +497,7 @@ class ChatAIMessagePopup extends StatelessWidget {
   Widget _regenerateButton(BuildContext context) {
     return MobileQuickActionButton(
       onTap: () {
-        onRegenerate?.call(message.id);
+        onRegenerate?.call();
         Navigator.of(context).pop();
       },
       icon: FlowySvgs.ai_undo_s,

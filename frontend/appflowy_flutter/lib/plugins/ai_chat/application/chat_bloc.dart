@@ -221,13 +221,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             answerStream = null;
             answerStreamMessageId = '';
           },
-          startAnswerStreaming: (Message message) {
-            emit(
-              state.copyWith(
-                promptResponseState: PromptResponseState.streamingAnswer,
-              ),
-            );
-          },
           failedSending: () {
             final lastMessage = chatController.messages.lastOrNull;
             if (lastMessage != null) {
@@ -246,7 +239,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
             emit(
               state.copyWith(
-                promptResponseState: PromptResponseState.streamingAnswer,
+                promptResponseState: PromptResponseState.awaitingAnswer,
               ),
             );
           },
@@ -436,7 +429,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
           add(ChatEvent.finishSending(question));
           add(ChatEvent.receiveMessage(streamAnswer));
-          add(ChatEvent.startAnswerStreaming(streamAnswer));
         }
       },
       (err) {
@@ -487,7 +479,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           );
 
           add(ChatEvent.receiveMessage(streamAnswer));
-          add(ChatEvent.startAnswerStreaming(streamAnswer));
         }
       },
       (err) => Log.error("Failed to send message: ${err.msg}"),
@@ -591,8 +582,6 @@ class ChatEvent with _$ChatEvent {
   const factory ChatEvent.regenerateAnswer(String id) = _RegenerateAnswer;
 
   // streaming answer
-  const factory ChatEvent.startAnswerStreaming(Message message) =
-      _StartAnswerStreaming;
   const factory ChatEvent.stopStream() = _StopStream;
   const factory ChatEvent.didFinishAnswerStream() = _DidFinishAnswerStream;
 

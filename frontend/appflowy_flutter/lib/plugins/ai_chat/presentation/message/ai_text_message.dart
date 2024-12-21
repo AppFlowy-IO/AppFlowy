@@ -47,7 +47,7 @@ class ChatAIMessageWidget extends StatelessWidget {
   final String chatId;
   final String? refSourceJsonString;
   final void Function(ChatMessageRefSource metadata)? onSelectedMetadata;
-  final void Function(String messageId)? onRegenerate;
+  final void Function()? onRegenerate;
   final bool isStreaming;
   final bool isLastMessage;
 
