@@ -122,7 +122,7 @@ class _DraggleOptionButtonFeedbackState
   }
 
   void _setupLockComponentContext() {
-    node = widget.blockComponentContext.node.copyWith();
+    node = widget.blockComponentContext.node.deepCopy();
     blockComponentContext = BlockComponentContext(
       widget.blockComponentContext.buildContext,
       node,

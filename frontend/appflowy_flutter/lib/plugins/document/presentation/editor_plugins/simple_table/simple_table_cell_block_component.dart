@@ -127,21 +127,34 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
           if (editorState.editable) ...[
             if (node.columnIndex == 0)
               Positioned(
-                top: 0,
+                // if the cell is in the first row, add padding to the top of the cell
+                // to make the row action button clickable.
+                top: node.rowIndex == 0
+                    ? SimpleTableConstants.tableHitTestTopPadding
+                    : 0,
                 bottom: 0,
                 left: -SimpleTableConstants.tableLeftPadding,
                 child: _buildRowMoreActionButton(),
               ),
             if (node.rowIndex == 0)
               Positioned(
-                left: 0,
+                left: node.columnIndex == 0
+                    ? SimpleTableConstants.tableHitTestLeftPadding
+                    : 0,
                 right: 0,
                 child: _buildColumnMoreActionButton(),
               ),
+            if (node.columnIndex == 0 && node.rowIndex == 0)
+              Positioned(
+                left: 2,
+                top: 0,
+                child: _buildTableActionMenu(),
+              ),
             Positioned(
               right: 0,
-              top:
-                  node.rowIndex == 0 ? SimpleTableConstants.tableTopPadding : 0,
+              top: node.rowIndex == 0
+                  ? SimpleTableConstants.tableHitTestTopPadding
+                  : 0,
               bottom: 0,
               child: SimpleTableColumnResizeHandle(
                 node: node,
@@ -163,7 +176,12 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       //  column action button is not clickable.
       // issue: https://github.com/flutter/flutter/issues/75747
       padding: EdgeInsets.only(
-        top: node.rowIndex == 0 ? SimpleTableConstants.tableTopPadding : 0,
+        top: node.rowIndex == 0
+            ? SimpleTableConstants.tableHitTestTopPadding
+            : 0,
+        left: node.columnIndex == 0
+            ? SimpleTableConstants.tableHitTestLeftPadding
+            : 0,
       ),
       // TODO(Lucas): find a better way to handle the multiple value listenable builder
       // There's flutter pub can do that.
@@ -239,6 +257,7 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     final rowIndex = node.rowIndex;
 
     return SimpleTableMoreActionMenu(
+      tableCellNode: node,
       index: rowIndex,
       type: SimpleTableMoreActionType.row,
     );
@@ -248,8 +267,21 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     final columnIndex = node.columnIndex;
 
     return SimpleTableMoreActionMenu(
+      tableCellNode: node,
       index: columnIndex,
       type: SimpleTableMoreActionType.column,
+    );
+  }
+
+  Widget _buildTableActionMenu() {
+    final tableNode = node.parentTableNode;
+    if (tableNode == null) {
+      return const SizedBox.shrink();
+    }
+
+    return SimpleTableActionMenu(
+      tableNode: tableNode,
+      editorState: editorState,
     );
   }
 
@@ -328,8 +360,26 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
         node.path.isAncestorOf(selection.start.path) &&
         node.path.isAncestorOf(selection.end.path)) {
       isEditingCellNotifier.value = true;
+      simpleTableContext?.isEditingCell.value = node;
     } else {
       isEditingCellNotifier.value = false;
+    }
+
+    // if the selection is null or the selection is collapsed, set the isEditingCell to null.
+    if (selection == null) {
+      simpleTableContext?.isEditingCell.value = null;
+    } else if (selection.isCollapsed) {
+      // if the selection is collapsed, check if the selection is in the cell.
+      final selectedNode =
+          editorState.getNodesInSelection(selection).firstOrNull;
+      if (selectedNode != null) {
+        final tableNode = selectedNode.parentTableNode;
+        if (tableNode == null || tableNode.id != node.parentTableNode?.id) {
+          simpleTableContext?.isEditingCell.value = null;
+        }
+      } else {
+        simpleTableContext?.isEditingCell.value = null;
+      }
     }
   }
 }

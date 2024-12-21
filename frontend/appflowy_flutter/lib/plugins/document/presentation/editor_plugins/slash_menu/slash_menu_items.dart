@@ -79,7 +79,6 @@ final heading3SlashMenuItem = SelectionMenuItem(
 // toggle heading 1 menu item
 // heading 1 - 3 menu items
 final toggleHeading1SlashMenuItem = SelectionMenuItem(
-  // todo: i18n
   getName: () => LocaleKeys.document_slashMenu_name_toggleHeading1.tr(),
   nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, isSelected, style) => SelectableSvgWidget(
@@ -97,7 +96,6 @@ final toggleHeading1SlashMenuItem = SelectionMenuItem(
 );
 
 final toggleHeading2SlashMenuItem = SelectionMenuItem(
-  // todo: i18n
   getName: () => LocaleKeys.document_slashMenu_name_toggleHeading2.tr(),
   nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, isSelected, style) => SelectableSvgWidget(
@@ -115,7 +113,6 @@ final toggleHeading2SlashMenuItem = SelectionMenuItem(
 );
 
 final toggleHeading3SlashMenuItem = SelectionMenuItem(
-  // todo: i18n
   getName: () => LocaleKeys.document_slashMenu_name_toggleHeading3.tr(),
   nameBuilder: _slashMenuItemNameBuilder,
   icon: (editorState, isSelected, style) => SelectableSvgWidget(

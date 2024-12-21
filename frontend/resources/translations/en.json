@@ -1730,11 +1730,20 @@
           "headerRow": "Header row",
           "clearContents": "Clear contents",
           "setToPageWidth": "Set to page width",
-          "distributeColumnsWidth": "Distribute columns evenly"
+          "distributeColumnsWidth": "Distribute columns evenly",
+          "duplicateRow": "Duplicate row",
+          "duplicateColumn": "Duplicate column",
+          "textColor": "Text color",
+          "cellBackgroundColor": "Cell background color",
+          "duplicateTable": "Duplicate table"
         },
         "clickToAddNewRow": "Click to add a new row",
         "clickToAddNewColumn": "Click to add a new column",
-        "clickToAddNewRowAndColumn": "Click to add a new row and column"
+        "clickToAddNewRowAndColumn": "Click to add a new row and column",
+        "headerName": {
+          "table": "Table",
+          "alignText": "Align text"
+        }
       },
       "cover": {
         "changeCover": "Change Cover",
