@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_cell_edi
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/shared/icon_emoji_picker/recent_icons.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -22,7 +23,7 @@ import '../../shared/util.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
+  RecentIcons.enable = false;
   group('grid row detail page:', () {
     testWidgets('opens', (tester) async {
       await tester.initializeAppFlowy();
