@@ -22,7 +22,7 @@ export const DividerNode = memo(
         >
           <div
             contentEditable={false}
-            className={'w-full px-1 py-2'}
+            className={'w-full py-2'}
           >
             <hr className={'border-line-border'}/>
           </div>

@@ -66,6 +66,30 @@ export function QuickNote() {
     setToastMessage(msg);
   }, []);
 
+  const handleEnterNote = useCallback((note: QuickNoteType) => {
+    setCurrentNote(note);
+    setRoute(QuickNoteRoute.NOTE);
+  }, []);
+
+  const handleAdd = useCallback(async () => {
+    if (!service || !currentWorkspaceId) return;
+    try {
+      const note = await service.createQuickNote(currentWorkspaceId, [{
+        type: 'paragraph',
+        delta: [{ insert: '' }],
+        children: [],
+      }]);
+
+      setNoteList(prev => [note, ...prev]);
+
+      handleEnterNote(note);
+      // eslint-disable-next-line
+    } catch (e: any) {
+      console.error(e);
+      handleOpenToast(e.message);
+    }
+  }, [service, currentWorkspaceId, handleEnterNote, handleOpenToast]);
+
   const loadNoteList = useCallback(async (newParams: {
     offset: number;
     limit: number;
@@ -99,10 +123,11 @@ export function QuickNote() {
     return notes;
   }, [loadNoteList]);
 
-  const handleEnterNote = useCallback((note: QuickNoteType) => {
-    setCurrentNote(note);
-    setRoute(QuickNoteRoute.NOTE);
-  }, []);
+  useEffect(() => {
+    setOpen(false);
+    setRoute(QuickNoteRoute.LIST);
+    setCurrentNote(undefined);
+  }, [currentWorkspaceId]);
 
   const handleLoadMore = useCallback(async () => {
     const params = {
@@ -147,15 +172,15 @@ export function QuickNote() {
       setPageSize([Math.min(window.innerWidth * 0.8, 840), Math.min(window.innerHeight * 0.9, 760)]);
       // center
       setPosition({
-        x: window.innerWidth * 0.1,
-        y: window.innerHeight * 0.05,
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2,
       });
 
     } else {
       setPageSize(PAPER_SIZE);
       const rect = main.getBoundingClientRect();
 
-      setPosition({ y: rect.bottom - PAPER_SIZE[1] - 16, x: rect.left + 16 });
+      setPosition({ y: rect.bottom - PAPER_SIZE[1] / 2, x: rect.left + PAPER_SIZE[0] / 2 + 16 });
     }
   }, [expand]);
 
@@ -163,18 +188,38 @@ export function QuickNote() {
     resetPosition();
   }, [resetPosition]);
 
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const handleOpen = useCallback(async () => {
+    if (open) {
+      handleClose();
+      return;
+    }
+
+    const el = buttonRef.current;
+
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+
+    setPosition(prev => !prev ? {
+      x: rect.right + PAPER_SIZE[0] / 2,
+      y: rect.bottom - PAPER_SIZE[1] / 2,
+    } : prev);
+
+    const list = await initNoteList();
+
+    if (list?.data.length === 0) {
+      await handleAdd();
+    }
+
+    setOpen(true);
+  }, [open, initNoteList, handleAdd]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (createHotkey(HOT_KEY_NAME.QUICK_NOTE)(e)) {
         e.stopPropagation();
         e.preventDefault();
-        setOpen(prev => {
-          if (!prev) {
-            setRoute(QuickNoteRoute.NOTE);
-          }
-
-          return !prev;
-        });
+        void handleOpen();
       }
     };
 
@@ -183,7 +228,7 @@ export function QuickNote() {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [handleOpen]);
 
   const handleMouseDown = (event: React.MouseEvent) => {
     if (!position) return;
@@ -240,24 +285,6 @@ export function QuickNote() {
     });
   }, []);
 
-  const handleAdd = useCallback(async () => {
-    if (!service || !currentWorkspaceId) return;
-    try {
-      const note = await service.createQuickNote(currentWorkspaceId, [{
-        type: 'paragraph',
-        delta: [{ insert: '' }],
-        children: [],
-      }]);
-
-      setNoteList(prev => [note, ...prev]);
-
-      handleEnterNote(note);
-      // eslint-disable-next-line
-    } catch (e: any) {
-      console.error(e);
-      handleOpenToast(e.message);
-    }
-  }, [service, currentWorkspaceId, handleEnterNote, handleOpenToast]);
   const renderHeader = () => {
     if (route === QuickNoteRoute.NOTE && currentNote) {
       return (
@@ -305,25 +332,9 @@ export function QuickNote() {
         </>
       }>
         <IconButton
+          ref={buttonRef}
           size={'small'}
-          onClick={async (e) => {
-            if (open) {
-              handleClose();
-              return;
-            }
-
-            const rect = e.currentTarget.getBoundingClientRect();
-
-            setPosition(prev => !prev ? { x: rect.right + 60, y: rect.bottom - PAPER_SIZE[1] } : prev);
-
-            const list = await initNoteList();
-
-            if (list?.data.length === 0) {
-              await handleAdd();
-            }
-
-            setOpen(true);
-          }}
+          onClick={handleOpen}
         >
           <EditIcon/>
         </IconButton>
@@ -356,6 +367,10 @@ export function QuickNote() {
           top: position.y,
           left: position.x,
         } : undefined}
+        transformOrigin={{
+          vertical: 'center',
+          horizontal: 'center',
+        }}
         onClose={handleClose}
       >
         <ToastContext.Provider value={{
