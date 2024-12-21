@@ -376,6 +376,23 @@ impl AIManager {
       .update_chat_settings(&workspace_id, chat_id, update_setting)
       .await?;
 
+    let chat_setting_store_key = setting_store_key(chat_id);
+
+    if let Some(settings) = self
+      .store_preferences
+      .get_object::<ChatSettings>(&chat_setting_store_key)
+    {
+      if let Err(err) = self.store_preferences.set_object(
+        &chat_setting_store_key,
+        &ChatSettings {
+          rag_ids: rag_ids.clone(),
+          ..settings
+        },
+      ) {
+        error!("failed to set chat settings: {}", err);
+      }
+    }
+
     let user_service = self.user_service.clone();
     let external_service = self.external_service.clone();
     tokio::spawn(async move {
