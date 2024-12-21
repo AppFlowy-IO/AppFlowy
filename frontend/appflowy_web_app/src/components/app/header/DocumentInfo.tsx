@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-function DocumentInfo ({ viewId }: {
+function DocumentInfo({ viewId }: {
   viewId: string;
 }) {
   const view = useAppView(viewId);
@@ -36,14 +36,14 @@ function DocumentInfo ({ viewId }: {
       });
     }
 
-    return dayjs(timestamp).format('MMM D, YYYY hh:mm');
+    return dayjs(timestamp).format('MMM D, YYYY HH:mm');
   }, [t]);
 
   if (!view) return null;
 
   return (
     <>
-      <Divider />
+      <Divider/>
       <div className={'flex flex-col gap-1 text-text-caption text-xs '}>
         <div
           className={'px-[10px]'}

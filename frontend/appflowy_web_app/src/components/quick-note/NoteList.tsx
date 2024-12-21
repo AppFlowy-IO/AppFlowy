@@ -1,11 +1,11 @@
 import React, { useCallback } from 'react';
-import { QuickNote as QuickNoteType } from '@/application/types';
-import dayjs from 'dayjs';
+import { QuickNote, QuickNote as QuickNoteType } from '@/application/types';
 import { useTranslation } from 'react-i18next';
 import { Divider, IconButton, Tooltip } from '@mui/material';
 import { ReactComponent as EditIcon } from '@/assets/edit.svg';
 import { ReactComponent as DeleteIcon } from '@/assets/trash.svg';
 import DeleteNoteModal from '@/components/quick-note/DeleteNoteModal';
+import { getSummary, getTitle, getUpdateTime } from '@/components/quick-note/utils';
 
 function NoteList({
   list,
@@ -19,23 +19,9 @@ function NoteList({
   onScroll: (e: React.UIEvent<HTMLDivElement>) => void;
 }) {
   const { t } = useTranslation();
-  const renderTitle = useCallback((last_updated_at: string) => {
-    return dayjs(last_updated_at).format('MMMM d, YYYY');
-  }, []);
-
-  const renderSummary = useCallback((note: QuickNoteType) => {
-    const data = note.data;
-
-    if (!data) return '';
-    let text = '';
-
-    for (const block of data) {
-      text += block.delta.map((d) => d.insert).join('');
-    }
-
-    return text;
-
-  }, []);
+  const renderTitle = useCallback((note: QuickNote) => {
+    return getTitle(note) || t('menuAppHeader.defaultNewPageName');
+  }, [t]);
 
   const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
   const [selectedNote, setSelectedNote] = React.useState<QuickNoteType | null>(null);
@@ -62,12 +48,16 @@ function NoteList({
                 >
                   <div
                     className={`w-full 
-                    ${index === list.length - 1 ? '' : 'border-b'} py-4 flex justify-center min-h-[68px] flex-col border-line-card`}>
-                    <div className={'font-medium'}>
-                      {renderTitle(note.last_updated_at)}
+                    ${index === list.length - 1 ? '' : 'border-b'} py-4 gap-1 flex justify-center min-h-[68px] flex-col border-line-card`}>
+                    <div className={'font-medium w-full truncate'}>
+                      {renderTitle(note)}
                     </div>
-                    <div className={'font-normal w-full truncate text-text-caption'}>
-                      {renderSummary(note)}
+                    <div className={'font-normal w-full flex gap-2'}>
+                      <span className={'text-text-title'}>
+                        {getUpdateTime(note)}
+                      </span>
+                      <span className={'flex-1 truncate text-text-caption'}>{getSummary(note)}</span>
+
                     </div>
                   </div>
                   {hoverId === note.id ? <div

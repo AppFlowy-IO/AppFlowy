@@ -1,5 +1,5 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef } from 'react';
-import { IconButton, Tooltip, Slide, Snackbar, Portal } from '@mui/material';
+import { IconButton, Tooltip, Zoom, Snackbar, Portal } from '@mui/material';
 import { ReactComponent as EditIcon } from '@/assets/edit.svg';
 import { useTranslation } from 'react-i18next';
 import { createHotkey, createHotKeyLabel, HOT_KEY_NAME } from '@/utils/hotkeys';
@@ -13,6 +13,7 @@ import { useService } from '@/components/main/app.hooks';
 import { useCurrentWorkspaceId } from '@/components/app/app.hooks';
 import { QuickNote as QuickNoteType, QuickNoteEditorData } from '@/application/types';
 import NoteList from '@/components/quick-note/NoteList';
+import { getPopoverPosition, setPopoverPosition } from '@/components/quick-note/utils';
 
 const Note = React.lazy(() => import('@/components/quick-note/Note'));
 
@@ -23,8 +24,7 @@ const Transition = React.forwardRef(function Transition(
   },
   ref: React.Ref<unknown>,
 ) {
-  return <Slide
-    direction="up"
+  return <Zoom
     ref={ref}
     {...props}
   />;
@@ -43,7 +43,7 @@ export function QuickNote() {
   const [isDragging, setIsDragging] = React.useState(false);
   const dragStartPos = useRef({ x: 0, y: 0 });
   const [route, setRoute] = React.useState<QuickNoteRoute>(QuickNoteRoute.LIST);
-  const [pageSize, setPageSize] = React.useState(PAPER_SIZE);
+  const pageSizeRef = useRef(PAPER_SIZE);
   const [expand, setExpand] = React.useState(false);
   const paper = React.useRef<HTMLDivElement>(null);
   const [toastMessage, setToastMessage] = React.useState('');
@@ -168,17 +168,29 @@ export function QuickNote() {
 
     if (!main) return;
 
+    const localPosition = getPopoverPosition()[expand ? 'expand' : 'normal'];
+
     if (expand) {
-      setPageSize([Math.min(window.innerWidth * 0.8, 840), Math.min(window.innerHeight * 0.9, 760)]);
-      // center
-      setPosition({
-        x: window.innerWidth / 2,
-        y: window.innerHeight / 2,
-      });
+      pageSizeRef.current = [Math.min(window.innerWidth * 0.8, 840), Math.min(window.innerHeight * 0.9, 760)];
+
+      if (localPosition) {
+        setPosition(localPosition);
+      } else {
+        // center
+        setPosition({
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2,
+        });
+      }
 
     } else {
-      setPageSize(PAPER_SIZE);
+      pageSizeRef.current = PAPER_SIZE;
       const rect = main.getBoundingClientRect();
+
+      if (localPosition) {
+        setPosition(localPosition);
+        return;
+      }
 
       setPosition({ y: rect.bottom - PAPER_SIZE[1] / 2, x: rect.left + PAPER_SIZE[0] / 2 + 16 });
     }
@@ -200,10 +212,16 @@ export function QuickNote() {
     if (!el) return;
     const rect = el.getBoundingClientRect();
 
-    setPosition(prev => !prev ? {
-      x: rect.right + PAPER_SIZE[0] / 2,
-      y: rect.bottom - PAPER_SIZE[1] / 2,
-    } : prev);
+    const localPosition = getPopoverPosition()[expand ? 'expand' : 'normal'];
+
+    if (localPosition) {
+      setPosition(localPosition);
+    } else {
+      setPosition(prev => !prev ? {
+        x: rect.right + PAPER_SIZE[0] / 2,
+        y: rect.bottom - PAPER_SIZE[1] / 2,
+      } : prev);
+    }
 
     const list = await initNoteList();
 
@@ -212,7 +230,7 @@ export function QuickNote() {
     }
 
     setOpen(true);
-  }, [open, initNoteList, handleAdd]);
+  }, [open, expand, initNoteList, handleAdd]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -220,6 +238,8 @@ export function QuickNote() {
         e.stopPropagation();
         e.preventDefault();
         void handleOpen();
+      } else if (createHotkey(HOT_KEY_NAME.ESCAPE)(e)) {
+        handleClose();
       }
     };
 
@@ -242,9 +262,27 @@ export function QuickNote() {
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
       if (isDragging) {
-        setPosition({
-          x: event.clientX - dragStartPos.current.x,
-          y: event.clientY - dragStartPos.current.y,
+
+        const x = event.clientX - dragStartPos.current.x;
+        const y = event.clientY - dragStartPos.current.y;
+
+        const newPos = {
+          x: Math.min(
+            Math.max(x, pageSizeRef.current[0] / 2),
+            window.innerWidth - pageSizeRef.current[0] / 2,
+          ),
+          y: Math.min(
+            Math.max(y, pageSizeRef.current[1] / 2),
+            window.innerHeight - pageSizeRef.current[1] / 2,
+          ),
+        };
+
+        setPosition(newPos);
+        const localPosition = getPopoverPosition();
+
+        setPopoverPosition({
+          ...localPosition,
+          [expand ? 'expand' : 'normal']: newPos,
         });
       }
     };
@@ -253,22 +291,14 @@ export function QuickNote() {
       setIsDragging(false);
     };
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (createHotkey(HOT_KEY_NAME.ESCAPE)(e)) {
-        handleClose();
-      }
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mousemove', handleMouseMove, true);
     document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mousemove', handleMouseMove, true);
       document.removeEventListener('mouseup', handleMouseUp);
-      document.removeEventListener('keydown', handleKeyDown);
 
     };
-  }, [isDragging]);
+  }, [isDragging, expand]);
 
   const handleUpdateNodeData = useCallback((id: string, data: QuickNoteEditorData[]) => {
     setNoteList(prev => {
@@ -283,6 +313,27 @@ export function QuickNote() {
         return note;
       });
     });
+    if (id === currentNote?.id) {
+      setCurrentNote(prev => {
+        if (prev) {
+          return {
+            ...prev,
+            data,
+          };
+        }
+
+        return prev;
+      });
+    }
+  }, [currentNote?.id]);
+
+  const handleToggleExpand = useCallback(() => {
+    setOpen(false);
+    setTimeout(() => {
+      setOpen(true);
+      setExpand(prev => !prev);
+    }, 200);
+
   }, []);
 
   const renderHeader = () => {
@@ -291,9 +342,7 @@ export function QuickNote() {
         <NoteHeader
           note={currentNote}
           expand={expand}
-          onToggleExpand={() => {
-            setExpand(prev => !prev);
-          }}
+          onToggleExpand={handleToggleExpand}
           onClose={handleClose}
           onBack={() => {
             setRoute(QuickNoteRoute.LIST);
@@ -305,9 +354,7 @@ export function QuickNote() {
       onSearch={handleSearch}
       onClose={handleClose}
       expand={expand}
-      onToggleExpand={() => {
-        setExpand(prev => !prev);
-      }}
+      onToggleExpand={handleToggleExpand}
     />;
   };
 
@@ -344,6 +391,7 @@ export function QuickNote() {
         disableEnforceFocus={true}
         disableRestoreFocus={true}
         TransitionComponent={Transition}
+
         slotProps={{
           root: {
             style: {
@@ -354,8 +402,8 @@ export function QuickNote() {
             style: {
               userSelect: 'none',
               pointerEvents: 'auto',
-              width: pageSize[0],
-              height: pageSize[1],
+              width: pageSizeRef.current[0],
+              height: pageSizeRef.current[1],
             },
             ref: paper,
             className: 'flex flex-col relative',
@@ -372,6 +420,7 @@ export function QuickNote() {
           horizontal: 'center',
         }}
         onClose={handleClose}
+        keepMounted={true}
       >
         <ToastContext.Provider value={{
           onOpen: handleOpenToast,
@@ -381,11 +430,14 @@ export function QuickNote() {
           },
           open: openToast,
         }}>
-          <div onMouseDown={handleMouseDown} style={{
-            cursor: isDragging ? 'grabbing' : 'grab',
-          }}
-               className={'bg-note-header py-2 px-5 flex items-center justify-between gap-5 h-[44px] w-full'}>
-            <div className={'flex-1'}>{renderHeader()}</div>
+          <div
+            onMouseDown={handleMouseDown}
+            style={{
+              cursor: isDragging ? 'grabbing' : 'grab',
+            }}
+
+            className={'bg-note-header py-2 px-5 flex items-center justify-between gap-5 h-[44px] w-full'}>
+            <div className={'flex-1 overflow-hidden w-full'}>{renderHeader()}</div>
           </div>
           <div
             className={'flex-1 flex-col overflow-hidden relative flex'}

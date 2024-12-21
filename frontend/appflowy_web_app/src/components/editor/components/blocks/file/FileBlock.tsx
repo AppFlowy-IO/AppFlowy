@@ -156,7 +156,10 @@ export const FileBlock = memo(
           contentEditable={false}
           className={`embed-block items-center p-4`}
         >
-          <FileIcon className={'w-6 h-6'}/>
+          <div className={'flex items-start h-full'}>
+            <FileIcon className={'w-6 h-6'}/>
+          </div>
+
           <div
             ref={emptyRef}
             className={'flex-1 flex flex-col gap-2 overflow-hidden text-base font-medium'}

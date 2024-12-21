@@ -24,7 +24,7 @@
     "coverage": "pnpm run test:unit && pnpm run test:components"
   },
   "dependencies": {
-    "@appflowyinc/editor": "^0.0.26",
+    "@appflowyinc/editor": "^0.0.28",
     "@atlaskit/primitives": "^5.5.3",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
