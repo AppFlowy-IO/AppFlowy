@@ -592,7 +592,7 @@ class _PromptBottomActions extends StatelessWidget {
 
   Widget _sendButton() {
     return PromptInputSendButton(
-      buttonSize: DesktopAIPromptSizes.actionBarButtonSize,
+      buttonSize: DesktopAIPromptSizes.actionBarHeight,
       iconSize: DesktopAIPromptSizes.sendButtonSize,
       state: sendButtonState,
       onSendPressed: onSendPressed,
