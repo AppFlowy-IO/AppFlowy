@@ -13,7 +13,9 @@ pub trait FolderService: FolderQueryService + FolderViewEdit {}
 
 #[async_trait]
 pub trait FolderQueryService: Send + Sync + 'static {
-  async fn get_sibling_ids_with_view_layout(
+  /// gets the parent view and all of the ids of its children views matching
+  /// the provided view layout, given that the parent view is not a space
+  async fn get_surrounding_view_ids_with_view_layout(
     &self,
     parent_view_id: &str,
     view_layout: ViewLayout,

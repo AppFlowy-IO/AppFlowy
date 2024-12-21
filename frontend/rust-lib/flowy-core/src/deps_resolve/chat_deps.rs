@@ -53,7 +53,7 @@ impl AIExternalService for ChatQueryServiceImpl {
   ) -> Result<Vec<String>, FlowyError> {
     let mut ids = self
       .folder_service
-      .get_sibling_ids_with_view_layout(parent_view_id, ViewLayout::Document)
+      .get_surrounding_view_ids_with_view_layout(parent_view_id, ViewLayout::Document)
       .await;
 
     if !ids.is_empty() {

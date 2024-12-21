@@ -686,35 +686,41 @@ impl FolderViewEdit for FolderServiceImpl {
 
 #[async_trait]
 impl FolderQueryService for FolderServiceImpl {
-  async fn get_sibling_ids_with_view_layout(
+  async fn get_surrounding_view_ids_with_view_layout(
     &self,
     parent_view_id: &str,
     view_layout: ViewLayout,
   ) -> Vec<String> {
-    match self.folder_manager.upgrade() {
-      None => vec![],
-      Some(folder_manager) => {
-        if let Ok(parent_view) = folder_manager.get_view(parent_view_id).await {
-          if parent_view.space_info().is_none() {
-            if let Ok(views) = folder_manager
-              .get_untrashed_views_belong_to(parent_view_id)
-              .await
-            {
-              return views
-                .into_iter()
-                .filter_map(|child| {
-                  if child.layout == view_layout {
-                    Some(child.id.clone())
-                  } else {
-                    None
-                  }
-                })
-                .collect::<Vec<String>>();
+    let folder_manager = match self.folder_manager.upgrade() {
+      Some(folder_manager) => folder_manager,
+      None => return vec![],
+    };
+
+    if let Ok(view) = folder_manager.get_view(parent_view_id).await {
+      if view.space_info().is_some() {
+        return vec![];
+      }
+    }
+
+    match folder_manager
+      .get_untrashed_views_belong_to(parent_view_id)
+      .await
+    {
+      Ok(views) => {
+        let mut children = views
+          .into_iter()
+          .filter_map(|child| {
+            if child.layout == view_layout {
+              Some(child.id.clone())
+            } else {
+              None
             }
-          }
-        }
-        vec![]
+          })
+          .collect::<Vec<_>>();
+        children.push(parent_view_id.to_string());
+        children
       },
+      _ => vec![],
     }
   }
 
