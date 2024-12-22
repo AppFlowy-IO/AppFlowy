@@ -179,11 +179,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ),
             );
           },
-          finishSending: (ChatMessagePB message) {
-            lastSentMessage = message;
+          finishSending: () {
             emit(
               state.copyWith(
-                promptResponseState: PromptResponseState.awaitingAnswer,
+                promptResponseState: PromptResponseState.streamingAnswer,
               ),
             );
           },
@@ -239,7 +238,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
             emit(
               state.copyWith(
-                promptResponseState: PromptResponseState.awaitingAnswer,
+                promptResponseState: PromptResponseState.sendingQuestion,
               ),
             );
           },
@@ -427,7 +426,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             question.messageId,
           );
 
-          add(ChatEvent.finishSending(question));
+          lastSentMessage = question;
+          add(const ChatEvent.finishSending());
           add(ChatEvent.receiveMessage(streamAnswer));
         }
       },
@@ -456,7 +456,12 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   void _regenerateAnswer(String answerMessageIdString) async {
-    final answerMessageId = Int64.tryParseInt(answerMessageIdString);
+    final id = temporaryMessageIDMap.entries
+            .firstWhereOrNull((e) => e.value == answerMessageIdString)
+            ?.key ??
+        answerMessageIdString;
+    final answerMessageId = Int64.tryParseInt(id);
+
     if (answerMessageId == null) {
       return;
     }
@@ -476,9 +481,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           final streamAnswer = _createAnswerStreamMessage(
             answerStream!,
             answerMessageId - 1,
-          );
+          ).copyWith(id: answerMessageIdString);
 
           add(ChatEvent.receiveMessage(streamAnswer));
+          add(const ChatEvent.finishSending());
         }
       },
       (err) => Log.error("Failed to send message: ${err.msg}"),
@@ -574,8 +580,7 @@ class ChatEvent with _$ChatEvent {
     required String message,
     Map<String, dynamic>? metadata,
   }) = _SendMessage;
-  const factory ChatEvent.finishSending(ChatMessagePB message) =
-      _FinishSendMessage;
+  const factory ChatEvent.finishSending() = _FinishSendMessage;
   const factory ChatEvent.failedSending() = _FailSendMessage;
 
   // regenerate
