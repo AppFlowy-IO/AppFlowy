@@ -11,9 +11,16 @@ import '../../shared/common_operations.dart';
 import '../../shared/expectation.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  RecentIcons.enable = false;
   final emoji = EmojiIconData.emoji('😁');
+
+  setUpAll(() {
+    IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+    RecentIcons.enable = false;
+  });
+
+  tearDownAll(() {
+    RecentIcons.enable = true;
+  });
 
   Future<EmojiIconData> loadIcon() async {
     await loadIconGroups();

@@ -110,8 +110,8 @@ class KVKeys {
   /// The value is a boolean string
   static const String hasUpgradedSpace = 'hasUpgradedSpace060';
 
-  /// The key for saving the rencent icons
+  /// The key for saving the recent icons
   ///
   /// The value is a json string of [RecentIcons]
-  static const String kRecentIcons = 'kRecentIcons';
+  static const String recentIcons = 'kRecentIcons';
 }

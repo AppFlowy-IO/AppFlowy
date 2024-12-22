@@ -11,6 +11,7 @@ import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
 
 // use a global value to store the selected emoji to prevent reloading every time.
 EmojiData? kCachedEmojiData;
+const _kRecentEmojiCategoryId = 'Recent';
 
 class FlowyEmojiPicker extends StatefulWidget {
   const FlowyEmojiPicker({
@@ -29,30 +30,6 @@ class FlowyEmojiPicker extends StatefulWidget {
 class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
   late EmojiData emojiData;
   bool loaded = false;
-
-  void loadEmojis(EmojiData data) {
-    RecentIcons.getEmojiIds().then((v) {
-      if (v.isEmpty) {
-        emojiData = data;
-        setState(() {
-          loaded = true;
-        });
-        return;
-      }
-      final categories = List.of(data.categories);
-      categories.insert(
-        0,
-        Category(
-          id: 'Recent',
-          emojiIds: v.sublist(0, min(widget.emojiPerLine, v.length)),
-        ),
-      );
-      emojiData = EmojiData(categories: categories, emojis: data.emojis);
-      setState(() {
-        loaded = true;
-      });
-    });
-  }
 
   @override
   void initState() {
@@ -95,11 +72,7 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
         RecentIcons.putEmoji(id);
       },
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      headerBuilder: (context, category) {
-        return FlowyEmojiHeader(
-          category: category,
-        );
-      },
+      headerBuilder: (_, category) => FlowyEmojiHeader(category: category),
       itemBuilder: (context, emojiId, emoji, callback) {
         final name = emojiData.emojis[emojiId]?.name ?? '';
         return SizedBox.square(
@@ -135,5 +108,25 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
         );
       },
     );
+  }
+
+  void loadEmojis(EmojiData data) {
+    RecentIcons.getEmojiIds().then((v) {
+      if (v.isEmpty) {
+        emojiData = data;
+        setState(() => loaded = true);
+        return;
+      }
+      final categories = List.of(data.categories);
+      categories.insert(
+        0,
+        Category(
+          id: _kRecentEmojiCategoryId,
+          emojiIds: v.sublist(0, min(widget.emojiPerLine, v.length)),
+        ),
+      );
+      emojiData = EmojiData(categories: categories, emojis: data.emojis);
+      setState(() => loaded = true);
+    });
   }
 }

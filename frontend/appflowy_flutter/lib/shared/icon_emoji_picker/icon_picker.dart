@@ -24,6 +24,7 @@ import 'icon_color_picker.dart';
 
 // cache the icon groups to avoid loading them multiple times
 List<IconGroup>? kIconGroups;
+const _kRecentIconGroupName = 'Recent';
 
 extension IconGroupFilter on List<IconGroup> {
   String? findSvgContent(String key) {
@@ -96,13 +97,13 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
   final ValueNotifier<String> keyword = ValueNotifier('');
   final debounce = Debounce(duration: const Duration(milliseconds: 150));
 
-  Future loadIcons() async {
+  Future<void> loadIcons() async {
     final localIcons = await loadIconGroups();
     final recentIcons = await RecentIcons.getIcons();
     if (recentIcons.isNotEmpty) {
       iconGroups.add(
         IconGroup(
-          name: 'Recent',
+          name: _kRecentIconGroupName,
           icons: recentIcons.sublist(
             0,
             min(recentIcons.length, widget.iconPerLine),

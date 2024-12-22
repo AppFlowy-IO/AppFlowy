@@ -22,8 +22,15 @@ import '../../shared/emoji.dart';
 import '../../shared/util.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  RecentIcons.enable = false;
+  setUpAll(() {
+    IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+    RecentIcons.enable = false;
+  });
+
+  tearDownAll(() {
+    RecentIcons.enable = true;
+  });
+
   group('grid row detail page:', () {
     testWidgets('opens', (tester) async {
       await tester.initializeAppFlowy();
