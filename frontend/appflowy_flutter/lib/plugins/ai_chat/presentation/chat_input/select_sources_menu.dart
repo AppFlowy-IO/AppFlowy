@@ -9,6 +9,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -314,11 +315,18 @@ class _ChatSourceTreeItemState extends State<ChatSourceTreeItem> {
 
     final disabledEnabledChild =
         widget.chatSource.ignoreStatus == IgnoreViewType.disable
-            ? Opacity(
-                opacity: 0.5,
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.forbidden,
-                  child: IgnorePointer(child: child),
+            ? FlowyTooltip(
+                message: switch (widget.chatSource.view.layout) {
+                  ViewLayoutPB.Document =>
+                    "You can only select up to 3 top-level documents and its children",
+                  _ => "We don't support chatting with databases at this time",
+                },
+                child: Opacity(
+                  opacity: 0.5,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.forbidden,
+                    child: IgnorePointer(child: child),
+                  ),
                 ),
               )
             : child;
