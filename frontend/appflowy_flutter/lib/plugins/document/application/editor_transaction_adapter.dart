@@ -24,7 +24,7 @@ import 'package:appflowy_editor/appflowy_editor.dart'
 import 'package:collection/collection.dart';
 import 'package:nanoid/nanoid.dart';
 
-const _kExternalTextType = 'text';
+const kExternalTextType = 'text';
 
 /// Uses to adjust the data structure between the editor and the backend.
 ///
@@ -130,24 +130,24 @@ class TransactionAdapter {
         .expand((element) => element)
         .toList(growable: false); // avoid lazy evaluation
   }
+}
 
-  List<BlockActionWrapper> filterTextDeltaActions(
-    List<BlockActionWrapper> actions,
-  ) {
-    return actions
-        .where(
-          (e) =>
-              e.textDeltaType != TextDeltaType.none &&
-              e.textDeltaPayloadPB != null,
-        )
-        .toList(growable: false);
-  }
+List<BlockActionWrapper> filterTextDeltaActions(
+  List<BlockActionWrapper> actions,
+) {
+  return actions
+      .where(
+        (e) =>
+            e.textDeltaType != TextDeltaType.none &&
+            e.textDeltaPayloadPB != null,
+      )
+      .toList(growable: false);
+}
 
-  List<BlockActionPB> filterBlockActions(
-    List<BlockActionWrapper> actions,
-  ) {
-    return actions.map((e) => e.blockActionPB).toList(growable: false);
-  }
+List<BlockActionPB> filterBlockActions(
+  List<BlockActionWrapper> actions,
+) {
+  return actions.map((e) => e.blockActionPB).toList(growable: false);
 }
 
 extension BlockAction on Operation {
@@ -213,7 +213,7 @@ extension on InsertOperation {
         // sync the text id to the node
         node.externalValues = ExternalValues(
           externalId: textId,
-          externalType: _kExternalTextType,
+          externalType: kExternalTextType,
         );
       }
 
@@ -222,7 +222,7 @@ extension on InsertOperation {
         ..block = node.toBlock(
           childrenId: nanoid(6),
           externalId: textId,
-          externalType: textId != null ? _kExternalTextType : null,
+          externalType: textId != null ? kExternalTextType : null,
           attributes: {...node.attributes}..remove(blockComponentDelta),
         )
         ..parentId = parentId
@@ -323,7 +323,7 @@ extension on UpdateOperation {
 
       node.externalValues = ExternalValues(
         externalId: textId,
-        externalType: _kExternalTextType,
+        externalType: kExternalTextType,
       );
 
       if (enableDocumentInternalLog) {
@@ -333,7 +333,7 @@ extension on UpdateOperation {
       // update the external text id and external type to the block
       blockActionPB.payload.block
         ..externalId = textId
-        ..externalType = _kExternalTextType;
+        ..externalType = kExternalTextType;
 
       actions.add(
         BlockActionWrapper(
@@ -358,7 +358,7 @@ extension on UpdateOperation {
       // update the external text id and external type to the block
       blockActionPB.payload.block
         ..externalId = textId
-        ..externalType = _kExternalTextType;
+        ..externalType = kExternalTextType;
 
       actions.add(
         BlockActionWrapper(

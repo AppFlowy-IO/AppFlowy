@@ -182,9 +182,8 @@ void main() {
             event.$2,
             editorState,
           );
-          final textActions =
-              transactionAdapter.filterTextDeltaActions(actions);
-          final blockActions = transactionAdapter.filterBlockActions(actions);
+          final textActions = filterTextDeltaActions(actions);
+          final blockActions = filterBlockActions(actions);
           expect(textActions.length, 1);
           expect(blockActions.length, 1);
 
@@ -252,9 +251,8 @@ void main() {
             event.$2,
             editorState,
           );
-          final textActions =
-              transactionAdapter.filterTextDeltaActions(actions);
-          final blockActions = transactionAdapter.filterBlockActions(actions);
+          final textActions = filterTextDeltaActions(actions);
+          final blockActions = filterBlockActions(actions);
           expect(textActions.length, 1);
           expect(blockActions.length, 1);
 

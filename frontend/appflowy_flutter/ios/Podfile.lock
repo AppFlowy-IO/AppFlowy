@@ -88,6 +88,8 @@ PODS:
   - Toast (4.0.0)
   - url_launcher_ios (0.0.1):
     - Flutter
+  - webview_flutter_wkwebview (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - app_links (from `.symlinks/plugins/app_links/ios`)
@@ -112,6 +114,7 @@ DEPENDENCIES:
   - sqflite (from `.symlinks/plugins/sqflite/darwin`)
   - super_native_extensions (from `.symlinks/plugins/super_native_extensions/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
+  - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/ios`)
 
 SPEC REPOS:
   trunk:
@@ -168,6 +171,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/super_native_extensions/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
+  webview_flutter_wkwebview:
+    :path: ".symlinks/plugins/webview_flutter_wkwebview/ios"
 
 SPEC CHECKSUMS:
   app_links: e70ca16b4b0f88253b3b3660200d4a10b4ea9795
@@ -199,6 +204,7 @@ SPEC CHECKSUMS:
   SwiftyGif: 6c3eafd0ce693cad58bb63d2b2fb9bacb8552780
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
+  webview_flutter_wkwebview: 2a23822e9039b7b1bc52e5add778e5d89ad488d1
 
 PODFILE CHECKSUM: d0d9b4ff572d8695c38eb3f9b490f55cdfc57eca
 
