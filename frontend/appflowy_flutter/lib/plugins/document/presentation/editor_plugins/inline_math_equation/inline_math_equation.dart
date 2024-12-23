@@ -86,6 +86,8 @@ class _InlineMathEquationState extends State<InlineMathEquation> {
       onErrorFallback: (errmsg) {
         return FlowyText(
           errmsg.message,
+          fontSize: widget.textStyle?.fontSize ?? 14.0,
+          color: widget.textStyle?.color ?? theme.colorScheme.onSurface,
         );
       },
     );
