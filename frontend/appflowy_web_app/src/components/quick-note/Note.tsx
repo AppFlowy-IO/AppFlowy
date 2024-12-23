@@ -42,7 +42,7 @@ function Note({
   }, [note.id]);
 
   return (
-    <div ref={ref} className={'flex flex-1 overflow-hidden pb-4'}>
+    <div ref={ref} className={'flex flex-1 overflow-hidden'}>
       <EditorProvider>
         <NoteEditor note={note} onUpdateData={onUpdateData}/>
       </EditorProvider>

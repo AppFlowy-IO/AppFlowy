@@ -9,6 +9,7 @@ import React, { forwardRef, memo, useCallback, useEffect, useMemo, useRef, useSt
 import { useTranslation } from 'react-i18next';
 import { ReactEditor, useReadOnly, useSlateStatic } from 'slate-react';
 import { Element } from 'slate';
+import { ReactComponent as TipIcon } from '@/assets/warning.svg';
 
 export const DatabaseBlock = memo(
   forwardRef<HTMLDivElement, EditorElementProps<DatabaseNode>>(({ node, children, ...attributes }, ref) => {
@@ -147,13 +148,23 @@ export const DatabaseBlock = memo(
               setShowActions(true);
             }
           }}
-          onMouseLeave={() => setShowActions(false)}
+          onMouseLeave={() => {
+            setShowActions(false);
+          }}
         >
           <div
             ref={ref}
             className={'absolute left-0 top-0 h-full w-full caret-transparent'}
           >
             {children}
+          </div>
+
+          <div style={{
+            display: showActions ? 'flex' : 'none',
+          }}
+               className={'absolute text-text-caption break-words whitespace-pre-wrap top-0 left-0 z-[10] bg-content-blue-50 p-2 w-full min-h-[34px] rounded flex '}>
+            <TipIcon className={'relative top-1 w-4 h-4 mr-1'}/>
+            <span>Read-only: Use the AppFlowy app to create or edit database pages. This feature will be available soon.</span>
           </div>
           <TableContainer
             paddingLeft={scrollLeft}

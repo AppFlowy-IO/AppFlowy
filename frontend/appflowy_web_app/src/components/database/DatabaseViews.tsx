@@ -13,7 +13,7 @@ import React, { Suspense, useCallback, useMemo, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import DatabaseConditions from 'src/components/database/components/conditions/DatabaseConditions';
 
-function DatabaseViews ({
+function DatabaseViews({
   onChangeView,
   viewId,
   iidIndex,
@@ -100,7 +100,7 @@ function DatabaseViews ({
           setSelectedViewId={onChangeView}
           viewIds={viewIds}
         />
-        <DatabaseConditions />
+        <DatabaseConditions/>
 
         <div className={'flex h-full w-full flex-1 flex-col overflow-hidden'}>
           <Suspense fallback={skeleton}>

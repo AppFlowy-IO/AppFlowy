@@ -17,7 +17,7 @@ import { getPopoverPosition, setPopoverPosition } from '@/components/quick-note/
 
 const Note = React.lazy(() => import('@/components/quick-note/Note'));
 
-const PAPER_SIZE = [480, 316];
+const PAPER_SIZE = [480, 396];
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
     children: React.ReactElement;
@@ -460,7 +460,7 @@ export function QuickNote() {
                 />
             }
           </div>
-          <div className={'absolute right-4 bottom-7'}>
+          <div className={'h-fit bg-bg-base min-h-[38px] px-4 py-2 w-full'}>
             <AddNote onAdd={(note) => {
               setNoteList(prev => [note, ...prev]);
             }} onEnterNote={handleEnterNote}/>

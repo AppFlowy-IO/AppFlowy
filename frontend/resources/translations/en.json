@@ -2958,6 +2958,7 @@
     "createFailed": "Failed to create quick note",
     "quickNotesEmpty": "No quick notes",
     "emptyNote": "Empty note",
-    "deleteNotePrompt": "The selected note will be deleted permanently. Are you sure you want to delete it?"
+    "deleteNotePrompt": "The selected note will be deleted permanently. Are you sure you want to delete it?",
+    "addNote": "New note"
   }
 }

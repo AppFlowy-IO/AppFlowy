@@ -5,6 +5,7 @@ import { useService } from '@/components/main/app.hooks';
 import { NormalModal } from '@/components/_shared/modal';
 import { useTranslation } from 'react-i18next';
 import { QuickNote } from '@/application/types';
+import { getTitle } from '@/components/quick-note/utils';
 
 function DeleteNoteModal({ open, onClose, note, onDelete }: {
   open: boolean;
@@ -47,7 +48,10 @@ function DeleteNoteModal({ open, onClose, note, onDelete }: {
       onClose={onClose}
       title={
         <div
-          className={'flex font-semibold items-center w-full text-left'}>{`${t('button.delete')}: ${note?.title || ''}`}</div>
+          className={'flex font-semibold items-center w-full text-left'}>
+          <span
+            className={'truncate w-full'}>{`${t('button.delete')}: ${getTitle(note) || t('menuAppHeader.defaultNewPageName')}`}</span>
+        </div>
       }
       onOk={handleDelete}
       PaperProps={{
