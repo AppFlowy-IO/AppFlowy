@@ -79,12 +79,25 @@ Map<String, BlockComponentBuilder> buildBlockComponentBuilders({
 
 BlockComponentConfiguration _buildDefaultConfiguration(BuildContext context) {
   final configuration = BlockComponentConfiguration(
-    padding: (_) {
+    padding: (node) {
       if (UniversalPlatform.isMobile) {
         final pageStyle = context.read<DocumentPageStyleBloc>().state;
         final factor = pageStyle.fontLayout.factor;
-        final padding = pageStyle.lineHeightLayout.padding * factor;
-        return EdgeInsets.only(top: padding);
+        final top = pageStyle.lineHeightLayout.padding * factor;
+        EdgeInsets edgeInsets = EdgeInsets.only(top: top);
+        // only add padding for the top level node, otherwise the nested node will have extra padding
+        if (node.path.length == 1) {
+          if (node.type != SimpleTableBlockKeys.type) {
+            // do not add padding for the simple table to allow it overflow
+            edgeInsets = edgeInsets.copyWith(
+              left: EditorStyleCustomizer.nodeHorizontalPadding,
+            );
+          }
+          edgeInsets = edgeInsets.copyWith(
+            right: EditorStyleCustomizer.nodeHorizontalPadding,
+          );
+        }
+        return edgeInsets;
       }
 
       return const EdgeInsets.symmetric(vertical: 5.0);
@@ -354,10 +367,7 @@ SimpleTableBlockComponentBuilder _buildSimpleTableBlockComponentBuilder(
       if (UniversalPlatform.isDesktop) {
         return padding;
       } else {
-        return padding.copyWith(
-          left: 0,
-          right: padding.left,
-        );
+        return padding;
       }
     },
   );
@@ -514,9 +524,17 @@ HeadingBlockComponentBuilder _buildHeadingBlockComponentBuilder(
           final factor = pageStyle.fontLayout.factor;
           final headingPaddings =
               pageStyle.lineHeightLayout.headingPaddings.map((e) => e * factor);
-          int level = node.attributes[HeadingBlockKeys.level] ?? 6;
-          level = level.clamp(1, 6);
-          return EdgeInsets.only(top: headingPaddings.elementAt(level - 1));
+          final level =
+              (node.attributes[HeadingBlockKeys.level] ?? 6).clamp(1, 6);
+          final top = headingPaddings.elementAt(level - 1);
+          EdgeInsets edgeInsets = EdgeInsets.only(top: top);
+          if (node.path.length == 1) {
+            edgeInsets = edgeInsets.copyWith(
+              left: EditorStyleCustomizer.nodeHorizontalPadding,
+              right: EditorStyleCustomizer.nodeHorizontalPadding,
+            );
+          }
+          return edgeInsets;
         }
 
         return const EdgeInsets.only(top: 12.0, bottom: 4.0);

@@ -1,5 +1,6 @@
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_widgets/simple_table_feedback.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +8,7 @@ import 'package:provider/provider.dart';
 class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
   const SimpleTableMobileDraggableReorderButton({
     super.key,
-    required this.node,
+    required this.cellNode,
     required this.index,
     required this.isShowingMenu,
     required this.type,
@@ -15,7 +16,7 @@ class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
     required this.simpleTableContext,
   });
 
-  final Node node;
+  final Node cellNode;
   final int index;
   final ValueNotifier<bool> isShowingMenu;
   final SimpleTableMoreActionType type;
@@ -31,20 +32,23 @@ class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
       onDragEnd: (_) => _stopDragging(),
       feedback: SimpleTableFeedback(
         editorState: editorState,
-        node: node,
+        node: cellNode,
         type: type,
         index: index,
       ),
       child: SimpleTableMobileReorderButton(
         index: index,
         type: type,
-        node: node,
+        node: cellNode,
         isShowingMenu: isShowingMenu,
       ),
     );
   }
 
   void _startDragging() {
+    isShowingMenu.value = true;
+    editorState.selection = null;
+
     switch (type) {
       case SimpleTableMoreActionType.column:
         simpleTableContext.isReorderingColumn.value = (true, index);
@@ -59,6 +63,8 @@ class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
   }
 
   void _stopDragging() {
+    isShowingMenu.value = false;
+
     switch (type) {
       case SimpleTableMoreActionType.column:
         _reorderColumn();
@@ -67,6 +73,8 @@ class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
     }
 
     simpleTableContext.reorderingOffset.value = Offset.zero;
+    simpleTableContext.isReorderingHitIndex.value = null;
+
     switch (type) {
       case SimpleTableMoreActionType.column:
         simpleTableContext.isReorderingColumn.value = (false, -1);
@@ -79,13 +87,13 @@ class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
 
   void _reorderColumn() {
     final fromIndex = simpleTableContext.isReorderingColumn.value.$2;
-    final toIndex = simpleTableContext.hoveringTableCell.value?.columnIndex;
+    final toIndex = simpleTableContext.isReorderingHitIndex.value;
     if (toIndex == null) {
       return;
     }
 
     editorState.reorderColumn(
-      node,
+      cellNode,
       fromIndex: fromIndex,
       toIndex: toIndex,
     );
@@ -93,13 +101,13 @@ class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
 
   void _reorderRow() {
     final fromIndex = simpleTableContext.isReorderingRow.value.$2;
-    final toIndex = simpleTableContext.hoveringTableCell.value?.rowIndex;
+    final toIndex = simpleTableContext.isReorderingHitIndex.value;
     if (toIndex == null) {
       return;
     }
 
     editorState.reorderRow(
-      node,
+      cellNode,
       fromIndex: fromIndex,
       toIndex: toIndex,
     );

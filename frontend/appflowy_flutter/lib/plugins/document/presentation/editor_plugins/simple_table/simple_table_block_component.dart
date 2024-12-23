@@ -228,14 +228,6 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
         ),
         child: child,
       );
-    } else if (UniversalPlatform.isMobile) {
-      child = Transform.translate(
-        offset: Offset(
-          -SimpleTableConstants.tableHitTestLeftPadding,
-          0,
-        ),
-        child: child,
-      );
     }
 
     child = Container(

@@ -361,7 +361,7 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
           child: SimpleTableMobileDraggableReorderButton(
             index: widget.index,
             type: widget.type,
-            node: widget.tableCellNode,
+            cellNode: widget.tableCellNode,
             isShowingMenu: this.isShowingMenu,
             editorState: editorState,
             simpleTableContext: simpleTableContext,
@@ -407,7 +407,14 @@ class SimpleTableActionMenu extends StatelessWidget {
         }
 
         return GestureDetector(
-          onTap: () => _showTableActionBottomSheet(context),
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            editorState.service.keyboardService?.closeKeyboard();
+            // delay the bottom sheet show to make sure the keyboard is closed
+            Future.delayed(Durations.short3, () {
+              _showTableActionBottomSheet(context);
+            });
+          },
           child: Container(
             width: 20,
             height: 20,
@@ -431,6 +438,9 @@ class SimpleTableActionMenu extends StatelessWidget {
       return;
     }
 
+    // increase the keep editor focus notifier to prevent the editor from losing focus
+    keepEditorFocusNotifier.increase();
+
     unawaited(
       editorState.updateSelectionWithReason(
         Selection.collapsed(
@@ -439,6 +449,10 @@ class SimpleTableActionMenu extends StatelessWidget {
           ),
         ),
         customSelectionType: SelectionType.block,
+        extraInfo: {
+          selectionExtraInfoDisableMobileToolbarKey: true,
+          selectionExtraInfoDoNotAttachTextService: true,
+        },
       ),
     );
 
@@ -465,5 +479,10 @@ class SimpleTableActionMenu extends StatelessWidget {
     );
 
     simpleTableContext.isSelectingTable.value = false;
+    keepEditorFocusNotifier.decrease();
+
+    // remove the extra info
+    editorState.selectionType = null;
+    editorState.selectionExtraInfo = null;
   }
 }

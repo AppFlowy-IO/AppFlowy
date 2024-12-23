@@ -81,6 +81,11 @@ class SimpleTableContext {
   /// This value is available on mobile only
   final ValueNotifier<Node?> isEditingCell = ValueNotifier(null);
 
+  /// isReorderingHitCell is the cell that the user is reordering
+  ///
+  /// This value is available on mobile only
+  final ValueNotifier<int?> isReorderingHitIndex = ValueNotifier(null);
+
   void _onHoveringOnColumnsAndRowsChanged() {
     if (!_enableTableDebugLog) {
       return;
@@ -171,6 +176,7 @@ class SimpleTableContext {
     isReorderingRow.dispose();
     reorderingOffset.dispose();
     isEditingCell.dispose();
+    isReorderingHitIndex.dispose();
   }
 }
 
@@ -201,7 +207,8 @@ class SimpleTableConstants {
       );
 
   static double get tablePageOffset => UniversalPlatform.isMobile
-      ? EditorStyleCustomizer.optionMenuWidth + 24
+      ? EditorStyleCustomizer.optionMenuWidth +
+          EditorStyleCustomizer.nodeHorizontalPadding * 2
       : EditorStyleCustomizer.optionMenuWidth + 12;
 
   // Add row button
