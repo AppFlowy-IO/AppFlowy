@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 
 /// Copy.
 ///
@@ -50,7 +50,7 @@ KeyEventResult handleCopyCommand(
 
     // in app json
     final document = Document.blank()
-      ..insert([0], [_handleNode(node.copyWith(), isCut)]);
+      ..insert([0], [_handleNode(node.deepCopy(), isCut)]);
     inAppJson = jsonEncode(document.toJson());
 
     // html
@@ -107,7 +107,7 @@ Document _buildCopiedDocument(
   final document = Document.blank()
     ..insert(
       [0],
-      filteredNodes.map((e) => e.copyWith()),
+      filteredNodes.map((e) => e.deepCopy()),
     );
   return document;
 }
@@ -123,7 +123,7 @@ List<Node> _handleSubPageNodes(List<Node> nodes, [bool isCut = false]) {
 
 Node _handleNode(Node node, [bool isCut = false]) {
   if (!isCut) {
-    return node.copyWith();
+    return node.deepCopy();
   }
 
   final newChildren = node.children.map(_handleNode).toList();
