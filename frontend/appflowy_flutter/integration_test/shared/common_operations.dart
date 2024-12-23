@@ -8,6 +8,7 @@ import 'package:appflowy/mobile/presentation/base/type_option_menu_item.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji_picker_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_v3/add_block_toolbar_item.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy/plugins/shared/share/share_button.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
@@ -846,6 +847,30 @@ extension CommonOperations on WidgetTester {
     );
     await tapButton(toggleHeading1);
     await pumpUntilNotFound(addMenuItem);
+  }
+
+  /// Click the column menu button in the simple table
+  Future<void> clickColumnMenuButton(int index) async {
+    final columnMenuButton = find.byWidgetPredicate(
+      (w) =>
+          w is SimpleTableMobileReorderButton &&
+          w.index == index &&
+          w.type == SimpleTableMoreActionType.column,
+    );
+    await tapButton(columnMenuButton);
+    await pumpUntilFound(find.byType(SimpleTableCellBottomSheet));
+  }
+
+  /// Click the row menu button in the simple table
+  Future<void> clickRowMenuButton(int index) async {
+    final rowMenuButton = find.byWidgetPredicate(
+      (w) =>
+          w is SimpleTableMobileReorderButton &&
+          w.index == index &&
+          w.type == SimpleTableMoreActionType.row,
+    );
+    await tapButton(rowMenuButton);
+    await pumpUntilFound(find.byType(SimpleTableCellBottomSheet));
   }
 }
 
