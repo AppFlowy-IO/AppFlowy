@@ -1,5 +1,6 @@
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_widgets/simple_table_feedback.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -45,6 +46,8 @@ class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
   }
 
   void _startDragging() {
+    editorState.selection = null;
+
     switch (type) {
       case SimpleTableMoreActionType.column:
         simpleTableContext.isReorderingColumn.value = (true, index);
