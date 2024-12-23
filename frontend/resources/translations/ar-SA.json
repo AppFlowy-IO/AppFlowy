@@ -768,7 +768,8 @@
         "llmModel": "نموذج اللغة",
         "llmModelType": "نوع نموذج اللغة",
         "downloadLLMPrompt": "تنزيل {}",
-        "downloadAppFlowyOfflineAI": "سيؤدي تنزيل حزمة AI دون اتصال بالإنترنت إلى تفعيل تشغيل AI على جهازك. هل تريد الاستمرار؟"
+        "downloadAppFlowyOfflineAI": "سيؤدي تنزيل حزمة AI دون اتصال بالإنترنت إلى تفعيل تشغيل AI على جهازك. هل تريد الاستمرار؟",
+        "downloadLLMPromptDetail": " تنزيل النموذج المحلي {} سيستخدم ما يصل إلى {} من مساحة التخزين. هل تريد الاستمرار؟"
       }
     },
     "billingPage": {
