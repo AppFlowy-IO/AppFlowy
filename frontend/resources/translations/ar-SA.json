@@ -1261,8 +1261,12 @@
     "codeBlock": {
       "language": {
         "label": "لغة",
-        "placeholder": "اختار اللغة"
-      }
+        "placeholder": "اختار اللغة",
+        "auto": "آلي"
+      },
+      "copyTooltip": "نسخ",
+      "searchLanguageHint": "ابحث عن لغة",
+      "codeCopiedSnackbar": "تم نسخ الكود إلى الحافظة!"
     },
     "inlineLink": {
       "placeholder": "الصق أو اكتب ارتباطًا",
@@ -1603,7 +1607,8 @@
     "rowDuplicate": "نسخة طبق الاصل",
     "colClear": "مسح المحتوى",
     "rowClear": "مسح المحتوى",
-    "slashPlaceHolder": "اكتب \"/\" لإدراج كتلة، أو ابدأ الكتابة"
+    "slashPlaceHolder": "اكتب \"/\" لإدراج كتلة، أو ابدأ الكتابة",
+    "codeBlockShortForm": "الكود"
   },
   "favorite": {
     "noFavorite": "لا توجد صفحة مفضلة",
