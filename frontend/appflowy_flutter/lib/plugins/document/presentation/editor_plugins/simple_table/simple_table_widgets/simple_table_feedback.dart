@@ -13,7 +13,8 @@ class SimpleTableFeedback extends StatefulWidget {
   });
 
   /// The node of the table.
-  /// Its type must be [SimpleTableBlockKeys.type].
+  /// Its type must be one of the following:
+  ///   [SimpleTableBlockKeys.type], [SimpleTableRowBlockKeys.type], [SimpleTableCellBlockKeys.type].
   final Node node;
 
   /// The type of the more action.
@@ -38,6 +39,16 @@ class _SimpleTableFeedbackState extends State<SimpleTableFeedback> {
   @override
   void initState() {
     super.initState();
+
+    assert(
+      [
+        SimpleTableBlockKeys.type,
+        SimpleTableRowBlockKeys.type,
+        SimpleTableCellBlockKeys.type,
+      ].contains(widget.node.type),
+      'The node type must be one of the following: '
+      '[SimpleTableBlockKeys.type], [SimpleTableRowBlockKeys.type], [SimpleTableCellBlockKeys.type].',
+    );
 
     simpleTableContext.isSelectingTable.value = true;
     dummyNode = _buildDummyNode();
@@ -75,7 +86,10 @@ class _SimpleTableFeedbackState extends State<SimpleTableFeedback> {
   /// If the type is [SimpleTableMoreActionType.column], we should build the dummy table node using the data from the first column of the table node.
   Node _buildDummyNode() {
     // deep copy the table node to avoid mutating the original node
-    final tableNode = widget.node.deepCopy();
+    final tableNode = widget.node.parentTableNode?.deepCopy();
+    if (tableNode == null) {
+      return simpleTableBlockNode(children: []);
+    }
 
     switch (widget.type) {
       case SimpleTableMoreActionType.row:

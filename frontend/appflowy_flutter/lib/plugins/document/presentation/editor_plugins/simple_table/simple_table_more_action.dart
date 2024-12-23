@@ -328,11 +328,6 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
 
   // On mobile, the menu is a action sheet and always shows.
   Widget _buildMobileMenu() {
-    final tableNode = widget.tableCellNode.parentTableNode;
-    if (tableNode == null) {
-      return const SizedBox.shrink();
-    }
-
     return ValueListenableBuilder(
       valueListenable: isShowingMenu,
       builder: (context, isShowingMenu, child) {
@@ -366,7 +361,7 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
           child: SimpleTableMobileDraggableReorderButton(
             index: widget.index,
             type: widget.type,
-            node: tableNode,
+            cellNode: widget.tableCellNode,
             isShowingMenu: this.isShowingMenu,
             editorState: editorState,
             simpleTableContext: simpleTableContext,

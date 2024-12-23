@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
   const SimpleTableMobileDraggableReorderButton({
     super.key,
-    required this.node,
+    required this.cellNode,
     required this.index,
     required this.isShowingMenu,
     required this.type,
@@ -16,7 +16,7 @@ class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
     required this.simpleTableContext,
   });
 
-  final Node node;
+  final Node cellNode;
   final int index;
   final ValueNotifier<bool> isShowingMenu;
   final SimpleTableMoreActionType type;
@@ -32,14 +32,14 @@ class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
       onDragEnd: (_) => _stopDragging(),
       feedback: SimpleTableFeedback(
         editorState: editorState,
-        node: node,
+        node: cellNode,
         type: type,
         index: index,
       ),
       child: SimpleTableMobileReorderButton(
         index: index,
         type: type,
-        node: node,
+        node: cellNode,
         isShowingMenu: isShowingMenu,
       ),
     );
@@ -93,7 +93,7 @@ class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
     }
 
     editorState.reorderColumn(
-      node,
+      cellNode,
       fromIndex: fromIndex,
       toIndex: toIndex,
     );
@@ -107,7 +107,7 @@ class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
     }
 
     editorState.reorderRow(
-      node,
+      cellNode,
       fromIndex: fromIndex,
       toIndex: toIndex,
     );
