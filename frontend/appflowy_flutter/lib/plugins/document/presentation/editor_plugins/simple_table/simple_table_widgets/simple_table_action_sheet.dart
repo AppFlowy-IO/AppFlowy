@@ -46,6 +46,7 @@ class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
   }
 
   void _startDragging() {
+    isShowingMenu.value = true;
     editorState.selection = null;
 
     switch (type) {
@@ -62,6 +63,8 @@ class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
   }
 
   void _stopDragging() {
+    isShowingMenu.value = false;
+
     switch (type) {
       case SimpleTableMoreActionType.column:
         _reorderColumn();
@@ -70,6 +73,8 @@ class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
     }
 
     simpleTableContext.reorderingOffset.value = Offset.zero;
+    simpleTableContext.isReorderingHitIndex.value = null;
+
     switch (type) {
       case SimpleTableMoreActionType.column:
         simpleTableContext.isReorderingColumn.value = (false, -1);
@@ -82,7 +87,7 @@ class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
 
   void _reorderColumn() {
     final fromIndex = simpleTableContext.isReorderingColumn.value.$2;
-    final toIndex = simpleTableContext.hoveringTableCell.value?.columnIndex;
+    final toIndex = simpleTableContext.isReorderingHitIndex.value;
     if (toIndex == null) {
       return;
     }
@@ -96,7 +101,7 @@ class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
 
   void _reorderRow() {
     final fromIndex = simpleTableContext.isReorderingRow.value.$2;
-    final toIndex = simpleTableContext.hoveringTableCell.value?.rowIndex;
+    final toIndex = simpleTableContext.isReorderingHitIndex.value;
     if (toIndex == null) {
       return;
     }

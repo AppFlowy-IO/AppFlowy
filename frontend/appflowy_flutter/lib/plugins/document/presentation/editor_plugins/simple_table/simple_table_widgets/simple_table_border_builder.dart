@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_tab
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class SimpleTableBorderBuilder {
   SimpleTableBorderBuilder({
@@ -15,7 +16,9 @@ class SimpleTableBorderBuilder {
   final Node node;
 
   /// Build the border for the cell.
-  Border? buildBorder({bool isEditingCell = false}) {
+  Border? buildBorder({
+    bool isEditingCell = false,
+  }) {
     if (SimpleTableConstants.borderType != SimpleTableBorderRenderType.cell) {
       return null;
     }
@@ -28,24 +31,16 @@ class SimpleTableBorderBuilder {
     final isCellInSelectedRow =
         node.rowIndex == simpleTableContext.selectingRow.value;
 
-    // check if the cell is in the hovering column
-    final isCellInHoveringColumn =
-        simpleTableContext.hoveringTableCell.value?.columnIndex ==
-            node.columnIndex;
-
-    final isCellInHoveringRow =
-        simpleTableContext.hoveringTableCell.value?.rowIndex == node.rowIndex;
-
-    // check if the cell is in the reordering column
-    final isReordering = simpleTableContext.isReordering;
+    final isReordering = simpleTableContext.isReordering &&
+        (simpleTableContext.isReorderingColumn.value.$1 ||
+            simpleTableContext.isReorderingRow.value.$1);
 
     final editorState = context.read<EditorState>();
     final editable = editorState.editable;
 
     if (!editable) {
       return buildCellBorder();
-    } else if (isReordering &&
-        (isCellInHoveringColumn || isCellInHoveringRow)) {
+    } else if (isReordering) {
       return buildReorderingBorder();
     } else if (simpleTableContext.isSelectingTable.value) {
       return buildSelectingTableBorder();
@@ -166,6 +161,16 @@ class SimpleTableBorderBuilder {
   }
 
   Border _buildColumnReorderingBorder() {
+    if (UniversalPlatform.isDesktop) {
+      return _buildColumnReorderingBorderOnDesktop();
+    } else if (UniversalPlatform.isMobile) {
+      return _buildColumnReorderingBorderOnMobile();
+    }
+
+    return buildCellBorder();
+  }
+
+  Border _buildColumnReorderingBorderOnDesktop() {
     assert(simpleTableContext.isReordering);
 
     final isDraggingInCurrentColumn =
@@ -204,7 +209,44 @@ class SimpleTableBorderBuilder {
     );
   }
 
+  Border _buildColumnReorderingBorderOnMobile() {
+    assert(simpleTableContext.isReordering);
+
+    final isHitCurrentCell =
+        simpleTableContext.isReorderingHitIndex.value == node.columnIndex;
+    if (!isHitCurrentCell) {
+      return buildCellBorder();
+    }
+
+    final isLeftSide =
+        simpleTableContext.isReorderingColumn.value.$2 > node.columnIndex;
+    final isRightSide =
+        simpleTableContext.isReorderingColumn.value.$2 < node.columnIndex;
+
+    return Border(
+      top: node.rowIndex == 0
+          ? _buildDefaultBorderSide()
+          : _buildLightBorderSide(),
+      bottom: node.rowIndex + 1 == node.parentTableNode?.rowLength
+          ? _buildDefaultBorderSide()
+          : _buildLightBorderSide(),
+      left: isLeftSide ? _buildHighlightBorderSide() : _buildLightBorderSide(),
+      right:
+          isRightSide ? _buildHighlightBorderSide() : _buildLightBorderSide(),
+    );
+  }
+
   Border _buildRowReorderingBorder() {
+    if (UniversalPlatform.isDesktop) {
+      return _buildRowReorderingBorderOnDesktop();
+    } else if (UniversalPlatform.isMobile) {
+      return _buildRowReorderingBorderOnMobile();
+    }
+
+    return buildCellBorder();
+  }
+
+  Border _buildRowReorderingBorderOnDesktop() {
     assert(simpleTableContext.isReordering);
 
     final isDraggingInCurrentRow =
@@ -216,6 +258,33 @@ class SimpleTableBorderBuilder {
 
     final hoveringTableCell = simpleTableContext.hoveringTableCell.value;
     final isHitCurrentCell = hoveringTableCell?.rowIndex == node.rowIndex;
+    if (!isHitCurrentCell) {
+      return buildCellBorder();
+    }
+
+    final isTopSide =
+        simpleTableContext.isReorderingRow.value.$2 > node.rowIndex;
+    final isBottomSide =
+        simpleTableContext.isReorderingRow.value.$2 < node.rowIndex;
+
+    return Border(
+      top: isTopSide ? _buildHighlightBorderSide() : _buildLightBorderSide(),
+      bottom:
+          isBottomSide ? _buildHighlightBorderSide() : _buildLightBorderSide(),
+      left: node.columnIndex == 0
+          ? _buildDefaultBorderSide()
+          : _buildLightBorderSide(),
+      right: node.columnIndex + 1 == node.parentTableNode?.columnLength
+          ? _buildDefaultBorderSide()
+          : _buildLightBorderSide(),
+    );
+  }
+
+  Border _buildRowReorderingBorderOnMobile() {
+    assert(simpleTableContext.isReordering);
+
+    final isHitCurrentCell =
+        simpleTableContext.isReorderingHitIndex.value == node.rowIndex;
     if (!isHitCurrentCell) {
       return buildCellBorder();
     }

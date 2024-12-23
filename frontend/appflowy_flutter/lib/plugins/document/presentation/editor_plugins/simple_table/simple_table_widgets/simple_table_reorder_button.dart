@@ -66,6 +66,7 @@ class SimpleTableDraggableReorderButton extends StatelessWidget {
     }
 
     simpleTableContext.reorderingOffset.value = Offset.zero;
+
     switch (type) {
       case SimpleTableMoreActionType.column:
         simpleTableContext.isReorderingColumn.value = (false, -1);
