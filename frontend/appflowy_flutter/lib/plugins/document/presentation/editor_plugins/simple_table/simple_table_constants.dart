@@ -201,7 +201,8 @@ class SimpleTableConstants {
       );
 
   static double get tablePageOffset => UniversalPlatform.isMobile
-      ? EditorStyleCustomizer.optionMenuWidth + 24
+      ? EditorStyleCustomizer.optionMenuWidth +
+          EditorStyleCustomizer.nodeHorizontalPadding * 2
       : EditorStyleCustomizer.optionMenuWidth + 12;
 
   // Add row button

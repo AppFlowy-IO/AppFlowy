@@ -147,7 +147,7 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
             if (node.columnIndex == 0 && node.rowIndex == 0)
               Positioned(
                 left: 2,
-                top: 0,
+                top: 2,
                 child: _buildTableActionMenu(),
               ),
             Positioned(

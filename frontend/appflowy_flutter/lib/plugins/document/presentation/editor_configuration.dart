@@ -79,12 +79,22 @@ Map<String, BlockComponentBuilder> buildBlockComponentBuilders({
 
 BlockComponentConfiguration _buildDefaultConfiguration(BuildContext context) {
   final configuration = BlockComponentConfiguration(
-    padding: (_) {
+    padding: (node) {
       if (UniversalPlatform.isMobile) {
         final pageStyle = context.read<DocumentPageStyleBloc>().state;
         final factor = pageStyle.fontLayout.factor;
-        final padding = pageStyle.lineHeightLayout.padding * factor;
-        return EdgeInsets.only(top: padding);
+        final top = pageStyle.lineHeightLayout.padding * factor;
+        EdgeInsets edgeInsets = EdgeInsets.only(
+          top: top,
+          right: EditorStyleCustomizer.nodeHorizontalPadding,
+        );
+        // only add padding for the top level node, otherwise the nested node will have extra padding
+        if (node.type != SimpleTableBlockKeys.type && node.path.length == 1) {
+          edgeInsets = edgeInsets.copyWith(
+            left: EditorStyleCustomizer.nodeHorizontalPadding,
+          );
+        }
+        return edgeInsets;
       }
 
       return const EdgeInsets.symmetric(vertical: 5.0);
@@ -354,10 +364,7 @@ SimpleTableBlockComponentBuilder _buildSimpleTableBlockComponentBuilder(
       if (UniversalPlatform.isDesktop) {
         return padding;
       } else {
-        return padding.copyWith(
-          left: 0,
-          right: padding.left,
-        );
+        return padding;
       }
     },
   );
