@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_tab
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class SimpleTableCellBlockKeys {
   const SimpleTableCellBlockKeys._();
@@ -275,7 +276,9 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
   Widget _buildTableActionMenu() {
     final tableNode = node.parentTableNode;
-    if (tableNode == null) {
+
+    // the table action menu is only available on mobile platform.
+    if (tableNode == null || UniversalPlatform.isDesktop) {
       return const SizedBox.shrink();
     }
 

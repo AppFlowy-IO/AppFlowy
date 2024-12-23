@@ -113,6 +113,14 @@ List<OptionAction> _buildOptionActions(BuildContext context, String type) {
 
   standardActions.add(OptionAction.turnInto);
 
+  if (SimpleTableBlockKeys.type == type) {
+    standardActions.addAll([
+      OptionAction.divider,
+      OptionAction.setToPageWidth,
+      OptionAction.distributeColumnsEvenly,
+    ]);
+  }
+
   if (EditorOptionActionType.color.supportTypes.contains(type)) {
     standardActions.addAll([OptionAction.divider, OptionAction.color]);
   }
@@ -123,14 +131,6 @@ List<OptionAction> _buildOptionActions(BuildContext context, String type) {
 
   if (EditorOptionActionType.depth.supportTypes.contains(type)) {
     standardActions.addAll([OptionAction.divider, OptionAction.depth]);
-  }
-
-  if (SimpleTableBlockKeys.type == type) {
-    standardActions.addAll([
-      OptionAction.divider,
-      OptionAction.setToPageWidth,
-      OptionAction.distributeColumnsEvenly,
-    ]);
   }
 
   return standardActions;

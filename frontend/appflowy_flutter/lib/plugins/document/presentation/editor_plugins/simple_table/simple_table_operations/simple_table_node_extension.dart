@@ -16,6 +16,13 @@ enum TableAlign {
   center,
   right;
 
+  static TableAlign fromString(String align) {
+    return TableAlign.values.firstWhere(
+      (e) => e.key.toLowerCase() == align.toLowerCase(),
+      orElse: () => TableAlign.left,
+    );
+  }
+
   String get name => switch (this) {
         TableAlign.left => 'Left',
         TableAlign.center => 'Center',
@@ -807,5 +814,39 @@ extension TableNodeExtension on Node {
       return this;
     }
     return children.last.getLastChildIndex();
+  }
+
+  /// Get table align of column
+  ///
+  /// If one of the align is not same as the others, it will return TableAlign.left.
+  TableAlign get allColumnAlign {
+    final alignSet = columnAligns.values.toSet();
+    if (alignSet.length == 1) {
+      return TableAlign.fromString(alignSet.first);
+    }
+    return TableAlign.left;
+  }
+
+  /// Get table align of row
+  ///
+  /// If one of the align is not same as the others, it will return TableAlign.left.
+  TableAlign get allRowAlign {
+    final alignSet = rowAligns.values.toSet();
+    if (alignSet.length == 1) {
+      return TableAlign.fromString(alignSet.first);
+    }
+    return TableAlign.left;
+  }
+
+  /// Get table align of the table.
+  ///
+  /// If one of the align is not same as the others, it will return TableAlign.left.
+  TableAlign get tableAlign {
+    if (allColumnAlign != TableAlign.left) {
+      return allColumnAlign;
+    } else if (allRowAlign != TableAlign.left) {
+      return allRowAlign;
+    }
+    return TableAlign.left;
   }
 }

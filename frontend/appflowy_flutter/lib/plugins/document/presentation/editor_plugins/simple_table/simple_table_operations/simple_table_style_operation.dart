@@ -173,7 +173,8 @@ extension TableOptionOperation on EditorState {
     for (var i = 0; i < tableNode.columnLength; i++) {
       attributes = attributes.mergeValues(
         SimpleTableBlockKeys.columnAligns,
-        attributes[SimpleTableBlockKeys.columnAligns],
+        attributes[SimpleTableBlockKeys.columnAligns] ??
+            SimpleTableColumnAlignMap(),
         duplicatedEntry: MapEntry(i.toString(), align.key),
       );
     }
