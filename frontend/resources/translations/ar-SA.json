@@ -717,7 +717,21 @@
         "moveCursorEnd": "حرك المؤشر إلى النهاية",
         "moveCursorEndSelect": "حدد وحرك المؤشر إلى النهاية",
         "moveCursorUp": "حرك المؤشر لأعلى",
-        "moveCursorTopSelect": "حدد وحرك المؤشر إلى الأعلى"
+        "moveCursorTopSelect": "حدد وحرك المؤشر إلى الأعلى",
+        "moveCursorTop": "حرك المؤشر إلى الأعلى",
+        "moveCursorUpSelect": "حدد وحرك المؤشر لأعلى",
+        "moveCursorBottomSelect": "حدد وحرك المؤشر إلى الأسفل",
+        "moveCursorBottom": "حرك المؤشر إلى الأسفل",
+        "moveCursorDown": "حرك المؤشر إلى الأسفل",
+        "moveCursorDownSelect": "حدد وحرك المؤشر لأسفل",
+        "home": "تمرير إلى الأعلى",
+        "end": "تمرير إلى الأسفل",
+        "toggleBold": "تبديل الخط الغامق",
+        "toggleItalic": "تبديل الخط المائل",
+        "toggleUnderline": "تبديل التسطير",
+        "toggleStrikethrough": "تبديل الشطب",
+        "toggleCode": "تبديل الكود المضمن",
+        "toggleHighlight": "تبديل التمييز"
       },
       "commands": {
         "codeBlockNewParagraph": "إدراج فقرة جديدة بجوار كتلة التعليمات البرمجية"
