@@ -123,7 +123,7 @@ export function Workspaces() {
               size={'small'}
               className={'mx-2'}
             >
-              <TipIcon className={'w-4 h-4'}/>
+              <TipIcon className={'w-4 h-4 text-text-placeholder'}/>
             </IconButton>
           </Tooltip>
         </Button>

@@ -5,7 +5,7 @@ import { useAppHandlers, useAppView } from '@/components/app/app.hooks';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-function DeletePageConfirm ({ open, onClose, viewId, onDeleted }: {
+function DeletePageConfirm({ open, onClose, viewId, onDeleted }: {
   open: boolean;
   onClose: () => void;
   viewId: string;
@@ -58,8 +58,13 @@ function DeletePageConfirm ({ open, onClose, viewId, onDeleted }: {
       danger={true}
       onClose={onClose}
       title={
-        <div className={'flex font-semibold items-center w-full text-left'}>{`${t('button.delete')}: ${view?.name}`}</div>
+        <div
+          className={'flex font-semibold items-center w-full text-left'}>
+          <span
+            className={'truncate w-full'}>{`${t('button.delete')}: ${view?.name}`}</span>
+        </div>
       }
+
       onOk={handleOk}
       PaperProps={{
         className: 'w-[420px] max-w-[70vw]',

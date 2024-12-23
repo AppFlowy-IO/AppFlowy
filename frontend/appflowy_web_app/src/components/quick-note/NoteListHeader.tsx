@@ -4,7 +4,7 @@ import { ReactComponent as CloseIcon } from '@/assets/close.svg';
 import { ReactComponent as OpenIcon } from '@/assets/full_view.svg';
 import { ReactComponent as CollapseIcon } from '@/assets/collapse_all_page.svg';
 
-import { IconButton, InputBase } from '@mui/material';
+import { IconButton, InputBase, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { createHotkey, HOT_KEY_NAME } from '@/utils/hotkeys';
 import { debounce } from 'lodash-es';
@@ -32,19 +32,20 @@ function NoteListHeader({
     <div
       className={'flex relative items-center w-full h-full gap-4'}
     >
-      <IconButton
-
-        className={`z-[2] ${activeSearch ? 'order-1 cursor-default hover:bg-transparent' : 'order-2'}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (!activeSearch) {
-            inputRef.current?.focus();
-            setActiveSearch(true);
-          }
-        }} size={'small'}>
-        <SearchIcon/>
-      </IconButton>
-      <div className={'flex-1 order-1'}>
+      <Tooltip title={t('quickNote.search')} placement={'top'}>
+        <IconButton
+          className={`z-[2] ${activeSearch ? 'cursor-default hover:bg-transparent' : ''}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (!activeSearch) {
+              inputRef.current?.focus();
+              setActiveSearch(true);
+            }
+          }} size={'small'}>
+          <SearchIcon/>
+        </IconButton>
+      </Tooltip>
+      <div className={'flex-1'}>
         {activeSearch ?
           <InputBase
             className={'flex-1'}
@@ -73,7 +74,7 @@ function NoteListHeader({
         {expand ? <CollapseIcon className={'transform rotate-45'}/> : <OpenIcon/>}
       </IconButton>
 
-      <IconButton className={'order-2'} onClick={() => {
+      <IconButton className={''} onClick={() => {
         if (activeSearch) {
           setActiveSearch(false);
           debounceSearch('');

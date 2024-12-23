@@ -4,7 +4,8 @@ import { useService } from '@/components/main/app.hooks';
 import { ToastContext } from '@/components/quick-note/QuickNote.hooks';
 import { useCurrentWorkspaceId } from '@/components/app/app.hooks';
 import { QuickNote } from '@/application/types';
-import { CircularProgress } from '@mui/material';
+import { Button, CircularProgress } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 function AddNote({
   onEnterNote,
@@ -39,21 +40,18 @@ function AddNote({
     }
   };
 
+  const { t } = useTranslation();
+
   return (
     <>
-      <div
+      <Button
+        size={'small'}
+        color={'inherit'}
+        startIcon={loading ? <CircularProgress className={'w-4 h-4'}/> : <AddIcon className={'w-4 h-4'}/>}
         onClick={handleAdd}
-        style={{
-          boxShadow: '0px 8px 16px 0px rgba(0, 188, 240, 0.10)',
-        }}
-        className={'flex select-none relative cursor-pointer text-content-on-fill w-10 h-10 rounded-full items-center justify-center bg-fill-default opacity-90 hover:opacity-100'}>
-        {
-          loading ? (
-            <CircularProgress className={'w-6 h-6'}/>
-          ) : <AddIcon className={'w-6 h-6'}/>
-        }
-
-      </div>
+        className={'justify-start w-full'}>
+        {t('quickNote.addNote')}
+      </Button>
     </>
   );
 }

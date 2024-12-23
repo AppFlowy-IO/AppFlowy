@@ -44,7 +44,7 @@ function NoteList({
                   onMouseEnter={() => setHoverId(note.id)}
                   onMouseLeave={() => setHoverId(null)}
                   key={note.id}
-                  className={`px-5 relative hover:bg-fill-list-hover text-sm overflow-hidden cursor-pointer`}
+                  className={`px-5 relative hover:bg-content-blue-50 text-sm overflow-hidden cursor-pointer`}
                 >
                   <div
                     className={`w-full 
@@ -62,7 +62,7 @@ function NoteList({
                   </div>
                   {hoverId === note.id ? <div
                     className={'absolute border-line-divider right-4 top-1/2 bg-bg-body border rounded-[8px] p-1 -translate-y-1/2 flex items-center gap-1.5'}>
-                    <Tooltip title={t('button.edit')}>
+                    <Tooltip placement={'top'} title={t('button.edit')}>
                       <IconButton onClick={(e) => {
                         e.stopPropagation();
                         onEnterNode(note);
@@ -71,7 +71,7 @@ function NoteList({
                       </IconButton>
                     </Tooltip>
                     <Divider orientation={'vertical'} flexItem className={'my-1'}/>
-                    <Tooltip title={t('button.delete')}>
+                    <Tooltip placement={'top'} title={t('button.delete')}>
                       <IconButton onClick={(e) => {
                         e.stopPropagation();
 
