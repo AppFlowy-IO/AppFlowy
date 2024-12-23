@@ -182,7 +182,7 @@
     "newChat": "الدردشة بالذكاء الاصطناعي",
     "inputMessageHint": "اسأل @:appName AI",
     "inputLocalAIMessageHint": "اسأل @:appName Local AI",
-    "unsupportedCloudPrompt": "هذه الميزة متاحة فقط عند استخدام @:appName Cloud",
+    "unsupportedCloudPrompt": "هذه الميزة متوفرة فقط عند استخدام @:appName Cloud",
     "relatedQuestion": "ذات صلة",
     "serverUnavailable": "الخدمة غير متاحة مؤقتًا. يرجى المحاولة مرة أخرى لاحقًا.",
     "aiServerUnavailable": "تم فقد الاتصال. يرجى التحقق من اتصالك بالإنترنت",
@@ -753,6 +753,16 @@
         "codeBlockNewParagraph": "إدراج فقرة جديدة بجوار كتلة التعليمات البرمجية"
       }
     },
+    "billingPage": {
+      "addons": {
+        "aiMax": {
+          "canceledDescription": "سيكون AI Max متوفرا حتى {}"
+        },
+        "aiOnDevice": {
+          "canceledDescription": "ستتوفر ميزة AI On-device for Mac حتى {}"
+        }
+      }
+    },
     "comparePlanDialog": {
       "planLabels": {
         "tooltipSix": "تعني مدة الحياة أن عدد الاستجابات لا يتم إعادة ضبطه أبدًا"
@@ -1123,7 +1133,10 @@
       "copy": "إنسخ الرابط"
     },
     "menuName": "شبكة",
-    "referencedGridPrefix": "نظرا ل"
+    "referencedGridPrefix": "نظرا ل",
+    "media": {
+      "downloadFailedToken": "فشل تنزيل الملف، الرمز المميز للمستخدم غير متوفر"
+    }
   },
   "document": {
     "menuName": "وثيقة",
