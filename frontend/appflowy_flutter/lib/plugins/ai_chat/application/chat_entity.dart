@@ -57,7 +57,6 @@ class AIChatProgress {
 enum PromptResponseState {
   ready,
   sendingQuestion,
-  awaitingAnswer,
   streamingAnswer,
 }
 
