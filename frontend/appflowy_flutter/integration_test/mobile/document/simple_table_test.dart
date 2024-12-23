@@ -159,5 +159,147 @@ void main() {
         expect(table.columnLength, equals(3));
       }
     });
+
+    testWidgets('''
+1. insert a simple table via + menu
+2. enable header column
+3. enable header row
+4. set to page width
+5. distribute columns evenly
+''', (tester) async {
+      await tester.launchInAnonymousMode();
+      await tester.createNewDocumentOnMobile('simple table');
+
+      final editorState = tester.editor.getCurrentEditorState();
+      // focus on the editor
+      unawaited(
+        editorState.updateSelectionWithReason(
+          Selection.collapsed(Position(path: [0])),
+          reason: SelectionUpdateReason.uiEvent,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final firstParagraphPath = [0, 0, 0, 0];
+
+      // open the plus menu and select the table block
+      {
+        await tester.openPlusMenuAndClickButton(
+          LocaleKeys.document_slashMenu_name_table.tr(),
+        );
+
+        // check the block is inserted
+        final table = editorState.getNodeAtPath([0])!;
+        expect(table.type, equals(SimpleTableBlockKeys.type));
+        expect(table.rowLength, equals(2));
+        expect(table.columnLength, equals(2));
+
+        // focus on the first cell
+
+        final selection = editorState.selection!;
+        expect(selection.isCollapsed, isTrue);
+        expect(selection.start.path, equals(firstParagraphPath));
+      }
+
+      // enable header column
+      {
+        // click the column menu button
+        await tester.clickColumnMenuButton(0);
+
+        // enable header column
+        await tester.tapButton(
+          find.findTextInFlowyText(
+            LocaleKeys.document_plugins_simpleTable_moreActions_headerColumn
+                .tr(),
+          ),
+        );
+      }
+
+      // enable header row
+      {
+        // focus on the first cell
+        unawaited(
+          editorState.updateSelectionWithReason(
+            Selection.collapsed(Position(path: firstParagraphPath)),
+            reason: SelectionUpdateReason.uiEvent,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // click the row menu button
+        await tester.clickRowMenuButton(0);
+
+        // enable header column
+        await tester.tapButton(
+          find.findTextInFlowyText(
+            LocaleKeys.document_plugins_simpleTable_moreActions_headerRow.tr(),
+          ),
+        );
+      }
+
+      // check the table is updated
+      final table = editorState.getNodeAtPath([0])!;
+      expect(table.type, equals(SimpleTableBlockKeys.type));
+      expect(table.isHeaderColumnEnabled, isTrue);
+      expect(table.isHeaderRowEnabled, isTrue);
+
+      // set to page width
+      {
+        final table = editorState.getNodeAtPath([0])!;
+        final beforeWidth = table.width;
+        // focus on the first cell
+        unawaited(
+          editorState.updateSelectionWithReason(
+            Selection.collapsed(Position(path: firstParagraphPath)),
+            reason: SelectionUpdateReason.uiEvent,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // click the row menu button
+        await tester.clickRowMenuButton(0);
+
+        // enable header column
+        await tester.tapButton(
+          find.findTextInFlowyText(
+            LocaleKeys.document_plugins_simpleTable_moreActions_setToPageWidth
+                .tr(),
+          ),
+        );
+
+        // check the table is updated
+        expect(table.width, greaterThan(beforeWidth));
+      }
+
+      // distribute columns evenly
+      {
+        final table = editorState.getNodeAtPath([0])!;
+        final beforeWidth = table.width;
+
+        // focus on the first cell
+        unawaited(
+          editorState.updateSelectionWithReason(
+            Selection.collapsed(Position(path: firstParagraphPath)),
+            reason: SelectionUpdateReason.uiEvent,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // click the column menu button
+        await tester.clickColumnMenuButton(0);
+
+        // distribute columns evenly
+        await tester.tapButton(
+          find.findTextInFlowyText(
+            LocaleKeys
+                .document_plugins_simpleTable_moreActions_distributeColumnsWidth
+                .tr(),
+          ),
+        );
+
+        // check the table is updated
+        expect(table.width, equals(beforeWidth));
+      }
+    });
   });
 }
