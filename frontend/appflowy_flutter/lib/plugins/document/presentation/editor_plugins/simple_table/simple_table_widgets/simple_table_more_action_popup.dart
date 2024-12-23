@@ -78,7 +78,7 @@ class _SimpleTableMoreActionPopupState
           : const Offset(-14, 8),
       clickHandler: PopoverClickHandler.gestureDetector,
       popupBuilder: (_) => _buildPopup(tableCellNode: tableCellNode),
-      child: SimpleTableMobileDraggableReorderButton(
+      child: SimpleTableDraggableReorderButton(
         editorState: editorState,
         simpleTableContext: simpleTableContext,
         node: tableNode,
