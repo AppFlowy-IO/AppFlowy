@@ -715,7 +715,9 @@
         "moveCursorBeginSelect": "حدد وحرك المؤشر إلى البداية",
         "moveCursorRight": "حرك المؤشر إلى اليمين",
         "moveCursorEnd": "حرك المؤشر إلى النهاية",
-        "moveCursorEndSelect": "حدد وحرك المؤشر إلى النهاية"
+        "moveCursorEndSelect": "حدد وحرك المؤشر إلى النهاية",
+        "moveCursorUp": "حرك المؤشر لأعلى",
+        "moveCursorTopSelect": "حدد وحرك المؤشر إلى الأعلى"
       },
       "commands": {
         "codeBlockNewParagraph": "إدراج فقرة جديدة بجوار كتلة التعليمات البرمجية"
