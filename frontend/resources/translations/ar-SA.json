@@ -731,7 +731,8 @@
         "toggleUnderline": "تبديل التسطير",
         "toggleStrikethrough": "تبديل الشطب",
         "toggleCode": "تبديل الكود المضمن",
-        "toggleHighlight": "تبديل التمييز"
+        "toggleHighlight": "تبديل التمييز",
+        "showLinkMenu": "عرض قائمة الروابط"
       },
       "commands": {
         "codeBlockNewParagraph": "إدراج فقرة جديدة بجوار كتلة التعليمات البرمجية"
