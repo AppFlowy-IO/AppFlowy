@@ -762,7 +762,13 @@
       "title": "إعدادات الذكاء الاصطناعي",
       "menuLabel": "إعدادات الذكاء الاصطناعي",
       "keys": {
-        "enableAISearchTitle": "بحث الذكاء الاصطناعي"
+        "enableAISearchTitle": "بحث الذكاء الاصطناعي",
+        "aiSettingsDescription": "اختر النموذج المفضل لديك لتشغيل AppFlowy AI. يتضمن الآن GPT 4-o وClaude 3,5 وLlama 3.1 وMistral 7B",
+        "loginToEnableAIFeature": "لا يتم تمكين ميزات الذكاء الاصطناعي إلا بعد تسجيل الدخول باستخدام @:appName Cloud. إذا لم يكن لديك حساب @:appName ، فانتقل إلى \"حسابي\" للتسجيل",
+        "llmModel": "نموذج اللغة",
+        "llmModelType": "نوع نموذج اللغة",
+        "downloadLLMPrompt": "تنزيل {}",
+        "downloadAppFlowyOfflineAI": "سيؤدي تنزيل حزمة AI دون اتصال بالإنترنت إلى تفعيل تشغيل AI على جهازك. هل تريد الاستمرار؟"
       }
     },
     "billingPage": {
