@@ -732,7 +732,12 @@
         "toggleStrikethrough": "تبديل الشطب",
         "toggleCode": "تبديل الكود المضمن",
         "toggleHighlight": "تبديل التمييز",
-        "showLinkMenu": "عرض قائمة الروابط"
+        "showLinkMenu": "عرض قائمة الروابط",
+        "openInlineLink": "افتح الرابط المضمن",
+        "openLinks": "فتح جميع الروابط المحددة",
+        "indent": "المسافة البادئة",
+        "outdent": "مسافة بادئة سلبية",
+        "exit": "الخروج من التحرير"
       },
       "commands": {
         "codeBlockNewParagraph": "إدراج فقرة جديدة بجوار كتلة التعليمات البرمجية"
