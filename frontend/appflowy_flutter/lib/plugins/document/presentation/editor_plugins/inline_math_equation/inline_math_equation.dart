@@ -80,7 +80,7 @@ class _InlineMathEquationState extends State<InlineMathEquation> {
         mathFontOptions: const FontOptions(
           fontShape: FontStyle.italic,
         ),
-        fontSize: 14.0,
+        fontSize: widget.textStyle?.fontSize ?? 14.0,
         color: widget.textStyle?.color ?? theme.colorScheme.onSurface,
       ),
       onErrorFallback: (errmsg) {
@@ -89,11 +89,7 @@ class _InlineMathEquationState extends State<InlineMathEquation> {
         );
       },
     );
-    return Row(
-      children: [
-        longEq,
-      ],
-    );
+    return longEq;
   }
 }
 
