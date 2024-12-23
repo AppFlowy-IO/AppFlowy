@@ -882,6 +882,12 @@ extension CommonOperations on WidgetTester {
     await tapButton(button);
   }
 
+  /// Click the SimpleTableContentAction
+  Future<void> clickSimpleTableBoldContentAction() async {
+    final button = find.byType(SimpleTableContentBoldAction);
+    await tapButton(button);
+  }
+
   /// Cancel the table action menu
   Future<void> cancelTableActionMenu() async {
     final finder = find.byType(SimpleTableCellBottomSheet);

@@ -301,5 +301,98 @@ void main() {
         expect(table.width, equals(beforeWidth));
       }
     });
+
+    testWidgets('''
+1. insert a simple table via + menu
+2. bold
+3. clear content
+''', (tester) async {
+      await tester.launchInAnonymousMode();
+      await tester.createNewDocumentOnMobile('simple table');
+
+      final editorState = tester.editor.getCurrentEditorState();
+      // focus on the editor
+      unawaited(
+        editorState.updateSelectionWithReason(
+          Selection.collapsed(Position(path: [0])),
+          reason: SelectionUpdateReason.uiEvent,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final firstParagraphPath = [0, 0, 0, 0];
+
+      // open the plus menu and select the table block
+      {
+        await tester.openPlusMenuAndClickButton(
+          LocaleKeys.document_slashMenu_name_table.tr(),
+        );
+
+        // check the block is inserted
+        final table = editorState.getNodeAtPath([0])!;
+        expect(table.type, equals(SimpleTableBlockKeys.type));
+        expect(table.rowLength, equals(2));
+        expect(table.columnLength, equals(2));
+
+        // focus on the first cell
+
+        final selection = editorState.selection!;
+        expect(selection.isCollapsed, isTrue);
+        expect(selection.start.path, equals(firstParagraphPath));
+      }
+
+      await tester.ime.insertText('Hello');
+
+      // enable bold
+      {
+        // click the column menu button
+        await tester.clickColumnMenuButton(0);
+
+        // enable bold
+        await tester.clickSimpleTableBoldContentAction();
+        await tester.cancelTableActionMenu();
+
+        // check the first cell is bold
+        final paragraph = editorState.getNodeAtPath(firstParagraphPath)!;
+        expect(paragraph.delta!, isNotEmpty);
+        expect(
+          paragraph.delta!.toJson(),
+          equals([
+            {
+              'insert': 'Hello',
+              'attributes': {'bold': true},
+            }
+          ]),
+        );
+      }
+
+      // clear content
+      {
+        // focus on the first cell
+        unawaited(
+          editorState.updateSelectionWithReason(
+            Selection.collapsed(Position(path: firstParagraphPath)),
+            reason: SelectionUpdateReason.uiEvent,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // click the column menu button
+        await tester.clickColumnMenuButton(0);
+
+        // clear content
+        await tester.tapButton(
+          find.findTextInFlowyText(
+            LocaleKeys.document_plugins_simpleTable_moreActions_clearContents
+                .tr(),
+          ),
+        );
+        await tester.cancelTableActionMenu();
+
+        // check the first cell is empty
+        final paragraph = editorState.getNodeAtPath(firstParagraphPath)!;
+        expect(paragraph.delta!, isEmpty);
+      }
+    });
   });
 }
