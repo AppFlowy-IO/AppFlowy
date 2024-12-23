@@ -161,16 +161,6 @@ class SimpleTableBorderBuilder {
   }
 
   Border _buildColumnReorderingBorder() {
-    if (UniversalPlatform.isDesktop) {
-      return _buildColumnReorderingBorderOnDesktop();
-    } else if (UniversalPlatform.isMobile) {
-      return _buildColumnReorderingBorderOnMobile();
-    }
-
-    return buildCellBorder();
-  }
-
-  Border _buildColumnReorderingBorderOnDesktop() {
     assert(simpleTableContext.isReordering);
 
     final isDraggingInCurrentColumn =
@@ -180,9 +170,21 @@ class SimpleTableBorderBuilder {
       return buildCellBorder();
     }
 
-    final hoveringTableCell = simpleTableContext.hoveringTableCell.value;
+    bool isHitCurrentCell = false;
+
+    if (UniversalPlatform.isDesktop) {
+      // On desktop, we use the dragging column index to determine the highlight border
+      // Check if the hovering table cell column index hit the current node column index
+      isHitCurrentCell =
+          simpleTableContext.hoveringTableCell.value?.columnIndex ==
+              node.columnIndex;
+    } else if (UniversalPlatform.isMobile) {
+      // On mobile, we use the isReorderingHitIndex to determine the highlight border
+      isHitCurrentCell =
+          simpleTableContext.isReorderingHitIndex.value == node.columnIndex;
+    }
+
     // if the hovering column is not the current column, don't show the highlight border
-    final isHitCurrentCell = hoveringTableCell?.columnIndex == node.columnIndex;
     if (!isHitCurrentCell) {
       return buildCellBorder();
     }
@@ -209,44 +211,7 @@ class SimpleTableBorderBuilder {
     );
   }
 
-  Border _buildColumnReorderingBorderOnMobile() {
-    assert(simpleTableContext.isReordering);
-
-    final isHitCurrentCell =
-        simpleTableContext.isReorderingHitIndex.value == node.columnIndex;
-    if (!isHitCurrentCell) {
-      return buildCellBorder();
-    }
-
-    final isLeftSide =
-        simpleTableContext.isReorderingColumn.value.$2 > node.columnIndex;
-    final isRightSide =
-        simpleTableContext.isReorderingColumn.value.$2 < node.columnIndex;
-
-    return Border(
-      top: node.rowIndex == 0
-          ? _buildDefaultBorderSide()
-          : _buildLightBorderSide(),
-      bottom: node.rowIndex + 1 == node.parentTableNode?.rowLength
-          ? _buildDefaultBorderSide()
-          : _buildLightBorderSide(),
-      left: isLeftSide ? _buildHighlightBorderSide() : _buildLightBorderSide(),
-      right:
-          isRightSide ? _buildHighlightBorderSide() : _buildLightBorderSide(),
-    );
-  }
-
   Border _buildRowReorderingBorder() {
-    if (UniversalPlatform.isDesktop) {
-      return _buildRowReorderingBorderOnDesktop();
-    } else if (UniversalPlatform.isMobile) {
-      return _buildRowReorderingBorderOnMobile();
-    }
-
-    return buildCellBorder();
-  }
-
-  Border _buildRowReorderingBorderOnDesktop() {
     assert(simpleTableContext.isReordering);
 
     final isDraggingInCurrentRow =
@@ -256,39 +221,24 @@ class SimpleTableBorderBuilder {
       return buildCellBorder();
     }
 
-    final hoveringTableCell = simpleTableContext.hoveringTableCell.value;
-    final isHitCurrentCell = hoveringTableCell?.rowIndex == node.rowIndex;
+    bool isHitCurrentCell = false;
+
+    if (UniversalPlatform.isDesktop) {
+      // On desktop, we use the dragging row index to determine the highlight border
+      // Check if the hovering table cell row index hit the current node row index
+      isHitCurrentCell =
+          simpleTableContext.hoveringTableCell.value?.rowIndex == node.rowIndex;
+    } else if (UniversalPlatform.isMobile) {
+      // On mobile, we use the isReorderingHitIndex to determine the highlight border
+      isHitCurrentCell =
+          simpleTableContext.isReorderingHitIndex.value == node.rowIndex;
+    }
+
     if (!isHitCurrentCell) {
       return buildCellBorder();
     }
 
-    final isTopSide =
-        simpleTableContext.isReorderingRow.value.$2 > node.rowIndex;
-    final isBottomSide =
-        simpleTableContext.isReorderingRow.value.$2 < node.rowIndex;
-
-    return Border(
-      top: isTopSide ? _buildHighlightBorderSide() : _buildLightBorderSide(),
-      bottom:
-          isBottomSide ? _buildHighlightBorderSide() : _buildLightBorderSide(),
-      left: node.columnIndex == 0
-          ? _buildDefaultBorderSide()
-          : _buildLightBorderSide(),
-      right: node.columnIndex + 1 == node.parentTableNode?.columnLength
-          ? _buildDefaultBorderSide()
-          : _buildLightBorderSide(),
-    );
-  }
-
-  Border _buildRowReorderingBorderOnMobile() {
-    assert(simpleTableContext.isReordering);
-
-    final isHitCurrentCell =
-        simpleTableContext.isReorderingHitIndex.value == node.rowIndex;
-    if (!isHitCurrentCell) {
-      return buildCellBorder();
-    }
-
+    // For the row reordering, we only need to update the top and bottom border
     final isTopSide =
         simpleTableContext.isReorderingRow.value.$2 > node.rowIndex;
     final isBottomSide =
