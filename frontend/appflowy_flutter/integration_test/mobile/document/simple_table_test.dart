@@ -74,10 +74,7 @@ void main() {
           ),
         );
 
-        // click empty area to cancel the selection
-        await tester.tapAt(Offset.zero);
-        expect(editorState.selection, isNull);
-        await tester.pumpUntilNotFound(find.byType(SimpleTableCellBottomSheet));
+        await tester.cancelTableActionMenu();
 
         // check the table is updated
         final table = editorState.getNodeAtPath([0])!;
@@ -112,10 +109,7 @@ void main() {
                 .tr(),
           ),
         );
-        // click empty area to cancel the selection
-        await tester.tapAt(Offset.zero);
-        expect(editorState.selection, isNull);
-        await tester.pumpUntilNotFound(find.byType(SimpleTableCellBottomSheet));
+        await tester.cancelTableActionMenu();
 
         // check the table is updated
         final table = editorState.getNodeAtPath([0])!;
@@ -136,12 +130,8 @@ void main() {
 
         // delete the first row
         await tester.clickRowMenuButton(0);
-        await tester.tapButton(
-          find.findTextInFlowyText(
-            LocaleKeys.document_plugins_simpleTable_moreActions_delete.tr(),
-          ),
-        );
-        await tester.pumpUntilNotFound(find.byType(SimpleTableCellBottomSheet));
+        await tester.clickSimpleTableQuickAction(SimpleTableMoreAction.delete);
+        await tester.cancelTableActionMenu();
 
         // check the table is updated
         final table = editorState.getNodeAtPath([0])!;
@@ -160,12 +150,8 @@ void main() {
         await tester.pumpAndSettle();
 
         await tester.clickColumnMenuButton(0);
-        await tester.tapButton(
-          find.findTextInFlowyText(
-            LocaleKeys.document_plugins_simpleTable_moreActions_delete.tr(),
-          ),
-        );
-        await tester.pumpUntilNotFound(find.byType(SimpleTableCellBottomSheet));
+        await tester.clickSimpleTableQuickAction(SimpleTableMoreAction.delete);
+        await tester.cancelTableActionMenu();
 
         // check the table is updated
         final table = editorState.getNodeAtPath([0])!;
