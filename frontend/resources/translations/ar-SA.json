@@ -708,7 +708,14 @@
         "deleteLeftSentence": "حذف الجملة اليسرى",
         "delete": "حذف الحرف الأيمن",
         "deleteMacOS": "حذف الحرف الأيسر",
-        "deleteRightWord": "حذف الكلمة اليمنى"
+        "deleteRightWord": "حذف الكلمة اليمنى",
+        "moveCursorLeft": "حرك المؤشر إلى اليسار",
+        "moveCursorBeginning": "حرك المؤشر إلى البداية",
+        "moveCursorLeftSelect": "حدد وحرك المؤشر إلى اليسار",
+        "moveCursorBeginSelect": "حدد وحرك المؤشر إلى البداية",
+        "moveCursorRight": "حرك المؤشر إلى اليمين",
+        "moveCursorEnd": "حرك المؤشر إلى النهاية",
+        "moveCursorEndSelect": "حدد وحرك المؤشر إلى النهاية"
       },
       "commands": {
         "codeBlockNewParagraph": "إدراج فقرة جديدة بجوار كتلة التعليمات البرمجية"
