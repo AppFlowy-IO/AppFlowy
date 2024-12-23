@@ -750,7 +750,19 @@
         "shiftTabInTableCell": "انتقل إلى الخلية المتوفرة سابقًا في الجدول"
       },
       "commands": {
-        "codeBlockNewParagraph": "إدراج فقرة جديدة بجوار كتلة التعليمات البرمجية"
+        "codeBlockNewParagraph": "إدراج فقرة جديدة بجوار كتلة التعليمات البرمجية",
+        "textAlignLeft": "محاذاة النص إلى اليسار",
+        "textAlignCenter": "محاذاة النص إلى الوسط",
+        "textAlignRight": "محاذاة النص إلى اليمين"
+      },
+      "couldNotLoadErrorMsg": "لم نتمكن من تحميل الاختصارات، حاول مرة أخرى",
+      "couldNotSaveErrorMsg": "لم نتمكن من حفظ الاختصارات، حاول مرة أخرى"
+    },
+    "aiPage": {
+      "title": "إعدادات الذكاء الاصطناعي",
+      "menuLabel": "إعدادات الذكاء الاصطناعي",
+      "keys": {
+        "enableAISearchTitle": "بحث الذكاء الاصطناعي"
       }
     },
     "billingPage": {
