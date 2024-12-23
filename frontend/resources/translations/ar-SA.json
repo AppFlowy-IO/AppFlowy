@@ -743,7 +743,10 @@
         "selectAll": "حدد الكل",
         "pasteWithoutFormatting": "لصق المحتوى بدون تنسيق",
         "showEmojiPicker": "عرض أداة اختيار الرموز التعبيرية",
-        "enterInTableCell": "إضافة فاصل الأسطر في الجدول"
+        "enterInTableCell": "إضافة فاصل الأسطر في الجدول",
+        "upInTableCell": "التحرك لأعلى خلية واحدة في الجدول",
+        "downInTableCell": "التحرك لأسفل خلية واحدة في الجدول",
+        "tabInTableCell": "انتقل إلى الخلية التالية المتاحة في الجدول"
       },
       "commands": {
         "codeBlockNewParagraph": "إدراج فقرة جديدة بجوار كتلة التعليمات البرمجية"
