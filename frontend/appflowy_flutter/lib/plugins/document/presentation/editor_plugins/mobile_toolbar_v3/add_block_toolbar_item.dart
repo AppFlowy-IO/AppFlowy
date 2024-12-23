@@ -119,9 +119,18 @@ class AddBlockMenu extends StatelessWidget {
               node,
             );
             transaction.deleteNode(currentNode);
-            transaction.afterSelection = Selection.collapsed(
-              Position(path: selection.end.path),
-            );
+            if (node.type == SimpleTableBlockKeys.type) {
+              transaction.afterSelection = Selection.collapsed(
+                Position(
+                  // table -> row -> cell -> paragraph
+                  path: selection.end.path + [0, 0, 0],
+                ),
+              );
+            } else {
+              transaction.afterSelection = Selection.collapsed(
+                Position(path: selection.end.path),
+              );
+            }
             transaction.selectionExtraInfo = {};
             await editorState.apply(transaction);
             return;
@@ -177,6 +186,17 @@ class AddBlockMenu extends StatelessWidget {
         text: LocaleKeys.editor_checkbox.tr(),
         icon: FlowySvgs.m_add_block_checkbox_s,
         onTap: (_, __) => _insertBlock(todoListNode(checked: false)),
+      ),
+
+      // table
+      TypeOptionMenuItemValue(
+        value: SimpleTableBlockKeys.type,
+        backgroundColor: colorMap[SimpleTableBlockKeys.type]!,
+        text: LocaleKeys.editor_table.tr(),
+        icon: FlowySvgs.slash_menu_icon_simple_table_s,
+        onTap: (_, __) => _insertBlock(
+          createSimpleTableBlockNode(columnCount: 2, rowCount: 2),
+        ),
       ),
 
       // quote
@@ -363,6 +383,7 @@ class AddBlockMenu extends StatelessWidget {
         HeadingBlockKeys.type: const Color(0xFF5465A1),
         ParagraphBlockKeys.type: const Color(0xFF5465A1),
         TodoListBlockKeys.type: const Color(0xFF4BB299),
+        SimpleTableBlockKeys.type: const Color(0xFF4BB299),
         QuoteBlockKeys.type: const Color(0xFFBAAC74),
         BulletedListBlockKeys.type: const Color(0xFFA35F94),
         NumberedListBlockKeys.type: const Color(0xFFA35F94),
@@ -379,6 +400,7 @@ class AddBlockMenu extends StatelessWidget {
       HeadingBlockKeys.type: const Color(0xFFBECCFF),
       ParagraphBlockKeys.type: const Color(0xFFBECCFF),
       TodoListBlockKeys.type: const Color(0xFF98F4CD),
+      SimpleTableBlockKeys.type: const Color(0xFF98F4CD),
       QuoteBlockKeys.type: const Color(0xFFFDEDA7),
       BulletedListBlockKeys.type: const Color(0xFFFFB9EF),
       NumberedListBlockKeys.type: const Color(0xFFFFB9EF),

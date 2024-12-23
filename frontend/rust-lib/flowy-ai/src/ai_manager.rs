@@ -365,28 +365,43 @@ impl AIManager {
   pub async fn update_rag_ids(&self, chat_id: &str, rag_ids: Vec<String>) -> FlowyResult<()> {
     info!("[Chat] update chat:{} rag ids: {:?}", chat_id, rag_ids);
 
-    if !rag_ids.is_empty() {
-      let workspace_id = self.user_service.workspace_id()?;
-      let update_setting = UpdateChatParams {
-        name: None,
-        metadata: None,
-        rag_ids: Some(rag_ids.clone()),
-      };
-      self
-        .cloud_service_wm
-        .update_chat_settings(&workspace_id, chat_id, update_setting)
-        .await?;
+    let workspace_id = self.user_service.workspace_id()?;
+    let update_setting = UpdateChatParams {
+      name: None,
+      metadata: None,
+      rag_ids: Some(rag_ids.clone()),
+    };
+    self
+      .cloud_service_wm
+      .update_chat_settings(&workspace_id, chat_id, update_setting)
+      .await?;
 
-      let user_service = self.user_service.clone();
-      let external_service = self.external_service.clone();
-      tokio::spawn(async move {
-        if let Ok(workspace_id) = user_service.workspace_id() {
-          let _ = external_service
-            .sync_rag_documents(&workspace_id, rag_ids)
-            .await;
-        }
-      });
+    let chat_setting_store_key = setting_store_key(chat_id);
+
+    if let Some(settings) = self
+      .store_preferences
+      .get_object::<ChatSettings>(&chat_setting_store_key)
+    {
+      if let Err(err) = self.store_preferences.set_object(
+        &chat_setting_store_key,
+        &ChatSettings {
+          rag_ids: rag_ids.clone(),
+          ..settings
+        },
+      ) {
+        error!("failed to set chat settings: {}", err);
+      }
     }
+
+    let user_service = self.user_service.clone();
+    let external_service = self.external_service.clone();
+    tokio::spawn(async move {
+      if let Ok(workspace_id) = user_service.workspace_id() {
+        let _ = external_service
+          .sync_rag_documents(&workspace_id, rag_ids)
+          .await;
+      }
+    });
     Ok(())
   }
 }

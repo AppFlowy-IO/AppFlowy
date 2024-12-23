@@ -211,14 +211,21 @@ class BottomSheetHeader extends StatelessWidget {
     required this.showDoneButton,
     this.onRemove,
     this.onDone,
+    this.onBack,
+    this.onClose,
   });
+
+  final String title;
 
   final bool showBackButton;
   final bool showCloseButton;
   final bool showRemoveButton;
-  final String title;
   final bool showDoneButton;
+
   final VoidCallback? onRemove;
+  final VoidCallback? onBack;
+  final VoidCallback? onClose;
+
   final void Function(BuildContext context)? onDone;
 
   @override
@@ -230,14 +237,18 @@ class BottomSheetHeader extends StatelessWidget {
         child: Stack(
           children: [
             if (showBackButton)
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
-                child: BottomSheetBackButton(),
+                child: BottomSheetBackButton(
+                  onTap: onBack,
+                ),
               ),
             if (showCloseButton)
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
-                child: BottomSheetCloseButton(),
+                child: BottomSheetCloseButton(
+                  onTap: onClose,
+                ),
               ),
             if (showRemoveButton)
               Align(

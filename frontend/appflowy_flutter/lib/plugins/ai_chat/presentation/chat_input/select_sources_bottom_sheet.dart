@@ -98,13 +98,13 @@ class _PromptInputMobileSelectSourcesButtonState
                       ),
                     ],
                   ),
-                  onTap: () {
+                  onTap: () async {
                     if (spaceView != null) {
                       context
                           .read<ChatSettingsCubit>()
                           .refreshSources(spaceView);
                     }
-                    showMobileBottomSheet<void>(
+                    await showMobileBottomSheet<void>(
                       context,
                       backgroundColor: Theme.of(context).colorScheme.surface,
                       maxChildSize: 0.98,
@@ -115,14 +115,15 @@ class _PromptInputMobileSelectSourcesButtonState
                             value: cubit,
                             child: _MobileSelectSourcesSheetBody(
                               scrollController: scrollController,
-                              onUpdateSelectedSources:
-                                  widget.onUpdateSelectedSources,
                             ),
                           ),
                         );
                       },
                       builder: (context) => const SizedBox.shrink(),
                     );
+                    if (context.mounted) {
+                      widget.onUpdateSelectedSources(cubit.selectedSourceIds);
+                    }
                   },
                 ),
               );
@@ -137,11 +138,9 @@ class _PromptInputMobileSelectSourcesButtonState
 class _MobileSelectSourcesSheetBody extends StatefulWidget {
   const _MobileSelectSourcesSheetBody({
     required this.scrollController,
-    required this.onUpdateSelectedSources,
   });
 
   final ScrollController scrollController;
-  final void Function(List<String>) onUpdateSelectedSources;
 
   @override
   State<_MobileSelectSourcesSheetBody> createState() =>
@@ -205,32 +204,27 @@ class _MobileSelectSourcesSheetBodyState
         ),
         BlocBuilder<ChatSettingsCubit, ChatSettingsState>(
           builder: (context, state) {
+            final sources = state.visibleSources
+                .where((e) => e.ignoreStatus != IgnoreViewType.hide);
             return SliverList(
               delegate: SliverChildBuilderDelegate(
-                childCount: state.visibleSources.length,
+                childCount: sources.length,
                 (context, index) {
+                  final source = sources.elementAt(index);
                   return ChatSourceTreeItem(
                     key: ValueKey(
-                      'visible_select_sources_tree_item_${state.visibleSources[index].view.id}',
+                      'visible_select_sources_tree_item_${source.view.id}',
                     ),
-                    chatSource: state.visibleSources[index],
+                    chatSource: source,
                     level: 0,
+                    isDescendentOfSpace: source.view.isSpace,
                     isSelectedSection: false,
                     onSelected: (chatSource) {
-                      final cubit = context.read<ChatSettingsCubit>();
-                      cubit.toggleSelectedStatus(chatSource);
-                      widget.onUpdateSelectedSources(cubit.selectedSourceIds);
+                      context
+                          .read<ChatSettingsCubit>()
+                          .toggleSelectedStatus(chatSource);
                     },
                     height: 40.0,
-                    visibilityGetter: (view) {
-                      if (view.id == context.read<ChatSettingsCubit>().chatId) {
-                        return IgnoreViewType.hide;
-                      }
-
-                      return view.layout.isDocumentView
-                          ? IgnoreViewType.none
-                          : IgnoreViewType.disable;
-                    },
                   );
                 },
               ),

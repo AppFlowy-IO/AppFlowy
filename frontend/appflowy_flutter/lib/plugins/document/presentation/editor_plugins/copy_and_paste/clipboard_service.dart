@@ -8,21 +8,17 @@ import 'package:super_clipboard/super_clipboard.dart';
 /// Used for in-app copy and paste without losing the format.
 ///
 /// It's a Json string representing the copied editor nodes.
-final inAppJsonFormat = CustomValueFormat<String>(
+const inAppJsonFormat = CustomValueFormat<String>(
   applicationId: 'io.appflowy.InAppJsonType',
-  onDecode: (value, platformType) async {
-    if (value is PlatformDataProvider) {
-      final data = await value.getData(platformType);
-      if (data is List<int>) {
-        return utf8.decode(data, allowMalformed: true);
-      }
-      if (data is String) {
-        return Uri.decodeFull(data);
-      }
-    }
-    return null;
-  },
-  onEncode: (value, platformType) => utf8.encode(value),
+  onDecode: _defaultDecode,
+  onEncode: _defaultEncode,
+);
+
+/// Used for table nodes when coping a row or a column.
+const tableJsonFormat = CustomValueFormat<String>(
+  applicationId: 'io.appflowy.TableJsonType',
+  onDecode: _defaultDecode,
+  onEncode: _defaultEncode,
 );
 
 class ClipboardServiceData {
@@ -31,12 +27,37 @@ class ClipboardServiceData {
     this.html,
     this.image,
     this.inAppJson,
+    this.tableJson,
   });
 
+  /// The [plainText] is the plain text string.
+  ///
+  /// It should be used for pasting the plain text from the clipboard.
   final String? plainText;
+
+  /// The [html] is the html string.
+  ///
+  /// It should be used for pasting the html from the clipboard.
+  /// For example, copy the content in the browser, and paste it in the editor.
   final String? html;
+
+  /// The [image] is the image data.
+  ///
+  /// It should be used for pasting the image from the clipboard.
+  /// For example, copy the image in the browser or other apps, and paste it in the editor.
   final (String, Uint8List?)? image;
+
+  /// The [inAppJson] is the json string of the editor nodes.
+  ///
+  /// It should be used for pasting the content in-app.
+  /// For example, pasting the content from document A to document B.
   final String? inAppJson;
+
+  /// The [tableJson] is the json string of the table nodes.
+  ///
+  /// It only works for the table nodes when coping a row or a column.
+  /// Don't use it for another scenario.
+  final String? tableJson;
 }
 
 class ClipboardService {
@@ -52,6 +73,7 @@ class ClipboardService {
     final html = data.html;
     final inAppJson = data.inAppJson;
     final image = data.image;
+    final tableJson = data.tableJson;
 
     final item = DataWriterItem();
     if (plainText != null) {
@@ -62,6 +84,9 @@ class ClipboardService {
     }
     if (inAppJson != null) {
       item.add(inAppJsonFormat(inAppJson));
+    }
+    if (tableJson != null) {
+      item.add(tableJsonFormat(tableJson));
     }
     if (image != null && image.$2?.isNotEmpty == true) {
       switch (image.$1) {
@@ -106,6 +131,7 @@ class ClipboardService {
     final plainText = await reader.readValue(Formats.plainText);
     final html = await reader.readValue(Formats.htmlText);
     final inAppJson = await reader.readValue(inAppJsonFormat);
+    final tableJson = await reader.readValue(tableJsonFormat);
     (String, Uint8List?)? image;
     if (reader.canProvide(Formats.png)) {
       image = ('png', await reader.readFile(Formats.png));
@@ -122,6 +148,7 @@ class ClipboardService {
       html: html,
       image: image,
       inAppJson: inAppJson,
+      tableJson: tableJson,
     );
   }
 }
@@ -148,4 +175,23 @@ extension on DataReader {
     }
     return c.future;
   }
+}
+
+/// The default decode function for the clipboard service.
+Future<String?> _defaultDecode(Object value, String platformType) async {
+  if (value is PlatformDataProvider) {
+    final data = await value.getData(platformType);
+    if (data is List<int>) {
+      return utf8.decode(data, allowMalformed: true);
+    }
+    if (data is String) {
+      return Uri.decodeFull(data);
+    }
+  }
+  return null;
+}
+
+/// The default encode function for the clipboard service.
+Future<Object> _defaultEncode(String value, String platformType) async {
+  return utf8.encode(value);
 }

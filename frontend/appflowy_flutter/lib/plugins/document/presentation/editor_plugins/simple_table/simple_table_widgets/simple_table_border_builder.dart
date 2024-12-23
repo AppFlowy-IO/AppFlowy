@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_tab
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class SimpleTableBorderBuilder {
   SimpleTableBorderBuilder({
@@ -15,7 +16,9 @@ class SimpleTableBorderBuilder {
   final Node node;
 
   /// Build the border for the cell.
-  Border? buildBorder({bool isEditingCell = false}) {
+  Border? buildBorder({
+    bool isEditingCell = false,
+  }) {
     if (SimpleTableConstants.borderType != SimpleTableBorderRenderType.cell) {
       return null;
     }
@@ -28,24 +31,16 @@ class SimpleTableBorderBuilder {
     final isCellInSelectedRow =
         node.rowIndex == simpleTableContext.selectingRow.value;
 
-    // check if the cell is in the hovering column
-    final isCellInHoveringColumn =
-        simpleTableContext.hoveringTableCell.value?.columnIndex ==
-            node.columnIndex;
-
-    final isCellInHoveringRow =
-        simpleTableContext.hoveringTableCell.value?.rowIndex == node.rowIndex;
-
-    // check if the cell is in the reordering column
-    final isReordering = simpleTableContext.isReordering;
+    final isReordering = simpleTableContext.isReordering &&
+        (simpleTableContext.isReorderingColumn.value.$1 ||
+            simpleTableContext.isReorderingRow.value.$1);
 
     final editorState = context.read<EditorState>();
     final editable = editorState.editable;
 
     if (!editable) {
       return buildCellBorder();
-    } else if (isReordering &&
-        (isCellInHoveringColumn || isCellInHoveringRow)) {
+    } else if (isReordering) {
       return buildReorderingBorder();
     } else if (simpleTableContext.isSelectingTable.value) {
       return buildSelectingTableBorder();
@@ -74,10 +69,10 @@ class SimpleTableBorderBuilder {
       right: _buildHighlightBorderSide(),
       top: node.rowIndex == 0
           ? _buildHighlightBorderSide()
-          : _buildDefaultBorderSide(),
+          : _buildLightBorderSide(),
       bottom: node.rowIndex + 1 == node.parentTableNode?.rowLength
           ? _buildHighlightBorderSide()
-          : _buildDefaultBorderSide(),
+          : _buildLightBorderSide(),
     );
   }
 
@@ -95,10 +90,10 @@ class SimpleTableBorderBuilder {
       bottom: _buildHighlightBorderSide(),
       left: node.columnIndex == 0
           ? _buildHighlightBorderSide()
-          : _buildDefaultBorderSide(),
+          : _buildLightBorderSide(),
       right: node.columnIndex + 1 == node.parentTableNode?.columnLength
           ? _buildHighlightBorderSide()
-          : _buildDefaultBorderSide(),
+          : _buildLightBorderSide(),
     );
   }
 
@@ -175,9 +170,21 @@ class SimpleTableBorderBuilder {
       return buildCellBorder();
     }
 
-    final hoveringTableCell = simpleTableContext.hoveringTableCell.value;
+    bool isHitCurrentCell = false;
+
+    if (UniversalPlatform.isDesktop) {
+      // On desktop, we use the dragging column index to determine the highlight border
+      // Check if the hovering table cell column index hit the current node column index
+      isHitCurrentCell =
+          simpleTableContext.hoveringTableCell.value?.columnIndex ==
+              node.columnIndex;
+    } else if (UniversalPlatform.isMobile) {
+      // On mobile, we use the isReorderingHitIndex to determine the highlight border
+      isHitCurrentCell =
+          simpleTableContext.isReorderingHitIndex.value == node.columnIndex;
+    }
+
     // if the hovering column is not the current column, don't show the highlight border
-    final isHitCurrentCell = hoveringTableCell?.columnIndex == node.columnIndex;
     if (!isHitCurrentCell) {
       return buildCellBorder();
     }
@@ -214,12 +221,24 @@ class SimpleTableBorderBuilder {
       return buildCellBorder();
     }
 
-    final hoveringTableCell = simpleTableContext.hoveringTableCell.value;
-    final isHitCurrentCell = hoveringTableCell?.rowIndex == node.rowIndex;
+    bool isHitCurrentCell = false;
+
+    if (UniversalPlatform.isDesktop) {
+      // On desktop, we use the dragging row index to determine the highlight border
+      // Check if the hovering table cell row index hit the current node row index
+      isHitCurrentCell =
+          simpleTableContext.hoveringTableCell.value?.rowIndex == node.rowIndex;
+    } else if (UniversalPlatform.isMobile) {
+      // On mobile, we use the isReorderingHitIndex to determine the highlight border
+      isHitCurrentCell =
+          simpleTableContext.isReorderingHitIndex.value == node.rowIndex;
+    }
+
     if (!isHitCurrentCell) {
       return buildCellBorder();
     }
 
+    // For the row reordering, we only need to update the top and bottom border
     final isTopSide =
         simpleTableContext.isReorderingRow.value.$2 > node.rowIndex;
     final isBottomSide =

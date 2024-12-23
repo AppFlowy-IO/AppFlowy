@@ -574,7 +574,11 @@ Color? buildEditorCustomizedColor(
     return AFThemeExtension.of(context).tableCellBGColor;
   }
 
-  return null;
+  try {
+    return colorString.tryToColor();
+  } catch (e) {
+    return null;
+  }
 }
 
 bool showInAnyTextType(EditorState editorState) {

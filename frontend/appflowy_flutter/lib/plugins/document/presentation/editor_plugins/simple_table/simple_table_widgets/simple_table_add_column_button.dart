@@ -74,7 +74,7 @@ class _SimpleTableAddColumnHoverButtonState
                   hoveringTableCell.columnLength;
             }
             return Positioned(
-              top: SimpleTableConstants.tableTopPadding -
+              top: SimpleTableConstants.tableHitTestTopPadding -
                   SimpleTableConstants.cellBorderWidth,
               bottom: SimpleTableConstants.addColumnButtonBottomPadding,
               right: 0,
