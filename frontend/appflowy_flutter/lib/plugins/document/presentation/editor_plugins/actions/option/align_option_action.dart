@@ -1,10 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:styled_widget/styled_widget.dart';
 
 enum OptionAlignType {
   left,
@@ -58,8 +58,8 @@ class AlignOptionAction extends PopoverActionCell {
   Widget? leftIcon(Color iconColor) {
     return FlowySvg(
       align.svg,
-      size: const Size.square(12),
-    ).padding(all: 2.0);
+      size: const Size.square(18),
+    );
   }
 
   @override
@@ -102,7 +102,11 @@ class AlignOptionAction extends PopoverActionCell {
       return HoverButton(
         onTap: () => onTap(e.inner),
         itemHeight: ActionListSizes.itemHeight,
-        leftIcon: leftIcon,
+        leftIcon: SizedBox(
+          width: 16,
+          height: 16,
+          child: leftIcon,
+        ),
         name: e.name,
         rightIcon: rightIcon,
       );
@@ -115,7 +119,9 @@ class AlignOptionAction extends PopoverActionCell {
       return OptionAlignType.center;
     }
     final node = editorState.getNodeAtPath(selection.start.path);
-    final align = node?.attributes[blockComponentAlign];
+    final align = node?.type == SimpleTableBlockKeys.type
+        ? node?.tableAlign.key
+        : node?.attributes[blockComponentAlign];
     return OptionAlignType.fromString(align);
   }
 
@@ -131,11 +137,20 @@ class AlignOptionAction extends PopoverActionCell {
     if (node == null) {
       return;
     }
-    final transaction = editorState.transaction;
-    transaction.updateNode(node, {
-      blockComponentAlign: align.name,
-    });
-    await editorState.apply(transaction);
+    // the align attribute for simple table is not same as the align type,
+    // so we need to convert the align type to the align attribute
+    if (node.type == SimpleTableBlockKeys.type) {
+      await editorState.updateTableAlign(
+        tableNode: node,
+        align: TableAlign.fromString(align.name),
+      );
+    } else {
+      final transaction = editorState.transaction;
+      transaction.updateNode(node, {
+        blockComponentAlign: align.name,
+      });
+      await editorState.apply(transaction);
+    }
   }
 }
 

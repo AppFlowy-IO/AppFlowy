@@ -561,6 +561,72 @@ void main() {
     final node = editorState.document.nodeAtPath([0, 0, 0])!;
     expect(node.children.length, 1);
   });
+
+  testWidgets('using option menu to set table align', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+    await tester.editor.hoverAndClickOptionMenuButton([0]);
+
+    final editorState = tester.editor.getCurrentEditorState();
+    final beforeAlign = editorState.document.nodeAtPath([0])!.tableAlign;
+    expect(beforeAlign, TableAlign.left);
+
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_simpleTable_moreActions_align.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_optionAction_center.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final afterAlign = editorState.document.nodeAtPath([0])!.tableAlign;
+    expect(afterAlign, TableAlign.center);
+
+    await tester.editor.hoverAndClickOptionMenuButton([0]);
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_simpleTable_moreActions_align.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_optionAction_right.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final afterAlign2 = editorState.document.nodeAtPath([0])!.tableAlign;
+    expect(afterAlign2, TableAlign.right);
+
+    await tester.editor.hoverAndClickOptionMenuButton([0]);
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_simpleTable_moreActions_align.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_optionAction_left.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final afterAlign3 = editorState.document.nodeAtPath([0])!.tableAlign;
+    expect(afterAlign3, TableAlign.left);
+  });
 }
 
 extension on WidgetTester {

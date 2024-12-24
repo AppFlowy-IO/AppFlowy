@@ -348,7 +348,9 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
   Widget _buildTableActionMenu() {
     final tableNode = node.parentTableNode;
-    if (tableNode == null) {
+
+    // the table action menu is only available on mobile platform.
+    if (tableNode == null || UniversalPlatform.isDesktop) {
       return const SizedBox.shrink();
     }
 
