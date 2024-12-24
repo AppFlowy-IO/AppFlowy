@@ -374,7 +374,6 @@ class AIResponseActionBar extends StatelessWidget {
         textMessage: message as TextMessage,
         isInHoverBar: showDecoration,
         onOverrideVisibility: onOverrideVisibility,
-        onTap: () {},
       ),
     ];
   }
@@ -461,13 +460,11 @@ class SaveToPageButton extends StatefulWidget {
     super.key,
     required this.textMessage,
     required this.isInHoverBar,
-    required this.onTap,
     this.onOverrideVisibility,
   });
 
   final TextMessage textMessage;
   final bool isInHoverBar;
-  final void Function() onTap;
   final void Function(bool)? onOverrideVisibility;
 
   @override
@@ -803,7 +800,7 @@ class ChatAIMessagePopup extends StatelessWidget {
           return;
         }
 
-        ChatEditDocumentService.addMessageToPage(
+        await ChatEditDocumentService.addMessageToPage(
           selectedView.id,
           message as TextMessage,
         );

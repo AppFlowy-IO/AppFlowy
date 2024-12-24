@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/document/application/editor_transaction_adapter
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -110,15 +111,6 @@ class ChatEditDocumentService {
       documentId: documentId,
       actions: blockActions,
     );
-  }
-
-  static bool _isLastLineEmpty(Node? lastNode) {
-    if (lastNode == null) {
-      return true;
-    }
-    final delta = lastNode.delta;
-
-    return delta != null && (delta.isEmpty || delta.toPlainText().isEmpty);
   }
 
   static List<BlockActionWrapper> _insertOperationToBlockActions(
