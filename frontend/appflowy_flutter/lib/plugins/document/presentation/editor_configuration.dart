@@ -47,7 +47,7 @@ Map<String, BlockComponentBuilder> buildBlockComponentBuilders({
   required BuildContext context,
   required EditorState editorState,
   required EditorStyleCustomizer styleCustomizer,
-  List<SelectionMenuItem>? slashMenuItems,
+  SlashMenuItemsBuilder? slashMenuItemsBuilder,
   bool editable = true,
   ShowPlaceholder? showParagraphPlaceholder,
   String Function(Node)? placeholderText,
@@ -70,7 +70,7 @@ Map<String, BlockComponentBuilder> buildBlockComponentBuilders({
       builders: builders,
       editorState: editorState,
       styleCustomizer: styleCustomizer,
-      slashMenuItems: slashMenuItems,
+      slashMenuItemsBuilder: slashMenuItemsBuilder,
     );
   }
 
@@ -154,7 +154,7 @@ void _customBlockOptionActions(
   required Map<String, BlockComponentBuilder> builders,
   required EditorState editorState,
   required EditorStyleCustomizer styleCustomizer,
-  List<SelectionMenuItem>? slashMenuItems,
+  SlashMenuItemsBuilder? slashMenuItemsBuilder,
 }) {
   for (final entry in builders.entries) {
     if (entry.key == PageBlockKeys.type) {
@@ -200,9 +200,9 @@ void _customBlockOptionActions(
             editorState: editorState,
             blockComponentBuilder: builders,
             actions: actions,
-            showSlashMenu: slashMenuItems != null
-                ? () => customSlashCommand(
-                      slashMenuItems,
+            showSlashMenu: slashMenuItemsBuilder != null
+                ? () => customAppFlowySlashCommand(
+                      itemsBuilder: slashMenuItemsBuilder,
                       shouldInsertSlash: false,
                       deleteKeywordsByDefault: true,
                       style: styleCustomizer.selectionMenuStyleBuilder(),

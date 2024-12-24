@@ -64,6 +64,7 @@ export 'quote/quote_block_shortcuts.dart';
 export 'shortcuts/character_shortcuts.dart';
 export 'shortcuts/command_shortcuts.dart';
 export 'simple_table/simple_table.dart';
+export 'slash_menu/slash_command.dart';
 export 'slash_menu/slash_menu_items_builder.dart';
 export 'sub_page/sub_page_block_component.dart';
 export 'table/table_menu.dart';

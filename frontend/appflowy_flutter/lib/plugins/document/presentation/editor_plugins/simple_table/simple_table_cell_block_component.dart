@@ -1,5 +1,6 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -241,7 +242,10 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
           child: node.children.isEmpty
               ? _buildEmptyCellContent()
               : Column(
-                  children: node.children.map(_buildCellContent).toList(),
+                  children: [
+                    ...node.children.map(_buildCellContent),
+                    Expanded(child: _buildEmptyCellContent()),
+                  ],
                 ),
         ),
       ),
@@ -300,12 +304,31 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   Widget _buildCellContent(Node childNode) {
     final alignment = _buildAlignment();
 
-    return Align(
-      alignment: alignment,
-      child: IntrinsicWidth(
-        child: editorState.renderer.build(context, childNode),
-      ),
+    Widget child = IntrinsicWidth(
+      child: editorState.renderer.build(context, childNode),
     );
+
+    final notSupportAlignmentBlocks = [
+      DividerBlockKeys.type,
+      CalloutBlockKeys.type,
+      MathEquationBlockKeys.type,
+      CodeBlockKeys.type,
+      SubPageBlockKeys.type,
+      FileBlockKeys.type,
+    ];
+    if (notSupportAlignmentBlocks.contains(childNode.type)) {
+      child = SizedBox(
+        width: double.infinity,
+        child: child,
+      );
+    } else {
+      child = Align(
+        alignment: alignment,
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   Widget _buildEmptyCellContent() {
@@ -314,7 +337,14 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       behavior: HitTestBehavior.opaque,
       onTap: () {
         final transaction = editorState.transaction;
-        final path = node.path.child(0);
+        final length = node.children.length;
+        final path = node.path.child(length);
+        final lastChild = node.children.lastOrNull;
+        if (lastChild != null &&
+            lastChild.type == ParagraphBlockKeys.type &&
+            lastChild.delta?.isEmpty == true) {
+          return;
+        }
         transaction
           ..insertNode(
             path,
