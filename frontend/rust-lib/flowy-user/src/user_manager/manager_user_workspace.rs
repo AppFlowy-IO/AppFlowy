@@ -730,6 +730,7 @@ pub fn save_all_user_workspaces(
         user_workspace_table::database_storage_id.eq(&user_workspace.database_storage_id),
         user_workspace_table::icon.eq(&user_workspace.icon),
         user_workspace_table::member_count.eq(&user_workspace.member_count),
+        user_workspace_table::role.eq(&user_workspace.role),
       ))
       .execute(conn)?;
 

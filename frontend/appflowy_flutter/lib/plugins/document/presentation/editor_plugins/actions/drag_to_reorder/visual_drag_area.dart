@@ -10,16 +10,21 @@ class VisualDragArea extends StatelessWidget {
     super.key,
     required this.data,
     required this.dragNode,
+    required this.editorState,
   });
 
   final DragAreaBuilderData data;
   final Node dragNode;
-
+  final EditorState editorState;
   @override
   Widget build(BuildContext context) {
     final targetNode = data.targetNode;
 
-    final ignore = shouldIgnoreDragTarget(dragNode, targetNode.path);
+    final ignore = shouldIgnoreDragTarget(
+      editorState: editorState,
+      dragNode: dragNode,
+      targetPath: targetNode.path,
+    );
     if (ignore) {
       return const SizedBox.shrink();
     }

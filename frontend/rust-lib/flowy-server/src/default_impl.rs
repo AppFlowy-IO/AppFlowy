@@ -64,6 +64,15 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
 
+  async fn get_question_from_answer_id(
+    &self,
+    _workspace_id: &str,
+    _chat_id: &str,
+    _answer_id: i64,
+  ) -> Result<ChatMessage, FlowyError> {
+    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
+  }
+
   async fn get_related_message(
     &self,
     _workspace_id: &str,

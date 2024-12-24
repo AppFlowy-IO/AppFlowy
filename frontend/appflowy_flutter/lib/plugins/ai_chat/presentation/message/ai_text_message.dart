@@ -33,7 +33,9 @@ class ChatAIMessageWidget extends StatelessWidget {
     required this.chatId,
     required this.refSourceJsonString,
     this.onSelectedMetadata,
+    this.onRegenerate,
     this.isLastMessage = false,
+    this.isStreaming = false,
   });
 
   final User user;
@@ -45,6 +47,8 @@ class ChatAIMessageWidget extends StatelessWidget {
   final String chatId;
   final String? refSourceJsonString;
   final void Function(ChatMessageRefSource metadata)? onSelectedMetadata;
+  final void Function()? onRegenerate;
+  final bool isStreaming;
   final bool isLastMessage;
 
   @override
@@ -79,7 +83,10 @@ class ChatAIMessageWidget extends StatelessWidget {
                     : ChatAIMessageBubble(
                         message: message,
                         isLastMessage: isLastMessage,
-                        showActions: stream == null && state.text.isNotEmpty,
+                        showActions: stream == null &&
+                            state.text.isNotEmpty &&
+                            !isStreaming,
+                        onRegenerate: onRegenerate,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -101,11 +108,6 @@ class ChatAIMessageWidget extends StatelessWidget {
               onError: (error) {
                 return ChatErrorMessageWidget(
                   errorMessage: LocaleKeys.chat_aiServerUnavailable.tr(),
-                  onRetry: () {
-                    context
-                        .read<ChatAIMessageBloc>()
-                        .add(const ChatAIMessageEvent.retry());
-                  },
                 );
               },
               onAIResponseLimit: () {

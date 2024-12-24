@@ -144,6 +144,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
     _initEditorL10n();
     _initializeShortcuts();
 
+    AppFlowyRichTextKeys.partialSliced.addAll([
+      MentionBlockKeys.mention,
+      InlineMathEquationKeys.formula,
+    ]);
+
     indentableBlockTypes.add(ToggleListBlockKeys.type);
     convertibleBlockTypes.add(ToggleListBlockKeys.type);
     slashMenuItems = _customSlashMenuItems();
@@ -569,7 +574,11 @@ Color? buildEditorCustomizedColor(
     return AFThemeExtension.of(context).tableCellBGColor;
   }
 
-  return null;
+  try {
+    return colorString.tryToColor();
+  } catch (e) {
+    return null;
+  }
 }
 
 bool showInAnyTextType(EditorState editorState) {

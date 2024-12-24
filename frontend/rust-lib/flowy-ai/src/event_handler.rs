@@ -78,6 +78,24 @@ pub(crate) async fn stream_chat_message_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn regenerate_response_handler(
+  data: AFPluginData<RegenerateResponsePB>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> FlowyResult<()> {
+  let data = data.try_into_inner()?;
+
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  ai_manager
+    .stream_regenerate_response(
+      &data.chat_id,
+      data.answer_message_id,
+      data.answer_stream_port,
+    )
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn load_prev_message_handler(
   data: AFPluginData<LoadPrevChatMessagePB>,
   ai_manager: AFPluginState<Weak<AIManager>>,
@@ -419,4 +437,30 @@ pub(crate) async fn get_chat_info_handler(
   let ai_manager = upgrade_ai_manager(ai_manager)?;
   let pb = ai_manager.get_chat_info(&chat_id).await?;
   data_result_ok(pb)
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_chat_settings_handler(
+  data: AFPluginData<ChatId>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> DataResult<ChatSettingsPB, FlowyError> {
+  let chat_id = data.try_into_inner()?.value;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let rag_ids = ai_manager.get_rag_ids(&chat_id).await?;
+  let pb = ChatSettingsPB { rag_ids };
+  data_result_ok(pb)
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn update_chat_settings_handler(
+  data: AFPluginData<UpdateChatSettingsPB>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> FlowyResult<()> {
+  let params = data.try_into_inner()?;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  ai_manager
+    .update_rag_ids(&params.chat_id.value, params.rag_ids)
+    .await?;
+
+  Ok(())
 }

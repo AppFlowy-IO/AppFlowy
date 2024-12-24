@@ -1,6 +1,6 @@
 use crate::chat::Chat;
 use crate::entities::{
-  ChatInfoPB, ChatMessageListPB, ChatMessagePB, FilePB, RepeatedRelatedQuestionPB,
+  ChatInfoPB, ChatMessageListPB, ChatMessagePB, ChatSettingsPB, FilePB, RepeatedRelatedQuestionPB,
 };
 use crate::local_ai::local_llm_chat::LocalAIController;
 use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
@@ -9,18 +9,19 @@ use crate::persistence::{insert_chat, read_chat_metadata, ChatTable};
 use appflowy_plugin::manager::PluginManager;
 use dashmap::DashMap;
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessageMetadata, ChatMessageType, UpdateChatParams,
+  ChatCloudService, ChatMessageMetadata, ChatMessageType, ChatSettings, UpdateChatParams,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 
+use crate::notification::{chat_notification_builder, ChatNotification};
 use flowy_storage_pub::storage::StorageService;
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
-use tracing::{info, trace};
+use tracing::{error, info, trace};
 
 pub trait AIUserService: Send + Sync + 'static {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -31,20 +32,29 @@ pub trait AIUserService: Send + Sync + 'static {
 }
 
 #[async_trait]
-pub trait AIQueryService: Send + Sync + 'static {
+pub trait AIExternalService: Send + Sync + 'static {
   async fn query_chat_rag_ids(
     &self,
     parent_view_id: &str,
     chat_id: &str,
   ) -> Result<Vec<String>, FlowyError>;
+
+  async fn sync_rag_documents(
+    &self,
+    workspace_id: &str,
+    rag_ids: Vec<String>,
+  ) -> Result<(), FlowyError>;
+
+  async fn notify_did_send_message(&self, chat_id: &str, message: &str) -> Result<(), FlowyError>;
 }
 
 pub struct AIManager {
   pub cloud_service_wm: Arc<AICloudServiceMiddleware>,
   pub user_service: Arc<dyn AIUserService>,
-  pub query_service: Arc<dyn AIQueryService>,
+  pub external_service: Arc<dyn AIExternalService>,
   chats: Arc<DashMap<String, Arc<Chat>>>,
   pub local_ai_controller: Arc<LocalAIController>,
+  store_preferences: Arc<KVStorePreferences>,
 }
 
 impl AIManager {
@@ -53,7 +63,7 @@ impl AIManager {
     user_service: impl AIUserService,
     store_preferences: Arc<KVStorePreferences>,
     storage_service: Weak<dyn StorageService>,
-    query_service: impl AIQueryService,
+    query_service: impl AIExternalService,
   ) -> AIManager {
     let user_service = Arc::new(user_service);
     let plugin_manager = Arc::new(PluginManager::new());
@@ -63,7 +73,7 @@ impl AIManager {
       user_service.clone(),
       chat_cloud_service.clone(),
     ));
-    let query_service = Arc::new(query_service);
+    let external_service = Arc::new(query_service);
 
     // setup local chat service
     let cloud_service_wm = Arc::new(AICloudServiceMiddleware::new(
@@ -78,7 +88,8 @@ impl AIManager {
       user_service,
       chats: Arc::new(DashMap::new()),
       local_ai_controller,
-      query_service,
+      external_service,
+      store_preferences,
     }
   }
 
@@ -97,11 +108,41 @@ impl AIManager {
         self.cloud_service_wm.clone(),
       ))
     });
-
     trace!("[AI Plugin] notify open chat: {}", chat_id);
     if self.local_ai_controller.is_running() {
       self.local_ai_controller.open_chat(chat_id);
     }
+
+    let user_service = self.user_service.clone();
+    let cloud_service_wm = self.cloud_service_wm.clone();
+    let store_preferences = self.store_preferences.clone();
+    let external_service = self.external_service.clone();
+    let chat_id = chat_id.to_string();
+    tokio::spawn(async move {
+      match refresh_chat_setting(
+        &user_service,
+        &cloud_service_wm,
+        &store_preferences,
+        &chat_id,
+      )
+      .await
+      {
+        Ok(settings) => {
+          if settings.rag_ids.is_empty() {
+            return;
+          }
+          if let Ok(workspace_id) = user_service.workspace_id() {
+            let _ = external_service
+              .sync_rag_documents(&workspace_id, settings.rag_ids)
+              .await;
+          }
+        },
+        Err(err) => {
+          error!("failed to refresh chat settings: {}", err);
+        },
+      }
+    });
+
     Ok(())
   }
 
@@ -149,7 +190,7 @@ impl AIManager {
   ) -> Result<Arc<Chat>, FlowyError> {
     let workspace_id = self.user_service.workspace_id()?;
     let rag_ids = self
-      .query_service
+      .external_service
       .query_chat_rag_ids(parent_view_id, chat_id)
       .await
       .unwrap_or_default();
@@ -190,7 +231,27 @@ impl AIManager {
         metadata,
       )
       .await?;
+    let _ = self
+      .external_service
+      .notify_did_send_message(chat_id, message)
+      .await;
     Ok(question)
+  }
+
+  pub async fn stream_regenerate_response(
+    &self,
+    chat_id: &str,
+    answer_message_id: i64,
+    answer_stream_port: i64,
+  ) -> FlowyResult<()> {
+    let chat = self.get_or_create_chat_instance(chat_id).await?;
+    let question_message_id = chat
+      .get_question_id_from_answer_id(answer_message_id)
+      .await?;
+    chat
+      .stream_regenerate_response(question_message_id, answer_stream_port)
+      .await?;
+    Ok(())
   }
 
   pub async fn get_or_create_chat_instance(&self, chat_id: &str) -> Result<Arc<Chat>, FlowyError> {
@@ -283,21 +344,64 @@ impl AIManager {
     Ok(())
   }
 
-  pub fn local_ai_purchased(&self) {}
+  pub async fn get_rag_ids(&self, chat_id: &str) -> FlowyResult<Vec<String>> {
+    if let Some(settings) = self
+      .store_preferences
+      .get_object::<ChatSettings>(&setting_store_key(chat_id))
+    {
+      return Ok(settings.rag_ids);
+    }
+
+    let settings = refresh_chat_setting(
+      &self.user_service,
+      &self.cloud_service_wm,
+      &self.store_preferences,
+      chat_id,
+    )
+    .await?;
+    Ok(settings.rag_ids)
+  }
 
   pub async fn update_rag_ids(&self, chat_id: &str, rag_ids: Vec<String>) -> FlowyResult<()> {
-    if !rag_ids.is_empty() {
-      let workspace_id = self.user_service.workspace_id()?;
-      let update_setting = UpdateChatParams {
-        name: None,
-        metadata: None,
-        rag_ids: Some(rag_ids),
-      };
-      self
-        .cloud_service_wm
-        .update_chat_settings(&workspace_id, chat_id, update_setting)
-        .await?;
+    info!("[Chat] update chat:{} rag ids: {:?}", chat_id, rag_ids);
+
+    let workspace_id = self.user_service.workspace_id()?;
+    let update_setting = UpdateChatParams {
+      name: None,
+      metadata: None,
+      rag_ids: Some(rag_ids.clone()),
+    };
+    self
+      .cloud_service_wm
+      .update_chat_settings(&workspace_id, chat_id, update_setting)
+      .await?;
+
+    let chat_setting_store_key = setting_store_key(chat_id);
+
+    if let Some(settings) = self
+      .store_preferences
+      .get_object::<ChatSettings>(&chat_setting_store_key)
+    {
+      if let Err(err) = self.store_preferences.set_object(
+        &chat_setting_store_key,
+        &ChatSettings {
+          rag_ids: rag_ids.clone(),
+          ..settings
+        },
+      ) {
+        error!("failed to set chat settings: {}", err);
+      }
     }
+
+    let user_service = self.user_service.clone();
+    let external_service = self.external_service.clone();
+    tokio::spawn(async move {
+      if let Ok(workspace_id) = user_service.workspace_id() {
+        let _ = external_service
+          .sync_rag_documents(&workspace_id, rag_ids)
+          .await;
+      }
+    });
     Ok(())
   }
 }
@@ -315,4 +419,33 @@ fn save_chat(conn: DBConnection, chat_id: &str) -> FlowyResult<()> {
 
   insert_chat(conn, &row)?;
   Ok(())
+}
+
+async fn refresh_chat_setting(
+  user_service: &Arc<dyn AIUserService>,
+  cloud_service: &Arc<AICloudServiceMiddleware>,
+  store_preferences: &Arc<KVStorePreferences>,
+  chat_id: &str,
+) -> FlowyResult<ChatSettings> {
+  info!("[Chat] refresh chat:{} setting", chat_id);
+  let workspace_id = user_service.workspace_id()?;
+  let settings = cloud_service
+    .get_chat_settings(&workspace_id, chat_id)
+    .await?;
+
+  if let Err(err) = store_preferences.set_object(&setting_store_key(chat_id), &settings) {
+    error!("failed to set chat settings: {}", err);
+  }
+
+  chat_notification_builder(chat_id, ChatNotification::DidUpdateChatSettings)
+    .payload(ChatSettingsPB {
+      rag_ids: settings.rag_ids.clone(),
+    })
+    .send();
+
+  Ok(settings)
+}
+
+fn setting_store_key(chat_id: &str) -> String {
+  format!("chat_settings_{}", chat_id)
 }

@@ -70,6 +70,13 @@ pub trait ChatCloudService: Send + Sync + 'static {
     limit: u64,
   ) -> Result<RepeatedChatMessage, FlowyError>;
 
+  async fn get_question_from_answer_id(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    answer_message_id: i64,
+  ) -> Result<ChatMessage, FlowyError>;
+
   async fn get_related_message(
     &self,
     workspace_id: &str,

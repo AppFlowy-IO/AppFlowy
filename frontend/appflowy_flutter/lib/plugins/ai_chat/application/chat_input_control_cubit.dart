@@ -46,7 +46,12 @@ class ChatInputControlCubit extends Cubit<ChatInputControlState> {
     final newViews = await ViewBackendService.getAllViews().fold(
       (result) {
         return result.items
-            .where((v) => v.layout.isDocumentView && v.parentViewId != v.id)
+            .where(
+              (v) =>
+                  !v.isSpace &&
+                  v.layout.isDocumentView &&
+                  v.parentViewId != v.id,
+            )
             .toList();
       },
       (err) {

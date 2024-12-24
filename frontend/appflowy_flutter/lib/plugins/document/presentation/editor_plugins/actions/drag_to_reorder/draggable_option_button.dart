@@ -41,7 +41,7 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
     super.initState();
 
     // copy the node to avoid the node in document being updated
-    node = widget.blockComponentContext.node.copyWith();
+    node = widget.blockComponentContext.node.deepCopy();
   }
 
   @override
@@ -86,6 +86,7 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
       details.globalPosition,
       builder: (context, data) {
         return VisualDragArea(
+          editorState: widget.editorState,
           data: data,
           dragNode: widget.blockComponentContext.node,
         );

@@ -213,7 +213,7 @@ impl Filter {
   ///
   /// 1. a Data filter, then it should be included.
   /// 2. an AND filter, then all of its effective children should be
-  /// included.
+  ///    included.
   /// 3. an OR filter, then only the first child should be included.
   pub fn get_min_effective_filters<'a>(&'a self, min_effective_filters: &mut Vec<&'a FilterInner>) {
     match &self.inner {

@@ -155,7 +155,6 @@ void main() {
       await tester.simulateKeyEvent(LogicalKeyboardKey.escape);
       await tester.pumpAndSettle();
       expect(find.byType(FindAndReplaceMenuWidget), findsNothing);
-
     },
   );
 }

@@ -30,12 +30,14 @@ class ChatAIMessageBubble extends StatelessWidget {
     required this.child,
     required this.showActions,
     this.isLastMessage = false,
+    this.onRegenerate,
   });
 
   final Message message;
   final Widget child;
   final bool showActions;
   final bool isLastMessage;
+  final void Function()? onRegenerate;
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +62,7 @@ class ChatAIMessageBubble extends StatelessWidget {
   Widget _wrapBottomActions(Widget child) {
     return ChatAIBottomInlineActions(
       message: message,
+      onRegenerate: onRegenerate,
       child: child,
     );
   }
@@ -67,6 +70,7 @@ class ChatAIMessageBubble extends StatelessWidget {
   Widget _wrapHover(Widget child) {
     return ChatAIMessageHover(
       message: message,
+      onRegenerate: onRegenerate,
       child: child,
     );
   }
@@ -74,6 +78,7 @@ class ChatAIMessageBubble extends StatelessWidget {
   Widget _wrapPopMenu(Widget child) {
     return ChatAIMessagePopup(
       message: message,
+      onRegenerate: onRegenerate,
       child: child,
     );
   }
@@ -84,10 +89,12 @@ class ChatAIBottomInlineActions extends StatelessWidget {
     super.key,
     required this.child,
     required this.message,
+    this.onRegenerate,
   });
 
   final Widget child;
   final Message message;
+  final void Function()? onRegenerate;
 
   @override
   Widget build(BuildContext context) {
@@ -102,12 +109,9 @@ class ChatAIBottomInlineActions extends StatelessWidget {
                 DesktopAIConvoSizes.avatarAndChatBubbleSpacing,
           ),
           child: AIResponseActionBar(
+            message: message,
             showDecoration: false,
-            children: [
-              CopyButton(
-                textMessage: message as TextMessage,
-              ),
-            ],
+            onRegenerate: onRegenerate,
           ),
         ),
         const VSpace(32.0),
@@ -121,10 +125,12 @@ class ChatAIMessageHover extends StatefulWidget {
     super.key,
     required this.child,
     required this.message,
+    this.onRegenerate,
   });
 
   final Widget child;
   final Message message;
+  final void Function()? onRegenerate;
 
   @override
   State<ChatAIMessageHover> createState() => _ChatAIMessageHoverState();
@@ -194,19 +200,17 @@ class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
                   }
                 },
                 child: Container(
-                  constraints: const BoxConstraints(
+                  constraints: BoxConstraints(
                     maxWidth: 784,
-                    maxHeight: 28,
+                    maxHeight: DesktopAIConvoSizes.actionBarIconSize +
+                        DesktopAIConvoSizes.hoverActionBarPadding.vertical,
                   ),
                   alignment: Alignment.topLeft,
                   child: hoverBubble || hoverActionBar
                       ? AIResponseActionBar(
+                          message: widget.message,
                           showDecoration: true,
-                          children: [
-                            CopyButton(
-                              textMessage: widget.message as TextMessage,
-                            ),
-                          ],
+                          onRegenerate: widget.onRegenerate,
                         )
                       : null,
                 ),
@@ -269,12 +273,14 @@ class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
 class AIResponseActionBar extends StatelessWidget {
   const AIResponseActionBar({
     super.key,
+    required this.message,
     required this.showDecoration,
-    required this.children,
+    this.onRegenerate,
   });
 
-  final List<Widget> children;
+  final Message message;
   final bool showDecoration;
+  final void Function()? onRegenerate;
 
   @override
   Widget build(BuildContext context) {
@@ -284,14 +290,14 @@ class AIResponseActionBar extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       separatorBuilder: () =>
           const HSpace(DesktopAIConvoSizes.actionBarIconSpacing),
-      children: children,
+      children: _buildChildren(),
     );
 
     return showDecoration
         ? Container(
             padding: const EdgeInsets.all(2.0),
             decoration: BoxDecoration(
-              borderRadius: DesktopAIConvoSizes.actionBarIconRadius,
+              borderRadius: DesktopAIConvoSizes.hoverActionBarRadius,
               border: Border.all(
                 color: isLightMode
                     ? const Color(0x1F1F2329)
@@ -328,13 +334,29 @@ class AIResponseActionBar extends StatelessWidget {
           )
         : child;
   }
+
+  List<Widget> _buildChildren() {
+    return [
+      CopyButton(
+        isInHoverBar: showDecoration,
+        textMessage: message as TextMessage,
+      ),
+      RegenerateButton(
+        isInHoverBar: showDecoration,
+        onTap: () => onRegenerate?.call(),
+      ),
+    ];
+  }
 }
 
 class CopyButton extends StatelessWidget {
   const CopyButton({
     super.key,
+    required this.isInHoverBar,
     required this.textMessage,
   });
+
+  final bool isInHoverBar;
   final TextMessage textMessage;
 
   @override
@@ -344,7 +366,9 @@ class CopyButton extends StatelessWidget {
       child: FlowyIconButton(
         width: DesktopAIConvoSizes.actionBarIconSize,
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        radius: DesktopAIConvoSizes.actionBarIconRadius,
+        radius: isInHoverBar
+            ? DesktopAIConvoSizes.hoverActionBarIconRadius
+            : DesktopAIConvoSizes.actionBarIconRadius,
         icon: FlowySvg(
           FlowySvgs.copy_s,
           color: Theme.of(context).hintColor,
@@ -370,15 +394,48 @@ class CopyButton extends StatelessWidget {
   }
 }
 
+class RegenerateButton extends StatelessWidget {
+  const RegenerateButton({
+    super.key,
+    required this.isInHoverBar,
+    required this.onTap,
+  });
+
+  final bool isInHoverBar;
+  final void Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyTooltip(
+      message: LocaleKeys.chat_regenerate.tr(),
+      child: FlowyIconButton(
+        width: DesktopAIConvoSizes.actionBarIconSize,
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        radius: isInHoverBar
+            ? DesktopAIConvoSizes.hoverActionBarIconRadius
+            : DesktopAIConvoSizes.actionBarIconRadius,
+        icon: FlowySvg(
+          FlowySvgs.ai_undo_s,
+          color: Theme.of(context).hintColor,
+          size: const Size.square(16),
+        ),
+        onPressed: onTap,
+      ),
+    );
+  }
+}
+
 class ChatAIMessagePopup extends StatelessWidget {
   const ChatAIMessagePopup({
     super.key,
     required this.child,
     required this.message,
+    this.onRegenerate,
   });
 
   final Widget child;
   final Message message;
+  final void Function()? onRegenerate;
 
   @override
   Widget build(BuildContext context) {
@@ -393,39 +450,59 @@ class ChatAIMessagePopup extends StatelessWidget {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                MobileQuickActionButton(
-                  onTap: () async {
-                    if (message is! TextMessage) {
-                      return;
-                    }
-                    final textMessage = message as TextMessage;
-                    final document = customMarkdownToDocument(textMessage.text);
-                    await getIt<ClipboardService>().setData(
-                      ClipboardServiceData(
-                        plainText: textMessage.text,
-                        inAppJson: jsonEncode(document.toJson()),
-                      ),
-                    );
-                    if (bottomSheetContext.mounted) {
-                      Navigator.of(bottomSheetContext).pop();
-                    }
-                    if (context.mounted) {
-                      showToastNotification(
-                        context,
-                        message: LocaleKeys.grid_url_copiedNotification.tr(),
-                      );
-                    }
-                  },
-                  icon: FlowySvgs.copy_s,
-                  iconSize: const Size.square(20),
-                  text: LocaleKeys.button_copy.tr(),
-                ),
+                const VSpace(16.0),
+                _copyButton(context, bottomSheetContext),
+                const Divider(height: 8.5, thickness: 0.5),
+                _regenerateButton(context),
+                const Divider(height: 8.5, thickness: 0.5),
               ],
             );
           },
         );
       },
       child: child,
+    );
+  }
+
+  Widget _copyButton(BuildContext context, BuildContext bottomSheetContext) {
+    return MobileQuickActionButton(
+      onTap: () async {
+        if (message is! TextMessage) {
+          return;
+        }
+        final textMessage = message as TextMessage;
+        final document = customMarkdownToDocument(textMessage.text);
+        await getIt<ClipboardService>().setData(
+          ClipboardServiceData(
+            plainText: textMessage.text,
+            inAppJson: jsonEncode(document.toJson()),
+          ),
+        );
+        if (bottomSheetContext.mounted) {
+          Navigator.of(bottomSheetContext).pop();
+        }
+        if (context.mounted) {
+          showToastNotification(
+            context,
+            message: LocaleKeys.grid_url_copiedNotification.tr(),
+          );
+        }
+      },
+      icon: FlowySvgs.copy_s,
+      iconSize: const Size.square(20),
+      text: LocaleKeys.button_copy.tr(),
+    );
+  }
+
+  Widget _regenerateButton(BuildContext context) {
+    return MobileQuickActionButton(
+      onTap: () {
+        onRegenerate?.call();
+        Navigator.of(context).pop();
+      },
+      icon: FlowySvgs.ai_undo_s,
+      iconSize: const Size.square(20),
+      text: LocaleKeys.chat_regenerate.tr(),
     );
   }
 }

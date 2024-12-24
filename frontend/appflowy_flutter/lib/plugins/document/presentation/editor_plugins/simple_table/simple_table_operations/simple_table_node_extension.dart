@@ -16,6 +16,13 @@ enum TableAlign {
   center,
   right;
 
+  static TableAlign fromString(String align) {
+    return TableAlign.values.firstWhere(
+      (e) => e.key.toLowerCase() == align.toLowerCase(),
+      orElse: () => TableAlign.left,
+    );
+  }
+
   String get name => switch (this) {
         TableAlign.left => 'Left',
         TableAlign.center => 'Center',
@@ -210,6 +217,11 @@ extension TableNodeExtension on Node {
     return tableCellNode;
   }
 
+  /// Whether the current node is in a table.
+  bool get isInTable {
+    return parentTableNode != null;
+  }
+
   double get columnWidth {
     final parentTableNode = this.parentTableNode;
 
@@ -283,6 +295,72 @@ extension TableNodeExtension on Node {
         parentTableCellNode?.columnIndex == 0;
   }
 
+  /// Whether the current cell is bold in the column.
+  ///
+  /// Default is false.
+  bool get isInBoldColumn {
+    final parentTableCellNode = this.parentTableCellNode;
+    final parentTableNode = this.parentTableNode;
+    if (parentTableCellNode == null ||
+        parentTableNode == null ||
+        parentTableNode.type != SimpleTableBlockKeys.type) {
+      return false;
+    }
+
+    final columnIndex = parentTableCellNode.columnIndex;
+    final columnBoldAttributes = parentTableNode.columnBoldAttributes;
+    return columnBoldAttributes[columnIndex.toString()] ?? false;
+  }
+
+  /// Whether the current cell is bold in the row.
+  ///
+  /// Default is false.
+  bool get isInBoldRow {
+    final parentTableCellNode = this.parentTableCellNode;
+    final parentTableNode = this.parentTableNode;
+    if (parentTableCellNode == null ||
+        parentTableNode == null ||
+        parentTableNode.type != SimpleTableBlockKeys.type) {
+      return false;
+    }
+
+    final rowIndex = parentTableCellNode.rowIndex;
+    final rowBoldAttributes = parentTableNode.rowBoldAttributes;
+    return rowBoldAttributes[rowIndex.toString()] ?? false;
+  }
+
+  /// Get the text color of the current cell in the column.
+  ///
+  /// Default is null.
+  String? get textColorInColumn {
+    final parentTableCellNode = this.parentTableCellNode;
+    final parentTableNode = this.parentTableNode;
+    if (parentTableCellNode == null ||
+        parentTableNode == null ||
+        parentTableNode.type != SimpleTableBlockKeys.type) {
+      return null;
+    }
+
+    final columnIndex = parentTableCellNode.columnIndex;
+    return parentTableNode.columnTextColors[columnIndex.toString()];
+  }
+
+  /// Get the text color of the current cell in the row.
+  ///
+  /// Default is null.
+  String? get textColorInRow {
+    final parentTableCellNode = this.parentTableCellNode;
+    final parentTableNode = this.parentTableNode;
+    if (parentTableCellNode == null ||
+        parentTableNode == null ||
+        parentTableNode.type != SimpleTableBlockKeys.type) {
+      return null;
+    }
+
+    final rowIndex = parentTableCellNode.rowIndex;
+    return parentTableNode.rowTextColors[rowIndex.toString()];
+  }
+
   /// Whether the current node is in the header row.
   ///
   /// Default is false.
@@ -296,6 +374,7 @@ extension TableNodeExtension on Node {
         parentTableCellNode?.rowIndex == 0;
   }
 
+  /// Get the row aligns.
   SimpleTableRowAlignMap get rowAligns {
     final rawRowAligns =
         parentTableNode?.attributes[SimpleTableBlockKeys.rowAligns];
@@ -310,6 +389,7 @@ extension TableNodeExtension on Node {
     }
   }
 
+  /// Get the row colors.
   SimpleTableColorMap get rowColors {
     final rawRowColors =
         parentTableNode?.attributes[SimpleTableBlockKeys.rowColors];
@@ -324,6 +404,7 @@ extension TableNodeExtension on Node {
     }
   }
 
+  /// Get the column colors.
   SimpleTableColorMap get columnColors {
     final rawColumnColors =
         parentTableNode?.attributes[SimpleTableBlockKeys.columnColors];
@@ -338,7 +419,8 @@ extension TableNodeExtension on Node {
     }
   }
 
-  SimpleTableRowAlignMap get columnAligns {
+  /// Get the column aligns.
+  SimpleTableColumnAlignMap get columnAligns {
     final rawColumnAligns =
         parentTableNode?.attributes[SimpleTableBlockKeys.columnAligns];
     if (rawColumnAligns == null) {
@@ -352,6 +434,7 @@ extension TableNodeExtension on Node {
     }
   }
 
+  /// Get the column widths.
   SimpleTableColumnWidthMap get columnWidths {
     final rawColumnWidths =
         parentTableNode?.attributes[SimpleTableBlockKeys.columnWidths];
@@ -366,6 +449,67 @@ extension TableNodeExtension on Node {
     }
   }
 
+  /// Get the column text colors
+  SimpleTableColorMap get columnTextColors {
+    final rawColumnTextColors =
+        parentTableNode?.attributes[SimpleTableBlockKeys.columnTextColors];
+    if (rawColumnTextColors == null) {
+      return SimpleTableColorMap();
+    }
+    try {
+      return SimpleTableColorMap.from(rawColumnTextColors);
+    } catch (e) {
+      Log.warn('get column text colors: $e');
+      return SimpleTableColorMap();
+    }
+  }
+
+  /// Get the row text colors
+  SimpleTableColorMap get rowTextColors {
+    final rawRowTextColors =
+        parentTableNode?.attributes[SimpleTableBlockKeys.rowTextColors];
+    if (rawRowTextColors == null) {
+      return SimpleTableColorMap();
+    }
+    try {
+      return SimpleTableColorMap.from(rawRowTextColors);
+    } catch (e) {
+      Log.warn('get row text colors: $e');
+      return SimpleTableColorMap();
+    }
+  }
+
+  /// Get the column bold attributes
+  SimpleTableAttributeMap get columnBoldAttributes {
+    final rawColumnBoldAttributes =
+        parentTableNode?.attributes[SimpleTableBlockKeys.columnBoldAttributes];
+    if (rawColumnBoldAttributes == null) {
+      return SimpleTableAttributeMap();
+    }
+    try {
+      return SimpleTableAttributeMap.from(rawColumnBoldAttributes);
+    } catch (e) {
+      Log.warn('get column bold attributes: $e');
+      return SimpleTableAttributeMap();
+    }
+  }
+
+  /// Get the row bold attributes
+  SimpleTableAttributeMap get rowBoldAttributes {
+    final rawRowBoldAttributes =
+        parentTableNode?.attributes[SimpleTableBlockKeys.rowBoldAttributes];
+    if (rawRowBoldAttributes == null) {
+      return SimpleTableAttributeMap();
+    }
+    try {
+      return SimpleTableAttributeMap.from(rawRowBoldAttributes);
+    } catch (e) {
+      Log.warn('get row bold attributes: $e');
+      return SimpleTableAttributeMap();
+    }
+  }
+
+  /// Get the width of the table.
   double get width {
     double currentColumnWidth = 0;
     for (var i = 0; i < columnLength; i++) {
@@ -650,5 +794,59 @@ extension TableNodeExtension on Node {
     }
 
     return result;
+  }
+
+  /// Get first focusable child in the table cell.
+  ///
+  /// If the current node is not a table cell node, it will return null.
+  Node? getFirstChildIndex() {
+    if (children.isEmpty) {
+      return this;
+    }
+    return children.first.getFirstChildIndex();
+  }
+
+  /// Get last focusable child in the table cell.
+  ///
+  /// If the current node is not a table cell node, it will return null.
+  Node? getLastChildIndex() {
+    if (children.isEmpty) {
+      return this;
+    }
+    return children.last.getLastChildIndex();
+  }
+
+  /// Get table align of column
+  ///
+  /// If one of the align is not same as the others, it will return TableAlign.left.
+  TableAlign get allColumnAlign {
+    final alignSet = columnAligns.values.toSet();
+    if (alignSet.length == 1) {
+      return TableAlign.fromString(alignSet.first);
+    }
+    return TableAlign.left;
+  }
+
+  /// Get table align of row
+  ///
+  /// If one of the align is not same as the others, it will return TableAlign.left.
+  TableAlign get allRowAlign {
+    final alignSet = rowAligns.values.toSet();
+    if (alignSet.length == 1) {
+      return TableAlign.fromString(alignSet.first);
+    }
+    return TableAlign.left;
+  }
+
+  /// Get table align of the table.
+  ///
+  /// If one of the align is not same as the others, it will return TableAlign.left.
+  TableAlign get tableAlign {
+    if (allColumnAlign != TableAlign.left) {
+      return allColumnAlign;
+    } else if (allRowAlign != TableAlign.left) {
+      return allRowAlign;
+    }
+    return TableAlign.left;
   }
 }

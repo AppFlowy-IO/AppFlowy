@@ -145,7 +145,7 @@ class AskAIActionBloc extends Bloc<AskAIEvent, AskAIState> {
     final nodes = customMarkdownToDocument(state.result)
         .root
         .children
-        .map((e) => e.copyWith())
+        .map((e) => e.deepCopy())
         .toList();
     final insertedPath = selection.end.path.next;
     final transaction = editorState.transaction;
@@ -182,7 +182,7 @@ class AskAIActionBloc extends Bloc<AskAIEvent, AskAIState> {
     final nodes = customMarkdownToDocument(state.result)
         .root
         .children
-        .map((e) => e.copyWith())
+        .map((e) => e.deepCopy())
         .toList();
     if (nodes.isEmpty) {
       return;

@@ -3,11 +3,6 @@ import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
-import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/chat_related_question.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -28,10 +23,15 @@ import 'package:string_validator/string_validator.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'application/ai_prompt_input_bloc.dart';
+import 'application/chat_bloc.dart';
+import 'application/chat_entity.dart';
 import 'application/chat_member_bloc.dart';
+import 'application/chat_message_stream.dart';
 import 'presentation/animated_chat_list.dart';
 import 'presentation/chat_input/desktop_ai_prompt_input.dart';
 import 'presentation/chat_input/mobile_ai_prompt_input.dart';
+import 'presentation/chat_related_question.dart';
 import 'presentation/chat_welcome_page.dart';
 import 'presentation/layout_define.dart';
 import 'presentation/message/ai_text_message.dart';
@@ -120,20 +120,13 @@ class _ChatContentPage extends StatelessWidget {
           behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
           child: BlocBuilder<ChatBloc, ChatState>(
             builder: (context, state) {
-              return state.loadingState.when(
-                loading: () {
-                  return const Center(
-                    child: CircularProgressIndicator.adaptive(),
-                  );
-                },
-                finish: (_) {
-                  final chatController =
-                      context.read<ChatBloc>().chatController;
-                  return Column(
+              return switch (state.loadingState) {
+                LoadChatMessageStatus.ready => Column(
                     children: [
                       Expanded(
                         child: Chat(
-                          chatController: chatController,
+                          chatController:
+                              context.read<ChatBloc>().chatController,
                           user: User(id: userProfile.id.toString()),
                           darkTheme: ChatTheme.fromThemeData(Theme.of(context)),
                           theme: ChatTheme.fromThemeData(Theme.of(context)),
@@ -148,9 +141,9 @@ class _ChatContentPage extends StatelessWidget {
                       ),
                       _buildInput(context),
                     ],
-                  );
-                },
-              );
+                  ),
+                _ => const Center(child: CircularProgressIndicator.adaptive()),
+              };
             },
           ),
         ),
@@ -204,14 +197,13 @@ class _ChatContentPage extends StatelessWidget {
     final refSourceJsonString =
         message.metadata?[messageRefSourceJsonStringKey] as String?;
 
-    return BlocSelector<ChatBloc, ChatState, bool>(
-      selector: (state) {
+    return BlocBuilder<ChatBloc, ChatState>(
+      builder: (context, state) {
         final chatController = context.read<ChatBloc>().chatController;
         final messages = chatController.messages
             .where((e) => onetimeMessageTypeFromMeta(e.metadata) == null);
-        return messages.isEmpty ? false : messages.last.id == message.id;
-      },
-      builder: (context, isLastMessage) {
+        final isLastMessage =
+            messages.isEmpty ? false : messages.last.id == message.id;
         return ChatAIMessageWidget(
           user: message.author,
           messageUserId: message.id,
@@ -220,9 +212,13 @@ class _ChatContentPage extends StatelessWidget {
           questionId: questionId,
           chatId: view.id,
           refSourceJsonString: refSourceJsonString,
+          isStreaming: state.promptResponseState != PromptResponseState.ready,
           isLastMessage: isLastMessage,
           onSelectedMetadata: (metadata) =>
               _onSelectMetadata(context, metadata),
+          onRegenerate: () => context
+              .read<ChatBloc>()
+              .add(ChatEvent.regenerateAnswer(message.id)),
         );
       },
     );
@@ -287,36 +283,52 @@ class _ChatContentPage extends StatelessWidget {
           return state.promptResponseState == PromptResponseState.ready;
         },
         builder: (context, canSendMessage) {
+          final chatBloc = context.read<ChatBloc>();
+
           return UniversalPlatform.isDesktop
               ? DesktopAIPromptInput(
                   chatId: view.id,
-                  onSubmitted: (text, metadata) {
-                    context.read<ChatBloc>().add(
-                          ChatEvent.sendMessage(
-                            message: text,
-                            metadata: metadata,
-                          ),
-                        );
-                  },
                   isStreaming: !canSendMessage,
-                  onStopStreaming: () => context
-                      .read<ChatBloc>()
-                      .add(const ChatEvent.stopStream()),
+                  onStopStreaming: () {
+                    chatBloc.add(const ChatEvent.stopStream());
+                  },
+                  onSubmitted: (text, metadata) {
+                    chatBloc.add(
+                      ChatEvent.sendMessage(
+                        message: text,
+                        metadata: metadata,
+                      ),
+                    );
+                  },
+                  onUpdateSelectedSources: (ids) {
+                    chatBloc.add(
+                      ChatEvent.updateSelectedSources(
+                        selectedSourcesIds: ids,
+                      ),
+                    );
+                  },
                 )
               : MobileAIPromptInput(
                   chatId: view.id,
-                  onSubmitted: (text, metadata) {
-                    context.read<ChatBloc>().add(
-                          ChatEvent.sendMessage(
-                            message: text,
-                            metadata: metadata,
-                          ),
-                        );
-                  },
                   isStreaming: !canSendMessage,
-                  onStopStreaming: () => context
-                      .read<ChatBloc>()
-                      .add(const ChatEvent.stopStream()),
+                  onStopStreaming: () {
+                    chatBloc.add(const ChatEvent.stopStream());
+                  },
+                  onSubmitted: (text, metadata) {
+                    chatBloc.add(
+                      ChatEvent.sendMessage(
+                        message: text,
+                        metadata: metadata,
+                      ),
+                    );
+                  },
+                  onUpdateSelectedSources: (ids) {
+                    chatBloc.add(
+                      ChatEvent.updateSelectedSources(
+                        selectedSourcesIds: ids,
+                      ),
+                    );
+                  },
                 );
         },
       ),

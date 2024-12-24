@@ -1,6 +1,8 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_cell_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_shortcuts/simple_table_command_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 final CommandShortcutEvent enterInTableCell = CommandShortcutEvent(
   key: 'Press enter in table cell',
@@ -15,10 +17,31 @@ KeyEventResult _enterInTableCellHandler(EditorState editorState) {
   if (!isInTableCell ||
       selection == null ||
       tableCellNode == null ||
-      node == null) {
+      node == null ||
+      !selection.isCollapsed) {
     return KeyEventResult.ignored;
   }
 
-  // forward the enter command to the insertNewLine character command to support multi-line text in table cell
-  return KeyEventResult.skipRemainingHandlers;
+  // check if the shift key is pressed, if so, we should return false to let the system handle it.
+  final isShiftPressed = HardwareKeyboard.instance.isShiftPressed;
+  if (isShiftPressed) {
+    return KeyEventResult.ignored;
+  }
+
+  final delta = node.delta;
+  if (!indentableBlockTypes.contains(node.type) || delta == null) {
+    return KeyEventResult.ignored;
+  }
+
+  if (selection.startIndex == 0 && delta.isEmpty) {
+    // clear the style
+    if (node.parent?.type != SimpleTableCellBlockKeys.type) {
+      if (outdentCommand.execute(editorState) == KeyEventResult.handled) {
+        return KeyEventResult.handled;
+      }
+    }
+    return convertToParagraphCommand.execute(editorState);
+  }
+
+  return KeyEventResult.ignored;
 }

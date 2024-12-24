@@ -186,8 +186,8 @@
     "inputLocalAIMessageHint": "Ask @:appName Local AI",
     "unsupportedCloudPrompt": "This feature is only available when using @:appName Cloud",
     "relatedQuestion": "Suggested",
-    "serverUnavailable": "Service Temporarily Unavailable. Please try again later.",
-    "aiServerUnavailable": "Connection lost. Please check your internet and",
+    "serverUnavailable": "Connection lost. Please check your internet and",
+    "aiServerUnavailable": "The AI service is temporarily unavailable. Please try again later.",
     "retry": "Retry",
     "clickToRetry": "Click to retry",
     "regenerateAnswer": "Regenerate",
@@ -210,7 +210,9 @@
     "uploadFile": "Attach PDFs, text or markdown files",
     "questionDetail": "Hi {}! How can I help you today?",
     "indexingFile": "Indexing {}",
-    "generatingResponse": "Generating response"
+    "generatingResponse": "Generating response",
+    "selectSources": "Select Sources",
+    "regenerate": "Try again"
   },
   "trash": {
     "text": "Trash",
@@ -1739,11 +1741,20 @@
           "headerRow": "Header row",
           "clearContents": "Clear contents",
           "setToPageWidth": "Set to page width",
-          "distributeColumnsWidth": "Distribute columns evenly"
+          "distributeColumnsWidth": "Distribute columns evenly",
+          "duplicateRow": "Duplicate row",
+          "duplicateColumn": "Duplicate column",
+          "textColor": "Text color",
+          "cellBackgroundColor": "Cell background color",
+          "duplicateTable": "Duplicate table"
         },
         "clickToAddNewRow": "Click to add a new row",
         "clickToAddNewColumn": "Click to add a new column",
-        "clickToAddNewRowAndColumn": "Click to add a new row and column"
+        "clickToAddNewRowAndColumn": "Click to add a new row and column",
+        "headerName": {
+          "table": "Table",
+          "alignText": "Align text"
+        }
       },
       "cover": {
         "changeCover": "Change Cover",

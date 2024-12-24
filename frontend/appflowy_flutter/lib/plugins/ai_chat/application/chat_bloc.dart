@@ -6,6 +6,7 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:fixnum/fixnum.dart';
@@ -30,7 +31,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         super(ChatState.initial()) {
     _startListening();
     _dispatch();
-    _init();
+    _loadMessages();
+    _loadSetting();
   }
 
   final String chatId;
@@ -59,20 +61,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   AnswerStream? answerStream;
   int numSendMessage = 0;
 
-  /// a counter used to determine whether the initial loading state should be
-  /// set to finish. It should hit two before we emit: one for the local fetch
-  /// and another for the server fetch.
-  ///
-  /// This is to work around a bug where if an ai chat that is not yet on the
-  /// user local storage is opened but has messages in the server, it will
-  /// remain stuck on the welcome screen until the user switches to another page
-  /// then come back.
-  int initialFetchCounter = 0;
-
   @override
   Future<void> close() async {
     await answerStream?.dispose();
     await listener.stop();
+    final request = ViewIdPB(value: chatId);
+    unawaited(FolderEventCloseView(request).send());
+
     return super.close();
   }
 
@@ -86,14 +81,23 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               await chatController.insert(message, index: 0);
             }
 
-            if (initialFetchCounter < 2) {
-              initialFetchCounter++;
-            }
-
-            if (state.loadingState.isLoading && initialFetchCounter >= 2) {
-              emit(
-                state.copyWith(loadingState: const ChatLoadingState.finish()),
-              );
+            switch (state.loadingState) {
+              case LoadChatMessageStatus.loading
+                  when chatController.messages.isEmpty:
+                emit(
+                  state.copyWith(
+                    loadingState: LoadChatMessageStatus.loadingRemote,
+                  ),
+                );
+                break;
+              case LoadChatMessageStatus.loading:
+              case LoadChatMessageStatus.loadingRemote:
+                emit(
+                  state.copyWith(loadingState: LoadChatMessageStatus.ready),
+                );
+                break;
+              default:
+                break;
             }
           },
           loadPreviousMessages: () {
@@ -165,18 +169,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           ) {
             numSendMessage += 1;
 
-            final relatedQuestionMessages = chatController.messages
-                .where(
-                  (message) =>
-                      onetimeMessageTypeFromMeta(message.metadata) ==
-                      OnetimeShotType.relatedQuestion,
-                )
-                .toList();
-
-            for (final message in relatedQuestionMessages) {
-              chatController.remove(message);
-            }
-
+            _clearRelatedQuestions();
             _startStreamingMessage(message, metadata);
             lastSentMessage = null;
 
@@ -186,11 +179,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ),
             );
           },
-          finishSending: (ChatMessagePB message) {
-            lastSentMessage = message;
+          finishSending: () {
             emit(
               state.copyWith(
-                promptResponseState: PromptResponseState.awaitingAnswer,
+                promptResponseState: PromptResponseState.streamingAnswer,
               ),
             );
           },
@@ -228,14 +220,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             answerStream = null;
             answerStreamMessageId = '';
           },
-          startAnswerStreaming: (Message message) {
-            chatController.insert(message);
-            emit(
-              state.copyWith(
-                promptResponseState: PromptResponseState.streamingAnswer,
-              ),
-            );
-          },
           failedSending: () {
             final lastMessage = chatController.messages.lastOrNull;
             if (lastMessage != null) {
@@ -246,6 +230,33 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
                 promptResponseState: PromptResponseState.ready,
               ),
             );
+          },
+          regenerateAnswer: (id) {
+            _clearRelatedQuestions();
+            _regenerateAnswer(id);
+            lastSentMessage = null;
+
+            emit(
+              state.copyWith(
+                promptResponseState: PromptResponseState.sendingQuestion,
+              ),
+            );
+          },
+          didReceiveChatSettings: (settings) {
+            emit(
+              state.copyWith(selectedSourceIds: settings.ragIds),
+            );
+          },
+          updateSelectedSources: (selectedSourcesIds) async {
+            emit(state.copyWith(selectedSourceIds: selectedSourcesIds));
+
+            final payload = UpdateChatSettingsPB(
+              chatId: ChatId(value: chatId),
+              ragIds: selectedSourcesIds,
+            );
+            await AIEventUpdateChatSettings(payload)
+                .send()
+                .onFailure(Log.error);
           },
         );
       },
@@ -332,12 +343,25 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  void _init() async {
-    final payload = LoadNextChatMessagePB(
+  void _loadSetting() async {
+    final getChatSettingsPayload =
+        AIEventGetChatSettings(ChatId(value: chatId));
+    await getChatSettingsPayload.send().fold(
+      (settings) {
+        if (!isClosed) {
+          add(ChatEvent.didReceiveChatSettings(settings: settings));
+        }
+      },
+      Log.error,
+    );
+  }
+
+  void _loadMessages() async {
+    final loadMessagesPayload = LoadNextChatMessagePB(
       chatId: chatId,
       limit: Int64(10),
     );
-    await AIEventLoadNextMessage(payload).send().fold(
+    await AIEventLoadNextMessage(loadMessagesPayload).send().fold(
       (list) {
         if (!isClosed) {
           final messages = list.messages.map(_createTextMessage).toList();
@@ -402,8 +426,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             question.messageId,
           );
 
-          add(ChatEvent.finishSending(question));
-          add(ChatEvent.startAnswerStreaming(streamAnswer));
+          lastSentMessage = question;
+          add(const ChatEvent.finishSending());
+          add(ChatEvent.receiveMessage(streamAnswer));
         }
       },
       (err) {
@@ -427,6 +452,42 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           add(ChatEvent.receiveMessage(error));
         }
       },
+    );
+  }
+
+  void _regenerateAnswer(String answerMessageIdString) async {
+    final id = temporaryMessageIDMap.entries
+            .firstWhereOrNull((e) => e.value == answerMessageIdString)
+            ?.key ??
+        answerMessageIdString;
+    final answerMessageId = Int64.tryParseInt(id);
+
+    if (answerMessageId == null) {
+      return;
+    }
+
+    await answerStream?.dispose();
+    answerStream = AnswerStream();
+
+    final payload = RegenerateResponsePB(
+      chatId: chatId,
+      answerMessageId: answerMessageId,
+      answerStreamPort: Int64(answerStream!.nativePort),
+    );
+
+    await AIEventRegenerateResponse(payload).send().fold(
+      (success) {
+        if (!isClosed) {
+          final streamAnswer = _createAnswerStreamMessage(
+            answerStream!,
+            answerMessageId - 1,
+          ).copyWith(id: answerMessageIdString);
+
+          add(ChatEvent.receiveMessage(streamAnswer));
+          add(const ChatEvent.finishSending());
+        }
+      },
+      (err) => Log.error("Failed to send message: ${err.msg}"),
     );
   }
 
@@ -488,22 +549,44 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       },
     );
   }
+
+  void _clearRelatedQuestions() {
+    final relatedQuestionMessages = chatController.messages
+        .where(
+          (message) =>
+              onetimeMessageTypeFromMeta(message.metadata) ==
+              OnetimeShotType.relatedQuestion,
+        )
+        .toList();
+
+    for (final message in relatedQuestionMessages) {
+      chatController.remove(message);
+    }
+  }
 }
 
 @freezed
 class ChatEvent with _$ChatEvent {
+  // chat settings
+  const factory ChatEvent.didReceiveChatSettings({
+    required ChatSettingsPB settings,
+  }) = _DidReceiveChatSettings;
+  const factory ChatEvent.updateSelectedSources({
+    required List<String> selectedSourcesIds,
+  }) = _UpdateSelectedSources;
+
   // send message
   const factory ChatEvent.sendMessage({
     required String message,
     Map<String, dynamic>? metadata,
   }) = _SendMessage;
-  const factory ChatEvent.finishSending(ChatMessagePB message) =
-      _FinishSendMessage;
+  const factory ChatEvent.finishSending() = _FinishSendMessage;
   const factory ChatEvent.failedSending() = _FailSendMessage;
 
+  // regenerate
+  const factory ChatEvent.regenerateAnswer(String id) = _RegenerateAnswer;
+
   // streaming answer
-  const factory ChatEvent.startAnswerStreaming(Message message) =
-      _StartAnswerStreaming;
   const factory ChatEvent.stopStream() = _StopStream;
   const factory ChatEvent.didFinishAnswerStream() = _DidFinishAnswerStream;
 
@@ -528,12 +611,14 @@ class ChatEvent with _$ChatEvent {
 @freezed
 class ChatState with _$ChatState {
   const factory ChatState({
-    required ChatLoadingState loadingState,
+    required List<String> selectedSourceIds,
+    required LoadChatMessageStatus loadingState,
     required PromptResponseState promptResponseState,
   }) = _ChatState;
 
   factory ChatState.initial() => const ChatState(
-        loadingState: ChatLoadingState.loading(),
+        selectedSourceIds: [],
+        loadingState: LoadChatMessageStatus.loading,
         promptResponseState: PromptResponseState.ready,
       );
 }

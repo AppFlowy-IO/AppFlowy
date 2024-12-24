@@ -12,6 +12,8 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+
 part 'database_document_title_bloc.freezed.dart';
 
 class DatabaseDocumentTitleBloc
@@ -57,7 +59,7 @@ class DatabaseDocumentTitleBloc
           );
         },
         updateIcon: (icon) {
-          _updateMeta(icon);
+          _updateMeta(icon.emoji);
         },
       );
     });
@@ -67,7 +69,11 @@ class DatabaseDocumentTitleBloc
     _metaListener.start(
       callback: (rowMeta) {
         if (!isClosed) {
-          add(DatabaseDocumentTitleEvent.didUpdateRowIcon(rowMeta.icon));
+          add(
+            DatabaseDocumentTitleEvent.didUpdateRowIcon(
+              EmojiIconData.emoji(rowMeta.icon),
+            ),
+          );
         }
       },
     );
@@ -116,7 +122,11 @@ class DatabaseDocumentTitleBloc
 
     // initialize icon
     if (rowInfo.rowMeta.icon.isNotEmpty) {
-      add(DatabaseDocumentTitleEvent.didUpdateRowIcon(rowInfo.rowMeta.icon));
+      add(
+        DatabaseDocumentTitleEvent.didUpdateRowIcon(
+          EmojiIconData.emoji(rowInfo.rowMeta.icon),
+        ),
+      );
     }
   }
 
@@ -136,16 +146,19 @@ class DatabaseDocumentTitleEvent with _$DatabaseDocumentTitleEvent {
   const factory DatabaseDocumentTitleEvent.didUpdateAncestors(
     List<ViewPB> ancestors,
   ) = _DidUpdateAncestors;
+
   const factory DatabaseDocumentTitleEvent.didUpdateRowTitleInfo(
     DatabaseController databaseController,
     RowController rowController,
     String fieldId,
   ) = _DidUpdateRowTitleInfo;
+
   const factory DatabaseDocumentTitleEvent.didUpdateRowIcon(
-    String icon,
+    EmojiIconData icon,
   ) = _DidUpdateRowIcon;
+
   const factory DatabaseDocumentTitleEvent.updateIcon(
-    String icon,
+    EmojiIconData icon,
   ) = _UpdateIcon;
 }
 
@@ -156,7 +169,7 @@ class DatabaseDocumentTitleState with _$DatabaseDocumentTitleState {
     required DatabaseController? databaseController,
     required RowController? rowController,
     required String? fieldId,
-    required String? icon,
+    required EmojiIconData? icon,
   }) = _DatabaseDocumentTitleState;
 
   factory DatabaseDocumentTitleState.initial() =>

@@ -17,18 +17,3 @@ impl AsRef<str> for TrashIdentify {
     &self.0
   }
 }
-
-#[derive(Debug)]
-pub struct TrashIds(pub Vec<String>);
-
-impl TrashIds {
-  #[allow(dead_code)]
-  pub fn parse(ids: Vec<String>) -> Result<TrashIds, String> {
-    let mut trash_ids = vec![];
-    for id in ids {
-      let id = TrashIdentify::parse(id)?;
-      trash_ids.push(id.0);
-    }
-    Ok(Self(trash_ids))
-  }
-}

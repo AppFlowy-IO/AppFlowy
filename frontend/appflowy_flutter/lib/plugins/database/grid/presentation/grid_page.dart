@@ -385,17 +385,22 @@ class _GridRowsState extends State<_GridRows> {
   Widget build(BuildContext context) {
     Widget child;
     if (widget.shrinkWrap) {
-      child = SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
+      child = Scrollbar(
         controller: widget.scrollController.horizontalController,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: GridLayout.headerWidth(
-              context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding,
-              context.read<GridBloc>().state.fields,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          controller: widget.scrollController.horizontalController,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: GridLayout.headerWidth(
+                context
+                    .read<DatabasePluginWidgetBuilderSize>()
+                    .horizontalPadding,
+                context.read<GridBloc>().state.fields,
+              ),
             ),
+            child: _renderList(context),
           ),
-          child: _renderList(context),
         ),
       );
     } else {

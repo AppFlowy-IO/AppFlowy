@@ -10,13 +10,13 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:universal_platform/universal_platform.dart';
 
-import 'chat_mention_page_menu.dart';
 import '../layout_define.dart';
 import 'ai_prompt_buttons.dart';
 import 'chat_input_file.dart';
 import 'chat_input_span.dart';
+import 'chat_mention_page_menu.dart';
+import 'select_sources_menu.dart';
 
 class DesktopAIPromptInput extends StatefulWidget {
   const DesktopAIPromptInput({
@@ -25,12 +25,14 @@ class DesktopAIPromptInput extends StatefulWidget {
     required this.isStreaming,
     required this.onStopStreaming,
     required this.onSubmitted,
+    required this.onUpdateSelectedSources,
   });
 
   final String chatId;
   final bool isStreaming;
   final void Function() onStopStreaming;
   final void Function(String, Map<String, dynamic>) onSubmitted;
+  final void Function(List<String>) onUpdateSelectedSources;
 
   @override
   State<DesktopAIPromptInput> createState() => _DesktopAIPromptInputState();
@@ -112,6 +114,7 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
                 color: focusNode.hasFocus
                     ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.outline,
+                width: focusNode.hasFocus ? 1.5 : 1.0,
               ),
               borderRadius: DesktopAIPromptSizes.promptFrameRadius,
             ),
@@ -136,9 +139,10 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
                 Stack(
                   children: [
                     ConstrainedBox(
-                      constraints: const BoxConstraints(
+                      constraints: BoxConstraints(
                         minHeight: DesktopAIPromptSizes.textFieldMinHeight +
-                            DesktopAIPromptSizes.actionBarHeight,
+                            DesktopAIPromptSizes.actionBarHeight +
+                            DesktopAIPromptSizes.actionBarPadding.vertical,
                         maxHeight: 300,
                       ),
                       child: inputTextField(),
@@ -147,12 +151,15 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
                       top: null,
                       child: TextFieldTapRegion(
                         child: _PromptBottomActions(
+                          chatId: widget.chatId,
                           textController: textController,
                           overlayController: overlayController,
                           focusNode: focusNode,
                           sendButtonState: sendButtonState,
                           onSendPressed: handleSendPressed,
                           onStopStreaming: widget.onStopStreaming,
+                          onUpdateSelectedSources:
+                              widget.onUpdateSelectedSources,
                         ),
                       ),
                     ),
@@ -184,6 +191,9 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
   }
 
   void handleSendPressed() {
+    if (widget.isStreaming) {
+      return;
+    }
     final trimmedText = inputControlCubit.formatIntputText(
       textController.text.trim(),
     );
@@ -207,6 +217,10 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
     setState(() => updateSendButtonState());
 
     // handle text and selection changes ONLY when mentioning a page
+
+    // disable mention
+    return;
+    // ignore: dead_code
     if (!overlayController.isShowing ||
         inputControlCubit.filterStartPosition == -1) {
       return;
@@ -292,12 +306,12 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
                 AIType.appflowyAI => LocaleKeys.chat_inputMessageHint.tr(),
                 AIType.localAI => LocaleKeys.chat_inputLocalAIMessageHint.tr()
               },
-              onStartMentioningPage: () {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  inputControlCubit.startSearching(textController.value);
-                  overlayController.show();
-                });
-              },
+              // onStartMentioningPage: () {
+              //   WidgetsBinding.instance.addPostFrameCallback((_) {
+              //     inputControlCubit.startSearching(textController.value);
+              //     overlayController.show();
+              //   });
+              // },
             );
           },
         ),
@@ -353,14 +367,14 @@ class _PromptTextField extends StatefulWidget {
     required this.cubit,
     required this.textController,
     required this.textFieldFocusNode,
-    required this.onStartMentioningPage,
+    // required this.onStartMentioningPage,
     this.hintText = "",
   });
 
   final ChatInputControlCubit cubit;
   final TextEditingController textController;
   final FocusNode textFieldFocusNode;
-  final void Function() onStartMentioningPage;
+  // final void Function() onStartMentioningPage;
   final String hintText;
 
   @override
@@ -373,13 +387,13 @@ class _PromptTextFieldState extends State<_PromptTextField> {
   @override
   void initState() {
     super.initState();
-    widget.textFieldFocusNode.onKeyEvent = handleKeyEvent;
+    // widget.textFieldFocusNode.onKeyEvent = handleKeyEvent;
     widget.textController.addListener(onTextChanged);
   }
 
   @override
   void dispose() {
-    widget.textFieldFocusNode.onKeyEvent = null;
+    // widget.textFieldFocusNode.onKeyEvent = null;
     widget.textController.removeListener(onTextChanged);
     super.dispose();
   }
@@ -424,12 +438,12 @@ class _PromptTextFieldState extends State<_PromptTextField> {
     );
   }
 
-  KeyEventResult handleKeyEvent(FocusNode node, KeyEvent event) {
-    if (event.character == '@') {
-      widget.onStartMentioningPage();
-    }
-    return KeyEventResult.ignored;
-  }
+  // KeyEventResult handleKeyEvent(FocusNode node, KeyEvent event) {
+  //   if (event.character == '@') {
+  //     widget.onStartMentioningPage();
+  //   }
+  //   return KeyEventResult.ignored;
+  // }
 
   void onTextChanged() {
     setState(
@@ -469,38 +483,47 @@ class _FocusNextItemIntent extends Intent {
 
 class _PromptBottomActions extends StatelessWidget {
   const _PromptBottomActions({
+    required this.chatId,
     required this.textController,
     required this.overlayController,
     required this.focusNode,
     required this.sendButtonState,
     required this.onSendPressed,
     required this.onStopStreaming,
+    required this.onUpdateSelectedSources,
   });
 
+  final String chatId;
   final TextEditingController textController;
   final OverlayPortalController overlayController;
   final FocusNode focusNode;
   final SendButtonState sendButtonState;
   final void Function() onSendPressed;
   final void Function() onStopStreaming;
+  final void Function(List<String>) onUpdateSelectedSources;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: DesktopAIPromptSizes.actionBarHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      margin: DesktopAIPromptSizes.actionBarPadding,
       child: BlocBuilder<AIPromptInputBloc, AIPromptInputState>(
         builder: (context, state) {
           return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // predefinedFormatButton(),
               const Spacer(),
-              _mentionButton(context),
-              const HSpace(
-                DesktopAIPromptSizes.actionBarButtonSpacing,
-              ),
-              if (UniversalPlatform.isDesktop && state.supportChatWithFile) ...[
+              if (state.aiType == AIType.appflowyAI) ...[
+                _selectSourcesButton(context),
+                const HSpace(
+                  DesktopAIPromptSizes.actionBarButtonSpacing,
+                ),
+              ],
+              // _mentionButton(context),
+              // const HSpace(
+              //   DesktopAIPromptSizes.actionBarButtonSpacing,
+              // ),
+              if (state.supportChatWithFile) ...[
                 _attachmentButton(context),
                 const HSpace(
                   DesktopAIPromptSizes.actionBarButtonSpacing,
@@ -514,27 +537,34 @@ class _PromptBottomActions extends StatelessWidget {
     );
   }
 
-  Widget _mentionButton(BuildContext context) {
-    return PromptInputMentionButton(
-      iconSize: DesktopAIPromptSizes.actionBarIconSize,
-      buttonSize: DesktopAIPromptSizes.actionBarButtonSize,
-      onTap: () {
-        if (overlayController.isShowing) {
-          return;
-        }
-        if (!focusNode.hasFocus) {
-          focusNode.requestFocus();
-        }
-        textController.text += '@';
-        Future.delayed(Duration.zero, () {
-          context
-              .read<ChatInputControlCubit>()
-              .startSearching(textController.value);
-          overlayController.show();
-        });
-      },
+  Widget _selectSourcesButton(BuildContext context) {
+    return PromptInputDesktopSelectSourcesButton(
+      chatId: chatId,
+      onUpdateSelectedSources: onUpdateSelectedSources,
     );
   }
+
+  // Widget _mentionButton(BuildContext context) {
+  //   return PromptInputMentionButton(
+  //     iconSize: DesktopAIPromptSizes.actionBarIconSize,
+  //     buttonSize: DesktopAIPromptSizes.actionBarButtonSize,
+  //     onTap: () {
+  //       if (overlayController.isShowing) {
+  //         return;
+  //       }
+  //       if (!focusNode.hasFocus) {
+  //         focusNode.requestFocus();
+  //       }
+  //       textController.text += '@';
+  //       Future.delayed(Duration.zero, () {
+  //         context
+  //             .read<ChatInputControlCubit>()
+  //             .startSearching(textController.value);
+  //         overlayController.show();
+  //       });
+  //     },
+  //   );
+  // }
 
   Widget _attachmentButton(BuildContext context) {
     return PromptInputAttachmentButton(
@@ -562,7 +592,7 @@ class _PromptBottomActions extends StatelessWidget {
 
   Widget _sendButton() {
     return PromptInputSendButton(
-      buttonSize: DesktopAIPromptSizes.actionBarButtonSize,
+      buttonSize: DesktopAIPromptSizes.actionBarHeight,
       iconSize: DesktopAIPromptSizes.sendButtonSize,
       state: sendButtonState,
       onSendPressed: onSendPressed,

@@ -99,11 +99,11 @@ where
     message_id: i64,
   ) -> Result<StreamAnswer, FlowyError> {
     let try_get_client = self.inner.try_get_client();
-    let stream = try_get_client?
+    let result = try_get_client?
       .stream_answer_v2(workspace_id, chat_id, message_id)
-      .await
-      .map_err(FlowyError::from)?
-      .map_err(FlowyError::from);
+      .await;
+
+    let stream = result.map_err(FlowyError::from)?.map_err(FlowyError::from);
     Ok(stream.boxed())
   }
 
@@ -133,6 +133,22 @@ where
       .get_chat_messages(workspace_id, chat_id, offset, limit)
       .await
       .map_err(FlowyError::from)?;
+
+    Ok(resp)
+  }
+
+  async fn get_question_from_answer_id(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    answer_message_id: i64,
+  ) -> Result<ChatMessage, FlowyError> {
+    let try_get_client = self.inner.try_get_client()?;
+    let resp = try_get_client
+      .get_question_message_from_answer_id(workspace_id, chat_id, answer_message_id)
+      .await
+      .map_err(FlowyError::from)?
+      .ok_or_else(FlowyError::record_not_found)?;
 
     Ok(resp)
   }

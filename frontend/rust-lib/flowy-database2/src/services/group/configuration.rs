@@ -351,7 +351,7 @@ where
   /// # Arguments
   ///
   /// * `mut_configuration_fn`: mutate the [GroupSetting] and return whether the [GroupSetting] is
-  /// changed. If the [GroupSetting] is changed, the [GroupSetting] will be saved to the storage.
+  ///   changed. If the [GroupSetting] is changed, the [GroupSetting] will be saved to the storage.
   ///
   fn mut_configuration(
     &mut self,
