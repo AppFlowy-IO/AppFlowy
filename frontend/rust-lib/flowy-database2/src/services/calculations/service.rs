@@ -54,7 +54,7 @@ impl CalculationsService {
     values.par_sort_by(|a, b| a.partial_cmp(b).unwrap());
 
     if !values.is_empty() {
-      format!("{:.5}", Self::median(&values))
+      format!("{:.2}", Self::median(&values))
     } else {
       String::new()
     }
@@ -63,7 +63,7 @@ impl CalculationsService {
   fn calculate_min(&self, field: &Field, cells: Vec<Arc<Cell>>) -> String {
     let values = self.reduce_values_f64(field, cells);
     if let Some(min) = values.par_iter().min_by(|a, b| a.total_cmp(b)) {
-      format!("{:.5}", min)
+      format!("{:.2}", min)
     } else {
       String::new()
     }
@@ -72,7 +72,7 @@ impl CalculationsService {
   fn calculate_max(&self, field: &Field, cells: Vec<Arc<Cell>>) -> String {
     let values = self.reduce_values_f64(field, cells);
     if let Some(max) = values.par_iter().max_by(|a, b| a.total_cmp(b)) {
-      format!("{:.5}", max)
+      format!("{:.2}", max)
     } else {
       String::new()
     }
@@ -81,7 +81,7 @@ impl CalculationsService {
   fn calculate_sum(&self, field: &Field, cells: Vec<Arc<Cell>>) -> String {
     let values = self.reduce_values_f64(field, cells);
     if !values.is_empty() {
-      format!("{:.5}", values.par_iter().sum::<f64>())
+      format!("{:.2}", values.par_iter().sum::<f64>())
     } else {
       String::new()
     }
