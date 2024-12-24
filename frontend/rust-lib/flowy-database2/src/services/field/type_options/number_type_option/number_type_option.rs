@@ -126,7 +126,12 @@ impl CellDataChangeset for NumberTypeOption {
     let number_cell_data = NumberCellData(num_str);
     let formatter = self.format_cell_data(&number_cell_data)?;
 
-    tracing::trace!("number: {:?}", number_cell_data);
+    tracing::trace!(
+      "NumberTypeOption: {:?}, {}, {}",
+      number_cell_data,
+      formatter.to_string(),
+      formatter.to_unformatted_string()
+    );
     match self.format {
       NumberFormat::Num => Ok((
         NumberCellData(formatter.to_string()).into(),
