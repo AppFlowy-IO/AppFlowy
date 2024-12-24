@@ -403,6 +403,11 @@ ParagraphBlockComponentBuilder _buildParagraphBlockComponentBuilder(
         node: node,
         configuration: configuration,
       ),
+      textAlign: (node) => _buildTextAlignInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
     ),
     showPlaceholder: showParagraphPlaceholder,
   );
@@ -415,14 +420,16 @@ TodoListBlockComponentBuilder _buildTodoListBlockComponentBuilder(
   return TodoListBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_todoList.tr(),
-      textStyle: (node) {
-        if (node.isInHeaderColumn || node.isInHeaderRow) {
-          return configuration.textStyle(node).copyWith(
-                fontWeight: FontWeight.bold,
-              );
-        }
-        return configuration.textStyle(node);
-      },
+      textStyle: (node) => _buildTextStyleInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
+      textAlign: (node) => _buildTextAlignInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
     ),
     iconBuilder: (_, node, onCheck) => TodoListIcon(
       node: node,
@@ -443,14 +450,16 @@ BulletedListBlockComponentBuilder _buildBulletedListBlockComponentBuilder(
   return BulletedListBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_bulletList.tr(),
-      textStyle: (node) {
-        if (node.isInHeaderColumn || node.isInHeaderRow) {
-          return configuration.textStyle(node).copyWith(
-                fontWeight: FontWeight.bold,
-              );
-        }
-        return configuration.textStyle(node);
-      },
+      textStyle: (node) => _buildTextStyleInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
+      textAlign: (node) => _buildTextAlignInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
     ),
     iconBuilder: (_, node) => BulletedListIcon(node: node),
   );
@@ -463,14 +472,16 @@ NumberedListBlockComponentBuilder _buildNumberedListBlockComponentBuilder(
   return NumberedListBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_numberList.tr(),
-      textStyle: (node) {
-        if (node.isInHeaderColumn || node.isInHeaderRow) {
-          return configuration.textStyle(node).copyWith(
-                fontWeight: FontWeight.bold,
-              );
-        }
-        return configuration.textStyle(node);
-      },
+      textStyle: (node) => _buildTextStyleInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
+      textAlign: (node) => _buildTextAlignInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
     ),
     iconBuilder: (_, node, textDirection) {
       TextStyle? textStyle;
@@ -495,14 +506,16 @@ QuoteBlockComponentBuilder _buildQuoteBlockComponentBuilder(
   return QuoteBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_quote.tr(),
-      textStyle: (node) {
-        if (node.isInHeaderColumn || node.isInHeaderRow) {
-          return configuration.textStyle(node).copyWith(
-                fontWeight: FontWeight.bold,
-              );
-        }
-        return configuration.textStyle(node);
-      },
+      textStyle: (node) => _buildTextStyleInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
+      textAlign: (node) => _buildTextAlignInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
     ),
   );
 }
@@ -547,6 +560,11 @@ HeadingBlockComponentBuilder _buildHeadingBlockComponentBuilder(
           args: [level.toString()],
         );
       },
+      textAlign: (node) => _buildTextAlignInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
     ),
     textStyleBuilder: (level) => styleCustomizer.headingStyleBuilder(level),
   );
@@ -657,6 +675,16 @@ CalloutBlockComponentBuilder _buildCalloutBlockComponentBuilder(
   return CalloutBlockComponentBuilder(
     configuration: configuration.copyWith(
       padding: (node) => const EdgeInsets.symmetric(vertical: 10),
+      textAlign: (node) => _buildTextAlignInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
+      textStyle: (node) => _buildTextStyleInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
     ),
     inlinePadding: const EdgeInsets.symmetric(vertical: 8.0),
     defaultColor: calloutBGColor,
@@ -742,12 +770,22 @@ ToggleListBlockComponentBuilder _buildToggleListBlockComponentBuilder(
         return const EdgeInsets.only(top: 12.0, bottom: 4.0);
       },
       textStyle: (node) {
+        final textStyle = _buildTextStyleInTableCell(
+          context,
+          node: node,
+          configuration: configuration,
+        );
         final level = node.attributes[ToggleListBlockKeys.level] as int?;
         if (level == null) {
-          return configuration.textStyle(node);
+          return textStyle;
         }
-        return styleCustomizer.headingStyleBuilder(level);
+        return textStyle.merge(styleCustomizer.headingStyleBuilder(level));
       },
+      textAlign: (node) => _buildTextAlignInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
       placeholderText: (node) {
         int? level = node.attributes[ToggleListBlockKeys.level];
         if (level == null) {
@@ -851,4 +889,17 @@ TextStyle _buildTextStyleInTableCell(
   }
 
   return textStyle;
+}
+
+TextAlign _buildTextAlignInTableCell(
+  BuildContext context, {
+  required Node node,
+  required BlockComponentConfiguration configuration,
+}) {
+  final isInTable = node.isInTable;
+  if (!isInTable) {
+    return configuration.textAlign(node);
+  }
+
+  return node.tableAlign.textAlign;
 }

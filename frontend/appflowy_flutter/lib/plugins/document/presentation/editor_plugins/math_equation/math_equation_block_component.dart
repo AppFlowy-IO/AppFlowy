@@ -117,6 +117,14 @@ class MathEquationBlockComponentWidgetState
   late final editorState = context.read<EditorState>();
   final ValueNotifier<bool> isHover = ValueNotifier(false);
 
+  late final controller = TextEditingController(text: formula);
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -171,8 +179,8 @@ class MathEquationBlockComponentWidgetState
         children: [
           child,
           Positioned(
-            right: 10,
-            top: 10,
+            right: 6,
+            top: 12,
             child: ValueListenableBuilder<bool>(
               valueListenable: isHover,
               builder: (_, value, __) =>
@@ -228,7 +236,6 @@ class MathEquationBlockComponentWidgetState
   }
 
   void showEditingDialog() {
-    final controller = TextEditingController(text: formula);
     showDialog(
       context: context,
       builder: (context) {
@@ -275,7 +282,7 @@ class MathEquationBlockComponentWidgetState
           actionsAlignment: MainAxisAlignment.spaceAround,
         );
       },
-    ).then((_) => controller.dispose());
+    );
   }
 
   void updateMathEquation(String mathEquation, BuildContext context) {
