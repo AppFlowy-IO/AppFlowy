@@ -28,9 +28,9 @@ final Set<String> supportSlashMenuNodeTypes = {
   ToggleListBlockKeys.type,
 
   // Simple table
-  // SimpleTableBlockKeys.type,
-  // SimpleTableRowBlockKeys.type,
-  // SimpleTableCellBlockKeys.type,
+  SimpleTableBlockKeys.type,
+  SimpleTableRowBlockKeys.type,
+  SimpleTableCellBlockKeys.type,
 };
 
 /// Build the block component builders.

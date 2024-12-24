@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/presentation/editor_configuration.dart
 import 'package:appflowy/plugins/document/presentation/editor_plugins/background_color/theme_background_color.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/i18n/editor_i18n.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/slash_menu/slash_menu_items/slash_menu_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/child_page.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/date_reference.dart';
@@ -412,7 +413,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
     final isLocalMode = context.read<DocumentBloc>().isLocalMode;
     return [
       if (!isLocalMode) aiWriterSlashMenuItem,
-      textSlashMenuItem,
+      paragraphSlashMenuItem,
       heading1SlashMenuItem,
       heading2SlashMenuItem,
       heading3SlashMenuItem,
@@ -423,7 +424,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       dividerSlashMenuItem,
       quoteSlashMenuItem,
       tableSlashMenuItem,
-      referencedDocSlashMenuItem,
+      linkToPageSlashMenuItem,
       gridSlashMenuItem(documentBloc),
       referencedGridSlashMenuItem,
       kanbanSlashMenuItem(documentBloc),
