@@ -45,19 +45,6 @@ import {
 } from '@/application/slate-yjs/utils/yjs';
 
 export const CustomEditor = {
-  // find entry from blockId
-  getBlockEntry(editor: YjsEditor, blockId: string): NodeEntry<Element> | undefined {
-    const [entry] = editor.nodes({
-      at: [],
-      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId === blockId,
-    });
-
-    if (!entry) {
-      return;
-    }
-
-    return entry as NodeEntry<Element>;
-  },
   // Get the text content of a block node, including the text content of its children and formula nodes
   getBlockTextContent(node: Node, depth: number = Infinity): string {
     if (Text.isText(node)) {
@@ -106,7 +93,7 @@ export const CustomEditor = {
     const newProperties = {
       data: newData,
     } as Partial<Element>;
-    const entry = CustomEditor.getBlockEntry(editor, blockId);
+    const entry = findSlateEntryByBlockId(editor, blockId);
 
     if (!entry) {
       console.error('Block not found');

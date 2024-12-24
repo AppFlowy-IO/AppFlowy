@@ -72,9 +72,14 @@ export function initAPIService(config: AFCloudConfig) {
       const refresh_token = token.refresh_token;
 
       if (isExpired) {
-        const newToken = await refreshToken(refresh_token);
+        try {
+          const newToken = await refreshToken(refresh_token);
 
-        access_token = newToken?.access_token || '';
+          access_token = newToken?.access_token || '';
+        } catch (e) {
+          invalidToken();
+          return config;
+        }
       }
 
       if (access_token) {
@@ -1192,6 +1197,18 @@ export async function getSubscriptions() {
 
 }
 
+export async function getWorkspaceSubscriptions(workspaceId: string) {
+  try {
+    const plans = await getActiveSubscription(workspaceId);
+    const subscriptions = await getSubscriptions();
+
+    return subscriptions?.filter((subscription) => plans?.includes(subscription.plan));
+
+  } catch (e) {
+    return Promise.reject(e);
+  }
+}
+
 export async function getActiveSubscription(workspaceId: string) {
   const url = `/billing/api/v1/active-subscription/${workspaceId}`;
 
@@ -1566,6 +1583,25 @@ export async function deleteQuickNote(workspaceId: string, noteId: string) {
     code: number;
     message: string;
   }>(url);
+
+  if (res?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(res?.data);
+}
+
+export async function cancelSubscription(workspaceId: string, plan: SubscriptionPlan, reason?: string) {
+  const url = `/billing/api/v1/cancel-subscription`;
+  const res = await axiosInstance?.post<{
+    code: number;
+    message: string;
+  }>(url, {
+    workspace_id: workspaceId,
+    plan,
+    sync: true,
+    reason,
+  });
 
   if (res?.data.code === 0) {
     return;

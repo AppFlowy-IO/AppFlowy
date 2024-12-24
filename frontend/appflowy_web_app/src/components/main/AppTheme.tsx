@@ -62,6 +62,12 @@ function AppTheme({ children }: { children: React.ReactNode; }) {
                   color: 'var(--fill-default)',
                 },
               },
+              colorSecondary: {
+                color: 'var(--billing-primary)',
+                '&:hover': {
+                  color: 'var(--billing-primary-hover)',
+                },
+              },
             },
           },
 
@@ -96,12 +102,26 @@ function AppTheme({ children }: { children: React.ReactNode; }) {
                     boxShadow: 'var(--shadow)',
                   },
                 },
+                '&.MuiButton-containedSecondary': {
+                  backgroundColor: 'var(--billing-primary)',
+                  '&:hover': {
+                    backgroundColor: 'var(--billing-primary-hover)',
+                  },
+                },
               },
               outlined: {
                 '&.MuiButton-outlinedInherit': {
                   borderColor: 'var(--line-divider)',
                 },
                 borderRadius: '8px',
+                '&.MuiButton-outlinedSecondary': {
+                  color: 'var(--billing-primary)',
+                  borderColor: 'var(--billing-primary)',
+                  '&:hover': {
+                    color: 'var(--billing-primary-hover)',
+                    borderColor: 'var(--billing-primary-hover)',
+                  },
+                },
               },
 
             },
@@ -127,7 +147,6 @@ function AppTheme({ children }: { children: React.ReactNode; }) {
                 boxShadow: 'none !important',
               },
             },
-
           },
           MuiPaper: {
             styleOverrides: {
@@ -210,6 +229,10 @@ function AppTheme({ children }: { children: React.ReactNode; }) {
           primary: {
             main: '#00BCF0',
             dark: '#00BCF0',
+          },
+          secondary: {
+            main: '#8427e0',
+            dark: '#601DAA',
           },
           error: {
             main: '#FB006D',

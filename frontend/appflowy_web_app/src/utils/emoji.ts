@@ -1,7 +1,7 @@
 import { EmojiMartData } from '@emoji-mart/data';
 import axios from 'axios';
 
-export async function randomEmoji (skin = 0) {
+export async function randomEmoji(skin = 0) {
   const emojiData = await loadEmojiData();
   const emojis = (emojiData as EmojiMartData).emojis;
   const keys = Object.keys(emojis);
@@ -10,11 +10,11 @@ export async function randomEmoji (skin = 0) {
   return emojis[randomKey].skins[skin].native;
 }
 
-export async function loadEmojiData () {
+export async function loadEmojiData() {
   return import('@emoji-mart/data/sets/15/native.json');
 }
 
-export function isFlagEmoji (emoji: string) {
+export function isFlagEmoji(emoji: string) {
   return /\uD83C[\uDDE6-\uDDFF]/.test(emoji);
 }
 
@@ -45,7 +45,7 @@ let icons: Record<ICON_CATEGORY,
     keywords: string[];
   }[]> | undefined;
 
-export async function loadIcons (): Promise<
+export async function loadIcons(): Promise<
   Record<
     ICON_CATEGORY,
     {
@@ -66,7 +66,7 @@ export async function loadIcons (): Promise<
   });
 }
 
-export async function getIconSvgEncodedContent (id: string, color: string) {
+export async function getIconSvgEncodedContent(id: string, color: string) {
   try {
     const { data } = await axios.get(`/af_icons/${id}.svg`);
 
@@ -79,11 +79,25 @@ export async function getIconSvgEncodedContent (id: string, color: string) {
   }
 }
 
-export async function randomIcon () {
+export async function randomIcon() {
   const icons = await loadIcons();
   const categories = Object.keys(icons);
   const randomCategory = categories[Math.floor(Math.random() * categories.length)] as ICON_CATEGORY;
   const randomIcon = icons[randomCategory][Math.floor(Math.random() * icons[randomCategory].length)];
 
   return randomIcon;
+}
+
+export async function getIcon(id: string) {
+  const icons = await loadIcons();
+
+  for (const category of Object.keys(icons)) {
+    for (const icon of icons[category as ICON_CATEGORY]) {
+      if (icon.id === id) {
+        return icon;
+      }
+    }
+  }
+
+  return null;
 }

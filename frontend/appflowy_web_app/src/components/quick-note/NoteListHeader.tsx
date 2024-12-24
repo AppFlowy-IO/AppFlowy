@@ -70,7 +70,10 @@ function NoteListHeader({
         }
       </div>
 
-      <IconButton onClick={onToggleExpand} size={'small'}>
+      <IconButton onClick={e => {
+        e.currentTarget.blur();
+        onToggleExpand?.();
+      }} size={'small'}>
         {expand ? <CollapseIcon className={'transform rotate-45'}/> : <OpenIcon/>}
       </IconButton>
 

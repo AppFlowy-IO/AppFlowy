@@ -13,12 +13,13 @@ import { ReactComponent as CopyIcon } from '@/assets/copy.svg';
 import { ReactComponent as PreviewIcon } from '@/assets/full_view.svg';
 import { ReactComponent as DeleteIcon } from '@/assets/trash.svg';
 import { useReadOnly, useSlateStatic } from 'slate-react';
+import { Element } from 'slate';
 
 function ImageToolbar({ node }: {
   node: ImageBlockNode
 }) {
   const editor = useSlateStatic() as YjsEditor;
-  const readOnly = useReadOnly();
+  const readOnly = useReadOnly() || editor.isElementReadOnly(node as unknown as Element);
   const { t } = useTranslation();
   const [openPreview, setOpenPreview] = React.useState(false);
 

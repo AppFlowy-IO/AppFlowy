@@ -16,13 +16,16 @@ export const withInsertData = (editor: ReactEditor) => {
     // Do something with the data...
     const fileArray = Array.from(data.files);
     const { selection } = editor;
-    const blockId = getBlockEntry(e)[0].blockId;
+    const entry = getBlockEntry(e);
+    const [node] = entry;
+    const blockId = node.blockId;
 
     insertData(data);
 
     if (blockId && fileArray.length > 0 && selection) {
       void (async () => {
-        let newBlockId: string | undefined = blockId;
+        const text = CustomEditor.getBlockTextContent(node);
+        let newBlockId: string = blockId;
 
         for (const file of fileArray) {
           if (file.size > MAX_IMAGE_SIZE) {
@@ -53,7 +56,7 @@ export const withInsertData = (editor: ReactEditor) => {
             }
 
             // Handle images...
-            newBlockId = CustomEditor.addBelowBlock(e, blockId, BlockType.ImageBlock, data);
+            newBlockId = CustomEditor.addBelowBlock(e, newBlockId, BlockType.ImageBlock, data) || newBlockId;
           } else {
             const data = {
               url: url,
@@ -67,12 +70,18 @@ export const withInsertData = (editor: ReactEditor) => {
             }
 
             // Handle files...
-            newBlockId = CustomEditor.addBelowBlock(e, blockId, BlockType.FileBlock, data);
+            newBlockId = CustomEditor.addBelowBlock(e, newBlockId, BlockType.FileBlock, data) || newBlockId;
           }
 
         }
 
-        if (newBlockId) {
+        if (!text) {
+          CustomEditor.deleteBlock(e, blockId);
+        }
+
+        const firstIsImage = fileArray[0].type.startsWith('image/');
+
+        if (newBlockId && firstIsImage) {
           const id = CustomEditor.addBelowBlock(e, newBlockId, BlockType.Paragraph, {});
 
           if (!id) return;
@@ -80,6 +89,7 @@ export const withInsertData = (editor: ReactEditor) => {
           const [, path] = findSlateEntryByBlockId(e, id);
 
           editor.select(editor.start(path));
+
         }
 
       })();

@@ -16,6 +16,7 @@ import { useEditorContext } from '@/components/editor/EditorContext';
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { FileHandler } from '@/utils/file';
+import { Element } from 'slate';
 
 export const FileBlock = memo(
   forwardRef<HTMLDivElement, EditorElementProps<FileNode>>(({ node, children, ...attributes }, ref) => {
@@ -27,7 +28,7 @@ export const FileBlock = memo(
     const [localUrl, setLocalUrl] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(false);
     const { url, name, retry_local_url } = useMemo(() => data || {}, [data]);
-    const readOnly = useReadOnly();
+    const readOnly = useReadOnly() || editor.isElementReadOnly(node as unknown as Element);
     const emptyRef = useRef<HTMLDivElement>(null);
     const [showToolbar, setShowToolbar] = useState(false);
 

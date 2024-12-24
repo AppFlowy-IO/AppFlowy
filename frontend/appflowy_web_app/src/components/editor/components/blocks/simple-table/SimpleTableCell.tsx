@@ -84,7 +84,8 @@ const SimpleTableCell =
           style={{
             ...attributes.style,
             backgroundColor: bgColor ? renderColor(bgColor) : undefined,
-            maxWidth: width ? `${width}px` : undefined,
+            minWidth: width ? `${width}px` : undefined,
+            width: width ? `${width}px` : undefined,
           }}
         >
           <div

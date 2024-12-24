@@ -13,6 +13,7 @@ import { ReactEditor } from 'slate-react';
 import isURL from 'validator/lib/isURL';
 import { assertDocExists, getBlock, getChildrenArray } from '@/application/slate-yjs/utils/yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
+import { processUrl } from '@/utils/url';
 
 export const withPasted = (editor: ReactEditor) => {
 
@@ -32,31 +33,34 @@ export const withPasted = (editor: ReactEditor) => {
       const [node] = getBlockEntry(editor as YjsEditor, point);
 
       if (lineLength === 1) {
-        const isBlockLinkUrl = isURL(text, {
-          host_whitelist: ['localhost', 'appflowy.com', 'test.appflowy.com', 'beta.appflowy.com'],
-        });
-        const isUrl = isURL(text);
+        const isUrl = !!processUrl(text);
 
-        if (isBlockLinkUrl) {
-          const url = new URL(text);
-          const blockId = url.searchParams.get('blockId');
+        if (isUrl) {
+          const isAppFlowyLinkUrl = isURL(text, {
+            host_whitelist: ['localhost', 'appflowy.com', 'test.appflowy.com', 'beta.appflowy.com'],
+          });
 
-          if (blockId) {
-            const pageId = url.pathname.split('/').pop();
-            const point = editor.selection?.anchor as BasePoint;
+          console.log('isAppFlowyLinkUrl', isAppFlowyLinkUrl);
+          if (isAppFlowyLinkUrl) {
+            const url = new URL(text);
+            const blockId = url.searchParams.get('blockId');
 
-            Transforms.insertNodes(editor, {
-              text: '@', mention: {
-                type: MentionType.PageRef,
-                page_id: pageId,
-                block_id: blockId,
-              },
-            }, { at: point, select: true, voids: false });
+            if (blockId) {
+              const pageId = url.pathname.split('/').pop();
+              const point = editor.selection?.anchor as BasePoint;
 
+              Transforms.insertNodes(editor, {
+                text: '@', mention: {
+                  type: MentionType.PageRef,
+                  page_id: pageId,
+                  block_id: blockId,
+                },
+              }, { at: point, select: true, voids: false });
+
+              return true;
+            }
           }
 
-          return true;
-        } else if (isUrl) {
           const currentBlockId = node.blockId as string;
 
           CustomEditor.addBelowBlock(editor as YjsEditor, currentBlockId, BlockType.LinkPreview, { url: text } as LinkPreviewBlockData);

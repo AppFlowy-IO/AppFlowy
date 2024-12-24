@@ -2,6 +2,7 @@ import { EditorElementProps, LinkPreviewNode } from '@/components/editor/editor.
 import axios from 'axios';
 import React, { forwardRef, memo, useEffect, useState } from 'react';
 import { useReadOnly } from 'slate-react';
+import emptyImageSrc from '@/assets/images/empty.png';
 
 export const LinkPreview = memo(
   forwardRef<HTMLDivElement, EditorElementProps<LinkPreviewNode>>(({ node, children, ...attributes }, ref) => {
@@ -49,14 +50,25 @@ export const LinkPreview = memo(
       >
         <div
           className={
-            'embed-block p-4'
+            'embed-block p-4 items-center'
           }
           contentEditable={false}
         >
           {notFound ? (
-            <div className={'flex w-full items-center justify-center'}>
-              <div className={'text-text-title'}>Could not load preview</div>
-              <div className={'text-sm text-text-caption'}>{url}</div>
+            <div className={'flex w-full items-center'}>
+              <div
+                className={'text-text-title min-w-[80px] w-[120px] flex items-center justify-center mr-2 h-[80px] border rounded'}>
+                <img src={emptyImageSrc} alt={'Empty state'} className={'h-full object-center object-cover'}/>
+              </div>
+              <div className={'flex-1 flex flex-col'}>
+                <div className={'text-function-error'}>
+                  The link cannot be previewed. Click to open in a new tab.
+                </div>
+                <div className={'text-sm text-text-caption'}>
+                  {url}
+                </div>
+              </div>
+
             </div>
           ) : (
             <>

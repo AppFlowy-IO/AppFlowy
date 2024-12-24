@@ -15,11 +15,11 @@ const ICONS_PER_ROW = 9;
 const ROW_HEIGHT = 40;
 const CATEGORY_HEIGHT = 32;
 
-function IconPicker ({
+function IconPicker({
   onSelect,
   onEscape,
 }: {
-  onSelect: (icon: { value: string, color: string }) => void;
+  onSelect: (icon: { value: string, color: string, content: string }) => void;
   onEscape?: () => void;
 }) {
   const { t } = useTranslation();
@@ -156,7 +156,7 @@ function IconPicker ({
       <div className={'px-0.5 py-2'}>
         <div className={'search-input flex items-end justify-between gap-2'}>
           <OutlinedInput
-            startAdornment={<SearchOutlined className={'w-6 h-6'} />}
+            startAdornment={<SearchOutlined className={'w-6 h-6'}/>}
             value={searchValue}
             onChange={(e) => {
               setSearchValue(e.target.value);
@@ -189,10 +189,10 @@ function IconPicker ({
                   const icon = await randomIcon();
                   const color = randomColor(IconColors);
 
-                  onSelect({ value: icon.id, color });
+                  onSelect({ value: icon.id, color, content: icon.content });
                 }}
               >
-                <ShuffleIcon className={'h-5 w-5'} />
+                <ShuffleIcon className={'h-5 w-5'}/>
               </Button>
             </Tooltip>
 
@@ -256,7 +256,15 @@ function IconPicker ({
               className={'h-9 w-9 min-w-[36px] px-0 py-0'}
               onClick={() => {
                 if (!selectIcon) return;
-                onSelect({ value: selectIcon, color });
+                const [groupName, iconName] = selectIcon.split('/');
+
+                const category = icons?.[groupName as ICON_CATEGORY];
+
+                if (!category) return;
+
+                const content = category.find((icon) => icon.name === iconName)?.content;
+
+                onSelect({ value: selectIcon, color, content: content || '' });
                 setAnchorEl(null);
               }}
             >

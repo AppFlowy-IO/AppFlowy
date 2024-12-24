@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as AddIcon } from '@/assets/add_icon.svg';
 import { ReactComponent as AddCover } from '@/assets/add_cover.svg';
 
-function AddIconCover ({
+function AddIconCover({
   hasIcon,
   hasCover,
   onUpdateIcon,
@@ -38,13 +38,13 @@ function AddIconCover ({
         onClick={e => {
           setIconAnchorEl(e.currentTarget);
         }}
-        startIcon={<AddIcon />}
+        startIcon={<AddIcon/>}
       >{t('document.plugins.cover.addIcon')}</Button>}
       {!hasCover && <Button
         size={'small'}
         color={'inherit'}
         onClick={onAddCover}
-        startIcon={<AddCover />}
+        startIcon={<AddCover/>}
       >{t('document.plugins.cover.addCover')}</Button>}
       <ChangeIconPopover
         open={Boolean(iconAnchorEl)}
@@ -53,9 +53,22 @@ function AddIconCover ({
           setIconAnchorEl(null);
         }}
         defaultType={'emoji'}
-        iconEnabled={false}
+        iconEnabled={true}
         onSelectIcon={(icon) => {
           setIconAnchorEl(null);
+          if (icon.ty === ViewIconType.Icon) {
+            onUpdateIcon?.({
+              ty: ViewIconType.Icon,
+              value: JSON.stringify({
+                color: icon.color,
+                groupName: icon.value.split('/')[0],
+                iconName: icon.value.split('/')[1],
+                iconContent: icon.content,
+              }),
+            });
+            return;
+          }
+
           onUpdateIcon?.(icon);
         }}
         removeIcon={() => {

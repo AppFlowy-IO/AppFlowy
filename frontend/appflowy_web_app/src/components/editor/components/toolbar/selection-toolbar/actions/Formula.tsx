@@ -65,9 +65,13 @@ function Formula() {
       }
 
       Transforms.select(editor, {
-        anchor: start,
+        anchor: {
+          path: newSelection.anchor.path,
+          offset: newSelection.anchor.offset - 1,
+        },
         focus: newSelection.focus,
       });
+
       CustomEditor.addMark(editor, {
         key: EditorMarkFormat.Formula,
         value: text,
@@ -80,10 +84,14 @@ function Formula() {
 
       if (!entry) return;
 
-      const [, path] = entry;
+      const [node, path] = entry;
+      const formula = (node as Text).formula;
 
+      if (!formula) return;
       editor.select(path);
       CustomEditor.removeMark(editor, EditorMarkFormat.Formula);
+      editor.delete();
+      editor.insertText(formula);
     }
 
     setState(getState());

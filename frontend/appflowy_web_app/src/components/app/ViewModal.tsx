@@ -4,7 +4,7 @@ import {
   YDoc,
   ViewMetaProps, UIVariant,
 } from '@/application/types';
-import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
+import SpaceIcon from '@/components/_shared/view-icon/SpaceIcon';
 import { findAncestors, findView } from '@/components/_shared/outline/utils';
 import { useAppHandlers, useAppOutline } from '@/components/app/app.hooks';
 import DatabaseView from '@/components/app/DatabaseView';

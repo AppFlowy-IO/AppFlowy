@@ -1,8 +1,6 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { ReactComponent as AddIcon } from '@/assets/add.svg';
-import { useService } from '@/components/main/app.hooks';
-import { ToastContext } from '@/components/quick-note/QuickNote.hooks';
-import { useCurrentWorkspaceId } from '@/components/app/app.hooks';
+import { useAddNode } from '@/components/quick-note/QuickNote.hooks';
 import { QuickNote } from '@/application/types';
 import { Button, CircularProgress } from '@mui/material';
 import { useTranslation } from 'react-i18next';
@@ -14,31 +12,13 @@ function AddNote({
   onEnterNote: (node: QuickNote) => void;
   onAdd: (note: QuickNote) => void;
 }) {
-  const toast = useContext(ToastContext);
-
-  const [loading, setLoading] = React.useState(false);
-  const currentWorkspaceId = useCurrentWorkspaceId();
-  const service = useService();
-  const handleAdd = async () => {
-    if (!service || !currentWorkspaceId || loading) return;
-    setLoading(true);
-    try {
-      const note = await service.createQuickNote(currentWorkspaceId, [{
-        type: 'paragraph',
-        delta: [{ insert: '' }],
-        children: [],
-      }]);
-
-      onEnterNote(note);
-      onAdd(note);
-      // eslint-disable-next-line
-    } catch (e: any) {
-      console.error(e);
-      toast.onOpen(e.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    handleAdd,
+    loading,
+  } = useAddNode({
+    onEnterNote,
+    onAdd,
+  });
 
   const { t } = useTranslation();
 

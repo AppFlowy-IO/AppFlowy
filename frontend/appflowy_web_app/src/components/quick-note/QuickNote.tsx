@@ -7,7 +7,6 @@ import Popover from '@mui/material/Popover';
 import NoteHeader from '@/components/quick-note/NoteHeader';
 import NoteListHeader from '@/components/quick-note/NoteListHeader';
 import { TransitionProps } from '@mui/material/transitions';
-import AddNote from '@/components/quick-note/AddNote';
 import { LISI_LIMIT, ToastContext } from './QuickNote.hooks';
 import { useService } from '@/components/main/app.hooks';
 import { useCurrentWorkspaceId } from '@/components/app/app.hooks';
@@ -237,6 +236,7 @@ export function QuickNote() {
       if (createHotkey(HOT_KEY_NAME.QUICK_NOTE)(e)) {
         e.stopPropagation();
         e.preventDefault();
+
         void handleOpen();
       } else if (createHotkey(HOT_KEY_NAME.ESCAPE)(e)) {
         handleClose();
@@ -307,6 +307,7 @@ export function QuickNote() {
           return {
             ...note,
             data,
+            last_updated_at: new Date().toISOString(),
           };
         }
 
@@ -319,6 +320,7 @@ export function QuickNote() {
           return {
             ...prev,
             data,
+            last_updated_at: new Date().toISOString(),
           };
         }
 
@@ -345,6 +347,17 @@ export function QuickNote() {
           onToggleExpand={handleToggleExpand}
           onClose={handleClose}
           onBack={() => {
+            const search = listParamsRef.current.searchTerm;
+
+            if (search) {
+              listParamsRef.current = {
+                offset: 0,
+                limit: LISI_LIMIT,
+                searchTerm: '',
+              };
+              void handleSearch('');
+            }
+
             setRoute(QuickNoteRoute.LIST);
           }}/>
       );
@@ -370,6 +383,10 @@ export function QuickNote() {
     }
   }, [handleLoadMore]);
 
+  const handleAddedNote = useCallback((note: QuickNoteType) => {
+    setNoteList(prev => [note, ...prev]);
+  }, []);
+
   return (
     <>
       <Tooltip title={
@@ -381,7 +398,10 @@ export function QuickNote() {
         <IconButton
           ref={buttonRef}
           size={'small'}
-          onClick={handleOpen}
+          onClick={e => {
+            e.currentTarget.blur();
+            void handleOpen();
+          }}
         >
           <EditIcon/>
         </IconButton>
@@ -446,11 +466,13 @@ export function QuickNote() {
               route === QuickNoteRoute.NOTE && currentNote ?
                 <>
                   <Suspense>
-                    <Note note={currentNote} onUpdateData={(data) => {
-                      handleUpdateNodeData(currentNote.id, data);
-                    }}/>
+                    <Note onAdd={handleAddedNote} onEnterNote={handleEnterNote} note={currentNote}
+                          onUpdateData={(data) => {
+                            handleUpdateNodeData(currentNote.id, data);
+                          }}/>
                   </Suspense>
                 </> : <NoteList
+                  onAdd={handleAddedNote}
                   onScroll={handleScrollList}
                   onEnterNode={handleEnterNote}
                   list={noteList}
@@ -460,13 +482,6 @@ export function QuickNote() {
                 />
             }
           </div>
-          <div className={'h-fit bg-bg-base min-h-[38px] px-4 py-2 w-full'}>
-            <AddNote onAdd={(note) => {
-              setNoteList(prev => [note, ...prev]);
-            }} onEnterNote={handleEnterNote}/>
-          </div>
-
-
           <Portal container={paper.current}>
             <Snackbar
               style={{

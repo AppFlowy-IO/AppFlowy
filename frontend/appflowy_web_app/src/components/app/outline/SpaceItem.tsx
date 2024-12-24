@@ -1,4 +1,4 @@
-import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
+import SpaceIcon from '@/components/_shared/view-icon/SpaceIcon';
 import ViewItem from '@/components/app/outline/ViewItem';
 import { Tooltip } from '@mui/material';
 import React, { useMemo } from 'react';

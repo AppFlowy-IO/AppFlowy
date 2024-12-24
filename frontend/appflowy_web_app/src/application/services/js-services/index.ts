@@ -452,12 +452,20 @@ export class AFClientService implements AFService {
     return APIService.getSubscriptionLink(workspaceId, plan, interval);
   }
 
+  cancelSubscription(workspaceId: string, plan: SubscriptionPlan, reason?: string) {
+    return APIService.cancelSubscription(workspaceId, plan, reason);
+  }
+
   getSubscriptions() {
     return APIService.getSubscriptions();
   }
 
   getActiveSubscription(workspaceId: string) {
     return APIService.getActiveSubscription(workspaceId);
+  }
+
+  getWorkspaceSubscriptions(workspaceId: string) {
+    return APIService.getWorkspaceSubscriptions(workspaceId);
   }
 
   registerDocUpdate(doc: Y.Doc, context: {

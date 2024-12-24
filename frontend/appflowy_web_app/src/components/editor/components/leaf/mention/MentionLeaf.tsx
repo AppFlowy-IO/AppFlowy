@@ -40,7 +40,7 @@ export function MentionLeaf({ mention, text, children }: {
   // check if the mention is selected
   const { isSelected, select, isCursorBefore } = useLeafSelected(text);
   const className = useMemo(() => {
-    const classList = ['w-fit mention', 'relative', 'rounded', 'py-0.5  px-1'];
+    const classList = ['w-fit mention', 'relative', 'rounded-[2px]', 'py-0.5  px-1'];
 
     if (readonly) classList.push('cursor-default');
     else if (type !== MentionType.Date) classList.push('cursor-pointer');
@@ -49,12 +49,12 @@ export function MentionLeaf({ mention, text, children }: {
     return classList.join(' ');
   }, [type, readonly, isSelected]);
 
-  return <>
+  return <span className={'whitespace-nowrap'}>
     {isCursorBefore && !isSelected && <span data-slate-string="true">{
       `\u200B`
     }</span>}
     <span
-      className={'absolute right-0 !text-transparent overflow-hidden'}
+      className={'absolute right-0 w-[1px] !text-transparent overflow-hidden'}
     >
       {children}
     </span>
@@ -68,7 +68,7 @@ export function MentionLeaf({ mention, text, children }: {
 
   </span>
 
-  </>;
+  </span>;
 }
 
 export default MentionLeaf;

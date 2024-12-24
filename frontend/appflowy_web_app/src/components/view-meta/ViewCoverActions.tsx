@@ -6,11 +6,12 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as DeleteIcon } from '@/assets/trash.svg';
 import CoverPopover from '@/components/view-meta/CoverPopover';
 
-function ViewCoverActions (
-  { show, onRemove, onUpdateCover }: {
+function ViewCoverActions(
+  { show, onRemove, onUpdateCover, onClose }: {
     show: boolean;
     onRemove: () => void;
     onUpdateCover: (cover: ViewMetaCover) => void;
+    onClose: () => void;
   },
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -27,10 +28,13 @@ function ViewCoverActions (
         >
           <div className={'flex items-center space-x-2'}>
             <Button
-              onClick={(event) => setAnchorPosition({
-                top: event.clientY,
-                left: event.clientX,
-              })}
+              onClick={(event) => {
+                event.currentTarget.blur();
+                setAnchorPosition({
+                  top: event.clientY,
+                  left: event.clientX,
+                });
+              }}
               className={'min-w-0 p-1.5 h-[32px]'}
               size={'small'}
               variant={'contained'}
@@ -52,7 +56,7 @@ function ViewCoverActions (
                 setAnchorPosition(undefined);
               }}
               color={'inherit'}
-              startIcon={<DeleteIcon />}
+              startIcon={<DeleteIcon/>}
             />
           </div>
         </div>
@@ -64,7 +68,11 @@ function ViewCoverActions (
           showPopover
         }
         onClose={
-          () => setAnchorPosition(undefined)
+          () => {
+            setAnchorPosition(undefined);
+            onClose();
+          }
+
         }
         onUpdateCover={onUpdateCover}
       />}

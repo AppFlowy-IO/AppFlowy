@@ -1,7 +1,7 @@
 
 /**
 * Do not edit directly
-* Generated on Thu, 19 Dec 2024 03:21:55 GMT
+* Generated on Tue, 24 Dec 2024 08:57:39 GMT
 * Generated from $pnpm css:variables 
 */
 
@@ -96,7 +96,10 @@ module.exports = {
     "track": "var(--scrollbar-track)"
   },
   "note": {
-    "header": "var(--note-header)",
-    "btn": "var(--note-btn)"
+    "header": "var(--note-header)"
+  },
+  "billing": {
+    "primary": "var(--billing-primary)",
+    "primary-hover": "var(--billing-primary-hover)"
   }
 };
