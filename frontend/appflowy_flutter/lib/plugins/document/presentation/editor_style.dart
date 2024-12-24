@@ -363,6 +363,7 @@ class EditorStyleCustomizer {
     if (formula is String) {
       return WidgetSpan(
         style: after.style,
+        alignment: PlaceholderAlignment.middle,
         child: InlineMathEquation(
           node: node,
           index: index,

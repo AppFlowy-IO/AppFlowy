@@ -147,7 +147,21 @@ void main() {
       const text = 'Hello World';
       await tester.ime.insertText(text);
 
-      expect(find.textContaining(text, findRichText: true), findsOneWidget);
+      final inlineText = find.textContaining(text, findRichText: true);
+      expect(inlineText, findsOneWidget);
+
+      // the text should be in the same line with the math equation
+      final inlineMathEquationPosition = tester.getRect(inlineMathEquation);
+      final textPosition = tester.getRect(inlineText);
+      // allow 5px difference
+      expect(
+        (textPosition.top - inlineMathEquationPosition.top).abs(),
+        lessThan(5),
+      );
+      expect(
+        (textPosition.bottom - inlineMathEquationPosition.bottom).abs(),
+        lessThan(5),
+      );
     });
   });
 }
