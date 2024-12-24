@@ -24,13 +24,6 @@ import 'package:run_with_network_images/run_with_network_images.dart';
 import '../../shared/mock/mock_file_picker.dart';
 import '../../shared/util.dart';
 
-const _testImageUrls = [
-  'https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&dl=david-marcu-78A265wPiO4-unsplash.jpg&w=640',
-  'https://www.easygifanimator.net/images/samples/eglite.gif',
-  'https://people.math.sc.edu/Burkardt/data/bmp/snail.bmp',
-  'https://file-examples.com/storage/fe9566cb7d67345489a5a97/2017/10/file_example_JPG_100kB.jpg',
-];
-
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -138,11 +131,19 @@ void main() {
       file.deleteSync();
     });
 
-    for (final url in _testImageUrls) {
-      testWidgets('insert an image from network: $url', (tester) async {
-        await testEmbedImage(tester, url);
-      });
-    }
+    testWidgets('insert a gif image from network', (tester) async {
+      await testEmbedImage(
+        tester,
+        'https://www.easygifanimator.net/images/samples/sparkles.gif',
+      );
+    });
+
+    testWidgets('insert a jpg image from network', (tester) async {
+      await testEmbedImage(
+        tester,
+        'https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&dl=david-marcu-78A265wPiO4-unsplash.jpg&w=640',
+      );
+    });
 
     testWidgets('insert an image from unsplash', (tester) async {
       await runWithNetworkImages(() async {

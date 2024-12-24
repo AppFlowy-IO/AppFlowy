@@ -1,8 +1,8 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/_shared_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class SimpleTableCellBlockKeys {
   const SimpleTableCellBlockKeys._();
@@ -79,14 +79,27 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
   late SimpleTableContext? simpleTableContext =
       context.read<SimpleTableContext?>();
+  late final borderBuilder = SimpleTableBorderBuilder(
+    context: context,
+    simpleTableContext: simpleTableContext!,
+    node: node,
+  );
 
+  /// Notify if the cell is editing.
   ValueNotifier<bool> isEditingCellNotifier = ValueNotifier(false);
+
+  /// Notify if the cell is hit by the reordering offset.
+  ///
+  /// This value is only available on mobile.
+  ValueNotifier<bool> isReorderingHitCellNotifier = ValueNotifier(false);
 
   @override
   void initState() {
     super.initState();
 
     simpleTableContext?.isSelectingTable.addListener(_onSelectingTableChanged);
+    simpleTableContext?.reorderingOffset
+        .addListener(_onReorderingOffsetChanged);
     node.parentTableNode?.addListener(_onSelectingTableChanged);
     editorState.selectionNotifier.addListener(_onSelectionChanged);
 
@@ -99,6 +112,9 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   void dispose() {
     simpleTableContext?.isSelectingTable.removeListener(
       _onSelectingTableChanged,
+    );
+    simpleTableContext?.reorderingOffset.removeListener(
+      _onReorderingOffsetChanged,
     );
     node.parentTableNode?.removeListener(_onSelectingTableChanged);
     editorState.selectionNotifier.removeListener(_onSelectionChanged);
@@ -113,35 +129,59 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       return const SizedBox.shrink();
     }
 
-    return MouseRegion(
-      hitTestBehavior: HitTestBehavior.opaque,
-      onEnter: (event) => simpleTableContext!.hoveringTableCell.value = node,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          _buildCell(),
+    Widget child = Stack(
+      clipBehavior: Clip.none,
+      children: [
+        _buildCell(),
+        if (editorState.editable) ...[
+          if (node.columnIndex == 0)
+            Positioned(
+              // if the cell is in the first row, add padding to the top of the cell
+              // to make the row action button clickable.
+              top: node.rowIndex == 0
+                  ? SimpleTableConstants.tableHitTestTopPadding
+                  : 0,
+              bottom: 0,
+              left: -SimpleTableConstants.tableLeftPadding,
+              child: _buildRowMoreActionButton(),
+            ),
+          if (node.rowIndex == 0)
+            Positioned(
+              left: node.columnIndex == 0
+                  ? SimpleTableConstants.tableHitTestLeftPadding
+                  : 0,
+              right: 0,
+              child: _buildColumnMoreActionButton(),
+            ),
+          if (node.columnIndex == 0 && node.rowIndex == 0)
+            Positioned(
+              left: 2,
+              top: 2,
+              child: _buildTableActionMenu(),
+            ),
           Positioned(
-            top: 0,
-            bottom: 0,
-            left: -SimpleTableConstants.tableLeftPadding,
-            child: _buildRowMoreActionButton(),
-          ),
-          Positioned(
-            left: 0,
             right: 0,
-            child: _buildColumnMoreActionButton(),
-          ),
-          Positioned(
-            right: 0,
-            top: node.rowIndex == 0 ? SimpleTableConstants.tableTopPadding : 0,
+            top: node.rowIndex == 0
+                ? SimpleTableConstants.tableHitTestTopPadding
+                : 0,
             bottom: 0,
             child: SimpleTableColumnResizeHandle(
               node: node,
             ),
           ),
         ],
-      ),
+      ],
     );
+
+    if (UniversalPlatform.isDesktop) {
+      child = MouseRegion(
+        hitTestBehavior: HitTestBehavior.opaque,
+        onEnter: (event) => simpleTableContext!.hoveringTableCell.value = node,
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   Widget _buildCell() {
@@ -149,64 +189,148 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       return const SizedBox.shrink();
     }
 
+    return UniversalPlatform.isDesktop
+        ? _buildDesktopCell()
+        : _buildMobileCell();
+  }
+
+  Widget _buildDesktopCell() {
     return Padding(
       // add padding to the top of the cell if it is the first row, otherwise the
       //  column action button is not clickable.
       // issue: https://github.com/flutter/flutter/issues/75747
       padding: EdgeInsets.only(
-        top: node.rowIndex == 0 ? SimpleTableConstants.tableTopPadding : 0,
+        top: node.rowIndex == 0
+            ? SimpleTableConstants.tableHitTestTopPadding
+            : 0,
+        left: node.columnIndex == 0
+            ? SimpleTableConstants.tableHitTestLeftPadding
+            : 0,
+      ),
+      // TODO(Lucas): find a better way to handle the multiple value listenable builder
+      // There's flutter pub can do that.
+      child: ValueListenableBuilder<bool>(
+        valueListenable: isEditingCellNotifier,
+        builder: (context, isEditingCell, child) {
+          return ValueListenableBuilder(
+            valueListenable: simpleTableContext!.selectingColumn,
+            builder: (context, selectingColumn, _) {
+              return ValueListenableBuilder(
+                valueListenable: simpleTableContext!.selectingRow,
+                builder: (context, selectingRow, _) {
+                  return ValueListenableBuilder(
+                    valueListenable: simpleTableContext!.hoveringTableCell,
+                    builder: (context, hoveringTableCell, _) {
+                      return DecoratedBox(
+                        decoration: _buildDecoration(),
+                        child: child!,
+                      );
+                    },
+                  );
+                },
+              );
+            },
+          );
+        },
+        child: Container(
+          padding: SimpleTableConstants.cellEdgePadding,
+          constraints: const BoxConstraints(
+            minWidth: SimpleTableConstants.minimumColumnWidth,
+          ),
+          width: node.columnWidth,
+          child: node.children.isEmpty
+              ? _buildEmptyCellContent()
+              : Column(
+                  children: node.children.map(_buildCellContent).toList(),
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileCell() {
+    return Padding(
+      padding: EdgeInsets.only(
+        top: node.rowIndex == 0
+            ? SimpleTableConstants.tableHitTestTopPadding
+            : 0,
+        left: node.columnIndex == 0
+            ? SimpleTableConstants.tableHitTestLeftPadding
+            : 0,
       ),
       child: ValueListenableBuilder<bool>(
         valueListenable: isEditingCellNotifier,
         builder: (context, isEditingCell, child) {
           return ValueListenableBuilder(
             valueListenable: simpleTableContext!.selectingColumn,
-            builder: (context, selectingColumn, child) {
+            builder: (context, selectingColumn, _) {
               return ValueListenableBuilder(
                 valueListenable: simpleTableContext!.selectingRow,
                 builder: (context, selectingRow, _) {
-                  return DecoratedBox(
-                    decoration: _buildDecoration(),
-                    child: child!,
+                  return ValueListenableBuilder(
+                    valueListenable: isReorderingHitCellNotifier,
+                    builder: (context, isReorderingHitCellNotifier, _) {
+                      return DecoratedBox(
+                        decoration: _buildDecoration(),
+                        child: child!,
+                      );
+                    },
                   );
                 },
               );
             },
-            child: Column(
-              children: node.children.map(_buildCellContent).toList(),
-            ),
           );
         },
+        child: Container(
+          padding: SimpleTableConstants.cellEdgePadding,
+          constraints: const BoxConstraints(
+            minWidth: SimpleTableConstants.minimumColumnWidth,
+          ),
+          width: node.columnWidth,
+          child: node.children.isEmpty
+              ? _buildEmptyCellContent()
+              : Column(
+                  children: node.children.map(_buildCellContent).toList(),
+                ),
+        ),
       ),
     );
   }
 
   Widget _buildCellContent(Node childNode) {
     final alignment = _buildAlignment();
-    return Container(
-      padding: SimpleTableConstants.cellEdgePadding,
-      constraints: const BoxConstraints(
-        minWidth: SimpleTableConstants.minimumColumnWidth,
-      ),
-      width: node.columnWidth,
+
+    return Align(
       alignment: alignment,
       child: IntrinsicWidth(
-        child: IntrinsicHeight(
-          child: editorState.renderer.build(context, childNode),
-        ),
+        child: editorState.renderer.build(context, childNode),
       ),
     );
   }
 
+  Widget _buildEmptyCellContent() {
+    // if the table cell is empty, we should allow the user to tap on it to create a new paragraph.
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        final transaction = editorState.transaction;
+        final path = node.path.child(0);
+        transaction
+          ..insertNode(
+            path,
+            paragraphNode(),
+          )
+          ..afterSelection = Selection.collapsed(Position(path: path));
+        editorState.apply(transaction);
+      },
+    );
+  }
+
   Widget _buildRowMoreActionButton() {
-    final columnIndex = node.columnIndex;
     final rowIndex = node.rowIndex;
 
-    if (columnIndex != 0) {
-      return const SizedBox.shrink();
-    }
-
     return SimpleTableMoreActionMenu(
+      tableCellNode: node,
       index: rowIndex,
       type: SimpleTableMoreActionType.row,
     );
@@ -214,15 +338,25 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
   Widget _buildColumnMoreActionButton() {
     final columnIndex = node.columnIndex;
-    final rowIndex = node.rowIndex;
 
-    if (rowIndex != 0) {
+    return SimpleTableMoreActionMenu(
+      tableCellNode: node,
+      index: columnIndex,
+      type: SimpleTableMoreActionType.column,
+    );
+  }
+
+  Widget _buildTableActionMenu() {
+    final tableNode = node.parentTableNode;
+
+    // the table action menu is only available on mobile platform.
+    if (tableNode == null || UniversalPlatform.isDesktop) {
       return const SizedBox.shrink();
     }
 
-    return SimpleTableMoreActionMenu(
-      index: columnIndex,
-      type: SimpleTableMoreActionType.column,
+    return SimpleTableActionMenu(
+      tableNode: tableNode,
+      editorState: editorState,
     );
   }
 
@@ -238,7 +372,9 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
   Decoration _buildDecoration() {
     final backgroundColor = _buildBackgroundColor();
-    final border = _buildBorder();
+    final border = borderBuilder.buildBorder(
+      isEditingCell: isEditingCellNotifier.value,
+    );
 
     return BoxDecoration(
       border: border,
@@ -247,7 +383,12 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
   }
 
   Color? _buildBackgroundColor() {
-    // Priority: column color > row color > header color > default color
+    // Priority: highlight color > column color > row color > header color > default color
+    final isSelectingTable =
+        simpleTableContext?.isSelectingTable.value ?? false;
+    if (isSelectingTable) {
+      return Theme.of(context).colorScheme.primary.withOpacity(0.1);
+    }
 
     final columnColor = node.buildColumnColor(context);
     if (columnColor != null && columnColor != Colors.transparent) {
@@ -269,29 +410,6 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     return Theme.of(context).colorScheme.surface;
   }
 
-  Border? _buildBorder() {
-    if (SimpleTableConstants.borderType != SimpleTableBorderRenderType.cell) {
-      return null;
-    }
-
-    final tableContext = context.watch<SimpleTableContext>();
-    final isCellInSelectedColumn =
-        node.columnIndex == tableContext.selectingColumn.value;
-    final isCellInSelectedRow =
-        node.rowIndex == tableContext.selectingRow.value;
-    if (tableContext.isSelectingTable.value) {
-      return _buildSelectingTableBorder();
-    } else if (isCellInSelectedColumn) {
-      return _buildColumnBorder();
-    } else if (isCellInSelectedRow) {
-      return _buildRowBorder();
-    } else if (isEditingCellNotifier.value) {
-      return _buildEditingBorder();
-    } else {
-      return _buildCellBorder();
-    }
-  }
-
   bool _isInHeader() {
     final isHeaderColumnEnabled = node.isHeaderColumnEnabled;
     final isHeaderRowEnabled = node.isHeaderRowEnabled;
@@ -301,111 +419,6 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
     return isHeaderColumnEnabled && isFirstRow ||
         isHeaderRowEnabled && isFirstColumn;
-  }
-
-  /// the column border means the `VERTICAL` border of the cell
-  ///
-  ///      ____
-  /// | 1 | 2 |
-  /// | 3 | 4 |
-  ///     |___|
-  ///
-  /// the border wrapping the cell 2 and cell 4 is the column border
-  Border _buildColumnBorder() {
-    return Border(
-      left: _buildHighlightBorderSide(),
-      right: _buildHighlightBorderSide(),
-      top: node.rowIndex == 0
-          ? _buildHighlightBorderSide()
-          : _buildDefaultBorderSide(),
-      bottom: node.rowIndex + 1 == node.parentTableNode?.rowLength
-          ? _buildHighlightBorderSide()
-          : _buildDefaultBorderSide(),
-    );
-  }
-
-  /// the row border means the `HORIZONTAL` border of the cell
-  ///
-  ///  ________
-  /// | 1 | 2 |
-  /// |_______|
-  /// | 3 | 4 |
-  ///
-  /// the border wrapping the cell 1 and cell 2 is the row border
-  Border _buildRowBorder() {
-    return Border(
-      top: _buildHighlightBorderSide(),
-      bottom: _buildHighlightBorderSide(),
-      left: node.columnIndex == 0
-          ? _buildHighlightBorderSide()
-          : _buildDefaultBorderSide(),
-      right: node.columnIndex + 1 == node.parentTableNode?.columnLength
-          ? _buildHighlightBorderSide()
-          : _buildDefaultBorderSide(),
-    );
-  }
-
-  Border _buildCellBorder() {
-    return Border(
-      top: node.rowIndex == 0
-          ? _buildDefaultBorderSide()
-          : _buildLightBorderSide(),
-      bottom: node.rowIndex + 1 == node.parentTableNode?.rowLength
-          ? _buildDefaultBorderSide()
-          : _buildLightBorderSide(),
-      left: node.columnIndex == 0
-          ? _buildDefaultBorderSide()
-          : _buildLightBorderSide(),
-      right: node.columnIndex + 1 == node.parentTableNode?.columnLength
-          ? _buildDefaultBorderSide()
-          : _buildLightBorderSide(),
-    );
-  }
-
-  Border _buildEditingBorder() {
-    return Border.all(
-      color: Theme.of(context).colorScheme.primary,
-      width: 2,
-    );
-  }
-
-  Border _buildSelectingTableBorder() {
-    final rowIndex = node.rowIndex;
-    final columnIndex = node.columnIndex;
-
-    return Border(
-      top:
-          rowIndex == 0 ? _buildHighlightBorderSide() : _buildLightBorderSide(),
-      bottom: rowIndex + 1 == node.parentTableNode?.rowLength
-          ? _buildHighlightBorderSide()
-          : _buildLightBorderSide(),
-      left: columnIndex == 0
-          ? _buildHighlightBorderSide()
-          : _buildLightBorderSide(),
-      right: columnIndex + 1 == node.parentTableNode?.columnLength
-          ? _buildHighlightBorderSide()
-          : _buildLightBorderSide(),
-    );
-  }
-
-  BorderSide _buildHighlightBorderSide() {
-    return BorderSide(
-      color: Theme.of(context).colorScheme.primary,
-      width: 2,
-    );
-  }
-
-  BorderSide _buildLightBorderSide() {
-    return BorderSide(
-      color: context.simpleTableBorderColor,
-      width: 0.5,
-    );
-  }
-
-  BorderSide _buildDefaultBorderSide() {
-    return BorderSide(
-      color: context.simpleTableBorderColor,
-    );
   }
 
   void _onSelectingTableChanged() {
@@ -422,8 +435,73 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
         node.path.isAncestorOf(selection.start.path) &&
         node.path.isAncestorOf(selection.end.path)) {
       isEditingCellNotifier.value = true;
+      simpleTableContext?.isEditingCell.value = node;
     } else {
       isEditingCellNotifier.value = false;
+    }
+
+    // if the selection is null or the selection is collapsed, set the isEditingCell to null.
+    if (selection == null) {
+      simpleTableContext?.isEditingCell.value = null;
+    } else if (selection.isCollapsed) {
+      // if the selection is collapsed, check if the selection is in the cell.
+      final selectedNode =
+          editorState.getNodesInSelection(selection).firstOrNull;
+      if (selectedNode != null) {
+        final tableNode = selectedNode.parentTableNode;
+        if (tableNode == null || tableNode.id != node.parentTableNode?.id) {
+          simpleTableContext?.isEditingCell.value = null;
+        }
+      } else {
+        simpleTableContext?.isEditingCell.value = null;
+      }
+    }
+  }
+
+  /// Calculate if the cell is hit by the reordering offset.
+  /// If the cell is hit, set the isReorderingCell to true.
+  void _onReorderingOffsetChanged() {
+    final simpleTableContext = this.simpleTableContext;
+    if (UniversalPlatform.isDesktop || simpleTableContext == null) {
+      return;
+    }
+
+    final isReordering = simpleTableContext.isReordering;
+    if (!isReordering) {
+      return;
+    }
+
+    final isReorderingColumn = simpleTableContext.isReorderingColumn.value.$1;
+    final isReorderingRow = simpleTableContext.isReorderingRow.value.$1;
+    if (!isReorderingColumn && !isReorderingRow) {
+      return;
+    }
+
+    final reorderingOffset = simpleTableContext.reorderingOffset.value;
+
+    final renderBox = node.renderBox;
+    if (renderBox == null) {
+      return;
+    }
+
+    final cellRect = renderBox.localToGlobal(Offset.zero) & renderBox.size;
+
+    bool isHitCurrentCell = false;
+    if (isReorderingColumn) {
+      isHitCurrentCell = cellRect.left < reorderingOffset.dx &&
+          cellRect.right > reorderingOffset.dx;
+    } else if (isReorderingRow) {
+      isHitCurrentCell = cellRect.top < reorderingOffset.dy &&
+          cellRect.bottom > reorderingOffset.dy;
+    }
+
+    isReorderingHitCellNotifier.value = isHitCurrentCell;
+    if (isHitCurrentCell) {
+      if (isReorderingColumn) {
+        simpleTableContext.isReorderingHitIndex.value = node.columnIndex;
+      } else if (isReorderingRow) {
+        simpleTableContext.isReorderingHitIndex.value = node.rowIndex;
+      }
     }
   }
 }

@@ -57,7 +57,7 @@ class SettingsDialog extends StatelessWidget {
     return BlocProvider<SettingsDialogBloc>(
       create: (context) => SettingsDialogBloc(
         user,
-        context.read<UserWorkspaceBloc>().state.currentWorkspaceMember,
+        context.read<UserWorkspaceBloc>().state.currentWorkspace?.role,
         initPage: initPage,
       )..add(const SettingsDialogEvent.initial()),
       child: BlocBuilder<SettingsDialogBloc, SettingsDialogState>(
@@ -80,10 +80,6 @@ class SettingsDialog extends StatelessWidget {
                       currentPage:
                           context.read<SettingsDialogBloc>().state.page,
                       isBillingEnabled: state.isBillingEnabled,
-                      member: context
-                          .read<UserWorkspaceBloc>()
-                          .state
-                          .currentWorkspaceMember,
                     ),
                   ),
                   Expanded(
@@ -98,7 +94,8 @@ class SettingsDialog extends StatelessWidget {
                       context
                           .read<UserWorkspaceBloc>()
                           .state
-                          .currentWorkspaceMember,
+                          .currentWorkspace
+                          ?.role,
                     ),
                   ),
                 ],
@@ -114,7 +111,7 @@ class SettingsDialog extends StatelessWidget {
     String workspaceId,
     SettingsPage page,
     UserProfilePB user,
-    WorkspaceMemberPB? member,
+    AFRolePB? currentWorkspaceMemberRole,
   ) {
     switch (page) {
       case SettingsPage.account:
@@ -126,7 +123,7 @@ class SettingsDialog extends StatelessWidget {
       case SettingsPage.workspace:
         return SettingsWorkspaceView(
           userProfile: user,
-          workspaceMember: member,
+          currentWorkspaceMemberRole: currentWorkspaceMemberRole,
         );
       case SettingsPage.manageData:
         return SettingsManageDataView(userProfile: user);
@@ -140,7 +137,7 @@ class SettingsDialog extends StatelessWidget {
         if (user.authenticator == AuthenticatorPB.AppFlowyCloud) {
           return SettingsAIView(
             userProfile: user,
-            member: member,
+            currentWorkspaceMemberRole: currentWorkspaceMemberRole,
             workspaceId: workspaceId,
           );
         } else {

@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_tab
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_row_block_component.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 typedef TableCellPosition = (int, int);
@@ -15,7 +16,25 @@ enum TableAlign {
   center,
   right;
 
+  static TableAlign fromString(String align) {
+    return TableAlign.values.firstWhere(
+      (e) => e.key.toLowerCase() == align.toLowerCase(),
+      orElse: () => TableAlign.left,
+    );
+  }
+
   String get name => switch (this) {
+        TableAlign.left => 'Left',
+        TableAlign.center => 'Center',
+        TableAlign.right => 'Right',
+      };
+
+  // The key used in the attributes of the table node.
+  //
+  // Example:
+  //
+  // attributes[SimpleTableBlockKeys.columnAligns] = {0: 'left', 1: 'center', 2: 'right'}
+  String get key => switch (this) {
         TableAlign.left => 'left',
         TableAlign.center => 'center',
         TableAlign.right => 'right',
@@ -84,6 +103,9 @@ extension TableNodeExtension on Node {
 
   int get rowIndex {
     if (type == SimpleTableCellBlockKeys.type) {
+      if (path.parent.isEmpty) {
+        return -1;
+      }
       return path.parent.last;
     } else if (type == SimpleTableRowBlockKeys.type) {
       return path.last;
@@ -93,6 +115,9 @@ extension TableNodeExtension on Node {
 
   int get columnIndex {
     assert(type == SimpleTableCellBlockKeys.type);
+    if (path.isEmpty) {
+      return -1;
+    }
     return path.last;
   }
 
@@ -130,7 +155,7 @@ extension TableNodeExtension on Node {
           parentTableNode.attributes[SimpleTableBlockKeys.rowAligns];
       final align = rowAligns?[rowIndex.toString()];
       return TableAlign.values.firstWhere(
-        (e) => e.name == align,
+        (e) => e.key == align,
         orElse: () => TableAlign.left,
       );
     } catch (e) {
@@ -151,7 +176,7 @@ extension TableNodeExtension on Node {
           parentTableNode.attributes[SimpleTableBlockKeys.columnAligns];
       final align = columnAligns?[columnIndex.toString()];
       return TableAlign.values.firstWhere(
-        (e) => e.name == align,
+        (e) => e.key == align,
         orElse: () => TableAlign.left,
       );
     } catch (e) {
@@ -178,6 +203,23 @@ extension TableNodeExtension on Node {
     }
 
     return tableNode;
+  }
+
+  Node? get parentTableCellNode {
+    Node? tableCellNode;
+
+    if (type == SimpleTableCellBlockKeys.type) {
+      tableCellNode = this;
+    } else {
+      return parent?.parentTableCellNode;
+    }
+
+    return tableCellNode;
+  }
+
+  /// Whether the current node is in a table.
+  bool get isInTable {
+    return parentTableNode != null;
   }
 
   double get columnWidth {
@@ -249,7 +291,74 @@ extension TableNodeExtension on Node {
         parentTableNode.type != SimpleTableBlockKeys.type) {
       return false;
     }
-    return parentTableNode.isHeaderColumnEnabled && parent?.columnIndex == 0;
+    return parentTableNode.isHeaderColumnEnabled &&
+        parentTableCellNode?.columnIndex == 0;
+  }
+
+  /// Whether the current cell is bold in the column.
+  ///
+  /// Default is false.
+  bool get isInBoldColumn {
+    final parentTableCellNode = this.parentTableCellNode;
+    final parentTableNode = this.parentTableNode;
+    if (parentTableCellNode == null ||
+        parentTableNode == null ||
+        parentTableNode.type != SimpleTableBlockKeys.type) {
+      return false;
+    }
+
+    final columnIndex = parentTableCellNode.columnIndex;
+    final columnBoldAttributes = parentTableNode.columnBoldAttributes;
+    return columnBoldAttributes[columnIndex.toString()] ?? false;
+  }
+
+  /// Whether the current cell is bold in the row.
+  ///
+  /// Default is false.
+  bool get isInBoldRow {
+    final parentTableCellNode = this.parentTableCellNode;
+    final parentTableNode = this.parentTableNode;
+    if (parentTableCellNode == null ||
+        parentTableNode == null ||
+        parentTableNode.type != SimpleTableBlockKeys.type) {
+      return false;
+    }
+
+    final rowIndex = parentTableCellNode.rowIndex;
+    final rowBoldAttributes = parentTableNode.rowBoldAttributes;
+    return rowBoldAttributes[rowIndex.toString()] ?? false;
+  }
+
+  /// Get the text color of the current cell in the column.
+  ///
+  /// Default is null.
+  String? get textColorInColumn {
+    final parentTableCellNode = this.parentTableCellNode;
+    final parentTableNode = this.parentTableNode;
+    if (parentTableCellNode == null ||
+        parentTableNode == null ||
+        parentTableNode.type != SimpleTableBlockKeys.type) {
+      return null;
+    }
+
+    final columnIndex = parentTableCellNode.columnIndex;
+    return parentTableNode.columnTextColors[columnIndex.toString()];
+  }
+
+  /// Get the text color of the current cell in the row.
+  ///
+  /// Default is null.
+  String? get textColorInRow {
+    final parentTableCellNode = this.parentTableCellNode;
+    final parentTableNode = this.parentTableNode;
+    if (parentTableCellNode == null ||
+        parentTableNode == null ||
+        parentTableNode.type != SimpleTableBlockKeys.type) {
+      return null;
+    }
+
+    final rowIndex = parentTableCellNode.rowIndex;
+    return parentTableNode.rowTextColors[rowIndex.toString()];
   }
 
   /// Whether the current node is in the header row.
@@ -261,9 +370,11 @@ extension TableNodeExtension on Node {
         parentTableNode.type != SimpleTableBlockKeys.type) {
       return false;
     }
-    return parentTableNode.isHeaderRowEnabled && parent?.rowIndex == 0;
+    return parentTableNode.isHeaderRowEnabled &&
+        parentTableCellNode?.rowIndex == 0;
   }
 
+  /// Get the row aligns.
   SimpleTableRowAlignMap get rowAligns {
     final rawRowAligns =
         parentTableNode?.attributes[SimpleTableBlockKeys.rowAligns];
@@ -278,6 +389,7 @@ extension TableNodeExtension on Node {
     }
   }
 
+  /// Get the row colors.
   SimpleTableColorMap get rowColors {
     final rawRowColors =
         parentTableNode?.attributes[SimpleTableBlockKeys.rowColors];
@@ -292,6 +404,7 @@ extension TableNodeExtension on Node {
     }
   }
 
+  /// Get the column colors.
   SimpleTableColorMap get columnColors {
     final rawColumnColors =
         parentTableNode?.attributes[SimpleTableBlockKeys.columnColors];
@@ -306,7 +419,8 @@ extension TableNodeExtension on Node {
     }
   }
 
-  SimpleTableRowAlignMap get columnAligns {
+  /// Get the column aligns.
+  SimpleTableColumnAlignMap get columnAligns {
     final rawColumnAligns =
         parentTableNode?.attributes[SimpleTableBlockKeys.columnAligns];
     if (rawColumnAligns == null) {
@@ -320,6 +434,7 @@ extension TableNodeExtension on Node {
     }
   }
 
+  /// Get the column widths.
   SimpleTableColumnWidthMap get columnWidths {
     final rawColumnWidths =
         parentTableNode?.attributes[SimpleTableBlockKeys.columnWidths];
@@ -332,6 +447,77 @@ extension TableNodeExtension on Node {
       Log.warn('get column widths: $e');
       return SimpleTableColumnWidthMap();
     }
+  }
+
+  /// Get the column text colors
+  SimpleTableColorMap get columnTextColors {
+    final rawColumnTextColors =
+        parentTableNode?.attributes[SimpleTableBlockKeys.columnTextColors];
+    if (rawColumnTextColors == null) {
+      return SimpleTableColorMap();
+    }
+    try {
+      return SimpleTableColorMap.from(rawColumnTextColors);
+    } catch (e) {
+      Log.warn('get column text colors: $e');
+      return SimpleTableColorMap();
+    }
+  }
+
+  /// Get the row text colors
+  SimpleTableColorMap get rowTextColors {
+    final rawRowTextColors =
+        parentTableNode?.attributes[SimpleTableBlockKeys.rowTextColors];
+    if (rawRowTextColors == null) {
+      return SimpleTableColorMap();
+    }
+    try {
+      return SimpleTableColorMap.from(rawRowTextColors);
+    } catch (e) {
+      Log.warn('get row text colors: $e');
+      return SimpleTableColorMap();
+    }
+  }
+
+  /// Get the column bold attributes
+  SimpleTableAttributeMap get columnBoldAttributes {
+    final rawColumnBoldAttributes =
+        parentTableNode?.attributes[SimpleTableBlockKeys.columnBoldAttributes];
+    if (rawColumnBoldAttributes == null) {
+      return SimpleTableAttributeMap();
+    }
+    try {
+      return SimpleTableAttributeMap.from(rawColumnBoldAttributes);
+    } catch (e) {
+      Log.warn('get column bold attributes: $e');
+      return SimpleTableAttributeMap();
+    }
+  }
+
+  /// Get the row bold attributes
+  SimpleTableAttributeMap get rowBoldAttributes {
+    final rawRowBoldAttributes =
+        parentTableNode?.attributes[SimpleTableBlockKeys.rowBoldAttributes];
+    if (rawRowBoldAttributes == null) {
+      return SimpleTableAttributeMap();
+    }
+    try {
+      return SimpleTableAttributeMap.from(rawRowBoldAttributes);
+    } catch (e) {
+      Log.warn('get row bold attributes: $e');
+      return SimpleTableAttributeMap();
+    }
+  }
+
+  /// Get the width of the table.
+  double get width {
+    double currentColumnWidth = 0;
+    for (var i = 0; i < columnLength; i++) {
+      final columnWidth =
+          columnWidths[i.toString()] ?? SimpleTableConstants.defaultColumnWidth;
+      currentColumnWidth += columnWidth;
+    }
+    return currentColumnWidth;
   }
 
   /// Get the previous cell in the same column. If the row index is 0, it will return the same cell.
@@ -502,5 +688,165 @@ extension TableNodeExtension on Node {
     }
 
     return children[rowIndex].children[columnIndex];
+  }
+
+  String? getTableCellContent({
+    required int rowIndex,
+    required int columnIndex,
+  }) {
+    final cell = getTableCellNode(rowIndex: rowIndex, columnIndex: columnIndex);
+    if (cell == null) {
+      return null;
+    }
+    final content = cell.children
+        .map((e) => e.delta?.toPlainText())
+        .where((e) => e != null)
+        .join('\n');
+    return content;
+  }
+
+  /// Return the first empty row in the table from bottom to top.
+  ///
+  /// Example:
+  ///
+  /// | A | B | C |
+  /// |   |   |   |
+  /// | E | F | G |
+  /// | H | I | J |
+  /// |   |   |   | <--- The first empty row is the row at index 3.
+  /// |   |   |   |
+  ///
+  /// The first empty row is the row at index 3.
+  (int, Node)? getFirstEmptyRowFromBottom() {
+    assert(type == SimpleTableBlockKeys.type);
+
+    if (type != SimpleTableBlockKeys.type) {
+      return null;
+    }
+
+    (int, Node)? result;
+
+    for (var i = children.length - 1; i >= 0; i--) {
+      final row = children[i];
+
+      // Check if all cells in this row are empty
+      final hasContent = row.children.any((cell) {
+        final content = getTableCellContent(
+          rowIndex: i,
+          columnIndex: row.children.indexOf(cell),
+        );
+        return content != null && content.isNotEmpty;
+      });
+
+      if (!hasContent) {
+        if (result != null) {
+          final (index, _) = result;
+          if (i <= index) {
+            result = (i, row);
+          }
+        } else {
+          result = (i, row);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /// Return the first empty column in the table from right to left.
+  ///
+  /// Example:
+  ///                  ↓ The first empty column is the column at index 3.
+  /// | A | C |  | E |  |  |
+  /// | B | D |  | F |  |  |
+  ///
+  /// The first empty column is the column at index 3.
+  int? getFirstEmptyColumnFromRight() {
+    assert(type == SimpleTableBlockKeys.type);
+
+    if (type != SimpleTableBlockKeys.type) {
+      return null;
+    }
+
+    int? result;
+
+    for (var i = columnLength - 1; i >= 0; i--) {
+      bool hasContent = false;
+      for (var j = 0; j < rowLength; j++) {
+        final content = getTableCellContent(
+          rowIndex: j,
+          columnIndex: i,
+        );
+        if (content != null && content.isNotEmpty) {
+          hasContent = true;
+        }
+      }
+      if (!hasContent) {
+        if (result != null) {
+          final index = result;
+          if (i <= index) {
+            result = i;
+          }
+        } else {
+          result = i;
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /// Get first focusable child in the table cell.
+  ///
+  /// If the current node is not a table cell node, it will return null.
+  Node? getFirstChildIndex() {
+    if (children.isEmpty) {
+      return this;
+    }
+    return children.first.getFirstChildIndex();
+  }
+
+  /// Get last focusable child in the table cell.
+  ///
+  /// If the current node is not a table cell node, it will return null.
+  Node? getLastChildIndex() {
+    if (children.isEmpty) {
+      return this;
+    }
+    return children.last.getLastChildIndex();
+  }
+
+  /// Get table align of column
+  ///
+  /// If one of the align is not same as the others, it will return TableAlign.left.
+  TableAlign get allColumnAlign {
+    final alignSet = columnAligns.values.toSet();
+    if (alignSet.length == 1) {
+      return TableAlign.fromString(alignSet.first);
+    }
+    return TableAlign.left;
+  }
+
+  /// Get table align of row
+  ///
+  /// If one of the align is not same as the others, it will return TableAlign.left.
+  TableAlign get allRowAlign {
+    final alignSet = rowAligns.values.toSet();
+    if (alignSet.length == 1) {
+      return TableAlign.fromString(alignSet.first);
+    }
+    return TableAlign.left;
+  }
+
+  /// Get table align of the table.
+  ///
+  /// If one of the align is not same as the others, it will return TableAlign.left.
+  TableAlign get tableAlign {
+    if (allColumnAlign != TableAlign.left) {
+      return allColumnAlign;
+    } else if (allRowAlign != TableAlign.left) {
+      return allRowAlign;
+    }
+    return TableAlign.left;
   }
 }

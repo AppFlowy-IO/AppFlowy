@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart' show LocaleKeys;
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart'
     show StringTranslateExtension;
@@ -195,12 +196,12 @@ class _CalloutBlockComponentWidgetState
             key: ValueKey(widget.node.id + emoji),
             enable: editorState.editable,
             title: '',
-            emoji: emoji,
+            emoji: EmojiIconData.emoji(emoji),
             emojiSize: emojiSize,
             showBorder: false,
             buttonSize: emojiButtonSize,
             onSubmitted: (emoji, controller) {
-              setEmoji(emoji);
+              setEmoji(emoji.emoji);
               controller?.close();
             },
           ),

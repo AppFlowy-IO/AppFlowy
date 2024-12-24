@@ -7,8 +7,8 @@ use collab_entity::CollabType;
 use crate::local_server::LocalServerDB;
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::{
-  gen_workspace_id, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace,
-  WorkspaceRecord,
+  gen_workspace_id, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot,
+  FullSyncCollabParams, Workspace, WorkspaceRecord,
 };
 use flowy_folder_pub::entities::PublishPayload;
 use lib_infra::async_trait::async_trait;
@@ -144,5 +144,13 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
 
   async fn import_zip(&self, _file_path: &str) -> Result<(), FlowyError> {
     Err(FlowyError::local_version_not_support())
+  }
+
+  async fn full_sync_collab_object(
+    &self,
+    _workspace_id: &str,
+    _params: FullSyncCollabParams,
+  ) -> Result<(), FlowyError> {
+    Ok(())
   }
 }

@@ -1,7 +1,7 @@
 use client_api::entity::ai_dto::{CompletionType, LocalAIConfig, RepeatedRelatedQuestion};
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, MessageCursor,
-  RepeatedChatMessage, StreamAnswer, StreamComplete, SubscriptionPlan,
+  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings, MessageCursor,
+  RepeatedChatMessage, StreamAnswer, StreamComplete, SubscriptionPlan, UpdateChatParams,
 };
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
@@ -18,6 +18,7 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     _uid: &i64,
     _workspace_id: &str,
     _chat_id: &str,
+    _rag_ids: Vec<String>,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
@@ -60,6 +61,15 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     _offset: MessageCursor,
     _limit: u64,
   ) -> Result<RepeatedChatMessage, FlowyError> {
+    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
+  }
+
+  async fn get_question_from_answer_id(
+    &self,
+    _workspace_id: &str,
+    _chat_id: &str,
+    _answer_id: i64,
+  ) -> Result<ChatMessage, FlowyError> {
     Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
 
@@ -115,5 +125,22 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
       FlowyError::not_support()
         .with_context("Get local ai config is not supported in local server."),
     )
+  }
+
+  async fn get_chat_settings(
+    &self,
+    _workspace_id: &str,
+    _chat_id: &str,
+  ) -> Result<ChatSettings, FlowyError> {
+    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
+  }
+
+  async fn update_chat_settings(
+    &self,
+    _workspace_id: &str,
+    _chat_id: &str,
+    _params: UpdateChatParams,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
 }

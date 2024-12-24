@@ -44,7 +44,7 @@ extension TableDuplicationOperations on EditorState {
       index: index,
     );
 
-    final newRow = node.children[index].copyWith();
+    final newRow = node.children[index].deepCopy();
     final transaction = this.transaction;
     final path = index >= columnLength
         ? node.children.last.path.next
@@ -89,7 +89,7 @@ extension TableDuplicationOperations on EditorState {
       final path = index >= rowLength
           ? row.children.last.path.next
           : row.children[index].path;
-      final newCell = row.children[index].copyWith();
+      final newCell = row.children[index].deepCopy();
       transaction.insertNode(
         path,
         newCell,
@@ -98,6 +98,24 @@ extension TableDuplicationOperations on EditorState {
     if (attributes != null) {
       transaction.updateNode(node, attributes);
     }
+    await apply(transaction);
+  }
+
+  /// Duplicate the table.
+  ///
+  /// This function will duplicate the table and insert it after the original table.
+  Future<void> duplicateTable({
+    required Node tableNode,
+  }) async {
+    assert(tableNode.type == SimpleTableBlockKeys.type);
+
+    if (tableNode.type != SimpleTableBlockKeys.type) {
+      return;
+    }
+
+    final transaction = this.transaction;
+    final newTable = tableNode.deepCopy();
+    transaction.insertNode(tableNode.path.next, newTable);
     await apply(transaction);
   }
 }

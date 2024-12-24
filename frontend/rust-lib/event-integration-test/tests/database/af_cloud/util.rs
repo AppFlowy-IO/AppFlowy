@@ -7,11 +7,11 @@ use collab_database::fields::number_type_option::{NumberFormat, NumberTypeOption
 use collab_database::fields::select_type_option::{
   SelectOption, SelectOptionColor, SingleSelectTypeOption,
 };
+use collab_database::fields::summary_type_option::SummarizationTypeOption;
+use collab_database::fields::translate_type_option::TranslateTypeOption;
 use collab_database::fields::Field;
 use collab_database::rows::Row;
 use flowy_database2::entities::FieldType;
-use flowy_database2::services::field::summary_type_option::summary::SummarizationTypeOption;
-use flowy_database2::services::field::translate_type_option::translate::TranslateTypeOption;
 use flowy_database2::services::field::FieldBuilder;
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 use strum::IntoEnumIterator;

@@ -3,9 +3,9 @@ use std::collections::HashMap;
 use collab_folder::ViewLayout;
 use event_integration_test::EventIntegrationTest;
 use flowy_folder::entities::{
-  ImportPayloadPB, ImportTypePB, ImportValuePayloadPB, ViewLayoutPB, ViewPB,
+  ImportItemPayloadPB, ImportPayloadPB, ImportTypePB, ViewLayoutPB, ViewPB,
 };
-use flowy_folder::view_operation::EncodedCollabWrapper;
+use flowy_folder::view_operation::GatherEncodedCollab;
 
 use crate::util::unzip;
 
@@ -18,11 +18,11 @@ async fn publish_single_database_test() {
   let grid = import_csv("publish_grid_primary.csv", &test).await;
 
   let grid_encoded_collab = test
-    .get_encoded_collab_v1_from_disk(&grid.id, ViewLayout::Grid)
+    .gather_encode_collab_from_disk(&grid.id, ViewLayout::Grid)
     .await;
 
   match grid_encoded_collab {
-    EncodedCollabWrapper::Database(encoded_collab) => {
+    GatherEncodedCollab::Database(encoded_collab) => {
       // the len of row collabs should be the same as the number of rows in the csv file
       let rows_len = encoded_collab.database_row_encoded_collabs.len();
       assert_eq!(rows_len, 18);
@@ -106,11 +106,11 @@ async fn test_publish_encode_collab_result(
     test.open_database(&id).await;
 
     let encoded_collab = test
-      .get_encoded_collab_v1_from_disk(&id, layout.into())
+      .gather_encode_collab_from_disk(&id, layout.into())
       .await;
 
     match encoded_collab {
-      EncodedCollabWrapper::Database(encoded_collab) => {
+      GatherEncodedCollab::Database(encoded_collab) => {
         if let Some(rows_len) = expectations.get(&view.name.as_str()) {
           assert_eq!(encoded_collab.database_row_encoded_collabs.len(), *rows_len);
         }
@@ -142,7 +142,7 @@ async fn import_csv(file_name: &str, test: &EventIntegrationTest) -> ViewPB {
 fn gen_import_data(file_name: String, csv_string: String, workspace_id: String) -> ImportPayloadPB {
   ImportPayloadPB {
     parent_view_id: workspace_id.clone(),
-    values: vec![ImportValuePayloadPB {
+    items: vec![ImportItemPayloadPB {
       name: file_name,
       data: Some(csv_string.as_bytes().to_vec()),
       file_path: None,

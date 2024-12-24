@@ -73,7 +73,7 @@ final headingsToolbarItem = ToolbarItem(
               blockComponentDelta: delta,
             },
           );
-          final children = node.children.map((child) => child.copyWith());
+          final children = node.children.map((child) => child.deepCopy());
 
           final transaction = editorState.transaction;
           transaction.insertNodes(

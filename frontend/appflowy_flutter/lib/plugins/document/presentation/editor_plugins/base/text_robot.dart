@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flutter/material.dart';
 import 'package:synchronized/synchronized.dart';
 
 enum TextRobotInputType {
@@ -109,18 +108,12 @@ class TextRobot {
       Position(path: next),
     );
     await editorState.apply(transaction);
-    debugPrint(
-      'AI insertNewParagraph: path: ${editorState.selection!.end.path}, index: ${editorState.selection!.endIndex}',
-    );
     await Future.delayed(const Duration(milliseconds: 10));
   }
 
   Future<void> insertText(String text, Duration delay) async {
     final selection = editorState.selection;
-    debugPrint(
-      'AI insertText: get selection, path: ${selection!.end.path}, index: ${selection.endIndex}',
-    );
-    if (!selection.isCollapsed) {
+    if (selection == null || !selection.isCollapsed) {
       return;
     }
     final node = editorState.getNodeAtPath(selection.end.path);
@@ -131,10 +124,6 @@ class TextRobot {
     transaction.insertText(node, selection.endIndex, text);
     await editorState.apply(transaction);
     await Future.delayed(delay);
-
-    debugPrint(
-      'AI insertText: path: ${selection.end.path}, index: ${selection.endIndex}, text: "$text"',
-    );
   }
 }
 

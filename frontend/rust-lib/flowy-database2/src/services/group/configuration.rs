@@ -10,7 +10,6 @@ use serde::Serialize;
 use tracing::event;
 
 use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::{GroupChangesPB, GroupPB, InsertedGroupPB};
 use crate::services::field::RowSingleCellData;
@@ -352,7 +351,7 @@ where
   /// # Arguments
   ///
   /// * `mut_configuration_fn`: mutate the [GroupSetting] and return whether the [GroupSetting] is
-  /// changed. If the [GroupSetting] is changed, the [GroupSetting] will be saved to the storage.
+  ///   changed. If the [GroupSetting] is changed, the [GroupSetting] will be saved to the storage.
   ///
   fn mut_configuration(
     &mut self,
@@ -364,7 +363,7 @@ where
       let configuration = (*self.setting).clone();
       let delegate = self.delegate.clone();
       let view_id = self.view_id.clone();
-      af_spawn(async move {
+      tokio::spawn(async move {
         match delegate.save_configuration(&view_id, configuration).await {
           Ok(_) => {},
           Err(e) => {

@@ -16,8 +16,8 @@ use uuid::Uuid;
 
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_folder_pub::cloud::{
-  Folder, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace,
-  WorkspaceRecord,
+  Folder, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, FullSyncCollabParams,
+  Workspace, WorkspaceRecord,
 };
 use flowy_folder_pub::entities::PublishPayload;
 use lib_infra::async_trait::async_trait;
@@ -150,6 +150,25 @@ where
       .to_vec();
     check_request_workspace_id_is_match(&workspace_id, &cloned_user, "get folder doc state")?;
     Ok(doc_state)
+  }
+
+  async fn full_sync_collab_object(
+    &self,
+    workspace_id: &str,
+    params: FullSyncCollabParams,
+  ) -> Result<(), FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    try_get_client?
+      .collab_full_sync(
+        &workspace_id,
+        &params.object_id,
+        params.collab_type,
+        params.encoded_collab.doc_state.to_vec(),
+        params.encoded_collab.state_vector.to_vec(),
+      )
+      .await?;
+    Ok(())
   }
 
   async fn batch_create_folder_collab_objects(

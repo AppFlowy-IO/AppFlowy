@@ -91,7 +91,7 @@ class MobileBlockActionButtons extends StatelessWidget {
               case BlockActionBottomSheetType.duplicate:
                 transaction.insertNode(
                   node.path.next,
-                  node.copyWith(),
+                  node.deepCopy(),
                 );
                 break;
               case BlockActionBottomSheetType.insertAbove:

@@ -42,11 +42,14 @@ class EditorStyleCustomizer {
   static const double minDocumentWidth = 480;
 
   static EdgeInsets get documentPadding => UniversalPlatform.isMobile
-      ? const EdgeInsets.symmetric(horizontal: 24)
+      ? EdgeInsets.zero
       : EdgeInsets.only(
           left: 40,
           right: 40 + EditorStyleCustomizer.optionMenuWidth,
         );
+
+  static double get nodeHorizontalPadding =>
+      UniversalPlatform.isMobile ? 24 : 0;
 
   static EdgeInsets get documentPaddingWithOptionMenu =>
       documentPadding + EdgeInsets.only(left: optionMenuWidth);
@@ -359,12 +362,13 @@ class EditorStyleCustomizer {
     final formula = attributes[InlineMathEquationKeys.formula];
     if (formula is String) {
       return WidgetSpan(
+        style: after.style,
         alignment: PlaceholderAlignment.middle,
         child: InlineMathEquation(
           node: node,
           index: index,
           formula: formula,
-          textStyle: style().textStyleConfiguration.text,
+          textStyle: after.style ?? style().textStyleConfiguration.text,
         ),
       );
     }

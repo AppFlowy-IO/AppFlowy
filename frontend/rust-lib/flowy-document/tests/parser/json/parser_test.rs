@@ -112,7 +112,7 @@ async fn parse_readme_test() {
     let data = json_str_to_hashmap(&block.data).ok();
     assert!(data.is_some());
     if let Some(data) = data {
-      assert!(data.get("delta").is_none());
+      assert!(!data.contains_key("delta"));
     }
 
     if let Some(external_id) = &block.external_id {

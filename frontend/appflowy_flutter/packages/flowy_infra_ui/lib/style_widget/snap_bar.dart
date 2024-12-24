@@ -9,7 +9,8 @@ void showSnapBar(BuildContext context, String title, {VoidCallback? onClosed}) {
   ScaffoldMessenger.of(context)
       .showSnackBar(
         SnackBar(
-          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+          backgroundColor:
+              Theme.of(context).colorScheme.surfaceContainerHighest,
           duration: const Duration(milliseconds: 8000),
           content: FlowyText(
             title,

@@ -6,13 +6,14 @@ use tokio::sync::oneshot;
 use tracing::{info, instrument};
 
 use flowy_error::{FlowyError, FlowyResult};
-use lib_dispatch::prelude::{af_spawn, data_result_ok, AFPluginData, AFPluginState, DataResult};
+use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 use crate::entities::*;
 use crate::manager::DatabaseManager;
+use crate::services::field::checklist_filter::ChecklistCellChangeset;
+use crate::services::field::date_filter::DateCellChangeset;
 use crate::services::field::{
-  type_option_data_from_pb, ChecklistCellChangeset, DateCellChangeset, RelationCellChangeset,
-  SelectOptionCellChangeset, TypeOptionCellExt,
+  type_option_data_from_pb, RelationCellChangeset, SelectOptionCellChangeset, TypeOptionCellExt,
 };
 use crate::services::group::GroupChangeset;
 use crate::services::share::csv::CSVFormat;
@@ -1259,7 +1260,7 @@ pub(crate) async fn summarize_row_handler(
   let data = data.into_inner();
   let row_id = RowId::from(data.row_id);
   let (tx, rx) = oneshot::channel();
-  af_spawn(async move {
+  tokio::spawn(async move {
     let result = manager
       .summarize_row(data.view_id, row_id, data.field_id)
       .await;
@@ -1278,7 +1279,7 @@ pub(crate) async fn translate_row_handler(
   let data = data.try_into_inner()?;
   let row_id = RowId::from(data.row_id);
   let (tx, rx) = oneshot::channel();
-  af_spawn(async move {
+  tokio::spawn(async move {
     let result = manager
       .translate_row(data.view_id, row_id, data.field_id)
       .await;

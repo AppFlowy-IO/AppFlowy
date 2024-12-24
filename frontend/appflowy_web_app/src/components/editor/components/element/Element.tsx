@@ -14,6 +14,9 @@ import { Outline } from '@/components/editor/components/blocks/outline';
 import { Page } from '@/components/editor/components/blocks/page';
 import { Paragraph } from '@/components/editor/components/blocks/paragraph';
 import { Quote } from '@/components/editor/components/blocks/quote';
+import SimpleTable from '@/components/editor/components/blocks/simple-table/SimpleTable';
+import SimpleTableCell from '@/components/editor/components/blocks/simple-table/SimpleTableCell';
+import SimpleTableRow from '@/components/editor/components/blocks/simple-table/SimpleTableRow';
 import { TableBlock, TableCellBlock } from '@/components/editor/components/blocks/table';
 import { Text } from '@/components/editor/components/blocks/text';
 import { useEditorContext } from '@/components/editor/EditorContext';
@@ -122,6 +125,12 @@ export const Element = ({
         return GalleryBlock;
       case BlockType.SubpageBlock:
         return SubPage;
+      case BlockType.SimpleTableBlock:
+        return SimpleTable;
+      case BlockType.SimpleTableRowBlock:
+        return SimpleTableRow;
+      case BlockType.SimpleTableCellBlock:
+        return SimpleTableCell;
       default:
         return UnSupportedBlock;
     }
@@ -148,6 +157,17 @@ export const Element = ({
       <Text {...attributes} node={node as TextNode}>
         {children}
       </Text>
+    );
+  }
+
+  if ([BlockType.SimpleTableRowBlock, BlockType.SimpleTableCellBlock].includes(node.type as BlockType)) {
+    return (
+      <Component
+        node={node}
+        {...attributes}
+      >
+        {children}
+      </Component>
     );
   }
 

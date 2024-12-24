@@ -29,7 +29,6 @@ use collab_integrate::collab_builder::{
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_storage_pub::storage::{CreatedUpload, StorageService};
-use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::UpdateDocumentAwarenessStatePB;
 use crate::entities::{
@@ -328,7 +327,7 @@ impl DocumentManager {
       self.removing_documents.insert(doc_id, document);
 
       let weak_removing_documents = Arc::downgrade(&self.removing_documents);
-      af_spawn(async move {
+      tokio::spawn(async move {
         tokio::time::sleep(std::time::Duration::from_secs(120)).await;
         if let Some(removing_documents) = weak_removing_documents.upgrade() {
           if removing_documents.remove(&clone_doc_id).is_some() {

@@ -59,7 +59,7 @@
     "signInWith": "Se connecter avec :",
     "signInWithEmail": "Se connecter via e-mail",
     "signInWithMagicLink": "Continuer",
-    "signUpWithMagicLink": "S'inscrire avec Magic Link",
+    "signUpWithMagicLink": "S'inscrire avec un lien magique",
     "pleaseInputYourEmail": "Veuillez entrer votre adresse e-mail",
     "settings": "Paramètres",
     "magicLinkSent": "Lien magique envoyé à votre email, veuillez vérifier votre boîte de réception",
@@ -67,8 +67,8 @@
     "alreadyHaveAnAccount": "Déjà un compte ?",
     "logIn": "Connexion",
     "generalError": "Une erreur s'est produite. Veuillez réessayer plus tard",
-    "limitRateError": "Pour des raisons de sécurité, vous ne pouvez demander un Magic Link que toutes les 60 secondes",
-    "magicLinkSentDescription": "Un Magic Link vous a été envoyé par e-mail. Cliquez sur le lien pour vous connecter. Le lien expirera dans 5 minutes.",
+    "limitRateError": "Pour des raisons de sécurité, vous ne pouvez demander un lien magique que toutes les 60 secondes",
+    "magicLinkSentDescription": "Un lien magique vous a été envoyé par e-mail. Cliquez sur le lien pour vous connecter. Le lien expirera dans 5 minutes.",
     "LogInWithGoogle": "Se connecter avec Google",
     "LogInWithGithub": "Se connecter avec Github",
     "LogInWithDiscord": "Se connecter avec Discord",
@@ -77,9 +77,13 @@
   },
   "workspace": {
     "chooseWorkspace": "Choisissez votre espace de travail",
+    "defaultName": "Mon espace de travail",
     "create": "Créer un espace de travail",
+    "importFromNotion": "Importer depuis Notion",
+    "learnMore": "En savoir plus",
     "reset": "Réinitialiser l'espace de travail",
     "renameWorkspace": "Renommer l'espace de travail",
+    "workspaceNameCannotBeEmpty": "Le nom de l'espace de travail ne peut être vide",
     "resetWorkspacePrompt": "La réinitialisation de l'espace de travail supprimera toutes les pages et données qu'elles contiennent. Êtes-vous sûr de vouloir réinitialiser l'espace de travail ? Alternativement, vous pouvez contacter l'équipe d'assistance pour restaurer l'espace de travail",
     "hint": "Espace de travail",
     "notFoundError": "Espace de travail introuvable",
@@ -123,7 +127,17 @@
     "visitSite": "Visitez le site",
     "exportAsTab": "Exporter en tant que",
     "publishTab": "Publier",
-    "shareTab": "Partager"
+    "shareTab": "Partager",
+    "publishOnAppFlowy": "Publier sur AppFlowy",
+    "shareTabTitle": "Inviter à collaborer",
+    "shareTabDescription": "Pour faciliter la collaboration avec n'importe qui",
+    "copyLinkSuccess": "Lien copié",
+    "copyShareLink": "Copier le lien de partage",
+    "copyLinkFailed": "Impossible de copier le lien dans le presse-papiers",
+    "copyLinkToBlockSuccess": "Lien de bloc copié dans le presse-papiers",
+    "copyLinkToBlockFailed": "Impossible de copier le lien du bloc dans le presse-papiers",
+    "manageAllSites": "Gérer tous les sites",
+    "updatePathName": "Mettre à jour le nom du chemin"
   },
   "moreAction": {
     "small": "petit",
@@ -142,6 +156,7 @@
     "textAndMarkdown": "Texte et Markdown",
     "documentFromV010": "Document de la v0.1.0",
     "databaseFromV010": "Base de données à partir de la v0.1.0",
+    "notionZip": "Fichier ZIP exporté depuis Notion",
     "csv": "CSV",
     "database": "Base de données"
   },
@@ -172,12 +187,15 @@
     "relatedQuestion": "Questions Associées",
     "serverUnavailable": "Service temporairement indisponible. Veuillez réessayer ultérieurement.",
     "aiServerUnavailable": "🌈 Oh-oh ! 🌈. Une licorne a mangé notre réponse. Veuillez réessayer !",
+    "retry": "Réessayer",
     "clickToRetry": "Cliquez pour réessayer",
     "regenerateAnswer": "Régénérer",
     "question1": "Comment utiliser Kanban pour gérer les tâches",
     "question2": "Expliquez la méthode GTD",
     "question3": "Pourquoi utiliser Rust",
     "question4": "Recette avec ce qu'il y a dans ma cuisine",
+    "question5": "Créer une illustration pour ma page",
+    "question6": "Dresser une liste de choses à faire pour ma semaine à venir",
     "aiMistakePrompt": "L'IA peut faire des erreurs. Vérifiez les informations importantes.",
     "chatWithFilePrompt": "Voulez-vous discuter avec le fichier ?",
     "indexFileSuccess": "Indexation du fichier réussie",
@@ -190,11 +208,13 @@
     "clickToMention": "Cliquez pour mentionner une page",
     "uploadFile": "Téléchargez des fichiers PDF, MD ou TXT pour discuter avec",
     "questionDetail": "Bonjour {}! Comment puis-je vous aider aujourd'hui?",
-    "indexingFile": "Indexation {}"
+    "indexingFile": "Indexation {}",
+    "generatingResponse": "Générer une réponse"
   },
   "trash": {
     "text": "Corbeille",
     "restoreAll": "Tout restaurer",
+    "restore": "Restaurer",
     "deleteAll": "Tout supprimer",
     "pageHeader": {
       "fileName": "Nom de fichier",
@@ -209,6 +229,10 @@
       "title": "Êtes-vous sûr de vouloir restaurer toutes les pages dans la corbeille ?",
       "caption": "Cette action ne peut pas être annulée."
     },
+    "restorePage": {
+      "title": "Restaurer: {}",
+      "caption": "Etes-vous sûr de vouloir restaurer cette page ?"
+    },
     "mobile": {
       "actions": "Actions de la corbeille",
       "empty": "La corbeille est vide",
@@ -221,7 +245,8 @@
   "deletePagePrompt": {
     "text": "Cette page se trouve dans la corbeille",
     "restore": "Restaurer la page",
-    "deletePermanent": "Supprimer définitivement"
+    "deletePermanent": "Supprimer définitivement",
+    "deletePermanentDescription": "Etes-vous sûr de vouloir supprimer définitivement cette page ? Cette action est irréversible."
   },
   "dialogCreatePageNameHint": "Nom de la page",
   "questionBubble": {
@@ -291,6 +316,7 @@
     "today": "Aujourd'hui",
     "thisWeek": "Cette semaine",
     "others": "Favoris précédents",
+    "earlier": "Plus tôt",
     "justNow": "tout à l' heure",
     "minutesAgo": "Il y a {count} minutes",
     "lastViewed": "Dernière consultation",
@@ -307,12 +333,17 @@
     "upgradeToPro": "Passer à Pro",
     "upgradeToAIMax": "Débloquez une l'IA illimitée",
     "storageLimitDialogTitle": "Vous n'avez plus d'espace de stockage gratuit. Effectuez une mise à niveau pour débloquer un espace de stockage illimité",
+    "storageLimitDialogTitleIOS": "Vous n'avez plus d'espace de stockage gratuit.",
     "aiResponseLimitTitle": "Vous n'avez plus de réponses d'IA gratuites. Passez au plan Pro ou achetez un module complémentaire d'IA pour débloquer des réponses illimitées",
+    "aiResponseLimitTitleIOS": "Vous n'avez plus de réponses IA gratuites.",
     "aiResponseLimitDialogTitle": "La limite des réponses de l'IA a été atteinte",
     "aiResponseLimit": "Vous n'avez plus de réponses IA gratuites.\n\nAccédez à Paramètres -> Plans -> Cliquez sur AI Max ou Pro Plan pour obtenir plus de réponses AI",
     "askOwnerToUpgradeToPro": "Votre espace de stockage gratuit est presque plein. Demandez au propriétaire de votre espace de travail de passer au plan Pro",
+    "askOwnerToUpgradeToProIOS": "Votre espace de travail manque d’espace de stockage gratuit.",
     "askOwnerToUpgradeToAIMax": "Votre espace de travail est à court de réponses d'IA gratuites. Demandez au propriétaire de votre espace de travail de mettre à niveau le plan ou d'acheter des modules complémentaires d'IA",
+    "askOwnerToUpgradeToAIMaxIOS": "Votre espace de travail est à court de réponses IA gratuites.",
     "purchaseStorageSpace": "Acheter un espace de stockage",
+    "singleFileProPlanLimitationDescription": "Vous avez dépassé la taille maximale de téléchargement de fichiers autorisée dans le plan gratuit. Veuillez passer au plan Pro pour télécharger des fichiers plus volumineux",
     "purchaseAIResponse": "Acheter",
     "askOwnerToUpgradeToLocalAI": "Demander au propriétaire de l'espace de travail d'activer l'IA locale",
     "upgradeToAILocal": "Exécutez des modèles locaux sur votre appareil pour une confidentialité optimale",
@@ -353,6 +384,7 @@
     "upload": "Télécharger",
     "edit": "Modifier",
     "delete": "Supprimer",
+    "copy": "Copier",
     "duplicate": "Dupliquer",
     "putback": "Remettre",
     "update": "Mettre à jour",
@@ -387,6 +419,8 @@
     "previous": "Précédent",
     "submit": "Soumettre",
     "download": "Télécharger",
+    "backToHome": "Retour à l'accueil",
+    "gotIt": "Compris",
     "tryAGain": "Réessayer"
   },
   "label": {
@@ -416,6 +450,68 @@
       "members": "Membres",
       "trash": "Corbeille",
       "helpAndSupport": "Aide & Support"
+    },
+    "sites": {
+      "title": "Sites",
+      "namespaceTitle": "Espace",
+      "namespaceDescription": "Gérez votre espace et votre page d'accueil",
+      "namespaceHeader": "Espace de nom",
+      "homepageHeader": "Page d'accueil",
+      "updateNamespace": "Mettre à jour l'espace",
+      "removeHomepage": "Supprimer la page d'accueil",
+      "selectHomePage": "Sélectionnez une page",
+      "clearHomePage": "Effacer la page d'accueil pour cet espace",
+      "customUrl": "URL personnalisée",
+      "namespace": {
+        "description": "Ce changement s'appliquera à toutes les pages publiées en direct sur cet espace",
+        "tooltip": "Nous nous réservons le droit de supprimer tout espace inapproprié",
+        "updateExistingNamespace": "Mettre à jour l'espace existant",
+        "upgradeToPro": "Passez au plan Pro pour définir une page d'accueil",
+        "redirectToPayment": "Redirection vers la page de paiement...",
+        "onlyWorkspaceOwnerCanSetHomePage": "Seul le propriétaire de l'espace de travail peut définir une page d'accueil",
+        "pleaseAskOwnerToSetHomePage": "Veuillez demander au propriétaire de l'espace de travail de passer au plan Pro"
+      },
+      "publishedPage": {
+        "title": "Toutes les pages publiées",
+        "description": "Gérez vos pages publiées",
+        "page": "Page",
+        "pathName": "Nom du chemin",
+        "date": "Date de publication",
+        "emptyHinText": "Vous n'avez aucune page publiée dans cet espace de travail",
+        "noPublishedPages": "Aucune page publiée",
+        "settings": "Paramètres de publication",
+        "clickToOpenPageInApp": "Ouvrir la page dans l'application",
+        "clickToOpenPageInBrowser": "Ouvrir la page dans le navigateur"
+      },
+      "error": {
+        "failedToGeneratePaymentLink": "Impossible de générer le lien de paiement pour le plan Pro",
+        "failedToUpdateNamespace": "Échec de la mise à jour de l'espace",
+        "proPlanLimitation": "Vous devez effectuer une mise à niveau vers le plan Pro pour mettre à jour l'espace",
+        "namespaceAlreadyInUse": "Ce nom d'espace déjà pris, veuillez en essayer un autre",
+        "invalidNamespace": "Nom d'espace invalide, veuillez en essayer un autre",
+        "namespaceLengthAtLeast2Characters": "Le nom de l'espace doit comporter au moins 2 caractères",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "Seul le propriétaire de l'espace de travail peut mettre à jour l'espace",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "Seul le propriétaire de l'espace de travail peut supprimer la page d'accueil",
+        "setHomepageFailed": "Impossible de définir la page d'accueil",
+        "namespaceTooLong": "Le nom de l'espace est trop long, veuillez en essayer un autre",
+        "namespaceTooShort": "Le nom de l'espace est trop court, veuillez en essayer un autre",
+        "namespaceIsReserved": "Ce nom d'espace est réservé, veuillez en essayer un autre",
+        "updatePathNameFailed": "Échec de la mise à jour du nom du chemin",
+        "removeHomePageFailed": "Impossible de supprimer la page d'accueil",
+        "publishNameContainsInvalidCharacters": "Le nom du chemin contient des caractères non valides, veuillez en essayer un autre",
+        "publishNameTooShort": "Le nom du chemin est trop court, veuillez en essayer un autre",
+        "publishNameTooLong": "Le nom du chemin est trop long, veuillez en essayer un autre",
+        "publishNameAlreadyInUse": "Le nom du chemin est déjà utilisé, veuillez en essayer un autre",
+        "namespaceContainsInvalidCharacters": "Le nom d'espace contient des caractères non valides, veuillez en essayer un autre",
+        "publishPermissionDenied": "Seul le propriétaire de l'espace de travail ou l'éditeur de la page peut gérer les paramètres de publication",
+        "publishNameCannotBeEmpty": "Le nom du chemin ne peut pas être vide, veuillez en essayer un autre"
+      },
+      "success": {
+        "namespaceUpdated": "Espace mis à jour avec succès",
+        "setHomepageSuccess": "Définir la page d'accueil avec succès",
+        "updatePathNameSuccess": "Nom du chemin mis à jour avec succès",
+        "removeHomePageSuccess": "Supprimer la page d'accueil avec succès"
+      }
     },
     "accountPage": {
       "menuLabel": "Mon compte",
@@ -465,6 +561,9 @@
         "title": "Réinitialiser la couleur de sélection du document",
         "description": "Êtes-vous sûr de vouloir réinitialiser la couleur de sélection ?"
       },
+      "resetWidth": {
+        "resetSuccess": "Réinitialisation réussie de la largeur du document"
+      },
       "theme": {
         "title": "Thème",
         "description": "Sélectionnez un thème prédéfini ou téléchargez votre propre thème personnalisé.",
@@ -508,7 +607,9 @@
       },
       "leaveWorkspacePrompt": {
         "title": "Quitter l'espace de travail",
-        "content": "Êtes-vous sûr de vouloir quitter cet espace de travail ? Vous allez perdre l’accès à toutes les pages et données qu’il contient."
+        "content": "Êtes-vous sûr de vouloir quitter cet espace de travail ? Vous allez perdre l’accès à toutes les pages et données qu’il contient.",
+        "success": "Vous avez quitté l'espace de travail avec succès.",
+        "fail": "Impossible de quitter l'espace de travail."
       },
       "manageWorkspace": {
         "title": "Gérer l'espace de travail",
@@ -713,6 +814,8 @@
       }
     },
     "planPage": {
+      "menuLabel": "Offre",
+      "title": "Tarif de l'offre",
       "planUsage": {
         "title": "Résumé de l'utilisation du plan",
         "storageLabel": "Stockage",
@@ -725,6 +828,7 @@
         "unlimitedAILabel": "Réponses illimitées",
         "proBadge": "Pro",
         "aiMaxBadge": "AI Max",
+        "aiOnDeviceBadge": "IA sur appareil pour Mac",
         "memberProToggle": "Plus de membres et une IA illimitée",
         "aiMaxToggle": "IA illimitée et accès à des modèles avancés",
         "aiOnDeviceToggle": "IA locale pour une confidentialité ultime",
@@ -733,6 +837,7 @@
           "price": "{}",
           "priceDescription": "pour 1 000 crédits",
           "purchase": "Acheter l'IA",
+          "info": "Ajoutez 1 000 crédits d'IA par espace de travail et intégrez de manière transparente une IA personnalisable dans votre flux de travail pour des résultats plus intelligents et plus rapides avec jusqu'à :",
           "infoItemOne": "10 000 réponses par base de données",
           "infoItemTwo": "1 000 réponses par espace de travail"
         },
@@ -753,10 +858,12 @@
           "activeLabel": "Ajouté",
           "aiMax": {
             "title": "AI Max",
+            "description": "Réponses IA illimitées alimentées par GPT-4o, Claude 3.5 Sonnet et plus",
             "price": "{}",
             "priceInfo": "par utilisateur et par mois, facturé annuellement"
           },
           "aiOnDevice": {
+            "title": "IA sur appareil pour Mac",
             "description": "Exécutez Mistral 7B, LLAMA 3 et d'autres modèles locaux sur votre machine",
             "price": "{}",
             "priceInfo": "par utilisateur et par mois, facturé annuellement",
@@ -766,6 +873,7 @@
         "deal": {
           "bannerLabel": "Offre de nouvelle année !",
           "title": "Développez votre équipe !",
+          "info": "Effectuez une mise à niveau et économisez 10 % sur les forfaits Pro et Team ! Boostez la productivité de votre espace de travail avec de nouvelles fonctionnalités puissantes, notamment l'IA @:appName .",
           "viewPlans": "Voir les plans"
         }
       }
@@ -810,6 +918,7 @@
       },
       "currentPeriodBadge": "ACTUEL",
       "changePeriod": "Changer de période",
+      "planPeriod": "{} période",
       "monthlyInterval": "Mensuel",
       "monthlyPriceInfo": "par personne, facturé mensuellement",
       "annualInterval": "Annuellement",
@@ -843,8 +952,12 @@
         "itemFour": "Collaboration en temps réel",
         "itemFive": "Application mobile",
         "itemSix": "Réponses de l'IA",
+        "itemFileUpload": "Téléchargements de fichiers",
+        "customNamespace": "Nom d'espace personnalisé",
+        "tooltipSix": "La durée de vie signifie que le nombre de réponses n'est jamais réinitialisé",
         "intelligentSearch": "Recherche intelligente",
-        "tooltipSeven": "Vous permet de personnaliser une partie de l'URL de votre espace de travail"
+        "tooltipSeven": "Vous permet de personnaliser une partie de l'URL de votre espace de travail",
+        "customNamespaceTooltip": "URL de site publiée personnalisée"
       },
       "freeLabels": {
         "itemOne": "facturé par espace de travail",
@@ -852,6 +965,7 @@
         "itemThree": "5 Go",
         "itemFour": "Oui",
         "itemFive": "Oui",
+        "itemSix": "20 à vie",
         "itemFileUpload": "Jusqu'à 7 Mo",
         "intelligentSearch": "Recherche intelligente"
       },
@@ -870,7 +984,9 @@
         "description": "Votre paiement a été traité avec succès et votre forfait est mis à niveau vers @:appName {}. Vous pouvez consulter les détails de votre forfait sur la page Forfait"
       },
       "downgradeDialog": {
-        "title": "Êtes-vous sûr de vouloir rétrograder votre forfait ?"
+        "title": "Êtes-vous sûr de vouloir rétrograder votre forfait ?",
+        "description": "La baisse de votre offre vous ramènera au forfait gratuit. Les membres peuvent perdre l'accès à cet espace de travail et vous devrez peut-être libérer de l'espace pour respecter les limites de stockage du forfait gratuit.",
+        "downgradeLabel": "Baisser l'offre"
       }
     },
     "cancelSurveyDialog": {
@@ -911,6 +1027,8 @@
       }
     },
     "common": {
+      "uploadingFile": "Le fichier est en cours de téléchargement. Veuillez ne pas quitter l'application",
+      "uploadNotionSuccess": "Votre fichier zip Notion a été téléchargé avec succès. Une fois l'importation terminée, vous recevrez un e-mail de confirmation",
       "reset": "Réinitialiser"
     },
     "menu": {
@@ -926,6 +1044,8 @@
       "syncSetting": "Paramètres de synchronisation",
       "cloudSettings": "Paramètres cloud",
       "enableSync": "Activer la synchronisation",
+      "enableSyncLog": "Activer la journalisation de synchronisation",
+      "enableSyncLogWarning": "Merci de nous aider à diagnostiquer les problèmes de synchronisation. Cela enregistrera les modifications de votre document dans un fichier local. Veuillez quitter et rouvrir l'application après l'avoir activée",
       "enableEncrypt": "Chiffrer les données",
       "cloudURL": "URL de base",
       "invalidCloudURLScheme": "Schéma invalide",
@@ -939,10 +1059,12 @@
       "selfHostStart": "Si vous n'avez pas de serveur, veuillez vous référer au",
       "selfHostContent": "document",
       "selfHostEnd": "pour obtenir des conseils sur la façon d'auto-héberger votre propre serveur",
+      "pleaseInputValidURL": "Veuillez saisir une URL valide",
+      "changeUrl": "Changer l'URL auto-hébergée en {}",
       "cloudURLHint": "Saisissez l'URL de base de votre serveur",
       "cloudWSURL": "URL du websocket",
       "cloudWSURLHint": "Saisissez l'adresse websocket de votre serveur",
-      "restartApp": "Redémarer",
+      "restartApp": "Redémarrer",
       "restartAppTip": "Redémarrez l'application pour que les modifications prennent effet. Veuillez noter que cela pourrait déconnecter votre compte actuel.",
       "changeServerTip": "Après avoir changé de serveur, vous devez cliquer sur le bouton de redémarrer pour que les modifications prennent effet",
       "enableEncryptPrompt": "Activez le chiffrement pour sécuriser vos données avec cette clé. Rangez-la en toute sécurité ; une fois activé, il ne peut pas être désactivé. En cas de perte, vos données deviennent irrécupérables. Cliquez pour copier",
@@ -1029,6 +1151,8 @@
       "documentSettings": {
         "cursorColor": "Couleur du curseur du document",
         "selectionColor": "Couleur de sélection du document",
+        "width": "Largeur du document",
+        "changeWidth": "Changement",
         "pickColor": "Sélectionnez une couleur",
         "colorShade": "Nuance de couleur",
         "opacity": "Opacité",
@@ -1243,6 +1367,12 @@
       "Properties": "Propriétés",
       "viewList": "Vues de base de données"
     },
+    "filter": {
+      "empty": "Aucun filtre actif",
+      "cannotFindCreatableField": "Impossible de trouver un champ approprié pour filtrer",
+      "conditon": "Condition",
+      "where": "Où"
+    },
     "textFilter": {
       "contains": "Contient",
       "doesNotContain": "Ne contient pas",
@@ -1288,9 +1418,12 @@
       "between": "Est entre",
       "empty": "Est vide",
       "notEmpty": "N'est pas vide",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
       "choicechipPrefix": {
         "before": "Avant",
         "after": "Après",
+        "between": "Entre",
         "onOrBefore": "Pendant ou avant",
         "onOrAfter": "Pendant ou après",
         "isEmpty": "Est vide",
@@ -1308,6 +1441,7 @@
       "isNotEmpty": "N'est pas vide"
     },
     "field": {
+      "label": "Propriété",
       "hide": "Cacher",
       "show": "Afficher",
       "insertLeft": "Insérer à gauche",
@@ -1316,6 +1450,7 @@
       "delete": "Supprimer",
       "wrapCellContent": "Envelopper le texte",
       "clear": "Effacer les cellules",
+      "switchPrimaryFieldTooltip": "Impossible de modifier le type de champ du champ principal",
       "textFieldName": "Texte",
       "checkboxFieldName": "Case à cocher",
       "dateFieldName": "Date",
@@ -1329,6 +1464,7 @@
       "relationFieldName": "Relation",
       "summaryFieldName": "Résume IA",
       "timeFieldName": "Horaire",
+      "mediaFieldName": "Fichiers et médias",
       "translateFieldName": "Traduction IA",
       "translateTo": "Traduire en",
       "numberFormat": "Format du nombre",
@@ -1391,11 +1527,13 @@
       "cannotFindCreatableField": "Impossible de trouver un champ approprié pour trier",
       "deleteAllSorts": "Supprimer tous les tris",
       "addSort": "Ajouter un tri",
+      "sortsActive": "Impossible {intention} lors du tri",
       "removeSorting": "Voulez-vous supprimer le tri ?",
       "fieldInUse": "Vous êtes déjà en train de trier par ce champ",
       "deleteSort": "Supprimer le tri"
     },
     "row": {
+      "label": "Ligne",
       "duplicate": "Dupliquer",
       "delete": "Supprimer",
       "titlePlaceholder": "Sans titre",
@@ -1403,6 +1541,7 @@
       "copyProperty": "Copie de la propriété dans le presse-papiers",
       "count": "Compte",
       "newRow": "Nouvelle ligne",
+      "loadMore": "Charger plus",
       "action": "Action",
       "add": "Cliquez sur ajouter ci-dessous",
       "drag": "Glisser pour déplacer",
@@ -1411,7 +1550,9 @@
       "dragAndClick": "Faites glisser pour déplacer, cliquez pour ouvrir le menu",
       "insertRecordAbove": "Insérer l'enregistrement ci-dessus",
       "insertRecordBelow": "Insérer l'enregistrement ci-dessous",
-      "noContent": "Aucun contenu"
+      "noContent": "Aucun contenu",
+      "createRowAboveDescription": "créer une ligne au dessus",
+      "createRowBelowDescription": "insérer une ligne ci-dessous"
     },
     "selectOption": {
       "create": "Créer",
@@ -1472,6 +1613,24 @@
       "countEmptyShort": "VIDE",
       "countNonEmpty": "Compter les cellules non vides",
       "countNonEmptyShort": "REMPLI"
+    },
+    "media": {
+      "rename": "Rebaptiser",
+      "download": "Télécharger",
+      "expand": "Développer",
+      "delete": "Supprimer",
+      "moreFilesHint": "+{}",
+      "addFileOrImage": "Ajouter un fichier ou un lien",
+      "attachmentsHint": "{}",
+      "addFileMobile": "Ajouter un fichier",
+      "extraCount": "+{}",
+      "deleteFileDescription": "Etes-vous sûr de vouloir supprimer ce fichier ? Cette action est irréversible.",
+      "showFileNames": "Afficher le nom du fichier",
+      "downloadSuccess": "Fichier téléchargé",
+      "downloadFailedToken": "Échec du téléchargement du fichier, jeton utilisateur indisponible",
+      "setAsCover": "Définir comme couverture",
+      "openInBrowser": "Ouvrir dans le navigateur",
+      "embedLink": "Intégrer le lien du fichier"
     }
   },
   "document": {
@@ -1504,6 +1663,7 @@
         "image": "Image",
         "bulletedList": "Liste à puces",
         "numberedList": "Liste numérotée",
+        "todoList": "Liste de choses à faire",
         "doc": "Doc",
         "linkedDoc": "Lien vers la page",
         "grid": "Grille",
@@ -1519,12 +1679,26 @@
         "mathEquation": "Équation mathématique",
         "code": "Code",
         "toggleList": "Menu dépliant",
+        "toggleHeading1": "Basculer en titre 1",
+        "toggleHeading2": "Basculer en titre 2",
+        "toggleHeading3": "Basculer en titre 3",
         "emoji": "Émoji",
         "aiWriter": "Rédacteur IA",
         "dateOrReminder": "Date ou rappel",
         "photoGallery": "Galerie de photos",
         "file": "Fichier",
         "checkbox": "Case à cocher"
+      },
+      "subPage": {
+        "name": "Document",
+        "keyword1": "sous-page",
+        "keyword2": "page",
+        "keyword3": "page enfant",
+        "keyword4": "insérer une page",
+        "keyword5": "page intégrée",
+        "keyword6": "nouvelle page",
+        "keyword7": "créer une page",
+        "keyword8": "document"
       }
     },
     "selectionMenu": {
@@ -1565,6 +1739,26 @@
       "bulletedList": "Liste à puces",
       "todoList": "Liste de tâches",
       "callout": "Encadré",
+      "simpleTable": {
+        "moreActions": {
+          "color": "Couleur",
+          "align": "Aligner",
+          "delete": "Supprimer",
+          "duplicate": "Dupliquer",
+          "insertLeft": "Insérer à gauche",
+          "insertRight": "Insérer à droite",
+          "insertAbove": "Insérer ci-dessus",
+          "insertBelow": "Insérer ci-dessous",
+          "headerColumn": "Colonne d'en-tête",
+          "headerRow": "Ligne d'en-tête",
+          "clearContents": "Supprimer le contenu",
+          "setToPageWidth": "Définir sur la largeur de la page",
+          "distributeColumnsWidth": "Répartir les colonnes uniformément"
+        },
+        "clickToAddNewRow": "Cliquez pour ajouter une nouvelle ligne",
+        "clickToAddNewColumn": "Cliquez pour ajouter une nouvelle colonne",
+        "clickToAddNewRowAndColumn": "Cliquez pour ajouter une nouvelle ligne et une nouvelle colonne"
+      },
       "cover": {
         "changeCover": "Changer la couverture",
         "colors": "Couleurs",
@@ -1580,6 +1774,7 @@
         "back": "Dos",
         "saveToGallery": "Sauvegarder dans la gallerie",
         "removeIcon": "Supprimer l'icône",
+        "removeCover": "Supprimer la couverture",
         "pasteImageUrl": "Coller l'URL de l'image",
         "or": "OU",
         "pickFromFiles": "Choisissez parmi les fichiers",
@@ -1598,6 +1793,7 @@
       "optionAction": {
         "click": "Cliquez sur",
         "toOpenMenu": " pour ouvrir le menu",
+        "drag": "Glisser",
         "delete": "Supprimer",
         "duplicate": "Dupliquer",
         "turnInto": "Changer en",
@@ -1609,7 +1805,8 @@
         "center": "Centre",
         "right": "Droite",
         "defaultColor": "Défaut",
-        "depth": "Profond"
+        "depth": "Profond",
+        "copyLinkToBlock": "Copier le lien pour bloquer"
       },
       "image": {
         "addAnImage": "Ajouter une image",
@@ -1682,11 +1879,14 @@
       "file": {
         "name": "Fichier",
         "uploadTab": "Télécharger",
+        "uploadMobile": "Choisissez un fichier",
+        "uploadMobileGallery": "Depuis la galerie photo",
         "networkTab": "Intégrer un lien",
         "placeholderText": "Télécharger ou intégrer un fichier",
         "placeholderDragging": "Glisser le fichier à télécharger",
         "dropFileToUpload": "Glisser le fichier à télécharger",
         "fileUploadHint": "Glisser un fichier ici pour le télécharger\nou cliquez pour parcourir",
+        "fileUploadHintSuffix": "Parcourir",
         "networkHint": "Coller un lien de fichier",
         "networkUrlInvalid": "URL non valide, veuillez corriger l'URL et réessayer",
         "fileTooBigError": "La taille du fichier est trop grande, veuillez télécharger un fichier d'une taille inférieure à 10 Mo",
@@ -1696,8 +1896,19 @@
           "nameEmptyError": "Le nom du fichier ne peut pas être laissé vide."
         },
         "uploadedAt": "Mis en ligne le {}",
-        "linkedAt": "Lien ajouté le {}"
-      }
+        "linkedAt": "Lien ajouté le {}",
+        "failedToOpenMsg": "Impossible d'ouvrir, fichier non trouvé"
+      },
+      "subPage": {
+        "errors": {
+          "failedDeletePage": "Impossible de supprimer la page",
+          "failedCreatePage": "Échec de la création de la page",
+          "failedMovePage": "Impossible de déplacer la page vers ce document",
+          "failedDuplicatePage": "Impossible de dupliquer la page",
+          "failedDuplicateFindView": "Impossible de dupliquer la page - vue d'origine non trouvée"
+        }
+      },
+      "cannotMoveToItsChildren": "Ne peut pas se déplacer vers ses enfants"
     },
     "outlineBlock": {
       "placeholder": "Table de contenu"
@@ -1800,7 +2011,9 @@
       },
       "deleted": "Supprimer",
       "deletedContent": "Ce document n'existe pas ou a été supprimé",
-      "noAccess": "Pas d'accès"
+      "noAccess": "Pas d'accès",
+      "deletedPage": "Page supprimée",
+      "trashHint": " - à la corbeille"
     },
     "toolbar": {
       "resetToDefaultFont": "Réinitialiser aux valeurs par défaut"
@@ -1808,16 +2021,24 @@
     "errorBlock": {
       "theBlockIsNotSupported": "La version actuelle ne prend pas en charge ce bloc.",
       "clickToCopyTheBlockContent": "Cliquez pour copier le contenu du bloc",
-      "blockContentHasBeenCopied": "Le contenu du bloc a été copié."
+      "blockContentHasBeenCopied": "Le contenu du bloc a été copié.",
+      "parseError": "Une erreur s'est produite lors de l'analyse du bloc {}.",
+      "copyBlockContent": "Copier le contenu du bloc"
     },
     "mobilePageSelector": {
       "title": "Sélectionner une page",
       "failedToLoad": "Impossible de charger la liste des pages",
       "noPagesFound": "Aucune page trouvée"
+    },
+    "attachmentMenu": {
+      "choosePhoto": "Choisir une photo",
+      "takePicture": "Prendre une photo",
+      "chooseFile": "Choisir le fichier"
     }
   },
   "board": {
     "column": {
+      "label": "Colonne",
       "createNewCard": "Nouveau",
       "renameGroupTooltip": "Appuyez pour renommer le groupe",
       "createNewColumn": "Ajouter un nouveau groupe",
@@ -1865,6 +2086,10 @@
       "nextSevenDays": "7 prochains jours",
       "lastThirtyDays": "30 derniers jours",
       "nextThirtyDays": "30 prochains jours"
+    },
+    "media": {
+      "cardText": "{} {}",
+      "fallbackName": "fichiers"
     }
   },
   "calendar": {
@@ -2234,10 +2459,18 @@
       "deleteAccount": {
         "title": "Supprimer le compte",
         "subtitle": "Supprimez définitivement votre compte et toutes vos données.",
+        "description": "Supprimez définitivement votre compte et supprimez l'accès à tous les espaces de travail.",
         "deleteMyAccount": "Supprimer mon compte",
         "dialogTitle": "Supprimer le compte",
         "dialogContent1": "Êtes-vous sûr de vouloir supprimer définitivement votre compte ?",
-        "dialogContent2": "Cette action ne peut pas être annulée et supprimera l'accès à tous les espaces d'équipe, effaçant l'intégralité de votre compte, y compris les espaces de travail privés, et vous supprimant de tous les espaces de travail partagés."
+        "dialogContent2": "Cette action ne peut pas être annulée et supprimera l'accès à tous les espaces d'équipe, effaçant l'intégralité de votre compte, y compris les espaces de travail privés, et vous supprimant de tous les espaces de travail partagés.",
+        "confirmHint1": "Veuillez taper « SUPPRIMER MON COMPTE » pour confirmer.",
+        "confirmHint2": "Je comprends que cette action est irréversible et supprimera définitivement mon compte et toutes les données associées.",
+        "confirmHint3": "SUPPRIMER MON COMPTE",
+        "checkToConfirmError": "Vous devez cocher la case pour confirmer la suppression",
+        "failedToGetCurrentUser": "Impossible d'obtenir l'e-mail de l'utilisateur actuel",
+        "confirmTextValidationFailed": "Votre texte de confirmation ne correspond pas à « SUPPRIMER MON COMPTE »",
+        "deleteAccountSuccess": "Compte supprimé avec succès"
       }
     },
     "workplace": {
@@ -2283,6 +2516,8 @@
     "openSettings": "Ouvrir les paramètres",
     "photoPermissionTitle": "@:appName souhaite accéder à votre photothèque",
     "photoPermissionDescription": "Autoriser l'accès à la photothèque pour le téléchargement d'images.",
+    "cameraPermissionTitle": "@:appName souhaite accéder à votre caméra",
+    "cameraPermissionDescription": "@:appName a besoin d'accéder à votre appareil photo pour vous permettre d'ajouter des images à vos documents à partir de l'appareil photo",
     "doNotAllow": "Ne pas autoriser",
     "image": "Image"
   },
@@ -2331,11 +2566,30 @@
     "quicklySwitch": "Passer rapidement à l’espace suivant",
     "duplicate": "dupliquer l'espace ",
     "movePageToSpace": "Déplacer la page vers l'espace",
+    "cannotMovePageToDatabase": "Impossible de déplacer la page vers la base de données",
     "switchSpace": "Changer d'espace",
-    "spaceNameCannotBeEmpty": "Le nom de l'espace ne peut pas être vide"
+    "spaceNameCannotBeEmpty": "Le nom de l'espace ne peut pas être vide",
+    "success": {
+      "deleteSpace": "Espace supprimé avec succès",
+      "renameSpace": "Espace renommé avec succès",
+      "duplicateSpace": "Espace dupliqué avec succès",
+      "updateSpace": "Espace mis à jour avec succès"
+    },
+    "error": {
+      "deleteSpace": "Impossible de supprimer l'espace",
+      "renameSpace": "Impossible de renommer l'espace",
+      "duplicateSpace": "Impossible de dupliquer l'espace",
+      "updateSpace": "Échec de la mise à jour de l'espace"
+    },
+    "createSpace": "Créer de l'espace",
+    "manageSpace": "Gérer l'espace",
+    "renameSpace": "Renommer l'espace",
+    "mSpaceIconColor": "Couleur de l'icône de l'espace",
+    "mSpaceIcon": "Icône de l'espace"
   },
   "publish": {
     "hasNotBeenPublished": "Cette page n'a pas encore été publiée",
+    "spaceHasNotBeenPublished": "Je n'ai pas encore pris en charge la publication d'un espace",
     "reportPage": "Page de rapport",
     "databaseHasNotBeenPublished": "La publication d'une base de données n'est pas encore prise en charge.",
     "createdWith": "Créé avec",
@@ -2379,7 +2633,8 @@
       "one": "1 membre",
       "many": "{count} membres",
       "other": "{count} membres"
-    }
+    },
+    "useThisTemplate": "Utiliser le modèle"
   },
   "web": {
     "continue": "Continuer",
@@ -2387,6 +2642,10 @@
     "continueWithGoogle": "Continuer avec Google",
     "continueWithGithub": "Continuer avec GitHub",
     "continueWithDiscord": "Continuer avec Discord",
+    "continueWithApple": "Continuer avec Apple ",
+    "moreOptions": "Plus d'options",
+    "collapse": "Réduire",
+    "signInAgreement": "En cliquant sur « Continuer » ci-dessus, vous avez accepté les conditions d'utilisation d'AppFlowy.",
     "and": "et",
     "termOfUse": "Termes",
     "privacyPolicy": "politique de confidentialité",
@@ -2396,7 +2655,13 @@
       "uploadedAt": "Mis en ligne le {time}",
       "linkedAt": "Lien ajouté le {time}",
       "empty": "Envoyer ou intégrer un fichier"
-    }
+    },
+    "importNotion": "Importer depuis Notion",
+    "import": "Importer",
+    "importSuccess": "Téléchargé avec succès",
+    "importSuccessMessage": "Nous vous informerons lorsque l'importation sera terminée. Vous pourrez ensuite visualiser vos pages importées dans la barre latérale.",
+    "importFailed": "L'importation a échoué, veuillez vérifier le format du fichier",
+    "dropNotionFile": "Déposez votre fichier zip Notion ici pour le télécharger, ou cliquez pour parcourir"
   },
   "globalComment": {
     "comments": "Commentaires",
@@ -2453,6 +2718,7 @@
     "name": "Nom du modèle",
     "description": "Description du modèle",
     "about": "À propos du modèle",
+    "deleteFromTemplate": "Supprimer des modèles",
     "preview": "Aperçu du modèle",
     "categories": "Catégories de modèles",
     "relatedTemplates": "Modèles associés",
@@ -2492,6 +2758,7 @@
     "uploadSuccessDescription": "Votre modèle a été envoyé avec succès. Vous pouvez maintenant le visualiser dans la galerie de modèles.",
     "viewTemplate": "Voir le modèle",
     "deleteTemplate": "Supprimer le modèle",
+    "deleteSuccess": "Modèle supprimé avec succès",
     "deleteTemplateDescription": "Êtes-vous sûr de vouloir supprimer ce modèle ?",
     "addRelatedTemplate": "Ajouter un modèle associé",
     "removeRelatedTemplate": "Supprimer le modèle associé",
@@ -2507,5 +2774,144 @@
     "uploadSuccessDescription": "Le fichier a été envoyé avec succès",
     "uploadFailedDescription": "L'envoi du fichier a échoué",
     "uploadingDescription": "Le fichier est en cours d'envoi"
+  },
+  "gallery": {
+    "preview": "Ouvrir en plein écran",
+    "copy": "Copier",
+    "download": "Télécharger",
+    "prev": "Précédent",
+    "next": "Suivant",
+    "resetZoom": "Réinitialiser le zoom",
+    "zoomIn": "Agrandir",
+    "zoomOut": "Rétrécir"
+  },
+  "invitation": {
+    "join": "Rejoindre",
+    "on": "sur",
+    "invitedBy": "Invité par",
+    "membersCount": {
+      "zero": "{count} membres",
+      "one": "{count} membre",
+      "many": "{count} membres",
+      "other": "{count} membres"
+    },
+    "tip": "Vous avez été invité à rejoindre cet espace de travail avec les coordonnées ci-dessous. Si celles-ci sont incorrectes, contactez votre administrateur pour renvoyer l'invitation.",
+    "joinWorkspace": "Rejoindre l'espace de travail",
+    "success": "Vous avez rejoint avec succès l'espace de travail",
+    "successMessage": "Vous pouvez désormais accéder à toutes les pages et espaces de travail qu'il contient.",
+    "openWorkspace": "Ouvrir AppFlowy",
+    "alreadyAccepted": "Vous avez déjà accepté l'invitation",
+    "errorModal": {
+      "title": "Quelque chose s'est mal passé",
+      "description": "Il est possible que votre compte actuel {email} n'ait pas accès à cet espace de travail. Veuillez vous connecter avec le compte approprié ou contacter le propriétaire de l'espace de travail pour obtenir de l'aide.",
+      "contactOwner": "Contacter le propriétaire",
+      "close": "Retour à l'accueil",
+      "changeAccount": "Changer de compte"
+    }
+  },
+  "requestAccess": {
+    "title": "Pas d'accès à cette page",
+    "subtitle": "Vous pouvez demander l'accès au propriétaire de cette page. Une fois approuvé, vous pourrez consulter la page.",
+    "requestAccess": "Demande d'accès",
+    "backToHome": "Retour à l'accueil",
+    "tip": "Vous êtes actuellement connecté en tant que<link/> .",
+    "mightBe": "Vous pourriez avoir besoin de<login/> avec un compte différent.",
+    "successful": "Demande envoyée avec succès",
+    "successfulMessage": "Vous serez averti une fois que le propriétaire aura approuvé votre demande.",
+    "requestError": "Échec de la demande d'accès",
+    "repeatRequestError": "Vous avez déjà demandé l'accès à cette page"
+  },
+  "approveAccess": {
+    "title": "Approuver la demande d'adhésion à l'espace de travail",
+    "requestSummary": "<user/>demandes d'adhésion<workspace/> et accès<page/>",
+    "upgrade": "mise à niveau",
+    "downloadApp": "Télécharger AppFlowy",
+    "approveButton": "Approuver",
+    "approveSuccess": "Approuvé avec succès",
+    "approveError": "Échec de l'approbation, assurez-vous que la limite du plan d'espace de travail n'est pas dépassée",
+    "getRequestInfoError": "Impossible d'obtenir les informations de la demande",
+    "memberCount": {
+      "zero": "Aucun membre",
+      "one": "1 membre",
+      "many": "{count} membres",
+      "other": "{count} membres"
+    },
+    "alreadyProTitle": "Vous avez atteint la limite du plan d'espace de travail",
+    "alreadyProMessage": "Demandez-leur de contacter<email/> pour débloquer plus de membres",
+    "repeatApproveError": "Vous avez déjà approuvé cette demande",
+    "ensurePlanLimit": "Assurez-vous que la limite du plan d'espace de travail n'est pas dépassée. Si la limite est dépassée, envisagez<upgrade/> le plan de l'espace de travail ou<download/> .",
+    "requestToJoin": "demandé à rejoindre",
+    "asMember": "en tant que membre"
+  },
+  "upgradePlanModal": {
+    "title": "Passer à Pro",
+    "message": "{name} a atteint la limite de membres gratuits. Passez au plan Pro pour inviter plus de membres.",
+    "upgradeSteps": "Comment mettre à niveau votre plan sur AppFlowy :",
+    "step1": "1. Accédez aux paramètres",
+    "step2": "2. Cliquez sur « Offre »",
+    "step3": "3. Sélectionnez « Changer d'offre »",
+    "appNote": "Note: ",
+    "actionButton": "Mettre à niveau",
+    "downloadLink": "Télécharger l'application",
+    "laterButton": "Plus tard",
+    "refreshNote": "Après une mise à niveau réussie, cliquez sur<refresh/> pour activer vos nouvelles fonctionnalités.",
+    "refresh": "ici"
+  },
+  "breadcrumbs": {
+    "label": "Fil d'Ariane"
+  },
+  "time": {
+    "justNow": "A l'instant",
+    "seconds": {
+      "one": "1 seconde",
+      "other": "{count} secondes"
+    },
+    "minutes": {
+      "one": "1 minute",
+      "other": "{compter} minutes"
+    },
+    "hours": {
+      "one": "1 heure",
+      "other": "{count} heures"
+    },
+    "days": {
+      "one": "1 jour",
+      "other": "{count} jours"
+    },
+    "weeks": {
+      "one": "1 semaine",
+      "other": "{count} semaines"
+    },
+    "months": {
+      "one": "1 mois",
+      "other": "{count} mois"
+    },
+    "years": {
+      "one": "1 an",
+      "other": "{count} années"
+    },
+    "ago": "il y a",
+    "yesterday": "Hier",
+    "today": "Aujourd'hui"
+  },
+  "members": {
+    "zero": "Aucun membre",
+    "one": "1 membre",
+    "many": "{count} membres",
+    "other": "{count} membres"
+  },
+  "tabMenu": {
+    "close": "Fermer",
+    "closeDisabledHint": "Impossible de fermer un onglet épinglé, veuillez d'abord le désépingler",
+    "closeOthers": "Fermer les autres onglets",
+    "closeOthersHint": "Cela fermera tous les onglets non épinglés sauf celui-ci",
+    "closeOthersDisabledHint": "Tous les onglets sont épinglés, je ne trouve aucun onglet à fermer"
+  },
+  "openFileMessage": {
+    "success": "Fichier ouvert avec succès",
+    "fileNotFound": "Fichier introuvable",
+    "noAppToOpenFile": "Aucune application pour ouvrir ce fichier",
+    "permissionDenied": "Aucune autorisation d'ouvrir ce fichier",
+    "unknownError": "Échec de l'ouverture du fichier"
   }
 }

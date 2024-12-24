@@ -17,38 +17,44 @@ extension TableDeletionOperations on EditorState {
   /// After:
   /// Row 1: |   |   |   |
   Future<void> deleteRowInTable(
-    Node node,
-    int index,
-  ) async {
-    assert(node.type == SimpleTableBlockKeys.type);
+    Node tableNode,
+    int rowIndex, {
+    bool inMemoryUpdate = false,
+  }) async {
+    assert(tableNode.type == SimpleTableBlockKeys.type);
 
-    if (node.type != SimpleTableBlockKeys.type) {
+    if (tableNode.type != SimpleTableBlockKeys.type) {
       return;
     }
 
-    final rowLength = node.rowLength;
-    if (index < 0 || index >= rowLength) {
+    final rowLength = tableNode.rowLength;
+    if (rowIndex < 0 || rowIndex >= rowLength) {
       Log.warn(
-        'delete row: index out of range: $index, row length: $rowLength',
+        'delete row: index out of range: $rowIndex, row length: $rowLength',
       );
       return;
     }
 
-    Log.info('delete row: $index in table ${node.id}');
+    Log.info('delete row: $rowIndex in table ${tableNode.id}');
 
-    final attributes = node.mapTableAttributes(
-      node,
+    final attributes = tableNode.mapTableAttributes(
+      tableNode,
       type: TableMapOperationType.deleteRow,
-      index: index,
+      index: rowIndex,
     );
 
-    final row = node.children[index];
+    final row = tableNode.children[rowIndex];
     final transaction = this.transaction;
     transaction.deleteNode(row);
     if (attributes != null) {
-      transaction.updateNode(node, attributes);
+      transaction.updateNode(tableNode, attributes);
     }
-    await apply(transaction);
+    await apply(
+      transaction,
+      options: ApplyOptions(
+        inMemoryUpdate: inMemoryUpdate,
+      ),
+    );
   }
 
   /// Delete a column at the given index.
@@ -64,38 +70,47 @@ extension TableDeletionOperations on EditorState {
   /// After:
   /// Row 1: | 0 | 1 |
   /// Row 2: |   |   |
-  Future<void> deleteColumnInTable(Node node, int index) async {
-    assert(node.type == SimpleTableBlockKeys.type);
+  Future<void> deleteColumnInTable(
+    Node tableNode,
+    int columnIndex, {
+    bool inMemoryUpdate = false,
+  }) async {
+    assert(tableNode.type == SimpleTableBlockKeys.type);
 
-    if (node.type != SimpleTableBlockKeys.type) {
+    if (tableNode.type != SimpleTableBlockKeys.type) {
       return;
     }
 
-    final rowLength = node.rowLength;
-    final columnLength = node.columnLength;
-    if (index < 0 || index >= columnLength) {
+    final rowLength = tableNode.rowLength;
+    final columnLength = tableNode.columnLength;
+    if (columnIndex < 0 || columnIndex >= columnLength) {
       Log.warn(
-        'delete column: index out of range: $index, column length: $columnLength',
+        'delete column: index out of range: $columnIndex, column length: $columnLength',
       );
       return;
     }
 
-    Log.info('delete column: $index in table ${node.id}');
+    Log.info('delete column: $columnIndex in table ${tableNode.id}');
 
-    final attributes = node.mapTableAttributes(
-      node,
+    final attributes = tableNode.mapTableAttributes(
+      tableNode,
       type: TableMapOperationType.deleteColumn,
-      index: index,
+      index: columnIndex,
     );
 
     final transaction = this.transaction;
     for (var i = 0; i < rowLength; i++) {
-      final row = node.children[i];
-      transaction.deleteNode(row.children[index]);
+      final row = tableNode.children[i];
+      transaction.deleteNode(row.children[columnIndex]);
     }
     if (attributes != null) {
-      transaction.updateNode(node, attributes);
+      transaction.updateNode(tableNode, attributes);
     }
-    await apply(transaction);
+    await apply(
+      transaction,
+      options: ApplyOptions(
+        inMemoryUpdate: inMemoryUpdate,
+      ),
+    );
   }
 }

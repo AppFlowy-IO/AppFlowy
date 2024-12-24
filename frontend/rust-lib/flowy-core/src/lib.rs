@@ -161,11 +161,31 @@ impl AppFlowyCore {
       collab_builder
         .set_snapshot_persistence(Arc::new(SnapshotDBImpl(Arc::downgrade(&authenticate_user))));
 
+      let folder_indexer = Arc::new(FolderIndexManagerImpl::new(Some(Arc::downgrade(
+        &authenticate_user,
+      ))));
+
+      let folder_manager = FolderDepsResolver::resolve(
+        Arc::downgrade(&authenticate_user),
+        collab_builder.clone(),
+        server_provider.clone(),
+        folder_indexer.clone(),
+        store_preference.clone(),
+      )
+      .await;
+
+      let folder_query_service = FolderServiceImpl::new(
+        Arc::downgrade(&folder_manager),
+        Arc::downgrade(&authenticate_user),
+      );
+
       let ai_manager = ChatDepsResolver::resolve(
         Arc::downgrade(&authenticate_user),
         server_provider.clone(),
         store_preference.clone(),
         Arc::downgrade(&storage_manager.storage_service),
+        server_provider.clone(),
+        folder_query_service.clone(),
       );
 
       let database_manager = DatabaseDepsResolver::resolve(
@@ -186,26 +206,6 @@ impl AppFlowyCore {
         Arc::downgrade(&storage_manager.storage_service),
       );
 
-      let folder_indexer = Arc::new(FolderIndexManagerImpl::new(Some(Arc::downgrade(
-        &authenticate_user,
-      ))));
-
-      let folder_operation_handlers = folder_operation_handlers(
-        document_manager.clone(),
-        database_manager.clone(),
-        ai_manager.clone(),
-      );
-
-      let folder_manager = FolderDepsResolver::resolve(
-        Arc::downgrade(&authenticate_user),
-        collab_builder.clone(),
-        server_provider.clone(),
-        folder_indexer.clone(),
-        store_preference.clone(),
-        folder_operation_handlers,
-      )
-      .await;
-
       let user_manager = UserDepsResolver::resolve(
         authenticate_user.clone(),
         collab_builder.clone(),
@@ -222,6 +222,14 @@ impl AppFlowyCore {
         folder_manager.clone(),
       )
       .await;
+
+      // Register the folder operation handlers
+      register_handlers(
+        &folder_manager,
+        document_manager.clone(),
+        database_manager.clone(),
+        ai_manager.clone(),
+      );
 
       (
         user_manager,

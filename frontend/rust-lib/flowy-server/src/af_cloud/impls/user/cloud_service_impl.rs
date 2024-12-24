@@ -265,6 +265,8 @@ where
         vec![WorkspaceMemberInvitation {
           email: invitee_email,
           role: to_af_role(role),
+          skip_email_send: false,
+          wait_email_send: false,
         }],
       )
       .await?;
@@ -665,6 +667,7 @@ fn to_user_workspace(af_workspace: AFWorkspace) -> UserWorkspace {
     workspace_database_id: af_workspace.database_storage_id.to_string(),
     icon: af_workspace.icon,
     member_count: af_workspace.member_count.unwrap_or(0),
+    role: af_workspace.role.map(|r| r.into()),
   }
 }
 

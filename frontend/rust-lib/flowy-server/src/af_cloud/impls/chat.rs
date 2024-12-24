@@ -5,8 +5,8 @@ use client_api::entity::chat_dto::{
   RepeatedChatMessage,
 };
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, LocalAIConfig, StreamAnswer,
-  StreamComplete, SubscriptionPlan,
+  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings, LocalAIConfig,
+  StreamAnswer, StreamComplete, SubscriptionPlan, UpdateChatParams,
 };
 use flowy_error::FlowyError;
 use futures_util::{StreamExt, TryStreamExt};
@@ -30,13 +30,14 @@ where
     _uid: &i64,
     workspace_id: &str,
     chat_id: &str,
+    rag_ids: Vec<String>,
   ) -> Result<(), FlowyError> {
     let chat_id = chat_id.to_string();
     let try_get_client = self.inner.try_get_client();
     let params = CreateChatParams {
       chat_id,
       name: "".to_string(),
-      rag_ids: vec![],
+      rag_ids,
     };
     try_get_client?
       .create_chat(workspace_id, params)
@@ -98,11 +99,11 @@ where
     message_id: i64,
   ) -> Result<StreamAnswer, FlowyError> {
     let try_get_client = self.inner.try_get_client();
-    let stream = try_get_client?
+    let result = try_get_client?
       .stream_answer_v2(workspace_id, chat_id, message_id)
-      .await
-      .map_err(FlowyError::from)?
-      .map_err(FlowyError::from);
+      .await;
+
+    let stream = result.map_err(FlowyError::from)?.map_err(FlowyError::from);
     Ok(stream.boxed())
   }
 
@@ -132,6 +133,22 @@ where
       .get_chat_messages(workspace_id, chat_id, offset, limit)
       .await
       .map_err(FlowyError::from)?;
+
+    Ok(resp)
+  }
+
+  async fn get_question_from_answer_id(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    answer_message_id: i64,
+  ) -> Result<ChatMessage, FlowyError> {
+    let try_get_client = self.inner.try_get_client()?;
+    let resp = try_get_client
+      .get_question_message_from_answer_id(workspace_id, chat_id, answer_message_id)
+      .await
+      .map_err(FlowyError::from)?
+      .ok_or_else(FlowyError::record_not_found)?;
 
     Ok(resp)
   }
@@ -215,5 +232,32 @@ where
       .get_active_workspace_subscriptions(workspace_id)
       .await?;
     Ok(plans)
+  }
+
+  async fn get_chat_settings(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+  ) -> Result<ChatSettings, FlowyError> {
+    let settings = self
+      .inner
+      .try_get_client()?
+      .get_chat_settings(workspace_id, chat_id)
+      .await?;
+    Ok(settings)
+  }
+
+  async fn update_chat_settings(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    params: UpdateChatParams,
+  ) -> Result<(), FlowyError> {
+    self
+      .inner
+      .try_get_client()?
+      .update_chat_settings(workspace_id, chat_id, params)
+      .await?;
+    Ok(())
   }
 }

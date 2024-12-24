@@ -86,7 +86,7 @@ class HomeSettingBloc extends Bloc<HomeSettingEvent, HomeSettingState> {
           },
           editPanelResized: (_EditPanelResized e) {
             final newPosition =
-                (e.offset + state.resizeStart).clamp(-50, 200).toDouble();
+                (state.resizeStart + e.offset).clamp(0, 200).toDouble();
             if (state.resizeOffset != newPosition) {
               emit(state.copyWith(resizeOffset: newPosition));
             }

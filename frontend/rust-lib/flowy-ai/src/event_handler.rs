@@ -5,7 +5,9 @@ use crate::ai_manager::AIManager;
 use crate::completion::AICompletion;
 use crate::entities::*;
 use crate::local_ai::local_llm_chat::LLMModelInfo;
-use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
+use crate::notification::{
+  chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
+};
 use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{ChatMessageMetadata, ChatMessageType, ChatRAGData, ContextLoader};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -34,15 +36,16 @@ pub(crate) async fn stream_chat_message_handler(
     ChatMessageTypePB::System => ChatMessageType::System,
     ChatMessageTypePB::User => ChatMessageType::User,
   };
+
   let metadata = data
     .metadata
     .into_iter()
     .map(|metadata| {
-      let (content_type, content_len) = match metadata.data_type {
-        ChatMessageMetaTypePB::Txt => (ContextLoader::Text, metadata.data.len()),
-        ChatMessageMetaTypePB::Markdown => (ContextLoader::Markdown, metadata.data.len()),
-        ChatMessageMetaTypePB::PDF => (ContextLoader::PDF, 0),
-        ChatMessageMetaTypePB::UnknownMetaType => (ContextLoader::Unknown, 0),
+      let (content_type, content_len) = match metadata.loader_type {
+        ContextLoaderTypePB::Txt => (ContextLoader::Text, metadata.data.len()),
+        ContextLoaderTypePB::Markdown => (ContextLoader::Markdown, metadata.data.len()),
+        ContextLoaderTypePB::PDF => (ContextLoader::PDF, 0),
+        ContextLoaderTypePB::UnknownLoaderType => (ContextLoader::Unknown, 0),
       };
 
       ChatMessageMetadata {
@@ -72,6 +75,24 @@ pub(crate) async fn stream_chat_message_handler(
     )
     .await?;
   data_result_ok(result)
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn regenerate_response_handler(
+  data: AFPluginData<RegenerateResponsePB>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> FlowyResult<()> {
+  let data = data.try_into_inner()?;
+
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  ai_manager
+    .stream_regenerate_response(
+      &data.chat_id,
+      data.answer_message_id,
+      data.answer_stream_port,
+    )
+    .await?;
+  Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
@@ -298,7 +319,7 @@ pub(crate) async fn toggle_local_ai_chat_handler(
     file_enabled,
     plugin_state,
   };
-  make_notification(
+  chat_notification_builder(
     APPFLOWY_AI_NOTIFICATION_KEY,
     ChatNotification::UpdateLocalChatAI,
   )
@@ -323,7 +344,7 @@ pub(crate) async fn toggle_local_ai_chat_file_handler(
     file_enabled,
     plugin_state,
   };
-  make_notification(
+  chat_notification_builder(
     APPFLOWY_AI_NOTIFICATION_KEY,
     ChatNotification::UpdateLocalChatAI,
   )
@@ -416,4 +437,30 @@ pub(crate) async fn get_chat_info_handler(
   let ai_manager = upgrade_ai_manager(ai_manager)?;
   let pb = ai_manager.get_chat_info(&chat_id).await?;
   data_result_ok(pb)
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_chat_settings_handler(
+  data: AFPluginData<ChatId>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> DataResult<ChatSettingsPB, FlowyError> {
+  let chat_id = data.try_into_inner()?.value;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let rag_ids = ai_manager.get_rag_ids(&chat_id).await?;
+  let pb = ChatSettingsPB { rag_ids };
+  data_result_ok(pb)
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn update_chat_settings_handler(
+  data: AFPluginData<UpdateChatSettingsPB>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> FlowyResult<()> {
+  let params = data.try_into_inner()?;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  ai_manager
+    .update_rag_ids(&params.chat_id.value, params.rag_ids)
+    .await?;
+
+  Ok(())
 }

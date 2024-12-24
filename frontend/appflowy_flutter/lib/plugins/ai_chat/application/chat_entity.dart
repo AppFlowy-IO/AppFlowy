@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:equatable/equatable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:path/path.dart' as path;
@@ -56,7 +57,6 @@ class AIChatProgress {
 enum PromptResponseState {
   ready,
   sendingQuestion,
-  awaitingAnswer,
   streamingAnswer,
 }
 
@@ -76,19 +76,19 @@ class ChatFile extends Equatable {
     final fileName = path.basename(filePath);
     final extension = path.extension(filePath).toLowerCase();
 
-    ChatMessageMetaTypePB fileType;
+    ContextLoaderTypePB fileType;
     switch (extension) {
       case '.pdf':
-        fileType = ChatMessageMetaTypePB.PDF;
+        fileType = ContextLoaderTypePB.PDF;
         break;
       case '.txt':
-        fileType = ChatMessageMetaTypePB.Txt;
+        fileType = ContextLoaderTypePB.Txt;
         break;
       case '.md':
-        fileType = ChatMessageMetaTypePB.Markdown;
+        fileType = ContextLoaderTypePB.Markdown;
         break;
       default:
-        fileType = ChatMessageMetaTypePB.UnknownMetaType;
+        fileType = ContextLoaderTypePB.UnknownLoaderType;
     }
 
     return ChatFile(
@@ -100,13 +100,14 @@ class ChatFile extends Equatable {
 
   final String filePath;
   final String fileName;
-  final ChatMessageMetaTypePB fileType;
+  final ContextLoaderTypePB fileType;
 
   @override
   List<Object?> get props => [filePath];
 }
 
-typedef ChatInputFileMetadata = Map<String, ChatFile>;
+typedef ChatFileMap = Map<String, ChatFile>;
+typedef ChatMentionedPageMap = Map<String, ViewPB>;
 
 @freezed
 class ChatLoadingState with _$ChatLoadingState {
@@ -129,4 +130,10 @@ const onetimeShotType = "OnetimeShotType";
 
 OnetimeShotType? onetimeMessageTypeFromMeta(Map<String, dynamic>? metadata) {
   return metadata?[onetimeShotType];
+}
+
+enum LoadChatMessageStatus {
+  loading,
+  loadingRemote,
+  ready,
 }

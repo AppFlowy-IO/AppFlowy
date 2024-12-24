@@ -19,7 +19,7 @@ use collab_folder::{folder_diff::FolderViewChange, View, ViewIcon, ViewIndexCont
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_search_pub::entities::{FolderIndexManager, IndexManager, IndexableData};
 use flowy_user::services::authenticate_user::AuthenticateUser;
-use lib_dispatch::prelude::af_spawn;
+
 use strsim::levenshtein;
 use tantivy::{
   collector::TopDocs, directory::MmapDirectory, doc, query::QueryParser, schema::Field, Document,
@@ -296,7 +296,7 @@ impl IndexManager for FolderIndexManagerImpl {
   fn set_index_content_receiver(&self, mut rx: IndexContentReceiver, workspace_id: String) {
     let indexer = self.clone();
     let wid = workspace_id.clone();
-    af_spawn(async move {
+    tokio::spawn(async move {
       while let Ok(msg) = rx.recv().await {
         match msg {
           IndexContent::Create(value) => match serde_json::from_value::<ViewIndexContent>(value) {

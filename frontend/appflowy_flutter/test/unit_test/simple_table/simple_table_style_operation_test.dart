@@ -100,9 +100,9 @@ void main() {
         );
       }
       expect(tableNode.columnAligns, {
-        '0': TableAlign.center.name,
-        '1': TableAlign.center.name,
-        '2': TableAlign.center.name,
+        '0': TableAlign.center.key,
+        '1': TableAlign.center.key,
+        '2': TableAlign.center.key,
       });
     });
 
@@ -124,8 +124,8 @@ void main() {
       }
 
       expect(tableNode.rowAligns, {
-        '0': TableAlign.center.name,
-        '1': TableAlign.center.name,
+        '0': TableAlign.center.key,
+        '1': TableAlign.center.key,
       });
     });
 
@@ -173,6 +173,25 @@ void main() {
         '0': '0xFF0000FF',
         '1': '0xFF0000FF',
       });
+    });
+
+    test('update table align', () async {
+      final (editorState, tableNode) = createEditorStateAndTable(
+        rowCount: 2,
+        columnCount: 3,
+      );
+
+      for (final align in [
+        TableAlign.center,
+        TableAlign.right,
+        TableAlign.left,
+      ]) {
+        await editorState.updateTableAlign(
+          tableNode: tableNode,
+          align: align,
+        );
+        expect(tableNode.tableAlign, align);
+      }
     });
   });
 }

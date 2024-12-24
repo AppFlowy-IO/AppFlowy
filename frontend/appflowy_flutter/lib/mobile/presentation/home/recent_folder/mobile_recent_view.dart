@@ -111,7 +111,7 @@ class MobileRecentView extends StatelessWidget {
       padding: const EdgeInsets.only(left: 8.0),
       child: state.icon.isNotEmpty
           ? EmojiText(
-              emoji: state.icon,
+              emoji: state.icon.emoji,
               fontSize: 30.0,
             )
           : SizedBox.square(

@@ -1,5 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/_shared_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_constants.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -40,7 +39,7 @@ class SimpleTableRowBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  BlockComponentValidate get validate => (node) => node.children.isNotEmpty;
+  BlockComponentValidate get validate => (_) => true;
 }
 
 class SimpleTableRowBlockWidget extends BlockComponentStatefulWidget {
@@ -73,6 +72,10 @@ class _SimpleTableRowBlockWidgetState extends State<SimpleTableRowBlockWidget>
 
   @override
   Widget build(BuildContext context) {
+    if (node.children.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,

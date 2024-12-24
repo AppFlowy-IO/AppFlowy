@@ -27,7 +27,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:reorderables/reorderables.dart';
 
 const _dropFileKey = 'files_media';
@@ -253,6 +252,7 @@ class _AddFileButtonState extends State<_AddFileButton> {
       direction: widget.direction,
       constraints: const BoxConstraints(maxWidth: _menuWidth),
       margin: EdgeInsets.zero,
+      asBarrier: true,
       onClose: () =>
           context.read<EditorDropManagerState>().remove(_dropFileKey),
       popupBuilder: (_) {
@@ -459,6 +459,7 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
           offset: const Offset(0, 5),
           triggerActions: PopoverTriggerFlags.none,
           onClose: () => setState(() => isSelected = false),
+          asBarrier: true,
           popupBuilder: (popoverContext) => MultiBlocProvider(
             providers: [
               BlocProvider.value(value: context.read<RowDetailBloc>()),
@@ -479,7 +480,7 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
                 ? null
                 : () {
                     if (file.uploadType == FileUploadTypePB.LocalFile) {
-                      OpenFilex.open(file.url);
+                      afLaunchUrlString(file.url);
                       return;
                     }
 

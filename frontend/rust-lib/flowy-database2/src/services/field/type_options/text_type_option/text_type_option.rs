@@ -4,15 +4,15 @@ use std::cmp::Ordering;
 use collab_database::fields::text_type_option::RichTextTypeOption;
 use collab_database::fields::Field;
 use collab_database::rows::{new_cell_builder, Cell};
-
+use collab_database::template::util::ToCellString;
 use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::{FieldType, TextFilterPB};
 use crate::services::cell::{stringify_cell, CellDataChangeset, CellDataDecoder};
 use crate::services::field::type_options::util::ProtobufStr;
 use crate::services::field::{
-  TypeOption, TypeOptionCellData, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform, CELL_DATA,
+  CellDataProtobufEncoder, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionTransform, CELL_DATA,
 };
 use crate::services::sort::SortCondition;
 
@@ -25,24 +25,16 @@ impl TypeOption for RichTextTypeOption {
 
 impl TypeOptionTransform for RichTextTypeOption {}
 
-impl TypeOptionCellDataSerde for RichTextTypeOption {
+impl CellDataProtobufEncoder for RichTextTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     ProtobufStr::from(cell_data.0)
   }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(StringCellData::from(cell))
-  }
 }
 
 impl CellDataDecoder for RichTextTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(StringCellData::from(cell))
-  }
-
   fn decode_cell_with_transform(
     &self,
     cell: &Cell,
@@ -70,10 +62,6 @@ impl CellDataDecoder for RichTextTypeOption {
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     cell_data.to_string()
-  }
-
-  fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
-    StringCellData::from(cell).0.parse::<f64>().ok()
   }
 }
 
@@ -171,8 +159,8 @@ impl std::convert::From<String> for StringCellData {
   }
 }
 
-impl ToString for StringCellData {
-  fn to_string(&self) -> String {
+impl ToCellString for StringCellData {
+  fn to_cell_string(&self) -> String {
     self.0.clone()
   }
 }

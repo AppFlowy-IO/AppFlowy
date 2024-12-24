@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/_shared_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -115,19 +114,41 @@ void main() {
       await tester.editor.tapLineOfEditorAt(0);
       await tester.insertTableInDocument();
 
-      // hover on the table
-      final tableBlock = find.byType(SimpleTableBlockWidget).first;
+      // add a new row
+      final row = find.byWidgetPredicate((w) {
+        return w is SimpleTableRowBlockWidget && w.node.rowIndex == 1;
+      });
       await tester.hoverOnWidget(
-        tableBlock,
+        row,
         onHover: () async {
-          // click the add row button
           final addRowButton = find.byType(SimpleTableAddRowButton).first;
           await tester.tap(addRowButton);
+        },
+      );
+      await tester.pumpAndSettle();
 
-          // click the add column button
+      // add a new column
+      final column = find.byWidgetPredicate((w) {
+        return w is SimpleTableCellBlockWidget && w.node.columnIndex == 1;
+      }).first;
+      await tester.hoverOnWidget(
+        column,
+        onHover: () async {
           final addColumnButton = find.byType(SimpleTableAddColumnButton).first;
           await tester.tap(addColumnButton);
+        },
+      );
+      await tester.pumpAndSettle();
 
+      // add a new row and a new column
+      final row2 = find.byWidgetPredicate((w) {
+        return w is SimpleTableCellBlockWidget &&
+            w.node.rowIndex == 2 &&
+            w.node.columnIndex == 2;
+      }).first;
+      await tester.hoverOnWidget(
+        row2,
+        onHover: () async {
           // click the add row and column button
           final addRowAndColumnButton =
               find.byType(SimpleTableAddColumnAndRowButton).first;
@@ -310,6 +331,301 @@ void main() {
       expect(tableNode.rowLength, 4);
       expect(tableNode.columnLength, 2);
     });
+  });
+
+  testWidgets('set column width to page width (1)', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+
+    final tableNode = tester.editor.getNodeAtPath([0]);
+    final beforeWidth = tableNode.width;
+
+    // set the column width to page width
+    await tester.clickMoreActionItemInTableMenu(
+      type: SimpleTableMoreActionType.column,
+      index: 0,
+      action: SimpleTableMoreAction.setToPageWidth,
+    );
+    await tester.pumpAndSettle();
+
+    final afterWidth = tableNode.width;
+    expect(afterWidth, greaterThan(beforeWidth));
+  });
+
+  testWidgets('set column width to page width (2)', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+
+    final tableNode = tester.editor.getNodeAtPath([0]);
+    final beforeWidth = tableNode.width;
+
+    // set the column width to page width
+    await tester.clickMoreActionItemInTableMenu(
+      type: SimpleTableMoreActionType.row,
+      index: 0,
+      action: SimpleTableMoreAction.setToPageWidth,
+    );
+    await tester.pumpAndSettle();
+
+    final afterWidth = tableNode.width;
+    expect(afterWidth, greaterThan(beforeWidth));
+  });
+
+  testWidgets('distribute columns evenly (1)', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+
+    final tableNode = tester.editor.getNodeAtPath([0]);
+    final beforeWidth = tableNode.width;
+
+    // set the column width to page width
+    await tester.clickMoreActionItemInTableMenu(
+      type: SimpleTableMoreActionType.row,
+      index: 0,
+      action: SimpleTableMoreAction.distributeColumnsEvenly,
+    );
+    await tester.pumpAndSettle();
+
+    final afterWidth = tableNode.width;
+    expect(afterWidth, equals(beforeWidth));
+
+    final distributeColumnWidthsEvenly =
+        tableNode.attributes[SimpleTableBlockKeys.distributeColumnWidthsEvenly];
+    expect(distributeColumnWidthsEvenly, isTrue);
+  });
+
+  testWidgets('distribute columns evenly (2)', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+
+    final tableNode = tester.editor.getNodeAtPath([0]);
+    final beforeWidth = tableNode.width;
+
+    // set the column width to page width
+    await tester.clickMoreActionItemInTableMenu(
+      type: SimpleTableMoreActionType.column,
+      index: 0,
+      action: SimpleTableMoreAction.distributeColumnsEvenly,
+    );
+    await tester.pumpAndSettle();
+
+    final afterWidth = tableNode.width;
+    expect(afterWidth, equals(beforeWidth));
+
+    final distributeColumnWidthsEvenly =
+        tableNode.attributes[SimpleTableBlockKeys.distributeColumnWidthsEvenly];
+    expect(distributeColumnWidthsEvenly, isTrue);
+  });
+
+  testWidgets('using option menu to set column width', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+    await tester.editor.hoverAndClickOptionMenuButton([0]);
+
+    final editorState = tester.editor.getCurrentEditorState();
+    final beforeWidth = editorState.document.nodeAtPath([0])!.width;
+
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_simpleTable_moreActions_setToPageWidth.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final afterWidth = editorState.document.nodeAtPath([0])!.width;
+    expect(afterWidth, greaterThan(beforeWidth));
+
+    await tester.editor.hoverAndClickOptionMenuButton([0]);
+    await tester.tapButton(
+      find.text(
+        LocaleKeys
+            .document_plugins_simpleTable_moreActions_distributeColumnsWidth
+            .tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final afterWidth2 = editorState.document.nodeAtPath([0])!.width;
+    expect(afterWidth2, equals(afterWidth));
+  });
+
+  testWidgets('insert a table and use select all the delete it',
+      (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+
+    await tester.editor.tapLineOfEditorAt(1);
+    await tester.ime.insertText('Hello World');
+
+    // select all
+    await tester.simulateKeyEvent(
+      LogicalKeyboardKey.keyA,
+      isMetaPressed: UniversalPlatform.isMacOS,
+      isControlPressed: !UniversalPlatform.isMacOS,
+    );
+
+    await tester.simulateKeyEvent(LogicalKeyboardKey.backspace);
+    await tester.pumpAndSettle();
+
+    final editorState = tester.editor.getCurrentEditorState();
+    // only one paragraph left
+    expect(editorState.document.root.children.length, 1);
+    final paragraphNode = editorState.document.nodeAtPath([0])!;
+    expect(paragraphNode.delta, isNull);
+  });
+
+  testWidgets('use tab or shift+tab to navigate in table', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+
+    await tester.simulateKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pumpAndSettle();
+
+    final editorState = tester.editor.getCurrentEditorState();
+    final selection = editorState.selection;
+    expect(selection, isNotNull);
+    expect(selection!.start.path, [0, 0, 1, 0]);
+    expect(selection.end.path, [0, 0, 1, 0]);
+
+    await tester.simulateKeyEvent(
+      LogicalKeyboardKey.tab,
+      isShiftPressed: true,
+    );
+    await tester.pumpAndSettle();
+
+    final selection2 = editorState.selection;
+    expect(selection2, isNotNull);
+    expect(selection2!.start.path, [0, 0, 0, 0]);
+    expect(selection2.end.path, [0, 0, 0, 0]);
+  });
+
+  testWidgets('shift+enter to insert a new line in table', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+
+    await tester.simulateKeyEvent(
+      LogicalKeyboardKey.enter,
+      isShiftPressed: true,
+    );
+    await tester.pumpAndSettle();
+
+    final editorState = tester.editor.getCurrentEditorState();
+    final node = editorState.document.nodeAtPath([0, 0, 0])!;
+    expect(node.children.length, 1);
+  });
+
+  testWidgets('using option menu to set table align', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+    await tester.editor.hoverAndClickOptionMenuButton([0]);
+
+    final editorState = tester.editor.getCurrentEditorState();
+    final beforeAlign = editorState.document.nodeAtPath([0])!.tableAlign;
+    expect(beforeAlign, TableAlign.left);
+
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_simpleTable_moreActions_align.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_optionAction_center.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final afterAlign = editorState.document.nodeAtPath([0])!.tableAlign;
+    expect(afterAlign, TableAlign.center);
+
+    await tester.editor.hoverAndClickOptionMenuButton([0]);
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_simpleTable_moreActions_align.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_optionAction_right.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final afterAlign2 = editorState.document.nodeAtPath([0])!.tableAlign;
+    expect(afterAlign2, TableAlign.right);
+
+    await tester.editor.hoverAndClickOptionMenuButton([0]);
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_simpleTable_moreActions_align.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_optionAction_left.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final afterAlign3 = editorState.document.nodeAtPath([0])!.tableAlign;
+    expect(afterAlign3, TableAlign.left);
   });
 }
 

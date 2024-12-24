@@ -34,7 +34,7 @@ class MobileQuickActionButton extends StatelessWidget {
             enable ? null : const WidgetStatePropertyAll(Colors.transparent),
         splashColor: Colors.transparent,
         child: Container(
-          height: 52,
+          height: 44,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Row(
             children: [

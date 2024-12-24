@@ -180,8 +180,8 @@
     "inputLocalAIMessageHint": "Ask @:appName Local AI",
     "unsupportedCloudPrompt": "This feature is only available when using @:appName Cloud",
     "relatedQuestion": "Suggested",
-    "serverUnavailable": "Service Temporarily Unavailable. Please try again later.",
-    "aiServerUnavailable": "Connection lost. Please check your internet and",
+    "serverUnavailable": "Connection lost. Please check your internet and",
+    "aiServerUnavailable": "The AI service is temporarily unavailable. Please try again later.",
     "retry": "Retry",
     "clickToRetry": "Click to retry",
     "regenerateAnswer": "Regenerate",
@@ -204,7 +204,9 @@
     "uploadFile": "Attach PDFs, text or markdown files",
     "questionDetail": "Hi {}! How can I help you today?",
     "indexingFile": "Indexing {}",
-    "generatingResponse": "Generating response"
+    "generatingResponse": "Generating response",
+    "selectSources": "Select Sources",
+    "regenerate": "Try again"
   },
   "trash": {
     "text": "Trash",
@@ -1036,6 +1038,8 @@
       "syncSetting": "Sync Setting",
       "cloudSettings": "Cloud Settings",
       "enableSync": "Enable sync",
+      "enableSyncLog": "Enable sync logging",
+      "enableSyncLogWarning": "Thank you for helping diagnose sync issues. This will log your document edits to a local file. Please quit and reopen the app after enabling",
       "enableEncrypt": "Encrypt data",
       "cloudURL": "Base URL",
       "invalidCloudURLScheme": "Invalid Scheme",
@@ -1511,6 +1515,7 @@
       "copyProperty": "Copied property to clipboard",
       "count": "Count",
       "newRow": "New row",
+      "loadMore": "Load more",
       "action": "Action",
       "add": "Click add to below",
       "drag": "Drag to move",
@@ -1723,11 +1728,22 @@
           "insertBelow": "Insert below",
           "headerColumn": "Header column",
           "headerRow": "Header row",
-          "clearContents": "Clear contents"
+          "clearContents": "Clear contents",
+          "setToPageWidth": "Set to page width",
+          "distributeColumnsWidth": "Distribute columns evenly",
+          "duplicateRow": "Duplicate row",
+          "duplicateColumn": "Duplicate column",
+          "textColor": "Text color",
+          "cellBackgroundColor": "Cell background color",
+          "duplicateTable": "Duplicate table"
         },
         "clickToAddNewRow": "Click to add a new row",
         "clickToAddNewColumn": "Click to add a new column",
-        "clickToAddNewRowAndColumn": "Click to add a new row and column"
+        "clickToAddNewRowAndColumn": "Click to add a new row and column",
+        "headerName": {
+          "table": "Table",
+          "alignText": "Align text"
+        }
       },
       "cover": {
         "changeCover": "Change Cover",
@@ -2896,5 +2912,12 @@
     "favoriteDisabledHint": "Cannot favorite this view",
     "pinTab": "Pin",
     "unpinTab": "Unpin"
+  },
+  "openFileMessage": {
+    "success": "File opened successfully",
+    "fileNotFound": "File not found",
+    "noAppToOpenFile": "No app to open this file",
+    "permissionDenied": "No permission to open this file",
+    "unknownError": "File open failed"
   }
 }

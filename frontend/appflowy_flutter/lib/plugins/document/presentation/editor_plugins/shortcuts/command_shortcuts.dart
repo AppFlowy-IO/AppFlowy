@@ -47,7 +47,7 @@ List<CommandShortcutEvent> commandShortcutEvents = [
         undoCommand,
         redoCommand,
         exitEditingCommand,
-        // ...tableCommands,
+        ...tableCommands,
       ].contains(shortcut),
     ),
 
