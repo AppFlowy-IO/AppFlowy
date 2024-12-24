@@ -331,6 +331,7 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
     SubPageBlockKeys.type: _buildSubPageBlockComponentBuilder(
       context,
       configuration,
+      styleCustomizer: styleCustomizer,
     ),
     errorBlockComponentBuilderKey: ErrorBlockComponentBuilder(
       configuration: configuration,
@@ -811,9 +812,14 @@ FileBlockComponentBuilder _buildFileBlockComponentBuilder(
 
 SubPageBlockComponentBuilder _buildSubPageBlockComponentBuilder(
   BuildContext context,
-  BlockComponentConfiguration configuration,
-) {
-  return SubPageBlockComponentBuilder(configuration: configuration);
+  BlockComponentConfiguration configuration, {
+  required EditorStyleCustomizer styleCustomizer,
+}) {
+  return SubPageBlockComponentBuilder(
+    configuration: configuration.copyWith(
+      textStyle: (node) => styleCustomizer.subPageBlockTextStyleBuilder(),
+    ),
+  );
 }
 
 TextStyle _buildTextStyleInTableCell(
