@@ -251,10 +251,7 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
               : Column(
                   children: [
                     ...node.children.map(_buildCellContent),
-                    SizedBox(
-                      height: 12,
-                      child: _buildEmptyCellContent(),
-                    ),
+                    _buildEmptyCellContent(height: 12),
                   ],
                 ),
         ),
@@ -342,13 +339,16 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     return child;
   }
 
-  Widget _buildEmptyCellContent() {
+  Widget _buildEmptyCellContent({
+    double? height,
+  }) {
     // if the table cell is empty, we should allow the user to tap on it to create a new paragraph.
     final lastChild = node.children.lastOrNull;
     if (lastChild != null && lastChild.delta?.isEmpty != null) {
       return const SizedBox.shrink();
     }
-    return GestureDetector(
+
+    Widget child = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
         final transaction = editorState.transaction;
@@ -363,6 +363,15 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
         editorState.apply(transaction);
       },
     );
+
+    if (height != null) {
+      child = SizedBox(
+        height: height,
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   Widget _buildRowMoreActionButton() {
