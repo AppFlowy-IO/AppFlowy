@@ -315,6 +315,7 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       CodeBlockKeys.type,
       SubPageBlockKeys.type,
       FileBlockKeys.type,
+      CustomImageBlockKeys.type,
     ];
     if (notSupportAlignmentBlocks.contains(childNode.type)) {
       child = SizedBox(
