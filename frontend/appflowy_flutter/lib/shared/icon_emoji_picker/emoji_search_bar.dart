@@ -124,6 +124,23 @@ class _SearchTextFieldState extends State<_SearchTextField> {
   final FocusNode focusNode = FocusNode();
 
   @override
+  void initState() {
+    DateTime lastFocusTime = DateTime.now();
+    focusNode.addListener(() {
+      if (focusNode.hasFocus) {
+        lastFocusTime = DateTime.now();
+      } else {
+        /// This is a workaround to ensure that the focus will not be lost within a second
+        if (DateTime.now().difference(lastFocusTime).inMilliseconds < 1000 &&
+            mounted) {
+          focusNode.requestFocus();
+        }
+      }
+    });
+    super.initState();
+  }
+
+  @override
   void dispose() {
     controller.dispose();
     focusNode.dispose();
