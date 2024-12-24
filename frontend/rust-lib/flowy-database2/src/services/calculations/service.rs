@@ -40,7 +40,7 @@ impl CalculationsService {
         );
 
       if len > 0 {
-        format!("{:.5}", sum / len as f64)
+        format!("{:.2}", sum / len as f64)
       } else {
         String::new()
       }

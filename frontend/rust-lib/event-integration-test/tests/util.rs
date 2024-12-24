@@ -16,7 +16,7 @@ use zip::{CompressionMethod, ZipArchive, ZipWriter};
 use event_integration_test::event_builder::EventBuilder;
 
 use event_integration_test::EventIntegrationTest;
-use flowy_folder::entities::{ImportPayloadPB, ImportTypePB, ImportValuePayloadPB, ViewLayoutPB};
+use flowy_folder::entities::{ImportItemPayloadPB, ImportPayloadPB, ImportTypePB, ViewLayoutPB};
 use flowy_user::entities::UpdateUserProfilePayloadPB;
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent::*;
@@ -164,7 +164,7 @@ pub fn gen_csv_import_data(file_name: &str, workspace_id: &str) -> ImportPayload
   let file_path = format!("./tests/asset/{}", file_name);
   ImportPayloadPB {
     parent_view_id: workspace_id.to_string(),
-    values: vec![ImportValuePayloadPB {
+    items: vec![ImportItemPayloadPB {
       name: file_name.to_string(),
       data: None,
       file_path: Some(file_path),
