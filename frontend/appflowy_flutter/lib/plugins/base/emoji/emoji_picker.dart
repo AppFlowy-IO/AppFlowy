@@ -18,10 +18,12 @@ class FlowyEmojiPicker extends StatefulWidget {
     super.key,
     required this.onEmojiSelected,
     this.emojiPerLine = 9,
+    this.ensureFocus = false,
   });
 
   final EmojiSelectedCallback onEmojiSelected;
   final int emojiPerLine;
+  final bool ensureFocus;
 
   @override
   State<FlowyEmojiPicker> createState() => _FlowyEmojiPickerState();
@@ -97,6 +99,7 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: FlowyEmojiSearchBar(
             emojiData: emojiData,
+            ensureFocus: widget.ensureFocus,
             onKeywordChanged: (value) {
               keyword.value = value;
             },

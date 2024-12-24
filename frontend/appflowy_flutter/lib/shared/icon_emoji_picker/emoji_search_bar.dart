@@ -15,12 +15,14 @@ typedef EmojiSkinToneChanged = void Function(EmojiSkinTone skinTone);
 class FlowyEmojiSearchBar extends StatefulWidget {
   const FlowyEmojiSearchBar({
     super.key,
+    this.ensureFocus = false,
     required this.emojiData,
     required this.onKeywordChanged,
     required this.onSkinToneChanged,
     required this.onRandomEmojiSelected,
   });
 
+  final bool ensureFocus;
   final EmojiData emojiData;
   final EmojiKeywordChangedCallback onKeywordChanged;
   final EmojiSkinToneChanged onSkinToneChanged;
@@ -51,6 +53,7 @@ class _FlowyEmojiSearchBarState extends State<FlowyEmojiSearchBar> {
           Expanded(
             child: _SearchTextField(
               onKeywordChanged: widget.onKeywordChanged,
+              ensureFocus: widget.ensureFocus,
             ),
           ),
           const HSpace(8.0),
@@ -111,9 +114,11 @@ class _RandomEmojiButton extends StatelessWidget {
 class _SearchTextField extends StatefulWidget {
   const _SearchTextField({
     required this.onKeywordChanged,
+    this.ensureFocus = false,
   });
 
   final EmojiKeywordChangedCallback onKeywordChanged;
+  final bool ensureFocus;
 
   @override
   State<_SearchTextField> createState() => _SearchTextFieldState();
@@ -122,6 +127,17 @@ class _SearchTextField extends StatefulWidget {
 class _SearchTextFieldState extends State<_SearchTextField> {
   final TextEditingController controller = TextEditingController();
   final FocusNode focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.ensureFocus) {
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (!mounted || focusNode.hasFocus) return;
+        focusNode.requestFocus();
+      });
+    }
+  }
 
   @override
   void dispose() {
