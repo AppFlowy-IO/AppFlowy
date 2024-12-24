@@ -5,7 +5,6 @@ import 'package:appflowy/plugins/document/presentation/editor_configuration.dart
 import 'package:appflowy/plugins/document/presentation/editor_plugins/background_color/theme_background_color.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/i18n/editor_i18n.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/slash_menu/slash_menu_items/slash_menu_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/child_page.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/date_reference.dart';
@@ -410,41 +409,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
   }
 
   List<SelectionMenuItem> _customSlashMenuItems() {
-    final isLocalMode = context.read<DocumentBloc>().isLocalMode;
-    return [
-      if (!isLocalMode) aiWriterSlashMenuItem,
-      paragraphSlashMenuItem,
-      heading1SlashMenuItem,
-      heading2SlashMenuItem,
-      heading3SlashMenuItem,
-      imageSlashMenuItem,
-      bulletedListSlashMenuItem,
-      numberedListSlashMenuItem,
-      todoListSlashMenuItem,
-      dividerSlashMenuItem,
-      quoteSlashMenuItem,
-      tableSlashMenuItem,
-      linkToPageSlashMenuItem,
-      gridSlashMenuItem(documentBloc),
-      referencedGridSlashMenuItem,
-      kanbanSlashMenuItem(documentBloc),
-      referencedKanbanSlashMenuItem,
-      calendarSlashMenuItem(documentBloc),
-      referencedCalendarSlashMenuItem,
-      calloutSlashMenuItem,
-      outlineSlashMenuItem,
-      mathEquationSlashMenuItem,
-      codeBlockSlashMenuItem,
-      toggleListSlashMenuItem,
-      toggleHeading1SlashMenuItem,
-      toggleHeading2SlashMenuItem,
-      toggleHeading3SlashMenuItem,
-      emojiSlashMenuItem,
-      dateOrReminderSlashMenuItem,
-      photoGallerySlashMenuItem,
-      fileSlashMenuItem,
-      subPageSlashMenuItem,
-    ];
+    final documentBloc = context.read<DocumentBloc>();
+    final isLocalMode = documentBloc.isLocalMode;
+    return slashMenuItemsBuilder(
+      isLocalMode: isLocalMode,
+      documentBloc: documentBloc,
+    );
   }
 
   (bool, Selection?) _computeAutoFocusParameters() {
