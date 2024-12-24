@@ -693,6 +693,37 @@ void main() {
     final afterAlign3 = editorState.document.nodeAtPath([0])!.tableAlign;
     expect(afterAlign3, TableAlign.left);
   });
+
+  testWidgets('support slash menu in table', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    final editorState = tester.editor.getCurrentEditorState();
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+
+    final path = [0, 0, 0, 0];
+    final selection = Selection.collapsed(Position(path: path));
+    editorState.selection = selection;
+    await tester.editor.showSlashMenu();
+    await tester.pumpAndSettle();
+
+    final paragraphItem = find.byWidgetPredicate((w) {
+      return w is SelectionMenuItemWidget &&
+          w.item.name == LocaleKeys.document_slashMenu_name_text.tr();
+    });
+    expect(paragraphItem, findsOneWidget);
+
+    await tester.tap(paragraphItem);
+    await tester.pumpAndSettle();
+
+    final paragraphNode = editorState.document.nodeAtPath(path)!;
+    expect(paragraphNode.type, equals(ParagraphBlockKeys.type));
+  });
 }
 
 extension on WidgetTester {
