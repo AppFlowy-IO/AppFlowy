@@ -126,7 +126,7 @@ async fn import_workspace(file_name: &str, test: &EventIntegrationTest) -> Vec<V
     .import_appflowy_data(file_path.to_str().unwrap().to_string(), None)
     .await
     .unwrap();
-  
+
   test.get_all_workspace_views().await
 }
 
