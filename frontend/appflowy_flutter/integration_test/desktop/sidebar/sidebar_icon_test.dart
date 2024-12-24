@@ -1,5 +1,6 @@
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/recent_icons.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,9 +11,16 @@ import '../../shared/common_operations.dart';
 import '../../shared/expectation.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
   final emoji = EmojiIconData.emoji('😁');
+
+  setUpAll(() {
+    IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+    RecentIcons.enable = false;
+  });
+
+  tearDownAll(() {
+    RecentIcons.enable = true;
+  });
 
   Future<EmojiIconData> loadIcon() async {
     await loadIconGroups();
