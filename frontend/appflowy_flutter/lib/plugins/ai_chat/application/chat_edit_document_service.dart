@@ -17,30 +17,34 @@ class ChatEditDocumentService {
   static Future<ViewPB?> saveMessagesToNewPage(
     String parentViewId,
     List<TextMessage> messages,
-  ) {
-    String completeMessage = '';
-    for (final message in messages) {
-      completeMessage += '${message.text}\n';
+  ) async {
+    if (messages.isEmpty) {
+      return null;
     }
+
+    // Convert messages to markdown and trim the last empty newline.
+    final completeMessage = messages.map((m) => m.text).join('\n').trimRight();
     if (completeMessage.isEmpty) {
-      return Future(() => null);
+      return null;
     }
+
     final document = customMarkdownToDocument(completeMessage);
     final initialBytes =
         DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer();
-    return initialBytes != null
-        ? ViewBackendService.createView(
-            name: '',
-            layoutType: ViewLayoutPB.Document,
-            parentViewId: parentViewId,
-            initialDataBytes:
-                DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer(),
-            // TODO: Consider the location of this document?
-          ).toNullable()
-        : Future(() => null);
+    if (initialBytes == null) {
+      Log.error('Failed to convert messages to document');
+      return null;
+    }
+
+    return ViewBackendService.createView(
+      name: '',
+      layoutType: ViewLayoutPB.Document,
+      parentViewId: parentViewId,
+      initialDataBytes: initialBytes,
+    ).toNullable();
   }
 
-  static void addMessageToPage(
+  static Future<void> addMessageToPage(
     String documentId,
     TextMessage message,
   ) async {
@@ -52,11 +56,21 @@ class ChatEditDocumentService {
       return;
     }
 
-    final lastNodeOrNull = document.root.children.lastOrNull;
+    if (message.text.isEmpty) {
+      Log.error('Message is empty');
+      return;
+    }
 
     final messageDocument = customMarkdownToDocument(message.text);
+    if (messageDocument.isEmpty) {
+      Log.error('Failed to convert message to document');
+      return;
+    }
+
+    final lastNodeOrNull = document.root.children.lastOrNull;
+
     final rootIsEmpty = lastNodeOrNull == null;
-    final isLastLineEmpty = _isLastLineEmpty(lastNodeOrNull);
+    final isLastLineEmpty = lastNodeOrNull?.delta?.isNotEmpty == false;
 
     final nodes = [
       if (rootIsEmpty || !isLastLineEmpty) paragraphNode(),
