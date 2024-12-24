@@ -785,6 +785,22 @@
         "offlineAIInstruction1": "اتبع"
       }
     },
+    "planPage": {
+      "planUsage": {
+        "aiResponseUsage": "{} ل {}",
+        "unlimitedAILabel": "استجابات غير محدودة",
+        "proBadge": "احترافية",
+        "aiMaxBadge": "الذكاء الاصطناعي ماكس",
+        "aiOnDeviceBadge": "الذكاء الاصطناعي على الجهاز لنظام التشغيل Mac",
+        "memberProToggle": "مزيد من الأعضاء وذكاء اصطناعي غير محدود",
+        "aiMaxToggle": "ذكاء اصطناعي غير محدود وإمكانية الوصول إلى نماذج متقدمة",
+        "aiOnDeviceToggle": "الذكاء الاصطناعي المحلي لتحقيق الخصوصية القصوى",
+        "aiCredit": {
+          "title": "أضف رصيد الذكاء الاصطناعي @:appName",
+          "price": "{}"
+        }
+      }
+    },
     "billingPage": {
       "addons": {
         "aiMax": {
