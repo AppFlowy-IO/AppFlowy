@@ -240,11 +240,21 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
           ),
           width: node.columnWidth,
           child: node.children.isEmpty
-              ? _buildEmptyCellContent()
+              ? Column(
+                  children: [
+                    // expand the cell to make the empty cell content clickable
+                    Expanded(
+                      child: _buildEmptyCellContent(),
+                    ),
+                  ],
+                )
               : Column(
                   children: [
                     ...node.children.map(_buildCellContent),
-                    Expanded(child: _buildEmptyCellContent()),
+                    SizedBox(
+                      height: 12,
+                      child: _buildEmptyCellContent(),
+                    ),
                   ],
                 ),
         ),
@@ -334,18 +344,16 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
 
   Widget _buildEmptyCellContent() {
     // if the table cell is empty, we should allow the user to tap on it to create a new paragraph.
+    final lastChild = node.children.lastOrNull;
+    if (lastChild != null && lastChild.delta?.isEmpty != null) {
+      return const SizedBox.shrink();
+    }
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
         final transaction = editorState.transaction;
         final length = node.children.length;
         final path = node.path.child(length);
-        final lastChild = node.children.lastOrNull;
-        if (lastChild != null &&
-            lastChild.type == ParagraphBlockKeys.type &&
-            lastChild.delta?.isEmpty == true) {
-          return;
-        }
         transaction
           ..insertNode(
             path,

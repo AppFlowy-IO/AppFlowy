@@ -166,6 +166,7 @@ void _customBlockOptionActions(
     if (UniversalPlatform.isDesktop) {
       builder.showActions = (node) {
         final parentTableNode = node.parentTableNode;
+        // disable the option action button in table cell to avoid the misalignment issue
         if (node.type != SimpleTableBlockKeys.type && parentTableNode != null) {
           return false;
         }
