@@ -206,7 +206,10 @@
     "indexingFile": "Indexing {}",
     "generatingResponse": "Generating response",
     "selectSources": "Select Sources",
-    "regenerate": "Try again"
+    "regenerate": "Try again",
+    "addToPageButton": "Add to page",
+    "addToPageTitle": "Add message to...",
+    "addToNewPage": "Add to a new page"
   },
   "trash": {
     "text": "Trash",

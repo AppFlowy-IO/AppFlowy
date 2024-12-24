@@ -100,10 +100,8 @@ class ChatSource {
 }
 
 class ChatSettingsCubit extends Cubit<ChatSettingsState> {
-  ChatSettingsCubit({required this.chatId})
-      : super(ChatSettingsState.initial());
+  ChatSettingsCubit() : super(ChatSettingsState.initial());
 
-  final String chatId;
   List<String> selectedSourceIds = [];
   ChatSource? source;
   List<ChatSource> selectedSources = [];

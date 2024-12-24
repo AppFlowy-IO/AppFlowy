@@ -20,11 +20,9 @@ import 'select_sources_menu.dart';
 class PromptInputMobileSelectSourcesButton extends StatefulWidget {
   const PromptInputMobileSelectSourcesButton({
     super.key,
-    required this.chatId,
     required this.onUpdateSelectedSources,
   });
 
-  final String chatId;
   final void Function(List<String>) onUpdateSelectedSources;
 
   @override
@@ -34,7 +32,7 @@ class PromptInputMobileSelectSourcesButton extends StatefulWidget {
 
 class _PromptInputMobileSelectSourcesButtonState
     extends State<PromptInputMobileSelectSourcesButton> {
-  late final cubit = ChatSettingsCubit(chatId: widget.chatId);
+  late final cubit = ChatSettingsCubit();
 
   @override
   void initState() {
