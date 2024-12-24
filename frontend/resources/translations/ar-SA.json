@@ -797,7 +797,8 @@
         "aiOnDeviceToggle": "الذكاء الاصطناعي المحلي لتحقيق الخصوصية القصوى",
         "aiCredit": {
           "title": "أضف رصيد الذكاء الاصطناعي @:appName",
-          "price": "{}"
+          "price": "{}",
+          "priceDescription": "مقابل 1000 نقطة"
         }
       }
     },
