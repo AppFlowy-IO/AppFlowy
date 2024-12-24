@@ -256,6 +256,7 @@ class _CalloutBlockComponentWidgetState
       node: widget.node,
       editorState: editorState,
       placeholderText: placeholderText,
+      textAlign: alignment?.toTextAlign ?? textAlign,
       textSpanDecorator: (textSpan) => textSpan.updateTextStyle(
         textStyle,
       ),

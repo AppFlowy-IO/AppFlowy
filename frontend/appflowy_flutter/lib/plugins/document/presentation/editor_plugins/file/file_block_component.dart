@@ -160,7 +160,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
 
   late EditorDropManagerState? dropManagerState = UniversalPlatform.isMobile
       ? null
-      : context.read<EditorDropManagerState>();
+      : context.read<EditorDropManagerState?>();
 
   final fileKey = GlobalKey();
   final showActionsNotifier = ValueNotifier<bool>(false);
@@ -176,7 +176,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
   @override
   void didChangeDependencies() {
     if (!UniversalPlatform.isMobile) {
-      dropManagerState = context.read<EditorDropManagerState>();
+      dropManagerState = context.read<EditorDropManagerState?>();
     }
     super.didChangeDependencies();
   }
