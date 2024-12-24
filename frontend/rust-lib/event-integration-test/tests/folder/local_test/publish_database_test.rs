@@ -126,8 +126,8 @@ async fn import_workspace(file_name: &str, test: &EventIntegrationTest) -> Vec<V
     .import_appflowy_data(file_path.to_str().unwrap().to_string(), None)
     .await
     .unwrap();
-  let views = test.get_all_workspace_views().await;
-  views
+  
+  test.get_all_workspace_views().await
 }
 
 async fn import_csv(file_name: &str, test: &EventIntegrationTest) -> ViewPB {
