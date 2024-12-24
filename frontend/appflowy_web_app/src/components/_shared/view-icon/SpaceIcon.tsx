@@ -1,6 +1,6 @@
 import { ThemeModeContext } from '@/components/main/useAppThemeMode';
 import { renderColor } from '@/utils/color';
-import { getIconSvgEncodedContent } from '@/utils/emoji';
+import { getIcon } from '@/utils/emoji';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { ReactComponent as SpaceIcon1 } from '@/assets/space_icon/space_icon_1.svg';
 import { ReactComponent as SpaceIcon2 } from '@/assets/space_icon/space_icon_2.svg';
@@ -17,6 +17,7 @@ import { ReactComponent as SpaceIcon12 } from '@/assets/space_icon/space_icon_12
 import { ReactComponent as SpaceIcon13 } from '@/assets/space_icon/space_icon_13.svg';
 import { ReactComponent as SpaceIcon14 } from '@/assets/space_icon/space_icon_14.svg';
 import { ReactComponent as SpaceIcon15 } from '@/assets/space_icon/space_icon_15.svg';
+import DOMPurify from 'dompurify';
 
 export const getIconComponent = (icon: string) => {
   switch (icon) {
@@ -57,38 +58,35 @@ export const getIconComponent = (icon: string) => {
   }
 };
 
-function SpaceIcon ({ value, char, bgColor, className: classNameProp }: {
+function SpaceIcon({ value, char, bgColor, className: classNameProp }: {
   value: string,
   char?: string,
   bgColor?: string,
   className?: string
 }) {
   const IconComponent = getIconComponent(value);
-  const [iconEncodeContent, setIconEncodeContent] = useState<string | null>(null);
   const isDark = useContext(ThemeModeContext)?.isDark || false;
+  const [customIconContent, setCustomIconContent] = useState<string>('');
 
   useEffect(() => {
-    if (!char && value && !IconComponent) {
-      void getIconSvgEncodedContent(value, isDark ? 'black' : 'white').then((res) => {
-        setIconEncodeContent(res);
+    if (value) {
+      void getIcon(value).then(icon => {
+        setCustomIconContent(icon?.content || '');
       });
     }
-  }, [isDark, IconComponent, value, char]);
+  }, [value]);
 
   const customIcon = useMemo(() => {
-    if (!iconEncodeContent) {
-      return null;
-    }
+    if (customIconContent) {
+      const cleanSvg = DOMPurify.sanitize(customIconContent.replaceAll('black', isDark ? 'black' : 'white').replace('<svg', '<svg width="100%" height="100%"'), {
+        USE_PROFILES: { svg: true, svgFilters: true },
+      });
 
-    /**
-     * value eg: 'artificial_intelligence/ai-cloud-spark';
-     */
-    return <img
-      src={iconEncodeContent}
-      className={'h-full w-full p-1 text-white'}
-      alt={value}
-    />;
-  }, [iconEncodeContent, value]);
+      return <span className={'flex p-[0.2em] items-center justify-center'}><span dangerouslySetInnerHTML={{
+        __html: cleanSvg,
+      }}/></span>;
+    }
+  }, [customIconContent, isDark]);
 
   const content = useMemo(() => {
     if (char) {
@@ -103,7 +101,7 @@ function SpaceIcon ({ value, char, bgColor, className: classNameProp }: {
       return customIcon;
     }
 
-    return <IconComponent className={'h-full w-full'} />;
+    return <IconComponent className={'h-full w-full'}/>;
   }, [IconComponent, char, customIcon]);
 
   const className = useMemo(() => {

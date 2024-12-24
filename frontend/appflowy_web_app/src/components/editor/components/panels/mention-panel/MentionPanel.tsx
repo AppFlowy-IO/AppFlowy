@@ -3,11 +3,9 @@ import { CustomEditor } from '@/application/slate-yjs/command';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
 import { Mention, MentionType, View, ViewLayout } from '@/application/types';
 import { flattenViews } from '@/components/_shared/outline/utils';
-import { ViewIcon } from '@/components/_shared/view-icon';
 import { usePanelContext } from '@/components/editor/components/panels/Panels.hooks';
 import { PanelType } from '@/components/editor/components/panels/PanelsContext';
 import { useEditorContext } from '@/components/editor/EditorContext';
-import { isFlagEmoji } from '@/utils/emoji';
 import { Button, Divider } from '@mui/material';
 import { sortBy, uniqBy } from 'lodash-es';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -19,6 +17,7 @@ import { ReactComponent as ArrowIcon } from '@/assets/north_east.svg';
 import { ReactComponent as MoreIcon } from '@/assets/more.svg';
 import { Popover } from '@/components/_shared/popover';
 import dayjs from 'dayjs';
+import PageIcon from '@/components/_shared/view-icon/PageIcon';
 
 enum MentionTag {
   Reminder = 'reminder',
@@ -131,9 +130,6 @@ export function MentionPanel() {
   }, [filteredViews, moreCount]);
 
   const showMore = moreCount < filteredViews.length;
-  const handleClickMore = useCallback(() => {
-    setMoreCount(moreCount + 5);
-  }, [moreCount]);
 
   useEffect(() => {
     selectedOptionRef.current = selectedOption;
@@ -142,6 +138,7 @@ export function MentionPanel() {
       category,
       index,
     } = selectedOption;
+
     const el = ref.current?.querySelector(`[data-option-category="${category}"] [data-option-index="${index}"]`) as HTMLButtonElement | null;
 
     el?.scrollIntoView({
@@ -247,6 +244,18 @@ export function MentionPanel() {
       },
     ].filter(option => searchText ? option.name.toLowerCase().includes(searchText.toLowerCase()) : true);
   }, [handleAddMention, t, showDate, searchText]);
+
+  const handleClickMore = useCallback(() => {
+    setMoreCount(moreCount + 5);
+
+    setSelectedOption(prev => {
+      if (!prev) return null;
+      return {
+        category: MentionTag.Page,
+        index: moreCount,
+      };
+    });
+  }, [moreCount]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -354,13 +363,7 @@ export function MentionPanel() {
                     key={view.view_id}
                     data-option-index={index}
                     startIcon={
-                      <span
-                        className={`${view.icon && isFlagEmoji(view.icon.value) ? 'icon' : ''} flex h-5 w-5 min-w-5 items-center justify-center`}>
-                        {view.icon?.value || <ViewIcon
-                          layout={view.layout}
-                          size={'small'}
-                        />}
-                      </span>
+                      <PageIcon view={view} className={'flex h-5 w-5 min-w-5 items-center justify-center'}/>
                     }
                     className={`justify-start truncate scroll-m-2 min-h-[32px] hover:bg-fill-list-hover ${selectedOption?.index === index && selectedOption?.category === MentionTag.Page ? 'bg-fill-list-hover' : ''}`}
                     onClick={() => handleSelectedPage(view.view_id)}
@@ -388,7 +391,7 @@ export function MentionPanel() {
             </div>
           }
         </div>
-        {showDate && <div className={'flex flex-col gap-2'} data-option-categor={MentionTag.Date}>
+        {showDate && <div className={'flex flex-col gap-2'} data-option-category={MentionTag.Date}>
           <div className={'text-text-caption scroll-my-10 px-1'}>{t('inlineActions.date')}</div>
           {
             dateOptions.map((option, index) => (

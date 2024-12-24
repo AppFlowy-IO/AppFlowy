@@ -2,8 +2,8 @@ lockfileVersion: '6.0'
 
 dependencies:
   '@appflowyinc/editor':
-    specifier: ^0.0.30
-    version: 0.0.30(@types/react-dom@18.2.22)(@types/react@18.2.66)(i18next-resources-to-backend@1.2.1)(i18next@22.5.1)(react-dom@18.2.0)(react-i18next@14.1.2)(react@18.2.0)(slate-dom@0.111.0)
+    specifier: ^0.0.39
+    version: 0.0.39(@types/react-dom@18.2.22)(@types/react@18.2.66)(i18next-resources-to-backend@1.2.1)(i18next@22.5.1)(react-dom@18.2.0)(react-i18next@14.1.2)(react@18.2.0)(slate-history@0.100.0)(slate-react@0.101.6)(slate@0.101.5)
   '@atlaskit/primitives':
     specifier: ^5.5.3
     version: 5.7.0(@types/react@18.2.66)(react@18.2.0)
@@ -535,14 +535,17 @@ packages:
     resolution: {integrity: sha512-+562v9k4aI80m1+VuMHehNJWLOFjBnXn3tdOitzD0il5b7smkSBal4+a3oKiQTbrwMmN/TBUMDvbdoWDehgOww==}
     dev: false
 
-  /@appflowyinc/editor@0.0.30(@types/react-dom@18.2.22)(@types/react@18.2.66)(i18next-resources-to-backend@1.2.1)(i18next@22.5.1)(react-dom@18.2.0)(react-i18next@14.1.2)(react@18.2.0)(slate-dom@0.111.0):
-    resolution: {integrity: sha512-twUwwrQb8/iuN9MD9AW7+TRsquJVFrR5Kq2G4zvKbpz54K7U/Djh/daYyeeIReAsttN3JRSVeUJhz/+/DSt7Pg==}
+  /@appflowyinc/editor@0.0.39(@types/react-dom@18.2.22)(@types/react@18.2.66)(i18next-resources-to-backend@1.2.1)(i18next@22.5.1)(react-dom@18.2.0)(react-i18next@14.1.2)(react@18.2.0)(slate-history@0.100.0)(slate-react@0.101.6)(slate@0.101.5):
+    resolution: {integrity: sha512-Cbitz/yNcioB+QS3K06Xzt/7lN+AnlAbzZLQ4BPw6dPLvTFbE8f+b6a7QkxN/EU2WKgc1qMfHI+m4UAU7v5tvg==}
     peerDependencies:
       i18next: ^22.4.10
       i18next-resources-to-backend: ^1.2.1
       react: ^18.3.1
       react-dom: ^18.3.1
       react-i18next: ^14.1.0
+      slate: ^0.112.0
+      slate-history: ^0.110.3
+      slate-react: ^0.112.0
     dependencies:
       '@radix-ui/react-label': 2.1.1(@types/react-dom@18.2.22)(@types/react@18.2.66)(react-dom@18.2.0)(react@18.2.0)
       '@radix-ui/react-popover': 1.1.4(@types/react-dom@18.2.22)(@types/react@18.2.66)(react-dom@18.2.0)(react@18.2.0)
@@ -551,7 +554,6 @@ packages:
       '@radix-ui/react-slot': 1.1.1(@types/react@18.2.66)(react@18.2.0)
       '@radix-ui/react-switch': 1.1.2(@types/react-dom@18.2.22)(@types/react@18.2.66)(react-dom@18.2.0)(react@18.2.0)
       '@radix-ui/react-tooltip': 1.1.6(@types/react-dom@18.2.22)(@types/react@18.2.66)(react-dom@18.2.0)(react@18.2.0)
-      '@types/prismjs': 1.26.5
       class-variance-authority: 0.7.1
       clsx: 2.1.1
       i18next: 22.5.1
@@ -565,16 +567,15 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
       react-i18next: 14.1.2(i18next@22.5.1)(react-dom@18.2.0)(react@18.2.0)
       sass: 1.83.0
-      slate: 0.112.0
-      slate-history: 0.110.3(slate@0.112.0)
-      slate-react: 0.112.0(react-dom@18.2.0)(react@18.2.0)(slate-dom@0.111.0)(slate@0.112.0)
+      slate: 0.101.5
+      slate-history: 0.100.0(slate@0.101.5)
+      slate-react: 0.101.6(react-dom@18.2.0)(react@18.2.0)(slate@0.101.5)
       tailwind-merge: 2.5.5
       tailwindcss: 3.4.17
       tailwindcss-animate: 1.0.7(tailwindcss@3.4.17)
     transitivePeerDependencies:
       - '@types/react'
       - '@types/react-dom'
-      - slate-dom
       - supports-color
       - ts-node
     dev: false
@@ -5397,10 +5398,6 @@ packages:
   /@types/prismjs@1.26.0:
     resolution: {integrity: sha512-ZTaqn/qSqUuAq1YwvOFQfVW1AR/oQJlLSZVustdjwI+GZ8kr0MSHBj0tsXPW1EqHubx50gtBEjbPGsdZwQwCjQ==}
     dev: true
-
-  /@types/prismjs@1.26.5:
-    resolution: {integrity: sha512-AUZTa7hQ2KY5L7AmtSiqxlhWxb4ina0yd8hNbl4TWuqnv/pFP0nDMb3YrfSBf4hJVGLh2YEIBfKaBW/9UEl6IQ==}
-    dev: false
 
   /@types/prop-types@15.7.12:
     resolution: {integrity: sha512-5zvhXYtRNRluoE/jAp4GVsSduVUzNWKkOZrCDBWYtE7biZywwdC2AcEzg+cSMLFRfVgeAFqpfNabiPjxFddV1Q==}
@@ -13128,21 +13125,6 @@ packages:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
 
-  /slate-dom@0.111.0(slate@0.101.5):
-    resolution: {integrity: sha512-VjeBh2xIRvP6ToEhrO1TPahc5fPezxbeSUhsRTppBPtHfidEdyp/MTI9TjUrZnlznJiVZ7QKrORXilFq8hsbtQ==}
-    peerDependencies:
-      slate: '>=0.99.0'
-    dependencies:
-      '@juggle/resize-observer': 3.4.0
-      direction: 1.0.4
-      is-hotkey: 0.2.0
-      is-plain-object: 5.0.0
-      lodash: 4.17.21
-      scroll-into-view-if-needed: 3.1.0
-      slate: 0.101.5
-      tiny-invariant: 1.3.1
-    dev: false
-
   /slate-history@0.100.0(slate@0.101.5):
     resolution: {integrity: sha512-x5rUuWLNtH97hs9PrFovGgt3Qc5zkTm/5mcUB+0NR/TK923eLax4HsL6xACLHMs245nI6aJElyM1y6hN0y5W/Q==}
     peerDependencies:
@@ -13150,15 +13132,6 @@ packages:
     dependencies:
       is-plain-object: 5.0.0
       slate: 0.101.5
-    dev: false
-
-  /slate-history@0.110.3(slate@0.112.0):
-    resolution: {integrity: sha512-sgdff4Usdflmw5ZUbhDkxFwCBQ2qlDKMMkF93w66KdV48vHOgN2BmLrf+2H8SdX8PYIpP/cTB0w8qWC2GwhDVA==}
-    peerDependencies:
-      slate: '>=0.65.3'
-    dependencies:
-      is-plain-object: 5.0.0
-      slate: 0.112.0
     dev: false
 
   /slate-react@0.101.6(react-dom@18.2.0)(react@18.2.0)(slate@0.101.5):
@@ -13182,37 +13155,8 @@ packages:
       tiny-invariant: 1.3.1
     dev: false
 
-  /slate-react@0.112.0(react-dom@18.2.0)(react@18.2.0)(slate-dom@0.111.0)(slate@0.112.0):
-    resolution: {integrity: sha512-LoHb/XXnI5uf+n2hnjDKjWb3D+H3lGIg16N7Zzm1nHhhXm3NzwoKOTbzdKOMLdt2+tnhTaHpSxYfT7zZ+wdzUw==}
-    peerDependencies:
-      react: '>=18.2.0'
-      react-dom: '>=18.2.0'
-      slate: '>=0.99.0'
-      slate-dom: '>=0.110.2'
-    dependencies:
-      '@juggle/resize-observer': 3.4.0
-      direction: 1.0.4
-      is-hotkey: 0.2.0
-      is-plain-object: 5.0.0
-      lodash: 4.17.21
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      scroll-into-view-if-needed: 3.1.0
-      slate: 0.112.0
-      slate-dom: 0.111.0(slate@0.101.5)
-      tiny-invariant: 1.3.1
-    dev: false
-
   /slate@0.101.5:
     resolution: {integrity: sha512-ZZt1ia8ayRqxtpILRMi2a4MfdvwdTu64CorxTVq9vNSd0GQ/t3YDkze6wKjdeUtENmBlq5wNIDInZbx38Hfu5Q==}
-    dependencies:
-      immer: 10.1.1
-      is-plain-object: 5.0.0
-      tiny-warning: 1.0.3
-    dev: false
-
-  /slate@0.112.0:
-    resolution: {integrity: sha512-PRnfFgDA3tSop4OH47zu4M1R4Uuhm/AmASu29Qp7sGghVFb713kPBKEnSf1op7Lx/nCHkRlCa3ThfHtCBy+5Yw==}
     dependencies:
       immer: 10.1.1
       is-plain-object: 5.0.0

@@ -53,6 +53,31 @@ function TableContainer({ blockId, readSummary, children, paddingLeft = 0 }: {
     }
   }, []);
 
+  const left = Math.max(offsetLeftRef.current - paddingLeft, 0);
+
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const handleHorizontalScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const currentTarget = e.currentTarget as HTMLElement;
+    const isHorizontal = currentTarget.scrollLeft > 0;
+    const controlEl = controlRef.current;
+
+    if (isHorizontal && controlEl) {
+      controlEl.style.opacity = '0';
+
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      timeoutRef.current = setTimeout(() => {
+        controlEl.style.opacity = '1';
+        const scrollLeft = currentTarget.scrollLeft;
+
+        controlEl.style.left = Math.max(-scrollLeft + offsetLeftRef.current - 64, -64) + 'px';
+      }, 300);
+    }
+
+  }, []);
+
   return (
     <div
       draggable={false}
@@ -74,11 +99,14 @@ function TableContainer({ blockId, readSummary, children, paddingLeft = 0 }: {
       <div
         ref={controlRef}
         style={{
-          left: offsetLeftRef.current - 64,
-          display: showControl ? 'block' : 'none',
+          left: (left - 64) + 'px',
+          visibility: showControl ? 'visible' : 'hidden',
+          zIndex: showControl ? 10 : -1,
+          pointerEvents: showControl ? 'auto' : 'none',
         }}
+        
         contentEditable={false}
-        className={'absolute z-[10] w-[64px] top-2 pr-1'}
+        className={'absolute z-[10] w-[64px] top-2 block pr-1'}
       >
         <ControlActions
           setOpenMenu={handleToggleMenu}
@@ -88,17 +116,10 @@ function TableContainer({ blockId, readSummary, children, paddingLeft = 0 }: {
       <div
         draggable={false}
         contentEditable={readOnly ? false : undefined}
-        onScroll={e => {
-          const isHorizontal = e.currentTarget.scrollLeft > 0;
-          const controlEl = controlRef.current;
-
-          if (isHorizontal && controlEl) {
-            controlEl.style.left = Math.max(-e.currentTarget.scrollLeft + offsetLeftRef.current - 64, -64) + 'px';
-          }
-        }}
+        onScroll={handleHorizontalScroll}
         className={'h-full w-full overflow-x-auto overflow-y-hidden'}
         style={{
-          paddingLeft: Math.max(offsetLeftRef.current - paddingLeft, 0) + 'px',
+          paddingLeft: left + 'px',
         }}
       >
         {children}

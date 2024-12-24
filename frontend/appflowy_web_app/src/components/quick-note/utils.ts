@@ -57,7 +57,7 @@ export function getSummary(note: QuickNote): string {
     }
   }
 
-  return text;
+  return text.trim();
 }
 
 export function setPopoverPosition(position: {

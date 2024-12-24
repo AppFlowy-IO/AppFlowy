@@ -1,4 +1,4 @@
-import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
+import SpaceIcon from '@/components/_shared/view-icon/SpaceIcon';
 import ViewItem from '@/components/app/outline/ViewItem';
 import { Tooltip } from '@mui/material';
 import React, { useMemo } from 'react';
@@ -52,7 +52,7 @@ function SpaceItem({
         }
       >
         <SpaceIcon
-          className={'icon !rounded-[8px] !h-[22px] mr-1.5 !w-[22px]'}
+          className={'icon !rounded-[8px] !h-[22px] mr-1.5 !w-[22px] p-[0.15em]'}
           bgColor={extra?.space_icon_color}
           value={extra?.space_icon || ''}
           char={extra?.space_icon ? undefined : name.slice(0, 1)}

@@ -5,7 +5,7 @@ import React, { lazy, useCallback, useRef, useState, Suspense } from 'react';
 
 const ViewCoverActions = lazy(() => import('@/components/view-meta/ViewCoverActions'));
 
-function ViewCover ({ coverValue, coverType, onUpdateCover, onRemoveCover, readOnly = true }: {
+function ViewCover({ coverValue, coverType, onUpdateCover, onRemoveCover, readOnly = true }: {
   coverValue?: string;
   coverType?: string;
   onUpdateCover: (cover: ViewMetaCover) => void;
@@ -64,6 +64,7 @@ function ViewCover ({ coverValue, coverType, onUpdateCover, onRemoveCover, readO
         <ViewCoverActions
           show={showAction}
           ref={actionRef}
+          onClose={() => setShowAction(false)}
           onUpdateCover={onUpdateCover}
           onRemove={onRemoveCover}
         />

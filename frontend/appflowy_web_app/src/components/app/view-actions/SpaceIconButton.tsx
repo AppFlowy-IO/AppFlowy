@@ -1,4 +1,4 @@
-import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
+import SpaceIcon from '@/components/_shared/view-icon/SpaceIcon';
 import ChangeIconPopover from '@/components/_shared/view-icon/ChangeIconPopover';
 import { Avatar } from '@mui/material';
 import { PopoverProps } from '@mui/material/Popover';
@@ -16,7 +16,7 @@ const popoverProps: Partial<PopoverProps> = {
   },
 };
 
-function SpaceIconButton ({
+function SpaceIconButton({
   spaceIcon,
   spaceIconColor,
   spaceName,
@@ -56,7 +56,7 @@ function SpaceIconButton ({
         {spaceIconEditing &&
           <div className={'absolute cursor-pointer inset-0 bg-black bg-opacity-30 rounded-[8px]'}>
             <div className={'flex items-center text-white justify-center w-full h-full'}>
-              <EditIcon />
+              <EditIcon/>
             </div>
           </div>
         }

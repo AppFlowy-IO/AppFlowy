@@ -60,6 +60,7 @@ function CollaborativeEditor({ doc }: { doc: Y.Doc }) {
     setIsConnected(true);
 
     return () => {
+      console.log('disconnect');
       editor.disconnect();
     };
   }, [editor]);

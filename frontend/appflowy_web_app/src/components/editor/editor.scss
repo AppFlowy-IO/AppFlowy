@@ -98,7 +98,7 @@
 
 .block-element.block-align-left {
   > div > .text-element {
-    text-align: left;
+    text-align: left !important;
     justify-content: flex-start;
   }
 
@@ -109,7 +109,7 @@
 
 .block-element.block-align-right {
   > div > .text-element {
-    text-align: right;
+    text-align: right !important;
     justify-content: flex-end;
   }
 
@@ -120,7 +120,7 @@
 
 .block-element.block-align-center {
   > div > .text-element {
-    text-align: center;
+    text-align: center !important;
     justify-content: center;
   }
 
@@ -151,6 +151,7 @@
 [role=textbox] {
   .text-element {
     @apply my-1;
+
     &::selection {
       @apply bg-transparent;
     }
@@ -278,7 +279,7 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 
 .formula-inline, .mention {
   &.selected {
-    @apply rounded bg-content-blue-100;
+    @apply rounded-[2px] bg-content-blue-100;
     .mention-inline {
       @apply bg-content-blue-100 select-all;
     }
@@ -415,6 +416,10 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 .toggle-heading, .heading, .hover-controls {
   &.level-1 {
     @apply py-[8px];
+    > span > .toggle-icon {
+      @apply relative top-3;
+    }
+
     > .hover-controls-placeholder,
     > .text-element {
       @apply text-[2rem] max-md:text-[24px] font-semibold;
@@ -423,6 +428,10 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 
   &.level-2 {
     @apply py-[6px];
+    > span > .toggle-icon {
+      @apply relative top-2;
+    }
+
     > .hover-controls-placeholder,
     > .text-element {
       @apply text-[1.75rem] max-md:text-[22px] font-semibold;
@@ -431,6 +440,10 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 
   &.level-3 {
     @apply py-[4px];
+    > span > .toggle-icon {
+      @apply relative top-1.5;
+    }
+
     > .hover-controls-placeholder,
     > .text-element {
       @apply text-[1.5rem] max-md:text-[20px] font-semibold;
@@ -439,6 +452,10 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 
   &.level-4 {
     @apply py-[4px];
+    > span > .toggle-icon {
+      @apply relative top-1;
+    }
+
     > .hover-controls-placeholder,
     > .text-element {
       @apply text-[1.25rem] max-md:text-[16px] font-semibold;
@@ -447,6 +464,10 @@ span[data-slate-placeholder="true"]:not(.inline-block-content) {
 
   &.level-5 {
     @apply py-[2px];
+    > span > .toggle-icon {
+      @apply relative top-0.5;
+    }
+
     > .hover-controls-placeholder,
     > .text-element {
       @apply text-[1.125rem] font-semibold;

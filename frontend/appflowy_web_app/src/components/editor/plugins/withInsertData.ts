@@ -3,9 +3,9 @@ import { YjsEditor } from '@/application/slate-yjs';
 import { findSlateEntryByBlockId, getBlockEntry } from '@/application/slate-yjs/utils/editor';
 import { ReactEditor } from 'slate-react';
 import { BlockType, FieldURLType, FileBlockData, ImageBlockData, ImageType } from '@/application/types';
-import { MAX_IMAGE_SIZE } from '@/components/_shared/image-upload';
 import { FileHandler } from '@/utils/file';
-import { notify } from '@/components/_shared/notify';
+import { convertSlateFragmentTo } from '@/components/editor/utils/fragment';
+import { Node } from 'slate';
 
 export const withInsertData = (editor: ReactEditor) => {
   const { insertData } = editor;
@@ -13,23 +13,31 @@ export const withInsertData = (editor: ReactEditor) => {
   const e = editor as YjsEditor;
 
   editor.insertData = (data: DataTransfer) => {
+    const fragment = data.getData('application/x-slate-fragment');
+
+    if (fragment) {
+      const decoded = decodeURIComponent(window.atob(fragment));
+      const parsed = JSON.parse(decoded) as Node[];
+      const newFragment = convertSlateFragmentTo(parsed);
+
+      return e.insertFragment(newFragment);
+    }
+
     // Do something with the data...
     const fileArray = Array.from(data.files);
     const { selection } = editor;
-    const blockId = getBlockEntry(e)[0].blockId;
+    const entry = getBlockEntry(e);
+    const [node] = entry;
+    const blockId = node.blockId;
 
     insertData(data);
 
     if (blockId && fileArray.length > 0 && selection) {
       void (async () => {
-        let newBlockId: string | undefined = blockId;
+        const text = CustomEditor.getBlockTextContent(node);
+        let newBlockId: string = blockId;
 
         for (const file of fileArray) {
-          if (file.size > MAX_IMAGE_SIZE) {
-            notify.error('File size is too large, max size is 7MB');
-            return;
-          }
-
           const url = await e.uploadFile?.(file);
           let fileId = '';
 
@@ -53,7 +61,7 @@ export const withInsertData = (editor: ReactEditor) => {
             }
 
             // Handle images...
-            newBlockId = CustomEditor.addBelowBlock(e, blockId, BlockType.ImageBlock, data);
+            newBlockId = CustomEditor.addBelowBlock(e, newBlockId, BlockType.ImageBlock, data) || newBlockId;
           } else {
             const data = {
               url: url,
@@ -67,12 +75,18 @@ export const withInsertData = (editor: ReactEditor) => {
             }
 
             // Handle files...
-            newBlockId = CustomEditor.addBelowBlock(e, blockId, BlockType.FileBlock, data);
+            newBlockId = CustomEditor.addBelowBlock(e, newBlockId, BlockType.FileBlock, data) || newBlockId;
           }
 
         }
 
-        if (newBlockId) {
+        if (!text) {
+          CustomEditor.deleteBlock(e, blockId);
+        }
+
+        const firstIsImage = fileArray[0].type.startsWith('image/');
+
+        if (newBlockId && firstIsImage) {
           const id = CustomEditor.addBelowBlock(e, newBlockId, BlockType.Paragraph, {});
 
           if (!id) return;
@@ -80,6 +94,7 @@ export const withInsertData = (editor: ReactEditor) => {
           const [, path] = findSlateEntryByBlockId(e, id);
 
           editor.select(editor.start(path));
+
         }
 
       })();

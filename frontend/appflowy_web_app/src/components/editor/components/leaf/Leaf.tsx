@@ -53,6 +53,10 @@ export function Leaf({ attributes, children, leaf, text }: RenderLeafProps) {
 
   if (text.text && (leaf.mention || leaf.formula)) {
     style['position'] = 'relative';
+    if (leaf.mention) {
+      style['display'] = 'inline-block';
+    }
+    
     const node = leaf.mention ? <MentionLeaf
       text={text}
       mention={leaf.mention as Mention}

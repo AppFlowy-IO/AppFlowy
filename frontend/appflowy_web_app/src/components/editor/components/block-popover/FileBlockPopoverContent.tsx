@@ -2,7 +2,6 @@ import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { BlockType, FieldURLType, FileBlockData } from '@/application/types';
 import FileDropzone from '@/components/_shared/file-dropzone/FileDropzone';
-import { notify } from '@/components/_shared/notify';
 import { TabPanel, ViewTab, ViewTabs } from '@/components/_shared/tabs/ViewTabs';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import React, { useCallback, useMemo } from 'react';
@@ -11,8 +10,6 @@ import { useSlateStatic } from 'slate-react';
 import EmbedLink from 'src/components/_shared/image-upload/EmbedLink';
 import { FileHandler } from '@/utils/file';
 import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/editor';
-
-export const MAX_FILE_SIZE = 7 * 1024 * 1024; // 7MB
 
 export function getFileName(url: string) {
   const urlObj = new URL(url);
@@ -58,12 +55,6 @@ function FileBlockPopoverContent({
   }, [blockId, editor, onClose]);
 
   const uploadFileRemote = useCallback(async (file: File) => {
-    if (file.size > MAX_FILE_SIZE) {
-      notify.error(`File size is too large, please upload a file less than ${MAX_FILE_SIZE / 1024 / 1024}MB`);
-
-      throw new Error('File size is too large');
-    }
-
     try {
       if (uploadFile) {
         return await uploadFile(file);

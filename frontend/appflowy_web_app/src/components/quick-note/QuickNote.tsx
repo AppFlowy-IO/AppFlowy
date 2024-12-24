@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { IconButton, Tooltip, Zoom, Snackbar, Portal } from '@mui/material';
 import { ReactComponent as EditIcon } from '@/assets/edit.svg';
 import { useTranslation } from 'react-i18next';
@@ -7,15 +7,13 @@ import Popover from '@mui/material/Popover';
 import NoteHeader from '@/components/quick-note/NoteHeader';
 import NoteListHeader from '@/components/quick-note/NoteListHeader';
 import { TransitionProps } from '@mui/material/transitions';
-import AddNote from '@/components/quick-note/AddNote';
 import { LISI_LIMIT, ToastContext } from './QuickNote.hooks';
 import { useService } from '@/components/main/app.hooks';
 import { useCurrentWorkspaceId } from '@/components/app/app.hooks';
 import { QuickNote as QuickNoteType, QuickNoteEditorData } from '@/application/types';
 import NoteList from '@/components/quick-note/NoteList';
 import { getPopoverPosition, setPopoverPosition } from '@/components/quick-note/utils';
-
-const Note = React.lazy(() => import('@/components/quick-note/Note'));
+import Note from '@/components/quick-note/Note';
 
 const PAPER_SIZE = [480, 396];
 const Transition = React.forwardRef(function Transition(
@@ -201,11 +199,7 @@ export function QuickNote() {
   }, [resetPosition]);
 
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const handleOpen = useCallback(async () => {
-    if (open) {
-      handleClose();
-      return;
-    }
+  const handleOpen = useCallback(async (forceCreate?: boolean) => {
 
     const el = buttonRef.current;
 
@@ -223,21 +217,30 @@ export function QuickNote() {
       } : prev);
     }
 
-    const list = await initNoteList();
+    await initNoteList();
 
-    if (list?.data.length === 0) {
+    if (route === QuickNoteRoute.LIST || forceCreate) {
       await handleAdd();
     }
 
     setOpen(true);
-  }, [open, expand, initNoteList, handleAdd]);
+  }, [expand, initNoteList, route, handleAdd]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (createHotkey(HOT_KEY_NAME.QUICK_NOTE)(e)) {
         e.stopPropagation();
         e.preventDefault();
-        void handleOpen();
+
+        void (async () => {
+          try {
+            await handleOpen(true);
+            // eslint-disable-next-line
+          } catch (e: any) {
+            console.error(e);
+            handleOpenToast(e.message);
+          }
+        })();
       } else if (createHotkey(HOT_KEY_NAME.ESCAPE)(e)) {
         handleClose();
       }
@@ -248,7 +251,7 @@ export function QuickNote() {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleOpen]);
+  }, [handleOpen, handleOpenToast]);
 
   const handleMouseDown = (event: React.MouseEvent) => {
     if (!position) return;
@@ -307,10 +310,13 @@ export function QuickNote() {
           return {
             ...note,
             data,
+            last_updated_at: new Date().toISOString(),
           };
         }
 
         return note;
+      }).sort((a, b) => {
+        return new Date(b.last_updated_at).getTime() - new Date(a.last_updated_at).getTime();
       });
     });
     if (id === currentNote?.id) {
@@ -319,6 +325,7 @@ export function QuickNote() {
           return {
             ...prev,
             data,
+            last_updated_at: new Date().toISOString(),
           };
         }
 
@@ -336,6 +343,48 @@ export function QuickNote() {
 
   }, []);
 
+  const handleDeleteNotes = useCallback((notes: QuickNoteType[]) => {
+    if (!service || !currentWorkspaceId) return;
+    notes.forEach(note => {
+      void (async () => {
+        try {
+          await service.deleteQuickNote?.(currentWorkspaceId, note.id);
+          setNoteList(prev => prev.filter(n => n.id !== note.id));
+          // eslint-disable-next-line
+        } catch (e: any) {
+          console.error(e);
+          handleOpenToast(e.message);
+        }
+      })();
+    });
+  }, [currentWorkspaceId, handleOpenToast, service]);
+
+  const clearEmptyNotes = useCallback(() => {
+
+    if (!currentNote) return;
+
+    if (currentNote.last_updated_at === currentNote.created_at) {
+      handleDeleteNotes([currentNote]);
+    }
+
+  }, [handleDeleteNotes, currentNote]);
+
+  const handleBackList = useCallback(() => {
+    const search = listParamsRef.current.searchTerm;
+
+    if (search) {
+      listParamsRef.current = {
+        offset: 0,
+        limit: LISI_LIMIT,
+        searchTerm: '',
+      };
+      void handleSearch('');
+    }
+
+    setRoute(QuickNoteRoute.LIST);
+    clearEmptyNotes();
+  }, [handleSearch, clearEmptyNotes]);
+
   const renderHeader = () => {
     if (route === QuickNoteRoute.NOTE && currentNote) {
       return (
@@ -344,9 +393,7 @@ export function QuickNote() {
           expand={expand}
           onToggleExpand={handleToggleExpand}
           onClose={handleClose}
-          onBack={() => {
-            setRoute(QuickNoteRoute.LIST);
-          }}/>
+          onBack={handleBackList}/>
       );
     }
 
@@ -370,6 +417,10 @@ export function QuickNote() {
     }
   }, [handleLoadMore]);
 
+  const handleAddedNote = useCallback((note: QuickNoteType) => {
+    setNoteList(prev => [note, ...prev]);
+  }, []);
+
   return (
     <>
       <Tooltip title={
@@ -381,7 +432,15 @@ export function QuickNote() {
         <IconButton
           ref={buttonRef}
           size={'small'}
-          onClick={handleOpen}
+          onClick={e => {
+            e.currentTarget.blur();
+            if (open) {
+              handleClose();
+              return;
+            }
+
+            void handleOpen();
+          }}
         >
           <EditIcon/>
         </IconButton>
@@ -445,12 +504,14 @@ export function QuickNote() {
             {
               route === QuickNoteRoute.NOTE && currentNote ?
                 <>
-                  <Suspense>
-                    <Note note={currentNote} onUpdateData={(data) => {
+                  <Note
+                    onAdd={handleAddedNote}
+                    onEnterNote={handleEnterNote} note={currentNote}
+                    onUpdateData={(data) => {
                       handleUpdateNodeData(currentNote.id, data);
                     }}/>
-                  </Suspense>
                 </> : <NoteList
+                  onAdd={handleAddedNote}
                   onScroll={handleScrollList}
                   onEnterNode={handleEnterNote}
                   list={noteList}
@@ -460,13 +521,6 @@ export function QuickNote() {
                 />
             }
           </div>
-          <div className={'h-fit bg-bg-base min-h-[38px] px-4 py-2 w-full'}>
-            <AddNote onAdd={(note) => {
-              setNoteList(prev => [note, ...prev]);
-            }} onEnterNote={handleEnterNote}/>
-          </div>
-
-
           <Portal container={paper.current}>
             <Snackbar
               style={{

@@ -4,7 +4,7 @@ import {
   YDoc,
   ViewMetaProps, UIVariant,
 } from '@/application/types';
-import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
+import SpaceIcon from '@/components/_shared/view-icon/SpaceIcon';
 import { findAncestors, findView } from '@/components/_shared/outline/utils';
 import { useAppHandlers, useAppOutline } from '@/components/app/app.hooks';
 import DatabaseView from '@/components/app/DatabaseView';
@@ -58,30 +58,38 @@ function ViewModal({
     uploadFile,
   } = useAppHandlers();
   const outline = useAppOutline();
-  const [doc, setDoc] = React.useState<YDoc | undefined>(undefined);
+  const [doc, setDoc] = React.useState<{
+    id: string;
+    doc: YDoc;
+  } | undefined>(undefined);
   const [notFound, setNotFound] = React.useState(false);
-  const loadPageDoc = useCallback(async () => {
-
-    if (!viewId) {
-      return;
-    }
+  const loadPageDoc = useCallback(async (id: string) => {
 
     setNotFound(false);
     setDoc(undefined);
     try {
-      const doc = await loadView(viewId);
-
-      setDoc(doc);
+      const doc = await loadView(id);
+      
+      setDoc({ doc, id });
     } catch (e) {
       setNotFound(true);
       console.error(e);
     }
 
-  }, [loadView, viewId]);
+  }, [loadView]);
 
   useEffect(() => {
-    void loadPageDoc();
-  }, [loadPageDoc]);
+    if (open && viewId) {
+
+      void loadPageDoc(viewId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, viewId]);
+
+  const handleClose = useCallback(() => {
+    setDoc(undefined);
+    onClose();
+  }, [onClose]);
 
   const view = useMemo(() => {
     if (!outline || !viewId) return;
@@ -124,7 +132,7 @@ function ViewModal({
               size={'small'}
               onClick={async () => {
                 await toView(viewId);
-                onClose();
+                handleClose();
               }}
             >
               <ExpandMoreIcon className={'text-text-title opacity-80 h-5 w-5'}/>
@@ -155,9 +163,7 @@ function ViewModal({
         <div className={'flex items-center gap-4'}>
           <ShareButton viewId={viewId}/>
           <MoreActions
-            onDeleted={() => {
-              onClose();
-            }}
+            onDeleted={handleClose}
             viewId={viewId}
           />
 
@@ -167,7 +173,7 @@ function ViewModal({
           />
           <IconButton
             size={'small'}
-            onClick={onClose}
+            onClick={handleClose}
           >
             <CloseIcon/>
           </IconButton>
@@ -175,7 +181,7 @@ function ViewModal({
 
       </div>
     );
-  }, [onClose, outline, t, toView, viewId]);
+  }, [handleClose, outline, t, toView, viewId]);
 
   const layout = view?.layout || ViewLayout.Document;
 
@@ -193,9 +199,9 @@ function ViewModal({
   }, [layout]) as React.FC<ViewComponentProps>;
 
   const viewDom = useMemo(() => {
-    if (!doc || !viewMeta) return null;
+    if (!doc || !viewMeta || doc.id !== viewMeta.viewId) return null;
     return <View
-      doc={doc}
+      doc={doc.doc}
       readOnly={false}
       viewMeta={viewMeta}
       navigateToView={toView}
@@ -216,11 +222,12 @@ function ViewModal({
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       fullWidth={true}
+      keepMounted={false}
       disableAutoFocus={false}
       disableEnforceFocus={false}
-      // disableRestoreFocus={true}
+      disableRestoreFocus={true}
       TransitionComponent={Transition}
       PaperProps={{
         className: `max-w-[70vw] w-[1188px] flex flex-col h-[80vh] appflowy-scroller`,

@@ -81,11 +81,14 @@ function FormulaLeaf({ formula, text, children }: {
 
   return (
     <>
-      {isCursorBefore && <span data-slate-string="true">{
-        `\u200B`
-      }</span>}
       <span
-        className={'absolute right-0 !text-transparent overflow-hidden'}
+        style={{
+          left: isCursorBefore ? 0 : 'auto',
+          right: isCursorBefore ? 'auto' : 0,
+          top: isCursorBefore ? 0 : 'auto',
+          bottom: isCursorBefore ? 'auto' : 0,
+        }}
+        className={'absolute right-0 bottom-0 !text-transparent overflow-hidden'}
       >
       {children}
     </span>

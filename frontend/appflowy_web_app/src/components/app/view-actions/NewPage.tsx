@@ -79,6 +79,9 @@ function NewPage() {
         onOk={() => {
           void handleAddPage(selectedSpaceId);
         }}
+        okButtonProps={{
+          disabled: !selectedSpaceId,
+        }}
         okLoading={loading}
       >
         <SpaceList

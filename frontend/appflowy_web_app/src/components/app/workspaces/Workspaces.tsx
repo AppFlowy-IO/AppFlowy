@@ -10,18 +10,21 @@ import { openUrl } from '@/utils/url';
 import { Button, Divider, IconButton, Tooltip } from '@mui/material';
 import React, { useCallback, useMemo } from 'react';
 import { ReactComponent as ArrowRightSvg } from '@/assets/arrow_right.svg';
-import { ReactComponent as AddIcon } from '@/assets/add.svg';
+import { ReactComponent as ImportIcon } from '@/assets/import.svg';
 import { ReactComponent as TipIcon } from '@/assets/warning.svg';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as SignOutIcon } from '@/assets/sign_out.svg';
+import { ReactComponent as UpgradeIcon } from '@/assets/icon_upgrade.svg';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import InviteMember from '@/components/app/workspaces/InviteMember';
+import UpgradePlan from '@/components/billing/UpgradePlan';
 
 export function Workspaces() {
   const { t } = useTranslation();
   const userWorkspaceInfo = useUserWorkspaceInfo();
   const currentWorkspaceId = useCurrentWorkspaceId();
   const currentUser = useCurrentUser();
+  const [openUpgradePlan, setOpenUpgradePlan] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const [hoveredHeader, setHoveredHeader] = React.useState<boolean>(false);
   const ref = React.useRef<HTMLButtonElement | null>(null);
@@ -39,6 +42,7 @@ export function Workspaces() {
   const selectedWorkspace = useMemo(() => {
     return userWorkspaceInfo?.workspaces.find((workspace) => workspace.id === currentWorkspaceId);
   }, [currentWorkspaceId, userWorkspaceInfo]);
+  const isOwner = selectedWorkspace?.owner?.uid.toString() === currentUser?.uid.toString();
 
   const handleChange = useCallback(async (selectedId: string) => {
     setChangeLoading(selectedId);
@@ -81,11 +85,12 @@ export function Workspaces() {
     </Button>
     <Popover
       open={open}
+      keepMounted={true}
       anchorEl={ref.current}
       onClose={() => setOpen(false)}
     >
       <div
-        className={'flex text-[14px] w-[288px] flex-col gap-2 p-2 max-h-[380px] min-h-[303px] overflow-hidden'}
+        className={'flex text-[14px] w-[288px] flex-col gap-2 p-2 max-h-[420px] min-h-[303px] overflow-hidden'}
       >
         <div className={'flex p-2 text-text-caption items-center justify-between'}>
           <span className={'font-medium flex-1 text-sm'}>{currentUser?.email}</span>
@@ -100,11 +105,14 @@ export function Workspaces() {
         </div>
 
         <Divider className={'w-full mt-1'}/>
-        {selectedWorkspace && <InviteMember workspace={selectedWorkspace}/>}
+        {selectedWorkspace && <InviteMember onClick={() => {
+          setOpen(false);
+        }} workspace={selectedWorkspace}/>}
+
         <Button
           size={'small'}
           component={'div'}
-          startIcon={<AddIcon/>}
+          startIcon={<ImportIcon/>}
           color={'inherit'}
           className={'justify-start px-2'}
           onClick={handleOpenImport}
@@ -133,10 +141,33 @@ export function Workspaces() {
           color={'inherit'}
           onClick={handleSignOut}
           startIcon={<SignOutIcon/>}
-        >{t('button.signOut')}</Button>
+        >{t('button.logout')}</Button>
+
+
+        {isOwner && <>
+          <Divider className={'w-full'}/>
+          <Button
+            size={'small'}
+            startIcon={<UpgradeIcon/>}
+            color={'inherit'}
+            onClick={() => {
+              setOpenUpgradePlan(true);
+              setOpen(false);
+            }}
+            className={'justify-start px-2'}
+          >
+            {t('subscribe.changePlan')}
+          </Button>
+        </>}
       </div>
 
     </Popover>
+    {isOwner &&
+      <UpgradePlan onOpen={
+        () => {
+          setOpenUpgradePlan(true);
+        }
+      } open={openUpgradePlan} onClose={() => setOpenUpgradePlan(false)}/>}
     <Import/>
   </>;
 }

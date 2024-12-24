@@ -12,7 +12,7 @@ import {
 } from '@/application/types';
 import { filter } from 'lodash-es';
 import {
-  createBlock, createEmptyDocument,
+  createBlock, createEmptyDocument, generateBlockId,
   getBlock,
   getChildrenArray,
   getPageId,
@@ -20,6 +20,7 @@ import {
   updateBlockParent,
 } from '@/application/slate-yjs/utils/yjs';
 import { Op } from 'quill-delta';
+import { Text as SlateText, Element as SlateElement, Node as SlateNode } from 'slate';
 
 export function deserialize(body: HTMLElement, sharedRoot: YSharedRoot) {
   const pageId = getPageId(sharedRoot);
@@ -482,4 +483,44 @@ export function deserializeHTML(html: string) {
   const slateContent = yDocToSlateContent(doc);
 
   return slateContent?.children;
+}
+
+export function convertSlateFragmentTo(fragment: SlateNode[]) {
+  const traverse = (node: SlateNode) => {
+
+    if (SlateText.isText(node)) {
+      return node;
+    }
+
+    if (SlateElement.isElement(node)) {
+      const isTextChildren = node.children.every(SlateText.isText);
+      const children = node.children.map(traverse).filter(Boolean) as SlateText[];
+      const blockId = generateBlockId();
+
+      let type = node.type as BlockType;
+
+      if (!Object.values(BlockType).includes(type)) {
+        type = BlockType.Paragraph;
+      }
+
+      const blockChildren = isTextChildren ? [{
+        textId: blockId,
+        children: isTextChildren ? children : [],
+      }] : [{
+        textId: blockId,
+        children: [{ text: '' }],
+      }, ...children];
+
+      return {
+        blockId,
+        data: node.data,
+        type,
+        children: blockChildren,
+      };
+    }
+
+    return null;
+  };
+
+  return fragment.map(traverse).filter(Boolean) as SlateElement[];
 }

@@ -1,13 +1,12 @@
 import { UIVariant, View, ViewLayout } from '@/application/types';
-import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
-import { ViewIcon } from '@/components/_shared/view-icon';
+import SpaceIcon from '@/components/_shared/view-icon/SpaceIcon';
 import PublishIcon from '@/components/_shared/view-icon/PublishIcon';
-import { isFlagEmoji } from '@/utils/emoji';
 import { Tooltip } from '@mui/material';
 import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
+import PageIcon from '@/components/_shared/view-icon/PageIcon';
 
-function OutlineItemContent ({
+function OutlineItemContent({
   item,
   setIsExpanded,
   navigateToView,
@@ -21,7 +20,7 @@ function OutlineItemContent ({
   variant?: UIVariant;
 
 }) {
-  const { icon, layout, name, view_id, extra } = item;
+  const { name, view_id, extra } = item;
   const [hovered, setHovered] = React.useState(false);
   const isSpace = extra?.is_space;
   const { t } = useTranslation();
@@ -54,14 +53,7 @@ function OutlineItemContent ({
           value={extra.space_icon || ''}
           char={extra.space_icon ? undefined : name.slice(0, 1)}
         /> :
-        <div
-          className={`${icon && isFlagEmoji(icon.value) ? 'icon' : ''}`}
-        >
-          {icon?.value || <ViewIcon
-            layout={layout}
-            size={'medium'}
-          />}
-        </div>
+        <PageIcon view={item} className={'flex h-5 w-5 min-w-5 items-center justify-center'}/>
       }
 
       <Tooltip

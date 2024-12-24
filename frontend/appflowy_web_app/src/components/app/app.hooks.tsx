@@ -4,7 +4,7 @@ import {
   CreateRowDoc, CreateSpacePayload,
   DatabaseRelations,
   LoadView,
-  LoadViewMeta, TextCount,
+  LoadViewMeta, Subscription, TextCount,
   Types,
   UIVariant,
   UpdatePagePayload, UpdateSpacePayload,
@@ -61,6 +61,7 @@ export interface AppContextType {
   createSpace?: (payload: CreateSpacePayload) => Promise<string>;
   updateSpace?: (payload: UpdateSpacePayload) => Promise<void>;
   uploadFile?: (viewId: string, file: File, onProgress?: (n: number) => void) => Promise<string>;
+  getSubscriptions?: () => Promise<Subscription[]>;
 }
 
 const USER_NO_ACCESS_CODE = [1024, 1012];
@@ -217,7 +218,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [currentWorkspaceId, loadViewMeta, navigate]);
 
   const loadView = useCallback(async (id: string) => {
-
     const errorCallback = (e: {
       code: number;
     }) => {
@@ -626,6 +626,20 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [currentWorkspaceId, service]);
 
+  const getSubscriptions = useCallback(async () => {
+    if (!service || !currentWorkspaceId) {
+      throw new Error('No service found');
+    }
+
+    try {
+      const res = await service.getWorkspaceSubscriptions(currentWorkspaceId);
+
+      return res;
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }, [currentWorkspaceId, service]);
+
   return <AppContext.Provider
     value={{
       currentWorkspaceId,
@@ -663,6 +677,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       createSpace,
       updateSpace,
       uploadFile,
+      getSubscriptions,
     }}
   >
     {requestAccessOpened ? <RequestAccess/> : children}
@@ -802,6 +817,7 @@ export function useAppHandlers() {
     createSpace: context.createSpace,
     updateSpace: context.updateSpace,
     uploadFile: context.uploadFile,
+    getSubscriptions: context.getSubscriptions,
   };
 }
 

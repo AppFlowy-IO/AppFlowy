@@ -19,7 +19,7 @@ import {
   UpdateSpacePayload,
   WorkspaceMember,
   QuickNoteEditorData,
-  QuickNote,
+  QuickNote, Subscription,
 } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
@@ -83,7 +83,9 @@ export interface AppService {
   sendRequestAccess: (workspaceId: string, viewId: string) => Promise<void>;
   getSubscriptionLink: (workspaceId: string, plan: SubscriptionPlan, interval: SubscriptionInterval) => Promise<string>;
   getSubscriptions: () => Promise<Subscriptions>;
+  cancelSubscription: (workspaceId: string, plan: SubscriptionPlan, reason?: string) => Promise<void>;
   getActiveSubscription: (workspaceId: string) => Promise<SubscriptionPlan[]>;
+  getWorkspaceSubscriptions: (workspaceId: string) => Promise<Subscription[]>;
   registerDocUpdate: (doc: YDoc, context: {
     workspaceId: string, objectId: string, collabType: Types
   }) => void;

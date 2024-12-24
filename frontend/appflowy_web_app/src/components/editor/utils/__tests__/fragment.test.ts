@@ -20,7 +20,7 @@ describe('deserializeHTML', () => {
 
     expect(result).toBeDefined();
     expect(Array.isArray(result)).toBe(true);
-    expect(result.length).toBe(6);
+    expect(result.length).toBe(7);
 
     // Check paragraph
     let blockId = (result[0] as Element).blockId as string;

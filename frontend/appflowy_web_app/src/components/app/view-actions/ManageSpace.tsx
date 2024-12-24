@@ -8,7 +8,7 @@ import { OutlinedInput } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-function ManageSpace ({ open, onClose, viewId }: {
+function ManageSpace({ open, onClose, viewId }: {
   open: boolean;
   onClose: () => void;
   viewId: string;
@@ -43,6 +43,8 @@ function ManageSpace ({ open, onClose, viewId }: {
     }
   };
 
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+
   if (!view) return null;
   return (
     <NormalModal
@@ -75,6 +77,16 @@ function ManageSpace ({ open, onClose, viewId }: {
             />
             <OutlinedInput
               value={spaceName}
+              autoFocus={true}
+              inputRef={(input: HTMLInputElement) => {
+                if (!input) return;
+                if (!inputRef.current) {
+                  setTimeout(() => {
+                    input.setSelectionRange(0, input.value.length);
+                  }, 100);
+                  inputRef.current = input;
+                }
+              }}
               fullWidth={true}
               onChange={(e) => setSpaceName(e.target.value)}
               size={'small'}

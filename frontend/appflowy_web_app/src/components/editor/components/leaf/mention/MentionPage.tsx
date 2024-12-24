@@ -5,13 +5,14 @@ import { MentionType, UIVariant, View, ViewLayout, YjsEditorKey, YSharedRoot } f
 import { ReactComponent as NorthEast } from '@/assets/north_east.svg';
 import { ReactComponent as MarkIcon } from '@/assets/paragraph_mark.svg';
 
-import { ViewIcon } from '@/components/_shared/view-icon';
 import { useEditorContext } from '@/components/editor/EditorContext';
-import { isFlagEmoji } from '@/utils/emoji';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useFocused, useReadOnly, useSlateStatic } from 'slate-react';
+import { ReactEditor, useReadOnly, useSlate } from 'slate-react';
 import { Element, Text } from 'slate';
+import PageIcon from '@/components/_shared/view-icon/PageIcon';
+import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/editor';
+import smoothScrollIntoViewIfNeeded from 'smooth-scroll-into-view-if-needed';
 
 function MentionPage({ text, pageId, blockId, type }: {
   text: Text | Element;
@@ -20,10 +21,11 @@ function MentionPage({ text, pageId, blockId, type }: {
   type?: MentionType
 }) {
   const context = useEditorContext();
-  const editor = useSlateStatic();
+  const editor = useSlate();
+  const selection = editor.selection;
   const variant = context.variant;
   const currentViewId = context.viewId;
-  const focused = useFocused();
+
   const { navigateToView, loadViewMeta, loadView, openPageModal } = context;
   const [noAccess, setNoAccess] = useState(false);
   const [meta, setMeta] = useState<View | null>(null);
@@ -53,10 +55,6 @@ function MentionPage({ text, pageId, blockId, type }: {
 
   const { t } = useTranslation();
 
-  const isFlag = useMemo(() => {
-    return icon ? isFlagEmoji(icon.value) : false;
-  }, [icon]);
-
   useEffect(() => {
     void (
       async () => {
@@ -64,7 +62,7 @@ function MentionPage({ text, pageId, blockId, type }: {
 
         if (blockId) {
           if (currentViewId === pageId) {
-            const entry = CustomEditor.getBlockEntry(editor as YjsEditor, blockId);
+            const entry = findSlateEntryByBlockId(editor as YjsEditor, blockId);
 
             if (entry) {
               const [node] = entry;
@@ -109,7 +107,7 @@ function MentionPage({ text, pageId, blockId, type }: {
         setContent(pageName);
       }
     )();
-  }, [focused, blockId, currentViewId, editor, loadView, meta?.name, pageId, t]);
+  }, [selection, blockId, currentViewId, editor, loadView, meta?.name, pageId, t]);
 
   const mentionIcon = useMemo(() => {
     if (pageId === currentViewId && blockId) {
@@ -117,20 +115,42 @@ function MentionPage({ text, pageId, blockId, type }: {
     }
 
     return <>
-      {icon?.value || <ViewIcon
-        layout={meta?.layout || ViewLayout.Document}
-        size={'unset'}
-        className={'text-text-title ml-0.5'}
-      />}
+      <PageIcon view={{
+        icon: icon,
+        layout: meta?.layout || ViewLayout.Document,
+      }} className={'text-text-title ml-0.5 w-[1em] h-[1em] flex items-center'}/>
+
       {type === MentionType.PageRef &&
-        <span className={`absolute ${icon?.value ? 'right-0 bottom-0' : 'right-[-2px] bottom-[-2px]'}`}>
+        <span
+          className={`absolute ${!icon?.value ? 'right-[-0.08em] bottom-[-0.08em]' : 'right-[-0.1em] bottom-[-0.2em]'}`}>
           <NorthEast className={'w-[0.7em] h-[0.7em] text-black'}/>
         </span>
       }
     </>;
-  }, [blockId, currentViewId, icon?.value, meta?.layout, pageId, type]);
+  }, [blockId, currentViewId, icon, meta?.layout, pageId, type]);
 
   const readOnly = useReadOnly() || editor.isElementReadOnly(text as unknown as Element);
+
+  const handleScrollToBlock = useCallback(async () => {
+    if (blockId) {
+      const entry = findSlateEntryByBlockId(editor as YjsEditor, blockId);
+
+      if (entry) {
+        const [node] = entry;
+        const dom = ReactEditor.toDOMNode(editor, node);
+
+        await smoothScrollIntoViewIfNeeded(dom, {
+          behavior: 'smooth',
+          scrollMode: 'if-needed',
+        });
+
+        dom.className += ' highlight-block';
+        setTimeout(() => {
+          dom.className = dom.className.replace('highlight-block', '');
+        }, 5000);
+      }
+    }
+  }, [blockId, editor]);
 
   return (
     <span
@@ -140,6 +160,11 @@ function MentionPage({ text, pageId, blockId, type }: {
           void navigateToView?.(pageId, blockId);
         } else {
           if (noAccess) return;
+          if (pageId === currentViewId) {
+            void handleScrollToBlock();
+            return;
+          }
+
           openPageModal?.(pageId);
         }
       }}
@@ -156,11 +181,11 @@ function MentionPage({ text, pageId, blockId, type }: {
         }</span>
       ) : (
         <>
-          <span className={`mention-icon ${isFlag ? 'icon' : ''}`}>
+          <span className={`mention-icon w-[1em] h-[1em]`}>
             {mentionIcon}
           </span>
 
-          <span className={'mention-content opacity-80'}>
+          <span className={'mention-content max-w-[330px] truncate opacity-80'}>
             {content}
           </span>
         </>

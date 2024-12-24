@@ -796,7 +796,7 @@ export interface DuplicatePublishView {
 
 export enum ViewIconType {
   Emoji = 0,
-  Icon = 1,
+  Icon = 2,
 }
 
 export interface ViewIcon {

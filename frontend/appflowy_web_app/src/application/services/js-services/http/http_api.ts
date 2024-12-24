@@ -39,6 +39,7 @@ import axios, { AxiosInstance } from 'axios';
 import dayjs from 'dayjs';
 import { omit } from 'lodash-es';
 import { nanoid } from 'nanoid';
+import { notify } from '@/components/_shared/notify';
 
 export * from './gotrue';
 
@@ -72,9 +73,14 @@ export function initAPIService(config: AFCloudConfig) {
       const refresh_token = token.refresh_token;
 
       if (isExpired) {
-        const newToken = await refreshToken(refresh_token);
+        try {
+          const newToken = await refreshToken(refresh_token);
 
-        access_token = newToken?.access_token || '';
+          access_token = newToken?.access_token || '';
+        } catch (e) {
+          invalidToken();
+          return config;
+        }
       }
 
       if (access_token) {
@@ -1192,6 +1198,18 @@ export async function getSubscriptions() {
 
 }
 
+export async function getWorkspaceSubscriptions(workspaceId: string) {
+  try {
+    const plans = await getActiveSubscription(workspaceId);
+    const subscriptions = await getSubscriptions();
+
+    return subscriptions?.filter((subscription) => plans?.includes(subscription.plan));
+
+  } catch (e) {
+    return Promise.reject(e);
+  }
+}
+
 export async function getActiveSubscription(workspaceId: string) {
   const url = `/billing/api/v1/active-subscription/${workspaceId}`;
 
@@ -1405,32 +1423,62 @@ export async function updateSpace(workspaceId: string, payload: UpdateSpacePaylo
 export async function uploadFile(workspaceId: string, viewId: string, file: File, onProgress?: (progress: number) => void) {
   const url = `/api/file_storage/${workspaceId}/v1/blob/${viewId}`;
 
-  const response = await axiosInstance?.put<{
-    code: number;
-    message: string;
-    data: {
-      file_id: string;
+  // Check file size, if over 7MB, check subscription plan
+  if (file.size > 7 * 1024 * 1024) {
+    const plan = await getActiveSubscription(workspaceId);
+
+    if (plan?.length === 0 || plan?.[0] === SubscriptionPlan.Free) {
+      notify.error('Your file is over 7 MB limit of the Free plan. Upgrade for unlimited uploads.');
+
+      return Promise.reject({
+        code: 413,
+        message: 'File size is too large. Please upgrade your plan for unlimited uploads.',
+      });
     }
-  }>(url, file, {
-    onUploadProgress: (progressEvent) => {
-      const { progress = 0 } = progressEvent;
-
-      onProgress?.(progress);
-    },
-    headers: {
-      'Content-Type': file.type || 'application/octet-stream',
-    },
-  });
-
-  if (response?.data.code === 0) {
-    const baseURL = axiosInstance?.defaults.baseURL;
-    const url = `${baseURL}/api/file_storage/${workspaceId}/v1/blob/${viewId}/${response?.data.data.file_id}`;
-
-    console.log('Upload file success:', url);
-    return url;
   }
 
-  return Promise.reject(response?.data);
+  try {
+    const response = await axiosInstance?.put<{
+      code: number;
+      message: string;
+      data: {
+        file_id: string;
+      }
+    }>(url, file, {
+      onUploadProgress: (progressEvent) => {
+        const { progress = 0 } = progressEvent;
+
+        onProgress?.(progress);
+      },
+      headers: {
+        'Content-Type': file.type || 'application/octet-stream',
+      },
+    });
+
+    if (response?.data.code === 0) {
+      const baseURL = axiosInstance?.defaults.baseURL;
+      const url = `${baseURL}/api/file_storage/${workspaceId}/v1/blob/${viewId}/${response?.data.data.file_id}`;
+
+      return url;
+    }
+
+    return Promise.reject(response?.data);
+    // eslint-disable-next-line
+  } catch (e: any) {
+
+    if (e.response.status === 413) {
+      return Promise.reject({
+        code: 413,
+        message: 'File size is too large. Please upgrade your plan for unlimited uploads.',
+      });
+    }
+  }
+
+  return Promise.reject({
+    code: -1,
+    message: 'Upload file failed.',
+  });
+
 }
 
 export async function inviteMembers(workspaceId: string, emails: string[]) {
@@ -1566,6 +1614,25 @@ export async function deleteQuickNote(workspaceId: string, noteId: string) {
     code: number;
     message: string;
   }>(url);
+
+  if (res?.data.code === 0) {
+    return;
+  }
+
+  return Promise.reject(res?.data);
+}
+
+export async function cancelSubscription(workspaceId: string, plan: SubscriptionPlan, reason?: string) {
+  const url = `/billing/api/v1/cancel-subscription`;
+  const res = await axiosInstance?.post<{
+    code: number;
+    message: string;
+  }>(url, {
+    workspace_id: workspaceId,
+    plan,
+    sync: true,
+    reason,
+  });
 
   if (res?.data.code === 0) {
     return;

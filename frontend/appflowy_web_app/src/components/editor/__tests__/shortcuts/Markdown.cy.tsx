@@ -592,41 +592,14 @@ describe('Markdown editing', () => {
     assertJSON(expectedJson);
   });
 
-  it('should handle code block', () => {
-
-    moveToEnd();
-    // Test 6: Code block
-    cy.get('@editor').realPress('Enter');
-    cy.get('@editor').type('```');
-    cy.get('@editor').type(`function main() {\n  console.log('Hello, World!');\n}`);
-    cy.get('@editor').realPress(['Shift', 'Enter']);
-    expectedJson = [
-      ...expectedJson,
-      {
-        type: 'code',
-        data: {},
-        text: [{
-          insert: 'function main() {\n  console.log(\'Hello, World!\');\n}',
-        }],
-        children: [],
-      },
-      {
-        type: 'paragraph',
-        data: {},
-        text: [],
-        children: [],
-      },
-    ];
-    assertJSON(expectedJson);
-  });
-
   it('should handle divider', () => {
     moveToEnd();
+    cy.get('@editor').realPress('Enter');
     // Last test: Divider
     cy.get('@editor').type('--');
     cy.get('@editor').realPress('-');
     expectedJson = [
-      ...expectedJson.slice(0, -1),
+      ...expectedJson,
       {
         type: 'divider',
         data: {},

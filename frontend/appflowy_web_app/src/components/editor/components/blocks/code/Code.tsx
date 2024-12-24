@@ -24,8 +24,11 @@ export const CodeBlock = memo(
         }}
         onMouseLeave={() => setShowToolbar(false)}
       >
-        {showToolbar && <div
+        {<div
           contentEditable={false}
+          style={{
+            visibility: showToolbar ? 'visible' : 'hidden',
+          }}
           className={'absolute flex h-12 w-full select-none items-center px-2'}
         >
           <LanguageSelect

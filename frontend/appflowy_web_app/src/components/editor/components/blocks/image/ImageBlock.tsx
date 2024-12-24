@@ -10,7 +10,6 @@ import { useEditorContext } from '@/components/editor/EditorContext';
 import { YjsEditor } from '@/application/slate-yjs';
 import { FileHandler } from '@/utils/file';
 import { CustomEditor } from '@/application/slate-yjs/command';
-import { MAX_IMAGE_SIZE } from '@/components/_shared/image-upload';
 import { useTranslation } from 'react-i18next';
 import { ReactComponent as ErrorIcon } from '@/assets/error.svg';
 import { CircularProgress } from '@mui/material';
@@ -99,11 +98,6 @@ export const ImageBlock = memo(
     }, [readOnly, retry_local_url, fileHandler]);
 
     const uploadFileRemote = useCallback(async (file: File) => {
-      if (file.size > MAX_IMAGE_SIZE) {
-        notify.error(`Image size is too large, please upload a file less than ${MAX_IMAGE_SIZE / 1024 / 1024}MB`);
-
-        return;
-      }
 
       try {
         if (uploadFile) {

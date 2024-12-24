@@ -1,14 +1,14 @@
-import { CoverType, ViewIconType, ViewMetaCover, ViewMetaIcon, ViewMetaProps } from '@/application/types';
+import { CoverType, ViewIconType, ViewLayout, ViewMetaCover, ViewMetaIcon, ViewMetaProps } from '@/application/types';
 import { notify } from '@/components/_shared/notify';
 import TitleEditable from '@/components/view-meta/TitleEditable';
 import ViewCover from '@/components/view-meta/ViewCover';
-import { isFlagEmoji } from '@/utils/emoji';
 import React, { lazy, Suspense, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import PageIcon from '@/components/_shared/view-icon/PageIcon';
 
 const AddIconCover = lazy(() => import('@/components/view-meta/AddIconCover'));
 
-export function ViewMetaPreview ({
+export function ViewMetaPreview({
   icon: iconProp,
   cover: coverProp,
   name,
@@ -61,9 +61,6 @@ export function ViewMetaPreview ({
   }, [coverType, cover?.value]);
   const { t } = useTranslation();
 
-  const isFlag = useMemo(() => {
-    return icon ? isFlagEmoji(icon.value) : false;
-  }, [icon]);
   const [isHover, setIsHover] = React.useState(false);
 
   const handleUpdateIcon = React.useCallback(async (icon: { ty: ViewIconType, value: string }) => {
@@ -139,7 +136,8 @@ export function ViewMetaPreview ({
         className={'flex mt-2 flex-col relative w-full overflow-hidden'}
       >
         <div className={'relative flex justify-center max-sm:h-[38px] h-[52px] w-full'}>
-          {isHover && !readOnly && <Suspense><AddIconCover
+          {!readOnly && <Suspense><AddIconCover
+            visible={isHover}
             hasIcon={!!icon?.value}
             hasCover={!!cover?.value}
             onUpdateIcon={handleUpdateIcon}
@@ -166,15 +164,22 @@ export function ViewMetaPreview ({
               'flex gap-4 max-sm:px-6 px-24 min-w-0 max-w-full overflow-hidden whitespace-pre-wrap break-words break-all text-[2.5rem] font-bold max-md:text-[26px]'
             }
           >
+
             {icon?.value ?
               <div
                 onClick={e => {
                   if (readOnly) return;
                   setIconAnchorEl(e.currentTarget);
                 }}
-                className={`view-icon flex h-[1.25em] px-1.5 items-center justify-center ${readOnly ? 'cursor-default' : 'cursor-pointer hover:bg-fill-list-hover '} ${isFlag ? 'icon' : ''}`}
+                className={`view-icon flex h-[1.25em] px-1.5 items-center justify-center ${readOnly ? 'cursor-default' : 'cursor-pointer hover:bg-fill-list-hover '}`}
               >
-                {icon?.value}
+                <PageIcon
+                  view={{
+                    icon,
+                    layout: ViewLayout.Document,
+                  }}
+                  className={'h-[90%] w-[80%] flex items-center justify-center'}
+                />
               </div>
               : null
             }
@@ -185,7 +190,10 @@ export function ViewMetaPreview ({
                 onEnter={onEnter}
               /> :
               <div
-                className={'relative flex-1 cursor-text focus:outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-text-placeholder'}
+                style={{
+                  wordBreak: 'break-word',
+                }}
+                className={'relative flex-1 break-words whitespace-pre-wrap cursor-text focus:outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-text-placeholder'}
                 data-placeholder={t('menuAppHeader.defaultNewPageName')}
                 contentEditable={false}
               >

@@ -10,7 +10,7 @@ import { ReactComponent as DuplicateIcon } from '@/assets/duplicate.svg';
 import { ReactComponent as SettingsIcon } from '@/assets/settings.svg';
 import { ReactComponent as AddIcon } from '@/assets/add.svg';
 
-function MoreSpaceActions ({
+function MoreSpaceActions({
   view,
   onClose,
 }: {
@@ -24,18 +24,18 @@ function MoreSpaceActions ({
   const actions = useMemo(() => {
     return [{
       label: t('space.manage'),
-      icon: <SettingsIcon />,
+      icon: <SettingsIcon/>,
       onClick: () => {
         setManageModalOpen(true);
       },
     }, {
       label: t('space.duplicate'),
-      icon: <DuplicateIcon />,
+      icon: <DuplicateIcon/>,
       hidden: true,
       onClick: () => {
         //
       },
-    }
+    },
     ];
   }, [t]);
 
@@ -53,7 +53,7 @@ function MoreSpaceActions ({
           {action.label}
         </Button>
       ))}
-      <Divider className={'w-full'} />
+      <Divider className={'w-full'}/>
       <Button
         size={'small'}
         className={'px-3 py-1 justify-start'}
@@ -61,11 +61,11 @@ function MoreSpaceActions ({
         onClick={() => {
           setCreateSpaceModalOpen(true);
         }}
-        startIcon={<AddIcon className={'w-4 h-4'} />}
+        startIcon={<AddIcon className={'w-4 h-4'}/>}
       >
         {t('space.createNewSpace')}
       </Button>
-      <Divider className={'w-full'} />
+      <Divider className={'w-full'}/>
       <Button
         size={'small'}
         className={'px-3 py-1 hover:text-function-error justify-start'}
@@ -73,31 +73,32 @@ function MoreSpaceActions ({
         onClick={() => {
           setDeleteModalOpen(true);
         }}
-        startIcon={<DeleteIcon className={'w-4 h-4'} />}
+        startIcon={<DeleteIcon className={'w-4 h-4'}/>}
       >
         {t('button.delete')}
       </Button>
-      <ManageSpace
+      {manageModalOpen && <ManageSpace
         open={manageModalOpen}
         onClose={() => {
           setManageModalOpen(false);
           onClose();
         }}
         viewId={view.view_id}
-      />
-      <CreateSpaceModal
+      />}
+      {createSpaceModalOpen && <CreateSpaceModal
         onCreated={onClose}
         open={createSpaceModalOpen}
         onClose={() => setCreateSpaceModalOpen(false)}
-      />
-      <DeleteSpaceConfirm
+      />}
+      {deleteModalOpen && <DeleteSpaceConfirm
         viewId={view.view_id}
         open={deleteModalOpen}
         onClose={() => {
           setDeleteModalOpen(false);
           onClose();
         }}
-      />
+      />}
+
     </div>
   );
 }

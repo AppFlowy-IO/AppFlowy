@@ -102,9 +102,9 @@ const EditorEditable = () => {
 
   const handleClick = useCallback((e: React.MouseEvent) => {
     const currentTarget = e.currentTarget as HTMLElement;
-    const bottomArea = currentTarget.getBoundingClientRect().bottom - 36 * 4;
+    const bottomArea = currentTarget.getBoundingClientRect().bottom - 56 * 4;
 
-    if (e.clientY > bottomArea && e.clientY < (bottomArea + 36)) {
+    if (e.clientY > bottomArea && e.clientY < (bottomArea + 56)) {
       const lastBlock = editor.children[editor.children.length - 1] as SlateElement;
       const isEmptyLine = CustomEditor.getBlockTextContent(lastBlock) === '';
       const type = lastBlock.type;
@@ -155,7 +155,7 @@ const EditorEditable = () => {
               return [...codeDecoration, ...decoration];
             }}
             id={`editor-${viewId}`}
-            className={'outline-none custom-caret scroll-mb-[100px] scroll-mt-[300px] pb-36 min-w-0 max-w-full w-[988px] max-sm:px-6 px-24 focus:outline-none'}
+            className={'outline-none custom-caret scroll-mb-[100px] scroll-mt-[300px] pb-56 min-w-0 max-w-full w-[988px] max-sm:px-6 px-24 focus:outline-none'}
             renderLeaf={Leaf}
             renderElement={renderElement}
             readOnly={readOnly}

@@ -112,9 +112,8 @@ describe('BlockControls', () => {
 
     cy.realPress(['Enter']);
     cy.wait(100);
-    const meta = getModKey();
 
-    cy.realPress([meta, 'v']);
+    cy.get('@editor').realPress([getModKey(), 'v']);
     cy.wait(50);
     cy.wrap(null).then(() => {
       const finalJson = getFinalJSON();

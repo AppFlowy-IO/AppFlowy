@@ -11,11 +11,11 @@ import { useTranslation } from 'react-i18next';
 import { useReadOnly, useSlateStatic } from 'slate-react';
 import { openUrl } from '@/utils/url';
 import { CircularProgress, IconButton, Tooltip } from '@mui/material';
-import { MAX_FILE_SIZE } from '@/components/editor/components/block-popover/FileBlockPopoverContent';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { FileHandler } from '@/utils/file';
+import { Element } from 'slate';
 
 export const FileBlock = memo(
   forwardRef<HTMLDivElement, EditorElementProps<FileNode>>(({ node, children, ...attributes }, ref) => {
@@ -27,7 +27,7 @@ export const FileBlock = memo(
     const [localUrl, setLocalUrl] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(false);
     const { url, name, retry_local_url } = useMemo(() => data || {}, [data]);
-    const readOnly = useReadOnly();
+    const readOnly = useReadOnly() || editor.isElementReadOnly(node as unknown as Element);
     const emptyRef = useRef<HTMLDivElement>(null);
     const [showToolbar, setShowToolbar] = useState(false);
 
@@ -92,11 +92,6 @@ export const FileBlock = memo(
     }, [readOnly, retry_local_url, fileHandler]);
 
     const uploadFileRemote = useCallback(async (file: File) => {
-      if (file.size > MAX_FILE_SIZE) {
-        notify.error(`File size is too large, please upload a file less than ${MAX_FILE_SIZE / 1024 / 1024}MB`);
-
-        return;
-      }
 
       try {
         if (uploadFile) {

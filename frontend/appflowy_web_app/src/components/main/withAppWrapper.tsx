@@ -30,7 +30,7 @@ export default function withAppWrapper(Component: React.FC): React.FC {
               horizontal: 'center',
             }}
             preventDuplicate
-            autoHideDuration={2000}
+            autoHideDuration={3000}
             Components={{
               info: InfoSnackbar,
               success: CustomSnackbar,

@@ -8,7 +8,7 @@ import { PopoverProps } from '@mui/material/Popover';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-function ChangeIconPopover ({
+function ChangeIconPopover({
   open,
   anchorEl,
   onClose,
@@ -19,7 +19,7 @@ function ChangeIconPopover ({
   onSelectIcon,
   removeIcon,
   anchorPosition,
-  hideRemove
+  hideRemove,
 }: {
   open: boolean,
   anchorEl?: HTMLElement | null,
@@ -29,16 +29,21 @@ function ChangeIconPopover ({
   emojiEnabled?: boolean,
   iconEnabled?: boolean,
   popoverProps?: Partial<PopoverProps>,
-  onSelectIcon?: (icon: { ty: ViewIconType, value: string, color?: string }) => void,
+  onSelectIcon?: (icon: { ty: ViewIconType, value: string, color?: string, content?: string }) => void,
   removeIcon?: () => void,
   hideRemove?: boolean,
 }) {
   const [value, setValue] = useState(defaultType);
   const { t } = useTranslation();
 
+  const handleClose = () => {
+    onClose();
+    setValue(defaultType);
+  };
+
   return (
     <Popover
-      onClose={onClose}
+      onClose={handleClose}
       open={open}
       anchorEl={anchorEl}
       {...popoverProps}
@@ -51,21 +56,22 @@ function ChangeIconPopover ({
           value={value}
           className={'flex-1 mb-[-2px]'}
         >
-          {
-            iconEnabled && (
-              <ViewTab
-                className={'flex items-center flex-row justify-center gap-1.5'}
-                value={'icon'}
-                label={t('space.spaceIcon')}
-              />
-            )
-          }
+
           {
             emojiEnabled && (
               <ViewTab
                 className={'flex items-center flex-row justify-center gap-1.5'}
                 value={'emoji'}
                 label={'Emojis'}
+              />
+            )
+          }
+          {
+            iconEnabled && (
+              <ViewTab
+                className={'flex items-center flex-row justify-center gap-1.5'}
+                value={'icon'}
+                label={'Icons'}
               />
             )
           }
@@ -90,13 +96,13 @@ function ChangeIconPopover ({
         value={value}
       >
         <IconPicker
-          onEscape={onClose}
+          onEscape={handleClose}
           onSelect={(icon) => {
             onSelectIcon?.({
               ty: ViewIconType.Icon,
               ...icon,
             });
-            onClose();
+            handleClose();
           }}
         />
       </TabPanel>}
@@ -111,7 +117,7 @@ function ChangeIconPopover ({
               value: emoji,
             });
           }}
-          onEscape={onClose}
+          onEscape={handleClose}
           hideRemove
         />
       </TabPanel>}

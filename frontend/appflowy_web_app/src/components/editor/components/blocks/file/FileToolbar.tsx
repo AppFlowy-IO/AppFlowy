@@ -15,12 +15,13 @@ import { ReactComponent as DeleteIcon } from '@/assets/trash.svg';
 import { ReactComponent as EditIcon } from '@/assets/edit.svg';
 
 import { useReadOnly, useSlateStatic } from 'slate-react';
+import { Element } from 'slate';
 
 function FileToolbar({ node }: {
   node: FileNode
 }) {
   const editor = useSlateStatic() as YjsEditor;
-  const readOnly = useReadOnly();
+  const readOnly = useReadOnly() || editor.isElementReadOnly(node as unknown as Element);
   const { t } = useTranslation();
   const url = node.data.url || '';
   const name = node.data.name || '';

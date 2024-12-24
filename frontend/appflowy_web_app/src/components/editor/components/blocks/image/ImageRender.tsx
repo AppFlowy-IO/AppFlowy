@@ -8,7 +8,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@mui/material';
 import { ReactComponent as ErrorOutline } from '@/assets/error.svg';
-import { useSlateStatic } from 'slate-react';
+import { useReadOnly, useSlateStatic } from 'slate-react';
+import { Element } from 'slate';
 
 const MIN_WIDTH = 100;
 
@@ -23,9 +24,11 @@ function ImageRender({
   node: ImageBlockNode;
   showToolbar?: boolean;
 }) {
+  const editor = useSlateStatic() as YjsEditor;
+  const readOnly = useReadOnly() || editor.isElementReadOnly(node as unknown as Element);
+
   const [loading, setLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const editor = useSlateStatic() as YjsEditor;
 
   const imgRef = useRef<HTMLImageElement>(null);
   const { width: imageWidth } = useMemo(() => node.data || {}, [node.data]);
@@ -105,7 +108,7 @@ function ImageRender({
         loading={'lazy'} {...imageProps}
         alt={`image-${blockId}`}
       />
-      {initialWidth && (
+      {!readOnly && initialWidth && (
         <>
           <ImageResizer
             isLeft

@@ -31,7 +31,10 @@ function NoteHeader({ note, onBack, onClose, expand, onToggleExpand }: {
       <div className={'pl-[24px] truncate text-center font-medium flex-1'}>
         {title}
       </div>
-      <IconButton onClick={onToggleExpand} size={'small'}>
+      <IconButton onClick={e => {
+        e.currentTarget.blur();
+        onToggleExpand?.();
+      }} size={'small'}>
         {expand ? <CollapseIcon className={'transform rotate-45'}/> : <OpenIcon/>}
       </IconButton>
       <IconButton onClick={onClose} size={'small'}>

@@ -2941,13 +2941,15 @@
     "unknownError": "File open failed"
   },
   "inviteMember": {
-    "requestInviteMembers": "Request to invite members",
-    "addEmail": "Enter emails, separated by `,`",
-    "requestInvites": "Request invites",
+    "requestInviteMembers": "Invite to your workspace",
+    "inviteFailedMemberLimit": "Member limit has been reached, please ",
+    "upgrade": "upgrade",
+    "addEmail": "email@example.com, email2@example.com...",
+    "requestInvites": "Send invites",
     "inviteAlready": "You've already invited this email: {email}",
     "inviteSuccess": "Invitation sent successfully",
     "description": "Input emails below with commas between them. Charges are based on member count.",
-    "emails": "Emails"
+    "emails": "Email"
   },
   "quickNote": {
     "label": "Quick note",
@@ -2959,6 +2961,81 @@
     "quickNotesEmpty": "No quick notes",
     "emptyNote": "Empty note",
     "deleteNotePrompt": "The selected note will be deleted permanently. Are you sure you want to delete it?",
-    "addNote": "New note"
+    "addNote": "New note",
+    "noAdditionalText": "No additional text"
+  },
+  "subscribe": {
+    "upgradePlanTitle": "Compare & select plan",
+    "yearly": "Yearly",
+    "save": "Save {discount}%",
+    "monthly": "Monthly",
+    "priceIn": "Price in ",
+    "free": "Free",
+    "pro": "Pro",
+    "freeDescription": "For individuals up to 2 members to organize everything",
+    "proDescription": "For small teams to manage projects and team knowledge",
+    "proDuration": {
+      "monthly": "per member per month\nbilled monthly",
+      "yearly": "per member per month\nbilled annually"
+    },
+    "cancel": "Downgrade",
+    "changePlan": "Upgrade to Pro Plan",
+    "everythingInFree": "Everything in Free +",
+    "currentPlan": "Current",
+    "freeDuration": "forever",
+    "freePoints": {
+      "first": "1 collaborative workspace up to 2 members",
+      "second": "Unlimited pages & blocks",
+      "three": "5 GB storage",
+      "four": "Intelligent search",
+      "five": "20 AI responses",
+      "six": "Mobile app",
+      "seven": "Real-time collaboration"
+    },
+    "proPoints": {
+      "first": "Unlimited storage",
+      "second": "Up to 10 workspace members",
+      "three": "Unlimited AI responses",
+      "four": "Unlimited file uploads",
+      "five": "Custom namespace"
+    },
+    "cancelPlan": {
+      "title": "Sorry to see you go",
+      "success": "Your subscription has been canceled successfully",
+      "description": "We're sorry to see you go. We'd love to hear your feedback to help us improve AppFlowy. Please take a moment to answer a few questions.",
+      "commonOther": "Other",
+      "otherHint": "Write your answer here",
+      "questionOne": {
+        "question": "What prompted you to cancel your AppFlowy Pro subscription?",
+        "answerOne": "Cost too high",
+        "answerTwo": "Features did not meet expectations",
+        "answerThree": "Found a better alternative",
+        "answerFour": "Did not use it enough to justify the expense",
+        "answerFive": "Service issue or technical difficulties"
+      },
+      "questionTwo": {
+        "question": "How likely are you to consider re-subscribing to AppFlowy Pro in the future?",
+        "answerOne": "Very likely",
+        "answerTwo": "Somewhat likely",
+        "answerThree": "Not sure",
+        "answerFour": "Unlikely",
+        "answerFive": "Very unlikely"
+      },
+      "questionThree": {
+        "question": "Which Pro feature did you value the most during your subscription?",
+        "answerOne": "Multi-user collaboration",
+        "answerTwo": "Longer time version history",
+        "answerThree": "Unlimited AI responses",
+        "answerFour": "Access to local AI models"
+      },
+      "questionFour": {
+        "question": "How would you describe your overall experience with AppFlowy?",
+        "answerOne": "Great",
+        "answerTwo": "Good",
+        "answerThree": "Average",
+        "answerFour": "Below average",
+        "answerFive": "Unsatisfied"
+      }
+    }
   }
 }

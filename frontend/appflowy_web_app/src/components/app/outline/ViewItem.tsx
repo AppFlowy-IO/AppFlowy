@@ -2,12 +2,11 @@ import { View, ViewIconType, ViewLayout } from '@/application/types';
 import { notify } from '@/components/_shared/notify';
 import OutlineIcon from '@/components/_shared/outline/OutlineIcon';
 import { Origins } from '@/components/_shared/popover';
-import { ViewIcon } from '@/components/_shared/view-icon';
 import { useAppHandlers, useAppViewId } from '@/components/app/app.hooks';
-import { isFlagEmoji } from '@/utils/emoji';
 import React, { lazy, Suspense, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tooltip } from '@mui/material';
+import PageIcon from '@/components/_shared/view-icon/PageIcon';
 
 const ChangeIconPopover = lazy(() => import('@/components/_shared/view-icon/ChangeIconPopover'));
 
@@ -17,8 +16,8 @@ const popoverProps: Origins = {
     horizontal: 'left',
   },
   anchorOrigin: {
-    vertical: 'top',
-    horizontal: 'right',
+    vertical: 30,
+    horizontal: 'left',
   },
 };
 
@@ -60,7 +59,7 @@ function ViewItem({ view, width, level = 0, renderExtra, expandIds, toggleExpand
 
   const renderItem = useMemo(() => {
     if (!view) return null;
-    const { layout, icon } = view;
+    const { layout } = view;
 
     return (
       <div
@@ -86,13 +85,10 @@ function ViewItem({ view, width, level = 0, renderExtra, expandIds, toggleExpand
             e.stopPropagation();
             setIconPopoverAnchorEl(e.currentTarget);
           }}
-          className={`${icon && isFlagEmoji(icon.value) ? 'icon' : ''} text-[18px] mr-1 `}
+          className={`text-[18px] mr-1 `}
         >
-          {icon?.value || <ViewIcon
-            layout={layout}
-            size={18}
-            className={'opacity-60'}
-          />}
+          <PageIcon view={view} className={'flex h-4 w-4 text-text-caption min-w-4 items-center justify-center'}/>
+
         </div>
         <Tooltip
           title={view.name}
@@ -162,7 +158,7 @@ function ViewItem({ view, width, level = 0, renderExtra, expandIds, toggleExpand
       {renderChildren}
       <Suspense fallback={null}>
         <ChangeIconPopover
-          iconEnabled={false}
+          iconEnabled={true}
           defaultType={'emoji'}
           open={openIconPopover}
           anchorEl={iconPopoverAnchorEl}
@@ -170,7 +166,22 @@ function ViewItem({ view, width, level = 0, renderExtra, expandIds, toggleExpand
             setIconPopoverAnchorEl(null);
           }}
           popoverProps={popoverProps}
-          onSelectIcon={handleChangeIcon}
+          onSelectIcon={(icon) => {
+            if (icon.ty === ViewIconType.Icon) {
+              void handleChangeIcon({
+                ty: ViewIconType.Icon,
+                value: JSON.stringify({
+                  color: icon.color,
+                  groupName: icon.value.split('/')[0],
+                  iconName: icon.value.split('/')[1],
+                  iconContent: icon.content,
+                }),
+              });
+              return;
+            }
+
+            void handleChangeIcon(icon);
+          }}
           removeIcon={handleRemoveIcon}
         />
       </Suspense>

@@ -2,7 +2,12 @@ import { UIVariant, ViewComponentProps, ViewLayout, ViewMetaProps, YDoc } from '
 import Help from '@/components/_shared/help/Help';
 import { findView } from '@/components/_shared/outline/utils';
 
-import { AppContext, useAppHandlers, useAppOutline, useAppViewId } from '@/components/app/app.hooks';
+import {
+  AppContext,
+  useAppHandlers,
+  useAppOutline,
+  useAppViewId,
+} from '@/components/app/app.hooks';
 import DatabaseView from '@/components/app/DatabaseView';
 import { Document } from '@/components/document';
 import RecordNotFound from '@/components/error/RecordNotFound';
@@ -11,9 +16,10 @@ import React, { lazy, memo, Suspense, useCallback, useContext, useEffect, useMem
 
 const ViewHelmet = lazy(() => import('@/components/_shared/helmet/ViewHelmet'));
 
-function AppPage () {
+function AppPage() {
   const viewId = useAppViewId();
   const outline = useAppOutline();
+  const ref = React.useRef<HTMLDivElement>(null);
   const {
     toView,
     loadViewMeta,
@@ -44,16 +50,12 @@ function AppPage () {
 
   const [doc, setDoc] = React.useState<YDoc | undefined>(undefined);
   const [notFound, setNotFound] = React.useState(false);
-  const loadPageDoc = useCallback(async () => {
-
-    if (!viewId) {
-      return;
-    }
+  const loadPageDoc = useCallback(async (id: string) => {
 
     setNotFound(false);
     setDoc(undefined);
     try {
-      const doc = await loadView(viewId);
+      const doc = await loadView(id);
 
       setDoc(doc);
     } catch (e) {
@@ -61,11 +63,13 @@ function AppPage () {
       console.error(e);
     }
 
-  }, [loadView, viewId]);
+  }, [loadView]);
 
   useEffect(() => {
-    void loadPageDoc();
-  }, [loadPageDoc]);
+    if (!viewId) return;
+
+    void loadPageDoc(viewId);
+  }, [loadPageDoc, viewId]);
 
   const View = useMemo(() => {
     switch (view?.layout) {
@@ -133,17 +137,17 @@ function AppPage () {
 
   if (!viewId) return null;
   return (
-    <div className={'relative w-full h-full'}>
+    <div ref={ref} className={'relative w-full h-full'}>
       {helmet}
 
       {notFound ? (
-        <RecordNotFound />
+        <RecordNotFound/>
       ) : (
         <div className={'w-full h-full'}>
           {viewDom}
         </div>
       )}
-      {view && doc && <Help />}
+      {view && doc && <Help/>}
 
     </div>
   );

@@ -1,14 +1,13 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { BlockType, ImageBlockData, ImageType } from '@/application/types';
-import { ALLOWED_IMAGE_EXTENSIONS, MAX_IMAGE_SIZE, Unsplash } from '@/components/_shared/image-upload';
+import { ALLOWED_IMAGE_EXTENSIONS, Unsplash } from '@/components/_shared/image-upload';
 import EmbedLink from '@/components/_shared/image-upload/EmbedLink';
 import { TabPanel, ViewTab, ViewTabs } from '@/components/_shared/tabs/ViewTabs';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSlateStatic } from 'slate-react';
-import { notify } from '@/components/_shared/notify';
+import { ReactEditor, useSlateStatic } from 'slate-react';
 import { FileHandler } from '@/utils/file';
 import FileDropzone from '@/components/_shared/file-dropzone/FileDropzone';
 import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/editor';
@@ -49,12 +48,6 @@ function ImageBlockPopoverContent({
   }, [blockId, editor, onClose]);
 
   const uploadFileRemote = useCallback(async (file: File) => {
-    if (file.size > MAX_IMAGE_SIZE) {
-      notify.error(`Image size is too large, please upload a file less than ${MAX_IMAGE_SIZE / 1024 / 1024}MB`);
-
-      throw new Error('Image size is too large');
-    }
-
     try {
       if (uploadFile) {
         return await uploadFile(file);
@@ -110,12 +103,21 @@ function ImageBlockPopoverContent({
 
     belowBlockId = CustomEditor.addBelowBlock(editor, belowBlockId, BlockType.Paragraph, {});
 
-    const [, path] = belowBlockId ? findSlateEntryByBlockId(editor, belowBlockId) : [null, null];
+    const [node, path] = belowBlockId ? findSlateEntryByBlockId(editor, belowBlockId) : [null, null];
 
     onClose();
+
     if (path) {
       editor.select(editor.start(path));
     }
+
+    setTimeout(() => {
+      if (!node) return;
+      const el = ReactEditor.toDOMNode(editor, node);
+
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    }, 250);
   }, [blockId, editor, getData, insertImageBlock, onClose, uploadFileRemote]);
 
   const tabOptions = useMemo(() => {
