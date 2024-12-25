@@ -28,6 +28,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 import '../chat_input/select_sources_menu.dart';
 import '../layout_define.dart';
+import 'message_util.dart';
 
 class AIResponseActionBar extends StatelessWidget {
   const AIResponseActionBar({
@@ -293,10 +294,11 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
         },
         onAddToExistingPage: (documentId) async {
           onAddToExistingPage(documentId);
-          final _ = await ViewBackendService.getView(documentId).toNullable();
-          // if (context.mounted) {
-          //   openPageFromMessage(context, view);
-          // }
+          final view =
+              await ViewBackendService.getView(documentId).toNullable();
+          if (context.mounted) {
+            openPageFromMessage(context, view);
+          }
           popoverController.close();
         },
       ),
@@ -315,14 +317,14 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
       context.read<ChatAIMessageBloc>().chatId,
     ).toNullable();
     if (chatView != null) {
-      final _ = await ChatEditDocumentService.saveMessagesToNewPage(
+      final newView = await ChatEditDocumentService.saveMessagesToNewPage(
         chatView.nameOrDefault,
         chatView.parentViewId,
         [widget.textMessage],
       );
-      // if (context.mounted) {
-      //   openPageFromMessage(context, newView);
-      // }
+      if (context.mounted) {
+        openPageFromMessage(context, newView);
+      }
     }
   }
 
