@@ -72,7 +72,7 @@ class _ImageMenuState extends State<ImageMenu> {
           const _Divider(),
           MenuBlockButton(
             tooltip: LocaleKeys.button_delete.tr(),
-            iconData: FlowySvgs.delete_s,
+            iconData: FlowySvgs.trash_s,
             onTap: deleteImage,
           ),
           const HSpace(4),

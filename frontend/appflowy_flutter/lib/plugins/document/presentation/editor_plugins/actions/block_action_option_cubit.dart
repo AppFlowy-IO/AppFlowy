@@ -107,7 +107,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
   }
 
   Node _copyBlock(Node node) {
-    Node copiedNode = node.copyWith();
+    Node copiedNode = node.deepCopy();
 
     final type = node.type;
     final builder = blockComponentBuilder[type];
@@ -158,7 +158,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
             )
             .firstOrNull;
         if (cell != null) {
-          newChildren.add(cell.copyWith());
+          newChildren.add(cell.deepCopy());
         } else {
           newChildren.add(
             tableCellNode('', i, j),
@@ -203,7 +203,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
             .firstOrNull;
         row.add(
           simpleTableCellBlockNode(
-            children: [cell?.children.first.copyWith() ?? paragraphNode()],
+            children: [cell?.children.first.deepCopy() ?? paragraphNode()],
           ),
         );
       }
@@ -327,10 +327,10 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
         afterNode = afterNode.copyWith(children: []);
         afterNode = await _handleSubPageNode(afterNode, node);
         insertedNode.add(afterNode);
-        insertedNode.addAll(node.children.map((e) => e.copyWith()));
+        insertedNode.addAll(node.children.map((e) => e.deepCopy()));
       } else if (!EditorOptionActionType.turnInto.supportTypes
           .contains(node.type)) {
-        afterNode = node.copyWith();
+        afterNode = node.deepCopy();
         insertedNode.add(afterNode);
       } else {
         afterNode = await _handleSubPageNode(afterNode, node);
@@ -463,7 +463,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       },
       children: [
         ...node.children,
-        ...insertedNodes.map((e) => e.copyWith()),
+        ...insertedNodes.map((e) => e.deepCopy()),
       ],
     );
 
@@ -509,7 +509,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
 
     Log.info('Turn into page');
 
-    final insertedNodes = selectedNodes.map((n) => n.copyWith()).toList();
+    final insertedNodes = selectedNodes.map((n) => n.deepCopy()).toList();
     final document = Document.blank()..insert([0], insertedNodes);
     final name = await _extractNameFromNodes(selectedNodes);
 

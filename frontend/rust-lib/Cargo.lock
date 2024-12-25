@@ -267,9 +267,9 @@ dependencies = [
 
 [[package]]
 name = "async-compression"
-version = "0.4.16"
+version = "0.4.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "103db485efc3e41214fe4fda9f3dbeae2eb9082f48fd236e6095627a9422066e"
+checksum = "0cb8f1d480b0ea3783ab015936d2a55c87e219676f0c0b7dec61494043f21857"
 dependencies = [
  "bzip2",
  "deflate64",
@@ -892,7 +892,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=79bc18e4651c17c83d9f00a5ce79423398e88ea1#79bc18e4651c17c83d9f00a5ce79423398e88ea1"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=dd8a1d13e97322338f027888a71340575cd9ad8f#dd8a1d13e97322338f027888a71340575cd9ad8f"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -917,7 +917,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=79bc18e4651c17c83d9f00a5ce79423398e88ea1#79bc18e4651c17c83d9f00a5ce79423398e88ea1"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=dd8a1d13e97322338f027888a71340575cd9ad8f#dd8a1d13e97322338f027888a71340575cd9ad8f"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -931,6 +931,7 @@ dependencies = [
  "fancy-regex 0.13.0",
  "futures",
  "getrandom 0.2.10",
+ "iana-time-zone",
  "js-sys",
  "lazy_static",
  "nanoid",
@@ -956,7 +957,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=79bc18e4651c17c83d9f00a5ce79423398e88ea1#79bc18e4651c17c83d9f00a5ce79423398e88ea1"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=dd8a1d13e97322338f027888a71340575cd9ad8f#dd8a1d13e97322338f027888a71340575cd9ad8f"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -977,7 +978,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=79bc18e4651c17c83d9f00a5ce79423398e88ea1#79bc18e4651c17c83d9f00a5ce79423398e88ea1"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=dd8a1d13e97322338f027888a71340575cd9ad8f#dd8a1d13e97322338f027888a71340575cd9ad8f"
 dependencies = [
  "anyhow",
  "bytes",
@@ -997,7 +998,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=79bc18e4651c17c83d9f00a5ce79423398e88ea1#79bc18e4651c17c83d9f00a5ce79423398e88ea1"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=dd8a1d13e97322338f027888a71340575cd9ad8f#dd8a1d13e97322338f027888a71340575cd9ad8f"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -1019,7 +1020,7 @@ dependencies = [
 [[package]]
 name = "collab-importer"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=79bc18e4651c17c83d9f00a5ce79423398e88ea1#79bc18e4651c17c83d9f00a5ce79423398e88ea1"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=dd8a1d13e97322338f027888a71340575cd9ad8f#dd8a1d13e97322338f027888a71340575cd9ad8f"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -1080,7 +1081,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=79bc18e4651c17c83d9f00a5ce79423398e88ea1#79bc18e4651c17c83d9f00a5ce79423398e88ea1"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=dd8a1d13e97322338f027888a71340575cd9ad8f#dd8a1d13e97322338f027888a71340575cd9ad8f"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -1160,7 +1161,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=79bc18e4651c17c83d9f00a5ce79423398e88ea1#79bc18e4651c17c83d9f00a5ce79423398e88ea1"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=dd8a1d13e97322338f027888a71340575cd9ad8f#dd8a1d13e97322338f027888a71340575cd9ad8f"
 dependencies = [
  "anyhow",
  "collab",
@@ -3240,16 +3241,16 @@ dependencies = [
 
 [[package]]
 name = "iana-time-zone"
-version = "0.1.57"
+version = "0.1.61"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2fad5b825842d2b38bd206f3e81d6957625fd7f0a361e345c30e01a0ae2dd613"
+checksum = "235e081f3925a06703c2d0117ea8b91f042756fd6e7a6e5d901e8ca1a996b220"
 dependencies = [
  "android_system_properties",
  "core-foundation-sys",
  "iana-time-zone-haiku",
  "js-sys",
  "wasm-bindgen",
- "windows 0.48.0",
+ "windows-core",
 ]
 
 [[package]]

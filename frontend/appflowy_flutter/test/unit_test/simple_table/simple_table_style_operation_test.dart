@@ -174,5 +174,24 @@ void main() {
         '1': '0xFF0000FF',
       });
     });
+
+    test('update table align', () async {
+      final (editorState, tableNode) = createEditorStateAndTable(
+        rowCount: 2,
+        columnCount: 3,
+      );
+
+      for (final align in [
+        TableAlign.center,
+        TableAlign.right,
+        TableAlign.left,
+      ]) {
+        await editorState.updateTableAlign(
+          tableNode: tableNode,
+          align: align,
+        );
+        expect(tableNode.tableAlign, align);
+      }
+    });
   });
 }

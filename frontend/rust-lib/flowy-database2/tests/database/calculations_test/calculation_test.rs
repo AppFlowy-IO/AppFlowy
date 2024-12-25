@@ -9,11 +9,11 @@ use lib_infra::box_any::BoxAny;
 async fn calculations_test() {
   let mut test = DatabaseCalculationTest::new().await;
 
-  let expected_sum = 25.00000;
-  let expected_min = 1.00000;
-  let expected_average = 5.00000;
-  let expected_max = 14.00000;
-  let expected_median = 3.00000;
+  let expected_sum = 25.00;
+  let expected_min = 1.00;
+  let expected_average = 5.00;
+  let expected_max = 14.00;
+  let expected_median = 3.00;
 
   let view_id = &test.view_id();
   let number_fields = test

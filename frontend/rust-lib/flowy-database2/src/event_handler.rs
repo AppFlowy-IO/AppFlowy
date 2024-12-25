@@ -1129,7 +1129,6 @@ pub(crate) async fn get_all_calculations_handler(
     .await?;
 
   let calculations = database_editor.get_all_calculations(view_id.as_ref()).await;
-
   data_result_ok(calculations)
 }
 

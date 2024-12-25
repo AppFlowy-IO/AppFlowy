@@ -97,15 +97,16 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
     customizeFontToolbarItem..isActive = showInAnyTextType,
   ];
 
-  late List<SelectionMenuItem> slashMenuItems;
-
   List<CharacterShortcutEvent> get characterShortcutEvents {
     return buildCharacterShortcutEvents(
       context,
       documentBloc,
       styleCustomizer,
       inlineActionsService,
-      slashMenuItems,
+      (editorState, node) => _customSlashMenuItems(
+        editorState: editorState,
+        node: node,
+      ),
     );
   }
 
@@ -119,7 +120,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
   final editorKeyboardInterceptor = EditorKeyboardInterceptor();
 
   Future<bool> showSlashMenu(editorState) async => customSlashCommand(
-        slashMenuItems,
+        _customSlashMenuItems(),
         shouldInsertSlash: false,
         style: styleCustomizer.selectionMenuStyleBuilder(),
         supportSlashMenuNodeTypes: supportSlashMenuNodeTypes,
@@ -151,7 +152,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
 
     indentableBlockTypes.add(ToggleListBlockKeys.type);
     convertibleBlockTypes.add(ToggleListBlockKeys.type);
-    slashMenuItems = _customSlashMenuItems();
+
     effectiveScrollController = widget.scrollController ?? ScrollController();
     // disable the color parse in the HTML decoder.
     DocumentHTMLDecoder.enableColorParse = false;
@@ -276,12 +277,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
   }
 
   @override
-  void reassemble() {
-    super.reassemble();
-    slashMenuItems = _customSlashMenuItems();
-  }
-
-  @override
   void dispose() {
     widget.editorState.selectionNotifier.removeListener(onSelectionChanged);
     widget.editorState.service.keyboardService?.unregisterInterceptor(
@@ -332,7 +327,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
         editorStyle: styleCustomizer.style(),
         // customize the block builders
         blockComponentBuilders: buildBlockComponentBuilders(
-          slashMenuItems: slashMenuItems,
+          slashMenuItemsBuilder: (editorState, node) => _customSlashMenuItems(
+            editorState: editorState,
+            node: node,
+          ),
           context: context,
           editorState: widget.editorState,
           styleCustomizer: widget.styleCustomizer,
@@ -408,42 +406,18 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
     );
   }
 
-  List<SelectionMenuItem> _customSlashMenuItems() {
-    final isLocalMode = context.read<DocumentBloc>().isLocalMode;
-    return [
-      if (!isLocalMode) aiWriterSlashMenuItem,
-      textSlashMenuItem,
-      heading1SlashMenuItem,
-      heading2SlashMenuItem,
-      heading3SlashMenuItem,
-      imageSlashMenuItem,
-      bulletedListSlashMenuItem,
-      numberedListSlashMenuItem,
-      todoListSlashMenuItem,
-      dividerSlashMenuItem,
-      quoteSlashMenuItem,
-      tableSlashMenuItem,
-      referencedDocSlashMenuItem,
-      gridSlashMenuItem(documentBloc),
-      referencedGridSlashMenuItem,
-      kanbanSlashMenuItem(documentBloc),
-      referencedKanbanSlashMenuItem,
-      calendarSlashMenuItem(documentBloc),
-      referencedCalendarSlashMenuItem,
-      calloutSlashMenuItem,
-      outlineSlashMenuItem,
-      mathEquationSlashMenuItem,
-      codeBlockSlashMenuItem,
-      toggleListSlashMenuItem,
-      toggleHeading1SlashMenuItem,
-      toggleHeading2SlashMenuItem,
-      toggleHeading3SlashMenuItem,
-      emojiSlashMenuItem,
-      dateOrReminderSlashMenuItem,
-      photoGallerySlashMenuItem,
-      fileSlashMenuItem,
-      subPageSlashMenuItem,
-    ];
+  List<SelectionMenuItem> _customSlashMenuItems({
+    EditorState? editorState,
+    Node? node,
+  }) {
+    final documentBloc = context.read<DocumentBloc>();
+    final isLocalMode = documentBloc.isLocalMode;
+    return slashMenuItemsBuilder(
+      editorState: editorState,
+      node: node,
+      isLocalMode: isLocalMode,
+      documentBloc: documentBloc,
+    );
   }
 
   (bool, Selection?) _computeAutoFocusParameters() {
@@ -574,7 +548,11 @@ Color? buildEditorCustomizedColor(
     return AFThemeExtension.of(context).tableCellBGColor;
   }
 
-  return null;
+  try {
+    return colorString.tryToColor();
+  } catch (e) {
+    return null;
+  }
 }
 
 bool showInAnyTextType(EditorState editorState) {

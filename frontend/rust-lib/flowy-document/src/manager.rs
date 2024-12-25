@@ -281,7 +281,7 @@ impl DocumentManager {
   pub async fn get_document_text(&self, doc_id: &str) -> FlowyResult<String> {
     let document = self.get_document(doc_id).await?;
     let document = document.read().await;
-    let text = document.to_plain_text()?;
+    let text = document.to_plain_text(true, false)?;
     Ok(text)
   }
 
@@ -360,7 +360,7 @@ impl DocumentManager {
     let uid = self.user_service.user_id()?;
     let device_id = self.user_service.device_id()?;
     if let Ok(doc) = self.editable_document(doc_id).await {
-      let mut doc = doc.write().await;
+      let doc = doc.write().await;
       let user = DocumentAwarenessUser { uid, device_id };
       let selection = state.selection.map(|s| s.into());
       let state = DocumentAwarenessState {

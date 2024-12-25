@@ -46,6 +46,7 @@ enum EditorOptionActionType {
       case EditorOptionActionType.align:
         return {
           ImageBlockKeys.type,
+          SimpleTableBlockKeys.type,
         };
       case EditorOptionActionType.depth:
         return {

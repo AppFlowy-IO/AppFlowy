@@ -7,7 +7,7 @@ use crate::util::unzip;
 
 #[tokio::test]
 async fn migrate_020_historical_empty_document_test() {
-  let (cleaner, user_db_path) = unzip(
+  let user_db_path = unzip(
     "./tests/user/migration_test/history_user_db",
     "020_historical_user_data",
   )
@@ -37,13 +37,12 @@ async fn migrate_020_historical_empty_document_test() {
   let database = test.get_database(&child_views[1].id).await;
   assert_eq!(database.fields.len(), 8);
   assert_eq!(database.rows.len(), 3);
-  drop(cleaner);
 }
 
 #[tokio::test]
 async fn migrate_036_fav_v1_workspace_array_test() {
   // Used to test migration: FavoriteV1AndWorkspaceArrayMigration
-  let (cleaner, user_db_path) = unzip(
+  let user_db_path = unzip(
     "./tests/user/migration_test/history_user_db",
     "036_fav_v1_workspace_array",
   )
@@ -59,13 +58,12 @@ async fn migrate_036_fav_v1_workspace_array_test() {
   let views = test.get_view(&views[1].id).await;
   assert_eq!(views.child_views.len(), 3);
   assert!(views.child_views[2].is_favorite);
-  drop(cleaner);
 }
 
 #[tokio::test]
 async fn migrate_038_trash_test() {
   // Used to test migration: WorkspaceTrashMapToSectionMigration
-  let (cleaner, user_db_path) = unzip("./tests/asset", "038_local").unwrap();
+  let user_db_path = unzip("./tests/asset", "038_local").unwrap();
   // Getting started
   //  Document1
   //  Document2(deleted)
@@ -95,14 +93,12 @@ async fn migrate_038_trash_test() {
   assert_eq!(trash_items[0].name, "Document3");
   assert_eq!(trash_items[1].name, "Document2");
   assert_eq!(trash_items[2].name, "Document4");
-
-  drop(cleaner);
 }
 
 #[tokio::test]
 async fn migrate_038_trash_test2() {
   // Used to test migration: WorkspaceTrashMapToSectionMigration
-  let (cleaner, user_db_path) = unzip("./tests/asset", "038_document_with_grid").unwrap();
+  let user_db_path = unzip("./tests/asset", "038_document_with_grid").unwrap();
   // Getting started
   //  document
   //    grid
@@ -123,14 +119,12 @@ async fn migrate_038_trash_test2() {
 
   let views = test.get_view(&views[0].id).await.child_views;
   assert_eq!(views[0].name, "board");
-
-  drop(cleaner);
 }
 
 #[tokio::test]
 async fn collab_db_backup_test() {
   // Used to test migration: WorkspaceTrashMapToSectionMigration
-  let (cleaner, user_db_path) = unzip("./tests/asset", "038_local").unwrap();
+  let user_db_path = unzip("./tests/asset", "038_local").unwrap();
   let test =
     EventIntegrationTest::new_with_user_data_path(user_db_path, DEFAULT_NAME.to_string()).await;
 
@@ -145,13 +139,12 @@ async fn collab_db_backup_test() {
     backups[0],
     format!("collab_db_{}", chrono::Local::now().format("%Y%m%d"))
   );
-  drop(cleaner);
 }
 
 #[tokio::test]
 async fn delete_outdated_collab_db_backup_test() {
   // Used to test migration: WorkspaceTrashMapToSectionMigration
-  let (cleaner, user_db_path) = unzip("./tests/asset", "040_collab_backups").unwrap();
+  let user_db_path = unzip("./tests/asset", "040_collab_backups").unwrap();
   let test =
     EventIntegrationTest::new_with_user_data_path(user_db_path, DEFAULT_NAME.to_string()).await;
 
@@ -179,5 +172,4 @@ async fn delete_outdated_collab_db_backup_test() {
     backups[9],
     format!("collab_db_{}", chrono::Local::now().format("%Y%m%d"))
   );
-  drop(cleaner);
 }
