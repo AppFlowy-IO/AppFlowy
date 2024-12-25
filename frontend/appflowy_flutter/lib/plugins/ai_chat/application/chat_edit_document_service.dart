@@ -1,20 +1,16 @@
-import 'dart:convert';
+import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
-import 'package:appflowy/plugins/document/application/document_service.dart';
-import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:nanoid/nanoid.dart';
 
 class ChatEditDocumentService {
   static Future<ViewPB?> saveMessagesToNewPage(
@@ -52,16 +48,23 @@ class ChatEditDocumentService {
     String documentId,
     TextMessage message,
   ) async {
-    final documentPB = await DocumentService()
-        .getDocument(documentId: documentId)
-        .toNullable();
-    final document = documentPB?.toDocument();
-    if (document == null) {
+    if (message.text.isEmpty) {
+      Log.error('Message is empty');
       return;
     }
 
-    if (message.text.isEmpty) {
-      Log.error('Message is empty');
+    final bloc = DocumentBloc(
+      documentId: documentId,
+      saveToBlocMap: false,
+    )..add(const DocumentEvent.initial());
+
+    if (bloc.state.editorState == null) {
+      await bloc.stream.firstWhere((state) => state.editorState != null);
+    }
+
+    final editorState = bloc.state.editorState;
+    if (editorState == null) {
+      Log.error("Can't get EditorState of document");
       return;
     }
 
@@ -71,7 +74,7 @@ class ChatEditDocumentService {
       return;
     }
 
-    final lastNodeOrNull = document.root.children.lastOrNull;
+    final lastNodeOrNull = editorState.document.root.children.lastOrNull;
 
     final rootIsEmpty = lastNodeOrNull == null;
     final isLastLineEmpty = lastNodeOrNull?.delta?.isNotEmpty == false;
@@ -80,133 +83,9 @@ class ChatEditDocumentService {
       if (rootIsEmpty || !isLastLineEmpty) paragraphNode(),
       ...messageDocument.root.children,
     ];
-
     final insertPath = rootIsEmpty ? [0] : lastNodeOrNull.path.next;
 
-    document.insert(insertPath, nodes);
-
-    final actions = _insertOperationToBlockActions(
-      document,
-      documentId,
-      InsertOperation(insertPath, nodes),
-      lastNodeOrNull,
-    );
-
-    final documentService = DocumentService();
-
-    final textActions = filterTextDeltaActions(actions);
-    final blockActions = filterBlockActions(actions);
-
-    for (final textAction in textActions) {
-      final payload = textAction.textDeltaPayloadPB!;
-      final type = textAction.textDeltaType;
-
-      if (type == TextDeltaType.create) {
-        await documentService.createExternalText(
-          documentId: payload.documentId,
-          textId: payload.textId,
-          delta: payload.delta,
-        );
-      }
-    }
-
-    await documentService.applyAction(
-      documentId: documentId,
-      actions: blockActions,
-    );
-  }
-
-  static List<BlockActionWrapper> _insertOperationToBlockActions(
-    Document document,
-    String documentId,
-    InsertOperation operation,
-    Node? previousNode,
-  ) {
-    Path currentPath = [...operation.path];
-    final List<BlockActionWrapper> actions = [];
-    for (final node in operation.nodes) {
-      if (node.type == AskAIBlockKeys.type) {
-        continue;
-      }
-
-      final parentId =
-          node.parent?.id ?? document.nodeAtPath(currentPath.parent)?.id ?? '';
-      String prevId = '';
-      // if the node is the first child of the parent, then its prevId should be empty.
-      final isFirstChild = currentPath.previous.equals(currentPath);
-
-      if (!isFirstChild) {
-        prevId = previousNode?.id ??
-            document.nodeAtPath(currentPath.previous)?.id ??
-            '';
-        assert(prevId.isNotEmpty && prevId != node.id);
-      }
-
-      // create the external text if the node contains the delta in its data.
-      final delta = node.delta;
-      TextDeltaPayloadPB? textDeltaPayloadPB;
-      String? textId;
-      if (delta != null) {
-        textId = nanoid(6);
-
-        textDeltaPayloadPB = TextDeltaPayloadPB(
-          documentId: documentId,
-          textId: textId,
-          delta: jsonEncode(node.delta!.toJson()),
-        );
-
-        // sync the text id to the node
-        node.externalValues = ExternalValues(
-          externalId: textId,
-          externalType: kExternalTextType,
-        );
-      }
-
-      // remove the delta from the data when the incremental update is stable.
-      final payload = BlockActionPayloadPB()
-        ..block = node.toBlock(
-          childrenId: nanoid(6),
-          externalId: textId,
-          externalType: textId != null ? kExternalTextType : null,
-          attributes: {...node.attributes}..remove(blockComponentDelta),
-        )
-        ..parentId = parentId
-        ..prevId = prevId;
-
-      // pass the external text id to the payload.
-      if (textDeltaPayloadPB != null) {
-        payload.textId = textDeltaPayloadPB.textId;
-      }
-
-      assert(payload.block.childrenId.isNotEmpty);
-      final blockActionPB = BlockActionPB()
-        ..action = BlockActionTypePB.Insert
-        ..payload = payload;
-
-      actions.add(
-        BlockActionWrapper(
-          blockActionPB: blockActionPB,
-          textDeltaPayloadPB: textDeltaPayloadPB,
-          textDeltaType: TextDeltaType.create,
-        ),
-      );
-      if (node.children.isNotEmpty) {
-        Node? prevChild;
-        for (final child in node.children) {
-          actions.addAll(
-            _insertOperationToBlockActions(
-              document,
-              documentId,
-              InsertOperation(currentPath + child.path, [child]),
-              prevChild,
-            ),
-          );
-          prevChild = child;
-        }
-      }
-      previousNode = node;
-      currentPath = currentPath.next;
-    }
-    return actions;
+    final transaction = editorState.transaction..insertNodes(insertPath, nodes);
+    await editorState.apply(transaction);
   }
 }

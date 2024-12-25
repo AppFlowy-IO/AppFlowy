@@ -182,8 +182,9 @@ void main() {
             event.$2,
             editorState,
           );
-          final textActions = filterTextDeltaActions(actions);
-          final blockActions = filterBlockActions(actions);
+          final textActions =
+              transactionAdapter.filterTextDeltaActions(actions);
+          final blockActions = transactionAdapter.filterBlockActions(actions);
           expect(textActions.length, 1);
           expect(blockActions.length, 1);
 
@@ -207,7 +208,7 @@ void main() {
               blockAction.payload.block.externalId,
               textId,
             );
-            expect(blockAction.payload.block.externalType, 'text');
+            expect(blockAction.payload.block.externalType, kExternalTextType);
           }
         } else if (time == TransactionTime.after) {
           completer.complete();
@@ -251,8 +252,9 @@ void main() {
             event.$2,
             editorState,
           );
-          final textActions = filterTextDeltaActions(actions);
-          final blockActions = filterBlockActions(actions);
+          final textActions =
+              transactionAdapter.filterTextDeltaActions(actions);
+          final blockActions = transactionAdapter.filterBlockActions(actions);
           expect(textActions.length, 1);
           expect(blockActions.length, 1);
 
@@ -276,7 +278,7 @@ void main() {
               blockAction.payload.block.externalId,
               textId,
             );
-            expect(blockAction.payload.block.externalType, 'text');
+            expect(blockAction.payload.block.externalType, kExternalTextType);
           }
         } else if (time == TransactionTime.after) {
           completer.complete();

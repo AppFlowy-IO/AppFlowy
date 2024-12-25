@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_edit_document_service.dart';
@@ -385,7 +387,7 @@ class ChatAIMessagePopup extends StatelessWidget {
 
         if (context.mounted) {
           context.pop();
-          // unawaited(context.pushView(selectedView));
+          unawaited(context.pushView(selectedView));
         }
       },
       icon: FlowySvgs.ai_add_to_page_s,

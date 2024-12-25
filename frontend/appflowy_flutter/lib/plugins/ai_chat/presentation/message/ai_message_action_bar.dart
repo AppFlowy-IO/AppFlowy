@@ -5,6 +5,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_edit_document_service.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_select_sources_cubit.dart';
+import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -272,6 +273,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
           final documentId = getOpenedDocumentId();
           if (documentId != null) {
             await onAddToExistingPage(documentId);
+            documentBlocMap[documentId]?.forceReloadDocumentState();
           } else {
             widget.onOverrideVisibility?.call(true);
             if (spaceView != null) {

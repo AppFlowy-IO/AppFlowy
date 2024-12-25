@@ -130,24 +130,24 @@ class TransactionAdapter {
         .expand((element) => element)
         .toList(growable: false); // avoid lazy evaluation
   }
-}
 
-List<BlockActionWrapper> filterTextDeltaActions(
-  List<BlockActionWrapper> actions,
-) {
-  return actions
-      .where(
-        (e) =>
-            e.textDeltaType != TextDeltaType.none &&
-            e.textDeltaPayloadPB != null,
-      )
-      .toList(growable: false);
-}
+  List<BlockActionWrapper> filterTextDeltaActions(
+    List<BlockActionWrapper> actions,
+  ) {
+    return actions
+        .where(
+          (e) =>
+              e.textDeltaType != TextDeltaType.none &&
+              e.textDeltaPayloadPB != null,
+        )
+        .toList(growable: false);
+  }
 
-List<BlockActionPB> filterBlockActions(
-  List<BlockActionWrapper> actions,
-) {
-  return actions.map((e) => e.blockActionPB).toList(growable: false);
+  List<BlockActionPB> filterBlockActions(
+    List<BlockActionWrapper> actions,
+  ) {
+    return actions.map((e) => e.blockActionPB).toList(growable: false);
+  }
 }
 
 extension BlockAction on Operation {
@@ -183,17 +183,15 @@ extension on InsertOperation {
       final parentId = node.parent?.id ??
           editorState.getNodeAtPath(currentPath.parent)?.id ??
           '';
-      var prevId = previousNode?.id;
+
+      String prevId = '';
       // if the node is the first child of the parent, then its prevId should be empty.
       final isFirstChild = currentPath.previous.equals(currentPath);
+
       if (!isFirstChild) {
-        prevId ??= editorState.getNodeAtPath(currentPath.previous)?.id ?? '';
-      }
-      prevId ??= '';
-      assert(parentId.isNotEmpty);
-      if (isFirstChild) {
-        prevId = '';
-      } else {
+        prevId = previousNode?.id ??
+            editorState.getNodeAtPath(currentPath.previous)?.id ??
+            '';
         assert(prevId.isNotEmpty && prevId != node.id);
       }
 
