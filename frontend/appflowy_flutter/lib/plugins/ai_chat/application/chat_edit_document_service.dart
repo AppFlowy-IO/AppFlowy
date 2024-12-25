@@ -10,6 +10,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 class ChatEditDocumentService {
@@ -77,13 +78,16 @@ class ChatEditDocumentService {
     final lastNodeOrNull = editorState.document.root.children.lastOrNull;
 
     final rootIsEmpty = lastNodeOrNull == null;
-    final isLastLineEmpty = lastNodeOrNull?.delta?.isNotEmpty == false;
+    final isLastLineEmpty = lastNodeOrNull?.children.isNotEmpty == false &&
+        lastNodeOrNull?.delta?.isNotEmpty == false;
 
     final nodes = [
       if (rootIsEmpty || !isLastLineEmpty) paragraphNode(),
       ...messageDocument.root.children,
     ];
-    final insertPath = rootIsEmpty ? [0] : lastNodeOrNull.path.next;
+    final insertPath = rootIsEmpty || listEquals(lastNodeOrNull.path, const [0])
+        ? const [0]
+        : lastNodeOrNull.path.next;
 
     final transaction = editorState.transaction..insertNodes(insertPath, nodes);
     await editorState.apply(transaction);
