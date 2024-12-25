@@ -1,13 +1,35 @@
 use std::sync::Arc;
 
-use crate::database::calculations_test::script::DatabaseCalculationTest;
+use crate::database::database_editor::DatabaseEditorTest;
 use collab_database::fields::Field;
 use flowy_database2::entities::{CalculationType, FieldType, UpdateCalculationChangesetPB};
 use lib_infra::box_any::BoxAny;
 
 #[tokio::test]
-async fn calculations_test() {
-  let mut test = DatabaseCalculationTest::new().await;
+async fn calculate_with_filter_test() {
+  let mut test = DatabaseEditorTest::new_grid().await;
+  // let sub = test.sdk.notification_sender.subscribe().await.unwrap();
+
+  // Create Number "Equal" filter
+  // test
+  //   .create_data_filter(
+  //     None,
+  //     FieldType::Number,
+  //     BoxAny::new(NumberFilterPB {
+  //       condition: NumberFilterConditionPB::Equal,
+  //       content: "1".to_string(),
+  //     }),
+  //     Some(FilterRowChanged {
+  //       showing_num_of_rows: 0,
+  //       hiding_num_of_rows: row_count - expected,
+  //     }),
+  //   )
+  //   .await;
+}
+
+#[tokio::test]
+async fn insert_delete_calculate_test() {
+  let mut test = DatabaseEditorTest::new_grid().await;
 
   let expected_sum = 25.00;
   let expected_min = 1.00;
@@ -89,7 +111,7 @@ async fn calculations_test() {
 
 #[tokio::test]
 async fn calculations_empty_test() {
-  let mut test = DatabaseCalculationTest::new().await;
+  let mut test = DatabaseEditorTest::new_grid().await;
 
   let view_id = &test.view_id();
   let text_fields = test
@@ -128,7 +150,7 @@ async fn calculations_empty_test() {
 
 #[tokio::test]
 async fn calculations_non_empty_test() {
-  let mut test = DatabaseCalculationTest::new().await;
+  let mut test = DatabaseEditorTest::new_grid().await;
 
   let view_id = &test.view_id();
   let text_fields = test
@@ -167,7 +189,7 @@ async fn calculations_non_empty_test() {
 
 #[tokio::test]
 async fn calculations_count_test() {
-  let mut test = DatabaseCalculationTest::new().await;
+  let mut test = DatabaseEditorTest::new_grid().await;
 
   let view_id = &test.view_id();
   let text_fields = test
