@@ -87,5 +87,6 @@ class ChatEditDocumentService {
 
     final transaction = editorState.transaction..insertNodes(insertPath, nodes);
     await editorState.apply(transaction);
+    await bloc.close();
   }
 }
