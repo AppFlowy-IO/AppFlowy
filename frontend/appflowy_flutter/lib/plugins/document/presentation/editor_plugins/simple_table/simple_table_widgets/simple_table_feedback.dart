@@ -64,16 +64,18 @@ class _SimpleTableFeedbackState extends State<SimpleTableFeedback> {
 
   @override
   Widget build(BuildContext context) {
-    return Provider.value(
-      value: widget.editorState,
-      child: SimpleTableWidget(
-        node: dummyNode,
-        simpleTableContext: simpleTableContext,
-        enableAddColumnButton: false,
-        enableAddRowButton: false,
-        enableAddColumnAndRowButton: false,
-        enableHoverEffect: false,
-        isFeedback: true,
+    return Material(
+      child: Provider.value(
+        value: widget.editorState,
+        child: SimpleTableWidget(
+          node: dummyNode,
+          simpleTableContext: simpleTableContext,
+          enableAddColumnButton: false,
+          enableAddRowButton: false,
+          enableAddColumnAndRowButton: false,
+          enableHoverEffect: false,
+          isFeedback: true,
+        ),
       ),
     );
   }
@@ -115,10 +117,16 @@ class _SimpleTableFeedbackState extends State<SimpleTableFeedback> {
           return simpleTableRowBlockNode(children: [cell]);
         }).toList();
 
+        final columnWidth = tableNode.columnWidths[widget.index.toString()] ??
+            SimpleTableConstants.defaultColumnWidth;
+
         return tableNode.copyWith(
           children: rows,
           attributes: {
             ...tableNode.attributes,
+            SimpleTableBlockKeys.columnWidths: {
+              '0': columnWidth,
+            },
             if (widget.index != 0)
               SimpleTableBlockKeys.enableHeaderColumn: false,
           },

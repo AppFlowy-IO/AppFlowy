@@ -330,7 +330,7 @@ class _ToggleListBlockComponentWidgetState
         return result.updateTextStyle(placeholderTextStyle);
       },
       textDirection: textDirection,
-      textAlign: alignment?.toTextAlign,
+      textAlign: alignment?.toTextAlign ?? textAlign,
       cursorColor: editorState.editorStyle.cursorColor,
       selectionColor: editorState.editorStyle.selectionColor,
     );

@@ -51,6 +51,12 @@ enum TableAlign {
         TableAlign.center => Alignment.topCenter,
         TableAlign.right => Alignment.topRight,
       };
+
+  TextAlign get textAlign => switch (this) {
+        TableAlign.left => TextAlign.left,
+        TableAlign.center => TextAlign.center,
+        TableAlign.right => TextAlign.right,
+      };
 }
 
 extension TableNodeExtension on Node {

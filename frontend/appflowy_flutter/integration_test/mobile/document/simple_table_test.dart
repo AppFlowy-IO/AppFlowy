@@ -354,16 +354,7 @@ void main() {
 
         // check the first cell is bold
         final paragraph = editorState.getNodeAtPath(firstParagraphPath)!;
-        expect(paragraph.delta!, isNotEmpty);
-        expect(
-          paragraph.delta!.toJson(),
-          equals([
-            {
-              'insert': 'Hello',
-              'attributes': {'bold': true},
-            }
-          ]),
-        );
+        expect(paragraph.isInBoldColumn, isTrue);
       }
 
       // clear content

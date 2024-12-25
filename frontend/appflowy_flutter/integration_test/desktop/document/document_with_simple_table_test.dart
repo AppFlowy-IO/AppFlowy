@@ -627,6 +627,103 @@ void main() {
     final afterAlign3 = editorState.document.nodeAtPath([0])!.tableAlign;
     expect(afterAlign3, TableAlign.left);
   });
+
+  testWidgets('using option menu to set table align', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+    await tester.editor.hoverAndClickOptionMenuButton([0]);
+
+    final editorState = tester.editor.getCurrentEditorState();
+    final beforeAlign = editorState.document.nodeAtPath([0])!.tableAlign;
+    expect(beforeAlign, TableAlign.left);
+
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_simpleTable_moreActions_align.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_optionAction_center.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final afterAlign = editorState.document.nodeAtPath([0])!.tableAlign;
+    expect(afterAlign, TableAlign.center);
+
+    await tester.editor.hoverAndClickOptionMenuButton([0]);
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_simpleTable_moreActions_align.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_optionAction_right.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final afterAlign2 = editorState.document.nodeAtPath([0])!.tableAlign;
+    expect(afterAlign2, TableAlign.right);
+
+    await tester.editor.hoverAndClickOptionMenuButton([0]);
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_simpleTable_moreActions_align.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tapButton(
+      find.text(
+        LocaleKeys.document_plugins_optionAction_left.tr(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final afterAlign3 = editorState.document.nodeAtPath([0])!.tableAlign;
+    expect(afterAlign3, TableAlign.left);
+  });
+
+  testWidgets('support slash menu in table', (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+    await tester.createNewPageWithNameUnderParent(
+      name: 'simple_table_test',
+    );
+
+    final editorState = tester.editor.getCurrentEditorState();
+
+    await tester.editor.tapLineOfEditorAt(0);
+    await tester.insertTableInDocument();
+
+    final path = [0, 0, 0, 0];
+    final selection = Selection.collapsed(Position(path: path));
+    editorState.selection = selection;
+    await tester.editor.showSlashMenu();
+    await tester.pumpAndSettle();
+
+    final paragraphItem = find.byWidgetPredicate((w) {
+      return w is SelectionMenuItemWidget &&
+          w.item.name == LocaleKeys.document_slashMenu_name_text.tr();
+    });
+    expect(paragraphItem, findsOneWidget);
+
+    await tester.tap(paragraphItem);
+    await tester.pumpAndSettle();
+
+    final paragraphNode = editorState.document.nodeAtPath(path)!;
+    expect(paragraphNode.type, equals(ParagraphBlockKeys.type));
+  });
 }
 
 extension on WidgetTester {

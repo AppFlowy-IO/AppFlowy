@@ -421,7 +421,6 @@ class _MentionPageBlockContent extends StatelessWidget {
           child: FlowyText(
             text,
             decoration: TextDecoration.underline,
-            decorationThickness: 0.5,
             fontSize: textStyle?.fontSize,
             fontWeight: textStyle?.fontWeight,
             lineHeight: textStyle?.height,

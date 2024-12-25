@@ -18,7 +18,7 @@ List<CharacterShortcutEvent> buildCharacterShortcutEvents(
   DocumentBloc documentBloc,
   EditorStyleCustomizer styleCustomizer,
   InlineActionsService inlineActionsService,
-  List<SelectionMenuItem> slashMenuItems,
+  SlashMenuItemsBuilder slashMenuItemsBuilder,
 ) {
   return [
     // code block
@@ -36,8 +36,8 @@ List<CharacterShortcutEvent> buildCharacterShortcutEvents(
     insertChildNodeInsideToggleList,
 
     // customize the slash menu command
-    customSlashCommand(
-      slashMenuItems,
+    customAppFlowySlashCommand(
+      itemsBuilder: slashMenuItemsBuilder,
       style: styleCustomizer.selectionMenuStyleBuilder(),
       supportSlashMenuNodeTypes: supportSlashMenuNodeTypes,
     ),

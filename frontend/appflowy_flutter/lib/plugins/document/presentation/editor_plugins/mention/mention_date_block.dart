@@ -83,6 +83,13 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
       return const SizedBox.shrink();
     }
 
+    final appearance = context.read<AppearanceSettingsCubit?>();
+    final reminder = context.read<ReminderBloc?>();
+
+    if (appearance == null || reminder == null) {
+      return const SizedBox.shrink();
+    }
+
     return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
       buildWhen: (previous, current) =>
           previous.dateFormat != current.dateFormat ||
