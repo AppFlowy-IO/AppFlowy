@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/document_service.dart';
 import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
@@ -11,11 +12,13 @@ import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:nanoid/nanoid.dart';
 
 class ChatEditDocumentService {
   static Future<ViewPB?> saveMessagesToNewPage(
+    String chatPageName,
     String parentViewId,
     List<TextMessage> messages,
   ) async {
@@ -38,7 +41,7 @@ class ChatEditDocumentService {
     }
 
     return ViewBackendService.createView(
-      name: '',
+      name: LocaleKeys.chat_addToNewPageName.tr(args: [chatPageName]),
       layoutType: ViewLayoutPB.Document,
       parentViewId: parentViewId,
       initialDataBytes: initialBytes,

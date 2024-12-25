@@ -316,6 +316,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
     ).toNullable();
     if (chatView != null) {
       final _ = await ChatEditDocumentService.saveMessagesToNewPage(
+        chatView.nameOrDefault,
         chatView.parentViewId,
         [widget.textMessage],
       );
