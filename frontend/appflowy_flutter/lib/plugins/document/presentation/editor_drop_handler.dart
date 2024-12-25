@@ -41,7 +41,7 @@ class EditorDropHandler extends StatelessWidget {
         onLeave: (_) => editorState.selectionService.removeDropTarget(),
         onMove: (details) {
           if (details.data.id == viewId) {
-            return editorState.selectionService.removeDropTarget();
+            return;
           }
 
           _onDragUpdated(details.offset);
