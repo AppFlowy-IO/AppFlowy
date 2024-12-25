@@ -43,35 +43,27 @@ class _MovePageMenuState extends State<MovePageMenu> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SpaceSearchBloc()
-        ..add(
-          const SpaceSearchEvent.initial(),
-        ),
+      create: (_) => SpaceSearchBloc()..add(const SpaceSearchEvent.initial()),
       child: BlocBuilder<SpaceBloc, SpaceState>(
         builder: (context, state) {
           final space = state.currentSpace;
           if (space == null) {
             return const SizedBox.shrink();
           }
+
           return Column(
             children: [
               SpaceSearchField(
                 width: 240,
-                onSearch: (context, value) {
-                  context.read<SpaceSearchBloc>().add(
-                        SpaceSearchEvent.search(
-                          value,
-                        ),
-                      );
-                },
+                onSearch: (context, value) => context
+                    .read<SpaceSearchBloc>()
+                    .add(SpaceSearchEvent.search(value)),
               ),
               const VSpace(10),
               BlocBuilder<SpaceSearchBloc, SpaceSearchState>(
                 builder: (context, state) {
                   if (state.queryResults == null) {
-                    return Expanded(
-                      child: _buildSpace(space),
-                    );
+                    return Expanded(child: _buildSpace(space));
                   }
                   return Expanded(
                     child: _buildGroupedViews(space, state.queryResults!),
@@ -87,10 +79,7 @@ class _MovePageMenuState extends State<MovePageMenu> {
 
   Widget _buildGroupedViews(ViewPB space, List<ViewPB> views) {
     final groupedViews = views
-        .where(
-          (view) =>
-              !_shouldIgnoreView(view, widget.sourceView) && !view.isSpace,
-        )
+        .where((v) => !_shouldIgnoreView(v, widget.sourceView) && !v.isSpace)
         .toList();
     return _MovePageGroupedViews(
       views: groupedViews,
@@ -110,10 +99,8 @@ class _MovePageMenuState extends State<MovePageMenu> {
           child: FlowyTooltip(
             message: LocaleKeys.space_switchSpace.tr(),
             child: CurrentSpace(
-              onTapBlankArea: () {
-                // move the page to current space
-                widget.onSelected(space, space);
-              },
+              // move the page to current space
+              onTapBlankArea: () => widget.onSelected(space, space),
               space: space,
             ),
           ),
@@ -149,10 +136,7 @@ class _MovePageMenuState extends State<MovePageMenu> {
 }
 
 class _MovePageGroupedViews extends StatelessWidget {
-  const _MovePageGroupedViews({
-    required this.views,
-    required this.onSelected,
-  });
+  const _MovePageGroupedViews({required this.views, required this.onSelected});
 
   final List<ViewPB> views;
   final void Function(ViewPB view) onSelected;
@@ -162,24 +146,22 @@ class _MovePageGroupedViews extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: views.map(
-          (e) {
-            final child = ViewItem(
-              key: ValueKey(e.id),
-              view: e,
-              spaceType: FolderSpaceType.unknown,
-              level: 0,
-              onSelected: (_, view) => onSelected(view),
-              isFeedback: false,
-              isDraggable: false,
-              shouldRenderChildren: false,
-              leftIconBuilder: (_, __) => const HSpace(0.0),
-              rightIconsBuilder: (_, view) => [],
-            );
-
-            return child;
-          },
-        ).toList(),
+        children: views
+            .map(
+              (view) => ViewItem(
+                key: ValueKey(view.id),
+                view: view,
+                spaceType: FolderSpaceType.unknown,
+                level: 0,
+                onSelected: (_, view) => onSelected(view),
+                isFeedback: false,
+                isDraggable: false,
+                shouldRenderChildren: false,
+                leftIconBuilder: (_, __) => const HSpace(0.0),
+                rightIconsBuilder: (_, view) => [],
+              ),
+            )
+            .toList(),
       ),
     );
   }

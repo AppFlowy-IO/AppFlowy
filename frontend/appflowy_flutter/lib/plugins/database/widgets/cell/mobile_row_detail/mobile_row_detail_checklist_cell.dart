@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/database/application/cell/bloc/checklist_cell_b
 import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_progress_bar.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/mobile_checklist_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';

@@ -5,7 +5,9 @@ import 'package:appflowy/workspace/application/export/document_exporter.dart';
 import 'package:appflowy/workspace/application/settings/share/export_service.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -36,88 +38,29 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
 
           add(const ShareEvent.updatePublishStatus());
         },
-        share: (type, path) async {
-          if (ShareType.unimplemented.contains(type)) {
-            Log.error('DocumentShareType $type is not implemented');
-            return;
-          }
-
-          emit(state.copyWith(isLoading: true));
-
-          final result = await _export(type, path);
-
+        share: (type, path) async => _share(
+          type,
+          path,
+          emit,
+        ),
+        publish: (nameSpace, publishName, selectedViewIds) => _publish(
+          nameSpace,
+          publishName,
+          selectedViewIds,
+          emit,
+        ),
+        unPublish: () async => _unpublish(emit),
+        updatePublishStatus: () async => _updatePublishStatus(emit),
+        updateViewName: (viewName, viewId) async {
           emit(
             state.copyWith(
-              isLoading: false,
-              exportResult: result,
-            ),
-          );
-        },
-        publish: (nameSpace, publishName, selectedViewIds) async {
-          // set space name
-          try {
-            final result =
-                await ViewBackendService.getPublishNameSpace().getOrThrow();
-
-            await ViewBackendService.publish(
-              view,
-              name: publishName,
-              selectedViewIds: selectedViewIds,
-            ).getOrThrow();
-
-            emit(
-              state.copyWith(
-                isPublished: true,
-                publishResult: FlowySuccess(null),
-                unpublishResult: null,
-                url: ShareConstants.buildPublishUrl(
-                  nameSpace: result.namespace,
-                  publishName: publishName,
-                ),
-              ),
-            );
-
-            Log.info('publish success: ${result.namespace}/$publishName');
-          } catch (e) {
-            Log.error('publish error: $e');
-
-            emit(
-              state.copyWith(
-                isPublished: false,
-                publishResult: FlowyResult.failure(
-                  FlowyError(msg: 'publish error: $e'),
-                ),
-                unpublishResult: null,
-                url: '',
-              ),
-            );
-          }
-        },
-        unPublish: () async {
-          emit(
-            state.copyWith(
+              viewName: viewName,
+              viewId: viewId,
+              updatePathNameResult: null,
               publishResult: null,
               unpublishResult: null,
             ),
           );
-
-          final result = await ViewBackendService.unpublish(view);
-          final isPublished = !result.isSuccess;
-          result.onFailure((f) {
-            Log.error('unpublish error: $f');
-          });
-
-          emit(
-            state.copyWith(
-              isPublished: isPublished,
-              publishResult: null,
-              unpublishResult: result,
-              url: result.fold((_) => '', (_) => state.url),
-            ),
-          );
-        },
-        updateViewName: (viewName, viewId) async {
-          emit(state.copyWith(viewName: viewName, viewId: viewId));
         },
         setPublishStatus: (isPublished) {
           emit(
@@ -127,44 +70,16 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
             ),
           );
         },
-        updatePublishStatus: () async {
-          final publishInfo = await ViewBackendService.getPublishInfo(view);
-          final enablePublish =
-              await UserBackendService.getCurrentUserProfile().fold(
-            (v) => v.authenticator == AuthenticatorPB.AppFlowyCloud,
-            (p) => false,
+        updatePathName: (pathName) async => _updatePathName(
+          pathName,
+          emit,
+        ),
+        clearPathNameResult: () async {
+          emit(
+            state.copyWith(
+              updatePathNameResult: null,
+            ),
           );
-          String workspaceId = state.workspaceId;
-          if (workspaceId.isEmpty) {
-            workspaceId = await UserBackendService.getCurrentWorkspace()
-                .fold((s) => s.id, (f) => '');
-          }
-          publishInfo.fold((s) {
-            emit(
-              state.copyWith(
-                isPublished: true,
-                url: ShareConstants.buildPublishUrl(
-                  nameSpace: s.namespace,
-                  publishName: s.publishName,
-                ),
-                viewName: view.name,
-                enablePublish: enablePublish,
-                workspaceId: workspaceId,
-                viewId: view.id,
-              ),
-            );
-          }, (f) {
-            emit(
-              state.copyWith(
-                isPublished: false,
-                url: '',
-                viewName: view.name,
-                enablePublish: enablePublish,
-                workspaceId: workspaceId,
-                viewId: view.id,
-              ),
-            );
-          });
         },
       );
     });
@@ -179,6 +94,212 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
   Future<void> close() async {
     await viewListener.stop();
     return super.close();
+  }
+
+  Future<void> _share(
+    ShareType type,
+    String? path,
+    Emitter<ShareState> emit,
+  ) async {
+    if (ShareType.unimplemented.contains(type)) {
+      Log.error('DocumentShareType $type is not implemented');
+      return;
+    }
+
+    emit(state.copyWith(isLoading: true));
+
+    final result = await _export(type, path);
+
+    emit(
+      state.copyWith(
+        isLoading: false,
+        exportResult: result,
+      ),
+    );
+  }
+
+  Future<void> _publish(
+    String nameSpace,
+    String publishName,
+    List<String> selectedViewIds,
+    Emitter<ShareState> emit,
+  ) async {
+    // set space name
+    try {
+      final result =
+          await ViewBackendService.getPublishNameSpace().getOrThrow();
+
+      await ViewBackendService.publish(
+        view,
+        name: publishName,
+        selectedViewIds: selectedViewIds,
+      ).getOrThrow();
+
+      emit(
+        state.copyWith(
+          isPublished: true,
+          publishResult: FlowySuccess(null),
+          unpublishResult: null,
+          namespace: result.namespace,
+          pathName: publishName,
+          url: ShareConstants.buildPublishUrl(
+            nameSpace: result.namespace,
+            publishName: publishName,
+          ),
+        ),
+      );
+
+      Log.info('publish success: ${result.namespace}/$publishName');
+    } catch (e) {
+      Log.error('publish error: $e');
+
+      emit(
+        state.copyWith(
+          isPublished: false,
+          publishResult: FlowyResult.failure(
+            FlowyError(msg: 'publish error: $e'),
+          ),
+          unpublishResult: null,
+          url: '',
+        ),
+      );
+    }
+  }
+
+  Future<void> _unpublish(Emitter<ShareState> emit) async {
+    emit(
+      state.copyWith(
+        publishResult: null,
+        unpublishResult: null,
+      ),
+    );
+
+    final result = await ViewBackendService.unpublish(view);
+    final isPublished = !result.isSuccess;
+    result.onFailure((f) {
+      Log.error('unpublish error: $f');
+    });
+
+    emit(
+      state.copyWith(
+        isPublished: isPublished,
+        publishResult: null,
+        unpublishResult: result,
+        url: result.fold((_) => '', (_) => state.url),
+      ),
+    );
+  }
+
+  Future<void> _updatePublishStatus(Emitter<ShareState> emit) async {
+    final publishInfo = await ViewBackendService.getPublishInfo(view);
+    final enablePublish = await UserBackendService.getCurrentUserProfile().fold(
+      (v) => v.authenticator == AuthenticatorPB.AppFlowyCloud,
+      (p) => false,
+    );
+
+    // skip the "Record not found" error, it's because the view is not published yet
+    publishInfo.fold(
+      (s) {
+        Log.info(
+          'get publish info success: $publishInfo for view: ${view.name}(${view.id})',
+        );
+      },
+      (f) {
+        if (![
+          ErrorCode.RecordNotFound,
+          ErrorCode.LocalVersionNotSupport,
+        ].contains(f.code)) {
+          Log.info(
+            'get publish info failed: $f for view: ${view.name}(${view.id})',
+          );
+        }
+      },
+    );
+
+    String workspaceId = state.workspaceId;
+    if (workspaceId.isEmpty) {
+      workspaceId = await UserBackendService.getCurrentWorkspace().fold(
+        (s) => s.id,
+        (f) => '',
+      );
+    }
+
+    final (isPublished, namespace, pathName, url) = publishInfo.fold(
+      (s) {
+        return (
+          // if the unpublishedAtTimestampSec is not set, it means the view is not unpublished.
+          !s.hasUnpublishedAtTimestampSec(),
+          s.namespace,
+          s.publishName,
+          ShareConstants.buildPublishUrl(
+            nameSpace: s.namespace,
+            publishName: s.publishName,
+          ),
+        );
+      },
+      (f) => (false, '', '', ''),
+    );
+
+    emit(
+      state.copyWith(
+        isPublished: isPublished,
+        namespace: namespace,
+        pathName: pathName,
+        url: url,
+        viewName: view.name,
+        enablePublish: enablePublish,
+        workspaceId: workspaceId,
+        viewId: view.id,
+      ),
+    );
+  }
+
+  Future<void> _updatePathName(
+    String pathName,
+    Emitter<ShareState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        updatePathNameResult: null,
+      ),
+    );
+
+    if (pathName.isEmpty) {
+      emit(
+        state.copyWith(
+          updatePathNameResult: FlowyResult.failure(
+            FlowyError(
+              code: ErrorCode.ViewNameInvalid,
+              msg: 'Path name is invalid',
+            ),
+          ),
+        ),
+      );
+      return;
+    }
+
+    final request = SetPublishNamePB()
+      ..viewId = view.id
+      ..newName = pathName;
+    final result = await FolderEventSetPublishName(request).send();
+    emit(
+      state.copyWith(
+        updatePathNameResult: result,
+        publishResult: null,
+        unpublishResult: null,
+        pathName: result.fold(
+          (_) => pathName,
+          (f) => state.pathName,
+        ),
+        url: result.fold(
+          (s) => ShareConstants.buildPublishUrl(
+            nameSpace: state.namespace,
+            publishName: pathName,
+          ),
+          (f) => state.url,
+        ),
+      ),
+    );
   }
 
   Future<FlowyResult<ShareType, FlowyError>> _export(
@@ -281,6 +402,8 @@ class ShareEvent with _$ShareEvent {
   const factory ShareEvent.updatePublishStatus() = _UpdatePublishStatus;
   const factory ShareEvent.setPublishStatus(bool isPublished) =
       _SetPublishStatus;
+  const factory ShareEvent.updatePathName(String pathName) = _UpdatePathName;
+  const factory ShareEvent.clearPathNameResult() = _ClearPathNameResult;
 }
 
 @freezed
@@ -294,8 +417,11 @@ class ShareState with _$ShareState {
     FlowyResult<ShareType, FlowyError>? exportResult,
     FlowyResult<void, FlowyError>? publishResult,
     FlowyResult<void, FlowyError>? unpublishResult,
+    FlowyResult<void, FlowyError>? updatePathNameResult,
     required String viewId,
     required String workspaceId,
+    required String namespace,
+    required String pathName,
   }) = _ShareState;
 
   factory ShareState.initial() => const ShareState(
@@ -306,5 +432,7 @@ class ShareState with _$ShareState {
         viewName: '',
         viewId: '',
         workspaceId: '',
+        namespace: '',
+        pathName: '',
       );
 }

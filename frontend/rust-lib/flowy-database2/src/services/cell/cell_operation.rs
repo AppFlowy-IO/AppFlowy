@@ -5,12 +5,17 @@ use collab_database::fields::media_type_option::MediaCellData;
 use collab_database::fields::select_type_option::SelectOptionIds;
 use collab_database::fields::Field;
 use collab_database::rows::{get_field_type_from_cell, Cell, Cells};
-
+use collab_database::template::relation_parse::RelationCellData;
 use flowy_error::{FlowyError, FlowyResult};
 use lib_infra::box_any::BoxAny;
+use tracing::trace;
 
 use crate::entities::{CheckboxCellDataPB, FieldType};
 use crate::services::cell::{CellCache, CellProtobufBlob};
+use crate::services::field::checklist_filter::{
+  ChecklistCellChangeset, ChecklistCellInsertChangeset,
+};
+use crate::services::field::date_filter::DateCellChangeset;
 use crate::services::field::*;
 use crate::services::group::make_no_status_group;
 
@@ -24,7 +29,9 @@ pub trait CellDataDecoder: TypeOption {
   ///
   /// * `cell`: the cell to be decoded
   ///
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData>;
+  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
+    Ok(Self::CellData::from(cell))
+  }
 
   /// Decodes the [Cell] that is of a particular field type into a `CellData` of this `TypeOption`'s field type.
   ///
@@ -48,12 +55,6 @@ pub trait CellDataDecoder: TypeOption {
   /// separated by a comma.
   ///
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String;
-
-  /// Decode the cell into f64
-  /// Different field type has different way to decode the cell data into f64
-  /// If the field type doesn't support to decode the cell data into f64, it will return None
-  ///
-  fn numeric_cell(&self, cell: &Cell) -> Option<f64>;
 }
 
 pub trait CellDataChangeset: TypeOption {
@@ -172,15 +173,13 @@ pub fn insert_checkbox_cell(is_checked: bool, field: &Field) -> Cell {
 
 pub fn insert_date_cell(
   timestamp: i64,
-  start_time: Option<String>,
   end_timestamp: Option<i64>,
   include_time: Option<bool>,
   field: &Field,
 ) -> Cell {
   let cell_data = DateCellChangeset {
-    date: Some(timestamp),
-    time: start_time,
-    end_date: end_timestamp,
+    timestamp: Some(timestamp),
+    end_timestamp,
     include_time,
     ..Default::default()
   };
@@ -225,6 +224,7 @@ impl<'a> CellBuilder<'a> {
     for (field_id, cell_str) in cell_by_field_id {
       if let Some(field) = field_maps.get(&field_id) {
         let field_type = FieldType::from(field.field_type);
+        trace!("Field type: {:?}, cell_str: {}", field_type, cell_str);
         match field_type {
           FieldType::RichText | FieldType::Translate | FieldType::Summary => {
             cells.insert(field_id, insert_text_cell(cell_str, field));
@@ -238,7 +238,7 @@ impl<'a> CellBuilder<'a> {
             if let Ok(timestamp) = cell_str.parse::<i64>() {
               cells.insert(
                 field_id,
-                insert_date_cell(timestamp, None, None, Some(false), field),
+                insert_date_cell(timestamp, None, Some(false), field),
               );
             }
           },
@@ -264,10 +264,14 @@ impl<'a> CellBuilder<'a> {
             }
           },
           FieldType::Relation => {
-            cells.insert(field_id, (&RelationCellData::from(cell_str)).into());
+            if let Ok(cell_data) = RelationCellData::from_str(&cell_str) {
+              cells.insert(field_id, cell_data.into());
+            }
           },
           FieldType::Media => {
-            cells.insert(field_id, MediaCellData::from(cell_str).into());
+            if let Ok(cell_data) = MediaCellData::from_str(&cell_str) {
+              cells.insert(field_id, cell_data.into());
+            }
           },
         }
       }
@@ -281,7 +285,7 @@ impl<'a> CellBuilder<'a> {
   }
 
   pub fn insert_text_cell(&mut self, field_id: &str, data: String) {
-    match self.field_maps.get(&field_id.to_owned()) {
+    match self.field_maps.get(field_id) {
       None => tracing::warn!("Can't find the text field with id: {}", field_id),
       Some(field) => {
         self
@@ -292,7 +296,7 @@ impl<'a> CellBuilder<'a> {
   }
 
   pub fn insert_url_cell(&mut self, field_id: &str, data: String) {
-    match self.field_maps.get(&field_id.to_owned()) {
+    match self.field_maps.get(field_id) {
       None => tracing::warn!("Can't find the url field with id: {}", field_id),
       Some(field) => {
         self
@@ -303,7 +307,7 @@ impl<'a> CellBuilder<'a> {
   }
 
   pub fn insert_number_cell(&mut self, field_id: &str, num: i64) {
-    match self.field_maps.get(&field_id.to_owned()) {
+    match self.field_maps.get(field_id) {
       None => tracing::warn!("Can't find the number field with id: {}", field_id),
       Some(field) => {
         self
@@ -314,7 +318,7 @@ impl<'a> CellBuilder<'a> {
   }
 
   pub fn insert_checkbox_cell(&mut self, field_id: &str, is_checked: bool) {
-    match self.field_maps.get(&field_id.to_owned()) {
+    match self.field_maps.get(field_id) {
       None => tracing::warn!("Can't find the checkbox field with id: {}", field_id),
       Some(field) => {
         self
@@ -324,26 +328,20 @@ impl<'a> CellBuilder<'a> {
     }
   }
 
-  pub fn insert_date_cell(
-    &mut self,
-    field_id: &str,
-    timestamp: i64,
-    time: Option<String>,
-    include_time: Option<bool>,
-  ) {
-    match self.field_maps.get(&field_id.to_owned()) {
+  pub fn insert_date_cell(&mut self, field_id: &str, timestamp: i64, include_time: Option<bool>) {
+    match self.field_maps.get(field_id) {
       None => tracing::warn!("Can't find the date field with id: {}", field_id),
       Some(field) => {
         self.cells.insert(
           field_id.to_owned(),
-          insert_date_cell(timestamp, time, None, include_time, field),
+          insert_date_cell(timestamp, None, include_time, field),
         );
       },
     }
   }
 
   pub fn insert_select_option_cell(&mut self, field_id: &str, option_ids: Vec<String>) {
-    match self.field_maps.get(&field_id.to_owned()) {
+    match self.field_maps.get(field_id) {
       None => tracing::warn!("Can't find the select option field with id: {}", field_id),
       Some(field) => {
         self.cells.insert(
@@ -358,7 +356,7 @@ impl<'a> CellBuilder<'a> {
     field_id: &str,
     new_tasks: Vec<ChecklistCellInsertChangeset>,
   ) {
-    match self.field_maps.get(&field_id.to_owned()) {
+    match self.field_maps.get(field_id) {
       None => tracing::warn!("Can't find the field with id: {}", field_id),
       Some(field) => {
         self

@@ -105,7 +105,7 @@ class _DatabaseViewSelectorButton extends StatelessWidget {
               const HSpace(6),
               Flexible(
                 child: FlowyText.medium(
-                  tabBar.view.name,
+                  tabBar.view.nameOrDefault,
                   fontSize: 14,
                   overflow: TextOverflow.ellipsis,
                 ),

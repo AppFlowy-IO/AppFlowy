@@ -37,6 +37,20 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   UserProfilePB? _userProfile;
   UserProfilePB? get userProfile => _userProfile;
 
+  DatabaseCallbacks? _databaseCallbacks;
+  DatabaseLayoutSettingCallbacks? _layoutSettingCallbacks;
+
+  @override
+  Future<void> close() async {
+    databaseController.removeListener(
+      onDatabaseChanged: _databaseCallbacks,
+      onLayoutSettingsChanged: _layoutSettingCallbacks,
+    );
+    _databaseCallbacks = null;
+    _layoutSettingCallbacks = null;
+    await super.close();
+  }
+
   void _dispatch() {
     on<CalendarEvent>(
       (event, emit) async {
@@ -122,6 +136,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
                 deleteEventIds: deletedRowIds,
               ),
             );
+            emit(state.copyWith(deleteEventIds: const []));
           },
           didReceiveEvent: (CalendarEventData<CalendarDayEvent> event) {
             emit(
@@ -130,20 +145,11 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
                 newEvent: event,
               ),
             );
+            emit(state.copyWith(newEvent: null));
           },
           openRowDetail: (row) {
-            emit(
-              state.copyWith(
-                openRow: row,
-              ),
-            );
-          },
-          resetOpenRowDetail: () {
-            emit(
-              state.copyWith(
-                openRow: null,
-              ),
-            );
+            emit(state.copyWith(openRow: row));
+            emit(state.copyWith(openRow: null));
           },
         );
       },
@@ -308,7 +314,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   }
 
   void _startListening() {
-    final onDatabaseChanged = DatabaseCallbacks(
+    _databaseCallbacks = DatabaseCallbacks(
       onDatabaseChanged: (database) {
         if (isClosed) return;
       },
@@ -383,13 +389,13 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       },
     );
 
-    final onLayoutSettingsChanged = DatabaseLayoutSettingCallbacks(
+    _layoutSettingCallbacks = DatabaseLayoutSettingCallbacks(
       onLayoutSettingsChanged: _didReceiveLayoutSetting,
     );
 
     databaseController.addListener(
-      onDatabaseChanged: onDatabaseChanged,
-      onLayoutSettingsChanged: onLayoutSettingsChanged,
+      onDatabaseChanged: _databaseCallbacks,
+      onLayoutSettingsChanged: _layoutSettingCallbacks,
     );
   }
 
@@ -483,8 +489,6 @@ class CalendarEvent with _$CalendarEvent {
       _DeleteEvent;
 
   const factory CalendarEvent.openRowDetail(RowMetaPB row) = _OpenRowDetail;
-
-  const factory CalendarEvent.resetOpenRowDetail() = _ResetRowDetail;
 }
 
 @freezed

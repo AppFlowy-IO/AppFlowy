@@ -228,7 +228,7 @@ class _UserIcon extends StatelessWidget {
               fontSize: 26,
             ),
       onTap: () async {
-        final icon = await context.push<EmojiPickerResult>(
+        final icon = await context.push<EmojiIconData>(
           Uri(
             path: MobileEmojiPickerScreen.routeName,
             queryParameters: {

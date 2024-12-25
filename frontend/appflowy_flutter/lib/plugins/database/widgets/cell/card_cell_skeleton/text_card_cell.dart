@@ -62,13 +62,8 @@ class _TextCellState extends State<TextCardCell> {
   @override
   void initState() {
     super.initState();
-    _textEditingController = TextEditingController(text: cellBloc.state.content)
-      ..addListener(() {
-        if (_textEditingController.value.composing.isCollapsed) {
-          cellBloc
-              .add(TextCellEvent.updateText(_textEditingController.value.text));
-        }
-      });
+    _textEditingController =
+        TextEditingController(text: cellBloc.state.content);
 
     if (widget.editableNotifier?.isCellEditing.value ?? false) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -88,6 +83,7 @@ class _TextCellState extends State<TextCardCell> {
     if (!focusNode.hasFocus) {
       widget.editableNotifier?.isCellEditing.value = false;
       cellBloc.add(const TextCellEvent.enableEdit(false));
+      cellBloc.add(TextCellEvent.updateText(_textEditingController.text));
     }
   }
 
@@ -150,9 +146,12 @@ class _TextCellState extends State<TextCardCell> {
     if (widget.showNotes) {
       return FlowyTooltip(
         message: LocaleKeys.board_notesTooltip.tr(),
-        child: FlowySvg(
-          FlowySvgs.notes_s,
-          color: Theme.of(context).hintColor,
+        child: Padding(
+          padding: const EdgeInsets.all(1.0),
+          child: FlowySvg(
+            FlowySvgs.notes_s,
+            color: Theme.of(context).hintColor,
+          ),
         ),
       );
     }
@@ -184,13 +183,23 @@ class _TextCellState extends State<TextCardCell> {
     return BlocBuilder<TextCellBloc, TextCellState>(
       builder: (context, state) {
         final icon = _buildIcon(state);
+        if (icon == null) {
+          return textField;
+        }
+        final resolved =
+            widget.style.padding.resolve(Directionality.of(context));
+        final padding = EdgeInsetsDirectional.only(
+          start: resolved.left,
+          top: resolved.top,
+          bottom: resolved.bottom,
+        );
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (icon != null) ...[
-              icon,
-              const HSpace(4.0),
-            ],
+            Container(
+              padding: padding,
+              child: icon,
+            ),
             Expanded(child: textField),
           ],
         );

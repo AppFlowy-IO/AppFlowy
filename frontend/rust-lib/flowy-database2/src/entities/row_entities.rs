@@ -480,11 +480,6 @@ pub struct CreateRowPayloadPB {
   pub data: HashMap<String, String>,
 }
 
-pub struct CreateRowParams {
-  pub collab_params: collab_database::rows::CreateRowParams,
-  pub open_after_create: bool,
-}
-
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct SummaryRowPB {
   #[pb(index = 1)]

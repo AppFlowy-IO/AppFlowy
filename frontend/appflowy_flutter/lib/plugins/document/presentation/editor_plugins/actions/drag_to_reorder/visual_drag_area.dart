@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
@@ -8,16 +10,21 @@ class VisualDragArea extends StatelessWidget {
     super.key,
     required this.data,
     required this.dragNode,
+    required this.editorState,
   });
 
   final DragAreaBuilderData data;
   final Node dragNode;
-
+  final EditorState editorState;
   @override
   Widget build(BuildContext context) {
     final targetNode = data.targetNode;
 
-    final ignore = shouldIgnoreDragTarget(dragNode, targetNode.path);
+    final ignore = shouldIgnoreDragTarget(
+      editorState: editorState,
+      dragNode: dragNode,
+      targetPath: targetNode.path,
+    );
     if (ignore) {
       return const SizedBox.shrink();
     }
@@ -46,7 +53,7 @@ class VisualDragArea extends StatelessWidget {
 
     Widget child = Container(
       height: 2,
-      width: width,
+      width: max(width, 0.0),
       color: Theme.of(context).colorScheme.primary,
     );
 

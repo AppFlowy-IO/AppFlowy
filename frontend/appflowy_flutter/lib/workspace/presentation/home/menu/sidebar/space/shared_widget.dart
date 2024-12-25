@@ -13,7 +13,6 @@ import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -320,6 +319,12 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
         if (event is KeyDownEvent &&
             event.logicalKey == LogicalKeyboardKey.escape) {
           Navigator.of(context).pop();
+        } else if (event is KeyUpEvent &&
+            event.logicalKey == LogicalKeyboardKey.enter) {
+          widget.onConfirm();
+          if (widget.closeOnAction) {
+            Navigator.of(context).pop();
+          }
         }
       },
       child: Container(
@@ -563,18 +568,14 @@ class SpacePages extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          ViewBloc(view: space)..add(const ViewEvent.initial()),
+      create: (_) => ViewBloc(view: space)..add(const ViewEvent.initial()),
       child: BlocBuilder<ViewBloc, ViewState>(
         builder: (context, state) {
           // filter the child views that should be ignored
-          var childViews = state.view.childViews;
+          List<ViewPB> childViews = state.view.childViews;
           if (shouldIgnoreView != null) {
             childViews = childViews
-                .where(
-                  (childView) =>
-                      shouldIgnoreView!(childView) != IgnoreViewType.hide,
-                )
+                .where((v) => shouldIgnoreView!(v) != IgnoreViewType.hide)
                 .toList();
           }
           return Column(
@@ -593,6 +594,7 @@ class SpacePages extends StatelessWidget {
                     leftPadding: HomeSpaceViewSizes.leftPadding,
                     isFeedback: false,
                     isHovered: isHovered,
+                    enableRightClickContext: !disableSelectedStatus,
                     disableSelectedStatus: disableSelectedStatus,
                     isExpandedNotifier: isExpandedNotifier,
                     rightIconsBuilder: rightIconsBuilder,

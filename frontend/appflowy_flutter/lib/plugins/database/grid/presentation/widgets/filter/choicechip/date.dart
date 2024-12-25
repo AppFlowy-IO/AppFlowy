@@ -6,8 +6,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/desktop_date_picker.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -199,17 +198,14 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
           child: SingleFilterBlocSelector<DateTimeFilter>(
             filterId: widget.filterId,
             builder: (context, filter, field) {
-              return AppFlowyDatePicker(
+              return DesktopAppFlowyDatePicker(
                 isRange: isRange,
-                timeHintText: LocaleKeys.grid_field_selectTime.tr(),
                 includeTime: false,
                 dateFormat: DateFormatPB.Friendly,
                 timeFormat: TimeFormatPB.TwentyFourHour,
-                selectedDay: isRange ? filter.start : filter.timestamp,
-                startDay: isRange ? filter.start : null,
-                endDay: isRange ? filter.end : null,
-                enableReminder: false,
-                onDaySelected: (selectedDay, _) {
+                dateTime: isRange ? filter.start : filter.timestamp,
+                endDateTime: isRange ? filter.end : null,
+                onDaySelected: (selectedDay) {
                   final newFilter = isRange
                       ? filter.copyWithRange(start: selectedDay, end: null)
                       : filter.copyWithTimestamp(timestamp: selectedDay);
@@ -220,7 +216,7 @@ class _DateFilterEditorState extends State<DateFilterEditor> {
                     popooverController.close();
                   }
                 },
-                onRangeSelected: (start, end, _) {
+                onRangeSelected: (start, end) {
                   final newFilter = filter.copyWithRange(
                     start: start,
                     end: end,

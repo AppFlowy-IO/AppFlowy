@@ -29,7 +29,7 @@ function AppTheme ({ children }: { children: React.ReactNode; }) {
               notchedOutline: {
                 borderColor: 'var(--line-divider)',
               },
-              
+
             },
           },
           MuiMenuItem: {
@@ -121,6 +121,20 @@ function AppTheme ({ children }: { children: React.ReactNode; }) {
                 backgroundImage: 'none',
                 boxShadow: 'var(--shadow)',
                 borderRadius: '10px',
+              },
+            },
+          },
+          MuiDrawer: {
+            styleOverrides: {
+              paper: {
+                borderRadius: 0,
+              },
+
+              paperAnchorBottom: {
+                borderTopRightRadius: 16,
+                borderTopLeftRadius: 16,
+                borderBottomLeftRadius: 0,
+                borderBottomRightRadius: 0,
               },
             },
           },

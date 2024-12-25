@@ -59,7 +59,7 @@ export function Favorite () {
 
   const groupByViewsWithDay = useMemo(() => {
     return groupBy(favoriteViews, (view) => {
-      const date = dayjs(view.last_edited_time);
+      const date = dayjs(view.favorited_at);
       const today = date.isSame(dayjs(), 'day');
       const yesterday = date.isSame(dayjs().subtract(1, 'day'), 'day');
       const thisWeek = date.isSame(dayjs(), 'week');
@@ -82,7 +82,10 @@ export function Favorite () {
         [FavoriteGroup.Others]: t('sideBar.others'),
       };
 
-      return <div className={'flex flex-col gap-2'} key={key}>
+      return <div
+        className={'flex flex-col gap-2'}
+        key={key}
+      >
         <div className={'text-xs text-text-caption py-1 px-1'}>{timeLabel[key]}</div>
         <div className={'px-1'}>
           {value.map((view) =>
@@ -101,7 +104,10 @@ export function Favorite () {
 
   return (
     <div className={'flex w-full flex-col py-[10px] px-[10px]'}>
-      <div onClick={handleToggleExpand} className={'flex h-fit my-0.5 w-full flex-col gap-2 cursor-pointer'}>
+      <div
+        onClick={handleToggleExpand}
+        className={'flex h-fit my-0.5 w-full flex-col gap-2 cursor-pointer'}
+      >
         <div
           className={
             'flex items-center w-full gap-2 rounded-[8px] py-1.5 px-0.5 text-sm hover:bg-content-blue-50 focus:bg-content-blue-50 focus:outline-none'
@@ -145,7 +151,8 @@ export function Favorite () {
         sx={{
           maxHeight: '50vh',
         }}
-        open={moreOpened} anchorEl={moreButtonRef.current}
+        open={moreOpened}
+        anchorEl={moreButtonRef.current}
         onClose={() => setMoreOpened(false)}
       >
         <div className={'flex w-[240px] flex-col gap-2 px-2 py-2'}>

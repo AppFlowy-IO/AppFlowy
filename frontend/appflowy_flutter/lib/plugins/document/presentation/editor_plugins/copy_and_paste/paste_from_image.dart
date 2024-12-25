@@ -22,7 +22,7 @@ import 'package:universal_platform/universal_platform.dart';
 
 extension PasteFromImage on EditorState {
   Future<void> dropImages(
-    Node dropNode,
+    List<int> dropPath,
     List<XFile> files,
     String documentId,
     bool isLocalMode,
@@ -50,7 +50,7 @@ extension PasteFromImage on EditorState {
 
       final t = transaction
         ..insertNode(
-          dropNode.path,
+          dropPath,
           customImageNode(url: path, type: type),
         );
       await apply(t);
@@ -101,8 +101,10 @@ extension PasteFromImage on EditorState {
       await File(copyToPath).writeAsBytes(imageBytes);
       final String? path;
 
+      CustomImageType type;
       if (isLocalMode) {
         path = await saveImageToLocalStorage(copyToPath);
+        type = CustomImageType.local;
       } else {
         final result = await saveImageToCloudStorage(copyToPath, documentId);
 
@@ -117,10 +119,11 @@ extension PasteFromImage on EditorState {
         }
 
         path = result.$1;
+        type = CustomImageType.internal;
       }
 
       if (path != null) {
-        await insertImageNode(path, selection: selection);
+        await insertImageNode(path, selection: selection, type: type);
       }
 
       return true;
@@ -140,6 +143,7 @@ extension PasteFromImage on EditorState {
   Future<void> insertImageNode(
     String src, {
     Selection? selection,
+    required CustomImageType type,
   }) async {
     selection ??= this.selection;
     if (selection == null || !selection.isCollapsed) {
@@ -156,16 +160,18 @@ extension PasteFromImage on EditorState {
       transaction
         ..insertNode(
           node.path,
-          imageNode(
+          customImageNode(
             url: src,
+            type: type,
           ),
         )
         ..deleteNode(node);
     } else {
       transaction.insertNode(
         node.path.next,
-        imageNode(
+        customImageNode(
           url: src,
+          type: type,
         ),
       );
     }

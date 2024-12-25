@@ -6,7 +6,6 @@ import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_pi
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/date.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/date_cell_bloc.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 
 class MobileGridDateCellSkin extends IEditableDateCellSkin {
@@ -18,6 +17,10 @@ class MobileGridDateCellSkin extends IEditableDateCellSkin {
     DateCellState state,
     PopoverController popoverController,
   ) {
+    final dateStr = getDateCellStrFromCellData(
+      state.fieldInfo,
+      state.cellData,
+    );
     return FlowyButton(
       radius: BorderRadius.zero,
       hoverColor: Colors.transparent,
@@ -29,12 +32,12 @@ class MobileGridDateCellSkin extends IEditableDateCellSkin {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(
             children: [
-              if (state.data?.reminderId.isNotEmpty ?? false) ...[
+              if (state.cellData.reminderId.isNotEmpty) ...[
                 const FlowySvg(FlowySvgs.clock_alarm_s),
                 const HSpace(6),
               ],
               FlowyText(
-                state.dateStr,
+                dateStr,
                 fontSize: 15,
               ),
             ],

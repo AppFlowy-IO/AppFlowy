@@ -76,13 +76,8 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
       ),
       onAcceptWithDetails: (details) {
         final data = details.data;
-        _move(
-          data,
-          widget.view,
-        );
-        _updatePosition(
-          DraggableHoverPosition.none,
-        );
+        _move(data, widget.view);
+        _updatePosition(DraggableHoverPosition.none);
       },
       feedback: IntrinsicWidth(
         child: Opacity(
@@ -177,9 +172,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
     if (UniversalPlatform.isMobile && position != this.position) {
       HapticFeedback.mediumImpact();
     }
-    setState(
-      () => this.position = position,
-    );
+    setState(() => this.position = position);
   }
 
   void _move(ViewPB from, ViewPB to) {

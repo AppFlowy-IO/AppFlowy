@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/core/helpers/url_launcher.dart';
+import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -44,6 +45,10 @@ class WorkspaceMemberBloc
             (e) => [],
           );
           final myRole = _getMyRole(members);
+
+          if (myRole.isOwner) {
+            unawaited(_fetchWorkspaceSubscriptionInfo());
+          }
           emit(
             state.copyWith(
               members: members,
@@ -215,8 +220,6 @@ class WorkspaceMemberBloc
         _workspaceId = '';
       });
     }
-
-    unawaited(_fetchWorkspaceSubscriptionInfo());
   }
 
   // We fetch workspace subscription info lazily as it's not needed in the first

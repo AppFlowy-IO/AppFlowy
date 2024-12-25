@@ -27,7 +27,6 @@ import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/auth.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide UploadImageMenu;
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -37,6 +36,7 @@ import 'package:go_router/go_router.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import '../../../../shared/icon_emoji_picker/tab.dart';
 import '../../../document/presentation/editor_plugins/plugins.dart';
 
 /// We have the cover height as public as it is used in the row_detail.dart file
@@ -152,7 +152,11 @@ class _RowBannerState extends State<RowBanner> {
                               ? _toolbarHeight - _iconHeight / 2
                               : _toolbarHeight,
                           child: RowIcon(
-                            icon: state.rowMeta.icon,
+                            ///TODO: avoid hardcoding for [FlowyIconType]
+                            icon: EmojiIconData(
+                              FlowyIconType.emoji,
+                              state.rowMeta.icon,
+                            ),
                             onIconChanged: (icon) {
                               if (icon == null || icon.isEmpty) {
                                 context
@@ -498,6 +502,7 @@ class _RowHeaderToolbarState extends State<RowHeaderToolbar> {
                     popupBuilder: (_) {
                       isPopoverOpen = true;
                       return FlowyIconEmojiPicker(
+                        tabs: const [PickerTabType.emoji],
                         onSelectedEmoji: (result) {
                           widget.onIconChanged(result.emoji);
                           popoverController.close();
@@ -515,7 +520,7 @@ class _RowHeaderToolbarState extends State<RowHeaderToolbar> {
                       ),
                       onTap: () async {
                         if (!isDesktop) {
-                          final result = await context.push<EmojiPickerResult>(
+                          final result = await context.push<EmojiIconData>(
                             MobileEmojiPickerScreen.routeName,
                           );
 
@@ -544,7 +549,7 @@ class RowIcon extends StatefulWidget {
     required this.onIconChanged,
   });
 
-  final String icon;
+  final EmojiIconData icon;
   final void Function(String?) onIconChanged;
 
   @override
@@ -567,6 +572,7 @@ class _RowIconState extends State<RowIcon> {
       constraints: BoxConstraints.loose(const Size(360, 380)),
       margin: EdgeInsets.zero,
       popupBuilder: (_) => FlowyIconEmojiPicker(
+        tabs: const [PickerTabType.emoji],
         onSelectedEmoji: (result) {
           controller.close();
           widget.onIconChanged(result.emoji);

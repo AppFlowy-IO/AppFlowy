@@ -9,7 +9,7 @@ import { useSearchParams } from 'react-router-dom';
 export interface DocumentProps {
   doc: YDoc;
   readOnly: boolean;
-  navigateToView?: (viewId: string) => Promise<void>;
+  navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
   loadViewMeta?: LoadViewMeta;
   loadView?: LoadView;
   createRowDoc?: CreateRowDoc;
@@ -42,18 +42,20 @@ export const Document = ({
   }, [setSearch]);
   const document = doc?.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.document);
 
-  if (!document) return null;
+  if (!document || !viewMeta.viewId) return null;
 
   return (
     <div
       style={{
         minHeight: `calc(100vh - 48px)`,
-      }} className={'flex h-full w-full flex-col items-center'}
+      }}
+      className={'flex h-full w-full flex-col items-center'}
     >
       <ViewMetaPreview {...viewMeta} />
       <Suspense fallback={<EditorSkeleton />}>
         <div className={'flex justify-center w-full'}>
           <Editor
+            viewId={viewMeta.viewId}
             loadView={loadView}
             loadViewMeta={loadViewMeta}
             navigateToView={navigateToView}

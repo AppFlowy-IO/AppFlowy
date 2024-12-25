@@ -1,9 +1,12 @@
 import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -99,6 +102,27 @@ void main() {
       // tap the mention block to jump to the page
       await tester.tapButton(find.byType(MentionPageBlock));
       await tester.pumpAndSettle();
+
+      // expect to go to the getting started page
+      final documentPage = find.byType(DocumentPage);
+      expect(documentPage, findsOneWidget);
+      expect(
+        tester.widget<DocumentPage>(documentPage).view.name,
+        Constants.gettingStartedPageName,
+      );
+      // and the block is selected
+      expect(
+        tester.widget<DocumentPage>(documentPage).initialBlockId,
+        mention[MentionBlockKeys.blockId],
+      );
+      expect(
+        tester.editor.getCurrentEditorState().selection,
+        Selection.collapsed(
+          Position(
+            path: [0],
+          ),
+        ),
+      );
     });
 
     testWidgets('copy link to block(same page) and paste it in doc',
@@ -167,6 +191,84 @@ void main() {
           ),
         ),
         findsNWidgets(2),
+      );
+
+      // tap the mention block
+      await tester.tapButton(find.byType(MentionPageBlock));
+      expect(
+        tester.editor.getCurrentEditorState().selection,
+        Selection.collapsed(
+          Position(
+            path: [0],
+          ),
+        ),
+      );
+    });
+
+    testWidgets('''1. copy link to block from another page
+    2. paste the link to the new page
+    3. delete the original page
+    4. check the content of the block, it should be no access to the page
+        ''', (tester) async {
+      await tester.initializeAppFlowy(
+        cloudType: AuthenticatorType.appflowyCloudSelfHost,
+      );
+      await tester.tapGoogleLoginInButton();
+      await tester.expectToSeeHomePageWithGetStartedPage();
+
+      // open getting started page
+      await tester.openPage(Constants.gettingStartedPageName);
+      await tester.editor.copyLinkToBlock([0]);
+
+      // create a new page and paste it
+      const pageName = 'copy link to block';
+      await tester.createNewPageInSpace(
+        spaceName: Constants.generalSpaceName,
+        layout: ViewLayoutPB.Document,
+        pageName: pageName,
+      );
+
+      // paste the link to the new page
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.editor.paste();
+      await tester.pumpAndSettle();
+
+      // tap the mention block to jump to the page
+      await tester.tapButton(find.byType(MentionPageBlock));
+      await tester.pumpAndSettle();
+
+      // expect to go to the getting started page
+      final documentPage = find.byType(DocumentPage);
+      expect(documentPage, findsOneWidget);
+      expect(
+        tester.widget<DocumentPage>(documentPage).view.name,
+        Constants.gettingStartedPageName,
+      );
+      // delete the getting started page
+      await tester.hoverOnPageName(
+        Constants.gettingStartedPageName,
+        onHover: () async => tester.tapDeletePageButton(),
+      );
+      tester.expectToSeeDocumentBanner();
+      tester.expectNotToSeePageName(gettingStarted);
+
+      // delete the page permanently
+      await tester.tapDeletePermanentlyButton();
+
+      // go back the page
+      await tester.openPage(pageName);
+      await tester.pumpAndSettle();
+
+      // check the content of the block
+      // it should be no access to the page
+      expect(
+        find.descendant(
+          of: find.byType(AppFlowyEditor),
+          matching: find.findTextInFlowyText(
+            LocaleKeys.document_mention_noAccess.tr(),
+          ),
+        ),
+        findsOneWidget,
       );
     });
   });

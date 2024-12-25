@@ -47,9 +47,7 @@ void main() {
       mockPickFilePaths(paths: [filePath]);
 
       await getIt<KeyValueStorage>().set(KVKeys.kCloudType, '0');
-      await tester.tap(
-        find.text(LocaleKeys.document_plugins_file_fileUploadHint.tr()),
-      );
+      await tester.tapFileUploadHint();
       await tester.pumpAndSettle();
 
       expect(find.byType(FileUploadMenu), findsNothing);

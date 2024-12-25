@@ -211,7 +211,7 @@ void main() {
       await tester.toggleIncludeTime();
 
       // Select a date
-      final now = DateTime.now();
+      DateTime now = DateTime.now();
       await tester.selectDay(content: now.day);
 
       await tester.dismissCellEditor();
@@ -225,7 +225,7 @@ void main() {
       await tester.tapCellInGrid(rowIndex: 0, fieldType: fieldType);
 
       // Toggle include time
-      // When toggling include time, the time value is from the previous existing date time, not the current time
+      now = DateTime.now();
       await tester.toggleIncludeTime();
 
       await tester.dismissCellEditor();

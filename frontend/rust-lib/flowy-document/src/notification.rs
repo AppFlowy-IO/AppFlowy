@@ -32,6 +32,9 @@ impl std::convert::From<i32> for DocumentNotification {
 }
 
 #[tracing::instrument(level = "trace")]
-pub(crate) fn send_notification(id: &str, ty: DocumentNotification) -> NotificationBuilder {
+pub(crate) fn document_notification_builder(
+  id: &str,
+  ty: DocumentNotification,
+) -> NotificationBuilder {
   NotificationBuilder::new(id, ty, DOCUMENT_OBSERVABLE_SOURCE)
 }

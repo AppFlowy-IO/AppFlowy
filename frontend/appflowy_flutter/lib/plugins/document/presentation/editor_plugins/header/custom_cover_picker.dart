@@ -111,11 +111,14 @@ class _NetworkImageUrlInputState extends State<NetworkImageUrlInput> {
   @override
   void initState() {
     super.initState();
-    urlController.addListener(() => setState(() {}));
+    urlController.addListener(_updateState);
   }
+
+  void _updateState() => setState(() {});
 
   @override
   void dispose() {
+    urlController.removeListener(_updateState);
     urlController.dispose();
     super.dispose();
   }

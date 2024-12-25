@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/callout/callout_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -59,7 +60,7 @@ void main() {
       expect(editorState.getNodeAtPath([2])?.delta?.toPlainText(), isEmpty);
     });
 
-    testWidgets('turn into', (tester) async {
+    testWidgets('turn into - single line', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
 
@@ -97,5 +98,83 @@ void main() {
         );
       }
     });
+
+    testWidgets('turn into - multi lines', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      const name = 'Test Document';
+      await tester.createNewPageWithNameUnderParent(name: name);
+      await tester.openPage(name);
+
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.ime.insertText('turn into 1');
+      await tester.ime.insertCharacter('\n');
+      await tester.ime.insertText('turn into 2');
+
+      // click the block option button to convert it to another blocks
+      final values = {
+        LocaleKeys.document_slashMenu_name_heading1.tr(): HeadingBlockKeys.type,
+        LocaleKeys.document_slashMenu_name_heading2.tr(): HeadingBlockKeys.type,
+        LocaleKeys.document_slashMenu_name_heading3.tr(): HeadingBlockKeys.type,
+        LocaleKeys.document_slashMenu_name_bulletedList.tr():
+            BulletedListBlockKeys.type,
+        LocaleKeys.document_slashMenu_name_numberedList.tr():
+            NumberedListBlockKeys.type,
+        LocaleKeys.document_slashMenu_name_quote.tr(): QuoteBlockKeys.type,
+        LocaleKeys.document_slashMenu_name_todoList.tr():
+            TodoListBlockKeys.type,
+        LocaleKeys.document_slashMenu_name_callout.tr(): CalloutBlockKeys.type,
+        LocaleKeys.document_slashMenu_name_text.tr(): ParagraphBlockKeys.type,
+      };
+
+      for (final value in values.entries) {
+        final editorState = tester.editor.getCurrentEditorState();
+        editorState.selection = Selection(
+          start: Position(path: [0]),
+          end: Position(path: [1], offset: 2),
+        );
+        final menuText = value.key;
+        final afterType = value.value;
+        await turnIntoBlock(
+          tester,
+          [0],
+          menuText: menuText,
+          afterType: afterType,
+        );
+      }
+    });
+
+    testWidgets(
+      'selecting the parent should deselect all the child nodes as well',
+      (tester) async {
+        await tester.initializeAppFlowy();
+        await tester.tapAnonymousSignInButton();
+
+        const name = 'Test Document';
+        await tester.createNewPageWithNameUnderParent(name: name);
+        await tester.openPage(name);
+
+        // create a nested list
+        // Item 1
+        //  Nested Item 1
+        await tester.editor.tapLineOfEditorAt(0);
+        await tester.ime.insertText('Item 1');
+        await tester.ime.insertCharacter('\n');
+        await tester.simulateKeyEvent(LogicalKeyboardKey.tab);
+        await tester.ime.insertText('Nested Item 1');
+
+        // select the 'Nested Item 1' and then tap the option button of the 'Item 1'
+        final editorState = tester.editor.getCurrentEditorState();
+        final selection = Selection.collapsed(
+          Position(path: [0, 0], offset: 1),
+        );
+        editorState.selection = selection;
+        await tester.pumpAndSettle();
+        expect(editorState.selection, selection);
+        await tester.editor.hoverAndClickOptionMenuButton([0]);
+        expect(editorState.selection, Selection.collapsed(Position(path: [0])));
+      },
+    );
   });
 }

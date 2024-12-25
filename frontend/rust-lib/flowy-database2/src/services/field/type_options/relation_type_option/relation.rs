@@ -1,38 +1,21 @@
-use collab::util::AnyMapExt;
 use std::cmp::Ordering;
 
-use collab_database::fields::{TypeOptionData, TypeOptionDataBuilder};
+use collab_database::fields::relation_type_option::RelationTypeOption;
+
 use collab_database::rows::Cell;
+use collab_database::template::relation_parse::RelationCellData;
+use collab_database::template::util::ToCellString;
 use flowy_error::FlowyResult;
-use serde::{Deserialize, Serialize};
 
 use crate::entities::{RelationCellDataPB, RelationFilterPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  default_order, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
-  TypeOptionCellDataSerde, TypeOptionTransform,
+  default_order, CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare,
+  TypeOptionCellDataFilter, TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
 
-use super::{RelationCellChangeset, RelationCellData};
-
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct RelationTypeOption {
-  pub database_id: String,
-}
-
-impl From<TypeOptionData> for RelationTypeOption {
-  fn from(value: TypeOptionData) -> Self {
-    let database_id: String = value.get_as("database_id").unwrap_or_default();
-    Self { database_id }
-  }
-}
-
-impl From<RelationTypeOption> for TypeOptionData {
-  fn from(value: RelationTypeOption) -> Self {
-    TypeOptionDataBuilder::from([("database_id".into(), value.database_id.into())])
-  }
-}
+use super::RelationCellChangeset;
 
 impl TypeOption for RelationTypeOption {
   type CellData = RelationCellData;
@@ -51,8 +34,7 @@ impl CellDataChangeset for RelationTypeOption {
       let cell_data = RelationCellData {
         row_ids: changeset.inserted_row_ids,
       };
-
-      return Ok(((&cell_data).into(), cell_data));
+      return Ok(((cell_data.clone()).into(), cell_data));
     }
 
     let cell_data: RelationCellData = cell.as_ref().unwrap().into();
@@ -70,21 +52,13 @@ impl CellDataChangeset for RelationTypeOption {
 
     let cell_data = RelationCellData { row_ids };
 
-    Ok(((&cell_data).into(), cell_data))
+    Ok(((cell_data.clone()).into(), cell_data))
   }
 }
 
 impl CellDataDecoder for RelationTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<RelationCellData> {
-    Ok(cell.into())
-  }
-
   fn stringify_cell_data(&self, cell_data: RelationCellData) -> String {
-    cell_data.to_string()
-  }
-
-  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
-    None
+    cell_data.to_cell_string()
   }
 }
 
@@ -107,12 +81,8 @@ impl TypeOptionCellDataFilter for RelationTypeOption {
 
 impl TypeOptionTransform for RelationTypeOption {}
 
-impl TypeOptionCellDataSerde for RelationTypeOption {
+impl CellDataProtobufEncoder for RelationTypeOption {
   fn protobuf_encode(&self, cell_data: RelationCellData) -> RelationCellDataPB {
     cell_data.into()
-  }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<RelationCellData> {
-    Ok(cell.into())
   }
 }

@@ -12,13 +12,12 @@ use flowy_database2::DatabaseManager;
 use flowy_document::entities::DocumentDataPB;
 use flowy_document::manager::DocumentManager;
 use flowy_document::parser::json::parser::JsonToDocumentParser;
-use flowy_error::{FlowyError, FlowyResult};
-use flowy_folder::entities::{CreateViewParams, ViewLayoutPB};
+use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_folder::entities::{CreateViewParams, UpdateViewParams, ViewLayoutPB};
 use flowy_folder::manager::{FolderManager, FolderUser};
 use flowy_folder::share::ImportType;
 use flowy_folder::view_operation::{
-  DatabaseEncodedCollab, DocumentEncodedCollab, EncodedCollabWrapper, FolderOperationHandler,
-  FolderOperationHandlers, ImportedData, View, ViewData,
+  DatabaseEncodedCollab, FolderOperationHandler, GatherEncodedCollab, ImportedData, View, ViewData,
 };
 use flowy_folder::ViewLayout;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
@@ -28,12 +27,14 @@ use flowy_user::services::data_import::{load_collab_by_object_id, load_collab_by
 use lib_dispatch::prelude::ToBytes;
 use std::collections::HashMap;
 use std::convert::TryFrom;
+use std::path::Path;
 use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
 
 use crate::integrate::server::ServerProvider;
 
 use collab_plugins::local_storage::kv::KVTransactionDB;
+use flowy_folder_pub::query::{FolderQueryService, FolderService, FolderViewEdit, QueryCollab};
 use lib_infra::async_trait::async_trait;
 
 pub struct FolderDepsResolver();
@@ -45,7 +46,6 @@ impl FolderDepsResolver {
     server_provider: Arc<ServerProvider>,
     folder_indexer: Arc<FolderIndexManagerImpl>,
     store_preferences: Arc<KVStorePreferences>,
-    operation_handlers: FolderOperationHandlers,
   ) -> Arc<FolderManager> {
     let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl {
       authenticate_user: authenticate_user.clone(),
@@ -55,7 +55,6 @@ impl FolderDepsResolver {
       FolderManager::new(
         user.clone(),
         collab_builder,
-        operation_handlers,
         server_provider.clone(),
         folder_indexer,
         store_preferences,
@@ -65,23 +64,21 @@ impl FolderDepsResolver {
   }
 }
 
-pub fn folder_operation_handlers(
+pub fn register_handlers(
+  folder_manager: &Arc<FolderManager>,
   document_manager: Arc<DocumentManager>,
   database_manager: Arc<DatabaseManager>,
   chat_manager: Arc<AIManager>,
-) -> FolderOperationHandlers {
-  let mut map: HashMap<ViewLayout, Arc<dyn FolderOperationHandler + Send + Sync>> = HashMap::new();
-
+) {
   let document_folder_operation = Arc::new(DocumentFolderOperation(document_manager));
-  map.insert(ViewLayout::Document, document_folder_operation);
+  folder_manager.register_operation_handler(ViewLayout::Document, document_folder_operation);
 
   let database_folder_operation = Arc::new(DatabaseFolderOperation(database_manager));
   let chat_folder_operation = Arc::new(ChatFolderOperation(chat_manager));
-  map.insert(ViewLayout::Board, database_folder_operation.clone());
-  map.insert(ViewLayout::Grid, database_folder_operation.clone());
-  map.insert(ViewLayout::Calendar, database_folder_operation);
-  map.insert(ViewLayout::Chat, chat_folder_operation);
-  Arc::new(map)
+  folder_manager.register_operation_handler(ViewLayout::Board, database_folder_operation.clone());
+  folder_manager.register_operation_handler(ViewLayout::Grid, database_folder_operation.clone());
+  folder_manager.register_operation_handler(ViewLayout::Calendar, database_folder_operation);
+  folder_manager.register_operation_handler(ViewLayout::Chat, chat_folder_operation);
 }
 
 struct FolderUserImpl {
@@ -119,6 +116,10 @@ impl FolderUser for FolderUserImpl {
 struct DocumentFolderOperation(Arc<DocumentManager>);
 #[async_trait]
 impl FolderOperationHandler for DocumentFolderOperation {
+  fn name(&self) -> &str {
+    "DocumentFolderOperationHandler"
+  }
+
   async fn create_workspace_view(
     &self,
     uid: i64,
@@ -172,64 +173,39 @@ impl FolderOperationHandler for DocumentFolderOperation {
     Ok(data_bytes)
   }
 
+  async fn gather_publish_encode_collab(
+    &self,
+    user: &Arc<dyn FolderUser>,
+    view_id: &str,
+  ) -> Result<GatherEncodedCollab, FlowyError> {
+    let encoded_collab =
+      get_encoded_collab_v1_from_disk(user, view_id, CollabType::Document).await?;
+    Ok(GatherEncodedCollab::Document(encoded_collab))
+  }
+
   async fn create_view_with_view_data(
     &self,
     user_id: i64,
     params: CreateViewParams,
   ) -> Result<Option<EncodedCollab>, FlowyError> {
     debug_assert_eq!(params.layout, ViewLayoutPB::Document);
-    let data = DocumentDataPB::try_from(Bytes::from(params.initial_data))?;
+    let data = match params.initial_data {
+      ViewData::DuplicateData(data) => Some(DocumentDataPB::try_from(data)?),
+      ViewData::Data(data) => Some(DocumentDataPB::try_from(data)?),
+      ViewData::Empty => None,
+    };
     let encoded_collab = self
       .0
-      .create_document(user_id, &params.view_id, Some(data.into()))
+      .create_document(user_id, &params.view_id, data.map(|d| d.into()))
       .await?;
     Ok(Some(encoded_collab))
   }
 
-  async fn get_encoded_collab_v1_from_disk(
-    &self,
-    user: Arc<dyn FolderUser>,
-    view_id: &str,
-  ) -> Result<EncodedCollabWrapper, FlowyError> {
-    // get the collab_object_id for the document.
-    // the collab_object_id for the document is the view_id.
-
-    let uid = user
-      .user_id()
-      .map_err(|e| e.with_context("unable to get the uid: {}"))?;
-
-    // get the collab db
-    let collab_db = user
-      .collab_db(uid)
-      .map_err(|e| e.with_context("unable to get the collab"))?;
-    let collab_db = collab_db.upgrade().ok_or_else(|| {
-      FlowyError::internal().with_context(
-        "The collab db has been dropped, indicating that the user has switched to a new account",
-      )
-    })?;
-    let collab_read_txn = collab_db.read_txn();
-
-    // read the collab from the db
-    let collab = load_collab_by_object_id(uid, &collab_read_txn, view_id).map_err(|e| {
-      FlowyError::internal().with_context(format!("load document collab failed: {}", e))
-    })?;
-
-    let encoded_collab = collab
-        // encode the collab and check the integrity of the collab
-        .encode_collab_v1(|collab| CollabType::Document.validate_require_data(collab))
-        .map_err(|e| {
-          FlowyError::internal().with_context(format!("encode document collab failed: {}", e))
-        })?;
-
-    Ok(EncodedCollabWrapper::Document(DocumentEncodedCollab {
-      document_encoded_collab: encoded_collab,
-    }))
-  }
-
   /// Create a view with built-in data.
-  async fn create_built_in_view(
+  async fn create_default_view(
     &self,
     user_id: i64,
+    _parent_view_id: &str,
     view_id: &str,
     _name: &str,
     layout: ViewLayout,
@@ -267,13 +243,13 @@ impl FolderOperationHandler for DocumentFolderOperation {
     )])
   }
 
-  // will implement soon
   async fn import_from_file_path(
     &self,
     _view_id: &str,
     _name: &str,
     _path: String,
   ) -> Result<(), FlowyError> {
+    // TODO(lucas): import file from local markdown file
     Ok(())
   }
 }
@@ -300,11 +276,12 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     Ok(())
   }
 
-  async fn get_encoded_collab_v1_from_disk(
+  async fn gather_publish_encode_collab(
     &self,
-    user: Arc<dyn FolderUser>,
+    user: &Arc<dyn FolderUser>,
     view_id: &str,
-  ) -> Result<EncodedCollabWrapper, FlowyError> {
+  ) -> Result<GatherEncodedCollab, FlowyError> {
+    let workspace_id = user.workspace_id()?;
     // get the collab_object_id for the database.
     //
     // the collab object_id for the database is not the view_id,
@@ -341,10 +318,10 @@ impl FolderOperationHandler for DatabaseFolderOperation {
 
     tokio::task::spawn_blocking(move || {
       let collab_read_txn = collab_db.read_txn();
-
-      let database_collab = load_collab_by_object_id(uid, &collab_read_txn, &oid).map_err(|e| {
-        FlowyError::internal().with_context(format!("load database collab failed: {}", e))
-      })?;
+      let database_collab = load_collab_by_object_id(uid, &collab_read_txn, &workspace_id, &oid)
+        .map_err(|e| {
+          FlowyError::internal().with_context(format!("load database collab failed: {}", e))
+        })?;
 
       let database_encoded_collab = database_collab
           // encode the collab and check the integrity of the collab
@@ -354,7 +331,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
           })?;
 
       let database_row_encoded_collabs =
-        load_collab_by_object_ids(uid, &collab_read_txn, &row_oids)
+        load_collab_by_object_ids(uid, &workspace_id, &collab_read_txn, &row_oids)
           .0
           .into_iter()
           .map(|(oid, collab)| {
@@ -380,7 +357,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
         .collect::<HashMap<_, _>>();
 
       let database_row_document_encoded_collabs =
-        load_collab_by_object_ids(uid, &collab_read_txn, &row_document_ids)
+        load_collab_by_object_ids(uid, &workspace_id, &collab_read_txn, &row_document_ids)
           .0
           .into_iter()
           .map(|(oid, collab)| {
@@ -394,7 +371,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
           })
           .collect::<Result<HashMap<_, _>, FlowyError>>()?;
 
-      Ok(EncodedCollabWrapper::Database(DatabaseEncodedCollab {
+      Ok(GatherEncodedCollab::Database(DatabaseEncodedCollab {
         database_encoded_collab,
         database_row_encoded_collabs,
         database_row_document_encoded_collabs,
@@ -405,8 +382,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
   }
 
   async fn duplicate_view(&self, view_id: &str) -> Result<Bytes, FlowyError> {
-    let delta_bytes = self.0.get_database_json_bytes(view_id).await?;
-    Ok(Bytes::from(delta_bytes))
+    Ok(Bytes::from(view_id.to_string()))
   }
 
   /// Create a database view with duplicated data.
@@ -418,12 +394,24 @@ impl FolderOperationHandler for DatabaseFolderOperation {
     params: CreateViewParams,
   ) -> Result<Option<EncodedCollab>, FlowyError> {
     match CreateDatabaseExtParams::from_map(params.meta.clone()) {
-      None => {
-        let encoded_collab = self
-          .0
-          .create_database_with_database_data(&params.view_id, params.initial_data)
-          .await?;
-        Ok(Some(encoded_collab))
+      None => match params.initial_data {
+        ViewData::DuplicateData(data) => {
+          let duplicated_view_id =
+            String::from_utf8(data.to_vec()).map_err(|_| FlowyError::invalid_data())?;
+          let encoded_collab = self
+            .0
+            .duplicate_database(&duplicated_view_id, &params.view_id)
+            .await?;
+          Ok(Some(encoded_collab))
+        },
+        ViewData::Data(data) => {
+          let encoded_collab = self
+            .0
+            .create_database_with_data(&params.view_id, data.to_vec())
+            .await?;
+          Ok(Some(encoded_collab))
+        },
+        ViewData::Empty => Ok(None),
       },
       Some(database_params) => {
         let layout = match params.layout {
@@ -456,9 +444,10 @@ impl FolderOperationHandler for DatabaseFolderOperation {
   /// If the ext contains the {"database_id": "xx"}, then it will link to
   /// the existing database. The data of the database will be shared within
   /// these references views.
-  async fn create_built_in_view(
+  async fn create_default_view(
     &self,
     _user_id: i64,
+    _parent_view_id: &str,
     view_id: &str,
     name: &str,
     layout: ViewLayout,
@@ -525,11 +514,22 @@ impl FolderOperationHandler for DatabaseFolderOperation {
 
   async fn import_from_file_path(
     &self,
-    _view_id: &str,
+    view_id: &str,
     _name: &str,
     path: String,
   ) -> Result<(), FlowyError> {
-    self.0.import_csv_from_file(path, CSVFormat::META).await?;
+    let file_path = Path::new(&path);
+    if !file_path.exists() {
+      return Err(FlowyError::record_not_found().with_context("File not found"));
+    }
+
+    let data = tokio::fs::read(file_path).await?;
+    let content =
+      String::from_utf8(data).map_err(|e| FlowyError::invalid_data().with_context(e))?;
+    let _ = self
+      .0
+      .import_csv(view_id.to_string(), content, CSVFormat::Original)
+      .await?;
     Ok(())
   }
 
@@ -553,6 +553,10 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       Ok(())
     }
   }
+
+  fn name(&self) -> &str {
+    "DatabaseFolderOperationHandler"
+  }
 }
 
 #[derive(Debug, serde::Deserialize)]
@@ -571,6 +575,10 @@ struct ChatFolderOperation(Arc<AIManager>);
 
 #[async_trait]
 impl FolderOperationHandler for ChatFolderOperation {
+  fn name(&self) -> &str {
+    "ChatFolderOperationHandler"
+  }
+
   async fn open_view(&self, view_id: &str) -> Result<(), FlowyError> {
     self.0.open_chat(view_id).await
   }
@@ -583,7 +591,7 @@ impl FolderOperationHandler for ChatFolderOperation {
     self.0.delete_chat(view_id).await
   }
 
-  async fn duplicate_view(&self, _view_id: &str) -> Result<ViewData, FlowyError> {
+  async fn duplicate_view(&self, _view_id: &str) -> Result<Bytes, FlowyError> {
     Err(FlowyError::not_support())
   }
 
@@ -595,14 +603,18 @@ impl FolderOperationHandler for ChatFolderOperation {
     Err(FlowyError::not_support())
   }
 
-  async fn create_built_in_view(
+  async fn create_default_view(
     &self,
     user_id: i64,
+    parent_view_id: &str,
     view_id: &str,
     _name: &str,
     _layout: ViewLayout,
   ) -> Result<(), FlowyError> {
-    self.0.create_chat(&user_id, view_id).await?;
+    self
+      .0
+      .create_chat(&user_id, parent_view_id, view_id)
+      .await?;
     Ok(())
   }
 
@@ -625,4 +637,148 @@ impl FolderOperationHandler for ChatFolderOperation {
   ) -> Result<(), FlowyError> {
     Err(FlowyError::not_support())
   }
+}
+
+#[derive(Clone)]
+pub struct FolderServiceImpl {
+  folder_manager: Weak<FolderManager>,
+  user: Arc<dyn FolderUser>,
+}
+impl FolderService for FolderServiceImpl {}
+
+impl FolderServiceImpl {
+  pub fn new(
+    folder_manager: Weak<FolderManager>,
+    authenticate_user: Weak<AuthenticateUser>,
+  ) -> Self {
+    let user: Arc<dyn FolderUser> = Arc::new(FolderUserImpl { authenticate_user });
+    Self {
+      folder_manager,
+      user,
+    }
+  }
+}
+
+#[async_trait]
+impl FolderViewEdit for FolderServiceImpl {
+  async fn set_view_title_if_empty(&self, view_id: &str, title: &str) -> FlowyResult<()> {
+    if title.is_empty() {
+      return Ok(());
+    }
+
+    if let Some(folder_manager) = self.folder_manager.upgrade() {
+      if let Ok(view) = folder_manager.get_view(view_id).await {
+        if view.name.is_empty() {
+          let title = if title.len() > 50 {
+            title.chars().take(50).collect()
+          } else {
+            title.to_string()
+          };
+
+          folder_manager
+            .update_view_with_params(UpdateViewParams {
+              view_id: view_id.to_string(),
+              name: Some(title),
+              desc: None,
+              thumbnail: None,
+              layout: None,
+              is_favorite: None,
+              extra: None,
+            })
+            .await?;
+        }
+      }
+    }
+    Ok(())
+  }
+}
+
+#[async_trait]
+impl FolderQueryService for FolderServiceImpl {
+  async fn get_surrounding_view_ids_with_view_layout(
+    &self,
+    parent_view_id: &str,
+    view_layout: ViewLayout,
+  ) -> Vec<String> {
+    let folder_manager = match self.folder_manager.upgrade() {
+      Some(folder_manager) => folder_manager,
+      None => return vec![],
+    };
+
+    if let Ok(view) = folder_manager.get_view(parent_view_id).await {
+      if view.space_info().is_some() {
+        return vec![];
+      }
+    }
+
+    match folder_manager
+      .get_untrashed_views_belong_to(parent_view_id)
+      .await
+    {
+      Ok(views) => {
+        let mut children = views
+          .into_iter()
+          .filter_map(|child| {
+            if child.layout == view_layout {
+              Some(child.id.clone())
+            } else {
+              None
+            }
+          })
+          .collect::<Vec<_>>();
+        children.push(parent_view_id.to_string());
+        children
+      },
+      _ => vec![],
+    }
+  }
+
+  async fn get_collab(&self, object_id: &str, collab_type: CollabType) -> Option<QueryCollab> {
+    let encode_collab = get_encoded_collab_v1_from_disk(&self.user, object_id, collab_type.clone())
+      .await
+      .ok();
+
+    encode_collab.map(|encoded_collab| QueryCollab {
+      collab_type,
+      encoded_collab,
+    })
+  }
+}
+
+#[inline]
+async fn get_encoded_collab_v1_from_disk(
+  user: &Arc<dyn FolderUser>,
+  view_id: &str,
+  collab_type: CollabType,
+) -> Result<EncodedCollab, FlowyError> {
+  let workspace_id = user.workspace_id()?;
+  let uid = user
+    .user_id()
+    .map_err(|e| e.with_context("unable to get the uid: {}"))?;
+
+  // get the collab db
+  let collab_db = user
+    .collab_db(uid)
+    .map_err(|e| e.with_context("unable to get the collab"))?;
+  let collab_db = collab_db.upgrade().ok_or_else(|| {
+    FlowyError::internal().with_context(
+      "The collab db has been dropped, indicating that the user has switched to a new account",
+    )
+  })?;
+  let collab_read_txn = collab_db.read_txn();
+  let collab =
+    load_collab_by_object_id(uid, &collab_read_txn, &workspace_id, view_id).map_err(|e| {
+      FlowyError::internal().with_context(format!("load document collab failed: {}", e))
+    })?;
+
+  tokio::task::spawn_blocking(move || {
+    let data = collab
+      .encode_collab_v1(|collab| collab_type.validate_require_data(collab))
+      .map_err(|e| {
+        FlowyError::internal().with_context(format!("encode document collab failed: {}", e))
+      })?;
+    Ok::<_, FlowyError>(data)
+  })
+  .await
+  .map_err(internal_error)?
 }

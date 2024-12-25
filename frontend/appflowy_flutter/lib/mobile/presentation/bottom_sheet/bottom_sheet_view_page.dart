@@ -24,6 +24,7 @@ enum MobileViewBottomSheetBodyAction {
   copyPublishLink,
   visitSite,
   copyShareLink,
+  updatePathName,
 }
 
 typedef MobileViewBottomSheetBodyActionCallback = void Function(
@@ -164,6 +165,15 @@ class MobileViewBottomSheetBody extends StatelessWidget {
     final isPublished = context.watch<ShareBloc>().state.isPublished;
     if (isPublished) {
       return [
+        MobileQuickActionButton(
+          text: LocaleKeys.shareAction_updatePathName.tr(),
+          icon: FlowySvgs.view_item_rename_s,
+          iconSize: const Size.square(18),
+          onTap: () => onAction(
+            MobileViewBottomSheetBodyAction.updatePathName,
+          ),
+        ),
+        _divider(),
         MobileQuickActionButton(
           text: LocaleKeys.shareAction_visitSite.tr(),
           icon: FlowySvgs.m_visit_site_s,

@@ -242,7 +242,7 @@ void main() {
           createFilterPB(
             FieldType.SingleSelect,
             SelectOptionFilterPB(
-              condition: SelectOptionFilterConditionPB.OptionContains,
+              condition: SelectOptionFilterConditionPB.OptionIs,
               optionIds: [],
             ).writeToBuffer(),
           ),
@@ -252,7 +252,7 @@ void main() {
             filterId: "FT",
             fieldId: "FD",
             fieldType: FieldType.SingleSelect,
-            condition: SelectOptionFilterConditionPB.OptionContains,
+            condition: SelectOptionFilterConditionPB.OptionIs,
             optionIds: const [],
           ),
         ),
@@ -263,7 +263,7 @@ void main() {
           createFilterPB(
             FieldType.SingleSelect,
             SelectOptionFilterPB(
-              condition: SelectOptionFilterConditionPB.OptionContains,
+              condition: SelectOptionFilterConditionPB.OptionIs,
               optionIds: ['a'],
             ).writeToBuffer(),
           ),
@@ -273,29 +273,8 @@ void main() {
             filterId: "FT",
             fieldId: "FD",
             fieldType: FieldType.SingleSelect,
-            condition: SelectOptionFilterConditionPB.OptionContains,
+            condition: SelectOptionFilterConditionPB.OptionIs,
             optionIds: const ['a'],
-          ),
-        ),
-      );
-
-      expect(
-        DatabaseFilter.fromPB(
-          createFilterPB(
-            FieldType.SingleSelect,
-            SelectOptionFilterPB(
-              condition: SelectOptionFilterConditionPB.OptionContains,
-              optionIds: ['a', 'b'],
-            ).writeToBuffer(),
-          ),
-        ),
-        equals(
-          SelectOptionFilter(
-            filterId: "FT",
-            fieldId: "FD",
-            fieldType: FieldType.SingleSelect,
-            condition: SelectOptionFilterConditionPB.OptionContains,
-            optionIds: const ['a', 'b'],
           ),
         ),
       );
@@ -316,7 +295,7 @@ void main() {
             fieldId: "FD",
             fieldType: FieldType.SingleSelect,
             condition: SelectOptionFilterConditionPB.OptionIs,
-            optionIds: const ['a'],
+            optionIds: const ['a', 'b'],
           ),
         ),
       );

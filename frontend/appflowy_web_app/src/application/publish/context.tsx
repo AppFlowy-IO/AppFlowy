@@ -21,7 +21,7 @@ export interface PublishContextType {
   isTemplate?: boolean;
   isTemplateThumb?: boolean;
   viewMeta?: ViewMeta;
-  toView: (viewId: string) => Promise<void>;
+  toView: (viewId: string, blockId?: string) => Promise<void>;
   loadViewMeta: LoadViewMeta;
   createRowDoc?: CreateRowDoc;
   loadView: LoadView;
@@ -176,7 +176,7 @@ export const PublishProvider = ({
   }, [service, publishName]);
   const navigate = useNavigate();
   const toView = useCallback(
-    async (viewId: string) => {
+    async (viewId: string, blockId?: string) => {
       try {
         const res = await service?.getPublishInfo(viewId);
 
@@ -187,7 +187,23 @@ export const PublishProvider = ({
         const { namespace: viewNamespace, publishName } = res;
 
         prevViewMeta.current = undefined;
-        navigate(`/${viewNamespace}/${publishName}${isTemplate ? '?template=true' : ''}`, {
+        const searchParams = new URLSearchParams('');
+
+        if (blockId) {
+          searchParams.set('blockId', blockId);
+        }
+
+        if (isTemplate) {
+          searchParams.set('template', 'true');
+        }
+        
+        let url = `/${viewNamespace}/${publishName}`;
+
+        if (searchParams.toString()) {
+          url += `?${searchParams.toString()}`;
+        }
+
+        navigate(url, {
           replace: true,
         });
         return;

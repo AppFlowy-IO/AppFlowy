@@ -2,14 +2,14 @@ use std::sync::Arc;
 
 use anyhow::Context;
 use client_api::entity::billing_dto::SubscriptionPlan;
-use tracing::{event, trace};
+use tracing::{event, info};
 
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_ai::ai_manager::AIManager;
 use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::FlowyResult;
 use flowy_folder::manager::{FolderInitDataSource, FolderManager};
 use flowy_storage::manager::StorageManager;
 use flowy_user::event_map::UserStatusCallback;
@@ -147,7 +147,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
           create_if_not_exist: true,
         },
         Server::AppFlowyCloud => {
-          return Err(FlowyError::from(err));
+          return Err(err);
         },
       },
     };
@@ -204,27 +204,21 @@ impl UserStatusCallback for UserStatusCallbackImpl {
   }
 
   fn did_update_network(&self, reachable: bool) {
-    trace!("Notify did update network: reachable: {}", reachable);
+    info!("Notify did update network: reachable: {}", reachable);
     self.collab_builder.update_network(reachable);
     self.storage_manager.update_network_reachable(reachable);
   }
 
   fn did_update_plans(&self, plans: Vec<SubscriptionPlan>) {
     let mut storage_plan_changed = false;
-    let mut local_ai_enabled = false;
     for plan in &plans {
       match plan {
         SubscriptionPlan::Pro | SubscriptionPlan::Team => storage_plan_changed = true,
-        SubscriptionPlan::AiLocal => local_ai_enabled = true,
         _ => {},
       }
     }
     if storage_plan_changed {
       self.storage_manager.enable_storage_write_access();
-    }
-
-    if local_ai_enabled {
-      self.ai_manager.local_ai_purchased();
     }
   }
 

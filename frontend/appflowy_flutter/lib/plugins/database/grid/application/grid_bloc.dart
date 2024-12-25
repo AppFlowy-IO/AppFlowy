@@ -20,17 +20,33 @@ import '../../application/database_controller.dart';
 part 'grid_bloc.freezed.dart';
 
 class GridBloc extends Bloc<GridEvent, GridState> {
-  GridBloc({required ViewPB view, required this.databaseController})
-      : super(GridState.initial(view.id)) {
+  GridBloc({
+    required ViewPB view,
+    required this.databaseController,
+    this.shrinkWrapped = false,
+  }) : super(GridState.initial(view.id)) {
     _dispatch();
   }
 
   final DatabaseController databaseController;
 
+  /// When true will emit the count of visible rows to show
+  ///
+  final bool shrinkWrapped;
+
   String get viewId => databaseController.viewId;
 
   UserProfilePB? _userProfile;
   UserProfilePB? get userProfile => _userProfile;
+
+  DatabaseCallbacks? _databaseCallbacks;
+
+  @override
+  Future<void> close() async {
+    databaseController.removeListener(onDatabaseChanged: _databaseCallbacks);
+    _databaseCallbacks = null;
+    await super.close();
+  }
 
   void _dispatch() {
     on<GridEvent>(
@@ -55,12 +71,22 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             );
           },
           createRow: (openRowDetail) async {
-            final result = await RowBackendService.createRow(viewId: viewId);
+            final lastVisibleRowId =
+                shrinkWrapped ? state.lastVisibleRow?.rowId : null;
+
+            final result = await RowBackendService.createRow(
+              viewId: viewId,
+              position: lastVisibleRowId != null
+                  ? OrderObjectPositionTypePB.After
+                  : null,
+              targetRowId: lastVisibleRowId,
+            );
             result.fold(
               (createdRow) => emit(
                 state.copyWith(
                   createdRow: createdRow,
                   openRowDetail: openRowDetail ?? false,
+                  visibleRows: state.visibleRows + 1,
                 ),
               ),
               (err) => Log.error(err),
@@ -84,11 +110,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             databaseController.moveRow(fromRowId: fromRow, toRowId: toRow);
           },
           didReceiveFieldUpdate: (fields) {
-            emit(
-              state.copyWith(
-                fields: fields,
-              ),
-            );
+            emit(state.copyWith(fields: fields));
           },
           didLoadRows: (newRowInfos, reason) {
             emit(
@@ -100,17 +122,13 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             );
           },
           didReceveFilters: (filters) {
-            emit(
-              state.copyWith(filters: filters),
-            );
+            emit(state.copyWith(filters: filters));
           },
           didReceveSorts: (sorts) {
-            emit(
-              state.copyWith(
-                reorderable: sorts.isEmpty,
-                sorts: sorts,
-              ),
-            );
+            emit(state.copyWith(reorderable: sorts.isEmpty, sorts: sorts));
+          },
+          loadMoreRows: () {
+            emit(state.copyWith(visibleRows: state.visibleRows + 25));
           },
         );
       },
@@ -120,7 +138,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   RowCache get rowCache => databaseController.rowCache;
 
   void _startListening() {
-    final onDatabaseChanged = DatabaseCallbacks(
+    _databaseCallbacks = DatabaseCallbacks(
       onNumOfRowsChanged: (rowInfos, _, reason) {
         if (!isClosed) {
           add(GridEvent.didLoadRows(rowInfos, reason));
@@ -157,7 +175,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
         }
       },
     );
-    databaseController.addListener(onDatabaseChanged: onDatabaseChanged);
+    databaseController.addListener(onDatabaseChanged: _databaseCallbacks);
   }
 
   Future<void> _openGrid(Emitter<GridState> emit) async {
@@ -195,11 +213,11 @@ class GridEvent with _$GridEvent {
   const factory GridEvent.didReceiveFieldUpdate(
     List<FieldInfo> fields,
   ) = _DidReceiveFieldUpdate;
-
   const factory GridEvent.didReceveFilters(List<DatabaseFilter> filters) =
       _DidReceiveFilters;
   const factory GridEvent.didReceveSorts(List<DatabaseSort> sorts) =
       _DidReceiveSorts;
+  const factory GridEvent.loadMoreRows() = _LoadMoreRows;
 }
 
 @freezed
@@ -216,6 +234,7 @@ class GridState with _$GridState {
     required List<DatabaseSort> sorts,
     required List<DatabaseFilter> filters,
     required bool openRowDetail,
+    @Default(0) int visibleRows,
   }) = _GridState;
 
   factory GridState.initial(String viewId) => GridState(
@@ -230,5 +249,19 @@ class GridState with _$GridState {
         filters: [],
         sorts: [],
         openRowDetail: false,
+        visibleRows: 25,
       );
+}
+
+extension _LastVisibleRow on GridState {
+  /// Returns the last visible [RowInfo] in the list of [rowInfos].
+  /// Only returns if the visibleRows is less than the rowCount, otherwise returns null.
+  ///
+  RowInfo? get lastVisibleRow {
+    if (visibleRows < rowCount) {
+      return rowInfos[visibleRows - 1];
+    }
+
+    return null;
+  }
 }

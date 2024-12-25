@@ -17,8 +17,8 @@ flowy-derive.workspace = true
 flowy-notification = { workspace = true }
 protobuf.workspace = true
 flowy-error = { path = "../flowy-error", features = [
-    "impl_from_dispatch_error",
-    "impl_from_collab_database",
+  "impl_from_dispatch_error",
+  "impl_from_collab_database",
 ] }
 
 lib-dispatch = { workspace = true }

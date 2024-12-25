@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_cover_widget.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -147,7 +148,7 @@ void main() {
       tester.expectViewHasIcon(
         gettingStarted,
         ViewLayoutPB.Document,
-        punch,
+        EmojiIconData.emoji(punch),
       );
     });
   });

@@ -1,7 +1,7 @@
+use collab::error::CollabError;
+use protobuf::ProtobufError;
 use std::convert::TryInto;
 use std::fmt::{Debug, Display};
-
-use protobuf::ProtobufError;
 use thiserror::Error;
 use tokio::task::JoinError;
 use validator::{ValidationError, ValidationErrors};
@@ -13,7 +13,7 @@ use crate::code::ErrorCode;
 pub type FlowyResult<T> = anyhow::Result<T, FlowyError>;
 
 #[derive(Debug, Default, Clone, ProtoBuf, Error)]
-#[error("{code:?}: {msg}")]
+#[error("{msg}")]
 pub struct FlowyError {
   #[pb(index = 1)]
   pub code: ErrorCode,
@@ -74,7 +74,17 @@ impl FlowyError {
 
   pub fn is_file_limit_exceeded(&self) -> bool {
     self.code == ErrorCode::FileStorageLimitExceeded
-      || self.code == ErrorCode::SingleUploadLimitExceeded
+  }
+
+  pub fn is_single_file_limit_exceeded(&self) -> bool {
+    self.code == ErrorCode::SingleUploadLimitExceeded
+  }
+
+  pub fn should_retry_upload(&self) -> bool {
+    !matches!(
+      self.code,
+      ErrorCode::FileStorageLimitExceeded | ErrorCode::SingleUploadLimitExceeded
+    )
   }
 
   pub fn is_ai_response_limit_exceeded(&self) -> bool {
@@ -203,5 +213,26 @@ impl From<tokio::sync::oneshot::error::RecvError> for FlowyError {
 impl From<String> for FlowyError {
   fn from(e: String) -> Self {
     FlowyError::internal().with_context(e)
+  }
+}
+
+impl From<collab::error::CollabError> for FlowyError {
+  fn from(value: CollabError) -> Self {
+    match value {
+      CollabError::SerdeJson(err) => FlowyError::serde().with_context(err),
+      CollabError::UnexpectedEmpty(err) => FlowyError::payload_none().with_context(err),
+      CollabError::AcquiredWriteTxnFail => FlowyError::internal(),
+      CollabError::AcquiredReadTxnFail => FlowyError::internal(),
+      CollabError::YrsTransactionError(err) => FlowyError::internal().with_context(err),
+      CollabError::YrsEncodeStateError(err) => FlowyError::internal().with_context(err),
+      CollabError::UndoManagerNotEnabled => {
+        FlowyError::not_support().with_context("UndoManager is not enabled")
+      },
+      CollabError::DecodeUpdate(err) => FlowyError::internal().with_context(err),
+      CollabError::NoRequiredData(err) => FlowyError::internal().with_context(err),
+      CollabError::Awareness(err) => FlowyError::internal().with_context(err),
+      CollabError::UpdateFailed(err) => FlowyError::internal().with_context(err),
+      CollabError::Internal(err) => FlowyError::internal().with_context(err),
+    }
   }
 }

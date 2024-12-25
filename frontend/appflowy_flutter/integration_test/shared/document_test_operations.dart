@@ -197,6 +197,11 @@ class EditorOperations {
     await tester.ime.insertCharacter('@');
   }
 
+  /// trigger the plus action menu (+) command
+  Future<void> showPlusMenu() async {
+    await tester.ime.insertCharacter('+');
+  }
+
   /// Tap the slash menu item with [name]
   ///
   /// Must call [showSlashMenu] first.

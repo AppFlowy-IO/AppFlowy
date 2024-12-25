@@ -1,9 +1,12 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::entity::DatabaseView;
+use collab_database::fields::checklist_type_option::ChecklistTypeOption;
 use collab_database::fields::date_type_option::{DateFormat, DateTypeOption, TimeFormat};
+use collab_database::fields::relation_type_option::RelationTypeOption;
 use collab_database::fields::select_type_option::{
   MultiSelectTypeOption, SelectOption, SelectOptionColor, SingleSelectTypeOption,
 };
+use collab_database::fields::summary_type_option::SummarizationTypeOption;
 use collab_database::fields::timestamp_type_option::TimestampTypeOption;
 use collab_database::views::{DatabaseLayout, LayoutSetting, LayoutSettings};
 use strum::IntoEnumIterator;
@@ -11,9 +14,7 @@ use strum::IntoEnumIterator;
 use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, TWITTER};
 use event_integration_test::database_event::TestRowBuilder;
 use flowy_database2::entities::FieldType;
-use flowy_database2::services::field::checklist_type_option::ChecklistTypeOption;
-use flowy_database2::services::field::summary_type_option::summary::SummarizationTypeOption;
-use flowy_database2::services::field::{FieldBuilder, RelationTypeOption};
+use flowy_database2::services::field::FieldBuilder;
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 use flowy_database2::services::setting::BoardLayoutSetting;
 
@@ -59,6 +60,7 @@ pub fn make_test_board() -> DatabaseData {
           time_format: TimeFormat::TwentyFourHour,
           include_time: true,
           field_type: field_type.into(),
+          timezone: None,
         };
         let name = match field_type {
           FieldType::LastEditedTime => "Last Modified",
@@ -161,9 +163,7 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("A"),
             FieldType::Number => row_builder.insert_number_cell("1"),
             // 1647251762 => Mar 14,2022
-            FieldType::DateTime => {
-              row_builder.insert_date_cell(1647251762, None, None, &field_type)
-            },
+            FieldType::DateTime => row_builder.insert_date_cell(1647251762, None, &field_type),
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(0))
             },
@@ -181,9 +181,7 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("B"),
             FieldType::Number => row_builder.insert_number_cell("2"),
             // 1647251762 => Mar 14,2022
-            FieldType::DateTime => {
-              row_builder.insert_date_cell(1647251762, None, None, &field_type)
-            },
+            FieldType::DateTime => row_builder.insert_date_cell(1647251762, None, &field_type),
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(0))
             },
@@ -200,9 +198,7 @@ pub fn make_test_board() -> DatabaseData {
             FieldType::RichText => row_builder.insert_text_cell("C"),
             FieldType::Number => row_builder.insert_number_cell("3"),
             // 1647251762 => Mar 14,2022
-            FieldType::DateTime => {
-              row_builder.insert_date_cell(1647251762, None, None, &field_type)
-            },
+            FieldType::DateTime => row_builder.insert_date_cell(1647251762, None, &field_type),
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(1))
             },
@@ -222,9 +218,7 @@ pub fn make_test_board() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("DA"),
             FieldType::Number => row_builder.insert_number_cell("4"),
-            FieldType::DateTime => {
-              row_builder.insert_date_cell(1668704685, None, None, &field_type)
-            },
+            FieldType::DateTime => row_builder.insert_date_cell(1668704685, None, &field_type),
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(1))
             },
@@ -239,9 +233,7 @@ pub fn make_test_board() -> DatabaseData {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("AE"),
             FieldType::Number => row_builder.insert_number_cell(""),
-            FieldType::DateTime => {
-              row_builder.insert_date_cell(1668359085, None, None, &field_type)
-            },
+            FieldType::DateTime => row_builder.insert_date_cell(1668359085, None, &field_type),
             FieldType::SingleSelect => {
               row_builder.insert_single_select_cell(|mut options| options.remove(2))
             },
@@ -260,10 +252,8 @@ pub fn make_test_board() -> DatabaseData {
   let mut layout_settings = LayoutSettings::new();
   layout_settings.insert(DatabaseLayout::Board, board_setting);
 
-  let inline_view_id = gen_database_view_id();
-
   let view = DatabaseView {
-    id: inline_view_id.clone(),
+    id: gen_database_view_id(),
     database_id: database_id.clone(),
     name: "".to_string(),
     layout: DatabaseLayout::Board,
@@ -276,11 +266,11 @@ pub fn make_test_board() -> DatabaseData {
     created_at: 0,
     modified_at: 0,
     field_settings,
+    is_inline: false,
   };
 
   DatabaseData {
     database_id,
-    inline_view_id,
     views: vec![view],
     fields,
     rows,

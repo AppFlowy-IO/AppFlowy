@@ -47,6 +47,7 @@ Future<T?> showMobileBottomSheet<T>(
   Color? barrierColor,
   double? elevation,
   bool showDoneButton = false,
+  void Function(BuildContext context)? onDone,
   bool enableDraggableScrollable = false,
   bool enableScrollable = false,
   // this field is only used if showDragHandle is true
@@ -112,6 +113,7 @@ Future<T?> showMobileBottomSheet<T>(
             showRemoveButton: showRemoveButton,
             title: title,
             onRemove: onRemove,
+            onDone: onDone,
           ),
         );
 
@@ -143,6 +145,7 @@ Future<T?> showMobileBottomSheet<T>(
                     ) ??
                     Expanded(
                       child: Scrollbar(
+                        controller: scrollController,
                         child: SingleChildScrollView(
                           controller: scrollController,
                           child: child,
@@ -207,14 +210,23 @@ class BottomSheetHeader extends StatelessWidget {
     required this.title,
     required this.showDoneButton,
     this.onRemove,
+    this.onDone,
+    this.onBack,
+    this.onClose,
   });
+
+  final String title;
 
   final bool showBackButton;
   final bool showCloseButton;
   final bool showRemoveButton;
-  final String title;
   final bool showDoneButton;
+
   final VoidCallback? onRemove;
+  final VoidCallback? onBack;
+  final VoidCallback? onClose;
+
+  final void Function(BuildContext context)? onDone;
 
   @override
   Widget build(BuildContext context) {
@@ -225,14 +237,18 @@ class BottomSheetHeader extends StatelessWidget {
         child: Stack(
           children: [
             if (showBackButton)
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
-                child: BottomSheetBackButton(),
+                child: BottomSheetBackButton(
+                  onTap: onBack,
+                ),
               ),
             if (showCloseButton)
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
-                child: BottomSheetCloseButton(),
+                child: BottomSheetCloseButton(
+                  onTap: onClose,
+                ),
               ),
             if (showRemoveButton)
               Align(
@@ -256,7 +272,13 @@ class BottomSheetHeader extends StatelessWidget {
               Align(
                 alignment: Alignment.centerRight,
                 child: BottomSheetDoneButton(
-                  onDone: () => Navigator.pop(context),
+                  onDone: () {
+                    if (onDone != null) {
+                      onDone?.call(context);
+                    } else {
+                      Navigator.pop(context);
+                    }
+                  },
                 ),
               ),
           ],

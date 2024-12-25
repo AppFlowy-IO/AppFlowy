@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
 import 'package:appflowy/plugins/trash/application/trash_listener.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
@@ -13,10 +15,12 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 Node subPageNode({String? viewId}) {
   return Node(
@@ -223,14 +227,8 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
                 ],
                 child: GestureDetector(
                   // TODO(Mathias): Handle mobile tap
-                  onTap: isHandlingPaste
-                      ? null
-                      : () => getIt<TabsBloc>().add(
-                            TabsEvent.openPlugin(
-                              plugin: view.plugin(),
-                              view: view,
-                            ),
-                          ),
+                  onTap:
+                      isHandlingPaste ? null : () => _openSubPage(view: view),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: isHovering
@@ -248,20 +246,17 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
                                   view.icon.value,
                                   fontSize: textStyle.fontSize,
                                   lineHeight: textStyle.height,
+                                  color:
+                                      AFThemeExtension.of(context).strongText,
                                 )
-                              : Opacity(
-                                  opacity: 0.6,
-                                  child: view.defaultIcon(),
-                                ),
-                          const HSpace(10),
+                              : view.defaultIcon(),
+                          const HSpace(6),
                           Flexible(
                             child: FlowyText(
-                              view.name.trim().isEmpty
-                                  ? LocaleKeys.menuAppHeader_defaultNewPageName
-                                      .tr()
-                                  : view.name,
+                              view.nameOrDefault,
                               fontSize: textStyle.fontSize,
                               fontWeight: textStyle.fontWeight,
+                              decoration: TextDecoration.underline,
                               lineHeight: textStyle.height,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -391,4 +386,25 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
   @override
   Offset localToGlobal(Offset offset, {bool shiftWithBaseOffset = false}) =>
       _renderBox!.localToGlobal(offset);
+
+  void _openSubPage({
+    required ViewPB view,
+  }) {
+    if (UniversalPlatform.isDesktop) {
+      final isInDatabase =
+          context.read<SharedEditorContext>().isInDatabaseRowPage;
+      if (isInDatabase) {
+        Navigator.of(context).pop();
+      }
+
+      getIt<TabsBloc>().add(
+        TabsEvent.openPlugin(
+          plugin: view.plugin(),
+          view: view,
+        ),
+      );
+    } else if (UniversalPlatform.isMobile) {
+      context.pushView(view);
+    }
+  }
 }

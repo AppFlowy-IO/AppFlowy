@@ -1,12 +1,11 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 
 class FlowyIconTextButton extends StatelessWidget {
   final Widget Function(bool onHover) textBuilder;
@@ -14,8 +13,8 @@ class FlowyIconTextButton extends StatelessWidget {
   final VoidCallback? onSecondaryTap;
   final void Function(bool)? onHover;
   final EdgeInsets? margin;
-  final Widget Function(bool onHover)? leftIconBuilder;
-  final Widget Function(bool onHover)? rightIconBuilder;
+  final Widget? Function(bool onHover)? leftIconBuilder;
+  final Widget? Function(bool onHover)? rightIconBuilder;
   final Color? hoverColor;
   final bool isSelected;
   final BorderRadius? radius;
@@ -30,6 +29,7 @@ class FlowyIconTextButton extends StatelessWidget {
   final double iconPadding;
   final bool expand;
   final Color? borderColor;
+  final bool resetHoverOnRebuild;
 
   const FlowyIconTextButton({
     super.key,
@@ -54,6 +54,7 @@ class FlowyIconTextButton extends StatelessWidget {
     this.iconPadding = 6,
     this.expand = false,
     this.borderColor,
+    this.resetHoverOnRebuild = true,
   });
 
   @override
@@ -65,6 +66,7 @@ class FlowyIconTextButton extends StatelessWidget {
       onTap: disable ? null : onTap,
       onSecondaryTap: disable ? null : onSecondaryTap,
       child: FlowyHover(
+        resetHoverOnRebuild: resetHoverOnRebuild,
         cursor:
             disable ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
         style: HoverStyle(
@@ -82,11 +84,12 @@ class FlowyIconTextButton extends StatelessWidget {
   Widget _render(BuildContext context, bool onHover) {
     final List<Widget> children = [];
 
-    if (leftIconBuilder != null) {
+    final Widget? leftIcon = leftIconBuilder?.call(onHover);
+    if (leftIcon != null) {
       children.add(
         SizedBox.fromSize(
           size: leftIconSize,
-          child: leftIconBuilder!(onHover),
+          child: leftIcon,
         ),
       );
       children.add(HSpace(iconPadding));
@@ -98,10 +101,11 @@ class FlowyIconTextButton extends StatelessWidget {
       children.add(textBuilder(onHover));
     }
 
-    if (rightIconBuilder != null) {
+    final Widget? rightIcon = rightIconBuilder?.call(onHover);
+    if (rightIcon != null) {
       children.add(HSpace(iconPadding));
       // No need to define the size of rightIcon. Just use its intrinsic width
-      children.add(rightIconBuilder!(onHover));
+      children.add(rightIcon);
     }
 
     Widget child = Row(
@@ -197,6 +201,7 @@ class FlowyButton extends StatelessWidget {
 
     if (Platform.isIOS || Platform.isAndroid) {
       return InkWell(
+        splashFactory: Platform.isIOS ? NoSplash.splashFactory : null,
         onTap: disable ? null : onTap,
         onSecondaryTap: disable ? null : onSecondaryTap,
         borderRadius: radius ?? Corners.s6Border,
@@ -528,7 +533,6 @@ class FlowyRichTextButton extends StatelessWidget {
     );
 
     child = RawMaterialButton(
-      visualDensity: VisualDensity.compact,
       hoverElevation: 0,
       highlightElevation: 0,
       shape: RoundedRectangleBorder(borderRadius: radius ?? Corners.s6Border),

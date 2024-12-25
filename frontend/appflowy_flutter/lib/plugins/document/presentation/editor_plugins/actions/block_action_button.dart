@@ -12,12 +12,14 @@ class BlockActionButton extends StatelessWidget {
     required this.richMessage,
     required this.onTap,
     this.showTooltip = true,
+    this.onPointerDown,
   });
 
   final FlowySvgData svg;
   final bool showTooltip;
   final InlineSpan richMessage;
   final VoidCallback onTap;
+  final VoidCallback? onPointerDown;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +28,7 @@ class BlockActionButton extends StatelessWidget {
           ? SystemMouseCursors.click
           : SystemMouseCursors.grab,
       child: IgnoreParentGestureWidget(
+        onPress: onPointerDown,
         child: GestureDetector(
           onTap: onTap,
           behavior: HitTestBehavior.deferToChild,

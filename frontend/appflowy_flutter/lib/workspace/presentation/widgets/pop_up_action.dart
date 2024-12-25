@@ -1,4 +1,3 @@
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +6,7 @@ import 'package:styled_widget/styled_widget.dart';
 class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
   const PopoverActionList({
     super.key,
+    this.controller,
     this.popoverMutex,
     required this.actions,
     required this.buildChild,
@@ -28,8 +28,10 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
       maxWidth: 460,
       maxHeight: 300,
     ),
+    this.showAtCursor = false,
   });
 
+  final PopoverController? controller;
   final PopoverMutex? popoverMutex;
   final List<T> actions;
   final Widget Function(PopoverController) buildChild;
@@ -47,6 +49,7 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
   final double endScaleFactor;
   final double beginOpacity;
   final double endOpacity;
+  final bool showAtCursor;
 
   @override
   State<PopoverActionList<T>> createState() => _PopoverActionListState<T>();
@@ -54,12 +57,24 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
 
 class _PopoverActionListState<T extends PopoverAction>
     extends State<PopoverActionList<T>> {
-  final PopoverController popoverController = PopoverController();
+  late PopoverController popoverController =
+      widget.controller ?? PopoverController();
 
   @override
   void dispose() {
-    popoverController.close();
+    if (widget.controller == null) {
+      popoverController.close();
+    }
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant PopoverActionList<T> oldWidget) {
+    if (widget.controller != oldWidget.controller) {
+      popoverController.close();
+      popoverController = widget.controller ?? PopoverController();
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -80,7 +95,8 @@ class _PopoverActionListState<T extends PopoverAction>
       offset: widget.offset,
       triggerActions: PopoverTriggerFlags.none,
       onClose: widget.onClosed,
-      popupBuilder: (BuildContext popoverContext) {
+      showAtCursor: widget.showAtCursor,
+      popupBuilder: (_) {
         widget.onPopupBuilder?.call();
         final List<Widget> children = widget.actions.map((action) {
           if (action is ActionCell) {
@@ -110,9 +126,7 @@ class _PopoverActionListState<T extends PopoverAction>
 
         return IntrinsicHeight(
           child: IntrinsicWidth(
-            child: Column(
-              children: children,
-            ),
+            child: Column(children: children),
           ),
         );
       },

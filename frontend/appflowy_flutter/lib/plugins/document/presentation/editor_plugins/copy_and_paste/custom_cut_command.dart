@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 /// cut.
 ///
@@ -24,6 +25,13 @@ CommandShortcutEventHandler _cutCommandHandler = (editorState) {
     return KeyEventResult.ignored;
   }
 
+  final context = editorState.document.root.context;
+  if (context == null || !context.mounted) {
+    return KeyEventResult.ignored;
+  }
+
+  context.read<ClipboardState>().didCut();
+
   handleCopyCommand(editorState, isCut: true);
 
   if (!selection.isCollapsed) {
@@ -33,6 +41,11 @@ CommandShortcutEventHandler _cutCommandHandler = (editorState) {
     if (node == null) {
       return KeyEventResult.handled;
     }
+    // prevent to cut the node that is selecting the table.
+    if (node.parentTableNode != null) {
+      return KeyEventResult.skipRemainingHandlers;
+    }
+
     final transaction = editorState.transaction;
     transaction.deleteNode(node);
     final nextNode = node.next;

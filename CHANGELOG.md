@@ -1,4 +1,84 @@
 # Release Notes
+## Version 0.7.7 - 09/12/2024
+### New Features
+- Added support "set to page width" and "distribute columns evenly" for table block
+- Added support for reordering column/row in table block
+- Added support inserting multiple lines in table block
+- Revamped the mention page interactions in AI chat page
+- Improve the AI referenced sources UI in AI chat page
+
+### Bug Fixes
+- Fixed an error when opening files in the database in local mode
+- Fixed arrow up/down navigation not working for selecting a language in code block
+- Fixed an issue where deleting multiple blocks using the drag button on the document page didn't work
+
+## Version 0.7.7 - 09/12/2024
+### Bug Fixes
+- Fixed sidebar menu resize regression
+- Fixed AI chat loading issues
+- Fixed inability to open local files in database
+- Fixed mentions remaining in notifications after removal from document
+- Fixed event card closing when clicking on empty space
+- Fixed keyboard shortcut issues
+
+## Version 0.7.6 - 03/12/2024
+### New Features
+- Revamped the simple table UI
+- Added support for capturing images from camera on mobile
+### Bug Fixes
+- Improved markdown rendering capabilities in AI writer
+- Fixed an issue where pressing Enter on a collapsed toggle list would add an unnecessary new line
+- Fixed an issue where creating a document from slash menu could insert content at incorrect position
+
+## Version 0.7.5 - 25/11/2024
+### Bug Fixes
+- Improved chat response parsing
+- Fixed toggle list icon direction for RTL mode
+- Fixed cross blocks formatting not reflecting in float toolbar
+- Fixed unable to click inside the toggle list to create a new paragraph
+- Fixed open file error 50 on macOS
+- Fixed upload file exceed limit error
+
+## Version 0.7.4 - 19/11/2024
+### New Features
+- Support uploading WebP and BMP images
+- Support managing workspaces on mobile
+- Support adding toggle headings on mobile
+- Improve the AI chat page UI
+### Bug Fixes
+- Optimized the workspace menu loading performance
+- Optimized tab switching performance
+- Fixed searching issues in Document page
+
+## Version 0.7.3 - 07/11/2024
+### New Features
+- Enable custom URLs for published pages
+- Support toggling headings
+- Create a subpage by typing in the document
+- Turn selected blocks into a subpage
+- Add a manual date picker for the Date property
+
+### Bug Fixes
+- Fixed an issue where the workspace owner was unable to delete spaces created by others
+- Fixed cursor height inconsistencies with text height
+- Fixed editing issues in Kanban cards
+- Fixed an issue preventing images or files from being dropped into empty paragraphs
+
+## Version 0.7.2 - 22/10/2024
+### New Features
+- Copy link to block
+- Support turn into in document
+- Enable sharing links and publishing pages on mobile
+- Enable drag and drop in row documents
+- Right-click on page in sidebar to open more actions
+- Create new subpage in document using `+` character
+- Allow reordering checklist item
+
+### Bug Fixes
+- Fixed issue with inability to cancel inline code format in French IME
+- Fixed delete with Shift or Ctrl shortcuts not working in documents
+- Fixed the issues with incorrect time zone being used in filters.
+
 ## Version 0.7.1 - 07/10/2024
 ### New Features
 - Copy link to share and open it in a browser
@@ -60,7 +140,7 @@
 - Fixed the inability to edit group names on Kanban boards
 - Made error codes more user-friendly
 - Added leading zeros to day and month in date format
-  
+
 ## Version 0.6.8 - 22/08/2024
 ### New Features
 - Enabled viewing data inside a database record on mobile.

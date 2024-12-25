@@ -15,7 +15,7 @@ use flowy_sqlite::{
   DBConnection, Database, ExpressionMethods,
 };
 use flowy_user_pub::entities::{UserProfile, UserWorkspace};
-use lib_dispatch::prelude::af_spawn;
+
 use lib_infra::file_util::{unzip_and_replace, zip_folder};
 use tracing::{error, event, info, instrument};
 
@@ -60,7 +60,7 @@ impl UserDB {
         if is_ok {
           // If database is valid, update the shared map and initiate backup.
           // Asynchronous backup operation.
-          af_spawn(async move {
+          tokio::spawn(async move {
             if let Err(err) = tokio::task::spawn_blocking(move || zip_backup.backup()).await {
               error!("Backup of collab db failed: {:?}", err);
             }
@@ -360,7 +360,7 @@ pub(crate) fn validate_collab_db(
   match result {
     Ok(db) => {
       let read_txn = db.read_txn();
-      read_txn.is_exist(uid, workspace_id)
+      read_txn.is_exist(uid, workspace_id, workspace_id)
     },
     Err(err) => {
       error!("open collab db error, {:?}", err);

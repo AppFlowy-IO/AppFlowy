@@ -3,10 +3,14 @@ use collab_database::fields::date_type_option::DateCellData;
 use collab_database::fields::media_type_option::{MediaFile, MediaFileType, MediaUploadType};
 use collab_database::fields::select_type_option::{MultiSelectTypeOption, SingleSelectTypeOption};
 use collab_database::fields::url_type_option::URLCellData;
+use collab_database::template::time_parse::TimeCellData;
 use flowy_database2::entities::{FieldType, MediaCellChangeset};
+use flowy_database2::services::field::checklist_filter::{
+  ChecklistCellChangeset, ChecklistCellInsertChangeset,
+};
+use flowy_database2::services::field::date_filter::DateCellChangeset;
 use flowy_database2::services::field::{
-  ChecklistCellChangeset, ChecklistCellInsertChangeset, DateCellChangeset, RelationCellChangeset,
-  SelectOptionCellChangeset, StringCellData, TimeCellData,
+  RelationCellChangeset, SelectOptionCellChangeset, StringCellData,
 };
 use lib_infra::box_any::BoxAny;
 use std::time::Duration;
@@ -27,7 +31,7 @@ async fn grid_cell_update() {
         FieldType::RichText => BoxAny::new("".to_string()),
         FieldType::Number => BoxAny::new("123".to_string()),
         FieldType::DateTime => BoxAny::new(DateCellChangeset {
-          date: Some(123),
+          timestamp: Some(123),
           ..Default::default()
         }),
         FieldType::SingleSelect => {

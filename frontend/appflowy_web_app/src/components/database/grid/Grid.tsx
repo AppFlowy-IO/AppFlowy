@@ -24,7 +24,12 @@ export function Grid () {
 
   return (
     <div className={'database-grid flex w-full flex-1 flex-col'}>
-      <GridHeader scrollLeft={scrollLeft} columnWidth={columnWidth} columns={fields} onScrollLeft={setScrollLeft} />
+      <GridHeader
+        scrollLeft={scrollLeft}
+        columnWidth={columnWidth}
+        columns={fields}
+        onScrollLeft={setScrollLeft}
+      />
       <div className={'grid-scroll-table w-full flex-1'}>
         <GridTable
           viewId={viewId}

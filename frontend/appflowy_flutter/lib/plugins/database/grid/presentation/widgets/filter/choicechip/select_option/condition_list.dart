@@ -25,12 +25,14 @@ class SelectOptionFilterConditionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final conditions = (fieldType == FieldType.SingleSelect
+        ? SingleSelectOptionFilterCondition().conditions
+        : MultiSelectOptionFilterCondition().conditions);
     return PopoverActionList<ConditionWrapper>(
       asBarrier: true,
       mutex: popoverMutex,
       direction: PopoverDirection.bottomWithCenterAligned,
-      actions: SingleSelectOptionFilterCondition()
-          .conditions
+      actions: conditions
           .map(
             (action) => ConditionWrapper(
               action.$1,

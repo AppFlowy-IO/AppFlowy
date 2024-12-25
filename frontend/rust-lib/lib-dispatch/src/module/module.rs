@@ -34,7 +34,10 @@ pub(crate) fn plugin_map_or_crash(plugins: Vec<AFPlugin>) -> AFPluginMap {
     events.into_iter().for_each(|e| {
       if plugin_map.contains_key(&e) {
         let plugin_name = plugin_map.get(&e).map(|p| &p.name);
-        panic!("⚠️⚠️⚠️Error: {:?} is already defined in {:?}", &e, plugin_name,);
+        panic!(
+          "⚠️⚠️⚠️Error: {:?} is already defined in {:?}",
+          &e, plugin_name,
+        );
       }
       plugin_map.insert(e, plugins.clone());
     });
@@ -89,7 +92,7 @@ impl AFPlugin {
   }
 
   pub fn name(mut self, s: &str) -> Self {
-    self.name = s.to_owned();
+    s.clone_into(&mut self.name);
     self
   }
 

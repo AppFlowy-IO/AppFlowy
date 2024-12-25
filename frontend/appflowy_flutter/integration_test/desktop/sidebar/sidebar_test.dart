@@ -198,7 +198,7 @@ void main() {
         layout: ViewLayoutPB.Grid,
         onHover: () async {
           expect(find.byType(ViewAddButton), findsNothing);
-          expect(find.byType(ViewMoreActionButton), findsOneWidget);
+          expect(find.byType(ViewMoreActionPopover), findsOneWidget);
         },
       );
     });

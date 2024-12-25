@@ -100,10 +100,7 @@ class MobileViewPageMoreButton extends StatelessWidget {
               BlocProvider.value(value: context.read<ViewBloc>()),
               BlocProvider.value(value: context.read<FavoriteBloc>()),
               BlocProvider.value(value: context.read<MobileViewPageBloc>()),
-              BlocProvider(
-                create: (_) =>
-                    ShareBloc(view: view)..add(const ShareEvent.initial()),
-              ),
+              BlocProvider.value(value: context.read<ShareBloc>()),
             ],
             child: MobileViewPageMoreBottomSheet(view: view),
           ),

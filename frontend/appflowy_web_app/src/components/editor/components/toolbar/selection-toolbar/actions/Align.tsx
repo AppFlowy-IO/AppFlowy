@@ -6,6 +6,10 @@ import { ReactComponent as AlignCenterSvg } from '@/assets/toolbar_align_center.
 import { ReactComponent as AlignLeftSvg } from '@/assets/toolbar_align_left.svg';
 import { ReactComponent as AlignRightSvg } from '@/assets/toolbar_align_right.svg';
 import { Popover } from '@/components/_shared/popover';
+import {
+  useSelectionToolbarContext,
+} from '@/components/editor/components/toolbar/selection-toolbar/SelectionToolbar.hooks';
+
 import { PopoverProps } from '@mui/material/Popover';
 import React, { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -30,6 +34,9 @@ const popoverProps: Partial<PopoverProps> = {
 
 export function Align () {
   const [open, setOpen] = useState(false);
+  const {
+    visible: toolbarVisible,
+  } = useSelectionToolbarContext();
   const ref = useRef<HTMLButtonElement | null>(null);
   const { t } = useTranslation();
   const editor = useSlateStatic() as YjsEditor;
@@ -91,40 +98,47 @@ export function Align () {
   return (
     <>
       <ActionButton
-        ref={ref} onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        handleOpen();
-      }} tooltip={t('document.plugins.optionAction.align')}
+        ref={ref}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleOpen();
+        }}
+        tooltip={t('document.plugins.optionAction.align')}
       >
         {activeIcon()}
       </ActionButton>
+
       <Popover
+        keepMounted={false}
         disableAutoFocus={true}
         disableEnforceFocus={true}
         disableRestoreFocus={true}
         onClose={() => {
           setOpen(false);
         }}
-        open={open}
+        open={open && toolbarVisible}
         anchorEl={ref.current}
         {...popoverProps}
       >
         <div className={'flex items-center px-2 h-[32px] justify-center'}>
           <ActionButton
-            active={getAlign() === AlignType.Left} tooltip={t('document.plugins.optionAction.left')}
+            active={getAlign() === AlignType.Left}
+            tooltip={t('document.plugins.optionAction.left')}
             onClick={toggleAlign(AlignType.Left)}
           >
             <AlignLeftSvg />
           </ActionButton>
           <ActionButton
-            active={getAlign() === AlignType.Center} tooltip={t('document.plugins.optionAction.center')}
+            active={getAlign() === AlignType.Center}
+            tooltip={t('document.plugins.optionAction.center')}
             onClick={toggleAlign(AlignType.Center)}
           >
             <AlignCenterSvg />
           </ActionButton>
           <ActionButton
-            active={getAlign() === AlignType.Right} tooltip={t('document.plugins.optionAction.right')}
+            active={getAlign() === AlignType.Right}
+            tooltip={t('document.plugins.optionAction.right')}
             onClick={toggleAlign(AlignType.Right)}
           >
             <AlignRightSvg />

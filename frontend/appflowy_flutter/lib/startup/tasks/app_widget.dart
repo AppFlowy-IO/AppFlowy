@@ -1,7 +1,11 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
+import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -17,14 +21,14 @@ import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -176,12 +180,17 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (action?.type == ActionType.openView &&
                 UniversalPlatform.isDesktop) {
-              final view = action!.arguments?[ActionArgumentKeys.view];
+              final view =
+                  action!.arguments?[ActionArgumentKeys.view] as ViewPB?;
               final nodePath = action.arguments?[ActionArgumentKeys.nodePath];
+              final blockId = action.arguments?[ActionArgumentKeys.blockId];
               if (view != null) {
                 getIt<TabsBloc>().openPlugin(
-                  view.plugin(),
-                  arguments: {PluginArgumentKeys.selection: nodePath},
+                  view,
+                  arguments: {
+                    PluginArgumentKeys.selection: nodePath,
+                    PluginArgumentKeys.blockId: blockId,
+                  },
                 );
               }
             } else if (action?.type == ActionType.openRow &&
@@ -203,32 +212,36 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
         child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
           builder: (context, state) {
             _setSystemOverlayStyle(state);
-            return ToastificationWrapper(
-              child: MaterialApp.router(
-                builder: (context, child) => MediaQuery(
-                  // use the 1.0 as the textScaleFactor to avoid the text size
-                  //  affected by the system setting.
-                  data: MediaQuery.of(context).copyWith(
-                    textScaler: TextScaler.linear(state.textScaleFactor),
+            return Provider(
+              create: (_) => ClipboardState(),
+              dispose: (_, state) => state.dispose(),
+              child: ToastificationWrapper(
+                child: MaterialApp.router(
+                  builder: (context, child) => MediaQuery(
+                    // use the 1.0 as the textScaleFactor to avoid the text size
+                    //  affected by the system setting.
+                    data: MediaQuery.of(context).copyWith(
+                      textScaler: TextScaler.linear(state.textScaleFactor),
+                    ),
+                    child: overlayManagerBuilder(
+                      context,
+                      !UniversalPlatform.isMobile && FeatureFlag.search.isOn
+                          ? CommandPalette(
+                              notifier: _commandPaletteNotifier,
+                              child: child,
+                            )
+                          : child,
+                    ),
                   ),
-                  child: overlayManagerBuilder(
-                    context,
-                    !UniversalPlatform.isMobile && FeatureFlag.search.isOn
-                        ? CommandPalette(
-                            notifier: _commandPaletteNotifier,
-                            child: child,
-                          )
-                        : child,
-                  ),
+                  debugShowCheckedModeBanner: false,
+                  theme: state.lightTheme,
+                  darkTheme: state.darkTheme,
+                  themeMode: state.themeMode,
+                  localizationsDelegates: context.localizationDelegates,
+                  supportedLocales: context.supportedLocales,
+                  locale: state.locale,
+                  routerConfig: routerConfig,
                 ),
-                debugShowCheckedModeBanner: false,
-                theme: state.lightTheme,
-                darkTheme: state.darkTheme,
-                themeMode: state.themeMode,
-                localizationsDelegates: context.localizationDelegates,
-                supportedLocales: context.supportedLocales,
-                locale: state.locale,
-                routerConfig: routerConfig,
               ),
             );
           },

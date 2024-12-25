@@ -14,12 +14,16 @@ import { Outline } from '@/components/editor/components/blocks/outline';
 import { Page } from '@/components/editor/components/blocks/page';
 import { Paragraph } from '@/components/editor/components/blocks/paragraph';
 import { Quote } from '@/components/editor/components/blocks/quote';
+import SimpleTable from '@/components/editor/components/blocks/simple-table/SimpleTable';
+import SimpleTableCell from '@/components/editor/components/blocks/simple-table/SimpleTableCell';
+import SimpleTableRow from '@/components/editor/components/blocks/simple-table/SimpleTableRow';
 import { TableBlock, TableCellBlock } from '@/components/editor/components/blocks/table';
 import { Text } from '@/components/editor/components/blocks/text';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { ElementFallbackRender } from '@/components/error/ElementFallbackRender';
 import { ErrorBoundary } from 'react-error-boundary';
 import smoothScrollIntoViewIfNeeded from 'smooth-scroll-into-view-if-needed';
+import SubPage from 'src/components/editor/components/blocks/sub-page/SubPage';
 import { TodoList } from 'src/components/editor/components/blocks/todo-list';
 import { ToggleList } from 'src/components/editor/components/blocks/toggle-list';
 import { UnSupportedBlock } from '@/components/editor/components/element/UnSupportedBlock';
@@ -42,6 +46,7 @@ export const Element = ({
   } = useEditorContext();
 
   const editor = useSlateStatic();
+  const highlightTimeoutRef = React.useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     if (!jumpBlockId) return;
@@ -57,10 +62,23 @@ export const Element = ({
         behavior: 'smooth',
         scrollMode: 'if-needed',
       });
+      element.className += ' highlight-block';
+      highlightTimeoutRef.current = setTimeout(() => {
+        element.className = element.className.replace('highlight-block', '');
+      }, 5000);
+
       onJumpedBlockId?.();
     })();
 
   }, [editor, jumpBlockId, node, onJumpedBlockId]);
+
+  useEffect(() => {
+    return () => {
+      if (highlightTimeoutRef.current) {
+        clearTimeout(highlightTimeoutRef.current);
+      }
+    };
+  }, []);
   const Component = useMemo(() => {
     switch (node.type) {
       case BlockType.HeadingBlock:
@@ -105,6 +123,14 @@ export const Element = ({
         return FileBlock;
       case BlockType.GalleryBlock:
         return GalleryBlock;
+      case BlockType.SubpageBlock:
+        return SubPage;
+      case BlockType.SimpleTableBlock:
+        return SimpleTable;
+      case BlockType.SimpleTableRowBlock:
+        return SimpleTableRow;
+      case BlockType.SimpleTableCellBlock:
+        return SimpleTableCell;
       default:
         return UnSupportedBlock;
     }
@@ -114,7 +140,7 @@ export const Element = ({
     const data = (node.data as BlockData) || {};
     const align = data.align;
 
-    return `block-element relative flex rounded ${align ? `block-align-${align}` : ''}`;
+    return `block-element relative flex rounded-[8px] ${align ? `block-align-${align}` : ''}`;
   }, [node.data]);
 
   const style = useMemo(() => {
@@ -134,10 +160,27 @@ export const Element = ({
     );
   }
 
+  if ([BlockType.SimpleTableRowBlock, BlockType.SimpleTableCellBlock].includes(node.type as BlockType)) {
+    return (
+      <Component
+        node={node}
+        {...attributes}
+      >
+        {children}
+      </Component>
+    );
+  }
+
   return (
     <ErrorBoundary fallbackRender={ElementFallbackRender}>
-      <div {...attributes} data-block-type={node.type} className={className}>
-        <Component style={style} className={`flex w-full flex-col`} node={node}>
+      <div {...attributes} data-block-type={node.type}
+           className={className}
+      >
+        <Component
+          style={style}
+          className={`flex w-full flex-col`}
+          node={node}
+        >
           {children}
         </Component>
       </div>

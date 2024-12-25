@@ -9,9 +9,9 @@ edition = "2021"
 flowy-derive.workspace = true
 flowy-notification = { workspace = true }
 flowy-error = { path = "../flowy-error", features = [
-    "impl_from_dispatch_error",
-    "impl_from_collab_folder",
-    "impl_from_sqlite",
+  "impl_from_dispatch_error",
+  "impl_from_collab_folder",
+  "impl_from_sqlite",
 ] }
 lib-dispatch = { workspace = true }
 tracing.workspace = true
@@ -62,4 +62,3 @@ flowy-codegen.workspace = true
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
 tauri_ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]
 web_ts = ["flowy-codegen/ts", "flowy-notification/web_ts"]
-

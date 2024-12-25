@@ -16,10 +16,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FavoriteFolder extends StatefulWidget {
-  const FavoriteFolder({
-    super.key,
-    required this.views,
-  });
+  const FavoriteFolder({super.key, required this.views});
 
   final List<ViewPB> views;
 
@@ -81,53 +78,46 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
       return [];
     }
 
-    return context
-        .read<FavoriteBloc>()
-        .state
-        .pinnedViews
-        .map((e) => e.item)
-        .map(
-          (view) => ViewItem(
-            key: ValueKey(
-              '${FolderSpaceType.favorite.name} ${view.id}',
-            ),
-            spaceType: FolderSpaceType.favorite,
-            isDraggable: false,
-            isFirstChild: view.id == widget.views.first.id,
-            isFeedback: false,
-            view: view,
-            leftPadding: HomeSpaceViewSizes.leftPadding,
-            leftIconBuilder: (_, __) =>
-                const HSpace(HomeSpaceViewSizes.leftPadding),
-            level: 0,
-            isHovered: isHovered,
-            rightIconsBuilder: (context, view) => [
-              FavoriteMoreActions(view: view),
-              const HSpace(8.0),
-              FavoritePinAction(view: view),
-              const HSpace(4.0),
-            ],
-            shouldRenderChildren: false,
-            shouldLoadChildViews: false,
-            onTertiarySelected: (_, view) =>
-                context.read<TabsBloc>().openTab(view),
-            onSelected: (_, view) {
-              if (HardwareKeyboard.instance.isControlPressed) {
-                context.read<TabsBloc>().openTab(view);
-              }
+    final pinnedViews =
+        context.read<FavoriteBloc>().state.pinnedViews.map((e) => e.item);
 
-              context.read<TabsBloc>().openPlugin(view);
-            },
-          ),
-        );
+    return pinnedViews.map(
+      (view) => ViewItem(
+        key: ValueKey('${FolderSpaceType.favorite.name} ${view.id}'),
+        spaceType: FolderSpaceType.favorite,
+        isDraggable: false,
+        isFirstChild: view.id == widget.views.first.id,
+        isFeedback: false,
+        view: view,
+        enableRightClickContext: true,
+        leftPadding: HomeSpaceViewSizes.leftPadding,
+        leftIconBuilder: (_, __) =>
+            const HSpace(HomeSpaceViewSizes.leftPadding),
+        level: 0,
+        isHovered: isHovered,
+        rightIconsBuilder: (context, view) => [
+          FavoriteMoreActions(view: view),
+          const HSpace(8.0),
+          FavoritePinAction(view: view),
+          const HSpace(4.0),
+        ],
+        shouldRenderChildren: false,
+        shouldLoadChildViews: false,
+        onTertiarySelected: (_, view) => context.read<TabsBloc>().openTab(view),
+        onSelected: (_, view) {
+          if (HardwareKeyboard.instance.isControlPressed) {
+            context.read<TabsBloc>().openTab(view);
+          }
+
+          context.read<TabsBloc>().openPlugin(view);
+        },
+      ),
+    );
   }
 }
 
 class FavoriteHeader extends StatelessWidget {
-  const FavoriteHeader({
-    super.key,
-    required this.onPressed,
-  });
+  const FavoriteHeader({super.key, required this.onPressed});
 
   final VoidCallback onPressed;
 
@@ -171,25 +161,18 @@ class FavoriteMoreButton extends StatelessWidget {
       constraints: const BoxConstraints(
         minWidth: minWidth,
       ),
-      popupBuilder: (_) {
-        return MultiBlocProvider(
-          providers: [
-            BlocProvider.value(value: favoriteBloc),
-            BlocProvider.value(value: tabsBloc),
-          ],
-          child: const FavoriteMenu(minWidth: minWidth),
-        );
-      },
+      popupBuilder: (_) => MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: favoriteBloc),
+          BlocProvider.value(value: tabsBloc),
+        ],
+        child: const FavoriteMenu(minWidth: minWidth),
+      ),
       margin: EdgeInsets.zero,
       child: FlowyButton(
-        onTap: () {},
         margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 7.0),
-        leftIcon: const FlowySvg(
-          FlowySvgs.workspace_three_dots_s,
-        ),
-        text: FlowyText.regular(
-          LocaleKeys.button_more.tr(),
-        ),
+        leftIcon: const FlowySvg(FlowySvgs.workspace_three_dots_s),
+        text: FlowyText.regular(LocaleKeys.button_more.tr()),
       ),
     );
   }

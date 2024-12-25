@@ -21,16 +21,15 @@ use std::sync::atomic::{AtomicI64, Ordering};
 use std::sync::{Arc, Weak};
 use tokio::sync::Mutex;
 use tokio_stream::StreamExt;
-use tracing::{debug, error, event, info, instrument, trace, warn};
+use tracing::{debug, error, event, info, instrument, warn};
 
-use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
 
 use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
 use crate::event_map::{DefaultUserStatusCallback, UserStatusCallback};
 use crate::migrations::document_empty_content::HistoricalEmptyDocumentMigration;
 use crate::migrations::migration::{
-  save_migration_record, UserDataMigration, UserLocalDataMigration,
+  save_migration_record, UserDataMigration, UserLocalDataMigration, FIRST_TIME_INSTALL_VERSION,
 };
 use crate::migrations::workspace_and_favorite_v1::FavoriteV1AndWorkspaceArrayMigration;
 use crate::migrations::workspace_trash_v1::WorkspaceTrashMapToSectionMigration;
@@ -39,14 +38,14 @@ use crate::services::authenticate_user::AuthenticateUser;
 use crate::services::cloud_config::get_cloud_config;
 use crate::services::collab_interact::{CollabInteract, DefaultCollabInteract};
 
+use super::manager_user_workspace::save_user_workspace;
+use crate::migrations::doc_key_with_workspace::CollabDocKeyWithWorkspaceIdMigration;
 use crate::services::sqlite_sql::user_sql::{select_user_profile, UserTable, UserTableChangeset};
 use crate::user_manager::manager_user_encryption::validate_encryption_sign;
 use crate::user_manager::manager_user_workspace::save_all_user_workspaces;
 use crate::user_manager::user_login_state::UserAuthProcess;
 use crate::{errors::FlowyError, notification::*};
 use flowy_user_pub::session::Session;
-
-use super::manager_user_workspace::save_user_workspace;
 
 pub struct UserManager {
   pub(crate) cloud_services: Arc<dyn UserCloudServiceProvider>,
@@ -91,7 +90,7 @@ impl UserManager {
     let weak_user_manager = Arc::downgrade(&user_manager);
     if let Ok(user_service) = user_manager.cloud_services.get_user_service() {
       if let Some(mut rx) = user_service.subscribe_user_update() {
-        af_spawn(async move {
+        tokio::spawn(async move {
           while let Some(update) = rx.recv().await {
             if let Some(user_manager) = weak_user_manager.upgrade() {
               if let Err(err) = user_manager.handler_user_update(update).await {
@@ -184,7 +183,7 @@ impl UserManager {
           event!(tracing::Level::DEBUG, "Listen token state change");
           let user_uid = user.uid;
           let local_token = user.token.clone();
-          af_spawn(async move {
+          tokio::spawn(async move {
             while let Some(token_state) = token_state_rx.next().await {
               debug!("Token state changed: {:?}", token_state);
               match token_state {
@@ -247,7 +246,7 @@ impl UserManager {
         }
       }
 
-      // Do the user data migration if needed
+      // Do the user data migration if needed.
       event!(tracing::Level::INFO, "Prepare user data migration");
       match (
         self
@@ -262,12 +261,16 @@ impl UserManager {
             &user,
             collab_db,
             sqlite_pool,
-            Some(self.authenticate_user.user_config.app_version.clone()),
+            self.store_preferences.clone(),
+            &self.authenticate_user.user_config.app_version,
           );
         },
         _ => error!("Failed to get collab db or sqlite pool"),
       }
       self.authenticate_user.vacuum_database_if_need();
+
+      // migrations should run before set the first time installed version
+      self.set_first_time_installed_version();
       let cloud_config = get_cloud_config(session.user_id, &self.store_preferences);
       // Init the user awareness. here we ignore the error
       let _ = self
@@ -284,8 +287,29 @@ impl UserManager {
           &user.authenticator,
         )
         .await?;
+    } else {
+      self.set_first_time_installed_version();
     }
     Ok(())
+  }
+
+  fn set_first_time_installed_version(&self) {
+    if self
+      .store_preferences
+      .get_str(FIRST_TIME_INSTALL_VERSION)
+      .is_none()
+    {
+      info!(
+        "Set install version: {:?}",
+        self.authenticate_user.user_config.app_version
+      );
+      if let Err(err) = self.store_preferences.set_object(
+        FIRST_TIME_INSTALL_VERSION,
+        &self.authenticate_user.user_config.app_version,
+      ) {
+        error!("Set install version error: {:?}", err);
+      }
+    }
   }
 
   pub fn get_session(&self) -> FlowyResult<Arc<Session>> {
@@ -653,7 +677,7 @@ impl UserManager {
     params: UpdateUserProfileParams,
   ) -> Result<(), FlowyError> {
     let server = self.cloud_services.get_user_service()?;
-    af_spawn(async move {
+    tokio::spawn(async move {
       let credentials = UserCredentials::new(Some(token), Some(uid), None);
       server.update_user(credentials, params).await
     })
@@ -854,6 +878,7 @@ fn collab_migration_list() -> Vec<Box<dyn UserDataMigration>> {
     Box::new(HistoricalEmptyDocumentMigration),
     Box::new(FavoriteV1AndWorkspaceArrayMigration),
     Box::new(WorkspaceTrashMapToSectionMigration),
+    Box::new(CollabDocKeyWithWorkspaceIdMigration),
   ]
 }
 
@@ -871,19 +896,19 @@ pub(crate) fn run_collab_data_migration(
   user: &UserProfile,
   collab_db: Arc<CollabKVDB>,
   sqlite_pool: Arc<ConnectionPool>,
-  version: Option<Version>,
+  kv: Arc<KVStorePreferences>,
+  app_version: &Version,
 ) {
-  trace!("[AppflowyData]:Run collab data migration: {:?}", version);
   let migrations = collab_migration_list();
-  match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool).run(
+  match UserLocalDataMigration::new(session.clone(), collab_db, sqlite_pool, kv).run(
     migrations,
     &user.authenticator,
-    version,
+    app_version,
   ) {
     Ok(applied_migrations) => {
       if !applied_migrations.is_empty() {
         info!(
-          "[AppflowyData]:Did apply migrations: {:?}",
+          "[Migration]: did apply migrations: {:?}",
           applied_migrations
         );
       }

@@ -41,7 +41,7 @@ describe('Markdown editing', () => {
     cy.get('@editor').type('##');
     cy.get('@editor').realPress('Space');
     cy.wait(50);
-    
+
     cy.get('@editor').type('Heading 2');
     expectedJson = [...expectedJson, {
       type: 'heading',
@@ -436,11 +436,152 @@ describe('Markdown editing', () => {
       },
     ];
     assertJSON(expectedJson);
+
+    // Test 7: Toggle heading
+    cy.get('@editor').realPress('Enter');
+    cy.get('@editor').type('>');
+    cy.get('@editor').realPress('Space');
+    cy.get('@editor').type('toggle heading');
+    cy.get('@editor').realPress('Enter');
+    cy.get('@editor').type('toggle heading child');
+    cy.get('@editor').realPress('Enter');
+    cy.get('@editor').realPress(['Shift', 'Tab']);
+    cy.get('@editor').type('toggle heading sibling');
+    cy.get('@editor').realPress('Enter');
+    cy.get('@editor').type('###');
+    cy.get('@editor').realPress('Space');
+    cy.get('@editor').type('heading 3');
+    cy.get('@editor').selectMultipleText(['toggle heading']);
+    cy.wait(500);
+    cy.get('@editor').realPress(['ArrowLeft']);
+    cy.get('@editor').type('#');
+    cy.get('@editor').realPress('Space');
+    const extraData: FromBlockJSON[] = [{
+      type: 'toggle_list',
+      data: {
+        level: 1,
+        collapsed: false,
+      },
+      text: [{
+        insert: 'toggle heading',
+      }],
+      children: [{
+        type: 'paragraph',
+        data: {},
+        text: [{
+          insert: 'toggle heading child',
+        }],
+        children: [],
+      }],
+    },
+      {
+        type: 'paragraph',
+        data: {},
+        text: [{
+          insert: 'toggle heading sibling',
+        }],
+        children: [],
+      },
+      {
+        type: 'heading',
+        data: {
+          level: 3,
+        },
+        text: [{
+          insert: 'heading 3',
+        }],
+        children: [],
+
+      }];
+
+    assertJSON([
+      ...expectedJson,
+      ...extraData,
+    ]);
+    cy.get('@editor').realPress('Backspace');
+    assertJSON([
+      ...expectedJson,
+      {
+        ...extraData[0],
+        data: {
+          collapsed: false,
+          level: null,
+        },
+      },
+      extraData[1],
+      extraData[2],
+    ] as FromBlockJSON[]);
+    cy.get('@editor').realPress('Backspace');
+    assertJSON([
+      ...expectedJson,
+      {
+        ...extraData[0],
+        type: 'paragraph',
+        data: {},
+      },
+      extraData[1],
+      extraData[2],
+    ] as FromBlockJSON[]);
+    cy.get('@editor').type('#');
+    cy.get('@editor').realPress('Space');
+    cy.get('@editor').type('>');
+    cy.get('@editor').realPress('Space');
+    expectedJson = [
+      ...expectedJson,
+      {
+        ...extraData[0],
+        children: [
+          extraData[0].children[0],
+          extraData[1],
+          extraData[2],
+        ],
+      },
+    ] as FromBlockJSON[];
+
+    assertJSON(expectedJson);
+
+    cy.selectMultipleText(['heading 3']);
+    cy.wait(500);
+    cy.get('@editor').realPress('ArrowRight');
+    cy.get('@editor').realPress('Enter');
+    cy.get('@editor').realPress(['Shift', 'Tab']);
+
+    // Test 8: Link
+    cy.get('@editor').type('Link: [Click here](https://example.com');
+    cy.get('@editor').realPress(')');
+    assertJSON([
+      ...expectedJson,
+      {
+        type: 'paragraph',
+        data: {},
+        text: [{ insert: 'Link: ' }, {
+          insert: 'Click here',
+          attributes: { href: 'https://example.com' },
+        }],
+        children: [],
+      },
+    ]);
+    cy.get('@editor').type('link anchor');
+    expectedJson = [
+      ...expectedJson,
+      {
+        type: 'paragraph',
+        data: {},
+        text: [{ insert: 'Link: ' }, {
+          insert: 'Click here',
+          attributes: { href: 'https://example.com' },
+        }, { insert: 'link anchor' }],
+        children: [],
+      },
+    ];
+    assertJSON(expectedJson);
+    cy.get('@editor').realPress('Enter');
+    //
     // Last test: Divider
     cy.get('@editor').type('--');
     cy.get('@editor').realPress('-');
     expectedJson = [
-      ...expectedJson.slice(0, -1),
+      ...expectedJson,
       {
         type: 'divider',
         data: {},

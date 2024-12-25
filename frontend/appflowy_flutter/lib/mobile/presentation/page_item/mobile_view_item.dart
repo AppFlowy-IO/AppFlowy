@@ -1,15 +1,15 @@
 import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -123,6 +123,7 @@ class InnerMobileViewItem extends StatelessWidget {
   final bool isDraggable;
   final bool isExpanded;
   final bool isFirstChild;
+
   // identify if the view item is rendered as feedback widget inside DraggableItem
   final bool isFeedback;
 
@@ -232,6 +233,7 @@ class SingleMobileInnerViewItem extends StatefulWidget {
   final ViewPB view;
   final ViewPB? parentView;
   final bool isExpanded;
+
   // identify if the view item is rendered as feedback widget inside DraggableItem
   final bool isFeedback;
 
@@ -262,9 +264,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
       // title
       Expanded(
         child: FlowyText.regular(
-          widget.view.name.isEmpty
-              ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
-              : widget.view.name,
+          widget.view.nameOrDefault,
           fontSize: 16.0,
           figmaLineHeight: 20.0,
           overflow: TextOverflow.ellipsis,
@@ -301,11 +301,9 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
 
   Widget _buildViewIcon() {
     final icon = widget.view.icon.value.isNotEmpty
-        ? FlowyText.emoji(
-            widget.view.icon.value,
-            fontSize: Platform.isAndroid ? 16.0 : 18.0,
-            figmaLineHeight: 20.0,
-            optimizeEmojiAlign: true,
+        ? EmojiIconWidget(
+            emoji: widget.view.icon.toEmojiIconData(),
+            emojiSize: Platform.isAndroid ? 16.0 : 18.0,
           )
         : Opacity(
             opacity: 0.7,

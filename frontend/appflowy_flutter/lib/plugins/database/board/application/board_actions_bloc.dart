@@ -40,6 +40,7 @@ class BoardActionsCubit extends Cubit<BoardActionsState> {
   }
 
   void startCreateBottomRow(String groupId) {
+    emit(const BoardActionsState.setFocus(groupedRowIds: []));
     emit(BoardActionsState.startCreateBottomRow(groupId: groupId));
     emit(const BoardActionsState.initial());
   }

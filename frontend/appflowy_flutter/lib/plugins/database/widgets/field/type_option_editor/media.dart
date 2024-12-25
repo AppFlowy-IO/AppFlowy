@@ -33,17 +33,15 @@ class MediaTypeOptionEditorFactory implements TypeOptionEditorFactory {
       child: FlowyButton(
         resetHoverOnRebuild: false,
         text: FlowyText(
-          LocaleKeys.grid_media_hideFileNames.tr(),
+          LocaleKeys.grid_media_showFileNames.tr(),
           lineHeight: 1.0,
         ),
         onHover: (_) => popoverMutex.close(),
         rightIcon: Toggle(
-          value: typeOption.hideFileNames,
-          onChanged: (value) {
-            onTypeOptionUpdated(
-              _toggleHideFiles(typeOption, value).writeToBuffer(),
-            );
-          },
+          value: !typeOption.hideFileNames,
+          onChanged: (val) => onTypeOptionUpdated(
+            _toggleHideFiles(typeOption, !val).writeToBuffer(),
+          ),
           padding: EdgeInsets.zero,
         ),
       ),
@@ -59,7 +57,6 @@ class MediaTypeOptionEditorFactory implements TypeOptionEditorFactory {
     bool hideFileNames,
   ) {
     typeOption.freeze();
-    return typeOption
-        .rebuild((typeOption) => typeOption.hideFileNames = hideFileNames);
+    return typeOption.rebuild((to) => to.hideFileNames = hideFileNames);
   }
 }

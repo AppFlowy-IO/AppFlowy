@@ -1,6 +1,6 @@
 use crate::entities::parser::empty_str::NotEmptyStr;
 use crate::entities::ViewLayoutPB;
-use crate::share::{ImportParams, ImportType, ImportValue};
+use crate::share::{ImportData, ImportItem, ImportParams, ImportType};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
 use lib_infra::validator_fn::required_not_empty_str;
@@ -34,7 +34,7 @@ impl Default for ImportTypePB {
 }
 
 #[derive(Clone, Debug, ProtoBuf, Default)]
-pub struct ImportValuePayloadPB {
+pub struct ImportItemPayloadPB {
   // the name of the import page
   #[pb(index = 1)]
   pub name: String,
@@ -65,7 +65,7 @@ pub struct ImportPayloadPB {
   pub parent_view_id: String,
 
   #[pb(index = 2)]
-  pub values: Vec<ImportValuePayloadPB>,
+  pub items: Vec<ImportItemPayloadPB>,
 }
 
 impl TryInto<ImportParams> for ImportPayloadPB {
@@ -76,38 +76,39 @@ impl TryInto<ImportParams> for ImportPayloadPB {
       .map_err(|_| FlowyError::invalid_view_id())?
       .0;
 
-    let mut values = Vec::new();
+    let items = self
+      .items
+      .into_iter()
+      .map(|item| {
+        let name = if item.name.is_empty() {
+          "Untitled".to_string()
+        } else {
+          item.name
+        };
 
-    for value in self.values {
-      let name = if value.name.is_empty() {
-        "Untitled".to_string()
-      } else {
-        value.name
-      };
+        let data = match (item.file_path, item.data) {
+          (Some(file_path), None) => ImportData::FilePath { file_path },
+          (None, Some(bytes)) => ImportData::Bytes { bytes },
+          (None, None) => {
+            return Err(FlowyError::invalid_data().with_context("The import data is empty"));
+          },
+          (Some(_), Some(_)) => {
+            return Err(FlowyError::invalid_data().with_context("The import data is ambiguous"));
+          },
+        };
 
-      let file_path = match value.file_path {
-        None => None,
-        Some(file_path) => Some(
-          NotEmptyStr::parse(file_path)
-            .map_err(|_| FlowyError::invalid_data().with_context("The import file path is empty"))?
-            .0,
-        ),
-      };
-
-      let params = ImportValue {
-        name,
-        data: value.data,
-        file_path,
-        view_layout: value.view_layout.into(),
-        import_type: value.import_type.into(),
-      };
-
-      values.push(params);
-    }
+        Ok(ImportItem {
+          name,
+          data,
+          view_layout: item.view_layout.into(),
+          import_type: item.import_type.into(),
+        })
+      })
+      .collect::<Result<Vec<_>, _>>()?;
 
     Ok(ImportParams {
       parent_view_id,
-      values,
+      items,
     })
   }
 }

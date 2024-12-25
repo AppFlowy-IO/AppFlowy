@@ -20,6 +20,7 @@ extension MobileRouter on BuildContext {
     bool addInRecent = true,
     bool showMoreButton = true,
     String? fixedTitle,
+    String? blockId,
   }) async {
     // set the current view before pushing the new view
     getIt<MenuSharedState>().latestOpenView = view;
@@ -31,6 +32,9 @@ extension MobileRouter on BuildContext {
           showMoreButton.toString();
       if (fixedTitle != null) {
         queryParameters[MobileDocumentScreen.viewFixedTitle] = fixedTitle;
+      }
+      if (blockId != null) {
+        queryParameters[MobileDocumentScreen.viewBlockId] = blockId;
       }
     }
 

@@ -1,5 +1,6 @@
 use bytes::Bytes;
 use protobuf::ProtobufError;
+use std::fmt::Display;
 
 #[derive(Default, Debug, Clone)]
 pub struct ProtobufStr(pub String);
@@ -23,9 +24,9 @@ impl std::convert::From<String> for ProtobufStr {
   }
 }
 
-impl ToString for ProtobufStr {
-  fn to_string(&self) -> String {
-    self.0.clone()
+impl Display for ProtobufStr {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "{}", self.0.clone())
   }
 }
 

@@ -208,7 +208,6 @@ void main() {
       expect(find.text('100'), findsNWidgets(2));
     });
 
-    // TODO: Uncmoment expects
     testWidgets('Calculations count + count empty w/ filter', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();

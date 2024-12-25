@@ -24,7 +24,7 @@ pub use relation_type_option::*;
 pub use selection_type_option::*;
 pub use text_type_option::*;
 pub use time_type_option::*;
-pub use timestamp_type_option::*;
+
 pub use type_option::*;
 pub use type_option_cell::*;
 pub use url_type_option::*;

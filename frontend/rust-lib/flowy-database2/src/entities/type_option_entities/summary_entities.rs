@@ -1,4 +1,4 @@
-use crate::services::field::summary_type_option::summary::SummarizationTypeOption;
+use collab_database::fields::summary_type_option::SummarizationTypeOption;
 use flowy_derive::ProtoBuf;
 
 #[derive(Debug, Clone, Default, ProtoBuf)]

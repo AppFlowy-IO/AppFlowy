@@ -56,11 +56,12 @@ class NotificationReminderBloc
               emit(
                 NotificationReminderState(
                   createdAt: createdAt,
-                  pageTitle: view.name,
+                  pageTitle: view.nameOrDefault,
                   view: view,
                   reminderContent: node.delta?.toPlainText() ?? '',
                   nodes: [node],
                   status: NotificationReminderStatus.loaded,
+                  blockId: reminder.meta[ReminderMetaKeys.blockId],
                 ),
               );
             }
@@ -68,7 +69,7 @@ class NotificationReminderBloc
             emit(
               NotificationReminderState(
                 createdAt: createdAt,
-                pageTitle: view.name,
+                pageTitle: view.nameOrDefault,
                 view: view,
                 reminderContent: reminder.message,
                 status: NotificationReminderStatus.loaded,
@@ -205,6 +206,7 @@ class NotificationReminderState with _$NotificationReminderState {
     @Default(NotificationReminderStatus.initial)
     NotificationReminderStatus status,
     @Default([]) List<Node> nodes,
+    String? blockId,
     ViewPB? view,
   }) = _NotificationReminderState;
 

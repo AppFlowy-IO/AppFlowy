@@ -42,8 +42,10 @@ void main() {
       expect(mentionBlock, findsOneWidget);
 
       // Delete the page
-      await tester.hoverOnPageName(name);
-      await tester.tapDeletePageButton();
+      await tester.hoverOnPageName(
+        name,
+        onHover: () async => tester.tapDeletePageButton(),
+      );
       await tester.pumpAndSettle();
 
       // Navigate to the deleted page from the inline mention

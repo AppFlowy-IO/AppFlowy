@@ -48,9 +48,7 @@ pub fn make_test_calendar() -> DatabaseData {
         for field_type in FieldType::iter() {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("A"),
-            FieldType::DateTime => {
-              row_builder.insert_date_cell(1678090778, None, None, &field_type)
-            },
+            FieldType::DateTime => row_builder.insert_date_cell(1678090778, None, &field_type),
             _ => "".to_owned(),
           };
         }
@@ -59,9 +57,7 @@ pub fn make_test_calendar() -> DatabaseData {
         for field_type in FieldType::iter() {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("B"),
-            FieldType::DateTime => {
-              row_builder.insert_date_cell(1677917978, None, None, &field_type)
-            },
+            FieldType::DateTime => row_builder.insert_date_cell(1677917978, None, &field_type),
             _ => "".to_owned(),
           };
         }
@@ -70,9 +66,7 @@ pub fn make_test_calendar() -> DatabaseData {
         for field_type in FieldType::iter() {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("C"),
-            FieldType::DateTime => {
-              row_builder.insert_date_cell(1679213978, None, None, &field_type)
-            },
+            FieldType::DateTime => row_builder.insert_date_cell(1679213978, None, &field_type),
             _ => "".to_owned(),
           };
         }
@@ -81,9 +75,7 @@ pub fn make_test_calendar() -> DatabaseData {
         for field_type in FieldType::iter() {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("D"),
-            FieldType::DateTime => {
-              row_builder.insert_date_cell(1678695578, None, None, &field_type)
-            },
+            FieldType::DateTime => row_builder.insert_date_cell(1678695578, None, &field_type),
             _ => "".to_owned(),
           };
         }
@@ -92,9 +84,7 @@ pub fn make_test_calendar() -> DatabaseData {
         for field_type in FieldType::iter() {
           match field_type {
             FieldType::RichText => row_builder.insert_text_cell("E"),
-            FieldType::DateTime => {
-              row_builder.insert_date_cell(1678695578, None, None, &field_type)
-            },
+            FieldType::DateTime => row_builder.insert_date_cell(1678695578, None, &field_type),
             _ => "".to_owned(),
           };
         }
@@ -108,11 +98,9 @@ pub fn make_test_calendar() -> DatabaseData {
   let mut layout_settings = LayoutSettings::new();
   layout_settings.insert(DatabaseLayout::Calendar, calendar_setting);
 
-  let inline_view_id = gen_database_view_id();
-
   let view = DatabaseView {
     database_id: database_id.clone(),
-    id: inline_view_id.clone(),
+    id: gen_database_view_id(),
     name: "".to_string(),
     layout: DatabaseLayout::Calendar,
     layout_settings,
@@ -124,11 +112,11 @@ pub fn make_test_calendar() -> DatabaseData {
     created_at: 0,
     modified_at: 0,
     field_settings,
+    is_inline: false,
   };
 
   DatabaseData {
     database_id,
-    inline_view_id,
     views: vec![view],
     fields,
     rows,

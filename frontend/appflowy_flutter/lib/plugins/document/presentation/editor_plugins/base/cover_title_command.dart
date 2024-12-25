@@ -22,8 +22,8 @@ KeyEventResult _backspaceToTitle({
   required EditorState editorState,
 }) {
   final coverTitleFocusNode = editorState.document.root.context
-      ?.read<SharedEditorContext>()
-      .coverTitleFocusNode;
+      ?.read<SharedEditorContext?>()
+      ?.coverTitleFocusNode;
   if (coverTitleFocusNode == null) {
     return KeyEventResult.ignored;
   }
@@ -108,8 +108,8 @@ KeyEventResult _arrowKeyToTitle({
   required bool Function(Selection selection) checkSelection,
 }) {
   final coverTitleFocusNode = editorState.document.root.context
-      ?.read<SharedEditorContext>()
-      .coverTitleFocusNode;
+      ?.read<SharedEditorContext?>()
+      ?.coverTitleFocusNode;
   if (coverTitleFocusNode == null) {
     return KeyEventResult.ignored;
   }

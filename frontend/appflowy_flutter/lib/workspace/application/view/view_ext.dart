@@ -13,7 +13,7 @@ import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 class PluginArgumentKeys {
   static String selection = "selection";
   static String rowId = "row_id";
+  static String blockId = "block_id";
 }
 
 class ViewExtKeys {
@@ -51,7 +52,7 @@ class ViewExtKeys {
   static String spacePermissionKey = 'space_permission';
 }
 
-extension ViewExtension on ViewPB {
+extension MinimalViewExtension on FolderViewMinimalPB {
   Widget defaultIcon({Size? size}) => FlowySvg(
         switch (layout) {
           ViewLayoutPB.Board => FlowySvgs.icon_board_s,
@@ -59,7 +60,24 @@ extension ViewExtension on ViewPB {
           ViewLayoutPB.Grid => FlowySvgs.icon_grid_s,
           ViewLayoutPB.Document => FlowySvgs.icon_document_s,
           ViewLayoutPB.Chat => FlowySvgs.chat_ai_page_s,
-          _ => FlowySvgs.document_s,
+          _ => FlowySvgs.icon_document_s,
+        },
+        size: size,
+      );
+}
+
+extension ViewExtension on ViewPB {
+  String get nameOrDefault =>
+      name.isEmpty ? LocaleKeys.menuAppHeader_defaultNewPageName.tr() : name;
+
+  Widget defaultIcon({Size? size}) => FlowySvg(
+        switch (layout) {
+          ViewLayoutPB.Board => FlowySvgs.icon_board_s,
+          ViewLayoutPB.Calendar => FlowySvgs.icon_calendar_s,
+          ViewLayoutPB.Grid => FlowySvgs.icon_grid_s,
+          ViewLayoutPB.Document => FlowySvgs.icon_document_s,
+          ViewLayoutPB.Chat => FlowySvgs.chat_ai_page_s,
+          _ => FlowySvgs.icon_document_s,
         },
         size: size,
       );
@@ -90,11 +108,13 @@ extension ViewExtension on ViewPB {
       case ViewLayoutPB.Document:
         final Selection? initialSelection =
             arguments[PluginArgumentKeys.selection];
+        final String? initialBlockId = arguments[PluginArgumentKeys.blockId];
 
         return DocumentPlugin(
           view: this,
           pluginType: pluginType,
           initialSelection: initialSelection,
+          initialBlockId: initialBlockId,
         );
       case ViewLayoutPB.Chat:
         return AIChatPagePlugin(view: this);
@@ -273,12 +293,12 @@ extension ViewExtension on ViewPB {
 
 extension ViewLayoutExtension on ViewLayoutPB {
   FlowySvgData get icon => switch (this) {
-        ViewLayoutPB.Grid => FlowySvgs.grid_s,
-        ViewLayoutPB.Board => FlowySvgs.board_s,
-        ViewLayoutPB.Calendar => FlowySvgs.calendar_s,
-        ViewLayoutPB.Document => FlowySvgs.document_s,
+        ViewLayoutPB.Board => FlowySvgs.icon_board_s,
+        ViewLayoutPB.Calendar => FlowySvgs.icon_calendar_s,
+        ViewLayoutPB.Grid => FlowySvgs.icon_grid_s,
+        ViewLayoutPB.Document => FlowySvgs.icon_document_s,
         ViewLayoutPB.Chat => FlowySvgs.chat_ai_page_s,
-        _ => throw Exception('Unknown layout type'),
+        _ => FlowySvgs.icon_document_s,
       };
 
   bool get isDocumentView => switch (this) {
@@ -303,6 +323,18 @@ extension ViewLayoutExtension on ViewLayoutPB {
   String get defaultName => switch (this) {
         ViewLayoutPB.Document => '',
         _ => LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+      };
+
+  bool get shrinkWrappable => switch (this) {
+        ViewLayoutPB.Grid => true,
+        _ => false,
+      };
+
+  double get pluginHeight => switch (this) {
+        ViewLayoutPB.Document || ViewLayoutPB.Board || ViewLayoutPB.Chat => 450,
+        ViewLayoutPB.Calendar => 650,
+        ViewLayoutPB.Grid => double.infinity,
+        _ => throw UnimplementedError(),
       };
 }
 

@@ -19,10 +19,14 @@ function FormulaLeaf ({ formula, text }: {
   const open = Boolean(anchorPosition);
   const readonly = useReadOnly();
   const className = useMemo(() => {
-    const classList = ['formula-inline', 'relative', 'rounded', 'p-0.5 select-none'];
+    const classList = ['formula-inline', 'relative', 'rounded', 'p-0.5'];
 
-    if (readonly) classList.push('cursor-default');
-    else classList.push('cursor-pointer');
+    if (readonly) {
+      classList.push('cursor-default');
+    } else {
+      classList.push('select-none', 'cursor-pointer');
+    }
+
     if (isSelected || open) classList.push('selected');
     if (isCursorAfter) classList.push('cursor-after');
     if (isCursorBefore) classList.push('cursor-before');

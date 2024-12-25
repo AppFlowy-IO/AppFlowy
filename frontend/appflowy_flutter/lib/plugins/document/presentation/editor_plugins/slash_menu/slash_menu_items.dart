@@ -7,7 +7,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selec
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/slash_menu_items.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_menu_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -16,6 +16,7 @@ import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 // text menu item
 final textSlashMenuItem = SelectionMenuItem(
@@ -72,6 +73,59 @@ final heading3SlashMenuItem = SelectionMenuItem(
   keywords: ['heading 3', 'h3', 'heading3'],
   handler: (editorState, _, __) {
     insertHeadingAfterSelection(editorState, 3);
+  },
+);
+
+// toggle heading 1 menu item
+// heading 1 - 3 menu items
+final toggleHeading1SlashMenuItem = SelectionMenuItem(
+  getName: () => LocaleKeys.document_slashMenu_name_toggleHeading1.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
+  icon: (editorState, isSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.toggle_heading1_s,
+    isSelected: isSelected,
+    style: style,
+  ),
+  keywords: ['toggle heading 1', 'toggle h1', 'toggle heading1'],
+  handler: (editorState, _, __) {
+    insertNodeAfterSelection(
+      editorState,
+      toggleHeadingNode(),
+    );
+  },
+);
+
+final toggleHeading2SlashMenuItem = SelectionMenuItem(
+  getName: () => LocaleKeys.document_slashMenu_name_toggleHeading2.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
+  icon: (editorState, isSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.toggle_heading2_s,
+    isSelected: isSelected,
+    style: style,
+  ),
+  keywords: ['toggle heading 2', 'toggle h2', 'toggle heading2'],
+  handler: (editorState, _, __) {
+    insertNodeAfterSelection(
+      editorState,
+      toggleHeadingNode(level: 2),
+    );
+  },
+);
+
+final toggleHeading3SlashMenuItem = SelectionMenuItem(
+  getName: () => LocaleKeys.document_slashMenu_name_toggleHeading3.tr(),
+  nameBuilder: _slashMenuItemNameBuilder,
+  icon: (editorState, isSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.toggle_heading3_s,
+    isSelected: isSelected,
+    style: style,
+  ),
+  keywords: ['toggle heading 3', 'toggle h3', 'toggle heading3'],
+  handler: (editorState, _, __) {
+    insertNodeAfterSelection(
+      editorState,
+      toggleHeadingNode(level: 3),
+    );
   },
 );
 
@@ -270,12 +324,19 @@ final referencedDocSlashMenuItem = SelectionMenuItem(
     'notes',
     'referenced page',
     'referenced document',
+    'referenced database',
+    'link to database',
+    'link to document',
     'link to page',
+    'link to grid',
+    'link to board',
+    'link to calendar',
   ],
   handler: (editorState, menuService, context) => showLinkToPageMenu(
     editorState,
     menuService,
-    ViewLayoutPB.Document,
+    // enable database and document references
+    insertPage: false,
   ),
 );
 
@@ -289,8 +350,11 @@ SelectionMenuItem referencedGridSlashMenuItem = SelectionMenuItem(
     style: style,
   ),
   keywords: ['referenced', 'grid', 'database', 'linked'],
-  handler: (editorState, menuService, context) =>
-      showLinkToPageMenu(editorState, menuService, ViewLayoutPB.Grid),
+  handler: (editorState, menuService, context) => showLinkToPageMenu(
+    editorState,
+    menuService,
+    pageType: ViewLayoutPB.Grid,
+  ),
 );
 
 SelectionMenuItem referencedKanbanSlashMenuItem = SelectionMenuItem(
@@ -302,8 +366,11 @@ SelectionMenuItem referencedKanbanSlashMenuItem = SelectionMenuItem(
     style: style,
   ),
   keywords: ['referenced', 'board', 'kanban', 'linked'],
-  handler: (editorState, menuService, context) =>
-      showLinkToPageMenu(editorState, menuService, ViewLayoutPB.Board),
+  handler: (editorState, menuService, context) => showLinkToPageMenu(
+    editorState,
+    menuService,
+    pageType: ViewLayoutPB.Board,
+  ),
 );
 
 SelectionMenuItem referencedCalendarSlashMenuItem = SelectionMenuItem(
@@ -315,8 +382,11 @@ SelectionMenuItem referencedCalendarSlashMenuItem = SelectionMenuItem(
     style: style,
   ),
   keywords: ['referenced', 'calendar', 'database', 'linked'],
-  handler: (editorState, menuService, context) =>
-      showLinkToPageMenu(editorState, menuService, ViewLayoutPB.Calendar),
+  handler: (editorState, menuService, context) => showLinkToPageMenu(
+    editorState,
+    menuService,
+    pageType: ViewLayoutPB.Calendar,
+  ),
 );
 
 // callout menu item
@@ -338,17 +408,59 @@ SelectionMenuItem calloutSlashMenuItem = SelectionMenuItem.node(
 );
 
 // outline menu item
-SelectionMenuItem outlineSlashMenuItem = SelectionMenuItem.node(
-  getName: () => LocaleKeys.document_slashMenu_name_outline.tr(),
-  nameBuilder: _slashMenuItemNameBuilder,
-  iconBuilder: (editorState, isSelected, style) => SelectableSvgWidget(
-    data: FlowySvgs.slash_menu_icon_outline_s,
-    isSelected: isSelected,
-    style: style,
-  ),
+SelectionMenuItem outlineSlashMenuItem = SelectionMenuItem(
+  getName: LocaleKeys.document_selectionMenu_outline.tr,
+  icon: (editorState, onSelected, style) {
+    return Icon(
+      Icons.list_alt,
+      color: onSelected
+          ? style.selectionMenuItemSelectedIconColor
+          : style.selectionMenuItemIconColor,
+      size: 18.0,
+    );
+  },
   keywords: ['outline', 'table of contents'],
-  nodeBuilder: (editorState, _) => outlineBlockNode(),
-  replace: (_, node) => node.delta?.isEmpty ?? false,
+  handler: (editorState, menuService, context) {
+    final selection = editorState.selection;
+    if (selection == null || !selection.isCollapsed) {
+      return;
+    }
+
+    final node = editorState.getNodeAtPath(selection.end.path);
+    final delta = node?.delta;
+    if (node == null || delta == null) {
+      return;
+    }
+
+    final transaction = editorState.transaction;
+    final bReplace = node.delta?.isEmpty ?? false;
+
+    //default insert after
+    var path = node.path.next;
+    if (bReplace) {
+      path = node.path;
+    }
+
+    final nextNode = editorState.getNodeAtPath(path.next);
+
+    transaction
+      ..insertNodes(
+        path,
+        [
+          outlineBlockNode(),
+          if (nextNode == null || nextNode.delta == null) paragraphNode(),
+        ],
+      )
+      ..afterSelection = Selection.collapsed(
+        Position(path: path.next),
+      );
+
+    if (bReplace) {
+      transaction.deleteNode(node);
+    }
+
+    editorState.apply(transaction);
+  },
 );
 
 // math equation
@@ -427,20 +539,37 @@ SelectionMenuItem emojiSlashMenuItem = SelectionMenuItem(
 );
 
 // auto generate menu item
-SelectionMenuItem aiWriterSlashMenuItem = SelectionMenuItem.node(
-  getName: () => LocaleKeys.document_slashMenu_name_aiWriter.tr(),
-  nameBuilder: _slashMenuItemNameBuilder,
-  iconBuilder: (editorState, isSelected, style) => SelectableSvgWidget(
+SelectionMenuItem aiWriterSlashMenuItem = SelectionMenuItem(
+  getName: LocaleKeys.document_slashMenu_name_aiWriter.tr,
+  icon: (editorState, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_ai_writer_s,
     isSelected: isSelected,
     style: style,
   ),
   keywords: ['ai', 'openai', 'writer', 'ai writer', 'autogenerator'],
-  nodeBuilder: (editorState, _) {
-    final node = autoCompletionNode(start: editorState.selection!);
-    return node;
+  handler: (editorState, menuService, context) {
+    final selection = editorState.selection;
+    if (selection == null || !selection.isCollapsed) {
+      return;
+    }
+    final node = editorState.getNodeAtPath(selection.end.path);
+    final delta = node?.delta;
+    if (node == null || delta == null) {
+      return;
+    }
+    final newNode = aiWriterNode(start: selection);
+
+    final transaction = editorState.transaction;
+    //default insert after
+    final path = node.path.next;
+    transaction
+      ..insertNode(path, newNode)
+      ..afterSelection = null;
+    editorState.apply(
+      transaction,
+      options: const ApplyOptions(inMemoryUpdate: true),
+    );
   },
-  replace: (_, node) => false,
 );
 
 // table menu item
@@ -464,27 +593,32 @@ SelectionMenuItem tableSlashMenuItem = SelectionMenuItem(
       return;
     }
 
-    final tableNode = TableNode.fromList([
-      ['', ''],
-      ['', ''],
-    ]);
+    // create a simple table with 2 columns and 2 rows
+    final tableNode = createSimpleTableBlockNode(
+      columnCount: 2,
+      rowCount: 2,
+    );
 
     final transaction = editorState.transaction;
     final delta = currentNode.delta;
     if (delta != null && delta.isEmpty) {
+      final path = selection.end.path;
       transaction
-        ..insertNode(selection.end.path, tableNode.node)
+        ..insertNode(path, tableNode)
         ..deleteNode(currentNode);
       transaction.afterSelection = Selection.collapsed(
         Position(
-          path: selection.end.path + [0, 0],
+          // table -> row -> cell -> paragraph
+          path: path + [0, 0, 0],
         ),
       );
     } else {
-      transaction.insertNode(selection.end.path.next, tableNode.node);
+      final path = selection.end.path.next;
+      transaction.insertNode(path, tableNode);
       transaction.afterSelection = Selection.collapsed(
         Position(
-          path: selection.end.path.next + [0, 0],
+          // table -> row -> cell -> paragraph
+          path: path + [0, 0, 0],
         ),
       );
     }
@@ -569,9 +703,19 @@ SelectionMenuItem subPageSlashMenuItem = SelectionMenuItem.node(
     LocaleKeys.document_slashMenu_subPage_keyword5.tr(),
     LocaleKeys.document_slashMenu_subPage_keyword6.tr(),
     LocaleKeys.document_slashMenu_subPage_keyword7.tr(),
+    LocaleKeys.document_slashMenu_subPage_keyword8.tr(),
   ],
-  updateSelection: (_, path, __, ___) =>
-      Selection.collapsed(Position(path: path)),
+  updateSelection: (editorState, path, __, ___) {
+    final context = editorState.document.root.context;
+    if (context != null) {
+      final isInDatabase =
+          context.read<SharedEditorContext>().isInDatabaseRowPage;
+      if (isInDatabase) {
+        Navigator.of(context).pop();
+      }
+    }
+    return Selection.collapsed(Position(path: path));
+  },
   replace: (_, node) => node.delta?.isEmpty ?? false,
   nodeBuilder: (_, __) => subPageNode(),
 );

@@ -258,7 +258,7 @@ export class AFClientService implements AFService {
     return Promise.reject('Method not implemented');
   }
 
-  registerDocUpdate (_doc: YDoc, _workspaceId: string, _objectId: string): void {
+  registerDocUpdate (): void {
     throw new Error('Method not implemented.');
   }
 

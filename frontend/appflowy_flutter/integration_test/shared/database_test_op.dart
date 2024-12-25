@@ -55,7 +55,7 @@ import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/ti
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/url.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_progress_bar.dart';
-import 'package:appflowy/plugins/database/widgets/cell_editor/date_editor.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/date_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/media_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_cell_editor.dart';
@@ -539,14 +539,15 @@ extension AppFlowyDatabaseTest on WidgetTester {
   Future<void> deleteChecklistTask({required int index}) async {
     final task = find.byType(ChecklistItem).at(index);
 
-    await startGesture(getCenter(task), kind: PointerDeviceKind.mouse);
-    await pumpAndSettle();
-
-    final button = find.byWidgetPredicate(
-      (widget) => widget is FlowySvg && widget.svg == FlowySvgs.delete_s,
+    await hoverOnWidget(
+      task,
+      onHover: () async {
+        final button = find.byWidgetPredicate(
+          (widget) => widget is FlowySvg && widget.svg == FlowySvgs.delete_s,
+        );
+        await tapButton(button);
+      },
     );
-
-    await tapButton(button);
   }
 
   void assertPhantomChecklistItemAtIndex({required int index}) {
@@ -595,7 +596,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
     final banner = find.byType(RowBanner);
     expect(banner, findsOneWidget);
 
-    await startGesture(getCenter(banner), kind: PointerDeviceKind.mouse);
+    await startGesture(
+      getCenter(banner) + const Offset(0, -10),
+      kind: PointerDeviceKind.mouse,
+    );
     await pumpAndSettle();
   }
 
@@ -607,7 +611,6 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButtonWithName(
       LocaleKeys.document_plugins_cover_addCover.tr(),
     );
-    await pumpAndSettle();
   }
 
   Future<void> openEmojiPicker() async =>

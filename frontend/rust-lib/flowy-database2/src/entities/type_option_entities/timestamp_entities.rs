@@ -45,6 +45,7 @@ impl From<TimestampTypeOptionPB> for TimestampTypeOption {
       time_format: data.time_format.into(),
       include_time: data.include_time,
       field_type: data.field_type.into(),
+      timezone: None,
     }
   }
 }

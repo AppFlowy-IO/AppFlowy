@@ -10,9 +10,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_util.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -20,7 +18,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -161,8 +158,9 @@ class FileBlockComponentState extends State<FileBlockComponent>
 
   RenderBox? get _renderBox => context.findRenderObject() as RenderBox?;
 
-  late EditorDropManagerState dropManagerState =
-      context.read<EditorDropManagerState>();
+  late EditorDropManagerState? dropManagerState = UniversalPlatform.isMobile
+      ? null
+      : context.read<EditorDropManagerState>();
 
   final fileKey = GlobalKey();
   final showActionsNotifier = ValueNotifier<bool>(false);
@@ -177,7 +175,9 @@ class FileBlockComponentState extends State<FileBlockComponent>
 
   @override
   void didChangeDependencies() {
-    dropManagerState = context.read<EditorDropManagerState>();
+    if (!UniversalPlatform.isMobile) {
+      dropManagerState = context.read<EditorDropManagerState>();
+    }
     super.didChangeDependencies();
   }
 
@@ -241,17 +241,17 @@ class FileBlockComponentState extends State<FileBlockComponent>
       if (url == null || url.isEmpty) {
         child = DropTarget(
           onDragEntered: (_) {
-            if (dropManagerState.isDropEnabled) {
+            if (dropManagerState?.isDropEnabled == true) {
               setState(() => isDragging = true);
             }
           },
           onDragExited: (_) {
-            if (dropManagerState.isDropEnabled) {
+            if (dropManagerState?.isDropEnabled == true) {
               setState(() => isDragging = false);
             }
           },
           onDragDone: (details) {
-            if (dropManagerState.isDropEnabled) {
+            if (dropManagerState?.isDropEnabled == true) {
               insertFileFromLocal(details.files);
             }
           },
@@ -264,8 +264,8 @@ class FileBlockComponentState extends State<FileBlockComponent>
               minHeight: 80,
             ),
             clickHandler: PopoverClickHandler.gestureDetector,
-            onOpen: () => dropManagerState.add(FileBlockKeys.type),
-            onClose: () => dropManagerState.remove(FileBlockKeys.type),
+            onOpen: () => dropManagerState?.add(FileBlockKeys.type),
+            onClose: () => dropManagerState?.remove(FileBlockKeys.type),
             popupBuilder: (_) => FileUploadMenu(
               onInsertLocalFile: insertFileFromLocal,
               onInsertNetworkFile: insertNetworkFile,
@@ -321,30 +321,15 @@ class FileBlockComponentState extends State<FileBlockComponent>
     FileUrlType urlType,
     String url,
   ) async {
-    if ([FileUrlType.cloud, FileUrlType.network].contains(urlType) ||
-        UniversalPlatform.isDesktopOrWeb) {
-      await afLaunchUrlString(url);
-    } else {
-      final result = await OpenFilex.open(url);
-      if (result.type == ResultType.done) {
-        return;
-      }
-
-      if (context.mounted) {
-        showToastNotification(
-          context,
-          message: LocaleKeys.document_plugins_file_failedToOpenMsg.tr(),
-          type: ToastificationType.error,
-        );
-      }
-    }
+    await afLaunchUrlString(url, context: context);
   }
 
   void _openMenu() {
     if (UniversalPlatform.isDesktopOrWeb) {
       controller.show();
-      dropManagerState.add(FileBlockKeys.type);
+      dropManagerState?.add(FileBlockKeys.type);
     } else {
+      editorState.updateSelectionWithReason(null, extraInfo: {});
       showUploadFileMobileMenu();
     }
   }
@@ -503,7 +488,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
     }
 
     // Remove the file block from the drop state manager
-    dropManagerState.remove(FileBlockKeys.type);
+    dropManagerState?.remove(FileBlockKeys.type);
 
     final transaction = editorState.transaction;
     transaction.updateNode(widget.node, {
@@ -525,7 +510,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
     }
 
     // Remove the file block from the drop state manager
-    dropManagerState.remove(FileBlockKeys.type);
+    dropManagerState?.remove(FileBlockKeys.type);
 
     final uri = Uri.tryParse(url);
     if (uri == null) {

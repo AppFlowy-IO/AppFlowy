@@ -16,14 +16,12 @@ class SettingsMenu extends StatelessWidget {
     required this.currentPage,
     required this.userProfile,
     required this.isBillingEnabled,
-    this.member,
   });
 
   final Function changeSelectedPage;
   final SettingsPage currentPage;
   final UserProfilePB userProfile;
   final bool isBillingEnabled;
-  final WorkspaceMemberPB? member;
 
   @override
   Widget build(BuildContext context) {
@@ -36,9 +34,9 @@ class SettingsMenu extends StatelessWidget {
                 const EdgeInsets.only(left: 8, right: 4),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(8),
-                bottomLeft: Radius.circular(8),
+              borderRadius: const BorderRadiusDirectional.only(
+                topStart: Radius.circular(8),
+                bottomStart: Radius.circular(8),
               ),
             ),
             child: SingleChildScrollView(
@@ -112,6 +110,15 @@ class SettingsMenu extends StatelessWidget {
                     ),
                     changeSelectedPage: changeSelectedPage,
                   ),
+                  if (userProfile.authenticator ==
+                      AuthenticatorPB.AppFlowyCloud)
+                    SettingsMenuElement(
+                      page: SettingsPage.sites,
+                      selectedPage: currentPage,
+                      label: LocaleKeys.settings_sites_title.tr(),
+                      icon: const Icon(Icons.web),
+                      changeSelectedPage: changeSelectedPage,
+                    ),
                   if (FeatureFlag.planBilling.isOn && isBillingEnabled) ...[
                     SettingsMenuElement(
                       page: SettingsPage.plan,

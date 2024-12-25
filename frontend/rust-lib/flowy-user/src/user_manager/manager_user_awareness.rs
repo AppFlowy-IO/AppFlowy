@@ -73,8 +73,16 @@ impl UserManager {
     let reminder = Reminder::from(reminder_pb);
     self
       .mut_awareness(|user_awareness| {
-        user_awareness.update_reminder(&reminder.id, |new_reminder| {
-          new_reminder.clone_from(&reminder)
+        user_awareness.update_reminder(&reminder.id, |update| {
+          update
+            .set_object_id(&reminder.object_id)
+            .set_title(&reminder.title)
+            .set_message(&reminder.message)
+            .set_is_ack(reminder.is_ack)
+            .set_is_read(reminder.is_read)
+            .set_scheduled_at(reminder.scheduled_at)
+            .set_type(reminder.ty)
+            .set_meta(reminder.meta.clone().into_inner());
         });
       })
       .await?;
@@ -156,8 +164,12 @@ impl UserManager {
           authenticator
         );
         let collab_db = self.get_collab_db(session.user_id)?;
-        let doc_state =
-          CollabPersistenceImpl::new(collab_db.clone(), session.user_id).into_data_source();
+        let doc_state = CollabPersistenceImpl::new(
+          collab_db.clone(),
+          session.user_id,
+          session.user_workspace.id.clone(),
+        )
+        .into_data_source();
         let awareness = Self::collab_for_user_awareness(
           &self.collab_builder.clone(),
           &session.user_workspace.id,
@@ -166,7 +178,8 @@ impl UserManager {
           collab_db,
           doc_state,
           None,
-        )?;
+        )
+        .await?;
         info!("User awareness initialized successfully");
         self.user_awareness.store(Some(awareness));
         if let Some(mut is_loading) = self.is_loading_awareness.get_mut(&object_id) {
@@ -219,8 +232,12 @@ impl UserManager {
       };
 
       let create_awareness = if authenticator.is_local() {
-        let doc_state =
-          CollabPersistenceImpl::new(collab_db.clone(), session.user_id).into_data_source();
+        let doc_state = CollabPersistenceImpl::new(
+          collab_db.clone(),
+          session.user_id,
+          session.user_workspace.id.clone(),
+        )
+        .into_data_source();
         Self::collab_for_user_awareness(
           &weak_builder,
           &session.user_workspace.id,
@@ -230,6 +247,7 @@ impl UserManager {
           doc_state,
           None,
         )
+        .await
       } else {
         let result = cloud_services
           .get_user_service()?
@@ -248,12 +266,17 @@ impl UserManager {
               DataSource::DocStateV1(data),
               None,
             )
+            .await
           },
           Err(err) => {
             if err.is_record_not_found() {
               info!("User awareness not found, creating new");
-              let doc_state =
-                CollabPersistenceImpl::new(collab_db.clone(), session.user_id).into_data_source();
+              let doc_state = CollabPersistenceImpl::new(
+                collab_db.clone(),
+                session.user_id,
+                session.user_workspace.id.clone(),
+              )
+              .into_data_source();
               Self::collab_for_user_awareness(
                 &weak_builder,
                 &session.user_workspace.id,
@@ -263,6 +286,7 @@ impl UserManager {
                 doc_state,
                 None,
               )
+              .await
             } else {
               Err(err)
             }
@@ -303,7 +327,7 @@ impl UserManager {
   /// This function constructs a collaboration instance based on the given session and raw data,
   /// using a collaboration builder. This instance is specifically geared towards handling
   /// user awareness.
-  fn collab_for_user_awareness(
+  async fn collab_for_user_awareness(
     collab_builder: &Weak<AppFlowyCollabBuilder>,
     workspace_id: &str,
     uid: i64,
@@ -326,6 +350,7 @@ impl UserManager {
         CollabBuilderConfig::default().sync_enable(true),
         notifier,
       )
+      .await
       .context("Build collab for user awareness failed")?;
     Ok(collab)
   }

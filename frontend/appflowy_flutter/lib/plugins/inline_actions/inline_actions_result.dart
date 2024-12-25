@@ -25,7 +25,7 @@ class InlineActionsMenuItem {
 
 class InlineActionsResult {
   InlineActionsResult({
-    required this.title,
+    this.title,
     required this.results,
     this.startsWithKeywords,
   });
@@ -33,7 +33,9 @@ class InlineActionsResult {
   /// Localized title to be displayed above the results
   /// of the current group.
   ///
-  final String title;
+  /// If null, no title will be displayed.
+  ///
+  final String? title;
 
   /// List of results that will be displayed for this group
   /// made up of [SelectionMenuItem]s.

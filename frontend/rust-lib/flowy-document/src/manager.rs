@@ -29,7 +29,6 @@ use collab_integrate::collab_builder::{
 use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
 use flowy_storage_pub::storage::{CreatedUpload, StorageService};
-use lib_dispatch::prelude::af_spawn;
 
 use crate::entities::UpdateDocumentAwarenessStatePB;
 use crate::entities::{
@@ -82,11 +81,15 @@ impl DocumentManager {
   }
 
   /// Get the encoded collab of the document.
-  pub fn get_encoded_collab_with_view_id(&self, doc_id: &str) -> FlowyResult<EncodedCollab> {
+  pub async fn get_encoded_collab_with_view_id(&self, doc_id: &str) -> FlowyResult<EncodedCollab> {
     let uid = self.user_service.user_id()?;
+    let workspace_id = self.user_service.workspace_id()?;
     let doc_state =
-      CollabPersistenceImpl::new(self.user_service.collab_db(uid)?, uid).into_data_source();
-    let collab = self.collab_for_document(uid, doc_id, doc_state, false)?;
+      CollabPersistenceImpl::new(self.user_service.collab_db(uid)?, uid, workspace_id)
+        .into_data_source();
+    let collab = self
+      .collab_for_document(uid, doc_id, doc_state, false)
+      .await?;
     let encoded_collab = collab
       .try_read()
       .unwrap()
@@ -123,8 +126,9 @@ impl DocumentManager {
 
   fn persistence(&self) -> FlowyResult<CollabPersistenceImpl> {
     let uid = self.user_service.user_id()?;
+    let workspace_id = self.user_service.workspace_id()?;
     let db = self.user_service.collab_db(uid)?;
-    Ok(CollabPersistenceImpl::new(db, uid))
+    Ok(CollabPersistenceImpl::new(db, uid, workspace_id))
   }
 
   /// Create a new document.
@@ -164,7 +168,7 @@ impl DocumentManager {
     }
   }
 
-  fn collab_for_document(
+  async fn collab_for_document(
     &self,
     uid: i64,
     doc_id: &str,
@@ -177,13 +181,16 @@ impl DocumentManager {
       self
         .collab_builder
         .collab_object(&workspace_id, uid, doc_id, CollabType::Document)?;
-    let document = self.collab_builder.create_document(
-      collab_object,
-      data_source,
-      db,
-      CollabBuilderConfig::default().sync_enable(sync_enable),
-      None,
-    )?;
+    let document = self
+      .collab_builder
+      .create_document(
+        collab_object,
+        data_source,
+        db,
+        CollabBuilderConfig::default().sync_enable(sync_enable),
+        None,
+      )
+      .await?;
     Ok(document)
   }
 
@@ -240,7 +247,9 @@ impl DocumentManager {
       doc_id,
       self.user_service.workspace_id()
     );
-    let result = self.collab_for_document(uid, doc_id, doc_state, enable_sync);
+    let result = self
+      .collab_for_document(uid, doc_id, doc_state, enable_sync)
+      .await;
     match result {
       Ok(document) => {
         // Only push the document to the cache if the sync is enabled.
@@ -272,7 +281,7 @@ impl DocumentManager {
   pub async fn get_document_text(&self, doc_id: &str) -> FlowyResult<String> {
     let document = self.get_document(doc_id).await?;
     let document = document.read().await;
-    let text = document.to_plain_text()?;
+    let text = document.to_plain_text(true, false)?;
     Ok(text)
   }
 
@@ -318,7 +327,7 @@ impl DocumentManager {
       self.removing_documents.insert(doc_id, document);
 
       let weak_removing_documents = Arc::downgrade(&self.removing_documents);
-      af_spawn(async move {
+      tokio::spawn(async move {
         tokio::time::sleep(std::time::Duration::from_secs(120)).await;
         if let Some(removing_documents) = weak_removing_documents.upgrade() {
           if removing_documents.remove(&clone_doc_id).is_some() {
@@ -333,8 +342,9 @@ impl DocumentManager {
 
   pub async fn delete_document(&self, doc_id: &str) -> FlowyResult<()> {
     let uid = self.user_service.user_id()?;
+    let workspace_id = self.user_service.workspace_id()?;
     if let Some(db) = self.user_service.collab_db(uid)?.upgrade() {
-      db.delete_doc(uid, doc_id).await?;
+      db.delete_doc(uid, &workspace_id, doc_id).await?;
       // When deleting a document, we need to remove it from the cache.
       self.documents.remove(doc_id);
     }
@@ -350,7 +360,7 @@ impl DocumentManager {
     let uid = self.user_service.user_id()?;
     let device_id = self.user_service.device_id()?;
     if let Ok(doc) = self.editable_document(doc_id).await {
-      let mut doc = doc.write().await;
+      let doc = doc.write().await;
       let user = DocumentAwarenessUser { uid, device_id };
       let selection = state.selection.map(|s| s.into());
       let state = DocumentAwarenessState {
@@ -406,7 +416,7 @@ impl DocumentManager {
   ) -> FlowyResult<CreatedUpload> {
     let storage_service = self.storage_service_upgrade()?;
     let upload = storage_service
-      .create_upload(&workspace_id, document_id, local_file_path, false)
+      .create_upload(&workspace_id, document_id, local_file_path)
       .await?
       .0;
     Ok(upload)
@@ -418,16 +428,17 @@ impl DocumentManager {
     Ok(())
   }
 
-  pub async fn delete_file(&self, local_file_path: String, url: String) -> FlowyResult<()> {
+  pub async fn delete_file(&self, url: String) -> FlowyResult<()> {
     let storage_service = self.storage_service_upgrade()?;
-    storage_service.delete_object(url, local_file_path)?;
+    storage_service.delete_object(url).await?;
     Ok(())
   }
 
   async fn is_doc_exist(&self, doc_id: &str) -> FlowyResult<bool> {
     let uid = self.user_service.user_id()?;
+    let workspace_id = self.user_service.workspace_id()?;
     if let Some(collab_db) = self.user_service.collab_db(uid)?.upgrade() {
-      let is_exist = collab_db.is_exist(uid, doc_id).await?;
+      let is_exist = collab_db.is_exist(uid, &workspace_id, doc_id).await?;
       Ok(is_exist)
     } else {
       Ok(false)

@@ -3,6 +3,9 @@ import { CustomEditor } from '@/application/slate-yjs/command';
 import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
 import { BlockType, HeadingBlockData } from '@/application/types';
 import { Popover } from '@/components/_shared/popover';
+import {
+  useSelectionToolbarContext,
+} from '@/components/editor/components/toolbar/selection-toolbar/SelectionToolbar.hooks';
 import { PopoverProps } from '@mui/material/Popover';
 import React, { useCallback, useRef, useState } from 'react';
 import ActionButton from './ActionButton';
@@ -35,6 +38,9 @@ const popoverProps: Partial<PopoverProps> = {
 export function Heading () {
   const { t } = useTranslation();
   const editor = useSlateStatic() as YjsEditor;
+  const {
+    visible: toolbarVisible,
+  } = useSelectionToolbarContext();
   const toHeading = useCallback(
     (level: number) => {
 
@@ -131,18 +137,30 @@ export function Heading () {
         onClose={() => {
           setOpen(false);
         }}
-        open={open}
+        open={open && toolbarVisible}
         anchorEl={ref.current}
         {...popoverProps}
       >
         <div className={'flex items-center px-2 h-[32px] justify-center'}>
-          <ActionButton active={isActivated(1)} tooltip={t('editor.heading1')} onClick={toHeading(1)}>
+          <ActionButton
+            active={isActivated(1)}
+            tooltip={t('editor.heading1')}
+            onClick={toHeading(1)}
+          >
             <Heading1Svg />
           </ActionButton>
-          <ActionButton active={isActivated(2)} tooltip={t('editor.heading2')} onClick={toHeading(2)}>
+          <ActionButton
+            active={isActivated(2)}
+            tooltip={t('editor.heading2')}
+            onClick={toHeading(2)}
+          >
             <Heading2Svg />
           </ActionButton>
-          <ActionButton active={isActivated(3)} tooltip={t('editor.heading3')} onClick={toHeading(3)}>
+          <ActionButton
+            active={isActivated(3)}
+            tooltip={t('editor.heading3')}
+            onClick={toHeading(3)}
+          >
             <Heading3Svg />
           </ActionButton>
         </div>

@@ -51,17 +51,7 @@ class _EditableColumnHeaderState extends State<EditableColumnHeader> {
         }
         return KeyEventResult.ignored;
       },
-    )..addListener(() {
-        if (!focusNode.hasFocus) {
-          widget.isEditing.value = false;
-          widget.onSubmitted(textController.text);
-        } else {
-          textController.selection = TextSelection(
-            baseOffset: 0,
-            extentOffset: textController.text.length,
-          );
-        }
-      });
+    )..addListener(onFocusChanged);
   }
 
   @override
@@ -74,9 +64,23 @@ class _EditableColumnHeaderState extends State<EditableColumnHeader> {
 
   @override
   void dispose() {
-    focusNode.dispose();
+    focusNode
+      ..removeListener(onFocusChanged)
+      ..dispose();
     textController.dispose();
     super.dispose();
+  }
+
+  void onFocusChanged() {
+    if (!focusNode.hasFocus) {
+      widget.isEditing.value = false;
+      widget.onSubmitted(textController.text);
+    } else {
+      textController.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: textController.text.length,
+      );
+    }
   }
 
   @override

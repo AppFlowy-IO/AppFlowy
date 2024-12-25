@@ -162,13 +162,13 @@ class EllipsisNaviItem extends NavigationItem {
   final List<NavigationItem> items;
 
   @override
-  Widget get leftBarItem => FlowyText.medium(
-        '...',
-        fontSize: FontSizes.s16,
-      );
+  String? get viewName => null;
 
   @override
-  Widget tabBarItem(String pluginId) => leftBarItem;
+  Widget get leftBarItem => FlowyText.medium('...', fontSize: FontSizes.s16);
+
+  @override
+  Widget tabBarItem(String pluginId, [bool shortForm = false]) => leftBarItem;
 
   @override
   NavigationCallback get action => (id) {};

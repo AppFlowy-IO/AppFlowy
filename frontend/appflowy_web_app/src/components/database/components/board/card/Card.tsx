@@ -1,6 +1,9 @@
-import { DatabaseContext, useFieldsSelector, useRowMetaSelector } from '@/application/database-yjs';
+import { DatabaseContext, RowMeta, useFieldsSelector, useRowMetaSelector } from '@/application/database-yjs';
 import CardField from '@/components/database/components/field/CardField';
-import React, { memo, useContext, useEffect, useMemo } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo } from 'react';
+import { RowCoverType } from '@/application/types';
+import { renderColor } from '@/utils/color';
+import ImageRender from '@/components/_shared/image-render/ImageRender';
 
 export interface CardProps {
   groupFieldId: string;
@@ -45,6 +48,41 @@ export const Card = memo(({ groupFieldId, rowId, onResize, isDragging }: CardPro
     return classList.join(' ');
   }, [navigateToRow]);
 
+
+  const renderCoverImage = useCallback((cover: RowMeta["cover"]) => {
+    if (!cover) return null;
+
+    if (cover.cover_type === RowCoverType.GradientCover || cover.cover_type === RowCoverType.ColorCover) {
+      return <div
+        style={{
+          background: renderColor(cover.data),
+        }}
+        className={`h-full w-full`}
+      />  ;
+    }
+
+    let url: string | undefined = cover.data;
+
+    if (cover.cover_type === RowCoverType.AssetCover) {
+      url = {
+        1: '/covers/m_cover_image_1.png',
+        2: '/covers/m_cover_image_2.png',
+        3: '/covers/m_cover_image_3.png',
+        4: '/covers/m_cover_image_4.png',
+        5: '/covers/m_cover_image_5.png',
+        6: '/covers/m_cover_image_6.png',
+      }[Number(cover.data)]
+    }
+
+    if (!url) return null;
+
+    return (
+      <>
+        <ImageRender draggable={false} src={url} alt={''} className={'h-full w-full object-cover'} />
+      </>
+    );
+  }, []);
+
   return (
     <div
       onClick={() => {
@@ -60,10 +98,7 @@ export const Card = memo(({ groupFieldId, rowId, onResize, isDragging }: CardPro
         <div
           className={'w-full h-[100px] bg-cover bg-center'}
         >
-          <img
-            className={'w-full h-full object-cover'}
-            src={cover}
-          />
+          {renderCoverImage(cover)}
         </div>
       )}
       <div className={'flex flex-col gap-2 py-2 px-3'}>

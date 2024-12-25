@@ -70,7 +70,6 @@ impl DocumentEventTest {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
       name: "document".to_string(),
-      desc: "".to_string(),
       thumbnail: None,
       layout: ViewLayoutPB::Document,
       initial_data: vec![],

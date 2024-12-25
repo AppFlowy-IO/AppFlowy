@@ -3,7 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/user_service.dart';
-import 'package:appflowy/util/navigator_context_exntesion.dart';
+import 'package:appflowy/util/navigator_context_extension.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
@@ -78,10 +78,8 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
               radius: Corners.s8Border,
               hoverColor: Theme.of(context).colorScheme.error.withOpacity(0.1),
               fontColor: Theme.of(context).colorScheme.error,
-              fontHoverColor: Colors.white,
               fontSize: 12,
               isDangerous: true,
-              lineHeight: 18.0 / 12.0,
               onPressed: () {
                 isCheckedNotifier.value = false;
                 textEditingController.clear();

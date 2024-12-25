@@ -11,38 +11,27 @@ use crate::entities::CellIdPB;
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct DateCellDataPB {
-  #[pb(index = 1)]
-  pub date: String,
+  #[pb(index = 1, one_of)]
+  pub timestamp: Option<i64>,
 
-  #[pb(index = 2)]
-  pub time: String,
+  #[pb(index = 2, one_of)]
+  pub end_timestamp: Option<i64>,
 
   #[pb(index = 3)]
-  pub timestamp: i64,
-
-  #[pb(index = 4)]
-  pub end_date: String,
-
-  #[pb(index = 5)]
-  pub end_time: String,
-
-  #[pb(index = 6)]
-  pub end_timestamp: i64,
-
-  #[pb(index = 7)]
   pub include_time: bool,
 
-  #[pb(index = 8)]
+  #[pb(index = 4)]
   pub is_range: bool,
 
-  #[pb(index = 9)]
+  #[pb(index = 5)]
   pub reminder_id: String,
 }
+
 impl From<&DateCellDataPB> for DateCellData {
   fn from(data: &DateCellDataPB) -> Self {
     Self {
-      timestamp: Some(data.timestamp),
-      end_timestamp: Some(data.end_timestamp),
+      timestamp: data.timestamp,
+      end_timestamp: data.end_timestamp,
       include_time: data.include_time,
       is_range: data.is_range,
       reminder_id: data.reminder_id.to_owned(),
@@ -56,27 +45,21 @@ pub struct DateCellChangesetPB {
   pub cell_id: CellIdPB,
 
   #[pb(index = 2, one_of)]
-  pub date: Option<i64>,
+  pub timestamp: Option<i64>,
 
   #[pb(index = 3, one_of)]
-  pub time: Option<String>,
+  pub end_timestamp: Option<i64>,
 
   #[pb(index = 4, one_of)]
-  pub end_date: Option<i64>,
-
-  #[pb(index = 5, one_of)]
-  pub end_time: Option<String>,
-
-  #[pb(index = 6, one_of)]
   pub include_time: Option<bool>,
 
-  #[pb(index = 7, one_of)]
+  #[pb(index = 5, one_of)]
   pub is_range: Option<bool>,
 
-  #[pb(index = 8, one_of)]
+  #[pb(index = 6, one_of)]
   pub clear_flag: Option<bool>,
 
-  #[pb(index = 9, one_of)]
+  #[pb(index = 7, one_of)]
   pub reminder_id: Option<String>,
 }
 

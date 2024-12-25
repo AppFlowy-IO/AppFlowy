@@ -24,6 +24,15 @@ class MobileRowDetailBloc
   UserProfilePB? _userProfile;
   UserProfilePB? get userProfile => _userProfile;
 
+  DatabaseCallbacks? _databaseCallbacks;
+
+  @override
+  Future<void> close() async {
+    databaseController.removeListener(onDatabaseChanged: _databaseCallbacks);
+    _databaseCallbacks = null;
+    await super.close();
+  }
+
   void _dispatch() {
     on<MobileRowDetailEvent>(
       (event, emit) {
@@ -67,7 +76,7 @@ class MobileRowDetailBloc
   }
 
   void _startListening() {
-    final onDatabaseChanged = DatabaseCallbacks(
+    _databaseCallbacks = DatabaseCallbacks(
       onNumOfRowsChanged: (rowInfos, _, reason) {
         if (!isClosed) {
           add(MobileRowDetailEvent.didLoadRows(rowInfos));
@@ -83,7 +92,7 @@ class MobileRowDetailBloc
         }
       },
     );
-    databaseController.addListener(onDatabaseChanged: onDatabaseChanged);
+    databaseController.addListener(onDatabaseChanged: _databaseCallbacks);
   }
 }
 

@@ -63,7 +63,7 @@ pub type UpdatedCells = HashMap<String, Cell>;
   fields(grouping_field_id=%grouping_field.id, grouping_field_type)
   err
 )]
-pub async fn make_group_controller<D>(
+pub(crate) async fn make_group_controller<D>(
   view_id: &str,
   grouping_field: Field,
   delegate: D,
@@ -72,9 +72,9 @@ where
   D: GroupContextDelegate + GroupControllerDelegate,
 {
   let grouping_field_type = FieldType::from(grouping_field.field_type);
-  tracing::Span::current().record("grouping_field", &grouping_field_type.default_name());
+  tracing::Span::current().record("grouping_field", grouping_field_type.default_name());
 
-  let mut group_controller: Box<dyn GroupController>;
+  let group_controller: Box<dyn GroupController>;
   let delegate = Arc::new(delegate);
 
   match grouping_field_type {
@@ -135,20 +135,13 @@ where
     },
     _ => {
       group_controller = Box::new(DefaultGroupController::new(
+        view_id,
         &grouping_field,
         delegate.clone(),
       ));
     },
   }
 
-  // Separates the rows into different groups
-  let row_details = delegate.get_all_rows(view_id).await;
-  let rows = row_details
-    .iter()
-    .map(|row| row.as_ref())
-    .collect::<Vec<_>>();
-
-  group_controller.fill_groups(rows.as_slice(), &grouping_field)?;
   #[cfg(feature = "verbose_log")]
   {
     for group in group_controller.get_all_groups() {

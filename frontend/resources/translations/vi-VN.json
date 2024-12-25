@@ -181,11 +181,13 @@
     "chatWithFilePrompt": "Bạn có muốn trò chuyện với tập tin không?",
     "indexFileSuccess": "Đang lập chỉ mục tệp thành công",
     "inputActionNoPages": "Không có kết quả trang",
-    "referenceSource": "{} nguồn đã tìm thấy",
-    "referenceSources": "{} nguồn được tìm thấy",
+    "referenceSource": {
+      "zero": "0 nguồn được tìm thấy",
+      "one": "{count} nguồn đã tìm thấy",
+      "other": "{count} nguồn được tìm thấy"
+    },
     "clickToMention": "Nhấp để đề cập đến một trang",
     "uploadFile": "Tải lên các tệp PDF, md hoặc txt để trò chuyện",
-    "questionTitle": "Ý tưởng",
     "questionDetail": "Xin chào {}! Tôi có thể giúp gì cho bạn hôm nay?",
     "indexingFile": "Đang lập chỉ mục {}"
   },
@@ -2274,9 +2276,9 @@
     "unsplash": "Bỏ qua",
     "pageCover": "Trang bìa",
     "none": "Không có",
-    "photoPermissionDescription": "Cho phép truy cập vào thư viện ảnh để tải ảnh lên.",
     "openSettings": "Mở Cài đặt",
     "photoPermissionTitle": "@:appName muốn truy cập vào thư viện ảnh của bạn",
+    "photoPermissionDescription": "Cho phép truy cập vào thư viện ảnh để tải ảnh lên.",
     "doNotAllow": "Không cho phép",
     "image": "Hình ảnh"
   },
