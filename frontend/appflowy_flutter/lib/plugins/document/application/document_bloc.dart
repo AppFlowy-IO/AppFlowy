@@ -40,7 +40,7 @@ part 'document_bloc.freezed.dart';
 
 bool enableDocumentInternalLog = false;
 
-final Map<String, DocumentBloc> documentBlocMap = {};
+final Map<String, DocumentBloc> _documentBlocMap = {};
 
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   DocumentBloc({
@@ -57,6 +57,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         : null;
     on<DocumentEvent>(_onDocumentEvent);
   }
+
+  static DocumentBloc? findOpen(String documentId) =>
+      _documentBlocMap[documentId];
 
   /// For a normal document, the document id is the same as the view id
   final String documentId;
@@ -102,7 +105,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   Future<void> close() async {
     isClosing = true;
     if (_saveToBlocMap) {
-      documentBlocMap.remove(documentId);
+      _documentBlocMap.remove(documentId);
     }
     await checkDocumentIntegrity();
     await _cancelSubscriptions();
@@ -138,7 +141,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     await event.when(
       initial: () async {
         if (_saveToBlocMap) {
-          documentBlocMap[documentId] = this;
+          _documentBlocMap[documentId] = this;
         }
         final result = await _fetchDocumentState();
         _onViewChanged();
@@ -339,10 +342,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     unawaited(_documentCollabAdapter.syncV3(docEvent: docEvent));
   }
 
-  void forceReloadDocumentState() {
-    _documentCollabAdapter.syncV3();
-  }
-
   Future<void> _onAwarenessStatesUpdate(
     DocumentAwarenessStatesPB awarenessStates,
   ) async {
@@ -421,6 +420,10 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       documentId: documentId,
       metadata: jsonEncode(metadata.toJson()),
     );
+  }
+
+  void forceReloadDocumentState() {
+    _documentCollabAdapter.syncV3();
   }
 
   // this is only used for debug mode

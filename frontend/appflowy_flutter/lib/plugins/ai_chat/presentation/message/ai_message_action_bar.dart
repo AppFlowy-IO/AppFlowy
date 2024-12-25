@@ -273,7 +273,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
           final documentId = getOpenedDocumentId();
           if (documentId != null) {
             await onAddToExistingPage(documentId);
-            documentBlocMap[documentId]?.forceReloadDocumentState();
+            DocumentBloc.findOpen(documentId)?.forceReloadDocumentState();
           } else {
             widget.onOverrideVisibility?.call(true);
             if (spaceView != null) {
