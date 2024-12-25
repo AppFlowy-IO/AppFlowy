@@ -268,10 +268,10 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
           color: Theme.of(context).hintColor,
           size: const Size.square(16),
         ),
-        onPressed: () {
+        onPressed: () async {
           final documentId = getOpenedDocumentId();
           if (documentId != null) {
-            onAddToExistingPage(documentId);
+            await onAddToExistingPage(documentId);
           } else {
             widget.onOverrideVisibility?.call(true);
             if (spaceView != null) {
@@ -293,7 +293,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
           popoverController.close();
         },
         onAddToExistingPage: (documentId) async {
-          onAddToExistingPage(documentId);
+          await onAddToExistingPage(documentId);
           final view =
               await ViewBackendService.getView(documentId).toNullable();
           if (context.mounted) {
@@ -305,8 +305,8 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
     );
   }
 
-  void onAddToExistingPage(String documentId) {
-    ChatEditDocumentService.addMessageToPage(
+  Future<void> onAddToExistingPage(String documentId) {
+    return ChatEditDocumentService.addMessageToPage(
       documentId,
       widget.textMessage,
     );
