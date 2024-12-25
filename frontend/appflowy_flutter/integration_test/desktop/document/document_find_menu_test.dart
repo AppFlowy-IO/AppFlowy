@@ -37,12 +37,12 @@ void main() {
 
       // set clipboard data
       final data = [
-        "123456\n",
-        ...List.generate(100, (_) => "${generateRandomString(50)}\n"),
-        "1234567\n",
-        ...List.generate(100, (_) => "${generateRandomString(50)}\n"),
-        "12345678\n",
-        ...List.generate(100, (_) => "${generateRandomString(50)}\n"),
+        "123456\n\n",
+        ...List.generate(100, (_) => "${generateRandomString(50)}\n\n"),
+        "1234567\n\n",
+        ...List.generate(100, (_) => "${generateRandomString(50)}\n\n"),
+        "12345678\n\n",
+        ...List.generate(100, (_) => "${generateRandomString(50)}\n\n"),
       ].join();
       await getIt<ClipboardService>().setData(
         ClipboardServiceData(
