@@ -112,7 +112,7 @@ class ChatAIBottomInlineActions extends StatelessWidget {
             start: DesktopAIConvoSizes.avatarSize +
                 DesktopAIConvoSizes.avatarAndChatBubbleSpacing,
           ),
-          child: AIResponseActionBar(
+          child: AIMessageActionBar(
             message: message,
             showDecoration: false,
             onRegenerate: onRegenerate,
@@ -212,7 +212,7 @@ class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
                   ),
                   alignment: Alignment.topLeft,
                   child: hoverBubble || hoverActionBar || overrideVisibility
-                      ? AIResponseActionBar(
+                      ? AIMessageActionBar(
                           message: widget.message,
                           showDecoration: true,
                           onRegenerate: widget.onRegenerate,

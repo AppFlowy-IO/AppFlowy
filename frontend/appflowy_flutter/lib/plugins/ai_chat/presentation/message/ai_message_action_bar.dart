@@ -30,8 +30,8 @@ import '../chat_input/select_sources_menu.dart';
 import '../layout_define.dart';
 import 'message_util.dart';
 
-class AIResponseActionBar extends StatelessWidget {
-  const AIResponseActionBar({
+class AIMessageActionBar extends StatelessWidget {
+  const AIMessageActionBar({
     super.key,
     required this.message,
     required this.showDecoration,
