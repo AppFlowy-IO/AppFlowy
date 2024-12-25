@@ -295,23 +295,24 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
           popoverController.close();
         },
         onAddToExistingPage: (documentId) async {
+          popoverController.close();
           await onAddToExistingPage(documentId);
           final view =
               await ViewBackendService.getView(documentId).toNullable();
           if (context.mounted) {
             openPageFromMessage(context, view);
           }
-          popoverController.close();
         },
       ),
     );
   }
 
-  Future<void> onAddToExistingPage(String documentId) {
-    return ChatEditDocumentService.addMessageToPage(
+  Future<void> onAddToExistingPage(String documentId) async {
+    await ChatEditDocumentService.addMessageToPage(
       documentId,
       widget.textMessage,
     );
+    await Future.delayed(const Duration(milliseconds: 500));
   }
 
   void addMessageToNewPage(BuildContext context) async {
