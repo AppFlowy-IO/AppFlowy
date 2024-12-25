@@ -470,46 +470,38 @@ void main() {
     });
   });
 
-  testWidgets('paste markdowns', (tester) async {
-    await tester.pasteContent(
-      plainText: '''
-# I'm h1
-## I'm h2
-### I'm h3
-#### I'm h4
-##### I'm h5
-###### I'm h6''',
-      (editorState) {
-        final children = editorState.document.root.children;
-        expect(children.length, 6);
-        for (var i = 0; i < children.length; i++) {
-          final text = children[i].delta!.toPlainText();
-          expect(
-            text,
-            'I\'m h${i + 1}',
-          );
-        }
-      },
-    );
-  });
-
-  testWidgets('paste markdowns as plain', (tester) async {
-    const markdown = '''
+  const testMarkdownText = '''
 # I'm h1
 ## I'm h2
 ### I'm h3
 #### I'm h4
 ##### I'm h5
 ###### I'm h6''';
+
+  testWidgets('paste markdowns', (tester) async {
     await tester.pasteContent(
-      plainText: markdown,
+      plainText: testMarkdownText,
+      (editorState) {
+        final children = editorState.document.root.children;
+        expect(children.length, 6);
+        for (int i = 1; i <= children.length; i++) {
+          final text = children[i - 1].delta!.toPlainText();
+          expect(text, 'I\'m h$i');
+        }
+      },
+    );
+  });
+
+  testWidgets('paste markdowns as plain', (tester) async {
+    await tester.pasteContent(
+      plainText: testMarkdownText,
       pasteAsPlain: true,
       (editorState) {
         final children = editorState.document.root.children;
         expect(children.length, 6);
-        for (var i = 0; i < children.length; i++) {
-          final text = children[i].delta!.toPlainText();
-          final expectText = '${'#' * (i + 1)} I\'m h${i + 1}';
+        for (int i = 1; i <= children.length; i++) {
+          final text = children[i - 1].delta!.toPlainText();
+          final expectText = '${'#' * i} I\'m h$i';
           expect(text, expectText);
         }
       },

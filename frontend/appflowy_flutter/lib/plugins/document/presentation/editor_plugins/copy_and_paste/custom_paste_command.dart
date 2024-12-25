@@ -228,8 +228,10 @@ Future<void> doPlainPaste(EditorState editorState) async {
   final plainText = data.plainText;
   if (plainText != null && plainText.isNotEmpty) {
     await editorState.pastePlainText(plainText);
-    return Log.info('Pasted plain text');
+    Log.info('Pasted plain text');
+    return;
   }
 
-  return Log.info('unable to parse the clipboard content');
+  Log.info('unable to parse the clipboard content');
+  return;
 }
