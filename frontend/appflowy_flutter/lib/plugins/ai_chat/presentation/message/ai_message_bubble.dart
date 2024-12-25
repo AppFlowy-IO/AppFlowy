@@ -1,9 +1,7 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_edit_document_service.dart';
@@ -24,6 +22,7 @@ import 'package:universal_platform/universal_platform.dart';
 import '../chat_avatar.dart';
 import '../layout_define.dart';
 import 'ai_message_action_bar.dart';
+import 'message_util.dart';
 
 /// Wraps an AI response message with the avatar and actions. On desktop,
 /// the actions will be displayed below the response if the response is the
@@ -387,7 +386,7 @@ class ChatAIMessagePopup extends StatelessWidget {
 
         if (context.mounted) {
           context.pop();
-          unawaited(context.pushView(selectedView));
+          openPageFromMessage(context, selectedView);
         }
       },
       icon: FlowySvgs.ai_add_to_page_s,
