@@ -37,8 +37,13 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
             // Only user enable chat with file and the plugin is already running
             final supportChatWithFile = chatState.fileEnabled &&
                 chatState.pluginState.state == RunningStatePB.Running;
+
+            final aiType = chatState.pluginState.state == RunningStatePB.Running
+                ? AIType.localAI
+                : AIType.appflowyAI;
             emit(
               state.copyWith(
+                aiType: aiType,
                 supportChatWithFile: supportChatWithFile,
                 chatState: chatState,
               ),
