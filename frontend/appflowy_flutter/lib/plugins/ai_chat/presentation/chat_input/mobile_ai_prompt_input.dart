@@ -270,7 +270,6 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
       alignment: Alignment.bottomCenter,
       padding: const EdgeInsets.only(bottom: 8.0),
       child: _LeadingActions(
-        chatId: widget.chatId,
         textController: textController,
         // onMention: () {
         //   textController.text += '@';
@@ -303,12 +302,10 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
 
 class _LeadingActions extends StatelessWidget {
   const _LeadingActions({
-    required this.chatId,
     required this.textController,
     required this.onUpdateSelectedSources,
   });
 
-  final String chatId;
   final TextEditingController textController;
   final void Function(List<String>) onUpdateSelectedSources;
 
@@ -317,7 +314,6 @@ class _LeadingActions extends StatelessWidget {
     return Material(
       color: Theme.of(context).cardColor,
       child: PromptInputMobileSelectSourcesButton(
-        chatId: chatId,
         onUpdateSelectedSources: onUpdateSelectedSources,
       ),
     );
