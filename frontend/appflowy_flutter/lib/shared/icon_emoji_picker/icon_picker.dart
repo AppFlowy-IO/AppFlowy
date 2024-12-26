@@ -278,6 +278,7 @@ class _IconPickerState extends State<IconPicker> {
                 crossAxisCount: widget.iconPerLine,
               ),
               itemCount: iconGroup.icons.length,
+              physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               itemBuilder: (context, index) {
                 final icon = iconGroup.icons[index];
