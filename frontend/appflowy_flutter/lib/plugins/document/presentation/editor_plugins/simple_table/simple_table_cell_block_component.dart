@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -546,9 +547,17 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     isReorderingHitCellNotifier.value = isHitCurrentCell;
     if (isHitCurrentCell) {
       if (isReorderingColumn) {
-        simpleTableContext.isReorderingHitIndex.value = node.columnIndex;
+        if (simpleTableContext.isReorderingHitIndex.value != node.columnIndex) {
+          HapticFeedback.lightImpact();
+
+          simpleTableContext.isReorderingHitIndex.value = node.columnIndex;
+        }
       } else if (isReorderingRow) {
-        simpleTableContext.isReorderingHitIndex.value = node.rowIndex;
+        if (simpleTableContext.isReorderingHitIndex.value != node.rowIndex) {
+          HapticFeedback.lightImpact();
+
+          simpleTableContext.isReorderingHitIndex.value = node.rowIndex;
+        }
       }
     }
   }
