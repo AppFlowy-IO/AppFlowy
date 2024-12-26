@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -16,6 +14,7 @@ import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -47,23 +46,7 @@ class SettingCloud extends StatelessWidget {
                   autoSeparate: false,
                   children: [
                     if (Env.enableCustomCloud)
-                      Row(
-                        children: [
-                          Expanded(
-                            child: FlowyText.medium(
-                              LocaleKeys.settings_menu_cloudServerType.tr(),
-                            ),
-                          ),
-                          Flexible(
-                            child: CloudTypeSwitcher(
-                              cloudType: state.cloudType,
-                              onSelected: (type) => context
-                                  .read<CloudSettingBloc>()
-                                  .add(CloudSettingEvent.updateCloudType(type)),
-                            ),
-                          ),
-                        ],
-                      ),
+                      _CloudServerSwitcher(cloudType: state.cloudType),
                     _viewFromCloudType(state.cloudType),
                   ],
                 );
@@ -172,12 +155,12 @@ class CloudTypeItem extends StatelessWidget {
   const CloudTypeItem({
     super.key,
     required this.cloudType,
-    required this.currentCloudtype,
+    required this.currentCloudType,
     required this.onSelected,
   });
 
   final AuthenticatorType cloudType;
-  final AuthenticatorType currentCloudtype;
+  final AuthenticatorType currentCloudType;
   final Function(AuthenticatorType) onSelected;
 
   @override
@@ -188,11 +171,11 @@ class CloudTypeItem extends StatelessWidget {
         text: FlowyText.medium(
           titleFromCloudType(cloudType),
         ),
-        rightIcon: currentCloudtype == cloudType
+        rightIcon: currentCloudType == cloudType
             ? const FlowySvg(FlowySvgs.check_s)
             : null,
         onTap: () {
-          if (currentCloudtype != cloudType) {
+          if (currentCloudType != cloudType) {
             NavigatorAlertDialog(
               title: LocaleKeys.settings_menu_changeServerTip.tr(),
               confirm: () async {
@@ -204,6 +187,35 @@ class CloudTypeItem extends StatelessWidget {
           PopoverContainer.of(context).close();
         },
       ),
+    );
+  }
+}
+
+class _CloudServerSwitcher extends StatelessWidget {
+  const _CloudServerSwitcher({
+    required this.cloudType,
+  });
+
+  final AuthenticatorType cloudType;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: FlowyText.medium(
+            LocaleKeys.settings_menu_cloudServerType.tr(),
+          ),
+        ),
+        Flexible(
+          child: CloudTypeSwitcher(
+            cloudType: cloudType,
+            onSelected: (type) => context
+                .read<CloudSettingBloc>()
+                .add(CloudSettingEvent.updateCloudType(type)),
+          ),
+        ),
+      ],
     );
   }
 }

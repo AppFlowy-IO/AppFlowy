@@ -1,20 +1,31 @@
+import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/startup/startup.dart';
+
 class ShareConstants {
-  static const String publishBaseUrl = 'appflowy.com';
-  static const String shareBaseUrl = 'appflowy.com/app';
+  static const String baseDomain = 'appflowy.com';
+  static const String testBaseDomain = 'test.appflowy.com';
 
   static String buildPublishUrl({
     required String nameSpace,
     required String publishName,
   }) {
-    return 'https://$publishBaseUrl/$nameSpace/$publishName';
+    final baseShareDomain =
+        getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.share_base_domain;
+    final url = '$baseShareDomain/$nameSpace/$publishName'.addSchemaIfNeeded();
+    return url;
   }
 
   static String buildNamespaceUrl({
     required String nameSpace,
     bool withHttps = false,
   }) {
-    final url = withHttps ? 'https://$publishBaseUrl' : publishBaseUrl;
-    return '$url/$nameSpace';
+    final baseShareDomain =
+        getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.share_base_domain;
+    String url = baseShareDomain.addSchemaIfNeeded();
+    if (!withHttps) {
+      url = url.replaceFirst('https://', '');
+    }
+    return '$url/app/$nameSpace';
   }
 
   static String buildShareUrl({
@@ -22,10 +33,23 @@ class ShareConstants {
     required String viewId,
     String? blockId,
   }) {
-    final url = 'https://$shareBaseUrl/$workspaceId/$viewId';
+    final baseShareDomain =
+        getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.share_base_domain;
+    final url = '$baseShareDomain/app/$workspaceId/$viewId'.addSchemaIfNeeded();
     if (blockId == null || blockId.isEmpty) {
       return url;
     }
     return '$url?blockId=$blockId';
+  }
+}
+
+extension on String {
+  String addSchemaIfNeeded() {
+    final schema = Uri.parse(this).scheme;
+    // if the schema is empty, add https schema by default
+    if (schema.isEmpty) {
+      return 'https://$this';
+    }
+    return this;
   }
 }

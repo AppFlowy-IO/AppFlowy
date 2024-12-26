@@ -1,6 +1,8 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:json_annotation/json_annotation.dart';
+
 part 'backend_env.g.dart';
 
 @JsonSerializable()
@@ -40,6 +42,7 @@ class AppFlowyCloudConfiguration {
     required this.ws_base_url,
     required this.gotrue_url,
     required this.enable_sync_trace,
+    required this.share_base_domain,
   });
 
   factory AppFlowyCloudConfiguration.fromJson(Map<String, dynamic> json) =>
@@ -50,6 +53,13 @@ class AppFlowyCloudConfiguration {
   final String gotrue_url;
   final bool enable_sync_trace;
 
+  /// The base domain is used in
+  ///
+  /// - Share URL
+  /// - Publish URL
+  /// - Copy Link To Block
+  final String share_base_domain;
+
   Map<String, dynamic> toJson() => _$AppFlowyCloudConfigurationToJson(this);
 
   static AppFlowyCloudConfiguration defaultConfig() {
@@ -58,6 +68,7 @@ class AppFlowyCloudConfiguration {
       ws_base_url: '',
       gotrue_url: '',
       enable_sync_trace: false,
+      share_base_domain: ShareConstants.baseDomain,
     );
   }
 
