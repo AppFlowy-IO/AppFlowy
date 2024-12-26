@@ -416,7 +416,8 @@
     "backToHome": "Back to Home",
     "viewing": "Viewing",
     "editing": "Editing",
-    "gotIt": "Got it"
+    "gotIt": "Got it",
+    "retry": "Retry"
   },
   "label": {
     "welcome": "Welcome!",
@@ -1605,7 +1606,8 @@
       "downloadFailedToken": "Failed to download file, user token unavailable",
       "setAsCover": "Set as cover",
       "openInBrowser": "Open in browser",
-      "embedLink": "Embed file link"
+      "embedLink": "Embed file link",
+      "uploadFailed": "Upload failed, click to retry"
     }
   },
   "document": {
