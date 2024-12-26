@@ -675,7 +675,12 @@ CalloutBlockComponentBuilder _buildCalloutBlockComponentBuilder(
   final calloutBGColor = AFThemeExtension.of(context).calloutBGColor;
   return CalloutBlockComponentBuilder(
     configuration: configuration.copyWith(
-      padding: (node) => const EdgeInsets.symmetric(vertical: 10),
+      padding: (node) {
+        if (UniversalPlatform.isMobile) {
+          return configuration.padding(node);
+        }
+        return const EdgeInsets.symmetric(vertical: 10);
+      },
       textAlign: (node) => _buildTextAlignInTableCell(
         context,
         node: node,
@@ -725,6 +730,7 @@ CodeBlockComponentBuilder _buildCodeBlockComponentBuilder(
 ) {
   return CodeBlockComponentBuilder(
     styleBuilder: styleCustomizer.codeBlockStyleBuilder,
+    configuration: configuration,
     padding: const EdgeInsets.only(left: 20, right: 30, bottom: 34),
     languagePickerBuilder: codeBlockLanguagePickerBuilder,
     copyButtonBuilder: codeBlockCopyBuilder,
@@ -763,9 +769,10 @@ ToggleListBlockComponentBuilder _buildToggleListBlockComponentBuilder(
           final factor = pageStyle.fontLayout.factor;
           final headingPaddings =
               pageStyle.lineHeightLayout.headingPaddings.map((e) => e * factor);
-          int level = node.attributes[HeadingBlockKeys.level] ?? 6;
-          level = level.clamp(1, 6);
-          return EdgeInsets.only(top: headingPaddings.elementAt(level - 1));
+          final level =
+              (node.attributes[HeadingBlockKeys.level] ?? 6).clamp(1, 6);
+          final top = headingPaddings.elementAt(level - 1);
+          return configuration.padding(node).copyWith(top: top);
         }
 
         return const EdgeInsets.only(top: 12.0, bottom: 4.0);
@@ -846,7 +853,9 @@ FileBlockComponentBuilder _buildFileBlockComponentBuilder(
   BuildContext context,
   BlockComponentConfiguration configuration,
 ) {
-  return FileBlockComponentBuilder(configuration: configuration);
+  return FileBlockComponentBuilder(
+    configuration: configuration,
+  );
 }
 
 SubPageBlockComponentBuilder _buildSubPageBlockComponentBuilder(

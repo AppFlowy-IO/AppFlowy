@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_tab
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_widgets/simple_table_feedback.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
@@ -46,6 +47,8 @@ class SimpleTableMobileDraggableReorderButton extends StatelessWidget {
   }
 
   void _startDragging() {
+    HapticFeedback.lightImpact();
+
     isShowingMenu.value = true;
     editorState.selection = null;
 

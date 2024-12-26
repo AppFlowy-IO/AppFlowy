@@ -65,6 +65,7 @@ class _SimpleTableFeedbackState extends State<SimpleTableFeedback> {
   @override
   Widget build(BuildContext context) {
     return Material(
+      color: Colors.transparent,
       child: Provider.value(
         value: widget.editorState,
         child: SimpleTableWidget(
