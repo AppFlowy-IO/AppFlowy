@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:appflowy/plugins/base/emoji/emoji_picker_header.dart';
-import 'package:appflowy/shared/icon_emoji_picker/emoji_skin_tone.dart';
 import 'package:appflowy/shared/icon_emoji_picker/emoji_search_bar.dart';
+import 'package:appflowy/shared/icon_emoji_picker/emoji_skin_tone.dart';
+import 'package:appflowy/shared/icon_emoji_picker/recent_icons.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -8,23 +11,27 @@ import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
 
 // use a global value to store the selected emoji to prevent reloading every time.
 EmojiData? kCachedEmojiData;
+const _kRecentEmojiCategoryId = 'Recent';
 
 class FlowyEmojiPicker extends StatefulWidget {
   const FlowyEmojiPicker({
     super.key,
     required this.onEmojiSelected,
     this.emojiPerLine = 9,
+    this.ensureFocus = false,
   });
 
   final EmojiSelectedCallback onEmojiSelected;
   final int emojiPerLine;
+  final bool ensureFocus;
 
   @override
   State<FlowyEmojiPicker> createState() => _FlowyEmojiPickerState();
 }
 
 class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
-  EmojiData? emojiData;
+  late EmojiData emojiData;
+  bool loaded = false;
 
   @override
   void initState() {
@@ -32,12 +39,12 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
 
     // load the emoji data from cache if it's available
     if (kCachedEmojiData != null) {
-      emojiData = kCachedEmojiData;
+      loadEmojis(kCachedEmojiData!);
     } else {
       EmojiData.builtIn().then(
         (value) {
           kCachedEmojiData = value;
-          setState(() => emojiData = value);
+          loadEmojis(value);
         },
       );
     }
@@ -45,7 +52,7 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
 
   @override
   Widget build(BuildContext context) {
-    if (emojiData == null) {
+    if (!loaded) {
       return const Center(
         child: SizedBox.square(
           dimension: 24.0,
@@ -57,21 +64,19 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
     }
 
     return EmojiPicker(
-      emojiData: emojiData!,
+      emojiData: emojiData,
       configuration: EmojiPickerConfiguration(
         showTabs: false,
         defaultSkinTone: lastSelectedEmojiSkinTone ?? EmojiSkinTone.none,
-        perLine: widget.emojiPerLine,
       ),
-      onEmojiSelected: widget.onEmojiSelected,
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      headerBuilder: (context, category) {
-        return FlowyEmojiHeader(
-          category: category,
-        );
+      onEmojiSelected: (id, emoji) {
+        widget.onEmojiSelected.call(id, emoji);
+        RecentIcons.putEmoji(id);
       },
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      headerBuilder: (_, category) => FlowyEmojiHeader(category: category),
       itemBuilder: (context, emojiId, emoji, callback) {
-        final name = emojiData?.emojis[emojiId]?.name ?? '';
+        final name = emojiData.emojis[emojiId]?.name ?? '';
         return SizedBox.square(
           dimension: 36.0,
           child: FlowyButton(
@@ -79,6 +84,7 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
             radius: Corners.s8Border,
             text: FlowyTooltip(
               message: name,
+              preferBelow: false,
               child: FlowyText.emoji(
                 emoji,
                 fontSize: 24.0,
@@ -92,7 +98,8 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: FlowyEmojiSearchBar(
-            emojiData: emojiData!,
+            emojiData: emojiData,
+            ensureFocus: widget.ensureFocus,
             onKeywordChanged: (value) {
               keyword.value = value;
             },
@@ -104,5 +111,25 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
         );
       },
     );
+  }
+
+  void loadEmojis(EmojiData data) {
+    RecentIcons.getEmojiIds().then((v) {
+      if (v.isEmpty) {
+        emojiData = data;
+        setState(() => loaded = true);
+        return;
+      }
+      final categories = List.of(data.categories);
+      categories.insert(
+        0,
+        Category(
+          id: _kRecentEmojiCategoryId,
+          emojiIds: v.sublist(0, min(widget.emojiPerLine, v.length)),
+        ),
+      );
+      emojiData = EmojiData(categories: categories, emojis: data.emojis);
+      setState(() => loaded = true);
+    });
   }
 }

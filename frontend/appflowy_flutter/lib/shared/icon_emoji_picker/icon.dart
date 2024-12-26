@@ -35,9 +35,12 @@ class IconGroup {
   String get displayName => name.replaceAll('_', ' ');
 
   IconGroup filter(String keyword) {
+    final lowercaseKey = keyword.toLowerCase();
     final filteredIcons = icons
         .where(
-          (icon) => icon.keywords.any((k) => k.contains(keyword.toLowerCase())),
+          (icon) =>
+              icon.keywords.any((k) => k.contains(lowercaseKey)) ||
+              icon.name.contains(lowercaseKey),
         )
         .toList();
     return IconGroup(name: name, icons: filteredIcons);

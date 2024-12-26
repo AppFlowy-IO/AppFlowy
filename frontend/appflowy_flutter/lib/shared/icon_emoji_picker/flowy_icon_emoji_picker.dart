@@ -153,6 +153,7 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
 
   Widget _buildEmojiPicker() {
     return FlowyEmojiPicker(
+      ensureFocus: true,
       emojiPerLine: _getEmojiPerLine(context),
       onEmojiSelected: (_, emoji) => widget.onSelectedEmoji?.call(
         EmojiIconData.emoji(emoji),
