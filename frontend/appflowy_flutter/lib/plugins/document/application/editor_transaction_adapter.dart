@@ -183,6 +183,7 @@ extension on InsertOperation {
       final parentId = node.parent?.id ??
           editorState.getNodeAtPath(currentPath.parent)?.id ??
           '';
+      assert(parentId.isNotEmpty);
 
       String prevId = '';
       // if the node is the first child of the parent, then its prevId should be empty.
