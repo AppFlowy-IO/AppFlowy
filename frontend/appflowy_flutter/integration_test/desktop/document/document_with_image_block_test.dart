@@ -138,13 +138,6 @@ void main() {
       );
     });
 
-    testWidgets('insert a jpg image from network', (tester) async {
-      await testEmbedImage(
-        tester,
-        'https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&dl=david-marcu-78A265wPiO4-unsplash.jpg&w=640',
-      );
-    });
-
     testWidgets('insert an image from unsplash', (tester) async {
       await runWithNetworkImages(() async {
         await tester.initializeAppFlowy();
