@@ -459,7 +459,11 @@ pub(crate) async fn update_chat_settings_handler(
   let params = data.try_into_inner()?;
   let ai_manager = upgrade_ai_manager(ai_manager)?;
   ai_manager
-    .update_rag_ids(&params.chat_id.value, params.rag_ids)
+    .update_settings(
+      &params.chat_id.value,
+      params.rag_ids.map(|v| v.rag_ids),
+      params.rag_only,
+    )
     .await?;
 
   Ok(())

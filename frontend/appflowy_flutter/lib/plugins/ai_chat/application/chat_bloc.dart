@@ -249,11 +249,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           },
           updateSelectedSources: (selectedSourcesIds) async {
             emit(state.copyWith(selectedSourceIds: selectedSourcesIds));
+            final ragIds = RepeatedRagId(ragIds: selectedSourcesIds);
+            final payload = UpdateChatSettingsPB.create()
+              ..chatId = ChatId(value: chatId)
+              ..ragIds = ragIds;
 
-            final payload = UpdateChatSettingsPB(
-              chatId: ChatId(value: chatId),
-              ragIds: selectedSourcesIds,
-            );
+            await AIEventUpdateChatSettings(payload)
+                .send()
+                .onFailure(Log.error);
+          },
+          setRagOnly: (ragOnly) async {
+            final payload = UpdateChatSettingsPB.create()
+              ..chatId = ChatId(value: chatId)
+              ..ragOnly = ragOnly;
+
             await AIEventUpdateChatSettings(payload)
                 .send()
                 .onFailure(Log.error);
@@ -574,6 +583,10 @@ class ChatEvent with _$ChatEvent {
   const factory ChatEvent.updateSelectedSources({
     required List<String> selectedSourcesIds,
   }) = _UpdateSelectedSources;
+
+  const factory ChatEvent.setRagOnly({
+    required bool ragOnly,
+  }) = _SetRagOnly;
 
   // send message
   const factory ChatEvent.sendMessage({

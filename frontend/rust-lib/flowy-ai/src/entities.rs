@@ -551,6 +551,15 @@ pub struct UpdateChatSettingsPB {
   #[validate(nested)]
   pub chat_id: ChatId,
 
-  #[pb(index = 2)]
+  #[pb(index = 2, one_of)]
+  pub rag_ids: Option<RepeatedRagId>,
+
+  #[pb(index = 3, one_of)]
+  pub rag_only: Option<bool>,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct RepeatedRagId {
+  #[pb(index = 1)]
   pub rag_ids: Vec<String>,
 }
