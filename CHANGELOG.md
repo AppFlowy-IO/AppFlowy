@@ -1,17 +1,29 @@
 # Release Notes
-## Version 0.7.7 - 09/12/2024
+## Version 0.7.9 - 25/12/2024
 ### New Features
-- Added support "set to page width" and "distribute columns evenly" for table block
-- Added support for reordering column/row in table block
-- Added support inserting multiple lines in table block
-- Revamped the mention page interactions in AI chat page
-- Improve the AI referenced sources UI in AI chat page
+
+### Bug Fixes
+
+## Version 0.7.8 - 18/12/2024
+### New Features
+<img width="1068" alt="image" src="https://github.com/user-attachments/assets/cf8bd287-f370-4291-8638-76e2bbf4aaac" />
+
+- Meet Simple Table 2.0:
+   - Insert a list into a table cell
+   - Insert images, quotes, callouts, and code blocks into a table cell
+   - Drag to move rows or columns
+   - Toggle header rows or columns on/off
+   - Distribute columns evenly
+   - Adjust to page width
+- Enjoy a new UI/UX for a seamless experience
+- Revamped mention page interactions in AI Chat
+- Improved AppFlowy AI service
 
 ### Bug Fixes
 - Fixed an error when opening files in the database in local mode
-- Fixed arrow up/down navigation not working for selecting a language in code block
-- Fixed an issue where deleting multiple blocks using the drag button on the document page didn't work
-
+- Fixed arrow up/down navigation not working for selecting a language in Code Block
+- Fixed an issue where deleting multiple blocks using the drag button on the document page didn’t work
+  
 ## Version 0.7.7 - 09/12/2024
 ### Bug Fixes
 - Fixed sidebar menu resize regression
