@@ -1,30 +1,33 @@
 use std::sync::Arc;
 
-use crate::database::database_editor::DatabaseEditorTest;
+use crate::database::database_editor::{DatabaseEditorTest, FilterRowChanged};
 use collab_database::fields::Field;
-use flowy_database2::entities::{CalculationType, FieldType, UpdateCalculationChangesetPB};
+use flowy_database2::entities::{
+  CalculationType, FieldType, NumberFilterConditionPB, NumberFilterPB, UpdateCalculationChangesetPB,
+};
 use lib_infra::box_any::BoxAny;
 
 #[tokio::test]
 async fn calculate_with_filter_test() {
   let mut test = DatabaseEditorTest::new_grid().await;
+  let row_count = test.rows.len();
+  let expected = 1;
   // let sub = test.sdk.notification_sender.subscribe().await.unwrap();
 
-  // Create Number "Equal" filter
-  // test
-  //   .create_data_filter(
-  //     None,
-  //     FieldType::Number,
-  //     BoxAny::new(NumberFilterPB {
-  //       condition: NumberFilterConditionPB::Equal,
-  //       content: "1".to_string(),
-  //     }),
-  //     Some(FilterRowChanged {
-  //       showing_num_of_rows: 0,
-  //       hiding_num_of_rows: row_count - expected,
-  //     }),
-  //   )
-  //   .await;
+  test
+    .create_data_filter(
+      None,
+      FieldType::Number,
+      BoxAny::new(NumberFilterPB {
+        condition: NumberFilterConditionPB::Equal,
+        content: "1".to_string(),
+      }),
+      Some(FilterRowChanged {
+        showing_num_of_rows: 0,
+        hiding_num_of_rows: row_count - expected,
+      }),
+    )
+    .await;
 }
 
 #[tokio::test]
