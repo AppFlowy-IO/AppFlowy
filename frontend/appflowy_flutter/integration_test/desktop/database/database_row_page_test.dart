@@ -394,11 +394,16 @@ void main() {
         isChecked: false,
       );
       tester.assertPhantomChecklistItemAtIndex(index: 1);
+      tester.assertPhantomChecklistItemContent("");
 
       await tester.enterText(find.byType(PhantomChecklistItem), 'task 2');
       await tester.pumpAndSettle();
-      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
-      await tester.pumpAndSettle(const Duration(milliseconds: 500));
+      await tester.hoverOnWidget(
+        find.byType(ChecklistRowDetailCell),
+        onHover: () async {
+          await tester.tapButton(find.byType(ChecklistItemControl));
+        },
+      );
 
       tester.assertChecklistTaskInEditor(
         index: 1,
@@ -406,6 +411,7 @@ void main() {
         isChecked: false,
       );
       tester.assertPhantomChecklistItemAtIndex(index: 2);
+      tester.assertPhantomChecklistItemContent("");
 
       await tester.simulateKeyEvent(LogicalKeyboardKey.escape);
       await tester.pumpAndSettle();

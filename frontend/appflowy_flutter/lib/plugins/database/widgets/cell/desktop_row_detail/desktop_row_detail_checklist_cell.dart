@@ -89,7 +89,6 @@ class _ChecklistRowDetailCellState extends State<ChecklistRowDetailCell> {
             onTap: () {
               final bloc = context.read<ChecklistCellBloc>();
               if (bloc.state.phantomIndex == null) {
-                phantomTextController.clear();
                 bloc.add(
                   ChecklistCellEvent.updatePhantomIndex(
                     bloc.state.showIncompleteOnly
@@ -107,6 +106,7 @@ class _ChecklistRowDetailCellState extends State<ChecklistRowDetailCell> {
                   ),
                 );
               }
+              phantomTextController.clear();
             },
           ),
         ],

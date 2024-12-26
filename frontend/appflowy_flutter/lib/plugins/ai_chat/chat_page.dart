@@ -1,11 +1,6 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/mobile/application/mobile_router.dart';
-import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -36,6 +31,7 @@ import 'presentation/chat_welcome_page.dart';
 import 'presentation/layout_define.dart';
 import 'presentation/message/ai_text_message.dart';
 import 'presentation/message/error_text_message.dart';
+import 'presentation/message/message_util.dart';
 import 'presentation/message/user_text_message.dart';
 import 'presentation/scroll_to_bottom.dart';
 
@@ -355,19 +351,8 @@ class _ChatContentPage extends StatelessWidget {
     } else {
       final sidebarView =
           await ViewBackendService.getView(metadata.id).toNullable();
-      if (sidebarView == null) {
-        return;
-      }
-      if (UniversalPlatform.isDesktop) {
-        getIt<TabsBloc>().add(
-          TabsEvent.openSecondaryPlugin(
-            plugin: sidebarView.plugin(),
-          ),
-        );
-      } else {
-        if (context.mounted) {
-          unawaited(context.pushView(sidebarView));
-        }
+      if (context.mounted) {
+        openPageFromMessage(context, sidebarView);
       }
     }
   }
