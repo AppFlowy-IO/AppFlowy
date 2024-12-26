@@ -1847,7 +1847,8 @@
       "contextMenu": {
         "copy": "Copy",
         "cut": "Cut",
-        "paste": "Paste"
+        "paste": "Paste",
+        "pasteAsPlainText": "Paste as plain text"
       },
       "action": "Actions",
       "database": {
