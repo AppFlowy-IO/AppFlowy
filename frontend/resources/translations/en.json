@@ -206,7 +206,13 @@
     "indexingFile": "Indexing {}",
     "generatingResponse": "Generating response",
     "selectSources": "Select Sources",
-    "regenerate": "Try again"
+    "sourcesLimitReached": "You can only select up to 3 top-level documents and its children",
+    "sourceUnsupported": "We don't support chatting with databases at this time",
+    "regenerate": "Try again",
+    "addToPageButton": "Add to page",
+    "addToPageTitle": "Add message to...",
+    "addToNewPage": "Add to a new page",
+    "addToNewPageName": "Messages extracted from \"{}\""
   },
   "trash": {
     "text": "Trash",
