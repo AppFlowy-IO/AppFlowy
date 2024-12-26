@@ -853,7 +853,9 @@ FileBlockComponentBuilder _buildFileBlockComponentBuilder(
   BuildContext context,
   BlockComponentConfiguration configuration,
 ) {
-  return FileBlockComponentBuilder(configuration: configuration);
+  return FileBlockComponentBuilder(
+    configuration: configuration,
+  );
 }
 
 SubPageBlockComponentBuilder _buildSubPageBlockComponentBuilder(

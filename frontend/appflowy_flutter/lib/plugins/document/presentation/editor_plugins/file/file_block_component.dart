@@ -281,9 +281,13 @@ class FileBlockComponentState extends State<FileBlockComponent>
         listenable: editorState.selectionNotifier,
         blockColor: editorState.editorStyle.selectionColor,
         supportTypes: const [BlockSelectionType.block],
-        child: Padding(key: fileKey, padding: padding, child: child),
+        child: Padding(
+          key: fileKey,
+          padding: padding,
+          child: child,
+        ),
       );
-    } else if (url == null || url.isEmpty) {
+    } else {
       return Padding(
         key: fileKey,
         padding: padding,
@@ -383,6 +387,9 @@ class FileBlockComponentState extends State<FileBlockComponent>
             },
           ),
           const HSpace(8),
+        ],
+        if (UniversalPlatform.isMobile) ...[
+          const HSpace(36),
         ],
       ];
     } else {
