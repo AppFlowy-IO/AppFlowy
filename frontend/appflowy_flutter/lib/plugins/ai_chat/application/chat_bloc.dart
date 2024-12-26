@@ -259,6 +259,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
                 .onFailure(Log.error);
           },
           setRagOnly: (ragOnly) async {
+            emit(state.copyWith(onlyUseSelectedSources: ragOnly));
             final payload = UpdateChatSettingsPB.create()
               ..chatId = ChatId(value: chatId)
               ..ragOnly = ragOnly;
@@ -624,12 +625,14 @@ class ChatEvent with _$ChatEvent {
 @freezed
 class ChatState with _$ChatState {
   const factory ChatState({
+    required bool onlyUseSelectedSources,
     required List<String> selectedSourceIds,
     required LoadChatMessageStatus loadingState,
     required PromptResponseState promptResponseState,
   }) = _ChatState;
 
   factory ChatState.initial() => const ChatState(
+        onlyUseSelectedSources: false,
         selectedSourceIds: [],
         loadingState: LoadChatMessageStatus.loading,
         promptResponseState: PromptResponseState.ready,
