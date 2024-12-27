@@ -173,8 +173,8 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
             },
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+              child: Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Text(
                     '@$formattedDate',
