@@ -1,11 +1,17 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:string_validator/string_validator.dart';
 import 'package:time/time.dart';
 
 class AIMessageMetadata extends StatefulWidget {
@@ -68,35 +74,87 @@ class _AIMessageMetadataState extends State<AIMessageMetadata> {
               runSpacing: 4.0,
               children: widget.sources.map(
                 (m) {
-                  return ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxHeight: 24,
-                      maxWidth: 240,
-                    ),
-                    child: FlowyButton(
-                      margin: const EdgeInsets.all(4.0),
-                      useIntrinsicWidth: true,
-                      radius: BorderRadius.circular(8.0),
-                      text: FlowyText(
-                        m.name,
-                        fontSize: 12,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      leftIcon: FlowySvg(
-                        FlowySvgs.icon_document_s,
-                        size: const Size.square(16),
-                        color: Theme.of(context).hintColor,
-                      ),
-                      onTap: () {
-                        widget.onSelectedMetadata?.call(m);
+                  if (isURL(m.id)) {
+                    return _MetadataButton(
+                      name: m.id,
+                      onTap: () => widget.onSelectedMetadata?.call(m),
+                    );
+                  } else if (isUUID(m.id)) {
+                    return FutureBuilder<ViewPB?>(
+                      future: ViewBackendService.getView(m.id)
+                          .then((f) => f.toNullable()),
+                      builder: (context, snapshot) {
+                        final data = snapshot.data;
+                        if (!snapshot.hasData ||
+                            snapshot.connectionState != ConnectionState.done ||
+                            data == null) {
+                          return const _MetadataButton(isLoading: true);
+                        }
+                        return BlocProvider(
+                          create: (_) => ViewBloc(view: data),
+                          child: BlocBuilder<ViewBloc, ViewState>(
+                            builder: (context, state) {
+                              return _MetadataButton(
+                                name: state.view.nameOrDefault,
+                                onTap: () => widget.onSelectedMetadata?.call(m),
+                              );
+                            },
+                          ),
+                        );
                       },
-                    ),
-                  );
+                    );
+                  } else {
+                    return _MetadataButton(
+                      name: m.name,
+                      onTap: () => widget.onSelectedMetadata?.call(m),
+                    );
+                  }
                 },
               ).toList(),
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class _MetadataButton extends StatelessWidget {
+  const _MetadataButton({
+    this.name = "",
+    this.onTap,
+    this.isLoading = false,
+  });
+
+  final String name;
+  final void Function()? onTap;
+  final bool isLoading;
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        maxHeight: 24,
+        maxWidth: 240,
+      ),
+      child: Opacity(
+        opacity: isLoading ? 0 : 1,
+        child: FlowyButton(
+          margin: const EdgeInsets.all(4.0),
+          useIntrinsicWidth: true,
+          radius: BorderRadius.circular(8.0),
+          text: FlowyText(
+            name,
+            fontSize: 12,
+            overflow: TextOverflow.ellipsis,
+          ),
+          leftIcon: FlowySvg(
+            FlowySvgs.icon_document_s,
+            size: const Size.square(16),
+            color: Theme.of(context).hintColor,
+          ),
+          onTap: onTap,
+        ),
       ),
     );
   }
