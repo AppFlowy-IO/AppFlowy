@@ -108,11 +108,18 @@ Future<bool> _showSlashMenu(
       singleColumn: singleColumn,
       style: style,
     );
+
+    // disable the keyboard service
+    editorState.service.keyboardService?.disable();
+
     if (!kIsWeb && Platform.environment.containsKey('FLUTTER_TEST')) {
       await _selectionMenuService?.show();
     } else {
       await _selectionMenuService?.show();
     }
+
+    // enable the keyboard service
+    editorState.service.keyboardService?.enable();
   }
 
   if (shouldInsertSlash) {
