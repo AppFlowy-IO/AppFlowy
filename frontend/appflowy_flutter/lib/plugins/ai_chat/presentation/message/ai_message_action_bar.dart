@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -19,6 +20,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_w
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -273,7 +275,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
           final documentId = getOpenedDocumentId();
           if (documentId != null) {
             await onAddToExistingPage(documentId);
-            DocumentBloc.findOpen(documentId)?.forceReloadDocumentState();
+            await forceReloadAndUpdateSelection(documentId);
           } else {
             widget.onOverrideVisibility?.call(true);
             if (spaceView != null) {
@@ -329,6 +331,26 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
         openPageFromMessage(context, newView);
       }
     }
+  }
+
+  Future<void> forceReloadAndUpdateSelection(String documentId) async {
+    final bloc = DocumentBloc.findOpen(documentId);
+    if (bloc == null) {
+      return;
+    }
+    await bloc.forceReloadDocumentState();
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    final editorState = bloc.state.editorState;
+    final lastNodePath = editorState?.getLastSelectable()?.$1.path;
+    if (editorState == null || lastNodePath == null) {
+      return;
+    }
+    unawaited(
+      editorState.updateSelectionWithReason(
+        Selection.collapsed(Position(path: lastNodePath)),
+      ),
+    );
   }
 
   String? getOpenedDocumentId() {
