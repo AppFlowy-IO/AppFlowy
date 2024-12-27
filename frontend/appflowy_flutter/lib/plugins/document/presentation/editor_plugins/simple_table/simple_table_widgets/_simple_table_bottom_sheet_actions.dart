@@ -538,7 +538,11 @@ class SimpleTableCellActionButtons extends ISimpleTableBottomSheetActions {
     }
 
     // close the action menu
-    Navigator.of(context).pop();
+    // keep the action menu open if the action is enable header row or enable header column
+    if (action != SimpleTableMoreAction.enableHeaderRow &&
+        action != SimpleTableMoreAction.enableHeaderColumn) {
+      Navigator.of(context).pop();
+    }
   }
 }
 
