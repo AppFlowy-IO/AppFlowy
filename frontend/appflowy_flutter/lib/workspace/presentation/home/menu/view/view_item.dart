@@ -771,13 +771,12 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               context.read<ViewBloc>().add(const ViewEvent.collapseAllPages());
               break;
             case ViewMoreActionType.changeIcon:
-              if (data is! EmojiIconData) {
+              if (data is! SelectedEmojiIconResult) {
                 return;
               }
-              final result = data;
               await ViewBackendService.updateViewIcon(
                 viewId: widget.view.id,
-                viewIcon: result,
+                viewIcon: data.data,
               );
               break;
             case ViewMoreActionType.moveTo:

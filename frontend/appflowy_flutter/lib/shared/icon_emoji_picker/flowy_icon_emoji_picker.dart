@@ -6,6 +6,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/icon.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart' hide Icon;
+import 'package:flutter/services.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 extension ToProto on FlowyIconType {
@@ -189,9 +190,12 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
     return FlowyEmojiPicker(
       ensureFocus: true,
       emojiPerLine: _getEmojiPerLine(context),
-      onEmojiSelected: (r) => widget.onSelectedEmoji?.call(
-        EmojiIconData.emoji(r.emoji).toSelectedResult(keepOpen: r.isRandom),
-      ),
+      onEmojiSelected: (r) {
+        widget.onSelectedEmoji?.call(
+          EmojiIconData.emoji(r.emoji).toSelectedResult(keepOpen: r.isRandom),
+        );
+        SystemChannels.textInput.invokeMethod('TextInput.hide');
+      },
     );
   }
 
@@ -211,6 +215,7 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
         widget.onSelectedEmoji?.call(
           r.data.toEmojiIconData().toSelectedResult(keepOpen: r.isRandom),
         );
+        SystemChannels.textInput.invokeMethod('TextInput.hide');
       },
     );
   }

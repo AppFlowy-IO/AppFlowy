@@ -64,12 +64,14 @@ class _FlowyEmojiSearchBarState extends State<FlowyEmojiSearchBar> {
             onRandomEmojiSelected: widget.onRandomEmojiSelected,
           ),
           const HSpace(8.0),
-          FlowyEmojiSkinToneSelector(onEmojiSkinToneChanged: (v) {
-            setState(() {
-              skinTone = v;
-            });
-            widget.onSkinToneChanged.call(v);
-          }),
+          FlowyEmojiSkinToneSelector(
+            onEmojiSkinToneChanged: (v) {
+              setState(() {
+                skinTone = v;
+              });
+              widget.onSkinToneChanged.call(v);
+            },
+          ),
         ],
       ),
     );
@@ -143,6 +145,9 @@ class _SearchTextFieldState extends State<_SearchTextField> {
   @override
   void initState() {
     super.initState();
+
+    /// Sometimes focus is lost due to the [SelectionGestureInterceptor] in [KeyboardServiceWidgetState]
+    /// this is to ensure that focus can be regained within a short period of time
     if (widget.ensureFocus) {
       Future.delayed(const Duration(milliseconds: 200), () {
         if (!mounted || focusNode.hasFocus) return;
