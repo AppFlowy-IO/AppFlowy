@@ -304,6 +304,7 @@
   "sideBar": {
     "closeSidebar": "Close sidebar",
     "openSidebar": "Open sidebar",
+    "expandSidebar": "Expand as full page",
     "personal": "Personal",
     "private": "Private",
     "workspace": "Workspace",
