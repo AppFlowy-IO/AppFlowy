@@ -172,6 +172,7 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
       margin: const EdgeInsets.all(0),
       clickHandler: PopoverClickHandler.gestureDetector,
       popupBuilder: (_) => FlowyIconEmojiPicker(
+        initialType: sourceView.icon.toEmojiIconData().type.toPickerTabType(),
         onSelectedEmoji: (result) => onTap(controller, result),
       ),
       child: child,

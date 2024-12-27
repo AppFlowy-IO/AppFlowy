@@ -46,6 +46,10 @@ enum FlowyIconType {
   custom;
 }
 
+extension FlowyIconTypeToPickerTabType on FlowyIconType {
+  PickerTabType? toPickerTabType() => name.toPickerTabType();
+}
+
 class EmojiIconData {
   factory EmojiIconData.none() => const EmojiIconData(FlowyIconType.icon, '');
 
@@ -98,6 +102,7 @@ class FlowyIconEmojiPicker extends StatefulWidget {
   const FlowyIconEmojiPicker({
     super.key,
     this.onSelectedEmoji,
+    this.initialType,
     this.enableBackgroundColorSelection = true,
     this.tabs = const [PickerTabType.emoji, PickerTabType.icon],
   });
@@ -105,6 +110,7 @@ class FlowyIconEmojiPicker extends StatefulWidget {
   final ValueChanged<SelectedEmojiIconResult>? onSelectedEmoji;
   final bool enableBackgroundColorSelection;
   final List<PickerTabType> tabs;
+  final PickerTabType? initialType;
 
   @override
   State<FlowyIconEmojiPicker> createState() => _FlowyIconEmojiPickerState();
@@ -112,11 +118,22 @@ class FlowyIconEmojiPicker extends StatefulWidget {
 
 class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
     with SingleTickerProviderStateMixin {
-  late final controller = TabController(
-    length: widget.tabs.length,
-    vsync: this,
-  );
+  late TabController controller;
   int currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    final initialType = widget.initialType;
+    if (initialType != null) {
+      currentIndex = widget.tabs.indexOf(initialType);
+    }
+    controller = TabController(
+      initialIndex: currentIndex,
+      length: widget.tabs.length,
+      vsync: this,
+    );
+  }
 
   @override
   void dispose() {
@@ -188,6 +205,7 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
 
   Widget _buildIconPicker() {
     return FlowyIconPicker(
+      ensureFocus: true,
       enableBackgroundColorSelection: widget.enableBackgroundColorSelection,
       onSelectedIcon: (r) {
         widget.onSelectedEmoji?.call(

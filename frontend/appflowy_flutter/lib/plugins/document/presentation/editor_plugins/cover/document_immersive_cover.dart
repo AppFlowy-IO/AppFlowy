@@ -227,6 +227,7 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
               value: pageStyleIconBloc,
               child: Expanded(
                 child: FlowyIconEmojiPicker(
+                  initialType: icon.type.toPickerTabType(),
                   onSelectedEmoji: (r) {
                     pageStyleIconBloc.add(
                       PageStyleIconEvent.updateIcon(r.data, true),

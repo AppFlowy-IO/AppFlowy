@@ -11,14 +11,17 @@ class MobileEmojiPickerScreen extends StatelessWidget {
   const MobileEmojiPickerScreen({
     super.key,
     this.title,
+    this.selectedType,
     this.tabs = const [PickerTabType.emoji, PickerTabType.icon],
   });
 
+  final PickerTabType? selectedType;
   final String? title;
   final List<PickerTabType> tabs;
 
   static const routeName = '/emoji_picker';
   static const pageTitle = 'title';
+  static const iconSelectedType = 'iconSelectedType';
   static const selectTabs = 'tabs';
 
   @override
@@ -30,6 +33,7 @@ class MobileEmojiPickerScreen extends StatelessWidget {
       body: SafeArea(
         child: FlowyIconEmojiPicker(
           tabs: tabs,
+          initialType: selectedType,
           onSelectedEmoji: (r) {
             context.pop<EmojiIconData>(r.data);
           },

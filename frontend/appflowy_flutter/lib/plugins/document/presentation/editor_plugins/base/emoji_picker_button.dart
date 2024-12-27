@@ -117,6 +117,7 @@ class _DesktopEmojiPickerButton extends StatelessWidget {
         height: emojiPickerSize.height,
         padding: const EdgeInsets.all(4.0),
         child: FlowyIconEmojiPicker(
+          initialType: emoji.type.toPickerTabType(),
           onSelectedEmoji: (r) {
             onSubmitted(r, popoverController);
           },
@@ -183,7 +184,10 @@ class _MobileEmojiPickerButton extends StatelessWidget {
               final result = await context.push<EmojiIconData>(
                 Uri(
                   path: MobileEmojiPickerScreen.routeName,
-                  queryParameters: {MobileEmojiPickerScreen.pageTitle: title},
+                  queryParameters: {
+                    MobileEmojiPickerScreen.pageTitle: title,
+                    MobileEmojiPickerScreen.iconSelectedType: emoji.type.name,
+                  },
                 ).toString(),
               );
               if (result != null) {

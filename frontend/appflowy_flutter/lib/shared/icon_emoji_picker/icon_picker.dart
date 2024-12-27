@@ -93,11 +93,13 @@ class FlowyIconPicker extends StatefulWidget {
     required this.onSelectedIcon,
     required this.enableBackgroundColorSelection,
     this.iconPerLine = 9,
+    this.ensureFocus = false,
   });
 
   final bool enableBackgroundColorSelection;
   final ValueChanged<IconPickerResult> onSelectedIcon;
   final int iconPerLine;
+  final bool ensureFocus;
 
   @override
   State<FlowyIconPicker> createState() => _FlowyIconPickerState();
@@ -154,6 +156,7 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: IconSearchBar(
+            ensureFocus: widget.ensureFocus,
             onRandomTap: () {
               final value = kIconGroups?.randomIcon();
               if (value == null) {
@@ -168,6 +171,7 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
                   color,
                 ).toResult(isRandom: true),
               );
+              RecentIcons.putIcon(value.$2);
             },
             onKeywordChanged: (keyword) => {
               debounce.call(() {
@@ -205,14 +209,14 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
             iconGroups: filteredIconGroups,
             enableBackgroundColorSelection:
                 widget.enableBackgroundColorSelection,
-            onSelectedIcon: (r) => r.toResult(),
+            onSelectedIcon: (r) => widget.onSelectedIcon.call(r.toResult()),
             iconPerLine: widget.iconPerLine,
           );
         }
         return IconPicker(
           iconGroups: iconGroups,
           enableBackgroundColorSelection: widget.enableBackgroundColorSelection,
-          onSelectedIcon: (r) => r.toResult(),
+          onSelectedIcon: (r) => widget.onSelectedIcon.call(r.toResult()),
           iconPerLine: widget.iconPerLine,
         );
       },
