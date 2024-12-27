@@ -106,12 +106,13 @@ class _SimpleTableCellBottomSheetState
         return BottomSheetHeader(
           showBackButton: false,
           showCloseButton: true,
-          showDoneButton: false,
+          showDoneButton: true,
           showRemoveButton: false,
           title: widget.type.name.capitalize(),
           onClose: () => setState(() {
             menuState = _SimpleTableBottomSheetMenuState.cellActionMenu;
           }),
+          onDone: (_) => Navigator.pop(context),
         );
       default:
         throw UnimplementedError('Unsupported menu state: $menuState');
