@@ -1063,6 +1063,7 @@
       "pleaseInputValidURL": "Please input a valid URL",
       "changeUrl": "Change self-hosted url to {}",
       "cloudURLHint": "Input the base URL of your server",
+      "webURLHint": "Input the base URL of your web server",
       "cloudWSURL": "Websocket URL",
       "cloudWSURLHint": "Input the websocket address of your server",
       "restartApp": "Restart",

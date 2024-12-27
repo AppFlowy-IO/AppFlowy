@@ -156,10 +156,10 @@ Future<void> _setAppFlowyCloudUrl(String? url) async {
   await getIt<KeyValueStorage>().set(KVKeys.kAppflowyCloudBaseURL, url ?? '');
 }
 
-Future<void> useShareBaseDomain(String? url) async {
+Future<void> useBaseWebDomain(String? url) async {
   await getIt<KeyValueStorage>().set(
     KVKeys.kAppFlowyBaseShareDomain,
-    url ?? ShareConstants.baseDomain,
+    url ?? ShareConstants.baseWebDomain,
   );
 }
 
@@ -221,7 +221,7 @@ class AppFlowyCloudSharedEnv {
         ws_base_url: await _getAppFlowyCloudWSUrl(Env.afCloudUrl),
         gotrue_url: await _getAppFlowyCloudGotrueUrl(Env.afCloudUrl),
         enable_sync_trace: false,
-        share_base_domain: Env.shareBaseDomain,
+        base_web_domain: Env.baseWebDomain,
       );
 
       return AppFlowyCloudSharedEnv(
@@ -253,7 +253,7 @@ Future<AppFlowyCloudConfiguration> configurationFromUri(
       ws_base_url: "ws://${baseUri.host}:8000/ws/v1",
       gotrue_url: "$baseUrl:9999",
       enable_sync_trace: true,
-      share_base_domain: ShareConstants.testBaseDomain,
+      base_web_domain: ShareConstants.testBaseWebDomain,
     );
   } else {
     return AppFlowyCloudConfiguration(
@@ -261,8 +261,8 @@ Future<AppFlowyCloudConfiguration> configurationFromUri(
       ws_base_url: await _getAppFlowyCloudWSUrl(baseUrl),
       gotrue_url: await _getAppFlowyCloudGotrueUrl(baseUrl),
       enable_sync_trace: await getSyncLogEnabled(),
-      share_base_domain: authenticatorType == AuthenticatorType.appflowyCloud
-          ? ShareConstants.baseDomain
+      base_web_domain: authenticatorType == AuthenticatorType.appflowyCloud
+          ? ShareConstants.baseWebDomain
           : baseShareDomain,
     );
   }
@@ -297,7 +297,7 @@ Future<String> getAppFlowyCloudUrl() async {
 Future<String> getBaseShareDomain() async {
   final result =
       await getIt<KeyValueStorage>().get(KVKeys.kAppFlowyBaseShareDomain);
-  return result ?? ShareConstants.baseDomain;
+  return result ?? ShareConstants.baseWebDomain;
 }
 
 Future<bool> getSyncLogEnabled() async {

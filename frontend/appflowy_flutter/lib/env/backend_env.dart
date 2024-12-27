@@ -42,7 +42,7 @@ class AppFlowyCloudConfiguration {
     required this.ws_base_url,
     required this.gotrue_url,
     required this.enable_sync_trace,
-    required this.share_base_domain,
+    required this.base_web_domain,
   });
 
   factory AppFlowyCloudConfiguration.fromJson(Map<String, dynamic> json) =>
@@ -58,7 +58,7 @@ class AppFlowyCloudConfiguration {
   /// - Share URL
   /// - Publish URL
   /// - Copy Link To Block
-  final String share_base_domain;
+  final String base_web_domain;
 
   Map<String, dynamic> toJson() => _$AppFlowyCloudConfigurationToJson(this);
 
@@ -68,7 +68,7 @@ class AppFlowyCloudConfiguration {
       ws_base_url: '',
       gotrue_url: '',
       enable_sync_trace: false,
-      share_base_domain: ShareConstants.baseDomain,
+      base_web_domain: ShareConstants.baseWebDomain,
     );
   }
 

@@ -24,10 +24,10 @@ class AppFlowyCloudURLsBloc
             ),
           );
         },
-        updateShareBaseDomain: (url) {
+        updateBaseWebDomain: (url) {
           emit(
             state.copyWith(
-              updatedShareBaseDomain: url,
+              updatedBaseWebDomain: url,
               urlError: null,
               showRestartHint: url.isNotEmpty,
             ),
@@ -54,9 +54,9 @@ class AppFlowyCloudURLsBloc
               (err) async => emit(state.copyWith(urlError: err)),
             );
 
-            await validateUrl(state.updatedShareBaseDomain).fold(
+            await validateUrl(state.updatedBaseWebDomain).fold(
               (url) async {
-                await useShareBaseDomain(url);
+                await useBaseWebDomain(url);
                 isSuccess = true;
               },
               (err) async => emit(state.copyWith(urlError: err)),
@@ -85,8 +85,8 @@ class AppFlowyCloudURLsEvent with _$AppFlowyCloudURLsEvent {
   const factory AppFlowyCloudURLsEvent.initial() = _Initial;
   const factory AppFlowyCloudURLsEvent.updateServerUrl(String text) =
       _ServerUrl;
-  const factory AppFlowyCloudURLsEvent.updateShareBaseDomain(String text) =
-      _UpdateShareBaseDomain;
+  const factory AppFlowyCloudURLsEvent.updateBaseWebDomain(String text) =
+      _UpdateBaseWebDomain;
   const factory AppFlowyCloudURLsEvent.confirmUpdate() = _UpdateConfig;
   const factory AppFlowyCloudURLsEvent.didSaveConfig() = _DidSaveConfig;
 }
@@ -96,7 +96,7 @@ class AppFlowyCloudURLsState with _$AppFlowyCloudURLsState {
   const factory AppFlowyCloudURLsState({
     required AppFlowyCloudConfiguration config,
     required String updatedServerUrl,
-    required String updatedShareBaseDomain,
+    required String updatedBaseWebDomain,
     required String? urlError,
     required bool restartApp,
     required bool showRestartHint,
@@ -107,9 +107,8 @@ class AppFlowyCloudURLsState with _$AppFlowyCloudURLsState {
         urlError: null,
         updatedServerUrl:
             getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.base_url,
-        updatedShareBaseDomain: getIt<AppFlowyCloudSharedEnv>()
-            .appflowyCloudConfig
-            .share_base_domain,
+        updatedBaseWebDomain:
+            getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.base_web_domain,
         showRestartHint: getIt<AppFlowyCloudSharedEnv>()
             .appflowyCloudConfig
             .base_url

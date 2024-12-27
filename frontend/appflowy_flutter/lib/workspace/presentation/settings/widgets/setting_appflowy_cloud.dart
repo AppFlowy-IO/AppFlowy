@@ -190,13 +190,12 @@ class AppFlowyCloudURLs extends StatelessWidget {
                 ),
                 const VSpace(8),
                 CloudURLInput(
-                  title: 'Base domain',
-                  url: state.config.share_base_domain,
-                  hint:
-                      'The base domain is used in share URL, publish URL, and copy link to block',
+                  title: LocaleKeys.settings_menu_webURL.tr(),
+                  url: state.config.base_web_domain,
+                  hint: LocaleKeys.settings_menu_webURLHint.tr(),
                   onChanged: (text) {
                     context.read<AppFlowyCloudURLsBloc>().add(
-                          AppFlowyCloudURLsEvent.updateShareBaseDomain(
+                          AppFlowyCloudURLsEvent.updateBaseWebDomain(
                             text,
                           ),
                         );
