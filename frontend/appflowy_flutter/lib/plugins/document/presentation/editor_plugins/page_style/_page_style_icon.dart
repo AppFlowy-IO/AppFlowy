@@ -87,9 +87,9 @@ class _PageStyleIconState extends State<PageStyleIcon> {
             child: FlowyIconEmojiPicker(
               onSelectedEmoji: (r) {
                 pageStyleIconBloc.add(
-                  PageStyleIconEvent.updateIcon(r, true),
+                  PageStyleIconEvent.updateIcon(r.data, true),
                 );
-                Navigator.pop(ctx);
+                if (!r.keepOpen) Navigator.pop(ctx);
               },
             ),
           ),

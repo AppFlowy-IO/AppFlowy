@@ -82,9 +82,12 @@ class RawEmojiIconWidget extends StatelessWidget {
           );
         case FlowyIconType.icon:
           final iconData = IconsData.fromJson(jsonDecode(emoji.emoji));
-          return IconWidget(
-            data: iconData,
-            size: emojiSize,
+          return Padding(
+            padding: EdgeInsets.only(top: emojiSize * 0.1),
+            child: IconWidget(
+              data: iconData,
+              size: emojiSize * 0.9,
+            ),
           );
         default:
           return defaultEmoji;

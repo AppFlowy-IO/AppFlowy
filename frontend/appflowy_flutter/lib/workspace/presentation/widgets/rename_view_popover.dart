@@ -91,13 +91,15 @@ class _RenameViewPopoverState extends State<RenameViewPopover> {
   }
 
   Future<void> _updateViewIcon(
-    EmojiIconData emoji,
+    SelectedEmojiIconResult r,
     PopoverController? _,
   ) async {
     await ViewBackendService.updateViewIcon(
       viewId: widget.viewId,
-      viewIcon: emoji,
+      viewIcon: r.data,
     );
-    widget.popoverController.close();
+    if (!r.keepOpen) {
+      widget.popoverController.close();
+    }
   }
 }

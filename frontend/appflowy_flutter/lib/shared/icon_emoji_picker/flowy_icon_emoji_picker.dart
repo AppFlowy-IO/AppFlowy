@@ -78,6 +78,22 @@ class EmojiIconData {
   bool get isNotEmpty => emoji.isNotEmpty;
 }
 
+class SelectedEmojiIconResult {
+  SelectedEmojiIconResult(this.data, this.keepOpen);
+
+  final EmojiIconData data;
+  final bool keepOpen;
+
+  FlowyIconType get type => data.type;
+
+  String get emoji => data.emoji;
+}
+
+extension EmojiIconDataToSelectedResultExtension on EmojiIconData {
+  SelectedEmojiIconResult toSelectedResult({bool keepOpen = false}) =>
+      SelectedEmojiIconResult(this, keepOpen);
+}
+
 class FlowyIconEmojiPicker extends StatefulWidget {
   const FlowyIconEmojiPicker({
     super.key,
@@ -86,7 +102,7 @@ class FlowyIconEmojiPicker extends StatefulWidget {
     this.tabs = const [PickerTabType.emoji, PickerTabType.icon],
   });
 
-  final ValueChanged<EmojiIconData>? onSelectedEmoji;
+  final ValueChanged<SelectedEmojiIconResult>? onSelectedEmoji;
   final bool enableBackgroundColorSelection;
   final List<PickerTabType> tabs;
 
@@ -127,7 +143,8 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
               ),
               _RemoveIconButton(
                 onTap: () {
-                  widget.onSelectedEmoji?.call(EmojiIconData.none());
+                  widget.onSelectedEmoji
+                      ?.call(EmojiIconData.none().toSelectedResult());
                 },
               ),
             ],
@@ -155,8 +172,8 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
     return FlowyEmojiPicker(
       ensureFocus: true,
       emojiPerLine: _getEmojiPerLine(context),
-      onEmojiSelected: (_, emoji) => widget.onSelectedEmoji?.call(
-        EmojiIconData.emoji(emoji),
+      onEmojiSelected: (r) => widget.onSelectedEmoji?.call(
+        EmojiIconData.emoji(r.emoji).toSelectedResult(keepOpen: r.isRandom),
       ),
     );
   }
@@ -172,8 +189,10 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
   Widget _buildIconPicker() {
     return FlowyIconPicker(
       enableBackgroundColorSelection: widget.enableBackgroundColorSelection,
-      onSelectedIcon: (result) {
-        widget.onSelectedEmoji?.call(result.toEmojiIconData());
+      onSelectedIcon: (r) {
+        widget.onSelectedEmoji?.call(
+          r.data.toEmojiIconData().toSelectedResult(keepOpen: r.isRandom),
+        );
       },
     );
   }

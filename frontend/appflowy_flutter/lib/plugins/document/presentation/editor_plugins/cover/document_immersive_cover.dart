@@ -229,9 +229,9 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
                 child: FlowyIconEmojiPicker(
                   onSelectedEmoji: (r) {
                     pageStyleIconBloc.add(
-                      PageStyleIconEvent.updateIcon(r, true),
+                      PageStyleIconEvent.updateIcon(r.data, true),
                     );
-                    Navigator.pop(context);
+                    if (!r.keepOpen) Navigator.pop(context);
                   },
                 ),
               ),

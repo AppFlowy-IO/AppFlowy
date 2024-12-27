@@ -75,6 +75,18 @@ Future<List<IconGroup>> loadIconGroups() async {
   }
 }
 
+class IconPickerResult {
+  IconPickerResult(this.data, this.isRandom);
+
+  final IconsData data;
+  final bool isRandom;
+}
+
+extension IconsDataToIconPickerResultExtension on IconsData {
+  IconPickerResult toResult({bool isRandom = false}) =>
+      IconPickerResult(this, isRandom);
+}
+
 class FlowyIconPicker extends StatefulWidget {
   const FlowyIconPicker({
     super.key,
@@ -84,7 +96,7 @@ class FlowyIconPicker extends StatefulWidget {
   });
 
   final bool enableBackgroundColorSelection;
-  final ValueChanged<IconsData> onSelectedIcon;
+  final ValueChanged<IconPickerResult> onSelectedIcon;
   final int iconPerLine;
 
   @override
@@ -154,7 +166,7 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
                   value.$2.content,
                   value.$2.name,
                   color,
-                ),
+                ).toResult(isRandom: true),
               );
             },
             onKeywordChanged: (keyword) => {
@@ -193,14 +205,14 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
             iconGroups: filteredIconGroups,
             enableBackgroundColorSelection:
                 widget.enableBackgroundColorSelection,
-            onSelectedIcon: widget.onSelectedIcon,
+            onSelectedIcon: (r) => r.toResult(),
             iconPerLine: widget.iconPerLine,
           );
         }
         return IconPicker(
           iconGroups: iconGroups,
           enableBackgroundColorSelection: widget.enableBackgroundColorSelection,
-          onSelectedIcon: widget.onSelectedIcon,
+          onSelectedIcon: (r) => r.toResult(),
           iconPerLine: widget.iconPerLine,
         );
       },

@@ -26,8 +26,10 @@ class EmojiPickerButton extends StatelessWidget {
   final EmojiIconData emoji;
   final double emojiSize;
   final Size emojiPickerSize;
-  final void Function(EmojiIconData emoji, PopoverController? controller)
-      onSubmitted;
+  final void Function(
+    SelectedEmojiIconResult result,
+    PopoverController? controller,
+  ) onSubmitted;
   final PopoverController popoverController = PopoverController();
   final Widget? defaultIcon;
   final Offset? offset;
@@ -85,8 +87,10 @@ class _DesktopEmojiPickerButton extends StatelessWidget {
   final EmojiIconData emoji;
   final double emojiSize;
   final Size emojiPickerSize;
-  final void Function(EmojiIconData emoji, PopoverController? controller)
-      onSubmitted;
+  final void Function(
+    SelectedEmojiIconResult result,
+    PopoverController? controller,
+  ) onSubmitted;
   final PopoverController popoverController = PopoverController();
   final Widget? defaultIcon;
   final Offset? offset;
@@ -156,8 +160,10 @@ class _MobileEmojiPickerButton extends StatelessWidget {
 
   final EmojiIconData emoji;
   final double emojiSize;
-  final void Function(EmojiIconData emoji, PopoverController? controller)
-      onSubmitted;
+  final void Function(
+    SelectedEmojiIconResult result,
+    PopoverController? controller,
+  ) onSubmitted;
   final String? title;
   final bool enable;
   final EdgeInsets? margin;
@@ -181,7 +187,7 @@ class _MobileEmojiPickerButton extends StatelessWidget {
                 ).toString(),
               );
               if (result != null) {
-                onSubmitted(result, null);
+                onSubmitted(result.toSelectedResult(), null);
               }
             }
           : null,
