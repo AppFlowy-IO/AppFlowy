@@ -23,7 +23,10 @@ class NumberedListIcon extends StatelessWidget {
         textStyleConfiguration.text.height ?? textStyleConfiguration.lineHeight;
     final combinedTextStyle = textStyle?.combine(textStyleConfiguration.text) ??
         textStyleConfiguration.text;
-    final adjustedTextStyle = combinedTextStyle.copyWith(height: height);
+    final adjustedTextStyle = combinedTextStyle.copyWith(
+      height: height,
+      fontFeatures: [const FontFeature.tabularFigures()],
+    );
 
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
