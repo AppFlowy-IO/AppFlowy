@@ -310,4 +310,7 @@ extension SimpleTableColors on BuildContext {
   Color get simpleTableInsertActionBackgroundColor => Theme.of(this).isLightMode
       ? const Color(0xFFF2F2F7)
       : const Color(0xFF2D3036);
+
+  Color? get simpleTableQuickActionBackgroundColor =>
+      Theme.of(this).isLightMode ? null : const Color(0xFFBBC3CD);
 }
