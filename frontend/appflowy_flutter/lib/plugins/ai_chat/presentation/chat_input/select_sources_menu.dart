@@ -395,12 +395,19 @@ class ChatSourceTreeItemInner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyHover(
+      cursor: isSelectedSection ? SystemMouseCursors.basic : null,
       style: HoverStyle(
-        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        hoverColor: isSelectedSection
+            ? Colors.transparent
+            : AFThemeExtension.of(context).lightGreyHover,
       ),
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onTap: () => onSelected?.call(chatSource),
+        onTap: () {
+          if (!isSelectedSection) {
+            onSelected?.call(chatSource);
+          }
+        },
         child: Row(
           children: [
             const HSpace(4.0),

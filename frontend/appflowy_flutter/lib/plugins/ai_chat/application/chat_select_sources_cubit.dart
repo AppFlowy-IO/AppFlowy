@@ -311,15 +311,9 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
     }
     final visible = [_buildSearchResults(source!)].nonNulls.toList();
 
-    selectedSources
-      ..forEach((e) => e.dispose())
-      ..clear()
-      ..addAll(_buildSelectedSources(source!));
     emit(
       state.copyWith(
         visibleSources: visible,
-        selectedSources:
-            selectedSources.map(_buildSearchResults).nonNulls.toList(),
       ),
     );
   }
