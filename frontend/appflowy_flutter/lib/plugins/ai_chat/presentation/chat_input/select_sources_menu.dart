@@ -74,9 +74,9 @@ class _PromptInputDesktopSelectSourcesButtonState
           value: cubit,
         ),
       ],
-      child: BlocSelector<SpaceBloc, SpaceState, ViewPB?>(
-        selector: (state) => state.currentSpace,
-        builder: (context, spaceView) {
+      child: BlocSelector<SpaceBloc, SpaceState, List<ViewPB>>(
+        selector: (state) => state.spaces,
+        builder: (context, spaces) {
           return BlocListener<ChatBloc, ChatState>(
             listener: (context, state) {
               cubit
@@ -90,15 +90,11 @@ class _PromptInputDesktopSelectSourcesButtonState
               margin: EdgeInsets.zero,
               controller: popoverController,
               onOpen: () {
-                if (spaceView != null) {
-                  context.read<ChatSettingsCubit>().refreshSources(spaceView);
-                }
+                context.read<ChatSettingsCubit>().refreshSources(spaces);
               },
               onClose: () {
                 widget.onUpdateSelectedSources(cubit.selectedSourceIds);
-                if (spaceView != null) {
-                  context.read<ChatSettingsCubit>().refreshSources(spaceView);
-                }
+                context.read<ChatSettingsCubit>().refreshSources(spaces);
               },
               popupBuilder: (_) {
                 return BlocProvider.value(
