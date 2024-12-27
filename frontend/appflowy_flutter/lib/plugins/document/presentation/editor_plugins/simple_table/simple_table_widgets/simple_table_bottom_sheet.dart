@@ -28,11 +28,13 @@ class SimpleTableCellBottomSheet extends StatefulWidget {
     required this.type,
     required this.cellNode,
     required this.editorState,
+    this.scrollController,
   });
 
   final SimpleTableMoreActionType type;
   final Node cellNode;
   final EditorState editorState;
+  final ScrollController? scrollController;
 
   @override
   State<SimpleTableCellBottomSheet> createState() =>
@@ -81,7 +83,9 @@ class _SimpleTableCellBottomSheetState
         _buildHeader(),
 
         // content
-        ..._buildContent(),
+        ...menuState == _SimpleTableBottomSheetMenuState.cellActionMenu
+            ? _buildScrollableContent()
+            : _buildNonScrollableContent(),
       ],
     );
   }
@@ -112,6 +116,38 @@ class _SimpleTableCellBottomSheetState
       default:
         throw UnimplementedError('Unsupported menu state: $menuState');
     }
+  }
+
+  List<Widget> _buildScrollableContent() {
+    return [
+      SizedBox(
+        height: SimpleTableConstants.actionSheetBottomSheetHeight,
+        child: Scrollbar(
+          controller: widget.scrollController,
+          child: SingleChildScrollView(
+            controller: widget.scrollController,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ..._buildContent(),
+
+                // safe area padding
+                VSpace(context.bottomSheetPadding() * 2),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildNonScrollableContent() {
+    return [
+      ..._buildContent(),
+
+      // safe area padding
+      VSpace(context.bottomSheetPadding()),
+    ];
   }
 
   List<Widget> _buildContent() {
@@ -296,10 +332,12 @@ class SimpleTableBottomSheet extends StatefulWidget {
     super.key,
     required this.tableNode,
     required this.editorState,
+    this.scrollController,
   });
 
   final Node tableNode;
   final EditorState editorState;
+  final ScrollController? scrollController;
 
   @override
   State<SimpleTableBottomSheet> createState() => _SimpleTableBottomSheetState();
@@ -321,7 +359,24 @@ class _SimpleTableBottomSheetState extends State<SimpleTableBottomSheet> {
         _buildHeader(),
 
         // content
-        ..._buildContent(),
+        SizedBox(
+          height: SimpleTableConstants.actionSheetBottomSheetHeight,
+          child: Scrollbar(
+            controller: widget.scrollController,
+            child: SingleChildScrollView(
+              controller: widget.scrollController,
+              child: Column(
+                children: [
+                  // content
+                  ..._buildContent(),
+
+                  // safe area padding
+                  VSpace(context.bottomSheetPadding() * 2),
+                ],
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }

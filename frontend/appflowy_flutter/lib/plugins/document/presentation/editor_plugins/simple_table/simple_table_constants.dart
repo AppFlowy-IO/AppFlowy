@@ -269,6 +269,8 @@ class SimpleTableConstants {
   static const actionSheetContentSectionHeight = 44.0;
   static const actionSheetNormalActionSectionHeight = 48.0;
   static const actionSheetButtonRadius = 12.0;
+
+  static const actionSheetBottomSheetHeight = 320.0;
 }
 
 enum SimpleTableBorderRenderType {

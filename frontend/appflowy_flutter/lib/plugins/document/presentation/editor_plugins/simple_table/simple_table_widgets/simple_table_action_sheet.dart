@@ -199,8 +199,10 @@ class _SimpleTableMobileReorderButtonState
     // show the bottom sheet
     await showMobileBottomSheet(
       context,
+      useSafeArea: false,
       showDragHandle: true,
       showDivider: false,
+      enablePadding: false,
       builder: (context) => Provider.value(
         value: simpleTableContext,
         child: SimpleTableCellBottomSheet(
