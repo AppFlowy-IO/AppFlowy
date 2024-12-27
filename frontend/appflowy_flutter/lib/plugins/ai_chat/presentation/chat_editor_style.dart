@@ -49,7 +49,7 @@ class ChatEditorStyleCustomizer extends EditorStyleCustomizer {
           DefaultAppearanceSettings.getDefaultSelectionColor(context),
       defaultTextDirection: appearance.defaultTextDirection,
       textStyleConfiguration: TextStyleConfiguration(
-        lineHeight: 1.4,
+        lineHeight: 20 / 14,
         applyHeightToFirstAscent: true,
         applyHeightToLastDescent: true,
         text: baseTextStyle(fontFamily).copyWith(
