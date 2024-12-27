@@ -213,7 +213,7 @@
     "addToPageTitle": "Add message to...",
     "addToNewPage": "Add to a new page",
     "addToNewPageName": "Messages extracted from \"{}\"",
-    "onlyUseRags": "Only use selected sources to generate response"
+    "onlyUseRags": "Selected sources only"
   },
   "trash": {
     "text": "Trash",

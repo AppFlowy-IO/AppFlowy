@@ -43,9 +43,10 @@ class _PromptInputDesktopSelectSourcesButtonState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      cubit.updateSelectedSources(
-        context.read<ChatBloc>().state.selectedSourceIds,
-      );
+      final chatBlocState = context.read<ChatBloc>().state;
+      cubit
+        ..updateSelectedSources(chatBlocState.selectedSourceIds)
+        ..updateOnlyUseSelectedSources(chatBlocState.onlyUseSelectedSources);
     });
   }
 

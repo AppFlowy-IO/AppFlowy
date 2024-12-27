@@ -345,12 +345,12 @@ impl AIManager {
     Ok(())
   }
 
-  pub async fn get_rag_ids(&self, chat_id: &str) -> FlowyResult<Vec<String>> {
+  pub async fn get_chat_settings(&self, chat_id: &str) -> FlowyResult<ChatSettingsPB> {
     if let Some(settings) = self
       .store_preferences
       .get_object::<ChatSettings>(&setting_store_key(chat_id))
     {
-      return Ok(settings.rag_ids);
+      return Ok(settings.into());
     }
 
     let settings = refresh_chat_setting(
@@ -360,7 +360,7 @@ impl AIManager {
       chat_id,
     )
     .await?;
-    Ok(settings.rag_ids)
+    Ok(settings.into())
   }
 
   pub async fn update_settings(
@@ -448,9 +448,7 @@ async fn refresh_chat_setting(
   }
 
   chat_notification_builder(chat_id, ChatNotification::DidUpdateChatSettings)
-    .payload(ChatSettingsPB {
-      rag_ids: settings.rag_ids.clone(),
-    })
+    .payload(ChatSettingsPB::from(settings.clone()))
     .send();
 
   Ok(settings)

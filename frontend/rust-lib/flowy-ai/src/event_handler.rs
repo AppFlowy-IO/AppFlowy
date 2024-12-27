@@ -446,8 +446,7 @@ pub(crate) async fn get_chat_settings_handler(
 ) -> DataResult<ChatSettingsPB, FlowyError> {
   let chat_id = data.try_into_inner()?.value;
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let rag_ids = ai_manager.get_rag_ids(&chat_id).await?;
-  let pb = ChatSettingsPB { rag_ids };
+  let pb = ai_manager.get_chat_settings(&chat_id).await?;
   data_result_ok(pb)
 }
 

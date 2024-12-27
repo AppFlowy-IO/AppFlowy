@@ -244,7 +244,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           },
           didReceiveChatSettings: (settings) {
             emit(
-              state.copyWith(selectedSourceIds: settings.ragIds),
+              state.copyWith(
+                selectedSourceIds: settings.ragIds.ragIds,
+                onlyUseSelectedSources: settings.ragOnly,
+              ),
             );
           },
           updateSelectedSources: (selectedSourcesIds) async {
