@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -364,71 +365,59 @@ class OkCancelButton extends StatelessWidget {
 
 void showToastNotification(
   BuildContext context, {
-  required String message,
+  String? message,
+  TextSpan? richMessage,
   String? description,
   ToastificationType type = ToastificationType.success,
   ToastificationCallbacks? callbacks,
   double bottomPadding = 100,
 }) {
-  if (UniversalPlatform.isMobile) {
-    toastification.showCustom(
-      alignment: Alignment.bottomCenter,
-      autoCloseDuration: const Duration(milliseconds: 3000),
-      callbacks: callbacks ?? const ToastificationCallbacks(),
-      builder: (_, __) => _MToast(
-        message: message,
-        type: type,
-        bottomPadding: bottomPadding,
-        description: description,
-      ),
-    );
-    return;
-  }
-
-  toastification.show(
-    context: context,
-    type: type,
-    style: ToastificationStyle.flat,
-    closeButtonShowType: CloseButtonShowType.onHover,
+  assert(
+    (message == null) != (richMessage == null),
+    "Exactly one of message or richMessage must be non-null.",
+  );
+  toastification.showCustom(
     alignment: Alignment.bottomCenter,
     autoCloseDuration: const Duration(milliseconds: 3000),
-    showProgressBar: false,
-    backgroundColor: Theme.of(context).colorScheme.surface,
-    borderSide: BorderSide(
-      color: Colors.grey.withOpacity(0.4),
-    ),
-    title: FlowyText(
-      message,
-      maxLines: 3,
-    ),
-    description: description != null
-        ? FlowyText.regular(
-            description,
-            fontSize: 12,
-            lineHeight: 1.2,
-            maxLines: 3,
-          )
-        : null,
+    callbacks: callbacks ?? const ToastificationCallbacks(),
+    builder: (_, item) {
+      return UniversalPlatform.isMobile
+          ? _MobileToast(
+              message: message,
+              type: type,
+              bottomPadding: bottomPadding,
+              description: description,
+            )
+          : _DesktopToast(
+              message: message,
+              richMessage: richMessage,
+              type: type,
+              onDismiss: () => toastification.dismiss(item),
+            );
+    },
   );
 }
 
-class _MToast extends StatelessWidget {
-  const _MToast({
-    required this.message,
+class _MobileToast extends StatelessWidget {
+  const _MobileToast({
+    this.message,
     this.type = ToastificationType.success,
     this.bottomPadding = 100,
     this.description,
   });
 
-  final String message;
+  final String? message;
   final ToastificationType type;
   final double bottomPadding;
   final String? description;
 
   @override
   Widget build(BuildContext context) {
+    if (message == null) {
+      return const SizedBox.shrink();
+    }
     final hintText = FlowyText.regular(
-      message,
+      message!,
       fontSize: 16.0,
       figmaLineHeight: 18.0,
       color: Colors.white,
@@ -493,6 +482,90 @@ class _MToast extends StatelessWidget {
                   ],
                 ],
               ),
+      ),
+    );
+  }
+}
+
+class _DesktopToast extends StatelessWidget {
+  const _DesktopToast({
+    this.message,
+    this.richMessage,
+    required this.type,
+    this.onDismiss,
+  });
+
+  final String? message;
+  final TextSpan? richMessage;
+  final ToastificationType type;
+  final void Function()? onDismiss;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 360.0),
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+        margin: const EdgeInsets.only(bottom: 32.0),
+        decoration: BoxDecoration(
+          color: Theme.of(context).isLightMode
+              ? const Color(0xFF333333)
+              : const Color(0xFF363D49),
+          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // icon
+            FlowySvg(
+              switch (type) {
+                ToastificationType.warning => FlowySvgs.toast_warning_filled_s,
+                ToastificationType.success => FlowySvgs.toast_checked_filled_s,
+                ToastificationType.error => FlowySvgs.toast_error_filled_s,
+                _ => throw UnimplementedError(),
+              },
+              size: const Size.square(20.0),
+              blendMode: null,
+            ),
+            const HSpace(8.0),
+            // text
+            Flexible(
+              child: message != null
+                  ? FlowyText(
+                      message!,
+                      maxLines: 2,
+                      figmaLineHeight: 20.0,
+                      overflow: TextOverflow.ellipsis,
+                      color: const Color(0xFFFFFFFF),
+                    )
+                  : RichText(
+                      text: richMessage!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+            ),
+            const HSpace(16.0),
+            // close
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onDismiss,
+                child: const SizedBox.square(
+                  dimension: 24.0,
+                  child: Center(
+                    child: FlowySvg(
+                      FlowySvgs.toast_close_s,
+                      size: Size.square(16.0),
+                      color: Color(0xFFBDBDBD),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
