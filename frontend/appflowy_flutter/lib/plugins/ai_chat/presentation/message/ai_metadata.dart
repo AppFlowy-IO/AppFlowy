@@ -88,7 +88,9 @@ class _AIMessageMetadataState extends State<AIMessageMetadata> {
                         if (!snapshot.hasData ||
                             snapshot.connectionState != ConnectionState.done ||
                             data == null) {
-                          return const _MetadataButton(isLoading: true);
+                          return _MetadataButton(
+                            name: m.name,
+                          );
                         }
                         return BlocProvider(
                           create: (_) => ViewBloc(view: data),
@@ -123,12 +125,10 @@ class _MetadataButton extends StatelessWidget {
   const _MetadataButton({
     this.name = "",
     this.onTap,
-    this.isLoading = false,
   });
 
   final String name;
   final void Function()? onTap;
-  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -137,24 +137,21 @@ class _MetadataButton extends StatelessWidget {
         maxHeight: 24,
         maxWidth: 240,
       ),
-      child: Opacity(
-        opacity: isLoading ? 0 : 1,
-        child: FlowyButton(
-          margin: const EdgeInsets.all(4.0),
-          useIntrinsicWidth: true,
-          radius: BorderRadius.circular(8.0),
-          text: FlowyText(
-            name,
-            fontSize: 12,
-            overflow: TextOverflow.ellipsis,
-          ),
-          leftIcon: FlowySvg(
-            FlowySvgs.icon_document_s,
-            size: const Size.square(16),
-            color: Theme.of(context).hintColor,
-          ),
-          onTap: onTap,
+      child: FlowyButton(
+        margin: const EdgeInsets.all(4.0),
+        useIntrinsicWidth: true,
+        radius: BorderRadius.circular(8.0),
+        text: FlowyText(
+          name,
+          fontSize: 12,
+          overflow: TextOverflow.ellipsis,
         ),
+        leftIcon: FlowySvg(
+          FlowySvgs.icon_document_s,
+          size: const Size.square(16),
+          color: Theme.of(context).hintColor,
+        ),
+        onTap: onTap,
       ),
     );
   }
