@@ -44,7 +44,7 @@ use flowy_user_pub::cloud::{UserCloudService, UserCloudServiceProvider};
 use flowy_user_pub::entities::{Authenticator, UserTokenState};
 use lib_infra::async_trait::async_trait;
 
-use crate::integrate::server::{Server, ServerProvider};
+use crate::server_layer::{Server, ServerProvider};
 
 #[async_trait]
 impl StorageCloudService for ServerProvider {
