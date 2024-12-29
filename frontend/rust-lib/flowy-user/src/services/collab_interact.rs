@@ -3,7 +3,7 @@ use collab_entity::reminder::Reminder;
 use lib_infra::async_trait::async_trait;
 
 #[async_trait]
-pub trait CollabInteract: Send + Sync + 'static {
+pub trait UserReminder: Send + Sync + 'static {
   async fn add_reminder(&self, _reminder: Reminder) -> Result<(), Error> {
     Ok(())
   }
@@ -18,4 +18,4 @@ pub trait CollabInteract: Send + Sync + 'static {
 pub struct DefaultCollabInteract;
 
 #[async_trait]
-impl CollabInteract for DefaultCollabInteract {}
+impl UserReminder for DefaultCollabInteract {}

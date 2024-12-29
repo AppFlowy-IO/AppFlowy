@@ -17,7 +17,7 @@ use flowy_user_pub::cloud::{UserCloudConfig, UserCloudServiceProvider};
 use flowy_user_pub::entities::{Authenticator, UserProfile, UserWorkspace};
 use lib_infra::async_trait::async_trait;
 
-use crate::integrate::server::{Server, ServerProvider};
+use crate::server_layer::{Server, ServerProvider};
 
 pub(crate) struct UserStatusCallbackImpl {
   pub(crate) collab_builder: Arc<AppFlowyCollabBuilder>,

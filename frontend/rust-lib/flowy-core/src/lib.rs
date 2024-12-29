@@ -32,15 +32,17 @@ use module::make_plugins;
 use crate::config::AppFlowyCoreConfig;
 use crate::deps_resolve::file_storage_deps::FileStorageResolver;
 use crate::deps_resolve::*;
-use crate::integrate::collab_interact::CollabInteractImpl;
-use crate::integrate::log::init_log;
-use crate::integrate::server::{current_server_type, Server, ServerProvider};
-use crate::integrate::user::UserStatusCallbackImpl;
+use deps_resolve::reminder_deps::CollabInteractImpl;
+use user_state_callback::UserStatusCallbackImpl;
+use crate::log_filter::init_log;
+use crate::server_layer::{current_server_type, Server, ServerProvider};
 
 pub mod config;
 mod deps_resolve;
-pub mod integrate;
 pub mod module;
+pub(crate) mod user_state_callback;
+pub(crate) mod server_layer;
+mod log_filter;
 
 /// This name will be used as to identify the current [AppFlowyCore] instance.
 /// Don't change this.

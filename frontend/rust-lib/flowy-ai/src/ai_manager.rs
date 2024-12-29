@@ -31,6 +31,8 @@ pub trait AIUserService: Send + Sync + 'static {
   fn application_root_dir(&self) -> Result<PathBuf, FlowyError>;
 }
 
+
+/// AIExternalService is an interface for external services that AI plugin can interact with.
 #[async_trait]
 pub trait AIExternalService: Send + Sync + 'static {
   async fn query_chat_rag_ids(

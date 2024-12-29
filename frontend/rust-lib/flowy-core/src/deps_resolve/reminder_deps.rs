@@ -6,7 +6,7 @@ use flowy_database2::DatabaseManager;
 use flowy_document::manager::DocumentManager;
 use flowy_document::reminder::{DocumentReminder, DocumentReminderAction};
 use flowy_folder_pub::cloud::Error;
-use flowy_user::services::collab_interact::CollabInteract;
+use flowy_user::services::collab_interact::UserReminder;
 use lib_infra::async_trait::async_trait;
 
 pub struct CollabInteractImpl {
@@ -17,7 +17,7 @@ pub struct CollabInteractImpl {
 }
 
 #[async_trait]
-impl CollabInteract for CollabInteractImpl {
+impl UserReminder for CollabInteractImpl {
   async fn add_reminder(&self, reminder: Reminder) -> Result<(), Error> {
     if let Some(document_manager) = self.document_manager.upgrade() {
       match DocumentReminder::try_from(reminder) {
