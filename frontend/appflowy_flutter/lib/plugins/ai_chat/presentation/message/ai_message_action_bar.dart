@@ -274,7 +274,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
         onPressed: () async {
           final documentId = getOpenedDocumentId();
           if (documentId != null) {
-            await onAddToExistingPage(documentId);
+            await onAddToExistingPage(context, documentId);
             await forceReloadAndUpdateSelection(documentId);
           } else {
             widget.onOverrideVisibility?.call(true);
@@ -298,9 +298,8 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
         },
         onAddToExistingPage: (documentId) async {
           popoverController.close();
-          await onAddToExistingPage(documentId);
-          final view =
-              await ViewBackendService.getView(documentId).toNullable();
+          final view = await onAddToExistingPage(context, documentId);
+
           if (context.mounted) {
             openPageFromMessage(context, view);
           }
@@ -309,12 +308,20 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
     );
   }
 
-  Future<void> onAddToExistingPage(String documentId) async {
+  Future<ViewPB?> onAddToExistingPage(
+    BuildContext context,
+    String documentId,
+  ) async {
     await ChatEditDocumentService.addMessageToPage(
       documentId,
       widget.textMessage,
     );
     await Future.delayed(const Duration(milliseconds: 500));
+    final view = await ViewBackendService.getView(documentId).toNullable();
+    if (context.mounted) {
+      showSaveMessageSuccessToast(context, view);
+    }
+    return view;
   }
 
   void addMessageToNewPage(BuildContext context) async {
@@ -327,10 +334,41 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
         chatView.parentViewId,
         [widget.textMessage],
       );
+
       if (context.mounted) {
+        showSaveMessageSuccessToast(context, newView);
         openPageFromMessage(context, newView);
       }
     }
+  }
+
+  void showSaveMessageSuccessToast(BuildContext context, ViewPB? view) {
+    if (view == null) {
+      return;
+    }
+    showToastNotification(
+      context,
+      richMessage: TextSpan(
+        children: [
+          TextSpan(
+            text: LocaleKeys.chat_addToNewPageSuccessToast.tr(),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: const Color(0xFFFFFFFF),
+                ),
+          ),
+          const TextSpan(
+            text: ' ',
+          ),
+          TextSpan(
+            text: view.nameOrDefault,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: const Color(0xFFFFFFFF),
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> forceReloadAndUpdateSelection(String documentId) async {
