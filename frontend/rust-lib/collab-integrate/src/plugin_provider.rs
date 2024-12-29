@@ -1,9 +1,8 @@
-use crate::collab_builder::{CollabPluginProviderContext, CollabPluginProviderType};
 use collab::preclude::CollabPlugin;
-use lib_infra::future::Fut;
-use std::rc::Rc;
 
-pub trait CollabCloudPluginProvider: 'static {
+use crate::collab_builder::{CollabPluginProviderContext, CollabPluginProviderType};
+
+pub trait CollabCloudPluginProvider: Send + Sync + 'static {
   fn provider_type(&self) -> CollabPluginProviderType;
 
   fn get_plugins(&self, context: CollabPluginProviderContext) -> Vec<Box<dyn CollabPlugin>>;
@@ -11,9 +10,9 @@ pub trait CollabCloudPluginProvider: 'static {
   fn is_sync_enabled(&self) -> bool;
 }
 
-impl<T> CollabCloudPluginProvider for Rc<T>
+impl<U> CollabCloudPluginProvider for std::sync::Arc<U>
 where
-  T: CollabCloudPluginProvider,
+  U: CollabCloudPluginProvider,
 {
   fn provider_type(&self) -> CollabPluginProviderType {
     (**self).provider_type()
