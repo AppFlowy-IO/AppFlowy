@@ -69,9 +69,9 @@ class _PromptInputMobileSelectSourcesButtonState
               value: cubit,
             ),
           ],
-          child: BlocSelector<SpaceBloc, SpaceState, ViewPB?>(
-            selector: (state) => state.currentSpace,
-            builder: (context, spaceView) {
+          child: BlocSelector<SpaceBloc, SpaceState, List<ViewPB>>(
+            selector: (state) => state.spaces,
+            builder: (context, spaces) {
               return BlocListener<ChatBloc, ChatState>(
                 listener: (context, state) {
                   cubit
@@ -97,11 +97,7 @@ class _PromptInputMobileSelectSourcesButtonState
                     ],
                   ),
                   onTap: () async {
-                    if (spaceView != null) {
-                      context
-                          .read<ChatSettingsCubit>()
-                          .refreshSources(spaceView);
-                    }
+                    context.read<ChatSettingsCubit>().refreshSources(spaces);
                     await showMobileBottomSheet<void>(
                       context,
                       backgroundColor: Theme.of(context).colorScheme.surface,

@@ -422,8 +422,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     );
   }
 
-  void forceReloadDocumentState() {
-    _documentCollabAdapter.syncV3();
+  Future<void> forceReloadDocumentState() {
+    return _documentCollabAdapter.syncV3();
   }
 
   // this is only used for debug mode

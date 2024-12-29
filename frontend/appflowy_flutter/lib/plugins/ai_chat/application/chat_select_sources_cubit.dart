@@ -4,6 +4,7 @@ import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -103,7 +104,7 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
   ChatSettingsCubit() : super(ChatSettingsState.initial());
 
   List<String> selectedSourceIds = [];
-  ChatSource? source;
+  List<ChatSource> sources = [];
   List<ChatSource> selectedSources = [];
   String filter = '';
 
@@ -111,25 +112,32 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
     selectedSourceIds = [...newSelectedSourceIds];
   }
 
-  void refreshSources(ViewPB view) async {
+  void refreshSources(List<ViewPB> spaceViews) async {
     filter = "";
-    final newSource = await _recursiveBuild(view, null);
 
-    _restrictSelectionIfNecessary(newSource.children);
+    final newSources = await Future.wait(
+      spaceViews.map((view) => _recursiveBuild(view, null)),
+    );
+    for (final source in newSources) {
+      _restrictSelectionIfNecessary(source.children);
+    }
 
-    final selected = _buildSelectedSources(newSource).toList();
-
-    newSource.toggleIsExpanded();
+    final selected = newSources
+        .map((source) => _buildSelectedSources(source))
+        .flattened
+        .toList();
 
     emit(
       state.copyWith(
         selectedSources: selected,
-        visibleSources: [newSource],
+        visibleSources: newSources,
       ),
     );
 
-    source?.dispose();
-    source = newSource.copy();
+    sources
+      ..forEach((e) => e.dispose())
+      ..clear()
+      ..addAll(newSources.map((e) => e.copy()));
 
     selectedSources
       ..forEach((e) => e.dispose())
@@ -204,12 +212,13 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
     for (final source in state.visibleSources) {
       source.dispose();
     }
-    if (source == null) {
+    if (sources.isEmpty) {
       emit(ChatSettingsState.initial());
     } else {
       final selected =
           selectedSources.map(_buildSearchResults).nonNulls.toList();
-      final visible = [_buildSearchResults(source!)].nonNulls.toList();
+      final visible =
+          sources.map(_buildSearchResults).nonNulls.nonNulls.toList();
       emit(
         state.copyWith(
           selectedSources: selected,
@@ -301,25 +310,21 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
   }
 
   void updateSelectedStatus() {
-    if (source == null) {
+    if (sources.isEmpty) {
       return;
     }
-    _recursiveUpdateSelectedStatus(source!);
-    _restrictSelectionIfNecessary(source!.children);
+    for (final source in sources) {
+      _recursiveUpdateSelectedStatus(source);
+    }
+    _restrictSelectionIfNecessary(sources);
     for (final visibleSource in state.visibleSources) {
       visibleSource.dispose();
     }
-    final visible = [_buildSearchResults(source!)].nonNulls.toList();
+    final visible = sources.map(_buildSearchResults).nonNulls.toList();
 
-    selectedSources
-      ..forEach((e) => e.dispose())
-      ..clear()
-      ..addAll(_buildSelectedSources(source!));
     emit(
       state.copyWith(
         visibleSources: visible,
-        selectedSources:
-            selectedSources.map(_buildSearchResults).nonNulls.toList(),
       ),
     );
   }
@@ -360,13 +365,24 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
             ?.toggleIsExpanded();
       }
     } else {
-      source?.findChildBySourceId(chatSource.view.id)?.toggleIsExpanded();
+      for (final source in sources) {
+        final child = source.findChildBySourceId(chatSource.view.id);
+        if (child != null) {
+          child.toggleIsExpanded();
+          break;
+        }
+      }
     }
   }
 
   @override
   Future<void> close() {
-    source?.dispose();
+    for (final child in sources) {
+      child.dispose();
+    }
+    for (final child in selectedSources) {
+      child.dispose();
+    }
     for (final child in state.selectedSources) {
       child.dispose();
     }
