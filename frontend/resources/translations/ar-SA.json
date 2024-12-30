@@ -809,7 +809,12 @@
         "disableLocalAITitle": "تعطيل الذكاء الاصطناعي المحلي",
         "disableLocalAIDescription": "هل تريد تعطيل الذكاء الاصطناعي المحلي؟",
         "localAIToggleTitle": "التبديل لتفعيل أو تعطيل الذكاء الاصطناعي المحلي",
-        "offlineAIInstruction1": "اتبع"
+        "offlineAIInstruction1": "اتبع",
+        "offlineAIInstruction2": "تعليمات",
+        "offlineAIInstruction3": "لتفعيل الذكاء الاصطناعي دون اتصال بالإنترنت.",
+        "offlineAIDownload1": "إذا لم تقم بتنزيل AppFlowy AI، فيرجى",
+        "offlineAIDownload2": "التنزيل",
+        "activeOfflineAI": "نشط"
       }
     },
     "planPage": {
