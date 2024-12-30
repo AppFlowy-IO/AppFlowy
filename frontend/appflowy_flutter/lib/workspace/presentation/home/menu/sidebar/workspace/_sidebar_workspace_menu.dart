@@ -72,7 +72,7 @@ class _WorkspacesMenuState extends State<WorkspacesMenu> {
                 ),
               ),
               const HSpace(4.0),
-              _WorkspaceMoreButton(
+              WorkspaceMoreButton(
                 popoverMutex: popoverMutex,
               ),
               const HSpace(8.0),
@@ -485,8 +485,10 @@ class _ImportNotionButton extends StatelessWidget {
   }
 }
 
-class _WorkspaceMoreButton extends StatelessWidget {
-  const _WorkspaceMoreButton({
+@visibleForTesting
+class WorkspaceMoreButton extends StatelessWidget {
+  const WorkspaceMoreButton({
+    super.key,
     required this.popoverMutex,
   });
 

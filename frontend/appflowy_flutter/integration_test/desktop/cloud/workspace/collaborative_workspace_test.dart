@@ -128,6 +128,8 @@ void main() {
       final workspaceItem = find.byWidgetPredicate(
         (w) => w is WorkspaceMenuItem && w.workspace.name == name,
       );
+
+      // the workspace menu shouldn't conflict with logout
       await tester.hoverOnWidget(
         workspaceItem,
         onHover: () async {
@@ -136,15 +138,34 @@ void main() {
           );
           expect(moreButton, findsOneWidget);
           await tester.tapButton(moreButton);
+          expect(find.text(LocaleKeys.button_rename.tr()), findsOneWidget);
+
+          final logoutButton = find.byType(WorkspaceMoreButton);
+          await tester.tapButton(logoutButton);
+          expect(find.text(LocaleKeys.button_logout.tr()), findsOneWidget);
+          expect(moreButton, findsNothing);
+
+          await tester.tapButton(moreButton);
+          expect(find.text(LocaleKeys.button_logout.tr()), findsNothing);
+          expect(moreButton, findsOneWidget);
+        },
+      );
+
+      await tester.hoverOnWidget(
+        workspaceItem,
+        onHover: () async {
+          final moreButton = find.byWidgetPredicate(
+            (w) => w is WorkspaceMoreActionList && w.workspace.name == name,
+          );
+          expect(moreButton, findsOneWidget);
+          await tester.tapButton(moreButton);
+          expect(find.text(LocaleKeys.button_rename.tr()), findsOneWidget);
 
           // click it again
           await tester.tapButton(moreButton);
 
           // nothing should happen
-          expect(
-            find.text(LocaleKeys.button_rename.tr()),
-            findsOneWidget,
-          );
+          expect(find.text(LocaleKeys.button_rename.tr()), findsOneWidget);
         },
       );
     });
