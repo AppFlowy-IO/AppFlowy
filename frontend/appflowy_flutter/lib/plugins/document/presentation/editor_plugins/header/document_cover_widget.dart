@@ -468,9 +468,9 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           popupBuilder: (BuildContext popoverContext) {
             isPopoverOpen = true;
             return FlowyIconEmojiPicker(
-              onSelectedEmoji: (result) {
-                widget.onIconOrCoverChanged(icon: result);
-                _popoverController.close();
+              onSelectedEmoji: (r) {
+                widget.onIconOrCoverChanged(icon: r.data);
+                if (!r.keepOpen) _popoverController.close();
               },
             );
           },
@@ -838,9 +838,7 @@ class _DocumentIconState extends State<DocumentIcon> {
 
   @override
   Widget build(BuildContext context) {
-    Widget child = EmojiIconWidget(
-      emoji: widget.icon,
-    );
+    Widget child = EmojiIconWidget(emoji: widget.icon);
 
     if (UniversalPlatform.isDesktopOrWeb) {
       child = AppFlowyPopover(
@@ -852,9 +850,10 @@ class _DocumentIconState extends State<DocumentIcon> {
         child: child,
         popupBuilder: (BuildContext popoverContext) {
           return FlowyIconEmojiPicker(
-            onSelectedEmoji: (result) {
-              widget.onChangeIcon(result);
-              _popoverController.close();
+            initialType: widget.icon.type.toPickerTabType(),
+            onSelectedEmoji: (r) {
+              widget.onChangeIcon(r.data);
+              if (!r.keepOpen) _popoverController.close();
             },
           );
         },
@@ -864,7 +863,12 @@ class _DocumentIconState extends State<DocumentIcon> {
         child: child,
         onTap: () async {
           final result = await context.push<EmojiIconData>(
-            MobileEmojiPickerScreen.routeName,
+            Uri(
+              path: MobileEmojiPickerScreen.routeName,
+              queryParameters: {
+                MobileEmojiPickerScreen.iconSelectedType: widget.icon.type.name,
+              },
+            ).toString(),
           );
           if (result != null) {
             widget.onChangeIcon(result);

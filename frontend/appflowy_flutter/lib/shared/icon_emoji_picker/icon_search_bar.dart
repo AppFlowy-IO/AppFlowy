@@ -16,9 +16,11 @@ class IconSearchBar extends StatefulWidget {
     super.key,
     required this.onRandomTap,
     required this.onKeywordChanged,
+    this.ensureFocus = false,
   });
 
   final VoidCallback onRandomTap;
+  final bool ensureFocus;
   final IconKeywordChangedCallback onKeywordChanged;
 
   @override
@@ -46,6 +48,7 @@ class _IconSearchBarState extends State<IconSearchBar> {
           Expanded(
             child: _SearchTextField(
               onKeywordChanged: widget.onKeywordChanged,
+              ensureFocus: widget.ensureFocus,
             ),
           ),
           const HSpace(8.0),
@@ -93,9 +96,11 @@ class _RandomIconButton extends StatelessWidget {
 class _SearchTextField extends StatefulWidget {
   const _SearchTextField({
     required this.onKeywordChanged,
+    this.ensureFocus = false,
   });
 
   final IconKeywordChangedCallback onKeywordChanged;
+  final bool ensureFocus;
 
   @override
   State<_SearchTextField> createState() => _SearchTextFieldState();
@@ -104,6 +109,20 @@ class _SearchTextField extends StatefulWidget {
 class _SearchTextFieldState extends State<_SearchTextField> {
   final TextEditingController controller = TextEditingController();
   final FocusNode focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+
+    /// Sometimes focus is lost due to the [SelectionGestureInterceptor] in [KeyboardServiceWidgetState]
+    /// this is to ensure that focus can be regained within a short period of time
+    if (widget.ensureFocus) {
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (!mounted || focusNode.hasFocus) return;
+        focusNode.requestFocus();
+      });
+    }
+  }
 
   @override
   void dispose() {

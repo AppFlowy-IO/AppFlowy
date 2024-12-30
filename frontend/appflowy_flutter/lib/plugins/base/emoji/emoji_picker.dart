@@ -13,6 +13,18 @@ import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
 EmojiData? kCachedEmojiData;
 const _kRecentEmojiCategoryId = 'Recent';
 
+class EmojiPickerResult {
+  EmojiPickerResult({
+    required this.emojiId,
+    required this.emoji,
+    this.isRandom = false,
+  });
+
+  final String emojiId;
+  final String emoji;
+  final bool isRandom;
+}
+
 class FlowyEmojiPicker extends StatefulWidget {
   const FlowyEmojiPicker({
     super.key,
@@ -21,7 +33,7 @@ class FlowyEmojiPicker extends StatefulWidget {
     this.ensureFocus = false,
   });
 
-  final EmojiSelectedCallback onEmojiSelected;
+  final ValueChanged<EmojiPickerResult> onEmojiSelected;
   final int emojiPerLine;
   final bool ensureFocus;
 
@@ -70,7 +82,9 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
         defaultSkinTone: lastSelectedEmojiSkinTone ?? EmojiSkinTone.none,
       ),
       onEmojiSelected: (id, emoji) {
-        widget.onEmojiSelected.call(id, emoji);
+        widget.onEmojiSelected.call(
+          EmojiPickerResult(emojiId: id, emoji: emoji),
+        );
         RecentIcons.putEmoji(id);
       },
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -106,7 +120,12 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
             onSkinToneChanged: (value) {
               skinTone.value = value;
             },
-            onRandomEmojiSelected: widget.onEmojiSelected,
+            onRandomEmojiSelected: (id, emoji) {
+              widget.onEmojiSelected.call(
+                EmojiPickerResult(emojiId: id, emoji: emoji, isRandom: true),
+              );
+              RecentIcons.putEmoji(id);
+            },
           ),
         );
       },

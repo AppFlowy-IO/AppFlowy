@@ -34,6 +34,7 @@ class FlowyEmojiSearchBar extends StatefulWidget {
 
 class _FlowyEmojiSearchBarState extends State<FlowyEmojiSearchBar> {
   final TextEditingController controller = TextEditingController();
+  EmojiSkinTone skinTone = lastSelectedEmojiSkinTone ?? EmojiSkinTone.none;
 
   @override
   void dispose() {
@@ -58,12 +59,18 @@ class _FlowyEmojiSearchBarState extends State<FlowyEmojiSearchBar> {
           ),
           const HSpace(8.0),
           _RandomEmojiButton(
+            skinTone: skinTone,
             emojiData: widget.emojiData,
             onRandomEmojiSelected: widget.onRandomEmojiSelected,
           ),
           const HSpace(8.0),
           FlowyEmojiSkinToneSelector(
-            onEmojiSkinToneChanged: widget.onSkinToneChanged,
+            onEmojiSkinToneChanged: (v) {
+              setState(() {
+                skinTone = v;
+              });
+              widget.onSkinToneChanged.call(v);
+            },
           ),
         ],
       ),
@@ -73,10 +80,12 @@ class _FlowyEmojiSearchBarState extends State<FlowyEmojiSearchBar> {
 
 class _RandomEmojiButton extends StatelessWidget {
   const _RandomEmojiButton({
+    required this.skinTone,
     required this.emojiData,
     required this.onRandomEmojiSelected,
   });
 
+  final EmojiSkinTone skinTone;
   final EmojiData emojiData;
   final EmojiSelectedCallback onRandomEmojiSelected;
 
@@ -100,9 +109,14 @@ class _RandomEmojiButton extends StatelessWidget {
           ),
           onTap: () {
             final random = emojiData.random;
+            final emojiId = random.$1;
+            final emoji = emojiData.getEmojiById(
+              emojiId,
+              skinTone: skinTone,
+            );
             onRandomEmojiSelected(
-              random.$1,
-              random.$2,
+              emojiId,
+              emoji,
             );
           },
         ),
@@ -131,6 +145,9 @@ class _SearchTextFieldState extends State<_SearchTextField> {
   @override
   void initState() {
     super.initState();
+
+    /// Sometimes focus is lost due to the [SelectionGestureInterceptor] in [KeyboardServiceWidgetState]
+    /// this is to ensure that focus can be regained within a short period of time
     if (widget.ensureFocus) {
       Future.delayed(const Duration(milliseconds: 200), () {
         if (!mounted || focusNode.hasFocus) return;
