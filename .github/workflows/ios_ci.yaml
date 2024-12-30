@@ -7,7 +7,6 @@ on:
     paths:
       - ".github/workflows/mobile_ci.yaml"
       - "frontend/**"
-      - "!frontend/appflowy_tauri/**"
       - "!frontend/appflowy_web_app/**"
 
   pull_request:
@@ -16,7 +15,6 @@ on:
     paths:
       - ".github/workflows/mobile_ci.yaml"
       - "frontend/**"
-      - "!frontend/appflowy_tauri/**"
       - "!frontend/appflowy_web_app/**"
 
 env:
