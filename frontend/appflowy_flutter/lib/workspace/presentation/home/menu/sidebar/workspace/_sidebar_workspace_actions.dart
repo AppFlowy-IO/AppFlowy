@@ -62,6 +62,7 @@ class _WorkspaceMoreActionListState extends State<WorkspaceMoreActionList> {
       beginScaleFactor: 1.0,
       beginOpacity: 0.8,
       onClosed: () => isPopoverOpen = false,
+      asBarrier: true,
       buildChild: (controller) {
         return SizedBox.square(
           dimension: 24.0,

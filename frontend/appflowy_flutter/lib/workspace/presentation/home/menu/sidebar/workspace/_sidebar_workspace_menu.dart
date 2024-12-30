@@ -491,6 +491,7 @@ class WorkspaceMoreButton extends StatelessWidget {
       direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 6),
       mutex: popoverMutex,
+      asBarrier: true,
       popupBuilder: (_) => FlowyButton(
         margin: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 7.0),
         leftIcon: const FlowySvg(FlowySvgs.workspace_logout_s),
