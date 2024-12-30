@@ -67,6 +67,7 @@ void main() {
 
       // open settings page to check the result
       await tester.tapButton(settingsButton);
+      await tester.pumpAndSettle(const Duration(milliseconds: 250));
 
       // check the server type
       expect(
