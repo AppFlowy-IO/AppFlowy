@@ -4,6 +4,7 @@ import {
   PowerSettingsNew,
   TaskAltRounded,
 } from '@mui/icons-material';
+import { IconButton } from '@mui/material';
 import React from 'react';
 import { useSnackbar, SnackbarContent, CustomContentProps } from 'notistack';
 import { ReactComponent as CloseIcon } from '@/assets/close.svg';
@@ -17,33 +18,36 @@ const CustomSnackbar = React.forwardRef<HTMLDivElement, CustomContentProps>((pro
     error: <HighlightOff className="w-6 h-6 text-red-500" />,
     warning: <ErrorOutline className="w-6 h-6 text-yellow-500" />,
     info: <PowerSettingsNew className="w-6 h-6 text-blue-500" />,
+    loading: null,
     default: null,
   };
 
   const colors = {
-    success: 'bg-green-100 bg-opacity-70 border-green-300',
-    error: 'bg-red-100 bg-opacity-70 border-red-300',
-    warning: 'bg-yellow-100 bg-opacity-70 border-yellow-300',
-    info: 'bg-blue-100 bg-opacity-70 border-blue-300',
-    default: 'bg-gray-100 bg-opacity-70 border-gray-300',
+    success: 'bg-green-50 border-green-300',
+    error: 'bg-red-50',
+    warning: 'bg-yellow-50 border-yellow-300',
+    info: 'bg-blue-50 border-blue-300',
+    default: 'bg-bg-body border border-content-blue-400',
   };
 
   return (
-    <SnackbarContent ref={ref} className={`${colors[variant]} rounded-lg shadow-lg`}>
-      <div className="flex items-center p-4">
+    <SnackbarContent
+      ref={ref}
+      className={`${colors[variant]} rounded-lg shadow-lg`}
+    >
+      <div className="flex items-center justify-between w-full p-4">
         <div className="flex-shrink-0">
           {icons[variant]}
         </div>
         <div className="ml-3 flex-1">
-          <p className="text-sm font-medium text-gray-900">{message}</p>
+          <p className="text-sm font-medium">{message}</p>
         </div>
-        <button
+        <IconButton
+          className={'mx-2'}
           onClick={() => closeSnackbar(id)}
-          className="ml-4 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
-          <span className="sr-only">Close</span>
-          <CloseIcon className="h-5 w-5" />
-        </button>
+          <CloseIcon className="h-5 w-5 text-text-caption" />
+        </IconButton>
       </div>
     </SnackbarContent>
   );

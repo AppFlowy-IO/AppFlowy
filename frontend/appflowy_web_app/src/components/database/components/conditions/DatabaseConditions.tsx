@@ -1,7 +1,13 @@
-import { useFiltersSelector, useSortsSelector } from '@/application/database-yjs';
+import {
+  useDatabaseContext,
+  useDatabaseView,
+  useFiltersSelector,
+  useSortsSelector,
+} from '@/application/database-yjs';
+import { DatabaseViewLayout, YjsDatabaseKey } from '@/application/types';
 import { AFScroller } from '@/components/_shared/scroller';
 import { useConditionsContext } from '@/components/database/components/conditions/context';
-import React from 'react';
+import React, { useMemo } from 'react';
 import Filters from 'src/components/database/components/filters/Filters';
 import Sorts from 'src/components/database/components/sorts/Sorts';
 
@@ -10,18 +16,38 @@ export function DatabaseConditions () {
   const expanded = conditionsContext?.expanded ?? false;
   const sorts = useSortsSelector();
   const filters = useFiltersSelector();
+  const view = useDatabaseView();
+  const scrollLeft = useDatabaseContext().scrollLeft;
+  const layout = Number(view?.get(YjsDatabaseKey.layout));
+  const className = useMemo(() => {
+    const classList = ['database-conditions min-w-0 max-w-full relative transform overflow-hidden transition-all'];
+
+    if (layout === DatabaseViewLayout.Grid) {
+      classList.push('max-sm:!pl-6');
+      classList.push('pl-24');
+    } else {
+      classList.push('max-sm:!px-6');
+      classList.push('px-24');
+    }
+
+    return classList.join(' ');
+  }, [layout]);
 
   return (
     <div
       style={{
         height: expanded ? '40px' : '0',
-        borderTopWidth: expanded ? '1px' : '0',
+        paddingInline: scrollLeft === undefined ? '96px' : `${scrollLeft}px`,
+        paddingRight: layout === DatabaseViewLayout.Grid ? '0' : undefined,
       }}
       className={
-        'database-conditions relative transform overflow-hidden border-t border-line-divider transition-all'
+        className
       }
     >
-      <AFScroller overflowYHidden className={'flex items-center gap-2'}>
+      <AFScroller
+        overflowYHidden
+        className={`flex items-center gap-2`}
+      >
         <Sorts />
         {sorts.length > 0 && filters.length > 0 && <div className="h-[20px] w-0 border border-line-divider" />}
         <Filters />

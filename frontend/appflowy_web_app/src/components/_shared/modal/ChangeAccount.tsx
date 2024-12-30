@@ -5,13 +5,14 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ReactComponent as ErrorIcon } from '@/assets/error.svg';
 
-function ChangeAccount ({
+function ChangeAccount({
   setModalOpened,
   modalOpened,
+  redirectTo,
 }: {
   setModalOpened: (opened: boolean) => void;
   modalOpened: boolean;
-
+  redirectTo: string;
 }) {
   const currentUser = useCurrentUser();
   const navigate = useNavigate();
@@ -26,10 +27,12 @@ function ChangeAccount ({
       }}
       closable={false}
       cancelText={t('invitation.errorModal.close')}
-      onOk={openLoginModal}
+      onOk={() => {
+        openLoginModal?.(redirectTo);
+      }}
       okText={t('invitation.errorModal.changeAccount')}
       title={<div className={'text-left font-bold flex gap-2 items-center'}>
-        <ErrorIcon className={'w-5 h-5 text-function-error'} />
+        <ErrorIcon className={'w-5 h-5 text-function-error'}/>
         {t('invitation.errorModal.title')}
       </div>}
       open={modalOpened}

@@ -892,7 +892,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=dd8a1d13e97322338f027888a71340575cd9ad8f#dd8a1d13e97322338f027888a71340575cd9ad8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=67b31e4bcc64d81332c37efecb0a8618681f1db9#67b31e4bcc64d81332c37efecb0a8618681f1db9"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -917,7 +917,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=dd8a1d13e97322338f027888a71340575cd9ad8f#dd8a1d13e97322338f027888a71340575cd9ad8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=67b31e4bcc64d81332c37efecb0a8618681f1db9#67b31e4bcc64d81332c37efecb0a8618681f1db9"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -957,7 +957,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=dd8a1d13e97322338f027888a71340575cd9ad8f#dd8a1d13e97322338f027888a71340575cd9ad8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=67b31e4bcc64d81332c37efecb0a8618681f1db9#67b31e4bcc64d81332c37efecb0a8618681f1db9"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -978,7 +978,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=dd8a1d13e97322338f027888a71340575cd9ad8f#dd8a1d13e97322338f027888a71340575cd9ad8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=67b31e4bcc64d81332c37efecb0a8618681f1db9#67b31e4bcc64d81332c37efecb0a8618681f1db9"
 dependencies = [
  "anyhow",
  "bytes",
@@ -998,7 +998,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=dd8a1d13e97322338f027888a71340575cd9ad8f#dd8a1d13e97322338f027888a71340575cd9ad8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=67b31e4bcc64d81332c37efecb0a8618681f1db9#67b31e4bcc64d81332c37efecb0a8618681f1db9"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -1020,7 +1020,7 @@ dependencies = [
 [[package]]
 name = "collab-importer"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=dd8a1d13e97322338f027888a71340575cd9ad8f#dd8a1d13e97322338f027888a71340575cd9ad8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=67b31e4bcc64d81332c37efecb0a8618681f1db9#67b31e4bcc64d81332c37efecb0a8618681f1db9"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -1070,6 +1070,9 @@ dependencies = [
  "collab-folder",
  "collab-plugins",
  "collab-user",
+ "diesel",
+ "flowy-error",
+ "flowy-sqlite",
  "futures",
  "lib-infra",
  "serde",
@@ -1081,7 +1084,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=dd8a1d13e97322338f027888a71340575cd9ad8f#dd8a1d13e97322338f027888a71340575cd9ad8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=67b31e4bcc64d81332c37efecb0a8618681f1db9#67b31e4bcc64d81332c37efecb0a8618681f1db9"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -1161,7 +1164,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=dd8a1d13e97322338f027888a71340575cd9ad8f#dd8a1d13e97322338f027888a71340575cd9ad8f"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=67b31e4bcc64d81332c37efecb0a8618681f1db9#67b31e4bcc64d81332c37efecb0a8618681f1db9"
 dependencies = [
  "anyhow",
  "collab",
@@ -1390,7 +1393,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa",
- "phf 0.8.0",
+ "phf 0.11.2",
  "smallvec",
 ]
 
@@ -1479,7 +1482,6 @@ dependencies = [
  "collab-integrate",
  "crossbeam-utils",
  "flowy-codegen",
- "flowy-config",
  "flowy-core",
  "flowy-date",
  "flowy-derive",
@@ -1818,7 +1820,6 @@ dependencies = [
  "flowy-database2",
  "flowy-document",
  "flowy-document-pub",
- "flowy-encrypt",
  "flowy-folder",
  "flowy-folder-pub",
  "flowy-notification",
@@ -2001,6 +2002,7 @@ dependencies = [
  "arc-swap",
  "base64 0.21.5",
  "bytes",
+ "collab-integrate",
  "dashmap 6.0.1",
  "dotenv",
  "flowy-ai-pub",
@@ -2082,20 +2084,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-config"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "flowy-codegen",
- "flowy-derive",
- "flowy-error",
- "flowy-sqlite",
- "lib-dispatch",
- "protobuf",
- "strum_macros 0.21.1",
-]
-
-[[package]]
 name = "flowy-core"
 version = "0.1.0"
 dependencies = [
@@ -2115,7 +2103,6 @@ dependencies = [
  "diesel",
  "flowy-ai",
  "flowy-ai-pub",
- "flowy-config",
  "flowy-database-pub",
  "flowy-database2",
  "flowy-date",
@@ -2293,20 +2280,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-encrypt"
-version = "0.1.0"
-dependencies = [
- "aes-gcm",
- "anyhow",
- "base64 0.21.5",
- "getrandom 0.2.10",
- "hmac",
- "pbkdf2 0.12.2",
- "rand 0.8.5",
- "sha2",
-]
-
-[[package]]
 name = "flowy-error"
 version = "0.1.0"
 dependencies = [
@@ -2479,7 +2452,6 @@ dependencies = [
  "flowy-ai-pub",
  "flowy-database-pub",
  "flowy-document-pub",
- "flowy-encrypt",
  "flowy-error",
  "flowy-folder-pub",
  "flowy-search-pub",
@@ -2618,7 +2590,6 @@ dependencies = [
  "fancy-regex 0.11.0",
  "flowy-codegen",
  "flowy-derive",
- "flowy-encrypt",
  "flowy-error",
  "flowy-folder-pub",
  "flowy-notification",
@@ -3671,10 +3642,12 @@ dependencies = [
 name = "lib-infra"
 version = "0.1.0"
 dependencies = [
+ "aes-gcm",
  "allo-isolate",
  "anyhow",
  "async-trait",
  "atomic_refcell",
+ "base64 0.22.1",
  "brotli",
  "bytes",
  "cfg-if",
@@ -3682,9 +3655,12 @@ dependencies = [
  "futures",
  "futures-core",
  "futures-util",
+ "hmac",
  "md5",
+ "pbkdf2 0.12.2",
  "pin-project",
  "rand 0.8.5",
+ "sha2",
  "tempfile",
  "tokio",
  "tracing",
@@ -4500,7 +4476,7 @@ version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3dfb61232e34fcb633f43d12c58f83c1df82962dcdfa565a4e866ffc17dafe12"
 dependencies = [
- "phf_macros",
+ "phf_macros 0.8.0",
  "phf_shared 0.8.0",
  "proc-macro-hack",
 ]
@@ -4520,6 +4496,7 @@ version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ade2d8b8f33c7333b51bcf0428d37e217e9f32192ae4772156f65063b8ce03dc"
 dependencies = [
+ "phf_macros 0.11.2",
  "phf_shared 0.11.2",
 ]
 
@@ -4585,6 +4562,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "phf_macros"
+version = "0.11.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3444646e286606587e49f3bcf1679b8cef1dc2c5ecc29ddacaffc305180d464b"
+dependencies = [
+ "phf_generator 0.11.2",
+ "phf_shared 0.11.2",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.47",
 ]
 
 [[package]]
@@ -4904,53 +4894,60 @@ dependencies = [
 
 [[package]]
 name = "protoc-bin-vendored"
-version = "3.0.0"
+version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "005ca8623e5633e298ad1f917d8be0a44bcf406bf3cde3b80e63003e49a3f27d"
+checksum = "dd89a830d0eab2502c81a9b8226d446a52998bb78e5e33cb2637c0cdd6068d99"
 dependencies = [
  "protoc-bin-vendored-linux-aarch_64",
  "protoc-bin-vendored-linux-ppcle_64",
  "protoc-bin-vendored-linux-x86_32",
  "protoc-bin-vendored-linux-x86_64",
+ "protoc-bin-vendored-macos-aarch_64",
  "protoc-bin-vendored-macos-x86_64",
  "protoc-bin-vendored-win32",
 ]
 
 [[package]]
 name = "protoc-bin-vendored-linux-aarch_64"
-version = "3.0.0"
+version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8fb9fc9cce84c8694b6ea01cc6296617b288b703719b725b8c9c65f7c5874435"
+checksum = "f563627339f1653ea1453dfbcb4398a7369b768925eb14499457aeaa45afe22c"
 
 [[package]]
 name = "protoc-bin-vendored-linux-ppcle_64"
-version = "3.0.0"
+version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "02d2a07dcf7173a04d49974930ccbfb7fd4d74df30ecfc8762cf2f895a094516"
+checksum = "5025c949a02cd3b60c02501dd0f348c16e8fff464f2a7f27db8a9732c608b746"
 
 [[package]]
 name = "protoc-bin-vendored-linux-x86_32"
-version = "3.0.0"
+version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d54fef0b04fcacba64d1d80eed74a20356d96847da8497a59b0a0a436c9165b0"
+checksum = "9c9500ce67d132c2f3b572504088712db715755eb9adf69d55641caa2cb68a07"
 
 [[package]]
 name = "protoc-bin-vendored-linux-x86_64"
-version = "3.0.0"
+version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8782f2ce7d43a9a5c74ea4936f001e9e8442205c244f7a3d4286bd4c37bc924"
+checksum = "5462592380cefdc9f1f14635bcce70ba9c91c1c2464c7feb2ce564726614cc41"
+
+[[package]]
+name = "protoc-bin-vendored-macos-aarch_64"
+version = "3.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c637745681b68b4435484543667a37606c95ddacf15e917710801a0877506030"
 
 [[package]]
 name = "protoc-bin-vendored-macos-x86_64"
-version = "3.0.0"
+version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5de656c7ee83f08e0ae5b81792ccfdc1d04e7876b1d9a38e6876a9e09e02537"
+checksum = "38943f3c90319d522f94a6dfd4a134ba5e36148b9506d2d9723a82ebc57c8b55"
 
 [[package]]
 name = "protoc-bin-vendored-win32"
-version = "3.0.0"
+version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9653c3ed92974e34c5a6e0a510864dab979760481714c172e0a34e437cb98804"
+checksum = "7dc55d7dec32ecaf61e0bd90b3d2392d721a28b95cfd23c3e176eccefbeab2f2"
 
 [[package]]
 name = "protoc-rust"

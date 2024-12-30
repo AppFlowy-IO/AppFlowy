@@ -100,7 +100,7 @@ class ChatAIMessageWidget extends StatelessWidget {
                                 onSelectedMetadata: onSelectedMetadata,
                               ),
                             if (state.sources.isNotEmpty && !isLastMessage)
-                              const VSpace(16.0),
+                              const VSpace(8.0),
                           ],
                         ),
                       );

@@ -6,18 +6,23 @@ import AppFlowyPower from '../appflowy-power/AppFlowyPower';
 import { createHotKeyLabel, HOT_KEY_NAME } from '@/utils/hotkeys';
 import { Drawer, IconButton, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { UIVariant } from '@/application/types';
+import { useState } from 'react';
+import { AFScroller } from '@/components/_shared/scroller';
 
-export function OutlineDrawer ({ header, variant, open, width, onClose, children, onResizeWidth }: {
+export function OutlineDrawer({ onScroll, header, variant, open, width, onClose, children, onResizeWidth }: {
   open: boolean;
   width: number;
   onClose: () => void;
   children: React.ReactNode;
   onResizeWidth: (width: number) => void;
   header?: React.ReactNode;
-  variant?: 'app' | 'publish';
+  variant?: UIVariant;
+  onScroll?: (scrollTop: number) => void;
 }) {
   const { t } = useTranslation();
 
+  const [hovered, setHovered] = useState<boolean>(false);
   const navigate = useNavigate();
 
   return (
@@ -41,15 +46,22 @@ export function OutlineDrawer ({ header, variant, open, width, onClose, children
       PaperProps={{
         sx: {
           borderRadius: 0,
+          background: variant === 'publish' ? 'var(--bg-body)' : 'var(--bg-base)',
         },
       }}
     >
 
-      <div className={'flex h-full relative min-h-full flex-col overflow-y-auto overflow-x-hidden appflowy-scroller'}>
+      <AFScroller overflowXHidden onScroll={e => {
+        onScroll?.((e.target as HTMLDivElement).scrollTop);
+      }} className={'flex h-full relative min-h-full w-full flex-col'}>
         <div
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
           style={{
-            backdropFilter: 'blur(4px)',
-          }} className={'flex transform-gpu z-10 h-[48px] sticky top-0 items-center justify-between'}
+            backdropFilter: variant === UIVariant.Publish ? 'blur(4px)' : undefined,
+            backgroundColor: variant === UIVariant.App ? 'var(--bg-base)' : undefined,
+          }}
+          className={'flex transform-gpu z-10 min-h-[48px] h-[48px] sticky top-0 items-center justify-between'}
         >
           {header ? header : <div
             className={'flex p-4 cursor-pointer items-center gap-1 text-text-title'}
@@ -57,10 +69,10 @@ export function OutlineDrawer ({ header, variant, open, width, onClose, children
               navigate('/app');
             }}
           >
-            <AppFlowyLogo className={'w-[88px]'} />
+            <AppFlowyLogo className={'w-[88px]'}/>
           </div>}
 
-          <Tooltip
+          {hovered && <Tooltip
             title={
               <div className={'flex flex-col'}>
                 <span>{t('sideBar.closeSidebar')}</span>
@@ -68,19 +80,27 @@ export function OutlineDrawer ({ header, variant, open, width, onClose, children
               </div>
             }
           >
-            <IconButton onClick={onClose} className={'m-4'}>
-              <SideOutlined className={'h-4 w-4 text-text-caption rotate-180 transform'} />
+            <IconButton
+              onClick={onClose}
+              className={'m-4'}
+              size={'small'}
+            >
+              <SideOutlined className={'text-text-caption w-4 h-4 rotate-180 transform'}/>
             </IconButton>
-          </Tooltip>
+          </Tooltip>}
+
         </div>
         <div className={'flex h-fit flex-1 flex-col'}>
           {children}
         </div>
-        {variant === 'publish' && <AppFlowyPower width={width} />}
+        {variant === 'publish' && <AppFlowyPower width={width}/>}
 
 
-      </div>
-      <Resizer drawerWidth={width} onResize={onResizeWidth} />
+      </AFScroller>
+      <Resizer
+        drawerWidth={width}
+        onResize={onResizeWidth}
+      />
 
     </Drawer>
   );

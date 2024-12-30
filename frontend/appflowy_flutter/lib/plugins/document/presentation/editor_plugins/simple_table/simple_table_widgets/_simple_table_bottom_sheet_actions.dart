@@ -61,19 +61,12 @@ class SimpleTableCellQuickActions extends ISimpleTableBottomSheetActions {
               SimpleTableMoreAction.copy,
             ),
           ),
-          FutureBuilder(
-            future: getIt<ClipboardService>().getData(),
-            builder: (context, snapshot) {
-              final hasContent = snapshot.data?.tableJson != null;
-              return SimpleTableQuickAction(
-                type: SimpleTableMoreAction.paste,
-                isEnabled: hasContent,
-                onTap: () => _onActionTap(
-                  context,
-                  SimpleTableMoreAction.paste,
-                ),
-              );
-            },
+          SimpleTableQuickAction(
+            type: SimpleTableMoreAction.paste,
+            onTap: () => _onActionTap(
+              context,
+              SimpleTableMoreAction.paste,
+            ),
           ),
           SimpleTableQuickAction(
             type: SimpleTableMoreAction.delete,
@@ -208,8 +201,10 @@ class SimpleTableQuickAction extends StatelessWidget {
         onTapUp: isEnabled ? onTap : null,
         child: FlowySvg(
           type.leftIconSvg,
-          blendMode: null,
+          blendMode:
+              type == SimpleTableMoreAction.delete ? null : BlendMode.srcIn,
           size: const Size.square(24),
+          color: context.simpleTableQuickActionBackgroundColor,
         ),
       ),
     );
@@ -538,7 +533,11 @@ class SimpleTableCellActionButtons extends ISimpleTableBottomSheetActions {
     }
 
     // close the action menu
-    Navigator.of(context).pop();
+    // keep the action menu open if the action is enable header row or enable header column
+    if (action != SimpleTableMoreAction.enableHeaderRow &&
+        action != SimpleTableMoreAction.enableHeaderColumn) {
+      Navigator.of(context).pop();
+    }
   }
 }
 

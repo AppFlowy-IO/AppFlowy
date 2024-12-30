@@ -1,8 +1,17 @@
+import { ViewMetaCover } from '@/application/types';
 import ImageRender from '@/components/_shared/image-render/ImageRender';
 import { renderColor } from '@/utils/color';
-import React, { useCallback } from 'react';
+import React, { lazy, useCallback, useRef, useState, Suspense } from 'react';
 
-function ViewCover ({ coverValue, coverType }: { coverValue?: string; coverType?: string }) {
+const ViewCoverActions = lazy(() => import('@/components/view-meta/ViewCoverActions'));
+
+function ViewCover({ coverValue, coverType, onUpdateCover, onRemoveCover, readOnly = true }: {
+  coverValue?: string;
+  coverType?: string;
+  onUpdateCover: (cover: ViewMetaCover) => void;
+  onRemoveCover: () => void;
+  readOnly?: boolean
+}) {
   const renderCoverColor = useCallback((color: string) => {
     return (
       <div
@@ -17,10 +26,19 @@ function ViewCover ({ coverValue, coverType }: { coverValue?: string; coverType?
   const renderCoverImage = useCallback((url: string) => {
     return (
       <>
-        <ImageRender draggable={false} src={url} alt={''} className={'h-full w-full object-cover'} />
+        <ImageRender
+          draggable={false}
+          src={url}
+          alt={''}
+          className={'h-full w-full object-cover'}
+        />
       </>
     );
   }, []);
+
+  const [showAction, setShowAction] = useState(false);
+
+  const actionRef = useRef<HTMLDivElement>(null);
 
   if (!coverType || !coverValue) {
     return null;
@@ -28,6 +46,13 @@ function ViewCover ({ coverValue, coverType }: { coverValue?: string; coverType?
 
   return (
     <div
+      onMouseEnter={() => {
+        if (readOnly) return;
+        setShowAction(true);
+      }}
+      onMouseLeave={() => {
+        setShowAction(false);
+      }}
       style={{
         height: '40vh',
       }}
@@ -35,6 +60,17 @@ function ViewCover ({ coverValue, coverType }: { coverValue?: string; coverType?
     >
       {coverType === 'color' && renderCoverColor(coverValue)}
       {(coverType === 'custom' || coverType === 'built_in') && renderCoverImage(coverValue)}
+      {!readOnly && <Suspense>
+        <ViewCoverActions
+          show={showAction}
+          ref={actionRef}
+          onClose={() => setShowAction(false)}
+          onUpdateCover={onUpdateCover}
+          onRemove={onRemoveCover}
+        />
+      </Suspense>
+      }
+
     </div>
   );
 }

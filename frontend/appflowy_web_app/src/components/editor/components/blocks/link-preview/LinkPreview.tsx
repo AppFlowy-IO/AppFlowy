@@ -1,6 +1,8 @@
 import { EditorElementProps, LinkPreviewNode } from '@/components/editor/editor.type';
 import axios from 'axios';
 import React, { forwardRef, memo, useEffect, useState } from 'react';
+import { useReadOnly } from 'slate-react';
+import emptyImageSrc from '@/assets/images/empty.png';
 
 export const LinkPreview = memo(
   forwardRef<HTMLDivElement, EditorElementProps<LinkPreviewNode>>(({ node, children, ...attributes }, ref) => {
@@ -34,25 +36,39 @@ export const LinkPreview = memo(
         }
       })();
     }, [url]);
+    const readOnly = useReadOnly();
+
     return (
       <div
         onClick={() => {
           window.open(url, '_blank');
         }}
-        contentEditable={false}
+        contentEditable={readOnly ? false : undefined}
         {...attributes}
         ref={ref}
-        className={`link-preview-block relative w-full cursor-pointer py-1`}
+        className={`link-preview-block relative w-full cursor-pointer`}
       >
         <div
           className={
-            'container-bg flex w-full cursor-pointer select-none items-center gap-4 overflow-hidden rounded-[8px] border border-line-divider bg-fill-list-active p-3'
+            'embed-block p-4 items-center'
           }
+          contentEditable={false}
         >
           {notFound ? (
-            <div className={'flex w-full items-center justify-center'}>
-              <div className={'text-text-title'}>Could not load preview</div>
-              <div className={'text-sm text-text-caption'}>{url}</div>
+            <div className={'flex w-full items-center'}>
+              <div
+                className={'text-text-title min-w-[80px] w-[120px] flex items-center justify-center mr-2 h-[80px] border rounded'}>
+                <img src={emptyImageSrc} alt={'Empty state'} className={'h-full object-center object-cover'}/>
+              </div>
+              <div className={'flex-1 flex flex-col'}>
+                <div className={'text-function-error'}>
+                  The link cannot be previewed. Click to open in a new tab.
+                </div>
+                <div className={'text-sm text-text-caption'}>
+                  {url}
+                </div>
+              </div>
+
             </div>
           ) : (
             <>

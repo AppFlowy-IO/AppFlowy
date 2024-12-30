@@ -13,20 +13,18 @@ import React, { Suspense, useCallback, useMemo, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import DatabaseConditions from 'src/components/database/components/conditions/DatabaseConditions';
 
-function DatabaseViews ({
+function DatabaseViews({
   onChangeView,
   viewId,
   iidIndex,
   viewName,
   visibleViewIds,
-  hideConditions = false,
 }: {
   onChangeView: (viewId: string) => void;
   viewId: string;
   iidIndex: string;
   viewName?: string;
   visibleViewIds?: string[];
-  hideConditions?: boolean;
 }) {
   const { childViews, viewIds } = useDatabaseViewsSelector(iidIndex, visibleViewIds);
 
@@ -54,11 +52,14 @@ function DatabaseViews ({
   const view = useMemo(() => {
     switch (layout) {
       case DatabaseViewLayout.Grid:
-        return <Grid />;
+        return <Grid
+        />;
       case DatabaseViewLayout.Board:
-        return <Board />;
+        return <Board
+        />;
       case DatabaseViewLayout.Calendar:
-        return <Calendar />;
+        return <Calendar
+        />;
     }
   }, [layout]);
 
@@ -98,15 +99,15 @@ function DatabaseViews ({
           selectedViewId={viewId}
           setSelectedViewId={onChangeView}
           viewIds={viewIds}
-          hideConditions={hideConditions}
         />
-        {layout === DatabaseViewLayout.Calendar || hideConditions ? null : <DatabaseConditions />}
+        <DatabaseConditions/>
+
+        <div className={'flex h-full w-full flex-1 flex-col overflow-hidden'}>
+          <Suspense fallback={skeleton}>
+            <ErrorBoundary fallbackRender={ElementFallbackRender}>{view}</ErrorBoundary>
+          </Suspense>
+        </div>
       </DatabaseConditionsContext.Provider>
-      <div className={'flex h-full w-full flex-1 flex-col overflow-hidden'}>
-        <Suspense fallback={skeleton}>
-          <ErrorBoundary fallbackRender={ElementFallbackRender}>{view}</ErrorBoundary>
-        </Suspense>
-      </div>
     </>
   );
 }

@@ -1,22 +1,25 @@
-import { AppendBreadcrumb, CreateRowDoc, LoadView, LoadViewMeta, ViewLayout, YDoc } from '@/application/types';
+import { UIVariant, ViewComponentProps, ViewLayout, ViewMetaProps, YDoc } from '@/application/types';
 import Help from '@/components/_shared/help/Help';
 import { findView } from '@/components/_shared/outline/utils';
-import CalendarSkeleton from '@/components/_shared/skeleton/CalendarSkeleton';
-import DocumentSkeleton from '@/components/_shared/skeleton/DocumentSkeleton';
-import GridSkeleton from '@/components/_shared/skeleton/GridSkeleton';
-import KanbanSkeleton from '@/components/_shared/skeleton/KanbanSkeleton';
-import { AppContext, useAppHandlers, useAppOutline, useAppViewId } from '@/components/app/app.hooks';
+
+import {
+  AppContext,
+  useAppHandlers,
+  useAppOutline,
+  useAppViewId,
+} from '@/components/app/app.hooks';
 import DatabaseView from '@/components/app/DatabaseView';
 import { Document } from '@/components/document';
 import RecordNotFound from '@/components/error/RecordNotFound';
-import { ViewMetaProps } from '@/components/view-meta';
+import { getPlatform } from '@/utils/platform';
 import React, { lazy, memo, Suspense, useCallback, useContext, useEffect, useMemo } from 'react';
 
 const ViewHelmet = lazy(() => import('@/components/_shared/helmet/ViewHelmet'));
 
-function AppPage () {
+function AppPage() {
   const viewId = useAppViewId();
   const outline = useAppOutline();
+  const ref = React.useRef<HTMLDivElement>(null);
   const {
     toView,
     loadViewMeta,
@@ -24,6 +27,13 @@ function AppPage () {
     loadView,
     appendBreadcrumb,
     onRendered,
+    updatePage,
+    addPage,
+    deletePage,
+    openPageModal,
+    loadViews,
+    setWordCount,
+    uploadFile,
   } = useAppHandlers();
   const view = useMemo(() => {
     if (!outline || !viewId) return;
@@ -40,16 +50,12 @@ function AppPage () {
 
   const [doc, setDoc] = React.useState<YDoc | undefined>(undefined);
   const [notFound, setNotFound] = React.useState(false);
-  const loadPageDoc = useCallback(async () => {
-
-    if (!viewId) {
-      return;
-    }
+  const loadPageDoc = useCallback(async (id: string) => {
 
     setNotFound(false);
     setDoc(undefined);
     try {
-      const doc = await loadView(viewId);
+      const doc = await loadView(id);
 
       setDoc(doc);
     } catch (e) {
@@ -57,11 +63,13 @@ function AppPage () {
       console.error(e);
     }
 
-  }, [loadView, viewId]);
+  }, [loadView]);
 
   useEffect(() => {
-    void loadPageDoc();
-  }, [loadPageDoc]);
+    if (!viewId) return;
+
+    void loadPageDoc(viewId);
+  }, [loadPageDoc, viewId]);
 
   const View = useMemo(() => {
     switch (view?.layout) {
@@ -74,17 +82,7 @@ function AppPage () {
       default:
         return null;
     }
-  }, [view?.layout]) as React.FC<{
-    doc: YDoc;
-    readOnly: boolean;
-    navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
-    loadViewMeta?: LoadViewMeta;
-    createRowDoc?: CreateRowDoc;
-    loadView?: LoadView;
-    viewMeta: ViewMetaProps;
-    appendBreadcrumb?: AppendBreadcrumb;
-    onRendered?: () => void;
-  }>;
+  }, [view?.layout]) as React.FC<ViewComponentProps>;
 
   const viewMeta: ViewMetaProps | null = useMemo(() => {
     return view ? {
@@ -94,35 +92,25 @@ function AppPage () {
       layout: view.layout,
       visibleViewIds: [],
       viewId: view.view_id,
+      extra: view.extra,
     } : null;
   }, [view]);
 
-  const skeleton = useMemo(() => {
-    if (!viewMeta) {
-      return null;
+  const handleUploadFile = useCallback((file: File) => {
+    if (view && uploadFile) {
+      return uploadFile(view.view_id, file);
     }
 
-    switch (viewMeta.layout) {
-      case ViewLayout.Document:
-        return <DocumentSkeleton />;
-      case ViewLayout.Grid:
-        return <GridSkeleton />;
-      case ViewLayout.Board:
-        return <KanbanSkeleton />;
-      case ViewLayout.Calendar:
-        return <CalendarSkeleton />;
-      default:
-        return null;
-    }
-
-  }, [viewMeta]);
+    return Promise.reject();
+  }, [uploadFile, view]);
 
   const viewDom = useMemo(() => {
+    const isMobile = getPlatform().isMobile;
 
     return doc && viewMeta && View ? (
       <View
         doc={doc}
-        readOnly={true}
+        readOnly={Boolean(isMobile)}
         viewMeta={viewMeta}
         navigateToView={toView}
         loadViewMeta={loadViewMeta}
@@ -130,9 +118,17 @@ function AppPage () {
         appendBreadcrumb={appendBreadcrumb}
         loadView={loadView}
         onRendered={onRendered}
+        updatePage={updatePage}
+        addPage={addPage}
+        deletePage={deletePage}
+        openPageModal={openPageModal}
+        loadViews={loadViews}
+        onWordCountChange={setWordCount}
+        uploadFile={handleUploadFile}
+        variant={UIVariant.App}
       />
-    ) : skeleton;
-  }, [onRendered, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, appendBreadcrumb, loadView, skeleton]);
+    ) : null;
+  }, [addPage, handleUploadFile, loadViews, setWordCount, openPageModal, deletePage, updatePage, onRendered, doc, viewMeta, View, toView, loadViewMeta, createRowDoc, appendBreadcrumb, loadView]);
 
   useEffect(() => {
     if (!View || !viewId || !doc) return;
@@ -141,17 +137,17 @@ function AppPage () {
 
   if (!viewId) return null;
   return (
-    <div className={'relative w-full h-full'}>
+    <div ref={ref} className={'relative w-full h-full'}>
       {helmet}
 
       {notFound ? (
-        <RecordNotFound />
+        <RecordNotFound/>
       ) : (
         <div className={'w-full h-full'}>
           {viewDom}
         </div>
       )}
-      {view && doc && <Help />}
+      {view && doc && <Help/>}
 
     </div>
   );

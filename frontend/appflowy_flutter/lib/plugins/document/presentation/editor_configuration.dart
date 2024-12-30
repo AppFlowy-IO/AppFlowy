@@ -529,6 +529,11 @@ HeadingBlockComponentBuilder _buildHeadingBlockComponentBuilder(
 ) {
   return HeadingBlockComponentBuilder(
     configuration: configuration.copyWith(
+      textStyle: (node) => _buildTextStyleInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
       padding: (node) {
         if (customHeadingPadding != null) {
           return customHeadingPadding;
@@ -567,7 +572,9 @@ HeadingBlockComponentBuilder _buildHeadingBlockComponentBuilder(
         configuration: configuration,
       ),
     ),
-    textStyleBuilder: (level) => styleCustomizer.headingStyleBuilder(level),
+    textStyleBuilder: (level) {
+      return styleCustomizer.headingStyleBuilder(level);
+    },
   );
 }
 

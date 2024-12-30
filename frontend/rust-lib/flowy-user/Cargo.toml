@@ -8,10 +8,9 @@ edition = "2018"
 [dependencies]
 flowy-derive.workspace = true
 flowy-sqlite = { workspace = true }
-flowy-encrypt = { workspace = true }
 flowy-error = { workspace = true, features = ["impl_from_dispatch_error", "impl_from_sqlite", "impl_from_collab_folder", "impl_from_collab_persistence", "impl_from_collab_document"] }
 flowy-folder-pub = { workspace = true }
-lib-infra = { workspace = true }
+lib-infra = { workspace = true, features = ["encryption"] }
 flowy-notification = { workspace = true }
 flowy-server-pub = { workspace = true }
 lib-dispatch = { workspace = true }

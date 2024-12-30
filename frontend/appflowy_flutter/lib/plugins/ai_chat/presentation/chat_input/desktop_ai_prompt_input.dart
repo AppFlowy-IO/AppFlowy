@@ -506,6 +506,12 @@ class _PromptBottomActions extends StatelessWidget {
       margin: DesktopAIPromptSizes.actionBarPadding,
       child: BlocBuilder<AIPromptInputBloc, AIPromptInputState>(
         builder: (context, state) {
+          if (state.chatState == null) {
+            return Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: _sendButton(),
+            );
+          }
           return Row(
             children: [
               // predefinedFormatButton(),

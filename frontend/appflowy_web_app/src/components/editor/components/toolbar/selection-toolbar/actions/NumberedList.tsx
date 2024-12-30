@@ -1,6 +1,6 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
-import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
+import { getBlockEntry } from '@/application/slate-yjs/utils/editor';
 import { BlockType } from '@/application/types';
 import React, { useCallback } from 'react';
 import ActionButton from './ActionButton';
@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useSlateStatic } from 'slate-react';
 import { ReactComponent as NumberedListSvg } from '@/assets/numbered_list.svg';
 
-export function NumberedList () {
+export function NumberedList() {
   const { t } = useTranslation();
   const editor = useSlateStatic() as YjsEditor;
   const isActivated = CustomEditor.isBlockActive(editor, BlockType.NumberedListBlock);
@@ -33,7 +33,7 @@ export function NumberedList () {
 
   return (
     <ActionButton active={isActivated} onClick={onClick} tooltip={t('document.plugins.numberedList')}>
-      <NumberedListSvg />
+      <NumberedListSvg/>
     </ActionButton>
   );
 }

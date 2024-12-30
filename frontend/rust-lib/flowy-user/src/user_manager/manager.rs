@@ -36,7 +36,7 @@ use crate::migrations::workspace_trash_v1::WorkspaceTrashMapToSectionMigration;
 use crate::migrations::AnonUser;
 use crate::services::authenticate_user::AuthenticateUser;
 use crate::services::cloud_config::get_cloud_config;
-use crate::services::collab_interact::{CollabInteract, DefaultCollabInteract};
+use crate::services::collab_interact::{DefaultCollabInteract, UserReminder};
 
 use super::manager_user_workspace::save_user_workspace;
 use crate::migrations::doc_key_with_workspace::CollabDocKeyWithWorkspaceIdMigration;
@@ -53,7 +53,7 @@ pub struct UserManager {
   pub(crate) user_awareness: Arc<ArcSwapOption<RwLock<UserAwareness>>>,
   pub(crate) user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
-  pub(crate) collab_interact: RwLock<Arc<dyn CollabInteract>>,
+  pub(crate) collab_interact: RwLock<Arc<dyn UserReminder>>,
   pub(crate) user_workspace_service: Arc<dyn UserWorkspaceService>,
   auth_process: Mutex<Option<UserAuthProcess>>,
   pub(crate) authenticate_user: Arc<AuthenticateUser>,
@@ -123,7 +123,7 @@ impl UserManager {
   /// the function will set up the collaboration configuration and initialize the user's awareness. Upon successful
   /// completion, a user status callback is invoked to signify that the initialization process is complete.
   #[instrument(level = "debug", skip_all, err)]
-  pub async fn init_with_callback<C: UserStatusCallback + 'static, I: CollabInteract>(
+  pub async fn init_with_callback<C: UserStatusCallback + 'static, I: UserReminder>(
     &self,
     user_status_callback: C,
     collab_interact: I,
