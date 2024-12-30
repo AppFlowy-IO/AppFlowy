@@ -12,7 +12,7 @@ export function Outline ({ outline, width, selectedViewId, navigateToView, varia
 }) {
 
   return (
-    <div className={'flex w-full flex-1 flex-col gap-1 py-[10px] px-[10px]'}>
+    <div className={'flex folder-views w-full flex-1 flex-col gap-1 py-[10px] px-[10px]'}>
       {!outline || outline.length === 0 ? <div
           style={{
             width: width - 20,

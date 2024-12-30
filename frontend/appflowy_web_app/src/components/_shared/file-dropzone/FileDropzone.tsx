@@ -9,7 +9,7 @@ interface FileDropzoneProps {
   accept?: string;
   multiple?: boolean;
   disabled?: boolean;
-  placeholder?: string;
+  placeholder?: string | React.ReactNode;
 }
 
 function FileDropzone ({

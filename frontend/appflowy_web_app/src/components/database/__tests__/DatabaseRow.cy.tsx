@@ -80,6 +80,7 @@ function TestDatabaseRow ({
       databaseDoc={databaseDoc}
       rowDocMap={rows}
       loadView={loadView}
+      showActions={true}
     >
       <DatabaseRow rowId={rowId} />
     </DatabaseContextProvider>

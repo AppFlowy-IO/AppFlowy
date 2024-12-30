@@ -1,11 +1,14 @@
+import { YjsEditor } from '@/application/slate-yjs';
+import { CustomEditor } from '@/application/slate-yjs/command';
 import { CodeNode } from '@/components/editor/editor.type';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { useCallback, useEffect } from 'react';
 import { ReactEditor, useSlateStatic } from 'slate-react';
-import { Element as SlateElement, Transforms } from 'slate';
 import Prism from 'prismjs';
 
-export function useCodeBlock(node: CodeNode) {
+Prism.languages.delphi = Prism.languages.pascal;
+
+export function useCodeBlock (node: CodeNode) {
   const language = node.data.language;
   const editor = useSlateStatic() as ReactEditor;
   const addCodeGrammars = useEditorContext().addCodeGrammars;
@@ -32,6 +35,10 @@ export function useCodeBlock(node: CodeNode) {
         detectedLanguage = window.hljs.highlightAuto(codeSnippet).language || 'plaintext';
       }
 
+      if (detectedLanguage === 'delphi') {
+        detectedLanguage = 'pascal';
+      }
+
       const prismLanguage = Prism.languages[detectedLanguage.toLowerCase()];
 
       if (!prismLanguage) {
@@ -50,16 +57,9 @@ export function useCodeBlock(node: CodeNode) {
 
   const handleChangeLanguage = useCallback(
     (newLang: string) => {
-      const path = ReactEditor.findPath(editor, node);
-      const newProperties = {
-        data: {
-          language: newLang,
-        },
-      } as Partial<SlateElement>;
-
-      Transforms.setNodes(editor, newProperties, { at: path });
+      CustomEditor.setBlockData(editor as YjsEditor, node.blockId, { language: newLang });
     },
-    [editor, node]
+    [editor, node],
   );
 
   return {

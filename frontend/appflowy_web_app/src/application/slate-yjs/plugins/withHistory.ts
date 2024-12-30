@@ -1,4 +1,3 @@
-import { getDocument } from '@/application/slate-yjs/utils/yjsOperations';
 import { relativeRangeToSlateRange, slateRangeToRelativeRange } from '@/application/slate-yjs/utils/positions';
 import { CollabOrigin } from '@/application/types';
 import { Editor, Transforms } from 'slate';
@@ -6,6 +5,8 @@ import { ReactEditor } from 'slate-react';
 import * as Y from 'yjs';
 import { YjsEditor } from './withYjs';
 import { HistoryStackItem, RelativeRange } from '../types';
+
+import { getDocument } from '@/application/slate-yjs/utils/yjs';
 
 const LAST_SELECTION: WeakMap<Editor, RelativeRange | null> = new WeakMap();
 
@@ -16,7 +17,7 @@ export type YHistoryEditor = YjsEditor & {
 };
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const YHistoryEditor = {
-  isYHistoryEditor (value: unknown): value is YHistoryEditor {
+  isYHistoryEditor(value: unknown): value is YHistoryEditor {
     return (
       YjsEditor.isYjsEditor(value) &&
       'undoManager' in value &&
@@ -25,16 +26,16 @@ export const YHistoryEditor = {
     );
   },
 
-  canUndo (editor: YHistoryEditor) {
+  canUndo(editor: YHistoryEditor) {
     return editor.undoManager.undoStack.length > 0;
   },
 
-  canRedo (editor: YHistoryEditor) {
+  canRedo(editor: YHistoryEditor) {
     return editor.undoManager.redoStack.length > 0;
   },
 };
 
-export function withYHistory<T extends YjsEditor> (
+export function withYHistory<T extends YjsEditor>(
   editor: T,
 ): T & YHistoryEditor {
   const e = editor as T & YHistoryEditor;
@@ -102,7 +103,6 @@ export function withYHistory<T extends YjsEditor> (
 
     const selection = relativeRangeToSlateRange(
       e.sharedRoot,
-      e,
       relativeSelection,
     );
 

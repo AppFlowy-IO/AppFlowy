@@ -10,7 +10,7 @@ import SomethingError from '@/components/error/SomethingError';
 import React, { useMemo } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
-function MainLayout () {
+function MainLayout() {
   const {
     drawerOpened,
     drawerWidth,
@@ -22,10 +22,10 @@ function MainLayout () {
 
   const main = useMemo(() => {
     if (deleted) {
-      return <DeletedPageComponent />;
+      return <DeletedPageComponent/>;
     }
 
-    return notFound ? <RecordNotFound isViewNotFound /> : <Main />;
+    return notFound ? <RecordNotFound isViewNotFound/> : <Main/>;
   }, [deleted, notFound]);
 
   return (
@@ -57,14 +57,12 @@ function MainLayout () {
         </ErrorBoundary>
 
       </AFScroller>
-      {drawerOpened &&
-        <SideBar
-          onResizeDrawerWidth={setDrawerWidth}
-          drawerWidth={drawerWidth}
-          drawerOpened={drawerOpened}
-          toggleOpenDrawer={toggleOpenDrawer}
-        />
-      }
+      <SideBar
+        onResizeDrawerWidth={setDrawerWidth}
+        drawerWidth={drawerWidth}
+        drawerOpened={drawerOpened}
+        toggleOpenDrawer={toggleOpenDrawer}
+      />
     </div>
   );
 }

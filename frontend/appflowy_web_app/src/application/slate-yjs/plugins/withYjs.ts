@@ -21,6 +21,7 @@ export interface YjsEditor extends Editor {
   flushLocalChanges: () => void;
   storeLocalChange: (op: Operation) => void;
   interceptLocalChange: boolean;
+  uploadFile?: (file: File) => Promise<string>;
 }
 
 const connectSet = new WeakSet<YjsEditor>();
@@ -29,7 +30,7 @@ const localChanges = new WeakMap<YjsEditor, LocalChange[]>();
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const YjsEditor = {
-  isYjsEditor (value: unknown): value is YjsEditor {
+  isYjsEditor(value: unknown): value is YjsEditor {
     return (
       Editor.isEditor(value) &&
       'connect' in value &&
@@ -40,51 +41,61 @@ export const YjsEditor = {
       'storeLocalChange' in value
     );
   },
-  connected (editor: YjsEditor): boolean {
+  connected(editor: YjsEditor): boolean {
     return connectSet.has(editor);
   },
 
-  connect (editor: YjsEditor): void {
+  connect(editor: YjsEditor): void {
     editor.connect();
   },
 
-  disconnect (editor: YjsEditor): void {
+  disconnect(editor: YjsEditor): void {
     editor.disconnect();
   },
 
-  applyRemoteEvents (editor: YjsEditor, events: Array<YEvent>, transaction: Transaction): void {
+  applyRemoteEvents(editor: YjsEditor, events: Array<YEvent>, transaction: Transaction): void {
     editor.applyRemoteEvents(events, transaction);
   },
 
-  localChanges (editor: YjsEditor): LocalChange[] {
+  localChanges(editor: YjsEditor): LocalChange[] {
     return localChanges.get(editor) ?? [];
   },
 
-  storeLocalChange (editor: YjsEditor, op: Operation): void {
+  storeLocalChange(editor: YjsEditor, op: Operation): void {
     editor.storeLocalChange(op);
   },
 
-  flushLocalChanges (editor: YjsEditor): void {
+  flushLocalChanges(editor: YjsEditor): void {
     editor.flushLocalChanges();
   },
 };
 
-export function withYjs<T extends Editor> (
+export function withYjs<T extends Editor>(
   editor: T,
   doc: Y.Doc,
   opts?: {
+    id?: string;
     readOnly: boolean;
     localOrigin: CollabOrigin;
     readSummary?: boolean;
     onContentChange?: (content: Descendant[]) => void;
+    uploadFile?: (file: File) => Promise<string>;
   },
 ): T & YjsEditor {
-  const { localOrigin = CollabOrigin.Local, readSummary, onContentChange, readOnly = true } = opts ?? {};
+  const {
+    id,
+    uploadFile,
+    localOrigin = CollabOrigin.Local,
+    readSummary,
+    onContentChange,
+    readOnly = true,
+  } = opts ?? {};
   const e = editor as T & YjsEditor;
   const { apply, onChange } = e;
 
   e.interceptLocalChange = false;
   e.readOnly = readOnly;
+  e.uploadFile = uploadFile;
 
   e.sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
 
@@ -135,6 +146,7 @@ export function withYjs<T extends Editor> (
 
     // Initialize or update the document content to ensure it is in the correct state before applying remote events
     if (transaction.origin === CollabOrigin.Remote) {
+
       initializeDocumentContent();
     } else {
       const selection = editor.selection;
@@ -144,13 +156,7 @@ export function withYjs<T extends Editor> (
       });
       if (selection) {
         if (!ReactEditor.hasRange(editor, selection)) {
-          try {
-            Transforms.select(e, Editor.start(editor, [0]));
-
-          } catch (e) {
-            console.error(e);
-            editor.deselect();
-          }
+          editor.deselect();
         } else {
           e.select(selection);
         }
@@ -173,6 +179,7 @@ export function withYjs<T extends Editor> (
       throw new Error('Already connected');
     }
 
+    console.log('===connect', id);
     initializeDocumentContent();
     e.sharedRoot.observeDeep(handleYEvents);
     connectSet.add(e);

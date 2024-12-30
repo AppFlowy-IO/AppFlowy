@@ -20,35 +20,35 @@ const AppMain = withAppWrapper(() => {
     <Routes>
       <Route
         path={'/:namespace/:publishName'}
-        element={<PublishPage />}
+        element={<PublishPage/>}
       />
       <Route
         path={'/login'}
-        element={<Suspense><LoginPage /></Suspense>}
+        element={<Suspense><LoginPage/></Suspense>}
       />
       <Route
         path={AUTH_CALLBACK_PATH}
-        element={<LoginAuth />}
+        element={<LoginAuth/>}
       />
       <Route
         path="/404"
-        element={<NotFound />}
+        element={<NotFound/>}
       />
       <Route
         path="/after-payment"
-        element={<Suspense><AfterPaymentPage /></Suspense>}
+        element={<Suspense><AfterPaymentPage/></Suspense>}
       />
       <Route
         path="/as-template"
-        element={<Suspense><AsTemplatePage /></Suspense>}
+        element={<Suspense><AsTemplatePage/></Suspense>}
       />
       <Route
         path="/accept-invitation"
-        element={<Suspense><AcceptInvitationPage /></Suspense>}
+        element={<Suspense><AcceptInvitationPage/></Suspense>}
       />
       <Route
         path={'/import'}
-        element={<Suspense><ImportPage /></Suspense>}
+        element={<Suspense><ImportPage/></Suspense>}
       />
       <Route
         path="/"
@@ -61,22 +61,28 @@ const AppMain = withAppWrapper(() => {
         path="/app/*"
         element={
           <Suspense>
-            <AppRouter />
+            <AppRouter/>
           </Suspense>
         }
       />
       <Route
         path="*"
-        element={<NotFound />}
+        element={<NotFound/>}
       />
     </Routes>
   );
 });
 
-function App () {
+function App() {
+  const path = window.location.pathname;
+  
+  if (path.startsWith('/.well-known')) {
+    return null;
+  }
+
   return (
     <BrowserRouter>
-      <AppMain />
+      <AppMain/>
     </BrowserRouter>
   );
 }

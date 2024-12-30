@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as SelectCheck } from '@/assets/selected.svg';
 import { ReactComponent as Clear } from '@/assets/trash.svg';
 
-function FormulaPopover ({
+function FormulaPopover({
   open,
   onClose,
   defaultValue,
@@ -27,14 +27,12 @@ function FormulaPopover ({
     <Popover
       onClose={onClose}
       open={open}
-      disableAutoFocus={true}
-      disableEnforceFocus={true}
-      disableRestoreFocus={false}
+      disableRestoreFocus={true}
       anchorPosition={anchorPosition}
       anchorReference={'anchorPosition'}
       transformOrigin={{
         vertical: 'top',
-        horizontal: 'center',
+        horizontal: 'left',
       }}
     >
       <div className={'p-4 flex items-center gap-2'}>
@@ -45,13 +43,21 @@ function FormulaPopover ({
           value={value}
           spellCheck={false}
           placeholder={'E = mc^2'}
+          onClick={e => {
+            if (e.detail > 2) {
+              e.preventDefault();
+              const target = e.target as HTMLInputElement;
+
+              // select all text on triple click
+              target.setSelectionRange(0, target.value.length);
+            }
+          }}
           onChange={(e) => setValue(e.target.value)}
           fullWidth={true}
           onKeyDown={e => {
             if (e.key === 'Enter') {
               onDone(value);
             }
-
           }}
         />
         <div className={'flex gap-2 items-center justify-end'}>
@@ -67,7 +73,7 @@ function FormulaPopover ({
                 onDone(value);
               }}
             >
-              <SelectCheck className={'text-content-blue-400'} />
+              <SelectCheck className={'text-content-blue-400'}/>
             </IconButton>
           </Tooltip>
           <Tooltip
@@ -80,7 +86,7 @@ function FormulaPopover ({
               color={'error'}
               onClick={onClear}
             >
-              <Clear />
+              <Clear/>
             </IconButton>
           </Tooltip>
         </div>

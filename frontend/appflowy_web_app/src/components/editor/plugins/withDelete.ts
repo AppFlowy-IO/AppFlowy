@@ -5,12 +5,14 @@ import {
   isAtBlockEnd,
   isEntireDocumentSelected,
   getBlockEntry,
-} from '@/application/slate-yjs/utils/yjsOperations';
+} from '@/application/slate-yjs/utils/editor';
 import { TextUnit, Range, EditorFragmentDeletionOptions } from 'slate';
 import { ReactEditor } from 'slate-react';
 import { TextDeleteOptions } from 'slate/dist/interfaces/transforms/text';
+import { isEmbedBlockTypes } from '@/application/slate-yjs/command/const';
+import { BlockType } from '@/application/types';
 
-export function withDelete (editor: ReactEditor) {
+export function withDelete(editor: ReactEditor) {
   const { deleteForward, deleteBackward, delete: deleteText } = editor;
 
   editor.delete = (options?: TextDeleteOptions) => {
@@ -18,7 +20,15 @@ export function withDelete (editor: ReactEditor) {
 
     if (!selection) return;
 
+    const [node] = getBlockEntry(editor as YjsEditor);
+
     if (Range.isCollapsed(selection)) {
+      if (isEmbedBlockTypes(node.type as BlockType) && node.blockId) {
+
+        CustomEditor.deleteBlock(editor as YjsEditor, node.blockId);
+        return;
+      }
+
       deleteText(options);
       return;
     }
@@ -46,6 +56,7 @@ export function withDelete (editor: ReactEditor) {
     const { selection } = editor;
 
     if (!selection) return;
+
     if (options?.direction === 'backward') {
       CustomEditor.deleteBlockBackward(editor as YjsEditor, selection);
     } else {
@@ -69,6 +80,19 @@ export function withDelete (editor: ReactEditor) {
 
     if (shouldUseDefaultBehavior) {
       deleteForward(unit);
+      return;
+    }
+
+    const after = editor.after(editor.end(selection), { unit: 'block' });
+
+    if (!after) {
+      return;
+    }
+
+    const nextBlock = getBlockEntry(editor as YjsEditor, after)[0];
+
+    if (isEmbedBlockTypes(nextBlock.type as BlockType) && nextBlock.blockId) {
+      CustomEditor.deleteBlock(editor as YjsEditor, nextBlock.blockId);
       return;
     }
 

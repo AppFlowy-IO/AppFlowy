@@ -22,7 +22,7 @@ function SideBar ({
 
   return (
     <OutlineDrawer
-      variant={'publish'}
+      variant={UIVariant.Publish}
       onResizeWidth={onResizeDrawerWidth} width={drawerWidth} open={drawerOpened}
       onClose={() => toggleOpenDrawer(false)}
     >

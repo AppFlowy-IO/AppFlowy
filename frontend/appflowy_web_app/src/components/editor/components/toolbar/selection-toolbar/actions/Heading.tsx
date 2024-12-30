@@ -1,22 +1,19 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
-import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
+import { getBlockEntry } from '@/application/slate-yjs/utils/editor';
 import { BlockType, HeadingBlockData } from '@/application/types';
 import { Popover } from '@/components/_shared/popover';
 import {
   useSelectionToolbarContext,
 } from '@/components/editor/components/toolbar/selection-toolbar/SelectionToolbar.hooks';
 import { PopoverProps } from '@mui/material/Popover';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ActionButton from './ActionButton';
 import { useTranslation } from 'react-i18next';
 import { useSlateStatic } from 'slate-react';
 import { ReactComponent as Heading1Svg } from '@/assets/h1.svg';
 import { ReactComponent as Heading2Svg } from '@/assets/h2.svg';
 import { ReactComponent as Heading3Svg } from '@/assets/h3.svg';
-import { ReactComponent as Heading4Svg } from '@/assets/h4.svg';
-import { ReactComponent as Heading5Svg } from '@/assets/h5.svg';
-import { ReactComponent as Heading6Svg } from '@/assets/h6.svg';
 import { ReactComponent as RightIcon } from '@/assets/arrow_right.svg';
 
 const popoverProps: Partial<PopoverProps> = {
@@ -35,7 +32,7 @@ const popoverProps: Partial<PopoverProps> = {
   },
 };
 
-export function Heading () {
+export function Heading() {
   const { t } = useTranslation();
   const editor = useSlateStatic() as YjsEditor;
   const {
@@ -84,34 +81,28 @@ export function Heading () {
 
   const getActiveButton = useCallback(() => {
     if (isActivated(1)) {
-      return <Heading1Svg className={'text-fill-default'} />;
+      return <Heading1Svg className={'text-fill-default'}/>;
     }
 
     if (isActivated(2)) {
-      return <Heading2Svg className={'text-fill-default'} />;
+      return <Heading2Svg className={'text-fill-default'}/>;
     }
 
     if (isActivated(3)) {
-      return <Heading3Svg className={'text-fill-default'} />;
+      return <Heading3Svg className={'text-fill-default'}/>;
     }
 
-    if (isActivated(4)) {
-      return <Heading4Svg className={'text-fill-default'} />;
-    }
-
-    if (isActivated(5)) {
-      return <Heading5Svg className={'text-fill-default'} />;
-    }
-
-    if (isActivated(6)) {
-      return <Heading6Svg className={'text-fill-default'} />;
-    }
-
-    return <Heading1Svg />;
+    return <Heading3Svg/>;
   }, [isActivated]);
 
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    if (!toolbarVisible) {
+      setOpen(false);
+    }
+  }, [toolbarVisible]);
 
   return (
     <div className={'flex items-center justify-center'}>
@@ -126,18 +117,18 @@ export function Heading () {
       >
         <div className={'flex items-center justify-center'}>
           {getActiveButton()}
-          <RightIcon className={'transform h-3 w-3 rotate-90 text-icon-on-toolbar opacity-80'} />
+          <RightIcon className={'transform h-3 w-3 rotate-90 text-icon-on-toolbar opacity-80'}/>
         </div>
 
       </ActionButton>
-      <Popover
+      {toolbarVisible && <Popover
         disableAutoFocus={true}
         disableEnforceFocus={true}
         disableRestoreFocus={true}
         onClose={() => {
           setOpen(false);
         }}
-        open={open && toolbarVisible}
+        open={open}
         anchorEl={ref.current}
         {...popoverProps}
       >
@@ -147,24 +138,25 @@ export function Heading () {
             tooltip={t('editor.heading1')}
             onClick={toHeading(1)}
           >
-            <Heading1Svg />
+            <Heading1Svg/>
           </ActionButton>
           <ActionButton
             active={isActivated(2)}
             tooltip={t('editor.heading2')}
             onClick={toHeading(2)}
           >
-            <Heading2Svg />
+            <Heading2Svg/>
           </ActionButton>
           <ActionButton
             active={isActivated(3)}
             tooltip={t('editor.heading3')}
             onClick={toHeading(3)}
           >
-            <Heading3Svg />
+            <Heading3Svg/>
           </ActionButton>
         </div>
-      </Popover>
+      </Popover>}
+
 
     </div>
   );

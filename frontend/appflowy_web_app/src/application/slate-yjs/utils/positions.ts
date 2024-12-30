@@ -1,11 +1,12 @@
+import { CONTAINER_BLOCK_TYPES, SOFT_BREAK_TYPES } from '@/application/slate-yjs/command/const';
 import { slateNodeToDeltaInsert } from '@/application/slate-yjs/utils/convert';
-import { getText, getTextMap } from '@/application/slate-yjs/utils/yjsOperations';
-import { YSharedRoot } from '@/application/types';
+import { BlockType, YSharedRoot } from '@/application/types';
 import { BasePoint, BaseRange, Node, Element, Editor, NodeEntry, Text } from 'slate';
 import { RelativeRange } from '../types';
 import * as Y from 'yjs';
+import { getText, getTextMap } from '@/application/slate-yjs/utils/yjs';
 
-export function slateRangeToRelativeRange (
+export function slateRangeToRelativeRange(
   sharedRoot: YSharedRoot,
   editor: Editor,
   range: BaseRange,
@@ -17,9 +18,8 @@ export function slateRangeToRelativeRange (
   return { anchor, focus, anchorEntry, focusEntry };
 }
 
-export function relativeRangeToSlateRange (
+export function relativeRangeToSlateRange(
   sharedRoot: YSharedRoot,
-  editor: Editor,
   range: RelativeRange,
 ): BaseRange | null {
   const anchor = relativePositionToSlatePoint(sharedRoot, range.anchor, range.anchorEntry);
@@ -32,7 +32,7 @@ export function relativeRangeToSlateRange (
   return { anchor, focus };
 }
 
-export function slatePointToRelativePosition (
+export function slatePointToRelativePosition(
   sharedRoot: YSharedRoot,
   editor: Editor,
   point: BasePoint,
@@ -44,12 +44,25 @@ export function slatePointToRelativePosition (
     throw new Error('Point is not in the editor');
   }
 
-  const [entry] = editor.nodes({
+  const [textEntry] = editor.nodes({
     at: point,
     match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.textId !== undefined,
   });
 
-  const [node] = entry as NodeEntry<Element>;
+  if (!textEntry) {
+    const [entry] = editor.nodes({
+      at: point,
+      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId !== undefined,
+    });
+
+    return {
+      point: Y.createRelativePositionFromTypeIndex(sharedRoot, 0),
+      entry: entry as NodeEntry<Element>,
+    };
+
+  }
+
+  const [node] = textEntry as NodeEntry<Element>;
 
   if (!node) {
     throw new Error('Node not found');
@@ -58,7 +71,11 @@ export function slatePointToRelativePosition (
   const textId = node.textId as string;
   let ytext = getText(textId, sharedRoot);
 
-  if (!ytext) {
+  if (!ytext && [
+    ...CONTAINER_BLOCK_TYPES,
+    ...SOFT_BREAK_TYPES,
+    BlockType.HeadingBlock,
+  ].includes(node.type as BlockType)) {
     const newYText = new Y.Text();
     const textMap = getTextMap(sharedRoot);
     const ops = (node.children as Text[]).map(slateNodeToDeltaInsert);
@@ -68,17 +85,25 @@ export function slatePointToRelativePosition (
     ytext = newYText;
   }
 
-  const offset = Math.min(calculateOffsetRelativeToParent(node, point), ytext.length);
+  if (ytext) {
+    const offset = Math.min(calculateOffsetRelativeToParent(node, point), ytext.length);
 
-  const relPos = Y.createRelativePositionFromTypeIndex(ytext, offset);
+    const relPos = Y.createRelativePositionFromTypeIndex(ytext, offset);
+
+    return {
+      point: relPos,
+      entry: textEntry as NodeEntry<Element>,
+    };
+  }
 
   return {
-    point: relPos,
-    entry: entry as NodeEntry<Element>,
+    point: Y.createRelativePositionFromTypeIndex(sharedRoot, 0),
+    entry: textEntry as NodeEntry<Element>,
   };
+
 }
 
-export function calculateOffsetRelativeToParent (slateNode: Element, point: BasePoint): number {
+export function calculateOffsetRelativeToParent(slateNode: Element, point: BasePoint): number {
   const { path, offset } = point;
 
   if (path.length <= 1) {
@@ -98,7 +123,7 @@ export function calculateOffsetRelativeToParent (slateNode: Element, point: Base
   return actualOffset;
 }
 
-export function relativePositionToSlatePoint (
+export function relativePositionToSlatePoint(
   sharedRoot: YSharedRoot,
   position: Y.RelativePosition,
   entry: NodeEntry<Element>,
@@ -127,7 +152,7 @@ export function relativePositionToSlatePoint (
   return calculatePointFromParentOffset(node, path, absIndex);
 }
 
-export function calculatePointFromParentOffset (slateNode: Element, path: number[], parentOffset: number): BasePoint {
+export function calculatePointFromParentOffset(slateNode: Element, path: number[], parentOffset: number): BasePoint {
   let remainingOffset = parentOffset;
   let childIndex = 0;
 
