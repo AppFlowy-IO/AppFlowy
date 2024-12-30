@@ -30,7 +30,7 @@ for dir in "${directories[@]}"; do
     # Update all the specified crates at once
     if [ -n "$crates_to_update" ]; then
         echo "Updating crates: $crates_to_update"
-        cargo update $crates_to_update
+        cargo update $crates_to_update 2> /dev/null
     fi
 
     popd > /dev/null

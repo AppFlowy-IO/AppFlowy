@@ -1,9 +1,9 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/grid/application/simple_text_filter_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/sort/sort_editor_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
-import 'package:appflowy/util/field_type_extension.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -24,44 +24,58 @@ class CreateDatabaseViewSortList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SortEditorBloc, SortEditorState>(
-      builder: (context, state) {
-        final filter = state.filter.toLowerCase();
-        final cells = state.creatableFields
-            .where((field) => field.field.name.toLowerCase().contains(filter))
-            .map((fieldInfo) {
-          return GridSortPropertyCell(
-            fieldInfo: fieldInfo,
-            onTap: () {
-              context
-                  .read<SortEditorBloc>()
-                  .add(SortEditorEvent.createSort(fieldId: fieldInfo.id));
-              onTap.call();
-            },
-          );
-        }).toList();
+    final sortBloc = context.read<SortEditorBloc>();
+    return BlocProvider(
+      create: (_) => SimpleTextFilterBloc<FieldInfo>(
+        values: List.from(sortBloc.state.creatableFields),
+        comparator: (val) => val.name,
+      ),
+      child: BlocListener<SortEditorBloc, SortEditorState>(
+        listenWhen: (previous, current) =>
+            previous.creatableFields != current.creatableFields,
+        listener: (context, state) {
+          context.read<SimpleTextFilterBloc<FieldInfo>>().add(
+                SimpleTextFilterEvent.receiveNewValues(state.creatableFields),
+              );
+        },
+        child: BlocBuilder<SimpleTextFilterBloc<FieldInfo>,
+            SimpleTextFilterState<FieldInfo>>(
+          builder: (context, state) {
+            final cells = state.values.map((fieldInfo) {
+              return GridSortPropertyCell(
+                fieldInfo: fieldInfo,
+                onTap: () {
+                  context
+                      .read<SortEditorBloc>()
+                      .add(SortEditorEvent.createSort(fieldId: fieldInfo.id));
+                  onTap.call();
+                },
+              );
+            }).toList();
 
-        final List<Widget> slivers = [
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _SortTextFieldDelegate(),
-          ),
-          SliverToBoxAdapter(
-            child: ListView.separated(
+            final List<Widget> slivers = [
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _SortTextFieldDelegate(),
+              ),
+              SliverToBoxAdapter(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: cells.length,
+                  itemBuilder: (_, index) => cells[index],
+                  separatorBuilder: (_, __) =>
+                      VSpace(GridSize.typeOptionSeparatorHeight),
+                ),
+              ),
+            ];
+            return CustomScrollView(
               shrinkWrap: true,
-              itemCount: cells.length,
-              itemBuilder: (_, index) => cells[index],
-              separatorBuilder: (_, __) =>
-                  VSpace(GridSize.typeOptionSeparatorHeight),
-            ),
-          ),
-        ];
-        return CustomScrollView(
-          shrinkWrap: true,
-          slivers: slivers,
-          physics: StyledScrollPhysics(),
-        );
-      },
+              slivers: slivers,
+              physics: StyledScrollPhysics(),
+            );
+          },
+        ),
+      ),
     );
   }
 }
@@ -85,8 +99,8 @@ class _SortTextFieldDelegate extends SliverPersistentHeaderDelegate {
         hintText: LocaleKeys.grid_settings_sortBy.tr(),
         onChanged: (text) {
           context
-              .read<SortEditorBloc>()
-              .add(SortEditorEvent.updateCreateSortFilter(text));
+              .read<SimpleTextFilterBloc<FieldInfo>>()
+              .add(SimpleTextFilterEvent.updateFilter(text));
         },
       ),
     );
@@ -118,15 +132,14 @@ class GridSortPropertyCell extends StatelessWidget {
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        text: FlowyText.medium(
+        text: FlowyText(
           fieldInfo.name,
           lineHeight: 1.0,
           color: AFThemeExtension.of(context).textColor,
         ),
         onTap: onTap,
-        leftIcon: FlowySvg(
-          fieldInfo.fieldType.svgData,
-          color: Theme.of(context).iconTheme.color,
+        leftIcon: FieldIcon(
+          fieldInfo: fieldInfo,
         ),
       ),
     );

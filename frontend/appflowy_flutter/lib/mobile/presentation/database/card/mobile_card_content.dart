@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/card/card.dart';
 import 'package:appflowy/plugins/database/widgets/card/card_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/mobile_board_card_cell_style.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 
 class MobileCardContent extends StatelessWidget {
   const MobileCardContent({
@@ -15,23 +14,22 @@ class MobileCardContent extends StatelessWidget {
     required this.cellBuilder,
     required this.cells,
     required this.styleConfiguration,
+    required this.userProfile,
   });
 
   final RowMetaPB rowMeta;
   final CardCellBuilder cellBuilder;
   final List<CellMeta> cells;
   final RowCardStyleConfiguration styleConfiguration;
+  final UserProfilePB? userProfile;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (rowMeta.cover.url.isNotEmpty) ...[
-          CardCover(
-            cover: rowMeta.cover,
-            userProfile: context.read<BoardBloc>().userProfile,
-          ),
+        if (rowMeta.cover.data.isNotEmpty) ...[
+          CardCover(cover: rowMeta.cover, userProfile: userProfile),
         ],
         Padding(
           padding: styleConfiguration.cardPadding,

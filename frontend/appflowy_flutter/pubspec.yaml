@@ -4,20 +4,21 @@ description: Bring projects, wikis, and teams together with AI. AppFlowy is an
   your data. The best open source alternative to Notion.
 publish_to: "none"
 
-version: 0.7.0
+version: 0.7.9
 
 environment:
   flutter: ">=3.22.0"
   sdk: ">=3.3.0 <4.0.0"
 
 dependencies:
+  any_date: ^1.0.4
   app_links: ^3.5.0
   appflowy_backend:
     path: packages/appflowy_backend
   appflowy_board:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
-      ref: 8a6434ae3d02624b614a010af80f775db11bf22e
+      ref: 5517c8704c0dbeaeda5601e9baadb4cc2b29990d
   appflowy_editor:
   appflowy_editor_plugins:
   appflowy_popover:
@@ -42,8 +43,10 @@ dependencies:
   cross_file: ^0.3.4+1
 
   # Desktop Drop uses Cross File (XFile) data type
+  defer_pointer: ^0.0.2
   desktop_drop: ^0.4.4
-  device_info_plus: ^10.1.0
+  device_info_plus:
+  diffutil_dart: ^4.0.1
   dotted_border: ^2.0.0+3
   easy_localization: ^3.0.2
   envied: ^0.5.2
@@ -65,16 +68,17 @@ dependencies:
   flutter_animate: ^4.5.0
   flutter_bloc: ^8.1.3
   flutter_cache_manager: ^3.3.1
-  flutter_chat_types: ^3.6.2
-  flutter_chat_ui: ^1.6.13
+  flutter_chat_core: ^0.0.2
+  flutter_chat_ui: 2.0.0-dev.1
   flutter_emoji_mart:
     git:
       url: https://github.com/LucasXu0/emoji_mart.git
-      ref: "38c2c42"
-  flutter_math_fork: ^0.7.2
+      ref: "8a9fa49"
+  flutter_math_fork: ^0.7.3
   flutter_slidable: ^3.0.0
 
   flutter_staggered_grid_view: ^0.7.0
+  flutter_tex: ^4.0.9
   fluttertoast: ^8.2.6
   freezed_annotation: ^2.2.0
   get_it: ^7.6.0
@@ -122,11 +126,9 @@ dependencies:
   share_plus: ^10.0.2
   shared_preferences: ^2.2.2
   sheet:
-  shimmer: ^3.0.0
   sized_context: ^1.0.0+4
   string_validator: ^1.0.0
   styled_widget: ^0.4.1
-  supabase_flutter: ^1.10.4
   super_clipboard: ^0.8.4
   synchronized: ^3.1.0+1
   table_calendar: ^3.0.9
@@ -162,28 +164,23 @@ dev_dependencies:
 
 dependency_overrides:
   http: ^1.0.0
-
-  supabase_flutter:
-    git:
-      url: https://github.com/supabase/supabase-flutter
-      ref: 9b05eea
-      path: packages/supabase_flutter
+  device_info_plus: ^10.1.0
 
   url_protocol:
     git:
       url: https://github.com/LucasXu0/flutter_url_protocol.git
-      commit: 77a8420
+      commit: 737681d
 
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "8582191"
+      ref: "c68e5f6"
 
   appflowy_editor_plugins:
     git:
       url: https://github.com/AppFlowy-IO/AppFlowy-plugins.git
       path: "packages/appflowy_editor_plugins"
-      ref: "b228456"
+      ref: "8047c21"
 
   sheet:
     git:

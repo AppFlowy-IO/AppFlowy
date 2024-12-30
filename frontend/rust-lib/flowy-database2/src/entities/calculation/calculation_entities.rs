@@ -23,6 +23,19 @@ pub struct CalculationPB {
   pub value: String,
 }
 
+impl std::convert::From<&CalculationPB> for Calculation {
+  fn from(calculation: &CalculationPB) -> Self {
+    let calculation_type = calculation.calculation_type.into();
+
+    Self {
+      id: calculation.id.clone(),
+      field_id: calculation.field_id.clone(),
+      calculation_type,
+      value: calculation.value.clone(),
+    }
+  }
+}
+
 impl std::convert::From<&Calculation> for CalculationPB {
   fn from(calculation: &Calculation) -> Self {
     let calculation_type = calculation.calculation_type.into();

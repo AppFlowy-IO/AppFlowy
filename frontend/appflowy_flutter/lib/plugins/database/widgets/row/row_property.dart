@@ -11,7 +11,6 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/header/deskt
 import 'package:appflowy/plugins/database/widgets/field/field_editor.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -304,7 +303,7 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
     return SizedBox(
       height: 30,
       child: FlowyButton(
-        text: FlowyText.medium(
+        text: FlowyText(
           text,
           lineHeight: 1.0,
           color: Theme.of(context).hintColor,
@@ -344,7 +343,7 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
                 EdgeInsets.symmetric(vertical: 14, horizontal: 6),
               ),
             ),
-        label: FlowyText.medium(
+        label: FlowyText(
           text,
           fontSize: 15,
           color: Theme.of(context).hintColor,
@@ -380,7 +379,7 @@ class CreateRowFieldButton extends StatelessWidget {
       height: 30,
       child: FlowyButton(
         margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-        text: FlowyText.medium(
+        text: FlowyText(
           lineHeight: 1.0,
           LocaleKeys.grid_field_newProperty.tr(),
           color: Theme.of(context).hintColor,

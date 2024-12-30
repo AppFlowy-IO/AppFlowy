@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/shared/share/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/widgets/favorite_button.dart';
@@ -51,6 +52,7 @@ class DocumentPlugin extends Plugin {
     required ViewPB view,
     required PluginType pluginType,
     this.initialSelection,
+    this.initialBlockId,
   }) : notifier = ViewPluginNotifier(view: view) {
     _pluginType = pluginType;
   }
@@ -61,13 +63,18 @@ class DocumentPlugin extends Plugin {
   @override
   final ViewPluginNotifier notifier;
 
+  // the initial selection of the document
   final Selection? initialSelection;
+
+  // the initial block id of the document
+  final String? initialBlockId;
 
   @override
   PluginWidgetBuilder get widgetBuilder => DocumentPluginWidgetBuilder(
         bloc: _viewInfoBloc,
         notifier: notifier,
         initialSelection: initialSelection,
+        initialBlockId: initialBlockId,
       );
 
   @override
@@ -95,6 +102,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
     required this.bloc,
     required this.notifier,
     this.initialSelection,
+    this.initialBlockId,
   });
 
   final ViewInfoBloc bloc;
@@ -102,6 +110,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   ViewPB get view => notifier.view;
   int? deletedViewIndex;
   final Selection? initialSelection;
+  final String? initialBlockId;
 
   @override
   EdgeInsets get contentPadding => EdgeInsets.zero;
@@ -120,6 +129,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
     });
 
     final fixedTitle = data?[MobileDocumentScreen.viewFixedTitle];
+    final blockId = initialBlockId ?? data?[MobileDocumentScreen.viewBlockId];
 
     return BlocProvider<ViewInfoBloc>.value(
       value: bloc,
@@ -129,6 +139,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
           view: view,
           onDeleted: () => context.onDeleted?.call(view, deletedViewIndex),
           initialSelection: initialSelection,
+          initialBlockId: blockId,
           fixedTitle: fixedTitle,
         ),
       ),
@@ -136,10 +147,14 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
   }
 
   @override
+  String? get viewName => notifier.view.nameOrDefault;
+
+  @override
   Widget get leftBarItem => ViewTitleBar(key: ValueKey(view.id), view: view);
 
   @override
-  Widget tabBarItem(String pluginId) => ViewTabBarItem(view: notifier.view);
+  Widget tabBarItem(String pluginId, [bool shortForm = false]) =>
+      ViewTabBarItem(view: notifier.view, shortForm: shortForm);
 
   @override
   Widget? get rightBarItem {

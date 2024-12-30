@@ -1,4 +1,7 @@
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/plugins/database/application/defines.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -19,9 +22,17 @@ class SettingFileImportBloc
           importAppFlowyDataFolder: (String path) async {
             final formattedDate =
                 DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+            final spaceId =
+                await getIt<KeyValueStorage>().get(KVKeys.lastOpenedSpaceId);
+
             final payload = ImportAppFlowyDataPB.create()
               ..path = path
-              ..importContainerName = "appflowy_import_$formattedDate";
+              ..importContainerName = "import_$formattedDate";
+
+            if (spaceId != null) {
+              payload.parentViewId = spaceId;
+            }
+
             emit(
               state.copyWith(loadingState: const LoadingState.loading()),
             );

@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_cover_widget.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/recent_icons.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -11,9 +13,16 @@ import '../../shared/emoji.dart';
 import '../../shared/util.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() {
+    IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+    RecentIcons.enable = false;
+  });
 
-  group('cover image', () {
+  tearDownAll(() {
+    RecentIcons.enable = true;
+  });
+
+  group('cover image:', () {
     testWidgets('document cover tests', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
@@ -147,7 +156,7 @@ void main() {
       tester.expectViewHasIcon(
         gettingStarted,
         ViewLayoutPB.Document,
-        punch,
+        EmojiIconData.emoji(punch),
       );
     });
   });

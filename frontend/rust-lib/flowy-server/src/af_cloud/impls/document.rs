@@ -1,4 +1,3 @@
-use anyhow::Error;
 use client_api::entity::{CreateCollabParams, QueryCollab, QueryCollabParams};
 use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
@@ -61,7 +60,7 @@ where
     _document_id: &str,
     _limit: usize,
     _workspace_id: &str,
-  ) -> Result<Vec<DocumentSnapshot>, Error> {
+  ) -> Result<Vec<DocumentSnapshot>, FlowyError> {
     Ok(vec![])
   }
 
@@ -70,7 +69,7 @@ where
     &self,
     document_id: &str,
     workspace_id: &str,
-  ) -> Result<Option<DocumentData>, Error> {
+  ) -> Result<Option<DocumentData>, FlowyError> {
     let params = QueryCollabParams {
       workspace_id: workspace_id.to_string(),
       inner: QueryCollab::new(document_id.to_string(), CollabType::Document),
@@ -79,8 +78,7 @@ where
       .inner
       .try_get_client()?
       .get_collab(params)
-      .await
-      .map_err(FlowyError::from)?
+      .await?
       .encode_collab
       .doc_state
       .to_vec();
@@ -105,11 +103,13 @@ where
     workspace_id: &str,
     document_id: &str,
     encoded_collab: EncodedCollab,
-  ) -> Result<(), Error> {
+  ) -> Result<(), FlowyError> {
     let params = CreateCollabParams {
       workspace_id: workspace_id.to_string(),
       object_id: document_id.to_string(),
-      encoded_collab_v1: encoded_collab.encode_to_bytes()?,
+      encoded_collab_v1: encoded_collab
+        .encode_to_bytes()
+        .map_err(|err| FlowyError::internal().with_context(err))?,
       collab_type: CollabType::Document,
     };
     self.inner.try_get_client()?.create_collab(params).await?;

@@ -12,7 +12,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useSnackbar } from 'notistack';
 import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 
-function AppConfig ({ children }: { children: React.ReactNode }) {
+function AppConfig({ children }: { children: React.ReactNode }) {
   const [appConfig] = useState<AFServiceConfig>(defaultConfig);
   const service = useMemo(() => getService(appConfig), [appConfig]);
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(isTokenValid());
@@ -38,6 +38,7 @@ function AppConfig ({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     return on(EventType.SESSION_VALID, () => {
+      console.log('session valid');
       setIsAuthenticated(true);
     });
   }, []);
@@ -70,6 +71,7 @@ function AppConfig ({ children }: { children: React.ReactNode }) {
   }, []);
   useEffect(() => {
     return on(EventType.SESSION_INVALID, () => {
+      console.log('session invalid');
       setIsAuthenticated(false);
     });
   }, []);
@@ -79,16 +81,16 @@ function AppConfig ({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     window.toast = {
-      success: (message: string) => {
+      success: (message: string | React.ReactNode) => {
         enqueueSnackbar(message, { variant: 'success' });
       },
-      error: (message: string) => {
+      error: (message: string | React.ReactNode) => {
         enqueueSnackbar(message, { variant: 'error' });
       },
-      warning: (message: string) => {
+      warning: (message: string | React.ReactNode) => {
         enqueueSnackbar(message, { variant: 'warning' });
       },
-      default: (message: string) => {
+      default: (message: string | React.ReactNode) => {
         enqueueSnackbar(message, { variant: 'default' });
       },
 
@@ -131,6 +133,7 @@ function AppConfig ({ children }: { children: React.ReactNode }) {
         isAuthenticated,
         currentUser,
         openLoginModal,
+
       }}
     >
       {children}

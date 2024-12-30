@@ -1,4 +1,5 @@
 import { AuthLayout } from '@/components/app/AuthLayout';
+import ApproveRequestPage from '@/components/app/landing-pages/ApproveRequestPage';
 import RecordNotFound from '@/components/error/RecordNotFound';
 import AppPage from '@/pages/AppPage';
 import TrashPage from '@/pages/TrashPage';
@@ -16,6 +17,7 @@ function AppRouter () {
         <Route path={':workspaceId/:viewId'} element={<AppPage />} />
         <Route path={'trash'} element={<TrashPage />} />
       </Route>
+      <Route path={'approve-request'} element={<ApproveRequestPage />} />
     </Routes>
   );
 }

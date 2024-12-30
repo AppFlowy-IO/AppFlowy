@@ -29,7 +29,6 @@ abstract class IEditableChecklistCellSkin {
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
     ChecklistCellBloc bloc,
-    ChecklistCellState state,
     PopoverController popoverController,
   );
 }
@@ -70,16 +69,11 @@ class GridChecklistCellState extends GridCellState<EditableChecklistCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: cellBloc,
-      child: BlocBuilder<ChecklistCellBloc, ChecklistCellState>(
-        builder: (context, state) {
-          return widget.skin.build(
-            context,
-            widget.cellContainerNotifier,
-            cellBloc,
-            state,
-            _popover,
-          );
-        },
+      child: widget.skin.build(
+        context,
+        widget.cellContainerNotifier,
+        cellBloc,
+        _popover,
       ),
     );
   }

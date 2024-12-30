@@ -15,6 +15,7 @@ export function useOutlinePopover ({
 
   const onKeyDown = useCallback((e: KeyboardEvent) => {
     switch (true) {
+
       case createHotkey(HOT_KEY_NAME.TOGGLE_SIDEBAR)(e):
         e.preventDefault();
         if (openDrawer) {
@@ -30,9 +31,10 @@ export function useOutlinePopover ({
   }, [onCloseDrawer, onOpenDrawer, openDrawer]);
 
   useEffect(() => {
-    window.addEventListener('keydown', onKeyDown);
+
+    document.addEventListener('keydown', onKeyDown, true);
     return () => {
-      window.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('keydown', onKeyDown, true);
     };
   }, [onKeyDown]);
 

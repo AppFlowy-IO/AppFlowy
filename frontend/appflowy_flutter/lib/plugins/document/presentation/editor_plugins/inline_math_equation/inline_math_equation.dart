@@ -1,6 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text_input.dart';
@@ -37,7 +36,6 @@ class _InlineMathEquationState extends State<InlineMathEquation> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return _IgnoreParentPointer(
       child: AppFlowyPopover(
         controller: popoverController,
@@ -61,32 +59,39 @@ class _InlineMathEquationState extends State<InlineMathEquation> {
         },
         offset: const Offset(0, 10),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          padding: const EdgeInsets.symmetric(vertical: 2.0),
           child: MouseRegion(
             cursor: SystemMouseCursors.click,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const HSpace(2),
-                Math.tex(
-                  widget.formula,
-                  options: MathOptions(
-                    style: MathStyle.text,
-                    mathFontOptions: const FontOptions(
-                      fontShape: FontStyle.italic,
-                    ),
-                    fontSize: 14.0,
-                    color: widget.textStyle?.color ??
-                        theme.colorScheme.onSurface,
-                  ),
-                ),
-                const HSpace(2),
-              ],
-            ),
+            child: _buildMathEquation(context),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildMathEquation(BuildContext context) {
+    final theme = Theme.of(context);
+    final longEq = Math.tex(
+      widget.formula,
+      textStyle: widget.textStyle,
+      mathStyle: MathStyle.text,
+      options: MathOptions(
+        style: MathStyle.text,
+        mathFontOptions: const FontOptions(
+          fontShape: FontStyle.italic,
+        ),
+        fontSize: widget.textStyle?.fontSize ?? 14.0,
+        color: widget.textStyle?.color ?? theme.colorScheme.onSurface,
+      ),
+      onErrorFallback: (errmsg) {
+        return FlowyText(
+          errmsg.message,
+          fontSize: widget.textStyle?.fontSize ?? 14.0,
+          color: widget.textStyle?.color ?? theme.colorScheme.onSurface,
+        );
+      },
+    );
+    return longEq;
   }
 }
 

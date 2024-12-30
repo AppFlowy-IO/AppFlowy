@@ -68,6 +68,7 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
           return Column(
             children: [
               const AppFlowyCloudEnableSync(),
+              const AppFlowyCloudSyncLogEnabled(),
               const VSpace(12),
               RestartButton(
                 onClick: () {
@@ -123,6 +124,7 @@ class CustomAppFlowyCloudView extends StatelessWidget {
     final List<Widget> children = [];
     children.addAll([
       const AppFlowyCloudEnableSync(),
+      const AppFlowyCloudSyncLogEnabled(),
       const VSpace(40),
     ]);
 
@@ -322,7 +324,48 @@ class AppFlowyCloudEnableSync extends StatelessWidget {
               value: state.setting.enableSync,
               onChanged: (value) => context
                   .read<AppFlowyCloudSettingBloc>()
-                  .add(AppFlowyCloudSettingEvent.enableSync(!value)),
+                  .add(AppFlowyCloudSettingEvent.enableSync(value)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class AppFlowyCloudSyncLogEnabled extends StatelessWidget {
+  const AppFlowyCloudSyncLogEnabled({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AppFlowyCloudSettingBloc, AppFlowyCloudSettingState>(
+      builder: (context, state) {
+        return Row(
+          children: [
+            FlowyText.medium(LocaleKeys.settings_menu_enableSyncLog.tr()),
+            const Spacer(),
+            Toggle(
+              value: state.isSyncLogEnabled,
+              onChanged: (value) {
+                if (value) {
+                  showCancelAndConfirmDialog(
+                    context: context,
+                    title: LocaleKeys.settings_menu_enableSyncLog.tr(),
+                    description:
+                        LocaleKeys.settings_menu_enableSyncLogWarning.tr(),
+                    confirmLabel: LocaleKeys.button_confirm.tr(),
+                    onConfirm: () {
+                      context
+                          .read<AppFlowyCloudSettingBloc>()
+                          .add(AppFlowyCloudSettingEvent.enableSyncLog(value));
+                    },
+                  );
+                } else {
+                  context
+                      .read<AppFlowyCloudSettingBloc>()
+                      .add(AppFlowyCloudSettingEvent.enableSyncLog(value));
+                }
+              },
             ),
           ],
         );

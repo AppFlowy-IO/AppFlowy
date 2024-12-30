@@ -2,12 +2,15 @@ import { ThemeModeContext, useAppThemeMode } from '@/components/main/useAppTheme
 import React, { useMemo } from 'react';
 import createTheme from '@mui/material/styles/createTheme';
 import ThemeProvider from '@mui/material/styles/ThemeProvider';
-import '@/i18n/config';
+import {
+  i18nInstance,
+} from '@/i18n/config';
 
 import 'src/styles/tailwind.css';
 import 'src/styles/template.css';
+import { I18nextProvider } from 'react-i18next';
 
-function AppTheme ({ children }: { children: React.ReactNode; }) {
+function AppTheme({ children }: { children: React.ReactNode; }) {
   const { isDark, setIsDark } = useAppThemeMode();
 
   const theme = useMemo(
@@ -29,7 +32,7 @@ function AppTheme ({ children }: { children: React.ReactNode; }) {
               notchedOutline: {
                 borderColor: 'var(--line-divider)',
               },
-              
+
             },
           },
           MuiMenuItem: {
@@ -47,13 +50,22 @@ function AppTheme ({ children }: { children: React.ReactNode; }) {
           MuiIconButton: {
             styleOverrides: {
               root: {
-                '&:hover': {
+                '&:hover, &:focus': {
                   backgroundColor: 'var(--fill-list-hover)',
                 },
                 borderRadius: '4px',
                 padding: '2px',
                 '&.MuiIconButton-colorInherit': {
                   color: 'var(--icon-primary)',
+                },
+                '&.MuiIconButton-colorPrimary': {
+                  color: 'var(--fill-default)',
+                },
+              },
+              colorSecondary: {
+                color: 'var(--billing-primary)',
+                '&:hover': {
+                  color: 'var(--billing-primary-hover)',
                 },
               },
             },
@@ -82,12 +94,34 @@ function AppTheme ({ children }: { children: React.ReactNode; }) {
                   opacity: 0.3,
                   color: 'var(--content-on-fill)',
                 },
+                '&.MuiButton-containedInherit': {
+                  color: 'var(--text-title)',
+                  backgroundColor: isDark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)',
+                  '&:hover': {
+                    backgroundColor: 'var(--bg-body)',
+                    boxShadow: 'var(--shadow)',
+                  },
+                },
+                '&.MuiButton-containedSecondary': {
+                  backgroundColor: 'var(--billing-primary)',
+                  '&:hover': {
+                    backgroundColor: 'var(--billing-primary-hover)',
+                  },
+                },
               },
               outlined: {
                 '&.MuiButton-outlinedInherit': {
                   borderColor: 'var(--line-divider)',
                 },
                 borderRadius: '8px',
+                '&.MuiButton-outlinedSecondary': {
+                  color: 'var(--billing-primary)',
+                  borderColor: 'var(--billing-primary)',
+                  '&:hover': {
+                    color: 'var(--billing-primary-hover)',
+                    borderColor: 'var(--billing-primary-hover)',
+                  },
+                },
               },
 
             },
@@ -113,7 +147,6 @@ function AppTheme ({ children }: { children: React.ReactNode; }) {
                 boxShadow: 'none !important',
               },
             },
-
           },
           MuiPaper: {
             styleOverrides: {
@@ -121,6 +154,20 @@ function AppTheme ({ children }: { children: React.ReactNode; }) {
                 backgroundImage: 'none',
                 boxShadow: 'var(--shadow)',
                 borderRadius: '10px',
+              },
+            },
+          },
+          MuiDrawer: {
+            styleOverrides: {
+              paper: {
+                borderRadius: 0,
+              },
+
+              paperAnchorBottom: {
+                borderTopRightRadius: 16,
+                borderTopLeftRadius: 16,
+                borderBottomLeftRadius: 0,
+                borderBottomRightRadius: 0,
               },
             },
           },
@@ -142,11 +189,11 @@ function AppTheme ({ children }: { children: React.ReactNode; }) {
           MuiTooltip: {
             styleOverrides: {
               arrow: {
-                color: 'var(--bg-tips)',
+                color: 'var(--fill-toolbar)',
               },
               tooltip: {
-                backgroundColor: 'var(--bg-tips)',
-                color: 'var(--text-title)',
+                backgroundColor: 'var(--fill-toolbar)',
+                color: 'white',
                 fontSize: '0.85rem',
                 borderRadius: '8px',
                 fontWeight: 400,
@@ -183,6 +230,10 @@ function AppTheme ({ children }: { children: React.ReactNode; }) {
             main: '#00BCF0',
             dark: '#00BCF0',
           },
+          secondary: {
+            main: '#8427e0',
+            dark: '#601DAA',
+          },
           error: {
             main: '#FB006D',
             dark: '#D32772',
@@ -215,14 +266,16 @@ function AppTheme ({ children }: { children: React.ReactNode; }) {
   );
 
   return (
-    <ThemeModeContext.Provider
-      value={{
-        isDark,
-        setDark: setIsDark,
-      }}
-    >
-      <ThemeProvider theme={theme}>{children}</ThemeProvider>
-    </ThemeModeContext.Provider>
+    <I18nextProvider i18n={i18nInstance}>
+      <ThemeModeContext.Provider
+        value={{
+          isDark,
+          setDark: setIsDark,
+        }}
+      >
+        <ThemeProvider theme={theme}>{children}</ThemeProvider>
+      </ThemeModeContext.Provider>
+    </I18nextProvider>
   );
 }
 

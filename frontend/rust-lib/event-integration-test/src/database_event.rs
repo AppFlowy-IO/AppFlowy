@@ -3,13 +3,15 @@ use std::convert::TryFrom;
 
 use bytes::Bytes;
 use collab_database::database::timestamp;
-use collab_database::entity::SelectOption;
+use collab_database::fields::select_type_option::{
+  MultiSelectTypeOption, SelectOption, SingleSelectTypeOption,
+};
 use collab_database::fields::Field;
 use collab_database::rows::{Row, RowId};
 use flowy_database2::entities::*;
 use flowy_database2::event_map::DatabaseEvent;
 use flowy_database2::services::cell::CellBuilder;
-use flowy_database2::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
+use flowy_database2::services::field::checklist_filter::ChecklistCellInsertChangeset;
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_folder::entities::*;
 use flowy_folder::event_map::FolderEvent;
@@ -36,7 +38,6 @@ impl EventIntegrationTest {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
       name,
-      desc: "".to_string(),
       thumbnail: None,
       layout: ViewLayoutPB::Grid,
       initial_data,
@@ -55,21 +56,21 @@ impl EventIntegrationTest {
       .parse::<ViewPB>()
   }
 
-  pub async fn open_database(&self, view_id: &str) {
+  pub async fn open_database(&self, view_id: &str) -> DatabasePB {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::GetDatabase)
       .payload(DatabaseViewIdPB {
         value: view_id.to_string(),
       })
       .async_send()
-      .await;
+      .await
+      .parse::<DatabasePB>()
   }
 
   pub async fn create_board(&self, parent_id: &str, name: String, initial_data: Vec<u8>) -> ViewPB {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
       name,
-      desc: "".to_string(),
       thumbnail: None,
       layout: ViewLayoutPB::Board,
       initial_data,
@@ -97,7 +98,6 @@ impl EventIntegrationTest {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
       name,
-      desc: "".to_string(),
       thumbnail: None,
       layout: ViewLayoutPB::Calendar,
       initial_data,
@@ -167,6 +167,41 @@ impl EventIntegrationTest {
         view_id: view_id.to_string(),
         field_id: field_id.to_string(),
       })
+      .async_send()
+      .await
+      .error()
+  }
+
+  pub async fn remove_calculate(
+    &self,
+    changeset: RemoveCalculationChangesetPB,
+  ) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::RemoveCalculation)
+      .payload(changeset)
+      .async_send()
+      .await
+      .error()
+  }
+
+  pub async fn get_all_calculations(&self, database_view_id: &str) -> RepeatedCalculationsPB {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::GetAllCalculations)
+      .payload(DatabaseViewIdPB {
+        value: database_view_id.to_string(),
+      })
+      .async_send()
+      .await
+      .parse::<RepeatedCalculationsPB>()
+  }
+
+  pub async fn update_calculation(
+    &self,
+    changeset: UpdateCalculationChangesetPB,
+  ) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::UpdateCalculation)
+      .payload(changeset)
       .async_send()
       .await
       .error()
@@ -588,15 +623,14 @@ impl<'a> TestRowBuilder<'a> {
 
   pub fn insert_date_cell(
     &mut self,
-    date: i64,
-    time: Option<String>,
+    timestamp: i64,
     include_time: Option<bool>,
     field_type: &FieldType,
   ) -> String {
     let date_field = self.field_with_type(field_type);
     self
       .cell_build
-      .insert_date_cell(&date_field.id, date, time, include_time);
+      .insert_date_cell(&date_field.id, timestamp, include_time);
     date_field.id.clone()
   }
 
@@ -624,7 +658,8 @@ impl<'a> TestRowBuilder<'a> {
     let single_select_field = self.field_with_type(&FieldType::SingleSelect);
     let type_option = single_select_field
       .get_type_option::<SingleSelectTypeOption>(FieldType::SingleSelect)
-      .unwrap();
+      .unwrap()
+      .0;
     let option = f(type_option.options);
     self
       .cell_build
@@ -640,7 +675,8 @@ impl<'a> TestRowBuilder<'a> {
     let multi_select_field = self.field_with_type(&FieldType::MultiSelect);
     let type_option = multi_select_field
       .get_type_option::<MultiSelectTypeOption>(FieldType::MultiSelect)
-      .unwrap();
+      .unwrap()
+      .0;
     let options = f(type_option.options);
     let ops_ids = options
       .iter()
@@ -653,11 +689,11 @@ impl<'a> TestRowBuilder<'a> {
     multi_select_field.id.clone()
   }
 
-  pub fn insert_checklist_cell(&mut self, options: Vec<(String, bool)>) -> String {
+  pub fn insert_checklist_cell(&mut self, new_tasks: Vec<ChecklistCellInsertChangeset>) -> String {
     let checklist_field = self.field_with_type(&FieldType::Checklist);
     self
       .cell_build
-      .insert_checklist_cell(&checklist_field.id, options);
+      .insert_checklist_cell(&checklist_field.id, new_tasks);
     checklist_field.id.clone()
   }
 

@@ -37,6 +37,7 @@ class _MobileNewPropertyScreenState extends State<MobileNewPropertyScreen> {
     final type = widget.fieldType ?? FieldType.RichText;
     optionValues = FieldOptionValues(
       type: type,
+      icon: "",
       name: type.i18n,
     );
   }

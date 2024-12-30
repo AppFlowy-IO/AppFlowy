@@ -1,3 +1,5 @@
+import 'package:appflowy/plugins/document/presentation/editor_drop_manager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -16,6 +18,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 import '../cell/editable_cell_builder.dart';
 
@@ -41,13 +44,28 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
 }
 
 class _RowDetailPageState extends State<RowDetailPage> {
-  final scrollController = ScrollController();
+  // To allow blocking drop target in RowDocument from Field dialogs
+  final dropManagerState = EditorDropManagerState();
+
   late final cellBuilder = EditableCellBuilder(
     databaseController: widget.databaseController,
   );
+  late final ScrollController scrollController;
+
+  double scrollOffset = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    scrollController =
+        ScrollController(onAttach: (_) => attachScrollListener());
+  }
+
+  void attachScrollListener() => scrollController.addListener(onScrollChanged);
 
   @override
   void dispose() {
+    scrollController.removeListener(onScrollChanged);
     scrollController.dispose();
     super.dispose();
   }
@@ -55,63 +73,89 @@ class _RowDetailPageState extends State<RowDetailPage> {
   @override
   Widget build(BuildContext context) {
     return FlowyDialog(
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (context) => RowDetailBloc(
-              fieldController: widget.databaseController.fieldController,
-              rowController: widget.rowController,
+      child: ChangeNotifierProvider.value(
+        value: dropManagerState,
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) => RowDetailBloc(
+                fieldController: widget.databaseController.fieldController,
+                rowController: widget.rowController,
+              ),
             ),
-          ),
-          BlocProvider.value(value: getIt<ReminderBloc>()),
-        ],
-        child: Stack(
-          children: [
-            ListView(
-              controller: scrollController,
+            BlocProvider.value(value: getIt<ReminderBloc>()),
+          ],
+          child: BlocBuilder<RowDetailBloc, RowDetailState>(
+            builder: (context, state) => Stack(
               children: [
-                RowBanner(
-                  databaseController: widget.databaseController,
-                  rowController: widget.rowController,
-                  cellBuilder: cellBuilder,
-                  allowOpenAsFullPage: widget.allowOpenAsFullPage,
-                  userProfile: widget.userProfile,
+                ListView(
+                  controller: scrollController,
+                  physics: const ClampingScrollPhysics(),
+                  children: [
+                    RowBanner(
+                      databaseController: widget.databaseController,
+                      rowController: widget.rowController,
+                      cellBuilder: cellBuilder,
+                      allowOpenAsFullPage: widget.allowOpenAsFullPage,
+                      userProfile: widget.userProfile,
+                    ),
+                    const VSpace(16),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 40, right: 60),
+                      child: RowPropertyList(
+                        cellBuilder: cellBuilder,
+                        viewId: widget.databaseController.viewId,
+                        fieldController:
+                            widget.databaseController.fieldController,
+                      ),
+                    ),
+                    const VSpace(20),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 60),
+                      child: Divider(height: 1.0),
+                    ),
+                    const VSpace(20),
+                    RowDocument(
+                      viewId: widget.rowController.viewId,
+                      rowId: widget.rowController.rowId,
+                    ),
+                  ],
                 ),
-                const VSpace(16),
-                Padding(
-                  padding: const EdgeInsets.only(left: 40, right: 60),
-                  child: RowPropertyList(
-                    cellBuilder: cellBuilder,
-                    viewId: widget.databaseController.viewId,
-                    fieldController: widget.databaseController.fieldController,
+                Positioned(
+                  top: calculateActionsOffset(
+                    state.rowMeta.cover.data.isNotEmpty,
                   ),
-                ),
-                const VSpace(20),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 60),
-                  child: Divider(height: 1.0),
-                ),
-                const VSpace(20),
-                RowDocument(
-                  viewId: widget.rowController.viewId,
-                  rowId: widget.rowController.rowId,
+                  right: 12,
+                  child: Row(children: actions(context)),
                 ),
               ],
             ),
-            Positioned(
-              top: 12,
-              right: 12,
-              child: Row(
-                children: _actions(context),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  List<Widget> _actions(BuildContext context) {
+  void onScrollChanged() {
+    if (scrollOffset != scrollController.offset) {
+      setState(() => scrollOffset = scrollController.offset);
+    }
+  }
+
+  double calculateActionsOffset(bool hasCover) {
+    if (!hasCover) {
+      return 12;
+    }
+
+    final offsetByScroll = clampDouble(
+      rowCoverHeight - scrollOffset,
+      0,
+      rowCoverHeight,
+    );
+    return 12 + offsetByScroll;
+  }
+
+  List<Widget> actions(BuildContext context) {
     return [
       if (widget.allowOpenAsFullPage) ...[
         FlowyTooltip(

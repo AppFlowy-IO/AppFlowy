@@ -2,7 +2,16 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
 
-enum EditorNotificationType { none, undo, redo, exitEditing }
+enum EditorNotificationType {
+  none,
+  undo,
+  redo,
+  exitEditing,
+  paste,
+  dragStart,
+  dragEnd,
+  turnInto,
+}
 
 class EditorNotification {
   const EditorNotification({required this.type});
@@ -10,6 +19,10 @@ class EditorNotification {
   EditorNotification.undo() : type = EditorNotificationType.undo;
   EditorNotification.redo() : type = EditorNotificationType.redo;
   EditorNotification.exitEditing() : type = EditorNotificationType.exitEditing;
+  EditorNotification.paste() : type = EditorNotificationType.paste;
+  EditorNotification.dragStart() : type = EditorNotificationType.dragStart;
+  EditorNotification.dragEnd() : type = EditorNotificationType.dragEnd;
+  EditorNotification.turnInto() : type = EditorNotificationType.turnInto;
 
   static final PropertyValueNotifier<EditorNotificationType> _notifier =
       PropertyValueNotifier(EditorNotificationType.none);

@@ -4,7 +4,7 @@ use std::sync::Arc;
 use super::notifier::{SearchNotifier, SearchResultChanged, SearchResultReceiverRunner};
 use crate::entities::{SearchFilterPB, SearchResultNotificationPB, SearchResultPB};
 use flowy_error::FlowyResult;
-use lib_dispatch::prelude::af_spawn;
+
 use lib_infra::async_trait::async_trait;
 use tokio::sync::broadcast;
 
@@ -48,7 +48,7 @@ impl SearchManager {
 
     // Initialize Search Notifier
     let (notifier, _) = broadcast::channel(100);
-    af_spawn(SearchResultReceiverRunner(Some(notifier.subscribe())).run());
+    tokio::spawn(SearchResultReceiverRunner(Some(notifier.subscribe())).run());
 
     Self { handlers, notifier }
   }
@@ -71,7 +71,7 @@ impl SearchManager {
       let ch = channel.clone();
       let notifier = self.notifier.clone();
 
-      af_spawn(async move {
+      tokio::spawn(async move {
         let res = handler.perform_search(q.clone(), f).await;
 
         let items = res.unwrap_or_default();

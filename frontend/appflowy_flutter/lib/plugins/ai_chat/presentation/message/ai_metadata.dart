@@ -1,13 +1,20 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_message_service.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:string_validator/string_validator.dart';
+import 'package:time/time.dart';
 
-class AIMessageMetadata extends StatelessWidget {
+class AIMessageMetadata extends StatefulWidget {
   const AIMessageMetadata({
     required this.sources,
     required this.onSelectedMetadata,
@@ -15,58 +22,137 @@ class AIMessageMetadata extends StatelessWidget {
   });
 
   final List<ChatMessageRefSource> sources;
-  final Function(ChatMessageRefSource metadata) onSelectedMetadata;
+  final void Function(ChatMessageRefSource metadata)? onSelectedMetadata;
+
+  @override
+  State<AIMessageMetadata> createState() => _AIMessageMetadataState();
+}
+
+class _AIMessageMetadataState extends State<AIMessageMetadata> {
+  bool isExpanded = true;
+
   @override
   Widget build(BuildContext context) {
-    final title = sources.length == 1
-        ? LocaleKeys.chat_referenceSource.tr(args: [sources.length.toString()])
-        : LocaleKeys.chat_referenceSources
-            .tr(args: [sources.length.toString()]);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (sources.isNotEmpty)
-          Opacity(
-            opacity: 0.5,
-            child: FlowyText(title, fontSize: 12),
-          ),
-        const VSpace(6),
-        Wrap(
-          spacing: 8.0,
-          runSpacing: 4.0,
-          children: sources
-              .map(
-                (m) => SizedBox(
-                  height: 24,
-                  child: FlowyButton(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 4,
-                    ),
-                    useIntrinsicWidth: true,
-                    radius: BorderRadius.circular(6),
-                    text: Opacity(
-                      opacity: 0.5,
-                      child: FlowyText(
-                        m.name,
-                        fontSize: 14,
-                        lineHeight: 1.0,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    disable: m.source != appflowySoruce,
-                    onTap: () {
-                      if (m.source != appflowySoruce) {
-                        return;
-                      }
-                      onSelectedMetadata(m);
-                    },
-                  ),
+    return AnimatedSize(
+      duration: 150.milliseconds,
+      alignment: AlignmentDirectional.topStart,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const VSpace(8.0),
+          ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxHeight: 24,
+              maxWidth: 240,
+            ),
+            child: FlowyButton(
+              margin: const EdgeInsets.all(4.0),
+              useIntrinsicWidth: true,
+              hoverColor: Colors.transparent,
+              radius: BorderRadius.circular(8.0),
+              text: FlowyText(
+                LocaleKeys.chat_referenceSource.plural(
+                  widget.sources.length,
+                  namedArgs: {'count': '${widget.sources.length}'},
                 ),
-              )
-              .toList(),
+                fontSize: 12,
+                color: Theme.of(context).hintColor,
+              ),
+              rightIcon: FlowySvg(
+                isExpanded ? FlowySvgs.arrow_up_s : FlowySvgs.arrow_down_s,
+                size: const Size.square(10),
+              ),
+              onTap: () {
+                setState(() => isExpanded = !isExpanded);
+              },
+            ),
+          ),
+          if (isExpanded) ...[
+            const VSpace(4.0),
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 4.0,
+              children: widget.sources.map(
+                (m) {
+                  if (isURL(m.id)) {
+                    return _MetadataButton(
+                      name: m.id,
+                      onTap: () => widget.onSelectedMetadata?.call(m),
+                    );
+                  } else if (isUUID(m.id)) {
+                    return FutureBuilder<ViewPB?>(
+                      future: ViewBackendService.getView(m.id)
+                          .then((f) => f.toNullable()),
+                      builder: (context, snapshot) {
+                        final data = snapshot.data;
+                        if (!snapshot.hasData ||
+                            snapshot.connectionState != ConnectionState.done ||
+                            data == null) {
+                          return _MetadataButton(
+                            name: m.name,
+                          );
+                        }
+                        return BlocProvider(
+                          create: (_) => ViewBloc(view: data),
+                          child: BlocBuilder<ViewBloc, ViewState>(
+                            builder: (context, state) {
+                              return _MetadataButton(
+                                name: state.view.nameOrDefault,
+                                onTap: () => widget.onSelectedMetadata?.call(m),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  } else {
+                    return _MetadataButton(
+                      name: m.name,
+                      onTap: () => widget.onSelectedMetadata?.call(m),
+                    );
+                  }
+                },
+              ).toList(),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _MetadataButton extends StatelessWidget {
+  const _MetadataButton({
+    this.name = "",
+    this.onTap,
+  });
+
+  final String name;
+  final void Function()? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        maxHeight: 24,
+        maxWidth: 240,
+      ),
+      child: FlowyButton(
+        margin: const EdgeInsets.all(4.0),
+        useIntrinsicWidth: true,
+        radius: BorderRadius.circular(8.0),
+        text: FlowyText(
+          name,
+          fontSize: 12,
+          overflow: TextOverflow.ellipsis,
         ),
-      ],
+        leftIcon: FlowySvg(
+          FlowySvgs.icon_document_s,
+          size: const Size.square(16),
+          color: Theme.of(context).hintColor,
+        ),
+        onTap: onTap,
+      ),
     );
   }
 }

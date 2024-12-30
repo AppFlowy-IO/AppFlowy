@@ -26,7 +26,6 @@ class NotificationsView extends StatelessWidget {
     required this.views,
     this.isUpcoming = false,
     this.onAction,
-    this.onDelete,
     this.onReadChanged,
     this.actionBar,
   });
@@ -36,7 +35,6 @@ class NotificationsView extends StatelessWidget {
   final List<ViewPB> views;
   final bool isUpcoming;
   final Function(ReminderPB reminder, int? path, ViewPB? view)? onAction;
-  final Function(ReminderPB reminder)? onDelete;
   final Function(ReminderPB reminder, bool isRead)? onReadChanged;
   final Widget? actionBar;
 
@@ -87,7 +85,6 @@ class NotificationsView extends StatelessWidget {
                       readOnly: isUpcoming,
                       onReadChanged: (isRead) =>
                           onReadChanged?.call(reminder, isRead),
-                      onDelete: () => onDelete?.call(reminder),
                       onAction: (path) => onAction?.call(reminder, path, view),
                       view: view,
                     );

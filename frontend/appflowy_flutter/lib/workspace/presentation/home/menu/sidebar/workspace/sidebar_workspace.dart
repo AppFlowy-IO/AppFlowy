@@ -10,12 +10,10 @@ import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:toastification/toastification.dart';
 
 class SidebarWorkspace extends StatefulWidget {
   const SidebarWorkspace({super.key, required this.userProfile});
@@ -206,9 +204,12 @@ class _SidebarSwitchWorkspaceButtonState
   @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
-      direction: PopoverDirection.bottomWithLeftAligned,
+      direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 5),
       constraints: const BoxConstraints(maxWidth: 300, maxHeight: 600),
+      animationDuration: Durations.short3,
+      beginScaleFactor: 1.0,
+      beginOpacity: 0.8,
       controller: _popoverController,
       triggerActions: PopoverTriggerFlags.none,
       onOpen: () {
@@ -264,7 +265,12 @@ class _SideBarSwitchWorkspaceButtonChild extends StatelessWidget {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: () => popoverController.show(),
+        onTap: () {
+          context.read<UserWorkspaceBloc>().add(
+                const UserWorkspaceEvent.fetchWorkspaces(),
+              );
+          popoverController.show();
+        },
         behavior: HitTestBehavior.opaque,
         child: SizedBox(
           height: 30,
@@ -273,12 +279,13 @@ class _SideBarSwitchWorkspaceButtonChild extends StatelessWidget {
               const HSpace(4.0),
               WorkspaceIcon(
                 workspace: currentWorkspace,
-                iconSize: 24,
+                iconSize: 26,
                 fontSize: 16,
-                emojiSize: 18,
+                emojiSize: 20,
                 enableEdit: false,
                 borderRadius: 8.0,
-                figmaLineHeight: 21.0,
+                figmaLineHeight: 18.0,
+                showBorder: false,
                 onSelected: (result) => context.read<UserWorkspaceBloc>().add(
                       UserWorkspaceEvent.updateWorkspaceIcon(
                         currentWorkspace.workspaceId,
@@ -286,7 +293,7 @@ class _SideBarSwitchWorkspaceButtonChild extends StatelessWidget {
                       ),
                     ),
               ),
-              const HSpace(8),
+              const HSpace(6),
               Flexible(
                 child: FlowyText.medium(
                   currentWorkspace.name,

@@ -5,7 +5,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/font_colors.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mobile_toolbar_item/utils.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
@@ -15,6 +14,7 @@ import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -42,8 +42,19 @@ class EditorStyleCustomizer {
   static const double minDocumentWidth = 480;
 
   static EdgeInsets get documentPadding => UniversalPlatform.isMobile
-      ? const EdgeInsets.symmetric(horizontal: 24)
-      : const EdgeInsets.only(left: 40, right: 40 + 44);
+      ? EdgeInsets.zero
+      : EdgeInsets.only(
+          left: 40,
+          right: 40 + EditorStyleCustomizer.optionMenuWidth,
+        );
+
+  static double get nodeHorizontalPadding =>
+      UniversalPlatform.isMobile ? 24 : 0;
+
+  static EdgeInsets get documentPaddingWithOptionMenu =>
+      documentPadding + EdgeInsets.only(left: optionMenuWidth);
+
+  static double get optionMenuWidth => UniversalPlatform.isMobile ? 0 : 44;
 
   EditorStyle style() {
     if (UniversalPlatform.isDesktopOrWeb) {
@@ -165,8 +176,6 @@ class EditorStyleCustomizer {
     final String? fontFamily;
     final List<double> fontSizes;
     final double fontSize;
-    final FontWeight fontWeight =
-        level <= 2 ? FontWeight.w700 : FontWeight.w600;
     if (UniversalPlatform.isMobile) {
       final state = context.read<DocumentPageStyleBloc>().state;
       fontFamily = state.fontFamily;
@@ -184,19 +193,24 @@ class EditorStyleCustomizer {
         fontSize,
       ];
     }
-    return baseTextStyle(fontFamily, fontWeight: fontWeight).copyWith(
+    return baseTextStyle(fontFamily, fontWeight: FontWeight.w600).copyWith(
       fontSize: fontSizes.elementAtOrNull(level - 1) ?? fontSize,
     );
   }
 
-  TextStyle codeBlockStyleBuilder() {
+  CodeBlockStyle codeBlockStyleBuilder() {
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     final fontFamily =
         context.read<DocumentAppearanceCubit>().state.codeFontFamily;
-    return baseTextStyle(fontFamily).copyWith(
-      fontSize: fontSize,
-      height: 1.5,
-      color: AFThemeExtension.of(context).onBackground,
+
+    return CodeBlockStyle(
+      textStyle: baseTextStyle(fontFamily).copyWith(
+        fontSize: fontSize,
+        height: 1.5,
+        color: AFThemeExtension.of(context).onBackground,
+      ),
+      backgroundColor: AFThemeExtension.of(context).calloutBGColor,
+      foregroundColor: AFThemeExtension.of(context).textColor.withAlpha(155),
     );
   }
 
@@ -228,6 +242,24 @@ class EditorStyleCustomizer {
       height: 1.5,
       color: AFThemeExtension.of(context).onBackground.withOpacity(0.6),
     );
+  }
+
+  TextStyle subPageBlockTextStyleBuilder() {
+    if (UniversalPlatform.isMobile) {
+      final pageStyle = context.read<DocumentPageStyleBloc>().state;
+      final fontSize = pageStyle.fontLayout.fontSize;
+      final fontFamily = pageStyle.fontFamily ?? defaultFontFamily;
+      final baseTextStyle = this.baseTextStyle(fontFamily);
+      return baseTextStyle.copyWith(
+        fontSize: fontSize,
+      );
+    } else {
+      final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+      return baseTextStyle(null).copyWith(
+        fontSize: fontSize,
+        height: 1.5,
+      );
+    }
   }
 
   SelectionMenuStyle selectionMenuStyleBuilder() {
@@ -348,12 +380,13 @@ class EditorStyleCustomizer {
     final formula = attributes[InlineMathEquationKeys.formula];
     if (formula is String) {
       return WidgetSpan(
+        style: after.style,
         alignment: PlaceholderAlignment.middle,
         child: InlineMathEquation(
           node: node,
           index: index,
           formula: formula,
-          textStyle: style().textStyleConfiguration.text,
+          textStyle: after.style ?? style().textStyleConfiguration.text,
         ),
       );
     }

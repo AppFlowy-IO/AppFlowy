@@ -11,13 +11,17 @@ class OptionTextField extends StatelessWidget {
   const OptionTextField({
     super.key,
     required this.controller,
-    required this.type,
+    this.autoFocus = false,
+    required this.isPrimary,
+    required this.fieldType,
     required this.onTextChanged,
     required this.onFieldTypeChanged,
   });
 
   final TextEditingController controller;
-  final FieldType type;
+  final bool autoFocus;
+  final bool isPrimary;
+  final FieldType fieldType;
   final void Function(String value) onTextChanged;
   final void Function(FieldType value) onFieldTypeChanged;
 
@@ -25,10 +29,14 @@ class OptionTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyOptionTile.textField(
       controller: controller,
+      autofocus: autoFocus,
       textFieldPadding: const EdgeInsets.symmetric(horizontal: 12.0),
       onTextChanged: onTextChanged,
       leftIcon: GestureDetector(
         onTap: () async {
+          if (isPrimary) {
+            return;
+          }
           final fieldType = await showFieldTypeGridBottomSheet(
             context,
             title: LocaleKeys.grid_field_editProperty.tr(),
@@ -43,12 +51,12 @@ class OptionTextField extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             color: Theme.of(context).brightness == Brightness.light
-                ? type.mobileIconBackgroundColor
-                : type.mobileIconBackgroundColorDark,
+                ? fieldType.mobileIconBackgroundColor
+                : fieldType.mobileIconBackgroundColorDark,
           ),
           child: Center(
             child: FlowySvg(
-              type.svgData,
+              fieldType.svgData,
               size: const Size.square(22),
             ),
           ),

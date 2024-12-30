@@ -87,7 +87,7 @@ impl From<i64> for SortCondition {
   }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ReorderAllRowsResult {
   pub view_id: String,
   pub row_orders: Vec<String>,
@@ -102,7 +102,7 @@ impl ReorderAllRowsResult {
   }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ReorderSingleRowResult {
   pub view_id: String,
   pub row_id: RowId,

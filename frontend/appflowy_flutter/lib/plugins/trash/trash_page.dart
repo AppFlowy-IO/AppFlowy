@@ -1,9 +1,11 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/trash/src/sizes.dart';
 import 'package:appflowy/plugins/trash/src/trash_header.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -12,7 +14,6 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
@@ -106,16 +107,15 @@ class _TrashPageState extends State<TrashPage> {
                 lineHeight: 1.0,
               ),
               leftIcon: const FlowySvg(FlowySvgs.restore_s),
-              onTap: () {
-                NavigatorAlertDialog(
-                  title: LocaleKeys.trash_confirmRestoreAll_title.tr(),
-                  confirm: () {
-                    context
-                        .read<TrashBloc>()
-                        .add(const TrashEvent.restoreAll());
-                  },
-                ).show(context);
-              },
+              onTap: () => showCancelAndConfirmDialog(
+                context: context,
+                confirmLabel: LocaleKeys.trash_restore.tr(),
+                title: LocaleKeys.trash_confirmRestoreAll_title.tr(),
+                description: LocaleKeys.trash_confirmRestoreAll_caption.tr(),
+                onConfirm: () => context
+                    .read<TrashBloc>()
+                    .add(const TrashEvent.restoreAll()),
+              ),
             ),
           ),
           const HSpace(6),
@@ -126,14 +126,13 @@ class _TrashPageState extends State<TrashPage> {
                 lineHeight: 1.0,
               ),
               leftIcon: const FlowySvg(FlowySvgs.delete_s),
-              onTap: () {
-                NavigatorAlertDialog(
-                  title: LocaleKeys.trash_confirmDeleteAll_title.tr(),
-                  confirm: () {
-                    context.read<TrashBloc>().add(const TrashEvent.deleteAll());
-                  },
-                ).show(context);
-              },
+              onTap: () => showConfirmDeletionDialog(
+                context: context,
+                name: LocaleKeys.trash_confirmDeleteAll_title.tr(),
+                description: LocaleKeys.trash_confirmDeleteAll_caption.tr(),
+                onConfirm: () =>
+                    context.read<TrashBloc>().add(const TrashEvent.deleteAll()),
+              ),
             ),
           ),
         ],
@@ -158,24 +157,26 @@ class _TrashPageState extends State<TrashPage> {
             height: 42,
             child: TrashCell(
               object: object,
-              onRestore: () {
-                NavigatorAlertDialog(
-                  title: LocaleKeys.deletePagePrompt_restore.tr(),
-                  confirm: () {
-                    context
-                        .read<TrashBloc>()
-                        .add(TrashEvent.putback(object.id));
-                  },
-                ).show(context);
-              },
-              onDelete: () {
-                NavigatorAlertDialog(
-                  title: LocaleKeys.deletePagePrompt_deletePermanent.tr(),
-                  confirm: () {
-                    context.read<TrashBloc>().add(TrashEvent.delete(object));
-                  },
-                ).show(context);
-              },
+              onRestore: () => showCancelAndConfirmDialog(
+                context: context,
+                title:
+                    LocaleKeys.trash_restorePage_title.tr(args: [object.name]),
+                description: LocaleKeys.trash_restorePage_caption.tr(),
+                confirmLabel: LocaleKeys.trash_restore.tr(),
+                onConfirm: () => context
+                    .read<TrashBloc>()
+                    .add(TrashEvent.putback(object.id)),
+              ),
+              onDelete: () => showConfirmDeletionDialog(
+                context: context,
+                name: object.name.trim().isEmpty
+                    ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
+                    : object.name,
+                description:
+                    LocaleKeys.deletePagePrompt_deletePermanentDescription.tr(),
+                onConfirm: () =>
+                    context.read<TrashBloc>().add(TrashEvent.delete(object)),
+              ),
             ),
           );
         },

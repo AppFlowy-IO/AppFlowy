@@ -7,6 +7,7 @@ import {
   ViewLayout,
   YDatabase,
   YDoc,
+  ViewMetaProps,
   YjsEditorKey,
 } from '@/application/types';
 import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
@@ -15,16 +16,15 @@ import DocumentSkeleton from '@/components/_shared/skeleton/DocumentSkeleton';
 import GridSkeleton from '@/components/_shared/skeleton/GridSkeleton';
 import KanbanSkeleton from '@/components/_shared/skeleton/KanbanSkeleton';
 import { Database } from '@/components/database';
-import DatabaseHeader from '@/components/database/components/header/DatabaseHeader';
-import { ViewMetaProps } from '@/components/view-meta';
 import React, { Suspense, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import ViewMetaPreview from 'src/components/view-meta/ViewMetaPreview';
 
 export interface DatabaseProps {
   doc: YDoc;
   createRowDoc?: CreateRowDoc;
   loadView?: LoadView;
-  navigateToView?: (viewId: string) => Promise<void>;
+  navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
   loadViewMeta?: LoadViewMeta;
   viewMeta: ViewMetaProps;
   appendBreadcrumb?: AppendBreadcrumb;
@@ -90,9 +90,12 @@ function DatabaseView ({ viewMeta, ...props }: DatabaseProps) {
         minHeight: 'calc(100vh - 48px)',
         maxWidth: isTemplateThumb ? '964px' : undefined,
       }}
-      className={'relative flex h-full w-full flex-col px-6'}
+      className={'relative flex h-full w-full flex-col'}
     >
-      {rowId ? null : <DatabaseHeader {...viewMeta} />}
+      {rowId ? null : <ViewMetaPreview
+        {...viewMeta}
+        readOnly={true}
+      />}
 
       <Suspense fallback={skeleton}>
         <Database
@@ -103,8 +106,8 @@ function DatabaseView ({ viewMeta, ...props }: DatabaseProps) {
           rowId={rowId}
           visibleViewIds={visibleViewIds}
           onChangeView={handleChangeView}
-          hideConditions={true}
           onOpenRow={handleNavigateToRow}
+          showActions={false}
         />
       </Suspense>
     </div>

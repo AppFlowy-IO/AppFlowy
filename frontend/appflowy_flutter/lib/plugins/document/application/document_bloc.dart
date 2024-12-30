@@ -40,12 +40,16 @@ part 'document_bloc.freezed.dart';
 
 bool enableDocumentInternalLog = false;
 
+final Map<String, DocumentBloc> _documentBlocMap = {};
+
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   DocumentBloc({
     required this.documentId,
     this.databaseViewId,
     this.rowId,
-  })  : _documentListener = DocumentListener(id: documentId),
+    bool saveToBlocMap = true,
+  })  : _saveToBlocMap = saveToBlocMap,
+        _documentListener = DocumentListener(id: documentId),
         _syncStateListener = DocumentSyncStateListener(id: documentId),
         super(DocumentState.initial()) {
     _viewListener = databaseViewId == null && rowId == null
@@ -54,11 +58,16 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     on<DocumentEvent>(_onDocumentEvent);
   }
 
+  static DocumentBloc? findOpen(String documentId) =>
+      _documentBlocMap[documentId];
+
   /// For a normal document, the document id is the same as the view id
   final String documentId;
 
   final String? databaseViewId;
   final String? rowId;
+
+  final bool _saveToBlocMap;
 
   final DocumentListener _documentListener;
   final DocumentSyncStateListener _syncStateListener;
@@ -95,19 +104,34 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   @override
   Future<void> close() async {
     isClosing = true;
-    _updateSelectionDebounce.dispose();
-    _syncThrottle.dispose();
+    if (_saveToBlocMap) {
+      _documentBlocMap.remove(documentId);
+    }
+    await checkDocumentIntegrity();
+    await _cancelSubscriptions();
+    _clearEditorState();
+    return super.close();
+  }
+
+  Future<void> _cancelSubscriptions() async {
     await _documentService.syncAwarenessStates(documentId: documentId);
     await _documentListener.stop();
     await _syncStateListener.stop();
     await _viewListener?.stop();
     await _transactionSubscription?.cancel();
     await _documentService.closeDocument(viewId: documentId);
+  }
+
+  void _clearEditorState() {
+    _updateSelectionDebounce.dispose();
+    _syncThrottle.dispose();
+
     _syncTimer?.cancel();
     _syncTimer = null;
+    state.editorState?.selectionNotifier
+        .removeListener(_debounceOnSelectionUpdate);
     state.editorState?.service.keyboardService?.closeKeyboard();
     state.editorState?.dispose();
-    return super.close();
   }
 
   Future<void> _onDocumentEvent(
@@ -116,6 +140,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   ) async {
     await event.when(
       initial: () async {
+        if (_saveToBlocMap) {
+          _documentBlocMap[documentId] = this;
+        }
         final result = await _fetchDocumentState();
         _onViewChanged();
         _onDocumentChanged();
@@ -156,7 +183,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       },
       restorePage: () async {
         if (databaseViewId == null && rowId == null) {
-          final result = await _trashService.putback(documentId);
+          final result = await TrashService.putback(documentId);
           final isDeleted = result.fold((l) => false, (r) => true);
           emit(state.copyWith(isDeleted: isDeleted));
         }
@@ -234,8 +261,20 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       (event) async {
         final time = event.$1;
         final transaction = event.$2;
+        final options = event.$3;
         if (time != TransactionTime.before) {
           return;
+        }
+
+        if (options.inMemoryUpdate) {
+          Log.info('skip transaction for in-memory update');
+          return;
+        }
+
+        if (enableDocumentInternalLog) {
+          Log.debug(
+            '[TransactionAdapter] 1. transaction before apply: ${transaction.hashCode}',
+          );
         }
 
         // apply transaction to backend
@@ -243,6 +282,12 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
         // check if the document is empty.
         await _applyRules();
+
+        if (enableDocumentInternalLog) {
+          Log.debug(
+            '[TransactionAdapter] 4. transaction after apply: ${transaction.hashCode}',
+          );
+        }
 
         if (!isClosed) {
           // ignore: invalid_use_of_visible_for_testing_member
@@ -270,23 +315,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   Future<void> _applyRules() async {
     await Future.wait([
       _ensureAtLeastOneParagraphExists(),
-      _ensureLastNodeIsEditable(),
     ]);
-  }
-
-  Future<void> _ensureLastNodeIsEditable() async {
-    final editorState = state.editorState;
-    if (editorState == null) {
-      return;
-    }
-    final document = editorState.document;
-    final lastNode = document.root.children.lastOrNull;
-    if (lastNode == null || lastNode.delta == null) {
-      final transaction = editorState.transaction;
-      transaction.insertNode([document.root.children.length], paragraphNode());
-      transaction.afterSelection = transaction.beforeSelection;
-      await editorState.apply(transaction);
-    }
   }
 
   Future<void> _ensureAtLeastOneParagraphExists() async {
@@ -391,6 +420,38 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       documentId: documentId,
       metadata: jsonEncode(metadata.toJson()),
     );
+  }
+
+  Future<void> forceReloadDocumentState() {
+    return _documentCollabAdapter.syncV3();
+  }
+
+  // this is only used for debug mode
+  Future<void> checkDocumentIntegrity() async {
+    if (!enableDocumentInternalLog) {
+      return;
+    }
+
+    final cloudDocResult =
+        await _documentService.getDocument(documentId: documentId);
+    final cloudDoc = cloudDocResult.fold((s) => s, (f) => null)?.toDocument();
+    final localDoc = state.editorState?.document;
+    if (cloudDoc == null || localDoc == null) {
+      return;
+    }
+    final cloudJson = cloudDoc.toJson();
+    final localJson = localDoc.toJson();
+    final deepEqual = const DeepCollectionEquality().equals(
+      cloudJson,
+      localJson,
+    );
+    if (!deepEqual) {
+      Log.error('document integrity check failed');
+      // Enable it to debug the document integrity check failed
+      // Log.error('cloud doc: $cloudJson');
+      // Log.error('local doc: $localJson');
+      assert(false, 'document integrity check failed');
+    }
   }
 }
 

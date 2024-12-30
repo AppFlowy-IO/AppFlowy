@@ -28,9 +28,16 @@ class DesktopGridTextCellSkin extends IEditableTextCellSkin {
               controller: textEditingController,
               focusNode: focusNode,
               maxLines: context.watch<TextCellBloc>().state.wrap ? null : 1,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: context
+                            .read<TextCellBloc>()
+                            .cellController
+                            .fieldInfo
+                            .isPrimary
+                        ? FontWeight.w500
+                        : null,
+                  ),
               decoration: const InputDecoration(
-                contentPadding: EdgeInsets.only(top: 4),
                 border: InputBorder.none,
                 focusedBorder: InputBorder.none,
                 enabledBorder: InputBorder.none,
@@ -76,7 +83,8 @@ class _IconOrEmoji extends StatelessWidget {
                       return hasDocument
                           ? Padding(
                               padding:
-                                  const EdgeInsetsDirectional.only(end: 6.0),
+                                  const EdgeInsetsDirectional.only(end: 6.0)
+                                      .add(const EdgeInsets.all(1)),
                               child: FlowySvg(
                                 FlowySvgs.notes_s,
                                 color: Theme.of(context).hintColor,

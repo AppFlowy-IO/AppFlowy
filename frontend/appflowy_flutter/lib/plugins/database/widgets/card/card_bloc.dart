@@ -68,7 +68,9 @@ class CardBloc extends Bloc<CardEvent, CardState> {
             );
           },
           setIsEditing: (bool isEditing) {
-            emit(state.copyWith(isEditing: isEditing));
+            if (isEditing != state.isEditing) {
+              emit(state.copyWith(isEditing: isEditing));
+            }
           },
           didUpdateRowMeta: (rowMeta) {
             emit(state.copyWith(rowMeta: rowMeta));

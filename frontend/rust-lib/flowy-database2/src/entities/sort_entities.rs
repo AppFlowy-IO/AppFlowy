@@ -1,4 +1,5 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use lib_infra::validator_fn::required_not_empty_str;
 use validator::Validate;
 
 use crate::services::sort::{Sort, SortCondition};
@@ -96,16 +97,16 @@ impl std::convert::From<SortConditionPB> for SortCondition {
 #[derive(ProtoBuf, Debug, Default, Clone, Validate)]
 pub struct UpdateSortPayloadPB {
   #[pb(index = 1)]
-  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub view_id: String,
 
   #[pb(index = 2)]
-  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub field_id: String,
 
   /// Create a new sort if the sort_id is None
   #[pb(index = 3, one_of)]
-  #[validate(custom = "super::utils::validate_sort_id")]
+  #[validate(custom(function = "super::utils::validate_sort_id"))]
   pub sort_id: Option<String>,
 
   #[pb(index = 4)]
@@ -115,26 +116,26 @@ pub struct UpdateSortPayloadPB {
 #[derive(Debug, Default, Clone, Validate, ProtoBuf)]
 pub struct ReorderSortPayloadPB {
   #[pb(index = 1)]
-  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub view_id: String,
 
   #[pb(index = 2)]
-  #[validate(custom = "super::utils::validate_sort_id")]
+  #[validate(custom(function = "super::utils::validate_sort_id"))]
   pub from_sort_id: String,
 
   #[pb(index = 3)]
-  #[validate(custom = "super::utils::validate_sort_id")]
+  #[validate(custom(function = "super::utils::validate_sort_id"))]
   pub to_sort_id: String,
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone, Validate)]
 pub struct DeleteSortPayloadPB {
   #[pb(index = 1)]
-  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub view_id: String,
 
   #[pb(index = 2)]
-  #[validate(custom = "super::utils::validate_sort_id")]
+  #[validate(custom(function = "super::utils::validate_sort_id"))]
   pub sort_id: String,
 }
 

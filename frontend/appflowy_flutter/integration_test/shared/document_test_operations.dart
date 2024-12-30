@@ -2,23 +2,30 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/base/view_page/app_bar_buttons.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_add_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_option_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/drag_to_reorder/draggable_option_button.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/option/option_actions.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_title.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_cover_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/widgets/embed_image_url_widget.dart';
 import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
 import 'package:appflowy/shared/icon_emoji_picker/emoji_skin_tone.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'util.dart';
 
@@ -43,7 +50,10 @@ class EditorOperations {
   Future<void> tapLineOfEditorAt(int index) async {
     final textBlocks = find.byType(AppFlowyRichText);
     index = index.clamp(0, textBlocks.evaluate().length - 1);
-    await tester.tapAt(tester.getTopRight(textBlocks.at(index)));
+    final center = tester.getCenter(textBlocks.at(index));
+    final right = tester.getTopRight(textBlocks.at(index));
+    final centerRight = Offset(right.dx, center.dy);
+    await tester.tapAt(centerRight);
     await tester.pumpAndSettle();
   }
 
@@ -63,6 +73,20 @@ class EditorOperations {
       LocaleKeys.document_plugins_cover_addIcon.tr(),
     );
     expect(find.byType(FlowyEmojiPicker), findsOneWidget);
+  }
+
+  Future<void> paste() async {
+    if (UniversalPlatform.isMacOS) {
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyV,
+        isMetaPressed: true,
+      );
+    } else {
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyV,
+        isControlPressed: true,
+      );
+    }
   }
 
   Future<void> tapGettingStartedIcon() async {
@@ -173,6 +197,11 @@ class EditorOperations {
     await tester.ime.insertCharacter('@');
   }
 
+  /// trigger the plus action menu (+) command
+  Future<void> showPlusMenu() async {
+    await tester.ime.insertCharacter('+');
+  }
+
   /// Tap the slash menu item with [name]
   ///
   /// Must call [showSlashMenu] first.
@@ -211,7 +240,7 @@ class EditorOperations {
   }
 
   /// Update the editor's selection
-  Future<void> updateSelection(Selection selection) async {
+  Future<void> updateSelection(Selection? selection) async {
     final editorState = getCurrentEditorState();
     unawaited(
       editorState.updateSelectionWithReason(
@@ -269,8 +298,40 @@ class EditorOperations {
                 widget.blockComponentContext.node.path.equals(path),
           ),
         );
+        await tester.pumpUntilFound(find.byType(PopoverActionList));
       },
     );
+  }
+
+  /// open the turn into menu
+  Future<void> openTurnIntoMenu(Path path) async {
+    await hoverAndClickOptionMenuButton(path);
+    await tester.tapButton(
+      find.findTextInFlowyText(
+        LocaleKeys.document_plugins_optionAction_turnInto.tr(),
+      ),
+    );
+    await tester.pumpUntilFound(find.byType(TurnIntoOptionMenu));
+  }
+
+  /// copy link to block
+  Future<void> copyLinkToBlock(Path path) async {
+    await hoverAndClickOptionMenuButton(path);
+    await tester.tapButton(
+      find.findTextInFlowyText(
+        LocaleKeys.document_plugins_optionAction_copyLinkToBlock.tr(),
+      ),
+    );
+  }
+
+  Future<void> openDepthMenu(Path path) async {
+    await hoverAndClickOptionMenuButton(path);
+    await tester.tapButton(
+      find.findTextInFlowyText(
+        LocaleKeys.document_plugins_optionAction_depth.tr(),
+      ),
+    );
+    await tester.pumpUntilFound(find.byType(DepthOptionMenu));
   }
 
   /// Drag block
@@ -322,5 +383,55 @@ class EditorOperations {
       },
     );
     await tester.pumpAndSettle(Durations.short1);
+  }
+
+  Finder findDocumentTitle(String? title) {
+    final parent = UniversalPlatform.isDesktop
+        ? find.byType(CoverTitle)
+        : find.byType(DocumentImmersiveCover);
+
+    return find.descendant(
+      of: parent,
+      matching: find.byWidgetPredicate(
+        (widget) {
+          if (widget is! TextField) {
+            return false;
+          }
+
+          if (widget.controller?.text == title) {
+            return true;
+          }
+
+          if (title == null) {
+            return true;
+          }
+
+          if (title.isEmpty) {
+            return widget.controller?.text.isEmpty ?? false;
+          }
+
+          return false;
+        },
+      ),
+    );
+  }
+
+  /// open the more action menu on mobile
+  Future<void> openMoreActionMenuOnMobile() async {
+    final moreActionButton = find.byType(MobileViewPageMoreButton);
+    await tester.tapButton(moreActionButton);
+    await tester.pumpAndSettle();
+  }
+
+  /// click the more action item on mobile
+  ///
+  /// rename, add collaborator, publish, delete, etc.
+  Future<void> clickMoreActionItemOnMobile(String name) async {
+    final moreActionItem = find.descendant(
+      of: find.byType(MobileQuickActionButton),
+      matching: find.findTextInFlowyText(name),
+    );
+    await tester.tapButton(moreActionItem);
+    await tester.pumpAndSettle();
   }
 }

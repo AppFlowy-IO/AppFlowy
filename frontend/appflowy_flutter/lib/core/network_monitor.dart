@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_setting.pb.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:flutter/services.dart';
 
 class NetworkListener {

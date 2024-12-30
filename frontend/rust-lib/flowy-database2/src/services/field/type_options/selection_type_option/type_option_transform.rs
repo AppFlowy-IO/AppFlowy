@@ -1,11 +1,11 @@
 use crate::entities::FieldType;
 use crate::services::cell::CellDataDecoder;
-use crate::services::field::{
-  MultiSelectTypeOption, RichTextTypeOption, SelectOptionIds, SelectTypeOptionSharedAction,
-  SingleSelectTypeOption, TypeOption, CHECK, UNCHECK,
-};
+use crate::services::field::{SelectTypeOptionSharedAction, TypeOption, CHECK, UNCHECK};
 use collab_database::database::Database;
-use collab_database::entity::{SelectOption, SelectOptionColor};
+use collab_database::fields::select_type_option::{
+  SelectOption, SelectOptionColor, SelectOptionIds, SelectTypeOption, SELECTION_IDS_SEPARATOR,
+};
+use collab_database::fields::text_type_option::RichTextTypeOption;
 use collab_database::fields::TypeOptionData;
 use collab_database::template::option_parse::build_options_from_cells;
 use tracing::info;
@@ -58,16 +58,23 @@ impl SelectOptionTypeOptionTransformHelper {
         );
         for (row_id, text_cell) in rows {
           let mut transformed_ids = Vec::new();
-          if let Some(option) = options.iter().find(|option| option.name == text_cell) {
-            transformed_ids.push(option.id.clone());
-          }
+          let names = text_cell
+            .split(SELECTION_IDS_SEPARATOR)
+            .map(|name| name.to_string())
+            .collect::<Vec<_>>();
+
+          names.into_iter().for_each(|name| {
+            if let Some(option) = options.iter().find(|option| option.name == name) {
+              transformed_ids.push(option.id.clone());
+            }
+          });
 
           database
             .update_row(row_id, |row| {
               row.update_cells(|cell| {
                 cell.insert(
                   field_id,
-                  SelectOptionIds::from(transformed_ids).to_cell_data(new_field_type),
+                  SelectOptionIds::from(transformed_ids).to_cell(new_field_type),
                 );
               });
             })
@@ -89,7 +96,7 @@ impl SelectOptionTypeOptionTransformHelper {
         }
       },
       FieldType::MultiSelect => {
-        let options = MultiSelectTypeOption::from(old_type_option_data).options;
+        let options = SelectTypeOption::from(old_type_option_data).options;
         options.iter().for_each(|new_option| {
           if !shared
             .options()
@@ -101,7 +108,7 @@ impl SelectOptionTypeOptionTransformHelper {
         })
       },
       FieldType::SingleSelect => {
-        let options = SingleSelectTypeOption::from(old_type_option_data).options;
+        let options = SelectTypeOption::from(old_type_option_data).options;
         options.iter().for_each(|new_option| {
           if !shared
             .options()

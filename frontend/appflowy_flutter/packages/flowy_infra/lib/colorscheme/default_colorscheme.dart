@@ -82,6 +82,7 @@ class DefaultColorScheme extends FlowyColorScheme {
           borderColor: ColorSchemeConstants.lightBorderColor,
           scrollbarColor: const Color(0x3F171717),
           scrollbarHoverColor: const Color(0x7F171717),
+          lightIconColor: const Color(0xFF8F959E),
         );
 
   const DefaultColorScheme.dark()
@@ -139,5 +140,6 @@ class DefaultColorScheme extends FlowyColorScheme {
           borderColor: ColorSchemeConstants.darkBorderColor,
           scrollbarColor: const Color(0x40FFFFFF),
           scrollbarHoverColor: const Color(0x80FFFFFF),
+          lightIconColor: const Color(0xFF8F959E),
         );
 }

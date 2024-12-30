@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/cust
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
 import 'package:appflowy/shared/patterns/file_type_patterns.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/default_extensions.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
@@ -20,15 +21,8 @@ import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 extension PasteFromImage on EditorState {
-  static final supportedImageFormats = [
-    'png',
-    'jpeg',
-    'gif',
-    'webp',
-  ];
-
   Future<void> dropImages(
-    Node dropNode,
+    List<int> dropPath,
     List<XFile> files,
     String documentId,
     bool isLocalMode,
@@ -56,7 +50,7 @@ extension PasteFromImage on EditorState {
 
       final t = transaction
         ..insertNode(
-          dropNode.path,
+          dropPath,
           customImageNode(url: path, type: type),
         );
       await apply(t);
@@ -75,7 +69,7 @@ extension PasteFromImage on EditorState {
       return false;
     }
 
-    if (!supportedImageFormats.contains(format)) {
+    if (!defaultImageExtensions.contains(format)) {
       Log.info('unsupported format: $format');
       if (UniversalPlatform.isMobile) {
         showToastNotification(
@@ -107,8 +101,10 @@ extension PasteFromImage on EditorState {
       await File(copyToPath).writeAsBytes(imageBytes);
       final String? path;
 
+      CustomImageType type;
       if (isLocalMode) {
         path = await saveImageToLocalStorage(copyToPath);
+        type = CustomImageType.local;
       } else {
         final result = await saveImageToCloudStorage(copyToPath, documentId);
 
@@ -123,13 +119,13 @@ extension PasteFromImage on EditorState {
         }
 
         path = result.$1;
+        type = CustomImageType.internal;
       }
 
       if (path != null) {
-        await insertImageNode(path, selection: selection);
+        await insertImageNode(path, selection: selection, type: type);
       }
 
-      await File(copyToPath).delete();
       return true;
     } catch (e) {
       Log.error('cannot copy image file', e);
@@ -147,6 +143,7 @@ extension PasteFromImage on EditorState {
   Future<void> insertImageNode(
     String src, {
     Selection? selection,
+    required CustomImageType type,
   }) async {
     selection ??= this.selection;
     if (selection == null || !selection.isCollapsed) {
@@ -163,16 +160,18 @@ extension PasteFromImage on EditorState {
       transaction
         ..insertNode(
           node.path,
-          imageNode(
+          customImageNode(
             url: src,
+            type: type,
           ),
         )
         ..deleteNode(node);
     } else {
       transaction.insertNode(
         node.path.next,
-        imageNode(
+        customImageNode(
           url: src,
+          type: type,
         ),
       );
     }

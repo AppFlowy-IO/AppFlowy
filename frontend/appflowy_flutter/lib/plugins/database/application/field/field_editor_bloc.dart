@@ -77,6 +77,10 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             _logIfError(result);
             emit(state.copyWith(wasRenameManually: true));
           },
+          updateIcon: (icon) async {
+            final result = await _fieldService.updateField(icon: icon);
+            _logIfError(result);
+          },
           updateTypeOption: (typeOptionData) async {
             final result = await FieldBackendService.updateFieldTypeOption(
               viewId: viewId,
@@ -165,6 +169,7 @@ class FieldEditorEvent with _$FieldEditorEvent {
     final Uint8List typeOptionData,
   ) = _UpdateTypeOption;
   const factory FieldEditorEvent.renameField(final String name) = _RenameField;
+  const factory FieldEditorEvent.updateIcon(String icon) = _UpdateIcon;
   const factory FieldEditorEvent.insertLeft() = _InsertLeft;
   const factory FieldEditorEvent.insertRight() = _InsertRight;
   const factory FieldEditorEvent.toggleFieldVisibility() =

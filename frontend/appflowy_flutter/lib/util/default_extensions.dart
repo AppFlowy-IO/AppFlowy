@@ -13,3 +13,13 @@ const List<String> defaultImageExtensions = [
   'webp',
   'bmp',
 ];
+
+extension ImageStringExtension on String {
+  bool isImageUrl() {
+    final imagePattern = RegExp(
+      r'\.(jpe?g|png|gif|webp|bmp)$',
+      caseSensitive: false,
+    );
+    return imagePattern.hasMatch(this);
+  }
+}

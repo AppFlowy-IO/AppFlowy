@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use collab_database::fields::Field;
 use std::sync::Arc;
 
-use collab_database::rows::RowCell;
+use collab_database::rows::Cell;
 
 use crate::services::calculations::{
   Calculation, CalculationsController, CalculationsDelegate, CalculationsTaskHandler,
@@ -46,8 +46,14 @@ struct DatabaseViewCalculationsDelegateImpl(Arc<dyn DatabaseViewOperation>);
 
 #[async_trait]
 impl CalculationsDelegate for DatabaseViewCalculationsDelegateImpl {
-  async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Vec<Arc<RowCell>> {
-    self.0.get_cells_for_field(view_id, field_id).await
+  async fn get_cells_for_field(&self, view_id: &str, field_id: &str) -> Vec<Arc<Cell>> {
+    self
+      .0
+      .get_cells_for_field(view_id, field_id)
+      .await
+      .into_iter()
+      .filter_map(|row_cell| row_cell.cell.map(Arc::new))
+      .collect()
   }
 
   async fn get_field(&self, field_id: &str) -> Option<Field> {
@@ -70,7 +76,7 @@ impl CalculationsDelegate for DatabaseViewCalculationsDelegateImpl {
     self.0.remove_calculation(view_id, calculation_id).await
   }
 
-  async fn get_all_calculations(&self, view_id: &str) -> Arc<Vec<Arc<Calculation>>> {
-    self.0.get_all_calculations(view_id).await.into()
+  async fn get_all_calculations(&self, view_id: &str) -> Vec<Arc<Calculation>> {
+    self.0.get_all_calculations(view_id).await
   }
 }

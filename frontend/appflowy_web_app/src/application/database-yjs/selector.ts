@@ -1,5 +1,5 @@
 import {
-  FieldId,
+  FieldId, RowCoverType,
   SortId,
   YDatabase,
   YDatabaseField, YDatabaseMetas, YDatabaseRow,
@@ -12,7 +12,7 @@ import {
   useDatabaseFields,
   useDatabaseView,
   useRowDocMap,
-  useViewId,
+  useDatabaseViewId,
 } from '@/application/database-yjs/context';
 import { filterBy, parseFilter } from '@/application/database-yjs/filter';
 import { groupByField } from '@/application/database-yjs/group';
@@ -89,7 +89,7 @@ export function useDatabaseViewsSelector (_iidIndex: string, visibleViewIds?: st
 }
 
 export function useFieldsSelector (visibilitys: FieldVisibility[] = defaultVisible) {
-  const viewId = useViewId();
+  const viewId = useDatabaseViewId();
   const database = useDatabase();
   const [columns, setColumns] = useState<Column[]>([]);
 
@@ -166,7 +166,7 @@ export function useFieldSelector (fieldId: string) {
 
 export function useFiltersSelector () {
   const database = useDatabase();
-  const viewId = useViewId();
+  const viewId = useDatabaseViewId();
   const [filters, setFilters] = useState<string[]>([]);
 
   useEffect(() => {
@@ -196,7 +196,7 @@ export function useFiltersSelector () {
 
 export function useFilterSelector (filterId: string) {
   const database = useDatabase();
-  const viewId = useViewId();
+  const viewId = useDatabaseViewId();
   const fields = database?.get(YjsDatabaseKey.fields);
   const [filterValue, setFilterValue] = useState<Filter | null>(null);
 
@@ -229,7 +229,7 @@ export function useFilterSelector (filterId: string) {
 
 export function useSortsSelector () {
   const database = useDatabase();
-  const viewId = useViewId();
+  const viewId = useDatabaseViewId();
   const [sorts, setSorts] = useState<string[]>([]);
 
   useEffect(() => {
@@ -265,7 +265,7 @@ export interface Sort {
 
 export function useSortSelector (sortId: SortId) {
   const database = useDatabase();
-  const viewId = useViewId();
+  const viewId = useDatabaseViewId();
   const [sortValue, setSortValue] = useState<Sort | null>(null);
   const views = database?.get(YjsDatabaseKey.views);
 
@@ -298,7 +298,7 @@ export function useSortSelector (sortId: SortId) {
 
 export function useGroupsSelector () {
   const database = useDatabase();
-  const viewId = useViewId();
+  const viewId = useDatabaseViewId();
   const [groups, setGroups] = useState<string[]>([]);
 
   useEffect(() => {
@@ -334,7 +334,7 @@ export interface GroupColumn {
 
 export function useGroup (groupId: string) {
   const database = useDatabase();
-  const viewId = useViewId() as string;
+  const viewId = useDatabaseViewId();
   const view = database?.get(YjsDatabaseKey.views)?.get(viewId);
   const group = view
     ?.get(YjsDatabaseKey.groups)
@@ -641,7 +641,10 @@ export function usePrimaryFieldId () {
 
 export interface RowMeta {
   documentId: string;
-  cover: string;
+  cover: {
+    data: string,
+    cover_type: RowCoverType,
+  } | null;
   icon: string;
   isEmptyDocument: boolean;
 }
@@ -691,10 +694,10 @@ export const useRowMetaSelector = (rowId: string) => {
     const metaJson = yMeta.toJSON();
 
     const icon = metaJson[iconKey];
-    let cover = '';
+    let cover = null;
 
     try {
-      cover = metaJson[coverKey] ? JSON.parse(metaJson[coverKey])?.url : '';
+      cover = metaJson[coverKey] ? JSON.parse(metaJson[coverKey]) : null;
     } catch (e) {
       // do nothing
     }

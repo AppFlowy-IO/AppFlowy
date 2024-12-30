@@ -289,6 +289,7 @@ abstract class GridCellState<T extends EditableCellWidget> extends State<T> {
   @override
   void didUpdateWidget(covariant T oldWidget) {
     if (oldWidget != this) {
+      oldWidget.requestFocus.removeListener(onRequestFocus);
       widget.requestFocus.addListener(onRequestFocus);
     }
     super.didUpdateWidget(oldWidget);

@@ -106,7 +106,7 @@ class LocalAISettingHeader extends StatelessWidget {
                 const Spacer(),
                 Toggle(
                   value: isEnabled,
-                  onChanged: (value) {
+                  onChanged: (_) {
                     if (isEnabled) {
                       showConfirmDialog(
                         context: context,

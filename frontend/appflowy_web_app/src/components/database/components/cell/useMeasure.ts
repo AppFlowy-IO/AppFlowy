@@ -1,4 +1,4 @@
-import { DEFAULT_ROW_HEIGHT } from '@/application/database-yjs';
+import { DEFAULT_ROW_HEIGHT, useDatabaseContext } from '@/application/database-yjs';
 import { useCallback, useRef } from 'react';
 
 export function useMeasureHeight ({
@@ -10,6 +10,7 @@ export function useMeasureHeight ({
     rowId?: string;
   }[];
 }) {
+  const isDocumentBlock = useDatabaseContext().isDocumentBlock;
   const heightRef = useRef<{ [rowId: string]: number }>({});
   const rowHeight = useCallback(
     (index: number) => {
@@ -29,7 +30,7 @@ export function useMeasureHeight ({
 
       let newHeight = height;
 
-      if (isLastRow) {
+      if (isLastRow && !isDocumentBlock) {
         newHeight += 144;
       }
 
@@ -44,7 +45,7 @@ export function useMeasureHeight ({
         forceUpdate(index);
       }
     },
-    [forceUpdate, rows],
+    [forceUpdate, rows, isDocumentBlock],
   );
 
   const onResize = useCallback(

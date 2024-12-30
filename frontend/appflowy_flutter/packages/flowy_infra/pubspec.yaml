@@ -21,7 +21,7 @@ dependencies:
   file: ^7.0.0
 
 dev_dependencies:
-  build_runner: ^2.2.0
+  build_runner: ^2.4.9
   flutter_lints: ^3.0.1
   freezed: ^2.4.7
   json_serializable: ^6.5.4

@@ -1,39 +1,17 @@
 import { UIVariant, View } from '@/application/types';
-import OutlineItemContent from '@/components/_shared/outline/OutlineItemContent';
-import React, { useCallback, useEffect, useMemo } from 'react';
-import { ReactComponent as ChevronDownIcon } from '@/assets/chevron_down.svg';
 import { ReactComponent as PrivateIcon } from '@/assets/lock.svg';
+import OutlineIcon from '@/components/_shared/outline/OutlineIcon';
+import OutlineItemContent from '@/components/_shared/outline/OutlineItemContent';
+import { getOutlineExpands, setOutlineExpands } from '@/components/_shared/outline/utils';
+import React, { useCallback, useEffect, useMemo } from 'react';
 
-function getOutlineExpands () {
-  const expandView = localStorage.getItem('outline_expanded');
-
-  try {
-    return JSON.parse(expandView || '{}');
-  } catch (e) {
-    return {};
-  }
-}
-
-function setOutlineExpands (viewId: string, isExpanded: boolean) {
-  const expands = getOutlineExpands();
-
-  if (isExpanded) {
-    expands[viewId] = true;
-  } else {
-    delete expands[viewId];
-  }
-
-  localStorage.setItem('outline_expanded', JSON.stringify(expands));
-}
-
-function OutlineItem ({ view, level = 0, width, navigateToView, selectedViewId, variant }: {
+function OutlineItem({ view, level = 0, width, navigateToView, selectedViewId, variant }: {
   view: View;
   width?: number;
   level?: number;
   selectedViewId?: string;
   navigateToView?: (viewId: string) => Promise<void>
   variant?: UIVariant;
-
 }) {
   const selected = selectedViewId === view.view_id;
   const [isExpanded, setIsExpanded] = React.useState(() => {
@@ -45,47 +23,26 @@ function OutlineItem ({ view, level = 0, width, navigateToView, selectedViewId, 
   }, [isExpanded, view.view_id]);
 
   const getIcon = useCallback(() => {
-    if (isExpanded) {
-      return (
-        <button
-          style={{
-            paddingLeft: 1.125 * level + 'rem',
-          }}
-          onClick={() => {
-            setIsExpanded(false);
-          }}
-          className={'opacity-50 hover:opacity-100'}
-        >
-          <ChevronDownIcon className={'h-4 w-4'} />
-        </button>
-      );
-    }
-
-    return (
-      <button
-        style={{
-          paddingLeft: 1.125 * level + 'rem',
-        }}
-        className={'opacity-50 hover:opacity-100'}
-        onClick={() => {
-          setIsExpanded(true);
-        }}
-      >
-        <ChevronDownIcon className={'h-4 w-4 -rotate-90 transform'} />
-      </button>
-    );
+    return <span className={'text-sm mt-1'}><OutlineIcon
+      level={level}
+      isExpanded={isExpanded}
+      setIsExpanded={setIsExpanded}
+    /></span>;
   }, [isExpanded, level]);
 
   const renderItem = useCallback((item: View) => {
     return (
-      <div className={'flex h-fit my-0.5 w-full flex-col gap-2'}>
+      <div
+        className={`flex ${variant === UIVariant.App ? 'folder-view-item' : ''} h-fit my-0.5 w-full justify-between gap-2`}
+      >
         <div
           style={{
             width,
             backgroundColor: selected ? 'var(--fill-list-hover)' : undefined,
           }}
+          id={`${variant}-view-${item.view_id}`}
           className={
-            'flex items-center w-full gap-0.5 rounded-[8px] py-1.5 px-0.5 text-sm hover:bg-content-blue-50 focus:bg-content-blue-50 focus:outline-none'
+            'flex items-center min-h-[34px] w-full gap-0.5 rounded-[8px] py-1.5 px-0.5 text-sm hover:bg-content-blue-50 focus:bg-content-blue-50 focus:outline-none'
           }
         >
           {item.children?.length ? getIcon() : null}
@@ -97,11 +54,11 @@ function OutlineItem ({ view, level = 0, width, navigateToView, selectedViewId, 
             level={level}
             setIsExpanded={setIsExpanded}
           />
-          {item.is_private && <PrivateIcon className={'h-4 w-4 text-text-caption'} />}
+          {item.is_private && <PrivateIcon className={'h-4 w-4 text-text-caption'}/>}
         </div>
       </div>
     );
-  }, [getIcon, level, navigateToView, variant, selected, width]);
+  }, [variant, width, selected, getIcon, navigateToView, level]);
 
   const children = useMemo(() => view.children || [], [view.children]);
 

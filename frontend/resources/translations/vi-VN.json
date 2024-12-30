@@ -181,11 +181,13 @@
     "chatWithFilePrompt": "Bạn có muốn trò chuyện với tập tin không?",
     "indexFileSuccess": "Đang lập chỉ mục tệp thành công",
     "inputActionNoPages": "Không có kết quả trang",
-    "referenceSource": "{} nguồn đã tìm thấy",
-    "referenceSources": "{} nguồn được tìm thấy",
+    "referenceSource": {
+      "zero": "0 nguồn được tìm thấy",
+      "one": "{count} nguồn đã tìm thấy",
+      "other": "{count} nguồn được tìm thấy"
+    },
     "clickToMention": "Nhấp để đề cập đến một trang",
     "uploadFile": "Tải lên các tệp PDF, md hoặc txt để trò chuyện",
-    "questionTitle": "Ý tưởng",
     "questionDetail": "Xin chào {}! Tôi có thể giúp gì cho bạn hôm nay?",
     "indexingFile": "Đang lập chỉ mục {}"
   },
@@ -859,8 +861,9 @@
         "itemThree": "5 GB",
         "itemFour": "Đúng",
         "itemFive": "Đúng",
-        "itemSix": "100 trọn đời",
         "itemFileUpload": "Lên đến 7 MB",
+        "itemSix": "20 trọn đời",
+
         "intelligentSearch": "Tìm kiếm thông minh"
       },
       "proLabels": {
@@ -942,11 +945,6 @@
       "cloudServerType": "Máy chủ đám mây",
       "cloudServerTypeTip": "Xin lưu ý rằng có thể bạn sẽ bị đăng xuất sau khi chuyển máy chủ đám mây",
       "cloudLocal": "Cục bộ",
-      "cloudSupabase": "Supabase",
-      "cloudSupabaseUrl": "Supabase URL",
-      "cloudSupabaseUrlCanNotBeEmpty": "Url supabase không được để trống",
-      "cloudSupabaseAnonKey": "Khoá Supabase anon",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "Anon key không được để trống nếu url supabase không trống",
       "cloudAppFlowy": "@:appName Cloud Beta",
       "cloudAppFlowySelfHost": "@:appName Cloud Tự lưu trữ",
       "appFlowyCloudUrlCanNotBeEmpty": "URL đám mây không được để trống",
@@ -2323,9 +2321,9 @@
     "unsplash": "Bỏ qua",
     "pageCover": "Trang bìa",
     "none": "Không có",
-    "photoPermissionDescription": "Cho phép truy cập vào thư viện ảnh để tải ảnh lên.",
     "openSettings": "Mở Cài đặt",
     "photoPermissionTitle": "@:appName muốn truy cập vào thư viện ảnh của bạn",
+    "photoPermissionDescription": "Cho phép truy cập vào thư viện ảnh để tải ảnh lên.",
     "doNotAllow": "Không cho phép",
     "image": "Hình ảnh"
   },

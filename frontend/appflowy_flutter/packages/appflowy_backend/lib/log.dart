@@ -14,6 +14,10 @@ class Log {
 
   bool _enabled = false;
 
+  // used to disable log in tests
+  @visibleForTesting
+  bool disableLog = false;
+
   Log() {
     _logger = Logger(
       printer: PrettyPrinter(
@@ -60,22 +64,42 @@ class Log {
   }
 
   static void info(dynamic msg, [dynamic error, StackTrace? stackTrace]) {
+    if (shared.disableLog) {
+      return;
+    }
+
     _log(Level.info, 0, msg, error, stackTrace);
   }
 
   static void debug(dynamic msg, [dynamic error, StackTrace? stackTrace]) {
+    if (shared.disableLog) {
+      return;
+    }
+
     _log(Level.debug, 1, msg, error, stackTrace);
   }
 
   static void warn(dynamic msg, [dynamic error, StackTrace? stackTrace]) {
+    if (shared.disableLog) {
+      return;
+    }
+
     _log(Level.warning, 3, msg, error, stackTrace);
   }
 
   static void trace(dynamic msg, [dynamic error, StackTrace? stackTrace]) {
+    if (shared.disableLog) {
+      return;
+    }
+
     _log(Level.trace, 2, msg, error, stackTrace);
   }
 
   static void error(dynamic msg, [dynamic error, StackTrace? stackTrace]) {
+    if (shared.disableLog) {
+      return;
+    }
+
     _log(Level.error, 4, msg, error, stackTrace);
   }
 }

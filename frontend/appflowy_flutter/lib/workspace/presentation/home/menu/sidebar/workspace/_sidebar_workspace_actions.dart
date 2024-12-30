@@ -6,7 +6,6 @@ import 'package:appflowy/workspace/presentation/settings/widgets/members/workspa
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -23,9 +22,11 @@ class WorkspaceMoreActionList extends StatelessWidget {
   const WorkspaceMoreActionList({
     super.key,
     required this.workspace,
+    required this.isShowingMoreActions,
   });
 
   final UserWorkspacePB workspace;
+  final ValueNotifier<bool> isShowingMoreActions;
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +48,13 @@ class WorkspaceMoreActionList extends StatelessWidget {
           .map((e) => _WorkspaceMoreActionWrapper(e, workspace))
           .toList(),
       constraints: const BoxConstraints(minWidth: 220),
+      animationDuration: Durations.short3,
+      slideDistance: 2,
+      beginScaleFactor: 1.0,
+      beginOpacity: 0.8,
+      onClosed: () {
+        isShowingMoreActions.value = false;
+      },
       buildChild: (controller) {
         return SizedBox.square(
           dimension: 24.0,
@@ -56,7 +64,11 @@ class WorkspaceMoreActionList extends StatelessWidget {
               FlowySvgs.workspace_three_dots_s,
             ),
             onTap: () {
-              controller.show();
+              if (!isShowingMoreActions.value) {
+                controller.show();
+              }
+
+              isShowingMoreActions.value = true;
             },
           ),
         );
@@ -73,7 +85,11 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
   final UserWorkspacePB workspace;
 
   @override
-  Widget buildWithContext(BuildContext context, PopoverController controller) {
+  Widget buildWithContext(
+    BuildContext context,
+    PopoverController controller,
+    PopoverMutex? mutex,
+  ) {
     if (inner == WorkspaceMoreAction.divider) {
       return const Divider();
     }
@@ -167,7 +183,7 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
     switch (inner) {
       case WorkspaceMoreAction.delete:
         return FlowySvg(
-          FlowySvgs.delete_s,
+          FlowySvgs.trash_s,
           color: onHover ? Theme.of(context).colorScheme.error : null,
         );
       case WorkspaceMoreAction.rename:

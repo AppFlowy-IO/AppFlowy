@@ -12,7 +12,6 @@ import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/application/row/row_bloc.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -25,7 +24,7 @@ import '../../layout/sizes.dart';
 
 import 'action.dart';
 
-class GridRow extends StatefulWidget {
+class GridRow extends StatelessWidget {
   const GridRow({
     super.key,
     required this.fieldController,
@@ -35,6 +34,7 @@ class GridRow extends StatefulWidget {
     required this.cellBuilder,
     required this.openDetailPage,
     required this.index,
+    this.shrinkWrap = false,
   });
 
   final FieldController fieldController;
@@ -44,35 +44,32 @@ class GridRow extends StatefulWidget {
   final EditableCellBuilder cellBuilder;
   final void Function(BuildContext context) openDetailPage;
   final int index;
+  final bool shrinkWrap;
 
-  @override
-  State<GridRow> createState() => _GridRowState();
-}
-
-class _GridRowState extends State<GridRow> {
   @override
   Widget build(BuildContext context) {
+    Widget rowContent = RowContent(
+      fieldController: fieldController,
+      cellBuilder: cellBuilder,
+      onExpand: () => openDetailPage(context),
+    );
+
+    if (!shrinkWrap) {
+      rowContent = Expanded(child: rowContent);
+    }
+
     return BlocProvider(
       create: (_) => RowBloc(
-        fieldController: widget.fieldController,
-        rowId: widget.rowId,
-        rowController: widget.rowController,
-        viewId: widget.viewId,
+        fieldController: fieldController,
+        rowId: rowId,
+        rowController: rowController,
+        viewId: viewId,
       ),
       child: _RowEnterRegion(
         child: Row(
           children: [
-            _RowLeading(
-              viewId: widget.viewId,
-              index: widget.index,
-            ),
-            Expanded(
-              child: RowContent(
-                fieldController: widget.fieldController,
-                cellBuilder: widget.cellBuilder,
-                onExpand: () => widget.openDetailPage(context),
-              ),
-            ),
+            _RowLeading(viewId: viewId, index: index),
+            rowContent,
           ],
         ),
       ),
@@ -304,11 +301,11 @@ class RowContent extends StatelessWidget {
     return MouseRegion(
       cursor: SystemMouseCursors.basic,
       child: Container(
-        width: GridSize.trailHeaderPadding,
-        constraints: const BoxConstraints(minHeight: 46),
+        width: GridSize.newPropertyButtonWidth,
+        constraints: const BoxConstraints(minHeight: 36),
         decoration: BoxDecoration(
           border: Border(
-            bottom: BorderSide(color: Theme.of(context).dividerColor),
+            bottom: BorderSide(color: AFThemeExtension.of(context).borderColor),
           ),
         ),
       ),

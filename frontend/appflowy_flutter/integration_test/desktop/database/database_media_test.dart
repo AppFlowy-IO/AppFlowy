@@ -21,7 +21,6 @@ import 'package:path_provider/path_provider.dart';
 import '../../shared/database_test_op.dart';
 import '../../shared/mock/mock_file_picker.dart';
 import '../../shared/util.dart';
-import '../board/board_hide_groups_test.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -69,10 +68,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap on the upload interaction
-      await tester.tapButtonWithName(
-        LocaleKeys.document_plugins_file_fileUploadHint.tr(),
-      );
-      await tester.pumpAndSettle();
+      await tester.tapFileUploadHint();
 
       // Expect one file
       expect(find.byType(RenderMedia), findsOneWidget);
@@ -85,9 +81,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap on the upload interaction
-      await tester.tapButtonWithName(
-        LocaleKeys.document_plugins_file_fileUploadHint.tr(),
-      );
+      await tester.tapFileUploadHint();
       await tester.pumpAndSettle();
 
       // Expect two files
@@ -139,10 +133,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap on the upload interaction
-      await tester.tapButtonWithName(
-        LocaleKeys.document_plugins_file_fileUploadHint.tr(),
-      );
-      await tester.pumpAndSettle();
+      await tester.tapFileUploadHint();
 
       // Expect two files
       expect(find.byType(RenderMedia), findsNWidgets(2));
@@ -193,10 +184,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap on the upload interaction
-      await tester.tapButtonWithName(
-        LocaleKeys.document_plugins_file_fileUploadHint.tr(),
-      );
-      await tester.pumpAndSettle();
+      await tester.tapFileUploadHint();
 
       // Expect two files
       expect(find.byType(RenderMedia), findsNWidgets(2));
@@ -230,7 +218,7 @@ void main() {
       await Future.wait([firstFile.delete(), secondFile.delete()]);
     });
 
-    testWidgets('hide file names', (tester) async {
+    testWidgets('show file names', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
 
@@ -272,10 +260,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap on the upload interaction
-      await tester.tapButtonWithName(
-        LocaleKeys.document_plugins_file_fileUploadHint.tr(),
-      );
-      await tester.pumpAndSettle();
+      await tester.tapFileUploadHint();
 
       // Expect two files
       expect(find.byType(RenderMedia), findsNWidgets(2));
@@ -283,27 +268,27 @@ void main() {
       await tester.dismissCellEditor();
       await tester.pumpAndSettle();
 
-      // Open first row in row detail view then toggle hide file names
+      // Open first row in row detail view then toggle show file names
       await tester.openFirstRowDetailPage();
+      await tester.pumpAndSettle();
+
+      // Expect file names to not be shown (hidden)
+      expect(find.text('sample.jpeg'), findsNothing);
+      expect(find.text('sample.gif'), findsNothing);
+
+      await tester.tapGridFieldWithNameInRowDetailPage('Type');
+      await tester.pumpAndSettle();
+
+      // Toggle show file names
+      await tester.tap(find.byType(Toggle));
       await tester.pumpAndSettle();
 
       // Expect file names to be shown
       expect(find.text('sample.jpeg'), findsOneWidget);
       expect(find.text('sample.gif'), findsOneWidget);
 
-      await tester.tapGridFieldWithNameInRowDetailPage('Type');
-      await tester.pumpAndSettle();
-
-      // Toggle hide file names
-      await tester.tap(find.byType(Toggle));
-      await tester.pumpAndSettle();
-
       await tester.dismissRowDetailPage();
       await tester.pumpAndSettle();
-
-      // Expect file names to be hidden
-      expect(find.text('sample.jpeg'), findsNothing);
-      expect(find.text('sample.gif'), findsNothing);
 
       // Remove the temp files
       await Future.wait([firstFile.delete(), secondFile.delete()]);

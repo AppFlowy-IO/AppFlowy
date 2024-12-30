@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -121,6 +123,7 @@ class InnerMobileViewItem extends StatelessWidget {
   final bool isDraggable;
   final bool isExpanded;
   final bool isFirstChild;
+
   // identify if the view item is rendered as feedback widget inside DraggableItem
   final bool isFeedback;
 
@@ -230,6 +233,7 @@ class SingleMobileInnerViewItem extends StatefulWidget {
   final ViewPB view;
   final ViewPB? parentView;
   final bool isExpanded;
+
   // identify if the view item is rendered as feedback widget inside DraggableItem
   final bool isFeedback;
 
@@ -260,7 +264,7 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
       // title
       Expanded(
         child: FlowyText.regular(
-          widget.view.name,
+          widget.view.nameOrDefault,
           fontSize: 16.0,
           figmaLineHeight: 20.0,
           overflow: TextOverflow.ellipsis,
@@ -297,11 +301,9 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
 
   Widget _buildViewIcon() {
     final icon = widget.view.icon.value.isNotEmpty
-        ? FlowyText.emoji(
-            widget.view.icon.value,
-            fontSize: Platform.isAndroid ? 16.0 : 18.0,
-            figmaLineHeight: 20.0,
-            optimizeEmojiAlign: true,
+        ? EmojiIconWidget(
+            emoji: widget.view.icon.toEmojiIconData(),
+            emojiSize: Platform.isAndroid ? 16.0 : 18.0,
           )
         : Opacity(
             opacity: 0.7,

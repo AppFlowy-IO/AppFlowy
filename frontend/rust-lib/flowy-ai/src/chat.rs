@@ -3,8 +3,11 @@ use crate::entities::{
   ChatMessageErrorPB, ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB,
 };
 use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
-use crate::notification::{make_notification, ChatNotification};
-use crate::persistence::{insert_chat_messages, select_chat_messages, ChatMessageTable};
+use crate::notification::{chat_notification_builder, ChatNotification};
+use crate::persistence::{
+  insert_chat_messages, select_chat_messages, select_message_where_match_reply_message_id,
+  ChatMessageTable,
+};
 use crate::stream_message::StreamMessage;
 use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{
@@ -86,10 +89,6 @@ impl Chat {
     question_stream_port: i64,
     metadata: Vec<ChatMessageMetadata>,
   ) -> Result<ChatMessagePB, FlowyError> {
-    if message.len() > 2000 {
-      return Err(FlowyError::text_too_long().with_context("Exceeds maximum message 2000 length"));
-    }
-
     trace!(
       "[Chat] stream chat message: chat_id={}, message={}, message_type={:?}, metadata={:?}",
       self.chat_id,
@@ -142,9 +141,60 @@ impl Chat {
     // Save message to disk
     save_and_notify_message(uid, &self.chat_id, &self.user_service, question.clone())?;
 
+    self.stream_response(
+      answer_stream_port,
+      answer_stream_buffer,
+      uid,
+      workspace_id,
+      question.message_id,
+    );
+
+    let question_pb = ChatMessagePB::from(question);
+    Ok(question_pb)
+  }
+
+  #[instrument(level = "info", skip_all, err)]
+  pub async fn stream_regenerate_response(
+    &self,
+    question_id: i64,
+    answer_stream_port: i64,
+  ) -> FlowyResult<()> {
+    trace!(
+      "[Chat] regenerate and stream chat message: chat_id={}",
+      self.chat_id,
+    );
+
+    // clear
+    self
+      .stop_stream
+      .store(false, std::sync::atomic::Ordering::SeqCst);
+    self.stream_buffer.lock().await.clear();
+
+    let answer_stream_buffer = self.stream_buffer.clone();
+    let uid = self.user_service.user_id()?;
+    let workspace_id = self.user_service.workspace_id()?;
+
+    self.stream_response(
+      answer_stream_port,
+      answer_stream_buffer,
+      uid,
+      workspace_id,
+      question_id,
+    );
+
+    Ok(())
+  }
+
+  fn stream_response(
+    &self,
+    answer_stream_port: i64,
+    answer_stream_buffer: Arc<Mutex<StringBuffer>>,
+    uid: i64,
+    workspace_id: String,
+    question_id: i64,
+  ) {
     let stop_stream = self.stop_stream.clone();
     let chat_id = self.chat_id.clone();
-    let question_id = question.message_id;
     let cloud_service = self.chat_service.clone();
     let user_service = self.user_service.clone();
     tokio::spawn(async move {
@@ -158,7 +208,7 @@ impl Chat {
             match message {
               Ok(message) => {
                 if stop_stream.load(std::sync::atomic::Ordering::Relaxed) {
-                  trace!("[Chat] stop streaming message");
+                  trace!("[Chat] client stop streaming message");
                   break;
                 }
                 match message {
@@ -181,7 +231,7 @@ impl Chat {
                   chat_id: chat_id.clone(),
                   error_message: err.to_string(),
                 };
-                make_notification(&chat_id, ChatNotification::StreamChatMessageError)
+                chat_notification_builder(&chat_id, ChatNotification::StreamChatMessageError)
                   .payload(pb)
                   .send();
                 return Err(err);
@@ -190,7 +240,7 @@ impl Chat {
           }
         },
         Err(err) => {
-          error!("[Chat] failed to stream answer: {}", err);
+          error!("[Chat] failed to start streaming: {}", err);
           if err.is_ai_response_limit_exceeded() {
             let _ = answer_sink.send("AI_RESPONSE_LIMIT".to_string()).await;
           } else {
@@ -201,14 +251,14 @@ impl Chat {
             chat_id: chat_id.clone(),
             error_message: err.to_string(),
           };
-          make_notification(&chat_id, ChatNotification::StreamChatMessageError)
+          chat_notification_builder(&chat_id, ChatNotification::StreamChatMessageError)
             .payload(pb)
             .send();
           return Err(err);
         },
       }
 
-      make_notification(&chat_id, ChatNotification::FinishStreaming).send();
+      chat_notification_builder(&chat_id, ChatNotification::FinishStreaming).send();
       if answer_stream_buffer.lock().await.is_empty() {
         return Ok(());
       }
@@ -221,9 +271,6 @@ impl Chat {
       save_and_notify_message(uid, &chat_id, &user_service, answer)?;
       Ok::<(), FlowyError>(())
     });
-
-    let question_pb = ChatMessagePB::from(question);
-    Ok(question_pb)
   }
 
   /// Load chat messages for a given `chat_id`.
@@ -260,7 +307,7 @@ impl Chat {
         has_more: true,
         total: 0,
       };
-      make_notification(&self.chat_id, ChatNotification::DidLoadPrevChatMessage)
+      chat_notification_builder(&self.chat_id, ChatNotification::DidLoadPrevChatMessage)
         .payload(pb.clone())
         .send();
       return Ok(pb);
@@ -381,11 +428,11 @@ impl Chat {
             } else {
               *prev_message_state.write().await = PrevMessageState::NoMore;
             }
-            make_notification(&chat_id, ChatNotification::DidLoadPrevChatMessage)
+            chat_notification_builder(&chat_id, ChatNotification::DidLoadPrevChatMessage)
               .payload(pb)
               .send();
           } else {
-            make_notification(&chat_id, ChatNotification::DidLoadLatestChatMessage)
+            chat_notification_builder(&chat_id, ChatNotification::DidLoadLatestChatMessage)
               .payload(pb)
               .send();
           }
@@ -395,6 +442,30 @@ impl Chat {
       Ok::<(), FlowyError>(())
     });
     Ok(())
+  }
+
+  pub async fn get_question_id_from_answer_id(
+    &self,
+    answer_message_id: i64,
+  ) -> Result<i64, FlowyError> {
+    let conn = self.user_service.sqlite_connection(self.uid)?;
+
+    let local_result = select_message_where_match_reply_message_id(conn, answer_message_id)?
+      .map(|message| message.message_id);
+
+    if let Some(message_id) = local_result {
+      return Ok(message_id);
+    }
+
+    let workspace_id = self.user_service.workspace_id()?;
+    let chat_id = self.chat_id.clone();
+    let cloud_service = self.chat_service.clone();
+
+    let question = cloud_service
+      .get_question_from_answer_id(&workspace_id, &chat_id, answer_message_id)
+      .await?;
+
+    Ok(question.message_id)
   }
 
   pub async fn get_related_question(
@@ -571,7 +642,7 @@ pub(crate) fn save_and_notify_message(
     vec![message.clone()],
   )?;
   let pb = ChatMessagePB::from(message);
-  make_notification(chat_id, ChatNotification::DidReceiveChatMessage)
+  chat_notification_builder(chat_id, ChatNotification::DidReceiveChatMessage)
     .payload(pb)
     .send();
 

@@ -1,4 +1,5 @@
 use collab_database::entity::FileUploadType;
+use collab_database::fields::media_type_option::MediaUploadType;
 use flowy_derive::ProtoBuf_Enum;
 use serde::{Deserialize, Serialize};
 
@@ -9,6 +10,26 @@ pub enum FileUploadTypePB {
   LocalFile = 0,
   NetworkFile = 1,
   CloudFile = 2,
+}
+
+impl From<FileUploadTypePB> for MediaUploadType {
+  fn from(file_upload_type: FileUploadTypePB) -> Self {
+    match file_upload_type {
+      FileUploadTypePB::LocalFile => MediaUploadType::Local,
+      FileUploadTypePB::NetworkFile => MediaUploadType::Network,
+      FileUploadTypePB::CloudFile => MediaUploadType::Cloud,
+    }
+  }
+}
+
+impl From<MediaUploadType> for FileUploadTypePB {
+  fn from(file_upload_type: MediaUploadType) -> Self {
+    match file_upload_type {
+      MediaUploadType::Local => FileUploadTypePB::LocalFile,
+      MediaUploadType::Network => FileUploadTypePB::NetworkFile,
+      MediaUploadType::Cloud => FileUploadTypePB::CloudFile,
+    }
+  }
 }
 
 impl From<FileUploadType> for FileUploadTypePB {

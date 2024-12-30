@@ -177,11 +177,11 @@
     "chatWithFilePrompt": "ファイルとチャットしますか？",
     "indexFileSuccess": "ファイルのインデックス作成が成功しました",
     "inputActionNoPages": "ページ結果がありません",
-    "referenceSource": "{} 件のソースが見つかりました",
-    "referenceSources": "{} 件のソースが見つかりました",
+    "referenceSource": {
+      "other": "{count} 件のソースが見つかりました"
+    },
     "clickToMention": "ページをメンションするにはクリック",
     "uploadFile": "PDF、md、txtファイルをアップロードしてチャット",
-    "questionTitle": "アイデア",
     "questionDetail": "こんにちは、{}！今日はどんなお手伝いをしましょうか？",
     "indexingFile": "{}をインデックス作成中"
   },
@@ -854,7 +854,7 @@
         "itemThree": "5 GB",
         "itemFour": "はい",
         "itemFive": "はい",
-        "itemSix": "100回のライフタイムレスポンス",
+        "itemSix": "20回のライフタイムレスポンス",
         "itemFileUpload": "最大7 MB",
         "intelligentSearch": "インテリジェント検索"
       },
@@ -937,11 +937,6 @@
       "cloudServerType": "クラウドサーバー",
       "cloudServerTypeTip": "クラウドサーバーを変更すると現在のアカウントがログアウトされる可能性があります。",
       "cloudLocal": "ローカル",
-      "cloudSupabase": "Supabase",
-      "cloudSupabaseUrl": "Supabase URL",
-      "cloudSupabaseUrlCanNotBeEmpty": "SupabaseのURLを空にすることはできません",
-      "cloudSupabaseAnonKey": "Supabase匿名キー",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "匿名キーを空にすることはできません",
       "cloudAppFlowy": "@:appName Cloud",
       "cloudAppFlowySelfHost": "@:appName クラウドセルフホスト",
       "appFlowyCloudUrlCanNotBeEmpty": "クラウドのURLを空にすることはできません",
@@ -1467,12 +1462,12 @@
     "media": {
       "rename": "名前を変更",
       "download": "ダウンロード",
-      "open": "開く",
       "delete": "削除",
       "moreFilesHint": "+{} ファイル",
       "addFileOrImage": "ファイル、画像、またはリンクを追加",
       "attachmentsHint": "{} 添付ファイル",
       "addFileMobile": "ファイルを追加",
+      "open": "開く",
       "showMore": "{} ファイルがさらにあります。クリックして表示"
     }
   },
@@ -2305,9 +2300,9 @@
     "unsplash": "Unsplash",
     "pageCover": "ページカバー",
     "none": "なし",
-    "photoPermissionDescription": "@:appName に写真へのアクセス権が必要です。写真をドキュメントに追加するには許可が必要です。",
     "openSettings": "設定を開く",
     "photoPermissionTitle": "@:appName はフォトライブラリへのアクセスを希望します",
+    "photoPermissionDescription": "@:appName に写真へのアクセス権が必要です。写真をドキュメントに追加するには許可が必要です。",
     "doNotAllow": "許可しない",
     "image": "画像"
   },

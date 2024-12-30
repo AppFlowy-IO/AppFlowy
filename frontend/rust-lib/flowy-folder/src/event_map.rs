@@ -32,7 +32,7 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::RecoverAllTrashItems, restore_all_trash_handler)
     .event(FolderEvent::PermanentlyDeleteAllTrashItem, delete_my_trash_handler)
     .event(FolderEvent::ImportData, import_data_handler)
-    // .event(FolderEvent::ImportZipFile, import_zip_file_handler)
+    .event(FolderEvent::ImportZipFile, import_zip_file_handler)
     .event(FolderEvent::GetFolderSnapshots, get_folder_snapshots_handler)
     .event(FolderEvent::UpdateViewIcon, update_view_icon_handler)
     .event(FolderEvent::ReadFavorites, read_favorites_handler)
@@ -45,9 +45,14 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::GetViewAncestors, get_view_ancestors_handler)
     .event(FolderEvent::PublishView, publish_view_handler)
     .event(FolderEvent::GetPublishInfo, get_publish_info_handler)
+    .event(FolderEvent::SetPublishName, set_publish_name_handler)
     .event(FolderEvent::UnpublishViews, unpublish_views_handler)
     .event(FolderEvent::SetPublishNamespace, set_publish_namespace_handler)
     .event(FolderEvent::GetPublishNamespace, get_publish_namespace_handler)
+    .event(FolderEvent::ListPublishedViews, list_published_views_handler)
+    .event(FolderEvent::GetDefaultPublishInfo, get_default_publish_info_handler)
+    .event(FolderEvent::SetDefaultPublishView, set_default_publish_view_handler)
+    .event(FolderEvent::RemoveDefaultPublishView, remove_default_publish_view_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -91,7 +96,7 @@ pub enum FolderEvent {
   DeleteView = 13,
 
   /// Duplicate the view
-  #[event(input = "DuplicateViewPayloadPB")]
+  #[event(input = "DuplicateViewPayloadPB", output = "ViewPB")]
   DuplicateView = 14,
 
   /// Close and release the resources that are used by this view.
@@ -198,6 +203,21 @@ pub enum FolderEvent {
   #[event(input = "UnpublishViewsPayloadPB")]
   UnpublishViews = 47,
 
-  #[event(input = "ImportZipPB", output = "RepeatedViewPB")]
+  #[event(input = "ImportZipPB")]
   ImportZipFile = 48,
+
+  #[event(output = "RepeatedPublishInfoViewPB")]
+  ListPublishedViews = 49,
+
+  #[event(output = "PublishInfoResponsePB")]
+  GetDefaultPublishInfo = 50,
+
+  #[event(input = "ViewIdPB")]
+  SetDefaultPublishView = 51,
+
+  #[event(input = "SetPublishNamePB")]
+  SetPublishName = 52,
+
+  #[event()]
+  RemoveDefaultPublishView = 53,
 }

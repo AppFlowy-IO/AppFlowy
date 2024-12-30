@@ -1,16 +1,18 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
-use collab_database::entity::{DatabaseView, SelectOption, SelectOptionColor};
+use collab_database::entity::DatabaseView;
 use collab_database::views::DatabaseLayout;
 use event_integration_test::database_event::TestRowBuilder;
 
+use collab_database::fields::number_type_option::{NumberFormat, NumberTypeOption};
+use collab_database::fields::select_type_option::{
+  SelectOption, SelectOptionColor, SingleSelectTypeOption,
+};
+use collab_database::fields::summary_type_option::SummarizationTypeOption;
+use collab_database::fields::translate_type_option::TranslateTypeOption;
 use collab_database::fields::Field;
 use collab_database::rows::Row;
 use flowy_database2::entities::FieldType;
-use flowy_database2::services::field::summary_type_option::summary::SummarizationTypeOption;
-use flowy_database2::services::field::translate_type_option::translate::TranslateTypeOption;
-use flowy_database2::services::field::{
-  FieldBuilder, NumberFormat, NumberTypeOption, SingleSelectTypeOption,
-};
+use flowy_database2::services::field::FieldBuilder;
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 use strum::IntoEnumIterator;
 
@@ -29,15 +31,14 @@ pub fn make_test_summary_grid() -> DatabaseData {
     .type_options
     .get(&FieldType::SingleSelect.to_string())
     .cloned()
-    .map(|t| SingleSelectTypeOption::from(t).options)
+    .map(|t| SingleSelectTypeOption::from(t).0.options)
     .unwrap();
 
   let rows = create_rows(&database_id, &fields, options);
 
-  let inline_view_id = gen_database_view_id();
   let view = DatabaseView {
     database_id: database_id.clone(),
-    id: inline_view_id.clone(),
+    id: gen_database_view_id(),
     name: "".to_string(),
     layout: DatabaseLayout::Grid,
     field_settings,
@@ -46,7 +47,6 @@ pub fn make_test_summary_grid() -> DatabaseData {
 
   DatabaseData {
     database_id,
-    inline_view_id,
     views: vec![view],
     fields,
     rows,

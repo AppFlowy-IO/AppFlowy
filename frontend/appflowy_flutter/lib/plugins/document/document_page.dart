@@ -2,38 +2,26 @@ import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
-import 'package:appflowy/plugins/document/presentation/editor_drop_manager.dart';
-import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
+import 'package:appflowy/plugins/document/presentation/editor_drop_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_file.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_image.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
-import 'package:appflowy/shared/patterns/file_type_patterns.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:cross_file/cross_file.dart';
-import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
-
-const _excludeFromDropTarget = [
-  ImageBlockKeys.type,
-  CustomImageBlockKeys.type,
-  MultiImageBlockKeys.type,
-  FileBlockKeys.type,
-];
 
 class DocumentPage extends StatefulWidget {
   const DocumentPage({
@@ -41,12 +29,14 @@ class DocumentPage extends StatefulWidget {
     required this.view,
     required this.onDeleted,
     this.initialSelection,
+    this.initialBlockId,
     this.fixedTitle,
   });
 
   final ViewPB view;
   final VoidCallback onDeleted;
   final Selection? initialSelection;
+  final String? initialBlockId;
   final String? fixedTitle;
 
   @override
@@ -56,6 +46,7 @@ class DocumentPage extends StatefulWidget {
 class _DocumentPageState extends State<DocumentPage>
     with WidgetsBindingObserver {
   EditorState? editorState;
+  Selection? initialSelection;
   late final documentBloc = DocumentBloc(documentId: widget.view.id)
     ..add(const DocumentEvent.initial());
 
@@ -63,12 +54,10 @@ class _DocumentPageState extends State<DocumentPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    EditorNotification.addListener(_onEditorNotification);
   }
 
   @override
   void dispose() {
-    EditorNotification.removeListener(_onEditorNotification);
     WidgetsBinding.instance.removeObserver(this);
     documentBloc.close();
     super.dispose();
@@ -86,195 +75,129 @@ class _DocumentPageState extends State<DocumentPage>
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      // Due to how DropTarget works, there is no way to differentiate if an overlay is
-      // blocking the target visibly, so when we have an overlay with a drop target,
-      // we should disable the drop target for the Editor, until it is closed.
-      //
-      // See FileBlockComponent for sample use.
-      //
-      // Relates to:
-      // - https://github.com/MixinNetwork/flutter-plugins/issues/2
-      // - https://github.com/MixinNetwork/flutter-plugins/issues/331
-      //
-      create: (_) => EditorDropManagerState(),
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: getIt<ActionNavigationBloc>()),
-          BlocProvider.value(value: documentBloc),
-        ],
-        child: BlocBuilder<DocumentBloc, DocumentState>(
-          buildWhen: _shouldRebuildDocument,
-          builder: (context, state) {
-            if (state.isLoading) {
-              return const Center(child: CircularProgressIndicator.adaptive());
-            }
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: getIt<ActionNavigationBloc>()),
+        BlocProvider.value(value: documentBloc),
+      ],
+      child: BlocBuilder<DocumentBloc, DocumentState>(
+        buildWhen: shouldRebuildDocument,
+        builder: (context, state) {
+          if (state.isLoading) {
+            return const Center(child: CircularProgressIndicator.adaptive());
+          }
 
-            final editorState = state.editorState;
-            this.editorState = editorState;
-            final error = state.error;
-            if (error != null || editorState == null) {
-              Log.error(error);
-              return Center(
-                child: AppFlowyErrorPage(
-                  error: error,
-                ),
-              );
-            }
+          final editorState = state.editorState;
+          this.editorState = editorState;
+          final error = state.error;
+          if (error != null || editorState == null) {
+            Log.error(error);
+            return Center(child: AppFlowyErrorPage(error: error));
+          }
 
-            if (state.forceClose) {
-              widget.onDeleted();
-              return const SizedBox.shrink();
-            }
+          if (state.forceClose) {
+            widget.onDeleted();
+            return const SizedBox.shrink();
+          }
 
-            return BlocListener<ActionNavigationBloc, ActionNavigationState>(
-              listenWhen: (_, curr) => curr.action != null,
-              listener: _onNotificationAction,
-              child: Consumer<EditorDropManagerState>(
-                builder: (context, dropState, _) =>
-                    _buildEditorPage(context, state, dropState),
-              ),
-            );
-          },
-        ),
+          return BlocListener<ActionNavigationBloc, ActionNavigationState>(
+            listenWhen: (_, curr) => curr.action != null,
+            listener: onNotificationAction,
+            child: buildEditorPage(context, state),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildEditorPage(
+  Widget buildEditorPage(
     BuildContext context,
     DocumentState state,
-    EditorDropManagerState dropState,
   ) {
+    final editorState = state.editorState;
+    if (editorState == null) {
+      return const SizedBox.shrink();
+    }
+
     final width = context.read<DocumentAppearanceCubit>().state.width;
+
+    // avoid the initial selection calculation change when the editorState is not changed
+    initialSelection ??= _calculateInitialSelection(editorState);
 
     final Widget child;
     if (UniversalPlatform.isMobile) {
       child = BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
-        builder: (context, styleState) {
-          return AppFlowyEditorPage(
-            editorState: state.editorState!,
-            styleCustomizer: EditorStyleCustomizer(
-              context: context,
-              width: width,
-              padding: EditorStyleCustomizer.documentPadding,
-            ),
-            header: _buildCoverAndIcon(context, state),
-            initialSelection: widget.initialSelection,
-          );
-        },
-      );
-    } else {
-      child = DropTarget(
-        enable: dropState.isDropEnabled,
-        onDragExited: (_) =>
-            state.editorState!.selectionService.removeDropTarget(),
-        onDragUpdated: (details) {
-          final data = state.editorState!.selectionService
-              .getDropTargetRenderData(details.globalPosition);
-
-          if (data != null &&
-              data.dropPath != null &&
-
-              // We implement custom Drop logic for image blocks, this is
-              // how we can exclude them from the Drop Target
-              !_excludeFromDropTarget.contains(data.cursorNode?.type)) {
-            // Render the drop target
-            state.editorState!.selectionService
-                .renderDropTargetForOffset(details.globalPosition);
-          } else {
-            state.editorState!.selectionService.removeDropTarget();
-          }
-        },
-        onDragDone: (details) async {
-          final editorState = state.editorState;
-          if (editorState == null) {
-            return;
-          }
-
-          editorState.selectionService.removeDropTarget();
-
-          final data = editorState.selectionService
-              .getDropTargetRenderData(details.globalPosition);
-
-          if (data != null) {
-            final cursorNode = data.cursorNode;
-            final dropPath = data.dropPath;
-
-            if (cursorNode != null && dropPath != null) {
-              if (_excludeFromDropTarget.contains(cursorNode.type)) {
-                return;
-              }
-
-              final node = editorState.getNodeAtPath(dropPath);
-
-              if (node == null) {
-                return;
-              }
-
-              final isLocalMode = context.read<DocumentBloc>().isLocalMode;
-              final List<XFile> imageFiles = [];
-              final List<XFile> otherFiles = [];
-
-              for (final file in details.files) {
-                final fileName = file.name.toLowerCase();
-                if (file.mimeType?.startsWith('image/') ??
-                    false || imgExtensionRegex.hasMatch(fileName)) {
-                  imageFiles.add(file);
-                } else {
-                  otherFiles.add(file);
-                }
-              }
-
-              await editorState.dropImages(
-                node,
-                imageFiles,
-                widget.view.id,
-                isLocalMode,
-              );
-
-              await editorState.dropFiles(
-                node,
-                otherFiles,
-                widget.view.id,
-                isLocalMode,
-              );
-            }
-          }
-        },
-        child: AppFlowyEditorPage(
-          editorState: state.editorState!,
+        builder: (context, styleState) => AppFlowyEditorPage(
+          editorState: editorState,
+          // if the view's name is empty, focus on the title
+          autoFocus: widget.view.name.isEmpty ? false : null,
           styleCustomizer: EditorStyleCustomizer(
             context: context,
             width: width,
             padding: EditorStyleCustomizer.documentPadding,
           ),
-          header: _buildCoverAndIcon(context, state),
-          initialSelection: widget.initialSelection,
+          header: buildCoverAndIcon(context, state),
+          initialSelection: initialSelection,
+        ),
+      );
+    } else {
+      child = EditorDropHandler(
+        viewId: widget.view.id,
+        editorState: editorState,
+        isLocalMode: context.read<DocumentBloc>().isLocalMode,
+        child: AppFlowyEditorPage(
+          editorState: editorState,
+          // if the view's name is empty, focus on the title
+          autoFocus: widget.view.name.isEmpty ? false : null,
+          styleCustomizer: EditorStyleCustomizer(
+            context: context,
+            width: width,
+            padding: EditorStyleCustomizer.documentPadding,
+          ),
+          header: buildCoverAndIcon(context, state),
+          initialSelection: initialSelection,
         ),
       );
     }
 
-    return Column(
-      children: [
-        if (state.isDeleted) _buildBanner(context),
-        Expanded(child: child),
-      ],
+    return Provider(
+      create: (_) {
+        final context = SharedEditorContext();
+        final children = editorState.document.root.children;
+        final firstDelta = children.firstOrNull?.delta;
+        final isEmptyDocument =
+            children.length == 1 && (firstDelta == null || firstDelta.isEmpty);
+        if (widget.view.name.isEmpty && isEmptyDocument) {
+          context.requestCoverTitleFocus = true;
+        }
+        return context;
+      },
+      dispose: (buildContext, editorContext) => editorContext.dispose(),
+      child: EditorTransactionService(
+        viewId: widget.view.id,
+        editorState: state.editorState!,
+        child: Column(
+          children: [
+            if (state.isDeleted) buildBanner(context),
+            Expanded(child: child),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildBanner(BuildContext context) {
+  Widget buildBanner(BuildContext context) {
     return DocumentBanner(
-      onRestore: () => context.read<DocumentBloc>().add(
-            const DocumentEvent.restorePage(),
-          ),
+      viewName: widget.view.nameOrDefault,
+      onRestore: () =>
+          context.read<DocumentBloc>().add(const DocumentEvent.restorePage()),
       onDelete: () => context
           .read<DocumentBloc>()
           .add(const DocumentEvent.deletePermanently()),
     );
   }
 
-  Widget _buildCoverAndIcon(BuildContext context, DocumentState state) {
+  Widget buildCoverAndIcon(BuildContext context, DocumentState state) {
     final editorState = state.editorState;
     final userProfilePB = state.userProfilePB;
     if (editorState == null || userProfilePB == null) {
@@ -301,38 +224,60 @@ class _DocumentPageState extends State<DocumentPage>
     );
   }
 
-  void _onEditorNotification(EditorNotificationType type) {
-    final editorState = this.editorState;
-    if (editorState == null) {
-      return;
-    }
-    if (type == EditorNotificationType.undo) {
-      undoCommand.execute(editorState);
-    } else if (type == EditorNotificationType.redo) {
-      redoCommand.execute(editorState);
-    } else if (type == EditorNotificationType.exitEditing &&
-        editorState.selection != null) {
-      editorState.selection = null;
-    }
-  }
-
-  void _onNotificationAction(
+  void onNotificationAction(
     BuildContext context,
     ActionNavigationState state,
   ) {
-    if (state.action != null && state.action!.type == ActionType.jumpToBlock) {
-      final path = state.action?.arguments?[ActionArgumentKeys.nodePath];
+    final action = state.action;
+    if (action == null ||
+        action.type != ActionType.jumpToBlock ||
+        action.objectId != widget.view.id) {
+      return;
+    }
 
-      final editorState = context.read<DocumentBloc>().state.editorState;
-      if (editorState != null && widget.view.id == state.action?.objectId) {
-        editorState.updateSelectionWithReason(
-          Selection.collapsed(Position(path: [path])),
-        );
-      }
+    final editorState = context.read<DocumentBloc>().state.editorState;
+    if (editorState == null) {
+      return;
+    }
+
+    final Path? path = _getPathFromAction(action, editorState);
+    if (path != null) {
+      editorState.updateSelectionWithReason(
+        Selection.collapsed(Position(path: path)),
+      );
     }
   }
 
-  bool _shouldRebuildDocument(DocumentState previous, DocumentState current) {
+  Path? _getPathFromAction(NavigationAction action, EditorState editorState) {
+    Path? path = action.arguments?[ActionArgumentKeys.nodePath];
+    if (path == null || path.isEmpty) {
+      final blockId = action.arguments?[ActionArgumentKeys.blockId];
+      if (blockId != null) {
+        path = _findNodePathByBlockId(editorState, blockId);
+      }
+    }
+    return path;
+  }
+
+  Path? _findNodePathByBlockId(EditorState editorState, String blockId) {
+    final document = editorState.document;
+    final startNode = document.root.children.firstOrNull;
+    if (startNode == null) {
+      return null;
+    }
+
+    final nodeIterator = NodeIterator(document: document, startNode: startNode);
+    while (nodeIterator.moveNext()) {
+      final node = nodeIterator.current;
+      if (node.id == blockId) {
+        return node.path;
+      }
+    }
+
+    return null;
+  }
+
+  bool shouldRebuildDocument(DocumentState previous, DocumentState current) {
     // only rebuild the document page when the below fields are changed
     // this is to prevent unnecessary rebuilds
     //
@@ -357,5 +302,28 @@ class _DocumentPageState extends State<DocumentPage>
     }
 
     return false;
+  }
+
+  Selection? _calculateInitialSelection(EditorState editorState) {
+    if (widget.initialSelection != null) {
+      return widget.initialSelection;
+    }
+
+    if (widget.initialBlockId != null) {
+      final path = _findNodePathByBlockId(editorState, widget.initialBlockId!);
+      if (path != null) {
+        editorState.selectionType = SelectionType.block;
+        editorState.selectionExtraInfo = {
+          selectionExtraInfoDoNotAttachTextService: true,
+        };
+        return Selection.collapsed(
+          Position(
+            path: path,
+          ),
+        );
+      }
+    }
+
+    return null;
   }
 }

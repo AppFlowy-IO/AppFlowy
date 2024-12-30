@@ -55,6 +55,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   FieldController get fieldController => databaseController.fieldController;
   String get viewId => databaseController.viewId;
 
+  DatabaseCallbacks? _databaseCallbacks;
+  DatabaseLayoutSettingCallbacks? _layoutSettingsCallback;
+  GroupCallbacks? _groupCallbacks;
+
   void _initBoardController(AppFlowyBoardController? controller) {
     boardController = controller ??
         AppFlowyBoardController(
@@ -146,18 +150,18 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           },
           createGroup: (name) async {
             final result = await groupBackendSvc.createGroup(name: name);
-            result.fold((_) {}, (err) => Log.error(err));
+            result.onFailure(Log.error);
           },
           deleteGroup: (groupId) async {
             final result = await groupBackendSvc.deleteGroup(groupId: groupId);
-            result.fold((_) {}, (err) => Log.error(err));
+            result.onFailure(Log.error);
           },
           renameGroup: (groupId, name) async {
             final result = await groupBackendSvc.updateGroup(
               groupId: groupId,
               name: name,
             );
-            result.fold((_) {}, (err) => Log.error(err));
+            result.onFailure(Log.error);
           },
           didReceiveError: (error) {
             emit(BoardState.error(error: error));
@@ -273,6 +277,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               );
             }
           },
+          openRowDetail: (rowMeta) {
+            final copyState = state;
+            emit(BoardState.openRowDetail(rowMeta: rowMeta));
+            emit(copyState);
+          },
         );
       },
     );
@@ -325,6 +334,17 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     for (final controller in groupControllers.values) {
       await controller.dispose();
     }
+
+    databaseController.removeListener(
+      onDatabaseChanged: _databaseCallbacks,
+      onLayoutSettingsChanged: _layoutSettingsCallback,
+      onGroupChanged: _groupCallbacks,
+    );
+
+    _databaseCallbacks = null;
+    _layoutSettingsCallback = null;
+    _groupCallbacks = null;
+
     boardController.dispose();
     return super.close();
   }
@@ -375,7 +395,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   RowCache get rowCache => databaseController.rowCache;
 
   void _startListening() {
-    final onLayoutSettingsChanged = DatabaseLayoutSettingCallbacks(
+    _layoutSettingsCallback = DatabaseLayoutSettingCallbacks(
       onLayoutSettingsChanged: (layoutSettings) {
         if (isClosed) {
           return;
@@ -398,7 +418,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         add(BoardEvent.didUpdateLayoutSettings(layoutSettings.board));
       },
     );
-    final onGroupChanged = GroupCallbacks(
+    _groupCallbacks = GroupCallbacks(
       onGroupByField: (groups) {
         if (isClosed) {
           return;
@@ -477,10 +497,20 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         add(BoardEvent.didReceiveGroups(groupList));
       },
     );
+    _databaseCallbacks = DatabaseCallbacks(
+      onRowsCreated: (rows) {
+        for (final row in rows) {
+          if (!isClosed && row.isHiddenInView) {
+            add(BoardEvent.openRowDetail(row.rowMeta));
+          }
+        }
+      },
+    );
 
     databaseController.addListener(
-      onLayoutSettingsChanged: onLayoutSettingsChanged,
-      onGroupChanged: onGroupChanged,
+      onDatabaseChanged: _databaseCallbacks,
+      onLayoutSettingsChanged: _layoutSettingsCallback,
+      onGroupChanged: _groupCallbacks,
     );
   }
 
@@ -581,6 +611,7 @@ class BoardEvent with _$BoardEvent {
     GroupedRowId groupedRowId,
     bool toPrevious,
   ) = _MoveGroupToAdjacentGroup;
+  const factory BoardEvent.openRowDetail(RowMetaPB rowMeta) = _OpenRowDetail;
 }
 
 @freezed
@@ -606,6 +637,10 @@ class BoardState with _$BoardState {
   const factory BoardState.setFocus({
     required List<GroupedRowId> groupedRowIds,
   }) = _BoardSetFocusState;
+
+  const factory BoardState.openRowDetail({
+    required RowMetaPB rowMeta,
+  }) = _BoardOpenRowDetailState;
 
   factory BoardState.initial(String viewId) => BoardState.ready(
         viewId: viewId,

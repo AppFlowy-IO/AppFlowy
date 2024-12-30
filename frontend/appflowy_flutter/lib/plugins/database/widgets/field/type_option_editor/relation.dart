@@ -4,7 +4,6 @@ import 'package:appflowy/plugins/database/application/field/type_option/relation
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -134,7 +133,7 @@ class _DatabaseList extends StatelessWidget {
             height: GridSize.popoverItemHeight,
             child: FlowyButton(
               onTap: () => onSelectDatabase(meta.databaseId),
-              text: FlowyText.medium(
+              text: FlowyText(
                 lineHeight: 1.0,
                 meta.databaseName,
                 overflow: TextOverflow.ellipsis,

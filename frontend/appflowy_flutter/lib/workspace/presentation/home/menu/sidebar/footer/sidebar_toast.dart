@@ -11,7 +11,6 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -31,6 +30,10 @@ class SidebarToast extends StatelessWidget {
           storageLimitHit: () => WidgetsBinding.instance.addPostFrameCallback(
             (_) => _showStorageLimitDialog(context),
           ),
+          singleFileLimitHit: () =>
+              WidgetsBinding.instance.addPostFrameCallback(
+            (_) => _showSingleFileLimitDialog(context),
+          ),
           orElse: () {},
         );
       },
@@ -49,6 +52,7 @@ class SidebarToast extends StatelessWidget {
             onTap: () => _handleOnTap(context, SubscriptionPlanPB.AiMax),
             reason: LocaleKeys.sideBar_aiResponseLimitTitle.tr(),
           ),
+          singleFileLimitHit: () => const SizedBox.shrink(),
         );
       },
     );
@@ -67,6 +71,20 @@ class SidebarToast extends StatelessWidget {
         },
       );
 
+  void _showSingleFileLimitDialog(BuildContext context) => showConfirmDialog(
+        context: context,
+        title: LocaleKeys.sideBar_upgradeToPro.tr(),
+        description:
+            LocaleKeys.sideBar_singleFileProPlanLimitationDescription.tr(),
+        confirmLabel:
+            LocaleKeys.settings_comparePlanDialog_actions_upgrade.tr(),
+        onConfirm: () {
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) => _handleOnTap(context, SubscriptionPlanPB.Pro),
+          );
+        },
+      );
+
   void _handleOnTap(BuildContext context, SubscriptionPlanPB plan) {
     final userProfile = context.read<SidebarPlanBloc>().state.userProfile;
     if (userProfile == null) {
@@ -76,15 +94,15 @@ class SidebarToast extends StatelessWidget {
     }
 
     final userWorkspaceBloc = context.read<UserWorkspaceBloc>();
-    final member = userWorkspaceBloc.state.currentWorkspaceMember;
-    if (member == null) {
+    final role = userWorkspaceBloc.state.currentWorkspace?.role;
+    if (role == null) {
       return Log.error(
         "Member is null. It should not happen. If you see this error, it's a bug",
       );
     }
 
     // Only if the user is the workspace owner will we navigate to the plan page.
-    if (member.role.isOwner) {
+    if (role.isOwner) {
       showSettingsDialog(
         context,
         userProfile,

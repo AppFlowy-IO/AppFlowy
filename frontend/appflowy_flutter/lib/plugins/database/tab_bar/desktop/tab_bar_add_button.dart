@@ -3,7 +3,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pbenum.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -32,27 +31,22 @@ class _AddDatabaseViewButtonState extends State<AddDatabaseViewButton> {
       offset: const Offset(0, 8),
       margin: EdgeInsets.zero,
       triggerActions: PopoverTriggerFlags.none,
-      child: SizedBox(
-        height: 26,
-        child: Row(
-          children: [
-            VerticalDivider(
-              width: 1.0,
-              thickness: 1.0,
-              indent: 4.0,
-              endIndent: 4.0,
-              color: Theme.of(context).dividerColor,
-            ),
-            FlowyIconButton(
-              width: 26,
-              iconPadding: const EdgeInsets.all(5),
-              hoverColor: AFThemeExtension.of(context).greyHover,
-              onPressed: () => popoverController.show(),
-              radius: Corners.s4Border,
-              icon: const FlowySvg(FlowySvgs.add_s),
-              iconColorOnHover: Theme.of(context).colorScheme.onSurface,
-            ),
-          ],
+      child: Padding(
+        padding: const EdgeInsetsDirectional.only(
+          top: 2.0,
+          bottom: 7.0,
+          start: 6.0,
+        ),
+        child: FlowyIconButton(
+          width: 26,
+          hoverColor: AFThemeExtension.of(context).greyHover,
+          onPressed: () => popoverController.show(),
+          radius: Corners.s4Border,
+          icon: FlowySvg(
+            FlowySvgs.add_s,
+            color: Theme.of(context).hintColor,
+          ),
+          iconColorOnHover: Theme.of(context).colorScheme.onSurface,
         ),
       ),
       popupBuilder: (BuildContext context) {
@@ -108,7 +102,7 @@ class TabBarAddButtonActionCell extends StatelessWidget {
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        text: FlowyText.medium(
+        text: FlowyText(
           '${LocaleKeys.grid_createView.tr()} ${action.layoutName}',
           color: AFThemeExtension.of(context).textColor,
         ),

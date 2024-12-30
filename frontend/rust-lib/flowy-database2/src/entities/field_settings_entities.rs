@@ -101,11 +101,11 @@ impl std::convert::From<Vec<FieldSettingsPB>> for RepeatedFieldSettingsPB {
 
 #[derive(Debug, Default, Clone, ProtoBuf, Validate)]
 pub struct FieldSettingsChangesetPB {
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   #[pb(index = 1)]
   pub view_id: String,
 
-  #[validate(custom = "required_not_empty_str")]
+  #[validate(custom(function = "required_not_empty_str"))]
   #[pb(index = 2)]
   pub field_id: String,
 

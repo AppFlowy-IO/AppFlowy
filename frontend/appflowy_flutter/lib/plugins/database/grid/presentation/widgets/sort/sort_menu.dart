@@ -2,8 +2,8 @@ import 'dart:math' as math;
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database/application/field/sort_entities.dart';
 import 'package:appflowy/plugins/database/grid/application/sort/sort_editor_bloc.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,7 +12,6 @@ import 'package:easy_localization/easy_localization.dart';
 
 import 'sort_choice_button.dart';
 import 'sort_editor.dart';
-import 'sort_info.dart';
 
 class SortMenu extends StatelessWidget {
   const SortMenu({
@@ -31,7 +30,7 @@ class SortMenu extends StatelessWidget {
       ),
       child: BlocBuilder<SortEditorBloc, SortEditorState>(
         builder: (context, state) {
-          if (state.sortInfos.isEmpty) {
+          if (state.sorts.isEmpty) {
             return const SizedBox.shrink();
           }
 
@@ -47,7 +46,7 @@ class SortMenu extends StatelessWidget {
                 child: const SortEditor(),
               );
             },
-            child: SortChoiceChip(sortInfos: state.sortInfos),
+            child: SortChoiceChip(sorts: state.sorts),
           );
         },
       ),
@@ -58,11 +57,11 @@ class SortMenu extends StatelessWidget {
 class SortChoiceChip extends StatelessWidget {
   const SortChoiceChip({
     super.key,
-    required this.sortInfos,
+    required this.sorts,
     this.onTap,
   });
 
-  final List<SortInfo> sortInfos;
+  final List<DatabaseSort> sorts;
   final VoidCallback? onTap;
 
   @override

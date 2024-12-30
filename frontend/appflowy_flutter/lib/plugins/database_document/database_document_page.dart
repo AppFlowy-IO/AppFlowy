@@ -2,11 +2,14 @@ import 'package:appflowy/plugins/database/application/row/related_row_detail_blo
 import 'package:appflowy/plugins/database/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
+import 'package:appflowy/plugins/database/widgets/row/row_banner.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_property.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
+import 'package:appflowy/plugins/document/presentation/editor_drop_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -103,22 +106,31 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
   }
 
   Widget _buildEditorPage(BuildContext context, DocumentState state) {
-    final appflowyEditorPage = AppFlowyEditorPage(
+    final appflowyEditorPage = EditorDropHandler(
+      viewId: widget.view.id,
       editorState: state.editorState!,
-      styleCustomizer: EditorStyleCustomizer(
-        context: context,
-        padding: EditorStyleCustomizer.documentPadding,
+      isLocalMode: context.read<DocumentBloc>().isLocalMode,
+      child: AppFlowyEditorPage(
+        editorState: state.editorState!,
+        styleCustomizer: EditorStyleCustomizer(
+          context: context,
+          padding: EditorStyleCustomizer.documentPadding,
+        ),
+        header: _buildDatabaseDataContent(context, state.editorState!),
+        initialSelection: widget.initialSelection,
+        useViewInfoBloc: false,
       ),
-      header: _buildDatabaseDataContent(context, state.editorState!),
-      initialSelection: widget.initialSelection,
-      useViewInfoBloc: false,
     );
 
-    return Column(
-      children: [
-        if (state.isDeleted) _buildBanner(context),
-        Expanded(child: appflowyEditorPage),
-      ],
+    return EditorTransactionService(
+      viewId: widget.view.id,
+      editorState: state.editorState!,
+      child: Column(
+        children: [
+          if (state.isDeleted) _buildBanner(context),
+          Expanded(child: appflowyEditorPage),
+        ],
+      ),
     );
   }
 
@@ -142,24 +154,33 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
                   fieldController: databaseController.fieldController,
                   rowController: rowController,
                 ),
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    top: 24,
-                    left: padding.left + 22,
-                    right: padding.right,
-                  ),
-                  child: Column(
-                    children: [
-                      RowPropertyList(
+                child: Column(
+                  children: [
+                    RowBanner(
+                      databaseController: databaseController,
+                      rowController: rowController,
+                      cellBuilder: EditableCellBuilder(
+                        databaseController: databaseController,
+                      ),
+                      userProfile:
+                          context.read<RelatedRowDetailPageBloc>().userProfile,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(
+                        top: 24,
+                        left: padding.left,
+                        right: padding.right,
+                      ),
+                      child: RowPropertyList(
                         viewId: databaseController.viewId,
                         fieldController: databaseController.fieldController,
                         cellBuilder: EditableCellBuilder(
                           databaseController: databaseController,
                         ),
                       ),
-                      const TypeOptionSeparator(spacing: 24.0),
-                    ],
-                  ),
+                    ),
+                    const TypeOptionSeparator(spacing: 24.0),
+                  ],
                 ),
               );
             },
@@ -171,6 +192,7 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
 
   Widget _buildBanner(BuildContext context) {
     return DocumentBanner(
+      viewName: widget.view.name,
       onRestore: () => context.read<DocumentBloc>().add(
             const DocumentEvent.restorePage(),
           ),

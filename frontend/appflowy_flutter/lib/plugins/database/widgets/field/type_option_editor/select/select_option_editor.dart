@@ -106,7 +106,7 @@ class _DeleteTag extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(
+        text: FlowyText(
           lineHeight: 1.0,
           LocaleKeys.grid_selectOption_deleteTag.tr(),
         ),
@@ -175,7 +175,7 @@ class SelectOptionColorList extends StatelessWidget {
           padding: GridSize.typeOptionContentInsets,
           child: SizedBox(
             height: GridSize.popoverItemHeight,
-            child: FlowyText.medium(
+            child: FlowyText(
               LocaleKeys.grid_selectOption_colorPanelTitle.tr(),
               textAlign: TextAlign.left,
               color: Theme.of(context).hintColor,
@@ -230,7 +230,7 @@ class _SelectOptionColorCell extends StatelessWidget {
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        text: FlowyText.medium(
+        text: FlowyText(
           lineHeight: 1.0,
           color.colorName(),
           color: AFThemeExtension.of(context).textColor,

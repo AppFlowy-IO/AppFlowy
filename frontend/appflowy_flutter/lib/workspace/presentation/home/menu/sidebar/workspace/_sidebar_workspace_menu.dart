@@ -1,7 +1,9 @@
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
@@ -9,16 +11,22 @@ import 'package:appflowy/workspace/presentation/settings/widgets/members/workspa
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
+
+import '_sidebar_import_notion.dart';
 
 @visibleForTesting
 const createWorkspaceButtonKey = ValueKey('createWorkspaceButton');
 
-class WorkspacesMenu extends StatelessWidget {
+@visibleForTesting
+const importNotionButtonKey = ValueKey('importNotinoButton');
+
+class WorkspacesMenu extends StatefulWidget {
   const WorkspacesMenu({
     super.key,
     required this.userProfile,
@@ -29,6 +37,19 @@ class WorkspacesMenu extends StatelessWidget {
   final UserProfilePB userProfile;
   final UserWorkspacePB currentWorkspace;
   final List<UserWorkspacePB> workspaces;
+
+  @override
+  State<WorkspacesMenu> createState() => _WorkspacesMenuState();
+}
+
+class _WorkspacesMenuState extends State<WorkspacesMenu> {
+  final ValueNotifier<bool> isShowingMoreActions = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    isShowingMoreActions.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,29 +81,45 @@ class WorkspacesMenu extends StatelessWidget {
           child: Divider(height: 1.0),
         ),
         // workspace list
-        for (final workspace in workspaces) ...[
-          WorkspaceMenuItem(
-            key: ValueKey(workspace.workspaceId),
-            workspace: workspace,
-            userProfile: userProfile,
-            isSelected: workspace.workspaceId == currentWorkspace.workspaceId,
+        Flexible(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final workspace in widget.workspaces) ...[
+                  WorkspaceMenuItem(
+                    key: ValueKey(workspace.workspaceId),
+                    workspace: workspace,
+                    userProfile: widget.userProfile,
+                    isSelected: workspace.workspaceId ==
+                        widget.currentWorkspace.workspaceId,
+                    isShowingMoreActions: isShowingMoreActions,
+                  ),
+                  const VSpace(6.0),
+                ],
+              ],
+            ),
           ),
-          const VSpace(6.0),
-        ],
+        ),
         // add new workspace
         const _CreateWorkspaceButton(),
         const VSpace(6.0),
+
+        if (UniversalPlatform.isDesktop) ...[
+          const _ImportNotionButton(),
+          const VSpace(6.0),
+        ],
       ],
     );
   }
 
   String _getUserInfo() {
-    if (userProfile.email.isNotEmpty) {
-      return userProfile.email;
+    if (widget.userProfile.email.isNotEmpty) {
+      return widget.userProfile.email;
     }
 
-    if (userProfile.name.isNotEmpty) {
-      return userProfile.name;
+    if (widget.userProfile.name.isNotEmpty) {
+      return widget.userProfile.name;
     }
 
     return LocaleKeys.defaultUsername.tr();
@@ -95,11 +132,13 @@ class WorkspaceMenuItem extends StatefulWidget {
     required this.workspace,
     required this.userProfile,
     required this.isSelected,
+    required this.isShowingMoreActions,
   });
 
   final UserProfilePB userProfile;
   final UserWorkspacePB workspace;
   final bool isSelected;
+  final ValueNotifier<bool> isShowingMoreActions;
 
   @override
   State<WorkspaceMenuItem> createState() => _WorkspaceMenuItemState();
@@ -153,56 +192,47 @@ class _WorkspaceMenuItemState extends State<WorkspaceMenuItem> {
   }
 
   Widget _buildLeftIcon(BuildContext context) {
-    return Container(
-      width: 32.0,
-      height: 32.0,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: const Color(0x01717171).withOpacity(0.12),
-          width: 0.8,
-        ),
-      ),
-      child: FlowyTooltip(
-        message: LocaleKeys.document_plugins_cover_changeIcon.tr(),
-        child: WorkspaceIcon(
-          workspace: widget.workspace,
-          iconSize: 22,
-          fontSize: 16,
-          figmaLineHeight: 32.0,
-          enableEdit: true,
-          onSelected: (result) => context.read<UserWorkspaceBloc>().add(
-                UserWorkspaceEvent.updateWorkspaceIcon(
-                  widget.workspace.workspaceId,
-                  result.emoji,
-                ),
+    return FlowyTooltip(
+      message: LocaleKeys.document_plugins_cover_changeIcon.tr(),
+      child: WorkspaceIcon(
+        workspace: widget.workspace,
+        iconSize: 36,
+        emojiSize: 24.0,
+        fontSize: 18.0,
+        figmaLineHeight: 26.0,
+        borderRadius: 12.0,
+        enableEdit: true,
+        onSelected: (result) => context.read<UserWorkspaceBloc>().add(
+              UserWorkspaceEvent.updateWorkspaceIcon(
+                widget.workspace.workspaceId,
+                result.emoji,
               ),
-        ),
+            ),
       ),
     );
   }
 
   Widget _buildRightIcon(BuildContext context, ValueNotifier<bool> isHovered) {
-    // only the owner can update or delete workspace.
-    if (context.read<WorkspaceMemberBloc>().state.isLoading) {
-      return const SizedBox.shrink();
-    }
-
     return Row(
       children: [
-        ValueListenableBuilder(
-          valueListenable: isHovered,
-          builder: (context, value, child) {
-            return Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Opacity(
-                opacity: value ? 1.0 : 0.0,
-                child: child,
-              ),
-            );
-          },
-          child: WorkspaceMoreActionList(workspace: widget.workspace),
-        ),
+        // only the owner can update or delete workspace.
+        if (!context.read<WorkspaceMemberBloc>().state.isLoading)
+          ValueListenableBuilder(
+            valueListenable: isHovered,
+            builder: (context, value, child) {
+              return Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Opacity(
+                  opacity: value ? 1.0 : 0.0,
+                  child: child,
+                ),
+              );
+            },
+            child: WorkspaceMoreActionList(
+              workspace: widget.workspace,
+              isShowingMoreActions: widget.isShowingMoreActions,
+            ),
+          ),
         const HSpace(8.0),
         if (widget.isSelected) ...[
           const Padding(
@@ -231,54 +261,52 @@ class _WorkspaceInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<WorkspaceMemberBloc, WorkspaceMemberState>(
-      builder: (context, state) {
-        final members = state.members;
-        return FlowyButton(
-          onTap: () => _openWorkspace(context),
-          iconPadding: 10.0,
-          leftIconSize: const Size.square(32),
-          leftIcon: const SizedBox.square(dimension: 32),
-          rightIcon: const HSpace(32.0),
-          text: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // workspace name
-              FlowyText.medium(
-                workspace.name,
-                fontSize: 14.0,
-                figmaLineHeight: 17.0,
-                overflow: TextOverflow.ellipsis,
-                withTooltip: true,
-              ),
-              // workspace members count
-              FlowyText.regular(
-                state.isLoading
-                    ? ''
-                    : LocaleKeys.settings_appearance_members_membersCount
-                        .plural(
-                        members.length,
-                      ),
-                fontSize: 10.0,
-                figmaLineHeight: 12.0,
-                color: Theme.of(context).hintColor,
-              ),
-            ],
+    final memberCount = workspace.memberCount.toInt();
+    return FlowyButton(
+      onTap: () => _openWorkspace(context),
+      iconPadding: 10.0,
+      leftIconSize: const Size.square(32),
+      leftIcon: const SizedBox.square(dimension: 32),
+      rightIcon: const HSpace(32.0),
+      text: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // workspace name
+          FlowyText.medium(
+            workspace.name,
+            fontSize: 14.0,
+            figmaLineHeight: 17.0,
+            overflow: TextOverflow.ellipsis,
+            withTooltip: true,
           ),
-        );
-      },
+          // workspace members count
+          FlowyText.regular(
+            memberCount == 0
+                ? ''
+                : LocaleKeys.settings_appearance_members_membersCount.plural(
+                    memberCount,
+                  ),
+            fontSize: 10.0,
+            figmaLineHeight: 12.0,
+            color: Theme.of(context).hintColor,
+          ),
+        ],
+      ),
     );
   }
 
   void _openWorkspace(BuildContext context) {
     if (!isSelected) {
       Log.info('open workspace: ${workspace.workspaceId}');
-      context.read<UserWorkspaceBloc>().add(
-            UserWorkspaceEvent.openWorkspace(
-              workspace.workspaceId,
-            ),
-          );
+
+      // Persist and close other tabs when switching workspace, restore tabs for new workspace
+      getIt<TabsBloc>().add(TabsEvent.switchWorkspace(workspace.workspaceId));
+
+      context
+          .read<UserWorkspaceBloc>()
+          .add(UserWorkspaceEvent.openWorkspace(workspace.workspaceId));
+
       PopoverContainer.of(context).closeAll();
     }
   }
@@ -321,8 +349,10 @@ class _CreateWorkspaceButton extends StatelessWidget {
         text: Row(
           children: [
             _buildLeftIcon(context),
-            const HSpace(10.0),
-            FlowyText.regular(LocaleKeys.workspace_create.tr()),
+            const HSpace(8.0),
+            FlowyText.regular(
+              LocaleKeys.workspace_create.tr(),
+            ),
           ],
         ),
       ),
@@ -331,11 +361,11 @@ class _CreateWorkspaceButton extends StatelessWidget {
 
   Widget _buildLeftIcon(BuildContext context) {
     return Container(
-      width: 32.0,
-      height: 32.0,
+      width: 36.0,
+      height: 36.0,
       padding: const EdgeInsets.all(7.0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: const Color(0x01717171).withOpacity(0.12),
           width: 0.8,
@@ -353,6 +383,97 @@ class _CreateWorkspaceButton extends StatelessWidget {
           workspaceBloc.add(UserWorkspaceEvent.createWorkspace(name));
         },
       ).show(context);
+    }
+  }
+}
+
+class _ImportNotionButton extends StatelessWidget {
+  const _ImportNotionButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 40,
+      child: Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          FlowyButton(
+            key: importNotionButtonKey,
+            onTap: () {
+              _showImportNotinoDialog(context);
+            },
+            margin: const EdgeInsets.symmetric(horizontal: 4.0),
+            text: Row(
+              children: [
+                _buildLeftIcon(context),
+                const HSpace(8.0),
+                FlowyText.regular(
+                  LocaleKeys.workspace_importFromNotion.tr(),
+                ),
+              ],
+            ),
+          ),
+          FlowyTooltip(
+            message: LocaleKeys.workspace_learnMore.tr(),
+            preferBelow: true,
+            child: FlowyIconButton(
+              icon: const FlowySvg(
+                FlowySvgs.information_s,
+              ),
+              onPressed: () {
+                afLaunchUrlString(
+                  'https://docs.appflowy.io/docs/guides/import-from-notion',
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLeftIcon(BuildContext context) {
+    return Container(
+      width: 36.0,
+      height: 36.0,
+      padding: const EdgeInsets.all(7.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0x01717171).withOpacity(0.12),
+          width: 0.8,
+        ),
+      ),
+      child: const FlowySvg(FlowySvgs.add_workspace_s),
+    );
+  }
+
+  Future<void> _showImportNotinoDialog(BuildContext context) async {
+    final result = await getIt<FilePickerService>().pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['zip'],
+    );
+
+    if (result == null || result.files.isEmpty) {
+      return;
+    }
+
+    final path = result.files.first.path;
+    if (path == null) {
+      return;
+    }
+
+    if (context.mounted) {
+      PopoverContainer.of(context).closeAll();
+      await NavigatorCustomDialog(
+        hideCancelButton: true,
+        confirm: () {},
+        child: NotionImporter(
+          filePath: path,
+        ),
+      ).show(context);
+    } else {
+      Log.error('context is not mounted when showing import notion dialog');
     }
   }
 }

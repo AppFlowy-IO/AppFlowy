@@ -1,3 +1,5 @@
+import { db } from '@/application/db';
+import { ViewMeta } from '@/application/db/tables/view_metas';
 import {
   AppendBreadcrumb,
   CreateRowDoc,
@@ -5,12 +7,11 @@ import {
   LoadViewMeta,
   View,
   ViewInfo,
+  ViewLayout,
 } from '@/application/types';
-import { db } from '@/application/db';
-import { ViewMeta } from '@/application/db/tables/view_metas';
+import { notify } from '@/components/_shared/notify';
 import { findAncestors, findView } from '@/components/_shared/outline/utils';
 import { useService } from '@/components/main/app.hooks';
-import { notify } from '@/components/_shared/notify';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -21,7 +22,7 @@ export interface PublishContextType {
   isTemplate?: boolean;
   isTemplateThumb?: boolean;
   viewMeta?: ViewMeta;
-  toView: (viewId: string) => Promise<void>;
+  toView: (viewId: string, blockId?: string) => Promise<void>;
   loadViewMeta: LoadViewMeta;
   createRowDoc?: CreateRowDoc;
   loadView: LoadView;
@@ -175,43 +176,6 @@ export const PublishProvider = ({
 
   }, [service, publishName]);
   const navigate = useNavigate();
-  const toView = useCallback(
-    async (viewId: string) => {
-      try {
-        const res = await service?.getPublishInfo(viewId);
-
-        if (!res) {
-          throw new Error('View has not been published yet');
-        }
-
-        const { namespace: viewNamespace, publishName } = res;
-
-        prevViewMeta.current = undefined;
-        navigate(`/${viewNamespace}/${publishName}${isTemplate ? '?template=true' : ''}`, {
-          replace: true,
-        });
-        return;
-      } catch (e) {
-        return Promise.reject(e);
-      }
-    },
-    [navigate, service, isTemplate],
-  );
-
-  const loadOutline = useCallback(async () => {
-    if (!service || !namespace) return;
-    try {
-      const res = await service?.getPublishOutline(namespace);
-
-      if (!res) {
-        throw new Error('Publish outline not found');
-      }
-
-      setOutline(res);
-    } catch (e) {
-      notify.error('Publish outline not found');
-    }
-  }, [namespace, service]);
 
   const loadViewMeta = useCallback(
     async (viewId: string, callback?: (meta: View) => void) => {
@@ -267,6 +231,73 @@ export const PublishProvider = ({
     },
     [service],
   );
+
+  const toView = useCallback(
+    async (viewId: string, blockId?: string) => {
+      try {
+        const view = await loadViewMeta(viewId);
+
+        const res = await service?.getPublishInfo(viewId);
+
+        if (!res) {
+          throw new Error('View has not been published yet');
+        }
+
+        const { namespace: viewNamespace, publishName } = res;
+
+        prevViewMeta.current = undefined;
+        const searchParams = new URLSearchParams('');
+
+        if (blockId) {
+          switch (view.layout) {
+            case ViewLayout.Document:
+              searchParams.set('blockId', blockId);
+              break;
+            case ViewLayout.Grid:
+            case ViewLayout.Board:
+            case ViewLayout.Calendar:
+              searchParams.set('r', blockId);
+              break;
+            default:
+              break;
+          }
+        }
+
+        if (isTemplate) {
+          searchParams.set('template', 'true');
+        }
+
+        let url = `/${viewNamespace}/${publishName}`;
+
+        if (searchParams.toString()) {
+          url += `?${searchParams.toString()}`;
+        }
+
+        navigate(url, {
+          replace: true,
+        });
+        return;
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    [loadViewMeta, service, isTemplate, navigate],
+  );
+
+  const loadOutline = useCallback(async () => {
+    if (!service || !namespace) return;
+    try {
+      const res = await service?.getPublishOutline(namespace);
+
+      if (!res) {
+        throw new Error('Publish outline not found');
+      }
+
+      setOutline(res);
+    } catch (e) {
+      notify.error('Publish outline not found');
+    }
+  }, [namespace, service]);
 
   const createRowDoc = useCallback(
     async (rowKey: string) => {

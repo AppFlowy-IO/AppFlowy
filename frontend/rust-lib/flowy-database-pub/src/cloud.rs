@@ -1,4 +1,3 @@
-use anyhow::Error;
 pub use client_api::entity::ai_dto::{TranslateItem, TranslateRowResponse};
 use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
@@ -45,7 +44,7 @@ pub trait DatabaseCloudService: Send + Sync {
     object_id: &str,
     collab_type: CollabType,
     workspace_id: &str,
-  ) -> Result<Option<EncodedCollab>, Error>;
+  ) -> Result<Option<EncodedCollab>, FlowyError>;
 
   async fn create_database_encode_collab(
     &self,
@@ -53,20 +52,20 @@ pub trait DatabaseCloudService: Send + Sync {
     collab_type: CollabType,
     workspace_id: &str,
     encoded_collab: EncodedCollab,
-  ) -> Result<(), Error>;
+  ) -> Result<(), FlowyError>;
 
   async fn batch_get_database_encode_collab(
     &self,
     object_ids: Vec<String>,
     object_ty: CollabType,
     workspace_id: &str,
-  ) -> Result<EncodeCollabByOid, Error>;
+  ) -> Result<EncodeCollabByOid, FlowyError>;
 
   async fn get_database_collab_object_snapshots(
     &self,
     object_id: &str,
     limit: usize,
-  ) -> Result<Vec<DatabaseSnapshot>, Error>;
+  ) -> Result<Vec<DatabaseSnapshot>, FlowyError>;
 }
 
 pub struct DatabaseSnapshot {

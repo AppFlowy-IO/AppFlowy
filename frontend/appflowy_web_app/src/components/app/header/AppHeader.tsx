@@ -7,7 +7,7 @@ import { IconButton } from '@mui/material';
 import { ReactComponent as SideOutlined } from '@/assets/side_outlined.svg';
 
 import React, { memo, lazy, Suspense, useContext, useMemo } from 'react';
-import Recent from 'src/components/app/recent/Recent';
+import Recent from '@/components/app/recent/Recent';
 
 import OutlinePopover from '@/components/_shared/outline/OutlinePopover';
 
@@ -64,6 +64,7 @@ export function AppHeader ({
             content={recent}
           >
             <IconButton
+              size={'small'}
               {...{
                 onMouseEnter: debounceOpenPopover,
                 onMouseLeave: debounceClosePopover,
@@ -74,7 +75,7 @@ export function AppHeader ({
               }}
 
             >
-              <SideOutlined className={'h-4 w-4 text-text-caption'} />
+              <SideOutlined className={'text-text-caption w-4 h-4'} />
             </IconButton>
           </OutlinePopover>
 
@@ -93,6 +94,7 @@ export function AppHeader ({
         </Suspense>}
 
       </div>
+
     </div>
   );
 }

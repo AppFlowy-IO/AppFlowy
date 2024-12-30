@@ -1,5 +1,5 @@
 use crate::util::receive_with_timeout;
-use event_integration_test::user_event::user_localhost_af_cloud;
+use event_integration_test::user_event::use_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 use flowy_ai::entities::ChatMessageListPB;
 use flowy_ai::notification::ChatNotification;
@@ -10,7 +10,7 @@ use std::time::Duration;
 
 #[tokio::test]
 async fn af_cloud_create_chat_message_test() {
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
   let test = EventIntegrationTest::new().await;
   test.af_cloud_sign_up().await;
 
@@ -65,7 +65,7 @@ async fn af_cloud_create_chat_message_test() {
 
 #[tokio::test]
 async fn af_cloud_load_remote_system_message_test() {
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
   let test = EventIntegrationTest::new().await;
   test.af_cloud_sign_up().await;
 

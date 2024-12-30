@@ -7,7 +7,6 @@ import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/build_context_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/icon/icon_selector.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_icon_bloc.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/flowy_gradient_colors.dart';
@@ -15,6 +14,7 @@ import 'package:appflowy/shared/google_fonts_extension.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -25,6 +25,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../../shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 
 double kDocumentCoverHeight = 98.0;
 double kDocumentTitlePadding = 20.0;
@@ -57,6 +59,9 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
   void initState() {
     super.initState();
     selectionNotifier?.addListener(_unfocus);
+    if (widget.view.name.isEmpty) {
+      focusNode.requestFocus();
+    }
   }
 
   @override
@@ -161,12 +166,12 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
       controller: textEditingController,
       focusNode: focusNode,
       minFontSize: 18.0,
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
         disabledBorder: InputBorder.none,
         focusedBorder: InputBorder.none,
-        hintText: '',
+        hintText: LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
         contentPadding: EdgeInsets.zero,
       ),
       scrollController: scrollController,
@@ -183,15 +188,19 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
         const Duration(milliseconds: 300),
         () => _rename(name),
       ),
-      onSubmitted: (name) => Debounce.debounce(
-        'rename',
-        const Duration(milliseconds: 300),
-        () => _rename(name),
-      ),
+      onSubmitted: (name) {
+        // focus on the document
+        _createNewLine();
+        Debounce.debounce(
+          'rename',
+          const Duration(milliseconds: 300),
+          () => _rename(name),
+        );
+      },
     );
   }
 
-  Widget _buildIcon(BuildContext context, String icon) {
+  Widget _buildIcon(BuildContext context, EmojiIconData icon) {
     return GestureDetector(
       child: ConstrainedBox(
         constraints: const BoxConstraints.tightFor(width: 34.0),
@@ -207,28 +216,23 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
           context,
           showDragHandle: true,
           showDivider: false,
-          showDoneButton: true,
           showHeader: true,
           title: LocaleKeys.titleBar_pageIcon.tr(),
           backgroundColor: AFThemeExtension.of(context).background,
           enableDraggableScrollable: true,
           minChildSize: 0.6,
           initialChildSize: 0.61,
-          showRemoveButton: true,
-          onRemove: () {
-            pageStyleIconBloc.add(
-              const PageStyleIconEvent.updateIcon('', true),
-            );
-          },
           scrollableWidgetBuilder: (_, controller) {
             return BlocProvider.value(
               value: pageStyleIconBloc,
               child: Expanded(
-                child: Scrollbar(
-                  controller: controller,
-                  child: IconSelector(
-                    scrollController: controller,
-                  ),
+                child: FlowyIconEmojiPicker(
+                  onSelectedEmoji: (r) {
+                    pageStyleIconBloc.add(
+                      PageStyleIconEvent.updateIcon(r, true),
+                    );
+                    Navigator.pop(context);
+                  },
                 ),
               ),
             );
@@ -313,5 +317,36 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
   void _rename(String name) {
     scrollController.position.jumpTo(0);
     context.read<ViewBloc>().add(ViewEvent.rename(name));
+  }
+
+  Future<void> _createNewLine() async {
+    focusNode.unfocus();
+
+    final selection = textEditingController.selection;
+    final text = textEditingController.text;
+    // split the text into two lines based on the cursor position
+    final parts = [
+      text.substring(0, selection.baseOffset),
+      text.substring(selection.baseOffset),
+    ];
+    textEditingController.text = parts[0];
+
+    final editorState = context.read<DocumentBloc>().state.editorState;
+    if (editorState == null) {
+      Log.info('editorState is null when creating new line');
+      return;
+    }
+
+    final transaction = editorState.transaction;
+    transaction.insertNode([0], paragraphNode(text: parts[1]));
+    await editorState.apply(transaction);
+
+    // update selection instead of using afterSelection in transaction,
+    //  because it will cause the cursor to jump
+    await editorState.updateSelectionWithReason(
+      Selection.collapsed(Position(path: [0])),
+      // trigger the keyboard service.
+      reason: SelectionUpdateReason.uiEvent,
+    );
   }
 }

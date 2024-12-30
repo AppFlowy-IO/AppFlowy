@@ -1,9 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart' hide Icon;
-
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/shared/icon_emoji_picker/icon.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/manage_space_popup.dart';
@@ -12,9 +12,11 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_ac
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_more_popup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart' hide Icon;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SidebarSpaceHeader extends StatefulWidget {
@@ -149,6 +151,9 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
                   openAfterCreated,
                   createNewView,
                 ) {
+                  if (pluginBuilder.layoutType == ViewLayoutPB.Document) {
+                    name = '';
+                  }
                   if (createNewView) {
                     widget.onAdded(pluginBuilder.layoutType!);
                   }
@@ -168,19 +173,23 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
         await _showRenameDialog();
         break;
       case SpaceMoreActionType.changeIcon:
-        final (IconGroup? group, Icon? icon, String? iconColor) = data;
-
-        final groupName = group?.name;
-        final iconName = icon?.name;
-        final name = groupName != null && iconName != null
-            ? '$groupName/$iconName'
-            : null;
-        context.read<SpaceBloc>().add(
-              SpaceEvent.changeIcon(
-                name,
-                iconColor,
-              ),
-            );
+        final result = data as EmojiIconData;
+        if (data.type == FlowyIconType.icon) {
+          try {
+            final iconsData = IconsData.fromJson(jsonDecode(result.emoji));
+            context.read<SpaceBloc>().add(
+                  SpaceEvent.changeIcon(
+                    icon: '${iconsData.groupName}/${iconsData.iconName}',
+                    iconColor: iconsData.color,
+                  ),
+                );
+          } on FormatException catch (e) {
+            context
+                .read<SpaceBloc>()
+                .add(const SpaceEvent.changeIcon(icon: ''));
+            Log.warn('SidebarSpaceHeader changeIcon error:$e');
+          }
+        }
         break;
       case SpaceMoreActionType.manage:
         _showManageSpaceDialog(context);
@@ -209,7 +218,12 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
       autoSelectAllText: true,
       hintText: LocaleKeys.space_spaceName.tr(),
       onConfirm: (name, _) {
-        context.read<SpaceBloc>().add(SpaceEvent.rename(widget.space, name));
+        context.read<SpaceBloc>().add(
+              SpaceEvent.rename(
+                space: widget.space,
+                name: name,
+              ),
+            );
       },
     ).show(context);
   }

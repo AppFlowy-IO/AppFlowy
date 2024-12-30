@@ -1,10 +1,14 @@
+import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checkbox.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/text.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
+import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../../shared/database_test_op.dart';
+import '../../shared/util.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -104,7 +108,7 @@ void main() {
       await tester.tapOptionFilterWithName('s4');
 
       // The row with 's4' should be shown.
-      tester.assertNumberOfRowsInGridPage(1);
+      tester.assertNumberOfRowsInGridPage(2);
 
       await tester.pumpAndSettle();
     });
@@ -135,6 +139,84 @@ void main() {
       // select the option 'm4'. Any option with 'm4' should be shown.
       await tester.tapOptionFilterWithName('m4');
       tester.assertNumberOfRowsInGridPage(1);
+
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('add date filter', (tester) async {
+      await tester.openTestDatabase(v020GridFileName);
+
+      // create a filter
+      await tester.tapDatabaseFilterButton();
+      await tester.tapCreateFilterByFieldType(FieldType.DateTime, 'date');
+
+      // By default, the condition of date filter is current day and time
+      tester.assertNumberOfRowsInGridPage(0);
+
+      await tester.tapFilterButtonInGrid('date');
+      await tester.changeDateFilterCondition(DateTimeFilterCondition.before);
+      tester.assertNumberOfRowsInGridPage(7);
+
+      await tester.changeDateFilterCondition(DateTimeFilterCondition.isEmpty);
+      tester.assertNumberOfRowsInGridPage(3);
+
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('add timestamp filter', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
+
+      await tester.createField(
+        FieldType.CreatedTime,
+        name: 'Created at',
+      );
+
+      // create a filter
+      await tester.tapDatabaseFilterButton();
+      await tester.tapCreateFilterByFieldType(
+        FieldType.CreatedTime,
+        'Created at',
+      );
+      await tester.pumpAndSettle();
+
+      tester.assertNumberOfRowsInGridPage(3);
+
+      await tester.tapFilterButtonInGrid('Created at');
+      await tester.changeDateFilterCondition(DateTimeFilterCondition.before);
+      tester.assertNumberOfRowsInGridPage(0);
+
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('create new row when filters don\'t autofill', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
+
+      // create a filter
+      await tester.tapDatabaseFilterButton();
+      await tester.tapCreateFilterByFieldType(
+        FieldType.RichText,
+        'Name',
+      );
+      tester.assertNumberOfRowsInGridPage(3);
+
+      await tester.tapCreateRowButtonInGrid();
+      tester.assertNumberOfRowsInGridPage(4);
+
+      await tester.tapFilterButtonInGrid('Name');
+      await tester
+          .changeTextFilterCondition(TextFilterConditionPB.TextIsNotEmpty);
+      await tester.dismissCellEditor();
+      tester.assertNumberOfRowsInGridPage(0);
+
+      await tester.tapCreateRowButtonInGrid();
+      tester.assertNumberOfRowsInGridPage(0);
+      expect(find.byType(RowDetailPage), findsOneWidget);
 
       await tester.pumpAndSettle();
     });

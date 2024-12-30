@@ -61,8 +61,10 @@ impl DatabaseViews {
       return Ok(editor.clone());
     }
 
-    let mut editor_map = self.view_editors.write().await;
     let database_id = self.database.read().await.get_database_id();
+    // Acquire the write lock to insert the new editor. We need to acquire the lock first to avoid
+    // initializing the editor multiple times.
+    let mut editor_map = self.view_editors.write().await;
     let editor = Arc::new(
       DatabaseViewEditor::new(
         database_id,
@@ -73,6 +75,9 @@ impl DatabaseViews {
       .await?,
     );
     editor_map.insert(view_id.to_owned(), editor.clone());
+    drop(editor_map);
+
+    editor.initialize().await?;
     Ok(editor)
   }
 

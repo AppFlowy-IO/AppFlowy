@@ -1,134 +1,132 @@
+import { BlockJson } from '@/application/slate-yjs/types';
+import { sortTableCells } from '@/application/slate-yjs/utils/table';
 import {
-  InlineBlockType,
-  YBlocks,
-  YChildrenMap,
-  YSharedRoot,
-  YDoc,
-  YjsEditorKey,
-  YMeta,
-  YTextMap,
   BlockData,
   BlockType,
+  YDoc,
+  YjsEditorKey,
+  YSharedRoot,
 } from '@/application/types';
-import { sortTableCells } from '@/application/slate-yjs/utils/table';
-import { BlockJson } from '@/application/slate-yjs/utils/types';
 import { TableCellNode } from '@/components/editor/editor.type';
-import { Element, Text } from 'slate';
+import { Element, Text, Node } from 'slate';
+import {
+  createBlock,
+  getBlock, getBlocks,
+  getChildrenMap, getPageId,
+  getText,
+  getTextMap,
+  updateBlockParent,
+} from '@/application/slate-yjs/utils/yjs';
 
-export function yDataToSlateContent ({
-  blocks,
-  rootId,
-  childrenMap,
-  textMap,
-}: {
-  blocks: YBlocks;
-  childrenMap: YChildrenMap;
-  textMap: YTextMap;
-  rootId: string;
-}): Element | undefined {
-  function traverse (id: string) {
-    const block = blocks.get(id)?.toJSON() as BlockJson;
+export function traverseBlock(id: string, sharedRoot: YSharedRoot): Element | undefined {
+  const textMap = getTextMap(sharedRoot);
+  const childrenMap = getChildrenMap(sharedRoot);
+  const blocks = getBlocks(sharedRoot);
+  const block = blocks.get(id)?.toJSON() as BlockJson;
 
-    if (!block) {
-      console.error('Block not found', id);
-      return;
-    }
-
-    const childrenId = block.children as string;
-
-    const children = (childrenMap.get(childrenId)?.toJSON() ?? []).map(traverse).filter(Boolean) as (Element | Text)[];
-
-    const slateNode = blockToSlateNode(block);
-
-    if (slateNode.type === BlockType.TableBlock) {
-      slateNode.children = sortTableCells(children as TableCellNode[]);
-    } else if (slateNode.type === BlockType.TableCell) {
-      slateNode.children = children.slice(0, 1);
-    } else {
-      slateNode.children = children;
-    }
-
-    if (slateNode.type === BlockType.Page) {
-      return slateNode;
-    }
-
-    let textId = block.external_id as string;
-
-    let delta;
-
-    const yText = textId ? textMap.get(textId) : undefined;
-
-    if (!yText) {
-      if (children.length === 0) {
-        children.push({
-          text: '',
-        });
-      }
-
-      // Compatible data
-      // The old version of delta data is fully covered through the data field
-      if (slateNode.data) {
-        const data = slateNode.data as BlockData;
-
-        if (YjsEditorKey.delta in data) {
-          textId = block.id;
-          delta = data.delta;
-        } else {
-          return slateNode;
-        }
-      }
-    } else {
-      delta = yText.toDelta();
-    }
-
-    try {
-      const slateDelta = delta.flatMap(deltaInsertToSlateNode);
-
-      const textNode: Element = {
-        textId,
-        type: YjsEditorKey.text,
-        children: slateDelta,
-      };
-
-      children.unshift(textNode);
-      return slateNode;
-    } catch (e) {
-      return;
-    }
+  if (!block) {
+    console.error('Block not found', id);
+    return;
   }
 
-  const root = blocks.get(rootId);
+  const childrenId = block.children as string;
 
-  if (!root) return;
+  const children = (childrenMap.get(childrenId)?.toJSON() ?? []).map((childId: string) => {
+    return traverseBlock(childId, sharedRoot);
+  }).filter(Boolean) as (Element | Text)[];
 
-  const result = traverse(rootId);
+  const slateNode = blockToSlateNode(block);
 
-  if (!result) return;
+  if (slateNode.type === BlockType.TableBlock) {
+    slateNode.children = sortTableCells(children as TableCellNode[]);
+  } else if (slateNode.type === BlockType.TableCell) {
+    slateNode.children = children.slice(0, 1);
+  } else {
+    slateNode.children = children;
+  }
 
-  return result;
+  if (slateNode.type === BlockType.Page) {
+    return slateNode;
+  }
+
+  let textId = block.external_id as string;
+
+  let delta;
+
+  const yText = textId ? textMap.get(textId) : undefined;
+
+  if (!yText) {
+
+    if (children.length === 0) {
+      children.push({
+        text: '',
+      });
+    }
+
+    // Compatible data
+    // The old version of delta data is fully covered through the data field
+    if (slateNode.data) {
+      const data = slateNode.data as BlockData;
+
+      if (YjsEditorKey.delta in data) {
+        textId = block.id;
+        delta = data.delta;
+      } else {
+        return slateNode;
+      }
+    }
+  } else {
+    delta = yText.toDelta();
+  }
+
+  try {
+    const slateDelta = delta.flatMap(deltaInsertToSlateNode);
+
+    if (slateDelta.length === 0) {
+      slateDelta.push({
+        text: '',
+      });
+    }
+
+    const textNode: Element = {
+      textId,
+      type: YjsEditorKey.text,
+      children: slateDelta,
+    };
+
+    children.unshift(textNode);
+    return slateNode;
+  } catch (e) {
+    return;
+  }
 }
 
-export function yDocToSlateContent (doc: YDoc): Element | undefined {
+export function yDataToSlateContent(sharedRoot: YSharedRoot): Element | undefined {
+  try {
+    const rootId = getPageId(sharedRoot);
+    const blocks = getBlocks(sharedRoot);
+    const root = blocks.get(rootId);
+
+    if (!root) return;
+
+    const result = traverseBlock(rootId, sharedRoot);
+
+    if (!result) return;
+
+    return result;
+  } catch (e) {
+    return;
+  }
+}
+
+export function yDocToSlateContent(doc: YDoc): Element | undefined {
   const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
 
   if (!sharedRoot || sharedRoot.size === 0) return;
-  const document = sharedRoot.get(YjsEditorKey.document);
-  const pageId = document.get(YjsEditorKey.page_id) as string;
-  const blocks = document.get(YjsEditorKey.blocks) as YBlocks;
-
-  const meta = document.get(YjsEditorKey.meta) as YMeta;
-  const childrenMap = meta.get(YjsEditorKey.children_map) as YChildrenMap;
-  const textMap = meta.get(YjsEditorKey.text_map) as YTextMap;
-
-  return yDataToSlateContent({
-    blocks,
-    rootId: pageId,
-    childrenMap,
-    textMap,
-  });
+  return yDataToSlateContent(sharedRoot);
 }
 
-export function blockToSlateNode (block: BlockJson): Element {
+export function blockToSlateNode(block: BlockJson): Element {
   const data = block.data;
   let blockData;
 
@@ -149,18 +147,10 @@ export function blockToSlateNode (block: BlockJson): Element {
 
 export interface YDelta {
   insert: string;
-  attributes?: Record<string, string | number | undefined | boolean>;
+  attributes?: object;
 }
 
-export function deltaInsertToSlateNode ({ attributes, insert }: YDelta): Element | Text | Element[] {
-  const matchInlines = transformToInlineElement({
-    insert,
-    attributes,
-  });
-
-  if (matchInlines.length > 0) {
-    return matchInlines;
-  }
+export function deltaInsertToSlateNode({ attributes, insert }: YDelta): Element | Text | Element[] {
 
   if (attributes) {
     dealWithEmptyAttribute(attributes);
@@ -172,7 +162,8 @@ export function deltaInsertToSlateNode ({ attributes, insert }: YDelta): Element
   };
 }
 
-function dealWithEmptyAttribute (attributes: Record<string, string | number | undefined | boolean>) {
+// eslint-disable-next-line
+function dealWithEmptyAttribute(attributes: Record<string, any>) {
   for (const key in attributes) {
     if (!attributes[key]) {
       delete attributes[key];
@@ -180,45 +171,54 @@ function dealWithEmptyAttribute (attributes: Record<string, string | number | un
   }
 }
 
-export function transformToInlineElement (op: YDelta): Element[] {
-  const attributes = op.attributes;
+// Helper function to convert Slate text node to Delta insert
+export function slateNodeToDeltaInsert(node: Text): YDelta {
+  const { text, ...attributes } = node;
 
-  if (!attributes) return [];
-  const { formula, mention, ...attrs } = attributes;
+  return {
+    insert: text,
+    attributes: Object.keys(attributes).length > 0 ? attributes : undefined,
+  };
+}
 
-  if (formula) {
-    const texts = op.insert.split('');
+export function slateContentInsertToYData(
+  parentBlockId: string,
+  index: number,
+  slateContent: Node[],
+  doc: YDoc,
+): string[] {
+  // Get existing YData structures from the YDoc
+  const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
 
-    return texts.map((text) => {
-      return {
-        type: InlineBlockType.Formula,
-        data: formula,
-        children: [
-          {
-            text,
-            ...attrs,
-          },
-        ],
-      };
+  function processNode(node: Element, parentId: string, index: number) {
+    const parent = getBlock(parentId, sharedRoot);
+    const block = createBlock(sharedRoot, {
+      ty: node.type as BlockType,
+      data: node.data || {},
     });
+
+    const [textNode, ...children] = (node.children[0] as Element).textId ? [node.children[0] as Element, ...node.children.slice(1)] : [null, ...node.children];
+
+    if (textNode) {
+      const text = getText(block.get(YjsEditorKey.block_external_id), sharedRoot);
+      const ops = (textNode.children as Text[]).map(slateNodeToDeltaInsert);
+
+      text.applyDelta(ops);
+    }
+
+    updateBlockParent(sharedRoot, block, parent, index);
+
+    children.forEach((child, i) => {
+      if (Element.isElement(child)) {
+        processNode(child, block.get(YjsEditorKey.block_id), i);
+      }
+    });
+
+    return block.get(YjsEditorKey.block_id);
   }
 
-  if (mention) {
-    const texts = op.insert.split('');
-
-    return texts.map((text) => {
-      return {
-        type: InlineBlockType.Mention,
-        data: mention,
-        children: [
-          {
-            text,
-            ...attrs,
-          },
-        ],
-      };
-    });
-  }
-
-  return [];
+  // Process each top-level node in slateContent
+  return slateContent.map((node, i) => {
+    return processNode(node as Element, parentBlockId, index + i);
+  });
 }

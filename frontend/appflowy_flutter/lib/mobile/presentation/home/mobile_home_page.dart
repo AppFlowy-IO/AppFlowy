@@ -26,7 +26,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry/sentry.dart';
-import 'package:toastification/toastification.dart';
 
 class MobileHomeScreen extends StatelessWidget {
   const MobileHomeScreen({super.key});
@@ -280,18 +279,49 @@ class _HomePageState extends State<_HomePage> {
     ToastificationType toastType = ToastificationType.success;
     switch (actionType) {
       case UserWorkspaceActionType.open:
+        message = result.onFailure((e) {
+          toastType = ToastificationType.error;
+          return '${LocaleKeys.workspace_openFailed.tr()}: ${e.msg}';
+        });
+        break;
+      case UserWorkspaceActionType.delete:
         message = result.fold(
           (s) {
             toastType = ToastificationType.success;
-            return LocaleKeys.workspace_openSuccess.tr();
+            return LocaleKeys.workspace_deleteSuccess.tr();
           },
           (e) {
             toastType = ToastificationType.error;
-            return '${LocaleKeys.workspace_openFailed.tr()}: ${e.msg}';
+            return '${LocaleKeys.workspace_deleteFailed.tr()}: ${e.msg}';
           },
         );
         break;
-
+      case UserWorkspaceActionType.leave:
+        message = result.fold(
+          (s) {
+            toastType = ToastificationType.success;
+            return LocaleKeys
+                .settings_workspacePage_leaveWorkspacePrompt_success
+                .tr();
+          },
+          (e) {
+            toastType = ToastificationType.error;
+            return '${LocaleKeys.settings_workspacePage_leaveWorkspacePrompt_fail.tr()}: ${e.msg}';
+          },
+        );
+        break;
+      case UserWorkspaceActionType.rename:
+        message = result.fold(
+          (s) {
+            toastType = ToastificationType.success;
+            return LocaleKeys.workspace_renameSuccess.tr();
+          },
+          (e) {
+            toastType = ToastificationType.error;
+            return '${LocaleKeys.workspace_renameFailed.tr()}: ${e.msg}';
+          },
+        );
+        break;
       default:
         message = null;
         toastType = ToastificationType.error;

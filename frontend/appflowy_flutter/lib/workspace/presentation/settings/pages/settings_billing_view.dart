@@ -260,7 +260,7 @@ class _SettingsBillingViewState extends State<SettingsBillingView> {
           ),
         ),
       ).then((didChangePlan) {
-        if (didChangePlan == true) {
+        if (didChangePlan == true && context.mounted) {
           context
               .read<SettingsBillingBloc>()
               .add(const SettingsBillingEvent.started());

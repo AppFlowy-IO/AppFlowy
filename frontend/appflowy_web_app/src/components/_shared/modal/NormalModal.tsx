@@ -19,7 +19,7 @@ export interface NormalModalProps extends DialogProps {
   closable?: boolean;
 }
 
-export function NormalModal ({
+export function NormalModal({
   okText,
   title,
   cancelText,
@@ -44,15 +44,24 @@ export function NormalModal ({
         if (e.key === 'Escape' && closable) {
           onClose?.();
         }
+
+        if (e.key === 'Enter' && onOk) {
+          onOk();
+        }
       }}
       {...dialogProps}
     >
       <div className={'relative flex flex-col gap-4 p-5'}>
         <div className={'flex w-full items-center justify-between text-base font-medium'}>
-          <div className={'flex-1 text-center '}>{title}</div>
+          <div className={'flex-1 text-center font-medium truncate'}>{title}</div>
           {closable && <div className={'relative -right-1.5'}>
-            <IconButton size={'small'} color={'inherit'} className={'h-6 w-6'} onClick={onClose || onCancel}>
-              <CloseIcon className={'h-4 w-4'} />
+            <IconButton
+              size={'small'}
+              color={'inherit'}
+              className={'h-6 w-6'}
+              onClick={onClose || onCancel}
+            >
+              <CloseIcon className={'h-4 w-4'}/>
             </IconButton>
           </div>}
 
@@ -61,26 +70,32 @@ export function NormalModal ({
         <div className={'flex-1'}>{children}</div>
         <div className={'flex w-full justify-end gap-3'}>
           <Button
-            color={'inherit'} variant={'outlined'} onClick={() => {
-            if (onCancel) {
-              onCancel();
-            } else {
-              onClose?.();
-            }
-          }} {...cancelButtonProps}>
+            color={'inherit'}
+            variant={'outlined'}
+            size={'small'}
+            onClick={() => {
+              if (onCancel) {
+                onCancel();
+              } else {
+                onClose?.();
+              }
+            }} {...cancelButtonProps}>
             {modalCancelText}
           </Button>
           <Button
             color={danger ? 'error' : 'primary'}
             variant={'contained'}
-
+            size={'small'}
             onClick={() => {
               if (okLoading) return;
               onOk?.();
             }}
             {...okButtonProps}
           >
-            {okLoading ? <CircularProgress color={'inherit'} size={24} /> : modalOkText}
+            {okLoading ? <CircularProgress
+              color={'inherit'}
+              size={24}
+            /> : modalOkText}
           </Button>
         </div>
       </div>

@@ -21,15 +21,15 @@ import 'mobile_quick_field_editor.dart';
 const mobileSupportedFieldTypes = [
   FieldType.RichText,
   FieldType.Number,
-  FieldType.URL,
   FieldType.SingleSelect,
   FieldType.MultiSelect,
   FieldType.DateTime,
-  FieldType.LastEditedTime,
-  FieldType.CreatedTime,
+  FieldType.Media,
+  FieldType.URL,
   FieldType.Checkbox,
   FieldType.Checklist,
-  FieldType.Media,
+  FieldType.LastEditedTime,
+  FieldType.CreatedTime,
   // FieldType.Time,
 ];
 

@@ -180,11 +180,13 @@
     "chatWithFilePrompt": "Хочете поспілкуватися з файлом?",
     "indexFileSuccess": "Файл успішно індексується",
     "inputActionNoPages": "Сторінка не знайдена",
-    "referenceSource": "{} джерело знайдено",
-    "referenceSources": "{} джерел знайдено",
+    "referenceSource": {
+      "zero": "0 джерел знайдено",
+      "one": "{count} джерело знайдено",
+      "other": "{count} джерел знайдено"
+    },
     "clickToMention": "Натисніть, щоб згадати сторінку",
     "uploadFile": "Завантажуйте PDF-файли, файли md або txt для спілкування в чаті",
-    "questionTitle": "Ідеї",
     "questionDetail": "Привіт {}! Чим я можу тобі допомогти сьогодні?",
     "indexingFile": "Індексація {}"
   },
@@ -856,7 +858,7 @@
         "itemThree": "5 ГБ",
         "itemFour": "так",
         "itemFive": "так",
-        "itemSix": "100 років життя",
+        "itemSix": "20 років життя",
         "itemFileUpload": "До 7 Мб",
         "intelligentSearch": "Інтелектуальний пошук"
       },
@@ -939,11 +941,6 @@
       "cloudServerType": "Хмарний сервер",
       "cloudServerTypeTip": "Зауважте, що після перемикання хмарного сервера ваш поточний обліковий запис може вийти з системи",
       "cloudLocal": "Місцевий",
-      "cloudSupabase": "Надбаза",
-      "cloudSupabaseUrl": "Supabase URL",
-      "cloudSupabaseUrlCanNotBeEmpty": "Надбазова URL-адреса не може бути порожньою",
-      "cloudSupabaseAnonKey": "Аноновий ключ Supabase",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "Аноновий ключ не може бути порожнім",
       "cloudAppFlowy": "@:appName Cloud Beta",
       "cloudAppFlowySelfHost": "@:appName Cloud на власному сервері",
       "appFlowyCloudUrlCanNotBeEmpty": "URL-адреса хмари не може бути пустою",
@@ -2359,9 +2356,9 @@
     "unsplash": "Unsplash",
     "pageCover": "Обкладинка сторінки",
     "none": "Жодного",
-    "photoPermissionDescription": "Дозвольте доступ до бібліотеки фотографій для завантаження зображень.",
     "openSettings": "Відкрийте налаштування",
     "photoPermissionTitle": "@:appName хоче отримати доступ до вашої бібліотеки фотографій",
+    "photoPermissionDescription": "Дозвольте доступ до бібліотеки фотографій для завантаження зображень.",
     "doNotAllow": "Не дозволяти",
     "image": "Зображення"
   },

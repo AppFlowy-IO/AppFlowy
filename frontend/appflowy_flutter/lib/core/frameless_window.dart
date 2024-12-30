@@ -1,7 +1,7 @@
-import 'dart:io';
-
+import 'package:appflowy/startup/tasks/device_info_task.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class CocoaWindowChannel {
   CocoaWindowChannel._();
@@ -44,7 +44,14 @@ class MoveWindowDetectorState extends State<MoveWindowDetector> {
 
   @override
   Widget build(BuildContext context) {
-    if (!Platform.isMacOS) {
+    // the frameless window is only supported on macOS
+    if (!UniversalPlatform.isMacOS) {
+      return widget.child ?? const SizedBox.shrink();
+    }
+
+    // For the macOS version 15 or higher, we can control the window position by using system APIs
+    if (ApplicationInfo.macOSMajorVersion != null &&
+        ApplicationInfo.macOSMajorVersion! >= 15) {
       return widget.child ?? const SizedBox.shrink();
     }
 

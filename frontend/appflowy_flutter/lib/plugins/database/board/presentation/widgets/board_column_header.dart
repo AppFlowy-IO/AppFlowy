@@ -4,11 +4,10 @@ import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/board/application/board_bloc.dart';
 import 'package:appflowy/plugins/database/board/group_ext.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_board/appflowy_board.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -118,7 +117,7 @@ class GroupOptionsButton extends StatelessWidget {
                 height: GridSize.popoverItemHeight,
                 child: FlowyButton(
                   leftIcon: FlowySvg(action.icon),
-                  text: FlowyText.medium(
+                  text: FlowyText(
                     action.text,
                     lineHeight: 1.0,
                     overflow: TextOverflow.ellipsis,

@@ -5,7 +5,7 @@ export function Title ({ icon, name }: { icon?: string; name?: string }) {
   const { t } = useTranslation();
 
   return (
-    <div className={'flex w-full flex-col py-4 mt-10 px-6'}>
+    <div className={'flex w-full flex-col py-4 mt-10 max-sm:px-6 px-24'}>
       <div className={'flex w-full items-center'}>
         <div className={'flex gap-2 text-3xl'}>
           {icon ? <div>{icon}</div> : null}

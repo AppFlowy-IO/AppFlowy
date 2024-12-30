@@ -24,7 +24,7 @@ use flowy_user::entities::{
 };
 use flowy_user::errors::{FlowyError, FlowyResult};
 use flowy_user::event_map::UserEvent;
-use lib_dispatch::prelude::{af_spawn, AFPluginDispatcher, AFPluginRequest, ToBytes};
+use lib_dispatch::prelude::{AFPluginDispatcher, AFPluginRequest, ToBytes};
 
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
@@ -175,6 +175,7 @@ impl EventIntegrationTest {
     let payload = ImportAppFlowyDataPB {
       path,
       import_container_name: name,
+      parent_view_id: None,
     };
     match EventBuilder::new(self.clone())
       .event(UserEvent::ImportAppFlowyDataFolder)
@@ -327,7 +328,7 @@ impl TestNotificationSender {
     let (tx, rx) = tokio::sync::mpsc::channel::<T>(10);
     let mut receiver = self.sender.subscribe();
     let ty = ty.into();
-    af_spawn(async move {
+    tokio::spawn(async move {
       // DatabaseNotification::DidUpdateDatabaseSnapshotState
       while let Ok(value) = receiver.recv().await {
         if value.id == id && value.ty == ty {
@@ -360,7 +361,7 @@ impl TestNotificationSender {
     let (tx, rx) = tokio::sync::mpsc::channel::<()>(10);
     let mut receiver = self.sender.subscribe();
     let ty = ty.into();
-    af_spawn(async move {
+    tokio::spawn(async move {
       // DatabaseNotification::DidUpdateDatabaseSnapshotState
       while let Ok(value) = receiver.recv().await {
         if value.id == id && value.ty == ty {
@@ -379,7 +380,7 @@ impl TestNotificationSender {
     let id = id.to_string();
     let (tx, rx) = tokio::sync::mpsc::channel::<T>(1);
     let mut receiver = self.sender.subscribe();
-    af_spawn(async move {
+    tokio::spawn(async move {
       while let Ok(value) = receiver.recv().await {
         if value.id == id {
           if let Some(payload) = value.payload {
@@ -431,7 +432,7 @@ pub struct SignUpContext {
   pub password: String,
 }
 
-pub async fn user_localhost_af_cloud() {
+pub async fn use_localhost_af_cloud() {
   AuthenticatorType::AppFlowyCloud.write_env();
   let base_url =
     std::env::var("af_cloud_test_base_url").unwrap_or("http://localhost:8000".to_string());
@@ -443,6 +444,8 @@ pub async fn user_localhost_af_cloud() {
     base_url,
     ws_base_url,
     gotrue_url,
+    enable_sync_trace: true,
+    maximum_upload_file_size_in_bytes: None,
   }
   .write_env();
   std::env::set_var("GOTRUE_ADMIN_EMAIL", "admin@example.com");
@@ -454,5 +457,5 @@ pub async fn user_localhost_af_cloud_with_nginx() {
   std::env::set_var("af_cloud_test_base_url", "http://localhost");
   std::env::set_var("af_cloud_test_ws_url", "ws://localhost/ws/v1");
   std::env::set_var("af_cloud_test_gotrue_url", "http://localhost/gotrue");
-  user_localhost_af_cloud().await
+  use_localhost_af_cloud().await
 }

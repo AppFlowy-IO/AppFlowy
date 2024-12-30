@@ -25,7 +25,8 @@
     "types": [
       "cypress",
       "node",
-      "jest"
+      "jest",
+      "cypress-real-events"
     ],
     "baseUrl": ".",
     "paths": {

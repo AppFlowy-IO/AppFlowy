@@ -30,7 +30,7 @@ enum FavoriteGroup {
   Others = 'Others',
 }
 
-export function Favorite () {
+export function Favorite() {
   const {
     favoriteViews,
     loadFavoriteViews,
@@ -59,7 +59,7 @@ export function Favorite () {
 
   const groupByViewsWithDay = useMemo(() => {
     return groupBy(favoriteViews, (view) => {
-      const date = dayjs(view.last_edited_time);
+      const date = dayjs(view.favorited_at);
       const today = date.isSame(dayjs(), 'day');
       const yesterday = date.isSame(dayjs().subtract(1, 'day'), 'day');
       const thisWeek = date.isSame(dayjs(), 'week');
@@ -82,7 +82,10 @@ export function Favorite () {
         [FavoriteGroup.Others]: t('sideBar.others'),
       };
 
-      return <div className={'flex flex-col gap-2'} key={key}>
+      return <div
+        className={'flex flex-col gap-2'}
+        key={key}
+      >
         <div className={'text-xs text-text-caption py-1 px-1'}>{timeLabel[key]}</div>
         <div className={'px-1'}>
           {value.map((view) =>
@@ -99,19 +102,26 @@ export function Favorite () {
     });
   }, [groupByViewsWithDay, navigateToView, t]);
 
+  if (!favoriteViews || favoriteViews.length === 0) {
+    return null;
+  }
+
   return (
-    <div className={'flex w-full flex-col py-[10px] px-[10px]'}>
-      <div onClick={handleToggleExpand} className={'flex h-fit my-0.5 w-full flex-col gap-2 cursor-pointer'}>
+    <div className={'flex w-full flex-col mb-3'}>
+      <div
+        onClick={handleToggleExpand}
+        className={'flex h-fit my-0.5 w-full flex-col gap-2 cursor-pointer'}
+      >
         <div
           className={
-            'flex items-center w-full gap-2 rounded-[8px] py-1.5 px-0.5 text-sm hover:bg-content-blue-50 focus:bg-content-blue-50 focus:outline-none'
+            'flex items-center w-full gap-2 rounded-[8px] p-1 hover:bg-fill-list-hover text-sm focus:outline-none'
           }
         >
-          <FavoritedIcon className={'h-5 w-5'} />
+          <FavoritedIcon className={'h-5 w-5 mr-[1px]'}/>
           <div className={'flex-1 truncate'}>{t('sideBar.favorites')}</div>
         </div>
       </div>
-      {!favoriteViews ? <RecentListSkeleton rows={3} /> : <Collapse
+      {!favoriteViews ? <RecentListSkeleton rows={3}/> : <Collapse
         in={isExpanded}
         className={'flex px-1 transform flex-col gap-2 transition-all'}
       >
@@ -133,7 +143,7 @@ export function Favorite () {
           ref={moreButtonRef}
           className={'flex items-center w-full gap-2 rounded-[8px] px-2 py-1.5 text-sm cursor-pointer hover:bg-content-blue-50 focus:bg-content-blue-50 focus:outline-none'}
         >
-          <MoreIcon className={'h-4 w-4 text-text-caption'} />
+          <MoreIcon className={'h-4 w-4 text-text-caption'}/>
           <div>{t('button.more')}</div>
 
         </div>}
@@ -145,11 +155,11 @@ export function Favorite () {
         sx={{
           maxHeight: '50vh',
         }}
-        open={moreOpened} anchorEl={moreButtonRef.current}
+        open={moreOpened}
+        anchorEl={moreButtonRef.current}
         onClose={() => setMoreOpened(false)}
       >
         <div className={'flex w-[240px] flex-col gap-2 px-2 py-2'}>
-
           {groupByViews}
         </div>
       </Popover>

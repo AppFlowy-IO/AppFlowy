@@ -34,7 +34,7 @@ class RowBannerBloc extends Bloc<RowBannerEvent, RowBannerState> {
   UserProfilePB? _userProfile;
   UserProfilePB? get userProfile => _userProfile;
 
-  bool get hasCover => state.rowMeta.cover.url.isNotEmpty;
+  bool get hasCover => state.rowMeta.cover.data.isNotEmpty;
 
   @override
   Future<void> close() async {
@@ -152,7 +152,7 @@ class RowBannerState extends Equatable with _$RowBannerState {
 
   @override
   List<Object?> get props => [
-        rowMeta.cover.url,
+        rowMeta.cover.data,
         rowMeta.icon,
         primaryField,
         loadingState,

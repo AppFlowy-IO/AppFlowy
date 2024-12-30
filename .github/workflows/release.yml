@@ -7,7 +7,7 @@ on:
 
 env:
   FLUTTER_VERSION: "3.22.0"
-  RUST_TOOLCHAIN: "1.77.2"
+  RUST_TOOLCHAIN: "1.80.1"
 
 jobs:
   create-release:
@@ -73,8 +73,8 @@ jobs:
         working-directory: frontend
         run: |
           vcpkg integrate install
-          cargo install --force cargo-make
-          cargo install --force duckscript_cli
+          cargo install --force --locked cargo-make
+          cargo install --force --locked duckscript_cli
 
       - name: Build Windows app
         working-directory: frontend
@@ -135,7 +135,7 @@ jobs:
       fail-fast: false
       matrix:
         job:
-          - { target: x86_64-apple-darwin, os: macos-12, extra-build-args: "" }
+          - { target: x86_64-apple-darwin, os: macos-13, extra-build-args: "" }
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -158,8 +158,8 @@ jobs:
       - name: Install prerequisites
         working-directory: frontend
         run: |
-          cargo install --force cargo-make
-          cargo install --force duckscript_cli
+          cargo install --force --locked cargo-make
+          cargo install --force --locked duckscript_cli
 
       - name: Build AppFlowy
         working-directory: frontend
@@ -232,10 +232,10 @@ jobs:
       matrix:
         job:
           - {
-            targets: "aarch64-apple-darwin,x86_64-apple-darwin",
-            os: macos-latest,
-            extra-build-args: "",
-          }
+              targets: "aarch64-apple-darwin,x86_64-apple-darwin",
+              os: macos-latest,
+              extra-build-args: "",
+            }
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -256,8 +256,8 @@ jobs:
       - name: Install prerequisites
         working-directory: frontend
         run: |
-          cargo install --force cargo-make
-          cargo install --force duckscript_cli
+          cargo install --force --locked cargo-make
+          cargo install --force --locked duckscript_cli
 
       - name: Build AppFlowy
         working-directory: frontend
@@ -336,12 +336,12 @@ jobs:
       matrix:
         job:
           - {
-            arch: x86_64,
-            target: x86_64-unknown-linux-gnu,
-            os: ubuntu-20.04,
-            extra-build-args: "",
-            flutter_profile: production-linux-x86_64,
-          }
+              arch: x86_64,
+              target: x86_64-unknown-linux-gnu,
+              os: ubuntu-20.04,
+              extra-build-args: "",
+              flutter_profile: production-linux-x86_64,
+            }
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -368,10 +368,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
           sudo apt-get install keybinder-3.0
-          sudo apt-get install -y  alien libnotify-dev libmpv-dev mpv
+          sudo apt-get install -y alien libnotify-dev
           source $HOME/.cargo/env
-          cargo install --force cargo-make
-          cargo install --force duckscript_cli
+          cargo install --force --locked cargo-make
+          cargo install --force --locked duckscript_cli
           rustup target add ${{ matrix.job.target }}
 
       - name: Install gcc-aarch64-linux-gnu

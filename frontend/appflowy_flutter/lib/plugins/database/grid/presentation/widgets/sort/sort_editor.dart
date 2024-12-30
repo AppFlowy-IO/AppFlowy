@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/application/field/sort_entities.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -7,7 +10,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/application/sort/sort_editor_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/sort_entities.pbenum.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -16,7 +18,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'create_sort_list.dart';
 import 'order_panel.dart';
 import 'sort_choice_button.dart';
-import 'sort_info.dart';
 
 class SortEditor extends StatefulWidget {
   const SortEditor({super.key});
@@ -38,16 +39,15 @@ class _SortEditorState extends State<SortEditor> {
   Widget build(BuildContext context) {
     return BlocBuilder<SortEditorBloc, SortEditorState>(
       builder: (context, state) {
-        final sortInfos = state.sortInfos;
         return ReorderableListView.builder(
           onReorder: (oldIndex, newIndex) => context
               .read<SortEditorBloc>()
               .add(SortEditorEvent.reorderSort(oldIndex, newIndex)),
-          itemCount: state.sortInfos.length,
+          itemCount: state.sorts.length,
           itemBuilder: (context, index) => DatabaseSortItem(
-            key: ValueKey(sortInfos[index].sortId),
+            key: ValueKey(state.sorts[index].sortId),
             index: index,
-            sortInfo: sortInfos[index],
+            sort: state.sorts[index],
             popoverMutex: popoverMutex,
           ),
           proxyDecorator: (child, index, animation) => Material(
@@ -96,12 +96,12 @@ class DatabaseSortItem extends StatelessWidget {
     super.key,
     required this.index,
     required this.popoverMutex,
-    required this.sortInfo,
+    required this.sort,
   });
 
   final int index;
   final PopoverMutex popoverMutex;
-  final SortInfo sortInfo;
+  final DatabaseSort sort;
 
   @override
   Widget build(BuildContext context) {
@@ -131,9 +131,16 @@ class DatabaseSortItem extends StatelessWidget {
             fit: FlexFit.tight,
             child: SizedBox(
               height: 26,
-              child: SortChoiceButton(
-                text: sortInfo.fieldInfo.name,
-                editable: false,
+              child: BlocSelector<SortEditorBloc, SortEditorState, FieldInfo?>(
+                selector: (state) => state.allFields.firstWhereOrNull(
+                  (field) => field.id == sort.fieldId,
+                ),
+                builder: (context, field) {
+                  return SortChoiceButton(
+                    text: field?.name ?? "",
+                    editable: false,
+                  );
+                },
               ),
             ),
           ),
@@ -143,7 +150,7 @@ class DatabaseSortItem extends StatelessWidget {
             child: SizedBox(
               height: 26,
               child: SortConditionButton(
-                sortInfo: sortInfo,
+                sort: sort,
                 popoverMutex: popoverMutex,
               ),
             ),
@@ -154,7 +161,7 @@ class DatabaseSortItem extends StatelessWidget {
             onPressed: () {
               context
                   .read<SortEditorBloc>()
-                  .add(SortEditorEvent.deleteSort(sortInfo));
+                  .add(SortEditorEvent.deleteSort(sort.sortId));
               PopoverContainer.of(context).close();
             },
             hoverColor: AFThemeExtension.of(context).lightGreyHover,
@@ -215,15 +222,12 @@ class _DatabaseAddSortButtonState extends State<DatabaseAddSortButton> {
           ),
         );
       },
-      onClose: () => context
-          .read<SortEditorBloc>()
-          .add(const SortEditorEvent.updateCreateSortFilter("")),
       child: SizedBox(
         height: GridSize.popoverItemHeight,
         child: FlowyButton(
           hoverColor: AFThemeExtension.of(context).greyHover,
           disable: widget.disable,
-          text: FlowyText.medium(LocaleKeys.grid_sort_addSort.tr()),
+          text: FlowyText(LocaleKeys.grid_sort_addSort.tr()),
           onTap: () => _popoverController.show(),
           leftIcon: const FlowySvg(FlowySvgs.add_s),
         ),
@@ -244,7 +248,7 @@ class DeleteAllSortsButton extends StatelessWidget {
         return SizedBox(
           height: GridSize.popoverItemHeight,
           child: FlowyButton(
-            text: FlowyText.medium(LocaleKeys.grid_sort_deleteAllSorts.tr()),
+            text: FlowyText(LocaleKeys.grid_sort_deleteAllSorts.tr()),
             onTap: () {
               context
                   .read<SortEditorBloc>()
@@ -263,11 +267,11 @@ class SortConditionButton extends StatefulWidget {
   const SortConditionButton({
     super.key,
     required this.popoverMutex,
-    required this.sortInfo,
+    required this.sort,
   });
 
   final PopoverMutex popoverMutex;
-  final SortInfo sortInfo;
+  final DatabaseSort sort;
 
   @override
   State<SortConditionButton> createState() => _SortConditionButtonState();
@@ -289,7 +293,7 @@ class _SortConditionButtonState extends State<SortConditionButton> {
           onCondition: (condition) {
             context.read<SortEditorBloc>().add(
                   SortEditorEvent.editSort(
-                    sortId: widget.sortInfo.sortId,
+                    sortId: widget.sort.sortId,
                     condition: condition,
                   ),
                 );
@@ -298,7 +302,7 @@ class _SortConditionButtonState extends State<SortConditionButton> {
         );
       },
       child: SortChoiceButton(
-        text: widget.sortInfo.sortPB.condition.title,
+        text: widget.sort.condition.title,
         rightIcon: FlowySvg(
           FlowySvgs.arrow_down_s,
           color: Theme.of(context).iconTheme.color,

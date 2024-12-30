@@ -7,10 +7,10 @@ final hrefRegex = RegExp(_hrefPattern);
 
 /// This pattern allows for both HTTP and HTTPS Scheme
 /// It allows for query parameters
-/// It only allows the following image extensions: .png, .jpg, .gif, .webm
+/// It only allows the following image extensions: .png, .jpg, .jpeg, .gif, .webm, .webp, .bmp
 ///
 const _imgUrlPattern =
-    r'(https?:\/\/)([^\s(["<,>/]*)(\/)[^\s[",><]*(.png|.jpg|.gif|.webm)(\?[^\s[",><]*)?';
+    r'(https?:\/\/)([^\s(["<,>/]*)(\/)[^\s[",><]*(.png|.jpg|.jpeg|.gif|.webm|.webp|.bmp)(\?[^\s[",><]*)?';
 final imgUrlRegex = RegExp(_imgUrlPattern);
 
 /// This pattern allows for both HTTP and HTTPS Scheme
@@ -35,3 +35,13 @@ final camelCaseRegex = RegExp(_camelCasePattern);
 
 const _macOSVolumesPattern = '^/Volumes/[^/]+';
 final macOSVolumesRegex = RegExp(_macOSVolumesPattern);
+
+const appflowySharePageLinkPattern =
+    r'^https://appflowy\.com/app/([^/]+)/([^?]+)(?:\?blockId=(.+))?$';
+final appflowySharePageLinkRegex = RegExp(appflowySharePageLinkPattern);
+
+const _numberedListPattern = r'^(\d+)\.';
+final numberedListRegex = RegExp(_numberedListPattern);
+
+const _localPathPattern = r'^(file:\/\/|\/|\\|[a-zA-Z]:[/\\]|\.{1,2}[/\\])';
+final localPathRegex = RegExp(_localPathPattern, caseSensitive: false);

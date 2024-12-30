@@ -6,9 +6,7 @@ use collab_database::rows::{Cells, Row, RowId};
 use flowy_error::FlowyResult;
 use tracing::trace;
 
-use crate::entities::{
-  GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB,
-};
+use crate::entities::{GroupPB, GroupRowsNotificationPB, InsertedGroupPB, InsertedRowPB};
 use crate::services::group::action::{
   DidMoveGroupRowResult, DidUpdateGroupRowResult, GroupController,
 };
@@ -21,6 +19,7 @@ use crate::services::group::{
 /// means all rows will be grouped in the same group.
 ///
 pub struct DefaultGroupController {
+  pub view_id: String,
   pub field_id: String,
   pub group: GroupData,
   pub delegate: Arc<dyn GroupControllerDelegate>,
@@ -29,9 +28,10 @@ pub struct DefaultGroupController {
 const DEFAULT_GROUP_CONTROLLER: &str = "DefaultGroupController";
 
 impl DefaultGroupController {
-  pub fn new(field: &Field, delegate: Arc<dyn GroupControllerDelegate>) -> Self {
+  pub fn new(view_id: &str, field: &Field, delegate: Arc<dyn GroupControllerDelegate>) -> Self {
     let group = GroupData::new(DEFAULT_GROUP_CONTROLLER.to_owned(), field.id.clone(), true);
     Self {
+      view_id: view_id.to_owned(),
       field_id: field.id.clone(),
       group,
       delegate,
@@ -41,6 +41,19 @@ impl DefaultGroupController {
 
 #[async_trait]
 impl GroupController for DefaultGroupController {
+  async fn load_group_data(&mut self) -> FlowyResult<()> {
+    let row_details = self.delegate.get_all_rows(&self.view_id).await;
+    let rows = row_details
+      .iter()
+      .map(|row| row.as_ref())
+      .collect::<Vec<_>>();
+
+    rows.iter().for_each(|row| {
+      self.group.add_row((*row).clone());
+    });
+    Ok(())
+  }
+
   fn get_grouping_field_id(&self) -> &str {
     &self.field_id
   }
@@ -80,6 +93,7 @@ impl GroupController for DefaultGroupController {
         row_meta: row.into(),
         index: Some(index as i32),
         is_new: true,
+        is_hidden_in_view: false,
       }],
     )]
   }
@@ -122,10 +136,6 @@ impl GroupController for DefaultGroupController {
       deleted_group: None,
       row_changesets: vec![],
     })
-  }
-
-  fn did_update_group_field(&mut self, _field: &Field) -> FlowyResult<Option<GroupChangesPB>> {
-    Ok(None)
   }
 
   async fn delete_group(

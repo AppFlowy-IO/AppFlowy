@@ -9,6 +9,7 @@ import { EditorElementProps, GalleryBlockNode } from '@/components/editor/editor
 import { copyTextToClipboard } from '@/utils/copy';
 import React, { forwardRef, memo, Suspense, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useReadOnly } from 'slate-react';
 
 const GalleryBlock = memo(
   forwardRef<HTMLDivElement, EditorElementProps<GalleryBlockNode>>(({
@@ -73,41 +74,59 @@ const GalleryBlock = memo(
     const handlePreviewIndex = useCallback((index: number) => {
       previewIndexRef.current = index;
     }, []);
+    const readOnly = useReadOnly();
 
     return (
       <div
-        ref={ref} {...attributes} className={className} onMouseEnter={() => {
-        if (!photos.length) return;
-        setHovered(true);
-      }}
+        contentEditable={readOnly ? false : undefined}
+        {...attributes}
+        className={className}
+        onMouseEnter={() => {
+          if (!photos.length) return;
+          setHovered(true);
+        }}
         onMouseLeave={() => setHovered(false)}
       >
-        <div className={'absolute left-0 top-0 h-full w-full pointer-events-none'}>
+        <div
+          ref={ref}
+          className={'absolute left-0 top-0 h-full w-full caret-transparent'}
+        >
           {children}
         </div>
-        {photos.length > 0 ?
-          (layout === GalleryLayout.Carousel ?
-              <Carousel
-                onPreview={handlePreviewIndex}
-                images={photos}
-                autoplay={!openPreview}
-              /> :
-              <ImageGallery
-                onPreview={(index) => {
-                  previewIndexRef.current = index;
-                  handleOpenPreview();
-                }} images={photos}
-              />
-          ) : <div
-            className={
-              'container-bg border border-line-divider flex h-[48px] w-full rounded-[8px] select-none items-center gap-[10px] bg-fill-list-active px-4 text-text-caption'
-            }
-          >
-            <ImageIcon />
-            {t('document.plugins.image.addAnImageMobile')}
-          </div>}
+        <div
+          contentEditable={false}
+          className={`embed-block p-4 ${photos.length > 0 ? '!bg-transparent !border-none !rounded-none' : ''}`}
+        >
+          {photos.length > 0 ?
+            (layout === GalleryLayout.Carousel ?
+                <Carousel
+                  onPreview={handlePreviewIndex}
+                  images={photos}
+                  autoplay={!openPreview}
+                /> :
+                <ImageGallery
+                  onPreview={(index) => {
+                    previewIndexRef.current = index;
+                    handleOpenPreview();
+                  }}
+                  images={photos}
+                />
+            ) : <div
+              className={
+                'flex w-full select-none items-center gap-4 text-text-caption'
+              }
+            >
+              <ImageIcon />
+              {t('document.plugins.image.addAnImageMobile')}
+            </div>}
+        </div>
+
         {hovered &&
-          <GalleryToolbar onCopy={handleCopy} onDownload={handleDownload} onOpenPreview={handleOpenPreview} />}
+          <GalleryToolbar
+            onCopy={handleCopy}
+            onDownload={handleDownload}
+            onOpenPreview={handleOpenPreview}
+          />}
 
         {openPreview && <Suspense><GalleryPreview
           images={photos}

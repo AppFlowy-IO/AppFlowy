@@ -56,7 +56,7 @@ class _CommandPaletteController extends StatefulWidget {
 }
 
 class _CommandPaletteControllerState extends State<_CommandPaletteController> {
-  late final ValueNotifier<bool> _toggleNotifier = widget.notifier;
+  late ValueNotifier<bool> _toggleNotifier = widget.notifier;
   bool _isOpen = false;
 
   @override
@@ -69,6 +69,16 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
   void dispose() {
     _toggleNotifier.removeListener(_onToggle);
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(_CommandPaletteController oldWidget) {
+    if (oldWidget.notifier != widget.notifier) {
+      oldWidget.notifier.removeListener(_onToggle);
+      _toggleNotifier = widget.notifier;
+      _toggleNotifier.addListener(_onToggle);
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   void _onToggle() {

@@ -4,20 +4,19 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'The branch to release'
+        description: "The branch to release"
         required: true
-        default: 'main'
+        default: "main"
       version:
-        description: 'The version to release'
+        description: "The version to release"
         required: true
-        default: '0.0.0'
+        default: "0.0.0"
 env:
   NODE_VERSION: "18.16.0"
   PNPM_VERSION: "8.5.0"
-  RUST_TOOLCHAIN: "1.77.2"
+  RUST_TOOLCHAIN: "1.80.1"
 
 jobs:
-
   publish-tauri:
     permissions:
       contents: write
@@ -84,7 +83,7 @@ jobs:
         if: matrix.settings.platform == 'windows-latest'
         working-directory: frontend
         run: |
-          cargo install --force duckscript_cli
+          cargo install --force --locked duckscript_cli
           vcpkg integrate install
 
       - name: install dependencies (ubuntu only)
@@ -97,7 +96,7 @@ jobs:
       - name: install cargo-make
         working-directory: frontend
         run: |
-          cargo install --force cargo-make
+          cargo install --force --locked cargo-make
           cargo make appflowy-tauri-deps-tools
 
       - name: install frontend dependencies

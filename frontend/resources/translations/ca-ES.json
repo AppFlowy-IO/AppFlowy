@@ -278,8 +278,7 @@
       "inputEncryptPrompt": "Introduïu el vostre secret de xifratge per a",
       "clickToCopySecret": "Feu clic per copiar el secret",
       "inputTextFieldHint": "El teu secret",
-      "importSuccess": "S'ha importat correctament la carpeta de dades d'@:appName",
-      "supabaseSetting": "Configuració Supabase"
+      "importSuccess": "S'ha importat correctament la carpeta de dades d'@:appName"
     },
     "notifications": {
       "enableNotifications": {

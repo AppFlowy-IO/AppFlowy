@@ -52,6 +52,7 @@ pub trait StorageCloudService: Send + Sync {
     file_id: &str,
   ) -> FlowyResult<String>;
 
+  /// Return workspace_id, parent_dir, file_id
   async fn parse_object_url_v1(&self, url: &str) -> Option<(String, String, String)>;
 
   async fn create_upload(
@@ -60,6 +61,7 @@ pub trait StorageCloudService: Send + Sync {
     parent_dir: &str,
     file_id: &str,
     content_type: &str,
+    file_size: u64,
   ) -> Result<CreateUploadResponse, FlowyError>;
 
   async fn upload_part(

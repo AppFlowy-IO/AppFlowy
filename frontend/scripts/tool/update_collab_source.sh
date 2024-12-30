@@ -15,7 +15,7 @@ switch_deps() {
     if grep -q 'git = "https://github.com/AppFlowy-IO/AppFlowy-Collab"' "$cargo_toml"; then
         cp "$cargo_toml" "$cargo_toml.bak"
         # Switch to local paths
-        for crate in collab collab-folder collab-document collab-database collab-plugins collab-user collab-entity collab-sync-protocol collab-persistence; do
+        for crate in collab collab-folder collab-document collab-database collab-plugins collab-user collab-entity collab-sync-protocol collab-persistence collab-importer; do
             sed -i '' \
                 -e "s#${crate} = { .*git = \"https://github.com/AppFlowy-IO/AppFlowy-Collab\".* }#${crate} = { path = \"$repo_path/$crate\" }#g" \
                 "$cargo_toml"

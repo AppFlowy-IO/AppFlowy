@@ -18,7 +18,7 @@ md5 = "0.7.0"
 anyhow.workspace = true
 walkdir = "2.4.0"
 tempfile = "3.8.1"
-validator = { version = "0.16.1", features = ["derive"] }
+validator = { workspace = true, features = ["derive"] }
 tracing.workspace = true
 atomic_refcell = "0.1"
 allo-isolate = { version = "^0.1", features = ["catch-unwind"], optional = true }
@@ -31,7 +31,7 @@ rand = "0.8.5"
 futures = "0.3.30"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-zip = { version = "0.6.6", features = ["deflate"] }
+zip = { version = "2.2.0", features = ["deflate"] }
 brotli = { version = "3.4.0", optional = true }
 
 [features]

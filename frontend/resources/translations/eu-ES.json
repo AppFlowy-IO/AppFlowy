@@ -206,8 +206,7 @@
       "language": "Hizkuntza",
       "user": "Erabiltzailea",
       "files": "Fitxategiak",
-      "open": "Ezarpenak ireki",
-      "supabaseSetting": "Supabase ezarpena"
+      "open": "Ezarpenak ireki"
     },
     "appearance": {
       "fontFamily": {

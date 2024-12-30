@@ -10,19 +10,33 @@ export const Text = forwardRef<HTMLSpanElement, EditorElementProps<TextNode>>(
     const editor = useSlateStatic();
     const isEmpty = editor.isEmpty(node);
     const className = useMemo(() => {
-      const classList = ['text-element', 'relative', 'flex', 'w-full', 'whitespace-pre-wrap', 'break-word', 'px-1'];
+      const classList = ['text-element', 'relative', 'flex', 'w-full', 'whitespace-pre-wrap', 'break-word'];
 
       if (classNameProp) classList.push(classNameProp);
       if (hasStartIcon) classList.push('has-start-icon');
       return classList.join(' ');
     }, [classNameProp, hasStartIcon]);
 
+    const placeholder = useMemo(() => {
+      if (!isEmpty) return null;
+      return <Placeholder node={node}/>;
+    }, [isEmpty, node]);
+
+    const content = useMemo(() => {
+      return <>
+
+        <span className={`relative text-content leading-[1.5em] ${isEmpty ? 'empty-text' : ''}`}>
+          {placeholder}{children}</span>
+      </>;
+    }, [placeholder, isEmpty, children]);
+
     return (
-      <span {...attributes} ref={ref} className={className}>
+      <span {...attributes} ref={ref}
+            className={className}
+      >
         {renderIcon()}
-        {isEmpty && <Placeholder node={node} />}
-        <span className={`text-content ${isEmpty ? 'empty-text' : ''}`}>{children}</span>
+        {content}
       </span>
     );
-  }
+  },
 );

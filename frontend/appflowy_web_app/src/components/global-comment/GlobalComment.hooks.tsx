@@ -1,5 +1,6 @@
-import { CommentUser, GlobalComment, Reaction } from '@/application/comment.type';
+import { GlobalComment, Reaction } from '@/application/comment.type';
 import { PublishContext } from '@/application/publish';
+import { AFWebUser } from '@/application/types';
 import { AFConfigContext } from '@/components/main/app.hooks';
 import { stringAvatar } from '@/utils/color';
 import { isFlagEmoji } from '@/utils/emoji';
@@ -84,7 +85,7 @@ export function useLoadReactions () {
               commentId,
             };
           } else {
-            let newReactUsers: CommentUser[] = [];
+            let newReactUsers: AFWebUser[] = [];
 
             // If the user has not reacted, add the user to the reaction.
             if (!hasReacted) {

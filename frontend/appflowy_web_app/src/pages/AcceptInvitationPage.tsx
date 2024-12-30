@@ -1,23 +1,19 @@
 import { Invitation } from '@/application/types';
 import { ReactComponent as AppflowyLogo } from '@/assets/appflowy.svg';
-import { ReactComponent as ErrorIcon } from '@/assets/error.svg';
-import { NormalModal } from '@/components/_shared/modal';
+import ChangeAccount from '@/components/_shared/modal/ChangeAccount';
 import { notify } from '@/components/_shared/notify';
 import { getAvatar } from '@/components/_shared/view-icon/utils';
 import { AFConfigContext, useCurrentUser, useService } from '@/components/main/app.hooks';
-import { openOrDownload } from '@/utils/open_schema';
-import { openAppFlowySchema } from '@/utils/url';
 import { EmailOutlined } from '@mui/icons-material';
 import { Avatar, Button, Divider } from '@mui/material';
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-function AcceptInvitationPage () {
+function AcceptInvitationPage() {
   const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated;
   const currentUser = useCurrentUser();
   const navigate = useNavigate();
-  const openLoginModal = useContext(AFConfigContext)?.openLoginModal;
   const [searchParams] = useSearchParams();
   const invitationId = searchParams.get('invited_id');
   const service = useService();
@@ -60,6 +56,9 @@ function AcceptInvitationPage () {
       name: invitation.workspace_name,
     });
   }, [invitation]);
+  const url = useMemo(() => {
+    return window.location.href;
+  }, []);
 
   const inviterIconProps = useMemo(() => {
     if (!invitation) return {};
@@ -74,8 +73,13 @@ function AcceptInvitationPage () {
     <div
       className={'text-text-title px-6 max-md:gap-4 flex flex-col gap-12 h-screen appflowy-scroller w-screen overflow-x-hidden overflow-y-auto items-center bg-bg-base'}
     >
-      <div className={'flex w-full max-md:justify-center max-md:h-32 h-20 items-center justify-between sticky'}>
-        <AppflowyLogo className={'w-32 h-12 max-md:w-52'} />
+      <div
+        onClick={() => {
+          navigate('/app');
+        }}
+        className={'flex w-full cursor-pointer max-md:justify-center max-md:h-32 h-20 items-center justify-between sticky'}
+      >
+        <AppflowyLogo className={'w-32 h-12 max-md:w-52'}/>
       </div>
       <div className={'flex w-full max-w-[560px] flex-col items-center gap-6 text-center'}>
         <Avatar
@@ -87,14 +91,14 @@ function AcceptInvitationPage () {
         >
           {t('invitation.join')}
           {' '}
-          <span className={'font-semibold'}>{currentUser?.name}</span>
+          <span className={'font-semibold'}>{invitation?.workspace_name}</span>
           {' '}
           {t('invitation.on')}
           {' '}
-          <span className={'whitespace-nowrap'}>{invitation?.workspace_name}</span>
+          <span className={'whitespace-nowrap'}>AppFlowy</span>
 
         </div>
-        <Divider className={'max-w-full w-[400px]'} />
+        <Divider className={'max-w-full w-[400px]'}/>
         <div className={'flex items-center justify-center py-1 gap-4'}>
           <Avatar
             className={'h-20 w-20 border border-line-divider text-[40px]'} {...inviterIconProps}
@@ -114,7 +118,7 @@ function AcceptInvitationPage () {
         <div
           className={'border-b max-sm:border max-sm:rounded-[8px] border-line-border flex items-center gap-2 max-w-full py-2 px-4 w-[400px] bg-bg-body'}
         >
-          <EmailOutlined />
+          <EmailOutlined/>
           {currentUser?.email}
         </div>
 
@@ -139,7 +143,9 @@ function AcceptInvitationPage () {
                 okText: t('invitation.openWorkspace'),
 
                 onOk: () => {
-                  openOrDownload(openAppFlowySchema + '#workspace_id=' + invitation?.workspace_id);
+                  const origin = window.location.origin;
+
+                  window.open(`${origin}/app/${invitation?.workspace_id}`, '_current');
                 },
               });
 
@@ -151,27 +157,7 @@ function AcceptInvitationPage () {
           {t('invitation.joinWorkspace')}
         </Button>
       </div>
-      <NormalModal
-        onCancel={() => {
-          setModalOpened(false);
-          navigate('/');
-        }}
-        closable={false}
-        cancelText={t('invitation.errorModal.close')}
-        onOk={openLoginModal}
-        okText={t('invitation.errorModal.changeAccount')}
-        title={<div className={'text-left font-bold flex gap-2 items-center'}>
-          <ErrorIcon className={'w-5 h-5 text-function-error'} />
-          {t('invitation.errorModal.title')}
-        </div>}
-        open={modalOpened}
-      >
-        <div className={'text-text-title flex flex-col text-sm gap-1 whitespace-pre-wrap break-words'}>
-          {t('invitation.errorModal.description', {
-            email: currentUser?.email,
-          })}
-        </div>
-      </NormalModal>
+      {isAuthenticated && <ChangeAccount redirectTo={url} setModalOpened={setModalOpened} modalOpened={modalOpened}/>}
     </div>
   );
 }

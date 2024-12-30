@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
 pub use client_api::entity::billing_dto::RecurringInterval;
+use client_api::entity::AFRole;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_repr::*;
@@ -140,19 +141,25 @@ pub struct UserWorkspace {
   pub created_at: DateTime<Utc>,
   /// The database storage id is used indexing all the database views in current workspace.
   #[serde(rename = "database_storage_id")]
-  pub database_indexer_id: String,
+  pub workspace_database_id: String,
   #[serde(default)]
   pub icon: String,
+  #[serde(default)]
+  pub member_count: i64,
+  #[serde(default)]
+  pub role: Option<Role>,
 }
 
 impl UserWorkspace {
-  pub fn new(workspace_id: &str, _uid: i64) -> Self {
+  pub fn new_local(workspace_id: &str, _uid: i64) -> Self {
     Self {
       id: workspace_id.to_string(),
       name: "".to_string(),
       created_at: Utc::now(),
-      database_indexer_id: Uuid::new_v4().to_string(),
+      workspace_database_id: Uuid::new_v4().to_string(),
       icon: "".to_string(),
+      member_count: 1,
+      role: None,
     }
   }
 }
@@ -167,7 +174,6 @@ pub struct UserProfile {
   pub icon_url: String,
   pub openai_key: String,
   pub stability_ai_key: String,
-  pub workspace_id: String,
   pub authenticator: Authenticator,
   // If the encryption_sign is not empty, which means the user has enabled the encryption.
   pub encryption_type: EncryptionType,
@@ -246,7 +252,6 @@ where
       token: value.user_token().unwrap_or_default(),
       icon_url,
       openai_key,
-      workspace_id: value.latest_workspace().id.to_owned(),
       authenticator: auth_type.clone(),
       encryption_type: value.encryption_type(),
       stability_ai_key,
@@ -415,6 +420,16 @@ impl From<Role> for i32 {
       Role::Owner => 0,
       Role::Member => 1,
       Role::Guest => 2,
+    }
+  }
+}
+
+impl From<AFRole> for Role {
+  fn from(value: AFRole) -> Self {
+    match value {
+      AFRole::Owner => Role::Owner,
+      AFRole::Member => Role::Member,
+      AFRole::Guest => Role::Guest,
     }
   }
 }

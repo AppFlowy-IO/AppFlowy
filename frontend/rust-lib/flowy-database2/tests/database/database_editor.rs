@@ -2,7 +2,11 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use collab_database::database::gen_database_view_id;
-use collab_database::entity::SelectOption;
+use collab_database::fields::checkbox_type_option::CheckboxTypeOption;
+use collab_database::fields::checklist_type_option::ChecklistTypeOption;
+use collab_database::fields::select_type_option::{
+  MultiSelectTypeOption, SelectOption, SingleSelectTypeOption,
+};
 use collab_database::fields::Field;
 use collab_database::rows::{Row, RowId};
 use lib_infra::box_any::BoxAny;
@@ -13,12 +17,8 @@ use event_integration_test::EventIntegrationTest;
 use flowy_database2::entities::{DatabasePB, FieldType, FilterPB, RowMetaPB};
 
 use flowy_database2::services::database::DatabaseEditor;
-use flowy_database2::services::field::checklist_type_option::{
-  ChecklistCellChangeset, ChecklistTypeOption,
-};
-use flowy_database2::services::field::{
-  CheckboxTypeOption, MultiSelectTypeOption, SelectOptionCellChangeset, SingleSelectTypeOption,
-};
+use flowy_database2::services::field::checklist_filter::ChecklistCellChangeset;
+use flowy_database2::services::field::SelectOptionCellChangeset;
 use flowy_database2::services::share::csv::{CSVFormat, ImportResult};
 use flowy_error::FlowyResult;
 
@@ -110,6 +110,7 @@ impl DatabaseEditorTest {
     self.editor.open_database_view(view_id, None).await.unwrap()
   }
 
+  #[allow(dead_code)]
   pub async fn database_filters(&self) -> Vec<FilterPB> {
     self.editor.get_all_filters(&self.view_id).await.items
   }
@@ -159,7 +160,8 @@ impl DatabaseEditorTest {
     let field = self.get_field(field_id, field_type).await;
     let type_option = field
       .get_type_option::<MultiSelectTypeOption>(field_type)
-      .unwrap();
+      .unwrap()
+      .0;
     type_option.options
   }
 
@@ -168,7 +170,8 @@ impl DatabaseEditorTest {
     let field = self.get_field(field_id, field_type).await;
     let type_option = field
       .get_type_option::<SingleSelectTypeOption>(field_type)
-      .unwrap();
+      .unwrap()
+      .0;
     type_option.options
   }
 
@@ -191,7 +194,7 @@ impl DatabaseEditorTest {
   }
 
   pub async fn update_cell(
-    &mut self,
+    &self,
     field_id: &str,
     row_id: RowId,
     cell_changeset: BoxAny,
@@ -245,7 +248,7 @@ impl DatabaseEditorTest {
       .unwrap()
       .clone();
     let cell_changeset = ChecklistCellChangeset {
-      selected_option_ids: selected_options,
+      completed_task_ids: selected_options,
       ..Default::default()
     };
     self

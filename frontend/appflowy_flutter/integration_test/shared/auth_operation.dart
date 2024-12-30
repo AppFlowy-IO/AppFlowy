@@ -10,9 +10,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'util.dart';
 
 extension AppFlowyAuthTest on WidgetTester {
-  Future<void> tapGoogleLoginInButton() async {
+  Future<void> tapGoogleLoginInButton({bool pumpAndSettle = true}) async {
     await tapButton(
       find.byKey(signInWithGoogleButtonKey),
+      pumpAndSettle: pumpAndSettle,
     );
   }
 

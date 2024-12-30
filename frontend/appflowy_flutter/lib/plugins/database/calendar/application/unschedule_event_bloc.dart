@@ -29,6 +29,15 @@ class UnscheduleEventsBloc
   CellMemCache get cellCache => databaseController.rowCache.cellCache;
   RowCache get rowCache => databaseController.rowCache;
 
+  DatabaseCallbacks? _databaseCallbacks;
+
+  @override
+  Future<void> close() async {
+    databaseController.removeListener(onDatabaseChanged: _databaseCallbacks);
+    _databaseCallbacks = null;
+    await super.close();
+  }
+
   void _dispatch() {
     on<UnscheduleEventsEvent>(
       (event, emit) async {
@@ -42,7 +51,7 @@ class UnscheduleEventsBloc
               state.copyWith(
                 allEvents: events,
                 unscheduleEvents:
-                    events.where((element) => !element.isScheduled).toList(),
+                    events.where((element) => !element.hasTimestamp()).toList(),
               ),
             );
           },
@@ -55,7 +64,7 @@ class UnscheduleEventsBloc
               state.copyWith(
                 allEvents: events,
                 unscheduleEvents:
-                    events.where((element) => !element.isScheduled).toList(),
+                    events.where((element) => !element.hasTimestamp()).toList(),
               ),
             );
           },
@@ -65,7 +74,7 @@ class UnscheduleEventsBloc
               state.copyWith(
                 allEvents: events,
                 unscheduleEvents:
-                    events.where((element) => !element.isScheduled).toList(),
+                    events.where((element) => !element.hasTimestamp()).toList(),
               ),
             );
           },
@@ -103,13 +112,13 @@ class UnscheduleEventsBloc
   }
 
   void _startListening() {
-    final onDatabaseChanged = DatabaseCallbacks(
-      onRowsCreated: (rowIds) async {
+    _databaseCallbacks = DatabaseCallbacks(
+      onRowsCreated: (rows) async {
         if (isClosed) {
           return;
         }
-        for (final id in rowIds) {
-          final event = await _loadEvent(id);
+        for (final row in rows) {
+          final event = await _loadEvent(row.rowMeta.id);
           if (event != null && !isClosed) {
             add(UnscheduleEventsEvent.didReceiveEvent(event));
           }
@@ -135,7 +144,7 @@ class UnscheduleEventsBloc
       },
     );
 
-    databaseController.addListener(onDatabaseChanged: onDatabaseChanged);
+    databaseController.addListener(onDatabaseChanged: _databaseCallbacks);
   }
 }
 

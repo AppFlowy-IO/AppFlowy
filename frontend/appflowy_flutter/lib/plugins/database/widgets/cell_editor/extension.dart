@@ -70,6 +70,7 @@ class SelectOptionTag extends StatelessWidget {
     this.onRemove,
     this.textAlign,
     this.isExpanded = false,
+    this.borderRadius,
     required this.padding,
   }) : assert(option != null || name != null && color != null);
 
@@ -80,6 +81,7 @@ class SelectOptionTag extends StatelessWidget {
   final TextStyle? textStyle;
   final void Function(String)? onRemove;
   final EdgeInsets padding;
+  final BorderRadius? borderRadius;
   final TextAlign? textAlign;
   final bool isExpanded;
 
@@ -87,7 +89,7 @@ class SelectOptionTag extends StatelessWidget {
   Widget build(BuildContext context) {
     final optionName = option?.name ?? name!;
     final optionColor = option?.color.toColor(context) ?? color!;
-    final text = FlowyText.medium(
+    final text = FlowyText(
       optionName,
       fontSize: fontSize,
       overflow: TextOverflow.ellipsis,
@@ -99,11 +101,8 @@ class SelectOptionTag extends StatelessWidget {
       padding: onRemove == null ? padding : padding.copyWith(right: 2.0),
       decoration: BoxDecoration(
         color: optionColor,
-        borderRadius: BorderRadius.all(
-          Radius.circular(
-            UniversalPlatform.isDesktopOrWeb ? 6 : 11,
-          ),
-        ),
+        borderRadius: borderRadius ??
+            BorderRadius.circular(UniversalPlatform.isDesktopOrWeb ? 6 : 11),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

@@ -1,50 +1,25 @@
-use collab::preclude::encoding::serde::from_any;
-use collab::preclude::Any;
-
 use crate::entities::{FieldType, TextFilterPB, URLCellDataPB};
 use crate::services::cell::{CellDataChangeset, CellDataDecoder};
 use crate::services::field::{
-  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
-  TypeOptionTransform, URLCellData,
+  CellDataProtobufEncoder, TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
+  TypeOptionTransform,
 };
 use crate::services::sort::SortCondition;
 use async_trait::async_trait;
 use collab_database::database::Database;
-use collab_database::fields::{Field, TypeOptionData, TypeOptionDataBuilder};
+use collab_database::fields::url_type_option::{URLCellData, URLTypeOption};
+use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
-use serde::{Deserialize, Serialize};
+
 use std::cmp::Ordering;
 use tracing::trace;
-
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct URLTypeOption {
-  #[serde(default)]
-  pub url: String,
-  #[serde(default)]
-  pub content: String,
-}
 
 impl TypeOption for URLTypeOption {
   type CellData = URLCellData;
   type CellChangeset = URLCellChangeset;
   type CellProtobufType = URLCellDataPB;
   type CellFilter = TextFilterPB;
-}
-
-impl From<TypeOptionData> for URLTypeOption {
-  fn from(data: TypeOptionData) -> Self {
-    from_any(&Any::from(data)).unwrap()
-  }
-}
-
-impl From<URLTypeOption> for TypeOptionData {
-  fn from(data: URLTypeOption) -> Self {
-    TypeOptionDataBuilder::from([
-      ("url".into(), data.url.into()),
-      ("content".into(), data.content.into()),
-    ])
-  }
 }
 
 #[async_trait]
@@ -88,23 +63,16 @@ impl TypeOptionTransform for URLTypeOption {
   }
 }
 
-impl TypeOptionCellDataSerde for URLTypeOption {
+impl CellDataProtobufEncoder for URLTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     cell_data.into()
   }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(URLCellData::from(cell))
-  }
 }
 
 impl CellDataDecoder for URLTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    self.parse_cell(cell)
-  }
   fn decode_cell_with_transform(
     &self,
     cell: &Cell,
@@ -119,10 +87,6 @@ impl CellDataDecoder for URLTypeOption {
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
     cell_data.data
-  }
-
-  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
-    None
   }
 }
 

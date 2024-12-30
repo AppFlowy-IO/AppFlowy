@@ -158,6 +158,7 @@ class _MobileThirdPartySignInState extends State<_MobileThirdPartySignIn> {
           const VSpace(padding),
         ],
         MobileThirdPartySignInButton(
+          key: signInWithGoogleButtonKey,
           type: ThirdPartySignInButtonType.google,
           onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.google),
         ),

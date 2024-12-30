@@ -1,20 +1,21 @@
-use async_trait::async_trait;
-use bytes::Bytes;
-use collab_database::database::Database;
-use collab_database::entity::{SelectOption, SelectOptionColor};
-use collab_database::fields::{Field, TypeOptionData};
-use collab_database::rows::Cell;
-use flowy_error::{internal_error, ErrorCode, FlowyResult};
-use std::str::FromStr;
-
 use crate::entities::{CheckboxCellDataPB, FieldType, SelectOptionCellDataPB};
 use crate::services::cell::{CellDataDecoder, CellProtobufBlobParser};
 use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformHelper;
 use crate::services::field::{
-  make_selected_options, MultiSelectTypeOption, SelectOptionCellData, SelectOptionIds,
-  SingleSelectTypeOption, StringCellData, TypeOption, TypeOptionCellDataSerde, TypeOptionTransform,
+  CellDataProtobufEncoder, StringCellData, TypeOption, TypeOptionTransform,
+};
+use async_trait::async_trait;
+use bytes::Bytes;
+use collab_database::database::Database;
+use collab_database::fields::select_type_option::{
+  MultiSelectTypeOption, SelectOption, SelectOptionColor, SelectOptionIds, SingleSelectTypeOption,
   SELECTION_IDS_SEPARATOR,
 };
+use collab_database::fields::{Field, TypeOptionData};
+use collab_database::rows::Cell;
+use collab_database::template::util::ToCellString;
+use flowy_error::{internal_error, ErrorCode, FlowyResult};
+use std::str::FromStr;
 
 /// Defines the shared actions used by SingleSelect or Multi-Select.
 pub trait SelectTypeOptionSharedAction: Send + Sync {
@@ -99,12 +100,8 @@ where
 impl<T> CellDataDecoder for T
 where
   T:
-    SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + TypeOptionCellDataSerde,
+    SelectTypeOptionSharedAction + TypeOption<CellData = SelectOptionIds> + CellDataProtobufEncoder,
 {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    self.parse_cell(cell)
-  }
-
   fn decode_cell_with_transform(
     &self,
     cell: &Cell,
@@ -122,7 +119,7 @@ where
         Some(SelectOptionIds::from(transformed_ids))
       },
       FieldType::Checkbox => {
-        let cell_content = CheckboxCellDataPB::from(cell).to_string();
+        let cell_content = CheckboxCellDataPB::from(cell).to_cell_string();
         let mut transformed_ids = Vec::new();
         let options = self.options();
         if let Some(option) = options.iter().find(|option| option.name == cell_content) {
@@ -143,10 +140,6 @@ where
       .map(|option| option.name)
       .collect::<Vec<String>>()
       .join(SELECTION_IDS_SEPARATOR)
-  }
-
-  fn numeric_cell(&self, _cell: &Cell) -> Option<f64> {
-    None
   }
 }
 
@@ -206,7 +199,7 @@ impl CellProtobufBlobParser for SelectOptionIdsParser {
   type Object = SelectOptionIds;
   fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
     match String::from_utf8(bytes.to_vec()) {
-      Ok(s) => SelectOptionIds::from_str(&s),
+      Ok(s) => SelectOptionIds::from_str(&s).map_err(Into::into),
       Err(_) => Ok(SelectOptionIds::default()),
     }
   }
@@ -255,4 +248,33 @@ impl SelectOptionCellChangeset {
       delete_option_ids: option_ids,
     }
   }
+}
+
+#[derive(Debug)]
+pub struct SelectOptionCellData {
+  pub select_options: Vec<SelectOption>,
+}
+
+impl From<SelectOptionCellData> for SelectOptionCellDataPB {
+  fn from(data: SelectOptionCellData) -> Self {
+    SelectOptionCellDataPB {
+      select_options: data
+        .select_options
+        .into_iter()
+        .map(|option| option.into())
+        .collect(),
+    }
+  }
+}
+
+pub fn make_selected_options(ids: SelectOptionIds, options: &[SelectOption]) -> Vec<SelectOption> {
+  ids
+    .iter()
+    .flat_map(|option_id| {
+      options
+        .iter()
+        .find(|option| &option.id == option_id)
+        .cloned()
+    })
+    .collect()
 }

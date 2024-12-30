@@ -7,7 +7,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:string_validator/string_validator.dart';
-import 'package:toastification/toastification.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 class SignInWithMagicLinkButtons extends StatefulWidget {

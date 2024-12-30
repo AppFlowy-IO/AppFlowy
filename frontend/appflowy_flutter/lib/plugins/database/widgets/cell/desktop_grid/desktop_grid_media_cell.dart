@@ -1,20 +1,23 @@
-import 'package:flutter/material.dart';
-
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_media_upload.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/media_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/media.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/media_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/mobile_media_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/media_file_type_ext.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/shared/af_image.dart';
+import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
+import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -37,16 +40,22 @@ class GridMediaCellSkin extends IEditableMediaCellSkin {
 
     Widget child = BlocBuilder<MediaCellBloc, MediaCellState>(
       builder: (context, state) {
-        final filesToDisplay = state.files.take(4).toList();
-        final extraCount = state.files.length - filesToDisplay.length;
-
         final wrapContent = context.read<MediaCellBloc>().wrapContent;
-        final children = <Widget>[
-          ...filesToDisplay.map((file) => _FilePreviewRender(file: file)),
-          if (extraCount > 0) _ExtraInfo(extraCount: extraCount),
-        ];
+        final List<Widget> children = state.files
+            .map<Widget>(
+              (file) => GestureDetector(
+                onTap: () => _openOrExpandFile(context, file, state.files),
+                child: Padding(
+                  padding: wrapContent
+                      ? const EdgeInsets.only(right: 4)
+                      : EdgeInsets.zero,
+                  child: _FilePreviewRender(file: file),
+                ),
+              ),
+            )
+            .toList();
 
-        if (isMobileRowDetail && filesToDisplay.isEmpty) {
+        if (isMobileRowDetail && state.files.isEmpty) {
           children.add(
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
@@ -81,8 +90,8 @@ class GridMediaCellSkin extends IEditableMediaCellSkin {
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: SeparatedRow(
-                separatorBuilder: () => const HSpace(6),
-                children: children,
+                separatorBuilder: () => const HSpace(4),
+                children: children..add(const SizedBox(width: 16)),
               ),
             ),
           ),
@@ -131,15 +140,7 @@ class GridMediaCellSkin extends IEditableMediaCellSkin {
       child = InkWell(
         borderRadius:
             isMobileRowDetail ? BorderRadius.circular(12) : BorderRadius.zero,
-        onTap: () {
-          showMobileBottomSheet(
-            context,
-            builder: (_) => BlocProvider.value(
-              value: context.read<MediaCellBloc>(),
-              child: const MobileMediaCellEditor(),
-            ),
-          );
-        },
+        onTap: () => _tapCellMobile(context),
         hoverColor: Colors.transparent,
         child: child,
       );
@@ -148,6 +149,72 @@ class GridMediaCellSkin extends IEditableMediaCellSkin {
     return BlocProvider.value(
       value: bloc,
       child: Builder(builder: (context) => child),
+    );
+  }
+
+  void _openOrExpandFile(
+    BuildContext context,
+    MediaFilePB file,
+    List<MediaFilePB> files,
+  ) {
+    if (file.fileType != MediaFileTypePB.Image) {
+      afLaunchUrlString(file.url, context: context);
+      return;
+    }
+
+    final images =
+        files.where((f) => f.fileType == MediaFileTypePB.Image).toList();
+    final index = images.indexOf(file);
+
+    showDialog(
+      context: context,
+      builder: (_) => InteractiveImageViewer(
+        userProfile: context.read<MediaCellBloc>().state.userProfile,
+        imageProvider: AFBlockImageProvider(
+          initialIndex: index,
+          images: images
+              .map(
+                (e) => ImageBlockData(
+                  url: e.url,
+                  type: e.uploadType.toCustomImageType(),
+                ),
+              )
+              .toList(),
+          onDeleteImage: (index) {
+            final deleteFile = images[index];
+            context.read<MediaCellBloc>().deleteFile(deleteFile.id);
+          },
+        ),
+      ),
+    );
+  }
+
+  void _tapCellMobile(BuildContext context) {
+    final files = context.read<MediaCellBloc>().state.files;
+
+    if (files.isEmpty) {
+      showMobileBottomSheet(
+        context,
+        title: LocaleKeys.grid_media_addFileMobile.tr(),
+        showHeader: true,
+        showCloseButton: true,
+        showDragHandle: true,
+        builder: (dContext) => BlocProvider.value(
+          value: context.read<MediaCellBloc>(),
+          child: MobileMediaUploadSheetContent(
+            dialogContext: dContext,
+          ),
+        ),
+      );
+      return;
+    }
+
+    showMobileBottomSheet(
+      context,
+      builder: (_) => BlocProvider.value(
+        value: context.read<MediaCellBloc>(),
+        child: const MobileMediaCellEditor(),
+      ),
     );
   }
 }
@@ -160,59 +227,37 @@ class _FilePreviewRender extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (file.fileType != MediaFileTypePB.Image) {
-      return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 2),
-        height: 32,
-        width: 32,
-        clipBehavior: Clip.antiAlias,
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: AFThemeExtension.of(context).greyHover,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: FlowySvg(
-          file.fileType.icon,
-          color: AFThemeExtension.of(context).textColor,
+      return FlowyTooltip(
+        message: file.name,
+        child: Container(
+          height: 28,
+          width: 28,
+          clipBehavior: Clip.antiAlias,
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AFThemeExtension.of(context).greyHover,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: FlowySvg(
+            file.fileType.icon,
+            size: const Size.square(12),
+            color: AFThemeExtension.of(context).textColor,
+          ),
         ),
       );
     }
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 2),
-      height: 32,
-      width: 32,
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: AFImage(
-        url: file.url,
-        uploadType: file.uploadType,
-        userProfile: context.read<MediaCellBloc>().state.userProfile,
-      ),
-    );
-  }
-}
-
-class _ExtraInfo extends StatelessWidget {
-  const _ExtraInfo({required this.extraCount});
-
-  final int extraCount;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(2),
+    return FlowyTooltip(
+      message: file.name,
       child: Container(
-        height: 32,
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: AFThemeExtension.of(context).greyHover,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: FlowyText.regular(
-          LocaleKeys.grid_media_moreFilesHint.tr(args: ['$extraCount']),
-          lineHeight: 1,
+        height: 28,
+        width: 28,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(4)),
+        child: AFImage(
+          url: file.url,
+          uploadType: file.uploadType,
+          userProfile: context.read<MediaCellBloc>().state.userProfile,
         ),
       ),
     );

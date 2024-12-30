@@ -1,7 +1,7 @@
 import { BlockType } from '@/application/types';
 import { BulletedListIcon } from '@/components/editor/components/blocks/bulleted-list';
+import CalloutIcon from '@/components/editor/components/blocks/callout/CalloutIcon';
 import { NumberListIcon } from '@/components/editor/components/blocks/numbered-list';
-import QuoteIcon from '@/components/editor/components/blocks/quote/QuoteIcon';
 import ToggleIcon from '@/components/editor/components/blocks/toggle-list/ToggleIcon';
 import { TextNode } from '@/components/editor/editor.type';
 import React, { FC, useCallback, useMemo } from 'react';
@@ -9,7 +9,7 @@ import { ReactEditor, useSlate } from 'slate-react';
 import { Editor, Element } from 'slate';
 import CheckboxIcon from '@/components/editor/components/blocks/todo-list/CheckboxIcon';
 
-export function useStartIcon(node: TextNode) {
+export function useStartIcon (node: TextNode) {
   const editor = useSlate();
   const path = ReactEditor.findPath(editor, node);
   const block = Editor.parent(editor, path)?.[0] as Element | null;
@@ -28,8 +28,8 @@ export function useStartIcon(node: TextNode) {
         return NumberListIcon;
       case BlockType.BulletedListBlock:
         return BulletedListIcon;
-      case BlockType.QuoteBlock:
-        return QuoteIcon;
+      case BlockType.CalloutBlock:
+        return CalloutIcon;
       default:
         return null;
     }
@@ -40,15 +40,12 @@ export function useStartIcon(node: TextNode) {
       return null;
     }
 
-    const classList = ['text-block-icon relative w-[24px]'];
+    const classList = ['text-block-icon relative select-none w-6 h-6'];
 
-    if (block.type === BlockType.QuoteBlock) {
-      classList.push('h-full min-w-[24px]');
-    } else {
-      classList.push('h-6');
-    }
-
-    return <Component className={classList.join(' ')} block={block} />;
+    return <Component
+      className={classList.join(' ')}
+      block={block}
+    />;
   }, [Component, block]);
 
   return {

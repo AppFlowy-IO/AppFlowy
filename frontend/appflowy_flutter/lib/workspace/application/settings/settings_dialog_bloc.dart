@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -8,6 +6,7 @@ import 'package:appflowy_backend/protobuf/flowy-user/auth.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -22,6 +21,7 @@ enum SettingsPage {
   ai,
   plan,
   billing,
+  sites,
   // OLD
   notifications,
   cloud,
@@ -33,7 +33,7 @@ class SettingsDialogBloc
     extends Bloc<SettingsDialogEvent, SettingsDialogState> {
   SettingsDialogBloc(
     this.userProfile,
-    this.workspaceMember, {
+    this.currentWorkspaceMemberRole, {
     SettingsPage? initPage,
   })  : _userListener = UserListener(userProfile: userProfile),
         super(SettingsDialogState.initial(userProfile, initPage)) {
@@ -41,7 +41,7 @@ class SettingsDialogBloc
   }
 
   final UserProfilePB userProfile;
-  final WorkspaceMemberPB? workspaceMember;
+  final AFRolePB? currentWorkspaceMemberRole;
   final UserListener _userListener;
 
   @override
@@ -57,8 +57,10 @@ class SettingsDialogBloc
           initial: () async {
             _userListener.start(onProfileUpdated: _profileUpdated);
 
-            final isBillingEnabled =
-                await _isBillingEnabled(userProfile, workspaceMember);
+            final isBillingEnabled = await _isBillingEnabled(
+              userProfile,
+              currentWorkspaceMemberRole,
+            );
             if (isBillingEnabled) {
               emit(state.copyWith(isBillingEnabled: true));
             }
@@ -86,7 +88,7 @@ class SettingsDialogBloc
 
   Future<bool> _isBillingEnabled(
     UserProfilePB userProfile, [
-    WorkspaceMemberPB? member,
+    AFRolePB? currentWorkspaceMemberRole,
   ]) async {
     if ([
       AuthenticatorPB.Local,
@@ -94,7 +96,8 @@ class SettingsDialogBloc
       return false;
     }
 
-    if (member == null || member.role != AFRolePB.Owner) {
+    if (currentWorkspaceMemberRole == null ||
+        currentWorkspaceMemberRole != AFRolePB.Owner) {
       return false;
     }
 

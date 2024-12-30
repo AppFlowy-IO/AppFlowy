@@ -169,29 +169,6 @@ class SettingsManageDataView extends StatelessWidget {
                   ),
                 ],
               ),
-              // Uncomment if we need to enable encryption
-              //   if (userProfile.authenticator == AuthenticatorPB.Supabase) ...[
-              //     const SettingsCategorySpacer(),
-              //     BlocProvider(
-              //       create: (_) => EncryptSecretBloc(user: userProfile),
-              //       child: SettingsCategory(
-              //         title: LocaleKeys.settings_manageDataPage_encryption_title
-              //             .tr(),
-              //         tooltip: LocaleKeys
-              //             .settings_manageDataPage_encryption_tooltip
-              //             .tr(),
-              //         description: userProfile.encryptionType ==
-              //                 EncryptionTypePB.NoEncryption
-              //             ? LocaleKeys
-              //                 .settings_manageDataPage_encryption_descriptionNoEncryption
-              //                 .tr()
-              //             : LocaleKeys
-              //                 .settings_manageDataPage_encryption_descriptionEncrypted
-              //                 .tr(),
-              //         children: [_EncryptDataSetting(userProfile: userProfile)],
-              //       ),
-              //     ),
-              //   ],
             ],
           );
         },
@@ -472,7 +449,7 @@ class _DataPathActions extends StatelessWidget {
           label:
               LocaleKeys.settings_manageDataPage_dataStorage_actions_open.tr(),
           icon: const FlowySvg(FlowySvgs.folder_m, size: Size.square(20)),
-          onPressed: () => afLaunchUrl(Uri.file(currentPath)),
+          onPressed: () => afLaunchUri(Uri.file(currentPath)),
         ),
       ],
     );

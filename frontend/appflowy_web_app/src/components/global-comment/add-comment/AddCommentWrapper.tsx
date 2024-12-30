@@ -61,7 +61,11 @@ export function AddCommentWrapper () {
 
   return (
     <>
-      <div className={'my-2'} id="addComment" ref={addCommentRef}>
+      <div
+        className={'my-2'}
+        id="addComment"
+        ref={addCommentRef}
+      >
         <AddComment
           content={content}
           setContent={setContent}
@@ -76,10 +80,17 @@ export function AddCommentWrapper () {
             style={{
               left: offsetLeft + 'px',
               width: `calc(100% - ${offsetLeft}px)`,
-            }} className={'fixed top-[48px] flex w-full justify-center'}
+            }}
+            className={'fixed top-[48px] flex w-full justify-center'}
           >
-            <div className={'w-[964px] min-w-0 max-w-full px-6'}>
-              <AddComment fixed content={content} setContent={setContent} focus={focus} setFocus={setFocus} />
+            <div className={'w-[988px] min-w-0 max-w-full max-sm:px-6 px-24'}>
+              <AddComment
+                fixed
+                content={content}
+                setContent={setContent}
+                focus={focus}
+                setFocus={setFocus}
+              />
             </div>
           </div>
         </Portal>

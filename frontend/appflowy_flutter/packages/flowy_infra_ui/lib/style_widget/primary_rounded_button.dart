@@ -17,6 +17,8 @@ class PrimaryRoundedButton extends StatelessWidget {
     this.useIntrinsicWidth = true,
     this.lineHeight,
     this.figmaLineHeight,
+    this.leftIcon,
+    this.textColor,
   });
 
   final String text;
@@ -31,18 +33,21 @@ class PrimaryRoundedButton extends StatelessWidget {
   final bool useIntrinsicWidth;
   final double? lineHeight;
   final double? figmaLineHeight;
+  final Widget? leftIcon;
+  final Color? textColor;
 
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
       useIntrinsicWidth: useIntrinsicWidth,
+      leftIcon: leftIcon,
       text: FlowyText(
         text,
         fontSize: fontSize ?? 14.0,
         fontWeight: fontWeight ?? FontWeight.w500,
         lineHeight: lineHeight ?? 1.0,
         figmaLineHeight: figmaLineHeight,
-        color: Theme.of(context).colorScheme.onPrimary,
+        color: textColor ?? Theme.of(context).colorScheme.onPrimary,
         textAlign: TextAlign.center,
       ),
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 14.0),

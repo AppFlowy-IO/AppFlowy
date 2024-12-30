@@ -81,8 +81,13 @@ export function TestDatabase ({
       rowDocMap={rows}
       readOnly={true}
       iidIndex={iidIndex}
+      showActions={true}
     >
-      <DatabaseViews iidIndex={iidIndex} viewId={activeViewId} onChangeView={handleNavigateToView} />
+      <DatabaseViews
+        iidIndex={iidIndex}
+        viewId={activeViewId}
+        onChangeView={handleNavigateToView}
+      />
     </DatabaseContextProvider>
   );
 }

@@ -8,12 +8,11 @@ import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/setting/property_bloc.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
 import 'package:appflowy/plugins/database/widgets/setting/field_visibility_extension.dart';
-import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -79,14 +78,12 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
                   viewId: viewId,
                   fieldController: databaseController.fieldController,
                   fieldInfo: field,
-                  index: index,
                   showTopBorder: false,
                 ),
               )
               .toList();
 
           return ReorderableListView.builder(
-            padding: EdgeInsets.zero,
             proxyDecorator: (_, index, anim) {
               final field = fields[index];
               return AnimatedBuilder(
@@ -103,7 +100,6 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
                         viewId: viewId,
                         fieldController: databaseController.fieldController,
                         fieldInfo: field,
-                        index: index,
                         showTopBorder: true,
                       ),
                     ),
@@ -121,43 +117,32 @@ class _MobileDatabaseFieldListBody extends StatelessWidget {
             },
             header: firstCell,
             footer: canCreate
-                ? Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _divider(),
-                      _NewDatabaseFieldTile(viewId: viewId),
-                      VSpace(
-                        context.bottomSheetPadding(
-                          ignoreViewPadding: false,
-                        ),
-                      ),
-                    ],
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: _NewDatabaseFieldTile(viewId: viewId),
                   )
-                : VSpace(
-                    context.bottomSheetPadding(ignoreViewPadding: false),
-                  ),
+                : null,
             itemCount: cells.length,
             itemBuilder: (context, index) => cells[index],
+            padding: EdgeInsets.only(
+              bottom: context.bottomSheetPadding(ignoreViewPadding: false),
+            ),
           );
         },
       ),
     );
   }
-
-  Widget _divider() => const VSpace(20);
 }
 
 class DatabaseFieldListTile extends StatelessWidget {
   const DatabaseFieldListTile({
     super.key,
-    this.index,
     required this.fieldInfo,
     required this.viewId,
     required this.fieldController,
     required this.showTopBorder,
   });
 
-  final int? index;
   final FieldInfo fieldInfo;
   final String viewId;
   final FieldController fieldController;
@@ -168,19 +153,20 @@ class DatabaseFieldListTile extends StatelessWidget {
     if (fieldInfo.field.isPrimary) {
       return FlowyOptionTile.text(
         text: fieldInfo.name,
-        leftIcon: FlowySvg(
-          fieldInfo.fieldType.svgData,
-          size: const Size.square(20),
+        leftIcon: FieldIcon(
+          fieldInfo: fieldInfo,
+          dimension: 20,
         ),
+        onTap: () => showEditFieldScreen(context, viewId, fieldInfo),
         showTopBorder: showTopBorder,
       );
     } else {
       return FlowyOptionTile.toggle(
         isSelected: fieldInfo.visibility?.isVisibleState() ?? false,
         text: fieldInfo.name,
-        leftIcon: FlowySvg(
-          fieldInfo.fieldType.svgData,
-          size: const Size.square(20),
+        leftIcon: FieldIcon(
+          fieldInfo: fieldInfo,
+          dimension: 20,
         ),
         showTopBorder: showTopBorder,
         onTap: () => showEditFieldScreen(context, viewId, fieldInfo),

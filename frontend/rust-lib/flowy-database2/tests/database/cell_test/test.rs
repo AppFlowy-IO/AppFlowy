@@ -1,23 +1,26 @@
-use std::time::Duration;
-
+use crate::database::cell_test::script::DatabaseCellTest;
+use collab_database::fields::date_type_option::DateCellData;
+use collab_database::fields::media_type_option::{MediaFile, MediaFileType, MediaUploadType};
+use collab_database::fields::select_type_option::{MultiSelectTypeOption, SingleSelectTypeOption};
+use collab_database::fields::url_type_option::URLCellData;
+use collab_database::template::time_parse::TimeCellData;
 use flowy_database2::entities::{FieldType, MediaCellChangeset};
+use flowy_database2::services::field::checklist_filter::{
+  ChecklistCellChangeset, ChecklistCellInsertChangeset,
+};
+use flowy_database2::services::field::date_filter::DateCellChangeset;
 use flowy_database2::services::field::{
-  ChecklistCellChangeset, DateCellChangeset, DateCellData, MediaFile, MediaFileType,
-  MediaUploadType, MultiSelectTypeOption, RelationCellChangeset, SelectOptionCellChangeset,
-  SingleSelectTypeOption, StringCellData, TimeCellData, URLCellData,
+  RelationCellChangeset, SelectOptionCellChangeset, StringCellData,
 };
 use lib_infra::box_any::BoxAny;
-
-use crate::database::cell_test::script::CellScript::UpdateCell;
-use crate::database::cell_test::script::DatabaseCellTest;
+use std::time::Duration;
 
 #[tokio::test]
 async fn grid_cell_update() {
-  let mut test = DatabaseCellTest::new().await;
+  let test = DatabaseCellTest::new().await;
   let fields = test.get_fields().await;
   let rows = &test.rows;
 
-  let mut scripts = vec![];
   for row in rows.iter() {
     for field in &fields {
       let field_type = FieldType::from(field.field_type);
@@ -28,7 +31,7 @@ async fn grid_cell_update() {
         FieldType::RichText => BoxAny::new("".to_string()),
         FieldType::Number => BoxAny::new("123".to_string()),
         FieldType::DateTime => BoxAny::new(DateCellChangeset {
-          date: Some(123),
+          timestamp: Some(123),
           ..Default::default()
         }),
         FieldType::SingleSelect => {
@@ -48,7 +51,10 @@ async fn grid_cell_update() {
           ))
         },
         FieldType::Checklist => BoxAny::new(ChecklistCellChangeset {
-          insert_options: vec![("new option".to_string(), false)],
+          insert_tasks: vec![ChecklistCellInsertChangeset::new(
+            "new option".to_string(),
+            false,
+          )],
           ..Default::default()
         }),
         FieldType::Checkbox => BoxAny::new("1".to_string()),
@@ -63,24 +69,19 @@ async fn grid_cell_update() {
             name: "link".to_string(),
             url: "https://www.appflowy.io".to_string(),
             file_type: MediaFileType::Link,
-            upload_type: MediaUploadType::NetworkMedia,
+            upload_type: MediaUploadType::Network,
           }],
           removed_ids: vec![],
         }),
         _ => BoxAny::new("".to_string()),
       };
 
-      scripts.push(UpdateCell {
-        view_id: test.view_id.clone(),
-        field_id: field.id.clone(),
-        row_id: row.id.clone(),
-        changeset: cell_changeset,
-        is_err: false,
-      });
+      // Call the new `update_cell` function directly
+      test
+        .update_cell(&test.view_id, &field.id, &row.id, cell_changeset)
+        .await;
     }
   }
-
-  test.run_scripts(scripts).await;
 }
 
 #[tokio::test]
@@ -131,7 +132,7 @@ async fn url_cell_data_test() {
 
 #[tokio::test]
 async fn update_updated_at_field_on_other_cell_update() {
-  let mut test = DatabaseCellTest::new().await;
+  let test = DatabaseCellTest::new().await;
   let updated_at_field = test.get_first_field(FieldType::LastEditedTime).await;
 
   let text_field = test
@@ -141,14 +142,15 @@ async fn update_updated_at_field_on_other_cell_update() {
     .unwrap();
 
   let before_update_timestamp = chrono::offset::Utc::now().timestamp();
+
+  // Directly call the `update_cell` function
   test
-    .run_script(UpdateCell {
-      view_id: test.view_id.clone(),
-      row_id: test.rows[0].id.clone(),
-      field_id: text_field.id.clone(),
-      changeset: BoxAny::new("change".to_string()),
-      is_err: false,
-    })
+    .update_cell(
+      &test.view_id,
+      &text_field.id,
+      &test.rows[0].id,
+      BoxAny::new("change".to_string()),
+    )
     .await;
 
   let cells = test
@@ -176,37 +178,12 @@ async fn update_updated_at_field_on_other_cell_update() {
         timestamp,
         after_update_timestamp
       ),
-      1 => assert!(
+      _ => assert!(
         timestamp <= before_update_timestamp,
         "{} <= {}",
         timestamp,
         before_update_timestamp
       ),
-      2 => assert!(
-        timestamp <= before_update_timestamp,
-        "{} <= {}",
-        timestamp,
-        before_update_timestamp
-      ),
-      3 => assert!(
-        timestamp <= before_update_timestamp,
-        "{} <= {}",
-        timestamp,
-        before_update_timestamp
-      ),
-      4 => assert!(
-        timestamp <= before_update_timestamp,
-        "{} <= {}",
-        timestamp,
-        before_update_timestamp
-      ),
-      5 => assert!(
-        timestamp <= before_update_timestamp,
-        "{} <= {}",
-        timestamp,
-        before_update_timestamp
-      ),
-      _ => {},
     }
   }
 }

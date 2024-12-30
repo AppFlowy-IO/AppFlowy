@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -124,9 +124,11 @@ class ShortcutsCubit extends Cubit<ShortcutsState> {
     // check if currentShortcut is a codeblock shortcut.
     final isCodeBlockCommand = currentShortcut.isCodeBlockCommand;
 
-    for (final e in state.commandShortcutEvents) {
-      if (e.command == command && e.isCodeBlockCommand == isCodeBlockCommand) {
-        return e;
+    for (final shortcut in state.commandShortcutEvents) {
+      final keybindings = shortcut.command.split(',');
+      if (keybindings.contains(command) &&
+          shortcut.isCodeBlockCommand == isCodeBlockCommand) {
+        return shortcut;
       }
     }
 

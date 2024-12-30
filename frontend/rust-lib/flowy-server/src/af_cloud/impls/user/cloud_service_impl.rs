@@ -8,7 +8,8 @@ use client_api::entity::billing_dto::{
   SubscriptionPlanDetail, WorkspaceSubscriptionStatus, WorkspaceUsageAndLimit,
 };
 use client_api::entity::workspace_dto::{
-  CreateWorkspaceParam, PatchWorkspaceParam, WorkspaceMemberChangeset, WorkspaceMemberInvitation,
+  CreateWorkspaceParam, PatchWorkspaceParam, QueryWorkspaceParam, WorkspaceMemberChangeset,
+  WorkspaceMemberInvitation,
 };
 use client_api::entity::{
   AFRole, AFWorkspace, AFWorkspaceInvitation, AFWorkspaceSettings, AFWorkspaceSettingsChange,
@@ -198,7 +199,12 @@ where
 
   async fn get_all_workspace(&self, _uid: i64) -> Result<Vec<UserWorkspace>, FlowyError> {
     let try_get_client = self.server.try_get_client();
-    let workspaces = try_get_client?.get_workspaces().await?;
+    let workspaces = try_get_client?
+      .get_workspaces_opt(QueryWorkspaceParam {
+        include_member_count: Some(true),
+        include_role: Some(true),
+      })
+      .await?;
     to_user_workspaces(workspaces)
   }
 
@@ -259,6 +265,8 @@ where
         vec![WorkspaceMemberInvitation {
           email: invitee_email,
           role: to_af_role(role),
+          skip_email_send: false,
+          wait_email_send: false,
         }],
       )
       .await?;
@@ -656,8 +664,10 @@ fn to_user_workspace(af_workspace: AFWorkspace) -> UserWorkspace {
     id: af_workspace.workspace_id.to_string(),
     name: af_workspace.workspace_name,
     created_at: af_workspace.created_at,
-    database_indexer_id: af_workspace.database_storage_id.to_string(),
+    workspace_database_id: af_workspace.database_storage_id.to_string(),
     icon: af_workspace.icon,
+    member_count: af_workspace.member_count.unwrap_or(0),
+    role: af_workspace.role.map(|r| r.into()),
   }
 }
 

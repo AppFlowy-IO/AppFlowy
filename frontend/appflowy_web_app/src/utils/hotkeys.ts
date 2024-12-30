@@ -14,7 +14,10 @@ export const getModifier = () => {
 };
 
 export enum HOT_KEY_NAME {
+  ENTER = 'enter',
   CLEAR_CACHE = 'clear-cache',
+  UP = 'up',
+  DOWN = 'down',
   LEFT = 'left',
   RIGHT = 'right',
   SELECT_ALL = 'select-all',
@@ -47,11 +50,18 @@ export enum HOT_KEY_NAME {
   SCROLL_TO_BOTTOM = 'scroll-to-bottom',
   FORMAT_LINK = 'format-link',
   FIND_REPLACE = 'find-replace',
+  POP_EMOJI_PICKER = 'pop-emoji-picker',
+  DELETE_LEFT_SENTENCE = 'delete-left-sentence',
+  DELETE_LEFT_WORD = 'delete-left-word',
+  DELETE_RIGHT_WORD = 'delete-right-word',
+  MOVE_CURSOR_TO_BOTTOM = 'move-cursor-to-bottom',
+  MOVE_CURSOR_TO_TOP = 'move-cursor-to-top',
   /**
    * Navigation
    */
   TOGGLE_THEME = 'toggle-theme',
   TOGGLE_SIDEBAR = 'toggle-sidebar',
+  QUICK_NOTE = 'quick-note',
 }
 
 const defaultHotKeys = {
@@ -81,15 +91,25 @@ const defaultHotKeys = {
   [HOT_KEY_NAME.HIGH_LIGHT]: ['mod+shift+h'],
   [HOT_KEY_NAME.EXTEND_DOCUMENT_BACKWARD]: ['mod+shift+up'],
   [HOT_KEY_NAME.EXTEND_DOCUMENT_FORWARD]: ['mod+shift+down'],
-  [HOT_KEY_NAME.SCROLL_TO_TOP]: ['home'],
+  [HOT_KEY_NAME.SCROLL_TO_TOP]: ['Home'],
   [HOT_KEY_NAME.SCROLL_TO_BOTTOM]: ['end'],
   [HOT_KEY_NAME.TOGGLE_THEME]: ['mod+shift+l'],
   [HOT_KEY_NAME.TOGGLE_SIDEBAR]: ['mod+.'],
   [HOT_KEY_NAME.FORMAT_LINK]: ['mod+k'],
   [HOT_KEY_NAME.LEFT]: ['left'],
   [HOT_KEY_NAME.RIGHT]: ['right'],
+  [HOT_KEY_NAME.UP]: ['up'],
+  [HOT_KEY_NAME.DOWN]: ['down'],
   [HOT_KEY_NAME.FIND_REPLACE]: ['mod+f'],
   [HOT_KEY_NAME.CLEAR_CACHE]: ['mod+shift+r'],
+  [HOT_KEY_NAME.POP_EMOJI_PICKER]: ['mod+alt+e'],
+  [HOT_KEY_NAME.DELETE_LEFT_SENTENCE]: ['mod+alt+backspace'],
+  [HOT_KEY_NAME.DELETE_LEFT_WORD]: ['mod+backspace'],
+  [HOT_KEY_NAME.DELETE_RIGHT_WORD]: ['mod+delete'],
+  [HOT_KEY_NAME.MOVE_CURSOR_TO_BOTTOM]: ['mod+down'],
+  [HOT_KEY_NAME.MOVE_CURSOR_TO_TOP]: ['mod+up'],
+  [HOT_KEY_NAME.ENTER]: ['enter'],
+  [HOT_KEY_NAME.QUICK_NOTE]: ['mod+/'],
 };
 
 const replaceModifier = (hotkey: string) => {
@@ -105,6 +125,7 @@ const replaceModifier = (hotkey: string) => {
 export const createHotkey = (hotkeyName: HOT_KEY_NAME, customHotKeys?: Record<HOT_KEY_NAME, string[]>) => {
   const keys = customHotKeys || defaultHotKeys;
   const hotkeys = keys[hotkeyName];
+
 
   return (event: KeyboardEvent) => {
     return hotkeys.some((hotkey) => {

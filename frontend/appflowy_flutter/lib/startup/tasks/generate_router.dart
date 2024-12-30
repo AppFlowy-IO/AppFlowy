@@ -37,6 +37,8 @@ import 'package:go_router/go_router.dart';
 import 'package:sheet/route.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import '../../shared/icon_emoji_picker/tab.dart';
+
 GoRouter generateRouter(Widget child) {
   return GoRouter(
     navigatorKey: AppGlobals.rootNavKey,
@@ -51,7 +53,7 @@ GoRouter generateRouter(Widget child) {
       _encryptSecretScreenRoute(),
       _workspaceErrorScreenRoute(),
       // Desktop only
-      if (!UniversalPlatform.isMobile) _desktopHomeScreenRoute(),
+      if (UniversalPlatform.isDesktop) _desktopHomeScreenRoute(),
       // Mobile only
       if (UniversalPlatform.isMobile) ...[
         // settings
@@ -281,10 +283,16 @@ GoRoute _mobileEmojiPickerPageRoute() {
     pageBuilder: (context, state) {
       final title =
           state.uri.queryParameters[MobileEmojiPickerScreen.pageTitle];
+      final selectTabs =
+          state.uri.queryParameters[MobileEmojiPickerScreen.selectTabs] ?? '';
+      final tabs = selectTabs
+          .split('-')
+          .map((e) => PickerTabType.values.byName(e))
+          .toList();
       return MaterialExtendedPage(
-        child: MobileEmojiPickerScreen(
-          title: title,
-        ),
+        child: tabs.isEmpty
+            ? MobileEmojiPickerScreen(title: title)
+            : MobileEmojiPickerScreen(title: title, tabs: tabs),
       );
     },
   );
@@ -499,6 +507,8 @@ GoRoute _mobileEditorScreenRoute() {
       );
       final fixedTitle =
           state.uri.queryParameters[MobileDocumentScreen.viewFixedTitle];
+      final blockId =
+          state.uri.queryParameters[MobileDocumentScreen.viewBlockId];
 
       return MaterialExtendedPage(
         child: MobileDocumentScreen(
@@ -506,6 +516,7 @@ GoRoute _mobileEditorScreenRoute() {
           title: title,
           showMoreButton: showMoreButton ?? true,
           fixedTitle: fixedTitle,
+          blockId: blockId,
         ),
       );
     },
