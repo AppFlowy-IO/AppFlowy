@@ -506,6 +506,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
         Position(path: lastNode.path),
       );
     }
+
+    transaction.customSelectionType = SelectionType.inline;
+    transaction.reason = SelectionUpdateReason.uiEvent;
+
     await editorState.apply(transaction);
   }
 
