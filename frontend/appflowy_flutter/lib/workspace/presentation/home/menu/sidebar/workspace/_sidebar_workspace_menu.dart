@@ -44,13 +44,6 @@ class WorkspacesMenu extends StatefulWidget {
 
 class _WorkspacesMenuState extends State<WorkspacesMenu> {
   final popoverMutex = PopoverMutex();
-  final ValueNotifier<bool> isShowingMoreActions = ValueNotifier(false);
-
-  @override
-  void dispose() {
-    isShowingMoreActions.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +90,6 @@ class _WorkspacesMenuState extends State<WorkspacesMenu> {
                     userProfile: widget.userProfile,
                     isSelected: workspace.workspaceId ==
                         widget.currentWorkspace.workspaceId,
-                    isShowingMoreActions: isShowingMoreActions,
                     popoverMutex: popoverMutex,
                   ),
                   const VSpace(6.0),
@@ -143,14 +135,12 @@ class WorkspaceMenuItem extends StatefulWidget {
     required this.workspace,
     required this.userProfile,
     required this.isSelected,
-    required this.isShowingMoreActions,
     required this.popoverMutex,
   });
 
   final UserProfilePB userProfile;
   final UserWorkspacePB workspace;
   final bool isSelected;
-  final ValueNotifier<bool> isShowingMoreActions;
   final PopoverMutex popoverMutex;
 
   @override
@@ -243,7 +233,6 @@ class _WorkspaceMenuItemState extends State<WorkspaceMenuItem> {
             },
             child: WorkspaceMoreActionList(
               workspace: widget.workspace,
-              isShowingMoreActions: widget.isShowingMoreActions,
               popoverMutex: widget.popoverMutex,
             ),
           ),
