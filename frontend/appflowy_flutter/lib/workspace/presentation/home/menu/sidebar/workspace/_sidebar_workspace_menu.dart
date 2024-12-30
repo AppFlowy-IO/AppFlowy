@@ -60,7 +60,7 @@ class _WorkspacesMenuState extends State<WorkspacesMenu> {
       children: [
         // user email
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          padding: const EdgeInsets.only(left: 10.0, top: 6.0, right: 10.0),
           child: Row(
             children: [
               Expanded(
@@ -80,12 +80,13 @@ class _WorkspacesMenuState extends State<WorkspacesMenu> {
           ),
         ),
         const Padding(
-          padding: EdgeInsets.symmetric(vertical: 8.0),
+          padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 6.0),
           child: Divider(height: 1.0),
         ),
         // workspace list
         Flexible(
           child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 6.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -106,13 +107,19 @@ class _WorkspacesMenuState extends State<WorkspacesMenu> {
           ),
         ),
         // add new workspace
-        const _CreateWorkspaceButton(),
-        const VSpace(6.0),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 6.0),
+          child: _CreateWorkspaceButton(),
+        ),
 
         if (UniversalPlatform.isDesktop) ...[
-          const _ImportNotionButton(),
-          const VSpace(6.0),
+          const Padding(
+            padding: EdgeInsets.only(left: 6.0, top: 6.0, right: 6.0),
+            child: _ImportNotionButton(),
+          ),
         ],
+
+        const VSpace(6.0),
       ],
     );
   }
