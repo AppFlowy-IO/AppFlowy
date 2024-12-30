@@ -18,15 +18,23 @@ enum WorkspaceMoreAction {
   divider,
 }
 
-class WorkspaceMoreActionList extends StatelessWidget {
+class WorkspaceMoreActionList extends StatefulWidget {
   const WorkspaceMoreActionList({
     super.key,
     required this.workspace,
-    required this.isShowingMoreActions,
+    required this.popoverMutex,
   });
 
   final UserWorkspacePB workspace;
-  final ValueNotifier<bool> isShowingMoreActions;
+  final PopoverMutex popoverMutex;
+
+  @override
+  State<WorkspaceMoreActionList> createState() =>
+      _WorkspaceMoreActionListState();
+}
+
+class _WorkspaceMoreActionListState extends State<WorkspaceMoreActionList> {
+  bool isPopoverOpen = false;
 
   @override
   Widget build(BuildContext context) {
@@ -45,16 +53,22 @@ class WorkspaceMoreActionList extends StatelessWidget {
     return PopoverActionList<_WorkspaceMoreActionWrapper>(
       direction: PopoverDirection.bottomWithLeftAligned,
       actions: actions
-          .map((e) => _WorkspaceMoreActionWrapper(e, workspace))
+          .map(
+            (action) => _WorkspaceMoreActionWrapper(
+              action,
+              widget.workspace,
+              () => PopoverContainer.of(context).closeAll(),
+            ),
+          )
           .toList(),
+      mutex: widget.popoverMutex,
       constraints: const BoxConstraints(minWidth: 220),
       animationDuration: Durations.short3,
       slideDistance: 2,
       beginScaleFactor: 1.0,
       beginOpacity: 0.8,
-      onClosed: () {
-        isShowingMoreActions.value = false;
-      },
+      onClosed: () => isPopoverOpen = false,
+      asBarrier: true,
       buildChild: (controller) {
         return SizedBox.square(
           dimension: 24.0,
@@ -64,11 +78,10 @@ class WorkspaceMoreActionList extends StatelessWidget {
               FlowySvgs.workspace_three_dots_s,
             ),
             onTap: () {
-              if (!isShowingMoreActions.value) {
+              if (!isPopoverOpen) {
                 controller.show();
+                isPopoverOpen = true;
               }
-
-              isShowingMoreActions.value = true;
             },
           ),
         );
@@ -79,10 +92,15 @@ class WorkspaceMoreActionList extends StatelessWidget {
 }
 
 class _WorkspaceMoreActionWrapper extends CustomActionCell {
-  _WorkspaceMoreActionWrapper(this.inner, this.workspace);
+  _WorkspaceMoreActionWrapper(
+    this.inner,
+    this.workspace,
+    this.closeWorkspaceMenu,
+  );
 
   final WorkspaceMoreAction inner;
   final UserWorkspacePB workspace;
+  final VoidCallback closeWorkspaceMenu;
 
   @override
   Widget buildWithContext(
@@ -117,6 +135,7 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
       margin: const EdgeInsets.all(6),
       onTap: () async {
         PopoverContainer.of(context).closeAll();
+        closeWorkspaceMenu();
 
         final workspaceBloc = context.read<UserWorkspaceBloc>();
         switch (inner) {
