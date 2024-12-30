@@ -410,6 +410,7 @@
     "add": "اضافة",
     "yes": "نعم",
     "no": "لا",
+    "clear": "مسح",
     "remove": "حذف",
     "dontRemove": "لا تقم بالإزالة",
     "copyLink": "نسخ الرابط",
@@ -432,6 +433,9 @@
     "viewing": "عرض",
     "editing": "تحرير",
     "gotIt": "فهمتها",
+    "retry": "إعادة المحاولة",
+    "uploadFailed": "فشل الرفع.",
+    "copyLinkOriginal": "نسخ الرابط إلى الأصل",
     "tryAGain": "حاول ثانية"
   },
   "label": {
@@ -459,6 +463,7 @@
     "popupMenuItem": {
       "settings": "إعدادات",
       "members": "الأعضاء",
+      "trash": "سلة المحذوفات",
       "helpAndSupport": "المساعدة والدعم"
     },
     "sites": {
