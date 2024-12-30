@@ -2962,16 +2962,16 @@
     "emails": "Email"
   },
   "quickNote": {
-    "label": "Quick note",
-    "quickNotes": "Quick notes",
-    "search": "Search quick notes",
+    "label": "Quick Note",
+    "quickNotes": "Quick Notes",
+    "search": "Search Quick Notes",
     "collapseFullView": "Collapse full view",
     "expandFullView": "Expand full view",
-    "createFailed": "Failed to create quick note",
-    "quickNotesEmpty": "No quick notes",
+    "createFailed": "Failed to create Quick Note",
+    "quickNotesEmpty": "No Quick Notes",
     "emptyNote": "Empty note",
     "deleteNotePrompt": "The selected note will be deleted permanently. Are you sure you want to delete it?",
-    "addNote": "New note",
+    "addNote": "New Note",
     "noAdditionalText": "No additional text"
   },
   "subscribe": {
