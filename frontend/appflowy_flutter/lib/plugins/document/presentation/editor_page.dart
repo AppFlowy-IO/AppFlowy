@@ -177,7 +177,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
     _customizeBlockComponentBackgroundColorDecorator();
 
     widget.editorState.selectionNotifier.addListener(onSelectionChanged);
-    widget.editorState.debugInfo.debugPaintSizeEnabled = true;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) {
