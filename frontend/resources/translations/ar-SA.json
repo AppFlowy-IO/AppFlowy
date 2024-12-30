@@ -149,7 +149,11 @@
     "charCount": "عدد الأحرف: {}",
     "createdAt": "منشأ: {}",
     "deleteView": "يمسح",
-    "duplicateView": "تكرار"
+    "duplicateView": "تكرار",
+    "wordCountLabel": "عدد الكلمات: ",
+    "charCountLabel": "عدد الأحرف: ",
+    "createdAtLabel": "تم إنشاؤه: ",
+    "syncedAtLabel": "تم المزامنة: "
   },
   "importPanel": {
     "textAndMarkdown": "نص و Markdown",
@@ -170,7 +174,9 @@
     "addToFavorites": "اضافة الى المفضلة",
     "copyLink": "نسخ الرابط",
     "changeIcon": "تغيير الأيقونة",
-    "collapseAllPages": "طي جميع الصفحات الفرعية"
+    "collapseAllPages": "طي جميع الصفحات الفرعية",
+    "movePageTo": "تحريك الصفحة إلى",
+    "move": "تحريك"
   },
   "blankPageTitle": "صفحة فارغة",
   "newPageText": "صفحة جديدة",
