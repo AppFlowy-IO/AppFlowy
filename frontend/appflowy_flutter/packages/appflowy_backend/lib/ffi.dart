@@ -2,6 +2,7 @@
 
 import 'dart:ffi';
 import 'dart:io';
+
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:flutter/foundation.dart' as Foundation;
@@ -20,8 +21,7 @@ DynamicLibrary _open() {
       return DynamicLibrary.open('${prefix}/libdart_ffi.so');
     if (Platform.isMacOS)
       return DynamicLibrary.open('${prefix}/libdart_ffi.dylib');
-    if (Platform.isIOS) 
-      return DynamicLibrary.open('${prefix}/libdart_ffi.a');
+    if (Platform.isIOS) return DynamicLibrary.open('${prefix}/libdart_ffi.a');
     if (Platform.isWindows)
       return DynamicLibrary.open('${prefix}/dart_ffi.dll');
   } else {
@@ -78,17 +78,20 @@ typedef _invoke_sync_Dart = Pointer<Uint8> Function(
 
 /// C function `init_sdk`.
 int init_sdk(
-  Pointer<ffi.Utf8> path,
+  int port,
+  Pointer<ffi.Utf8> data,
 ) {
-  return _init_sdk(path);
+  return _init_sdk(port, data);
 }
 
 final _init_sdk_Dart _init_sdk =
     _dart_ffi_lib.lookupFunction<_init_sdk_C, _init_sdk_Dart>('init_sdk');
 typedef _init_sdk_C = Int64 Function(
+  Int64 port,
   Pointer<ffi.Utf8> path,
 );
 typedef _init_sdk_Dart = int Function(
+  int port,
   Pointer<ffi.Utf8> path,
 );
 
@@ -105,6 +108,22 @@ typedef _set_stream_port_C = Int32 Function(
   Int64 port,
 );
 typedef _set_stream_port_Dart = int Function(
+  int port,
+);
+
+/// C function `set log stream port`.
+int set_log_stream_port(int port) {
+  return _set_log_stream_port(port);
+}
+
+final _set_log_stream_port_Dart _set_log_stream_port = _dart_ffi_lib
+    .lookupFunction<_set_log_stream_port_C, _set_log_stream_port_Dart>(
+        'set_log_stream_port');
+
+typedef _set_log_stream_port_C = Int32 Function(
+  Int64 port,
+);
+typedef _set_log_stream_port_Dart = int Function(
   int port,
 );
 
@@ -135,20 +154,20 @@ typedef _store_dart_post_cobject_Dart = void Function(
   Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>> ptr,
 );
 
-void log(
+void rust_log(
   int level,
   Pointer<ffi.Utf8> data,
 ) {
-  _invoke_log(level, data);
+  _invoke_rust_log(level, data);
 }
 
-final _invoke_log_Dart _invoke_log = _dart_ffi_lib
-    .lookupFunction<_invoke_log_C, _invoke_log_Dart>('backend_log');
-typedef _invoke_log_C = Void Function(
+final _invoke_rust_log_Dart _invoke_rust_log = _dart_ffi_lib
+    .lookupFunction<_invoke_rust_log_C, _invoke_rust_log_Dart>('rust_log');
+typedef _invoke_rust_log_C = Void Function(
   Int64 level,
   Pointer<ffi.Utf8> data,
 );
-typedef _invoke_log_Dart = void Function(
+typedef _invoke_rust_log_Dart = void Function(
   int level,
   Pointer<ffi.Utf8>,
 );

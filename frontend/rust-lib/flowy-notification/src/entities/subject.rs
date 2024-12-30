@@ -1,7 +1,8 @@
 use flowy_derive::ProtoBuf;
+use serde::Serialize;
 use std::{fmt, fmt::Formatter};
 
-#[derive(Debug, Clone, ProtoBuf, serde::Serialize)]
+#[derive(Debug, Clone, ProtoBuf, Serialize)]
 pub struct SubscribeObject {
   #[pb(index = 1)]
   pub source: String,

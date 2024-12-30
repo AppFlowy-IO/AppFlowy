@@ -1,7 +1,8 @@
 import 'dart:convert';
 
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-document2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show
         Document,
@@ -10,7 +11,13 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         Delta,
         ParagraphBlockKeys,
         NodeIterator,
-        NodeExternalValues;
+        NodeExternalValues,
+        HeadingBlockKeys,
+        QuoteBlockKeys,
+        NumberedListBlockKeys,
+        BulletedListBlockKeys,
+        blockComponentDelta;
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:collection/collection.dart';
 import 'package:nanoid/nanoid.dart';
 
@@ -59,11 +66,11 @@ extension DocumentDataPBFromTo on DocumentDataPB {
 
     // generate the meta
     final childrenMap = <String, ChildrenPB>{};
-    blocks.forEach((key, value) {
-      final parentId = value.parentId;
-      if (parentId.isNotEmpty) {
-        childrenMap[parentId] ??= ChildrenPB.create();
-        childrenMap[parentId]!.children.add(value.id);
+    blocks.values.where((e) => e.parentId.isNotEmpty).forEach((value) {
+      final childrenId = blocks[value.parentId]?.childrenId;
+      if (childrenId != null) {
+        childrenMap[childrenId] ??= ChildrenPB.create();
+        childrenMap[childrenId]!.children.add(value.id);
       }
     });
     final meta = MetaPB(childrenMap: childrenMap);
@@ -101,10 +108,16 @@ extension DocumentDataPBFromTo on DocumentDataPB {
       children.addAll(childrenIds.map((e) => buildNode(e)).whereNotNull());
     }
 
-    return block?.toNode(
+    final node = block?.toNode(
       children: children,
       meta: meta,
     );
+
+    for (final element in children) {
+      element.parent = node;
+    }
+
+    return node;
   }
 }
 
@@ -138,20 +151,25 @@ extension BlockToNode on BlockPB {
         final deltaString = meta.textMap[externalId];
         if (deltaString != null) {
           final delta = jsonDecode(deltaString);
-          map.putIfAbsent(
-            'delta',
-            () => delta,
-          );
+          map[blockComponentDelta] = delta;
         }
       }
     }
 
+    Attributes adapterCallback(Attributes map) => map
+      ..putIfAbsent(
+        blockComponentDelta,
+        () => Delta().toJson(),
+      );
+
     final adapter = {
-      ParagraphBlockKeys.type: (Attributes map) => map
-        ..putIfAbsent(
-          'delta',
-          () => Delta().toJson(),
-        ),
+      ParagraphBlockKeys.type: adapterCallback,
+      HeadingBlockKeys.type: adapterCallback,
+      CodeBlockKeys.type: adapterCallback,
+      QuoteBlockKeys.type: adapterCallback,
+      NumberedListBlockKeys.type: adapterCallback,
+      BulletedListBlockKeys.type: adapterCallback,
+      ToggleListBlockKeys.type: adapterCallback,
     };
     return adapter[ty]?.call(map) ?? map;
   }
@@ -162,6 +180,8 @@ extension NodeToBlock on Node {
     String? parentId,
     String? childrenId,
     Attributes? attributes,
+    String? externalId,
+    String? externalType,
   }) {
     assert(id.isNotEmpty);
     final block = BlockPB.create()
@@ -174,10 +194,29 @@ extension NodeToBlock on Node {
     if (parentId != null && parentId.isNotEmpty) {
       block.parentId = parentId;
     }
+    if (externalId != null && externalId.isNotEmpty) {
+      block.externalId = externalId;
+    }
+    if (externalType != null && externalType.isNotEmpty) {
+      block.externalType = externalType;
+    }
     return block;
   }
 
   String _dataAdapter(String type, Attributes attributes) {
-    return jsonEncode(attributes);
+    try {
+      return jsonEncode(
+        attributes,
+        toEncodable: (value) {
+          if (value is Map) {
+            return jsonEncode(value);
+          }
+          return value;
+        },
+      );
+    } catch (e) {
+      Log.error('encode attributes error: $e');
+      return '{}';
+    }
   }
 }

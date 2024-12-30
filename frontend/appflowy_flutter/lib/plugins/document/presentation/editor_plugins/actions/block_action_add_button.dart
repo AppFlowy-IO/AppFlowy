@@ -1,22 +1,22 @@
 import 'dart:io';
 
-import 'package:appflowy/core/raw_keyboard_extension.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class BlockAddButton extends StatelessWidget {
   const BlockAddButton({
-    Key? key,
+    super.key,
     required this.blockComponentContext,
     required this.blockComponentState,
     required this.editorState,
     required this.showSlashMenu,
-  }) : super(key: key);
+  });
 
   final BlockComponentContext blockComponentContext;
   final BlockComponentActionState blockComponentState;
@@ -32,21 +32,24 @@ class BlockAddButton extends StatelessWidget {
         children: [
           TextSpan(
             text: LocaleKeys.blockActions_addBelowTooltip.tr(),
+            style: context.tooltipTextStyle(),
           ),
           const TextSpan(text: '\n'),
           TextSpan(
             text: Platform.isMacOS
                 ? LocaleKeys.blockActions_addAboveMacCmd.tr()
                 : LocaleKeys.blockActions_addAboveCmd.tr(),
+            style: context.tooltipTextStyle(),
           ),
           const TextSpan(text: ' '),
           TextSpan(
             text: LocaleKeys.blockActions_addAboveTooltip.tr(),
+            style: context.tooltipTextStyle(),
           ),
         ],
       ),
       onTap: () {
-        final isAltPressed = RawKeyboard.instance.isAltPressed;
+        final isAltPressed = HardwareKeyboard.instance.isAltPressed;
 
         final transaction = editorState.transaction;
 
@@ -59,11 +62,11 @@ class BlockAddButton extends StatelessWidget {
 
           transaction.insertNode(path, paragraphNode());
           transaction.afterSelection = Selection.collapsed(
-            Position(path: path, offset: 0),
+            Position(path: path),
           );
         } else {
           transaction.afterSelection = Selection.collapsed(
-            Position(path: node.path, offset: 0),
+            Position(path: node.path),
           );
         }
 

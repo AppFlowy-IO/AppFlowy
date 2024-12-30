@@ -1,20 +1,21 @@
 import 'dart:typed_data';
+
 import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
-class NotificationParser<T, E> {
-  String? id;
-  void Function(T, Either<Uint8List, E>) callback;
-
-  T? Function(int) tyParser;
-  E Function(Uint8List) errorParser;
-
+class NotificationParser<T, E extends Object> {
   NotificationParser({
     this.id,
     required this.callback,
     required this.errorParser,
     required this.tyParser,
   });
+
+  String? id;
+  void Function(T, FlowyResult<Uint8List, E>) callback;
+  E Function(Uint8List) errorParser;
+  T? Function(int, String) tyParser;
+
   void parse(SubscribeObject subject) {
     if (id != null) {
       if (subject.id != id) {
@@ -22,7 +23,7 @@ class NotificationParser<T, E> {
       }
     }
 
-    final ty = tyParser(subject.ty);
+    final ty = tyParser(subject.ty, subject.source);
     if (ty == null) {
       return;
     }
@@ -30,10 +31,10 @@ class NotificationParser<T, E> {
     if (subject.hasError()) {
       final bytes = Uint8List.fromList(subject.error);
       final error = errorParser(bytes);
-      callback(ty, right(error));
+      callback(ty, FlowyResult.failure(error));
     } else {
       final bytes = Uint8List.fromList(subject.payload);
-      callback(ty, left(bytes));
+      callback(ty, FlowyResult.success(bytes));
     }
   }
 }

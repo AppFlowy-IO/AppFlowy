@@ -1,83 +1,93 @@
 import 'dart:async';
 
-import 'package:dartz/dartz.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart'
-    show CreateViewPayloadPB, MoveViewPayloadPB, ViewLayoutPB, ViewPB;
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
-
-import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/workspace.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
 class WorkspaceService {
-  final String workspaceId;
-  WorkspaceService({
-    required this.workspaceId,
-  });
+  WorkspaceService({required this.workspaceId});
 
-  Future<Either<ViewPB, FlowyError>> createApp({
+  final String workspaceId;
+
+  Future<FlowyResult<ViewPB, FlowyError>> createView({
     required String name,
-    String? desc,
+    required ViewSectionPB viewSection,
     int? index,
+    ViewLayoutPB? layout,
+    bool? setAsCurrent,
+    String? viewId,
+    String? extra,
   }) {
     final payload = CreateViewPayloadPB.create()
       ..parentViewId = workspaceId
       ..name = name
-      ..layout = ViewLayoutPB.Document;
-
-    if (desc != null) {
-      payload.desc = desc;
-    }
+      ..layout = layout ?? ViewLayoutPB.Document
+      ..section = viewSection;
 
     if (index != null) {
       payload.index = index;
     }
 
+    if (setAsCurrent != null) {
+      payload.setAsCurrent = setAsCurrent;
+    }
+
+    if (viewId != null) {
+      payload.viewId = viewId;
+    }
+
+    if (extra != null) {
+      payload.extra = extra;
+    }
+
     return FolderEventCreateView(payload).send();
   }
 
-  Future<Either<WorkspacePB, FlowyError>> getWorkspace() {
-    final payload = WorkspaceIdPB.create()..value = workspaceId;
-    return FolderEventReadAllWorkspaces(payload).send().then((result) {
-      return result.fold(
-        (workspaces) {
-          assert(workspaces.items.length == 1);
-
-          if (workspaces.items.isEmpty) {
-            return right(
-              FlowyError.create()
-                ..msg = LocaleKeys.workspace_notFoundError.tr(),
-            );
-          } else {
-            return left(workspaces.items[0]);
-          }
-        },
-        (error) => right(error),
-      );
-    });
+  Future<FlowyResult<WorkspacePB, FlowyError>> getWorkspace() {
+    return FolderEventReadCurrentWorkspace().send();
   }
 
-  Future<Either<List<ViewPB>, FlowyError>> getViews() {
-    final payload = WorkspaceIdPB.create()..value = workspaceId;
+  Future<FlowyResult<List<ViewPB>, FlowyError>> getPublicViews() {
+    final payload = GetWorkspaceViewPB.create()..value = workspaceId;
     return FolderEventReadWorkspaceViews(payload).send().then((result) {
       return result.fold(
-        (views) => left(views.items),
-        (error) => right(error),
+        (views) => FlowyResult.success(views.items),
+        (error) => FlowyResult.failure(error),
       );
     });
   }
 
-  Future<Either<Unit, FlowyError>> moveApp({
-    required String appId,
+  Future<FlowyResult<List<ViewPB>, FlowyError>> getPrivateViews() {
+    final payload = GetWorkspaceViewPB.create()..value = workspaceId;
+    return FolderEventReadPrivateViews(payload).send().then((result) {
+      return result.fold(
+        (views) => FlowyResult.success(views.items),
+        (error) => FlowyResult.failure(error),
+      );
+    });
+  }
+
+  Future<FlowyResult<void, FlowyError>> moveView({
+    required String viewId,
     required int fromIndex,
     required int toIndex,
   }) {
     final payload = MoveViewPayloadPB.create()
-      ..viewId = appId
+      ..viewId = viewId
       ..from = fromIndex
       ..to = toIndex;
 
     return FolderEventMoveView(payload).send();
+  }
+
+  Future<FlowyResult<WorkspaceUsagePB, FlowyError>> getWorkspaceUsage() {
+    final payload = UserWorkspaceIdPB(workspaceId: workspaceId);
+    return UserEventGetWorkspaceUsage(payload).send();
+  }
+
+  Future<FlowyResult<BillingPortalPB, FlowyError>> getBillingPortal() {
+    return UserEventGetBillingPortal().send();
   }
 }

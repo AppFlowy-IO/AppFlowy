@@ -11,4 +11,4 @@ PRODUCT_NAME = AppFlowy
 PRODUCT_BUNDLE_IDENTIFIER = io.appflowy.appflowy
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2023 AppFlowy.IO. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2024 AppFlowy.IO. All rights reserved.

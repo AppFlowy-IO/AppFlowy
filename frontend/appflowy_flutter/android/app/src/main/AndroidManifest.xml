@@ -3,7 +3,7 @@
     android:name="${applicationName}">
     <activity android:name=".MainActivity"
       android:exported="true"
-      android:launchMode="singleTop"
+      android:launchMode="singleInstance"
       android:theme="@style/LaunchTheme"
       android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
       android:hardwareAccelerated="true" android:windowSoftInputMode="adjustResize">
@@ -36,7 +36,6 @@
         <data android:scheme="http" />
         <data android:scheme="https" />
         <data android:scheme="appflowy-flutter" />
-        <!-- <data android:host="login-callback" /> -->
       </intent-filter>
     </activity>
     <!--
@@ -45,4 +44,26 @@
 		-->
     <meta-data android:name="flutterEmbedding" android:value="2" />
   </application>
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <!-- Permission to read files from external storage (outside application container).
+  As of Android 12 this permission no longer has any effect. Instead use the
+  READ_MEDIA_IMAGES, READ_MEDIA_VIDEO or READM_MEDIA_AUDIO permissions. -->
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    android:maxSdkVersion="32" />
+  <!-- Permissions to read media files. -->
+  <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+  <queries>
+    <intent>
+      <action android:name="android.support.customtabs.action.CustomTabsService" />
+    </intent>
+  </queries>
+  <!--
+    Media access permissions.
+    Android 13 or higher.
+    Used for VideoBlock (edia_kit)
+  -->
+  <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+  <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+  <uses-permission android:name="android.permission.CAMERA" />
 </manifest>

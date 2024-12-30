@@ -3,6 +3,7 @@ import 'package:flowy_infra/plugins/service/models/exceptions.dart';
 import 'package:flowy_infra/plugins/service/plugin_service.dart';
 
 import '../../file_picker/file_picker_impl.dart';
+
 import 'dynamic_plugin_event.dart';
 import 'dynamic_plugin_state.dart';
 
@@ -23,8 +24,11 @@ class DynamicPluginBloc extends Bloc<DynamicPluginEvent, DynamicPluginState> {
   }
 
   Future<void> onLoadRequested(Emitter<DynamicPluginState> emit) async {
-    emit(DynamicPluginState.ready(
-        plugins: await FlowyPluginService.instance.plugins));
+    emit(
+      DynamicPluginState.ready(
+        plugins: await FlowyPluginService.instance.plugins,
+      ),
+    );
   }
 
   Future<void> addPlugin(Emitter<DynamicPluginState> emit) async {
@@ -32,32 +36,41 @@ class DynamicPluginBloc extends Bloc<DynamicPluginEvent, DynamicPluginState> {
     try {
       final plugin = await FlowyPluginService.pick();
       if (plugin == null) {
-        emit(DynamicPluginState.ready(
-            plugins: await FlowyPluginService.instance.plugins));
-        return;
+        return emit(
+          DynamicPluginState.ready(
+            plugins: await FlowyPluginService.instance.plugins,
+          ),
+        );
       }
       await FlowyPluginService.instance.addPlugin(plugin);
-    } on PluginCompilationException {
-      // TODO(a-wallen): Remove path from compilation failure
-      emit(const DynamicPluginState.compilationFailure(path: ''));
-      return;
+    } on PluginCompilationException catch (exception) {
+      return emit(
+        DynamicPluginState.compilationFailure(errorMessage: exception.message),
+      );
     }
 
     emit(const DynamicPluginState.compilationSuccess());
-    emit(DynamicPluginState.ready(
-        plugins: await FlowyPluginService.instance.plugins));
+    emit(
+      DynamicPluginState.ready(
+        plugins: await FlowyPluginService.instance.plugins,
+      ),
+    );
   }
 
   Future<void> removePlugin(
-      Emitter<DynamicPluginState> emit, String name) async {
+    Emitter<DynamicPluginState> emit,
+    String name,
+  ) async {
     emit(const DynamicPluginState.processing());
 
     final plugin = await FlowyPluginService.instance.lookup(name: name);
 
     if (plugin == null) {
-      emit(DynamicPluginState.ready(
-          plugins: await FlowyPluginService.instance.plugins));
-      return;
+      return emit(
+        DynamicPluginState.ready(
+          plugins: await FlowyPluginService.instance.plugins,
+        ),
+      );
     }
 
     await FlowyPluginService.removePlugin(plugin);
@@ -65,7 +78,8 @@ class DynamicPluginBloc extends Bloc<DynamicPluginEvent, DynamicPluginState> {
     emit(const DynamicPluginState.deletionSuccess());
     emit(
       DynamicPluginState.ready(
-          plugins: await FlowyPluginService.instance.plugins),
+        plugins: await FlowyPluginService.instance.plugins,
+      ),
     );
   }
 }

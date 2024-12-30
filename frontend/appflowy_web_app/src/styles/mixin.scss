@@ -1,0 +1,34 @@
+
+::-webkit-scrollbar-thumb:hover {
+  border-radius: 4px;
+  background-color: var(--scrollbar-thumb);
+}
+
+::-webkit-scrollbar-track:hover {
+  background-color: var(--scrollbar-track);
+}
+
+@mixin hidden-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  -ms-overflow-style: none;
+  scrollbar-width: none; // For Firefox
+}
+
+
+@mixin scrollbar-style {
+  ::-webkit-scrollbar, &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &:hover {
+
+    &::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb {
+      border-radius: 4px;
+      background-color: var(--scrollbar-thumb);
+    }
+  }
+}

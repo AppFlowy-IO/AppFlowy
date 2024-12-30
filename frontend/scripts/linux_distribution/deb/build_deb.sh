@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 LINUX_RELEASE_PRODUCTION=$1
 VERSION=$2

@@ -1,0 +1,75 @@
+name: Web-CI
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/web2_ci.yaml"
+      - "frontend/appflowy_web_app/**"
+      - "frontend/resources/**"
+env:
+  NODE_VERSION: "18.16.0"
+  PNPM_VERSION: "8.5.0"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  web-build:
+    if: github.event.pull_request.draft != true
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ ubuntu-20.04 ]
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Maximize build space (ubuntu only)
+        if: matrix.platform == 'ubuntu-20.04'
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo docker image prune --all --force
+          sudo rm -rf /opt/hostedtoolcache/codeQL
+          sudo rm -rf ${GITHUB_WORKSPACE}/.git
+          sudo rm -rf $ANDROID_HOME/ndk
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - name: Node_modules cache
+        uses: actions/cache@v2
+        with:
+          path: frontend/appflowy_web_app/node_modules
+          key: node-modules-${{ runner.os }}
+
+      - name: install frontend dependencies
+        working-directory: frontend/appflowy_web_app
+        run: |
+          pnpm install
+      - name: Run lint check
+        working-directory: frontend/appflowy_web_app
+        run: |
+          pnpm run lint
+      
+      - name: build and analyze
+        working-directory: frontend/appflowy_web_app
+        run: |
+          pnpm run analyze >> analyze-size.txt
+      - name: Upload analyze-size.txt
+        uses: actions/upload-artifact@v4
+        with:
+          name: analyze-size.txt
+          path: frontend/appflowy_web_app/analyze-size.txt
+          retention-days: 30
+      - name: Upload stats.html
+        uses: actions/upload-artifact@v4
+        with:
+          name: stats.html
+          path: frontend/appflowy_web_app/dist/stats.html
+          retention-days: 30

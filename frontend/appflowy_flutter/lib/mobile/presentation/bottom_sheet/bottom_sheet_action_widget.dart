@@ -1,47 +1,56 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/mobile/presentation/base/box_container.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 class BottomSheetActionWidget extends StatelessWidget {
   const BottomSheetActionWidget({
     super.key,
-    required this.svg,
+    this.svg,
     required this.text,
     required this.onTap,
+    this.iconColor,
   });
 
-  final FlowySvgData svg;
+  final FlowySvgData? svg;
   final String text;
   final VoidCallback onTap;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
-    return FlowyBoxContainer(
-      child: InkWell(
-        onTap: onTap,
-        enableFeedback: true,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 10.0,
-            horizontal: 12.0,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              FlowySvg(
-                svg,
-                size: const Size.square(24.0),
-                blendMode: BlendMode.dst,
-              ),
-              const HSpace(6.0),
-              FlowyText(text),
-              const Spacer(),
-            ],
-          ),
+    final iconColor =
+        this.iconColor ?? AFThemeExtension.of(context).onBackground;
+
+    if (svg == null) {
+      return OutlinedButton(
+        style: Theme.of(context)
+            .outlinedButtonTheme
+            .style
+            ?.copyWith(alignment: Alignment.center),
+        onPressed: onTap,
+        child: FlowyText(
+          text,
+          textAlign: TextAlign.center,
         ),
+      );
+    }
+
+    return OutlinedButton.icon(
+      icon: FlowySvg(
+        svg!,
+        size: const Size.square(22.0),
+        color: iconColor,
       ),
+      label: FlowyText(
+        text,
+        overflow: TextOverflow.ellipsis,
+      ),
+      style: Theme.of(context)
+          .outlinedButtonTheme
+          .style
+          ?.copyWith(alignment: Alignment.centerLeft),
+      onPressed: onTap,
     );
   }
 }

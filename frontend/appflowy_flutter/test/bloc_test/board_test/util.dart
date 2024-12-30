@@ -1,26 +1,22 @@
-import 'package:appflowy/plugins/database_view/application/cell/cell_controller.dart';
-import 'package:appflowy/plugins/database_view/application/cell/cell_controller_builder.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_controller.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_editor_bloc.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_info.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
-import 'package:appflowy/plugins/database_view/application/field/type_option/type_option_context.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_cache.dart';
-import 'package:appflowy/plugins/database_view/application/row/row_controller.dart';
-import 'package:appflowy/plugins/database_view/board/board.dart';
-import 'package:appflowy/plugins/database_view/application/database_controller.dart';
-import 'package:appflowy/plugins/database_view/grid/application/row/row_bloc.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
+import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_controller.dart';
+import 'package:appflowy/plugins/database/application/field/field_editor_bloc.dart';
+import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/application/row/row_cache.dart';
+import 'package:appflowy/plugins/database/board/board.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 
 import '../../util.dart';
 import '../grid_test/util.dart';
 
 class AppFlowyBoardTest {
-  final AppFlowyUnitTest unitTest;
-
   AppFlowyBoardTest({required this.unitTest});
+
+  final AppFlowyUnitTest unitTest;
 
   static Future<AppFlowyBoardTest> ensureInitialized() async {
     final inner = await AppFlowyUnitTest.ensureInitialized();
@@ -28,12 +24,12 @@ class AppFlowyBoardTest {
   }
 
   Future<BoardTestContext> createTestBoard() async {
-    final app = await unitTest.createTestApp();
+    final app = await unitTest.createWorkspace();
     final builder = BoardPluginBuilder();
     return ViewBackendService.createView(
       parentViewId: app.id,
       name: "Test Board",
-      layoutType: builder.layoutType!,
+      layoutType: builder.layoutType,
       openAfterCreate: true,
     ).then((result) {
       return result.fold(
@@ -55,18 +51,18 @@ class AppFlowyBoardTest {
 }
 
 Future<void> boardResponseFuture() {
-  return Future.delayed(boardResponseDuration(milliseconds: 200));
+  return Future.delayed(boardResponseDuration());
 }
 
-Duration boardResponseDuration({int milliseconds = 200}) {
+Duration boardResponseDuration({int milliseconds = 2000}) {
   return Duration(milliseconds: milliseconds);
 }
 
 class BoardTestContext {
+  BoardTestContext(this.gridView, this._boardDataController);
+
   final ViewPB gridView;
   final DatabaseController _boardDataController;
-
-  BoardTestContext(this.gridView, this._boardDataController);
 
   List<RowInfo> get rowInfos {
     return _boardDataController.rowCache.rowInfos;
@@ -82,55 +78,26 @@ class BoardTestContext {
 
   FieldEditorBloc makeFieldEditor({
     required FieldInfo fieldInfo,
-  }) {
-    final loader = FieldTypeOptionLoader(
-      viewId: gridView.id,
-      field: fieldInfo.field,
-    );
+  }) =>
+      FieldEditorBloc(
+        viewId: databaseController.viewId,
+        fieldController: fieldController,
+        fieldInfo: fieldInfo,
+        isNew: false,
+      );
 
-    final editorBloc = FieldEditorBloc(
-      isGroupField: fieldInfo.isGroupField,
-      loader: loader,
-      field: fieldInfo.field,
-    );
-    return editorBloc;
-  }
-
-  Future<CellController> makeCellController(String fieldId) async {
-    final builder = await makeCellControllerBuilder(fieldId);
-    return builder.build();
-  }
-
-  Future<CellControllerBuilder> makeCellControllerBuilder(
-    String fieldId,
-  ) async {
-    final RowInfo rowInfo = rowInfos.last;
-    final rowCache = _boardDataController.rowCache;
-
-    final rowDataController = RowController(
-      viewId: rowInfo.viewId,
-      rowMeta: rowInfo.rowMeta,
-      rowCache: rowCache,
-    );
-
-    final rowBloc = RowBloc(
-      viewId: rowInfo.viewId,
-      dataController: rowDataController,
-      rowId: rowInfo.rowMeta.id,
-    )..add(const RowEvent.initial());
-    await gridResponseFuture();
-
-    return CellControllerBuilder(
-      cellContext: rowBloc.state.cellByFieldId[fieldId]!,
-      cellCache: rowCache.cellCache,
+  CellController makeCellControllerFromFieldId(String fieldId) {
+    return makeCellController(
+      _boardDataController,
+      CellContext(fieldId: fieldId, rowId: rowInfos.last.rowId),
     );
   }
 
   Future<FieldEditorBloc> createField(FieldType fieldType) async {
-    final editorBloc = await createFieldEditor(viewId: gridView.id)
-      ..add(const FieldEditorEvent.initial());
+    final editorBloc =
+        await createFieldEditor(databaseController: _boardDataController);
     await gridResponseFuture();
-    editorBloc.add(FieldEditorEvent.switchToField(fieldType));
+    editorBloc.add(FieldEditorEvent.switchFieldType(fieldType));
     await gridResponseFuture();
     return Future(() => editorBloc);
   }
@@ -139,11 +106,6 @@ class BoardTestContext {
     final fieldInfo = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.SingleSelect);
     return fieldInfo;
-  }
-
-  FieldContext singleSelectFieldCellContext() {
-    final fieldInfo = singleSelectFieldContext();
-    return FieldContext(viewId: gridView.id, fieldInfo: fieldInfo);
   }
 
   FieldInfo textFieldContext() {

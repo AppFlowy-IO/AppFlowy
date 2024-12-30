@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:flutter/material.dart';
 
 class PopoverMenu extends StatefulWidget {
-  const PopoverMenu({Key? key}) : super(key: key);
+  const PopoverMenu({super.key});
 
   @override
   State<StatefulWidget> createState() => _PopoverMenuState();
@@ -14,43 +14,32 @@ class _PopoverMenuState extends State<PopoverMenu> {
   @override
   Widget build(BuildContext context) {
     return Material(
-        type: MaterialType.transparency,
-        child: Container(
-          width: 200,
-          height: 200,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: const BorderRadius.all(Radius.circular(8)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 5,
-                blurRadius: 7,
-                offset: const Offset(0, 3), // changes position of shadow
-              ),
-            ],
-          ),
-          child: ListView(children: [
+      type: MaterialType.transparency,
+      child: Container(
+        width: 200,
+        height: 200,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.all(Radius.circular(8)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: const Offset(0, 3), // changes position of shadow
+            ),
+          ],
+        ),
+        child: ListView(
+          children: [
             Container(
               margin: const EdgeInsets.all(8),
-              child: const Text("Popover",
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.black,
-                      fontStyle: null,
-                      decoration: null)),
-            ),
-            Popover(
-              triggerActions:
-                  PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
-              mutex: popOverMutex,
-              offset: const Offset(10, 0),
-              popupBuilder: (BuildContext context) {
-                return const PopoverMenu();
-              },
-              child: TextButton(
-                onPressed: () {},
-                child: const Text("First"),
+              child: const Text(
+                'Popover',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.black,
+                ),
               ),
             ),
             Popover(
@@ -58,38 +47,62 @@ class _PopoverMenuState extends State<PopoverMenu> {
                   PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
               mutex: popOverMutex,
               offset: const Offset(10, 0),
+              asBarrier: true,
+              debugId: 'First',
               popupBuilder: (BuildContext context) {
                 return const PopoverMenu();
               },
               child: TextButton(
                 onPressed: () {},
-                child: const Text("Second"),
+                child: const Text('First'),
               ),
             ),
-          ]),
-        ));
+            Popover(
+              triggerActions:
+                  PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
+              mutex: popOverMutex,
+              asBarrier: true,
+              debugId: 'Second',
+              offset: const Offset(10, 0),
+              popupBuilder: (BuildContext context) {
+                return const PopoverMenu();
+              },
+              child: TextButton(
+                onPressed: () {},
+                child: const Text('Second'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
 class ExampleButton extends StatelessWidget {
+  const ExampleButton({
+    super.key,
+    required this.label,
+    required this.direction,
+    this.offset = Offset.zero,
+  });
+
   final String label;
   final Offset? offset;
-  final PopoverDirection? direction;
-
-  const ExampleButton({
-    Key? key,
-    required this.label,
-    this.direction,
-    this.offset = Offset.zero,
-  }) : super(key: key);
+  final PopoverDirection direction;
 
   @override
   Widget build(BuildContext context) {
     return Popover(
       triggerActions: PopoverTriggerFlags.click,
+      animationDuration: Durations.medium1,
       offset: offset,
-      direction: direction ?? PopoverDirection.rightWithTopAligned,
-      child: TextButton(child: Text(label), onPressed: () {}),
+      direction: direction,
+      debugId: label,
+      child: TextButton(
+        child: Text(label),
+        onPressed: () {},
+      ),
       popupBuilder: (BuildContext context) {
         return const PopoverMenu();
       },

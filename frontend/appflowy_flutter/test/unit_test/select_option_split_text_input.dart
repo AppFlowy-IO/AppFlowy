@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/database_view/widgets/row/cells/select_option_cell/text_field.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_text_field.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -6,41 +6,43 @@ void main() {
 
   group('split input unit test', () {
     test('empty input', () {
-      List result = splitInput(' ', textSeparators);
-      expect(result[0], []);
-      expect(result[1], '');
+      var (submitted, remainder) = splitInput(' ', textSeparators);
+      expect(submitted, []);
+      expect(remainder, '');
 
-      result = splitInput(', , , ', textSeparators);
-      expect(result[0], []);
-      expect(result[1], '');
+      (submitted, remainder) = splitInput(', , , ', textSeparators);
+      expect(submitted, []);
+      expect(remainder, '');
     });
 
     test('simple input', () {
-      List result = splitInput('exampleTag', textSeparators);
-      expect(result[0], []);
-      expect(result[1], 'exampleTag');
+      var (submitted, remainder) = splitInput('exampleTag', textSeparators);
+      expect(submitted, []);
+      expect(remainder, 'exampleTag');
 
-      result = splitInput('tag with longer name', textSeparators);
-      expect(result[0], []);
-      expect(result[1], 'tag with longer name');
+      (submitted, remainder) =
+          splitInput('tag with longer name', textSeparators);
+      expect(submitted, []);
+      expect(remainder, 'tag with longer name');
 
-      result = splitInput('trailing space ', textSeparators);
-      expect(result[0], []);
-      expect(result[1], 'trailing space ');
+      (submitted, remainder) = splitInput('trailing space ', textSeparators);
+      expect(submitted, []);
+      expect(remainder, 'trailing space ');
     });
 
     test('input with commas', () {
-      List result = splitInput('a, b, c', textSeparators);
-      expect(result[0], ['a', 'b']);
-      expect(result[1], 'c');
+      var (submitted, remainder) = splitInput('a, b, c', textSeparators);
+      expect(submitted, ['a', 'b']);
+      expect(remainder, 'c');
 
-      result = splitInput('a, b, c, ', textSeparators);
-      expect(result[0], ['a', 'b', 'c']);
-      expect(result[1], '');
+      (submitted, remainder) = splitInput('a, b, c, ', textSeparators);
+      expect(submitted, ['a', 'b', 'c']);
+      expect(remainder, '');
 
-      result = splitInput(',tag 1 ,2nd tag, third tag ', textSeparators);
-      expect(result[0], ['tag 1', '2nd tag']);
-      expect(result[1], 'third tag ');
+      (submitted, remainder) =
+          splitInput(',tag 1 ,2nd tag, third tag ', textSeparators);
+      expect(submitted, ['tag 1', '2nd tag']);
+      expect(remainder, 'third tag ');
     });
   });
 }

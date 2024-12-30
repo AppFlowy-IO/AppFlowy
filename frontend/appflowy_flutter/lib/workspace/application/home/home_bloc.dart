@@ -1,22 +1,29 @@
 import 'package:appflowy/user/application/user_listener.dart';
-import 'package:flowy_infra/time/duration.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart'
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart'
     show WorkspaceSettingPB;
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 part 'home_bloc.freezed.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-  final UserWorkspaceListener _workspaceListener;
-
-  HomeBloc(
-    UserProfilePB userProfile,
-    WorkspaceSettingPB workspaceSetting,
-  )   : _workspaceListener = UserWorkspaceListener(userProfile: userProfile),
+  HomeBloc(WorkspaceSettingPB workspaceSetting)
+      : _workspaceListener = FolderListener(),
         super(HomeState.initial(workspaceSetting)) {
+    _dispatch(workspaceSetting);
+  }
+
+  final FolderListener _workspaceListener;
+
+  @override
+  Future<void> close() async {
+    await _workspaceListener.stop();
+    return super.close();
+  }
+
+  void _dispatch(WorkspaceSettingPB workspaceSetting) {
     on<HomeEvent>(
       (event, emit) async {
         await event.map(
@@ -41,8 +48,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             emit(state.copyWith(isLoading: e.isLoading));
           },
           didReceiveWorkspaceSetting: (_DidReceiveWorkspaceSetting value) {
-            final latestView = workspaceSetting.hasLatestView()
-                ? workspaceSetting.latestView
+            final latestView = value.setting.hasLatestView()
+                ? value.setting.latestView
                 : state.latestView;
 
             emit(
@@ -55,28 +62,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         );
       },
     );
-  }
-
-  @override
-  Future<void> close() async {
-    await _workspaceListener.stop();
-    return super.close();
-  }
-}
-
-enum MenuResizeType {
-  slide,
-  drag,
-}
-
-extension MenuResizeTypeExtension on MenuResizeType {
-  Duration duration() {
-    switch (this) {
-      case MenuResizeType.drag:
-        return 30.milliseconds;
-      case MenuResizeType.slide:
-        return 350.milliseconds;
-    }
   }
 }
 
@@ -100,6 +85,5 @@ class HomeState with _$HomeState {
   factory HomeState.initial(WorkspaceSettingPB workspaceSetting) => HomeState(
         isLoading: false,
         workspaceSetting: workspaceSetting,
-        latestView: null,
       );
 }

@@ -1,47 +1,45 @@
-use std::sync::Arc;
-
-use collab_database::fields::Field;
-use collab_database::rows::{new_cell_builder, Cell, Cells, Row, RowDetail};
+use async_trait::async_trait;
+use collab_database::fields::checkbox_type_option::CheckboxTypeOption;
+use collab_database::fields::{Field, TypeOptionData};
+use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
+use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 
-use crate::entities::{FieldType, GroupRowsNotificationPB, InsertedRowPB, RowMetaPB};
+use crate::entities::{FieldType, GroupPB, GroupRowsNotificationPB, InsertedRowPB, RowMetaPB};
 use crate::services::cell::insert_checkbox_cell;
-use crate::services::field::{
-  CheckboxCellData, CheckboxCellDataParser, CheckboxTypeOption, CHECK, UNCHECK,
-};
+use crate::services::field::{CheckboxCellDataParser, TypeOption, CHECK, UNCHECK};
 use crate::services::group::action::GroupCustomize;
-use crate::services::group::configuration::GroupContext;
-use crate::services::group::controller::{
-  BaseGroupController, GroupController, GroupsBuilder, MoveGroupRowContext,
+use crate::services::group::configuration::GroupControllerContext;
+use crate::services::group::controller::BaseGroupController;
+use crate::services::group::{
+  move_group_row, GeneratedGroups, Group, GroupsBuilder, MoveGroupRowContext,
 };
-use crate::services::group::{move_group_row, GeneratedGroupConfig, GeneratedGroups, Group};
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct CheckboxGroupConfiguration {
   pub hide_empty: bool,
 }
 
-pub type CheckboxGroupController = BaseGroupController<
-  CheckboxGroupConfiguration,
-  CheckboxTypeOption,
-  CheckboxGroupGenerator,
-  CheckboxCellDataParser,
->;
+pub type CheckboxGroupController =
+  BaseGroupController<CheckboxGroupConfiguration, CheckboxGroupBuilder, CheckboxCellDataParser>;
 
-pub type CheckboxGroupContext = GroupContext<CheckboxGroupConfiguration>;
+pub type CheckboxGroupControllerContext = GroupControllerContext<CheckboxGroupConfiguration>;
 
+#[async_trait]
 impl GroupCustomize for CheckboxGroupController {
-  type CellData = CheckboxCellData;
+  type GroupTypeOption = CheckboxTypeOption;
   fn placeholder_cell(&self) -> Option<Cell> {
-    Some(
-      new_cell_builder(FieldType::Checkbox)
-        .insert_str_value("data", UNCHECK)
-        .build(),
-    )
+    let mut cell = new_cell_builder(FieldType::Checkbox);
+    cell.insert("data".into(), UNCHECK.into());
+    Some(cell)
   }
 
-  fn can_group(&self, content: &str, cell_data: &Self::CellData) -> bool {
-    if cell_data.is_check() {
+  fn can_group(
+    &self,
+    content: &str,
+    cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
+  ) -> bool {
+    if cell_data.is_checked {
       content == CHECK
     } else {
       content == UNCHECK
@@ -50,45 +48,41 @@ impl GroupCustomize for CheckboxGroupController {
 
   fn add_or_remove_row_when_cell_changed(
     &mut self,
-    row_detail: &RowDetail,
-    cell_data: &Self::CellData,
+    row: &Row,
+    cell_data: &<Self::GroupTypeOption as TypeOption>::CellProtobufType,
   ) -> Vec<GroupRowsNotificationPB> {
     let mut changesets = vec![];
     self.context.iter_mut_status_groups(|group| {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
-      let is_not_contained = !group.contains_row(&row_detail.row.id);
+      let is_not_contained = !group.contains_row(&row.id);
       if group.id == CHECK {
-        if cell_data.is_uncheck() {
+        if !cell_data.is_checked {
           // Remove the row if the group.id is CHECK but the cell_data is UNCHECK
-          changeset
-            .deleted_rows
-            .push(row_detail.row.id.clone().into_inner());
-          group.remove_row(&row_detail.row.id);
+          changeset.deleted_rows.push(row.id.clone().into_inner());
+          group.remove_row(&row.id);
         } else {
           // Add the row to the group if the group didn't contain the row
           if is_not_contained {
             changeset
               .inserted_rows
-              .push(InsertedRowPB::new(RowMetaPB::from(row_detail)));
-            group.add_row(row_detail.clone());
+              .push(InsertedRowPB::new(RowMetaPB::from(row)));
+            group.add_row(row.clone());
           }
         }
       }
 
       if group.id == UNCHECK {
-        if cell_data.is_check() {
+        if cell_data.is_checked {
           // Remove the row if the group.id is UNCHECK but the cell_data is CHECK
-          changeset
-            .deleted_rows
-            .push(row_detail.row.id.clone().into_inner());
-          group.remove_row(&row_detail.row.id);
+          changeset.deleted_rows.push(row.id.clone().into_inner());
+          group.remove_row(&row.id);
         } else {
           // Add the row to the group if the group didn't contain the row
           if is_not_contained {
             changeset
               .inserted_rows
-              .push(InsertedRowPB::new(RowMetaPB::from(row_detail)));
-            group.add_row(row_detail.clone());
+              .push(InsertedRowPB::new(RowMetaPB::from(row)));
+            group.add_row(row.clone());
           }
         }
       }
@@ -100,7 +94,11 @@ impl GroupCustomize for CheckboxGroupController {
     changesets
   }
 
-  fn delete_row(&mut self, row: &Row, _cell_data: &Self::CellData) -> Vec<GroupRowsNotificationPB> {
+  fn delete_row(
+    &mut self,
+    row: &Row,
+    _cell_data: &<Self::GroupTypeOption as TypeOption>::CellData,
+  ) -> (Option<GroupPB>, Vec<GroupRowsNotificationPB>) {
     let mut changesets = vec![];
     self.context.iter_mut_groups(|group| {
       let mut changeset = GroupRowsNotificationPB::new(group.id.clone());
@@ -113,14 +111,10 @@ impl GroupCustomize for CheckboxGroupController {
         changesets.push(changeset);
       }
     });
-    changesets
+    (None, changesets)
   }
 
-  fn move_row(
-    &mut self,
-    _cell_data: &Self::CellData,
-    mut context: MoveGroupRowContext,
-  ) -> Vec<GroupRowsNotificationPB> {
+  fn move_row(&mut self, mut context: MoveGroupRowContext) -> Vec<GroupRowsNotificationPB> {
     let mut group_changeset = vec![];
     self.context.iter_mut_groups(|group| {
       if let Some(changeset) = move_group_row(group, &mut context) {
@@ -129,54 +123,40 @@ impl GroupCustomize for CheckboxGroupController {
     });
     group_changeset
   }
-}
 
-impl GroupController for CheckboxGroupController {
-  fn did_update_field_type_option(&mut self, _field: &Arc<Field>) {
-    // Do nothing
+  async fn delete_group(&mut self, _group_id: &str) -> FlowyResult<Option<TypeOptionData>> {
+    Ok(None)
   }
 
-  fn will_create_row(&mut self, cells: &mut Cells, field: &Field, group_id: &str) {
+  fn will_create_row(&self, cells: &mut Cells, field: &Field, group_id: &str) {
     match self.context.get_group(group_id) {
       None => tracing::warn!("Can not find the group: {}", group_id),
       Some((_, group)) => {
-        let is_check = group.id == CHECK;
-        let cell = insert_checkbox_cell(is_check, field);
+        let is_checked = group.id == CHECK;
+        let cell = insert_checkbox_cell(is_checked, field);
         cells.insert(field.id.clone(), cell);
       },
     }
   }
-
-  fn did_create_row(&mut self, row_detail: &RowDetail, group_id: &str) {
-    if let Some(group) = self.context.get_mut_group(group_id) {
-      group.add_row(row_detail.clone())
-    }
-  }
 }
 
-pub struct CheckboxGroupGenerator();
-impl GroupsBuilder for CheckboxGroupGenerator {
-  type Context = CheckboxGroupContext;
-  type TypeOptionType = CheckboxTypeOption;
+pub struct CheckboxGroupBuilder();
+#[async_trait]
+impl GroupsBuilder for CheckboxGroupBuilder {
+  type Context = CheckboxGroupControllerContext;
+  type GroupTypeOption = CheckboxTypeOption;
 
-  fn build(
+  async fn build(
     _field: &Field,
     _context: &Self::Context,
-    _type_option: &Option<Self::TypeOptionType>,
+    _type_option: &Self::GroupTypeOption,
   ) -> GeneratedGroups {
-    let check_group = GeneratedGroupConfig {
-      group: Group::new(CHECK.to_string(), "".to_string()),
-      filter_content: CHECK.to_string(),
-    };
-
-    let uncheck_group = GeneratedGroupConfig {
-      group: Group::new(UNCHECK.to_string(), "".to_string()),
-      filter_content: UNCHECK.to_string(),
-    };
+    let check_group = Group::new(CHECK.to_string());
+    let uncheck_group = Group::new(UNCHECK.to_string());
 
     GeneratedGroups {
       no_status_group: None,
-      group_configs: vec![check_group, uncheck_group],
+      groups: vec![check_group, uncheck_group],
     }
   }
 }

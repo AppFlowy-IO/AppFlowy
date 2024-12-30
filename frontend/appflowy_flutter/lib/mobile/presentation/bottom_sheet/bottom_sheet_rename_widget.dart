@@ -8,10 +8,12 @@ class MobileBottomSheetRenameWidget extends StatefulWidget {
     super.key,
     required this.name,
     required this.onRename,
+    this.padding = const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
   });
 
   final String name;
   final void Function(String name) onRename;
+  final EdgeInsets padding;
 
   @override
   State<MobileBottomSheetRenameWidget> createState() =>
@@ -25,50 +27,50 @@ class _MobileBottomSheetRenameWidgetState
   @override
   void initState() {
     super.initState();
-
-    controller = TextEditingController(text: widget.name);
+    controller = TextEditingController(text: widget.name)
+      ..selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: widget.name.length,
+      );
   }
 
   @override
   void dispose() {
     controller.dispose();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 4.0,
-        vertical: 16.0,
-      ),
+      padding: widget.padding,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const HSpace(8.0),
           Expanded(
             child: SizedBox(
-              height: 44.0,
+              height: 42.0,
               child: FlowyTextField(
                 controller: controller,
+                textStyle: Theme.of(context).textTheme.bodyMedium,
+                keyboardType: TextInputType.text,
+                onSubmitted: (text) => widget.onRename(text),
               ),
             ),
           ),
           const HSpace(12.0),
           FlowyTextButton(
             LocaleKeys.button_edit.tr(),
+            constraints: const BoxConstraints.tightFor(height: 42),
             padding: const EdgeInsets.symmetric(
-              vertical: 12.0,
               horizontal: 16.0,
             ),
             fontColor: Colors.white,
-            fillColor: Colors.lightBlue.shade300,
+            fillColor: Theme.of(context).primaryColor,
             onPressed: () {
               widget.onRename(controller.text);
             },
           ),
-          const HSpace(8.0),
         ],
       ),
     );

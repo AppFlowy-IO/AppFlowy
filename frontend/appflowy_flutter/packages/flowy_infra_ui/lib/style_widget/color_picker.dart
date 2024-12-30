@@ -24,7 +24,7 @@ class FlowyColorPicker extends StatelessWidget {
   final Border? border;
 
   const FlowyColorPicker({
-    Key? key,
+    super.key,
     required this.colors,
     this.selected,
     this.onTap,
@@ -32,13 +32,12 @@ class FlowyColorPicker extends StatelessWidget {
     this.iconSize = 16,
     this.itemHeight = 32,
     this.border,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
       shrinkWrap: true,
-      controller: ScrollController(),
       separatorBuilder: (context, index) {
         return VSpace(separatorSize);
       },
@@ -59,25 +58,48 @@ class FlowyColorPicker extends StatelessWidget {
       checkmark = const FlowySvg(FlowySvgData("grid/checkmark"));
     }
 
-    final colorIcon = SizedBox.square(
-      dimension: iconSize,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: option.color,
-          shape: BoxShape.circle,
-        ),
-      ),
+    final colorIcon = ColorOptionIcon(
+      color: option.color,
+      iconSize: iconSize,
     );
 
     return SizedBox(
       height: itemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(option.i18n),
+        text: FlowyText(option.i18n),
         leftIcon: colorIcon,
         rightIcon: checkmark,
+        iconPadding: 10,
         onTap: () {
           onTap?.call(option, i);
         },
+      ),
+    );
+  }
+}
+
+class ColorOptionIcon extends StatelessWidget {
+  const ColorOptionIcon({
+    super.key,
+    required this.color,
+    this.iconSize = 16.0,
+  });
+
+  final Color color;
+  final double iconSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.square(
+      dimension: iconSize,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: color == Colors.transparent
+              ? Border.all(color: const Color(0xFFCFD3D9))
+              : null,
+        ),
       ),
     );
   }

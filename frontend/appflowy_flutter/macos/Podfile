@@ -1,4 +1,6 @@
-platform :osx, '10.14'
+MINIMUM_MACOSX_DEPLOYMENT_TARGET_SUPPORTED = '10.14'
+
+platform :osx, MINIMUM_MACOSX_DEPLOYMENT_TARGET_SUPPORTED
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -81,6 +83,7 @@ post_install do |installer|
         xcconfig_path = config.base_configuration_reference.real_path
         IO.write(xcconfig_path, IO.read(xcconfig_path).gsub("DT_TOOLCHAIN_DIR", "TOOLCHAIN_DIR"))
       end
+      config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = MINIMUM_MACOSX_DEPLOYMENT_TARGET_SUPPORTED
     end
   end
 end

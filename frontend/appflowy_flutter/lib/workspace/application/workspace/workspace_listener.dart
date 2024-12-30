@@ -1,34 +1,38 @@
 import 'dart:async';
 import 'dart:typed_data';
+
 import 'package:appflowy/core/notification/folder_notification.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
-import 'package:dartz/dartz.dart';
-import 'package:flowy_infra/notifier.dart';
+import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
-import 'package:appflowy_backend/protobuf/flowy-folder2/workspace.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/notification.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
+import 'package:flowy_infra/notifier.dart';
 
-typedef AppListNotifyValue = Either<List<ViewPB>, FlowyError>;
-typedef WorkspaceNotifyValue = Either<WorkspacePB, FlowyError>;
+typedef RootViewsNotifyValue = FlowyResult<List<ViewPB>, FlowyError>;
+typedef WorkspaceNotifyValue = FlowyResult<WorkspacePB, FlowyError>;
 
+/// The [WorkspaceListener] listens to the changes including the below:
+///
+/// - The root views of the workspace. (Not including the views are inside the root views)
+/// - The workspace itself.
 class WorkspaceListener {
-  PublishNotifier<AppListNotifyValue>? _appsChangedNotifier = PublishNotifier();
+  WorkspaceListener({required this.user, required this.workspaceId});
+
+  final UserProfilePB user;
+  final String workspaceId;
+
+  PublishNotifier<RootViewsNotifyValue>? _appsChangedNotifier =
+      PublishNotifier();
   PublishNotifier<WorkspaceNotifyValue>? _workspaceUpdatedNotifier =
       PublishNotifier();
 
   FolderNotificationListener? _listener;
-  final UserProfilePB user;
-  final String workspaceId;
-
-  WorkspaceListener({
-    required this.user,
-    required this.workspaceId,
-  });
 
   void start({
-    void Function(AppListNotifyValue)? appsChanged,
+    void Function(RootViewsNotifyValue)? appsChanged,
     void Function(WorkspaceNotifyValue)? onWorkspaceUpdated,
   }) {
     if (appsChanged != null) {
@@ -47,21 +51,22 @@ class WorkspaceListener {
 
   void _handleObservableType(
     FolderNotification ty,
-    Either<Uint8List, FlowyError> result,
+    FlowyResult<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
       case FolderNotification.DidUpdateWorkspace:
         result.fold(
           (payload) => _workspaceUpdatedNotifier?.value =
-              left(WorkspacePB.fromBuffer(payload)),
-          (error) => _workspaceUpdatedNotifier?.value = right(error),
+              FlowyResult.success(WorkspacePB.fromBuffer(payload)),
+          (error) =>
+              _workspaceUpdatedNotifier?.value = FlowyResult.failure(error),
         );
         break;
       case FolderNotification.DidUpdateWorkspaceViews:
         result.fold(
           (payload) => _appsChangedNotifier?.value =
-              left(RepeatedViewPB.fromBuffer(payload).items),
-          (error) => _appsChangedNotifier?.value = right(error),
+              FlowyResult.success(RepeatedViewPB.fromBuffer(payload).items),
+          (error) => _appsChangedNotifier?.value = FlowyResult.failure(error),
         );
         break;
       default:

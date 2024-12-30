@@ -7,10 +7,12 @@ class FlowyDecoration {
     double spreadRadius = 0,
     double blurRadius = 20,
     Offset offset = Offset.zero,
+    double borderRadius = 6,
+    BoxBorder? border,
   }) {
     return BoxDecoration(
       color: boxColor,
-      borderRadius: const BorderRadius.all(Radius.circular(6)),
+      borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
       boxShadow: [
         BoxShadow(
           color: boxShadow,
@@ -19,6 +21,7 @@ class FlowyDecoration {
           offset: offset,
         ),
       ],
+      border: border,
     );
   }
 }

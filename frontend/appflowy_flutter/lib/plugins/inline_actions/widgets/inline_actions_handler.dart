@@ -1,5 +1,6 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
@@ -10,6 +11,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+/// All heights are in physical pixels
+const double _groupTextHeight = 14; // 12 height + 2 bottom spacing
+const double _groupBottomSpacing = 6;
+const double _itemHeight = 30; // 26 height + 4 vertical spacing (2*2)
+
+const double kInlineMenuHeight = 300;
+const double kInlineMenuWidth = 400;
+const double _contentHeight = 260;
 
 extension _StartWithsSort on List<InlineActionsResult> {
   void sortByStartsWithKeyword(String search) => sort(
@@ -39,7 +49,7 @@ extension _StartWithsSort on List<InlineActionsResult> {
       );
 }
 
-const _invalidSearchesAmount = 20;
+const _invalidSearchesAmount = 10;
 
 class InlineActionsHandler extends StatefulWidget {
   const InlineActionsHandler({
@@ -51,6 +61,8 @@ class InlineActionsHandler extends StatefulWidget {
     required this.onDismiss,
     required this.onSelectionUpdate,
     required this.style,
+    this.startCharAmount = 1,
+    this.cancelBySpaceHandler,
   });
 
   final InlineActionsService service;
@@ -60,6 +72,8 @@ class InlineActionsHandler extends StatefulWidget {
   final VoidCallback onDismiss;
   final VoidCallback onSelectionUpdate;
   final InlineActionsMenuStyle style;
+  final int startCharAmount;
+  final bool Function()? cancelBySpaceHandler;
 
   @override
   State<InlineActionsHandler> createState() => _InlineActionsHandlerState();
@@ -67,6 +81,7 @@ class InlineActionsHandler extends StatefulWidget {
 
 class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   final _focusNode = FocusNode(debugLabel: 'inline_actions_menu_handler');
+  final _scrollController = ScrollController();
 
   late List<InlineActionsResult> results = widget.results;
   int invalidCounter = 0;
@@ -81,7 +96,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   Future<void> _doSearch() async {
     final List<InlineActionsResult> newResults = [];
     for (final handler in widget.service.handlers) {
-      final group = await handler.call(_search);
+      final group = await handler.search(_search);
 
       if (group.results.isNotEmpty) {
         newResults.add(group);
@@ -93,16 +108,19 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
         : 0;
 
     if (invalidCounter >= _invalidSearchesAmount) {
-      return widget.onDismiss();
+      widget.onDismiss();
+
+      // Workaround to bring focus back to editor
+      await widget.editorState
+          .updateSelectionWithReason(widget.editorState.selection);
+
+      return;
     }
 
     _resetSelection();
 
     newResults.sortByStartsWithKeyword(_search);
-
-    setState(() {
-      results = newResults;
-    });
+    setState(() => results = newResults);
   }
 
   void _resetSelection() {
@@ -116,20 +134,30 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
   @override
   void initState() {
     super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.requestFocus();
-    });
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _focusNode.requestFocus(),
+    );
 
     startOffset = widget.editorState.selection?.endIndex ?? 0;
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Focus(
       focusNode: _focusNode,
-      onKey: onKey,
-      child: DecoratedBox(
+      onKeyEvent: onKeyEvent,
+      child: Container(
+        constraints: const BoxConstraints(
+          maxHeight: kInlineMenuHeight,
+          minWidth: kInlineMenuWidth,
+        ),
         decoration: BoxDecoration(
           color: widget.style.backgroundColor,
           borderRadius: BorderRadius.circular(6.0),
@@ -150,22 +178,29 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
                     LocaleKeys.inlineActions_noResults.tr(),
                   ),
                 )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: results
-                      .where((g) => g.results.isNotEmpty)
-                      .mapIndexed(
-                        (index, group) => InlineActionsGroup(
-                          result: group,
-                          editorState: widget.editorState,
-                          menuService: widget.menuService,
-                          style: widget.style,
-                          isGroupSelected: _selectedGroup == index,
-                          selectedIndex: _selectedIndex,
-                          onSelected: widget.onDismiss,
-                        ),
-                      )
-                      .toList(),
+              : SingleChildScrollView(
+                  controller: _scrollController,
+                  physics: const ClampingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: results
+                        .where((g) => g.results.isNotEmpty)
+                        .mapIndexed(
+                          (index, group) => InlineActionsGroup(
+                            result: group,
+                            editorState: widget.editorState,
+                            menuService: widget.menuService,
+                            style: widget.style,
+                            onSelected: widget.onDismiss,
+                            startOffset: startOffset - widget.startCharAmount,
+                            endOffset: _search.length + widget.startCharAmount,
+                            isLastGroup: index == results.length - 1,
+                            isGroupSelected: _selectedGroup == index,
+                            selectedIndex: _selectedIndex,
+                          ),
+                        )
+                        .toList(),
+                  ),
                 ),
         ),
       ),
@@ -177,13 +212,14 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
 
   int get groupLength => results.length;
 
-  int lengthOfGroup(int index) => results[index].results.length;
+  int lengthOfGroup(int index) =>
+      results.length > index ? results[index].results.length : -1;
 
   InlineActionsMenuItem handlerOf(int groupIndex, int handlerIndex) =>
       results[groupIndex].results[handlerIndex];
 
-  KeyEventResult onKey(focus, event) {
-    if (event is! RawKeyDownEvent) {
+  KeyEventResult onKeyEvent(focus, KeyEvent event) {
+    if (event is! KeyDownEvent) {
       return KeyEventResult.ignored;
     }
 
@@ -200,19 +236,43 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
           context,
           widget.editorState,
           widget.menuService,
-          (startOffset - 1, _search.length + 1),
+          (
+            startOffset - widget.startCharAmount,
+            _search.length + widget.startCharAmount
+          ),
         );
 
         widget.onDismiss();
         return KeyEventResult.handled;
       }
+
+      if (noResults) {
+        // Workaround to bring focus back to editor
+        widget.editorState
+            .updateSelectionWithReason(widget.editorState.selection);
+        widget.editorState.insertNewLine();
+
+        widget.onDismiss();
+        return KeyEventResult.handled;
+      }
     } else if (event.logicalKey == LogicalKeyboardKey.escape) {
+      // Workaround to bring focus back to editor
+      widget.editorState
+          .updateSelectionWithReason(widget.editorState.selection);
+
       widget.onDismiss();
-      return KeyEventResult.handled;
     } else if (event.logicalKey == LogicalKeyboardKey.backspace) {
       if (_search.isEmpty) {
+        if (_canDeleteLastCharacter()) {
+          widget.editorState.deleteBackward();
+        } else {
+          // Workaround for editor regaining focus
+          widget.editorState.apply(
+            widget.editorState.transaction
+              ..afterSelection = widget.editorState.selection,
+          );
+        }
         widget.onDismiss();
-        widget.editorState.deleteBackward(); // Delete '@'
       } else {
         widget.onSelectionUpdate();
         widget.editorState.deleteBackward();
@@ -224,18 +284,23 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
         ![
           ...moveKeys,
           LogicalKeyboardKey.arrowLeft,
-          LogicalKeyboardKey.arrowRight
+          LogicalKeyboardKey.arrowRight,
         ].contains(event.logicalKey)) {
       /// Prevents dismissal of context menu by notifying the parent
       /// that the selection change occurred from the handler.
       widget.onSelectionUpdate();
 
+      if (event.logicalKey == LogicalKeyboardKey.space) {
+        final cancelBySpaceHandler = widget.cancelBySpaceHandler;
+        if (cancelBySpaceHandler != null && cancelBySpaceHandler()) {
+          return KeyEventResult.handled;
+        }
+      }
+
       // Interpolation to avoid having a getter for private variable
       _insertCharacter(event.character!);
       return KeyEventResult.handled;
-    }
-
-    if (moveKeys.contains(event.logicalKey)) {
+    } else if (moveKeys.contains(event.logicalKey)) {
       _moveSelection(event.logicalKey);
       return KeyEventResult.handled;
     }
@@ -245,7 +310,7 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
       widget.onSelectionUpdate();
 
       event.logicalKey == LogicalKeyboardKey.arrowLeft
-          ? widget.editorState.moveCursorForward(SelectionMoveRange.character)
+          ? widget.editorState.moveCursorForward()
           : widget.editorState.moveCursorBackward(SelectionMoveRange.character);
 
       /// If cursor moves before @ then dismiss menu
@@ -282,40 +347,90 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
       return;
     }
 
-    /// Grab index of the first character in command (right after @)
-    final startIndex =
-        delta.toPlainText().lastIndexOf(inlineActionCharacter) + 1;
-
     search = widget.editorState
         .getTextInSelection(
           selection.copyWith(
-            start: selection.start.copyWith(offset: startIndex),
+            start: selection.start.copyWith(offset: startOffset),
             end: selection.start
-                .copyWith(offset: startIndex + _search.length + 1),
+                .copyWith(offset: startOffset + _search.length + 1),
           ),
         )
         .join();
   }
 
   void _moveSelection(LogicalKeyboardKey key) {
-    if ([LogicalKeyboardKey.arrowDown, LogicalKeyboardKey.tab].contains(key)) {
-      if (_selectedIndex < lengthOfGroup(_selectedGroup) - 1) {
-        _selectedIndex += 1;
-      } else if (_selectedGroup < groupLength - 1) {
-        _selectedGroup += 1;
-        _selectedIndex = 0;
-      }
-    } else if (key == LogicalKeyboardKey.arrowUp) {
+    bool didChange = false;
+
+    if (key == LogicalKeyboardKey.arrowUp ||
+        (key == LogicalKeyboardKey.tab &&
+            HardwareKeyboard.instance.isShiftPressed)) {
       if (_selectedIndex == 0 && _selectedGroup > 0) {
         _selectedGroup -= 1;
         _selectedIndex = lengthOfGroup(_selectedGroup) - 1;
+        didChange = true;
       } else if (_selectedIndex > 0) {
         _selectedIndex -= 1;
+        didChange = true;
+      }
+    } else if ([LogicalKeyboardKey.arrowDown, LogicalKeyboardKey.tab]
+        .contains(key)) {
+      if (_selectedIndex < lengthOfGroup(_selectedGroup) - 1) {
+        _selectedIndex += 1;
+        didChange = true;
+      } else if (_selectedGroup < groupLength - 1) {
+        _selectedGroup += 1;
+        _selectedIndex = 0;
+        didChange = true;
       }
     }
 
-    if (mounted) {
+    if (mounted && didChange) {
       setState(() {});
+      _scrollToItem();
+    }
+  }
+
+  void _scrollToItem() {
+    final groups = _selectedGroup + 1;
+
+    int items = 0;
+    for (int i = 0; i <= _selectedGroup; i++) {
+      items += lengthOfGroup(i);
+    }
+
+    // Remove the leftover items
+    items -= lengthOfGroup(_selectedGroup) - (_selectedIndex + 1);
+
+    /// The offset is roughly calculated by:
+    /// - Amount of Groups passed
+    /// - Amount of Items passed
+    final double offset =
+        (_groupTextHeight + _groupBottomSpacing) * groups + _itemHeight * items;
+
+    // We have a buffer so that when moving up, we show items above the currently
+    // selected item. The buffer is the height of 2 items
+    if (offset <= _scrollController.offset + _itemHeight * 2) {
+      // We want to show the user some options above the newly
+      // focused one, therefore we take the offset and subtract
+      // the height of three items (current + 2)
+      _scrollController.animateTo(
+        offset - _itemHeight * 3,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeIn,
+      );
+    } else if (offset >
+        _scrollController.offset +
+            _contentHeight -
+            _itemHeight -
+            _groupTextHeight) {
+      // The same here, we want to show the options below the
+      // newly focused item when moving downwards, therefore we add
+      // 2 times the item height to the offset
+      _scrollController.animateTo(
+        offset - _contentHeight + _itemHeight * 2,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeIn,
+      );
     }
   }
 
@@ -331,8 +446,23 @@ class _InlineActionsHandlerState extends State<InlineActionsHandler> {
       return;
     }
 
-    search = delta
-        .toPlainText()
-        .substring(startOffset, startOffset - 1 + _search.length);
+    search = delta.toPlainText().substring(
+          startOffset,
+          startOffset - 1 + _search.length,
+        );
+  }
+
+  bool _canDeleteLastCharacter() {
+    final selection = widget.editorState.selection;
+    if (selection == null || !selection.isCollapsed) {
+      return false;
+    }
+
+    final delta = widget.editorState.getNodeAtPath(selection.start.path)?.delta;
+    if (delta == null) {
+      return false;
+    }
+
+    return delta.isNotEmpty;
   }
 }

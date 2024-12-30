@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 
 class KeyboardVisibilityDetector extends StatefulWidget {
   const KeyboardVisibilityDetector({
-    Key? key,
+    super.key,
     required this.child,
     this.onKeyboardVisibilityChange,
-  }) : super(key: key);
+  });
 
   final Widget child;
   final void Function(bool)? onKeyboardVisibilityChange;
@@ -57,10 +57,9 @@ class _KeyboardVisibilityDetectorState
 
 class _KeyboardVisibilityDetectorInheritedWidget extends InheritedWidget {
   const _KeyboardVisibilityDetectorInheritedWidget({
-    Key? key,
     required this.isKeyboardVisible,
-    required Widget child,
-  }) : super(key: key, child: child);
+    required super.child,
+  });
 
   final bool isKeyboardVisible;
 

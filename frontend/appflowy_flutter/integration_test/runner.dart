@@ -1,30 +1,15 @@
-import 'package:appflowy/env/env.dart';
-import 'package:integration_test/integration_test.dart';
+import 'dart:io';
 
-import 'appearance_settings_test.dart' as appearance_test_runner;
-import 'auth/auth_test.dart' as auth_test_runner;
-import 'board/board_test_runner.dart' as board_test_runner;
-import 'database_calendar_test.dart' as database_calendar_test;
-import 'database_cell_test.dart' as database_cell_test;
-import 'database_field_settings_test.dart' as database_field_settings_test;
-import 'database_field_test.dart' as database_field_test;
-import 'database_filter_test.dart' as database_filter_test;
-import 'database_row_page_test.dart' as database_row_page_test;
-import 'database_row_test.dart' as database_row_test;
-import 'database_setting_test.dart' as database_setting_test;
-import 'database_share_test.dart' as database_share_test;
-import 'database_sort_test.dart' as database_sort_test;
-import 'database_view_test.dart' as database_view_test;
-import 'document/document_test_runner.dart' as document_test_runner;
-import 'empty_test.dart' as first_test;
-import 'hotkeys_test.dart' as hotkeys_test;
-import 'import_files_test.dart' as import_files_test;
-import 'settings/user_icon_test.dart' as user_icon_test;
-import 'settings/user_language_test.dart' as user_language_test;
-import 'share_markdown_test.dart' as share_markdown_test;
-import 'sidebar/sidebar_test_runner.dart' as sidebar_test_runner;
-import 'switch_folder_test.dart' as switch_folder_test;
-import 'tabs_test.dart' as tabs_test;
+import 'desktop_runner_1.dart';
+import 'desktop_runner_2.dart';
+import 'desktop_runner_3.dart';
+import 'desktop_runner_4.dart';
+import 'desktop_runner_5.dart';
+import 'desktop_runner_6.dart';
+import 'desktop_runner_7.dart';
+import 'desktop_runner_8.dart';
+import 'desktop_runner_9.dart';
+import 'mobile_runner_1.dart';
 
 /// The main task runner for all integration tests in AppFlowy.
 ///
@@ -33,56 +18,20 @@ import 'tabs_test.dart' as tabs_test;
 /// If flutter/flutter#101031 is resolved, this file can be removed completely.
 /// Once removed, the integration_test.yaml must be updated to exclude this as
 /// as the test target.
-void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
-  // This test must be run first, otherwise the CI will fail.
-  first_test.main();
-
-  switch_folder_test.main();
-  share_markdown_test.main();
-  import_files_test.main();
-
-  // Document integration tests
-  document_test_runner.startTesting();
-
-  // Sidebar integration tests
-  sidebar_test_runner.startTesting();
-
-  // Board integration test
-  board_test_runner.startTesting();
-
-  // Database integration tests
-  database_cell_test.main();
-  database_field_test.main();
-  database_field_settings_test.main();
-  database_share_test.main();
-  database_row_page_test.main();
-  database_row_test.main();
-  database_setting_test.main();
-  database_filter_test.main();
-  database_sort_test.main();
-  database_view_test.main();
-  database_calendar_test.main();
-
-  // Tabs
-  tabs_test.main();
-
-  // Others
-  hotkeys_test.main();
-
-  // Appearance integration test
-  appearance_test_runner.main();
-
-  // User settings
-  user_icon_test.main();
-  user_language_test.main();
-
-  if (isCloudEnabled) {
-    auth_test_runner.main();
+Future<void> main() async {
+  if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+    await runIntegration1OnDesktop();
+    await runIntegration2OnDesktop();
+    await runIntegration3OnDesktop();
+    await runIntegration4OnDesktop();
+    await runIntegration5OnDesktop();
+    await runIntegration6OnDesktop();
+    await runIntegration7OnDesktop();
+    await runIntegration8OnDesktop();
+    await runIntegration9OnDesktop();
+  } else if (Platform.isIOS || Platform.isAndroid) {
+    await runIntegration1OnMobile();
+  } else {
+    throw Exception('Unsupported platform');
   }
-
-  // board_test.main();
-  // empty_document_test.main();
-  // smart_menu_test.main();
 }

@@ -8,18 +8,19 @@ use std::{
 use futures_core::ready;
 use pin_project::pin_project;
 
+use crate::dispatcher::AFConcurrent;
 use crate::{
   errors::DispatchError,
-  request::{payload::Payload, AFPluginEventRequest, FromAFPluginRequest},
+  request::{AFPluginEventRequest, FromAFPluginRequest},
   response::{AFPluginEventResponse, AFPluginResponder},
   service::{AFPluginServiceFactory, Service, ServiceRequest, ServiceResponse},
   util::ready::*,
 };
 
 /// A closure that is run every time for the specified plugin event
-pub trait AFPluginHandler<T, R>: Clone + 'static + Sync + Send
+pub trait AFPluginHandler<T, R>: Clone + AFConcurrent + 'static
 where
-  R: Future + Send + Sync,
+  R: Future + AFConcurrent,
   R::Output: AFPluginResponder,
 {
   fn call(&self, param: T) -> R;
@@ -29,7 +30,7 @@ pub struct AFPluginHandlerService<H, T, R>
 where
   H: AFPluginHandler<T, R>,
   T: FromAFPluginRequest,
-  R: Future + Sync + Send,
+  R: Future + AFConcurrent,
   R::Output: AFPluginResponder,
 {
   handler: H,
@@ -40,7 +41,7 @@ impl<H, T, R> AFPluginHandlerService<H, T, R>
 where
   H: AFPluginHandler<T, R>,
   T: FromAFPluginRequest,
-  R: Future + Sync + Send,
+  R: Future + AFConcurrent,
   R::Output: AFPluginResponder,
 {
   pub fn new(handler: H) -> Self {
@@ -55,7 +56,7 @@ impl<H, T, R> Clone for AFPluginHandlerService<H, T, R>
 where
   H: AFPluginHandler<T, R>,
   T: FromAFPluginRequest,
-  R: Future + Sync + Send,
+  R: Future + AFConcurrent,
   R::Output: AFPluginResponder,
 {
   fn clone(&self) -> Self {
@@ -70,7 +71,7 @@ impl<F, T, R> AFPluginServiceFactory<ServiceRequest> for AFPluginHandlerService<
 where
   F: AFPluginHandler<T, R>,
   T: FromAFPluginRequest,
-  R: Future + Send + Sync,
+  R: Future + AFConcurrent,
   R::Output: AFPluginResponder,
 {
   type Response = ServiceResponse;
@@ -88,7 +89,7 @@ impl<H, T, R> Service<ServiceRequest> for AFPluginHandlerService<H, T, R>
 where
   H: AFPluginHandler<T, R>,
   T: FromAFPluginRequest,
-  R: Future + Sync + Send,
+  R: Future + AFConcurrent,
   R::Output: AFPluginResponder,
 {
   type Response = ServiceResponse;
@@ -107,7 +108,7 @@ pub enum HandlerServiceFuture<H, T, R>
 where
   H: AFPluginHandler<T, R>,
   T: FromAFPluginRequest,
-  R: Future + Sync + Send,
+  R: Future + AFConcurrent,
   R::Output: AFPluginResponder,
 {
   Extract(#[pin] T::Future, Option<AFPluginEventRequest>, H),
@@ -118,7 +119,7 @@ impl<F, T, R> Future for HandlerServiceFuture<F, T, R>
 where
   F: AFPluginHandler<T, R>,
   T: FromAFPluginRequest,
-  R: Future + Sync + Send,
+  R: Future + AFConcurrent,
   R::Output: AFPluginResponder,
 {
   type Output = Result<ServiceResponse, DispatchError>;
@@ -154,8 +155,8 @@ where
 
 macro_rules! factory_tuple ({ $($param:ident)* } => {
     impl<Func, $($param,)* Res> AFPluginHandler<($($param,)*), Res> for Func
-    where Func: Fn($($param),*) -> Res + Clone + 'static + Sync + Send,
-          Res: Future + Sync + Send,
+    where Func: Fn($($param),*) -> Res + Clone + 'static + AFConcurrent,
+          Res: Future + AFConcurrent,
           Res::Output: AFPluginResponder,
     {
         #[allow(non_snake_case)]
@@ -181,7 +182,7 @@ macro_rules! tuple_from_req ({$tuple_type:ident, $(($n:tt, $T:ident)),+} => {
             type Error = DispatchError;
             type Future = $tuple_type<$($T),+>;
 
-            fn from_request(req: &AFPluginEventRequest, payload: &mut Payload) -> Self::Future {
+            fn from_request(req: &AFPluginEventRequest, payload: &mut crate::prelude::Payload) -> Self::Future {
                 $tuple_type {
                     items: <($(Option<$T>,)+)>::default(),
                     futs: FromRequestFutures($($T::from_request(req, payload),)+),

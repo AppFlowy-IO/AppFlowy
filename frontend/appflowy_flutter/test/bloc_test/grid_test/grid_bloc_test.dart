@@ -1,11 +1,13 @@
-import 'package:appflowy/plugins/database_view/grid/application/grid_bloc.dart';
-import 'package:appflowy/plugins/database_view/application/database_controller.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
+import 'package:appflowy/plugins/database/grid/application/grid_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter_test/flutter_test.dart';
+
 import 'util.dart';
 
 void main() {
   late AppFlowyGridTest gridTest;
+
   setUpAll(() async {
     gridTest = await AppFlowyGridTest.ensureInitialized();
   });
@@ -14,39 +16,37 @@ void main() {
     late GridTestContext context;
 
     setUp(() async {
-      context = await gridTest.createTestGrid();
+      context = await gridTest.makeDefaultTestGrid();
     });
 
-    // The initial number of rows is 3 for each grid.
+    // The initial number of rows is 3 for each grid
+    // We create one row so we expect 4 rows
     blocTest<GridBloc, GridState>(
       "create a row",
       build: () => GridBloc(
-        view: context.gridView,
-        databaseController: DatabaseController(view: context.gridView),
+        view: context.view,
+        databaseController: DatabaseController(view: context.view),
       )..add(const GridEvent.initial()),
       act: (bloc) => bloc.add(const GridEvent.createRow()),
-      wait: const Duration(milliseconds: 300),
+      wait: gridResponseDuration(),
       verify: (bloc) {
-        assert(bloc.state.rowInfos.length == 4);
+        expect(bloc.state.rowInfos.length, equals(4));
       },
     );
 
     blocTest<GridBloc, GridState>(
       "delete the last row",
       build: () => GridBloc(
-        view: context.gridView,
-        databaseController: DatabaseController(view: context.gridView),
+        view: context.view,
+        databaseController: DatabaseController(view: context.view),
       )..add(const GridEvent.initial()),
       act: (bloc) async {
         await gridResponseFuture();
         bloc.add(GridEvent.deleteRow(bloc.state.rowInfos.last));
       },
-      wait: const Duration(milliseconds: 300),
+      wait: gridResponseDuration(),
       verify: (bloc) {
-        assert(
-          bloc.state.rowInfos.length == 2,
-          "Expected 2, but receive ${bloc.state.rowInfos.length}",
-        );
+        expect(bloc.state.rowInfos.length, equals(2));
       },
     );
 
@@ -57,8 +57,8 @@ void main() {
     blocTest(
       'reorder rows',
       build: () => GridBloc(
-        view: context.gridView,
-        databaseController: DatabaseController(view: context.gridView),
+        view: context.view,
+        databaseController: DatabaseController(view: context.view),
       )..add(const GridEvent.initial()),
       act: (bloc) async {
         await gridResponseFuture();
@@ -69,10 +69,11 @@ void main() {
 
         bloc.add(const GridEvent.moveRow(0, 2));
       },
+      wait: gridResponseDuration(),
       verify: (bloc) {
-        expect(secondId, bloc.state.rowInfos[0].rowId);
-        expect(thirdId, bloc.state.rowInfos[1].rowId);
-        expect(firstId, bloc.state.rowInfos[2].rowId);
+        expect(secondId, equals(bloc.state.rowInfos[0].rowId));
+        expect(thirdId, equals(bloc.state.rowInfos[1].rowId));
+        expect(firstId, equals(bloc.state.rowInfos[2].rowId));
       },
     );
   });

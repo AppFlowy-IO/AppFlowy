@@ -1,14 +1,17 @@
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_drag_handler.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_rename_widget.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_view_item_body.dart';
-import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_view_item_header.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_confirm_dialog.dart';
+import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart' hide WidgetBuilder;
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 enum MobileBottomSheetType {
   view,
@@ -19,11 +22,13 @@ class MobileViewItemBottomSheet extends StatefulWidget {
   const MobileViewItemBottomSheet({
     super.key,
     required this.view,
+    required this.actions,
     this.defaultType = MobileBottomSheetType.view,
   });
 
   final ViewPB view;
   final MobileBottomSheetType defaultType;
+  final List<MobileViewItemBottomSheetBodyAction> actions;
 
   @override
   State<MobileViewItemBottomSheet> createState() =>
@@ -32,55 +37,22 @@ class MobileViewItemBottomSheet extends StatefulWidget {
 
 class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
   MobileBottomSheetType type = MobileBottomSheetType.view;
+  final fToast = FToast();
 
   @override
-  initState() {
+  void initState() {
     super.initState();
 
     type = widget.defaultType;
+    fToast.init(AppGlobals.context);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // drag handler
-        const MobileBottomSheetDragHandler(),
-
-        // header
-        _buildHeader(),
-        const VSpace(8.0),
-        const Divider(),
-
-        // body
-        _buildBody(),
-        const VSpace(24.0),
-      ],
-    );
-  }
-
-  Widget _buildHeader() {
-    switch (type) {
-      case MobileBottomSheetType.view:
-      case MobileBottomSheetType.rename:
-        // header
-        return MobileViewItemBottomSheetHeader(
-          showBackButton: type != MobileBottomSheetType.view,
-          view: widget.view,
-          onBack: () {
-            setState(() {
-              type = MobileBottomSheetType.view;
-            });
-          },
-        );
-    }
-  }
-
-  Widget _buildBody() {
     switch (type) {
       case MobileBottomSheetType.view:
         return MobileViewItemBottomSheetBody(
+          actions: widget.actions,
           isFavorite: widget.view.isFavorite,
           onAction: (action) {
             switch (action) {
@@ -90,23 +62,38 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
                 });
                 break;
               case MobileViewItemBottomSheetBodyAction.duplicate:
+                Navigator.pop(context);
                 context.read<ViewBloc>().add(const ViewEvent.duplicate());
-                context.pop();
+                showToastNotification(
+                  context,
+                  message: LocaleKeys.button_duplicateSuccessfully.tr(),
+                );
                 break;
               case MobileViewItemBottomSheetBodyAction.share:
                 // unimplemented
-                context.pop();
+                Navigator.pop(context);
                 break;
               case MobileViewItemBottomSheetBodyAction.delete:
+                Navigator.pop(context);
                 context.read<ViewBloc>().add(const ViewEvent.delete());
-                context.pop();
                 break;
               case MobileViewItemBottomSheetBodyAction.addToFavorites:
               case MobileViewItemBottomSheetBodyAction.removeFromFavorites:
+                Navigator.pop(context);
                 context
                     .read<FavoriteBloc>()
                     .add(FavoriteEvent.toggle(widget.view));
-                context.pop();
+                showToastNotification(
+                  context,
+                  message: !widget.view.isFavorite
+                      ? LocaleKeys.button_favoriteSuccessfully.tr()
+                      : LocaleKeys.button_unfavoriteSuccessfully.tr(),
+                );
+                break;
+              case MobileViewItemBottomSheetBodyAction.removeFromRecent:
+                _removeFromRecent(context);
+                break;
+              case MobileViewItemBottomSheetBodyAction.divider:
                 break;
             }
           },
@@ -118,9 +105,51 @@ class _MobileViewItemBottomSheetState extends State<MobileViewItemBottomSheet> {
             if (name != widget.view.name) {
               context.read<ViewBloc>().add(ViewEvent.rename(name));
             }
-            context.pop();
+            Navigator.pop(context);
           },
         );
     }
+  }
+
+  Future<void> _removeFromRecent(BuildContext context) async {
+    final viewId = context.read<ViewBloc>().view.id;
+    final recentViewsBloc = context.read<RecentViewsBloc>();
+    Navigator.pop(context);
+
+    await _showConfirmDialog(
+      onDelete: () {
+        recentViewsBloc.add(RecentViewsEvent.removeRecentViews([viewId]));
+      },
+    );
+  }
+
+  Future<void> _showConfirmDialog({required VoidCallback onDelete}) async {
+    await showFlowyCupertinoConfirmDialog(
+      title: LocaleKeys.sideBar_removePageFromRecent.tr(),
+      leftButton: FlowyText(
+        LocaleKeys.button_cancel.tr(),
+        fontSize: 17.0,
+        figmaLineHeight: 24.0,
+        fontWeight: FontWeight.w500,
+        color: const Color(0xFF007AFF),
+      ),
+      rightButton: FlowyText(
+        LocaleKeys.button_delete.tr(),
+        fontSize: 17.0,
+        figmaLineHeight: 24.0,
+        fontWeight: FontWeight.w400,
+        color: const Color(0xFFFE0220),
+      ),
+      onRightButtonPressed: (context) {
+        onDelete();
+
+        Navigator.pop(context);
+
+        showToastNotification(
+          context,
+          message: LocaleKeys.sideBar_removeSuccess.tr(),
+        );
+      },
+    );
   }
 }

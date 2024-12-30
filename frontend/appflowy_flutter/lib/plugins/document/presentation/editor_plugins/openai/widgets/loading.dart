@@ -1,30 +1,51 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 class Loading {
   Loading(this.context);
 
-  late BuildContext loadingContext;
+  BuildContext? loadingContext;
   final BuildContext context;
 
-  Future<void> start() async => await showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          loadingContext = context;
-          return const SimpleDialog(
-            elevation: 0.0,
-            backgroundColor:
-                Colors.transparent, // can change this to your preferred color
-            children: [
-              Center(
-                child: CircularProgressIndicator(),
-              )
-            ],
-          );
-        },
+  bool hasStopped = false;
+
+  void start() => unawaited(
+        showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            loadingContext = context;
+
+            if (hasStopped) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.of(loadingContext!).maybePop();
+                loadingContext = null;
+              });
+            }
+
+            return const SimpleDialog(
+              elevation: 0.0,
+              backgroundColor:
+                  Colors.transparent, // can change this to your preferred color
+              children: [
+                Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ],
+            );
+          },
+        ),
       );
 
-  Future<void> stop() async => Navigator.of(loadingContext).pop();
+  void stop() {
+    if (loadingContext != null) {
+      Navigator.of(loadingContext!).pop();
+      loadingContext = null;
+    }
+
+    hasStopped = true;
+  }
 }
 
 class BarrierDialog {
@@ -33,15 +54,17 @@ class BarrierDialog {
   late BuildContext loadingContext;
   final BuildContext context;
 
-  Future<void> show() async => await showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        barrierColor: Colors.transparent,
-        builder: (BuildContext context) {
-          loadingContext = context;
-          return Container();
-        },
+  void show() => unawaited(
+        showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          barrierColor: Colors.transparent,
+          builder: (BuildContext context) {
+            loadingContext = context;
+            return const SizedBox.shrink();
+          },
+        ),
       );
 
-  Future<void> dismiss() async => Navigator.of(loadingContext).pop();
+  void dismiss() => Navigator.of(loadingContext).pop();
 }

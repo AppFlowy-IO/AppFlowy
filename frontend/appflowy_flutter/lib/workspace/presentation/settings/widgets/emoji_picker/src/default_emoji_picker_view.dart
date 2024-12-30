@@ -1,19 +1,19 @@
+import 'package:flutter/material.dart';
+
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flutter/material.dart';
-import 'emji_picker_config.dart';
+
 import 'emoji_picker.dart';
 import 'emoji_picker_builder.dart';
-import 'emoji_view_state.dart';
 import 'models/emoji_category_models.dart';
 import 'models/emoji_model.dart';
 
 class DefaultEmojiPickerView extends EmojiPickerBuilder {
   const DefaultEmojiPickerView(
-    EmojiPickerConfig config,
-    EmojiViewState state, {
-    Key? key,
-  }) : super(config, state, key: key);
+    super.config,
+    super.state, {
+    super.key,
+  });
 
   @override
   DefaultEmojiPickerViewState createState() => DefaultEmojiPickerViewState();
@@ -27,11 +27,14 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
   final FocusNode _emojiFocusNode = FocusNode();
   EmojiCategoryGroup searchEmojiList =
       EmojiCategoryGroup(EmojiCategory.SEARCH, <Emoji>[]);
+  final scrollController = ScrollController();
 
   @override
   void initState() {
-    var initCategory = widget.state.emojiCategoryGroupList.indexWhere(
-      (element) => element.category == widget.config.initCategory,
+    super.initState();
+
+    int initCategory = widget.state.emojiCategoryGroupList.indexWhere(
+      (el) => el.category == widget.config.initCategory,
     );
     if (initCategory == -1) {
       initCategory = 0;
@@ -43,36 +46,36 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
     );
     _pageController = PageController(initialPage: initCategory);
     _emojiFocusNode.requestFocus();
-
-    _emojiController.addListener(() {
-      final String query = _emojiController.text.toLowerCase();
-      if (query.isEmpty) {
-        searchEmojiList.emoji.clear();
-        _pageController!.jumpToPage(
-          _tabController!.index,
-        );
-      } else {
-        searchEmojiList.emoji.clear();
-        for (final element in widget.state.emojiCategoryGroupList) {
-          searchEmojiList.emoji.addAll(
-            element.emoji.where((item) {
-              return item.name.toLowerCase().contains(query);
-            }).toList(),
-          );
-        }
-      }
-      setState(() {});
-    });
-    super.initState();
+    _emojiController.addListener(_onEmojiChanged);
   }
 
   @override
   void dispose() {
+    _emojiController.removeListener(_onEmojiChanged);
     _emojiController.dispose();
     _emojiFocusNode.dispose();
     _pageController?.dispose();
     _tabController?.dispose();
+    scrollController.dispose();
     super.dispose();
+  }
+
+  void _onEmojiChanged() {
+    final String query = _emojiController.text.toLowerCase();
+    if (query.isEmpty) {
+      searchEmojiList.emoji.clear();
+      _pageController!.jumpToPage(_tabController!.index);
+    } else {
+      searchEmojiList.emoji.clear();
+      for (final element in widget.state.emojiCategoryGroupList) {
+        searchEmojiList.emoji.addAll(
+          element.emoji
+              .where((item) => item.name.toLowerCase().contains(query))
+              .toList(),
+        );
+      }
+    }
+    setState(() {});
   }
 
   Widget _buildBackspaceButton() {
@@ -81,25 +84,17 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
         type: MaterialType.transparency,
         child: IconButton(
           padding: const EdgeInsets.only(bottom: 2),
-          icon: Icon(
-            Icons.backspace,
-            color: widget.config.backspaceColor,
-          ),
-          onPressed: () {
-            widget.state.onBackspacePressed!();
-          },
+          icon: Icon(Icons.backspace, color: widget.config.backspaceColor),
+          onPressed: () => widget.state.onBackspacePressed!(),
         ),
       );
     }
-    return Container();
+
+    return const SizedBox.shrink();
   }
 
-  bool isEmojiSearching() {
-    final bool result =
-        searchEmojiList.emoji.isNotEmpty || _emojiController.text.isNotEmpty;
-
-    return result;
-  }
+  bool isEmojiSearching() =>
+      searchEmojiList.emoji.isNotEmpty || _emojiController.text.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -213,21 +208,13 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
     required Widget child,
   }) {
     if (widget.config.buttonMode == ButtonMode.MATERIAL) {
-      return InkWell(
-        onTap: onPressed,
-        child: child,
-      );
+      return InkWell(onTap: onPressed, child: child);
     }
-    return GestureDetector(
-      onTap: onPressed,
-      child: child,
-    );
+    return GestureDetector(onTap: onPressed, child: child);
   }
 
   Widget _buildPage(double emojiSize, EmojiCategoryGroup emojiCategoryGroup) {
     // Display notice if recent has no entries yet
-    final scrollController = ScrollController();
-
     if (emojiCategoryGroup.category == EmojiCategory.RECENT &&
         emojiCategoryGroup.emoji.isEmpty) {
       return _buildNoRecent();
@@ -277,9 +264,7 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
         child: FittedBox(
           child: Text(
             emoji.emoji,
-            style: TextStyle(
-              fontSize: emojiSize,
-            ),
+            style: TextStyle(fontSize: emojiSize),
           ),
         ),
       ),

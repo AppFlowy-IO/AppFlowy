@@ -1,0 +1,119 @@
+name: iOS CI
+
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - ".github/workflows/mobile_ci.yaml"
+      - "frontend/**"
+      - "!frontend/appflowy_web_app/**"
+
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - ".github/workflows/mobile_ci.yaml"
+      - "frontend/**"
+      - "!frontend/appflowy_web_app/**"
+
+env:
+  FLUTTER_VERSION: "3.22.3"
+  RUST_TOOLCHAIN: "1.81.0"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-self-hosted:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Build AppFlowy
+        working-directory: frontend
+        run: |
+          cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios
+          cargo make --profile development-ios-arm64-sim code_generation
+
+      - uses: futureware-tech/simulator-action@v3
+        id: simulator-action
+        with:
+          model: "iPhone 15"
+          shutdown_after_job: false
+
+  integration-tests:
+    if: github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          target: aarch64-apple-ios-sim
+          override: true
+          profile: minimal
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: macos-latest
+          workspaces: |
+            frontend/rust-lib
+
+      - uses: davidB/rust-cargo-make@v1
+        with:
+          version: "0.37.15"
+
+      - name: Install prerequisites
+        working-directory: frontend
+        run: |
+          rustup target install aarch64-apple-ios-sim
+          cargo install --force --locked duckscript_cli
+          cargo install cargo-lipo
+          cargo make appflowy-flutter-deps-tools
+        shell: bash
+
+      - name: Build AppFlowy
+        working-directory: frontend
+        run: |
+          cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios
+          cargo make --profile development-ios-arm64-sim code_generation
+
+      - uses: futureware-tech/simulator-action@v3
+        id: simulator-action
+        with:
+          model: "iPhone 15"
+          shutdown_after_job: false
+
+      - name: Run AppFlowy on simulator
+        working-directory: frontend/appflowy_flutter
+        run: |
+          flutter run -d ${{ steps.simulator-action.outputs.udid }} &
+          pid=$!
+          sleep 500
+          kill $pid
+        continue-on-error: true
+
+      # Integration tests
+      - name: Run integration tests
+        working-directory: frontend/appflowy_flutter
+        # The integration tests are flaky and sometimes fail with "Connection timed out":
+        # Don't block the CI. If the tests fail, the CI will still pass.
+        # Instead, we're using Code Magic to re-run the tests to check if they pass.
+        continue-on-error: true
+        run: flutter test integration_test/runner.dart -d ${{ steps.simulator-action.outputs.udid }}

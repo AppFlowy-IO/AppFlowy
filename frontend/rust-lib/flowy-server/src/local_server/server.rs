@@ -1,18 +1,18 @@
+use flowy_search_pub::cloud::SearchCloudService;
 use std::sync::Arc;
 
-use parking_lot::RwLock;
 use tokio::sync::mpsc;
 
-use flowy_database_deps::cloud::DatabaseCloudService;
-use flowy_document_deps::cloud::DocumentCloudService;
+use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
+use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::FlowyError;
-use flowy_folder_deps::cloud::FolderCloudService;
-use flowy_storage::FileStorageService;
+use flowy_folder_pub::cloud::FolderCloudService;
+use flowy_storage_pub::cloud::StorageCloudService;
 // use flowy_user::services::database::{
 //   get_user_profile, get_user_workspace, open_collab_db, open_user_db,
 // };
-use flowy_user_deps::cloud::UserCloudService;
-use flowy_user_deps::entities::*;
+use flowy_user_pub::cloud::UserCloudService;
+use flowy_user_pub::entities::*;
 
 use crate::local_server::impls::{
   LocalServerDatabaseCloudServiceImpl, LocalServerDocumentCloudServiceImpl,
@@ -23,12 +23,11 @@ use crate::AppFlowyServer;
 pub trait LocalServerDB: Send + Sync + 'static {
   fn get_user_profile(&self, uid: i64) -> Result<UserProfile, FlowyError>;
   fn get_user_workspace(&self, uid: i64) -> Result<Option<UserWorkspace>, FlowyError>;
-  fn get_collab_updates(&self, uid: i64, object_id: &str) -> Result<Vec<Vec<u8>>, FlowyError>;
 }
 
 pub struct LocalServer {
   local_db: Arc<dyn LocalServerDB>,
-  stop_tx: RwLock<Option<mpsc::Sender<()>>>,
+  stop_tx: Option<mpsc::Sender<()>>,
 }
 
 impl LocalServer {
@@ -40,7 +39,7 @@ impl LocalServer {
   }
 
   pub async fn stop(&self) {
-    let sender = self.stop_tx.read().clone();
+    let sender = self.stop_tx.clone();
     if let Some(stop_tx) = sender {
       let _ = stop_tx.send(()).await;
     }
@@ -68,7 +67,15 @@ impl AppFlowyServer for LocalServer {
     Arc::new(LocalServerDocumentCloudServiceImpl())
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn FileStorageService>> {
+  fn file_storage(&self) -> Option<Arc<dyn StorageCloudService>> {
+    None
+  }
+
+  fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {
+    None
+  }
+
+  fn database_ai_service(&self) -> Option<Arc<dyn DatabaseAIService>> {
     None
   }
 }

@@ -8,8 +8,8 @@ enum ImportType {
   historyDocument,
   historyDatabase,
   markdownOrText,
-  databaseCSV,
-  databaseRawData;
+  csv,
+  afDatabase;
 
   @override
   String toString() {
@@ -20,9 +20,9 @@ enum ImportType {
         return LocaleKeys.importPanel_databaseFromV010.tr();
       case ImportType.markdownOrText:
         return LocaleKeys.importPanel_textAndMarkdown.tr();
-      case ImportType.databaseCSV:
+      case ImportType.csv:
         return LocaleKeys.importPanel_csv.tr();
-      case ImportType.databaseRawData:
+      case ImportType.afDatabase:
         return LocaleKeys.importPanel_database.tr();
     }
   }
@@ -31,10 +31,10 @@ enum ImportType {
         final FlowySvgData svg;
         switch (this) {
           case ImportType.historyDatabase:
-            svg = FlowySvgs.documents_s;
+            svg = FlowySvgs.document_s;
           case ImportType.historyDocument:
-          case ImportType.databaseCSV:
-          case ImportType.databaseRawData:
+          case ImportType.csv:
+          case ImportType.afDatabase:
             svg = FlowySvgs.board_s;
           case ImportType.markdownOrText:
             svg = FlowySvgs.text_s;
@@ -48,7 +48,9 @@ enum ImportType {
 
   bool get enableOnRelease {
     switch (this) {
-      case ImportType.databaseRawData:
+      case ImportType.historyDatabase:
+      case ImportType.historyDocument:
+      case ImportType.afDatabase:
         return kDebugMode;
       default:
         return true;
@@ -60,11 +62,11 @@ enum ImportType {
       case ImportType.historyDocument:
         return ['afdoc'];
       case ImportType.historyDatabase:
-      case ImportType.databaseRawData:
+      case ImportType.afDatabase:
         return ['afdb'];
       case ImportType.markdownOrText:
         return ['md', 'txt'];
-      case ImportType.databaseCSV:
+      case ImportType.csv:
         return ['csv'];
     }
   }
@@ -72,9 +74,9 @@ enum ImportType {
   bool get allowMultiSelect {
     switch (this) {
       case ImportType.historyDocument:
-      case ImportType.databaseCSV:
-      case ImportType.databaseRawData:
       case ImportType.historyDatabase:
+      case ImportType.csv:
+      case ImportType.afDatabase:
       case ImportType.markdownOrText:
         return true;
     }

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -66,7 +66,7 @@ class SettingsShortcutService {
   ) async {
     for (final shortcut in customizeShortcuts) {
       final shortcutEvent = commandShortcuts.firstWhereOrNull(
-        (s) => (s.key == shortcut.key && s.command != shortcut.command),
+        (s) => s.key == shortcut.key && s.command != shortcut.command,
       );
       shortcutEvent?.updateCommand(command: shortcut.command);
     }

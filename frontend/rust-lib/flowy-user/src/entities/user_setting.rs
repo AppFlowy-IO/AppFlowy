@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_user_deps::cloud::UserCloudConfig;
 
 use crate::entities::EncryptionTypePB;
 
@@ -65,6 +64,14 @@ pub struct AppearanceSettingsPB {
   #[pb(index = 11)]
   #[serde(default)]
   pub text_direction: TextDirectionPB,
+
+  #[pb(index = 12)]
+  #[serde(default)]
+  pub document_setting: DocumentSettingsPB,
+
+  #[pb(index = 13)]
+  #[serde(default)]
+  pub enable_rtl_toolbar_items: bool,
 }
 
 const DEFAULT_RESET_VALUE: fn() -> bool = || APPEARANCE_RESET_AS_DEFAULT;
@@ -111,12 +118,22 @@ impl std::default::Default for LocaleSettingsPB {
   }
 }
 
+#[derive(ProtoBuf, Serialize, Deserialize, Debug, Clone, Default)]
+pub struct DocumentSettingsPB {
+  #[pb(index = 1, one_of)]
+  pub cursor_color: Option<String>,
+
+  #[pb(index = 2, one_of)]
+  pub selection_color: Option<String>,
+}
+
 pub const APPEARANCE_DEFAULT_THEME: &str = "Default";
-pub const APPEARANCE_DEFAULT_FONT: &str = "Poppins";
+pub const APPEARANCE_DEFAULT_FONT: &str = ""; // Use system default font
 pub const APPEARANCE_DEFAULT_MONOSPACE_FONT: &str = "SF Mono";
 const APPEARANCE_RESET_AS_DEFAULT: bool = true;
 const APPEARANCE_DEFAULT_IS_MENU_COLLAPSED: bool = false;
 const APPEARANCE_DEFAULT_MENU_OFFSET: f64 = 0.0;
+const APPEARANCE_DEFAULT_ENABLE_RTL_TOOLBAR_ITEMS: bool = false;
 
 impl std::default::Default for AppearanceSettingsPB {
   fn default() -> Self {
@@ -132,20 +149,25 @@ impl std::default::Default for AppearanceSettingsPB {
       menu_offset: APPEARANCE_DEFAULT_MENU_OFFSET,
       layout_direction: LayoutDirectionPB::default(),
       text_direction: TextDirectionPB::default(),
+      enable_rtl_toolbar_items: APPEARANCE_DEFAULT_ENABLE_RTL_TOOLBAR_ITEMS,
+      document_setting: DocumentSettingsPB::default(),
     }
   }
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct UserCloudConfigPB {
+pub struct CloudSettingPB {
   #[pb(index = 1)]
-  enable_sync: bool,
+  pub(crate) enable_sync: bool,
 
   #[pb(index = 2)]
-  enable_encrypt: bool,
+  pub(crate) enable_encrypt: bool,
 
   #[pb(index = 3)]
   pub encrypt_secret: String,
+
+  #[pb(index = 4)]
+  pub server_url: String,
 }
 
 #[derive(Default, ProtoBuf)]
@@ -176,16 +198,6 @@ pub struct UserSecretPB {
 pub struct UserEncryptionConfigurationPB {
   #[pb(index = 1)]
   pub require_secret: bool,
-}
-
-impl From<UserCloudConfig> for UserCloudConfigPB {
-  fn from(value: UserCloudConfig) -> Self {
-    Self {
-      enable_sync: value.enable_sync,
-      enable_encrypt: value.enable_encrypt(),
-      encrypt_secret: value.encrypt_secret,
-    }
-  }
 }
 
 #[derive(ProtoBuf_Enum, Debug, Clone, Eq, PartialEq, Default)]
@@ -251,4 +263,16 @@ impl std::default::Default for NotificationSettingsPB {
       notifications_enabled: true,
     }
   }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct AppFlowyCloudSettingPB {
+  #[pb(index = 1)]
+  pub base_url: bool,
+
+  #[pb(index = 2)]
+  pub ws_addr: bool,
+
+  #[pb(index = 3)]
+  pub gotrue_url: String,
 }

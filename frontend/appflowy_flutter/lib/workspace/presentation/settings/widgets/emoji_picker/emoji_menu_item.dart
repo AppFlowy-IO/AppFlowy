@@ -1,13 +1,14 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'emoji_picker.dart';
-
 SelectionMenuItem emojiMenuItem = SelectionMenuItem(
-  name: 'Emoji',
+  getName: LocaleKeys.document_plugins_emoji.tr,
   icon: (editorState, onSelected, style) => SelectableIconWidget(
     icon: Icons.emoji_emotions_outlined,
     isSelected: onSelected,
@@ -16,10 +17,12 @@ SelectionMenuItem emojiMenuItem = SelectionMenuItem(
   keywords: ['emoji'],
   handler: (editorState, menuService, context) {
     final container = Overlay.of(context);
+    menuService.dismiss();
     showEmojiPickerMenu(
       container,
       editorState,
-      menuService,
+      menuService.alignment,
+      menuService.offset,
     );
   },
 );
@@ -27,17 +30,15 @@ SelectionMenuItem emojiMenuItem = SelectionMenuItem(
 void showEmojiPickerMenu(
   OverlayState container,
   EditorState editorState,
-  SelectionMenuService menuService,
+  Alignment alignment,
+  Offset offset,
 ) {
-  menuService.dismiss();
-
-  final alignment = menuService.alignment;
-  final offset = menuService.offset;
   final top = alignment == Alignment.topLeft ? offset.dy : null;
   final bottom = alignment == Alignment.bottomLeft ? offset.dy : null;
 
   keepEditorFocusNotifier.increase();
-  final emojiPickerMenuEntry = FullScreenOverlayEntry(
+  late OverlayEntry emojiPickerMenuEntry;
+  emojiPickerMenuEntry = FullScreenOverlayEntry(
     top: top,
     bottom: bottom,
     left: offset.dx,
@@ -45,8 +46,8 @@ void showEmojiPickerMenu(
     builder: (context) => Material(
       type: MaterialType.transparency,
       child: Container(
-        width: 300,
-        height: 250,
+        width: 360,
+        height: 380,
         padding: const EdgeInsets.all(4.0),
         decoration: FlowyDecoration.decoration(
           Theme.of(context).cardColor,
@@ -54,10 +55,11 @@ void showEmojiPickerMenu(
         ),
         child: EmojiSelectionMenu(
           onSubmitted: (emoji) {
-            editorState.insertTextAtCurrentSelection(emoji.emoji);
+            editorState.insertTextAtCurrentSelection(emoji);
           },
           onExit: () {
             // close emoji panel
+            emojiPickerMenuEntry.remove();
           },
         ),
       ),
@@ -68,12 +70,12 @@ void showEmojiPickerMenu(
 
 class EmojiSelectionMenu extends StatefulWidget {
   const EmojiSelectionMenu({
-    Key? key,
+    super.key,
     required this.onSubmitted,
     required this.onExit,
-  }) : super(key: key);
+  });
 
-  final void Function(Emoji emoji) onSubmitted;
+  final void Function(String emoji) onSubmitted;
   final void Function() onExit;
 
   @override
@@ -83,8 +85,8 @@ class EmojiSelectionMenu extends StatefulWidget {
 class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
   @override
   void initState() {
-    HardwareKeyboard.instance.addHandler(_handleGlobalKeyEvent);
     super.initState();
+    HardwareKeyboard.instance.addHandler(_handleGlobalKeyEvent);
   }
 
   bool _handleGlobalKeyEvent(KeyEvent event) {
@@ -93,9 +95,8 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
       //triggers on esc
       widget.onExit();
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   @override
@@ -105,15 +106,9 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return EmojiPicker(
-      onEmojiSelected: (category, emoji) => widget.onSubmitted(emoji),
-      config: buildFlowyEmojiPickerConfig(context),
+    return FlowyEmojiPicker(
+      onEmojiSelected: (r) => widget.onSubmitted(r.emoji),
     );
   }
 }

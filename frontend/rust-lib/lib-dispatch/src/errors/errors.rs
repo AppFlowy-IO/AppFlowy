@@ -1,15 +1,17 @@
+use std::fmt;
+
+use bytes::Bytes;
+use dyn_clone::DynClone;
+use tokio::{sync::mpsc::error::SendError, task::JoinError};
+
+use crate::prelude::AFConcurrent;
 use crate::{
   byte_trait::AFPluginFromBytes,
   request::AFPluginEventRequest,
   response::{AFPluginEventResponse, ResponseBuilder},
 };
-use bytes::Bytes;
-use dyn_clone::DynClone;
 
-use std::fmt;
-use tokio::{sync::mpsc::error::SendError, task::JoinError};
-
-pub trait Error: fmt::Debug + DynClone + Send + Sync {
+pub trait Error: fmt::Debug + DynClone + AFConcurrent {
   fn as_response(&self) -> AFPluginEventResponse;
 }
 

@@ -1,0 +1,13 @@
+.gallery-preview {
+  .lg-outer .lg-thumb-item {
+    @apply rounded-[8px];
+    img {
+      @apply rounded-[6px];
+    }
+  }
+
+  .lg-outer .lg-thumb-item.active, .lg-outer .lg-thumb-item:hover {
+    border: 2px solid var(--content-blue-400);
+    padding: 2px;
+  }
+}

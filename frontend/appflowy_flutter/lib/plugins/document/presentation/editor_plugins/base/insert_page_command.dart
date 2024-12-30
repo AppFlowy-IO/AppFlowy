@@ -1,9 +1,10 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database_view/application/database_view_service.dart';
+import 'package:appflowy/plugins/database/domain/database_view_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -13,6 +14,7 @@ extension InsertDatabase on EditorState {
     if (selection == null || !selection.isCollapsed) {
       return;
     }
+
     final node = getNodeAtPath(selection.end.path);
     if (node == null) {
       return;
@@ -34,6 +36,7 @@ extension InsertDatabase on EditorState {
 
   Future<void> insertReferencePage(
     ViewPB childView,
+    ViewLayoutPB viewType,
   ) async {
     final selection = this.selection;
     if (selection == null || !selection.isCollapsed) {
@@ -50,24 +53,55 @@ extension InsertDatabase on EditorState {
       );
     }
 
+    final Transaction transaction = viewType == ViewLayoutPB.Document
+        ? await _insertDocumentReference(childView, selection, node)
+        : await _insertDatabaseReference(childView, selection.end.path);
+
+    await apply(transaction);
+  }
+
+  Future<Transaction> _insertDocumentReference(
+    ViewPB view,
+    Selection selection,
+    Node node,
+  ) async {
+    return transaction
+      ..replaceText(
+        node,
+        selection.end.offset,
+        0,
+        r'$',
+        attributes: {
+          MentionBlockKeys.mention: {
+            MentionBlockKeys.type: MentionType.page.name,
+            MentionBlockKeys.pageId: view.id,
+          },
+        },
+      );
+  }
+
+  Future<Transaction> _insertDatabaseReference(
+    ViewPB view,
+    List<int> path,
+  ) async {
     // get the database id that the view is associated with
-    final databaseId = await DatabaseViewBackendService(viewId: childView.id)
+    final databaseId = await DatabaseViewBackendService(viewId: view.id)
         .getDatabaseId()
-        .then((value) => value.swap().toOption().toNullable());
+        .then((value) => value.toNullable());
 
     if (databaseId == null) {
       throw StateError(
-        'The database associated with ${childView.id} could not be found while attempting to create a referenced ${childView.layout.name}.',
+        'The database associated with ${view.id} could not be found while attempting to create a referenced ${view.layout.name}.',
       );
     }
 
-    final prefix = _referencedDatabasePrefix(childView.layout);
+    final prefix = _referencedDatabasePrefix(view.layout);
     final ref = await ViewBackendService.createDatabaseLinkedView(
-      parentViewId: childView.id,
-      name: "$prefix ${childView.name}",
-      layoutType: childView.layout,
+      parentViewId: view.id,
+      name: "$prefix ${view.nameOrDefault}",
+      layoutType: view.layout,
       databaseId: databaseId,
-    ).then((value) => value.swap().toOption().toNullable());
+    ).then((value) => value.toNullable());
 
     if (ref == null) {
       throw FlowyError(
@@ -76,18 +110,17 @@ extension InsertDatabase on EditorState {
       );
     }
 
-    final transaction = this.transaction;
-    transaction.insertNode(
-      selection.end.path,
-      Node(
-        type: _convertPageType(childView),
-        attributes: {
-          DatabaseBlockKeys.parentID: childView.id,
-          DatabaseBlockKeys.viewID: ref.id,
-        },
-      ),
-    );
-    await apply(transaction);
+    return transaction
+      ..insertNode(
+        path,
+        Node(
+          type: _convertPageType(view),
+          attributes: {
+            DatabaseBlockKeys.parentID: view.id,
+            DatabaseBlockKeys.viewID: ref.id,
+          },
+        ),
+      );
   }
 
   String _referencedDatabasePrefix(ViewLayoutPB layout) {

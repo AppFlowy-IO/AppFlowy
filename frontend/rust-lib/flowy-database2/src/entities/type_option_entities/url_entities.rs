@@ -1,12 +1,9 @@
-use crate::services::field::URLTypeOption;
+use collab_database::fields::url_type_option::URLTypeOption;
 use flowy_derive::ProtoBuf;
 
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct URLCellDataPB {
   #[pb(index = 1)]
-  pub url: String,
-
-  #[pb(index = 2)]
   pub content: String,
 }
 

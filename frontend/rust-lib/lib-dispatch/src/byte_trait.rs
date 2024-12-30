@@ -1,5 +1,6 @@
-use crate::errors::{DispatchError, InternalError};
 use bytes::Bytes;
+
+use crate::errors::{DispatchError, InternalError};
 
 // To bytes
 pub trait ToBytes {
@@ -25,21 +26,6 @@ where
     }
   }
 }
-
-// #[cfg(feature = "use_serde")]
-// impl<T> ToBytes for T
-// where
-//     T: serde::Serialize,
-// {
-//     fn into_bytes(self) -> Result<Bytes, DispatchError> {
-//         match serde_json::to_string(&self.0) {
-//             Ok(s) => Ok(Bytes::from(s)),
-//             Err(e) => Err(InternalError::SerializeToBytes(format!("{:?}", e)).into()),
-//         }
-//     }
-// }
-
-// From bytes
 
 pub trait AFPluginFromBytes: Sized {
   fn parse_from_bytes(bytes: Bytes) -> Result<Self, DispatchError>;

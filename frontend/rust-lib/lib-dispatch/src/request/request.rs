@@ -1,18 +1,19 @@
 use std::future::Future;
-
-use crate::{
-  errors::{DispatchError, InternalError},
-  module::{AFPluginEvent, AFPluginStateMap},
-  request::payload::Payload,
-  util::ready::{ready, Ready},
-};
-use derivative::*;
-use futures_core::ready;
 use std::{
   fmt::Debug,
   pin::Pin,
-  sync::Arc,
   task::{Context, Poll},
+};
+
+use derivative::*;
+use futures_core::ready;
+
+use crate::prelude::AFStateMap;
+use crate::{
+  errors::{DispatchError, InternalError},
+  module::AFPluginEvent,
+  request::payload::Payload,
+  util::ready::{ready, Ready},
 };
 
 #[derive(Clone, Debug, Derivative)]
@@ -21,27 +22,27 @@ pub struct AFPluginEventRequest {
   pub(crate) id: String,
   pub(crate) event: AFPluginEvent,
   #[derivative(Debug = "ignore")]
-  pub(crate) states: Arc<AFPluginStateMap>,
+  pub(crate) states: AFStateMap,
 }
 
 impl AFPluginEventRequest {
-  pub fn new<E>(id: String, event: E, module_data: Arc<AFPluginStateMap>) -> AFPluginEventRequest
+  pub fn new<E>(id: String, event: E, states: AFStateMap) -> AFPluginEventRequest
   where
     E: Into<AFPluginEvent>,
   {
     Self {
       id,
       event: event.into(),
-      states: module_data,
+      states,
     }
   }
 
-  pub fn get_state<T: 'static>(&self) -> Option<&T>
+  pub fn get_state<T>(&self) -> Option<T>
   where
-    T: Send + Sync,
+    T: Send + Sync + 'static + Clone,
   {
     if let Some(data) = self.states.get::<T>() {
-      return Some(data);
+      return Some(data.clone());
     }
 
     None
@@ -79,7 +80,7 @@ impl FromAFPluginRequest for String {
 }
 
 pub fn unexpected_none_payload(request: &AFPluginEventRequest) -> DispatchError {
-  log::warn!("{:?} expected payload", &request.event);
+  tracing::warn!("{:?} expected payload", &request.event);
   InternalError::UnexpectedNone("Expected payload".to_string()).into()
 }
 

@@ -1,0 +1,10 @@
+{
+  "type": "page",
+  "data": {},
+  "children": [
+    {
+      "type": "divider",
+      "data": {}
+    }
+  ]
+}

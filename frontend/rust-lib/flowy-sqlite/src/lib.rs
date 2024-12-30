@@ -9,12 +9,12 @@ use std::{fmt::Debug, io, path::Path};
 
 pub use diesel::*;
 pub use diesel_derives::*;
+use diesel_migrations::{EmbeddedMigrations, MigrationHarness};
 
-use crate::sqlite::PoolConfig;
-pub use crate::sqlite::{ConnectionPool, DBConnection, Database};
+pub use crate::sqlite_impl::{ConnectionPool, DBConnection, Database, PoolConfig};
 
 pub mod kv;
-mod sqlite;
+mod sqlite_impl;
 
 pub mod schema;
 
@@ -29,7 +29,7 @@ pub mod prelude {
   pub use crate::*;
 }
 
-embed_migrations!("../flowy-sqlite/migrations/");
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("../flowy-sqlite/migrations/");
 pub const DB_NAME: &str = "flowy-database.db";
 
 pub fn init<P: AsRef<Path>>(storage_path: P) -> Result<Database, io::Error> {
@@ -39,14 +39,17 @@ pub fn init<P: AsRef<Path>>(storage_path: P) -> Result<Database, io::Error> {
   }
   let pool_config = PoolConfig::default();
   let database = Database::new(storage_path, DB_NAME, pool_config).map_err(as_io_error)?;
-  let conn = database.get_connection().map_err(as_io_error)?;
-  embedded_migrations::run(&*conn).map_err(as_io_error)?;
+  let mut conn = database.get_connection().map_err(as_io_error)?;
+  (*conn)
+    .run_pending_migrations(MIGRATIONS)
+    .map_err(|e| io::Error::new(io::ErrorKind::Other, format!("{:?}", e)))?;
+
   Ok(database)
 }
 
 fn as_io_error<E>(e: E) -> io::Error
 where
-  E: Into<crate::sqlite::Error> + Debug,
+  E: Into<crate::sqlite_impl::Error> + Debug,
 {
   let msg = format!("{:?}", e);
   io::Error::new(io::ErrorKind::NotConnected, msg)

@@ -1,18 +1,17 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/router.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/desktop_sign_in_screen.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/mobile_loading_screen.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/mobile_sign_in_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../../helpers/helpers.dart';
 
 class SignInScreen extends StatelessWidget {
-  const SignInScreen({
-    super.key,
-  });
+  const SignInScreen({super.key});
 
   static const routeName = '/SignInScreen';
 
@@ -21,29 +20,28 @@ class SignInScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) => getIt<SignInBloc>(),
       child: BlocConsumer<SignInBloc, SignInState>(
-        listener: (context, state) {
-          state.successOrFail.fold(
-            () => null,
-            (userProfileResult) => handleUserProfileResult(
-              userProfileResult,
-              context,
-              getIt<AuthRouter>(),
-            ),
-          );
-        },
+        listener: _showSignInError,
         builder: (context, state) {
-          // When user is logining through 3rd party, a loading widget will appear on the screen. [isLoading] is used to control it is on or not.
           final isLoading = context.read<SignInBloc>().state.isSubmitting;
-          if (PlatformExtension.isMobile) {
-            return MobileSignInScreen(
-              isLoading: isLoading,
-            );
+          if (UniversalPlatform.isMobile) {
+            return isLoading
+                ? const MobileLoadingScreen()
+                : const MobileSignInScreen();
           }
-          return DesktopSignInScreen(
-            isLoading: isLoading,
-          );
+          return const DesktopSignInScreen();
         },
       ),
     );
+  }
+
+  void _showSignInError(BuildContext context, SignInState state) {
+    final successOrFail = state.successOrFail;
+    if (successOrFail != null) {
+      handleUserProfileResult(
+        successOrFail,
+        context,
+        getIt<AuthRouter>(),
+      );
+    }
   }
 }

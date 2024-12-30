@@ -34,8 +34,16 @@
     "emailHint": "이메일",
     "passwordHint": "비밀번호",
     "dontHaveAnAccount": "계정이 없으신가요?",
+    "createAccount": "계정 생성",
     "repeatPasswordEmptyError": "비밀번호 재입력란은 공백일 수 없습니다",
     "unmatchedPasswordError": "재입력 하신 비밀번호가 같지 않습니다",
+    "or": "또는",
+    "signInWithMagicLink": "계속",
+    "pleaseInputYourEmail": "이메일 주소를 입력하세요",
+    "settings": "설정",
+    "invalidEmail": "유효한 이메일 주소를 입력하세요",
+    "alreadyHaveAnAccount": "이미 계정이 있나요?",
+    "logIn": "로그인",
     "loginAsGuestButtonText": "시작하다"
   },
   "workspace": {
@@ -159,9 +167,9 @@
     "editContact": "연락처 편집"
   },
   "button": {
-    "OK": "확인",
-    "Done": "완료",
-    "Cancel": "취소",
+    "ok": "확인",
+    "done": "완료",
+    "cancel": "취소",
     "signIn": "로그인",
     "signOut": "로그아웃",
     "complete": "완료",
@@ -177,7 +185,6 @@
     "edit": "편집하다",
     "delete": "삭제",
     "duplicate": "복제하다",
-    "done": "완료",
     "putback": "다시 집어 넣어"
   },
   "label": {
@@ -207,8 +214,7 @@
       "language": "언어",
       "user": "사용자",
       "files": "파일",
-      "open": "설정 열기",
-      "supabaseSetting": "수파베이스 설정"
+      "open": "설정 열기"
     },
     "appearance": {
       "fontFamily": {
@@ -223,13 +229,13 @@
       },
       "themeUpload": {
         "button": "업로드",
-        "description": "아래 버튼을 사용하여 나만의 AppFlowy 테마를 업로드하세요.",
-        "failure": "업로드된 테마의 형식이 잘못되었습니다.",
+        "description": "아래 버튼을 사용하여 나만의 @:appName 테마를 업로드하세요.",
         "loading": "테마를 확인하고 업로드하는 동안 잠시 기다려 주십시오...",
         "uploadSuccess": "테마가 성공적으로 업로드되었습니다.",
         "deletionFailure": "테마를 삭제하지 못했습니다. 수동으로 삭제해 보십시오.",
         "filePickerDialogTitle": ".flowy_plugin 파일 선택",
-        "urlUploadFailure": "URL을 열지 못했습니다: {}"
+        "urlUploadFailure": "URL을 열지 못했습니다: {}",
+        "failure": "업로드된 테마의 형식이 잘못되었습니다."
       },
       "theme": "주제",
       "builtInsLabel": "내장 테마",
@@ -242,7 +248,7 @@
       "defaultLocation": "파일 및 데이터 저장 위치 읽기",
       "exportData": "데이터 내보내기",
       "doubleTapToCopy": "경로를 복사하려면 두 번 탭하세요.",
-      "restoreLocation": "AppFlowy 기본 경로로 복원",
+      "restoreLocation": "@:appName 기본 경로로 복원",
       "customizeLocation": "다른 폴더 열기",
       "restartApp": "변경 사항을 적용하려면 앱을 다시 시작하십시오.",
       "exportDatabase": "데이터베이스 내보내기",
@@ -254,10 +260,10 @@
       "defineWhereYourDataIsStored": "데이터가 저장되는 위치 정의",
       "open": "열려 있는",
       "openFolder": "기존 폴더 열기",
-      "openFolderDesc": "기존 AppFlowy 폴더에서 읽고 쓰기",
+      "openFolderDesc": "기존 @:appName 폴더에서 읽고 쓰기",
       "folderHintText": "폴더 이름",
       "location": "새 폴더 만들기",
-      "locationDesc": "AppFlowy 데이터 폴더의 이름을 선택하세요",
+      "locationDesc": "@:appName 데이터 폴더의 이름을 선택하세요",
       "browser": "검색",
       "create": "만들다",
       "set": "세트",
@@ -268,7 +274,7 @@
       "change": "변화",
       "openLocationTooltips": "다른 데이터 디렉토리 열기",
       "openCurrentDataFolder": "현재 데이터 디렉토리 열기",
-      "recoverLocationTooltips": "AppFlowy의 기본 데이터 디렉터리로 재설정",
+      "recoverLocationTooltips": "@:appName의 기본 데이터 디렉터리로 재설정",
       "exportFileSuccess": "파일을 성공적으로 내보냈습니다!",
       "exportFileFail": "파일 내보내기 실패!",
       "export": "내보내다"
@@ -276,7 +282,7 @@
     "user": {
       "name": "이름",
       "selectAnIcon": "아이콘을 선택하세요",
-      "pleaseInputYourOpenAIKey": "OpenAI 키를 입력하십시오"
+      "pleaseInputYourOpenAIKey": "AI 키를 입력하십시오"
     }
   },
   "grid": {
@@ -325,13 +331,9 @@
       "isComplete": "완료되었습니다",
       "isIncomplted": "불완전하다"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "~이다",
       "isNot": "아니다",
-      "isEmpty": "비었다",
-      "isNotEmpty": "비어 있지 않음"
-    },
-    "multiSelectOptionFilter": {
       "contains": "포함",
       "doesNotContain": "포함되어 있지 않다",
       "isEmpty": "비었다",
@@ -436,23 +438,23 @@
       "referencedBoard": "참조 보드",
       "referencedGrid": "참조된 그리드",
       "referencedCalendar": "참조된 달력",
-      "autoGeneratorMenuItemName": "OpenAI 작성자",
-      "autoGeneratorTitleName": "OpenAI: AI에게 무엇이든 쓰라고 요청하세요...",
+      "autoGeneratorMenuItemName": "AI 작성자",
+      "autoGeneratorTitleName": "AI: AI에게 무엇이든 쓰라고 요청하세요...",
       "autoGeneratorLearnMore": "더 알아보기",
       "autoGeneratorGenerate": "생성하다",
       "autoGeneratorHintText": "OpenAI에게 물어보세요 ...",
-      "autoGeneratorCantGetOpenAIKey": "OpenAI 키를 가져올 수 없습니다.",
+      "autoGeneratorCantGetOpenAIKey": "AI 키를 가져올 수 없습니다.",
       "autoGeneratorRewrite": "고쳐 쓰기",
       "smartEdit": "AI 어시스턴트",
-      "openAI": "OpenAI",
+      "aI": "AI",
       "smartEditFixSpelling": "맞춤법 수정",
       "warning": "⚠️ AI 응답은 부정확하거나 오해의 소지가 있을 수 있습니다.",
       "smartEditSummarize": "요약하다",
       "smartEditImproveWriting": "쓰기 향상",
       "smartEditMakeLonger": "더 길게",
       "smartEditCouldNotFetchResult": "OpenAI에서 결과를 가져올 수 없습니다.",
-      "smartEditCouldNotFetchKey": "OpenAI 키를 가져올 수 없습니다.",
-      "smartEditDisabled": "설정에서 OpenAI 연결",
+      "smartEditCouldNotFetchKey": "AI 키를 가져올 수 없습니다.",
+      "smartEditDisabled": "설정에서 AI 연결",
       "discardResponse": "AI 응답을 삭제하시겠습니까?",
       "createInlineMathEquation": "방정식 만들기",
       "toggleList": "토글 목록",
@@ -550,10 +552,15 @@
   },
   "board": {
     "column": {
-      "create_new_card": "추가"
+      "createNewCard": "추가"
     },
     "menuName": "판자",
-    "referencedBoardPrefix": "관점"
+    "referencedBoardPrefix": "관점",
+    "mobile": {
+      "showGroup": "그룹 표시",
+      "showGroupContent": "이 그룹을 보드에 표시하시겠습니까?",
+      "failedToLoad": "보드 보기를 로드하지 못했습니다."
+    }
   },
   "calendar": {
     "menuName": "달력",
@@ -570,14 +577,14 @@
       "firstDayOfWeek": "주 시작",
       "layoutDateField": "레이아웃 캘린더",
       "noDateTitle": "날짜 없음",
-      "noDateHint": "예약되지 않은 일정이 여기에 표시됩니다.",
       "clickToAdd": "캘린더에 추가하려면 클릭하세요.",
-      "name": "달력 레이아웃"
+      "name": "달력 레이아웃",
+      "noDateHint": "예약되지 않은 일정이 여기에 표시됩니다."
     },
     "referencedCalendarPrefix": "관점"
   },
   "errorDialog": {
-    "title": "AppFlowy 오류",
+    "title": "@:appName 오류",
     "howToFixFallback": "불편을 끼쳐드려 죄송합니다! 오류를 설명하는 문제를 GitHub 페이지에 제출하세요.",
     "github": "GitHub에서 보기"
   },

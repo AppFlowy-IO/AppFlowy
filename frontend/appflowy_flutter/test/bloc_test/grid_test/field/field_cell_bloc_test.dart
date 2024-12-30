@@ -1,5 +1,4 @@
-import 'package:appflowy/plugins/database_view/application/field/field_cell_bloc.dart';
-import 'package:appflowy/plugins/database_view/application/field/field_service.dart';
+import 'package:appflowy/plugins/database/application/field/field_cell_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -12,22 +11,20 @@ void main() {
     gridTest = await AppFlowyGridTest.ensureInitialized();
   });
 
-  group('$FieldCellBloc', () {
+  group('field cell bloc:', () {
     late GridTestContext context;
     late double width;
 
     setUp(() async {
-      context = await gridTest.createTestGrid();
+      context = await gridTest.makeDefaultTestGrid();
     });
 
     blocTest(
       'update field width',
       build: () => FieldCellBloc(
-        fieldContext: FieldContext(
-          fieldInfo: context.fieldContexts[0],
-          viewId: context.gridView.id,
-        ),
-      )..add(const FieldCellEvent.initial()),
+        fieldInfo: context.fieldController.fieldInfos[0],
+        viewId: context.viewId,
+      ),
       act: (bloc) {
         width = bloc.state.width;
         bloc.add(const FieldCellEvent.onResizeStart());
@@ -40,13 +37,11 @@ void main() {
     );
 
     blocTest(
-      'field width should not be lesser than 50px',
+      'field width should not be less than 50px',
       build: () => FieldCellBloc(
-        fieldContext: FieldContext(
-          fieldInfo: context.fieldContexts[0],
-          viewId: context.gridView.id,
-        ),
-      )..add(const FieldCellEvent.initial()),
+        viewId: context.viewId,
+        fieldInfo: context.fieldController.fieldInfos[0],
+      ),
       act: (bloc) {
         bloc.add(const FieldCellEvent.onResizeStart());
         bloc.add(const FieldCellEvent.startUpdateWidth(-110));

@@ -1,19 +1,23 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/buttons/base_styled_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 
 class DocumentBanner extends StatelessWidget {
-  final void Function() onRestore;
-  final void Function() onDelete;
   const DocumentBanner({
+    super.key,
+    required this.viewName,
     required this.onRestore,
     required this.onDelete,
-    Key? key,
-  }) : super(key: key);
+  });
+
+  final String viewName;
+  final void Function() onRestore;
+  final void Function() onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +26,8 @@ class DocumentBanner extends StatelessWidget {
       constraints: const BoxConstraints(minHeight: 60),
       child: Container(
         width: double.infinity,
-        color: colorScheme.surfaceVariant,
+        color: colorScheme.surfaceContainerHighest,
         child: FittedBox(
-          alignment: Alignment.center,
           fit: BoxFit.scaleDown,
           child: Row(
             children: [
@@ -58,7 +61,16 @@ class DocumentBanner extends StatelessWidget {
                 highlightColor: Theme.of(context).colorScheme.error,
                 outlineColor: colorScheme.tertiaryContainer,
                 borderRadius: Corners.s8Border,
-                onPressed: onDelete,
+                onPressed: () => showConfirmDeletionDialog(
+                  context: context,
+                  name: viewName.trim().isEmpty
+                      ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
+                      : viewName,
+                  description: LocaleKeys
+                      .deletePagePrompt_deletePermanentDescription
+                      .tr(),
+                  onConfirm: onDelete,
+                ),
                 child: FlowyText.medium(
                   LocaleKeys.deletePagePrompt_deletePermanent.tr(),
                   color: colorScheme.tertiary,

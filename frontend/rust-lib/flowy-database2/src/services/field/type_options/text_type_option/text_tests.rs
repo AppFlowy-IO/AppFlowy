@@ -1,38 +1,36 @@
 #[cfg(test)]
 mod tests {
-  use collab_database::rows::Cell;
-
   use crate::entities::FieldType;
-  use crate::services::cell::stringify_cell_data;
+  use crate::services::cell::{insert_select_option_cell, stringify_cell};
   use crate::services::field::FieldBuilder;
-  use crate::services::field::*;
+
+  use collab_database::fields::date_type_option::{DateCellData, DateTypeOption};
+  use collab_database::fields::select_type_option::{SelectOption, SelectTypeOption};
 
   // Test parser the cell data which field's type is FieldType::Date to cell data
   // which field's type is FieldType::Text
   #[test]
   fn date_type_to_text_type() {
     let field_type = FieldType::DateTime;
-    let field = FieldBuilder::new(field_type.clone(), DateTypeOption::test()).build();
+    let field = FieldBuilder::new(field_type, DateTypeOption::default_utc()).build();
 
-    assert_eq!(
-      stringify_cell_data(
-        &to_text_cell(1647251762.to_string()),
-        &FieldType::RichText,
-        &field_type,
-        &field
-      ),
-      "Mar 14, 2022"
-    );
+    let data = DateCellData {
+      timestamp: Some(1647251762),
+      ..Default::default()
+    };
+
+    assert_eq!(stringify_cell(&(&data).into(), &field), "Mar 14, 2022");
 
     let data = DateCellData {
       timestamp: Some(1647251762),
       end_timestamp: None,
       include_time: true,
       is_range: false,
+      reminder_id: String::new(),
     };
 
     assert_eq!(
-      stringify_cell_data(&(&data).into(), &FieldType::RichText, &field_type, &field),
+      stringify_cell(&(&data).into(), &field),
       "Mar 14, 2022 09:56"
     );
 
@@ -41,10 +39,11 @@ mod tests {
       end_timestamp: Some(1648533809),
       include_time: true,
       is_range: false,
+      reminder_id: String::new(),
     };
 
     assert_eq!(
-      stringify_cell_data(&(&data).into(), &FieldType::RichText, &field_type, &field),
+      stringify_cell(&(&data).into(), &field),
       "Mar 14, 2022 09:56"
     );
 
@@ -53,16 +52,13 @@ mod tests {
       end_timestamp: Some(1648533809),
       include_time: true,
       is_range: true,
+      reminder_id: String::new(),
     };
 
     assert_eq!(
-      stringify_cell_data(&(&data).into(), &FieldType::RichText, &field_type, &field),
+      stringify_cell(&(&data).into(), &field),
       "Mar 14, 2022 09:56 → Mar 29, 2022 06:03"
     );
-  }
-
-  fn to_text_cell(s: String) -> Cell {
-    StrCellData(s).into()
   }
 
   // Test parser the cell data which field's type is FieldType::SingleSelect to cell data
@@ -73,33 +69,24 @@ mod tests {
     let done_option = SelectOption::new("Done");
     let option_id = done_option.id.clone();
 
-    let single_select = SingleSelectTypeOption {
+    let single_select = SelectTypeOption {
       options: vec![done_option.clone()],
       disable_color: false,
     };
-    let field = FieldBuilder::new(field_type.clone(), single_select).build();
+    let field = FieldBuilder::new(field_type, single_select).build();
 
-    assert_eq!(
-      stringify_cell_data(
-        &to_text_cell(option_id),
-        &FieldType::RichText,
-        &field_type,
-        &field
-      ),
-      done_option.name,
-    );
+    let cell = insert_select_option_cell(vec![option_id], &field);
+
+    assert_eq!(stringify_cell(&cell, &field), done_option.name,);
   }
-  /*
-  - [Unit Test] Testing the switching from Multi-selection type to Text type
-  - Tracking : https://github.com/AppFlowy-IO/AppFlowy/issues/1183
-   */
+
   #[test]
   fn multiselect_to_text_type() {
     let field_type = FieldType::MultiSelect;
 
     let france = SelectOption::new("france");
     let argentina = SelectOption::new("argentina");
-    let multi_select = MultiSelectTypeOption {
+    let multi_select = SelectTypeOption {
       options: vec![france.clone(), argentina.clone()],
       disable_color: false,
     };
@@ -107,15 +94,12 @@ mod tests {
     let france_option_id = france.id;
     let argentina_option_id = argentina.id;
 
-    let field_rev = FieldBuilder::new(field_type.clone(), multi_select).build();
+    let field = FieldBuilder::new(field_type, multi_select).build();
+
+    let cell = insert_select_option_cell(vec![france_option_id, argentina_option_id], &field);
 
     assert_eq!(
-      stringify_cell_data(
-        &to_text_cell(format!("{},{}", france_option_id, argentina_option_id)),
-        &FieldType::RichText,
-        &field_type,
-        &field_rev
-      ),
+      stringify_cell(&cell, &field),
       format!("{},{}", france.name, argentina.name)
     );
   }

@@ -1,0 +1,9 @@
+{
+  "type": "page",
+  "children": [{
+    "type": "math_equation",
+    "data": {
+      "formula": "E = MC^2"
+    }
+  }]
+}

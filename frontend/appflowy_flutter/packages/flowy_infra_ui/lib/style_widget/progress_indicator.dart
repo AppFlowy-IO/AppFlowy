@@ -13,7 +13,7 @@ List<Color> _kDefaultRainbowColors = const [
 
 // CircularProgressIndicator()
 class FlowyProgressIndicator extends StatelessWidget {
-  const FlowyProgressIndicator({Key? key}) : super(key: key);
+  const FlowyProgressIndicator({super.key});
 
   @override
   Widget build(BuildContext context) {

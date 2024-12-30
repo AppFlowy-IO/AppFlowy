@@ -1,10 +1,8 @@
-import 'package:url_launcher/url_launcher.dart';
+import 'package:appflowy/core/helpers/url_launcher.dart';
+
+const String learnMoreUrl =
+    'https://docs.appflowy.io/docs/appflowy/product/appflowy-x-openai';
 
 Future<void> openLearnMorePage() async {
-  final uri = Uri.parse(
-    'https://appflowy.gitbook.io/docs/essential-documentation/appflowy-x-openai',
-  );
-  if (await canLaunchUrl(uri)) {
-    await launchUrl(uri);
-  }
+  await afLaunchUrlString(learnMoreUrl);
 }

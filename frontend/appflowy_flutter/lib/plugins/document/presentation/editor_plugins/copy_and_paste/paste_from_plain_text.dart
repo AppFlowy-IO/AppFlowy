@@ -1,18 +1,10 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/editor_state_paste_node_extension.dart';
+import 'package:appflowy/shared/markdown_to_document.dart';
+import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-
-RegExp _hrefRegex = RegExp(
-  r'https?://(?:www\.)?[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}(?:/[^\s]*)?',
-);
 
 extension PasteFromPlainText on EditorState {
   Future<void> pastePlainText(String plainText) async {
-    if (await pasteHtmlIfAvailable(plainText)) {
-      return;
-    }
-
     await deleteSelectionIfNeeded();
-
     final nodes = plainText
         .split('\n')
         .map(
@@ -20,16 +12,27 @@ extension PasteFromPlainText on EditorState {
             ..replaceAll(r'\r', '')
             ..trimRight(),
         )
-        .map((e) {
-          // parse the url content
-          final Attributes attributes = {};
-          if (_hrefRegex.hasMatch(e)) {
-            attributes[AppFlowyRichTextKeys.href] = e;
-          }
-          return Delta()..insert(e, attributes: attributes);
-        })
+        .map((e) => Delta()..insert(e))
         .map((e) => paragraphNode(delta: e))
         .toList();
+    if (nodes.isEmpty) {
+      return;
+    }
+    if (nodes.length == 1) {
+      await pasteSingleLineNode(nodes.first);
+    } else {
+      await pasteMultiLineNodes(nodes.toList());
+    }
+  }
+
+  Future<void> pasteText(String plainText) async {
+    if (await pasteHtmlIfAvailable(plainText)) {
+      return;
+    }
+
+    await deleteSelectionIfNeeded();
+
+    final nodes = customMarkdownToDocument(plainText).root.children;
     if (nodes.isEmpty) {
       return;
     }
@@ -45,7 +48,7 @@ extension PasteFromPlainText on EditorState {
     if (selection == null ||
         !selection.isSingle ||
         selection.isCollapsed ||
-        !_hrefRegex.hasMatch(plainText)) {
+        !hrefRegex.hasMatch(plainText)) {
       return false;
     }
 

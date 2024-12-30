@@ -1,7 +1,8 @@
 use bytes::Bytes;
+use flowy_storage_pub::cloud::ObjectValueSupabase;
 use serde::{Deserialize, Serialize};
 
-use flowy_storage::ObjectValue;
+use crate::supabase;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -88,12 +89,19 @@ pub enum RequestBody {
   },
 }
 
-impl From<(FileOptions, ObjectValue)> for RequestBody {
-  fn from(params: (FileOptions, ObjectValue)) -> Self {
+impl From<(FileOptions, ObjectValueSupabase)> for RequestBody {
+  fn from(
+    params: (
+      supabase::file_storage::entities::FileOptions,
+      ObjectValueSupabase,
+    ),
+  ) -> Self {
     let (options, value) = params;
     match value {
-      ObjectValue::File { file_path } => RequestBody::MultiPartFile { file_path, options },
-      ObjectValue::Bytes { bytes, mime: _ } => RequestBody::MultiPartBytes { bytes, options },
+      ObjectValueSupabase::File { file_path } => RequestBody::MultiPartFile { file_path, options },
+      ObjectValueSupabase::Bytes { bytes, mime: _ } => {
+        RequestBody::MultiPartBytes { bytes, options }
+      },
     }
   }
 }

@@ -4,28 +4,29 @@ version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-collab = { version = "0.1.0" }
-collab-persistence = { version = "0.1.0", features = ["rocksdb_persistence"] }
-collab-folder = { version = "0.1.0" }
-collab-database = { version = "0.1.0" }
-collab-plugins = { version = "0.1.0" }
-collab-document = { version = "0.1.0" }
-collab-entity = { version = "0.1.0" }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-anyhow = "1.0"
-tracing = "0.1"
-parking_lot = "0.12.1"
+collab = { workspace = true }
+collab-plugins = { workspace = true }
+collab-entity = { workspace = true }
+collab-document = { workspace = true }
+collab-folder = { workspace = true }
+collab-user = { workspace = true }
+collab-database = { workspace = true }
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+async-trait.workspace = true
+tokio = { workspace = true, features = ["sync"] }
+lib-infra = { workspace = true }
 futures = "0.3"
-async-trait = "0.1.73"
-tokio = {version = "1.26", features = ["sync"]}
-lib-infra = { path = "../../../shared-lib/lib-infra" }
+arc-swap = "1.7"
+flowy-sqlite = { workspace = true }
+diesel.workspace = true
+flowy-error.workspace = true
 
 [features]
 default = []
-supabase_integrate = ["collab-plugins/postgres_storage_plugin", "rocksdb_plugin"]
-appflowy_cloud_integrate = ["rocksdb_plugin"]
-snapshot_plugin = ["collab-plugins/snapshot_plugin"]
-rocksdb_plugin = ["collab-plugins/rocksdb_plugin"]

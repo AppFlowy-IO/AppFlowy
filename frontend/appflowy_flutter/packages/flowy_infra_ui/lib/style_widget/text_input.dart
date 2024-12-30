@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:flowy_infra/size.dart';
+
 class FlowyFormTextInput extends StatelessWidget {
-  static EdgeInsets kDefaultTextInputPadding =
-      EdgeInsets.only(bottom: Insets.sm, top: 4);
+  static EdgeInsets kDefaultTextInputPadding = const EdgeInsets.only(bottom: 2);
 
   final String? label;
   final bool? autoFocus;
@@ -17,6 +17,8 @@ class FlowyFormTextInput extends StatelessWidget {
   final TextStyle? textStyle;
   final TextAlign textAlign;
   final int? maxLines;
+  final int? maxLength;
+  final bool showCounter;
   final TextEditingController? controller;
   final TextCapitalization? capitalization;
   final Function(String)? onChanged;
@@ -24,23 +26,25 @@ class FlowyFormTextInput extends StatelessWidget {
   final Function(bool)? onFocusChanged;
   final Function(FocusNode)? onFocusCreated;
 
-  const FlowyFormTextInput(
-      {Key? key,
-      this.label,
-      this.autoFocus,
-      this.initialValue,
-      this.onChanged,
-      this.onEditingComplete,
-      this.hintText,
-      this.onFocusChanged,
-      this.onFocusCreated,
-      this.controller,
-      this.contentPadding,
-      this.capitalization,
-      this.textStyle,
-      this.textAlign = TextAlign.center,
-      this.maxLines})
-      : super(key: key);
+  const FlowyFormTextInput({
+    super.key,
+    this.label,
+    this.autoFocus,
+    this.initialValue,
+    this.onChanged,
+    this.onEditingComplete,
+    this.hintText,
+    this.onFocusChanged,
+    this.onFocusCreated,
+    this.controller,
+    this.contentPadding,
+    this.capitalization,
+    this.textStyle,
+    this.textAlign = TextAlign.center,
+    this.maxLines,
+    this.maxLength,
+    this.showCounter = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -57,16 +61,17 @@ class FlowyFormTextInput extends StatelessWidget {
       onFocusChanged: onFocusChanged,
       controller: controller,
       maxLines: maxLines,
-      inputDecoration: InputDecoration(
-        isDense: true,
-        contentPadding: contentPadding ?? kDefaultTextInputPadding,
-        border: const ThinUnderlineBorder(
-            borderSide: BorderSide(width: 5, color: Colors.red)),
-        hintStyle: Theme.of(context)
-            .textTheme
-            .bodyMedium!
-            .copyWith(color: Theme.of(context).hintColor.withOpacity(0.7)),
-        hintText: hintText,
+      maxLength: maxLength,
+      showCounter: showCounter,
+      contentPadding: contentPadding ?? kDefaultTextInputPadding,
+      hintText: hintText,
+      hintStyle: Theme.of(context)
+          .textTheme
+          .bodyMedium!
+          .copyWith(color: Theme.of(context).hintColor.withOpacity(0.7)),
+      isDense: true,
+      inputBorder: const ThinUnderlineBorder(
+        borderSide: BorderSide(width: 5, color: Colors.red),
       ),
     );
   }
@@ -82,6 +87,8 @@ class StyledSearchTextInput extends StatefulWidget {
   final IconData? icon;
   final String? initialValue;
   final int? maxLines;
+  final int? maxLength;
+  final bool showCounter;
   final TextEditingController? controller;
   final TextCapitalization? capitalization;
   final TextInputType? type;
@@ -89,11 +96,14 @@ class StyledSearchTextInput extends StatefulWidget {
   final bool? autoValidate;
   final bool? enableSuggestions;
   final bool? autoCorrect;
+  final bool isDense;
   final String? errorText;
   final String? hintText;
+  final TextStyle? hintStyle;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
   final InputDecoration? inputDecoration;
+  final InputBorder? inputBorder;
 
   final Function(String)? onChanged;
   final Function()? onEditingComplete;
@@ -105,7 +115,7 @@ class StyledSearchTextInput extends StatefulWidget {
   final VoidCallback? onTap;
 
   const StyledSearchTextInput({
-    Key? key,
+    super.key,
     this.label,
     this.autoFocus = false,
     this.obscureText = false,
@@ -118,6 +128,7 @@ class StyledSearchTextInput extends StatefulWidget {
     this.autoValidate = false,
     this.enableSuggestions = true,
     this.autoCorrect = true,
+    this.isDense = false,
     this.errorText,
     this.style,
     this.contentPadding,
@@ -133,9 +144,13 @@ class StyledSearchTextInput extends StatefulWidget {
     this.onSaved,
     this.onTap,
     this.hintText,
+    this.hintStyle,
     this.capitalization,
     this.maxLines,
-  }) : super(key: key);
+    this.maxLength,
+    this.showCounter = false,
+    this.inputBorder,
+  });
 
   @override
   StyledSearchTextInputState createState() => StyledSearchTextInputState();
@@ -147,35 +162,36 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
 
   @override
   void initState() {
+    super.initState();
     _controller =
         widget.controller ?? TextEditingController(text: widget.initialValue);
     _focusNode = FocusNode(
-      debugLabel: widget.label ?? '',
-      onKey: (FocusNode node, RawKeyEvent evt) {
-        if (evt is RawKeyDownEvent) {
-          if (evt.logicalKey == LogicalKeyboardKey.escape) {
-            widget.onEditingCancel?.call();
-            return KeyEventResult.handled;
-          }
+      debugLabel: widget.label,
+      canRequestFocus: true,
+      onKeyEvent: (node, event) {
+        if (event.logicalKey == LogicalKeyboardKey.escape) {
+          widget.onEditingCancel?.call();
+          return KeyEventResult.handled;
         }
-
         return KeyEventResult.ignored;
       },
-      canRequestFocus: true,
     );
     // Listen for focus out events
-    _focusNode
-        .addListener(() => widget.onFocusChanged?.call(_focusNode.hasFocus));
+    _focusNode.addListener(_onFocusChanged);
     widget.onFocusCreated?.call(_focusNode);
     if (widget.autoFocus ?? false) {
       scheduleMicrotask(() => _focusNode.requestFocus());
     }
-    super.initState();
   }
+
+  void _onFocusChanged() => widget.onFocusChanged?.call(_focusNode.hasFocus);
 
   @override
   void dispose() {
-    _controller.dispose();
+    if (widget.controller == null) {
+      _controller.dispose();
+    }
+    _focusNode.removeListener(_onFocusChanged);
     _focusNode.dispose();
     super.dispose();
   }
@@ -208,27 +224,39 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
         showCursor: true,
         enabled: widget.enabled,
         maxLines: widget.maxLines,
+        maxLength: widget.maxLength,
         textCapitalization: widget.capitalization ?? TextCapitalization.none,
         textAlign: widget.textAlign,
         decoration: widget.inputDecoration ??
             InputDecoration(
               prefixIcon: widget.prefixIcon,
               suffixIcon: widget.suffixIcon,
+              counterText: "",
+              suffixText: widget.showCounter ? _suffixText() : "",
               contentPadding: widget.contentPadding ?? EdgeInsets.all(Insets.m),
-              border: const OutlineInputBorder(borderSide: BorderSide.none),
-              isDense: true,
+              border: widget.inputBorder ??
+                  const OutlineInputBorder(borderSide: BorderSide.none),
+              isDense: widget.isDense,
               icon: widget.icon == null ? null : Icon(widget.icon),
               errorText: widget.errorText,
               errorMaxLines: 2,
               hintText: widget.hintText,
-              hintStyle: Theme.of(context)
-                  .textTheme
-                  .bodyMedium!
-                  .copyWith(color: Theme.of(context).hintColor),
+              hintStyle: widget.hintStyle ??
+                  Theme.of(context)
+                      .textTheme
+                      .bodyMedium!
+                      .copyWith(color: Theme.of(context).hintColor),
               labelText: widget.label,
             ),
       ),
     );
+  }
+
+  String? _suffixText() {
+    if (widget.controller != null && widget.maxLength != null) {
+      return ' ${widget.controller!.text.length}/${widget.maxLength}';
+    }
+    return null;
   }
 }
 
@@ -244,12 +272,12 @@ class ThinUnderlineBorder extends InputBorder {
   /// and right corners have a circular radius of 4.0. The [borderRadius]
   /// parameter must not be null.
   const ThinUnderlineBorder({
-    BorderSide borderSide = const BorderSide(),
+    super.borderSide = const BorderSide(),
     this.borderRadius = const BorderRadius.only(
       topLeft: Radius.circular(4.0),
       topRight: Radius.circular(4.0),
     ),
-  }) : super(borderSide: borderSide);
+  });
 
   /// The radii of the border's rounded rectangle corners.
   ///
@@ -266,8 +294,10 @@ class ThinUnderlineBorder extends InputBorder {
   bool get isOutline => false;
 
   @override
-  UnderlineInputBorder copyWith(
-      {BorderSide? borderSide, BorderRadius? borderRadius}) {
+  UnderlineInputBorder copyWith({
+    BorderSide? borderSide,
+    BorderRadius? borderRadius,
+  }) {
     return UnderlineInputBorder(
       borderSide: borderSide ?? this.borderSide,
       borderRadius: borderRadius ?? this.borderRadius,
@@ -275,14 +305,12 @@ class ThinUnderlineBorder extends InputBorder {
   }
 
   @override
-  EdgeInsetsGeometry get dimensions {
-    return EdgeInsets.only(bottom: borderSide.width);
-  }
+  EdgeInsetsGeometry get dimensions =>
+      EdgeInsets.only(bottom: borderSide.width);
 
   @override
-  UnderlineInputBorder scale(double t) {
-    return UnderlineInputBorder(borderSide: borderSide.scale(t));
-  }
+  UnderlineInputBorder scale(double t) =>
+      UnderlineInputBorder(borderSide: borderSide.scale(t));
 
   @override
   Path getInnerPath(Rect rect, {TextDirection? textDirection}) {

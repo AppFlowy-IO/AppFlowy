@@ -5,7 +5,7 @@ use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::EnvFilter;
 
 mod af_cloud_test;
-mod supabase_test;
+// mod supabase_test;
 
 pub fn setup_log() {
   static START: Once = Once::new();

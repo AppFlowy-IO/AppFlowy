@@ -48,9 +48,3 @@ class PublishNotifier<T> extends ChangeNotifier {
     );
   }
 }
-
-class Notifier extends ChangeNotifier {
-  void notify() {
-    notifyListeners();
-  }
-}

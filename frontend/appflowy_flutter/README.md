@@ -1,7 +1,7 @@
 <h1 align="center" style="margin:0"> AppFlowy_Flutter</h1>
 <div align="center">
-  <img src="https://img.shields.io/badge/Flutter-v3.10.1-blue"/>
-  <img src="https://img.shields.io/badge/Rust-v1.65-orange"/>
+  <img src="https://img.shields.io/badge/Flutter-v3.13.19-blue"/>
+  <img src="https://img.shields.io/badge/Rust-v1.70-orange"/>
 </div>
 
 > Documentation for Contributors

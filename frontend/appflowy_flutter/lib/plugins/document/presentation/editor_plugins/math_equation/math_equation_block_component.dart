@@ -1,13 +1,19 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mobile_block_action_buttons.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu/block_menu_button.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class MathEquationBlockKeys {
   const MathEquationBlockKeys._();
@@ -34,8 +40,12 @@ Node mathEquationNode({
 
 // defining the callout block menu item for selection
 SelectionMenuItem mathEquationItem = SelectionMenuItem.node(
-  name: 'MathEquation',
-  iconData: Icons.text_fields_rounded,
+  getName: LocaleKeys.document_plugins_mathEquation_name.tr,
+  iconBuilder: (editorState, onSelected, style) => SelectableSvgWidget(
+    data: FlowySvgs.icon_math_eq_s,
+    isSelected: onSelected,
+    style: style,
+  ),
   keywords: ['tex, latex, katex', 'math equation', 'formula'],
   nodeBuilder: (editorState, _) => mathEquationNode(),
   replace: (_, node) => node.delta?.isEmpty ?? false,
@@ -44,7 +54,7 @@ SelectionMenuItem mathEquationItem = SelectionMenuItem.node(
       final mathEquationState =
           editorState.getNodeAtPath(path)?.key.currentState;
       if (mathEquationState != null &&
-          mathEquationState is _MathEquationBlockComponentWidgetState) {
+          mathEquationState is MathEquationBlockComponentWidgetState) {
         mathEquationState.showEditingDialog();
       }
     });
@@ -73,7 +83,7 @@ class MathEquationBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  bool validate(Node node) =>
+  BlockComponentValidate get validate => (node) =>
       node.children.isEmpty &&
       node.attributes[MathEquationBlockKeys.formula] is String;
 }
@@ -89,10 +99,10 @@ class MathEquationBlockComponentWidget extends BlockComponentStatefulWidget {
 
   @override
   State<MathEquationBlockComponentWidget> createState() =>
-      _MathEquationBlockComponentWidgetState();
+      MathEquationBlockComponentWidgetState();
 }
 
-class _MathEquationBlockComponentWidgetState
+class MathEquationBlockComponentWidgetState
     extends State<MathEquationBlockComponentWidget>
     with BlockComponentConfigurable {
   @override
@@ -101,44 +111,51 @@ class _MathEquationBlockComponentWidgetState
   @override
   Node get node => widget.node;
 
-  bool isHover = false;
   String get formula =>
       widget.node.attributes[MathEquationBlockKeys.formula] as String;
 
   late final editorState = context.read<EditorState>();
+  final ValueNotifier<bool> isHover = ValueNotifier(false);
+
+  late final controller = TextEditingController(text: formula);
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onHover: (value) => setState(() => isHover = value),
+      onHover: (value) => isHover.value = value,
       onTap: showEditingDialog,
-      child: _buildMathEquation(context),
+      child: _build(context),
     );
   }
 
-  Widget _buildMathEquation(BuildContext context) {
+  Widget _build(BuildContext context) {
     Widget child = Container(
-      width: double.infinity,
-      constraints: const BoxConstraints(minHeight: 50),
-      padding: padding,
+      constraints: const BoxConstraints(minHeight: 52),
       decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-        color: isHover || formula.isEmpty
-            ? Theme.of(context).colorScheme.tertiaryContainer
-            : Colors.transparent,
+        color: formula.isNotEmpty
+            ? Colors.transparent
+            : Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(4),
       ),
-      child: Center(
+      child: FlowyHover(
+        style: HoverStyle(
+          borderRadius: BorderRadius.circular(4),
+        ),
         child: formula.isEmpty
-            ? FlowyText.medium(
-                LocaleKeys.document_plugins_mathEquation_addMathEquation.tr(),
-                fontSize: 16,
-              )
-            : Math.tex(
-                formula,
-                textStyle: const TextStyle(fontSize: 20),
-                mathStyle: MathStyle.display,
-              ),
+            ? _buildPlaceholderWidget(context)
+            : _buildMathEquation(context),
       ),
+    );
+
+    child = Padding(
+      padding: padding,
+      child: child,
     );
 
     if (widget.showActions && widget.actionBuilder != null) {
@@ -149,25 +166,89 @@ class _MathEquationBlockComponentWidgetState
       );
     }
 
+    if (UniversalPlatform.isMobile) {
+      child = MobileBlockActionButtons(
+        node: node,
+        editorState: editorState,
+        child: child,
+      );
+    }
+
+    if (UniversalPlatform.isDesktopOrWeb) {
+      child = Stack(
+        children: [
+          child,
+          Positioned(
+            right: 6,
+            top: 12,
+            child: ValueListenableBuilder<bool>(
+              valueListenable: isHover,
+              builder: (_, value, __) =>
+                  value ? _buildDeleteButton(context) : const SizedBox.shrink(),
+            ),
+          ),
+        ],
+      );
+    }
+
     return child;
+  }
+
+  Widget _buildPlaceholderWidget(BuildContext context) {
+    return SizedBox(
+      height: 52,
+      child: Row(
+        children: [
+          const HSpace(10),
+          FlowySvg(
+            FlowySvgs.slash_menu_icon_math_equation_s,
+            color: Theme.of(context).hintColor,
+            size: const Size.square(24),
+          ),
+          const HSpace(10),
+          FlowyText(
+            LocaleKeys.document_plugins_mathEquation_addMathEquation.tr(),
+            color: Theme.of(context).hintColor,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMathEquation(BuildContext context) {
+    return Center(
+      child: Math.tex(
+        formula,
+        textStyle: const TextStyle(fontSize: 20),
+      ),
+    );
+  }
+
+  Widget _buildDeleteButton(BuildContext context) {
+    return MenuBlockButton(
+      tooltip: LocaleKeys.button_delete.tr(),
+      iconData: FlowySvgs.trash_s,
+      onTap: () {
+        final transaction = editorState.transaction..deleteNode(widget.node);
+        editorState.apply(transaction);
+      },
+    );
   }
 
   void showEditingDialog() {
     showDialog(
       context: context,
       builder: (context) {
-        final controller = TextEditingController(text: formula);
         return AlertDialog(
           backgroundColor: Theme.of(context).canvasColor,
           title: Text(
             LocaleKeys.document_plugins_mathEquation_editMathEquation.tr(),
           ),
-          content: RawKeyboardListener(
+          content: KeyboardListener(
             focusNode: FocusNode(),
-            onKey: (key) {
-              if (key is! RawKeyDownEvent) return;
+            onKeyEvent: (key) {
               if (key.logicalKey == LogicalKeyboardKey.enter &&
-                  !key.isShiftPressed) {
+                  !HardwareKeyboard.instance.isShiftPressed) {
                 updateMathEquation(controller.text, context);
               } else if (key.logicalKey == LogicalKeyboardKey.escape) {
                 dismiss(context);
@@ -189,6 +270,7 @@ class _MathEquationBlockComponentWidgetState
           actions: [
             SecondaryTextButton(
               LocaleKeys.button_cancel.tr(),
+              mode: TextButtonMode.big,
               onPressed: () => dismiss(context),
             ),
             PrimaryTextButton(

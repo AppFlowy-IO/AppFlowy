@@ -1,23 +1,28 @@
-use collab_database::views::DatabaseView;
-
 use crate::entities::{
-  CalendarLayoutSettingPB, DatabaseLayoutPB, DatabaseLayoutSettingPB, DatabaseViewSettingPB,
-  FieldSettingsPB, FilterPB, GroupSettingPB, SortPB,
+  DatabaseLayoutPB, DatabaseLayoutSettingPB, DatabaseViewSettingPB, FieldSettingsPB, FilterPB,
+  GroupSettingPB, SortPB,
 };
 use crate::services::field_settings::FieldSettings;
 use crate::services::filter::Filter;
 use crate::services::group::GroupSetting;
-use crate::services::setting::CalendarLayoutSetting;
 use crate::services::sort::Sort;
+use collab_database::entity::DatabaseView;
+use collab_database::views::DatabaseLayout;
+use tracing::error;
 
 pub(crate) fn database_view_setting_pb_from_view(view: DatabaseView) -> DatabaseViewSettingPB {
   let layout_type: DatabaseLayoutPB = view.layout.into();
   let layout_setting = if let Some(layout_setting) = view.layout_settings.get(&view.layout) {
-    let calendar_setting =
-      CalendarLayoutSettingPB::from(CalendarLayoutSetting::from(layout_setting.clone()));
-    DatabaseLayoutSettingPB {
-      layout_type: layout_type.clone(),
-      calendar: Some(calendar_setting),
+    match view.layout {
+      DatabaseLayout::Board => {
+        let board_setting = layout_setting.clone().into();
+        DatabaseLayoutSettingPB::from_board(board_setting)
+      },
+      DatabaseLayout::Calendar => {
+        let calendar_setting = layout_setting.clone().into();
+        DatabaseLayoutSettingPB::from_calendar(calendar_setting)
+      },
+      _ => DatabaseLayoutSettingPB::default(),
     }
   } else {
     DatabaseLayoutSettingPB::default()
@@ -28,7 +33,10 @@ pub(crate) fn database_view_setting_pb_from_view(view: DatabaseView) -> Database
     .into_iter()
     .flat_map(|value| match Filter::try_from(value) {
       Ok(filter) => Some(FilterPB::from(&filter)),
-      Err(_) => None,
+      Err(err) => {
+        error!("Error converting filter: {:?}", err);
+        None
+      },
     })
     .collect::<Vec<FilterPB>>();
 
@@ -37,7 +45,10 @@ pub(crate) fn database_view_setting_pb_from_view(view: DatabaseView) -> Database
     .into_iter()
     .flat_map(|value| match GroupSetting::try_from(value) {
       Ok(setting) => Some(GroupSettingPB::from(&setting)),
-      Err(_) => None,
+      Err(err) => {
+        error!("Error converting group setting: {:?}", err);
+        None
+      },
     })
     .collect::<Vec<GroupSettingPB>>();
 
@@ -46,7 +57,10 @@ pub(crate) fn database_view_setting_pb_from_view(view: DatabaseView) -> Database
     .into_iter()
     .flat_map(|value| match Sort::try_from(value) {
       Ok(sort) => Some(SortPB::from(&sort)),
-      Err(_) => None,
+      Err(err) => {
+        error!("Error converting sort: {:?}", err);
+        None
+      },
     })
     .collect::<Vec<SortPB>>();
 
@@ -54,7 +68,9 @@ pub(crate) fn database_view_setting_pb_from_view(view: DatabaseView) -> Database
     .field_settings
     .into_inner()
     .into_iter()
-    .flat_map(|(field_id, field_settings)| FieldSettings::try_from_anymap(field_id, field_settings))
+    .map(|(field_id, field_settings)| {
+      FieldSettings::from_any_map(&field_id, view.layout, &field_settings)
+    })
     .map(FieldSettingsPB::from)
     .collect::<Vec<FieldSettingsPB>>();
 

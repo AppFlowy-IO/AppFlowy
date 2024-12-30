@@ -2,7 +2,7 @@
 Type=Application
 Name=AppFlowy
 Icon=io.appflowy.AppFlowy
-Exec=env GDK_GL=gles AppFlowy %U
+Exec=AppFlowy %U
 Categories=Network;Productivity;
 Keywords=Notes
 DBusActivatable=true

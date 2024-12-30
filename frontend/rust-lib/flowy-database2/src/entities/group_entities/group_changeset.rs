@@ -11,16 +11,13 @@ pub struct GroupRowsNotificationPB {
   #[pb(index = 1)]
   pub group_id: String,
 
-  #[pb(index = 2, one_of)]
-  pub group_name: Option<String>,
-
-  #[pb(index = 3)]
+  #[pb(index = 2)]
   pub inserted_rows: Vec<InsertedRowPB>,
 
-  #[pb(index = 4)]
+  #[pb(index = 3)]
   pub deleted_rows: Vec<String>,
 
-  #[pb(index = 5)]
+  #[pb(index = 4)]
   pub updated_rows: Vec<RowMetaPB>,
 }
 
@@ -43,23 +40,12 @@ impl std::fmt::Display for GroupRowsNotificationPB {
 
 impl GroupRowsNotificationPB {
   pub fn is_empty(&self) -> bool {
-    self.group_name.is_none()
-      && self.inserted_rows.is_empty()
-      && self.deleted_rows.is_empty()
-      && self.updated_rows.is_empty()
+    self.inserted_rows.is_empty() && self.deleted_rows.is_empty() && self.updated_rows.is_empty()
   }
 
   pub fn new(group_id: String) -> Self {
     Self {
       group_id,
-      ..Default::default()
-    }
-  }
-
-  pub fn name(group_id: String, name: &str) -> Self {
-    Self {
-      group_id,
-      group_name: Some(name.to_owned()),
       ..Default::default()
     }
   }

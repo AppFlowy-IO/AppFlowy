@@ -1,3 +1,18 @@
+use crate::dispatcher::AFConcurrent;
+use crate::prelude::{AFBoxFuture, AFStateMap};
+use crate::service::AFPluginHandler;
+use crate::{
+  errors::{DispatchError, InternalError},
+  request::{payload::Payload, AFPluginEventRequest, FromAFPluginRequest},
+  response::{AFPluginEventResponse, AFPluginResponder},
+  service::{
+    factory, AFPluginHandlerService, AFPluginServiceFactory, BoxService, BoxServiceFactory,
+    Service, ServiceRequest, ServiceResponse,
+  },
+};
+use futures_core::ready;
+use nanoid::nanoid;
+use pin_project::pin_project;
 use std::sync::Arc;
 use std::{
   collections::HashMap,
@@ -9,38 +24,30 @@ use std::{
   task::{Context, Poll},
 };
 
-use futures_core::future::BoxFuture;
-use futures_core::ready;
-use nanoid::nanoid;
-use pin_project::pin_project;
-
-use crate::service::AFPluginHandler;
-use crate::{
-  errors::{DispatchError, InternalError},
-  module::{container::AFPluginStateMap, AFPluginState},
-  request::{payload::Payload, AFPluginEventRequest, FromAFPluginRequest},
-  response::{AFPluginEventResponse, AFPluginResponder},
-  service::{
-    factory, AFPluginHandlerService, AFPluginServiceFactory, BoxService, BoxServiceFactory,
-    Service, ServiceRequest, ServiceResponse,
-  },
-};
-
 pub type AFPluginMap = Arc<HashMap<AFPluginEvent, Arc<AFPlugin>>>;
-pub(crate) fn as_plugin_map(plugins: Vec<AFPlugin>) -> AFPluginMap {
-  let mut plugin_map = HashMap::new();
+pub(crate) fn plugin_map_or_crash(plugins: Vec<AFPlugin>) -> AFPluginMap {
+  let mut plugin_map: HashMap<AFPluginEvent, Arc<AFPlugin>> = HashMap::new();
   plugins.into_iter().for_each(|m| {
     let events = m.events();
+    #[allow(clippy::arc_with_non_send_sync)]
     let plugins = Arc::new(m);
     events.into_iter().for_each(|e| {
+      if plugin_map.contains_key(&e) {
+        let plugin_name = plugin_map.get(&e).map(|p| &p.name);
+        panic!(
+          "⚠️⚠️⚠️Error: {:?} is already defined in {:?}",
+          &e, plugin_name,
+        );
+      }
       plugin_map.insert(e, plugins.clone());
     });
   });
+  #[allow(clippy::arc_with_non_send_sync)]
   Arc::new(plugin_map)
 }
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone)]
-pub struct AFPluginEvent(pub String);
+pub struct AFPluginEvent(String);
 
 impl<T: Display + Eq + Hash + Debug + Clone> std::convert::From<T> for AFPluginEvent {
   fn from(t: T) -> Self {
@@ -58,7 +65,7 @@ pub struct AFPlugin {
   pub name: String,
 
   /// a list of `AFPluginState` that the plugin registers. The state can be read by the plugin's handler.
-  states: Arc<AFPluginStateMap>,
+  states: AFStateMap,
 
   /// Contains a list of factories that are used to generate the services used to handle the passed-in
   /// `ServiceRequest`.
@@ -72,7 +79,8 @@ impl std::default::Default for AFPlugin {
   fn default() -> Self {
     Self {
       name: "".to_owned(),
-      states: Arc::new(AFPluginStateMap::new()),
+      states: Default::default(),
+      #[allow(clippy::arc_with_non_send_sync)]
       event_service_factory: Arc::new(HashMap::new()),
     }
   }
@@ -84,15 +92,14 @@ impl AFPlugin {
   }
 
   pub fn name(mut self, s: &str) -> Self {
-    self.name = s.to_owned();
+    s.clone_into(&mut self.name);
     self
   }
 
-  pub fn state<D: 'static + Send + Sync>(mut self, data: D) -> Self {
+  pub fn state<D: Send + Sync + 'static>(mut self, data: D) -> Self {
     Arc::get_mut(&mut self.states)
       .unwrap()
-      .insert(AFPluginState::new(data));
-
+      .insert(crate::module::AFPluginState::new(data));
     self
   }
 
@@ -100,9 +107,9 @@ impl AFPlugin {
   pub fn event<E, H, T, R>(mut self, event: E, handler: H) -> Self
   where
     H: AFPluginHandler<T, R>,
-    T: FromAFPluginRequest + 'static + Send + Sync,
-    <T as FromAFPluginRequest>::Future: Sync + Send,
-    R: Future + 'static + Send + Sync,
+    T: FromAFPluginRequest + 'static + AFConcurrent,
+    <T as FromAFPluginRequest>::Future: AFConcurrent,
+    R: Future + AFConcurrent + 'static,
     R::Output: AFPluginResponder + 'static,
     E: Eq + Hash + Debug + Clone + Display,
   {
@@ -169,7 +176,7 @@ impl AFPluginServiceFactory<AFPluginRequest> for AFPlugin {
   type Error = DispatchError;
   type Service = BoxService<AFPluginRequest, Self::Response, Self::Error>;
   type Context = ();
-  type Future = BoxFuture<'static, Result<Self::Service, Self::Error>>;
+  type Future = AFBoxFuture<'static, Result<Self::Service, Self::Error>>;
 
   fn new_service(&self, _cfg: Self::Context) -> Self::Future {
     let services = self.event_service_factory.clone();
@@ -185,13 +192,14 @@ pub struct AFPluginService {
   services: Arc<
     HashMap<AFPluginEvent, BoxServiceFactory<(), ServiceRequest, ServiceResponse, DispatchError>>,
   >,
-  states: Arc<AFPluginStateMap>,
+  states: AFStateMap,
 }
 
 impl Service<AFPluginRequest> for AFPluginService {
   type Response = AFPluginEventResponse;
   type Error = DispatchError;
-  type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
+
+  type Future = AFBoxFuture<'static, Result<Self::Response, Self::Error>>;
 
   fn call(&self, request: AFPluginRequest) -> Self::Future {
     let AFPluginRequest { id, event, payload } = request;
@@ -224,7 +232,7 @@ impl Service<AFPluginRequest> for AFPluginService {
 #[pin_project]
 pub struct AFPluginServiceFuture {
   #[pin]
-  fut: BoxFuture<'static, Result<ServiceResponse, DispatchError>>,
+  fut: AFBoxFuture<'static, Result<ServiceResponse, DispatchError>>,
 }
 
 impl Future for AFPluginServiceFuture {

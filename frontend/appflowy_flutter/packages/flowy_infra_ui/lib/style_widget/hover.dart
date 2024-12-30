@@ -24,7 +24,7 @@ class FlowyHover extends StatefulWidget {
   final bool Function()? buildWhenOnHover;
 
   const FlowyHover({
-    Key? key,
+    super.key,
     this.builder,
     this.child,
     this.style,
@@ -33,7 +33,7 @@ class FlowyHover extends StatefulWidget {
     this.cursor,
     this.resetHoverOnRebuild = true,
     this.buildWhenOnHover,
-  }) : super(key: key);
+  });
 
   @override
   State<FlowyHover> createState() => _FlowyHoverState();
@@ -57,47 +57,26 @@ class _FlowyHoverState extends State<FlowyHover> {
     return MouseRegion(
       cursor: widget.cursor != null ? widget.cursor! : SystemMouseCursors.click,
       opaque: false,
-      onHover: (p) {
-        if (_onHover) return;
-        _setOnHover(true);
-      },
-      onEnter: (p) {
-        if (_onHover) return;
-        _setOnHover(true);
-      },
-      onExit: (p) {
-        if (!_onHover) return;
-        _setOnHover(false);
-      },
-      child: renderWidget(),
+      onHover: (_) => _setOnHover(true),
+      onEnter: (_) => _setOnHover(true),
+      onExit: (_) => _setOnHover(false),
+      child: FlowyHoverContainer(
+        style: widget.style ??
+            HoverStyle(hoverColor: Theme.of(context).colorScheme.secondary),
+        applyStyle: _onHover || (widget.isSelected?.call() ?? false),
+        child: widget.child ?? widget.builder!(context, _onHover),
+      ),
     );
   }
 
   void _setOnHover(bool isHovering) {
+    if (isHovering == _onHover) return;
+
     if (widget.buildWhenOnHover?.call() ?? true) {
       setState(() => _onHover = isHovering);
       if (widget.onHover != null) {
         widget.onHover!(isHovering);
       }
-    }
-  }
-
-  Widget renderWidget() {
-    bool showHover = _onHover;
-    if (!showHover && widget.isSelected != null) {
-      showHover = widget.isSelected!();
-    }
-
-    final child = widget.child ?? widget.builder!(context, _onHover);
-    final style = widget.style ??
-        HoverStyle(hoverColor: Theme.of(context).colorScheme.secondary);
-    if (showHover) {
-      return FlowyHoverContainer(
-        style: style,
-        child: child,
-      );
-    } else {
-      return Container(color: style.backgroundColor, child: child);
     }
   }
 }
@@ -134,12 +113,14 @@ class HoverStyle {
 class FlowyHoverContainer extends StatelessWidget {
   final HoverStyle style;
   final Widget child;
+  final bool applyStyle;
 
   const FlowyHoverContainer({
-    Key? key,
+    super.key,
     required this.child,
     required this.style,
-  }) : super(key: key);
+    this.applyStyle = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -167,11 +148,13 @@ class FlowyHoverContainer extends StatelessWidget {
       margin: style.contentMargin,
       decoration: BoxDecoration(
         border: hoverBorder,
-        color: style.hoverColor ?? Theme.of(context).colorScheme.secondary,
+        color: applyStyle
+            ? style.hoverColor ?? Theme.of(context).colorScheme.secondary
+            : style.backgroundColor,
         borderRadius: style.borderRadius,
       ),
       child: Theme(
-        data: hoverTheme,
+        data: applyStyle ? hoverTheme : Theme.of(context),
         child: child,
       ),
     );

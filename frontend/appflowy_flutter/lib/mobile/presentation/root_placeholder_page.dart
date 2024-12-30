@@ -1,5 +1,5 @@
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 /// Widget for the root/initial pages in the bottom navigation bar.
 class RootPlaceholderScreen extends StatelessWidget {
@@ -24,31 +24,10 @@ class RootPlaceholderScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Root of section $label'),
+        centerTitle: true,
+        title: FlowyText.medium(label),
       ),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text('$label Page', style: Theme.of(context).textTheme.titleLarge),
-            const Padding(padding: EdgeInsets.all(4)),
-            TextButton(
-              onPressed: () {
-                context.go(detailsPath, extra: '$label-XYZ');
-              },
-              child: const Text('View details'),
-            ),
-            const Padding(padding: EdgeInsets.all(4)),
-            if (secondDetailsPath != null)
-              TextButton(
-                onPressed: () {
-                  context.go(secondDetailsPath!);
-                },
-                child: const Text('View more details'),
-              ),
-          ],
-        ),
-      ),
+      body: const SizedBox.shrink(),
     );
   }
 }

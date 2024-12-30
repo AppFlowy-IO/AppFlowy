@@ -1,0 +1,100 @@
+{
+  "type": "page",
+  "data": {},
+  "children": [
+    {
+      "type": "heading",
+      "data": { "delta": [{ "insert": " are the basics" }], "level": 2 }
+    },
+    {
+      "type": "heading",
+      "data": { "delta": [{ "insert": "Here is H3" }], "level": 3 }
+    },
+    {
+      "type": "todo_list",
+      "data": {
+        "delta": [{ "insert": "Click anywhere and just start typing." }],
+        "checked": false
+      },
+      "children": [
+        {
+          "type": "todo_list",
+          "data": {
+            "delta": [
+              { "insert": "Click " },
+              { "attributes": { "code": true }, "insert": "Enter" },
+              { "insert": " to create a new line." }
+            ],
+            "checked": false
+          }
+        }
+      ]
+    },
+    {
+      "type": "todo_list",
+      "data": {
+        "checked": false,
+        "delta": [
+          {
+            "attributes": { "bg_color": "0x4dffeb3b" },
+            "insert": "Highlight "
+          },
+          { "insert": "any text, and use the editing menu to " },
+          { "attributes": { "italic": true }, "insert": "style" },
+          { "insert": " " },
+          { "attributes": { "bold": true }, "insert": "your" },
+          { "insert": " " },
+          { "attributes": { "underline": true }, "insert": "writing" },
+          { "insert": " " },
+          { "attributes": { "code": true }, "insert": "however" },
+          { "insert": " you " },
+          { "attributes": { "strikethrough": true }, "insert": "like." }
+        ]
+      }
+    },
+    {
+      "type": "todo_list",
+      "data": {
+        "checked": false,
+        "delta": [
+          { "insert": "As soon as you type " },
+          {
+            "attributes": { "code": true, "font_color": "0xff00b5ff" },
+            "insert": "/"
+          },
+          { "insert": " a menu will pop up. Select " },
+          {
+            "attributes": { "bg_color": "0x4d9c27b0" },
+            "insert": "different types"
+          },
+          { "insert": " of content blocks you can add." }
+        ]
+      }
+    },
+    {
+      "type": "todo_list",
+      "data": {
+        "delta": [
+          { "insert": "Type " },
+          { "attributes": { "code": true }, "insert": "/" },
+          { "insert": " followed by " },
+          { "attributes": { "code": true }, "insert": "/bullet" },
+          { "insert": " or " },
+          { "attributes": { "code": true }, "insert": "/num" },
+          { "attributes": { "code": false }, "insert": " to create a list." }
+        ],
+        "checked": false
+      }
+    },
+    {
+      "type": "todo_list",
+      "data": {
+        "delta": [
+          { "insert": "Click " },
+          { "attributes": { "code": true }, "insert": "+ New" }
+        ],
+        "checked": true
+      }
+    }
+  ]
+}

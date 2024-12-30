@@ -1,45 +1,39 @@
-use anyhow::bail;
-use collab::core::any_map::AnyMapExtension;
+use collab::preclude::encoding::serde::{from_any, to_any};
+use collab::preclude::Any;
 use collab_database::database::gen_database_group_id;
-use collab_database::rows::{RowDetail, RowId};
+use collab_database::rows::{Row, RowId};
 use collab_database::views::{GroupMap, GroupMapBuilder, GroupSettingBuilder, GroupSettingMap};
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
+use std::sync::Arc;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Deserialize)]
 pub struct GroupSetting {
   pub id: String,
   pub field_id: String,
+  #[serde(rename = "ty")]
   pub field_type: i64,
+  #[serde(default)]
   pub groups: Vec<Group>,
+  #[serde(default)]
   pub content: String,
-  pub hide_ungrouped: bool,
-}
-
-pub struct GroupSettingChangeset {
-  pub hide_ungrouped: Option<bool>,
-}
-
-pub struct GroupChangesets {
-  pub update_groups: Vec<GroupChangeset>,
 }
 
 #[derive(Clone, Default, Debug)]
 pub struct GroupChangeset {
   pub group_id: String,
-  pub field_id: String,
   pub name: Option<String>,
   pub visible: Option<bool>,
 }
 
 impl GroupSetting {
-  pub fn new(field_id: String, field_type: i64, content: String, hide_ungrouped: bool) -> Self {
+  pub fn new(field_id: String, field_type: i64, content: String) -> Self {
     Self {
       id: gen_database_group_id(),
       field_id,
       field_type,
       groups: vec![],
       content,
-      hide_ungrouped,
     }
   }
 }
@@ -49,54 +43,31 @@ const FIELD_ID: &str = "field_id";
 const FIELD_TYPE: &str = "ty";
 const GROUPS: &str = "groups";
 const CONTENT: &str = "content";
-const HIDE_UNGROUPED: &str = "hide_ungrouped";
 
 impl TryFrom<GroupSettingMap> for GroupSetting {
   type Error = anyhow::Error;
 
   fn try_from(value: GroupSettingMap) -> Result<Self, Self::Error> {
-    match (
-      value.get_str_value(GROUP_ID),
-      value.get_str_value(FIELD_ID),
-      value.get_i64_value(FIELD_TYPE),
-      value.get_bool_value(HIDE_UNGROUPED),
-    ) {
-      (Some(id), Some(field_id), Some(field_type), Some(hide_ungrouped)) => {
-        let content = value.get_str_value(CONTENT).unwrap_or_default();
-        let groups = value.try_get_array(GROUPS);
-        Ok(Self {
-          id,
-          field_id,
-          field_type,
-          groups,
-          content,
-          hide_ungrouped,
-        })
-      },
-      _ => {
-        bail!("Invalid group setting data")
-      },
-    }
+    from_any(&Any::from(value)).map_err(|e| e.into())
   }
 }
 
 impl From<GroupSetting> for GroupSettingMap {
   fn from(setting: GroupSetting) -> Self {
-    GroupSettingBuilder::new()
-      .insert_str_value(GROUP_ID, setting.id)
-      .insert_str_value(FIELD_ID, setting.field_id)
-      .insert_i64_value(FIELD_TYPE, setting.field_type)
-      .insert_maps(GROUPS, setting.groups)
-      .insert_str_value(CONTENT, setting.content)
-      .insert_bool_value(HIDE_UNGROUPED, setting.hide_ungrouped)
-      .build()
+    let groups = to_any(&setting.groups).unwrap_or_else(|_| Any::Array(Arc::from([])));
+    GroupSettingBuilder::from([
+      (GROUP_ID.into(), setting.id.into()),
+      (FIELD_ID.into(), setting.field_id.into()),
+      (FIELD_TYPE.into(), Any::BigInt(setting.field_type)),
+      (GROUPS.into(), groups),
+      (CONTENT.into(), setting.content.into()),
+    ])
   }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Group {
   pub id: String,
-  pub name: String,
   #[serde(default = "GROUP_VISIBILITY")]
   pub visible: bool,
 }
@@ -105,36 +76,24 @@ impl TryFrom<GroupMap> for Group {
   type Error = anyhow::Error;
 
   fn try_from(value: GroupMap) -> Result<Self, Self::Error> {
-    match value.get_str_value("id") {
-      None => bail!("Invalid group data"),
-      Some(id) => {
-        let name = value.get_str_value("name").unwrap_or_default();
-        let visible = value.get_bool_value("visible").unwrap_or_default();
-        Ok(Self { id, name, visible })
-      },
-    }
+    from_any(&Any::from(value)).map_err(|e| e.into())
   }
 }
 
 impl From<Group> for GroupMap {
   fn from(group: Group) -> Self {
-    GroupMapBuilder::new()
-      .insert_str_value("id", group.id)
-      .insert_str_value("name", group.name)
-      .insert_bool_value("visible", group.visible)
-      .build()
+    GroupMapBuilder::from([
+      ("id".into(), group.id.into()),
+      ("visible".into(), group.visible.into()),
+    ])
   }
 }
 
 const GROUP_VISIBILITY: fn() -> bool = || true;
 
 impl Group {
-  pub fn new(id: String, name: String) -> Self {
-    Self {
-      id,
-      name,
-      visible: true,
-    }
+  pub fn new(id: String) -> Self {
+    Self { id, visible: true }
   }
 }
 
@@ -142,42 +101,42 @@ impl Group {
 pub struct GroupData {
   pub id: String,
   pub field_id: String,
-  pub name: String,
   pub is_default: bool,
   pub is_visible: bool,
-  pub(crate) rows: Vec<RowDetail>,
+  pub(crate) rows: Vec<Row>,
+}
 
-  /// [filter_content] is used to determine which group the cell belongs to.
-  pub filter_content: String,
+impl Display for GroupData {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "GroupData:{}, {} rows", self.id, self.rows.len())
+  }
 }
 
 impl GroupData {
-  pub fn new(id: String, field_id: String, name: String, filter_content: String) -> Self {
+  pub fn new(id: String, field_id: String, is_visible: bool) -> Self {
     let is_default = id == field_id;
     Self {
       id,
       field_id,
       is_default,
-      is_visible: true,
-      name,
+      is_visible,
       rows: vec![],
-      filter_content,
     }
   }
 
   pub fn contains_row(&self, row_id: &RowId) -> bool {
-    self
-      .rows
-      .iter()
-      .any(|row_detail| &row_detail.row.id == row_id)
+    self.rows.iter().any(|row| &row.id == row_id)
   }
 
   pub fn remove_row(&mut self, row_id: &RowId) {
-    match self
-      .rows
-      .iter()
-      .position(|row_detail| &row_detail.row.id == row_id)
-    {
+    #[cfg(feature = "verbose_log")]
+    tracing::trace!(
+      "[Database Group]: Remove row:{} from group:{}",
+      row_id,
+      self.id
+    );
+
+    match self.rows.iter().position(|row| &row.id == row_id) {
       None => {},
       Some(pos) => {
         self.rows.remove(pos);
@@ -185,18 +144,27 @@ impl GroupData {
     }
   }
 
-  pub fn add_row(&mut self, row_detail: RowDetail) {
-    match self.rows.iter().find(|r| r.row.id == row_detail.row.id) {
+  pub fn add_row(&mut self, row: Row) {
+    #[cfg(feature = "verbose_log")]
+    tracing::trace!("[Database Group]: Add row:{} to group:{}", row.id, self.id);
+    match self.rows.iter().find(|r| r.id == row.id) {
       None => {
-        self.rows.push(row_detail);
+        self.rows.push(row);
       },
       Some(_) => {},
     }
   }
 
-  pub fn insert_row(&mut self, index: usize, row_detail: RowDetail) {
+  pub fn insert_row(&mut self, index: usize, row: Row) {
+    #[cfg(feature = "verbose_log")]
+    tracing::trace!(
+      "[Database Group]: Insert row:{} to group:{} at index:{}",
+      row.id,
+      self.id,
+      index
+    );
     if index < self.rows.len() {
-      self.rows.insert(index, row_detail);
+      self.rows.insert(index, row);
     } else {
       tracing::error!(
         "Insert row index:{} beyond the bounds:{},",
@@ -207,10 +175,7 @@ impl GroupData {
   }
 
   pub fn index_of_row(&self, row_id: &RowId) -> Option<usize> {
-    self
-      .rows
-      .iter()
-      .position(|row_detail| &row_detail.row.id == row_id)
+    self.rows.iter().position(|row| &row.id == row_id)
   }
 
   pub fn number_of_row(&self) -> usize {

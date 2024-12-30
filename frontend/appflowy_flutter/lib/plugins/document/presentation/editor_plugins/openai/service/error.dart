@@ -1,14 +1,26 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 part 'error.freezed.dart';
 part 'error.g.dart';
 
 @freezed
-class OpenAIError with _$OpenAIError {
-  const factory OpenAIError({
-    String? code,
+class AIError with _$AIError {
+  const factory AIError({
     required String message,
-  }) = _OpenAIError;
+    @Default(AIErrorCode.other) AIErrorCode code,
+  }) = _AIError;
 
-  factory OpenAIError.fromJson(Map<String, Object?> json) =>
-      _$OpenAIErrorFromJson(json);
+  factory AIError.fromJson(Map<String, Object?> json) =>
+      _$AIErrorFromJson(json);
+}
+
+enum AIErrorCode {
+  @JsonValue('AIResponseLimitExceeded')
+  aiResponseLimitExceeded,
+  @JsonValue('Other')
+  other,
+}
+
+extension AIErrorExtension on AIError {
+  bool get isLimitExceeded => code == AIErrorCode.aiResponseLimitExceeded;
 }

@@ -32,9 +32,6 @@ pub(crate) struct UserProfileResponse {
   pub updated_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Deserialize)]
-pub(crate) struct UserProfileResponseList(pub Vec<UserProfileResponse>);
-
 #[derive(Deserialize, Clone)]
 pub(crate) struct UidResponse {
   #[allow(dead_code)]

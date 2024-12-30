@@ -1,12 +1,12 @@
 import 'package:appflowy/user/presentation/helpers/helpers.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:dartz/dartz.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter/material.dart';
 
 void handleUserProfileResult(
-  Either<UserProfilePB, FlowyError> userProfileResult,
+  FlowyResult<UserProfilePB, FlowyError> userProfileResult,
   BuildContext context,
   AuthRouter authRouter,
 ) {

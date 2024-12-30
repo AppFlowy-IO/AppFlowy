@@ -4,12 +4,12 @@ import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy/workspace/presentation/home/desktop_home_screen.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
-import 'package:appflowy_backend/protobuf/flowy-folder2/protobuf.dart';
 import 'package:flutter/material.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:go_router/go_router.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class AuthRouter {
   void pushForgetPasswordScreen(BuildContext context) {}
@@ -42,12 +42,12 @@ class AuthRouter {
     BuildContext context,
     UserProfilePB userProfile,
   ) async {
-    final result = await FolderEventGetCurrentWorkspace().send();
+    final result = await FolderEventGetCurrentWorkspaceSetting().send();
     result.fold(
       (workspaceSetting) {
         // Replace SignInScreen or SkipLogInScreen as root page.
         // If user click back button, it will exit app rather than go back to SignInScreen or SkipLogInScreen
-        if (PlatformExtension.isMobile) {
+        if (UniversalPlatform.isMobile) {
           context.go(
             MobileHomeScreen.routeName,
           );
@@ -61,10 +61,10 @@ class AuthRouter {
     );
   }
 
-  Future<void> pushEncryptionScreen(
+  void pushEncryptionScreen(
     BuildContext context,
     UserProfilePB userProfile,
-  ) async {
+  ) {
     // After log in,push EncryptionScreen on the top SignInScreen
     context.push(
       EncryptSecretScreen.routeName,
@@ -104,18 +104,17 @@ class SplashRouter {
       },
     );
 
-    FolderEventGetCurrentWorkspace().send().then((result) {
-      result.fold(
-        (workspaceSettingPB) => pushHomeScreen(context),
-        (r) => null,
-      );
-    });
+    final result = await FolderEventGetCurrentWorkspaceSetting().send();
+    result.fold(
+      (workspaceSettingPB) => pushHomeScreen(context),
+      (r) => null,
+    );
   }
 
   void pushHomeScreen(
     BuildContext context,
   ) {
-    if (PlatformExtension.isMobile) {
+    if (UniversalPlatform.isMobile) {
       context.push(
         MobileHomeScreen.routeName,
       );
@@ -129,7 +128,7 @@ class SplashRouter {
   void goHomeScreen(
     BuildContext context,
   ) {
-    if (PlatformExtension.isMobile) {
+    if (UniversalPlatform.isMobile) {
       context.go(
         MobileHomeScreen.routeName,
       );

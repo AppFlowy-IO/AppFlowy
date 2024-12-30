@@ -4,6 +4,9 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 pub enum DatabaseExportDataType {
   #[default]
   CSV = 0,
+
+  // DatabaseData
+  RawDatabaseData = 1,
 }
 
 #[derive(Debug, ProtoBuf, Default, Clone)]

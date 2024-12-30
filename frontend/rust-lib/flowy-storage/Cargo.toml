@@ -3,15 +3,40 @@ name = "flowy-storage"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-reqwest = { version = "0.11", features = ["json", "stream"] }
-serde_json = "1.0"
-serde = { version = "1.0", features = ["derive"] }
-async-trait = "0.1.73"
-bytes = "1.0.1"
-mime_guess = "2.0"
-lib-infra = { path = "../../../shared-lib/lib-infra" }
+lib-dispatch = { workspace = true }
+flowy-storage-pub.workspace = true
+serde_json.workspace = true
+serde.workspace = true
+async-trait.workspace = true
+bytes.workspace = true
+lib-infra = { workspace = true }
 url = "2.2.2"
-flowy-error = { workspace = true, features = ["impl_from_reqwest"] }
+flowy-error = { workspace = true, features = ["impl_from_reqwest", "impl_from_sqlite"] }
+tokio = { workspace = true, features = ["sync", "io-util"] }
+tracing.workspace = true
+flowy-sqlite.workspace = true
+mime_guess = "2.0.4"
+fxhash = "0.2.1"
+anyhow = "1.0.86"
+chrono = "0.4.33"
+flowy-notification = { workspace = true }
+flowy-derive.workspace = true
+protobuf = { workspace = true }
+dashmap.workspace = true
+strum_macros = "0.25.2"
+allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
+futures-util = "0.3.30"
+collab-importer = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["full"] }
+uuid = "1.6.1"
+rand = { version = "0.8", features = ["std_rng"] }
+
+[features]
+dart = ["flowy-codegen/dart", "flowy-notification/dart"]
+tauri_ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]
+
+[build-dependencies]
+flowy-codegen.workspace = true

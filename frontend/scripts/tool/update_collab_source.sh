@@ -1,12 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Paths to your Cargo.toml files
 REPO_PATH="./AppFlowy-Collab"
 CARGO_TOML_1="./rust-lib/Cargo.toml"
 REPO_RELATIVE_PATH_1="../AppFlowy-Collab"
-
-CARGO_TOML_2="./appflowy_tauri/src-tauri/Cargo.toml"
-REPO_RELATIVE_PATH_2="../../AppFlowy-Collab"
 
 # Function to switch dependencies in a given Cargo.toml
 switch_deps() {
@@ -15,9 +12,9 @@ switch_deps() {
     if grep -q 'git = "https://github.com/AppFlowy-IO/AppFlowy-Collab"' "$cargo_toml"; then
         cp "$cargo_toml" "$cargo_toml.bak"
         # Switch to local paths
-        for crate in collab collab-folder collab-document collab-database collab-plugins collab-user collab-entity collab-sync-protocol collab-persistence; do
+        for crate in collab collab-folder collab-document collab-database collab-plugins collab-user collab-entity collab-sync-protocol collab-persistence collab-importer; do
             sed -i '' \
-                -e "s#${crate} = { git = \"https://github.com/AppFlowy-IO/AppFlowy-Collab\", rev = \"[a-f0-9]*\" }#${crate} = { path = \"$repo_path/$crate\" }#g" \
+                -e "s#${crate} = { .*git = \"https://github.com/AppFlowy-IO/AppFlowy-Collab\".* }#${crate} = { path = \"$repo_path/$crate\" }#g" \
                 "$cargo_toml"
         done
         echo "Switched to local paths in $cargo_toml."
@@ -38,4 +35,3 @@ fi
 
 # Switch dependencies in both Cargo.toml files
 switch_deps "$CARGO_TOML_1" "$REPO_RELATIVE_PATH_1"
-switch_deps "$CARGO_TOML_2" "$REPO_RELATIVE_PATH_2"

@@ -9,7 +9,7 @@ class InitPlatformServiceTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    getIt<NetworkListener>().start();
+    return getIt<NetworkListener>().start();
   }
 
   @override

@@ -1,8 +1,9 @@
-import 'dart:isolate';
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ffi';
+import 'dart:isolate';
+import 'dart:typed_data';
 import 'package:appflowy_backend/log.dart';
+
 import 'protobuf/flowy-notification/subject.pb.dart';
 
 typedef ObserverCallback = void Function(SubscribeObject observable);

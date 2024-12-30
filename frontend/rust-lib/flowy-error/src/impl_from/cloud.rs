@@ -1,26 +1,42 @@
-use client_api::error::AppError;
-
 use crate::{ErrorCode, FlowyError};
+use client_api::error::{AppResponseError, ErrorCode as AppErrorCode};
 
-impl From<AppError> for FlowyError {
-  fn from(error: AppError) -> Self {
+impl From<AppResponseError> for FlowyError {
+  fn from(error: AppResponseError) -> Self {
     let code = match error.code {
-      client_api::error::ErrorCode::Ok => ErrorCode::Internal,
-      client_api::error::ErrorCode::Unhandled => ErrorCode::Internal,
-      client_api::error::ErrorCode::RecordNotFound => ErrorCode::RecordNotFound,
-      client_api::error::ErrorCode::RecordAlreadyExists => ErrorCode::RecordAlreadyExists,
-      client_api::error::ErrorCode::InvalidEmail => ErrorCode::EmailFormatInvalid,
-      client_api::error::ErrorCode::InvalidPassword => ErrorCode::PasswordFormatInvalid,
-      client_api::error::ErrorCode::OAuthError => ErrorCode::UserUnauthorized,
-      client_api::error::ErrorCode::MissingPayload => ErrorCode::MissingPayload,
-      client_api::error::ErrorCode::OpenError => ErrorCode::Internal,
-      client_api::error::ErrorCode::InvalidUrl => ErrorCode::InvalidURL,
-      client_api::error::ErrorCode::InvalidRequestParams => ErrorCode::InvalidParams,
-      client_api::error::ErrorCode::UrlMissingParameter => ErrorCode::InvalidParams,
-      client_api::error::ErrorCode::InvalidOAuthProvider => ErrorCode::InvalidAuthConfig,
-      client_api::error::ErrorCode::NotLoggedIn => ErrorCode::UserUnauthorized,
-      client_api::error::ErrorCode::NotEnoughPermissions => ErrorCode::NotEnoughPermissions,
-      client_api::error::ErrorCode::UserNameIsEmpty => ErrorCode::UserNameIsEmpty,
+      AppErrorCode::Ok => ErrorCode::Internal,
+      AppErrorCode::Unhandled => ErrorCode::Internal,
+      AppErrorCode::RecordNotFound => ErrorCode::RecordNotFound,
+      AppErrorCode::RecordAlreadyExists => ErrorCode::RecordAlreadyExists,
+      AppErrorCode::InvalidEmail => ErrorCode::EmailFormatInvalid,
+      AppErrorCode::InvalidPassword => ErrorCode::PasswordFormatInvalid,
+      AppErrorCode::OAuthError => ErrorCode::UserUnauthorized,
+      AppErrorCode::MissingPayload => ErrorCode::MissingPayload,
+      AppErrorCode::OpenError => ErrorCode::Internal,
+      AppErrorCode::InvalidUrl => ErrorCode::InvalidURL,
+      AppErrorCode::InvalidRequest => ErrorCode::InvalidRequest,
+      AppErrorCode::InvalidOAuthProvider => ErrorCode::InvalidAuthConfig,
+      AppErrorCode::NotLoggedIn => ErrorCode::UserUnauthorized,
+      AppErrorCode::NotEnoughPermissions => ErrorCode::NotEnoughPermissions,
+      AppErrorCode::NetworkError => ErrorCode::HttpError,
+      AppErrorCode::PayloadTooLarge => ErrorCode::PayloadTooLarge,
+      AppErrorCode::UserUnAuthorized => ErrorCode::UserUnauthorized,
+      AppErrorCode::WorkspaceLimitExceeded => ErrorCode::WorkspaceLimitExceeded,
+      AppErrorCode::WorkspaceMemberLimitExceeded => ErrorCode::WorkspaceMemberLimitExceeded,
+      AppErrorCode::AIResponseLimitExceeded => ErrorCode::AIResponseLimitExceeded,
+      AppErrorCode::FileStorageLimitExceeded => ErrorCode::FileStorageLimitExceeded,
+      AppErrorCode::SingleUploadLimitExceeded => ErrorCode::SingleUploadLimitExceeded,
+      AppErrorCode::CustomNamespaceDisabled => ErrorCode::CustomNamespaceRequirePlanUpgrade,
+      AppErrorCode::CustomNamespaceDisallowed => ErrorCode::CustomNamespaceNotAllowed,
+      AppErrorCode::PublishNamespaceAlreadyTaken => ErrorCode::CustomNamespaceAlreadyTaken,
+      AppErrorCode::CustomNamespaceTooShort => ErrorCode::CustomNamespaceTooShort,
+      AppErrorCode::CustomNamespaceTooLong => ErrorCode::CustomNamespaceTooLong,
+      AppErrorCode::CustomNamespaceReserved => ErrorCode::CustomNamespaceReserved,
+      AppErrorCode::PublishNameAlreadyExists => ErrorCode::PublishNameAlreadyExists,
+      AppErrorCode::PublishNameInvalidCharacter => ErrorCode::PublishNameInvalidCharacter,
+      AppErrorCode::PublishNameTooLong => ErrorCode::PublishNameTooLong,
+      AppErrorCode::CustomNamespaceInvalidCharacter => ErrorCode::CustomNamespaceInvalidCharacter,
+      AppErrorCode::AIServiceUnavailable => ErrorCode::AIServiceUnavailable,
       _ => ErrorCode::Internal,
     };
 

@@ -1,6 +1,9 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class SelectableItemListMenu extends StatelessWidget {
   const SelectableItemListMenu({
@@ -8,24 +11,34 @@ class SelectableItemListMenu extends StatelessWidget {
     required this.items,
     required this.selectedIndex,
     required this.onSelected,
+    this.shrinkWrap = false,
+    this.controller,
   });
 
   final List<String> items;
   final int selectedIndex;
   final void Function(int) onSelected;
+  final ItemScrollController? controller;
+
+  /// shrinkWrapping is useful in cases where you have a list of
+  /// limited amount of items. It will make the list take the minimum
+  /// amount of space required to show all the items.
+  ///
+  final bool shrinkWrap;
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemBuilder: (context, index) {
-        final item = items[index];
-        return SelectableItem(
-          isSelected: index == selectedIndex,
-          item: item,
-          onTap: () => onSelected(index),
-        );
-      },
+    return ScrollablePositionedList.builder(
+      physics: const ClampingScrollPhysics(),
+      shrinkWrap: shrinkWrap,
       itemCount: items.length,
+      itemScrollController: controller,
+      initialScrollIndex: max(0, selectedIndex),
+      itemBuilder: (context, index) => SelectableItem(
+        isSelected: index == selectedIndex,
+        item: items[index],
+        onTap: () => onSelected(index),
+      ),
     );
   }
 }
@@ -47,8 +60,11 @@ class SelectableItem extends StatelessWidget {
     return SizedBox(
       height: 32,
       child: FlowyButton(
-        text: FlowyText.medium(item),
-        rightIcon: isSelected ? const FlowySvg(FlowySvgs.check_s) : null,
+        text: FlowyText.medium(
+          item,
+          lineHeight: 1.0,
+        ),
+        isSelected: isSelected,
         onTap: onTap,
       ),
     );

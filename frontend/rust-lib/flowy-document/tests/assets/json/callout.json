@@ -1,0 +1,32 @@
+{
+  "type": "page",
+  "data": {},
+  "children": [
+    {
+      "type": "callout",
+      "data": {
+        "delta": [
+          { "insert": "\nLike AppFlowy? Follow us:\n" },
+          {
+            "attributes": {
+              "href": "https://github.com/AppFlowy-IO/AppFlowy"
+            },
+            "insert": "GitHub"
+          },
+          { "insert": "\n" },
+          {
+            "attributes": { "href": "https://twitter.com/appflowy" },
+            "insert": "Twitter"
+          },
+          { "insert": ": @appflowy\n" },
+          {
+            "attributes": { "href": "https://blog-appflowy.ghost.io/" },
+            "insert": "Newsletter"
+          },
+          { "insert": "\n" }
+        ],
+        "icon": "🥰"
+      }
+    }
+  ]
+}

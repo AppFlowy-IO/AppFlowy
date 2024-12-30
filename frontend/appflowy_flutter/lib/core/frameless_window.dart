@@ -1,6 +1,7 @@
-import 'package:flutter/services.dart';
+import 'package:appflowy/startup/tasks/device_info_task.dart';
 import 'package:flutter/material.dart';
-import 'dart:io' show Platform;
+import 'package:flutter/services.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class CocoaWindowChannel {
   CocoaWindowChannel._();
@@ -26,7 +27,10 @@ class CocoaWindowChannel {
 }
 
 class MoveWindowDetector extends StatefulWidget {
-  const MoveWindowDetector({Key? key, this.child}) : super(key: key);
+  const MoveWindowDetector({
+    super.key,
+    this.child,
+  });
 
   final Widget? child;
 
@@ -40,15 +44,21 @@ class MoveWindowDetectorState extends State<MoveWindowDetector> {
 
   @override
   Widget build(BuildContext context) {
-    if (!Platform.isMacOS) {
-      return widget.child ?? Container();
+    // the frameless window is only supported on macOS
+    if (!UniversalPlatform.isMacOS) {
+      return widget.child ?? const SizedBox.shrink();
     }
+
+    // For the macOS version 15 or higher, we can control the window position by using system APIs
+    if (ApplicationInfo.macOSMajorVersion != null &&
+        ApplicationInfo.macOSMajorVersion! >= 15) {
+      return widget.child ?? const SizedBox.shrink();
+    }
+
     return GestureDetector(
       // https://stackoverflow.com/questions/52965799/flutter-gesturedetector-not-working-with-containers-in-stack
       behavior: HitTestBehavior.translucent,
-      onDoubleTap: () async {
-        await CocoaWindowChannel.instance.zoom();
-      },
+      onDoubleTap: () async => CocoaWindowChannel.instance.zoom(),
       onPanStart: (DragStartDetails details) {
         winX = details.globalPosition.dx;
         winY = details.globalPosition.dy;

@@ -1,7 +1,15 @@
-pub use define::*;
+use flowy_user_pub::session::Session;
+use std::sync::Arc;
 
-mod define;
-pub mod historical_document;
-pub mod migrate_to_new_user;
+pub mod doc_key_with_workspace;
+pub mod document_empty_content;
 pub mod migration;
-pub mod sync_new_user;
+pub mod session_migration;
+mod util;
+pub mod workspace_and_favorite_v1;
+pub mod workspace_trash_v1;
+
+#[derive(Clone, Debug)]
+pub struct AnonUser {
+  pub session: Arc<Session>,
+}

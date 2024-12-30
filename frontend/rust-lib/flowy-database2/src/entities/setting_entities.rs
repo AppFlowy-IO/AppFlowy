@@ -5,15 +5,17 @@ use strum_macros::EnumIter;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::{
-  CalendarLayoutSettingPB, DeleteFilterParams, DeleteFilterPayloadPB, DeleteSortParams,
-  DeleteSortPayloadPB, RepeatedFieldSettingsPB, RepeatedFilterPB, RepeatedGroupSettingPB,
-  RepeatedSortPB, UpdateFilterParams, UpdateFilterPayloadPB, UpdateGroupPB, UpdateSortParams,
-  UpdateSortPayloadPB,
+  CalendarLayoutSettingPB, DeleteFilterPB, DeleteSortPayloadPB, InsertFilterPB,
+  RepeatedFieldSettingsPB, RepeatedFilterPB, RepeatedGroupSettingPB, RepeatedSortPB,
+  UpdateFilterDataPB, UpdateFilterTypePB, UpdateGroupPB, UpdateSortPayloadPB,
 };
-use crate::services::setting::CalendarLayoutSetting;
+use crate::services::setting::{BoardLayoutSetting, CalendarLayoutSetting};
+
+use super::{BoardLayoutSettingPB, ReorderSortPayloadPB};
 
 /// [DatabaseViewSettingPB] defines the setting options for the grid. Such as the filter, group, and sort.
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -37,9 +39,8 @@ pub struct DatabaseViewSettingPB {
   pub field_settings: RepeatedFieldSettingsPB,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumIter)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumIter)]
 #[repr(u8)]
-#[derive(Default)]
 pub enum DatabaseLayoutPB {
   #[default]
   Grid = 0,
@@ -67,82 +68,46 @@ impl std::convert::From<DatabaseLayoutPB> for DatabaseLayout {
   }
 }
 
-#[derive(Default, ProtoBuf)]
+#[derive(Default, Validate, ProtoBuf)]
 pub struct DatabaseSettingChangesetPB {
   #[pb(index = 1)]
+  #[validate(custom(function = "lib_infra::validator_fn::required_not_empty_str"))]
   pub view_id: String,
 
   #[pb(index = 2, one_of)]
   pub layout_type: Option<DatabaseLayoutPB>,
 
   #[pb(index = 3, one_of)]
-  pub update_filter: Option<UpdateFilterPayloadPB>,
+  #[validate(nested)]
+  pub insert_filter: Option<InsertFilterPB>,
 
   #[pb(index = 4, one_of)]
-  pub delete_filter: Option<DeleteFilterPayloadPB>,
+  #[validate(nested)]
+  pub update_filter_type: Option<UpdateFilterTypePB>,
 
   #[pb(index = 5, one_of)]
-  pub update_group: Option<UpdateGroupPB>,
+  #[validate(nested)]
+  pub update_filter_data: Option<UpdateFilterDataPB>,
 
   #[pb(index = 6, one_of)]
-  pub update_sort: Option<UpdateSortPayloadPB>,
+  #[validate(nested)]
+  pub delete_filter: Option<DeleteFilterPB>,
 
   #[pb(index = 7, one_of)]
+  #[validate(nested)]
+  pub update_group: Option<UpdateGroupPB>,
+
+  #[pb(index = 8, one_of)]
+  #[validate(nested)]
+  pub update_sort: Option<UpdateSortPayloadPB>,
+
+  #[pb(index = 9, one_of)]
+  #[validate(nested)]
+  pub reorder_sort: Option<ReorderSortPayloadPB>,
+
+  #[pb(index = 10, one_of)]
+  #[validate(nested)]
   pub delete_sort: Option<DeleteSortPayloadPB>,
-}
-
-impl TryInto<DatabaseSettingChangesetParams> for DatabaseSettingChangesetPB {
-  type Error = ErrorCode;
-
-  fn try_into(self) -> Result<DatabaseSettingChangesetParams, Self::Error> {
-    let view_id = NotEmptyStr::parse(self.view_id)
-      .map_err(|_| ErrorCode::ViewIdIsInvalid)?
-      .0;
-
-    let insert_filter = match self.update_filter {
-      None => None,
-      Some(payload) => Some(payload.try_into()?),
-    };
-
-    let delete_filter = match self.delete_filter {
-      None => None,
-      Some(payload) => Some(payload.try_into()?),
-    };
-
-    let alert_sort = match self.update_sort {
-      None => None,
-      Some(payload) => Some(payload.try_into()?),
-    };
-
-    let delete_sort = match self.delete_sort {
-      None => None,
-      Some(payload) => Some(payload.try_into()?),
-    };
-
-    Ok(DatabaseSettingChangesetParams {
-      view_id,
-      layout_type: self.layout_type.map(|ty| ty.into()),
-      insert_filter,
-      delete_filter,
-      alert_sort,
-      delete_sort,
-    })
-  }
-}
-
-pub struct DatabaseSettingChangesetParams {
-  pub view_id: String,
-  pub layout_type: Option<DatabaseLayout>,
-  pub insert_filter: Option<UpdateFilterParams>,
-  pub delete_filter: Option<DeleteFilterParams>,
-  pub alert_sort: Option<UpdateSortParams>,
-  pub delete_sort: Option<DeleteSortParams>,
-}
-
-impl DatabaseSettingChangesetParams {
-  pub fn is_filter_changed(&self) -> bool {
-    self.insert_filter.is_some() || self.delete_filter.is_some()
-  }
 }
 
 #[derive(Debug, Eq, PartialEq, Default, ProtoBuf, Clone)]
@@ -151,19 +116,51 @@ pub struct DatabaseLayoutSettingPB {
   pub layout_type: DatabaseLayoutPB,
 
   #[pb(index = 2, one_of)]
+  pub board: Option<BoardLayoutSettingPB>,
+
+  #[pb(index = 3, one_of)]
   pub calendar: Option<CalendarLayoutSettingPB>,
+}
+
+impl DatabaseLayoutSettingPB {
+  pub fn from_board(layout_setting: BoardLayoutSetting) -> Self {
+    Self {
+      layout_type: DatabaseLayoutPB::Board,
+      board: Some(layout_setting.into()),
+      calendar: None,
+    }
+  }
+
+  pub fn from_calendar(layout_setting: CalendarLayoutSetting) -> Self {
+    Self {
+      layout_type: DatabaseLayoutPB::Calendar,
+      calendar: Some(layout_setting.into()),
+      board: None,
+    }
+  }
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct LayoutSettingParams {
   pub layout_type: DatabaseLayout,
+  pub board: Option<BoardLayoutSetting>,
   pub calendar: Option<CalendarLayoutSetting>,
+}
+
+impl LayoutSettingParams {
+  pub fn new(layout_type: DatabaseLayout) -> Self {
+    Self {
+      layout_type,
+      ..Default::default()
+    }
+  }
 }
 
 impl From<LayoutSettingParams> for DatabaseLayoutSettingPB {
   fn from(data: LayoutSettingParams) -> Self {
     Self {
       layout_type: data.layout_type.into(),
+      board: data.board.map(|board| board.into()),
       calendar: data.calendar.map(|calendar| calendar.into()),
     }
   }
@@ -178,6 +175,9 @@ pub struct LayoutSettingChangesetPB {
   pub layout_type: DatabaseLayoutPB,
 
   #[pb(index = 3, one_of)]
+  pub board: Option<BoardLayoutSettingPB>,
+
+  #[pb(index = 4, one_of)]
   pub calendar: Option<CalendarLayoutSettingPB>,
 }
 
@@ -185,7 +185,15 @@ pub struct LayoutSettingChangesetPB {
 pub struct LayoutSettingChangeset {
   pub view_id: String,
   pub layout_type: DatabaseLayout,
+  pub board: Option<BoardLayoutSetting>,
   pub calendar: Option<CalendarLayoutSetting>,
+}
+
+impl LayoutSettingChangeset {
+  pub fn is_valid(&self) -> bool {
+    self.board.is_some() && self.layout_type == DatabaseLayout::Board
+      || self.calendar.is_some() && self.layout_type == DatabaseLayout::Calendar
+  }
 }
 
 impl TryInto<LayoutSettingChangeset> for LayoutSettingChangesetPB {
@@ -199,7 +207,8 @@ impl TryInto<LayoutSettingChangeset> for LayoutSettingChangesetPB {
     Ok(LayoutSettingChangeset {
       view_id,
       layout_type: self.layout_type.into(),
-      calendar: self.calendar.map(|calendar| calendar.into()),
+      board: self.board.map(Into::into),
+      calendar: self.calendar.map(Into::into),
     })
   }
 }

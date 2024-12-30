@@ -1,11 +1,13 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
+use lib_infra::validator_fn::required_not_empty_str;
 use std::ops::Deref;
+use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::RepeatedFieldIdPB;
 use crate::impl_into_field_visibility;
-use crate::services::field_settings::{FieldSettings, FieldSettingsChangesetParams};
+use crate::services::field_settings::FieldSettings;
 
 /// Defines the field settings for a field in a view.
 #[derive(Debug, Default, Clone, ProtoBuf, Eq, PartialEq)]
@@ -15,6 +17,12 @@ pub struct FieldSettingsPB {
 
   #[pb(index = 2)]
   pub visibility: FieldVisibility,
+
+  #[pb(index = 3)]
+  pub width: i32,
+
+  #[pb(index = 4)]
+  pub wrap_cell_content: bool,
 }
 
 impl From<FieldSettings> for FieldSettingsPB {
@@ -22,6 +30,8 @@ impl From<FieldSettings> for FieldSettingsPB {
     Self {
       field_id: value.field_id,
       visibility: value.visibility,
+      width: value.width,
+      wrap_cell_content: value.wrap_cell_content,
     }
   }
 }
@@ -89,36 +99,22 @@ impl std::convert::From<Vec<FieldSettingsPB>> for RepeatedFieldSettingsPB {
   }
 }
 
-#[derive(Debug, Default, Clone, ProtoBuf)]
+#[derive(Debug, Default, Clone, ProtoBuf, Validate)]
 pub struct FieldSettingsChangesetPB {
+  #[validate(custom(function = "required_not_empty_str"))]
   #[pb(index = 1)]
   pub view_id: String,
 
+  #[validate(custom(function = "required_not_empty_str"))]
   #[pb(index = 2)]
   pub field_id: String,
 
   #[pb(index = 3, one_of)]
   pub visibility: Option<FieldVisibility>,
-}
 
-impl From<FieldSettingsChangesetParams> for FieldSettingsChangesetPB {
-  fn from(value: FieldSettingsChangesetParams) -> Self {
-    Self {
-      view_id: value.view_id,
-      field_id: value.field_id,
-      visibility: value.visibility,
-    }
-  }
-}
+  #[pb(index = 4, one_of)]
+  pub width: Option<i32>,
 
-impl TryFrom<FieldSettingsChangesetPB> for FieldSettingsChangesetParams {
-  type Error = ErrorCode;
-
-  fn try_from(value: FieldSettingsChangesetPB) -> Result<Self, Self::Error> {
-    Ok(FieldSettingsChangesetParams {
-      view_id: value.view_id,
-      field_id: value.field_id,
-      visibility: value.visibility,
-    })
-  }
+  #[pb(index = 5, one_of)]
+  pub wrap_cell_content: Option<bool>,
 }

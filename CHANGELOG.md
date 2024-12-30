@@ -1,4 +1,479 @@
 # Release Notes
+## Version 0.7.9 - 30/12/2024
+### New Features
+- Meet AppFlowy Web (Lite): Use AppFlowy directly in your browser.
+  - Create beautiful documents with 22 content types and markdown support
+  - Use Quick Note to save anything you want to remember—like meeting notes, a grocery list, or to-dos
+  - Invite members to your workspace for seamless collaboration
+  - Create multiple public/private spaces to better organize your content
+- Simple Table is now available on Mobile, designed specifically for mobile devices.
+  - Create and manage Simple Table blocks on Mobile with easy-to-use action menus.
+  - Use the '+' button in the fixed toolbar to easily add a content block into a table cell on Mobile
+  - Use '/' to insert a content block into a table cell on Desktop
+- Add pages as AI sources in AI chat, enabling you to ask questions about the selected sources
+- Add messages to an editable document while chatting with AI side by side
+- The new Emoji menu now includes Icons with a Recent section for quickly reusing emojis/icons
+- Drag a page from the sidebar into a document to easily mention the page without typing its title
+- Paste as plain text, a new option in the right-click paste menu
+### Bug Fixes
+- Fixed misalignment in numbered lists
+- Resolved several bugs in the emoji menu
+- Fixed a bug with checklist items
+
+## Version 0.7.8 - 18/12/2024
+### New Features
+<img width="1068" alt="image" src="https://github.com/user-attachments/assets/cf8bd287-f370-4291-8638-76e2bbf4aaac" />
+
+- Meet Simple Table 2.0:
+   - Insert a list into a table cell
+   - Insert images, quotes, callouts, and code blocks into a table cell
+   - Drag to move rows or columns
+   - Toggle header rows or columns on/off
+   - Distribute columns evenly
+   - Adjust to page width
+- Enjoy a new UI/UX for a seamless experience
+- Revamped mention page interactions in AI Chat
+- Improved AppFlowy AI service
+
+### Bug Fixes
+- Fixed an error when opening files in the database in local mode
+- Fixed arrow up/down navigation not working for selecting a language in Code Block
+- Fixed an issue where deleting multiple blocks using the drag button on the document page didn’t work
+  
+## Version 0.7.7 - 09/12/2024
+### Bug Fixes
+- Fixed sidebar menu resize regression
+- Fixed AI chat loading issues
+- Fixed inability to open local files in database
+- Fixed mentions remaining in notifications after removal from document
+- Fixed event card closing when clicking on empty space
+- Fixed keyboard shortcut issues
+
+## Version 0.7.6 - 03/12/2024
+### New Features
+- Revamped the simple table UI
+- Added support for capturing images from camera on mobile
+### Bug Fixes
+- Improved markdown rendering capabilities in AI writer
+- Fixed an issue where pressing Enter on a collapsed toggle list would add an unnecessary new line
+- Fixed an issue where creating a document from slash menu could insert content at incorrect position
+
+## Version 0.7.5 - 25/11/2024
+### Bug Fixes
+- Improved chat response parsing
+- Fixed toggle list icon direction for RTL mode
+- Fixed cross blocks formatting not reflecting in float toolbar
+- Fixed unable to click inside the toggle list to create a new paragraph
+- Fixed open file error 50 on macOS
+- Fixed upload file exceed limit error
+
+## Version 0.7.4 - 19/11/2024
+### New Features
+- Support uploading WebP and BMP images
+- Support managing workspaces on mobile
+- Support adding toggle headings on mobile
+- Improve the AI chat page UI
+### Bug Fixes
+- Optimized the workspace menu loading performance
+- Optimized tab switching performance
+- Fixed searching issues in Document page
+
+## Version 0.7.3 - 07/11/2024
+### New Features
+- Enable custom URLs for published pages
+- Support toggling headings
+- Create a subpage by typing in the document
+- Turn selected blocks into a subpage
+- Add a manual date picker for the Date property
+
+### Bug Fixes
+- Fixed an issue where the workspace owner was unable to delete spaces created by others
+- Fixed cursor height inconsistencies with text height
+- Fixed editing issues in Kanban cards
+- Fixed an issue preventing images or files from being dropped into empty paragraphs
+
+## Version 0.7.2 - 22/10/2024
+### New Features
+- Copy link to block
+- Support turn into in document
+- Enable sharing links and publishing pages on mobile
+- Enable drag and drop in row documents
+- Right-click on page in sidebar to open more actions
+- Create new subpage in document using `+` character
+- Allow reordering checklist item
+
+### Bug Fixes
+- Fixed issue with inability to cancel inline code format in French IME
+- Fixed delete with Shift or Ctrl shortcuts not working in documents
+- Fixed the issues with incorrect time zone being used in filters.
+
+## Version 0.7.1 - 07/10/2024
+### New Features
+- Copy link to share and open it in a browser
+- Enable the ability to edit the page title within the body of the document
+- Filter by last modified, created at, or a date range
+- Allow customization of database property icons
+- Support CTRL/CMD+X to delete the current line when the selection is collapsed in the document
+- Support window tiling on macOS
+- Add filters to grid views on mobile
+- Create and manage workspaces on mobile
+- Automatically convert property types for imported CSV files
+
+### Bug Fixes
+- Fixed calculations with filters applied
+- Fixed issues with importing data folders into a cloud account
+- Fixed French IME backtick issues
+- Fixed selection gesture bugs on mobile
+
+## Version 0.7.0 - 19/09/2024
+### New Features
+- Support reordering blocks in document with drag and drop
+- Support for adding a cover to a row/card in databases
+- Added support for accessing settings on the sign-in page
+- Added "Move to" option to the document menu in top right corner
+- Support for adjusting the document width from settings
+- Show full name of a group on hover
+- Colored group names in kanban boards
+- Support "Ask AI" on multiple lines of text
+- Support for keyboard gestures to move cursor on Mobile
+- Added markdown support for quickly inserting a code block using three backticks
+
+### Bug Fixes
+- Fixed a critical bug where the backtick character would crash the application
+- Fixed an issue with signing-in from the settings dialog where the dialog would persist
+- Fixed a visual bug with icon alignment in primary cell of database rows
+- Fixed a bug with filters applied where new rows were inserted in wrong position
+- Fixed a bug where "Untitled" would override the name of the row
+- Fixed page title not updating after renaming from "More"-menu
+- Fixed File block breaking row detail document
+- Fixed issues with reordering rows with sorting rules applied
+- Improvements to the File & Media type in Database
+- Performance improvement in Grid view
+- Fixed filters sometimes not applying properly in databases
+
+## Version 0.6.9 - 09/09/2024
+### New Features
+- Added a new property type, 'Files & media'
+- Supported Apple Sign-in
+- Displayed the page icon next to the row name when the row page contains nested notes
+- Enabled Delete Account in Settings
+- Included a collapsible navigation menu in your published site
+
+### Bug Fixes
+- Fixed the space name color issue in the community themes
+- Fixed database filters and sorting issues
+- Fixed the issue of not being able to fully display the title on Kanban cards
+- Fixed the inability to see the entire text of a checklist item when it's more than one line long
+- Fixed hide/unhide buttons in the No Status group
+- Fixed the inability to edit group names on Kanban boards
+- Made error codes more user-friendly
+- Added leading zeros to day and month in date format
+
+## Version 0.6.8 - 22/08/2024
+### New Features
+- Enabled viewing data inside a database record on mobile.
+- Added the ability to invite members to a workspace on mobile.
+- Introduced Ask AI in the Home tab on mobile.
+- Import CSV files with up to 1,000 rows.
+- Convert properties from one type to another while preserving the data.
+- Optimized the speed of opening documents and databases.
+- Improved syncing performance across devices.
+- Added support for a monochrome app icon on Android.
+
+### Bug Fixes
+- Removed the Wayland header from the AppImage build.
+- Fixed the issue where pasting a web image on mobile failed.
+- Corrected the Local AI state when switching between different workspaces.
+- Fixed high CPU usage when opening large databases.
+
+## Version 0.6.7 - 13/08/2024
+### New Features
+- Redesigned the icon picker design on Desktop.
+- Redesigned the notification page on Mobile.
+
+### Bug Fixes
+- Enhance the toolbar tooltip functionality on Desktop.
+- Enhance the slash menu user experience on Desktop.
+- Fixed the issue where list style overrides occurred during text pasting.
+- Fixed the issue where linking multiple databases in the same document could cause random loss of focus.
+
+## Version 0.6.6 - 30/07/2024
+### New Features
+- Upgrade your workspace to a premium plan to unlock more features and storage.
+- Image galleries and drag-and-drop image support in documents.
+
+### Bug Fixes
+- Fix minor UI issues on Desktop and Mobile.
+
+## Version 0.6.5 - 24/07/2024
+### New Features
+- Publish a Database to the Web
+
+## Version 0.6.4 - 16/07/2024
+### New Features
+- Enhanced the message style on the AI chat page.
+- Added the ability to choose cursor color and selection color from a palette in settings page.
+### Bug Fixes
+- Optimized the performance for loading recent pages.
+- Fixed an issue where the cursor would jump randomly when typing in the document title on mobile.
+
+## Version 0.6.3 - 08/07/2024
+### New Features
+- Publish a Document to the Web
+
+## Version 0.6.2 - 01/07/2024
+### New Features
+- Added support for duplicating spaces.
+- Added support for moving pages across spaces.
+- Undo markdown formatting with `Ctrl + Z` or `Cmd + Z`.
+- Improved shortcuts settings UI.
+### Bug Fixes
+- Fixed unable to zoom in with `Ctrl` and `+` or `Cmd` and `+` on some keyboards.
+- Fixed unable to paste nested lists in existing lists.
+
+## Version 0.6.1 - 22/06/2024
+### New Features
+- Introduced the "Space" feature to help you organize your pages more efficiently.
+### Bug Fixes
+- Resolved shortcut conflicts on the board page.
+- Resolved an issue where underscores could cause the editor to freeze.
+
+## Version 0.6.0 - 19/06/2024
+### New Features
+- Introduced the "Space" feature to help you organize your pages more efficiently.
+### Bug Fixes
+- Resolved shortcut conflicts on the board page.
+- Resolved an issue where underscores could cause the editor to freeze.
+
+## Version 0.5.9 - 06/06/2024
+### New Features
+- Revamped the sidebar for both Desktop and Mobile.
+- Added support for embedding videos in documents.
+- Introduced a hotkey (Cmd/Ctrl + 0) to reset the app scale.
+- Supported searching the workspace by page title.
+### Bug Fixes
+- Fixed the issue preventing the use of Backspace to delete words in Kanban boards.
+
+## Version 0.5.8 - 05/20/2024
+### New Features
+- Improvement to the Callout block to insert new lines
+- New settings page "Manage data" replaced the "Files" page
+- New settings page "Workspace" replaced the "Appearance" and "Language" pages
+- A custom implementation of a title bar for Windows users
+- Added support for selecting Cards in kanban and performing grouped keyboard shortcuts
+- Added support for default system font family
+- Support for scaling the application up/down using a keyboard shortcut (CMD/CTRL + PLUS/MINUS)
+
+### Bug Fixes
+- Resolved and refined the UI on Mobile
+- Resolved issue with text editing in database
+- Improved appearance of empty text cells in kanban/calendar
+- Resolved an issue where a page's more actions (delete, duplicate) did not work properly
+- Resolved and inconsistency in padding on get started screen on Desktop
+
+## Version 0.5.7 - 05/10/2024
+### Bug Fixes
+- Resolved page opening issue on Android.
+- Fixed text input inconsistency on Kanban board cards.
+
+## Version 0.5.6 - 05/07/2024
+### New Features
+- Team collaboration is live! Add members to your workspace to edit and collaborate on pages together.
+- Collaborate in real time on the same page with other members. Edits made by others will appear instantly.
+- Create multiple workspaces for different kinds of content.
+- Customize your entire page on mobile through the Page Style menu with options for layout, font, font size, emoji, and cover image.
+- Open a row record as a full page.
+### Bug Fixes
+- Resolved issue with setting background color for the Simple Table block.
+- Adjusted toolbar for various screen sizes.
+- Added a request for photo permission before uploading images on mobile.
+- Exported creation and last modification timestamps to CSV.
+
+## Version 0.5.5 - 04/24/2024
+### New Features
+- Improved the display of code blocks with line numbers
+- Added support for signing in using Magic Link
+### Bug Fixes
+- Fixed the database synchronization indicator issue
+- Resolved the issue with opening the mentioned page on mobile
+- Cleared the collaboration status when the user exits AppFlowy
+
+## Version 0.5.4 - 04/08/2024
+### New Features
+- Introduced support for displaying a synchronization indicator within documents and databases to enhance user awareness of data sync status
+- Revamped the select option cell editor in database
+- Improved translations for Spanish, German, Kurdish, and Vietnamese
+- Supported Android 6 and newer versions
+### Bug Fixes
+- Resolved an issue where twelve-hour time formats were not being parsed correctly in databases
+- Fixed a bug affecting the user interface of the single select option filter
+- Fixed various minor UI issues
+
+## Version 0.5.3 - 03/21/2024
+### New Features
+- Added build support for 32-bit Android devices
+- Introduced filters for KanBan boards for enhanced organization
+- Introduced the new "Relations" column type in Grids
+- Expanded language support with the addition of Greek
+- Enhanced toolbar design for Mobile devices
+- Introduced a command palette feature with initial support for page search
+### Bug Fixes
+- Rectified the issue of incomplete row data in Grids when adding new rows with active filters
+- Enhanced the logic governing the filtering of number and select/multi-select fields for improved accuracy
+- Implemented UI refinements on both Desktop and Mobile platforms, enriching the overall user experience of AppFlowy
+
+## Version 0.5.2 - 03/13/2024
+### Bug Fixes
+- Import csv file.
+
+## Version 0.5.1 - 03/11/2024
+### New Features
+- Introduced support for performing generic calculations on databases.
+- Implemented functionality for easily duplicating calendar events.
+- Added the ability to duplicate fields with cell data, facilitating smoother data management.
+- Now supports customizing font styles and colors prior to typing.
+- Enhanced the checklist user experience with the integration of keyboard shortcuts.
+- Improved the dark mode experience on mobile devices.
+### Bug Fixes
+- Fixed an issue with some pages failing to sync properly.
+- Fixed an issue where links without the http(s) scheme could not be opened, ensuring consistent link functionality.
+- Fixed an issue that prevented numbers from being inserted before heading blocks.
+- Fixed the inline page reference update mechanism to accurately reflect workspace changes.
+- Fixed an issue that made it difficult to resize images in certain cases.
+- Enhanced image loading reliability by clearing the image cache when images fail to load.
+- Resolved a problem preventing the launching of URLs on some Linux distributions.
+
+## Version 0.5.0 - 02/26/2024
+### New Features
+- Added support for scaling text on mobile platforms for better readability.
+- Introduced a toggle for favorites directly from the documents' top bar.
+- Optimized the image upload process and added error messaging for failed uploads.
+- Implemented depth control for outline block components.
+- New checklist task creation is now more intuitive, with prompts appearing on hover over list items in the row detail page.
+- Enhanced sorting capabilities, allowing reordering and addition of multiple sorts.
+- Expanded sorting and filtering options to include more field types like checklist, creation time, and modification time.
+- Added support for field calculations within databases.
+### Bug Fixes
+- Fixed an issue where inserting an image from Unsplash in local mode was not possible.
+- Fixed undo/redo functionality in lists.
+- Fixed data loss issues when converting between block types.
+- Fixed a bug where newly created rows were not being automatically sorted.
+- Fixed issues related to deleting a sorting field or sort not removing existing sorts properly.
+### Notes
+- Windows 7, Windows 8, and iOS 11 are not yet supported due to the upgrade to Flutter 3.22.0.
+
+## Version 0.4.9 - 02/17/2024
+### Bug Fixes
+- Resolved the issue that caused users to be redirected to the Sign In page
+
+## Version 0.4.8 - 02/13/2024
+### Bug Fixes
+- Fixed a possible error when loading workspaces
+
+## Version 0.4.6 - 02/03/2024
+### Bug Fixes
+- Fixed refresh token bug
+
+## Version 0.4.5 - 02/01/2024
+### Bug Fixes
+- Fixed WebSocket connection issue
+
+## Version 0.4.4 - 01/31/2024
+### New Features
+- Added functionality for uploading images to cloud storage.
+- Enabled anonymous sign-in option for mobile platform users.
+- Introduced the ability to customize cloud settings directly from the startup page.
+- Added support for inserting reminders on the mobile platform.
+- Overhauled the user interface on mobile devices, including improvements to the action bottom sheet, editor toolbar, database details page, and app bar.
+- Implemented a shortcut (F2 key) to rename the current view.
+
+### Bug Fixes
+- Fixed an issue where the font family was not displaying correctly on the mobile platform.
+- Resolved a problem with the mobile row detail title not updating correctly.
+- Fixed issues related to deleting images and refactored the image actions menu for better usability.
+- Fixed other known issues.
+
+# Release Notes
+## Version 0.4.3 - 01/16/2024
+### Bug Fixes
+- Fixed file name too long issue
+
+## Version 0.4.2 - 01/15/2024
+AppFlowy for Android is available to download on GitHub.
+If you’ve been using our desktop app, it’s important to read [this guide](https://docs.appflowy.io/docs/guides/sync-desktop-and-mobile) before logging into the mobile app.
+### New Features
+- Enhanced RTL (Right-to-Left) support for mobile platforms.
+- Optimized selection gesture system on mobile.
+- Optimized the mobile toolbar menu.
+- Improved reference menu (‘@’ menu).
+- Updated privacy policy.
+- Improved the data import process for AppFlowy by implementing a progress indicator and compressing the data to enhance efficiency.
+- Enhanced the utilization of local disk space to optimize storage consumption.
+### Bug Fixes
+- Fixed sign-in cancellation issue on mobile.
+- Resolved keyboard close bug on Android.
+
+
+## Version 0.4.1 - 01/03/2024
+### Bug fixes
+- Fix import AppFlowy data folder
+
+## Version 0.4.0 - 12/30/2023
+1. Added capability to import data from an AppFlowy data folder. For detailed information, please see [AppFlowy Data Storage Documentation](https://docs.appflowy.io/docs/appflowy/product/data-storage).
+2. Enhanced user interface and fixed various bugs.
+3. Improved the efficiency of data synchronization in AppFlowy Cloud
+
+## Version 0.3.9.1 - 12/07/2023
+
+### Bug fixes
+- Fix potential blank pages that may occur in an empty document
+
+## Version 0.3.9 - 12/07/2023
+
+### New Features
+- Support inserting a new field to the left or right of an existing one
+
+### Bug fixes
+- Fix some emojis are shown in black/white
+- Fix unable to rename a subpage of subpage
+
+## Version 0.3.8 - 11/13/2023
+
+### New Features
+- Support hiding any stack in a board
+- Support customizing page icons in menu
+- Display visual hint when card contains notes
+- Quick action for adding new stack to a board
+- Support more ways of inserting page references in documents
+- Shift + click on a checkbox to power toggle its children
+
+### Bug fixes
+- Improved color of the "Share"-button text
+- Text overflow issue in Calendar properties
+- Default font (Roboto) added to application
+- Placeholder added for the editor inside a Card
+- Toggle notifications in settings have been fixed
+- Dialog for linking board/grid/calendar opens in correct position
+- Quick add Card in Board at top, correctly adds a new Card at the top
+
+## Version 0.3.7 - 10/30/2023
+
+### New Features
+- Support showing checklist items inline in row page.
+- Support inserting date from slash menu.
+- Support renaming a stack directly by clicking on the stack name.
+- Show the detailed reminder content in the notification center.
+- Save card order in Board view.
+- Allow to hide the ungrouped stack.
+- Segmented the checklist progress bar.
+
+### Bug fixes
+- Optimize side panel animation.
+- Fix calendar with hidden date or title doesn't show options correctly.
+- Fix the horizontal scroll bar disappears in Grid view.
+- Improve setting tab UI in Grid view.
+- Improve theme of the code block.
+- Fix some UI issues.
 
 ## Version 0.3.6 - 10/16/2023
 
@@ -7,8 +482,7 @@
 - Added Ukrainian language.
 - Support auto-hiding sidebar feature, ensuring a streamlined view even when resizing to a smaller window.
 - Support toggling the notifitcation on/off.
-- Added Lemonade theme. 
-
+- Added Lemonade theme.
 
 ### Bug fixes
 - Improve Vietnamese translations.

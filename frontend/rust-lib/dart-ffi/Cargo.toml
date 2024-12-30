@@ -7,39 +7,51 @@ edition = "2018"
 [lib]
 name = "dart_ffi"
 # this value will change depending on the target os
-# default staticlib
+# default static library
 crate-type = ["staticlib"]
 
 
 [dependencies]
 allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
 byteorder = { version = "1.4.3" }
-protobuf = { version = "2.28.0" }
-tokio = { version = "1.26", features = ["full", "rt-multi-thread", "tracing"] }
-log = "0.4.17"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = { version = "1.0" }
-bytes = { version = "1.5" }
+protobuf.workspace = true
+tokio = { workspace = true, features = ["full", "rt-multi-thread", "tracing"] }
+serde.workspace = true
+serde_repr.workspace = true
+serde_json.workspace = true
+bytes.workspace = true
 crossbeam-utils = "0.8.15"
 lazy_static = "1.4.0"
-parking_lot = "0.12.1"
-tracing = { version = "0.1", features = ["log"] }
+tracing.workspace = true
+lib-log.workspace = true
+semver = "1.0.22"
 
 # workspace
-lib-dispatch = { workspace = true }
+lib-dispatch = { workspace = true, features = ["local_set"] }
+
+# Core
+#flowy-core = { workspace = true, features = ["profiling"] }
+#flowy-core = { workspace = true, features = ["verbose_log"] }
 flowy-core = { workspace = true }
-flowy-notification = { workspace = true }
+
+flowy-notification = { workspace = true, features = ["dart"] }
+flowy-document = { workspace = true, features = ["dart"] }
+flowy-user = { workspace = true, features = ["dart"] }
+flowy-date = { workspace = true, features = ["dart"] }
 flowy-server = { workspace = true }
-flowy-server-config = { workspace = true }
+flowy-server-pub = { workspace = true }
 collab-integrate = { workspace = true }
-flowy-derive = { path = "../../../shared-lib/flowy-derive" }
+flowy-derive.workspace = true
+serde_yaml = "0.9.27"
+flowy-error = { workspace = true, features = ["impl_from_sqlite", "impl_from_dispatch_error", "impl_from_appflowy_cloud", "impl_from_reqwest", "impl_from_serde", "dart"] }
+futures = "0.3.26"
 
 [features]
-default = ["dart", "rev-sqlite"]
+default = ["dart"]
 dart = ["flowy-core/dart"]
-rev-sqlite = ["flowy-core/rev-sqlite"]
-http_sync = ["flowy-core/http_sync", "flowy-core/use_bunyan"]
+http_sync = ["flowy-core/http_sync"]
 openssl_vendored = ["flowy-core/openssl_vendored"]
+verbose_log = []
 
 [build-dependencies]
-flowy-codegen = { path = "../../../shared-lib/flowy-codegen", features = ["dart"] }
+flowy-codegen = { workspace = true, features = ["dart"] }

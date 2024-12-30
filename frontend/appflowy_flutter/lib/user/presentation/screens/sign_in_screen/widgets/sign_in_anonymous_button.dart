@@ -1,55 +1,52 @@
-import 'package:appflowy/core/config/kv.dart';
-import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/historical_user_bloc.dart';
+import 'package:appflowy/user/application/anon_user_bloc.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
-import 'package:appflowy/util/platform_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
+/// Used in DesktopSignInScreen and MobileSignInScreen
 class SignInAnonymousButton extends StatelessWidget {
-  /// Used in DesktopSignInScreen and MobileSignInScreen
   const SignInAnonymousButton({
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = PlatformExtension.isMobile;
+    final isMobile = UniversalPlatform.isMobile;
 
     return BlocBuilder<SignInBloc, SignInState>(
       builder: (context, signInState) {
         return BlocProvider(
-          create: (context) => HistoricalUserBloc()
+          create: (context) => AnonUserBloc()
             ..add(
-              const HistoricalUserEvent.initial(),
+              const AnonUserEvent.initial(),
             ),
-          child: BlocListener<HistoricalUserBloc, HistoricalUserState>(
-            listenWhen: (previous, current) =>
-                previous.openedHistoricalUser != current.openedHistoricalUser,
+          child: BlocListener<AnonUserBloc, AnonUserState>(
             listener: (context, state) async {
-              await runAppFlowy();
+              if (state.openedAnonUser != null) {
+                await runAppFlowy();
+              }
             },
-            child: BlocBuilder<HistoricalUserBloc, HistoricalUserState>(
+            child: BlocBuilder<AnonUserBloc, AnonUserState>(
               builder: (context, state) {
-                final text = state.historicalUsers.isEmpty
+                final text = state.anonUsers.isEmpty
                     ? LocaleKeys.signIn_loginStartWithAnonymous.tr()
                     : LocaleKeys.signIn_continueAnonymousUser.tr();
-                final onTap = state.historicalUsers.isEmpty
+                final onTap = state.anonUsers.isEmpty
                     ? () {
-                        getIt<KeyValueStorage>().set(KVKeys.loginType, 'local');
                         context
                             .read<SignInBloc>()
                             .add(const SignInEvent.signedInAsGuest());
                       }
                     : () {
-                        final bloc = context.read<HistoricalUserBloc>();
-                        final user = bloc.state.historicalUsers.first;
-                        bloc.add(HistoricalUserEvent.openHistoricalUser(user));
+                        final bloc = context.read<AnonUserBloc>();
+                        final user = bloc.state.anonUsers.first;
+                        bloc.add(AnonUserEvent.openAnonUser(user));
                       };
                 // SignInAnonymousButton in mobile
                 if (isMobile) {
@@ -58,7 +55,12 @@ class SignInAnonymousButton extends StatelessWidget {
                       minimumSize: const Size(double.infinity, 56),
                     ),
                     onPressed: onTap,
-                    child: Text(LocaleKeys.signIn_loginStartWithAnonymous.tr()),
+                    child: FlowyText(
+                      LocaleKeys.signIn_loginStartWithAnonymous.tr(),
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontWeight: FontWeight.w500,
+                    ),
                   );
                 }
                 // SignInAnonymousButton in desktop
@@ -73,6 +75,59 @@ class SignInAnonymousButton extends StatelessWidget {
                     ),
                     radius: Corners.s6Border,
                     onTap: onTap,
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class SignInAnonymousButtonV2 extends StatelessWidget {
+  const SignInAnonymousButtonV2({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SignInBloc, SignInState>(
+      builder: (context, signInState) {
+        return BlocProvider(
+          create: (context) => AnonUserBloc()
+            ..add(
+              const AnonUserEvent.initial(),
+            ),
+          child: BlocListener<AnonUserBloc, AnonUserState>(
+            listener: (context, state) async {
+              if (state.openedAnonUser != null) {
+                await runAppFlowy();
+              }
+            },
+            child: BlocBuilder<AnonUserBloc, AnonUserState>(
+              builder: (context, state) {
+                final text = LocaleKeys.signIn_anonymous.tr();
+                final onTap = state.anonUsers.isEmpty
+                    ? () {
+                        context
+                            .read<SignInBloc>()
+                            .add(const SignInEvent.signedInAsGuest());
+                      }
+                    : () {
+                        final bloc = context.read<AnonUserBloc>();
+                        final user = bloc.state.anonUsers.first;
+                        bloc.add(AnonUserEvent.openAnonUser(user));
+                      };
+                return FlowyButton(
+                  useIntrinsicWidth: true,
+                  onTap: onTap,
+                  text: FlowyText(
+                    text,
+                    color: Colors.grey,
+                    decoration: TextDecoration.underline,
+                    fontSize: 12,
                   ),
                 );
               },

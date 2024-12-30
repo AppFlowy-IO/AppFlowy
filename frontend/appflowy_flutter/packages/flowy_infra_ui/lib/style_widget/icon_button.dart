@@ -1,8 +1,11 @@
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_svg/flowy_svg.dart';
-import 'package:flutter/material.dart';
 
 class FlowyIconButton extends StatelessWidget {
   final double width;
@@ -21,7 +24,7 @@ class FlowyIconButton extends StatelessWidget {
   final bool? isSelected;
 
   const FlowyIconButton({
-    Key? key,
+    super.key,
     this.width = 30,
     this.height,
     this.onPressed,
@@ -36,10 +39,9 @@ class FlowyIconButton extends StatelessWidget {
     this.preferBelow = true,
     this.isSelected,
     required this.icon,
-  })  : assert((richTooltipText != null && tooltipText == null) ||
+  }) : assert((richTooltipText != null && tooltipText == null) ||
             (richTooltipText == null && tooltipText != null) ||
-            (richTooltipText == null && tooltipText == null)),
-        super(key: key);
+            (richTooltipText == null && tooltipText == null));
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +54,26 @@ class FlowyIconButton extends StatelessWidget {
     assert(size.width > iconPadding.horizontal);
     assert(size.height > iconPadding.vertical);
 
+    child = Padding(
+      padding: iconPadding,
+      child: Center(child: child),
+    );
+
+    if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+      child = FlowyHover(
+        isSelected: isSelected != null ? () => isSelected! : null,
+        style: HoverStyle(
+            hoverColor: hoverColor,
+            foregroundColorOnHover:
+                iconColorOnHover ?? Theme.of(context).iconTheme.color,
+            borderRadius: radius ?? Corners.s6Border
+            //Do not set background here. Use [fillColor] instead.
+            ),
+        resetHoverOnRebuild: false,
+        child: child,
+      );
+    }
+
     return Container(
       constraints: BoxConstraints.tightFor(
         width: size.width,
@@ -62,36 +84,20 @@ class FlowyIconButton extends StatelessWidget {
         preferBelow: preferBelow,
         message: tooltipMessage,
         richMessage: richTooltipText,
-        showDuration: Duration.zero,
         child: RawMaterialButton(
-          visualDensity: VisualDensity.compact,
+          clipBehavior: Clip.antiAlias,
           hoverElevation: 0,
           highlightElevation: 0,
           shape:
               RoundedRectangleBorder(borderRadius: radius ?? Corners.s6Border),
           fillColor: fillColor,
-          hoverColor: hoverColor,
+          hoverColor: Colors.transparent,
           focusColor: Colors.transparent,
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
           elevation: 0,
           onPressed: onPressed,
-          child: FlowyHover(
-            isSelected: isSelected != null ? () => isSelected! : null,
-            style: HoverStyle(
-              // hoverColor is set in both [HoverStyle] and [RawMaterialButton] to avoid the conflicts between two layers
-              hoverColor: hoverColor,
-              foregroundColorOnHover:
-                  iconColorOnHover ?? Theme.of(context).iconTheme.color,
-              //Do not set background here. Use [fillColor] instead.
-            ),
-            child: Padding(
-              padding: iconPadding,
-              child: Center(
-                child: child,
-              ),
-            ),
-          ),
+          child: child,
         ),
       ),
     );
@@ -99,11 +105,9 @@ class FlowyIconButton extends StatelessWidget {
 }
 
 class FlowyDropdownButton extends StatelessWidget {
+  const FlowyDropdownButton({super.key, this.onPressed});
+
   final VoidCallback? onPressed;
-  const FlowyDropdownButton({
-    Key? key,
-    this.onPressed,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

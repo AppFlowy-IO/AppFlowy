@@ -1,24 +1,23 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use collab::core::collab::MutexCollab;
+use collab::core::collab::{DataSource, MutexCollab};
 use collab::core::origin::CollabOrigin;
+use collab::preclude::Collab;
 use collab_plugins::cloud_storage::RemoteCollabStorage;
 use uuid::Uuid;
 
-use flowy_database_deps::cloud::DatabaseCloudService;
+use flowy_database_pub::cloud::DatabaseCloudService;
 use flowy_error::FlowyError;
-use flowy_folder_deps::cloud::{Folder, FolderCloudService};
+use flowy_folder_pub::cloud::{Folder, FolderCloudService};
 use flowy_server::supabase::api::{
   RESTfulPostgresServer, SupabaseCollabStorageImpl, SupabaseDatabaseServiceImpl,
   SupabaseFolderServiceImpl, SupabaseServerServiceImpl, SupabaseUserServiceImpl,
 };
 use flowy_server::supabase::define::{USER_DEVICE_ID, USER_EMAIL, USER_UUID};
-use flowy_server::supabase::file_storage::core::SupabaseFileStorage;
 use flowy_server::{AppFlowyEncryption, EncryptionImpl};
-use flowy_server_config::supabase_config::SupabaseConfiguration;
-use flowy_storage::{FileStoragePlan, FileStorageService, StorageObject};
-use flowy_user_deps::cloud::UserCloudService;
+use flowy_server_pub::supabase_config::SupabaseConfiguration;
+use flowy_user_pub::cloud::UserCloudService;
 use lib_infra::future::FutureResult;
 
 use crate::setup_log;
@@ -60,7 +59,8 @@ pub fn folder_service() -> Arc<dyn FolderCloudService> {
   Arc::new(SupabaseFolderServiceImpl::new(server))
 }
 
-pub fn file_storage_service() -> Arc<dyn FileStorageService> {
+#[allow(dead_code)]
+pub fn file_storage_service() -> Arc<dyn ObjectStorageCloudService> {
   let encryption_impl: Arc<dyn AppFlowyEncryption> = Arc::new(EncryptionImpl::new(None));
   let config = SupabaseConfiguration::from_env().unwrap();
   Arc::new(
@@ -96,26 +96,43 @@ pub fn encryption_collab_service(
 }
 
 #[allow(dead_code)]
-pub async fn print_encryption_folder(folder_id: &str, encryption_secret: Option<String>) {
+pub async fn print_encryption_folder(
+  uid: &i64,
+  folder_id: &str,
+  encryption_secret: Option<String>,
+) {
   let (cloud_service, _encryption) = encryption_folder_service(encryption_secret);
-  let folder_data = cloud_service.get_folder_data(folder_id).await.unwrap();
+  let folder_data = cloud_service.get_folder_data(folder_id, uid).await.unwrap();
   let json = serde_json::to_value(folder_data).unwrap();
   println!("{}", serde_json::to_string_pretty(&json).unwrap());
 }
 
 #[allow(dead_code)]
-pub async fn print_encryption_folder_snapshot(folder_id: &str, encryption_secret: Option<String>) {
+pub async fn print_encryption_folder_snapshot(
+  uid: &i64,
+  folder_id: &str,
+  encryption_secret: Option<String>,
+) {
   let (cloud_service, _encryption) = encryption_collab_service(encryption_secret);
   let snapshot = cloud_service
     .get_snapshots(folder_id, 1)
     .await
     .pop()
     .unwrap();
-  let collab = Arc::new(
-    MutexCollab::new_with_raw_data(CollabOrigin::Empty, folder_id, vec![snapshot.blob], vec![])
-      .unwrap(),
-  );
-  let folder_data = Folder::open(collab, None).get_folder_data().unwrap();
+  let collab = Arc::new(MutexCollab::new(
+    Collab::new_with_source(
+      CollabOrigin::Empty,
+      folder_id,
+      DataSource::DocStateV1(snapshot.blob),
+      vec![],
+      false,
+    )
+    .unwrap(),
+  ));
+  let folder_data = Folder::open(uid, collab, None)
+    .unwrap()
+    .get_folder_data(folder_id)
+    .unwrap();
   let json = serde_json::to_value(folder_data).unwrap();
   println!("{}", serde_json::to_string_pretty(&json).unwrap());
 }
@@ -143,19 +160,3 @@ pub fn third_party_sign_up_param(uuid: String) -> HashMap<String, String> {
 }
 
 pub struct TestFileStoragePlan;
-
-impl FileStoragePlan for TestFileStoragePlan {
-  fn storage_size(&self) -> FutureResult<u64, FlowyError> {
-    // 1 GB
-    FutureResult::new(async { Ok(1024 * 1024 * 1024) })
-  }
-
-  fn maximum_file_size(&self) -> FutureResult<u64, FlowyError> {
-    // 5 MB
-    FutureResult::new(async { Ok(5 * 1024 * 1024) })
-  }
-
-  fn check_upload_object(&self, _object: &StorageObject) -> FutureResult<(), FlowyError> {
-    FutureResult::new(async { Ok(()) })
-  }
-}

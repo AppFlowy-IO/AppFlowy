@@ -1,0 +1,39 @@
+{
+  "type": "page",
+  "data": {},
+  "children": [
+    {
+      "type": "heading",
+      "data": {
+        "level": 1,
+        "delta": [
+          {
+            "insert": "Heading1"
+          }
+        ]
+      }
+    },
+    {
+      "type": "heading",
+      "data": {
+        "level": 2,
+        "delta": [
+          {
+            "insert": "Heading2"
+          }
+        ]
+      }
+    },
+    {
+      "type": "heading",
+      "data": {
+        "level": 3,
+        "delta": [
+          {
+            "insert": "Heading3"
+          }
+        ]
+      }
+    }
+  ]
+}

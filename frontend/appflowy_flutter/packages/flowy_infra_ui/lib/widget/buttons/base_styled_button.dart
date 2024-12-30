@@ -22,7 +22,7 @@ class BaseStyledButton extends StatefulWidget {
   final Color outlineColor;
 
   const BaseStyledButton({
-    Key? key,
+    super.key,
     required this.child,
     this.onPressed,
     this.onFocusChanged,
@@ -39,7 +39,7 @@ class BaseStyledButton extends StatefulWidget {
     this.useBtnText = true,
     this.autoFocus = false,
     this.outlineColor = Colors.transparent,
-  }) : super(key: key);
+  });
 
   @override
   State<BaseStyledButton> createState() => BaseStyledBtnState();
@@ -53,16 +53,19 @@ class BaseStyledBtnState extends State<BaseStyledButton> {
   void initState() {
     super.initState();
     _focusNode = FocusNode(debugLabel: '', canRequestFocus: true);
-    _focusNode.addListener(() {
-      if (_focusNode.hasFocus != _isFocused) {
-        setState(() => _isFocused = _focusNode.hasFocus);
-        widget.onFocusChanged?.call(_isFocused);
-      }
-    });
+    _focusNode.addListener(_onFocusChanged);
+  }
+
+  void _onFocusChanged() {
+    if (_focusNode.hasFocus != _isFocused) {
+      setState(() => _isFocused = _focusNode.hasFocus);
+      widget.onFocusChanged?.call(_isFocused);
+    }
   }
 
   @override
   void dispose() {
+    _focusNode.removeListener(_onFocusChanged);
     _focusNode.dispose();
     super.dispose();
   }

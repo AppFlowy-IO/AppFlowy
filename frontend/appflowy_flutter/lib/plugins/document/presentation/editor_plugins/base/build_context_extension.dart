@@ -12,4 +12,9 @@ extension BuildContextExtension on BuildContext {
     box.hitTest(result, position: box.globalToLocal(offset));
     return result.path.any((entry) => entry.target == box);
   }
+
+  double get appBarHeight =>
+      AppBarTheme.of(this).toolbarHeight ?? kToolbarHeight;
+  double get statusBarHeight => statusBarAndAppBarHeight - appBarHeight;
+  double get statusBarAndAppBarHeight => MediaQuery.of(this).padding.top;
 }

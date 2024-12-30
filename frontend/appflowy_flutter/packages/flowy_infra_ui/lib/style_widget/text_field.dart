@@ -20,8 +20,27 @@ class FlowyTextField extends StatefulWidget {
   final bool submitOnLeave;
   final Duration? debounceDuration;
   final String? errorText;
-  final int maxLines;
+  final Widget? error;
+  final int? maxLines;
   final bool showCounter;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
+  final BoxConstraints? prefixIconConstraints;
+  final BoxConstraints? suffixIconConstraints;
+  final BoxConstraints? hintTextConstraints;
+  final TextStyle? hintStyle;
+  final InputDecoration? decoration;
+  final TextAlignVertical? textAlignVertical;
+  final TextInputAction? textInputAction;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
+  final bool obscureText;
+  final bool isDense;
+  final bool readOnly;
+  final Color? enableBorderColor;
+  final BorderRadius? borderRadius;
+  final void Function()? onTap;
+  final Function(PointerDownEvent)? onTapOutside;
 
   const FlowyTextField({
     super.key,
@@ -40,8 +59,27 @@ class FlowyTextField extends StatefulWidget {
     this.submitOnLeave = false,
     this.debounceDuration,
     this.errorText,
+    this.error,
     this.maxLines = 1,
     this.showCounter = true,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.prefixIconConstraints,
+    this.suffixIconConstraints,
+    this.hintTextConstraints,
+    this.hintStyle,
+    this.decoration,
+    this.textAlignVertical,
+    this.textInputAction,
+    this.keyboardType = TextInputType.multiline,
+    this.inputFormatters,
+    this.obscureText = false,
+    this.isDense = true,
+    this.readOnly = false,
+    this.enableBorderColor,
+    this.borderRadius,
+    this.onTap,
+    this.onTapOutside,
   });
 
   @override
@@ -55,10 +93,13 @@ class FlowyTextFieldState extends State<FlowyTextField> {
 
   @override
   void initState() {
+    super.initState();
+
     focusNode = widget.focusNode ?? FocusNode();
     focusNode.addListener(notifyDidEndEditing);
 
     controller = widget.controller ?? TextEditingController();
+
     if (widget.text != null) {
       controller.text = widget.text!;
     }
@@ -66,11 +107,26 @@ class FlowyTextFieldState extends State<FlowyTextField> {
     if (widget.autoFocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         focusNode.requestFocus();
-        controller.selection = TextSelection.fromPosition(
-            TextPosition(offset: controller.text.length));
+        if (widget.controller == null) {
+          controller.selection = TextSelection.fromPosition(
+            TextPosition(offset: controller.text.length),
+          );
+        }
       });
     }
-    super.initState();
+  }
+
+  @override
+  void dispose() {
+    focusNode.removeListener(notifyDidEndEditing);
+    if (widget.focusNode == null) {
+      focusNode.dispose();
+    }
+    if (widget.controller == null) {
+      controller.dispose();
+    }
+    _debounceOnChanged?.cancel();
+    super.dispose();
   }
 
   void _debounceOnChangedText(Duration duration, String text) {
@@ -90,7 +146,6 @@ class FlowyTextFieldState extends State<FlowyTextField> {
   void _onSubmitted(String text) {
     widget.onSubmitted?.call(text);
     if (widget.autoClearWhenDone) {
-      // using `controller.clear()` instead of `controller.text = ''` which will crash on Windows.
       controller.clear();
     }
   }
@@ -98,6 +153,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      readOnly: widget.readOnly,
       controller: controller,
       focusNode: focusNode,
       onChanged: (text) {
@@ -107,68 +163,79 @@ class FlowyTextFieldState extends State<FlowyTextField> {
           _onChanged(text);
         }
       },
-      onSubmitted: (text) => _onSubmitted(text),
+      onSubmitted: _onSubmitted,
       onEditingComplete: widget.onEditingComplete,
+      onTap: widget.onTap,
+      onTapOutside: widget.onTapOutside,
+      minLines: 1,
       maxLines: widget.maxLines,
       maxLength: widget.maxLength,
       maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
       style: widget.textStyle ?? Theme.of(context).textTheme.bodySmall,
-      decoration: InputDecoration(
-        constraints: BoxConstraints(
-            maxHeight: widget.errorText?.isEmpty ?? true ? 32 : 58),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.outline,
-            width: 1.0,
+      textAlignVertical: widget.textAlignVertical ?? TextAlignVertical.center,
+      keyboardType: widget.keyboardType,
+      inputFormatters: widget.inputFormatters,
+      obscureText: widget.obscureText,
+      decoration: widget.decoration ??
+          InputDecoration(
+            constraints: widget.hintTextConstraints ??
+                BoxConstraints(
+                  maxHeight: widget.errorText?.isEmpty ?? true ? 32 : 58,
+                ),
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: widget.isDense ? 12 : 18,
+              vertical:
+                  (widget.maxLines == null || widget.maxLines! > 1) ? 12 : 0,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: widget.borderRadius ?? Corners.s8Border,
+              borderSide: BorderSide(
+                color: widget.enableBorderColor ??
+                    Theme.of(context).colorScheme.outline,
+              ),
+            ),
+            isDense: false,
+            hintText: widget.hintText,
+            errorText: widget.errorText,
+            error: widget.error,
+            errorStyle: Theme.of(context)
+                .textTheme
+                .bodySmall!
+                .copyWith(color: Theme.of(context).colorScheme.error),
+            hintStyle: widget.hintStyle ??
+                Theme.of(context)
+                    .textTheme
+                    .bodySmall!
+                    .copyWith(color: Theme.of(context).hintColor),
+            suffixText: widget.showCounter ? _suffixText() : "",
+            counterText: "",
+            focusedBorder: OutlineInputBorder(
+              borderRadius: widget.borderRadius ?? Corners.s8Border,
+              borderSide: BorderSide(
+                color: widget.readOnly
+                    ? widget.enableBorderColor ??
+                        Theme.of(context).colorScheme.outline
+                    : Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.error,
+              ),
+              borderRadius: widget.borderRadius ?? Corners.s8Border,
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.error,
+              ),
+              borderRadius: widget.borderRadius ?? Corners.s8Border,
+            ),
+            prefixIcon: widget.prefixIcon,
+            suffixIcon: widget.suffixIcon,
+            prefixIconConstraints: widget.prefixIconConstraints,
+            suffixIconConstraints: widget.suffixIconConstraints,
           ),
-          borderRadius: Corners.s8Border,
-        ),
-        isDense: false,
-        hintText: widget.hintText,
-        errorText: widget.errorText,
-        errorStyle: Theme.of(context)
-            .textTheme
-            .bodySmall!
-            .copyWith(color: Theme.of(context).colorScheme.error),
-        hintStyle: Theme.of(context)
-            .textTheme
-            .bodySmall!
-            .copyWith(color: Theme.of(context).hintColor),
-        suffixText: widget.showCounter ? _suffixText() : "",
-        counterText: "",
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.primary,
-            width: 1.0,
-          ),
-          borderRadius: Corners.s8Border,
-        ),
-        errorBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.error,
-            width: 1.0,
-          ),
-          borderRadius: Corners.s8Border,
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.error,
-            width: 1.0,
-          ),
-          borderRadius: Corners.s8Border,
-        ),
-      ),
     );
-  }
-
-  @override
-  void dispose() {
-    focusNode.removeListener(notifyDidEndEditing);
-    if (widget.focusNode == null) {
-      focusNode.dispose();
-    }
-    super.dispose();
   }
 
   void notifyDidEndEditing() {
@@ -184,8 +251,7 @@ class FlowyTextFieldState extends State<FlowyTextField> {
   String? _suffixText() {
     if (widget.maxLength != null) {
       return ' ${controller.text.length}/${widget.maxLength}';
-    } else {
-      return null;
     }
+    return null;
   }
 }

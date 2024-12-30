@@ -1,0 +1,12 @@
+<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g id="Columns">
+        <g id="Vector">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M8.125 2.5C8.81536 2.5 9.375 3.05964 9.375 3.75V16.25C9.375 16.9404 8.81536 17.5 8.125 17.5H5C4.30964 17.5 3.75 16.9404 3.75 16.25V3.75C3.75 3.05964 4.30964 2.5 5 2.5H8.125ZM8.125 16.25V3.75H5V16.25H8.125Z"
+                  fill="currentColor"/>
+            <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M15 2.5C15.6904 2.5 16.25 3.05964 16.25 3.75V16.25C16.25 16.9404 15.6904 17.5 15 17.5H11.875C11.1846 17.5 10.625 16.9404 10.625 16.25V3.75C10.625 3.05964 11.1846 2.5 11.875 2.5H15ZM15 16.25V3.75H11.875V16.25H15Z"
+                  fill="currentColor"/>
+        </g>
+    </g>
+</svg>

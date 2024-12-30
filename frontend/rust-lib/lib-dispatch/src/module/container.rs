@@ -1,10 +1,9 @@
-use std::{
-  any::{Any, TypeId},
-  collections::HashMap,
-};
+use std::{any::TypeId, collections::HashMap};
+
+use crate::prelude::{downcast_owned, AFBox, AFConcurrent};
 
 #[derive(Default, Debug)]
-pub struct AFPluginStateMap(HashMap<TypeId, Box<dyn Any + Sync + Send>>);
+pub struct AFPluginStateMap(HashMap<TypeId, AFBox>);
 
 impl AFPluginStateMap {
   #[inline]
@@ -24,14 +23,14 @@ impl AFPluginStateMap {
 
   pub fn remove<T>(&mut self) -> Option<T>
   where
-    T: 'static + Send + Sync,
+    T: 'static + AFConcurrent,
   {
     self.0.remove(&TypeId::of::<T>()).and_then(downcast_owned)
   }
 
   pub fn get<T>(&self) -> Option<&T>
   where
-    T: 'static + Send + Sync,
+    T: 'static,
   {
     self
       .0
@@ -41,7 +40,7 @@ impl AFPluginStateMap {
 
   pub fn get_mut<T>(&mut self) -> Option<&mut T>
   where
-    T: 'static + Send + Sync,
+    T: 'static + AFConcurrent,
   {
     self
       .0
@@ -51,7 +50,7 @@ impl AFPluginStateMap {
 
   pub fn contains<T>(&self) -> bool
   where
-    T: 'static + Send + Sync,
+    T: 'static + AFConcurrent,
   {
     self.0.contains_key(&TypeId::of::<T>())
   }
@@ -59,8 +58,4 @@ impl AFPluginStateMap {
   pub fn extend(&mut self, other: AFPluginStateMap) {
     self.0.extend(other.0);
   }
-}
-
-fn downcast_owned<T: 'static + Send + Sync>(boxed: Box<dyn Any + Send + Sync>) -> Option<T> {
-  boxed.downcast().ok().map(|boxed| *boxed)
 }

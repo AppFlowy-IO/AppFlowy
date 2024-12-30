@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 YELLOW="\e[93m"
 GREEN="\e[32m"
@@ -48,9 +48,9 @@ fi
 printMessage "Setting up Flutter"
 # Get the current Flutter version
 FLUTTER_VERSION=$(flutter --version | grep -oP 'Flutter \K\S+')
-# Check if the current version is 3.10.1
-if [ "$FLUTTER_VERSION" = "3.10.1" ]; then
-   echo "Flutter version is already 3.10.1"
+# Check if the current version is 3.22.0
+if [ "$FLUTTER_VERSION" = "3.22.0" ]; then
+   echo "Flutter version is already 3.22.0"
 else
    # Get the path to the Flutter SDK
    FLUTTER_PATH=$(which flutter)
@@ -59,12 +59,12 @@ else
    current_dir=$(pwd)
 
    cd $FLUTTER_PATH
-   # Use git to checkout version 3.10.1 of Flutter
-   git checkout 3.10.1
+   # Use git to checkout version 3.22.0 of Flutter
+   git checkout 3.22.0
    # Get back to current working directory
    cd "$current_dir"
 
-   echo "Switched to Flutter version 3.10.1"
+   echo "Switched to Flutter version 3.22.0"
 fi
 
 # Add pub cache and cargo to PATH
@@ -100,7 +100,7 @@ $USERPROFILE/.cargo/bin/cargo install --force cargo-make
 
 # Install duckscript
 printMessage "Installing duckscript."
-$USERPROFILE/.cargo/bin/cargo install --force duckscript_cli
+$USERPROFILE/.cargo/bin/cargo install --force --locked duckscript_cli
 
 # Enable vcpkg integration
 # Note: Requires admin

@@ -1,37 +1,42 @@
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/import.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder2/view.pbenum.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 
-class ImportBackendService {
-  static Future<Either<Unit, FlowyError>> importData(
-    List<int> data,
-    String name,
-    String parentViewId,
-    ImportTypePB importType,
-  ) async {
-    final payload = ImportPB.create()
-      ..data = data
-      ..parentViewId = parentViewId
-      ..viewLayout = importType.toLayout()
-      ..name = name
-      ..importType = importType;
-    return await FolderEventImportData(payload).send();
-  }
+class ImportPayload {
+  ImportPayload({
+    required this.name,
+    required this.data,
+    required this.layout,
+  });
+
+  final String name;
+  final List<int> data;
+  final ViewLayoutPB layout;
 }
 
-extension on ImportTypePB {
-  ViewLayoutPB toLayout() {
-    switch (this) {
-      case ImportTypePB.HistoryDocument:
-        return ViewLayoutPB.Document;
-      case ImportTypePB.HistoryDatabase ||
-            ImportTypePB.CSV ||
-            ImportTypePB.RawDatabase:
-        return ViewLayoutPB.Grid;
-      default:
-        throw UnimplementedError('Unsupported import type $this');
+class ImportBackendService {
+  static Future<FlowyResult<RepeatedViewPB, FlowyError>> importPages(
+    String parentViewId,
+    List<ImportItemPayloadPB> values,
+  ) async {
+    final request = ImportPayloadPB(
+      parentViewId: parentViewId,
+      items: values,
+    );
+
+    return FolderEventImportData(request).send();
+  }
+
+  static Future<FlowyResult<void, FlowyError>> importZipFiles(
+    List<ImportZipPB> values,
+  ) async {
+    for (final value in values) {
+      final result = await FolderEventImportZipFile(value).send();
+      if (result.isFailure) {
+        return result;
+      }
     }
+    return FlowyResult.success(null);
   }
 }

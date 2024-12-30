@@ -1,35 +1,16 @@
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra_ui/style_widget/decoration.dart';
+import 'package:flowy_infra/colorscheme/default_colorscheme.dart';
 import 'package:flutter/material.dart';
 
+export 'package:appflowy_popover/appflowy_popover.dart';
+
 class AppFlowyPopover extends StatelessWidget {
-  final Widget child;
-  final PopoverController? controller;
-  final Widget Function(BuildContext context) popupBuilder;
-  final PopoverDirection direction;
-  final int triggerActions;
-  final BoxConstraints constraints;
-  final void Function()? onClose;
-  final Future<bool> Function()? canClose;
-  final PopoverMutex? mutex;
-  final Offset? offset;
-  final bool asBarrier;
-  final EdgeInsets margin;
-  final EdgeInsets windowPadding;
-  final Decoration? decoration;
-
-  /// The widget that will be used to trigger the popover.
-  ///
-  /// Why do we need this?
-  /// Because if the parent widget of the popover is GestureDetector,
-  ///  the conflict won't be resolve by using Listener, we want these two gestures exclusive.
-  final PopoverClickHandler clickHandler;
-
   const AppFlowyPopover({
     super.key,
     required this.child,
     required this.popupBuilder,
     this.direction = PopoverDirection.rightWithTopAligned,
+    this.onOpen,
     this.onClose,
     this.canClose,
     this.constraints = const BoxConstraints(maxWidth: 240, maxHeight: 600),
@@ -40,14 +21,74 @@ class AppFlowyPopover extends StatelessWidget {
     this.asBarrier = false,
     this.margin = const EdgeInsets.all(6),
     this.windowPadding = const EdgeInsets.all(8.0),
-    this.decoration,
     this.clickHandler = PopoverClickHandler.listener,
+    this.skipTraversal = false,
+    this.decorationColor,
+    this.borderRadius,
+    this.animationDuration = const Duration(),
+    this.slideDistance = 5.0,
+    this.beginScaleFactor = 0.9,
+    this.endScaleFactor = 1.0,
+    this.beginOpacity = 0.0,
+    this.endOpacity = 1.0,
+    this.showAtCursor = false,
   });
+
+  final Widget child;
+  final PopoverController? controller;
+  final Widget Function(BuildContext context) popupBuilder;
+  final PopoverDirection direction;
+  final int triggerActions;
+  final BoxConstraints constraints;
+  final VoidCallback? onOpen;
+  final VoidCallback? onClose;
+  final Future<bool> Function()? canClose;
+  final PopoverMutex? mutex;
+  final Offset? offset;
+  final bool asBarrier;
+  final EdgeInsets margin;
+  final EdgeInsets windowPadding;
+  final Color? decorationColor;
+  final BorderRadius? borderRadius;
+  final Duration animationDuration;
+  final double slideDistance;
+  final double beginScaleFactor;
+  final double endScaleFactor;
+  final double beginOpacity;
+  final double endOpacity;
+
+  /// The widget that will be used to trigger the popover.
+  ///
+  /// Why do we need this?
+  /// Because if the parent widget of the popover is GestureDetector,
+  ///  the conflict won't be resolve by using Listener, we want these two gestures exclusive.
+  final PopoverClickHandler clickHandler;
+
+  /// If true the popover will not participate in focus traversal.
+  ///
+  final bool skipTraversal;
+
+  /// Whether the popover should be shown at the cursor position.
+  /// If true, the [offset] will be ignored.
+  ///
+  /// This only works when using [PopoverClickHandler.listener] as the click handler.
+  ///
+  /// Alternatively for having a normal popover, and use the cursor position only on
+  /// secondary click, consider showing the popover programatically with [PopoverController.showAt].
+  ///
+  final bool showAtCursor;
 
   @override
   Widget build(BuildContext context) {
     return Popover(
       controller: controller,
+      animationDuration: animationDuration,
+      slideDistance: slideDistance,
+      beginScaleFactor: beginScaleFactor,
+      endScaleFactor: endScaleFactor,
+      beginOpacity: beginOpacity,
+      endOpacity: endOpacity,
+      onOpen: onOpen,
       onClose: onClose,
       canClose: canClose,
       direction: direction,
@@ -57,50 +98,95 @@ class AppFlowyPopover extends StatelessWidget {
       windowPadding: windowPadding,
       offset: offset,
       clickHandler: clickHandler,
-      popupBuilder: (context) {
-        final child = popupBuilder(context);
-        return _PopoverContainer(
-          constraints: constraints,
-          margin: margin,
-          decoration: decoration,
-          child: child,
-        );
-      },
+      skipTraversal: skipTraversal,
+      popupBuilder: (context) => _PopoverContainer(
+        constraints: constraints,
+        margin: margin,
+        decorationColor: decorationColor,
+        borderRadius: borderRadius,
+        child: popupBuilder(context),
+      ),
+      showAtCursor: showAtCursor,
       child: child,
     );
   }
 }
 
 class _PopoverContainer extends StatelessWidget {
-  final Widget child;
-  final BoxConstraints constraints;
-  final EdgeInsets margin;
-  final Decoration? decoration;
-
   const _PopoverContainer({
+    this.decorationColor,
+    this.borderRadius,
     required this.child,
     required this.margin,
     required this.constraints,
-    required this.decoration,
-    Key? key,
-  }) : super(key: key);
+  });
+
+  final Widget child;
+  final BoxConstraints constraints;
+  final EdgeInsets margin;
+  final Color? decorationColor;
+  final BorderRadius? borderRadius;
 
   @override
   Widget build(BuildContext context) {
-    final decoration = this.decoration ??
-        FlowyDecoration.decoration(
-          Theme.of(context).cardColor,
-          Theme.of(context).colorScheme.shadow,
-        );
-
     return Material(
       type: MaterialType.transparency,
       child: Container(
         padding: margin,
-        decoration: decoration,
+        decoration: context.getPopoverDecoration(
+          color: decorationColor,
+          borderRadius: borderRadius,
+        ),
         constraints: constraints,
         child: child,
       ),
+    );
+  }
+}
+
+extension on BuildContext {
+  /// The decoration of the popover.
+  ///
+  /// Don't customize the entire decoration of the popover,
+  ///   use the built-in popoverDecoration instead and ask the designer before changing it.
+  ShapeDecoration getPopoverDecoration({
+    Color? color,
+    BorderRadius? borderRadius,
+  }) {
+    final borderColor = Theme.of(this).brightness == Brightness.light
+        ? ColorSchemeConstants.lightBorderColor
+        : ColorSchemeConstants.darkBorderColor;
+    final shadows = [
+      const BoxShadow(
+        color: Color(0x0A1F2329),
+        blurRadius: 24,
+        offset: Offset(0, 8),
+        spreadRadius: 8,
+      ),
+      const BoxShadow(
+        color: Color(0x0A1F2329),
+        blurRadius: 12,
+        offset: Offset(0, 6),
+        spreadRadius: 0,
+      ),
+      const BoxShadow(
+        color: Color(0x0F1F2329),
+        blurRadius: 8,
+        offset: Offset(0, 4),
+        spreadRadius: -8,
+      )
+    ];
+    return ShapeDecoration(
+      color: color ?? Theme.of(this).cardColor,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(
+          width: 1,
+          strokeAlign: BorderSide.strokeAlignOutside,
+          color: color != Colors.transparent ? borderColor : color!,
+        ),
+        borderRadius: borderRadius ?? BorderRadius.circular(10),
+      ),
+      shadows: shadows,
     );
   }
 }

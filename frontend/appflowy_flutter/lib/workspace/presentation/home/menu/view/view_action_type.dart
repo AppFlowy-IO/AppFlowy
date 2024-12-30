@@ -10,8 +10,13 @@ enum ViewMoreActionType {
   duplicate,
   copyLink, // not supported yet.
   rename,
-  moveTo, // not supported yet.
+  moveTo,
   openInNewTab,
+  changeIcon,
+  collapseAllPages, // including sub pages
+  divider,
+  lastModified,
+  created,
 }
 
 extension ViewMoreActionTypeExtension on ViewMoreActionType {
@@ -33,27 +38,61 @@ extension ViewMoreActionTypeExtension on ViewMoreActionType {
         return LocaleKeys.disclosureAction_moveTo.tr();
       case ViewMoreActionType.openInNewTab:
         return LocaleKeys.disclosureAction_openNewTab.tr();
+      case ViewMoreActionType.changeIcon:
+        return LocaleKeys.disclosureAction_changeIcon.tr();
+      case ViewMoreActionType.collapseAllPages:
+        return LocaleKeys.disclosureAction_collapseAllPages.tr();
+      case ViewMoreActionType.divider:
+      case ViewMoreActionType.lastModified:
+      case ViewMoreActionType.created:
+        return '';
     }
   }
 
-  Widget icon(Color iconColor) {
+  FlowySvgData get leftIconSvg {
     switch (this) {
       case ViewMoreActionType.delete:
-        return const FlowySvg(FlowySvgs.delete_s);
+        return FlowySvgs.trash_s;
       case ViewMoreActionType.favorite:
-        return const FlowySvg(FlowySvgs.unfavorite_s);
+        return FlowySvgs.favorite_s;
       case ViewMoreActionType.unFavorite:
-        return const FlowySvg(FlowySvgs.favorite_s);
+        return FlowySvgs.unfavorite_s;
       case ViewMoreActionType.duplicate:
-        return const FlowySvg(FlowySvgs.copy_s);
-      case ViewMoreActionType.copyLink:
-        return const Icon(Icons.copy);
+        return FlowySvgs.duplicate_s;
       case ViewMoreActionType.rename:
-        return const FlowySvg(FlowySvgs.edit_s);
+        return FlowySvgs.view_item_rename_s;
       case ViewMoreActionType.moveTo:
-        return const Icon(Icons.move_to_inbox);
+        return FlowySvgs.move_to_s;
       case ViewMoreActionType.openInNewTab:
-        return const FlowySvg(FlowySvgs.full_view_s);
+        return FlowySvgs.view_item_open_in_new_tab_s;
+      case ViewMoreActionType.changeIcon:
+        return FlowySvgs.change_icon_s;
+      case ViewMoreActionType.collapseAllPages:
+        return FlowySvgs.collapse_all_page_s;
+      case ViewMoreActionType.divider:
+      case ViewMoreActionType.lastModified:
+      case ViewMoreActionType.copyLink:
+      case ViewMoreActionType.created:
+        throw UnsupportedError('No left icon for $this');
+    }
+  }
+
+  Widget get rightIcon {
+    switch (this) {
+      case ViewMoreActionType.changeIcon:
+      case ViewMoreActionType.moveTo:
+      case ViewMoreActionType.favorite:
+      case ViewMoreActionType.unFavorite:
+      case ViewMoreActionType.duplicate:
+      case ViewMoreActionType.copyLink:
+      case ViewMoreActionType.rename:
+      case ViewMoreActionType.openInNewTab:
+      case ViewMoreActionType.collapseAllPages:
+      case ViewMoreActionType.divider:
+      case ViewMoreActionType.delete:
+      case ViewMoreActionType.lastModified:
+      case ViewMoreActionType.created:
+        return const SizedBox.shrink();
     }
   }
 }

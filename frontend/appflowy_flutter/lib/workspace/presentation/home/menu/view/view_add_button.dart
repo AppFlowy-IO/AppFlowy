@@ -1,15 +1,13 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/import/import_panel.dart';
-
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:easy_localization/easy_localization.dart';
 
 class ViewAddButton extends StatelessWidget {
   const ViewAddButton({
@@ -17,6 +15,7 @@ class ViewAddButton extends StatelessWidget {
     required this.parentViewId,
     required this.onEditing,
     required this.onSelected,
+    this.isHovered = false,
   });
 
   final String parentViewId;
@@ -28,6 +27,7 @@ class ViewAddButton extends StatelessWidget {
     bool openAfterCreated,
     bool createNewView,
   ) onSelected;
+  final bool isHovered;
 
   List<PopoverAction> get _actions {
     return [
@@ -52,12 +52,16 @@ class ViewAddButton extends StatelessWidget {
       direction: PopoverDirection.bottomWithLeftAligned,
       actions: _actions,
       offset: const Offset(0, 8),
+      constraints: const BoxConstraints(
+        minWidth: 200,
+      ),
       buildChild: (popover) {
         return FlowyIconButton(
-          hoverColor: Colors.transparent,
-          iconPadding: const EdgeInsets.all(2),
-          width: 26,
-          icon: const FlowySvg(FlowySvgs.add_s),
+          width: 24,
+          icon: FlowySvg(
+            FlowySvgs.view_item_add_s,
+            color: isHovered ? Theme.of(context).colorScheme.onSurface : null,
+          ),
           onPressed: () {
             onEditing(true);
             popover.show();
@@ -108,7 +112,10 @@ class ViewAddButtonActionWrapper extends ActionCell {
   final PluginBuilder pluginBuilder;
 
   @override
-  Widget? leftIcon(Color iconColor) => FlowySvg(pluginBuilder.icon);
+  Widget? leftIcon(Color iconColor) => FlowySvg(
+        pluginBuilder.icon,
+        size: const Size.square(16),
+      );
 
   @override
   String get name => pluginBuilder.menuName;
@@ -124,7 +131,7 @@ class ViewImportActionWrapper extends ActionCell {
   final DocumentPluginBuilder pluginBuilder;
 
   @override
-  Widget? leftIcon(Color iconColor) => const FlowySvg(FlowySvgs.import_s);
+  Widget? leftIcon(Color iconColor) => const FlowySvg(FlowySvgs.icon_import_s);
 
   @override
   String get name => LocaleKeys.moreAction_import.tr();

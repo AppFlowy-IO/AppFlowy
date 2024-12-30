@@ -1,20 +1,17 @@
-use std::collections::HashMap;
-use std::sync::Arc;
-
-use collab_database::database::MutexDatabase;
+use collab::preclude::Any;
 use collab_database::fields::Field;
 use collab_database::views::{
   DatabaseLayout, FieldSettingsByFieldIdMap, FieldSettingsMap, FieldSettingsMapBuilder,
 };
+use std::collections::HashMap;
 use strum::IntoEnumIterator;
 
 use crate::entities::FieldVisibility;
-
-use crate::services::field_settings::{FieldSettings, VISIBILITY};
+use crate::services::field_settings::{FieldSettings, DEFAULT_WIDTH, VISIBILITY};
 
 /// Helper struct to create a new field setting
 pub struct FieldSettingsBuilder {
-  field_settings: FieldSettings,
+  inner: FieldSettings,
 }
 
 impl FieldSettingsBuilder {
@@ -22,57 +19,51 @@ impl FieldSettingsBuilder {
     let field_settings = FieldSettings {
       field_id: field_id.to_string(),
       visibility: FieldVisibility::AlwaysShown,
+      width: DEFAULT_WIDTH,
+      wrap_cell_content: true,
     };
-    Self { field_settings }
-  }
 
-  pub fn field_id(mut self, field_id: &str) -> Self {
-    self.field_settings.field_id = field_id.to_string();
-    self
+    Self {
+      inner: field_settings,
+    }
   }
 
   pub fn visibility(mut self, visibility: FieldVisibility) -> Self {
-    self.field_settings.visibility = visibility;
+    self.inner.visibility = visibility;
+    self
+  }
+
+  pub fn width(mut self, width: i32) -> Self {
+    self.inner.width = width;
     self
   }
 
   pub fn build(self) -> FieldSettings {
-    self.field_settings
+    self.inner
   }
 }
 
-pub struct DatabaseFieldSettingsMapBuilder {
-  pub fields: Vec<Field>,
-  pub database_layout: DatabaseLayout,
+#[inline]
+pub fn default_field_visibility(layout_type: DatabaseLayout) -> FieldVisibility {
+  match layout_type {
+    DatabaseLayout::Grid => FieldVisibility::AlwaysShown,
+    DatabaseLayout::Board => FieldVisibility::HideWhenEmpty,
+    DatabaseLayout::Calendar => FieldVisibility::HideWhenEmpty,
+  }
 }
 
-impl DatabaseFieldSettingsMapBuilder {
-  pub fn new(fields: Vec<Field>, database_layout: DatabaseLayout) -> Self {
-    Self {
-      fields,
-      database_layout,
-    }
-  }
-
-  pub fn from_database(database: Arc<MutexDatabase>, database_layout: DatabaseLayout) -> Self {
-    let fields = database.lock().get_fields(None);
-    Self {
-      fields,
-      database_layout,
-    }
-  }
-
-  pub fn build(self) -> FieldSettingsByFieldIdMap {
-    self
-      .fields
-      .into_iter()
-      .map(|field| {
-        let field_settings = field_settings_for_field(self.database_layout, &field);
-        (field.id, field_settings)
-      })
-      .collect::<HashMap<String, FieldSettingsMap>>()
-      .into()
-  }
+pub fn default_field_settings_for_fields(
+  fields: &[Field],
+  layout_type: DatabaseLayout,
+) -> FieldSettingsByFieldIdMap {
+  fields
+    .iter()
+    .map(|field| {
+      let field_settings = field_settings_for_field(layout_type, field);
+      (field.id.clone(), field_settings)
+    })
+    .collect::<HashMap<_, _>>()
+    .into()
 }
 
 pub fn field_settings_for_field(
@@ -82,11 +73,7 @@ pub fn field_settings_for_field(
   let visibility = if field.is_primary {
     FieldVisibility::AlwaysShown
   } else {
-    match database_layout {
-      DatabaseLayout::Grid => FieldVisibility::AlwaysShown,
-      DatabaseLayout::Board => FieldVisibility::HideWhenEmpty,
-      DatabaseLayout::Calendar => FieldVisibility::HideWhenEmpty,
-    }
+    default_field_visibility(database_layout)
   };
 
   FieldSettingsBuilder::new(&field.id)
@@ -98,14 +85,9 @@ pub fn field_settings_for_field(
 pub fn default_field_settings_by_layout_map() -> HashMap<DatabaseLayout, FieldSettingsMap> {
   let mut map = HashMap::new();
   for layout_ty in DatabaseLayout::iter() {
-    let visibility = match layout_ty {
-      DatabaseLayout::Grid => FieldVisibility::AlwaysShown,
-      DatabaseLayout::Board => FieldVisibility::HideWhenEmpty,
-      DatabaseLayout::Calendar => FieldVisibility::HideWhenEmpty,
-    };
-    let field_settings = FieldSettingsMapBuilder::new()
-      .insert_i64_value(VISIBILITY, visibility.into())
-      .build();
+    let visibility = default_field_visibility(layout_ty);
+    let field_settings =
+      FieldSettingsMapBuilder::from([(VISIBILITY.into(), Any::BigInt(i64::from(visibility)))]);
     map.insert(layout_ty, field_settings);
   }
 

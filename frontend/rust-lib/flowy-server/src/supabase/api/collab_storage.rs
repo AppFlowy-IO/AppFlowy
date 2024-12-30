@@ -2,14 +2,15 @@ use std::str::FromStr;
 use std::sync::{Arc, Weak};
 
 use anyhow::Error;
+use arc_swap::ArcSwapOption;
 use chrono::{DateTime, Utc};
-use client_api::collab_sync::collab_msg::MsgId;
+use client_api::collab_sync::MsgId;
+use collab::core::collab::DataSource;
 use collab::preclude::merge_updates_v1;
 use collab_entity::CollabObject;
 use collab_plugins::cloud_storage::{
   RemoteCollabSnapshot, RemoteCollabState, RemoteCollabStorage, RemoteUpdateReceiver,
 };
-use parking_lot::Mutex;
 use tokio::task::spawn_blocking;
 
 use lib_infra::async_trait::async_trait;
@@ -27,7 +28,7 @@ use crate::AppFlowyEncryption;
 
 pub struct SupabaseCollabStorageImpl<T> {
   server: T,
-  rx: Mutex<Option<RemoteUpdateReceiver>>,
+  rx: ArcSwapOption<RemoteUpdateReceiver>,
   encryption: Weak<dyn AppFlowyEncryption>,
 }
 
@@ -39,7 +40,7 @@ impl<T> SupabaseCollabStorageImpl<T> {
   ) -> Self {
     Self {
       server,
-      rx: Mutex::new(rx),
+      rx: ArcSwapOption::new(rx.map(Arc::new)),
       encryption,
     }
   }
@@ -61,22 +62,22 @@ where
     true
   }
 
-  async fn get_all_updates(&self, object: &CollabObject) -> Result<Vec<Vec<u8>>, Error> {
+  async fn get_doc_state(&self, object: &CollabObject) -> Result<DataSource, Error> {
     let postgrest = self.server.try_get_weak_postgrest()?;
     let action = FetchObjectUpdateAction::new(
       object.object_id.clone(),
       object.collab_type.clone(),
       postgrest,
     );
-    let updates = action.run().await?;
-    Ok(updates)
+    let doc_state = action.run().await?;
+    Ok(DataSource::DocStateV1(doc_state))
   }
 
   async fn get_snapshots(&self, object_id: &str, limit: usize) -> Vec<RemoteCollabSnapshot> {
     match self.server.try_get_postgrest() {
-      Ok(postgrest) => match get_snapshots_from_server(object_id, postgrest, limit).await {
-        Ok(snapshots) => snapshots,
-        Err(err) => {
+      Ok(postgrest) => get_snapshots_from_server(object_id, postgrest, limit)
+        .await
+        .unwrap_or_else(|err| {
           tracing::error!(
             "🔴fetch snapshots by oid:{} with limit: {} failed: {:?}",
             object_id,
@@ -84,8 +85,7 @@ where
             err
           );
           vec![]
-        },
-      },
+        }),
       Err(err) => {
         tracing::error!("🔴get postgrest failed: {:?}", err);
         vec![]
@@ -186,11 +186,14 @@ where
   }
 
   fn subscribe_remote_updates(&self, _object: &CollabObject) -> Option<RemoteUpdateReceiver> {
-    let rx = self.rx.lock().take();
-    if rx.is_none() {
-      tracing::warn!("The receiver is already taken");
+    let rx = self.rx.swap(None);
+    match rx {
+      Some(rx) => Arc::into_inner(rx),
+      None => {
+        tracing::warn!("The receiver is already taken");
+        None
+      },
     }
-    rx
   }
 }
 
@@ -278,12 +281,8 @@ fn merge_updates(update_items: Vec<UpdateItem>, new_update: Vec<u8>) -> Result<M
   if !new_update.is_empty() {
     updates.push(new_update);
   }
-  let updates = updates
-    .iter()
-    .map(|update| update.as_ref())
-    .collect::<Vec<&[u8]>>();
 
-  let new_update = merge_updates_v1(&updates)?;
+  let new_update = merge_updates_v1(updates)?;
   Ok(MergeResult {
     merged_keys,
     new_update,

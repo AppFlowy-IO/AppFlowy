@@ -1,7 +1,7 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 
-use crate::services::filter::{Filter, FromFilterString};
+use crate::services::filter::ParseFilterData;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct CheckboxFilterPB {
@@ -9,9 +9,8 @@ pub struct CheckboxFilterPB {
   pub condition: CheckboxFilterConditionPB,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, ProtoBuf_Enum)]
 #[repr(u8)]
-#[derive(Default)]
 pub enum CheckboxFilterConditionPB {
   #[default]
   IsChecked = 0,
@@ -24,7 +23,7 @@ impl std::convert::From<CheckboxFilterConditionPB> for u32 {
   }
 }
 
-impl std::convert::TryFrom<u8> for CheckboxFilterConditionPB {
+impl TryFrom<u8> for CheckboxFilterConditionPB {
   type Error = ErrorCode;
 
   fn try_from(value: u8) -> Result<Self, Self::Error> {
@@ -36,22 +35,10 @@ impl std::convert::TryFrom<u8> for CheckboxFilterConditionPB {
   }
 }
 
-impl FromFilterString for CheckboxFilterPB {
-  fn from_filter(filter: &Filter) -> Self
-  where
-    Self: Sized,
-  {
+impl ParseFilterData for CheckboxFilterPB {
+  fn parse(condition: u8, _content: String) -> Self {
     CheckboxFilterPB {
-      condition: CheckboxFilterConditionPB::try_from(filter.condition as u8)
-        .unwrap_or(CheckboxFilterConditionPB::IsChecked),
-    }
-  }
-}
-
-impl std::convert::From<&Filter> for CheckboxFilterPB {
-  fn from(filter: &Filter) -> Self {
-    CheckboxFilterPB {
-      condition: CheckboxFilterConditionPB::try_from(filter.condition as u8)
+      condition: CheckboxFilterConditionPB::try_from(condition)
         .unwrap_or(CheckboxFilterConditionPB::IsChecked),
     }
   }

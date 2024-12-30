@@ -1,4 +1,5 @@
 mod database_editor;
+mod database_observe;
 mod entities;
 mod util;
 

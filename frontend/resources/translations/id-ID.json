@@ -2,30 +2,33 @@
   "appName": "AppFlowy",
   "defaultUsername": "Saya",
   "welcomeText": "Selamat datang di @:appName",
+  "welcomeTo": "Selamat datang di",
   "githubStarText": "Bintangi GitHub",
   "subscribeNewsletterText": "Berlangganan buletin",
-  "letsGoButtonText": "Ayo",
+  "letsGoButtonText": "Mulai",
   "title": "Judul",
   "youCanAlso": "Anda juga bisa",
   "and": "Dan",
+  "failedToOpenUrl": "Gagal membuka url: {}",
   "blockActions": {
     "addBelowTooltip": "Klik untuk menambahkan di bawah",
     "addAboveCmd": "Alt+klik",
     "addAboveMacCmd": "Opsi+klik",
-    "addAboveTooltip": "untuk menambahkan di atas",
+    "addAboveTooltip": "menambahkan di atas",
+    "dragTooltip": "Seret untuk pindahkan",
     "openMenuTooltip": "Klik untuk membuka menu"
   },
   "signUp": {
     "buttonText": "Daftar",
     "title": "Daftar ke @:appName",
     "getStartedText": "Mulai",
-    "emptyPasswordError": "Sandi tidak boleh kosong",
-    "repeatPasswordEmptyError": "Sandi ulang tidak boleh kosong",
-    "unmatchedPasswordError": "Sandi ulang tidak sama dengan sandi",
+    "emptyPasswordError": "Kata sandi tidak boleh kosong",
+    "repeatPasswordEmptyError": "Mohon ulangi, sandi tidak boleh kosong",
+    "unmatchedPasswordError": "Kata sandi konfirmasi tidak sesuai dengan kata sandi awal",
     "alreadyHaveAnAccount": "Sudah punya akun?",
-    "emailHint": "Email",
-    "passwordHint": "Sandi",
-    "repeatPasswordHint": "Sandi ulang",
+    "emailHint": "Surat elektronik",
+    "passwordHint": "Kata sandi",
+    "repeatPasswordHint": "Kata sandi ulang",
     "signUpWith": "Daftar menggunakan:"
   },
   "signIn": {
@@ -33,31 +36,54 @@
     "loginButtonText": "Masuk",
     "loginStartWithAnonymous": "Mulai dengan sesi anonim",
     "continueAnonymousUser": "Lanjutkan dengan sesi anonim",
+    "anonymous": "Anonim",
     "buttonText": "Masuk",
-    "forgotPassword": "Lupa Sandi?",
-    "emailHint": "Email",
-    "passwordHint": "Sandi",
+    "signingInText": "Sedang masuk",
+    "forgotPassword": "Lupa kata sandi?",
+    "emailHint": "Surat elektronik",
+    "passwordHint": "Kata sandi",
     "dontHaveAnAccount": "Belum punya akun?",
+    "createAccount": "Membuat akun",
     "repeatPasswordEmptyError": "Sandi ulang tidak boleh kosong",
-    "unmatchedPasswordError": "Sandi ulang tidak sama dengan sandi",
-    "syncPromptMessage": "Menyinkronkan data mungkin memerlukan waktu beberapa saat. Jangan tutup halaman ini",
+    "unmatchedPasswordError": "Kata sandi konfirmasi tidak sesuai dengan kata sandi awal",
+    "syncPromptMessage": "Menyinkronkan data mungkin memerlukan waktu beberapa saat. Mohon jangan tutup halaman ini",
     "or": "ATAU",
+    "signInWithGoogle": "Lanjutkan dengan Google",
+    "signInWithGithub": "Lanjutkan dengan GitHub",
+    "signInWithDiscord": "Lanjutkan dengan Discord",
+    "signInWithApple": "Lanjutkan dengan Apple",
+    "continueAnotherWay": "Lanjutkan dengan cara lain",
+    "signUpWithGoogle": "Mendaftar dengan Google",
+    "signUpWithGithub": "Mendaftar dengan GitHub",
+    "signUpWithDiscord": "Mendaftar dengan Discord",
+    "signInWith": "Masuk dengan:",
+    "signInWithEmail": "Lanjutkan dengan Email",
+    "signInWithMagicLink": "Lanjut",
+    "signUpWithMagicLink": "Mendaftar dengan Magic Link",
+    "pleaseInputYourEmail": "Masukkan alamat email Anda",
+    "settings": "Pengaturan",
+    "magicLinkSent": "Magic Link terkirim!",
+    "invalidEmail": "Masukkan alamat email yang valid",
+    "alreadyHaveAnAccount": "Sudah memiliki akun?",
+    "logIn": "Masuk",
+    "generalError": "Ada yang salah. Mohon coba kembali nanti",
+    "limitRateError": "Demi keamanan, Anda hanya dapat meminta magic link setiap 60 detik",
+    "magicLinkSentDescription": "Magic Link sudah terkirim ke email Anda. Klik pada tautan untuk menyelesaikan proses masuk Anda. Tautan akan kedaluwarsa setelah 5 menit.",
     "LogInWithGoogle": "Masuk dengan Google",
     "LogInWithGithub": "Masuk dengan Github",
     "LogInWithDiscord": "Masuk dengan Discord",
-    "signInWith": "Masuk dengan:",
     "loginAsGuestButtonText": "Memulai"
   },
   "workspace": {
     "chooseWorkspace": "Pilih workspace anda",
     "create": "Buat workspace",
-    "reset": "Mengulang workspace",
-    "resetWorkspacePrompt": "Mengulang workspace akan menghapus semua page dan data di dalamnya. Apakah anda yakin ingin mengulang workspace? Selain itu, anda bisa menghubungi tim support untuk mengembalikan workspace",
-    "hint": "workspace",
-    "notFoundError": "Workspace tidak ditemukan",
-    "failedToLoad": "Ada yang tidak beres! Gagal memuat ruang kerja. Coba tutup semua contoh AppFlowy yang terbuka dan coba lagi.",
+    "reset": "Mengatur ulang area kerja",
+    "resetWorkspacePrompt": "Mengatur ulang area kerja akan menghapus semua halaman dan data di dalamnya. Apakah anda yakin ingin Mengatur ulang area kerja? Selain itu, anda bisa menghubungi tim dukungan untuk mengembalikan area kerja",
+    "hint": "Area kerja",
+    "notFoundError": "Area kerja tidak ditemukan",
+    "failedToLoad": "Ada yang tidak beres! Gagal memuat area kerja. Coba tutup @:appName yang terbuka dan coba lagi.",
     "errorActions": {
-      "reportIssue": "Laporkan isu",
+      "reportIssue": "Melaporkan isu",
       "reachOut": "Hubungi di Discord"
     }
   },
@@ -87,7 +113,7 @@
     "rename": "Ganti nama",
     "delete": "Hapus",
     "duplicate": "Duplikat",
-    "unfavorite": "Menggeluarkan dari favorit",
+    "unfavorite": "Menghapus dari favorit",
     "favorite": "Masukkan ke favorit",
     "openNewTab": "Buka di tab baru",
     "moveTo": "Pindahkan ke",
@@ -98,10 +124,10 @@
   "newPageText": "Halaman baru",
   "newDocumentText": "Dokumen Baru",
   "newGridText": "Grid baru",
-  "newCalendarText": "Kalender baru",
-  "newBoardText": "Board baru",
+  "newCalendarText": "Kalendar baru",
+  "newBoardText": "Papan baru",
   "trash": {
-    "text": "Sampah",
+    "text": "Tempat sampah",
     "restoreAll": "Pulihkan Semua",
     "deleteAll": "Hapus semua",
     "pageHeader": {
@@ -116,6 +142,13 @@
     "confirmRestoreAll": {
       "title": "Apakah Anda yakin akan memulihkan semua laman di Sampah?",
       "caption": "Tindakan ini tidak bisa dibatalkan."
+    },
+    "mobile": {
+      "actions": "Tindakan Sampah",
+      "empty": "Tempat Sampah Kosong",
+      "emptyDescription": "Anda tidak memiliki file yang dihapus",
+      "isDeleted": "Telah dihapus",
+      "isRestored": "Telah dipulihkan"
     }
   },
   "deletePagePrompt": {
@@ -142,9 +175,10 @@
     "defaultNewPageName": "Tanpa Judul",
     "renameDialog": "Ganti nama"
   },
+  "noPagesInside": "Tidak ada halaman di dalamnya",
   "toolbar": {
-    "undo": "Undo",
-    "redo": "Redo",
+    "undo": "Kembalikan ke sebelumnya",
+    "redo": "Kemblalikan ke setelahnya",
     "bold": "Tebal",
     "italic": "Miring",
     "underline": "Garis bawah",
@@ -193,9 +227,9 @@
     "editContact": "Ubah Kontak"
   },
   "button": {
-    "OK": "Ya",
-    "Done": "Selesai",
-    "Cancel": "Batal",
+    "ok": "OKE",
+    "done": "Selesai",
+    "cancel": "Batal",
     "signIn": "Masuk",
     "signOut": "Keluar",
     "complete": "Selesai",
@@ -211,8 +245,13 @@
     "edit": "Sunting",
     "delete": "Menghapus",
     "duplicate": "Duplikat",
-    "done": "Selesai",
-    "putback": "Taruh kembali"
+    "putback": "Taruh kembali",
+    "update": "Perbarui",
+    "share": "Bagikan",
+    "removeFromFavorites": "Hapus dari favorit",
+    "addToFavorites": "Tambahkan ke Favorit",
+    "rename": "Ganti nama",
+    "helpCenter": "Pusat Bantuan"
   },
   "label": {
     "welcome": "Selamat datang!",
@@ -255,8 +294,7 @@
       "inputTextFieldHint": "Rahasia anda",
       "historicalUserList": "History masuk user",
       "historicalUserListTooltip": "Daftar ini menampilkan akun anonim Anda. Anda dapat mengeklik salah satu akun untuk melihat detailnya. Akun anonim dibuat dengan mengeklik tombol 'Memulai'",
-      "openHistoricalUser": "Klik untuk membuka akun anonim",
-      "supabaseSetting": "Pengaturan Supabase"
+      "openHistoricalUser": "Klik untuk membuka akun anonim"
     },
     "notifications": {
       "enableNotifications": {
@@ -293,13 +331,13 @@
       "themeUpload": {
         "button": "Mengunggah",
         "uploadTheme": "Unggah tema",
-        "description": "Unggah tema AppFlowy Anda sendiri menggunakan tombol di bawah ini.",
-        "failure": "Tema yang diunggah memiliki format yang tidak valid.",
+        "description": "Unggah tema @:appName Anda sendiri menggunakan tombol di bawah ini.",
         "loading": "Harap tunggu sementara kami memvalidasi dan mengunggah tema Anda...",
         "uploadSuccess": "Tema Anda berhasil diunggah",
         "deletionFailure": "Gagal menghapus tema. Cobalah untuk menghapusnya secara manual.",
         "filePickerDialogTitle": "Pilih file .flowy_plugin",
-        "urlUploadFailure": "Gagal membuka url: {}"
+        "urlUploadFailure": "Gagal membuka url: {}",
+        "failure": "Tema yang diunggah memiliki format yang tidak valid."
       },
       "theme": "Tema",
       "builtInsLabel": "Tema Bawaan",
@@ -324,7 +362,7 @@
       "defaultLocation": "Baca file dan lokasi penyimpanan data",
       "exportData": "Ekspor data Anda",
       "doubleTapToCopy": "Ketuk dua kali untuk menyalin jalur",
-      "restoreLocation": "Pulihkan ke jalur default AppFlowy",
+      "restoreLocation": "Pulihkan ke jalur default @:appName",
       "customizeLocation": "Buka folder lain",
       "restartApp": "Harap mulai ulang aplikasi agar perubahan diterapkan.",
       "exportDatabase": "Ekspor basis data",
@@ -336,10 +374,10 @@
       "defineWhereYourDataIsStored": "Tentukan di mana data Anda disimpan",
       "open": "Membuka",
       "openFolder": "Buka folder yang ada",
-      "openFolderDesc": "Baca dan tulis ke folder AppFlowy Anda yang sudah ada",
+      "openFolderDesc": "Baca dan tulis ke folder @:appName Anda yang sudah ada",
       "folderHintText": "nama folder",
       "location": "Membuat folder baru",
-      "locationDesc": "Pilih nama untuk folder data AppFlowy Anda",
+      "locationDesc": "Pilih nama untuk folder data @:appName Anda",
       "browser": "Jelajahi",
       "create": "Membuat",
       "set": "Mengatur",
@@ -350,7 +388,7 @@
       "change": "Mengubah",
       "openLocationTooltips": "Buka direktori data lain",
       "openCurrentDataFolder": "Buka direktori data saat ini",
-      "recoverLocationTooltips": "Setel ulang ke direktori data default AppFlowy",
+      "recoverLocationTooltips": "Setel ulang ke direktori data default @:appName",
       "exportFileSuccess": "Ekspor file berhasil!",
       "exportFileFail": "File ekspor gagal!",
       "export": "Ekspor"
@@ -360,9 +398,20 @@
       "email": "Surel",
       "tooltipSelectIcon": "Pilih ikon",
       "selectAnIcon": "Pilih ikon",
-      "pleaseInputYourOpenAIKey": "silakan masukkan kunci OpenAI Anda",
-      "pleaseInputYourStabilityAIKey": "Masukkan kunci Stability AI anda",
-      "clickToLogout": "Klik untuk keluar dari pengguna saat ini"
+      "pleaseInputYourOpenAIKey": "silakan masukkan kunci AI Anda",
+      "clickToLogout": "Klik untuk keluar dari pengguna saat ini",
+      "pleaseInputYourStabilityAIKey": "Masukkan kunci Stability AI anda"
+    },
+    "mobile": {
+      "personalInfo": "Informasi pribadi",
+      "username": "Nama Pengguna",
+      "usernameEmptyError": "Nama pengguna tidak boleh kosong",
+      "about": "Tentang",
+      "pushNotifications": "Pemberitahuan Dorong",
+      "support": "Dukungan",
+      "joinDiscord": "Bergabunglah dengan kami di Discord",
+      "privacyPolicy": "Kebijakan Privasi",
+      "userAgreement": "Perjanjian Pengguna"
     },
     "shortcuts": {
       "shortcutsLabel": "Pintasan",
@@ -425,13 +474,9 @@
       "isComplete": "selesai",
       "isIncomplted": "tidak lengkap"
     },
-    "singleSelectOptionFilter": {
+    "selectOptionFilter": {
       "is": "Adalah",
       "isNot": "Tidak",
-      "isEmpty": "Kosong",
-      "isNotEmpty": "Tidak kosong"
-    },
-    "multiSelectOptionFilter": {
       "contains": "Mengandung",
       "doesNotContain": "Tidak mengandung",
       "isEmpty": "Kosong",
@@ -478,7 +523,7 @@
     },
     "rowPage": {
       "newField": "Tambah bidang baru",
-      "fieldDragEelementTooltip": "Klik untuk membuka menu",
+      "fieldDragElementTooltip": "Klik untuk membuka menu",
       "showHiddenFields": {
         "one": "Tampilkan {} bidang tersembunyi",
         "many": "Tampilkan {} bidang tersembunyi",
@@ -531,7 +576,9 @@
     "checklist": {
       "taskHint": "Deskripsi tugas",
       "addNew": "Tambahkan item",
-      "submitNewTask": "Buat"
+      "submitNewTask": "Buat",
+      "hideComplete": "Sembunyikan tugas yang sudah selesai",
+      "showComplete": "Tampilkan semua tugas"
     },
     "menuName": "Grid",
     "referencedGridPrefix": "Pemandangan dari"
@@ -564,23 +611,23 @@
       "referencedBoard": "Papan Referensi",
       "referencedGrid": "Kisi yang Direferensikan",
       "referencedCalendar": "Kalender Referensi",
-      "autoGeneratorMenuItemName": "Penulis OpenAI",
-      "autoGeneratorTitleName": "OpenAI: Minta AI untuk menulis apa saja...",
+      "autoGeneratorMenuItemName": "Penulis AI",
+      "autoGeneratorTitleName": "AI: Minta AI untuk menulis apa saja...",
       "autoGeneratorLearnMore": "Belajarlah lagi",
       "autoGeneratorGenerate": "Menghasilkan",
-      "autoGeneratorHintText": "Tanya OpenAI...",
-      "autoGeneratorCantGetOpenAIKey": "Tidak bisa mendapatkan kunci OpenAI",
+      "autoGeneratorHintText": "Tanya AI...",
+      "autoGeneratorCantGetOpenAIKey": "Tidak bisa mendapatkan kunci AI",
       "autoGeneratorRewrite": "Menulis kembali",
       "smartEdit": "Asisten AI",
-      "openAI": "OpenAI",
+      "aI": "AI",
       "smartEditFixSpelling": "Perbaiki ejaan",
       "warning": "⚠️ Respons AI bisa jadi tidak akurat atau menyesatkan.",
       "smartEditSummarize": "Meringkaskan",
       "smartEditImproveWriting": "Perbaiki tulisan",
       "smartEditMakeLonger": "Buat lebih lama",
-      "smartEditCouldNotFetchResult": "Tidak dapat mengambil hasil dari OpenAI",
-      "smartEditCouldNotFetchKey": "Tidak dapat mengambil kunci OpenAI",
-      "smartEditDisabled": "Hubungkan OpenAI di Pengaturan",
+      "smartEditCouldNotFetchResult": "Tidak dapat mengambil hasil dari AI",
+      "smartEditCouldNotFetchKey": "Tidak dapat mengambil kunci AI",
+      "smartEditDisabled": "Hubungkan AI di Pengaturan",
       "discardResponse": "Apakah Anda ingin membuang respons AI?",
       "createInlineMathEquation": "Buat persamaan",
       "toggleList": "Beralih Daftar",
@@ -628,8 +675,8 @@
         "defaultColor": "Bawaan"
       },
       "image": {
-        "copiedToPasteBoard": "Tautan gambar telah disalin ke papan klip",
-        "addAnImage": "Tambah gambar"
+        "addAnImage": "Tambah gambar",
+        "copiedToPasteBoard": "Tautan gambar telah disalin ke papan klip"
       },
       "outline": {
         "addHeadingToCreateOutline": "Tambahkan judul untuk membuat daftar isi."
@@ -665,8 +712,8 @@
         "placeholder": "Masukkan URL gambar"
       },
       "ai": {
-        "label": "Buat gambar dari OpenAI",
-        "placeholder": "Masukkan perintah agar OpenAI menghasilkan gambar"
+        "label": "Buat gambar dari AI",
+        "placeholder": "Masukkan perintah agar AI menghasilkan gambar"
       },
       "stability_ai": {
         "label": "Buat gambar dari Stability AI",
@@ -684,7 +731,7 @@
         "placeholder": "Tempel atau ketik tautan gambar"
       },
       "searchForAnImage": "Mencari gambar",
-      "pleaseInputYourOpenAIKey": "masukkan kunci OpenAI Anda di halaman Pengaturan",
+      "pleaseInputYourOpenAIKey": "masukkan kunci AI Anda di halaman Pengaturan",
       "pleaseInputYourStabilityAIKey": "masukkan kunci AI Stabilitas Anda di halaman Pengaturan"
     },
     "codeBlock": {
@@ -724,10 +771,21 @@
   },
   "board": {
     "column": {
-      "create_new_card": "Baru"
+      "createNewCard": "Baru",
+      "renameGroupTooltip": "Tekan untuk mengganti nama grup"
     },
     "menuName": "Papan",
-    "referencedBoardPrefix": "Pemandangan dari"
+    "showUngrouped": "Tampilkan item yang tidak dikelompokkan",
+    "ungroupedButtonText": "Tidak dikelompokkan",
+    "ungroupedButtonTooltip": "Berisi kartu yang tidak termasuk dalam grup mana pun",
+    "ungroupedItemsTitle": "Klik untuk menambahkan ke papan",
+    "groupBy": "Kelompokkan berdasarkan",
+    "referencedBoardPrefix": "Pemandangan dari",
+    "mobile": {
+      "showGroup": "Tampilkan grup",
+      "showGroupContent": "Apakah Anda yakin ingin menampilkan grup ini di papan?",
+      "failedToLoad": "Gagal memuat tampilan papan"
+    }
   },
   "calendar": {
     "menuName": "Kalender",
@@ -745,14 +803,14 @@
       "firstDayOfWeek": "Mulai minggu",
       "layoutDateField": "Tata letak kalender oleh",
       "noDateTitle": "Tidak ada tanggal",
-      "noDateHint": "Acara yang tidak dijadwalkan akan muncul di sini",
       "clickToAdd": "Klik untuk menambahkan ke kalender",
-      "name": "Tata letak kalender"
+      "name": "Tata letak kalender",
+      "noDateHint": "Acara yang tidak dijadwalkan akan muncul di sini"
     },
     "referencedCalendarPrefix": "Pemandangan dari"
   },
   "errorDialog": {
-    "title": "Kesalahan AppFlowy",
+    "title": "Kesalahan @:appName",
     "howToFixFallback": "Kami mohon maaf atas ketidaknyamanan ini! Kirimkan masalah di halaman GitHub kami yang menjelaskan kesalahan Anda.",
     "github": "Lihat di GitHub"
   },
@@ -817,6 +875,9 @@
       "shortKeyword": "mengingatkan"
     }
   },
+  "datePicker": {
+    "dateTimeFormatTooltip": "Ubah format tanggal dan waktu di pengaturan"
+  },
   "relativeDates": {
     "yesterday": "Kemarin",
     "today": "Hari ini",
@@ -825,9 +886,16 @@
   },
   "notificationHub": {
     "title": "Notifikasi",
+    "emptyTitle": "Semua sudah ketahuan!",
+    "emptyBody": "Tidak ada pemberitahuan atau tindakan yang tertunda. Nikmati ketenangannya.",
     "tabs": {
       "inbox": "Kotak masuk",
       "upcoming": "Mendatang"
+    },
+    "actions": {
+      "markAllRead": "tandai semua telah dibaca",
+      "showAll": "Semua",
+      "showUnreads": "Belum dibaca"
     },
     "filters": {
       "ascending": "Ascending",
@@ -854,5 +922,126 @@
     "replaceAll": "Timpa semua",
     "noResult": "Tidak ada hasil",
     "caseSensitive": "Case sensitive"
+  },
+  "error": {
+    "weAreSorry": "Kami meminta maaf",
+    "loadingViewError": "Kami mengalami masalah saat memuat tampilan ini. Silakan periksa koneksi internet Anda, segarkan aplikasi, dan jangan ragu untuk menghubungi tim jika masalah terus berlanjut."
+  },
+  "editor": {
+    "bold": "Tebal",
+    "bulletedList": "Daftar Berpoin",
+    "checkbox": "Kotak centang",
+    "embedCode": "Sematkan Kode",
+    "heading1": "H1",
+    "heading2": "H2",
+    "heading3": "H3",
+    "highlight": "Sorotan",
+    "color": "Warna",
+    "image": "Gambar",
+    "italic": "Miring",
+    "link": "Tautan",
+    "numberedList": "Daftar Bernomor",
+    "quote": "Kutipan",
+    "strikethrough": "Dicoret",
+    "text": "Teks",
+    "underline": "Garis Bawah",
+    "fontColorDefault": "Bawaan",
+    "fontColorGray": "Abu-abu",
+    "fontColorBrown": "Cokelat",
+    "fontColorOrange": "Oranye",
+    "fontColorYellow": "Kuning",
+    "fontColorGreen": "Hijau",
+    "fontColorBlue": "Biru",
+    "fontColorPurple": "Ungu",
+    "fontColorPink": "Merah Jambu",
+    "fontColorRed": "Merah",
+    "backgroundColorDefault": "Latar belakang bawaan",
+    "backgroundColorGray": "Latar belakang abu-abu",
+    "backgroundColorBrown": "Latar belakang coklat",
+    "backgroundColorOrange": "Latar belakang oranye",
+    "backgroundColorYellow": "Latar belakang kuning",
+    "backgroundColorGreen": "Latar belakang hijau",
+    "backgroundColorBlue": "Latar belakang biru",
+    "backgroundColorPurple": "Latar belakang ungu",
+    "backgroundColorPink": "Latar belakang merah muda",
+    "backgroundColorRed": "Latar belakang merah",
+    "done": "Selesai",
+    "cancel": "Batalkan",
+    "tint1": "Warna 1",
+    "tint2": "Warna 2",
+    "tint3": "Warna 3",
+    "tint4": "Warna 4",
+    "tint5": "Warna 5",
+    "tint6": "Warna 6",
+    "tint7": "Warna 7",
+    "tint8": "Warna 8",
+    "tint9": "Warna 9",
+    "lightLightTint1": "Ungu",
+    "lightLightTint2": "Merah Jambu",
+    "lightLightTint3": "Merah Jambu Muda",
+    "lightLightTint4": "Oranye",
+    "lightLightTint5": "Kuning",
+    "lightLightTint6": "Hijau Jeruk Nipis",
+    "lightLightTint7": "Hijau",
+    "lightLightTint8": "Biru Air",
+    "lightLightTint9": "Biru",
+    "urlHint": "URL",
+    "mobileHeading1": "Judul 1",
+    "mobileHeading2": "Judul 2",
+    "mobileHeading3": "Judul 3",
+    "textColor": "Warna Teks",
+    "backgroundColor": "Warna Latar Belakang",
+    "addYourLink": "Tambahkan tautan Anda",
+    "openLink": "Buka tautan",
+    "copyLink": "Salin tautan",
+    "removeLink": "Hapus tautan",
+    "editLink": "Sunting tautan",
+    "linkText": "Teks",
+    "linkTextHint": "Silakan masukkan teks",
+    "linkAddressHint": "Silakan masukkan URL",
+    "highlightColor": "Sorot warna",
+    "clearHighlightColor": "Hapus warna sorotan",
+    "customColor": "Warna khusus",
+    "hexValue": "Nilai hex",
+    "opacity": "Kegelapan",
+    "resetToDefaultColor": "Atur ulang ke warna default",
+    "ltr": "LTR",
+    "rtl": "RTL",
+    "auto": "Otomatis",
+    "cut": "Potong",
+    "copy": "Salin",
+    "paste": "Tempel",
+    "find": "Temukan",
+    "previousMatch": "Padanan sebelumnya",
+    "nextMatch": "Padanan selanjutnya",
+    "closeFind": "Tutup",
+    "replace": "Ganti",
+    "replaceAll": "Ganti semua",
+    "regex": "Regex",
+    "caseSensitive": "Huruf besar kecil dibedakan",
+    "uploadImage": "Unggah Gambar",
+    "urlImage": "Gambar URL",
+    "incorrectLink": "Tautan Salah",
+    "upload": "Unggah",
+    "chooseImage": "Pilih gambar",
+    "loading": "Memuat",
+    "imageLoadFailed": "Tidak dapat memuat gambar",
+    "divider": "Pembagi",
+    "table": "Tabel",
+    "colAddBefore": "Tambahkan sebelumnya",
+    "rowAddBefore": "Tambahkan sebelumnya",
+    "colAddAfter": "Tambahkan setelahnya",
+    "rowAddAfter": "Tambahkan setelahnya",
+    "colRemove": "Hapus",
+    "rowRemove": "Hapus",
+    "colDuplicate": "Duplikat",
+    "rowDuplicate": "Duplikat",
+    "colClear": "Hapus Konten",
+    "rowClear": "Hapus Konten",
+    "slashPlaceHolder": "Masukkan / untuk menyisipkan blok, atau mulai mengetik"
+  },
+  "favorite": {
+    "noFavorite": "Tidak ada halaman favorit",
+    "noFavoriteHintText": "Geser halaman ke kiri untuk menambahkannya ke favorit Anda"
   }
 }

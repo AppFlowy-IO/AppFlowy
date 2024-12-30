@@ -18,15 +18,20 @@ class InlineActionsMenu extends InlineActionsMenuService {
     required this.service,
     required this.initialResults,
     required this.style,
+    this.startCharAmount = 1,
+    this.cancelBySpaceHandler,
   });
 
   final BuildContext context;
   final EditorState editorState;
   final InlineActionsService service;
   final List<InlineActionsResult> initialResults;
+  final bool Function()? cancelBySpaceHandler;
 
   @override
   final InlineActionsMenuStyle style;
+
+  final int startCharAmount;
 
   OverlayEntry? _menuEntry;
   bool selectionChangedByMenu = false;
@@ -36,6 +41,7 @@ class InlineActionsMenu extends InlineActionsMenuService {
     if (_menuEntry != null) {
       editorState.service.keyboardService?.enable();
       editorState.service.scrollService?.enable();
+      keepEditorFocusNotifier.decrease();
     }
 
     _menuEntry?.remove();
@@ -66,7 +72,8 @@ class InlineActionsMenu extends InlineActionsMenuService {
       return;
     }
 
-    const double menuHeight = 200.0;
+    const double menuHeight = 300.0;
+    const double menuWidth = 200.0;
     const Offset menuOffset = Offset(0, 10);
     final Offset editorOffset =
         editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
@@ -90,13 +97,14 @@ class InlineActionsMenu extends InlineActionsMenuService {
     }
 
     // Show on the left
-    if (offset.dx > editorSize.width / 2) {
+    final windowWidth = MediaQuery.of(context).size.width;
+    if (offset.dx > (windowWidth - menuWidth)) {
       alignment = alignment == Alignment.topLeft
           ? Alignment.topRight
           : Alignment.bottomRight;
 
       offset = Offset(
-        editorSize.width - offset.dx,
+        windowWidth - offset.dx,
         offset.dy,
       );
     }
@@ -130,6 +138,8 @@ class InlineActionsMenu extends InlineActionsMenuService {
                     onDismiss: dismiss,
                     onSelectionUpdate: _onSelectionUpdate,
                     style: style,
+                    startCharAmount: startCharAmount,
+                    cancelBySpaceHandler: cancelBySpaceHandler,
                   ),
                 ),
               ),

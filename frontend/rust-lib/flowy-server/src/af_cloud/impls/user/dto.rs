@@ -1,10 +1,11 @@
 use anyhow::Error;
 use client_api::entity::auth_dto::{UpdateUserParams, UserMetaData};
-use client_api::entity::{AFRole, AFUserProfile, AFWorkspaceMember};
+use client_api::entity::{AFRole, AFUserProfile, AFWorkspaceInvitationStatus, AFWorkspaceMember};
 
-use flowy_user_deps::entities::{
-  AuthType, Role, UpdateUserProfileParams, UserProfile, WorkspaceMember, USER_METADATA_ICON_URL,
-  USER_METADATA_OPEN_AI_KEY, USER_METADATA_STABILITY_AI_KEY,
+use flowy_user_pub::entities::{
+  Authenticator, Role, UpdateUserProfileParams, UserProfile, WorkspaceInvitationStatus,
+  WorkspaceMember, USER_METADATA_ICON_URL, USER_METADATA_OPEN_AI_KEY,
+  USER_METADATA_STABILITY_AI_KEY,
 };
 
 use crate::af_cloud::impls::user::util::encryption_type_from_profile;
@@ -41,9 +42,12 @@ pub fn user_profile_from_af_profile(
       .metadata
       .map(|m| {
         (
-          m.get(USER_METADATA_ICON_URL).map(|v| v.to_string()),
-          m.get(USER_METADATA_OPEN_AI_KEY).map(|v| v.to_string()),
-          m.get(USER_METADATA_STABILITY_AI_KEY).map(|v| v.to_string()),
+          m.get(USER_METADATA_ICON_URL)
+            .map(|v| v.as_str().map(|s| s.to_string()).unwrap_or_default()),
+          m.get(USER_METADATA_OPEN_AI_KEY)
+            .map(|v| v.as_str().map(|s| s.to_string()).unwrap_or_default()),
+          m.get(USER_METADATA_STABILITY_AI_KEY)
+            .map(|v| v.as_str().map(|s| s.to_string()).unwrap_or_default()),
         )
       })
       .unwrap_or_default()
@@ -56,11 +60,11 @@ pub fn user_profile_from_af_profile(
     icon_url: icon_url.unwrap_or_default(),
     openai_key: openai_key.unwrap_or_default(),
     stability_ai_key: stability_ai_key.unwrap_or_default(),
-    workspace_id: profile.latest_workspace_id.to_string(),
-    auth_type: AuthType::AFCloud,
+    authenticator: Authenticator::AppFlowyCloud,
     encryption_type,
     uid: profile.uid,
     updated_at: profile.updated_at,
+    ai_model: "".to_string(),
   })
 }
 
@@ -85,5 +89,26 @@ pub fn from_af_workspace_member(member: AFWorkspaceMember) -> WorkspaceMember {
     email: member.email,
     role: from_af_role(member.role),
     name: member.name,
+    avatar_url: member.avatar_url,
+  }
+}
+
+pub fn to_workspace_invitation_status(
+  status: WorkspaceInvitationStatus,
+) -> AFWorkspaceInvitationStatus {
+  match status {
+    WorkspaceInvitationStatus::Pending => AFWorkspaceInvitationStatus::Pending,
+    WorkspaceInvitationStatus::Accepted => AFWorkspaceInvitationStatus::Accepted,
+    WorkspaceInvitationStatus::Rejected => AFWorkspaceInvitationStatus::Rejected,
+  }
+}
+
+pub fn from_af_workspace_invitation_status(
+  status: AFWorkspaceInvitationStatus,
+) -> WorkspaceInvitationStatus {
+  match status {
+    AFWorkspaceInvitationStatus::Pending => WorkspaceInvitationStatus::Pending,
+    AFWorkspaceInvitationStatus::Accepted => WorkspaceInvitationStatus::Accepted,
+    AFWorkspaceInvitationStatus::Rejected => WorkspaceInvitationStatus::Rejected,
   }
 }

@@ -1,184 +1,203 @@
-import 'package:appflowy/core/config/kv.dart';
-import 'package:appflowy/core/config/kv_keys.dart';
-import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'dart:io';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
-import 'package:appflowy/user/presentation/presentation.dart';
-import 'package:appflowy/util/platform_extension.dart';
-import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
+
+import 'third_party_sign_in_button.dart';
+
+typedef _SignInCallback = void Function(ThirdPartySignInButtonType signInType);
+
+@visibleForTesting
+const Key signInWithGoogleButtonKey = Key('signInWithGoogleButton');
 
 class ThirdPartySignInButtons extends StatelessWidget {
   /// Used in DesktopSignInScreen, MobileSignInScreen and SettingThirdPartyLogin
   const ThirdPartySignInButtons({
     super.key,
+    this.expanded = false,
   });
+
+  final bool expanded;
 
   @override
   Widget build(BuildContext context) {
-    // Get themeMode from AppearanceSettingsCubit
-    // When user changes themeMode, it changes the state in AppearanceSettingsCubit, but the themeMode for the MaterialApp won't change, it only got updated(get value from AppearanceSettingsCubit) when user open the app again. Thus, we should get themeMode from AppearanceSettingsCubit rather than MediaQuery.
-    final isDarkMode =
-        context.read<AppearanceSettingsCubit>().state.themeMode ==
-            ThemeMode.dark;
+    if (UniversalPlatform.isDesktopOrWeb) {
+      return _DesktopThirdPartySignIn(
+        onSignIn: (type) => _signIn(context, type.provider),
+      );
+    } else {
+      return _MobileThirdPartySignIn(
+        isExpanded: expanded,
+        onSignIn: (type) => _signIn(context, type.provider),
+      );
+    }
+  }
 
+  void _signIn(BuildContext context, String provider) {
+    context.read<SignInBloc>().add(
+          SignInEvent.signedInWithOAuth(provider),
+        );
+  }
+}
+
+class _DesktopThirdPartySignIn extends StatefulWidget {
+  const _DesktopThirdPartySignIn({
+    required this.onSignIn,
+  });
+
+  final _SignInCallback onSignIn;
+
+  @override
+  State<_DesktopThirdPartySignIn> createState() =>
+      _DesktopThirdPartySignInState();
+}
+
+class _DesktopThirdPartySignInState extends State<_DesktopThirdPartySignIn> {
+  static const padding = 12.0;
+
+  bool isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
-        _ThirdPartySignInButton(
-          key: const Key('signInWithGoogleButton'),
-          icon: FlowySvgs.google_mark_xl,
-          labelText: LocaleKeys.signIn_LogInWithGoogle.tr(),
-          onPressed: () {
-            _signInWithGoogle(context);
-          },
+        DesktopSignInButton(
+          key: signInWithGoogleButtonKey,
+          type: ThirdPartySignInButtonType.google,
+          onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.google),
         ),
-        const VSpace(8),
-        _ThirdPartySignInButton(
-          icon: isDarkMode
-              ? FlowySvgs.github_mark_white_xl
-              : FlowySvgs.github_mark_black_xl,
-          labelText: LocaleKeys.signIn_LogInWithGithub.tr(),
-          onPressed: () {
-            _signInWithGithub(context);
-          },
+        const VSpace(padding),
+        DesktopSignInButton(
+          type: ThirdPartySignInButtonType.apple,
+          onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.apple),
         ),
-        const VSpace(8),
-        _ThirdPartySignInButton(
-          icon: isDarkMode
-              ? FlowySvgs.discord_mark_white_xl
-              : FlowySvgs.discord_mark_blurple_xl,
-          labelText: LocaleKeys.signIn_LogInWithDiscord.tr(),
-          onPressed: () {
-            _signInWithDiscord(context);
-          },
-        ),
+        ...isExpanded ? _buildExpandedButtons() : _buildCollapsedButtons(),
       ],
     );
   }
-}
 
-class _ThirdPartySignInButton extends StatelessWidget {
-  /// Build button based on current Platform(mobile or desktop).
-  const _ThirdPartySignInButton({
-    super.key,
-    required this.icon,
-    required this.labelText,
-    required this.onPressed,
-  });
+  List<Widget> _buildExpandedButtons() {
+    return [
+      const VSpace(padding * 1.5),
+      DesktopSignInButton(
+        type: ThirdPartySignInButtonType.github,
+        onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.github),
+      ),
+      const VSpace(padding),
+      DesktopSignInButton(
+        type: ThirdPartySignInButtonType.discord,
+        onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.discord),
+      ),
+    ];
+  }
 
-  final FlowySvgData icon;
-  final String labelText;
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final style = Theme.of(context);
-    final isMobile = PlatformExtension.isMobile;
-    if (isMobile) {
-      // Use LayoutBuilder to get the maxWidth of parent widget(Column) and set the icon occupied area to 1/4 of maxWidth.
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          return SizedBox(
-            height: 48,
-            child: OutlinedButton.icon(
-              icon: Container(
-                width: constraints.maxWidth / 4,
-                alignment: Alignment.centerRight,
-                child: SizedBox(
-                  width: 24,
-                  child: FlowySvg(
-                    icon,
-                    blendMode: null,
-                  ),
-                ),
-              ),
-              label: Container(
-                padding: const EdgeInsets.only(left: 4),
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  labelText,
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-              ),
-              onPressed: onPressed,
-            ),
-          );
-        },
-      );
-    }
-    // In desktop, the width of button is limited by [AuthFormContainer]
-    return SizedBox(
-      height: 48,
-      width: AuthFormContainer.width,
-      child: OutlinedButton.icon(
-        // In order to align all the labels vertically in a relatively centered position to the button, we use a fixed width container to wrap the icon(align to the right), then use another container to align the label to left.
-        icon: Container(
-          width: AuthFormContainer.width / 4,
-          alignment: Alignment.centerRight,
-          child: SizedBox(
-            // Some icons are not square, so we just use a fixed width here.
-            width: 24,
-            child: FlowySvg(
-              icon,
-              blendMode: null,
-            ),
-          ),
-        ),
-        label: Container(
-          padding: const EdgeInsets.only(left: 8),
-          alignment: Alignment.centerLeft,
+  List<Widget> _buildCollapsedButtons() {
+    return [
+      const VSpace(padding),
+      MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () {
+            setState(() {
+              isExpanded = !isExpanded;
+            });
+          },
           child: FlowyText(
-            labelText,
+            LocaleKeys.signIn_continueAnotherWay.tr(),
+            color: Theme.of(context).colorScheme.onSurface,
+            decoration: TextDecoration.underline,
             fontSize: 14,
           ),
         ),
-        style: ButtonStyle(
-          overlayColor: MaterialStateProperty.resolveWith<Color?>(
-            (states) {
-              if (states.contains(MaterialState.hovered)) {
-                return style.colorScheme.onSecondaryContainer;
-              }
-              return null;
-            },
-          ),
-          shape: MaterialStateProperty.all(
-            const RoundedRectangleBorder(
-              borderRadius: Corners.s6Border,
-            ),
-          ),
-          side: MaterialStateProperty.all(
-            BorderSide(
-              color: style.dividerColor,
-            ),
-          ),
-        ),
-        onPressed: onPressed,
       ),
-    );
+    ];
   }
 }
 
-void _signInWithGoogle(BuildContext context) {
-  getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-  context.read<SignInBloc>().add(
-        const SignInEvent.signedInWithOAuth('google'),
-      );
+class _MobileThirdPartySignIn extends StatefulWidget {
+  const _MobileThirdPartySignIn({
+    required this.isExpanded,
+    required this.onSignIn,
+  });
+
+  final bool isExpanded;
+  final _SignInCallback onSignIn;
+
+  @override
+  State<_MobileThirdPartySignIn> createState() =>
+      _MobileThirdPartySignInState();
 }
 
-void _signInWithGithub(BuildContext context) {
-  getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-  context.read<SignInBloc>().add(const SignInEvent.signedInWithOAuth('github'));
-}
+class _MobileThirdPartySignInState extends State<_MobileThirdPartySignIn> {
+  static const padding = 8.0;
 
-void _signInWithDiscord(BuildContext context) {
-  getIt<KeyValueStorage>().set(KVKeys.loginType, 'supabase');
-  context
-      .read<SignInBloc>()
-      .add(const SignInEvent.signedInWithOAuth('discord'));
+  bool isExpanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    isExpanded = widget.isExpanded;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // only display apple sign in button on iOS
+        if (Platform.isIOS) ...[
+          MobileThirdPartySignInButton(
+            type: ThirdPartySignInButtonType.apple,
+            onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.apple),
+          ),
+          const VSpace(padding),
+        ],
+        MobileThirdPartySignInButton(
+          key: signInWithGoogleButtonKey,
+          type: ThirdPartySignInButtonType.google,
+          onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.google),
+        ),
+        ...isExpanded ? _buildExpandedButtons() : _buildCollapsedButtons(),
+      ],
+    );
+  }
+
+  List<Widget> _buildExpandedButtons() {
+    return [
+      const VSpace(padding),
+      MobileThirdPartySignInButton(
+        type: ThirdPartySignInButtonType.github,
+        onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.github),
+      ),
+      const VSpace(padding),
+      MobileThirdPartySignInButton(
+        type: ThirdPartySignInButtonType.discord,
+        onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.discord),
+      ),
+    ];
+  }
+
+  List<Widget> _buildCollapsedButtons() {
+    return [
+      const VSpace(padding * 2),
+      GestureDetector(
+        onTap: () {
+          setState(() {
+            isExpanded = !isExpanded;
+          });
+        },
+        child: FlowyText(
+          LocaleKeys.signIn_continueAnotherWay.tr(),
+          color: Theme.of(context).colorScheme.onSurface,
+          decoration: TextDecoration.underline,
+          fontSize: 14,
+        ),
+      ),
+    ];
+  }
 }

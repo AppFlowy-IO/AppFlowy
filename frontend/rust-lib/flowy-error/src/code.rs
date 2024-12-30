@@ -24,23 +24,14 @@ pub enum ErrorCode {
   #[error("Workspace name can not be empty or whitespace")]
   WorkspaceNameInvalid = 5,
 
-  #[error("Workspace id can not be empty or whitespace")]
-  WorkspaceIdInvalid = 6,
-
-  #[error("Color style of the App is invalid")]
-  AppColorStyleInvalid = 7,
-
   #[error("Workspace desc is invalid")]
   WorkspaceDescTooLong = 8,
 
   #[error("Workspace description too long")]
   WorkspaceNameTooLong = 9,
 
-  #[error("App id can not be empty or whitespace")]
-  AppIdInvalid = 10,
-
-  #[error("App name can not be empty or whitespace")]
-  AppNameInvalid = 11,
+  #[error("Can't load the workspace data")]
+  WorkspaceInitializeError = 6,
 
   #[error("View name can not be empty or whitespace")]
   ViewNameInvalid = 12,
@@ -50,9 +41,6 @@ pub enum ErrorCode {
 
   #[error("View id can not be empty or whitespace")]
   ViewIdIsInvalid = 14,
-
-  #[error("View desc too long")]
-  ViewDescTooLong = 15,
 
   #[error("View data is invalid")]
   ViewDataInvalid = 16,
@@ -97,9 +85,6 @@ pub enum ErrorCode {
 
   #[error("user id is empty or whitespace")]
   UserIdInvalid = 30,
-
-  #[error("User not exist")]
-  UserNotExist = 31,
 
   #[error("Text is too long")]
   TextTooLong = 32,
@@ -200,8 +185,8 @@ pub enum ErrorCode {
   #[error("Missing auth field")]
   MissingAuthField = 65,
 
-  #[error("Only one application can access the database")]
-  MultipleDBInstance = 66,
+  #[error("Rocksdb IO error")]
+  RocksdbIOError = 66,
 
   #[error("Document id is empty")]
   DocumentIdIsEmpty = 67,
@@ -256,6 +241,124 @@ pub enum ErrorCode {
 
   #[error("Internal server error")]
   InternalServerError = 84,
+
+  #[error("Not support yet")]
+  NotSupportYet = 85,
+
+  #[error("rocksdb corruption")]
+  RocksdbCorruption = 86,
+
+  #[error("rocksdb internal error")]
+  RocksdbInternal = 87,
+
+  #[error("Local version not support")]
+  LocalVersionNotSupport = 88,
+
+  #[error("AppFlowy data folder import error")]
+  AppFlowyDataFolderImportError = 89,
+
+  #[error("payload too large")]
+  PayloadTooLarge = 90,
+
+  #[error("Workspace limit exceeded")]
+  WorkspaceLimitExceeded = 91,
+
+  #[error("Workspace member limit exceeded")]
+  WorkspaceMemberLimitExceeded = 92,
+
+  #[error("IndexWriter failed to commit")]
+  IndexWriterFailedCommit = 93,
+
+  #[error("Failed to open Index directory")]
+  FailedToOpenIndexDir = 94,
+
+  #[error("Failed to parse query")]
+  FailedToParseQuery = 95,
+
+  #[error("FolderIndexManager or its dependencies are unavailable")]
+  FolderIndexManagerUnavailable = 96,
+
+  #[error("Workspace data not match")]
+  WorkspaceDataNotMatch = 97,
+
+  #[error("Local AI error")]
+  LocalAIError = 98,
+
+  #[error("Local AI unavailable")]
+  LocalAIUnavailable = 99,
+
+  #[error("Storage limit exceeded")]
+  FileStorageLimitExceeded = 100,
+
+  #[error("AI Response limit exceeded")]
+  AIResponseLimitExceeded = 101,
+
+  #[error("Duplicate record")]
+  DuplicateSqliteRecord = 102,
+
+  #[error("Response timeout")]
+  ResponseTimeout = 103,
+
+  #[error("Unsupported file format")]
+  UnsupportedFileFormat = 104,
+
+  #[error("AI offline not started")]
+  AIOfflineNotInstalled = 105,
+
+  #[error("Invalid Request")]
+  InvalidRequest = 106,
+
+  #[error("In progress")]
+  // when client receives InProgress, it should retry
+  InProgress = 107,
+
+  #[error("Upload part size exceeds the limit")]
+  SingleUploadLimitExceeded = 108,
+
+  #[error("Group name is empty")]
+  GroupNameIsEmpty = 109,
+
+  #[error("Not available for current workspace plan")]
+  LimitedByWorkspacePlan = 110,
+
+  #[error("Invalid namespace")]
+  InvalidNamespace = 111,
+
+  #[error("Invalid publish name")]
+  InvalidPublishName = 112,
+
+  #[error("Custom namespace requires Pro Plan upgrade")]
+  CustomNamespaceRequirePlanUpgrade = 113,
+
+  #[error("Requested namespace is not allowed")]
+  CustomNamespaceNotAllowed = 114,
+
+  #[error("Requested namespace is already taken")]
+  CustomNamespaceAlreadyTaken = 115,
+
+  #[error("Requested namespace is too short")]
+  CustomNamespaceTooShort = 116,
+
+  #[error("Requested namespace is too long")]
+  CustomNamespaceTooLong = 117,
+
+  #[error("Requested namespace is reserved")]
+  CustomNamespaceReserved = 118,
+
+  #[error("Publish name is already used for another published view")]
+  PublishNameAlreadyExists = 119,
+
+  #[error("Publish name contains one or more invalid characters")]
+  PublishNameInvalidCharacter = 120,
+
+  #[error("Publish name has exceeded the maximum length allowable")]
+  PublishNameTooLong = 121,
+
+  #[error("Requested namespace has one or more invalid characters")]
+  CustomNamespaceInvalidCharacter = 122,
+
+  #[error("Requested namespace has one or more invalid characters")]
+  AIServiceUnavailable = 123,
 }
 
 impl ErrorCode {

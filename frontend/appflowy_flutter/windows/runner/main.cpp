@@ -5,6 +5,9 @@
 #include "flutter_window.h"
 #include "utils.h"
 
+#include <bitsdojo_window_windows/bitsdojo_window_plugin.h>
+auto bdw = bitsdojo_window_configure(BDW_CUSTOM_FRAME | BDW_HIDE_ON_STARTUP);
+
 int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
                       _In_ wchar_t *command_line, _In_ int show_command) {
   HANDLE hMutexInstance = CreateMutex(NULL, TRUE, L"AppFlowyMutex");
@@ -44,9 +47,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   FlutterWindow window(project);
   Win32Window::Point origin(10, 10);
   Win32Window::Size size(1280, 720);
-  if (!window.CreateAndShow(L"AppFlowy", origin, size)) {
+
+  if (!window.Create(L"AppFlowy", origin, size)) {
     return EXIT_FAILURE;
   }
+
+  window.Show();
   window.SetQuitOnClose(true);
 
   ::MSG msg;

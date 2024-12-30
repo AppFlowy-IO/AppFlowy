@@ -1,19 +1,24 @@
+use client_api::ws::ConnectState;
+use client_api::ws::WSConnectStateReceiver;
+use client_api::ws::WebSocketChannel;
+use flowy_search_pub::cloud::SearchCloudService;
 use std::sync::Arc;
 
 use anyhow::Error;
-use client_api::ws::{WSConnectStateReceiver, WebSocketChannel};
-use collab_entity::CollabObject;
-use collab_plugins::cloud_storage::RemoteCollabStorage;
-use parking_lot::RwLock;
+use arc_swap::ArcSwapOption;
+use client_api::collab_sync::ServerCollabMessage;
+use flowy_ai_pub::cloud::ChatCloudService;
 use tokio_stream::wrappers::WatchStream;
+#[cfg(feature = "enable_supabase")]
+use {collab_entity::CollabObject, collab_plugins::cloud_storage::RemoteCollabStorage};
 
-use flowy_database_deps::cloud::DatabaseCloudService;
-use flowy_document_deps::cloud::DocumentCloudService;
-use flowy_folder_deps::cloud::FolderCloudService;
-use flowy_storage::FileStorageService;
-use flowy_user_deps::cloud::UserCloudService;
-use flowy_user_deps::entities::UserTokenState;
-use lib_infra::future::FutureResult;
+use crate::default_impl::DefaultChatCloudServiceImpl;
+use flowy_database_pub::cloud::{DatabaseAIService, DatabaseCloudService};
+use flowy_document_pub::cloud::DocumentCloudService;
+use flowy_folder_pub::cloud::FolderCloudService;
+use flowy_storage_pub::cloud::StorageCloudService;
+use flowy_user_pub::cloud::UserCloudService;
+use flowy_user_pub::entities::UserTokenState;
 
 pub trait AppFlowyEncryption: Send + Sync + 'static {
   fn get_secret(&self) -> Option<String>;
@@ -41,6 +46,10 @@ pub trait AppFlowyServer: Send + Sync + 'static {
     Ok(())
   }
 
+  fn set_ai_model(&self, _ai_model: &str) -> Result<(), Error> {
+    Ok(())
+  }
+
   fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>> {
     None
   }
@@ -50,6 +59,12 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   ///
   /// * `_enable` - A boolean to toggle the server synchronization.
   fn set_enable_sync(&self, _uid: i64, _enable: bool) {}
+
+  /// Sets the network reachability status.
+  ///
+  /// # Arguments
+  /// * `reachable`: A boolean indicating whether the network is reachable.
+  fn set_network_reachable(&self, _reachable: bool) {}
 
   /// Provides access to cloud-based user management functionalities. This includes operations
   /// such as user registration, authentication, profile management, and handling of user workspaces.
@@ -78,6 +93,8 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   /// An `Arc` wrapping the `DatabaseCloudService` interface.
   fn database_service(&self) -> Arc<dyn DatabaseCloudService>;
 
+  fn database_ai_service(&self) -> Option<Arc<dyn DatabaseAIService>>;
+
   /// Facilitates cloud-based document management. This service offers operations for updating documents,
   /// fetching snapshots, and accessing primary document data in an asynchronous manner.
   ///
@@ -85,6 +102,14 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   ///
   /// An `Arc` wrapping the `DocumentCloudService` interface.
   fn document_service(&self) -> Arc<dyn DocumentCloudService>;
+
+  fn chat_service(&self) -> Arc<dyn ChatCloudService> {
+    Arc::new(DefaultChatCloudServiceImpl)
+  }
+
+  /// Bridge for the Cloud AI Search features
+  ///
+  fn search_service(&self) -> Option<Arc<dyn SearchCloudService>>;
 
   /// Manages collaborative objects within a remote storage system. This includes operations such as
   /// checking storage status, retrieving updates and snapshots, and dispatching updates. The service
@@ -97,38 +122,55 @@ pub trait AppFlowyServer: Send + Sync + 'static {
   /// # Returns
   ///
   /// An `Option` that might contain an `Arc` wrapping the `RemoteCollabStorage` interface.
+  #[cfg(feature = "enable_supabase")]
   fn collab_storage(&self, _collab_object: &CollabObject) -> Option<Arc<dyn RemoteCollabStorage>> {
     None
   }
 
+  fn subscribe_ws_state(&self) -> Option<WSConnectStateReceiver> {
+    None
+  }
+
+  fn get_ws_state(&self) -> ConnectState {
+    ConnectState::Lost
+  }
+
+  #[allow(clippy::type_complexity)]
   fn collab_ws_channel(
     &self,
     _object_id: &str,
-  ) -> FutureResult<Option<(Arc<WebSocketChannel>, WSConnectStateReceiver)>, anyhow::Error> {
-    FutureResult::new(async { Ok(None) })
+  ) -> Result<
+    Option<(
+      Arc<WebSocketChannel<ServerCollabMessage>>,
+      WSConnectStateReceiver,
+      bool,
+    )>,
+    anyhow::Error,
+  > {
+    Ok(None)
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn FileStorageService>>;
+  fn file_storage(&self) -> Option<Arc<dyn StorageCloudService>>;
 }
 
 pub struct EncryptionImpl {
-  secret: RwLock<Option<String>>,
+  secret: ArcSwapOption<String>,
 }
 
 impl EncryptionImpl {
   pub fn new(secret: Option<String>) -> Self {
     Self {
-      secret: RwLock::new(secret),
+      secret: ArcSwapOption::from(secret.map(Arc::new)),
     }
   }
 }
 
 impl AppFlowyEncryption for EncryptionImpl {
   fn get_secret(&self) -> Option<String> {
-    self.secret.read().clone()
+    self.secret.load().as_ref().map(|s| s.to_string())
   }
 
   fn set_secret(&self, secret: String) {
-    *self.secret.write() = Some(secret);
+    self.secret.store(Some(secret.into()));
   }
 }

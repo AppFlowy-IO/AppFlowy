@@ -1,8 +1,11 @@
+import 'package:flutter/material.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/trash/src/sizes.dart';
 import 'package:appflowy/plugins/trash/src/trash_header.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -11,7 +14,6 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
@@ -19,7 +21,7 @@ import 'application/trash_bloc.dart';
 import 'src/trash_cell.dart';
 
 class TrashPage extends StatefulWidget {
-  const TrashPage({Key? key}) : super(key: key);
+  const TrashPage({super.key});
 
   @override
   State<TrashPage> createState() => _TrashPageState();
@@ -27,6 +29,13 @@ class TrashPage extends StatefulWidget {
 
 class _TrashPageState extends State<TrashPage> {
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     const horizontalPadding = 80.0;
@@ -36,7 +45,6 @@ class _TrashPageState extends State<TrashPage> {
         builder: (context, state) {
           return SizedBox.expand(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 _renderTopBar(context, state),
                 const VSpace(32),
@@ -58,7 +66,6 @@ class _TrashPageState extends State<TrashPage> {
         scrollbarPadding: EdgeInsets.only(top: TrashSizes.headerHeight),
         barSize: barSize,
         child: StyledSingleChildScrollView(
-          controller: ScrollController(),
           barSize: barSize,
           axis: Axis.horizontal,
           child: SizedBox(
@@ -95,22 +102,39 @@ class _TrashPageState extends State<TrashPage> {
           const Spacer(),
           IntrinsicWidth(
             child: FlowyButton(
-              text: FlowyText.medium(LocaleKeys.trash_restoreAll.tr()),
+              text: FlowyText.medium(
+                LocaleKeys.trash_restoreAll.tr(),
+                lineHeight: 1.0,
+              ),
               leftIcon: const FlowySvg(FlowySvgs.restore_s),
-              onTap: () => context.read<TrashBloc>().add(
-                    const TrashEvent.restoreAll(),
-                  ),
+              onTap: () => showCancelAndConfirmDialog(
+                context: context,
+                confirmLabel: LocaleKeys.trash_restore.tr(),
+                title: LocaleKeys.trash_confirmRestoreAll_title.tr(),
+                description: LocaleKeys.trash_confirmRestoreAll_caption.tr(),
+                onConfirm: () => context
+                    .read<TrashBloc>()
+                    .add(const TrashEvent.restoreAll()),
+              ),
             ),
           ),
           const HSpace(6),
           IntrinsicWidth(
             child: FlowyButton(
-              text: FlowyText.medium(LocaleKeys.trash_deleteAll.tr()),
+              text: FlowyText.medium(
+                LocaleKeys.trash_deleteAll.tr(),
+                lineHeight: 1.0,
+              ),
               leftIcon: const FlowySvg(FlowySvgs.delete_s),
-              onTap: () =>
-                  context.read<TrashBloc>().add(const TrashEvent.deleteAll()),
+              onTap: () => showConfirmDeletionDialog(
+                context: context,
+                name: LocaleKeys.trash_confirmDeleteAll_title.tr(),
+                description: LocaleKeys.trash_confirmDeleteAll_caption.tr(),
+                onConfirm: () =>
+                    context.read<TrashBloc>().add(const TrashEvent.deleteAll()),
+              ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -133,11 +157,26 @@ class _TrashPageState extends State<TrashPage> {
             height: 42,
             child: TrashCell(
               object: object,
-              onRestore: () {
-                context.read<TrashBloc>().add(TrashEvent.putback(object.id));
-              },
-              onDelete: () =>
-                  context.read<TrashBloc>().add(TrashEvent.delete(object)),
+              onRestore: () => showCancelAndConfirmDialog(
+                context: context,
+                title:
+                    LocaleKeys.trash_restorePage_title.tr(args: [object.name]),
+                description: LocaleKeys.trash_restorePage_caption.tr(),
+                confirmLabel: LocaleKeys.trash_restore.tr(),
+                onConfirm: () => context
+                    .read<TrashBloc>()
+                    .add(TrashEvent.putback(object.id)),
+              ),
+              onDelete: () => showConfirmDeletionDialog(
+                context: context,
+                name: object.name.trim().isEmpty
+                    ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
+                    : object.name,
+                description:
+                    LocaleKeys.deletePagePrompt_deletePermanentDescription.tr(),
+                onConfirm: () =>
+                    context.read<TrashBloc>().add(TrashEvent.delete(object)),
+              ),
             ),
           );
         },

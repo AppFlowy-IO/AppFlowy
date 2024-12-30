@@ -12,26 +12,26 @@ Future<String> getDeviceId() async {
     return "test_device_id";
   }
 
-  String deviceId = "";
+  String? deviceId;
   try {
     if (Platform.isAndroid) {
       final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       deviceId = androidInfo.device;
     } else if (Platform.isIOS) {
       final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-      deviceId = iosInfo.identifierForVendor ?? "";
+      deviceId = iosInfo.identifierForVendor;
     } else if (Platform.isMacOS) {
       final MacOsDeviceInfo macInfo = await deviceInfo.macOsInfo;
-      deviceId = macInfo.systemGUID ?? "";
+      deviceId = macInfo.systemGUID;
     } else if (Platform.isWindows) {
       final WindowsDeviceInfo windowsInfo = await deviceInfo.windowsInfo;
-      deviceId = windowsInfo.computerName;
+      deviceId = windowsInfo.deviceId;
     } else if (Platform.isLinux) {
       final LinuxDeviceInfo linuxInfo = await deviceInfo.linuxInfo;
-      deviceId = linuxInfo.machineId ?? "";
+      deviceId = linuxInfo.machineId;
     }
   } on PlatformException {
     Log.error('Failed to get platform version');
   }
-  return deviceId;
+  return deviceId ?? '';
 }

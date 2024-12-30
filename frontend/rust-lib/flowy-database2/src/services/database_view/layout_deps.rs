@@ -1,66 +1,87 @@
-use collab_database::database::{gen_field_id, MutexDatabase};
-use collab_database::fields::Field;
-use collab_database::views::{DatabaseLayout, LayoutSetting};
-use std::sync::Arc;
-
 use crate::entities::FieldType;
-use crate::services::field::{DateTypeOption, SingleSelectTypeOption};
 use crate::services::field_settings::default_field_settings_by_layout_map;
-use crate::services::setting::CalendarLayoutSetting;
+use crate::services::setting::{BoardLayoutSetting, CalendarLayoutSetting};
+use collab::lock::RwLock;
+use collab_database::database::{gen_field_id, Database};
+use collab_database::fields::date_type_option::DateTypeOption;
+use collab_database::fields::select_type_option::SingleSelectTypeOption;
+use collab_database::fields::Field;
+use collab_database::views::{
+  DatabaseLayout, FieldSettingsByFieldIdMap, LayoutSetting, OrderObjectPosition,
+};
+use std::sync::Arc;
 
 /// When creating a database, we need to resolve the dependencies of the views.
 /// Different database views have different dependencies. For example, a board
 /// view depends on a field that can be used to group rows while a calendar view
 /// depends on a date field.
 pub struct DatabaseLayoutDepsResolver {
-  pub database: Arc<MutexDatabase>,
+  pub database: Arc<RwLock<Database>>,
   /// The new database layout.
   pub database_layout: DatabaseLayout,
 }
 
 impl DatabaseLayoutDepsResolver {
-  pub fn new(database: Arc<MutexDatabase>, database_layout: DatabaseLayout) -> Self {
+  pub fn new(database: Arc<RwLock<Database>>, database_layout: DatabaseLayout) -> Self {
     Self {
       database,
       database_layout,
     }
   }
 
-  pub fn resolve_deps_when_create_database_linked_view(
+  pub async fn resolve_deps_when_create_database_linked_view(
     &self,
-  ) -> (Option<Field>, Option<LayoutSetting>) {
+    view_id: &str,
+  ) -> (
+    Option<Field>,
+    Option<LayoutSetting>,
+    Option<FieldSettingsByFieldIdMap>,
+  ) {
     match self.database_layout {
-      DatabaseLayout::Grid => (None, None),
+      DatabaseLayout::Grid => (None, None, None),
       DatabaseLayout::Board => {
-        if !self
-          .database
-          .lock()
+        let layout_settings = BoardLayoutSetting::new().into();
+
+        let database = self.database.read().await;
+        let field = if !database
           .get_fields(None)
           .into_iter()
           .any(|field| FieldType::from(field.field_type).can_be_group())
         {
-          let select_field = self.create_select_field();
-          (Some(select_field), None)
+          Some(self.create_select_field())
         } else {
-          (None, None)
-        }
+          None
+        };
+
+        let field_settings_map = database.get_field_settings(view_id, None);
+        tracing::info!(
+          "resolve_deps_when_create_database_linked_view {:?}",
+          field_settings_map
+        );
+
+        (
+          field,
+          Some(layout_settings),
+          Some(field_settings_map.into()),
+        )
       },
       DatabaseLayout::Calendar => {
         match self
           .database
-          .lock()
+          .read()
+          .await
           .get_fields(None)
           .into_iter()
           .find(|field| FieldType::from(field.field_type) == FieldType::DateTime)
         {
           Some(field) => {
             let layout_setting = CalendarLayoutSetting::new(field.id).into();
-            (None, Some(layout_setting))
+            (None, Some(layout_setting), None)
           },
           None => {
             let date_field = self.create_date_field();
             let layout_setting = CalendarLayoutSetting::new(date_field.clone().id).into();
-            (Some(date_field), Some(layout_setting))
+            (Some(date_field), Some(layout_setting), None)
           },
         }
       },
@@ -69,12 +90,21 @@ impl DatabaseLayoutDepsResolver {
 
   /// If the new layout type is a calendar and there is not date field in the database, it will add
   /// a new date field to the database and create the corresponding layout setting.
-  pub fn resolve_deps_when_update_layout_type(&self, view_id: &str) {
-    let fields = self.database.lock().get_fields(None);
+  pub async fn resolve_deps_when_update_layout_type(&self, view_id: &str) {
+    let mut database = self.database.write().await;
+    let fields = database.get_fields(None);
     // Insert the layout setting if it's not exist
     match &self.database_layout {
       DatabaseLayout::Grid => {},
-      DatabaseLayout::Board => {},
+      DatabaseLayout::Board => {
+        if database
+          .get_layout_setting::<BoardLayoutSetting>(view_id, &self.database_layout)
+          .is_none()
+        {
+          let layout_setting = BoardLayoutSetting::new();
+          database.insert_layout_setting(view_id, &self.database_layout, layout_setting);
+        }
+      },
       DatabaseLayout::Calendar => {
         let date_field_id = match fields
           .into_iter()
@@ -84,31 +114,24 @@ impl DatabaseLayoutDepsResolver {
             tracing::trace!("Create a new date field after layout type change");
             let field = self.create_date_field();
             let field_id = field.id.clone();
-            self
-              .database
-              .lock()
-              .create_field(field, default_field_settings_by_layout_map());
+            database.create_field(
+              None,
+              field,
+              &OrderObjectPosition::End,
+              default_field_settings_by_layout_map(),
+            );
             field_id
           },
           Some(date_field) => date_field.id,
         };
-        self.create_calendar_layout_setting_if_need(view_id, &date_field_id);
+        if database
+          .get_layout_setting::<CalendarLayoutSetting>(view_id, &self.database_layout)
+          .is_none()
+        {
+          let layout_setting = CalendarLayoutSetting::new(date_field_id);
+          database.insert_layout_setting(view_id, &self.database_layout, layout_setting);
+        }
       },
-    }
-  }
-
-  fn create_calendar_layout_setting_if_need(&self, view_id: &str, field_id: &str) {
-    if self
-      .database
-      .lock()
-      .get_layout_setting::<CalendarLayoutSetting>(view_id, &self.database_layout)
-      .is_none()
-    {
-      let layout_setting = CalendarLayoutSetting::new(field_id.to_string());
-      self
-        .database
-        .lock()
-        .insert_layout_setting(view_id, &self.database_layout, layout_setting);
     }
   }
 
@@ -116,49 +139,15 @@ impl DatabaseLayoutDepsResolver {
     let field_type = FieldType::DateTime;
     let default_date_type_option = DateTypeOption::default();
     let field_id = gen_field_id();
-    Field::new(
-      field_id,
-      "Date".to_string(),
-      field_type.clone().into(),
-      false,
-    )
-    .with_type_option_data(field_type, default_date_type_option.into())
+    Field::new(field_id, "Date".to_string(), field_type.into(), false)
+      .with_type_option_data(field_type, default_date_type_option.into())
   }
 
   fn create_select_field(&self) -> Field {
     let field_type = FieldType::SingleSelect;
     let default_select_type_option = SingleSelectTypeOption::default();
     let field_id = gen_field_id();
-    Field::new(
-      field_id,
-      "Status".to_string(),
-      field_type.clone().into(),
-      false,
-    )
-    .with_type_option_data(field_type, default_select_type_option.into())
+    Field::new(field_id, "Status".to_string(), field_type.into(), false)
+      .with_type_option_data(field_type, default_select_type_option.into())
   }
 }
-
-// pub async fn v_get_layout_settings(&self, layout_ty: &DatabaseLayout) -> LayoutSettingParams {
-//   let mut layout_setting = LayoutSettingParams::default();
-//   match layout_ty {
-//     DatabaseLayout::Grid => {},
-//     DatabaseLayout::Board => {},
-//     DatabaseLayout::Calendar => {
-//       if let Some(value) = self.delegate.get_layout_setting(&self.view_id, layout_ty) {
-//         let calendar_setting = CalendarLayoutSetting::from(value);
-//         // Check the field exist or not
-//         if let Some(field) = self.delegate.get_field(&calendar_setting.field_id).await {
-//           let field_type = FieldType::from(field.field_type);
-//
-//           // Check the type of field is Datetime or not
-//           if field_type == FieldType::DateTime {
-//             layout_setting.calendar = Some(calendar_setting);
-//           }
-//         }
-//       }
-//     },
-//   }
-//
-//   layout_setting
-// }

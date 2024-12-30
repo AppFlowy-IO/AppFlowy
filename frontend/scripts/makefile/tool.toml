@@ -11,7 +11,7 @@ script = ["""
     cd rust-lib
     cargo clean -q
 
-    cd ../../shared-lib
+    cd ./build-tool
     cargo clean -q
   """]
 script_runner = "@shell"
@@ -40,7 +40,7 @@ run_task = { name = "remove_files_with_pattern" }
 
 [tasks.rm_shared_lib_generated_protobuf_files]
 private = true
-env = { "rm_proto_path" = "../shared-lib/**/resources/proto", "rm_protobuf_path" = "../shared-lib/**/protobuf" }
+env = { "rm_proto_path" = "./rust-lib/build-tool/**/resources/proto", "rm_protobuf_path" = "./rust-lib/build-tool/**/protobuf" }
 run_task = { name = "remove_files_with_pattern" }
 
 

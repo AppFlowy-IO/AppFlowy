@@ -1,15 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/text_edit.dart';
-import 'package:dartz/dartz.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pbenum.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:http/http.dart' as http;
 
 import 'error.dart';
 import 'text_completion.dart';
-
-// Please fill in your own API key
-const apiKey = '';
 
 enum OpenAIRequestType {
   textCompletion,
@@ -21,65 +19,14 @@ enum OpenAIRequestType {
       case OpenAIRequestType.textCompletion:
         return Uri.parse('https://api.openai.com/v1/completions');
       case OpenAIRequestType.textEdit:
-        return Uri.parse('https://api.openai.com/v1/edits');
+        return Uri.parse('https://api.openai.com/v1/chat/completions');
       case OpenAIRequestType.imageGenerations:
         return Uri.parse('https://api.openai.com/v1/images/generations');
     }
   }
 }
 
-abstract class OpenAIRepository {
-  /// Get completions from GPT-3
-  ///
-  /// [prompt] is the prompt text
-  /// [suffix] is the suffix text
-  /// [maxTokens] is the maximum number of tokens to generate
-  /// [temperature] is the temperature of the model
-  ///
-  Future<Either<OpenAIError, TextCompletionResponse>> getCompletions({
-    required String prompt,
-    String? suffix,
-    int maxTokens = 2048,
-    double temperature = .3,
-  });
-
-  Future<void> getStreamedCompletions({
-    required String prompt,
-    required Future<void> Function() onStart,
-    required Future<void> Function(TextCompletionResponse response) onProcess,
-    required Future<void> Function() onEnd,
-    required void Function(OpenAIError error) onError,
-    String? suffix,
-    int maxTokens = 2048,
-    double temperature = 0.3,
-    bool useAction = false,
-  });
-
-  ///  Get edits from GPT-3
-  ///
-  /// [input] is the input text
-  /// [instruction] is the instruction text
-  /// [temperature] is the temperature of the model
-  ///
-  Future<Either<OpenAIError, TextEditResponse>> getEdits({
-    required String input,
-    required String instruction,
-    double temperature = 0.3,
-  });
-
-  /// Generate image from GPT-3
-  ///
-  /// [prompt] is the prompt text
-  /// [n] is the number of images to generate
-  ///
-  /// the result is a list of urls
-  Future<Either<OpenAIError, List<String>>> generateImage({
-    required String prompt,
-    int n = 1,
-  });
-}
-
-class HttpOpenAIRepository implements OpenAIRepository {
+class HttpOpenAIRepository implements AIRepository {
   const HttpOpenAIRepository({
     required this.client,
     required this.apiKey,
@@ -94,54 +41,19 @@ class HttpOpenAIRepository implements OpenAIRepository {
       };
 
   @override
-  Future<Either<OpenAIError, TextCompletionResponse>> getCompletions({
-    required String prompt,
-    String? suffix,
-    int maxTokens = 2048,
-    double temperature = 0.3,
-  }) async {
-    final parameters = {
-      'model': 'text-davinci-003',
-      'prompt': prompt,
-      'suffix': suffix,
-      'max_tokens': maxTokens,
-      'temperature': temperature,
-      'stream': false,
-    };
-
-    final response = await client.post(
-      OpenAIRequestType.textCompletion.uri,
-      headers: headers,
-      body: json.encode(parameters),
-    );
-
-    if (response.statusCode == 200) {
-      return Right(
-        TextCompletionResponse.fromJson(
-          json.decode(
-            utf8.decode(response.bodyBytes),
-          ),
-        ),
-      );
-    } else {
-      return Left(OpenAIError.fromJson(json.decode(response.body)['error']));
-    }
-  }
-
-  @override
   Future<void> getStreamedCompletions({
     required String prompt,
     required Future<void> Function() onStart,
     required Future<void> Function(TextCompletionResponse response) onProcess,
     required Future<void> Function() onEnd,
-    required void Function(OpenAIError error) onError,
+    required void Function(AIError error) onError,
     String? suffix,
     int maxTokens = 2048,
     double temperature = 0.3,
     bool useAction = false,
   }) async {
     final parameters = {
-      'model': 'text-davinci-003',
+      'model': 'gpt-3.5-turbo-instruct',
       'prompt': prompt,
       'suffix': suffix,
       'max_tokens': maxTokens,
@@ -202,48 +114,14 @@ class HttpOpenAIRepository implements OpenAIRepository {
     } else {
       final body = await response.stream.bytesToString();
       onError(
-        OpenAIError.fromJson(json.decode(body)['error']),
+        AIError.fromJson(json.decode(body)['error']),
       );
     }
     return;
   }
 
   @override
-  Future<Either<OpenAIError, TextEditResponse>> getEdits({
-    required String input,
-    required String instruction,
-    double temperature = 0.3,
-    int n = 1,
-  }) async {
-    final parameters = {
-      'model': 'text-davinci-edit-001',
-      'input': input,
-      'instruction': instruction,
-      'temperature': temperature,
-      'n': n,
-    };
-
-    final response = await client.post(
-      OpenAIRequestType.textEdit.uri,
-      headers: headers,
-      body: json.encode(parameters),
-    );
-
-    if (response.statusCode == 200) {
-      return Right(
-        TextEditResponse.fromJson(
-          json.decode(
-            utf8.decode(response.bodyBytes),
-          ),
-        ),
-      );
-    } else {
-      return Left(OpenAIError.fromJson(json.decode(response.body)['error']));
-    }
-  }
-
-  @override
-  Future<Either<OpenAIError, List<String>>> generateImage({
+  Future<FlowyResult<List<String>, AIError>> generateImage({
     required String prompt,
     int n = 1,
   }) async {
@@ -269,12 +147,26 @@ class HttpOpenAIRepository implements OpenAIRepository {
             .expand((e) => e)
             .map((e) => e.toString())
             .toList();
-        return Right(urls);
+        return FlowyResult.success(urls);
       } else {
-        return Left(OpenAIError.fromJson(json.decode(response.body)['error']));
+        return FlowyResult.failure(
+          AIError.fromJson(json.decode(response.body)['error']),
+        );
       }
     } catch (error) {
-      return Left(OpenAIError(message: error.toString()));
+      return FlowyResult.failure(AIError(message: error.toString()));
     }
+  }
+
+  @override
+  Future<void> streamCompletion({
+    required String text,
+    required CompletionTypePB completionType,
+    required Future<void> Function() onStart,
+    required Future<void> Function(String text) onProcess,
+    required Future<void> Function() onEnd,
+    required void Function(AIError error) onError,
+  }) {
+    throw UnimplementedError();
   }
 }

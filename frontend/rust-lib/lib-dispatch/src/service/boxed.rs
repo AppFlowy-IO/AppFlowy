@@ -1,21 +1,33 @@
+use crate::prelude::{AFBoxFuture, AFConcurrent};
 use crate::service::{AFPluginServiceFactory, Service};
-use futures_core::future::BoxFuture;
 
 pub fn factory<SF, Req>(factory: SF) -> BoxServiceFactory<SF::Context, Req, SF::Response, SF::Error>
 where
-  SF: AFPluginServiceFactory<Req> + 'static + Sync + Send,
+  SF: AFPluginServiceFactory<Req> + 'static + AFConcurrent,
   Req: 'static,
   SF::Response: 'static,
   SF::Service: 'static,
   SF::Future: 'static,
-  SF::Error: 'static + Send + Sync,
-  <SF as AFPluginServiceFactory<Req>>::Service: Sync + Send,
-  <<SF as AFPluginServiceFactory<Req>>::Service as Service<Req>>::Future: Send + Sync,
-  <SF as AFPluginServiceFactory<Req>>::Future: Send + Sync,
+  SF::Error: 'static,
+  <SF as AFPluginServiceFactory<Req>>::Service: AFConcurrent,
+  <<SF as AFPluginServiceFactory<Req>>::Service as Service<Req>>::Future: AFConcurrent,
+  <SF as AFPluginServiceFactory<Req>>::Future: AFConcurrent,
 {
   BoxServiceFactory(Box::new(FactoryWrapper(factory)))
 }
 
+#[cfg(feature = "local_set")]
+type Inner<Cfg, Req, Res, Err> = Box<
+  dyn AFPluginServiceFactory<
+    Req,
+    Context = Cfg,
+    Response = Res,
+    Error = Err,
+    Service = BoxService<Req, Res, Err>,
+    Future = AFBoxFuture<'static, Result<BoxService<Req, Res, Err>, Err>>,
+  >,
+>;
+#[cfg(not(feature = "local_set"))]
 type Inner<Cfg, Req, Res, Err> = Box<
   dyn AFPluginServiceFactory<
       Req,
@@ -23,9 +35,9 @@ type Inner<Cfg, Req, Res, Err> = Box<
       Response = Res,
       Error = Err,
       Service = BoxService<Req, Res, Err>,
-      Future = BoxFuture<'static, Result<BoxService<Req, Res, Err>, Err>>,
-    > + Sync
-    + Send,
+      Future = AFBoxFuture<'static, Result<BoxService<Req, Res, Err>, Err>>,
+    > + Send
+    + Sync,
 >;
 
 pub struct BoxServiceFactory<Cfg, Req, Res, Err>(Inner<Cfg, Req, Res, Err>);
@@ -39,15 +51,21 @@ where
   type Error = Err;
   type Service = BoxService<Req, Res, Err>;
   type Context = Cfg;
-  type Future = BoxFuture<'static, Result<Self::Service, Self::Error>>;
+  type Future = AFBoxFuture<'static, Result<Self::Service, Self::Error>>;
 
   fn new_service(&self, cfg: Cfg) -> Self::Future {
     self.0.new_service(cfg)
   }
 }
 
+#[cfg(feature = "local_set")]
 pub type BoxService<Req, Res, Err> = Box<
-  dyn Service<Req, Response = Res, Error = Err, Future = BoxFuture<'static, Result<Res, Err>>>
+  dyn Service<Req, Response = Res, Error = Err, Future = AFBoxFuture<'static, Result<Res, Err>>>,
+>;
+
+#[cfg(not(feature = "local_set"))]
+pub type BoxService<Req, Res, Err> = Box<
+  dyn Service<Req, Response = Res, Error = Err, Future = AFBoxFuture<'static, Result<Res, Err>>>
     + Sync
     + Send,
 >;
@@ -88,11 +106,11 @@ impl<S> ServiceWrapper<S> {
 impl<S, Req, Res, Err> Service<Req> for ServiceWrapper<S>
 where
   S: Service<Req, Response = Res, Error = Err>,
-  S::Future: 'static + Send + Sync,
+  S::Future: 'static + AFConcurrent,
 {
   type Response = Res;
   type Error = Err;
-  type Future = BoxFuture<'static, Result<Res, Err>>;
+  type Future = AFBoxFuture<'static, Result<Res, Err>>;
 
   fn call(&self, req: Req) -> Self::Future {
     Box::pin(self.inner.call(req))
@@ -108,15 +126,15 @@ where
   Err: 'static,
   SF: AFPluginServiceFactory<Req, Context = Cfg, Response = Res, Error = Err>,
   SF::Future: 'static,
-  SF::Service: 'static + Send + Sync,
-  <<SF as AFPluginServiceFactory<Req>>::Service as Service<Req>>::Future: Send + Sync + 'static,
-  <SF as AFPluginServiceFactory<Req>>::Future: Send + Sync,
+  SF::Service: 'static + AFConcurrent,
+  <<SF as AFPluginServiceFactory<Req>>::Service as Service<Req>>::Future: AFConcurrent + 'static,
+  <SF as AFPluginServiceFactory<Req>>::Future: AFConcurrent,
 {
   type Response = Res;
   type Error = Err;
   type Service = BoxService<Req, Res, Err>;
   type Context = Cfg;
-  type Future = BoxFuture<'static, Result<Self::Service, Self::Error>>;
+  type Future = AFBoxFuture<'static, Result<Self::Service, Self::Error>>;
 
   fn new_service(&self, cfg: Cfg) -> Self::Future {
     let f = self.0.new_service(cfg);
