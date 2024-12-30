@@ -58,7 +58,7 @@ class _ChatErrorMessageWidgetState extends State<ChatErrorMessageWidget> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const FlowySvg(
-              FlowySvgs.warning_filled_s,
+              FlowySvgs.toast_error_filled_s,
               blendMode: null,
             ),
             const HSpace(8.0),
