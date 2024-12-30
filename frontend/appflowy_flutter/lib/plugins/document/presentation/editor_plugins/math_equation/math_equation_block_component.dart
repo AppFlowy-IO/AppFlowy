@@ -153,11 +153,6 @@ class MathEquationBlockComponentWidgetState
       ),
     );
 
-    child = Padding(
-      padding: padding,
-      child: child,
-    );
-
     if (widget.showActions && widget.actionBuilder != null) {
       child = BlockComponentActionWrapper(
         node: node,
@@ -173,6 +168,11 @@ class MathEquationBlockComponentWidgetState
         child: child,
       );
     }
+
+    child = Padding(
+      padding: padding,
+      child: child,
+    );
 
     if (UniversalPlatform.isDesktopOrWeb) {
       child = Stack(
