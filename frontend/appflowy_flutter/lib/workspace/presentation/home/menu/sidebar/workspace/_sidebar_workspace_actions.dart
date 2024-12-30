@@ -53,7 +53,13 @@ class _WorkspaceMoreActionListState extends State<WorkspaceMoreActionList> {
     return PopoverActionList<_WorkspaceMoreActionWrapper>(
       direction: PopoverDirection.bottomWithLeftAligned,
       actions: actions
-          .map((e) => _WorkspaceMoreActionWrapper(e, widget.workspace))
+          .map(
+            (action) => _WorkspaceMoreActionWrapper(
+              action,
+              widget.workspace,
+              () => PopoverContainer.of(context).closeAll(),
+            ),
+          )
           .toList(),
       mutex: widget.popoverMutex,
       constraints: const BoxConstraints(minWidth: 220),
@@ -86,10 +92,15 @@ class _WorkspaceMoreActionListState extends State<WorkspaceMoreActionList> {
 }
 
 class _WorkspaceMoreActionWrapper extends CustomActionCell {
-  _WorkspaceMoreActionWrapper(this.inner, this.workspace);
+  _WorkspaceMoreActionWrapper(
+    this.inner,
+    this.workspace,
+    this.closeWorkspaceMenu,
+  );
 
   final WorkspaceMoreAction inner;
   final UserWorkspacePB workspace;
+  final void Function() closeWorkspaceMenu;
 
   @override
   Widget buildWithContext(
@@ -124,6 +135,7 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
       margin: const EdgeInsets.all(6),
       onTap: () async {
         PopoverContainer.of(context).closeAll();
+        closeWorkspaceMenu();
 
         final workspaceBloc = context.read<UserWorkspaceBloc>();
         switch (inner) {
