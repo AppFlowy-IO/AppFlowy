@@ -100,7 +100,7 @@ class _WorkspaceMoreActionWrapper extends CustomActionCell {
 
   final WorkspaceMoreAction inner;
   final UserWorkspacePB workspace;
-  final void Function() closeWorkspaceMenu;
+  final VoidCallback closeWorkspaceMenu;
 
   @override
   Widget buildWithContext(
