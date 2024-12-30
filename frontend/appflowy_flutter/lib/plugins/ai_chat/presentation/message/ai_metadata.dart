@@ -90,6 +90,7 @@ class _AIMessageMetadataState extends State<AIMessageMetadata> {
                             data == null) {
                           return _MetadataButton(
                             name: m.name,
+                            onTap: () => widget.onSelectedMetadata?.call(m),
                           );
                         }
                         return BlocProvider(
