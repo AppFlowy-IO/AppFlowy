@@ -129,7 +129,7 @@ dependencies:
   sized_context: ^1.0.0+4
   string_validator: ^1.0.0
   styled_widget: ^0.4.1
-  super_clipboard: ^0.8.4
+  super_clipboard: ^0.8.24
   synchronized: ^3.1.0+1
   table_calendar: ^3.0.9
   time: ^2.1.3

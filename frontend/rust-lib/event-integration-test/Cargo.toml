@@ -15,7 +15,6 @@ flowy-database2 = { path = "../flowy-database2" }
 flowy-database-pub = { workspace = true }
 flowy-document = { path = "../flowy-document" }
 flowy-document-pub = { workspace = true }
-flowy-encrypt = { workspace = true }
 flowy-ai = { workspace = true }
 lib-dispatch = { workspace = true }
 lib-infra = { workspace = true }

@@ -19,7 +19,7 @@ tracing = "0.1.40"
 bytes = "1.5.0"
 serde = "1.0"
 serde_json = "1.0.108"
-protobuf = { version = "2.28.0" }
+protobuf.workspace = true
 diesel = { version = "2.1.0", features = [
   "sqlite",
   "chrono",
@@ -77,7 +77,6 @@ lib-dispatch = { path = "../../rust-lib/lib-dispatch", features = [
 ] }
 flowy-core = { path = "../../rust-lib/flowy-core", features = ["ts"] }
 flowy-user = { path = "../../rust-lib/flowy-user", features = ["tauri_ts"] }
-flowy-config = { path = "../../rust-lib/flowy-config", features = ["tauri_ts"] }
 flowy-date = { path = "../../rust-lib/flowy-date", features = ["tauri_ts"] }
 flowy-error = { path = "../../rust-lib/flowy-error", features = [
   "impl_from_sqlite",

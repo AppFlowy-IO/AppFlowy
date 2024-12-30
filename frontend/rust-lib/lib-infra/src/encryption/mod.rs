@@ -46,7 +46,12 @@ pub fn encrypt_data<T: AsRef<[u8]>>(data: T, combined_passphrase_salt: &str) -> 
     .encrypt(GenericArray::from_slice(&nonce), data.as_ref())
     .unwrap();
 
-  Ok(nonce.into_iter().chain(ciphertext).collect())
+  let result = nonce
+    .iter()
+    .copied()
+    .chain(ciphertext.iter().copied())
+    .collect();
+  Ok(result)
 }
 
 /// Decrypt a byte slice using AES-GCM.
