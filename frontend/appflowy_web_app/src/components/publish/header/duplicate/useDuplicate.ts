@@ -1,7 +1,7 @@
-import { AFConfigContext } from '@/components/app/app.hooks';
+import { SpaceView, Workspace } from '@/application/types';
+import { AFConfigContext } from '@/components/main/app.hooks';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { SpaceView, Workspace } from '@/application/types';
 import { notify } from '@/components/_shared/notify';
 
 export function useDuplicate () {

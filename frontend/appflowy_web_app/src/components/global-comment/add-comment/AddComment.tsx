@@ -1,6 +1,6 @@
 import { PublishContext } from '@/application/publish';
 import { notify } from '@/components/_shared/notify';
-import { AFConfigContext } from '@/components/app/app.hooks';
+import { AFConfigContext } from '@/components/main/app.hooks';
 import { useGlobalCommentContext } from '@/components/global-comment/GlobalComment.hooks';
 import ReplyComment from '@/components/global-comment/ReplyComment';
 
@@ -19,7 +19,7 @@ interface AddCommentProps {
   fixed: boolean;
 }
 
-function AddComment({ content, setContent, focus, setFocus, fixed }: AddCommentProps) {
+function AddComment ({ content, setContent, focus, setFocus, fixed }: AddCommentProps) {
   const { reload, replyCommentId, replyComment: setReplyCommentId } = useGlobalCommentContext();
 
   const { t } = useTranslation();

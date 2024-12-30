@@ -1,7 +1,9 @@
-import { FieldId } from '@/application/collab.type';
+import { useDatabaseContext } from '@/application/database-yjs';
+import { FieldId } from '@/application/types';
 import { FieldVisibility } from '@/application/database-yjs/database.type';
 import { useFieldsSelector } from '@/application/database-yjs/selector';
 import { useCallback, useMemo } from 'react';
+import { getPlatform } from '@/utils/platform';
 
 export enum GridColumnType {
   Action,
@@ -19,7 +21,11 @@ export type RenderColumn = {
 
 export function useRenderFields() {
   const fields = useFieldsSelector();
-
+  const context = useDatabaseContext();
+  const isDocumentBlock = context.isDocumentBlock;
+  const viewId = context.viewId;
+  const scrollLeft = context.scrollLeft;
+  const isMobile = getPlatform().isMobile;
   const renderColumns = useMemo(() => {
     const data = fields.map((column) => ({
       ...column,
@@ -27,10 +33,10 @@ export function useRenderFields() {
     }));
 
     return [
-      // {
-      //   type: GridColumnType.Action,
-      //   width: 64,
-      // },
+      {
+        type: GridColumnType.Action,
+        width: isMobile ? 16 : (scrollLeft === undefined ? 96 : scrollLeft),
+      },
       ...data,
       {
         type: GridColumnType.NewProperty,
@@ -41,7 +47,7 @@ export function useRenderFields() {
       //   width: 64,
       // },
     ].filter(Boolean) as RenderColumn[];
-  }, [fields]);
+  }, [isMobile, fields, scrollLeft]);
 
   const columnWidth = useCallback(
     (index: number, containerWidth: number) => {
@@ -49,18 +55,20 @@ export function useRenderFields() {
 
       if (type === GridColumnType.NewProperty) {
         const totalWidth = renderColumns.reduce((acc, column) => acc + column.width, 0);
-        const remainingWidth = containerWidth - totalWidth;
+        const tabWidth = document.querySelector(`.grid-table-${viewId}`)?.closest('.appflowy-database')?.querySelector('.database-tabs')?.clientWidth || 0;
+        const documentWidth = tabWidth + (scrollLeft || 0);
+        const remainingWidth = (isDocumentBlock ? documentWidth : tabWidth + 96) - totalWidth;
 
         return remainingWidth > 0 ? remainingWidth + width : width;
       }
 
-      if (type === GridColumnType.Action && containerWidth < 800) {
+      if (index > 0 && type === GridColumnType.Action && containerWidth < 800) {
         return 16;
       }
 
       return width;
     },
-    [renderColumns]
+    [isDocumentBlock, renderColumns, scrollLeft, viewId],
   );
 
   return {

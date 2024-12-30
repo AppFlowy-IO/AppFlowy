@@ -4,7 +4,7 @@ use collab_database::rows::{Cell, Cells, Row, RowId};
 
 use flowy_error::FlowyResult;
 
-use crate::entities::{GroupChangesPB, GroupPB, GroupRowsNotificationPB, InsertedGroupPB};
+use crate::entities::{GroupPB, GroupRowsNotificationPB, InsertedGroupPB};
 use crate::services::field::TypeOption;
 use crate::services::group::{GroupChangeset, GroupData, MoveGroupRowContext};
 
@@ -98,6 +98,7 @@ pub trait GroupCustomize: Send + Sync {
 /// while a `URL` group controller will be a `DefaultGroupController`.
 #[async_trait]
 pub trait GroupController: Send + Sync {
+  async fn load_group_data(&mut self) -> FlowyResult<()>;
   /// Returns the id of field that is being used to group the rows
   fn get_grouping_field_id(&self) -> &str;
 
@@ -165,11 +166,6 @@ pub trait GroupController: Send + Sync {
   /// * `context`: information about the row being moved and its destination
   fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<DidMoveGroupRowResult>;
 
-  /// Updates the groups after a field change. (currently never does anything)
-  ///
-  /// * `field`: new changeset
-  fn did_update_group_field(&mut self, field: &Field) -> FlowyResult<Option<GroupChangesPB>>;
-
   /// Delete a group from the group configuration.
   ///
   /// Return a list of deleted row ids and/or a new `TypeOptionData` if
@@ -191,16 +187,6 @@ pub trait GroupController: Send + Sync {
     &mut self,
     changesets: &[GroupChangeset],
   ) -> FlowyResult<(Vec<GroupPB>, Option<TypeOptionData>)>;
-
-  /// Updates the name of a group.
-  ///
-  /// Returns a non-empty `TypeOptionData` when the change require a change
-  /// in the field type option data.
-  ///
-  async fn apply_group_rename(
-    &mut self,
-    changeset: &GroupChangeset,
-  ) -> FlowyResult<(GroupPB, Option<TypeOptionData>)>;
 
   /// Called before the row was created.
   fn will_create_row(&self, cells: &mut Cells, field: &Field, group_id: &str);

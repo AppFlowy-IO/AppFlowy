@@ -1,10 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'colors.dart';
 
@@ -16,9 +16,11 @@ class IconSearchBar extends StatefulWidget {
     super.key,
     required this.onRandomTap,
     required this.onKeywordChanged,
+    this.ensureFocus = false,
   });
 
   final VoidCallback onRandomTap;
+  final bool ensureFocus;
   final IconKeywordChangedCallback onKeywordChanged;
 
   @override
@@ -39,13 +41,14 @@ class _IconSearchBarState extends State<IconSearchBar> {
     return Padding(
       padding: EdgeInsets.symmetric(
         vertical: 12.0,
-        horizontal: PlatformExtension.isDesktopOrWeb ? 0.0 : 8.0,
+        horizontal: UniversalPlatform.isDesktopOrWeb ? 0.0 : 8.0,
       ),
       child: Row(
         children: [
           Expanded(
             child: _SearchTextField(
               onKeywordChanged: widget.onKeywordChanged,
+              ensureFocus: widget.ensureFocus,
             ),
           ),
           const HSpace(8.0),
@@ -93,9 +96,11 @@ class _RandomIconButton extends StatelessWidget {
 class _SearchTextField extends StatefulWidget {
   const _SearchTextField({
     required this.onKeywordChanged,
+    this.ensureFocus = false,
   });
 
   final IconKeywordChangedCallback onKeywordChanged;
+  final bool ensureFocus;
 
   @override
   State<_SearchTextField> createState() => _SearchTextFieldState();
@@ -104,6 +109,20 @@ class _SearchTextField extends StatefulWidget {
 class _SearchTextFieldState extends State<_SearchTextField> {
   final TextEditingController controller = TextEditingController();
   final FocusNode focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+
+    /// Sometimes focus is lost due to the [SelectionGestureInterceptor] in [KeyboardServiceWidgetState]
+    /// this is to ensure that focus can be regained within a short period of time
+    if (widget.ensureFocus) {
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (!mounted || focusNode.hasFocus) return;
+        focusNode.requestFocus();
+      });
+    }
+  }
 
   @override
   void dispose() {

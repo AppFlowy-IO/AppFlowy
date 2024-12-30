@@ -1,4 +1,3 @@
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +6,7 @@ import 'package:styled_widget/styled_widget.dart';
 class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
   const PopoverActionList({
     super.key,
+    this.controller,
     this.popoverMutex,
     required this.actions,
     required this.buildChild,
@@ -17,13 +17,21 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
     this.direction = PopoverDirection.rightWithTopAligned,
     this.asBarrier = false,
     this.offset = Offset.zero,
+    this.animationDuration = const Duration(),
+    this.slideDistance = 20,
+    this.beginScaleFactor = 0.9,
+    this.endScaleFactor = 1.0,
+    this.beginOpacity = 0.0,
+    this.endOpacity = 1.0,
     this.constraints = const BoxConstraints(
       minWidth: 120,
       maxWidth: 460,
       maxHeight: 300,
     ),
+    this.showAtCursor = false,
   });
 
+  final PopoverController? controller;
   final PopoverMutex? popoverMutex;
   final List<T> actions;
   final Widget Function(PopoverController) buildChild;
@@ -35,6 +43,13 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
   final bool asBarrier;
   final Offset offset;
   final BoxConstraints constraints;
+  final Duration animationDuration;
+  final double slideDistance;
+  final double beginScaleFactor;
+  final double endScaleFactor;
+  final double beginOpacity;
+  final double endOpacity;
+  final bool showAtCursor;
 
   @override
   State<PopoverActionList<T>> createState() => _PopoverActionListState<T>();
@@ -42,12 +57,24 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
 
 class _PopoverActionListState<T extends PopoverAction>
     extends State<PopoverActionList<T>> {
-  final PopoverController popoverController = PopoverController();
+  late PopoverController popoverController =
+      widget.controller ?? PopoverController();
 
   @override
   void dispose() {
-    popoverController.close();
+    if (widget.controller == null) {
+      popoverController.close();
+    }
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant PopoverActionList<T> oldWidget) {
+    if (widget.controller != oldWidget.controller) {
+      popoverController.close();
+      popoverController = widget.controller ?? PopoverController();
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -55,6 +82,12 @@ class _PopoverActionListState<T extends PopoverAction>
     final child = widget.buildChild(popoverController);
     return AppFlowyPopover(
       asBarrier: widget.asBarrier,
+      animationDuration: widget.animationDuration,
+      slideDistance: widget.slideDistance,
+      beginScaleFactor: widget.beginScaleFactor,
+      endScaleFactor: widget.endScaleFactor,
+      beginOpacity: widget.beginOpacity,
+      endOpacity: widget.endOpacity,
       controller: popoverController,
       constraints: widget.constraints,
       direction: widget.direction,
@@ -62,7 +95,8 @@ class _PopoverActionListState<T extends PopoverAction>
       offset: widget.offset,
       triggerActions: PopoverTriggerFlags.none,
       onClose: widget.onClosed,
-      popupBuilder: (BuildContext popoverContext) {
+      showAtCursor: widget.showAtCursor,
+      popupBuilder: (_) {
         widget.onPopupBuilder?.call();
         final List<Widget> children = widget.actions.map((action) {
           if (action is ActionCell) {
@@ -82,15 +116,17 @@ class _PopoverActionListState<T extends PopoverAction>
             );
           } else {
             final custom = action as CustomActionCell;
-            return custom.buildWithContext(context, popoverController);
+            return custom.buildWithContext(
+              context,
+              popoverController,
+              widget.popoverMutex,
+            );
           }
         }).toList();
 
         return IntrinsicHeight(
           child: IntrinsicWidth(
-            child: Column(
-              children: children,
-            ),
+            child: Column(children: children),
           ),
         );
       },
@@ -123,7 +159,11 @@ abstract class PopoverActionCell extends PopoverAction {
 }
 
 abstract class CustomActionCell extends PopoverAction {
-  Widget buildWithContext(BuildContext context, PopoverController controller);
+  Widget buildWithContext(
+    BuildContext context,
+    PopoverController controller,
+    PopoverMutex? mutex,
+  );
 }
 
 abstract class PopoverAction {}

@@ -1,9 +1,9 @@
 import { notify } from '@/components/_shared/notify';
 import { copyTextToClipboard } from '@/utils/copy';
 import { IconButton, Portal, Tooltip } from '@mui/material';
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
+import { TransformWrapper, TransformComponent, ReactZoomPanPinchContentRef } from 'react-zoom-pan-pinch';
 import { ReactComponent as RightIcon } from '@/assets/arrow_right.svg';
 import { ReactComponent as ReloadIcon } from '@/assets/reload.svg';
 import { ReactComponent as AddIcon } from '@/assets/add.svg';
@@ -14,8 +14,6 @@ import { ReactComponent as CloseIcon } from '@/assets/close.svg';
 
 export interface GalleryImage {
   src: string;
-  thumb: string;
-  responsive: string;
 }
 
 export interface GalleryPreviewProps {
@@ -35,12 +33,16 @@ function GalleryPreview ({
 }: GalleryPreviewProps) {
   const { t } = useTranslation();
   const [index, setIndex] = useState(previewIndex);
+  const transformComponentRef = useRef<ReactZoomPanPinchContentRef>(null);
+
   const handleToPrev = useCallback(() => {
     setIndex((prev) => prev === 0 ? images.length - 1 : prev - 1);
+    transformComponentRef.current?.resetTransform();
   }, [images.length]);
 
   const handleToNext = useCallback(() => {
     setIndex((prev) => prev === images.length - 1 ? 0 : prev + 1);
+    transformComponentRef.current?.resetTransform();
   }, [images.length]);
 
   const handleCopy = useCallback(async () => {
@@ -96,19 +98,21 @@ function GalleryPreview ({
   }
 
   return (
-    <Portal container={document.body}>
+    <Portal container={document.getElementById('root')}>
       <div className={'fixed inset-0 bg-black bg-opacity-80 z-[1400]'} onClick={onClose}>
 
         <TransformWrapper
+          ref={transformComponentRef}
           initialScale={1}
-          centerOnInit={true}
           maxScale={1.5}
           minScale={0.5}
+          limitToBounds={false}
         >
           {({ zoomIn, zoomOut, resetTransform }) => (
             <React.Fragment>
-              <div className="absolute bottom-20 left-1/2 z-10 transform flex gap-4 -translate-x-1/2 p-4"
-                   onClick={e => e.stopPropagation()}
+              <div
+                className="absolute bottom-20 left-1/2 z-10 transform flex gap-4 -translate-x-1/2 p-4"
+                onClick={e => e.stopPropagation()}
               >
                 {images.length > 1 &&
                   <div className={'flex gap-2 w-fit bg-bg-mask rounded-[8px] p-2'}>
@@ -166,11 +170,24 @@ function GalleryPreview ({
                   </IconButton>
                 </Tooltip>
               </div>
-              <TransformComponent contentProps={{
-                onClick: e => e.stopPropagation(),
-              }} wrapperStyle={{ width: '100%', height: '100%' }}
+              <TransformComponent
+                contentProps={{
+                  onClick: e => e.stopPropagation(),
+                }} wrapperStyle={{
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
               >
-                <img src={images[index].src} alt={images[index].src}
+                <img
+                  src={images[index].src} alt={images[index].src}
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    objectFit: 'contain',
+                  }}
                 />
               </TransformComponent>
             </React.Fragment>

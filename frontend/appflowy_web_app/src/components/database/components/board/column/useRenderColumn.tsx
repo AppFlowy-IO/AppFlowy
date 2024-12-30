@@ -1,4 +1,4 @@
-import { YjsDatabaseKey } from '@/application/collab.type';
+import { YjsDatabaseKey } from '@/application/types';
 import { FieldType, parseSelectOptionTypeOptions, useFieldSelector } from '@/application/database-yjs';
 import { Tag } from '@/components/_shared/tag';
 import { SelectOptionBadgeColorMap, SelectOptionColorMap } from '@/components/database/components/cell/cell.const';

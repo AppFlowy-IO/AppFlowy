@@ -8,7 +8,7 @@ fi
 
 NEW_REV="$1"
 echo "New revision: $NEW_REV"
-directories=("rust-lib" "appflowy_tauri/src-tauri" "appflowy_web_app/src-tauri")
+directories=("rust-lib")
 
 for dir in "${directories[@]}"; do
     echo "Updating $dir"
@@ -30,7 +30,7 @@ for dir in "${directories[@]}"; do
     # Update all the specified crates at once
     if [ -n "$crates_to_update" ]; then
         echo "Updating crates: $crates_to_update"
-        cargo update $crates_to_update
+        cargo update $crates_to_update 2> /dev/null
     fi
 
     popd > /dev/null

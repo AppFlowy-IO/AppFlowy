@@ -73,16 +73,19 @@ class FavoriteMenuBloc extends Bloc<FavoriteMenuEvent, FavoriteMenuState> {
   (List<ViewPB>, List<ViewPB>, List<ViewPB>, List<ViewPB>) _getViews(
     RepeatedFavoriteViewPB source,
   ) {
+    final now = DateTime.now();
+
     final List<ViewPB> views = source.items.map((v) => v.item).toList();
     final List<ViewPB> todayViews = [];
     final List<ViewPB> thisWeekViews = [];
     final List<ViewPB> otherViews = [];
+
     for (final favoriteView in source.items) {
       final view = favoriteView.item;
       final date = DateTime.fromMillisecondsSinceEpoch(
         favoriteView.timestamp.toInt() * 1000,
       );
-      final diff = DateTime.now().difference(date).inDays;
+      final diff = now.difference(date).inDays;
       if (diff == 0) {
         todayViews.add(view);
       } else if (diff < 7) {
@@ -91,6 +94,7 @@ class FavoriteMenuBloc extends Bloc<FavoriteMenuEvent, FavoriteMenuState> {
         otherViews.add(view);
       }
     }
+
     return (views, todayViews, thisWeekViews, otherViews);
   }
 }

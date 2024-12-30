@@ -1,11 +1,11 @@
 import { notify } from '@/components/_shared/notify';
-import { AFConfigContext } from '@/components/app/app.hooks';
+import { AFConfigContext } from '@/components/main/app.hooks';
 import { Button, CircularProgress, OutlinedInput } from '@mui/material';
 import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import isEmail from 'validator/lib/isEmail';
 
-function MagicLink({ redirectTo }: { redirectTo: string }) {
+function MagicLink ({ redirectTo }: { redirectTo: string }) {
   const { t } = useTranslation();
   const [email, setEmail] = React.useState<string>('');
   const [loading, setLoading] = React.useState<boolean>(false);

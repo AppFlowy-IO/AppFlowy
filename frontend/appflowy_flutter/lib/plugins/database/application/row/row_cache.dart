@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
@@ -92,12 +93,9 @@ class RowCache {
   }
 
   void setRowMeta(RowMetaPB rowMeta) {
-    var rowInfo = _rowList.get(rowMeta.id);
+    final rowInfo = _rowList.get(rowMeta.id);
     if (rowInfo != null) {
       rowInfo.updateRowMeta(rowMeta);
-    } else {
-      rowInfo = buildGridRow(rowMeta);
-      _rowList.add(rowInfo);
     }
 
     _changedNotifier?.receive(const ChangedReason.didFetchRow());
@@ -121,6 +119,9 @@ class RowCache {
     if (_isInitialRows) {
       _hideRows(changeset.invisibleRows);
       _showRows(changeset.visibleRows);
+      _changedNotifier?.receive(
+        ChangedReason.updateRowsVisibility(changeset),
+      );
     } else {
       _pendingVisibilityChanges.add(changeset);
     }
@@ -158,13 +159,19 @@ class RowCache {
   }
 
   void _insertRows(List<InsertedRowPB> insertRows) {
+    final InsertedIndexs insertedIndices = [];
     for (final insertedRow in insertRows) {
-      final insertedIndex =
-          _rowList.insert(insertedRow.index, buildGridRow(insertedRow.rowMeta));
-      if (insertedIndex != null) {
-        _changedNotifier?.receive(ChangedReason.insert(insertedIndex));
+      if (insertedRow.hasIndex()) {
+        final index = _rowList.insert(
+          insertedRow.index,
+          buildGridRow(insertedRow.rowMeta),
+        );
+        if (index != null) {
+          insertedIndices.add(index);
+        }
       }
     }
+    _changedNotifier?.receive(ChangedReason.insert(insertedIndices));
   }
 
   void _updateRows(List<UpdatedRowPB> updatedRows) {
@@ -207,7 +214,7 @@ class RowCache {
       final insertedIndex =
           _rowList.insert(insertedRow.index, buildGridRow(insertedRow.rowMeta));
       if (insertedIndex != null) {
-        _changedNotifier?.receive(ChangedReason.insert(insertedIndex));
+        _changedNotifier?.receive(ChangedReason.insert([insertedIndex]));
       }
     }
   }
@@ -309,13 +316,14 @@ class RowChangesetNotifier extends ChangeNotifier {
       initial: (_) {},
       reorderRows: (_) => notifyListeners(),
       reorderSingleRow: (_) => notifyListeners(),
+      updateRowsVisibility: (_) => notifyListeners(),
       setInitialRows: (_) => notifyListeners(),
       didFetchRow: (_) => notifyListeners(),
     );
   }
 }
 
-class RowInfo {
+class RowInfo extends Equatable {
   RowInfo({
     required this.fields,
     required RowMetaPB rowMeta,
@@ -347,6 +355,9 @@ class RowInfo {
     rowIconNotifier.dispose();
     rowDocumentNotifier.dispose();
   }
+
+  @override
+  List<Object> get props => [rowMeta];
 }
 
 typedef InsertedIndexs = List<InsertedIndex>;
@@ -357,7 +368,7 @@ typedef UpdatedIndexMap = LinkedHashMap<RowId, UpdatedIndex>;
 
 @freezed
 class ChangedReason with _$ChangedReason {
-  const factory ChangedReason.insert(InsertedIndex item) = _Insert;
+  const factory ChangedReason.insert(InsertedIndexs items) = _Insert;
   const factory ChangedReason.delete(DeletedIndex item) = _Delete;
   const factory ChangedReason.update(UpdatedIndexMap indexs) = _Update;
   const factory ChangedReason.fieldDidChange() = _FieldDidChange;
@@ -368,6 +379,9 @@ class ChangedReason with _$ChangedReason {
     ReorderSingleRowPB reorderRow,
     RowInfo rowInfo,
   ) = _ReorderSingleRow;
+  const factory ChangedReason.updateRowsVisibility(
+    RowsVisibilityChangePB changeset,
+  ) = _UpdateRowsVisibility;
   const factory ChangedReason.setInitialRows() = _SetInitialRows;
 }
 

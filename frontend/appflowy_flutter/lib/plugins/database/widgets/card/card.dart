@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/database/card/card.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_cache.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/row/action.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
+import 'package:appflowy/shared/af_image.dart';
+import 'package:appflowy/shared/flowy_gradient_colors.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../cell/card_cell_builder.dart';
 import '../cell/card_cell_skeleton/card_cell.dart';
@@ -41,6 +43,8 @@ class RowCard extends StatefulWidget {
     this.onShiftTap,
     this.groupingFieldId,
     this.groupId,
+    required this.userProfile,
+    this.isCompact = false,
   });
 
   final FieldController fieldController;
@@ -67,6 +71,14 @@ class RowCard extends StatefulWidget {
   final VoidCallback onEndEditing;
 
   final RowCardStyleConfiguration styleConfiguration;
+
+  /// Specifically the token is used to handle requests to retrieve images
+  /// from cloud storage, such as the card cover.
+  final UserProfilePB? userProfile;
+
+  /// Whether the card is in a narrow space.
+  /// This is used to determine eg. the Cover height.
+  final bool isCompact;
 
   @override
   State<RowCard> createState() => _RowCardState();
@@ -112,7 +124,7 @@ class _RowCardState extends State<RowCard> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cardBloc,
-      child: BlocConsumer<CardBloc, CardState>(
+      child: BlocListener<CardBloc, CardState>(
         listenWhen: (previous, current) =>
             previous.isEditing != current.isEditing,
         listener: (context, state) {
@@ -120,26 +132,30 @@ class _RowCardState extends State<RowCard> {
             widget.onEndEditing();
           }
         },
-        builder: (context, state) =>
-            PlatformExtension.isMobile ? _mobile(state) : _desktop(state),
+        child: UniversalPlatform.isMobile ? _mobile() : _desktop(),
       ),
     );
   }
 
-  Widget _mobile(CardState state) {
-    return GestureDetector(
-      onTap: () => widget.onTap(context),
-      behavior: HitTestBehavior.opaque,
-      child: MobileCardContent(
-        rowMeta: state.rowMeta,
-        cellBuilder: widget.cellBuilder,
-        styleConfiguration: widget.styleConfiguration,
-        cells: state.cells,
-      ),
+  Widget _mobile() {
+    return BlocBuilder<CardBloc, CardState>(
+      builder: (context, state) {
+        return GestureDetector(
+          onTap: () => widget.onTap(context),
+          behavior: HitTestBehavior.opaque,
+          child: MobileCardContent(
+            userProfile: widget.userProfile,
+            rowMeta: state.rowMeta,
+            cellBuilder: widget.cellBuilder,
+            styleConfiguration: widget.styleConfiguration,
+            cells: state.cells,
+          ),
+        );
+      },
     );
   }
 
-  Widget _desktop(CardState state) {
+  Widget _desktop() {
     final accessories = widget.styleConfiguration.showAccessory
         ? const <CardAccessory>[
             EditCardAccessory(),
@@ -156,18 +172,29 @@ class _RowCardState extends State<RowCard> {
         rowId: _cardBloc.rowController.rowId,
         groupId: widget.groupId,
       ),
-      child: RowCardContainer(
-        buildAccessoryWhen: () => state.isEditing == false,
-        accessories: accessories ?? [],
-        openAccessory: _handleOpenAccessory,
-        onTap: widget.onTap,
-        onShiftTap: widget.onShiftTap,
-        child: _CardContent(
-          rowMeta: state.rowMeta,
-          cellBuilder: widget.cellBuilder,
-          styleConfiguration: widget.styleConfiguration,
-          cells: state.cells,
-        ),
+      child: Builder(
+        builder: (context) {
+          return RowCardContainer(
+            buildAccessoryWhen: () =>
+                !context.watch<CardBloc>().state.isEditing,
+            accessories: accessories ?? [],
+            openAccessory: _handleOpenAccessory,
+            onTap: widget.onTap,
+            onShiftTap: widget.onShiftTap,
+            child: BlocBuilder<CardBloc, CardState>(
+              builder: (context, state) {
+                return _CardContent(
+                  rowMeta: state.rowMeta,
+                  cellBuilder: widget.cellBuilder,
+                  styleConfiguration: widget.styleConfiguration,
+                  cells: state.cells,
+                  userProfile: widget.userProfile,
+                  isCompact: widget.isCompact,
+                );
+              },
+            ),
+          );
+        },
       ),
     );
   }
@@ -190,48 +217,35 @@ class _CardContent extends StatelessWidget {
     required this.cellBuilder,
     required this.cells,
     required this.styleConfiguration,
+    this.userProfile,
+    this.isCompact = false,
   });
 
   final RowMetaPB rowMeta;
   final CardCellBuilder cellBuilder;
   final List<CellMeta> cells;
   final RowCardStyleConfiguration styleConfiguration;
+  final UserProfilePB? userProfile;
+  final bool isCompact;
 
   @override
   Widget build(BuildContext context) {
-    final attachmentCount = rowMeta.attachmentCount.toInt();
-    final child = Padding(
-      padding: styleConfiguration.cardPadding,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ..._makeCells(context, rowMeta, cells),
-          if (attachmentCount > 0) ...[
-            const VSpace(2),
-            Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: Row(
-                children: [
-                  const FlowySvg(
-                    FlowySvgs.media_s,
-                    size: Size.square(12),
-                  ),
-                  const HSpace(4),
-                  Flexible(
-                    child: FlowyText.regular(
-                      LocaleKeys.grid_media_attachmentsHint
-                          .tr(args: ['$attachmentCount']),
-                      fontSize: 11,
-                      color: AFThemeExtension.of(context).secondaryTextColor,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
+    final child = Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CardCover(
+          cover: rowMeta.cover,
+          userProfile: userProfile,
+          isCompact: isCompact,
+        ),
+        Padding(
+          padding: styleConfiguration.cardPadding,
+          child: Column(
+            children: _makeCells(context, rowMeta, cells),
+          ),
+        ),
+      ],
     );
     return styleConfiguration.hoverStyle == null
         ? child
@@ -247,25 +261,164 @@ class _CardContent extends StatelessWidget {
     RowMetaPB rowMeta,
     List<CellMeta> cells,
   ) {
-    return cells.mapIndexed((int index, CellMeta cellMeta) {
-      EditableCardNotifier? cellNotifier;
+    return cells
+        .mapIndexed(
+          (int index, CellMeta cellMeta) => _CardContentCell(
+            cellBuilder: cellBuilder,
+            cellMeta: cellMeta,
+            rowMeta: rowMeta,
+            isTitle: index == 0,
+            styleMap: styleConfiguration.cellStyleMap,
+          ),
+        )
+        .toList();
+  }
+}
 
-      if (index == 0) {
-        final bloc = context.read<CardBloc>();
-        cellNotifier = EditableCardNotifier(isEditing: bloc.state.isEditing);
-        cellNotifier.isCellEditing.addListener(() {
-          final isEditing = cellNotifier!.isCellEditing.value;
-          bloc.add(CardEvent.setIsEditing(isEditing));
-        });
-      }
+class _CardContentCell extends StatefulWidget {
+  const _CardContentCell({
+    required this.cellBuilder,
+    required this.cellMeta,
+    required this.rowMeta,
+    required this.isTitle,
+    required this.styleMap,
+  });
 
-      return cellBuilder.build(
-        cellContext: cellMeta.cellContext(),
+  final CellMeta cellMeta;
+  final RowMetaPB rowMeta;
+  final CardCellBuilder cellBuilder;
+  final CardCellStyleMap styleMap;
+  final bool isTitle;
+
+  @override
+  State<_CardContentCell> createState() => _CardContentCellState();
+}
+
+class _CardContentCellState extends State<_CardContentCell> {
+  late final EditableCardNotifier? cellNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    cellNotifier = widget.isTitle ? EditableCardNotifier() : null;
+    cellNotifier?.isCellEditing.addListener(listener);
+  }
+
+  void listener() {
+    final isEditing = cellNotifier!.isCellEditing.value;
+    context.read<CardBloc>().add(CardEvent.setIsEditing(isEditing));
+  }
+
+  @override
+  void dispose() {
+    cellNotifier?.isCellEditing.removeListener(listener);
+    cellNotifier?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<CardBloc, CardState>(
+      listenWhen: (previous, current) =>
+          previous.isEditing != current.isEditing,
+      listener: (context, state) {
+        cellNotifier?.isCellEditing.value = state.isEditing;
+      },
+      child: widget.cellBuilder.build(
+        cellContext: widget.cellMeta.cellContext(),
+        styleMap: widget.styleMap,
         cellNotifier: cellNotifier,
-        styleMap: styleConfiguration.cellStyleMap,
-        hasNotes: !rowMeta.isDocumentEmpty,
+        hasNotes: !widget.rowMeta.isDocumentEmpty,
+      ),
+    );
+  }
+}
+
+class CardCover extends StatelessWidget {
+  const CardCover({
+    super.key,
+    this.cover,
+    this.userProfile,
+    this.isCompact = false,
+  });
+
+  final RowCoverPB? cover;
+  final UserProfilePB? userProfile;
+  final bool isCompact;
+
+  @override
+  Widget build(BuildContext context) {
+    if (cover == null ||
+        cover!.data.isEmpty ||
+        cover!.uploadType == FileUploadTypePB.CloudFile &&
+            userProfile == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(4),
+          topRight: Radius.circular(4),
+        ),
+        color: Theme.of(context).cardColor,
+      ),
+      child: Row(
+        children: [
+          Expanded(child: _renderCover(context, cover!)),
+        ],
+      ),
+    );
+  }
+
+  Widget _renderCover(BuildContext context, RowCoverPB cover) {
+    final height = isCompact ? 50.0 : 100.0;
+
+    if (cover.coverType == CoverTypePB.FileCover) {
+      return SizedBox(
+        height: height,
+        width: double.infinity,
+        child: AFImage(
+          url: cover.data,
+          uploadType: cover.uploadType,
+          userProfile: userProfile,
+        ),
       );
-    }).toList();
+    }
+
+    if (cover.coverType == CoverTypePB.AssetCover) {
+      return SizedBox(
+        height: height,
+        width: double.infinity,
+        child: Image.asset(
+          PageStyleCoverImageType.builtInImagePath(cover.data),
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+
+    if (cover.coverType == CoverTypePB.ColorCover) {
+      final color = FlowyTint.fromId(cover.data)?.color(context) ??
+          cover.data.tryToColor();
+      return Container(
+        height: height,
+        width: double.infinity,
+        color: color,
+      );
+    }
+
+    if (cover.coverType == CoverTypePB.GradientCover) {
+      return Container(
+        height: height,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          gradient: FlowyGradientColor.fromId(cover.data).linear,
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 }
 

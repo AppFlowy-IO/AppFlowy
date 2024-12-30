@@ -1,12 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selectable_svg_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 SelectionMenuItem emojiMenuItem = SelectionMenuItem(
   getName: LocaleKeys.document_plugins_emoji.tr,
@@ -109,7 +108,7 @@ class _EmojiSelectionMenuState extends State<EmojiSelectionMenu> {
   @override
   Widget build(BuildContext context) {
     return FlowyEmojiPicker(
-      onEmojiSelected: (_, emoji) => widget.onSubmitted(emoji),
+      onEmojiSelected: (r) => widget.onSubmitted(r.emoji),
     );
   }
 }

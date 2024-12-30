@@ -24,6 +24,9 @@ tokio = { workspace = true, features = ["sync"] }
 lib-infra = { workspace = true }
 futures = "0.3"
 arc-swap = "1.7"
+flowy-sqlite = { workspace = true }
+diesel.workspace = true
+flowy-error.workspace = true
 
 [features]
 default = []

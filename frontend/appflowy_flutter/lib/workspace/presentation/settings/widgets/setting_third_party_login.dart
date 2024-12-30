@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -12,10 +10,14 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingThirdPartyLogin extends StatelessWidget {
-  const SettingThirdPartyLogin({required this.didLogin, super.key});
+  const SettingThirdPartyLogin({
+    super.key,
+    required this.didLogin,
+  });
 
   final VoidCallback didLogin;
 

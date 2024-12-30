@@ -1,9 +1,8 @@
-use anyhow::Error;
 use client_api::entity::ai_dto::{
   SummarizeRowData, SummarizeRowParams, TranslateRowData, TranslateRowParams,
 };
 use client_api::entity::QueryCollabResult::{Failed, Success};
-use client_api::entity::{QueryCollab, QueryCollabParams};
+use client_api::entity::{CreateCollabParams, QueryCollab, QueryCollabParams};
 use client_api::error::ErrorCode::RecordNotFound;
 use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
@@ -39,7 +38,7 @@ where
     object_id: &str,
     collab_type: CollabType,
     workspace_id: &str,
-  ) -> Result<Option<EncodedCollab>, Error> {
+  ) -> Result<Option<EncodedCollab>, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let object_id = object_id.to_string();
     let try_get_client = self.inner.try_get_client();
@@ -48,7 +47,8 @@ where
       workspace_id: workspace_id.clone(),
       inner: QueryCollab::new(object_id.clone(), collab_type.clone()),
     };
-    match try_get_client?.get_collab(params).await {
+    let result = try_get_client?.get_collab(params).await;
+    match result {
       Ok(data) => {
         check_request_workspace_id_is_match(
           &workspace_id,
@@ -61,10 +61,32 @@ where
         if err.code == RecordNotFound {
           Ok(None)
         } else {
-          Err(Error::new(err))
+          Err(err.into())
         }
       },
     }
+  }
+
+  #[instrument(level = "debug", skip_all, err)]
+  #[allow(clippy::blocks_in_conditions)]
+  async fn create_database_encode_collab(
+    &self,
+    object_id: &str,
+    collab_type: CollabType,
+    workspace_id: &str,
+    encoded_collab: EncodedCollab,
+  ) -> Result<(), FlowyError> {
+    let encoded_collab_v1 = encoded_collab
+      .encode_to_bytes()
+      .map_err(|err| FlowyError::internal().with_context(err))?;
+    let params = CreateCollabParams {
+      workspace_id: workspace_id.to_string(),
+      object_id: object_id.to_string(),
+      encoded_collab_v1,
+      collab_type,
+    };
+    self.inner.try_get_client()?.create_collab(params).await?;
+    Ok(())
   }
 
   #[instrument(level = "debug", skip_all)]
@@ -73,7 +95,7 @@ where
     object_ids: Vec<String>,
     object_ty: CollabType,
     workspace_id: &str,
-  ) -> Result<EncodeCollabByOid, Error> {
+  ) -> Result<EncodeCollabByOid, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.inner.try_get_client();
     let cloned_user = self.user.clone();
@@ -111,7 +133,7 @@ where
     &self,
     _object_id: &str,
     _limit: usize,
-  ) -> Result<Vec<DatabaseSnapshot>, Error> {
+  ) -> Result<Vec<DatabaseSnapshot>, FlowyError> {
     Ok(vec![])
   }
 }

@@ -1,7 +1,7 @@
 
 /**
 * Do not edit directly
-* Generated on Fri, 06 Sep 2024 10:13:48 GMT
+* Generated on Tue, 24 Dec 2024 08:57:39 GMT
 * Generated from $pnpm css:variables 
 */
 
@@ -26,7 +26,8 @@ module.exports = {
   "line": {
     "border": "var(--line-border)",
     "divider": "var(--line-divider)",
-    "on-toolbar": "var(--line-on-toolbar)"
+    "on-toolbar": "var(--line-on-toolbar)",
+    "card": "var(--line-card)"
   },
   "fill": {
     "toolbar": "var(--fill-toolbar)",
@@ -41,6 +42,9 @@ module.exports = {
     "blue-400": "var(--content-blue-400)",
     "blue-300": "var(--content-blue-300)",
     "blue-600": "var(--content-blue-600)",
+    "blue-700": "var(--content-blue-700)",
+    "blue-800": "var(--content-blue-800)",
+    "blue-900": "var(--content-blue-900)",
     "blue-100": "var(--content-blue-100)",
     "blue-50": "var(--content-blue-50)",
     "on-fill-hover": "var(--content-on-fill-hover)",
@@ -90,5 +94,12 @@ module.exports = {
   "scrollbar": {
     "thumb": "var(--scrollbar-thumb)",
     "track": "var(--scrollbar-track)"
+  },
+  "note": {
+    "header": "var(--note-header)"
+  },
+  "billing": {
+    "primary": "var(--billing-primary)",
+    "primary-hover": "var(--billing-primary-hover)"
   }
 };

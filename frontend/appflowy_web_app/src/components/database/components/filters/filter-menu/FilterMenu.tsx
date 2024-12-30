@@ -1,4 +1,4 @@
-import { YjsDatabaseKey } from '@/application/collab.type';
+import { YjsDatabaseKey } from '@/application/types';
 import { FieldType, Filter, SelectOptionFilter, useFieldSelector } from '@/application/database-yjs';
 import CheckboxFilterMenu from './CheckboxFilterMenu';
 import ChecklistFilterMenu from './ChecklistFilterMenu';

@@ -38,7 +38,7 @@ impl TimeFilterPB {
 }
 
 impl PreFillCellsWithFilter for TimeFilterPB {
-  fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool) {
+  fn get_compliant_cell(&self, field: &Field) -> Option<Cell> {
     let expected_decimal = || self.content.parse::<i64>().ok();
 
     let text = match self.condition {
@@ -64,9 +64,7 @@ impl PreFillCellsWithFilter for TimeFilterPB {
       _ => None,
     };
 
-    let open_after_create = matches!(self.condition, NumberFilterConditionPB::NumberIsNotEmpty);
-
     // use `insert_text_cell` because self.content might not be a parsable i64.
-    (text.map(|s| insert_text_cell(s, field)), open_after_create)
+    text.map(|s| insert_text_cell(s, field))
   }
 }

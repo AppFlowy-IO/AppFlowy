@@ -1,4 +1,4 @@
-import { FieldId, RowId } from '@/application/collab.type';
+import { FieldId, RowId } from '@/application/types';
 import { DateFormat, TimeFormat } from '@/application/database-yjs/index';
 import { FieldType } from '@/application/database-yjs/database.type';
 import React from 'react';
@@ -50,6 +50,33 @@ export interface DateTimeCell extends Cell {
   includeTime?: boolean;
   isRange?: boolean;
   reminderId?: string;
+}
+
+export enum FileMediaType {
+  Image = 'Image',
+  Video = 'Video',
+  Link = 'Link',
+  Other = 'Other',
+}
+
+export enum FileMediaUploadType {
+  CloudMedia = 'CloudMedia',
+  NetworkMedia = 'NetworkMedia',
+}
+
+export interface FileMediaCellDataItem {
+  file_type: FileMediaType;
+  id: string;
+  name: string;
+  upload_type: FileMediaUploadType;
+  url: string;
+}
+
+export type FileMediaCellData = FileMediaCellDataItem[]
+
+export interface FileMediaCell extends Cell {
+  fieldType: FieldType.FileMedia;
+  data: FileMediaCellData;
 }
 
 export interface DateTimeCellData {

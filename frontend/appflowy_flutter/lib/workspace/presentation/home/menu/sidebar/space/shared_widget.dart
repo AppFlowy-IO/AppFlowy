@@ -13,7 +13,6 @@ import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -21,6 +20,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class SpacePermissionSwitch extends StatefulWidget {
   const SpacePermissionSwitch({
@@ -319,14 +319,17 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
         if (event is KeyDownEvent &&
             event.logicalKey == LogicalKeyboardKey.escape) {
           Navigator.of(context).pop();
+        } else if (event is KeyUpEvent &&
+            event.logicalKey == LogicalKeyboardKey.enter) {
+          widget.onConfirm();
+          if (widget.closeOnAction) {
+            Navigator.of(context).pop();
+          }
         }
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          vertical: 20.0,
-          horizontal: 20.0,
-        ),
-        color: PlatformExtension.isDesktop
+        padding: const EdgeInsets.all(20),
+        color: UniversalPlatform.isDesktop
             ? null
             : Theme.of(context).colorScheme.surface,
         child: Column(
@@ -560,20 +563,19 @@ class SpacePages extends StatelessWidget {
   final ViewItemRightIconsBuilder? rightIconsBuilder;
   final ViewItemOnSelected onSelected;
   final ViewItemOnSelected? onTertiarySelected;
-  final bool Function(ViewPB view)? shouldIgnoreView;
+  final IgnoreViewType Function(ViewPB view)? shouldIgnoreView;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          ViewBloc(view: space)..add(const ViewEvent.initial()),
+      create: (_) => ViewBloc(view: space)..add(const ViewEvent.initial()),
       child: BlocBuilder<ViewBloc, ViewState>(
         builder: (context, state) {
           // filter the child views that should be ignored
-          var childViews = state.view.childViews;
+          List<ViewPB> childViews = state.view.childViews;
           if (shouldIgnoreView != null) {
             childViews = childViews
-                .where((childView) => !shouldIgnoreView!(childView))
+                .where((v) => shouldIgnoreView!(v) != IgnoreViewType.hide)
                 .toList();
           }
           return Column(
@@ -592,6 +594,7 @@ class SpacePages extends StatelessWidget {
                     leftPadding: HomeSpaceViewSizes.leftPadding,
                     isFeedback: false,
                     isHovered: isHovered,
+                    enableRightClickContext: !disableSelectedStatus,
                     disableSelectedStatus: disableSelectedStatus,
                     isExpandedNotifier: isExpandedNotifier,
                     rightIconsBuilder: rightIconsBuilder,

@@ -1,7 +1,6 @@
 import { emit, EventType } from '@/application/session/event';
 
 export function refreshToken(token: string) {
-  localStorage.removeItem('token');
   localStorage.setItem('token', token);
   emit(EventType.SESSION_REFRESH, token);
 }
@@ -23,6 +22,10 @@ export function getTokenParsed(): {
   access_token: string;
   expires_at: number;
   refresh_token: string;
+  user: {
+    id: string;
+    email: string;
+  }
 } | null {
   const token = getToken();
 

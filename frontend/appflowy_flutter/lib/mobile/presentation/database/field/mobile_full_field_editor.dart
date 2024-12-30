@@ -9,10 +9,10 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/card/card_detail/widgets/widgets.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
-import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/number_format_bloc.dart';
-import 'package:appflowy/plugins/database/widgets/field/type_option_editor/date/date_time_format.dart';
+import 'package:appflowy/plugins/database/domain/field_service.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/extension.dart';
+import 'package:appflowy/plugins/database/widgets/field/type_option_editor/date/date_time_format.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:collection/collection.dart';
@@ -35,6 +35,7 @@ class FieldOptionValues {
   FieldOptionValues({
     required this.type,
     required this.name,
+    required this.icon,
     this.dateFormat,
     this.timeFormat,
     this.includeTime,
@@ -48,6 +49,7 @@ class FieldOptionValues {
     return FieldOptionValues(
       type: fieldType,
       name: field.name,
+      icon: field.icon,
       numberFormat: fieldType == FieldType.Number
           ? NumberTypeOptionPB.fromBuffer(buffer).format
           : null,
@@ -83,6 +85,7 @@ class FieldOptionValues {
 
   FieldType type;
   String name;
+  String icon;
 
   // FieldType.DateTime
   // FieldType.LastEditedTime
@@ -221,7 +224,9 @@ class _MobileFieldEditorState extends State<MobileFieldEditor> {
             const _Divider(),
             OptionTextField(
               controller: controller,
-              type: values.type,
+              autoFocus: widget.mode == FieldOptionMode.add,
+              fieldType: values.type,
+              isPrimary: widget.isPrimary,
               onTextChanged: (value) {
                 isFieldNameChanged = true;
                 _updateOptionValues(name: value);
@@ -858,6 +863,8 @@ class _SelectOptionListState extends State<_SelectOptionList> {
     return ListView(
       shrinkWrap: true,
       padding: EdgeInsets.zero,
+      // disable the inner scroll physics, so the outer ListView can scroll
+      physics: const NeverScrollableScrollPhysics(),
       children: widget.selectOptions
           .mapIndexed(
             (index, option) => _SelectOptionTile(

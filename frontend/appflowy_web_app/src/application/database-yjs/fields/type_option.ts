@@ -1,4 +1,4 @@
-import { YDatabaseField, YjsDatabaseKey } from '@/application/collab.type';
+import { YDatabaseField, YjsDatabaseKey } from '@/application/types';
 import { FieldType } from '@/application/database-yjs';
 
 export function getTypeOptions(field: YDatabaseField) {

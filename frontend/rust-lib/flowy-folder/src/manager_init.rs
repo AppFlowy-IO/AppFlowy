@@ -128,11 +128,6 @@ impl FolderManager {
       folder_state_rx,
       Arc::downgrade(&self.user),
     );
-    subscribe_folder_snapshot_state_changed(
-      workspace_id.clone(),
-      weak_mutex_folder.clone(),
-      Arc::downgrade(&self.user),
-    );
     subscribe_folder_trash_changed(
       workspace_id.clone(),
       section_change_rx,
@@ -164,7 +159,7 @@ impl FolderManager {
     let folder_data =
       DefaultFolderBuilder::build(uid, workspace_id.to_string(), &self.operation_handlers).await;
     let folder = self
-      .create_empty_collab(
+      .create_folder_with_data(
         uid,
         workspace_id,
         collab_db,

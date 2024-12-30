@@ -1,8 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class ToggleListBlockKeys {
   const ToggleListBlockKeys._();
@@ -20,6 +21,11 @@ class ToggleListBlockKeys {
 
   /// The value is a bool.
   static const String collapsed = 'collapsed';
+
+  /// The value is a int.
+  ///
+  /// If this value is not null, the block represent a toggle heading.
+  static const String level = 'level';
 }
 
 Node toggleListBlockNode({
@@ -30,17 +36,41 @@ Node toggleListBlockNode({
   Attributes? attributes,
   Iterable<Node>? children,
 }) {
+  delta ??= Delta()..insert(text ?? '');
   return Node(
     type: ToggleListBlockKeys.type,
+    children: children ?? [],
     attributes: {
-      ToggleListBlockKeys.collapsed: collapsed,
-      ToggleListBlockKeys.delta:
-          (delta ?? (Delta()..insert(text ?? ''))).toJson(),
-      if (attributes != null) ...attributes,
       if (textDirection != null)
         ToggleListBlockKeys.textDirection: textDirection,
+      ToggleListBlockKeys.collapsed: collapsed,
+      ToggleListBlockKeys.delta: delta.toJson(),
+      if (attributes != null) ...attributes,
     },
-    children: children ?? [],
+  );
+}
+
+Node toggleHeadingNode({
+  int level = 1,
+  String? text,
+  Delta? delta,
+  bool collapsed = false,
+  String? textDirection,
+  Attributes? attributes,
+  Iterable<Node>? children,
+}) {
+  // only support level 1 - 6
+  level = level.clamp(1, 6);
+  return toggleListBlockNode(
+    text: text,
+    delta: delta,
+    collapsed: collapsed,
+    textDirection: textDirection,
+    children: children,
+    attributes: {
+      if (attributes != null) ...attributes,
+      ToggleListBlockKeys.level: level,
+    },
   );
 }
 
@@ -57,9 +87,13 @@ class ToggleListBlockComponentBuilder extends BlockComponentBuilder {
   ToggleListBlockComponentBuilder({
     super.configuration,
     this.padding = const EdgeInsets.all(0),
+    this.textStyleBuilder,
   });
 
   final EdgeInsets padding;
+
+  /// The text style of the toggle heading block.
+  final TextStyle Function(int level)? textStyleBuilder;
 
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
@@ -69,6 +103,7 @@ class ToggleListBlockComponentBuilder extends BlockComponentBuilder {
       node: node,
       configuration: configuration,
       padding: padding,
+      textStyleBuilder: textStyleBuilder,
       showActions: showActions(node),
       actionBuilder: (context, state) => actionBuilder(
         blockComponentContext,
@@ -78,7 +113,7 @@ class ToggleListBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  bool validate(Node node) => node.delta != null;
+  BlockComponentValidate get validate => (node) => node.delta != null;
 }
 
 class ToggleListBlockComponentWidget extends BlockComponentStatefulWidget {
@@ -89,9 +124,11 @@ class ToggleListBlockComponentWidget extends BlockComponentStatefulWidget {
     super.actionBuilder,
     super.configuration = const BlockComponentConfiguration(),
     this.padding = const EdgeInsets.all(0),
+    this.textStyleBuilder,
   });
 
   final EdgeInsets padding;
+  final TextStyle Function(int level)? textStyleBuilder;
 
   @override
   State<ToggleListBlockComponentWidget> createState() =>
@@ -135,6 +172,7 @@ class _ToggleListBlockComponentWidgetState
       );
 
   bool get collapsed => node.attributes[ToggleListBlockKeys.collapsed] ?? false;
+  int? get level => node.attributes[ToggleListBlockKeys.level] as int?;
 
   @override
   Widget build(BuildContext context) {
@@ -144,71 +182,36 @@ class _ToggleListBlockComponentWidgetState
   }
 
   @override
+  Widget buildComponentWithChildren(BuildContext context) {
+    return Stack(
+      children: [
+        if (backgroundColor != Colors.transparent)
+          Positioned.fill(
+            left: cachedLeft,
+            top: padding.top,
+            child: Container(
+              width: double.infinity,
+              color: backgroundColor,
+            ),
+          ),
+        NestedListWidget(
+          indentPadding: indentPadding,
+          child: buildComponent(context),
+          children: editorState.renderer.buildList(
+            context,
+            widget.node.children,
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
   Widget buildComponent(
     BuildContext context, {
     bool withBackgroundColor = false,
   }) {
-    final textDirection = calculateTextDirection(
-      layoutDirection: Directionality.maybeOf(context),
-    );
-
-    Widget child = Container(
-      color: backgroundColor,
-      width: double.infinity,
-      alignment: alignment,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        textDirection: textDirection,
-        children: [
-          // the emoji picker button for the note
-          Container(
-            constraints: const BoxConstraints(minWidth: 26, minHeight: 22),
-            padding: const EdgeInsets.only(right: 4.0),
-            child: AnimatedRotation(
-              turns: collapsed ? 0.0 : 0.25,
-              duration: const Duration(milliseconds: 200),
-              child: FlowyIconButton(
-                width: 18.0,
-                icon: const Icon(
-                  Icons.arrow_right,
-                  size: 18.0,
-                ),
-                onPressed: onCollapsed,
-              ),
-            ),
-          ),
-
-          Flexible(
-            child: AppFlowyRichText(
-              key: forwardKey,
-              delegate: this,
-              node: widget.node,
-              editorState: editorState,
-              placeholderText: placeholderText,
-              lineHeight: 1.5,
-              textSpanDecorator: (textSpan) => textSpan.updateTextStyle(
-                textStyle,
-              ),
-              placeholderTextSpanDecorator: (textSpan) =>
-                  textSpan.updateTextStyle(
-                placeholderTextStyle,
-              ),
-              textDirection: textDirection,
-              textAlign: alignment?.toTextAlign,
-              cursorColor: editorState.editorStyle.cursorColor,
-              selectionColor: editorState.editorStyle.selectionColor,
-            ),
-          ),
-        ],
-      ),
-    );
-
-    child = Padding(
-      key: blockComponentKey,
-      padding: padding,
-      child: child,
-    );
+    Widget child = _buildToggleBlock();
 
     child = BlockSelectionContainer(
       node: node,
@@ -219,6 +222,18 @@ class _ToggleListBlockComponentWidgetState
         BlockSelectionType.block,
       ],
       child: child,
+    );
+
+    child = Padding(
+      padding: padding,
+      child: Container(
+        key: blockComponentKey,
+        color: withBackgroundColor ||
+                (backgroundColor != Colors.transparent && collapsed)
+            ? backgroundColor
+            : null,
+        child: child,
+      ),
     );
 
     if (widget.showActions && widget.actionBuilder != null) {
@@ -232,11 +247,165 @@ class _ToggleListBlockComponentWidgetState
     return child;
   }
 
+  Widget _buildToggleBlock() {
+    final textDirection = calculateTextDirection(
+      layoutDirection: Directionality.maybeOf(context),
+    );
+    final crossAxisAlignment = textDirection == TextDirection.ltr
+        ? CrossAxisAlignment.start
+        : CrossAxisAlignment.end;
+
+    return Container(
+      width: double.infinity,
+      alignment: alignment,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: crossAxisAlignment,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            textDirection: textDirection,
+            children: [
+              _buildExpandIcon(),
+              Flexible(
+                child: _buildRichText(),
+              ),
+            ],
+          ),
+          _buildPlaceholder(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlaceholder() {
+    // if the toggle block is collapsed or it contains children, don't show the
+    // placeholder.
+    if (collapsed || node.children.isNotEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: indentPadding,
+      child: FlowyButton(
+        text: FlowyText(
+          buildPlaceholderText(),
+          color: Theme.of(context).hintColor,
+        ),
+        margin: const EdgeInsets.symmetric(horizontal: 3.0, vertical: 8),
+        onTap: onAddContent,
+      ),
+    );
+  }
+
+  Widget _buildRichText() {
+    final textDirection = calculateTextDirection(
+      layoutDirection: Directionality.maybeOf(context),
+    );
+    final level = node.attributes[ToggleListBlockKeys.level];
+    return AppFlowyRichText(
+      key: forwardKey,
+      delegate: this,
+      node: widget.node,
+      editorState: editorState,
+      placeholderText: placeholderText,
+      lineHeight: 1.5,
+      textSpanDecorator: (textSpan) {
+        var result = textSpan.updateTextStyle(textStyle);
+        if (level != null) {
+          result = result.updateTextStyle(
+            widget.textStyleBuilder?.call(level),
+          );
+        }
+        return result;
+      },
+      placeholderTextSpanDecorator: (textSpan) {
+        var result = textSpan.updateTextStyle(textStyle);
+        if (level != null && widget.textStyleBuilder != null) {
+          result = result.updateTextStyle(
+            widget.textStyleBuilder?.call(level),
+          );
+        }
+        return result.updateTextStyle(placeholderTextStyle);
+      },
+      textDirection: textDirection,
+      textAlign: alignment?.toTextAlign ?? textAlign,
+      cursorColor: editorState.editorStyle.cursorColor,
+      selectionColor: editorState.editorStyle.selectionColor,
+    );
+  }
+
+  Widget _buildExpandIcon() {
+    double buttonHeight = UniversalPlatform.isDesktop ? 22.0 : 26.0;
+    final textDirection = calculateTextDirection(
+      layoutDirection: Directionality.maybeOf(context),
+    );
+
+    if (level != null) {
+      // top padding * 2 + button height = height of the heading text
+      final textStyle = widget.textStyleBuilder?.call(level ?? 1);
+      final fontSize = textStyle?.fontSize;
+      final lineHeight = textStyle?.height ?? 1.5;
+
+      if (fontSize != null) {
+        buttonHeight = fontSize * lineHeight;
+      }
+    }
+
+    final turns = switch (textDirection) {
+      TextDirection.ltr => collapsed ? 0.0 : 0.25,
+      TextDirection.rtl => collapsed ? -0.5 : -0.75,
+    };
+
+    return Container(
+      constraints: BoxConstraints(
+        minWidth: 26,
+        minHeight: buttonHeight,
+      ),
+      alignment: Alignment.center,
+      child: FlowyButton(
+        margin: const EdgeInsets.all(2.0),
+        useIntrinsicWidth: true,
+        onTap: onCollapsed,
+        text: AnimatedRotation(
+          turns: turns,
+          duration: const Duration(milliseconds: 200),
+          child: const Icon(
+            Icons.arrow_right,
+            size: 18.0,
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> onCollapsed() async {
     final transaction = editorState.transaction
       ..updateNode(node, {
         ToggleListBlockKeys.collapsed: !collapsed,
       });
+    transaction.afterSelection = editorState.selection;
     await editorState.apply(transaction);
+  }
+
+  Future<void> onAddContent() async {
+    final transaction = editorState.transaction;
+    final path = node.path.child(0);
+    transaction.insertNode(
+      path,
+      paragraphNode(),
+    );
+    transaction.afterSelection = Selection.collapsed(Position(path: path));
+    await editorState.apply(transaction);
+  }
+
+  String buildPlaceholderText() {
+    if (level != null) {
+      return LocaleKeys.document_plugins_emptyToggleHeading.tr(
+        args: [level.toString()],
+      );
+    }
+    return LocaleKeys.document_plugins_emptyToggleList.tr();
   }
 }

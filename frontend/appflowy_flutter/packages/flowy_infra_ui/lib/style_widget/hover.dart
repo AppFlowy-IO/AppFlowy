@@ -153,12 +153,10 @@ class FlowyHoverContainer extends StatelessWidget {
             : style.backgroundColor,
         borderRadius: style.borderRadius,
       ),
-      child: applyStyle
-          ? Theme(
-              data: hoverTheme,
-              child: child,
-            )
-          : child,
+      child: Theme(
+        data: applyStyle ? hoverTheme : Theme.of(context),
+        child: child,
+      ),
     );
   }
 }

@@ -131,7 +131,6 @@ fn database_from_fields_and_rows(
 
   CreateDatabaseParams {
     database_id: database_id.clone(),
-    inline_view_id: view_id.to_string(),
     rows,
     fields,
     views: vec![CreateViewParams {

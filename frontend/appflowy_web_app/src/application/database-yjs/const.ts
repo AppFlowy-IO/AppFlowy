@@ -1,20 +1,19 @@
-import { YDatabaseRow, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/collab.type';
+import { RowId, YDatabaseRow, YDoc, YjsDatabaseKey, YjsEditorKey } from '@/application/types';
 import { RowMetaKey } from '@/application/database-yjs/database.type';
-import * as Y from 'yjs';
 import { v5 as uuidv5, parse as uuidParse } from 'uuid';
 
 export const DEFAULT_ROW_HEIGHT = 36;
 export const MIN_COLUMN_WIDTH = 150;
 
-export const getCell = (rowId: string, fieldId: string, rowMetas: Y.Map<YDoc>) => {
-  const rowMeta = rowMetas.get(rowId);
+export const getCell = (rowId: string, fieldId: string, rowMetas: Record<RowId, YDoc>) => {
+  const rowMeta = rowMetas[rowId];
 
   const meta = rowMeta?.getMap(YjsEditorKey.data_section).get(YjsEditorKey.database_row) as YDatabaseRow;
 
   return meta?.get(YjsDatabaseKey.cells)?.get(fieldId);
 };
 
-export const getCellData = (rowId: string, fieldId: string, rowMetas: Y.Map<YDoc>) => {
+export const getCellData = (rowId: string, fieldId: string, rowMetas: Record<RowId, YDoc>) => {
   return getCell(rowId, fieldId, rowMetas)?.get(YjsDatabaseKey.data);
 };
 

@@ -1,9 +1,9 @@
-import { YjsDatabaseKey } from '@/application/collab.type';
+import { YjsDatabaseKey } from '@/application/types';
 import { useRowDataSelector } from '@/application/database-yjs';
 import { useDateTypeCellDispatcher } from '@/components/database/components/cell/Cell.hooks';
 import React, { useEffect, useMemo, useState } from 'react';
 
-export function RowCreateModifiedTime({
+export function RowCreateModifiedTime ({
   rowId,
   fieldId,
   attrName,
@@ -21,6 +21,8 @@ export function RowCreateModifiedTime({
   useEffect(() => {
     if (!rowData) return;
     const observeHandler = () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       setValue(rowData.get(attrName));
     };
 

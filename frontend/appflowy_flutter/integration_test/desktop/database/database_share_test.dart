@@ -9,7 +9,7 @@ void main() {
 
   group('database', () {
     testWidgets('import v0.2.0 database data', (tester) async {
-      await tester.openV020database();
+      await tester.openTestDatabase(v020GridFileName);
       // wait the database data is loaded
       await tester.pumpAndSettle(const Duration(microseconds: 500));
 
@@ -115,7 +115,7 @@ void main() {
         [],
       ];
       for (final (index, contents) in multiSelectCells.indexed) {
-        await tester.assertMultiSelectOption(
+        tester.assertMultiSelectOption(
           rowIndex: index,
           contents: contents,
         );

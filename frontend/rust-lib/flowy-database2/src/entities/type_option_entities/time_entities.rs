@@ -1,4 +1,4 @@
-use crate::services::field::TimeTypeOption;
+use collab_database::fields::date_type_option::TimeTypeOption;
 use flowy_derive::ProtoBuf;
 
 #[derive(Clone, Debug, Default, ProtoBuf)]

@@ -10,7 +10,7 @@ class TrashService {
     return FolderEventListTrashItems().send();
   }
 
-  Future<FlowyResult<void, FlowyError>> putback(String trashId) {
+  static Future<FlowyResult<void, FlowyError>> putback(String trashId) {
     final id = TrashIdPB.create()..id = trashId;
 
     return FolderEventRestoreTrashItem(id).send();

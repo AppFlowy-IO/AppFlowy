@@ -60,7 +60,6 @@ pub fn user_profile_from_af_profile(
     icon_url: icon_url.unwrap_or_default(),
     openai_key: openai_key.unwrap_or_default(),
     stability_ai_key: stability_ai_key.unwrap_or_default(),
-    workspace_id: profile.latest_workspace_id.to_string(),
     authenticator: Authenticator::AppFlowyCloud,
     encryption_type,
     uid: profile.uid,

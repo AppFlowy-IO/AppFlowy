@@ -4,7 +4,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/layout.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/date_entities.pbenum.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -51,7 +50,7 @@ class ReminderSelector extends StatelessWidget {
         return SizedBox(
           height: DatePickerSize.itemHeight,
           child: FlowyButton(
-            text: FlowyText.medium(label),
+            text: FlowyText(label),
             rightIcon:
                 o == selectedOption ? const FlowySvg(FlowySvgs.check_s) : null,
             onTap: () {
@@ -87,7 +86,7 @@ class ReminderSelector extends StatelessWidget {
         child: SizedBox(
           height: DatePickerSize.itemHeight,
           child: FlowyButton(
-            text: FlowyText.medium(LocaleKeys.datePicker_reminderLabel.tr()),
+            text: FlowyText(LocaleKeys.datePicker_reminderLabel.tr()),
             rightIcon: Row(
               children: [
                 FlowyText.regular(selectedOption.label),
@@ -125,10 +124,14 @@ enum ReminderOption {
     required this.time,
     this.withoutTime = false,
     this.requiresNoTime = false,
-  });
+  }) : assert(!requiresNoTime || withoutTime);
 
   final Duration time;
+
+  /// If true, don't consider the time component of the dateTime
   final bool withoutTime;
+
+  /// If true, [withoutTime] must be true as well. Will add time instead of subtract to get notification time.
   final bool requiresNoTime;
 
   bool get timeExempt =>
@@ -191,10 +194,11 @@ enum ReminderOption {
         _ => ReminderOption.custom,
       };
 
-  DateTime fromDate(DateTime date) => switch (withoutTime) {
-        true => requiresNoTime
+  DateTime getNotificationDateTime(DateTime date) {
+    return withoutTime
+        ? requiresNoTime
             ? date.withoutTime.add(time)
-            : date.withoutTime.subtract(time),
-        _ => date.subtract(time),
-      };
+            : date.withoutTime.subtract(time)
+        : date.subtract(time);
+  }
 }

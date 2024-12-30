@@ -1,0 +1,109 @@
+.simple-table {
+  &.enable-header-column {
+    tr [data-block-type="simple_table_cell"]:first-child {
+      @apply font-semibold bg-fill-list-hover;
+    }
+  }
+
+  &.enable-header-row {
+    tr:first-child > [data-block-type="simple_table_cell"] {
+      @apply font-semibold bg-fill-list-hover;
+    }
+  }
+
+  tr {
+    vertical-align: top;
+  }
+
+  tr [data-block-type="simple_table_cell"]:first-child {
+    @apply border-l border-t border-line-divider;
+  }
+
+  tr:first-child > [data-block-type="simple_table_cell"] {
+    @apply border-t border-line-divider;
+  }
+
+  td[data-block-type="simple_table_cell"] {
+    @apply border-r border-b border-line-divider overflow-hidden whitespace-pre-wrap;
+    .cell-children {
+      .block-element {
+        @apply m-0;
+      }
+    }
+  }
+
+  tr[data-table-row-horizontal-align="left"] {
+    .block-element {
+      > div > .text-element {
+        text-align: left;
+        justify-content: flex-start;
+      }
+    }
+  }
+
+  tr[data-table-row-horizontal-align="center"] {
+    .block-element {
+      > div > .text-element {
+        text-align: center;
+        justify-content: center;
+      }
+    }
+  }
+
+  tr[data-table-row-horizontal-align="right"] {
+    .block-element {
+      > div > .text-element {
+        text-align: right;
+        justify-content: flex-end;
+      }
+    }
+  }
+
+  td[data-table-cell-horizontal-align="left"] {
+    .block-element {
+      > div > .text-element {
+        text-align: left;
+        justify-content: flex-start;
+      }
+    }
+  }
+
+
+  td[data-table-cell-horizontal-align="center"] {
+    .block-element {
+      > div > .text-element {
+        text-align: center;
+        justify-content: center;
+      }
+    }
+  }
+
+  td[data-table-cell-horizontal-align="right"] {
+    .block-element {
+      > div > .text-element {
+        text-align: right;
+        justify-content: flex-end;
+      }
+    }
+  }
+
+
+  td .cell-children {
+    @apply leading-[1.5em] tracking-wide;
+    > div {
+      margin-top: 4px !important;
+      margin-bottom: 4px !important;
+    }
+  }
+
+  td {
+    @apply px-2 py-0.5;
+  }
+
+  &.selected {
+    table {
+      @apply bg-content-blue-50 border border-fill-default;
+    }
+
+  }
+}

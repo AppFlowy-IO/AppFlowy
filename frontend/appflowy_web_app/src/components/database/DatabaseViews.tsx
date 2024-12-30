@@ -1,6 +1,8 @@
-import { DatabaseViewLayout, YjsDatabaseKey } from '@/application/collab.type';
+import { DatabaseViewLayout, YjsDatabaseKey } from '@/application/types';
 import { useDatabaseViewsSelector } from '@/application/database-yjs';
-import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
+import CalendarSkeleton from '@/components/_shared/skeleton/CalendarSkeleton';
+import GridSkeleton from '@/components/_shared/skeleton/GridSkeleton';
+import KanbanSkeleton from '@/components/_shared/skeleton/KanbanSkeleton';
 import { Board } from '@/components/database/board';
 import { Calendar } from '@/components/database/calendar';
 import { DatabaseConditionsContext } from '@/components/database/components/conditions/context';
@@ -17,21 +19,19 @@ function DatabaseViews({
   iidIndex,
   viewName,
   visibleViewIds,
-  hideConditions = false,
 }: {
   onChangeView: (viewId: string) => void;
   viewId: string;
   iidIndex: string;
   viewName?: string;
   visibleViewIds?: string[];
-  hideConditions?: boolean;
 }) {
   const { childViews, viewIds } = useDatabaseViewsSelector(iidIndex, visibleViewIds);
 
   const value = useMemo(() => {
     return Math.max(
       0,
-      viewIds.findIndex((id) => id === viewId)
+      viewIds.findIndex((id) => id === viewId),
     );
   }, [viewId, viewIds]);
 
@@ -52,11 +52,36 @@ function DatabaseViews({
   const view = useMemo(() => {
     switch (layout) {
       case DatabaseViewLayout.Grid:
-        return <Grid />;
+        return <Grid
+        />;
       case DatabaseViewLayout.Board:
-        return <Board />;
+        return <Board
+        />;
       case DatabaseViewLayout.Calendar:
-        return <Calendar />;
+        return <Calendar
+        />;
+    }
+  }, [layout]);
+
+  const skeleton = useMemo(() => {
+    switch (layout) {
+      case DatabaseViewLayout.Grid:
+        return <GridSkeleton
+          includeTitle={false}
+          includeTabs={false}
+        />;
+      case DatabaseViewLayout.Board:
+        return <KanbanSkeleton
+          includeTitle={false}
+          includeTabs={false}
+        />;
+      case DatabaseViewLayout.Calendar:
+        return <CalendarSkeleton
+          includeTitle={false}
+          includeTabs={false}
+        />;
+      default:
+        return null;
     }
   }, [layout]);
 
@@ -74,15 +99,15 @@ function DatabaseViews({
           selectedViewId={viewId}
           setSelectedViewId={onChangeView}
           viewIds={viewIds}
-          hideConditions={hideConditions}
         />
-        {layout === DatabaseViewLayout.Calendar || hideConditions ? null : <DatabaseConditions />}
+        <DatabaseConditions/>
+
+        <div className={'flex h-full w-full flex-1 flex-col overflow-hidden'}>
+          <Suspense fallback={skeleton}>
+            <ErrorBoundary fallbackRender={ElementFallbackRender}>{view}</ErrorBoundary>
+          </Suspense>
+        </div>
       </DatabaseConditionsContext.Provider>
-      <div className={'flex h-full w-full flex-1 flex-col overflow-hidden'}>
-        <Suspense fallback={<ComponentLoading />}>
-          <ErrorBoundary fallbackRender={ElementFallbackRender}>{view}</ErrorBoundary>
-        </Suspense>
-      </div>
     </>
   );
 }

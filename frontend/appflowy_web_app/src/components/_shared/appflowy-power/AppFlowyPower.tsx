@@ -13,7 +13,6 @@ function AppFlowyPower ({
     <div
       style={{
         width,
-        boxShadow: 'var(--bg-footer) 0px -4px 14px 13px',
       }}
       className={'flex rounded-[16px] transform-gpu bg-bg-body sticky bottom-[-0.5px] w-full flex-col items-center justify-center'}
     >

@@ -1,12 +1,19 @@
-import { GetViewRowsMap, LoadView, LoadViewMeta, ViewLayout, YDoc } from '@/application/collab.type';
+import {
+  UIVariant, ViewComponentProps,
+  ViewLayout,
+  YDoc,
+} from '@/application/types';
 import { usePublishContext } from '@/application/publish';
-import ViewHelmet from '@/components/_shared/helmet/ViewHelmet';
-import ComponentLoading from '@/components/_shared/progress/ComponentLoading';
+import CalendarSkeleton from '@/components/_shared/skeleton/CalendarSkeleton';
+import DocumentSkeleton from '@/components/_shared/skeleton/DocumentSkeleton';
+import GridSkeleton from '@/components/_shared/skeleton/GridSkeleton';
+import KanbanSkeleton from '@/components/_shared/skeleton/KanbanSkeleton';
 import { Document } from '@/components/document';
 import DatabaseView from '@/components/publish/DatabaseView';
 import { useViewMeta } from '@/components/publish/useViewMeta';
-import React, { useMemo } from 'react';
-import { ViewMetaProps } from '@/components/view-meta';
+import React, { useMemo, Suspense } from 'react';
+
+const ViewHelmet = React.lazy(() => import('@/components/_shared/helmet/ViewHelmet'));
 
 export interface CollabViewProps {
   doc?: YDoc;
@@ -26,21 +33,16 @@ function CollabView ({ doc }: CollabViewProps) {
       default:
         return null;
     }
-  }, [layout]) as React.FC<{
-    doc: YDoc;
-    navigateToView?: (viewId: string) => Promise<void>;
-    loadViewMeta?: LoadViewMeta;
-    getViewRowsMap?: GetViewRowsMap;
-    loadView?: LoadView;
-    viewMeta: ViewMetaProps;
-    isTemplateThumb?: boolean;
-  }>;
+  }, [layout]) as React.FC<ViewComponentProps>;
 
   const navigateToView = usePublishContext()?.toView;
   const loadViewMeta = usePublishContext()?.loadViewMeta;
-  const getViewRowsMap = usePublishContext()?.getViewRowsMap;
+  const createRowDoc = usePublishContext()?.createRowDoc;
   const loadView = usePublishContext()?.loadView;
   const isTemplateThumb = usePublishContext()?.isTemplateThumb;
+  const appendBreadcrumb = usePublishContext()?.appendBreadcrumb;
+  const onRendered = usePublishContext()?.onRendered;
+  const rendered = usePublishContext()?.rendered;
 
   const className = useMemo(() => {
     const classList = ['relative w-full flex-1'];
@@ -56,13 +58,35 @@ function CollabView ({ doc }: CollabViewProps) {
     return classList.join(' ');
   }, [isTemplateThumb, layout, layoutClassName]);
 
-  if (!doc || !View) {
-    return <ComponentLoading />;
+  const skeleton = useMemo(() => {
+    switch (layout) {
+      case ViewLayout.Grid:
+        return <GridSkeleton />;
+      case ViewLayout.Board:
+        return <KanbanSkeleton />;
+      case ViewLayout.Calendar:
+        return <CalendarSkeleton />;
+      case ViewLayout.Document:
+        return <DocumentSkeleton />;
+      default:
+        return null;
+    }
+  }, [layout]);
+
+  if (!View) return null;
+
+  if (!doc) {
+    return skeleton;
   }
 
   return (
     <>
-      <ViewHelmet icon={icon} name={name} />
+      {rendered && <Suspense>
+        <ViewHelmet
+          icon={icon}
+          name={name}
+        />
+      </Suspense>}
 
       <div
         style={style}
@@ -70,11 +94,15 @@ function CollabView ({ doc }: CollabViewProps) {
       >
         <View
           doc={doc}
+          readOnly={true}
           loadViewMeta={loadViewMeta}
-          getViewRowsMap={getViewRowsMap}
+          createRowDoc={createRowDoc}
           navigateToView={navigateToView}
           loadView={loadView}
           isTemplateThumb={isTemplateThumb}
+          appendBreadcrumb={appendBreadcrumb}
+          variant={UIVariant.Publish}
+          onRendered={onRendered}
           viewMeta={{
             icon,
             cover,

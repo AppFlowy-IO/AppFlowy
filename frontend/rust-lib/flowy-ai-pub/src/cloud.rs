@@ -1,13 +1,14 @@
 use bytes::Bytes;
 pub use client_api::entity::ai_dto::{
-  AppFlowyOfflineAI, CompletionType, CreateTextChatContext, LLMModel, LocalAIConfig, ModelInfo,
+  AppFlowyOfflineAI, CompletionType, CreateChatContext, LLMModel, LocalAIConfig, ModelInfo,
   RelatedQuestion, RepeatedRelatedQuestion, StringOrMessage,
 };
 pub use client_api::entity::billing_dto::SubscriptionPlan;
-pub use client_api::entity::{
-  ChatAuthorType, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatMetadataContentType,
-  ChatMetadataData, MessageCursor, QAChatMessage, QuestionStreamValue, RepeatedChatMessage,
+pub use client_api::entity::chat_dto::{
+  ChatMessage, ChatMessageMetadata, ChatMessageType, ChatRAGData, ChatSettings, ContextLoader,
+  MessageCursor, RepeatedChatMessage, UpdateChatParams,
 };
+pub use client_api::entity::QuestionStreamValue;
 use client_api::error::AppResponseError;
 use flowy_error::FlowyError;
 use futures::stream::BoxStream;
@@ -26,6 +27,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
     uid: &i64,
     workspace_id: &str,
     chat_id: &str,
+    rag_ids: Vec<String>,
   ) -> Result<(), FlowyError>;
 
   async fn create_question(
@@ -68,6 +70,13 @@ pub trait ChatCloudService: Send + Sync + 'static {
     limit: u64,
   ) -> Result<RepeatedChatMessage, FlowyError>;
 
+  async fn get_question_from_answer_id(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    answer_message_id: i64,
+  ) -> Result<ChatMessage, FlowyError>;
+
   async fn get_related_message(
     &self,
     workspace_id: &str,
@@ -92,16 +101,21 @@ pub trait ChatCloudService: Send + Sync + 'static {
 
   async fn get_local_ai_config(&self, workspace_id: &str) -> Result<LocalAIConfig, FlowyError>;
 
-  async fn create_chat_context(
-    &self,
-    _workspace_id: &str,
-    _chat_context: CreateTextChatContext,
-  ) -> Result<(), FlowyError> {
-    Ok(())
-  }
-
   async fn get_workspace_plan(
     &self,
     workspace_id: &str,
   ) -> Result<Vec<SubscriptionPlan>, FlowyError>;
+
+  async fn get_chat_settings(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+  ) -> Result<ChatSettings, FlowyError>;
+
+  async fn update_chat_settings(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    params: UpdateChatParams,
+  ) -> Result<(), FlowyError>;
 }

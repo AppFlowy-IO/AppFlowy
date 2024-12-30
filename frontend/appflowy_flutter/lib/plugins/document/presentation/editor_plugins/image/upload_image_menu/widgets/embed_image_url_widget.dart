@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/patterns/common_patterns.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class EmbedImageUrlWidget extends StatefulWidget {
   const EmbedImageUrlWidget({
@@ -38,7 +38,7 @@ class _EmbedImageUrlWidgetState extends State<EmbedImageUrlWidget> {
     return Column(
       children: [
         const VSpace(12),
-        PlatformExtension.isDesktop
+        UniversalPlatform.isDesktop
             ? textField
             : SizedBox(
                 height: 42,
@@ -53,23 +53,23 @@ class _EmbedImageUrlWidgetState extends State<EmbedImageUrlWidget> {
         ],
         const VSpace(20),
         SizedBox(
-          height: PlatformExtension.isMobile ? 36 : 32,
+          height: UniversalPlatform.isMobile ? 36 : 32,
           width: 300,
           child: FlowyButton(
             backgroundColor: Theme.of(context).colorScheme.primary,
             hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.9),
             showDefaultBoxDecorationOnMobile: true,
             radius:
-                PlatformExtension.isMobile ? BorderRadius.circular(8) : null,
+                UniversalPlatform.isMobile ? BorderRadius.circular(8) : null,
             margin: const EdgeInsets.all(5),
             text: FlowyText(
               LocaleKeys.document_imageBlock_embedLink_label.tr(),
               lineHeight: 1,
               textAlign: TextAlign.center,
-              color: PlatformExtension.isMobile
+              color: UniversalPlatform.isMobile
                   ? null
                   : Theme.of(context).colorScheme.onPrimary,
-              fontSize: PlatformExtension.isMobile ? 14 : null,
+              fontSize: UniversalPlatform.isMobile ? 14 : null,
             ),
             onTap: submit,
           ),

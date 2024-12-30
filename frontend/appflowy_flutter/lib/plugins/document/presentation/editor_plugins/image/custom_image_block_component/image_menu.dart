@@ -1,27 +1,31 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'dart:ui';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/align_toolbar_item.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu/block_menu_button.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy/util/string_extension.dart';
-import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class ImageMenu extends StatefulWidget {
-  const ImageMenu({super.key, required this.node, required this.state});
+  const ImageMenu({
+    super.key,
+    required this.node,
+    required this.state,
+  });
 
   final Node node;
   final CustomImageBlockComponentState state;
@@ -58,21 +62,17 @@ class _ImageMenuState extends State<ImageMenu> {
             onTap: openFullScreen,
           ),
           const HSpace(4),
-          // disable the copy link button if the image is hosted on appflowy cloud
-          // because the url needs the verification token to be accessible
-          if (!(url?.isAppFlowyCloudUrl ?? false)) ...[
-            MenuBlockButton(
-              tooltip: LocaleKeys.editor_copyLink.tr(),
-              iconData: FlowySvgs.copy_s,
-              onTap: copyImageLink,
-            ),
-            const HSpace(4),
-          ],
+          MenuBlockButton(
+            tooltip: LocaleKeys.editor_copy.tr(),
+            iconData: FlowySvgs.copy_s,
+            onTap: copyImageLink,
+          ),
+          const HSpace(4),
           _ImageAlignButton(node: widget.node, state: widget.state),
           const _Divider(),
           MenuBlockButton(
             tooltip: LocaleKeys.button_delete.tr(),
-            iconData: FlowySvgs.delete_s,
+            iconData: FlowySvgs.trash_s,
             onTap: deleteImage,
           ),
           const HSpace(4),
@@ -81,13 +81,35 @@ class _ImageMenuState extends State<ImageMenu> {
     );
   }
 
-  void copyImageLink() {
+  Future<void> copyImageLink() async {
     if (url != null) {
-      Clipboard.setData(ClipboardData(text: url!));
-      showSnackBarMessage(
-        context,
-        LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
-      );
+      // paste the image url and the image data
+      final imageData = await captureImage();
+
+      try {
+        // /image
+        await getIt<ClipboardService>().setData(
+          ClipboardServiceData(
+            plainText: url!,
+            image: ('png', imageData),
+          ),
+        );
+
+        if (mounted) {
+          showToastNotification(
+            context,
+            message: LocaleKeys.message_copy_success.tr(),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          showToastNotification(
+            context,
+            message: LocaleKeys.message_copy_fail.tr(),
+            type: ToastificationType.error,
+          );
+        }
+      }
     }
   }
 
@@ -122,6 +144,17 @@ class _ImageMenuState extends State<ImageMenu> {
         ),
       ),
     );
+  }
+
+  Future<Uint8List> captureImage() async {
+    final boundary = widget.state.imageKey.currentContext?.findRenderObject()
+        as RenderRepaintBoundary?;
+    final image = await boundary?.toImage();
+    final byteData = await image?.toByteData(format: ImageByteFormat.png);
+    if (byteData == null) {
+      return Uint8List(0);
+    }
+    return byteData.buffer.asUint8List();
   }
 }
 

@@ -1,16 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/recent_views_list.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_field.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_results_list.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class CommandPalette extends InheritedWidget {
   CommandPalette({
@@ -57,7 +56,7 @@ class _CommandPaletteController extends StatefulWidget {
 }
 
 class _CommandPaletteControllerState extends State<_CommandPaletteController> {
-  late final ValueNotifier<bool> _toggleNotifier = widget.notifier;
+  late ValueNotifier<bool> _toggleNotifier = widget.notifier;
   bool _isOpen = false;
 
   @override
@@ -70,6 +69,16 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
   void dispose() {
     _toggleNotifier.removeListener(_onToggle);
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(_CommandPaletteController oldWidget) {
+    if (oldWidget.notifier != widget.notifier) {
+      oldWidget.notifier.removeListener(_onToggle);
+      _toggleNotifier = widget.notifier;
+      _toggleNotifier.addListener(_onToggle);
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   void _onToggle() {
@@ -105,7 +114,7 @@ class _CommandPaletteControllerState extends State<_CommandPaletteController> {
         },
         shortcuts: {
           LogicalKeySet(
-            PlatformExtension.isMacOS
+            UniversalPlatform.isMacOS
                 ? LogicalKeyboardKey.meta
                 : LogicalKeyboardKey.control,
             LogicalKeyboardKey.keyP,

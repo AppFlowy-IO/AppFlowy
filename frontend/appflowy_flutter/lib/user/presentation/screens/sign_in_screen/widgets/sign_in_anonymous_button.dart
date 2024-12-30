@@ -2,12 +2,12 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/anon_user_bloc.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 /// Used in DesktopSignInScreen and MobileSignInScreen
 class SignInAnonymousButton extends StatelessWidget {
@@ -17,7 +17,7 @@ class SignInAnonymousButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = PlatformExtension.isMobile;
+    final isMobile = UniversalPlatform.isMobile;
 
     return BlocBuilder<SignInBloc, SignInState>(
       builder: (context, signInState) {
@@ -89,10 +89,7 @@ class SignInAnonymousButton extends StatelessWidget {
 class SignInAnonymousButtonV2 extends StatelessWidget {
   const SignInAnonymousButtonV2({
     super.key,
-    this.child,
   });
-
-  final Widget? child;
 
   @override
   Widget build(BuildContext context) {
@@ -111,9 +108,7 @@ class SignInAnonymousButtonV2 extends StatelessWidget {
             },
             child: BlocBuilder<AnonUserBloc, AnonUserState>(
               builder: (context, state) {
-                final text = state.anonUsers.isEmpty
-                    ? LocaleKeys.signIn_loginStartWithAnonymous.tr()
-                    : LocaleKeys.signIn_continueAnonymousUser.tr();
+                final text = LocaleKeys.signIn_anonymous.tr();
                 final onTap = state.anonUsers.isEmpty
                     ? () {
                         context
@@ -125,16 +120,14 @@ class SignInAnonymousButtonV2 extends StatelessWidget {
                         final user = bloc.state.anonUsers.first;
                         bloc.add(AnonUserEvent.openAnonUser(user));
                       };
-                return MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    onTap: onTap,
-                    child: child ??
-                        FlowyText(
-                          text,
-                          color: Colors.blue,
-                          fontSize: 12,
-                        ),
+                return FlowyButton(
+                  useIntrinsicWidth: true,
+                  onTap: onTap,
+                  text: FlowyText(
+                    text,
+                    color: Colors.grey,
+                    decoration: TextDecoration.underline,
+                    fontSize: 12,
                   ),
                 );
               },

@@ -6,7 +6,6 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:toastification/toastification.dart';
 
 void handleOpenWorkspaceError(BuildContext context, FlowyError error) {
   Log.error(error);

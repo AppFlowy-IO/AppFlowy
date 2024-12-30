@@ -1,5 +1,10 @@
 @use "src/styles/mixin.scss";
 
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
 .sketch-picker {
   background-color: var(--bg-body) !important;
   border-color: transparent !important;
@@ -8,6 +13,10 @@
 
 .sketch-picker .flexbox-fix {
   border-color: var(--line-divider) !important;
+}
+
+.custom-caret {
+  @apply caret-fill-default;
 }
 
 .sketch-picker [id^='rc-editable-input'] {
@@ -68,8 +77,9 @@ body {
 }
 
 .view-icon {
-  @apply flex w-fit cursor-pointer rounded-lg text-[1.5em];
+  @apply flex w-fit cursor-pointer rounded-lg;
   line-height: 1em;
+  font-size: 1.25em;
   white-space: nowrap;
 }
 
@@ -110,8 +120,12 @@ body {
 }
 
 .grid-row-cell.wrap-cell {
+  .primary-cell {
+    @apply py-2;
+  }
+
   .text-cell {
-    @apply py-2 break-words whitespace-pre-wrap;
+    @apply break-words whitespace-pre-wrap overflow-hidden;
   }
 
   .relation-cell {
@@ -156,5 +170,13 @@ body {
 
 #addComment {
   scroll-margin-top: 60px;
+}
+
+.board-card {
+  border-radius: 6px;
+  border: 1px solid var(--line-card);
+  background: var(--bg-body);
+
+  box-shadow: 0px 2px 8px 2px rgba(31, 35, 41, 0.02), 0px 2px 4px 0px rgba(31, 35, 41, 0.02), 0px 1px 2px -2px rgba(31, 35, 41, 0.02);
 }
 

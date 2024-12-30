@@ -5,6 +5,7 @@ use std::time::Duration;
 
 use crate::af_cloud::define::ServerUser;
 use anyhow::Error;
+use arc_swap::ArcSwap;
 use client_api::collab_sync::ServerCollabMessage;
 use client_api::entity::ai_dto::AIModel;
 use client_api::entity::UserMessage;
@@ -24,14 +25,15 @@ use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
 use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_user_pub::cloud::{UserCloudService, UserUpdate};
 use flowy_user_pub::entities::UserTokenState;
-use lib_dispatch::prelude::af_spawn;
+
 use rand::Rng;
 use semver::Version;
 use tokio::select;
-use tokio::sync::{watch, Mutex};
+use tokio::sync::watch;
+use tokio::task::JoinHandle;
 use tokio_stream::wrappers::WatchStream;
 use tokio_util::sync::CancellationToken;
-use tracing::{error, event, info, warn};
+use tracing::{error, info, warn};
 use uuid::Uuid;
 
 use crate::af_cloud::impls::{
@@ -91,15 +93,8 @@ impl AppFlowyCloudServer {
     );
     let ws_client = Arc::new(ws_client);
     let api_client = Arc::new(api_client);
-    let ws_connect_cancellation_token = Arc::new(Mutex::new(CancellationToken::new()));
 
-    spawn_ws_conn(
-      token_state_rx,
-      &ws_client,
-      ws_connect_cancellation_token,
-      &api_client,
-      &enable_sync,
-    );
+    spawn_ws_conn(token_state_rx, &ws_client, &api_client, &enable_sync);
     Self {
       config,
       client: api_client,
@@ -137,13 +132,15 @@ impl AppFlowyServer for AppFlowyCloudServer {
     let mut token_state_rx = self.client.subscribe_token_state();
     let (watch_tx, watch_rx) = watch::channel(UserTokenState::Init);
     let weak_client = Arc::downgrade(&self.client);
-    af_spawn(async move {
+    tokio::spawn(async move {
       while let Ok(token_state) = token_state_rx.recv().await {
         if let Some(client) = weak_client.upgrade() {
           match token_state {
             TokenState::Refresh => match client.get_token() {
               Ok(token) => {
-                let _ = watch_tx.send(UserTokenState::Refresh { token });
+                if let Err(err) = watch_tx.send(UserTokenState::Refresh { token }) {
+                  error!("Failed to send token after token state changed: {}", err);
+                }
               },
               Err(err) => {
                 error!("Failed to get token after token state changed: {}", err);
@@ -175,7 +172,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
     };
     let mut user_change = self.ws_client.subscribe_user_changed();
     let (tx, rx) = tokio::sync::mpsc::channel(1);
-    af_spawn(async move {
+    tokio::spawn(async move {
       while let Ok(user_message) = user_change.recv().await {
         if let UserMessage::ProfileChange(change) = user_message {
           let user_update = UserUpdate {
@@ -273,7 +270,10 @@ impl AppFlowyServer for AppFlowyCloudServer {
     let client = AFServerImpl {
       client: self.get_client(),
     };
-    Some(Arc::new(AFCloudFileStorageServiceImpl::new(client)))
+    Some(Arc::new(AFCloudFileStorageServiceImpl::new(
+      client,
+      self.config.maximum_upload_file_size_in_bytes,
+    )))
   }
 
   fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {
@@ -292,16 +292,17 @@ impl AppFlowyServer for AppFlowyCloudServer {
 fn spawn_ws_conn(
   mut token_state_rx: TokenStateReceiver,
   ws_client: &Arc<WSClient>,
-  conn_cancellation_token: Arc<Mutex<CancellationToken>>,
   api_client: &Arc<Client>,
   enable_sync: &Arc<AtomicBool>,
 ) {
   let weak_ws_client = Arc::downgrade(ws_client);
   let weak_api_client = Arc::downgrade(api_client);
   let enable_sync = enable_sync.clone();
-  let cloned_conn_cancellation_token = conn_cancellation_token.clone();
 
-  af_spawn(async move {
+  let cancellation_token = Arc::new(ArcSwap::new(Arc::new(CancellationToken::new())));
+  let cloned_cancellation_token = cancellation_token.clone();
+
+  tokio::spawn(async move {
     if let Some(ws_client) = weak_ws_client.upgrade() {
       let mut state_recv = ws_client.subscribe_connect_state();
       while let Ok(state) = state_recv.recv().await {
@@ -310,7 +311,7 @@ fn spawn_ws_conn(
           ConnectState::PingTimeout | ConnectState::Lost => {
             // Try to reconnect if the connection is timed out.
             if weak_api_client.upgrade().is_some() && enable_sync.load(Ordering::SeqCst) {
-              attempt_reconnect(&ws_client, 2, &cloned_conn_cancellation_token).await;
+              attempt_reconnect(&ws_client, 2, &cloned_cancellation_token).await;
             }
           },
           ConnectState::Unauthorized => {
@@ -330,13 +331,13 @@ fn spawn_ws_conn(
   });
 
   let weak_ws_client = Arc::downgrade(ws_client);
-  af_spawn(async move {
+  tokio::spawn(async move {
     while let Ok(token_state) = token_state_rx.recv().await {
       info!("🟢token state: {:?}", token_state);
       match token_state {
         TokenState::Refresh => {
           if let Some(ws_client) = weak_ws_client.upgrade() {
-            attempt_reconnect(&ws_client, 5, &conn_cancellation_token).await;
+            attempt_reconnect(&ws_client, 5, &cancellation_token).await;
           }
         },
         TokenState::Invalid => {
@@ -359,34 +360,29 @@ fn spawn_ws_conn(
 async fn attempt_reconnect(
   ws_client: &Arc<WSClient>,
   minimum_delay_in_secs: u64,
-  conn_cancellation_token: &Arc<Mutex<CancellationToken>>,
-) {
-  // Cancel the previous reconnection attempt
-  let mut cancel_token_lock = conn_cancellation_token.lock().await;
-  cancel_token_lock.cancel();
-
+  cancellation_token: &Arc<ArcSwap<CancellationToken>>,
+) -> JoinHandle<()> {
+  cancellation_token.load_full().cancel();
   let new_cancel_token = CancellationToken::new();
-  *cancel_token_lock = new_cancel_token.clone();
-  drop(cancel_token_lock);
+  cancellation_token.store(Arc::new(new_cancel_token.clone()));
 
-  // randomness in the reconnection attempts to avoid thundering herd problem
   let delay_seconds = rand::thread_rng().gen_range(minimum_delay_in_secs..10);
-  let ws_client = ws_client.clone();
+  let ws_client_clone = ws_client.clone();
   tokio::spawn(async move {
     select! {
-      _ = new_cancel_token.cancelled() => {
-        event!(
-          tracing::Level::TRACE,
-          "🟢websocket reconnection attempt cancelled."
-        );
-      },
-      _ = tokio::time::sleep(Duration::from_secs(delay_seconds)) => {
-        if let Err(e) = ws_client.connect().await {
-          error!("Failed to reconnect websocket: {}", e);
+        // If the new cancellation token is triggered, log cancellation
+        _ = new_cancel_token.cancelled() => {
+            tracing::trace!("🟢 websocket reconnection attempt cancelled.");
+        },
+        _ = tokio::time::sleep(Duration::from_secs(delay_seconds)) => {
+            if let Err(e) = ws_client_clone.connect().await {
+                error!("❌ Failed to reconnect websocket: {}", e);
+            } else {
+                info!("✅ Reconnected websocket successfully.");
+            }
         }
-      }
     }
-  });
+  })
 }
 
 pub trait AFServer: Send + Sync + 'static {

@@ -12,7 +12,11 @@ import 'package:styled_widget/styled_widget.dart';
 
 class FlowyVersionSection extends CustomActionCell {
   @override
-  Widget buildWithContext(BuildContext context, PopoverController controller) {
+  Widget buildWithContext(
+    BuildContext context,
+    PopoverController controller,
+    PopoverMutex? mutex,
+  ) {
     return FutureBuilder(
       future: PackageInfo.fromPlatform(),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {

@@ -4,7 +4,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 
 typedef SelectFieldCallback = void Function(FieldType);
@@ -15,16 +14,16 @@ const List<FieldType> _supportedFieldTypes = [
   FieldType.SingleSelect,
   FieldType.MultiSelect,
   FieldType.DateTime,
+  FieldType.Media,
+  FieldType.URL,
   FieldType.Checkbox,
   FieldType.Checklist,
-  FieldType.URL,
   FieldType.LastEditedTime,
   FieldType.CreatedTime,
   FieldType.Relation,
   FieldType.Summary,
-  // FieldType.Time,
   FieldType.Translate,
-  FieldType.Media,
+  // FieldType.Time,
 ];
 
 class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {
@@ -76,7 +75,7 @@ class FieldTypeCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(fieldType.i18n, lineHeight: 1.0),
+        text: FlowyText(fieldType.i18n, lineHeight: 1.0),
         onTap: () => onSelectField(fieldType),
         leftIcon: FlowySvg(
           fieldType.svgData,

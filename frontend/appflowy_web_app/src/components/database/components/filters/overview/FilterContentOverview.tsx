@@ -1,4 +1,4 @@
-import { YjsDatabaseKey } from '@/application/collab.type';
+import { YjsDatabaseKey } from '@/application/types';
 import {
   CheckboxFilterCondition,
   ChecklistFilterCondition,

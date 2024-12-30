@@ -8,5 +8,12 @@
 	<array>
 		<string>Default</string>
 	</array>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:appflowy.com</string>
+		<string>applinks:appflowy.io</string>
+		<string>applinks:test.appflowy.com</string>
+		<string>applinks:test.appflowy.io</string>
+	</array>
 </dict>
 </plist>

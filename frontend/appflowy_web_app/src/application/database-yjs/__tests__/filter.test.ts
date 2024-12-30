@@ -18,6 +18,7 @@ import {
   withUrlFilter,
 } from '@/application/database-yjs/__tests__/withTestingFilters';
 import { withTestingRows } from '@/application/database-yjs/__tests__/withTestingRows';
+import { RowId, YDoc } from '@/application/types';
 import {
   textFilterCheck,
   numberFilterCheck,
@@ -543,7 +544,7 @@ describe('Database filterBy', () => {
 
   it('should return all rows for empty rowMap', () => {
     const { filters, fields } = withTestingData();
-    const rowMap = new Y.Map() as Y.Map<Y.Doc>;
+    const rowMap: Record<RowId, YDoc> = {};
     const result = filterBy(rows, filters, fields, rowMap)
       .map((row) => row.id)
       .join(',');

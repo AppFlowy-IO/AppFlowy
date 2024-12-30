@@ -1,8 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -13,8 +13,66 @@ import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
+export 'package:toastification/toastification.dart';
+
+class NavigatorCustomDialog extends StatefulWidget {
+  const NavigatorCustomDialog({
+    super.key,
+    required this.child,
+    this.cancel,
+    this.confirm,
+    this.hideCancelButton = false,
+  });
+
+  final Widget child;
+  final void Function()? cancel;
+  final void Function()? confirm;
+  final bool hideCancelButton;
+
+  @override
+  State<NavigatorCustomDialog> createState() => _NavigatorCustomDialog();
+}
+
+class _NavigatorCustomDialog extends State<NavigatorCustomDialog> {
+  @override
+  Widget build(BuildContext context) {
+    return StyledDialog(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          ...[
+            ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 400,
+                maxHeight: 260,
+              ),
+              child: widget.child,
+            ),
+          ],
+          if (widget.confirm != null) ...[
+            const VSpace(20),
+            OkCancelButton(
+              onOkPressed: () {
+                widget.confirm?.call();
+                Navigator.of(context).pop();
+              },
+              onCancelPressed: widget.hideCancelButton
+                  ? null
+                  : () {
+                      widget.cancel?.call();
+                      Navigator.of(context).pop();
+                    },
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
 
 class NavigatorTextFieldDialog extends StatefulWidget {
   const NavigatorTextFieldDialog({
@@ -307,96 +365,209 @@ class OkCancelButton extends StatelessWidget {
 
 void showToastNotification(
   BuildContext context, {
-  required String message,
+  String? message,
+  TextSpan? richMessage,
   String? description,
   ToastificationType type = ToastificationType.success,
   ToastificationCallbacks? callbacks,
   double bottomPadding = 100,
 }) {
-  if (PlatformExtension.isMobile) {
-    toastification.showCustom(
-      alignment: Alignment.bottomCenter,
-      autoCloseDuration: const Duration(milliseconds: 3000),
-      callbacks: callbacks ?? const ToastificationCallbacks(),
-      builder: (_, __) => _MToast(
-        message: message,
-        type: type,
-        bottomPadding: bottomPadding,
-      ),
-    );
-    return;
-  }
-
-  toastification.show(
-    context: context,
-    type: type,
-    style: ToastificationStyle.flat,
-    title: FlowyText(
-      message,
-      maxLines: 3,
-    ),
-    description: description != null
-        ? FlowyText.regular(
-            description,
-            fontSize: 12,
-            lineHeight: 1.2,
-            maxLines: 3,
-          )
-        : null,
+  assert(
+    (message == null) != (richMessage == null),
+    "Exactly one of message or richMessage must be non-null.",
+  );
+  toastification.showCustom(
     alignment: Alignment.bottomCenter,
     autoCloseDuration: const Duration(milliseconds: 3000),
-    showProgressBar: false,
-    backgroundColor: Theme.of(context).colorScheme.surface,
-    borderSide: BorderSide(
-      color: Colors.grey.withOpacity(0.4),
-    ),
+    callbacks: callbacks ?? const ToastificationCallbacks(),
+    builder: (_, item) {
+      return UniversalPlatform.isMobile
+          ? _MobileToast(
+              message: message,
+              type: type,
+              bottomPadding: bottomPadding,
+              description: description,
+            )
+          : DesktopToast(
+              message: message,
+              richMessage: richMessage,
+              type: type,
+              onDismiss: () => toastification.dismiss(item),
+            );
+    },
   );
 }
 
-class _MToast extends StatelessWidget {
-  const _MToast({
-    required this.message,
+class _MobileToast extends StatelessWidget {
+  const _MobileToast({
+    this.message,
     this.type = ToastificationType.success,
     this.bottomPadding = 100,
+    this.description,
   });
 
-  final String message;
+  final String? message;
   final ToastificationType type;
   final double bottomPadding;
+  final String? description;
 
   @override
   Widget build(BuildContext context) {
+    if (message == null) {
+      return const SizedBox.shrink();
+    }
     final hintText = FlowyText.regular(
-      message,
+      message!,
       fontSize: 16.0,
       figmaLineHeight: 18.0,
       color: Colors.white,
       maxLines: 10,
     );
+    final descriptionText = description != null
+        ? FlowyText.regular(
+            description!,
+            fontSize: 12,
+            color: Colors.white,
+            maxLines: 10,
+          )
+        : null;
     return Container(
       alignment: Alignment.bottomCenter,
-      padding: EdgeInsets.only(bottom: bottomPadding, left: 16, right: 16),
+      padding: EdgeInsets.only(
+        bottom: bottomPadding,
+        left: 16,
+        right: 16,
+      ),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 13.0),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 12.0,
+          vertical: 13.0,
+        ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12.0),
           color: const Color(0xE5171717),
         ),
         child: type == ToastificationType.success
-            ? Row(
+            ? Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (type == ToastificationType.success) ...[
-                    const FlowySvg(
-                      FlowySvgs.success_s,
-                      blendMode: null,
-                    ),
-                    const HSpace(8.0),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (type == ToastificationType.success) ...[
+                        const FlowySvg(
+                          FlowySvgs.success_s,
+                          blendMode: null,
+                        ),
+                        const HSpace(8.0),
+                      ],
+                      Expanded(child: hintText),
+                    ],
+                  ),
+                  if (descriptionText != null) ...[
+                    const VSpace(4.0),
+                    descriptionText,
                   ],
-                  Expanded(child: hintText),
                 ],
               )
-            : hintText,
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  hintText,
+                  if (descriptionText != null) ...[
+                    const VSpace(4.0),
+                    descriptionText,
+                  ],
+                ],
+              ),
+      ),
+    );
+  }
+}
+
+@visibleForTesting
+class DesktopToast extends StatelessWidget {
+  const DesktopToast({
+    super.key,
+    this.message,
+    this.richMessage,
+    required this.type,
+    this.onDismiss,
+  });
+
+  final String? message;
+  final TextSpan? richMessage;
+  final ToastificationType type;
+  final void Function()? onDismiss;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 360.0),
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+        margin: const EdgeInsets.only(bottom: 32.0),
+        decoration: BoxDecoration(
+          color: Theme.of(context).isLightMode
+              ? const Color(0xFF333333)
+              : const Color(0xFF363D49),
+          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // icon
+            FlowySvg(
+              switch (type) {
+                ToastificationType.warning => FlowySvgs.toast_warning_filled_s,
+                ToastificationType.success => FlowySvgs.toast_checked_filled_s,
+                ToastificationType.error => FlowySvgs.toast_error_filled_s,
+                _ => throw UnimplementedError(),
+              },
+              size: const Size.square(20.0),
+              blendMode: null,
+            ),
+            const HSpace(8.0),
+            // text
+            Flexible(
+              child: message != null
+                  ? FlowyText(
+                      message!,
+                      maxLines: 2,
+                      figmaLineHeight: 20.0,
+                      overflow: TextOverflow.ellipsis,
+                      color: const Color(0xFFFFFFFF),
+                    )
+                  : RichText(
+                      text: richMessage!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+            ),
+            const HSpace(16.0),
+            // close
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onDismiss,
+                child: const SizedBox.square(
+                  dimension: 24.0,
+                  child: Center(
+                    child: FlowySvg(
+                      FlowySvgs.toast_close_s,
+                      size: Size.square(16.0),
+                      color: Color(0xFFBDBDBD),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -466,6 +637,7 @@ Future<void> showCancelAndConfirmDialog({
   required String title,
   required String description,
   VoidCallback? onConfirm,
+  VoidCallback? onCancel,
   String? confirmLabel,
 }) {
   return showDialog(
@@ -483,6 +655,7 @@ Future<void> showCancelAndConfirmDialog({
             onConfirm: () => onConfirm?.call(),
             confirmLabel: confirmLabel,
             confirmButtonColor: Theme.of(context).colorScheme.primary,
+            onCancel: () => onCancel?.call(),
           ),
         ),
       );
@@ -496,6 +669,7 @@ Future<void> showCustomConfirmDialog({
   required String description,
   required Widget Function(BuildContext) builder,
   VoidCallback? onConfirm,
+  VoidCallback? onCancel,
   String? confirmLabel,
   ConfirmPopupStyle style = ConfirmPopupStyle.onlyOk,
   bool closeOnConfirm = true,
@@ -513,7 +687,9 @@ Future<void> showCustomConfirmDialog({
             title: title,
             description: description,
             onConfirm: () => onConfirm?.call(),
+            onCancel: onCancel,
             confirmLabel: confirmLabel,
+            confirmButtonColor: Theme.of(context).colorScheme.primary,
             style: style,
             closeOnAction: closeOnConfirm,
             child: builder(context),
@@ -528,9 +704,10 @@ Future<void> showCancelAndDeleteDialog({
   required BuildContext context,
   required String title,
   required String description,
-  required Widget Function(BuildContext) builder,
+  Widget Function(BuildContext)? builder,
   VoidCallback? onDelete,
   String? confirmLabel,
+  bool closeOnAction = false,
 }) {
   return showDialog(
     context: context,
@@ -545,10 +722,10 @@ Future<void> showCancelAndDeleteDialog({
             title: title,
             description: description,
             onConfirm: () => onDelete?.call(),
-            closeOnAction: false,
+            closeOnAction: closeOnAction,
             confirmLabel: confirmLabel,
             confirmButtonColor: Theme.of(context).colorScheme.error,
-            child: builder(context),
+            child: builder?.call(context),
           ),
         ),
       );

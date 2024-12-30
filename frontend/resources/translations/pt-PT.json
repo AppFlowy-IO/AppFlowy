@@ -255,8 +255,7 @@
       "inputTextFieldHint": "A sua palavra-chave",
       "historicalUserList": "Histórico de login do utilizador",
       "historicalUserListTooltip": "Esta lista mostrs suas contas anónimas. Pode clicar numa conta para ver os detalhes. Contas anónimas são criadas clicando no botão ‘Começar’",
-      "openHistoricalUser": "Clique para abrir a conta anónima",
-      "supabaseSetting": "Configuração de Supabase"
+      "openHistoricalUser": "Clique para abrir a conta anónima"
     },
     "notifications": {
       "enableNotifications": {

@@ -1,4 +1,4 @@
-import { BlockType } from '@/application/collab.type';
+import { BlockType } from '@/application/types';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { decorateCode } from './utils';
 import { CodeNode } from '@/components/editor/editor.type';

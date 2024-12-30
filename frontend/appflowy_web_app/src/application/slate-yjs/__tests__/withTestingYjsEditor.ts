@@ -6,26 +6,27 @@ import {
   YMeta,
   YSharedRoot,
   YTextMap,
-} from '@/application/collab.type';
+} from '@/application/types';
 import { withYjs } from '@/application/slate-yjs';
 import { YDelta } from '@/application/slate-yjs/utils/convert';
 import { Editor } from 'slate';
 import * as Y from 'yjs';
 import { v4 as uuidv4 } from 'uuid';
 
-export function generateId() {
+export function generateId () {
   return uuidv4();
 }
 
-export function withTestingYjsEditor(editor: Editor, doc: Y.Doc) {
+export function withTestingYjsEditor (editor: Editor, doc: Y.Doc) {
   const yjdEditor = withYjs(editor, doc, {
-    localOrigin: CollabOrigin.LocalSync,
+    localOrigin: CollabOrigin.Local,
+    readOnly: true,
   });
 
   return yjdEditor;
 }
 
-export function getTestingDocData(doc: Y.Doc) {
+export function getTestingDocData (doc: Y.Doc) {
   const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
   const document = sharedRoot.get(YjsEditorKey.document);
   const blocks = document.get(YjsEditorKey.blocks) as YBlocks;
@@ -45,7 +46,7 @@ export function getTestingDocData(doc: Y.Doc) {
   };
 }
 
-export function withTestingYDoc(docId: string) {
+export function withTestingYDoc (docId: string) {
   const doc = new Y.Doc();
   const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
   const document = new Y.Map();
@@ -81,7 +82,7 @@ export interface BlockObject {
   data: string;
 }
 
-export function insertBlock({
+export function insertBlock ({
   doc,
   parentBlockId,
   prevBlockId,

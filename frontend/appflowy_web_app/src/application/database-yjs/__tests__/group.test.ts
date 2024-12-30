@@ -10,7 +10,7 @@ import {
   YjsDatabaseKey,
   YjsEditorKey,
   YMapFieldTypeOption,
-} from '@/application/collab.type';
+} from '@/application/types';
 import { YjsEditor } from '@/application/slate-yjs';
 
 describe('Database group', () => {
@@ -156,8 +156,7 @@ describe('Database group', () => {
 
   it('should handle empty selected ids', () => {
     const { fields, rowMap } = withTestingData();
-    const cell = rowMap
-      .get('1')
+    const cell = rowMap['1']
       ?.getMap(YjsEditorKey.data_section)
       ?.get(YjsEditorKey.database_row)
       ?.get(YjsDatabaseKey.cells)
@@ -193,7 +192,7 @@ describe('Database group', () => {
             { id: '10', height: 37 },
           ],
         ],
-      ])
+      ]),
     );
   });
 });

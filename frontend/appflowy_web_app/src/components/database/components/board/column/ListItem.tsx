@@ -21,13 +21,17 @@ export const ListItem = memo(
           ...style,
           width: 'calc(100% - 2px)',
         }}
-        className={`w-full bg-bg-body`}
+        className={`w-full list-item`}
       >
-        {item?.id ? <Card onResize={onResize} rowId={item.id} groupFieldId={fieldId} /> : null}
+        {item?.id ? <Card
+          onResize={onResize}
+          rowId={item.id}
+          groupFieldId={fieldId}
+        /> : null}
       </div>
     );
   },
-  areEqual
+  areEqual,
 );
 
 export default ListItem;

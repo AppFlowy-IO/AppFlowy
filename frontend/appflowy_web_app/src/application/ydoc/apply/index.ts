@@ -1,4 +1,4 @@
-import { CollabOrigin } from '@/application/collab.type';
+import { CollabOrigin } from '@/application/types';
 import * as Y from 'yjs';
 
 /**

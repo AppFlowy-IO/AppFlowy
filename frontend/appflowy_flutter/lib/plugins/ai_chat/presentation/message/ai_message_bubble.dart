@@ -2,80 +2,125 @@ import 'dart:convert';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/chat_avatar.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/chat_input/chat_input.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/chat_popmenu.dart';
+import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_edit_document_service.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/chat_input/chat_mention_page_bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart';
-import 'package:styled_widget/styled_widget.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:go_router/go_router.dart';
+import 'package:universal_platform/universal_platform.dart';
 
-const _leftPadding = 16.0;
+import '../chat_avatar.dart';
+import '../layout_define.dart';
+import 'ai_message_action_bar.dart';
+import 'message_util.dart';
 
+/// Wraps an AI response message with the avatar and actions. On desktop,
+/// the actions will be displayed below the response if the response is the
+/// last message in the chat. For the others, the actions will be shown on hover
+/// On mobile, the actions will be displayed in a bottom sheet on long press.
 class ChatAIMessageBubble extends StatelessWidget {
   const ChatAIMessageBubble({
     super.key,
     required this.message,
     required this.child,
-    this.customMessageType,
+    required this.showActions,
+    this.isLastMessage = false,
+    this.onRegenerate,
   });
 
   final Message message;
   final Widget child;
-  final OnetimeShotType? customMessageType;
+  final bool showActions;
+  final bool isLastMessage;
+  final void Function()? onRegenerate;
 
   @override
   Widget build(BuildContext context) {
-    const padding = EdgeInsets.symmetric(horizontal: _leftPadding);
-    final childWithPadding = Padding(padding: padding, child: child);
-    final widget = isMobile
-        ? _wrapPopMenu(childWithPadding)
-        : _wrapHover(childWithPadding);
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    final avatarAndMessage = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const ChatBorderedCircleAvatar(
-          child: FlowySvg(
-            FlowySvgs.flowy_logo_s,
-            size: Size.square(20),
-            blendMode: null,
-          ),
-        ),
-        Expanded(child: widget),
+        const ChatAIAvatar(),
+        const HSpace(DesktopAIConvoSizes.avatarAndChatBubbleSpacing),
+        Expanded(child: child),
       ],
     );
+
+    return showActions
+        ? UniversalPlatform.isMobile
+            ? _wrapPopMenu(avatarAndMessage)
+            : isLastMessage
+                ? _wrapBottomActions(avatarAndMessage)
+                : _wrapHover(avatarAndMessage)
+        : avatarAndMessage;
   }
 
-  ChatAIMessageHover _wrapHover(Padding child) {
-    return ChatAIMessageHover(
+  Widget _wrapBottomActions(Widget child) {
+    return ChatAIBottomInlineActions(
       message: message,
-      customMessageType: customMessageType,
+      onRegenerate: onRegenerate,
       child: child,
     );
   }
 
-  ChatPopupMenu _wrapPopMenu(Padding childWithPadding) {
-    return ChatPopupMenu(
-      onAction: (action) {
-        if (action == ChatMessageAction.copy && message is TextMessage) {
-          Clipboard.setData(ClipboardData(text: (message as TextMessage).text));
-          showMessageToast(LocaleKeys.grid_row_copyProperty.tr());
-        }
-      },
-      builder: (context) => childWithPadding,
+  Widget _wrapHover(Widget child) {
+    return ChatAIMessageHover(
+      message: message,
+      onRegenerate: onRegenerate,
+      child: child,
+    );
+  }
+
+  Widget _wrapPopMenu(Widget child) {
+    return ChatAIMessagePopup(
+      message: message,
+      onRegenerate: onRegenerate,
+      child: child,
+    );
+  }
+}
+
+class ChatAIBottomInlineActions extends StatelessWidget {
+  const ChatAIBottomInlineActions({
+    super.key,
+    required this.child,
+    required this.message,
+    this.onRegenerate,
+  });
+
+  final Widget child;
+  final Message message;
+  final void Function()? onRegenerate;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        child,
+        const VSpace(16.0),
+        Padding(
+          padding: const EdgeInsetsDirectional.only(
+            start: DesktopAIConvoSizes.avatarSize +
+                DesktopAIConvoSizes.avatarAndChatBubbleSpacing,
+          ),
+          child: AIMessageActionBar(
+            message: message,
+            showDecoration: false,
+            onRegenerate: onRegenerate,
+          ),
+        ),
+        const VSpace(32.0),
+      ],
     );
   }
 }
@@ -85,119 +130,268 @@ class ChatAIMessageHover extends StatefulWidget {
     super.key,
     required this.child,
     required this.message,
-    this.customMessageType,
+    this.onRegenerate,
   });
 
   final Widget child;
   final Message message;
-  final bool autoShowHover = true;
-  final OnetimeShotType? customMessageType;
+  final void Function()? onRegenerate;
 
   @override
   State<ChatAIMessageHover> createState() => _ChatAIMessageHoverState();
 }
 
 class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
-  bool _isHover = false;
+  final controller = OverlayPortalController();
+  final layerLink = LayerLink();
+
+  bool hoverBubble = false;
+  bool hoverActionBar = false;
+  bool overrideVisibility = false;
+
+  ScrollPosition? scrollPosition;
 
   @override
   void initState() {
     super.initState();
-    _isHover = widget.autoShowHover ? false : true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      addScrollListener();
+      controller.show();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> children = [
-      DecoratedBox(
-        decoration: const BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: Corners.s6Border,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 30),
+    return MouseRegion(
+      opaque: false,
+      onEnter: (_) {
+        if (!hoverBubble && isBottomOfWidgetVisible(context)) {
+          setState(() => hoverBubble = true);
+        }
+      },
+      onHover: (_) {
+        if (!hoverBubble && isBottomOfWidgetVisible(context)) {
+          setState(() => hoverBubble = true);
+        }
+      },
+      onExit: (_) {
+        if (hoverBubble) {
+          setState(() => hoverBubble = false);
+        }
+      },
+      child: OverlayPortal(
+        controller: controller,
+        overlayChildBuilder: (_) {
+          return CompositedTransformFollower(
+            showWhenUnlinked: false,
+            link: layerLink,
+            targetAnchor: Alignment.bottomLeft,
+            offset: const Offset(
+              DesktopAIConvoSizes.avatarSize +
+                  DesktopAIConvoSizes.avatarAndChatBubbleSpacing,
+              0,
+            ),
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: MouseRegion(
+                opaque: false,
+                onEnter: (_) {
+                  if (!hoverActionBar && isBottomOfWidgetVisible(context)) {
+                    setState(() => hoverActionBar = true);
+                  }
+                },
+                onExit: (_) {
+                  if (hoverActionBar) {
+                    setState(() => hoverActionBar = false);
+                  }
+                },
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: 784,
+                    maxHeight: DesktopAIConvoSizes.actionBarIconSize +
+                        DesktopAIConvoSizes.hoverActionBarPadding.vertical,
+                  ),
+                  alignment: Alignment.topLeft,
+                  child: hoverBubble || hoverActionBar || overrideVisibility
+                      ? AIMessageActionBar(
+                          message: widget.message,
+                          showDecoration: true,
+                          onRegenerate: widget.onRegenerate,
+                          onOverrideVisibility: (visibility) {
+                            overrideVisibility = visibility;
+                          },
+                        )
+                      : null,
+                ),
+              ),
+            ),
+          );
+        },
+        child: CompositedTransformTarget(
+          link: layerLink,
           child: widget.child,
         ),
-      ),
-    ];
-
-    if (_isHover) {
-      children.addAll(_buildOnHoverItems());
-    }
-
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      opaque: false,
-      onEnter: (p) => setState(() {
-        if (widget.autoShowHover) {
-          _isHover = true;
-        }
-      }),
-      onExit: (p) => setState(() {
-        if (widget.autoShowHover) {
-          _isHover = false;
-        }
-      }),
-      child: Stack(
-        alignment: AlignmentDirectional.centerStart,
-        children: children,
       ),
     );
   }
 
-  List<Widget> _buildOnHoverItems() {
-    final List<Widget> children = [];
-    if (widget.customMessageType != null) {
-      //
-    } else {
-      if (widget.message is TextMessage) {
-        children.add(
-          CopyButton(
-            textMessage: widget.message as TextMessage,
-          ).positioned(left: _leftPadding, bottom: 0),
-        );
-      }
+  void addScrollListener() {
+    if (!mounted) {
+      return;
     }
+    scrollPosition = Scrollable.maybeOf(context)?.position;
+    scrollPosition?.addListener(handleScroll);
+  }
 
-    return children;
+  void handleScroll() {
+    if (!mounted) {
+      return;
+    }
+    if ((hoverActionBar || hoverBubble) && !isBottomOfWidgetVisible(context)) {
+      setState(() {
+        hoverBubble = false;
+        hoverActionBar = false;
+      });
+    }
+  }
+
+  bool isBottomOfWidgetVisible(BuildContext context) {
+    if (Scrollable.maybeOf(context) == null) {
+      return false;
+    }
+    final scrollableRenderBox =
+        Scrollable.of(context).context.findRenderObject() as RenderBox;
+    final scrollableHeight = scrollableRenderBox.size.height;
+    final scrollableOffset = scrollableRenderBox.localToGlobal(Offset.zero);
+
+    final messageRenderBox = context.findRenderObject() as RenderBox;
+    final messageOffset = messageRenderBox.localToGlobal(Offset.zero);
+    final messageHeight = messageRenderBox.size.height;
+
+    return messageOffset.dy +
+            messageHeight +
+            DesktopAIConvoSizes.actionBarIconSize +
+            DesktopAIConvoSizes.hoverActionBarPadding.vertical <=
+        scrollableOffset.dy + scrollableHeight;
+  }
+
+  @override
+  void dispose() {
+    scrollPosition?.isScrollingNotifier.removeListener(handleScroll);
+    super.dispose();
   }
 }
 
-class CopyButton extends StatelessWidget {
-  const CopyButton({
+class ChatAIMessagePopup extends StatelessWidget {
+  const ChatAIMessagePopup({
     super.key,
-    required this.textMessage,
+    required this.child,
+    required this.message,
+    this.onRegenerate,
   });
-  final TextMessage textMessage;
+
+  final Widget child;
+  final Message message;
+  final void Function()? onRegenerate;
 
   @override
   Widget build(BuildContext context) {
-    return FlowyTooltip(
-      message: LocaleKeys.settings_menu_clickToCopy.tr(),
-      child: FlowyIconButton(
-        width: 24,
-        hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        fillColor: Theme.of(context).cardColor,
-        icon: const FlowySvg(
-          FlowySvgs.copy_s,
-          size: Size.square(20),
-        ),
-        onPressed: () async {
-          final document = customMarkdownToDocument(textMessage.text);
-          await getIt<ClipboardService>().setData(
-            ClipboardServiceData(
-              plainText: textMessage.text,
-              inAppJson: jsonEncode(document.toJson()),
-            ),
-          );
-          if (context.mounted) {
-            showToastNotification(
-              context,
-              message: LocaleKeys.grid_url_copiedNotification.tr(),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onLongPress: () {
+        showMobileBottomSheet(
+          context,
+          showDragHandle: true,
+          backgroundColor: AFThemeExtension.of(context).background,
+          builder: (bottomSheetContext) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const VSpace(16.0),
+                _copyButton(context, bottomSheetContext),
+                const Divider(height: 8.5, thickness: 0.5),
+                _regenerateButton(context),
+                const Divider(height: 8.5, thickness: 0.5),
+                _saveToPageButton(context),
+                const Divider(height: 8.5, thickness: 0.5),
+              ],
             );
-          }
-        },
-      ),
+          },
+        );
+      },
+      child: child,
+    );
+  }
+
+  Widget _copyButton(BuildContext context, BuildContext bottomSheetContext) {
+    return MobileQuickActionButton(
+      onTap: () async {
+        if (message is! TextMessage) {
+          return;
+        }
+        final textMessage = message as TextMessage;
+        final document = customMarkdownToDocument(textMessage.text);
+        await getIt<ClipboardService>().setData(
+          ClipboardServiceData(
+            plainText: textMessage.text,
+            inAppJson: jsonEncode(document.toJson()),
+          ),
+        );
+        if (bottomSheetContext.mounted) {
+          Navigator.of(bottomSheetContext).pop();
+        }
+        if (context.mounted) {
+          showToastNotification(
+            context,
+            message: LocaleKeys.grid_url_copiedNotification.tr(),
+          );
+        }
+      },
+      icon: FlowySvgs.copy_s,
+      iconSize: const Size.square(20),
+      text: LocaleKeys.button_copy.tr(),
+    );
+  }
+
+  Widget _regenerateButton(BuildContext context) {
+    return MobileQuickActionButton(
+      onTap: () {
+        onRegenerate?.call();
+        Navigator.of(context).pop();
+      },
+      icon: FlowySvgs.ai_undo_s,
+      iconSize: const Size.square(20),
+      text: LocaleKeys.chat_regenerate.tr(),
+    );
+  }
+
+  Widget _saveToPageButton(BuildContext context) {
+    return MobileQuickActionButton(
+      onTap: () async {
+        final selectedView = await showPageSelectorSheet(
+          context,
+          filter: (view) =>
+              !view.isSpace &&
+              view.layout.isDocumentView &&
+              view.parentViewId != view.id,
+        );
+        if (selectedView == null) {
+          return;
+        }
+
+        await ChatEditDocumentService.addMessageToPage(
+          selectedView.id,
+          message as TextMessage,
+        );
+
+        if (context.mounted) {
+          context.pop();
+          openPageFromMessage(context, selectedView);
+        }
+      },
+      icon: FlowySvgs.ai_add_to_page_s,
+      iconSize: const Size.square(20),
+      text: LocaleKeys.chat_addToPageButton.tr(),
     );
   }
 }

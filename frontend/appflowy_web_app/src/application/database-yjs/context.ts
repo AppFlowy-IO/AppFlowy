@@ -1,87 +1,102 @@
 import {
-  GetViewRowsMap,
+  CreateRowDoc,
   LoadView,
-  LoadViewMeta,
+  LoadViewMeta, RowId,
   YDatabase,
   YDatabaseRow,
   YDoc,
   YjsDatabaseKey,
   YjsEditorKey,
-} from '@/application/collab.type';
+} from '@/application/types';
 import { createContext, useContext } from 'react';
-import * as Y from 'yjs';
 
 export interface DatabaseContextState {
   readOnly: boolean;
   databaseDoc: YDoc;
   iidIndex: string;
   viewId: string;
-  rowDocMap: Y.Map<YDoc>;
+  rowDocMap: Record<RowId, YDoc> | null;
   isDatabaseRowPage?: boolean;
+  scrollLeft?: number;
+  isDocumentBlock?: boolean;
   navigateToRow?: (rowId: string) => void;
   loadView?: LoadView;
-  getViewRowsMap?: GetViewRowsMap;
+  createRowDoc?: CreateRowDoc;
   loadViewMeta?: LoadViewMeta;
-  navigateToView?: (viewId: string) => Promise<void>;
+  navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
+  onRendered?: (height: number) => void;
+  showActions?: boolean;
 }
 
 export const DatabaseContext = createContext<DatabaseContextState | null>(null);
 
+export const useDatabaseContext = () => {
+  const context = useContext(DatabaseContext);
+
+  if (!context) {
+    throw new Error('DatabaseContext is not provided');
+  }
+
+  return context;
+};
+
 export const useDatabase = () => {
-  const database = useContext(DatabaseContext)
-    ?.databaseDoc?.getMap(YjsEditorKey.data_section)
+  const database = useDatabaseContext()
+    .databaseDoc?.getMap(YjsEditorKey.data_section)
     .get(YjsEditorKey.database) as YDatabase;
 
   return database;
 };
 
-export function useDatabaseViewId() {
-  return useContext(DatabaseContext)?.viewId;
-}
-
 export const useNavigateToRow = () => {
-  return useContext(DatabaseContext)?.navigateToRow;
+  return useDatabaseContext().navigateToRow;
 };
 
 export const useRowDocMap = () => {
-  return useContext(DatabaseContext)?.rowDocMap;
+  return useDatabaseContext().rowDocMap;
 };
 
 export const useIsDatabaseRowPage = () => {
-  return useContext(DatabaseContext)?.isDatabaseRowPage;
+  return useDatabaseContext().isDatabaseRowPage;
 };
 
 export const useRow = (rowId: string) => {
   const rows = useRowDocMap();
 
-  return rows?.get(rowId)?.getMap(YjsEditorKey.data_section);
+  return rows?.[rowId]?.getMap(YjsEditorKey.data_section);
 };
 
 export const useRowData = (rowId: string) => {
   return useRow(rowId)?.get(YjsEditorKey.database_row) as YDatabaseRow;
 };
 
-export const useViewId = () => {
-  const context = useContext(DatabaseContext);
+export const useDatabaseViewId = () => {
+  const context = useDatabaseContext();
 
   return context?.viewId;
 };
 
 export const useReadOnly = () => {
-  const context = useContext(DatabaseContext);
+  const context = useDatabaseContext();
 
-  return context?.readOnly;
+  return context?.readOnly || true;
 };
 
 export const useDatabaseView = () => {
   const database = useDatabase();
-  const viewId = useViewId();
+  const viewId = useDatabaseViewId();
 
   return viewId ? database?.get(YjsDatabaseKey.views)?.get(viewId) : undefined;
 };
 
-export function useDatabaseFields() {
+export function useDatabaseFields () {
   const database = useDatabase();
 
   return database.get(YjsDatabaseKey.fields);
 }
+
+export const useDatabaseSelectedView = (viewId: string) => {
+  const database = useDatabase();
+
+  return database.get(YjsDatabaseKey.views).get(viewId);
+};

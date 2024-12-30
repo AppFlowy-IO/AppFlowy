@@ -26,7 +26,7 @@ class SettingsNotificationsView extends StatelessWidget {
               trailing: [
                 Toggle(
                   value: state.isNotificationsEnabled,
-                  onChanged: (value) => context
+                  onChanged: (_) => context
                       .read<NotificationSettingsCubit>()
                       .toggleNotificationsEnabled(),
                 ),

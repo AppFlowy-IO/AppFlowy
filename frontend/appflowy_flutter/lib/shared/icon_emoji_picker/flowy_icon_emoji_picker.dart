@@ -2,13 +2,12 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/icon.pbenum.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/icon.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart' hide Icon;
-
-import 'icon.dart';
+import 'package:flutter/services.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 extension ToProto on FlowyIconType {
   ViewIconTypePB toProto() {
@@ -23,40 +22,96 @@ extension ToProto on FlowyIconType {
   }
 }
 
+extension FromProto on ViewIconTypePB {
+  FlowyIconType fromProto() {
+    switch (this) {
+      case ViewIconTypePB.Emoji:
+        return FlowyIconType.emoji;
+      case ViewIconTypePB.Icon:
+        return FlowyIconType.icon;
+      case ViewIconTypePB.Url:
+        return FlowyIconType.custom;
+      default:
+        return FlowyIconType.custom;
+    }
+  }
+}
+
+extension ToEmojiIconData on ViewIconPB {
+  EmojiIconData toEmojiIconData() => EmojiIconData(ty.fromProto(), value);
+}
+
 enum FlowyIconType {
   emoji,
   icon,
   custom;
 }
 
-class EmojiPickerResult {
-  factory EmojiPickerResult.none() =>
-      const EmojiPickerResult(FlowyIconType.icon, '');
+extension FlowyIconTypeToPickerTabType on FlowyIconType {
+  PickerTabType? toPickerTabType() => name.toPickerTabType();
+}
 
-  factory EmojiPickerResult.emoji(String emoji) =>
-      EmojiPickerResult(FlowyIconType.emoji, emoji);
+class EmojiIconData {
+  factory EmojiIconData.none() => const EmojiIconData(FlowyIconType.icon, '');
 
-  const EmojiPickerResult(
+  factory EmojiIconData.emoji(String emoji) =>
+      EmojiIconData(FlowyIconType.emoji, emoji);
+
+  factory EmojiIconData.icon(IconsData icon) =>
+      EmojiIconData(FlowyIconType.icon, icon.iconString);
+
+  const EmojiIconData(
     this.type,
     this.emoji,
   );
 
   final FlowyIconType type;
   final String emoji;
+
+  static EmojiIconData fromViewIconPB(ViewIconPB v) {
+    return EmojiIconData(v.ty.fromProto(), v.value);
+  }
+
+  ViewIconPB toViewIcon() {
+    return ViewIconPB()
+      ..ty = type.toProto()
+      ..value = emoji;
+  }
+
+  bool get isEmpty => emoji.isEmpty;
+
+  bool get isNotEmpty => emoji.isNotEmpty;
+}
+
+class SelectedEmojiIconResult {
+  SelectedEmojiIconResult(this.data, this.keepOpen);
+
+  final EmojiIconData data;
+  final bool keepOpen;
+
+  FlowyIconType get type => data.type;
+
+  String get emoji => data.emoji;
+}
+
+extension EmojiIconDataToSelectedResultExtension on EmojiIconData {
+  SelectedEmojiIconResult toSelectedResult({bool keepOpen = false}) =>
+      SelectedEmojiIconResult(this, keepOpen);
 }
 
 class FlowyIconEmojiPicker extends StatefulWidget {
   const FlowyIconEmojiPicker({
     super.key,
     this.onSelectedEmoji,
-    this.onSelectedIcon,
-    this.tabs = const [PickerTabType.emoji],
+    this.initialType,
+    this.enableBackgroundColorSelection = true,
+    this.tabs = const [PickerTabType.emoji, PickerTabType.icon],
   });
 
-  final void Function(EmojiPickerResult result)? onSelectedEmoji;
-  final void Function(IconGroup? group, Icon? icon, String? color)?
-      onSelectedIcon;
+  final ValueChanged<SelectedEmojiIconResult>? onSelectedEmoji;
+  final bool enableBackgroundColorSelection;
   final List<PickerTabType> tabs;
+  final PickerTabType? initialType;
 
   @override
   State<FlowyIconEmojiPicker> createState() => _FlowyIconEmojiPickerState();
@@ -64,11 +119,22 @@ class FlowyIconEmojiPicker extends StatefulWidget {
 
 class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
     with SingleTickerProviderStateMixin {
-  late final controller = TabController(
-    length: widget.tabs.length,
-    vsync: this,
-  );
+  late TabController controller;
   int currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    final initialType = widget.initialType;
+    if (initialType != null) {
+      currentIndex = widget.tabs.indexOf(initialType);
+    }
+    controller = TabController(
+      initialIndex: currentIndex,
+      length: widget.tabs.length,
+      vsync: this,
+    );
+  }
 
   @override
   void dispose() {
@@ -95,14 +161,8 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
               ),
               _RemoveIconButton(
                 onTap: () {
-                  final currentTab = widget.tabs[currentIndex];
-                  if (currentTab == PickerTabType.emoji) {
-                    widget.onSelectedEmoji?.call(
-                      EmojiPickerResult.none(),
-                    );
-                  } else {
-                    widget.onSelectedIcon?.call(null, null, null);
-                  }
+                  widget.onSelectedEmoji
+                      ?.call(EmojiIconData.none().toSelectedResult());
                 },
               ),
             ],
@@ -128,15 +188,19 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
 
   Widget _buildEmojiPicker() {
     return FlowyEmojiPicker(
+      ensureFocus: true,
       emojiPerLine: _getEmojiPerLine(context),
-      onEmojiSelected: (_, emoji) => widget.onSelectedEmoji?.call(
-        EmojiPickerResult.emoji(emoji),
-      ),
+      onEmojiSelected: (r) {
+        widget.onSelectedEmoji?.call(
+          EmojiIconData.emoji(r.emoji).toSelectedResult(keepOpen: r.isRandom),
+        );
+        SystemChannels.textInput.invokeMethod('TextInput.hide');
+      },
     );
   }
 
   int _getEmojiPerLine(BuildContext context) {
-    if (PlatformExtension.isDesktopOrWeb) {
+    if (UniversalPlatform.isDesktopOrWeb) {
       return 9;
     }
     final width = MediaQuery.of(context).size.width;
@@ -145,9 +209,13 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
 
   Widget _buildIconPicker() {
     return FlowyIconPicker(
-      onSelectedIcon: (iconGroup, icon, color) {
-        debugPrint('icon: ${icon.toJson()}, color: $color');
-        widget.onSelectedIcon?.call(iconGroup, icon, color);
+      ensureFocus: true,
+      enableBackgroundColorSelection: widget.enableBackgroundColorSelection,
+      onSelectedIcon: (r) {
+        widget.onSelectedEmoji?.call(
+          r.data.toEmojiIconData().toSelectedResult(keepOpen: r.isRandom),
+        );
+        SystemChannels.textInput.invokeMethod('TextInput.hide');
       },
     );
   }

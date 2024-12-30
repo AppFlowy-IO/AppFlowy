@@ -42,7 +42,7 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
           emit(state.copyWith(objects: e.trash));
         },
         putback: (e) async {
-          final result = await _service.putback(e.trashId);
+          final result = await TrashService.putback(e.trashId);
           await _handleResult(result, emit);
         },
         delete: (e) async {

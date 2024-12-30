@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use collab_database::entity::SelectOption;
+use collab_database::fields::select_type_option::{SelectOption, SingleSelectTypeOption};
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{new_cell_builder, Cell, Cells, Row};
 use flowy_error::{FlowyError, FlowyResult};
@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use crate::entities::{FieldType, GroupPB, GroupRowsNotificationPB, InsertedGroupPB};
 use crate::services::cell::insert_select_option_cell;
 use crate::services::field::{
-  SelectOptionCellDataParser, SelectTypeOptionSharedAction, SingleSelectTypeOption, TypeOption,
+  SelectOptionCellDataParser, SelectTypeOptionSharedAction, TypeOption,
 };
 use crate::services::group::action::GroupCustomize;
 use crate::services::group::controller::BaseGroupController;
@@ -116,6 +116,7 @@ impl GroupCustomize for SingleSelectGroupController {
     {
       // Remove the option if the group is found
       new_type_option.options.remove(option_index);
+      self.context.delete_group(group_id)?;
       Ok(Some(new_type_option.into()))
     } else {
       Ok(None)

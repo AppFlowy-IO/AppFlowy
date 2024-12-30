@@ -1,5 +1,5 @@
 use crate::user::af_cloud_test::util::get_synced_workspaces;
-use event_integration_test::user_event::user_localhost_af_cloud;
+use event_integration_test::user_event::use_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 
 #[tokio::test]
@@ -35,7 +35,7 @@ async fn af_cloud_invite_workspace_member() {
 
 #[tokio::test]
 async fn af_cloud_add_workspace_member_test() {
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
   let test_1 = EventIntegrationTest::new().await;
   let user_1 = test_1.af_cloud_sign_up().await;
   let workspace_id_1 = test_1.get_current_workspace().await.id;
@@ -57,7 +57,7 @@ async fn af_cloud_add_workspace_member_test() {
 
 #[tokio::test]
 async fn af_cloud_delete_workspace_member_test() {
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
   let test_1 = EventIntegrationTest::new().await;
   let user_1 = test_1.af_cloud_sign_up().await;
   let workspace_id_1 = test_1.get_current_workspace().await.id;
@@ -78,7 +78,7 @@ async fn af_cloud_delete_workspace_member_test() {
 
 #[tokio::test]
 async fn af_cloud_leave_workspace_test() {
-  user_localhost_af_cloud().await;
+  use_localhost_af_cloud().await;
   let test_1 = EventIntegrationTest::new().await;
   test_1.af_cloud_sign_up().await;
   let workspace_id_1 = test_1.get_current_workspace().await.id;

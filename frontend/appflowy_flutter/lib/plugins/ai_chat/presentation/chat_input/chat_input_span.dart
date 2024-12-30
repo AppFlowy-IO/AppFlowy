@@ -1,15 +1,18 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.dart';
+import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:extended_text_library/extended_text_library.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-
-import '../../application/chat_input_action_control.dart';
 
 class ChatInputTextSpanBuilder extends SpecialTextSpanBuilder {
   ChatInputTextSpanBuilder({
-    required this.inputActionControl,
+    required this.inputControlCubit,
+    this.specialTextStyle,
   });
 
-  final ChatInputActionControl inputActionControl;
+  final ChatInputControlCubit inputControlCubit;
+  final TextStyle? specialTextStyle;
 
   @override
   SpecialText? createSpecialText(
@@ -22,53 +25,54 @@ class ChatInputTextSpanBuilder extends SpecialTextSpanBuilder {
       return null;
     }
 
-    //index is end index of start flag, so text start index should be index-(flag.length-1)
-    if (isStart(flag, AtText.flag)) {
-      return AtText(
-        inputActionControl,
-        textStyle,
-        onTap,
-        start: index! - (AtText.flag.length - 1),
-      );
+    if (!isStart(flag, AtText.flag)) {
+      return null;
     }
-    return null;
+
+    // index is at the end of the start flag, so the start index should be index - (flag.length - 1)
+    return AtText(
+      inputControlCubit,
+      specialTextStyle ?? textStyle,
+      onTap,
+      // scrubbing over text is kinda funky
+      start: index! - (AtText.flag.length - 1),
+    );
   }
 }
 
 class AtText extends SpecialText {
   AtText(
-    this.inputActionControl,
+    this.inputControlCubit,
     TextStyle? textStyle,
     SpecialTextGestureTapCallback? onTap, {
     this.start,
   }) : super(flag, '', textStyle, onTap: onTap);
+
   static const String flag = '@';
+
   final int? start;
-  final ChatInputActionControl inputActionControl;
+  final ChatInputControlCubit inputControlCubit;
 
   @override
-  bool isEnd(String value) {
-    return inputActionControl.tags.contains(value);
-  }
+  bool isEnd(String value) => inputControlCubit.selectedViewIds.contains(value);
 
   @override
   InlineSpan finishText() {
-    final TextStyle? textStyle =
-        this.textStyle?.copyWith(color: Colors.blue, fontSize: 15.0);
+    final String actualText = toString();
 
-    final String atText = toString();
+    final viewName = inputControlCubit.allViews
+            .firstWhereOrNull((view) => view.id == actualText.substring(1))
+            ?.name ??
+        "";
+    final nonEmptyName = viewName.isEmpty
+        ? LocaleKeys.document_title_placeholder.tr()
+        : viewName;
 
     return SpecialTextSpan(
-      text: atText,
-      actualText: atText,
+      text: "@$nonEmptyName",
+      actualText: actualText,
       start: start!,
       style: textStyle,
-      recognizer: (TapGestureRecognizer()
-        ..onTap = () {
-          if (onTap != null) {
-            onTap!(atText);
-          }
-        }),
     );
   }
 }

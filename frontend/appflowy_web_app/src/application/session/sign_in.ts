@@ -18,7 +18,7 @@ export function withSignIn() {
     // eslint-disable-next-line
     _target: any,
     _propertyKey: string,
-    descriptor: PropertyDescriptor
+    descriptor: PropertyDescriptor,
   ) {
     const originalMethod = descriptor.value;
 
@@ -45,6 +45,6 @@ export function afterAuth() {
 
   if (redirectTo) {
     clearRedirectTo();
-    window.location.href = redirectTo;
+    window.location.href = decodeURIComponent(redirectTo);
   }
 }

@@ -63,7 +63,7 @@ final ToolbarItem inlineMathEquationItem = ToolbarItem(
             node,
             selection.startIndex,
             selection.length,
-            '\$',
+            MentionBlockKeys.mentionChar,
             attributes: {
               InlineMathEquationKeys.formula: text,
             },

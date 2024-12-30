@@ -1,5 +1,5 @@
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class DraggableItem<T extends Object> extends StatefulWidget {
   const DraggableItem({
@@ -146,7 +146,7 @@ class _Draggable<T extends Object> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PlatformExtension.isMobile
+    return UniversalPlatform.isMobile
         ? LongPressDraggable<T>(
             data: data,
             feedback: feedback,

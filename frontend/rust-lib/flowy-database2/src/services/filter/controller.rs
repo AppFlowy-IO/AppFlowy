@@ -7,9 +7,12 @@ use collab::lock::RwLock;
 use collab_database::database::gen_database_filter_id;
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Cells, Row, RowDetail, RowId};
+use collab_database::template::timestamp_parse::TimestampCellData;
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use lib_infra::priority_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
+use rayon::prelude::*;
+
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock as TokioRwLock;
 use tracing::{error, trace};
@@ -32,7 +35,7 @@ pub trait FilterDelegate: Send + Sync + 'static {
 }
 
 pub trait PreFillCellsWithFilter {
-  fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool);
+  fn get_compliant_cell(&self, field: &Field) -> Option<Cell>;
 }
 
 pub struct FilterController {
@@ -114,11 +117,12 @@ impl FilterController {
   }
 
   pub async fn close(&self) {
-    if let Ok(mut task_scheduler) = self.task_scheduler.try_write() {
-      task_scheduler.unregister_handler(&self.handler_id).await;
-    } else {
-      tracing::error!("Try to get the lock of task_scheduler failed");
-    }
+    self
+      .task_scheduler
+      .write()
+      .await
+      .unregister_handler(&self.handler_id)
+      .await;
   }
 
   #[tracing::instrument(name = "schedule_filter_task", level = "trace", skip(self))]
@@ -127,7 +131,7 @@ impl FilterController {
     let task = Task::new(
       &self.handler_id,
       task_id,
-      TaskContent::Text(task_type.to_string()),
+      TaskContent::Text(task_type.to_json_string()),
       qos,
     );
     self.task_scheduler.write().await.add_task(task);
@@ -198,10 +202,7 @@ impl FilterController {
           }
         }
       },
-      FilterChangeset::Delete {
-        filter_id,
-        field_id: _,
-      } => Self::delete_filter(&mut filters, &filter_id),
+      FilterChangeset::Delete { filter_id } => Self::delete_filter(&mut filters, &filter_id),
       FilterChangeset::DeleteAllWithFieldId { field_id } => {
         let mut filter_ids = vec![];
         for filter in filters.iter() {
@@ -222,10 +223,8 @@ impl FilterController {
     FilterChangesetNotificationPB::from_filters(&self.view_id, &filters)
   }
 
-  pub async fn fill_cells(&self, cells: &mut Cells) -> bool {
+  pub async fn fill_cells(&self, cells: &mut Cells) {
     let filters = self.filters.read().await;
-
-    let mut open_after_create = false;
 
     let mut min_required_filters: Vec<&FilterInner> = vec![];
     for filter in filters.iter() {
@@ -247,12 +246,11 @@ impl FilterController {
           min_required_filters.retain(
             |inner| matches!(inner, FilterInner::Data { field_id: other_id, .. } if other_id != field_id),
           );
-          open_after_create = true;
           continue;
         }
 
         if let Some(field) = field_map.get(field_id) {
-          let (cell, flag) = match field_type {
+          let cell = match field_type {
             FieldType::RichText | FieldType::URL => {
               let filter = condition_and_content.cloned::<TextFilterPB>().unwrap();
               filter.get_compliant_cell(field)
@@ -289,21 +287,15 @@ impl FilterController {
               let filter = condition_and_content.cloned::<TimeFilterPB>().unwrap();
               filter.get_compliant_cell(field)
             },
-            _ => (None, false),
+            _ => None,
           };
 
           if let Some(cell) = cell {
             cells.insert(field_id.clone(), cell);
           }
-
-          if flag {
-            open_after_create = flag;
-          }
         }
       }
     }
-
-    open_after_create
   }
 
   #[tracing::instrument(
@@ -331,23 +323,21 @@ impl FilterController {
     if let Some((_, row_detail)) = self.delegate.get_row(&self.view_id, &row_id).await {
       let field_by_field_id = self.get_field_map().await;
       let mut notification = FilterResultNotification::new(self.view_id.clone());
-      if let Some(is_visible) = filter_row(
+      if filter_row(
         &row_detail.row,
         &self.result_by_row_id,
         &field_by_field_id,
         &self.cell_cache,
         &filters,
       ) {
-        if is_visible {
-          if let Some((index, _row)) = self.delegate.get_row(&self.view_id, &row_id).await {
-            notification.visible_rows.push(
-              InsertedRowPB::new(RowMetaPB::from(row_detail.as_ref().clone()))
-                .with_index(index as i32),
-            )
-          }
-        } else {
-          notification.invisible_rows.push(row_id);
+        if let Some((index, _row)) = self.delegate.get_row(&self.view_id, &row_id).await {
+          notification.visible_rows.push(
+            InsertedRowPB::new(RowMetaPB::from(row_detail.as_ref().clone()))
+              .with_index(index as i32),
+          )
         }
+      } else {
+        notification.invisible_rows.push(row_id);
       }
 
       let _ = self
@@ -360,26 +350,27 @@ impl FilterController {
   pub async fn filter_rows_and_notify(&self, rows: &mut Vec<Arc<Row>>) -> FlowyResult<()> {
     let filters = self.filters.read().await;
     let field_by_field_id = self.get_field_map().await;
-    let mut visible_rows = vec![];
-    let mut invisible_rows = vec![];
-    for (index, row) in rows.iter_mut().enumerate() {
-      if let Some(is_visible) = filter_row(
-        row,
-        &self.result_by_row_id,
-        &field_by_field_id,
-        &self.cell_cache,
-        &filters,
-      ) {
-        if is_visible {
+    let (visible_rows, invisible_rows): (Vec<_>, Vec<_>) =
+      rows.par_iter().enumerate().partition_map(|(index, row)| {
+        if filter_row(
+          row,
+          &self.result_by_row_id,
+          &field_by_field_id,
+          &self.cell_cache,
+          &filters,
+        ) {
           let row_meta = RowMetaPB::from(row.as_ref());
-          visible_rows.push(InsertedRowPB::new(row_meta).with_index(index as i32))
+          // Visible rows go into the left partition
+          rayon::iter::Either::Left(InsertedRowPB::new(row_meta).with_index(index as i32))
         } else {
-          invisible_rows.push(row.id.clone());
+          // Invisible rows (just IDs) go into the right partition
+          rayon::iter::Either::Right(row.id.clone())
         }
-      }
-    }
+      });
 
+    let len = rows.len();
     rows.retain(|row| !invisible_rows.iter().any(|id| id == &row.id));
+    trace!("[Database]: filter out {} invisible rows", len - rows.len());
     let notification = FilterResultNotification {
       view_id: self.view_id.clone(),
       invisible_rows,
@@ -392,10 +383,10 @@ impl FilterController {
     Ok(())
   }
 
-  pub async fn filter_rows(&self, rows: &mut Vec<Arc<Row>>) {
+  pub async fn filter_rows(&self, mut rows: Vec<Arc<Row>>) -> Vec<Arc<Row>> {
     let filters = self.filters.read().await;
     let field_by_field_id = self.get_field_map().await;
-    rows.iter().for_each(|row| {
+    rows.par_iter().for_each(|row| {
       let _ = filter_row(
         row,
         &self.result_by_row_id,
@@ -405,13 +396,16 @@ impl FilterController {
       );
     });
 
+    let len = rows.len();
     rows.retain(|row| {
       self
         .result_by_row_id
         .get(&row.id)
         .map(|result| *result)
-        .unwrap_or(false)
+        .unwrap_or(true)
     });
+    trace!("[Database]: filter out {} invisible rows", len - rows.len());
+    rows
   }
 
   async fn get_field_map(&self) -> HashMap<String, Field> {
@@ -458,17 +452,14 @@ fn filter_row(
   field_by_field_id: &HashMap<String, Field>,
   cell_data_cache: &CellCache,
   filters: &Vec<Filter>,
-) -> Option<bool> {
+) -> bool {
   // Create a filter result cache if it doesn't exist
   let mut filter_result = result_by_row_id.entry(row.id.clone()).or_insert(true);
-  let old_is_visible = *filter_result;
-
   let mut new_is_visible = true;
 
   for filter in filters {
     if let Some(is_visible) = apply_filter(row, field_by_field_id, cell_data_cache, filter) {
       new_is_visible = new_is_visible && is_visible;
-
       // short-circuit as soon as one filter tree returns false
       if !new_is_visible {
         break;
@@ -477,12 +468,7 @@ fn filter_row(
   }
 
   *filter_result = new_is_visible;
-
-  if old_is_visible != new_is_visible {
-    Some(new_is_visible)
-  } else {
-    None
-  }
+  new_is_visible
 }
 
 /// Recursively applies a `Filter` to a `Row`'s cells.
@@ -531,7 +517,19 @@ fn apply_filter(
         error!("field type of filter doesn't match field type of field");
         return Some(false);
       }
-      let cell = row.cells.get(field_id).cloned();
+      let timestamp_cell = match field_type {
+        FieldType::LastEditedTime | FieldType::CreatedTime => {
+          let timestamp = if field_type.is_created_time() {
+            row.created_at
+          } else {
+            row.modified_at
+          };
+          let cell = TimestampCellData::new(Some(timestamp)).to_cell(field.field_type);
+          Some(cell)
+        },
+        _ => None,
+      };
+      let cell = timestamp_cell.or_else(|| row.cells.get(field_id).cloned());
       if let Some(handler) = TypeOptionCellExt::new(field, Some(cell_data_cache.clone()))
         .get_type_option_cell_data_handler()
       {
@@ -549,8 +547,8 @@ enum FilterEvent {
   RowDidChanged(RowId),
 }
 
-impl ToString for FilterEvent {
-  fn to_string(&self) -> String {
+impl FilterEvent {
+  fn to_json_string(&self) -> String {
     serde_json::to_string(self).unwrap()
   }
 }

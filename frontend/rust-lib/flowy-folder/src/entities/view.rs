@@ -1,9 +1,8 @@
+use collab_folder::{View, ViewIcon, ViewLayout};
 use std::collections::HashMap;
 use std::convert::TryInto;
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
-
-use collab_folder::{View, ViewIcon, ViewLayout};
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -11,6 +10,7 @@ use flowy_folder_pub::cloud::gen_view_id;
 
 use crate::entities::icon::ViewIconPB;
 use crate::entities::parser::view::{ViewIdentify, ViewName, ViewThumbnail};
+use crate::view_operation::ViewData;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct ChildViewUpdatePB {
@@ -160,6 +160,18 @@ impl std::convert::From<ViewLayout> for ViewLayoutPB {
   }
 }
 
+impl From<client_api::entity::workspace_dto::ViewLayout> for ViewLayoutPB {
+  fn from(val: client_api::entity::workspace_dto::ViewLayout) -> Self {
+    match val {
+      client_api::entity::workspace_dto::ViewLayout::Document => ViewLayoutPB::Document,
+      client_api::entity::workspace_dto::ViewLayout::Grid => ViewLayoutPB::Grid,
+      client_api::entity::workspace_dto::ViewLayout::Board => ViewLayoutPB::Board,
+      client_api::entity::workspace_dto::ViewLayout::Calendar => ViewLayoutPB::Calendar,
+      client_api::entity::workspace_dto::ViewLayout::Chat => ViewLayoutPB::Chat,
+    }
+  }
+}
+
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
 pub struct SectionViewsPB {
   #[pb(index = 1)]
@@ -238,42 +250,39 @@ pub struct CreateViewPayloadPB {
   #[pb(index = 2)]
   pub name: String,
 
-  #[pb(index = 3)]
-  pub desc: String,
-
-  #[pb(index = 4, one_of)]
+  #[pb(index = 3, one_of)]
   pub thumbnail: Option<String>,
 
-  #[pb(index = 5)]
+  #[pb(index = 4)]
   pub layout: ViewLayoutPB,
 
-  #[pb(index = 6)]
+  #[pb(index = 5)]
   pub initial_data: Vec<u8>,
 
-  #[pb(index = 7)]
+  #[pb(index = 6)]
   pub meta: HashMap<String, String>,
 
   // Mark the view as current view after creation.
-  #[pb(index = 8)]
+  #[pb(index = 7)]
   pub set_as_current: bool,
 
   // The index of the view in the parent view.
   // If the index is None or the index is out of range, the view will be appended to the end of the parent view.
-  #[pb(index = 9, one_of)]
+  #[pb(index = 8, one_of)]
   pub index: Option<u32>,
 
   // The section of the view.
   // Only the view in public section will be shown in the shared workspace view list.
   // The view in private section will only be shown in the user's private view list.
-  #[pb(index = 10, one_of)]
+  #[pb(index = 9, one_of)]
   pub section: Option<ViewSectionPB>,
 
-  #[pb(index = 11, one_of)]
+  #[pb(index = 10, one_of)]
   pub view_id: Option<String>,
 
   // The extra data of the view.
   // Refer to the extra field in the collab
-  #[pb(index = 12, one_of)]
+  #[pb(index = 11, one_of)]
   pub extra: Option<String>,
 }
 
@@ -297,12 +306,9 @@ pub struct CreateOrphanViewPayloadPB {
   pub name: String,
 
   #[pb(index = 3)]
-  pub desc: String,
-
-  #[pb(index = 4)]
   pub layout: ViewLayoutPB,
 
-  #[pb(index = 5)]
+  #[pb(index = 4)]
   pub initial_data: Vec<u8>,
 }
 
@@ -310,10 +316,9 @@ pub struct CreateOrphanViewPayloadPB {
 pub struct CreateViewParams {
   pub parent_view_id: String,
   pub name: String,
-  pub desc: String,
   pub layout: ViewLayoutPB,
   pub view_id: String,
-  pub initial_data: Vec<u8>,
+  pub initial_data: ViewData,
   pub meta: HashMap<String, String>,
   // Mark the view as current view after creation.
   pub set_as_current: bool,
@@ -340,10 +345,9 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
     Ok(CreateViewParams {
       parent_view_id,
       name,
-      desc: self.desc,
       layout: self.layout,
       view_id,
-      initial_data: self.initial_data,
+      initial_data: ViewData::Data(self.initial_data.into()),
       meta: self.meta,
       set_as_current: self.set_as_current,
       index: self.index,
@@ -364,10 +368,9 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
     Ok(CreateViewParams {
       parent_view_id,
       name,
-      desc: self.desc,
       layout: self.layout,
       view_id: self.view_id,
-      initial_data: self.initial_data,
+      initial_data: ViewData::Data(self.initial_data.into()),
       meta: Default::default(),
       set_as_current: false,
       index: None,
@@ -390,6 +393,15 @@ impl std::convert::From<&str> for ViewIdPB {
       value: value.to_string(),
     }
   }
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct SetPublishNamePB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub new_name: String,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]

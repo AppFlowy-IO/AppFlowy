@@ -6,6 +6,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/appflowy_cache_manager.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/rust_sdk.dart';
+import 'package:appflowy/util/share_log_files.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/setting_file_importer_bloc.dart';
 import 'package:appflowy/workspace/application/settings/settings_location_cubit.dart';
@@ -113,6 +114,20 @@ class SettingsManageDataView extends StatelessWidget {
                 ),
               ],
               SettingsCategory(
+                title: LocaleKeys.workspace_errorActions_exportLogFiles.tr(),
+                children: [
+                  SingleSettingAction(
+                    labelMaxLines: 4,
+                    label:
+                        LocaleKeys.workspace_errorActions_exportLogFiles.tr(),
+                    buttonLabel: LocaleKeys.settings_files_export.tr(),
+                    onPressed: () {
+                      shareLogFiles(context);
+                    },
+                  ),
+                ],
+              ),
+              SettingsCategory(
                 title: LocaleKeys.settings_manageDataPage_cache_title.tr(),
                 children: [
                   SingleSettingAction(
@@ -154,29 +169,6 @@ class SettingsManageDataView extends StatelessWidget {
                   ),
                 ],
               ),
-              // Uncomment if we need to enable encryption
-              //   if (userProfile.authenticator == AuthenticatorPB.Supabase) ...[
-              //     const SettingsCategorySpacer(),
-              //     BlocProvider(
-              //       create: (_) => EncryptSecretBloc(user: userProfile),
-              //       child: SettingsCategory(
-              //         title: LocaleKeys.settings_manageDataPage_encryption_title
-              //             .tr(),
-              //         tooltip: LocaleKeys
-              //             .settings_manageDataPage_encryption_tooltip
-              //             .tr(),
-              //         description: userProfile.encryptionType ==
-              //                 EncryptionTypePB.NoEncryption
-              //             ? LocaleKeys
-              //                 .settings_manageDataPage_encryption_descriptionNoEncryption
-              //                 .tr()
-              //             : LocaleKeys
-              //                 .settings_manageDataPage_encryption_descriptionEncrypted
-              //                 .tr(),
-              //         children: [_EncryptDataSetting(userProfile: userProfile)],
-              //       ),
-              //     ),
-              //   ],
             ],
           );
         },
@@ -457,7 +449,7 @@ class _DataPathActions extends StatelessWidget {
           label:
               LocaleKeys.settings_manageDataPage_dataStorage_actions_open.tr(),
           icon: const FlowySvg(FlowySvgs.folder_m, size: Size.square(20)),
-          onPressed: () => afLaunchUrl(Uri.file(currentPath)),
+          onPressed: () => afLaunchUri(Uri.file(currentPath)),
         ),
       ],
     );

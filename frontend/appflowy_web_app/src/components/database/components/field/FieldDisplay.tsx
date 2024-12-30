@@ -1,4 +1,4 @@
-import { FieldId, YjsDatabaseKey } from '@/application/collab.type';
+import { FieldId, YjsDatabaseKey } from '@/application/types';
 import { FieldType, useFieldSelector } from '@/application/database-yjs';
 import { FieldTypeIcon } from '@/components/database/components/field/FieldTypeIcon';
 import React from 'react';

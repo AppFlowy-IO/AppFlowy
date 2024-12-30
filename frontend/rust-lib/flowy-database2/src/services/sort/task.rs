@@ -1,5 +1,6 @@
 use crate::services::sort::SortController;
-use lib_infra::future::BoxResultFuture;
+use async_trait::async_trait;
+
 use lib_infra::priority_task::{TaskContent, TaskHandler};
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -19,6 +20,7 @@ impl SortTaskHandler {
   }
 }
 
+#[async_trait]
 impl TaskHandler for SortTaskHandler {
   fn handler_id(&self) -> &str {
     &self.handler_id
@@ -28,18 +30,16 @@ impl TaskHandler for SortTaskHandler {
     "SortTaskHandler"
   }
 
-  fn run(&self, content: TaskContent) -> BoxResultFuture<(), anyhow::Error> {
+  async fn run(&self, content: TaskContent) -> Result<(), anyhow::Error> {
     let sort_controller = self.sort_controller.clone();
-    Box::pin(async move {
-      if let TaskContent::Text(predicate) = content {
-        sort_controller
-          .write()
-          .await
-          .process(&predicate)
-          .await
-          .map_err(anyhow::Error::from)?;
-      }
-      Ok(())
-    })
+    if let TaskContent::Text(predicate) = content {
+      sort_controller
+        .write()
+        .await
+        .process(&predicate)
+        .await
+        .map_err(anyhow::Error::from)?;
+    }
+    Ok(())
   }
 }

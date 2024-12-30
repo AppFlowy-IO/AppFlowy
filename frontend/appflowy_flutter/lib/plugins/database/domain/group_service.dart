@@ -22,12 +22,10 @@ class GroupBackendService {
 
   Future<FlowyResult<void, FlowyError>> updateGroup({
     required String groupId,
-    required String fieldId,
     String? name,
     bool? visible,
   }) {
     final payload = UpdateGroupPB.create()
-      ..fieldId = fieldId
       ..viewId = viewId
       ..groupId = groupId;
 
@@ -59,19 +57,5 @@ class GroupBackendService {
       ..groupId = groupId;
 
     return DatabaseEventDeleteGroup(payload).send();
-  }
-
-  Future<FlowyResult<void, FlowyError>> renameGroup({
-    required String groupId,
-    required String fieldId,
-    required String name,
-  }) {
-    final payload = RenameGroupPB.create()
-      ..fieldId = fieldId
-      ..viewId = viewId
-      ..groupId = groupId
-      ..name = name;
-
-    return DatabaseEventRenameGroup(payload).send();
   }
 }

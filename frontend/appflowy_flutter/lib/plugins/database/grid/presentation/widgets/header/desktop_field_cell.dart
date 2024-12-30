@@ -1,3 +1,5 @@
+import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -7,7 +9,6 @@ import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/widgets/field/field_editor.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -95,10 +96,11 @@ class _GridFieldCellState extends State<GridFieldCell> {
               );
             },
             child: SizedBox(
-              height: 40,
+              height: GridSize.headerHeight,
               child: FieldCellButton(
                 field: widget.fieldInfo.field,
                 onTap: widget.onTap,
+                margin: const EdgeInsetsDirectional.fromSTEB(12, 9, 10, 9),
               ),
             ),
           );
@@ -140,9 +142,8 @@ class _GridHeaderCellContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderSide = BorderSide(
-      color: Theme.of(context).dividerColor,
-    );
+    final borderSide =
+        BorderSide(color: AFThemeExtension.of(context).borderColor);
     final decoration = BoxDecoration(
       border: Border(
         right: borderSide,
@@ -210,25 +211,25 @@ class FieldCellButton extends StatelessWidget {
   final VoidCallback onTap;
   final int? maxLines;
   final BorderRadius? radius;
-  final EdgeInsets? margin;
+  final EdgeInsetsGeometry? margin;
 
   @override
   Widget build(BuildContext context) {
     return FlowyButton(
       hoverColor: AFThemeExtension.of(context).lightGreyHover,
       onTap: onTap,
-      leftIcon: FlowySvg(
-        field.fieldType.svgData,
-        color: Theme.of(context).iconTheme.color,
+      leftIcon: FieldIcon(
+        fieldInfo: FieldInfo.initial(field),
       ),
       rightIcon: field.fieldType.rightIcon != null
           ? FlowySvg(
               field.fieldType.rightIcon!,
               blendMode: null,
+              size: const Size.square(18),
             )
           : null,
       radius: radius,
-      text: FlowyText.medium(
+      text: FlowyText(
         field.name,
         lineHeight: 1.0,
         maxLines: maxLines,
@@ -237,5 +238,41 @@ class FieldCellButton extends StatelessWidget {
       ),
       margin: margin ?? GridSize.cellContentInsets,
     );
+  }
+}
+
+class FieldIcon extends StatelessWidget {
+  const FieldIcon({
+    super.key,
+    required this.fieldInfo,
+    this.dimension = 16.0,
+  });
+
+  final FieldInfo fieldInfo;
+  final double dimension;
+
+  @override
+  Widget build(BuildContext context) {
+    final svgContent = kIconGroups?.findSvgContent(
+      fieldInfo.icon,
+    );
+    final color =
+        Theme.of(context).isLightMode ? const Color(0xFF171717) : Colors.white;
+    return svgContent == null
+        ? FlowySvg(
+            fieldInfo.fieldType.svgData,
+            color: color.withOpacity(0.6),
+            size: Size.square(dimension),
+          )
+        : SizedBox.square(
+            dimension: dimension,
+            child: Center(
+              child: FlowySvg.string(
+                svgContent,
+                color: color.withOpacity(0.45),
+                size: Size.square(dimension - 2),
+              ),
+            ),
+          );
   }
 }

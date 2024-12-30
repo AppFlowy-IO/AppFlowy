@@ -213,7 +213,7 @@ impl From<Vec<FilterPB>> for RepeatedFilterPB {
 pub struct InsertFilterPB {
   /// If None, the filter will be the root of a new filter tree
   #[pb(index = 1, one_of)]
-  #[validate(custom = "crate::entities::utils::validate_filter_id")]
+  #[validate(custom(function = "crate::entities::utils::validate_filter_id"))]
   pub parent_filter_id: Option<String>,
 
   #[pb(index = 2)]
@@ -223,7 +223,7 @@ pub struct InsertFilterPB {
 #[derive(ProtoBuf, Debug, Default, Clone, Validate)]
 pub struct UpdateFilterTypePB {
   #[pb(index = 1)]
-  #[validate(custom = "crate::entities::utils::validate_filter_id")]
+  #[validate(custom(function = "crate::entities::utils::validate_filter_id"))]
   pub filter_id: String,
 
   #[pb(index = 2)]
@@ -233,7 +233,7 @@ pub struct UpdateFilterTypePB {
 #[derive(ProtoBuf, Debug, Default, Clone, Validate)]
 pub struct UpdateFilterDataPB {
   #[pb(index = 1)]
-  #[validate(custom = "crate::entities::utils::validate_filter_id")]
+  #[validate(custom(function = "crate::entities::utils::validate_filter_id"))]
   pub filter_id: String,
 
   #[pb(index = 2)]
@@ -243,12 +243,8 @@ pub struct UpdateFilterDataPB {
 #[derive(ProtoBuf, Debug, Default, Clone, Validate)]
 pub struct DeleteFilterPB {
   #[pb(index = 1)]
-  #[validate(custom = "crate::entities::utils::validate_filter_id")]
+  #[validate(custom(function = "crate::entities::utils::validate_filter_id"))]
   pub filter_id: String,
-
-  #[pb(index = 2)]
-  #[validate(custom = "lib_infra::validator_fn::required_not_empty_str")]
-  pub field_id: String,
 }
 
 impl TryFrom<InsertFilterPB> for FilterChangeset {
@@ -297,7 +293,6 @@ impl From<DeleteFilterPB> for FilterChangeset {
   fn from(value: DeleteFilterPB) -> Self {
     Self::Delete {
       filter_id: value.filter_id,
-      field_id: value.field_id,
     }
   }
 }

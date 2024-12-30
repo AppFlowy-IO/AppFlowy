@@ -63,13 +63,6 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 actionResult: null,
               ),
             );
-
-            /// We wait with fetching the workspace member as it may take some time,
-            /// to avoid blocking the UI from rendering (the sidebar).
-            final workspaceMemberResult =
-                await _userService.getWorkspaceMember();
-            final workspaceMember = workspaceMemberResult.toNullable();
-            emit(state.copyWith(currentWorkspaceMember: workspaceMember));
           },
           fetchWorkspaces: () async {
             final result = await _fetchWorkspaces();
@@ -238,14 +231,6 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 ),
               ),
             );
-
-            /// We wait with fetching the workspace member as it may take some time,
-            /// to avoid blocking the UI from rendering (the sidebar).
-            final workspaceMemberResult =
-                await _userService.getWorkspaceMember();
-            final workspaceMember = workspaceMemberResult.toNullable();
-
-            emit(state.copyWith(currentWorkspaceMember: workspaceMember));
           },
           renameWorkspace: (workspaceId, name) async {
             final result =
@@ -289,6 +274,14 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             );
           },
           updateWorkspaceIcon: (workspaceId, icon) async {
+            final workspace = state.workspaces.firstWhere(
+              (e) => e.workspaceId == workspaceId,
+            );
+            if (icon == workspace.icon) {
+              Log.info('ignore same icon update');
+              return;
+            }
+
             final result = await _userService.updateWorkspaceIcon(
               workspaceId,
               icon,
@@ -507,7 +500,6 @@ class UserWorkspaceState with _$UserWorkspaceState {
   const factory UserWorkspaceState({
     @Default(null) UserWorkspacePB? currentWorkspace,
     @Default([]) List<UserWorkspacePB> workspaces,
-    @Default(null) WorkspaceMemberPB? currentWorkspaceMember,
     @Default(null) UserWorkspaceActionResult? actionResult,
     @Default(false) bool isCollabWorkspaceOn,
   }) = _UserWorkspaceState;
@@ -525,7 +517,6 @@ class UserWorkspaceState with _$UserWorkspaceState {
     if (identical(this, other)) return true;
 
     return other is UserWorkspaceState &&
-        other.currentWorkspaceMember == currentWorkspaceMember &&
         other.currentWorkspace == currentWorkspace &&
         _deepCollectionEquality.equals(other.workspaces, workspaces) &&
         identical(other.actionResult, actionResult);

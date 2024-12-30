@@ -211,3 +211,29 @@ void openInteractiveViewerFromFile(
         ),
       ),
     );
+
+void openInteractiveViewerFromFiles(
+  BuildContext context,
+  List<MediaFilePB> files, {
+  required void Function(int) onDeleteImage,
+  int initialIndex = 0,
+  UserProfilePB? userProfile,
+}) =>
+    showDialog(
+      context: context,
+      builder: (_) => InteractiveImageViewer(
+        userProfile: userProfile,
+        imageProvider: AFBlockImageProvider(
+          initialIndex: initialIndex,
+          images: files
+              .map(
+                (f) => ImageBlockData(
+                  url: f.url,
+                  type: f.uploadType.toCustomImageType(),
+                ),
+              )
+              .toList(),
+          onDeleteImage: onDeleteImage,
+        ),
+      ),
+    );

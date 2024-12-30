@@ -43,7 +43,6 @@ flowy-document-pub = { workspace = true }
 flowy-error = { workspace = true, features = ["impl_from_serde", "impl_from_reqwest", "impl_from_url", "impl_from_appflowy_cloud"] }
 flowy-server-pub = { workspace = true }
 flowy-search-pub = { workspace = true }
-flowy-encrypt = { workspace = true }
 flowy-storage = { workspace = true }
 flowy-storage-pub = { workspace = true }
 flowy-ai-pub = { workspace = true }
@@ -59,11 +58,11 @@ semver = "1.0.23"
 [dependencies.client-api]
 workspace = true
 features = [
-    "collab-sync",
-    "test_util",
-    "enable_brotli",
-    # Uncomment the following line to enable verbose logging for sync
-    # "sync_verbose_log",
+  "collab-sync",
+  "test_util",
+  "enable_brotli",
+  # Uncomment the following line to enable verbose logging for sync
+  # "sync_verbose_log",
 ]
 
 [dev-dependencies]

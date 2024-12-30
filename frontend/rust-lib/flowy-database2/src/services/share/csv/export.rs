@@ -1,13 +1,14 @@
 use collab_database::database::Database;
 use collab_database::fields::Field;
 use collab_database::rows::Cell;
+use collab_database::template::timestamp_parse::TimestampCellData;
+use futures::StreamExt;
 use indexmap::IndexMap;
 
 use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::FieldType;
 use crate::services::cell::stringify_cell;
-use crate::services::field::{TimestampCellData, TimestampCellDataWrapper};
 
 #[derive(Debug, Clone, Copy)]
 pub enum CSVFormat {
@@ -47,7 +48,12 @@ impl CSVExport {
     fields.into_iter().for_each(|field| {
       field_by_field_id.insert(field.id.clone(), field);
     });
-    let rows = database.get_rows_for_view(&inline_view_id).await;
+    let rows = database
+      .get_rows_for_view(&inline_view_id, 20, None)
+      .await
+      .filter_map(|result| async { result.ok() })
+      .collect::<Vec<_>>()
+      .await;
 
     let stringify = |cell: &Cell, field: &Field, style: CSVFormat| match style {
       CSVFormat::Original => stringify_cell(cell, field),
@@ -66,7 +72,7 @@ impl CSVExport {
               } else {
                 TimestampCellData::new(row.modified_at)
               };
-              let cell = Cell::from(TimestampCellDataWrapper::from((field_type, cell_data)));
+              let cell = cell_data.to_cell(field.field_type);
               stringify(&cell, field, style)
             },
             _ => match row.cells.get(field_id) {

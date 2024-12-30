@@ -1,4 +1,4 @@
-import { YjsEditorKey } from '@/application/collab.type';
+import { YjsEditorKey } from '@/application/types';
 import { applyYDoc } from '@/application/ydoc/apply';
 import * as Y from 'yjs';
 import * as docJson from '../../../../../cypress/fixtures/simple_doc.json';

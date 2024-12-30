@@ -3,10 +3,10 @@ import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 enum DraggableHoverPosition {
   none,
@@ -54,7 +54,7 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
     // add top border if the draggable item is on the top of the list
     // highlight the draggable item if the draggable item is on the center
     // add bottom border if the draggable item is on the bottom of the list
-    final child = PlatformExtension.isMobile
+    final child = UniversalPlatform.isMobile
         ? _buildMobileDraggableItem()
         : _buildDesktopDraggableItem();
 
@@ -65,6 +65,11 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
       onMove: (data) {
         final renderBox = context.findRenderObject() as RenderBox;
         final offset = renderBox.globalToLocal(data.offset);
+
+        if (offset.dx > renderBox.size.width) {
+          return;
+        }
+
         final position = _computeHoverPosition(offset, renderBox.size);
         if (!_shouldAccept(data.data, position)) {
           return;
@@ -76,13 +81,8 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
       ),
       onAcceptWithDetails: (details) {
         final data = details.data;
-        _move(
-          data,
-          widget.view,
-        );
-        _updatePosition(
-          DraggableHoverPosition.none,
-        );
+        _move(data, widget.view);
+        _updatePosition(DraggableHoverPosition.none);
       },
       feedback: IntrinsicWidth(
         child: Opacity(
@@ -174,12 +174,10 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
   }
 
   void _updatePosition(DraggableHoverPosition position) {
-    if (PlatformExtension.isMobile && position != this.position) {
+    if (UniversalPlatform.isMobile && position != this.position) {
       HapticFeedback.mediumImpact();
     }
-    setState(
-      () => this.position = position,
-    );
+    setState(() => this.position = position);
   }
 
   void _move(ViewPB from, ViewPB to) {

@@ -83,7 +83,7 @@ class RowBackendService {
   Future<FlowyResult<void, FlowyError>> updateMeta({
     required String rowId,
     String? iconURL,
-    String? coverURL,
+    RowCoverPB? cover,
     bool? isDocumentEmpty,
   }) {
     final payload = UpdateRowMetaChangesetPB.create()
@@ -93,8 +93,8 @@ class RowBackendService {
     if (iconURL != null) {
       payload.iconUrl = iconURL;
     }
-    if (coverURL != null) {
-      payload.coverUrl = coverURL;
+    if (cover != null) {
+      payload.cover = cover;
     }
 
     if (isDocumentEmpty != null) {
@@ -102,6 +102,14 @@ class RowBackendService {
     }
 
     return DatabaseEventUpdateRowMeta(payload).send();
+  }
+
+  Future<FlowyResult<void, FlowyError>> removeCover(String rowId) async {
+    final payload = RemoveCoverPayloadPB.create()
+      ..viewId = viewId
+      ..rowId = rowId;
+
+    return DatabaseEventRemoveCover(payload).send();
   }
 
   static Future<FlowyResult<void, FlowyError>> deleteRows(

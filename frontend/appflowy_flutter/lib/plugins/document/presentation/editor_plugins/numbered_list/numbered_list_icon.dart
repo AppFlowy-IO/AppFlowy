@@ -8,32 +8,40 @@ class NumberedListIcon extends StatelessWidget {
     super.key,
     required this.node,
     required this.textDirection,
+    this.textStyle,
   });
 
   final Node node;
   final TextDirection textDirection;
+  final TextStyle? textStyle;
 
   @override
   Widget build(BuildContext context) {
-    final textStyle =
+    final textStyleConfiguration =
         context.read<EditorState>().editorStyle.textStyleConfiguration;
-    final fontSize = textStyle.text.fontSize ?? 16.0;
-    final height = textStyle.text.height ?? textStyle.lineHeight;
-    final size = fontSize * height;
-    return Container(
-      constraints: BoxConstraints(
-        minWidth: size,
-        minHeight: size,
-      ),
-      margin: const EdgeInsets.only(right: 8.0),
-      alignment: Alignment.center,
-      child: Center(
-        child: Text(
-          node.levelString,
-          style: textStyle.text,
-          strutStyle: StrutStyle.fromTextStyle(textStyle.text),
-          textDirection: textDirection,
+    final height =
+        textStyleConfiguration.text.height ?? textStyleConfiguration.lineHeight;
+    final combinedTextStyle = textStyle?.combine(textStyleConfiguration.text) ??
+        textStyleConfiguration.text;
+    final adjustedTextStyle = combinedTextStyle.copyWith(
+      height: height,
+      fontFeatures: [const FontFeature.tabularFigures()],
+    );
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: Text(
+        node.levelString,
+        style: adjustedTextStyle,
+        strutStyle: StrutStyle.fromTextStyle(combinedTextStyle),
+        textHeightBehavior: TextHeightBehavior(
+          applyHeightToFirstAscent:
+              textStyleConfiguration.applyHeightToFirstAscent,
+          applyHeightToLastDescent:
+              textStyleConfiguration.applyHeightToLastDescent,
+          leadingDistribution: textStyleConfiguration.leadingDistribution,
         ),
+        textDirection: textDirection,
       ),
     );
   }

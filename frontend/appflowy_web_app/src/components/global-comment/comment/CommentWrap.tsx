@@ -1,4 +1,4 @@
-import { AFConfigContext } from '@/components/app/app.hooks';
+import { AFConfigContext } from '@/components/main/app.hooks';
 import CommentActions from '@/components/global-comment/actions/CommentActions';
 import Comment from './Comment';
 import { useGlobalCommentContext } from '@/components/global-comment/GlobalComment.hooks';
@@ -13,7 +13,7 @@ export interface CommentWrapProps {
   isHighLight: boolean;
 }
 
-export function CommentWrap({ commentId, isHighLight, isHovered, onHovered }: CommentWrapProps) {
+export function CommentWrap ({ commentId, isHighLight, isHovered, onHovered }: CommentWrapProps) {
   const { getComment, setHighLightCommentId } = useGlobalCommentContext();
   const comment = useMemo(() => getComment(commentId), [commentId, getComment]);
   const ref = React.useRef<HTMLDivElement>(null);

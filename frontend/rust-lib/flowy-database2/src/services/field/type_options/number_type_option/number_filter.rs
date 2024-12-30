@@ -1,12 +1,12 @@
 use std::str::FromStr;
 
+use collab_database::fields::number_type_option::NumberCellFormat;
 use collab_database::fields::Field;
 use collab_database::rows::Cell;
 use rust_decimal::Decimal;
 
 use crate::entities::{NumberFilterConditionPB, NumberFilterPB};
 use crate::services::cell::insert_text_cell;
-use crate::services::field::NumberCellFormat;
 use crate::services::filter::PreFillCellsWithFilter;
 
 impl NumberFilterPB {
@@ -35,7 +35,7 @@ impl NumberFilterPB {
 }
 
 impl PreFillCellsWithFilter for NumberFilterPB {
-  fn get_compliant_cell(&self, field: &Field) -> (Option<Cell>, bool) {
+  fn get_compliant_cell(&self, field: &Field) -> Option<Cell> {
     let expected_decimal = || Decimal::from_str(&self.content).ok();
 
     let text = match self.condition {
@@ -61,10 +61,8 @@ impl PreFillCellsWithFilter for NumberFilterPB {
       _ => None,
     };
 
-    let open_after_create = matches!(self.condition, NumberFilterConditionPB::NumberIsNotEmpty);
-
     // use `insert_text_cell` because self.content might not be a parsable i64.
-    (text.map(|s| insert_text_cell(s, field)), open_after_create)
+    text.map(|s| insert_text_cell(s, field))
   }
 }
 enum NumberFilterStrategy {
@@ -108,7 +106,7 @@ impl NumberFilterStrategy {
 #[cfg(test)]
 mod tests {
   use crate::entities::{NumberFilterConditionPB, NumberFilterPB};
-  use crate::services::field::{NumberCellFormat, NumberFormat};
+  use collab_database::fields::number_type_option::{NumberCellFormat, NumberFormat};
 
   #[test]
   fn number_filter_equal_test() {

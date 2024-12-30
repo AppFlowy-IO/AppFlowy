@@ -1,4 +1,4 @@
-import { YjsDatabaseKey } from '@/application/collab.type';
+import { YjsDatabaseKey } from '@/application/types';
 import { FieldType } from '@/application/database-yjs/database.type';
 import { useFieldSelector } from '@/application/database-yjs/selector';
 import { RowCreateModifiedTime } from '@/components/database/components/cell/created-modified';
@@ -12,8 +12,9 @@ import { DateTimeCell } from '@/components/database/components/cell/date';
 import { ChecklistCell } from '@/components/database/components/cell/checklist';
 import { CellProps, Cell as CellType } from '@/application/database-yjs/cell.type';
 import { RelationCell } from '@/components/database/components/cell/relation';
+import { FileMediaCell } from 'src/components/database/components/cell/file-media';
 
-export function Cell(props: CellProps<CellType>) {
+export function Cell (props: CellProps<CellType>) {
   const { cell, rowId, fieldId, style } = props;
   const { field } = useFieldSelector(fieldId);
   const fieldType = Number(field?.get(YjsDatabaseKey.type)) as FieldType;
@@ -37,6 +38,8 @@ export function Cell(props: CellProps<CellType>) {
         return ChecklistCell;
       case FieldType.Relation:
         return RelationCell;
+      case FieldType.FileMedia:
+        return FileMediaCell;
       default:
         return TextCell;
     }

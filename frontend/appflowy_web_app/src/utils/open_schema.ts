@@ -1,11 +1,14 @@
+import { androidDownloadLink, desktopDownloadLink, openAppFlowySchema } from '@/utils/url';
+
 type OS = 'ios' | 'android' | 'other';
 
 interface AppConfig {
   appScheme: string;
   universalLink?: string;
   intentUrl?: string;
-  downloadUrl: string;
+  downloadUrl?: string;
   timeout?: number;
+
 }
 
 export const getOS = (): OS => {
@@ -45,14 +48,19 @@ export const openAppOrDownload = (config: AppConfig): void => {
 
   const timer = setTimeout(() => {
     removeIframe(iframe);
-    redirectToUrl(downloadUrl);
+    if (downloadUrl) {
+      redirectToUrl(downloadUrl);
+    }
   }, timeout);
 
   const handleVisibilityChange = (): void => {
     if (!document.hidden) {
       clearTimeout(timer);
       removeIframe(iframe);
-      redirectToUrl(downloadUrl);
+      if (downloadUrl) {
+        redirectToUrl(downloadUrl);
+      }
+
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     }
   };
@@ -87,6 +95,36 @@ export const openAppOrDownload = (config: AppConfig): void => {
   iframe.onload = () => {
     clearTimeout(timer);
     removeIframe(iframe);
-    redirectToUrl(downloadUrl);
+    if (downloadUrl) {
+      redirectToUrl(downloadUrl);
+    }
   };
 };
+
+export function openOnly (schema?: string) {
+
+  return openAppOrDownload({
+    appScheme: schema || openAppFlowySchema,
+  });
+}
+
+export function openOrDownload (schema?: string) {
+  const os = getOS();
+
+  if (os === 'ios' || os === 'android') {
+    const universalLink = 'https://appflowy.io/download';
+    const intentUrl = `intent://appflowy.io/download#Intent;` +
+      'scheme=https;' +
+      'package=io.appflowy.app;' +
+      `S.browser_fallback_url=${encodeURIComponent(androidDownloadLink)};` +
+      'end';
+
+    window.location.href = os === 'ios' ? universalLink : intentUrl;
+    return;
+  }
+
+  return openAppOrDownload({
+    appScheme: schema || openAppFlowySchema,
+    downloadUrl: desktopDownloadLink,
+  });
+}

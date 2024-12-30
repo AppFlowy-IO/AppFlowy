@@ -24,6 +24,10 @@ class CardAccessoryContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (accessories.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     final children = accessories.map<Widget>((accessory) {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,

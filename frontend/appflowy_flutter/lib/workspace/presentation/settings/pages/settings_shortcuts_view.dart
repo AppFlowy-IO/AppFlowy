@@ -6,7 +6,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/strin
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/custom_copy_command.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/custom_cut_command.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/custom_paste_command.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/toggle/toggle_block_shortcut_event.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/toggle/toggle_block_shortcuts.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
@@ -24,6 +24,7 @@ import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class SettingsShortcutsView extends StatefulWidget {
   const SettingsShortcutsView({super.key});
@@ -682,7 +683,7 @@ extension CommandLabel on CommandShortcutEvent {
       label =
           LocaleKeys.settings_shortcutsPage_keybindings_deleteLeftSentence.tr();
     } else if (key == deleteCommand.key) {
-      label = PlatformExtension.isMacOS
+      label = UniversalPlatform.isMacOS
           ? LocaleKeys.settings_shortcutsPage_keybindings_deleteMacOS.tr()
           : LocaleKeys.settings_shortcutsPage_keybindings_delete.tr();
     } else if (key == deleteRightWordCommand.key) {

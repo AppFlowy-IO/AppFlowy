@@ -2,11 +2,15 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
+import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
+import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/cell_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/file_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/media_entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,7 +26,10 @@ class MediaCellBloc extends Bloc<MediaCellEvent, MediaCellState> {
     _startListening();
   }
 
+  late final RowBackendService _rowService =
+      RowBackendService(viewId: cellController.viewId);
   final MediaCellController cellController;
+
   void Function()? _onCellChangedFn;
 
   String get databaseId => cellController.viewId;
@@ -58,7 +65,15 @@ class MediaCellBloc extends Bloc<MediaCellEvent, MediaCellState> {
             emit(state.copyWith(files: files));
           },
           didUpdateField: (fieldName) {
-            emit(state.copyWith(fieldName: fieldName));
+            final typeOption =
+                cellController.getTypeOption(MediaTypeOptionDataParser());
+
+            emit(
+              state.copyWith(
+                fieldName: fieldName,
+                hideFileNames: typeOption.hideFileNames,
+              ),
+            );
           },
           addFile: (url, name, uploadType, fileType) async {
             final newFile = MediaFilePB(
@@ -100,10 +115,6 @@ class MediaCellBloc extends Bloc<MediaCellEvent, MediaCellState> {
           },
           reorderFiles: (from, to) async {
             final files = List<MediaFilePB>.from(state.files);
-            if (from < to) {
-              to--;
-            }
-
             files.insert(to, files.removeAt(from));
 
             // We emit the new state first to update the UI
@@ -143,6 +154,10 @@ class MediaCellBloc extends Bloc<MediaCellEvent, MediaCellState> {
           toggleShowAllFiles: () {
             emit(state.copyWith(showAllFiles: !state.showAllFiles));
           },
+          setCover: (cover) => _rowService.updateMeta(
+            rowId: cellController.rowId,
+            cover: cover,
+          ),
         );
       },
     );
@@ -185,7 +200,7 @@ class MediaCellEvent with _$MediaCellEvent {
   const factory MediaCellEvent.addFile({
     required String url,
     required String name,
-    required MediaUploadTypePB uploadType,
+    required FileUploadTypePB uploadType,
     required MediaFileTypePB fileType,
   }) = _AddFile;
 
@@ -204,6 +219,8 @@ class MediaCellEvent with _$MediaCellEvent {
   }) = _RenameFile;
 
   const factory MediaCellEvent.toggleShowAllFiles() = _ToggleShowAllFiles;
+
+  const factory MediaCellEvent.setCover(RowCoverPB cover) = _SetCover;
 }
 
 @freezed
@@ -213,14 +230,18 @@ class MediaCellState with _$MediaCellState {
     required String fieldName,
     @Default([]) List<MediaFilePB> files,
     @Default(false) showAllFiles,
+    @Default(true) hideFileNames,
   }) = _MediaCellState;
 
   factory MediaCellState.initial(MediaCellController cellController) {
     final cellData = cellController.getCellData();
+    final typeOption =
+        cellController.getTypeOption(MediaTypeOptionDataParser());
 
     return MediaCellState(
       fieldName: cellController.fieldInfo.field.name,
       files: cellData?.files ?? const [],
+      hideFileNames: typeOption.hideFileNames,
     );
   }
 }

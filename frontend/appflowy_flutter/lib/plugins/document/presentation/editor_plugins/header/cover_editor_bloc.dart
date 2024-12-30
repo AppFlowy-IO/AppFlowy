@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/cover_editor.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_header_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_cover_widget.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';

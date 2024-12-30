@@ -13,7 +13,6 @@ DropdownMenuEntry<T> buildDropdownMenuEntry<T>(
   Widget? leadingWidget,
   Widget? trailingWidget,
   String? fontFamily,
-  EdgeInsets padding = const EdgeInsets.symmetric(vertical: 6),
 }) {
   final fontFamilyUsed = fontFamily != null
       ? getGoogleFontSafely(fontFamily).fontFamily ?? defaultFontFamily
@@ -32,14 +31,11 @@ DropdownMenuEntry<T> buildDropdownMenuEntry<T>(
     value: value,
     label: label,
     leadingIcon: leadingWidget,
-    labelWidget: Padding(
-      padding: padding,
-      child: FlowyText.regular(
-        label,
-        fontSize: 14,
-        textAlign: TextAlign.start,
-        fontFamily: fontFamilyUsed,
-      ),
+    labelWidget: FlowyText.regular(
+      label,
+      fontSize: 14,
+      textAlign: TextAlign.start,
+      fontFamily: fontFamilyUsed,
     ),
     trailingIcon: Row(
       children: [

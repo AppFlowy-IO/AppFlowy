@@ -56,7 +56,7 @@ class Toggle extends StatelessWidget {
         : inactiveBackgroundColor ??
             AFThemeExtension.of(context).toggleButtonBGColor;
     return GestureDetector(
-      onTap: () => onChanged(value),
+      onTap: () => onChanged(!value),
       child: Padding(
         padding: padding,
         child: Stack(

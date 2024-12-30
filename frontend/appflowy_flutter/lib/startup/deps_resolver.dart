@@ -35,12 +35,12 @@ import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class DependencyResolver {
   static Future<void> resolve(
@@ -103,7 +103,7 @@ void _resolveCommonService(
 
   // theme
   getIt.registerFactory<BaseAppearance>(
-    () => PlatformExtension.isMobile ? MobileAppearance() : DesktopAppearance(),
+    () => UniversalPlatform.isMobile ? MobileAppearance() : DesktopAppearance(),
   );
 
   getIt.registerFactory<FlowyCacheManager>(

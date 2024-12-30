@@ -1,106 +1,19 @@
-use std::{cmp::Ordering, sync::Arc};
-
-use collab::{preclude::Any, util::AnyMapExt};
-use collab_database::{
-  fields::{Field, TypeOptionData, TypeOptionDataBuilder},
-  rows::{new_cell_builder, Cell},
-};
-use flowy_error::FlowyResult;
-use serde::{Deserialize, Serialize};
-
 use crate::{
-  entities::{FieldType, MediaCellChangeset, MediaCellDataPB, MediaFilterPB, MediaTypeOptionPB},
+  entities::{FieldType, MediaCellChangeset, MediaCellDataPB, MediaFilterPB},
   services::{
     cell::{CellDataChangeset, CellDataDecoder},
     field::{
-      default_order, StringCellData, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-      TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform, CELL_DATA,
+      default_order, CellDataProtobufEncoder, TypeOption, TypeOptionCellData,
+      TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform,
     },
     sort::SortCondition,
   },
 };
-
-use super::MediaFile;
-
-#[derive(Clone, Debug, Default, Serialize)]
-pub struct MediaCellData {
-  pub files: Vec<MediaFile>,
-}
-
-impl From<&Cell> for MediaCellData {
-  fn from(cell: &Cell) -> Self {
-    let files = match cell.get(CELL_DATA) {
-      Some(Any::Array(array)) => array
-        .iter()
-        .flat_map(|item| {
-          if let Any::String(string) = item {
-            Some(serde_json::from_str::<MediaFile>(string).unwrap_or_default())
-          } else {
-            None
-          }
-        })
-        .collect(),
-      _ => vec![],
-    };
-
-    Self { files }
-  }
-}
-
-impl From<&MediaCellData> for Cell {
-  fn from(value: &MediaCellData) -> Self {
-    let data = Any::Array(Arc::from(
-      value
-        .files
-        .clone()
-        .into_iter()
-        .map(|file| Any::String(Arc::from(serde_json::to_string(&file).unwrap_or_default())))
-        .collect::<Vec<_>>(),
-    ));
-
-    let mut cell = new_cell_builder(FieldType::Media);
-    cell.insert(CELL_DATA.into(), data);
-    cell
-  }
-}
-
-impl From<String> for MediaCellData {
-  fn from(s: String) -> Self {
-    if s.is_empty() {
-      return MediaCellData { files: vec![] };
-    }
-
-    let files = s
-      .split(", ")
-      .map(|file: &str| serde_json::from_str::<MediaFile>(file).unwrap_or_default())
-      .collect::<Vec<_>>();
-
-    MediaCellData { files }
-  }
-}
-
-impl TypeOptionCellData for MediaCellData {
-  fn is_cell_empty(&self) -> bool {
-    self.files.is_empty()
-  }
-}
-
-impl ToString for MediaCellData {
-  fn to_string(&self) -> String {
-    self
-      .files
-      .iter()
-      .map(|file| file.to_string())
-      .collect::<Vec<_>>()
-      .join(", ")
-  }
-}
-
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct MediaTypeOption {
-  #[serde(default)]
-  pub files: Vec<MediaFile>,
-}
+use collab_database::fields::media_type_option::{MediaCellData, MediaTypeOption};
+use collab_database::template::util::ToCellString;
+use collab_database::{fields::Field, rows::Cell};
+use flowy_error::FlowyResult;
+use std::cmp::Ordering;
 
 impl TypeOption for MediaTypeOption {
   type CellData = MediaCellData;
@@ -109,58 +22,18 @@ impl TypeOption for MediaTypeOption {
   type CellFilter = MediaFilterPB;
 }
 
-impl From<TypeOptionData> for MediaTypeOption {
-  fn from(data: TypeOptionData) -> Self {
-    data
-      .get_as::<String>("content")
-      .map(|s| serde_json::from_str::<MediaTypeOption>(&s).unwrap_or_default())
-      .unwrap_or_default()
-  }
-}
-
-impl From<MediaTypeOption> for TypeOptionData {
-  fn from(data: MediaTypeOption) -> Self {
-    let content = serde_json::to_string(&data).unwrap_or_default();
-    TypeOptionDataBuilder::from([("content".into(), content.into())])
-  }
-}
-
-impl From<MediaTypeOption> for MediaTypeOptionPB {
-  fn from(value: MediaTypeOption) -> Self {
-    Self {
-      files: value.files.into_iter().map(Into::into).collect(),
-    }
-  }
-}
-
-impl From<MediaTypeOptionPB> for MediaTypeOption {
-  fn from(value: MediaTypeOptionPB) -> Self {
-    Self {
-      files: value.files.into_iter().map(Into::into).collect(),
-    }
-  }
-}
-
 impl TypeOptionTransform for MediaTypeOption {}
 
-impl TypeOptionCellDataSerde for MediaTypeOption {
+impl CellDataProtobufEncoder for MediaTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     cell_data.into()
   }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(cell.into())
-  }
 }
 
 impl CellDataDecoder for MediaTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    self.parse_cell(cell)
-  }
-
   fn decode_cell_with_transform(
     &self,
     _cell: &Cell,
@@ -187,11 +60,7 @@ impl CellDataDecoder for MediaTypeOption {
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
-    cell_data.to_string()
-  }
-
-  fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
-    StringCellData::from(cell).0.parse::<f64>().ok()
+    cell_data.to_cell_string()
   }
 }
 
@@ -205,7 +74,7 @@ impl CellDataChangeset for MediaTypeOption {
       let cell_data = MediaCellData {
         files: changeset.inserted_files,
       };
-      return Ok(((&cell_data).into(), cell_data));
+      return Ok((cell_data.clone().into(), cell_data));
     }
 
     let cell_data: MediaCellData = MediaCellData::from(&cell.unwrap());
@@ -224,7 +93,7 @@ impl CellDataChangeset for MediaTypeOption {
 
     let cell_data = MediaCellData { files };
 
-    Ok((Cell::from(&cell_data), cell_data))
+    Ok((Cell::from(cell_data.clone()), cell_data))
   }
 }
 

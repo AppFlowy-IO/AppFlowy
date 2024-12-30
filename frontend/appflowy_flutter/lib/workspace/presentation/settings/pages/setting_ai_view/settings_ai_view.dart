@@ -1,21 +1,20 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_ai_on_boarding_bloc.dart';
+import 'package:appflowy/workspace/application/settings/ai/settings_ai_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/local_ai_setting.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/model_selection.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
-import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/application/settings/ai/settings_ai_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AIFeatureOnlySupportedWhenUsingAppFlowyCloud extends StatelessWidget {
@@ -39,19 +38,20 @@ class SettingsAIView extends StatelessWidget {
   const SettingsAIView({
     super.key,
     required this.userProfile,
-    required this.member,
+    required this.currentWorkspaceMemberRole,
     required this.workspaceId,
   });
 
   final UserProfilePB userProfile;
-  final WorkspaceMemberPB? member;
+  final AFRolePB? currentWorkspaceMemberRole;
   final String workspaceId;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SettingsAIBloc>(
-      create: (_) => SettingsAIBloc(userProfile, workspaceId, member)
-        ..add(const SettingsAIEvent.started()),
+      create: (_) =>
+          SettingsAIBloc(userProfile, workspaceId, currentWorkspaceMemberRole)
+            ..add(const SettingsAIEvent.started()),
       child: BlocBuilder<SettingsAIBloc, SettingsAIState>(
         builder: (context, state) {
           final children = <Widget>[
@@ -60,11 +60,11 @@ class SettingsAIView extends StatelessWidget {
 
           children.add(const _AISearchToggle(value: false));
 
-          if (state.member != null) {
+          if (state.currentWorkspaceMemberRole != null) {
             children.add(
               _LocalAIOnBoarding(
                 userProfile: userProfile,
-                member: state.member!,
+                currentWorkspaceMemberRole: state.currentWorkspaceMemberRole!,
                 workspaceId: workspaceId,
               ),
             );
@@ -129,11 +129,11 @@ class _AISearchToggle extends StatelessWidget {
 class _LocalAIOnBoarding extends StatelessWidget {
   const _LocalAIOnBoarding({
     required this.userProfile,
-    required this.member,
+    required this.currentWorkspaceMemberRole,
     required this.workspaceId,
   });
   final UserProfilePB userProfile;
-  final WorkspaceMemberPB member;
+  final AFRolePB? currentWorkspaceMemberRole;
   final String workspaceId;
 
   @override
@@ -142,16 +142,18 @@ class _LocalAIOnBoarding extends StatelessWidget {
       return BillingGateGuard(
         builder: (context) {
           return BlocProvider(
-            create: (context) =>
-                LocalAIOnBoardingBloc(userProfile, member, workspaceId)
-                  ..add(const LocalAIOnBoardingEvent.started()),
+            create: (context) => LocalAIOnBoardingBloc(
+              userProfile,
+              currentWorkspaceMemberRole,
+              workspaceId,
+            )..add(const LocalAIOnBoardingEvent.started()),
             child: BlocBuilder<LocalAIOnBoardingBloc, LocalAIOnBoardingState>(
               builder: (context, state) {
                 // Show the local AI settings if the user has purchased the AI Local plan
                 if (kDebugMode || state.isPurchaseAILocal) {
                   return const LocalAISetting();
                 } else {
-                  if (member.role.isOwner) {
+                  if (currentWorkspaceMemberRole?.isOwner ?? false) {
                     // Show the upgrade to AI Local plan button if the user has not purchased the AI Local plan
                     return _UpgradeToAILocalPlan(
                       onTap: () {

@@ -1,4 +1,4 @@
-import { YDatabaseField, YjsDatabaseKey } from '@/application/collab.type';
+import { YDatabaseField, YjsDatabaseKey } from '@/application/types';
 import { getTypeOptions } from '../type_option';
 import { SelectTypeOption } from './select_option.type';
 

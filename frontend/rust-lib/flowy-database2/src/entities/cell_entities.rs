@@ -2,6 +2,8 @@ use collab_database::rows::RowId;
 
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
+use lib_infra::validator_fn::required_not_empty_str;
+use validator::Validate;
 
 use crate::entities::parser::NotEmptyStr;
 use crate::entities::FieldType;
@@ -40,15 +42,18 @@ impl TryInto<CreateSelectOptionParams> for CreateSelectOptionPayloadPB {
   }
 }
 
-#[derive(Debug, Clone, Default, ProtoBuf)]
+#[derive(Debug, Clone, Default, ProtoBuf, Validate)]
 pub struct CellIdPB {
   #[pb(index = 1)]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub view_id: String,
 
   #[pb(index = 2)]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub field_id: String,
 
   #[pb(index = 3)]
+  #[validate(custom(function = "required_not_empty_str"))]
   pub row_id: String,
 }
 

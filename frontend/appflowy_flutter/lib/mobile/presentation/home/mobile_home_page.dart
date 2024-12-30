@@ -20,13 +20,12 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry/sentry.dart';
-import 'package:toastification/toastification.dart';
 
 class MobileHomeScreen extends StatelessWidget {
   const MobileHomeScreen({super.key});
@@ -198,7 +197,6 @@ class _HomePageState extends State<_HomePage> {
               padding: const EdgeInsets.only(
                 left: HomeSpaceViewSizes.mHorizontalPadding,
                 right: 8.0,
-
               ),
               child: MobileHomePageHeader(
                 userProfile: widget.userProfile,
@@ -226,11 +224,11 @@ class _HomePageState extends State<_HomePage> {
                         FavoriteBloc()..add(const FavoriteEvent.initial()),
                   ),
                   BlocProvider(
-                    create: (_) => SpaceBloc()
-                      ..add(
-                        SpaceEvent.initial(
-                          widget.userProfile,
-                          workspaceId,
+                    create: (_) => SpaceBloc(
+                      userProfile: widget.userProfile,
+                      workspaceId: workspaceId,
+                    )..add(
+                        const SpaceEvent.initial(
                           openFirstPage: false,
                         ),
                       ),
@@ -281,18 +279,49 @@ class _HomePageState extends State<_HomePage> {
     ToastificationType toastType = ToastificationType.success;
     switch (actionType) {
       case UserWorkspaceActionType.open:
+        message = result.onFailure((e) {
+          toastType = ToastificationType.error;
+          return '${LocaleKeys.workspace_openFailed.tr()}: ${e.msg}';
+        });
+        break;
+      case UserWorkspaceActionType.delete:
         message = result.fold(
           (s) {
             toastType = ToastificationType.success;
-            return LocaleKeys.workspace_openSuccess.tr();
+            return LocaleKeys.workspace_deleteSuccess.tr();
           },
           (e) {
             toastType = ToastificationType.error;
-            return '${LocaleKeys.workspace_openFailed.tr()}: ${e.msg}';
+            return '${LocaleKeys.workspace_deleteFailed.tr()}: ${e.msg}';
           },
         );
         break;
-
+      case UserWorkspaceActionType.leave:
+        message = result.fold(
+          (s) {
+            toastType = ToastificationType.success;
+            return LocaleKeys
+                .settings_workspacePage_leaveWorkspacePrompt_success
+                .tr();
+          },
+          (e) {
+            toastType = ToastificationType.error;
+            return '${LocaleKeys.settings_workspacePage_leaveWorkspacePrompt_fail.tr()}: ${e.msg}';
+          },
+        );
+        break;
+      case UserWorkspaceActionType.rename:
+        message = result.fold(
+          (s) {
+            toastType = ToastificationType.success;
+            return LocaleKeys.workspace_renameSuccess.tr();
+          },
+          (e) {
+            toastType = ToastificationType.error;
+            return '${LocaleKeys.workspace_renameFailed.tr()}: ${e.msg}';
+          },
+        );
+        break;
       default:
         message = null;
         toastType = ToastificationType.error;

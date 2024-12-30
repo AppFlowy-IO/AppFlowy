@@ -1,8 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
@@ -14,16 +11,16 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/header/deskt
 import 'package:appflowy/plugins/database/widgets/field/field_editor.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_button.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../cell/editable_cell_builder.dart';
-
 import 'accessory/cell_accessory.dart';
 
 /// Display the row properties in a list. Only used in [RowDetailPage].
@@ -295,7 +292,7 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
                 namedArgs: {'count': '${state.numHiddenFields}'},
               );
         final quarterTurns = state.showHiddenFields ? 1 : 3;
-        return PlatformExtension.isDesktopOrWeb
+        return UniversalPlatform.isDesktopOrWeb
             ? _desktop(context, text, quarterTurns)
             : _mobile(context, text, quarterTurns);
       },
@@ -306,7 +303,7 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
     return SizedBox(
       height: 30,
       child: FlowyButton(
-        text: FlowyText.medium(
+        text: FlowyText(
           text,
           lineHeight: 1.0,
           color: Theme.of(context).hintColor,
@@ -346,7 +343,7 @@ class ToggleHiddenFieldsVisibilityButton extends StatelessWidget {
                 EdgeInsets.symmetric(vertical: 14, horizontal: 6),
               ),
             ),
-        label: FlowyText.medium(
+        label: FlowyText(
           text,
           fontSize: 15,
           color: Theme.of(context).hintColor,
@@ -382,7 +379,7 @@ class CreateRowFieldButton extends StatelessWidget {
       height: 30,
       child: FlowyButton(
         margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-        text: FlowyText.medium(
+        text: FlowyText(
           lineHeight: 1.0,
           LocaleKeys.grid_field_newProperty.tr(),
           color: Theme.of(context).hintColor,

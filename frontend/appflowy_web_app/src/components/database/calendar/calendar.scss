@@ -9,7 +9,7 @@ $today-highlight-bg: transparent;
 }
 
 .rbc-button-link {
-  @apply rounded-full w-[20px] h-[20px] my-1.5;
+  @apply rounded-full w-[20px] h-[20px] my-1.5 cursor-default;
 }
 
 

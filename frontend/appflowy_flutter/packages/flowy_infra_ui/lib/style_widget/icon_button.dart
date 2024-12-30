@@ -63,11 +63,12 @@ class FlowyIconButton extends StatelessWidget {
       child = FlowyHover(
         isSelected: isSelected != null ? () => isSelected! : null,
         style: HoverStyle(
-          hoverColor: hoverColor,
-          foregroundColorOnHover:
-              iconColorOnHover ?? Theme.of(context).iconTheme.color,
-          //Do not set background here. Use [fillColor] instead.
-        ),
+            hoverColor: hoverColor,
+            foregroundColorOnHover:
+                iconColorOnHover ?? Theme.of(context).iconTheme.color,
+            borderRadius: radius ?? Corners.s6Border
+            //Do not set background here. Use [fillColor] instead.
+            ),
         resetHoverOnRebuild: false,
         child: child,
       );
@@ -85,7 +86,6 @@ class FlowyIconButton extends StatelessWidget {
         richMessage: richTooltipText,
         child: RawMaterialButton(
           clipBehavior: Clip.antiAlias,
-          visualDensity: VisualDensity.compact,
           hoverElevation: 0,
           highlightElevation: 0,
           shape:

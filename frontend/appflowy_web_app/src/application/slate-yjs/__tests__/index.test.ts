@@ -10,6 +10,8 @@ import Y from 'yjs';
 import { expect } from '@jest/globals';
 import { YjsEditor } from '@/application/slate-yjs';
 
+jest.mock('nanoid');
+
 describe('slate-yjs adapter', () => {
   it('should pass the collaboration test', async () => {
     await runCollaborationTest();

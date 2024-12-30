@@ -90,7 +90,7 @@ class _OpenRowPageButtonState extends State<OpenRowPageButton> {
             ),
             onPressed: () {
               final name = state.content;
-              _openRowPage(context, name);
+              _openRowPage(context, name ?? "");
             },
           ),
         );

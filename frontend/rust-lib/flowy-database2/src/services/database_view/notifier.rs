@@ -1,23 +1,21 @@
 #![allow(clippy::while_let_loop)]
 use crate::entities::{
   CalculationChangesetNotificationPB, DatabaseViewSettingPB, FilterChangesetNotificationPB,
-  GroupChangesPB, GroupRenameNotificationPB, GroupRowsNotificationPB, InsertedRowPB,
-  ReorderAllRowsPB, ReorderSingleRowPB, RowMetaPB, RowsChangePB, RowsVisibilityChangePB,
-  SortChangesetNotificationPB,
+  GroupChangesPB, GroupRowsNotificationPB, ReorderAllRowsPB, ReorderSingleRowPB,
+  RowsVisibilityChangePB, SortChangesetNotificationPB,
 };
-use crate::notification::{send_notification, DatabaseNotification};
+use crate::notification::{database_notification_builder, DatabaseNotification};
 use crate::services::filter::FilterResultNotification;
-use crate::services::sort::{InsertRowResult, ReorderAllRowsResult, ReorderSingleRowResult};
+use crate::services::sort::{ReorderAllRowsResult, ReorderSingleRowResult};
 use async_stream::stream;
 use futures::stream::StreamExt;
 use tokio::sync::broadcast;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum DatabaseViewChanged {
   FilterNotification(FilterResultNotification),
   ReorderAllRowsNotification(ReorderAllRowsResult),
   ReorderSingleRowNotification(ReorderSingleRowResult),
-  InsertRowNotification(InsertRowResult),
   CalculationValueNotification(CalculationChangesetNotificationPB),
 }
 
@@ -52,7 +50,7 @@ impl DatabaseViewChangedReceiverRunner {
                 .collect(),
             };
 
-            send_notification(
+            database_notification_builder(
               &changeset.view_id,
               DatabaseNotification::DidUpdateViewRowsVisibility,
             )
@@ -63,9 +61,12 @@ impl DatabaseViewChangedReceiverRunner {
             let row_orders = ReorderAllRowsPB {
               row_orders: notification.row_orders,
             };
-            send_notification(&notification.view_id, DatabaseNotification::DidReorderRows)
-              .payload(row_orders)
-              .send()
+            database_notification_builder(
+              &notification.view_id,
+              DatabaseNotification::DidReorderRows,
+            )
+            .payload(row_orders)
+            .send()
           },
           DatabaseViewChanged::ReorderSingleRowNotification(notification) => {
             let reorder_row = ReorderSingleRowPB {
@@ -73,30 +74,21 @@ impl DatabaseViewChangedReceiverRunner {
               old_index: notification.old_index as i32,
               new_index: notification.new_index as i32,
             };
-            send_notification(
+            database_notification_builder(
               &notification.view_id,
               DatabaseNotification::DidReorderSingleRow,
             )
             .payload(reorder_row)
             .send()
           },
-          DatabaseViewChanged::InsertRowNotification(result) => {
-            let inserted_row = InsertedRowPB {
-              row_meta: RowMetaPB::from(result.row),
-              index: Some(result.index as i32),
-              is_new: true,
-            };
-            let changes = RowsChangePB::from_insert(inserted_row);
-            send_notification(&result.view_id, DatabaseNotification::DidUpdateRow)
-              .payload(changes)
-              .send();
+          DatabaseViewChanged::CalculationValueNotification(notification) => {
+            database_notification_builder(
+              &notification.view_id,
+              DatabaseNotification::DidUpdateCalculation,
+            )
+            .payload(notification)
+            .send()
           },
-          DatabaseViewChanged::CalculationValueNotification(notification) => send_notification(
-            &notification.view_id,
-            DatabaseNotification::DidUpdateCalculation,
-          )
-          .payload(notification)
-          .send(),
         }
       })
       .await;
@@ -104,19 +96,19 @@ impl DatabaseViewChangedReceiverRunner {
 }
 
 pub async fn notify_did_update_group_rows(payload: GroupRowsNotificationPB) {
-  send_notification(&payload.group_id, DatabaseNotification::DidUpdateGroupRow)
+  database_notification_builder(&payload.group_id, DatabaseNotification::DidUpdateGroupRow)
     .payload(payload)
     .send();
 }
 
 pub async fn notify_did_update_filter(notification: FilterChangesetNotificationPB) {
-  send_notification(&notification.view_id, DatabaseNotification::DidUpdateFilter)
+  database_notification_builder(&notification.view_id, DatabaseNotification::DidUpdateFilter)
     .payload(notification)
     .send();
 }
 
 pub async fn notify_did_update_calculation(notification: CalculationChangesetNotificationPB) {
-  send_notification(
+  database_notification_builder(
     &notification.view_id,
     DatabaseNotification::DidUpdateCalculation,
   )
@@ -126,29 +118,20 @@ pub async fn notify_did_update_calculation(notification: CalculationChangesetNot
 
 pub async fn notify_did_update_sort(notification: SortChangesetNotificationPB) {
   if !notification.is_empty() {
-    send_notification(&notification.view_id, DatabaseNotification::DidUpdateSort)
+    database_notification_builder(&notification.view_id, DatabaseNotification::DidUpdateSort)
       .payload(notification)
       .send();
   }
 }
 
 pub(crate) async fn notify_did_update_num_of_groups(view_id: &str, changeset: GroupChangesPB) {
-  send_notification(view_id, DatabaseNotification::DidUpdateNumOfGroups)
+  database_notification_builder(view_id, DatabaseNotification::DidUpdateNumOfGroups)
     .payload(changeset)
     .send();
 }
 
-pub(crate) async fn notify_did_rename_group(
-  view_id: &str,
-  notification: GroupRenameNotificationPB,
-) {
-  send_notification(view_id, DatabaseNotification::DidRenameGroup)
-    .payload(notification)
-    .send();
-}
-
 pub(crate) async fn notify_did_update_setting(view_id: &str, setting: DatabaseViewSettingPB) {
-  send_notification(view_id, DatabaseNotification::DidUpdateSettings)
+  database_notification_builder(view_id, DatabaseNotification::DidUpdateSettings)
     .payload(setting)
     .send();
 }

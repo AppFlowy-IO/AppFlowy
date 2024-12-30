@@ -1,4 +1,5 @@
-import { GalleryLayout } from '@/application/collab.type';
+import { ReactComponent as ImageIcon } from '@/assets/gallery.svg';
+import { GalleryLayout } from '@/application/types';
 import { GalleryPreview } from '@/components/_shared/gallery-preview';
 import { notify } from '@/components/_shared/notify';
 import Carousel from '@/components/editor/components/blocks/gallery/Carousel';
@@ -6,8 +7,9 @@ import GalleryToolbar from '@/components/editor/components/blocks/gallery/Galler
 import ImageGallery from '@/components/editor/components/blocks/gallery/ImageGallery';
 import { EditorElementProps, GalleryBlockNode } from '@/components/editor/editor.type';
 import { copyTextToClipboard } from '@/utils/copy';
-import React, { forwardRef, memo, useCallback, useMemo, useState } from 'react';
+import React, { forwardRef, memo, Suspense, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useReadOnly } from 'slate-react';
 
 const GalleryBlock = memo(
   forwardRef<HTMLDivElement, EditorElementProps<GalleryBlockNode>>(({
@@ -72,39 +74,68 @@ const GalleryBlock = memo(
     const handlePreviewIndex = useCallback((index: number) => {
       previewIndexRef.current = index;
     }, []);
+    const readOnly = useReadOnly();
 
     return (
-      <div ref={ref} {...attributes} className={className} onMouseEnter={() => setHovered(true)}
-           onMouseLeave={() => setHovered(false)}
+      <div
+        contentEditable={readOnly ? false : undefined}
+        {...attributes}
+        className={className}
+        onMouseEnter={() => {
+          if (!photos.length) return;
+          setHovered(true);
+        }}
+        onMouseLeave={() => setHovered(false)}
       >
-        <div className={'absolute left-0 top-0 h-full w-full pointer-events-none'}>
+        <div
+          ref={ref}
+          className={'absolute left-0 top-0 h-full w-full caret-transparent'}
+        >
           {children}
         </div>
-        {photos.length > 0 ?
-          (layout === GalleryLayout.Carousel ?
-              <Carousel
-                onPreview={handlePreviewIndex}
-                images={photos}
-                autoplay={!openPreview}
-              /> :
-              <ImageGallery
-                onPreview={(index) => {
-                  previewIndexRef.current = index;
-                  handleOpenPreview();
-                }} images={photos}
-              />
-          ) : null}
-        {hovered &&
-          <GalleryToolbar onCopy={handleCopy} onDownload={handleDownload} onOpenPreview={handleOpenPreview} />}
+        <div
+          contentEditable={false}
+          className={`embed-block p-4 ${photos.length > 0 ? '!bg-transparent !border-none !rounded-none' : ''}`}
+        >
+          {photos.length > 0 ?
+            (layout === GalleryLayout.Carousel ?
+                <Carousel
+                  onPreview={handlePreviewIndex}
+                  images={photos}
+                  autoplay={!openPreview}
+                /> :
+                <ImageGallery
+                  onPreview={(index) => {
+                    previewIndexRef.current = index;
+                    handleOpenPreview();
+                  }}
+                  images={photos}
+                />
+            ) : <div
+              className={
+                'flex w-full select-none items-center gap-4 text-text-caption'
+              }
+            >
+              <ImageIcon />
+              {t('document.plugins.image.addAnImageMobile')}
+            </div>}
+        </div>
 
-        {openPreview && <GalleryPreview
+        {hovered &&
+          <GalleryToolbar
+            onCopy={handleCopy}
+            onDownload={handleDownload}
+            onOpenPreview={handleOpenPreview}
+          />}
+
+        {openPreview && <Suspense><GalleryPreview
           images={photos}
           previewIndex={previewIndexRef.current}
           open={openPreview}
           onClose={() => {
             setOpenPreview(false);
           }}
-        />}
+        /></Suspense>}
 
       </div>
     );

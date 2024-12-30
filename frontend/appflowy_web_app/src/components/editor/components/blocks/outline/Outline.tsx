@@ -2,14 +2,16 @@ import { extractHeadings, nestHeadings } from '@/components/editor/components/bl
 import { EditorElementProps, HeadingNode, OutlineNode } from '@/components/editor/editor.type';
 import React, { forwardRef, memo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSlate } from 'slate-react';
+import { useReadOnly, useSlate } from 'slate-react';
 import smoothScrollIntoViewIfNeeded from 'smooth-scroll-into-view-if-needed';
+import { Element } from 'slate';
 
 export const Outline = memo(
   forwardRef<HTMLDivElement, EditorElementProps<OutlineNode>>(({ node, children, className, ...attributes }, ref) => {
     const editor = useSlate();
     const [root, setRoot] = useState<HeadingNode[]>([]);
     const { t } = useTranslation();
+    const readOnly = useReadOnly() || editor.isElementReadOnly(node as unknown as Element);
 
     useEffect(() => {
       const root = nestHeadings(extractHeadings(editor, node.data.depth || 6));
@@ -52,21 +54,31 @@ export const Outline = memo(
           </div>
         );
       },
-      [jumpToHeading]
+      [jumpToHeading],
     );
 
     return (
-      <div {...attributes} className={`outline-block relative my-2 px-1 ${className || ''}`}>
-        <div ref={ref} className={'absolute left-0 top-0 select-none caret-transparent'}>
+      <div
+        {...attributes}
+        contentEditable={readOnly ? false : undefined}
+        ref={ref}
+        className={`outline-block relative px-2 ${className || ''}`}
+      >
+        <div
+          className={'absolute left-0 top-0 select-none caret-transparent'}
+        >
           {children}
         </div>
-        <div contentEditable={false} className={`flex w-full select-none flex-col`}>
+        <div
+          contentEditable={false}
+          className={`flex w-full select-none flex-col`}
+        >
           <div className={'text-md my-2 font-bold'}>{t('document.outlineBlock.placeholder')}</div>
           {root.map(renderHeading)}
         </div>
       </div>
     );
-  })
+  }),
 );
 
 export default Outline;

@@ -1,6 +1,15 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    af_collab_metadata (object_id) {
+        object_id -> Text,
+        updated_at -> BigInt,
+        prev_sync_state_vector -> Binary,
+        collab_type -> Integer,
+    }
+}
+
+diesel::table! {
     chat_local_setting_table (chat_id) {
         chat_id -> Text,
         local_model_path -> Text,
@@ -101,6 +110,8 @@ diesel::table! {
         created_at -> BigInt,
         database_storage_id -> Text,
         icon -> Text,
+        member_count -> BigInt,
+        role -> Nullable<Integer>,
     }
 }
 
@@ -117,6 +128,7 @@ diesel::table! {
 }
 
 diesel::allow_tables_to_appear_in_same_query!(
+  af_collab_metadata,
   chat_local_setting_table,
   chat_message_table,
   chat_table,

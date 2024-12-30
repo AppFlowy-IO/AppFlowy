@@ -2,33 +2,27 @@ use async_trait::async_trait;
 use bytes::Bytes;
 use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
+use collab_folder::hierarchy_builder::NestedViewBuilder;
 pub use collab_folder::View;
 use collab_folder::ViewLayout;
+use dashmap::DashMap;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
 use flowy_error::FlowyError;
 
-use flowy_folder_pub::folder_builder::NestedViewBuilder;
 use lib_infra::util::timestamp;
 
 use crate::entities::{CreateViewParams, ViewLayoutPB};
 use crate::manager::FolderUser;
 use crate::share::ImportType;
 
-pub type ViewData = Bytes;
-
 #[derive(Debug, Clone)]
-pub enum EncodedCollabWrapper {
-  Document(DocumentEncodedCollab),
+pub enum GatherEncodedCollab {
+  Document(EncodedCollab),
   Database(DatabaseEncodedCollab),
   Unknown,
-}
-
-#[derive(Debug, Clone)]
-pub struct DocumentEncodedCollab {
-  pub document_encoded_collab: EncodedCollab,
 }
 
 #[derive(Debug, Clone)]
@@ -45,7 +39,8 @@ pub type ImportedData = (String, CollabType, EncodedCollab);
 /// view layout. Each [ViewLayout] will have a handler. So when creating a new
 /// view, the [ViewLayout] will be used to get the handler.
 #[async_trait]
-pub trait FolderOperationHandler {
+pub trait FolderOperationHandler: Send + Sync {
+  fn name(&self) -> &str;
   /// Create the view for the workspace of new user.
   /// Only called once when the user is created.
   async fn create_workspace_view(
@@ -66,14 +61,14 @@ pub trait FolderOperationHandler {
   async fn delete_view(&self, view_id: &str) -> Result<(), FlowyError>;
 
   /// Returns the [ViewData] that can be used to create the same view.
-  async fn duplicate_view(&self, view_id: &str) -> Result<ViewData, FlowyError>;
+  async fn duplicate_view(&self, view_id: &str) -> Result<Bytes, FlowyError>;
 
   /// get the encoded collab data from the disk.
-  async fn get_encoded_collab_v1_from_disk(
+  async fn gather_publish_encode_collab(
     &self,
-    _user: Arc<dyn FolderUser>,
+    _user: &Arc<dyn FolderUser>,
     _view_id: &str,
-  ) -> Result<EncodedCollabWrapper, FlowyError> {
+  ) -> Result<GatherEncodedCollab, FlowyError> {
     Err(FlowyError::not_support())
   }
 
@@ -104,9 +99,10 @@ pub trait FolderOperationHandler {
   /// Create a view with the pre-defined data.
   /// For example, the initial data of the grid/calendar/kanban board when
   /// you create a new view.
-  async fn create_built_in_view(
+  async fn create_default_view(
     &self,
     user_id: i64,
+    parent_view_id: &str,
     view_id: &str,
     name: &str,
     layout: ViewLayout,
@@ -139,7 +135,7 @@ pub trait FolderOperationHandler {
 }
 
 pub type FolderOperationHandlers =
-  Arc<HashMap<ViewLayout, Arc<dyn FolderOperationHandler + Send + Sync>>>;
+  Arc<DashMap<ViewLayout, Arc<dyn FolderOperationHandler + Send + Sync>>>;
 
 impl From<ViewLayoutPB> for ViewLayout {
   fn from(pb: ViewLayoutPB) -> Self {
@@ -159,7 +155,6 @@ pub(crate) fn create_view(uid: i64, params: CreateViewParams, layout: ViewLayout
     id: params.view_id,
     parent_view_id: params.parent_view_id,
     name: params.name,
-    desc: params.desc,
     created_at: time,
     is_favorite: false,
     layout,
@@ -169,5 +164,24 @@ pub(crate) fn create_view(uid: i64, params: CreateViewParams, layout: ViewLayout
     last_edited_by: Some(uid),
     extra: params.extra,
     children: Default::default(),
+  }
+}
+
+#[derive(Debug, Clone)]
+pub enum ViewData {
+  /// Indicate the data is duplicated from another view.
+  DuplicateData(Bytes),
+  /// Indicate the data is created by the user.
+  Data(Bytes),
+  Empty,
+}
+
+impl ViewData {
+  pub fn is_empty(&self) -> bool {
+    match self {
+      ViewData::DuplicateData(data) => data.is_empty(),
+      ViewData::Data(data) => data.is_empty(),
+      ViewData::Empty => true,
+    }
   }
 }

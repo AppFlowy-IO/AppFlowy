@@ -8,8 +8,11 @@ import {
   parseRelationTypeOption,
   parseNumberTypeOptions,
 } from '@/application/database-yjs';
-import { YDatabaseField, YDatabaseFieldTypeOption, YjsDatabaseKey } from '@/application/collab.type';
-import { withNumberTestingField, withRelationTestingField } from '@/application/database-yjs/__tests__/withTestingField';
+import { YDatabaseField, YDatabaseFieldTypeOption, YjsDatabaseKey } from '@/application/types';
+import {
+  withNumberTestingField,
+  withRelationTestingField,
+} from '@/application/database-yjs/__tests__/withTestingField';
 
 describe('parseYDatabaseCellToCell', () => {
   it('should parse a DateTime cell', () => {

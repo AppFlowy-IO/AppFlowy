@@ -254,13 +254,12 @@ pub async fn create_view(
   sdk: &EventIntegrationTest,
   parent_view_id: &str,
   name: &str,
-  desc: &str,
+  _desc: &str,
   layout: ViewLayout,
 ) -> ViewPB {
   let request = CreateViewPayloadPB {
     parent_view_id: parent_view_id.to_string(),
     name: name.to_string(),
-    desc: desc.to_string(),
     thumbnail: None,
     layout: layout.into(),
     initial_data: vec![],

@@ -3,7 +3,7 @@ use std::cmp::Ordering;
 use anyhow::bail;
 use collab::preclude::Any;
 use collab::util::AnyMapExt;
-use collab_database::rows::{Row, RowId};
+use collab_database::rows::RowId;
 use collab_database::views::{SortMap, SortMapBuilder};
 
 #[derive(Debug, Clone)]
@@ -87,7 +87,7 @@ impl From<i64> for SortCondition {
   }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ReorderAllRowsResult {
   pub view_id: String,
   pub row_orders: Vec<String>,
@@ -102,19 +102,12 @@ impl ReorderAllRowsResult {
   }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ReorderSingleRowResult {
   pub view_id: String,
   pub row_id: RowId,
   pub old_index: usize,
   pub new_index: usize,
-}
-
-#[derive(Clone)]
-pub struct InsertRowResult {
-  pub view_id: String,
-  pub row: Row,
-  pub index: u32,
 }
 
 #[derive(Debug, Default)]

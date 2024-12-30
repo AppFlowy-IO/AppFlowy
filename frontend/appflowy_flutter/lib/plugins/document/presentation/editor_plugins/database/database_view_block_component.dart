@@ -36,7 +36,7 @@ class DatabaseViewBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  bool validate(Node node) =>
+  BlockComponentValidate get validate => (node) =>
       node.children.isEmpty &&
       node.attributes[DatabaseBlockKeys.parentID] is String &&
       node.attributes[DatabaseBlockKeys.viewID] is String;
@@ -71,12 +71,7 @@ class _DatabaseBlockComponentWidgetState
     Widget child = BuiltInPageWidget(
       node: widget.node,
       editorState: editorState,
-      builder: (viewPB) {
-        return DatabaseViewWidget(
-          key: ValueKey(viewPB.id),
-          view: viewPB,
-        );
-      },
+      builder: (view) => DatabaseViewWidget(key: ValueKey(view.id), view: view),
     );
 
     child = Padding(

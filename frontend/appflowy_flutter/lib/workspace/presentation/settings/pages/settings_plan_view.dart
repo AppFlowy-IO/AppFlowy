@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/colors.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy/util/theme_extension.dart';
@@ -540,12 +541,6 @@ class _ToggleMoreState extends State<_ToggleMore> {
 
   @override
   Widget build(BuildContext context) {
-    final isLM = Theme.of(context).isLightMode;
-    final primaryColor =
-        isLM ? const Color(0xFF653E8C) : const Color(0xFFE8E2EE);
-    final secondaryColor =
-        isLM ? const Color(0xFFE8E2EE) : const Color(0xFF653E8C);
-
     return Row(
       children: [
         Toggle(
@@ -576,11 +571,11 @@ class _ToggleMoreState extends State<_ToggleMore> {
             height: 26,
             child: Badge(
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              backgroundColor: secondaryColor,
+              backgroundColor: context.proSecondaryColor,
               label: FlowyText.semibold(
                 widget.badgeLabel!,
                 fontSize: 12,
-                color: primaryColor,
+                color: context.proPrimaryColor,
               ),
             ),
           ),

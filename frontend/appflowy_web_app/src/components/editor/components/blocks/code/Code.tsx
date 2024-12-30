@@ -1,19 +1,20 @@
-import { notify } from '@/components/_shared/notify';
-import RightTopActionsToolbar from '@/components/editor/components/block-actions/RightTopActionsToolbar';
 import { useCodeBlock } from '@/components/editor/components/blocks/code/Code.hooks';
+import CodeToolbar from './CodeToolbar';
 import { CodeNode, EditorElementProps } from '@/components/editor/editor.type';
-import { copyTextToClipboard } from '@/utils/copy';
-import React, { forwardRef, memo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { ReactEditor, useSlateStatic } from 'slate-react';
+import React, { forwardRef, memo, useState, lazy, Suspense } from 'react';
+import { ReactEditor, useReadOnly, useSlateStatic } from 'slate-react';
 import LanguageSelect from './SelectLanguage';
+import { Element } from 'slate';
+
+const MermaidChat = lazy(() => import('./MermaidChat'));
 
 export const CodeBlock = memo(
   forwardRef<HTMLDivElement, EditorElementProps<CodeNode>>(({ node, children, ...attributes }, ref) => {
     const { language, handleChangeLanguage } = useCodeBlock(node);
     const [showToolbar, setShowToolbar] = useState(false);
-    const { t } = useTranslation();
+
     const editor = useSlateStatic();
+    const readOnly = useReadOnly() || editor.isElementReadOnly(node as unknown as Element);
 
     return (
       <div
@@ -23,38 +24,47 @@ export const CodeBlock = memo(
         }}
         onMouseLeave={() => setShowToolbar(false)}
       >
-        <div contentEditable={false} className={'absolute mt-2  flex h-20 w-full select-none items-center px-6'}>
-          <LanguageSelect readOnly language={language} onChangeLanguage={handleChangeLanguage} />
-        </div>
-        <div {...attributes} ref={ref} className={`${attributes.className ?? ''} flex w-full bg-bg-body py-2`}>
-          <pre
-            spellCheck={false}
-            className={`flex w-full overflow-hidden rounded border border-line-divider bg-fill-list-active p-5 pt-20`}
-          >
-            <code>{children}</code>
-          </pre>
-        </div>
-        {showToolbar && (
-          <RightTopActionsToolbar
-            style={{
-              top: '16px',
-            }}
-            onCopy={async () => {
-              try {
-                const at = ReactEditor.findPath(editor, node);
-                const text = editor.string(at);
+        {<div
+          contentEditable={false}
+          style={{
+            visibility: showToolbar ? 'visible' : 'hidden',
+          }}
+          className={'absolute flex h-12 w-full select-none items-center px-2'}
+        >
+          <LanguageSelect
+            readOnly={readOnly}
+            language={language}
+            onChangeLanguage={handleChangeLanguage}
+            onClose={() => {
+              window.getSelection()?.removeAllRanges();
+              ReactEditor.focus(editor);
+              const path = ReactEditor.findPath(editor, node);
 
-                await copyTextToClipboard(text);
-                notify.success(t('publish.copy.codeBlock'));
-              } catch (_) {
-                // do nothing
-              }
+              editor.select(editor.start(path));
             }}
           />
-        )}
+        </div>}
+
+        <div
+          {...attributes}
+          ref={ref}
+          className={`${attributes.className ?? ''} flex w-full`}
+        >
+          <pre
+            spellCheck={false}
+            className={`flex w-full flex-col overflow-auto rounded-[8px]  appflowy-scroller border border-line-divider bg-fill-list-active p-5 pt-12`}
+          >
+            <code>{children}</code>
+            {language === 'mermaid' && <Suspense><MermaidChat
+              node={node}
+            /></Suspense>}
+          </pre>
+        </div>
+
+        {showToolbar && <CodeToolbar node={node}/>}
       </div>
     );
   }),
-  (prevProps, nextProps) => JSON.stringify(prevProps.node) === JSON.stringify(nextProps.node)
+  (prevProps, nextProps) => JSON.stringify(prevProps.node) === JSON.stringify(nextProps.node),
 );
 export default CodeBlock;

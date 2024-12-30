@@ -1,4 +1,13 @@
-import { YDoc } from '@/application/collab.type';
+import {
+  DuplicatePublishView,
+  FolderView,
+  Invitation,
+  User,
+  UserWorkspaceInfo,
+  Workspace,
+  YDoc,
+  View, DatabaseRelations, GetRequestAccessInfoResponse, Subscriptions, SubscriptionPlan,
+} from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { AFService } from '@/application/services/services.type';
 import {
@@ -9,7 +18,6 @@ import {
 } from '@/application/template.type';
 import { nanoid } from 'nanoid';
 import { YMap } from 'yjs/dist/src/types/YMap';
-import { DuplicatePublishView, FolderView, User, Workspace } from '@/application/types';
 
 export class AFClientService implements AFService {
   private deviceId: string = nanoid(8);
@@ -162,7 +170,135 @@ export class AFClientService implements AFService {
     return Promise.reject('Method not implemented');
   }
 
-  uploadFileToCDN (_file: File): Promise<string> {
+  uploadTemplateAvatar (_file: File): Promise<string> {
     return Promise.resolve('');
+  }
+
+  acceptInvitation (_invitationId: string): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getInvitation (_invitationId: string): Promise<Invitation> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getAppOutline (_workspaceId: string): Promise<View[]> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getDatabasePageRows (_workspaceId: string, _viewId: string): Promise<{ rows: YMap<YDoc>; destroy: () => void }> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getPageDoc (_workspaceId: string, _viewId: string): Promise<YDoc> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getUserWorkspaceInfo (): Promise<UserWorkspaceInfo> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getAppDatabaseViewRelations (_workspaceId: string, _databaseStorageId: string): Promise<DatabaseRelations> {
+    return Promise.reject('Method not implemented');
+  }
+
+  openWorkspace (_workspaceId: string): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getAppFavorites (_workspaceId: string): Promise<View[]> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getAppRecent (_workspaceId: string): Promise<View[]> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getAppTrash (_workspaceId: string): Promise<View[]> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getAppView (_workspaceId: string, _viewId: string): Promise<View> {
+    return Promise.reject('Method not implemented');
+  }
+
+  createRowDoc (_rowKey: string): Promise<YDoc> {
+    return Promise.reject('Method not implemented');
+  }
+
+  deleteRowDoc (_rowKey: string): void {
+    return;
+  }
+
+  getPublishRowDocument (_viewId: string): Promise<YDoc> {
+    return Promise.reject('Method not implemented');
+  }
+
+  approveRequestAccess (_requestId: string): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getRequestAccessInfo (_requestId: string): Promise<GetRequestAccessInfoResponse> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getSubscriptionLink (_workspaceId: string, _plan: string, _interval: string): Promise<string> {
+    return Promise.reject('Method not implemented');
+  }
+
+  sendRequestAccess (_workspaceId: string, _viewId: string): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getSubscriptions (): Promise<Subscriptions> {
+    return Promise.reject('Method not implemented');
+  }
+
+  getActiveSubscription (_workspaceId: string): Promise<SubscriptionPlan[]> {
+    return Promise.reject('Method not implemented');
+  }
+
+  registerDocUpdate () {
+    throw new Error('Method not implemented.');
+  }
+
+  importFile (_file: File, _onProgress: (progress: number) => void) {
+    return Promise.reject('Method not implemented');
+  }
+
+  addAppPage (): Promise<string> {
+    return Promise.reject('Method not implemented');
+  }
+
+  deleteTrash (): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  movePage (): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  moveToTrash (): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  restoreFromTrash (): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  updateAppPage (): Promise<void> {
+    return Promise.reject('Method not implemented');
+  }
+
+  createSpace (): Promise<string> {
+    return Promise.reject('');
+  }
+
+  updateSpace (): Promise<void> {
+    return Promise.reject(undefined);
+  }
+
+  uploadFile(): Promise<string> {
+    return Promise.reject('');
   }
 }

@@ -1,17 +1,20 @@
 import 'dart:async';
 
 import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/util/color_to_hex_string.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
-import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class DocumentAppearance {
   const DocumentAppearance({
     required this.fontSize,
     required this.fontFamily,
     required this.codeFontFamily,
+    required this.width,
     this.cursorColor,
     this.selectionColor,
     this.defaultTextDirection,
@@ -23,6 +26,7 @@ class DocumentAppearance {
   final Color? cursorColor;
   final Color? selectionColor;
   final String? defaultTextDirection;
+  final double width;
 
   /// For nullable fields (like `cursorColor`),
   /// use the corresponding `isNull` flag (like `cursorColorIsNull`) to explicitly set the field to `null`.
@@ -39,6 +43,7 @@ class DocumentAppearance {
     bool cursorColorIsNull = false,
     bool selectionColorIsNull = false,
     bool textDirectionIsNull = false,
+    double? width,
   }) {
     return DocumentAppearance(
       fontSize: fontSize ?? this.fontSize,
@@ -50,6 +55,7 @@ class DocumentAppearance {
       defaultTextDirection: textDirectionIsNull
           ? null
           : defaultTextDirection ?? this.defaultTextDirection,
+      width: width ?? this.width,
     );
   }
 }
@@ -57,10 +63,13 @@ class DocumentAppearance {
 class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
   DocumentAppearanceCubit()
       : super(
-          const DocumentAppearance(
+          DocumentAppearance(
             fontSize: 16.0,
             fontFamily: defaultFontFamily,
             codeFontFamily: builtInCodeFontFamily,
+            width: UniversalPlatform.isMobile
+                ? double.infinity
+                : EditorStyleCustomizer.maxDocumentWidth,
           ),
         );
 
@@ -82,6 +91,7 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
     final selectionColor = selectionColorString != null
         ? Color(int.parse(selectionColorString))
         : null;
+    final double? width = prefs.getDouble(KVKeys.kDocumentAppearanceWidth);
 
     final textScaleFactor =
         double.parse(prefs.getString(KVKeys.textScaleFactor) ?? '1.0');
@@ -100,6 +110,7 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
         cursorColorIsNull: cursorColor == null,
         selectionColorIsNull: selectionColor == null,
         textDirectionIsNull: defaultTextDirection == null,
+        width: width,
       ),
     );
   }
@@ -184,6 +195,23 @@ class DocumentAppearanceCubit extends Cubit<DocumentAppearance> {
           selectionColorIsNull: selectionColor == null,
         ),
       );
+    }
+  }
+
+  Future<void> syncWidth(double? width) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    width ??= UniversalPlatform.isMobile
+        ? double.infinity
+        : EditorStyleCustomizer.maxDocumentWidth;
+    width = width.clamp(
+      EditorStyleCustomizer.minDocumentWidth,
+      EditorStyleCustomizer.maxDocumentWidth,
+    );
+    await prefs.setDouble(KVKeys.kDocumentAppearanceWidth, width);
+
+    if (!isClosed) {
+      emit(state.copyWith(width: width));
     }
   }
 }

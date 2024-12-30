@@ -8,58 +8,7 @@ import { ReactComponent as CloudUploadIcon } from '@/assets/cloud_add.svg';
 
 import { useTranslation } from 'react-i18next';
 
-const colorArray = [
-  '#5287D8',
-  '#6E9DE3',
-  '#8BB3ED',
-  '#A7C9F7',
-  '#979EB6',
-  '#A2A8BF',
-  '#ACB2C8',
-  '#C1C7DA',
-  '#E8AF53',
-  '#E6C25A',
-  '#E6D26F',
-  '#E6E288',
-  '#589599',
-  '#68AD8E',
-  '#79C47F',
-  '#8CDB6A',
-  '#AA94DC',
-  '#C49EEB',
-  '#BAACEE',
-  '#D5C4FB',
-  '#F597D2',
-  '#FCB2E3',
-  '#FDC5E8',
-  '#F8D2E1',
-  '#D1D269',
-  '#C7C98D',
-  '#CED09B',
-  '#DAD9B6',
-  '#DDD2C6',
-  '#DDD6C7',
-  '#EADED3',
-  '#FED5C4',
-  '#72A7D8',
-  '#8FCAE3',
-  '#64B3DA',
-  '#52B2D4',
-  '#90A4FF',
-  '#A8BEF4',
-  '#AEBDFF',
-  '#C2CDFF',
-  '#86C1B7',
-  '#A6D8D0',
-  '#A7D7A8',
-  '#C8E4C9',
-  '#FF9494',
-  '#FFBDBD',
-  '#DCA8A8',
-  '#E3C4C4',
-];
-
-function CreatorAvatar({ src, name, enableUpload, onChange, size }: {
+function CreatorAvatar ({ src, name, enableUpload, onChange, size }: {
   src: string;
   name: string;
   enableUpload?: boolean;
@@ -71,7 +20,7 @@ function CreatorAvatar({ src, name, enableUpload, onChange, size }: {
 
   const [tab, setTab] = React.useState(0);
   const avatarProps = useMemo(() => {
-    return stringAvatar(name || '', colorArray);
+    return stringAvatar(name || '');
   }, [name]);
   const [openModal, setOpenModal] = React.useState(false);
 
@@ -136,7 +85,7 @@ function CreatorAvatar({ src, name, enableUpload, onChange, size }: {
             disabled: !imageUrl,
           }}
           onOk={() => {
-            if(!imageUrl) return;
+            if (!imageUrl) return;
             onChange?.(imageUrl);
             setOpenModal(false);
           }}

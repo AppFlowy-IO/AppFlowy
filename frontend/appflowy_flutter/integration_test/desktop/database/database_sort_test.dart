@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/database/grid/presentation/widgets/sort/sort_editor.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -7,9 +8,9 @@ import '../../shared/database_test_op.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('grid', () {
-    testWidgets('add text sort', (tester) async {
-      await tester.openV020database();
+  group('grid sort:', () {
+    testWidgets('text sort', (tester) async {
+      await tester.openTestDatabase(v020GridFileName);
       // create a sort
       await tester.tapDatabaseSortButton();
       await tester.tapCreateSortByFieldType(FieldType.RichText, 'Name');
@@ -37,7 +38,7 @@ void main() {
 
       // open the sort menu and select order by descending
       await tester.tapSortMenuInSettingBar();
-      await tester.tapSortButtonByName('Name');
+      await tester.tapEditSortConditionButtonByFieldName('Name');
       await tester.tapSortByDescending();
       for (final (index, content) in <String>[
         'E',
@@ -60,7 +61,7 @@ void main() {
 
       // delete all sorts
       await tester.tapSortMenuInSettingBar();
-      await tester.tapAllSortButton();
+      await tester.tapDeleteAllSortsButton();
 
       // check the text cell order
       for (final (index, content) in <String>[
@@ -84,8 +85,8 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('add checkbox sort', (tester) async {
-      await tester.openV020database();
+    testWidgets('checkbox', (tester) async {
+      await tester.openTestDatabase(v020GridFileName);
       // create a sort
       await tester.tapDatabaseSortButton();
       await tester.tapCreateSortByFieldType(FieldType.Checkbox, 'Done');
@@ -111,7 +112,7 @@ void main() {
 
       // open the sort menu and select order by descending
       await tester.tapSortMenuInSettingBar();
-      await tester.tapSortButtonByName('Done');
+      await tester.tapEditSortConditionButtonByFieldName('Done');
       await tester.tapSortByDescending();
       for (final (index, content) in <bool>[
         true,
@@ -134,8 +135,8 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('add number sort', (tester) async {
-      await tester.openV020database();
+    testWidgets('number', (tester) async {
+      await tester.openTestDatabase(v020GridFileName);
       // create a sort
       await tester.tapDatabaseSortButton();
       await tester.tapCreateSortByFieldType(FieldType.Number, 'number');
@@ -162,7 +163,7 @@ void main() {
 
       // open the sort menu and select order by descending
       await tester.tapSortMenuInSettingBar();
-      await tester.tapSortButtonByName('number');
+      await tester.tapEditSortConditionButtonByFieldName('number');
       await tester.tapSortByDescending();
       for (final (index, content) in <String>[
         '12',
@@ -186,15 +187,15 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('add checkbox and number sort', (tester) async {
-      await tester.openV020database();
+    testWidgets('checkbox and number', (tester) async {
+      await tester.openTestDatabase(v020GridFileName);
       // create a sort
       await tester.tapDatabaseSortButton();
       await tester.tapCreateSortByFieldType(FieldType.Checkbox, 'Done');
 
       // open the sort menu and sort checkbox by descending
       await tester.tapSortMenuInSettingBar();
-      await tester.tapSortButtonByName('Done');
+      await tester.tapEditSortConditionButtonByFieldName('Done');
       await tester.tapSortByDescending();
       for (final (index, content) in <bool>[
         true,
@@ -220,7 +221,7 @@ void main() {
         FieldType.Number,
         'number',
       );
-      await tester.tapSortButtonByName('number');
+      await tester.tapEditSortConditionButtonByFieldName('number');
       await tester.tapSortByDescending();
 
       // check checkbox cell order
@@ -266,14 +267,14 @@ void main() {
     });
 
     testWidgets('reorder sort', (tester) async {
-      await tester.openV020database();
+      await tester.openTestDatabase(v020GridFileName);
       // create a sort
       await tester.tapDatabaseSortButton();
       await tester.tapCreateSortByFieldType(FieldType.Checkbox, 'Done');
 
       // open the sort menu and sort checkbox by descending
       await tester.tapSortMenuInSettingBar();
-      await tester.tapSortButtonByName('Done');
+      await tester.tapEditSortConditionButtonByFieldName('Done');
       await tester.tapSortByDescending();
 
       // add another sort, this time by number descending
@@ -282,7 +283,7 @@ void main() {
         FieldType.Number,
         'number',
       );
-      await tester.tapSortButtonByName('number');
+      await tester.tapEditSortConditionButtonByFieldName('number');
       await tester.tapSortByDescending();
 
       // check checkbox cell order
@@ -366,6 +367,102 @@ void main() {
         tester.assertCellContent(
           rowIndex: index,
           fieldType: FieldType.Number,
+          content: content,
+        );
+      }
+    });
+
+    testWidgets('edit field', (tester) async {
+      await tester.openTestDatabase(v020GridFileName);
+
+      // create a number sort
+      await tester.tapDatabaseSortButton();
+      await tester.tapCreateSortByFieldType(FieldType.Number, 'number');
+
+      // check the number cell order
+      for (final (index, content) in <String>[
+        '-2',
+        '-1',
+        '0.1',
+        '0.2',
+        '1',
+        '2',
+        '10',
+        '11',
+        '12',
+        '',
+      ].indexed) {
+        tester.assertCellContent(
+          rowIndex: index,
+          fieldType: FieldType.Number,
+          content: content,
+        );
+      }
+
+      final textCells = <String>[
+        'B',
+        'A',
+        'C',
+        'D',
+        'E',
+        '',
+        '',
+        '',
+        '',
+        '',
+      ];
+      for (final (index, content) in textCells.indexed) {
+        tester.assertCellContent(
+          rowIndex: index,
+          fieldType: FieldType.RichText,
+          content: content,
+        );
+      }
+
+      // edit the name of the number field
+      await tester.tapGridFieldWithName('number');
+
+      await tester.renameField('hello world');
+      await tester.dismissFieldEditor();
+
+      await tester.tapGridFieldWithName('hello world');
+      await tester.dismissFieldEditor();
+
+      // expect name to be changed as well
+      await tester.tapSortMenuInSettingBar();
+      final sortItem = find.ancestor(
+        of: find.text('hello world'),
+        matching: find.byType(DatabaseSortItem),
+      );
+      expect(sortItem, findsOneWidget);
+
+      // change the field type of the field to checkbox
+      await tester.tapGridFieldWithName('hello world');
+      await tester.changeFieldTypeOfFieldWithName(
+        'hello world',
+        FieldType.Checkbox,
+      );
+
+      // expect name to be changed as well
+      await tester.tapSortMenuInSettingBar();
+      expect(sortItem, findsOneWidget);
+
+      final newTextCells = <String>[
+        'A',
+        'B',
+        'C',
+        'D',
+        'E',
+        '',
+        '',
+        '',
+        '',
+        '',
+      ];
+      for (final (index, content) in newTextCells.indexed) {
+        tester.assertCellContent(
+          rowIndex: index,
+          fieldType: FieldType.RichText,
           content: content,
         );
       }

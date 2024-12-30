@@ -1,4 +1,156 @@
 # Release Notes
+## Version 0.7.9 - 30/12/2024
+### New Features
+- Meet AppFlowy Web (Lite): Use AppFlowy directly in your browser.
+  - Create beautiful documents with 22 content types and markdown support
+  - Use Quick Note to save anything you want to remember—like meeting notes, a grocery list, or to-dos
+  - Invite members to your workspace for seamless collaboration
+  - Create multiple public/private spaces to better organize your content
+- Simple Table is now available on Mobile, designed specifically for mobile devices.
+  - Create and manage Simple Table blocks on Mobile with easy-to-use action menus.
+  - Use the '+' button in the fixed toolbar to easily add a content block into a table cell on Mobile
+  - Use '/' to insert a content block into a table cell on Desktop
+- Add pages as AI sources in AI chat, enabling you to ask questions about the selected sources
+- Add messages to an editable document while chatting with AI side by side
+- The new Emoji menu now includes Icons with a Recent section for quickly reusing emojis/icons
+- Drag a page from the sidebar into a document to easily mention the page without typing its title
+- Paste as plain text, a new option in the right-click paste menu
+### Bug Fixes
+- Fixed misalignment in numbered lists
+- Resolved several bugs in the emoji menu
+- Fixed a bug with checklist items
+
+## Version 0.7.8 - 18/12/2024
+### New Features
+<img width="1068" alt="image" src="https://github.com/user-attachments/assets/cf8bd287-f370-4291-8638-76e2bbf4aaac" />
+
+- Meet Simple Table 2.0:
+   - Insert a list into a table cell
+   - Insert images, quotes, callouts, and code blocks into a table cell
+   - Drag to move rows or columns
+   - Toggle header rows or columns on/off
+   - Distribute columns evenly
+   - Adjust to page width
+- Enjoy a new UI/UX for a seamless experience
+- Revamped mention page interactions in AI Chat
+- Improved AppFlowy AI service
+
+### Bug Fixes
+- Fixed an error when opening files in the database in local mode
+- Fixed arrow up/down navigation not working for selecting a language in Code Block
+- Fixed an issue where deleting multiple blocks using the drag button on the document page didn’t work
+  
+## Version 0.7.7 - 09/12/2024
+### Bug Fixes
+- Fixed sidebar menu resize regression
+- Fixed AI chat loading issues
+- Fixed inability to open local files in database
+- Fixed mentions remaining in notifications after removal from document
+- Fixed event card closing when clicking on empty space
+- Fixed keyboard shortcut issues
+
+## Version 0.7.6 - 03/12/2024
+### New Features
+- Revamped the simple table UI
+- Added support for capturing images from camera on mobile
+### Bug Fixes
+- Improved markdown rendering capabilities in AI writer
+- Fixed an issue where pressing Enter on a collapsed toggle list would add an unnecessary new line
+- Fixed an issue where creating a document from slash menu could insert content at incorrect position
+
+## Version 0.7.5 - 25/11/2024
+### Bug Fixes
+- Improved chat response parsing
+- Fixed toggle list icon direction for RTL mode
+- Fixed cross blocks formatting not reflecting in float toolbar
+- Fixed unable to click inside the toggle list to create a new paragraph
+- Fixed open file error 50 on macOS
+- Fixed upload file exceed limit error
+
+## Version 0.7.4 - 19/11/2024
+### New Features
+- Support uploading WebP and BMP images
+- Support managing workspaces on mobile
+- Support adding toggle headings on mobile
+- Improve the AI chat page UI
+### Bug Fixes
+- Optimized the workspace menu loading performance
+- Optimized tab switching performance
+- Fixed searching issues in Document page
+
+## Version 0.7.3 - 07/11/2024
+### New Features
+- Enable custom URLs for published pages
+- Support toggling headings
+- Create a subpage by typing in the document
+- Turn selected blocks into a subpage
+- Add a manual date picker for the Date property
+
+### Bug Fixes
+- Fixed an issue where the workspace owner was unable to delete spaces created by others
+- Fixed cursor height inconsistencies with text height
+- Fixed editing issues in Kanban cards
+- Fixed an issue preventing images or files from being dropped into empty paragraphs
+
+## Version 0.7.2 - 22/10/2024
+### New Features
+- Copy link to block
+- Support turn into in document
+- Enable sharing links and publishing pages on mobile
+- Enable drag and drop in row documents
+- Right-click on page in sidebar to open more actions
+- Create new subpage in document using `+` character
+- Allow reordering checklist item
+
+### Bug Fixes
+- Fixed issue with inability to cancel inline code format in French IME
+- Fixed delete with Shift or Ctrl shortcuts not working in documents
+- Fixed the issues with incorrect time zone being used in filters.
+
+## Version 0.7.1 - 07/10/2024
+### New Features
+- Copy link to share and open it in a browser
+- Enable the ability to edit the page title within the body of the document
+- Filter by last modified, created at, or a date range
+- Allow customization of database property icons
+- Support CTRL/CMD+X to delete the current line when the selection is collapsed in the document
+- Support window tiling on macOS
+- Add filters to grid views on mobile
+- Create and manage workspaces on mobile
+- Automatically convert property types for imported CSV files
+
+### Bug Fixes
+- Fixed calculations with filters applied
+- Fixed issues with importing data folders into a cloud account
+- Fixed French IME backtick issues
+- Fixed selection gesture bugs on mobile
+
+## Version 0.7.0 - 19/09/2024
+### New Features
+- Support reordering blocks in document with drag and drop
+- Support for adding a cover to a row/card in databases
+- Added support for accessing settings on the sign-in page
+- Added "Move to" option to the document menu in top right corner
+- Support for adjusting the document width from settings
+- Show full name of a group on hover
+- Colored group names in kanban boards
+- Support "Ask AI" on multiple lines of text
+- Support for keyboard gestures to move cursor on Mobile
+- Added markdown support for quickly inserting a code block using three backticks
+
+### Bug Fixes
+- Fixed a critical bug where the backtick character would crash the application
+- Fixed an issue with signing-in from the settings dialog where the dialog would persist
+- Fixed a visual bug with icon alignment in primary cell of database rows
+- Fixed a bug with filters applied where new rows were inserted in wrong position
+- Fixed a bug where "Untitled" would override the name of the row
+- Fixed page title not updating after renaming from "More"-menu
+- Fixed File block breaking row detail document
+- Fixed issues with reordering rows with sorting rules applied
+- Improvements to the File & Media type in Database
+- Performance improvement in Grid view
+- Fixed filters sometimes not applying properly in databases
+
 ## Version 0.6.9 - 09/09/2024
 ### New Features
 - Added a new property type, 'Files & media'
@@ -16,7 +168,7 @@
 - Fixed the inability to edit group names on Kanban boards
 - Made error codes more user-friendly
 - Added leading zeros to day and month in date format
-  
+
 ## Version 0.6.8 - 22/08/2024
 ### New Features
 - Enabled viewing data inside a database record on mobile.

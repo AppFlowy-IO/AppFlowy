@@ -241,15 +241,11 @@ class CellDataNotifier<T> extends ChangeNotifier {
   bool Function(T? oldValue, T? newValue)? listenWhen;
 
   set value(T newValue) {
-    if (listenWhen?.call(_value, newValue) ?? false) {
-      _value = newValue;
-      notifyListeners();
-    } else {
-      if (_value != newValue) {
-        _value = newValue;
-        notifyListeners();
-      }
+    if (listenWhen != null && !listenWhen!.call(_value, newValue)) {
+      return;
     }
+    _value = newValue;
+    notifyListeners();
   }
 
   T get value => _value;

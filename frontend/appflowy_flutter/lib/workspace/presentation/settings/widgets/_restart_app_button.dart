@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/sign_in_or_logout_button.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' show PlatformExtension;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class RestartButton extends StatelessWidget {
   const RestartButton({
@@ -34,7 +34,7 @@ class RestartButton extends StatelessWidget {
   }
 
   Widget _buildRestartButton(BuildContext context) {
-    if (PlatformExtension.isDesktopOrWeb) {
+    if (UniversalPlatform.isDesktopOrWeb) {
       return Row(
         children: [
           SizedBox(

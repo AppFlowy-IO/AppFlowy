@@ -1,9 +1,9 @@
+use collab_database::fields::media_type_option::{
+  MediaCellData, MediaFile, MediaFileType, MediaTypeOption,
+};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 
-use crate::{
-  entities::CellIdPB,
-  services::field::{MediaCellData, MediaFile, MediaFileType, MediaUploadType},
-};
+use crate::entities::{CellIdPB, FileUploadTypePB};
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct MediaCellDataPB {
@@ -30,7 +30,23 @@ impl From<MediaCellDataPB> for MediaCellData {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct MediaTypeOptionPB {
   #[pb(index = 1)]
-  pub files: Vec<MediaFilePB>,
+  pub hide_file_names: bool,
+}
+
+impl From<MediaTypeOption> for MediaTypeOptionPB {
+  fn from(value: MediaTypeOption) -> Self {
+    Self {
+      hide_file_names: value.hide_file_names,
+    }
+  }
+}
+
+impl From<MediaTypeOptionPB> for MediaTypeOption {
+  fn from(value: MediaTypeOptionPB) -> Self {
+    Self {
+      hide_file_names: value.hide_file_names,
+    }
+  }
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
@@ -45,39 +61,10 @@ pub struct MediaFilePB {
   pub url: String,
 
   #[pb(index = 4)]
-  pub upload_type: MediaUploadTypePB,
+  pub upload_type: FileUploadTypePB,
 
   #[pb(index = 5)]
   pub file_type: MediaFileTypePB,
-}
-
-#[derive(Debug, Clone, Default, PartialEq, Eq, ProtoBuf_Enum)]
-#[repr(u8)]
-pub enum MediaUploadTypePB {
-  #[default]
-  LocalMedia = 0,
-  NetworkMedia = 1,
-  CloudMedia = 2,
-}
-
-impl From<MediaUploadType> for MediaUploadTypePB {
-  fn from(data: MediaUploadType) -> Self {
-    match data {
-      MediaUploadType::LocalMedia => MediaUploadTypePB::LocalMedia,
-      MediaUploadType::NetworkMedia => MediaUploadTypePB::NetworkMedia,
-      MediaUploadType::CloudMedia => MediaUploadTypePB::CloudMedia,
-    }
-  }
-}
-
-impl From<MediaUploadTypePB> for MediaUploadType {
-  fn from(data: MediaUploadTypePB) -> Self {
-    match data {
-      MediaUploadTypePB::LocalMedia => MediaUploadType::LocalMedia,
-      MediaUploadTypePB::NetworkMedia => MediaUploadType::NetworkMedia,
-      MediaUploadTypePB::CloudMedia => MediaUploadType::CloudMedia,
-    }
-  }
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, ProtoBuf_Enum)]

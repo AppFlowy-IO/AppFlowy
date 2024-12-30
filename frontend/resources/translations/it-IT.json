@@ -176,11 +176,13 @@
     "chatWithFilePrompt": "Vuoi chattare col file?",
     "indexFileSuccess": "Indicizzazione file completata con successo",
     "inputActionNoPages": "Nessuna pagina risultante",
-    "referenceSource": "{} fonte trovata",
-    "referenceSources": "{} fonti trovate",
+    "referenceSource": {
+      "zero": "0 fonti trovate",
+      "one": "{count} fonte trovata",
+      "other": "{count} fonti trovate"
+    },
     "clickToMention": "Clicca per menzionare una pagina",
     "uploadFile": "Carica file PDF, MD o TXT con la quale chattare",
-    "questionTitle": "Idee",
     "questionDetail": "Salve {}! Come posso aiutarti oggi?",
     "indexingFile": "Indicizzazione {}"
   },
@@ -386,9 +388,6 @@
       "cloudServerType": "Server cloud",
       "cloudServerTypeTip": "Tieni presente che dopo aver cambiato il server cloud il tuo account corrente potrebbe disconnettersi",
       "cloudLocal": "Locale",
-      "cloudSupabase": "Supabase",
-      "cloudSupabaseUrl": "URL di Supabase",
-      "cloudSupabaseUrlCanNotBeEmpty": "L'url di supabase non può essere vuoto",
       "cloudAppFlowy": "@:appName Cloud Beta",
       "cloudAppFlowySelfHost": "@:appName Cloud Self-hosted (autogestito)",
       "appFlowyCloudUrlCanNotBeEmpty": "L'url del cloud non può essere vuoto",
@@ -417,8 +416,7 @@
       "importAppFlowyDataDescription": "Copia i dati da una cartella dati @:appName esterna e importali nella cartella dati @:appName corrente",
       "importSuccess": "Importazione della cartella dati @:appName riuscita",
       "importFailed": "L'importazione della cartella dati di @:appName non è riuscita",
-      "importGuide": "Per ulteriori dettagli si prega di consultare il documento di riferimento",
-      "supabaseSetting": "Impostazione Supabase"
+      "importGuide": "Per ulteriori dettagli si prega di consultare il documento di riferimento"
     },
     "notifications": {
       "enableNotifications": {

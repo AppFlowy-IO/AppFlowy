@@ -33,7 +33,7 @@ class EndTimeButton extends StatelessWidget {
                 color: Theme.of(context).iconTheme.color,
               ),
               const HSpace(6),
-              FlowyText.medium(LocaleKeys.datePicker_isRange.tr()),
+              FlowyText(LocaleKeys.datePicker_isRange.tr()),
               const Spacer(),
               Toggle(
                 value: isRange,

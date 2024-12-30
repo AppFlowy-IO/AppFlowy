@@ -32,7 +32,7 @@ class RowController {
   final RowBackendService _rowBackendSvc;
   bool _isDisposed = false;
 
-  String get rowId => rowMeta.id;
+  String get rowId => _rowMeta.id;
   RowMetaPB get rowMeta => _rowMeta;
   CellMemCache get cellCache => _rowCache.cellCache;
 

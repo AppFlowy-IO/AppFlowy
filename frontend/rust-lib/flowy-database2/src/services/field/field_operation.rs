@@ -1,10 +1,10 @@
-use std::sync::Arc;
-
+use collab_database::fields::select_type_option::{MultiSelectTypeOption, SingleSelectTypeOption};
 use flowy_error::{FlowyError, FlowyResult};
+use std::sync::Arc;
 
 use crate::entities::FieldType;
 use crate::services::database::DatabaseEditor;
-use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption, TypeOption};
+use crate::services::field::TypeOption;
 
 pub async fn edit_field_type_option<T: TypeOption>(
   field_id: &str,

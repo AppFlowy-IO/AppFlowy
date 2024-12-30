@@ -98,7 +98,7 @@ class BottomSheetBackButton extends StatelessWidget {
           width: 18,
           height: 18,
           child: FlowySvg(
-            FlowySvgs.m_app_bar_back_s,
+            FlowySvgs.m_bottom_sheet_back_s,
           ),
         ),
       ),

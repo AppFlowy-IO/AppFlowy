@@ -18,13 +18,13 @@ mod util;
 pub use checkbox_type_option::*;
 pub use checklist_type_option::*;
 pub use date_type_option::*;
-pub use media_type_option::*;
+
 pub use number_type_option::*;
 pub use relation_type_option::*;
 pub use selection_type_option::*;
 pub use text_type_option::*;
 pub use time_type_option::*;
-pub use timestamp_type_option::*;
+
 pub use type_option::*;
 pub use type_option_cell::*;
 pub use url_type_option::*;

@@ -23,7 +23,7 @@ class DateFormatButton extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(
+        text: FlowyText(
           LocaleKeys.grid_field_dateFormat.tr(),
           lineHeight: 1.0,
         ),
@@ -50,7 +50,7 @@ class TimeFormatButton extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(
+        text: FlowyText(
           LocaleKeys.grid_field_timeFormat.tr(),
           lineHeight: 1.0,
         ),
@@ -74,7 +74,9 @@ class DateFormatList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cells = DateFormatPB.values.map((format) {
+    final cells = DateFormatPB.values
+        .where((value) => value != DateFormatPB.FriendlyFull)
+        .map((format) {
       return DateFormatCell(
         dateFormat: format,
         onSelected: onSelected,
@@ -120,7 +122,7 @@ class DateFormatCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(
+        text: FlowyText(
           dateFormat.title(),
           lineHeight: 1.0,
         ),
@@ -144,6 +146,8 @@ extension DateFormatExtension on DateFormatPB {
         return LocaleKeys.grid_field_dateFormatUS.tr();
       case DateFormatPB.DayMonthYear:
         return LocaleKeys.grid_field_dateFormatDayMonthYear.tr();
+      case DateFormatPB.FriendlyFull:
+        return LocaleKeys.grid_field_dateFormatFriendly.tr();
       default:
         throw UnimplementedError;
     }
@@ -208,7 +212,7 @@ class TimeFormatCell extends StatelessWidget {
     return SizedBox(
       height: GridSize.popoverItemHeight,
       child: FlowyButton(
-        text: FlowyText.medium(
+        text: FlowyText(
           timeFormat.title(),
           lineHeight: 1.0,
         ),
@@ -236,11 +240,11 @@ class IncludeTimeButton extends StatelessWidget {
   const IncludeTimeButton({
     super.key,
     required this.onChanged,
-    required this.value,
+    required this.includeTime,
   });
 
   final Function(bool value) onChanged;
-  final bool value;
+  final bool includeTime;
 
   @override
   Widget build(BuildContext context) {
@@ -255,10 +259,10 @@ class IncludeTimeButton extends StatelessWidget {
               color: Theme.of(context).iconTheme.color,
             ),
             const HSpace(6),
-            FlowyText.medium(LocaleKeys.grid_field_includeTime.tr()),
+            FlowyText(LocaleKeys.grid_field_includeTime.tr()),
             const Spacer(),
             Toggle(
-              value: value,
+              value: includeTime,
               onChanged: onChanged,
               padding: EdgeInsets.zero,
             ),

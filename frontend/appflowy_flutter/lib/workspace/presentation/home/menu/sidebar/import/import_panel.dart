@@ -151,66 +151,70 @@ class _ImportPanelState extends State<ImportPanel> {
 
     showLoading.value = true;
 
-    final importValues = <ImportValuePayloadPB>[];
-
+    final importValues = <ImportItemPayloadPB>[];
     for (final file in result.files) {
       final path = file.path;
       if (path == null) {
         continue;
       }
-      final data = await File(path).readAsString();
       final name = p.basenameWithoutExtension(path);
 
       switch (importType) {
-        case ImportType.markdownOrText:
-        case ImportType.historyDocument:
-          final bytes = _documentDataFrom(importType, data);
-          if (bytes != null) {
-            importValues.add(
-              ImportValuePayloadPB.create()
-                ..name = name
-                ..data = bytes
-                ..viewLayout = ViewLayoutPB.Document
-                ..importType = ImportTypePB.HistoryDocument,
-            );
-          }
-          break;
         case ImportType.historyDatabase:
+          final data = await File(path).readAsString();
           importValues.add(
-            ImportValuePayloadPB.create()
+            ImportItemPayloadPB.create()
               ..name = name
               ..data = utf8.encode(data)
               ..viewLayout = ViewLayoutPB.Grid
               ..importType = ImportTypePB.HistoryDatabase,
           );
           break;
-        case ImportType.databaseRawData:
-          importValues.add(
-            ImportValuePayloadPB.create()
-              ..name = name
-              ..data = utf8.encode(data)
-              ..viewLayout = ViewLayoutPB.Grid
-              ..importType = ImportTypePB.RawDatabase,
-          );
+        case ImportType.historyDocument:
+        case ImportType.markdownOrText:
+          final data = await File(path).readAsString();
+          final bytes = _documentDataFrom(importType, data);
+          if (bytes != null) {
+            importValues.add(
+              ImportItemPayloadPB.create()
+                ..name = name
+                ..data = bytes
+                ..viewLayout = ViewLayoutPB.Document
+                ..importType = ImportTypePB.Markdown,
+            );
+          }
           break;
-        case ImportType.databaseCSV:
+        case ImportType.csv:
+          final data = await File(path).readAsString();
           importValues.add(
-            ImportValuePayloadPB.create()
+            ImportItemPayloadPB.create()
               ..name = name
               ..data = utf8.encode(data)
               ..viewLayout = ViewLayoutPB.Grid
               ..importType = ImportTypePB.CSV,
           );
           break;
+        case ImportType.afDatabase:
+          final data = await File(path).readAsString();
+          importValues.add(
+            ImportItemPayloadPB.create()
+              ..name = name
+              ..data = utf8.encode(data)
+              ..viewLayout = ViewLayoutPB.Grid
+              ..importType = ImportTypePB.AFDatabase,
+          );
+          break;
         default:
-          assert(false, 'Unsupported Type $importType');
+          break;
       }
     }
 
-    await ImportBackendService.importPages(
-      parentViewId,
-      importValues,
-    );
+    if (importValues.isNotEmpty) {
+      await ImportBackendService.importPages(
+        parentViewId,
+        importValues,
+      );
+    }
 
     showLoading.value = false;
     widget.importCallback(importType, '', null);
@@ -219,11 +223,11 @@ class _ImportPanelState extends State<ImportPanel> {
 
 Uint8List? _documentDataFrom(ImportType importType, String data) {
   switch (importType) {
-    case ImportType.markdownOrText:
-      final document = customMarkdownToDocument(data);
-      return DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer();
     case ImportType.historyDocument:
       final document = EditorMigration.migrateDocument(data);
+      return DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer();
+    case ImportType.markdownOrText:
+      final document = customMarkdownToDocument(data);
       return DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer();
     default:
       assert(false, 'Unsupported Type $importType');

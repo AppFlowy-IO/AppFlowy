@@ -43,7 +43,13 @@ const logRequestTimer = (req: Request) => {
   };
 };
 
-const fetchMetaData = async (url: string) => {
+const fetchMetaData = async (namespace: string, publishName?: string) => {
+  let url = `${baseURL}/api/workspace/published/${namespace}`;
+
+  if (publishName) {
+    url += `/${publishName}`;
+  }
+
   logger.info(`Fetching meta data from ${url}`);
   try {
     const response = await fetch(url, {
@@ -68,7 +74,17 @@ const createServer = async (req: Request) => {
 
   logger.info(`Request URL: ${hostname}${reqUrl.pathname}`);
 
-  if (['/after-payment', '/login', '/as-template'].includes(reqUrl.pathname)) {
+  if (reqUrl.pathname === '/') {
+    timer();
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: '/app',
+      },
+    });
+  }
+
+  if (['/after-payment', '/login', '/as-template', '/app', '/accept-invitation', '/import'].some(item => reqUrl.pathname.startsWith(item))) {
     timer();
     const htmlData = fs.readFileSync(indexPath, 'utf8');
     const $ = load(htmlData);
@@ -98,7 +114,7 @@ const createServer = async (req: Request) => {
   logger.info(`Namespace: ${namespace}, Publish Name: ${publishName}`);
 
   if (req.method === 'GET') {
-    if (namespace === '' || !publishName) {
+    if (namespace === '') {
       timer();
       return new Response(null, {
         status: 302,
@@ -111,7 +127,27 @@ const createServer = async (req: Request) => {
     let metaData;
 
     try {
-      metaData = await fetchMetaData(`${baseURL}/api/workspace/published/${namespace}/${publishName}`);
+      const data = await fetchMetaData(namespace, publishName);
+
+      if (publishName) {
+        metaData = data;
+      } else {
+
+        const publishInfo = data?.data?.info;
+
+        if (publishInfo) {
+          const newURL = `/${encodeURIComponent(publishInfo.namespace)}/${encodeURIComponent(publishInfo.publish_name)}`;
+
+          logger.info(`Redirecting to default page in: ${JSON.stringify(publishInfo)}`);
+          timer();
+          return new Response(null, {
+            status: 302,
+            headers: {
+              Location: newURL,
+            },
+          });
+        }
+      }
     } catch (error) {
       logger.error(`Error fetching meta data: ${error}`);
     }
@@ -123,7 +159,7 @@ const createServer = async (req: Request) => {
     let title = 'AppFlowy';
     const url = `https://${hostname}${reqUrl.pathname}`;
     let image = '/og-image.png';
-    let favicon = '/appflowy.svg';
+    let favicon = '/appflowy.ico';
 
     try {
       if (metaData && metaData.view) {
@@ -166,6 +202,7 @@ const createServer = async (req: Request) => {
 
     $('title').text(title);
     $('link[rel="icon"]').attr('href', favicon);
+    $('link[rel="canonical"]').attr('href', url);
     setOrUpdateMetaTag($, 'meta[name="description"]', 'name', description);
     setOrUpdateMetaTag($, 'meta[property="og:title"]', 'property', title);
     setOrUpdateMetaTag($, 'meta[property="og:description"]', 'property', description);

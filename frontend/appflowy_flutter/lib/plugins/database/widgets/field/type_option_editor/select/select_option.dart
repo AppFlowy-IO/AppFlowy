@@ -7,7 +7,6 @@ import 'package:appflowy/plugins/database/application/field/type_option/select_t
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/select_option_cell_editor.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -180,7 +179,7 @@ class _AddOptionButton extends StatelessWidget {
       child: SizedBox(
         height: GridSize.popoverItemHeight,
         child: FlowyButton(
-          text: FlowyText.medium(
+          text: FlowyText(
             lineHeight: 1.0,
             LocaleKeys.grid_field_addSelectOption.tr(),
           ),
@@ -206,22 +205,23 @@ class CreateOptionTextField extends StatefulWidget {
 }
 
 class _CreateOptionTextFieldState extends State<CreateOptionTextField> {
-  late final FocusNode _focusNode;
+  final focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _focusNode = FocusNode()
-      ..addListener(() {
-        if (_focusNode.hasFocus) {
-          widget.popoverMutex?.close();
-        }
-      });
-    widget.popoverMutex?.listenOnPopoverChanged(() {
-      if (_focusNode.hasFocus) {
-        _focusNode.unfocus();
-      }
-    });
+
+    focusNode.addListener(_onFocusChanged);
+    widget.popoverMutex?.addPopoverListener(_onPopoverChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.popoverMutex?.removePopoverListener(_onPopoverChanged);
+    focusNode.removeListener(_onFocusChanged);
+    focusNode.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -234,7 +234,7 @@ class _CreateOptionTextFieldState extends State<CreateOptionTextField> {
           child: FlowyTextField(
             autoClearWhenDone: true,
             text: text,
-            focusNode: _focusNode,
+            focusNode: focusNode,
             onCanceled: () {
               context
                   .read<SelectOptionTypeOptionBloc>()
@@ -252,15 +252,16 @@ class _CreateOptionTextFieldState extends State<CreateOptionTextField> {
     );
   }
 
-  @override
-  void dispose() {
-    _focusNode.removeListener(() {
-      if (_focusNode.hasFocus) {
-        widget.popoverMutex?.close();
-      }
-    });
-    _focusNode.dispose();
-    super.dispose();
+  void _onFocusChanged() {
+    if (focusNode.hasFocus) {
+      widget.popoverMutex?.close();
+    }
+  }
+
+  void _onPopoverChanged() {
+    if (focusNode.hasFocus) {
+      focusNode.unfocus();
+    }
   }
 }
 

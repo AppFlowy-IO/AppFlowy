@@ -1,29 +1,29 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:flutter/foundation.dart';
-
 import 'package:appflowy/plugins/database/application/defines.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/board/group_ext.dart';
 import 'package:appflowy/plugins/database/domain/group_service.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' hide Log;
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart' hide FieldInfo;
+import 'package:universal_platform/universal_platform.dart';
 
 import '../../application/database_controller.dart';
 import '../../application/field/field_controller.dart';
 import '../../application/row/row_cache.dart';
-
 import 'group_controller.dart';
 
 part 'board_bloc.freezed.dart';
@@ -49,8 +49,15 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   late final GroupBackendService groupBackendSvc;
 
+  UserProfilePB? _userProfile;
+  UserProfilePB? get userProfile => _userProfile;
+
   FieldController get fieldController => databaseController.fieldController;
   String get viewId => databaseController.viewId;
+
+  DatabaseCallbacks? _databaseCallbacks;
+  DatabaseLayoutSettingCallbacks? _layoutSettingsCallback;
+  GroupCallbacks? _groupCallbacks;
 
   void _initBoardController(AppFlowyBoardController? controller) {
     boardController = controller ??
@@ -96,6 +103,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             emit(BoardState.initial(viewId));
             _startListening();
             await _openDatabase(emit);
+
+            final result = await UserEventGetUserProfile().send();
+            result.fold(
+              (profile) => _userProfile = profile,
+              (err) => Log.error('Failed to fetch user profile: ${err.msg}'),
+            );
           },
           createRow: (groupId, position, title, targetRowId) async {
             final primaryField = databaseController.fieldController.fieldInfos
@@ -113,7 +126,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             );
 
             final startEditing = position != OrderObjectPositionTypePB.End;
-            final action = PlatformExtension.isMobile
+            final action = UniversalPlatform.isMobile
                 ? DidCreateRowAction.openAsPage
                 : startEditing
                     ? DidCreateRowAction.startEditing
@@ -137,11 +150,18 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           },
           createGroup: (name) async {
             final result = await groupBackendSvc.createGroup(name: name);
-            result.fold((_) {}, (err) => Log.error(err));
+            result.onFailure(Log.error);
           },
           deleteGroup: (groupId) async {
             final result = await groupBackendSvc.deleteGroup(groupId: groupId);
-            result.fold((_) {}, (err) => Log.error(err));
+            result.onFailure(Log.error);
+          },
+          renameGroup: (groupId, name) async {
+            final result = await groupBackendSvc.updateGroup(
+              groupId: groupId,
+              name: name,
+            );
+            result.onFailure(Log.error);
           },
           didReceiveError: (error) {
             emit(BoardState.error(error: error));
@@ -207,7 +227,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               final currentName = group.generateGroupName(databaseController);
               if (currentName != groupName) {
                 await groupBackendSvc.updateGroup(
-                  fieldId: groupControllers.values.first.group.fieldId,
                   groupId: groupId,
                   name: groupName,
                 );
@@ -258,6 +277,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               );
             }
           },
+          openRowDetail: (rowMeta) {
+            final copyState = state;
+            emit(BoardState.openRowDetail(rowMeta: rowMeta));
+            emit(copyState);
+          },
         );
       },
     );
@@ -282,7 +306,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       );
     } else {
       await groupBackendSvc.updateGroup(
-        fieldId: groupControllers.values.first.group.fieldId,
         groupId: group.groupId,
         visible: isVisible,
       );
@@ -311,6 +334,17 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     for (final controller in groupControllers.values) {
       await controller.dispose();
     }
+
+    databaseController.removeListener(
+      onDatabaseChanged: _databaseCallbacks,
+      onLayoutSettingsChanged: _layoutSettingsCallback,
+      onGroupChanged: _groupCallbacks,
+    );
+
+    _databaseCallbacks = null;
+    _layoutSettingsCallback = null;
+    _groupCallbacks = null;
+
     boardController.dispose();
     return super.close();
   }
@@ -361,7 +395,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   RowCache get rowCache => databaseController.rowCache;
 
   void _startListening() {
-    final onLayoutSettingsChanged = DatabaseLayoutSettingCallbacks(
+    _layoutSettingsCallback = DatabaseLayoutSettingCallbacks(
       onLayoutSettingsChanged: (layoutSettings) {
         if (isClosed) {
           return;
@@ -384,7 +418,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         add(BoardEvent.didUpdateLayoutSettings(layoutSettings.board));
       },
     );
-    final onGroupChanged = GroupCallbacks(
+    _groupCallbacks = GroupCallbacks(
       onGroupByField: (groups) {
         if (isClosed) {
           return;
@@ -463,10 +497,20 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         add(BoardEvent.didReceiveGroups(groupList));
       },
     );
+    _databaseCallbacks = DatabaseCallbacks(
+      onRowsCreated: (rows) {
+        for (final row in rows) {
+          if (!isClosed && row.isHiddenInView) {
+            add(BoardEvent.openRowDetail(row.rowMeta));
+          }
+        }
+      },
+    );
 
     databaseController.addListener(
-      onLayoutSettingsChanged: onLayoutSettingsChanged,
-      onGroupChanged: onGroupChanged,
+      onDatabaseChanged: _databaseCallbacks,
+      onLayoutSettingsChanged: _layoutSettingsCallback,
+      onGroupChanged: _groupCallbacks,
     );
   }
 
@@ -550,6 +594,8 @@ class BoardEvent with _$BoardEvent {
   ) = _SetGroupVisibility;
   const factory BoardEvent.toggleHiddenSectionVisibility(bool isVisible) =
       _ToggleHiddenSectionVisibility;
+  const factory BoardEvent.renameGroup(String groupId, String name) =
+      _RenameGroup;
   const factory BoardEvent.deleteGroup(String groupId) = _DeleteGroup;
   const factory BoardEvent.reorderGroup(String fromGroupId, String toGroupId) =
       _ReorderGroup;
@@ -565,6 +611,7 @@ class BoardEvent with _$BoardEvent {
     GroupedRowId groupedRowId,
     bool toPrevious,
   ) = _MoveGroupToAdjacentGroup;
+  const factory BoardEvent.openRowDetail(RowMetaPB rowMeta) = _OpenRowDetail;
 }
 
 @freezed
@@ -590,6 +637,10 @@ class BoardState with _$BoardState {
   const factory BoardState.setFocus({
     required List<GroupedRowId> groupedRowIds,
   }) = _BoardSetFocusState;
+
+  const factory BoardState.openRowDetail({
+    required RowMetaPB rowMeta,
+  }) = _BoardOpenRowDetailState;
 
   factory BoardState.initial(String viewId) => BoardState.ready(
         viewId: viewId,
@@ -718,7 +769,7 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
 }
 
 class GroupData {
-  GroupData({
+  const GroupData({
     required this.group,
     required this.fieldInfo,
   });

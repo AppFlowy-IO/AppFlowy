@@ -45,10 +45,13 @@ class BlankPagePlugin extends Plugin {
 class BlankPagePluginWidgetBuilder extends PluginWidgetBuilder
     with NavigationItem {
   @override
+  String? get viewName => LocaleKeys.blankPageTitle.tr();
+
+  @override
   Widget get leftBarItem => FlowyText.medium(LocaleKeys.blankPageTitle.tr());
 
   @override
-  Widget tabBarItem(String pluginId) => leftBarItem;
+  Widget tabBarItem(String pluginId, [bool shortForm = false]) => leftBarItem;
 
   @override
   Widget buildWidget({

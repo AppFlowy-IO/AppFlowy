@@ -1,15 +1,17 @@
 import 'dart:io';
 
+import 'package:appflowy/util/field_type_extension.dart';
+import 'package:flutter/material.dart' hide Card;
+import 'package:flutter/services.dart';
+
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_page.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/board/application/board_actions_bloc.dart';
-import 'package:appflowy/plugins/database/board/application/column_header_bloc.dart';
 import 'package:appflowy/plugins/database/board/presentation/widgets/board_column_header.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database/widgets/card/card_bloc.dart';
@@ -20,18 +22,17 @@ import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flutter/material.dart' hide Card;
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import '../../widgets/card/card.dart';
 import '../../widgets/cell/card_cell_builder.dart';
 import '../application/board_bloc.dart';
+
 import 'toolbar/board_setting_bar.dart';
 import 'widgets/board_focus_scope.dart';
 import 'widgets/board_hidden_groups.dart';
@@ -48,11 +49,12 @@ class BoardPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
     bool shrinkWrap,
     String? initialRowId,
   ) =>
-      PlatformExtension.isDesktop
+      UniversalPlatform.isDesktop
           ? DesktopBoardPage(
               key: _makeValueKey(controller),
               view: view,
               databaseController: controller,
+              shrinkWrap: shrinkWrap,
             )
           : MobileBoardPage(
               key: _makeValueKey(controller),
@@ -97,6 +99,7 @@ class DesktopBoardPage extends StatefulWidget {
     required this.view,
     required this.databaseController,
     this.onEditStateChanged,
+    this.shrinkWrap = false,
   });
 
   final ViewPB view;
@@ -105,6 +108,9 @@ class DesktopBoardPage extends StatefulWidget {
 
   /// Called when edit state changed
   final VoidCallback? onEditStateChanged;
+
+  /// If true, the board will shrink wrap its content
+  final bool shrinkWrap;
 
   @override
   State<DesktopBoardPage> createState() => _DesktopBoardPageState();
@@ -178,9 +184,7 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
     _focusScope.dispose();
     _boardBloc.close();
     _boardActionsCubit.close();
-    _didCreateRow
-      ..removeListener(_handleDidCreateRow)
-      ..dispose();
+    _didCreateRow.dispose();
     super.dispose();
   }
 
@@ -188,24 +192,17 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<BoardBloc>.value(
-          value: _boardBloc,
-        ),
-        BlocProvider.value(
-          value: _boardActionsCubit,
-        ),
+        BlocProvider<BoardBloc>.value(value: _boardBloc),
+        BlocProvider.value(value: _boardActionsCubit),
       ],
       child: BlocBuilder<BoardBloc, BoardState>(
         builder: (context, state) => state.maybeMap(
           loading: (_) => const Center(
             child: CircularProgressIndicator.adaptive(),
           ),
-          error: (err) => Center(
-            child: AppFlowyErrorPage(
-              error: err.error,
-            ),
-          ),
+          error: (err) => Center(child: AppFlowyErrorPage(error: err.error)),
           orElse: () => _BoardContent(
+            shrinkWrap: widget.shrinkWrap,
             onEditStateChanged: widget.onEditStateChanged,
             focusScope: _focusScope,
             boardController: _boardController,
@@ -244,11 +241,13 @@ class _BoardContent extends StatefulWidget {
     required this.boardController,
     required this.focusScope,
     this.onEditStateChanged,
+    this.shrinkWrap = false,
   });
 
   final AppFlowyBoardController boardController;
   final BoardFocusScope focusScope;
   final VoidCallback? onEditStateChanged;
+  final bool shrinkWrap;
 
   @override
   State<_BoardContent> createState() => _BoardContentState();
@@ -290,6 +289,14 @@ class _BoardContentState extends State<_BoardContent> {
             state.maybeMap(
               ready: (value) {
                 widget.onEditStateChanged?.call();
+              },
+              openRowDetail: (value) {
+                _openCard(
+                  context: context,
+                  databaseController:
+                      context.read<BoardBloc>().databaseController,
+                  rowMeta: value.rowMeta,
+                );
               },
               orElse: () {},
             );
@@ -341,35 +348,18 @@ class _BoardContentState extends State<_BoardContent> {
                       false
                   ? BoardTrailing(scrollController: scrollController)
                   : const HSpace(40),
-              headerBuilder: (_, groupData) => MultiBlocProvider(
-                providers: [
-                  BlocProvider<BoardBloc>.value(
-                    value: context.read<BoardBloc>(),
-                  ),
-                  BlocProvider<ColumnHeaderBloc>(
-                    create: (context) => ColumnHeaderBloc(
-                      databaseController: databaseController,
-                      fieldId: (groupData.customData as GroupData).fieldInfo.id,
-                      group: context
-                          .read<BoardBloc>()
-                          .groupControllers[groupData.headerData.groupId]!
-                          .group,
-                    )..add(const ColumnHeaderEvent.initial()),
-                  ),
-                ],
+              headerBuilder: (_, groupData) => BlocProvider.value(
+                value: context.read<BoardBloc>(),
                 child: BoardColumnHeader(
+                  databaseController: databaseController,
                   groupData: groupData,
                   margin: config.groupHeaderPadding,
                 ),
               ),
               footerBuilder: (_, groupData) => MultiBlocProvider(
                 providers: [
-                  BlocProvider.value(
-                    value: context.read<BoardBloc>(),
-                  ),
-                  BlocProvider.value(
-                    value: context.read<BoardActionsCubit>(),
-                  ),
+                  BlocProvider.value(value: context.read<BoardBloc>()),
+                  BlocProvider.value(value: context.read<BoardActionsCubit>()),
                 ],
                 child: BoardColumnFooter(
                   columnData: groupData,
@@ -533,12 +523,14 @@ class _BoardColumnFooterState extends State<BoardColumnFooter> {
               FlowySvgs.add_s,
               color: Theme.of(context).hintColor,
             ),
-            text: FlowyText.medium(
+            text: FlowyText(
               LocaleKeys.board_column_createNewCard.tr(),
               color: Theme.of(context).hintColor,
             ),
             onTap: () {
-              setState(() => _isCreating = true);
+              context
+                  .read<BoardActionsCubit>()
+                  .startCreateBottomRow(widget.columnData.id);
             },
           ),
         ),
@@ -701,6 +693,7 @@ class _BoardCardState extends State<_BoardCard> {
                     rowId: rowMeta.id,
                   ),
                 ),
+            userProfile: context.read<BoardBloc>().userProfile,
           ),
         ),
       ),
@@ -866,6 +859,7 @@ void _openCard({
     builder: (_) => RowDetailPage(
       databaseController: databaseController,
       rowController: rowController,
+      userProfile: context.read<BoardBloc>().userProfile,
     ),
   );
 }

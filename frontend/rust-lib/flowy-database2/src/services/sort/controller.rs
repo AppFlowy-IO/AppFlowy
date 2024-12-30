@@ -6,6 +6,7 @@ use std::sync::Arc;
 
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row, RowId};
+use collab_database::template::timestamp_parse::TimestampCellData;
 use rayon::prelude::ParallelSliceMut;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock as TokioRwLock;
@@ -17,11 +18,9 @@ use crate::entities::SortChangesetNotificationPB;
 use crate::entities::{FieldType, SortWithIndexPB};
 use crate::services::cell::CellCache;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
-use crate::services::field::{
-  default_order, TimestampCellData, TimestampCellDataWrapper, TypeOptionCellExt,
-};
+use crate::services::field::{default_order, TypeOptionCellExt};
 use crate::services::sort::{
-  InsertRowResult, ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset, SortCondition,
+  ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset, SortCondition,
 };
 
 #[async_trait]
@@ -99,27 +98,31 @@ impl SortController {
     }
   }
 
-  pub async fn did_create_row(&self, preliminary_index: u32, row: &Row) {
+  pub async fn did_create_row(&mut self, row: &Row) -> Option<u32> {
     if !self.delegate.filter_row(row).await {
-      return;
+      return None;
     }
 
     if !self.sorts.is_empty() {
-      self
-        .gen_task(
-          SortEvent::NewRowInserted(row.clone()),
-          QualityOfService::Background,
-        )
-        .await;
+      let mut rows = self.delegate.get_rows(&self.view_id).await;
+      self.sort_rows(&mut rows).await;
+
+      let row_index = self
+        .row_index_cache
+        .get(&row.id)
+        .cloned()
+        .map(|val| val as u32);
+
+      if row_index.is_none() {
+        tracing::trace!("The row index cache is outdated");
+      }
+      row_index
     } else {
-      let result = InsertRowResult {
-        view_id: self.view_id.clone(),
-        row: row.clone(),
-        index: preliminary_index,
-      };
-      let _ = self
-        .notifier
-        .send(DatabaseViewChanged::InsertRowNotification(result));
+      let rows = self.delegate.get_rows(&self.view_id).await;
+      rows
+        .iter()
+        .position(|val| val.id == row.id)
+        .map(|val| val as u32)
     }
   }
 
@@ -164,24 +167,6 @@ impl SortController {
           _ => tracing::trace!("The row index cache is outdated"),
         }
       },
-      SortEvent::NewRowInserted(row) => {
-        self.sort_rows(&mut rows).await;
-        let row_index = self.row_index_cache.get(&row.id).cloned();
-        match row_index {
-          Some(row_index) => {
-            let notification = InsertRowResult {
-              view_id: self.view_id.clone(),
-              row: row.clone(),
-              index: row_index as u32,
-            };
-            self.row_index_cache.insert(row.id, row_index);
-            let _ = self
-              .notifier
-              .send(DatabaseViewChanged::InsertRowNotification(notification));
-          },
-          _ => tracing::trace!("The row index cache is outdated"),
-        }
-      },
     }
     Ok(())
   }
@@ -192,7 +177,7 @@ impl SortController {
     let task = Task::new(
       &self.handler_id,
       task_id,
-      TaskContent::Text(task_type.to_string()),
+      TaskContent::Text(task_type.to_json_string()),
       qos,
     );
     self.task_scheduler.write().await.add_task(task);
@@ -321,10 +306,10 @@ fn cmp_row(
             (left.modified_at, right.modified_at)
           };
           let (left_cell, right_cell) = (
-            TimestampCellDataWrapper::from((field_type, TimestampCellData::new(left_cell))),
-            TimestampCellDataWrapper::from((field_type, TimestampCellData::new(right_cell))),
+            TimestampCellData::new(left_cell).to_cell(field_rev.field_type),
+            TimestampCellData::new(right_cell).to_cell(field_rev.field_type),
           );
-          Some((Some(left_cell.into()), Some(right_cell.into())))
+          Some((Some(left_cell), Some(right_cell)))
         },
         _ => None,
       };
@@ -363,12 +348,11 @@ fn cmp_cell(
 enum SortEvent {
   SortDidChanged,
   RowDidChanged(RowId),
-  NewRowInserted(Row),
   DeleteAllSorts,
 }
 
-impl ToString for SortEvent {
-  fn to_string(&self) -> String {
+impl SortEvent {
+  fn to_json_string(&self) -> String {
     serde_json::to_string(self).unwrap()
   }
 }

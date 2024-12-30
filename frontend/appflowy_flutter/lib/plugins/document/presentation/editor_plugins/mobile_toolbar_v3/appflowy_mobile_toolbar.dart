@@ -20,6 +20,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 abstract class AppFlowyMobileToolbarWidgetService {
   void closeItemMenu();
+
   void closeKeyboard();
 
   PropertyValueNotifier<bool> get showMenuNotifier;
@@ -179,7 +180,13 @@ class _MobileToolbarState extends State<_MobileToolbar>
   //  but in this case, we don't want to update the cached keyboard height.
   // This is because we want to keep the same height when the menu is shown.
   bool canUpdateCachedKeyboardHeight = true;
-  ValueNotifier<double> cachedKeyboardHeight = ValueNotifier(0.0);
+
+  /// when the [_MobileToolbar] disposed before the keyboard height can be updated in time,
+  /// there will be an issue with the height being 0
+  /// this is used to globally record the height.
+  static double _globalCachedKeyboardHeight = 0.0;
+  ValueNotifier<double> cachedKeyboardHeight =
+      ValueNotifier(_globalCachedKeyboardHeight);
 
   // used to check if click the same item again
   int? selectedMenuIndex;
@@ -276,7 +283,9 @@ class _MobileToolbarState extends State<_MobileToolbar>
     if (!closeKeyboardInitiative &&
         cachedKeyboardHeight.value != 0 &&
         height == 0) {
-      widget.editorState.selection = null;
+      if (!widget.editorState.isDisposed) {
+        widget.editorState.selection = null;
+      }
     }
 
     // if the menu is shown and the height is not 0, we need to close the menu
@@ -405,6 +414,9 @@ class _MobileToolbarState extends State<_MobileToolbar>
                   MediaQuery.of(context).viewInsets.bottom,
                 );
               }
+            }
+            if (keyboardHeight > 0) {
+              _globalCachedKeyboardHeight = keyboardHeight;
             }
             return SizedBox(
               height: keyboardHeight,

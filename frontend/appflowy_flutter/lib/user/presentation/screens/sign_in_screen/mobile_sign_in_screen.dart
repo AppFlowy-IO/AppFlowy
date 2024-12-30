@@ -118,16 +118,7 @@ class MobileSignInScreen extends StatelessWidget {
           },
         ),
         const HSpace(24),
-        SignInAnonymousButtonV2(
-          child: FlowyText(
-            LocaleKeys.signIn_anonymous.tr(),
-            textAlign: TextAlign.center,
-            fontSize: 12.0,
-            // fontWeight: FontWeight.w500,
-            color: Colors.grey,
-            decoration: TextDecoration.underline,
-          ),
-        ),
+        const SignInAnonymousButtonV2(),
       ],
     );
   }

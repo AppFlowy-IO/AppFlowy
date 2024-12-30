@@ -10,7 +10,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/select_option_cell_editor_bloc.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/select_option_entities.pb.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -454,17 +453,15 @@ class SelectOptionTagCell extends StatelessWidget {
             onTap: onSelected,
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
-              child: Align(
+              child: Container(
                 alignment: AlignmentDirectional.centerStart,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                  child: SelectOptionTag(
-                    fontSize: 14,
-                    option: option,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
+                padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                child: SelectOptionTag(
+                  fontSize: 14,
+                  option: option,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
                   ),
                 ),
               ),
@@ -510,7 +507,7 @@ class _CreateOptionCell extends StatelessWidget {
           },
           child: Row(
             children: [
-              FlowyText.medium(
+              FlowyText(
                 LocaleKeys.grid_selectOption_create.tr(),
                 color: Theme.of(context).hintColor,
               ),

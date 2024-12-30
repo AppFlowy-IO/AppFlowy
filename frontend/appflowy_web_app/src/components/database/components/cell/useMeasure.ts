@@ -1,7 +1,7 @@
-import { DEFAULT_ROW_HEIGHT } from '@/application/database-yjs';
+import { DEFAULT_ROW_HEIGHT, useDatabaseContext } from '@/application/database-yjs';
 import { useCallback, useRef } from 'react';
 
-export function useMeasureHeight({
+export function useMeasureHeight ({
   forceUpdate,
   rows,
 }: {
@@ -10,6 +10,7 @@ export function useMeasureHeight({
     rowId?: string;
   }[];
 }) {
+  const isDocumentBlock = useDatabaseContext().isDocumentBlock;
   const heightRef = useRef<{ [rowId: string]: number }>({});
   const rowHeight = useCallback(
     (index: number) => {
@@ -19,31 +20,39 @@ export function useMeasureHeight({
 
       return heightRef.current[row.rowId] || DEFAULT_ROW_HEIGHT;
     },
-    [rows]
+    [rows],
   );
 
   const setRowHeight = useCallback(
     (index: number, height: number) => {
       const row = rows[index];
+      const isLastRow = index === rows.length - 1;
+
+      let newHeight = height;
+
+      if (isLastRow && !isDocumentBlock) {
+        newHeight += 144;
+      }
+
       const rowId = row.rowId;
 
       if (!row || !rowId) return;
       const oldHeight = heightRef.current[rowId];
 
-      heightRef.current[rowId] = Math.max(oldHeight || DEFAULT_ROW_HEIGHT, height);
+      heightRef.current[rowId] = Math.max(oldHeight || DEFAULT_ROW_HEIGHT, newHeight);
 
-      if (oldHeight !== height) {
+      if (oldHeight !== newHeight) {
         forceUpdate(index);
       }
     },
-    [forceUpdate, rows]
+    [forceUpdate, rows, isDocumentBlock],
   );
 
   const onResize = useCallback(
     (rowIndex: number, columnIndex: number, size: { width: number; height: number }) => {
       setRowHeight(rowIndex, size.height);
     },
-    [setRowHeight]
+    [setRowHeight],
   );
 
   return {

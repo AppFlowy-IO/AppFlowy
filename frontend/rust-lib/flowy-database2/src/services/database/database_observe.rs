@@ -1,5 +1,7 @@
-use crate::entities::{DatabaseSyncStatePB, DidFetchRowPB, InsertedRowPB, RowMetaPB, RowsChangePB};
-use crate::notification::{send_notification, DatabaseNotification, DATABASE_OBSERVABLE_SOURCE};
+use crate::entities::{DatabaseSyncStatePB, DidFetchRowPB, RowsChangePB};
+use crate::notification::{
+  database_notification_builder, DatabaseNotification, DATABASE_OBSERVABLE_SOURCE,
+};
 use crate::services::database::{DatabaseEditor, UpdatedRow};
 use crate::services::database_view::DatabaseViewEditor;
 use collab::lock::RwLock;
@@ -11,7 +13,7 @@ use collab_database::views::{DatabaseViewChange, RowOrder};
 use dashmap::DashMap;
 use flowy_notification::{DebounceNotificationSender, NotificationBuilder};
 use futures::StreamExt;
-use lib_dispatch::prelude::af_spawn;
+
 use std::sync::Arc;
 use tracing::{error, trace, warn};
 
@@ -19,13 +21,13 @@ pub(crate) async fn observe_sync_state(database_id: &str, database: &Arc<RwLock<
   let weak_database = Arc::downgrade(database);
   let mut sync_state = database.read().await.subscribe_sync_state();
   let database_id = database_id.to_string();
-  af_spawn(async move {
+  tokio::spawn(async move {
     while let Some(sync_state) = sync_state.next().await {
       if weak_database.upgrade().is_none() {
         break;
       }
 
-      send_notification(
+      database_notification_builder(
         &database_id,
         DatabaseNotification::DidUpdateDatabaseSyncUpdate,
       )
@@ -45,14 +47,14 @@ pub(crate) async fn observe_rows_change(
   let weak_database = Arc::downgrade(database);
   let sub = database.read().await.subscribe_row_change();
   if let Some(mut row_change) = sub {
-    af_spawn(async move {
+    tokio::spawn(async move {
       while let Ok(row_change) = row_change.recv().await {
+        trace!(
+          "[Database Observe]: {} row change:{:?}",
+          database_id,
+          row_change
+        );
         if let Some(database) = weak_database.upgrade() {
-          trace!(
-            "[Database Observe]: {} row change:{:?}",
-            database_id,
-            row_change
-          );
           match row_change {
             RowChange::DidUpdateCell {
               field_id,
@@ -72,6 +74,10 @@ pub(crate) async fn observe_rows_change(
             },
           }
         } else {
+          trace!(
+            "[Database Observe]: {} row change: database dropped",
+            database_id
+          );
           break;
         }
       }
@@ -84,7 +90,7 @@ pub(crate) async fn observe_field_change(database_id: &str, database: &Arc<RwLoc
   let weak_database = Arc::downgrade(database);
   let sub = database.read().await.subscribe_field_change();
   if let Some(mut field_change) = sub {
-    af_spawn(async move {
+    tokio::spawn(async move {
       while let Ok(field_change) = field_change.recv().await {
         if weak_database.upgrade().is_none() {
           break;
@@ -116,7 +122,7 @@ pub(crate) async fn observe_view_change(database_id: &str, database_editor: &Arc
     .subscribe_view_change();
 
   if let Some(mut view_change) = view_change {
-    af_spawn(async move {
+    tokio::spawn(async move {
       while let Ok(view_change) = view_change.recv().await {
         trace!(
           "[Database View Observe]: {} view change:{:?}",
@@ -131,13 +137,14 @@ pub(crate) async fn observe_view_change(database_id: &str, database_editor: &Arc
             DatabaseViewChange::DidDeleteView { .. } => {},
             DatabaseViewChange::LayoutSettingChanged { .. } => {},
             DatabaseViewChange::DidUpdateRowOrders {
-              database_view_id: _,
+              database_view_id,
               is_local_change,
               insert_row_orders,
               delete_row_indexes,
             } => {
               handle_did_update_row_orders(
                 database_editor,
+                &database_view_id,
                 is_local_change,
                 insert_row_orders,
                 delete_row_indexes,
@@ -161,6 +168,7 @@ pub(crate) async fn observe_view_change(database_id: &str, database_editor: &Arc
 
 async fn handle_did_update_row_orders(
   database_editor: Arc<DatabaseEditor>,
+  view_id: &str,
   is_local_change: bool,
   insert_row_orders: Vec<(RowOrder, u32)>,
   delete_row_indexes: Vec<u32>,
@@ -189,14 +197,22 @@ async fn handle_did_update_row_orders(
   // Delete row: Next, we delete a from its original position at index 0.
   // Delete row indexes: [0]
   // Final state after delete: [b, a, c]
-  let database_view_rows = DashMap::new();
+  let row_changes = DashMap::new();
   // 1. handle insert row orders
   for (row_order, index) in insert_row_orders {
-    if let Err(err) = database_editor.init_database_row(&row_order.id).await {
-      error!("Failed to init row: {:?}", err);
-    }
+    let row = match database_editor.init_database_row(&row_order.id).await {
+      Ok(database_row) => database_row.read().await.get_row().map(Arc::new),
+      Err(err) => {
+        error!("Failed to init row: {:?}", err);
+        None
+      },
+    };
 
-    for database_view in database_editor.database_views.editors().await {
+    if let Some(view_editor) = database_editor
+      .database_views
+      .get_view_editor(view_id)
+      .await
+    {
       trace!(
         "[RowOrder]: insert row:{} at index:{}, is_local:{}",
         row_order.id,
@@ -204,41 +220,20 @@ async fn handle_did_update_row_orders(
         is_local_change
       );
 
-      // insert row order
-      {
-        let mut view_row_orders = database_view.row_orders.write().await;
-        if view_row_orders.len() >= index as usize {
-          view_row_orders.insert(index as usize, row_order.clone());
-        } else {
-          warn!(
-            "[RowOrder]: insert row at index:{} out of range:{}",
-            index,
-            view_row_orders.len()
-          );
-        }
-      }
+      // insert row order in database view cache
+      view_editor.insert_row(row.clone(), index, &row_order).await;
 
-      let is_move_row = is_move_row(&database_view, &row_order, &delete_row_indexes).await;
-      if let Some(row) = database_editor
-        .get_row(&database_view.view_id, &row_order.id)
-        .await
-      {
-        database_view
-          .v_did_create_row(&row, index, is_move_row, is_local_change)
+      let is_move_row = is_move_row(&view_editor, &row_order, &delete_row_indexes).await;
+      if let Some((index, row_detail)) = view_editor.v_get_row(&row_order.id).await {
+        view_editor
+          .v_did_create_row(
+            &row_detail,
+            index as u32,
+            is_move_row,
+            is_local_change,
+            &row_changes,
+          )
           .await;
-      }
-
-      // gather changes for notification
-      if let Some((index, row_detail)) = database_view.v_get_row(&row_order.id).await {
-        database_view_rows
-          .entry(database_view.view_id.clone())
-          .or_insert_with(|| {
-            let mut change = RowsChangePB::new();
-            change.is_move_row = is_move_row;
-            change
-          })
-          .inserted_rows
-          .push(InsertedRowPB::new(RowMetaPB::from(row_detail.as_ref())).with_index(index as i32));
       }
     }
   }
@@ -246,19 +241,21 @@ async fn handle_did_update_row_orders(
   // handle delete row orders
   for index in delete_row_indexes {
     let index = index as usize;
-    for database_view in database_editor.database_views.editors().await {
-      let mut view_row_orders = database_view.row_orders.write().await;
+    if let Some(view_editor) = database_editor
+      .database_views
+      .get_view_editor(view_id)
+      .await
+    {
+      let mut view_row_orders = view_editor.row_orders.write().await;
       if view_row_orders.len() > index {
         let lazy_row = view_row_orders.remove(index);
         // Update changeset in RowsChangePB
         let row_id = lazy_row.id.to_string();
-        let mut row_change = database_view_rows
-          .entry(database_view.view_id.clone())
-          .or_default();
+        let mut row_change = row_changes.entry(view_editor.view_id.clone()).or_default();
         row_change.deleted_rows.push(row_id);
 
         // notify the view
-        if let Some(row) = database_view.row_by_row_id.get(lazy_row.id.as_str()) {
+        if let Some(row) = view_editor.row_by_row_id.get(lazy_row.id.as_str()) {
           trace!(
             "[RowOrder]: delete row:{} at index:{}, is_move_row: {}, is_local:{}",
             row.id,
@@ -266,7 +263,7 @@ async fn handle_did_update_row_orders(
             row_change.is_move_row,
             is_local_change
           );
-          database_view
+          view_editor
             .v_did_delete_row(&row, row_change.is_move_row, is_local_change)
             .await;
         } else {
@@ -283,10 +280,10 @@ async fn handle_did_update_row_orders(
   }
 
   // 3. notify the view
-  for entry in database_view_rows.into_iter() {
+  for entry in row_changes.into_iter() {
     let (view_id, changes) = entry;
     trace!("[RowOrder]: {}", changes);
-    send_notification(&view_id, DatabaseNotification::DidUpdateRow)
+    database_notification_builder(&view_id, DatabaseNotification::DidUpdateRow)
       .payload(changes)
       .send();
   }
@@ -300,7 +297,7 @@ pub(crate) async fn observe_block_event(database_id: &str, database_editor: &Arc
     .await
     .subscribe_block_event();
   let database_editor = Arc::downgrade(database_editor);
-  af_spawn(async move {
+  tokio::spawn(async move {
     while let Ok(event) = block_event_rx.recv().await {
       if database_editor.upgrade().is_none() {
         break;
@@ -317,7 +314,7 @@ pub(crate) async fn observe_block_event(database_id: &str, database_editor: &Arc
             trace!("Did fetch row: {:?}", row_detail.row.id);
             let row_id = row_detail.row.id.clone();
             let pb = DidFetchRowPB::from(row_detail);
-            send_notification(&row_id, DatabaseNotification::DidFetchRow)
+            database_notification_builder(&row_id, DatabaseNotification::DidFetchRow)
               .payload(pb)
               .send();
           }

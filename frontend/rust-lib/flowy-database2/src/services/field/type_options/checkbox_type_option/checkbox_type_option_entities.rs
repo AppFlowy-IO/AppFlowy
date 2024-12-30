@@ -3,7 +3,7 @@ use std::str::FromStr;
 use bytes::Bytes;
 use collab::util::AnyMapExt;
 use collab_database::rows::{new_cell_builder, Cell};
-
+use collab_database::template::util::ToCellString;
 use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::{CheckboxCellDataPB, FieldType};
@@ -29,7 +29,7 @@ impl From<&Cell> for CheckboxCellDataPB {
 impl From<CheckboxCellDataPB> for Cell {
   fn from(data: CheckboxCellDataPB) -> Self {
     let mut cell = new_cell_builder(FieldType::Checkbox);
-    cell.insert(CELL_DATA.into(), data.to_string().into());
+    cell.insert(CELL_DATA.into(), data.to_cell_string().into());
     cell
   }
 }
@@ -46,16 +46,6 @@ impl FromStr for CheckboxCellDataPB {
     };
 
     Ok(Self::new(is_checked))
-  }
-}
-
-impl ToString for CheckboxCellDataPB {
-  fn to_string(&self) -> String {
-    if self.is_checked {
-      CHECK.to_string()
-    } else {
-      UNCHECK.to_string()
-    }
   }
 }
 

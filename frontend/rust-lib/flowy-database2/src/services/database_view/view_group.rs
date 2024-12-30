@@ -27,14 +27,13 @@ pub async fn new_group_controller(
 
   let controller_delegate = GroupControllerDelegateImpl {
     delegate: delegate.clone(),
-    filter_controller: filter_controller.clone(),
+    filter_controller,
   };
 
   let grouping_field = match grouping_field {
     Some(field) => Some(field),
     None => {
       let group_setting = controller_delegate.get_group_setting(&view_id).await;
-
       let fields = delegate.get_fields(&view_id, None).await;
 
       group_setting
@@ -98,9 +97,9 @@ impl GroupControllerDelegate for GroupControllerDelegateImpl {
 
   async fn get_all_rows(&self, view_id: &str) -> Vec<Arc<Row>> {
     let row_orders = self.delegate.get_all_row_orders(view_id).await;
-    let mut rows = self.delegate.get_all_rows(view_id, row_orders).await;
-    self.filter_controller.filter_rows(&mut rows).await;
-    rows
+    let rows = self.delegate.get_all_rows(view_id, row_orders).await;
+
+    self.filter_controller.filter_rows(rows).await
   }
 }
 

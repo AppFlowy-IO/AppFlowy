@@ -59,7 +59,7 @@ List<AIModelPB> _availableModels = [
   AIModelPB.DefaultModel,
   AIModelPB.Claude3Opus,
   AIModelPB.Claude3Sonnet,
-  AIModelPB.GPT35,
+  AIModelPB.GPT4oMini,
   AIModelPB.GPT4o,
 ];
 
@@ -71,8 +71,8 @@ String _titleForAIModel(AIModelPB model) {
       return "Claude 3 Opus";
     case AIModelPB.Claude3Sonnet:
       return "Claude 3 Sonnet";
-    case AIModelPB.GPT35:
-      return "GPT-3.5";
+    case AIModelPB.GPT4oMini:
+      return "GPT-4o-mini";
     case AIModelPB.GPT4o:
       return "GPT-4o";
     default:

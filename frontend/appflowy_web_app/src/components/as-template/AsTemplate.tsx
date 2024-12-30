@@ -1,7 +1,7 @@
 import { UploadTemplatePayload } from '@/application/template.type';
 import { notify } from '@/components/_shared/notify';
 import { AFScroller } from '@/components/_shared/scroller';
-import { useService } from '@/components/app/app.hooks';
+import { useService } from '@/components/main/app.hooks';
 import AsTemplateForm, { AsTemplateFormValue } from '@/components/as-template/AsTemplateForm';
 import Categories from '@/components/as-template/category/Categories';
 import Creator from '@/components/as-template/creator/Creator';
@@ -10,7 +10,6 @@ import { useLoadTemplate } from '@/components/as-template/hooks';
 import { Button, CircularProgress, InputLabel, Paper, Switch } from '@mui/material';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ReactComponent as CloseIcon } from '@/assets/close.svg';
 import { ReactComponent as DeleteIcon } from '@/assets/trash.svg';
 import './template.scss';
 import { slugify } from '@/components/as-template/utils';
@@ -38,9 +37,6 @@ function AsTemplate ({
     loading,
   } = useLoadTemplate(viewId);
 
-  const handleBack = useCallback(() => {
-    window.location.href = `${decodeURIComponent(viewUrl)}`;
-  }, [viewUrl]);
   const handleSubmit = useCallback(async (data: AsTemplateFormValue) => {
     if (!service || !selectedCreatorId || selectedCategoryIds.length === 0) return;
     const formData: UploadTemplatePayload = {
@@ -58,18 +54,18 @@ function AsTemplate ({
         await service?.updateTemplate(template.view_id, formData);
       } else {
         await service?.createTemplate(formData);
-
       }
 
       await loadTemplate();
-      handleBack();
+
+      notify.success('Template saved successfully');
     } catch (error) {
       // eslint-disable-next-line
       // @ts-ignore
       notify.error(error.toString());
     }
 
-  }, [service, selectedCreatorId, selectedCategoryIds, isNewTemplate, isFeatured, viewId, viewUrl, template, loadTemplate, handleBack]);
+  }, [service, selectedCreatorId, selectedCategoryIds, isNewTemplate, isFeatured, viewId, viewUrl, template, loadTemplate]);
   const submitRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -102,22 +98,15 @@ function AsTemplate ({
 
   return (
     <div className={'flex flex-col gap-4 w-full h-full overflow-hidden'}>
-      <div className={'flex items-center justify-between'}>
-        <Button
-          onClick={handleBack}
-          variant={'outlined'}
-          color={'inherit'}
-          endIcon={<CloseIcon className={'w-4 h-4'} />}
-        >
-          {t('button.cancel')}
-        </Button>
+      <div className={'flex items-center justify-end'}>
+
         {template && <Button
           startIcon={<WebsiteIcon />}
           variant={'text'}
           onClick={() => {
-            const url = import.meta.env.AF_BASE_URL?.includes('test') ? 'https://test.appflowy.io' : 'https://appflowy.io';
+            const origin = import.meta.env.AF_BASE_URL?.includes('test') ? 'https://test.appflowy.io' : 'https://appflowy.io';
 
-            window.open(`${url}/templates/${slugify(template.categories[0].name)}/${template.view_id}`);
+            window.open(`${origin}/templates/${slugify(template.categories[0].name)}/${template.view_id}`);
           }} color={'primary'}
         >{t('template.viewTemplate')}</Button>}
         <div className={'flex items-center gap-2'}>
@@ -132,9 +121,10 @@ function AsTemplate ({
             {t('template.deleteTemplate')}
           </Button>}
 
-          <Button onClick={() => {
-            submitRef.current?.click();
-          }} variant={'contained'} color={'primary'}
+          <Button
+            onClick={() => {
+              submitRef.current?.click();
+            }} variant={'contained'} color={'primary'}
           >
             {t('button.save')}
           </Button>
@@ -179,7 +169,9 @@ function AsTemplate ({
       {deleteModalOpen &&
         <DeleteTemplate
           id={viewId}
-          onDeleted={handleBack}
+          onDeleted={() => {
+            void loadTemplate();
+          }}
           open={deleteModalOpen}
           onClose={() => setDeleteModalOpen(false)}
         />}

@@ -1,7 +1,6 @@
 import 'dart:ffi';
 
-import 'package:appflowy/plugins/document/presentation/editor_page.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/custom_cut_command.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';

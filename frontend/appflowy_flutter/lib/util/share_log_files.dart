@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:archive/archive_io.dart';
@@ -8,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:toastification/toastification.dart';
 
 Future<void> shareLogFiles(BuildContext? context) async {
   final dir = await getApplicationSupportDirectory();
@@ -59,12 +59,16 @@ Future<void> shareLogFiles(BuildContext? context) async {
 
     if (Platform.isIOS) {
       await Share.shareUri(zipFile.uri);
-    } else {
+      // delete the zipped appflowy logs file
+      await zipFile.delete();
+    } else if (Platform.isAndroid) {
       await Share.shareXFiles([XFile(zipFile.path)]);
+      // delete the zipped appflowy logs file
+      await zipFile.delete();
+    } else {
+      // open the directory
+      await afLaunchUri(zipFile.uri);
     }
-
-    // delete the zipped appflowy logs file
-    await zipFile.delete();
   } catch (e) {
     if (context != null && context.mounted) {
       showToastNotification(

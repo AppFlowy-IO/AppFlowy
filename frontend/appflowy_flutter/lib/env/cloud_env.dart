@@ -14,8 +14,12 @@ import 'package:appflowy_backend/log.dart';
 /// [ty] - The type of cloud to be set. It must be one of the values from
 /// [AuthenticatorType] enum. The corresponding integer value of the enum is stored:
 /// - `CloudType.local` is stored as "0".
-/// - `CloudType.supabase` is stored as "1".
 /// - `CloudType.appflowyCloud` is stored as "2".
+///
+/// The gap between [AuthenticatorType.local] and [AuthenticatorType.appflowyCloud] is
+/// due to previously supporting Supabase, this has been deprecated since and removed.
+/// To not cause conflicts with older clients, we keep the gap.
+///
 Future<void> _setAuthenticatorType(AuthenticatorType ty) async {
   switch (ty) {
     case AuthenticatorType.local:
@@ -84,7 +88,7 @@ Future<AuthenticatorType> getAuthenticatorType() async {
 /// A boolean value indicating whether authentication is enabled. It returns
 /// `true` if the application is in release or develop mode, and the cloud type
 /// is not set to `CloudType.local`. Additionally, it checks if either the
-/// AppFlowy Cloud or Supabase configuration is valid.
+/// AppFlowy Cloud configuration is valid.
 /// Returns `false` otherwise.
 bool get isAuthEnabled {
   final env = getIt<AppFlowyCloudSharedEnv>();
@@ -208,6 +212,7 @@ class AppFlowyCloudSharedEnv {
         base_url: Env.afCloudUrl,
         ws_base_url: await _getAppFlowyCloudWSUrl(Env.afCloudUrl),
         gotrue_url: await _getAppFlowyCloudGotrueUrl(Env.afCloudUrl),
+        enable_sync_trace: false,
       );
 
       return AppFlowyCloudSharedEnv(
@@ -237,12 +242,14 @@ Future<AppFlowyCloudConfiguration> configurationFromUri(
       base_url: "$baseUrl:8000",
       ws_base_url: "ws://${baseUri.host}:8000/ws/v1",
       gotrue_url: "$baseUrl:9999",
+      enable_sync_trace: true,
     );
   } else {
     return AppFlowyCloudConfiguration(
       base_url: baseUrl,
       ws_base_url: await _getAppFlowyCloudWSUrl(baseUrl),
       gotrue_url: await _getAppFlowyCloudGotrueUrl(baseUrl),
+      enable_sync_trace: await getSyncLogEnabled(),
     );
   }
 }
@@ -267,6 +274,24 @@ Future<String> getAppFlowyCloudUrl() async {
   return result ?? kAppflowyCloudUrl;
 }
 
+Future<bool> getSyncLogEnabled() async {
+  final result =
+      await getIt<KeyValueStorage>().get(KVKeys.kAppFlowyEnableSyncTrace);
+
+  if (result == null) {
+    return false;
+  }
+
+  return result.toLowerCase() == "true";
+}
+
+Future<void> setSyncLogEnabled(bool enable) async {
+  await getIt<KeyValueStorage>().set(
+    KVKeys.kAppFlowyEnableSyncTrace,
+    enable.toString().toLowerCase(),
+  );
+}
+
 Future<String> _getAppFlowyCloudWSUrl(String baseURL) async {
   try {
     final uri = Uri.parse(baseURL);
@@ -285,26 +310,4 @@ Future<String> _getAppFlowyCloudWSUrl(String baseURL) async {
 
 Future<String> _getAppFlowyCloudGotrueUrl(String baseURL) async {
   return "$baseURL/gotrue";
-}
-
-Future<void> setSupabaseServer(
-  String? url,
-  String? anonKey,
-) async {
-  assert(
-    (url != null && anonKey != null) || (url == null && anonKey == null),
-    "Either both Supabase URL and anon key must be set, or both should be unset",
-  );
-
-  if (url == null) {
-    await getIt<KeyValueStorage>().remove(KVKeys.kSupabaseURL);
-  } else {
-    await getIt<KeyValueStorage>().set(KVKeys.kSupabaseURL, url);
-  }
-
-  if (anonKey == null) {
-    await getIt<KeyValueStorage>().remove(KVKeys.kSupabaseAnonKey);
-  } else {
-    await getIt<KeyValueStorage>().set(KVKeys.kSupabaseAnonKey, anonKey);
-  }
 }

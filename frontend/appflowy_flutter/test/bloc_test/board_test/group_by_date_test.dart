@@ -43,7 +43,7 @@ void main() {
     );
     await boardResponseFuture();
 
-    bloc.add(DateCellEditorEvent.selectDay(DateTime.now()));
+    bloc.add(DateCellEditorEvent.updateDateTime(DateTime.now()));
     await boardResponseFuture();
 
     final gridGroupBloc = DatabaseGroupBloc(
@@ -89,7 +89,7 @@ void main() {
     );
     await boardResponseFuture();
 
-    bloc.add(DateCellEditorEvent.selectDay(DateTime.now()));
+    bloc.add(DateCellEditorEvent.updateDateTime(DateTime.now()));
     await boardResponseFuture();
 
     final gridGroupBloc = DatabaseGroupBloc(

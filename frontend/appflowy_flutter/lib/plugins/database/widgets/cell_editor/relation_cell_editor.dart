@@ -11,7 +11,6 @@ import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -419,7 +418,7 @@ class _RowListItem extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: FlowyText.medium(
+                  child: FlowyText(
                     row.name.trim().isEmpty
                         ? LocaleKeys.grid_title_placeholder.tr()
                         : row.name,
@@ -536,7 +535,7 @@ class _RelationCellEditorDatabasePicker extends StatelessWidget {
                                 databaseMeta.databaseId,
                               ),
                             ),
-                        text: FlowyText.medium(
+                        text: FlowyText(
                           databaseMeta.databaseName,
                           overflow: TextOverflow.ellipsis,
                         ),

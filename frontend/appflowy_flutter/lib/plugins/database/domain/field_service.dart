@@ -20,6 +20,7 @@ class FieldBackendService {
     required String viewId,
     FieldType fieldType = FieldType.RichText,
     String? fieldName,
+    String? icon,
     Uint8List? typeOptionData,
     OrderObjectPositionPB? position,
   }) {
@@ -88,6 +89,7 @@ class FieldBackendService {
   /// Update a field's properties
   Future<FlowyResult<void, FlowyError>> updateField({
     String? name,
+    String? icon,
     bool? frozen,
   }) {
     final payload = FieldChangesetPB.create()
@@ -96,6 +98,10 @@ class FieldBackendService {
 
     if (name != null) {
       payload.name = name;
+    }
+
+    if (icon != null) {
+      payload.icon = icon;
     }
 
     if (frozen != null) {

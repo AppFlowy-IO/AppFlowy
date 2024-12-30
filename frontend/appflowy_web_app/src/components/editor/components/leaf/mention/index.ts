@@ -1,1 +1,1 @@
-export * from './Mention';
+export * from './MentionLeaf';

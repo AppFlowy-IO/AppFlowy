@@ -41,6 +41,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
          .event(DatabaseEvent::DeleteRows, delete_rows_handler)
          .event(DatabaseEvent::DuplicateRow, duplicate_row_handler)
          .event(DatabaseEvent::MoveRow, move_row_handler)
+         .event(DatabaseEvent::RemoveCover, remove_cover_handler)
          // Cell
          .event(DatabaseEvent::GetCell, get_cell_handler)
          .event(DatabaseEvent::UpdateCell, update_cell_handler)
@@ -62,7 +63,6 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
          .event(DatabaseEvent::UpdateGroup, update_group_handler)
          .event(DatabaseEvent::CreateGroup, create_group_handler)
          .event(DatabaseEvent::DeleteGroup, delete_group_handler)
-         .event(DatabaseEvent::RenameGroup, rename_group_handler)
          // Database
          .event(DatabaseEvent::GetDatabaseMeta, get_database_meta_handler)
          .event(DatabaseEvent::GetDatabases, get_databases_handler)
@@ -245,6 +245,9 @@ pub enum DatabaseEvent {
   #[event(input = "UpdateRowMetaChangesetPB")]
   UpdateRowMeta = 56,
 
+  #[event(input = "RemoveCoverPayloadPB")]
+  RemoveCover = 57,
+
   #[event(input = "CellIdPB", output = "CellPB")]
   GetCell = 70,
 
@@ -301,9 +304,6 @@ pub enum DatabaseEvent {
 
   #[event(input = "DeleteGroupPayloadPB")]
   DeleteGroup = 115,
-
-  #[event(input = "RenameGroupPB")]
-  RenameGroup = 116,
 
   #[event(input = "DatabaseIdPB", output = "DatabaseMetaPB")]
   GetDatabaseMeta = 119,

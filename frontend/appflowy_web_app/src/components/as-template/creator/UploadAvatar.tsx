@@ -1,5 +1,5 @@
 import FileDropzone from '@/components/_shared/file-dropzone/FileDropzone';
-import { useService } from '@/components/app/app.hooks';
+import { useService } from '@/components/main/app.hooks';
 import { CircularProgress, IconButton, Tooltip } from '@mui/material';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -33,7 +33,7 @@ function UploadAvatar ({
     setUploadStatus('loading');
 
     try {
-      const url = await service?.uploadFileToCDN(file);
+      const url = await service?.uploadTemplateAvatar(file);
 
       if (!url) throw new Error('Failed to upload file');
       onChange(url);
@@ -56,7 +56,8 @@ function UploadAvatar ({
       />
       {file && (
         <div className={'flex gap-2 items-center'}>
-          <div className={'w-[80px] aspect-square rounded-xl border border-line-divider'}
+          <div
+            className={'w-[80px] aspect-square rounded-xl border border-line-divider'}
           >
             <img
               src={URL.createObjectURL(file)}
@@ -75,13 +76,19 @@ function UploadAvatar ({
           >
             {uploadStatus === 'loading' ? <CircularProgress size={20} /> : <LinkIcon className={'w-5 h-5'} />}
 
-            <Tooltip title={uploadStatusText} placement={'bottom-start'}>
+            <Tooltip
+              title={uploadStatusText}
+              placement={'bottom-start'}
+            >
               <div className={'flex-1 truncate cursor-pointer'}>{file.name}</div>
             </Tooltip>
             {
               uploadStatus === 'success' && !hovered && <CheckIcon className={'w-5 h-5 text-function-success'} />
             }
-            {hovered && <Tooltip title={t('button.remove')} arrow>
+            {hovered && <Tooltip
+              title={t('button.remove')}
+              arrow
+            >
               <IconButton
                 onClick={() => {
                   setFile(null);

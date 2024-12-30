@@ -34,8 +34,16 @@
     "emailHint": "이메일",
     "passwordHint": "비밀번호",
     "dontHaveAnAccount": "계정이 없으신가요?",
+    "createAccount": "계정 생성",
     "repeatPasswordEmptyError": "비밀번호 재입력란은 공백일 수 없습니다",
     "unmatchedPasswordError": "재입력 하신 비밀번호가 같지 않습니다",
+    "or": "또는",
+    "signInWithMagicLink": "계속",
+    "pleaseInputYourEmail": "이메일 주소를 입력하세요",
+    "settings": "설정",
+    "invalidEmail": "유효한 이메일 주소를 입력하세요",
+    "alreadyHaveAnAccount": "이미 계정이 있나요?",
+    "logIn": "로그인",
     "loginAsGuestButtonText": "시작하다"
   },
   "workspace": {
@@ -206,8 +214,7 @@
       "language": "언어",
       "user": "사용자",
       "files": "파일",
-      "open": "설정 열기",
-      "supabaseSetting": "수파베이스 설정"
+      "open": "설정 열기"
     },
     "appearance": {
       "fontFamily": {

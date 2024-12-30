@@ -16,12 +16,9 @@
     background: var(--bg-body);
   }
 
-  .lg-outer .lg-thumb-outer {
-    max-height: 100px;
-  }
 
   .lg-outer.lg-animate-thumb .lg-thumb {
-    @apply max-sm:top-[-46px] top-[-50px];
+    @apply max-sm:top-0 top-0;
   }
 
   .lg-outer .lg-thumb-item {
