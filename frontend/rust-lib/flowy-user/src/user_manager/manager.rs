@@ -36,7 +36,7 @@ use crate::migrations::workspace_trash_v1::WorkspaceTrashMapToSectionMigration;
 use crate::migrations::AnonUser;
 use crate::services::authenticate_user::AuthenticateUser;
 use crate::services::cloud_config::get_cloud_config;
-use crate::services::collab_interact::{UserReminder, DefaultCollabInteract};
+use crate::services::collab_interact::{DefaultCollabInteract, UserReminder};
 
 use super::manager_user_workspace::save_user_workspace;
 use crate::migrations::doc_key_with_workspace::CollabDocKeyWithWorkspaceIdMigration;
