@@ -12,8 +12,9 @@ use itertools::Itertools;
 use log::info;
 pub use proto_gen::*;
 pub use proto_info::*;
+use std::fs;
 use std::fs::File;
-use std::io::Write;
+use std::io::{BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use walkdir::WalkDir;
@@ -147,6 +148,38 @@ fn generate_rust_protobuf_files(
     .include(proto_file_output_path)
     .run()
     .expect("Running rust protoc failed.");
+  remove_box_pointers_lint_from_all_except_mod(protobuf_output_path);
+}
+fn remove_box_pointers_lint_from_all_except_mod(dir_path: &str) {
+  let dir = fs::read_dir(dir_path).expect("Failed to read directory");
+  for entry in dir {
+    let entry = entry.expect("Failed to read directory entry");
+    let path = entry.path();
+
+    // Skip directories and mod.rs
+    if path.is_file() {
+      if let Some(file_name) = path.file_name().and_then(|f| f.to_str()) {
+        if file_name != "mod.rs" {
+          remove_box_pointers_lint(&path);
+        }
+      }
+    }
+  }
+}
+
+fn remove_box_pointers_lint(file_path: &Path) {
+  let file = File::open(file_path).expect("Failed to open file");
+  let reader = BufReader::new(file);
+  let lines: Vec<String> = reader
+    .lines()
+    .filter_map(Result::ok)
+    .filter(|line| !line.contains("#![allow(box_pointers)]"))
+    .collect();
+
+  let mut file = File::create(file_path).expect("Failed to create file");
+  for line in lines {
+    writeln!(file, "{}", line).expect("Failed to write line");
+  }
 }
 
 #[cfg(feature = "ts")]
