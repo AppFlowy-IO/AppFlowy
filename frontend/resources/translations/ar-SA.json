@@ -815,11 +815,21 @@
         "offlineAIDownload1": "إذا لم تقم بتنزيل AppFlowy AI، فيرجى",
         "offlineAIDownload2": "التنزيل",
         "activeOfflineAI": "نشط",
-        "downloadOfflineAI": "التنزيل"
+        "downloadOfflineAI": "التنزيل",
+        "openModelDirectory": "افتح المجلد"
       }
     },
     "planPage": {
+      "menuLabel": "الخطة",
+      "title": "خطة التسعير",
       "planUsage": {
+        "title": "ملخص استخدام الخطة",
+        "storageLabel": "تخزين",
+        "storageUsage": "{} من {} جيجا بايت",
+        "unlimitedStorageLabel": "تخزين غير محدود",
+        "collaboratorsLabel": "أعضاء",
+        "collaboratorsUsage": "{} ل {}",
+        "aiResponseLabel": "استجابات الذكاء الاصطناعي",
         "aiResponseUsage": "{} ل {}",
         "unlimitedAILabel": "استجابات غير محدودة",
         "proBadge": "احترافية",
@@ -831,7 +841,9 @@
         "aiCredit": {
           "title": "أضف رصيد الذكاء الاصطناعي @:appName",
           "price": "{}",
-          "priceDescription": "مقابل 1000 نقطة"
+          "priceDescription": "مقابل 1000 نقطة",
+          "purchase": "شراء الذكاء الاصطناعي",
+          "info": "أضف 1000 أرصدة الذكاء الاصطناعي لكل مساحة عمل وقم بدمج الذكاء الاصطناعي القابل للتخصيص بسلاسة في سير عملك للحصول على نتائج أذكى وأسرع مع ما يصل إلى:"
         }
       }
     },
