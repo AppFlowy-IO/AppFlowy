@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/database/calendar/presentation/calendar_event_editor.dart';
+import 'package:appflowy/shared/icon_emoji_picker/recent_icons.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
@@ -9,7 +10,14 @@ import '../../shared/database_test_op.dart';
 import '../../shared/util.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() {
+    IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+    RecentIcons.enable = false;
+  });
+
+  tearDownAll(() {
+    RecentIcons.enable = true;
+  });
 
   group('calendar', () {
     testWidgets('update calendar layout', (tester) async {

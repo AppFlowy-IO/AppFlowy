@@ -96,9 +96,9 @@ class _WorkspaceIconState extends State<WorkspaceIcon> {
         margin: const EdgeInsets.all(0),
         popupBuilder: (_) => FlowyIconEmojiPicker(
           tabs: const [PickerTabType.emoji],
-          onSelectedEmoji: (result) {
-            widget.onSelected(result);
-            controller.close();
+          onSelectedEmoji: (r) {
+            widget.onSelected(r.data);
+            if (!r.keepOpen) controller.close();
           },
         ),
         child: MouseRegion(

@@ -1,4 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -51,13 +53,9 @@ class PublishInfoViewItem extends StatelessWidget {
   }
 
   Widget _buildIcon() {
-    final icon = publishInfoView.view.icon.value;
+    final icon = publishInfoView.view.icon.toEmojiIconData();
     return icon.isNotEmpty
-        ? FlowyText.emoji(
-            icon,
-            fontSize: 16.0,
-            figmaLineHeight: 18.0,
-          )
+        ? RawEmojiIconWidget(emoji: icon, emojiSize: 16.0)
         : publishInfoView.view.defaultIcon();
   }
 }

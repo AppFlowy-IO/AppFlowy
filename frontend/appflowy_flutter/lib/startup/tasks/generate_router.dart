@@ -285,14 +285,21 @@ GoRoute _mobileEmojiPickerPageRoute() {
           state.uri.queryParameters[MobileEmojiPickerScreen.pageTitle];
       final selectTabs =
           state.uri.queryParameters[MobileEmojiPickerScreen.selectTabs] ?? '';
+      final selectedType = state
+          .uri.queryParameters[MobileEmojiPickerScreen.iconSelectedType]
+          ?.toPickerTabType();
       final tabs = selectTabs
           .split('-')
           .map((e) => PickerTabType.values.byName(e))
           .toList();
       return MaterialExtendedPage(
         child: tabs.isEmpty
-            ? MobileEmojiPickerScreen(title: title)
-            : MobileEmojiPickerScreen(title: title, tabs: tabs),
+            ? MobileEmojiPickerScreen(title: title, selectedType: selectedType)
+            : MobileEmojiPickerScreen(
+                title: title,
+                selectedType: selectedType,
+                tabs: tabs,
+              ),
       );
     },
   );
