@@ -4,15 +4,13 @@ import ChangeAccount from '@/components/_shared/modal/ChangeAccount';
 import { notify } from '@/components/_shared/notify';
 import { getAvatar } from '@/components/_shared/view-icon/utils';
 import { AFConfigContext, useCurrentUser, useService } from '@/components/main/app.hooks';
-import { openOrDownload } from '@/utils/open_schema';
-import { openAppFlowySchema } from '@/utils/url';
 import { EmailOutlined } from '@mui/icons-material';
 import { Avatar, Button, Divider } from '@mui/material';
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-function AcceptInvitationPage () {
+function AcceptInvitationPage() {
   const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated;
   const currentUser = useCurrentUser();
   const navigate = useNavigate();
@@ -58,6 +56,9 @@ function AcceptInvitationPage () {
       name: invitation.workspace_name,
     });
   }, [invitation]);
+  const url = useMemo(() => {
+    return window.location.href;
+  }, []);
 
   const inviterIconProps = useMemo(() => {
     if (!invitation) return {};
@@ -78,7 +79,7 @@ function AcceptInvitationPage () {
         }}
         className={'flex w-full cursor-pointer max-md:justify-center max-md:h-32 h-20 items-center justify-between sticky'}
       >
-        <AppflowyLogo className={'w-32 h-12 max-md:w-52'} />
+        <AppflowyLogo className={'w-32 h-12 max-md:w-52'}/>
       </div>
       <div className={'flex w-full max-w-[560px] flex-col items-center gap-6 text-center'}>
         <Avatar
@@ -97,7 +98,7 @@ function AcceptInvitationPage () {
           <span className={'whitespace-nowrap'}>AppFlowy</span>
 
         </div>
-        <Divider className={'max-w-full w-[400px]'} />
+        <Divider className={'max-w-full w-[400px]'}/>
         <div className={'flex items-center justify-center py-1 gap-4'}>
           <Avatar
             className={'h-20 w-20 border border-line-divider text-[40px]'} {...inviterIconProps}
@@ -117,7 +118,7 @@ function AcceptInvitationPage () {
         <div
           className={'border-b max-sm:border max-sm:rounded-[8px] border-line-border flex items-center gap-2 max-w-full py-2 px-4 w-[400px] bg-bg-body'}
         >
-          <EmailOutlined />
+          <EmailOutlined/>
           {currentUser?.email}
         </div>
 
@@ -142,7 +143,9 @@ function AcceptInvitationPage () {
                 okText: t('invitation.openWorkspace'),
 
                 onOk: () => {
-                  openOrDownload(openAppFlowySchema + '#workspace_id=' + invitation?.workspace_id);
+                  const origin = window.location.origin;
+
+                  window.open(`${origin}/app/${invitation?.workspace_id}`, '_current');
                 },
               });
 
@@ -154,7 +157,7 @@ function AcceptInvitationPage () {
           {t('invitation.joinWorkspace')}
         </Button>
       </div>
-      <ChangeAccount setModalOpened={setModalOpened} modalOpened={modalOpened} />
+      {isAuthenticated && <ChangeAccount redirectTo={url} setModalOpened={setModalOpened} modalOpened={modalOpened}/>}
     </div>
   );
 }

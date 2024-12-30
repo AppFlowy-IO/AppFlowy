@@ -8,6 +8,7 @@ import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:url_launcher/url_launcher.dart' show launchUrl;
+
 part 'plugin_state_bloc.freezed.dart';
 
 class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
@@ -91,7 +92,7 @@ class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
         final result = await AIEventGetModelStorageDirectory().send();
         result.fold(
           (data) {
-            afLaunchUrl(Uri.file(data.filePath));
+            afLaunchUri(Uri.file(data.filePath));
           },
           (err) => Log.error(err.toString()),
         );

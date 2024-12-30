@@ -202,6 +202,7 @@ where
     let workspaces = try_get_client?
       .get_workspaces_opt(QueryWorkspaceParam {
         include_member_count: Some(true),
+        include_role: Some(true),
       })
       .await?;
     to_user_workspaces(workspaces)
@@ -264,6 +265,8 @@ where
         vec![WorkspaceMemberInvitation {
           email: invitee_email,
           role: to_af_role(role),
+          skip_email_send: false,
+          wait_email_send: false,
         }],
       )
       .await?;
@@ -664,6 +667,7 @@ fn to_user_workspace(af_workspace: AFWorkspace) -> UserWorkspace {
     workspace_database_id: af_workspace.database_storage_id.to_string(),
     icon: af_workspace.icon,
     member_count: af_workspace.member_count.unwrap_or(0),
+    role: af_workspace.role.map(|r| r.into()),
   }
 }
 

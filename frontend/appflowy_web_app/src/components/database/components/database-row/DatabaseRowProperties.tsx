@@ -7,9 +7,13 @@ export function DatabaseRowProperties ({ rowId }: { rowId: string }) {
   const fields = useFieldsSelector().filter((column) => column.fieldId !== primaryFieldId);
 
   return (
-    <div className={'row-properties px-6 flex w-full flex-1 flex-col gap-4 py-2'}>
+    <div className={'row-properties max-sm:px-6 px-24 flex w-full flex-1 flex-col gap-4 py-2'}>
       {fields.map((field) => {
-        return <Property fieldId={field.fieldId} rowId={rowId} key={field.fieldId} />;
+        return <Property
+          fieldId={field.fieldId}
+          rowId={rowId}
+          key={field.fieldId}
+        />;
       })}
     </div>
   );

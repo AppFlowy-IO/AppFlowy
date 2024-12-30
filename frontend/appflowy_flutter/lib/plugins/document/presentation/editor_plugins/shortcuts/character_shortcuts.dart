@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/format_arrow_character.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/page_reference_commands.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/callout/callout_block_shortcuts.dart';
@@ -17,7 +18,7 @@ List<CharacterShortcutEvent> buildCharacterShortcutEvents(
   DocumentBloc documentBloc,
   EditorStyleCustomizer styleCustomizer,
   InlineActionsService inlineActionsService,
-  List<SelectionMenuItem> slashMenuItems,
+  SlashMenuItemsBuilder slashMenuItemsBuilder,
 ) {
   return [
     // code block
@@ -35,9 +36,10 @@ List<CharacterShortcutEvent> buildCharacterShortcutEvents(
     insertChildNodeInsideToggleList,
 
     // customize the slash menu command
-    customSlashCommand(
-      slashMenuItems,
+    customAppFlowySlashCommand(
+      itemsBuilder: slashMenuItemsBuilder,
       style: styleCustomizer.selectionMenuStyleBuilder(),
+      supportSlashMenuNodeTypes: supportSlashMenuNodeTypes,
     ),
 
     customFormatGreaterEqual,

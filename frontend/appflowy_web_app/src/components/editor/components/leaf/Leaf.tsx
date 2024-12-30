@@ -7,12 +7,12 @@ import React, { CSSProperties } from 'react';
 import { RenderLeafProps } from 'slate-react';
 import { renderColor } from '@/utils/color';
 
-export function Leaf ({ attributes, children, leaf, text }: RenderLeafProps) {
+export function Leaf({ attributes, children, leaf, text }: RenderLeafProps) {
   let newChildren = children;
 
   const classList = [leaf.prism_token, leaf.prism_token && 'token', leaf.class_name].filter(Boolean);
 
-  if (leaf.code) {
+  if (leaf.code && !(leaf.formula || leaf.mention)) {
     newChildren = <span className={'bg-line-divider font-medium text-[#EB5757]'}>{newChildren}</span>;
   }
 
@@ -35,6 +35,7 @@ export function Leaf ({ attributes, children, leaf, text }: RenderLeafProps) {
   const style: CSSProperties = {};
 
   if (leaf.font_color) {
+    classList.push('text-color');
     style['color'] = renderColor(leaf.font_color);
   }
 
@@ -43,36 +44,36 @@ export function Leaf ({ attributes, children, leaf, text }: RenderLeafProps) {
   }
 
   if (leaf.href) {
-    newChildren = <Href leaf={leaf}>{newChildren}</Href>;
+    newChildren = <Href text={text} leaf={leaf}>{newChildren}</Href>;
   }
 
   if (leaf.font_family) {
     style['fontFamily'] = getFontFamily(leaf.font_family);
   }
 
-  if (leaf.mention || leaf.formula) {
+  if (text.text && (leaf.mention || leaf.formula)) {
     style['position'] = 'relative';
+    if (leaf.mention) {
+      style['display'] = 'inline-block';
+    }
+    
     const node = leaf.mention ? <MentionLeaf
       text={text}
       mention={leaf.mention as Mention}
-    /> : leaf.formula ? <FormulaLeaf
+    >
+      {newChildren}
+    </MentionLeaf> : leaf.formula ? <FormulaLeaf
       formula={leaf.formula}
       text={text}
-    /> : null;
+    >{newChildren}</FormulaLeaf> : null;
 
-    newChildren = <>
-      {node}
-      <span
-        className={'absolute opacity-0 left-0 w-0 overflow-hidden'}
-      >
-        {newChildren}
-      </span>
-    </>;
+    newChildren = node;
   }
 
   return (
-    <span {...attributes} style={style}
-          className={`${classList.join(' ')}`}
+    <span
+      {...attributes} style={style}
+      className={`${classList.join(' ')}`}
     >
       {newChildren}
     </span>

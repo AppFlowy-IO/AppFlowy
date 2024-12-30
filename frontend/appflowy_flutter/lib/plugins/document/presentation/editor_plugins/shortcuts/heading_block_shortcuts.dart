@@ -36,7 +36,7 @@ CharacterShortcutEvent customFormatSignToHeading = CharacterShortcutEvent(
             level: numberOfSign,
             delta: delta.compose(Delta()..delete(numberOfSign)),
             collapsed: collapsed ?? false,
-            children: node.children.map((child) => child.copyWith()),
+            children: node.children.map((child) => child.deepCopy()),
           ),
         ];
       }

@@ -151,9 +151,10 @@ class DekstopRowDetailMediaCellSkin extends IEditableMediaCellSkin {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const FlowySvg(
+                        FlowySvg(
                           FlowySvgs.add_thin_s,
-                          size: Size.square(12),
+                          size: const Size.square(12),
+                          color: Theme.of(context).hintColor,
                         ),
                         const HSpace(6),
                         FlowyText.medium(
@@ -219,7 +220,9 @@ class _FilePreviewFeedback extends StatelessWidget {
   }
 }
 
-class _AddFileButton extends StatelessWidget {
+const _menuWidth = 350.0;
+
+class _AddFileButton extends StatefulWidget {
   const _AddFileButton({
     this.mutex,
     required this.controller,
@@ -233,15 +236,23 @@ class _AddFileButton extends StatelessWidget {
   final Widget child;
 
   @override
+  State<_AddFileButton> createState() => _AddFileButtonState();
+}
+
+class _AddFileButtonState extends State<_AddFileButton> {
+  Offset? position;
+
+  @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       triggerActions: PopoverTriggerFlags.none,
-      controller: controller,
-      mutex: mutex,
+      controller: widget.controller,
+      mutex: widget.mutex,
       offset: const Offset(0, 10),
-      direction: direction,
-      constraints: const BoxConstraints(maxWidth: 350),
+      direction: widget.direction,
+      constraints: const BoxConstraints(maxWidth: _menuWidth),
       margin: EdgeInsets.zero,
+      asBarrier: true,
       onClose: () =>
           context.read<EditorDropManagerState>().remove(_dropFileKey),
       popupBuilder: (_) {
@@ -273,7 +284,7 @@ class _AddFileButton extends StatelessWidget {
                 ),
               );
 
-              controller.close();
+              widget.controller.close();
             },
           ),
           onInsertNetworkFile: (url) {
@@ -306,14 +317,25 @@ class _AddFileButton extends StatelessWidget {
                   ),
                 );
 
-            controller.close();
+            widget.controller.close();
           },
         );
       },
-      child: GestureDetector(
-        onTap: controller.show,
-        behavior: HitTestBehavior.translucent,
-        child: FlowyHover(resetHoverOnRebuild: false, child: child),
+      child: MouseRegion(
+        onEnter: (event) => position = event.position,
+        onExit: (_) => position = null,
+        onHover: (event) => position = event.position,
+        child: GestureDetector(
+          onTap: () {
+            if (position != null) {
+              widget.controller.showAt(
+                position! - const Offset(_menuWidth / 2, 0),
+              );
+            }
+          },
+          behavior: HitTestBehavior.translucent,
+          child: FlowyHover(resetHoverOnRebuild: false, child: widget.child),
+        ),
       ),
     );
   }
@@ -437,6 +459,7 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
           offset: const Offset(0, 5),
           triggerActions: PopoverTriggerFlags.none,
           onClose: () => setState(() => isSelected = false),
+          asBarrier: true,
           popupBuilder: (popoverContext) => MultiBlocProvider(
             providers: [
               BlocProvider.value(value: context.read<RowDetailBloc>()),
@@ -456,6 +479,11 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
             onTap: widget.foregroundText != null
                 ? null
                 : () {
+                    if (file.uploadType == FileUploadTypePB.LocalFile) {
+                      afLaunchUrlString(file.url);
+                      return;
+                    }
+
                     if (file.fileType != MediaFileTypePB.Image) {
                       afLaunchUrlString(widget.file.url);
                       return;

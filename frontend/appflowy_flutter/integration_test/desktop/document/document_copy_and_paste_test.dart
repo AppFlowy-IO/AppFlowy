@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu/block_menu_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
@@ -11,6 +9,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -27,10 +26,13 @@ void main() {
       await tester.pasteContent(
         plainText: List.generate(lines, (index) => 'line $index').join('\n'),
         (editorState) {
-          expect(editorState.document.root.children.length, 3);
+          expect(editorState.document.root.children.length, 1);
+          final text =
+              editorState.document.root.children.first.delta!.toPlainText();
+          final textLines = text.split('\n');
           for (var i = 0; i < lines; i++) {
             expect(
-              editorState.getNodeAtPath([i])!.delta!.toPlainText(),
+              textLines[i],
               'line $i',
             );
           }
@@ -467,6 +469,44 @@ void main() {
       expect(node.attributes[ImageBlockKeys.url], isNotEmpty);
     });
   });
+
+  const testMarkdownText = '''
+# I'm h1
+## I'm h2
+### I'm h3
+#### I'm h4
+##### I'm h5
+###### I'm h6''';
+
+  testWidgets('paste markdowns', (tester) async {
+    await tester.pasteContent(
+      plainText: testMarkdownText,
+      (editorState) {
+        final children = editorState.document.root.children;
+        expect(children.length, 6);
+        for (int i = 1; i <= children.length; i++) {
+          final text = children[i - 1].delta!.toPlainText();
+          expect(text, 'I\'m h$i');
+        }
+      },
+    );
+  });
+
+  testWidgets('paste markdowns as plain', (tester) async {
+    await tester.pasteContent(
+      plainText: testMarkdownText,
+      pasteAsPlain: true,
+      (editorState) {
+        final children = editorState.document.root.children;
+        expect(children.length, 6);
+        for (int i = 1; i <= children.length; i++) {
+          final text = children[i - 1].delta!.toPlainText();
+          final expectText = '${'#' * i} I\'m h$i';
+          expect(text, expectText);
+        }
+      },
+    );
+  });
 }
 
 extension on WidgetTester {
@@ -476,6 +516,7 @@ extension on WidgetTester {
     String? plainText,
     String? html,
     String? inAppJson,
+    bool pasteAsPlain = false,
     (String, Uint8List?)? image,
   }) async {
     await initializeAppFlowy();
@@ -502,6 +543,7 @@ extension on WidgetTester {
     await simulateKeyEvent(
       LogicalKeyboardKey.keyV,
       isControlPressed: Platform.isLinux || Platform.isWindows,
+      isShiftPressed: pasteAsPlain,
       isMetaPressed: Platform.isMacOS,
     );
     await pumpAndSettle();

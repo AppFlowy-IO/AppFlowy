@@ -7,6 +7,7 @@ import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.
 import 'package:appflowy/mobile/application/recent/recent_view_bloc.dart';
 import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/flowy_gradient_colors.dart';
@@ -26,7 +27,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:time/time.dart';
@@ -118,7 +118,7 @@ class MobileViewPage extends StatelessWidget {
   }
 
   Widget _buildNameAndLastViewed(BuildContext context, RecentViewState state) {
-    final supportAvatar = isURL(state.icon);
+    final supportAvatar = isURL(state.icon.emoji);
     if (!supportAvatar) {
       return _buildLastViewed(context);
     }
@@ -173,21 +173,19 @@ class MobileViewPage extends StatelessWidget {
   Widget _buildTitle(BuildContext context, RecentViewState state) {
     final name = state.name;
     final icon = state.icon;
-    final fontFamily = Platform.isAndroid || Platform.isLinux
-        ? GoogleFonts.notoColorEmoji().fontFamily
-        : null;
     return RichText(
       maxLines: 3,
       overflow: TextOverflow.ellipsis,
       text: TextSpan(
         children: [
-          TextSpan(
-            text: icon,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontSize: 17.0,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: fontFamily,
-                ),
+          WidgetSpan(
+            child: SizedBox(
+              width: 20,
+              child: EmojiIconWidget(
+                emoji: icon,
+                emojiSize: 17.0,
+              ),
+            ),
           ),
           if (icon.isNotEmpty) const WidgetSpan(child: HSpace(2.0)),
           TextSpan(

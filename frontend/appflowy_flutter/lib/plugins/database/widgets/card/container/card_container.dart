@@ -28,8 +28,7 @@ class RowCardContainer extends StatelessWidget {
       create: (_) => _CardContainerNotifier(),
       child: Consumer<_CardContainerNotifier>(
         builder: (context, notifier, _) {
-          final shouldBuildAccessory =
-              buildAccessoryWhen?.call() ?? true;
+          final shouldBuildAccessory = buildAccessoryWhen?.call() ?? true;
 
           return GestureDetector(
             behavior: HitTestBehavior.opaque,

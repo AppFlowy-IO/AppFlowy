@@ -1,6 +1,7 @@
 use crate::entities::PublishPayload;
 pub use anyhow::Error;
 use client_api::entity::{workspace_dto::PublishInfoView, PublishInfo};
+use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
 pub use collab_folder::{Folder, FolderData, Workspace};
 use flowy_error::FlowyError;
@@ -39,6 +40,12 @@ pub trait FolderCloudService: Send + Sync + 'static {
     collab_type: CollabType,
     object_id: &str,
   ) -> Result<Vec<u8>, FlowyError>;
+
+  async fn full_sync_collab_object(
+    &self,
+    workspace_id: &str,
+    params: FullSyncCollabParams,
+  ) -> Result<(), FlowyError>;
 
   async fn batch_create_folder_collab_objects(
     &self,
@@ -102,6 +109,13 @@ pub trait FolderCloudService: Send + Sync + 'static {
 pub struct FolderCollabParams {
   pub object_id: String,
   pub encoded_collab_v1: Vec<u8>,
+  pub collab_type: CollabType,
+}
+
+#[derive(Debug)]
+pub struct FullSyncCollabParams {
+  pub object_id: String,
+  pub encoded_collab: EncodedCollab,
   pub collab_type: CollabType,
 }
 

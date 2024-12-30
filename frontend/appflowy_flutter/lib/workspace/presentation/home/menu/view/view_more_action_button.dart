@@ -58,7 +58,11 @@ class ViewMoreActionPopover extends StatelessWidget {
           (e) => ViewMoreActionTypeWrapper(e, view, (controller, data) {
             onEditing(false);
             onAction(e, data);
-            controller.close();
+            bool enableClose = true;
+            if (data is SelectedEmojiIconResult) {
+              if (data.keepOpen) enableClose = false;
+            }
+            if (enableClose) controller.close();
           }),
         )
         .toList();
@@ -172,6 +176,7 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
       margin: const EdgeInsets.all(0),
       clickHandler: PopoverClickHandler.gestureDetector,
       popupBuilder: (_) => FlowyIconEmojiPicker(
+        initialType: sourceView.icon.toEmojiIconData().type.toPickerTabType(),
         onSelectedEmoji: (result) => onTap(controller, result),
       ),
       child: child,

@@ -1,0 +1,47 @@
+workflows:
+  ios-workflow:
+    name: iOS Workflow
+    instance_type: mac_mini_m2
+    max_build_duration: 30
+    environment:
+      flutter: 3.22.3
+      xcode: latest
+      cocoapods: default
+
+    scripts:
+      - name: Build Flutter
+        script: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source "$HOME/.cargo/env"
+          rustc --version
+          cargo --version
+
+          cd frontend
+
+          rustup target install aarch64-apple-ios-sim
+          cargo install --force cargo-make
+          cargo install --force --locked duckscript_cli
+          cargo install --force cargo-lipo
+
+          cargo make appflowy-flutter-deps-tools
+          cargo make --profile development-ios-arm64-sim appflowy-core-dev-ios
+          cargo make --profile development-ios-arm64-sim code_generation
+
+      - name: iOS integration tests
+        script: |
+          cd frontend/appflowy_flutter
+          flutter emulators --launch apple_ios_simulator
+          flutter -d iPhone test integration_test/runner.dart
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
+
+    publishing:
+      email:
+        recipients:
+          - lucas.xu@appflowy.io
+        notify:
+          success: true
+          failure: true

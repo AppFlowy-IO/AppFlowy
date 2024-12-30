@@ -336,7 +336,7 @@ class _TimePicker extends StatelessWidget {
                 use24hFormat: timeFormat == TimeFormatPB.TwentyFourHour,
                 mode: CupertinoDatePickerMode.date,
               );
-              handleDateTimePickerResult(result, isStartDay);
+              handleDateTimePickerResult(result, isStartDay, true);
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(
@@ -363,7 +363,7 @@ class _TimePicker extends StatelessWidget {
                 use24hFormat: timeFormat == TimeFormatPB.TwentyFourHour,
                 mode: CupertinoDatePickerMode.date,
               );
-              handleDateTimePickerResult(result, isStartDay);
+              handleDateTimePickerResult(result, isStartDay, true);
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -389,7 +389,7 @@ class _TimePicker extends StatelessWidget {
                 use24hFormat: timeFormat == TimeFormatPB.TwentyFourHour,
                 mode: CupertinoDatePickerMode.time,
               );
-              handleDateTimePickerResult(result, isStartDay);
+              handleDateTimePickerResult(result, isStartDay, false);
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -461,11 +461,27 @@ class _TimePicker extends StatelessWidget {
     );
   }
 
-  void handleDateTimePickerResult(DateTime? result, bool isStartDay) {
+  void handleDateTimePickerResult(
+    DateTime? result,
+    bool isStartDay,
+    bool isDate,
+  ) {
     if (result == null) {
       return;
-    } else if (isStartDay) {
-      onStartTimeChanged(result);
+    }
+
+    if (isDate) {
+      final date = isStartDay ? dateTime : endDateTime;
+
+      if (date != null) {
+        final timeComponent = Duration(hours: date.hour, minutes: date.minute);
+        result =
+            DateTime(result.year, result.month, result.day).add(timeComponent);
+      }
+    }
+
+    if (isStartDay) {
+      onStartTimeChanged.call(result);
     } else {
       onEndTimeChanged?.call(result);
     }

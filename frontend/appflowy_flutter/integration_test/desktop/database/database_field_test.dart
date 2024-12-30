@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database/widgets/field/type_option_editor/select/select_option.dart';
+import 'package:appflowy/shared/icon_emoji_picker/recent_icons.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -14,7 +14,14 @@ import '../../shared/database_test_op.dart';
 import '../../shared/util.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() {
+    IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+    RecentIcons.enable = false;
+  });
+
+  tearDownAll(() {
+    RecentIcons.enable = true;
+  });
 
   group('grid edit field test:', () {
     testWidgets('rename existing field', (tester) async {
@@ -538,8 +545,8 @@ void main() {
 
       // edit the first date cell
       await tester.tapCellInGrid(rowIndex: 0, fieldType: FieldType.DateTime);
-      await tester.toggleIncludeTime();
       final now = DateTime.now();
+      await tester.toggleIncludeTime();
       await tester.selectDay(content: now.day);
 
       await tester.dismissCellEditor();

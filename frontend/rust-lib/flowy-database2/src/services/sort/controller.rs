@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use collab_database::fields::Field;
 use collab_database::rows::{Cell, Row, RowId};
-
+use collab_database::template::timestamp_parse::TimestampCellData;
 use rayon::prelude::ParallelSliceMut;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock as TokioRwLock;
@@ -18,9 +18,7 @@ use crate::entities::SortChangesetNotificationPB;
 use crate::entities::{FieldType, SortWithIndexPB};
 use crate::services::cell::CellCache;
 use crate::services::database_view::{DatabaseViewChanged, DatabaseViewChangedNotifier};
-use crate::services::field::{
-  default_order, TimestampCellData, TimestampCellDataWrapper, TypeOptionCellExt,
-};
+use crate::services::field::{default_order, TypeOptionCellExt};
 use crate::services::sort::{
   ReorderAllRowsResult, ReorderSingleRowResult, Sort, SortChangeset, SortCondition,
 };
@@ -179,7 +177,7 @@ impl SortController {
     let task = Task::new(
       &self.handler_id,
       task_id,
-      TaskContent::Text(task_type.to_string()),
+      TaskContent::Text(task_type.to_json_string()),
       qos,
     );
     self.task_scheduler.write().await.add_task(task);
@@ -308,10 +306,10 @@ fn cmp_row(
             (left.modified_at, right.modified_at)
           };
           let (left_cell, right_cell) = (
-            TimestampCellDataWrapper::from((field_type, TimestampCellData::new(left_cell))),
-            TimestampCellDataWrapper::from((field_type, TimestampCellData::new(right_cell))),
+            TimestampCellData::new(left_cell).to_cell(field_rev.field_type),
+            TimestampCellData::new(right_cell).to_cell(field_rev.field_type),
           );
-          Some((Some(left_cell.into()), Some(right_cell.into())))
+          Some((Some(left_cell), Some(right_cell)))
         },
         _ => None,
       };
@@ -353,8 +351,8 @@ enum SortEvent {
   DeleteAllSorts,
 }
 
-impl ToString for SortEvent {
-  fn to_string(&self) -> String {
+impl SortEvent {
+  fn to_json_string(&self) -> String {
     serde_json::to_string(self).unwrap()
   }
 }

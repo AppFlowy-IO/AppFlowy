@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -6,6 +7,7 @@ import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -80,19 +82,23 @@ class _SpaceIconPopupState extends State<SpaceIconPopup> {
       popupBuilder: (context) {
         return FlowyIconEmojiPicker(
           tabs: const [PickerTabType.icon],
-          onSelectedIcon: (group, icon, color) {
-            if (group == null || icon == null) {
-              selectedIcon.value = null;
-            } else {
-              selectedIcon.value = '${group.name}/${icon.name}';
+          onSelectedEmoji: (r) {
+            if (r.type == FlowyIconType.icon) {
+              try {
+                final iconsData = IconsData.fromJson(jsonDecode(r.emoji));
+                final color = iconsData.color;
+                selectedIcon.value =
+                    '${iconsData.groupName}/${iconsData.iconName}';
+                if (color != null) {
+                  selectedColor.value = color;
+                }
+                widget.onIconChanged(selectedIcon.value, selectedColor.value);
+              } on FormatException catch (e) {
+                selectedIcon.value = '';
+                widget.onIconChanged(selectedIcon.value, selectedColor.value);
+                Log.warn('SpaceIconPopup onSelectedEmoji error:$e');
+              }
             }
-
-            if (color != null) {
-              selectedColor.value = color;
-            }
-
-            widget.onIconChanged(selectedIcon.value, selectedColor.value);
-
             PopoverContainer.of(context).close();
           },
         );

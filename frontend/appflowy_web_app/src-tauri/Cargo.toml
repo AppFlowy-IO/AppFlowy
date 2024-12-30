@@ -19,7 +19,7 @@ tracing = "0.1.40"
 bytes = "1.5.0"
 serde = "1.0"
 serde_json = "1.0.108"
-protobuf = { version = "2.28.0" }
+protobuf.workspace = true
 diesel = { version = "2.1.0", features = [
   "sqlite",
   "chrono",
@@ -58,7 +58,7 @@ collab-importer = { version = "0.1" }
 # Run the script:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "648c977c0752609a00ccdfdc5cc8141789e63c4a" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "ea131f0baab67defe7591067357eced490072372" }
 
 [dependencies]
 serde_json.workspace = true
@@ -77,7 +77,6 @@ lib-dispatch = { path = "../../rust-lib/lib-dispatch", features = [
 ] }
 flowy-core = { path = "../../rust-lib/flowy-core", features = ["ts"] }
 flowy-user = { path = "../../rust-lib/flowy-user", features = ["tauri_ts"] }
-flowy-config = { path = "../../rust-lib/flowy-config", features = ["tauri_ts"] }
 flowy-date = { path = "../../rust-lib/flowy-date", features = ["tauri_ts"] }
 flowy-error = { path = "../../rust-lib/flowy-error", features = [
   "impl_from_sqlite",
@@ -118,14 +117,14 @@ custom-protocol = ["tauri/custom-protocol"]
 # To switch to the local path, run:
 # scripts/tool/update_collab_source.sh
 # ⚠️⚠️⚠️️
-collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "699d6e3b45b9ac23987c6eb5fc3df3e29f3cbf9d" }
-collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "699d6e3b45b9ac23987c6eb5fc3df3e29f3cbf9d" }
-collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "699d6e3b45b9ac23987c6eb5fc3df3e29f3cbf9d" }
-collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "699d6e3b45b9ac23987c6eb5fc3df3e29f3cbf9d" }
-collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "699d6e3b45b9ac23987c6eb5fc3df3e29f3cbf9d" }
-collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "699d6e3b45b9ac23987c6eb5fc3df3e29f3cbf9d" }
-collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "699d6e3b45b9ac23987c6eb5fc3df3e29f3cbf9d" }
-collab-importer = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "699d6e3b45b9ac23987c6eb5fc3df3e29f3cbf9d" }
+collab = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "67b31e4bcc64d81332c37efecb0a8618681f1db9" }
+collab-entity = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "67b31e4bcc64d81332c37efecb0a8618681f1db9" }
+collab-folder = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "67b31e4bcc64d81332c37efecb0a8618681f1db9" }
+collab-document = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "67b31e4bcc64d81332c37efecb0a8618681f1db9" }
+collab-database = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "67b31e4bcc64d81332c37efecb0a8618681f1db9" }
+collab-plugins = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "67b31e4bcc64d81332c37efecb0a8618681f1db9" }
+collab-user = { version = "0.2", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "67b31e4bcc64d81332c37efecb0a8618681f1db9" }
+collab-importer = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-Collab", rev = "67b31e4bcc64d81332c37efecb0a8618681f1db9" }
 
 
 # Working directory: frontend

@@ -14,6 +14,7 @@ import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -41,11 +42,14 @@ class EditorStyleCustomizer {
   static const double minDocumentWidth = 480;
 
   static EdgeInsets get documentPadding => UniversalPlatform.isMobile
-      ? const EdgeInsets.symmetric(horizontal: 24)
+      ? EdgeInsets.zero
       : EdgeInsets.only(
           left: 40,
           right: 40 + EditorStyleCustomizer.optionMenuWidth,
         );
+
+  static double get nodeHorizontalPadding =>
+      UniversalPlatform.isMobile ? 24 : 0;
 
   static EdgeInsets get documentPaddingWithOptionMenu =>
       documentPadding + EdgeInsets.only(left: optionMenuWidth);
@@ -162,9 +166,10 @@ class EditorStyleCustomizer {
         applyHeightToLastDescent: true,
       ),
       textSpanDecorator: customizeAttributeDecorator,
-      mobileDragHandleBallSize: const Size.square(12.0),
       magnifierSize: const Size(144, 96),
       textScaleFactor: textScaleFactor,
+      mobileDragHandleLeftExtend: 12.0,
+      mobileDragHandleWidthExtend: 24.0,
     );
   }
 
@@ -194,14 +199,19 @@ class EditorStyleCustomizer {
     );
   }
 
-  TextStyle codeBlockStyleBuilder() {
+  CodeBlockStyle codeBlockStyleBuilder() {
     final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
     final fontFamily =
         context.read<DocumentAppearanceCubit>().state.codeFontFamily;
-    return baseTextStyle(fontFamily).copyWith(
-      fontSize: fontSize,
-      height: 1.5,
-      color: AFThemeExtension.of(context).onBackground,
+
+    return CodeBlockStyle(
+      textStyle: baseTextStyle(fontFamily).copyWith(
+        fontSize: fontSize,
+        height: 1.5,
+        color: AFThemeExtension.of(context).onBackground,
+      ),
+      backgroundColor: AFThemeExtension.of(context).calloutBGColor,
+      foregroundColor: AFThemeExtension.of(context).textColor.withAlpha(155),
     );
   }
 
@@ -233,6 +243,24 @@ class EditorStyleCustomizer {
       height: 1.5,
       color: AFThemeExtension.of(context).onBackground.withOpacity(0.6),
     );
+  }
+
+  TextStyle subPageBlockTextStyleBuilder() {
+    if (UniversalPlatform.isMobile) {
+      final pageStyle = context.read<DocumentPageStyleBloc>().state;
+      final fontSize = pageStyle.fontLayout.fontSize;
+      final fontFamily = pageStyle.fontFamily ?? defaultFontFamily;
+      final baseTextStyle = this.baseTextStyle(fontFamily);
+      return baseTextStyle.copyWith(
+        fontSize: fontSize,
+      );
+    } else {
+      final fontSize = context.read<DocumentAppearanceCubit>().state.fontSize;
+      return baseTextStyle(null).copyWith(
+        fontSize: fontSize,
+        height: 1.5,
+      );
+    }
   }
 
   SelectionMenuStyle selectionMenuStyleBuilder() {
@@ -353,12 +381,13 @@ class EditorStyleCustomizer {
     final formula = attributes[InlineMathEquationKeys.formula];
     if (formula is String) {
       return WidgetSpan(
+        style: after.style,
         alignment: PlaceholderAlignment.middle,
         child: InlineMathEquation(
           node: node,
           index: index,
           formula: formula,
-          textStyle: style().textStyleConfiguration.text,
+          textStyle: after.style ?? style().textStyleConfiguration.text,
         ),
       );
     }

@@ -6,7 +6,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/text_completion.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_action.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_action.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -64,15 +64,15 @@ class AppFlowyAIService implements AIRepository {
   }
 }
 
-CompletionTypePB completionTypeFromInt(SmartEditAction action) {
+CompletionTypePB completionTypeFromInt(AskAIAction action) {
   switch (action) {
-    case SmartEditAction.summarize:
+    case AskAIAction.summarize:
       return CompletionTypePB.MakeShorter;
-    case SmartEditAction.fixSpelling:
+    case AskAIAction.fixSpelling:
       return CompletionTypePB.SpellingAndGrammar;
-    case SmartEditAction.improveWriting:
+    case AskAIAction.improveWriting:
       return CompletionTypePB.ImproveWriting;
-    case SmartEditAction.makeItLonger:
+    case AskAIAction.makeItLonger:
       return CompletionTypePB.MakeLonger;
   }
 }

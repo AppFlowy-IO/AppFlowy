@@ -43,7 +43,6 @@ getrandom = { version = "0.2", features = ["js"] }
 [dev-dependencies]
 tempfile = "3.4.0"
 tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
-collab-integrate = { workspace = true }
 tokio = { workspace = true, features = ["rt", "rt-multi-thread"] }
 
 [build-dependencies]

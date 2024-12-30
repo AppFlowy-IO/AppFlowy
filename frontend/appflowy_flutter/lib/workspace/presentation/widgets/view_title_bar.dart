@@ -16,6 +16,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+
 // space name > ... > view_title
 class ViewTitleBar extends StatelessWidget {
   const ViewTitleBar({
@@ -28,8 +30,7 @@ class ViewTitleBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          ViewTitleBarBloc(view: view)..add(const ViewTitleBarEvent.initial()),
+      create: (_) => ViewTitleBarBloc(view: view),
       child: BlocBuilder<ViewTitleBarBloc, ViewTitleBarState>(
         builder: (context, state) {
           final ancestors = state.ancestors;
@@ -307,11 +308,7 @@ class _ViewTitleState extends State<ViewTitle> {
       child: Row(
         children: [
           if (state.icon.isNotEmpty) ...[
-            FlowyText.emoji(
-              state.icon,
-              fontSize: 14.0,
-              figmaLineHeight: 18.0,
-            ),
+            RawEmojiIconWidget(emoji: state.icon, emojiSize: 14.0),
             const HSpace(4.0),
           ],
           if (state.view?.isSpace == true && spaceIcon != null) ...[

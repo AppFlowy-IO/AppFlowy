@@ -3,6 +3,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_icon.dart';
@@ -25,7 +26,7 @@ const createWorkspaceButtonKey = ValueKey('createWorkspaceButton');
 @visibleForTesting
 const importNotionButtonKey = ValueKey('importNotinoButton');
 
-class WorkspacesMenu extends StatelessWidget {
+class WorkspacesMenu extends StatefulWidget {
   const WorkspacesMenu({
     super.key,
     required this.userProfile,
@@ -38,6 +39,13 @@ class WorkspacesMenu extends StatelessWidget {
   final List<UserWorkspacePB> workspaces;
 
   @override
+  State<WorkspacesMenu> createState() => _WorkspacesMenuState();
+}
+
+class _WorkspacesMenuState extends State<WorkspacesMenu> {
+  final popoverMutex = PopoverMutex();
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,7 +53,7 @@ class WorkspacesMenu extends StatelessWidget {
       children: [
         // user email
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          padding: const EdgeInsets.only(left: 10.0, top: 6.0, right: 10.0),
           child: Row(
             children: [
               Expanded(
@@ -57,28 +65,32 @@ class WorkspacesMenu extends StatelessWidget {
                 ),
               ),
               const HSpace(4.0),
-              const _WorkspaceMoreButton(),
+              WorkspaceMoreButton(
+                popoverMutex: popoverMutex,
+              ),
               const HSpace(8.0),
             ],
           ),
         ),
         const Padding(
-          padding: EdgeInsets.symmetric(vertical: 8.0),
+          padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 6.0),
           child: Divider(height: 1.0),
         ),
         // workspace list
         Flexible(
           child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 6.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                for (final workspace in workspaces) ...[
+                for (final workspace in widget.workspaces) ...[
                   WorkspaceMenuItem(
                     key: ValueKey(workspace.workspaceId),
                     workspace: workspace,
-                    userProfile: userProfile,
-                    isSelected:
-                        workspace.workspaceId == currentWorkspace.workspaceId,
+                    userProfile: widget.userProfile,
+                    isSelected: workspace.workspaceId ==
+                        widget.currentWorkspace.workspaceId,
+                    popoverMutex: popoverMutex,
                   ),
                   const VSpace(6.0),
                 ],
@@ -87,24 +99,30 @@ class WorkspacesMenu extends StatelessWidget {
           ),
         ),
         // add new workspace
-        const _CreateWorkspaceButton(),
-        const VSpace(6.0),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 6.0),
+          child: _CreateWorkspaceButton(),
+        ),
 
         if (UniversalPlatform.isDesktop) ...[
-          const _ImportNotionButton(),
-          const VSpace(6.0),
+          const Padding(
+            padding: EdgeInsets.only(left: 6.0, top: 6.0, right: 6.0),
+            child: _ImportNotionButton(),
+          ),
         ],
+
+        const VSpace(6.0),
       ],
     );
   }
 
   String _getUserInfo() {
-    if (userProfile.email.isNotEmpty) {
-      return userProfile.email;
+    if (widget.userProfile.email.isNotEmpty) {
+      return widget.userProfile.email;
     }
 
-    if (userProfile.name.isNotEmpty) {
-      return userProfile.name;
+    if (widget.userProfile.name.isNotEmpty) {
+      return widget.userProfile.name;
     }
 
     return LocaleKeys.defaultUsername.tr();
@@ -117,11 +135,13 @@ class WorkspaceMenuItem extends StatefulWidget {
     required this.workspace,
     required this.userProfile,
     required this.isSelected,
+    required this.popoverMutex,
   });
 
   final UserProfilePB userProfile;
   final UserWorkspacePB workspace;
   final bool isSelected;
+  final PopoverMutex popoverMutex;
 
   @override
   State<WorkspaceMenuItem> createState() => _WorkspaceMenuItemState();
@@ -196,26 +216,26 @@ class _WorkspaceMenuItemState extends State<WorkspaceMenuItem> {
   }
 
   Widget _buildRightIcon(BuildContext context, ValueNotifier<bool> isHovered) {
-    // only the owner can update or delete workspace.
-    if (context.read<WorkspaceMemberBloc>().state.isLoading) {
-      return const SizedBox.shrink();
-    }
-
     return Row(
       children: [
-        ValueListenableBuilder(
-          valueListenable: isHovered,
-          builder: (context, value, child) {
-            return Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Opacity(
-                opacity: value ? 1.0 : 0.0,
-                child: child,
-              ),
-            );
-          },
-          child: WorkspaceMoreActionList(workspace: widget.workspace),
-        ),
+        // only the owner can update or delete workspace.
+        if (!context.read<WorkspaceMemberBloc>().state.isLoading)
+          ValueListenableBuilder(
+            valueListenable: isHovered,
+            builder: (context, value, child) {
+              return Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Opacity(
+                  opacity: value ? 1.0 : 0.0,
+                  child: child,
+                ),
+              );
+            },
+            child: WorkspaceMoreActionList(
+              workspace: widget.workspace,
+              popoverMutex: widget.popoverMutex,
+            ),
+          ),
         const HSpace(8.0),
         if (widget.isSelected) ...[
           const Padding(
@@ -244,54 +264,52 @@ class _WorkspaceInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<WorkspaceMemberBloc, WorkspaceMemberState>(
-      builder: (context, state) {
-        final members = state.members;
-        return FlowyButton(
-          onTap: () => _openWorkspace(context),
-          iconPadding: 10.0,
-          leftIconSize: const Size.square(32),
-          leftIcon: const SizedBox.square(dimension: 32),
-          rightIcon: const HSpace(32.0),
-          text: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // workspace name
-              FlowyText.medium(
-                workspace.name,
-                fontSize: 14.0,
-                figmaLineHeight: 17.0,
-                overflow: TextOverflow.ellipsis,
-                withTooltip: true,
-              ),
-              // workspace members count
-              FlowyText.regular(
-                state.isLoading
-                    ? ''
-                    : LocaleKeys.settings_appearance_members_membersCount
-                        .plural(
-                        members.length,
-                      ),
-                fontSize: 10.0,
-                figmaLineHeight: 12.0,
-                color: Theme.of(context).hintColor,
-              ),
-            ],
+    final memberCount = workspace.memberCount.toInt();
+    return FlowyButton(
+      onTap: () => _openWorkspace(context),
+      iconPadding: 10.0,
+      leftIconSize: const Size.square(32),
+      leftIcon: const SizedBox.square(dimension: 32),
+      rightIcon: const HSpace(32.0),
+      text: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // workspace name
+          FlowyText.medium(
+            workspace.name,
+            fontSize: 14.0,
+            figmaLineHeight: 17.0,
+            overflow: TextOverflow.ellipsis,
+            withTooltip: true,
           ),
-        );
-      },
+          // workspace members count
+          FlowyText.regular(
+            memberCount == 0
+                ? ''
+                : LocaleKeys.settings_appearance_members_membersCount.plural(
+                    memberCount,
+                  ),
+            fontSize: 10.0,
+            figmaLineHeight: 12.0,
+            color: Theme.of(context).hintColor,
+          ),
+        ],
+      ),
     );
   }
 
   void _openWorkspace(BuildContext context) {
     if (!isSelected) {
       Log.info('open workspace: ${workspace.workspaceId}');
-      context.read<UserWorkspaceBloc>().add(
-            UserWorkspaceEvent.openWorkspace(
-              workspace.workspaceId,
-            ),
-          );
+
+      // Persist and close other tabs when switching workspace, restore tabs for new workspace
+      getIt<TabsBloc>().add(TabsEvent.switchWorkspace(workspace.workspaceId));
+
+      context
+          .read<UserWorkspaceBloc>()
+          .add(UserWorkspaceEvent.openWorkspace(workspace.workspaceId));
+
       PopoverContainer.of(context).closeAll();
     }
   }
@@ -379,40 +397,35 @@ class _ImportNotionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 40,
-      child: Stack(
-        alignment: Alignment.centerRight,
-        children: [
-          FlowyButton(
-            key: importNotionButtonKey,
-            onTap: () {
-              _showImportNotinoDialog(context);
+      child: FlowyButton(
+        key: importNotionButtonKey,
+        onTap: () {
+          _showImportNotinoDialog(context);
+        },
+        margin: const EdgeInsets.symmetric(horizontal: 4.0),
+        text: Row(
+          children: [
+            _buildLeftIcon(context),
+            const HSpace(8.0),
+            FlowyText.regular(
+              LocaleKeys.workspace_importFromNotion.tr(),
+            ),
+          ],
+        ),
+        rightIcon: FlowyTooltip(
+          message: LocaleKeys.workspace_learnMore.tr(),
+          preferBelow: true,
+          child: FlowyIconButton(
+            icon: const FlowySvg(
+              FlowySvgs.information_s,
+            ),
+            onPressed: () {
+              afLaunchUrlString(
+                'https://docs.appflowy.io/docs/guides/import-from-notion',
+              );
             },
-            margin: const EdgeInsets.symmetric(horizontal: 4.0),
-            text: Row(
-              children: [
-                _buildLeftIcon(context),
-                const HSpace(8.0),
-                FlowyText.regular(
-                  LocaleKeys.workspace_importFromNotion.tr(),
-                ),
-              ],
-            ),
           ),
-          FlowyTooltip(
-            message: LocaleKeys.workspace_learnMore.tr(),
-            preferBelow: true,
-            child: FlowyIconButton(
-              icon: const FlowySvg(
-                FlowySvgs.information_s,
-              ),
-              onPressed: () {
-                afLaunchUrlString(
-                  'https://docs.appflowy.io/docs/guides/import-from-notion',
-                );
-              },
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -463,14 +476,22 @@ class _ImportNotionButton extends StatelessWidget {
   }
 }
 
-class _WorkspaceMoreButton extends StatelessWidget {
-  const _WorkspaceMoreButton();
+@visibleForTesting
+class WorkspaceMoreButton extends StatelessWidget {
+  const WorkspaceMoreButton({
+    super.key,
+    required this.popoverMutex,
+  });
+
+  final PopoverMutex popoverMutex;
 
   @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 6),
+      mutex: popoverMutex,
+      asBarrier: true,
       popupBuilder: (_) => FlowyButton(
         margin: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 7.0),
         leftIcon: const FlowySvg(FlowySvgs.workspace_logout_s),

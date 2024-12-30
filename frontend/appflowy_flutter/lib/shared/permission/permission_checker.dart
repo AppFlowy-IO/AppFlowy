@@ -61,4 +61,43 @@ class PermissionChecker {
 
     return true;
   }
+
+  static Future<bool> checkCameraPermission(BuildContext context) async {
+    // check the permission first
+    final status = await Permission.camera.status;
+    // if the permission is permanently denied, we should open the app settings
+    if (status.isPermanentlyDenied && context.mounted) {
+      unawaited(
+        showFlowyMobileConfirmDialog(
+          context,
+          title: FlowyText.semibold(
+            LocaleKeys.pageStyle_cameraPermissionTitle.tr(),
+            maxLines: 3,
+            textAlign: TextAlign.center,
+          ),
+          content: FlowyText(
+            LocaleKeys.pageStyle_cameraPermissionDescription.tr(),
+            maxLines: 5,
+            textAlign: TextAlign.center,
+            fontSize: 12.0,
+          ),
+          actionAlignment: ConfirmDialogActionAlignment.vertical,
+          actionButtonTitle: LocaleKeys.pageStyle_openSettings.tr(),
+          actionButtonColor: Colors.blue,
+          cancelButtonTitle: LocaleKeys.pageStyle_doNotAllow.tr(),
+          cancelButtonColor: Colors.blue,
+          onActionButtonPressed: openAppSettings,
+        ),
+      );
+
+      return false;
+    } else if (status.isDenied) {
+      final newStatus = await Permission.camera.request();
+      if (newStatus.isDenied) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 }

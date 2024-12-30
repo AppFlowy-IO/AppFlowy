@@ -77,9 +77,13 @@
   },
   "workspace": {
     "chooseWorkspace": "选择您的工作区",
+    "defaultName": "我的工作区",
     "create": "新建工作区",
+    "importFromNotion": "从 Notion 导入",
+    "learnMore": "了解更多",
     "reset": "重置工作区",
     "renameWorkspace": "重命名工作区",
+    "workspaceNameCannotBeEmpty": "工作区名称不可为空",
     "resetWorkspacePrompt": "重置工作区将删除其中的所有页面和数据。您确定要重置工作区吗？您也可以联系技术支持团队来恢复工作区",
     "hint": "工作区",
     "notFoundError": "找不到工作区",
@@ -123,7 +127,16 @@
     "visitSite": "访问网站",
     "exportAsTab": "导出为",
     "publishTab": "发布",
-    "shareTab": "分享"
+    "shareTab": "分享",
+    "publishOnAppFlowy": "在 AppFlowy 发布",
+    "shareTabTitle": "邀请他人来协作",
+    "shareTabDescription": "与任何人轻松协作",
+    "copyLinkSuccess": "链接已复制到剪贴板",
+    "copyShareLink": "复制分享链接",
+    "copyLinkFailed": "无法将链接复制到剪贴板",
+    "copyLinkToBlockSuccess": "区块链接已复制到剪贴板",
+    "copyLinkToBlockFailed": "无法将区块链接复制到剪贴板",
+    "manageAllSites": "管理所有站点"
   },
   "moreAction": {
     "small": "小",
@@ -142,6 +155,7 @@
     "textAndMarkdown": "文本 和 Markdown",
     "documentFromV010": "来自 v0.1.0 的文档",
     "databaseFromV010": "来自 v0.1.0 的数据库",
+    "notionZip": "Notion 导出的 Zip 文件",
     "csv": "CSV",
     "database": "数据库"
   },
@@ -180,11 +194,20 @@
     "question4": "使用现有食材制定一份菜谱",
     "aiMistakePrompt": "AI 可能出错，请验证重要信息",
     "chatWithFilePrompt": "你想与文件对话吗？",
-    "questionDetail": "{} 你好！我能怎么帮到你？"
+    "indexFileSuccess": "文件索引成功",
+    "inputActionNoPages": "无页面结果",
+    "clickToMention": "点击以提及页面",
+    "uploadFile": "上传聊天使用的 PDF、md 或 txt 文件",
+    "questionDetail": "{} 你好！我能怎么帮到你？",
+    "indexingFile": "正在索引 {}",
+    "referenceSource": "找到 {} 个来源",
+    "referenceSources": "找到 {} 个来源",
+    "questionTitle": "想法"
   },
   "trash": {
     "text": "回收站",
     "restoreAll": "全部恢复",
+    "restore": "恢复",
     "deleteAll": "全部删除",
     "pageHeader": {
       "fileName": "文件名",
@@ -199,6 +222,10 @@
       "title": "您确定要恢复回收站中的所有页面吗？",
       "caption": "此操作无法撤消。"
     },
+    "restorePage": {
+      "title": "恢复：{}",
+      "caption": "你确定要恢复此页面吗？"
+    },
     "mobile": {
       "actions": "垃圾桶操作",
       "empty": "垃圾桶是空的",
@@ -211,7 +238,8 @@
   "deletePagePrompt": {
     "text": "此页面已被移动至垃圾桶",
     "restore": "恢复页面",
-    "deletePermanent": "彻底删除"
+    "deletePermanent": "彻底删除",
+    "deletePermanentDescription": "你确定要永久删除此页面吗？此操作无法撤销。"
   },
   "dialogCreatePageNameHint": "页面名称",
   "questionBubble": {
@@ -283,13 +311,37 @@
     "today": "今日",
     "thisWeek": "本周",
     "others": "其他",
+    "earlier": "更早",
     "justNow": "现在",
     "minutesAgo": "{count} 分钟以前",
     "lastViewed": "最近一次查看",
     "favoriteAt": "已收藏",
+    "emptyRecent": "没有最近页面",
+    "emptyRecentDescription": "在你查看页面时，它们会出现在这里，方便检索。",
     "emptyFavorite": "无收藏页面",
+    "emptyFavoriteDescription": "将页面收藏起来——它们会列在这里，方便快速访问！",
+    "removePageFromRecent": "从最近页移除此页面吗？",
     "removeSuccess": "成功移除",
-    "favoriteSpace": "收藏"
+    "favoriteSpace": "收藏",
+    "RecentSpace": "最近",
+    "Spaces": "空间",
+    "upgradeToPro": "升级至专业版",
+    "upgradeToAIMax": "解锁无限制 AI",
+    "storageLimitDialogTitle": "你已用尽免费存储。升级以解锁无限制存储",
+    "storageLimitDialogTitleIOS": "你已用尽免费存储。",
+    "aiResponseLimitTitle": "你已用尽免费 AI 回应。升级到专业版或者购买 AI 插件来解锁无限制回应",
+    "aiResponseLimitTitleIOS": "你已用尽免费 AI 回应。",
+    "aiResponseLimitDialogTitle": "已达到 AI 回应限额",
+    "aiResponseLimit": "你已用尽了免费 AI 回应。\n\n转到“设置 -> 计划 -> 点击 AI Max 或 Pro 计划”获取更多 AI 回应",
+    "askOwnerToUpgradeToPro": "你的工作区即将用尽免费存储。请联系工作区所有者升级到专业版计划",
+    "askOwnerToUpgradeToProIOS": "你的工作区即将用尽免费存储。",
+    "askOwnerToUpgradeToAIMax": "你的工作区即将用尽免费 AI 回应。请联系工作区所有者升级计划或购买 AI 插件",
+    "askOwnerToUpgradeToAIMaxIOS": "你的工作区即将用尽免费 AI 回应限额。",
+    "purchaseStorageSpace": "购买存储空间",
+    "purchaseAIResponse": "购买",
+    "askOwnerToUpgradeToLocalAI": "联系工作区所有者启用设备上 AI",
+    "upgradeToAILocal": "在你的设备上运行本地模型，极致保护隐私",
+    "upgradeToAILocalDesc": "使用本地 AI 用 PDF 聊天、改善写作、自动填充表格"
   },
   "notifications": {
     "export": {
@@ -328,11 +380,16 @@
     "update": "更新",
     "share": "分享",
     "removeFromFavorites": "从收藏夹中",
+    "removeFromRecent": "从最近页移除",
     "addToFavorites": "添加到收藏夹",
+    "favoriteSuccessfully": "收藏成功",
+    "unfavoriteSuccessfully": "取消收藏成功",
+    "duplicateSuccessfully": "副本创建成功",
     "rename": "重命名",
     "helpCenter": "帮助中心",
     "add": "添加",
     "yes": "是",
+    "no": "否",
     "clear": "清空",
     "remove": "移除",
     "dontRemove": "不移除",
@@ -346,7 +403,16 @@
     "signInGithub": "使用 Github 账户登录",
     "signInDiscord": "使用 Discord 账户登录",
     "more": "更多",
+    "create": "创建",
+    "close": "关闭",
+    "next": "下一个",
+    "previous": "上一个",
+    "submit": "提交",
     "download": "下载",
+    "backToHome": "返回主页",
+    "viewing": "查看",
+    "editing": "编辑",
+    "gotIt": "我知道了",
     "Done": "完成",
     "Cancel": "取消",
     "OK": "确认"
@@ -379,10 +445,21 @@
       "trash": "回收站",
       "helpAndSupport": "帮助与支持"
     },
+    "sites": {
+      "title": "站点",
+      "namespaceTitle": "名字空间",
+      "namespaceDescription": "管理你的名字空间与主页",
+      "namespaceHeader": "名字空间",
+      "homepageHeader": "主页",
+      "updateNamespace": "更新名字空间",
+      "removeHomepage": "移除主页",
+      "selectHomePage": "选择一个页面"
+    },
     "accountPage": {
       "menuLabel": "我的账户",
       "title": "我的账户",
       "general": {
+        "title": "账户名与资料图像",
         "changeProfilePicture": "更换头像"
       },
       "email": {
@@ -420,18 +497,32 @@
           "dark": "黑暗"
         }
       },
+      "resetCursorColor": {
+        "title": "重置文档光标颜色",
+        "description": "确定要重置光标颜色吗？"
+      },
+      "resetSelectionColor": {
+        "title": "重置文档选取颜色",
+        "description": "确定要重置选区颜色吗？"
+      },
+      "resetWidth": {
+        "resetSuccess": "文档宽度重置成功"
+      },
       "theme": {
         "title": "主题",
-        "description": "选择预设主题，或上传你自己的自定义主题。"
+        "description": "选择预设主题，或上传你自己的自定义主题。",
+        "uploadCustomThemeTooltip": "上传自定义主题"
       },
       "workspaceFont": {
-        "title": "工作区字体"
+        "title": "工作区字体",
+        "noFontHint": "找不到字体，换个词试试。"
       },
       "textDirection": {
         "title": "文字方向",
         "leftToRight": "从左到右",
         "rightToLeft": "从右到左",
-        "auto": "自动"
+        "auto": "自动",
+        "enableRTLItems": "启用从右向左工具栏项目"
       },
       "layoutDirection": {
         "title": "布局方向",
@@ -440,10 +531,14 @@
       },
       "dateTime": {
         "title": "日期 & 时间",
+        "example": "{} 于 {} ({})",
         "24HourTime": "24 小时制",
         "dateFormat": {
           "label": "日期格式",
+          "local": "本地",
+          "us": "US",
           "iso": "ISO",
+          "friendly": "友好",
           "dmy": "日/月/年"
         }
       },
@@ -456,7 +551,9 @@
       },
       "leaveWorkspacePrompt": {
         "title": "离开工作区",
-        "content": "你确定要离开此工作区吗？你将无法访问其中的所有页面和数据。"
+        "content": "你确定要离开此工作区吗？你将无法访问其中的所有页面和数据。",
+        "success": "你已经成功离开工作区。",
+        "fail": "无法离开工作区。"
       },
       "manageWorkspace": {
         "title": "管理工作区",
@@ -487,6 +584,7 @@
       "importData": {
         "title": "导入数据",
         "tooltip": "从 @:appName 备份/数据文件夹导入数据",
+        "description": "从外部 @:appName 数据文件夹复制数据",
         "action": "浏览文件夹"
       },
       "encryption": {
@@ -514,8 +612,24 @@
       }
     },
     "shortcutsPage": {
+      "actions": {
+        "resetDefault": "重置为默认"
+      },
+      "resetDialog": {
+        "description": "这将会将所有按键绑定重置为默认，之后无法撤销。你确定要继续吗？"
+      },
       "keybindings": {
         "selectAllCodeblock": "全选"
+      }
+    },
+    "aiPage": {
+      "title": "AI 设置",
+      "menuLabel": "AI 设置",
+      "keys": {
+        "enableAISearchTitle": "AI 搜索",
+        "aiSettingsDescription": "选择你偏好的模型来赋能 AppFlowy AI。目前可以使用 GPT 4-o、Claude 3,5、Llama 3.1 与 Mistral 7B",
+        "llmModel": "语言模型",
+        "llmModelType": "语言模型类别"
       }
     },
     "planPage": {
@@ -614,6 +728,10 @@
         "label": "启用通知",
         "hint": "关闭以阻止本地通知出现。"
       },
+      "showNotificationsIcon": {
+        "label": "显示通知图标",
+        "hint": "关闭开关以隐藏侧边栏中的通知图标。"
+      },
       "markAsReadNotifications": {
         "allSuccess": "成功全部标为已读",
         "success": "成功标为已读"
@@ -709,6 +827,7 @@
       "members": {
         "title": "成员设置",
         "inviteMembers": "添加成员",
+        "inviteHint": "使用电子邮件邀请",
         "sendInvite": "发送邀请",
         "copyInviteLink": "复制邀请链接",
         "label": "成员",
@@ -1063,8 +1182,8 @@
     "media": {
       "rename": "重命名",
       "download": "下载",
-      "open": "打开",
-      "delete": "删除"
+      "delete": "删除",
+      "open": "打开"
     },
     "singleSelectOptionFilter": {
       "is": "等于",
@@ -1689,6 +1808,7 @@
       "deleteAccount": {
         "title": "删除帐户",
         "subtitle": "永久删除你的帐户和所有数据。",
+        "description": "永久删除你的账户，并移除所有工作区的访问权限。",
         "deleteMyAccount": "删除我的账户",
         "dialogTitle": "删除帐户",
         "dialogContent1": "你确定要永久删除您的帐户吗？",
@@ -1717,9 +1837,56 @@
   "commandPalette": {
     "placeholder": "输入你要搜索的内容..."
   },
+  "space": {
+    "defaultSpaceName": "一般"
+  },
+  "publish": {
+    "saveThisPage": "使用此模板创建"
+  },
   "web": {
     "continueWithGoogle": "使用 Google 账户登录",
     "continueWithGithub": "使用 GitHub 账户登录",
     "continueWithDiscord": "使用 Discord 账户登录"
+  },
+  "template": {
+    "deleteFromTemplate": "从模板中删除",
+    "relatedTemplates": "相关模板",
+    "deleteTemplate": "删除模板",
+    "removeRelatedTemplate": "移除相关模板",
+    "label": "模板"
+  },
+  "time": {
+    "justNow": "刚刚",
+    "seconds": {
+      "one": "1 秒",
+      "other": "{count} 秒"
+    },
+    "minutes": {
+      "one": "1 分钟",
+      "other": "{count} 分钟"
+    },
+    "hours": {
+      "one": "1 小时",
+      "other": "{count} 小时"
+    },
+    "days": {
+      "one": "1 天",
+      "other": "{count} 天"
+    },
+    "weeks": {
+      "one": "1 周",
+      "other": "{count} 周"
+    },
+    "months": {
+      "one": "1 月",
+      "other": "{count} 月"
+    },
+    "years": {
+      "one": "1 年",
+      "other": "{count} 年"
+    },
+    "ago": "前",
+    "yesterday": "昨天",
+    "today": "今天"
   }
 }

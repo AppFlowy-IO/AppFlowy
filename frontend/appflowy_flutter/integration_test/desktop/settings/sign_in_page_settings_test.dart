@@ -2,10 +2,10 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/desktop_sign_in_screen.dart';
 import 'package:appflowy/workspace/presentation/settings/settings_dialog.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:toastification/toastification.dart';
 
 import '../../shared/util.dart';
 
@@ -62,11 +62,12 @@ void main() {
       );
 
       // wait the app to restart, and the tooltip to disappear
-      await tester.pumpUntilNotFound(find.byType(BuiltInToastBuilder));
+      await tester.pumpUntilNotFound(find.byType(DesktopToast));
       await tester.pumpAndSettle(const Duration(milliseconds: 250));
 
       // open settings page to check the result
       await tester.tapButton(settingsButton);
+      await tester.pumpAndSettle(const Duration(milliseconds: 250));
 
       // check the server type
       expect(
@@ -82,14 +83,14 @@ void main() {
       // reset to appflowy cloud
       await tester.tapButton(
         findServerType(AuthenticatorType.appflowyCloudSelfHost),
-      );    
+      );
       // change the server type to appflowy cloud
       await tester.tapButton(
         findServerType(AuthenticatorType.appflowyCloud),
       );
 
       // wait the app to restart, and the tooltip to disappear
-      await tester.pumpUntilNotFound(find.byType(BuiltInToastBuilder));
+      await tester.pumpUntilNotFound(find.byType(DesktopToast));
       await tester.pumpAndSettle(const Duration(milliseconds: 250));
 
       // check the server type

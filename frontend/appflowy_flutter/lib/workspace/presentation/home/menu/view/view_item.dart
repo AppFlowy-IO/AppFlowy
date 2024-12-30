@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -14,7 +15,6 @@ import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/rename_view_dialog.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
@@ -31,7 +31,6 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:universal_platform/universal_platform.dart';
 
 typedef ViewItemOnSelected = void Function(BuildContext context, ViewPB view);
 typedef ViewItemLeftIconBuilder = Widget Function(
@@ -118,6 +117,7 @@ class ViewItem extends StatelessWidget {
 
   // custom the left icon widget, if it's null, the default expand/collapse icon will be used
   final ViewItemLeftIconBuilder? leftIconBuilder;
+
   // custom the right icon widget, if it's null, the default ... and + button will be used
   final ViewItemRightIconsBuilder? rightIconsBuilder;
 
@@ -246,6 +246,7 @@ class InnerViewItem extends StatefulWidget {
   final bool isDraggable;
   final bool isExpanded;
   final bool isFirstChild;
+
   // identify if the view item is rendered as feedback widget inside DraggableItem
   final bool isFeedback;
 
@@ -446,6 +447,7 @@ class SingleInnerViewItem extends StatefulWidget {
   final ViewPB view;
   final ViewPB? parentView;
   final bool isExpanded;
+
   // identify if the view item is rendered as feedback widget inside DraggableItem
   final bool isFeedback;
 
@@ -604,7 +606,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         popupBuilder: (_) => RenameViewPopover(
           viewId: widget.view.id,
           name: widget.view.name,
-          emoji: widget.view.icon.value,
+          emoji: widget.view.icon.toEmojiIconData(),
           popoverController: popoverController,
           showIconChanger: false,
         ),
@@ -616,14 +618,9 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   }
 
   Widget _buildViewIconButton() {
-    // using same line height on macos will result the emoji not aligned vertically with the text
-    final height = UniversalPlatform.isMacOS ? 20.0 : 18.0;
-    final icon = widget.view.icon.value.isNotEmpty
-        ? FlowyText.emoji(
-            widget.view.icon.value,
-            fontSize: 16.0,
-            figmaLineHeight: height,
-          )
+    final iconData = widget.view.icon.toEmojiIconData();
+    final icon = iconData.isNotEmpty
+        ? RawEmojiIconWidget(emoji: iconData, emojiSize: 16.0)
         : Opacity(opacity: 0.6, child: widget.view.defaultIcon());
 
     return AppFlowyPopover(
@@ -644,13 +641,13 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
       popupBuilder: (context) {
         isIconPickerOpened = true;
         return FlowyIconEmojiPicker(
-          onSelectedEmoji: (result) {
+          initialType: iconData.type.toPickerTabType(),
+          onSelectedEmoji: (r) {
             ViewBackendService.updateViewIcon(
               viewId: widget.view.id,
-              viewIcon: result.emoji,
-              iconType: result.type.toProto(),
+              viewIcon: r.data,
             );
-            controller.close();
+            if (!r.keepOpen) controller.close();
           },
         );
       },
@@ -692,26 +689,18 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
   ) {
     final viewBloc = context.read<ViewBloc>();
 
-    if (createNewView) {
-      createViewAndShowRenameDialogIfNeeded(
-        context,
-        _convertLayoutToHintText(pluginBuilder.layoutType!),
-        (viewName, _) {
-          // the name of new document should be empty
-          if (pluginBuilder.layoutType == ViewLayoutPB.Document) {
-            viewName = '';
-          }
-          viewBloc.add(
-            ViewEvent.createView(
-              viewName,
-              pluginBuilder.layoutType!,
-              openAfterCreated: openAfterCreated,
-              section: widget.spaceType.toViewSectionPB,
-            ),
-          );
-        },
-      );
-    }
+    // the name of new document should be empty
+    final viewName = pluginBuilder.layoutType != ViewLayoutPB.Document
+        ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
+        : '';
+    viewBloc.add(
+      ViewEvent.createView(
+        viewName,
+        pluginBuilder.layoutType!,
+        openAfterCreated: openAfterCreated,
+        section: widget.spaceType.toViewSectionPB,
+      ),
+    );
 
     viewBloc.add(const ViewEvent.setIsExpanded(true));
   }
@@ -748,7 +737,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
                 NavigatorTextFieldDialog(
                   title: LocaleKeys.disclosureAction_rename.tr(),
                   autoSelectAllText: true,
-                  value: widget.view.name,
+                  value: widget.view.nameOrDefault,
                   maxLength: 256,
                   onConfirm: (newValue, _) {
                     context.read<ViewBloc>().add(ViewEvent.rename(newValue));
@@ -782,14 +771,12 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
               context.read<ViewBloc>().add(const ViewEvent.collapseAllPages());
               break;
             case ViewMoreActionType.changeIcon:
-              if (data is! EmojiPickerResult) {
+              if (data is! SelectedEmojiIconResult) {
                 return;
               }
-              final result = data;
               await ViewBackendService.updateViewIcon(
                 viewId: widget.view.id,
-                viewIcon: result.emoji,
-                iconType: result.type.toProto(),
+                viewIcon: data.data,
               );
               break;
             case ViewMoreActionType.moveTo:
@@ -814,22 +801,6 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         },
       ),
     );
-  }
-
-  String _convertLayoutToHintText(ViewLayoutPB layout) {
-    switch (layout) {
-      case ViewLayoutPB.Document:
-        return LocaleKeys.newDocumentText.tr();
-      case ViewLayoutPB.Grid:
-        return LocaleKeys.newGridText.tr();
-      case ViewLayoutPB.Board:
-        return LocaleKeys.newBoardText.tr();
-      case ViewLayoutPB.Calendar:
-        return LocaleKeys.newCalendarText.tr();
-      case ViewLayoutPB.Chat:
-        return LocaleKeys.chat_newChat.tr();
-    }
-    return LocaleKeys.newPageText.tr();
   }
 }
 

@@ -15,6 +15,8 @@ final List<CommandShortcutEvent> defaultCommandShortcutEvents = [
 
 // Command shortcuts are order-sensitive. Verify order when modifying.
 List<CommandShortcutEvent> commandShortcutEvents = [
+  ...simpleTableCommands,
+
   customExitEditingCommand,
   backspaceToTitle,
   removeToggleHeadingStyle,
@@ -28,6 +30,7 @@ List<CommandShortcutEvent> commandShortcutEvents = [
 
   customCopyCommand,
   customPasteCommand,
+  customPastePlainTextCommand,
   customCutCommand,
   customUndoCommand,
   customRedoCommand,
@@ -41,10 +44,12 @@ List<CommandShortcutEvent> commandShortcutEvents = [
         copyCommand,
         cutCommand,
         pasteCommand,
+        pasteTextWithoutFormattingCommand,
         toggleTodoListCommand,
         undoCommand,
         redoCommand,
         exitEditingCommand,
+        ...tableCommands,
       ].contains(shortcut),
     ),
 

@@ -1,13 +1,12 @@
 import { UIVariant, View, ViewLayout } from '@/application/types';
-import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
-import { ViewIcon } from '@/components/_shared/view-icon';
+import SpaceIcon from '@/components/_shared/view-icon/SpaceIcon';
 import PublishIcon from '@/components/_shared/view-icon/PublishIcon';
-import { renderColor } from '@/utils/color';
-import { isFlagEmoji } from '@/utils/emoji';
 import { Tooltip } from '@mui/material';
 import React, { memo } from 'react';
+import { useTranslation } from 'react-i18next';
+import PageIcon from '@/components/_shared/view-icon/PageIcon';
 
-function OutlineItemContent ({
+function OutlineItemContent({
   item,
   setIsExpanded,
   navigateToView,
@@ -21,9 +20,10 @@ function OutlineItemContent ({
   variant?: UIVariant;
 
 }) {
-  const { icon, layout, name, view_id, extra } = item;
+  const { name, view_id, extra } = item;
   const [hovered, setHovered] = React.useState(false);
   const isSpace = extra?.is_space;
+  const { t } = useTranslation();
 
   return (
     <div
@@ -48,26 +48,12 @@ function OutlineItemContent ({
       className={`flex flex-1 select-none items-center gap-1.5 overflow-hidden`}
     >
       {isSpace && extra ?
-        <span
-          className={'icon h-[1.2em] w-[1.2em]'}
-          style={{
-            backgroundColor: extra.space_icon_color ? renderColor(extra.space_icon_color) : 'rgb(163, 74, 253)',
-            borderRadius: '4px',
-          }}
-        >
-          <SpaceIcon
-            value={extra.space_icon || ''}
-            char={extra.space_icon ? undefined : name.slice(0, 1)}
-          />
-        </span> :
-        <div
-          className={`${icon && isFlagEmoji(icon.value) ? 'icon' : ''}`}
-        >
-          {icon?.value || <ViewIcon
-            layout={layout}
-            size={'medium'}
-          />}
-        </div>
+        <SpaceIcon
+          bgColor={extra.space_icon_color}
+          value={extra.space_icon || ''}
+          char={extra.space_icon ? undefined : name.slice(0, 1)}
+        /> :
+        <PageIcon view={item} className={'flex h-5 w-5 min-w-5 items-center justify-center'}/>
       }
 
       <Tooltip
@@ -75,7 +61,7 @@ function OutlineItemContent ({
         enterDelay={1000}
         enterNextDelay={1000}
       >
-        <div className={'flex-1 truncate'}>{name}</div>
+        <div className={'flex-1 truncate'}>{name || t('menuAppHeader.defaultNewPageName')}</div>
       </Tooltip>
       {hovered && variant === UIVariant.Publish && <PublishIcon
         variant={variant}

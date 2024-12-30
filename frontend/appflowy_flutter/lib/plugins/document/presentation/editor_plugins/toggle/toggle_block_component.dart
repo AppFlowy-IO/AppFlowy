@@ -1,8 +1,9 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class ToggleListBlockKeys {
   const ToggleListBlockKeys._();
@@ -210,25 +211,7 @@ class _ToggleListBlockComponentWidgetState
     BuildContext context, {
     bool withBackgroundColor = false,
   }) {
-    final textDirection = calculateTextDirection(
-      layoutDirection: Directionality.maybeOf(context),
-    );
-
-    Widget child = Container(
-      width: double.infinity,
-      alignment: alignment,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        textDirection: textDirection,
-        children: [
-          _buildExpandIcon(),
-          Flexible(
-            child: _buildRichText(),
-          ),
-        ],
-      ),
-    );
+    Widget child = _buildToggleBlock();
 
     child = BlockSelectionContainer(
       node: node,
@@ -264,6 +247,58 @@ class _ToggleListBlockComponentWidgetState
     return child;
   }
 
+  Widget _buildToggleBlock() {
+    final textDirection = calculateTextDirection(
+      layoutDirection: Directionality.maybeOf(context),
+    );
+    final crossAxisAlignment = textDirection == TextDirection.ltr
+        ? CrossAxisAlignment.start
+        : CrossAxisAlignment.end;
+
+    return Container(
+      width: double.infinity,
+      alignment: alignment,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: crossAxisAlignment,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            textDirection: textDirection,
+            children: [
+              _buildExpandIcon(),
+              Flexible(
+                child: _buildRichText(),
+              ),
+            ],
+          ),
+          _buildPlaceholder(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlaceholder() {
+    // if the toggle block is collapsed or it contains children, don't show the
+    // placeholder.
+    if (collapsed || node.children.isNotEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: indentPadding,
+      child: FlowyButton(
+        text: FlowyText(
+          buildPlaceholderText(),
+          color: Theme.of(context).hintColor,
+        ),
+        margin: const EdgeInsets.symmetric(horizontal: 3.0, vertical: 8),
+        onTap: onAddContent,
+      ),
+    );
+  }
+
   Widget _buildRichText() {
     final textDirection = calculateTextDirection(
       layoutDirection: Directionality.maybeOf(context),
@@ -295,37 +330,46 @@ class _ToggleListBlockComponentWidgetState
         return result.updateTextStyle(placeholderTextStyle);
       },
       textDirection: textDirection,
-      textAlign: alignment?.toTextAlign,
+      textAlign: alignment?.toTextAlign ?? textAlign,
       cursorColor: editorState.editorStyle.cursorColor,
       selectionColor: editorState.editorStyle.selectionColor,
     );
   }
 
   Widget _buildExpandIcon() {
-    const buttonHeight = 22.0;
-    double top = 0.0;
+    double buttonHeight = UniversalPlatform.isDesktop ? 22.0 : 26.0;
+    final textDirection = calculateTextDirection(
+      layoutDirection: Directionality.maybeOf(context),
+    );
 
     if (level != null) {
       // top padding * 2 + button height = height of the heading text
       final textStyle = widget.textStyleBuilder?.call(level ?? 1);
       final fontSize = textStyle?.fontSize;
       final lineHeight = textStyle?.height ?? 1.5;
+
       if (fontSize != null) {
-        top = (fontSize * lineHeight - buttonHeight) / 2;
+        buttonHeight = fontSize * lineHeight;
       }
     }
 
+    final turns = switch (textDirection) {
+      TextDirection.ltr => collapsed ? 0.0 : 0.25,
+      TextDirection.rtl => collapsed ? -0.5 : -0.75,
+    };
+
     return Container(
-      constraints: const BoxConstraints(
+      constraints: BoxConstraints(
         minWidth: 26,
         minHeight: buttonHeight,
       ),
-      padding: EdgeInsets.only(top: top, right: 4.0),
-      child: FlowyIconButton(
-        width: 20.0,
-        onPressed: onCollapsed,
-        icon: AnimatedRotation(
-          turns: collapsed ? 0.0 : 0.25,
+      alignment: Alignment.center,
+      child: FlowyButton(
+        margin: const EdgeInsets.all(2.0),
+        useIntrinsicWidth: true,
+        onTap: onCollapsed,
+        text: AnimatedRotation(
+          turns: turns,
           duration: const Duration(milliseconds: 200),
           child: const Icon(
             Icons.arrow_right,
@@ -341,6 +385,27 @@ class _ToggleListBlockComponentWidgetState
       ..updateNode(node, {
         ToggleListBlockKeys.collapsed: !collapsed,
       });
+    transaction.afterSelection = editorState.selection;
     await editorState.apply(transaction);
+  }
+
+  Future<void> onAddContent() async {
+    final transaction = editorState.transaction;
+    final path = node.path.child(0);
+    transaction.insertNode(
+      path,
+      paragraphNode(),
+    );
+    transaction.afterSelection = Selection.collapsed(Position(path: path));
+    await editorState.apply(transaction);
+  }
+
+  String buildPlaceholderText() {
+    if (level != null) {
+      return LocaleKeys.document_plugins_emptyToggleHeading.tr(
+        args: [level.toString()],
+      );
+    }
+    return LocaleKeys.document_plugins_emptyToggleList.tr();
   }
 }

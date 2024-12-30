@@ -3,7 +3,8 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/flowy_search_text_field.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
-import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -25,8 +26,9 @@ Future<ViewPB?> showPageSelectorSheet(
     showHeader: true,
     showCloseButton: true,
     showDragHandle: true,
-    builder: (context) => Container(
-      margin: const EdgeInsets.only(top: 12.0),
+    useSafeArea: false,
+    backgroundColor: Theme.of(context).colorScheme.surface,
+    builder: (context) => ConstrainedBox(
       constraints: const BoxConstraints(
         maxHeight: 340,
         minHeight: 80,
@@ -112,27 +114,27 @@ class _MobilePageSelectorBodyState extends State<_MobilePageSelectorBody> {
             }
 
             return Flexible(
-              child: ListView(
-                children: filtered
-                    .map(
-                      (view) => FlowyOptionTile.checkbox(
-                        leftIcon: view.icon.value.isNotEmpty
-                            ? EmojiText(
-                                emoji: view.icon.value,
-                                fontSize: 18,
-                                textAlign: TextAlign.center,
-                                lineHeight: 1.3,
-                              )
-                            : FlowySvg(
-                                view.layout.icon,
-                                size: const Size.square(20),
-                              ),
-                        text: view.name,
-                        isSelected: view.id == widget.selectedViewId,
-                        onTap: () => Navigator.of(context).pop(view),
-                      ),
-                    )
-                    .toList(),
+              child: ListView.builder(
+                itemCount: filtered.length,
+                itemBuilder: (context, index) {
+                  final view = filtered.elementAt(index);
+                  return FlowyOptionTile.checkbox(
+                    leftIcon: view.icon.value.isNotEmpty
+                        ? RawEmojiIconWidget(
+                            emoji: view.icon.toEmojiIconData(),
+                            emojiSize: 18,
+                          )
+                        : FlowySvg(
+                            view.layout.icon,
+                            size: const Size.square(20),
+                          ),
+                    text: view.name,
+                    showTopBorder: index != 0,
+                    showBottomBorder: false,
+                    isSelected: view.id == widget.selectedViewId,
+                    onTap: () => Navigator.of(context).pop(view),
+                  );
+                },
               ),
             );
           },

@@ -8,7 +8,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 CodeBlockLanguagePickerBuilder codeBlockLanguagePickerBuilder = (
@@ -19,7 +21,7 @@ CodeBlockLanguagePickerBuilder codeBlockLanguagePickerBuilder = (
   onMenuClose,
   onMenuOpen,
 }) =>
-    _CodeBlockLanguageSelector(
+    CodeBlockLanguageSelector(
       editorState: editorState,
       language: selectedLanguage,
       supportedLanguages: supportedLanguages,
@@ -28,8 +30,9 @@ CodeBlockLanguagePickerBuilder codeBlockLanguagePickerBuilder = (
       onMenuOpen: onMenuOpen,
     );
 
-class _CodeBlockLanguageSelector extends StatefulWidget {
-  const _CodeBlockLanguageSelector({
+class CodeBlockLanguageSelector extends StatefulWidget {
+  const CodeBlockLanguageSelector({
+    super.key,
     required this.editorState,
     required this.supportedLanguages,
     this.language,
@@ -46,12 +49,11 @@ class _CodeBlockLanguageSelector extends StatefulWidget {
   final VoidCallback? onMenuClose;
 
   @override
-  State<_CodeBlockLanguageSelector> createState() =>
+  State<CodeBlockLanguageSelector> createState() =>
       _CodeBlockLanguageSelectorState();
 }
 
-class _CodeBlockLanguageSelectorState
-    extends State<_CodeBlockLanguageSelector> {
+class _CodeBlockLanguageSelectorState extends State<CodeBlockLanguageSelector> {
   final controller = PopoverController();
 
   @override
@@ -136,7 +138,8 @@ class _LanguageSelectionPopoverState extends State<_LanguageSelectionPopover> {
   late List<String> filteredLanguages =
       widget.supportedLanguages.map((e) => e.capitalize()).toList();
   late int selectedIndex =
-      widget.supportedLanguages.indexOf(widget.language ?? '');
+      widget.supportedLanguages.indexOf(widget.language?.toLowerCase() ?? '');
+  final ItemScrollController languageListController = ItemScrollController();
 
   @override
   void initState() {
@@ -160,34 +163,91 @@ class _LanguageSelectionPopoverState extends State<_LanguageSelectionPopover> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        FlowyTextField(
-          focusNode: focusNode,
-          autoFocus: false,
-          controller: searchController,
-          hintText: LocaleKeys.document_codeBlock_searchLanguageHint.tr(),
-          onChanged: (_) => setState(() {
-            filteredLanguages = widget.supportedLanguages
-                .where((e) => e.contains(searchController.text.toLowerCase()))
-                .map((e) => e.capitalize())
-                .toList();
-            selectedIndex =
-                widget.supportedLanguages.indexOf(widget.language ?? '');
-          }),
-        ),
-        const VSpace(8),
-        Flexible(
-          child: SelectableItemListMenu(
-            shrinkWrap: true,
-            items: filteredLanguages,
-            selectedIndex: selectedIndex,
-            onSelected: (index) =>
-                widget.onLanguageSelected(filteredLanguages[index]),
+    return Shortcuts(
+      shortcuts: const {
+        SingleActivator(LogicalKeyboardKey.arrowUp):
+            _DirectionIntent(AxisDirection.up),
+        SingleActivator(LogicalKeyboardKey.arrowDown):
+            _DirectionIntent(AxisDirection.down),
+        SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
+      },
+      child: Actions(
+        actions: {
+          _DirectionIntent: CallbackAction<_DirectionIntent>(
+            onInvoke: (intent) => onArrowKey(intent.direction),
           ),
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (intent) {
+              if (selectedIndex < 0) return;
+              selectLanguage(selectedIndex);
+              return null;
+            },
+          ),
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FlowyTextField(
+              focusNode: focusNode,
+              autoFocus: false,
+              controller: searchController,
+              hintText: LocaleKeys.document_codeBlock_searchLanguageHint.tr(),
+              onChanged: (_) => setState(() {
+                filteredLanguages = widget.supportedLanguages
+                    .where(
+                      (e) => e.contains(searchController.text.toLowerCase()),
+                    )
+                    .map((e) => e.capitalize())
+                    .toList();
+                selectedIndex =
+                    widget.supportedLanguages.indexOf(widget.language ?? '');
+              }),
+            ),
+            const VSpace(8),
+            Flexible(
+              child: SelectableItemListMenu(
+                controller: languageListController,
+                shrinkWrap: true,
+                items: filteredLanguages,
+                selectedIndex: selectedIndex,
+                onSelected: selectLanguage,
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
+
+  void onArrowKey(AxisDirection direction) {
+    if (filteredLanguages.isEmpty) return;
+    final isUp = direction == AxisDirection.up;
+    if (selectedIndex < 0) {
+      selectedIndex = isUp ? 0 : -1;
+    }
+    final length = filteredLanguages.length;
+    setState(() {
+      if (isUp) {
+        selectedIndex = selectedIndex == 0 ? length - 1 : selectedIndex - 1;
+      } else {
+        selectedIndex = selectedIndex == length - 1 ? 0 : selectedIndex + 1;
+      }
+    });
+    languageListController.scrollTo(
+      index: selectedIndex,
+      alignment: 0.5,
+      duration: const Duration(milliseconds: 300),
+    );
+  }
+
+  void selectLanguage(int index) {
+    widget.onLanguageSelected(filteredLanguages[index]);
+  }
+}
+
+/// [ScrollIntent] is not working, so using this custom Intent
+class _DirectionIntent extends Intent {
+  const _DirectionIntent(this.direction);
+
+  final AxisDirection direction;
 }

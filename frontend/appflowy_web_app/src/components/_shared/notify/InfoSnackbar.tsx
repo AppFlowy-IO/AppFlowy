@@ -31,7 +31,10 @@ const InfoSnackbar = forwardRef<HTMLDivElement, InfoSnackbarProps>(
     };
 
     return (
-      <SnackbarContent ref={ref} className={'flex items-center justify-center'}>
+      <SnackbarContent
+        ref={ref}
+        className={'flex items-center justify-center'}
+      >
         <Paper className={`relative flex flex-col gap-4 border p-5 ${getBorderColor(type)}`}>
           <div className={'flex w-full items-center justify-between text-base font-medium'}>
             <div className={'flex flex-1 items-center gap-2 text-left font-semibold'}>
@@ -39,13 +42,18 @@ const InfoSnackbar = forwardRef<HTMLDivElement, InfoSnackbarProps>(
               <div>{title}</div>
             </div>
             <div className={'relative -right-1.5'}>
-              <IconButton size={'small'} color={'inherit'} className={'h-6 w-6'} onClick={handleClose}>
+              <IconButton
+                size={'small'}
+                color={'inherit'}
+                className={'h-6 w-6'}
+                onClick={handleClose}
+              >
                 <CloseIcon className={'h-4 w-4'} />
               </IconButton>
             </div>
           </div>
 
-          <div className={'mx-8 flex-1'}>{message}</div>
+          <div className={'flex-1'}>{message}</div>
           {showActions && (
             <div className={'flex w-full justify-end gap-4'}>
               <Button
@@ -64,12 +72,12 @@ const InfoSnackbar = forwardRef<HTMLDivElement, InfoSnackbarProps>(
         </Paper>
       </SnackbarContent>
     );
-  }
+  },
 );
 
 export default InfoSnackbar;
 
-function getIcon(type: 'success' | 'info' | 'warning' | 'error') {
+function getIcon (type: 'success' | 'info' | 'warning' | 'error') {
   switch (type) {
     case 'success':
       return <CheckCircle className={'h-6 w-6 text-[var(--function-success)]'} />;
@@ -82,7 +90,7 @@ function getIcon(type: 'success' | 'info' | 'warning' | 'error') {
   }
 }
 
-function getButtonBgColor(type: 'success' | 'info' | 'warning' | 'error') {
+function getButtonBgColor (type: 'success' | 'info' | 'warning' | 'error') {
   switch (type) {
     case 'success':
       return 'bg-[var(--function-success)]';
@@ -95,7 +103,7 @@ function getButtonBgColor(type: 'success' | 'info' | 'warning' | 'error') {
   }
 }
 
-function getButtonHoverBgColor(type: 'success' | 'info' | 'warning' | 'error') {
+function getButtonHoverBgColor (type: 'success' | 'info' | 'warning' | 'error') {
   switch (type) {
     case 'success':
       return 'hover:bg-[var(--function-success-hover)]';
@@ -108,7 +116,7 @@ function getButtonHoverBgColor(type: 'success' | 'info' | 'warning' | 'error') {
   }
 }
 
-function getBorderColor(type: 'success' | 'info' | 'warning' | 'error') {
+function getBorderColor (type: 'success' | 'info' | 'warning' | 'error') {
   switch (type) {
     case 'success':
       return 'border-[var(--function-success)]';

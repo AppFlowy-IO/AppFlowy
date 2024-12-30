@@ -287,7 +287,7 @@ pub enum ErrorCode {
   #[error("Local AI unavailable")]
   LocalAIUnavailable = 99,
 
-  #[error("File storage limit exceeded")]
+  #[error("Storage limit exceeded")]
   FileStorageLimitExceeded = 100,
 
   #[error("AI Response limit exceeded")]
@@ -356,6 +356,9 @@ pub enum ErrorCode {
 
   #[error("Requested namespace has one or more invalid characters")]
   CustomNamespaceInvalidCharacter = 122,
+
+  #[error("Requested namespace has one or more invalid characters")]
+  AIServiceUnavailable = 123,
 }
 
 impl ErrorCode {

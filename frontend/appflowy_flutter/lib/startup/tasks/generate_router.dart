@@ -37,6 +37,8 @@ import 'package:go_router/go_router.dart';
 import 'package:sheet/route.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import '../../shared/icon_emoji_picker/tab.dart';
+
 GoRouter generateRouter(Widget child) {
   return GoRouter(
     navigatorKey: AppGlobals.rootNavKey,
@@ -51,7 +53,7 @@ GoRouter generateRouter(Widget child) {
       _encryptSecretScreenRoute(),
       _workspaceErrorScreenRoute(),
       // Desktop only
-      if (!UniversalPlatform.isMobile) _desktopHomeScreenRoute(),
+      if (UniversalPlatform.isDesktop) _desktopHomeScreenRoute(),
       // Mobile only
       if (UniversalPlatform.isMobile) ...[
         // settings
@@ -281,10 +283,23 @@ GoRoute _mobileEmojiPickerPageRoute() {
     pageBuilder: (context, state) {
       final title =
           state.uri.queryParameters[MobileEmojiPickerScreen.pageTitle];
+      final selectTabs =
+          state.uri.queryParameters[MobileEmojiPickerScreen.selectTabs] ?? '';
+      final selectedType = state
+          .uri.queryParameters[MobileEmojiPickerScreen.iconSelectedType]
+          ?.toPickerTabType();
+      final tabs = selectTabs
+          .split('-')
+          .map((e) => PickerTabType.values.byName(e))
+          .toList();
       return MaterialExtendedPage(
-        child: MobileEmojiPickerScreen(
-          title: title,
-        ),
+        child: tabs.isEmpty
+            ? MobileEmojiPickerScreen(title: title, selectedType: selectedType)
+            : MobileEmojiPickerScreen(
+                title: title,
+                selectedType: selectedType,
+                tabs: tabs,
+              ),
       );
     },
   );

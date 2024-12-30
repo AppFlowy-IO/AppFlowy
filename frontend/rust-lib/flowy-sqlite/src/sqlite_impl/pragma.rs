@@ -51,6 +51,7 @@ pub trait PragmaExtension: ConnectionExtension {
     self.query::<ST, T>(&query)
   }
 
+  #[allow(dead_code)]
   fn pragma_get<'query, ST, T>(&mut self, key: &str, schema: Option<&str>) -> Result<T>
   where
     SqlLiteral<ST>: LoadQuery<'query, SqliteConnection, T>,
@@ -64,10 +65,12 @@ pub trait PragmaExtension: ConnectionExtension {
     self.query::<ST, T>(&query)
   }
 
+  #[allow(dead_code)]
   fn pragma_set_busy_timeout(&mut self, timeout_ms: i32) -> Result<i32> {
     self.pragma_ret::<Integer, i32, i32>("busy_timeout", timeout_ms, None)
   }
 
+  #[allow(dead_code)]
   fn pragma_get_busy_timeout(&mut self) -> Result<i32> {
     self.pragma_get::<Integer, i32>("busy_timeout", None)
   }
@@ -80,12 +83,14 @@ pub trait PragmaExtension: ConnectionExtension {
     self.pragma_ret::<Integer, i32, SQLiteJournalMode>("journal_mode", mode, schema)
   }
 
+  #[allow(dead_code)]
   fn pragma_get_journal_mode(&mut self, schema: Option<&str>) -> Result<SQLiteJournalMode> {
     self
       .pragma_get::<Text, String>("journal_mode", schema)?
       .parse()
   }
 
+  #[allow(dead_code)]
   fn pragma_set_synchronous(
     &mut self,
     synchronous: SQLiteSynchronous,
@@ -94,6 +99,7 @@ pub trait PragmaExtension: ConnectionExtension {
     self.pragma("synchronous", synchronous as u8, schema)
   }
 
+  #[allow(dead_code)]
   fn pragma_get_synchronous(&mut self, schema: Option<&str>) -> Result<SQLiteSynchronous> {
     self
       .pragma_get::<Integer, i32>("synchronous", schema)?

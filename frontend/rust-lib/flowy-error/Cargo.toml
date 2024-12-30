@@ -36,7 +36,7 @@ client-api = { workspace = true, optional = true }
 tantivy = { version = "0.22.0", optional = true }
 
 [features]
-default = ["impl_from_dispatch_error", "impl_from_serde", "impl_from_reqwest"]
+default = ["impl_from_dispatch_error", "impl_from_serde", "impl_from_reqwest", "impl_from_sqlite"]
 impl_from_dispatch_error = ["lib-dispatch"]
 impl_from_serde = []
 impl_from_reqwest = ["reqwest"]

@@ -55,7 +55,7 @@ export function Breadcrumb ({ crumbs, toView, variant }: BreadcrumbProps) {
                 variant={variant}
                 toView={toView}
                 crumb={crumb}
-                disableClick={false}
+                disableClick={index === lastCrumbs.length - 1}
               />
               {index === lastCrumbs.length - 1 ? null : <RightIcon className={'h-4 shrink-0 w-4'} />}
             </div>

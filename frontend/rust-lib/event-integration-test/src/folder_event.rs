@@ -1,4 +1,4 @@
-use flowy_folder::view_operation::{EncodedCollabWrapper, ViewData};
+use flowy_folder::view_operation::{GatherEncodedCollab, ViewData};
 use std::sync::Arc;
 
 use collab_folder::{FolderData, View};
@@ -165,15 +165,12 @@ impl EventIntegrationTest {
   }
 
   pub async fn get_folder_data(&self) -> FolderData {
-    let mutex_folder = self
+    self
       .appflowy_core
       .folder_manager
-      .get_mutex_folder()
-      .clone()
-      .unwrap();
-    let folder = mutex_folder.read().await;
-    let workspace_id = self.appflowy_core.user_manager.workspace_id().unwrap();
-    folder.get_folder_data(&workspace_id).clone().unwrap()
+      .get_folder_data()
+      .await
+      .unwrap()
   }
 
   pub async fn get_publish_payload(
@@ -193,17 +190,14 @@ impl EventIntegrationTest {
     payload.unwrap()
   }
 
-  pub async fn get_encoded_collab_v1_from_disk(
+  pub async fn gather_encode_collab_from_disk(
     &self,
     view_id: &str,
     layout: ViewLayout,
-  ) -> EncodedCollabWrapper {
-    let manager = self.folder_manager.clone();
-    let user = manager.get_user().clone();
-    let handlers = manager.get_operation_handlers();
-    let handler = handlers.get(&layout).unwrap();
-    handler
-      .get_encoded_collab_v1_from_disk(user, view_id)
+  ) -> GatherEncodedCollab {
+    self
+      .folder_manager
+      .gather_publish_encode_collab(view_id, &layout)
       .await
       .unwrap()
   }

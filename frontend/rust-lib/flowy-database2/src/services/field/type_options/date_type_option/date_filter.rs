@@ -1,12 +1,17 @@
 use crate::entities::{DateFilterConditionPB, DateFilterPB};
 use crate::services::cell::insert_date_cell;
-use crate::services::field::TimestampCellData;
 use crate::services::filter::PreFillCellsWithFilter;
 
+use bytes::Bytes;
 use chrono::{Duration, Local, NaiveDate, TimeZone};
 use collab_database::fields::date_type_option::DateCellData;
 use collab_database::fields::Field;
 use collab_database::rows::Cell;
+use collab_database::template::timestamp_parse::TimestampCellData;
+use flowy_error::{internal_error, FlowyResult};
+
+use crate::entities::DateCellDataPB;
+use crate::services::cell::CellProtobufBlobParser;
 
 impl DateFilterPB {
   /// Returns `None` if the DateFilterPB doesn't have the necessary data for
@@ -176,6 +181,25 @@ impl PreFillCellsWithFilter for DateFilterPB {
     };
 
     start_timestamp.map(|timestamp| insert_date_cell(timestamp, None, None, field))
+  }
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct DateCellChangeset {
+  pub timestamp: Option<i64>,
+  pub end_timestamp: Option<i64>,
+  pub include_time: Option<bool>,
+  pub is_range: Option<bool>,
+  pub clear_flag: Option<bool>,
+  pub reminder_id: Option<String>,
+}
+
+pub struct DateCellDataParser();
+impl CellProtobufBlobParser for DateCellDataParser {
+  type Object = DateCellDataPB;
+
+  fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
+    DateCellDataPB::try_from(bytes.as_ref()).map_err(internal_error)
   }
 }
 

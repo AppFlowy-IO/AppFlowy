@@ -6,6 +6,8 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+import '../../../shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+
 class RenameViewPopover extends StatefulWidget {
   const RenameViewPopover({
     super.key,
@@ -20,7 +22,7 @@ class RenameViewPopover extends StatefulWidget {
   final String viewId;
   final String name;
   final PopoverController popoverController;
-  final String emoji;
+  final EmojiIconData emoji;
   final Widget? icon;
   final bool showIconChanger;
 
@@ -88,11 +90,16 @@ class _RenameViewPopoverState extends State<RenameViewPopover> {
     }
   }
 
-  Future<void> _updateViewIcon(String emoji, PopoverController? _) async {
+  Future<void> _updateViewIcon(
+    SelectedEmojiIconResult r,
+    PopoverController? _,
+  ) async {
     await ViewBackendService.updateViewIcon(
       viewId: widget.viewId,
-      viewIcon: emoji,
+      viewIcon: r.data,
     );
-    widget.popoverController.close();
+    if (!r.keepOpen) {
+      widget.popoverController.close();
+    }
   }
 }

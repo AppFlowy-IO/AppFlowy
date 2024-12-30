@@ -15,8 +15,11 @@ part 'local_ai_on_boarding_bloc.freezed.dart';
 
 class LocalAIOnBoardingBloc
     extends Bloc<LocalAIOnBoardingEvent, LocalAIOnBoardingState> {
-  LocalAIOnBoardingBloc(this.userProfile, this.member, this.workspaceId)
-      : super(const LocalAIOnBoardingState()) {
+  LocalAIOnBoardingBloc(
+    this.userProfile,
+    this.currentWorkspaceMemberRole,
+    this.workspaceId,
+  ) : super(const LocalAIOnBoardingState()) {
     _userService = UserBackendService(userId: userProfile.id);
     _successListenable = getIt<SubscriptionSuccessListenable>();
     _successListenable.addListener(_onPaymentSuccessful);
@@ -36,7 +39,7 @@ class LocalAIOnBoardingBloc
   }
 
   final UserProfilePB userProfile;
-  final WorkspaceMemberPB member;
+  final AFRolePB? currentWorkspaceMemberRole;
   final String workspaceId;
   late final IUserBackendService _userService;
   late final SubscriptionSuccessListenable _successListenable;

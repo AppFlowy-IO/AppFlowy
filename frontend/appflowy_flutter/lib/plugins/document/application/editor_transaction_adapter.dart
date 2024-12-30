@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/document_service.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/smart_edit_node_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_block_component.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
@@ -24,7 +24,7 @@ import 'package:appflowy_editor/appflowy_editor.dart'
 import 'package:collection/collection.dart';
 import 'package:nanoid/nanoid.dart';
 
-const _kExternalTextType = 'text';
+const kExternalTextType = 'text';
 
 /// Uses to adjust the data structure between the editor and the backend.
 ///
@@ -176,24 +176,23 @@ extension on InsertOperation {
     Path currentPath = path;
     final List<BlockActionWrapper> actions = [];
     for (final node in nodes) {
-      if (node.type == SmartEditBlockKeys.type) {
+      if (node.type == AskAIBlockKeys.type) {
         continue;
       }
 
       final parentId = node.parent?.id ??
           editorState.getNodeAtPath(currentPath.parent)?.id ??
           '';
-      var prevId = previousNode?.id;
+      assert(parentId.isNotEmpty);
+
+      String prevId = '';
       // if the node is the first child of the parent, then its prevId should be empty.
       final isFirstChild = currentPath.previous.equals(currentPath);
+
       if (!isFirstChild) {
-        prevId ??= editorState.getNodeAtPath(currentPath.previous)?.id ?? '';
-      }
-      prevId ??= '';
-      assert(parentId.isNotEmpty);
-      if (isFirstChild) {
-        prevId = '';
-      } else {
+        prevId = previousNode?.id ??
+            editorState.getNodeAtPath(currentPath.previous)?.id ??
+            '';
         assert(prevId.isNotEmpty && prevId != node.id);
       }
 
@@ -213,7 +212,7 @@ extension on InsertOperation {
         // sync the text id to the node
         node.externalValues = ExternalValues(
           externalId: textId,
-          externalType: _kExternalTextType,
+          externalType: kExternalTextType,
         );
       }
 
@@ -222,7 +221,7 @@ extension on InsertOperation {
         ..block = node.toBlock(
           childrenId: nanoid(6),
           externalId: textId,
-          externalType: textId != null ? _kExternalTextType : null,
+          externalType: textId != null ? kExternalTextType : null,
           attributes: {...node.attributes}..remove(blockComponentDelta),
         )
         ..parentId = parentId
@@ -323,7 +322,7 @@ extension on UpdateOperation {
 
       node.externalValues = ExternalValues(
         externalId: textId,
-        externalType: _kExternalTextType,
+        externalType: kExternalTextType,
       );
 
       if (enableDocumentInternalLog) {
@@ -333,7 +332,7 @@ extension on UpdateOperation {
       // update the external text id and external type to the block
       blockActionPB.payload.block
         ..externalId = textId
-        ..externalType = _kExternalTextType;
+        ..externalType = kExternalTextType;
 
       actions.add(
         BlockActionWrapper(
@@ -358,7 +357,7 @@ extension on UpdateOperation {
       // update the external text id and external type to the block
       blockActionPB.payload.block
         ..externalId = textId
-        ..externalType = _kExternalTextType;
+        ..externalType = kExternalTextType;
 
       actions.add(
         BlockActionWrapper(

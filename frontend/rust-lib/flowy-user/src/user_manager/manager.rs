@@ -23,7 +23,6 @@ use tokio::sync::Mutex;
 use tokio_stream::StreamExt;
 use tracing::{debug, error, event, info, instrument, warn};
 
-use lib_dispatch::prelude::af_spawn;
 use lib_infra::box_any::BoxAny;
 
 use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
@@ -37,7 +36,7 @@ use crate::migrations::workspace_trash_v1::WorkspaceTrashMapToSectionMigration;
 use crate::migrations::AnonUser;
 use crate::services::authenticate_user::AuthenticateUser;
 use crate::services::cloud_config::get_cloud_config;
-use crate::services::collab_interact::{CollabInteract, DefaultCollabInteract};
+use crate::services::collab_interact::{DefaultCollabInteract, UserReminder};
 
 use super::manager_user_workspace::save_user_workspace;
 use crate::migrations::doc_key_with_workspace::CollabDocKeyWithWorkspaceIdMigration;
@@ -54,7 +53,7 @@ pub struct UserManager {
   pub(crate) user_awareness: Arc<ArcSwapOption<RwLock<UserAwareness>>>,
   pub(crate) user_status_callback: RwLock<Arc<dyn UserStatusCallback>>,
   pub(crate) collab_builder: Weak<AppFlowyCollabBuilder>,
-  pub(crate) collab_interact: RwLock<Arc<dyn CollabInteract>>,
+  pub(crate) collab_interact: RwLock<Arc<dyn UserReminder>>,
   pub(crate) user_workspace_service: Arc<dyn UserWorkspaceService>,
   auth_process: Mutex<Option<UserAuthProcess>>,
   pub(crate) authenticate_user: Arc<AuthenticateUser>,
@@ -91,7 +90,7 @@ impl UserManager {
     let weak_user_manager = Arc::downgrade(&user_manager);
     if let Ok(user_service) = user_manager.cloud_services.get_user_service() {
       if let Some(mut rx) = user_service.subscribe_user_update() {
-        af_spawn(async move {
+        tokio::spawn(async move {
           while let Some(update) = rx.recv().await {
             if let Some(user_manager) = weak_user_manager.upgrade() {
               if let Err(err) = user_manager.handler_user_update(update).await {
@@ -124,7 +123,7 @@ impl UserManager {
   /// the function will set up the collaboration configuration and initialize the user's awareness. Upon successful
   /// completion, a user status callback is invoked to signify that the initialization process is complete.
   #[instrument(level = "debug", skip_all, err)]
-  pub async fn init_with_callback<C: UserStatusCallback + 'static, I: CollabInteract>(
+  pub async fn init_with_callback<C: UserStatusCallback + 'static, I: UserReminder>(
     &self,
     user_status_callback: C,
     collab_interact: I,
@@ -184,7 +183,7 @@ impl UserManager {
           event!(tracing::Level::DEBUG, "Listen token state change");
           let user_uid = user.uid;
           let local_token = user.token.clone();
-          af_spawn(async move {
+          tokio::spawn(async move {
             while let Some(token_state) = token_state_rx.next().await {
               debug!("Token state changed: {:?}", token_state);
               match token_state {
@@ -678,7 +677,7 @@ impl UserManager {
     params: UpdateUserProfileParams,
   ) -> Result<(), FlowyError> {
     let server = self.cloud_services.get_user_service()?;
-    af_spawn(async move {
+    tokio::spawn(async move {
       let credentials = UserCredentials::new(Some(token), Some(uid), None);
       server.update_user(credentials, params).await
     })

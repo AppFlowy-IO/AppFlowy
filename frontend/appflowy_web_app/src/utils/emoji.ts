@@ -37,6 +37,14 @@ export enum ICON_CATEGORY {
   work_education = 'work_education',
 }
 
+let icons: Record<ICON_CATEGORY,
+  {
+    id: string;
+    name: string;
+    content: string;
+    keywords: string[];
+  }[]> | undefined;
+
 export async function loadIcons(): Promise<
   Record<
     ICON_CATEGORY,
@@ -48,7 +56,14 @@ export async function loadIcons(): Promise<
     }[]
   >
 > {
-  return axios.get('/af_icons/icons.json').then((res) => res.data);
+  if (icons) {
+    return icons;
+  }
+
+  return axios.get('/af_icons/icons.json').then((res) => {
+    icons = res.data;
+    return res.data;
+  });
 }
 
 export async function getIconSvgEncodedContent(id: string, color: string) {
@@ -62,4 +77,27 @@ export async function getIconSvgEncodedContent(id: string, color: string) {
     console.error(e);
     return null;
   }
+}
+
+export async function randomIcon() {
+  const icons = await loadIcons();
+  const categories = Object.keys(icons);
+  const randomCategory = categories[Math.floor(Math.random() * categories.length)] as ICON_CATEGORY;
+  const randomIcon = icons[randomCategory][Math.floor(Math.random() * icons[randomCategory].length)];
+
+  return randomIcon;
+}
+
+export async function getIcon(id: string) {
+  const icons = await loadIcons();
+
+  for (const category of Object.keys(icons)) {
+    for (const icon of icons[category as ICON_CATEGORY]) {
+      if (icon.id === id) {
+        return icon;
+      }
+    }
+  }
+
+  return null;
 }

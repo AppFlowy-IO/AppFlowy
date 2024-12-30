@@ -1,10 +1,12 @@
+import { useDatabaseContext, useDatabaseViewId } from '@/application/database-yjs';
 import { AFScroller } from '@/components/_shared/scroller';
 import { useMeasureHeight } from '@/components/database/components/cell/useMeasure';
-import { GridColumnType, RenderColumn } from '../grid-column';
-import { GridCalculateRowCell, GridRowCell, RenderRowType, useRenderRows } from '../grid-row';
-import React, { useCallback, useEffect, useRef } from 'react';
+import { debounce } from 'lodash-es';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { GridChildComponentProps, VariableSizeGrid } from 'react-window';
+import { GridColumnType, RenderColumn } from '../grid-column';
+import { GridCalculateRowCell, GridRowCell, RenderRowType, useRenderRows } from '../grid-row';
 
 export interface GridTableProps {
   onScrollLeft: (left: number) => void;
@@ -18,12 +20,38 @@ export interface GridTableProps {
 export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: GridTableProps) => {
   const ref = useRef<VariableSizeGrid | null>(null);
   const { rows } = useRenderRows();
+  const viewId = useDatabaseViewId();
 
   const forceUpdate = useCallback((index: number) => {
     ref.current?.resetAfterRowIndex(index, true);
   }, []);
 
   const { rowHeight, onResize } = useMeasureHeight({ forceUpdate, rows });
+  const context = useDatabaseContext();
+  const onRendered = context.onRendered;
+  const isDocumentBlock = context.isDocumentBlock;
+  const readOnly = context.readOnly;
+
+  const calculateTableHeight = useMemo(() => debounce(() => {
+    const table = document.querySelector(`.grid-table-${viewId}`);
+    const tableRect = table?.getBoundingClientRect();
+    const theLastRow = table?.querySelector('.calculate-row-cell');
+    const rowRect = theLastRow?.getBoundingClientRect();
+
+    if (!tableRect) {
+      onRendered?.(0);
+      return;
+    }
+
+    if (rowRect) {
+      const offset = readOnly ? 80 : 117;
+
+      onRendered?.(rowRect.bottom - tableRect.top + offset);
+    } else {
+      onRendered?.(tableRect.height + 80);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, 200), [viewId, readOnly]);
 
   useEffect(() => {
     if (ref.current) {
@@ -37,7 +65,12 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
 
   useEffect(() => {
     resetGrid();
-  }, [columns, resetGrid]);
+    calculateTableHeight();
+    return () => {
+      calculateTableHeight.cancel();
+    };
+
+  }, [columns, resetGrid, calculateTableHeight]);
 
   const getItemKey = useCallback(
     ({ columnIndex, rowIndex }: { columnIndex: number; rowIndex: number }) => {
@@ -75,7 +108,7 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
       }
 
       if (column.type === GridColumnType.Field) {
-        classList.push('border-b', 'border-l', 'border-line-divider', 'px-2');
+        classList.push('border-b', 'border-line-divider', 'px-2', 'grid-row-filed-cell');
       }
 
       if (column.type === GridColumnType.NewProperty) {
@@ -87,7 +120,7 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
           <div
             data-row-id={row.rowId}
             className={classList.join(' ')}
-            style={{ ...style, borderLeftWidth: columnIndex === 0 || column.type === GridColumnType.Action ? 0 : 1 }}
+            style={{ ...style, borderLeftWidth: columnIndex === 1 || column.type === GridColumnType.Action ? 0 : 1 }}
           >
             <GridRowCell
               onResize={onResize}
@@ -103,7 +136,10 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
 
       if (row.type === RenderRowType.CalculateRow && column.fieldId) {
         return (
-          <div style={style} className={'pb-36'}>
+          <div
+            style={style}
+            className={`${isDocumentBlock ? '' : 'pb-36'} calculate-row-cell`}
+          >
             <GridCalculateRowCell fieldId={column.fieldId} />
           </div>
         );
@@ -111,7 +147,7 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
 
       return <div style={style} />;
     },
-    [onResize],
+    [onResize, isDocumentBlock],
   );
 
   return (
@@ -124,9 +160,12 @@ export const GridTable = ({ scrollLeft, columnWidth, columns, onScrollLeft }: Gr
           onScroll={({ scrollLeft }) => onScrollLeft(scrollLeft)}
           rowCount={rows.length}
           columnCount={columns.length}
-          columnWidth={(index) => columnWidth(index, width)}
+          columnWidth={(index) => {
+
+            return columnWidth(index, width);
+          }}
           rowHeight={rowHeight}
-          className={'grid-table'}
+          className={`grid-table grid-table-${viewId}`}
           overscanRowCount={5}
           overscanColumnCount={5}
           style={{

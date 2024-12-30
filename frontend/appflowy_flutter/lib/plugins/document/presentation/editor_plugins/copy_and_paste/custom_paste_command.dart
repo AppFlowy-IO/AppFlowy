@@ -29,8 +29,37 @@ final CommandShortcutEvent customPasteCommand = CommandShortcutEvent(
   handler: _pasteCommandHandler,
 );
 
+final CommandShortcutEvent customPastePlainTextCommand = CommandShortcutEvent(
+  key: 'paste the plain content',
+  getDescription: () => AppFlowyEditorL10n.current.cmdPasteContent,
+  command: 'ctrl+shift+v',
+  macOSCommand: 'cmd+shift+v',
+  handler: _pastePlainCommandHandler,
+);
+
 CommandShortcutEventHandler _pasteCommandHandler = (editorState) {
+  final selection = editorState.selection;
+  if (selection == null) {
+    return KeyEventResult.ignored;
+  }
+
   doPaste(editorState).then((_) {
+    final context = editorState.document.root.context;
+    if (context != null && context.mounted) {
+      context.read<ClipboardState>().didPaste();
+    }
+  });
+
+  return KeyEventResult.handled;
+};
+
+CommandShortcutEventHandler _pastePlainCommandHandler = (editorState) {
+  final selection = editorState.selection;
+  if (selection == null) {
+    return KeyEventResult.ignored;
+  }
+
+  doPlainPaste(editorState).then((_) {
     final context = editorState.document.root.context;
     if (context != null && context.mounted) {
       context.read<ClipboardState>().didPaste();
@@ -114,7 +143,7 @@ Future<void> doPaste(EditorState editorState) async {
   }
 
   if (plainText != null && plainText.isNotEmpty) {
-    await editorState.pastePlainText(plainText);
+    await editorState.pasteText(plainText);
     return Log.info('Pasted plain text');
   }
 
@@ -184,4 +213,25 @@ Future<bool> _pasteAsLinkPreview(
   await editorState.apply(linkPreviewTransaction);
 
   return true;
+}
+
+Future<void> doPlainPaste(EditorState editorState) async {
+  final selection = editorState.selection;
+  if (selection == null) {
+    return;
+  }
+
+  EditorNotification.paste().post();
+
+  // dispatch the paste event
+  final data = await getIt<ClipboardService>().getData();
+  final plainText = data.plainText;
+  if (plainText != null && plainText.isNotEmpty) {
+    await editorState.pastePlainText(plainText);
+    Log.info('Pasted plain text');
+    return;
+  }
+
+  Log.info('unable to parse the clipboard content');
+  return;
 }

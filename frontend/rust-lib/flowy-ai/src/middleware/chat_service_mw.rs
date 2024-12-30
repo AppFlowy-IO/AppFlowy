@@ -1,15 +1,17 @@
 use crate::ai_manager::AIUserService;
 use crate::entities::{ChatStatePB, ModelTypePB};
 use crate::local_ai::local_llm_chat::LocalAIController;
-use crate::notification::{make_notification, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY};
+use crate::notification::{
+  chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
+};
 use crate::persistence::{select_single_message, ChatMessageTable};
 use appflowy_plugin::error::PluginError;
 use std::collections::HashMap;
 
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, CompletionType,
-  LocalAIConfig, MessageCursor, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
-  StreamAnswer, StreamComplete, SubscriptionPlan,
+  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
+  CompletionType, LocalAIConfig, MessageCursor, RelatedQuestion, RepeatedChatMessage,
+  RepeatedRelatedQuestion, StreamAnswer, StreamComplete, SubscriptionPlan, UpdateChatParams,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use futures::{stream, Sink, StreamExt, TryStreamExt};
@@ -92,7 +94,7 @@ impl AICloudServiceMiddleware {
       err,
       PluginError::PluginNotConnected | PluginError::PeerDisconnect
     ) {
-      make_notification(
+      chat_notification_builder(
         APPFLOWY_AI_NOTIFICATION_KEY,
         ChatNotification::UpdateChatPluginState,
       )
@@ -112,10 +114,11 @@ impl ChatCloudService for AICloudServiceMiddleware {
     uid: &i64,
     workspace_id: &str,
     chat_id: &str,
+    rag_ids: Vec<String>,
   ) -> Result<(), FlowyError> {
     self
       .cloud_service
-      .create_chat(uid, workspace_id, chat_id)
+      .create_chat(uid, workspace_id, chat_id, rag_ids)
       .await
   }
 
@@ -221,6 +224,18 @@ impl ChatCloudService for AICloudServiceMiddleware {
       .await
   }
 
+  async fn get_question_from_answer_id(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    answer_id: i64,
+  ) -> Result<ChatMessage, FlowyError> {
+    self
+      .cloud_service
+      .get_question_from_answer_id(workspace_id, chat_id, answer_id)
+      .await
+  }
+
   async fn get_related_message(
     &self,
     workspace_id: &str,
@@ -313,5 +328,28 @@ impl ChatCloudService for AICloudServiceMiddleware {
     workspace_id: &str,
   ) -> Result<Vec<SubscriptionPlan>, FlowyError> {
     self.cloud_service.get_workspace_plan(workspace_id).await
+  }
+
+  async fn get_chat_settings(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+  ) -> Result<ChatSettings, FlowyError> {
+    self
+      .cloud_service
+      .get_chat_settings(workspace_id, chat_id)
+      .await
+  }
+
+  async fn update_chat_settings(
+    &self,
+    workspace_id: &str,
+    chat_id: &str,
+    params: UpdateChatParams,
+  ) -> Result<(), FlowyError> {
+    self
+      .cloud_service
+      .update_chat_settings(workspace_id, chat_id, params)
+      .await
   }
 }

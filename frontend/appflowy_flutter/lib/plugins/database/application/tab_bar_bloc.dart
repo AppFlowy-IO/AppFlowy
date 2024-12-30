@@ -293,7 +293,6 @@ class DatabaseTabBarController {
   OnViewChildViewChanged? onViewChildViewChanged;
 
   Future<void> dispose() async {
-    await viewListener.stop();
-    await controller.dispose();
+    await Future.wait([viewListener.stop(), controller.dispose()]);
   }
 }

@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -37,13 +38,24 @@ Future<void> dragToMoveNode(
   // Determine the new path based on drop position
   // For VerticalPosition.top, we keep the target node's path
   if (verticalPosition == VerticalPosition.bottom) {
-    newPath = horizontalPosition == HorizontalPosition.left
-        ? newPath.next // Insert after target node
-        : newPath.child(0); // Insert as first child of target node
+    if (horizontalPosition == HorizontalPosition.left) {
+      newPath = newPath.next;
+      final node = editorState.document.nodeAtPath(newPath);
+      if (node == null) {
+        // if node is null, it means the node is the last one of the document.
+        newPath = targetNode.path;
+      }
+    } else {
+      newPath = newPath.child(0);
+    }
   }
 
   // Check if the drop should be ignored
-  if (shouldIgnoreDragTarget(node, newPath)) {
+  if (shouldIgnoreDragTarget(
+    editorState: editorState,
+    dragNode: node,
+    targetPath: newPath,
+  )) {
     Log.info(
       'Drop ignored: node($node, ${node.path}), path($acceptedPath)',
     );
@@ -52,21 +64,10 @@ Future<void> dragToMoveNode(
 
   Log.info('Moving node($node, ${node.path}) to path($newPath)');
 
-  final newPathNode = editorState.getNodeAtPath(newPath);
-  if (newPathNode == null) {
-    // if the new path is not a valid path, it means the node is not in the editor.
-    // we should perform insertion before deletion.
-    final transaction = editorState.transaction;
-    transaction.insertNode(newPath, node.copyWith());
-    transaction.deleteNode(node);
-    await editorState.apply(transaction);
-  } else {
-    // Perform the node move operation
-    final transaction = editorState.transaction;
-    transaction.deleteNode(node);
-    transaction.insertNode(newPath, node.copyWith());
-    await editorState.apply(transaction);
-  }
+  final transaction = editorState.transaction;
+  transaction.insertNode(newPath, node.deepCopy());
+  transaction.deleteNode(node);
+  await editorState.apply(transaction);
 }
 
 (VerticalPosition, HorizontalPosition, Rect)? getDragAreaPosition(
@@ -121,7 +122,11 @@ Future<void> dragToMoveNode(
   return (verticalPosition, horizontalPosition, globalBlockRect);
 }
 
-bool shouldIgnoreDragTarget(Node dragNode, Path? targetPath) {
+bool shouldIgnoreDragTarget({
+  required EditorState editorState,
+  required Node dragNode,
+  required Path? targetPath,
+}) {
   if (targetPath == null) {
     return true;
   }
@@ -131,6 +136,11 @@ bool shouldIgnoreDragTarget(Node dragNode, Path? targetPath) {
   }
 
   if (dragNode.path.isAncestorOf(targetPath)) {
+    return true;
+  }
+
+  final targetNode = editorState.getNodeAtPath(targetPath);
+  if (targetNode != null && targetNode.isInTable) {
     return true;
   }
 

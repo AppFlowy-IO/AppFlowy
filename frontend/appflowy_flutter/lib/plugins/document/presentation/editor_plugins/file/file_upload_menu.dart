@@ -136,10 +136,9 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
 
     if (UniversalPlatform.isMobile) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.all(12),
         child: SizedBox(
           height: 32,
-          width: 300,
           child: FlowyButton(
             backgroundColor: Theme.of(context).colorScheme.primary,
             hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.9),

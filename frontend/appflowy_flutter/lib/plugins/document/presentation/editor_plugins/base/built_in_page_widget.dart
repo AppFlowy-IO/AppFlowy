@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -62,18 +61,15 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
         if (snapshot.hasData && page != null) {
           return _build(context, page);
         }
+
         if (snapshot.connectionState == ConnectionState.done) {
-          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-            // just delete the page if it is not found
-            _deletePage();
-          });
-          return const Center(
-            child: FlowyText('Cannot load the page'),
-          );
+          // Delete the page if not found
+          WidgetsBinding.instance.addPostFrameCallback((_) => _deletePage());
+
+          return const Center(child: FlowyText('Cannot load the page'));
         }
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
+
+        return const Center(child: CircularProgressIndicator());
       },
       future: future,
     );
@@ -83,20 +79,18 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
     return MouseRegion(
       onEnter: (_) => widget.editorState.service.scrollService?.disable(),
       onExit: (_) => widget.editorState.service.scrollService?.enable(),
-      child: SizedBox(
-        height: viewPB.pluginType == PluginType.calendar ? 700 : 400,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildMenu(context, viewPB),
-            Expanded(child: _buildPage(context, viewPB)),
-          ],
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildMenu(context, viewPB),
+          Flexible(child: _buildPage(context, viewPB)),
+        ],
       ),
     );
   }
 
-  Widget _buildPage(BuildContext context, ViewPB viewPB) {
+  Widget _buildPage(BuildContext context, ViewPB view) {
     return Focus(
       focusNode: focusNode,
       onFocusChange: (value) {
@@ -104,11 +98,11 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
           widget.editorState.service.selectionService.clearSelection();
         }
       },
-      child: widget.builder(viewPB),
+      child: widget.builder(view),
     );
   }
 
-  Widget _buildMenu(BuildContext context, ViewPB viewPB) {
+  Widget _buildMenu(BuildContext context, ViewPB view) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -116,7 +110,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
         // information
         FlowyIconButton(
           tooltipText: LocaleKeys.tooltip_referencePage.tr(
-            namedArgs: {'name': viewPB.layout.name},
+            namedArgs: {'name': view.layout.name},
           ),
           width: 24,
           height: 24,
@@ -147,8 +141,8 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
               case _ActionType.viewDatabase:
                 getIt<TabsBloc>().add(
                   TabsEvent.openPlugin(
-                    plugin: viewPB.plugin(),
-                    view: viewPB,
+                    plugin: view.plugin(),
+                    view: view,
                   ),
                 );
                 break;
@@ -172,10 +166,7 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
   }
 }
 
-enum _ActionType {
-  viewDatabase,
-  delete,
-}
+enum _ActionType { viewDatabase, delete }
 
 class _ActionWrapper extends ActionCell {
   _ActionWrapper(this.inner);
