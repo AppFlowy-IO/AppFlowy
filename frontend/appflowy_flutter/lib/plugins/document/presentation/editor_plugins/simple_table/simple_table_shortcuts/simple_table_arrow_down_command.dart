@@ -1,5 +1,7 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_shortcuts/simple_table_command_extension.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_operations/simple_table_operations.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_shortcuts/simple_table_command_extension.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_shortcuts/simple_table_navigation_command.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +42,7 @@ KeyEventResult _arrowDownInTableCellHandler(EditorState editorState) {
   if (rowIndex == parentTableNode.rowLength - 1) {
     // focus on the next block
     final nextNode = tableCellNode.next;
+    final nextBlock = tableCellNode.parentTableNode?.next;
     if (nextNode != null) {
       final nextFocusableSibling = parentTableNode.getNextFocusableSibling();
       if (nextFocusableSibling != null) {
@@ -50,6 +53,16 @@ KeyEventResult _arrowDownInTableCellHandler(EditorState editorState) {
             offset: length,
           ),
         );
+      }
+    } else if (nextBlock != null) {
+      if (nextBlock.type != SimpleTableBlockKeys.type) {
+        newSelection = Selection.collapsed(
+          Position(
+            path: nextBlock.path,
+          ),
+        );
+      } else {
+        return tableNavigationArrowDownCommand.handler(editorState);
       }
     }
   } else {

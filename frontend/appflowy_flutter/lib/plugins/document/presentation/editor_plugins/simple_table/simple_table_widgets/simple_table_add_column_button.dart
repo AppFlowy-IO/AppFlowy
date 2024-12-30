@@ -81,8 +81,12 @@ class _SimpleTableAddColumnHoverButtonState
               child: Opacity(
                 opacity: shouldShow ? 1.0 : 0.0,
                 child: SimpleTableAddColumnButton(
-                  onTap: () =>
-                      widget.editorState.addColumnInTable(widget.tableNode),
+                  onTap: () {
+                    // cancel the selection to avoid flashing the selection
+                    widget.editorState.selection = null;
+
+                    widget.editorState.addColumnInTable(widget.tableNode);
+                  },
                   onHorizontalDragStart: (details) {
                     context.read<SimpleTableContext>().isDraggingColumn = true;
                     startDraggingOffset = details.globalPosition;

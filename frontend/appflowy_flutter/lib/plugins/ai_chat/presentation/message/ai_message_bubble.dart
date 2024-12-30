@@ -4,20 +4,25 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_edit_document_service.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/chat_input/chat_mention_page_bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/util/theme_extension.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:go_router/go_router.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import '../chat_avatar.dart';
 import '../layout_define.dart';
+import 'ai_message_action_bar.dart';
+import 'message_util.dart';
 
 /// Wraps an AI response message with the avatar and actions. On desktop,
 /// the actions will be displayed below the response if the response is the
@@ -108,7 +113,7 @@ class ChatAIBottomInlineActions extends StatelessWidget {
             start: DesktopAIConvoSizes.avatarSize +
                 DesktopAIConvoSizes.avatarAndChatBubbleSpacing,
           ),
-          child: AIResponseActionBar(
+          child: AIMessageActionBar(
             message: message,
             showDecoration: false,
             onRegenerate: onRegenerate,
@@ -142,6 +147,7 @@ class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
 
   bool hoverBubble = false;
   bool hoverActionBar = false;
+  bool overrideVisibility = false;
 
   ScrollPosition? scrollPosition;
 
@@ -206,11 +212,14 @@ class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
                         DesktopAIConvoSizes.hoverActionBarPadding.vertical,
                   ),
                   alignment: Alignment.topLeft,
-                  child: hoverBubble || hoverActionBar
-                      ? AIResponseActionBar(
+                  child: hoverBubble || hoverActionBar || overrideVisibility
+                      ? AIMessageActionBar(
                           message: widget.message,
                           showDecoration: true,
                           onRegenerate: widget.onRegenerate,
+                          onOverrideVisibility: (visibility) {
+                            overrideVisibility = visibility;
+                          },
                         )
                       : null,
                 ),
@@ -259,7 +268,10 @@ class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
     final messageOffset = messageRenderBox.localToGlobal(Offset.zero);
     final messageHeight = messageRenderBox.size.height;
 
-    return messageOffset.dy + messageHeight + 28 <=
+    return messageOffset.dy +
+            messageHeight +
+            DesktopAIConvoSizes.actionBarIconSize +
+            DesktopAIConvoSizes.hoverActionBarPadding.vertical <=
         scrollableOffset.dy + scrollableHeight;
   }
 
@@ -267,161 +279,6 @@ class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
   void dispose() {
     scrollPosition?.isScrollingNotifier.removeListener(handleScroll);
     super.dispose();
-  }
-}
-
-class AIResponseActionBar extends StatelessWidget {
-  const AIResponseActionBar({
-    super.key,
-    required this.message,
-    required this.showDecoration,
-    this.onRegenerate,
-  });
-
-  final Message message;
-  final bool showDecoration;
-  final void Function()? onRegenerate;
-
-  @override
-  Widget build(BuildContext context) {
-    final isLightMode = Theme.of(context).isLightMode;
-
-    final child = SeparatedRow(
-      mainAxisSize: MainAxisSize.min,
-      separatorBuilder: () =>
-          const HSpace(DesktopAIConvoSizes.actionBarIconSpacing),
-      children: _buildChildren(),
-    );
-
-    return showDecoration
-        ? Container(
-            padding: const EdgeInsets.all(2.0),
-            decoration: BoxDecoration(
-              borderRadius: DesktopAIConvoSizes.hoverActionBarRadius,
-              border: Border.all(
-                color: isLightMode
-                    ? const Color(0x1F1F2329)
-                    : Theme.of(context).dividerColor,
-              ),
-              color: Theme.of(context).cardColor,
-              boxShadow: [
-                BoxShadow(
-                  offset: const Offset(0, 1),
-                  blurRadius: 2,
-                  spreadRadius: -2,
-                  color: isLightMode
-                      ? const Color(0x051F2329)
-                      : Theme.of(context).shadowColor.withOpacity(0.02),
-                ),
-                BoxShadow(
-                  offset: const Offset(0, 2),
-                  blurRadius: 4,
-                  color: isLightMode
-                      ? const Color(0x051F2329)
-                      : Theme.of(context).shadowColor.withOpacity(0.02),
-                ),
-                BoxShadow(
-                  offset: const Offset(0, 2),
-                  blurRadius: 8,
-                  spreadRadius: 2,
-                  color: isLightMode
-                      ? const Color(0x051F2329)
-                      : Theme.of(context).shadowColor.withOpacity(0.02),
-                ),
-              ],
-            ),
-            child: child,
-          )
-        : child;
-  }
-
-  List<Widget> _buildChildren() {
-    return [
-      CopyButton(
-        isInHoverBar: showDecoration,
-        textMessage: message as TextMessage,
-      ),
-      RegenerateButton(
-        isInHoverBar: showDecoration,
-        onTap: () => onRegenerate?.call(),
-      ),
-    ];
-  }
-}
-
-class CopyButton extends StatelessWidget {
-  const CopyButton({
-    super.key,
-    required this.isInHoverBar,
-    required this.textMessage,
-  });
-
-  final bool isInHoverBar;
-  final TextMessage textMessage;
-
-  @override
-  Widget build(BuildContext context) {
-    return FlowyTooltip(
-      message: LocaleKeys.settings_menu_clickToCopy.tr(),
-      child: FlowyIconButton(
-        width: DesktopAIConvoSizes.actionBarIconSize,
-        hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        radius: isInHoverBar
-            ? DesktopAIConvoSizes.hoverActionBarIconRadius
-            : DesktopAIConvoSizes.actionBarIconRadius,
-        icon: FlowySvg(
-          FlowySvgs.copy_s,
-          color: Theme.of(context).hintColor,
-          size: const Size.square(16),
-        ),
-        onPressed: () async {
-          final document = customMarkdownToDocument(textMessage.text);
-          await getIt<ClipboardService>().setData(
-            ClipboardServiceData(
-              plainText: textMessage.text,
-              inAppJson: jsonEncode(document.toJson()),
-            ),
-          );
-          if (context.mounted) {
-            showToastNotification(
-              context,
-              message: LocaleKeys.grid_url_copiedNotification.tr(),
-            );
-          }
-        },
-      ),
-    );
-  }
-}
-
-class RegenerateButton extends StatelessWidget {
-  const RegenerateButton({
-    super.key,
-    required this.isInHoverBar,
-    required this.onTap,
-  });
-
-  final bool isInHoverBar;
-  final void Function() onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return FlowyTooltip(
-      message: LocaleKeys.chat_regenerate.tr(),
-      child: FlowyIconButton(
-        width: DesktopAIConvoSizes.actionBarIconSize,
-        hoverColor: AFThemeExtension.of(context).lightGreyHover,
-        radius: isInHoverBar
-            ? DesktopAIConvoSizes.hoverActionBarIconRadius
-            : DesktopAIConvoSizes.actionBarIconRadius,
-        icon: FlowySvg(
-          FlowySvgs.ai_undo_s,
-          color: Theme.of(context).hintColor,
-          size: const Size.square(16),
-        ),
-        onPressed: onTap,
-      ),
-    );
   }
 }
 
@@ -454,6 +311,8 @@ class ChatAIMessagePopup extends StatelessWidget {
                 _copyButton(context, bottomSheetContext),
                 const Divider(height: 8.5, thickness: 0.5),
                 _regenerateButton(context),
+                const Divider(height: 8.5, thickness: 0.5),
+                _saveToPageButton(context),
                 const Divider(height: 8.5, thickness: 0.5),
               ],
             );
@@ -503,6 +362,36 @@ class ChatAIMessagePopup extends StatelessWidget {
       icon: FlowySvgs.ai_undo_s,
       iconSize: const Size.square(20),
       text: LocaleKeys.chat_regenerate.tr(),
+    );
+  }
+
+  Widget _saveToPageButton(BuildContext context) {
+    return MobileQuickActionButton(
+      onTap: () async {
+        final selectedView = await showPageSelectorSheet(
+          context,
+          filter: (view) =>
+              !view.isSpace &&
+              view.layout.isDocumentView &&
+              view.parentViewId != view.id,
+        );
+        if (selectedView == null) {
+          return;
+        }
+
+        await ChatEditDocumentService.addMessageToPage(
+          selectedView.id,
+          message as TextMessage,
+        );
+
+        if (context.mounted) {
+          context.pop();
+          openPageFromMessage(context, selectedView);
+        }
+      },
+      icon: FlowySvgs.ai_add_to_page_s,
+      iconSize: const Size.square(20),
+      text: LocaleKeys.chat_addToPageButton.tr(),
     );
   }
 }

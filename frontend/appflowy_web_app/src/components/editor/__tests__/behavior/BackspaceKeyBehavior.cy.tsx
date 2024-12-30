@@ -212,6 +212,7 @@ describe('Backspace key behavior', () => {
       // Optional: Add visual regression test
       // cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-maintain-structure-when-deleting-partial-content');
     });
+
   });
 
   describe('backspace key behavior with cursor selections', () => {
@@ -326,7 +327,7 @@ describe('Backspace key behavior', () => {
 
       // cy.matchImageSnapshot('behavior/BackspaceKeyBehavior/should-merge-nested-toggle-list');
     });
-
+    //
     it('should handle backspace at start of document', () => {
       moveToLineStart(0);
       cy.get('@editor').type('{backspace}');

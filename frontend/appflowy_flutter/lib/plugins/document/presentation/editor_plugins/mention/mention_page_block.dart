@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
@@ -421,7 +422,6 @@ class _MentionPageBlockContent extends StatelessWidget {
           child: FlowyText(
             text,
             decoration: TextDecoration.underline,
-            decorationThickness: 0.5,
             fontSize: textStyle?.fontSize,
             fontWeight: textStyle?.fontWeight,
             lineHeight: textStyle?.height,
@@ -511,7 +511,10 @@ class _MentionPageBlockContent extends StatelessWidget {
     );
 
     if (blockContent == null || blockContent.isEmpty) {
-      return shouldDisplayViewName ? view.name : '';
+      return shouldDisplayViewName
+          ? view.name
+              .orDefault(LocaleKeys.menuAppHeader_defaultNewPageName.tr())
+          : '';
     }
 
     return shouldDisplayViewName

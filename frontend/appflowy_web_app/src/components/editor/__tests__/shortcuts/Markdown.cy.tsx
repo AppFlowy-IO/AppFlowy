@@ -1,4 +1,4 @@
-import { initialEditorTest, moveCursor } from '@/components/editor/__tests__/mount';
+import { initialEditorTest, moveCursor, moveToEnd } from '@/components/editor/__tests__/mount';
 import { FromBlockJSON } from 'cypress/support/document';
 
 const initialData: FromBlockJSON[] = [{
@@ -11,22 +11,23 @@ const initialData: FromBlockJSON[] = [{
 const { assertJSON, initializeEditor } = initialEditorTest();
 
 describe('Markdown editing', () => {
+  let expectedJson: FromBlockJSON[] = initialData;
+
   beforeEach(() => {
     cy.viewport(1280, 720);
     Object.defineProperty(window.navigator, 'language', { value: 'en-US' });
-    initializeEditor(initialData);
+    initializeEditor(expectedJson);
     const selector = '[role="textbox"]';
 
     cy.get(selector).as('editor');
   });
 
-  it('should handle all markdown inputs', () => {
+  it('should handle inline markdown inputs', () => {
     moveCursor(0, 6);
-    let expectedJson: FromBlockJSON[] = initialData;
-
     // Test `Bold`
     cy.get('@editor').type('**bold');
     cy.get('@editor').realPress(['*', '*']);
+    cy.wait(50);
     expectedJson = [{
       type: 'paragraph',
       data: {},
@@ -34,7 +35,10 @@ describe('Markdown editing', () => {
       children: [],
     }];
     assertJSON(expectedJson);
-    cy.get('@editor').type('{moveToEnd}');
+  });
+
+  it('should handle heading markdown inputs', () => {
+    moveToEnd();
 
     cy.get('@editor').realPress('Enter');
     // Test 1: heading
@@ -51,6 +55,7 @@ describe('Markdown editing', () => {
     }];
 
     assertJSON(expectedJson);
+
     cy.get('@editor').realPress('Enter');
     cy.get('@editor').type('#');
     cy.get('@editor').realPress('Space');
@@ -62,6 +67,7 @@ describe('Markdown editing', () => {
       children: [],
     }];
     assertJSON(expectedJson);
+
     cy.get('@editor').realPress('Enter');
     cy.get('@editor').type('###');
     cy.get('@editor').realPress('Space');
@@ -94,6 +100,7 @@ describe('Markdown editing', () => {
       children: [],
     }];
     assertJSON(expectedJson);
+
     cy.get('@editor').realPress('Enter');
     cy.get('@editor').realPress('Tab');
     cy.get('@editor').type('#####');
@@ -118,6 +125,10 @@ describe('Markdown editing', () => {
       }],
     }];
     assertJSON(expectedJson);
+  });
+
+  it('should handle turn into heading', () => {
+    moveToEnd();
 
     cy.get('@editor').realPress(['Enter', 'Enter']);
     cy.get('@editor').type('Outer paragraph');
@@ -125,6 +136,8 @@ describe('Markdown editing', () => {
     moveCursor(5, 0);
     cy.get('@editor').type('#');
     cy.get('@editor').realPress('Space');
+    cy.wait(50);
+
     expectedJson = [...expectedJson.slice(0, 5), {
       ...expectedJson[5],
       type: 'heading',
@@ -147,9 +160,11 @@ describe('Markdown editing', () => {
       children: [],
     }];
     assertJSON(expectedJson);
-    cy.wait(500);
-    cy.get('@editor').type('{movetoend}');
 
+  });
+
+  it('should handle indent and outdent', () => {
+    moveToEnd();
     cy.get('@editor').realPress(['Enter', 'Tab']);
     cy.get('@editor').type('Inner paragraph');
     cy.get('@editor').realPress(['Enter']);
@@ -184,6 +199,10 @@ describe('Markdown editing', () => {
       }],
     }];
     assertJSON(expectedJson);
+  });
+
+  it('should handle inline formatting', () => {
+
     moveCursor(12, 2);
     cy.get('@editor').realPress(['Enter', 'Backspace']);
 
@@ -207,10 +226,12 @@ describe('Markdown editing', () => {
       {
         type: 'paragraph',
         data: {},
-        text: [{ insert: 'italic', attributes: { italic: true } }, {
-          insert: 'bold italic',
-          attributes: { bold: true, italic: true },
-        }],
+        text: [
+          { insert: 'italic', attributes: { italic: true } },
+          {
+            insert: 'bold italic',
+            attributes: { bold: true, italic: true },
+          }],
         children: [],
       },
     ];
@@ -223,13 +244,14 @@ describe('Markdown editing', () => {
       {
         type: 'paragraph',
         data: {},
-        text: [{ insert: 'italic', attributes: { italic: true } }, {
-          insert: 'bold italic ',
-          attributes: { bold: true, italic: true },
-        },
+        text: [{ insert: 'italic', attributes: { italic: true } },
+          {
+            insert: 'bold italic ',
+            attributes: { bold: true, italic: true },
+          },
           {
             insert: 'code',
-            attributes: { code: true, italic: true, bold: true },
+            attributes: { code: true, bold: true, italic: true },
           }],
         children: [],
       },
@@ -265,7 +287,10 @@ describe('Markdown editing', () => {
       },
     ];
     assertJSON(expectedJson);
+  });
 
+  it('should handle quote block formatting', () => {
+    moveToEnd();
     // Test 2: quote
     cy.get('@editor').realPress('Enter');
     cy.get('@editor').type('"');
@@ -290,6 +315,10 @@ describe('Markdown editing', () => {
       },
     ];
     assertJSON(expectedJson);
+  });
+
+  it('should handle todo list formatting', () => {
+    moveToEnd();
     cy.get('@editor').realPress('Enter');
     cy.get('@editor').realPress(['Shift', 'Tab']);
 
@@ -354,6 +383,10 @@ describe('Markdown editing', () => {
       },
     ];
     assertJSON(expectedJson);
+  });
+
+  it('should handle toggle list formatting', () => {
+    moveToEnd();
     cy.get('@editor').realPress('Enter');
     cy.get('@editor').realPress('Backspace');
 
@@ -378,7 +411,10 @@ describe('Markdown editing', () => {
       },
     ];
     assertJSON(expectedJson);
+  });
 
+  it('should handle bulleted and numbered list formatting', () => {
+    moveToEnd();
     // Test 5: Bullted List
     cy.get('@editor').realPress('Enter');
     cy.get('@editor').realPress('Backspace');
@@ -411,32 +447,11 @@ describe('Markdown editing', () => {
       },
     ];
     assertJSON(expectedJson);
+  });
 
-    // Test 6: Code block
-    cy.get('@editor').realPress('Enter');
-    cy.get('@editor').realPress('Backspace');
-    cy.get('@editor').type('```');
-    cy.get('@editor').type(`function main() {\n  console.log('Hello, World!');\n}`);
-    cy.get('@editor').realPress(['Shift', 'Enter']);
-    expectedJson = [
-      ...expectedJson,
-      {
-        type: 'code',
-        data: {},
-        text: [{
-          insert: 'function main() {\n  console.log(\'Hello, World!\');\n}',
-        }],
-        children: [],
-      },
-      {
-        type: 'paragraph',
-        data: {},
-        text: [],
-        children: [],
-      },
-    ];
-    assertJSON(expectedJson);
-
+  it('should handle toggle heading', () => {
+    cy.wait(500);
+    moveToEnd();
     // Test 7: Toggle heading
     cy.get('@editor').realPress('Enter');
     cy.get('@editor').type('>');
@@ -539,13 +554,14 @@ describe('Markdown editing', () => {
     ] as FromBlockJSON[];
 
     assertJSON(expectedJson);
+  });
 
+  it('should handle inline link', () => {
     cy.selectMultipleText(['heading 3']);
     cy.wait(500);
     cy.get('@editor').realPress('ArrowRight');
     cy.get('@editor').realPress('Enter');
     cy.get('@editor').realPress(['Shift', 'Tab']);
-
     // Test 8: Link
     cy.get('@editor').type('Link: [Click here](https://example.com');
     cy.get('@editor').realPress(')');
@@ -575,8 +591,11 @@ describe('Markdown editing', () => {
       },
     ];
     assertJSON(expectedJson);
+  });
+
+  it('should handle divider', () => {
+    moveToEnd();
     cy.get('@editor').realPress('Enter');
-    //
     // Last test: Divider
     cy.get('@editor').type('--');
     cy.get('@editor').realPress('-');

@@ -10,8 +10,10 @@ const TableCell = memo(
 
     return (
       <div
+        draggable={false}
         ref={ref}
         {...attributes}
+        contentEditable={false}
         style={{
           fontSize: '15px',
           ...attributes.style,

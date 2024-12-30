@@ -1,26 +1,21 @@
 import { UIVariant, View } from '@/application/types';
 import PublishIcon from '@/components/_shared/view-icon/PublishIcon';
 import { notify } from '@/components/_shared/notify';
-import { ViewIcon } from '@/components/_shared/view-icon';
-import SpaceIcon from '@/components/_shared/breadcrumb/SpaceIcon';
-import { renderColor } from '@/utils/color';
-import { isFlagEmoji } from '@/utils/emoji';
+import SpaceIcon from '@/components/_shared/view-icon/SpaceIcon';
 import { Tooltip } from '@mui/material';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import PageIcon from '@/components/_shared/view-icon/PageIcon';
 
-function BreadcrumbItem ({ crumb, disableClick = false, toView, variant }: {
+function BreadcrumbItem({ crumb, disableClick = false, toView, variant }: {
   crumb: View;
   disableClick?: boolean;
   toView?: (viewId: string) => Promise<void>;
   variant?: UIVariant
 }) {
-  const { view_id, icon, name, layout, extra, is_published } = crumb;
+  const { view_id, name, extra, is_published } = crumb;
 
   const { t } = useTranslation();
-  const isFlag = useMemo(() => {
-    return icon ? isFlagEmoji(icon.value) : false;
-  }, [icon]);
 
   const className = useMemo(() => {
     const classList = ['flex', 'items-center', 'gap-1.5', 'text-sm', 'overflow-hidden', 'max-sm:text-base'];
@@ -51,25 +46,14 @@ function BreadcrumbItem ({ crumb, disableClick = false, toView, variant }: {
       }}
     >
       {extra && extra.is_space ? (
-        <span
+        <SpaceIcon
           className={'icon h-4 w-4 shrink-0'}
-          style={{
-            backgroundColor: extra.space_icon_color ? renderColor(extra.space_icon_color) : 'rgb(163, 74, 253)',
-            borderRadius: '4px',
-          }}
-        >
-            <SpaceIcon
-              value={extra.space_icon || ''}
-              char={extra.space_icon ? undefined : name.slice(0, 1)}
-            />
-          </span>
+          bgColor={extra.space_icon_color}
+          value={extra.space_icon || ''}
+          char={extra.space_icon ? undefined : name.slice(0, 1)}
+        />
       ) : (
-        <span className={`${isFlag ? 'icon' : ''} flex h-5 w-5 min-w-5 items-center justify-center`}>
-            {icon?.value || <ViewIcon
-              layout={layout}
-              size={'small'}
-            />}
-          </span>
+        <PageIcon view={crumb} className={'flex h-5 w-5 min-w-5 items-center justify-center'}/>
       )}
       <Tooltip
         title={name}

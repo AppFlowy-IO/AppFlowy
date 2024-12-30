@@ -42,7 +42,12 @@ class SimpleTableAddColumnAndRowHoverButton extends StatelessWidget {
                         SimpleTableConstants.addColumnAndRowButtonBottomPadding,
                     right: SimpleTableConstants.addColumnButtonPadding,
                     child: SimpleTableAddColumnAndRowButton(
-                      onTap: () => editorState.addColumnAndRowInTable(node),
+                      onTap: () {
+                        // cancel the selection to avoid flashing the selection
+                        editorState.selection = null;
+
+                        editorState.addColumnAndRowInTable(node);
+                      },
                     ),
                   )
                 : const SizedBox.shrink();

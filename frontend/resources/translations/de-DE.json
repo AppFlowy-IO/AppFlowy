@@ -204,7 +204,12 @@
     "uploadFile": "Lade PDF-, md- oder txt-Dateien in den Chat hoch",
     "questionDetail": "Hallo {}! Wie kann ich dir heute helfen?",
     "indexingFile": "Indizierung {}",
-    "generatingResponse": "Antwort generieren"
+    "generatingResponse": "Antwort generieren",
+    "selectSources": "Quellen auswählen",
+    "regenerate": "Versuchen Sie es erneut",
+    "addToPageButton": "Zur Seite hinzufügen",
+    "addToPageTitle": "Nachricht hinzufügen an...",
+    "addToNewPage": "Zu einer neuen Seite hinzufügen"
   },
   "trash": {
     "text": "Papierkorb",
@@ -1073,9 +1078,10 @@
       "logout": "Abmelden",
       "logoutPrompt": "Willst du dich wirklich abmelden?",
       "selfEncryptionLogoutPrompt": "Willst du dich wirklich Abmelden? Bitte stelle sicher, dass der Encryption Secret Code kopiert wurde.",
-      "syncSetting": "Sync Einstellung",
+      "syncSetting": "Synchronisations-Einstellung",
       "cloudSettings": "Cloud Einstellungen",
-      "enableSync": "Sync aktivieren",
+      "enableSync": "Synchronisation aktivieren",
+      "enableSyncLog": "Synchronisation der Protokolldateien aktivieren",
       "enableSyncLogWarning": "Vielen Dank für Ihre Hilfe bei der Diagnose von Synchronisierungsproblemen. Dadurch werden Ihre Dokumentänderungen in einer lokalen Datei protokolliert. Bitte beenden Sie die App und öffnen Sie sie erneut, nachdem Sie sie aktiviert haben.",
       "enableEncrypt": "Daten verschlüsseln",
       "cloudURL": "Basis URL",
@@ -1491,7 +1497,7 @@
       "checkboxFieldName": "Kontrollkästchen",
       "dateFieldName": "Datum",
       "updatedAtFieldName": "Letzte Änderungszeit",
-      "createdAtFieldName": "Zeit geschaffen",
+      "createdAtFieldName": "Erstellungsdatum",
       "numberFieldName": "Zahlen",
       "singleSelectFieldName": "Wählen",
       "multiSelectFieldName": "Mehrfachauswahl",
@@ -1709,9 +1715,11 @@
         "linkedCalendar": "Verknüpfter Kalender",
         "quote": "Zitat",
         "divider": "Trenner",
+        "table": "Tabelle",
         "outline": "Gliederung",
         "mathEquation": "Mathematische Gleichung",
         "code": "Code",
+        "toggleList": "Liste ein-/ausblenden",
         "emoji": "Emoji",
         "aiWriter": "KI-Autor",
         "dateOrReminder": "Datum oder Erinnerung",
@@ -1781,11 +1789,20 @@
           "headerRow": "Kopfzeile",
           "clearContents": "Klarer Inhalt",
           "setToPageWidth": "Auf Seitenbreite einstellen",
-          "distributeColumnsWidth": "Spalten gleichmäßig verteilen"
+          "distributeColumnsWidth": "Spalten gleichmäßig verteilen",
+          "duplicateRow": "Zeile duplizieren",
+          "duplicateColumn": "Spalte duplizieren",
+          "textColor": "Textfarbe",
+          "cellBackgroundColor": "Zellen-Hintergrundfarbe",
+          "duplicateTable": "Tabelle duplizieren"
         },
         "clickToAddNewRow": "Klicken Sie hier, um eine neue Zeile hinzuzufügen",
         "clickToAddNewColumn": "Klicken Sie hier, um eine neue Spalte hinzuzufügen",
-        "clickToAddNewRowAndColumn": "Klicken Sie hier, um eine neue Zeile und Spalte hinzuzufügen"
+        "clickToAddNewRowAndColumn": "Klicken Sie hier, um eine neue Zeile und Spalte hinzuzufügen",
+        "headerName": {
+          "table": "Tabelle",
+          "alignText": "Text ausrichten"
+        }
       },
       "cover": {
         "changeCover": "Titelbild wechseln",
@@ -1825,7 +1842,7 @@
         "toMove": " bewegen",
         "delete": "Löschen",
         "duplicate": "Duplikat",
-        "turnInto": "Einbiegen in",
+        "turnInto": "Umwandeln in",
         "moveUp": "Nach oben verschieben",
         "moveDown": "Nach unten verschieben",
         "color": "Farbe",
@@ -1883,7 +1900,8 @@
       "contextMenu": {
         "copy": "Kopieren",
         "cut": "Ausschneiden",
-        "paste": "Einfügen"
+        "paste": "Einfügen",
+        "pasteAsPlainText": "Als einfachen Text einfügen"
       },
       "action": "Aktionen",
       "database": {
@@ -2236,7 +2254,7 @@
   },
   "inlineActions": {
     "noResults": "Keine Ergebnisse",
-    "recentPages": "Letzte Seiten",
+    "recentPages": "Kürzliche Seiten",
     "pageReference": "Seitenreferenz",
     "docReference": "Dokumentverweis",
     "boardReference": "Board-Referenz",
@@ -2325,6 +2343,7 @@
     "weAreSorry": "Das tut uns leid",
     "loadingViewError": "Wir haben Schwierigkeiten diese Ansicht zu laden. Bitte prüfe die Internetverbindung, lade die App neu und zögere nicht, das Team zu kontaktieren, falls das Problem weiterhin besteht.",
     "syncError": "Daten werden nicht von einem anderen Gerät synchronisiert",
+    "syncErrorHint": "Bitte öffnen Sie diese Seite erneut auf dem Gerät, auf dem sie zuletzt bearbeitet wurde, und öffnen Sie die Seite dann erneut  auf dem aktuellen Gerät.",
     "clickToCopy": "Klicken Sie hier, um den Fehlercode zu kopieren"
   },
   "editor": {
@@ -2494,6 +2513,7 @@
       "deleteAccount": {
         "title": "Benutzerkonto löschen",
         "subtitle": "Benutzerkonto inkl. deiner persönlicher Daten unwiderruflich löschen.",
+        "description": "Löschen Sie Ihr Konto dauerhaft und entfernen Sie den Zugriff auf alle Arbeitsbereiche.",
         "deleteMyAccount": "Mein Benutzerkonto löschen",
         "dialogTitle": "Benutzerkonto löschen",
         "dialogContent1": "Bist du sicher, dass du dein Benutzerkonto unwiderruflich löschen möchtest?",
@@ -2601,7 +2621,24 @@
     "movePageToSpace": "Seite in die Domäne verschieben",
     "cannotMovePageToDatabase": "Seite kann nicht in die Datenbank verschoben werden",
     "switchSpace": "Domäne wechseln",
-    "spaceNameCannotBeEmpty": "Der Space-Name darf nicht leer sein"
+    "spaceNameCannotBeEmpty": "Der Space-Name darf nicht leer sein",
+    "success": {
+      "deleteSpace": "Domäne erfolgreich gelöscht",
+      "renameSpace": "Domäne erfolgreich umbenannt",
+      "duplicateSpace": "Domäne erfolgreich dupliziert",
+      "updateSpace": "Domäne erfolgreich angepasst"
+    },
+    "error": {
+      "deleteSpace": "Löschung der Domäne fehlgeschlagen",
+      "renameSpace": "Umbenennung der Domäne fehlgeschlagen",
+      "duplicateSpace": "Duplizierung der Domäne fehlgeschlagen",
+      "updateSpace": "Anpassung der Domäne fehlgeschlagen"
+    },
+    "createSpace": "Erstelle Domäne",
+    "manageSpace": "Verwalte Domäne",
+    "renameSpace": "Domäne umbenennen",
+    "mSpaceIconColor": "Domänen-Iconfarbe",
+    "mSpaceIcon": "Domänen-Icon"
   },
   "publish": {
     "hasNotBeenPublished": "Diese Seite wurde noch nicht veröffentlicht",
@@ -2727,6 +2764,106 @@
   "template": {
     "asTemplate": "Als Vorlage speichern",
     "name": "Vorlagenname",
-    "description": "Vorlagenbeschreibung"
+    "description": "Vorlagenbeschreibung",
+    "requiredField": "{field} ist erforderlich",
+    "addCategory": "\"{category}\" hinzufügen",
+    "addNewCategory": "Neue Kategorie hinzufügen",
+    "deleteCategory": "Lösche Kategorie",
+    "editCategory": "Bearbeite Kategorie",
+    "category": {
+      "name": "Kategoriename",
+      "icon": "Kategorie-Icon",
+      "bgColor": "Kategorie-Hintergrundfarbe",
+      "priority": "Kategoriepriorität",
+      "desc": "Kategoriebeschreibung",
+      "type": "Kategorie-Typ",
+      "icons": "Kategorie-Icons",
+      "colors": "Kategoriefarbe",
+      "deleteCategory": "Lösche Kategorie",
+      "deleteCategoryDescription": "Möchten Sie diese Kategorie wirklich löschen?",
+      "typeToSearch": "Tippen, um nach Kategorien zu suchen..."
+    }
+  },
+  "fileDropzone": {
+    "dropFile": "Klicken oder ziehen Sie die Datei zum Hochladen in diesen Bereich",
+    "uploading": "Hochladen...",
+    "uploadFailed": "Hochladen fehlgeschlagen",
+    "uploadSuccess": "Hochladen erfolgreich",
+    "uploadSuccessDescription": "Die Datei wurde erfolgreich hochgeladen",
+    "uploadFailedDescription": "Das Hochladen der Datei ist fehlgeschlagen",
+    "uploadingDescription": "Die Datei wird hochgeladen"
+  },
+  "gallery": {
+    "preview": "Im Vollbildmodus öffnen",
+    "copy": "Kopiere",
+    "prev": "Vorherige",
+    "next": "Nächste",
+    "resetZoom": "Setze Zoom zurück",
+    "zoomIn": "Vergrößern",
+    "zoomOut": "Verkleinern"
+  },
+  "invitation": {
+    "joinWorkspace": "Arbeitsbereich beitreten",
+    "success": "Sie sind dem Arbeitsbereich erfolgreich beigetreten",
+    "successMessage": "Sie können nun auf alle darin enthaltenen Seiten und Arbeitsbereiche zugreifen.",
+    "openWorkspace": "Öffne AppFlowy",
+    "errorModal": {
+      "description": "Ihr aktuelles Konto {email} hat möglicherweise keinen Zugriff auf diesen Arbeitsbereich. Bitte melden Sie sich mit dem richtigen Konto an oder wenden Sie sich an den Eigentümer des Arbeitsbereichs, um Hilfe zu erhalten."
+    }
+  },
+  "approveAccess": {
+    "title": "Anfrage zum Beitritt zum Arbeitsbereich genehmigen",
+    "requestSummary": "<user/> fragt den Beitritt zu <workspace/> und den Zugriff auf <page/> an."
+  },
+  "time": {
+    "justNow": "Soeben",
+    "seconds": {
+      "one": "1 Sekunde",
+      "other": "{count} Sekunden"
+    },
+    "minutes": {
+      "one": "1 Minute",
+      "other": "{count} Minuten"
+    },
+    "hours": {
+      "one": "1 Stunde",
+      "other": "{count} Stunden"
+    },
+    "days": {
+      "one": "1 Tag",
+      "other": "{count} Tage"
+    },
+    "weeks": {
+      "one": "1 Woche",
+      "other": "{count} Wochen"
+    },
+    "months": {
+      "one": "1 Monat",
+      "other": "{count} Monate"
+    },
+    "years": {
+      "one": "1 Jahr",
+      "other": "{count} Jahre"
+    },
+    "ago": "vor",
+    "yesterday": "Gestern",
+    "today": "Heute"
+  },
+  "members": {
+    "zero": "Keine Mitglieder",
+    "one": "1 Mitglied",
+    "many": "{count} Mitglieder",
+    "other": "{count} Mitglieder"
+  },
+  "tabMenu": {
+    "close": "Schließen",
+    "closeOthers": "Schließe andere Tabs",
+    "favoriteDisabledHint": "Diese Ansicht kann nicht als Favorit markiert werden"
+  },
+  "openFileMessage": {
+    "success": "Datei erfolgreich geöffnet",
+    "fileNotFound": "Datei nicht gefunden",
+    "permissionDenied": "Keine Berechtigung zum Öffnen dieser Datei",
+    "unknownError": "Öffnen der Datei fehlgeschlagen"
   }
 }

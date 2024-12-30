@@ -6,6 +6,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/icon.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart' hide Icon;
+import 'package:flutter/services.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 extension ToProto on FlowyIconType {
@@ -46,6 +47,10 @@ enum FlowyIconType {
   custom;
 }
 
+extension FlowyIconTypeToPickerTabType on FlowyIconType {
+  PickerTabType? toPickerTabType() => name.toPickerTabType();
+}
+
 class EmojiIconData {
   factory EmojiIconData.none() => const EmojiIconData(FlowyIconType.icon, '');
 
@@ -78,17 +83,35 @@ class EmojiIconData {
   bool get isNotEmpty => emoji.isNotEmpty;
 }
 
+class SelectedEmojiIconResult {
+  SelectedEmojiIconResult(this.data, this.keepOpen);
+
+  final EmojiIconData data;
+  final bool keepOpen;
+
+  FlowyIconType get type => data.type;
+
+  String get emoji => data.emoji;
+}
+
+extension EmojiIconDataToSelectedResultExtension on EmojiIconData {
+  SelectedEmojiIconResult toSelectedResult({bool keepOpen = false}) =>
+      SelectedEmojiIconResult(this, keepOpen);
+}
+
 class FlowyIconEmojiPicker extends StatefulWidget {
   const FlowyIconEmojiPicker({
     super.key,
     this.onSelectedEmoji,
+    this.initialType,
     this.enableBackgroundColorSelection = true,
     this.tabs = const [PickerTabType.emoji, PickerTabType.icon],
   });
 
-  final ValueChanged<EmojiIconData>? onSelectedEmoji;
+  final ValueChanged<SelectedEmojiIconResult>? onSelectedEmoji;
   final bool enableBackgroundColorSelection;
   final List<PickerTabType> tabs;
+  final PickerTabType? initialType;
 
   @override
   State<FlowyIconEmojiPicker> createState() => _FlowyIconEmojiPickerState();
@@ -96,11 +119,22 @@ class FlowyIconEmojiPicker extends StatefulWidget {
 
 class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
     with SingleTickerProviderStateMixin {
-  late final controller = TabController(
-    length: widget.tabs.length,
-    vsync: this,
-  );
+  late TabController controller;
   int currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    final initialType = widget.initialType;
+    if (initialType != null) {
+      currentIndex = widget.tabs.indexOf(initialType);
+    }
+    controller = TabController(
+      initialIndex: currentIndex,
+      length: widget.tabs.length,
+      vsync: this,
+    );
+  }
 
   @override
   void dispose() {
@@ -127,7 +161,8 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
               ),
               _RemoveIconButton(
                 onTap: () {
-                  widget.onSelectedEmoji?.call(EmojiIconData.none());
+                  widget.onSelectedEmoji
+                      ?.call(EmojiIconData.none().toSelectedResult());
                 },
               ),
             ],
@@ -153,10 +188,14 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
 
   Widget _buildEmojiPicker() {
     return FlowyEmojiPicker(
+      ensureFocus: true,
       emojiPerLine: _getEmojiPerLine(context),
-      onEmojiSelected: (_, emoji) => widget.onSelectedEmoji?.call(
-        EmojiIconData.emoji(emoji),
-      ),
+      onEmojiSelected: (r) {
+        widget.onSelectedEmoji?.call(
+          EmojiIconData.emoji(r.emoji).toSelectedResult(keepOpen: r.isRandom),
+        );
+        SystemChannels.textInput.invokeMethod('TextInput.hide');
+      },
     );
   }
 
@@ -170,9 +209,13 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
 
   Widget _buildIconPicker() {
     return FlowyIconPicker(
+      ensureFocus: true,
       enableBackgroundColorSelection: widget.enableBackgroundColorSelection,
-      onSelectedIcon: (result) {
-        widget.onSelectedEmoji?.call(result.toEmojiIconData());
+      onSelectedIcon: (r) {
+        widget.onSelectedEmoji?.call(
+          r.data.toEmojiIconData().toSelectedResult(keepOpen: r.isRandom),
+        );
+        SystemChannels.textInput.invokeMethod('TextInput.hide');
       },
     );
   }

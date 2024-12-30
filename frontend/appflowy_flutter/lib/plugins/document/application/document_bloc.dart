@@ -40,12 +40,16 @@ part 'document_bloc.freezed.dart';
 
 bool enableDocumentInternalLog = false;
 
+final Map<String, DocumentBloc> _documentBlocMap = {};
+
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   DocumentBloc({
     required this.documentId,
     this.databaseViewId,
     this.rowId,
-  })  : _documentListener = DocumentListener(id: documentId),
+    bool saveToBlocMap = true,
+  })  : _saveToBlocMap = saveToBlocMap,
+        _documentListener = DocumentListener(id: documentId),
         _syncStateListener = DocumentSyncStateListener(id: documentId),
         super(DocumentState.initial()) {
     _viewListener = databaseViewId == null && rowId == null
@@ -54,11 +58,16 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     on<DocumentEvent>(_onDocumentEvent);
   }
 
+  static DocumentBloc? findOpen(String documentId) =>
+      _documentBlocMap[documentId];
+
   /// For a normal document, the document id is the same as the view id
   final String documentId;
 
   final String? databaseViewId;
   final String? rowId;
+
+  final bool _saveToBlocMap;
 
   final DocumentListener _documentListener;
   final DocumentSyncStateListener _syncStateListener;
@@ -95,6 +104,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   @override
   Future<void> close() async {
     isClosing = true;
+    if (_saveToBlocMap) {
+      _documentBlocMap.remove(documentId);
+    }
     await checkDocumentIntegrity();
     await _cancelSubscriptions();
     _clearEditorState();
@@ -128,6 +140,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   ) async {
     await event.when(
       initial: () async {
+        if (_saveToBlocMap) {
+          _documentBlocMap[documentId] = this;
+        }
         final result = await _fetchDocumentState();
         _onViewChanged();
         _onDocumentChanged();
@@ -405,6 +420,10 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       documentId: documentId,
       metadata: jsonEncode(metadata.toJson()),
     );
+  }
+
+  Future<void> forceReloadDocumentState() {
+    return _documentCollabAdapter.syncV3();
   }
 
   // this is only used for debug mode

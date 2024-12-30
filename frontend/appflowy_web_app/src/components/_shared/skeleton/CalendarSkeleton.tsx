@@ -10,7 +10,7 @@ function CalendarSkeleton ({ includeTitle = true, includeTabs = true }: {
   const weeksInMonth = 4;
 
   return (
-    <div className={`w-full overflow-x-auto ${includeTitle ? 'py-2 px-6' : ''}`}>
+    <div className={`w-full overflow-x-auto  max-sm:px-6 px-24 min-w-0 max-w-full ${includeTitle ? 'py-2' : ''}`}>
       {includeTitle && (
         <>
           <div className="w-full my-6 flex items-center h-20 mb-2">
@@ -34,7 +34,10 @@ function CalendarSkeleton ({ includeTitle = true, includeTabs = true }: {
       {/* Weekday Names */}
       <div className="grid grid-cols-7 gap-1 mb-1">
         {[...Array(daysInWeek)].map((_, index) => (
-          <div key={index} className="h-8 bg-fill-list-hover rounded animate-pulse"></div>
+          <div
+            key={index}
+            className="h-8 bg-fill-list-hover rounded animate-pulse"
+          ></div>
         ))}
       </div>
 
@@ -42,7 +45,10 @@ function CalendarSkeleton ({ includeTitle = true, includeTabs = true }: {
       <div className="border border-line-divider rounded shadow">
         <div className="grid grid-cols-7">
           {[...Array(weeksInMonth * daysInWeek)].map((_, index) => (
-            <div key={index} className="aspect-square p-1 border-r border-b border-line-divider">
+            <div
+              key={index}
+              className="aspect-square p-1 border-r border-b border-line-divider"
+            >
               <div className="h-full flex flex-col">
                 <div className="w-1/3 h-5 bg-fill-list-hover rounded animate-pulse self-end"></div>
                 <div className="flex-1 flex flex-col justify-center mt-1">

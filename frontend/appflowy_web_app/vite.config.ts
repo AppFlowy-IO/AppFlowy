@@ -132,11 +132,12 @@ export default defineConfig({
       sourcemap: isDev,
       rollupOptions: isProd
         ? {
+
           output: {
             chunkFileNames: 'static/js/[name]-[hash].js',
             entryFileNames: 'static/js/[name]-[hash].js',
             assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
-            manualChunks (id) {
+            manualChunks(id) {
               if (
                 // id.includes('/react@') ||
                 // id.includes('/react-dom@') ||
@@ -151,7 +152,8 @@ export default defineConfig({
                 id.includes('/react-virtualized-auto-sizer') ||
                 id.includes('/react-window')
                 || id.includes('/@popperjs')
-                || id.includes('/@mui/material/Dialog')
+                || id.includes('/@mui/material/Dialog') ||
+                id.includes('/quill-delta')
               ) {
                 return 'common';
               }
@@ -176,6 +178,6 @@ export default defineConfig({
   },
 
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-katex'],
+    include: ['react', 'react-dom', 'react-katex', '@appflowyinc/editor'],
   },
 });

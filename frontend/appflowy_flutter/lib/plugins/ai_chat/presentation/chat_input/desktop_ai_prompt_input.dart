@@ -151,7 +151,6 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
                       top: null,
                       child: TextFieldTapRegion(
                         child: _PromptBottomActions(
-                          chatId: widget.chatId,
                           textController: textController,
                           overlayController: overlayController,
                           focusNode: focusNode,
@@ -483,7 +482,6 @@ class _FocusNextItemIntent extends Intent {
 
 class _PromptBottomActions extends StatelessWidget {
   const _PromptBottomActions({
-    required this.chatId,
     required this.textController,
     required this.overlayController,
     required this.focusNode,
@@ -493,7 +491,6 @@ class _PromptBottomActions extends StatelessWidget {
     required this.onUpdateSelectedSources,
   });
 
-  final String chatId;
   final TextEditingController textController;
   final OverlayPortalController overlayController;
   final FocusNode focusNode;
@@ -509,6 +506,12 @@ class _PromptBottomActions extends StatelessWidget {
       margin: DesktopAIPromptSizes.actionBarPadding,
       child: BlocBuilder<AIPromptInputBloc, AIPromptInputState>(
         builder: (context, state) {
+          if (state.chatState == null) {
+            return Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: _sendButton(),
+            );
+          }
           return Row(
             children: [
               // predefinedFormatButton(),
@@ -539,7 +542,6 @@ class _PromptBottomActions extends StatelessWidget {
 
   Widget _selectSourcesButton(BuildContext context) {
     return PromptInputDesktopSelectSourcesButton(
-      chatId: chatId,
       onUpdateSelectedSources: onUpdateSelectedSources,
     );
   }

@@ -11,7 +11,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
   FLUTTER_VERSION: "3.22.0"
-  RUST_TOOLCHAIN: "1.80.1"
+  RUST_TOOLCHAIN: "1.81.0"
 
 jobs:
   tests:
@@ -40,7 +40,7 @@ jobs:
       - name: Install prerequisites
         working-directory: frontend
         run: |
-          cargo install --force cargo-make
+          cargo install --force --locked cargo-make
           cargo install --force --locked duckscript_cli
 
       - uses: Swatinem/rust-cache@v2

@@ -36,6 +36,7 @@ const Cell = memo(({ columnIndex, style, data }: GridChildComponentProps) => {
 
 export const GridHeader = ({ scrollLeft, onScrollLeft, columnWidth, columns }: GridHeaderProps) => {
   const ref = useRef<VariableSizeGrid | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (ref.current) {
@@ -52,7 +53,10 @@ export const GridHeader = ({ scrollLeft, onScrollLeft, columnWidth, columns }: G
   }, [columns, resetGrid]);
 
   return (
-    <div className={'h-[36px] w-full'}>
+    <div
+      ref={containerRef}
+      className={'h-[36px] w-full'}
+    >
       <AutoSizer onResize={resetGrid}>
         {({ height, width }: { height: number; width: number }) => {
           return (
@@ -64,6 +68,7 @@ export const GridHeader = ({ scrollLeft, onScrollLeft, columnWidth, columns }: G
               rowCount={1}
               columnCount={columns.length}
               columnWidth={(index) => {
+
                 return columnWidth(index, width);
               }}
               ref={ref}

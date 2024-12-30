@@ -438,6 +438,8 @@ class SimpleTableActionMenu extends StatelessWidget {
       return;
     }
 
+    final beforeSelection = editorState.selection;
+
     // increase the keep editor focus notifier to prevent the editor from losing focus
     keepEditorFocusNotifier.increase();
 
@@ -469,6 +471,8 @@ class SimpleTableActionMenu extends StatelessWidget {
       context,
       showDragHandle: true,
       showDivider: false,
+      useSafeArea: false,
+      enablePadding: false,
       builder: (context) => Provider.value(
         value: simpleTableContext,
         child: SimpleTableBottomSheet(
@@ -482,7 +486,13 @@ class SimpleTableActionMenu extends StatelessWidget {
     keepEditorFocusNotifier.decrease();
 
     // remove the extra info
-    editorState.selectionType = null;
-    editorState.selectionExtraInfo = null;
+    if (beforeSelection != null) {
+      await editorState.updateSelectionWithReason(
+        beforeSelection,
+        customSelectionType: SelectionType.inline,
+        reason: SelectionUpdateReason.uiEvent,
+        extraInfo: {},
+      );
+    }
   }
 }

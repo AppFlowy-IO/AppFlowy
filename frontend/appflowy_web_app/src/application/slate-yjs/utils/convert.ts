@@ -1,15 +1,6 @@
 import { BlockJson } from '@/application/slate-yjs/types';
 import { sortTableCells } from '@/application/slate-yjs/utils/table';
 import {
-  createBlock,
-  getBlock,
-  getText,
-  updateBlockParent,
-  getTextMap,
-  getChildrenMap,
-  getBlocks, getPageId,
-} from '@/application/slate-yjs/utils/yjsOperations';
-import {
   BlockData,
   BlockType,
   YDoc,
@@ -18,8 +9,16 @@ import {
 } from '@/application/types';
 import { TableCellNode } from '@/components/editor/editor.type';
 import { Element, Text, Node } from 'slate';
+import {
+  createBlock,
+  getBlock, getBlocks,
+  getChildrenMap, getPageId,
+  getText,
+  getTextMap,
+  updateBlockParent,
+} from '@/application/slate-yjs/utils/yjs';
 
-export function traverseBlock (id: string, sharedRoot: YSharedRoot): Element | undefined {
+export function traverseBlock(id: string, sharedRoot: YSharedRoot): Element | undefined {
   const textMap = getTextMap(sharedRoot);
   const childrenMap = getChildrenMap(sharedRoot);
   const blocks = getBlocks(sharedRoot);
@@ -102,7 +101,7 @@ export function traverseBlock (id: string, sharedRoot: YSharedRoot): Element | u
   }
 }
 
-export function yDataToSlateContent (sharedRoot: YSharedRoot): Element | undefined {
+export function yDataToSlateContent(sharedRoot: YSharedRoot): Element | undefined {
   try {
     const rootId = getPageId(sharedRoot);
     const blocks = getBlocks(sharedRoot);
@@ -120,14 +119,14 @@ export function yDataToSlateContent (sharedRoot: YSharedRoot): Element | undefin
   }
 }
 
-export function yDocToSlateContent (doc: YDoc): Element | undefined {
+export function yDocToSlateContent(doc: YDoc): Element | undefined {
   const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
 
   if (!sharedRoot || sharedRoot.size === 0) return;
   return yDataToSlateContent(sharedRoot);
 }
 
-export function blockToSlateNode (block: BlockJson): Element {
+export function blockToSlateNode(block: BlockJson): Element {
   const data = block.data;
   let blockData;
 
@@ -151,7 +150,7 @@ export interface YDelta {
   attributes?: object;
 }
 
-export function deltaInsertToSlateNode ({ attributes, insert }: YDelta): Element | Text | Element[] {
+export function deltaInsertToSlateNode({ attributes, insert }: YDelta): Element | Text | Element[] {
 
   if (attributes) {
     dealWithEmptyAttribute(attributes);
@@ -164,7 +163,7 @@ export function deltaInsertToSlateNode ({ attributes, insert }: YDelta): Element
 }
 
 // eslint-disable-next-line
-function dealWithEmptyAttribute (attributes: Record<string, any>) {
+function dealWithEmptyAttribute(attributes: Record<string, any>) {
   for (const key in attributes) {
     if (!attributes[key]) {
       delete attributes[key];
@@ -173,7 +172,7 @@ function dealWithEmptyAttribute (attributes: Record<string, any>) {
 }
 
 // Helper function to convert Slate text node to Delta insert
-export function slateNodeToDeltaInsert (node: Text): YDelta {
+export function slateNodeToDeltaInsert(node: Text): YDelta {
   const { text, ...attributes } = node;
 
   return {
@@ -182,7 +181,7 @@ export function slateNodeToDeltaInsert (node: Text): YDelta {
   };
 }
 
-export function slateContentInsertToYData (
+export function slateContentInsertToYData(
   parentBlockId: string,
   index: number,
   slateContent: Node[],
@@ -191,7 +190,7 @@ export function slateContentInsertToYData (
   // Get existing YData structures from the YDoc
   const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
 
-  function processNode (node: Element, parentId: string, index: number) {
+  function processNode(node: Element, parentId: string, index: number) {
     const parent = getBlock(parentId, sharedRoot);
     const block = createBlock(sharedRoot, {
       ty: node.type as BlockType,
@@ -209,11 +208,17 @@ export function slateContentInsertToYData (
 
     updateBlockParent(sharedRoot, block, parent, index);
 
-    children.forEach((child, i) => processNode(child as Element, block.get(YjsEditorKey.block_id), i));
+    children.forEach((child, i) => {
+      if (Element.isElement(child)) {
+        processNode(child, block.get(YjsEditorKey.block_id), i);
+      }
+    });
 
     return block.get(YjsEditorKey.block_id);
   }
 
   // Process each top-level node in slateContent
-  return slateContent.map((node, i) => processNode(node as Element, parentBlockId, index + i));
+  return slateContent.map((node, i) => {
+    return processNode(node as Element, parentBlockId, index + i);
+  });
 }

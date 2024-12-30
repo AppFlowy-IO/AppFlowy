@@ -7,7 +7,7 @@ on:
 env:
   NODE_VERSION: "18.16.0"
   PNPM_VERSION: "8.5.0"
-  RUST_TOOLCHAIN: "1.80.1"
+  RUST_TOOLCHAIN: "1.81.0"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-20.04]
+        platform: [ ubuntu-20.04 ]
 
     runs-on: ${{ matrix.platform }}
 
@@ -86,7 +86,7 @@ jobs:
       - name: install cargo-make
         working-directory: frontend
         run: |
-          cargo install --force cargo-make
+          cargo install --force --locked cargo-make
           cargo make appflowy-tauri-deps-tools
 
       - name: install frontend dependencies

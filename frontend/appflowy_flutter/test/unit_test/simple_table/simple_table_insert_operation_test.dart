@@ -190,5 +190,67 @@ void main() {
         '0': TableAlign.center.key,
       });
     });
+
+    test('insert a column with text color & bold style (1)', () async {
+      final (editorState, tableNode) = createEditorStateAndTable(
+        rowCount: 2,
+        columnCount: 3,
+      );
+      // insert the column at the first position
+      final tableCellNode =
+          tableNode.getTableCellNode(rowIndex: 0, columnIndex: 0);
+      await editorState.updateColumnTextColor(
+        tableCellNode: tableCellNode!,
+        color: '0xFF0000FF',
+      );
+      await editorState.toggleColumnBoldAttribute(
+        tableCellNode: tableCellNode,
+        isBold: true,
+      );
+      expect(tableNode.columnTextColors, {
+        '0': '0xFF0000FF',
+      });
+      expect(tableNode.columnBoldAttributes, {
+        '0': true,
+      });
+      await editorState.insertColumnInTable(tableNode, 0);
+      expect(tableNode.columnTextColors, {
+        '1': '0xFF0000FF',
+      });
+      expect(tableNode.columnBoldAttributes, {
+        '1': true,
+      });
+    });
+
+    test('insert a column with text color & bold style (2)', () async {
+      final (editorState, tableNode) = createEditorStateAndTable(
+        rowCount: 2,
+        columnCount: 3,
+      );
+      // insert the column at the first position
+      final tableCellNode =
+          tableNode.getTableCellNode(rowIndex: 0, columnIndex: 0);
+      await editorState.updateColumnTextColor(
+        tableCellNode: tableCellNode!,
+        color: '0xFF0000FF',
+      );
+      await editorState.toggleColumnBoldAttribute(
+        tableCellNode: tableCellNode,
+        isBold: true,
+      );
+      expect(tableNode.columnTextColors, {
+        '0': '0xFF0000FF',
+      });
+      expect(tableNode.columnBoldAttributes, {
+        '0': true,
+      });
+      await editorState.insertColumnInTable(tableNode, 1);
+      expect(tableNode.columnTextColors, {
+        '0': '0xFF0000FF',
+      });
+      expect(tableNode.columnBoldAttributes, {
+        '0': true,
+      });
+    });
   });
 }

@@ -35,7 +35,7 @@ class _PageStyleIconState extends State<PageStyleIcon> {
         builder: (context, state) {
           final icon = state.icon ?? EmojiIconData.none();
           return GestureDetector(
-            onTap: () => _showIconSelector(context),
+            onTap: () => _showIconSelector(context, icon),
             behavior: HitTestBehavior.opaque,
             child: Container(
               height: 52,
@@ -66,7 +66,7 @@ class _PageStyleIconState extends State<PageStyleIcon> {
     );
   }
 
-  void _showIconSelector(BuildContext context) {
+  void _showIconSelector(BuildContext context, EmojiIconData icon) {
     Navigator.pop(context);
     final pageStyleIconBloc = PageStyleIconBloc(view: widget.view)
       ..add(const PageStyleIconEvent.initial());
@@ -85,11 +85,12 @@ class _PageStyleIconState extends State<PageStyleIcon> {
           value: pageStyleIconBloc,
           child: Expanded(
             child: FlowyIconEmojiPicker(
+              initialType: icon.type.toPickerTabType(),
               onSelectedEmoji: (r) {
                 pageStyleIconBloc.add(
-                  PageStyleIconEvent.updateIcon(r, true),
+                  PageStyleIconEvent.updateIcon(r.data, true),
                 );
-                Navigator.pop(ctx);
+                if (!r.keepOpen) Navigator.pop(ctx);
               },
             ),
           ),

@@ -6,22 +6,7 @@ export function getRangeRect () {
 
   if (!rangeCount) return null;
 
-  const anchorNode = domSelection.anchorNode;
-  const focusNode = domSelection.focusNode;
-  const focusOffset = domSelection.focusOffset;
-  let domRange = rangeCount > 0 ? domSelection.getRangeAt(0) : undefined;
-
-  const anchorTop = anchorNode?.parentElement?.getBoundingClientRect().top;
-  const focusTop = focusNode?.parentElement?.getBoundingClientRect().top;
-  const diff = Math.abs((anchorTop || 0) - (focusTop || 0));
-
-  if (focusNode && anchorNode && diff > 20) {
-    const newRange = document.createRange();
-
-    newRange.setStart(focusNode, focusOffset);
-
-    domRange = newRange;
-  }
+  const domRange = rangeCount > 0 ? domSelection.getRangeAt(0) : undefined;
 
   return domRange?.getBoundingClientRect();
 }
@@ -44,7 +29,7 @@ export function getSelectionPosition (editor: ReactEditor) {
     const relativeDomLeft = rect.left - domNodeRect.left;
 
     // if the range is above the window, move the toolbar to the bottom of range
-    if (rect.top < gap) {
+    if (rect.top < gap && rect.bottom > 48) {
       relativeDomTop = -domNodeRect.top + gap;
     }
 

@@ -1064,6 +1064,11 @@ impl DatabaseEditor {
         view
           .v_did_update_row(&old_row, &row, Some(field_id.to_owned()))
           .await;
+
+        let field_id = field_id.to_string();
+        tokio::spawn(async move {
+          view.v_update_calculate(&field_id).await;
+        });
       }
 
       if let Some(field_type) = field_type {

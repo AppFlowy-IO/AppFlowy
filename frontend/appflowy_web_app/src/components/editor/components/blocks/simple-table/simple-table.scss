@@ -89,7 +89,11 @@
 
 
   td .cell-children {
-    @apply leading-[1.7em];
+    @apply leading-[1.5em] tracking-wide;
+    > div {
+      margin-top: 4px !important;
+      margin-bottom: 4px !important;
+    }
   }
 
   td {

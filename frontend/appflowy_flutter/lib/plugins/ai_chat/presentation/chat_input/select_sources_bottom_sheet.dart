@@ -20,11 +20,9 @@ import 'select_sources_menu.dart';
 class PromptInputMobileSelectSourcesButton extends StatefulWidget {
   const PromptInputMobileSelectSourcesButton({
     super.key,
-    required this.chatId,
     required this.onUpdateSelectedSources,
   });
 
-  final String chatId;
   final void Function(List<String>) onUpdateSelectedSources;
 
   @override
@@ -34,7 +32,7 @@ class PromptInputMobileSelectSourcesButton extends StatefulWidget {
 
 class _PromptInputMobileSelectSourcesButtonState
     extends State<PromptInputMobileSelectSourcesButton> {
-  late final cubit = ChatSettingsCubit(chatId: widget.chatId);
+  late final cubit = ChatSettingsCubit();
 
   @override
   void initState() {
@@ -71,9 +69,9 @@ class _PromptInputMobileSelectSourcesButtonState
               value: cubit,
             ),
           ],
-          child: BlocSelector<SpaceBloc, SpaceState, ViewPB?>(
-            selector: (state) => state.currentSpace,
-            builder: (context, spaceView) {
+          child: BlocSelector<SpaceBloc, SpaceState, List<ViewPB>>(
+            selector: (state) => state.spaces,
+            builder: (context, spaces) {
               return BlocListener<ChatBloc, ChatState>(
                 listener: (context, state) {
                   cubit
@@ -99,11 +97,7 @@ class _PromptInputMobileSelectSourcesButtonState
                     ],
                   ),
                   onTap: () async {
-                    if (spaceView != null) {
-                      context
-                          .read<ChatSettingsCubit>()
-                          .refreshSources(spaceView);
-                    }
+                    context.read<ChatSettingsCubit>().refreshSources(spaces);
                     await showMobileBottomSheet<void>(
                       context,
                       backgroundColor: Theme.of(context).colorScheme.surface,

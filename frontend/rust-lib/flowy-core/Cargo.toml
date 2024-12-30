@@ -20,7 +20,6 @@ flowy-document-pub = { workspace = true }
 flowy-error = { workspace = true }
 flowy-server = { workspace = true, features = ["enable_supabase"] }
 flowy-server-pub = { workspace = true }
-flowy-config = { workspace = true }
 flowy-date = { workspace = true }
 collab-integrate = { workspace = true }
 flowy-search = { workspace = true }
@@ -80,7 +79,6 @@ ts = [
   "flowy-folder/tauri_ts",
   "flowy-search/tauri_ts",
   "flowy-database2/ts",
-  "flowy-config/tauri_ts",
   "flowy-ai/tauri_ts",
   "flowy-storage/tauri_ts",
 ]

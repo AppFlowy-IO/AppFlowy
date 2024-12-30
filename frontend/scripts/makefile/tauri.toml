@@ -1,10 +1,3 @@
-[tasks.tauri_build]
-description = "Build the Tauri backend"
-script = ["""
-    cd appflowy_tauri/src-tauri
-    cargo build
-    """]
-script_runner = "@shell"
 
 [tasks.tauri_dev]
 env = { RUST_LOG = "debug" }

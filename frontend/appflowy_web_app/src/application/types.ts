@@ -56,6 +56,10 @@ export interface BlockData {
   bgColor?: string;
   font_color?: string;
   align?: AlignType;
+  delta?: {
+    insert: string;
+    attributes: Record<string, unknown>;
+  }[];
 }
 
 export interface HeadingBlockData extends BlockData {
@@ -97,10 +101,11 @@ export enum FieldURLType {
 }
 
 export interface FileBlockData extends BlockData {
-  name: string;
-  uploaded_at: number;
-  url: string;
-  url_type: FieldURLType;
+  name?: string;
+  uploaded_at?: number;
+  url?: string;
+  url_type?: FieldURLType;
+  retry_local_url?: string;
 }
 
 export enum ImageType {
@@ -115,6 +120,7 @@ export interface ImageBlockData extends BlockData {
   align?: AlignType;
   image_type?: ImageType;
   height?: number;
+  retry_local_url?: string;
 }
 
 export enum GalleryLayout {
@@ -790,12 +796,17 @@ export interface DuplicatePublishView {
 
 export enum ViewIconType {
   Emoji = 0,
-  Icon = 1,
+  Icon = 2,
 }
 
 export interface ViewIcon {
   ty: ViewIconType;
   value: string;
+}
+
+export enum SpacePermission {
+  Public = 0,
+  Private = 1,
 }
 
 export interface ViewExtra {
@@ -875,6 +886,19 @@ export enum RequestAccessInfoStatus {
   Rejected = 2,
 }
 
+export enum Role {
+  Owner = 'Owner',
+  Member = 'Member',
+  Guest = 'Guest',
+}
+
+export interface WorkspaceMember {
+  name: string;
+  email: string;
+  avatar_url: string;
+  role: Role;
+}
+
 export interface GetRequestAccessInfoResponse {
   request_id: string;
   workspace: Workspace;
@@ -904,3 +928,88 @@ export interface Subscription {
 }
 
 export type Subscriptions = Subscription[];
+
+export interface UpdatePagePayload {
+  name: string;
+  icon: {
+    ty: ViewIconType,
+    value: string,
+  };
+  extra: Partial<ViewExtra>;
+}
+
+export interface ViewMetaCover {
+  type: CoverType;
+  value: string;
+}
+
+export interface ViewMetaProps {
+  icon?: ViewMetaIcon;
+  cover?: ViewMetaCover;
+  name?: string;
+  viewId?: string;
+  layout?: ViewLayout;
+  visibleViewIds?: string[];
+  extra?: ViewExtra | null;
+  readOnly?: boolean;
+  updatePage?: (viewId: string, data: UpdatePagePayload) => Promise<void>;
+  onEnter?: (text: string) => void;
+  maxWidth?: number;
+}
+
+export interface TextCount {
+  words: number;
+  characters: number;
+}
+
+export interface ViewComponentProps {
+  doc: YDoc;
+  readOnly: boolean;
+  navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
+  loadViewMeta?: LoadViewMeta;
+  createRowDoc?: CreateRowDoc;
+  loadView?: LoadView;
+  viewMeta: ViewMetaProps;
+  appendBreadcrumb?: AppendBreadcrumb;
+  onRendered?: () => void;
+  updatePage?: (viewId: string, data: UpdatePagePayload) => Promise<void>;
+  addPage?: (parentId: string, payload: CreatePagePayload) => Promise<string>;
+  deletePage?: (viewId: string) => Promise<void>;
+  openPageModal?: (viewId: string) => void;
+  variant?: UIVariant;
+  isTemplateThumb?: boolean;
+  loadViews?: (variant?: UIVariant) => Promise<View[] | undefined>;
+  onWordCountChange?: (viewId: string, props: TextCount) => void;
+  uploadFile?: (file: File) => Promise<string>;
+}
+
+export interface CreatePagePayload {
+  layout: ViewLayout;
+  name?: string;
+}
+
+export interface CreateSpacePayload {
+  name?: string;
+  space_icon?: string;
+  space_icon_color?: string;
+  space_permission?: SpacePermission, // 0 for public space, 1 for private space
+}
+
+export interface UpdateSpacePayload extends CreateSpacePayload {
+  view_id: string;
+}
+
+export interface QuickNoteEditorData {
+  type: string;
+  delta: { insert: string, attributes?: Record<string, string | boolean | number> }[];
+  data?: BlockData;
+  children: QuickNoteEditorData[];
+}
+
+export interface QuickNote {
+  id: string;
+  title: string;
+  data: QuickNoteEditorData[],
+  created_at: string;
+  last_updated_at: string;
+}

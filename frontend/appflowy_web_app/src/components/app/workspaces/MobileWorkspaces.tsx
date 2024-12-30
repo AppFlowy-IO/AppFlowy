@@ -103,6 +103,7 @@ function MobileWorkspaces ({
             currentWorkspaceId={currentWorkspaceId}
             onChange={handleChange}
             changeLoading={changeLoading || undefined}
+            showActions={false}
           />}
 
         </div>

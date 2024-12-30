@@ -145,7 +145,11 @@
     "charCount": "Character count: {}",
     "createdAt": "Created: {}",
     "deleteView": "Delete",
-    "duplicateView": "Duplicate"
+    "duplicateView": "Duplicate",
+    "wordCountLabel": "Word count: ",
+    "charCountLabel": "Character count: ",
+    "createdAtLabel": "Created: ",
+    "syncedAtLabel": "Synced: "
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",
@@ -166,7 +170,9 @@
     "addToFavorites": "Add to Favorites",
     "copyLink": "Copy link",
     "changeIcon": "Change icon",
-    "collapseAllPages": "Collapse all subpages"
+    "collapseAllPages": "Collapse all subpages",
+    "movePageTo": "Move page to",
+    "move": "Move"
   },
   "blankPageTitle": "Blank page",
   "newPageText": "New page",
@@ -206,7 +212,15 @@
     "indexingFile": "Indexing {}",
     "generatingResponse": "Generating response",
     "selectSources": "Select Sources",
-    "regenerate": "Try again"
+    "sourcesLimitReached": "You can only select up to 3 top-level documents and its children",
+    "sourceUnsupported": "We don't support chatting with databases at this time",
+    "regenerate": "Try again",
+    "addToPageButton": "Add to page",
+    "addToPageTitle": "Add message to...",
+    "addToNewPage": "Add to a new page",
+    "addToNewPageName": "Messages extracted from \"{}\"",
+    "addToNewPageSuccessToast": "Message added to",
+    "openPagePreviewFailedToast": "Failed to open page"
   },
   "trash": {
     "text": "Trash",
@@ -298,6 +312,7 @@
   "sideBar": {
     "closeSidebar": "Close sidebar",
     "openSidebar": "Open sidebar",
+    "expandSidebar": "Expand as full page",
     "personal": "Personal",
     "private": "Private",
     "workspace": "Workspace",
@@ -416,7 +431,10 @@
     "backToHome": "Back to Home",
     "viewing": "Viewing",
     "editing": "Editing",
-    "gotIt": "Got it"
+    "gotIt": "Got it",
+    "retry": "Retry",
+    "uploadFailed": "Upload failed.",
+    "copyLinkOriginal": "Copy link to original"
   },
   "label": {
     "welcome": "Welcome!",
@@ -1614,6 +1632,7 @@
       "timeHintTextInTwelveHour": "01:00 PM",
       "timeHintTextInTwentyFourHour": "13:00"
     },
+    "creating": "Creating...",
     "slashMenu": {
       "board": {
         "selectABoardToLinkTo": "Select a Board to link to",
@@ -1711,6 +1730,7 @@
       "toggleList": "Toggle list",
       "emptyToggleHeading": "Empty toggle h{}. Click to add content.",
       "emptyToggleList": "Empty toggle list. Click to add content.",
+      "emptyToggleHeadingWeb": "Empty toggle h{level}. Click to add content",
       "quoteList": "Quote list",
       "numberedList": "Numbered list",
       "bulletedList": "Bulleted list",
@@ -1841,7 +1861,8 @@
       "contextMenu": {
         "copy": "Copy",
         "cut": "Cut",
-        "paste": "Paste"
+        "paste": "Paste",
+        "pasteAsPlainText": "Paste as plain text"
       },
       "action": "Actions",
       "database": {
@@ -2001,7 +2022,8 @@
       "deletedContent": "This content does not exist or has been deleted",
       "noAccess": "No Access",
       "deletedPage": "Deleted page",
-      "trashHint": " - in trash"
+      "trashHint": " - in trash",
+      "morePages": "more pages"
     },
     "toolbar": {
       "resetToDefaultFont": "Reset to default"
@@ -2359,6 +2381,9 @@
     "mobileHeading1": "Heading 1",
     "mobileHeading2": "Heading 2",
     "mobileHeading3": "Heading 3",
+    "mobileHeading4": "Heading 4",
+    "mobileHeading5": "Heading 5",
+    "mobileHeading6": "Heading 6",
     "textColor": "Text Color",
     "backgroundColor": "Background Color",
     "addYourLink": "Add your link",
@@ -2653,14 +2678,19 @@
     "fileBlock": {
       "uploadedAt": "Uploaded on {time}",
       "linkedAt": "Link added on {time}",
-      "empty": "Upload or embed a file"
+      "empty": "Upload or embed a file",
+      "uploadFailed": "Upload failed, please try again",
+      "retry": "Retry"
     },
     "importNotion": "Import from Notion",
     "import": "Import",
     "importSuccess": "Uploaded successfully",
     "importSuccessMessage": "We'll notify you when the import is complete. After that, you can view your imported pages in the sidebar.",
     "importFailed": "Import failed, please check the file format",
-    "dropNotionFile": "Drop your Notion zip file here to upload, or click to browse"
+    "dropNotionFile": "Drop your Notion zip file here to upload, or click to browse",
+    "error": {
+      "pageNameIsEmpty": "The page name is empty, please try another one"
+    }
   },
   "globalComment": {
     "comments": "Comments",
@@ -2919,5 +2949,103 @@
     "noAppToOpenFile": "No app to open this file",
     "permissionDenied": "No permission to open this file",
     "unknownError": "File open failed"
+  },
+  "inviteMember": {
+    "requestInviteMembers": "Invite to your workspace",
+    "inviteFailedMemberLimit": "Member limit has been reached, please ",
+    "upgrade": "upgrade",
+    "addEmail": "email@example.com, email2@example.com...",
+    "requestInvites": "Send invites",
+    "inviteAlready": "You've already invited this email: {email}",
+    "inviteSuccess": "Invitation sent successfully",
+    "description": "Input emails below with commas between them. Charges are based on member count.",
+    "emails": "Email"
+  },
+  "quickNote": {
+    "label": "Quick Note",
+    "quickNotes": "Quick Notes",
+    "search": "Search Quick Notes",
+    "collapseFullView": "Collapse full view",
+    "expandFullView": "Expand full view",
+    "createFailed": "Failed to create Quick Note",
+    "quickNotesEmpty": "No Quick Notes",
+    "emptyNote": "Empty note",
+    "deleteNotePrompt": "The selected note will be deleted permanently. Are you sure you want to delete it?",
+    "addNote": "New Note",
+    "noAdditionalText": "No additional text"
+  },
+  "subscribe": {
+    "upgradePlanTitle": "Compare & select plan",
+    "yearly": "Yearly",
+    "save": "Save {discount}%",
+    "monthly": "Monthly",
+    "priceIn": "Price in ",
+    "free": "Free",
+    "pro": "Pro",
+    "freeDescription": "For individuals up to 2 members to organize everything",
+    "proDescription": "For small teams to manage projects and team knowledge",
+    "proDuration": {
+      "monthly": "per member per month\nbilled monthly",
+      "yearly": "per member per month\nbilled annually"
+    },
+    "cancel": "Downgrade",
+    "changePlan": "Upgrade to Pro Plan",
+    "everythingInFree": "Everything in Free +",
+    "currentPlan": "Current",
+    "freeDuration": "forever",
+    "freePoints": {
+      "first": "1 collaborative workspace up to 2 members",
+      "second": "Unlimited pages & blocks",
+      "three": "5 GB storage",
+      "four": "Intelligent search",
+      "five": "20 AI responses",
+      "six": "Mobile app",
+      "seven": "Real-time collaboration"
+    },
+    "proPoints": {
+      "first": "Unlimited storage",
+      "second": "Up to 10 workspace members",
+      "three": "Unlimited AI responses",
+      "four": "Unlimited file uploads",
+      "five": "Custom namespace"
+    },
+    "cancelPlan": {
+      "title": "Sorry to see you go",
+      "success": "Your subscription has been canceled successfully",
+      "description": "We're sorry to see you go. We'd love to hear your feedback to help us improve AppFlowy. Please take a moment to answer a few questions.",
+      "commonOther": "Other",
+      "otherHint": "Write your answer here",
+      "questionOne": {
+        "question": "What prompted you to cancel your AppFlowy Pro subscription?",
+        "answerOne": "Cost too high",
+        "answerTwo": "Features did not meet expectations",
+        "answerThree": "Found a better alternative",
+        "answerFour": "Did not use it enough to justify the expense",
+        "answerFive": "Service issue or technical difficulties"
+      },
+      "questionTwo": {
+        "question": "How likely are you to consider re-subscribing to AppFlowy Pro in the future?",
+        "answerOne": "Very likely",
+        "answerTwo": "Somewhat likely",
+        "answerThree": "Not sure",
+        "answerFour": "Unlikely",
+        "answerFive": "Very unlikely"
+      },
+      "questionThree": {
+        "question": "Which Pro feature did you value the most during your subscription?",
+        "answerOne": "Multi-user collaboration",
+        "answerTwo": "Longer time version history",
+        "answerThree": "Unlimited AI responses",
+        "answerFour": "Access to local AI models"
+      },
+      "questionFour": {
+        "question": "How would you describe your overall experience with AppFlowy?",
+        "answerOne": "Great",
+        "answerTwo": "Good",
+        "answerThree": "Average",
+        "answerFour": "Below average",
+        "answerFive": "Unsatisfied"
+      }
+    }
   }
 }

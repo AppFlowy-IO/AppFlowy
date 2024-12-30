@@ -1,8 +1,8 @@
 import { usePublishContext } from '@/application/publish';
 import { EditorLayoutStyle } from '@/components/editor/EditorContext';
-import { ViewMetaCover } from '@/components/view-meta';
 import { getFontFamily } from '@/utils/font';
 import { useEffect, useMemo } from 'react';
+import { ViewMetaCover } from '@/application/types';
 
 export function useViewMeta () {
   const viewMeta = usePublishContext()?.viewMeta;

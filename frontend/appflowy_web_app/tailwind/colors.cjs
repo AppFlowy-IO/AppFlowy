@@ -1,7 +1,7 @@
 
 /**
 * Do not edit directly
-* Generated on Tue, 22 Oct 2024 09:59:50 GMT
+* Generated on Tue, 24 Dec 2024 08:57:39 GMT
 * Generated from $pnpm css:variables 
 */
 
@@ -26,7 +26,8 @@ module.exports = {
   "line": {
     "border": "var(--line-border)",
     "divider": "var(--line-divider)",
-    "on-toolbar": "var(--line-on-toolbar)"
+    "on-toolbar": "var(--line-on-toolbar)",
+    "card": "var(--line-card)"
   },
   "fill": {
     "toolbar": "var(--fill-toolbar)",
@@ -93,5 +94,12 @@ module.exports = {
   "scrollbar": {
     "thumb": "var(--scrollbar-thumb)",
     "track": "var(--scrollbar-track)"
+  },
+  "note": {
+    "header": "var(--note-header)"
+  },
+  "billing": {
+    "primary": "var(--billing-primary)",
+    "primary-hover": "var(--billing-primary-hover)"
   }
 };

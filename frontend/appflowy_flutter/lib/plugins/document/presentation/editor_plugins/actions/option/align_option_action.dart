@@ -27,11 +27,11 @@ enum OptionAlignType {
   FlowySvgData get svg {
     switch (this) {
       case OptionAlignType.left:
-        return FlowySvgs.align_left_s;
+        return FlowySvgs.table_align_left_s;
       case OptionAlignType.center:
-        return FlowySvgs.align_center_s;
+        return FlowySvgs.table_align_center_s;
       case OptionAlignType.right:
-        return FlowySvgs.align_right_s;
+        return FlowySvgs.table_align_right_s;
     }
   }
 

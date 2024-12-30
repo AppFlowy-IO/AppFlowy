@@ -246,51 +246,6 @@
       "detail": "appflowy_flutter"
     },
     {
-      "label": "AF: Tauri UI Build",
-      "type": "shell",
-      "command": "pnpm run build",
-      "options": {
-        "cwd": "${workspaceFolder}/appflowy_tauri"
-      }
-    },
-    {
-      "label": "AF: Tauri UI Dev",
-      "type": "shell",
-      "isBackground": true,
-      "command": "pnpm sync:i18n && pnpm run dev",
-      "options": {
-        "cwd": "${workspaceFolder}/appflowy_tauri"
-      }
-    },
-    {
-      "label": "AF: Tauri Clean",
-      "type": "shell",
-      "command": "cargo make tauri_clean",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      }
-    },
-    {
-      "label": "AF: Tauri Clean + Dev",
-      "type": "shell",
-      "dependsOrder": "sequence",
-      "dependsOn": [
-        "AF: Tauri Clean",
-        "AF: Tauri UI Dev"
-      ],
-      "options": {
-        "cwd": "${workspaceFolder}"
-      }
-    },
-    {
-      "label": "AF: Tauri ESLint",
-      "type": "shell",
-      "command": "npx eslint --fix src",
-      "options": {
-        "cwd": "${workspaceFolder}/appflowy_tauri"
-      }
-    },
-    {
       "label": "AF: Generate Env File",
       "type": "shell",
       "command": "dart run build_runner clean && dart run build_runner build --delete-conflicting-outputs",

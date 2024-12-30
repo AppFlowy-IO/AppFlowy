@@ -51,6 +51,12 @@ enum TableAlign {
         TableAlign.center => Alignment.topCenter,
         TableAlign.right => Alignment.topRight,
       };
+
+  TextAlign get textAlign => switch (this) {
+        TableAlign.left => TextAlign.left,
+        TableAlign.center => TextAlign.center,
+        TableAlign.right => TextAlign.right,
+      };
 }
 
 extension TableNodeExtension on Node {
@@ -799,21 +805,21 @@ extension TableNodeExtension on Node {
   /// Get first focusable child in the table cell.
   ///
   /// If the current node is not a table cell node, it will return null.
-  Node? getFirstChildIndex() {
+  Node? getFirstFocusableChild() {
     if (children.isEmpty) {
       return this;
     }
-    return children.first.getFirstChildIndex();
+    return children.first.getFirstFocusableChild();
   }
 
   /// Get last focusable child in the table cell.
   ///
   /// If the current node is not a table cell node, it will return null.
-  Node? getLastChildIndex() {
+  Node? getLastFocusableChild() {
     if (children.isEmpty) {
       return this;
     }
-    return children.last.getLastChildIndex();
+    return children.last.getLastFocusableChild();
   }
 
   /// Get table align of column

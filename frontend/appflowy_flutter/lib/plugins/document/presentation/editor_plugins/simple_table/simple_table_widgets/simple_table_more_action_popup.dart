@@ -455,6 +455,21 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     final columnIndex = node.columnIndex;
     final editorState = context.read<EditorState>();
     editorState.insertColumnInTable(table, columnIndex);
+
+    final cell = table.getTableCellNode(
+      rowIndex: 0,
+      columnIndex: columnIndex,
+    );
+    if (cell == null) {
+      return;
+    }
+
+    // update selection
+    editorState.selection = Selection.collapsed(
+      Position(
+        path: cell.path.child(0),
+      ),
+    );
   }
 
   void _insertColumnRight() {
@@ -466,6 +481,21 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     final columnIndex = node.columnIndex;
     final editorState = context.read<EditorState>();
     editorState.insertColumnInTable(table, columnIndex + 1);
+
+    final cell = table.getTableCellNode(
+      rowIndex: 0,
+      columnIndex: columnIndex + 1,
+    );
+    if (cell == null) {
+      return;
+    }
+
+    // update selection
+    editorState.selection = Selection.collapsed(
+      Position(
+        path: cell.path.child(0),
+      ),
+    );
   }
 
   void _insertRowAbove() {
@@ -477,6 +507,18 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     final rowIndex = node.rowIndex;
     final editorState = context.read<EditorState>();
     editorState.insertRowInTable(table, rowIndex);
+
+    final cell = table.getTableCellNode(rowIndex: rowIndex, columnIndex: 0);
+    if (cell == null) {
+      return;
+    }
+
+    // update selection
+    editorState.selection = Selection.collapsed(
+      Position(
+        path: cell.path.child(0),
+      ),
+    );
   }
 
   void _insertRowBelow() {
@@ -488,6 +530,18 @@ class _SimpleTableMoreActionItemState extends State<SimpleTableMoreActionItem> {
     final rowIndex = node.rowIndex;
     final editorState = context.read<EditorState>();
     editorState.insertRowInTable(table, rowIndex + 1);
+
+    final cell = table.getTableCellNode(rowIndex: rowIndex + 1, columnIndex: 0);
+    if (cell == null) {
+      return;
+    }
+
+    // update selection
+    editorState.selection = Selection.collapsed(
+      Position(
+        path: cell.path.child(0),
+      ),
+    );
   }
 
   void _deleteRow() {

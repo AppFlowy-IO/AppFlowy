@@ -209,7 +209,15 @@
     "uploadFile": "Téléchargez des fichiers PDF, MD ou TXT pour discuter avec",
     "questionDetail": "Bonjour {}! Comment puis-je vous aider aujourd'hui?",
     "indexingFile": "Indexation {}",
-    "generatingResponse": "Générer une réponse"
+    "generatingResponse": "Générer une réponse",
+    "selectSources": "Sélectionner Sources",
+    "sourcesLimitReached": "Vous ne pouvez sélectionner que jusqu'à 3 documents de niveau supérieur et leurs enfants",
+    "sourceUnsupported": "Nous ne prenons pas en charge le chat avec des bases de données pour le moment",
+    "regenerate": "Réessayer",
+    "addToPageButton": "Ajouter à la page",
+    "addToPageTitle": "Ajouter un message à...",
+    "addToNewPage": "Ajouter à une nouvelle page",
+    "addToNewPageName": "Messages extraits de \"{}\""
   },
   "trash": {
     "text": "Corbeille",
@@ -420,6 +428,8 @@
     "submit": "Soumettre",
     "download": "Télécharger",
     "backToHome": "Retour à l'accueil",
+    "viewing": "Affichage",
+    "editing": "Édition",
     "gotIt": "Compris",
     "tryAGain": "Réessayer"
   },
@@ -1357,6 +1367,7 @@
       "typeAValue": "Tapez une valeur...",
       "layout": "Mise en page",
       "databaseLayout": "Mise en page",
+      "viewList": "Vues de base de données",
       "editView": "Modifier vue",
       "boardSettings": "Paramètres du tableau",
       "calendarSettings": "Paramètres du calendrier",
@@ -1364,11 +1375,11 @@
       "duplicateView": "Dupliquer la vue",
       "deleteView": "Supprimer la vue",
       "numberOfVisibleFields": "{} affiché(s)",
-      "Properties": "Propriétés",
-      "viewList": "Vues de base de données"
+      "Properties": "Propriétés"
     },
     "filter": {
       "empty": "Aucun filtre actif",
+      "addFilter": "Ajouter un filtre",
       "cannotFindCreatableField": "Impossible de trouver un champ approprié pour filtrer",
       "conditon": "Condition",
       "where": "Où"
@@ -1551,6 +1562,7 @@
       "insertRecordAbove": "Insérer l'enregistrement ci-dessus",
       "insertRecordBelow": "Insérer l'enregistrement ci-dessous",
       "noContent": "Aucun contenu",
+      "reorderRowDescription": "réorganiser la ligne",
       "createRowAboveDescription": "créer une ligne au dessus",
       "createRowBelowDescription": "insérer une ligne ci-dessous"
     },
@@ -1734,6 +1746,8 @@
       "insertDate": "Insérer la date",
       "emoji": "Emoji",
       "toggleList": "Liste pliable",
+      "emptyToggleHeading": "Bouton vide h{}. Cliquez pour ajouter du contenu.",
+      "emptyToggleList": "Liste vide. Cliquez pour ajouter du contenu.",
       "quoteList": "Liste de citations",
       "numberedList": "Liste numérotée",
       "bulletedList": "Liste à puces",
@@ -1753,11 +1767,20 @@
           "headerRow": "Ligne d'en-tête",
           "clearContents": "Supprimer le contenu",
           "setToPageWidth": "Définir sur la largeur de la page",
-          "distributeColumnsWidth": "Répartir les colonnes uniformément"
+          "distributeColumnsWidth": "Répartir les colonnes uniformément",
+          "duplicateRow": "Ligne dupliquée",
+          "duplicateColumn": "Colonne dupliquée",
+          "textColor": "Couleur du texte",
+          "cellBackgroundColor": "Couleur d'arrière-plan de la cellule",
+          "duplicateTable": "Tableau dupliqué"
         },
         "clickToAddNewRow": "Cliquez pour ajouter une nouvelle ligne",
         "clickToAddNewColumn": "Cliquez pour ajouter une nouvelle colonne",
-        "clickToAddNewRowAndColumn": "Cliquez pour ajouter une nouvelle ligne et une nouvelle colonne"
+        "clickToAddNewRowAndColumn": "Cliquez pour ajouter une nouvelle ligne et une nouvelle colonne",
+        "headerName": {
+          "table": "Tableau",
+          "alignText": "Aligner le texte"
+        }
       },
       "cover": {
         "changeCover": "Changer la couverture",
@@ -1794,6 +1817,7 @@
         "click": "Cliquez sur",
         "toOpenMenu": " pour ouvrir le menu",
         "drag": "Glisser",
+        "toMove": " à déplacer",
         "delete": "Supprimer",
         "duplicate": "Dupliquer",
         "turnInto": "Changer en",
@@ -1854,7 +1878,8 @@
       "contextMenu": {
         "copy": "Copier",
         "cut": "Couper",
-        "paste": "Coller"
+        "paste": "Coller",
+        "pasteAsPlainText": "Coller en tant que texte brut"
       },
       "action": "Actions",
       "database": {
@@ -1889,6 +1914,7 @@
         "fileUploadHintSuffix": "Parcourir",
         "networkHint": "Coller un lien de fichier",
         "networkUrlInvalid": "URL non valide, veuillez corriger l'URL et réessayer",
+        "networkAction": "Intégrer",
         "fileTooBigError": "La taille du fichier est trop grande, veuillez télécharger un fichier d'une taille inférieure à 10 Mo",
         "renameFile": {
           "title": "Renommer le fichier",
@@ -2069,6 +2095,7 @@
     "ungroupedButtonTooltip": "Contient des cartes qui n'appartiennent à aucun groupe",
     "ungroupedItemsTitle": "Cliquez pour ajouter au tableau",
     "groupBy": "Regrouper par",
+    "groupCondition": "Condition de groupe",
     "referencedBoardPrefix": "Vue",
     "notesTooltip": "Notes à l'intérieur",
     "mobile": {
@@ -2087,6 +2114,8 @@
       "lastThirtyDays": "30 derniers jours",
       "nextThirtyDays": "30 prochains jours"
     },
+    "noGroup": "Pas de groupe par propriété",
+    "noGroupDesc": "Les vues du tableau nécessitent une propriété de regroupement pour pouvoir s'afficher",
     "media": {
       "cardText": "{} {}",
       "fallbackName": "fichiers"
@@ -2119,11 +2148,11 @@
       "layoutDateField": "Calendrier de mise en page par",
       "changeLayoutDateField": "Modifier le champ de mise en page",
       "noDateTitle": "Pas de date",
+      "noDateHint": "Les événements non planifiés s'afficheront ici",
       "unscheduledEventsTitle": "Événements non planifiés",
       "clickToAdd": "Cliquez pour ajouter au calendrier",
       "name": "Disposition du calendrier",
-      "clickToOpen": "Cliquez pour ouvrir l'évènement",
-      "noDateHint": "Les événements non planifiés s'afficheront ici"
+      "clickToOpen": "Cliquez pour ouvrir l'évènement"
     },
     "referencedCalendarPrefix": "Vue",
     "quickJumpYear": "Sauter à",
@@ -2196,7 +2225,8 @@
       "medium": "Moyen",
       "mediumDark": "Moyennement foncé",
       "dark": "Foncé"
-    }
+    },
+    "openSourceIconsFrom": "Icônes open source de"
   },
   "inlineActions": {
     "noResults": "Aucun résultat",
@@ -2210,7 +2240,8 @@
     "reminder": {
       "groupTitle": "Rappel",
       "shortKeyword": "rappeler"
-    }
+    },
+    "createPage": "Créer une sous-page « {} »"
   },
   "datePicker": {
     "dateTimeFormatTooltip": "Modifier le format de la date et de l'heure dans les paramètres",

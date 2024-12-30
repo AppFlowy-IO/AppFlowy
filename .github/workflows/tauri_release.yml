@@ -14,7 +14,7 @@ on:
 env:
   NODE_VERSION: "18.16.0"
   PNPM_VERSION: "8.5.0"
-  RUST_TOOLCHAIN: "1.80.1"
+  RUST_TOOLCHAIN: "1.81.0"
 
 jobs:
   publish-tauri:
@@ -96,7 +96,7 @@ jobs:
       - name: install cargo-make
         working-directory: frontend
         run: |
-          cargo install --force cargo-make
+          cargo install --force --locked cargo-make
           cargo make appflowy-tauri-deps-tools
 
       - name: install frontend dependencies

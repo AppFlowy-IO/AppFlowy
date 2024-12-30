@@ -5,6 +5,7 @@ import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -102,8 +103,7 @@ void main() {
       expect(memberCount, findsNWidgets(2));
     });
 
-    testWidgets('only display one menu item in the workspace menu',
-        (tester) async {
+    testWidgets('workspace menu popover behavior test', (tester) async {
       // only run the test when the feature flag is on
       if (!FeatureFlag.collaborativeWorkspace.isOn) {
         return;
@@ -128,6 +128,8 @@ void main() {
       final workspaceItem = find.byWidgetPredicate(
         (w) => w is WorkspaceMenuItem && w.workspace.name == name,
       );
+
+      // the workspace menu shouldn't conflict with logout
       await tester.hoverOnWidget(
         workspaceItem,
         onHover: () async {
@@ -136,15 +138,73 @@ void main() {
           );
           expect(moreButton, findsOneWidget);
           await tester.tapButton(moreButton);
+          expect(find.text(LocaleKeys.button_rename.tr()), findsOneWidget);
+
+          final logoutButton = find.byType(WorkspaceMoreButton);
+          await tester.tapButton(logoutButton);
+          expect(find.text(LocaleKeys.button_logout.tr()), findsOneWidget);
+          expect(moreButton, findsNothing);
+
+          await tester.tapButton(moreButton);
+          expect(find.text(LocaleKeys.button_logout.tr()), findsNothing);
+          expect(moreButton, findsOneWidget);
+        },
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      // clicking on the more action button for the same workspace shouldn't do
+      // anything
+      await tester.openCollaborativeWorkspaceMenu();
+      await tester.hoverOnWidget(
+        workspaceItem,
+        onHover: () async {
+          final moreButton = find.byWidgetPredicate(
+            (w) => w is WorkspaceMoreActionList && w.workspace.name == name,
+          );
+          expect(moreButton, findsOneWidget);
+          await tester.tapButton(moreButton);
+          expect(find.text(LocaleKeys.button_rename.tr()), findsOneWidget);
 
           // click it again
           await tester.tapButton(moreButton);
 
           // nothing should happen
-          expect(
-            find.text(LocaleKeys.button_rename.tr()),
-            findsOneWidget,
-          );
+          expect(find.text(LocaleKeys.button_rename.tr()), findsOneWidget);
+        },
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+
+      // clicking on the more button of another workspace should close the menu
+      // for this one
+      await tester.openCollaborativeWorkspaceMenu();
+      final moreButton = find.byWidgetPredicate(
+        (w) => w is WorkspaceMoreActionList && w.workspace.name == name,
+      );
+      await tester.hoverOnWidget(
+        workspaceItem,
+        onHover: () async {
+          expect(moreButton, findsOneWidget);
+          await tester.tapButton(moreButton);
+          expect(find.text(LocaleKeys.button_rename.tr()), findsOneWidget);
+        },
+      );
+
+      final otherWorspaceItem = find.byWidgetPredicate(
+        (w) => w is WorkspaceMenuItem && w.workspace.name != name,
+      );
+      final otherMoreButton = find.byWidgetPredicate(
+        (w) => w is WorkspaceMoreActionList && w.workspace.name != name,
+      );
+      await tester.hoverOnWidget(
+        otherWorspaceItem,
+        onHover: () async {
+          expect(otherMoreButton, findsOneWidget);
+          await tester.tapButton(otherMoreButton);
+          expect(find.text(LocaleKeys.button_rename.tr()), findsOneWidget);
+
+          expect(moreButton, findsNothing);
         },
       );
     });

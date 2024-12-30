@@ -28,9 +28,9 @@ final Set<String> supportSlashMenuNodeTypes = {
   ToggleListBlockKeys.type,
 
   // Simple table
-  // SimpleTableBlockKeys.type,
-  // SimpleTableRowBlockKeys.type,
-  // SimpleTableCellBlockKeys.type,
+  SimpleTableBlockKeys.type,
+  SimpleTableRowBlockKeys.type,
+  SimpleTableCellBlockKeys.type,
 };
 
 /// Build the block component builders.
@@ -47,7 +47,7 @@ Map<String, BlockComponentBuilder> buildBlockComponentBuilders({
   required BuildContext context,
   required EditorState editorState,
   required EditorStyleCustomizer styleCustomizer,
-  List<SelectionMenuItem>? slashMenuItems,
+  SlashMenuItemsBuilder? slashMenuItemsBuilder,
   bool editable = true,
   ShowPlaceholder? showParagraphPlaceholder,
   String Function(Node)? placeholderText,
@@ -70,7 +70,7 @@ Map<String, BlockComponentBuilder> buildBlockComponentBuilders({
       builders: builders,
       editorState: editorState,
       styleCustomizer: styleCustomizer,
-      slashMenuItems: slashMenuItems,
+      slashMenuItemsBuilder: slashMenuItemsBuilder,
     );
   }
 
@@ -154,7 +154,7 @@ void _customBlockOptionActions(
   required Map<String, BlockComponentBuilder> builders,
   required EditorState editorState,
   required EditorStyleCustomizer styleCustomizer,
-  List<SelectionMenuItem>? slashMenuItems,
+  SlashMenuItemsBuilder? slashMenuItemsBuilder,
 }) {
   for (final entry in builders.entries) {
     if (entry.key == PageBlockKeys.type) {
@@ -166,6 +166,7 @@ void _customBlockOptionActions(
     if (UniversalPlatform.isDesktop) {
       builder.showActions = (node) {
         final parentTableNode = node.parentTableNode;
+        // disable the option action button in table cell to avoid the misalignment issue
         if (node.type != SimpleTableBlockKeys.type && parentTableNode != null) {
           return false;
         }
@@ -200,9 +201,9 @@ void _customBlockOptionActions(
             editorState: editorState,
             blockComponentBuilder: builders,
             actions: actions,
-            showSlashMenu: slashMenuItems != null
-                ? () => customSlashCommand(
-                      slashMenuItems,
+            showSlashMenu: slashMenuItemsBuilder != null
+                ? () => customAppFlowySlashCommand(
+                      itemsBuilder: slashMenuItemsBuilder,
                       shouldInsertSlash: false,
                       deleteKeywordsByDefault: true,
                       style: styleCustomizer.selectionMenuStyleBuilder(),
@@ -331,6 +332,7 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
     SubPageBlockKeys.type: _buildSubPageBlockComponentBuilder(
       context,
       configuration,
+      styleCustomizer: styleCustomizer,
     ),
     errorBlockComponentBuilderKey: ErrorBlockComponentBuilder(
       configuration: configuration,
@@ -402,6 +404,11 @@ ParagraphBlockComponentBuilder _buildParagraphBlockComponentBuilder(
         node: node,
         configuration: configuration,
       ),
+      textAlign: (node) => _buildTextAlignInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
     ),
     showPlaceholder: showParagraphPlaceholder,
   );
@@ -414,14 +421,16 @@ TodoListBlockComponentBuilder _buildTodoListBlockComponentBuilder(
   return TodoListBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_todoList.tr(),
-      textStyle: (node) {
-        if (node.isInHeaderColumn || node.isInHeaderRow) {
-          return configuration.textStyle(node).copyWith(
-                fontWeight: FontWeight.bold,
-              );
-        }
-        return configuration.textStyle(node);
-      },
+      textStyle: (node) => _buildTextStyleInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
+      textAlign: (node) => _buildTextAlignInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
     ),
     iconBuilder: (_, node, onCheck) => TodoListIcon(
       node: node,
@@ -442,14 +451,16 @@ BulletedListBlockComponentBuilder _buildBulletedListBlockComponentBuilder(
   return BulletedListBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_bulletList.tr(),
-      textStyle: (node) {
-        if (node.isInHeaderColumn || node.isInHeaderRow) {
-          return configuration.textStyle(node).copyWith(
-                fontWeight: FontWeight.bold,
-              );
-        }
-        return configuration.textStyle(node);
-      },
+      textStyle: (node) => _buildTextStyleInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
+      textAlign: (node) => _buildTextAlignInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
     ),
     iconBuilder: (_, node) => BulletedListIcon(node: node),
   );
@@ -462,14 +473,16 @@ NumberedListBlockComponentBuilder _buildNumberedListBlockComponentBuilder(
   return NumberedListBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_numberList.tr(),
-      textStyle: (node) {
-        if (node.isInHeaderColumn || node.isInHeaderRow) {
-          return configuration.textStyle(node).copyWith(
-                fontWeight: FontWeight.bold,
-              );
-        }
-        return configuration.textStyle(node);
-      },
+      textStyle: (node) => _buildTextStyleInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
+      textAlign: (node) => _buildTextAlignInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
     ),
     iconBuilder: (_, node, textDirection) {
       TextStyle? textStyle;
@@ -494,14 +507,16 @@ QuoteBlockComponentBuilder _buildQuoteBlockComponentBuilder(
   return QuoteBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_quote.tr(),
-      textStyle: (node) {
-        if (node.isInHeaderColumn || node.isInHeaderRow) {
-          return configuration.textStyle(node).copyWith(
-                fontWeight: FontWeight.bold,
-              );
-        }
-        return configuration.textStyle(node);
-      },
+      textStyle: (node) => _buildTextStyleInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
+      textAlign: (node) => _buildTextAlignInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
     ),
   );
 }
@@ -514,6 +529,11 @@ HeadingBlockComponentBuilder _buildHeadingBlockComponentBuilder(
 ) {
   return HeadingBlockComponentBuilder(
     configuration: configuration.copyWith(
+      textStyle: (node) => _buildTextStyleInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
       padding: (node) {
         if (customHeadingPadding != null) {
           return customHeadingPadding;
@@ -546,8 +566,15 @@ HeadingBlockComponentBuilder _buildHeadingBlockComponentBuilder(
           args: [level.toString()],
         );
       },
+      textAlign: (node) => _buildTextAlignInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
     ),
-    textStyleBuilder: (level) => styleCustomizer.headingStyleBuilder(level),
+    textStyleBuilder: (level) {
+      return styleCustomizer.headingStyleBuilder(level);
+    },
   );
 }
 
@@ -655,7 +682,22 @@ CalloutBlockComponentBuilder _buildCalloutBlockComponentBuilder(
   final calloutBGColor = AFThemeExtension.of(context).calloutBGColor;
   return CalloutBlockComponentBuilder(
     configuration: configuration.copyWith(
-      padding: (node) => const EdgeInsets.symmetric(vertical: 10),
+      padding: (node) {
+        if (UniversalPlatform.isMobile) {
+          return configuration.padding(node);
+        }
+        return const EdgeInsets.symmetric(vertical: 10);
+      },
+      textAlign: (node) => _buildTextAlignInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
+      textStyle: (node) => _buildTextStyleInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
     ),
     inlinePadding: const EdgeInsets.symmetric(vertical: 8.0),
     defaultColor: calloutBGColor,
@@ -695,6 +737,7 @@ CodeBlockComponentBuilder _buildCodeBlockComponentBuilder(
 ) {
   return CodeBlockComponentBuilder(
     styleBuilder: styleCustomizer.codeBlockStyleBuilder,
+    configuration: configuration,
     padding: const EdgeInsets.only(left: 20, right: 30, bottom: 34),
     languagePickerBuilder: codeBlockLanguagePickerBuilder,
     copyButtonBuilder: codeBlockCopyBuilder,
@@ -733,20 +776,31 @@ ToggleListBlockComponentBuilder _buildToggleListBlockComponentBuilder(
           final factor = pageStyle.fontLayout.factor;
           final headingPaddings =
               pageStyle.lineHeightLayout.headingPaddings.map((e) => e * factor);
-          int level = node.attributes[HeadingBlockKeys.level] ?? 6;
-          level = level.clamp(1, 6);
-          return EdgeInsets.only(top: headingPaddings.elementAt(level - 1));
+          final level =
+              (node.attributes[HeadingBlockKeys.level] ?? 6).clamp(1, 6);
+          final top = headingPaddings.elementAt(level - 1);
+          return configuration.padding(node).copyWith(top: top);
         }
 
         return const EdgeInsets.only(top: 12.0, bottom: 4.0);
       },
       textStyle: (node) {
+        final textStyle = _buildTextStyleInTableCell(
+          context,
+          node: node,
+          configuration: configuration,
+        );
         final level = node.attributes[ToggleListBlockKeys.level] as int?;
         if (level == null) {
-          return configuration.textStyle(node);
+          return textStyle;
         }
-        return styleCustomizer.headingStyleBuilder(level);
+        return textStyle.merge(styleCustomizer.headingStyleBuilder(level));
       },
+      textAlign: (node) => _buildTextAlignInTableCell(
+        context,
+        node: node,
+        configuration: configuration,
+      ),
       placeholderText: (node) {
         int? level = node.attributes[ToggleListBlockKeys.level];
         if (level == null) {
@@ -806,14 +860,21 @@ FileBlockComponentBuilder _buildFileBlockComponentBuilder(
   BuildContext context,
   BlockComponentConfiguration configuration,
 ) {
-  return FileBlockComponentBuilder(configuration: configuration);
+  return FileBlockComponentBuilder(
+    configuration: configuration,
+  );
 }
 
 SubPageBlockComponentBuilder _buildSubPageBlockComponentBuilder(
   BuildContext context,
-  BlockComponentConfiguration configuration,
-) {
-  return SubPageBlockComponentBuilder(configuration: configuration);
+  BlockComponentConfiguration configuration, {
+  required EditorStyleCustomizer styleCustomizer,
+}) {
+  return SubPageBlockComponentBuilder(
+    configuration: configuration.copyWith(
+      textStyle: (node) => styleCustomizer.subPageBlockTextStyleBuilder(),
+    ),
+  );
 }
 
 TextStyle _buildTextStyleInTableCell(
@@ -845,4 +906,17 @@ TextStyle _buildTextStyleInTableCell(
   }
 
   return textStyle;
+}
+
+TextAlign _buildTextAlignInTableCell(
+  BuildContext context, {
+  required Node node,
+  required BlockComponentConfiguration configuration,
+}) {
+  final isInTable = node.isInTable;
+  if (!isInTable) {
+    return configuration.textAlign(node);
+  }
+
+  return node.tableAlign.textAlign;
 }

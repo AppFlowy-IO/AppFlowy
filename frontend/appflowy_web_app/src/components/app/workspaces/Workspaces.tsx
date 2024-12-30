@@ -1,7 +1,7 @@
 import { invalidToken } from '@/application/session/token';
 import Import from '@/components/_shared/more-actions/importer/Import';
 import { notify } from '@/components/_shared/notify';
-import { Popover, RichTooltip } from '@/components/_shared/popover';
+import { Popover } from '@/components/_shared/popover';
 import { useAppHandlers, useCurrentWorkspaceId, useUserWorkspaceInfo } from '@/components/app/app.hooks';
 import CurrentWorkspace from '@/components/app/workspaces/CurrentWorkspace';
 import WorkspaceList from '@/components/app/workspaces/WorkspaceList';
@@ -10,25 +10,27 @@ import { openUrl } from '@/utils/url';
 import { Button, Divider, IconButton, Tooltip } from '@mui/material';
 import React, { useCallback, useMemo } from 'react';
 import { ReactComponent as ArrowRightSvg } from '@/assets/arrow_right.svg';
-import { ReactComponent as AddIcon } from '@/assets/add.svg';
-import { ReactComponent as MoreSvg } from '@/assets/more.svg';
+import { ReactComponent as ImportIcon } from '@/assets/import.svg';
 import { ReactComponent as TipIcon } from '@/assets/warning.svg';
 import { useTranslation } from 'react-i18next';
-import { ReactComponent as LoginIcon } from '@/assets/login.svg';
+import { ReactComponent as SignOutIcon } from '@/assets/sign_out.svg';
+import { ReactComponent as UpgradeIcon } from '@/assets/icon_upgrade.svg';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import InviteMember from '@/components/app/workspaces/InviteMember';
+import UpgradePlan from '@/components/billing/UpgradePlan';
 
-export function Workspaces () {
+export function Workspaces() {
   const { t } = useTranslation();
   const userWorkspaceInfo = useUserWorkspaceInfo();
   const currentWorkspaceId = useCurrentWorkspaceId();
   const currentUser = useCurrentUser();
+  const [openUpgradePlan, setOpenUpgradePlan] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const [hoveredHeader, setHoveredHeader] = React.useState<boolean>(false);
   const ref = React.useRef<HTMLButtonElement | null>(null);
   const navigate = useNavigate();
-  const [moreOpen, setMoreOpen] = React.useState(false);
   const [changeLoading, setChangeLoading] = React.useState<string | null>(null);
-  const handleLogin = useCallback(() => {
+  const handleSignOut = useCallback(() => {
     invalidToken();
     navigate('/login?redirectTo=' + encodeURIComponent(window.location.href));
   }, [navigate]);
@@ -40,6 +42,7 @@ export function Workspaces () {
   const selectedWorkspace = useMemo(() => {
     return userWorkspaceInfo?.workspaces.find((workspace) => workspace.id === currentWorkspaceId);
   }, [currentWorkspaceId, userWorkspaceInfo]);
+  const isOwner = selectedWorkspace?.owner?.uid.toString() === currentUser?.uid.toString();
 
   const handleChange = useCallback(async (selectedId: string) => {
     setChangeLoading(selectedId);
@@ -69,66 +72,49 @@ export function Workspaces () {
       onClick={() => setOpen(true)}
       className={'flex px-1 w-full cursor-pointer justify-start py-1 items-center gap-1 mx-2 text-text-title'}
     >
-      <div className={'flex items-center gap-1.5 text-text-title overflow-hidden'}>
+      <div className={'flex items-center gap-1.5 text-[15px] text-text-title overflow-hidden'}>
         <CurrentWorkspace
           userWorkspaceInfo={userWorkspaceInfo}
           selectedWorkspace={selectedWorkspace}
           onChangeWorkspace={handleChange}
+          avatarSize={24}
         />
 
-        {hoveredHeader && <ArrowRightSvg className={'w-4 h-4 transform rotate-90'} />}
+        {hoveredHeader && <ArrowRightSvg className={'w-4 h-4 transform rotate-90'}/>}
       </div>
     </Button>
     <Popover
       open={open}
+      keepMounted={true}
       anchorEl={ref.current}
       onClose={() => setOpen(false)}
     >
       <div
-        className={'flex text-[14px] min-w-[260px] max-w-[300px] flex-col gap-1 p-2 w-full max-h-[560px] overflow-y-auto overflow-x-hidden appflowy-scroller'}
+        className={'flex text-[14px] w-[288px] flex-col gap-2 p-2 max-h-[420px] min-h-[303px] overflow-hidden'}
       >
-        <div className={'flex px-1 text-text-caption items-center justify-between'}>
+        <div className={'flex p-2 text-text-caption items-center justify-between'}>
           <span className={'font-medium flex-1 text-sm'}>{currentUser?.email}</span>
-          <RichTooltip
-            placement={'bottom-start'}
-            content={
-              <div className={'p-2 w-[160px]'}>
-                <Button
-                  color={'inherit'}
-                  size={'small'}
-                  className={'w-full justify-start'}
-                  onClick={handleLogin}
-                  startIcon={<LoginIcon />}
-                >
-                  {t('button.logout')}
-                </Button>
-              </div>
-            }
-            open={moreOpen}
-            onClose={() => setMoreOpen(false)}
-          >
-            <IconButton onClick={() => setMoreOpen(prev => !prev)}>
-              <MoreSvg className={'w-4 h-4'} />
-            </IconButton>
-          </RichTooltip>
-
         </div>
-        <Divider className={'w-full mt-1'} />
-        {open && <WorkspaceList
-          defaultWorkspaces={userWorkspaceInfo?.workspaces}
-          currentWorkspaceId={currentWorkspaceId}
-          onChange={handleChange}
-          changeLoading={changeLoading || undefined}
-        />}
+        <div className={'flex flex-1 flex-col gap-1 overflow-y-auto appflowy-scroller'}>
+          {open && <WorkspaceList
+            defaultWorkspaces={userWorkspaceInfo?.workspaces}
+            currentWorkspaceId={currentWorkspaceId}
+            onChange={handleChange}
+            changeLoading={changeLoading || undefined}
+          />}
+        </div>
 
-      </div>
-      <Divider className={'w-full'} />
-      <div className={'p-1.5 w-full'}>
+        <Divider className={'w-full mt-1'}/>
+        {selectedWorkspace && <InviteMember onClick={() => {
+          setOpen(false);
+        }} workspace={selectedWorkspace}/>}
+
         <Button
           size={'small'}
-          startIcon={<AddIcon />}
+          component={'div'}
+          startIcon={<ImportIcon/>}
           color={'inherit'}
-          className={'justify-start px-4 w-full overflow-hidden'}
+          className={'justify-start px-2'}
           onClick={handleOpenImport}
         >
           <div className={'flex-1 text-left'}>{t('web.importNotion')}</div>
@@ -143,15 +129,46 @@ export function Workspaces () {
                 void openUrl('https://docs.appflowy.io/docs/guides/import-from-notion', '_blank');
               }}
               size={'small'}
+              className={'mx-2'}
             >
-              <TipIcon className={'w-4 h-4'} />
+              <TipIcon className={'w-4 h-4 text-text-placeholder'}/>
             </IconButton>
           </Tooltip>
         </Button>
+        <Button
+          size={'small'}
+          className={'justify-start px-2'}
+          color={'inherit'}
+          onClick={handleSignOut}
+          startIcon={<SignOutIcon/>}
+        >{t('button.logout')}</Button>
+
+
+        {isOwner && <>
+          <Divider className={'w-full'}/>
+          <Button
+            size={'small'}
+            startIcon={<UpgradeIcon/>}
+            color={'inherit'}
+            onClick={() => {
+              setOpenUpgradePlan(true);
+              setOpen(false);
+            }}
+            className={'justify-start px-2'}
+          >
+            {t('subscribe.changePlan')}
+          </Button>
+        </>}
       </div>
 
     </Popover>
-    <Import />
+    {isOwner &&
+      <UpgradePlan onOpen={
+        () => {
+          setOpenUpgradePlan(true);
+        }
+      } open={openUpgradePlan} onClose={() => setOpenUpgradePlan(false)}/>}
+    <Import/>
   </>;
 }
 

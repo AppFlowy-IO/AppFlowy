@@ -3,10 +3,16 @@ import 'katex/dist/katex.min.css';
 import { BlockMath, InlineMath } from 'react-katex';
 import './index.css';
 
-function KatexMath ({ latex, isInline = false }: { latex: string; isInline?: boolean }) {
+function KatexMath({ latex, isInline = false }: { latex: string; isInline?: boolean }) {
 
   return isInline ? (
-    <InlineMath math={latex} />
+    <InlineMath renderError={(error) => {
+      return (
+        <span className="text-red-500">{error.name}: {error.message}</span>
+      );
+    }}>
+      {latex}
+    </InlineMath>
   ) : (
     <BlockMath
       renderError={(error) => {

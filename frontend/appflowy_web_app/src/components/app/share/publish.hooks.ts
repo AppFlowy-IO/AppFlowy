@@ -2,8 +2,8 @@ import { useAppView } from '@/components/app/app.hooks';
 import { useService } from '@/components/main/app.hooks';
 import React, { useCallback, useEffect, useMemo } from 'react';
 
-export function useLoadPublishInfo () {
-  const view = useAppView();
+export function useLoadPublishInfo (viewId: string) {
+  const view = useAppView(viewId);
   const [publishInfo, setPublishInfo] = React.useState<{ namespace: string, publishName: string }>();
 
   const service = useService();
