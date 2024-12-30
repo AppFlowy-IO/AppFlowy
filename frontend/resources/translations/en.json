@@ -218,7 +218,9 @@
     "addToPageButton": "Add to page",
     "addToPageTitle": "Add message to...",
     "addToNewPage": "Add to a new page",
-    "addToNewPageName": "Messages extracted from \"{}\""
+    "addToNewPageName": "Messages extracted from \"{}\"",
+    "addToNewPageSuccessToast": "Message added to",
+    "openPagePreviewFailedToast": "Failed to open page"
   },
   "trash": {
     "text": "Trash",
