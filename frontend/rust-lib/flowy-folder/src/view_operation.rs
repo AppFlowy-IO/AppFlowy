@@ -5,6 +5,7 @@ use collab_entity::CollabType;
 use collab_folder::hierarchy_builder::NestedViewBuilder;
 pub use collab_folder::View;
 use collab_folder::ViewLayout;
+use dashmap::DashMap;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -18,15 +19,10 @@ use crate::manager::FolderUser;
 use crate::share::ImportType;
 
 #[derive(Debug, Clone)]
-pub enum EncodedCollabWrapper {
-  Document(DocumentEncodedCollab),
+pub enum GatherEncodedCollab {
+  Document(EncodedCollab),
   Database(DatabaseEncodedCollab),
   Unknown,
-}
-
-#[derive(Debug, Clone)]
-pub struct DocumentEncodedCollab {
-  pub document_encoded_collab: EncodedCollab,
 }
 
 #[derive(Debug, Clone)]
@@ -43,7 +39,7 @@ pub type ImportedData = (String, CollabType, EncodedCollab);
 /// view layout. Each [ViewLayout] will have a handler. So when creating a new
 /// view, the [ViewLayout] will be used to get the handler.
 #[async_trait]
-pub trait FolderOperationHandler {
+pub trait FolderOperationHandler: Send + Sync {
   fn name(&self) -> &str;
   /// Create the view for the workspace of new user.
   /// Only called once when the user is created.
@@ -68,11 +64,11 @@ pub trait FolderOperationHandler {
   async fn duplicate_view(&self, view_id: &str) -> Result<Bytes, FlowyError>;
 
   /// get the encoded collab data from the disk.
-  async fn get_encoded_collab_v1_from_disk(
+  async fn gather_publish_encode_collab(
     &self,
-    _user: Arc<dyn FolderUser>,
+    _user: &Arc<dyn FolderUser>,
     _view_id: &str,
-  ) -> Result<EncodedCollabWrapper, FlowyError> {
+  ) -> Result<GatherEncodedCollab, FlowyError> {
     Err(FlowyError::not_support())
   }
 
@@ -103,9 +99,10 @@ pub trait FolderOperationHandler {
   /// Create a view with the pre-defined data.
   /// For example, the initial data of the grid/calendar/kanban board when
   /// you create a new view.
-  async fn create_view_with_default_data(
+  async fn create_default_view(
     &self,
     user_id: i64,
+    parent_view_id: &str,
     view_id: &str,
     name: &str,
     layout: ViewLayout,
@@ -138,7 +135,7 @@ pub trait FolderOperationHandler {
 }
 
 pub type FolderOperationHandlers =
-  Arc<HashMap<ViewLayout, Arc<dyn FolderOperationHandler + Send + Sync>>>;
+  Arc<DashMap<ViewLayout, Arc<dyn FolderOperationHandler + Send + Sync>>>;
 
 impl From<ViewLayoutPB> for ViewLayout {
   fn from(pb: ViewLayoutPB) -> Self {
@@ -158,7 +155,6 @@ pub(crate) fn create_view(uid: i64, params: CreateViewParams, layout: ViewLayout
     id: params.view_id,
     parent_view_id: params.parent_view_id,
     name: params.name,
-    desc: params.desc,
     created_at: time,
     is_favorite: false,
     layout,

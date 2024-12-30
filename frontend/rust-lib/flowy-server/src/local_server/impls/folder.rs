@@ -1,13 +1,16 @@
 use std::sync::Arc;
 
-use crate::local_server::LocalServerDB;
+use client_api::entity::workspace_dto::PublishInfoView;
+use client_api::entity::PublishInfo;
 use collab_entity::CollabType;
+
+use crate::local_server::LocalServerDB;
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::{
-  gen_workspace_id, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, Workspace,
-  WorkspaceRecord,
+  gen_workspace_id, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot,
+  FullSyncCollabParams, Workspace, WorkspaceRecord,
 };
-use flowy_folder_pub::entities::{PublishInfoResponse, PublishPayload};
+use flowy_folder_pub::entities::PublishPayload;
 use lib_infra::async_trait::async_trait;
 
 pub(crate) struct LocalServerFolderCloudServiceImpl {
@@ -88,14 +91,14 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     Err(FlowyError::local_version_not_support())
   }
 
-  async fn get_publish_info(&self, _view_id: &str) -> Result<PublishInfoResponse, FlowyError> {
+  async fn get_publish_info(&self, _view_id: &str) -> Result<PublishInfo, FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
 
   async fn set_publish_namespace(
     &self,
     _workspace_id: &str,
-    _new_namespace: &str,
+    _new_namespace: String,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
@@ -104,7 +107,50 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     Err(FlowyError::local_version_not_support())
   }
 
+  async fn set_publish_name(
+    &self,
+    _workspace_id: &str,
+    _view_id: String,
+    _new_name: String,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn list_published_views(
+    &self,
+    _workspace_id: &str,
+  ) -> Result<Vec<PublishInfoView>, FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn get_default_published_view_info(
+    &self,
+    _workspace_id: &str,
+  ) -> Result<PublishInfo, FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn set_default_published_view(
+    &self,
+    _workspace_id: &str,
+    _view_id: uuid::Uuid,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn remove_default_published_view(&self, _workspace_id: &str) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
   async fn import_zip(&self, _file_path: &str) -> Result<(), FlowyError> {
     Err(FlowyError::local_version_not_support())
+  }
+
+  async fn full_sync_collab_object(
+    &self,
+    _workspace_id: &str,
+    _params: FullSyncCollabParams,
+  ) -> Result<(), FlowyError> {
+    Ok(())
   }
 }

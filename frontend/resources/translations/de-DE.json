@@ -36,6 +36,7 @@
     "loginButtonText": "Anmelden",
     "loginStartWithAnonymous": "Anonyme Sitzung starten",
     "continueAnonymousUser": "in anonymer Sitzung fortfahren",
+    "anonymous": "Anonym",
     "buttonText": "Anmelden",
     "signingInText": "Anmelden...",
     "forgotPassword": "Passwort vergessen?",
@@ -50,6 +51,8 @@
     "signInWithGoogle": "Mit Google anmelden",
     "signInWithGithub": "Mit Github anmelden",
     "signInWithDiscord": "Mit Discord anmelden",
+    "signInWithApple": "Weiter mit Apple",
+    "continueAnotherWay": "Anders fortfahren",
     "signUpWithGoogle": "Mit Google registrieren",
     "signUpWithGithub": "Mit Github registrieren",
     "signUpWithDiscord": "Mit Discord registrieren",
@@ -69,9 +72,13 @@
   },
   "workspace": {
     "chooseWorkspace": "Arbeitsbereich wählen",
+    "defaultName": "Mein Arbeitsbereich",
     "create": "Arbeitsbereich erstellen",
+    "importFromNotion": "Von Notion importieren",
+    "learnMore": "Mehr erfahren",
     "reset": "Arbeitsbereich zurücksetzen",
     "renameWorkspace": "Arbeitsbereich umbenennen",
+    "workspaceNameCannotBeEmpty": "Arbeitsbereichname darf nicht leer sein",
     "resetWorkspacePrompt": "Das Zurücksetzen des Arbeitsbereiches löscht alle enthaltenen Seiten und Daten. Bist du sicher, dass du den Arbeitsbereich zurücksetzen möchtest? ",
     "hint": "Arbeitsbereich",
     "notFoundError": "Arbeitsbereich nicht gefunden",
@@ -115,7 +122,17 @@
     "visitSite": "Seite aufrufen",
     "exportAsTab": "Exportieren als",
     "publishTab": "Veröffentlichen",
-    "shareTab": "Teilen"
+    "shareTab": "Teilen",
+    "publishOnAppFlowy": "Auf AppFlowy veröffentlichen",
+    "shareTabTitle": "Zum Mitmachen einladen",
+    "shareTabDescription": "Für eine einfache Zusammenarbeit mit allen",
+    "copyLinkSuccess": "Link in die Zwischenablage kopiert",
+    "copyShareLink": "Link zum Teilen kopieren",
+    "copyLinkFailed": "Link konnte nicht in die Zwischenablage kopiert werden",
+    "copyLinkToBlockSuccess": "Blocklink in die Zwischenablage kopiert",
+    "copyLinkToBlockFailed": "Blocklink konnte nicht in die Zwischenablage kopiert werden",
+    "manageAllSites": "Alle Seiten verwalten",
+    "updatePathName": "Pfadnamen aktualisieren"
   },
   "moreAction": {
     "small": "klein",
@@ -134,6 +151,7 @@
     "textAndMarkdown": "Text & Markdown",
     "documentFromV010": "Dokument ab v0.1.0",
     "databaseFromV010": "Datenbank ab v0.1.0",
+    "notionZip": "von Notion exportierte Zip-Datei",
     "csv": "CSV",
     "database": "Datenbank"
   },
@@ -164,27 +182,39 @@
     "relatedQuestion": "Verwandt",
     "serverUnavailable": "Dienst vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
     "aiServerUnavailable": "Beim Generieren einer Antwort ist ein Fehler aufgetreten.",
+    "retry": "Wiederholen",
     "clickToRetry": "Erneut versuchen",
     "regenerateAnswer": "Regenerieren",
     "question1": "Wie verwendet man Kanban zur Aufgabenverwaltung?",
     "question2": "Erkläre mir die GTD-Methode",
     "question3": "Warum sollte ich Rust verwenden?",
     "question4": "Gebe mir ein Rezept mit dem, was in meiner Küche ist",
+    "question5": "Eine Illustration für meine Seite erstellen",
+    "question6": "Erstelle eine To-Do-Liste für meine kommende Woche",
     "aiMistakePrompt": "KI kann Fehler machen. Überprüfe wichtige Informationen.",
     "chatWithFilePrompt": "Möchtest du mit der Datei chatten?",
     "indexFileSuccess": "Datei erfolgreich indiziert",
     "inputActionNoPages": "Keine Seitenergebnisse",
-    "referenceSource": "{} Quelle gefunden",
-    "referenceSources": "{} Quellen gefunden",
+    "referenceSource": {
+      "zero": "0 Quellen gefunden",
+      "one": "{count} Quelle gefunden",
+      "other": "{count} Quellen gefunden"
+    },
     "clickToMention": "Klicke hier, um eine Seite zu erwähnen",
     "uploadFile": "Lade PDF-, md- oder txt-Dateien in den Chat hoch",
-    "questionTitle": "Ideen",
     "questionDetail": "Hallo {}! Wie kann ich dir heute helfen?",
-    "indexingFile": "Indizierung {}"
+    "indexingFile": "Indizierung {}",
+    "generatingResponse": "Antwort generieren",
+    "selectSources": "Quellen auswählen",
+    "regenerate": "Versuchen Sie es erneut",
+    "addToPageButton": "Zur Seite hinzufügen",
+    "addToPageTitle": "Nachricht hinzufügen an...",
+    "addToNewPage": "Zu einer neuen Seite hinzufügen"
   },
   "trash": {
     "text": "Papierkorb",
     "restoreAll": "Alles wiederherstellen",
+    "restore": "Wiederherstellen",
     "deleteAll": "Alles löschen",
     "pageHeader": {
       "fileName": "Dateiname",
@@ -199,6 +229,10 @@
       "title": "Möchtest du wirklich alle Seiten aus dem Papierkorb wiederherstellen?",
       "caption": "Diese Aktion kann nicht rückgängig gemacht werden."
     },
+    "restorePage": {
+      "title": "Wiederherstellen: {}",
+      "caption": "Möchten Sie diese Seite wirklich wiederherstellen?"
+    },
     "mobile": {
       "actions": "Papierkorb-Einstellungen",
       "empty": "Der Papierkorb ist leer.",
@@ -211,7 +245,8 @@
   "deletePagePrompt": {
     "text": "Diese Seite befindet sich im Papierkorb",
     "restore": "Seite wiederherstellen",
-    "deletePermanent": "Dauerhaft löschen"
+    "deletePermanent": "Dauerhaft löschen",
+    "deletePermanentDescription": "Möchten Sie diese Seite wirklich dauerhaft löschen? Dies kann nicht rückgängig gemacht werden."
   },
   "dialogCreatePageNameHint": "Seitenname",
   "questionBubble": {
@@ -284,6 +319,7 @@
     "today": "Heute",
     "thisWeek": "Diese Woche",
     "others": "Andere",
+    "earlier": "Früher",
     "justNow": "soeben",
     "minutesAgo": "vor {count} Minuten",
     "lastViewed": "Zuletzt angesehen",
@@ -300,12 +336,17 @@
     "upgradeToPro": "Upgrade auf Pro",
     "upgradeToAIMax": "Schalte unbegrenzte KI frei",
     "storageLimitDialogTitle": "Dein freier Speicherplatz ist aufgebraucht. Upgrade deinen Plan, um unbegrenzten Speicherplatz freizuschalten.",
+    "storageLimitDialogTitleIOS": "Ihr freier Speicherplatz ist aufgebraucht.",
     "aiResponseLimitTitle": "Du hast keine kostenlosen KI-Antworten mehr. Upgrade auf den Pro-Plan oder kaufe ein KI-Add-on, um unbegrenzte Antworten freizuschalten",
+    "aiResponseLimitTitleIOS": "Ihre kostenlosen KI-Antworten sind aufgebraucht.",
     "aiResponseLimitDialogTitle": "Limit für KI-Antworten erreicht",
     "aiResponseLimit": "Du hast keine kostenlosen KI-Antworten mehr zur Verfügung.\n\nGehe zu Einstellungen -> Plan -> Klicke auf KI Max oder Pro Plan, um mehr KI-Antworten zu erhalten",
     "askOwnerToUpgradeToPro": "Dein Arbeitsbereich hat nicht mehr genügend freien Speicherplatz. Bitte den Eigentümer deines Arbeitsbereichs, auf den Pro-Plan hochzustufen.",
+    "askOwnerToUpgradeToProIOS": "In Ihrem Arbeitsbereich ist nicht mehr genügend freier Speicherplatz verfügbar.",
     "askOwnerToUpgradeToAIMax": "In deinem Arbeitsbereich sind die kostenlosen KI-Antworten aufgebraucht. Bitte den Eigentümer deines Arbeitsbereichs, den Plan zu wechseln oder KI-Add-ons zu erwerben.",
+    "askOwnerToUpgradeToAIMaxIOS": "In Ihrem Arbeitsbereich gehen die kostenlosen KI-Antworten aus.",
     "purchaseStorageSpace": "Speicherplatz kaufen",
+    "singleFileProPlanLimitationDescription": "Sie haben die maximal zulässige Datei-Uploadgröße im kostenlosen Plan überschritten. Bitte aktualisieren Sie auf den Pro-Plan, um größere Dateien hochzuladen",
     "purchaseAIResponse": "Kaufen ",
     "askOwnerToUpgradeToLocalAI": "Bitte den Arbeitsbereichsbesitzer, KI auf dem Gerät zu aktivieren.",
     "upgradeToAILocal": "KI offline auf Ihrem Gerät",
@@ -346,6 +387,7 @@
     "upload": "Hochladen",
     "edit": "Bearbeiten",
     "delete": "Löschen",
+    "copy": "kopieren",
     "duplicate": "Duplikat",
     "putback": "wieder zurückgeben",
     "update": "Update",
@@ -355,6 +397,7 @@
     "addToFavorites": "Zu den Favoriten hinzufügen",
     "favoriteSuccessfully": "Erfolgreich favorisiert",
     "unfavoriteSuccessfully": "Erfolgreich entfavorisiert",
+    "duplicateSuccessfully": "Erfolgreich dupliziert",
     "rename": "Umbenennen",
     "helpCenter": "Hilfe Center",
     "add": "Hinzufügen",
@@ -377,7 +420,12 @@
     "close": "Schließen",
     "next": "Weiter",
     "previous": "Zurück",
-    "submit": "Einreichen"
+    "submit": "Einreichen",
+    "download": "Herunterladen",
+    "backToHome": "Zurück zur Startseite",
+    "viewing": "anschauen",
+    "editing": "Bearbeiten",
+    "gotIt": "Verstanden"
   },
   "label": {
     "welcome": "Willkommen!",
@@ -401,6 +449,74 @@
   },
   "settings": {
     "title": "Einstellungen",
+    "popupMenuItem": {
+      "settings": "Einstellungen",
+      "members": "Mitglieder",
+      "trash": "Müll",
+      "helpAndSupport": "Hilfe & Unterstützung"
+    },
+    "sites": {
+      "title": "Seiten",
+      "namespaceTitle": "Namensraum",
+      "namespaceDescription": "Verwalten Sie Ihren Namespace und Ihre Startseite",
+      "namespaceHeader": "Namensraum",
+      "homepageHeader": "Startseite",
+      "updateNamespace": "Namespace aktualisieren",
+      "removeHomepage": "Startseite entfernen",
+      "selectHomePage": "Seite auswählen",
+      "clearHomePage": "Löschen Sie die Startseite für diesen Namensraum",
+      "customUrl": "Benutzerdefinierte URL",
+      "namespace": {
+        "description": "Diese Änderung gilt für alle veröffentlichten Seiten in diesem Namespace.",
+        "tooltip": "Wir behalten uns das Recht vor, unangemessene Namespaces zu entfernen",
+        "updateExistingNamespace": "Vorhandenen Namensraum aktualisieren",
+        "upgradeToPro": "Aktualisieren Sie auf den Pro-Plan, um eine Startseite einzurichten",
+        "redirectToPayment": "Weiterleitung zur Zahlungsseite ...",
+        "onlyWorkspaceOwnerCanSetHomePage": "Nur der Arbeitsbereichsbesitzer kann eine Startseite festlegen",
+        "pleaseAskOwnerToSetHomePage": "Bitten Sie den Arbeitsbereichsbesitzer, auf den Pro-Plan zu aktualisieren"
+      },
+      "publishedPage": {
+        "title": "Alle veröffentlichten Seiten",
+        "description": "Verwalten Sie Ihre veröffentlichten Seiten",
+        "page": "Seite",
+        "pathName": "Pfadname",
+        "date": "Veröffentlichungsdatum",
+        "emptyHinText": "Sie haben keine veröffentlichten Seiten in diesem Arbeitsbereich",
+        "noPublishedPages": "Keine veröffentlichten Seiten",
+        "settings": "Veröffentlichungseinstellungen",
+        "clickToOpenPageInApp": "Seite in App öffnen",
+        "clickToOpenPageInBrowser": "Seite im Browser öffnen"
+      },
+      "error": {
+        "failedToGeneratePaymentLink": "Zahlungslink für Pro Plan konnte nicht generiert werden",
+        "failedToUpdateNamespace": "Namensraum konnte nicht aktualisiert werden",
+        "proPlanLimitation": "Sie müssen auf den Pro-Plan upgraden, um den Namespace zu aktualisieren",
+        "namespaceAlreadyInUse": "Der Namespace ist bereits vergeben, bitte versuchen Sie es mit einem anderen",
+        "invalidNamespace": "Ungültiger Namensraum, bitte versuchen Sie einen anderen",
+        "namespaceLengthAtLeast2Characters": "Der Namensraum muss mindestens 2 Zeichen lang sein",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "Nur der Arbeitsbereichsbesitzer kann den Namespace aktualisieren",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "Nur der Arbeitsbereichsbesitzer kann die Homepage entfernen",
+        "setHomepageFailed": "Startseite konnte nicht eingerichtet werden",
+        "namespaceTooLong": "Der Namensraum ist zu lang. Bitte versuchen Sie es mit einem anderen.",
+        "namespaceTooShort": "Der Namensraum ist zu kurz, bitte versuchen Sie es mit einem anderen",
+        "namespaceIsReserved": "Der Namensraum ist reserviert, bitte versuchen Sie es mit einem anderen",
+        "updatePathNameFailed": "Pfadname konnte nicht aktualisiert werden",
+        "removeHomePageFailed": "Startseite konnte nicht entfernt werden",
+        "publishNameContainsInvalidCharacters": "Der Pfadname enthält ungültige Zeichen. Bitte versuchen Sie es mit einem anderen.",
+        "publishNameTooShort": "Der Pfadname ist zu kurz, bitte versuchen Sie es mit einem anderen",
+        "publishNameTooLong": "Der Pfadname ist zu lang, bitte versuchen Sie es mit einem anderen",
+        "publishNameAlreadyInUse": "Der Pfadname wird bereits verwendet. Bitte versuchen Sie einen anderen.",
+        "namespaceContainsInvalidCharacters": "Der Namespace enthält ungültige Zeichen. Bitte versuchen Sie es mit einem anderen.",
+        "publishPermissionDenied": "Nur der Arbeitsbereichsbesitzer oder Seitenherausgeber kann die Veröffentlichungseinstellungen verwalten",
+        "publishNameCannotBeEmpty": "Der Pfadname darf nicht leer sein. Bitte versuchen Sie es mit einem anderen."
+      },
+      "success": {
+        "namespaceUpdated": "Namensraum erfolgreich aktualisiert",
+        "setHomepageSuccess": "Startseite erfolgreich eingerichtet",
+        "updatePathNameSuccess": "Pfadname erfolgreich aktualisiert",
+        "removeHomePageSuccess": "Startseite erfolgreich entfernt"
+      }
+    },
     "accountPage": {
       "menuLabel": "Mein Konto",
       "title": "Mein Konto",
@@ -451,6 +567,9 @@
         "title": "Dokumentauswahlfarbe zurücksetzen",
         "description": "Möchtest du die Auswahlfarbe wirklich zurücksetzen?"
       },
+      "resetWidth": {
+        "resetSuccess": "Dokumentbreite erfolgreich zurückgesetzt"
+      },
       "theme": {
         "title": "Design",
         "description": "Wähle ein voreingestelltes Design aus oder lade dein eigenes benutzerdefiniertes Design hoch.",
@@ -494,7 +613,9 @@
       },
       "leaveWorkspacePrompt": {
         "title": "Arbeitsbereich verlassen",
-        "content": "Möchtest du diesen Arbeitsbereich wirklich verlassen? Du verlierst den Zugriff auf alle darin enthaltenen Seiten und Daten."
+        "content": "Möchtest du diesen Arbeitsbereich wirklich verlassen? Du verlierst den Zugriff auf alle darin enthaltenen Seiten und Daten.",
+        "success": "Sie haben den Arbeitsbereich erfolgreich verlassen.",
+        "fail": "Das Verlassen des Arbeitsbereichs ist fehlgeschlagen."
       },
       "manageWorkspace": {
         "title": "Arbeitsbereich verwalten",
@@ -675,6 +796,7 @@
         "downloadLLMPrompt": "Herunterladen {}",
         "downloadAppFlowyOfflineAI": "Durch das Herunterladen des KI-Offlinepakets kann KI auf deinem Gerät ausgeführt werden. Möchtest du fortfahren?",
         "downloadLLMPromptDetail": "Das Herunterladen des lokalen Modells {} beansprucht bis zu {} Speicherplatz. Möchtest du fortfahren?",
+        "downloadBigFilePrompt": "Der Download kann etwa 10 Minuten dauern",
         "downloadAIModelButton": "KI-Modell herunterladen",
         "downloadingModel": "wird heruntergeladen",
         "localAILoaded": "Lokales KI-Modell erfolgreich hinzugefügt und einsatzbereit",
@@ -769,6 +891,7 @@
             "description": "KI offline auf deinem Gerät",
             "price": "{}",
             "priceInfo": "pro Benutzer und Monat",
+            "recommend": "Empfohlen wird M1 oder neuer",
             "billingInfo": "jährliche Abrechnung oder {} bei monatlicher Abrechnung"
           }
         },
@@ -857,9 +980,12 @@
         "itemFour": "Gäste",
         "itemFive": "Speicher",
         "itemSix": "Zusammenarbeit in Echtzeit",
+        "itemFileUpload": "Datei-Uploads",
+        "customNamespace": "Benutzerdefinierter Namensraum",
         "tooltipSix": "Lebenslang bedeutet, dass die Anzahl der Antworten nie zurückgesetzt wird",
         "intelligentSearch": "Intelligente Suche",
         "tooltipSeven": "Ermöglicht dir, einen Teil der URL für deinen Arbeitsbereich anzupassen",
+        "customNamespaceTooltip": "Benutzerdefinierte veröffentlichte Seiten-URL",
         "itemSeven": "Mobile App",
         "tooltipThree": "Gäste haben nur Leserechte für die speziell freigegebenen Inhalte",
         "tooltipFour": "Gäste werden als ein Sitzplatz abgerechnet",
@@ -873,6 +999,7 @@
         "itemFour": "0",
         "itemFive": "5 GB",
         "itemSix": "ja",
+        "itemFileUpload": "Bis zu 7 MB",
         "intelligentSearch": "Intelligente Suche",
         "itemSeven": "ja",
         "itemEight": "1.000 lebenslang"
@@ -884,6 +1011,7 @@
         "itemFour": "10 Gäste werden als ein Sitzplatz berechnet",
         "itemFive": "unbegrenzt",
         "itemSix": "ja",
+        "itemFileUpload": "Unbegrenzt",
         "intelligentSearch": "Intelligente Suche",
         "itemSeven": "ja",
         "itemEight": "10.000 monatlich"
@@ -936,6 +1064,8 @@
       }
     },
     "common": {
+      "uploadingFile": "Datei wird hochgeladen. Bitte beenden Sie die App nicht.",
+      "uploadNotionSuccess": "Ihre Notion-ZIP-Datei wurde erfolgreich hochgeladen. Sobald der Import abgeschlossen ist, erhalten Sie eine Bestätigungs-E-Mail",
       "reset": "Zurücksetzen"
     },
     "menu": {
@@ -948,9 +1078,11 @@
       "logout": "Abmelden",
       "logoutPrompt": "Willst du dich wirklich abmelden?",
       "selfEncryptionLogoutPrompt": "Willst du dich wirklich Abmelden? Bitte stelle sicher, dass der Encryption Secret Code kopiert wurde.",
-      "syncSetting": "Sync Einstellung",
+      "syncSetting": "Synchronisations-Einstellung",
       "cloudSettings": "Cloud Einstellungen",
-      "enableSync": "Sync aktivieren",
+      "enableSync": "Synchronisation aktivieren",
+      "enableSyncLog": "Synchronisation der Protokolldateien aktivieren",
+      "enableSyncLogWarning": "Vielen Dank für Ihre Hilfe bei der Diagnose von Synchronisierungsproblemen. Dadurch werden Ihre Dokumentänderungen in einer lokalen Datei protokolliert. Bitte beenden Sie die App und öffnen Sie sie erneut, nachdem Sie sie aktiviert haben.",
       "enableEncrypt": "Daten verschlüsseln",
       "cloudURL": "Basis URL",
       "invalidCloudURLScheme": "Ungültiges Format",
@@ -964,6 +1096,8 @@
       "selfHostStart": "Falls du keinen Server hast, konsultiere bitte",
       "selfHostContent": "Dokument",
       "selfHostEnd": "um einen einen eigenen Server aufzusetzen",
+      "pleaseInputValidURL": "Bitte geben Sie eine gültige URL ein",
+      "changeUrl": "Ändern Sie die selbst gehostete URL in {}",
       "cloudURLHint": "Eingabe der Basis- URL Ihres Servers",
       "cloudWSURL": "Websocket URL",
       "cloudWSURLHint": "Eingbe der Websocket Adresse Ihres Servers",
@@ -1054,6 +1188,8 @@
       "documentSettings": {
         "cursorColor": "Cursor-Farbe",
         "selectionColor": "Auswahl-Farbe",
+        "width": "Dokumentbreite",
+        "changeWidth": "Ändern",
         "pickColor": "Wähle eine Farbe",
         "colorShade": "Farbschattierung",
         "opacity": "Opazität",
@@ -1119,6 +1255,8 @@
         "user": "Nutzer",
         "role": "Rolle",
         "removeFromWorkspace": "Vom Arbeitsbereich entfernen",
+        "removeFromWorkspaceSuccess": "Erfolgreich aus dem Arbeitsbereich entfernt",
+        "removeFromWorkspaceFailed": "Entfernen aus Arbeitsbereich fehlgeschlagen",
         "owner": "Besitzer",
         "guest": "Gast",
         "member": "Mitglied",
@@ -1134,6 +1272,7 @@
         },
         "inviteFailedDialogTitle": "Einladung konnte nicht gesendet werden",
         "inviteFailedMemberLimit": "Das Mitgliederlimit wurde erreicht. Bitte führe ein Upgrade durch, um weitere Mitglieder einzuladen.",
+        "inviteFailedMemberLimitMobile": "Ihr Arbeitsbereich hat das Mitgliederlimit erreicht.",
         "memberLimitExceeded": "Du hast die maximal zulässige Mitgliederzahl für dein Benutzerkonto erreicht. Benötigst du weitere Mitglieder, um deine Arbeit fortsetzen zu können, erstelle auf Github bitte eine entsprechende Anfrage.",
         "memberLimitExceededUpgrade": "upgrade",
         "memberLimitExceededPro": "Mitgliederlimit erreicht. Wenn du mehr Mitglieder benötigst, kontaktiere",
@@ -1143,7 +1282,9 @@
         "removeMember": "Mitglied entfernen",
         "areYouSureToRemoveMember": "Möchtest du dieses Mitglied wirklich entfernen?",
         "inviteMemberSuccess": "Die Einladung wurde erfolgreich versendet",
-        "failedToInviteMember": "Das Einladen des Mitglieds ist fehlgeschlagen"
+        "failedToInviteMember": "Das Einladen des Mitglieds ist fehlgeschlagen",
+        "workspaceMembersError": "Hoppla, da ist etwas schiefgelaufen",
+        "workspaceMembersErrorDescription": "Wir konnten die Mitgliederliste derzeit nicht laden. Bitte versuchen Sie es später noch einmal."
       }
     },
     "files": {
@@ -1267,6 +1408,13 @@
       "deleteView": "Anslicht löschen",
       "numberOfVisibleFields": "{} angezeigt"
     },
+    "filter": {
+      "empty": "Keine aktiven Filter",
+      "addFilter": "Filter hinzufügen",
+      "cannotFindCreatableField": "Es wurde kein geeignetes Feld zum Filtern gefunden.",
+      "conditon": "Bedingung",
+      "where": "Wo"
+    },
     "textFilter": {
       "contains": "Enthält",
       "doesNotContain": "Beinhaltet nicht",
@@ -1312,9 +1460,12 @@
       "between": "Ist zwischen",
       "empty": "Ist leer",
       "notEmpty": "Ist nicht leer",
+      "startDate": "Startdatum",
+      "endDate": "Enddatum",
       "choicechipPrefix": {
         "before": "Vorher",
         "after": "Danach",
+        "between": "Zwischen",
         "onOrBefore": "Am oder davor",
         "onOrAfter": "Während oder danach",
         "isEmpty": "leer",
@@ -1332,6 +1483,7 @@
       "isNotEmpty": "nicht leer"
     },
     "field": {
+      "label": "Eigenschaft",
       "hide": "Verstecken",
       "show": "Anzeigen",
       "insertLeft": "Links einfügen",
@@ -1340,11 +1492,12 @@
       "delete": "Löschen",
       "wrapCellContent": "Zeilenumbruch",
       "clear": " Zelleninhalte löschen",
+      "switchPrimaryFieldTooltip": "Feldtyp des Primärfelds kann nicht geändert werden",
       "textFieldName": "Text",
       "checkboxFieldName": "Kontrollkästchen",
       "dateFieldName": "Datum",
       "updatedAtFieldName": "Letzte Änderungszeit",
-      "createdAtFieldName": "Zeit geschaffen",
+      "createdAtFieldName": "Erstellungsdatum",
       "numberFieldName": "Zahlen",
       "singleSelectFieldName": "Wählen",
       "multiSelectFieldName": "Mehrfachauswahl",
@@ -1353,6 +1506,7 @@
       "relationFieldName": "Beziehung",
       "summaryFieldName": "KI-Zusammenfassung",
       "timeFieldName": "Zeit",
+      "mediaFieldName": "Dateien und Medien",
       "translateFieldName": "AI-Übersetzen",
       "translateTo": "Übersetzen in",
       "numberFormat": "Zahlenformat",
@@ -1383,6 +1537,7 @@
       "addOption": "Option hinzufügen",
       "editProperty": "Eigenschaft bearbeiten",
       "newProperty": "Neue Eigenschaft",
+      "openRowDocument": "Als Seite öffnen",
       "deleteFieldPromptMessage": "Sicher? Diese Eigenschaft wird gelöscht",
       "clearFieldPromptMessage": "Bist du dir sicher? Alle Zelleninhalte in dieser Spalte werden gelöscht!",
       "newColumn": "Neue Spalte",
@@ -1418,6 +1573,7 @@
       "fieldInUse": "Du sortierst bereits nach diesem Feld"
     },
     "row": {
+      "label": "Reihe",
       "duplicate": "Duplikat",
       "delete": "Löschen",
       "titlePlaceholder": "Unbenannt",
@@ -1425,6 +1581,7 @@
       "copyProperty": "Eigenschaft in die Zwischenablage kopiert",
       "count": "Zählen",
       "newRow": "Neue Zeile",
+      "loadMore": "Mehr laden",
       "action": "Aktion",
       "add": "Klicken, um unten hinzuzufügen",
       "drag": "Ziehen, um zu verschieben",
@@ -1433,7 +1590,10 @@
       "dragAndClick": "Ziehen, um zu verschieben. Klicke, um das Menü zu öffnen",
       "insertRecordAbove": "Füge Datensatz oben ein",
       "insertRecordBelow": "Füge Datensatz unten ein",
-      "noContent": "Kein Inhalt"
+      "noContent": "Kein Inhalt",
+      "reorderRowDescription": "Zeile neu anordnen",
+      "createRowAboveDescription": "Erstelle oben eine Zeile",
+      "createRowBelowDescription": "Unten eine Zeile einfügen"
     },
     "selectOption": {
       "create": "Erstellen",
@@ -1494,6 +1654,24 @@
       "countEmptyShort": "leer",
       "countNonEmpty": "Zahl nicht leer",
       "countNonEmptyShort": "nicht leer"
+    },
+    "media": {
+      "rename": "Umbenennen",
+      "download": "Herunterladen",
+      "expand": "Erweitern",
+      "delete": "Löschen",
+      "moreFilesHint": "+{}",
+      "addFileOrImage": "Datei oder Link hinzufügen",
+      "attachmentsHint": "{}",
+      "addFileMobile": "Datei hinzufügen",
+      "extraCount": "+{}",
+      "deleteFileDescription": "Möchten Sie diese Datei wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "showFileNames": "Dateinamen anzeigen",
+      "downloadSuccess": "Datei heruntergeladen",
+      "downloadFailedToken": "Datei konnte nicht heruntergeladen werden, Benutzertoken nicht verfügbar",
+      "setAsCover": "Als Cover festlegen",
+      "openInBrowser": "Im Browser öffnen",
+      "embedLink": "Dateilink einbetten"
     }
   },
   "document": {
@@ -1517,6 +1695,46 @@
       },
       "document": {
         "selectADocumentToLinkTo": "Eine Datentabelle zum Verknüpfen auswählen"
+      },
+      "name": {
+        "text": "Text",
+        "heading1": "Überschrift 1",
+        "heading2": "Überschrift 2",
+        "heading3": "Überschrift 3",
+        "image": "Bild",
+        "bulletedList": "Aufzählungsliste",
+        "numberedList": "Nummerierte Liste",
+        "todoList": "Aufgabenliste",
+        "doc": "Dokument",
+        "linkedDoc": "Link zur Seite",
+        "grid": "Raster",
+        "linkedGrid": "Verknüpftes Raster",
+        "kanban": "Kanban",
+        "linkedKanban": "Verknüpftes Kanban",
+        "calendar": "Kalender",
+        "linkedCalendar": "Verknüpfter Kalender",
+        "quote": "Zitat",
+        "divider": "Trenner",
+        "table": "Tabelle",
+        "outline": "Gliederung",
+        "mathEquation": "Mathematische Gleichung",
+        "code": "Code",
+        "toggleList": "Liste ein-/ausblenden",
+        "emoji": "Emoji",
+        "aiWriter": "KI-Autor",
+        "dateOrReminder": "Datum oder Erinnerung",
+        "photoGallery": "Fotogalerie",
+        "file": "Datei"
+      },
+      "subPage": {
+        "name": "Dokument",
+        "keyword1": "Unterseite",
+        "keyword2": "Seite",
+        "keyword3": "untergeordnete Seite",
+        "keyword4": "Seite einfügen",
+        "keyword6": "neue Seite",
+        "keyword7": "Seite erstellen",
+        "keyword8": "Dokument"
       }
     },
     "selectionMenu": {
@@ -1557,6 +1775,35 @@
       "bulletedList": "Stichpunktliste",
       "todoList": "Offene Aufgaben Liste",
       "callout": "Hervorhebung",
+      "simpleTable": {
+        "moreActions": {
+          "color": "Farbe",
+          "align": "Ausrichten",
+          "delete": "Löschen",
+          "duplicate": "duplizieren",
+          "insertLeft": "Links einfügen",
+          "insertRight": "Rechts einfügen",
+          "insertAbove": "Oben einfügen",
+          "insertBelow": "Unten einfügen",
+          "headerColumn": "Kopfspalte",
+          "headerRow": "Kopfzeile",
+          "clearContents": "Klarer Inhalt",
+          "setToPageWidth": "Auf Seitenbreite einstellen",
+          "distributeColumnsWidth": "Spalten gleichmäßig verteilen",
+          "duplicateRow": "Zeile duplizieren",
+          "duplicateColumn": "Spalte duplizieren",
+          "textColor": "Textfarbe",
+          "cellBackgroundColor": "Zellen-Hintergrundfarbe",
+          "duplicateTable": "Tabelle duplizieren"
+        },
+        "clickToAddNewRow": "Klicken Sie hier, um eine neue Zeile hinzuzufügen",
+        "clickToAddNewColumn": "Klicken Sie hier, um eine neue Spalte hinzuzufügen",
+        "clickToAddNewRowAndColumn": "Klicken Sie hier, um eine neue Zeile und Spalte hinzuzufügen",
+        "headerName": {
+          "table": "Tabelle",
+          "alignText": "Text ausrichten"
+        }
+      },
       "cover": {
         "changeCover": "Titelbild wechseln",
         "colors": "Farben",
@@ -1572,6 +1819,7 @@
         "back": "Zurück",
         "saveToGallery": "In der Galerie speichern",
         "removeIcon": "Symbol entfernen",
+        "removeCover": "Cover entfernen",
         "pasteImageUrl": "Bild-URL einfügen",
         "or": "ODER",
         "pickFromFiles": "Dateien auswählen",
@@ -1590,9 +1838,11 @@
       "optionAction": {
         "click": "Klicken",
         "toOpenMenu": " um das Menü zu öffnen",
+        "drag": "Ziehen",
+        "toMove": " bewegen",
         "delete": "Löschen",
         "duplicate": "Duplikat",
-        "turnInto": "Einbiegen in",
+        "turnInto": "Umwandeln in",
         "moveUp": "Nach oben verschieben",
         "moveDown": "Nach unten verschieben",
         "color": "Farbe",
@@ -1601,7 +1851,8 @@
         "center": "Zentriert",
         "right": "Rechts",
         "defaultColor": "Standard",
-        "depth": "Tiefe"
+        "depth": "Tiefe",
+        "copyLinkToBlock": "Link zum Block kopieren"
       },
       "image": {
         "addAnImage": "Ein Bild hinzufügen",
@@ -1649,7 +1900,8 @@
       "contextMenu": {
         "copy": "Kopieren",
         "cut": "Ausschneiden",
-        "paste": "Einfügen"
+        "paste": "Einfügen",
+        "pasteAsPlainText": "Als einfachen Text einfügen"
       },
       "action": "Aktionen",
       "database": {
@@ -1674,11 +1926,14 @@
       "file": {
         "name": "Datei",
         "uploadTab": "Hochladen",
+        "uploadMobile": "Wählen Sie eine Datei",
+        "uploadMobileGallery": "Aus der Fotogalerie",
         "networkTab": "Link integrieren",
         "placeholderText": "Klicke oder ziehe eine Datei hoch, um sie hochzuladen",
         "placeholderDragging": "Lege die hochzuladende Datei hier ab",
         "dropFileToUpload": "Lege die hochzuladende Datei hier ab",
         "fileUploadHint": "Lege die hochzuladende Datei hier ab\noder klicke, um eine Datei auszuwählen.",
+        "fileUploadHintSuffix": "Durchsuchen",
         "networkHint": "Gebe einen Link zu einer Datei ein",
         "networkUrlInvalid": "Ungültige URL. Bitte korrigiere die URL und versuche es erneut.",
         "networkAction": "Dateilink einbetten",
@@ -1689,7 +1944,17 @@
           "nameEmptyError": "Der Dateiname darf nicht leer bleiben."
         },
         "uploadedAt": "Hochgeladen am {}",
-        "linkedAt": "Link hinzugefügt am {}"
+        "linkedAt": "Link hinzugefügt am {}",
+        "failedToOpenMsg": "Öffnen fehlgeschlagen, Datei nicht gefunden"
+      },
+      "subPage": {
+        "errors": {
+          "failedDeletePage": "Seite konnte nicht gelöscht werden",
+          "failedCreatePage": "Seite konnte nicht erstellt werden",
+          "failedMovePage": "Seite konnte nicht in dieses Dokument verschoben werden",
+          "failedDuplicatePage": "Seite konnte nicht dupliziert werden",
+          "failedDuplicateFindView": "Seite konnte nicht dupliziert werden - Originalansicht nicht gefunden"
+        }
       }
     },
     "outlineBlock": {
@@ -1792,7 +2057,10 @@
         "tooltip": "Klicken, um die Seite zu öffnen"
       },
       "deleted": "gelöscht",
-      "deletedContent": "Dieser Inhalt existiert nicht oder wurde gelöscht"
+      "deletedContent": "Dieser Inhalt existiert nicht oder wurde gelöscht",
+      "noAccess": "Kein Zugriff",
+      "deletedPage": "Gelöschte Seite",
+      "trashHint": " - im Papierkorb"
     },
     "toolbar": {
       "resetToDefaultFont": "Auf den Standard zurücksetzen"
@@ -1800,16 +2068,23 @@
     "errorBlock": {
       "theBlockIsNotSupported": "Die aktuelle Version unterstützt diesen Block nicht.",
       "clickToCopyTheBlockContent": "Hier klicken, um den Blockinhalt zu kopieren",
-      "blockContentHasBeenCopied": "Der Blockinhalt wurde kopiert."
+      "blockContentHasBeenCopied": "Der Blockinhalt wurde kopiert.",
+      "copyBlockContent": "Blockinhalt kopieren"
     },
     "mobilePageSelector": {
       "title": "Seite auswählen",
       "failedToLoad": "Seitenliste konnte nicht geladen werden",
       "noPagesFound": "Keine Seiten gefunden"
+    },
+    "attachmentMenu": {
+      "choosePhoto": "Foto auswählen",
+      "takePicture": "Ein Foto machen",
+      "chooseFile": "Datei auswählen"
     }
   },
   "board": {
     "column": {
+      "label": "Spalte",
       "createNewCard": "Neu",
       "renameGroupTooltip": "Drücken, um die Gruppe umzubenennen",
       "createNewColumn": "Eine neue Gruppe hinzufügen",
@@ -1860,7 +2135,11 @@
       "nextThirtyDays": "Nächste 30 Tage"
     },
     "noGroup": "Keine Gruppierung nach Eigenschaft",
-    "noGroupDesc": "Board-Ansichten benötigen eine Eigenschaft zum Gruppieren, um angezeigt zu werden"
+    "noGroupDesc": "Board-Ansichten benötigen eine Eigenschaft zum Gruppieren, um angezeigt zu werden",
+    "media": {
+      "cardText": "{} {}",
+      "fallbackName": "Dateien"
+    }
   },
   "calendar": {
     "menuName": "Kalender",
@@ -1906,10 +2185,13 @@
   "errorDialog": {
     "title": "@:appName-Fehler",
     "howToFixFallback": "Wir entschuldigen uns für die Unannehmlichkeiten! Reiche auf unserer GitHub-Seite ein Problem ein, das deinen Fehler beschreibt.",
+    "howToFixFallbackHint1": "Wir entschuldigen uns für die Unannehmlichkeiten! Melden Sie ein Problem auf unserer ",
+    "howToFixFallbackHint2": " Seite, die Ihren Fehler beschreibt.",
     "github": "Auf GitHub ansehen"
   },
   "search": {
     "label": "Suchen",
+    "sidebarSearchIcon": "Suchen und schnell zu einer Seite springen",
     "placeholder": {
       "actions": "Suchaktionen..."
     }
@@ -1972,7 +2254,7 @@
   },
   "inlineActions": {
     "noResults": "Keine Ergebnisse",
-    "recentPages": "Letzte Seiten",
+    "recentPages": "Kürzliche Seiten",
     "pageReference": "Seitenreferenz",
     "docReference": "Dokumentverweis",
     "boardReference": "Board-Referenz",
@@ -2059,7 +2341,10 @@
   },
   "error": {
     "weAreSorry": "Das tut uns leid",
-    "loadingViewError": "Wir haben Schwierigkeiten diese Ansicht zu laden. Bitte prüfe die Internetverbindung, lade die App neu und zögere nicht, das Team zu kontaktieren, falls das Problem weiterhin besteht."
+    "loadingViewError": "Wir haben Schwierigkeiten diese Ansicht zu laden. Bitte prüfe die Internetverbindung, lade die App neu und zögere nicht, das Team zu kontaktieren, falls das Problem weiterhin besteht.",
+    "syncError": "Daten werden nicht von einem anderen Gerät synchronisiert",
+    "syncErrorHint": "Bitte öffnen Sie diese Seite erneut auf dem Gerät, auf dem sie zuletzt bearbeitet wurde, und öffnen Sie die Seite dann erneut  auf dem aktuellen Gerät.",
+    "clickToCopy": "Klicken Sie hier, um den Fehlercode zu kopieren"
   },
   "editor": {
     "bold": "Fett",
@@ -2228,10 +2513,17 @@
       "deleteAccount": {
         "title": "Benutzerkonto löschen",
         "subtitle": "Benutzerkonto inkl. deiner persönlicher Daten unwiderruflich löschen.",
+        "description": "Löschen Sie Ihr Konto dauerhaft und entfernen Sie den Zugriff auf alle Arbeitsbereiche.",
         "deleteMyAccount": "Mein Benutzerkonto löschen",
         "dialogTitle": "Benutzerkonto löschen",
         "dialogContent1": "Bist du sicher, dass du dein Benutzerkonto unwiderruflich löschen möchtest?",
-        "dialogContent2": "Diese Aktion kann nicht rückgängig gemacht werden und führt dazu, dass der Zugriff auf alle Teambereiche aufgehoben wird, dein gesamtes Benutzerkonto, einschließlich privater Arbeitsbereiche, gelöscht wird und du aus allen freigegebenen Arbeitsbereichen entfernt wirst."
+        "dialogContent2": "Diese Aktion kann nicht rückgängig gemacht werden und führt dazu, dass der Zugriff auf alle Teambereiche aufgehoben wird, dein gesamtes Benutzerkonto, einschließlich privater Arbeitsbereiche, gelöscht wird und du aus allen freigegebenen Arbeitsbereichen entfernt wirst.",
+        "confirmHint1": "Geben Sie zur Bestätigung bitte „MEIN KONTO LÖSCHEN“ ein.",
+        "confirmHint3": "MEIN KONTO LÖSCHEN",
+        "checkToConfirmError": "Sie müssen das Kontrollkästchen aktivieren, um das Löschen zu bestätigen",
+        "failedToGetCurrentUser": "Aktuelle Benutzer-E-Mail konnte nicht abgerufen werden.",
+        "confirmTextValidationFailed": "Ihr Bestätigungstext stimmt nicht mit „MEIN KONTO LÖSCHEN“ überein.",
+        "deleteAccountSuccess": "Konto erfolgreich gelöscht"
       }
     },
     "workplace": {
@@ -2274,9 +2566,11 @@
     "unsplash": "Unsplash",
     "pageCover": "Deckblatt",
     "none": "Keines",
-    "photoPermissionDescription": "Erlaube den Zugriff auf die Fotobibliothek zum Hochladen von Bildern.",
     "openSettings": "Einstellungen öffnen",
     "photoPermissionTitle": "@:appName möchte auf deine Fotobibliothek zugreifen",
+    "photoPermissionDescription": "Erlaube den Zugriff auf die Fotobibliothek zum Hochladen von Bildern.",
+    "cameraPermissionTitle": "@:appName möchte auf Ihre Kamera zugreifen",
+    "cameraPermissionDescription": "@:appName benötigt Zugriff auf Ihre Kamera, damit Sie Bilder von der Kamera zu Ihren Dokumenten hinzufügen können.",
     "doNotAllow": "Nicht zulassen",
     "image": "Bild"
   },
@@ -2325,7 +2619,26 @@
     "quicklySwitch": "Schnell zur nächsten Domäne wechseln",
     "duplicate": "Domäne duplizieren",
     "movePageToSpace": "Seite in die Domäne verschieben",
-    "switchSpace": "Domäne wechseln"
+    "cannotMovePageToDatabase": "Seite kann nicht in die Datenbank verschoben werden",
+    "switchSpace": "Domäne wechseln",
+    "spaceNameCannotBeEmpty": "Der Space-Name darf nicht leer sein",
+    "success": {
+      "deleteSpace": "Domäne erfolgreich gelöscht",
+      "renameSpace": "Domäne erfolgreich umbenannt",
+      "duplicateSpace": "Domäne erfolgreich dupliziert",
+      "updateSpace": "Domäne erfolgreich angepasst"
+    },
+    "error": {
+      "deleteSpace": "Löschung der Domäne fehlgeschlagen",
+      "renameSpace": "Umbenennung der Domäne fehlgeschlagen",
+      "duplicateSpace": "Duplizierung der Domäne fehlgeschlagen",
+      "updateSpace": "Anpassung der Domäne fehlgeschlagen"
+    },
+    "createSpace": "Erstelle Domäne",
+    "manageSpace": "Verwalte Domäne",
+    "renameSpace": "Domäne umbenennen",
+    "mSpaceIconColor": "Domänen-Iconfarbe",
+    "mSpaceIcon": "Domänen-Icon"
   },
   "publish": {
     "hasNotBeenPublished": "Diese Seite wurde noch nicht veröffentlicht",
@@ -2371,7 +2684,8 @@
       "one": "1 Mitglied",
       "many": "{count} Mitglieder",
       "other": "{count} Mitglieder"
-    }
+    },
+    "useThisTemplate": "Verwenden Sie die Vorlage"
   },
   "web": {
     "continue": "Weiter",
@@ -2379,12 +2693,23 @@
     "continueWithGoogle": "Weiter mit Google",
     "continueWithGithub": "Weiter mit GitHub",
     "continueWithDiscord": "Weiter mit Discord",
+    "continueWithApple": "Weiter mit Apple ",
+    "moreOptions": "Weitere Optionen",
     "signInAgreement": "Wenn du oben auf \"Weiter\" klickst, bestätigst du, dass\ndu folgende Dokumente gelesen, verstanden und akzeptiert hast:\nAppFlowys",
     "and": "und",
     "termOfUse": "Bedingungen",
     "privacyPolicy": "Datenschutzrichtlinie",
     "signInError": "Anmeldefehler",
-    "login": "Registrieren oder anmelden"
+    "login": "Registrieren oder anmelden",
+    "fileBlock": {
+      "uploadedAt": "Hochgeladen am {Zeit}",
+      "linkedAt": "Link hinzugefügt am {Zeit}",
+      "empty": "Hochladen oder Einbetten einer Datei"
+    },
+    "importNotion": "Importieren aus Notion",
+    "import": "Import",
+    "importSuccess": "Erfolgreich hochgeladen",
+    "importFailed": "Import fehlgeschlagen, bitte überprüfen Sie das Dateiformat"
   },
   "globalComment": {
     "comments": "Kommentare",
@@ -2435,5 +2760,110 @@
     "failedToAddComment": "Kommentar konnte nicht hinzugefügt werden",
     "commentAddedSuccessfully": "Kommentar erfolgreich hinzugefügt.",
     "commentAddedSuccessTip": "Du hast gerade einen Kommentar hinzugefügt oder darauf geantwortet. Möchtest du nach oben springen, um die neuesten Kommentare zu sehen?"
+  },
+  "template": {
+    "asTemplate": "Als Vorlage speichern",
+    "name": "Vorlagenname",
+    "description": "Vorlagenbeschreibung",
+    "requiredField": "{field} ist erforderlich",
+    "addCategory": "\"{category}\" hinzufügen",
+    "addNewCategory": "Neue Kategorie hinzufügen",
+    "deleteCategory": "Lösche Kategorie",
+    "editCategory": "Bearbeite Kategorie",
+    "category": {
+      "name": "Kategoriename",
+      "icon": "Kategorie-Icon",
+      "bgColor": "Kategorie-Hintergrundfarbe",
+      "priority": "Kategoriepriorität",
+      "desc": "Kategoriebeschreibung",
+      "type": "Kategorie-Typ",
+      "icons": "Kategorie-Icons",
+      "colors": "Kategoriefarbe",
+      "deleteCategory": "Lösche Kategorie",
+      "deleteCategoryDescription": "Möchten Sie diese Kategorie wirklich löschen?",
+      "typeToSearch": "Tippen, um nach Kategorien zu suchen..."
+    }
+  },
+  "fileDropzone": {
+    "dropFile": "Klicken oder ziehen Sie die Datei zum Hochladen in diesen Bereich",
+    "uploading": "Hochladen...",
+    "uploadFailed": "Hochladen fehlgeschlagen",
+    "uploadSuccess": "Hochladen erfolgreich",
+    "uploadSuccessDescription": "Die Datei wurde erfolgreich hochgeladen",
+    "uploadFailedDescription": "Das Hochladen der Datei ist fehlgeschlagen",
+    "uploadingDescription": "Die Datei wird hochgeladen"
+  },
+  "gallery": {
+    "preview": "Im Vollbildmodus öffnen",
+    "copy": "Kopiere",
+    "prev": "Vorherige",
+    "next": "Nächste",
+    "resetZoom": "Setze Zoom zurück",
+    "zoomIn": "Vergrößern",
+    "zoomOut": "Verkleinern"
+  },
+  "invitation": {
+    "joinWorkspace": "Arbeitsbereich beitreten",
+    "success": "Sie sind dem Arbeitsbereich erfolgreich beigetreten",
+    "successMessage": "Sie können nun auf alle darin enthaltenen Seiten und Arbeitsbereiche zugreifen.",
+    "openWorkspace": "Öffne AppFlowy",
+    "errorModal": {
+      "description": "Ihr aktuelles Konto {email} hat möglicherweise keinen Zugriff auf diesen Arbeitsbereich. Bitte melden Sie sich mit dem richtigen Konto an oder wenden Sie sich an den Eigentümer des Arbeitsbereichs, um Hilfe zu erhalten."
+    }
+  },
+  "approveAccess": {
+    "title": "Anfrage zum Beitritt zum Arbeitsbereich genehmigen",
+    "requestSummary": "<user/> fragt den Beitritt zu <workspace/> und den Zugriff auf <page/> an."
+  },
+  "time": {
+    "justNow": "Soeben",
+    "seconds": {
+      "one": "1 Sekunde",
+      "other": "{count} Sekunden"
+    },
+    "minutes": {
+      "one": "1 Minute",
+      "other": "{count} Minuten"
+    },
+    "hours": {
+      "one": "1 Stunde",
+      "other": "{count} Stunden"
+    },
+    "days": {
+      "one": "1 Tag",
+      "other": "{count} Tage"
+    },
+    "weeks": {
+      "one": "1 Woche",
+      "other": "{count} Wochen"
+    },
+    "months": {
+      "one": "1 Monat",
+      "other": "{count} Monate"
+    },
+    "years": {
+      "one": "1 Jahr",
+      "other": "{count} Jahre"
+    },
+    "ago": "vor",
+    "yesterday": "Gestern",
+    "today": "Heute"
+  },
+  "members": {
+    "zero": "Keine Mitglieder",
+    "one": "1 Mitglied",
+    "many": "{count} Mitglieder",
+    "other": "{count} Mitglieder"
+  },
+  "tabMenu": {
+    "close": "Schließen",
+    "closeOthers": "Schließe andere Tabs",
+    "favoriteDisabledHint": "Diese Ansicht kann nicht als Favorit markiert werden"
+  },
+  "openFileMessage": {
+    "success": "Datei erfolgreich geöffnet",
+    "fileNotFound": "Datei nicht gefunden",
+    "permissionDenied": "Keine Berechtigung zum Öffnen dieser Datei",
+    "unknownError": "Öffnen der Datei fehlgeschlagen"
   }
 }

@@ -26,6 +26,14 @@ futures = "0.3.30"
 cfg-if = "1.0.0"
 futures-util = "0.3.30"
 
+
+aes-gcm = { version = "0.10.2", optional = true }
+rand = { version = "0.8.5", optional = true }
+pbkdf2 = { version = "0.12.2", optional = true }
+hmac = { version = "0.12.1", optional = true }
+sha2 = { version = "0.10.7", optional = true }
+base64 = { version = "0.22.1" }
+
 [dev-dependencies]
 rand = "0.8.5"
 futures = "0.3.30"
@@ -37,3 +45,4 @@ brotli = { version = "3.4.0", optional = true }
 [features]
 compression = ["brotli"]
 isolate_flutter = ["allo-isolate"]
+encryption = ["aes-gcm", "rand", "pbkdf2", "hmac", "sha2"]

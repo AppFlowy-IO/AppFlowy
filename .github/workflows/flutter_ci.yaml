@@ -26,9 +26,9 @@ on:
 env:
   CARGO_TERM_COLOR: always
   FLUTTER_VERSION: "3.22.2"
-  RUST_TOOLCHAIN: "1.80.1"
+  RUST_TOOLCHAIN: "1.81.0"
   CARGO_MAKE_VERSION: "0.37.18"
-  CLOUD_VERSION: 0.6.51-amd64
+  CLOUD_VERSION: 0.6.54-amd64
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -269,7 +269,7 @@ jobs:
               else
                 echo "No containers to remove."
               fi
-          
+
               # Remove all volumes if any exist
               if [ "$(docker volume ls -q)" ]; then
                 docker volume rm $(docker volume ls -q)
@@ -346,7 +346,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest ]
-        test_number: [ 1, 2, 3, 4, 5, 6, 7, 8 ]
+        test_number: [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
         include:
           - os: ubuntu-latest
             target: "x86_64-unknown-linux-gnu"

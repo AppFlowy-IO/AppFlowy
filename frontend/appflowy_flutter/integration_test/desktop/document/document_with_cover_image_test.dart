@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_cover_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_util.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/recent_icons.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
@@ -11,15 +13,22 @@ import 'package:flutter/services.dart';
 import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 import '../../shared/emoji.dart';
 import '../../shared/mock/mock_file_picker.dart';
 import '../../shared/util.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() {
+    IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+    RecentIcons.enable = false;
+  });
+
+  tearDownAll(() {
+    RecentIcons.enable = true;
+  });
 
   group('cover image:', () {
     testWidgets('document cover tests', (tester) async {
@@ -58,7 +67,7 @@ void main() {
       await tester.editor.tapOnRemoveCover();
       tester.expectToSeeNoDocumentCover();
     });
-    
+
     testWidgets('document cover local image tests', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
@@ -104,7 +113,7 @@ void main() {
       await tester.editor.tapOnRemoveCover();
       tester.expectToSeeNoDocumentCover();
 
-      // Test if deleteImageFromLocalStorage(localImagePath) function is called once 
+      // Test if deleteImageFromLocalStorage(localImagePath) function is called once
       await tester.pump(kDoubleTapTimeout);
       expect(deleteImageTestCounter, 1);
 
@@ -208,7 +217,7 @@ void main() {
       tester.expectViewHasIcon(
         gettingStarted,
         ViewLayoutPB.Document,
-        punch,
+        EmojiIconData.emoji(punch),
       );
     });
   });

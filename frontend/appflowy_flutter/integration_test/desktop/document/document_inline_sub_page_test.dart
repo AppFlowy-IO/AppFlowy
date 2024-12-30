@@ -1,14 +1,13 @@
 import 'dart:io';
 
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
+import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
-
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -51,7 +50,6 @@ void main() {
 
       expect(find.text(_createdPageName), findsNWidgets(2));
       expect(find.byType(MentionSubPageBlock), findsOneWidget);
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsOneWidget);
 
       // Delete from editor
       await tester.editor.updateSelection(
@@ -125,7 +123,6 @@ void main() {
 
       expect(find.text(_createdPageName), findsNWidgets(2));
       expect(find.byType(MentionSubPageBlock), findsOneWidget);
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsOneWidget);
 
       // Cut from editor
       await tester.editor.updateSelection(
@@ -151,7 +148,6 @@ void main() {
 
       expect(find.text(_createdPageName), findsNWidgets(2));
       expect(find.byType(MentionSubPageBlock), findsOneWidget);
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsOneWidget);
 
       // Cut again
       await tester.editor.updateSelection(
@@ -195,7 +191,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(_createdPageName), findsNWidgets(2));
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsOneWidget);
     });
     testWidgets(
         'Cut+paste in same docuemnt and then paste again in same document',
@@ -214,7 +209,6 @@ void main() {
 
       expect(find.text(_createdPageName), findsNWidgets(2));
       expect(find.byType(MentionSubPageBlock), findsOneWidget);
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsOneWidget);
 
       // Cut from editor
       await tester.editor.updateSelection(
@@ -240,7 +234,6 @@ void main() {
 
       expect(find.text(_createdPageName), findsNWidgets(2));
       expect(find.byType(MentionSubPageBlock), findsOneWidget);
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsOneWidget);
 
       // Paste again
       await tester.simulateKeyEvent(
@@ -252,7 +245,6 @@ void main() {
 
       expect(find.text(_createdPageName), findsNWidgets(2));
       expect(find.byType(MentionSubPageBlock), findsNWidgets(2));
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsNWidgets(2));
       expect(find.text('$_createdPageName (copy)'), findsNWidgets(2));
     });
 
@@ -271,7 +263,6 @@ void main() {
 
       expect(find.text(_createdPageName), findsNWidgets(2));
       expect(find.byType(MentionSubPageBlock), findsOneWidget);
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsOneWidget);
 
       final headingText = LocaleKeys.document_slashMenu_name_heading1.tr();
       final paragraphText = LocaleKeys.document_slashMenu_name_text.tr();
@@ -283,7 +274,6 @@ void main() {
 
       expect(find.text(_createdPageName), findsNWidgets(2));
       expect(find.byType(MentionSubPageBlock), findsOneWidget);
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsOneWidget);
 
       // Turn into paragraph
       await tester.editor.openTurnIntoMenu([0]);
@@ -292,7 +282,6 @@ void main() {
 
       expect(find.text(_createdPageName), findsNWidgets(2));
       expect(find.byType(MentionSubPageBlock), findsOneWidget);
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsOneWidget);
     });
 
     testWidgets('Duplicate a block containing two sub page mentions',
@@ -331,7 +320,6 @@ void main() {
       expect(find.text(_createdPageName), findsOneWidget);
       expect(find.text("$_createdPageName (copy)"), findsOneWidget);
       expect(find.byType(MentionSubPageBlock), findsNWidgets(2));
-      expect(find.byFlowySvg(FlowySvgs.child_page_s), findsNWidgets(2));
 
       // Duplicate node from block action menu
       await tester.editor.hoverAndClickOptionMenuButton([0]);
@@ -341,6 +329,23 @@ void main() {
       expect(find.text(_createdPageName), findsOneWidget);
       expect(find.text("$_createdPageName (copy)"), findsNWidgets(2));
       expect(find.text("$_createdPageName (copy) (copy)"), findsOneWidget);
+    });
+
+    testWidgets('Cancel inline page reference menu by space', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+      await tester.createOpenRenameDocumentUnderParent(name: _firstDocName);
+
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.editor.showPlusMenu();
+
+      // Cancel by space
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.space,
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(InlineActionsMenu), findsNothing);
     });
   });
 }

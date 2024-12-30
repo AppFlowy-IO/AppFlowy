@@ -37,6 +37,20 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   UserProfilePB? _userProfile;
   UserProfilePB? get userProfile => _userProfile;
 
+  DatabaseCallbacks? _databaseCallbacks;
+  DatabaseLayoutSettingCallbacks? _layoutSettingCallbacks;
+
+  @override
+  Future<void> close() async {
+    databaseController.removeListener(
+      onDatabaseChanged: _databaseCallbacks,
+      onLayoutSettingsChanged: _layoutSettingCallbacks,
+    );
+    _databaseCallbacks = null;
+    _layoutSettingCallbacks = null;
+    await super.close();
+  }
+
   void _dispatch() {
     on<CalendarEvent>(
       (event, emit) async {
@@ -300,7 +314,7 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
   }
 
   void _startListening() {
-    final onDatabaseChanged = DatabaseCallbacks(
+    _databaseCallbacks = DatabaseCallbacks(
       onDatabaseChanged: (database) {
         if (isClosed) return;
       },
@@ -375,13 +389,13 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
       },
     );
 
-    final onLayoutSettingsChanged = DatabaseLayoutSettingCallbacks(
+    _layoutSettingCallbacks = DatabaseLayoutSettingCallbacks(
       onLayoutSettingsChanged: _didReceiveLayoutSetting,
     );
 
     databaseController.addListener(
-      onDatabaseChanged: onDatabaseChanged,
-      onLayoutSettingsChanged: onLayoutSettingsChanged,
+      onDatabaseChanged: _databaseCallbacks,
+      onLayoutSettingsChanged: _layoutSettingCallbacks,
     );
   }
 

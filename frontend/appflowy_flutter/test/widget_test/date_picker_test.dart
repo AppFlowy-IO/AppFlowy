@@ -1,14 +1,14 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/date.dart';
 import 'package:appflowy/plugins/database/widgets/field/type_option_editor/date/date_time_format.dart';
-import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/appflowy_date_picker_base.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/desktop_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_time_text_field.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/end_time_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,7 +16,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:time/time.dart';
 
 import '../../integration_test/shared/util.dart';
-import 'test_asset_bundle.dart';
+import 'test_material_app.dart';
 
 const _mockDatePickerDelay = Duration(milliseconds: 200);
 
@@ -96,7 +96,7 @@ class _MockDatePickerState extends State<_MockDatePicker> {
 
   @override
   Widget build(BuildContext context) {
-    return AppFlowyDatePicker(
+    return DesktopAppFlowyDatePicker(
       dateTime: data.dateTime,
       endDateTime: data.endDateTime,
       includeTime: data.includeTime,
@@ -116,16 +116,28 @@ class _MockDatePickerState extends State<_MockDatePicker> {
           data.endDateTime = end;
         });
       },
-      onIncludeTimeChanged: (value) async {
+      onIncludeTimeChanged: (value, dateTime, endDateTime) async {
         await Future.delayed(_mockDatePickerDelay);
         setState(() {
           data.includeTime = value;
+          if (dateTime != null) {
+            data.dateTime = dateTime;
+          }
+          if (endDateTime != null) {
+            data.endDateTime = endDateTime;
+          }
         });
       },
-      onIsRangeChanged: (value) async {
+      onIsRangeChanged: (value, dateTime, endDateTime) async {
         await Future.delayed(_mockDatePickerDelay);
         setState(() {
           data.isRange = value;
+          if (dateTime != null) {
+            data.dateTime = dateTime;
+          }
+          if (endDateTime != null) {
+            data.endDateTime = endDateTime;
+          }
         });
       },
     );
@@ -149,11 +161,21 @@ void main() {
     );
   }
 
+  DateTime getLastMonth(DateTime date) {
+    if (date.month == 1) {
+      return DateTime(date.year - 1, 12);
+    } else {
+      return DateTime(date.year, date.month - 1);
+    }
+  }
+
   _MockDatePickerState getMockState(WidgetTester tester) =>
       tester.state<_MockDatePickerState>(find.byType(_MockDatePicker));
 
   AppFlowyDatePickerState getAfState(WidgetTester tester) =>
-      tester.state<AppFlowyDatePickerState>(find.byType(AppFlowyDatePicker));
+      tester.state<DesktopAppFlowyDatePickerState>(
+        find.byType(DesktopAppFlowyDatePicker),
+      );
 
   group('AppFlowy date picker:', () {
     testWidgets('default state', (tester) async {
@@ -165,7 +187,7 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.byType(AppFlowyDatePicker), findsOneWidget);
+      expect(find.byType(DesktopAppFlowyDatePicker), findsOneWidget);
       expect(
         find.byWidgetPredicate(
           (w) => w is DateTimeTextField && w.dateTime == null,
@@ -201,7 +223,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(AppFlowyDatePicker), findsOneWidget);
+      expect(find.byType(DesktopAppFlowyDatePicker), findsOneWidget);
       expect(find.byType(DateTimeTextField), findsNWidgets(2));
       expect(find.byType(DatePicker), findsOneWidget);
       expect(
@@ -282,7 +304,7 @@ void main() {
         findsOneWidget,
       );
 
-      final lastMonth = now.subtract(const Duration(days: 32));
+      final lastMonth = getLastMonth(now);
       await tester.tap(find.byFlowySvg(FlowySvgs.arrow_left_s));
       await tester.pumpAndSettle();
       expect(
@@ -322,14 +344,18 @@ void main() {
       mockState = getMockState(tester);
       expect(mockState.data.dateTime, expected);
 
-      final firstOfNextMonth = dayInDatePicker(1).last;
-      await tester.tap(firstOfNextMonth);
-      await tester.pumpAndSettle();
+      final firstOfNextMonth = dayInDatePicker(1);
 
-      expected = DateTime(now.year, now.month + 1);
-      afState = getAfState(tester);
-      expect(afState.dateTime, expected);
-      expect(afState.focusedDateTime, expected);
+      // for certain months, the first of next month isn't shown
+      if (firstOfNextMonth.allCandidates.length == 2) {
+        await tester.tap(firstOfNextMonth);
+        await tester.pumpAndSettle();
+
+        expected = DateTime(now.year, now.month + 1);
+        afState = getAfState(tester);
+        expect(afState.dateTime, expected);
+        expect(afState.focusedDateTime, expected);
+      }
     });
 
     testWidgets('select date range', (tester) async {
@@ -457,26 +483,27 @@ void main() {
 
       afState = getAfState(tester);
       mockState = getMockState(tester);
-      expect(afState.dateTime, fourteenthDateTime);
-      expect(afState.startDateTime, null);
-      expect(afState.endDateTime, null);
-      expect(afState.justChangedIsRange, true);
       expect(afState.isRange, true);
+      expect(afState.dateTime, fourteenthDateTime);
+      expect(afState.startDateTime, fourteenthDateTime);
+      expect(afState.endDateTime, fourteenthDateTime);
+      expect(afState.justChangedIsRange, true);
+      expect(mockState.data.isRange, false);
       expect(mockState.data.dateTime, fourteenthDateTime);
       expect(mockState.data.endDateTime, null);
-      expect(mockState.data.isRange, false);
 
       await tester.pumpAndSettle();
 
       afState = getAfState(tester);
       mockState = getMockState(tester);
+      expect(afState.isRange, true);
       expect(afState.dateTime, fourteenthDateTime);
       expect(afState.startDateTime, fourteenthDateTime);
       expect(afState.endDateTime, fourteenthDateTime);
       expect(afState.justChangedIsRange, true);
+      expect(mockState.data.isRange, true);
       expect(mockState.data.dateTime, fourteenthDateTime);
       expect(mockState.data.endDateTime, fourteenthDateTime);
-      expect(mockState.data.isRange, true);
 
       final twentyFirst = dayInDatePicker(21).first;
       await tester.tap(twentyFirst);
@@ -497,13 +524,17 @@ void main() {
 
     testWidgets('include time and modify', (tester) async {
       final now = DateTime.now();
-      final fourteenthDateTime = DateTime(now.year, now.month, 14);
+      final fourteenthDateTime = now.copyWith(day: 14);
 
       await tester.pumpWidget(
         WidgetTestApp(
           child: _MockDatePicker(
             data: _DatePickerDataStub(
-              dateTime: fourteenthDateTime,
+              dateTime: DateTime(
+                fourteenthDateTime.year,
+                fourteenthDateTime.month,
+                fourteenthDateTime.day,
+              ),
               endDateTime: null,
               includeTime: false,
               isRange: false,
@@ -515,7 +546,8 @@ void main() {
 
       AppFlowyDatePickerState afState = getAfState(tester);
       _MockDatePickerState mockState = getMockState(tester);
-      expect(afState.dateTime, fourteenthDateTime);
+      expect(afState.dateTime!.isAtSameDayAs(fourteenthDateTime), true);
+      expect(afState.dateTime!.isAtSameMinuteAs(fourteenthDateTime), false);
       expect(afState.startDateTime, null);
       expect(afState.endDateTime, null);
       expect(afState.includeTime, false);
@@ -530,14 +562,24 @@ void main() {
 
       afState = getAfState(tester);
       mockState = getMockState(tester);
-      expect(afState.dateTime, fourteenthDateTime);
+      expect(afState.dateTime!.isAtSameMinuteAs(fourteenthDateTime), true);
       expect(afState.includeTime, true);
-      expect(mockState.data.dateTime, fourteenthDateTime);
+      expect(
+        mockState.data.dateTime!.isAtSameDayAs(fourteenthDateTime),
+        true,
+      );
+      expect(
+        mockState.data.dateTime!.isAtSameMinuteAs(fourteenthDateTime),
+        false,
+      );
       expect(mockState.data.includeTime, false);
 
       await tester.pumpAndSettle(300.milliseconds);
       mockState = getMockState(tester);
-      expect(mockState.data.dateTime, fourteenthDateTime);
+      expect(
+        mockState.data.dateTime!.isAtSameMinuteAs(fourteenthDateTime),
+        true,
+      );
       expect(mockState.data.includeTime, true);
 
       final timeField = find.byKey(const ValueKey('date_time_text_field_time'));
@@ -587,9 +629,66 @@ void main() {
       expect(mockState.data.dateTime, expected);
     });
 
+    testWidgets(
+      'turn on include time, turn on end date, then select date range',
+      (tester) async {
+        final fourteenth = DateTime(2024, 10, 14);
+
+        await tester.pumpWidget(
+          WidgetTestApp(
+            child: _MockDatePicker(
+              data: _DatePickerDataStub(
+                dateTime: fourteenth,
+                endDateTime: null,
+                includeTime: false,
+                isRange: false,
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(
+          find.descendant(
+            of: find.byType(EndTimeButton),
+            matching: find.byType(Toggle),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final now = DateTime.now();
+        await tester.tap(
+          find.descendant(
+            of: find.byType(IncludeTimeButton),
+            matching: find.byType(Toggle),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final third = dayInDatePicker(21).first;
+        await tester.tap(third);
+        await tester.pumpAndSettle();
+
+        final afState = getAfState(tester);
+        final mockState = getMockState(tester);
+        final expectedTime = Duration(hours: now.hour, minutes: now.minute);
+        final expectedStart = fourteenth.add(expectedTime);
+        final expectedEnd = fourteenth.copyWith(day: 21).add(expectedTime);
+        expect(afState.justChangedIsRange, false);
+        expect(afState.includeTime, true);
+        expect(afState.isRange, true);
+        expect(afState.dateTime, expectedStart);
+        expect(afState.startDateTime, expectedStart);
+        expect(afState.endDateTime, expectedEnd);
+        expect(mockState.data.dateTime, expectedStart);
+        expect(mockState.data.endDateTime, expectedEnd);
+        expect(mockState.data.isRange, true);
+      },
+    );
+
     testWidgets('edit text field causes start and end to get swapped',
         (tester) async {
-      final fourteenth = DateTime(2024, 10, 14);
+      final fourteenth = DateTime(2024, 10, 14, 1);
 
       await tester.pumpWidget(
         WidgetTestApp(
@@ -597,7 +696,7 @@ void main() {
             data: _DatePickerDataStub(
               dateTime: fourteenth,
               endDateTime: fourteenth,
-              includeTime: false,
+              includeTime: true,
               isRange: true,
             ),
           ),
@@ -622,7 +721,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pumpAndSettle();
 
-      final bday = DateTime(2024, 11, 30);
+      final bday = DateTime(2024, 11, 30, 1);
 
       expect(
         find.descendant(
@@ -649,9 +748,10 @@ void main() {
       expect(mockState.data.endDateTime, bday);
     });
 
-    testWidgets('select start with calendar and then enter end with keyboard',
+    testWidgets(
+        'select start date with calendar and then enter end date with keyboard',
         (tester) async {
-      final fourteenth = DateTime(2024, 10, 14);
+      final fourteenth = DateTime(2024, 10, 14, 1);
 
       await tester.pumpWidget(
         WidgetTestApp(
@@ -659,7 +759,7 @@ void main() {
             data: _DatePickerDataStub(
               dateTime: fourteenth,
               endDateTime: fourteenth,
-              includeTime: false,
+              includeTime: true,
               isRange: true,
             ),
           ),
@@ -671,7 +771,7 @@ void main() {
       await tester.tap(third);
       await tester.pumpAndSettle();
 
-      final start = DateTime(2024, 10, 3);
+      final start = DateTime(2024, 10, 3, 1);
 
       AppFlowyDatePickerState afState = getAfState(tester);
       _MockDatePickerState mockState = getMockState(tester);
@@ -692,7 +792,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pumpAndSettle();
 
-      final end = DateTime(2024, 10, 18);
+      final end = DateTime(2024, 10, 18, 1);
 
       expect(
         find.descendant(
@@ -724,7 +824,7 @@ void main() {
 
       // make sure click counter was reset
       final twentyFifth = dayInDatePicker(25).first;
-      final expected = DateTime(2024, 10, 25);
+      final expected = DateTime(2024, 10, 25, 1);
       await tester.tap(twentyFifth);
       await tester.pumpAndSettle();
       afState = getAfState(tester);
@@ -735,74 +835,79 @@ void main() {
       expect(mockState.data.dateTime, start);
       expect(mockState.data.endDateTime, end);
     });
-  });
-}
 
-class WidgetTestApp extends StatelessWidget {
-  const WidgetTestApp({
-    super.key,
-    required this.child,
-  });
+    testWidgets('same as above but enter time', (tester) async {
+      final fourteenth = DateTime(2024, 10, 14, 1);
 
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return EasyLocalization(
-      supportedLocales: const [Locale('en')],
-      path: 'assets/translations',
-      fallbackLocale: const Locale('en'),
-      useFallbackTranslations: true,
-      saveLocale: false,
-      assetLoader: const TestBundleAssetLoader(),
-      child: Builder(
-        builder: (context) => MaterialApp(
-          supportedLocales: const [Locale('en')],
-          locale: const Locale('en'),
-          localizationsDelegates: context.localizationDelegates,
-          theme: ThemeData.light().copyWith(
-            extensions: const [
-              AFThemeExtension(
-                warning: Colors.transparent,
-                success: Colors.transparent,
-                tint1: Colors.transparent,
-                tint2: Colors.transparent,
-                tint3: Colors.transparent,
-                tint4: Colors.transparent,
-                tint5: Colors.transparent,
-                tint6: Colors.transparent,
-                tint7: Colors.transparent,
-                tint8: Colors.transparent,
-                tint9: Colors.transparent,
-                textColor: Colors.transparent,
-                secondaryTextColor: Colors.transparent,
-                strongText: Colors.transparent,
-                greyHover: Colors.transparent,
-                greySelect: Colors.transparent,
-                lightGreyHover: Colors.transparent,
-                toggleOffFill: Colors.transparent,
-                progressBarBGColor: Colors.transparent,
-                toggleButtonBGColor: Colors.transparent,
-                calendarWeekendBGColor: Colors.transparent,
-                gridRowCountColor: Colors.transparent,
-                code: TextStyle(),
-                callout: TextStyle(),
-                calloutBGColor: Colors.transparent,
-                tableCellBGColor: Colors.transparent,
-                caption: TextStyle(),
-                onBackground: Colors.transparent,
-                background: Colors.transparent,
-                borderColor: Colors.transparent,
-                scrollbarColor: Colors.transparent,
-                scrollbarHoverColor: Colors.transparent,
-              ),
-            ],
-          ),
-          home: Scaffold(
-            body: child,
+      await tester.pumpWidget(
+        WidgetTestApp(
+          child: _MockDatePicker(
+            data: _DatePickerDataStub(
+              dateTime: fourteenth,
+              endDateTime: fourteenth,
+              includeTime: true,
+              isRange: true,
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
+      await tester.pumpAndSettle();
+
+      final third = dayInDatePicker(3).first;
+      await tester.tap(third);
+      await tester.pumpAndSettle();
+
+      final start = DateTime(2024, 10, 3, 1);
+
+      final dateTextField = find.descendant(
+        of: find.byKey(const ValueKey('end_date_time_text_field')),
+        matching: find.byKey(const ValueKey('date_time_text_field_time')),
+      );
+      expect(dateTextField, findsOneWidget);
+      await tester.enterText(dateTextField, "15:00");
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
+
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('date_time_text_field')),
+          matching: find.text(
+            DateFormat(DateFormatPB.Friendly.pattern).format(start),
+          ),
+        ),
+        findsOneWidget,
+      );
+
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('end_date_time_text_field')),
+          matching: find.text("15:00"),
+        ),
+        findsNothing,
+      );
+
+      AppFlowyDatePickerState afState = getAfState(tester);
+      _MockDatePickerState mockState = getMockState(tester);
+      expect(afState.dateTime, start);
+      expect(afState.startDateTime, start);
+      expect(afState.endDateTime, null);
+      expect(mockState.data.dateTime, fourteenth);
+      expect(mockState.data.endDateTime, fourteenth);
+
+      // select for real now
+      final twentyFifth = dayInDatePicker(25).first;
+      final expected = DateTime(2024, 10, 25, 1);
+      await tester.tap(twentyFifth);
+      await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
+      afState = getAfState(tester);
+      mockState = getMockState(tester);
+      expect(afState.dateTime, start);
+      expect(afState.startDateTime, start);
+      expect(afState.endDateTime, expected);
+      expect(mockState.data.dateTime, start);
+      expect(mockState.data.endDateTime, expected);
+    });
+  });
 }

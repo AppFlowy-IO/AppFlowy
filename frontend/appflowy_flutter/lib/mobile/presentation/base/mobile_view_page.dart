@@ -7,11 +7,14 @@ import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/document_collaborators.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/shared/feature_flags.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -30,6 +33,7 @@ class MobileViewPage extends StatefulWidget {
     this.arguments,
     this.fixedTitle,
     this.showMoreButton = true,
+    this.blockId,
   });
 
   /// view id
@@ -38,6 +42,7 @@ class MobileViewPage extends StatefulWidget {
   final String? title;
   final Map<String, dynamic>? arguments;
   final bool showMoreButton;
+  final String? blockId;
 
   // only used in row page
   final String? fixedTitle;
@@ -63,6 +68,10 @@ class _MobileViewPageState extends State<MobileViewPage> {
   @override
   void dispose() {
     _appBarOpacity.dispose();
+
+    // there's no need to remove the listener, because the observer will be disposed when the widget is unmounted.
+    // inside the observer, the listener will be removed automatically.
+    // _scrollNotificationObserver?.removeListener(_onScrollNotification);
     _scrollNotificationObserver = null;
 
     super.dispose();
@@ -99,6 +108,12 @@ class _MobileViewPageState extends State<MobileViewPage> {
                 create: (_) =>
                     ShareBloc(view: view)..add(const ShareEvent.initial()),
               ),
+              if (state.userProfilePB != null)
+                BlocProvider(
+                  create: (_) =>
+                      UserWorkspaceBloc(userProfile: state.userProfilePB!)
+                        ..add(const UserWorkspaceEvent.initial()),
+                ),
               if (view.layout.isDocumentView)
                 BlocProvider(
                   create: (_) => DocumentPageStyleBloc(view: view)
@@ -177,6 +192,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
           context: PluginContext(userProfile: state.userProfilePB),
           data: {
             MobileDocumentScreen.viewFixedTitle: widget.fixedTitle,
+            MobileDocumentScreen.viewBlockId: widget.blockId,
           },
         );
       },
@@ -248,15 +264,14 @@ class _MobileViewPageState extends State<MobileViewPage> {
   }
 
   Widget _buildTitle(BuildContext context, ViewPB? view) {
-    final icon = view?.icon.value;
+    final icon = view?.icon;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (icon != null && icon.isNotEmpty) ...[
-          FlowyText.emoji(
-            icon,
-            fontSize: 15.0,
-            figmaLineHeight: 18.0,
+        if (icon != null) ...[
+          EmojiIconWidget(
+            emoji: icon.toEmojiIconData(),
+            emojiSize: 15,
           ),
           const HSpace(4),
         ],

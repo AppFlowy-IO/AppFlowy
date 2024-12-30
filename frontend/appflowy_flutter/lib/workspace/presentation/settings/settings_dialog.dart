@@ -14,6 +14,7 @@ import 'package:appflowy/workspace/presentation/settings/pages/settings_manage_d
 import 'package:appflowy/workspace/presentation/settings/pages/settings_plan_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_shortcuts_view.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_workspace_view.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/sites/settings_sites_view.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/af_dropdown_menu_entry.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_dropdown.dart';
@@ -52,16 +53,17 @@ class SettingsDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width * 0.6;
     return BlocProvider<SettingsDialogBloc>(
       create: (context) => SettingsDialogBloc(
         user,
-        context.read<UserWorkspaceBloc>().state.currentWorkspaceMember,
+        context.read<UserWorkspaceBloc>().state.currentWorkspace?.role,
         initPage: initPage,
       )..add(const SettingsDialogEvent.initial()),
       child: BlocBuilder<SettingsDialogBloc, SettingsDialogState>(
         builder: (context, state) => FlowyDialog(
-          width: MediaQuery.of(context).size.width * 0.7,
-          constraints: const BoxConstraints(maxWidth: 784, minWidth: 564),
+          width: width,
+          constraints: const BoxConstraints(minWidth: 564),
           child: ScaffoldMessenger(
             child: Scaffold(
               backgroundColor: Colors.transparent,
@@ -78,10 +80,6 @@ class SettingsDialog extends StatelessWidget {
                       currentPage:
                           context.read<SettingsDialogBloc>().state.page,
                       isBillingEnabled: state.isBillingEnabled,
-                      member: context
-                          .read<UserWorkspaceBloc>()
-                          .state
-                          .currentWorkspaceMember,
                     ),
                   ),
                   Expanded(
@@ -96,7 +94,8 @@ class SettingsDialog extends StatelessWidget {
                       context
                           .read<UserWorkspaceBloc>()
                           .state
-                          .currentWorkspaceMember,
+                          .currentWorkspace
+                          ?.role,
                     ),
                   ),
                 ],
@@ -112,7 +111,7 @@ class SettingsDialog extends StatelessWidget {
     String workspaceId,
     SettingsPage page,
     UserProfilePB user,
-    WorkspaceMemberPB? member,
+    AFRolePB? currentWorkspaceMemberRole,
   ) {
     switch (page) {
       case SettingsPage.account:
@@ -124,7 +123,7 @@ class SettingsDialog extends StatelessWidget {
       case SettingsPage.workspace:
         return SettingsWorkspaceView(
           userProfile: user,
-          workspaceMember: member,
+          currentWorkspaceMemberRole: currentWorkspaceMemberRole,
         );
       case SettingsPage.manageData:
         return SettingsManageDataView(userProfile: user);
@@ -138,7 +137,7 @@ class SettingsDialog extends StatelessWidget {
         if (user.authenticator == AuthenticatorPB.AppFlowyCloud) {
           return SettingsAIView(
             userProfile: user,
-            member: member,
+            currentWorkspaceMemberRole: currentWorkspaceMemberRole,
             workspaceId: workspaceId,
           );
         } else {
@@ -150,9 +149,20 @@ class SettingsDialog extends StatelessWidget {
           workspaceId: workspaceId,
         );
       case SettingsPage.plan:
-        return SettingsPlanView(workspaceId: workspaceId, user: user);
+        return SettingsPlanView(
+          workspaceId: workspaceId,
+          user: user,
+        );
       case SettingsPage.billing:
-        return SettingsBillingView(workspaceId: workspaceId, user: user);
+        return SettingsBillingView(
+          workspaceId: workspaceId,
+          user: user,
+        );
+      case SettingsPage.sites:
+        return SettingsSitesPage(
+          workspaceId: workspaceId,
+          user: user,
+        );
       case SettingsPage.featureFlags:
         return const FeatureFlagsPage();
       default:

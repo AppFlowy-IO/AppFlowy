@@ -11,6 +11,7 @@ class OptionTextField extends StatelessWidget {
   const OptionTextField({
     super.key,
     required this.controller,
+    this.autoFocus = false,
     required this.isPrimary,
     required this.fieldType,
     required this.onTextChanged,
@@ -18,6 +19,7 @@ class OptionTextField extends StatelessWidget {
   });
 
   final TextEditingController controller;
+  final bool autoFocus;
   final bool isPrimary;
   final FieldType fieldType;
   final void Function(String value) onTextChanged;
@@ -27,6 +29,7 @@ class OptionTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyOptionTile.textField(
       controller: controller,
+      autofocus: autoFocus,
       textFieldPadding: const EdgeInsets.symmetric(horizontal: 12.0),
       onTextChanged: onTextChanged,
       leftIcon: GestureDetector(

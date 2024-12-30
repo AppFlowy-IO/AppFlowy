@@ -46,33 +46,36 @@ class DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView>
     );
     _pageController = PageController(initialPage: initCategory);
     _emojiFocusNode.requestFocus();
-    _emojiController.addListener(() {
-      final String query = _emojiController.text.toLowerCase();
-      if (query.isEmpty) {
-        searchEmojiList.emoji.clear();
-        _pageController!.jumpToPage(_tabController!.index);
-      } else {
-        searchEmojiList.emoji.clear();
-        for (final element in widget.state.emojiCategoryGroupList) {
-          searchEmojiList.emoji.addAll(
-            element.emoji
-                .where((item) => item.name.toLowerCase().contains(query))
-                .toList(),
-          );
-        }
-      }
-      setState(() {});
-    });
+    _emojiController.addListener(_onEmojiChanged);
   }
 
   @override
   void dispose() {
+    _emojiController.removeListener(_onEmojiChanged);
     _emojiController.dispose();
     _emojiFocusNode.dispose();
     _pageController?.dispose();
     _tabController?.dispose();
     scrollController.dispose();
     super.dispose();
+  }
+
+  void _onEmojiChanged() {
+    final String query = _emojiController.text.toLowerCase();
+    if (query.isEmpty) {
+      searchEmojiList.emoji.clear();
+      _pageController!.jumpToPage(_tabController!.index);
+    } else {
+      searchEmojiList.emoji.clear();
+      for (final element in widget.state.emojiCategoryGroupList) {
+        searchEmojiList.emoji.addAll(
+          element.emoji
+              .where((item) => item.name.toLowerCase().contains(query))
+              .toList(),
+        );
+      }
+    }
+    setState(() {});
   }
 
   Widget _buildBackspaceButton() {

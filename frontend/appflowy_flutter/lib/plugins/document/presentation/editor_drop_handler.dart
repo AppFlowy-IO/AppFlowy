@@ -1,11 +1,11 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/plugins/document/presentation/editor_drop_manager.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_file.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_image.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/shared/patterns/file_type_patterns.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:desktop_drop/desktop_drop.dart';
@@ -25,42 +25,73 @@ class EditorDropHandler extends StatelessWidget {
     required this.editorState,
     required this.isLocalMode,
     required this.child,
+    this.dropManagerState,
   });
 
   final String viewId;
   final EditorState editorState;
   final bool isLocalMode;
   final Widget child;
+  final EditorDropManagerState? dropManagerState;
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      // Due to how DropTarget works, there is no way to differentiate if an overlay is
-      // blocking the target visibly, so when we have an overlay with a drop target,
-      // we should disable the drop target for the Editor, until it is closed.
-      //
-      // See FileBlockComponent for sample use.
-      //
-      // Relates to:
-      // - https://github.com/MixinNetwork/flutter-plugins/issues/2
-      // - https://github.com/MixinNetwork/flutter-plugins/issues/331
-      //
-      create: (_) => EditorDropManagerState(),
-      child: Consumer<EditorDropManagerState>(
-        builder: (context, dropState, _) => DropTarget(
+    final childWidget = Consumer<EditorDropManagerState>(
+      builder: (context, dropState, _) => DragTarget<ViewPB>(
+        onLeave: (_) => editorState.selectionService.removeDropTarget(),
+        onMove: (details) {
+          if (details.data.id == viewId) {
+            return;
+          }
+
+          _onDragUpdated(details.offset);
+        },
+        onWillAcceptWithDetails: (details) {
+          if (!dropState.isDropEnabled) {
+            return false;
+          }
+
+          if (details.data.id == viewId) {
+            return false;
+          }
+
+          return true;
+        },
+        onAcceptWithDetails: _onDragViewDone,
+        builder: (context, _, __) => DropTarget(
           enable: dropState.isDropEnabled,
           onDragExited: (_) => editorState.selectionService.removeDropTarget(),
-          onDragUpdated: _onDragUpdated,
+          onDragUpdated: (details) => _onDragUpdated(details.globalPosition),
           onDragDone: _onDragDone,
           child: child,
         ),
       ),
     );
+
+    // Due to how DropTarget works, there is no way to differentiate if an overlay is
+    // blocking the target visibly, so when we have an overlay with a drop target,
+    // we should disable the drop target for the Editor, until it is closed.
+    //
+    // See FileBlockComponent for sample use.
+    //
+    // Relates to:
+    // - https://github.com/MixinNetwork/flutter-plugins/issues/2
+    // - https://github.com/MixinNetwork/flutter-plugins/issues/331
+    if (dropManagerState != null) {
+      return ChangeNotifierProvider.value(
+        value: dropManagerState!,
+        child: childWidget,
+      );
+    }
+
+    return ChangeNotifierProvider(
+      create: (_) => EditorDropManagerState(),
+      child: childWidget,
+    );
   }
 
-  void _onDragUpdated(DropEventDetails details) {
-    final data = editorState.selectionService
-        .getDropTargetRenderData(details.globalPosition);
+  void _onDragUpdated(Offset position) {
+    final data = editorState.selectionService.getDropTargetRenderData(position);
 
     if (data != null &&
         data.dropPath != null &&
@@ -69,8 +100,7 @@ class EditorDropHandler extends StatelessWidget {
         // how we can exclude them from the Drop Target
         !_excludeFromDropTarget.contains(data.cursorNode?.type)) {
       // Render the drop target
-      editorState.selectionService
-          .renderDropTargetForOffset(details.globalPosition);
+      editorState.selectionService.renderDropTargetForOffset(position);
     } else {
       editorState.selectionService.removeDropTarget();
     }
@@ -100,6 +130,28 @@ class EditorDropHandler extends StatelessWidget {
             await editorState.dropFiles(dropPath, [file], viewId, isLocalMode);
           }
         }
+      }
+    }
+  }
+
+  void _onDragViewDone(DragTargetDetails<ViewPB> details) {
+    editorState.selectionService.removeDropTarget();
+
+    final data =
+        editorState.selectionService.getDropTargetRenderData(details.offset);
+    if (data != null) {
+      final cursorNode = data.cursorNode;
+      final dropPath = data.dropPath;
+
+      if (cursorNode != null && dropPath != null) {
+        if (_excludeFromDropTarget.contains(cursorNode.type)) {
+          return;
+        }
+
+        final view = details.data;
+        final node = pageMentionNode(view.id);
+        final t = editorState.transaction..insertNode(dropPath, node);
+        editorState.apply(t);
       }
     }
   }

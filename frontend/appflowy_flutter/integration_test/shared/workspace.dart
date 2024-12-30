@@ -40,9 +40,13 @@ extension AppFlowyWorkspace on WidgetTester {
       moreButton,
       onHover: () async {
         await tapButton(moreButton);
-        await tapButton(
-          find.findTextInFlowyText(LocaleKeys.button_rename.tr()),
+        // wait for the menu to open
+        final renameButton = find.findTextInFlowyText(
+          LocaleKeys.button_rename.tr(),
         );
+        await pumpUntilFound(renameButton);
+        expect(renameButton, findsOneWidget);
+        await tapButton(renameButton);
         final input = find.byType(TextFormField);
         expect(input, findsOneWidget);
         await enterText(input, name);

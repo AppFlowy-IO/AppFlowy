@@ -1,6 +1,3 @@
-import 'package:appflowy/plugins/document/presentation/editor_drop_handler.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/plugins/database/application/row/related_row_detail_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/row/row_detail_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_option_separator.dart';
@@ -9,8 +6,10 @@ import 'package:appflowy/plugins/database/widgets/row/row_banner.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_property.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
+import 'package:appflowy/plugins/document/presentation/editor_drop_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -19,6 +18,7 @@ import 'package:appflowy/workspace/application/action_navigation/navigation_acti
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // This widget is largely copied from `plugins/document/document_page.dart` intentionally instead of opting for an abstraction. We can make an abstraction after the view refactor is done and there's more clarity in that department.
@@ -122,11 +122,15 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
       ),
     );
 
-    return Column(
-      children: [
-        if (state.isDeleted) _buildBanner(context),
-        Expanded(child: appflowyEditorPage),
-      ],
+    return EditorTransactionService(
+      viewId: widget.view.id,
+      editorState: state.editorState!,
+      child: Column(
+        children: [
+          if (state.isDeleted) _buildBanner(context),
+          Expanded(child: appflowyEditorPage),
+        ],
+      ),
     );
   }
 

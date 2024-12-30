@@ -302,7 +302,11 @@ describe('Enter key behavior', () => {
 
     initializeEditor(collapsedToggleListData);
 
-    moveAndEnter(0, 21); // Move to the end of "Collapsed toggle list"
+    cy.selectMultipleText(['Collapsed toggle list']);
+    cy.wait(500);
+    cy.realPress('ArrowRight');// Move to the end of "Collapsed toggle list"
+    cy.realPress('Enter');
+
     assertJSON([{
       type: 'toggle_list',
       data: { collapsed: true },
@@ -527,8 +531,7 @@ describe('Enter key behavior', () => {
 
       cy.selectMultipleText(['st paragraph', 'Second para']);
       cy.wait(500);
-      cy.get('@editor').focus();
-      cy.get('@editor').type('{enter}');
+      cy.get('@editor').realPress('Enter');
 
       assertJSON([
         {

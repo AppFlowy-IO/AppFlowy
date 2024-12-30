@@ -38,7 +38,6 @@ class DesktopGridTextCellSkin extends IEditableTextCellSkin {
                         : null,
                   ),
               decoration: const InputDecoration(
-                contentPadding: EdgeInsets.only(top: 4),
                 border: InputBorder.none,
                 focusedBorder: InputBorder.none,
                 enabledBorder: InputBorder.none,
@@ -84,7 +83,8 @@ class _IconOrEmoji extends StatelessWidget {
                       return hasDocument
                           ? Padding(
                               padding:
-                                  const EdgeInsetsDirectional.only(end: 6.0),
+                                  const EdgeInsetsDirectional.only(end: 6.0)
+                                      .add(const EdgeInsets.all(1)),
                               child: FlowySvg(
                                 FlowySvgs.notes_s,
                                 color: Theme.of(context).hintColor,

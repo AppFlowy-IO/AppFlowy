@@ -121,7 +121,7 @@ class AppFlowyGridTest {
     final context = await ImportBackendService.importPages(
       workspace.id,
       [
-        ImportValuePayloadPB()
+        ImportItemPayloadPB()
           ..name = fileName
           ..data = utf8.encode(data)
           ..viewLayout = ViewLayoutPB.Grid

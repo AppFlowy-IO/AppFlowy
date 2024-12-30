@@ -65,6 +65,11 @@ class _DraggableViewItemState extends State<DraggableViewItem> {
       onMove: (data) {
         final renderBox = context.findRenderObject() as RenderBox;
         final offset = renderBox.globalToLocal(data.offset);
+
+        if (offset.dx > renderBox.size.width) {
+          return;
+        }
+
         final position = _computeHoverPosition(offset, renderBox.size);
         if (!_shouldAccept(data.data, position)) {
           return;

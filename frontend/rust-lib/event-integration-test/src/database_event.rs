@@ -11,7 +11,7 @@ use collab_database::rows::{Row, RowId};
 use flowy_database2::entities::*;
 use flowy_database2::event_map::DatabaseEvent;
 use flowy_database2::services::cell::CellBuilder;
-use flowy_database2::services::field::ChecklistCellInsertChangeset;
+use flowy_database2::services::field::checklist_filter::ChecklistCellInsertChangeset;
 use flowy_database2::services::share::csv::CSVFormat;
 use flowy_folder::entities::*;
 use flowy_folder::event_map::FolderEvent;
@@ -38,7 +38,6 @@ impl EventIntegrationTest {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
       name,
-      desc: "".to_string(),
       thumbnail: None,
       layout: ViewLayoutPB::Grid,
       initial_data,
@@ -57,21 +56,21 @@ impl EventIntegrationTest {
       .parse::<ViewPB>()
   }
 
-  pub async fn open_database(&self, view_id: &str) {
+  pub async fn open_database(&self, view_id: &str) -> DatabasePB {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::GetDatabase)
       .payload(DatabaseViewIdPB {
         value: view_id.to_string(),
       })
       .async_send()
-      .await;
+      .await
+      .parse::<DatabasePB>()
   }
 
   pub async fn create_board(&self, parent_id: &str, name: String, initial_data: Vec<u8>) -> ViewPB {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
       name,
-      desc: "".to_string(),
       thumbnail: None,
       layout: ViewLayoutPB::Board,
       initial_data,
@@ -99,7 +98,6 @@ impl EventIntegrationTest {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
       name,
-      desc: "".to_string(),
       thumbnail: None,
       layout: ViewLayoutPB::Calendar,
       initial_data,
@@ -169,6 +167,41 @@ impl EventIntegrationTest {
         view_id: view_id.to_string(),
         field_id: field_id.to_string(),
       })
+      .async_send()
+      .await
+      .error()
+  }
+
+  pub async fn remove_calculate(
+    &self,
+    changeset: RemoveCalculationChangesetPB,
+  ) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::RemoveCalculation)
+      .payload(changeset)
+      .async_send()
+      .await
+      .error()
+  }
+
+  pub async fn get_all_calculations(&self, database_view_id: &str) -> RepeatedCalculationsPB {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::GetAllCalculations)
+      .payload(DatabaseViewIdPB {
+        value: database_view_id.to_string(),
+      })
+      .async_send()
+      .await
+      .parse::<RepeatedCalculationsPB>()
+  }
+
+  pub async fn update_calculation(
+    &self,
+    changeset: UpdateCalculationChangesetPB,
+  ) -> Option<FlowyError> {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::UpdateCalculation)
+      .payload(changeset)
       .async_send()
       .await
       .error()

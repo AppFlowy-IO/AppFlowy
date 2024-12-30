@@ -6,7 +6,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/image_render.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/layouts/image_browser_layout.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/upload_image_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/widgets/embed_image_url_widget.dart';
@@ -49,7 +48,7 @@ void main() {
       await tester.editor.showSlashMenu();
       await tester.editor.tapSlashMenuItemWithName(
         LocaleKeys.document_slashMenu_name_photoGallery.tr(),
-        offset: 100,
+        offset: 80,
       );
       expect(find.byType(MultiImageBlockComponent), findsOneWidget);
       expect(find.byType(MultiImagePlaceholder), findsOneWidget);
@@ -147,7 +146,7 @@ void main() {
       await tester.editor.showSlashMenu();
       await tester.editor.tapSlashMenuItemWithName(
         LocaleKeys.document_slashMenu_name_photoGallery.tr(),
-        offset: 100,
+        offset: 80,
       );
       expect(find.byType(MultiImageBlockComponent), findsOneWidget);
       expect(find.byType(MultiImagePlaceholder), findsOneWidget);

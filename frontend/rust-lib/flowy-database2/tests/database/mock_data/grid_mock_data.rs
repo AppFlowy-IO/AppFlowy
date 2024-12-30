@@ -1,25 +1,26 @@
 use collab_database::database::{gen_database_id, gen_database_view_id, gen_row_id, DatabaseData};
 use collab_database::entity::DatabaseView;
+use collab_database::fields::checklist_type_option::ChecklistTypeOption;
 use collab_database::fields::date_type_option::{
   DateFormat, DateTypeOption, TimeFormat, TimeTypeOption,
 };
 use collab_database::fields::media_type_option::MediaTypeOption;
 use collab_database::fields::number_type_option::{NumberFormat, NumberTypeOption};
+use collab_database::fields::relation_type_option::RelationTypeOption;
 use collab_database::fields::select_type_option::{
   MultiSelectTypeOption, SelectOption, SelectOptionColor, SingleSelectTypeOption,
 };
+use collab_database::fields::summary_type_option::SummarizationTypeOption;
 use collab_database::fields::timestamp_type_option::TimestampTypeOption;
+use collab_database::fields::translate_type_option::TranslateTypeOption;
 use collab_database::views::DatabaseLayout;
 use strum::IntoEnumIterator;
 
 use crate::database::mock_data::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, PLANNED, TWITTER};
 use event_integration_test::database_event::TestRowBuilder;
 use flowy_database2::entities::FieldType;
-use flowy_database2::services::field::summary_type_option::summary::SummarizationTypeOption;
-use flowy_database2::services::field::translate_type_option::translate::TranslateTypeOption;
-use flowy_database2::services::field::{
-  ChecklistCellInsertChangeset, ChecklistTypeOption, FieldBuilder, RelationTypeOption,
-};
+use flowy_database2::services::field::checklist_filter::ChecklistCellInsertChangeset;
+use flowy_database2::services::field::FieldBuilder;
 use flowy_database2::services::field_settings::default_field_settings_for_fields;
 
 pub fn make_test_grid() -> DatabaseData {
@@ -67,6 +68,7 @@ pub fn make_test_grid() -> DatabaseData {
           time_format: TimeFormat::TwentyFourHour,
           include_time: true,
           field_type: field_type.into(),
+          timezone: None,
         };
         let name = match field_type {
           FieldType::LastEditedTime => "Last Modified",
@@ -160,7 +162,7 @@ pub fn make_test_grid() -> DatabaseData {
       },
       FieldType::Media => {
         let type_option = MediaTypeOption {
-          hide_file_names: false,
+          hide_file_names: true,
         };
 
         let media_field = FieldBuilder::new(field_type, type_option)

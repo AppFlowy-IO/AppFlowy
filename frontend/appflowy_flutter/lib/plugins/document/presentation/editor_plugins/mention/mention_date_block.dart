@@ -9,7 +9,7 @@ import 'package:appflowy/user/application/reminder/reminder_extension.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
-import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_appflowy_date_picker.dart';
+import 'package:appflowy/workspace/presentation/widgets/date_picker/mobile_date_picker.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/date_time_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/utils/user_time_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_picker_dialog.dart';
@@ -17,7 +17,6 @@ import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/mobi
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/reminder_selector.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
@@ -67,6 +66,12 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
   late DateTime? parsedDate = DateTime.tryParse(widget.date);
 
   @override
+  void didUpdateWidget(covariant oldWidget) {
+    parsedDate = DateTime.tryParse(widget.date);
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   void dispose() {
     mutex.dispose();
     super.dispose();
@@ -75,6 +80,13 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
   @override
   Widget build(BuildContext context) {
     if (parsedDate == null) {
+      return const SizedBox.shrink();
+    }
+
+    final appearance = context.read<AppearanceSettingsCubit?>();
+    final reminder = context.read<ReminderBloc?>();
+
+    if (appearance == null || reminder == null) {
       return const SizedBox.shrink();
     }
 
@@ -99,7 +111,7 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
             dateFormat: appearance.dateFormat,
             timeFormat: appearance.timeFormat,
             selectedReminderOption: widget.reminderOption,
-            onIncludeTimeChanged: (includeTime) {
+            onIncludeTimeChanged: (includeTime, dateTime, _) {
               _includeTime = includeTime;
 
               if (widget.reminderOption != ReminderOption.none) {
@@ -108,9 +120,10 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
                   reminder,
                   includeTime,
                 );
-              } else {
+              } else if (dateTime != null) {
+                parsedDate = dateTime;
                 _updateBlock(
-                  parsedDate!,
+                  dateTime,
                   includeTime: includeTime,
                 );
               }
@@ -160,8 +173,8 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
             },
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+              child: Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Text(
                     '@$formattedDate',
@@ -358,6 +371,7 @@ class _DatePickerBottomSheet extends StatelessWidget {
           MobileAppFlowyDatePicker(
             dateTime: parsedDate,
             includeTime: includeTime,
+            isRange: options.isRange,
             dateFormat: options.dateFormat.simplified,
             timeFormat: options.timeFormat.simplified,
             reminderOption: reminderOption,

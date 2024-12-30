@@ -10,27 +10,9 @@ part 'view_title_bar_bloc.freezed.dart';
 
 class ViewTitleBarBloc extends Bloc<ViewTitleBarEvent, ViewTitleBarState> {
   ViewTitleBarBloc({required this.view}) : super(ViewTitleBarState.initial()) {
-    trashService = TrashService();
-    viewListener = ViewListener(viewId: view.id)
-      ..start(
-        onViewChildViewsUpdated: (_) => add(const ViewTitleBarEvent.reload()),
-      );
-    trashListener = TrashListener()
-      ..start(
-        trashUpdated: (trashOrFailed) {
-          final trash = trashOrFailed.toNullable();
-          if (trash != null) {
-            add(ViewTitleBarEvent.trashUpdated(trash: trash));
-          }
-        },
-      );
-
     on<ViewTitleBarEvent>(
       (event, emit) async {
         await event.when(
-          initial: () async {
-            add(const ViewTitleBarEvent.reload());
-          },
           reload: () async {
             final List<ViewPB> ancestors =
                 await ViewBackendService.getViewAncestors(view.id).fold(
@@ -53,6 +35,29 @@ class ViewTitleBarBloc extends Bloc<ViewTitleBarEvent, ViewTitleBarState> {
         );
       },
     );
+
+    trashService = TrashService();
+    viewListener = ViewListener(viewId: view.id)
+      ..start(
+        onViewChildViewsUpdated: (_) {
+          if (!isClosed) {
+            add(const ViewTitleBarEvent.reload());
+          }
+        },
+      );
+    trashListener = TrashListener()
+      ..start(
+        trashUpdated: (trashOrFailed) {
+          final trash = trashOrFailed.toNullable();
+          if (trash != null && !isClosed) {
+            add(ViewTitleBarEvent.trashUpdated(trash: trash));
+          }
+        },
+      );
+
+    if (!isClosed) {
+      add(const ViewTitleBarEvent.reload());
+    }
   }
 
   final ViewPB view;
@@ -70,7 +75,6 @@ class ViewTitleBarBloc extends Bloc<ViewTitleBarEvent, ViewTitleBarState> {
 
 @freezed
 class ViewTitleBarEvent with _$ViewTitleBarEvent {
-  const factory ViewTitleBarEvent.initial() = Initial;
   const factory ViewTitleBarEvent.reload() = Reload;
   const factory ViewTitleBarEvent.trashUpdated({
     required List<TrashPB> trash,

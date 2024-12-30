@@ -347,5 +347,27 @@ void main() {
 
       await tester.pumpAndSettle();
     });
+
+    testWidgets('paste text in title, check if the text is updated',
+        (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent();
+
+      await Clipboard.setData(const ClipboardData(text: _testDocumentName));
+
+      final title = tester.editor.findDocumentTitle('');
+      await tester.tapButton(title);
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyV,
+        isMetaPressed: UniversalPlatform.isMacOS,
+        isControlPressed: !UniversalPlatform.isMacOS,
+      );
+      await tester.pumpAndSettle();
+
+      final newTitle = tester.editor.findDocumentTitle(_testDocumentName);
+      expect(newTitle, findsOneWidget);
+    });
   });
 }

@@ -49,5 +49,66 @@ void main() {
 
       editorState.dispose();
     });
+
+    testWidgets('convert block contains children to toggle list',
+        (tester) async {
+      const paragraph1 = '>paragraph 1';
+      const paragraph1_1 = 'paragraph 1.1';
+      const paragraph1_2 = 'paragraph 1.2';
+
+      final document = createDocument([
+        paragraphNode(
+          text: paragraph1,
+          children: [
+            paragraphNode(text: paragraph1_1),
+            paragraphNode(text: paragraph1_2),
+          ],
+        ),
+      ]);
+
+      final editorState = EditorState(document: document);
+      editorState.selection = Selection.collapsed(
+        Position(path: [0], offset: 1),
+      );
+
+      final result = await formatGreaterToToggleList.execute(editorState);
+      expect(result, true);
+
+      expect(editorState.document.root.children.length, 1);
+      final node = editorState.document.root.children[0];
+      expect(node.type, ToggleListBlockKeys.type);
+      expect(node.delta!.toPlainText(), 'paragraph 1');
+      expect(node.children.length, 2);
+      expect(node.children[0].delta!.toPlainText(), paragraph1_1);
+      expect(node.children[1].delta!.toPlainText(), paragraph1_2);
+
+      editorState.dispose();
+    });
+
+    testWidgets('press the enter key in empty toggle list', (tester) async {
+      const text = 'AppFlowy';
+
+      final document = createDocument([
+        toggleListBlockNode(text: text, collapsed: true),
+      ]);
+
+      final editorState = EditorState(document: document);
+      editorState.selection = Selection.collapsed(
+        Position(path: [0], offset: text.length),
+      );
+
+      // simulate the enter key press
+      final result = await insertChildNodeInsideToggleList.execute(editorState);
+      expect(result, true);
+
+      final nodes = editorState.document.root.children;
+      expect(nodes.length, 2);
+      for (var i = 0; i < nodes.length; i++) {
+        final node = nodes[i];
+        expect(node.type, ToggleListBlockKeys.type);
+      }
+
+      editorState.dispose();
+    });
   });
 }

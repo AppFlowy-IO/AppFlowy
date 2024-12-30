@@ -1,4 +1,4 @@
-use crate::integrate::server::ServerProvider;
+use crate::server_layer::ServerProvider;
 use collab_folder::hierarchy_builder::ParentChildViews;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use flowy_database2::DatabaseManager;

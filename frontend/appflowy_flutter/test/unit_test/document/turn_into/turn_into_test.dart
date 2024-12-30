@@ -32,23 +32,17 @@ void main() {
           ? EditorOptionActionType.turnInto.supportTypes
           : [toType];
       for (final type in types) {
-        if (type == originalType) {
+        if (type == originalType || type == SubPageBlockKeys.type) {
           continue;
         }
 
         editorState.selectionType = SelectionType.block;
-        editorState.selection = selection ??
-            Selection.collapsed(
-              Position(path: [0]),
-            );
+        editorState.selection =
+            selection ?? Selection.collapsed(Position(path: [0]));
 
         final node = editorState.getNodeAtPath([0])!;
         expect(node.type, originalType);
-        final result = await cubit.turnIntoBlock(
-          type,
-          node,
-          level: level,
-        );
+        final result = await cubit.turnIntoBlock(type, node, level: level);
         expect(result, true);
         final newNode = editorState.getNodeAtPath([0])!;
         expect(newNode.type, type);
@@ -82,26 +76,13 @@ void main() {
 
     test('from heading to another blocks', () async {
       const text = 'Heading 1';
-      final document = createDocument([
-        headingNode(
-          level: 1,
-          text: text,
-        ),
-      ]);
-      await checkTurnInto(
-        document,
-        HeadingBlockKeys.type,
-        text,
-      );
+      final document = createDocument([headingNode(level: 1, text: text)]);
+      await checkTurnInto(document, HeadingBlockKeys.type, text);
     });
 
     test('from paragraph to another blocks', () async {
       const text = 'Paragraph';
-      final document = createDocument([
-        paragraphNode(
-          text: text,
-        ),
-      ]);
+      final document = createDocument([paragraphNode(text: text)]);
       await checkTurnInto(
         document,
         ParagraphBlockKeys.type,
@@ -717,9 +698,7 @@ void main() {
           document,
           HeadingBlockKeys.type,
           heading1,
-          selection: Selection.collapsed(
-            Position(path: [0]),
-          ),
+          selection: Selection.collapsed(Position(path: [0])),
           toType: ToggleListBlockKeys.type,
           level: 1,
           afterTurnInto: (editorState, node) {

@@ -567,6 +567,12 @@ extension AppFlowyDatabaseTest on WidgetTester {
     expect(phantom is PhantomChecklistItem, true);
   }
 
+  void assertPhantomChecklistItemContent(String content) {
+    final phantom = find.byType(PhantomChecklistItem);
+    final text = find.text(content);
+    expect(find.descendant(of: phantom, matching: text), findsOneWidget);
+  }
+
   Future<void> openFirstRowDetailPage() async {
     await hoverOnFirstRowOfGrid();
 
@@ -596,7 +602,10 @@ extension AppFlowyDatabaseTest on WidgetTester {
     final banner = find.byType(RowBanner);
     expect(banner, findsOneWidget);
 
-    await startGesture(getCenter(banner), kind: PointerDeviceKind.mouse);
+    await startGesture(
+      getCenter(banner) + const Offset(0, -10),
+      kind: PointerDeviceKind.mouse,
+    );
     await pumpAndSettle();
   }
 
@@ -608,7 +617,6 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await tapButtonWithName(
       LocaleKeys.document_plugins_cover_addCover.tr(),
     );
-    await pumpAndSettle();
   }
 
   Future<void> openEmojiPicker() async =>

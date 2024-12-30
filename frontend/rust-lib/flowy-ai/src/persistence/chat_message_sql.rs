@@ -82,3 +82,13 @@ pub fn select_single_message(
     .optional()?;
   Ok(message)
 }
+
+pub fn select_message_where_match_reply_message_id(
+  mut conn: DBConnection,
+  answer_message_id_val: i64,
+) -> QueryResult<Option<ChatMessageTable>> {
+  dsl::chat_message_table
+    .filter(chat_message_table::reply_message_id.eq(answer_message_id_val))
+    .first::<ChatMessageTable>(&mut *conn)
+    .optional()
+}

@@ -8,7 +8,7 @@ interface ImageRenderProps extends React.HTMLAttributes<HTMLImageElement> {
   alt?: string;
 }
 
-export function ImageRender({ src, ...props }: ImageRenderProps) {
+export function ImageRender ({ src, ...props }: ImageRenderProps) {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -21,7 +21,11 @@ export function ImageRender({ src, ...props }: ImageRenderProps) {
           <div className={'text-function-error'}>{t('editor.imageLoadFailed')}</div>
         </div>
       ) : loading ? (
-        <Skeleton variant='rectangular' width={'100%'} height={'100%'} />
+        <Skeleton
+          variant="rectangular"
+          width={'100%'}
+          height={'100%'}
+        />
       ) : null}
       <img
         style={{

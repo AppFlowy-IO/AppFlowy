@@ -12,6 +12,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class CoverTitle extends StatelessWidget {
   const CoverTitle({
@@ -45,11 +46,10 @@ class _InnerCoverTitle extends StatefulWidget {
 
 class _InnerCoverTitleState extends State<_InnerCoverTitle> {
   final titleTextController = TextEditingController();
-  final titleFocusNode = FocusNode();
 
   late final editorContext = context.read<SharedEditorContext>();
   late final editorState = context.read<EditorState>();
-  bool isTitleFocused = false;
+  late final titleFocusNode = editorContext.coverTitleFocusNode;
   int lineCount = 1;
 
   @override
@@ -58,43 +58,23 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
 
     titleTextController.text = widget.view.name;
     titleTextController.addListener(_onViewNameChanged);
-    titleFocusNode.onKeyEvent = _onKeyEvent;
-    titleFocusNode.addListener(() {
-      isTitleFocused = titleFocusNode.hasFocus;
 
-      if (titleFocusNode.hasFocus && editorState.selection != null) {
-        Log.info('cover title got focus, clear the editor selection');
-        editorState.selection = null;
-      }
+    titleFocusNode
+      ..onKeyEvent = _onKeyEvent
+      ..addListener(_onFocusChanged);
 
-      if (isTitleFocused) {
-        Log.info('cover title got focus, disable keyboard service');
-        editorState.service.keyboardService?.disable();
-      } else {
-        Log.info('cover title lost focus, enable keyboard service');
-        editorState.service.keyboardService?.enable();
-      }
-    });
+    editorState.selectionNotifier.addListener(_onSelectionChanged);
 
-    editorState.selectionNotifier.addListener(() {
-      // if title is focused and the selection is not null, clear the selection
-      if (editorState.selection != null && isTitleFocused) {
-        Log.info('title is focused, clear the editor selection');
-        editorState.selection = null;
-      }
-    });
-    _requestFocusIfNeeded(widget.view, null);
-
-    editorContext.coverTitleFocusNode = titleFocusNode;
+    _requestInitialFocus();
   }
 
   @override
   void dispose() {
-    editorContext.coverTitleFocusNode = null;
-
+    titleFocusNode
+      ..onKeyEvent = null
+      ..removeListener(_onFocusChanged);
     titleTextController.dispose();
-    titleFocusNode.dispose();
-
+    editorState.selectionNotifier.removeListener(_onSelectionChanged);
     super.dispose();
   }
 
@@ -103,7 +83,7 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     final fontStyle = Theme.of(context)
         .textTheme
         .bodyMedium!
-        .copyWith(fontSize: 38.0, fontWeight: FontWeight.w700);
+        .copyWith(fontSize: 40.0, fontWeight: FontWeight.w700);
     final width = context.read<DocumentAppearanceCubit>().state.width;
     return BlocConsumer<ViewBloc, ViewState>(
       listenWhen: (previous, current) =>
@@ -142,6 +122,36 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     );
   }
 
+  void _requestInitialFocus() {
+    if (editorContext.requestCoverTitleFocus) {
+      void requestFocus() {
+        titleFocusNode.canRequestFocus = true;
+        titleFocusNode.requestFocus();
+        editorContext.requestCoverTitleFocus = false;
+      }
+
+      // on macOS, if we gain focus immediately, the focus won't work.
+      // It's a workaround to delay the focus request.
+      if (UniversalPlatform.isMacOS) {
+        Future.delayed(Durations.short4, () {
+          requestFocus();
+        });
+      } else {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          requestFocus();
+        });
+      }
+    }
+  }
+
+  void _onSelectionChanged() {
+    // if title is focused and the selection is not null, clear the selection
+    if (editorState.selection != null && titleFocusNode.hasFocus) {
+      Log.info('title is focused, clear the editor selection');
+      editorState.selection = null;
+    }
+  }
+
   void _onListen(BuildContext context, ViewState state) {
     _requestFocusIfNeeded(widget.view, state);
 
@@ -152,6 +162,10 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
 
   bool _shouldFocus(ViewPB view, ViewState? state) {
     final name = state?.view.name ?? view.name;
+
+    if (editorState.document.root.children.isNotEmpty) {
+      return false;
+    }
 
     // if the view's name is empty, focus on the title
     if (name.isEmpty) {
@@ -165,6 +179,30 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
     final shouldFocus = _shouldFocus(view, state);
     if (shouldFocus) {
       titleFocusNode.requestFocus();
+    }
+  }
+
+  void _onFocusChanged() {
+    if (titleFocusNode.hasFocus) {
+      // if the document is empty, disable the keyboard service
+      final children = editorState.document.root.children;
+      final firstDelta = children.firstOrNull?.delta;
+      final isEmptyDocument =
+          children.length == 1 && (firstDelta == null || firstDelta.isEmpty);
+      if (!isEmptyDocument) {
+        return;
+      }
+
+      if (editorState.selection != null) {
+        Log.info('cover title got focus, clear the editor selection');
+        editorState.selection = null;
+      }
+
+      Log.info('cover title got focus, disable keyboard service');
+      editorState.service.keyboardService?.disable();
+    } else {
+      Log.info('cover title lost focus, enable keyboard service');
+      editorState.service.keyboardService?.enable();
     }
   }
 

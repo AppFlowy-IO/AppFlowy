@@ -20,7 +20,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 const WorkspaceMemberLimitExceededCode = 1027;
 const REPEAT_REQUEST_CODE = 1043;
 
-function ApproveRequestPage () {
+function ApproveRequestPage() {
   const [searchParams] = useSearchParams();
   const isAuthenticated = useContext(AFConfigContext)?.isAuthenticated;
 
@@ -35,12 +35,16 @@ function ApproveRequestPage () {
   const [errorModalOpen, setErrorModalOpen] = React.useState(false);
   const [alreadyProModalOpen, setAlreadyProModalOpen] = React.useState(false);
   const [clicked, setClicked] = React.useState(false);
+  const url = useMemo(() => {
+    return window.location.href;
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login?redirectTo=' + encodeURIComponent(window.location.href));
     }
   }, [isAuthenticated, navigate]);
+
   const loadRequestInfo = useCallback(async () => {
     if (!service || !requestId) return;
     try {
@@ -126,7 +130,7 @@ function ApproveRequestPage () {
         }}
         className={'flex w-full cursor-pointer max-md:justify-center max-md:h-32 h-20 items-center justify-between sticky'}
       >
-        <AppflowyLogo className={'w-32 h-12 max-md:w-52'} />
+        <AppflowyLogo className={'w-32 h-12 max-md:w-52'}/>
       </div>
       <div className={'flex w-full flex-1 max-w-[560px] justify-center flex-col items-center gap-6 text-center'}>
         <Avatar
@@ -190,16 +194,18 @@ function ApproveRequestPage () {
           </p>
         </div>
       </NormalModal>
-      <ChangeAccount
+      {isAuthenticated && <ChangeAccount
+        redirectTo={url}
         setModalOpened={setErrorModalOpen}
         modalOpened={errorModalOpen}
-      />
+      />}
+
       <NormalModal
         onOk={() => setAlreadyProModalOpen(false)}
         keepMounted={false}
         title={
           <div className={'text-left font-semibold gap-2 flex items-center'}>
-            <WarningIcon className={'w-6 h-6 text-function-info'} />
+            <WarningIcon className={'w-6 h-6 text-function-info'}/>
             {t('approveAccess.alreadyProTitle')}
           </div>
         }

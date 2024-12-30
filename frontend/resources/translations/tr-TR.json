@@ -1442,8 +1442,8 @@
       "delete": "Sil",
       "addFileOrImage": "Bir dosya, resim veya bağlantı ekleyin",
       "addFileMobile": "Dosya ekle",
-      "hideFileNames": "Dosya adlarını gizle",
-      "downloadSuccess": "Dosya başarıyla kaydedildi"
+      "downloadSuccess": "Dosya başarıyla kaydedildi",
+      "hideFileNames": "Dosya adlarını gizle"
     }
   },
   "document": {
@@ -2198,9 +2198,9 @@
     "unsplash": "Unsplash",
     "pageCover": "Sayfa kapağı",
     "none": "Yok",
-    "photoPermissionDescription": "Görüntü yüklemek için fotoğraf kitaplığına erişim izni verin.",
     "openSettings": "Ayarları Aç",
     "photoPermissionTitle": "@:appName fotoğraf kitaplığınıza erişmek istiyor",
+    "photoPermissionDescription": "Görüntü yüklemek için fotoğraf kitaplığına erişim izni verin.",
     "doNotAllow": "İzin Verme",
     "image": "Resim"
   },

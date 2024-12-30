@@ -27,7 +27,6 @@ function MobileFolder ({
   const [selectedTab, setSelectedTab] = React.useState<ViewTabsKey>(ViewTabsKey.Space);
   const { t } = useTranslation();
 
-  console.log('MobileFolder', selectedTab);
   return (
     <AFScroller
       overflowXHidden

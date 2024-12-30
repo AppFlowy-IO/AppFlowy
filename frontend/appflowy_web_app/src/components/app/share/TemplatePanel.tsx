@@ -12,8 +12,8 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as DeleteIcon } from '@/assets/trash.svg';
 import { ReactComponent as EditIcon } from '@/assets/edit.svg';
 
-function TemplatePanel () {
-  const view = useAppView();
+function TemplatePanel ({ viewId }: { viewId: string }) {
+  const view = useAppView(viewId);
   const service = useService();
   const [loading, setLoading] = React.useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
@@ -35,7 +35,7 @@ function TemplatePanel () {
   const { t } = useTranslation();
   const {
     url: publishUrl,
-  } = useLoadPublishInfo();
+  } = useLoadPublishInfo(viewId);
 
   const url = useMemo(() => {
     const origin = import.meta.env.AF_BASE_URL?.includes('test') ? 'https://test.appflowy.io' : 'https://appflowy.io';
@@ -49,11 +49,22 @@ function TemplatePanel () {
 
   const renderLoading = useCallback(() => {
     return <>
-      <Skeleton variant={'rectangular'} height={40} />
+      <Skeleton
+        variant={'rectangular'}
+        height={40}
+      />
       <div className={'flex items-center gap-1.5 justify-end w-full'}>
-        <Skeleton variant={'rectangular'} height={32} className={'flex-1 max-w-[50%]'} />
+        <Skeleton
+          variant={'rectangular'}
+          height={32}
+          className={'flex-1 max-w-[50%]'}
+        />
 
-        <Skeleton variant={'rectangular'} height={32} className={'flex-1 max-w-[50%]'} />
+        <Skeleton
+          variant={'rectangular'}
+          height={32}
+          className={'flex-1 max-w-[50%]'}
+        />
       </div>
     </>;
   }, []);
@@ -70,15 +81,19 @@ function TemplatePanel () {
           color={'error'}
           variant={'contained'}
           startIcon={<DeleteIcon />}
-          className={'flex-1'} onClick={() => {
-          setDeleteModalOpen(true);
-        }}
+          className={'flex-1'}
+          onClick={() => {
+            setDeleteModalOpen(true);
+          }}
         >
           {t('button.delete')}
         </Button>
         <Button
           startIcon={<EditIcon />}
-          className={'flex-1'} onClick={handleEditClick} variant={'outlined'} color={'inherit'}
+          className={'flex-1'}
+          onClick={handleEditClick}
+          variant={'outlined'}
+          color={'inherit'}
         >{t('button.edit')}</Button>
       </div>
     </>;
@@ -86,7 +101,7 @@ function TemplatePanel () {
 
   return (
     <div className={'flex flex-col gap-2'}>
-      {loading ? renderLoading() : template ? renderTemplateButtons() : <AsTemplateButton />}
+      {loading ? renderLoading() : template ? renderTemplateButtons() : <AsTemplateButton viewId={viewId} />}
       {deleteModalOpen && view &&
         <DeleteTemplate
           id={view.view_id}

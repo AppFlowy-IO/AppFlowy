@@ -153,7 +153,6 @@ class MobileThirdPartySignInButton extends StatelessWidget {
   }
 }
 
-
 class DesktopSignInButton extends StatelessWidget {
   const DesktopSignInButton({
     super.key,

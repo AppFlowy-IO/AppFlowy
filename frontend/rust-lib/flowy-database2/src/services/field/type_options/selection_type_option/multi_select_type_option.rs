@@ -1,8 +1,8 @@
 use crate::entities::{FieldType, SelectOptionCellDataPB, SelectOptionFilterPB};
 use crate::services::cell::CellDataChangeset;
 use crate::services::field::{
-  default_order, SelectOptionCellChangeset, SelectTypeOptionSharedAction, TypeOption,
-  TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionCellDataSerde,
+  default_order, CellDataProtobufEncoder, SelectOptionCellChangeset, SelectTypeOptionSharedAction,
+  TypeOption, TypeOptionCellDataCompare, TypeOptionCellDataFilter,
 };
 use crate::services::sort::SortCondition;
 
@@ -13,6 +13,7 @@ use collab_database::fields::TypeOptionData;
 use collab_database::rows::Cell;
 use flowy_error::FlowyResult;
 
+use collab_database::template::util::ToCellString;
 use std::cmp::Ordering;
 
 impl TypeOption for MultiSelectTypeOption {
@@ -22,16 +23,12 @@ impl TypeOption for MultiSelectTypeOption {
   type CellFilter = SelectOptionFilterPB;
 }
 
-impl TypeOptionCellDataSerde for MultiSelectTypeOption {
+impl CellDataProtobufEncoder for MultiSelectTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     self.get_selected_options(cell_data).into()
-  }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(SelectOptionIds::from(cell))
   }
 }
 
@@ -84,12 +81,12 @@ impl CellDataChangeset for MultiSelectTypeOption {
           select_ids.retain(|id| id != &delete_option_id);
         }
 
-        tracing::trace!("Multi-select cell data: {}", select_ids.to_string());
+        tracing::trace!("Multi-select cell data: {}", select_ids.to_cell_string());
         select_ids
       },
     };
     Ok((
-      select_option_ids.to_cell_data(FieldType::MultiSelect),
+      select_option_ids.to_cell(FieldType::MultiSelect),
       select_option_ids,
     ))
   }
@@ -157,6 +154,7 @@ mod tests {
   use collab_database::fields::select_type_option::{
     MultiSelectTypeOption, SelectOption, SelectOptionIds, SelectTypeOption,
   };
+  use collab_database::template::util::ToCellString;
 
   #[test]
   fn multi_select_insert_multi_option_test() {
@@ -206,7 +204,7 @@ mod tests {
 
     let changeset = SelectOptionCellChangeset::from_insert_option_id(&google.id);
     let select_option_ids = multi_select.apply_changeset(changeset, None).unwrap().1;
-    assert_eq!(select_option_ids.to_string(), google.id);
+    assert_eq!(select_option_ids.to_cell_string(), google.id);
   }
 
   #[test]

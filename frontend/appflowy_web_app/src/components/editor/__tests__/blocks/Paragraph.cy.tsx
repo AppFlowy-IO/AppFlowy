@@ -56,11 +56,12 @@ describe('<Paragraph />', () => {
 
     cy.get('[role="textbox"]').type(` New text at the 'world' middle `);
 
+    cy.wait(50);
     cy.get('[role="textbox"]').selectMultipleText(['bold']);
 
-    cy.wait(50);
+    cy.wait(100);
 
-    cy.get('[role="textbox"]').type('{backspace}');
+    cy.get('[role="textbox"]').realPress('Backspace');
 
     const expectJSON = [{
       type: 'paragraph',

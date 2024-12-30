@@ -1,18 +1,20 @@
-import { BlockType } from '@/application/types';
-import { HeadingNode } from '@/components/editor/editor.type';
+import { BlockType, ToggleListBlockData } from '@/application/types';
+import { HeadingNode, ToggleListNode } from '@/components/editor/editor.type';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import React, { CSSProperties, useEffect, useMemo, useState } from 'react';
-import { ReactEditor, useSelected, useSlate } from 'slate-react';
+import { ReactEditor, useFocused, useSelected, useSlate } from 'slate-react';
 import { Editor, Element, Range } from 'slate';
 import { useTranslation } from 'react-i18next';
 
-function Placeholder({ node, ...attributes }: { node: Element; className?: string; style?: CSSProperties }) {
+function Placeholder ({ node, ...attributes }: { node: Element; className?: string; style?: CSSProperties }) {
   const { t } = useTranslation();
   const { readOnly } = useEditorContext();
   const editor = useSlate();
-
-  const selected = useSelected() && !readOnly && !!editor.selection && Range.isCollapsed(editor.selection);
+  const focused = useFocused();
+  const blockSelected = useSelected();
   const [isComposing, setIsComposing] = useState(false);
+  const selected = focused && blockSelected && editor.selection && Range.isCollapsed(editor.selection);
+
   const block = useMemo(() => {
     const path = ReactEditor.findPath(editor, node);
     const match = Editor.above(editor, {
@@ -28,21 +30,40 @@ function Placeholder({ node, ...attributes }: { node: Element; className?: strin
   }, [editor, node]);
 
   const className = useMemo(() => {
-    return `text-placeholder select-none ${attributes.className ?? ''}`;
+    const classList = attributes.className?.split(' ') ?? [];
+
+    classList.push('text-placeholder select-none');
+
+    return classList.join(' ');
   }, [attributes.className]);
 
   const unSelectedPlaceholder = useMemo(() => {
     switch (block?.type) {
       case BlockType.Paragraph: {
-        if (editor.children.length === 1 && !readOnly) {
-          return t('editor.slashPlaceHolder');
-        }
-
         return '';
       }
 
-      case BlockType.ToggleListBlock:
-        return t('blockPlaceholders.bulletList');
+      case BlockType.ToggleListBlock: {
+        const level = (block as ToggleListNode).data.level;
+
+        switch (level) {
+          case 1:
+            return t('editor.mobileHeading1');
+          case 2:
+            return t('editor.mobileHeading2');
+          case 3:
+            return t('editor.mobileHeading3');
+          case 4:
+            return t('editor.mobileHeading4');
+          case 5:
+            return t('editor.mobileHeading5');
+          case 6:
+            return t('editor.mobileHeading6');
+          default:
+            return t('blockPlaceholders.bulletList');
+        }
+      }
+
       case BlockType.QuoteBlock:
         return t('blockPlaceholders.quote');
       case BlockType.TodoListBlock:
@@ -61,37 +82,44 @@ function Placeholder({ node, ...attributes }: { node: Element; className?: strin
             return t('editor.mobileHeading2');
           case 3:
             return t('editor.mobileHeading3');
+          case 4:
+            return t('editor.mobileHeading4');
+          case 5:
+            return t('editor.mobileHeading5');
+          case 6:
+            return t('editor.mobileHeading6');
           default:
             return '';
         }
       }
 
-      case BlockType.Page:
-        return t('document.title.placeholder');
-      case BlockType.CalloutBlock:
       case BlockType.CodeBlock:
         return t('editor.typeSomething');
       default:
         return '';
     }
-  }, [readOnly, block, t, editor.children.length]);
+  }, [block, t]);
 
   const selectedPlaceholder = useMemo(() => {
+    if (block?.type === BlockType.ToggleListBlock && (block?.data as ToggleListBlockData).level) {
+      return unSelectedPlaceholder;
+    }
+
     switch (block?.type) {
       case BlockType.HeadingBlock:
         return unSelectedPlaceholder;
-      case BlockType.Page:
-        return t('document.title.placeholder');
-      case BlockType.GridBlock:
-      case BlockType.EquationBlock:
-      case BlockType.CodeBlock:
-      case BlockType.DividerBlock:
-        return '';
+      case  BlockType.ToggleListBlock:
+      case  BlockType.TodoListBlock:
+      case  BlockType.Paragraph:
+      case  BlockType.QuoteBlock:
+      case  BlockType.BulletedListBlock:
+      case  BlockType.NumberedListBlock:
+        return t('editor.slashPlaceHolder');
 
       default:
-        return t('editor.slashPlaceHolder');
+        return '';
     }
-  }, [block?.type, t, unSelectedPlaceholder]);
+  }, [block?.data, block?.type, t, unSelectedPlaceholder]);
 
   useEffect(() => {
     if (!selected) return;

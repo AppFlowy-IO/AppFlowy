@@ -34,7 +34,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     let params = params.unbox_or_error::<SignUpParams>()?;
     let uid = ID_GEN.lock().await.next_id();
     let workspace_id = uuid::Uuid::new_v4().to_string();
-    let user_workspace = UserWorkspace::new(&workspace_id, uid);
+    let user_workspace = UserWorkspace::new_local(&workspace_id, uid);
     let user_name = if params.name.is_empty() {
       DEFAULT_USER_NAME()
     } else {
@@ -214,5 +214,7 @@ fn make_user_workspace() -> UserWorkspace {
     created_at: Default::default(),
     workspace_database_id: uuid::Uuid::new_v4().to_string(),
     icon: "".to_string(),
+    member_count: 1,
+    role: None,
   }
 }

@@ -15,6 +15,16 @@ enum PickerTabType {
   }
 }
 
+extension StringToPickerTabType on String {
+  PickerTabType? toPickerTabType() {
+    try {
+      return PickerTabType.values.byName(this);
+    } on ArgumentError {
+      return null;
+    }
+  }
+}
+
 class PickerTab extends StatelessWidget {
   const PickerTab({
     super.key,

@@ -54,6 +54,7 @@ class BoardPageTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
               key: _makeValueKey(controller),
               view: view,
               databaseController: controller,
+              shrinkWrap: shrinkWrap,
             )
           : MobileBoardPage(
               key: _makeValueKey(controller),
@@ -98,6 +99,7 @@ class DesktopBoardPage extends StatefulWidget {
     required this.view,
     required this.databaseController,
     this.onEditStateChanged,
+    this.shrinkWrap = false,
   });
 
   final ViewPB view;
@@ -106,6 +108,9 @@ class DesktopBoardPage extends StatefulWidget {
 
   /// Called when edit state changed
   final VoidCallback? onEditStateChanged;
+
+  /// If true, the board will shrink wrap its content
+  final bool shrinkWrap;
 
   @override
   State<DesktopBoardPage> createState() => _DesktopBoardPageState();
@@ -179,9 +184,7 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
     _focusScope.dispose();
     _boardBloc.close();
     _boardActionsCubit.close();
-    _didCreateRow
-      ..removeListener(_handleDidCreateRow)
-      ..dispose();
+    _didCreateRow.dispose();
     super.dispose();
   }
 
@@ -189,24 +192,17 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<BoardBloc>.value(
-          value: _boardBloc,
-        ),
-        BlocProvider.value(
-          value: _boardActionsCubit,
-        ),
+        BlocProvider<BoardBloc>.value(value: _boardBloc),
+        BlocProvider.value(value: _boardActionsCubit),
       ],
       child: BlocBuilder<BoardBloc, BoardState>(
         builder: (context, state) => state.maybeMap(
           loading: (_) => const Center(
             child: CircularProgressIndicator.adaptive(),
           ),
-          error: (err) => Center(
-            child: AppFlowyErrorPage(
-              error: err.error,
-            ),
-          ),
+          error: (err) => Center(child: AppFlowyErrorPage(error: err.error)),
           orElse: () => _BoardContent(
+            shrinkWrap: widget.shrinkWrap,
             onEditStateChanged: widget.onEditStateChanged,
             focusScope: _focusScope,
             boardController: _boardController,
@@ -245,11 +241,13 @@ class _BoardContent extends StatefulWidget {
     required this.boardController,
     required this.focusScope,
     this.onEditStateChanged,
+    this.shrinkWrap = false,
   });
 
   final AppFlowyBoardController boardController;
   final BoardFocusScope focusScope;
   final VoidCallback? onEditStateChanged;
+  final bool shrinkWrap;
 
   @override
   State<_BoardContent> createState() => _BoardContentState();
@@ -360,12 +358,8 @@ class _BoardContentState extends State<_BoardContent> {
               ),
               footerBuilder: (_, groupData) => MultiBlocProvider(
                 providers: [
-                  BlocProvider.value(
-                    value: context.read<BoardBloc>(),
-                  ),
-                  BlocProvider.value(
-                    value: context.read<BoardActionsCubit>(),
-                  ),
+                  BlocProvider.value(value: context.read<BoardBloc>()),
+                  BlocProvider.value(value: context.read<BoardActionsCubit>()),
                 ],
                 child: BoardColumnFooter(
                   columnData: groupData,
@@ -534,7 +528,9 @@ class _BoardColumnFooterState extends State<BoardColumnFooter> {
               color: Theme.of(context).hintColor,
             ),
             onTap: () {
-              setState(() => _isCreating = true);
+              context
+                  .read<BoardActionsCubit>()
+                  .startCreateBottomRow(widget.columnData.id);
             },
           ),
         ),

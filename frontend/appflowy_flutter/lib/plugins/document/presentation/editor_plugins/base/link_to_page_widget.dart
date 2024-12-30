@@ -11,9 +11,10 @@ import 'package:flutter/material.dart';
 InlineActionsMenuService? _actionsMenuService;
 Future<void> showLinkToPageMenu(
   EditorState editorState,
-  SelectionMenuService menuService,
-  ViewLayoutPB pageType,
-) async {
+  SelectionMenuService menuService, {
+  ViewLayoutPB? pageType,
+  bool? insertPage,
+}) async {
   keepEditorFocusNotifier.increase();
 
   menuService.dismiss();
@@ -31,7 +32,7 @@ Future<void> showLinkToPageMenu(
         currentViewId: '',
         viewLayout: pageType,
         customTitle: titleFromPageType(pageType),
-        insertPage: pageType != ViewLayoutPB.Document,
+        insertPage: insertPage ?? pageType != ViewLayoutPB.Document,
         limitResults: 15,
       ),
     ],
@@ -63,7 +64,7 @@ Future<void> showLinkToPageMenu(
   }
 }
 
-String titleFromPageType(ViewLayoutPB layout) => switch (layout) {
+String titleFromPageType(ViewLayoutPB? layout) => switch (layout) {
       ViewLayoutPB.Grid => LocaleKeys.inlineActions_gridReference.tr(),
       ViewLayoutPB.Document => LocaleKeys.inlineActions_docReference.tr(),
       ViewLayoutPB.Board => LocaleKeys.inlineActions_boardReference.tr(),

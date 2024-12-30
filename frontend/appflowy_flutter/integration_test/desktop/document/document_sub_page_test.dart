@@ -1,13 +1,13 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
+import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -73,10 +73,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.hoverOnPageName(_defaultPageName);
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
+      await tester.renamePageWithSecondary(_defaultPageName, 'Child page');
       expect(find.text('Child page'), findsNWidgets(2));
 
       await tester.editor.hoverAndClickOptionMenuButton([0]);
@@ -99,10 +96,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester.hoverOnPageName(_defaultPageName);
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
+      await tester.renamePageWithSecondary(_defaultPageName, 'Child page');
       expect(find.text('Child page'), findsNWidgets(2));
 
       await tester.editor.hoverAndClickOptionAddButton([0], false);
@@ -155,10 +149,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester.hoverOnPageName(_defaultPageName);
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
+      await tester.renamePageWithSecondary(_defaultPageName, 'Child page');
       expect(find.text('Child page'), findsNWidgets(2));
 
       await tester.editor.hoverAndClickOptionAddButton([0], false);
@@ -216,10 +207,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester.hoverOnPageName(_defaultPageName);
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
+      await tester.renamePageWithSecondary(_defaultPageName, 'Child page');
       expect(find.text('Child page'), findsNWidgets(2));
 
       await tester.editor
@@ -260,10 +248,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester.hoverOnPageName(_defaultPageName);
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
+      await tester.renamePageWithSecondary(_defaultPageName, 'Child page');
       expect(find.text('Child page'), findsNWidgets(2));
 
       await tester.editor
@@ -313,10 +298,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester.hoverOnPageName(_defaultPageName);
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
+      await tester.renamePageWithSecondary(_defaultPageName, 'Child page');
       expect(find.text('Child page'), findsNWidgets(2));
 
       await tester.editor.hoverAndClickOptionMenuButton([0]);
@@ -325,6 +307,11 @@ void main() {
 
       expect(find.text('Child page'), findsNothing);
       expect(find.byType(SubPageBlockComponent), findsNothing);
+
+      // Since there is no selection active in editor before deleting Node,
+      // we need to give focus back to the editor
+      await tester.editor
+          .updateSelection(Selection.collapsed(Position(path: [0])));
 
       await tester.simulateKeyEvent(
         LogicalKeyboardKey.keyZ,
@@ -354,10 +341,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester.hoverOnPageName(_defaultPageName);
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
+      await tester.renamePageWithSecondary(_defaultPageName, 'Child page');
       expect(find.text('Child page'), findsNWidgets(2));
 
       // Delete
@@ -405,15 +389,16 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester.hoverOnPageName(_defaultPageName);
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
+      await tester.renamePageWithSecondary(_defaultPageName, 'Child page');
       expect(find.text('Child page'), findsNWidgets(2));
       expect(find.byType(SubPageBlockComponent), findsOneWidget);
 
-      await tester.hoverOnPageName('Child page');
-      await tester.tapDeletePageButton();
+      await tester.hoverOnPageName(
+        'Child page',
+        onHover: () async {
+          await tester.tapDeletePageButton();
+        },
+      );
       await tester.pumpAndSettle(const Duration(seconds: 1));
 
       expect(find.text('Child page'), findsNothing);
@@ -432,10 +417,7 @@ void main() {
         layout: ViewLayoutPB.Document,
       );
 
-      await tester.hoverOnPageName(_defaultPageName);
-      await tester.renamePage('Child page');
-      await tester.pumpAndSettle();
-
+      await tester.renamePageWithSecondary(_defaultPageName, 'Child page');
       expect(find.text('Child page'), findsNWidgets(2));
 
       await tester.editor.hoverAndClickOptionMenuButton([0]);
@@ -473,6 +455,49 @@ void main() {
       expect(afterNode.type, beforeNode.type);
       expect(find.byType(SubPageBlockComponent), findsOneWidget);
     });
+
+    testWidgets('turn into page', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+      await tester.createNewPageWithNameUnderParent(name: 'SubPageBlock');
+
+      final editorState = tester.editor.getCurrentEditorState();
+
+      // Insert nested list
+      final transaction = editorState.transaction;
+      transaction.insertNode(
+        [0],
+        bulletedListNode(
+          text: 'Parent',
+          children: [
+            bulletedListNode(text: 'Child 1'),
+            bulletedListNode(text: 'Child 2'),
+          ],
+        ),
+      );
+      await editorState.apply(transaction);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SubPageBlockComponent), findsNothing);
+
+      await tester.editor.hoverAndClickOptionMenuButton([0]);
+      await tester.tapButtonWithName(
+        LocaleKeys.document_plugins_optionAction_turnInto.tr(),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text(LocaleKeys.editor_page.tr()));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SubPageBlockComponent), findsOneWidget);
+
+      await tester.expandOrCollapsePage(
+        pageName: 'SubPageBlock',
+        layout: ViewLayoutPB.Document,
+      );
+
+      expect(find.text('Parent'), findsNWidgets(2));
+    });
   });
 }
 
@@ -497,5 +522,17 @@ extension _SubPageTestHelper on WidgetTester {
     await pumpAndSettle();
 
     await pumpUntilFound(find.byType(SubPageBlockComponent));
+  }
+
+  Future<void> renamePageWithSecondary(
+    String currentName,
+    String newName,
+  ) async {
+    await hoverOnPageName(currentName, onHover: () async => pumpAndSettle());
+    await rightClickOnPageName(currentName);
+    await tapButtonWithName(ViewMoreActionType.rename.name);
+    await enterText(find.byType(TextFormField), newName);
+    await tapOKButton();
+    await pumpAndSettle();
   }
 }

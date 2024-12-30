@@ -69,7 +69,7 @@ impl std::convert::From<i32> for FolderNotification {
 }
 
 #[tracing::instrument(level = "trace")]
-pub(crate) fn send_notification(id: &str, ty: FolderNotification) -> NotificationBuilder {
+pub(crate) fn folder_notification_builder(id: &str, ty: FolderNotification) -> NotificationBuilder {
   NotificationBuilder::new(id, ty, FOLDER_OBSERVABLE_SOURCE)
 }
 
@@ -77,7 +77,7 @@ pub(crate) fn send_notification(id: &str, ty: FolderNotification) -> Notificatio
 /// user. Only one workspace can be opened at a time.
 const CURRENT_WORKSPACE: &str = "current-workspace";
 pub(crate) fn send_current_workspace_notification<T: ToBytes>(ty: FolderNotification, payload: T) {
-  send_notification(CURRENT_WORKSPACE, ty)
+  folder_notification_builder(CURRENT_WORKSPACE, ty)
     .payload(payload)
     .send();
 }

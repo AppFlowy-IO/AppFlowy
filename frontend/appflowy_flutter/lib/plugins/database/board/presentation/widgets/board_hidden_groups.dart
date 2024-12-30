@@ -16,7 +16,6 @@ import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_skeleton/text_card_cell.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -279,25 +278,33 @@ class HiddenGroupButtonContent extends StatelessWidget {
                                 index: index,
                               ),
                               const HSpace(4),
-                              FlowyText(
-                                group
-                                    .generateGroupName(bloc.databaseController),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const HSpace(6),
                               Expanded(
-                                child: FlowyText(
-                                  group.rows.length.toString(),
-                                  overflow: TextOverflow.ellipsis,
-                                  color: Theme.of(context).hintColor,
+                                child: Row(
+                                  children: [
+                                    Flexible(
+                                      child: FlowyText(
+                                        group.generateGroupName(
+                                          bloc.databaseController,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const HSpace(6),
+                                    FlowyText(
+                                      group.rows.length.toString(),
+                                      overflow: TextOverflow.ellipsis,
+                                      color: Theme.of(context).hintColor,
+                                    ),
+                                  ],
                                 ),
                               ),
                               if (isHovering) ...[
+                                const HSpace(6),
                                 FlowyIconButton(
                                   width: 20,
-                                  icon: FlowySvg(
+                                  icon: const FlowySvg(
                                     FlowySvgs.show_m,
-                                    color: Theme.of(context).hintColor,
+                                    size: Size.square(16),
                                   ),
                                   onPressed: () =>
                                       context.read<BoardBloc>().add(

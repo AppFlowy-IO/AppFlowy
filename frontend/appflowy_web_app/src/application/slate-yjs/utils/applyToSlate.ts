@@ -1,23 +1,18 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { BlockJson } from '@/application/slate-yjs/types';
 import { blockToSlateNode, deltaInsertToSlateNode } from '@/application/slate-yjs/utils/convert';
-import {
-  dataStringTOJson,
-  getBlock,
-  getChildrenArray,
-  getPageId,
-  getText,
-} from '@/application/slate-yjs/utils/yjsOperations';
 import { YBlock, YjsEditorKey } from '@/application/types';
 import isEqual from 'lodash-es/isEqual';
 import { Editor, Element, NodeEntry } from 'slate';
 import { YEvent, YMapEvent, YTextEvent } from 'yjs';
 import { YText } from 'yjs/dist/src/types/YText';
+import { dataStringTOJson, getBlock, getChildrenArray, getPageId, getText } from '@/application/slate-yjs/utils/yjs';
+import { findSlateEntryByBlockId } from '@/application/slate-yjs/utils/editor';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type BlockMapEvent = YMapEvent<any>
 
-export function translateYEvents (editor: YjsEditor, events: Array<YEvent>) {
+export function translateYEvents(editor: YjsEditor, events: Array<YEvent>) {
   console.log('=== Translating Yjs events ===', events);
 
   events.forEach((event) => {
@@ -41,14 +36,11 @@ export function translateYEvents (editor: YjsEditor, events: Array<YEvent>) {
 
 }
 
-function applyUpdateBlockYEvent (editor: YjsEditor, blockId: string, event: YMapEvent<unknown>) {
+function applyUpdateBlockYEvent(editor: YjsEditor, blockId: string, event: YMapEvent<unknown>) {
   const { target } = event;
   const block = target as YBlock;
   const newData = dataStringTOJson(block.get(YjsEditorKey.block_data));
-  const [entry] = editor.nodes({
-    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId === blockId,
-    mode: 'all',
-  });
+  const entry = findSlateEntryByBlockId(editor, blockId);
 
   if (!entry) {
     console.error('Block node not found', blockId);
@@ -70,7 +62,7 @@ function applyUpdateBlockYEvent (editor: YjsEditor, blockId: string, event: YMap
   });
 }
 
-function applyTextYEvent (editor: YjsEditor, textId: string, event: YTextEvent) {
+function applyTextYEvent(editor: YjsEditor, textId: string, event: YTextEvent) {
   const { target } = event;
 
   const yText = target as YText;
@@ -79,8 +71,10 @@ function applyTextYEvent (editor: YjsEditor, textId: string, event: YTextEvent) 
   const [entry] = editor.nodes({
     match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.textId === textId,
     mode: 'all',
+    at: [],
   });
 
+  console.log('=== Applying text Yjs event ===', entry);
   if (!entry) {
     console.error('Text node not found', textId);
     return [];
@@ -104,7 +98,7 @@ function applyTextYEvent (editor: YjsEditor, textId: string, event: YTextEvent) 
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function applyBlocksYEvent (editor: YjsEditor, event: BlockMapEvent) {
+function applyBlocksYEvent(editor: YjsEditor, event: BlockMapEvent) {
   const { changes, keysChanged } = event;
   const { keys } = changes;
 
@@ -127,36 +121,48 @@ function applyBlocksYEvent (editor: YjsEditor, event: BlockMapEvent) {
 
 }
 
-function handleNewBlock (editor: YjsEditor, key: string, keyPath: Record<string, number[]>) {
+function handleNewBlock(editor: YjsEditor, key: string, keyPath: Record<string, number[]>) {
   const block = getBlock(key, editor.sharedRoot);
   const parentId = block.get(YjsEditorKey.block_parent);
   const pageId = getPageId(editor.sharedRoot);
   const parent = getBlock(parentId, editor.sharedRoot);
+
+  if (!parent) {
+    console.error('Parent block not found', parentId, block.toJSON());
+    return;
+  }
+
   const parentChildren = getChildrenArray(parent.get(YjsEditorKey.block_children), editor.sharedRoot);
   const index = parentChildren.toArray().findIndex((child) => child === key);
   const slateNode = blockToSlateNode(block.toJSON() as BlockJson);
   const textId = block.get(YjsEditorKey.block_external_id);
   const yText = getText(textId, editor.sharedRoot);
-  const delta = yText.toDelta();
-  const slateDelta = delta.flatMap(deltaInsertToSlateNode);
+  let textNode: Element | undefined;
 
-  if (slateDelta.length === 0) {
-    slateDelta.push({
-      text: '',
-    });
+  if (yText) {
+    const delta = yText?.toDelta();
+    const slateDelta = delta.flatMap(deltaInsertToSlateNode);
+
+    if (slateDelta.length === 0) {
+      slateDelta.push({
+        text: '',
+      });
+    }
+
+    textNode = {
+      textId,
+      type: YjsEditorKey.text,
+      children: slateDelta,
+    };
   }
 
-  const textNode: Element = {
-    textId,
-    type: YjsEditorKey.text,
-    children: slateDelta,
-  };
   let path = [index];
 
   if (parentId !== pageId) {
     const [parentEntry] = editor.nodes({
       match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId === parentId,
       mode: 'all',
+      at: [],
     });
 
     if (!parentEntry) {
@@ -178,7 +184,7 @@ function handleNewBlock (editor: YjsEditor, key: string, keyPath: Record<string,
     path,
     node: {
       ...slateNode,
-      children: [textNode],
+      children: textNode ? [textNode] : [],
     },
   });
 
@@ -186,7 +192,7 @@ function handleNewBlock (editor: YjsEditor, key: string, keyPath: Record<string,
 
 }
 
-function handleDeleteNode (editor: YjsEditor, key: string) {
+function handleDeleteNode(editor: YjsEditor, key: string) {
   const [entry] = editor.nodes({
     at: [],
     match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.blockId === key,

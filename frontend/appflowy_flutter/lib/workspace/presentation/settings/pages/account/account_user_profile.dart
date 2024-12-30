@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../shared/icon_emoji_picker/tab.dart';
+
 // Account name and account avatar
 class AccountUserProfile extends StatefulWidget {
   const AccountUserProfile({
@@ -142,6 +144,7 @@ class _AccountUserProfileState extends State<AccountUserProfile> {
             width: 360,
             margin: const EdgeInsets.all(0),
             child: FlowyIconEmojiPicker(
+              tabs: const [PickerTabType.emoji],
               onSelectedEmoji: (r) {
                 context
                     .read<SettingsUserViewBloc>()

@@ -1,4 +1,3 @@
-
 [tasks.env_check]
 dependencies = ["echo_env", "install_flutter_protobuf"]
 condition = { env_set = [
@@ -100,7 +99,7 @@ dependencies = ["set-app-version"]
 script = [
   """
     cd rust-lib/
-    cargo build --profile ${CARGO_PROFILE} --${BUILD_FLAG} --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    cargo build --profile ${CARGO_PROFILE} --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ../
   """,
 ]
@@ -111,7 +110,7 @@ dependencies = ["set-app-version"]
 script = [
   """
     cd rust-lib/
-    cargo build --profile ${CARGO_PROFILE} --${BUILD_FLAG} --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
+    cargo build --profile ${CARGO_PROFILE} --package=dart-ffi --target ${RUST_COMPILE_TARGET} --features "${FLUTTER_DESKTOP_FEATURES}"
     cd ../
   """,
 ]

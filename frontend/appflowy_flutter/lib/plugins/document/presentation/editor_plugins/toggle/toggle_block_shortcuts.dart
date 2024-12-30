@@ -67,6 +67,7 @@ Future<void> _formatGreaterToToggleHeading(
       node.path,
       toggleListBlockNode(
         delta: delta,
+        children: node.children.map((e) => e.deepCopy()).toList(),
       ),
     )
     ..deleteNode(node);
@@ -124,7 +125,6 @@ CharacterShortcutEvent insertChildNodeInsideToggleList = CharacterShortcutEvent(
             selection.start.path.next,
             [
               toggleListBlockNode(collapsed: true, delta: slicedDelta),
-              paragraphNode(),
             ],
           )
           ..afterSelection = Selection.collapsed(

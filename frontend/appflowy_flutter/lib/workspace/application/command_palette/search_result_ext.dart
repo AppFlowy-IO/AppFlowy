@@ -22,10 +22,10 @@ extension GetIcon on SearchResultPB {
 
 extension _ToViewIcon on ResultIconPB {
   FlowySvgData getViewSvg() => switch (value) {
-        "0" => FlowySvgs.document_s,
-        "1" => FlowySvgs.grid_s,
-        "2" => FlowySvgs.board_s,
-        "3" => FlowySvgs.date_s,
-        _ => FlowySvgs.document_s,
+        "0" => FlowySvgs.icon_document_s,
+        "1" => FlowySvgs.icon_grid_s,
+        "2" => FlowySvgs.icon_board_s,
+        "3" => FlowySvgs.icon_calendar_s,
+        _ => FlowySvgs.icon_document_s,
       };
 }

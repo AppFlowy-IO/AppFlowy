@@ -10,7 +10,6 @@ import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/code.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -205,9 +204,13 @@ class _SidebarSwitchWorkspaceButtonState
   @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
-      direction: PopoverDirection.bottomWithLeftAligned,
+      direction: PopoverDirection.bottomWithCenterAligned,
       offset: const Offset(0, 5),
       constraints: const BoxConstraints(maxWidth: 300, maxHeight: 600),
+      margin: EdgeInsets.zero,
+      animationDuration: Durations.short3,
+      beginScaleFactor: 1.0,
+      beginOpacity: 0.8,
       controller: _popoverController,
       triggerActions: PopoverTriggerFlags.none,
       onOpen: () {

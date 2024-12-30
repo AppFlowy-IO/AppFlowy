@@ -4,7 +4,6 @@ use tokio::sync::oneshot::channel;
 
 use flowy_database_pub::cloud::{CollabDocStateByOid, DatabaseCloudService, DatabaseSnapshot};
 
-use lib_dispatch::prelude::af_spawn;
 use lib_infra::async_trait::async_trait;
 use lib_infra::future::FutureResult;
 
@@ -37,7 +36,7 @@ where
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let object_id = object_id.to_string();
     let (tx, rx) = channel();
-    af_spawn(async move {
+    tokio::spawn(async move {
       tx.send(
         async move {
           let postgrest = try_get_postgrest?;
@@ -60,7 +59,7 @@ where
   ) -> FutureResult<CollabDocStateByOid, Error> {
     let try_get_postgrest = self.server.try_get_weak_postgrest();
     let (tx, rx) = channel();
-    af_spawn(async move {
+    tokio::spawn(async move {
       tx.send(
         async move {
           let postgrest = try_get_postgrest?;

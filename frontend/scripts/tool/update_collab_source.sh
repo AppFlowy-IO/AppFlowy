@@ -5,9 +5,6 @@ REPO_PATH="./AppFlowy-Collab"
 CARGO_TOML_1="./rust-lib/Cargo.toml"
 REPO_RELATIVE_PATH_1="../AppFlowy-Collab"
 
-CARGO_TOML_2="./appflowy_tauri/src-tauri/Cargo.toml"
-REPO_RELATIVE_PATH_2="../../AppFlowy-Collab"
-
 # Function to switch dependencies in a given Cargo.toml
 switch_deps() {
     local cargo_toml="$1"
@@ -38,4 +35,3 @@ fi
 
 # Switch dependencies in both Cargo.toml files
 switch_deps "$CARGO_TOML_1" "$REPO_RELATIVE_PATH_1"
-switch_deps "$CARGO_TOML_2" "$REPO_RELATIVE_PATH_2"

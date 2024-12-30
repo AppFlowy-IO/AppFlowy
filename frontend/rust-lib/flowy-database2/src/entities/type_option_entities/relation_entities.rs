@@ -1,7 +1,8 @@
+use collab_database::fields::relation_type_option::RelationTypeOption;
+use collab_database::template::relation_parse::RelationCellData;
 use flowy_derive::ProtoBuf;
 
 use crate::entities::CellIdPB;
-use crate::services::field::{RelationCellData, RelationTypeOption};
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct RelationCellDataPB {

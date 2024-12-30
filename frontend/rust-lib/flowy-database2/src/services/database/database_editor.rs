@@ -1,5 +1,5 @@
 use crate::entities::*;
-use crate::notification::{send_notification, DatabaseNotification};
+use crate::notification::{database_notification_builder, DatabaseNotification};
 use crate::services::calculations::Calculation;
 use crate::services::cell::{apply_cell_changeset, get_cell_protobuf, CellCache};
 use crate::services::database::database_observe::*;
@@ -7,11 +7,11 @@ use crate::services::database::util::database_view_setting_pb_from_view;
 use crate::services::database_view::{
   DatabaseViewChanged, DatabaseViewEditor, DatabaseViewOperation, DatabaseViews, EditorByViewId,
 };
+use crate::services::field::checklist_filter::ChecklistCellChangeset;
 use crate::services::field::type_option_transform::transform_type_option;
 use crate::services::field::{
   default_type_option_data_from_type, select_type_option_from_field, type_option_data_from_pb,
-  ChecklistCellChangeset, RelationTypeOption, SelectOptionCellChangeset, StringCellData,
-  TimestampCellData, TimestampCellDataWrapper, TypeOptionCellDataHandler, TypeOptionCellExt,
+  SelectOptionCellChangeset, StringCellData, TypeOptionCellDataHandler, TypeOptionCellExt,
 };
 use crate::services::field_settings::{default_field_settings_by_layout_map, FieldSettings};
 use crate::services::filter::{Filter, FilterChangeset};
@@ -27,8 +27,10 @@ use collab::lock::RwLock;
 use collab_database::database::Database;
 use collab_database::entity::DatabaseView;
 use collab_database::fields::media_type_option::MediaCellData;
+use collab_database::fields::relation_type_option::RelationTypeOption;
 use collab_database::fields::{Field, TypeOptionData};
 use collab_database::rows::{Cell, Cells, DatabaseRow, Row, RowCell, RowDetail, RowId, RowUpdate};
+use collab_database::template::timestamp_parse::TimestampCellData;
 use collab_database::views::{
   DatabaseLayout, FilterMap, LayoutSetting, OrderObjectPosition, RowOrder,
 };
@@ -48,6 +50,7 @@ use tokio::select;
 use tokio::sync::oneshot::Sender;
 use tokio::sync::RwLock as TokioRwLock;
 use tokio::sync::{broadcast, oneshot};
+use tokio::task::yield_now;
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, event, info, instrument, trace, warn};
 
@@ -223,7 +226,7 @@ impl DatabaseEditor {
         let field_type = FieldType::from(field.field_type);
         setting_content = group_config_pb_to_json_str(data, &field_type)?;
         let mut group_setting = default_group_setting(&field);
-        group_setting.content = setting_content.clone();
+        group_setting.content.clone_from(&setting_content);
         database.update_database_view(view_id, |view| {
           view.set_groups(vec![group_setting.into()]);
         });
@@ -249,7 +252,7 @@ impl DatabaseEditor {
     let changes = view_editor.v_delete_group(&params.group_id).await?;
     if !changes.is_empty() {
       for view in self.database_views.editors().await {
-        send_notification(&view.view_id, DatabaseNotification::DidUpdateRow)
+        database_notification_builder(&view.view_id, DatabaseNotification::DidUpdateRow)
           .payload(changes.clone())
           .send();
       }
@@ -759,7 +762,7 @@ impl DatabaseEditor {
         updated_fields: vec![],
       };
 
-      send_notification(&params.view_id, DatabaseNotification::DidUpdateFields)
+      database_notification_builder(&params.view_id, DatabaseNotification::DidUpdateFields)
         .payload(notified_changeset)
         .send();
     }
@@ -876,7 +879,7 @@ impl DatabaseEditor {
       }
 
       // Notifies the client that the row meta has been updated.
-      send_notification(row_id.as_str(), DatabaseNotification::DidUpdateRowMeta)
+      database_notification_builder(row_id.as_str(), DatabaseNotification::DidUpdateRowMeta)
         .payload(RowMetaPB::from(row_detail))
         .send();
     }
@@ -890,12 +893,12 @@ impl DatabaseEditor {
     match field_type {
       FieldType::LastEditedTime | FieldType::CreatedTime => {
         let row = database.get_row(row_id).await;
-        let wrapped_cell_data = if field_type.is_created_time() {
-          TimestampCellDataWrapper::from((field_type, TimestampCellData::new(row.created_at)))
+        let cell_data = if field_type.is_created_time() {
+          TimestampCellData::new(row.created_at)
         } else {
-          TimestampCellDataWrapper::from((field_type, TimestampCellData::new(row.modified_at)))
+          TimestampCellData::new(row.modified_at)
         };
-        Some(Cell::from(wrapped_cell_data))
+        Some(cell_data.to_cell(field.field_type))
       },
       _ => database.get_cell(field_id, row_id).await.cell,
     }
@@ -925,7 +928,7 @@ impl DatabaseEditor {
       match field_type {
         FieldType::LastEditedTime | FieldType::CreatedTime => {
           database
-            .get_rows_for_view(view_id, None)
+            .get_rows_for_view(view_id, 10, None)
             .await
             .filter_map(|result| async {
               match result {
@@ -937,7 +940,7 @@ impl DatabaseEditor {
                   };
                   Some(RowCell {
                     row_id: row.id,
-                    cell: Some(Cell::from(data)),
+                    cell: Some(data.to_cell(field.field_type)),
                   })
                 },
                 Err(_) => None,
@@ -1061,6 +1064,11 @@ impl DatabaseEditor {
         view
           .v_did_update_row(&old_row, &row, Some(field_id.to_owned()))
           .await;
+
+        let field_id = field_id.to_string();
+        tokio::spawn(async move {
+          view.v_update_calculate(&field_id).await;
+        });
       }
 
       if let Some(field_type) = field_type {
@@ -1400,7 +1408,7 @@ impl DatabaseEditor {
   ) -> FlowyResult<()> {
     let views = self.database.read().await.get_all_database_views_meta();
     for view in views {
-      send_notification(&view.id, DatabaseNotification::DidUpdateFields)
+      database_notification_builder(&view.id, DatabaseNotification::DidUpdateFields)
         .payload(changeset.clone())
         .send();
     }
@@ -1523,7 +1531,9 @@ impl DatabaseEditor {
       let blocking_read = notify_finish.is_some() || order_rows.len() < 50;
 
       let (tx, rx) = oneshot::channel();
-      self.async_load_rows(view_editor, Some(tx), new_token, blocking_read, row_orders);
+      self
+        .async_load_rows(view_editor, Some(tx), new_token, blocking_read, row_orders)
+        .await;
       if blocking_read {
         // the rows returned here are applied with filters and sorts
         if let Ok(rows) = rx.await {
@@ -1564,7 +1574,7 @@ impl DatabaseEditor {
     }
   }
 
-  fn async_load_rows(
+  async fn async_load_rows(
     &self,
     view_editor: Arc<DatabaseViewEditor>,
     notify_finish: Option<Sender<Vec<Arc<Row>>>>,
@@ -1577,6 +1587,7 @@ impl DatabaseEditor {
       blocking_read
     );
     let cloned_database = Arc::downgrade(&self.database);
+    let fields = self.get_fields(&view_editor.view_id, None).await;
     tokio::spawn(async move {
       let apply_filter_and_sort =
         |mut loaded_rows: Vec<Arc<Row>>, view_editor: Arc<DatabaseViewEditor>| async move {
@@ -1624,7 +1635,7 @@ impl DatabaseEditor {
         };
 
       let mut loaded_rows = vec![];
-      const CHUNK_SIZE: usize = 20;
+      const CHUNK_SIZE: usize = 10;
       let row_orders = view_editor.row_orders.read().await;
       let row_orders_chunks = row_orders.chunks(CHUNK_SIZE).collect::<Vec<_>>();
 
@@ -1644,7 +1655,7 @@ impl DatabaseEditor {
         let new_loaded_rows: Vec<Arc<Row>> = database
           .read()
           .await
-          .init_database_rows(row_ids, None)
+          .init_database_rows(row_ids, chunk_row_orders.len(), None)
           .filter_map(|result| async {
             let database_row = result.ok()?;
             let read_guard = database_row.read().await;
@@ -1659,6 +1670,7 @@ impl DatabaseEditor {
           info!("[Database]: stop loading database rows");
           return;
         }
+        yield_now().await;
       }
       drop(row_orders);
 
@@ -1668,15 +1680,13 @@ impl DatabaseEditor {
         blocking_read
       );
       let loaded_rows = apply_filter_and_sort(loaded_rows, view_editor.clone()).await;
-
       // Update calculation values
       let calculate_rows = loaded_rows.clone();
-
       if let Some(notify_finish) = notify_finish {
         let _ = notify_finish.send(loaded_rows);
       }
       tokio::spawn(async move {
-        let _ = view_editor.v_calculate_rows(calculate_rows).await;
+        let _ = view_editor.v_calculate_rows(fields, calculate_rows).await;
       });
     });
   }
@@ -1779,7 +1789,7 @@ impl DatabaseEditor {
     match row_ids {
       None => {
         let mut row_data = vec![];
-        let rows_stream = database.get_all_rows(None).await;
+        let rows_stream = database.get_all_rows(10, None).await;
         pin_mut!(rows_stream);
         while let Some(result) = rows_stream.next().await {
           if let Ok(row) = result {
@@ -1956,7 +1966,9 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
     trace!("{} has total row orders: {}", view_id, row_orders.len());
     let mut all_rows = vec![];
     let read_guard = self.database.read().await;
-    let rows_stream = read_guard.get_rows_from_row_orders(&row_orders, None).await;
+    let rows_stream = read_guard
+      .get_rows_from_row_orders(&row_orders, 10, None)
+      .await;
     pin_mut!(rows_stream);
 
     while let Some(result) = rows_stream.next().await {
@@ -2212,7 +2224,7 @@ impl DatabaseViewOperation for DatabaseViewOperationImpl {
       new_field_settings.clone(),
     );
 
-    send_notification(
+    database_notification_builder(
       &params.view_id,
       DatabaseNotification::DidUpdateFieldSettings,
     )
@@ -2283,12 +2295,12 @@ fn notify_did_update_database_field(database: &Database, field_id: &str) -> Flow
       DatabaseFieldChangesetPB::update(&database_id, vec![updated_field.clone()]);
 
     for view in views {
-      send_notification(&view.id, DatabaseNotification::DidUpdateFields)
+      database_notification_builder(&view.id, DatabaseNotification::DidUpdateFields)
         .payload(notified_changeset.clone())
         .send();
     }
 
-    send_notification(field_id, DatabaseNotification::DidUpdateField)
+    database_notification_builder(field_id, DatabaseNotification::DidUpdateField)
       .payload(updated_field)
       .send();
   }

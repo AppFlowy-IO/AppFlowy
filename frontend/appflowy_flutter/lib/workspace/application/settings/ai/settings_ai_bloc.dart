@@ -14,13 +14,18 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
   SettingsAIBloc(
     this.userProfile,
     this.workspaceId,
-    WorkspaceMemberPB? member,
+    AFRolePB? currentWorkspaceMemberRole,
   )   : _userListener = UserListener(userProfile: userProfile),
         _userService = UserBackendService(userId: userProfile.id),
-        super(SettingsAIState(userProfile: userProfile, member: member)) {
+        super(
+          SettingsAIState(
+            userProfile: userProfile,
+            currentWorkspaceMemberRole: currentWorkspaceMemberRole,
+          ),
+        ) {
     _dispatch();
 
-    if (member == null) {
+    if (currentWorkspaceMemberRole == null) {
       _userService.getWorkspaceMember().then((result) {
         result.fold(
           (member) {
@@ -85,7 +90,7 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
           );
         },
         refreshMember: (member) {
-          emit(state.copyWith(member: member));
+          emit(state.copyWith(currentWorkspaceMemberRole: member.role));
         },
       );
     });
@@ -152,7 +157,7 @@ class SettingsAIState with _$SettingsAIState {
   const factory SettingsAIState({
     required UserProfilePB userProfile,
     UseAISettingPB? aiSettings,
-    WorkspaceMemberPB? member,
+    AFRolePB? currentWorkspaceMemberRole,
     @Default(true) bool enableSearchIndexing,
   }) = _SettingsAIState;
 }

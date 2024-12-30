@@ -6,7 +6,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_impl.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -219,14 +218,13 @@ class InteractiveImageToolbar extends StatelessWidget {
   }
 
   Future<void> _locateOrDownloadImage(BuildContext context) async {
-    if (currentImage.isLocal) {
+    if (currentImage.isLocal || currentImage.isNotInternal) {
       /// If the image type is local, we simply open the image
-      await afLaunchUrl(Uri.file(currentImage.url));
-    } else if (currentImage.isNotInternal) {
-      // In case of eg. Unsplash images (images without extension type in URL),
+      ///
+      /// // In case of eg. Unsplash images (images without extension type in URL),
       // we don't know their mimetype. In the future we can write a parser
       // using the Mime package and read the image to get the proper extension.
-      await afLaunchUrl(Uri.parse(currentImage.url));
+      await afLaunchUrlString(currentImage.url);
     } else {
       if (userProfile == null) {
         return showSnapBar(

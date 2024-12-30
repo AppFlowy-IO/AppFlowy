@@ -55,6 +55,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   FieldController get fieldController => databaseController.fieldController;
   String get viewId => databaseController.viewId;
 
+  DatabaseCallbacks? _databaseCallbacks;
+  DatabaseLayoutSettingCallbacks? _layoutSettingsCallback;
+  GroupCallbacks? _groupCallbacks;
+
   void _initBoardController(AppFlowyBoardController? controller) {
     boardController = controller ??
         AppFlowyBoardController(
@@ -330,6 +334,17 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     for (final controller in groupControllers.values) {
       await controller.dispose();
     }
+
+    databaseController.removeListener(
+      onDatabaseChanged: _databaseCallbacks,
+      onLayoutSettingsChanged: _layoutSettingsCallback,
+      onGroupChanged: _groupCallbacks,
+    );
+
+    _databaseCallbacks = null;
+    _layoutSettingsCallback = null;
+    _groupCallbacks = null;
+
     boardController.dispose();
     return super.close();
   }
@@ -380,7 +395,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   RowCache get rowCache => databaseController.rowCache;
 
   void _startListening() {
-    final onLayoutSettingsChanged = DatabaseLayoutSettingCallbacks(
+    _layoutSettingsCallback = DatabaseLayoutSettingCallbacks(
       onLayoutSettingsChanged: (layoutSettings) {
         if (isClosed) {
           return;
@@ -403,7 +418,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         add(BoardEvent.didUpdateLayoutSettings(layoutSettings.board));
       },
     );
-    final onGroupChanged = GroupCallbacks(
+    _groupCallbacks = GroupCallbacks(
       onGroupByField: (groups) {
         if (isClosed) {
           return;
@@ -482,7 +497,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         add(BoardEvent.didReceiveGroups(groupList));
       },
     );
-    final onDatabaseChanged = DatabaseCallbacks(
+    _databaseCallbacks = DatabaseCallbacks(
       onRowsCreated: (rows) {
         for (final row in rows) {
           if (!isClosed && row.isHiddenInView) {
@@ -493,9 +508,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     );
 
     databaseController.addListener(
-      onDatabaseChanged: onDatabaseChanged,
-      onLayoutSettingsChanged: onLayoutSettingsChanged,
-      onGroupChanged: onGroupChanged,
+      onDatabaseChanged: _databaseCallbacks,
+      onLayoutSettingsChanged: _layoutSettingsCallback,
+      onGroupChanged: _groupCallbacks,
     );
   }
 

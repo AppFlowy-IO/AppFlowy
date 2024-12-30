@@ -72,6 +72,19 @@ pub struct StreamChatPayloadPB {
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
+pub struct RegenerateResponsePB {
+  #[pb(index = 1)]
+  #[validate(custom(function = "required_not_empty_str"))]
+  pub chat_id: String,
+
+  #[pb(index = 2)]
+  pub answer_message_id: i64,
+
+  #[pb(index = 3)]
+  pub answer_stream_port: i64,
+}
+
+#[derive(Default, ProtoBuf, Validate, Clone, Debug)]
 pub struct ChatMessageMetaPB {
   #[pb(index = 1)]
   pub id: String,
@@ -83,16 +96,16 @@ pub struct ChatMessageMetaPB {
   pub data: String,
 
   #[pb(index = 4)]
-  pub data_type: ChatMessageMetaTypePB,
+  pub loader_type: ContextLoaderTypePB,
 
   #[pb(index = 5)]
   pub source: String,
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf_Enum, PartialEq, Eq, Copy)]
-pub enum ChatMessageMetaTypePB {
+pub enum ContextLoaderTypePB {
   #[default]
-  UnknownMetaType = 0,
+  UnknownLoaderType = 0,
   Txt = 1,
   Markdown = 2,
   PDF = 3,
@@ -524,4 +537,20 @@ pub struct CreateChatContextPB {
   #[pb(index = 4)]
   #[validate(custom(function = "required_not_empty_str"))]
   pub chat_id: String,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct ChatSettingsPB {
+  #[pb(index = 1)]
+  pub rag_ids: Vec<String>,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug, Validate)]
+pub struct UpdateChatSettingsPB {
+  #[pb(index = 1)]
+  #[validate(nested)]
+  pub chat_id: ChatId,
+
+  #[pb(index = 2)]
+  pub rag_ids: Vec<String>,
 }

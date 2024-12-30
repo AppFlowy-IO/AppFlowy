@@ -2,9 +2,9 @@ name: Docker-CI
 
 on:
   push:
-    branches: ["main", "release/*"]
+    branches: [ "main", "release/*" ]
   pull_request:
-    branches: ["main", "release/*"]
+    branches: [ "main", "release/*" ]
   workflow_dispatch:
 
 concurrency:

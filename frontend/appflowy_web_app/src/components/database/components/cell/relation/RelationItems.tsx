@@ -1,29 +1,29 @@
 import { View, YDatabase, YDoc, YjsEditorKey } from '@/application/types';
 import {
-  DatabaseContext,
   DatabaseContextState,
   getPrimaryFieldId,
-  parseRelationTypeOption,
+  parseRelationTypeOption, useDatabaseContext,
   useFieldSelector,
 } from '@/application/database-yjs';
 import { RelationCell, RelationCellData } from '@/application/database-yjs/cell.type';
 import { notify } from '@/components/_shared/notify';
 import { RelationPrimaryValue } from '@/components/database/components/cell/relation/RelationPrimaryValue';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 function RelationItems ({ style, cell, fieldId }: {
   cell: RelationCell;
   fieldId: string;
   style?: React.CSSProperties
 }) {
-  const viewId = useContext(DatabaseContext)?.iidIndex;
+  const context = useDatabaseContext();
+  const viewId = context.iidIndex;
   const { field } = useFieldSelector(fieldId);
   const relatedDatabaseId = field ? parseRelationTypeOption(field).database_id : null;
 
-  const createRowDoc = useContext(DatabaseContext)?.createRowDoc;
-  const loadViewMeta = useContext(DatabaseContext)?.loadViewMeta;
-  const loadView = useContext(DatabaseContext)?.loadView;
-  const navigateToRow = useContext(DatabaseContext)?.navigateToRow;
+  const createRowDoc = context.createRowDoc;
+  const loadViewMeta = context.loadViewMeta;
+  const loadView = context.loadView;
+  const navigateToRow = context.navigateToRow;
 
   const [noAccess, setNoAccess] = useState(false);
   const [relations, setRelations] = useState<Record<string, string> | null>();
@@ -34,7 +34,7 @@ function RelationItems ({ style, cell, fieldId }: {
 
   const [rowIds, setRowIds] = useState([] as string[]);
 
-  const navigateToView = useContext(DatabaseContext)?.navigateToView;
+  const navigateToView = context.navigateToView;
 
   useEffect(() => {
     if (!viewId) return;
@@ -108,7 +108,10 @@ function RelationItems ({ style, cell, fieldId }: {
   }, [loadView, relatedViewId]);
 
   return (
-    <div style={style} className={'relation-cell flex w-full items-center gap-2'}>
+    <div
+      style={style}
+      className={'relation-cell flex w-full items-center gap-2'}
+    >
       {noAccess ? (
         <div className={'text-text-caption'}>No access</div>
       ) : (
@@ -143,7 +146,10 @@ function RelationItems ({ style, cell, fieldId }: {
               className={`underline ${relatedViewId ? 'cursor-pointer hover:text-content-blue-400' : ''}`}
 
             >
-              <RelationPrimaryValue fieldId={relatedFieldId} rowDoc={rowDoc} />
+              <RelationPrimaryValue
+                fieldId={relatedFieldId}
+                rowDoc={rowDoc}
+              />
             </div>
           );
         })

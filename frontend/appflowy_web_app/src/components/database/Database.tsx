@@ -3,7 +3,7 @@ import {
   AppendBreadcrumb,
   CreateRowDoc,
   LoadView,
-  LoadViewMeta, RowId,
+  LoadViewMeta, RowId, UIVariant,
   YDatabase,
   YDoc,
   YjsDatabaseKey,
@@ -18,6 +18,7 @@ import { DatabaseContextProvider } from './DatabaseContext';
 
 export interface Database2Props {
   doc: YDoc;
+  readOnly?: boolean;
   createRowDoc?: CreateRowDoc;
   loadView?: LoadView;
   navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
@@ -30,9 +31,11 @@ export interface Database2Props {
   onOpenRow?: (rowId: string) => void;
   visibleViewIds: string[];
   iidIndex: string;
-  hideConditions?: boolean;
-  variant?: 'publish' | 'app';
-  onRendered?: () => void;
+  variant?: UIVariant;
+  onRendered?: (height: number) => void;
+  isDocumentBlock?: boolean;
+  scrollLeft?: number;
+  showActions?: boolean;
 }
 
 function Database ({
@@ -48,13 +51,15 @@ function Database ({
   rowId,
   onChangeView,
   onOpenRow,
-  hideConditions,
   appendBreadcrumb,
   onRendered,
-  variant = 'app',
+  readOnly = true,
+  variant = UIVariant.App,
+  scrollLeft,
+  isDocumentBlock,
+  showActions,
 }: Database2Props) {
   const database = doc.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.database) as YDatabase;
-
   const view = database.get(YjsDatabaseKey.views).get(iidIndex);
 
   const rowOrders = view?.get(YjsDatabaseKey.row_orders);
@@ -87,10 +92,13 @@ function Database ({
   }, [updateRowMap]);
 
   useEffect(() => {
-
     void debounceUpdateRowMap();
-
   }, [debounceUpdateRowMap]);
+
+  useEffect(() => {
+    console.log('Database.tsx: database', database.toJSON());
+    console.log('Database.tsx: rowDocMap', rowDocMap);
+  }, [rowDocMap, database]);
 
   const handleUpdateRowDocMap = useCallback(async () => {
     setRowIds(rowOrders?.toJSON().map(({ id }: { id: string }) => id) || []);
@@ -105,9 +113,6 @@ function Database ({
     };
   }, [handleUpdateRowDocMap, rowOrders]);
 
-  useEffect(() => {
-    onRendered?.();
-  }, [onRendered]);
   if (!rowDocMap || !viewId) {
     return null;
   }
@@ -121,11 +126,15 @@ function Database ({
         viewId={viewId}
         databaseDoc={doc}
         rowDocMap={rowDocMap}
-        readOnly={true}
+        readOnly={readOnly}
         loadView={loadView}
         navigateToView={navigateToView}
         loadViewMeta={loadViewMeta}
         createRowDoc={createRowDoc}
+        scrollLeft={scrollLeft}
+        isDocumentBlock={isDocumentBlock}
+        onRendered={onRendered}
+        showActions={showActions}
       >
         {rowId ? (
           <DatabaseRow
@@ -140,7 +149,6 @@ function Database ({
               viewName={iidName}
               onChangeView={onChangeView}
               viewId={viewId}
-              hideConditions={hideConditions}
             />
           </div>
         )}

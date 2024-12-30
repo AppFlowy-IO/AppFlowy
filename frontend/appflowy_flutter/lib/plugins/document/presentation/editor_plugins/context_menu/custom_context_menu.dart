@@ -14,6 +14,11 @@ final List<List<ContextMenuItem>> customContextMenuItems = [
       onPressed: (editorState) => customPasteCommand.execute(editorState),
     ),
     ContextMenuItem(
+      getName: LocaleKeys.document_plugins_contextMenu_pasteAsPlainText.tr,
+      onPressed: (editorState) =>
+          customPastePlainTextCommand.execute(editorState),
+    ),
+    ContextMenuItem(
       getName: LocaleKeys.document_plugins_contextMenu_cut.tr,
       onPressed: (editorState) => customCutCommand.execute(editorState),
     ),

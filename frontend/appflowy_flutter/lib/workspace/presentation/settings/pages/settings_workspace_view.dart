@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
@@ -35,7 +33,6 @@ import 'package:appflowy/workspace/presentation/settings/widgets/theme_upload/th
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/language.dart';
 import 'package:flowy_infra/plugins/bloc/dynamic_plugin_bloc.dart';
@@ -46,6 +43,7 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -53,11 +51,11 @@ class SettingsWorkspaceView extends StatelessWidget {
   const SettingsWorkspaceView({
     super.key,
     required this.userProfile,
-    this.workspaceMember,
+    this.currentWorkspaceMemberRole,
   });
 
   final UserProfilePB userProfile;
-  final WorkspaceMemberPB? workspaceMember;
+  final AFRolePB? currentWorkspaceMemberRole;
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +92,11 @@ class SettingsWorkspaceView extends StatelessWidget {
                 SettingsCategory(
                   title: LocaleKeys.settings_workspacePage_workspaceName_title
                       .tr(),
-                  children: [_WorkspaceNameSetting(member: workspaceMember)],
+                  children: [
+                    _WorkspaceNameSetting(
+                      currentWorkspaceMemberRole: currentWorkspaceMemberRole,
+                    ),
+                  ],
                 ),
                 const SettingsCategorySpacer(),
                 SettingsCategory(
@@ -105,7 +107,7 @@ class SettingsWorkspaceView extends StatelessWidget {
                       .tr(),
                   children: [
                     _WorkspaceIconSetting(
-                      enableEdit: workspaceMember?.role.isOwner ?? false,
+                      enableEdit: currentWorkspaceMemberRole?.isOwner ?? false,
                       workspace: state.workspace,
                     ),
                   ],
@@ -186,14 +188,14 @@ class SettingsWorkspaceView extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   onPressed: () => showConfirmDialog(
                     context: context,
-                    title: workspaceMember?.role.isOwner ?? false
+                    title: currentWorkspaceMemberRole?.isOwner ?? false
                         ? LocaleKeys
                             .settings_workspacePage_deleteWorkspacePrompt_title
                             .tr()
                         : LocaleKeys
                             .settings_workspacePage_leaveWorkspacePrompt_title
                             .tr(),
-                    description: workspaceMember?.role.isOwner ?? false
+                    description: currentWorkspaceMemberRole?.isOwner ?? false
                         ? LocaleKeys
                             .settings_workspacePage_deleteWorkspacePrompt_content
                             .tr()
@@ -202,13 +204,13 @@ class SettingsWorkspaceView extends StatelessWidget {
                             .tr(),
                     style: ConfirmPopupStyle.cancelAndOk,
                     onConfirm: () => context.read<WorkspaceSettingsBloc>().add(
-                          workspaceMember?.role.isOwner ?? false
+                          currentWorkspaceMemberRole?.isOwner ?? false
                               ? const WorkspaceSettingsEvent.deleteWorkspace()
                               : const WorkspaceSettingsEvent.leaveWorkspace(),
                         ),
                   ),
                   buttonType: SingleSettingsButtonType.danger,
-                  buttonLabel: workspaceMember?.role.isOwner ?? false
+                  buttonLabel: currentWorkspaceMemberRole?.isOwner ?? false
                       ? LocaleKeys
                           .settings_workspacePage_manageWorkspace_deleteWorkspace
                           .tr()
@@ -226,9 +228,11 @@ class SettingsWorkspaceView extends StatelessWidget {
 }
 
 class _WorkspaceNameSetting extends StatefulWidget {
-  const _WorkspaceNameSetting({this.member});
+  const _WorkspaceNameSetting({
+    this.currentWorkspaceMemberRole,
+  });
 
-  final WorkspaceMemberPB? member;
+  final AFRolePB? currentWorkspaceMemberRole;
 
   @override
   State<_WorkspaceNameSetting> createState() => _WorkspaceNameSettingState();
@@ -256,7 +260,8 @@ class _WorkspaceNameSettingState extends State<_WorkspaceNameSetting> {
         }
       },
       builder: (_, state) {
-        if (widget.member == null || !widget.member!.role.isOwner) {
+        if (widget.currentWorkspaceMemberRole == null ||
+            !widget.currentWorkspaceMemberRole!.isOwner) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 2.5),
             child: FlowyText.regular(
@@ -1070,15 +1075,16 @@ class _FontListPopupState extends State<_FontListPopup> {
             child: ListView.separated(
               shrinkWrap: _filteredOptions.length < 10,
               controller: widget.scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
               itemCount: _filteredOptions.length,
-              separatorBuilder: (_, __) => const VSpace(4),
+              separatorBuilder: (_, __) => const VSpace(6),
               itemBuilder: (context, index) {
                 final font = _filteredOptions[index];
                 final isSelected = widget.currentFont == font;
                 return SizedBox(
-                  height: 28,
+                  height: 29,
                   child: ListTile(
+                    minVerticalPadding: 0,
                     selected: isSelected,
                     dense: true,
                     hoverColor: Theme.of(context)
@@ -1087,8 +1093,9 @@ class _FontListPopupState extends State<_FontListPopup> {
                         .withOpacity(0.12),
                     selectedTileColor:
                         Theme.of(context).colorScheme.primary.withOpacity(0.12),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 6),
-                    minTileHeight: 28,
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                    minTileHeight: 0,
                     onTap: () {
                       context
                           .read<AppearanceSettingsCubit>()
@@ -1102,11 +1109,14 @@ class _FontListPopupState extends State<_FontListPopup> {
 
                       widget.controller.close();
                     },
-                    title: Text(
-                      font.fontFamilyDisplayName,
-                      style: TextStyle(
-                        color: AFThemeExtension.of(context).textColor,
-                        fontFamily: getGoogleFontSafely(font).fontFamily,
+                    title: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(
+                        font.fontFamilyDisplayName,
+                        style: TextStyle(
+                          color: AFThemeExtension.of(context).textColor,
+                          fontFamily: getGoogleFontSafely(font).fontFamily,
+                        ),
                       ),
                     ),
                     trailing:

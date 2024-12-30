@@ -29,6 +29,7 @@ enum EditorOptionActionType {
           NumberedListBlockKeys.type,
           TodoListBlockKeys.type,
           ToggleListBlockKeys.type,
+          SubPageBlockKeys.type,
         };
       case EditorOptionActionType.color:
         return {
@@ -45,6 +46,7 @@ enum EditorOptionActionType {
       case EditorOptionActionType.align:
         return {
           ImageBlockKeys.type,
+          SimpleTableBlockKeys.type,
         };
       case EditorOptionActionType.depth:
         return {
@@ -66,7 +68,13 @@ enum OptionAction {
   color,
   divider,
   align,
-  depth;
+
+  // Outline block
+  depth,
+
+  // Simple table
+  setToPageWidth,
+  distributeColumnsEvenly;
 
   FlowySvgData get svg {
     switch (this) {
@@ -90,6 +98,10 @@ enum OptionAction {
         return FlowySvgs.tag_s;
       case OptionAction.copyLinkToBlock:
         return FlowySvgs.share_tab_copy_s;
+      case OptionAction.setToPageWidth:
+        return FlowySvgs.table_set_to_page_width_s;
+      case OptionAction.distributeColumnsEvenly:
+        return FlowySvgs.table_distribute_columns_evenly_s;
     }
   }
 
@@ -115,6 +127,14 @@ enum OptionAction {
         return LocaleKeys.document_plugins_optionAction_copyLinkToBlock.tr();
       case OptionAction.divider:
         throw UnsupportedError('Divider does not have description');
+      case OptionAction.setToPageWidth:
+        return LocaleKeys
+            .document_plugins_simpleTable_moreActions_setToPageWidth
+            .tr();
+      case OptionAction.distributeColumnsEvenly:
+        return LocaleKeys
+            .document_plugins_simpleTable_moreActions_distributeColumnsWidth
+            .tr();
     }
   }
 }

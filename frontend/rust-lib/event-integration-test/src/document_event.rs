@@ -31,7 +31,6 @@ impl EventIntegrationTest {
     let payload = CreateViewPayloadPB {
       parent_view_id: parent_id.to_string(),
       name,
-      desc: "".to_string(),
       thumbnail: None,
       layout: ViewLayoutPB::Document,
       initial_data,

@@ -68,8 +68,11 @@ function Carousel ({ images, onPreview, autoplay }: {
   }, [handleAfterSlide, handleInit, images, rendered]);
 
   return (
-    <div className={'flex flex-col images-carousel'}>
-      <div className={'relative carousel-container'} ref={containerRef}></div>
+    <div className={'flex flex-col images-carousel w-full'}>
+      <div
+        className={'relative carousel-container'}
+        ref={containerRef}
+      ></div>
 
       {renderCarousel}
 

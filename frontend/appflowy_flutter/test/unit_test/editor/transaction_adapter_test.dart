@@ -208,7 +208,7 @@ void main() {
               blockAction.payload.block.externalId,
               textId,
             );
-            expect(blockAction.payload.block.externalType, 'text');
+            expect(blockAction.payload.block.externalType, kExternalTextType);
           }
         } else if (time == TransactionTime.after) {
           completer.complete();
@@ -278,7 +278,7 @@ void main() {
               blockAction.payload.block.externalId,
               textId,
             );
-            expect(blockAction.payload.block.externalType, 'text');
+            expect(blockAction.payload.block.externalType, kExternalTextType);
           }
         } else if (time == TransactionTime.after) {
           completer.complete();

@@ -12,4 +12,10 @@ void i18next
     defaultNS: 'translation',
     debug: false,
     fallbackLng: 'en',
+    cache: {
+      enabled: true,
+      prefix: `i18next_translation_`,
+    },
   });
+
+export const i18nInstance = i18next;

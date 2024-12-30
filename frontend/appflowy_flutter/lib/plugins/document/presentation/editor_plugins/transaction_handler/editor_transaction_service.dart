@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/child_page_transaction_handler.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/date_transaction_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_transaction_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_handler.dart';
 import 'package:appflowy/shared/clipboard_state.dart';
@@ -10,11 +11,14 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'mention_transaction_handler.dart';
+
 final _transactionHandlers = <EditorTransactionHandler>[
   if (FeatureFlag.inlineSubPageMention.isOn) ...[
     SubPageTransactionHandler(),
     ChildPageTransactionHandler(),
   ],
+  DateTransactionHandler(),
 ];
 
 /// Handles delegating transactions to appropriate handlers.
@@ -39,11 +43,12 @@ class EditorTransactionService extends StatefulWidget {
 }
 
 class _EditorTransactionServiceState extends State<EditorTransactionService> {
-  StreamSubscription<(TransactionTime, Transaction)>? transactionSubscription;
+  StreamSubscription<EditorTransactionValue>? transactionSubscription;
 
   bool isUndoRedo = false;
   bool isPaste = false;
   bool isDraggingNode = false;
+  bool isTurnInto = false;
 
   @override
   void initState() {
@@ -75,6 +80,8 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
       isDraggingNode = true;
     } else if (type == EditorNotificationType.dragEnd) {
       isDraggingNode = false;
+    } else if (type == EditorNotificationType.turnInto) {
+      isTurnInto = true;
     }
 
     if (type == EditorNotificationType.undo) {
@@ -83,7 +90,10 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
       redoCommand.execute(widget.editorState);
     } else if (type == EditorNotificationType.exitEditing &&
         widget.editorState.selection != null) {
-      widget.editorState.selection = null;
+      // If the editor is disposed, we don't need to reset the selection.
+      if (!widget.editorState.isDisposed) {
+        widget.editorState.selection = null;
+      }
     }
   }
 
@@ -124,24 +134,33 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
     return matchingNodes;
   }
 
-  void onEditorTransaction((TransactionTime, Transaction) event) {
-    if (event.$1 == TransactionTime.before) {
+  void onEditorTransaction(EditorTransactionValue event) {
+    final time = event.$1;
+    final transaction = event.$2;
+
+    if (time == TransactionTime.before) {
       return;
     }
 
     final Map<String, dynamic> added = {
       for (final handler in _transactionHandlers)
-        handler.type: handler.livesInDelta ? <MentionBlockData>[] : [],
+        handler.type: handler.livesInDelta ? <MentionBlockData>[] : <Node>[],
     };
     final Map<String, dynamic> removed = {
       for (final handler in _transactionHandlers)
-        handler.type: handler.livesInDelta ? <MentionBlockData>[] : [],
+        handler.type: handler.livesInDelta ? <MentionBlockData>[] : <Node>[],
     };
 
-    for (final op in event.$2.operations) {
+    // based on the type of the transaction handler
+    final uniqueTransactionHandlers = <String, EditorTransactionHandler>{};
+    for (final handler in _transactionHandlers) {
+      uniqueTransactionHandlers.putIfAbsent(handler.type, () => handler);
+    }
+
+    for (final op in transaction.operations) {
       if (op is InsertOperation) {
         for (final n in op.nodes) {
-          for (final handler in _transactionHandlers) {
+          for (final handler in uniqueTransactionHandlers.values) {
             if (handler.livesInDelta) {
               added[handler.type]!
                   .addAll(extractMentionsForType(n, handler.type));
@@ -153,7 +172,7 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
         }
       } else if (op is DeleteOperation) {
         for (final n in op.nodes) {
-          for (final handler in _transactionHandlers) {
+          for (final handler in uniqueTransactionHandlers.values) {
             if (handler.livesInDelta) {
               removed[handler.type]!.addAll(
                 extractMentionsForType(n, handler.type, false),
@@ -181,8 +200,9 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
 
         final (add, del) = diffDeltas(deltaBefore, deltaAfter);
 
+        bool fetchedMentions = false;
         for (final handler in _transactionHandlers) {
-          if (!handler.livesInDelta) {
+          if (!handler.livesInDelta || fetchedMentions) {
             continue;
           }
 
@@ -202,6 +222,8 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
 
             removed[handler.type]!.addAll(mentionBlockDatas);
           }
+
+          fetchedMentions = true;
         }
       }
     }
@@ -216,6 +238,7 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
 
       handler.onTransaction(
         context,
+        widget.viewId,
         widget.editorState,
         additions,
         removals,
@@ -223,12 +246,14 @@ class _EditorTransactionServiceState extends State<EditorTransactionService> {
         isUndoRedo: isUndoRedo,
         isPaste: isPaste,
         isDraggingNode: isDraggingNode,
+        isTurnInto: isTurnInto,
         parentViewId: widget.viewId,
       );
     }
 
     isUndoRedo = false;
     isPaste = false;
+    isTurnInto = false;
   }
 
   /// Takes an iterable of [TextInsert] and returns a list of [MentionBlockData].

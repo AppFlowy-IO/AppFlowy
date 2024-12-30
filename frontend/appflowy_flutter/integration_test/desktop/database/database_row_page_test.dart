@@ -1,17 +1,18 @@
-import 'package:appflowy/plugins/database/widgets/cell/desktop_row_detail/desktop_row_detail_checklist_cell.dart';
-import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_cell_editor.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/header/desktop_field_cell.dart';
+import 'package:appflowy/plugins/database/widgets/cell/desktop_row_detail/desktop_row_detail_checklist_cell.dart';
+import 'package:appflowy/plugins/database/widgets/cell_editor/checklist_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
+import 'package:appflowy/plugins/document/document_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/shared/icon_emoji_picker/recent_icons.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -21,7 +22,14 @@ import '../../shared/emoji.dart';
 import '../../shared/util.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() {
+    IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+    RecentIcons.enable = false;
+  });
+
+  tearDownAll(() {
+    RecentIcons.enable = true;
+  });
 
   group('grid row detail page:', () {
     testWidgets('opens', (tester) async {
@@ -76,6 +84,24 @@ void main() {
       // The number of emoji should be two. One in the row displayed in the grid
       // one in the row detail page.
       expect(emojiText, findsNWidgets(2));
+
+      // insert a sub page in database
+      await tester.editor.tapLineOfEditorAt(0);
+      await tester.editor.showSlashMenu();
+      await tester.pumpAndSettle();
+      await tester.editor.tapSlashMenuItemWithName(
+        LocaleKeys.document_slashMenu_subPage_name.tr(),
+        offset: 100,
+      );
+      await tester.pumpAndSettle();
+
+      // the row detail page should be closed
+      final rowDetailPage = find.byType(RowDetailPage);
+      await tester.pumpUntilNotFound(rowDetailPage);
+
+      // expect to see a document page
+      final documentPage = find.byType(DocumentPage);
+      expect(documentPage, findsOneWidget);
     });
 
     testWidgets('remove emoji', (tester) async {
@@ -368,11 +394,16 @@ void main() {
         isChecked: false,
       );
       tester.assertPhantomChecklistItemAtIndex(index: 1);
+      tester.assertPhantomChecklistItemContent("");
 
       await tester.enterText(find.byType(PhantomChecklistItem), 'task 2');
       await tester.pumpAndSettle();
-      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
-      await tester.pumpAndSettle(const Duration(milliseconds: 500));
+      await tester.hoverOnWidget(
+        find.byType(ChecklistRowDetailCell),
+        onHover: () async {
+          await tester.tapButton(find.byType(ChecklistItemControl));
+        },
+      );
 
       tester.assertChecklistTaskInEditor(
         index: 1,
@@ -380,6 +411,7 @@ void main() {
         isChecked: false,
       );
       tester.assertPhantomChecklistItemAtIndex(index: 2);
+      tester.assertPhantomChecklistItemContent("");
 
       await tester.simulateKeyEvent(LogicalKeyboardKey.escape);
       await tester.pumpAndSettle();

@@ -1,37 +1,26 @@
-import { CreateRowDoc, LoadView, LoadViewMeta, YDoc, YjsEditorKey } from '@/application/types';
+import {
+  ViewComponentProps,
+  YjsEditorKey, YSharedRoot,
+} from '@/application/types';
 import EditorSkeleton from '@/components/_shared/skeleton/EditorSkeleton';
 import { Editor } from '@/components/editor';
-import { EditorVariant } from '@/components/editor/EditorContext';
-import React, { Suspense, useCallback } from 'react';
-import ViewMetaPreview, { ViewMetaProps } from '@/components/view-meta/ViewMetaPreview';
+import React, { Suspense, useCallback, useRef } from 'react';
+import ViewMetaPreview from '@/components/view-meta/ViewMetaPreview';
 import { useSearchParams } from 'react-router-dom';
+import { appendFirstEmptyParagraph } from '@/application/slate-yjs/utils/yjs';
 
-export interface DocumentProps {
-  doc: YDoc;
-  readOnly: boolean;
-  navigateToView?: (viewId: string, blockId?: string) => Promise<void>;
-  loadViewMeta?: LoadViewMeta;
-  loadView?: LoadView;
-  createRowDoc?: CreateRowDoc;
-  viewMeta: ViewMetaProps;
-  isTemplateThumb?: boolean;
-  variant?: EditorVariant;
-  onRendered?: () => void;
-}
+export type DocumentProps = ViewComponentProps;
 
-export const Document = ({
-  doc,
-  readOnly,
-  loadView,
-  navigateToView,
-  loadViewMeta,
-  createRowDoc,
-  viewMeta,
-  isTemplateThumb,
-  variant,
-  onRendered,
-}: DocumentProps) => {
+export const Document = (props: DocumentProps) => {
   const [search, setSearch] = useSearchParams();
+  const {
+    doc,
+    readOnly,
+    viewMeta,
+    isTemplateThumb,
+    updatePage,
+    onRendered,
+  } = props;
   const blockId = search.get('blockId') || undefined;
 
   const onJumpedBlockId = useCallback(() => {
@@ -42,31 +31,57 @@ export const Document = ({
   }, [setSearch]);
   const document = doc?.getMap(YjsEditorKey.data_section)?.get(YjsEditorKey.document);
 
+  const handleEnter = useCallback((text: string) => {
+    if (!doc) return;
+    const sharedRoot = doc.getMap(YjsEditorKey.data_section) as YSharedRoot;
+
+    appendFirstEmptyParagraph(sharedRoot, text);
+  }, [doc]);
+
+  const ref = useRef<HTMLDivElement>(null);
+
+  const handleRendered = useCallback(() => {
+    if (onRendered) {
+      onRendered();
+    }
+
+    const el = ref.current;
+
+    if (!el) return;
+
+    const scrollElement = el.closest('.MuiPaper-root');
+
+    if (!scrollElement) {
+      el.style.minHeight = `calc(100vh - 48px)`;
+      return;
+    }
+
+    el.style.minHeight = `${scrollElement?.clientHeight - 64}px`;
+  }, [onRendered]);
+
   if (!document || !viewMeta.viewId) return null;
 
   return (
     <div
-      style={{
-        minHeight: `calc(100vh - 48px)`,
-      }}
+      ref={ref}
       className={'flex h-full w-full flex-col items-center'}
     >
-      <ViewMetaPreview {...viewMeta} />
-      <Suspense fallback={<EditorSkeleton />}>
+      <ViewMetaPreview
+        {...viewMeta}
+        readOnly={readOnly}
+        updatePage={updatePage}
+        onEnter={readOnly ? undefined : handleEnter}
+        maxWidth={988}
+      />
+      <Suspense fallback={<EditorSkeleton/>}>
         <div className={'flex justify-center w-full'}>
           <Editor
             viewId={viewMeta.viewId}
-            loadView={loadView}
-            loadViewMeta={loadViewMeta}
-            navigateToView={navigateToView}
-            createRowDoc={createRowDoc}
             readSummary={isTemplateThumb}
-            doc={doc}
-            readOnly={readOnly}
             jumpBlockId={blockId}
             onJumpedBlockId={onJumpedBlockId}
-            variant={variant}
-            onRendered={onRendered}
+            onRendered={handleRendered}
+            {...props}
           />
         </div>
       </Suspense>

@@ -1,25 +1,19 @@
-use collab_database::fields::media_type_option::{MediaCellData, MediaTypeOption};
-use collab_database::{fields::Field, rows::Cell};
-use flowy_error::FlowyResult;
-use std::cmp::Ordering;
-
 use crate::{
   entities::{FieldType, MediaCellChangeset, MediaCellDataPB, MediaFilterPB},
   services::{
     cell::{CellDataChangeset, CellDataDecoder},
     field::{
-      default_order, StringCellData, TypeOption, TypeOptionCellData, TypeOptionCellDataCompare,
-      TypeOptionCellDataFilter, TypeOptionCellDataSerde, TypeOptionTransform,
+      default_order, CellDataProtobufEncoder, TypeOption, TypeOptionCellData,
+      TypeOptionCellDataCompare, TypeOptionCellDataFilter, TypeOptionTransform,
     },
     sort::SortCondition,
   },
 };
-
-impl TypeOptionCellData for MediaCellData {
-  fn is_cell_empty(&self) -> bool {
-    self.files.is_empty()
-  }
-}
+use collab_database::fields::media_type_option::{MediaCellData, MediaTypeOption};
+use collab_database::template::util::ToCellString;
+use collab_database::{fields::Field, rows::Cell};
+use flowy_error::FlowyResult;
+use std::cmp::Ordering;
 
 impl TypeOption for MediaTypeOption {
   type CellData = MediaCellData;
@@ -30,24 +24,16 @@ impl TypeOption for MediaTypeOption {
 
 impl TypeOptionTransform for MediaTypeOption {}
 
-impl TypeOptionCellDataSerde for MediaTypeOption {
+impl CellDataProtobufEncoder for MediaTypeOption {
   fn protobuf_encode(
     &self,
     cell_data: <Self as TypeOption>::CellData,
   ) -> <Self as TypeOption>::CellProtobufType {
     cell_data.into()
   }
-
-  fn parse_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    Ok(cell.into())
-  }
 }
 
 impl CellDataDecoder for MediaTypeOption {
-  fn decode_cell(&self, cell: &Cell) -> FlowyResult<<Self as TypeOption>::CellData> {
-    self.parse_cell(cell)
-  }
-
   fn decode_cell_with_transform(
     &self,
     _cell: &Cell,
@@ -74,11 +60,7 @@ impl CellDataDecoder for MediaTypeOption {
   }
 
   fn stringify_cell_data(&self, cell_data: <Self as TypeOption>::CellData) -> String {
-    cell_data.to_string()
-  }
-
-  fn numeric_cell(&self, cell: &Cell) -> Option<f64> {
-    StringCellData::from(cell).0.parse::<f64>().ok()
+    cell_data.to_cell_string()
   }
 }
 

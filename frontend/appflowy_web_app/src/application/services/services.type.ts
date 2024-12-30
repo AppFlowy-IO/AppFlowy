@@ -6,7 +6,20 @@ import {
   UserWorkspaceInfo,
   View,
   Workspace,
-  YDoc, DatabaseRelations, GetRequestAccessInfoResponse, Subscriptions, SubscriptionPlan, SubscriptionInterval, Types,
+  YDoc,
+  DatabaseRelations,
+  GetRequestAccessInfoResponse,
+  Subscriptions,
+  SubscriptionPlan,
+  SubscriptionInterval,
+  Types,
+  UpdatePagePayload,
+  CreatePagePayload,
+  CreateSpacePayload,
+  UpdateSpacePayload,
+  WorkspaceMember,
+  QuickNoteEditorData,
+  QuickNote, Subscription,
 } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
@@ -18,7 +31,7 @@ import {
   UploadTemplatePayload,
 } from '@/application/template.type';
 
-export type AFService = PublishService & AppService & TemplateService & {
+export type AFService = PublishService & AppService & WorkspaceService & TemplateService & QuickNoteService & {
   getClientId: () => string;
 };
 
@@ -32,8 +45,15 @@ export interface AFCloudConfig {
   wsURL: string;
 }
 
-export interface AppService {
+export interface WorkspaceService {
   openWorkspace: (workspaceId: string) => Promise<void>;
+  leaveWorkspace: (workspaceId: string) => Promise<void>;
+  deleteWorkspace: (workspaceId: string) => Promise<void>;
+  getWorkspaceMembers: (workspaceId: string) => Promise<WorkspaceMember[]>;
+  inviteMembers: (workspaceId: string, emails: string[]) => Promise<void>;
+}
+
+export interface AppService {
   getPageDoc: (workspaceId: string, viewId: string, errorCallback?: (error: {
     code: number;
   }) => void) => Promise<YDoc>;
@@ -55,7 +75,7 @@ export interface AppService {
   getWorkspaceFolder: (workspaceId: string) => Promise<FolderView>;
   getCurrentUser: () => Promise<User>;
   getUserWorkspaceInfo: () => Promise<UserWorkspaceInfo>;
-  uploadFileToCDN: (file: File) => Promise<string>;
+  uploadTemplateAvatar: (file: File) => Promise<string>;
   getInvitation: (invitationId: string) => Promise<Invitation>;
   acceptInvitation: (invitationId: string) => Promise<void>;
   getRequestAccessInfo: (requestId: string) => Promise<GetRequestAccessInfoResponse>;
@@ -63,12 +83,36 @@ export interface AppService {
   sendRequestAccess: (workspaceId: string, viewId: string) => Promise<void>;
   getSubscriptionLink: (workspaceId: string, plan: SubscriptionPlan, interval: SubscriptionInterval) => Promise<string>;
   getSubscriptions: () => Promise<Subscriptions>;
+  cancelSubscription: (workspaceId: string, plan: SubscriptionPlan, reason?: string) => Promise<void>;
   getActiveSubscription: (workspaceId: string) => Promise<SubscriptionPlan[]>;
+  getWorkspaceSubscriptions: (workspaceId: string) => Promise<Subscription[]>;
   registerDocUpdate: (doc: YDoc, context: {
     workspaceId: string, objectId: string, collabType: Types
   }) => void;
-  uploadFile: (file: File, onProgress: (progress: number) => void) => Promise<void>;
   importFile: (file: File, onProgress: (progress: number) => void) => Promise<void>;
+  createSpace: (workspaceId: string, payload: CreateSpacePayload) => Promise<string>;
+  updateSpace: (workspaceId: string, payload: UpdateSpacePayload) => Promise<void>;
+  addAppPage: (workspaceId: string, parentViewId: string, payload: CreatePagePayload) => Promise<string>;
+  updateAppPage: (workspaceId: string, viewId: string, data: UpdatePagePayload) => Promise<void>;
+  deleteTrash: (workspaceId: string, viewId?: string) => Promise<void>;
+  moveToTrash: (workspaceId: string, viewId: string) => Promise<void>;
+  restoreFromTrash: (workspaceId: string, viewId?: string) => Promise<void>;
+  movePage: (workspaceId: string, viewId: string, parentId: string, prevViewId?: string) => Promise<void>;
+  uploadFile: (workspaceId: string, viewId: string, file: File, onProgress?: (progress: number) => void) => Promise<string>;
+}
+
+export interface QuickNoteService {
+  getQuickNoteList: (workspaceId: string, params: {
+    offset?: number;
+    limit?: number;
+    searchTerm?: string;
+  }) => Promise<{
+    data: QuickNote[];
+    has_more: boolean;
+  }>;
+  createQuickNote: (workspaceId: string, data: QuickNoteEditorData[]) => Promise<QuickNote>;
+  updateQuickNote: (workspaceId: string, id: string, data: QuickNoteEditorData[]) => Promise<void>;
+  deleteQuickNote: (workspaceId: string, id: string) => Promise<void>;
 }
 
 export interface TemplateService {
@@ -97,7 +141,7 @@ export interface PublishService {
   getPublishRowDocument: (viewId: string) => Promise<YDoc>;
   getPublishInfo: (viewId: string) => Promise<{ namespace: string; publishName: string }>;
 
-  getPublishOutline (namespace: string): Promise<View[]>;
+  getPublishOutline(namespace: string): Promise<View[]>;
 
   getPublishViewGlobalComments: (viewId: string) => Promise<GlobalComment[]>;
   createCommentOnPublishView: (viewId: string, content: string, replyCommentId?: string) => Promise<void>;

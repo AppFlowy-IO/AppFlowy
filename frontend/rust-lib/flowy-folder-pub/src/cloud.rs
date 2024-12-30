@@ -1,5 +1,7 @@
-use crate::entities::{PublishInfoResponse, PublishPayload};
+use crate::entities::PublishPayload;
 pub use anyhow::Error;
+use client_api::entity::{workspace_dto::PublishInfoView, PublishInfo};
+use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
 pub use collab_folder::{Folder, FolderData, Workspace};
 use flowy_error::FlowyError;
@@ -39,6 +41,12 @@ pub trait FolderCloudService: Send + Sync + 'static {
     object_id: &str,
   ) -> Result<Vec<u8>, FlowyError>;
 
+  async fn full_sync_collab_object(
+    &self,
+    workspace_id: &str,
+    params: FullSyncCollabParams,
+  ) -> Result<(), FlowyError>;
+
   async fn batch_create_folder_collab_objects(
     &self,
     workspace_id: &str,
@@ -59,13 +67,38 @@ pub trait FolderCloudService: Send + Sync + 'static {
     view_ids: Vec<String>,
   ) -> Result<(), FlowyError>;
 
-  async fn get_publish_info(&self, view_id: &str) -> Result<PublishInfoResponse, FlowyError>;
+  async fn get_publish_info(&self, view_id: &str) -> Result<PublishInfo, FlowyError>;
+
+  async fn set_publish_name(
+    &self,
+    workspace_id: &str,
+    view_id: String,
+    new_name: String,
+  ) -> Result<(), FlowyError>;
 
   async fn set_publish_namespace(
     &self,
     workspace_id: &str,
-    new_namespace: &str,
+    new_namespace: String,
   ) -> Result<(), FlowyError>;
+
+  async fn list_published_views(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<PublishInfoView>, FlowyError>;
+
+  async fn get_default_published_view_info(
+    &self,
+    workspace_id: &str,
+  ) -> Result<PublishInfo, FlowyError>;
+
+  async fn set_default_published_view(
+    &self,
+    workspace_id: &str,
+    view_id: uuid::Uuid,
+  ) -> Result<(), FlowyError>;
+
+  async fn remove_default_published_view(&self, workspace_id: &str) -> Result<(), FlowyError>;
 
   async fn get_publish_namespace(&self, workspace_id: &str) -> Result<String, FlowyError>;
 
@@ -76,6 +109,13 @@ pub trait FolderCloudService: Send + Sync + 'static {
 pub struct FolderCollabParams {
   pub object_id: String,
   pub encoded_collab_v1: Vec<u8>,
+  pub collab_type: CollabType,
+}
+
+#[derive(Debug)]
+pub struct FullSyncCollabParams {
+  pub object_id: String,
+  pub encoded_collab: EncodedCollab,
   pub collab_type: CollabType,
 }
 

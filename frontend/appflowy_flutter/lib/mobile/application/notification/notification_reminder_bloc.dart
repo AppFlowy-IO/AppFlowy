@@ -61,6 +61,7 @@ class NotificationReminderBloc
                   reminderContent: node.delta?.toPlainText() ?? '',
                   nodes: [node],
                   status: NotificationReminderStatus.loaded,
+                  blockId: reminder.meta[ReminderMetaKeys.blockId],
                 ),
               );
             }
@@ -205,6 +206,7 @@ class NotificationReminderState with _$NotificationReminderState {
     @Default(NotificationReminderStatus.initial)
     NotificationReminderStatus status,
     @Default([]) List<Node> nodes,
+    String? blockId,
     ViewPB? view,
   }) = _NotificationReminderState;
 
