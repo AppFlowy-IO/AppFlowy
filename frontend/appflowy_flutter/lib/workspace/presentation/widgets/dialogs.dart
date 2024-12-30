@@ -388,7 +388,7 @@ void showToastNotification(
               bottomPadding: bottomPadding,
               description: description,
             )
-          : _DesktopToast(
+          : DesktopToast(
               message: message,
               richMessage: richMessage,
               type: type,
@@ -487,8 +487,10 @@ class _MobileToast extends StatelessWidget {
   }
 }
 
-class _DesktopToast extends StatelessWidget {
-  const _DesktopToast({
+@visibleForTesting
+class DesktopToast extends StatelessWidget {
+  const DesktopToast({
+    super.key,
     this.message,
     this.richMessage,
     required this.type,
