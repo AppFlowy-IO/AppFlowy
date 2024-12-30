@@ -121,20 +121,5 @@
             // "request": "launch",
             // "program": "[YOUR_APPLICATION_PATH]",
         },
-        {
-            // https://tauri.app/v1/guides/debugging/vs-code
-            "type": "lldb",
-            "request": "launch",
-            "name": "AF-tauri: Debug backend",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--manifest-path=./appflowy_tauri/src-tauri/Cargo.toml",
-                    "--no-default-features"
-                ]
-            },
-            "preLaunchTask": "AF: Tauri UI Dev",
-            "cwd": "${workspaceRoot}/appflowy_tauri/"
-        },
     ]
 }
