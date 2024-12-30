@@ -861,9 +861,8 @@
         "itemThree": "5 GB",
         "itemFour": "Đúng",
         "itemFive": "Đúng",
-        "itemFileUpload": "Lên đến 7 MB",
         "itemSix": "20 trọn đời",
-
+        "itemFileUpload": "Lên đến 7 MB",
         "intelligentSearch": "Tìm kiếm thông minh"
       },
       "proLabels": {
@@ -1229,7 +1228,6 @@
       "typeAValue": "Nhập một giá trị...",
       "layout": "Bố cục",
       "databaseLayout": "Bố cục",
-      "viewList": "Database Views",
       "editView": "Chỉnh sửa chế độ xem",
       "boardSettings": "Cài đặt bảng",
       "calendarSettings": "Cài đặt lịch",
@@ -1237,7 +1235,8 @@
       "duplicateView": "Xem trùng lặp",
       "deleteView": "Xóa chế độ xem",
       "numberOfVisibleFields": "{} đã hiển thị",
-      "Properties": "Thuộc tính"
+      "Properties": "Thuộc tính",
+      "viewList": "Database Views"
     },
     "textFilter": {
       "contains": "Chứa",
@@ -1473,20 +1472,20 @@
     "media": {
       "rename": "Đổi tên",
       "download": "Tải về",
-      "open": "Mở",
       "delete": "Xóa bỏ",
       "moreFilesHint": "+{}",
       "addFileOrImage": "Thêm tệp, hình ảnh hoặc liên kết",
       "attachmentsHint": "{}",
       "addFileMobile": "Thêm tập tin",
+      "deleteFileDescription": "Bạn có chắc chắn muốn xóa tệp này không? Hành động này không thể hoàn tác.",
+      "downloadSuccess": "Đã lưu tập tin thành công",
+      "downloadFailedToken": "Không tải được tệp, mã thông báo người dùng không khả dụng",
+      "open": "Mở",
+      "hideFileNames": "Ẩn tên tập tin",
       "showFile": "Hiển thị 1 tập tin",
       "showFiles": "Hiển thị {} tập tin",
       "hideFile": "Ẩn 1 tập tin",
-      "hideFiles": "Ẩn {} tập tin",
-      "deleteFileDescription": "Bạn có chắc chắn muốn xóa tệp này không? Hành động này không thể hoàn tác.",
-      "hideFileNames": "Ẩn tên tập tin",
-      "downloadSuccess": "Đã lưu tập tin thành công",
-      "downloadFailedToken": "Không tải được tệp, mã thông báo người dùng không khả dụng"
+      "hideFiles": "Ẩn {} tập tin"
     }
   },
   "document": {
