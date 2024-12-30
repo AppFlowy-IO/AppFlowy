@@ -3,7 +3,7 @@ import { getScrollParent } from '@/components/global-comment/utils';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { ReactEditor, useReadOnly, useSlateStatic } from 'slate-react';
 
-function TableContainer({ blockId, readSummary, children, paddingLeft = 0 }: {
+function TableContainer ({ blockId, readSummary, children, paddingLeft = 0 }: {
   blockId: string;
   readSummary?: boolean;
   children?: React.ReactNode;
@@ -99,12 +99,12 @@ function TableContainer({ blockId, readSummary, children, paddingLeft = 0 }: {
       <div
         ref={controlRef}
         style={{
-          left: (left - 64) + 'px',
+          left: (offsetLeftRef.current - 64) + 'px',
           visibility: showControl ? 'visible' : 'hidden',
           zIndex: showControl ? 10 : -1,
           pointerEvents: showControl ? 'auto' : 'none',
         }}
-        
+
         contentEditable={false}
         className={'absolute z-[10] w-[64px] top-2 block pr-1'}
       >
