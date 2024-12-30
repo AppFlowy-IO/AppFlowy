@@ -1,8 +1,24 @@
 # Release Notes
-## Version 0.7.9 - 25/12/2024
+## Version 0.7.9 - 30/12/2024
 ### New Features
-
+- Meet AppFlowy Web (Lite): Use AppFlowy directly in your browser.
+  - Create beautiful documents with 22 content types and markdown support
+  - Use Quick Note to save anything you want to remember—like meeting notes, a grocery list, or to-dos
+  - Invite members to your workspace for seamless collaboration
+  - Create multiple public/private spaces to better organize your content
+- Simple Table is now available on Mobile, designed specifically for mobile devices.
+  - Create and manage Simple Table blocks on Mobile with easy-to-use action menus.
+  - Use the '+' button in the fixed toolbar to easily add a content block into a table cell on Mobile
+  - Use '/' to insert a content block into a table cell on Desktop
+- Add pages as AI sources in AI chat, enabling you to ask questions about the selected sources
+- Add messages to an editable document while chatting with AI side by side
+- The new Emoji menu now includes Icons with a Recent section for quickly reusing emojis/icons
+- Drag a page from the sidebar into a document to easily mention the page without typing its title
+- Paste as plain text, a new option in the right-click paste menu
 ### Bug Fixes
+- Fixed misalignment in numbered lists
+- Resolved several bugs in the emoji menu
+- Fixed a bug with checklist items
 
 ## Version 0.7.8 - 18/12/2024
 ### New Features
