@@ -7,7 +7,6 @@ on:
     paths:
       - ".github/workflows/mobile_ci.yaml"
       - "frontend/**"
-      - "!frontend/appflowy_tauri/**"
 
   pull_request:
     branches:
