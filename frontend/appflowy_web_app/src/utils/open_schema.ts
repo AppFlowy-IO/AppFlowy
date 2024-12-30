@@ -1,4 +1,4 @@
-import { androidDownloadLink, desktopDownloadLink, iosDownloadLink, openAppFlowySchema } from '@/utils/url';
+import { androidDownloadLink, desktopDownloadLink, openAppFlowySchema } from '@/utils/url';
 
 type OS = 'ios' | 'android' | 'other';
 
@@ -101,20 +101,30 @@ export const openAppOrDownload = (config: AppConfig): void => {
   };
 };
 
-export function openOnly(schema?: string) {
+export function openOnly (schema?: string) {
 
   return openAppOrDownload({
     appScheme: schema || openAppFlowySchema,
   });
 }
 
-export function openOrDownload(schema?: string) {
+export function openOrDownload (schema?: string) {
   const os = getOS();
-  
-  const downloadUrl = os === 'ios' ? iosDownloadLink : os === 'android' ? androidDownloadLink : desktopDownloadLink;
+
+  if (os === 'ios' || os === 'android') {
+    const universalLink = 'https://appflowy.io/download';
+    const intentUrl = `intent://appflowy.io/download#Intent;` +
+      'scheme=https;' +
+      'package=io.appflowy.app;' +
+      `S.browser_fallback_url=${encodeURIComponent(androidDownloadLink)};` +
+      'end';
+
+    window.location.href = os === 'ios' ? universalLink : intentUrl;
+    return;
+  }
 
   return openAppOrDownload({
     appScheme: schema || openAppFlowySchema,
-    downloadUrl,
+    downloadUrl: desktopDownloadLink,
   });
 }

@@ -5,7 +5,7 @@ import { QuickNote } from '@/application/types';
 import { Button, CircularProgress } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-function AddNote({
+function AddNote ({
   onEnterNote,
   onAdd,
 }: {
@@ -27,9 +27,10 @@ function AddNote({
       <Button
         size={'small'}
         color={'inherit'}
-        startIcon={loading ? <CircularProgress className={'w-4 h-4'}/> : <AddIcon className={'w-4 h-4'}/>}
+        startIcon={loading ? <CircularProgress size={16} /> : <AddIcon className={'w-4 h-4'} />}
         onClick={handleAdd}
-        className={'justify-start w-full'}>
+        className={'justify-start w-full'}
+      >
         {t('quickNote.addNote')}
       </Button>
     </>

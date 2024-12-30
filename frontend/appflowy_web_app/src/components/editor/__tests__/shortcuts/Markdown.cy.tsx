@@ -27,6 +27,7 @@ describe('Markdown editing', () => {
     // Test `Bold`
     cy.get('@editor').type('**bold');
     cy.get('@editor').realPress(['*', '*']);
+    cy.wait(50);
     expectedJson = [{
       type: 'paragraph',
       data: {},

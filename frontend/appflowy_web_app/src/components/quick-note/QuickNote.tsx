@@ -1,3 +1,4 @@
+import CircularProgress from '@mui/material/CircularProgress';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { IconButton, Tooltip, Zoom, Snackbar, Portal } from '@mui/material';
 import { ReactComponent as EditIcon } from '@/assets/edit.svg';
@@ -16,7 +17,7 @@ import { getPopoverPosition, setPopoverPosition } from '@/components/quick-note/
 import Note from '@/components/quick-note/Note';
 
 const PAPER_SIZE = [480, 396];
-const Transition = React.forwardRef(function Transition(
+const Transition = React.forwardRef(function Transition (
   props: TransitionProps & {
     children: React.ReactElement;
   },
@@ -33,7 +34,7 @@ enum QuickNoteRoute {
   LIST = 'list',
 }
 
-export function QuickNote() {
+export function QuickNote () {
   const { t } = useTranslation();
   const modifier = useMemo(() => createHotKeyLabel(HOT_KEY_NAME.QUICK_NOTE), []);
   const [open, setOpen] = React.useState(false);
@@ -197,6 +198,7 @@ export function QuickNote() {
   useEffect(() => {
     resetPosition();
   }, [resetPosition]);
+  const [loading, setLoading] = React.useState(false);
 
   const buttonRef = useRef<HTMLButtonElement>(null);
   const handleOpen = useCallback(async (forceCreate?: boolean) => {
@@ -217,7 +219,7 @@ export function QuickNote() {
       } : prev);
     }
 
-    await initNoteList();
+    void initNoteList();
 
     if (route === QuickNoteRoute.LIST || forceCreate) {
       await handleAdd();
@@ -232,7 +234,9 @@ export function QuickNote() {
         e.stopPropagation();
         e.preventDefault();
 
+        if (loading) return;
         void (async () => {
+          setLoading(true);
           try {
             await handleOpen(true);
             // eslint-disable-next-line
@@ -240,6 +244,8 @@ export function QuickNote() {
             console.error(e);
             handleOpenToast(e.message);
           }
+
+          setLoading(false);
         })();
       } else if (createHotkey(HOT_KEY_NAME.ESCAPE)(e)) {
         handleClose();
@@ -251,7 +257,7 @@ export function QuickNote() {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleOpen, handleOpenToast]);
+  }, [handleOpen, handleOpenToast, loading]);
 
   const handleMouseDown = (event: React.MouseEvent) => {
     if (!position) return;
@@ -393,7 +399,8 @@ export function QuickNote() {
           expand={expand}
           onToggleExpand={handleToggleExpand}
           onClose={handleClose}
-          onBack={handleBackList}/>
+          onBack={handleBackList}
+        />
       );
     }
 
@@ -423,26 +430,40 @@ export function QuickNote() {
 
   return (
     <>
-      <Tooltip title={
-        <>
-          <div>{t('quickNote.label')}</div>
-          <div className={'text-xs text-text-caption'}>{modifier}</div>
-        </>
-      }>
+      <Tooltip
+        title={
+          <>
+            <div>{t('quickNote.label')}</div>
+            <div className={'text-xs text-text-caption'}>{modifier}</div>
+          </>
+        }
+      >
         <IconButton
           ref={buttonRef}
           size={'small'}
-          onClick={e => {
+          onClick={async (e) => {
             e.currentTarget.blur();
             if (open) {
               handleClose();
               return;
             }
 
-            void handleOpen();
+            try {
+              setLoading(true);
+              await handleOpen();
+              // eslint-disable-next-line
+            } catch (e: any) {
+              console.error(e);
+              handleOpenToast(e.message);
+            }
+
+            setLoading(false);
+
           }}
+          disabled={loading}
         >
-          <EditIcon/>
+          {loading ? <CircularProgress size={16} /> :
+            <EditIcon />}
         </IconButton>
       </Tooltip>
       <Popover
@@ -481,21 +502,24 @@ export function QuickNote() {
         onClose={handleClose}
         keepMounted={true}
       >
-        <ToastContext.Provider value={{
-          onOpen: handleOpenToast,
-          onClose: () => {
-            setToastMessage('');
-            setOpenToast(false);
-          },
-          open: openToast,
-        }}>
+        <ToastContext.Provider
+          value={{
+            onOpen: handleOpenToast,
+            onClose: () => {
+              setToastMessage('');
+              setOpenToast(false);
+            },
+            open: openToast,
+          }}
+        >
           <div
             onMouseDown={handleMouseDown}
             style={{
               cursor: isDragging ? 'grabbing' : 'grab',
             }}
 
-            className={'bg-note-header py-2 px-5 flex items-center justify-between gap-5 h-[44px] w-full'}>
+            className={'bg-note-header py-2 px-5 flex items-center justify-between gap-5 h-[44px] w-full'}
+          >
             <div className={'flex-1 overflow-hidden w-full'}>{renderHeader()}</div>
           </div>
           <div
@@ -506,10 +530,12 @@ export function QuickNote() {
                 <>
                   <Note
                     onAdd={handleAddedNote}
-                    onEnterNote={handleEnterNote} note={currentNote}
+                    onEnterNote={handleEnterNote}
+                    note={currentNote}
                     onUpdateData={(data) => {
                       handleUpdateNodeData(currentNote.id, data);
-                    }}/>
+                    }}
+                  />
                 </> : <NoteList
                   onAdd={handleAddedNote}
                   onScroll={handleScrollList}
