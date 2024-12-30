@@ -172,7 +172,7 @@ fn remove_box_pointers_lint(file_path: &Path) {
   let reader = BufReader::new(file);
   let lines: Vec<String> = reader
     .lines()
-    .filter_map(Result::ok)
+    .map_while(Result::ok)
     .filter(|line| !line.contains("#![allow(box_pointers)]"))
     .collect();
 
