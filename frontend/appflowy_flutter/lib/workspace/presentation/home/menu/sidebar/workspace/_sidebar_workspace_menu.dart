@@ -408,40 +408,35 @@ class _ImportNotionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 40,
-      child: Stack(
-        alignment: Alignment.centerRight,
-        children: [
-          FlowyButton(
-            key: importNotionButtonKey,
-            onTap: () {
-              _showImportNotinoDialog(context);
+      child: FlowyButton(
+        key: importNotionButtonKey,
+        onTap: () {
+          _showImportNotinoDialog(context);
+        },
+        margin: const EdgeInsets.symmetric(horizontal: 4.0),
+        text: Row(
+          children: [
+            _buildLeftIcon(context),
+            const HSpace(8.0),
+            FlowyText.regular(
+              LocaleKeys.workspace_importFromNotion.tr(),
+            ),
+          ],
+        ),
+        rightIcon: FlowyTooltip(
+          message: LocaleKeys.workspace_learnMore.tr(),
+          preferBelow: true,
+          child: FlowyIconButton(
+            icon: const FlowySvg(
+              FlowySvgs.information_s,
+            ),
+            onPressed: () {
+              afLaunchUrlString(
+                'https://docs.appflowy.io/docs/guides/import-from-notion',
+              );
             },
-            margin: const EdgeInsets.symmetric(horizontal: 4.0),
-            text: Row(
-              children: [
-                _buildLeftIcon(context),
-                const HSpace(8.0),
-                FlowyText.regular(
-                  LocaleKeys.workspace_importFromNotion.tr(),
-                ),
-              ],
-            ),
           ),
-          FlowyTooltip(
-            message: LocaleKeys.workspace_learnMore.tr(),
-            preferBelow: true,
-            child: FlowyIconButton(
-              icon: const FlowySvg(
-                FlowySvgs.information_s,
-              ),
-              onPressed: () {
-                afLaunchUrlString(
-                  'https://docs.appflowy.io/docs/guides/import-from-notion',
-                );
-              },
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
