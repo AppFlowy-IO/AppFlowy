@@ -18,8 +18,6 @@ members = [
   "flowy-database-pub",
   "flowy-server",
   "flowy-server-pub",
-  "flowy-config",
-  "flowy-encrypt",
   "flowy-storage",
   "collab-integrate",
   "flowy-date",
@@ -58,8 +56,6 @@ flowy-database2 = { path = "flowy-database2" }
 flowy-database-pub = { path = "flowy-database-pub" }
 flowy-server = { path = "flowy-server" }
 flowy-server-pub = { path = "flowy-server-pub" }
-flowy-config = { path = "flowy-config" }
-flowy-encrypt = { path = "flowy-encrypt" }
 flowy-storage = { path = "flowy-storage" }
 flowy-storage-pub = { path = "flowy-storage-pub" }
 flowy-search = { path = "flowy-search" }
