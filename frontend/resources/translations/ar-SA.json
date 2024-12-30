@@ -214,7 +214,14 @@
     "indexingFile": "الفهرسة {}",
     "generatingResponse": "توليد الاستجابة",
     "selectSources": "اختر المصادر",
-    "regenerate": "حاول ثانية"
+    "sourceUnsupported": "نحن لا ندعم الدردشة مع قواعد البيانات في الوقت الحالي",
+    "regenerate": "حاول ثانية",
+    "addToPageButton": "أضف إلى الصفحة",
+    "addToPageTitle": "أضف رسالة إلى...",
+    "addToNewPage": "أضف إلى صفحة جديدة",
+    "addToNewPageName": "الرسائل المستخرجة من \"{}\"",
+    "addToNewPageSuccessToast": "تمت إضافة الرسالة إلى",
+    "openPagePreviewFailedToast": "فشل في فتح الصفحة"
   },
   "trash": {
     "text": "المهملات",
@@ -306,6 +313,7 @@
   "sideBar": {
     "closeSidebar": "إغلاق الشريط الجانبي",
     "openSidebar": "فتح الشريط الجانبي",
+    "expandSidebar": "توسيع كصفحة كاملة",
     "personal": "شخصي",
     "private": "خاص",
     "workspace": "مساحة العمل",
