@@ -814,7 +814,8 @@
         "offlineAIInstruction3": "لتفعيل الذكاء الاصطناعي دون اتصال بالإنترنت.",
         "offlineAIDownload1": "إذا لم تقم بتنزيل AppFlowy AI، فيرجى",
         "offlineAIDownload2": "التنزيل",
-        "activeOfflineAI": "نشط"
+        "activeOfflineAI": "نشط",
+        "downloadOfflineAI": "التنزيل"
       }
     },
     "planPage": {
