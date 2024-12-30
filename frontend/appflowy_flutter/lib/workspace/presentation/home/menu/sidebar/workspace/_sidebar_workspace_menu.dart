@@ -43,6 +43,7 @@ class WorkspacesMenu extends StatefulWidget {
 }
 
 class _WorkspacesMenuState extends State<WorkspacesMenu> {
+  final popoverMutex = PopoverMutex();
   final ValueNotifier<bool> isShowingMoreActions = ValueNotifier(false);
 
   @override
@@ -71,7 +72,9 @@ class _WorkspacesMenuState extends State<WorkspacesMenu> {
                 ),
               ),
               const HSpace(4.0),
-              const _WorkspaceMoreButton(),
+              _WorkspaceMoreButton(
+                popoverMutex: popoverMutex,
+              ),
               const HSpace(8.0),
             ],
           ),
@@ -94,6 +97,7 @@ class _WorkspacesMenuState extends State<WorkspacesMenu> {
                     isSelected: workspace.workspaceId ==
                         widget.currentWorkspace.workspaceId,
                     isShowingMoreActions: isShowingMoreActions,
+                    popoverMutex: popoverMutex,
                   ),
                   const VSpace(6.0),
                 ],
@@ -133,12 +137,14 @@ class WorkspaceMenuItem extends StatefulWidget {
     required this.userProfile,
     required this.isSelected,
     required this.isShowingMoreActions,
+    required this.popoverMutex,
   });
 
   final UserProfilePB userProfile;
   final UserWorkspacePB workspace;
   final bool isSelected;
   final ValueNotifier<bool> isShowingMoreActions;
+  final PopoverMutex popoverMutex;
 
   @override
   State<WorkspaceMenuItem> createState() => _WorkspaceMenuItemState();
@@ -231,6 +237,7 @@ class _WorkspaceMenuItemState extends State<WorkspaceMenuItem> {
             child: WorkspaceMoreActionList(
               workspace: widget.workspace,
               isShowingMoreActions: widget.isShowingMoreActions,
+              popoverMutex: widget.popoverMutex,
             ),
           ),
         const HSpace(8.0),
@@ -479,13 +486,18 @@ class _ImportNotionButton extends StatelessWidget {
 }
 
 class _WorkspaceMoreButton extends StatelessWidget {
-  const _WorkspaceMoreButton();
+  const _WorkspaceMoreButton({
+    required this.popoverMutex,
+  });
+
+  final PopoverMutex popoverMutex;
 
   @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 6),
+      mutex: popoverMutex,
       popupBuilder: (_) => FlowyButton(
         margin: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 7.0),
         leftIcon: const FlowySvg(FlowySvgs.workspace_logout_s),

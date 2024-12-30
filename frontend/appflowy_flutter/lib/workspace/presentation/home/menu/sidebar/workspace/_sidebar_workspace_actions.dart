@@ -23,10 +23,12 @@ class WorkspaceMoreActionList extends StatelessWidget {
     super.key,
     required this.workspace,
     required this.isShowingMoreActions,
+    required this.popoverMutex,
   });
 
   final UserWorkspacePB workspace;
   final ValueNotifier<bool> isShowingMoreActions;
+  final PopoverMutex popoverMutex;
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +49,7 @@ class WorkspaceMoreActionList extends StatelessWidget {
       actions: actions
           .map((e) => _WorkspaceMoreActionWrapper(e, workspace))
           .toList(),
+      mutex: popoverMutex,
       constraints: const BoxConstraints(minWidth: 220),
       animationDuration: Durations.short3,
       slideDistance: 2,
