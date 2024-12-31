@@ -39,8 +39,9 @@ class IconGroup {
     final filteredIcons = icons
         .where(
           (icon) =>
-              icon.keywords.any((k) => k.contains(lowercaseKey)) ||
-              icon.name.contains(lowercaseKey),
+              icon.keywords
+                  .any((k) => k.toLowerCase().contains(lowercaseKey)) ||
+              icon.name.toLowerCase().contains(lowercaseKey),
         )
         .toList();
     return IconGroup(name: name, icons: filteredIcons);
