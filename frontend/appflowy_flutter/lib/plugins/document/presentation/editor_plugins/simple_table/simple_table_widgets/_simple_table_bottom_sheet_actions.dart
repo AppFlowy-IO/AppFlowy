@@ -592,7 +592,7 @@ class _SimpleTableHeaderActionButtonState
             child: CupertinoSwitch(
               value: value,
               activeColor: Theme.of(context).colorScheme.primary,
-              onChanged: (_) {},
+              onChanged: (_) => _toggle(),
             ),
           ),
         );
