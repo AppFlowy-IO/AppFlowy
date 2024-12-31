@@ -117,6 +117,8 @@ extension TableOptionOperation on EditorState {
     required Node tableCellNode,
     required TableAlign align,
   }) async {
+    await clearColumnTextAlign(tableCellNode: tableCellNode);
+
     final columnIndex = tableCellNode.columnIndex;
     await _updateTableAttributes(
       tableCellNode: tableCellNode,
@@ -144,6 +146,8 @@ extension TableOptionOperation on EditorState {
     required Node tableCellNode,
     required TableAlign align,
   }) async {
+    await clearRowTextAlign(tableCellNode: tableCellNode);
+
     final rowIndex = tableCellNode.rowIndex;
     await _updateTableAttributes(
       tableCellNode: tableCellNode,
@@ -384,5 +388,68 @@ extension TableOptionOperation on EditorState {
     );
     transaction.updateNode(parentTableNode, attributes);
     await apply(transaction);
+  }
+
+  /// Clear the text align of the column at the index where the table cell node is located.
+  Future<void> clearColumnTextAlign({
+    required Node tableCellNode,
+  }) async {
+    final parentTableNode = tableCellNode.parentTableNode;
+    if (parentTableNode == null) {
+      Log.warn('parent table node is null');
+      return;
+    }
+    final columnIndex = tableCellNode.columnIndex;
+    final transaction = this.transaction;
+    for (var i = 0; i < parentTableNode.rowLength; i++) {
+      final cell = parentTableNode.getTableCellNode(
+        rowIndex: i,
+        columnIndex: columnIndex,
+      );
+      if (cell == null) {
+        continue;
+      }
+      for (final child in cell.children) {
+        transaction.updateNode(child, {
+          blockComponentAlign: null,
+        });
+      }
+    }
+    if (transaction.operations.isNotEmpty) {
+      await apply(transaction);
+    }
+  }
+
+  /// Clear the text align of the row at the index where the table cell node is located.
+  Future<void> clearRowTextAlign({
+    required Node tableCellNode,
+  }) async {
+    final parentTableNode = tableCellNode.parentTableNode;
+    if (parentTableNode == null) {
+      Log.warn('parent table node is null');
+      return;
+    }
+    final rowIndex = tableCellNode.rowIndex;
+    final transaction = this.transaction;
+    for (var i = 0; i < parentTableNode.columnLength; i++) {
+      final cell = parentTableNode.getTableCellNode(
+        rowIndex: rowIndex,
+        columnIndex: i,
+      );
+      if (cell == null) {
+        continue;
+      }
+      for (final child in cell.children) {
+        transaction.updateNode(
+          child,
+          {
+            blockComponentAlign: null,
+          },
+        );
+      }
+    }
+    if (transaction.operations.isNotEmpty) {
+      await apply(transaction);
+    }
   }
 }

@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_widgets/_simple_table_bottom_sheet_actions.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -243,6 +245,53 @@ void main() {
       expect(table.isHeaderColumnEnabled, isTrue);
       expect(table.isHeaderRowEnabled, isTrue);
 
+      // disable header column
+      {
+        // focus on the first cell
+        unawaited(
+          editorState.updateSelectionWithReason(
+            Selection.collapsed(Position(path: firstParagraphPath)),
+            reason: SelectionUpdateReason.uiEvent,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // click the row menu button
+        await tester.clickColumnMenuButton(0);
+
+        final toggleButton = find.descendant(
+          of: find.byType(SimpleTableHeaderActionButton),
+          matching: find.byType(CupertinoSwitch),
+        );
+        await tester.tapButton(toggleButton);
+      }
+
+      // enable header row
+      {
+        // focus on the first cell
+        unawaited(
+          editorState.updateSelectionWithReason(
+            Selection.collapsed(Position(path: firstParagraphPath)),
+            reason: SelectionUpdateReason.uiEvent,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // click the row menu button
+        await tester.clickRowMenuButton(0);
+
+        // enable header column
+        final toggleButton = find.descendant(
+          of: find.byType(SimpleTableHeaderActionButton),
+          matching: find.byType(CupertinoSwitch),
+        );
+        await tester.tapButton(toggleButton);
+      }
+
+      // check the table is updated
+      expect(table.isHeaderColumnEnabled, isFalse);
+      expect(table.isHeaderRowEnabled, isFalse);
+
       // set to page width
       {
         final table = editorState.getNodeAtPath([0])!;
@@ -371,13 +420,22 @@ void main() {
         // click the column menu button
         await tester.clickColumnMenuButton(0);
 
-        // clear content
-        await tester.tapButton(
-          find.findTextInFlowyText(
-            LocaleKeys.document_plugins_simpleTable_moreActions_clearContents
-                .tr(),
-          ),
+        final clearContents = find.findTextInFlowyText(
+          LocaleKeys.document_plugins_simpleTable_moreActions_clearContents
+              .tr(),
         );
+
+        // clear content
+        final scrollable = find.descendant(
+          of: find.byType(SimpleTableBottomSheet),
+          matching: find.byType(Scrollable),
+        );
+        await tester.scrollUntilVisible(
+          clearContents,
+          100,
+          scrollable: scrollable,
+        );
+        await tester.tapButton(clearContents);
         await tester.cancelTableActionMenu();
 
         // check the first cell is empty
@@ -427,7 +485,7 @@ void main() {
       // open the plus menu and select the heading block
       {
         await tester.openPlusMenuAndClickButton(
-          LocaleKeys.editor_toggleHeading1ShortForm.tr(),
+          LocaleKeys.editor_heading1.tr(),
         );
 
         // check the heading block is inserted

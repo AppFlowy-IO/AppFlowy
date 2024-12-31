@@ -239,18 +239,20 @@ class SimpleTableInsertActions extends ISimpleTableBottomSheetActions {
             SimpleTableInsertAction(
               type: SimpleTableMoreAction.insertAbove,
               enableLeftBorder: true,
-              onTap: () => _onActionTap(
+              onTap: (increaseCounter) async => _onActionTap(
                 context,
-                SimpleTableMoreAction.insertAbove,
+                type: SimpleTableMoreAction.insertAbove,
+                increaseCounter: increaseCounter,
               ),
             ),
             const HSpace(2),
             SimpleTableInsertAction(
               type: SimpleTableMoreAction.insertBelow,
               enableRightBorder: true,
-              onTap: () => _onActionTap(
+              onTap: (increaseCounter) async => _onActionTap(
                 context,
-                SimpleTableMoreAction.insertBelow,
+                type: SimpleTableMoreAction.insertBelow,
+                increaseCounter: increaseCounter,
               ),
             ),
           ],
@@ -260,18 +262,20 @@ class SimpleTableInsertActions extends ISimpleTableBottomSheetActions {
             SimpleTableInsertAction(
               type: SimpleTableMoreAction.insertLeft,
               enableLeftBorder: true,
-              onTap: () => _onActionTap(
+              onTap: (increaseCounter) async => _onActionTap(
                 context,
-                SimpleTableMoreAction.insertLeft,
+                type: SimpleTableMoreAction.insertLeft,
+                increaseCounter: increaseCounter,
               ),
             ),
             const HSpace(2),
             SimpleTableInsertAction(
               type: SimpleTableMoreAction.insertRight,
               enableRightBorder: true,
-              onTap: () => _onActionTap(
+              onTap: (increaseCounter) async => _onActionTap(
                 context,
-                SimpleTableMoreAction.insertRight,
+                type: SimpleTableMoreAction.insertRight,
+                increaseCounter: increaseCounter,
               ),
             ),
           ],
@@ -279,7 +283,11 @@ class SimpleTableInsertActions extends ISimpleTableBottomSheetActions {
     };
   }
 
-  void _onActionTap(BuildContext context, SimpleTableMoreAction type) {
+  Future<void> _onActionTap(
+    BuildContext context, {
+    required SimpleTableMoreAction type,
+    required int increaseCounter,
+  }) async {
     final simpleTableContext = context.read<SimpleTableContext>();
     final tableNode = cellNode.parentTableNode;
     if (tableNode == null) {
@@ -291,34 +299,48 @@ class SimpleTableInsertActions extends ISimpleTableBottomSheetActions {
       case SimpleTableMoreAction.insertAbove:
         // update the highlight status for the selecting row
         simpleTableContext.selectingRow.value = cellNode.rowIndex + 1;
-        editorState.insertRowInTable(
+        await editorState.insertRowInTable(
           tableNode,
           cellNode.rowIndex,
         );
       case SimpleTableMoreAction.insertBelow:
-        editorState.insertRowInTable(
+        await editorState.insertRowInTable(
           tableNode,
           cellNode.rowIndex + 1,
+        );
+        // scroll to the next cell position
+        editorState.scrollService?.scrollTo(
+          SimpleTableConstants.defaultRowHeight,
+          duration: Durations.short3,
         );
       case SimpleTableMoreAction.insertLeft:
         // update the highlight status for the selecting column
         simpleTableContext.selectingColumn.value = cellNode.columnIndex + 1;
-        editorState.insertColumnInTable(
+        await editorState.insertColumnInTable(
           tableNode,
           cellNode.columnIndex,
         );
       case SimpleTableMoreAction.insertRight:
-        editorState.insertColumnInTable(
+        await editorState.insertColumnInTable(
           tableNode,
           cellNode.columnIndex + 1,
         );
+        final horizontalScrollController =
+            simpleTableContext.horizontalScrollController;
+        if (horizontalScrollController != null) {
+          final previousWidth = horizontalScrollController.offset;
+          horizontalScrollController.jumpTo(
+            previousWidth + SimpleTableConstants.defaultColumnWidth,
+          );
+        }
+
       default:
         assert(false, 'Unsupported action: $type');
     }
   }
 }
 
-class SimpleTableInsertAction extends StatelessWidget {
+class SimpleTableInsertAction extends StatefulWidget {
   const SimpleTableInsertAction({
     super.key,
     required this.type,
@@ -330,7 +352,16 @@ class SimpleTableInsertAction extends StatelessWidget {
   final SimpleTableMoreAction type;
   final bool enableLeftBorder;
   final bool enableRightBorder;
-  final void Function() onTap;
+  final ValueChanged<int> onTap;
+
+  @override
+  State<SimpleTableInsertAction> createState() =>
+      _SimpleTableInsertActionState();
+}
+
+class _SimpleTableInsertActionState extends State<SimpleTableInsertAction> {
+  // used to count how many times the action is tapped
+  int increaseCounter = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -341,19 +372,19 @@ class SimpleTableInsertAction extends StatelessWidget {
           shape: _buildBorder(),
         ),
         child: AnimatedGestureDetector(
-          onTapUp: onTap,
+          onTapUp: () => widget.onTap(increaseCounter++),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Padding(
                 padding: const EdgeInsets.all(1),
                 child: FlowySvg(
-                  type.leftIconSvg,
+                  widget.type.leftIconSvg,
                   size: const Size.square(22),
                 ),
               ),
               FlowyText(
-                type.name,
+                widget.type.name,
                 fontSize: 12,
                 figmaLineHeight: 16,
               ),
@@ -370,10 +401,10 @@ class SimpleTableInsertAction extends StatelessWidget {
     );
     return RoundedRectangleBorder(
       borderRadius: BorderRadius.only(
-        topLeft: enableLeftBorder ? radius : Radius.zero,
-        bottomLeft: enableLeftBorder ? radius : Radius.zero,
-        topRight: enableRightBorder ? radius : Radius.zero,
-        bottomRight: enableRightBorder ? radius : Radius.zero,
+        topLeft: widget.enableLeftBorder ? radius : Radius.zero,
+        bottomLeft: widget.enableLeftBorder ? radius : Radius.zero,
+        topRight: widget.enableRightBorder ? radius : Radius.zero,
+        bottomRight: widget.enableRightBorder ? radius : Radius.zero,
       ),
     );
   }
@@ -592,7 +623,7 @@ class _SimpleTableHeaderActionButtonState
             child: CupertinoSwitch(
               value: value,
               activeColor: Theme.of(context).colorScheme.primary,
-              onChanged: (_) {},
+              onChanged: (_) => _toggle(),
             ),
           ),
         );
@@ -1198,19 +1229,12 @@ class SimpleTableQuickActions extends StatelessWidget {
               SimpleTableMoreAction.copy,
             ),
           ),
-          FutureBuilder(
-            future: getIt<ClipboardService>().getData(),
-            builder: (context, snapshot) {
-              final hasContent = snapshot.data?.tableJson != null;
-              return SimpleTableQuickAction(
-                type: SimpleTableMoreAction.paste,
-                isEnabled: hasContent,
-                onTap: () => _onActionTap(
-                  context,
-                  SimpleTableMoreAction.paste,
-                ),
-              );
-            },
+          SimpleTableQuickAction(
+            type: SimpleTableMoreAction.paste,
+            onTap: () => _onActionTap(
+              context,
+              SimpleTableMoreAction.paste,
+            ),
           ),
           SimpleTableQuickAction(
             type: SimpleTableMoreAction.delete,

@@ -670,7 +670,12 @@ DatabaseViewBlockComponentBuilder _buildDatabaseViewBlockComponentBuilder(
 ) {
   return DatabaseViewBlockComponentBuilder(
     configuration: configuration.copyWith(
-      padding: (_) => const EdgeInsets.symmetric(vertical: 10),
+      padding: (node) {
+        if (UniversalPlatform.isMobile) {
+          return configuration.padding(node);
+        }
+        return const EdgeInsets.symmetric(vertical: 10);
+      },
     ),
   );
 }
@@ -873,6 +878,12 @@ SubPageBlockComponentBuilder _buildSubPageBlockComponentBuilder(
   return SubPageBlockComponentBuilder(
     configuration: configuration.copyWith(
       textStyle: (node) => styleCustomizer.subPageBlockTextStyleBuilder(),
+      padding: (node) {
+        if (UniversalPlatform.isMobile) {
+          return const EdgeInsets.symmetric(horizontal: 18);
+        }
+        return configuration.padding(node);
+      },
     ),
   );
 }
