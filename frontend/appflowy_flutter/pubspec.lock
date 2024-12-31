@@ -61,8 +61,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "76daa96"
-      resolved-ref: "76daa96af51f0ad4e881c10426a91780977544e5"
+      ref: cfb8b1b
+      resolved-ref: cfb8b1b6eb06f73a4fb297b6fd1d54b0ccec2922
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "4.0.0"
@@ -70,8 +70,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/appflowy_editor_plugins"
-      ref: "2d3d4fb"
-      resolved-ref: "2d3d4fb536f32cbcdf9fcd52dfe3033429666285"
+      ref: "8047c21"
+      resolved-ref: "8047c21868273d544684522eb61e4ac2d2041409"
       url: "https://github.com/AppFlowy-IO/AppFlowy-plugins.git"
     source: git
     version: "0.0.6"
@@ -386,6 +386,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.2"
+  cross_cache:
+    dependency: transitive
+    description:
+      name: cross_cache
+      sha256: ed30348320a7fefe4195c26cfcbabc76b7108ce3d364c4dd7c1b1c681a4cfe28
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   cross_file:
     dependency: "direct main"
     description:
@@ -426,6 +434,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.10"
+  defer_pointer:
+    dependency: "direct main"
+    description:
+      name: defer_pointer
+      sha256: d69e6f8c1d0f052d2616cc1db3782e0ea73f42e4c6f6122fd1a548dfe79faf02
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   desktop_drop:
     dependency: "direct main"
     description:
@@ -459,13 +475,29 @@ packages:
     source: hosted
     version: "0.4.1"
   diffutil_dart:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: diffutil_dart
       sha256: "5e74883aedf87f3b703cb85e815bdc1ed9208b33501556e4a8a5572af9845c81"
       url: "https://pub.dev"
     source: hosted
     version: "4.0.1"
+  dio:
+    dependency: transitive
+    description:
+      name: dio
+      sha256: "5598aa796bbf4699afd5c67c0f5f6e2ed542afc956884b9cd58c306966efc260"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.7.0"
+  dio_web_adapter:
+    dependency: transitive
+    description:
+      name: dio_web_adapter
+      sha256: "33259a9276d6cea88774a0000cfae0d861003497755969c92faa223108620dc8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   dotted_border:
     dependency: "direct main"
     description:
@@ -692,8 +724,16 @@ packages:
       url: "https://github.com/LucasXu0/flutter_cache_manager.git"
     source: git
     version: "3.3.1"
-  flutter_chat_types:
+  flutter_chat_core:
     dependency: "direct main"
+    description:
+      name: flutter_chat_core
+      sha256: "14557aaac7c71b80c279eca41781d214853940cf01727934c742b5845c42dd1e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
+  flutter_chat_types:
+    dependency: transitive
     description:
       name: flutter_chat_types
       sha256: e285b588f6d19d907feb1f6d912deaf22e223656769c34093b64e1c59b094fb9
@@ -704,10 +744,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_chat_ui
-      sha256: "168a4231464ad00a17ea5f0813f1b58393bdd4035683ea4dc37bbe26be62891e"
+      sha256: "2afd22eaebaf0f6ec8425048921479c3dd1a229604015dca05b174c6e8e44292"
       url: "https://pub.dev"
     source: hosted
-    version: "1.6.15"
+    version: "2.0.0-dev.1"
   flutter_driver:
     dependency: transitive
     description: flutter
@@ -717,8 +757,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "38c2c42"
-      resolved-ref: "38c2c429212af6b72a0af829bb0dd3f3eb4ce2c7"
+      ref: "355aa56"
+      resolved-ref: "355aa56e9c74a91e00370a882739e0bb98c30bd8"
       url: "https://github.com/LucasXu0/emoji_mart.git"
     source: git
     version: "1.0.2"
@@ -763,18 +803,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_math_fork
-      sha256: "94bee4642892a94939af0748c6a7de0ff8318feee588379dcdfea7dc5cba06c8"
+      sha256: "284bab89b2fbf1bc3a0baf13d011c1dd324d004e35d177626b77f2fc056366ac"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.2"
-  flutter_parsed_text:
-    dependency: transitive
-    description:
-      name: flutter_parsed_text
-      sha256: "529cf5793b7acdf16ee0f97b158d0d4ba0bf06e7121ef180abe1a5b59e32c1e2"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.1"
+    version: "0.7.3"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -828,6 +860,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_tex:
+    dependency: "direct main"
+    description:
+      name: flutter_tex
+      sha256: "816074d8a49dd2301704aaf481f9b052b935b8790018a88b69a60d003d5e89e4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.9"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -1523,14 +1563,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.2"
-  photo_view:
-    dependency: transitive
-    description:
-      name: photo_view
-      sha256: "1fc3d970a91295fbd1364296575f854c9863f225505c28c46e0a03e48960c75e"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.15.0"
   pixel_snap:
     dependency: transitive
     description:
@@ -1812,14 +1844,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
-  shimmer:
-    dependency: "direct main"
-    description:
-      name: shimmer
-      sha256: "5f88c883a22e9f9f299e5ba0e4f7e6054857224976a5d9f839d4ebdc94a14ac9"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0"
   simple_gesture_detector:
     dependency: transitive
     description:
@@ -1965,18 +1989,18 @@ packages:
     dependency: "direct main"
     description:
       name: super_clipboard
-      sha256: cfeb142360fac67e0da1ca339accb892eb790c6528a218a008eef1709d96ed0f
+      sha256: "4a6ae6dfaa282ec1f2bff750976f535517ed8ca842d5deae13985eb11c00ac1f"
       url: "https://pub.dev"
     source: hosted
-    version: "0.8.22"
+    version: "0.8.24"
   super_native_extensions:
     dependency: transitive
     description:
       name: super_native_extensions
-      sha256: "6a7cfb7d212da7023b86fb99c736081e9c2cd982265d15dc5fe6381a32dbc875"
+      sha256: a433bba8186cd6b707560c42535bf284804665231c00bca86faf1aa4968b7637
       url: "https://pub.dev"
     source: hosted
-    version: "0.8.22"
+    version: "0.8.24"
   sync_http:
     dependency: transitive
     description:
@@ -2290,6 +2314,46 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.1"
+  webview_flutter:
+    dependency: transitive
+    description:
+      name: webview_flutter
+      sha256: "6869c8786d179f929144b4a1f86e09ac0eddfe475984951ea6c634774c16b522"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.8.0"
+  webview_flutter_android:
+    dependency: transitive
+    description:
+      name: webview_flutter_android
+      sha256: ed021f27ae621bc97a6019fb601ab16331a3db4bf8afa305e9f6689bdb3edced
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.16.8"
+  webview_flutter_platform_interface:
+    dependency: transitive
+    description:
+      name: webview_flutter_platform_interface
+      sha256: d937581d6e558908d7ae3dc1989c4f87b786891ab47bb9df7de548a151779d8d
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.10.0"
+  webview_flutter_plus:
+    dependency: transitive
+    description:
+      name: webview_flutter_plus
+      sha256: "57ec757eada4e23bfb015f5d5f84a45108cb2c29b1e77e23956768cd5e0c8468"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.7"
+  webview_flutter_wkwebview:
+    dependency: transitive
+    description:
+      name: webview_flutter_wkwebview
+      sha256: "9c62cc46fa4f2d41e10ab81014c1de470a6c6f26051a2de32111b2ee55287feb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.14.0"
   win32:
     dependency: transitive
     description:
