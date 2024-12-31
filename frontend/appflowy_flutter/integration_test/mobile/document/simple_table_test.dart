@@ -420,13 +420,22 @@ void main() {
         // click the column menu button
         await tester.clickColumnMenuButton(0);
 
-        // clear content
-        await tester.tapButton(
-          find.findTextInFlowyText(
-            LocaleKeys.document_plugins_simpleTable_moreActions_clearContents
-                .tr(),
-          ),
+        final clearContents = find.findTextInFlowyText(
+          LocaleKeys.document_plugins_simpleTable_moreActions_clearContents
+              .tr(),
         );
+
+        // clear content
+        final scrollable = find.descendant(
+          of: find.byType(SimpleTableBottomSheet),
+          matching: find.byType(Scrollable),
+        );
+        await tester.scrollUntilVisible(
+          clearContents,
+          100,
+          scrollable: scrollable,
+        );
+        await tester.tapButton(clearContents);
         await tester.cancelTableActionMenu();
 
         // check the first cell is empty
@@ -476,7 +485,7 @@ void main() {
       // open the plus menu and select the heading block
       {
         await tester.openPlusMenuAndClickButton(
-          LocaleKeys.editor_toggleHeading1ShortForm.tr(),
+          LocaleKeys.editor_heading1.tr(),
         );
 
         // check the heading block is inserted
