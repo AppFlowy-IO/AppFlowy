@@ -19,26 +19,29 @@ class NumberedListIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final textStyleConfiguration =
         context.read<EditorState>().editorStyle.textStyleConfiguration;
-    final fontSize = textStyleConfiguration.text.fontSize ?? 16.0;
     final height =
         textStyleConfiguration.text.height ?? textStyleConfiguration.lineHeight;
     final combinedTextStyle = textStyle?.combine(textStyleConfiguration.text) ??
         textStyleConfiguration.text;
-    final size = fontSize * height;
-    return Container(
-      constraints: BoxConstraints(
-        minWidth: size,
-        minHeight: size,
-      ),
-      margin: const EdgeInsets.only(top: 0.5, right: 8.0),
-      alignment: Alignment.center,
-      child: Center(
-        child: Text(
-          node.levelString,
-          style: combinedTextStyle,
-          strutStyle: StrutStyle.fromTextStyle(combinedTextStyle),
-          textDirection: textDirection,
+    final adjustedTextStyle = combinedTextStyle.copyWith(
+      height: height,
+      fontFeatures: [const FontFeature.tabularFigures()],
+    );
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: Text(
+        node.levelString,
+        style: adjustedTextStyle,
+        strutStyle: StrutStyle.fromTextStyle(combinedTextStyle),
+        textHeightBehavior: TextHeightBehavior(
+          applyHeightToFirstAscent:
+              textStyleConfiguration.applyHeightToFirstAscent,
+          applyHeightToLastDescent:
+              textStyleConfiguration.applyHeightToLastDescent,
+          leadingDistribution: textStyleConfiguration.leadingDistribution,
         ),
+        textDirection: textDirection,
       ),
     );
   }

@@ -57,6 +57,7 @@ Future<T?> showMobileBottomSheet<T>(
   double maxChildSize = 0.8,
   double initialChildSize = 0.51,
   double bottomSheetPadding = 0,
+  bool enablePadding = true,
 }) async {
   assert(
     showHeader ||
@@ -172,14 +173,18 @@ Future<T?> showMobileBottomSheet<T>(
       }
 
       // ----- content area -----
-      // add content padding and extra bottom padding
-      children.add(
-        Padding(
-          padding:
-              padding + EdgeInsets.only(bottom: context.bottomSheetPadding()),
-          child: child,
-        ),
-      );
+      if (enablePadding) {
+        // add content padding and extra bottom padding
+        children.add(
+          Padding(
+            padding:
+                padding + EdgeInsets.only(bottom: context.bottomSheetPadding()),
+            child: child,
+          ),
+        );
+      } else {
+        children.add(child);
+      }
       // ----- content area -----
 
       if (children.length == 1) {

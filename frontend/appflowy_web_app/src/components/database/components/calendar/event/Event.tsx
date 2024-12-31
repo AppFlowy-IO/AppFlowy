@@ -1,8 +1,8 @@
-import { CalendarEvent, DatabaseContext, useFieldsSelector } from '@/application/database-yjs';
+import { CalendarEvent, useDatabaseContext, useFieldsSelector } from '@/application/database-yjs';
 import { RichTooltip } from '@/components/_shared/popover';
 import EventPaper from '@/components/database/components/calendar/event/EventPaper';
 import CardField from '@/components/database/components/field/CardField';
-import React, { useContext } from 'react';
+import React from 'react';
 import { EventWrapperProps } from 'react-big-calendar';
 
 export function Event ({ event }: EventWrapperProps<CalendarEvent>) {
@@ -10,12 +10,17 @@ export function Event ({ event }: EventWrapperProps<CalendarEvent>) {
   const [rowId] = id.split(':');
   const showFields = useFieldsSelector();
 
-  const navigateToRow = useContext(DatabaseContext)?.navigateToRow;
+  const navigateToRow = useDatabaseContext().navigateToRow;
   const [open, setOpen] = React.useState(false);
 
   return (
     <div className={'px-1 py-0.5'}>
-      <RichTooltip content={<EventPaper rowId={rowId} />} open={open} placement="right" onClose={() => setOpen(false)}>
+      <RichTooltip
+        content={<EventPaper rowId={rowId} />}
+        open={open}
+        placement="right"
+        onClose={() => setOpen(false)}
+      >
         <div
           onClick={() => {
             if (window.innerWidth < 768) {
@@ -29,7 +34,12 @@ export function Event ({ event }: EventWrapperProps<CalendarEvent>) {
           }
         >
           {showFields.map((field) => {
-            return <CardField key={field.fieldId} index={0} rowId={rowId} fieldId={field.fieldId} />;
+            return <CardField
+              key={field.fieldId}
+              index={0}
+              rowId={rowId}
+              fieldId={field.fieldId}
+            />;
           })}
         </div>
       </RichTooltip>

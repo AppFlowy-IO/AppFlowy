@@ -5,7 +5,7 @@ import React from 'react';
 import { ReactComponent as Logo } from '@/assets/logo.svg';
 import { useTranslation } from 'react-i18next';
 
-export function Login({ redirectTo }: { redirectTo: string }) {
+export function Login ({ redirectTo }: { redirectTo: string }) {
   const { t } = useTranslation();
 
   return (
@@ -27,11 +27,19 @@ export function Login({ redirectTo }: { redirectTo: string }) {
         }
       >
         <span>{t('web.signInAgreement')} </span>
-        <a href={'https://appflowy.io/terms'} target={'_blank'} className={'text-fill-default underline'}>
+        <a
+          href={'https://appflowy.io/terms'}
+          target={'_blank'}
+          className={'text-fill-default underline'}
+        >
           {t('web.termOfUse')}
         </a>{' '}
         {t('web.and')}{' '}
-        <a href={'https://appflowy.io/privacy'} target={'_blank'} className={'text-fill-default underline'}>
+        <a
+          href={'https://appflowy.io/privacy'}
+          target={'_blank'}
+          className={'text-fill-default underline'}
+        >
           {t('web.privacyPolicy')}
         </a>
         .

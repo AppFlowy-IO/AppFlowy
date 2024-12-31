@@ -137,8 +137,8 @@ extension TableContentOperation on EditorState {
       final cell = columnIndex >= row.children.length
           ? row.children.last
           : row.children[columnIndex];
-      final startNode = cell.getFirstChildIndex();
-      final endNode = cell.getLastChildIndex();
+      final startNode = cell.getFirstFocusableChild();
+      final endNode = cell.getLastFocusableChild();
       if (startNode == null || endNode == null) {
         continue;
       }
@@ -200,8 +200,8 @@ extension TableContentOperation on EditorState {
     final row = tableNode.children[rowIndex];
     for (var i = 0; i < row.children.length; i++) {
       final cell = row.children[i];
-      final startNode = cell.getFirstChildIndex();
-      final endNode = cell.getLastChildIndex();
+      final startNode = cell.getFirstFocusableChild();
+      final endNode = cell.getLastFocusableChild();
       if (startNode == null || endNode == null) {
         continue;
       }
@@ -255,8 +255,8 @@ extension TableContentOperation on EditorState {
       final row = tableNode.children[i];
       for (var j = 0; j < row.children.length; j++) {
         final cell = row.children[j];
-        final startNode = cell.getFirstChildIndex();
-        final endNode = cell.getLastChildIndex();
+        final startNode = cell.getFirstFocusableChild();
+        final endNode = cell.getLastFocusableChild();
         if (startNode == null || endNode == null) {
           continue;
         }

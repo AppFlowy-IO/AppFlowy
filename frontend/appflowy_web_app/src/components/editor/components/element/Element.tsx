@@ -1,3 +1,4 @@
+import { CONTAINER_BLOCK_TYPES, SOFT_BREAK_TYPES } from '@/application/slate-yjs/command/const';
 import { BlockData, BlockType, YjsEditorKey } from '@/application/types';
 import { BulletedList } from '@/components/editor/components/blocks/bulleted-list';
 import { Callout } from '@/components/editor/components/blocks/callout';
@@ -21,7 +22,7 @@ import { TableBlock, TableCellBlock } from '@/components/editor/components/block
 import { Text } from '@/components/editor/components/blocks/text';
 import { useEditorContext } from '@/components/editor/EditorContext';
 import { ElementFallbackRender } from '@/components/error/ElementFallbackRender';
-import { ErrorBoundary } from 'react-error-boundary';
+import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import smoothScrollIntoViewIfNeeded from 'smooth-scroll-into-view-if-needed';
 import SubPage from 'src/components/editor/components/blocks/sub-page/SubPage';
 import { TodoList } from 'src/components/editor/components/blocks/todo-list';
@@ -31,7 +32,7 @@ import { FileBlock } from '@/components/editor/components/blocks/file';
 import { EditorElementProps, TextNode } from '@/components/editor/editor.type';
 import { renderColor } from '@/utils/color';
 import React, { FC, useEffect, useMemo } from 'react';
-import { ReactEditor, RenderElementProps, useSlateStatic } from 'slate-react';
+import { ReactEditor, RenderElementProps, useSelected, useSlateStatic } from 'slate-react';
 
 export const Element = ({
   element: node,
@@ -43,7 +44,23 @@ export const Element = ({
   const {
     jumpBlockId,
     onJumpedBlockId,
+    selectedBlockIds,
   } = useEditorContext();
+
+  const { blockId, type } = node;
+  const isSelected = useSelected();
+  const selected = useMemo(() => {
+    if (blockId && selectedBlockIds?.includes(blockId)) return true;
+    if ([
+      ...CONTAINER_BLOCK_TYPES,
+      ...SOFT_BREAK_TYPES,
+      BlockType.HeadingBlock,
+      BlockType.TableBlock,
+      BlockType.TableCell,
+      BlockType.SimpleTableBlock,
+    ].includes(type as BlockType)) return false;
+    return isSelected;
+  }, [blockId, selectedBlockIds, type, isSelected]);
 
   const editor = useSlateStatic();
   const highlightTimeoutRef = React.useRef<NodeJS.Timeout>();
@@ -80,7 +97,7 @@ export const Element = ({
     };
   }, []);
   const Component = useMemo(() => {
-    switch (node.type) {
+    switch (type) {
       case BlockType.HeadingBlock:
         return Heading;
       case BlockType.TodoListBlock:
@@ -134,25 +151,42 @@ export const Element = ({
       default:
         return UnSupportedBlock;
     }
-  }, [node.type]) as FC<EditorElementProps>;
+  }, [type]) as FC<EditorElementProps>;
 
   const className = useMemo(() => {
     const data = (node.data as BlockData) || {};
     const align = data.align;
+    const classList = ['block-element relative flex rounded-[4px]'];
 
-    return `block-element relative flex rounded-[8px] ${align ? `block-align-${align}` : ''}`;
-  }, [node.data]);
+    if (selected) {
+      classList.push('selected');
+    }
+
+    if (align) {
+      classList.push(`block-align-${align}`);
+    }
+
+    return classList.join(' ');
+  }, [node.data, selected]);
 
   const style = useMemo(() => {
     const data = (node.data as BlockData) || {};
 
     return {
-      backgroundColor: data.bgColor ? renderColor(data.bgColor) : undefined,
+      backgroundColor: !selected && data.bgColor ? renderColor(data.bgColor) : undefined,
       color: data.font_color ? renderColor(data.font_color) : undefined,
     };
-  }, [node.data]);
+  }, [node.data, selected]);
 
-  if (node.type === YjsEditorKey.text) {
+  const fallbackRender = useMemo(() => {
+    return (props: FallbackProps) => {
+      return (
+        <ElementFallbackRender {...props} description={JSON.stringify(node)}/>
+      );
+    };
+  }, [node]);
+
+  if (type === YjsEditorKey.text) {
     return (
       <Text {...attributes} node={node as TextNode}>
         {children}
@@ -172,9 +206,11 @@ export const Element = ({
   }
 
   return (
-    <ErrorBoundary fallbackRender={ElementFallbackRender}>
-      <div {...attributes} data-block-type={node.type}
-           className={className}
+    <ErrorBoundary fallbackRender={fallbackRender}>
+      <div
+        {...attributes}
+        data-block-type={type}
+        className={className}
       >
         <Component
           style={style}

@@ -84,8 +84,10 @@ class ChatEditDocumentService {
     final nodes = [
       if (rootIsEmpty || !isLastLineEmpty) paragraphNode(),
       ...messageDocument.root.children,
+      paragraphNode(),
     ];
-    final insertPath = rootIsEmpty || listEquals(lastNodeOrNull.path, const [0])
+    final insertPath = rootIsEmpty ||
+            listEquals(lastNodeOrNull.path, const [0]) && isLastLineEmpty
         ? const [0]
         : lastNodeOrNull.path.next;
 

@@ -12,12 +12,13 @@ function OutlineIcon ({ isExpanded, setIsExpanded, level }: {
         style={{
           paddingLeft: 1.125 * level + 'em',
         }}
-        onClick={() => {
+        onClick={(e) => {
+          e.stopPropagation();
           setIsExpanded(false);
         }}
         className={'opacity-50 hover:opacity-100'}
       >
-        <ChevronDownIcon className={'h-[1em] w-[1em]'} />
+        <ChevronDownIcon className={'h-[1em] w-[1em]  hover:bg-fill-list-hover rounded-[2px]'} />
       </button>
     );
   }
@@ -28,11 +29,12 @@ function OutlineIcon ({ isExpanded, setIsExpanded, level }: {
         paddingLeft: 1.125 * level + 'em',
       }}
       className={'opacity-50 hover:opacity-100'}
-      onClick={() => {
+      onClick={(e) => {
+        e.stopPropagation();
         setIsExpanded(true);
       }}
     >
-      <ChevronDownIcon className={'h-[1em] w-[1em] -rotate-90 transform'} />
+      <ChevronDownIcon className={'h-[1em] w-[1em] -rotate-90 transform  hover:bg-fill-list-hover rounded-[2px]'} />
     </button>
   );
 }

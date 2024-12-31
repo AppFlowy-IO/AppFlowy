@@ -104,6 +104,18 @@ extension TableMapOperation on Node {
         comparator: (iKey, index) => iKey >= index,
       );
 
+      final rowBoldAttributes = _remapSource(
+        this.rowBoldAttributes,
+        index,
+        comparator: (iKey, index) => iKey >= index,
+      );
+
+      final rowTextColors = _remapSource(
+        this.rowTextColors,
+        index,
+        comparator: (iKey, index) => iKey >= index,
+      );
+
       return attributes
           .mergeValues(
             SimpleTableBlockKeys.rowColors,
@@ -112,6 +124,14 @@ extension TableMapOperation on Node {
           .mergeValues(
             SimpleTableBlockKeys.rowAligns,
             rowAligns,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.rowBoldAttributes,
+            rowBoldAttributes,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.rowTextColors,
+            rowTextColors,
           );
     } catch (e) {
       Log.warn('Failed to map row insertion attributes: $e');
@@ -167,6 +187,18 @@ extension TableMapOperation on Node {
         comparator: (iKey, index) => iKey >= index,
       );
 
+      final columnBoldAttributes = _remapSource(
+        this.columnBoldAttributes,
+        index,
+        comparator: (iKey, index) => iKey >= index,
+      );
+
+      final columnTextColors = _remapSource(
+        this.columnTextColors,
+        index,
+        comparator: (iKey, index) => iKey >= index,
+      );
+
       final bool distributeColumnWidthsEvenly =
           attributes[SimpleTableBlockKeys.distributeColumnWidthsEvenly] ??
               false;
@@ -189,6 +221,14 @@ extension TableMapOperation on Node {
           .mergeValues(
             SimpleTableBlockKeys.columnWidths,
             columnWidths,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.columnBoldAttributes,
+            columnBoldAttributes,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.columnTextColors,
+            columnTextColors,
           );
     } catch (e) {
       Log.warn('Failed to map row insertion attributes: $e');
@@ -238,6 +278,18 @@ extension TableMapOperation on Node {
         index,
       );
 
+      final (rowBoldAttributes, duplicatedRowBoldAttribute) =
+          _findDuplicatedEntryAndRemap(
+        this.rowBoldAttributes,
+        index,
+      );
+
+      final (rowTextColors, duplicatedRowTextColor) =
+          _findDuplicatedEntryAndRemap(
+        this.rowTextColors,
+        index,
+      );
+
       return attributes
           .mergeValues(
             SimpleTableBlockKeys.rowColors,
@@ -248,6 +300,16 @@ extension TableMapOperation on Node {
             SimpleTableBlockKeys.rowAligns,
             rowAligns,
             duplicatedEntry: duplicatedRowAlign,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.rowBoldAttributes,
+            rowBoldAttributes,
+            duplicatedEntry: duplicatedRowBoldAttribute,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.rowTextColors,
+            rowTextColors,
+            duplicatedEntry: duplicatedRowTextColor,
           );
     } catch (e) {
       Log.warn('Failed to map row insertion attributes: $e');
@@ -304,6 +366,18 @@ extension TableMapOperation on Node {
         index,
       );
 
+      final (columnBoldAttributes, duplicatedColumnBoldAttribute) =
+          _findDuplicatedEntryAndRemap(
+        this.columnBoldAttributes,
+        index,
+      );
+
+      final (columnTextColors, duplicatedColumnTextColor) =
+          _findDuplicatedEntryAndRemap(
+        this.columnTextColors,
+        index,
+      );
+
       return attributes
           .mergeValues(
             SimpleTableBlockKeys.columnColors,
@@ -319,6 +393,16 @@ extension TableMapOperation on Node {
             SimpleTableBlockKeys.columnWidths,
             columnWidths,
             duplicatedEntry: duplicatedColumnWidth,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.columnBoldAttributes,
+            columnBoldAttributes,
+            duplicatedEntry: duplicatedColumnBoldAttribute,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.columnTextColors,
+            columnTextColors,
+            duplicatedEntry: duplicatedColumnTextColor,
           );
     } catch (e) {
       Log.warn('Failed to map column duplication attributes: $e');
@@ -364,6 +448,7 @@ extension TableMapOperation on Node {
         comparator: (iKey, index) => iKey > index,
         filterIndex: index,
       );
+
       final columnAligns = _remapSource(
         this.columnAligns,
         index,
@@ -371,8 +456,25 @@ extension TableMapOperation on Node {
         comparator: (iKey, index) => iKey > index,
         filterIndex: index,
       );
+
       final columnWidths = _remapSource(
         this.columnWidths,
+        index,
+        increment: false,
+        comparator: (iKey, index) => iKey > index,
+        filterIndex: index,
+      );
+
+      final columnBoldAttributes = _remapSource(
+        this.columnBoldAttributes,
+        index,
+        increment: false,
+        comparator: (iKey, index) => iKey > index,
+        filterIndex: index,
+      );
+
+      final columnTextColors = _remapSource(
+        this.columnTextColors,
         index,
         increment: false,
         comparator: (iKey, index) => iKey > index,
@@ -391,6 +493,14 @@ extension TableMapOperation on Node {
           .mergeValues(
             SimpleTableBlockKeys.columnWidths,
             columnWidths,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.columnBoldAttributes,
+            columnBoldAttributes,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.columnTextColors,
+            columnTextColors,
           );
     } catch (e) {
       Log.warn('Failed to map column deletion attributes: $e');
@@ -443,6 +553,22 @@ extension TableMapOperation on Node {
         filterIndex: index,
       );
 
+      final rowBoldAttributes = _remapSource(
+        this.rowBoldAttributes,
+        index,
+        increment: false,
+        comparator: (iKey, index) => iKey > index,
+        filterIndex: index,
+      );
+
+      final rowTextColors = _remapSource(
+        this.rowTextColors,
+        index,
+        increment: false,
+        comparator: (iKey, index) => iKey > index,
+        filterIndex: index,
+      );
+
       return attributes
           .mergeValues(
             SimpleTableBlockKeys.rowColors,
@@ -451,6 +577,14 @@ extension TableMapOperation on Node {
           .mergeValues(
             SimpleTableBlockKeys.rowAligns,
             rowAligns,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.rowBoldAttributes,
+            rowBoldAttributes,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.rowTextColors,
+            rowTextColors,
           );
     } catch (e) {
       Log.warn('Failed to map row deletion attributes: $e');
@@ -531,6 +665,10 @@ extension TableMapOperation on Node {
       final duplicatedColumnColor = this.columnColors[fromIndex.toString()];
       final duplicatedColumnAlign = this.columnAligns[fromIndex.toString()];
       final duplicatedColumnWidth = this.columnWidths[fromIndex.toString()];
+      final duplicatedColumnBoldAttribute =
+          this.columnBoldAttributes[fromIndex.toString()];
+      final duplicatedColumnTextColor =
+          this.columnTextColors[fromIndex.toString()];
 
       /// Case 1: fromIndex > toIndex
       /// Before:
@@ -619,6 +757,34 @@ extension TableMapOperation on Node {
         filterIndex: fromIndex,
       );
 
+      final columnBoldAttributes = _remapSource(
+        this.columnBoldAttributes,
+        fromIndex,
+        increment: fromIndex > toIndex,
+        comparator: (iKey, index) {
+          if (fromIndex > toIndex) {
+            return iKey < fromIndex && iKey >= toIndex;
+          } else {
+            return iKey > fromIndex && iKey <= toIndex;
+          }
+        },
+        filterIndex: fromIndex,
+      );
+
+      final columnTextColors = _remapSource(
+        this.columnTextColors,
+        fromIndex,
+        increment: fromIndex > toIndex,
+        comparator: (iKey, index) {
+          if (fromIndex > toIndex) {
+            return iKey < fromIndex && iKey >= toIndex;
+          } else {
+            return iKey > fromIndex && iKey <= toIndex;
+          }
+        },
+        filterIndex: fromIndex,
+      );
+
       return attributes
           .mergeValues(
             SimpleTableBlockKeys.columnColors,
@@ -652,6 +818,28 @@ extension TableMapOperation on Node {
                   )
                 : null,
             removeNullValue: true,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.columnBoldAttributes,
+            columnBoldAttributes,
+            duplicatedEntry: duplicatedColumnBoldAttribute != null
+                ? MapEntry(
+                    toIndex.toString(),
+                    duplicatedColumnBoldAttribute,
+                  )
+                : null,
+            removeNullValue: true,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.columnTextColors,
+            columnTextColors,
+            duplicatedEntry: duplicatedColumnTextColor != null
+                ? MapEntry(
+                    toIndex.toString(),
+                    duplicatedColumnTextColor,
+                  )
+                : null,
+            removeNullValue: true,
           );
     } catch (e) {
       Log.warn('Failed to map column deletion attributes: $e');
@@ -667,6 +855,9 @@ extension TableMapOperation on Node {
     try {
       final duplicatedRowColor = this.rowColors[fromIndex.toString()];
       final duplicatedRowAlign = this.rowAligns[fromIndex.toString()];
+      final duplicatedRowBoldAttribute =
+          this.rowBoldAttributes[fromIndex.toString()];
+      final duplicatedRowTextColor = this.rowTextColors[fromIndex.toString()];
 
       /// Example:
       /// Case 1: fromIndex > toIndex
@@ -742,6 +933,34 @@ extension TableMapOperation on Node {
         filterIndex: fromIndex,
       );
 
+      final rowBoldAttributes = _remapSource(
+        this.rowBoldAttributes,
+        fromIndex,
+        increment: fromIndex > toIndex,
+        comparator: (iKey, index) {
+          if (fromIndex > toIndex) {
+            return iKey < fromIndex && iKey >= toIndex;
+          } else {
+            return iKey > fromIndex && iKey <= toIndex;
+          }
+        },
+        filterIndex: fromIndex,
+      );
+
+      final rowTextColors = _remapSource(
+        this.rowTextColors,
+        fromIndex,
+        increment: fromIndex > toIndex,
+        comparator: (iKey, index) {
+          if (fromIndex > toIndex) {
+            return iKey < fromIndex && iKey >= toIndex;
+          } else {
+            return iKey > fromIndex && iKey <= toIndex;
+          }
+        },
+        filterIndex: fromIndex,
+      );
+
       return attributes
           .mergeValues(
             SimpleTableBlockKeys.rowColors,
@@ -761,6 +980,28 @@ extension TableMapOperation on Node {
                 ? MapEntry(
                     toIndex.toString(),
                     duplicatedRowAlign,
+                  )
+                : null,
+            removeNullValue: true,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.rowBoldAttributes,
+            rowBoldAttributes,
+            duplicatedEntry: duplicatedRowBoldAttribute != null
+                ? MapEntry(
+                    toIndex.toString(),
+                    duplicatedRowBoldAttribute,
+                  )
+                : null,
+            removeNullValue: true,
+          )
+          .mergeValues(
+            SimpleTableBlockKeys.rowTextColors,
+            rowTextColors,
+            duplicatedEntry: duplicatedRowTextColor != null
+                ? MapEntry(
+                    toIndex.toString(),
+                    duplicatedRowTextColor,
                   )
                 : null,
             removeNullValue: true,

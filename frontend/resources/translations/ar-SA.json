@@ -149,7 +149,11 @@
     "charCount": "عدد الأحرف: {}",
     "createdAt": "منشأ: {}",
     "deleteView": "يمسح",
-    "duplicateView": "تكرار"
+    "duplicateView": "تكرار",
+    "wordCountLabel": "عدد الكلمات: ",
+    "charCountLabel": "عدد الأحرف: ",
+    "createdAtLabel": "تم إنشاؤه: ",
+    "syncedAtLabel": "تم المزامنة: "
   },
   "importPanel": {
     "textAndMarkdown": "نص و Markdown",
@@ -170,7 +174,9 @@
     "addToFavorites": "اضافة الى المفضلة",
     "copyLink": "نسخ الرابط",
     "changeIcon": "تغيير الأيقونة",
-    "collapseAllPages": "طي جميع الصفحات الفرعية"
+    "collapseAllPages": "طي جميع الصفحات الفرعية",
+    "movePageTo": "تحريك الصفحة إلى",
+    "move": "تحريك"
   },
   "blankPageTitle": "صفحة فارغة",
   "newPageText": "صفحة جديدة",
@@ -182,7 +188,7 @@
     "newChat": "الدردشة بالذكاء الاصطناعي",
     "inputMessageHint": "اسأل @:appName AI",
     "inputLocalAIMessageHint": "اسأل @:appName Local AI",
-    "unsupportedCloudPrompt": "هذه الميزة متاحة فقط عند استخدام @:appName Cloud",
+    "unsupportedCloudPrompt": "هذه الميزة متوفرة فقط عند استخدام @:appName Cloud",
     "relatedQuestion": "ذات صلة",
     "serverUnavailable": "الخدمة غير متاحة مؤقتًا. يرجى المحاولة مرة أخرى لاحقًا.",
     "aiServerUnavailable": "تم فقد الاتصال. يرجى التحقق من اتصالك بالإنترنت",
@@ -208,7 +214,14 @@
     "indexingFile": "الفهرسة {}",
     "generatingResponse": "توليد الاستجابة",
     "selectSources": "اختر المصادر",
-    "regenerate": "حاول ثانية"
+    "sourceUnsupported": "نحن لا ندعم الدردشة مع قواعد البيانات في الوقت الحالي",
+    "regenerate": "حاول ثانية",
+    "addToPageButton": "أضف إلى الصفحة",
+    "addToPageTitle": "أضف رسالة إلى...",
+    "addToNewPage": "أضف إلى صفحة جديدة",
+    "addToNewPageName": "الرسائل المستخرجة من \"{}\"",
+    "addToNewPageSuccessToast": "تمت إضافة الرسالة إلى",
+    "openPagePreviewFailedToast": "فشل في فتح الصفحة"
   },
   "trash": {
     "text": "المهملات",
@@ -300,6 +313,7 @@
   "sideBar": {
     "closeSidebar": "إغلاق الشريط الجانبي",
     "openSidebar": "فتح الشريط الجانبي",
+    "expandSidebar": "توسيع كصفحة كاملة",
     "personal": "شخصي",
     "private": "خاص",
     "workspace": "مساحة العمل",
@@ -396,6 +410,7 @@
     "add": "اضافة",
     "yes": "نعم",
     "no": "لا",
+    "clear": "مسح",
     "remove": "حذف",
     "dontRemove": "لا تقم بالإزالة",
     "copyLink": "نسخ الرابط",
@@ -418,6 +433,9 @@
     "viewing": "عرض",
     "editing": "تحرير",
     "gotIt": "فهمتها",
+    "retry": "إعادة المحاولة",
+    "uploadFailed": "فشل الرفع.",
+    "copyLinkOriginal": "نسخ الرابط إلى الأصل",
     "tryAGain": "حاول ثانية"
   },
   "label": {
@@ -445,6 +463,7 @@
     "popupMenuItem": {
       "settings": "إعدادات",
       "members": "الأعضاء",
+      "trash": "سلة المحذوفات",
       "helpAndSupport": "المساعدة والدعم"
     },
     "sites": {
@@ -708,10 +727,177 @@
         "deleteLeftSentence": "حذف الجملة اليسرى",
         "delete": "حذف الحرف الأيمن",
         "deleteMacOS": "حذف الحرف الأيسر",
-        "deleteRightWord": "حذف الكلمة اليمنى"
+        "deleteRightWord": "حذف الكلمة اليمنى",
+        "moveCursorLeft": "حرك المؤشر إلى اليسار",
+        "moveCursorBeginning": "حرك المؤشر إلى البداية",
+        "moveCursorLeftWord": "حرك المؤشر إلى اليسار كلمة واحدة",
+        "moveCursorLeftSelect": "حدد وحرك المؤشر إلى اليسار",
+        "moveCursorBeginSelect": "حدد وحرك المؤشر إلى البداية",
+        "moveCursorLeftWordSelect": "حدد وحرك المؤشر إلى اليسار كلمة واحدة",
+        "moveCursorRight": "حرك المؤشر إلى اليمين",
+        "moveCursorEnd": "حرك المؤشر إلى النهاية",
+        "moveCursorRightWord": "حرك المؤشر إلى اليمين كلمة واحدة",
+        "moveCursorRightSelect": "حدد المؤشر وحركه إلى اليمين",
+        "moveCursorEndSelect": "حدد وحرك المؤشر إلى النهاية",
+        "moveCursorRightWordSelect": "حدد وحرك المؤشر إلى اليمين كلمة واحدة",
+        "moveCursorUp": "حرك المؤشر لأعلى",
+        "moveCursorTopSelect": "حدد وحرك المؤشر إلى الأعلى",
+        "moveCursorTop": "حرك المؤشر إلى الأعلى",
+        "moveCursorUpSelect": "حدد وحرك المؤشر لأعلى",
+        "moveCursorBottomSelect": "حدد وحرك المؤشر إلى الأسفل",
+        "moveCursorBottom": "حرك المؤشر إلى الأسفل",
+        "moveCursorDown": "حرك المؤشر إلى الأسفل",
+        "moveCursorDownSelect": "حدد وحرك المؤشر لأسفل",
+        "home": "تمرير إلى الأعلى",
+        "end": "تمرير إلى الأسفل",
+        "toggleBold": "تبديل الخط الغامق",
+        "toggleItalic": "تبديل الخط المائل",
+        "toggleUnderline": "تبديل التسطير",
+        "toggleStrikethrough": "تبديل الشطب",
+        "toggleCode": "تبديل الكود المضمن",
+        "toggleHighlight": "تبديل التمييز",
+        "showLinkMenu": "عرض قائمة الروابط",
+        "openInlineLink": "افتح الرابط المضمن",
+        "openLinks": "فتح جميع الروابط المحددة",
+        "indent": "المسافة البادئة",
+        "outdent": "مسافة بادئة سلبية",
+        "exit": "الخروج من التحرير",
+        "pageUp": "قم بالتمرير صفحة واحدة لأعلى",
+        "pageDown": "قم بالتمرير صفحة واحدة لأسفل",
+        "selectAll": "حدد الكل",
+        "pasteWithoutFormatting": "لصق المحتوى بدون تنسيق",
+        "showEmojiPicker": "عرض أداة اختيار الرموز التعبيرية",
+        "enterInTableCell": "إضافة فاصل الأسطر في الجدول",
+        "leftInTableCell": "حرك خلية واحدة إلى اليسار في الجدول",
+        "rightInTableCell": "حرك خلية واحدة إلى اليمين في الجدول",
+        "upInTableCell": "التحرك لأعلى خلية واحدة في الجدول",
+        "downInTableCell": "التحرك لأسفل خلية واحدة في الجدول",
+        "tabInTableCell": "انتقل إلى الخلية التالية المتوفرة في الجدول",
+        "shiftTabInTableCell": "انتقل إلى الخلية المتوفرة سابقًا في الجدول",
+        "backSpaceInTableCell": "توقف في بداية الخلية"
       },
       "commands": {
-        "codeBlockNewParagraph": "إدراج فقرة جديدة بجوار كتلة التعليمات البرمجية"
+        "codeBlockNewParagraph": "إدراج فقرة جديدة بجوار كتلة التعليمات البرمجية",
+        "textAlignLeft": "محاذاة النص إلى اليسار",
+        "textAlignCenter": "محاذاة النص إلى الوسط",
+        "textAlignRight": "محاذاة النص إلى اليمين"
+      },
+      "couldNotLoadErrorMsg": "لم نتمكن من تحميل الاختصارات، حاول مرة أخرى",
+      "couldNotSaveErrorMsg": "لم نتمكن من حفظ الاختصارات، حاول مرة أخرى"
+    },
+    "aiPage": {
+      "title": "إعدادات الذكاء الاصطناعي",
+      "menuLabel": "إعدادات الذكاء الاصطناعي",
+      "keys": {
+        "enableAISearchTitle": "بحث الذكاء الاصطناعي",
+        "aiSettingsDescription": "اختر النموذج المفضل لديك لتشغيل AppFlowy AI. يتضمن الآن GPT 4-o وClaude 3,5 وLlama 3.1 وMistral 7B",
+        "loginToEnableAIFeature": "لا يتم تمكين ميزات الذكاء الاصطناعي إلا بعد تسجيل الدخول باستخدام @:appName Cloud. إذا لم يكن لديك حساب @:appName ، فانتقل إلى \"حسابي\" للتسجيل",
+        "llmModel": "نموذج اللغة",
+        "llmModelType": "نوع نموذج اللغة",
+        "downloadLLMPrompt": "تنزيل {}",
+        "downloadAppFlowyOfflineAI": "سيؤدي تنزيل حزمة AI دون اتصال بالإنترنت إلى تفعيل تشغيل AI على جهازك. هل تريد الاستمرار؟",
+        "downloadLLMPromptDetail": " تنزيل النموذج المحلي {} سيستخدم ما يصل إلى {} من مساحة التخزين. هل تريد الاستمرار؟",
+        "downloadBigFilePrompt": "قد يستغرق الأمر حوالي 10 دقائق لإكمال التنزيل",
+        "downloadAIModelButton": "تنزيل",
+        "downloadingModel": "جاري التنزيل",
+        "localAILoaded": "تمت إضافة نموذج الذكاء الاصطناعي المحلي بنجاح وهو جاهز للاستخدام",
+        "localAIStart": "بدأت الدردشة المحلية بالذكاء الاصطناعي...",
+        "localAILoading": "جاري تحميل نموذج الدردشة المحلية للذكاء الاصطناعي...",
+        "localAIStopped": "تم إيقاف الذكاء الاصطناعي المحلي",
+        "failToLoadLocalAI": "فشل في بدء تشغيل الذكاء الاصطناعي المحلي",
+        "restartLocalAI": "إعادة تشغيل الذكاء الاصطناعي المحلي",
+        "disableLocalAITitle": "تعطيل الذكاء الاصطناعي المحلي",
+        "disableLocalAIDescription": "هل تريد تعطيل الذكاء الاصطناعي المحلي؟",
+        "localAIToggleTitle": "التبديل لتفعيل أو تعطيل الذكاء الاصطناعي المحلي",
+        "offlineAIInstruction1": "اتبع",
+        "offlineAIInstruction2": "تعليمات",
+        "offlineAIInstruction3": "لتفعيل الذكاء الاصطناعي دون اتصال بالإنترنت.",
+        "offlineAIDownload1": "إذا لم تقم بتنزيل AppFlowy AI، فيرجى",
+        "offlineAIDownload2": "التنزيل",
+        "activeOfflineAI": "نشط",
+        "downloadOfflineAI": "التنزيل",
+        "openModelDirectory": "افتح المجلد"
+      }
+    },
+    "planPage": {
+      "menuLabel": "الخطة",
+      "title": "خطة التسعير",
+      "planUsage": {
+        "title": "ملخص استخدام الخطة",
+        "storageLabel": "تخزين",
+        "storageUsage": "{} من {} جيجا بايت",
+        "unlimitedStorageLabel": "تخزين غير محدود",
+        "collaboratorsLabel": "أعضاء",
+        "collaboratorsUsage": "{} ل {}",
+        "aiResponseLabel": "استجابات الذكاء الاصطناعي",
+        "aiResponseUsage": "{} ل {}",
+        "unlimitedAILabel": "استجابات غير محدودة",
+        "proBadge": "احترافية",
+        "aiMaxBadge": "الذكاء الاصطناعي ماكس",
+        "aiOnDeviceBadge": "الذكاء الاصطناعي على الجهاز لنظام التشغيل Mac",
+        "memberProToggle": "مزيد من الأعضاء وذكاء اصطناعي غير محدود",
+        "aiMaxToggle": "ذكاء اصطناعي غير محدود وإمكانية الوصول إلى نماذج متقدمة",
+        "aiOnDeviceToggle": "الذكاء الاصطناعي المحلي لتحقيق الخصوصية القصوى",
+        "aiCredit": {
+          "title": "أضف رصيد الذكاء الاصطناعي @:appName",
+          "price": "{}",
+          "priceDescription": "مقابل 1000 نقطة",
+          "purchase": "شراء الذكاء الاصطناعي",
+          "info": "أضف 1000 أرصدة الذكاء الاصطناعي لكل مساحة عمل وقم بدمج الذكاء الاصطناعي القابل للتخصيص بسلاسة في سير عملك للحصول على نتائج أذكى وأسرع مع ما يصل إلى:",
+          "infoItemOne": "10000 استجابة لكل قاعدة بيانات",
+          "infoItemTwo": "1000 استجابة لكل مساحة عمل"
+        },
+        "currentPlan": {
+          "bannerLabel": "الخطة الحالية",
+          "freeTitle": "مجاني",
+          "proTitle": "محترف",
+          "teamTitle": "فريق",
+          "freeInfo": "مثالي للأفراد حتى عضوين لتنظيم كل شيء",
+          "proInfo": "مثالي للفرق الصغيرة والمتوسطة التي يصل عددها إلى 10 أعضاء.",
+          "teamInfo": "مثالي لجميع الفرق المنتجة والمنظمة جيدًا.",
+          "upgrade": "تغيير الخطة",
+          "canceledInfo": "لقد تم إلغاء خطتك، وسيتم تخفيض مستوى خطتك إلى الخطة المجانية في {}."
+        },
+        "addons": {
+          "title": "مَرافِق",
+          "addLabel": "إضافة",
+          "activeLabel": "تمت الإضافة",
+          "aiMax": {
+            "title": "الحد الأقصى للذكاء الاصطناعي",
+            "description": "استجابات الذكاء الاصطناعي غير المحدودة مدعومة بـ GPT-4o وClaude 3.5 Sonnet والمزيد",
+            "price": "{}",
+            "priceInfo": "لكل مستخدم شهريًا يتم تحصيل الرسوم سنويًا"
+          },
+          "aiOnDevice": {
+            "title": "الذكاء الاصطناعي على الجهاز لنظام التشغيل Mac",
+            "description": "قم بتشغيل Mistral 7B وLLAMA 3 والمزيد من النماذج المحلية على جهازك",
+            "price": "{}",
+            "priceInfo": "لكل مستخدم شهريًا يتم تحصيل الرسوم سنويًا",
+            "recommend": "يوصى باستخدام M1 أو أحدث"
+          }
+        },
+        "deal": {
+          "bannerLabel": "صفقة العام الجديد!",
+          "title": "تنمية فريقك!",
+          "info": "قم بالترقية واحصل على خصم 10% على خطط Pro وTeam! عزز إنتاجية مساحة العمل لديك من خلال ميزات جديدة قوية بما في ذلك الذكاء الاصطناعي @:appName .",
+          "viewPlans": "عرض الخطط"
+        }
+      }
+    },
+    "billingPage": {
+      "menuLabel": "الفوترة",
+      "title": "الفوترة",
+      "plan": {
+        "title": "الخطة",
+        "proLabel": "مجاني"
+      },
+      "addons": {
+        "aiMax": {
+          "canceledDescription": "سيكون AI Max متوفرا حتى {}"
+        },
+        "aiOnDevice": {
+          "canceledDescription": "ستتوفر ميزة AI On-device for Mac حتى {}"
+        }
       }
     },
     "comparePlanDialog": {
@@ -1084,7 +1270,10 @@
       "copy": "إنسخ الرابط"
     },
     "menuName": "شبكة",
-    "referencedGridPrefix": "نظرا ل"
+    "referencedGridPrefix": "نظرا ل",
+    "media": {
+      "downloadFailedToken": "فشل تنزيل الملف، الرمز المميز للمستخدم غير متوفر"
+    }
   },
   "document": {
     "menuName": "وثيقة",
@@ -1261,8 +1450,12 @@
     "codeBlock": {
       "language": {
         "label": "لغة",
-        "placeholder": "اختار اللغة"
-      }
+        "placeholder": "اختار اللغة",
+        "auto": "آلي"
+      },
+      "copyTooltip": "نسخ",
+      "searchLanguageHint": "ابحث عن لغة",
+      "codeCopiedSnackbar": "تم نسخ الكود إلى الحافظة!"
     },
     "inlineLink": {
       "placeholder": "الصق أو اكتب ارتباطًا",
@@ -1603,7 +1796,8 @@
     "rowDuplicate": "نسخة طبق الاصل",
     "colClear": "مسح المحتوى",
     "rowClear": "مسح المحتوى",
-    "slashPlaceHolder": "اكتب \"/\" لإدراج كتلة، أو ابدأ الكتابة"
+    "slashPlaceHolder": "اكتب \"/\" لإدراج كتلة، أو ابدأ الكتابة",
+    "codeBlockShortForm": "الكود"
   },
   "favorite": {
     "noFavorite": "لا توجد صفحة مفضلة",

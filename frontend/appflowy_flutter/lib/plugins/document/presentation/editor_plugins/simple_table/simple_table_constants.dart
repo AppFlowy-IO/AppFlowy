@@ -269,6 +269,8 @@ class SimpleTableConstants {
   static const actionSheetContentSectionHeight = 44.0;
   static const actionSheetNormalActionSectionHeight = 48.0;
   static const actionSheetButtonRadius = 12.0;
+
+  static const actionSheetBottomSheetHeight = 320.0;
 }
 
 enum SimpleTableBorderRenderType {
@@ -308,4 +310,7 @@ extension SimpleTableColors on BuildContext {
   Color get simpleTableInsertActionBackgroundColor => Theme.of(this).isLightMode
       ? const Color(0xFFF2F2F7)
       : const Color(0xFF2D3036);
+
+  Color? get simpleTableQuickActionBackgroundColor =>
+      Theme.of(this).isLightMode ? null : const Color(0xFFBBC3CD);
 }

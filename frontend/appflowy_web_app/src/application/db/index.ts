@@ -21,7 +21,7 @@ const openedSet = new Set<string>();
 /**
  * Open the collaboration database, and return a function to close it
  */
-export async function openCollabDB (docName: string): Promise<YDoc> {
+export async function openCollabDB(docName: string): Promise<YDoc> {
   const name = `${databasePrefix}_${docName}`;
   const doc = new Y.Doc({
     guid: docName,
@@ -47,7 +47,7 @@ export async function openCollabDB (docName: string): Promise<YDoc> {
   return doc as YDoc;
 }
 
-export async function closeCollabDB (docName: string) {
+export async function closeCollabDB(docName: string) {
   const name = `${databasePrefix}_${docName}`;
 
   if (openedSet.has(name)) {
@@ -61,9 +61,9 @@ export async function closeCollabDB (docName: string) {
   await provider.destroy();
 }
 
-export async function clearData () {
+export async function clearData() {
   const databases = await indexedDB.databases();
-  
+
   const deleteDatabase = async (dbInfo: IDBDatabaseInfo): Promise<boolean> => {
     const dbName = dbInfo.name;
 

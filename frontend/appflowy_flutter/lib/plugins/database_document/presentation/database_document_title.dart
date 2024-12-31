@@ -244,9 +244,9 @@ class _RenameRowPopoverState extends State<RenameRowPopover> {
           direction: PopoverDirection.bottomWithCenterAligned,
           offset: const Offset(0, 18),
           defaultIcon: const FlowySvg(FlowySvgs.document_s),
-          onSubmitted: (emoji, _) {
-            widget.onUpdateIcon(emoji);
-            PopoverContainer.of(context).close();
+          onSubmitted: (r, _) {
+            widget.onUpdateIcon(r.data);
+            if (!r.keepOpen) PopoverContainer.of(context).close();
           },
         ),
         const HSpace(6),

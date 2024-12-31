@@ -1,4 +1,4 @@
-export const supportLanguage = [
+export const supportLanguages = [
   {
     id: 'bash',
     title: 'Bash',
@@ -150,5 +150,13 @@ export const supportLanguage = [
   {
     id: 'yaml',
     title: 'YAML',
+  },
+  {
+    id: 'mermaid',
+    title: 'Mermaid',
+  },
+  {
+    id: 'delphi',
+    title: 'Delphi',
   },
 ];

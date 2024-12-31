@@ -74,6 +74,7 @@ const AppMain = withAppWrapper(() => {
 });
 
 function App () {
+
   return (
     <BrowserRouter>
       <AppMain />

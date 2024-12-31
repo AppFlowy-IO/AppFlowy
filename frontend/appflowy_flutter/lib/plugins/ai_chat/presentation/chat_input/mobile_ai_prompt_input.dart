@@ -312,7 +312,7 @@ class _LeadingActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Theme.of(context).cardColor,
+      color: Theme.of(context).colorScheme.surface,
       child: PromptInputMobileSelectSourcesButton(
         onUpdateSelectedSources: onUpdateSelectedSources,
       ),

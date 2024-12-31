@@ -73,7 +73,7 @@ dependencies:
   flutter_emoji_mart:
     git:
       url: https://github.com/LucasXu0/emoji_mart.git
-      ref: "8a9fa49"
+      ref: "355aa56"
   flutter_math_fork: ^0.7.3
   flutter_slidable: ^3.0.0
 
@@ -129,7 +129,7 @@ dependencies:
   sized_context: ^1.0.0+4
   string_validator: ^1.0.0
   styled_widget: ^0.4.1
-  super_clipboard: ^0.8.4
+  super_clipboard: ^0.8.24
   synchronized: ^3.1.0+1
   table_calendar: ^3.0.9
   time: ^2.1.3
@@ -174,7 +174,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "c68e5f6"
+      ref: "cfb8b1b"
 
   appflowy_editor_plugins:
     git:

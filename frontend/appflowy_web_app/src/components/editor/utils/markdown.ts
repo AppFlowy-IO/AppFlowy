@@ -1,7 +1,7 @@
 import { YjsEditor } from '@/application/slate-yjs';
 import { CustomEditor } from '@/application/slate-yjs/command';
 import { EditorMarkFormat } from '@/application/slate-yjs/types';
-import { getBlock, getBlockEntry, getSharedRoot, getText } from '@/application/slate-yjs/utils/yjsOperations';
+import { findSlateEntryByBlockId, getBlockEntry, getSharedRoot } from '@/application/slate-yjs/utils/editor';
 import {
   BlockData,
   BlockType,
@@ -12,6 +12,7 @@ import {
   YjsEditorKey,
 } from '@/application/types';
 import { Editor, Range, Transforms } from 'slate';
+import { getBlock, getText } from '@/application/slate-yjs/utils/yjs';
 
 enum SpecialSymbol {
   EM_DASH = '—',
@@ -53,7 +54,7 @@ type Rule = {
   filter?: (editor: YjsEditor, match: RegExpMatchArray) => boolean
 }
 
-function deletePrefix (editor: YjsEditor, offset: number) {
+function deletePrefix(editor: YjsEditor, offset: number) {
   const [, path] = getBlockEntry(editor);
 
   const { selection } = editor;
@@ -66,19 +67,19 @@ function deletePrefix (editor: YjsEditor, offset: number) {
   editor.delete();
 }
 
-function getNodeType (editor: YjsEditor) {
+function getNodeType(editor: YjsEditor) {
   const [node] = getBlockEntry(editor);
 
   return node.type as BlockType;
 }
 
-function getBlockData (editor: YjsEditor) {
+function getBlockData(editor: YjsEditor) {
   const [node] = getBlockEntry(editor);
 
   return node.data as BlockData;
 }
 
-function getLineText (editor: YjsEditor) {
+function getLineText(editor: YjsEditor) {
   const [node] = getBlockEntry(editor);
   const sharedRoot = getSharedRoot(editor);
   const block = getBlock(node.blockId as string, sharedRoot);
@@ -227,10 +228,18 @@ const rules: Rule[] = [
 
       return (['--', '**', '__', '—'].every(t => t !== text)) || getNodeType(editor) === BlockType.DividerBlock;
     },
-    transform: (editor, match) => {
+    transform: (editor) => {
+      const newBlockId = CustomEditor.turnToBlock(editor, getBlockEntry(editor)[0].blockId as string, BlockType.DividerBlock, {});
 
-      CustomEditor.turnToBlock(editor, getBlockEntry(editor)[0].blockId as string, BlockType.DividerBlock, {});
-      deletePrefix(editor, match[0].length - 1);
+      if (!newBlockId) {
+        Transforms.move(editor, { distance: 1, reverse: true });
+      } else {
+        const entry = findSlateEntryByBlockId(editor, newBlockId);
+
+        if (entry) {
+          Transforms.select(editor, entry[1]);
+        }
+      }
     },
   },
 
@@ -403,12 +412,10 @@ export const applyMarkdown = (editor: YjsEditor, insertText: string): boolean =>
               anchor: { path, offset: start },
               focus: { path, offset: start + formatText.length },
             });
-
-            CustomEditor.addMark(editor, { key: rule.format as EditorMarkFormat, value: true });
+            CustomEditor.toggleMark(editor, { key: rule.format as EditorMarkFormat, value: true });
           }
 
           Transforms.collapse(editor, { edge: 'end' });
-
         }
 
         return true;
@@ -432,8 +439,6 @@ export const applyMarkdown = (editor: YjsEditor, insertText: string): boolean =>
 
         return true;
       }
-
-      console.log('symbol text', text, match);
     }
   }
 

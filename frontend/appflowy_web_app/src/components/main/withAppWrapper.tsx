@@ -19,8 +19,8 @@ const StyledSnackbarProvider = styled(SnackbarProvider)`
 
 `;
 
-export default function withAppWrapper (Component: React.FC): React.FC {
-  return function AppWrapper (): JSX.Element {
+export default function withAppWrapper(Component: React.FC): React.FC {
+  return function AppWrapper(): JSX.Element {
     return (
       <AppTheme>
         <ErrorBoundary FallbackComponent={ErrorHandlerPage}>
@@ -30,6 +30,7 @@ export default function withAppWrapper (Component: React.FC): React.FC {
               horizontal: 'center',
             }}
             preventDuplicate
+            autoHideDuration={3000}
             Components={{
               info: InfoSnackbar,
               success: CustomSnackbar,
@@ -40,7 +41,7 @@ export default function withAppWrapper (Component: React.FC): React.FC {
           >
             <AppConfig>
               <Suspense>
-                <Component />
+                <Component/>
               </Suspense>
             </AppConfig>
           </StyledSnackbarProvider>

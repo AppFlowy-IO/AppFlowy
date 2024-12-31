@@ -1,10 +1,10 @@
 import { YjsEditor } from '@/application/slate-yjs';
-import { getBlockEntry } from '@/application/slate-yjs/utils/yjsOperations';
+import { getBlockEntry } from '@/application/slate-yjs/utils/editor';
 import { BlockType } from '@/application/types';
 import Align from '@/components/editor/components/toolbar/selection-toolbar/actions/Align';
 import Bold from '@/components/editor/components/toolbar/selection-toolbar/actions/Bold';
 import BulletedList from '@/components/editor/components/toolbar/selection-toolbar/actions/BulletedList';
-// import Href from '@/components/editor/components/toolbar/selection-toolbar/actions/Href';
+import Href from '@/components/editor/components/toolbar/selection-toolbar/actions/Href';
 import Color from '@/components/editor/components/toolbar/selection-toolbar/actions/Color';
 import Formula from '@/components/editor/components/toolbar/selection-toolbar/actions/Formula';
 import Heading from '@/components/editor/components/toolbar/selection-toolbar/actions/Heading';
@@ -14,17 +14,25 @@ import NumberedList from '@/components/editor/components/toolbar/selection-toolb
 import Quote from '@/components/editor/components/toolbar/selection-toolbar/actions/Quote';
 import StrikeThrough from '@/components/editor/components/toolbar/selection-toolbar/actions/StrikeThrough';
 import Underline from '@/components/editor/components/toolbar/selection-toolbar/actions/Underline';
+import {
+  useSelectionToolbarContext,
+} from '@/components/editor/components/toolbar/selection-toolbar/SelectionToolbar.hooks';
 import { Divider } from '@mui/material';
-import { Editor, Element } from 'slate';
+import { Editor, Element, Path } from 'slate';
 import Paragraph from './actions/Paragraph';
 import React, { useMemo } from 'react';
 import { useSlate } from 'slate-react';
 
-function ToolbarActions () {
+function ToolbarActions() {
   const editor = useSlate() as YjsEditor;
   const selection = editor.selection;
+  const {
+    visible: toolbarVisible,
+  } = useSelectionToolbarContext();
+
   const start = useMemo(() => selection ? editor.start(selection) : null, [editor, selection]);
   const end = useMemo(() => selection ? editor.end(selection) : null, [editor, selection]);
+
   const startBlock = useMemo(() => {
     if (!start) return null;
     try {
@@ -43,6 +51,7 @@ function ToolbarActions () {
   }, [editor, end]);
 
   const isAcrossBlock = useMemo(() => {
+    if (startBlock && endBlock && Path.equals(startBlock[1], endBlock[1])) return false;
     return startBlock?.[0].blockId !== endBlock?.[0].blockId;
   }, [endBlock, startBlock]);
 
@@ -59,35 +68,40 @@ function ToolbarActions () {
   }, [editor, end, start]);
 
   const groupTwo = <>
-    <Underline />
-    <Bold />
-    <Italic />
-    <StrikeThrough />
+    <Underline/>
+    <Bold/>
+    <Italic/>
+    <StrikeThrough/>
   </>;
 
   const groupOne = <>
-    <Paragraph />
-    <Heading />
+    <Paragraph/>
+    <Heading/>
     <Divider
-      className={'my-1.5 bg-line-on-toolbar opacity-80'}
+      className={'my-1.5 bg-line-on-toolbar'}
       orientation={'vertical'}
       flexItem={true}
     />
   </>;
 
   const groupThree = <>
-    <Quote />
-    <BulletedList />
-    <NumberedList />
     <Divider
-      className={'my-1.5 bg-line-on-toolbar opacity-40'}
+      className={'my-1.5 bg-line-on-toolbar'}
       orientation={'vertical'}
       flexItem={true}
     />
-    {/*<Href />*/}
+    <Quote/>
+    <BulletedList/>
+    <NumberedList/>
+    <Divider
+      className={'my-1.5 bg-line-on-toolbar'}
+      orientation={'vertical'}
+      flexItem={true}
+    />
+    <Href/>
   </>;
 
-  const groupFour = <><Align /></>;
+  const groupFour = <><Align enabled={toolbarVisible}/></>;
 
   return (
     <div
@@ -97,13 +111,13 @@ function ToolbarActions () {
         !isAcrossBlock && !isCodeBlock && groupOne
       }
       {groupTwo}
-      {!isCodeBlock && <InlineCode />}
-      {!isCodeBlock && !isAcrossBlock && <Formula />}
+      {!isCodeBlock && <InlineCode/>}
+      {!isCodeBlock && !isAcrossBlock && <Formula/>}
       {
         !isAcrossBlock && !isCodeBlock && groupThree
       }
-      {groupFour}
-      {!isCodeBlock && <Color />}
+      {!isCodeBlock && groupFour}
+      <Color/>
     </div>
   );
 }

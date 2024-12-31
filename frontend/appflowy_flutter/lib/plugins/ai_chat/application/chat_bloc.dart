@@ -272,15 +272,19 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
         // 3 mean message response from AI
         if (pb.authorType == 3 && answerStreamMessageId.isNotEmpty) {
-          temporaryMessageIDMap[pb.messageId.toString()] =
-              answerStreamMessageId;
+          temporaryMessageIDMap.putIfAbsent(
+            pb.messageId.toString(),
+            () => answerStreamMessageId,
+          );
           answerStreamMessageId = '';
         }
 
         // 1 mean message response from User
         if (pb.authorType == 1 && questionStreamMessageId.isNotEmpty) {
-          temporaryMessageIDMap[pb.messageId.toString()] =
-              questionStreamMessageId;
+          temporaryMessageIDMap.putIfAbsent(
+            pb.messageId.toString(),
+            () => questionStreamMessageId,
+          );
           questionStreamMessageId = '';
         }
 
@@ -422,8 +426,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       (question) {
         if (!isClosed) {
           final streamAnswer = _createAnswerStreamMessage(
-            answerStream!,
-            question.messageId,
+            stream: answerStream!,
+            questionMessageId: question.messageId,
+            fakeQuestionMessageId: questionStreamMessage.id,
           );
 
           lastSentMessage = question;
@@ -479,8 +484,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       (success) {
         if (!isClosed) {
           final streamAnswer = _createAnswerStreamMessage(
-            answerStream!,
-            answerMessageId - 1,
+            stream: answerStream!,
+            questionMessageId: answerMessageId - 1,
           ).copyWith(id: answerMessageIdString);
 
           add(ChatEvent.receiveMessage(streamAnswer));
@@ -491,11 +496,14 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  Message _createAnswerStreamMessage(
-    AnswerStream stream,
-    Int64 questionMessageId,
-  ) {
-    answerStreamMessageId = (questionMessageId + 1).toString();
+  Message _createAnswerStreamMessage({
+    required AnswerStream stream,
+    required Int64 questionMessageId,
+    String? fakeQuestionMessageId,
+  }) {
+    answerStreamMessageId = fakeQuestionMessageId == null
+        ? (questionMessageId + 1).toString()
+        : "${fakeQuestionMessageId}_ans";
 
     return TextMessage(
       id: answerStreamMessageId,

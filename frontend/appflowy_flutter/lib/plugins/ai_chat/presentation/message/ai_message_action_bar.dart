@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -19,6 +20,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_w
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -243,7 +245,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
             constraints: const BoxConstraints.tightFor(width: 300, height: 400),
             onClose: () {
               if (spaceView != null) {
-                context.read<ChatSettingsCubit>().refreshSources(spaceView);
+                context.read<ChatSettingsCubit>().refreshSources([spaceView]);
               }
               widget.onOverrideVisibility?.call(false);
             },
@@ -272,12 +274,12 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
         onPressed: () async {
           final documentId = getOpenedDocumentId();
           if (documentId != null) {
-            await onAddToExistingPage(documentId);
-            DocumentBloc.findOpen(documentId)?.forceReloadDocumentState();
+            await onAddToExistingPage(context, documentId);
+            await forceReloadAndUpdateSelection(documentId);
           } else {
             widget.onOverrideVisibility?.call(true);
             if (spaceView != null) {
-              context.read<ChatSettingsCubit>().refreshSources(spaceView);
+              context.read<ChatSettingsCubit>().refreshSources([spaceView]);
             }
             popoverController.show();
           }
@@ -296,9 +298,8 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
         },
         onAddToExistingPage: (documentId) async {
           popoverController.close();
-          await onAddToExistingPage(documentId);
-          final view =
-              await ViewBackendService.getView(documentId).toNullable();
+          final view = await onAddToExistingPage(context, documentId);
+
           if (context.mounted) {
             openPageFromMessage(context, view);
           }
@@ -307,12 +308,20 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
     );
   }
 
-  Future<void> onAddToExistingPage(String documentId) async {
+  Future<ViewPB?> onAddToExistingPage(
+    BuildContext context,
+    String documentId,
+  ) async {
     await ChatEditDocumentService.addMessageToPage(
       documentId,
       widget.textMessage,
     );
     await Future.delayed(const Duration(milliseconds: 500));
+    final view = await ViewBackendService.getView(documentId).toNullable();
+    if (context.mounted) {
+      showSaveMessageSuccessToast(context, view);
+    }
+    return view;
   }
 
   void addMessageToNewPage(BuildContext context) async {
@@ -325,10 +334,61 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
         chatView.parentViewId,
         [widget.textMessage],
       );
+
       if (context.mounted) {
+        showSaveMessageSuccessToast(context, newView);
         openPageFromMessage(context, newView);
       }
     }
+  }
+
+  void showSaveMessageSuccessToast(BuildContext context, ViewPB? view) {
+    if (view == null) {
+      return;
+    }
+    showToastNotification(
+      context,
+      richMessage: TextSpan(
+        children: [
+          TextSpan(
+            text: LocaleKeys.chat_addToNewPageSuccessToast.tr(),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: const Color(0xFFFFFFFF),
+                ),
+          ),
+          const TextSpan(
+            text: ' ',
+          ),
+          TextSpan(
+            text: view.nameOrDefault,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: const Color(0xFFFFFFFF),
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> forceReloadAndUpdateSelection(String documentId) async {
+    final bloc = DocumentBloc.findOpen(documentId);
+    if (bloc == null) {
+      return;
+    }
+    await bloc.forceReloadDocumentState();
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    final editorState = bloc.state.editorState;
+    final lastNodePath = editorState?.getLastSelectable()?.$1.path;
+    if (editorState == null || lastNodePath == null) {
+      return;
+    }
+    unawaited(
+      editorState.updateSelectionWithReason(
+        Selection.collapsed(Position(path: lastNodePath)),
+      ),
+    );
   }
 
   String? getOpenedDocumentId() {

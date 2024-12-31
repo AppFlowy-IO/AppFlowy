@@ -737,6 +737,7 @@ class HomeSecondaryTopBar extends StatelessWidget {
           children: [
             FlowyIconButton(
               width: 24,
+              tooltipText: LocaleKeys.sideBar_closeSidebar.tr(),
               radius: const BorderRadius.all(Radius.circular(8.0)),
               icon: const FlowySvg(
                 FlowySvgs.show_menu_s,
@@ -749,6 +750,7 @@ class HomeSecondaryTopBar extends StatelessWidget {
             const HSpace(8.0),
             FlowyIconButton(
               width: 24,
+              tooltipText: LocaleKeys.sideBar_expandSidebar.tr(),
               radius: const BorderRadius.all(Radius.circular(8.0)),
               icon: const FlowySvg(
                 FlowySvgs.full_view_s,

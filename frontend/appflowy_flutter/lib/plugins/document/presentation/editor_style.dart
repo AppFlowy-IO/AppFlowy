@@ -166,9 +166,10 @@ class EditorStyleCustomizer {
         applyHeightToLastDescent: true,
       ),
       textSpanDecorator: customizeAttributeDecorator,
-      mobileDragHandleBallSize: const Size.square(12.0),
       magnifierSize: const Size(144, 96),
       textScaleFactor: textScaleFactor,
+      mobileDragHandleLeftExtend: 12.0,
+      mobileDragHandleWidthExtend: 24.0,
     );
   }
 

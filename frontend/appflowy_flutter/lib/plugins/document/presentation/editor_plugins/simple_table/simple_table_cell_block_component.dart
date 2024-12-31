@@ -456,7 +456,7 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
       return context.simpleTableDefaultHeaderColor;
     }
 
-    return Theme.of(context).colorScheme.surface;
+    return Colors.transparent;
   }
 
   bool _isInHeader() {

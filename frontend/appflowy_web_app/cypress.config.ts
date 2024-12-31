@@ -15,13 +15,14 @@ export default defineConfig({
       framework: 'react',
       bundler: 'vite',
     },
-    setupNodeEvents (on, config) {
+    setupNodeEvents(on, config) {
       registerCodeCoverageTasks(on, config);
       addMatchImageSnapshotPlugin(on, config);
       return config;
     },
     supportFile: 'cypress/support/component.ts',
   },
+  chromeWebSecurity: false,
   retries: {
     // Configure retry attempts for `cypress run`
     // Default is 0

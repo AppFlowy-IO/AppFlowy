@@ -87,9 +87,14 @@ class _SimpleTableAddRowHoverButtonState
             SimpleTableConstants.cellBorderWidth,
         right: SimpleTableConstants.addRowButtonRightPadding,
         child: SimpleTableAddRowButton(
-          onTap: () => widget.editorState.addRowInTable(
-            widget.tableNode,
-          ),
+          onTap: () {
+            // cancel the selection to avoid flashing the selection
+            widget.editorState.selection = null;
+
+            widget.editorState.addRowInTable(
+              widget.tableNode,
+            );
+          },
           onVerticalDragStart: (details) {
             context.read<SimpleTableContext>().isDraggingRow = true;
             startDraggingOffset = details.globalPosition;

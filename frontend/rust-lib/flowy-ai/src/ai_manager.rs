@@ -5,6 +5,7 @@ use crate::entities::{
 use crate::local_ai::local_llm_chat::LocalAIController;
 use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
 use crate::persistence::{insert_chat, read_chat_metadata, ChatTable};
+use std::collections::HashMap;
 
 use appflowy_plugin::manager::PluginManager;
 use dashmap::DashMap;
@@ -16,6 +17,9 @@ use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 
 use crate::notification::{chat_notification_builder, ChatNotification};
+use collab_integrate::persistence::collab_metadata_sql::{
+  batch_insert_collab_metadata, batch_select_collab_metadata, AFCollabMetadata,
+};
 use flowy_storage_pub::storage::StorageService;
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
@@ -31,6 +35,7 @@ pub trait AIUserService: Send + Sync + 'static {
   fn application_root_dir(&self) -> Result<PathBuf, FlowyError>;
 }
 
+/// AIExternalService is an interface for external services that AI plugin can interact with.
 #[async_trait]
 pub trait AIExternalService: Send + Sync + 'static {
   async fn query_chat_rag_ids(
@@ -43,7 +48,8 @@ pub trait AIExternalService: Send + Sync + 'static {
     &self,
     workspace_id: &str,
     rag_ids: Vec<String>,
-  ) -> Result<(), FlowyError>;
+    rag_metadata_map: HashMap<String, AFCollabMetadata>,
+  ) -> Result<Vec<AFCollabMetadata>, FlowyError>;
 
   async fn notify_did_send_message(&self, chat_id: &str, message: &str) -> Result<(), FlowyError>;
 }
@@ -128,14 +134,7 @@ impl AIManager {
       .await
       {
         Ok(settings) => {
-          if settings.rag_ids.is_empty() {
-            return;
-          }
-          if let Ok(workspace_id) = user_service.workspace_id() {
-            let _ = external_service
-              .sync_rag_documents(&workspace_id, settings.rag_ids)
-              .await;
-          }
+          let _ = sync_chat_documents(user_service, external_service, settings.rag_ids).await;
         },
         Err(err) => {
           error!("failed to refresh chat settings: {}", err);
@@ -165,7 +164,8 @@ impl AIManager {
   }
 
   pub async fn get_chat_info(&self, chat_id: &str) -> FlowyResult<ChatInfoPB> {
-    let mut conn = self.user_service.sqlite_connection(0)?;
+    let uid = self.user_service.user_id()?;
+    let mut conn = self.user_service.sqlite_connection(uid)?;
     let metadata = read_chat_metadata(&mut conn, chat_id)?;
     let files = metadata
       .files
@@ -395,15 +395,42 @@ impl AIManager {
 
     let user_service = self.user_service.clone();
     let external_service = self.external_service.clone();
-    tokio::spawn(async move {
-      if let Ok(workspace_id) = user_service.workspace_id() {
-        let _ = external_service
-          .sync_rag_documents(&workspace_id, rag_ids)
-          .await;
-      }
-    });
+    sync_chat_documents(user_service, external_service, rag_ids).await?;
     Ok(())
   }
+}
+
+async fn sync_chat_documents(
+  user_service: Arc<dyn AIUserService>,
+  external_service: Arc<dyn AIExternalService>,
+  rag_ids: Vec<String>,
+) -> FlowyResult<()> {
+  if rag_ids.is_empty() {
+    return Ok(());
+  }
+
+  let uid = user_service.user_id()?;
+  let conn = user_service.sqlite_connection(uid)?;
+  let metadata_map = batch_select_collab_metadata(conn, &rag_ids)?;
+
+  let user_service = user_service.clone();
+  tokio::spawn(async move {
+    if let Ok(workspace_id) = user_service.workspace_id() {
+      if let Ok(metadatas) = external_service
+        .sync_rag_documents(&workspace_id, rag_ids, metadata_map)
+        .await
+      {
+        if let Ok(uid) = user_service.user_id() {
+          if let Ok(conn) = user_service.sqlite_connection(uid) {
+            info!("sync rag documents success: {}", metadatas.len());
+            batch_insert_collab_metadata(conn, &metadatas).unwrap();
+          }
+        }
+      }
+    }
+  });
+
+  Ok(())
 }
 
 fn save_chat(conn: DBConnection, chat_id: &str) -> FlowyResult<()> {

@@ -61,8 +61,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: c68e5f6
-      resolved-ref: c68e5f6c585205083e27e875b822656425b2853f
+      ref: cfb8b1b
+      resolved-ref: cfb8b1b6eb06f73a4fb297b6fd1d54b0ccec2922
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "4.0.0"
@@ -757,8 +757,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "8a9fa49"
-      resolved-ref: "8a9fa491cb3b86baf78b0a33c2c37a29d1cae028"
+      ref: "355aa56"
+      resolved-ref: "355aa56e9c74a91e00370a882739e0bb98c30bd8"
       url: "https://github.com/LucasXu0/emoji_mart.git"
     source: git
     version: "1.0.2"
@@ -1989,18 +1989,18 @@ packages:
     dependency: "direct main"
     description:
       name: super_clipboard
-      sha256: cfeb142360fac67e0da1ca339accb892eb790c6528a218a008eef1709d96ed0f
+      sha256: "4a6ae6dfaa282ec1f2bff750976f535517ed8ca842d5deae13985eb11c00ac1f"
       url: "https://pub.dev"
     source: hosted
-    version: "0.8.22"
+    version: "0.8.24"
   super_native_extensions:
     dependency: transitive
     description:
       name: super_native_extensions
-      sha256: "6a7cfb7d212da7023b86fb99c736081e9c2cd982265d15dc5fe6381a32dbc875"
+      sha256: a433bba8186cd6b707560c42535bf284804665231c00bca86faf1aa4968b7637
       url: "https://pub.dev"
     source: hosted
-    version: "0.8.22"
+    version: "0.8.24"
   sync_http:
     dependency: transitive
     description:

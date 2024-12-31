@@ -161,5 +161,69 @@ void main() {
         '1': TableAlign.center.key,
       });
     });
+
+    test('duplicate a column with text color & bold style (1)', () async {
+      final (editorState, tableNode) = createEditorStateAndTable(
+        rowCount: 3,
+        columnCount: 4,
+      );
+      // duplicate the column 1
+      final tableCellNode =
+          tableNode.getTableCellNode(rowIndex: 0, columnIndex: 1);
+      await editorState.updateColumnTextColor(
+        tableCellNode: tableCellNode!,
+        color: '0xFF0000FF',
+      );
+      await editorState.toggleColumnBoldAttribute(
+        tableCellNode: tableCellNode,
+        isBold: true,
+      );
+      expect(tableNode.columnTextColors, {
+        '1': '0xFF0000FF',
+      });
+      expect(tableNode.columnBoldAttributes, {
+        '1': true,
+      });
+      await editorState.duplicateColumnInTable(tableNode, 1);
+      expect(tableNode.columnTextColors, {
+        '1': '0xFF0000FF',
+        '2': '0xFF0000FF',
+      });
+      expect(tableNode.columnBoldAttributes, {
+        '1': true,
+        '2': true,
+      });
+    });
+
+    test('duplicate a column with text color & bold style (2)', () async {
+      final (editorState, tableNode) = createEditorStateAndTable(
+        rowCount: 3,
+        columnCount: 4,
+      );
+      // duplicate the column 1
+      final tableCellNode =
+          tableNode.getTableCellNode(rowIndex: 0, columnIndex: 1);
+      await editorState.updateColumnTextColor(
+        tableCellNode: tableCellNode!,
+        color: '0xFF0000FF',
+      );
+      await editorState.toggleColumnBoldAttribute(
+        tableCellNode: tableCellNode,
+        isBold: true,
+      );
+      expect(tableNode.columnTextColors, {
+        '1': '0xFF0000FF',
+      });
+      expect(tableNode.columnBoldAttributes, {
+        '1': true,
+      });
+      await editorState.duplicateColumnInTable(tableNode, 0);
+      expect(tableNode.columnTextColors, {
+        '2': '0xFF0000FF',
+      });
+      expect(tableNode.columnBoldAttributes, {
+        '2': true,
+      });
+    });
   });
 }

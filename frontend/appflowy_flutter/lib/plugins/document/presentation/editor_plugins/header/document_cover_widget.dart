@@ -468,9 +468,9 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           popupBuilder: (BuildContext popoverContext) {
             isPopoverOpen = true;
             return FlowyIconEmojiPicker(
-              onSelectedEmoji: (result) {
-                widget.onIconOrCoverChanged(icon: result);
-                _popoverController.close();
+              onSelectedEmoji: (r) {
+                widget.onIconOrCoverChanged(icon: r.data);
+                if (!r.keepOpen) _popoverController.close();
               },
             );
           },
@@ -763,15 +763,29 @@ class DocumentCoverState extends State<DocumentCover> {
   }
 
   Future<void> onCoverChanged(CoverType type, String? details) async {
-    if (type == CoverType.file && details != null && !isURL(details)) {
+    final previousType = CoverType.fromString(
+      widget.node.attributes[DocumentHeaderBlockKeys.coverType],
+    );
+    final previousDetails =
+        widget.node.attributes[DocumentHeaderBlockKeys.coverDetails];
+
+    bool isFileType(CoverType type, String? details) =>
+        type == CoverType.file && details != null && !isURL(details);
+
+    if (isFileType(type, details)) {
       if (_isLocalMode()) {
-        details = await saveImageToLocalStorage(details);
+        details = await saveImageToLocalStorage(details!);
       } else {
         // else we should save the image to cloud storage
-        (details, _) = await saveImageToCloudStorage(details, widget.view.id);
+        (details, _) = await saveImageToCloudStorage(details!, widget.view.id);
       }
     }
     widget.onChangeCover(type, details);
+
+    // After cover change,delete from localstorage if previous cover was image type
+    if (isFileType(previousType, previousDetails) && _isLocalMode()) {
+      await deleteImageFromLocalStorage(previousDetails);
+    }
   }
 
   void setOverlayButtonsHidden(bool value) {
@@ -838,9 +852,7 @@ class _DocumentIconState extends State<DocumentIcon> {
 
   @override
   Widget build(BuildContext context) {
-    Widget child = EmojiIconWidget(
-      emoji: widget.icon,
-    );
+    Widget child = EmojiIconWidget(emoji: widget.icon);
 
     if (UniversalPlatform.isDesktopOrWeb) {
       child = AppFlowyPopover(
@@ -852,9 +864,10 @@ class _DocumentIconState extends State<DocumentIcon> {
         child: child,
         popupBuilder: (BuildContext popoverContext) {
           return FlowyIconEmojiPicker(
-            onSelectedEmoji: (result) {
-              widget.onChangeIcon(result);
-              _popoverController.close();
+            initialType: widget.icon.type.toPickerTabType(),
+            onSelectedEmoji: (r) {
+              widget.onChangeIcon(r.data);
+              if (!r.keepOpen) _popoverController.close();
             },
           );
         },
@@ -864,7 +877,12 @@ class _DocumentIconState extends State<DocumentIcon> {
         child: child,
         onTap: () async {
           final result = await context.push<EmojiIconData>(
-            MobileEmojiPickerScreen.routeName,
+            Uri(
+              path: MobileEmojiPickerScreen.routeName,
+              queryParameters: {
+                MobileEmojiPickerScreen.iconSelectedType: widget.icon.type.name,
+              },
+            ).toString(),
           );
           if (result != null) {
             widget.onChangeIcon(result);
