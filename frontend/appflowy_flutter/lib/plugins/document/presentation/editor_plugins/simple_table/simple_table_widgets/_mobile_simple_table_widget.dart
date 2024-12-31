@@ -48,7 +48,15 @@ class _MobileSimpleTableWidgetState extends State<MobileSimpleTableWidget> {
   late final editorState = context.read<EditorState>();
 
   @override
+  void initState() {
+    super.initState();
+
+    simpleTableContext.horizontalScrollController = scrollController;
+  }
+
+  @override
   void dispose() {
+    simpleTableContext.horizontalScrollController = null;
     scrollController.dispose();
 
     super.dispose();
