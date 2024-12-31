@@ -1,12 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/custom_text_align_command.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/custom_copy_command.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/custom_cut_command.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/custom_paste_command.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/toggle/toggle_block_shortcuts.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_alert_dialog.dart';
@@ -478,7 +474,9 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
 }
 
 class _EditShortcutBtn extends StatelessWidget {
-  const _EditShortcutBtn({super.key, required this.onEdit});
+  const _EditShortcutBtn({
+    required this.onEdit,
+  });
 
   final VoidCallback onEdit;
 
@@ -502,7 +500,6 @@ class _EditShortcutBtn extends StatelessWidget {
 
 class _ResetShortcutBtn extends StatelessWidget {
   const _ResetShortcutBtn({
-    super.key,
     required this.onReset,
     required this.canReset,
   });
