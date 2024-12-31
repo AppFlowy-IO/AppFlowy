@@ -393,11 +393,19 @@ class _IconState extends State<_Icon> {
   final PopoverController _popoverController = PopoverController();
 
   @override
+  void dispose() {
+    super.dispose();
+    _popoverController.close();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       direction: PopoverDirection.bottomWithCenterAligned,
+      controller: _popoverController,
       offset: const Offset(0, 6),
       mutex: widget.mutex,
+      clickHandler: PopoverClickHandler.gestureDetector,
       child: _IconNoBackground(
         icon: widget.icon,
         onSelectedIcon: () => _popoverController.show(),
