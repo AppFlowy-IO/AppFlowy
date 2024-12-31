@@ -226,6 +226,14 @@ class EditorMigration {
                 },
               };
             }
+          } else {
+            extra = {
+              ViewExtKeys.coverKey: {
+                ViewExtKeys.coverTypeKey:
+                    PageStyleCoverImageType.localImage.toString(),
+                ViewExtKeys.coverValueKey: coverDetails,
+              },
+            };
           }
           break;
         default:
