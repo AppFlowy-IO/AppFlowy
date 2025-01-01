@@ -1,5 +1,7 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -13,6 +15,7 @@ import 'ai_prompt_buttons.dart';
 import 'chat_input_file.dart';
 import 'chat_input_span.dart';
 import 'chat_mention_page_bottom_sheet.dart';
+import 'predefined_format_buttons.dart';
 import 'select_sources_bottom_sheet.dart';
 
 class MobileAIPromptInput extends StatefulWidget {
@@ -40,6 +43,9 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
   final focusNode = FocusNode();
   final textController = TextEditingController();
 
+  bool showPredefinedFormatSection = false;
+  PredefinedFormat predefinedFormat = PredefinedFormat.text;
+  PredefinedTextFormat? predefinedTextFormat = PredefinedTextFormat.auto;
   late SendButtonState sendButtonState;
 
   @override
@@ -103,6 +109,7 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
               borderRadius: MobileAIPromptSizes.promptFrameRadius,
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ConstrainedBox(
                   constraints: BoxConstraints(
@@ -117,6 +124,28 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
                         .add(AIPromptInputEvent.removeFile(file)),
                   ),
                 ),
+                if (showPredefinedFormatSection)
+                  TextFieldTapRegion(
+                    child: Container(
+                      padding: MobileAIPromptSizes.predefinedFormatBarPadding,
+                      child: ChangeFormatBar(
+                        predefinedFormat: predefinedFormat,
+                        predefinedTextFormat: predefinedTextFormat,
+                        spacing: MobileAIPromptSizes
+                            .predefinedFormatBarButtonSpacing,
+                        iconSize:
+                            MobileAIPromptSizes.predefinedFormatIconHeight,
+                        buttonSize:
+                            MobileAIPromptSizes.predefinedFormatButtonHeight,
+                        onSelectPredefinedFormat: (p0, p1) {
+                          setState(() {
+                            predefinedFormat = p0;
+                            predefinedTextFormat = p1;
+                          });
+                        },
+                      ),
+                    ),
+                  ),
                 Container(
                   constraints: const BoxConstraints(
                     minHeight: MobileAIPromptSizes.textFieldMinHeight,
@@ -167,7 +196,13 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
     }
 
     // get the attached files and mentioned pages
-    final metadata = context.read<AIPromptInputBloc>().consumeMetadata();
+    final metadata = {
+      ...context.read<AIPromptInputBloc>().consumeMetadata(),
+      if (showPredefinedFormatSection) ...{
+        "format": predefinedFormat,
+        "textFormat": predefinedTextFormat,
+      },
+    };
 
     widget.onSubmitted(trimmedText, metadata);
   }
@@ -280,6 +315,18 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
         //     mentionPage(context);
         //   });
         // },
+        showPredefinedFormatSection: showPredefinedFormatSection,
+        predefinedFormat: predefinedFormat,
+        predefinedTextFormat: predefinedTextFormat,
+        onTogglePredefinedFormatSection: () {
+          setState(() {
+            showPredefinedFormatSection = !showPredefinedFormatSection;
+            if (!showPredefinedFormatSection) {
+              predefinedFormat = PredefinedFormat.text;
+              predefinedTextFormat = PredefinedTextFormat.auto;
+            }
+          });
+        },
         onUpdateSelectedSources: widget.onUpdateSelectedSources,
       ),
     );
@@ -300,22 +347,89 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
   }
 }
 
-class _LeadingActions extends StatelessWidget {
+class _LeadingActions extends StatefulWidget {
   const _LeadingActions({
     required this.textController,
+    required this.showPredefinedFormatSection,
+    required this.predefinedFormat,
+    required this.predefinedTextFormat,
+    required this.onTogglePredefinedFormatSection,
     required this.onUpdateSelectedSources,
   });
 
   final TextEditingController textController;
+  final bool showPredefinedFormatSection;
+  final PredefinedFormat predefinedFormat;
+  final PredefinedTextFormat? predefinedTextFormat;
+  final void Function() onTogglePredefinedFormatSection;
   final void Function(List<String>) onUpdateSelectedSources;
+
+  @override
+  State<_LeadingActions> createState() => _LeadingActionsState();
+}
+
+class _LeadingActionsState extends State<_LeadingActions> {
+  bool inputNotEmpty = false;
+  bool userExpandOverride = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.textController.addListener(onTextChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.textController.removeListener(onTextChanged);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Material(
       color: Theme.of(context).colorScheme.surface,
-      child: PromptInputMobileSelectSourcesButton(
-        onUpdateSelectedSources: onUpdateSelectedSources,
-      ),
+      child: !inputNotEmpty || userExpandOverride
+          ? SeparatedRow(
+              mainAxisSize: MainAxisSize.min,
+              separatorBuilder: () => const HSpace(4.0),
+              children: [
+                PromptInputMobileSelectSourcesButton(
+                  onUpdateSelectedSources: widget.onUpdateSelectedSources,
+                ),
+                PromptInputMobileToggleFormatButton(
+                  showFormatBar: widget.showPredefinedFormatSection,
+                  predefinedFormat: widget.predefinedFormat,
+                  predefinedTextFormat: widget.predefinedTextFormat,
+                  onTap: widget.onTogglePredefinedFormatSection,
+                ),
+              ],
+            )
+          : SizedBox.square(
+              dimension: 32.0,
+              child: FlowyButton(
+                expandText: false,
+                margin: EdgeInsets.zero,
+                text: const FlowySvg(
+                  FlowySvgs.arrow_right_m,
+                  size: Size.square(24),
+                ),
+                onTap: () {
+                  setState(() => userExpandOverride = true);
+                },
+              ),
+            ),
     );
+  }
+
+  void onTextChanged() {
+    final actual = widget.textController.text.isNotEmpty;
+    if (inputNotEmpty != actual) {
+      setState(() {
+        inputNotEmpty = actual;
+        if (!inputNotEmpty) {
+          userExpandOverride = false;
+        }
+      });
+    }
   }
 }

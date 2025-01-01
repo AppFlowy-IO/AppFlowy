@@ -221,7 +221,24 @@
     "addToNewPage": "Add to a new page",
     "addToNewPageName": "Messages extracted from \"{}\"",
     "addToNewPageSuccessToast": "Message added to",
-    "openPagePreviewFailedToast": "Failed to open page"
+    "openPagePreviewFailedToast": "Failed to open page",
+    "changeFormat": {
+      "actionButton": "Change format",
+      "confirmButton": "Regenerate with this format",
+      "textOnly": "Text",
+      "imageOnly": "Image only",
+      "textAndImage": "Text and Image",
+      "text": "Paragraph",
+      "bullet": "Bullet list",
+      "number": "Numbered list",
+      "table": "Table",
+      "blankDescription": "Format response",
+      "defaultDescription": "Auto",
+      "textWithImageDescription": "@:chat.changeFormat.text with image",
+      "numberWithImageDescription": "@:chat.changeFormat.number with image",
+      "bulletWithImageDescription": "@:chat.changeFormat.bullet with image",
+      "tableWithImageDescription": "@:chat.changeFormat.table with image"
+    }
   },
   "trash": {
     "text": "Trash",

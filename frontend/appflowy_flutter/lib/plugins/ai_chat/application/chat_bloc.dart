@@ -231,7 +231,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ),
             );
           },
-          regenerateAnswer: (id) {
+          regenerateAnswer: (id, format) {
             _clearRelatedQuestions();
             _regenerateAnswer(id);
             lastSentMessage = null;
@@ -592,7 +592,10 @@ class ChatEvent with _$ChatEvent {
   const factory ChatEvent.failedSending() = _FailSendMessage;
 
   // regenerate
-  const factory ChatEvent.regenerateAnswer(String id) = _RegenerateAnswer;
+  const factory ChatEvent.regenerateAnswer(
+    String id,
+    (PredefinedFormat, PredefinedTextFormat?)? format,
+  ) = _RegenerateAnswer;
 
   // streaming answer
   const factory ChatEvent.stopStream() = _StopStream;

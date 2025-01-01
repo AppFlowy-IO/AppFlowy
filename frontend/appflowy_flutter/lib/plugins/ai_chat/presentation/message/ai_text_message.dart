@@ -34,6 +34,7 @@ class ChatAIMessageWidget extends StatelessWidget {
     required this.refSourceJsonString,
     this.onSelectedMetadata,
     this.onRegenerate,
+    this.onChangeFormat,
     this.isLastMessage = false,
     this.isStreaming = false,
   });
@@ -48,6 +49,7 @@ class ChatAIMessageWidget extends StatelessWidget {
   final String? refSourceJsonString;
   final void Function(ChatMessageRefSource metadata)? onSelectedMetadata;
   final void Function()? onRegenerate;
+  final void Function(PredefinedFormat, PredefinedTextFormat?)? onChangeFormat;
   final bool isStreaming;
   final bool isLastMessage;
 
@@ -87,6 +89,7 @@ class ChatAIMessageWidget extends StatelessWidget {
                             state.text.isNotEmpty &&
                             !isStreaming,
                         onRegenerate: onRegenerate,
+                        onChangeFormat: onChangeFormat,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

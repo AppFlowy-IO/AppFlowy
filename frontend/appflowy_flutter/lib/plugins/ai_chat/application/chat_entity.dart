@@ -1,8 +1,11 @@
 import 'dart:io';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:path/path.dart' as path;
@@ -136,4 +139,56 @@ enum LoadChatMessageStatus {
   loading,
   loadingRemote,
   ready,
+}
+
+enum PredefinedFormat {
+  text,
+  image,
+  textAndImage;
+
+  bool get hasText => this == text || this == textAndImage;
+
+  FlowySvgData get icon {
+    return switch (this) {
+      PredefinedFormat.text => FlowySvgs.ai_text_s,
+      PredefinedFormat.image => FlowySvgs.ai_image_s,
+      PredefinedFormat.textAndImage => FlowySvgs.ai_text_image_s,
+    };
+  }
+
+  String get i18n {
+    return switch (this) {
+      PredefinedFormat.text => LocaleKeys.chat_changeFormat_textOnly.tr(),
+      PredefinedFormat.image => LocaleKeys.chat_changeFormat_imageOnly.tr(),
+      PredefinedFormat.textAndImage =>
+        LocaleKeys.chat_changeFormat_textAndImage.tr(),
+    };
+  }
+}
+
+enum PredefinedTextFormat {
+  auto,
+  bulletList,
+  numberedList,
+  table;
+
+  FlowySvgData get icon {
+    return switch (this) {
+      PredefinedTextFormat.auto => FlowySvgs.ai_paragraph_s,
+      PredefinedTextFormat.bulletList => FlowySvgs.ai_list_s,
+      PredefinedTextFormat.numberedList => FlowySvgs.ai_number_list_s,
+      PredefinedTextFormat.table => FlowySvgs.ai_table_s,
+    };
+  }
+
+  String get i18n {
+    return switch (this) {
+      PredefinedTextFormat.auto => LocaleKeys.chat_changeFormat_text.tr(),
+      PredefinedTextFormat.bulletList =>
+        LocaleKeys.chat_changeFormat_bullet.tr(),
+      PredefinedTextFormat.numberedList =>
+        LocaleKeys.chat_changeFormat_number.tr(),
+      PredefinedTextFormat.table => LocaleKeys.chat_changeFormat_table.tr(),
+    };
+  }
 }

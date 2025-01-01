@@ -5,6 +5,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_edit_document_service.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_select_sources_cubit.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
@@ -29,23 +30,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
+import '../chat_input/predefined_format_buttons.dart';
 import '../chat_input/select_sources_menu.dart';
 import '../layout_define.dart';
 import 'message_util.dart';
 
-class AIMessageActionBar extends StatelessWidget {
+class AIMessageActionBar extends StatefulWidget {
   const AIMessageActionBar({
     super.key,
     required this.message,
     required this.showDecoration,
     this.onRegenerate,
+    this.onChangeFormat,
     this.onOverrideVisibility,
   });
 
   final Message message;
   final bool showDecoration;
   final void Function()? onRegenerate;
+  final void Function(PredefinedFormat, PredefinedTextFormat?)? onChangeFormat;
   final void Function(bool)? onOverrideVisibility;
+
+  @override
+  State<AIMessageActionBar> createState() => _AIMessageActionBarState();
+}
+
+class _AIMessageActionBarState extends State<AIMessageActionBar> {
+  final popoverMutex = PopoverMutex();
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +69,7 @@ class AIMessageActionBar extends StatelessWidget {
       children: _buildChildren(),
     );
 
-    return showDecoration
+    return widget.showDecoration
         ? Container(
             padding: const EdgeInsets.all(2.0),
             decoration: BoxDecoration(
@@ -67,6 +78,7 @@ class AIMessageActionBar extends StatelessWidget {
                 color: isLightMode
                     ? const Color(0x1F1F2329)
                     : Theme.of(context).dividerColor,
+                strokeAlign: BorderSide.strokeAlignOutside,
               ),
               color: Theme.of(context).cardColor,
               boxShadow: [
@@ -103,17 +115,25 @@ class AIMessageActionBar extends StatelessWidget {
   List<Widget> _buildChildren() {
     return [
       CopyButton(
-        isInHoverBar: showDecoration,
-        textMessage: message as TextMessage,
+        isInHoverBar: widget.showDecoration,
+        textMessage: widget.message as TextMessage,
       ),
       RegenerateButton(
-        isInHoverBar: showDecoration,
-        onTap: () => onRegenerate?.call(),
+        isInHoverBar: widget.showDecoration,
+        onTap: () => widget.onRegenerate?.call(),
+      ),
+      ChangeFormatButton(
+        isInHoverBar: widget.showDecoration,
+        onRegenerate: (format, textFormat) =>
+            widget.onChangeFormat?.call(format, textFormat),
+        popoverMutex: popoverMutex,
+        onOverrideVisibility: widget.onOverrideVisibility,
       ),
       SaveToPageButton(
-        textMessage: message as TextMessage,
-        isInHoverBar: showDecoration,
-        onOverrideVisibility: onOverrideVisibility,
+        textMessage: widget.message as TextMessage,
+        isInHoverBar: widget.showDecoration,
+        popoverMutex: popoverMutex,
+        onOverrideVisibility: widget.onOverrideVisibility,
       ),
     ];
   }
@@ -195,16 +215,194 @@ class RegenerateButton extends StatelessWidget {
   }
 }
 
+class ChangeFormatButton extends StatefulWidget {
+  const ChangeFormatButton({
+    super.key,
+    required this.isInHoverBar,
+    this.popoverMutex,
+    this.onRegenerate,
+    this.onOverrideVisibility,
+  });
+
+  final bool isInHoverBar;
+  final PopoverMutex? popoverMutex;
+  final void Function(PredefinedFormat, PredefinedTextFormat?)? onRegenerate;
+  final void Function(bool)? onOverrideVisibility;
+
+  @override
+  State<ChangeFormatButton> createState() => _ChangeFormatButtonState();
+}
+
+class _ChangeFormatButtonState extends State<ChangeFormatButton> {
+  final popoverController = PopoverController();
+
+  @override
+  Widget build(BuildContext context) {
+    return AppFlowyPopover(
+      controller: popoverController,
+      mutex: widget.popoverMutex,
+      triggerActions: PopoverTriggerFlags.none,
+      margin: EdgeInsets.zero,
+      offset: Offset(0, widget.isInHoverBar ? 8 : 4),
+      direction: PopoverDirection.bottomWithLeftAligned,
+      constraints: const BoxConstraints(),
+      onClose: () => widget.onOverrideVisibility?.call(false),
+      child: buildButton(context),
+      popupBuilder: (_) => _ChangeFormatPopoverContent(
+        onRegenerate: widget.onRegenerate,
+      ),
+    );
+  }
+
+  Widget buildButton(BuildContext context) {
+    return FlowyTooltip(
+      message: LocaleKeys.chat_changeFormat_actionButton.tr(),
+      child: FlowyIconButton(
+        width: 32.0,
+        height: DesktopAIConvoSizes.actionBarIconSize,
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        radius: widget.isInHoverBar
+            ? DesktopAIConvoSizes.hoverActionBarIconRadius
+            : DesktopAIConvoSizes.actionBarIconRadius,
+        icon: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FlowySvg(
+              FlowySvgs.ai_retry_font_s,
+              color: Theme.of(context).hintColor,
+              size: const Size.square(16),
+            ),
+            FlowySvg(
+              FlowySvgs.ai_source_drop_down_s,
+              color: Theme.of(context).hintColor,
+              size: const Size.square(8),
+            ),
+          ],
+        ),
+        onPressed: () {
+          widget.onOverrideVisibility?.call(true);
+          popoverController.show();
+        },
+      ),
+    );
+  }
+}
+
+class _ChangeFormatPopoverContent extends StatefulWidget {
+  const _ChangeFormatPopoverContent({
+    this.onRegenerate,
+  });
+
+  final void Function(PredefinedFormat, PredefinedTextFormat?)? onRegenerate;
+
+  @override
+  State<_ChangeFormatPopoverContent> createState() =>
+      _ChangeFormatPopoverContentState();
+}
+
+class _ChangeFormatPopoverContentState
+    extends State<_ChangeFormatPopoverContent> {
+  PredefinedFormat predefinedFormat = PredefinedFormat.text;
+  PredefinedTextFormat? predefinedTextFormat = PredefinedTextFormat.auto;
+
+  @override
+  Widget build(BuildContext context) {
+    final isLightMode = Theme.of(context).isLightMode;
+    return Container(
+      padding: const EdgeInsets.all(2.0),
+      decoration: BoxDecoration(
+        borderRadius: DesktopAIConvoSizes.hoverActionBarRadius,
+        border: Border.all(
+          color: isLightMode
+              ? const Color(0x1F1F2329)
+              : Theme.of(context).dividerColor,
+          strokeAlign: BorderSide.strokeAlignOutside,
+        ),
+        color: Theme.of(context).cardColor,
+        boxShadow: [
+          BoxShadow(
+            offset: const Offset(0, 1),
+            blurRadius: 2,
+            spreadRadius: -2,
+            color: isLightMode
+                ? const Color(0x051F2329)
+                : Theme.of(context).shadowColor.withOpacity(0.02),
+          ),
+          BoxShadow(
+            offset: const Offset(0, 2),
+            blurRadius: 4,
+            color: isLightMode
+                ? const Color(0x051F2329)
+                : Theme.of(context).shadowColor.withOpacity(0.02),
+          ),
+          BoxShadow(
+            offset: const Offset(0, 2),
+            blurRadius: 8,
+            spreadRadius: 2,
+            color: isLightMode
+                ? const Color(0x051F2329)
+                : Theme.of(context).shadowColor.withOpacity(0.02),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ChangeFormatBar(
+            spacing: 2.0,
+            iconSize: 16.0,
+            buttonSize: DesktopAIPromptSizes.predefinedFormatButtonHeight,
+            predefinedFormat: predefinedFormat,
+            predefinedTextFormat: predefinedTextFormat,
+            onSelectPredefinedFormat: (p0, p1) {
+              setState(() {
+                predefinedFormat = p0;
+                predefinedTextFormat = p1;
+              });
+            },
+          ),
+          const HSpace(4.0),
+          FlowyTooltip(
+            message: LocaleKeys.chat_changeFormat_confirmButton.tr(),
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  widget.onRegenerate
+                      ?.call(predefinedFormat, predefinedTextFormat);
+                },
+                child: SizedBox.square(
+                  dimension: DesktopAIPromptSizes.predefinedFormatButtonHeight,
+                  child: Center(
+                    child: FlowySvg(
+                      FlowySvgs.ai_retry_filled_s,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: const Size.square(20),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class SaveToPageButton extends StatefulWidget {
   const SaveToPageButton({
     super.key,
     required this.textMessage,
     required this.isInHoverBar,
+    this.popoverMutex,
     this.onOverrideVisibility,
   });
 
   final TextMessage textMessage;
   final bool isInHoverBar;
+  final PopoverMutex? popoverMutex;
   final void Function(bool)? onOverrideVisibility;
 
   @override
@@ -240,6 +438,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
             controller: popoverController,
             triggerActions: PopoverTriggerFlags.none,
             margin: EdgeInsets.zero,
+            mutex: widget.popoverMutex,
             offset: const Offset(8, 0),
             direction: PopoverDirection.rightWithBottomAligned,
             constraints: const BoxConstraints.tightFor(width: 300, height: 400),
