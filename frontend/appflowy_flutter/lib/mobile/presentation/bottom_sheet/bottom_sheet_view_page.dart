@@ -206,8 +206,5 @@ class MobileViewBottomSheetBody extends StatelessWidget {
     }
   }
 
-  Widget _divider() => const Divider(
-        height: 8.5,
-        thickness: 0.5,
-      );
+  Widget _divider() => const MobileQuickActionDivider();
 }

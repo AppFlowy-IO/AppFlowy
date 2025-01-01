@@ -309,11 +309,11 @@ class ChatAIMessagePopup extends StatelessWidget {
               children: [
                 const VSpace(16.0),
                 _copyButton(context, bottomSheetContext),
-                const Divider(height: 8.5, thickness: 0.5),
+                _divider(),
                 _regenerateButton(context),
-                const Divider(height: 8.5, thickness: 0.5),
+                _divider(),
                 _saveToPageButton(context),
-                const Divider(height: 8.5, thickness: 0.5),
+                _divider(),
               ],
             );
           },
@@ -322,6 +322,8 @@ class ChatAIMessagePopup extends StatelessWidget {
       child: child,
     );
   }
+
+  Widget _divider() => const MobileQuickActionDivider();
 
   Widget _copyButton(BuildContext context, BuildContext bottomSheetContext) {
     return MobileQuickActionButton(
