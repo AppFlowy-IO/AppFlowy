@@ -72,7 +72,7 @@ class FlowyIconTextButton extends StatelessWidget {
         style: HoverStyle(
           borderRadius: radius ?? Corners.s6Border,
           hoverColor: color,
-          borderColor: borderColor ?? Colors.transparent,
+          border: borderColor == null ? null : Border.all(color: borderColor!),
         ),
         onHover: disable ? null : onHover,
         isSelected: () => isSelected,
@@ -220,7 +220,7 @@ class FlowyButton extends StatelessWidget {
         style: HoverStyle(
           borderRadius: radius ?? Corners.s6Border,
           hoverColor: color,
-          borderColor: borderColor ?? Colors.transparent,
+          border: borderColor == null ? null : Border.all(color: borderColor!),
           backgroundColor: backgroundColor ?? Colors.transparent,
         ),
         onHover: disable ? null : onHover,

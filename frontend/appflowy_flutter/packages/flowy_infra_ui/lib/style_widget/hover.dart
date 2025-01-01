@@ -82,8 +82,7 @@ class _FlowyHoverState extends State<FlowyHover> {
 }
 
 class HoverStyle {
-  final Color borderColor;
-  final double borderWidth;
+  final BoxBorder? border;
   final Color? hoverColor;
   final Color? foregroundColorOnHover;
   final BorderRadius borderRadius;
@@ -91,8 +90,7 @@ class HoverStyle {
   final Color backgroundColor;
 
   const HoverStyle({
-    this.borderColor = Colors.transparent,
-    this.borderWidth = 0,
+    this.border,
     this.borderRadius = const BorderRadius.all(Radius.circular(6)),
     this.contentMargin = EdgeInsets.zero,
     this.backgroundColor = Colors.transparent,
@@ -101,13 +99,12 @@ class HoverStyle {
   });
 
   const HoverStyle.transparent({
-    this.borderColor = Colors.transparent,
-    this.borderWidth = 0,
     this.borderRadius = const BorderRadius.all(Radius.circular(6)),
     this.contentMargin = EdgeInsets.zero,
     this.backgroundColor = Colors.transparent,
     this.foregroundColorOnHover,
-  }) : hoverColor = Colors.transparent;
+  })  : hoverColor = Colors.transparent,
+        border = null;
 }
 
 class FlowyHoverContainer extends StatelessWidget {
@@ -124,11 +121,6 @@ class FlowyHoverContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hoverBorder = Border.all(
-      color: style.borderColor,
-      width: style.borderWidth,
-    );
-
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final iconTheme = theme.iconTheme;
@@ -147,7 +139,7 @@ class FlowyHoverContainer extends StatelessWidget {
     return Container(
       margin: style.contentMargin,
       decoration: BoxDecoration(
-        border: hoverBorder,
+        border: style.border,
         color: applyStyle
             ? style.hoverColor ?? Theme.of(context).colorScheme.secondary
             : style.backgroundColor,
