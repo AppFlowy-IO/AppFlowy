@@ -401,22 +401,16 @@ class _SecondaryViewState extends State<SecondaryView>
 
   BoxBorder getBorder(BuildContext context) {
     final isLightMode = Theme.of(context).isLightMode;
+    final borderSide = BorderSide(
+        color: isLightMode
+            ? const Color(0x141F2329)
+            : Theme.of(context).dividerColor,
+      );
+
     return Border(
-      left: BorderSide(
-        color: isLightMode
-            ? const Color(0x141F2329)
-            : Theme.of(context).dividerColor,
-      ),
-      top: BorderSide(
-        color: isLightMode
-            ? const Color(0x141F2329)
-            : Theme.of(context).dividerColor,
-      ),
-      bottom: BorderSide(
-        color: isLightMode
-            ? const Color(0x141F2329)
-            : Theme.of(context).dividerColor,
-      ),
+      left: borderSide,
+      top: borderSide,
+      bottom: borderSide,
     );
   }
 
