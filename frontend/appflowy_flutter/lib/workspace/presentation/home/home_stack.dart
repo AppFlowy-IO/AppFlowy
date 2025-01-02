@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -225,11 +226,16 @@ class SecondaryView extends StatefulWidget {
 
 class _SecondaryViewState extends State<SecondaryView>
     with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+  final overlayController = OverlayPortalController();
+  final layerLink = LayerLink();
+
   late final ValueNotifier<double> widthNotifier;
 
   late final AnimationController animationController;
   late Animation<double> widthAnimation;
   late final Animation<Offset> offsetAnimation;
+
+  late bool hasSecondaryView;
 
   CurvedAnimation get curveAnimation => CurvedAnimation(
         parent: animationController,
@@ -260,14 +266,164 @@ class _SecondaryViewState extends State<SecondaryView>
       begin: const Offset(1.0, 0.0),
       end: Offset.zero,
     ).animate(curveAnimation);
+
+    widget.pageManager.secondaryNotifier.addListener(onSecondaryViewChanged);
+    onSecondaryViewChanged();
+
+    overlayController.show();
   }
 
   @override
   void dispose() {
     widget.pageManager.showSecondaryPluginNotifier
         .removeListener(onShowSecondaryChanged);
+    widget.pageManager.secondaryNotifier.removeListener(onSecondaryViewChanged);
     widthNotifier.dispose();
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    final isLightMode = Theme.of(context).isLightMode;
+    return OverlayPortal(
+      controller: overlayController,
+      overlayChildBuilder: (context) {
+        return ValueListenableBuilder(
+          valueListenable: widget.pageManager.showSecondaryPluginNotifier,
+          builder: (context, isShowing, child) {
+            return CompositedTransformFollower(
+              link: layerLink,
+              followerAnchor: Alignment.topRight,
+              offset: const Offset(0.0, 80.0),
+              child: Align(
+                alignment: AlignmentDirectional.topEnd,
+                child: AnimatedSwitcher(
+                  duration: 150.milliseconds,
+                  transitionBuilder: (child, animation) {
+                    return NonClippingSizeTransition(
+                      sizeFactor: animation,
+                      axis: Axis.horizontal,
+                      axisAlignment: -1,
+                      child: child,
+                    );
+                  },
+                  child: isShowing || !hasSecondaryView
+                      ? const SizedBox.shrink()
+                      : GestureDetector(
+                          onTap: () => widget.pageManager
+                              .showSecondaryPluginNotifier.value = true,
+                          child: Container(
+                            height: 36,
+                            width: 36,
+                            decoration: BoxDecoration(
+                              borderRadius: getBorderRadius(),
+                              color: Theme.of(context).colorScheme.surface,
+                              boxShadow: [
+                                BoxShadow(
+                                  offset: const Offset(0, 4),
+                                  blurRadius: 20,
+                                  color: isLightMode
+                                      ? const Color(0x1F1F2329)
+                                      : Theme.of(context)
+                                          .shadowColor
+                                          .withOpacity(0.08),
+                                ),
+                              ],
+                            ),
+                            child: FlowyHover(
+                              style: HoverStyle(
+                                borderRadius: getBorderRadius(),
+                                border: getBorder(context),
+                              ),
+                              child: const Center(
+                                child: FlowySvg(
+                                  FlowySvgs.rename_s,
+                                  size: Size.square(16.0),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+      child: CompositedTransformTarget(
+        link: layerLink,
+        child: Container(
+          color: Theme.of(context).colorScheme.surface,
+          child: FocusTraversalGroup(
+            child: ValueListenableBuilder(
+              valueListenable: widthNotifier,
+              builder: (context, value, child) {
+                return AnimatedBuilder(
+                  animation: Listenable.merge([
+                    widthAnimation,
+                    offsetAnimation,
+                  ]),
+                  builder: (context, child) {
+                    return Container(
+                      width: widthAnimation.value,
+                      alignment: Alignment(
+                        offsetAnimation.value.dx,
+                        offsetAnimation.value.dy,
+                      ),
+                      child: OverflowBox(
+                        alignment: AlignmentDirectional.centerStart,
+                        maxWidth: value,
+                        child: SecondaryViewResizer(
+                          pageManager: widget.pageManager,
+                          notifier: widthNotifier,
+                          child: Column(
+                            children: [
+                              widget.pageManager.stackSecondaryTopBar(value),
+                              Expanded(
+                                child: widget.pageManager
+                                    .stackSecondaryWidget(value),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  BoxBorder getBorder(BuildContext context) {
+    final isLightMode = Theme.of(context).isLightMode;
+    final borderSide = BorderSide(
+      color: isLightMode
+          ? const Color(0x141F2329)
+          : Theme.of(context).dividerColor,
+    );
+
+    return Border(
+      left: borderSide,
+      top: borderSide,
+      bottom: borderSide,
+    );
+  }
+
+  BorderRadius getBorderRadius() {
+    return const BorderRadius.only(
+      topLeft: Radius.circular(12.0),
+      bottomLeft: Radius.circular(12.0),
+    );
+  }
+
+  void onSecondaryViewChanged() {
+    hasSecondaryView = widget.pageManager.secondaryNotifier.plugin.pluginType !=
+        PluginType.blank;
   }
 
   void onShowSecondaryChanged() async {
@@ -287,53 +443,6 @@ class _SecondaryViewState extends State<SecondaryView>
       begin: 0.0,
       end: widthNotifier.value,
     ).animate(curveAnimation);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    return Container(
-      color: Theme.of(context).colorScheme.surface,
-      child: FocusTraversalGroup(
-        child: ValueListenableBuilder(
-          valueListenable: widthNotifier,
-          builder: (context, value, child) {
-            return AnimatedBuilder(
-              animation: Listenable.merge([
-                widthAnimation,
-                offsetAnimation,
-              ]),
-              builder: (context, child) {
-                return Container(
-                  width: widthAnimation.value,
-                  alignment: Alignment(
-                    offsetAnimation.value.dx,
-                    offsetAnimation.value.dy,
-                  ),
-                  child: OverflowBox(
-                    alignment: AlignmentDirectional.centerStart,
-                    maxWidth: value,
-                    child: SecondaryViewResizer(
-                      pageManager: widget.pageManager,
-                      notifier: widthNotifier,
-                      child: Column(
-                        children: [
-                          widget.pageManager.stackSecondaryTopBar(value),
-                          Expanded(
-                            child:
-                                widget.pageManager.stackSecondaryWidget(value),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-        ),
-      ),
-    );
   }
 
   @override
@@ -558,6 +667,9 @@ class PageManager {
   void setSecondaryPlugin(Plugin newPlugin) {
     newPlugin.init();
     _secondaryNotifier.setPlugin(newPlugin, false);
+  }
+
+  void showSecondaryPlugin() {
     showSecondaryPluginNotifier.value = true;
   }
 
@@ -725,7 +837,7 @@ class HomeSecondaryTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
       ),
       height: HomeSizes.topBarHeight + HomeInsets.topBarTitleVerticalPadding,
       child: Padding(
@@ -778,4 +890,123 @@ class HomeSecondaryTopBar extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A version of Flutter's built in SizeTransition widget that clips the child
+/// more sparingly than the original.
+class NonClippingSizeTransition extends AnimatedWidget {
+  const NonClippingSizeTransition({
+    super.key,
+    this.axis = Axis.vertical,
+    required Animation<double> sizeFactor,
+    this.axisAlignment = 0.0,
+    this.fixedCrossAxisSizeFactor,
+    this.child,
+  })  : assert(
+          fixedCrossAxisSizeFactor == null || fixedCrossAxisSizeFactor >= 0.0,
+        ),
+        super(listenable: sizeFactor);
+
+  /// [Axis.horizontal] if [sizeFactor] modifies the width, otherwise
+  /// [Axis.vertical].
+  final Axis axis;
+
+  /// The animation that controls the (clipped) size of the child.
+  ///
+  /// The width or height (depending on the [axis] value) of this widget will be
+  /// its intrinsic width or height multiplied by [sizeFactor]'s value at the
+  /// current point in the animation.
+  ///
+  /// If the value of [sizeFactor] is less than one, the child will be clipped
+  /// in the appropriate axis.
+  Animation<double> get sizeFactor => listenable as Animation<double>;
+
+  /// Describes how to align the child along the axis that [sizeFactor] is
+  /// modifying.
+  ///
+  /// A value of -1.0 indicates the top when [axis] is [Axis.vertical], and the
+  /// start when [axis] is [Axis.horizontal]. The start is on the left when the
+  /// text direction in effect is [TextDirection.ltr] and on the right when it
+  /// is [TextDirection.rtl].
+  ///
+  /// A value of 1.0 indicates the bottom or end, depending upon the [axis].
+  ///
+  /// A value of 0.0 (the default) indicates the center for either [axis] value.
+  final double axisAlignment;
+
+  /// The factor by which to multiply the cross axis size of the child.
+  ///
+  /// If the value of [fixedCrossAxisSizeFactor] is less than one, the child
+  /// will be clipped along the appropriate axis.
+  ///
+  /// If `null` (the default), the cross axis size is as large as the parent.
+  final double? fixedCrossAxisSizeFactor;
+
+  /// The widget below this widget in the tree.
+  ///
+  /// {@macro flutter.widgets.ProxyWidget.child}
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    final AlignmentDirectional alignment;
+    if (axis == Axis.vertical) {
+      alignment = AlignmentDirectional(-1.0, axisAlignment);
+    } else {
+      alignment = AlignmentDirectional(axisAlignment, -1.0);
+    }
+    return ClipRect(
+      clipper: const EdgeRectClipper(edge: Edge.right, margin: 20),
+      child: Align(
+        alignment: alignment,
+        heightFactor: axis == Axis.vertical
+            ? max(sizeFactor.value, 0.0)
+            : fixedCrossAxisSizeFactor,
+        widthFactor: axis == Axis.horizontal
+            ? max(sizeFactor.value, 0.0)
+            : fixedCrossAxisSizeFactor,
+        child: child,
+      ),
+    );
+  }
+}
+
+class EdgeRectClipper extends CustomClipper<Rect> {
+  const EdgeRectClipper({
+    required this.edge,
+    required this.margin,
+  });
+
+  final Edge edge;
+  final double margin;
+
+  @override
+  Rect getClip(Size size) {
+    return switch (edge) {
+      Edge.left =>
+        Rect.fromLTRB(0.0, -margin, size.width + margin, size.height + margin),
+      Edge.right =>
+        Rect.fromLTRB(-margin, -margin, size.width, size.height + margin),
+      Edge.top =>
+        Rect.fromLTRB(-margin, 0.0, size.width + margin, size.height + margin),
+      Edge.bottom => Rect.fromLTRB(-margin, -margin, size.width, size.height),
+    };
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Rect> oldClipper) => false;
+}
+
+enum Edge {
+  left,
+  top,
+  right,
+  bottom;
+
+  bool get isHorizontal => switch (this) {
+        left || right => true,
+        _ => false,
+      };
+
+  bool get isVertical => !isHorizontal;
 }

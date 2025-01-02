@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -57,12 +58,16 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             _setLatestOpenView();
           },
           openTab: (Plugin plugin, ViewPB view) {
-            state.currentPageManager.hideSecondaryPlugin();
+            state.currentPageManager
+              ..hideSecondaryPlugin()
+              ..setSecondaryPlugin(BlankPagePlugin());
             emit(state.openView(plugin));
             _setLatestOpenView(view);
           },
           openPlugin: (Plugin plugin, ViewPB? view, bool setLatest) {
-            state.currentPageManager.hideSecondaryPlugin();
+            state.currentPageManager
+              ..hideSecondaryPlugin()
+              ..setSecondaryPlugin(BlankPagePlugin());
             emit(state.openPlugin(plugin: plugin, setLatest: setLatest));
             if (setLatest) {
               _setLatestOpenView(view);
@@ -154,7 +159,9 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             }
           },
           openSecondaryPlugin: (plugin, view) {
-            state.currentPageManager.setSecondaryPlugin(plugin);
+            state.currentPageManager
+              ..setSecondaryPlugin(plugin)
+              ..showSecondaryPlugin();
           },
           closeSecondaryPlugin: () {
             final pageManager = state.currentPageManager;
