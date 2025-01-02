@@ -32,40 +32,38 @@ class _ChecklistProgressBarState extends State<ChecklistProgressBar> {
     return Row(
       children: [
         Expanded(
-          child: Row(
-            children: [
-              if (widget.tasks.isNotEmpty &&
-                  widget.tasks.length <= widget.segmentLimit)
-                ...List<Widget>.generate(
-                  widget.tasks.length,
-                  (index) => Flexible(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(2)),
-                        color: index < numFinishedTasks
-                            ? completedTaskColor
-                            : AFThemeExtension.of(context).progressBarBGColor,
+          child: widget.tasks.isNotEmpty &&
+                  widget.tasks.length <= widget.segmentLimit
+              ? Row(
+                  children: [
+                    ...List<Widget>.generate(
+                      widget.tasks.length,
+                      (index) => Flexible(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(2)),
+                            color: index < numFinishedTasks
+                                ? completedTaskColor
+                                : AFThemeExtension.of(context)
+                                    .progressBarBGColor,
+                          ),
+                          margin: const EdgeInsets.symmetric(horizontal: 1),
+                          height: 4.0,
+                        ),
                       ),
-                      margin: const EdgeInsets.symmetric(horizontal: 1),
-                      height: 4.0,
                     ),
-                  ),
+                  ],
                 )
-              else
-                Expanded(
-                  child: LinearPercentIndicator(
-                    lineHeight: 4.0,
-                    percent: widget.percent,
-                    padding: EdgeInsets.zero,
-                    progressColor: completedTaskColor,
-                    backgroundColor:
-                        AFThemeExtension.of(context).progressBarBGColor,
-                    barRadius: const Radius.circular(2),
-                  ),
+              : LinearPercentIndicator(
+                  lineHeight: 4.0,
+                  percent: widget.percent,
+                  padding: EdgeInsets.zero,
+                  progressColor: completedTaskColor,
+                  backgroundColor:
+                      AFThemeExtension.of(context).progressBarBGColor,
+                  barRadius: const Radius.circular(2),
                 ),
-            ],
-          ),
         ),
         SizedBox(
           width: 45,
