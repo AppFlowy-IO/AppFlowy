@@ -918,11 +918,30 @@
         "aiOnDevice": {
           "label": "الذكاء الاصطناعي على الجهاز لنظام التشغيل Mac",
           "description": "إلغاء تأمين الذكاء الاصطناعي غير المحدود على جهازك",
+          "activeDescription": "الفاتورة القادمة مستحقة في {}",
           "canceledDescription": "ستتوفر ميزة AI On-device for Mac حتى {}"
+        },
+        "removeDialog": {
+          "title": "إزالة {}",
+          "description": "هل أنت متأكد من أنك تريد إزالة {plan}؟ ستفقد الوصول إلى ميزات وفوائد {plan} على الفور."
         }
-      }
+      },
+      "currentPeriodBadge": "الحالي",
+      "changePeriod": "فترة التغيير",
+      "planPeriod": "{} فترة",
+      "monthlyInterval": "شهريا",
+      "monthlyPriceInfo": "لكل مقعد يتم دفع الفاتورة شهريًا",
+      "annualInterval": "سنويا",
+      "annualPriceInfo": "لكل مقعد يتم دفع الفاتورة سنويًا"
     },
     "comparePlanDialog": {
+      "title": "قارن واختر الخطة",
+      "planFeatures": " الخطة\nميزات",
+      "current": "الحالي",
+      "actions": {
+        "upgrade": "ترقية",
+        "downgrade": "يرجع إلى إصدار أقدم"
+      },
       "planLabels": {
         "tooltipSix": "تعني مدة الحياة أن عدد الاستجابات لا يتم إعادة ضبطه أبدًا"
       }
