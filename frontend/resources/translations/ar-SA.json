@@ -940,10 +940,57 @@
       "current": "الحالي",
       "actions": {
         "upgrade": "ترقية",
-        "downgrade": "يرجع إلى إصدار أقدم"
+        "downgrade": "يرجع إلى إصدار أقدم",
+        "current": "الحالي"
+      },
+      "freePlan": {
+        "title": "مجاني",
+        "description": "للأفراد حتى عضوين لتنظيم كل شيء",
+        "price": "{}",
+        "priceInfo": "مجاني للأبد"
+      },
+      "proPlan": {
+        "title": "احترافي",
+        "description": "للفرق الصغيرة لإدارة المشاريع ومعرفة الفريق",
+        "price": "{}",
+        "priceInfo": "لكل مستخدم شهريا\nيتم فوترتها سنويا\n\n{} يتم الفوترتها شهريًا"
       },
       "planLabels": {
-        "tooltipSix": "تعني مدة الحياة أن عدد الاستجابات لا يتم إعادة ضبطه أبدًا"
+        "itemOne": "مساحات العمل",
+        "itemTwo": "الأعضاء",
+        "itemThree": "التخزين",
+        "itemFour": "التعاون في الزمن الحقيقي",
+        "itemFive": "تطبيق الجوال",
+        "itemSix": "استجابات الذكاء الاصطناعي",
+        "itemFileUpload": "رفع الملفات",
+        "customNamespace": "مساحة اسم مخصصة",
+        "tooltipSix": "تعني مدة الحياة أن عدد الاستجابات لا يتم إعادة ضبطه أبدًا",
+        "intelligentSearch": "البحث الذكي",
+        "tooltipSeven": "يتيح لك تخصيص جزء من عنوان URL لمساحة العمل الخاصة بك",
+        "customNamespaceTooltip": "عنوان URL للموقع المنشور المخصص"
+      },
+      "freeLabels": {
+        "itemOne": "يتم فرض رسوم على كل مساحة عمل",
+        "itemTwo": "حتى 2",
+        "itemThree": "5 جيجا بايت",
+        "itemFour": "نعم",
+        "itemFive": "نعم",
+        "itemSix": "20 مدى الحياة",
+        "itemFileUpload": "حتى 7 ميجا بايت",
+        "intelligentSearch": "البحث الذكي"
+      },
+      "proLabels": {
+        "itemOne": "تتم الفوترة على كل مساحة عمل",
+        "itemTwo": "حتى 10",
+        "itemThree": "غير محدود",
+        "itemFour": "نعم",
+        "itemFive": "نعم",
+        "itemSix": "غير محدود",
+        "itemFileUpload": "غير محدود",
+        "intelligentSearch": "البحث الذكي"
+      },
+      "paymentSuccess": {
+        "title": "أنت الآن على خطة {}!"
       }
     },
     "common": {
