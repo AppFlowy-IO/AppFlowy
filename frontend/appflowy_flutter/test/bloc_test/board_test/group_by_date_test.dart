@@ -109,7 +109,8 @@ void main() {
 
     assert(boardBloc.groupControllers.values.length == 2);
     assert(
-      boardBloc.boardController.groupDatas.last.headerData.groupName == "2024",
+      boardBloc.boardController.groupDatas.last.headerData.groupName ==
+          DateTime.now().year.toString(),
     );
   });
 }
