@@ -74,6 +74,7 @@
     "chooseWorkspace": "Choose your workspace",
     "defaultName": "My Workspace",
     "create": "Create workspace",
+    "new": "New workspace",
     "importFromNotion": "Import from Notion",
     "learnMore": "Learn more",
     "reset": "Reset workspace",
