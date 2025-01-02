@@ -44,8 +44,7 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
   final textController = TextEditingController();
 
   bool showPredefinedFormatSection = false;
-  PredefinedFormat predefinedFormat = PredefinedFormat.text;
-  PredefinedTextFormat? predefinedTextFormat = PredefinedTextFormat.auto;
+  PredefinedFormat predefinedFormat = const PredefinedFormat.auto();
   late SendButtonState sendButtonState;
 
   @override
@@ -130,17 +129,15 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
                       padding: MobileAIPromptSizes.predefinedFormatBarPadding,
                       child: ChangeFormatBar(
                         predefinedFormat: predefinedFormat,
-                        predefinedTextFormat: predefinedTextFormat,
                         spacing: MobileAIPromptSizes
                             .predefinedFormatBarButtonSpacing,
                         iconSize:
                             MobileAIPromptSizes.predefinedFormatIconHeight,
                         buttonSize:
                             MobileAIPromptSizes.predefinedFormatButtonHeight,
-                        onSelectPredefinedFormat: (p0, p1) {
+                        onSelectPredefinedFormat: (format) {
                           setState(() {
-                            predefinedFormat = p0;
-                            predefinedTextFormat = p1;
+                            predefinedFormat = format;
                           });
                         },
                       ),
@@ -200,7 +197,6 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
       ...context.read<AIPromptInputBloc>().consumeMetadata(),
       if (showPredefinedFormatSection) ...{
         "format": predefinedFormat,
-        "textFormat": predefinedTextFormat,
       },
     };
 
@@ -317,13 +313,11 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
         // },
         showPredefinedFormatSection: showPredefinedFormatSection,
         predefinedFormat: predefinedFormat,
-        predefinedTextFormat: predefinedTextFormat,
         onTogglePredefinedFormatSection: () {
           setState(() {
             showPredefinedFormatSection = !showPredefinedFormatSection;
             if (!showPredefinedFormatSection) {
-              predefinedFormat = PredefinedFormat.text;
-              predefinedTextFormat = PredefinedTextFormat.auto;
+              predefinedFormat = const PredefinedFormat.auto();
             }
           });
         },
@@ -352,7 +346,6 @@ class _LeadingActions extends StatefulWidget {
     required this.textController,
     required this.showPredefinedFormatSection,
     required this.predefinedFormat,
-    required this.predefinedTextFormat,
     required this.onTogglePredefinedFormatSection,
     required this.onUpdateSelectedSources,
   });
@@ -360,7 +353,6 @@ class _LeadingActions extends StatefulWidget {
   final TextEditingController textController;
   final bool showPredefinedFormatSection;
   final PredefinedFormat predefinedFormat;
-  final PredefinedTextFormat? predefinedTextFormat;
   final void Function() onTogglePredefinedFormatSection;
   final void Function(List<String>) onUpdateSelectedSources;
 
@@ -398,8 +390,6 @@ class _LeadingActionsState extends State<_LeadingActions> {
                 ),
                 PromptInputMobileToggleFormatButton(
                   showFormatBar: widget.showPredefinedFormatSection,
-                  predefinedFormat: widget.predefinedFormat,
-                  predefinedTextFormat: widget.predefinedTextFormat,
                   onTap: widget.onTogglePredefinedFormatSection,
                 ),
               ],

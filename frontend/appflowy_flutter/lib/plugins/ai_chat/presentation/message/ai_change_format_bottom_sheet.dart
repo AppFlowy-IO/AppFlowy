@@ -8,10 +8,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-Future<(PredefinedFormat, PredefinedTextFormat?)?> showChangeFormatBottomSheet(
+Future<PredefinedFormat?> showChangeFormatBottomSheet(
   BuildContext context,
 ) {
-  return showMobileBottomSheet<(PredefinedFormat, PredefinedTextFormat?)?>(
+  return showMobileBottomSheet<PredefinedFormat?>(
     context,
     showDragHandle: true,
     builder: (context) => const _ChangeFormatBottomSheetContent(),
@@ -28,8 +28,7 @@ class _ChangeFormatBottomSheetContent extends StatefulWidget {
 
 class _ChangeFormatBottomSheetContentState
     extends State<_ChangeFormatBottomSheetContent> {
-  PredefinedFormat predefinedFormat = PredefinedFormat.text;
-  PredefinedTextFormat? predefinedTextFormat = PredefinedTextFormat.auto;
+  PredefinedFormat predefinedFormat = const PredefinedFormat.auto();
 
   @override
   Widget build(BuildContext context) {
@@ -38,18 +37,13 @@ class _ChangeFormatBottomSheetContentState
       children: [
         _Header(
           onCancel: () => Navigator.of(context).pop(),
-          onDone: () => Navigator.of(context)
-              .pop((predefinedFormat, predefinedTextFormat)),
+          onDone: () => Navigator.of(context).pop(predefinedFormat),
         ),
         const VSpace(4.0),
         _Body(
           predefinedFormat: predefinedFormat,
-          predefinedTextFormat: predefinedTextFormat,
-          onSelectPredefinedFormat: (p0, p1) {
-            setState(() {
-              predefinedFormat = p0;
-              predefinedTextFormat = p1;
-            });
+          onSelectPredefinedFormat: (format) {
+            setState(() => predefinedFormat = format);
           },
         ),
         const VSpace(16.0),
@@ -109,32 +103,29 @@ class _Header extends StatelessWidget {
 class _Body extends StatelessWidget {
   const _Body({
     required this.predefinedFormat,
-    required this.predefinedTextFormat,
     required this.onSelectPredefinedFormat,
   });
 
   final PredefinedFormat predefinedFormat;
-  final PredefinedTextFormat? predefinedTextFormat;
-  final void Function(PredefinedFormat, PredefinedTextFormat?)
-      onSelectPredefinedFormat;
+  final void Function(PredefinedFormat) onSelectPredefinedFormat;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildFormatButton(PredefinedFormat.text, true),
-        _buildFormatButton(PredefinedFormat.textAndImage),
-        _buildFormatButton(PredefinedFormat.image),
+        _buildFormatButton(ImageFormat.text, true),
+        _buildFormatButton(ImageFormat.textAndImage),
+        _buildFormatButton(ImageFormat.image),
         const VSpace(32.0),
         Opacity(
-          opacity: predefinedFormat.hasText ? 1 : 0,
+          opacity: predefinedFormat.imageFormat.hasText ? 1 : 0,
           child: Column(
             children: [
-              _buildTextFormatButton(PredefinedTextFormat.auto, true),
-              _buildTextFormatButton(PredefinedTextFormat.bulletList),
-              _buildTextFormatButton(PredefinedTextFormat.numberedList),
-              _buildTextFormatButton(PredefinedTextFormat.table),
+              _buildTextFormatButton(TextFormat.auto, true),
+              _buildTextFormatButton(TextFormat.bulletList),
+              _buildTextFormatButton(TextFormat.numberedList),
+              _buildTextFormatButton(TextFormat.table),
             ],
           ),
         ),
@@ -143,50 +134,59 @@ class _Body extends StatelessWidget {
   }
 
   Widget _buildFormatButton(
-    PredefinedFormat format, [
+    ImageFormat format, [
     bool isFirst = false,
   ]) {
     return FlowyOptionTile.checkbox(
       text: format.i18n,
-      isSelected: format == predefinedFormat,
+      isSelected: format == predefinedFormat.imageFormat,
       showTopBorder: isFirst,
       leftIcon: FlowySvg(
         format.icon,
-        size: format == PredefinedFormat.textAndImage
+        size: format == ImageFormat.textAndImage
             ? const Size(21.0 / 16.0 * 20, 20)
             : const Size.square(20),
       ),
       onTap: () {
-        if (format == predefinedFormat) {
+        if (format == predefinedFormat.imageFormat) {
           return;
         }
         if (format.hasText) {
-          final textFormat = predefinedTextFormat ?? PredefinedTextFormat.auto;
-          onSelectPredefinedFormat(format, textFormat);
+          final textFormat = predefinedFormat.textFormat ?? TextFormat.auto;
+          onSelectPredefinedFormat(
+            PredefinedFormat(imageFormat: format, textFormat: textFormat),
+          );
         } else {
-          onSelectPredefinedFormat(format, null);
+          onSelectPredefinedFormat(
+            PredefinedFormat(imageFormat: format, textFormat: null),
+          );
         }
       },
     );
   }
 
   Widget _buildTextFormatButton(
-    PredefinedTextFormat format, [
+    TextFormat format, [
     bool isFirst = false,
   ]) {
     return FlowyOptionTile.checkbox(
       text: format.i18n,
-      isSelected: format == predefinedTextFormat,
+      isSelected: format == predefinedFormat.textFormat,
       showTopBorder: isFirst,
       leftIcon: FlowySvg(
         format.icon,
         size: const Size.square(20),
       ),
       onTap: () {
-        if (format == predefinedTextFormat) {
+        if (format == predefinedFormat.textFormat) {
           return;
         }
-        onSelectPredefinedFormat(predefinedFormat, format);
+        onSelectPredefinedFormat(
+          PredefinedFormat(
+            imageFormat: predefinedFormat.imageFormat,
+            textFormat: format,
+          ),
+        );
       },
     );
   }

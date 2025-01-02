@@ -49,8 +49,7 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
   final textController = TextEditingController();
 
   bool showPredefinedFormatSection = false;
-  PredefinedFormat predefinedFormat = PredefinedFormat.text;
-  PredefinedTextFormat? predefinedTextFormat = PredefinedTextFormat.auto;
+  PredefinedFormat predefinedFormat = const PredefinedFormat.auto();
   late SendButtonState sendButtonState;
 
   @override
@@ -158,17 +157,15 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
                                 const EdgeInsetsDirectional.only(start: 8.0),
                             child: ChangeFormatBar(
                               predefinedFormat: predefinedFormat,
-                              predefinedTextFormat: predefinedTextFormat,
                               spacing: DesktopAIPromptSizes
                                   .predefinedFormatBarButtonSpacing,
                               iconSize: DesktopAIPromptSizes
                                   .predefinedFormatIconHeight,
                               buttonSize: DesktopAIPromptSizes
                                   .predefinedFormatButtonHeight,
-                              onSelectPredefinedFormat: (p0, p1) {
+                              onSelectPredefinedFormat: (format) {
                                 setState(() {
-                                  predefinedFormat = p0;
-                                  predefinedTextFormat = p1;
+                                  predefinedFormat = format;
                                 });
                               },
                             ),
@@ -183,16 +180,15 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
                           overlayController: overlayController,
                           focusNode: focusNode,
                           showPredefinedFormats: showPredefinedFormatSection,
-                          predefinedFormat: predefinedFormat,
-                          predefinedTextFormat: predefinedTextFormat,
+                          predefinedFormat: predefinedFormat.imageFormat,
+                          predefinedTextFormat: predefinedFormat.textFormat,
                           onTogglePredefinedFormatSection: () {
                             setState(() {
                               showPredefinedFormatSection =
                                   !showPredefinedFormatSection;
                               if (!showPredefinedFormatSection) {
-                                predefinedFormat = PredefinedFormat.text;
-                                predefinedTextFormat =
-                                    PredefinedTextFormat.auto;
+                                predefinedFormat =
+                                    const PredefinedFormat.auto();
                               }
                             });
                           },
@@ -260,7 +256,6 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
       ...context.read<AIPromptInputBloc>().consumeMetadata(),
       if (showPredefinedFormatSection) ...{
         "format": predefinedFormat,
-        "textFormat": predefinedTextFormat,
       },
     };
 
@@ -568,8 +563,8 @@ class _PromptBottomActions extends StatelessWidget {
   final OverlayPortalController overlayController;
   final FocusNode focusNode;
   final bool showPredefinedFormats;
-  final PredefinedFormat predefinedFormat;
-  final PredefinedTextFormat? predefinedTextFormat;
+  final ImageFormat predefinedFormat;
+  final TextFormat? predefinedTextFormat;
   final void Function() onTogglePredefinedFormatSection;
   final SendButtonState sendButtonState;
   final void Function() onSendPressed;

@@ -215,9 +215,9 @@ class _ChatContentPage extends StatelessWidget {
           onRegenerate: () => context
               .read<ChatBloc>()
               .add(ChatEvent.regenerateAnswer(message.id, null)),
-          onChangeFormat: (p0, p1) => context
+          onChangeFormat: (format) => context
               .read<ChatBloc>()
-              .add(ChatEvent.regenerateAnswer(message.id, (p0, p1))),
+              .add(ChatEvent.regenerateAnswer(message.id, format)),
         );
       },
     );

@@ -46,7 +46,7 @@ class ChatAIMessageBubble extends StatelessWidget {
   final bool showActions;
   final bool isLastMessage;
   final void Function()? onRegenerate;
-  final void Function(PredefinedFormat, PredefinedTextFormat?)? onChangeFormat;
+  final void Function(PredefinedFormat)? onChangeFormat;
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +105,7 @@ class ChatAIBottomInlineActions extends StatelessWidget {
   final Widget child;
   final Message message;
   final void Function()? onRegenerate;
-  final void Function(PredefinedFormat, PredefinedTextFormat?)? onChangeFormat;
+  final void Function(PredefinedFormat)? onChangeFormat;
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +144,7 @@ class ChatAIMessageHover extends StatefulWidget {
   final Widget child;
   final Message message;
   final void Function()? onRegenerate;
-  final void Function(PredefinedFormat, PredefinedTextFormat?)? onChangeFormat;
+  final void Function(PredefinedFormat)? onChangeFormat;
 
   @override
   State<ChatAIMessageHover> createState() => _ChatAIMessageHoverState();
@@ -304,7 +304,7 @@ class ChatAIMessagePopup extends StatelessWidget {
   final Widget child;
   final Message message;
   final void Function()? onRegenerate;
-  final void Function(PredefinedFormat, PredefinedTextFormat?)? onChangeFormat;
+  final void Function(PredefinedFormat)? onChangeFormat;
 
   @override
   Widget build(BuildContext context) {
@@ -384,7 +384,7 @@ class ChatAIMessagePopup extends StatelessWidget {
       onTap: () async {
         final result = await showChangeFormatBottomSheet(context);
         if (result != null) {
-          onChangeFormat?.call(result.$1, result.$2);
+          onChangeFormat?.call(result);
           if (context.mounted) {
             Navigator.of(context).pop();
           }

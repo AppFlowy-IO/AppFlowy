@@ -141,7 +141,24 @@ enum LoadChatMessageStatus {
   ready,
 }
 
-enum PredefinedFormat {
+class PredefinedFormat extends Equatable {
+  const PredefinedFormat({
+    required this.imageFormat,
+    required this.textFormat,
+  });
+
+  const PredefinedFormat.auto()
+      : imageFormat = ImageFormat.text,
+        textFormat = TextFormat.auto;
+
+  final ImageFormat imageFormat;
+  final TextFormat? textFormat;
+
+  @override
+  List<Object?> get props => [imageFormat, textFormat];
+}
+
+enum ImageFormat {
   text,
   image,
   textAndImage;
@@ -150,23 +167,23 @@ enum PredefinedFormat {
 
   FlowySvgData get icon {
     return switch (this) {
-      PredefinedFormat.text => FlowySvgs.ai_text_s,
-      PredefinedFormat.image => FlowySvgs.ai_image_s,
-      PredefinedFormat.textAndImage => FlowySvgs.ai_text_image_s,
+      ImageFormat.text => FlowySvgs.ai_text_s,
+      ImageFormat.image => FlowySvgs.ai_image_s,
+      ImageFormat.textAndImage => FlowySvgs.ai_text_image_s,
     };
   }
 
   String get i18n {
     return switch (this) {
-      PredefinedFormat.text => LocaleKeys.chat_changeFormat_textOnly.tr(),
-      PredefinedFormat.image => LocaleKeys.chat_changeFormat_imageOnly.tr(),
-      PredefinedFormat.textAndImage =>
+      ImageFormat.text => LocaleKeys.chat_changeFormat_textOnly.tr(),
+      ImageFormat.image => LocaleKeys.chat_changeFormat_imageOnly.tr(),
+      ImageFormat.textAndImage =>
         LocaleKeys.chat_changeFormat_textAndImage.tr(),
     };
   }
 }
 
-enum PredefinedTextFormat {
+enum TextFormat {
   auto,
   bulletList,
   numberedList,
@@ -174,21 +191,19 @@ enum PredefinedTextFormat {
 
   FlowySvgData get icon {
     return switch (this) {
-      PredefinedTextFormat.auto => FlowySvgs.ai_paragraph_s,
-      PredefinedTextFormat.bulletList => FlowySvgs.ai_list_s,
-      PredefinedTextFormat.numberedList => FlowySvgs.ai_number_list_s,
-      PredefinedTextFormat.table => FlowySvgs.ai_table_s,
+      TextFormat.auto => FlowySvgs.ai_paragraph_s,
+      TextFormat.bulletList => FlowySvgs.ai_list_s,
+      TextFormat.numberedList => FlowySvgs.ai_number_list_s,
+      TextFormat.table => FlowySvgs.ai_table_s,
     };
   }
 
   String get i18n {
     return switch (this) {
-      PredefinedTextFormat.auto => LocaleKeys.chat_changeFormat_text.tr(),
-      PredefinedTextFormat.bulletList =>
-        LocaleKeys.chat_changeFormat_bullet.tr(),
-      PredefinedTextFormat.numberedList =>
-        LocaleKeys.chat_changeFormat_number.tr(),
-      PredefinedTextFormat.table => LocaleKeys.chat_changeFormat_table.tr(),
+      TextFormat.auto => LocaleKeys.chat_changeFormat_text.tr(),
+      TextFormat.bulletList => LocaleKeys.chat_changeFormat_bullet.tr(),
+      TextFormat.numberedList => LocaleKeys.chat_changeFormat_number.tr(),
+      TextFormat.table => LocaleKeys.chat_changeFormat_table.tr(),
     };
   }
 }

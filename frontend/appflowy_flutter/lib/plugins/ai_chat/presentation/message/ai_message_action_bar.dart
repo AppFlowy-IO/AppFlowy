@@ -48,7 +48,7 @@ class AIMessageActionBar extends StatefulWidget {
   final Message message;
   final bool showDecoration;
   final void Function()? onRegenerate;
-  final void Function(PredefinedFormat, PredefinedTextFormat?)? onChangeFormat;
+  final void Function(PredefinedFormat)? onChangeFormat;
   final void Function(bool)? onOverrideVisibility;
 
   @override
@@ -124,8 +124,7 @@ class _AIMessageActionBarState extends State<AIMessageActionBar> {
       ),
       ChangeFormatButton(
         isInHoverBar: widget.showDecoration,
-        onRegenerate: (format, textFormat) =>
-            widget.onChangeFormat?.call(format, textFormat),
+        onRegenerate: widget.onChangeFormat,
         popoverMutex: popoverMutex,
         onOverrideVisibility: widget.onOverrideVisibility,
       ),
@@ -226,7 +225,7 @@ class ChangeFormatButton extends StatefulWidget {
 
   final bool isInHoverBar;
   final PopoverMutex? popoverMutex;
-  final void Function(PredefinedFormat, PredefinedTextFormat?)? onRegenerate;
+  final void Function(PredefinedFormat)? onRegenerate;
   final void Function(bool)? onOverrideVisibility;
 
   @override
@@ -293,7 +292,7 @@ class _ChangeFormatPopoverContent extends StatefulWidget {
     this.onRegenerate,
   });
 
-  final void Function(PredefinedFormat, PredefinedTextFormat?)? onRegenerate;
+  final void Function(PredefinedFormat)? onRegenerate;
 
   @override
   State<_ChangeFormatPopoverContent> createState() =>
@@ -302,8 +301,7 @@ class _ChangeFormatPopoverContent extends StatefulWidget {
 
 class _ChangeFormatPopoverContentState
     extends State<_ChangeFormatPopoverContent> {
-  PredefinedFormat predefinedFormat = PredefinedFormat.text;
-  PredefinedTextFormat? predefinedTextFormat = PredefinedTextFormat.auto;
+  PredefinedFormat predefinedFormat = const PredefinedFormat.auto();
 
   @override
   Widget build(BuildContext context) {
@@ -353,11 +351,9 @@ class _ChangeFormatPopoverContentState
             iconSize: 16.0,
             buttonSize: DesktopAIPromptSizes.predefinedFormatButtonHeight,
             predefinedFormat: predefinedFormat,
-            predefinedTextFormat: predefinedTextFormat,
-            onSelectPredefinedFormat: (p0, p1) {
+            onSelectPredefinedFormat: (format) {
               setState(() {
-                predefinedFormat = p0;
-                predefinedTextFormat = p1;
+                predefinedFormat = format;
               });
             },
           ),
@@ -368,10 +364,7 @@ class _ChangeFormatPopoverContentState
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  widget.onRegenerate
-                      ?.call(predefinedFormat, predefinedTextFormat);
-                },
+                onTap: () => widget.onRegenerate?.call(predefinedFormat),
                 child: SizedBox.square(
                   dimension: DesktopAIPromptSizes.predefinedFormatButtonHeight,
                   child: Center(

@@ -594,7 +594,7 @@ class ChatEvent with _$ChatEvent {
   // regenerate
   const factory ChatEvent.regenerateAnswer(
     String id,
-    (PredefinedFormat, PredefinedTextFormat?)? format,
+    PredefinedFormat? format,
   ) = _RegenerateAnswer;
 
   // streaming answer
