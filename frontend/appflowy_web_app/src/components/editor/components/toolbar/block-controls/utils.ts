@@ -37,7 +37,7 @@ export function getBlockCssProperty (node: Element) {
     case BlockType.QuoteBlock:
     case BlockType.SubpageBlock:
     case BlockType.CalloutBlock:
-      return 'leading-[2em]';
+      return 'leading-[1.85em]';
     case BlockType.OutlineBlock:
       return 'py-[7px]';
     case BlockType.GridBlock:
