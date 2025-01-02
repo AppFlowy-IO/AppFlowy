@@ -319,7 +319,6 @@ class ChatAIMessagePopup extends StatelessWidget {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const VSpace(16.0),
                 _copyButton(context, bottomSheetContext),
                 _divider(),
                 _regenerateButton(context),

@@ -4,7 +4,6 @@ import 'package:appflowy/mobile/presentation/base/app_bar/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
-import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +13,7 @@ Future<(PredefinedFormat, PredefinedTextFormat?)?> showChangeFormatBottomSheet(
 ) {
   return showMobileBottomSheet<(PredefinedFormat, PredefinedTextFormat?)?>(
     context,
+    showDragHandle: true,
     builder: (context) => const _ChangeFormatBottomSheetContent(),
   );
 }
@@ -36,18 +36,12 @@ class _ChangeFormatBottomSheetContentState
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ColoredBox(
-          color: Theme.of(context).colorScheme.surface,
-          child: const Center(
-            child: DragHandle(),
-          ),
-        ),
         _Header(
           onCancel: () => Navigator.of(context).pop(),
           onDone: () => Navigator.of(context)
               .pop((predefinedFormat, predefinedTextFormat)),
         ),
-        const Divider(height: 0.5, thickness: 0.5),
+        const VSpace(4.0),
         _Body(
           predefinedFormat: predefinedFormat,
           predefinedTextFormat: predefinedTextFormat,
@@ -58,7 +52,7 @@ class _ChangeFormatBottomSheetContentState
             });
           },
         ),
-        const VSpace(28.0),
+        const VSpace(16.0),
       ],
     );
   }
@@ -75,9 +69,8 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 44.0,
-      color: Theme.of(context).colorScheme.surface,
       child: Stack(
         children: [
           Align(
@@ -91,9 +84,14 @@ class _Header extends StatelessWidget {
             ),
           ),
           Align(
-            child: FlowyText.medium(
-              LocaleKeys.chat_changeFormat_actionButton.tr(),
-              fontSize: 16.0,
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 250),
+              child: FlowyText(
+                LocaleKeys.chat_changeFormat_actionButton.tr(),
+                fontSize: 17.0,
+                fontWeight: FontWeight.w500,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
           Align(
@@ -125,7 +123,6 @@ class _Body extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const VSpace(16.0),
         _buildFormatButton(PredefinedFormat.text, true),
         _buildFormatButton(PredefinedFormat.textAndImage),
         _buildFormatButton(PredefinedFormat.image),
