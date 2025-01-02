@@ -5,7 +5,7 @@
   "welcomeTo": "Bienvenido a",
   "githubStarText": "Favorito en GitHub",
   "subscribeNewsletterText": "Suscribir al boletín",
-  "letsGoButtonText": "Vamos",
+  "letsGoButtonText": "Inicio rápido",
   "title": "Título",
   "youCanAlso": "Tú también puedes",
   "and": "y",
@@ -19,17 +19,17 @@
     "openMenuTooltip": "Haga clic para abrir el menú"
   },
   "signUp": {
-    "buttonText": "Registrar",
-    "title": "Registrar en @:appName",
+    "buttonText": "Registro",
+    "title": "Registro en @:appName",
     "getStartedText": "Empezar",
     "emptyPasswordError": "La contraseña no puede estar en blanco",
-    "repeatPasswordEmptyError": "La contraseña no puede estar en blanco",
+    "repeatPasswordEmptyError": "La contraseña repetida no puede estar vacía",
     "unmatchedPasswordError": "Las contraseñas no coinciden",
-    "alreadyHaveAnAccount": "¿Posee credenciales?",
-    "emailHint": "Correo",
+    "alreadyHaveAnAccount": "¿Ya posee una cuenta?",
+    "emailHint": "Correo electrónico",
     "passwordHint": "Contraseña",
     "repeatPasswordHint": "Repetir contraseña",
-    "signUpWith": "Registrarte con:"
+    "signUpWith": "Registro con:"
   },
   "signIn": {
     "loginTitle": "Ingresa a @:appName",
@@ -113,7 +113,7 @@
     "large": "grande",
     "fontSize": "Tamaño de fuente",
     "import": "Importar",
-    "moreOptions": "Mas opciones",
+    "moreOptions": "Más opciones",
     "wordCount": "El recuento de palabras: {}",
     "charCount": "Número de caracteres : {}",
     "createdAt": "Creado: {}",
@@ -121,7 +121,7 @@
     "duplicateView": "Duplicar"
   },
   "importPanel": {
-    "textAndMarkdown": "Texto y descuento",
+    "textAndMarkdown": "Texto y Markdown",
     "documentFromV010": "Documento de v0.1.0",
     "databaseFromV010": "Base de datos desde v0.1.0",
     "csv": "CSV",

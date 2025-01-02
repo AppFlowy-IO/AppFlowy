@@ -74,6 +74,7 @@
     "chooseWorkspace": "Choose your workspace",
     "defaultName": "My Workspace",
     "create": "Create workspace",
+    "new": "New workspace",
     "importFromNotion": "Import from Notion",
     "learnMore": "Learn more",
     "reset": "Reset workspace",
@@ -276,7 +277,8 @@
     "moreButtonToolTip": "Remove, rename, and more...",
     "addPageTooltip": "Quickly add a page inside",
     "defaultNewPageName": "Untitled",
-    "renameDialog": "Rename"
+    "renameDialog": "Rename",
+    "pageNameSuffix": "Copy"
   },
   "noPagesInside": "No pages inside",
   "toolbar": {

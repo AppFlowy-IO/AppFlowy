@@ -297,6 +297,13 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
           );
         }
 
+        if (UniversalPlatform.isMobile) {
+          child = Padding(
+            padding: padding,
+            child: child,
+          );
+        }
+
         return child;
       },
     );

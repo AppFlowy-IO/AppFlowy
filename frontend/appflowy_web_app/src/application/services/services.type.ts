@@ -19,7 +19,7 @@ import {
   UpdateSpacePayload,
   WorkspaceMember,
   QuickNoteEditorData,
-  QuickNote, Subscription,
+  QuickNote, Subscription, CreateWorkspacePayload,
 } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
@@ -47,6 +47,7 @@ export interface AFCloudConfig {
 
 export interface WorkspaceService {
   openWorkspace: (workspaceId: string) => Promise<void>;
+  createWorkspace: (payload: CreateWorkspacePayload) => Promise<string>;
   leaveWorkspace: (workspaceId: string) => Promise<void>;
   deleteWorkspace: (workspaceId: string) => Promise<void>;
   getWorkspaceMembers: (workspaceId: string) => Promise<WorkspaceMember[]>;
@@ -141,7 +142,7 @@ export interface PublishService {
   getPublishRowDocument: (viewId: string) => Promise<YDoc>;
   getPublishInfo: (viewId: string) => Promise<{ namespace: string; publishName: string }>;
 
-  getPublishOutline(namespace: string): Promise<View[]>;
+  getPublishOutline (namespace: string): Promise<View[]>;
 
   getPublishViewGlobalComments: (viewId: string) => Promise<GlobalComment[]>;
   createCommentOnPublishView: (viewId: string, content: string, replyCommentId?: string) => Promise<void>;
