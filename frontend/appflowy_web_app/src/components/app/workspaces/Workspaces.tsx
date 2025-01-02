@@ -3,6 +3,7 @@ import Import from '@/components/_shared/more-actions/importer/Import';
 import { notify } from '@/components/_shared/notify';
 import { Popover } from '@/components/_shared/popover';
 import { useAppHandlers, useCurrentWorkspaceId, useUserWorkspaceInfo } from '@/components/app/app.hooks';
+import CreateWorkspace from '@/components/app/workspaces/CreateWorkspace';
 import CurrentWorkspace from '@/components/app/workspaces/CurrentWorkspace';
 import WorkspaceList from '@/components/app/workspaces/WorkspaceList';
 import { useCurrentUser } from '@/components/main/app.hooks';
@@ -19,7 +20,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import InviteMember from '@/components/app/workspaces/InviteMember';
 import UpgradePlan from '@/components/billing/UpgradePlan';
 
-export function Workspaces() {
+export function Workspaces () {
   const { t } = useTranslation();
   const userWorkspaceInfo = useUserWorkspaceInfo();
   const currentWorkspaceId = useCurrentWorkspaceId();
@@ -80,7 +81,7 @@ export function Workspaces() {
           avatarSize={24}
         />
 
-        {hoveredHeader && <ArrowRightSvg className={'w-4 h-4 transform rotate-90'}/>}
+        {hoveredHeader && <ArrowRightSvg className={'w-4 h-4 transform rotate-90'} />}
       </div>
     </Button>
     <Popover
@@ -103,16 +104,19 @@ export function Workspaces() {
             changeLoading={changeLoading || undefined}
           />}
         </div>
-
-        <Divider className={'w-full mt-1'}/>
-        {selectedWorkspace && <InviteMember onClick={() => {
-          setOpen(false);
-        }} workspace={selectedWorkspace}/>}
+        <CreateWorkspace />
+        <Divider className={'w-full mt-1'} />
+        {selectedWorkspace && <InviteMember
+          onClick={() => {
+            setOpen(false);
+          }}
+          workspace={selectedWorkspace}
+        />}
 
         <Button
           size={'small'}
           component={'div'}
-          startIcon={<ImportIcon/>}
+          startIcon={<ImportIcon />}
           color={'inherit'}
           className={'justify-start px-2'}
           onClick={handleOpenImport}
@@ -131,7 +135,7 @@ export function Workspaces() {
               size={'small'}
               className={'mx-2'}
             >
-              <TipIcon className={'w-4 h-4 text-text-placeholder'}/>
+              <TipIcon className={'w-4 h-4 text-text-placeholder'} />
             </IconButton>
           </Tooltip>
         </Button>
@@ -140,15 +144,15 @@ export function Workspaces() {
           className={'justify-start px-2'}
           color={'inherit'}
           onClick={handleSignOut}
-          startIcon={<SignOutIcon/>}
+          startIcon={<SignOutIcon />}
         >{t('button.logout')}</Button>
 
 
         {isOwner && <>
-          <Divider className={'w-full'}/>
+          <Divider className={'w-full'} />
           <Button
             size={'small'}
-            startIcon={<UpgradeIcon/>}
+            startIcon={<UpgradeIcon />}
             color={'inherit'}
             onClick={() => {
               setOpenUpgradePlan(true);
@@ -163,12 +167,16 @@ export function Workspaces() {
 
     </Popover>
     {isOwner &&
-      <UpgradePlan onOpen={
-        () => {
-          setOpenUpgradePlan(true);
+      <UpgradePlan
+        onOpen={
+          () => {
+            setOpenUpgradePlan(true);
+          }
         }
-      } open={openUpgradePlan} onClose={() => setOpenUpgradePlan(false)}/>}
-    <Import/>
+        open={openUpgradePlan}
+        onClose={() => setOpenUpgradePlan(false)}
+      />}
+    <Import />
   </>;
 }
 
