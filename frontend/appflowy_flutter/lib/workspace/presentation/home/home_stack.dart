@@ -402,10 +402,10 @@ class _SecondaryViewState extends State<SecondaryView>
   BoxBorder getBorder(BuildContext context) {
     final isLightMode = Theme.of(context).isLightMode;
     final borderSide = BorderSide(
-        color: isLightMode
-            ? const Color(0x141F2329)
-            : Theme.of(context).dividerColor,
-      );
+      color: isLightMode
+          ? const Color(0x141F2329)
+          : Theme.of(context).dividerColor,
+    );
 
     return Border(
       left: borderSide,
@@ -892,7 +892,8 @@ class HomeSecondaryTopBar extends StatelessWidget {
   }
 }
 
-/// A version of Flutter's built in SizeTransition widget that only clips on
+/// A version of Flutter's built in SizeTransition widget that clips the child
+/// more sparingly than the original.
 class NonClippingSizeTransition extends AnimatedWidget {
   const NonClippingSizeTransition({
     super.key,
