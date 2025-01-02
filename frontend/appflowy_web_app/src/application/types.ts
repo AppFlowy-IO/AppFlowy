@@ -1017,3 +1017,7 @@ export interface QuickNote {
 export interface CreateWorkspacePayload {
   workspace_name: string;
 }
+
+export interface UpdateWorkspacePayload {
+  workspace_name: string;
+}

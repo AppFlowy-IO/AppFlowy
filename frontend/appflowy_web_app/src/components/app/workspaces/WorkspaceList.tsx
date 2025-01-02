@@ -1,7 +1,7 @@
 import { Workspace } from '@/application/types';
 import { getAvatarProps } from '@/components/app/workspaces/utils';
 import { useService } from '@/components/main/app.hooks';
-import { Avatar, Button, Tooltip } from '@mui/material';
+import { Avatar, Tooltip } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import React, { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -13,13 +13,15 @@ function WorkspaceList ({
   currentWorkspaceId,
   onChange,
   changeLoading,
-  showActions = true
+  showActions = true,
+  onUpdateCurrentWorkspace,
 }: {
   currentWorkspaceId?: string;
   changeLoading?: string;
   onChange: (selectedId: string) => void;
   defaultWorkspaces?: Workspace[];
   showActions?: boolean;
+  onUpdateCurrentWorkspace?: (name: string) => void;
 }) {
   const service = useService();
   const { t } = useTranslation();
@@ -44,22 +46,33 @@ function WorkspaceList ({
     if (changeLoading === workspace.id) return <CircularProgress size={16} />;
     const hovered = hoveredWorkspaceId === workspace.id;
 
-    if (hovered) {
-      if (showActions) {
-        return <MoreActions workspace={workspace} />;
-      }
+    if (workspace.id === currentWorkspaceId && !(hovered && showActions)) return <SelectedSvg className={'w-6 text-fill-default h-6'} />;
+
+    if (showActions) {
+      return <div
+        style={{
+          visibility: hovered ? 'visible' : 'hidden',
+        }}
+      ><MoreActions
+        workspace={workspace}
+        onUpdated={(name: string) => {
+          void fetchWorkspaces();
+          if (workspace.id === currentWorkspaceId) {
+            onUpdateCurrentWorkspace?.(name);
+          }
+        }}
+      /></div>;
     }
 
-    if (workspace.id === currentWorkspaceId) return <SelectedSvg className={'w-6 text-fill-default h-6'} />;
     return null;
-  }, [changeLoading, currentWorkspaceId, hoveredWorkspaceId, showActions]);
+  }, [changeLoading, currentWorkspaceId, fetchWorkspaces, hoveredWorkspaceId, onUpdateCurrentWorkspace, showActions]);
 
   return (
     <>
       {workspaces.map((workspace) => {
-        return <Button
+        return <div
           key={workspace.id}
-          className={'flex relative text-[1em] items-center justify-between gap-[10px] p-2 cursor-pointer'}
+          className={'flex relative hover:bg-fill-list-hover rounded-[8px] text-[1em] items-center justify-between gap-[10px] p-2 cursor-pointer'}
           onClick={async () => {
             if (workspace.id === currentWorkspaceId) return;
             void onChange(workspace.id);
@@ -83,7 +96,7 @@ function WorkspaceList ({
             </div>
           </div>
           {renderActions(workspace)}
-        </Button>;
+        </div>;
       })}
     </>
   );

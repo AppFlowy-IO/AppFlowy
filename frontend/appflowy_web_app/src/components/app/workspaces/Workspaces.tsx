@@ -1,4 +1,5 @@
 import { invalidToken } from '@/application/session/token';
+import { Workspace } from '@/application/types';
 import Import from '@/components/_shared/more-actions/importer/Import';
 import { notify } from '@/components/_shared/notify';
 import { Popover } from '@/components/_shared/popover';
@@ -9,7 +10,7 @@ import WorkspaceList from '@/components/app/workspaces/WorkspaceList';
 import { useCurrentUser } from '@/components/main/app.hooks';
 import { openUrl } from '@/utils/url';
 import { Button, Divider, IconButton, Tooltip } from '@mui/material';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { ReactComponent as ArrowRightSvg } from '@/assets/arrow_right.svg';
 import { ReactComponent as ImportIcon } from '@/assets/import.svg';
 import { ReactComponent as TipIcon } from '@/assets/warning.svg';
@@ -39,11 +40,13 @@ export function Workspaces () {
   const {
     onChangeWorkspace: handleSelectedWorkspace,
   } = useAppHandlers();
+  const [currentWorkspace, setCurrentWorkspace] = React.useState<Workspace | undefined>(undefined);
 
-  const selectedWorkspace = useMemo(() => {
-    return userWorkspaceInfo?.workspaces.find((workspace) => workspace.id === currentWorkspaceId);
+  const isOwner = currentWorkspace?.owner?.uid.toString() === currentUser?.uid.toString();
+
+  useEffect(() => {
+    setCurrentWorkspace(userWorkspaceInfo?.workspaces.find((workspace) => workspace.id === currentWorkspaceId));
   }, [currentWorkspaceId, userWorkspaceInfo]);
-  const isOwner = selectedWorkspace?.owner?.uid.toString() === currentUser?.uid.toString();
 
   const handleChange = useCallback(async (selectedId: string) => {
     setChangeLoading(selectedId);
@@ -76,7 +79,7 @@ export function Workspaces () {
       <div className={'flex items-center gap-1.5 text-[15px] text-text-title overflow-hidden'}>
         <CurrentWorkspace
           userWorkspaceInfo={userWorkspaceInfo}
-          selectedWorkspace={selectedWorkspace}
+          selectedWorkspace={currentWorkspace}
           onChangeWorkspace={handleChange}
           avatarSize={24}
         />
@@ -91,26 +94,35 @@ export function Workspaces () {
       onClose={() => setOpen(false)}
     >
       <div
-        className={'flex text-[14px] w-[288px] flex-col gap-2 p-2 max-h-[420px] min-h-[303px] overflow-hidden'}
+        className={'flex text-[14px] w-[288px] flex-col gap-2 p-2 min-h-[303px] overflow-hidden'}
       >
         <div className={'flex p-2 text-text-caption items-center justify-between'}>
           <span className={'font-medium flex-1 text-sm'}>{currentUser?.email}</span>
         </div>
-        <div className={'flex flex-1 flex-col gap-1 overflow-y-auto appflowy-scroller'}>
+        <div className={'flex max-h-[236px] flex-1 flex-col gap-1 overflow-y-auto appflowy-scroller'}>
           {open && <WorkspaceList
             defaultWorkspaces={userWorkspaceInfo?.workspaces}
             currentWorkspaceId={currentWorkspaceId}
             onChange={handleChange}
             changeLoading={changeLoading || undefined}
+            onUpdateCurrentWorkspace={(name) => {
+              setCurrentWorkspace(prev => {
+                if (!prev) return prev;
+                return {
+                  ...prev,
+                  name,
+                };
+              });
+            }}
           />}
         </div>
         <CreateWorkspace />
         <Divider className={'w-full mt-1'} />
-        {selectedWorkspace && <InviteMember
+        {currentWorkspace && <InviteMember
           onClick={() => {
             setOpen(false);
           }}
-          workspace={selectedWorkspace}
+          workspace={currentWorkspace}
         />}
 
         <Button

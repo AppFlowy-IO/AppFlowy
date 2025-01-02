@@ -21,7 +21,7 @@ import {
   CreateSpacePayload,
   UpdateSpacePayload,
   Role,
-  WorkspaceMember, QuickNote, QuickNoteEditorData, CreateWorkspacePayload,
+  WorkspaceMember, QuickNote, QuickNoteEditorData, CreateWorkspacePayload, UpdateWorkspacePayload,
 } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { initGrantService, refreshToken } from '@/application/services/js-services/http/gotrue';
@@ -251,6 +251,28 @@ export async function openWorkspace (workspaceId: string) {
   }
 
   return Promise.reject(response?.data);
+}
+
+export async function updateWorkspace (workspaceId: string, payload: UpdateWorkspacePayload) {
+  const url = `/api/workspace`;
+  const response = await axiosInstance?.patch<{
+    code: number;
+    data?: {
+      workspace_id: string;
+    };
+    message: string;
+  }>(url, {
+    workspace_id: workspaceId,
+    ...payload,
+  });
+
+  const data = response?.data;
+
+  if (data?.code === 0) {
+    return;
+  }
+
+  return Promise.reject(data);
 }
 
 export async function createWorkspace (payload: CreateWorkspacePayload) {

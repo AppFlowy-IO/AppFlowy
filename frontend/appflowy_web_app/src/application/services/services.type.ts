@@ -19,7 +19,7 @@ import {
   UpdateSpacePayload,
   WorkspaceMember,
   QuickNoteEditorData,
-  QuickNote, Subscription, CreateWorkspacePayload,
+  QuickNote, Subscription, CreateWorkspacePayload, UpdateWorkspacePayload,
 } from '@/application/types';
 import { GlobalComment, Reaction } from '@/application/comment.type';
 import { ViewMeta } from '@/application/db/tables/view_metas';
@@ -48,6 +48,7 @@ export interface AFCloudConfig {
 export interface WorkspaceService {
   openWorkspace: (workspaceId: string) => Promise<void>;
   createWorkspace: (payload: CreateWorkspacePayload) => Promise<string>;
+  updateWorkspace: (workspaceId: string, payload: UpdateWorkspacePayload) => Promise<void>;
   leaveWorkspace: (workspaceId: string) => Promise<void>;
   deleteWorkspace: (workspaceId: string) => Promise<void>;
   getWorkspaceMembers: (workspaceId: string) => Promise<WorkspaceMember[]>;

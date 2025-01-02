@@ -1,73 +1,70 @@
+import { Workspace } from '@/application/types';
 import { NormalModal } from '@/components/_shared/modal';
 import { notify } from '@/components/_shared/notify';
-import { useAppHandlers } from '@/components/app/app.hooks';
 import { useService } from '@/components/main/app.hooks';
 import { Button, OutlinedInput } from '@mui/material';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ReactComponent as AddIcon } from '@/assets/add.svg';
+import { ReactComponent as EditIcon } from '@/assets/edit.svg';
 
-function CreateWorkspace () {
+function RenameWorkspace ({ workspace, onUpdated }: {
+  workspace: Workspace;
+  onUpdated: (name: string) => void;
+}) {
   const { t } = useTranslation();
-  const {
-    onChangeWorkspace: handleSelectedWorkspace,
-  } = useAppHandlers();
+
   const service = useService();
   const [loading, setLoading] = React.useState(false);
-  const [name, setName] = React.useState('');
+  const [name, setName] = React.useState(workspace.name);
   const [open, setOpen] = React.useState(false);
 
-  const handleCreate = useCallback(async () => {
+  const handleUpdate = useCallback(async () => {
     if (!service) return;
 
     setLoading(true);
     try {
-      const workspaceId = await service.createWorkspace({
+      await service.updateWorkspace(workspace.id, {
         workspace_name: name,
       });
 
-      await handleSelectedWorkspace?.(workspaceId);
       setOpen(false);
+      onUpdated(name);
       // eslint-disable-next-line
     } catch (e: any) {
       notify.error(e.message);
     } finally {
       setLoading(false);
     }
-  }, [handleSelectedWorkspace, name, service]);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  }, [onUpdated, name, service, workspace.id]);
 
-  useEffect(() => {
-    if (!open) {
-      setName('');
-    }
-  }, [open]);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   return (
     <>
       <Button
         color={'inherit'}
-        className={'w-full justify-start px-3 gap-0.5'}
-        onClick={() => setOpen(true)}
+        size={'small'}
+        className={'w-full justify-start'}
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          setOpen(true);
+        }}
         startIcon={
-          <div className={'w-[33px] flex items-center justify-center h-[33px] rounded-[8px] border border-line-divider'}>
-            <AddIcon />
-          </div>
+          <EditIcon />
         }
       >
-        {t('workspace.new')}
+        {t('button.rename')}
       </Button>
       <NormalModal
-        title={t('workspace.create')}
-        open={open}
-        onClose={() => {
-          setOpen(false);
-        }}
         disableRestoreFocus={true}
         disableAutoFocus={false}
+        title={t('workspace.renameWorkspace')}
+        open={open}
+        onClose={() => setOpen(false)}
         okLoading={loading}
-        onOk={handleCreate}
-        okText={t('button.create')}
+        onOk={handleUpdate}
+        okText={t('button.save')}
         PaperProps={{
           className: 'w-96 max-w-[70vw]',
         }}
@@ -92,7 +89,7 @@ function CreateWorkspace () {
           fullWidth
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              void handleCreate();
+              void handleUpdate();
             }
           }}
         />
@@ -101,4 +98,4 @@ function CreateWorkspace () {
   );
 }
 
-export default CreateWorkspace;
+export default RenameWorkspace;

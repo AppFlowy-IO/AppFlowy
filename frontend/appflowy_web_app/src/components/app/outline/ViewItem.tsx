@@ -2,11 +2,11 @@ import { View, ViewIconType, ViewLayout } from '@/application/types';
 import { notify } from '@/components/_shared/notify';
 import OutlineIcon from '@/components/_shared/outline/OutlineIcon';
 import { Origins } from '@/components/_shared/popover';
+import PageIcon from '@/components/_shared/view-icon/PageIcon';
 import { useAppHandlers, useAppViewId } from '@/components/app/app.hooks';
+import { Tooltip } from '@mui/material';
 import React, { lazy, Suspense, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Tooltip } from '@mui/material';
-import PageIcon from '@/components/_shared/view-icon/PageIcon';
 
 const ChangeIconPopover = lazy(() => import('@/components/_shared/view-icon/ChangeIconPopover'));
 
@@ -21,7 +21,7 @@ const popoverProps: Origins = {
   },
 };
 
-function ViewItem({ view, width, level = 0, renderExtra, expandIds, toggleExpand, onClickView }: {
+function ViewItem ({ view, width, level = 0, renderExtra, expandIds, toggleExpand, onClickView }: {
   view: View;
   width: number;
   level?: number;
@@ -87,11 +87,14 @@ function ViewItem({ view, width, level = 0, renderExtra, expandIds, toggleExpand
           }}
           className={`text-[18px] mr-1 `}
         >
-          <PageIcon view={view} className={'flex h-4 w-4 text-text-caption min-w-4 items-center justify-center'}/>
+          <PageIcon
+            view={view}
+            className={'flex h-4 w-4 text-text-caption min-w-4 items-center justify-center'}
+          />
 
         </div>
         <Tooltip
-          title={view.name}
+          title={view.layout === ViewLayout.AIChat ? 'View the chat history in app' : view.name}
           disableInteractive={true}
         >
           <div

@@ -19,7 +19,7 @@ export interface NormalModalProps extends DialogProps {
   closable?: boolean;
 }
 
-export function NormalModal({
+export function NormalModal ({
   okText,
   title,
   cancelText,
@@ -61,7 +61,7 @@ export function NormalModal({
               className={'h-6 w-6'}
               onClick={onClose || onCancel}
             >
-              <CloseIcon className={'h-4 w-4'}/>
+              <CloseIcon className={'h-4 w-4'} />
             </IconButton>
           </div>}
 
@@ -90,11 +90,12 @@ export function NormalModal({
               if (okLoading) return;
               onOk?.();
             }}
+            disabled={okLoading}
             {...okButtonProps}
           >
             {okLoading ? <CircularProgress
               color={'inherit'}
-              size={24}
+              size={16}
             /> : modalOkText}
           </Button>
         </div>

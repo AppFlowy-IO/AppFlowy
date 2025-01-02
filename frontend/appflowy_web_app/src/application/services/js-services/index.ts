@@ -33,7 +33,7 @@ import {
   DatabaseRelations,
   DuplicatePublishView, QuickNoteEditorData,
   SubscriptionInterval, SubscriptionPlan,
-  Types, UpdatePagePayload, UpdateSpacePayload, WorkspaceMember,
+  Types, UpdatePagePayload, UpdateSpacePayload, UpdateWorkspacePayload, WorkspaceMember,
   YjsEditorKey,
 } from '@/application/types';
 import { applyYDoc } from '@/application/ydoc/apply';
@@ -282,6 +282,10 @@ export class AFClientService implements AFService {
 
   async createWorkspace (payload: CreateWorkspacePayload) {
     return APIService.createWorkspace(payload);
+  }
+
+  async updateWorkspace (workspaceId: string, payload: UpdateWorkspacePayload) {
+    return APIService.updateWorkspace(workspaceId, payload);
   }
 
   async getUserWorkspaceInfo () {
