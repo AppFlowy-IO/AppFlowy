@@ -245,7 +245,9 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
             constraints: const BoxConstraints.tightFor(width: 300, height: 400),
             onClose: () {
               if (spaceView != null) {
-                context.read<ChatSettingsCubit>().refreshSources([spaceView]);
+                context
+                    .read<ChatSettingsCubit>()
+                    .refreshSources([spaceView], spaceView);
               }
               widget.onOverrideVisibility?.call(false);
             },
@@ -279,7 +281,9 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
           } else {
             widget.onOverrideVisibility?.call(true);
             if (spaceView != null) {
-              context.read<ChatSettingsCubit>().refreshSources([spaceView]);
+              context
+                  .read<ChatSettingsCubit>()
+                  .refreshSources([spaceView], spaceView);
             }
             popoverController.show();
           }

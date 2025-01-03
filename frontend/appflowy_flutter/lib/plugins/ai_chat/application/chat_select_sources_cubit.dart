@@ -112,7 +112,7 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
     selectedSourceIds = [...newSelectedSourceIds];
   }
 
-  void refreshSources(List<ViewPB> spaceViews) async {
+  void refreshSources(List<ViewPB> spaceViews, ViewPB? currentSpace) async {
     filter = "";
 
     final newSources = await Future.wait(
@@ -120,6 +120,11 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
     );
     for (final source in newSources) {
       _restrictSelectionIfNecessary(source.children);
+    }
+    if (currentSpace != null) {
+      newSources
+          .firstWhereOrNull((e) => e.view.id == currentSpace.id)
+          ?.toggleIsExpanded();
     }
 
     final selected = newSources
