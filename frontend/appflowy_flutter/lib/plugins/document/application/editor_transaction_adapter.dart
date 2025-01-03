@@ -7,20 +7,7 @@ import 'package:appflowy/plugins/document/application/document_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_block_component.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
-import 'package:appflowy_editor/appflowy_editor.dart'
-    show
-        EditorState,
-        Transaction,
-        Operation,
-        InsertOperation,
-        UpdateOperation,
-        DeleteOperation,
-        PathExtensions,
-        Node,
-        Path,
-        Delta,
-        composeAttributes,
-        blockComponentDelta;
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:nanoid/nanoid.dart';
 
@@ -287,11 +274,6 @@ extension on UpdateOperation {
     // create the external text if the node contains the delta in its data.
     final prevDelta = oldAttributes[blockComponentDelta];
     final delta = attributes[blockComponentDelta];
-    final diff = prevDelta != null && delta != null
-        ? Delta.fromJson(prevDelta).diff(
-            Delta.fromJson(delta),
-          )
-        : null;
 
     final composedAttributes = composeAttributes(oldAttributes, attributes);
     final composedDelta = composedAttributes?[blockComponentDelta];
@@ -312,12 +294,15 @@ extension on UpdateOperation {
       // to be compatible with the old version, we create a new text id if the text id is empty.
       final textId = nanoid(6);
       final textDelta = composedDelta ?? delta ?? prevDelta;
-      final textDeltaPayloadPB = textDelta == null
+      final correctedTextDelta =
+          textDelta != null ? _correctAttributes(textDelta) : null;
+
+      final textDeltaPayloadPB = correctedTextDelta == null
           ? null
           : TextDeltaPayloadPB(
               documentId: documentId,
               textId: textId,
-              delta: jsonEncode(textDelta),
+              delta: jsonEncode(correctedTextDelta),
             );
 
       node.externalValues = ExternalValues(
@@ -342,12 +327,20 @@ extension on UpdateOperation {
         ),
       );
     } else {
-      final textDeltaPayloadPB = delta == null
+      final diff = prevDelta != null && delta != null
+          ? Delta.fromJson(prevDelta).diff(
+              Delta.fromJson(delta),
+            )
+          : null;
+
+      final correctedDiff = diff != null ? _correctDelta(diff) : null;
+
+      final textDeltaPayloadPB = correctedDiff == null
           ? null
           : TextDeltaPayloadPB(
               documentId: documentId,
               textId: textId,
-              delta: jsonEncode(diff),
+              delta: jsonEncode(correctedDiff),
             );
 
       if (enableDocumentInternalLog) {
@@ -369,6 +362,58 @@ extension on UpdateOperation {
     }
 
     return actions;
+  }
+
+  // if the value in Delta's attributes is false, we should set the value to null instead.
+  // because on Yjs, canceling format must use the null value. If we use false, the update will be rejected.
+  List<TextOperation>? _correctDelta(Delta delta) {
+    // if the value in diff's attributes is false, we should set the value to null instead.
+    // because on Yjs, canceling format must use the null value. If we use false, the update will be rejected.
+    final correctedOps = delta.map((op) {
+      final attributes = op.attributes?.map(
+        (key, value) => MapEntry(
+          key,
+          // if the value is false, we should set the value to null instead.
+          value == false ? null : value,
+        ),
+      );
+
+      if (attributes != null) {
+        if (op is TextRetain) {
+          return TextRetain(op.length, attributes: attributes);
+        } else if (op is TextInsert) {
+          return TextInsert(op.text, attributes: attributes);
+        }
+        // ignore the other operations that do not contain attributes.
+      }
+
+      return op;
+    });
+
+    return correctedOps.toList(growable: false);
+  }
+
+  // Refer to [_correctDelta] for more details.
+  List<Map<String, dynamic>> _correctAttributes(
+    List<Map<String, dynamic>> attributes,
+  ) {
+    final correctedAttributes = attributes.map((attribute) {
+      return attribute.map((key, value) {
+        if (value is bool) {
+          return MapEntry(key, value == false ? null : value);
+        } else if (value is Map<String, dynamic>) {
+          return MapEntry(
+            key,
+            value.map((key, value) {
+              return MapEntry(key, value == false ? null : value);
+            }),
+          );
+        }
+        return MapEntry(key, value);
+      });
+    }).toList(growable: false);
+
+    return correctedAttributes;
   }
 }
 
