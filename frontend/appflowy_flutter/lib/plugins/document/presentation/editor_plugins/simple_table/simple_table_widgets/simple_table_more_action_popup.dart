@@ -31,12 +31,16 @@ class _SimpleTableMoreActionPopupState
 
   RenderBox? get renderBox => context.findRenderObject() as RenderBox?;
 
+  late final simpleTableContext = context.read<SimpleTableContext>();
+  Node? tableNode;
+  Node? tableCellNode;
+
   @override
   void initState() {
     super.initState();
 
-    final tableCellNode =
-        context.read<SimpleTableContext>().hoveringTableCell.value;
+    tableCellNode = context.read<SimpleTableContext>().hoveringTableCell.value;
+    tableNode = tableCellNode?.parentTableNode;
     gestureInterceptor = SelectionGestureInterceptor(
       key: 'simple_table_more_action_popup_interceptor_${tableCellNode?.id}',
       canTap: (details) => !_isTapInBounds(details.globalPosition),
@@ -59,10 +63,6 @@ class _SimpleTableMoreActionPopupState
 
   @override
   Widget build(BuildContext context) {
-    final simpleTableContext = context.read<SimpleTableContext>();
-    final tableCellNode = simpleTableContext.hoveringTableCell.value;
-    final tableNode = tableCellNode?.parentTableNode;
-
     if (tableNode == null) {
       return const SizedBox.shrink();
     }
@@ -70,6 +70,9 @@ class _SimpleTableMoreActionPopupState
     return AppFlowyPopover(
       onOpen: () => _onOpen(tableCellNode: tableCellNode),
       onClose: () => _onClose(),
+      canClose: () async {
+        return true;
+      },
       direction: widget.type == SimpleTableMoreActionType.row
           ? PopoverDirection.bottomWithCenterAligned
           : PopoverDirection.bottomWithLeftAligned,
@@ -81,7 +84,7 @@ class _SimpleTableMoreActionPopupState
       child: SimpleTableDraggableReorderButton(
         editorState: editorState,
         simpleTableContext: simpleTableContext,
-        node: tableNode,
+        node: tableNode!,
         index: widget.index,
         isShowingMenu: widget.isShowingMenu,
         type: widget.type,

@@ -258,10 +258,10 @@ class _CalloutBlockComponentWidgetState
       placeholderText: placeholderText,
       textAlign: alignment?.toTextAlign ?? textAlign,
       textSpanDecorator: (textSpan) => textSpan.updateTextStyle(
-        textStyle,
+        textStyleWithTextSpan(textSpan: textSpan),
       ),
       placeholderTextSpanDecorator: (textSpan) => textSpan.updateTextStyle(
-        placeholderTextStyle,
+        placeholderTextStyleWithTextSpan(textSpan: textSpan),
       ),
       textDirection: textDirection,
       cursorColor: editorState.editorStyle.cursorColor,

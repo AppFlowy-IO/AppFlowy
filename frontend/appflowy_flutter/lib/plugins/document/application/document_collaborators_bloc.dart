@@ -85,7 +85,11 @@ class DocumentCollaboratorsBloc
     final ids = <dynamic>{};
     final sorted = states.value.values.toList()
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp))
-      ..retainWhere((e) => ids.add(e.user.uid.toString() + e.user.deviceId));
+      // filter the duplicate users
+      ..retainWhere((e) => ids.add(e.user.uid.toString() + e.user.deviceId))
+      // only keep version 1 and metadata is not empty
+      ..retainWhere((e) => e.version == 1)
+      ..retainWhere((e) => e.metadata.isNotEmpty);
     for (final state in sorted) {
       if (state.version != 1) {
         continue;

@@ -1,14 +1,14 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/plugins/document/presentation/editor_drop_manager.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_file.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_image.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/shared/patterns/file_type_patterns.dart';
+import 'package:appflowy/workspace/presentation/widgets/draggable_item/draggable_item.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:desktop_drop/desktop_drop.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 const _excludeFromDropTarget = [
@@ -16,6 +16,9 @@ const _excludeFromDropTarget = [
   CustomImageBlockKeys.type,
   MultiImageBlockKeys.type,
   FileBlockKeys.type,
+  SimpleTableBlockKeys.type,
+  SimpleTableCellBlockKeys.type,
+  SimpleTableRowBlockKeys.type,
 ];
 
 class EditorDropHandler extends StatelessWidget {
@@ -38,8 +41,13 @@ class EditorDropHandler extends StatelessWidget {
   Widget build(BuildContext context) {
     final childWidget = Consumer<EditorDropManagerState>(
       builder: (context, dropState, _) => DragTarget<ViewPB>(
-        onLeave: (_) => editorState.selectionService.removeDropTarget(),
+        onLeave: (_) {
+          editorState.selectionService.removeDropTarget();
+          disableAutoScrollWhenDragging = false;
+        },
         onMove: (details) {
+          disableAutoScrollWhenDragging = true;
+
           if (details.data.id == viewId) {
             return;
           }

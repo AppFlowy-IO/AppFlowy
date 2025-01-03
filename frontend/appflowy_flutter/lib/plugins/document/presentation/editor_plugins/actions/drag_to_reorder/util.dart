@@ -140,7 +140,9 @@ bool shouldIgnoreDragTarget({
   }
 
   final targetNode = editorState.getNodeAtPath(targetPath);
-  if (targetNode != null && targetNode.isInTable) {
+  if (targetNode != null &&
+      targetNode.isInTable &&
+      targetNode.type != SimpleTableBlockKeys.type) {
     return true;
   }
 

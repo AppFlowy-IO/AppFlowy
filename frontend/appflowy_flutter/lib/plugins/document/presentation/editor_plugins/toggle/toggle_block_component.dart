@@ -312,7 +312,9 @@ class _ToggleListBlockComponentWidgetState
       placeholderText: placeholderText,
       lineHeight: 1.5,
       textSpanDecorator: (textSpan) {
-        var result = textSpan.updateTextStyle(textStyle);
+        var result = textSpan.updateTextStyle(
+          textStyleWithTextSpan(textSpan: textSpan),
+        );
         if (level != null) {
           result = result.updateTextStyle(
             widget.textStyleBuilder?.call(level),
@@ -321,13 +323,17 @@ class _ToggleListBlockComponentWidgetState
         return result;
       },
       placeholderTextSpanDecorator: (textSpan) {
-        var result = textSpan.updateTextStyle(textStyle);
+        var result = textSpan.updateTextStyle(
+          textStyleWithTextSpan(textSpan: textSpan),
+        );
         if (level != null && widget.textStyleBuilder != null) {
           result = result.updateTextStyle(
             widget.textStyleBuilder?.call(level),
           );
         }
-        return result.updateTextStyle(placeholderTextStyle);
+        return result.updateTextStyle(
+          placeholderTextStyleWithTextSpan(textSpan: textSpan),
+        );
       },
       textDirection: textDirection,
       textAlign: alignment?.toTextAlign ?? textAlign,
