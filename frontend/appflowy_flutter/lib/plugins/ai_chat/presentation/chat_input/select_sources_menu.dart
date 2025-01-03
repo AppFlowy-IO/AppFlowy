@@ -74,9 +74,8 @@ class _PromptInputDesktopSelectSourcesButtonState
           value: cubit,
         ),
       ],
-      child: BlocSelector<SpaceBloc, SpaceState, List<ViewPB>>(
-        selector: (state) => state.spaces,
-        builder: (context, spaces) {
+      child: BlocBuilder<SpaceBloc, SpaceState>(
+        builder: (context, state) {
           return BlocListener<ChatBloc, ChatState>(
             listener: (context, state) {
               cubit
@@ -90,11 +89,15 @@ class _PromptInputDesktopSelectSourcesButtonState
               margin: EdgeInsets.zero,
               controller: popoverController,
               onOpen: () {
-                context.read<ChatSettingsCubit>().refreshSources(spaces);
+                context
+                    .read<ChatSettingsCubit>()
+                    .refreshSources(state.spaces, state.currentSpace);
               },
               onClose: () {
                 widget.onUpdateSelectedSources(cubit.selectedSourceIds);
-                context.read<ChatSettingsCubit>().refreshSources(spaces);
+                context
+                    .read<ChatSettingsCubit>()
+                    .refreshSources(state.spaces, state.currentSpace);
               },
               popupBuilder: (_) {
                 return BlocProvider.value(
@@ -275,7 +278,9 @@ class ChatSourceTreeItem extends StatefulWidget {
     required this.isDescendentOfSpace,
     required this.isSelectedSection,
     required this.onSelected,
+    this.onAdd,
     required this.height,
+    this.showSaveButton = false,
     this.showCheckbox = true,
   });
 
@@ -289,6 +294,10 @@ class ChatSourceTreeItem extends StatefulWidget {
   final bool isSelectedSection;
 
   final void Function(ChatSource chatSource) onSelected;
+
+  final void Function(ChatSource chatSource)? onAdd;
+
+  final bool showSaveButton;
 
   final double height;
 
@@ -309,7 +318,9 @@ class _ChatSourceTreeItemState extends State<ChatSourceTreeItem> {
         isDescendentOfSpace: widget.isDescendentOfSpace,
         isSelectedSection: widget.isSelectedSection,
         showCheckbox: widget.showCheckbox,
+        showSaveButton: widget.showSaveButton,
         onSelected: widget.onSelected,
+        onAdd: widget.onAdd,
       ),
     );
 
@@ -361,6 +372,8 @@ class _ChatSourceTreeItemState extends State<ChatSourceTreeItem> {
                 onSelected: widget.onSelected,
                 height: widget.height,
                 showCheckbox: widget.showCheckbox,
+                showSaveButton: widget.showSaveButton,
+                onAdd: widget.onAdd,
               ),
             ),
           ],
@@ -378,7 +391,9 @@ class ChatSourceTreeItemInner extends StatelessWidget {
     required this.isDescendentOfSpace,
     required this.isSelectedSection,
     required this.showCheckbox,
+    required this.showSaveButton,
     this.onSelected,
+    this.onAdd,
   });
 
   final ChatSource chatSource;
@@ -386,57 +401,92 @@ class ChatSourceTreeItemInner extends StatelessWidget {
   final bool isDescendentOfSpace;
   final bool isSelectedSection;
   final bool showCheckbox;
+  final bool showSaveButton;
   final void Function(ChatSource)? onSelected;
+  final void Function(ChatSource)? onAdd;
 
   @override
   Widget build(BuildContext context) {
-    return FlowyHover(
-      cursor: isSelectedSection ? SystemMouseCursors.basic : null,
-      style: HoverStyle(
-        hoverColor: isSelectedSection
-            ? Colors.transparent
-            : AFThemeExtension.of(context).lightGreyHover,
-      ),
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () {
-          if (!isSelectedSection) {
-            onSelected?.call(chatSource);
-          }
-        },
-        child: Row(
-          children: [
-            const HSpace(4.0),
-            HSpace(max(20.0 * level - (isDescendentOfSpace ? 2 : 0), 0)),
-            // builds the >, ^ or · button
-            ToggleIsExpandedButton(
-              chatSource: chatSource,
-              isSelectedSection: isSelectedSection,
-            ),
-            const HSpace(2.0),
-            // checkbox
-            if (!chatSource.view.isSpace && showCheckbox) ...[
-              SourceSelectedStatusCheckbox(
-                chatSource: chatSource,
-              ),
-              const HSpace(4.0),
-            ],
-            // icon
-            MentionViewIcon(
-              view: chatSource.view,
-            ),
-            const HSpace(6.0),
-            // title
-            Expanded(
-              child: FlowyText(
-                chatSource.view.nameOrDefault,
-                overflow: TextOverflow.ellipsis,
-                fontSize: 14.0,
-                figmaLineHeight: 18.0,
-              ),
-            ),
-          ],
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        if (!isSelectedSection) {
+          onSelected?.call(chatSource);
+        }
+      },
+      child: FlowyHover(
+        cursor: isSelectedSection ? SystemMouseCursors.basic : null,
+        style: HoverStyle(
+          hoverColor: isSelectedSection
+              ? Colors.transparent
+              : AFThemeExtension.of(context).lightGreyHover,
         ),
+        builder: (context, onHover) {
+          final isSaveButtonVisible =
+              showSaveButton && !chatSource.view.isSpace;
+          final isAddButtonVisible = onAdd != null;
+          return Row(
+            children: [
+              const HSpace(4.0),
+              HSpace(max(20.0 * level - (isDescendentOfSpace ? 2 : 0), 0)),
+              // builds the >, ^ or · button
+              ToggleIsExpandedButton(
+                chatSource: chatSource,
+                isSelectedSection: isSelectedSection,
+              ),
+              const HSpace(2.0),
+              // checkbox
+              if (!chatSource.view.isSpace && showCheckbox) ...[
+                SourceSelectedStatusCheckbox(
+                  chatSource: chatSource,
+                ),
+                const HSpace(4.0),
+              ],
+              // icon
+              MentionViewIcon(
+                view: chatSource.view,
+              ),
+              const HSpace(6.0),
+              // title
+              Expanded(
+                child: FlowyText(
+                  chatSource.view.nameOrDefault,
+                  overflow: TextOverflow.ellipsis,
+                  fontSize: 14.0,
+                  figmaLineHeight: 18.0,
+                ),
+              ),
+              if (onHover && (isSaveButtonVisible || isAddButtonVisible)) ...[
+                const HSpace(4.0),
+                if (isSaveButtonVisible)
+                  FlowyIconButton(
+                    tooltipText: LocaleKeys.chat_addToPageButton.tr(),
+                    width: 24,
+                    icon: FlowySvg(
+                      FlowySvgs.ai_add_to_page_s,
+                      size: const Size.square(16),
+                      color: Theme.of(context).hintColor,
+                    ),
+                    onPressed: () => onSelected?.call(chatSource),
+                  ),
+                if (isSaveButtonVisible && isAddButtonVisible)
+                  const HSpace(4.0),
+                if (isAddButtonVisible)
+                  FlowyIconButton(
+                    tooltipText: LocaleKeys.chat_addToNewPage.tr(),
+                    width: 24,
+                    icon: FlowySvg(
+                      FlowySvgs.add_less_padding_s,
+                      size: const Size.square(16),
+                      color: Theme.of(context).hintColor,
+                    ),
+                    onPressed: () => onAdd?.call(chatSource),
+                  ),
+                const HSpace(4.0),
+              ],
+            ],
+          );
+        },
       ),
     );
   }
