@@ -101,15 +101,21 @@ class ChatSource {
 }
 
 class ChatSettingsCubit extends Cubit<ChatSettingsState> {
-  ChatSettingsCubit() : super(ChatSettingsState.initial());
+  ChatSettingsCubit({
+    this.hideDisabled = false,
+  }) : super(ChatSettingsState.initial());
 
-  List<String> selectedSourceIds = [];
-  List<ChatSource> sources = [];
-  List<ChatSource> selectedSources = [];
+  final bool hideDisabled;
+
+  final List<String> selectedSourceIds = [];
+  final List<ChatSource> sources = [];
+  final List<ChatSource> selectedSources = [];
   String filter = '';
 
   void updateSelectedSources(List<String> newSelectedSourceIds) {
-    selectedSourceIds = [...newSelectedSourceIds];
+    selectedSourceIds
+      ..clear
+      ..addAll(newSelectedSourceIds);
   }
 
   void refreshSources(List<ViewPB> spaceViews, ViewPB? currentSpace) async {
@@ -163,6 +169,9 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
     if (childrenViews != null) {
       for (final childView in childrenViews) {
         if (childView.layout == ViewLayoutPB.Chat) {
+          continue;
+        }
+        if (childView.layout != ViewLayoutPB.Document && hideDisabled) {
           continue;
         }
         final childChatSource = await _recursiveBuild(childView, view);

@@ -230,7 +230,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
           )..add(const SpaceEvent.initial(openFirstPage: false)),
         ),
         BlocProvider(
-          create: (context) => ChatSettingsCubit(),
+          create: (context) => ChatSettingsCubit(hideDisabled: true),
         ),
       ],
       child: BlocSelector<SpaceBloc, SpaceState, ViewPB?>(
@@ -448,8 +448,7 @@ class _SaveToPagePopoverContent extends StatelessWidget {
                 children: _buildVisibleSources(context, state).toList(),
               ),
             ),
-            _buildDivider(),
-            _addToNewPageButton(context),
+            // _addToNewPageButton(context),
           ],
         );
       },
