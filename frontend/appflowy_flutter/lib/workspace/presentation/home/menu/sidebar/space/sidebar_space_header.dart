@@ -173,21 +173,22 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
         await _showRenameDialog();
         break;
       case SpaceMoreActionType.changeIcon:
-        final result = data as EmojiIconData;
-        if (data.type == FlowyIconType.icon) {
-          try {
-            final iconsData = IconsData.fromJson(jsonDecode(result.emoji));
-            context.read<SpaceBloc>().add(
-                  SpaceEvent.changeIcon(
-                    icon: '${iconsData.groupName}/${iconsData.iconName}',
-                    iconColor: iconsData.color,
-                  ),
-                );
-          } on FormatException catch (e) {
-            context
-                .read<SpaceBloc>()
-                .add(const SpaceEvent.changeIcon(icon: ''));
-            Log.warn('SidebarSpaceHeader changeIcon error:$e');
+        if (data is SelectedEmojiIconResult) {
+          if (data.type == FlowyIconType.icon) {
+            try {
+              final iconsData = IconsData.fromJson(jsonDecode(data.emoji));
+              context.read<SpaceBloc>().add(
+                    SpaceEvent.changeIcon(
+                      icon: '${iconsData.groupName}/${iconsData.iconName}',
+                      iconColor: iconsData.color,
+                    ),
+                  );
+            } on FormatException catch (e) {
+              context
+                  .read<SpaceBloc>()
+                  .add(const SpaceEvent.changeIcon(icon: ''));
+              Log.warn('SidebarSpaceHeader changeIcon error:$e');
+            }
           }
         }
         break;
