@@ -255,6 +255,9 @@ class _SimpleTableMoreActionMenuState extends State<SimpleTableMoreActionMenu> {
     super.initState();
 
     editorState.selectionNotifier.addListener(_onSelectionChanged);
+    isShowingMenu.addListener(() {
+      debugPrint('isShowingMenu: $isShowingMenu');
+    });
   }
 
   @override
