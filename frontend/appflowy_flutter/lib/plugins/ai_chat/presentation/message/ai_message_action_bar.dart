@@ -448,7 +448,6 @@ class _SaveToPagePopoverContent extends StatelessWidget {
                 children: _buildVisibleSources(context, state).toList(),
               ),
             ),
-            // _addToNewPageButton(context),
           ],
         );
       },
