@@ -290,5 +290,107 @@ void main() {
       await editorState.apply(transaction);
       await completer.future;
     });
+
+    test('text retain with attributes that are false', () async {
+      final node = paragraphNode(
+        delta: Delta()
+          ..insert(
+            'Hello AppFlowy',
+            attributes: {
+              'bold': true,
+            },
+          ),
+      );
+      final document = Document(
+        root: pageNode(
+          children: [
+            node,
+          ],
+        ),
+      );
+      final transactionAdapter = TransactionAdapter(
+        documentId: '',
+        documentService: DocumentService(),
+      );
+
+      final editorState = EditorState(
+        document: document,
+      );
+
+      int counter = 0;
+      final completer = Completer();
+      editorState.transactionStream.listen((event) {
+        final time = event.$1;
+        if (time == TransactionTime.before) {
+          final actions = transactionAdapter.transactionToBlockActions(
+            event.$2,
+            editorState,
+          );
+          final textActions =
+              transactionAdapter.filterTextDeltaActions(actions);
+          final blockActions = transactionAdapter.filterBlockActions(actions);
+          expect(textActions.length, 1);
+          expect(blockActions.length, 1);
+          if (counter == 1) {
+            // check text operation
+            final textAction = textActions.first;
+            final textId = textAction.textDeltaPayloadPB?.textId;
+            {
+              expect(textAction.textDeltaType, TextDeltaType.create);
+
+              expect(textId, isNotEmpty);
+              final delta = textAction.textDeltaPayloadPB?.delta;
+              expect(
+                delta,
+                equals(
+                  '[{"insert":"Hello","attributes":{"bold":null}},{"insert":" AppFlowy","attributes":{"bold":true}}]',
+                ),
+              );
+            }
+          } else if (counter == 3) {
+            final textAction = textActions.first;
+            final textId = textAction.textDeltaPayloadPB?.textId;
+            {
+              expect(textAction.textDeltaType, TextDeltaType.update);
+
+              expect(textId, isNotEmpty);
+              final delta = textAction.textDeltaPayloadPB?.delta;
+              expect(
+                delta,
+                equals(
+                  '[{"retain":5,"attributes":{"bold":null}}]',
+                ),
+              );
+            }
+          }
+        } else if (time == TransactionTime.after && counter == 3) {
+          completer.complete();
+        }
+      });
+
+      counter = 1;
+      final insertTransaction = editorState.transaction;
+      insertTransaction.formatText(node, 0, 5, {
+        'bold': false,
+      });
+
+      await editorState.apply(insertTransaction);
+
+      counter = 2;
+      final updateTransaction = editorState.transaction;
+      updateTransaction.formatText(node, 0, 5, {
+        'bold': true,
+      });
+      await editorState.apply(updateTransaction);
+
+      counter = 3;
+      final formatTransaction = editorState.transaction;
+      formatTransaction.formatText(node, 0, 5, {
+        'bold': false,
+      });
+      await editorState.apply(formatTransaction);
+
+      await completer.future;
+    });
   });
 }
