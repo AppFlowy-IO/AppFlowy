@@ -462,9 +462,10 @@ class ChatSourceTreeItemInner extends StatelessWidget {
                   FlowyIconButton(
                     tooltipText: LocaleKeys.chat_addToPageButton.tr(),
                     width: 24,
-                    icon: const FlowySvg(
+                    icon: FlowySvg(
                       FlowySvgs.ai_add_to_page_s,
-                      size: Size.square(16),
+                      size: const Size.square(16),
+                      color: Theme.of(context).hintColor,
                     ),
                     onPressed: () => onSelected?.call(chatSource),
                   ),
@@ -474,9 +475,10 @@ class ChatSourceTreeItemInner extends StatelessWidget {
                   FlowyIconButton(
                     tooltipText: LocaleKeys.chat_addToNewPage.tr(),
                     width: 24,
-                    icon: const FlowySvg(
+                    icon: FlowySvg(
                       FlowySvgs.add_less_padding_s,
-                      size: Size.square(16),
+                      size: const Size.square(16),
+                      color: Theme.of(context).hintColor,
                     ),
                     onPressed: () => onAdd?.call(chatSource),
                   ),
