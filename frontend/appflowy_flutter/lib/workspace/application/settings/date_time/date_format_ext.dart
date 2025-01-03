@@ -8,7 +8,14 @@ const _friendlyFmt = 'MMM dd, y';
 const _dmyFmt = 'dd/MM/y';
 
 extension DateFormatter on UserDateFormatPB {
-  DateFormat get toFormat => DateFormat(_toFormat[this] ?? _friendlyFmt);
+  DateFormat get toFormat {
+    try {
+      return DateFormat(_toFormat[this] ?? _friendlyFmt);
+    } catch (_) {
+      // fallback to en-US
+      return DateFormat(_toFormat[this] ?? _friendlyFmt, 'en-US');
+    }
+  }
 
   String formatDate(
     DateTime date,

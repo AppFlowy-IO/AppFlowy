@@ -170,17 +170,32 @@ class ReminderReferenceService extends InlineActionsDelegate {
     final tomorrow = today.add(const Duration(days: 1));
     final oneWeek = today.add(const Duration(days: 7));
 
-    _allOptions = [
-      _itemFromDate(
+    late InlineActionsMenuItem todayItem;
+    late InlineActionsMenuItem oneWeekItem;
+
+    try {
+      todayItem = _itemFromDate(
         tomorrow,
         LocaleKeys.relativeDates_tomorrow.tr(),
         [DateFormat.yMd(_locale).format(tomorrow)],
-      ),
-      _itemFromDate(
+      );
+    } catch (e) {
+      todayItem = _itemFromDate(today);
+    }
+
+    try {
+      oneWeekItem = _itemFromDate(
         oneWeek,
         LocaleKeys.relativeDates_oneWeek.tr(),
         [DateFormat.yMd(_locale).format(oneWeek)],
-      ),
+      );
+    } catch (e) {
+      oneWeekItem = _itemFromDate(oneWeek);
+    }
+
+    _allOptions = [
+      todayItem,
+      oneWeekItem,
     ];
   }
 
@@ -200,7 +215,17 @@ class ReminderReferenceService extends InlineActionsDelegate {
     String? label,
     List<String>? keywords,
   ]) {
-    final labelStr = label ?? DateFormat.yMd(_locale).format(date);
+    late String labelStr;
+    if (label != null) {
+      labelStr = label;
+    } else {
+      try {
+        labelStr = DateFormat.yMd(_locale).format(date);
+      } catch (e) {
+        // fallback to en-US
+        labelStr = DateFormat.yMd('en-US').format(date);
+      }
+    }
 
     return InlineActionsMenuItem(
       label: labelStr.capitalize(),
