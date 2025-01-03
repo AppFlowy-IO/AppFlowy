@@ -58,8 +58,9 @@ class MobileAIPromptSizes {
   static const predefinedFormatBarButtonSpacing = 8.0;
   static const predefinedFormatBarPadding = EdgeInsets.all(8.0);
 
-  static const textFieldMinHeight = 48.0;
-  static const textFieldContentPadding = EdgeInsets.all(8.0);
+  static const textFieldMinHeight = 32.0;
+  static const textFieldContentPadding =
+      EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0);
 
   static const mentionIconSize = 20.0;
   static const sendButtonSize = 32.0;

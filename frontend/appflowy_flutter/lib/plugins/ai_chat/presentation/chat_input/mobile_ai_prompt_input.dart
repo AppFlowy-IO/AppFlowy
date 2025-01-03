@@ -1,4 +1,3 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
@@ -143,24 +142,15 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
                       ),
                     ),
                   ),
-                Container(
-                  constraints: const BoxConstraints(
-                    minHeight: MobileAIPromptSizes.textFieldMinHeight,
-                    maxHeight: 220,
-                  ),
-                  child: IntrinsicHeight(
-                    child: Row(
-                      children: [
-                        const HSpace(8.0),
-                        leadingButtons(context),
-                        Expanded(
-                          child: inputTextField(context),
-                        ),
-                        sendButton(),
-                        const HSpace(12.0),
-                      ],
-                    ),
-                  ),
+                inputTextField(context),
+                Row(
+                  children: [
+                    const HSpace(8.0),
+                    leadingButtons(context),
+                    const Spacer(),
+                    sendButton(),
+                    const HSpace(12.0),
+                  ],
                 ),
               ],
             ),
@@ -267,6 +257,7 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
         return ExtendedTextField(
           controller: textController,
           focusNode: focusNode,
+          textAlignVertical: TextAlignVertical.center,
           decoration: InputDecoration(
             border: InputBorder.none,
             enabledBorder: InputBorder.none,
@@ -283,7 +274,8 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
           textCapitalization: TextCapitalization.sentences,
           minLines: 1,
           maxLines: null,
-          style: Theme.of(context).textTheme.bodyMedium,
+          style:
+              Theme.of(context).textTheme.bodyMedium?.copyWith(height: 20 / 14),
           specialTextSpanBuilder: ChatInputTextSpanBuilder(
             inputControlCubit: inputControlCubit,
             specialTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -298,10 +290,8 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
 
   Widget leadingButtons(BuildContext context) {
     return Container(
-      alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.only(bottom: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: _LeadingActions(
-        textController: textController,
         // onMention: () {
         //   textController.text += '@';
         //   if (!focusNode.hasFocus) {
@@ -329,7 +319,6 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
   Widget sendButton() {
     return Container(
       alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.only(bottom: 8.0),
       child: PromptInputSendButton(
         buttonSize: MobileAIPromptSizes.sendButtonSize,
         iconSize: MobileAIPromptSizes.sendButtonSize,
@@ -341,85 +330,36 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
   }
 }
 
-class _LeadingActions extends StatefulWidget {
+class _LeadingActions extends StatelessWidget {
   const _LeadingActions({
-    required this.textController,
     required this.showPredefinedFormatSection,
     required this.predefinedFormat,
     required this.onTogglePredefinedFormatSection,
     required this.onUpdateSelectedSources,
   });
 
-  final TextEditingController textController;
   final bool showPredefinedFormatSection;
   final PredefinedFormat predefinedFormat;
   final void Function() onTogglePredefinedFormatSection;
   final void Function(List<String>) onUpdateSelectedSources;
 
   @override
-  State<_LeadingActions> createState() => _LeadingActionsState();
-}
-
-class _LeadingActionsState extends State<_LeadingActions> {
-  bool inputNotEmpty = false;
-  bool userExpandOverride = false;
-
-  @override
-  void initState() {
-    super.initState();
-    widget.textController.addListener(onTextChanged);
-  }
-
-  @override
-  void dispose() {
-    widget.textController.removeListener(onTextChanged);
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Material(
       color: Theme.of(context).colorScheme.surface,
-      child: !inputNotEmpty || userExpandOverride
-          ? SeparatedRow(
-              mainAxisSize: MainAxisSize.min,
-              separatorBuilder: () => const HSpace(4.0),
-              children: [
-                PromptInputMobileSelectSourcesButton(
-                  onUpdateSelectedSources: widget.onUpdateSelectedSources,
-                ),
-                PromptInputMobileToggleFormatButton(
-                  showFormatBar: widget.showPredefinedFormatSection,
-                  onTap: widget.onTogglePredefinedFormatSection,
-                ),
-              ],
-            )
-          : SizedBox.square(
-              dimension: 32.0,
-              child: FlowyButton(
-                expandText: false,
-                margin: EdgeInsets.zero,
-                text: const FlowySvg(
-                  FlowySvgs.arrow_right_m,
-                  size: Size.square(24),
-                ),
-                onTap: () {
-                  setState(() => userExpandOverride = true);
-                },
-              ),
-            ),
+      child: SeparatedRow(
+        mainAxisSize: MainAxisSize.min,
+        separatorBuilder: () => const HSpace(4.0),
+        children: [
+          PromptInputMobileSelectSourcesButton(
+            onUpdateSelectedSources: onUpdateSelectedSources,
+          ),
+          PromptInputMobileToggleFormatButton(
+            showFormatBar: showPredefinedFormatSection,
+            onTap: onTogglePredefinedFormatSection,
+          ),
+        ],
+      ),
     );
-  }
-
-  void onTextChanged() {
-    final actual = widget.textController.text.isNotEmpty;
-    if (inputNotEmpty != actual) {
-      setState(() {
-        inputNotEmpty = actual;
-        if (!inputNotEmpty) {
-          userExpandOverride = false;
-        }
-      });
-    }
   }
 }
