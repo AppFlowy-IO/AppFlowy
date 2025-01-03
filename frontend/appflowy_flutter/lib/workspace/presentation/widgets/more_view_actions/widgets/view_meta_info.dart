@@ -13,12 +13,14 @@ class ViewMetaInfo extends StatelessWidget {
     required this.dateFormat,
     required this.timeFormat,
     this.documentCounters,
+    this.titleCounters,
     this.createdAt,
   });
 
   final UserDateFormatPB dateFormat;
   final UserTimeFormatPB timeFormat;
   final Counters? documentCounters;
+  final Counters? titleCounters;
   final DateTime? createdAt;
 
   @override
@@ -31,11 +33,15 @@ class ViewMetaInfo extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (documentCounters != null) ...[
+          if (documentCounters != null && titleCounters != null) ...[
             FlowyText.regular(
               LocaleKeys.moreAction_wordCount.tr(
                 args: [
-                  numberFormat.format(documentCounters!.wordCount).toString(),
+                  numberFormat
+                      .format(
+                        documentCounters!.wordCount + titleCounters!.wordCount,
+                      )
+                      .toString(),
                 ],
               ),
               fontSize: 12,
@@ -45,7 +51,11 @@ class ViewMetaInfo extends StatelessWidget {
             FlowyText.regular(
               LocaleKeys.moreAction_charCount.tr(
                 args: [
-                  numberFormat.format(documentCounters!.charCount).toString(),
+                  numberFormat
+                      .format(
+                        documentCounters!.charCount + titleCounters!.charCount,
+                      )
+                      .toString(),
                 ],
               ),
               fontSize: 12,
@@ -53,7 +63,8 @@ class ViewMetaInfo extends StatelessWidget {
             ),
           ],
           if (createdAt != null) ...[
-            if (documentCounters != null) const VSpace(2),
+            if (documentCounters != null && titleCounters != null)
+              const VSpace(2),
             FlowyText.regular(
               LocaleKeys.moreAction_createdAt.tr(
                 args: [dateFormat.formatDate(createdAt!, true, timeFormat)],

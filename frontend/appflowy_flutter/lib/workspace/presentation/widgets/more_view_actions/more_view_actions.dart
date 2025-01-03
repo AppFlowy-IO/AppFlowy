@@ -129,6 +129,7 @@ class _MoreViewActionsState extends State<MoreViewActions> {
           dateFormat: dateFormat,
           timeFormat: timeFormat,
           documentCounters: state.documentCounters,
+          titleCounters: state.titleCounters,
           createdAt: state.createdAt,
         ),
         const VSpace(4.0),

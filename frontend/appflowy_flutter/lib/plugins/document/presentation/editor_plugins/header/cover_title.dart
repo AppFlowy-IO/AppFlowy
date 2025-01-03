@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/text_field/text_filed_with_metric_lines.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -220,6 +221,9 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
               .read<ViewBloc>()
               .add(ViewEvent.rename(titleTextController.text));
         }
+        context
+            .read<ViewInfoBloc?>()
+            ?.add(ViewInfoEvent.titleChanged(titleTextController.text));
       },
     );
   }
