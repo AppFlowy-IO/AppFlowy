@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'simple_table_test_helper.dart';
@@ -192,6 +193,46 @@ void main() {
         );
         expect(tableNode.tableAlign, align);
       }
+    });
+
+    test('clear the existing align of the column before updating', () async {
+      final (editorState, tableNode) = createEditorStateAndTable(
+        rowCount: 2,
+        columnCount: 3,
+      );
+
+      final firstCellNode = tableNode.getTableCellNode(
+        rowIndex: 0,
+        columnIndex: 0,
+      );
+
+      Node firstParagraphNode = firstCellNode!.children.first;
+
+      // format the first paragraph to center align
+      final transaction = editorState.transaction;
+      transaction.updateNode(
+        firstParagraphNode,
+        {
+          blockComponentAlign: TableAlign.right.key,
+        },
+      );
+      await editorState.apply(transaction);
+
+      firstParagraphNode = editorState.getNodeAtPath([0, 0, 0, 0])!;
+      expect(
+        firstParagraphNode.attributes[blockComponentAlign],
+        TableAlign.right.key,
+      );
+
+      await editorState.updateColumnAlign(
+        tableCellNode: firstCellNode,
+        align: TableAlign.center,
+      );
+
+      expect(
+        firstParagraphNode.attributes[blockComponentAlign],
+        null,
+      );
     });
   });
 }

@@ -86,6 +86,9 @@ class SimpleTableContext {
   /// This value is available on mobile only
   final ValueNotifier<int?> isReorderingHitIndex = ValueNotifier(null);
 
+  /// Scroll controller for the table
+  ScrollController? horizontalScrollController;
+
   void _onHoveringOnColumnsAndRowsChanged() {
     if (!_enableTableDebugLog) {
       return;
