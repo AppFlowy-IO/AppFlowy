@@ -58,6 +58,7 @@ class KVKeys {
 
   static const String kCloudType = 'kCloudType';
   static const String kAppflowyCloudBaseURL = 'kAppFlowyCloudBaseURL';
+  static const String kAppFlowyBaseShareDomain = 'kAppFlowyBaseShareDomain';
   static const String kAppFlowyEnableSyncTrace = 'kAppFlowyEnableSyncTrace';
 
   /// The key for saving the text scale factor.
