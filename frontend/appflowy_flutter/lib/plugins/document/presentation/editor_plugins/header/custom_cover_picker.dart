@@ -36,43 +36,49 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
         ..add(const CoverImagePickerEvent.initialEvent()),
       child: BlocListener<CoverImagePickerBloc, CoverImagePickerState>(
         listener: (context, state) {
-          if (state is NetworkImagePicked) {
-            state.successOrFail.fold(
-              (s) {},
-              (e) => showSnapBar(
-                context,
-                LocaleKeys.document_plugins_cover_invalidImageUrl.tr(),
-              ),
-            );
-          }
-          if (state is Done) {
-            state.successOrFail.fold(
-              (l) => widget.onFileSubmit(l),
-              (r) => showSnapBar(
-                context,
-                LocaleKeys.document_plugins_cover_failedToAddImageToGallery
-                    .tr(),
-              ),
-            );
-          }
+          state.maybeWhen(
+            networkImage: (successOrFail) {
+              successOrFail.fold(
+                (s) {},
+                (e) => showSnapBar(
+                  context,
+                  LocaleKeys.document_plugins_cover_invalidImageUrl.tr(),
+                ),
+              );
+            },
+            done: (successOrFail) {
+              successOrFail.fold(
+                (l) => widget.onFileSubmit(l),
+                (r) => showSnapBar(
+                  context,
+                  LocaleKeys.document_plugins_cover_failedToAddImageToGallery
+                      .tr(),
+                ),
+              );
+            },
+            orElse: () {},
+          );
         },
         child: BlocBuilder<CoverImagePickerBloc, CoverImagePickerState>(
           builder: (context, state) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                state is Loading
-                    ? const SizedBox(
-                        height: 180,
-                        child: Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      )
-                    : CoverImagePreviewWidget(state: state),
+                state.maybeMap(
+                  loading: (_) => const SizedBox(
+                    height: 180,
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                  orElse: () => CoverImagePreviewWidget(state: state),
+                ),
                 const VSpace(10),
                 NetworkImageUrlInput(
                   onAdd: (url) {
-                    context.read<CoverImagePickerBloc>().add(UrlSubmit(url));
+                    context
+                        .read<CoverImagePickerBloc>()
+                        .add(CoverImagePickerEvent.urlSubmit(url));
                   },
                 ),
                 const VSpace(10),
@@ -81,9 +87,9 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
                     widget.onBackPressed();
                   },
                   onSave: () {
-                    context.read<CoverImagePickerBloc>().add(
-                          SaveToGallery(state),
-                        );
+                    context
+                        .read<CoverImagePickerBloc>()
+                        .add(CoverImagePickerEvent.saveToGallery(state));
                   },
                 ),
               ],
@@ -196,7 +202,7 @@ class ImagePickerActionButtons extends StatelessWidget {
 class CoverImagePreviewWidget extends StatefulWidget {
   const CoverImagePreviewWidget({super.key, required this.state});
 
-  final dynamic state;
+  final CoverImagePickerState state;
 
   @override
   State<CoverImagePreviewWidget> createState() =>
@@ -242,7 +248,9 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
           FlowyButton(
             hoverColor: Theme.of(context).hoverColor,
             onTap: () {
-              ctx.read<CoverImagePickerBloc>().add(const PickFileImage());
+              ctx
+                  .read<CoverImagePickerBloc>()
+                  .add(const CoverImagePickerEvent.pickFileImage());
             },
             useIntrinsicWidth: true,
             leftIcon: const FlowySvg(
@@ -265,7 +273,9 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
       top: 10,
       child: InkWell(
         onTap: () {
-          ctx.read<CoverImagePickerBloc>().add(const DeleteImage());
+          ctx
+              .read<CoverImagePickerBloc>()
+              .add(const CoverImagePickerEvent.deleteImage());
         },
         child: DecoratedBox(
           decoration: BoxDecoration(
@@ -291,42 +301,42 @@ class _CoverImagePreviewWidgetState extends State<CoverImagePreviewWidget> {
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.secondary,
             borderRadius: Corners.s6Border,
-            image: widget.state is Initial
-                ? null
-                : widget.state is NetworkImagePicked
-                    ? widget.state.successOrFail.fold(
-                        (path) => DecorationImage(
-                          image: NetworkImage(path),
-                          fit: BoxFit.cover,
-                        ),
-                        (r) => null,
-                      )
-                    : widget.state is FileImagePicked
-                        ? DecorationImage(
-                            image: FileImage(File(widget.state.path)),
-                            fit: BoxFit.cover,
-                          )
-                        : null,
+            image: widget.state.whenOrNull(
+              networkImage: (successOrFail) {
+                return successOrFail.fold(
+                  (path) => DecorationImage(
+                    image: NetworkImage(path),
+                    fit: BoxFit.cover,
+                  ),
+                  (r) => null,
+                );
+              },
+              fileImage: (path) {
+                return DecorationImage(
+                  image: FileImage(File(path)),
+                  fit: BoxFit.cover,
+                );
+              },
+            ),
           ),
-          child: (widget.state is Initial)
-              ? _buildFilePickerWidget(context)
-              : (widget.state is NetworkImagePicked)
-                  ? widget.state.successOrFail.fold(
-                      (l) => null,
-                      (r) => _buildFilePickerWidget(
-                        context,
-                      ),
-                    )
-                  : null,
+          child: widget.state.whenOrNull(
+            initial: () => _buildFilePickerWidget(context),
+            networkImage: (successOrFail) => successOrFail.fold(
+              (l) => null,
+              (r) => _buildFilePickerWidget(
+                context,
+              ),
+            ),
+          ),
         ),
-        (widget.state is FileImagePicked)
-            ? _buildImageDeleteButton(context)
-            : (widget.state is NetworkImagePicked)
-                ? widget.state.successOrFail.fold(
-                    (l) => _buildImageDeleteButton(context),
-                    (r) => const SizedBox.shrink(),
-                  )
-                : const SizedBox.shrink(),
+        widget.state.maybeWhen(
+          fileImage: (_) => _buildImageDeleteButton(context),
+          networkImage: (successOrFail) => successOrFail.fold(
+            (l) => _buildImageDeleteButton(context),
+            (r) => const SizedBox.shrink(),
+          ),
+          orElse: () => const SizedBox.shrink(),
+        ),
       ],
     );
   }

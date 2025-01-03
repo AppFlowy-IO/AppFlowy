@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/shared/flowy_error_page.dart';
+import 'package:appflowy/shared/loading.dart';
 import 'package:appflowy/util/int64_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/billing/settings_billing_bloc.dart';
@@ -25,7 +26,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../generated/locale_keys.g.dart';
-import '../../../../plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 
 const _buttonsMinWidth = 100.0;
 

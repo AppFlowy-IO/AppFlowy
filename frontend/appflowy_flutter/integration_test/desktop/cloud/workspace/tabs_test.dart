@@ -1,5 +1,5 @@
 import 'package:appflowy/env/cloud_env.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
+import 'package:appflowy/shared/loading.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/flowy_tab.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
