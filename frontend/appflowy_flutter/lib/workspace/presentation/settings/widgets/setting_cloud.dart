@@ -120,7 +120,9 @@ class CloudTypeSwitcher extends StatelessWidget {
                 .toList(),
           )
         : FlowyButton(
-            text: FlowyText(titleFromCloudType(cloudType)),
+            text: FlowyText(
+              titleFromCloudType(cloudType),
+            ),
             useIntrinsicWidth: true,
             rightIcon: const Icon(
               Icons.chevron_right,
@@ -201,19 +203,16 @@ class _CloudServerSwitcher extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(
-          child: FlowyText.medium(
-            LocaleKeys.settings_menu_cloudServerType.tr(),
-          ),
+        FlowyText.medium(
+          LocaleKeys.settings_menu_cloudServerType.tr(),
         ),
-        Flexible(
-          child: CloudTypeSwitcher(
-            cloudType: cloudType,
-            onSelected: (type) => context
-                .read<CloudSettingBloc>()
-                .add(CloudSettingEvent.updateCloudType(type)),
-          ),
+        CloudTypeSwitcher(
+          cloudType: cloudType,
+          onSelected: (type) => context
+              .read<CloudSettingBloc>()
+              .add(CloudSettingEvent.updateCloudType(type)),
         ),
       ],
     );

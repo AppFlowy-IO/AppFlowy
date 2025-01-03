@@ -4,6 +4,7 @@ import 'package:appflowy/startup/startup.dart';
 class ShareConstants {
   static const String baseWebDomain = 'appflowy.com';
   static const String testBaseWebDomain = 'test.appflowy.com';
+  static const String defaultBaseWebDomain = 'https://www.appflowy.com';
 
   static String buildPublishUrl({
     required String nameSpace,

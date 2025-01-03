@@ -68,7 +68,7 @@ class AppFlowyCloudConfiguration {
       ws_base_url: '',
       gotrue_url: '',
       enable_sync_trace: false,
-      base_web_domain: ShareConstants.baseWebDomain,
+      base_web_domain: ShareConstants.defaultBaseWebDomain,
     );
   }
 

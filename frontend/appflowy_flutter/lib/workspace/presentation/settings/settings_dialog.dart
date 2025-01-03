@@ -404,7 +404,7 @@ class _SelfHostSettingsState extends State<_SelfHostSettings> {
   Future<void> _fetchUrls() async {
     await Future.wait([
       getAppFlowyCloudUrl(),
-      getBaseShareDomain(),
+      getAppFlowyShareDomain(),
     ]).then((values) {
       if (values.length != 2) {
         return;

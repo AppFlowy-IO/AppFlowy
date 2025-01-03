@@ -272,7 +272,7 @@ Future<AppFlowyCloudConfiguration> getAppFlowyCloudConfig(
   AuthenticatorType authenticatorType,
 ) async {
   final baseURL = await getAppFlowyCloudUrl();
-  final baseShareDomain = await getBaseShareDomain();
+  final baseShareDomain = await getAppFlowyShareDomain();
 
   try {
     final uri = Uri.parse(baseURL);
@@ -294,7 +294,7 @@ Future<String> getAppFlowyCloudUrl() async {
   return result ?? kAppflowyCloudUrl;
 }
 
-Future<String> getBaseShareDomain() async {
+Future<String> getAppFlowyShareDomain() async {
   final result =
       await getIt<KeyValueStorage>().get(KVKeys.kAppFlowyBaseShareDomain);
   return result ?? ShareConstants.baseWebDomain;
