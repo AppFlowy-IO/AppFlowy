@@ -42,6 +42,11 @@ extension EmojiTestExtension on WidgetTester {
       ),
     );
     expect(find.byType(IconColorPicker), findsNothing);
+
+    /// test for tapping down, it should not display the ColorPicker unless tapping up
+    await tapDown(selectedSvg);
+    expect(find.byType(IconColorPicker), findsNothing);
+
     await tapButton(selectedSvg);
     final colorPicker = find.byType(IconColorPicker);
     expect(colorPicker, findsOneWidget);
