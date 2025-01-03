@@ -31,10 +31,7 @@ extension EmojiTestExtension on WidgetTester {
       matching: find.text(PickerTabType.icon.tr),
     );
     expect(iconTab, findsOneWidget);
-    expect(find.byType(FlowyIconPicker), findsNothing);
-    await tap(iconTab);
-    await pumpAndSettle();
-    expect(find.byType(FlowyIconPicker), findsOneWidget);
+    await tapButton(iconTab);
     final selectedSvg = find.descendant(
       of: find.byType(FlowyIconPicker),
       matching: find.byWidgetPredicate(

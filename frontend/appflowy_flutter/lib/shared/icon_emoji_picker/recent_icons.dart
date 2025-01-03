@@ -46,6 +46,10 @@ class RecentIcons {
           .map(
             (e) => RecentIcon.fromJson(jsonDecode(e) as Map<String, dynamic>),
           )
+
+          /// skip the data that is already stored locally but has an empty
+          /// groupName to accommodate the issue of destructive data modifications
+          .skipWhile((e) => e.groupName.isEmpty)
           .toList();
     } catch (e) {
       Log.error('RecentIcons getIcons with :$iconList', e);
