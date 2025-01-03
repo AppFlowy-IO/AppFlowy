@@ -46,16 +46,17 @@ void main() {
   });
 
   test('putIcons', () async {
-    List<Icon> icons = await RecentIcons.getIcons();
+    List<RecentIcon> icons = await RecentIcons.getIcons();
     assert(icons.isEmpty);
     await loadIconGroups();
     final groups = kIconGroups!;
-    final List<Icon> localIcons = [];
+    final List<RecentIcon> localIcons = [];
     for (final e in groups) {
-      localIcons.addAll(e.icons);
+      localIcons.addAll(e.icons.map((e) => RecentIcon(e, e.name)).toList());
     }
 
-    bool equalIcon(Icon a, Icon b) =>
+    bool equalIcon(RecentIcon a, RecentIcon b) =>
+        a.groupName == b.groupName &&
         a.name == b.name &&
         a.keywords.equals(b.keywords) &&
         a.content == b.content;

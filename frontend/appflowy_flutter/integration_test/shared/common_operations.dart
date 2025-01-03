@@ -13,6 +13,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_tab
 import 'package:appflowy/plugins/shared/share/share_button.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/shared/text_field/text_filed_with_metric_lines.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
@@ -23,6 +24,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_header.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_menu.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/sidebar_workspace.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
@@ -897,6 +899,22 @@ extension CommonOperations on WidgetTester {
 
     await tapAt(Offset.zero);
     await pumpUntilNotFound(finder);
+  }
+
+  /// load icon list and return the first one
+  Future<EmojiIconData> loadIcon() async {
+    await loadIconGroups();
+    final groups = kIconGroups!;
+    final firstGroup = groups.first;
+    final firstIcon = firstGroup.icons.first;
+    return EmojiIconData.icon(
+      IconsData(
+        firstGroup.name,
+        firstIcon.content,
+        firstIcon.name,
+        builtInSpaceColors.first,
+      ),
+    );
   }
 }
 

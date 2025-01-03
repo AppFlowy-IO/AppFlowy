@@ -175,6 +175,33 @@ extension AppFlowyTestBase on WidgetTester {
     }
   }
 
+  Future<void> tapDown(
+    Finder finder, {
+    int? pointer,
+    int buttons = kPrimaryButton,
+    PointerDeviceKind kind = PointerDeviceKind.touch,
+    bool pumpAndSettle = true,
+    int milliseconds = 500,
+  }) async {
+    final location = getCenter(finder);
+    final TestGesture gesture = await startGesture(
+      location,
+      pointer: pointer,
+      buttons: buttons,
+      kind: kind,
+    );
+    await gesture.cancel();
+    await gesture.down(location);
+    await gesture.cancel();
+    if (pumpAndSettle) {
+      await this.pumpAndSettle(
+        Duration(milliseconds: milliseconds),
+        EnginePhase.sendSemanticsUpdate,
+        const Duration(seconds: 15),
+      );
+    }
+  }
+
   Future<void> tapButtonWithName(
     String tr, {
     int milliseconds = 500,

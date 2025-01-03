@@ -22,13 +22,10 @@ class RecentIcons {
     await _put(FlowyIconType.emoji, id);
   }
 
-  static Future<void> putIcon(Icon icon) async {
+  static Future<void> putIcon(RecentIcon icon) async {
     await _put(
       FlowyIconType.icon,
-      jsonEncode(
-        Icon(name: icon.name, keywords: icon.keywords, content: icon.content)
-            .toJson(),
-      ),
+      jsonEncode(icon.toJson()),
     );
   }
 
@@ -37,12 +34,22 @@ class RecentIcons {
     return _dataMap[FlowyIconType.emoji.name] ?? [];
   }
 
-  static Future<List<Icon>> getIcons() async {
+  static Future<List<RecentIcon>> getIcons() async {
     await _load();
+    return getIconsSync();
+  }
+
+  static List<RecentIcon> getIconsSync() {
     final iconList = _dataMap[FlowyIconType.icon.name] ?? [];
     try {
       return iconList
-          .map((e) => Icon.fromJson(jsonDecode(e) as Map<String, dynamic>))
+          .map(
+            (e) => RecentIcon.fromJson(jsonDecode(e) as Map<String, dynamic>),
+          )
+
+          /// skip the data that is already stored locally but has an empty
+          /// groupName to accommodate the issue of destructive data modifications
+          .skipWhile((e) => e.groupName.isEmpty)
           .toList();
     } catch (e) {
       Log.error('RecentIcons getIcons with :$iconList', e);

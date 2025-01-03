@@ -1,17 +1,30 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/presentation/base/view_page/app_bar_buttons.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet_buttons.dart';
+import 'package:appflowy/mobile/presentation/mobile_bottom_navigation_bar.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_icon.dart';
+import 'package:appflowy/shared/icon_emoji_picker/recent_icons.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+import '../../shared/emoji.dart';
 import '../../shared/util.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() {
+    IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+    RecentIcons.enable = false;
+  });
+
+  tearDownAll(() {
+    RecentIcons.enable = true;
+  });
 
   group('document page style:', () {
     double getCurrentEditorFontSize() {
@@ -113,6 +126,38 @@ void main() {
         matching: firstBuiltInImage,
       );
       expect(builtInCover, findsOneWidget);
+    });
+
+    testWidgets('page style icon', (tester) async {
+      await tester.launchInAnonymousMode();
+
+      final createPageButton =
+          find.byKey(BottomNavigationBarItemType.add.valueKey);
+      await tester.tapButton(createPageButton);
+
+      /// toggle the preset button
+      await tester.tapSvgButton(FlowySvgs.m_layout_s);
+
+      /// select document plugins emoji
+      final pageStyleIcon = find.byType(PageStyleIcon);
+
+      /// there should be none of emoji
+      final noneText = find.text(LocaleKeys.pageStyle_none.tr());
+      expect(noneText, findsOneWidget);
+      await tester.tapButton(pageStyleIcon);
+
+      /// select an emoji
+      const emoji = '😄';
+      await tester.tapEmoji(emoji);
+      await tester.tapSvgButton(FlowySvgs.m_layout_s);
+      expect(noneText, findsNothing);
+      expect(
+        find.descendant(
+          of: pageStyleIcon,
+          matching: find.text(emoji),
+        ),
+        findsOneWidget,
+      );
     });
   });
 }

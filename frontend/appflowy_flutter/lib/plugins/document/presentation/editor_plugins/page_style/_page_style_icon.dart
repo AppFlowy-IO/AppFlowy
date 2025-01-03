@@ -48,12 +48,15 @@ class _PageStyleIconState extends State<PageStyleIcon> {
                   const HSpace(16.0),
                   FlowyText(LocaleKeys.document_plugins_emoji.tr()),
                   const Spacer(),
-                  RawEmojiIconWidget(
-                    emoji: icon.isNotEmpty
-                        ? icon
-                        : EmojiIconData.emoji(LocaleKeys.pageStyle_none.tr()),
-                    emojiSize: icon.isNotEmpty ? 22.0 : 16.0,
-                  ),
+                  icon.isEmpty
+                      ? FlowyText(
+                          LocaleKeys.pageStyle_none.tr(),
+                          fontSize: 16.0,
+                        )
+                      : RawEmojiIconWidget(
+                          emoji: icon,
+                          emojiSize: 22.0,
+                        ),
                   const HSpace(6.0),
                   const FlowySvg(FlowySvgs.m_page_style_arrow_right_s),
                   const HSpace(12.0),

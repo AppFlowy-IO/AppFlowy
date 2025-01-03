@@ -1,9 +1,7 @@
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji_picker_button.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
-import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/recent_icons.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
@@ -26,21 +24,6 @@ void main() {
   tearDownAll(() {
     RecentIcons.enable = true;
   });
-
-  Future<EmojiIconData> loadIcon() async {
-    await loadIconGroups();
-    final groups = kIconGroups!;
-    final firstGroup = groups.first;
-    final firstIcon = firstGroup.icons.first;
-    return EmojiIconData.icon(
-      IconsData(
-        firstGroup.name,
-        firstIcon.content,
-        firstIcon.name,
-        builtInSpaceColors.first,
-      ),
-    );
-  }
 
   testWidgets('Update page emoji in sidebar', (tester) async {
     await tester.initializeAppFlowy();
@@ -160,7 +143,7 @@ void main() {
   testWidgets('Update page icon in sidebar', (tester) async {
     await tester.initializeAppFlowy();
     await tester.tapAnonymousSignInButton();
-    final iconData = await loadIcon();
+    final iconData = await tester.loadIcon();
 
     // create document, board, grid and calendar views
     for (final value in ViewLayoutPB.values) {
@@ -192,7 +175,7 @@ void main() {
   testWidgets('Update page icon in title bar', (tester) async {
     await tester.initializeAppFlowy();
     await tester.tapAnonymousSignInButton();
-    final iconData = await loadIcon();
+    final iconData = await tester.loadIcon();
 
     // create document, board, grid and calendar views
     for (final value in ViewLayoutPB.values) {
