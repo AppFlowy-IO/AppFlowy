@@ -268,8 +268,8 @@ class _MobileViewPageState extends State<MobileViewPage> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (icon != null) ...[
-          EmojiIconWidget(
+        if (icon != null && icon.value.isNotEmpty) ...[
+          RawEmojiIconWidget(
             emoji: icon.toEmojiIconData(),
             emojiSize: 15,
           ),
