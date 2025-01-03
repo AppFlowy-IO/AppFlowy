@@ -71,6 +71,7 @@ pub(crate) async fn stream_chat_message_handler(
       message_type,
       data.answer_stream_port,
       data.question_stream_port,
+      data.format,
       metadata,
     )
     .await?;
@@ -90,6 +91,7 @@ pub(crate) async fn regenerate_response_handler(
       &data.chat_id,
       data.answer_message_id,
       data.answer_stream_port,
+      data.format,
     )
     .await?;
   Ok(())

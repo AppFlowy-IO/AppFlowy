@@ -214,7 +214,10 @@ class _ChatContentPage extends StatelessWidget {
               _onSelectMetadata(context, metadata),
           onRegenerate: () => context
               .read<ChatBloc>()
-              .add(ChatEvent.regenerateAnswer(message.id)),
+              .add(ChatEvent.regenerateAnswer(message.id, null)),
+          onChangeFormat: (format) => context
+              .read<ChatBloc>()
+              .add(ChatEvent.regenerateAnswer(message.id, format)),
         );
       },
     );
@@ -288,10 +291,11 @@ class _ChatContentPage extends StatelessWidget {
                   onStopStreaming: () {
                     chatBloc.add(const ChatEvent.stopStream());
                   },
-                  onSubmitted: (text, metadata) {
+                  onSubmitted: (text, format, metadata) {
                     chatBloc.add(
                       ChatEvent.sendMessage(
                         message: text,
+                        format: format,
                         metadata: metadata,
                       ),
                     );
@@ -310,10 +314,11 @@ class _ChatContentPage extends StatelessWidget {
                   onStopStreaming: () {
                     chatBloc.add(const ChatEvent.stopStream());
                   },
-                  onSubmitted: (text, metadata) {
+                  onSubmitted: (text, format, metadata) {
                     chatBloc.add(
                       ChatEvent.sendMessage(
                         message: text,
+                        format: format,
                         metadata: metadata,
                       ),
                     );

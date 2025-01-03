@@ -11,7 +11,8 @@ use std::collections::HashMap;
 use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
   CompletionType, LocalAIConfig, MessageCursor, RelatedQuestion, RepeatedChatMessage,
-  RepeatedRelatedQuestion, StreamAnswer, StreamComplete, SubscriptionPlan, UpdateChatParams,
+  RepeatedRelatedQuestion, ResponseFormat, StreamAnswer, StreamComplete, SubscriptionPlan,
+  UpdateChatParams,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use futures::{stream, Sink, StreamExt, TryStreamExt};
@@ -155,6 +156,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
     workspace_id: &str,
     chat_id: &str,
     question_id: i64,
+    format: ResponseFormat,
   ) -> Result<StreamAnswer, FlowyError> {
     if self.local_llm_controller.is_running() {
       let row = self.get_message_record(question_id)?;
@@ -172,7 +174,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
     } else {
       self
         .cloud_service
-        .stream_answer(workspace_id, chat_id, question_id)
+        .stream_answer(workspace_id, chat_id, question_id, format)
         .await
     }
   }

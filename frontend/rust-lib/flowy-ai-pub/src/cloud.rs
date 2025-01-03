@@ -1,7 +1,8 @@
 use bytes::Bytes;
 pub use client_api::entity::ai_dto::{
   AppFlowyOfflineAI, CompletionType, CreateChatContext, LLMModel, LocalAIConfig, ModelInfo,
-  RelatedQuestion, RepeatedRelatedQuestion, StringOrMessage,
+  OutputContent, OutputLayout, RelatedQuestion, RepeatedRelatedQuestion, ResponseFormat,
+  StringOrMessage,
 };
 pub use client_api::entity::billing_dto::SubscriptionPlan;
 pub use client_api::entity::chat_dto::{
@@ -53,6 +54,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
     workspace_id: &str,
     chat_id: &str,
     message_id: i64,
+    format: ResponseFormat,
   ) -> Result<StreamAnswer, FlowyError>;
 
   async fn get_answer(
