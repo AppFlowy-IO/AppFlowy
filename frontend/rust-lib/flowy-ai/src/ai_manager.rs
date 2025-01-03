@@ -1,6 +1,7 @@
 use crate::chat::Chat;
 use crate::entities::{
-  ChatInfoPB, ChatMessageListPB, ChatMessagePB, ChatSettingsPB, FilePB, RepeatedRelatedQuestionPB,
+  ChatInfoPB, ChatMessageListPB, ChatMessagePB, ChatSettingsPB, FilePB, PredefinedFormatPB,
+  RepeatedRelatedQuestionPB,
 };
 use crate::local_ai::local_llm_chat::LocalAIController;
 use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
@@ -219,6 +220,7 @@ impl AIManager {
     message_type: ChatMessageType,
     answer_stream_port: i64,
     question_stream_port: i64,
+    format: Option<PredefinedFormatPB>,
     metadata: Vec<ChatMessageMetadata>,
   ) -> Result<ChatMessagePB, FlowyError> {
     let chat = self.get_or_create_chat_instance(chat_id).await?;
@@ -228,6 +230,7 @@ impl AIManager {
         message_type,
         answer_stream_port,
         question_stream_port,
+        format,
         metadata,
       )
       .await?;
@@ -243,13 +246,14 @@ impl AIManager {
     chat_id: &str,
     answer_message_id: i64,
     answer_stream_port: i64,
+    format: Option<PredefinedFormatPB>,
   ) -> FlowyResult<()> {
     let chat = self.get_or_create_chat_instance(chat_id).await?;
     let question_message_id = chat
       .get_question_id_from_answer_id(answer_message_id)
       .await?;
     chat
-      .stream_regenerate_response(question_message_id, answer_stream_port)
+      .stream_regenerate_response(question_message_id, answer_stream_port, format)
       .await?;
     Ok(())
   }

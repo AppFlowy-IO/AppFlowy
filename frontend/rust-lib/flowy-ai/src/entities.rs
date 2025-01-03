@@ -4,7 +4,8 @@ use std::collections::HashMap;
 
 use crate::local_ai::local_llm_resource::PendingResource;
 use flowy_ai_pub::cloud::{
-  ChatMessage, LLMModel, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
+  ChatMessage, LLMModel, OutputContent, OutputLayout, RelatedQuestion, RepeatedChatMessage,
+  RepeatedRelatedQuestion, ResponseFormat,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_infra::validator_fn::required_not_empty_str;
@@ -67,7 +68,10 @@ pub struct StreamChatPayloadPB {
   #[pb(index = 5)]
   pub question_stream_port: i64,
 
-  #[pb(index = 6)]
+  #[pb(index = 6, one_of)]
+  pub format: Option<PredefinedFormatPB>,
+
+  #[pb(index = 7)]
   pub metadata: Vec<ChatMessageMetaPB>,
 }
 
@@ -82,6 +86,9 @@ pub struct RegenerateResponsePB {
 
   #[pb(index = 3)]
   pub answer_stream_port: i64,
+
+  #[pb(index = 4, one_of)]
+  pub format: Option<PredefinedFormatPB>,
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
@@ -553,4 +560,52 @@ pub struct UpdateChatSettingsPB {
 
   #[pb(index = 2)]
   pub rag_ids: Vec<String>,
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf)]
+pub struct PredefinedFormatPB {
+  #[pb(index = 1)]
+  pub image_format: ResponseImageFormatPB,
+
+  #[pb(index = 2, one_of)]
+  pub text_format: Option<ResponseTextFormatPB>,
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf_Enum)]
+pub enum ResponseImageFormatPB {
+  #[default]
+  TextOnly = 0,
+  ImageOnly = 1,
+  TextAndImage = 2,
+}
+
+#[derive(Debug, Default, Clone, ProtoBuf_Enum)]
+pub enum ResponseTextFormatPB {
+  #[default]
+  Paragraph = 0,
+  BulletedList = 1,
+  NumberedList = 2,
+  Table = 3,
+}
+
+impl From<PredefinedFormatPB> for ResponseFormat {
+  fn from(value: PredefinedFormatPB) -> Self {
+    Self {
+      output_layout: match value.text_format {
+        Some(format) => match format {
+          ResponseTextFormatPB::Paragraph => OutputLayout::Paragraph,
+          ResponseTextFormatPB::BulletedList => OutputLayout::BulletList,
+          ResponseTextFormatPB::NumberedList => OutputLayout::NumberedList,
+          ResponseTextFormatPB::Table => OutputLayout::SimpleTable,
+        },
+        None => OutputLayout::Paragraph,
+      },
+      output_content: match value.image_format {
+        ResponseImageFormatPB::TextOnly => OutputContent::TEXT,
+        ResponseImageFormatPB::ImageOnly => OutputContent::IMAGE,
+        ResponseImageFormatPB::TextAndImage => OutputContent::RichTextImage,
+      },
+      output_content_metadata: None,
+    }
+  }
 }

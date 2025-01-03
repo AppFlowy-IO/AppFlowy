@@ -165,12 +165,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           },
           sendMessage: (
             String message,
+            PredefinedFormat? format,
             Map<String, dynamic>? metadata,
           ) {
             numSendMessage += 1;
 
             _clearRelatedQuestions();
-            _startStreamingMessage(message, metadata);
+            _startStreamingMessage(message, format, metadata);
             lastSentMessage = null;
 
             emit(
@@ -233,7 +234,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           },
           regenerateAnswer: (id, format) {
             _clearRelatedQuestions();
-            _regenerateAnswer(id);
+            _regenerateAnswer(id, format);
             lastSentMessage = null;
 
             emit(
@@ -398,6 +399,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   Future<void> _startStreamingMessage(
     String message,
+    PredefinedFormat? format,
     Map<String, dynamic>? metadata,
   ) async {
     await answerStream?.dispose();
@@ -420,6 +422,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       answerStreamPort: Int64(answerStream!.nativePort),
       metadata: await metadataPBFromMetadata(metadata),
     );
+    if (format != null) {
+      payload.format = format.toPB();
+    }
 
     // stream the question to the server
     await AIEventStreamMessage(payload).send().fold(
@@ -460,7 +465,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  void _regenerateAnswer(String answerMessageIdString) async {
+  void _regenerateAnswer(
+    String answerMessageIdString,
+    PredefinedFormat? format,
+  ) async {
     final id = temporaryMessageIDMap.entries
             .firstWhereOrNull((e) => e.value == answerMessageIdString)
             ?.key ??
@@ -479,6 +487,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       answerMessageId: answerMessageId,
       answerStreamPort: Int64(answerStream!.nativePort),
     );
+    if (format != null) {
+      payload.format = format.toPB();
+    }
 
     await AIEventRegenerateResponse(payload).send().fold(
       (success) {
@@ -586,6 +597,7 @@ class ChatEvent with _$ChatEvent {
   // send message
   const factory ChatEvent.sendMessage({
     required String message,
+    PredefinedFormat? format,
     Map<String, dynamic>? metadata,
   }) = _SendMessage;
   const factory ChatEvent.finishSending() = _FinishSendMessage;

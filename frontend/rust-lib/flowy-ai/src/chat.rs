@@ -1,6 +1,7 @@
 use crate::ai_manager::AIUserService;
 use crate::entities::{
-  ChatMessageErrorPB, ChatMessageListPB, ChatMessagePB, RepeatedRelatedQuestionPB,
+  ChatMessageErrorPB, ChatMessageListPB, ChatMessagePB, PredefinedFormatPB,
+  RepeatedRelatedQuestionPB,
 };
 use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
 use crate::notification::{chat_notification_builder, ChatNotification};
@@ -12,7 +13,7 @@ use crate::stream_message::StreamMessage;
 use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, MessageCursor,
-  QuestionStreamValue,
+  QuestionStreamValue, ResponseFormat,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
@@ -87,6 +88,7 @@ impl Chat {
     message_type: ChatMessageType,
     answer_stream_port: i64,
     question_stream_port: i64,
+    format: Option<PredefinedFormatPB>,
     metadata: Vec<ChatMessageMetadata>,
   ) -> Result<ChatMessagePB, FlowyError> {
     trace!(
@@ -141,12 +143,15 @@ impl Chat {
     // Save message to disk
     save_and_notify_message(uid, &self.chat_id, &self.user_service, question.clone())?;
 
+    let format = format.unwrap_or_default().into();
+
     self.stream_response(
       answer_stream_port,
       answer_stream_buffer,
       uid,
       workspace_id,
       question.message_id,
+      format,
     );
 
     let question_pb = ChatMessagePB::from(question);
@@ -158,6 +163,7 @@ impl Chat {
     &self,
     question_id: i64,
     answer_stream_port: i64,
+    format: Option<PredefinedFormatPB>,
   ) -> FlowyResult<()> {
     trace!(
       "[Chat] regenerate and stream chat message: chat_id={}",
@@ -170,6 +176,8 @@ impl Chat {
       .store(false, std::sync::atomic::Ordering::SeqCst);
     self.stream_buffer.lock().await.clear();
 
+    let format = format.unwrap_or_default().into();
+
     let answer_stream_buffer = self.stream_buffer.clone();
     let uid = self.user_service.user_id()?;
     let workspace_id = self.user_service.workspace_id()?;
@@ -180,6 +188,7 @@ impl Chat {
       uid,
       workspace_id,
       question_id,
+      format,
     );
 
     Ok(())
@@ -192,6 +201,7 @@ impl Chat {
     uid: i64,
     workspace_id: String,
     question_id: i64,
+    format: ResponseFormat,
   ) {
     let stop_stream = self.stop_stream.clone();
     let chat_id = self.chat_id.clone();
@@ -200,7 +210,7 @@ impl Chat {
     tokio::spawn(async move {
       let mut answer_sink = IsolateSink::new(Isolate::new(answer_stream_port));
       match cloud_service
-        .stream_answer(&workspace_id, &chat_id, question_id)
+        .stream_answer(&workspace_id, &chat_id, question_id, format)
         .await
       {
         Ok(mut stream) => {

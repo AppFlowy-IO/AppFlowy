@@ -291,10 +291,11 @@ class _ChatContentPage extends StatelessWidget {
                   onStopStreaming: () {
                     chatBloc.add(const ChatEvent.stopStream());
                   },
-                  onSubmitted: (text, metadata) {
+                  onSubmitted: (text, format, metadata) {
                     chatBloc.add(
                       ChatEvent.sendMessage(
                         message: text,
+                        format: format,
                         metadata: metadata,
                       ),
                     );
@@ -313,10 +314,11 @@ class _ChatContentPage extends StatelessWidget {
                   onStopStreaming: () {
                     chatBloc.add(const ChatEvent.stopStream());
                   },
-                  onSubmitted: (text, metadata) {
+                  onSubmitted: (text, format, metadata) {
                     chatBloc.add(
                       ChatEvent.sendMessage(
                         message: text,
+                        format: format,
                         metadata: metadata,
                       ),
                     );

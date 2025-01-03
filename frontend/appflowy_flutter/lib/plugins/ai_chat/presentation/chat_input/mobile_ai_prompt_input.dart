@@ -30,7 +30,8 @@ class MobileAIPromptInput extends StatefulWidget {
   final String chatId;
   final bool isStreaming;
   final void Function() onStopStreaming;
-  final void Function(String, Map<String, dynamic>) onSubmitted;
+  final void Function(String, PredefinedFormat?, Map<String, dynamic>)
+      onSubmitted;
   final void Function(List<String>) onUpdateSelectedSources;
 
   @override
@@ -183,14 +184,13 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
     }
 
     // get the attached files and mentioned pages
-    final metadata = {
-      ...context.read<AIPromptInputBloc>().consumeMetadata(),
-      if (showPredefinedFormatSection) ...{
-        "format": predefinedFormat,
-      },
-    };
+    final metadata = context.read<AIPromptInputBloc>().consumeMetadata();
 
-    widget.onSubmitted(trimmedText, metadata);
+    if (showPredefinedFormatSection) {
+      widget.onSubmitted(trimmedText, predefinedFormat, metadata);
+    } else {
+      widget.onSubmitted(trimmedText, null, metadata);
+    }
   }
 
   void handleTextControllerChange() {
