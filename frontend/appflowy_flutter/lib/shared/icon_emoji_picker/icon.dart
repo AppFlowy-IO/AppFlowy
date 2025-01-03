@@ -39,8 +39,9 @@ class IconGroup {
     final filteredIcons = icons
         .where(
           (icon) =>
-              icon.keywords.any((k) => k.contains(lowercaseKey)) ||
-              icon.name.contains(lowercaseKey),
+              icon.keywords
+                  .any((k) => k.toLowerCase().contains(lowercaseKey)) ||
+              icon.name.toLowerCase().contains(lowercaseKey),
         )
         .toList();
     return IconGroup(name: name, icons: filteredIcons);
@@ -83,4 +84,24 @@ class Icon {
     }
     return '${iconGroup!.name}/$name';
   }
+}
+
+class RecentIcon {
+  factory RecentIcon.fromJson(Map<String, dynamic> json) =>
+      RecentIcon(_$IconFromJson(json), json['groupName'] ?? '');
+
+  RecentIcon(this.icon, this.groupName);
+
+  final Icon icon;
+  final String groupName;
+
+  String get name => icon.name;
+
+  List<String> get keywords => icon.keywords;
+
+  String get content => icon.content;
+
+  Map<String, dynamic> toJson() => _$IconToJson(
+        Icon(name: name, keywords: keywords, content: content),
+      )..addAll({'groupName': groupName});
 }

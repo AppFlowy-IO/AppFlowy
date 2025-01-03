@@ -78,6 +78,7 @@
     "chooseWorkspace": "اختر مساحة العمل الخاصة بك",
     "defaultName": "مساحة العمل الخاصة بي",
     "create": "قم بإنشاء مساحة عمل",
+    "new": "مساحة عمل جديدة",
     "importFromNotion": "الاستيراد من Notion",
     "learnMore": "تعلم المزيد",
     "reset": "إعادة تعيين مساحة العمل",
@@ -214,6 +215,7 @@
     "indexingFile": "الفهرسة {}",
     "generatingResponse": "توليد الاستجابة",
     "selectSources": "اختر المصادر",
+    "sourcesLimitReached": "يمكنك فقط تحديد ما يصل إلى 3 مستندات من المستوى العلوي ومستنداتها الفرعية",
     "sourceUnsupported": "نحن لا ندعم الدردشة مع قواعد البيانات في الوقت الحالي",
     "regenerate": "حاول ثانية",
     "addToPageButton": "أضف إلى الصفحة",
@@ -277,7 +279,8 @@
     "moreButtonToolTip": "إزالة وإعادة تسمية والمزيد...",
     "addPageTooltip": "أضف صفحة في الداخل بسرعة",
     "defaultNewPageName": "بدون عنوان",
-    "renameDialog": "إعادة تسمية"
+    "renameDialog": "إعادة تسمية",
+    "pageNameSuffix": "نسخ"
   },
   "noPagesInside": "لا توجد صفحات في الداخل",
   "toolbar": {
@@ -814,6 +817,7 @@
         "offlineAIInstruction3": "لتفعيل الذكاء الاصطناعي دون اتصال بالإنترنت.",
         "offlineAIDownload1": "إذا لم تقم بتنزيل AppFlowy AI، فيرجى",
         "offlineAIDownload2": "التنزيل",
+        "offlineAIDownload3": "إنه أولا",
         "activeOfflineAI": "نشط",
         "downloadOfflineAI": "التنزيل",
         "openModelDirectory": "افتح المجلد"
@@ -889,20 +893,104 @@
       "title": "الفوترة",
       "plan": {
         "title": "الخطة",
-        "proLabel": "مجاني"
+        "freeLabel": "مجاني",
+        "proLabel": "مجاني",
+        "planButtonLabel": "تغيير الخطة",
+        "billingPeriod": "فترة الفوترة",
+        "periodButtonLabel": "تعديل الفترة"
+      },
+      "paymentDetails": {
+        "title": "تفاصيل الدفع",
+        "methodLabel": "طريقة الدفع",
+        "methodButtonLabel": "طريقة التعديل"
       },
       "addons": {
+        "title": "مَرافِق",
+        "addLabel": "إضافة",
+        "removeLabel": "إزالة",
+        "renewLabel": "تجديد",
         "aiMax": {
+          "label": "الحد الأقصى للذكاء الاصطناعي",
+          "description": "إلغاء تأمين عدد غير محدود من الذكاء الاصطناعي والنماذج المتقدمة",
+          "activeDescription": "الفاتورة القادمة مستحقة في {}",
           "canceledDescription": "سيكون AI Max متوفرا حتى {}"
         },
         "aiOnDevice": {
+          "label": "الذكاء الاصطناعي على الجهاز لنظام التشغيل Mac",
+          "description": "إلغاء تأمين الذكاء الاصطناعي غير المحدود على جهازك",
+          "activeDescription": "الفاتورة القادمة مستحقة في {}",
           "canceledDescription": "ستتوفر ميزة AI On-device for Mac حتى {}"
+        },
+        "removeDialog": {
+          "title": "إزالة {}",
+          "description": "هل أنت متأكد من أنك تريد إزالة {plan}؟ ستفقد الوصول إلى ميزات وفوائد {plan} على الفور."
         }
-      }
+      },
+      "currentPeriodBadge": "الحالي",
+      "changePeriod": "فترة التغيير",
+      "planPeriod": "{} فترة",
+      "monthlyInterval": "شهريا",
+      "monthlyPriceInfo": "لكل مقعد يتم دفع الفاتورة شهريًا",
+      "annualInterval": "سنويا",
+      "annualPriceInfo": "لكل مقعد يتم دفع الفاتورة سنويًا"
     },
     "comparePlanDialog": {
+      "title": "قارن واختر الخطة",
+      "planFeatures": " الخطة\nميزات",
+      "current": "الحالي",
+      "actions": {
+        "upgrade": "ترقية",
+        "downgrade": "يرجع إلى إصدار أقدم",
+        "current": "الحالي"
+      },
+      "freePlan": {
+        "title": "مجاني",
+        "description": "للأفراد حتى عضوين لتنظيم كل شيء",
+        "price": "{}",
+        "priceInfo": "مجاني للأبد"
+      },
+      "proPlan": {
+        "title": "احترافي",
+        "description": "للفرق الصغيرة لإدارة المشاريع ومعرفة الفريق",
+        "price": "{}",
+        "priceInfo": "لكل مستخدم شهريا\nيتم فوترتها سنويا\n\n{} يتم الفوترتها شهريًا"
+      },
       "planLabels": {
-        "tooltipSix": "تعني مدة الحياة أن عدد الاستجابات لا يتم إعادة ضبطه أبدًا"
+        "itemOne": "مساحات العمل",
+        "itemTwo": "الأعضاء",
+        "itemThree": "التخزين",
+        "itemFour": "التعاون في الزمن الحقيقي",
+        "itemFive": "تطبيق الجوال",
+        "itemSix": "استجابات الذكاء الاصطناعي",
+        "itemFileUpload": "رفع الملفات",
+        "customNamespace": "مساحة اسم مخصصة",
+        "tooltipSix": "تعني مدة الحياة أن عدد الاستجابات لا يتم إعادة ضبطه أبدًا",
+        "intelligentSearch": "البحث الذكي",
+        "tooltipSeven": "يتيح لك تخصيص جزء من عنوان URL لمساحة العمل الخاصة بك",
+        "customNamespaceTooltip": "عنوان URL للموقع المنشور المخصص"
+      },
+      "freeLabels": {
+        "itemOne": "يتم فرض رسوم على كل مساحة عمل",
+        "itemTwo": "حتى 2",
+        "itemThree": "5 جيجا بايت",
+        "itemFour": "نعم",
+        "itemFive": "نعم",
+        "itemSix": "20 مدى الحياة",
+        "itemFileUpload": "حتى 7 ميجا بايت",
+        "intelligentSearch": "البحث الذكي"
+      },
+      "proLabels": {
+        "itemOne": "تتم الفوترة على كل مساحة عمل",
+        "itemTwo": "حتى 10",
+        "itemThree": "غير محدود",
+        "itemFour": "نعم",
+        "itemFive": "نعم",
+        "itemSix": "غير محدود",
+        "itemFileUpload": "غير محدود",
+        "intelligentSearch": "البحث الذكي"
+      },
+      "paymentSuccess": {
+        "title": "أنت الآن على خطة {}!"
       }
     },
     "common": {

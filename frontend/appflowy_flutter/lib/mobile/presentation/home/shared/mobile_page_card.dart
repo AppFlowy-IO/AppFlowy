@@ -178,15 +178,16 @@ class MobileViewPage extends StatelessWidget {
       overflow: TextOverflow.ellipsis,
       text: TextSpan(
         children: [
-          WidgetSpan(
-            child: SizedBox(
-              width: 20,
-              child: EmojiIconWidget(
-                emoji: icon,
-                emojiSize: 17.0,
+          if (icon.isNotEmpty)
+            WidgetSpan(
+              child: SizedBox(
+                width: 20,
+                child: EmojiIconWidget(
+                  emoji: icon,
+                  emojiSize: 17.0,
+                ),
               ),
             ),
-          ),
           if (icon.isNotEmpty) const WidgetSpan(child: HSpace(2.0)),
           TextSpan(
             text: name,

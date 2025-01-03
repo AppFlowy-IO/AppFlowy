@@ -9,7 +9,6 @@ import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
-import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -69,9 +68,8 @@ class _PromptInputMobileSelectSourcesButtonState
               value: cubit,
             ),
           ],
-          child: BlocSelector<SpaceBloc, SpaceState, List<ViewPB>>(
-            selector: (state) => state.spaces,
-            builder: (context, spaces) {
+          child: BlocBuilder<SpaceBloc, SpaceState>(
+            builder: (context, state) {
               return BlocListener<ChatBloc, ChatState>(
                 listener: (context, state) {
                   cubit
@@ -97,7 +95,9 @@ class _PromptInputMobileSelectSourcesButtonState
                     ],
                   ),
                   onTap: () async {
-                    context.read<ChatSettingsCubit>().refreshSources(spaces);
+                    context
+                        .read<ChatSettingsCubit>()
+                        .refreshSources(state.spaces, state.currentSpace);
                     await showMobileBottomSheet<void>(
                       context,
                       backgroundColor: Theme.of(context).colorScheme.surface,
