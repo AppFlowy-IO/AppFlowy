@@ -68,7 +68,6 @@ class MobileDatabaseViewQuickActions extends StatelessWidget {
           },
           !isInline,
         ),
-        const MobileQuickActionDivider(),
       ],
     );
   }

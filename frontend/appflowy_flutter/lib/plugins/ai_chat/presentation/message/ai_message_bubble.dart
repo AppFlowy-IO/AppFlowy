@@ -313,7 +313,6 @@ class ChatAIMessagePopup extends StatelessWidget {
                 _regenerateButton(context),
                 _divider(),
                 _saveToPageButton(context),
-                _divider(),
               ],
             );
           },

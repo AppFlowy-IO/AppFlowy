@@ -142,7 +142,6 @@ class _GroupCardHeaderState extends State<GroupCardHeader> {
                             context.pop();
                           },
                         ),
-                        const MobileQuickActionDivider(),
                       ],
                     ),
                   ),

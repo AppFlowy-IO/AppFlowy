@@ -190,7 +190,6 @@ class MobileViewBottomSheetBody extends StatelessWidget {
             MobileViewBottomSheetBodyAction.unpublish,
           ),
         ),
-        _divider(),
       ];
     } else {
       return [
@@ -201,7 +200,6 @@ class MobileViewBottomSheetBody extends StatelessWidget {
             MobileViewBottomSheetBodyAction.publish,
           ),
         ),
-        _divider(),
       ];
     }
   }

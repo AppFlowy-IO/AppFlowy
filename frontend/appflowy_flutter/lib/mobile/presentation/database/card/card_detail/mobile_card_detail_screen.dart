@@ -209,7 +209,6 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
             icon: FlowySvgs.trash_s,
             iconColor: Theme.of(context).colorScheme.error,
           ),
-          const MobileQuickActionDivider(),
         ],
       ),
     );

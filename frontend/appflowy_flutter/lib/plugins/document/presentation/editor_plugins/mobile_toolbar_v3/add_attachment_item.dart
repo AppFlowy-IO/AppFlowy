@@ -131,7 +131,6 @@ class _AddAttachmentMenu extends StatelessWidget {
             iconSize: const Size.square(20),
             onTap: () async => selectFile(context),
           ),
-          const MobileQuickActionDivider(),
         ],
       ),
     );
