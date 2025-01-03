@@ -48,7 +48,7 @@ class MobileDatabaseViewQuickActions extends StatelessWidget {
             context.pop();
           }
         }),
-        _divider(),
+        const MobileQuickActionDivider(),
         _actionButton(
           context,
           _Action.duplicate,
@@ -58,7 +58,7 @@ class MobileDatabaseViewQuickActions extends StatelessWidget {
           },
           !isInline,
         ),
-        _divider(),
+        const MobileQuickActionDivider(),
         _actionButton(
           context,
           _Action.delete,
@@ -68,7 +68,6 @@ class MobileDatabaseViewQuickActions extends StatelessWidget {
           },
           !isInline,
         ),
-        _divider(),
       ],
     );
   }
@@ -88,8 +87,6 @@ class MobileDatabaseViewQuickActions extends StatelessWidget {
       enable: enable,
     );
   }
-
-  Widget _divider() => const Divider(height: 8.5, thickness: 0.5);
 }
 
 enum _Action {

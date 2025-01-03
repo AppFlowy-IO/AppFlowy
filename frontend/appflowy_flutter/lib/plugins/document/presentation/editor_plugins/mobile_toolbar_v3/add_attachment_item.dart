@@ -117,21 +117,20 @@ class _AddAttachmentMenu extends StatelessWidget {
             iconSize: const Size.square(20),
             onTap: () async => selectPhoto(context),
           ),
-          const Divider(height: 8.5, thickness: 0.5),
+          const MobileQuickActionDivider(),
           MobileQuickActionButton(
             text: LocaleKeys.document_attachmentMenu_takePicture.tr(),
             icon: FlowySvgs.camera_s,
             iconSize: const Size.square(20),
             onTap: () async => selectCamera(context),
           ),
-          const Divider(height: 8.5, thickness: 0.5),
+          const MobileQuickActionDivider(),
           MobileQuickActionButton(
             text: LocaleKeys.document_attachmentMenu_chooseFile.tr(),
             icon: FlowySvgs.file_s,
             iconSize: const Size.square(20),
             onTap: () async => selectFile(context),
           ),
-          const Divider(height: 8.5, thickness: 0.5),
         ],
       ),
     );
