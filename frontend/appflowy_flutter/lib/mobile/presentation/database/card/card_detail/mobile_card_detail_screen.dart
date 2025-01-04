@@ -149,7 +149,7 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
             icon: FlowySvgs.duplicate_s,
             text: LocaleKeys.button_duplicate.tr(),
           ),
-          const Divider(height: 8.5, thickness: 0.5),
+          const MobileQuickActionDivider(),
           MobileQuickActionButton(
             onTap: () => showMobileBottomSheet(
               context,
@@ -201,7 +201,7 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
             icon: FlowySvgs.add_cover_s,
             text: 'Add cover',
           ),
-          const Divider(height: 8.5, thickness: 0.5),
+          const MobileQuickActionDivider(),
           MobileQuickActionButton(
             onTap: () => _performAction(viewId, _bloc.state.currentRowId, true),
             text: LocaleKeys.button_delete.tr(),
@@ -209,7 +209,6 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
             icon: FlowySvgs.trash_s,
             iconColor: Theme.of(context).colorScheme.error,
           ),
-          const Divider(height: 8.5, thickness: 0.5),
         ],
       ),
     );

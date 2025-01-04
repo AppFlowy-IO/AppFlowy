@@ -230,7 +230,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
           )..add(const SpaceEvent.initial(openFirstPage: false)),
         ),
         BlocProvider(
-          create: (context) => ChatSettingsCubit(),
+          create: (context) => ChatSettingsCubit(hideDisabled: true),
         ),
       ],
       child: BlocSelector<SpaceBloc, SpaceState, ViewPB?>(
@@ -245,7 +245,9 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
             constraints: const BoxConstraints.tightFor(width: 300, height: 400),
             onClose: () {
               if (spaceView != null) {
-                context.read<ChatSettingsCubit>().refreshSources([spaceView]);
+                context
+                    .read<ChatSettingsCubit>()
+                    .refreshSources([spaceView], spaceView);
               }
               widget.onOverrideVisibility?.call(false);
             },
@@ -279,7 +281,9 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
           } else {
             widget.onOverrideVisibility?.call(true);
             if (spaceView != null) {
-              context.read<ChatSettingsCubit>().refreshSources([spaceView]);
+              context
+                  .read<ChatSettingsCubit>()
+                  .refreshSources([spaceView], spaceView);
             }
             popoverController.show();
           }
@@ -292,8 +296,8 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
     return BlocProvider.value(
       value: context.read<ChatSettingsCubit>(),
       child: _SaveToPagePopoverContent(
-        onAddToNewPage: () {
-          addMessageToNewPage(context);
+        onAddToNewPage: (parentViewId) {
+          addMessageToNewPage(context, parentViewId);
           popoverController.close();
         },
         onAddToExistingPage: (documentId) async {
@@ -324,14 +328,14 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
     return view;
   }
 
-  void addMessageToNewPage(BuildContext context) async {
+  void addMessageToNewPage(BuildContext context, String parentViewId) async {
     final chatView = await ViewBackendService.getView(
       context.read<ChatAIMessageBloc>().chatId,
     ).toNullable();
     if (chatView != null) {
       final newView = await ChatEditDocumentService.saveMessagesToNewPage(
         chatView.nameOrDefault,
-        chatView.parentViewId,
+        parentViewId,
         [widget.textMessage],
       );
 
@@ -406,7 +410,7 @@ class _SaveToPagePopoverContent extends StatelessWidget {
     required this.onAddToExistingPage,
   });
 
-  final void Function() onAddToNewPage;
+  final void Function(String) onAddToNewPage;
   final void Function(String) onAddToExistingPage;
 
   @override
@@ -444,8 +448,6 @@ class _SaveToPagePopoverContent extends StatelessWidget {
                 children: _buildVisibleSources(context, state).toList(),
               ),
             ),
-            _buildDivider(),
-            _addToNewPageButton(context),
           ],
         );
       },
@@ -477,35 +479,19 @@ class _SaveToPagePopoverContent extends StatelessWidget {
             isDescendentOfSpace: e.view.isSpace,
             isSelectedSection: false,
             showCheckbox: false,
+            showSaveButton: true,
             onSelected: (source) {
-              if (!source.view.isSpace) {
+              if (source.view.isSpace) {
+                onAddToNewPage(source.view.id);
+              } else {
                 onAddToExistingPage(source.view.id);
               }
+            },
+            onAdd: (source) {
+              onAddToNewPage(source.view.id);
             },
             height: 30.0,
           ),
         );
-  }
-
-  Widget _addToNewPageButton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: SizedBox(
-        height: 30,
-        child: FlowyButton(
-          iconPadding: 8,
-          onTap: onAddToNewPage,
-          text: FlowyText(
-            LocaleKeys.chat_addToNewPage.tr(),
-            figmaLineHeight: 20,
-          ),
-          leftIcon: FlowySvg(
-            FlowySvgs.add_m,
-            size: const Size.square(16),
-            color: Theme.of(context).hintColor,
-          ),
-        ),
-      ),
-    );
   }
 }

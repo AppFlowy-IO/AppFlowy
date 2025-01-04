@@ -118,10 +118,13 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
       iconGroups.add(
         IconGroup(
           name: _kRecentIconGroupName,
-          icons: recentIcons.sublist(
-            0,
-            min(recentIcons.length, widget.iconPerLine),
-          ),
+          icons: recentIcons
+              .sublist(
+                0,
+                min(recentIcons.length, widget.iconPerLine),
+              )
+              .map((e) => e.icon)
+              .toList(),
         ),
       );
     }
@@ -171,7 +174,7 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
                   color,
                 ).toResult(isRandom: true),
               );
-              RecentIcons.putIcon(value.$2);
+              RecentIcons.putIcon(RecentIcon(value.$2, value.$1.name));
             },
             onKeywordChanged: (keyword) => {
               debounce.call(() {
@@ -303,30 +306,38 @@ class _IconPickerState extends State<IconPicker> {
                         icon: icon,
                         mutex: mutex,
                         onSelectedColor: (context, color) {
+                          String groupName = iconGroup.name;
+                          if (groupName == _kRecentIconGroupName) {
+                            groupName = getGroupName(index);
+                          }
                           widget.onSelectedIcon(
                             IconsData(
-                              iconGroup.name,
+                              groupName,
                               icon.content,
                               icon.name,
                               color,
                             ),
                           );
-                          RecentIcons.putIcon(icon);
+                          RecentIcons.putIcon(RecentIcon(icon, groupName));
                           PopoverContainer.of(context).close();
                         },
                       )
                     : _IconNoBackground(
                         icon: icon,
                         onSelectedIcon: () {
+                          String groupName = iconGroup.name;
+                          if (groupName == _kRecentIconGroupName) {
+                            groupName = getGroupName(index);
+                          }
                           widget.onSelectedIcon(
                             IconsData(
-                              iconGroup.name,
+                              groupName,
                               icon.content,
                               icon.name,
                               null,
                             ),
                           );
-                          RecentIcons.putIcon(icon);
+                          RecentIcons.putIcon(RecentIcon(icon, groupName));
                         },
                       );
               },
@@ -340,6 +351,16 @@ class _IconPickerState extends State<IconPicker> {
         );
       },
     );
+  }
+
+  String getGroupName(int index) {
+    final recentIcons = RecentIcons.getIconsSync();
+    try {
+      return recentIcons[index].groupName;
+    } catch (e) {
+      Log.error('getGroupName with index: $index error', e);
+      return '';
+    }
   }
 }
 
@@ -393,11 +414,19 @@ class _IconState extends State<_Icon> {
   final PopoverController _popoverController = PopoverController();
 
   @override
+  void dispose() {
+    super.dispose();
+    _popoverController.close();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       direction: PopoverDirection.bottomWithCenterAligned,
+      controller: _popoverController,
       offset: const Offset(0, 6),
       mutex: widget.mutex,
+      clickHandler: PopoverClickHandler.gestureDetector,
       child: _IconNoBackground(
         icon: widget.icon,
         onSelectedIcon: () => _popoverController.show(),

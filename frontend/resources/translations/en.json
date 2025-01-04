@@ -216,9 +216,9 @@
     "sourcesLimitReached": "You can only select up to 3 top-level documents and its children",
     "sourceUnsupported": "We don't support chatting with databases at this time",
     "regenerate": "Try again",
-    "addToPageButton": "Add to page",
+    "addToPageButton": "Add message to page",
     "addToPageTitle": "Add message to...",
-    "addToNewPage": "Add to a new page",
+    "addToNewPage": "Create new page",
     "addToNewPageName": "Messages extracted from \"{}\"",
     "addToNewPageSuccessToast": "Message added to",
     "openPagePreviewFailedToast": "Failed to open page"

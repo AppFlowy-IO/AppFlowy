@@ -190,7 +190,6 @@ class MobileViewBottomSheetBody extends StatelessWidget {
             MobileViewBottomSheetBodyAction.unpublish,
           ),
         ),
-        _divider(),
       ];
     } else {
       return [
@@ -201,13 +200,9 @@ class MobileViewBottomSheetBody extends StatelessWidget {
             MobileViewBottomSheetBodyAction.publish,
           ),
         ),
-        _divider(),
       ];
     }
   }
 
-  Widget _divider() => const Divider(
-        height: 8.5,
-        thickness: 0.5,
-      );
+  Widget _divider() => const MobileQuickActionDivider();
 }

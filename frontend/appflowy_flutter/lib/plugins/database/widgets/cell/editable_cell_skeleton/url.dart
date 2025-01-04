@@ -193,7 +193,7 @@ class MobileURLEditor extends StatelessWidget {
           icon: FlowySvgs.url_s,
           text: LocaleKeys.grid_url_launch.tr(),
         ),
-        const Divider(height: 8.5, thickness: 0.5),
+        const MobileQuickActionDivider(),
         MobileQuickActionButton(
           enable: context.watch<URLCellBloc>().state.content.isNotEmpty,
           onTap: () {
@@ -209,7 +209,6 @@ class MobileURLEditor extends StatelessWidget {
           icon: FlowySvgs.copy_s,
           text: LocaleKeys.grid_url_copy.tr(),
         ),
-        const Divider(height: 8.5, thickness: 0.5),
       ],
     );
   }
