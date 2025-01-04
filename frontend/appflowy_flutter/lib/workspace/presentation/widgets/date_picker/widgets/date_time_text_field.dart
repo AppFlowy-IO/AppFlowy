@@ -278,13 +278,6 @@ class _DateTimeTextFieldState extends State<DateTimeTextField> {
                         key: const ValueKey('date_time_text_field_date'),
                         focusNode: dateFocusNode,
                         controller: dateTextController,
-                        maxLength: 12,
-                        inputFormatters: [
-                          // We can be more restrictive according to the DateFormatPB
-                          FilteringTextInputFormatter.allow(
-                            RegExp('[0-9.-/ ]'),
-                          ),
-                        ],
                         style: Theme.of(context).textTheme.bodyMedium,
                         decoration: getInputDecoration(
                           const EdgeInsetsDirectional.fromSTEB(12, 6, 6, 6),
