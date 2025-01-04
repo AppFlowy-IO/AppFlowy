@@ -69,6 +69,7 @@ class ViewItem extends StatelessWidget {
     this.extendBuilder,
     this.disableSelectedStatus,
     this.shouldIgnoreView,
+    this.engagedInExpanding = false,
     this.enableRightClickContext = false,
   });
 
@@ -136,12 +137,17 @@ class ViewItem extends StatelessWidget {
   ///
   final bool enableRightClickContext;
 
+  /// to record the ViewBlock which is expanded or collapsed
+  final bool engagedInExpanding;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          ViewBloc(view: view, shouldLoadChildViews: shouldLoadChildViews)
-            ..add(const ViewEvent.initial()),
+      create: (_) => ViewBloc(
+        view: view,
+        shouldLoadChildViews: shouldLoadChildViews,
+        engagedInExpanding: engagedInExpanding,
+      )..add(const ViewEvent.initial()),
       child: BlocConsumer<ViewBloc, ViewState>(
         listenWhen: (p, c) =>
             c.lastCreatedView != null &&
@@ -183,6 +189,7 @@ class ViewItem extends StatelessWidget {
             isExpandedNotifier: isExpandedNotifier,
             extendBuilder: extendBuilder,
             shouldIgnoreView: shouldIgnoreView,
+            engagedInExpanding: engagedInExpanding,
           );
 
           if (shouldIgnoreView?.call(view) == IgnoreViewType.disable) {
@@ -235,6 +242,7 @@ class InnerViewItem extends StatefulWidget {
     this.isExpandedNotifier,
     required this.extendBuilder,
     this.disableSelectedStatus,
+    this.engagedInExpanding = false,
     required this.shouldIgnoreView,
   });
 
@@ -270,6 +278,7 @@ class InnerViewItem extends StatefulWidget {
   final PropertyValueNotifier<bool>? isExpandedNotifier;
   final List<Widget> Function(ViewPB view)? extendBuilder;
   final IgnoreViewType Function(ViewPB view)? shouldIgnoreView;
+  final bool engagedInExpanding;
 
   @override
   State<InnerViewItem> createState() => _InnerViewItemState();
@@ -345,6 +354,7 @@ class _InnerViewItemState extends State<InnerViewItem> {
           rightIconsBuilder: widget.rightIconsBuilder,
           extendBuilder: widget.extendBuilder,
           shouldIgnoreView: widget.shouldIgnoreView,
+          engagedInExpanding: widget.engagedInExpanding,
         );
       }).toList();
 
