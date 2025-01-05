@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy_backend/protobuf/flowy-ai/entities.pbenum.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -167,7 +166,7 @@ class PredefinedFormat extends Equatable {
         TextFormat.bulletList => ResponseTextFormatPB.BulletedList,
         TextFormat.numberedList => ResponseTextFormatPB.NumberedList,
         TextFormat.table => ResponseTextFormatPB.Table,
-        null => null
+        _ => null,
       },
     );
   }
