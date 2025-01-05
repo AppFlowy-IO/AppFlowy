@@ -79,13 +79,10 @@ class RawEmojiIconWidget extends StatelessWidget {
     try {
       switch (emoji.type) {
         case FlowyIconType.emoji:
-          return SizedBox(
-            width: emojiSize,
-            child: EmojiText(
-              emoji: emoji.emoji,
-              fontSize: emojiSize,
-              textAlign: TextAlign.center,
-            ),
+          return EmojiText(
+            emoji: emoji.emoji,
+            fontSize: emojiSize,
+            textAlign: TextAlign.center,
           );
         case FlowyIconType.icon:
           final iconData = IconsData.fromJson(jsonDecode(emoji.emoji));
