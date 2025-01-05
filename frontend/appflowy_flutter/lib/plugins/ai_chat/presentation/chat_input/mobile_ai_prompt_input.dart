@@ -184,11 +184,11 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
     // get the attached files and mentioned pages
     final metadata = context.read<AIPromptInputBloc>().consumeMetadata();
 
-    if (showPredefinedFormatSection) {
-      widget.onSubmitted(trimmedText, predefinedFormat, metadata);
-    } else {
-      widget.onSubmitted(trimmedText, null, metadata);
-    }
+    widget.onSubmitted(
+      trimmedText,
+      showPredefinedFormatSection ? predefinedFormat : null,
+      metadata,
+    );
   }
 
   void handleTextControllerChange() {
