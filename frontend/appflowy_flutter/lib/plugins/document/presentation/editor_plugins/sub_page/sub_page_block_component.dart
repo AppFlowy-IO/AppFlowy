@@ -200,6 +200,8 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
           return const SizedBox.shrink();
         }
 
+        final textStyle = textStyleWithTextSpan();
+
         Widget child = Padding(
           padding: const EdgeInsets.symmetric(vertical: 2),
           child: MouseRegion(
