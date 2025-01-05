@@ -136,9 +136,7 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
                         buttonSize:
                             MobileAIPromptSizes.predefinedFormatButtonHeight,
                         onSelectPredefinedFormat: (format) {
-                          setState(() {
-                            predefinedFormat = format;
-                          });
+                          setState(() => predefinedFormat = format);
                         },
                       ),
                     ),

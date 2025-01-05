@@ -165,9 +165,7 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
                               buttonSize: DesktopAIPromptSizes
                                   .predefinedFormatButtonHeight,
                               onSelectPredefinedFormat: (format) {
-                                setState(() {
-                                  predefinedFormat = format;
-                                });
+                                setState(() => predefinedFormat = format);
                               },
                             ),
                           ),
@@ -255,11 +253,7 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
     // get the attached files and mentioned pages
     final metadata = context.read<AIPromptInputBloc>().consumeMetadata();
 
-    if (showPredefinedFormatSection) {
-      widget.onSubmitted(trimmedText, predefinedFormat, metadata);
-    } else {
-      widget.onSubmitted(trimmedText, null, metadata);
-    }
+    widget.onSubmitted(trimmedText, showPredefinedFormatSection ? predefinedFormat : null, metadata);
   }
 
   void handleTextControllerChanged() {
