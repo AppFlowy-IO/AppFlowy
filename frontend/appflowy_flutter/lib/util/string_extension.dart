@@ -84,3 +84,11 @@ extension IconExtension on String {
     )..iconGroup = iconGroup;
   }
 }
+
+extension CounterExtension on String {
+  Counters getCounter() {
+    final wordCount = wordRegex.allMatches(this).length;
+    final charCount = runes.length;
+    return Counters(wordCount: wordCount, charCount: charCount);
+  }
+}
