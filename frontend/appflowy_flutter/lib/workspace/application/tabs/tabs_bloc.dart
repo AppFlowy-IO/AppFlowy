@@ -65,6 +65,10 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
             state.currentPageManager.hideSecondaryPlugin();
             emit(state.openPlugin(plugin: plugin, setLatest: setLatest));
             if (setLatest) {
+              // the space view should be filtered out.
+              if (view != null && view.isSpace) {
+                return;
+              }
               _setLatestOpenView(view);
             }
           },
