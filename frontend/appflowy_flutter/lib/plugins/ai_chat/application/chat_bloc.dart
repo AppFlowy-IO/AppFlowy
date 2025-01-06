@@ -59,7 +59,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   bool isLoadingPreviousMessages = false;
   bool hasMorePreviousMessages = true;
   AnswerStream? answerStream;
-  int numSendMessage = 0;
+  bool isFetchingRelatedQuestions = false;
 
   @override
   Future<void> close() async {
@@ -168,8 +168,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             PredefinedFormat? format,
             Map<String, dynamic>? metadata,
           ) {
-            numSendMessage += 1;
-
             _clearRelatedQuestions();
             _startStreamingMessage(message, format, metadata);
             lastSentMessage = null;
@@ -329,17 +327,19 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           messageId: lastSentMessage!.messageId,
         );
 
-        // when previous numSendMessage is not equal to current numSendMessage, it means that the user
-        // has sent a new message. So we don't need to get related questions.
-        final preNumSendMessage = numSendMessage;
+        isFetchingRelatedQuestions = true;
         await AIEventGetRelatedQuestion(payload).send().fold(
           (list) {
-            if (!isClosed && preNumSendMessage == numSendMessage) {
+            // while fetching related questions, the user might enter a new
+            // question or regenerate a previous response. In such cases, don't
+            // display the relatedQuestions
+            if (!isClosed && isFetchingRelatedQuestions) {
               add(
                 ChatEvent.didReceiveRelatedQuestions(
                   list.items.map((e) => e.content).toList(),
                 ),
               );
+              isFetchingRelatedQuestions = false;
             }
           },
           (err) => Log.error("Failed to get related questions: $err"),
@@ -570,6 +570,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   void _clearRelatedQuestions() {
+    isFetchingRelatedQuestions = false;
     final relatedQuestionMessages = chatController.messages
         .where(
           (message) =>
