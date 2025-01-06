@@ -1,4 +1,20 @@
 # Release Notes
+## Version 0.8.0 - 06/01/2025
+### Bug Fixes
+Fixed error displaying in the page style menu
+Fixed filter logic in the icon picker
+Fixed error displaying in the Favorite/Recent page
+Fixed the color picker displaying when tapping down
+Fixed icons not being supported in subpage blocks
+Fixed recent icon functionality in the space icon menu
+Fixed "Insert Below" not auto-scrolling the table
+Fixed a to-do item with an emoji automatically creating a soft break
+Fixed header row/column tap areas being too small
+Fixed simple table alignment not working for items that wrap
+Fixed web content reverting after removing the inline code format on desktop
+Fixed inability to make changes to a row or column in the table when opening a new tab
+Fixed changing the language to CKB-KU causing a gray screen on mobile
+
 ## Version 0.7.9 - 30/12/2024
 ### New Features
 - Meet AppFlowy Web (Lite): Use AppFlowy directly in your browser.
