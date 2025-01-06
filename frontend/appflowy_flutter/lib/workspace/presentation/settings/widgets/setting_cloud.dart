@@ -202,20 +202,38 @@ class _CloudServerSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        FlowyText.medium(
-          LocaleKeys.settings_menu_cloudServerType.tr(),
-        ),
-        CloudTypeSwitcher(
-          cloudType: cloudType,
-          onSelected: (type) => context
-              .read<CloudSettingBloc>()
-              .add(CloudSettingEvent.updateCloudType(type)),
-        ),
-      ],
-    );
+    return UniversalPlatform.isDesktopOrWeb
+        ? Row(
+            children: [
+              Expanded(
+                child: FlowyText.medium(
+                  LocaleKeys.settings_menu_cloudServerType.tr(),
+                ),
+              ),
+              Flexible(
+                child: CloudTypeSwitcher(
+                  cloudType: cloudType,
+                  onSelected: (type) => context
+                      .read<CloudSettingBloc>()
+                      .add(CloudSettingEvent.updateCloudType(type)),
+                ),
+              ),
+            ],
+          )
+        : Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              FlowyText.medium(
+                LocaleKeys.settings_menu_cloudServerType.tr(),
+              ),
+              CloudTypeSwitcher(
+                cloudType: cloudType,
+                onSelected: (type) => context
+                    .read<CloudSettingBloc>()
+                    .add(CloudSettingEvent.updateCloudType(type)),
+              ),
+            ],
+          );
   }
 }
 

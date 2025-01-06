@@ -262,7 +262,7 @@ Future<AppFlowyCloudConfiguration> configurationFromUri(
       gotrue_url: await _getAppFlowyCloudGotrueUrl(baseUrl),
       enable_sync_trace: await getSyncLogEnabled(),
       base_web_domain: authenticatorType == AuthenticatorType.appflowyCloud
-          ? ShareConstants.baseWebDomain
+          ? ShareConstants.defaultBaseWebDomain
           : baseShareDomain,
     );
   }
@@ -297,7 +297,7 @@ Future<String> getAppFlowyCloudUrl() async {
 Future<String> getAppFlowyShareDomain() async {
   final result =
       await getIt<KeyValueStorage>().get(KVKeys.kAppFlowyBaseShareDomain);
-  return result ?? ShareConstants.baseWebDomain;
+  return result ?? ShareConstants.defaultBaseWebDomain;
 }
 
 Future<bool> getSyncLogEnabled() async {
