@@ -31,10 +31,7 @@ extension EmojiTestExtension on WidgetTester {
       matching: find.text(PickerTabType.icon.tr),
     );
     expect(iconTab, findsOneWidget);
-    expect(find.byType(FlowyIconPicker), findsNothing);
-    await tap(iconTab);
-    await pumpAndSettle();
-    expect(find.byType(FlowyIconPicker), findsOneWidget);
+    await tapButton(iconTab);
     final selectedSvg = find.descendant(
       of: find.byType(FlowyIconPicker),
       matching: find.byWidgetPredicate(
@@ -42,6 +39,11 @@ extension EmojiTestExtension on WidgetTester {
       ),
     );
     expect(find.byType(IconColorPicker), findsNothing);
+
+    /// test for tapping down, it should not display the ColorPicker unless tapping up
+    await tapDown(selectedSvg);
+    expect(find.byType(IconColorPicker), findsNothing);
+
     await tapButton(selectedSvg);
     final colorPicker = find.byType(IconColorPicker);
     expect(colorPicker, findsOneWidget);
