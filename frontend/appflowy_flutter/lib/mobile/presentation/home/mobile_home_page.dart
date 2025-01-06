@@ -2,7 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/home/mobile_home_page_header.dart';
 import 'package:appflowy/mobile/presentation/home/tab/mobile_space_tab.dart';
 import 'package:appflowy/mobile/presentation/home/tab/space_order_bloc.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
+import 'package:appflowy/shared/loading.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';

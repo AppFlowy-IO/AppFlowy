@@ -1,7 +1,8 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/text_completion.dart';
-import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+
+import 'error.dart';
+import 'text_completion.dart';
 
 abstract class AIRepository {
   Future<void> getStreamedCompletions({
