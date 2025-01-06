@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 part 'text_completion.freezed.dart';
 part 'text_completion.g.dart';
 

@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
+import 'package:appflowy/ai/ai_client.dart';
+import 'package:appflowy/ai/error.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ai_limit_dialog.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_action_bloc.dart';
