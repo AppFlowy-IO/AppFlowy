@@ -1,4 +1,5 @@
 import 'package:appflowy/util/int64_extension.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:bloc/bloc.dart';
@@ -11,7 +12,12 @@ class ViewInfoBloc extends Bloc<ViewInfoEvent, ViewInfoState> {
     on<ViewInfoEvent>((event, emit) {
       event.when(
         started: () {
-          emit(state.copyWith(createdAt: view.createTime.toDateTime()));
+          emit(
+            state.copyWith(
+              createdAt: view.createTime.toDateTime(),
+              titleCounters: view.name.getCounter(),
+            ),
+          );
         },
         unregisterEditorState: () {
           _clearWordCountService();
@@ -33,6 +39,13 @@ class ViewInfoBloc extends Bloc<ViewInfoEvent, ViewInfoState> {
           emit(
             state.copyWith(
               documentCounters: _wordCountService?.documentCounters,
+            ),
+          );
+        },
+        titleChanged: (s) {
+          emit(
+            state.copyWith(
+              titleCounters: s.getCounter(),
             ),
           );
         },
@@ -71,17 +84,21 @@ class ViewInfoEvent with _$ViewInfoEvent {
   }) = _RegisterEditorState;
 
   const factory ViewInfoEvent.wordCountChanged() = _WordCountChanged;
+
+  const factory ViewInfoEvent.titleChanged(String title) = _TitleChanged;
 }
 
 @freezed
 class ViewInfoState with _$ViewInfoState {
   const factory ViewInfoState({
     required Counters? documentCounters,
+    required Counters? titleCounters,
     required DateTime? createdAt,
   }) = _ViewInfoState;
 
   factory ViewInfoState.initial() => const ViewInfoState(
         documentCounters: null,
+        titleCounters: null,
         createdAt: null,
       );
 }

@@ -399,10 +399,11 @@ ParagraphBlockComponentBuilder _buildParagraphBlockComponentBuilder(
   return ParagraphBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: placeholderText,
-      textStyle: (node) => _buildTextStyleInTableCell(
+      textStyle: (node, {TextSpan? textSpan}) => _buildTextStyleInTableCell(
         context,
         node: node,
         configuration: configuration,
+        textSpan: textSpan,
       ),
       textAlign: (node) => _buildTextAlignInTableCell(
         context,
@@ -421,10 +422,11 @@ TodoListBlockComponentBuilder _buildTodoListBlockComponentBuilder(
   return TodoListBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_todoList.tr(),
-      textStyle: (node) => _buildTextStyleInTableCell(
+      textStyle: (node, {TextSpan? textSpan}) => _buildTextStyleInTableCell(
         context,
         node: node,
         configuration: configuration,
+        textSpan: textSpan,
       ),
       textAlign: (node) => _buildTextAlignInTableCell(
         context,
@@ -451,10 +453,11 @@ BulletedListBlockComponentBuilder _buildBulletedListBlockComponentBuilder(
   return BulletedListBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_bulletList.tr(),
-      textStyle: (node) => _buildTextStyleInTableCell(
+      textStyle: (node, {TextSpan? textSpan}) => _buildTextStyleInTableCell(
         context,
         node: node,
         configuration: configuration,
+        textSpan: textSpan,
       ),
       textAlign: (node) => _buildTextAlignInTableCell(
         context,
@@ -473,10 +476,11 @@ NumberedListBlockComponentBuilder _buildNumberedListBlockComponentBuilder(
   return NumberedListBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_numberList.tr(),
-      textStyle: (node) => _buildTextStyleInTableCell(
+      textStyle: (node, {TextSpan? textSpan}) => _buildTextStyleInTableCell(
         context,
         node: node,
         configuration: configuration,
+        textSpan: textSpan,
       ),
       textAlign: (node) => _buildTextAlignInTableCell(
         context,
@@ -507,10 +511,11 @@ QuoteBlockComponentBuilder _buildQuoteBlockComponentBuilder(
   return QuoteBlockComponentBuilder(
     configuration: configuration.copyWith(
       placeholderText: (_) => LocaleKeys.blockPlaceholders_quote.tr(),
-      textStyle: (node) => _buildTextStyleInTableCell(
+      textStyle: (node, {TextSpan? textSpan}) => _buildTextStyleInTableCell(
         context,
         node: node,
         configuration: configuration,
+        textSpan: textSpan,
       ),
       textAlign: (node) => _buildTextAlignInTableCell(
         context,
@@ -529,10 +534,11 @@ HeadingBlockComponentBuilder _buildHeadingBlockComponentBuilder(
 ) {
   return HeadingBlockComponentBuilder(
     configuration: configuration.copyWith(
-      textStyle: (node) => _buildTextStyleInTableCell(
+      textStyle: (node, {TextSpan? textSpan}) => _buildTextStyleInTableCell(
         context,
         node: node,
         configuration: configuration,
+        textSpan: textSpan,
       ),
       padding: (node) {
         if (customHeadingPadding != null) {
@@ -698,10 +704,11 @@ CalloutBlockComponentBuilder _buildCalloutBlockComponentBuilder(
         node: node,
         configuration: configuration,
       ),
-      textStyle: (node) => _buildTextStyleInTableCell(
+      textStyle: (node, {TextSpan? textSpan}) => _buildTextStyleInTableCell(
         context,
         node: node,
         configuration: configuration,
+        textSpan: textSpan,
       ),
     ),
     inlinePadding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -789,11 +796,12 @@ ToggleListBlockComponentBuilder _buildToggleListBlockComponentBuilder(
 
         return const EdgeInsets.only(top: 12.0, bottom: 4.0);
       },
-      textStyle: (node) {
+      textStyle: (node, {TextSpan? textSpan}) {
         final textStyle = _buildTextStyleInTableCell(
           context,
           node: node,
           configuration: configuration,
+          textSpan: textSpan,
         );
         final level = node.attributes[ToggleListBlockKeys.level] as int?;
         if (level == null) {
@@ -828,9 +836,14 @@ OutlineBlockComponentBuilder _buildOutlineBlockComponentBuilder(
 ) {
   return OutlineBlockComponentBuilder(
     configuration: configuration.copyWith(
-      placeholderTextStyle: (_) =>
+      placeholderTextStyle: (node, {TextSpan? textSpan}) =>
           styleCustomizer.outlineBlockPlaceholderStyleBuilder(),
-      padding: (_) => const EdgeInsets.only(top: 12.0, bottom: 4.0),
+      padding: (node) {
+        if (UniversalPlatform.isMobile) {
+          return configuration.padding(node);
+        }
+        return const EdgeInsets.only(top: 12.0, bottom: 4.0);
+      },
     ),
   );
 }
@@ -877,7 +890,8 @@ SubPageBlockComponentBuilder _buildSubPageBlockComponentBuilder(
 }) {
   return SubPageBlockComponentBuilder(
     configuration: configuration.copyWith(
-      textStyle: (node) => styleCustomizer.subPageBlockTextStyleBuilder(),
+      textStyle: (node, {TextSpan? textSpan}) =>
+          styleCustomizer.subPageBlockTextStyleBuilder(),
       padding: (node) {
         if (UniversalPlatform.isMobile) {
           return const EdgeInsets.symmetric(horizontal: 18);
@@ -892,8 +906,9 @@ TextStyle _buildTextStyleInTableCell(
   BuildContext context, {
   required Node node,
   required BlockComponentConfiguration configuration,
+  required TextSpan? textSpan,
 }) {
-  TextStyle textStyle = configuration.textStyle(node);
+  TextStyle textStyle = configuration.textStyle(node, textSpan: textSpan);
 
   if (node.isInHeaderColumn ||
       node.isInHeaderRow ||
@@ -905,6 +920,11 @@ TextStyle _buildTextStyleInTableCell(
   }
 
   final cellTextColor = node.textColorInColumn ?? node.textColorInRow;
+
+  // enable it if we need to support the text color of the text span
+  // final isTextSpanColorNull = textSpan?.style?.color == null;
+  // final isTextSpanChildrenColorNull =
+  //     textSpan?.children?.every((e) => e.style?.color == null) ?? true;
 
   if (cellTextColor != null) {
     textStyle = textStyle.copyWith(

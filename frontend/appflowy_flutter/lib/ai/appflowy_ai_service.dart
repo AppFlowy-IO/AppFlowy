@@ -3,15 +3,16 @@ import 'dart:ffi';
 import 'dart:isolate';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/text_completion.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_action.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart' as fixnum;
+
+import 'ai_client.dart';
+import 'error.dart';
+import 'text_completion.dart';
 
 class AppFlowyAIService implements AIRepository {
   @override

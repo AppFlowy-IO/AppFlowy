@@ -16,6 +16,7 @@ class VisualDragArea extends StatelessWidget {
   final DragAreaBuilderData data;
   final Node dragNode;
   final EditorState editorState;
+
   @override
   Widget build(BuildContext context) {
     final targetNode = data.targetNode;

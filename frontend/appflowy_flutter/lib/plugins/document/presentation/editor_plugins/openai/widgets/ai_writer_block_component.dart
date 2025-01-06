@@ -1,13 +1,9 @@
+import 'package:appflowy/ai/appflowy_ai_service.dart';
+import 'package:appflowy/ai/error.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/build_context_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/markdown_text_robot.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ai_writer_block_operations.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ai_writer_block_widgets.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/discard_dialog.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
-import 'package:appflowy/user/application/ai_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
@@ -20,6 +16,10 @@ import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import 'ai_limit_dialog.dart';
+import 'ai_writer_block_operations.dart';
+import 'ai_writer_block_widgets.dart';
+import 'discard_dialog.dart';
+import 'barrier_dialog.dart';
 
 class AIWriterBlockKeys {
   const AIWriterBlockKeys._();
@@ -91,8 +91,7 @@ class _AIWriterBlockComponentState extends State<AIWriterBlockComponent> {
 
   late final editorState = context.read<EditorState>();
   late final SelectionGestureInterceptor interceptor;
-  late final AIWriterBlockOperations aiWriterOperations =
-      AIWriterBlockOperations(
+  late final aiWriterOperations = AIWriterBlockOperations(
     editorState: editorState,
     aiWriterNode: widget.node,
   );
