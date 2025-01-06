@@ -1,4 +1,5 @@
 import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/shared/loading.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/flowy_tab.dart';
@@ -70,6 +71,17 @@ void main() {
       await tester.pumpUntilNotFound(loading);
 
       expect(find.byType(FlowyTab), findsNothing);
+    });
+
+    testWidgets('the space view should not be opened', (tester) async {
+      await tester.initializeAppFlowy(
+        cloudType: AuthenticatorType.appflowyCloudSelfHost,
+      );
+      await tester.tapGoogleLoginInButton();
+      await tester.expectToSeeHomePageWithGetStartedPage();
+
+      expect(find.byType(AppFlowyEditorPage), findsNothing);
+      expect(find.text('Blank page'), findsOne);
     });
   });
 }
