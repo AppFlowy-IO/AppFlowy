@@ -854,7 +854,12 @@ LinkPreviewBlockComponentBuilder _buildLinkPreviewBlockComponentBuilder(
 ) {
   return LinkPreviewBlockComponentBuilder(
     configuration: configuration.copyWith(
-      padding: (_) => const EdgeInsets.symmetric(vertical: 10),
+      padding: (node) {
+        if (UniversalPlatform.isMobile) {
+          return configuration.padding(node);
+        }
+        return const EdgeInsets.symmetric(vertical: 10);
+      },
     ),
     cache: LinkPreviewDataCache(),
     showMenu: true,
