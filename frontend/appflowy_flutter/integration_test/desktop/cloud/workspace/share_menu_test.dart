@@ -54,7 +54,7 @@ void main() {
       );
 
       final shareValues = plainText!
-          .replaceAll('https://${ShareConstants.shareBaseUrl}/', '')
+          .replaceAll('${ShareConstants.defaultBaseWebDomain}/app/', '')
           .split('/');
       final workspaceId = shareValues[0];
       expect(workspaceId, isNotEmpty);

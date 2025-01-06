@@ -24,6 +24,15 @@ class AppFlowyCloudURLsBloc
             ),
           );
         },
+        updateBaseWebDomain: (url) {
+          emit(
+            state.copyWith(
+              updatedBaseWebDomain: url,
+              urlError: null,
+              showRestartHint: url.isNotEmpty,
+            ),
+          );
+        },
         confirmUpdate: () async {
           if (state.updatedServerUrl.isEmpty) {
             emit(
@@ -35,13 +44,27 @@ class AppFlowyCloudURLsBloc
               ),
             );
           } else {
-            validateUrl(state.updatedServerUrl).fold(
+            bool isSuccess = false;
+
+            await validateUrl(state.updatedServerUrl).fold(
               (url) async {
                 await useSelfHostedAppFlowyCloudWithURL(url);
-                add(const AppFlowyCloudURLsEvent.didSaveConfig());
+                isSuccess = true;
               },
-              (err) => emit(state.copyWith(urlError: err)),
+              (err) async => emit(state.copyWith(urlError: err)),
             );
+
+            await validateUrl(state.updatedBaseWebDomain).fold(
+              (url) async {
+                await useBaseWebDomain(url);
+                isSuccess = true;
+              },
+              (err) async => emit(state.copyWith(urlError: err)),
+            );
+
+            if (isSuccess) {
+              add(const AppFlowyCloudURLsEvent.didSaveConfig());
+            }
           }
         },
         didSaveConfig: () {
@@ -62,6 +85,8 @@ class AppFlowyCloudURLsEvent with _$AppFlowyCloudURLsEvent {
   const factory AppFlowyCloudURLsEvent.initial() = _Initial;
   const factory AppFlowyCloudURLsEvent.updateServerUrl(String text) =
       _ServerUrl;
+  const factory AppFlowyCloudURLsEvent.updateBaseWebDomain(String text) =
+      _UpdateBaseWebDomain;
   const factory AppFlowyCloudURLsEvent.confirmUpdate() = _UpdateConfig;
   const factory AppFlowyCloudURLsEvent.didSaveConfig() = _DidSaveConfig;
 }
@@ -71,6 +96,7 @@ class AppFlowyCloudURLsState with _$AppFlowyCloudURLsState {
   const factory AppFlowyCloudURLsState({
     required AppFlowyCloudConfiguration config,
     required String updatedServerUrl,
+    required String updatedBaseWebDomain,
     required String? urlError,
     required bool restartApp,
     required bool showRestartHint,
@@ -81,6 +107,8 @@ class AppFlowyCloudURLsState with _$AppFlowyCloudURLsState {
         urlError: null,
         updatedServerUrl:
             getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.base_url,
+        updatedBaseWebDomain:
+            getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.base_web_domain,
         showRestartHint: getIt<AppFlowyCloudSharedEnv>()
             .appflowyCloudConfig
             .base_url
