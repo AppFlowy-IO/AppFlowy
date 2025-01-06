@@ -352,9 +352,7 @@ class _ChangeFormatPopoverContentState
             buttonSize: DesktopAIPromptSizes.predefinedFormatButtonHeight,
             predefinedFormat: predefinedFormat,
             onSelectPredefinedFormat: (format) {
-              setState(() {
-                predefinedFormat = format;
-              });
+              setState(() => predefinedFormat = format);
             },
           ),
           const HSpace(4.0),

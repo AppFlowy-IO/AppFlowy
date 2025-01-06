@@ -72,6 +72,7 @@ class ChatAIMessageBubble extends StatelessWidget {
     return ChatAIBottomInlineActions(
       message: message,
       onRegenerate: onRegenerate,
+      onChangeFormat: onChangeFormat,
       child: child,
     );
   }
@@ -80,6 +81,7 @@ class ChatAIMessageBubble extends StatelessWidget {
     return ChatAIMessageHover(
       message: message,
       onRegenerate: onRegenerate,
+      onChangeFormat: onChangeFormat,
       child: child,
     );
   }
@@ -88,6 +90,7 @@ class ChatAIMessageBubble extends StatelessWidget {
     return ChatAIMessagePopup(
       message: message,
       onRegenerate: onRegenerate,
+      onChangeFormat: onChangeFormat,
       child: child,
     );
   }
