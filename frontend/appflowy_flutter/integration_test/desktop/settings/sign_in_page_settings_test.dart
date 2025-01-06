@@ -23,7 +23,7 @@ void main() {
         .last;
   }
 
-  group('sign-in page settings: ', () {
+  group('sign-in page settings:', () {
     testWidgets('change server type', (tester) async {
       await tester.initializeAppFlowy();
 
@@ -45,16 +45,23 @@ void main() {
 
       // change the server type to self-host
       await tester.tapButton(appflowyCloudType);
-      final selfhostedButton = findServerType(
+      final selfHostedButton = findServerType(
         AuthenticatorType.appflowyCloudSelfHost,
       );
-      await tester.tapButton(selfhostedButton);
+      await tester.tapButton(selfHostedButton);
 
       // update server url
-      const serverUrl = 'https://test.appflowy.cloud';
+      const serverUrl = 'https://self-hosted.appflowy.cloud';
       await tester.enterText(
         find.byKey(kSelfHostedTextInputFieldKey),
         serverUrl,
+      );
+      await tester.pumpAndSettle();
+      // update the web url
+      const webUrl = 'https://self-hosted.appflowy.com';
+      await tester.enterText(
+        find.byKey(kSelfHostedWebTextInputFieldKey),
+        webUrl,
       );
       await tester.pumpAndSettle();
       await tester.tapButton(
@@ -77,6 +84,11 @@ void main() {
       // check the server url
       expect(
         find.text(serverUrl),
+        findsOneWidget,
+      );
+      // check the web url
+      expect(
+        find.text(webUrl),
         findsOneWidget,
       );
 

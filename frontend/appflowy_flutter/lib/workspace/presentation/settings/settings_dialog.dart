@@ -36,6 +36,9 @@ import 'widgets/setting_cloud.dart';
 @visibleForTesting
 const kSelfHostedTextInputFieldKey =
     ValueKey('self_hosted_url_input_text_field');
+@visibleForTesting
+const kSelfHostedWebTextInputFieldKey =
+    ValueKey('self_hosted_web_url_input_text_field');
 
 class SettingsDialog extends StatelessWidget {
   SettingsDialog(
@@ -299,6 +302,7 @@ class _SelfHostSettingsState extends State<_SelfHostSettings> {
         ),
         const VSpace(12.0),
         _SelfHostUrlField(
+          textFieldKey: kSelfHostedWebTextInputFieldKey,
           textController: webUrlTextController,
           title: LocaleKeys.settings_menu_webURL.tr(),
           hintText: LocaleKeys.settings_menu_webURLHint.tr(),
@@ -342,10 +346,10 @@ class _SelfHostSettingsState extends State<_SelfHostSettings> {
 
     if (type == AuthenticatorType.appflowyCloud) {
       cloudUrlTextController.text = kAppflowyCloudUrl;
-      webUrlTextController.text = ShareConstants.baseWebDomain;
+      webUrlTextController.text = ShareConstants.defaultBaseWebDomain;
       _saveUrl(
         cloudUrl: kAppflowyCloudUrl,
-        webUrl: ShareConstants.baseWebDomain,
+        webUrl: ShareConstants.defaultBaseWebDomain,
         type: type,
       );
     }
@@ -376,8 +380,9 @@ class _SelfHostSettingsState extends State<_SelfHostSettings> {
 
         Navigator.of(context).pop();
 
-        await useAppFlowyBetaCloudWithURL(cloudUrl, type);
         await useBaseWebDomain(webUrl);
+        await useAppFlowyBetaCloudWithURL(cloudUrl, type);
+
         await runAppFlowy();
       } else {
         showToastNotification(
