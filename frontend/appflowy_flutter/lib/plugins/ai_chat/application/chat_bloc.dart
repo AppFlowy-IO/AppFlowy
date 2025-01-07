@@ -168,6 +168,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             PredefinedFormat? format,
             Map<String, dynamic>? metadata,
           ) {
+            _clearErrorMessages();
             _clearRelatedQuestions();
             _startStreamingMessage(message, format, metadata);
             lastSentMessage = null;
@@ -567,6 +568,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         messageRefSourceJsonStringKey: message.metadata,
       },
     );
+  }
+
+  void _clearErrorMessages() {
+    final errorMessages = chatController.messages
+        .where(
+          (message) =>
+              onetimeMessageTypeFromMeta(message.metadata) ==
+              OnetimeShotType.error,
+        )
+        .toList();
+
+    for (final message in errorMessages) {
+      chatController.remove(message);
+    }
   }
 
   void _clearRelatedQuestions() {
