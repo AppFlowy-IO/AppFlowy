@@ -1168,7 +1168,15 @@
         "changeWidth": "تغير",
         "pickColor": "حدد اللون",
         "colorShade": "ظل اللون",
-        "opacity": "الشفافية"
+        "opacity": "الشفافية",
+        "hexEmptyError": "لا يمكن أن يكون اللون السادسة عشرية فارغًا",
+        "hexLengthError": "يجب أن تكون القيمة السداسية عشرية مكونة من 6 أرقام",
+        "hexInvalidError": "القيمة السادسة العشرية غير صالحة",
+        "opacityEmptyError": "لا يمكن أن تكون الشفافية فارغة",
+        "opacityRangeError": "يجب أن تكون الشفافية بين 1 و 100",
+        "app": "App",
+        "flowy": "Flowy",
+        "apply": "تطبيق"
       },
       "layoutDirection": {
         "label": "اتجاه التخطيط",
@@ -1212,6 +1220,34 @@
         "twentyFourHour": "نظام أربع وعشرون ساعة"
       },
       "showNamingDialogWhenCreatingPage": "إظهار مربع حوار التسمية عند إنشاء الصفحة",
+      "enableRTLToolbarItems": "تمكين عناصر شريط أدوات RTL",
+      "members": {
+        "title": "إعدادات الأعضاء",
+        "inviteMembers": "دعوة الأعضاء",
+        "inviteHint": "دعوة عبر البريد الإلكتروني",
+        "sendInvite": "إرسال دعوة",
+        "copyInviteLink": "نسخ رابط الدعوة",
+        "label": "الأعضاء",
+        "user": "المستخدم",
+        "role": "الدور",
+        "removeFromWorkspace": "الإزالة من مساحة العمل",
+        "removeFromWorkspaceSuccess": "تمت الإزالة من مساحة العمل بنجاح",
+        "removeFromWorkspaceFailed": "فشلت عملية الإزالة من مساحة العمل",
+        "owner": "المالك",
+        "guest": "الضيف",
+        "member": "العضو",
+        "memberHintText": "يمكن للعضو قراءة الصفحات وتحريرها",
+        "guestHintText": "يمكن للضيف القراءة والرد والتعليق وتحرير صفحات معينة بإذن.",
+        "emailInvalidError": "بريد إلكتروني غير صالح، يرجى التحقق والمحاولة مرة أخرى",
+        "emailSent": "تم إرسال البريد الإلكتروني، يرجى التحقق من صندوق الوارد",
+        "members": "الأعضاء",
+        "membersCount": {
+          "zero": "{} الأعضاء",
+          "one": "{} العضو",
+          "other": "{} الأعضاء"
+        },
+        "inviteFailedDialogTitle": "فشل في إرسال الدعوة"
+      },
       "lightLabel": "فاتح",
       "darkLabel": "غامق"
     },
