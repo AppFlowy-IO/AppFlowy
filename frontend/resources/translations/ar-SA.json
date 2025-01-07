@@ -1038,6 +1038,7 @@
     },
     "common": {
       "uploadingFile": "جاري رفع الملف. الرجاء عدم الخروج من التطبيق",
+      "uploadNotionSuccess": "تم تحميل ملف Notion zip الخاص بك بنجاح. بمجرد اكتمال عملية الاستيراد، ستتلقى رسالة تأكيد عبر البريد الإلكتروني",
       "reset": "إعادة ضبط"
     },
     "menu": {
@@ -1053,13 +1054,17 @@
       "syncSetting": "إعدادات المزامنة",
       "cloudSettings": "إعدادات السحابة",
       "enableSync": "تفعيل المزامنة",
+      "enableSyncLog": "تفعيل تسجيل المزامنة",
+      "enableSyncLogWarning": "شكرًا لك على مساعدتك في تشخيص مشكلات المزامنة. سيؤدي هذا إلى تسجيل تعديلات المستندات الخاصة بك في ملف محلي. يرجى الخروج من التطبيق وإعادة فتحه بعد تفعيله",
       "enableEncrypt": "تشفير البيانات",
       "cloudURL": "الرابط الأساسي",
+      "webURL": "عنوان الويب",
       "invalidCloudURLScheme": "مخطط غير صالح",
       "cloudServerType": "خادم سحابي",
       "cloudServerTypeTip": "يرجى ملاحظة أنه قد يقوم بتسجيل الخروج من حسابك الحالي بعد تبديل الخادم السحابي",
       "cloudLocal": "محلي",
       "cloudAppFlowy": "سحابة @:appName",
+      "cloudAppFlowySelfHost": "@:appName استضافة ذاتية على السحابة",
       "clickToCopy": "انقر للنسخ",
       "selfHostStart": "إذا لم يكن لديك خادم، يرجى الرجوع إلى",
       "selfHostContent": "مستند",
