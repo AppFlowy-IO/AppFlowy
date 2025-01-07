@@ -17,6 +17,7 @@ use lib_infra::util::{get_operating_system, OperatingSystem};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::path::Path;
+use tracing::trace;
 
 pub(crate) struct AFCloudChatCloudServiceImpl<T> {
   pub inner: T,
@@ -101,6 +102,12 @@ where
     message_id: i64,
     format: ResponseFormat,
   ) -> Result<StreamAnswer, FlowyError> {
+    trace!(
+      "stream_answer: workspace_id={}, chat_id={}, format={:?}",
+      workspace_id,
+      chat_id,
+      format
+    );
     let try_get_client = self.inner.try_get_client();
     let result = try_get_client?
       .stream_answer_v3(

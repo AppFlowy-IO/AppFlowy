@@ -92,11 +92,12 @@ impl Chat {
     metadata: Vec<ChatMessageMetadata>,
   ) -> Result<ChatMessagePB, FlowyError> {
     trace!(
-      "[Chat] stream chat message: chat_id={}, message={}, message_type={:?}, metadata={:?}",
+      "[Chat] stream chat message: chat_id={}, message={}, message_type={:?}, metadata={:?}, format={:?}",
       self.chat_id,
       message,
       message_type,
-      metadata
+      metadata,
+      format,
     );
 
     // clear
