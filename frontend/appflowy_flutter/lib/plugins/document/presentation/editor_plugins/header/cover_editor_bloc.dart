@@ -30,8 +30,7 @@ class ChangeCoverPopoverBloc
   void _dispatch() {
     on<ChangeCoverPopoverEvent>((event, emit) async {
       await event.map(
-        fetchPickedImagePaths:
-            (FetchPickedImagePaths fetchPickedImagePaths) async {
+        fetchPickedImagePaths: (fetchPickedImagePaths) async {
           final imageNames = await _getPreviouslyPickedImagePaths();
 
           emit(
@@ -41,11 +40,11 @@ class ChangeCoverPopoverBloc
             ),
           );
         },
-        deleteImage: (DeleteImage deleteImage) async {
+        deleteImage: (deleteImage) async {
           final currentState = state;
           final currentlySelectedImage =
               node.attributes[DocumentHeaderBlockKeys.coverDetails];
-          if (currentState is Loaded) {
+          if (currentState is _Loaded) {
             await _deleteImageInStorage(deleteImage.path);
             if (currentlySelectedImage == deleteImage.path) {
               _removeCoverImageFromNode();
@@ -54,15 +53,15 @@ class ChangeCoverPopoverBloc
                 .where((path) => path != deleteImage.path)
                 .toList();
             _updateImagePathsInStorage(updateImageList);
-            emit(Loaded(updateImageList));
+            emit(ChangeCoverPopoverState.loaded(updateImageList));
           }
         },
-        clearAllImages: (ClearAllImages clearAllImages) async {
+        clearAllImages: (clearAllImages) async {
           final currentState = state;
           final currentlySelectedImage =
               node.attributes[DocumentHeaderBlockKeys.coverDetails];
 
-          if (currentState is Loaded) {
+          if (currentState is _Loaded) {
             for (final image in currentState.imageNames) {
               await _deleteImageInStorage(image);
               if (currentlySelectedImage == image) {
@@ -70,7 +69,7 @@ class ChangeCoverPopoverBloc
               }
             }
             _updateImagePathsInStorage([]);
-            emit(const Loaded([]));
+            emit(const ChangeCoverPopoverState.loaded([]));
           }
         },
       );
@@ -113,18 +112,18 @@ class ChangeCoverPopoverBloc
 class ChangeCoverPopoverEvent with _$ChangeCoverPopoverEvent {
   const factory ChangeCoverPopoverEvent.fetchPickedImagePaths({
     @Default(false) bool selectLatestImage,
-  }) = FetchPickedImagePaths;
+  }) = _FetchPickedImagePaths;
 
-  const factory ChangeCoverPopoverEvent.deleteImage(String path) = DeleteImage;
-  const factory ChangeCoverPopoverEvent.clearAllImages() = ClearAllImages;
+  const factory ChangeCoverPopoverEvent.deleteImage(String path) = _DeleteImage;
+  const factory ChangeCoverPopoverEvent.clearAllImages() = _ClearAllImages;
 }
 
 @freezed
 class ChangeCoverPopoverState with _$ChangeCoverPopoverState {
-  const factory ChangeCoverPopoverState.initial() = Initial;
-  const factory ChangeCoverPopoverState.loading() = Loading;
+  const factory ChangeCoverPopoverState.initial() = _Initial;
+  const factory ChangeCoverPopoverState.loading() = _Loading;
   const factory ChangeCoverPopoverState.loaded(
     List<String> imageNames, {
     @Default(false) selectLatestImage,
-  }) = Loaded;
+  }) = _Loaded;
 }

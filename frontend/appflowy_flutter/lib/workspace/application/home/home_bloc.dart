@@ -1,4 +1,5 @@
 import 'package:appflowy/user/application/user_listener.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart'
@@ -48,9 +49,16 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             emit(state.copyWith(isLoading: e.isLoading));
           },
           didReceiveWorkspaceSetting: (_DidReceiveWorkspaceSetting value) {
+            // the latest view is shared across all the members of the workspace.
+
             final latestView = value.setting.hasLatestView()
                 ? value.setting.latestView
                 : state.latestView;
+
+            if (latestView != null && latestView.isSpace) {
+              // If the latest view is a space, we don't need to open it.
+              return;
+            }
 
             emit(
               state.copyWith(

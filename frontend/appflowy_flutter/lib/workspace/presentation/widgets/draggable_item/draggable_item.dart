@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+/// This value is used to disable the auto scroll when dragging.
+///
+/// It is used to prevent the auto scroll when dragging a view item to a document.
+bool disableAutoScrollWhenDragging = false;
+
 class DraggableItem<T extends Object> extends StatefulWidget {
   const DraggableItem({
     super.key,
@@ -67,7 +72,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
         childWhenDragging: widget.childWhenDragging ?? widget.child,
         child: widget.child,
         onDragUpdate: (details) {
-          if (widget.enableAutoScroll) {
+          if (widget.enableAutoScroll && !disableAutoScrollWhenDragging) {
             dragTarget = details.globalPosition & widget.hitTestSize;
             autoScroller?.startAutoScrollIfNecessary(dragTarget!);
           }
@@ -88,7 +93,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
   }
 
   void initAutoScrollerIfNeeded(BuildContext context) {
-    if (!widget.enableAutoScroll) {
+    if (!widget.enableAutoScroll || disableAutoScrollWhenDragging) {
       return;
     }
 
@@ -104,7 +109,7 @@ class _DraggableItemState<T extends Object> extends State<DraggableItem<T>> {
     autoScroller = EdgeDraggingAutoScroller(
       scrollable!,
       onScrollViewScrolled: () {
-        if (dragTarget != null) {
+        if (dragTarget != null && !disableAutoScrollWhenDragging) {
           autoScroller!.startAutoScrollIfNecessary(dragTarget!);
         }
       },

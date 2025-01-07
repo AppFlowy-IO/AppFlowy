@@ -5,6 +5,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/home/workspaces/workspace_menu_bottom_sheet.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker_screen.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/built_in_svgs.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
@@ -234,6 +235,7 @@ class _UserIcon extends StatelessWidget {
             queryParameters: {
               MobileEmojiPickerScreen.pageTitle:
                   LocaleKeys.titleBar_userIcon.tr(),
+              MobileEmojiPickerScreen.selectTabs: [PickerTabType.emoji.name],
             },
           ).toString(),
         );
