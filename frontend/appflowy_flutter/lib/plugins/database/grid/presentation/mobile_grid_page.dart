@@ -5,7 +5,6 @@ import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/grid/application/grid_bloc.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/shortcuts.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -42,6 +41,7 @@ class MobileGridTabBarBuilderImpl extends DatabaseTabBarItemBuilder {
       view: view,
       databaseController: controller,
       initialRowId: initialRowId,
+      shrinkWrap: shrinkWrap,
     );
   }
 
@@ -68,12 +68,14 @@ class MobileGridPage extends StatefulWidget {
     required this.databaseController,
     this.onDeleted,
     this.initialRowId,
+    this.shrinkWrap = false,
   });
 
   final ViewPB view;
   final DatabaseController databaseController;
   final VoidCallback? onDeleted;
   final String? initialRowId;
+  final bool shrinkWrap;
 
   @override
   State<MobileGridPage> createState() => _MobileGridPageState();
@@ -104,7 +106,10 @@ class _MobileGridPageState extends State<MobileGridPage> {
             finish: (result) {
               _openRow(context, widget.initialRowId, true);
               return result.successOrFail.fold(
-                (_) => GridShortcuts(child: GridPageContent(view: widget.view)),
+                (_) => GridPageContent(
+                  view: widget.view,
+                  shrinkWrap: widget.shrinkWrap,
+                ),
                 (err) => Center(
                   child: AppFlowyErrorPage(
                     error: err,
@@ -145,9 +150,11 @@ class GridPageContent extends StatefulWidget {
   const GridPageContent({
     super.key,
     required this.view,
+    this.shrinkWrap = false,
   });
 
   final ViewPB view;
+  final bool shrinkWrap;
 
   @override
   State<GridPageContent> createState() => _GridPageContentState();
@@ -196,6 +203,7 @@ class _GridPageContentState extends State<GridPageContent> {
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               _GridHeader(
                 contentScrollController: contentScrollController,
@@ -207,11 +215,12 @@ class _GridPageContentState extends State<GridPageContent> {
               ),
             ],
           ),
-          Positioned(
-            bottom: 16,
-            right: 16,
-            child: getGridFabs(context),
-          ),
+          if (!widget.shrinkWrap)
+            Positioned(
+              bottom: 16,
+              right: 16,
+              child: getGridFabs(context),
+            ),
         ],
       ),
     );
@@ -256,7 +265,7 @@ class _GridRows extends StatelessWidget {
       buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
         final double contentWidth = getMobileGridContentWidth(state.fields);
-        return Expanded(
+        return Flexible(
           child: _WrapScrollView(
             scrollController: scrollController,
             contentWidth: contentWidth,
@@ -305,6 +314,7 @@ class _GridRows extends StatelessWidget {
     return ReorderableListView.builder(
       scrollController: scrollController.verticalController,
       buildDefaultDragHandles: false,
+      shrinkWrap: true,
       proxyDecorator: (child, index, animation) => Material(
         color: Colors.transparent,
         child: child,
