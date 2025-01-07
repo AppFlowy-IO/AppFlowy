@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -53,7 +54,7 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
   @override
   void initState() {
     super.initState();
-    _userProfile = context.read<DocumentBloc>().state.userProfilePB;
+    _userProfile = context.read<UserWorkspaceBloc?>()?.userProfile;
   }
 
   @override
