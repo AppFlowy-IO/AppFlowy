@@ -584,7 +584,7 @@
     "column": {
       "createNewCard": "추가"
     },
-    "menuName": "판자",
+    "menuName": "보드",
     "referencedBoardPrefix": "관점",
     "mobile": {
       "showGroup": "그룹 표시",
