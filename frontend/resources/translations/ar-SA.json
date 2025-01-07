@@ -1005,10 +1005,39 @@
       "commonOther": "آخر",
       "otherHint": "اكتب إجابتك هنا",
       "questionOne": {
-        "question": "ما الذي دفعك إلى إلغاء اشتراكك @:appName Pro؟"
+        "question": "ما الذي دفعك إلى إلغاء اشتراكك @:appName Pro؟",
+        "answerOne": "التكلفة مرتفعة للغاية",
+        "answerTwo": "الميزات لم تلبي التوقعات",
+        "answerThree": "وجدت بديلا أفضل",
+        "answerFour": "لم أستخدمه بشكل كافي لتبرير التكلفة",
+        "answerFive": "مشكلة في الخدمة أو صعوبات فنية"
+      },
+      "questionTwo": {
+        "question": "ما مدى احتمالية أن تفكر في إعادة الاشتراك في @:appName Pro في المستقبل؟",
+        "answerOne": "من المرجح جدًا",
+        "answerTwo": "من المحتمل إلى حد ما",
+        "answerThree": "غير متأكد",
+        "answerFour": "من غير المحتمل",
+        "answerFive": "من غير المحتمل جدًا"
+      },
+      "questionThree": {
+        "question": "ما هي الميزة الاحترافية التي تقدرها أكثر أثناء اشتراكك؟",
+        "answerOne": "التعاون بين المستخدمين المتعددين",
+        "answerTwo": "تاريخ الإصدار الأطول",
+        "answerThree": "استجابات الذكاء الاصطناعي غير المحدودة",
+        "answerFour": "الوصول إلى نماذج الذكاء الاصطناعي المحلية"
+      },
+      "questionFour": {
+        "question": "كيف تصف تجربتك العامة مع @:appName ؟",
+        "answerOne": "عظيم",
+        "answerTwo": "جيد",
+        "answerThree": "متوسط",
+        "answerFour": "أقل من المتوسط",
+        "answerFive": "غير راضٍ"
       }
     },
     "common": {
+      "uploadingFile": "جاري رفع الملف. الرجاء عدم الخروج من التطبيق",
       "reset": "إعادة ضبط"
     },
     "menu": {
