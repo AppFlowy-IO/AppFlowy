@@ -1,7 +1,7 @@
 use crate::chat::Chat;
 use crate::entities::{
   ChatInfoPB, ChatMessageListPB, ChatMessagePB, ChatSettingsPB, FilePB, PredefinedFormatPB,
-  RepeatedRelatedQuestionPB,
+  RepeatedRelatedQuestionPB, StreamMessageParams,
 };
 use crate::local_ai::local_llm_chat::LocalAIController;
 use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
@@ -10,9 +10,7 @@ use std::collections::HashMap;
 
 use appflowy_plugin::manager::PluginManager;
 use dashmap::DashMap;
-use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessageMetadata, ChatMessageType, ChatSettings, UpdateChatParams,
-};
+use flowy_ai_pub::cloud::{ChatCloudService, ChatSettings, UpdateChatParams};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
@@ -213,30 +211,15 @@ impl AIManager {
     Ok(chat)
   }
 
-  pub async fn stream_chat_message(
-    &self,
-    chat_id: &str,
-    message: &str,
-    message_type: ChatMessageType,
-    answer_stream_port: i64,
-    question_stream_port: i64,
-    format: Option<PredefinedFormatPB>,
-    metadata: Vec<ChatMessageMetadata>,
+  pub async fn stream_chat_message<'a>(
+    &'a self,
+    params: &'a StreamMessageParams<'a>,
   ) -> Result<ChatMessagePB, FlowyError> {
-    let chat = self.get_or_create_chat_instance(chat_id).await?;
-    let question = chat
-      .stream_chat_message(
-        message,
-        message_type,
-        answer_stream_port,
-        question_stream_port,
-        format,
-        metadata,
-      )
-      .await?;
+    let chat = self.get_or_create_chat_instance(params.chat_id).await?;
+    let question = chat.stream_chat_message(params).await?;
     let _ = self
       .external_service
-      .notify_did_send_message(chat_id, message)
+      .notify_did_send_message(params.chat_id, params.message)
       .await;
     Ok(question)
   }

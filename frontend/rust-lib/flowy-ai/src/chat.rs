@@ -1,7 +1,7 @@
 use crate::ai_manager::AIUserService;
 use crate::entities::{
   ChatMessageErrorPB, ChatMessageListPB, ChatMessagePB, PredefinedFormatPB,
-  RepeatedRelatedQuestionPB,
+  RepeatedRelatedQuestionPB, StreamMessageParams,
 };
 use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
 use crate::notification::{chat_notification_builder, ChatNotification};
@@ -12,8 +12,7 @@ use crate::persistence::{
 use crate::stream_message::StreamMessage;
 use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, MessageCursor,
-  QuestionStreamValue, ResponseFormat,
+  ChatCloudService, ChatMessage, MessageCursor, QuestionStreamValue, ResponseFormat,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
@@ -82,22 +81,17 @@ impl Chat {
   }
 
   #[instrument(level = "info", skip_all, err)]
-  pub async fn stream_chat_message(
-    &self,
-    message: &str,
-    message_type: ChatMessageType,
-    answer_stream_port: i64,
-    question_stream_port: i64,
-    format: Option<PredefinedFormatPB>,
-    metadata: Vec<ChatMessageMetadata>,
+  pub async fn stream_chat_message<'a>(
+    &'a self,
+    params: &'a StreamMessageParams<'a>,
   ) -> Result<ChatMessagePB, FlowyError> {
     trace!(
       "[Chat] stream chat message: chat_id={}, message={}, message_type={:?}, metadata={:?}, format={:?}",
       self.chat_id,
-      message,
-      message_type,
-      metadata,
-      format,
+      params.message,
+      params.message_type,
+      params.metadata,
+      params.format,
     );
 
     // clear
@@ -106,22 +100,22 @@ impl Chat {
       .store(false, std::sync::atomic::Ordering::SeqCst);
     self.stream_buffer.lock().await.clear();
 
-    let mut question_sink = IsolateSink::new(Isolate::new(question_stream_port));
+    let mut question_sink = IsolateSink::new(Isolate::new(params.question_stream_port));
     let answer_stream_buffer = self.stream_buffer.clone();
     let uid = self.user_service.user_id()?;
     let workspace_id = self.user_service.workspace_id()?;
 
     let _ = question_sink
-      .send(StreamMessage::Text(message.to_string()).to_string())
+      .send(StreamMessage::Text(params.message.to_string()).to_string())
       .await;
     let question = self
       .chat_service
       .create_question(
         &workspace_id,
         &self.chat_id,
-        message,
-        message_type,
-        &metadata,
+        params.message,
+        params.message_type.clone(),
+        &params.metadata,
       )
       .await
       .map_err(|err| {
@@ -134,7 +128,7 @@ impl Chat {
       .await;
     if let Err(err) = self
       .chat_service
-      .index_message_metadata(&self.chat_id, &metadata, &mut question_sink)
+      .index_message_metadata(&self.chat_id, &params.metadata, &mut question_sink)
       .await
     {
       error!("Failed to index file: {}", err);
@@ -144,10 +138,10 @@ impl Chat {
     // Save message to disk
     save_and_notify_message(uid, &self.chat_id, &self.user_service, question.clone())?;
 
-    let format = format.unwrap_or_default().into();
+    let format = params.format.clone().unwrap_or_default().into();
 
     self.stream_response(
-      answer_stream_port,
+      params.answer_stream_port,
       answer_stream_buffer,
       uid,
       workspace_id,

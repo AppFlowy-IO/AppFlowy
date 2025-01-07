@@ -4,8 +4,8 @@ use std::collections::HashMap;
 
 use crate::local_ai::local_llm_resource::PendingResource;
 use flowy_ai_pub::cloud::{
-  ChatMessage, LLMModel, OutputContent, OutputLayout, RelatedQuestion, RepeatedChatMessage,
-  RepeatedRelatedQuestion, ResponseFormat,
+  ChatMessage, ChatMessageMetadata, ChatMessageType, LLMModel, OutputContent, OutputLayout,
+  RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion, ResponseFormat,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_infra::validator_fn::required_not_empty_str;
@@ -73,6 +73,17 @@ pub struct StreamChatPayloadPB {
 
   #[pb(index = 7)]
   pub metadata: Vec<ChatMessageMetaPB>,
+}
+
+#[derive(Default, Debug)]
+pub struct StreamMessageParams<'a> {
+  pub chat_id: &'a str,
+  pub message: &'a str,
+  pub message_type: ChatMessageType,
+  pub answer_stream_port: i64,
+  pub question_stream_port: i64,
+  pub format: Option<PredefinedFormatPB>,
+  pub metadata: Vec<ChatMessageMetadata>,
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
