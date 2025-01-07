@@ -242,6 +242,12 @@
         "changeProfilePicture": "프로필 사진 변경"
       }
     },
+    "aiPage": {
+      "keys": {
+        "localAIStart": "로컬 AI 대화 시작중...",
+        "localAILoading": "로컬 AI 대화 모델 로딩중..."
+      }
+    },
     "menu": {
       "appearance": "화면",
       "language": "언어",
