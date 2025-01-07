@@ -1113,19 +1113,62 @@
       "markAsReadNotifications": {
         "allSuccess": "تم وضع علامة على كل شيء كمقروء بنجاح",
         "success": "تم وضع علامة على القراءة بنجاح"
+      },
+      "action": {
+        "markAsRead": "وضع علامة كمقروءة",
+        "multipleChoice": "إختر المزيد",
+        "archive": "أرشيف"
+      },
+      "settings": {
+        "settings": "إعدادات",
+        "markAllAsRead": "وضع علامة على الكل كمقروء",
+        "archiveAll": "أرشفة الكل"
+      },
+      "emptyInbox": {
+        "title": "صندوق الوارد صفر!",
+        "description": "قم بتعيين التذكيرات لتلقي الإشعارات هنا."
+      },
+      "emptyUnread": {
+        "title": "لا توجد إشعارات غير مقروءة",
+        "description": "لقد تم قراءة جميع الرسائل."
+      },
+      "emptyArchived": {
+        "title": "غير مؤرشفة",
+        "description": "ستظهر الإشعارات المؤرشفة هنا."
+      },
+      "tabs": {
+        "inbox": "صندوق الوارد",
+        "unread": "غير مقروء",
+        "archived": "مؤرشفة"
+      },
+      "refreshSuccess": "تم تحديث الإشعارات بنجاح",
+      "titles": {
+        "notifications": "إشعارات",
+        "reminder": "تذكير"
       }
     },
     "appearance": {
       "resetSetting": "إعادة ضبط هذا الإعداد",
       "fontFamily": {
         "label": "الخط",
-        "search": "يبحث"
+        "search": "يبحث",
+        "defaultFont": "نظام"
       },
       "themeMode": {
         "label": "مظهر السمة",
         "light": " المظهر الفاتح",
         "dark": "المظهر الداكن",
         "system": "التكيف مع النظام"
+      },
+      "fontScaleFactor": "عامل مقياس الخط",
+      "documentSettings": {
+        "cursorColor": "لون مؤشر المستند",
+        "selectionColor": "لون اختيار المستند",
+        "width": "عرض المستند",
+        "changeWidth": "تغير",
+        "pickColor": "حدد اللون",
+        "colorShade": "ظل اللون",
+        "opacity": "الشفافية"
       },
       "layoutDirection": {
         "label": "اتجاه التخطيط",
