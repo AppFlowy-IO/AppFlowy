@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/ai_client.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/service/error.dart';
+import 'package:appflowy/ai/ai_client.dart';
+import 'package:appflowy/ai/error.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
-import 'package:appflowy/user/application/ai_service.dart';
+import 'package:appflowy/ai/appflowy_ai_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

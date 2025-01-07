@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/shared/loading.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/plan/settings_plan_bloc.dart';
 import 'package:appflowy/workspace/application/settings/plan/workspace_subscription_ext.dart';
@@ -13,7 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../generated/locale_keys.g.dart';
-import '../../../../plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 
 class SettingsPlanComparisonDialog extends StatefulWidget {
   const SettingsPlanComparisonDialog({

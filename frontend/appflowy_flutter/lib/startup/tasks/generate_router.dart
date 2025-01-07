@@ -29,6 +29,7 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/presentation/presentation.dart';
 import 'package:appflowy/workspace/presentation/home/desktop_home_screen.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/feature_flags/mobile_feature_flag_screen.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter/foundation.dart';
@@ -288,10 +289,15 @@ GoRoute _mobileEmojiPickerPageRoute() {
       final selectedType = state
           .uri.queryParameters[MobileEmojiPickerScreen.iconSelectedType]
           ?.toPickerTabType();
-      final tabs = selectTabs
-          .split('-')
-          .map((e) => PickerTabType.values.byName(e))
-          .toList();
+      List<PickerTabType> tabs = [];
+      try {
+        tabs = selectTabs
+            .split('-')
+            .map((e) => PickerTabType.values.byName(e))
+            .toList();
+      } on ArgumentError catch (e) {
+        Log.error('convert selectTabs to pickerTab error', e);
+      }
       return MaterialExtendedPage(
         child: tabs.isEmpty
             ? MobileEmojiPickerScreen(title: title, selectedType: selectedType)

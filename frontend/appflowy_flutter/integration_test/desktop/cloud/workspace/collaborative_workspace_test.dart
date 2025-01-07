@@ -1,7 +1,7 @@
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/loading.dart';
 import 'package:appflowy/shared/feature_flags.dart';
+import 'package:appflowy/shared/loading.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_actions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/workspace/_sidebar_workspace_menu.dart';
 import 'package:easy_localization/easy_localization.dart';

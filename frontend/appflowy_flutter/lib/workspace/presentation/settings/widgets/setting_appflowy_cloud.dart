@@ -1,11 +1,8 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_urls_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/_restart_app_button.dart';
@@ -22,6 +19,9 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AppFlowyCloudViewSetting extends StatelessWidget {
@@ -67,7 +67,9 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
         builder: (context, state) {
           return Column(
             children: [
+              const VSpace(8),
               const AppFlowyCloudEnableSync(),
+              const VSpace(6),
               const AppFlowyCloudSyncLogEnabled(),
               const VSpace(12),
               RestartButton(
@@ -75,6 +77,9 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
                   NavigatorAlertDialog(
                     title: LocaleKeys.settings_menu_restartAppTip.tr(),
                     confirm: () async {
+                      await useBaseWebDomain(
+                        ShareConstants.defaultBaseWebDomain,
+                      );
                       await useAppFlowyBetaCloudWithURL(
                         serverURL,
                         authenticatorType,
@@ -174,7 +179,7 @@ class AppFlowyCloudURLs extends StatelessWidget {
           builder: (context, state) {
             return Column(
               children: [
-                const AppFlowySelfhostTip(),
+                const AppFlowySelfHostTip(),
                 CloudURLInput(
                   title: LocaleKeys.settings_menu_cloudURL.tr(),
                   url: state.config.base_url,
@@ -182,6 +187,19 @@ class AppFlowyCloudURLs extends StatelessWidget {
                   onChanged: (text) {
                     context.read<AppFlowyCloudURLsBloc>().add(
                           AppFlowyCloudURLsEvent.updateServerUrl(
+                            text,
+                          ),
+                        );
+                  },
+                ),
+                const VSpace(8),
+                CloudURLInput(
+                  title: LocaleKeys.settings_menu_webURL.tr(),
+                  url: state.config.base_web_domain,
+                  hint: LocaleKeys.settings_menu_webURLHint.tr(),
+                  onChanged: (text) {
+                    context.read<AppFlowyCloudURLsBloc>().add(
+                          AppFlowyCloudURLsEvent.updateBaseWebDomain(
                             text,
                           ),
                         );
@@ -210,8 +228,8 @@ class AppFlowyCloudURLs extends StatelessWidget {
   }
 }
 
-class AppFlowySelfhostTip extends StatelessWidget {
-  const AppFlowySelfhostTip({super.key});
+class AppFlowySelfHostTip extends StatelessWidget {
+  const AppFlowySelfHostTip({super.key});
 
   final url =
       "https://docs.appflowy.io/docs/guides/appflowy/self-hosting-appflowy#build-appflowy-with-a-self-hosted-server";
