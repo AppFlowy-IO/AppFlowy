@@ -151,7 +151,11 @@
     "charCount": "Compteur de caractère: {}",
     "createdAt": "Créé à: {}",
     "deleteView": "Supprimer",
-    "duplicateView": "Dupliquer"
+    "duplicateView": "Dupliquer",
+    "wordCountLabel": "Mots:",
+    "charCountLabel": "Charactères: ",
+    "createdAtLabel": "Créé:",
+    "syncedAtLabel": "Synchronisé"
   },
   "importPanel": {
     "textAndMarkdown": "Texte et Markdown",
@@ -172,7 +176,9 @@
     "addToFavorites": "Ajouter aux Favoris",
     "copyLink": "Copier le lien",
     "changeIcon": "Changer d'icône",
-    "collapseAllPages": "Réduire toutes les sous-pages"
+    "collapseAllPages": "Réduire toutes les sous-pages",
+    "movePageTo": "Déplacer vers",
+    "move": "Déplacer"
   },
   "blankPageTitle": "Page vierge",
   "newPageText": "Nouvelle page",
@@ -218,7 +224,9 @@
     "addToPageButton": "Ajouter à la page",
     "addToPageTitle": "Ajouter un message à...",
     "addToNewPage": "Ajouter à une nouvelle page",
-    "addToNewPageName": "Messages extraits de \"{}\""
+    "addToNewPageName": "Messages extraits de \"{}\"",
+    "addToNewPageSuccessToast": "Message ajouté à",
+    "openPagePreviewFailedToast": "Échec de l'ouverture de la page"
   },
   "trash": {
     "text": "Corbeille",
@@ -274,7 +282,8 @@
     "moreButtonToolTip": "Supprimer, renommer et plus...",
     "addPageTooltip": "Ajoutez rapidement une page à l'intérieur",
     "defaultNewPageName": "Sans-titre",
-    "renameDialog": "Renommer"
+    "renameDialog": "Renommer",
+    "pageNameSuffix": "Copier"
   },
   "noPagesInside": "Aucune page à l'intérieur",
   "toolbar": {
@@ -310,6 +319,7 @@
   "sideBar": {
     "closeSidebar": "Fermer le menu latéral",
     "openSidebar": "Ouvrir le menu latéral",
+    "expandSidebar": "Agrandir la page",
     "personal": "Personnel",
     "private": "Privé",
     "workspace": "Espace de travail",
@@ -432,6 +442,9 @@
     "viewing": "Affichage",
     "editing": "Édition",
     "gotIt": "Compris",
+    "retry": "Réessayer ",
+    "uploadFailed": "Échec du téléchargement.",
+    "copyLinkOriginal": "Copier le lien vers l'original",
     "tryAGain": "Réessayer"
   },
   "label": {
@@ -1059,6 +1072,7 @@
       "enableSyncLogWarning": "Merci de nous aider à diagnostiquer les problèmes de synchronisation. Cela enregistrera les modifications de votre document dans un fichier local. Veuillez quitter et rouvrir l'application après l'avoir activée",
       "enableEncrypt": "Chiffrer les données",
       "cloudURL": "URL de base",
+      "webURL": "Web URL",
       "invalidCloudURLScheme": "Schéma invalide",
       "cloudServerType": "Serveur cloud",
       "cloudServerTypeTip": "Veuillez noter qu'il est possible que votre compte actuel soit déconnecté après avoir changé de serveur cloud.",
@@ -1073,6 +1087,7 @@
       "pleaseInputValidURL": "Veuillez saisir une URL valide",
       "changeUrl": "Changer l'URL auto-hébergée en {}",
       "cloudURLHint": "Saisissez l'URL de base de votre serveur",
+      "webURLHint": "Saisissez l'URL de base de votre serveur web",
       "cloudWSURL": "URL du websocket",
       "cloudWSURLHint": "Saisissez l'adresse websocket de votre serveur",
       "restartApp": "Redémarrer",
@@ -1368,6 +1383,7 @@
       "typeAValue": "Tapez une valeur...",
       "layout": "Mise en page",
       "databaseLayout": "Mise en page",
+      "viewList": "Vues de base de données",
       "editView": "Modifier vue",
       "boardSettings": "Paramètres du tableau",
       "calendarSettings": "Paramètres du calendrier",
@@ -1375,8 +1391,7 @@
       "duplicateView": "Dupliquer la vue",
       "deleteView": "Supprimer la vue",
       "numberOfVisibleFields": "{} affiché(s)",
-      "Properties": "Propriétés",
-      "viewList": "Vues de base de données"
+      "Properties": "Propriétés"
     },
     "filter": {
       "empty": "Aucun filtre actif",
@@ -1652,6 +1667,7 @@
       "timeHintTextInTwelveHour": "01:00 PM",
       "timeHintTextInTwentyFourHour": "13:00"
     },
+    "creating": "Création...",
     "slashMenu": {
       "board": {
         "selectABoardToLinkTo": "Sélectionnez un tableau à lier",
@@ -1749,6 +1765,7 @@
       "toggleList": "Liste pliable",
       "emptyToggleHeading": "Bouton vide h{}. Cliquez pour ajouter du contenu.",
       "emptyToggleList": "Liste vide. Cliquez pour ajouter du contenu.",
+      "emptyToggleHeadingWeb": "Bascule h{level} vide. Cliquer pour ajouter du contenu ",
       "quoteList": "Liste de citations",
       "numberedList": "Liste numérotée",
       "bulletedList": "Liste à puces",
@@ -2040,7 +2057,8 @@
       "deletedContent": "Ce document n'existe pas ou a été supprimé",
       "noAccess": "Pas d'accès",
       "deletedPage": "Page supprimée",
-      "trashHint": " - à la corbeille"
+      "trashHint": " - à la corbeille",
+      "morePages": "plus de pages"
     },
     "toolbar": {
       "resetToDefaultFont": "Réinitialiser aux valeurs par défaut"
@@ -2149,11 +2167,11 @@
       "layoutDateField": "Calendrier de mise en page par",
       "changeLayoutDateField": "Modifier le champ de mise en page",
       "noDateTitle": "Pas de date",
+      "noDateHint": "Les événements non planifiés s'afficheront ici",
       "unscheduledEventsTitle": "Événements non planifiés",
       "clickToAdd": "Cliquez pour ajouter au calendrier",
       "name": "Disposition du calendrier",
-      "clickToOpen": "Cliquez pour ouvrir l'évènement",
-      "noDateHint": "Les événements non planifiés s'afficheront ici"
+      "clickToOpen": "Cliquez pour ouvrir l'évènement"
     },
     "referencedCalendarPrefix": "Vue",
     "quickJumpYear": "Sauter à",
@@ -2342,6 +2360,9 @@
     "link": "Lien",
     "numberedList": "Liste numérotée",
     "numberedListShortForm": "Numéroté",
+    "toggleHeading1ShortForm": "Bascule h1",
+    "toggleHeading2ShortForm": "Bascule h2",
+    "toggleHeading3ShortForm": "Bascule h3",
     "quote": "Citation",
     "strikethrough": "Barré",
     "text": "Texte",
@@ -2392,6 +2413,9 @@
     "mobileHeading1": "Titre 1",
     "mobileHeading2": "Titre 2",
     "mobileHeading3": "Titre 3",
+    "mobileHeading4": "Titre 4",
+    "mobileHeading5": "Titre 5 ",
+    "mobileHeading6": "Titre 6",
     "textColor": "Couleur du texte",
     "backgroundColor": "Couleur du fond",
     "addYourLink": "Ajoutez votre lien",
@@ -2686,14 +2710,19 @@
     "fileBlock": {
       "uploadedAt": "Mis en ligne le {time}",
       "linkedAt": "Lien ajouté le {time}",
-      "empty": "Envoyer ou intégrer un fichier"
+      "empty": "Envoyer ou intégrer un fichier",
+      "uploadFailed": "Échec du téléchargement, veuillez réessayer",
+      "retry": "Réessayer"
     },
     "importNotion": "Importer depuis Notion",
     "import": "Importer",
     "importSuccess": "Téléchargé avec succès",
     "importSuccessMessage": "Nous vous informerons lorsque l'importation sera terminée. Vous pourrez ensuite visualiser vos pages importées dans la barre latérale.",
     "importFailed": "L'importation a échoué, veuillez vérifier le format du fichier",
-    "dropNotionFile": "Déposez votre fichier zip Notion ici pour le télécharger, ou cliquez pour parcourir"
+    "dropNotionFile": "Déposez votre fichier zip Notion ici pour le télécharger, ou cliquez pour parcourir",
+    "error": {
+      "pageNameIsEmpty": "Le nom de la page est vide, veuillez réessayer"
+    }
   },
   "globalComment": {
     "comments": "Commentaires",
@@ -2937,7 +2966,12 @@
     "closeDisabledHint": "Impossible de fermer un onglet épinglé, veuillez d'abord le désépingler",
     "closeOthers": "Fermer les autres onglets",
     "closeOthersHint": "Cela fermera tous les onglets non épinglés sauf celui-ci",
-    "closeOthersDisabledHint": "Tous les onglets sont épinglés, je ne trouve aucun onglet à fermer"
+    "closeOthersDisabledHint": "Tous les onglets sont épinglés, je ne trouve aucun onglet à fermer",
+    "favorite": "Favori",
+    "unfavorite": "Non favori",
+    "favoriteDisabledHint": "Impossible de mettre en favori cette vue",
+    "pinTab": "Épingler",
+    "unpinTab": "Désépingler"
   },
   "openFileMessage": {
     "success": "Fichier ouvert avec succès",
@@ -2945,5 +2979,28 @@
     "noAppToOpenFile": "Aucune application pour ouvrir ce fichier",
     "permissionDenied": "Aucune autorisation d'ouvrir ce fichier",
     "unknownError": "Échec de l'ouverture du fichier"
+  },
+  "inviteMember": {
+    "requestInviteMembers": "Inviter à votre espace de travail",
+    "inviteFailedMemberLimit": "La limite de membres a été atteinte, veuillez ",
+    "upgrade": "mettre à niveau",
+    "addEmail": "email@example.com, email2@example.com...",
+    "requestInvites": "Envoyer des invitations",
+    "inviteAlready": "Vous avez déjà inviter cet email: {email}",
+    "inviteSuccess": "Invitation envoyée avec succès",
+    "description": "Saisissez les adresses emails en les séparant par une virgule. Les frais sont basés sur le nombre de membres.",
+    "emails": "Email"
+  },
+  "quickNote": {
+    "label": "Note Rapide",
+    "quickNotes": "Notes Rapides",
+    "search": "Chercher les Notes Rapides",
+    "collapseFullView": "Fermer la vue d'ensemble",
+    "expandFullView": "Ouvrir la vue d'ensemble",
+    "createFailed": "Échec de la création de la Note Rapide",
+    "quickNotesEmpty": "Aucune Notes Rapides",
+    "emptyNote": "Note vide",
+    "deleteNotePrompt": "La note sélectionnée sera supprimée définitivement. Êtes-vous sûr de vouloir la supprimer ?",
+    "addNote": "Nouvelle Note"
   }
 }
