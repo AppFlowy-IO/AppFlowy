@@ -57,7 +57,28 @@
     "buttonText": "공유",
     "workInProgress": "Coming soon",
     "markdown": "마크다운",
-    "copyLink": "링크 복사"
+    "html": "HTML",
+    "clipboard": "클립보드에 복사",
+    "csv": "CSV",
+    "copyLink": "링크 복사",
+    "publishToTheWeb": "웹에 게시",
+    "publishToTheWebHint": "AppFlowy로 웹사이트 만들기",
+    "publish": "게시",
+    "unPublish": "게시 취소",
+    "visitSite": "사이트 방문",
+    "exportAsTab": "내보내기",
+    "publishTab": "게시",
+    "shareTab": "공유",
+    "publishOnAppFlowy": "AppFlowy에 게시",
+    "shareTabTitle": "협업 초대",
+    "shareTabDescription": "누구와도 쉽게 협업할 수 있습니다",
+    "copyLinkSuccess": "클립보드에 링크 복사",
+    "copyShareLink": "공유 링크 복사",
+    "copyLinkFailed": "클립보드에 링크를 복사하는 데 실패했습니다",
+    "copyLinkToBlockSuccess": "블록 링크를 클립보드에 복사했습니다",
+    "copyLinkToBlockFailed": "블록 링크를 클립보드에 복사하는 데 실패했습니다",
+    "manageAllSites": "모든 사이트 관리",
+    "updatePathName": "경로 이름 업데이트"
   },
   "moreAction": {
     "small": "작은",
@@ -187,7 +208,8 @@
     "edit": "편집하다",
     "delete": "삭제",
     "duplicate": "복제하다",
-    "putback": "다시 집어 넣어"
+    "putback": "다시 집어 넣어",
+    "share": "공유"
   },
   "label": {
     "welcome": "환영합니다!",
@@ -612,6 +634,13 @@
   "views": {
     "deleteContentTitle": "{pageType}을(를) 삭제하시겠습니까?",
     "deleteContentCaption": "이 {pageType}을(를) 삭제하면 휴지통에서 복원할 수 있습니다."
+  },
+  "newSettings": {
+    "myAccount": {
+      "deleteAccount": {
+        "dialogContent2": "이 작업은 실행 취소할 수 없으며 모든 작업 공간에서의 액세스가 제거되고, 개인 작업 공간을 포함한 전체 계정이 삭제되고, 모든 공유 작업 공간에서 제거됩니다."
+      }
+    }
   },
   "space": {
     "defaultSpaceName": "일반"
