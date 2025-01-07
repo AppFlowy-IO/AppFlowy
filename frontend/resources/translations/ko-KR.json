@@ -219,7 +219,7 @@
     "appearance": {
       "fontFamily": {
         "label": "글꼴 패밀리",
-        "search": "찾다"
+        "search": "검색"
       },
       "themeMode": {
         "label": "테마 모드",
@@ -589,7 +589,7 @@
     "github": "GitHub에서 보기"
   },
   "search": {
-    "label": "찾다",
+    "label": "검색",
     "placeholder": {
       "actions": "검색 작업..."
     }
