@@ -1246,7 +1246,21 @@
           "one": "{} العضو",
           "other": "{} الأعضاء"
         },
-        "inviteFailedDialogTitle": "فشل في إرسال الدعوة"
+        "inviteFailedDialogTitle": "فشل في إرسال الدعوة",
+        "inviteFailedMemberLimit": "لقد تم الوصول إلى الحد الأقصى للأعضاء، يرجى الترقية لدعوة المزيد من الأعضاء.",
+        "inviteFailedMemberLimitMobile": "لقد وصلت مساحة العمل الخاصة بك إلى الحد الأقصى للأعضاء.",
+        "memberLimitExceeded": "تم الوصول إلى الحد الأقصى للأعضاء، لدعوة المزيد من الأعضاء، يرجى ",
+        "memberLimitExceededUpgrade": "ترقية",
+        "memberLimitExceededPro": "تم الوصول إلى الحد الأقصى للأعضاء، إذا كنت بحاجة إلى المزيد من الأعضاء، فاتصل بنا ",
+        "memberLimitExceededProContact": "support@appflowy.io",
+        "failedToAddMember": "فشل في إضافة العضو",
+        "addMemberSuccess": "تمت إضافة العضو بنجاح",
+        "removeMember": "إزالة العضو",
+        "areYouSureToRemoveMember": "هل أنت متأكد أنك تريد إزالة هذا العضو؟",
+        "inviteMemberSuccess": "لقد تم ارسال الدعوة بنجاح",
+        "failedToInviteMember": "فشل في دعوة العضو",
+        "workspaceMembersError": "عفواً، حدث خطأ ما",
+        "workspaceMembersErrorDescription": "لم نتمكن من تحميل قائمة الأعضاء في هذا الوقت. يرجى المحاولة مرة أخرى لاحقًا"
       },
       "lightLabel": "فاتح",
       "darkLabel": "غامق"
@@ -1285,7 +1299,8 @@
       "recoverLocationTooltips": "إعادة التعيين إلى دليل البيانات الافتراضي لـ @:appName",
       "exportFileSuccess": "تم تصدير الملف بنجاح!",
       "exportFileFail": "فشل تصدير الملف!",
-      "export": "يصدّر"
+      "export": "يصدّر",
+      "clearCache": "مسح ذاكرة التخزين المؤقت"
     },
     "user": {
       "name": "اسم",
