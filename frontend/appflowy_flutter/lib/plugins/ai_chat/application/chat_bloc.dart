@@ -60,6 +60,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   bool hasMorePreviousMessages = true;
   AnswerStream? answerStream;
   bool isFetchingRelatedQuestions = false;
+  bool shouldFetchRelatedQuestions = false;
 
   @override
   Future<void> close() async {
@@ -172,6 +173,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             _clearRelatedQuestions();
             _startStreamingMessage(message, format, metadata);
             lastSentMessage = null;
+
+            isFetchingRelatedQuestions = false;
+            shouldFetchRelatedQuestions =
+                format == null || format.imageFormat.hasText;
 
             emit(
               state.copyWith(
@@ -319,7 +324,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         // The answer stream will bet set to null after the streaming has
         // finished, got cancelled, or errored. In this case, don't retrieve
         // related questions.
-        if (answerStream == null || lastSentMessage == null) {
+        if (answerStream == null ||
+            lastSentMessage == null ||
+            !shouldFetchRelatedQuestions) {
           return;
         }
 
@@ -585,7 +592,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   void _clearRelatedQuestions() {
-    isFetchingRelatedQuestions = false;
     final relatedQuestionMessages = chatController.messages
         .where(
           (message) =>
