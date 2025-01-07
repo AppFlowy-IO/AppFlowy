@@ -219,13 +219,20 @@ impl Chat {
                 match message {
                   QuestionStreamValue::Answer { value } => {
                     answer_stream_buffer.lock().await.push_str(&value);
-                    let _ = answer_sink.send(format!("data:{}", value)).await;
+                    // trace!("[Chat] stream answer: {}", value);
+                    if let Err(err) = answer_sink.send(format!("data:{}", value)).await {
+                      error!("Failed to stream answer: {}", err);
+                    }
                   },
                   QuestionStreamValue::Metadata { value } => {
                     if let Ok(s) = serde_json::to_string(&value) {
+                      // trace!("[Chat] stream metadata: {}", s);
                       answer_stream_buffer.lock().await.set_metadata(value);
                       let _ = answer_sink.send(format!("metadata:{}", s)).await;
                     }
+                  },
+                  QuestionStreamValue::KeepAlive => {
+                    // trace!("[Chat] stream keep alive");
                   },
                 }
               },
