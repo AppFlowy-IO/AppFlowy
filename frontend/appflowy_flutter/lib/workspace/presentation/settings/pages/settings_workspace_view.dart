@@ -381,7 +381,7 @@ class TextDirectionSelect extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
       builder: (context, state) {
-        final selectedItem = state.textDirection ?? AppFlowyTextDirection.ltr;
+        final selectedItem = state.textDirection;
 
         return SettingsRadioSelect<AppFlowyTextDirection>(
           onChanged: (item) {
