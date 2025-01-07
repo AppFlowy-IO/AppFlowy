@@ -44,6 +44,7 @@
     "invalidEmail": "유효한 이메일 주소를 입력하세요",
     "alreadyHaveAnAccount": "이미 계정이 있나요?",
     "logIn": "로그인",
+    "generalError": "오류가 발생했습니다. 나중에 다시 시도하세요",
     "loginAsGuestButtonText": "시작하다"
   },
   "workspace": {
@@ -210,6 +211,12 @@
   },
   "settings": {
     "title": "설정",
+    "accountPage": {
+      "general": {
+        "title": "사용자 이름 & 프로필 사진",
+        "changeProfilePicture": "프로필 사진 변경"
+      }
+    },
     "menu": {
       "appearance": "화면",
       "language": "언어",
