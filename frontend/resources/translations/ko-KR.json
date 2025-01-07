@@ -643,6 +643,7 @@
     }
   },
   "space": {
+    "createNewSpace": "새로운 스페이스 생성",
     "defaultSpaceName": "일반"
   },
   "publish": {
