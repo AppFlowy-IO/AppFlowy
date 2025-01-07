@@ -241,6 +241,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             _regenerateAnswer(id, format);
             lastSentMessage = null;
 
+            isFetchingRelatedQuestions = false;
+            shouldFetchRelatedQuestions = false;
+
             emit(
               state.copyWith(
                 promptResponseState: PromptResponseState.sendingQuestion,
