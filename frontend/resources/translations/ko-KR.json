@@ -47,6 +47,7 @@
     "loginAsGuestButtonText": "시작하다"
   },
   "workspace": {
+    "defaultName": "내 워크스페이스",
     "create": "워크스페이스 생성",
     "hint": "워크스페이스",
     "notFoundError": "워크스페이스를 찾을 수 없습니다"
