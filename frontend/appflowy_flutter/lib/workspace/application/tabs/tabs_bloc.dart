@@ -173,14 +173,9 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
           },
           expandSecondaryPlugin: () {
             final pageManager = state.currentPageManager;
-            pageManager.setPlugin(
-              pageManager.secondaryNotifier.plugin,
-              true,
-              false,
-            );
             pageManager
               ..hideSecondaryPlugin()
-              ..setSecondaryPlugin(BlankPagePlugin());
+              ..expandSecondaryPlugin();
             _setLatestOpenView();
           },
           switchWorkspace: (workspaceId) {
