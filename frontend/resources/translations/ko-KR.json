@@ -244,8 +244,23 @@
     },
     "aiPage": {
       "keys": {
+        "localAILoaded": "로컬 AI 모델이 성공적으로 추가되어 사용할 준비가 되었습니다.",
         "localAIStart": "로컬 AI 대화 시작중...",
-        "localAILoading": "로컬 AI 대화 모델 로딩중..."
+        "localAILoading": "로컬 AI 대화 모델 로딩중...",
+        "localAIStopped": "로컬 AI가 중단되었습니다",
+        "failToLoadLocalAI": "로컬 AI를 시작하지 못했습니다",
+        "restartLocalAI": "로컬 AI 재시작",
+        "disableLocalAIDescription": "로컬 AI를 비활성화하시겠습니까?"
+      }
+    },
+    "planPage": {
+      "planUsage": {
+        "aiOnDeviceToggle": "최고의 개인 정보 보호를 위한 로컬 AI"
+      }
+    },
+    "cancelSurveyDialog": {
+      "questionThree": {
+        "answerFour": "로컬 AI 모델에 대한 액세스"
       }
     },
     "menu": {
@@ -664,5 +679,12 @@
     "deleteTemplate": "템플릿 제거",
     "removeRelatedTemplate": "관련된 템플릿 제거",
     "label": "템플릿 목록"
+  },
+  "subscribe": {
+    "cancelPlan": {
+      "questionThree": {
+        "answerFour": "로컬 AI 모델에 대한 액세스"
+      }
+    }
   }
 }
