@@ -442,7 +442,7 @@
     "referencedGridPrefix": "관점"
   },
   "document": {
-    "menuName": "도큐먼트",
+    "menuName": "문서",
     "date": {
       "timeHintTextInTwelveHour": "01:00 PM",
       "timeHintTextInTwentyFourHour": "13:00"
