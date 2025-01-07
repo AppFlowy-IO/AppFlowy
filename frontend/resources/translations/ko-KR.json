@@ -103,6 +103,9 @@
   },
   "blankPageTitle": "빈 페이지",
   "newPageText": "새로운 페이지",
+  "chat": {
+    "newChat": "AI 대화"
+  },
   "trash": {
     "text": "휴지통",
     "restoreAll": "모두 복구",
