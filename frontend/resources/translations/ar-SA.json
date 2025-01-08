@@ -1302,7 +1302,8 @@
       "export": "يصدّر",
       "clearCache": "مسح ذاكرة التخزين المؤقت",
       "clearCacheDesc": "إذا واجهت مشكلات تتعلق بعدم تحميل الصور أو عدم عرض الخطوط بشكل صحيح، فحاول مسح ذاكرة التخزين المؤقت. لن يؤدي هذا الإجراء إلى إزالة بيانات المستخدم الخاصة بك.",
-      "areYouSureToClearCache": "هل أنت متأكد من مسح ذاكرة التخزين المؤقت؟"
+      "areYouSureToClearCache": "هل أنت متأكد من مسح ذاكرة التخزين المؤقت؟",
+      "clearCacheSuccess": "تم مسح ذاكرة التخزين المؤقت بنجاح!"
     },
     "user": {
       "name": "اسم",
@@ -1323,10 +1324,12 @@
       "joinDiscord": "انضم إلينا على ديسكورد",
       "privacyPolicy": "سياسة الخصوصية",
       "userAgreement": "اتفاقية المستخدم",
+      "termsAndConditions": "الشروط والأحكام",
       "userprofileError": "فشل تحميل ملف تعريف المستخدم",
       "userprofileErrorDescription": "يرجى محاولة تسجيل الخروج وتسجيل الدخول مرة أخرى للتحقق مما إذا كانت المشكلة لا تزال قائمة.",
       "selectLayout": "حدد الشكل",
-      "selectStartingDay": "اختر يوم البدء"
+      "selectStartingDay": "اختر يوم البدء",
+      "version": "النسخة"
     },
     "shortcuts": {
       "shortcutsLabel": "الاختصارات",
@@ -1359,7 +1362,26 @@
       "typeAValue": "اكتب قيمة ...",
       "layout": "تَخطِيط",
       "databaseLayout": "تَخطِيط",
+      "viewList": {
+        "zero": "0 مشاهدات",
+        "one": "{count} مشاهدة",
+        "other": "{count} المشاهدات"
+      },
+      "editView": "تعديل العرض",
+      "boardSettings": "إعدادات اللوحة",
+      "calendarSettings": "إعدادات التقويم",
+      "createView": "عرض جديد",
+      "duplicateView": "عرض مكرر",
+      "deleteView": "حذف العرض",
+      "numberOfVisibleFields": "{} تم عرضه",
       "Properties": "ملكيات"
+    },
+    "filter": {
+      "empty": "لا توجد عوامل تصفية نشطة",
+      "addFilter": "أضف عامل التصفية",
+      "cannotFindCreatableField": "لا يمكن العثور على حقل مناسب للتصفية حسبه",
+      "conditon": "حالة",
+      "where": "أين"
     },
     "textFilter": {
       "contains": "يتضمن",
@@ -1406,7 +1428,24 @@
       "onOrAfter": "يكون في او بعد",
       "between": "يتراوح ما بين",
       "empty": "فارغ",
-      "notEmpty": "ليس فارغا"
+      "notEmpty": "ليس فارغا",
+      "startDate": "تاريخ البدء",
+      "endDate": "تاريخ النهاية",
+      "choicechipPrefix": {
+        "before": "قبل",
+        "after": "بعد",
+        "between": "بين",
+        "onOrBefore": "في أو قبل",
+        "onOrAfter": "في أو بعد",
+        "isEmpty": "هو فارغ",
+        "isNotEmpty": "ليس فارغا"
+      }
+    },
+    "numberFilter": {
+      "equal": "يساوي",
+      "notEqual": "لا يساوي",
+      "lessThan": "أقل من",
+      "greaterThan": "أكبر من"
     },
     "field": {
       "hide": "يخفي",
