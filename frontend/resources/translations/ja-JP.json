@@ -2545,5 +2545,219 @@
     "resetZoom": "ズームをリセット",
     "zoomIn": "ズームイン",
     "zoomOut": "ズームアウト"
+  },
+  "invitation": {
+    "errorModal": {
+      "close": "家に戻る",
+      "changeAccount": "アカウントを変更する"
+    }
+  },
+  "requestAccess": {
+    "title": "このページにアクセスできません",
+    "subtitle": "このページの所有者にアクセスをリクエストできます。承認されると、ページを表示できるようになります。",
+    "requestAccess": "アクセスをリクエスト",
+    "backToHome": "homeに戻る",
+    "tip": "現在ログインしているのは<link/>。",
+    "mightBe": "別のアカウントでのログイン<login/>が必要になるかもしれません。",
+    "successful": "リクエストは正常に送信されました",
+    "successfulMessage": "所有者がリクエストを承認すると通知されます。",
+    "requestError": "アクセスをリクエストできませんでした",
+    "repeatRequestError": "このページへのアクセスはすでにリクエストされています"
+  },
+  "approveAccess": {
+    "title": "ワークスペース参加リクエストを承認",
+    "requestSummary": "<user/>参加リクエスト<workspace/>アクセス<page/>",
+    "upgrade": "アップグレード",
+    "downloadApp": "AppFlowyをダウンロード",
+    "approveButton": "承認する",
+    "approveSuccess": "承認されました",
+    "approveError": "承認に失敗しました。ワークスペース プランの制限を超えていないことを確認してください。",
+    "getRequestInfoError": "リクエスト情報を取得できませんでした",
+    "memberCount": {
+      "zero": "メンバーなし",
+      "one": "メンバー 1 人",
+      "many": "{count} 人のメンバー",
+      "other": "{count} 人のメンバー"
+    },
+    "alreadyProTitle": "ワークスペースプランの制限に達しました",
+    "alreadyProMessage": "連絡を取るよう依頼する<email/>より多くのメンバーのロックを解除する",
+    "repeatApproveError": "このリクエストはすでに承認されています",
+    "ensurePlanLimit": "ワークスペースプランの制限を超えていないことを確認してください。制限を超えた場合は、<upgrade/>ワークスペースプランまたは<download/>。",
+    "requestToJoin": "参加をリクエストされた",
+    "asMember": "メンバーとして"
+  },
+  "upgradePlanModal": {
+    "title": "プロにアップグレード",
+    "message": "{name} は無料メンバーの上限に達しました。より多くのメンバーを招待するには、Pro プランにアップグレードしてください。",
+    "upgradeSteps": "AppFlowyでプランをアップグレードする方法:",
+    "step1": "1.設定へ移動",
+    "step2": "2. 「プラン」をクリック",
+    "step3": "3. 「プランの変更」を選択します",
+    "appNote": "注記： ",
+    "actionButton": "アップグレード",
+    "downloadLink": "アプリをダウンロード",
+    "laterButton": "後で",
+    "refreshNote": "アップグレードが成功したら、<refresh/>新しい機能を有効にします。",
+    "refresh": "ここ"
+  },
+  "breadcrumbs": {
+    "label": "パンくず"
+  },
+  "time": {
+    "justNow": "たった今",
+    "seconds": {
+      "one": "1秒",
+      "other": "{count} 秒"
+    },
+    "minutes": {
+      "one": "1分",
+      "other": "{count} 分"
+    },
+    "hours": {
+      "one": "1時間",
+      "other": "{count} 時間"
+    },
+    "days": {
+      "one": "1日",
+      "other": "{count} 日"
+    },
+    "weeks": {
+      "one": "1週間",
+      "other": "{count} 週間"
+    },
+    "months": {
+      "one": "1ヶ月",
+      "other": "{count} ヶ月"
+    },
+    "years": {
+      "one": "1年",
+      "other": "{count} 年"
+    },
+    "ago": "以前",
+    "yesterday": "昨日",
+    "today": "今日"
+  },
+  "members": {
+    "zero": "メンバーなし",
+    "one": "メンバー 1 人",
+    "many": "{count} 人のメンバー",
+    "other": "{count} 人のメンバー"
+  },
+  "tabMenu": {
+    "close": "閉じる",
+    "closeDisabledHint": "固定されたタブを閉じることはできません。まず固定を解除してください",
+    "closeOthers": "他のタブを閉じる",
+    "closeOthersHint": "これにより、このタブを除くすべての固定されていないタブが閉じられます",
+    "closeOthersDisabledHint": "すべてのタブが固定されており、閉じるタブが見つかりません",
+    "favorite": "お気に入り",
+    "unfavorite": "お気に入りを解除",
+    "favoriteDisabledHint": "このビューをお気に入りに登録できません",
+    "pinTab": "ピン",
+    "unpinTab": "ピンを外す"
+  },
+  "openFileMessage": {
+    "success": "ファイルは正常に開かれました",
+    "fileNotFound": "ファイルが見つかりません",
+    "noAppToOpenFile": "このファイルを開くアプリはありません",
+    "permissionDenied": "このファイルを開く権限がありません",
+    "unknownError": "ファイルのオープンに失敗しました"
+  },
+  "inviteMember": {
+    "requestInviteMembers": "ワークスペースに招待する",
+    "inviteFailedMemberLimit": "メンバーの上限に達しました。 ",
+    "upgrade": "アップグレード",
+    "addEmail": "email@example.com, email2@example.com...",
+    "requestInvites": "招待状を送る",
+    "inviteAlready": "このメールアドレスはすでに招待されています: {email}",
+    "inviteSuccess": "招待状は正常に送信されました",
+    "description": "以下にカンマで区切ってメールアドレスを入力してください。料金はメンバー数に基づいて決まります。",
+    "emails": "メール"
+  },
+  "quickNote": {
+    "label": "クイックノート",
+    "quickNotes": "クイックノート",
+    "search": "クイックノートを検索",
+    "collapseFullView": "全画面表示を折りたたむ",
+    "expandFullView": "全画面表示を拡大",
+    "createFailed": "クイックノートの作成に失敗しました",
+    "quickNotesEmpty": "クイックノートなし",
+    "emptyNote": "空のメモ",
+    "deleteNotePrompt": "選択したメモは完全に削除されます。削除してもよろしいですか？",
+    "addNote": "新しいメモ",
+    "noAdditionalText": "追加テキストなし"
+  },
+  "subscribe": {
+    "upgradePlanTitle": "プランを比較して選択",
+    "yearly": "年間",
+    "save": "{discount}% 節約",
+    "monthly": "月次",
+    "priceIn": "価格",
+    "free": "無料",
+    "pro": "プロ",
+    "freeDescription": "個人で最大2人までがすべてを管理",
+    "proDescription": "小規模なチームがプロジェクトとチームの知識を管理する",
+    "proDuration": {
+      "monthly": "会員あたり月額\n毎月請求",
+      "yearly": "メンバーあたり月額\n毎年請求"
+    },
+    "cancel": "ダウングレード",
+    "changePlan": "プロプランにアップグレード",
+    "everythingInFree": "すべて無料+",
+    "currentPlan": "現在",
+    "freeDuration": "永遠",
+    "freePoints": {
+      "first": "最大 2 人のメンバーが参加できる 1 つの共同ワークスペース",
+      "second": "ページとブロック無制限",
+      "three": "5 GBのストレージ",
+      "four": "インテリジェント検索",
+      "five": "20件のAI回答",
+      "six": "モバイルアプリ",
+      "seven": "リアルタイムコラボレーション"
+    },
+    "proPoints": {
+      "first": "無制限のストレージ",
+      "second": "ワークスペースメンバー最大10人",
+      "three": "無制限のAI応答",
+      "four": "無制限のファイルアップロード",
+      "five": "カスタム名前空間"
+    },
+    "cancelPlan": {
+      "title": "去ってしまうのは残念です",
+      "success": "サブスクリプションは正常にキャンセルされました",
+      "description": "ご利用いただけなくなるのは残念です。AppFlowy の改善に役立てていただけるよう、皆様のフィードバックをお待ちしています。お時間をいただき、いくつかの質問にお答えください。",
+      "commonOther": "他",
+      "otherHint": "ここに答えを書いてください",
+      "questionOne": {
+        "question": "AppFlowy Pro サブスクリプションをキャンセルした理由は何ですか？",
+        "answerOne": "コストが高すぎる",
+        "answerTwo": "機能が期待に応えられなかった",
+        "answerThree": "より良い代替案を見つけた",
+        "answerFour": "費用に見合うほど使用しなかった",
+        "answerFive": "サービスの問題または技術的な問題"
+      },
+      "questionTwo": {
+        "question": "将来的にAppFlowy Proへの再加入を検討する可能性はどのくらいありますか？",
+        "answerOne": "非常に可能性が高い",
+        "answerTwo": "可能性が高い",
+        "answerThree": "わからない",
+        "answerFour": "可能性が低い",
+        "answerFive": "非常に可能性が低い"
+      },
+      "questionThree": {
+        "question": "サブスクリプション期間中に最も価値を感じた Pro 機能はどれですか？",
+        "answerOne": "複数ユーザーコラボレーション",
+        "answerTwo": "長期間のバージョン履歴",
+        "answerThree": "無制限のAI応答",
+        "answerFour": "ローカルAIモデルへのアクセス"
+      },
+      "questionFour": {
+        "question": "AppFlowy の全体的な使用感と満足感をどう思いますか？",
+        "answerOne": "秀",
+        "answerTwo": "優",
+        "answerThree": "良",
+        "answerFour": "可",
+        "answerFive": "不可"
+      }
+    }
   }
 }
