@@ -249,7 +249,7 @@ More actions for published page:
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.sites);
       // wait the backend return the sites data
-      await tester.wait(1000);
+      await tester.wait(2000);
 
       // check if the page is published in sites page
       final pageItem = find.byWidgetPredicate(
