@@ -81,10 +81,7 @@ impl SearchHandler for DocumentSearchHandler {
           id: result.object_id.clone(),
           data: view.name.clone(),
           icon,
-          // We reverse the score, the cloud search score is based on
-          // 1 being the worst result, and closer to 0 being good result, that is
-          // the opposite of local search.
-          score: 1.0 - result.score,
+          score: result.score,
           workspace_id: result.workspace_id,
           preview: result.preview,
         });
