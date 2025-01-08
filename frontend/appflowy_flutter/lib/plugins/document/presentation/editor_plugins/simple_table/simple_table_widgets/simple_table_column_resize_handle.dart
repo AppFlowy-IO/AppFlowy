@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class SimpleTableColumnResizeHandle extends StatefulWidget {
   const SimpleTableColumnResizeHandle({
@@ -24,8 +25,17 @@ class _SimpleTableColumnResizeHandleState
 
   bool isStartDragging = false;
 
+  // record the previous position of the drag
+  double previousDx = 0;
+
   @override
   Widget build(BuildContext context) {
+    return UniversalPlatform.isMobile
+        ? _buildMobileResizeHandle()
+        : _buildDesktopResizeHandle();
+  }
+
+  Widget _buildDesktopResizeHandle() {
     return MouseRegion(
       cursor: SystemMouseCursors.resizeColumn,
       onEnter: (_) => _onEnterHoverArea(),
@@ -56,6 +66,34 @@ class _SimpleTableColumnResizeHandleState
     );
   }
 
+  Widget _buildMobileResizeHandle() {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onLongPressStart: (details) {
+        _onLongPressStart(details);
+      },
+      onLongPressMoveUpdate: (details) {
+        _onLongPressMoveUpdate(details);
+      },
+      onLongPressEnd: (details) {
+        _onLongPressEnd(details);
+      },
+      // onHorizontalDragStart: (details) {
+      //   debugPrint('start');
+      // },
+      // onHorizontalDragUpdate: (details) {
+      //   debugPrint('update');
+      // },
+      // onHorizontalDragEnd: (details) {
+      //   debugPrint('end');
+      // },
+      child: Container(
+        width: 14,
+        color: Colors.red,
+      ),
+    );
+  }
+
   void _onEnterHoverArea() {
     simpleTableContext.hoveringOnResizeHandle.value = widget.node;
   }
@@ -79,6 +117,10 @@ class _SimpleTableColumnResizeHandleState
     isStartDragging = true;
   }
 
+  void _onLongPressStart(LongPressStartDetails details) {
+    isStartDragging = true;
+  }
+
   void _onHorizontalDragUpdate(DragUpdateDetails details) {
     if (!isStartDragging) {
       return;
@@ -90,6 +132,21 @@ class _SimpleTableColumnResizeHandleState
           tableCellNode: widget.node,
           deltaX: details.delta.dx,
         );
+  }
+
+  void _onLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
+    if (!isStartDragging) {
+      return;
+    }
+
+    // only update the column width in memory,
+    //  the actual update will be applied in _onHorizontalDragEnd
+    context.read<EditorState>().updateColumnWidthInMemory(
+          tableCellNode: widget.node,
+          deltaX: details.offsetFromOrigin.dx - previousDx,
+        );
+
+    previousDx = details.offsetFromOrigin.dx;
   }
 
   void _onHorizontalDragEnd(DragEndDetails details) {
@@ -105,5 +162,21 @@ class _SimpleTableColumnResizeHandleState
           tableCellNode: widget.node,
           width: widget.node.columnWidth,
         );
+  }
+
+  void _onLongPressEnd(LongPressEndDetails details) {
+    if (!isStartDragging) {
+      return;
+    }
+
+    isStartDragging = false;
+
+    // apply the updated column width
+    context.read<EditorState>().updateColumnWidth(
+          tableCellNode: widget.node,
+          width: widget.node.columnWidth,
+        );
+
+    previousDx = 0;
   }
 }

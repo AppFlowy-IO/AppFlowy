@@ -282,9 +282,21 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
                   return ValueListenableBuilder(
                     valueListenable: isReorderingHitCellNotifier,
                     builder: (context, isReorderingHitCellNotifier, _) {
-                      return DecoratedBox(
-                        decoration: _buildDecoration(),
-                        child: child!,
+                      return Stack(
+                        children: [
+                          DecoratedBox(
+                            decoration: _buildDecoration(),
+                            child: child!,
+                          ),
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            bottom: 0,
+                            child: SimpleTableColumnResizeHandle(
+                              node: node,
+                            ),
+                          ),
+                        ],
                       );
                     },
                   );
