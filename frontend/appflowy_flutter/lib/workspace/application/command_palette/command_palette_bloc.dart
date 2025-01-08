@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-
 import 'package:appflowy/plugins/trash/application/trash_listener.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/workspace/application/command_palette/search_listener.dart';
@@ -10,6 +8,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
 import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'command_palette_bloc.freezed.dart';
@@ -90,12 +89,9 @@ class CommandPaletteBloc
 
           _messagesReceived++;
 
-          final searchResults = _filterDuplicates(results.items);
-          searchResults.sort((a, b) => b.score.compareTo(a.score));
-
           emit(
             state.copyWith(
-              results: searchResults,
+              results: results.items,
               isLoading: _messagesReceived != results.sends.toInt(),
             ),
           );
