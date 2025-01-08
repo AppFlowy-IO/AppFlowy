@@ -29,13 +29,13 @@ class AFBlockImageProvider implements AFImageProvider {
   const AFBlockImageProvider({
     required this.images,
     this.initialIndex = 0,
-    required this.onDeleteImage,
+    this.onDeleteImage,
   });
 
   final List<ImageBlockData> images;
 
   @override
-  final Function(int) onDeleteImage;
+  final Function(int)? onDeleteImage;
 
   @override
   final int initialIndex;

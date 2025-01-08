@@ -22,8 +22,8 @@ use collab_integrate::collab_builder::{
 };
 use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings, LocalAIConfig,
-  MessageCursor, RepeatedChatMessage, StreamAnswer, StreamComplete, SubscriptionPlan,
-  UpdateChatParams,
+  MessageCursor, RepeatedChatMessage, ResponseFormat, StreamAnswer, StreamComplete,
+  SubscriptionPlan, UpdateChatParams,
 };
 use flowy_database_pub::cloud::{
   DatabaseAIService, DatabaseCloudService, DatabaseSnapshot, EncodeCollabByOid, SummaryRowContent,
@@ -704,13 +704,14 @@ impl ChatCloudService for ServerProvider {
     workspace_id: &str,
     chat_id: &str,
     message_id: i64,
+    format: ResponseFormat,
   ) -> Result<StreamAnswer, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let chat_id = chat_id.to_string();
     let server = self.get_server()?;
     server
       .chat_service()
-      .stream_answer(&workspace_id, &chat_id, message_id)
+      .stream_answer(&workspace_id, &chat_id, message_id, format)
       .await
   }
 

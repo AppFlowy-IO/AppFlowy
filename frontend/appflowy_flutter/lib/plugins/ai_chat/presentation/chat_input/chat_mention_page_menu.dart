@@ -310,7 +310,7 @@ class MentionViewIcon extends StatelessWidget {
     if (view.icon.value.isNotEmpty) {
       return SizedBox(
         width: 16.0,
-        child: EmojiIconWidget(
+        child: RawEmojiIconWidget(
           emoji: view.icon.toEmojiIconData(),
           emojiSize: 14,
         ),
