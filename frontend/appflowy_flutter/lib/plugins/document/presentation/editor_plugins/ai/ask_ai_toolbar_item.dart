@@ -1,9 +1,8 @@
+import 'package:appflowy/ai/service/appflowy_ai_service.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/util/ask_ai_node_extension.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_action.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/util/ask_ai_node_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -11,6 +10,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'widgets/ask_ai_action.dart';
+import 'ask_ai_block_component.dart';
 
 const _kAskAIToolbarItemId = 'appflowy.editor.ask_ai';
 
@@ -39,15 +41,14 @@ class AskAIActionList extends StatefulWidget {
 }
 
 class _AskAIActionListState extends State<AskAIActionList> {
-  bool isAIEnabled = true;
+  late bool isAIEnabled;
 
   EditorState get editorState => widget.editorState;
 
   @override
   void initState() {
     super.initState();
-
-    isAIEnabled = _isAIEnabled();
+    _updateIsAIEnabled();
   }
 
   @override
@@ -137,11 +138,9 @@ class _AskAIActionListState extends State<AskAIActionList> {
     );
   }
 
-  bool _isAIEnabled() {
+  void _updateIsAIEnabled() {
     final documentContext = widget.editorState.document.root.context;
-    if (documentContext == null) {
-      return true;
-    }
-    return !documentContext.read<DocumentBloc>().isLocalMode;
+    isAIEnabled = documentContext == null ||
+        !documentContext.read<DocumentBloc>().isLocalMode;
   }
 }

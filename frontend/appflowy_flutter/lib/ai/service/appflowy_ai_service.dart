@@ -3,7 +3,6 @@ import 'dart:ffi';
 import 'dart:isolate';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_action.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -13,6 +12,41 @@ import 'package:fixnum/fixnum.dart' as fixnum;
 import 'ai_client.dart';
 import 'error.dart';
 import 'text_completion.dart';
+
+enum AskAIAction {
+  summarize,
+  fixSpelling,
+  improveWriting,
+  makeItLonger;
+
+  String get toInstruction => switch (this) {
+        summarize => 'Tl;dr',
+        fixSpelling => 'Correct this to standard English:',
+        improveWriting => 'Rewrite this in your own words:',
+        makeItLonger => 'Make this text longer:',
+      };
+
+  String prompt(String input) => switch (this) {
+        summarize => '$input\n\n$toInstruction',
+        _ => "$toInstruction\n\n$input",
+      };
+
+  static AskAIAction from(int index) => switch (index) {
+        0 => summarize,
+        1 => fixSpelling,
+        2 => improveWriting,
+        3 => makeItLonger,
+        _ => fixSpelling
+      };
+
+  String get name => switch (this) {
+        summarize => LocaleKeys.document_plugins_smartEditSummarize.tr(),
+        fixSpelling => LocaleKeys.document_plugins_smartEditFixSpelling.tr(),
+        improveWriting =>
+          LocaleKeys.document_plugins_smartEditImproveWriting.tr(),
+        makeItLonger => LocaleKeys.document_plugins_smartEditMakeLonger.tr(),
+      };
+}
 
 class AppFlowyAIService implements AIRepository {
   @override

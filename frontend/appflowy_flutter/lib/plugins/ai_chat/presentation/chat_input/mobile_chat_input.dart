@@ -1,3 +1,4 @@
+import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
@@ -10,15 +11,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../layout_define.dart';
-import 'ai_prompt_buttons.dart';
-import 'chat_input_file.dart';
-import 'chat_input_span.dart';
-import 'chat_mention_page_bottom_sheet.dart';
-import 'predefined_format_buttons.dart';
-import 'select_sources_bottom_sheet.dart';
 
-class MobileAIPromptInput extends StatefulWidget {
-  const MobileAIPromptInput({
+class MobileChatInput extends StatefulWidget {
+  const MobileChatInput({
     super.key,
     required this.chatId,
     required this.isStreaming,
@@ -35,10 +30,10 @@ class MobileAIPromptInput extends StatefulWidget {
   final void Function(List<String>) onUpdateSelectedSources;
 
   @override
-  State<MobileAIPromptInput> createState() => _MobileAIPromptInputState();
+  State<MobileChatInput> createState() => _MobileChatInputState();
 }
 
-class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
+class _MobileChatInputState extends State<MobileChatInput> {
   final inputControlCubit = ChatInputControlCubit();
   final focusNode = FocusNode();
   final textController = TextEditingController();
@@ -108,7 +103,8 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
                   color: Color.fromRGBO(0, 0, 0, 0.05),
                 ),
               ],
-              borderRadius: MobileAIPromptSizes.promptFrameRadius,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(8.0)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,7 +115,7 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
                         MobileAIPromptSizes.attachedFilesBarPadding.vertical +
                             MobileAIPromptSizes.attachedFilesPreviewHeight,
                   ),
-                  child: ChatInputFile(
+                  child: PromptInputFile(
                     chatId: widget.chatId,
                     onDeleted: (file) => context
                         .read<AIPromptInputBloc>()
@@ -128,31 +124,31 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
                 ),
                 if (showPredefinedFormatSection)
                   TextFieldTapRegion(
-                    child: Container(
-                      padding: MobileAIPromptSizes.predefinedFormatBarPadding,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
                       child: ChangeFormatBar(
                         predefinedFormat: predefinedFormat,
-                        spacing: MobileAIPromptSizes
-                            .predefinedFormatBarButtonSpacing,
-                        iconSize:
-                            MobileAIPromptSizes.predefinedFormatIconHeight,
-                        buttonSize:
-                            MobileAIPromptSizes.predefinedFormatButtonHeight,
+                        spacing: 8.0,
                         onSelectPredefinedFormat: (format) {
                           setState(() => predefinedFormat = format);
                         },
                       ),
                     ),
-                  ),
+                  )
+                else
+                  const VSpace(8.0),
                 inputTextField(context),
-                Row(
-                  children: [
-                    const HSpace(8.0),
-                    leadingButtons(context),
-                    const Spacer(),
-                    sendButton(),
-                    const HSpace(12.0),
-                  ],
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    children: [
+                      const HSpace(8.0),
+                      leadingButtons(context),
+                      const Spacer(),
+                      sendButton(),
+                      const HSpace(12.0),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -278,7 +274,7 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
           maxLines: null,
           style:
               Theme.of(context).textTheme.bodyMedium?.copyWith(height: 20 / 14),
-          specialTextSpanBuilder: ChatInputTextSpanBuilder(
+          specialTextSpanBuilder: PromptInputTextSpanBuilder(
             inputControlCubit: inputControlCubit,
             specialTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.primary,
@@ -291,40 +287,32 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
   }
 
   Widget leadingButtons(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: _LeadingActions(
-        // onMention: () {
-        //   textController.text += '@';
-        //   if (!focusNode.hasFocus) {
-        //     focusNode.requestFocus();
-        //   }
-        //   WidgetsBinding.instance.addPostFrameCallback((_) {
-        //     mentionPage(context);
-        //   });
-        // },
-        showPredefinedFormatSection: showPredefinedFormatSection,
-        predefinedFormat: predefinedFormat,
-        onTogglePredefinedFormatSection: () {
-          setState(() {
-            showPredefinedFormatSection = !showPredefinedFormatSection;
-          });
-        },
-        onUpdateSelectedSources: widget.onUpdateSelectedSources,
-      ),
+    return _LeadingActions(
+      // onMention: () {
+      //   textController.text += '@';
+      //   if (!focusNode.hasFocus) {
+      //     focusNode.requestFocus();
+      //   }
+      //   WidgetsBinding.instance.addPostFrameCallback((_) {
+      //     mentionPage(context);
+      //   });
+      // },
+      showPredefinedFormatSection: showPredefinedFormatSection,
+      predefinedFormat: predefinedFormat,
+      onTogglePredefinedFormatSection: () {
+        setState(() {
+          showPredefinedFormatSection = !showPredefinedFormatSection;
+        });
+      },
+      onUpdateSelectedSources: widget.onUpdateSelectedSources,
     );
   }
 
   Widget sendButton() {
-    return Container(
-      alignment: Alignment.bottomCenter,
-      child: PromptInputSendButton(
-        buttonSize: MobileAIPromptSizes.sendButtonSize,
-        iconSize: MobileAIPromptSizes.sendButtonSize,
-        onSendPressed: handleSendPressed,
-        onStopStreaming: widget.onStopStreaming,
-        state: sendButtonState,
-      ),
+    return PromptInputSendButton(
+      state: sendButtonState,
+      onSendPressed: handleSendPressed,
+      onStopStreaming: widget.onStopStreaming,
     );
   }
 }

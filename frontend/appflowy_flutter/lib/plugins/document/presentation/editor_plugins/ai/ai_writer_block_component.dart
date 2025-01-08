@@ -1,5 +1,5 @@
-import 'package:appflowy/ai/appflowy_ai_service.dart';
-import 'package:appflowy/ai/error.dart';
+import 'package:appflowy/ai/service/appflowy_ai_service.dart';
+import 'package:appflowy/ai/service/error.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/build_context_extension.dart';
@@ -15,11 +15,11 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-import 'ai_limit_dialog.dart';
-import 'ai_writer_block_operations.dart';
-import 'ai_writer_block_widgets.dart';
-import 'discard_dialog.dart';
-import 'barrier_dialog.dart';
+import 'widgets/ai_limit_dialog.dart';
+import 'widgets/ai_writer_block_operations.dart';
+import 'widgets/ai_writer_block_widgets.dart';
+import 'widgets/discard_dialog.dart';
+import 'widgets/barrier_dialog.dart';
 
 class AIWriterBlockKeys {
   const AIWriterBlockKeys._();
