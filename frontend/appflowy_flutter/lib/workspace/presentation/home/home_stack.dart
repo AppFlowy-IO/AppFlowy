@@ -621,10 +621,12 @@ class PageNotifier extends ChangeNotifier {
   ]) =>
       _plugin.widgetBuilder.tabBarItem(pluginId, shortForm);
 
-  /// This is the only place where the plugin is set.
-  /// No need compare the old plugin with the new plugin. Just set it.
-  void setPlugin(Plugin newPlugin, bool setLatest) {
-    if (newPlugin.id != plugin.id) {
+  void setPlugin(
+    Plugin newPlugin, {
+    required bool setLatest,
+    bool disposeExisting = true,
+  }) {
+    if (newPlugin.id != plugin.id && disposeExisting) {
       _plugin.dispose();
     }
 
@@ -660,12 +662,21 @@ class PageManager {
     if (init) {
       newPlugin.init();
     }
-    _notifier.setPlugin(newPlugin, setLatest);
+    _notifier.setPlugin(newPlugin, setLatest: setLatest);
   }
 
   void setSecondaryPlugin(Plugin newPlugin) {
     newPlugin.init();
-    _secondaryNotifier.setPlugin(newPlugin, false);
+    _secondaryNotifier.setPlugin(newPlugin, setLatest: false);
+  }
+
+  void expandSecondaryPlugin() {
+    _notifier.setPlugin(_secondaryNotifier.plugin, setLatest: true);
+    _secondaryNotifier.setPlugin(
+      BlankPagePlugin(),
+      setLatest: false,
+      disposeExisting: false,
+    );
   }
 
   void showSecondaryPlugin() {

@@ -140,8 +140,9 @@ class _InteractiveImageViewerState extends State<InteractiveImageViewer> {
               final scaleStep = scale / currentScale;
               _zoom(scaleStep, size);
             },
-            onDelete: () =>
-                widget.imageProvider.onDeleteImage?.call(currentIndex),
+            onDelete: widget.imageProvider.onDeleteImage == null
+                ? null
+                : () => widget.imageProvider.onDeleteImage?.call(currentIndex),
           ),
         ],
       ),

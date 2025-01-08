@@ -37,7 +37,7 @@ const _macOSVolumesPattern = '^/Volumes/[^/]+';
 final macOSVolumesRegex = RegExp(_macOSVolumesPattern);
 
 const appflowySharePageLinkPattern =
-    r'^https://www\.appflowy\.com/app/([^/]+)/([^?]+)(?:\?blockId=(.+))?$';
+    r'^https://appflowy\.com/app/([^/]+)/([^?]+)(?:\?blockId=(.+))?$';
 final appflowySharePageLinkRegex = RegExp(appflowySharePageLinkPattern);
 
 const _numberedListPattern = r'^(\d+)\.';

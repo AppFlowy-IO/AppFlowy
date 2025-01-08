@@ -2,12 +2,12 @@ import 'dart:ui';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu/block_menu_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
@@ -68,14 +68,16 @@ class _ImageMenuState extends State<ImageMenu> {
             onTap: copyImageLink,
           ),
           const HSpace(4),
-          _ImageAlignButton(node: widget.node, state: widget.state),
-          const _Divider(),
-          MenuBlockButton(
-            tooltip: LocaleKeys.button_delete.tr(),
-            iconData: FlowySvgs.trash_s,
-            onTap: deleteImage,
-          ),
-          const HSpace(4),
+          if (widget.state.editorState.editable) ...[
+            _ImageAlignButton(node: widget.node, state: widget.state),
+            const _Divider(),
+            MenuBlockButton(
+              tooltip: LocaleKeys.button_delete.tr(),
+              iconData: FlowySvgs.trash_s,
+              onTap: deleteImage,
+            ),
+            const HSpace(4),
+          ],
         ],
       ),
     );
@@ -126,7 +128,7 @@ class _ImageMenuState extends State<ImageMenu> {
     showDialog(
       context: context,
       builder: (_) => InteractiveImageViewer(
-        userProfile: context.read<DocumentBloc>().state.userProfilePB,
+        userProfile: context.read<UserWorkspaceBloc>().userProfile,
         imageProvider: AFBlockImageProvider(
           images: [
             ImageBlockData(
@@ -136,11 +138,13 @@ class _ImageMenuState extends State<ImageMenu> {
               ),
             ),
           ],
-          onDeleteImage: (_) async {
-            final transaction = widget.state.editorState.transaction;
-            transaction.deleteNode(widget.node);
-            await widget.state.editorState.apply(transaction);
-          },
+          onDeleteImage: widget.state.editorState.editable
+              ? (_) async {
+                  final transaction = widget.state.editorState.transaction;
+                  transaction.deleteNode(widget.node);
+                  await widget.state.editorState.apply(transaction);
+                }
+              : null,
         ),
       ),
     );

@@ -23,13 +23,17 @@ class DesktopAIPromptSizes {
   static const promptFrameRadius = BorderRadius.all(Radius.circular(12.0));
 
   static const attachedFilesBarPadding =
-      EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0);
+      EdgeInsets.only(left: 8.0, top: 8.0, right: 8.0);
   static const attachedFilesPreviewHeight = 48.0;
   static const attachedFilesPreviewSpacing = 12.0;
 
-  static const textFieldMinHeight = 40.0;
+  static const predefinedFormatButtonHeight = 28.0;
+  static const predefinedFormatIconHeight = 16.0;
+  static const predefinedFormatBarButtonSpacing = 4.0;
+
+  static const textFieldMinHeight = 36.0;
   static const textFieldContentPadding =
-      EdgeInsetsDirectional.fromSTEB(14.0, 12.0, 14.0, 8.0);
+      EdgeInsetsDirectional.fromSTEB(14.0, 8.0, 14.0, 8.0);
 
   static const actionBarHeight = 32.0;
   static const actionBarPadding = EdgeInsetsDirectional.fromSTEB(8, 0, 8, 4);
@@ -49,8 +53,14 @@ class MobileAIPromptSizes {
   static const attachedFilesPreviewHeight = 56.0;
   static const attachedFilesPreviewSpacing = 8.0;
 
-  static const textFieldMinHeight = 48.0;
-  static const textFieldContentPadding = EdgeInsets.all(8.0);
+  static const predefinedFormatButtonHeight = 32.0;
+  static const predefinedFormatIconHeight = 20.0;
+  static const predefinedFormatBarButtonSpacing = 8.0;
+  static const predefinedFormatBarPadding = EdgeInsets.all(8.0);
+
+  static const textFieldMinHeight = 32.0;
+  static const textFieldContentPadding =
+      EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0);
 
   static const mentionIconSize = 20.0;
   static const sendButtonSize = 32.0;

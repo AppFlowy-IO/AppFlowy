@@ -16,7 +16,7 @@ class RelatedQuestionList extends StatelessWidget {
     required this.relatedQuestions,
   });
 
-  final Function(String) onQuestionSelected;
+  final void Function(String) onQuestionSelected;
   final List<String> relatedQuestions;
 
   @override

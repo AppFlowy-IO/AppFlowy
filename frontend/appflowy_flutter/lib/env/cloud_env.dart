@@ -159,7 +159,7 @@ Future<void> _setAppFlowyCloudUrl(String? url) async {
 Future<void> useBaseWebDomain(String? url) async {
   await getIt<KeyValueStorage>().set(
     KVKeys.kAppFlowyBaseShareDomain,
-    url ?? ShareConstants.baseWebDomain,
+    url ?? ShareConstants.defaultBaseWebDomain,
   );
 }
 

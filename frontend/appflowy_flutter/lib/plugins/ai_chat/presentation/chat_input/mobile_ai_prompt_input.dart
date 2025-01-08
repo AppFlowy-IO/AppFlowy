@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -13,6 +14,7 @@ import 'ai_prompt_buttons.dart';
 import 'chat_input_file.dart';
 import 'chat_input_span.dart';
 import 'chat_mention_page_bottom_sheet.dart';
+import 'predefined_format_buttons.dart';
 import 'select_sources_bottom_sheet.dart';
 
 class MobileAIPromptInput extends StatefulWidget {
@@ -28,7 +30,8 @@ class MobileAIPromptInput extends StatefulWidget {
   final String chatId;
   final bool isStreaming;
   final void Function() onStopStreaming;
-  final void Function(String, Map<String, dynamic>) onSubmitted;
+  final void Function(String, PredefinedFormat?, Map<String, dynamic>)
+      onSubmitted;
   final void Function(List<String>) onUpdateSelectedSources;
 
   @override
@@ -40,6 +43,8 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
   final focusNode = FocusNode();
   final textController = TextEditingController();
 
+  bool showPredefinedFormatSection = false;
+  PredefinedFormat predefinedFormat = const PredefinedFormat.auto();
   late SendButtonState sendButtonState;
 
   @override
@@ -103,6 +108,7 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
               borderRadius: MobileAIPromptSizes.promptFrameRadius,
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ConstrainedBox(
                   constraints: BoxConstraints(
@@ -117,24 +123,33 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
                         .add(AIPromptInputEvent.removeFile(file)),
                   ),
                 ),
-                Container(
-                  constraints: const BoxConstraints(
-                    minHeight: MobileAIPromptSizes.textFieldMinHeight,
-                    maxHeight: 220,
-                  ),
-                  child: IntrinsicHeight(
-                    child: Row(
-                      children: [
-                        const HSpace(8.0),
-                        leadingButtons(context),
-                        Expanded(
-                          child: inputTextField(context),
-                        ),
-                        sendButton(),
-                        const HSpace(12.0),
-                      ],
+                if (showPredefinedFormatSection)
+                  TextFieldTapRegion(
+                    child: Container(
+                      padding: MobileAIPromptSizes.predefinedFormatBarPadding,
+                      child: ChangeFormatBar(
+                        predefinedFormat: predefinedFormat,
+                        spacing: MobileAIPromptSizes
+                            .predefinedFormatBarButtonSpacing,
+                        iconSize:
+                            MobileAIPromptSizes.predefinedFormatIconHeight,
+                        buttonSize:
+                            MobileAIPromptSizes.predefinedFormatButtonHeight,
+                        onSelectPredefinedFormat: (format) {
+                          setState(() => predefinedFormat = format);
+                        },
+                      ),
                     ),
                   ),
+                inputTextField(context),
+                Row(
+                  children: [
+                    const HSpace(8.0),
+                    leadingButtons(context),
+                    const Spacer(),
+                    sendButton(),
+                    const HSpace(12.0),
+                  ],
                 ),
               ],
             ),
@@ -169,7 +184,11 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
     // get the attached files and mentioned pages
     final metadata = context.read<AIPromptInputBloc>().consumeMetadata();
 
-    widget.onSubmitted(trimmedText, metadata);
+    widget.onSubmitted(
+      trimmedText,
+      showPredefinedFormatSection ? predefinedFormat : null,
+      metadata,
+    );
   }
 
   void handleTextControllerChange() {
@@ -236,6 +255,7 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
         return ExtendedTextField(
           controller: textController,
           focusNode: focusNode,
+          textAlignVertical: TextAlignVertical.center,
           decoration: InputDecoration(
             border: InputBorder.none,
             enabledBorder: InputBorder.none,
@@ -252,7 +272,8 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
           textCapitalization: TextCapitalization.sentences,
           minLines: 1,
           maxLines: null,
-          style: Theme.of(context).textTheme.bodyMedium,
+          style:
+              Theme.of(context).textTheme.bodyMedium?.copyWith(height: 20 / 14),
           specialTextSpanBuilder: ChatInputTextSpanBuilder(
             inputControlCubit: inputControlCubit,
             specialTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -267,10 +288,8 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
 
   Widget leadingButtons(BuildContext context) {
     return Container(
-      alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.only(bottom: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: _LeadingActions(
-        textController: textController,
         // onMention: () {
         //   textController.text += '@';
         //   if (!focusNode.hasFocus) {
@@ -280,6 +299,16 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
         //     mentionPage(context);
         //   });
         // },
+        showPredefinedFormatSection: showPredefinedFormatSection,
+        predefinedFormat: predefinedFormat,
+        onTogglePredefinedFormatSection: () {
+          setState(() {
+            showPredefinedFormatSection = !showPredefinedFormatSection;
+            if (!showPredefinedFormatSection) {
+              predefinedFormat = const PredefinedFormat.auto();
+            }
+          });
+        },
         onUpdateSelectedSources: widget.onUpdateSelectedSources,
       ),
     );
@@ -288,7 +317,6 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
   Widget sendButton() {
     return Container(
       alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.only(bottom: 8.0),
       child: PromptInputSendButton(
         buttonSize: MobileAIPromptSizes.sendButtonSize,
         iconSize: MobileAIPromptSizes.sendButtonSize,
@@ -302,19 +330,33 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
 
 class _LeadingActions extends StatelessWidget {
   const _LeadingActions({
-    required this.textController,
+    required this.showPredefinedFormatSection,
+    required this.predefinedFormat,
+    required this.onTogglePredefinedFormatSection,
     required this.onUpdateSelectedSources,
   });
 
-  final TextEditingController textController;
+  final bool showPredefinedFormatSection;
+  final PredefinedFormat predefinedFormat;
+  final void Function() onTogglePredefinedFormatSection;
   final void Function(List<String>) onUpdateSelectedSources;
 
   @override
   Widget build(BuildContext context) {
     return Material(
       color: Theme.of(context).colorScheme.surface,
-      child: PromptInputMobileSelectSourcesButton(
-        onUpdateSelectedSources: onUpdateSelectedSources,
+      child: SeparatedRow(
+        mainAxisSize: MainAxisSize.min,
+        separatorBuilder: () => const HSpace(4.0),
+        children: [
+          PromptInputMobileSelectSourcesButton(
+            onUpdateSelectedSources: onUpdateSelectedSources,
+          ),
+          PromptInputMobileToggleFormatButton(
+            showFormatBar: showPredefinedFormatSection,
+            onTap: onTogglePredefinedFormatSection,
+          ),
+        ],
       ),
     );
   }
