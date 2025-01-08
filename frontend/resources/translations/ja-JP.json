@@ -72,9 +72,14 @@
   },
   "workspace": {
     "chooseWorkspace": "ワークスペースを選択",
+    "defaultName": "私のワークスペース",
     "create": "ワークスペースを作成",
+    "new": "新しいワークスペース",
+    "importFromNotion": "Notionからインポート",
+    "learnMore": "もっと詳しく知る",
     "reset": "ワークスペースをリセット",
     "renameWorkspace": "ワークスペースの名前を変更",
+    "workspaceNameCannotBeEmpty": "ワークスペース名は空にできません",
     "resetWorkspacePrompt": "ワークスペースをリセットすると、すべてのページとデータが削除されます。本当にリセットしますか？代わりに、サポートチームに連絡してワークスペースを復元することもできます。",
     "hint": "ワークスペース",
     "notFoundError": "ワークスペースが見つかりません",
@@ -118,7 +123,17 @@
     "visitSite": "サイトを訪問",
     "exportAsTab": "エクスポート形式",
     "publishTab": "公開",
-    "shareTab": "共有"
+    "shareTab": "共有",
+    "publishOnAppFlowy": "AppFlowyで公開",
+    "shareTabTitle": "コラボレーションに招待",
+    "shareTabDescription": "誰とでも簡単にコラボレーション",
+    "copyLinkSuccess": "リンクをクリップボードにコピーしました",
+    "copyShareLink": "共有リンクをコピー",
+    "copyLinkFailed": "リンクをクリップボードにコピーできませんでした",
+    "copyLinkToBlockSuccess": "ブロックリンクをクリップボードにコピーしました",
+    "copyLinkToBlockFailed": "ブロックリンクをクリップボードにコピーできませんでした",
+    "manageAllSites": "すべてのサイトを管理する",
+    "updatePathName": "パス名を更新"
   },
   "moreAction": {
     "small": "小",
@@ -131,12 +146,17 @@
     "charCount": "文字数: {}",
     "createdAt": "作成日: {}",
     "deleteView": "削除",
-    "duplicateView": "複製"
+    "duplicateView": "複製",
+    "wordCountLabel": "単語数：",
+    "charCountLabel": "文字数：",
+    "createdAtLabel": "作成日：",
+    "syncedAtLabel": "同期済み："
   },
   "importPanel": {
     "textAndMarkdown": "テキストとマークダウン",
     "documentFromV010": "v0.1.0 以降のドキュメント",
     "databaseFromV010": "v0.1.0 以降のデータベース",
+    "notionZip": "Notion エクスポートされた Zip ファイル",
     "csv": "CSV",
     "database": "データベース"
   },
@@ -151,7 +171,9 @@
     "addToFavorites": "お気に入りに追加",
     "copyLink": "リンクをコピー",
     "changeIcon": "アイコンを変更",
-    "collapseAllPages": "すべてのサブページを折りたたむ"
+    "collapseAllPages": "すべてのサブページを折りたたむ",
+    "movePageTo": "ページを移動",
+    "move": "動く"
   },
   "blankPageTitle": "空白のページ",
   "newPageText": "新しいページ",
@@ -167,27 +189,43 @@
     "relatedQuestion": "関連質問",
     "serverUnavailable": "サービスが一時的に利用できません。後でもう一度お試しください。",
     "aiServerUnavailable": "🌈 おっと！ 🌈 ユニコーンが返答を食べちゃいました。再試行してください！",
+    "retry": "リトライ",
     "clickToRetry": "再試行をクリック",
     "regenerateAnswer": "回答を再生成",
     "question1": "タスク管理にKanbanを使用する方法",
     "question2": "GTDメソッドを説明してください",
     "question3": "なぜRustを使うのか",
     "question4": "キッチンにある材料のレシピ",
+    "question5": "マイページ用のイラストを作成する",
+    "question6": "来週のやることリストを作成する",
     "aiMistakePrompt": "AIは間違いを犯すことがあります。重要な情報は確認してください。",
     "chatWithFilePrompt": "ファイルとチャットしますか？",
     "indexFileSuccess": "ファイルのインデックス作成が成功しました",
     "inputActionNoPages": "ページ結果がありません",
     "referenceSource": {
+      "zero": "0 件のソースが見つかりました",
+      "one": "{count} 件のソースが見つかりました",
       "other": "{count} 件のソースが見つかりました"
     },
     "clickToMention": "ページをメンションするにはクリック",
     "uploadFile": "PDF、md、txtファイルをアップロードしてチャット",
     "questionDetail": "こんにちは、{}！今日はどんなお手伝いをしましょうか？",
-    "indexingFile": "{}をインデックス作成中"
+    "indexingFile": "{}をインデックス作成中",
+    "generatingResponse": "レスポンスの作成",
+    "selectSources": "ソースを選択",
+    "sourcesLimitReached": "選択できるのは最上位のドキュメントとその子ドキュメントの3つまでです。",
+    "sourceUnsupported": "現時点ではデータベースとのチャットはサポートされていません",
+    "regenerate": "もう一度やり直してください",
+    "addToPageButton": "ページにメッセージを追加",
+    "addToPageTitle": "メッセージを追加...",
+    "addToNewPageName": "\"{}\"から抽出されたメッセージ",
+    "addToNewPageSuccessToast": "メッセージが追加されました",
+    "openPagePreviewFailedToast": "ページを開けませんでした"
   },
   "trash": {
     "text": "ゴミ箱",
     "restoreAll": "すべて復元",
+    "restore": "復元する",
     "deleteAll": "すべて削除",
     "pageHeader": {
       "fileName": "ファイル名",
@@ -202,6 +240,10 @@
       "title": "ゴミ箱内のすべてのページを復元してもよろしいですか？",
       "caption": "この操作は元に戻せません。"
     },
+    "restorePage": {
+      "title": "復元する： {}",
+      "caption": "このページを復元してもよろしいですか?"
+    },
     "mobile": {
       "actions": "ゴミ箱の操作",
       "empty": "ゴミ箱にページやスペースはありません",
@@ -214,7 +256,8 @@
   "deletePagePrompt": {
     "text": "このページはごみ箱にあります",
     "restore": "ページを元に戻す",
-    "deletePermanent": "削除する"
+    "deletePermanent": "削除する",
+    "deletePermanentDescription": "このページを完全に削除してもよろしいですか? 削除すると元に戻せません。"
   },
   "dialogCreatePageNameHint": "ページ名",
   "questionBubble": {
@@ -233,7 +276,8 @@
     "moreButtonToolTip": "削除、名前の変更、その他...",
     "addPageTooltip": "ページを追加",
     "defaultNewPageName": "無題",
-    "renameDialog": "名前を変更"
+    "renameDialog": "名前を変更",
+    "pageNameSuffix": "コピー"
   },
   "noPagesInside": "中にページがありません",
   "toolbar": {
@@ -269,6 +313,7 @@
   "sideBar": {
     "closeSidebar": "サイドバーを閉じる",
     "openSidebar": "サイドバーを開く",
+    "expandSidebar": "全ページ展開",
     "personal": "個人",
     "private": "プライベート",
     "workspace": "ワークスペース",
@@ -284,6 +329,7 @@
     "today": "今日",
     "thisWeek": "今週",
     "others": "以前のお気に入り",
+    "earlier": "以前",
     "justNow": "たった今",
     "minutesAgo": "{count}分前",
     "lastViewed": "最後に表示したページ",
@@ -310,6 +356,7 @@
     "askOwnerToUpgradeToAIMax": "ワークスペースのAIレスポンスが不足しています。ワークスペースのオーナーにプランのアップグレードかAIアドオンの購入を依頼してください",
     "askOwnerToUpgradeToAIMaxIOS": "ワークスペースの無料AIレスポンスが不足しています。",
     "purchaseStorageSpace": "ストレージスペースを購入",
+    "singleFileProPlanLimitationDescription": "無料プランで許可されている最大ファイルアップロードサイズを超えました。より大きなファイルをアップロードするには、プロプランにアップグレードしてください。",
     "purchaseAIResponse": "AIレスポンスを購入",
     "askOwnerToUpgradeToLocalAI": "ワークスペースのオーナーにオンデバイスAIを有効にするよう依頼してください",
     "upgradeToAILocal": "デバイス上でローカルモデルを実行して究極のプライバシーを実現",
@@ -347,6 +394,7 @@
     "upload": "アップロード",
     "edit": "編集",
     "delete": "削除",
+    "copy": "コピー",
     "duplicate": "複製",
     "putback": "元に戻す",
     "update": "更新",
@@ -380,7 +428,14 @@
     "next": "次へ",
     "previous": "前へ",
     "submit": "送信",
-    "download": "ダウンロード"
+    "download": "ダウンロード",
+    "backToHome": "Homeに戻る",
+    "viewing": "閲覧",
+    "editing": "編集",
+    "gotIt": "わかった",
+    "retry": "リトライ",
+    "uploadFailed": "アップロードに失敗しました。",
+    "copyLinkOriginal": "元のリンクをコピー"
   },
   "label": {
     "welcome": "ようこそ！",
@@ -409,6 +464,68 @@
       "members": "メンバー",
       "trash": "ゴミ箱",
       "helpAndSupport": "ヘルプ & サポート"
+    },
+    "sites": {
+      "title": "サイト",
+      "namespaceTitle": "名前空間",
+      "namespaceDescription": "名前空間とホームページを管理する",
+      "namespaceHeader": "名前空間",
+      "homepageHeader": "ホームページ",
+      "updateNamespace": "名前空間を更新する",
+      "removeHomepage": "ホームページを削除する",
+      "selectHomePage": "ページを選択",
+      "clearHomePage": "この名前空間のホームページをクリアする",
+      "customUrl": "カスタム URL",
+      "namespace": {
+        "description": "この変更は、この名前空間で公開されているすべてのページに適用されます。",
+        "tooltip": "不適切な名前空間を削除する権利を留保します",
+        "updateExistingNamespace": "既存の名前空間を更新する",
+        "upgradeToPro": "ホームページを設定するにはプロプランにアップグレードしてください",
+        "redirectToPayment": "支払いページにリダイレクトしています...",
+        "onlyWorkspaceOwnerCanSetHomePage": "ワークスペースの所有者のみがホームページを設定できます",
+        "pleaseAskOwnerToSetHomePage": "ワークスペースのオーナーにプロプランへのアップグレードを依頼してください"
+      },
+      "publishedPage": {
+        "title": "公開されたすべてのページ",
+        "description": "公開したページを管理する",
+        "page": "ページ",
+        "pathName": "パス名",
+        "date": "公開日",
+        "emptyHinText": "このワークスペースには公開されたページはありません",
+        "noPublishedPages": "公開ページはありません",
+        "settings": "公開設定",
+        "clickToOpenPageInApp": "アプリでページを開く",
+        "clickToOpenPageInBrowser": "ブラウザでページを開く"
+      },
+      "error": {
+        "failedToGeneratePaymentLink": "プロプランの支払いリンクを生成できませんでした",
+        "failedToUpdateNamespace": "名前空間の更新に失敗しました",
+        "proPlanLimitation": "名前空間を更新するには、Proプランにアップグレードする必要があります",
+        "namespaceAlreadyInUse": "名前空間はすでに使用されています。別の名前空間を試してください",
+        "invalidNamespace": "名前空間が無効です。別の名前空間を試してください",
+        "namespaceLengthAtLeast2Characters": "名前空間は少なくとも 2 文字の長さである必要があります",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "ワークスペースの所有者のみが名前空間を更新できます",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "ワークスペースの所有者のみがホームページを削除できます",
+        "setHomepageFailed": "ホームページの設定に失敗しました",
+        "namespaceTooLong": "名前空間が長すぎます。別の名前空間を試してください",
+        "namespaceTooShort": "名前空間が短すぎます。別の名前空間を試してください。",
+        "namespaceIsReserved": "名前空間は予約されています。別の名前空間を試してください",
+        "updatePathNameFailed": "パス名の更新に失敗しました",
+        "removeHomePageFailed": "ホームページを削除できませんでした",
+        "publishNameContainsInvalidCharacters": "パス名に無効な文字が含まれています。別のパス名を試してください。",
+        "publishNameTooShort": "パス名が短すぎます。別のパス名を試してください。",
+        "publishNameTooLong": "パス名が長すぎます。別のパス名を試してください。",
+        "publishNameAlreadyInUse": "パス名はすでに使用されています。別のパス名を試してください",
+        "namespaceContainsInvalidCharacters": "名前空間に無効な文字が含まれています。別の名前空間を試してください。",
+        "publishPermissionDenied": "公開設定を管理できるのはワークスペースの所有者またはページ発行者のみです。",
+        "publishNameCannotBeEmpty": "パス名は空にできません。別のパス名を試してください。"
+      },
+      "success": {
+        "namespaceUpdated": "名前空間が正常に更新されました",
+        "setHomepageSuccess": "ホームページの設定に成功しました",
+        "updatePathNameSuccess": "パス名が正常に更新されました",
+        "removeHomePageSuccess": "ホームページを削除しました"
+      }
     },
     "accountPage": {
       "menuLabel": "マイアカウント",
@@ -456,6 +573,9 @@
       "resetSelectionColor": {
         "title": "ドキュメントの選択色をリセット",
         "description": "選択色をリセットしてもよろしいですか？"
+      },
+      "resetWidth": {
+        "resetSuccess": "ドキュメントの幅を正常にリセットしました"
       },
       "theme": {
         "title": "テーマ",
@@ -844,9 +964,11 @@
         "itemFive": "モバイルアプリ",
         "itemSix": "AIレスポンス",
         "itemFileUpload": "ファイルアップロード",
+        "customNamespace": "カスタム名前空間",
         "tooltipSix": "ライフタイムはレスポンスの数がリセットされないことを意味します",
         "intelligentSearch": "インテリジェント検索",
-        "tooltipSeven": "ワークスペースのURLの一部をカスタマイズできます"
+        "tooltipSeven": "ワークスペースのURLの一部をカスタマイズできます",
+        "customNamespaceTooltip": "カスタム公開サイト URL"
       },
       "freeLabels": {
         "itemOne": "ワークスペースごとの料金",
@@ -916,6 +1038,8 @@
       }
     },
     "common": {
+      "uploadingFile": "ファイルをアップロード中です。アプリを終了しないでください",
+      "uploadNotionSuccess": "Notion zipファイルが正常にアップロードされました。インポートが完了すると、確認メールが届きます。",
       "reset": "リセット"
     },
     "menu": {
@@ -931,8 +1055,11 @@
       "syncSetting": "同期設定",
       "cloudSettings": "クラウド設定",
       "enableSync": "同期を有効化",
+      "enableSyncLog": "同期ログを有効にする",
+      "enableSyncLogWarning": "同期の問題の診断にご協力いただきありがとうございます。これにより、ドキュメントの編集内容がローカルファイルに記録されます。有効にした後、アプリを終了して再度開いてください。",
       "enableEncrypt": "データを暗号化",
       "cloudURL": "基本URL",
+      "webURL": "ウェブURL",
       "invalidCloudURLScheme": "無効なスキーム",
       "cloudServerType": "クラウドサーバー",
       "cloudServerTypeTip": "クラウドサーバーを変更すると現在のアカウントがログアウトされる可能性があります。",
@@ -944,7 +1071,10 @@
       "selfHostStart": "サーバーをお持ちでない場合は、",
       "selfHostContent": "ドキュメント",
       "selfHostEnd": "を参照してセルフホストサーバーの設定方法をご確認ください",
+      "pleaseInputValidURL": "有効なURLを入力してください",
+      "changeUrl": "セルフホスト URL を {} に変更します",
       "cloudURLHint": "サーバーの基本URLを入力してください",
+      "webURLHint": "ウェブサーバーのベースURLを入力してください",
       "cloudWSURL": "Websocket URL",
       "cloudWSURLHint": "サーバーのWebsocketアドレスを入力してください",
       "restartApp": "再起動",
@@ -1034,6 +1164,8 @@
       "documentSettings": {
         "cursorColor": "ドキュメントのカーソル色",
         "selectionColor": "ドキュメントの選択色",
+        "width": "文書の幅",
+        "changeWidth": "変更",
         "pickColor": "色を選択",
         "colorShade": "色の濃淡",
         "opacity": "不透明度",
@@ -1228,6 +1360,13 @@
       "deleteView": "ビューを削除",
       "numberOfVisibleFields": "{} 表示中"
     },
+    "filter": {
+      "empty": "アクティブなフィルターはありません",
+      "addFilter": "フィルターを追加",
+      "cannotFindCreatableField": "フィルタリングに適したフィールドが見つかりません",
+      "conditon": "状態",
+      "where": "どこ"
+    },
     "textFilter": {
       "contains": "含む",
       "doesNotContain": "含まない",
@@ -1273,9 +1412,12 @@
       "between": "の間",
       "empty": "空",
       "notEmpty": "空でない",
+      "startDate": "開始日",
+      "endDate": "終了日",
       "choicechipPrefix": {
         "before": "以前",
         "after": "以後",
+        "between": "間",
         "onOrBefore": "以前またはその日",
         "onOrAfter": "以後またはその日",
         "isEmpty": "空",
@@ -1302,6 +1444,7 @@
       "delete": "削除",
       "wrapCellContent": "テキストを折り返し",
       "clear": "セルをクリア",
+      "switchPrimaryFieldTooltip": "プライマリフィールドのフィールドタイプを変更できません",
       "textFieldName": "テキスト",
       "checkboxFieldName": "チェックボックス",
       "dateFieldName": "日付",
@@ -1378,10 +1521,12 @@
       "cannotFindCreatableField": "並べ替え可能なフィールドが見つかりません",
       "deleteAllSorts": "すべての並べ替えを削除",
       "addSort": "新しい並べ替えを追加",
+      "sortsActive": "並べ替え中に{intention}できません",
       "removeSorting": "並べ替えを削除しますか？",
       "fieldInUse": "このフィールドですでに並べ替えが行われています"
     },
     "row": {
+      "label": "行",
       "duplicate": "複製",
       "delete": "削除",
       "titlePlaceholder": "無題",
@@ -1389,6 +1534,7 @@
       "copyProperty": "プロパティをクリップボードにコピー",
       "count": "カウント",
       "newRow": "新しい行",
+      "loadMore": "さらに読み込む",
       "action": "アクション",
       "add": "下に追加をクリック",
       "drag": "ドラッグして移動",
@@ -1397,7 +1543,10 @@
       "dragAndClick": "ドラッグして移動、クリックしてメニューを開く",
       "insertRecordAbove": "上にレコードを挿入",
       "insertRecordBelow": "下にレコードを挿入",
-      "noContent": "コンテンツなし"
+      "noContent": "コンテンツなし",
+      "reorderRowDescription": "行を並べ替える",
+      "createRowAboveDescription": "上に行を作成",
+      "createRowBelowDescription": "下に行を挿入"
     },
     "selectOption": {
       "create": "作成",
@@ -1462,11 +1611,20 @@
     "media": {
       "rename": "名前を変更",
       "download": "ダウンロード",
+      "expand": "拡大",
       "delete": "削除",
       "moreFilesHint": "+{} ファイル",
       "addFileOrImage": "ファイル、画像、またはリンクを追加",
       "attachmentsHint": "{} 添付ファイル",
       "addFileMobile": "ファイルを追加",
+      "extraCount": "+{}",
+      "deleteFileDescription": "このファイルを削除してもよろしいですか? この操作は元に戻せません。",
+      "showFileNames": "ファイル名を表示",
+      "downloadSuccess": "ファイルをダウンロードしました",
+      "downloadFailedToken": "ファイルのダウンロードに失敗しました。ユーザー トークンが利用できません",
+      "setAsCover": "カバーとして設定",
+      "openInBrowser": "ブラウザで開く",
+      "embedLink": "ファイルリンクを埋め込む",
       "open": "開く",
       "showMore": "{} ファイルがさらにあります。クリックして表示"
     }
@@ -1477,6 +1635,7 @@
       "timeHintTextInTwelveHour": "01:00 PM",
       "timeHintTextInTwentyFourHour": "13:00"
     },
+    "creating": "作成...",
     "slashMenu": {
       "board": {
         "selectABoardToLinkTo": "リンクするボードを選択",
@@ -1518,11 +1677,25 @@
         "mathEquation": "数式",
         "code": "コード",
         "toggleList": "折りたたみリスト",
+        "toggleHeading1": "見出し 1 を切り替える",
+        "toggleHeading2": "見出し 2 を切り替える",
+        "toggleHeading3": "見出し 3 を切り替える",
         "emoji": "絵文字",
         "aiWriter": "AIライター",
         "dateOrReminder": "日付またはリマインダー",
         "photoGallery": "フォトギャラリー",
         "file": "ファイル"
+      },
+      "subPage": {
+        "name": "書類",
+        "keyword1": "サブページ",
+        "keyword2": "ページ",
+        "keyword3": "子ページ",
+        "keyword4": "ページを挿入",
+        "keyword5": "埋め込みページ",
+        "keyword6": "新しいページ",
+        "keyword7": "ページを作成",
+        "keyword8": "書類"
       }
     },
     "selectionMenu": {
@@ -1558,11 +1731,43 @@
       "insertDate": "日付を挿入",
       "emoji": "絵文字",
       "toggleList": "折りたたみリスト",
+      "emptyToggleHeading": "トグル h{} が空です。クリックしてコンテンツを追加します。",
+      "emptyToggleList": "トグル リストが空です。クリックしてコンテンツを追加します。",
+      "emptyToggleHeadingWeb": "トグル h{level} が空です。クリックしてコンテンツを追加してください",
       "quoteList": "引用リスト",
       "numberedList": "番号付きリスト",
       "bulletedList": "箇条書きリスト",
       "todoList": "To-do リスト",
       "callout": "呼び出し",
+      "simpleTable": {
+        "moreActions": {
+          "color": "色",
+          "align": "整列",
+          "delete": "消去",
+          "duplicate": "重複",
+          "insertLeft": "左に挿入",
+          "insertRight": "右に挿入",
+          "insertAbove": "上に挿入",
+          "insertBelow": "以下に挿入",
+          "headerColumn": "ヘッダー列",
+          "headerRow": "ヘッダー行",
+          "clearContents": "内容をクリア",
+          "setToPageWidth": "ページ幅に設定",
+          "distributeColumnsWidth": "列を均等に分散する",
+          "duplicateRow": "重複行",
+          "duplicateColumn": "重複した列",
+          "textColor": "テキストの色",
+          "cellBackgroundColor": "セルの背景色",
+          "duplicateTable": "重複テーブル"
+        },
+        "clickToAddNewRow": "クリックして新しい行を追加します",
+        "clickToAddNewColumn": "クリックして新しい列を追加します",
+        "clickToAddNewRowAndColumn": "クリックして新しい行と列を追加します",
+        "headerName": {
+          "table": "テーブル",
+          "alignText": "テキストを揃える"
+        }
+      },
       "cover": {
         "changeCover": "カバーを変更",
         "colors": "色",
@@ -1578,6 +1783,7 @@
         "back": "戻る",
         "saveToGallery": "ギャラリーに保存",
         "removeIcon": "アイコンを削除",
+        "removeCover": "カバーを削除",
         "pasteImageUrl": "画像URLを貼り付け",
         "or": "または",
         "pickFromFiles": "ファイルから選択",
@@ -1596,6 +1802,8 @@
       "optionAction": {
         "click": "クリック",
         "toOpenMenu": " でメニューを開く",
+        "drag": "ドラッグ",
+        "toMove": " 移動する",
         "delete": "削除",
         "duplicate": "複製",
         "turnInto": "変換",
@@ -1607,7 +1815,8 @@
         "center": "中央",
         "right": "右",
         "defaultColor": "デフォルト",
-        "depth": "深さ"
+        "depth": "深さ",
+        "copyLinkToBlock": "リンクをブロックにコピーする"
       },
       "image": {
         "addAnImage": "画像を追加",
@@ -1655,7 +1864,8 @@
       "contextMenu": {
         "copy": "コピー",
         "cut": "切り取り",
-        "paste": "貼り付け"
+        "paste": "貼り付け",
+        "pasteAsPlainText": "プレーンテキストとして貼り付け"
       },
       "action": "アクション",
       "database": {
@@ -1681,11 +1891,13 @@
         "name": "ファイル",
         "uploadTab": "アップロード",
         "uploadMobile": "ファイルを選択",
+        "uploadMobileGallery": "フォトギャラリーより",
         "networkTab": "リンクを埋め込む",
         "placeholderText": "ファイルをアップロードまたは埋め込む",
         "placeholderDragging": "アップロードするファイルをドロップ",
         "dropFileToUpload": "アップロードするファイルをドロップ",
         "fileUploadHint": "ファイルをここにドロップ\nまたはクリックして参照",
+        "fileUploadHintSuffix": "ブラウズ",
         "networkHint": "ファイルリンクを貼り付け",
         "networkUrlInvalid": "無効なURLです。URLを修正してもう一度お試しください",
         "networkAction": "ファイルリンクを埋め込む",
@@ -1696,8 +1908,20 @@
           "nameEmptyError": "ファイル名を空にすることはできません。"
         },
         "uploadedAt": "アップロード日: {}",
-        "linkedAt": "リンク追加日: {}"
-      }
+        "linkedAt": "リンク追加日: {}",
+        "failedToOpenMsg": "開けませんでした。ファイルが見つかりません"
+      },
+      "subPage": {
+        "handlingPasteHint": " - （ペーストの取り扱い）",
+        "errors": {
+          "failedDeletePage": "ページの削除に失敗しました",
+          "failedCreatePage": "ページの作成に失敗しました",
+          "failedMovePage": "このドキュメントにページを移動できませんでした",
+          "failedDuplicatePage": "ページの複製に失敗しました",
+          "failedDuplicateFindView": "ページの複製に失敗しました - 元のビューが見つかりません"
+        }
+      },
+      "cannotMoveToItsChildren": "子に移動できません"
     },
     "outlineBlock": {
       "placeholder": "目次"
@@ -1799,7 +2023,10 @@
       },
       "deleted": "削除済み",
       "deletedContent": "このコンテンツは存在しないか、削除されました",
-      "noAccess": "アクセス権がありません"
+      "noAccess": "アクセス権がありません",
+      "deletedPage": "削除されたページ",
+      "trashHint": " - ゴミ箱に入れる",
+      "morePages": "その他のページ"
     },
     "toolbar": {
       "resetToDefaultFont": "デフォルトに戻す"
@@ -1815,10 +2042,16 @@
       "title": "ページを選択",
       "failedToLoad": "ページリストの読み込みに失敗しました",
       "noPagesFound": "ページが見つかりません"
+    },
+    "attachmentMenu": {
+      "choosePhoto": "写真を選択",
+      "takePicture": "写真を撮る",
+      "chooseFile": "ファイルを選択"
     }
   },
   "board": {
     "column": {
+      "label": "カラム",
       "createNewCard": "新規",
       "renameGroupTooltip": "押してグループ名を変更",
       "createNewColumn": "新しいグループを追加",
@@ -1997,7 +2230,8 @@
     "reminder": {
       "groupTitle": "リマインダー",
       "shortKeyword": "リマインド"
-    }
+    },
+    "createPage": "\"{}\" サブページを作成"
   },
   "datePicker": {
     "dateTimeFormatTooltip": "設定で日付と時刻の形式を変更",
@@ -2097,6 +2331,9 @@
     "link": "リンク",
     "numberedList": "番号付きリスト",
     "numberedListShortForm": "番号付き",
+    "toggleHeading1ShortForm": "h1　トグル",
+    "toggleHeading2ShortForm": "h2　トグル",
+    "toggleHeading3ShortForm": "h3　トグル",
     "quote": "引用",
     "strikethrough": "取り消し線",
     "text": "テキスト",
@@ -2147,6 +2384,9 @@
     "mobileHeading1": "見出し1",
     "mobileHeading2": "見出し2",
     "mobileHeading3": "見出し3",
+    "mobileHeading4": "見出し4",
+    "mobileHeading5": "見出し5",
+    "mobileHeading6": "見出し6",
     "textColor": "テキスト色",
     "backgroundColor": "背景色",
     "addYourLink": "リンクを追加",
@@ -2303,6 +2543,8 @@
     "openSettings": "設定を開く",
     "photoPermissionTitle": "@:appName はフォトライブラリへのアクセスを希望します",
     "photoPermissionDescription": "@:appName に写真へのアクセス権が必要です。写真をドキュメントに追加するには許可が必要です。",
+    "cameraPermissionTitle": "@:appNameカメラにアクセスしようとしています",
+    "cameraPermissionDescription": "カメラからドキュメントに画像を追加するには、 @:appNameにカメラへのアクセスを許可する必要があります",
     "doNotAllow": "許可しない",
     "image": "画像"
   },
@@ -2351,8 +2593,26 @@
     "quicklySwitch": "次のスペースに素早く切り替える",
     "duplicate": "スペースを複製",
     "movePageToSpace": "ページをスペースに移動",
+    "cannotMovePageToDatabase": "ページをデータベースに移動できません",
     "switchSpace": "スペースを切り替え",
-    "spaceNameCannotBeEmpty": "スペース名は空にできません"
+    "spaceNameCannotBeEmpty": "スペース名は空にできません",
+    "success": {
+      "deleteSpace": "スペースが正常に削除されました",
+      "renameSpace": "スペース名の変更に成功しました",
+      "duplicateSpace": "スペースが正常に複製されました",
+      "updateSpace": "スペースが正常に更新されました"
+    },
+    "error": {
+      "deleteSpace": "スペースを削除できませんでした",
+      "renameSpace": "スペースの名前を変更できませんでした",
+      "duplicateSpace": "スペースの複製に失敗しました",
+      "updateSpace": "スペースの更新に失敗しました"
+    },
+    "createSpace": "スペースを作る",
+    "manageSpace": "スペースを管理する",
+    "renameSpace": "スペースの名前を変更する",
+    "mSpaceIconColor": "スペースアイコンの色",
+    "mSpaceIcon": "スペースアイコン"
   },
   "publish": {
     "hasNotBeenPublished": "このページはまだ公開されていません",
@@ -2421,7 +2681,18 @@
     "fileBlock": {
       "uploadedAt": "{time}にアップロード",
       "linkedAt": "{time}にリンク追加",
-      "empty": "ファイルをアップロードまたは埋め込み"
+      "empty": "ファイルをアップロードまたは埋め込み",
+      "uploadFailed": "アップロードに失敗しました。もう一度お試しください。",
+      "retry": "リトライ"
+    },
+    "importNotion": "Notionからインポート",
+    "import": "輸入",
+    "importSuccess": "アップロードに成功しました",
+    "importSuccessMessage": "インポートが完了すると通知されます。その後、インポートしたページをサイドバーで表示できます。",
+    "importFailed": "インポートに失敗しました。ファイル形式を確認してください",
+    "dropNotionFile": "Notionのzipファイルをここにドロップしてアップロードするか、クリックして参照してください",
+    "error": {
+      "pageNameIsEmpty": "ページ名が空です。別の名前を試してください"
     }
   },
   "globalComment": {
@@ -2520,6 +2791,7 @@
     "uploadSuccessDescription": "テンプレートが正常にアップロードされました。テンプレートギャラリーで確認できます。",
     "viewTemplate": "テンプレートを表示",
     "deleteTemplate": "テンプレートを削除",
+    "deleteSuccess": "テンプレートが正常に削除されました",
     "deleteTemplateDescription": "このテンプレートを削除してもよろしいですか？",
     "addRelatedTemplate": "関連テンプレートを追加",
     "removeRelatedTemplate": "関連テンプレートを削除",
@@ -2547,7 +2819,25 @@
     "zoomOut": "ズームアウト"
   },
   "invitation": {
+    "join": "参加する",
+    "on": "の上",
+    "invitedBy": "招待者",
+    "membersCount": {
+      "zero": "{count} 人のメンバー",
+      "one": "{count} 人のメンバー",
+      "many": "{count} 人のメンバー",
+      "other": "{count} 人のメンバー"
+    },
+    "tip": "以下の連絡先情報を使用して、このワークスペースに参加するよう招待されました。これが間違っている場合は、管理者に連絡して招待を再送信してください。",
+    "joinWorkspace": "ワークスペースに参加",
+    "success": "ワークスペースへの参加が完了しました",
+    "successMessage": "これで、その中のすべてのページとワークスペースにアクセスできるようになります。",
+    "openWorkspace": "AppFlowyを開く",
+    "alreadyAccepted": "すでに招待を承諾しています",
     "errorModal": {
+      "title": "問題が発生しました",
+      "description": "現在のアカウント {email} ではこのワークスペースにアクセスできない可能性があります。正しいアカウントでログインするか、ワークスペースの所有者に問い合わせてください。",
+      "contactOwner": "所有者に連絡する",
       "close": "家に戻る",
       "changeAccount": "アカウントを変更する"
     }
