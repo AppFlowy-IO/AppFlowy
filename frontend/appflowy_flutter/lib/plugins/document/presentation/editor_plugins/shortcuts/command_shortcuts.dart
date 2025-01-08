@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/custom_text_align_command.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/shortcuts/backspace_command.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/undo_redo/custom_undo_redo_commands.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/emoji_picker/emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -36,6 +37,8 @@ List<CommandShortcutEvent> commandShortcutEvents = [
   customRedoCommand,
 
   ...customTextAlignCommands,
+
+  customBackspaceCommand,
 
   // remove standard shortcuts for copy, cut, paste, todo
   ...standardCommandShortcutEvents
