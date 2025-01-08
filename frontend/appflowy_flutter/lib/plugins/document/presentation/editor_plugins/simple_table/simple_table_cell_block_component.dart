@@ -282,6 +282,7 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
                   return ValueListenableBuilder(
                     valueListenable: isReorderingHitCellNotifier,
                     builder: (context, isReorderingHitCellNotifier, _) {
+                      final previousCell = node.getPreviousCellInSameRow();
                       return Stack(
                         children: [
                           DecoratedBox(
@@ -296,6 +297,18 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
                               node: node,
                             ),
                           ),
+                          if (node.columnIndex != 0 && previousCell != null)
+                            Positioned(
+                              left: 0,
+                              top: 0,
+                              bottom: 0,
+                              // pass the previous node to the resize handle
+                              // to make the resize handle work correctly
+                              child: SimpleTableColumnResizeHandle(
+                                node: previousCell,
+                                isPreviousCell: true,
+                              ),
+                            ),
                         ],
                       );
                     },

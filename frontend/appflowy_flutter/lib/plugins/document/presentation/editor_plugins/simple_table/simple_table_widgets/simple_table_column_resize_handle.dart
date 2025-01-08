@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -10,9 +11,11 @@ class SimpleTableColumnResizeHandle extends StatefulWidget {
   const SimpleTableColumnResizeHandle({
     super.key,
     required this.node,
+    this.isPreviousCell = false,
   });
 
   final Node node;
+  final bool isPreviousCell;
 
   @override
   State<SimpleTableColumnResizeHandle> createState() =>
@@ -25,7 +28,7 @@ class _SimpleTableColumnResizeHandleState
 
   bool isStartDragging = false;
 
-  // record the previous position of the drag
+  // record the previous position of the drag, only used on mobile
   double previousDx = 0;
 
   @override
@@ -69,27 +72,33 @@ class _SimpleTableColumnResizeHandleState
   Widget _buildMobileResizeHandle() {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onLongPressStart: (details) {
-        _onLongPressStart(details);
-      },
-      onLongPressMoveUpdate: (details) {
-        _onLongPressMoveUpdate(details);
-      },
-      onLongPressEnd: (details) {
-        _onLongPressEnd(details);
-      },
-      // onHorizontalDragStart: (details) {
-      //   debugPrint('start');
-      // },
-      // onHorizontalDragUpdate: (details) {
-      //   debugPrint('update');
-      // },
-      // onHorizontalDragEnd: (details) {
-      //   debugPrint('end');
-      // },
-      child: Container(
-        width: 14,
-        color: Colors.red,
+      onLongPressStart: _onLongPressStart,
+      onLongPressMoveUpdate: _onLongPressMoveUpdate,
+      onLongPressEnd: _onLongPressEnd,
+      onLongPressCancel: _onLongPressCancel,
+      child: ValueListenableBuilder(
+        valueListenable: simpleTableContext.resizingCell,
+        builder: (context, resizingCell, child) {
+          final isSameColumnIndex =
+              widget.node.columnIndex == resizingCell?.columnIndex;
+          if (!isSameColumnIndex) {
+            return child!;
+          }
+          return Container(
+            width: 10,
+            alignment: !widget.isPreviousCell
+                ? Alignment.centerRight
+                : Alignment.centerLeft,
+            child: Container(
+              width: 2,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          );
+        },
+        child: Container(
+          width: 10,
+          color: Colors.transparent,
+        ),
       ),
     );
   }
@@ -119,6 +128,9 @@ class _SimpleTableColumnResizeHandleState
 
   void _onLongPressStart(LongPressStartDetails details) {
     isStartDragging = true;
+    simpleTableContext.resizingCell.value = widget.node;
+
+    HapticFeedback.lightImpact();
   }
 
   void _onHorizontalDragUpdate(DragUpdateDetails details) {
@@ -178,5 +190,12 @@ class _SimpleTableColumnResizeHandleState
         );
 
     previousDx = 0;
+
+    simpleTableContext.resizingCell.value = null;
+  }
+
+  void _onLongPressCancel() {
+    isStartDragging = false;
+    simpleTableContext.resizingCell.value = null;
   }
 }
