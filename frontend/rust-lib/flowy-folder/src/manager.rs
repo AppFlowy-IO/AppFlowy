@@ -24,7 +24,7 @@ use client_api::entity::PublishInfo;
 use collab::core::collab::DataSource;
 use collab::lock::RwLock;
 use collab_entity::{CollabType, EncodedCollab};
-use collab_folder::hierarchy_builder::{ParentChildViews, SpacePermission, ViewExtraBuilder};
+use collab_folder::hierarchy_builder::{ParentChildViews, ViewExtraBuilder};
 use collab_folder::{
   Folder, FolderData, FolderNotify, Section, SectionItem, TrashInfo, View, ViewLayout, ViewUpdate,
   Workspace,
@@ -399,14 +399,8 @@ impl FolderManager {
 
     views.iter_mut().for_each(|view| {
       view.view.parent_view_id.clone_from(&workspace_id);
-      view.view.extra = Some(
-        serde_json::to_string(
-          &ViewExtraBuilder::new()
-            .is_space(true, SpacePermission::PublicToAll)
-            .build(),
-        )
-        .unwrap(),
-      );
+      view.view.extra =
+        Some(serde_json::to_string(&ViewExtraBuilder::new().is_space(true).build()).unwrap());
     });
     let all_views = views.into_iter().chain(orphan_views.into_iter()).collect();
     folder.insert_nested_views(all_views);

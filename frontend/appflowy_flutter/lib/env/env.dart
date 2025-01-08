@@ -48,7 +48,7 @@ abstract class Env {
   @EnviedField(
     obfuscate: false,
     varName: 'BASE_WEB_DOMAIN',
-    defaultValue: ShareConstants.baseWebDomain,
+    defaultValue: ShareConstants.defaultBaseWebDomain,
   )
   static const String baseWebDomain = _Env.baseWebDomain;
 }

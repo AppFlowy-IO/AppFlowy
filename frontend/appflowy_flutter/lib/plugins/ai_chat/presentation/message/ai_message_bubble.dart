@@ -5,7 +5,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_edit_document_service.dart';
-import 'package:appflowy/plugins/ai_chat/presentation/chat_input/chat_mention_page_bottom_sheet.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -20,8 +20,10 @@ import 'package:go_router/go_router.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import '../chat_avatar.dart';
+import '../chat_input/chat_mention_page_bottom_sheet.dart';
 import '../layout_define.dart';
 import 'ai_message_action_bar.dart';
+import 'ai_change_format_bottom_sheet.dart';
 import 'message_util.dart';
 
 /// Wraps an AI response message with the avatar and actions. On desktop,
@@ -36,6 +38,7 @@ class ChatAIMessageBubble extends StatelessWidget {
     required this.showActions,
     this.isLastMessage = false,
     this.onRegenerate,
+    this.onChangeFormat,
   });
 
   final Message message;
@@ -43,6 +46,7 @@ class ChatAIMessageBubble extends StatelessWidget {
   final bool showActions;
   final bool isLastMessage;
   final void Function()? onRegenerate;
+  final void Function(PredefinedFormat)? onChangeFormat;
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +72,7 @@ class ChatAIMessageBubble extends StatelessWidget {
     return ChatAIBottomInlineActions(
       message: message,
       onRegenerate: onRegenerate,
+      onChangeFormat: onChangeFormat,
       child: child,
     );
   }
@@ -76,6 +81,7 @@ class ChatAIMessageBubble extends StatelessWidget {
     return ChatAIMessageHover(
       message: message,
       onRegenerate: onRegenerate,
+      onChangeFormat: onChangeFormat,
       child: child,
     );
   }
@@ -84,6 +90,7 @@ class ChatAIMessageBubble extends StatelessWidget {
     return ChatAIMessagePopup(
       message: message,
       onRegenerate: onRegenerate,
+      onChangeFormat: onChangeFormat,
       child: child,
     );
   }
@@ -95,11 +102,13 @@ class ChatAIBottomInlineActions extends StatelessWidget {
     required this.child,
     required this.message,
     this.onRegenerate,
+    this.onChangeFormat,
   });
 
   final Widget child;
   final Message message;
   final void Function()? onRegenerate;
+  final void Function(PredefinedFormat)? onChangeFormat;
 
   @override
   Widget build(BuildContext context) {
@@ -117,6 +126,7 @@ class ChatAIBottomInlineActions extends StatelessWidget {
             message: message,
             showDecoration: false,
             onRegenerate: onRegenerate,
+            onChangeFormat: onChangeFormat,
           ),
         ),
         const VSpace(32.0),
@@ -131,11 +141,13 @@ class ChatAIMessageHover extends StatefulWidget {
     required this.child,
     required this.message,
     this.onRegenerate,
+    this.onChangeFormat,
   });
 
   final Widget child;
   final Message message;
   final void Function()? onRegenerate;
+  final void Function(PredefinedFormat)? onChangeFormat;
 
   @override
   State<ChatAIMessageHover> createState() => _ChatAIMessageHoverState();
@@ -217,6 +229,7 @@ class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
                           message: widget.message,
                           showDecoration: true,
                           onRegenerate: widget.onRegenerate,
+                          onChangeFormat: widget.onChangeFormat,
                           onOverrideVisibility: (visibility) {
                             overrideVisibility = visibility;
                           },
@@ -288,11 +301,13 @@ class ChatAIMessagePopup extends StatelessWidget {
     required this.child,
     required this.message,
     this.onRegenerate,
+    this.onChangeFormat,
   });
 
   final Widget child;
   final Message message;
   final void Function()? onRegenerate;
+  final void Function(PredefinedFormat)? onChangeFormat;
 
   @override
   Widget build(BuildContext context) {
@@ -307,10 +322,11 @@ class ChatAIMessagePopup extends StatelessWidget {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const VSpace(16.0),
                 _copyButton(context, bottomSheetContext),
                 _divider(),
                 _regenerateButton(context),
+                _divider(),
+                _changeFormatButton(context),
                 _divider(),
                 _saveToPageButton(context),
               ],
@@ -363,6 +379,23 @@ class ChatAIMessagePopup extends StatelessWidget {
       icon: FlowySvgs.ai_undo_s,
       iconSize: const Size.square(20),
       text: LocaleKeys.chat_regenerate.tr(),
+    );
+  }
+
+  Widget _changeFormatButton(BuildContext context) {
+    return MobileQuickActionButton(
+      onTap: () async {
+        final result = await showChangeFormatBottomSheet(context);
+        if (result != null) {
+          onChangeFormat?.call(result);
+          if (context.mounted) {
+            Navigator.of(context).pop();
+          }
+        }
+      },
+      icon: FlowySvgs.ai_retry_font_s,
+      iconSize: const Size.square(20),
+      text: LocaleKeys.chat_changeFormat_actionButton.tr(),
     );
   }
 

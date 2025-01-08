@@ -32,13 +32,22 @@ pub(crate) async fn stream_chat_message_handler(
   let data = data.into_inner();
   data.validate()?;
 
-  let message_type = match data.message_type {
+  let StreamChatPayloadPB {
+    chat_id,
+    message,
+    message_type,
+    answer_stream_port,
+    question_stream_port,
+    format,
+    metadata,
+  } = data;
+
+  let message_type = match message_type {
     ChatMessageTypePB::System => ChatMessageType::System,
     ChatMessageTypePB::User => ChatMessageType::User,
   };
 
-  let metadata = data
-    .metadata
+  let metadata = metadata
     .into_iter()
     .map(|metadata| {
       let (content_type, content_len) = match metadata.loader_type {
@@ -63,17 +72,19 @@ pub(crate) async fn stream_chat_message_handler(
     .collect::<Vec<_>>();
 
   trace!("Stream chat message with metadata: {:?}", metadata);
+
+  let params = StreamMessageParams {
+    chat_id: &chat_id,
+    message: &message,
+    message_type,
+    answer_stream_port,
+    question_stream_port,
+    format,
+    metadata,
+  };
+
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let result = ai_manager
-    .stream_chat_message(
-      &data.chat_id,
-      &data.message,
-      message_type,
-      data.answer_stream_port,
-      data.question_stream_port,
-      metadata,
-    )
-    .await?;
+  let result = ai_manager.stream_chat_message(&params).await?;
   data_result_ok(result)
 }
 
@@ -90,6 +101,7 @@ pub(crate) async fn regenerate_response_handler(
       &data.chat_id,
       data.answer_message_id,
       data.answer_stream_port,
+      data.format,
     )
     .await?;
   Ok(())
