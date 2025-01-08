@@ -18,6 +18,7 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
 
   final _service = FavoriteService();
   final _listener = FavoriteListener();
+  bool isReordering = false;
 
   @override
   Future<void> close() async {
@@ -68,10 +69,7 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
               await _service.pinFavorite(view);
             }
 
-            await _service.toggleFavorite(
-              view.id,
-              !view.isFavorite,
-            );
+            await _service.toggleFavorite(view.id);
           },
           pin: (view) async {
             await _service.pinFavorite(view);
@@ -80,6 +78,21 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
           unpin: (view) async {
             await _service.unpinFavorite(view);
             add(const FavoriteEvent.fetchFavorites());
+          },
+          reorder: (oldIndex, newIndex) async {
+            /// TODO: this is a workaround to reorder the favorite views
+            isReordering = true;
+            final pinnedViews = state.pinnedViews.toList();
+            if (oldIndex < newIndex) newIndex -= 1;
+            final target = pinnedViews.removeAt(oldIndex);
+            pinnedViews.insert(newIndex, target);
+            emit(state.copyWith(pinnedViews: pinnedViews));
+            for (final view in pinnedViews) {
+              await _service.toggleFavorite(view.item.id);
+              await _service.toggleFavorite(view.item.id);
+            }
+            add(const FavoriteEvent.fetchFavorites());
+            isReordering = false;
           },
         );
       },
@@ -90,20 +103,29 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
     FlowyResult<RepeatedViewPB, FlowyError> favoriteOrFailed,
     bool didFavorite,
   ) {
-    favoriteOrFailed.fold(
-      (favorite) => add(const FetchFavorites()),
-      (error) => Log.error(error),
-    );
+    if (!isReordering) {
+      favoriteOrFailed.fold(
+        (favorite) => add(const FetchFavorites()),
+        (error) => Log.error(error),
+      );
+    }
   }
 }
 
 @freezed
 class FavoriteEvent with _$FavoriteEvent {
   const factory FavoriteEvent.initial() = Initial;
+
   const factory FavoriteEvent.toggle(ViewPB view) = ToggleFavorite;
+
   const factory FavoriteEvent.fetchFavorites() = FetchFavorites;
+
   const factory FavoriteEvent.pin(ViewPB view) = PinFavorite;
+
   const factory FavoriteEvent.unpin(ViewPB view) = UnpinFavorite;
+
+  const factory FavoriteEvent.reorder(int oldIndex, int newIndex) =
+      ReorderFavorite;
 }
 
 @freezed
