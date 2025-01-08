@@ -1445,15 +1445,23 @@
       "equal": "يساوي",
       "notEqual": "لا يساوي",
       "lessThan": "أقل من",
-      "greaterThan": "أكبر من"
+      "greaterThan": "أكبر من",
+      "lessThanOrEqualTo": "أقل من أو يساوي",
+      "greaterThanOrEqualTo": "أكبر من أو يساوي",
+      "isEmpty": "هو فارغ",
+      "isNotEmpty": "ليس فارغا"
     },
     "field": {
+      "label": "خاصية",
       "hide": "يخفي",
       "show": "عرض",
       "insertLeft": "أدخل اليسار",
       "insertRight": "أدخل اليمين",
       "duplicate": "ينسخ",
       "delete": "يمسح",
+      "wrapCellContent": "لف النص",
+      "clear": "مسح الخلايا",
+      "switchPrimaryFieldTooltip": "لا يمكن تغيير نوع الحقل للحقل الأساسي",
       "textFieldName": "نص",
       "checkboxFieldName": "خانة اختيار",
       "dateFieldName": "تاريخ",
@@ -1464,6 +1472,12 @@
       "multiSelectFieldName": "تحديد متعدد",
       "urlFieldName": "URL",
       "checklistFieldName": "قائمة تدقيق",
+      "relationFieldName": "العلاقة",
+      "summaryFieldName": "ملخص الذكاء الاصطناعي",
+      "timeFieldName": "وقت",
+      "mediaFieldName": "الملفات والوسائط",
+      "translateFieldName": "الترجمة بالذكاء الاصطناعي",
+      "translateTo": "ترجم إلى",
       "numberFormat": "تنسيق الأرقام",
       "dateFormat": "صيغة التاريخ",
       "includeTime": "أضف الوقت",
@@ -1492,9 +1506,13 @@
       "addOption": "إضافة خيار",
       "editProperty": "تحرير الملكية",
       "newProperty": "خاصية جديدة",
+      "openRowDocument": "افتح كصفحة",
       "deleteFieldPromptMessage": "هل أنت متأكد؟ سيتم حذف هذه الخاصية",
+      "clearFieldPromptMessage": "هل أنت متأكد؟ سيتم إفراغ جميع الخلايا في هذا العمود",
       "newColumn": "عمود جديد",
-      "format": "شكل"
+      "format": "شكل",
+      "reminderOnDateTooltip": "تحتوي هذه الخلية على تذكير مجدول",
+      "optionAlreadyExist": "الخيار موجود بالفعل"
     },
     "rowPage": {
       "newField": "إضافة حقل جديد",
@@ -1508,16 +1526,25 @@
         "one": "إخفاء {count} الحقل المخفي",
         "many": "إخفاء {count} الحقول المخفية",
         "other": "إخفاء {count} الحقول المخفية"
-      }
+      },
+      "openAsFullPage": "افتح كصفحة كاملة",
+      "moreRowActions": "مزيد من إجراءات الصف"
     },
     "sort": {
       "ascending": "تصاعدي",
       "descending": "تنازلي",
+      "by": "بواسطة",
+      "empty": "لا توجد تصنيفات نشطة",
+      "cannotFindCreatableField": "لا يمكن العثور على حقل مناسب للتصنيف حسبه",
       "deleteAllSorts": "حذف جميع التراتيب",
       "addSort": "أضف نوعًا",
+      "sortsActive": "لا يمكن {intention} أثناء التصنيف",
+      "removeSorting": "هل ترغب في إزالة كافة التصنيفات في هذا العرض والمتابعة؟",
+      "fieldInUse": "أنت تقوم بالفعل بالتصنيف حسب هذا الحقل",
       "deleteSort": "حذف الفرز"
     },
     "row": {
+      "label": "صف",
       "duplicate": "مكرره",
       "delete": "يمسح",
       "titlePlaceholder": "بدون عنوان",
@@ -1525,12 +1552,19 @@
       "copyProperty": "نسخ الممتلكات إلى الحافظة",
       "count": "عدد",
       "newRow": "صف جديد",
+      "loadMore": "تحميل المزيد",
       "action": "فعل",
       "add": "انقر فوق إضافة إلى أدناه",
       "drag": "اسحب للتحريك",
+      "deleteRowPrompt": "هل أنت متأكد من أنك تريد حذف هذا الصف؟ لا يمكن التراجع عن هذا الإجراء.",
+      "deleteCardPrompt": "هل أنت متأكد من أنك تريد حذف هذه البطاقة؟ لا يمكن التراجع عن هذا الإجراء.",
       "dragAndClick": "اسحب للتحريك، انقر لفتح القائمة",
       "insertRecordAbove": "أدخل السجل أعلاه",
-      "insertRecordBelow": "أدخل السجل أدناه"
+      "insertRecordBelow": "أدخل السجل أدناه",
+      "noContent": "لا يوجد محتوى",
+      "reorderRowDescription": "إعادة ترتيب الصف",
+      "createRowAboveDescription": "إنشاء صف أعلى",
+      "createRowBelowDescription": "أدخل صفًا أدناه"
     },
     "selectOption": {
       "create": "يخلق",
@@ -1562,12 +1596,53 @@
     },
     "url": {
       "launch": "فتح في المتصفح",
-      "copy": "إنسخ الرابط"
+      "copy": "إنسخ الرابط",
+      "textFieldHint": "أدخل عنوان URL",
+      "copiedNotification": "تمت نسخها إلى الحافظة!"
+    },
+    "relation": {
+      "relatedDatabasePlaceLabel": "قاعدة البيانات ذات الصلة",
+      "relatedDatabasePlaceholder": "لا أحد",
+      "inRelatedDatabase": "في",
+      "rowSearchTextFieldPlaceholder": "بحث",
+      "noDatabaseSelected": "لم يتم تحديد قاعدة بيانات، الرجاء تحديد قاعدة بيانات واحدة أولاً من القائمة أدناه:",
+      "emptySearchResult": "لم يتم العثور على أي سجلات",
+      "linkedRowListLabel": "{count} صفوف مرتبطة",
+      "unlinkedRowListLabel": "ربط صف آخر"
     },
     "menuName": "شبكة",
     "referencedGridPrefix": "نظرا ل",
+    "calculate": "احسب",
+    "calculationTypeLabel": {
+      "none": "لا أحد",
+      "average": "المعدل",
+      "max": "الحد الأقصى",
+      "median": "المتوسط",
+      "min": "الحد الأدنى",
+      "sum": "المجموع",
+      "count": "العدد",
+      "countEmpty": "عدد فارغ",
+      "countEmptyShort": "فارغ",
+      "countNonEmpty": "العدد ليس فارغا",
+      "countNonEmptyShort": "مملوء"
+    },
     "media": {
-      "downloadFailedToken": "فشل تنزيل الملف، الرمز المميز للمستخدم غير متوفر"
+      "rename": "إعادة تسمية",
+      "download": "التنزيل",
+      "expand": "توسيع",
+      "delete": "الحذف",
+      "moreFilesHint": "+{}",
+      "addFileOrImage": "إضافة ملف أو رابط",
+      "attachmentsHint": "{}",
+      "addFileMobile": "إضافة ملف",
+      "extraCount": "+{}",
+      "deleteFileDescription": "هل أنت متأكد من أنك تريد حذف هذا الملف؟ هذا الإجراء لا رجعة فيه.",
+      "showFileNames": "إظهار اسم الملف",
+      "downloadSuccess": "تم تنزيل الملف",
+      "downloadFailedToken": "فشل تنزيل الملف، الرمز المميز للمستخدم غير متوفر",
+      "setAsCover": "تعيين كغلاف",
+      "openInBrowser": "فتح في المتصفح",
+      "embedLink": "تضمين رابط الملف"
     }
   },
   "document": {
@@ -1576,6 +1651,7 @@
       "timeHintTextInTwelveHour": "01:00 مساءً",
       "timeHintTextInTwentyFourHour": "13:00"
     },
+    "creating": "جارٍ الإنشاء...",
     "slashMenu": {
       "board": {
         "selectABoardToLinkTo": "حدد لوحة للارتباط بها",
@@ -1591,6 +1667,26 @@
       },
       "document": {
         "selectADocumentToLinkTo": "حدد مستندًا للارتباط به"
+      },
+      "name": {
+        "text": "نص",
+        "heading1": "العنوان 1",
+        "heading2": "العنوان 2",
+        "heading3": "العنوان 3",
+        "image": "صورة",
+        "bulletedList": "قائمة نقطية",
+        "numberedList": "قائمة مرقمة",
+        "todoList": "قائمة المهام",
+        "doc": "وثيقة",
+        "linkedDoc": "رابط الصفحة",
+        "grid": "شبكة",
+        "linkedGrid": "الشبكة المرتبطة",
+        "kanban": "كانبان",
+        "linkedKanban": "كانبان مرتبط",
+        "calendar": "تقويم",
+        "linkedCalendar": "التقويم المرتبط",
+        "quote": "اقتباس",
+        "divider": "فاصل"
       }
     },
     "selectionMenu": {
