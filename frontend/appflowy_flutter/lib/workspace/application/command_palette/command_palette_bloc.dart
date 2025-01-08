@@ -129,31 +129,6 @@ class CommandPaletteBloc
     );
   }
 
-  List<SearchResultPB> _filterDuplicates(List<SearchResultPB> results) {
-    final currentItems = [...state.results];
-    final res = [...results];
-
-    for (final item in results) {
-      if (item.data.trim().isEmpty) {
-        continue;
-      }
-
-      final duplicateIndex = currentItems.indexWhere((a) => a.id == item.id);
-      if (duplicateIndex == -1) {
-        continue;
-      }
-
-      final duplicate = currentItems[duplicateIndex];
-      if (item.score < duplicate.score) {
-        res.remove(item);
-      } else {
-        currentItems.remove(duplicate);
-      }
-    }
-
-    return res..addAll(currentItems);
-  }
-
   void _performSearch(String value) =>
       add(CommandPaletteEvent.performSearch(search: value));
 
