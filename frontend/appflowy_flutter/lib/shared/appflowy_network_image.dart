@@ -25,6 +25,7 @@ class FlowyNetworkImage extends StatefulWidget {
     this.maxRetries = 3,
     this.retryDuration = const Duration(seconds: 6),
     this.retryErrorCodes = const {404},
+    this.onImageLoaded,
   });
 
   /// The URL of the image.
@@ -59,6 +60,8 @@ class FlowyNetworkImage extends StatefulWidget {
   /// Retry error codes.
   final Set<int> retryErrorCodes;
 
+  final void Function(bool isImageInCache)? onImageLoaded;
+
   @override
   FlowyNetworkImageState createState() => FlowyNetworkImageState();
 }
@@ -83,6 +86,14 @@ class FlowyNetworkImageState extends State<FlowyNetworkImage> {
     }
 
     retryTag = retryCounter.add(widget.url);
+
+    manager.getFileFromCache(widget.url).then((file) {
+      widget.onImageLoaded?.call(
+        file != null &&
+            file.file.path.isNotEmpty &&
+            file.originalUrl == widget.url,
+      );
+    });
   }
 
   @override

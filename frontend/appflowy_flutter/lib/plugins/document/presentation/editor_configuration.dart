@@ -591,10 +591,14 @@ CustomImageBlockComponentBuilder _buildCustomImageBlockComponentBuilder(
   return CustomImageBlockComponentBuilder(
     configuration: configuration,
     showMenu: true,
-    menuBuilder: (node, state) => Positioned(
+    menuBuilder: (node, state, imageStateNotifier) => Positioned(
       top: 10,
       right: 10,
-      child: ImageMenu(node: node, state: state),
+      child: ImageMenu(
+        node: node,
+        state: state,
+        imageStateNotifier: imageStateNotifier,
+      ),
     ),
   );
 }
