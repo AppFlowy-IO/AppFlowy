@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_more_actions.dart';
@@ -54,8 +55,7 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
                       .read<FolderBloc>()
                       .add(const FolderEvent.expandOrUnExpand()),
                 ),
-                // pages
-                ..._buildViews(context, state, isHovered),
+                buildReorderListView(context, state),
                 if (state.isExpanded) ...[
                   // more button
                   const VSpace(2),
@@ -69,49 +69,89 @@ class _FavoriteFolderState extends State<FavoriteFolder> {
     );
   }
 
-  Iterable<Widget> _buildViews(
+  Widget buildReorderListView(
     BuildContext context,
     FolderState state,
-    ValueNotifier<bool> isHovered,
   ) {
-    if (!state.isExpanded) {
-      return [];
+    if (!state.isExpanded) return const SizedBox.shrink();
+
+    final favoriteBloc = context.read<FavoriteBloc>();
+    final pinnedViews =
+        favoriteBloc.state.pinnedViews.map((e) => e.item).toList();
+
+    if (pinnedViews.isEmpty) return const SizedBox.shrink();
+    if (pinnedViews.length == 1) {
+      return buildViewItem(pinnedViews.first);
     }
 
-    final pinnedViews =
-        context.read<FavoriteBloc>().state.pinnedViews.map((e) => e.item);
-
-    return pinnedViews.map(
-      (view) => ViewItem(
-        key: ValueKey('${FolderSpaceType.favorite.name} ${view.id}'),
-        spaceType: FolderSpaceType.favorite,
-        isDraggable: false,
-        isFirstChild: view.id == widget.views.first.id,
-        isFeedback: false,
-        view: view,
-        enableRightClickContext: true,
-        leftPadding: HomeSpaceViewSizes.leftPadding,
-        leftIconBuilder: (_, __) =>
-            const HSpace(HomeSpaceViewSizes.leftPadding),
-        level: 0,
-        isHovered: isHovered,
-        rightIconsBuilder: (context, view) => [
-          FavoriteMoreActions(view: view),
-          const HSpace(8.0),
-          FavoritePinAction(view: view),
-          const HSpace(4.0),
-        ],
-        shouldRenderChildren: false,
-        shouldLoadChildViews: false,
-        onTertiarySelected: (_, view) => context.read<TabsBloc>().openTab(view),
-        onSelected: (_, view) {
-          if (HardwareKeyboard.instance.isControlPressed) {
-            context.read<TabsBloc>().openTab(view);
-          }
-
-          context.read<TabsBloc>().openPlugin(view);
+    return Theme(
+      data: Theme.of(context).copyWith(
+        canvasColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+      ),
+      child: ReorderableListView.builder(
+        shrinkWrap: true,
+        buildDefaultDragHandles: false,
+        itemCount: pinnedViews.length,
+        padding: EdgeInsets.zero,
+        physics: const NeverScrollableScrollPhysics(),
+        itemBuilder: (context, i) {
+          final view = pinnedViews[i];
+          return ReorderableDragStartListener(
+            key: ValueKey(view.id),
+            index: i,
+            child: DecoratedBox(
+              decoration: const BoxDecoration(color: Colors.transparent),
+              child: buildViewItem(view),
+            ),
+          );
+        },
+        onReorder: (oldIndex, newIndex) {
+          favoriteBloc.add(FavoriteEvent.reorder(oldIndex, newIndex));
         },
       ),
+    );
+  }
+
+  Widget buildViewItem(ViewPB view) {
+    return ViewItem(
+      key: ValueKey('${FolderSpaceType.favorite.name} ${view.id}'),
+      spaceType: FolderSpaceType.favorite,
+      isDraggable: false,
+      isFirstChild: view.id == widget.views.first.id,
+      isFeedback: false,
+      view: view,
+      enableRightClickContext: true,
+      leftPadding: HomeSpaceViewSizes.leftPadding,
+      leftIconBuilder: (_, __) => const HSpace(HomeSpaceViewSizes.leftPadding),
+      level: 0,
+      isHovered: isHovered,
+      rightIconsBuilder: (context, view) => [
+        Listener(
+          child: FavoriteMoreActions(view: view),
+          onPointerDown: (e) {
+            context.read<ViewBloc>().add(const ViewEvent.setIsEditing(true));
+          },
+        ),
+        const HSpace(8.0),
+        Listener(
+          child: FavoritePinAction(view: view),
+          onPointerDown: (e) {
+            context.read<ViewBloc>().add(const ViewEvent.setIsEditing(true));
+          },
+        ),
+        const HSpace(4.0),
+      ],
+      shouldRenderChildren: false,
+      shouldLoadChildViews: false,
+      onTertiarySelected: (_, view) => context.read<TabsBloc>().openTab(view),
+      onSelected: (_, view) {
+        if (HardwareKeyboard.instance.isControlPressed) {
+          context.read<TabsBloc>().openTab(view);
+        }
+
+        context.read<TabsBloc>().openPlugin(view);
+      },
     );
   }
 }

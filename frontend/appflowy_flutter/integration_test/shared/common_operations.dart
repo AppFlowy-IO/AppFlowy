@@ -19,6 +19,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/presentation/screens/screens.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_footer.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_new_page_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
@@ -597,6 +598,23 @@ extension CommonOperations on WidgetTester {
     }
     await gesture.moveTo(offset, timeStamp: const Duration(milliseconds: 400));
     await gesture.up();
+    await pumpAndSettle();
+  }
+
+  Future<void> reorderFavorite({
+    required String fromName,
+    required String toName,
+  }) async {
+    final from = find.descendant(
+          of: find.byType(FavoriteFolder),
+          matching: find.text(fromName),
+        ),
+        to = find.descendant(
+          of: find.byType(FavoriteFolder),
+          matching: find.text(toName),
+        );
+    final distanceY = getCenter(to).dy - getCenter(from).dx;
+    await drag(from, Offset(0, distanceY));
     await pumpAndSettle();
   }
 
