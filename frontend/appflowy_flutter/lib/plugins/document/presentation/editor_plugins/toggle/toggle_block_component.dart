@@ -287,7 +287,9 @@ class _ToggleListBlockComponentWidgetState
     }
 
     return Padding(
-      padding: indentPadding,
+      padding: UniversalPlatform.isMobile
+          ? const EdgeInsets.symmetric(horizontal: 26.0)
+          : indentPadding,
       child: FlowyButton(
         text: FlowyText(
           buildPlaceholderText(),
