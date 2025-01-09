@@ -282,9 +282,34 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
                   return ValueListenableBuilder(
                     valueListenable: isReorderingHitCellNotifier,
                     builder: (context, isReorderingHitCellNotifier, _) {
-                      return DecoratedBox(
-                        decoration: _buildDecoration(),
-                        child: child!,
+                      final previousCell = node.getPreviousCellInSameRow();
+                      return Stack(
+                        children: [
+                          DecoratedBox(
+                            decoration: _buildDecoration(),
+                            child: child!,
+                          ),
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            bottom: 0,
+                            child: SimpleTableColumnResizeHandle(
+                              node: node,
+                            ),
+                          ),
+                          if (node.columnIndex != 0 && previousCell != null)
+                            Positioned(
+                              left: 0,
+                              top: 0,
+                              bottom: 0,
+                              // pass the previous node to the resize handle
+                              // to make the resize handle work correctly
+                              child: SimpleTableColumnResizeHandle(
+                                node: previousCell,
+                                isPreviousCell: true,
+                              ),
+                            ),
+                        ],
                       );
                     },
                   );

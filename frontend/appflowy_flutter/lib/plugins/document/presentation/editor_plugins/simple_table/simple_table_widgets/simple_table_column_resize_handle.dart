@@ -3,15 +3,19 @@ import 'dart:ui';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class SimpleTableColumnResizeHandle extends StatefulWidget {
   const SimpleTableColumnResizeHandle({
     super.key,
     required this.node,
+    this.isPreviousCell = false,
   });
 
   final Node node;
+  final bool isPreviousCell;
 
   @override
   State<SimpleTableColumnResizeHandle> createState() =>
@@ -24,8 +28,17 @@ class _SimpleTableColumnResizeHandleState
 
   bool isStartDragging = false;
 
+  // record the previous position of the drag, only used on mobile
+  double previousDx = 0;
+
   @override
   Widget build(BuildContext context) {
+    return UniversalPlatform.isMobile
+        ? _buildMobileResizeHandle()
+        : _buildDesktopResizeHandle();
+  }
+
+  Widget _buildDesktopResizeHandle() {
     return MouseRegion(
       cursor: SystemMouseCursors.resizeColumn,
       onEnter: (_) => _onEnterHoverArea(),
@@ -56,6 +69,40 @@ class _SimpleTableColumnResizeHandleState
     );
   }
 
+  Widget _buildMobileResizeHandle() {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onLongPressStart: _onLongPressStart,
+      onLongPressMoveUpdate: _onLongPressMoveUpdate,
+      onLongPressEnd: _onLongPressEnd,
+      onLongPressCancel: _onLongPressCancel,
+      child: ValueListenableBuilder(
+        valueListenable: simpleTableContext.resizingCell,
+        builder: (context, resizingCell, child) {
+          final isSameColumnIndex =
+              widget.node.columnIndex == resizingCell?.columnIndex;
+          if (!isSameColumnIndex) {
+            return child!;
+          }
+          return Container(
+            width: 10,
+            alignment: !widget.isPreviousCell
+                ? Alignment.centerRight
+                : Alignment.centerLeft,
+            child: Container(
+              width: 2,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          );
+        },
+        child: Container(
+          width: 10,
+          color: Colors.transparent,
+        ),
+      ),
+    );
+  }
+
   void _onEnterHoverArea() {
     simpleTableContext.hoveringOnResizeHandle.value = widget.node;
   }
@@ -79,6 +126,13 @@ class _SimpleTableColumnResizeHandleState
     isStartDragging = true;
   }
 
+  void _onLongPressStart(LongPressStartDetails details) {
+    isStartDragging = true;
+    simpleTableContext.resizingCell.value = widget.node;
+
+    HapticFeedback.lightImpact();
+  }
+
   void _onHorizontalDragUpdate(DragUpdateDetails details) {
     if (!isStartDragging) {
       return;
@@ -90,6 +144,21 @@ class _SimpleTableColumnResizeHandleState
           tableCellNode: widget.node,
           deltaX: details.delta.dx,
         );
+  }
+
+  void _onLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
+    if (!isStartDragging) {
+      return;
+    }
+
+    // only update the column width in memory,
+    //  the actual update will be applied in _onHorizontalDragEnd
+    context.read<EditorState>().updateColumnWidthInMemory(
+          tableCellNode: widget.node,
+          deltaX: details.offsetFromOrigin.dx - previousDx,
+        );
+
+    previousDx = details.offsetFromOrigin.dx;
   }
 
   void _onHorizontalDragEnd(DragEndDetails details) {
@@ -105,5 +174,28 @@ class _SimpleTableColumnResizeHandleState
           tableCellNode: widget.node,
           width: widget.node.columnWidth,
         );
+  }
+
+  void _onLongPressEnd(LongPressEndDetails details) {
+    if (!isStartDragging) {
+      return;
+    }
+
+    isStartDragging = false;
+
+    // apply the updated column width
+    context.read<EditorState>().updateColumnWidth(
+          tableCellNode: widget.node,
+          width: widget.node.columnWidth,
+        );
+
+    previousDx = 0;
+
+    simpleTableContext.resizingCell.value = null;
+  }
+
+  void _onLongPressCancel() {
+    isStartDragging = false;
+    simpleTableContext.resizingCell.value = null;
   }
 }
