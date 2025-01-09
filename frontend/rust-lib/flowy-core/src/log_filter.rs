@@ -70,6 +70,7 @@ pub fn create_log_filter(
   // filters.push(format!("lib_dispatch={}", level));
 
   filters.push(format!("client_api={}", level));
+  filters.push(format!("infra={}", level));
   #[cfg(feature = "profiling")]
   filters.push(format!("tokio={}", level));
   #[cfg(feature = "profiling")]
