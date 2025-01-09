@@ -33,6 +33,7 @@ void main() {
     appearanceSettings =
         await UserSettingsBackendService().getAppearanceSetting();
     dateTimeSettings = await UserSettingsBackendService().getDateTimeSettings();
+    registerFallbackValue(AppFlowyTextDirection.ltr);
   });
 
   testWidgets('TextDirectionSelect update default text direction setting',
@@ -129,7 +130,7 @@ void main() {
 
     when(
       () => mockAppearanceSettingsBloc.setTextDirection(
-        any<AppFlowyTextDirection?>(),
+        any<AppFlowyTextDirection>(),
       ),
     ).thenAnswer((_) async => {});
     when(
@@ -146,7 +147,7 @@ void main() {
 
     verify(
       () => mockAppearanceSettingsBloc.setTextDirection(
-        any<AppFlowyTextDirection?>(),
+        any<AppFlowyTextDirection>(),
       ),
     ).called(1);
     verify(
