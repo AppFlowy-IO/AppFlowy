@@ -31,6 +31,7 @@ class AnswerStream {
         _onEnd?.call();
       },
       onError: (error) {
+        _error = error.toString();
         _onError?.call(error.toString());
       },
     );

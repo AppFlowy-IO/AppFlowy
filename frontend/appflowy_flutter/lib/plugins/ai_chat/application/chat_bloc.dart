@@ -169,7 +169,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             PredefinedFormat? format,
             Map<String, dynamic>? metadata,
           ) {
-            _clearErrorMessages();
+            _clearErrorMessages(emit);
             _clearRelatedQuestions();
             _startStreamingMessage(message, format, metadata);
             lastSentMessage = null;
@@ -265,6 +265,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             await AIEventUpdateChatSettings(payload)
                 .send()
                 .onFailure(Log.error);
+          },
+          deleteMessage: (mesesage) async {
+            await chatController.remove(mesesage);
           },
         );
       },
@@ -580,7 +583,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  void _clearErrorMessages() {
+  void _clearErrorMessages(Emitter<ChatState> emit) {
     final errorMessages = chatController.messages
         .where(
           (message) =>
@@ -592,6 +595,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     for (final message in errorMessages) {
       chatController.remove(message);
     }
+    emit(state.copyWith(clearErrorMessages: !state.clearErrorMessages));
   }
 
   void _clearRelatedQuestions() {
@@ -654,6 +658,8 @@ class ChatEvent with _$ChatEvent {
   const factory ChatEvent.didReceiveRelatedQuestions(
     List<String> questions,
   ) = _DidReceiveRelatedQueston;
+
+  const factory ChatEvent.deleteMessage(Message message) = _DeleteMessage;
 }
 
 @freezed
@@ -662,12 +668,14 @@ class ChatState with _$ChatState {
     required List<String> selectedSourceIds,
     required LoadChatMessageStatus loadingState,
     required PromptResponseState promptResponseState,
+    required bool clearErrorMessages,
   }) = _ChatState;
 
   factory ChatState.initial() => const ChatState(
         selectedSourceIds: [],
         loadingState: LoadChatMessageStatus.loading,
         promptResponseState: PromptResponseState.ready,
+        clearErrorMessages: false,
       );
 }
 
