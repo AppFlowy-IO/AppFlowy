@@ -109,10 +109,15 @@ class FlowyNetworkImageState extends State<FlowyNetworkImage> {
     if (error is HttpExceptionWithStatus &&
         error.statusCode == 404 &&
         retryCount < widget.maxRetries) {
-      return Container(
-        alignment: Alignment.center,
-        child: const CircularProgressIndicator(),
-      );
+      final fakeDownloadProgress = DownloadProgress(url, null, 0);
+      return widget.progressIndicatorBuilder?.call(
+            context,
+            url,
+            fakeDownloadProgress,
+          ) ??
+          const Center(
+            child: CircularProgressIndicator(),
+          );
     }
 
     // Default error widget behavior
