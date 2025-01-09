@@ -102,9 +102,16 @@ BlockComponentConfiguration _buildDefaultConfiguration(BuildContext context) {
 
       return const EdgeInsets.symmetric(vertical: 5.0);
     },
-    indentPadding: (node, textDirection) => textDirection == TextDirection.ltr
-        ? const EdgeInsets.only(left: 26.0)
-        : const EdgeInsets.only(right: 26.0),
+    indentPadding: (node, textDirection) {
+      double padding = 26.0;
+      // only add indent padding for the top level node to align the children
+      if (UniversalPlatform.isMobile && node.path.length == 1) {
+        padding += EditorStyleCustomizer.nodeHorizontalPadding;
+      }
+      return textDirection == TextDirection.ltr
+          ? EdgeInsets.only(left: padding)
+          : EdgeInsets.only(right: padding);
+    },
   );
   return configuration;
 }
