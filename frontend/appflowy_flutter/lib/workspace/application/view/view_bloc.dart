@@ -6,6 +6,7 @@ import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/expand_views.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_listener.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
@@ -24,12 +25,22 @@ import 'package:protobuf/protobuf.dart';
 part 'view_bloc.freezed.dart';
 
 class ViewBloc extends Bloc<ViewEvent, ViewState> {
-  ViewBloc({required this.view, this.shouldLoadChildViews = true})
-      : viewBackendSvc = ViewBackendService(),
+  ViewBloc({
+    required this.view,
+    this.shouldLoadChildViews = true,
+    this.engagedInExpanding = false,
+  })  : viewBackendSvc = ViewBackendService(),
         listener = ViewListener(viewId: view.id),
         favoriteListener = FavoriteListener(),
         super(ViewState.init(view)) {
     _dispatch();
+    if (engagedInExpanding) {
+      expander = ViewExpander(
+        () => state.isExpanded,
+        () => add(const ViewEvent.setIsExpanded(true)),
+      );
+      getIt<ViewExpanderRegistry>().register(view.id, expander);
+    }
   }
 
   final ViewPB view;
@@ -37,11 +48,16 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
   final ViewListener listener;
   final FavoriteListener favoriteListener;
   final bool shouldLoadChildViews;
+  final bool engagedInExpanding;
+  late ViewExpander expander;
 
   @override
   Future<void> close() async {
     await listener.stop();
     await favoriteListener.stop();
+    if (engagedInExpanding) {
+      getIt<ViewExpanderRegistry>().unregister(view.id, expander);
+    }
     return super.close();
   }
 

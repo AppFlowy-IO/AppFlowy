@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/startup/tasks/feature_flag_task.dart';
+import 'package:appflowy/util/expand_views.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
 import 'package:appflowy_backend/log.dart';
@@ -182,6 +183,7 @@ Future<void> initGetIt(
     },
   );
   getIt.registerSingleton<PluginSandbox>(PluginSandbox());
+  getIt.registerSingleton<ViewExpanderRegistry>(ViewExpanderRegistry());
 
   await DependencyResolver.resolve(getIt, mode);
 }
@@ -207,6 +209,7 @@ abstract class LaunchTask {
   LaunchTaskType get type => LaunchTaskType.dataProcessing;
 
   Future<void> initialize(LaunchContext context);
+
   Future<void> dispose();
 }
 
@@ -248,7 +251,9 @@ enum IntegrationMode {
 
   // test mode
   bool get isTest => isUnitTest || isIntegrationTest;
+
   bool get isUnitTest => this == IntegrationMode.unitTest;
+
   bool get isIntegrationTest => this == IntegrationMode.integrationTest;
 
   // release mode
