@@ -106,10 +106,13 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
             );
           }
         } else {
-          child = MobileBlockActionButtons(
-            node: node,
-            editorState: editorState,
-            child: child,
+          child = Padding(
+            padding: padding,
+            child: MobileBlockActionButtons(
+              node: node,
+              editorState: editorState,
+              child: child,
+            ),
           );
         }
 
@@ -170,7 +173,7 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
       constraints: const BoxConstraints(
         minHeight: 40.0,
       ),
-      padding: padding,
+      padding: UniversalPlatform.isMobile ? EdgeInsets.zero : padding,
       child: Container(
         padding: const EdgeInsets.symmetric(
           vertical: 2.0,
