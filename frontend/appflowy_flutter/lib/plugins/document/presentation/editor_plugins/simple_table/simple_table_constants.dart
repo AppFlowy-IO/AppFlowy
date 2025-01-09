@@ -86,6 +86,11 @@ class SimpleTableContext {
   /// This value is available on mobile only
   final ValueNotifier<int?> isReorderingHitIndex = ValueNotifier(null);
 
+  /// resizingCell is the cell that the user is resizing
+  ///
+  /// This value is available on mobile only
+  final ValueNotifier<Node?> resizingCell = ValueNotifier(null);
+
   /// Scroll controller for the table
   ScrollController? horizontalScrollController;
 
@@ -180,6 +185,7 @@ class SimpleTableContext {
     reorderingOffset.dispose();
     isEditingCell.dispose();
     isReorderingHitIndex.dispose();
+    resizingCell.dispose();
   }
 }
 

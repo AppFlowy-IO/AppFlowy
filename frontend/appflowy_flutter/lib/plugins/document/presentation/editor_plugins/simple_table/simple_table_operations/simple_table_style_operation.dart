@@ -15,11 +15,6 @@ extension TableOptionOperation on EditorState {
     required Node tableCellNode,
     required double deltaX,
   }) async {
-    // Disable in mobile
-    if (UniversalPlatform.isMobile) {
-      return;
-    }
-
     assert(tableCellNode.type == SimpleTableCellBlockKeys.type);
 
     if (tableCellNode.type != SimpleTableCellBlockKeys.type) {
@@ -65,11 +60,6 @@ extension TableOptionOperation on EditorState {
     required Node tableCellNode,
     required double width,
   }) async {
-    // Disable in mobile
-    if (UniversalPlatform.isMobile) {
-      return;
-    }
-
     assert(tableCellNode.type == SimpleTableCellBlockKeys.type);
 
     if (tableCellNode.type != SimpleTableCellBlockKeys.type) {
