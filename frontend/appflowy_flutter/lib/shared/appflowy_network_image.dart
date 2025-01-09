@@ -21,82 +21,106 @@ class FlowyNetworkImage extends StatefulWidget {
     this.progressIndicatorBuilder,
     this.errorWidgetBuilder,
     required this.url,
+    this.maxRetries = 3,
+    this.retryDuration = const Duration(seconds: 6),
   });
 
-  final UserProfilePB? userProfilePB;
+  /// The URL of the image.
   final String url;
+
+  /// The width of the image.
   final double? width;
+
+  /// The height of the image.
   final double? height;
+
+  /// The fit of the image.
   final BoxFit fit;
+
+  /// The user profile.
+  ///
+  /// If the userProfilePB is not null, the image will be downloaded with the access token.
+  final UserProfilePB? userProfilePB;
+
+  /// The progress indicator builder.
   final ProgressIndicatorBuilder? progressIndicatorBuilder;
+
+  /// The error widget builder.
   final LoadingErrorWidgetBuilder? errorWidgetBuilder;
+
+  /// Retry loading the image if it fails.
+  final int maxRetries;
+
+  /// Retry duration
+  final Duration retryDuration;
 
   @override
   FlowyNetworkImageState createState() => FlowyNetworkImageState();
 }
 
 class FlowyNetworkImageState extends State<FlowyNetworkImage> {
-  late final CustomImageCacheManager manager;
-  final int maxRetries = 3;
+  final manager = CustomImageCacheManager();
+
   int retryCount = 0;
 
   @override
   void initState() {
     super.initState();
-    manager = CustomImageCacheManager();
-  }
 
-  Future<void> retryLoadImage() async {
-    if (retryCount < maxRetries) {
-      retryCount++;
+    assert(isURL(widget.url));
 
-      Log.debug("Retry load image: ${widget.url}");
-      await Future.delayed(const Duration(seconds: 6)); 
-      if (mounted) {
-        setState(() {}); 
-      }
+    if (widget.url.isAppFlowyCloudUrl) {
+      assert(
+        widget.userProfilePB != null && widget.userProfilePB!.token.isNotEmpty,
+      );
     }
   }
 
   @override
+  void reassemble() {
+    super.reassemble();
+
+    retryCount = 0;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    assert(isURL(widget.url));
-
-    if (widget.url.isAppFlowyCloudUrl) {
-      assert(widget.userProfilePB != null &&
-          widget.userProfilePB!.token.isNotEmpty,);
-    }
-
     return CachedNetworkImage(
+      key: ValueKey('${widget.url}_$retryCount'),
       cacheManager: manager,
-      httpHeaders: _header(),
+      httpHeaders: _buildRequestHeader(),
       imageUrl: widget.url,
       fit: widget.fit,
       width: widget.width,
       height: widget.height,
       progressIndicatorBuilder: widget.progressIndicatorBuilder,
-      errorWidget: (context, url, error) {
-        if (error is HttpExceptionWithStatus && error.statusCode == 404) {
-          if (retryCount < maxRetries) {
-            retryLoadImage();
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        }
-
-        // Default error widget behavior
-        return widget.errorWidgetBuilder?.call(context, url, error) ??
-            const SizedBox.shrink();
-      },
+      errorWidget: _errorWidgetBuilder,
       errorListener: (value) async {
+        Log.error('Unable to load image: ${value.toString()}');
+
         await manager.removeFile(widget.url);
-        Log.error(value.toString());
+        _retryLoadImage();
       },
     );
   }
 
-  Map<String, String> _header() {
+  /// if the error is 404 and the retry count is less than the max retries, it return a loading indicator.
+  Widget _errorWidgetBuilder(BuildContext context, String url, Object error) {
+    if (error is HttpExceptionWithStatus &&
+        error.statusCode == 404 &&
+        retryCount < widget.maxRetries) {
+      return Container(
+        alignment: Alignment.center,
+        child: const CircularProgressIndicator(),
+      );
+    }
+
+    // Default error widget behavior
+    return widget.errorWidgetBuilder?.call(context, url, error) ??
+        const SizedBox.shrink();
+  }
+
+  Map<String, String> _buildRequestHeader() {
     final header = <String, String>{};
     final token = widget.userProfilePB?.token;
     if (token != null) {
@@ -110,4 +134,17 @@ class FlowyNetworkImageState extends State<FlowyNetworkImage> {
     return header;
   }
 
+  void _retryLoadImage() {
+    if (retryCount < widget.maxRetries) {
+      Log.debug('Retry load image: ${widget.url}, retry count: $retryCount');
+
+      Future.delayed(widget.retryDuration, () {
+        if (mounted) {
+          setState(() {
+            retryCount++;
+          });
+        }
+      });
+    }
+  }
 }
