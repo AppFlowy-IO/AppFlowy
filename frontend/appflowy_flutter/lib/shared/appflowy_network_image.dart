@@ -5,6 +5,7 @@ import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flowy_infra/uuid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:string_validator/string_validator.dart';
@@ -23,6 +24,7 @@ class FlowyNetworkImage extends StatefulWidget {
     required this.url,
     this.maxRetries = 3,
     this.retryDuration = const Duration(seconds: 6),
+    this.retryErrorCodes = const {404},
   });
 
   /// The URL of the image.
@@ -54,14 +56,19 @@ class FlowyNetworkImage extends StatefulWidget {
   /// Retry duration
   final Duration retryDuration;
 
+  /// Retry error codes.
+  final Set<int> retryErrorCodes;
+
   @override
   FlowyNetworkImageState createState() => FlowyNetworkImageState();
 }
 
 class FlowyNetworkImageState extends State<FlowyNetworkImage> {
   final manager = CustomImageCacheManager();
+  final retryCounter = _FlowyNetworkRetryCounter();
 
-  int retryCount = 0;
+  // This is used to clear the retry count when the widget is disposed in case of the url is the same.
+  String? retryTag;
 
   @override
   void initState() {
@@ -74,40 +81,63 @@ class FlowyNetworkImageState extends State<FlowyNetworkImage> {
         widget.userProfilePB != null && widget.userProfilePB!.token.isNotEmpty,
       );
     }
+
+    retryTag = retryCounter.add(widget.url);
   }
 
   @override
   void reassemble() {
     super.reassemble();
 
-    retryCount = 0;
+    if (retryTag != null) {
+      retryCounter.clear(retryTag!);
+    }
+  }
+
+  @override
+  void dispose() {
+    if (retryTag != null) {
+      retryCounter.clear(retryTag!);
+    }
+
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return CachedNetworkImage(
-      key: ValueKey('${widget.url}_$retryCount'),
-      cacheManager: manager,
-      httpHeaders: _buildRequestHeader(),
-      imageUrl: widget.url,
-      fit: widget.fit,
-      width: widget.width,
-      height: widget.height,
-      progressIndicatorBuilder: widget.progressIndicatorBuilder,
-      errorWidget: _errorWidgetBuilder,
-      errorListener: (value) async {
-        Log.error('Unable to load image: ${value.toString()}');
+    return ListenableBuilder(
+      listenable: retryCounter,
+      builder: (context, child) {
+        final retryCount = retryCounter.getRetryCount(widget.url);
+        return CachedNetworkImage(
+          key: ValueKey('${widget.url}_$retryCount'),
+          cacheManager: manager,
+          httpHeaders: _buildRequestHeader(),
+          imageUrl: widget.url,
+          fit: widget.fit,
+          width: widget.width,
+          height: widget.height,
+          progressIndicatorBuilder: widget.progressIndicatorBuilder,
+          errorWidget: _errorWidgetBuilder,
+          errorListener: (value) async {
+            Log.error(
+              'Unable to load image: ${value.toString()} - retryCount: $retryCount',
+            );
 
-        await manager.removeFile(widget.url);
-        _retryLoadImage();
+            // clear the cache and retry
+            await manager.removeFile(widget.url);
+            _retryLoadImage();
+          },
+        );
       },
     );
   }
 
   /// if the error is 404 and the retry count is less than the max retries, it return a loading indicator.
   Widget _errorWidgetBuilder(BuildContext context, String url, Object error) {
+    final retryCount = retryCounter.getRetryCount(url);
     if (error is HttpExceptionWithStatus &&
-        error.statusCode == 404 &&
+        widget.retryErrorCodes.contains(error.statusCode) &&
         retryCount < widget.maxRetries) {
       final fakeDownloadProgress = DownloadProgress(url, null, 0);
       return widget.progressIndicatorBuilder?.call(
@@ -120,7 +150,6 @@ class FlowyNetworkImageState extends State<FlowyNetworkImage> {
           );
     }
 
-    // Default error widget behavior
     return widget.errorWidgetBuilder?.call(context, url, error) ??
         const SizedBox.shrink();
   }
@@ -140,16 +169,59 @@ class FlowyNetworkImageState extends State<FlowyNetworkImage> {
   }
 
   void _retryLoadImage() {
+    final retryCount = retryCounter.getRetryCount(widget.url);
     if (retryCount < widget.maxRetries) {
-      Log.debug('Retry load image: ${widget.url}, retry count: $retryCount');
-
       Future.delayed(widget.retryDuration, () {
-        if (mounted) {
-          setState(() {
-            retryCount++;
-          });
-        }
+        Log.debug(
+          'Retry load image: ${widget.url}, retry count: $retryCount',
+        );
+        // Increment the retry count for the URL to trigger the image rebuild.
+        retryCounter.increment(widget.url);
       });
     }
+  }
+}
+
+/// This class is used to count the number of retries for a given URL.
+class _FlowyNetworkRetryCounter with ChangeNotifier {
+  _FlowyNetworkRetryCounter._();
+
+  factory _FlowyNetworkRetryCounter() => _instance;
+  static final _instance = _FlowyNetworkRetryCounter._();
+
+  final Map<String, int> _values = <String, int>{};
+  Map<String, int> get values => {..._values};
+
+  /// Get the retry count for a given URL.
+  int getRetryCount(String url) => _values[url] ?? 0;
+
+  /// Add a new URL to the retry counter. Don't call notifyListeners() here.
+  ///
+  /// This function will return a tag, use it to clear the retry count.
+  /// Because the url may be the same, we need to add a unique tag to the url.
+  String add(String url) {
+    _values.putIfAbsent(url, () => 0);
+    return url + uuid();
+  }
+
+  /// Increment the retry count for a given URL.
+  void increment(String url) {
+    final count = _values[url];
+    if (count == null) {
+      _values[url] = 1;
+    } else {
+      _values[url] = count + 1;
+    }
+    notifyListeners();
+  }
+
+  /// Clear the retry count for a given URL.
+  void clear(String tag) {
+    _values.remove(tag);
+  }
+
+  /// Reset the retry counter.
+  void reset() {
+    _values.clear();
   }
 }
