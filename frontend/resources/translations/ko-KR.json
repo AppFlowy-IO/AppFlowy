@@ -44,9 +44,11 @@
     "invalidEmail": "유효한 이메일 주소를 입력하세요",
     "alreadyHaveAnAccount": "이미 계정이 있나요?",
     "logIn": "로그인",
+    "generalError": "오류가 발생했습니다. 나중에 다시 시도하세요",
     "loginAsGuestButtonText": "시작하다"
   },
   "workspace": {
+    "defaultName": "내 워크스페이스",
     "create": "워크스페이스 생성",
     "hint": "워크스페이스",
     "notFoundError": "워크스페이스를 찾을 수 없습니다"
@@ -55,14 +57,35 @@
     "buttonText": "공유",
     "workInProgress": "Coming soon",
     "markdown": "마크다운",
-    "copyLink": "링크 복사"
+    "html": "HTML",
+    "clipboard": "클립보드에 복사",
+    "csv": "CSV",
+    "copyLink": "링크 복사",
+    "publishToTheWeb": "웹에 게시",
+    "publishToTheWebHint": "AppFlowy로 웹사이트 만들기",
+    "publish": "게시",
+    "unPublish": "게시 취소",
+    "visitSite": "사이트 방문",
+    "exportAsTab": "내보내기",
+    "publishTab": "게시",
+    "shareTab": "공유",
+    "publishOnAppFlowy": "AppFlowy에 게시",
+    "shareTabTitle": "협업 초대",
+    "shareTabDescription": "누구와도 쉽게 협업할 수 있습니다",
+    "copyLinkSuccess": "클립보드에 링크 복사",
+    "copyShareLink": "공유 링크 복사",
+    "copyLinkFailed": "클립보드에 링크를 복사하는 데 실패했습니다",
+    "copyLinkToBlockSuccess": "블록 링크를 클립보드에 복사했습니다",
+    "copyLinkToBlockFailed": "블록 링크를 클립보드에 복사하는 데 실패했습니다",
+    "manageAllSites": "모든 사이트 관리",
+    "updatePathName": "경로 이름 업데이트"
   },
   "moreAction": {
     "small": "작은",
     "medium": "중간",
     "large": "크기가 큰",
     "fontSize": "글꼴 크기",
-    "import": "수입",
+    "import": "가져오기",
     "moreOptions": "추가 옵션"
   },
   "importPanel": {
@@ -80,6 +103,9 @@
   },
   "blankPageTitle": "빈 페이지",
   "newPageText": "새로운 페이지",
+  "chat": {
+    "newChat": "AI 대화"
+  },
   "trash": {
     "text": "휴지통",
     "restoreAll": "모두 복구",
@@ -185,7 +211,8 @@
     "edit": "편집하다",
     "delete": "삭제",
     "duplicate": "복제하다",
-    "putback": "다시 집어 넣어"
+    "putback": "다시 집어 넣어",
+    "share": "공유"
   },
   "label": {
     "welcome": "환영합니다!",
@@ -209,6 +236,33 @@
   },
   "settings": {
     "title": "설정",
+    "accountPage": {
+      "general": {
+        "title": "사용자 이름 & 프로필 사진",
+        "changeProfilePicture": "프로필 사진 변경"
+      }
+    },
+    "aiPage": {
+      "keys": {
+        "localAILoaded": "로컬 AI 모델이 성공적으로 추가되어 사용할 준비가 되었습니다.",
+        "localAIStart": "로컬 AI 대화 시작중...",
+        "localAILoading": "로컬 AI 대화 모델 로딩중...",
+        "localAIStopped": "로컬 AI가 중단되었습니다",
+        "failToLoadLocalAI": "로컬 AI를 시작하지 못했습니다",
+        "restartLocalAI": "로컬 AI 재시작",
+        "disableLocalAIDescription": "로컬 AI를 비활성화하시겠습니까?"
+      }
+    },
+    "planPage": {
+      "planUsage": {
+        "aiOnDeviceToggle": "최고의 개인 정보 보호를 위한 로컬 AI"
+      }
+    },
+    "cancelSurveyDialog": {
+      "questionThree": {
+        "answerFour": "로컬 AI 모델에 대한 액세스"
+      }
+    },
     "menu": {
       "appearance": "화면",
       "language": "언어",
@@ -219,7 +273,7 @@
     "appearance": {
       "fontFamily": {
         "label": "글꼴 패밀리",
-        "search": "찾다"
+        "search": "검색"
       },
       "themeMode": {
         "label": "테마 모드",
@@ -412,7 +466,7 @@
     "referencedGridPrefix": "관점"
   },
   "document": {
-    "menuName": "도큐먼트",
+    "menuName": "문서",
     "date": {
       "timeHintTextInTwelveHour": "01:00 PM",
       "timeHintTextInTwentyFourHour": "13:00"
@@ -554,7 +608,7 @@
     "column": {
       "createNewCard": "추가"
     },
-    "menuName": "판자",
+    "menuName": "보드",
     "referencedBoardPrefix": "관점",
     "mobile": {
       "showGroup": "그룹 표시",
@@ -589,7 +643,7 @@
     "github": "GitHub에서 보기"
   },
   "search": {
-    "label": "찾다",
+    "label": "검색",
     "placeholder": {
       "actions": "검색 작업..."
     }
@@ -604,5 +658,33 @@
   "views": {
     "deleteContentTitle": "{pageType}을(를) 삭제하시겠습니까?",
     "deleteContentCaption": "이 {pageType}을(를) 삭제하면 휴지통에서 복원할 수 있습니다."
+  },
+  "newSettings": {
+    "myAccount": {
+      "deleteAccount": {
+        "dialogContent2": "이 작업은 실행 취소할 수 없으며 모든 작업 공간에서의 액세스가 제거되고, 개인 작업 공간을 포함한 전체 계정이 삭제되고, 모든 공유 작업 공간에서 제거됩니다."
+      }
+    }
+  },
+  "space": {
+    "createNewSpace": "새로운 스페이스 생성",
+    "defaultSpaceName": "일반"
+  },
+  "publish": {
+    "saveThisPage": "이 템플릿으로 시작"
+  },
+  "template": {
+    "deleteFromTemplate": "템플릿 목록에서 제거",
+    "relatedTemplates": "관련된 템플릿 목록",
+    "deleteTemplate": "템플릿 제거",
+    "removeRelatedTemplate": "관련된 템플릿 제거",
+    "label": "템플릿 목록"
+  },
+  "subscribe": {
+    "cancelPlan": {
+      "questionThree": {
+        "answerFour": "로컬 AI 모델에 대한 액세스"
+      }
+    }
   }
 }
