@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_urls_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/_restart_app_button.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/web_url_hint_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -153,6 +154,7 @@ class CustomAppFlowyCloudView extends StatelessWidget {
       create: (context) => AppFlowyCloudSettingBloc(setting)
         ..add(const AppFlowyCloudSettingEvent.initial()),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: children,
       ),
     );
@@ -178,8 +180,10 @@ class AppFlowyCloudURLs extends StatelessWidget {
         child: BlocBuilder<AppFlowyCloudURLsBloc, AppFlowyCloudURLsState>(
           builder: (context, state) {
             return Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 const AppFlowySelfHostTip(),
+                const VSpace(12),
                 CloudURLInput(
                   title: LocaleKeys.settings_menu_cloudURL.tr(),
                   url: state.config.base_url,
@@ -197,6 +201,7 @@ class AppFlowyCloudURLs extends StatelessWidget {
                   title: LocaleKeys.settings_menu_webURL.tr(),
                   url: state.config.base_web_domain,
                   hint: LocaleKeys.settings_menu_webURLHint.tr(),
+                  hintBuilder: (context) => const WebUrlHintWidget(),
                   onChanged: (text) {
                     context.read<AppFlowyCloudURLsBloc>().add(
                           AppFlowyCloudURLsEvent.updateBaseWebDomain(
@@ -205,7 +210,7 @@ class AppFlowyCloudURLs extends StatelessWidget {
                         );
                   },
                 ),
-                const VSpace(8),
+                const VSpace(12),
                 RestartButton(
                   onClick: () {
                     NavigatorAlertDialog(
@@ -274,12 +279,14 @@ class CloudURLInput extends StatefulWidget {
     required this.url,
     required this.hint,
     required this.onChanged,
+    this.hintBuilder,
   });
 
   final String title;
   final String url;
   final String hint;
-  final Function(String) onChanged;
+  final ValueChanged<String> onChanged;
+  final WidgetBuilder? hintBuilder;
 
   @override
   CloudURLInputState createState() => CloudURLInputState();
@@ -302,27 +309,55 @@ class CloudURLInputState extends State<CloudURLInput> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: _controller,
-      style: const TextStyle(fontSize: 12.0),
-      decoration: InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(vertical: 6),
-        labelText: widget.title,
-        labelStyle: Theme.of(context)
-            .textTheme
-            .titleMedium!
-            .copyWith(fontWeight: FontWeight.w400, fontSize: 16),
-        enabledBorder: UnderlineInputBorder(
-          borderSide:
-              BorderSide(color: AFThemeExtension.of(context).onBackground),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildHint(context),
+        SizedBox(
+          height: 28,
+          child: TextField(
+            controller: _controller,
+            style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
+            decoration: InputDecoration(
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: AFThemeExtension.of(context).onBackground,
+                ),
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              hintText: widget.hint,
+              errorText: context.read<AppFlowyCloudURLsBloc>().state.urlError,
+            ),
+            onChanged: widget.onChanged,
+          ),
         ),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
-        ),
-        hintText: widget.hint,
-        errorText: context.read<AppFlowyCloudURLsBloc>().state.urlError,
+      ],
+    );
+  }
+
+  Widget _buildHint(BuildContext context) {
+    final children = <Widget>[
+      FlowyText(
+        widget.title,
+        fontSize: 12,
       ),
-      onChanged: widget.onChanged,
+    ];
+
+    if (widget.hintBuilder != null) {
+      children.add(widget.hintBuilder!(context));
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: children,
     );
   }
 }

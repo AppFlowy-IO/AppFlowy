@@ -23,6 +23,7 @@ import 'package:appflowy/workspace/presentation/settings/widgets/feature_flags/f
 import 'package:appflowy/workspace/presentation/settings/widgets/members/workspace_member_page.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_notifications_view.dart';
+import 'package:appflowy/workspace/presentation/settings/widgets/web_url_hint_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -306,6 +307,7 @@ class _SelfHostSettingsState extends State<_SelfHostSettings> {
           textController: webUrlTextController,
           title: LocaleKeys.settings_menu_webURL.tr(),
           hintText: LocaleKeys.settings_menu_webURLHint.tr(),
+          hintBuilder: (context) => const WebUrlHintWidget(),
           onSave: (url) => _saveUrl(
             cloudUrl: cloudUrlTextController.text,
             webUrl: url,
@@ -544,6 +546,7 @@ class _SelfHostUrlField extends StatelessWidget {
     required this.hintText,
     required this.onSave,
     this.textFieldKey,
+    this.hintBuilder,
   });
 
   final TextEditingController textController;
@@ -551,6 +554,7 @@ class _SelfHostUrlField extends StatelessWidget {
   final String hintText;
   final ValueChanged<String> onSave;
   final Key? textFieldKey;
+  final WidgetBuilder? hintBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -558,7 +562,7 @@ class _SelfHostUrlField extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        FlowyText(title),
+        _buildHintWidget(context),
         const VSpace(6.0),
         SizedBox(
           height: 36,
@@ -574,6 +578,18 @@ class _SelfHostUrlField extends StatelessWidget {
             onEditingComplete: () => onSave(textController.text),
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildHintWidget(BuildContext context) {
+    return Row(
+      children: [
+        FlowyText(
+          title,
+          overflow: TextOverflow.ellipsis,
+        ),
+        hintBuilder?.call(context) ?? const SizedBox.shrink(),
       ],
     );
   }
