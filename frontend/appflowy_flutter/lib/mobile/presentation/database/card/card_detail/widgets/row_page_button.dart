@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/database/application/cell/cell_controller.dart'
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
@@ -116,6 +117,7 @@ class _OpenRowPageButtonState extends State<OpenRowPageButton> {
         addInRecent: false,
         showMoreButton: false,
         fixedTitle: fieldName,
+        tabs: [PickerTabType.emoji.name],
       );
     }
   }

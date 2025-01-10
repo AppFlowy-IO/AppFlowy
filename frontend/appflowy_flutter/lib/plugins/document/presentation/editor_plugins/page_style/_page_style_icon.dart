@@ -4,6 +4,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_icon_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_util.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -17,9 +18,11 @@ class PageStyleIcon extends StatefulWidget {
   const PageStyleIcon({
     super.key,
     required this.view,
+    required this.tabs,
   });
 
   final ViewPB view;
+  final List<PickerTabType> tabs;
 
   @override
   State<PageStyleIcon> createState() => _PageStyleIconState();
@@ -89,6 +92,7 @@ class _PageStyleIconState extends State<PageStyleIcon> {
           child: Expanded(
             child: FlowyIconEmojiPicker(
               initialType: icon.type.toPickerTabType(),
+              tabs: widget.tabs,
               onSelectedEmoji: (r) {
                 pageStyleIconBloc.add(
                   PageStyleIconEvent.updateIcon(r.data, true),
