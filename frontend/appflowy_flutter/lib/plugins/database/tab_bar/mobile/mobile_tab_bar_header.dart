@@ -1,17 +1,17 @@
-import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_transition_bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/view/database_view_list.dart';
-import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
+import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/setting/mobile_database_controls.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MobileTabBarHeader extends StatelessWidget {
@@ -142,14 +142,16 @@ class _DatabaseViewSelectorButton extends StatelessWidget {
   }
 
   Widget _buildViewIconButton(BuildContext context, ViewPB view) {
-    return view.icon.value.isNotEmpty
-        ? EmojiText(
-            emoji: view.icon.value,
-            fontSize: 16.0,
-          )
-        : SizedBox.square(
-            dimension: 16.0,
-            child: view.defaultIcon(),
-          );
+    final iconData = view.icon.toEmojiIconData();
+    if (iconData.isEmpty || iconData.type != FlowyIconType.icon) {
+      return SizedBox.square(
+        dimension: 16.0,
+        child: view.defaultIcon(),
+      );
+    }
+    return RawEmojiIconWidget(
+      emoji: iconData,
+      emojiSize: 16,
+    );
   }
 }
