@@ -1,11 +1,14 @@
 import 'dart:convert';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/custom_image_cache_manager.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/uuid.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:string_validator/string_validator.dart';
@@ -147,18 +150,25 @@ class FlowyNetworkImageState extends State<FlowyNetworkImage> {
   /// if the error is 404 and the retry count is less than the max retries, it return a loading indicator.
   Widget _errorWidgetBuilder(BuildContext context, String url, Object error) {
     final retryCount = retryCounter.getRetryCount(url);
-    if (error is HttpExceptionWithStatus &&
-        widget.retryErrorCodes.contains(error.statusCode) &&
-        retryCount < widget.maxRetries) {
-      final fakeDownloadProgress = DownloadProgress(url, null, 0);
-      return widget.progressIndicatorBuilder?.call(
-            context,
-            url,
-            fakeDownloadProgress,
-          ) ??
-          const Center(
-            child: CircularProgressIndicator(),
-          );
+    if (error is HttpExceptionWithStatus) {
+      if (widget.retryErrorCodes.contains(error.statusCode) &&
+          retryCount < widget.maxRetries) {
+        final fakeDownloadProgress = DownloadProgress(url, null, 0);
+        return widget.progressIndicatorBuilder?.call(
+              context,
+              url,
+              fakeDownloadProgress,
+            ) ??
+            const Center(
+              child: _SensitiveContent(),
+            );
+      }
+
+      if (error.statusCode == 422) {
+        // Unprocessable Entity: Used when the server understands the request but cannot process it due to
+        //semantic issues (e.g., sensitive keywords).
+        return const _SensitiveContent();
+      }
     }
 
     return widget.errorWidgetBuilder?.call(context, url, error) ??
@@ -234,5 +244,14 @@ class _FlowyNetworkRetryCounter with ChangeNotifier {
   /// Reset the retry counter.
   void reset() {
     _values.clear();
+  }
+}
+
+class _SensitiveContent extends StatelessWidget {
+  const _SensitiveContent();
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyText(LocaleKeys.ai_sensitiveKeyword.tr());
   }
 }
