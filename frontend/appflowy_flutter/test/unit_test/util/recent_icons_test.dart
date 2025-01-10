@@ -16,6 +16,12 @@ void main() {
     Log.shared.disableLog = true;
   });
 
+  bool equalIcon(RecentIcon a, RecentIcon b) =>
+      a.groupName == b.groupName &&
+      a.name == b.name &&
+      a.keywords.equals(b.keywords) &&
+      a.content == b.content;
+
   test('putEmoji', () async {
     List<String> emojiIds = await RecentIcons.getEmojiIds();
     assert(emojiIds.isEmpty);
@@ -55,12 +61,6 @@ void main() {
       localIcons.addAll(e.icons.map((e) => RecentIcon(e, e.name)).toList());
     }
 
-    bool equalIcon(RecentIcon a, RecentIcon b) =>
-        a.groupName == b.groupName &&
-        a.name == b.name &&
-        a.keywords.equals(b.keywords) &&
-        a.content == b.content;
-
     await RecentIcons.putIcon(localIcons.first);
     icons = await RecentIcons.getIcons();
     assert(icons.length == 1);
@@ -90,5 +90,27 @@ void main() {
         equalIcon(icons[RecentIcons.maxLength - i - 1], localIcons[10 + i]),
       );
     }
+  });
+
+  test('put without group name', () async {
+    RecentIcons.clear();
+    List<RecentIcon> icons = await RecentIcons.getIcons();
+    assert(icons.isEmpty);
+    await loadIconGroups();
+    final groups = kIconGroups!;
+    final List<RecentIcon> localIcons = [];
+    for (final e in groups) {
+      localIcons.addAll(e.icons.map((e) => RecentIcon(e, e.name)).toList());
+    }
+
+    await RecentIcons.putIcon(RecentIcon(localIcons.first.icon, ''));
+    icons = await RecentIcons.getIcons();
+    assert(icons.isEmpty);
+
+    await RecentIcons.putIcon(
+      RecentIcon(localIcons.first.icon, 'Test group name'),
+    );
+    icons = await RecentIcons.getIcons();
+    assert(icons.isNotEmpty);
   });
 }

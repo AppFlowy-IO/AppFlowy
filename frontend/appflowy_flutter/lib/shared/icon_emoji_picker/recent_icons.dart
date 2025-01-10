@@ -57,6 +57,12 @@ class RecentIcons {
     return [];
   }
 
+  @visibleForTesting
+  static void clear() {
+    _dataMap.clear();
+    getIt<KeyValueStorage>().set(KVKeys.recentIcons, jsonEncode({}));
+  }
+
   static Future<void> _save() async {
     await getIt<KeyValueStorage>().set(
       KVKeys.recentIcons,
