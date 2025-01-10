@@ -165,7 +165,9 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
               if (value == null) {
                 return;
               }
-              final color = generateRandomSpaceColor();
+              final color = widget.enableBackgroundColorSelection
+                  ? generateRandomSpaceColor()
+                  : null;
               widget.onSelectedIcon(
                 IconsData(
                   value.$1.name,
@@ -243,6 +245,8 @@ class IconsData {
       });
 
   EmojiIconData toEmojiIconData() => EmojiIconData.icon(this);
+
+  IconsData noColor() => IconsData(groupName, iconContent, iconName, null);
 
   static IconsData fromJson(dynamic json) {
     return IconsData(
