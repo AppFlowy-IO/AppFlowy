@@ -1,7 +1,9 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_field.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_result_tile.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -52,7 +54,7 @@ void main() {
     });
 
     testWidgets('select the content in document and search', (tester) async {
-      const firstDocument = 'new document';
+      const firstDocument = ''; // empty document
 
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
@@ -78,6 +80,11 @@ void main() {
 
       await tester.toggleCommandPalette();
       expect(find.byType(CommandPaletteModal), findsOneWidget);
+
+      expect(
+        find.text(LocaleKeys.menuAppHeader_defaultNewPageName.tr()),
+        findsOneWidget,
+      );
 
       expect(
         find.text(firstDocument),
