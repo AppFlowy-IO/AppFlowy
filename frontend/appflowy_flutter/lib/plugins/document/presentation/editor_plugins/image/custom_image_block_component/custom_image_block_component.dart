@@ -81,6 +81,7 @@ Node customImageNode({
 typedef CustomImageBlockComponentMenuBuilder = Widget Function(
   Node node,
   CustomImageBlockComponentState state,
+  ValueNotifier<ResizableImageState> imageStateNotifier,
 );
 
 class CustomImageBlockComponentBuilder extends BlockComponentBuilder {
@@ -149,6 +150,8 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
   late final editorState = Provider.of<EditorState>(context, listen: false);
 
   final showActionsNotifier = ValueNotifier<bool>(false);
+  final imageStateNotifier =
+      ValueNotifier<ResizableImageState>(ResizableImageState.loading);
 
   bool alwaysShowMenu = false;
 
@@ -185,6 +188,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
         editable: editorState.editable,
         alignment: alignment,
         type: imageType,
+        onStateChange: (state) => imageStateNotifier.value = state,
         onDoubleTap: () => showDialog(
           context: context,
           builder: (_) => InteractiveImageViewer(
@@ -260,7 +264,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
                     child: child!,
                   ),
                   if (value && url.isNotEmpty == true)
-                    widget.menuBuilder!(widget.node, this),
+                    widget.menuBuilder!(widget.node, this, imageStateNotifier),
                 ],
               );
             },

@@ -14,6 +14,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:string_validator/string_validator.dart';
 
+enum ResizableImageState {
+  loading,
+  loaded,
+  failed,
+}
+
 class ResizableImage extends StatefulWidget {
   const ResizableImage({
     super.key,
@@ -25,6 +31,7 @@ class ResizableImage extends StatefulWidget {
     required this.src,
     this.height,
     this.onDoubleTap,
+    this.onStateChange,
   });
 
   final String src;
@@ -34,6 +41,7 @@ class ResizableImage extends StatefulWidget {
   final Alignment alignment;
   final bool editable;
   final VoidCallback? onDoubleTap;
+  final ValueChanged<ResizableImageState>? onStateChange;
 
   final void Function(double width) onResize;
 
@@ -96,11 +104,29 @@ class _ResizableImageState extends State<ResizableImage> {
         url: widget.src,
         width: imageWidth - moveDistance,
         userProfilePB: _userProfilePB,
-        progressIndicatorBuilder: (context, _, __) => _buildLoading(context),
-        errorWidgetBuilder: (_, __, error) => _ImageLoadFailedWidget(
-          width: imageWidth,
-          error: error,
-        ),
+        onImageLoaded: (isImageInCache) {
+          if (isImageInCache) {
+            widget.onStateChange?.call(ResizableImageState.loaded);
+          }
+        },
+        progressIndicatorBuilder: (context, _, progress) {
+          if (progress.totalSize != null) {
+            if (progress.progress == 1) {
+              widget.onStateChange?.call(ResizableImageState.loaded);
+            } else {
+              widget.onStateChange?.call(ResizableImageState.loading);
+            }
+          }
+
+          return _buildLoading(context);
+        },
+        errorWidgetBuilder: (_, __, error) {
+          widget.onStateChange?.call(ResizableImageState.failed);
+          return _ImageLoadFailedWidget(
+            width: imageWidth,
+            error: error,
+          );
+        },
       );
 
       child = _cacheImage!;

@@ -3068,5 +3068,8 @@
         "answerFive": "Unsatisfied"
       }
     }
+  },
+  "ai":{
+    "sensitiveKeyword": "Image generation failed due to sensitive content. Please rephrase your input and try again"
   }
 }
