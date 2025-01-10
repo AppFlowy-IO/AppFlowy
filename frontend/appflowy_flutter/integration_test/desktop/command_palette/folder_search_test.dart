@@ -1,6 +1,7 @@
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_field.dart';
 import 'package:appflowy/workspace/presentation/command_palette/widgets/search_result_tile.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -48,6 +49,40 @@ void main() {
       final firstDocumentWidget = tester
           .widget(find.byType(SearchResultTile).first) as SearchResultTile;
       expect(firstDocumentWidget.result.data, firstDocument);
+    });
+
+    testWidgets('select the content in document and search', (tester) async {
+      const firstDocument = 'new document';
+
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.createNewPageWithNameUnderParent(name: firstDocument);
+      await tester.editor.updateSelection(
+        Selection(
+          start: Position(
+            path: [0],
+          ),
+          end: Position(
+            path: [0],
+            offset: 10,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byType(FloatingToolbar),
+        findsOneWidget,
+      );
+
+      await tester.toggleCommandPalette();
+      expect(find.byType(CommandPaletteModal), findsOneWidget);
+
+      expect(
+        find.text(firstDocument),
+        findsOneWidget,
+      );
     });
   });
 }
