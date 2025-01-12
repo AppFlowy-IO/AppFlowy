@@ -25,7 +25,7 @@ class FlowyNetworkImage extends StatefulWidget {
     this.progressIndicatorBuilder,
     this.errorWidgetBuilder,
     required this.url,
-    this.maxRetries = 3,
+    this.maxRetries = 5,
     this.retryDuration = const Duration(seconds: 6),
     this.retryErrorCodes = const {404},
     this.onImageLoaded,
@@ -252,6 +252,6 @@ class _SensitiveContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyText(LocaleKeys.ai_sensitiveKeyword.tr());
+    return FlowyText(LocaleKeys.ai_contentPolicyViolation.tr());
   }
 }

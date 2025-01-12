@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appflowy/ai/ai_client.dart';
 import 'package:appflowy/ai/error.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
@@ -90,7 +91,11 @@ class AskAIActionBloc extends Bloc<AskAIEvent, AskAIState> {
     }
 
     final content = node.attributes[AskAIBlockKeys.content] as String;
+    final documentBloc =
+        editorState.document.root.context?.read<DocumentBloc>();
+    final documentId = documentBloc?.documentId;
     await aiRepository.streamCompletion(
+      objectId: documentId,
       text: content,
       completionType: completionTypeFromInt(state.action),
       onStart: () async {

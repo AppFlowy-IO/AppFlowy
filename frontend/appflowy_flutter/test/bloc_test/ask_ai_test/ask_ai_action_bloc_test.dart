@@ -16,6 +16,7 @@ const _aiResponse = 'UPDATED:';
 class _MockAIRepository extends Mock implements AIRepository {
   @override
   Future<void> streamCompletion({
+    String? objectId,
     required String text,
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
@@ -35,6 +36,7 @@ class _MockAIRepository extends Mock implements AIRepository {
 class _MockAIRepositoryLess extends Mock implements AIRepository {
   @override
   Future<void> streamCompletion({
+    String? objectId,
     required String text,
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
@@ -52,6 +54,7 @@ class _MockAIRepositoryLess extends Mock implements AIRepository {
 class _MockAIRepositoryMore extends Mock implements AIRepository {
   @override
   Future<void> streamCompletion({
+    String? objectId,
     required String text,
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
@@ -71,6 +74,7 @@ class _MockAIRepositoryMore extends Mock implements AIRepository {
 class _MockErrorRepository extends Mock implements AIRepository {
   @override
   Future<void> streamCompletion({
+    String? objectId,
     required String text,
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,

@@ -18,6 +18,7 @@ abstract class AIRepository {
   });
 
   Future<void> streamCompletion({
+    String? objectId,
     required String text,
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
