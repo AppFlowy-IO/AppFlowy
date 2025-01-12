@@ -62,17 +62,30 @@ fn delete_existing_workspaces(uid: i64, conn: &mut SqliteConnection) -> Result<(
   Ok(())
 }
 
-pub fn insert_new_workspaces_op(
+pub fn insert_or_update_workspaces_op(
   uid: i64,
   user_workspaces: &[UserWorkspace],
   conn: &mut SqliteConnection,
 ) -> Result<(), FlowyError> {
   for user_workspace in user_workspaces {
     let new_record = UserWorkspaceTable::try_from((uid, user_workspace))?;
+
     diesel::insert_into(user_workspace_table::table)
-      .values(new_record)
+      .values(&new_record)
+      .on_conflict(user_workspace_table::id)
+      .do_update()
+      .set((
+        user_workspace_table::name.eq(new_record.name),
+        user_workspace_table::uid.eq(new_record.uid),
+        user_workspace_table::created_at.eq(new_record.created_at),
+        user_workspace_table::database_storage_id.eq(new_record.database_storage_id),
+        user_workspace_table::icon.eq(new_record.icon),
+        user_workspace_table::member_count.eq(new_record.member_count),
+        user_workspace_table::role.eq(new_record.role),
+      ))
       .execute(conn)?;
   }
+
   Ok(())
 }
 
