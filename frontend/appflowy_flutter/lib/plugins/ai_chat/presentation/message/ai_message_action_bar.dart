@@ -301,7 +301,7 @@ class _ChangeFormatPopoverContent extends StatefulWidget {
 
 class _ChangeFormatPopoverContentState
     extends State<_ChangeFormatPopoverContent> {
-  PredefinedFormat predefinedFormat = const PredefinedFormat.auto();
+  PredefinedFormat? predefinedFormat;
 
   @override
   Widget build(BuildContext context) {
@@ -362,7 +362,10 @@ class _ChangeFormatPopoverContentState
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () => widget.onRegenerate?.call(predefinedFormat),
+                onTap: () {
+                  widget.onRegenerate
+                      ?.call(predefinedFormat ?? const PredefinedFormat.auto());
+                },
                 child: SizedBox.square(
                   dimension: DesktopAIPromptSizes.predefinedFormatButtonHeight,
                   child: Center(

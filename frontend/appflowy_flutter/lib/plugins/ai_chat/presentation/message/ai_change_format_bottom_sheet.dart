@@ -28,7 +28,7 @@ class _ChangeFormatBottomSheetContent extends StatefulWidget {
 
 class _ChangeFormatBottomSheetContentState
     extends State<_ChangeFormatBottomSheetContent> {
-  PredefinedFormat predefinedFormat = const PredefinedFormat.auto();
+  PredefinedFormat? predefinedFormat;
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +106,7 @@ class _Body extends StatelessWidget {
     required this.onSelectPredefinedFormat,
   });
 
-  final PredefinedFormat predefinedFormat;
+  final PredefinedFormat? predefinedFormat;
   final void Function(PredefinedFormat) onSelectPredefinedFormat;
 
   @override
@@ -119,7 +119,7 @@ class _Body extends StatelessWidget {
         _buildFormatButton(ImageFormat.image),
         const VSpace(32.0),
         Opacity(
-          opacity: predefinedFormat.imageFormat.hasText ? 1 : 0,
+          opacity: predefinedFormat?.imageFormat.hasText ?? true ? 1 : 0,
           child: Column(
             children: [
               _buildTextFormatButton(TextFormat.auto, true),
@@ -139,7 +139,7 @@ class _Body extends StatelessWidget {
   ]) {
     return FlowyOptionTile.checkbox(
       text: format.i18n,
-      isSelected: format == predefinedFormat.imageFormat,
+      isSelected: format == predefinedFormat?.imageFormat,
       showTopBorder: isFirst,
       leftIcon: FlowySvg(
         format.icon,
@@ -148,11 +148,12 @@ class _Body extends StatelessWidget {
             : const Size.square(20),
       ),
       onTap: () {
-        if (format == predefinedFormat.imageFormat) {
+        if (predefinedFormat != null &&
+            format == predefinedFormat!.imageFormat) {
           return;
         }
         if (format.hasText) {
-          final textFormat = predefinedFormat.textFormat ?? TextFormat.auto;
+          final textFormat = predefinedFormat?.textFormat ?? TextFormat.auto;
           onSelectPredefinedFormat(
             PredefinedFormat(imageFormat: format, textFormat: textFormat),
           );
@@ -171,19 +172,20 @@ class _Body extends StatelessWidget {
   ]) {
     return FlowyOptionTile.checkbox(
       text: format.i18n,
-      isSelected: format == predefinedFormat.textFormat,
+      isSelected: format == predefinedFormat?.textFormat,
       showTopBorder: isFirst,
       leftIcon: FlowySvg(
         format.icon,
         size: const Size.square(20),
       ),
       onTap: () {
-        if (format == predefinedFormat.textFormat) {
+        if (predefinedFormat != null &&
+            format == predefinedFormat!.textFormat) {
           return;
         }
         onSelectPredefinedFormat(
           PredefinedFormat(
-            imageFormat: predefinedFormat.imageFormat,
+            imageFormat: predefinedFormat?.imageFormat ?? ImageFormat.text,
             textFormat: format,
           ),
         );

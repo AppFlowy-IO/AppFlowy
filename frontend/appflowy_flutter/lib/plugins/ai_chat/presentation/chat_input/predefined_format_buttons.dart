@@ -24,49 +24,24 @@ class PromptInputDesktopToggleFormatButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        height: DesktopAIPromptSizes.actionBarButtonSize,
-        child: FlowyHover(
-          style: const HoverStyle(
-            borderRadius: BorderRadius.all(Radius.circular(8.0)),
-          ),
-          child: Padding(
-            padding: const EdgeInsetsDirectional.all(6.0),
-            child: FlowyText(
-              _getDescription(),
-              fontSize: 12.0,
-              figmaLineHeight: 16.0,
+    return FlowyIconButton(
+      tooltipText: showFormatBar
+          ? LocaleKeys.chat_changeFormat_defaultDescription.tr()
+          : LocaleKeys.chat_changeFormat_blankDescription.tr(),
+      width: 28.0,
+      onPressed: onTap,
+      icon: showFormatBar
+          ? const FlowySvg(
+              FlowySvgs.m_aa_text_s,
+              size: Size.square(16.0),
+              color: Color(0xFF666D76),
+            )
+          : const FlowySvg(
+              FlowySvgs.ai_text_image_s,
+              size: Size(21.0, 16.0),
+              color: Color(0xFF666D76),
             ),
-          ),
-        ),
-      ),
     );
-  }
-
-  String _getDescription() {
-    if (!showFormatBar) {
-      return LocaleKeys.chat_changeFormat_blankDescription.tr();
-    }
-
-    return switch ((predefinedFormat, predefinedTextFormat)) {
-      (ImageFormat.image, _) => predefinedFormat.i18n,
-      (ImageFormat.text, TextFormat.auto) =>
-        LocaleKeys.chat_changeFormat_defaultDescription.tr(),
-      (ImageFormat.text, _) when predefinedTextFormat != null =>
-        predefinedTextFormat!.i18n,
-      (ImageFormat.textAndImage, TextFormat.auto) =>
-        LocaleKeys.chat_changeFormat_textWithImageDescription.tr(),
-      (ImageFormat.textAndImage, TextFormat.bulletList) =>
-        LocaleKeys.chat_changeFormat_bulletWithImageDescription.tr(),
-      (ImageFormat.textAndImage, TextFormat.numberedList) =>
-        LocaleKeys.chat_changeFormat_numberWithImageDescription.tr(),
-      (ImageFormat.textAndImage, TextFormat.table) =>
-        LocaleKeys.chat_changeFormat_tableWithImageDescription.tr(),
-      _ => throw UnimplementedError(),
-    };
   }
 }
 
@@ -80,7 +55,7 @@ class ChangeFormatBar extends StatelessWidget {
     required this.onSelectPredefinedFormat,
   });
 
-  final PredefinedFormat predefinedFormat;
+  final PredefinedFormat? predefinedFormat;
   final double buttonSize;
   final double iconSize;
   final double spacing;
@@ -97,7 +72,7 @@ class ChangeFormatBar extends StatelessWidget {
           _buildFormatButton(context, ImageFormat.text),
           _buildFormatButton(context, ImageFormat.textAndImage),
           _buildFormatButton(context, ImageFormat.image),
-          if (predefinedFormat.imageFormat.hasText) ...[
+          if (predefinedFormat?.imageFormat.hasText ?? true) ...[
             _buildDivider(),
             _buildTextFormatButton(context, TextFormat.auto),
             _buildTextFormatButton(context, TextFormat.bulletList),
@@ -113,11 +88,12 @@ class ChangeFormatBar extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        if (format == predefinedFormat.imageFormat) {
+        if (predefinedFormat != null &&
+            format == predefinedFormat!.imageFormat) {
           return;
         }
         if (format.hasText) {
-          final textFormat = predefinedFormat.textFormat ?? TextFormat.auto;
+          final textFormat = predefinedFormat?.textFormat ?? TextFormat.auto;
           onSelectPredefinedFormat(
             PredefinedFormat(imageFormat: format, textFormat: textFormat),
           );
@@ -132,7 +108,7 @@ class ChangeFormatBar extends StatelessWidget {
         child: SizedBox.square(
           dimension: buttonSize,
           child: FlowyHover(
-            isSelected: () => format == predefinedFormat.imageFormat,
+            isSelected: () => format == predefinedFormat?.imageFormat,
             child: Center(
               child: FlowySvg(
                 format.icon,
@@ -162,12 +138,13 @@ class ChangeFormatBar extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        if (format == predefinedFormat.textFormat) {
+        if (predefinedFormat != null &&
+            format == predefinedFormat!.textFormat) {
           return;
         }
         onSelectPredefinedFormat(
           PredefinedFormat(
-            imageFormat: predefinedFormat.imageFormat,
+            imageFormat: predefinedFormat?.imageFormat ?? ImageFormat.text,
             textFormat: format,
           ),
         );
@@ -177,7 +154,7 @@ class ChangeFormatBar extends StatelessWidget {
         child: SizedBox.square(
           dimension: buttonSize,
           child: FlowyHover(
-            isSelected: () => format == predefinedFormat.textFormat,
+            isSelected: () => format == predefinedFormat?.textFormat,
             child: Center(
               child: FlowySvg(
                 format.icon,
@@ -211,8 +188,8 @@ class PromptInputMobileToggleFormatButton extends StatelessWidget {
         expandText: false,
         text: showFormatBar
             ? const FlowySvg(
-                FlowySvgs.ai_text_auto_s,
-                size: Size.square(24.0),
+                FlowySvgs.m_aa_text_s,
+                size: Size.square(20.0),
               )
             : const FlowySvg(
                 FlowySvgs.ai_text_image_s,
