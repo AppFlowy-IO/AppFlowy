@@ -146,28 +146,30 @@ class _HomePageButton extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        AppFlowyPopover(
-          direction: PopoverDirection.bottomWithCenterAligned,
-          constraints: const BoxConstraints(
-            maxWidth: 260,
-            maxHeight: 345,
+        Flexible(
+          child: AppFlowyPopover(
+            direction: PopoverDirection.bottomWithCenterAligned,
+            constraints: const BoxConstraints(
+              maxWidth: 260,
+              maxHeight: 345,
+            ),
+            margin: const EdgeInsets.symmetric(
+              horizontal: 14.0,
+              vertical: 12.0,
+            ),
+            popupBuilder: (_) {
+              final bloc = context.read<SettingsSitesBloc>();
+              return BlocProvider.value(
+                value: bloc,
+                child: SelectHomePageMenu(
+                  userProfile: bloc.user,
+                  workspaceId: bloc.workspaceId,
+                  onSelected: (view) {},
+                ),
+              );
+            },
+            child: child,
           ),
-          margin: const EdgeInsets.symmetric(
-            horizontal: 14.0,
-            vertical: 12.0,
-          ),
-          popupBuilder: (_) {
-            final bloc = context.read<SettingsSitesBloc>();
-            return BlocProvider.value(
-              value: bloc,
-              child: SelectHomePageMenu(
-                userProfile: bloc.user,
-                workspaceId: bloc.workspaceId,
-                onSelected: (view) {},
-              ),
-            );
-          },
-          child: child,
         ),
         if (homePageView != null)
           FlowyTooltip(
