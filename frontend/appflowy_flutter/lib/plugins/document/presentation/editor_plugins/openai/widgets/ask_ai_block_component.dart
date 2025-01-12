@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/ai/ai_client.dart';
 import 'package:appflowy/ai/error.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ai_limit_dialog.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_action.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_action_bloc.dart';
@@ -98,7 +99,12 @@ class _AskAIBlockComponentWidgetState extends State<AskAIBlockComponentWidget> {
       popoverController.show();
     });
 
+    final objectId =
+        editorState.document.root.context?.read<DocumentBloc>().documentId ??
+            "";
+
     askAIBloc = AskAIActionBloc(
+      objectId: objectId,
       node: widget.node,
       editorState: editorState,
       action: action,

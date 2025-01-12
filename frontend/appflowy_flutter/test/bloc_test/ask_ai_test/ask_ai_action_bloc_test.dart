@@ -16,6 +16,7 @@ const _aiResponse = 'UPDATED:';
 class _MockAIRepository extends Mock implements AIRepository {
   @override
   Future<void> streamCompletion({
+    String? objectId,
     required String text,
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
@@ -35,6 +36,7 @@ class _MockAIRepository extends Mock implements AIRepository {
 class _MockAIRepositoryLess extends Mock implements AIRepository {
   @override
   Future<void> streamCompletion({
+    String? objectId,
     required String text,
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
@@ -52,6 +54,7 @@ class _MockAIRepositoryLess extends Mock implements AIRepository {
 class _MockAIRepositoryMore extends Mock implements AIRepository {
   @override
   Future<void> streamCompletion({
+    String? objectId,
     required String text,
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
@@ -71,6 +74,7 @@ class _MockAIRepositoryMore extends Mock implements AIRepository {
 class _MockErrorRepository extends Mock implements AIRepository {
   @override
   Future<void> streamCompletion({
+    String? objectId,
     required String text,
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
@@ -118,6 +122,7 @@ void main() {
           content: [text1, text2, text3].join('\n'),
         );
         return AskAIActionBloc(
+          objectId: "",
           node: node,
           editorState: editorState,
           action: AskAIAction.makeItLonger,
@@ -167,6 +172,7 @@ void main() {
           content: [text1, text2, text3].join('\n'),
         );
         return AskAIActionBloc(
+          objectId: "",
           node: node,
           editorState: editorState,
           action: AskAIAction.makeItLonger,
@@ -213,6 +219,7 @@ void main() {
         content: [text1, text2, text3].join('\n\n'),
       );
       final bloc = AskAIActionBloc(
+        objectId: "",
         node: node,
         editorState: editorState,
         action: AskAIAction.summarize,
@@ -260,6 +267,7 @@ void main() {
         content: [text1, text2, text3].join('\n'),
       );
       final bloc = AskAIActionBloc(
+        objectId: "",
         node: node,
         editorState: editorState,
         action: AskAIAction.summarize,
@@ -299,6 +307,7 @@ void main() {
         content: [text1, text2, text3].join('\n'),
       );
       final bloc = AskAIActionBloc(
+        objectId: "",
         node: node,
         editorState: editorState,
         action: AskAIAction.summarize,
