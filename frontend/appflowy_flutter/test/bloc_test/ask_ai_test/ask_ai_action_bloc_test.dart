@@ -122,6 +122,7 @@ void main() {
           content: [text1, text2, text3].join('\n'),
         );
         return AskAIActionBloc(
+          objectId: "",
           node: node,
           editorState: editorState,
           action: AskAIAction.makeItLonger,
@@ -171,6 +172,7 @@ void main() {
           content: [text1, text2, text3].join('\n'),
         );
         return AskAIActionBloc(
+          objectId: "",
           node: node,
           editorState: editorState,
           action: AskAIAction.makeItLonger,
@@ -217,6 +219,7 @@ void main() {
         content: [text1, text2, text3].join('\n\n'),
       );
       final bloc = AskAIActionBloc(
+        objectId: "",
         node: node,
         editorState: editorState,
         action: AskAIAction.summarize,
@@ -264,6 +267,7 @@ void main() {
         content: [text1, text2, text3].join('\n'),
       );
       final bloc = AskAIActionBloc(
+        objectId: "",
         node: node,
         editorState: editorState,
         action: AskAIAction.summarize,
@@ -303,6 +307,7 @@ void main() {
         content: [text1, text2, text3].join('\n'),
       );
       final bloc = AskAIActionBloc(
+        objectId: "",
         node: node,
         editorState: editorState,
         action: AskAIAction.summarize,

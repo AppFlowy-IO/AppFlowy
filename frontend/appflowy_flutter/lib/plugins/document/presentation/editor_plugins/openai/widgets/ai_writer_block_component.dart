@@ -224,11 +224,12 @@ class _AIWriterBlockComponentState extends State<AIWriterBlockComponent> {
     BarrierDialog? barrierDialog;
 
     final aiRepository = AppFlowyAIService();
-    final documentBloc =
-        editorState.document.root.context?.read<DocumentBloc>();
-    final documentId = documentBloc?.documentId;
+    final objectId =
+        editorState.document.root.context?.read<DocumentBloc>().documentId ??
+            "";
+
     await aiRepository.streamCompletion(
-      objectId: documentId,
+      objectId: objectId,
       text: controller.text,
       completionType: CompletionTypePB.ContinueWriting,
       onStart: () async {
@@ -292,11 +293,11 @@ class _AIWriterBlockComponentState extends State<AIWriterBlockComponent> {
       editorState: editorState,
     );
     final aiService = AppFlowyAIService();
-    final documentBloc =
-        editorState.document.root.context?.read<DocumentBloc>();
-    final documentId = documentBloc?.documentId;
+    final objectId =
+        editorState.document.root.context?.read<DocumentBloc>().documentId ??
+            "";
     await aiService.streamCompletion(
-      objectId: documentId,
+      objectId: objectId,
       text: AIWriterBlockKeys.getRewritePrompt(previousOutput, prompt),
       completionType: CompletionTypePB.ContinueWriting,
       onStart: () async {
