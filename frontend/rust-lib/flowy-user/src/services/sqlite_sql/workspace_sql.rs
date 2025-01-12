@@ -48,7 +48,7 @@ pub fn save_user_workspaces_op(
 ) -> Result<(), FlowyError> {
   conn.immediate_transaction(|conn| {
     delete_existing_workspaces(uid, conn)?;
-    insert_new_workspaces_op(uid, user_workspaces, conn)?;
+    insert_or_update_workspaces_op(uid, user_workspaces, conn)?;
     Ok(())
   })
 }
@@ -71,7 +71,7 @@ pub fn insert_or_update_workspaces_op(
     let new_record = UserWorkspaceTable::try_from((uid, user_workspace))?;
 
     diesel::insert_into(user_workspace_table::table)
-      .values(&new_record)
+      .values(new_record.clone())
       .on_conflict(user_workspace_table::id)
       .do_update()
       .set((
