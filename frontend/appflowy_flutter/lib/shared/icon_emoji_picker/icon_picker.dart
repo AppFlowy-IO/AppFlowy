@@ -115,18 +115,22 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
     final localIcons = await loadIconGroups();
     final recentIcons = await RecentIcons.getIcons();
     if (recentIcons.isNotEmpty) {
-      iconGroups.add(
-        IconGroup(
-          name: _kRecentIconGroupName,
-          icons: recentIcons
-              .sublist(
-                0,
-                min(recentIcons.length, widget.iconPerLine),
-              )
-              .map((e) => e.icon)
-              .toList(),
-        ),
-      );
+      final filterRecentIcons = recentIcons
+          .sublist(
+            0,
+            min(recentIcons.length, widget.iconPerLine),
+          )
+          .skipWhile((e) => e.groupName.isEmpty)
+          .map((e) => e.icon)
+          .toList();
+      if (filterRecentIcons.isNotEmpty) {
+        iconGroups.add(
+          IconGroup(
+            name: _kRecentIconGroupName,
+            icons: filterRecentIcons,
+          ),
+        );
+      }
     }
     iconGroups.addAll(localIcons);
     if (mounted) {
