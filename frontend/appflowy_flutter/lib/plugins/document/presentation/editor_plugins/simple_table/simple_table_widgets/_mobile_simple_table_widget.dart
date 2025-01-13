@@ -13,6 +13,7 @@ class MobileSimpleTableWidget extends StatefulWidget {
     this.enableAddColumnAndRowButton = true,
     this.enableHoverEffect = true,
     this.isFeedback = false,
+    this.alwaysDistributeColumnWidths = false,
   });
 
   /// Refer to [SimpleTableWidget.node].
@@ -35,6 +36,9 @@ class MobileSimpleTableWidget extends StatefulWidget {
 
   /// Refer to [SimpleTableWidget.isFeedback].
   final bool isFeedback;
+
+  /// Refer to [SimpleTableWidget.alwaysDistributeColumnWidths].
+  final bool alwaysDistributeColumnWidths;
 
   @override
   State<MobileSimpleTableWidget> createState() =>
