@@ -2567,7 +2567,7 @@
     "image": "Image"
   },
   "commandPalette": {
-    "placeholder": "Type to search...",
+    "placeholder": "Search or ask a question...",
     "bestMatches": "Best matches",
     "recentHistory": "Recent history",
     "navigateHint": "to navigate",

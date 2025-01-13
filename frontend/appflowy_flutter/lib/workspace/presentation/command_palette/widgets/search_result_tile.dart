@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/command_palette/search_result_ext.dart';
@@ -12,6 +10,8 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class SearchResultTile extends StatefulWidget {
   const SearchResultTile({
@@ -42,6 +42,9 @@ class _SearchResultTileState extends State<SearchResultTile> {
 
   @override
   Widget build(BuildContext context) {
+    final title = widget.result.data.orDefault(
+      LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+    );
     final icon = widget.result.getIcon();
     final cleanedPreview = _cleanPreview(widget.result.preview);
 
@@ -89,6 +92,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
               children: [
                 Row(
                   children: [
+                    // page icon
                     if (icon != null) ...[
                       SizedBox(width: 24, child: icon),
                       const HSpace(6),
@@ -97,6 +101,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // if the result is trashed, show a hint
                           if (widget.isTrashed) ...[
                             FlowyText(
                               LocaleKeys.commandPalette_fromTrashHint.tr(),
@@ -106,8 +111,9 @@ class _SearchResultTileState extends State<SearchResultTile> {
                               fontSize: 10,
                             ),
                           ],
+                          // page title
                           FlowyText(
-                            widget.result.data,
+                            title,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
@@ -115,6 +121,7 @@ class _SearchResultTileState extends State<SearchResultTile> {
                     ),
                   ],
                 ),
+                // content preview
                 if (cleanedPreview.isNotEmpty) ...[
                   const VSpace(4),
                   _DocumentPreview(preview: cleanedPreview),
