@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy_backend/protobuf/flowy-search/result.pb.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 
 extension GetIcon on SearchResultPB {
@@ -9,14 +10,11 @@ extension GetIcon on SearchResultPB {
     final iconValue = icon.value, iconType = icon.ty;
     if (iconType == ResultIconTypePB.Emoji) {
       return iconValue.isNotEmpty
-          ? Text(
-              iconValue,
-              style: const TextStyle(fontSize: 18.0),
-            )
+          ? FlowyText.emoji(iconValue, fontSize: 18)
           : null;
     } else if (icon.ty == ResultIconTypePB.Icon) {
       if (_resultIconValueTypes.contains(iconValue)) {
-        return FlowySvg(icon.getViewSvg(), size: const Size.square(20));
+        return FlowySvg(icon.getViewSvg(), size: const Size.square(18));
       }
       return RawEmojiIconWidget(
         emoji: EmojiIconData(iconType.toFlowyIconType(), icon.value),
