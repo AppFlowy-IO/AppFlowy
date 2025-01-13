@@ -98,6 +98,11 @@ class _DesktopSimpleTableWidgetState extends State<DesktopSimpleTableWidget> {
     );
 
     if (widget.alwaysDistributeColumnWidths) {
+      child = Padding(
+        padding: SimpleTableConstants.tablePadding,
+        child: child,
+      );
+    } else {
       child = Scrollbar(
         controller: scrollController,
         child: SingleChildScrollView(
@@ -105,15 +110,10 @@ class _DesktopSimpleTableWidgetState extends State<DesktopSimpleTableWidget> {
           scrollDirection: Axis.horizontal,
           child: Padding(
             padding: SimpleTableConstants.tablePadding,
-            child: child,
+            // IntrinsicWidth is used to make the table size fit the content.
+            child: IntrinsicWidth(child: child),
           ),
         ),
-      );
-    } else {
-      child = Padding(
-        padding: SimpleTableConstants.tablePadding,
-        // IntrinsicWidth is used to make the table size fit the content.
-        child: IntrinsicWidth(child: child),
       );
     }
 
