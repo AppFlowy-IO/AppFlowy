@@ -361,6 +361,12 @@ pub struct CompleteTextPB {
 
   #[pb(index = 3)]
   pub stream_port: i64,
+
+  #[pb(index = 4)]
+  pub object_id: String,
+
+  #[pb(index = 5)]
+  pub rag_ids: Vec<String>,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]

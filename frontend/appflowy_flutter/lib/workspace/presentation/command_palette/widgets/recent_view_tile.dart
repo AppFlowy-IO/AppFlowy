@@ -1,12 +1,11 @@
-import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 
 class RecentViewTile extends StatelessWidget {
   const RecentViewTile({
@@ -28,7 +27,10 @@ class RecentViewTile extends StatelessWidget {
         children: [
           icon,
           const HSpace(6),
-          FlowyText(view.nameOrDefault),
+          FlowyText(
+            view.nameOrDefault,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
       focusColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
