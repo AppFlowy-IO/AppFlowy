@@ -97,6 +97,8 @@ impl EventIntegrationTest {
       text: text.to_string(),
       completion_type,
       stream_port: 0,
+      object_id: "".to_string(),
+      rag_ids: vec![],
     };
     EventBuilder::new(self.clone())
       .event(AIEvent::CompleteText)

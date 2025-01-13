@@ -3,7 +3,9 @@ use crate::entities::{CompleteTextPB, CompleteTextTaskPB, CompletionTypePB};
 use allo_isolate::Isolate;
 
 use dashmap::DashMap;
-use flowy_ai_pub::cloud::{ChatCloudService, CompletionType};
+use flowy_ai_pub::cloud::{
+  ChatCloudService, CompleteTextParams, CompletionMetadata, CompletionType,
+};
 use flowy_error::{FlowyError, FlowyResult};
 
 use futures::{SinkExt, StreamExt};
@@ -11,6 +13,7 @@ use lib_infra::isolate_stream::IsolateSink;
 
 use std::sync::{Arc, Weak};
 use tokio::select;
+use tracing::info;
 
 pub struct AICompletion {
   tasks: Arc<DashMap<String, tokio::sync::mpsc::Sender<()>>>,
@@ -95,8 +98,19 @@ impl CompletionTask {
         };
 
         let _ = sink.send("start:".to_string()).await;
+        let params = CompleteTextParams {
+          text: self.context.text,
+          completion_type: Some(complete_type),
+          custom_prompt: None,
+          metadata: Some(CompletionMetadata {
+            object_id: self.context.object_id,
+            rag_ids: Some(self.context.rag_ids),
+          }),
+        };
+
+        info!("start completion: {:?}", params);
         match cloud_service
-          .stream_complete(&self.workspace_id, &self.context.text, complete_type)
+          .stream_complete(&self.workspace_id, params)
           .await
         {
           Ok(mut stream) => loop {

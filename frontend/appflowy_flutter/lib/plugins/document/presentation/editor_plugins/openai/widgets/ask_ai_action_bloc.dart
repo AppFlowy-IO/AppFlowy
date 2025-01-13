@@ -25,6 +25,7 @@ class AskAIActionBloc extends Bloc<AskAIEvent, AskAIState> {
     required this.node,
     required this.editorState,
     required this.action,
+    required this.objectId,
     this.enableLogging = true,
   }) : super(
           AskAIState.initial(action),
@@ -73,6 +74,7 @@ class AskAIActionBloc extends Bloc<AskAIEvent, AskAIState> {
   // used to wait for the aiRepository to be initialized
   final aiRepositoryCompleter = Completer();
   late final AIRepository aiRepository;
+  final String objectId;
 
   bool isCanceled = false;
 
@@ -91,6 +93,7 @@ class AskAIActionBloc extends Bloc<AskAIEvent, AskAIState> {
 
     final content = node.attributes[AskAIBlockKeys.content] as String;
     await aiRepository.streamCompletion(
+      objectId: objectId,
       text: content,
       completionType: completionTypeFromInt(state.action),
       onStart: () async {

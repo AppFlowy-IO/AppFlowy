@@ -40,6 +40,7 @@ class AppFlowyAIService implements AIRepository {
 
   @override
   Future<CompletionStream> streamCompletion({
+    String? objectId,
     required String text,
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
@@ -53,10 +54,17 @@ class AppFlowyAIService implements AIRepository {
       onEnd,
       onError,
     );
+    final List<String> ragIds = [];
+    if (objectId != null) {
+      ragIds.add(objectId);
+    }
+
     final payload = CompleteTextPB(
       text: text,
       completionType: completionType,
       streamPort: fixnum.Int64(stream.nativePort),
+      objectId: objectId ?? "",
+      ragIds: ragIds,
     );
 
     // ignore: unawaited_futures

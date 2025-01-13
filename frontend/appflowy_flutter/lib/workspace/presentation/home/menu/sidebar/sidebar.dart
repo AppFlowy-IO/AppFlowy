@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
+import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/shared/loading.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -469,7 +470,11 @@ class _SidebarSearchButton extends StatelessWidget {
         ],
       ),
       child: FlowyButton(
-        onTap: () => CommandPalette.of(context).toggle(),
+        onTap: () {
+          // exit editing mode when doing search to avoid the toolbar showing up
+          EditorNotification.exitEditing().post();
+          CommandPalette.of(context).toggle();
+        },
         leftIcon: const FlowySvg(FlowySvgs.search_s),
         iconPadding: 12.0,
         margin: const EdgeInsets.only(left: 8.0),
