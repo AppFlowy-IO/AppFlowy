@@ -10,7 +10,7 @@ use std::collections::HashMap;
 
 use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
-  CompletionType, LocalAIConfig, MessageCursor, RelatedQuestion, RepeatedChatMessage,
+  CompleteTextParams, LocalAIConfig, MessageCursor, RelatedQuestion, RepeatedChatMessage,
   RepeatedRelatedQuestion, ResponseFormat, StreamAnswer, StreamComplete, SubscriptionPlan,
   UpdateChatParams,
 };
@@ -272,13 +272,12 @@ impl ChatCloudService for AICloudServiceMiddleware {
   async fn stream_complete(
     &self,
     workspace_id: &str,
-    text: &str,
-    complete_type: CompletionType,
+    params: CompleteTextParams,
   ) -> Result<StreamComplete, FlowyError> {
     if self.local_llm_controller.is_running() {
       match self
         .local_llm_controller
-        .complete_text(text, complete_type as u8)
+        .complete_text(&params.text, params.completion_type.unwrap() as u8)
         .await
       {
         Ok(stream) => Ok(
@@ -294,7 +293,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
     } else {
       self
         .cloud_service
-        .stream_complete(workspace_id, text, complete_type)
+        .stream_complete(workspace_id, params)
         .await
     }
   }

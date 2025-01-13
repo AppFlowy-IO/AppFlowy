@@ -33,7 +33,8 @@ use crate::services::sqlite_sql::member_sql::{
 };
 use crate::services::sqlite_sql::user_sql::UserTableChangeset;
 use crate::services::sqlite_sql::workspace_sql::{
-  get_all_user_workspace_op, get_user_workspace_op, insert_new_workspaces_op, UserWorkspaceTable,
+  get_all_user_workspace_op, get_user_workspace_op, insert_or_update_workspaces_op,
+  UserWorkspaceTable,
 };
 use crate::user_manager::{upsert_user_profile_change, UserManager};
 use flowy_user_pub::session::Session;
@@ -214,7 +215,7 @@ impl UserManager {
     // save the workspace to sqlite db
     let uid = self.user_id()?;
     let mut conn = self.db_connection(uid)?;
-    insert_new_workspaces_op(uid, &[new_workspace.clone()], &mut conn)?;
+    insert_or_update_workspaces_op(uid, &[new_workspace.clone()], &mut conn)?;
     Ok(new_workspace)
   }
 

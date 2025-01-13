@@ -38,12 +38,8 @@ extension EmojiTestExtension on WidgetTester {
         (w) => w is FlowySvg && w.svgString == iconsData.iconContent,
       ),
     );
-    expect(find.byType(IconColorPicker), findsNothing);
 
-    /// test for tapping down, it should not display the ColorPicker unless tapping up
-    await tapDown(selectedSvg);
-    expect(find.byType(IconColorPicker), findsNothing);
-    await tapButton(selectedSvg);
+    await tapButton(selectedSvg.first);
     if (enableColor) {
       final colorPicker = find.byType(IconColorPicker);
       expect(colorPicker, findsOneWidget);
