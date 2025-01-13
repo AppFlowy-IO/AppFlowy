@@ -2,7 +2,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.dart';
-import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:extended_text_field/extended_text_field.dart';
@@ -269,11 +268,7 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
               AIType.appflowyAI => LocaleKeys.chat_inputMessageHint.tr(),
               AIType.localAI => LocaleKeys.chat_inputLocalAIMessageHint.tr()
             },
-            hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).isLightMode
-                      ? const Color(0xFFBDC2C8)
-                      : const Color(0xFF3C3E51),
-                ),
+            hintStyle: AIChatUILayout.inputHintTextStyle(context),
             isCollapsed: true,
             isDense: true,
           ),
