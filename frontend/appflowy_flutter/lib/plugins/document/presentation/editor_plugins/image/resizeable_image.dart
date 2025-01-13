@@ -2,12 +2,14 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -125,6 +127,12 @@ class _ResizableImageState extends State<ResizableImage> {
           return _ImageLoadFailedWidget(
             width: imageWidth,
             error: error,
+            onRetry: () {
+              setState(() {
+                final retryCounter = FlowyNetworkRetryCounter();
+                retryCounter.clear(tag: src, url: src);
+              });
+            },
           );
         },
       );
@@ -236,19 +244,24 @@ class _ResizableImageState extends State<ResizableImage> {
 }
 
 class _ImageLoadFailedWidget extends StatelessWidget {
-  const _ImageLoadFailedWidget({required this.width, required this.error});
+  const _ImageLoadFailedWidget({
+    required this.width,
+    required this.error,
+    required this.onRetry,
+  });
 
   final double width;
   final Object error;
+  final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
     final error = _getErrorMessage();
     return Container(
-      height: 140,
+      height: 160,
       width: width,
       alignment: Alignment.center,
-      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(4.0)),
         border: Border.all(color: Colors.grey.withOpacity(0.6)),
@@ -258,10 +271,13 @@ class _ImageLoadFailedWidget extends StatelessWidget {
         children: [
           const FlowySvg(
             FlowySvgs.broken_image_xl,
-            size: Size.square(48),
+            size: Size.square(36),
           ),
-          FlowyText(AppFlowyEditorL10n.current.imageLoadFailed),
-          const VSpace(6),
+          FlowyText(
+            AppFlowyEditorL10n.current.imageLoadFailed,
+            fontSize: 14,
+          ),
+          const VSpace(4),
           if (error != null)
             FlowyText(
               error,
@@ -270,6 +286,11 @@ class _ImageLoadFailedWidget extends StatelessWidget {
               fontSize: 10,
               maxLines: 2,
             ),
+          const VSpace(12),
+          OutlinedRoundedButton(
+            text: LocaleKeys.chat_retry.tr(),
+            onTap: onRetry,
+          ),
         ],
       ),
     );

@@ -136,7 +136,7 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
     RecentIcons.getEmojiIds().then((v) {
       if (v.isEmpty) {
         emojiData = data;
-        setState(() => loaded = true);
+        if (mounted) setState(() => loaded = true);
         return;
       }
       final categories = List.of(data.categories);
@@ -148,7 +148,7 @@ class _FlowyEmojiPickerState extends State<FlowyEmojiPicker> {
         ),
       );
       emojiData = EmojiData(categories: categories, emojis: data.emojis);
-      setState(() => loaded = true);
+      if (mounted) setState(() => loaded = true);
     });
   }
 }
