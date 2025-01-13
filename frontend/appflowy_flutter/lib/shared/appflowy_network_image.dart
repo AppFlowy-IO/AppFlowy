@@ -71,7 +71,7 @@ class FlowyNetworkImage extends StatefulWidget {
 
 class FlowyNetworkImageState extends State<FlowyNetworkImage> {
   final manager = CustomImageCacheManager();
-  final retryCounter = _FlowyNetworkRetryCounter();
+  final retryCounter = FlowyNetworkRetryCounter();
 
   // This is used to clear the retry count when the widget is disposed in case of the url is the same.
   String? retryTag;
@@ -104,14 +104,22 @@ class FlowyNetworkImageState extends State<FlowyNetworkImage> {
     super.reassemble();
 
     if (retryTag != null) {
-      retryCounter.clear(retryTag!);
+      retryCounter.clear(
+        tag: retryTag!,
+        url: widget.url,
+        maxRetries: widget.maxRetries,
+      );
     }
   }
 
   @override
   void dispose() {
     if (retryTag != null) {
-      retryCounter.clear(retryTag!);
+      retryCounter.clear(
+        tag: retryTag!,
+        url: widget.url,
+        maxRetries: widget.maxRetries,
+      );
     }
 
     super.dispose();
@@ -204,11 +212,12 @@ class FlowyNetworkImageState extends State<FlowyNetworkImage> {
 }
 
 /// This class is used to count the number of retries for a given URL.
-class _FlowyNetworkRetryCounter with ChangeNotifier {
-  _FlowyNetworkRetryCounter._();
+@visibleForTesting
+class FlowyNetworkRetryCounter with ChangeNotifier {
+  FlowyNetworkRetryCounter._();
 
-  factory _FlowyNetworkRetryCounter() => _instance;
-  static final _instance = _FlowyNetworkRetryCounter._();
+  factory FlowyNetworkRetryCounter() => _instance;
+  static final _instance = FlowyNetworkRetryCounter._();
 
   final Map<String, int> _values = <String, int>{};
   Map<String, int> get values => {..._values};
@@ -236,9 +245,18 @@ class _FlowyNetworkRetryCounter with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Clear the retry count for a given URL.
-  void clear(String tag) {
+  /// Clear the retry count for a given tag.
+  void clear({
+    required String tag,
+    required String url,
+    required int maxRetries,
+  }) {
     _values.remove(tag);
+
+    final retryCount = _values[url];
+    if (retryCount != null && retryCount >= maxRetries) {
+      _values.remove(url);
+    }
   }
 
   /// Reset the retry counter.
