@@ -13,6 +13,7 @@ class DesktopSimpleTableWidget extends StatefulWidget {
     this.enableAddColumnAndRowButton = true,
     this.enableHoverEffect = true,
     this.isFeedback = false,
+    this.alwaysDistributeColumnWidths = false,
   });
 
   /// Refer to [SimpleTableWidget.node].
@@ -35,6 +36,9 @@ class DesktopSimpleTableWidget extends StatefulWidget {
 
   /// Refer to [SimpleTableWidget.isFeedback].
   final bool isFeedback;
+
+  /// Refer to [SimpleTableWidget.alwaysDistributeColumnWidths].
+  final bool alwaysDistributeColumnWidths;
 
   @override
   State<DesktopSimpleTableWidget> createState() =>
@@ -84,26 +88,28 @@ class _DesktopSimpleTableWidgetState extends State<DesktopSimpleTableWidget> {
 
   Widget _buildDesktopTable() {
     // table content
-    Widget child = Scrollbar(
-      controller: scrollController,
-      child: SingleChildScrollView(
-        controller: scrollController,
-        scrollDirection: Axis.horizontal,
-        child: Padding(
-          padding: SimpleTableConstants.tablePadding,
-          // IntrinsicWidth and IntrinsicHeight are used to make the table size fit the content.
-          child: IntrinsicWidth(
-            child: IntrinsicHeight(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: _buildRows(),
-              ),
-            ),
-          ),
+    Widget child = Padding(
+      padding: SimpleTableConstants.tablePadding,
+      // IntrinsicWidth and IntrinsicHeight are used to make the table size fit the content.
+      child: IntrinsicHeight(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: _buildRows(),
         ),
       ),
     );
+
+    if (widget.alwaysDistributeColumnWidths) {
+      child = Scrollbar(
+        controller: scrollController,
+        child: SingleChildScrollView(
+          controller: scrollController,
+          scrollDirection: Axis.horizontal,
+          child: child,
+        ),
+      );
+    }
 
     if (widget.enableHoverEffect) {
       child = MouseRegion(
