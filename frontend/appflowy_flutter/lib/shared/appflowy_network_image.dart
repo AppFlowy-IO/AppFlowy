@@ -249,12 +249,13 @@ class FlowyNetworkRetryCounter with ChangeNotifier {
   void clear({
     required String tag,
     required String url,
-    required int maxRetries,
+    int? maxRetries,
   }) {
     _values.remove(tag);
 
     final retryCount = _values[url];
-    if (retryCount != null && retryCount >= maxRetries) {
+    if (maxRetries == null ||
+        (retryCount != null && retryCount >= maxRetries)) {
       _values.remove(url);
     }
   }
