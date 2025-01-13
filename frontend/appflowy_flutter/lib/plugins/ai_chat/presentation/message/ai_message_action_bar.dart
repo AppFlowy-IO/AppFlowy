@@ -470,7 +470,9 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
           final documentId = getOpenedDocumentId();
           if (documentId != null) {
             await onAddToExistingPage(context, documentId);
-            await forceReloadAndUpdateSelection(documentId);
+            await forceReload(documentId);
+            await Future.delayed(const Duration(milliseconds: 500));
+            await updateSelection(documentId);
           } else {
             widget.onOverrideVisibility?.call(true);
             if (spaceView != null) {
@@ -500,6 +502,8 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
           if (context.mounted) {
             openPageFromMessage(context, view);
           }
+          await Future.delayed(const Duration(milliseconds: 500));
+          await updateSelection(documentId);
         },
       ),
     );
@@ -568,14 +572,20 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
     );
   }
 
-  Future<void> forceReloadAndUpdateSelection(String documentId) async {
+  Future<void> forceReload(String documentId) async {
     final bloc = DocumentBloc.findOpen(documentId);
     if (bloc == null) {
       return;
     }
     await bloc.forceReloadDocumentState();
-    await Future.delayed(const Duration(milliseconds: 500));
+  }
 
+  Future<void> updateSelection(String documentId) async {
+    final bloc = DocumentBloc.findOpen(documentId);
+    if (bloc == null) {
+      return;
+    }
+    await bloc.forceReloadDocumentState();
     final editorState = bloc.state.editorState;
     final lastNodePath = editorState?.getLastSelectable()?.$1.path;
     if (editorState == null || lastNodePath == null) {
