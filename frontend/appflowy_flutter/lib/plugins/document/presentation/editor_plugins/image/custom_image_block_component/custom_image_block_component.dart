@@ -255,14 +255,17 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
               final url = node.attributes[CustomImageBlockKeys.url];
               return Stack(
                 children: [
-                  BlockSelectionContainer(
-                    node: node,
-                    delegate: this,
-                    listenable: editorState.selectionNotifier,
-                    cursorColor: editorState.editorStyle.cursorColor,
-                    selectionColor: editorState.editorStyle.selectionColor,
-                    child: child!,
-                  ),
+                  editorState.editable
+                      ? BlockSelectionContainer(
+                          node: node,
+                          delegate: this,
+                          listenable: editorState.selectionNotifier,
+                          cursorColor: editorState.editorStyle.cursorColor,
+                          selectionColor:
+                              editorState.editorStyle.selectionColor,
+                          child: child!,
+                        )
+                      : child!,
                   if (value && url.isNotEmpty == true)
                     widget.menuBuilder!(widget.node, this, imageStateNotifier),
                 ],
