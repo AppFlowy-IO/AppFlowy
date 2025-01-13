@@ -16,6 +16,7 @@ class SimpleTableWidget extends StatefulWidget {
     this.enableAddColumnAndRowButton = true,
     this.enableHoverEffect = true,
     this.isFeedback = false,
+    this.alwaysDistributeColumnWidths = false,
   });
 
   /// The node of the table.
@@ -49,6 +50,9 @@ class SimpleTableWidget extends StatefulWidget {
   /// Whether the widget is a feedback widget.
   final bool isFeedback;
 
+  /// Whether the columns should ignore their widths and fill available space
+  final bool alwaysDistributeColumnWidths;
+
   @override
   State<SimpleTableWidget> createState() => _SimpleTableWidgetState();
 }
@@ -65,6 +69,7 @@ class _SimpleTableWidgetState extends State<SimpleTableWidget> {
             enableAddColumnAndRowButton: widget.enableAddColumnAndRowButton,
             enableHoverEffect: widget.enableHoverEffect,
             isFeedback: widget.isFeedback,
+            alwaysDistributeColumnWidths: widget.alwaysDistributeColumnWidths,
           )
         : MobileSimpleTableWidget(
             simpleTableContext: widget.simpleTableContext,
@@ -74,6 +79,7 @@ class _SimpleTableWidgetState extends State<SimpleTableWidget> {
             enableAddColumnAndRowButton: widget.enableAddColumnAndRowButton,
             enableHoverEffect: widget.enableHoverEffect,
             isFeedback: widget.isFeedback,
+            alwaysDistributeColumnWidths: widget.alwaysDistributeColumnWidths,
           );
   }
 }
