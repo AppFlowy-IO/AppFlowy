@@ -245,7 +245,7 @@ extension Expectation on WidgetTester {
       final icon = find.descendant(
         of: pageName,
         matching: find.byWidgetPredicate(
-          (w) => w is FlowySvg && w.svgString == iconsData.iconContent,
+          (w) => w is FlowySvg && w.svgString == iconsData.svgString,
         ),
       );
       expect(icon, findsOneWidget);
@@ -269,7 +269,7 @@ extension Expectation on WidgetTester {
       final icon = find.descendant(
         of: find.byType(ViewTitleBar),
         matching: find.byWidgetPredicate(
-          (w) => w is FlowySvg && w.svgString == iconsData.iconContent,
+          (w) => w is FlowySvg && w.svgString == iconsData.svgString,
         ),
       );
       expect(icon, findsOneWidget);
