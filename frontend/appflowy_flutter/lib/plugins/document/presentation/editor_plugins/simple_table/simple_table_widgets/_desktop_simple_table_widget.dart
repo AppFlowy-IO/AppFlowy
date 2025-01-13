@@ -88,15 +88,12 @@ class _DesktopSimpleTableWidgetState extends State<DesktopSimpleTableWidget> {
 
   Widget _buildDesktopTable() {
     // table content
-    Widget child = Padding(
-      padding: SimpleTableConstants.tablePadding,
-      // IntrinsicWidth and IntrinsicHeight are used to make the table size fit the content.
-      child: IntrinsicHeight(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: _buildRows(),
-        ),
+    // IntrinsicHeight is used to make the table size fit the content.
+    Widget child = IntrinsicHeight(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: _buildRows(),
       ),
     );
 
@@ -106,8 +103,17 @@ class _DesktopSimpleTableWidgetState extends State<DesktopSimpleTableWidget> {
         child: SingleChildScrollView(
           controller: scrollController,
           scrollDirection: Axis.horizontal,
-          child: child,
+          child: Padding(
+            padding: SimpleTableConstants.tablePadding,
+            child: child,
+          ),
         ),
+      );
+    } else {
+      child = Padding(
+        padding: SimpleTableConstants.tablePadding,
+        // IntrinsicWidth is used to make the table size fit the content.
+        child: IntrinsicWidth(child: child),
       );
     }
 
