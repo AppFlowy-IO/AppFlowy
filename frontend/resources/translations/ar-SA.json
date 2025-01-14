@@ -1777,7 +1777,12 @@
           "color": "اللون",
           "align": "المحاذاة",
           "delete": "حذف",
-          "duplicate": "تكرار"
+          "duplicate": "تكرار",
+          "insertLeft": "أدخل اليسار",
+          "insertRight": "إدراج إلى اليمين",
+          "insertAbove": "إدراج أعلاه",
+          "insertBelow": "إدراج أدناه",
+          "headerColumn": "عمود رأس الصفحة"
         }
       },
       "cover": {
