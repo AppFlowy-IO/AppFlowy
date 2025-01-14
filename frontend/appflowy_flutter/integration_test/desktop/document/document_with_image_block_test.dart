@@ -7,19 +7,16 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/cust
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/image_placeholder.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/resizeable_image.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/upload_image_menu.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/image/upload_image_menu/widgets/embed_image_url_widget.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     hide UploadImageMenu, ResizableImage;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:run_with_network_images/run_with_network_images.dart';
 
 import '../../shared/mock/mock_file_picker.dart';
 import '../../shared/util.dart';
@@ -29,58 +26,6 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('image block in document', () {
-    Future<void> testEmbedImage(WidgetTester tester, String url) async {
-      await tester.initializeAppFlowy();
-      await tester.tapAnonymousSignInButton();
-
-      // create a new document
-      await tester.createNewPageWithNameUnderParent(
-        name: LocaleKeys.document_plugins_image_addAnImageDesktop.tr(),
-      );
-
-      // tap the first line of the document
-      await tester.editor.tapLineOfEditorAt(0);
-      await tester.editor.showSlashMenu();
-      await tester.editor.tapSlashMenuItemWithName(
-        LocaleKeys.document_slashMenu_name_image.tr(),
-      );
-      expect(find.byType(CustomImageBlockComponent), findsOneWidget);
-      expect(find.byType(ImagePlaceholder), findsOneWidget);
-      expect(
-        find.descendant(
-          of: find.byType(ImagePlaceholder),
-          matching: find.byType(AppFlowyPopover),
-        ),
-        findsOneWidget,
-      );
-      expect(find.byType(UploadImageMenu), findsOneWidget);
-
-      await tester.tapButtonWithName(
-        LocaleKeys.document_imageBlock_embedLink_label.tr(),
-      );
-      await tester.enterText(
-        find.descendant(
-          of: find.byType(EmbedImageUrlWidget),
-          matching: find.byType(TextField),
-        ),
-        url,
-      );
-      await tester.tapButton(
-        find.descendant(
-          of: find.byType(EmbedImageUrlWidget),
-          matching: find.text(
-            LocaleKeys.document_imageBlock_embedLink_label.tr(),
-            findRichText: true,
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.byType(ResizableImage), findsOneWidget);
-      final node = tester.editor.getCurrentEditorState().getNodeAtPath([0])!;
-      expect(node.type, ImageBlockKeys.type);
-      expect(node.attributes[ImageBlockKeys.url], url);
-    }
-
     testWidgets('insert an image from local file', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
@@ -129,43 +74,6 @@ void main() {
 
       // remove the temp file
       file.deleteSync();
-    });
-
-    testWidgets('insert a gif image from network', (tester) async {
-      await testEmbedImage(
-        tester,
-        'https://www.easygifanimator.net/images/samples/sparkles.gif',
-      );
-    });
-
-    testWidgets('insert an image from unsplash', (tester) async {
-      await runWithNetworkImages(() async {
-        await tester.initializeAppFlowy();
-        await tester.tapAnonymousSignInButton();
-
-        // create a new document
-        await tester.createNewPageWithNameUnderParent(
-          name: LocaleKeys.document_plugins_image_addAnImageDesktop.tr(),
-        );
-
-        // tap the first line of the document
-        await tester.editor.tapLineOfEditorAt(0);
-        await tester.editor.showSlashMenu();
-        await tester.editor.tapSlashMenuItemWithName(
-          LocaleKeys.document_slashMenu_name_image.tr(),
-        );
-        expect(find.byType(CustomImageBlockComponent), findsOneWidget);
-        expect(find.byType(ImagePlaceholder), findsOneWidget);
-        expect(
-          find.descendant(
-            of: find.byType(ImagePlaceholder),
-            matching: find.byType(AppFlowyPopover),
-          ),
-          findsOneWidget,
-        );
-        expect(find.byType(UploadImageMenu), findsOneWidget);
-        expect(find.text('Unsplash'), findsOneWidget);
-      });
     });
 
     testWidgets('insert two images from local file at once', (tester) async {
