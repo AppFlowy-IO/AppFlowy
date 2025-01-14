@@ -226,7 +226,20 @@
     "openPagePreviewFailedToast": "فشل في فتح الصفحة",
     "changeFormat": {
       "actionButton": "تغيير التنسيق",
-      "confirmButton": "إعادة توليد مع هذا التنسيق"
+      "confirmButton": "إعادة توليد مع هذا التنسيق",
+      "textOnly": "النص",
+      "imageOnly": "الصورة فقط",
+      "textAndImage": "النص والصورة",
+      "text": "الفقرة",
+      "bullet": "قائمة نقطية",
+      "number": "قائمة مرقمة",
+      "table": "الجدول",
+      "blankDescription": "تنسيق الاستجابة",
+      "defaultDescription": "الوضع التلقائي",
+      "textWithImageDescription": "@:chat.changeFormat.text مع الصورة",
+      "numberWithImageDescription": "@:chat.changeFormat.number مع الصورة",
+      "bulletWithImageDescription": "@:chat.changeFormat.bullet مع الصورة",
+      "tableWithImageDescription": "@:chat.changeFormat.table مع الصورة"
     }
   },
   "trash": {
@@ -1690,7 +1703,24 @@
         "calendar": "تقويم",
         "linkedCalendar": "التقويم المرتبط",
         "quote": "اقتباس",
-        "divider": "فاصل"
+        "divider": "فاصل",
+        "table": "الجدول",
+        "callout": "وسيلة الشرح",
+        "outline": "مخطط تفصيلي",
+        "mathEquation": "معادلة الرياضيات",
+        "code": "الكود",
+        "toggleList": "قائمة التبديل",
+        "toggleHeading1": "تبديل العنوان 1",
+        "toggleHeading2": "تبديل العنوان 2",
+        "toggleHeading3": "تبديل العنوان 3",
+        "emoji": "الرموز التعبيرية",
+        "aiWriter": "كاتب الذكاء الاصطناعي",
+        "dateOrReminder": "التاريخ أو التذكير",
+        "photoGallery": "معرض الصور",
+        "file": "الملف"
+      },
+      "subPage": {
+        "name": "المستند"
       }
     },
     "selectionMenu": {
