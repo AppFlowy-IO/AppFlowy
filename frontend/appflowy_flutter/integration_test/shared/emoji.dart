@@ -35,7 +35,7 @@ extension EmojiTestExtension on WidgetTester {
     final selectedSvg = find.descendant(
       of: find.byType(FlowyIconPicker),
       matching: find.byWidgetPredicate(
-        (w) => w is FlowySvg && w.svgString == iconsData.iconContent,
+        (w) => w is FlowySvg && w.svgString == iconsData.svgString,
       ),
     );
 
