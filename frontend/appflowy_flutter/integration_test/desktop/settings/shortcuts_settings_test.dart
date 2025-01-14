@@ -35,10 +35,12 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.hoverOnWidget(
-        find.descendant(
-          of: find.byType(ShortcutSettingTile),
-          matching: find.text(backspaceCmd),
-        ),
+        find
+            .descendant(
+              of: find.byType(ShortcutSettingTile),
+              matching: find.text(backspaceCmd),
+            )
+            .first,
         onHover: () async {
           await tester.tap(find.byFlowySvg(FlowySvgs.edit_s));
           await tester.pumpAndSettle();
@@ -85,7 +87,7 @@ void main() {
           as ShortcutSettingTile;
       expect(
         second.command.command,
-        '',
+        'backspace, shift+backspace',
       );
     });
   });

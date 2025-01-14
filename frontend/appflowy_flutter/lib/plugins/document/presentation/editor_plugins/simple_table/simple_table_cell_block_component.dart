@@ -29,7 +29,10 @@ Node simpleTableCellBlockNode({
 class SimpleTableCellBlockComponentBuilder extends BlockComponentBuilder {
   SimpleTableCellBlockComponentBuilder({
     super.configuration,
+    this.alwaysDistributeColumnWidths = false,
   });
+
+  final bool alwaysDistributeColumnWidths;
 
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
@@ -38,6 +41,7 @@ class SimpleTableCellBlockComponentBuilder extends BlockComponentBuilder {
       key: node.key,
       node: node,
       configuration: configuration,
+      alwaysDistributeColumnWidths: alwaysDistributeColumnWidths,
       showActions: showActions(node),
       actionBuilder: (context, state) => actionBuilder(
         blockComponentContext,
@@ -57,7 +61,10 @@ class SimpleTableCellBlockWidget extends BlockComponentStatefulWidget {
     super.showActions,
     super.actionBuilder,
     super.configuration = const BlockComponentConfiguration(),
+    required this.alwaysDistributeColumnWidths,
   });
+
+  final bool alwaysDistributeColumnWidths;
 
   @override
   State<SimpleTableCellBlockWidget> createState() =>
@@ -239,7 +246,7 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
           constraints: const BoxConstraints(
             minWidth: SimpleTableConstants.minimumColumnWidth,
           ),
-          width: node.columnWidth,
+          width: widget.alwaysDistributeColumnWidths ? null : node.columnWidth,
           child: node.children.isEmpty
               ? Column(
                   children: [
@@ -282,9 +289,34 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
                   return ValueListenableBuilder(
                     valueListenable: isReorderingHitCellNotifier,
                     builder: (context, isReorderingHitCellNotifier, _) {
-                      return DecoratedBox(
-                        decoration: _buildDecoration(),
-                        child: child!,
+                      final previousCell = node.getPreviousCellInSameRow();
+                      return Stack(
+                        children: [
+                          DecoratedBox(
+                            decoration: _buildDecoration(),
+                            child: child!,
+                          ),
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            bottom: 0,
+                            child: SimpleTableColumnResizeHandle(
+                              node: node,
+                            ),
+                          ),
+                          if (node.columnIndex != 0 && previousCell != null)
+                            Positioned(
+                              left: 0,
+                              top: 0,
+                              bottom: 0,
+                              // pass the previous node to the resize handle
+                              // to make the resize handle work correctly
+                              child: SimpleTableColumnResizeHandle(
+                                node: previousCell,
+                                isPreviousCell: true,
+                              ),
+                            ),
+                        ],
                       );
                     },
                   );

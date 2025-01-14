@@ -103,6 +103,7 @@ class _SectionFolderState extends State<SectionFolder> {
       (view) => ViewItem(
         key: ValueKey('${widget.spaceType.name} ${view.id}'),
         spaceType: widget.spaceType,
+        engagedInExpanding: true,
         isFirstChild: view.id == widget.views.first.id,
         view: view,
         level: 0,

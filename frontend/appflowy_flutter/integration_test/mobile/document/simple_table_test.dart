@@ -494,5 +494,61 @@ void main() {
         expect(heading.level, equals(1));
       }
     });
+
+    testWidgets('''
+1. insert a simple table via + menu
+2. resize column
+''', (tester) async {
+      await tester.launchInAnonymousMode();
+      await tester.createNewDocumentOnMobile('simple table');
+
+      final editorState = tester.editor.getCurrentEditorState();
+      // focus on the editor
+      unawaited(
+        editorState.updateSelectionWithReason(
+          Selection.collapsed(Position(path: [0])),
+          reason: SelectionUpdateReason.uiEvent,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final beforeWidth = editorState.getNodeAtPath([0, 0, 0])!.columnWidth;
+
+      // find the first cell
+      {
+        final resizeHandle = find.byType(SimpleTableColumnResizeHandle).first;
+        final offset = tester.getCenter(resizeHandle);
+        final gesture = await tester.startGesture(offset, pointer: 7);
+        await tester.pumpAndSettle();
+
+        await gesture.moveBy(const Offset(100, 0));
+        await tester.pumpAndSettle();
+
+        await gesture.up();
+        await tester.pumpAndSettle();
+      }
+
+      // check the table is updated
+      final afterWidth1 = editorState.getNodeAtPath([0, 0, 0])!.columnWidth;
+      expect(afterWidth1, greaterThan(beforeWidth));
+
+      // resize back to the original width
+      {
+        final resizeHandle = find.byType(SimpleTableColumnResizeHandle).first;
+        final offset = tester.getCenter(resizeHandle);
+        final gesture = await tester.startGesture(offset, pointer: 7);
+        await tester.pumpAndSettle();
+
+        await gesture.moveBy(const Offset(-100, 0));
+        await tester.pumpAndSettle();
+
+        await gesture.up();
+        await tester.pumpAndSettle();
+      }
+
+      // check the table is updated
+      final afterWidth2 = editorState.getNodeAtPath([0, 0, 0])!.columnWidth;
+      expect(afterWidth2, equals(beforeWidth));
+    });
   });
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -52,7 +53,9 @@ class EditorMigration {
         node = pageNode(children: children);
       }
     } else if (id == 'callout') {
-      final emoji = nodeV0.attributes['emoji'] ?? '📌';
+      final icon = nodeV0.attributes[CalloutBlockKeys.icon] ?? '📌';
+      final iconType = nodeV0.attributes[CalloutBlockKeys.iconType] ??
+          FlowyIconType.emoji.name;
       final delta =
           nodeV0.children.whereType<TextNodeV0>().fold(Delta(), (p, e) {
         final delta = migrateDelta(e.delta);
@@ -62,8 +65,18 @@ class EditorMigration {
         }
         return p..insert('\n');
       });
+      EmojiIconData? emojiIconData;
+      try {
+        emojiIconData =
+            EmojiIconData(FlowyIconType.values.byName(iconType), icon);
+      } catch (e) {
+        Log.error(
+          'migrateNode get EmojiIconData error with :${nodeV0.attributes}',
+          e,
+        );
+      }
       node = calloutNode(
-        emoji: emoji,
+        emoji: emojiIconData,
         delta: delta,
       );
     } else if (id == 'divider') {

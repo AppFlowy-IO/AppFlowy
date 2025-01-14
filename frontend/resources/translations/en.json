@@ -233,7 +233,7 @@
       "number": "Numbered list",
       "table": "Table",
       "blankDescription": "Format response",
-      "defaultDescription": "Auto",
+      "defaultDescription": "Auto mode",
       "textWithImageDescription": "@:chat.changeFormat.text with image",
       "numberWithImageDescription": "@:chat.changeFormat.number with image",
       "bulletWithImageDescription": "@:chat.changeFormat.bullet with image",
@@ -2567,7 +2567,7 @@
     "image": "Image"
   },
   "commandPalette": {
-    "placeholder": "Type to search...",
+    "placeholder": "Search or ask a question...",
     "bestMatches": "Best matches",
     "recentHistory": "Recent history",
     "navigateHint": "to navigate",
@@ -3068,5 +3068,8 @@
         "answerFive": "Unsatisfied"
       }
     }
+  },
+  "ai": {
+    "contentPolicyViolation": "Image generation failed due to sensitive content. Please rephrase your input and try again"
   }
 }

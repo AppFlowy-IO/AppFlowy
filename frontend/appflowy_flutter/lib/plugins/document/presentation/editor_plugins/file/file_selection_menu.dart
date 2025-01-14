@@ -9,26 +9,19 @@ extension InsertFile on EditorState {
     if (selection == null || !selection.isCollapsed) {
       return;
     }
-    final node = getNodeAtPath(selection.end.path);
-    if (node == null) {
+    final path = selection.end.path;
+    final node = getNodeAtPath(path);
+    final delta = node?.delta;
+    if (node == null || delta == null) {
       return;
     }
     final file = fileNode(url: '')..extraInfos = {'global_key': key};
-    final transaction = this.transaction;
 
-    // if the current node is empty paragraph, replace it with the file node
-    if (node.type == ParagraphBlockKeys.type &&
-        (node.delta?.isEmpty ?? false)) {
-      transaction
-        ..insertNode(node.path, file)
-        ..deleteNode(node);
-    } else {
-      transaction.insertNode(node.path.next, file);
-    }
-
-    transaction.afterSelection =
-        Selection.collapsed(Position(path: node.path.next));
-    transaction.selectionExtraInfo = {};
+    final insertedPath = delta.isEmpty ? path : path.next;
+    final transaction = this.transaction
+      ..insertNode(insertedPath, file)
+      ..insertNode(insertedPath, paragraphNode())
+      ..afterSelection = Selection.collapsed(Position(path: insertedPath.next));
 
     return apply(transaction);
   }

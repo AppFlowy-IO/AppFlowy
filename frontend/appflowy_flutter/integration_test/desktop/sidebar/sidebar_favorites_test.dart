@@ -196,5 +196,58 @@ void main() {
         await tester.pumpAndSettle();
       },
     );
+
+    testWidgets(
+      'reorder favorites',
+      (tester) async {
+        await tester.initializeAppFlowy();
+        await tester.tapAnonymousSignInButton();
+
+        /// there are no favorite views
+        final favorites = find.descendant(
+          of: find.byType(FavoriteFolder),
+          matching: find.byType(ViewItem),
+        );
+        expect(favorites, findsNothing);
+
+        /// create views and then favorite them
+        const pageNames = ['001', '002', '003'];
+        for (final name in pageNames) {
+          await tester.createNewPageWithNameUnderParent(name: name);
+        }
+        for (final name in pageNames) {
+          await tester.favoriteViewByName(name);
+        }
+        expect(favorites, findsNWidgets(pageNames.length));
+
+        final oldNames = favorites
+            .evaluate()
+            .map((e) => (e.widget as ViewItem).view.name)
+            .toList();
+        expect(oldNames, pageNames);
+
+        /// drag first to last
+        await tester.reorderFavorite(
+          fromName: '001',
+          toName: '003',
+        );
+        List<String> newNames = favorites
+            .evaluate()
+            .map((e) => (e.widget as ViewItem).view.name)
+            .toList();
+        expect(newNames, ['002', '003', '001']);
+
+        /// drag first to second
+        await tester.reorderFavorite(
+          fromName: '002',
+          toName: '003',
+        );
+        newNames = favorites
+            .evaluate()
+            .map((e) => (e.widget as ViewItem).view.name)
+            .toList();
+        expect(newNames, ['003', '002', '001']);
+      },
+    );
   });
 }

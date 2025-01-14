@@ -91,7 +91,7 @@ class CommandPaletteBloc
 
           emit(
             state.copyWith(
-              results: results.items,
+              results: _filterDuplicates(results.items),
               isLoading: _messagesReceived != results.sends.toInt(),
             ),
           );
@@ -127,6 +127,27 @@ class CommandPaletteBloc
       const Duration(milliseconds: 300),
       () => _performSearch(value),
     );
+  }
+
+  List<SearchResultPB> _filterDuplicates(List<SearchResultPB> results) {
+    final currentItems = [...state.results];
+    final res = [...results];
+
+    for (final item in results) {
+      final duplicateIndex = currentItems.indexWhere((a) => a.id == item.id);
+      if (duplicateIndex == -1) {
+        continue;
+      }
+
+      final duplicate = currentItems[duplicateIndex];
+      if (item.score < duplicate.score) {
+        res.remove(item);
+      } else {
+        currentItems.remove(duplicate);
+      }
+    }
+
+    return res..addAll(currentItems);
   }
 
   void _performSearch(String value) =>

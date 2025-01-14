@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/mobile/application/recent/recent_view_bloc.dart';
-import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/flowy_gradient_colors.dart';
@@ -110,10 +110,7 @@ class MobileRecentView extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 8.0),
       child: state.icon.isNotEmpty
-          ? EmojiText(
-              emoji: state.icon.emoji,
-              fontSize: 30.0,
-            )
+          ? RawEmojiIconWidget(emoji: state.icon, emojiSize: 30)
           : SizedBox.square(
               dimension: 32.0,
               child: view.defaultIcon(),

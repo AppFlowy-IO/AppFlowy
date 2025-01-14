@@ -129,9 +129,8 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     emit(state.copyWith(layoutDirection: layoutDirection));
   }
 
-  void setTextDirection(AppFlowyTextDirection? textDirection) {
-    _appearanceSettings.textDirection =
-        textDirection?.toTextDirectionPB() ?? TextDirectionPB.FALLBACK;
+  void setTextDirection(AppFlowyTextDirection textDirection) {
+    _appearanceSettings.textDirection = textDirection.toTextDirectionPB();
     _saveAppearanceSettings();
     emit(state.copyWith(textDirection: textDirection));
   }
@@ -336,7 +335,7 @@ enum AppFlowyTextDirection {
   rtl,
   auto;
 
-  static AppFlowyTextDirection? fromTextDirectionPB(
+  static AppFlowyTextDirection fromTextDirectionPB(
     TextDirectionPB? textDirectionPB,
   ) {
     switch (textDirectionPB) {
@@ -347,7 +346,7 @@ enum AppFlowyTextDirection {
       case TextDirectionPB.AUTO:
         return AppFlowyTextDirection.auto;
       default:
-        return null;
+        return AppFlowyTextDirection.ltr;
     }
   }
 
@@ -374,7 +373,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
     required ThemeMode themeMode,
     required String font,
     required LayoutDirection layoutDirection,
-    required AppFlowyTextDirection? textDirection,
+    required AppFlowyTextDirection textDirection,
     required bool enableRtlToolbarItems,
     required Locale locale,
     required bool isMenuCollapsed,
@@ -424,6 +423,7 @@ class AppearanceSettingsState with _$AppearanceSettingsState {
   }
 
   ThemeData get lightTheme => _getThemeData(Brightness.light);
+
   ThemeData get darkTheme => _getThemeData(Brightness.dark);
 
   ThemeData _getThemeData(Brightness brightness) {

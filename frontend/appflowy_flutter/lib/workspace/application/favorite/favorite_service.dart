@@ -25,10 +25,7 @@ class FavoriteService {
     });
   }
 
-  Future<FlowyResult<void, FlowyError>> toggleFavorite(
-    String viewId,
-    bool favoriteStatus,
-  ) async {
+  Future<FlowyResult<void, FlowyError>> toggleFavorite(String viewId) async {
     final id = RepeatedViewIdPB.create()..items.add(viewId);
     return FolderEventToggleFavorite(id).send();
   }

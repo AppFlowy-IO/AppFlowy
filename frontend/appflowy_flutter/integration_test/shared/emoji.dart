@@ -35,16 +35,11 @@ extension EmojiTestExtension on WidgetTester {
     final selectedSvg = find.descendant(
       of: find.byType(FlowyIconPicker),
       matching: find.byWidgetPredicate(
-        (w) => w is FlowySvg && w.svgString == iconsData.iconContent,
+        (w) => w is FlowySvg && w.svgString == iconsData.svgString,
       ),
     );
-    expect(find.byType(IconColorPicker), findsNothing);
 
-    /// test for tapping down, it should not display the ColorPicker unless tapping up
-    await tapDown(selectedSvg);
-    expect(find.byType(IconColorPicker), findsNothing);
-
-    await tapButton(selectedSvg);
+    await tapButton(selectedSvg.first);
     final colorPicker = find.byType(IconColorPicker);
     expect(colorPicker, findsOneWidget);
     final selectedColor = find.descendant(

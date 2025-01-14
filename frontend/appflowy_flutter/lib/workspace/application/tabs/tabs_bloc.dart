@@ -1,11 +1,19 @@
+import 'dart:convert';
+
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/expand_views.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -75,6 +83,7 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
                 return;
               }
               _setLatestOpenView(view);
+              if (view != null) _expandAncestors(view);
             }
           },
           closeOtherTabs: (String pluginId) {
@@ -213,6 +222,32 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
     }
   }
 
+  Future<void> _expandAncestors(ViewPB view) async {
+    final viewExpanderRegistry = getIt.get<ViewExpanderRegistry>();
+    if (viewExpanderRegistry.isViewExpanded(view.parentViewId)) return;
+    final value = await getIt<KeyValueStorage>().get(KVKeys.expandedViews);
+    try {
+      final Map expandedViews = value == null ? {} : jsonDecode(value);
+      final List<String> ancestors =
+          await ViewBackendService.getViewAncestors(view.id)
+              .fold((s) => s.items.map((e) => e.id).toList(), (f) => []);
+      ViewExpander? viewExpander;
+      for (final id in ancestors) {
+        expandedViews[id] = true;
+        final expander = viewExpanderRegistry.getExpander(id);
+        if (expander == null) continue;
+        if (!expander.isViewExpanded && viewExpander == null) {
+          viewExpander = expander;
+        }
+      }
+      await getIt<KeyValueStorage>()
+          .set(KVKeys.expandedViews, jsonEncode(expandedViews));
+      viewExpander?.expand();
+    } catch (e) {
+      Log.error('expandAncestors error', e);
+    }
+  }
+
   int _adjustCurrentIndex({
     required int currentIndex,
     required int tabIndex,
@@ -250,26 +285,37 @@ class TabsBloc extends Bloc<TabsEvent, TabsState> {
 @freezed
 class TabsEvent with _$TabsEvent {
   const factory TabsEvent.moveTab() = _MoveTab;
+
   const factory TabsEvent.closeTab(String pluginId) = _CloseTab;
+
   const factory TabsEvent.closeOtherTabs(String pluginId) = _CloseOtherTabs;
+
   const factory TabsEvent.closeCurrentTab() = _CloseCurrentTab;
+
   const factory TabsEvent.selectTab(int index) = _SelectTab;
+
   const factory TabsEvent.togglePin(String pluginId) = _TogglePin;
+
   const factory TabsEvent.openTab({
     required Plugin plugin,
     required ViewPB view,
   }) = _OpenTab;
+
   const factory TabsEvent.openPlugin({
     required Plugin plugin,
     ViewPB? view,
     @Default(true) bool setLatest,
   }) = _OpenPlugin;
+
   const factory TabsEvent.openSecondaryPlugin({
     required Plugin plugin,
     ViewPB? view,
   }) = _OpenSecondaryPlugin;
+
   const factory TabsEvent.closeSecondaryPlugin() = _CloseSecondaryPlugin;
+
   const factory TabsEvent.expandSecondaryPlugin() = _ExpandSecondaryPlugin;
+
   const factory TabsEvent.switchWorkspace(String workspaceId) =
       _SwitchWorkspace;
 }
@@ -282,8 +328,11 @@ class TabsState {
 
   final int currentIndex;
   final List<PageManager> _pageManagers;
+
   int get pages => _pageManagers.length;
+
   PageManager get currentPageManager => _pageManagers[currentIndex];
+
   List<PageManager> get pageManagers => _pageManagers;
 
   bool get isAllPinned => _pageManagers.every((pm) => pm.isPinned);

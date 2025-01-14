@@ -271,12 +271,13 @@ impl Chat {
       }
 
       chat_notification_builder(&chat_id, ChatNotification::FinishStreaming).send();
+      trace!("[Chat] finish streaming");
+
       if answer_stream_buffer.lock().await.is_empty() {
         return Ok(());
       }
       let content = answer_stream_buffer.lock().await.take_content();
       let metadata = answer_stream_buffer.lock().await.take_metadata();
-
       let answer = cloud_service
         .create_answer(&workspace_id, &chat_id, &content, question_id, metadata)
         .await?;

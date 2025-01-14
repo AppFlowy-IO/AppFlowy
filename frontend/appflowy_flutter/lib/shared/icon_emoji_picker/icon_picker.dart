@@ -115,18 +115,22 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
     final localIcons = await loadIconGroups();
     final recentIcons = await RecentIcons.getIcons();
     if (recentIcons.isNotEmpty) {
-      iconGroups.add(
-        IconGroup(
-          name: _kRecentIconGroupName,
-          icons: recentIcons
-              .sublist(
-                0,
-                min(recentIcons.length, widget.iconPerLine),
-              )
-              .map((e) => e.icon)
-              .toList(),
-        ),
-      );
+      final filterRecentIcons = recentIcons
+          .sublist(
+            0,
+            min(recentIcons.length, widget.iconPerLine),
+          )
+          .skipWhile((e) => e.groupName.isEmpty)
+          .map((e) => e.icon)
+          .toList();
+      if (filterRecentIcons.isNotEmpty) {
+        iconGroups.add(
+          IconGroup(
+            name: _kRecentIconGroupName,
+            icons: filterRecentIcons,
+          ),
+        );
+      }
     }
     iconGroups.addAll(localIcons);
     if (mounted) {
@@ -169,7 +173,6 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
               widget.onSelectedIcon(
                 IconsData(
                   value.$1.name,
-                  value.$2.content,
                   value.$2.name,
                   color,
                 ).toResult(isRandom: true),
@@ -228,16 +231,14 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
 }
 
 class IconsData {
-  IconsData(this.groupName, this.iconContent, this.iconName, this.color);
+  IconsData(this.groupName, this.iconName, this.color);
 
   final String groupName;
-  final String iconContent;
   final String iconName;
   final String? color;
 
   String get iconString => jsonEncode({
         'groupName': groupName,
-        'iconContent': iconContent,
         'iconName': iconName,
         if (color != null) 'color': color,
       });
@@ -247,11 +248,16 @@ class IconsData {
   static IconsData fromJson(dynamic json) {
     return IconsData(
       json['groupName'],
-      json['iconContent'],
       json['iconName'],
       json['color'],
     );
   }
+
+  String? get svgString => kIconGroups
+      ?.firstWhereOrNull((group) => group.name == groupName)
+      ?.icons
+      .firstWhereOrNull((icon) => icon.name == iconName)
+      ?.content;
 }
 
 class IconPicker extends StatefulWidget {
@@ -313,7 +319,6 @@ class _IconPickerState extends State<IconPicker> {
                           widget.onSelectedIcon(
                             IconsData(
                               groupName,
-                              icon.content,
                               icon.name,
                               color,
                             ),
@@ -332,7 +337,6 @@ class _IconPickerState extends State<IconPicker> {
                           widget.onSelectedIcon(
                             IconsData(
                               groupName,
-                              icon.content,
                               icon.name,
                               null,
                             ),

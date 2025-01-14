@@ -1,6 +1,6 @@
 use crate::af_cloud::AFServer;
 use client_api::entity::ai_dto::{
-  ChatQuestionQuery, CompleteTextParams, CompletionType, RepeatedRelatedQuestion, ResponseFormat,
+  ChatQuestionQuery, CompleteTextParams, RepeatedRelatedQuestion, ResponseFormat,
 };
 use client_api::entity::chat_dto::{
   CreateAnswerMessageParams, CreateChatMessageParams, CreateChatParams, MessageCursor,
@@ -188,15 +188,8 @@ where
   async fn stream_complete(
     &self,
     workspace_id: &str,
-    text: &str,
-    completion_type: CompletionType,
+    params: CompleteTextParams,
   ) -> Result<StreamComplete, FlowyError> {
-    // TODO(Nathan): Check if this is correct after updating to latest client-api
-    let params = CompleteTextParams {
-      text: text.to_string(),
-      completion_type: Some(completion_type),
-      custom_prompt: None,
-    };
     let stream = self
       .inner
       .try_get_client()?
