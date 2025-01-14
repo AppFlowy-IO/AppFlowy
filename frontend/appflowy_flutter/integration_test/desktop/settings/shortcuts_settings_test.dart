@@ -87,7 +87,7 @@ void main() {
           as ShortcutSettingTile;
       expect(
         second.command.command,
-        'backspace, shift+backspace',
+        '',
       );
     });
   });
