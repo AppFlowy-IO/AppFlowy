@@ -223,7 +223,11 @@
     "addToNewPage": "أضف إلى صفحة جديدة",
     "addToNewPageName": "الرسائل المستخرجة من \"{}\"",
     "addToNewPageSuccessToast": "تمت إضافة الرسالة إلى",
-    "openPagePreviewFailedToast": "فشل في فتح الصفحة"
+    "openPagePreviewFailedToast": "فشل في فتح الصفحة",
+    "changeFormat": {
+      "actionButton": "تغيير التنسيق",
+      "confirmButton": "إعادة توليد مع هذا التنسيق"
+    }
   },
   "trash": {
     "text": "المهملات",
