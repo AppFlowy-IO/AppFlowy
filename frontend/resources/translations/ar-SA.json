@@ -1861,8 +1861,29 @@
         "imageDownloadFailedToken": "فشل تنزيل الصورة بسبب عدم وجود رمز المستخدم، يرجى المحاولة مرة أخرى",
         "errorCode": "كود الخطأ"
       },
+      "photoGallery": {
+        "name": "معرض الصور",
+        "imageKeyword": "صورة",
+        "imageGalleryKeyword": "معرض الصور",
+        "photoKeyword": "صورة",
+        "photoBrowserKeyword": "متصفح الصور",
+        "galleryKeyword": "معرض الصور",
+        "addImageTooltip": "أضف صورة",
+        "changeLayoutTooltip": "تغيير التخطيط",
+        "browserLayout": "المتصفح",
+        "gridLayout": "شبكة",
+        "deleteBlockTooltip": "حذف المعرض بأكمله"
+      },
+      "math": {
+        "copiedToPasteBoard": "تم نسخ المعادلة الرياضية إلى الحافظة"
+      },
+      "urlPreview": {
+        "copiedToPasteBoard": "تم نسخ الرابط إلى الحافظة",
+        "convertToLink": "تحويل إلى رابط التضمين"
+      },
       "outline": {
-        "addHeadingToCreateOutline": "أضف عناوين لإنشاء جدول محتويات."
+        "addHeadingToCreateOutline": "أضف عناوين لإنشاء جدول محتويات.",
+        "noMatchHeadings": "لم يتم العثور على عناوين مطابقة."
       },
       "table": {
         "addAfter": "أضف بعد",
@@ -1875,9 +1896,35 @@
       "contextMenu": {
         "copy": "نسخ",
         "cut": "قطع",
-        "paste": "لصق"
+        "paste": "لصق",
+        "pasteAsPlainText": "لصق كنص عادي"
       },
       "action": "أجراءات",
+      "database": {
+        "selectDataSource": "حدد مصدر البيانات",
+        "noDataSource": "لا يوجد مصدر للبيانات",
+        "selectADataSource": "حدد مصدر البيانات",
+        "toContinue": "للمتابعة",
+        "newDatabase": "قاعدة بيانات جديدة",
+        "linkToDatabase": "رابط لقاعدة البيانات"
+      },
+      "date": "تاريخ",
+      "video": {
+        "label": "فيديو",
+        "emptyLabel": "أضف فيديو",
+        "placeholder": "ألصق رابط الفيديو",
+        "copiedToPasteBoard": "تم نسخ رابط الفيديو إلى الحافظة",
+        "insertVideo": "إضافة الفيديو",
+        "invalidVideoUrl": "لم يتم دعم عنوان URL المصدر بعد.",
+        "invalidVideoUrlYouTube": "لم يتم دعم YouTube بعد.",
+        "supportedFormats": "التنسيقات المدعومة: MP4، WebM، MOV، AVI، FLV، MPEG/M4V، H.264"
+      },
+      "file": {
+        "name": "ملف",
+        "uploadTab": "رفع",
+        "uploadMobile": "اختر ملف",
+        "uploadMobileGallery": "من معرض الصور"
+      },
       "autoCompletionMenuItemName": "عنصر قائمة الإكمال التلقائي"
     },
     "textBlock": {
