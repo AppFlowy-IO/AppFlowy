@@ -58,26 +58,20 @@ extension InsertImage on EditorState {
     if (selection == null || !selection.isCollapsed) {
       return;
     }
-    final node = getNodeAtPath(selection.end.path);
-    if (node == null) {
+    final path = selection.end.path;
+    final node = getNodeAtPath(path);
+    final delta = node?.delta;
+    if (node == null || delta == null) {
       return;
     }
     final emptyImage = imageNode(url: '')
       ..extraInfos = {kImagePlaceholderKey: key};
-    final transaction = this.transaction;
-    // if the current node is empty paragraph, replace it with image node
-    if (node.type == ParagraphBlockKeys.type &&
-        (node.delta?.isEmpty ?? false)) {
-      transaction
-        ..insertNode(node.path, emptyImage)
-        ..deleteNode(node);
-    } else {
-      transaction.insertNode(node.path.next, emptyImage);
-    }
 
-    transaction.afterSelection =
-        Selection.collapsed(Position(path: node.path.next));
-    transaction.selectionExtraInfo = {};
+    final insertedPath = delta.isEmpty ? path : path.next;
+    final transaction = this.transaction
+      ..insertNode(insertedPath, emptyImage)
+      ..insertNode(insertedPath, paragraphNode())
+      ..afterSelection = Selection.collapsed(Position(path: insertedPath.next));
 
     return apply(transaction);
   }
@@ -87,26 +81,20 @@ extension InsertImage on EditorState {
     if (selection == null || !selection.isCollapsed) {
       return;
     }
-    final node = getNodeAtPath(selection.end.path);
-    if (node == null) {
+    final path = selection.end.path;
+    final node = getNodeAtPath(path);
+    final delta = node?.delta;
+    if (node == null || delta == null) {
       return;
     }
     final emptyBlock = multiImageNode()
       ..extraInfos = {kMultiImagePlaceholderKey: key};
-    final transaction = this.transaction;
-    // if the current node is empty paragraph, replace it with image node
-    if (node.type == ParagraphBlockKeys.type &&
-        (node.delta?.isEmpty ?? false)) {
-      transaction
-        ..insertNode(node.path, emptyBlock)
-        ..deleteNode(node);
-    } else {
-      transaction.insertNode(node.path.next, emptyBlock);
-    }
 
-    transaction.afterSelection =
-        Selection.collapsed(Position(path: node.path.next));
-    transaction.selectionExtraInfo = {};
+    final insertedPath = delta.isEmpty ? path : path.next;
+    final transaction = this.transaction
+      ..insertNode(insertedPath, emptyBlock)
+      ..insertNode(insertedPath, paragraphNode())
+      ..afterSelection = Selection.collapsed(Position(path: insertedPath.next));
 
     return apply(transaction);
   }
