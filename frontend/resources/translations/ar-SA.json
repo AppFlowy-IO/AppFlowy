@@ -2267,7 +2267,28 @@
   },
   "datePicker": {
     "dateTimeFormatTooltip": "تغيير تنسيق التاريخ والوقت في الإعدادات",
-    "dateFormat": "تنسيق التاريخ"
+    "dateFormat": "تنسيق التاريخ",
+    "includeTime": "تضمين الوقت",
+    "isRange": "تاريخ النهاية",
+    "timeFormat": "تنسيق الوقت",
+    "clearDate": "مسح التاريخ",
+    "reminderLabel": "تذكير",
+    "selectReminder": "حدد التذكير",
+    "reminderOptions": {
+      "none": "لا شيء",
+      "atTimeOfEvent": "وقت الحدث",
+      "fiveMinsBefore": "قبل 5 دقائق",
+      "tenMinsBefore": "قبل 10 دقائق",
+      "fifteenMinsBefore": "قبل 15 دقيقة",
+      "thirtyMinsBefore": "قبل 30 دقيقة",
+      "oneHourBefore": "قبل ساعة واحدة",
+      "twoHoursBefore": "قبل ساعتين",
+      "onDayOfEvent": "في يوم الحدث",
+      "oneDayBefore": "قبل يوم واحد",
+      "twoDaysBefore": "قبل يومين",
+      "oneWeekBefore": "قبل اسبوع واحد",
+      "custom": "مخصص"
+    }
   },
   "relativeDates": {
     "yesterday": "أمس",
@@ -2315,15 +2336,20 @@
     "replace": "استبدل",
     "replaceAll": "استبدال الكل",
     "noResult": "لا نتائج",
-    "caseSensitive": "دقة الحروف"
+    "caseSensitive": "دقة الحروف",
+    "searchMore": "ابحث للعثور على المزيد من النتائج"
   },
   "error": {
     "weAreSorry": "آسفون",
-    "loadingViewError": "نواجه مشكلة في تحميل هذا العرض. يرجى التحقق من اتصالك بالإنترنت، وتحديث التطبيق، ولا تتردد في التواصل مع الفريق إذا استمرت المشكلة."
+    "loadingViewError": "نواجه مشكلة في تحميل هذا العرض. يرجى التحقق من اتصالك بالإنترنت، وتحديث التطبيق، ولا تتردد في التواصل مع الفريق إذا استمرت المشكلة.",
+    "syncError": "لم تتم مزامنة البيانات من جهاز آخر",
+    "syncErrorHint": "يرجى إعادة فتح هذه الصفحة على الجهاز الذي تم تحريرها عليه آخر مرة، ثم فتحها مرة أخرى على الجهاز الحالي.",
+    "clickToCopy": "انقر هنا لنسخ كود الخطأ"
   },
   "editor": {
     "bold": "عريض",
     "bulletedList": "قائمة نقطية",
+    "bulletedListShortForm": "نقطية",
     "checkbox": "خانة الاختيار",
     "embedCode": "كود متضمن",
     "heading1": "رأسية اولى",
@@ -2332,9 +2358,15 @@
     "highlight": "ابراز",
     "color": "لون",
     "image": "صورة",
+    "date": "تاريخ",
+    "page": "صفحة",
     "italic": "مائل",
     "link": "رابط",
     "numberedList": "قائمة مرقمة",
+    "numberedListShortForm": "مرقمة",
+    "toggleHeading1ShortForm": "تبديل h1",
+    "toggleHeading2ShortForm": "تبديل h2",
+    "toggleHeading3ShortForm": "تبديل h3",
     "quote": "اقتباس",
     "strikethrough": "يتوسطه خط",
     "text": "نص",
