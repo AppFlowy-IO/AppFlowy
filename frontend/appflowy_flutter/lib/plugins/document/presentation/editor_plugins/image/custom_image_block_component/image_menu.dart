@@ -42,11 +42,12 @@ class _ImageMenuState extends State<ImageMenu> {
 
   @override
   Widget build(BuildContext context) {
+    final isPlaceholder = url == null || url!.isEmpty;
     final theme = Theme.of(context);
     return ValueListenableBuilder<ResizableImageState>(
       valueListenable: widget.imageStateNotifier,
       builder: (_, state, child) {
-        if (state == ResizableImageState.loading) {
+        if (state == ResizableImageState.loading && !isPlaceholder) {
           return const SizedBox.shrink();
         }
 
@@ -66,21 +67,25 @@ class _ImageMenuState extends State<ImageMenu> {
           child: Row(
             children: [
               const HSpace(4),
-              MenuBlockButton(
-                tooltip: LocaleKeys.document_imageBlock_openFullScreen.tr(),
-                iconData: FlowySvgs.full_view_s,
-                onTap: openFullScreen,
-              ),
-              const HSpace(4),
-              MenuBlockButton(
-                tooltip: LocaleKeys.editor_copy.tr(),
-                iconData: FlowySvgs.copy_s,
-                onTap: copyImageLink,
-              ),
-              const HSpace(4),
+              if (!isPlaceholder) ...[
+                MenuBlockButton(
+                  tooltip: LocaleKeys.document_imageBlock_openFullScreen.tr(),
+                  iconData: FlowySvgs.full_view_s,
+                  onTap: openFullScreen,
+                ),
+                const HSpace(4),
+                MenuBlockButton(
+                  tooltip: LocaleKeys.editor_copy.tr(),
+                  iconData: FlowySvgs.copy_s,
+                  onTap: copyImageLink,
+                ),
+                const HSpace(4),
+              ],
               if (widget.state.editorState.editable) ...[
-                _ImageAlignButton(node: widget.node, state: widget.state),
-                const _Divider(),
+                if (!isPlaceholder) ...[
+                  _ImageAlignButton(node: widget.node, state: widget.state),
+                  const _Divider(),
+                ],
                 MenuBlockButton(
                   tooltip: LocaleKeys.button_delete.tr(),
                   iconData: FlowySvgs.trash_s,
