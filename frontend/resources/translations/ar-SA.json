@@ -2475,11 +2475,14 @@
     "typeSomething": "اكتب شيئا ما...",
     "toggleListShortForm": "تبديل",
     "quoteListShortForm": "إقتباس",
+    "mathEquationShortForm": "صيغة",
     "codeBlockShortForm": "الكود"
   },
   "favorite": {
     "noFavorite": "لا توجد صفحة مفضلة",
-    "noFavoriteHintText": "اسحب الصفحة إلى اليسار لإضافتها إلى المفضلة لديك"
+    "noFavoriteHintText": "اسحب الصفحة إلى اليسار لإضافتها إلى المفضلة لديك",
+    "removeFromSidebar": "إزالة من الشريط الجانبي",
+    "addToSidebar": "تثبيت على الشريط الجانبي"
   },
   "cardDetails": {
     "notesPlaceholder": "أدخل / لإدراج كتلة، أو ابدأ في الكتابة"
@@ -2499,6 +2502,57 @@
     "date": "تاريخ",
     "addField": "إضافة حقل",
     "userIcon": "رمز المستخدم"
+  },
+  "noLogFiles": "لا توجد ملفات السجل",
+  "newSettings": {
+    "myAccount": {
+      "title": "حسابي",
+      "subtitle": "قم بتخصيص ملفك الشخصي، وإدارة أمان الحساب، وفتح مفاتيح الذكاء الاصطناعي، أو تسجيل الدخول إلى حسابك.",
+      "profileLabel": "اسم الحساب وصورة الملف الشخصي",
+      "profileNamePlaceholder": "أدخل اسمك",
+      "accountSecurity": "أمان الحساب",
+      "2FA": "المصادقة بخطوتين",
+      "aiKeys": "مفاتيح الذكاء الاصطناعي",
+      "accountLogin": "تسجيل الدخول إلى الحساب",
+      "updateNameError": "فشل في تحديث الاسم",
+      "updateIconError": "فشل في تحديث الأيقونة",
+      "deleteAccount": {
+        "title": "حذف الحساب",
+        "subtitle": "احذف حسابك وجميع بياناتك بشكل دائم.",
+        "description": "احذف حسابك نهائيًا وأزل إمكانية الوصول إلى جميع مساحات العمل.",
+        "deleteMyAccount": "حذف حسابي",
+        "dialogTitle": "حذف الحساب",
+        "dialogContent1": "هل أنت متأكد أنك تريد حذف حسابك نهائياً؟",
+        "dialogContent2": "لا يمكن التراجع عن هذا الإجراء، وسوف يؤدي إلى إزالة الوصول من جميع مساحات العمل، ومسح حسابك بالكامل، بما في ذلك مساحات العمل الخاصة، وإزالتك من جميع مساحات العمل المشتركة.",
+        "confirmHint1": "من فضلك اكتب \"حذف حسابي\" للتأكيد.",
+        "confirmHint2": "أفهم أن هذا الإجراء لا رجعة فيه وسيؤدي إلى حذف حسابي وجميع البيانات المرتبطة به بشكل دائم.",
+        "confirmHint3": "حذف حسابي",
+        "checkToConfirmError": "يجب عليك تحديد المربع لتأكيد الحذف",
+        "failedToGetCurrentUser": "فشل في الحصول على البريد الإلكتروني الحالي للمستخدم",
+        "confirmTextValidationFailed": "نص التأكيد الخاص بك لا يتطابق مع \"حذف حسابي\"",
+        "deleteAccountSuccess": "تم حذف الحساب بنجاح"
+      }
+    },
+    "workplace": {
+      "name": "مكان العمل",
+      "title": "إعدادات مكان العمل",
+      "subtitle": "قم بتخصيص مظهر مساحة العمل الخاصة بك والسمة والخط وتخطيط النص والتاريخ والوقت واللغة.",
+      "workplaceName": "اسم مكان العمل",
+      "workplaceNamePlaceholder": "أدخل اسم مكان العمل",
+      "workplaceIcon": "أيقونة مكان العمل",
+      "workplaceIconSubtitle": "قم بتحميل صورة أو استخدم رمزًا تعبيريًا لمساحة عملك. سيظهر الرمز في الشريط الجانبي والإشعارات.",
+      "renameError": "فشل في إعادة تسمية مكان العمل",
+      "updateIconError": "فشل في تحديث الأيقونة",
+      "chooseAnIcon": "اختر أيقونة",
+      "appearance": {
+        "name": "المظهر",
+        "themeMode": {
+          "auto": "آلي",
+          "light": "فاتح",
+          "dark": "داكن"
+        }
+      }
+    }
   },
   "pageStyle": {
     "presets": "الإعدادات المسبقة"
