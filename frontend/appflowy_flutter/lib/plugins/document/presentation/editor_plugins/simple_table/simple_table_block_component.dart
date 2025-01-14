@@ -143,7 +143,10 @@ Node createSimpleTableBlockNode({
 class SimpleTableBlockComponentBuilder extends BlockComponentBuilder {
   SimpleTableBlockComponentBuilder({
     super.configuration,
+    this.alwaysDistributeColumnWidths = false,
   });
+
+  final bool alwaysDistributeColumnWidths;
 
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
@@ -152,6 +155,7 @@ class SimpleTableBlockComponentBuilder extends BlockComponentBuilder {
       key: node.key,
       node: node,
       configuration: configuration,
+      alwaysDistributeColumnWidths: alwaysDistributeColumnWidths,
       showActions: showActions(node),
       actionBuilder: (context, state) => actionBuilder(
         blockComponentContext,
@@ -171,7 +175,10 @@ class SimpleTableBlockWidget extends BlockComponentStatefulWidget {
     super.showActions,
     super.actionBuilder,
     super.configuration = const BlockComponentConfiguration(),
+    required this.alwaysDistributeColumnWidths,
   });
+
+  final bool alwaysDistributeColumnWidths;
 
   @override
   State<SimpleTableBlockWidget> createState() => _SimpleTableBlockWidgetState();
@@ -218,6 +225,7 @@ class _SimpleTableBlockWidgetState extends State<SimpleTableBlockWidget>
     Widget child = SimpleTableWidget(
       node: node,
       simpleTableContext: simpleTableContext,
+      alwaysDistributeColumnWidths: widget.alwaysDistributeColumnWidths,
     );
 
     if (UniversalPlatform.isDesktop) {

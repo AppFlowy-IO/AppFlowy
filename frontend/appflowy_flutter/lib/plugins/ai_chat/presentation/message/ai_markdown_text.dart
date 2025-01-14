@@ -101,6 +101,7 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
       styleCustomizer: styleCustomizer,
       // the editor is not editable in the chat
       editable: false,
+      alwaysDistributeSimpleTableColumnWidths: true,
     );
     return IntrinsicHeight(
       child: AppFlowyEditor(

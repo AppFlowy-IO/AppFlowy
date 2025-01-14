@@ -59,8 +59,8 @@ void main() {
         .evaluate()
         .first
         .widget as IconWidget;
-    final iconWidgetData = iconWidget.data;
-    expect(iconWidgetData.iconContent, iconData.iconContent);
+    final iconWidgetData = iconWidget.iconsData;
+    expect(iconWidgetData.svgString, iconData.svgString);
     expect(iconWidgetData.iconName, iconData.iconName);
     expect(iconWidgetData.groupName, iconData.groupName);
   });

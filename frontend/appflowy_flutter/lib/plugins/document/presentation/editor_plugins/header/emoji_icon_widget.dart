@@ -100,7 +100,7 @@ class RawEmojiIconWidget extends StatelessWidget {
           /// size of the icons
           final iconSize = Platform.isMacOS ? emojiSize * 0.9 : emojiSize;
           return IconWidget(
-            data: iconData,
+            iconsData: iconData,
             size: iconSize,
           );
         default:

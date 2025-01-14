@@ -928,7 +928,6 @@ extension CommonOperations on WidgetTester {
     return EmojiIconData.icon(
       IconsData(
         firstGroup.name,
-        firstIcon.content,
         firstIcon.name,
         builtInSpaceColors.first,
       ),

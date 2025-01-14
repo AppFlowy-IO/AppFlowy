@@ -175,7 +175,6 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
               widget.onSelectedIcon(
                 IconsData(
                   value.$1.name,
-                  value.$2.content,
                   value.$2.name,
                   color,
                 ).toResult(isRandom: true),
@@ -234,16 +233,14 @@ class _FlowyIconPickerState extends State<FlowyIconPicker> {
 }
 
 class IconsData {
-  IconsData(this.groupName, this.iconContent, this.iconName, this.color);
+  IconsData(this.groupName, this.iconName, this.color);
 
   final String groupName;
-  final String iconContent;
   final String iconName;
   final String? color;
 
   String get iconString => jsonEncode({
         'groupName': groupName,
-        'iconContent': iconContent,
         'iconName': iconName,
         if (color != null) 'color': color,
       });
@@ -255,11 +252,16 @@ class IconsData {
   static IconsData fromJson(dynamic json) {
     return IconsData(
       json['groupName'],
-      json['iconContent'],
       json['iconName'],
       json['color'],
     );
   }
+
+  String? get svgString => kIconGroups
+      ?.firstWhereOrNull((group) => group.name == groupName)
+      ?.icons
+      .firstWhereOrNull((icon) => icon.name == iconName)
+      ?.content;
 }
 
 class IconPicker extends StatefulWidget {
@@ -321,7 +323,6 @@ class _IconPickerState extends State<IconPicker> {
                           widget.onSelectedIcon(
                             IconsData(
                               groupName,
-                              icon.content,
                               icon.name,
                               color,
                             ),
@@ -340,7 +341,6 @@ class _IconPickerState extends State<IconPicker> {
                           widget.onSelectedIcon(
                             IconsData(
                               groupName,
-                              icon.content,
                               icon.name,
                               null,
                             ),
