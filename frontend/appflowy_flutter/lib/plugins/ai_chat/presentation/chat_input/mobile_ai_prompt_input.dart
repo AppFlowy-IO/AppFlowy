@@ -43,8 +43,11 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
   final focusNode = FocusNode();
   final textController = TextEditingController();
 
-  bool showPredefinedFormatSection = false;
-  PredefinedFormat predefinedFormat = const PredefinedFormat.auto();
+  bool showPredefinedFormatSection = true;
+  PredefinedFormat predefinedFormat = const PredefinedFormat(
+    imageFormat: ImageFormat.text,
+    textFormat: TextFormat.bulletList,
+  );
   late SendButtonState sendButtonState;
 
   @override
@@ -265,6 +268,7 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
               AIType.appflowyAI => LocaleKeys.chat_inputMessageHint.tr(),
               AIType.localAI => LocaleKeys.chat_inputLocalAIMessageHint.tr()
             },
+            hintStyle: AIChatUILayout.inputHintTextStyle(context),
             isCollapsed: true,
             isDense: true,
           ),
@@ -304,9 +308,6 @@ class _MobileAIPromptInputState extends State<MobileAIPromptInput> {
         onTogglePredefinedFormatSection: () {
           setState(() {
             showPredefinedFormatSection = !showPredefinedFormatSection;
-            if (!showPredefinedFormatSection) {
-              predefinedFormat = const PredefinedFormat.auto();
-            }
           });
         },
         onUpdateSelectedSources: widget.onUpdateSelectedSources,

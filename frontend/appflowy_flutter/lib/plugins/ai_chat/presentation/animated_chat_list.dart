@@ -312,7 +312,7 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
     // bottom of the list, set `_userHasScrolled` to false so that the scroll
     // animation is triggered.
     if (_userHasScrolled &&
-        widget.scrollController.offset >=
+        widget.scrollController.offset >
             widget.scrollController.position.minScrollExtent) {
       _userHasScrolled = false;
     }
@@ -325,7 +325,7 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
     // Used later to trigger scroll to end only for the last inserted message.
     _lastInsertedMessageId = data.id;
 
-    if (position == _oldList.length) {
+    if (position == 0) {
       _scrollToEnd(data);
     }
   }

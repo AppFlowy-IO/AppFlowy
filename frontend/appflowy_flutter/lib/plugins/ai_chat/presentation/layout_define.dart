@@ -1,3 +1,4 @@
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -17,6 +18,14 @@ class AIChatUILayout {
   static EdgeInsets get messageMargin => UniversalPlatform.isMobile
       ? const EdgeInsets.symmetric(horizontal: 16)
       : EdgeInsets.zero;
+
+  static TextStyle? inputHintTextStyle(BuildContext context) {
+    return Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: Theme.of(context).isLightMode
+              ? const Color(0xFFBDC2C8)
+              : const Color(0xFF3C3E51),
+        );
+  }
 }
 
 class DesktopAIPromptSizes {
