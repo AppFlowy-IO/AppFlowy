@@ -252,7 +252,6 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
           child: ValueListenableBuilder<bool>(
             valueListenable: showActionsNotifier,
             builder: (_, value, child) {
-              final url = node.attributes[CustomImageBlockKeys.url];
               return Stack(
                 children: [
                   editorState.editable
@@ -266,7 +265,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
                           child: child!,
                         )
                       : child!,
-                  if (value && url.isNotEmpty == true)
+                  if (value)
                     widget.menuBuilder!(widget.node, this, imageStateNotifier),
                 ],
               );
