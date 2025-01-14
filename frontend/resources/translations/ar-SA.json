@@ -2603,7 +2603,8 @@
     "addNewSpace": "إنشاء مساحة",
     "collapseAllSubPages": "طي كل الصفحات الفرعية",
     "createNewSpace": "إنشاء مساحة جديدة",
-    "createSpaceDescription": "إنشاء مساحات عامة وخاصة متعددة لتنظيم عملك بشكل أفضل."
+    "createSpaceDescription": "إنشاء مساحات عامة وخاصة متعددة لتنظيم عملك بشكل أفضل.",
+    "spaceName": "اسم المساحة"
   },
   "gallery": {
     "resetZoom": "إعادة ضبط التكبير"
