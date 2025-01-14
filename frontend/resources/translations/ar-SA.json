@@ -223,7 +223,24 @@
     "addToNewPage": "أضف إلى صفحة جديدة",
     "addToNewPageName": "الرسائل المستخرجة من \"{}\"",
     "addToNewPageSuccessToast": "تمت إضافة الرسالة إلى",
-    "openPagePreviewFailedToast": "فشل في فتح الصفحة"
+    "openPagePreviewFailedToast": "فشل في فتح الصفحة",
+    "changeFormat": {
+      "actionButton": "تغيير التنسيق",
+      "confirmButton": "إعادة توليد مع هذا التنسيق",
+      "textOnly": "النص",
+      "imageOnly": "الصورة فقط",
+      "textAndImage": "النص والصورة",
+      "text": "الفقرة",
+      "bullet": "قائمة نقطية",
+      "number": "قائمة مرقمة",
+      "table": "الجدول",
+      "blankDescription": "تنسيق الاستجابة",
+      "defaultDescription": "الوضع التلقائي",
+      "textWithImageDescription": "@:chat.changeFormat.text مع الصورة",
+      "numberWithImageDescription": "@:chat.changeFormat.number مع الصورة",
+      "bulletWithImageDescription": "@:chat.changeFormat.bullet مع الصورة",
+      "tableWithImageDescription": "@:chat.changeFormat.table مع الصورة"
+    }
   },
   "trash": {
     "text": "المهملات",
@@ -975,7 +992,7 @@
         "itemThree": "5 جيجا بايت",
         "itemFour": "نعم",
         "itemFive": "نعم",
-        "itemSix": "20 مدى الحياة",
+        "itemSix": "10 مدى الحياة",
         "itemFileUpload": "حتى 7 ميجا بايت",
         "intelligentSearch": "البحث الذكي"
       },
@@ -1686,7 +1703,32 @@
         "calendar": "تقويم",
         "linkedCalendar": "التقويم المرتبط",
         "quote": "اقتباس",
-        "divider": "فاصل"
+        "divider": "فاصل",
+        "table": "الجدول",
+        "callout": "وسيلة الشرح",
+        "outline": "مخطط تفصيلي",
+        "mathEquation": "معادلة الرياضيات",
+        "code": "الكود",
+        "toggleList": "قائمة التبديل",
+        "toggleHeading1": "تبديل العنوان 1",
+        "toggleHeading2": "تبديل العنوان 2",
+        "toggleHeading3": "تبديل العنوان 3",
+        "emoji": "الرموز التعبيرية",
+        "aiWriter": "كاتب الذكاء الاصطناعي",
+        "dateOrReminder": "التاريخ أو التذكير",
+        "photoGallery": "معرض الصور",
+        "file": "الملف"
+      },
+      "subPage": {
+        "name": "المستند",
+        "keyword1": "الصفحة الفرعية",
+        "keyword2": "الصفحة",
+        "keyword3": "الصفحة الطفل",
+        "keyword4": "ادراج الصفحة",
+        "keyword5": "تضمين الصفحة",
+        "keyword6": "صفحة جديدة",
+        "keyword7": "إنشاء صفحة",
+        "keyword8": "المستند"
       }
     },
     "selectionMenu": {
@@ -1715,15 +1757,50 @@
       "smartEditCouldNotFetchResult": "تعذر جلب النتيجة من AI",
       "smartEditCouldNotFetchKey": "تعذر جلب مفتاح AI",
       "smartEditDisabled": "قم بتوصيل AI في الإعدادات",
+      "appflowyAIEditDisabled": "تسجيل الدخول لتمكين ميزات الذكاء الاصطناعي",
       "discardResponse": "هل تريد تجاهل استجابات الذكاء الاصطناعي؟",
       "createInlineMathEquation": "اصنع معادلة",
       "fonts": "الخطوط",
+      "insertDate": "أدخل التاريخ",
+      "emoji": "الرموز التعبيرية",
       "toggleList": "تبديل القائمة",
+      "emptyToggleHeading": "تبديل فارغ h{}. انقر لإضافة محتوى.",
+      "emptyToggleList": "قائمة تبديل فارغة. انقر لإضافة المحتوى.",
+      "emptyToggleHeadingWeb": "تبديل فارغ h{level}. انقر لإضافة محتوى",
       "quoteList": "قائمة الاقتباس",
       "numberedList": "قائمة مرقمة",
       "bulletedList": "قائمة نقطية",
       "todoList": "قائمة مهام",
       "callout": "استدعاء",
+      "simpleTable": {
+        "moreActions": {
+          "color": "اللون",
+          "align": "المحاذاة",
+          "delete": "حذف",
+          "duplicate": "تكرار",
+          "insertLeft": "أدخل اليسار",
+          "insertRight": "إدراج إلى اليمين",
+          "insertAbove": "إدراج أعلاه",
+          "insertBelow": "إدراج أدناه",
+          "headerColumn": "عمود رأس الصفحة",
+          "headerRow": "صف رأس الصفحة",
+          "clearContents": "مسح المحتويات",
+          "setToPageWidth": "اضبط على عرض الصفحة",
+          "distributeColumnsWidth": "توزيع الأعمدة بالتساوي",
+          "duplicateRow": "صف مكرر",
+          "duplicateColumn": "عمود مكرر",
+          "textColor": "لون النص",
+          "cellBackgroundColor": "لون خلفية الخلية",
+          "duplicateTable": "جدول مكرر"
+        },
+        "clickToAddNewRow": "انقر لإضافة صف جديد",
+        "clickToAddNewColumn": "انقر لإضافة عمود جديد",
+        "clickToAddNewRowAndColumn": "انقر لإضافة صف وعمود جديدين",
+        "headerName": {
+          "table": "الجدول",
+          "alignText": "محاذاة النص"
+        }
+      },
       "cover": {
         "changeCover": "تبديل الغطاء",
         "colors": "الألوان",
@@ -1739,6 +1816,7 @@
         "back": "خلف",
         "saveToGallery": "حفظ في المعرض",
         "removeIcon": "إزالة الرمز",
+        "removeCover": "إزالة الغلاف",
         "pasteImageUrl": "لصق عنوان URL للصورة",
         "or": "أو",
         "pickFromFiles": "اختر من الملفات",
@@ -1757,6 +1835,8 @@
       "optionAction": {
         "click": "انقر",
         "toOpenMenu": " لفتح القائمة",
+        "drag": "سحب",
+        "toMove": " حرك",
         "delete": "يمسح",
         "duplicate": "ينسخ",
         "turnInto": "تحول إلى",
@@ -1767,14 +1847,43 @@
         "left": "غادر",
         "center": "مركز",
         "right": "يمين",
-        "defaultColor": "تقصير"
+        "defaultColor": "تقصير",
+        "depth": "عمق"
       },
       "image": {
         "addAnImage": "أضف صورة",
-        "copiedToPasteBoard": "تم نسخ رابط الصورة إلى الحافظة"
+        "copiedToPasteBoard": "تم نسخ رابط الصورة إلى الحافظة",
+        "addAnImageDesktop": "أضف صورة",
+        "addAnImageMobile": "انقر لإضافة صورة واحدة أو أكثر",
+        "dropImageToInsert": "إسقاط الصور لإدراجها",
+        "imageUploadFailed": "فشل رفع الصورة",
+        "imageDownloadFailed": "فشل تنزيل الصورة، يرجى المحاولة مرة أخرى",
+        "imageDownloadFailedToken": "فشل تنزيل الصورة بسبب عدم وجود رمز المستخدم، يرجى المحاولة مرة أخرى",
+        "errorCode": "كود الخطأ"
+      },
+      "photoGallery": {
+        "name": "معرض الصور",
+        "imageKeyword": "صورة",
+        "imageGalleryKeyword": "معرض الصور",
+        "photoKeyword": "صورة",
+        "photoBrowserKeyword": "متصفح الصور",
+        "galleryKeyword": "معرض الصور",
+        "addImageTooltip": "أضف صورة",
+        "changeLayoutTooltip": "تغيير التخطيط",
+        "browserLayout": "المتصفح",
+        "gridLayout": "شبكة",
+        "deleteBlockTooltip": "حذف المعرض بأكمله"
+      },
+      "math": {
+        "copiedToPasteBoard": "تم نسخ المعادلة الرياضية إلى الحافظة"
+      },
+      "urlPreview": {
+        "copiedToPasteBoard": "تم نسخ الرابط إلى الحافظة",
+        "convertToLink": "تحويل إلى رابط التضمين"
       },
       "outline": {
-        "addHeadingToCreateOutline": "أضف عناوين لإنشاء جدول محتويات."
+        "addHeadingToCreateOutline": "أضف عناوين لإنشاء جدول محتويات.",
+        "noMatchHeadings": "لم يتم العثور على عناوين مطابقة."
       },
       "table": {
         "addAfter": "أضف بعد",
@@ -1787,10 +1896,68 @@
       "contextMenu": {
         "copy": "نسخ",
         "cut": "قطع",
-        "paste": "لصق"
+        "paste": "لصق",
+        "pasteAsPlainText": "لصق كنص عادي"
       },
       "action": "أجراءات",
+      "database": {
+        "selectDataSource": "حدد مصدر البيانات",
+        "noDataSource": "لا يوجد مصدر للبيانات",
+        "selectADataSource": "حدد مصدر البيانات",
+        "toContinue": "للمتابعة",
+        "newDatabase": "قاعدة بيانات جديدة",
+        "linkToDatabase": "رابط لقاعدة البيانات"
+      },
+      "date": "تاريخ",
+      "video": {
+        "label": "فيديو",
+        "emptyLabel": "أضف فيديو",
+        "placeholder": "ألصق رابط الفيديو",
+        "copiedToPasteBoard": "تم نسخ رابط الفيديو إلى الحافظة",
+        "insertVideo": "إضافة الفيديو",
+        "invalidVideoUrl": "لم يتم دعم عنوان URL المصدر بعد.",
+        "invalidVideoUrlYouTube": "لم يتم دعم YouTube بعد.",
+        "supportedFormats": "التنسيقات المدعومة: MP4، WebM، MOV، AVI، FLV، MPEG/M4V، H.264"
+      },
+      "file": {
+        "name": "ملف",
+        "uploadTab": "رفع",
+        "uploadMobile": "اختر ملف",
+        "uploadMobileGallery": "من معرض الصور",
+        "networkTab": "تضمين الرابط",
+        "placeholderText": "رفع أو تضمين ملف",
+        "placeholderDragging": "إفلات الملف للرفع",
+        "dropFileToUpload": "إفلات ملف لتحميله",
+        "fileUploadHint": "اسحب وأفلِت ملفًا أو انقر فوقه ",
+        "fileUploadHintSuffix": "تصفح",
+        "networkHint": "لصق رابط الملف",
+        "networkUrlInvalid": "عنوان URL غير صالح. تحقق من عنوان URL وحاول مرة أخرى.",
+        "networkAction": "تضمين",
+        "fileTooBigError": "حجم الملف كبير جدًا، يرجى رفع ملف بحجم أقل من 10 ميجا بايت",
+        "renameFile": {
+          "title": "إعادة تسمية الملف",
+          "description": "أدخل الاسم الجديد لهذا الملف",
+          "nameEmptyError": "لا يمكن ترك اسم الملف فارغًا."
+        },
+        "uploadedAt": "تم الرفع في {}",
+        "linkedAt": "تمت إضافة الرابط في {}",
+        "failedToOpenMsg": "فشل في الفتح، لم يتم العثور على الملف"
+      },
+      "subPage": {
+        "handlingPasteHint": " - (التعامل مع اللصق)",
+        "errors": {
+          "failedDeletePage": "فشل في حذف الصفحة",
+          "failedCreatePage": "فشل في إنشاء الصفحة",
+          "failedMovePage": "فشل نقل الصفحة إلى هذا المستند",
+          "failedDuplicatePage": "فشل في تكرار الصفحة",
+          "failedDuplicateFindView": "فشل في تكرار الصفحة - لم يتم العثور على العرض الأصلي"
+        }
+      },
+      "cannotMoveToItsChildren": "لا يمكن الانتقال إلى أطفاله",
       "autoCompletionMenuItemName": "عنصر قائمة الإكمال التلقائي"
+    },
+    "outlineBlock": {
+      "placeholder": "جدول المحتويات"
     },
     "textBlock": {
       "placeholder": "اكتب \"/\" للأوامر"
@@ -1821,7 +1988,9 @@
         "invalidImage": "صورة غير صالحة",
         "invalidImageSize": "يجب أن يكون حجم الصورة أقل من 5 ميغا بايت",
         "invalidImageFormat": "تنسيق الصورة غير مدعوم. التنسيقات المدعومة: JPEG ، PNG ، GIF ، SVG",
-        "invalidImageUrl": "عنوان URL للصورة غير صالح"
+        "invalidImageUrl": "عنوان URL للصورة غير صالح",
+        "noImage": "لا يوجد مثل هذا الملف أو الدليل",
+        "multipleImagesFailed": "فشلت عملية رفع صورة واحدة أو أكثر، يرجى المحاولة مرة أخرى"
       },
       "embedLink": {
         "label": "رابط متضمن",
@@ -1836,6 +2005,24 @@
       "failedToAddImageToGallery": "فشلت إضافة الصورة إلى المعرض",
       "successToAddImageToGallery": "تمت إضافة الصورة إلى المعرض بنجاح",
       "unableToLoadImage": "غير قادر على تحميل الصورة",
+      "maximumImageSize": "الحد الأقصى لحجم الصورة المسموح برفعها هو 10 ميجا بايت",
+      "uploadImageErrorImageSizeTooBig": "يجب أن يكون حجم الصورة أقل من 10 ميجا بايت",
+      "imageIsUploading": "جاري رفع الصورة",
+      "openFullScreen": "افتح في الشاشة الكاملة",
+      "interactiveViewer": {
+        "toolbar": {
+          "previousImageTooltip": "الصورة السابقة",
+          "nextImageTooltip": "الصورة التالية",
+          "zoomOutTooltip": "تصغير",
+          "zoomInTooltip": "تكبير",
+          "changeZoomLevelTooltip": "تغيير مستوى التكبير",
+          "openLocalImage": "افتح الصورة",
+          "downloadImage": "تنزيل الصورة",
+          "closeViewer": "إغلاق العارض التفاعلي",
+          "scalePercentage": "{}%",
+          "deleteImageTooltip": "حذف الصورة"
+        }
+      },
       "pleaseInputYourStabilityAIKey": "يرجى إدخال مفتاح Stability AI الخاص بك في صفحة الإعدادات"
     },
     "codeBlock": {
@@ -1867,7 +2054,13 @@
       "page": {
         "label": "رابط إلى الصفحة",
         "tooltip": "انقر لفتح الصفحة"
-      }
+      },
+      "deleted": "تم الحذف",
+      "deletedContent": "هذا المحتوى غير موجود أو تم حذفه",
+      "noAccess": "لا يوجد وصول",
+      "deletedPage": "الصفحة المحذوفة",
+      "trashHint": " - في سلة المهملات",
+      "morePages": "المزيد من الصفحات"
     },
     "toolbar": {
       "resetToDefaultFont": "إعادة تعيين إلى الافتراضي"
@@ -1876,6 +2069,16 @@
       "theBlockIsNotSupported": "الإصدار الحالي لا يدعم هذا الحقل.",
       "blockContentHasBeenCopied": "تم نسخ محتوى الحقل."
     },
+    "mobilePageSelector": {
+      "title": "حدد الصفحة",
+      "failedToLoad": "فشل تحميل قائمة الصفحات",
+      "noPagesFound": "لم يتم العثور على صفحات"
+    },
+    "attachmentMenu": {
+      "choosePhoto": "اختر الصورة",
+      "takePicture": "التقط صورة",
+      "chooseFile": "اختر الملف"
+    },
     "data": {
       "timeHintTextInTwelveHour": "اثنا عشر ساعة",
       "timeHintTextInTwentyFourHour": "أربع و عشرون ساعة"
@@ -1883,6 +2086,7 @@
   },
   "board": {
     "column": {
+      "label": "عمود",
       "createNewCard": "جديد",
       "renameGroupTooltip": "اضغط لإعادة تسمية المجموعة",
       "createNewColumn": "أضف مجموعة جديدة",
@@ -1913,6 +2117,7 @@
     "ungroupedButtonTooltip": "تحتوي على بطاقات لا تنتمي إلى أي مجموعة",
     "ungroupedItemsTitle": "انقر للإضافة إلى السبورة",
     "groupBy": "مجموعة من",
+    "groupCondition": "حالة المجموعة",
     "referencedBoardPrefix": "نظرا ل",
     "notesTooltip": "ملاحظات بالداخل",
     "mobile": {
@@ -1920,6 +2125,22 @@
       "showGroup": "إظهار المجموعة",
       "showGroupContent": "هل أنت متأكد من إظهار هذه المجموعة على السبورة؟",
       "failedToLoad": "فشل تحميل عرض السبورة"
+    },
+    "dateCondition": {
+      "weekOf": "أسبوع {} - {}",
+      "today": "اليوم",
+      "yesterday": "أمس",
+      "tomorrow": "غداً",
+      "lastSevenDays": "آخر 7 أيام",
+      "nextSevenDays": "الأيام 7 القادمة",
+      "lastThirtyDays": "آخر 30 يوما",
+      "nextThirtyDays": "30 يوما القادم"
+    },
+    "noGroup": "لا توجد مجموعة حسب الخاصية",
+    "noGroupDesc": "تتطلب وجهات نظر اللوحة خاصية للتجميع من أجل العرض",
+    "media": {
+      "cardText": "{} {}",
+      "fallbackName": "الملفات"
     }
   },
   "calendar": {
@@ -1930,29 +2151,45 @@
       "today": "اليوم",
       "jumpToday": "انتقل إلى اليوم",
       "previousMonth": "الشهر الماضى",
-      "nextMonth": "الشهر القادم"
+      "nextMonth": "الشهر القادم",
+      "views": {
+        "day": "يوم",
+        "week": "أسبوع",
+        "month": "شهر",
+        "year": "سنة"
+      }
+    },
+    "mobileEventScreen": {
+      "emptyTitle": "لا يوجد أحداث حتى الآن",
+      "emptyBody": "اضغط على زر الإضافة \"+\" لإنشاء حدث في هذا اليوم."
     },
     "settings": {
       "showWeekNumbers": "إظهار أرقام الأسبوع",
       "showWeekends": "عرض عطلات نهاية الأسبوع",
       "firstDayOfWeek": "اليوم الأول من الأسبوع",
       "layoutDateField": "تقويم التخطيط بواسطة",
+      "changeLayoutDateField": "تغيير حقل التخطيط",
       "noDateTitle": "بدون تاريخ",
+      "noDateHint": "ستظهر الأحداث غير المجدولة هنا",
       "unscheduledEventsTitle": "الأحداث غير المجدولة",
       "clickToAdd": "انقر للإضافة إلى التقويم",
       "name": "تخطيط التقويم",
-      "noDateHint": "ستظهر الأحداث غير المجدولة هنا"
+      "clickToOpen": "انقر لفتح السجل"
     },
     "referencedCalendarPrefix": "نظرا ل",
-    "quickJumpYear": "انتقل إلى"
+    "quickJumpYear": "انتقل إلى",
+    "duplicateEvent": "حدث مكرر"
   },
   "errorDialog": {
     "title": "خطأ @:appName",
     "howToFixFallback": "نأسف للإزعاج! قم بإرسال مشكلة على صفحة GitHub الخاصة بنا والتي تصف الخطأ الخاص بك.",
+    "howToFixFallbackHint1": "نحن نأسف للإزعاج! أرسل مشكلة على ",
+    "howToFixFallbackHint2": " الصفحة التي تصف الخطأ الخاص بك.",
     "github": "عرض على جيثب"
   },
   "search": {
     "label": "يبحث",
+    "sidebarSearchIcon": "ابحث وانتقل بسرعة إلى الصفحة",
     "placeholder": {
       "actions": "إجراءات البحث ..."
     }
@@ -2010,19 +2247,48 @@
       "medium": "متوسط",
       "mediumDark": "متوسطة الظلمة",
       "dark": "مظلم"
-    }
+    },
+    "openSourceIconsFrom": "أيقونات مفتوحة المصدر من"
   },
   "inlineActions": {
     "noResults": "لا نتائج",
+    "recentPages": "الصفحات الأخيرة",
     "pageReference": "مرجع الصفحة",
+    "docReference": "مرجع المستند",
+    "boardReference": "مرجع اللوحة",
+    "calReference": "مرجع التقويم",
+    "gridReference": "مرجع الشبكة",
     "date": "تاريخ",
     "reminder": {
       "groupTitle": "تذكير",
       "shortKeyword": "يذكر"
-    }
+    },
+    "createPage": "إنشاء صفحة فرعية \"{}\""
   },
   "datePicker": {
-    "dateTimeFormatTooltip": "تغيير تنسيق التاريخ والوقت في الإعدادات"
+    "dateTimeFormatTooltip": "تغيير تنسيق التاريخ والوقت في الإعدادات",
+    "dateFormat": "تنسيق التاريخ",
+    "includeTime": "تضمين الوقت",
+    "isRange": "تاريخ النهاية",
+    "timeFormat": "تنسيق الوقت",
+    "clearDate": "مسح التاريخ",
+    "reminderLabel": "تذكير",
+    "selectReminder": "حدد التذكير",
+    "reminderOptions": {
+      "none": "لا شيء",
+      "atTimeOfEvent": "وقت الحدث",
+      "fiveMinsBefore": "قبل 5 دقائق",
+      "tenMinsBefore": "قبل 10 دقائق",
+      "fifteenMinsBefore": "قبل 15 دقيقة",
+      "thirtyMinsBefore": "قبل 30 دقيقة",
+      "oneHourBefore": "قبل ساعة واحدة",
+      "twoHoursBefore": "قبل ساعتين",
+      "onDayOfEvent": "في يوم الحدث",
+      "oneDayBefore": "قبل يوم واحد",
+      "twoDaysBefore": "قبل يومين",
+      "oneWeekBefore": "قبل اسبوع واحد",
+      "custom": "مخصص"
+    }
   },
   "relativeDates": {
     "yesterday": "أمس",
@@ -2070,15 +2336,20 @@
     "replace": "استبدل",
     "replaceAll": "استبدال الكل",
     "noResult": "لا نتائج",
-    "caseSensitive": "دقة الحروف"
+    "caseSensitive": "دقة الحروف",
+    "searchMore": "ابحث للعثور على المزيد من النتائج"
   },
   "error": {
     "weAreSorry": "آسفون",
-    "loadingViewError": "نواجه مشكلة في تحميل هذا العرض. يرجى التحقق من اتصالك بالإنترنت، وتحديث التطبيق، ولا تتردد في التواصل مع الفريق إذا استمرت المشكلة."
+    "loadingViewError": "نواجه مشكلة في تحميل هذا العرض. يرجى التحقق من اتصالك بالإنترنت، وتحديث التطبيق، ولا تتردد في التواصل مع الفريق إذا استمرت المشكلة.",
+    "syncError": "لم تتم مزامنة البيانات من جهاز آخر",
+    "syncErrorHint": "يرجى إعادة فتح هذه الصفحة على الجهاز الذي تم تحريرها عليه آخر مرة، ثم فتحها مرة أخرى على الجهاز الحالي.",
+    "clickToCopy": "انقر هنا لنسخ كود الخطأ"
   },
   "editor": {
     "bold": "عريض",
     "bulletedList": "قائمة نقطية",
+    "bulletedListShortForm": "نقطية",
     "checkbox": "خانة الاختيار",
     "embedCode": "كود متضمن",
     "heading1": "رأسية اولى",
@@ -2087,9 +2358,15 @@
     "highlight": "ابراز",
     "color": "لون",
     "image": "صورة",
+    "date": "تاريخ",
+    "page": "صفحة",
     "italic": "مائل",
     "link": "رابط",
     "numberedList": "قائمة مرقمة",
+    "numberedListShortForm": "مرقمة",
+    "toggleHeading1ShortForm": "تبديل h1",
+    "toggleHeading2ShortForm": "تبديل h2",
+    "toggleHeading3ShortForm": "تبديل h3",
     "quote": "اقتباس",
     "strikethrough": "يتوسطه خط",
     "text": "نص",

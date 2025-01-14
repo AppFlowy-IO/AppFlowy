@@ -21,7 +21,10 @@ Node simpleTableRowBlockNode({
 class SimpleTableRowBlockComponentBuilder extends BlockComponentBuilder {
   SimpleTableRowBlockComponentBuilder({
     super.configuration,
+    this.alwaysDistributeColumnWidths = false,
   });
+
+  final bool alwaysDistributeColumnWidths;
 
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
@@ -30,6 +33,7 @@ class SimpleTableRowBlockComponentBuilder extends BlockComponentBuilder {
       key: node.key,
       node: node,
       configuration: configuration,
+      alwaysDistributeColumnWidths: alwaysDistributeColumnWidths,
       showActions: showActions(node),
       actionBuilder: (context, state) => actionBuilder(
         blockComponentContext,
@@ -49,7 +53,10 @@ class SimpleTableRowBlockWidget extends BlockComponentStatefulWidget {
     super.showActions,
     super.actionBuilder,
     super.configuration = const BlockComponentConfiguration(),
+    required this.alwaysDistributeColumnWidths,
   });
+
+  final bool alwaysDistributeColumnWidths;
 
   @override
   State<SimpleTableRowBlockWidget> createState() =>
@@ -95,7 +102,10 @@ class _SimpleTableRowBlockWidgetState extends State<SimpleTableRowBlockWidget>
         cells.add(const SimpleTableRowDivider());
       }
 
-      cells.add(editorState.renderer.build(context, node.children[i]));
+      final child = editorState.renderer.build(context, node.children[i]);
+      cells.add(
+        widget.alwaysDistributeColumnWidths ? Flexible(child: child) : child,
+      );
 
       // border
       if (SimpleTableConstants.borderType ==

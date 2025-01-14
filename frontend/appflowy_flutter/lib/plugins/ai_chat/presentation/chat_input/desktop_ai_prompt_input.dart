@@ -49,8 +49,11 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
   final focusNode = FocusNode();
   final textController = TextEditingController();
 
-  bool showPredefinedFormatSection = false;
-  PredefinedFormat predefinedFormat = const PredefinedFormat.auto();
+  bool showPredefinedFormatSection = true;
+  PredefinedFormat predefinedFormat = const PredefinedFormat(
+    imageFormat: ImageFormat.text,
+    textFormat: TextFormat.bulletList,
+  );
   late SendButtonState sendButtonState;
 
   @override
@@ -185,10 +188,6 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
                             setState(() {
                               showPredefinedFormatSection =
                                   !showPredefinedFormatSection;
-                              if (!showPredefinedFormatSection) {
-                                predefinedFormat =
-                                    const PredefinedFormat.auto();
-                              }
                             });
                           },
                           sendButtonState: sendButtonState,
@@ -466,10 +465,7 @@ class _PromptTextFieldState extends State<_PromptTextField> {
           focusedBorder: InputBorder.none,
           contentPadding: calculateContentPadding(),
           hintText: widget.hintText,
-          hintStyle: Theme.of(context)
-              .textTheme
-              .bodyMedium
-              ?.copyWith(color: Theme.of(context).hintColor),
+          hintStyle: AIChatUILayout.inputHintTextStyle(context),
           isCollapsed: true,
           isDense: true,
         ),

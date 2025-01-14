@@ -629,7 +629,7 @@ extension CommonOperations on WidgetTester {
   // update the page icon in the sidebar
   Future<void> updatePageIconInSidebarByName({
     required String name,
-    required String parentName,
+    String? parentName,
     required ViewLayoutPB layout,
     required EmojiIconData icon,
   }) async {
@@ -928,7 +928,6 @@ extension CommonOperations on WidgetTester {
     return EmojiIconData.icon(
       IconsData(
         firstGroup.name,
-        firstIcon.content,
         firstIcon.name,
         builtInSpaceColors.first,
       ),

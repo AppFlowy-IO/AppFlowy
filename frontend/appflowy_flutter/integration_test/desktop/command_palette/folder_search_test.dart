@@ -103,8 +103,8 @@ void main() {
       final iconData = IconsData.fromJson(jsonDecode(emojiIconData.emoji));
 
       /// icon displayed correctly
-      expect(firstSvg.svgString, iconData.iconContent);
-      expect(lastSvg.svgString, iconData.iconContent);
+      expect(firstSvg.svgString, iconData.svgString);
+      expect(lastSvg.svgString, iconData.svgString);
 
       testWidgets('select the content in document and search', (tester) async {
         const firstDocument = ''; // empty document

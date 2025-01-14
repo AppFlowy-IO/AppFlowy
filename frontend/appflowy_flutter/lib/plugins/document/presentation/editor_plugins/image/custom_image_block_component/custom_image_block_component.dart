@@ -252,18 +252,20 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
           child: ValueListenableBuilder<bool>(
             valueListenable: showActionsNotifier,
             builder: (_, value, child) {
-              final url = node.attributes[CustomImageBlockKeys.url];
               return Stack(
                 children: [
-                  BlockSelectionContainer(
-                    node: node,
-                    delegate: this,
-                    listenable: editorState.selectionNotifier,
-                    cursorColor: editorState.editorStyle.cursorColor,
-                    selectionColor: editorState.editorStyle.selectionColor,
-                    child: child!,
-                  ),
-                  if (value && url.isNotEmpty == true)
+                  editorState.editable
+                      ? BlockSelectionContainer(
+                          node: node,
+                          delegate: this,
+                          listenable: editorState.selectionNotifier,
+                          cursorColor: editorState.editorStyle.cursorColor,
+                          selectionColor:
+                              editorState.editorStyle.selectionColor,
+                          child: child!,
+                        )
+                      : child!,
+                  if (value)
                     widget.menuBuilder!(widget.node, this, imageStateNotifier),
                 ],
               );

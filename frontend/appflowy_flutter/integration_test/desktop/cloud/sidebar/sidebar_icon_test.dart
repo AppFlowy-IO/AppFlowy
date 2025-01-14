@@ -45,7 +45,7 @@ void main() {
     );
 
     final icons = find.byWidgetPredicate(
-      (w) => w is FlowySvg && w.svgString == firstIcon.iconContent,
+      (w) => w is FlowySvg && w.svgString == firstIcon.svgString,
     );
     expect(icons, findsOneWidget);
     await tester.tapIcon(EmojiIconData.icon(firstIcon));
@@ -54,7 +54,7 @@ void main() {
     final spaceIcon = find.descendant(
       of: spaceHeader,
       matching: find.byWidgetPredicate(
-        (w) => w is FlowySvg && w.svgString == firstIcon.iconContent,
+        (w) => w is FlowySvg && w.svgString == firstIcon.svgString,
       ),
     );
     expect(spaceIcon, findsOneWidget);

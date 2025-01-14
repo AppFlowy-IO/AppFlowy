@@ -1,11 +1,15 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/recent_icons.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/flowy_tab.dart';
 import 'package:appflowy/workspace/presentation/home/tabs/tabs_manager.dart';
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -284,6 +288,39 @@ void main() {
       expect(tester.isTabAtIndex(firstTabName, 0), isTrue);
       expect(tester.isTabAtIndex(secondTabName, 1), isTrue);
       expect(tester.isTabAtIndex(thirdTabName, 2), isTrue);
+    });
+
+    testWidgets('displaying icons in tab', (tester) async {
+      RecentIcons.enable = false;
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      final icon = await tester.loadIcon();
+      // update emoji
+      await tester.updatePageIconInSidebarByName(
+        name: gettingStarted,
+        parentName: gettingStarted,
+        layout: ViewLayoutPB.Document,
+        icon: icon,
+      );
+
+      /// create new page
+      await tester.createNewPageWithNameUnderParent(name: _documentName);
+
+      /// open new tab for [gettingStarted]
+      await tester.openAppInNewTab(gettingStarted, ViewLayoutPB.Document);
+
+      final tabs = find.descendant(
+        of: find.byType(TabsManager),
+        matching: find.byType(FlowyTab),
+      );
+      expect(tabs, findsNWidgets(2));
+
+      final svgInTab =
+          find.descendant(of: tabs.last, matching: find.byType(FlowySvg));
+      final svgWidget = svgInTab.evaluate().first.widget as FlowySvg;
+      final iconsData = IconsData.fromJson(jsonDecode(icon.emoji));
+      expect(svgWidget.svgString, iconsData.svgString);
     });
   });
 }
