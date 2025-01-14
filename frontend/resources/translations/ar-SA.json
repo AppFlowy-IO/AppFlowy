@@ -2069,6 +2069,16 @@
       "theBlockIsNotSupported": "الإصدار الحالي لا يدعم هذا الحقل.",
       "blockContentHasBeenCopied": "تم نسخ محتوى الحقل."
     },
+    "mobilePageSelector": {
+      "title": "حدد الصفحة",
+      "failedToLoad": "فشل تحميل قائمة الصفحات",
+      "noPagesFound": "لم يتم العثور على صفحات"
+    },
+    "attachmentMenu": {
+      "choosePhoto": "اختر الصورة",
+      "takePicture": "التقط صورة",
+      "chooseFile": "اختر الملف"
+    },
     "data": {
       "timeHintTextInTwelveHour": "اثنا عشر ساعة",
       "timeHintTextInTwentyFourHour": "أربع و عشرون ساعة"
@@ -2076,6 +2086,7 @@
   },
   "board": {
     "column": {
+      "label": "عمود",
       "createNewCard": "جديد",
       "renameGroupTooltip": "اضغط لإعادة تسمية المجموعة",
       "createNewColumn": "أضف مجموعة جديدة",
@@ -2106,6 +2117,7 @@
     "ungroupedButtonTooltip": "تحتوي على بطاقات لا تنتمي إلى أي مجموعة",
     "ungroupedItemsTitle": "انقر للإضافة إلى السبورة",
     "groupBy": "مجموعة من",
+    "groupCondition": "حالة المجموعة",
     "referencedBoardPrefix": "نظرا ل",
     "notesTooltip": "ملاحظات بالداخل",
     "mobile": {
@@ -2113,6 +2125,22 @@
       "showGroup": "إظهار المجموعة",
       "showGroupContent": "هل أنت متأكد من إظهار هذه المجموعة على السبورة؟",
       "failedToLoad": "فشل تحميل عرض السبورة"
+    },
+    "dateCondition": {
+      "weekOf": "أسبوع {} - {}",
+      "today": "اليوم",
+      "yesterday": "أمس",
+      "tomorrow": "غداً",
+      "lastSevenDays": "آخر 7 أيام",
+      "nextSevenDays": "الأيام 7 القادمة",
+      "lastThirtyDays": "آخر 30 يوما",
+      "nextThirtyDays": "30 يوما القادم"
+    },
+    "noGroup": "لا توجد مجموعة حسب الخاصية",
+    "noGroupDesc": "تتطلب وجهات نظر اللوحة خاصية للتجميع من أجل العرض",
+    "media": {
+      "cardText": "{} {}",
+      "fallbackName": "الملفات"
     }
   },
   "calendar": {
@@ -2123,29 +2151,45 @@
       "today": "اليوم",
       "jumpToday": "انتقل إلى اليوم",
       "previousMonth": "الشهر الماضى",
-      "nextMonth": "الشهر القادم"
+      "nextMonth": "الشهر القادم",
+      "views": {
+        "day": "يوم",
+        "week": "أسبوع",
+        "month": "شهر",
+        "year": "سنة"
+      }
+    },
+    "mobileEventScreen": {
+      "emptyTitle": "لا يوجد أحداث حتى الآن",
+      "emptyBody": "اضغط على زر الإضافة \"+\" لإنشاء حدث في هذا اليوم."
     },
     "settings": {
       "showWeekNumbers": "إظهار أرقام الأسبوع",
       "showWeekends": "عرض عطلات نهاية الأسبوع",
       "firstDayOfWeek": "اليوم الأول من الأسبوع",
       "layoutDateField": "تقويم التخطيط بواسطة",
+      "changeLayoutDateField": "تغيير حقل التخطيط",
       "noDateTitle": "بدون تاريخ",
+      "noDateHint": "ستظهر الأحداث غير المجدولة هنا",
       "unscheduledEventsTitle": "الأحداث غير المجدولة",
       "clickToAdd": "انقر للإضافة إلى التقويم",
       "name": "تخطيط التقويم",
-      "noDateHint": "ستظهر الأحداث غير المجدولة هنا"
+      "clickToOpen": "انقر لفتح السجل"
     },
     "referencedCalendarPrefix": "نظرا ل",
-    "quickJumpYear": "انتقل إلى"
+    "quickJumpYear": "انتقل إلى",
+    "duplicateEvent": "حدث مكرر"
   },
   "errorDialog": {
     "title": "خطأ @:appName",
     "howToFixFallback": "نأسف للإزعاج! قم بإرسال مشكلة على صفحة GitHub الخاصة بنا والتي تصف الخطأ الخاص بك.",
+    "howToFixFallbackHint1": "نحن نأسف للإزعاج! أرسل مشكلة على ",
+    "howToFixFallbackHint2": " الصفحة التي تصف الخطأ الخاص بك.",
     "github": "عرض على جيثب"
   },
   "search": {
     "label": "يبحث",
+    "sidebarSearchIcon": "ابحث وانتقل بسرعة إلى الصفحة",
     "placeholder": {
       "actions": "إجراءات البحث ..."
     }
@@ -2203,19 +2247,27 @@
       "medium": "متوسط",
       "mediumDark": "متوسطة الظلمة",
       "dark": "مظلم"
-    }
+    },
+    "openSourceIconsFrom": "أيقونات مفتوحة المصدر من"
   },
   "inlineActions": {
     "noResults": "لا نتائج",
+    "recentPages": "الصفحات الأخيرة",
     "pageReference": "مرجع الصفحة",
+    "docReference": "مرجع المستند",
+    "boardReference": "مرجع اللوحة",
+    "calReference": "مرجع التقويم",
+    "gridReference": "مرجع الشبكة",
     "date": "تاريخ",
     "reminder": {
       "groupTitle": "تذكير",
       "shortKeyword": "يذكر"
-    }
+    },
+    "createPage": "إنشاء صفحة فرعية \"{}\""
   },
   "datePicker": {
-    "dateTimeFormatTooltip": "تغيير تنسيق التاريخ والوقت في الإعدادات"
+    "dateTimeFormatTooltip": "تغيير تنسيق التاريخ والوقت في الإعدادات",
+    "dateFormat": "تنسيق التاريخ"
   },
   "relativeDates": {
     "yesterday": "أمس",
