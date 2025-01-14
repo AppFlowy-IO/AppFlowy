@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/te
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji_picker_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:collection/collection.dart';
@@ -173,11 +174,13 @@ class _TitleSkin extends IEditableTextCellSkin {
                     },
                     onUpdateName: (text) =>
                         bloc.add(TextCellEvent.updateText(text)),
+                    tabs: const [PickerTabType.emoji],
                   );
                 },
                 child: FlowyButton(
                   useIntrinsicWidth: true,
                   onTap: () {},
+                  margin: const EdgeInsets.symmetric(horizontal: 6),
                   text: Row(
                     children: [
                       if (state.icon != null) ...[
@@ -212,6 +215,7 @@ class RenameRowPopover extends StatefulWidget {
     required this.onUpdateName,
     required this.onUpdateIcon,
     required this.icon,
+    this.tabs = const [PickerTabType.emoji, PickerTabType.icon],
   });
 
   final TextEditingController textController;
@@ -219,6 +223,7 @@ class RenameRowPopover extends StatefulWidget {
 
   final ValueChanged<String> onUpdateName;
   final ValueChanged<EmojiIconData> onUpdateIcon;
+  final List<PickerTabType> tabs;
 
   @override
   State<RenameRowPopover> createState() => _RenameRowPopoverState();
@@ -248,6 +253,7 @@ class _RenameRowPopoverState extends State<RenameRowPopover> {
             widget.onUpdateIcon(r.data);
             if (!r.keepOpen) PopoverContainer.of(context).close();
           },
+          tabs: widget.tabs,
         ),
         const HSpace(6),
         SizedBox(
