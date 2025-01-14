@@ -1720,7 +1720,15 @@
         "file": "الملف"
       },
       "subPage": {
-        "name": "المستند"
+        "name": "المستند",
+        "keyword1": "الصفحة الفرعية",
+        "keyword2": "الصفحة",
+        "keyword3": "الصفحة الطفل",
+        "keyword4": "ادراج الصفحة",
+        "keyword5": "تضمين الصفحة",
+        "keyword6": "صفحة جديدة",
+        "keyword7": "إنشاء صفحة",
+        "keyword8": "المستند"
       }
     },
     "selectionMenu": {
@@ -1749,15 +1757,29 @@
       "smartEditCouldNotFetchResult": "تعذر جلب النتيجة من AI",
       "smartEditCouldNotFetchKey": "تعذر جلب مفتاح AI",
       "smartEditDisabled": "قم بتوصيل AI في الإعدادات",
+      "appflowyAIEditDisabled": "تسجيل الدخول لتمكين ميزات الذكاء الاصطناعي",
       "discardResponse": "هل تريد تجاهل استجابات الذكاء الاصطناعي؟",
       "createInlineMathEquation": "اصنع معادلة",
       "fonts": "الخطوط",
+      "insertDate": "أدخل التاريخ",
+      "emoji": "الرموز التعبيرية",
       "toggleList": "تبديل القائمة",
+      "emptyToggleHeading": "تبديل فارغ h{}. انقر لإضافة محتوى.",
+      "emptyToggleList": "قائمة تبديل فارغة. انقر لإضافة المحتوى.",
+      "emptyToggleHeadingWeb": "تبديل فارغ h{level}. انقر لإضافة محتوى",
       "quoteList": "قائمة الاقتباس",
       "numberedList": "قائمة مرقمة",
       "bulletedList": "قائمة نقطية",
       "todoList": "قائمة مهام",
       "callout": "استدعاء",
+      "simpleTable": {
+        "moreActions": {
+          "color": "اللون",
+          "align": "المحاذاة",
+          "delete": "حذف",
+          "duplicate": "تكرار"
+        }
+      },
       "cover": {
         "changeCover": "تبديل الغطاء",
         "colors": "الألوان",
