@@ -1923,9 +1923,41 @@
         "name": "ملف",
         "uploadTab": "رفع",
         "uploadMobile": "اختر ملف",
-        "uploadMobileGallery": "من معرض الصور"
+        "uploadMobileGallery": "من معرض الصور",
+        "networkTab": "تضمين الرابط",
+        "placeholderText": "رفع أو تضمين ملف",
+        "placeholderDragging": "إفلات الملف للرفع",
+        "dropFileToUpload": "إفلات ملف لتحميله",
+        "fileUploadHint": "اسحب وأفلِت ملفًا أو انقر فوقه ",
+        "fileUploadHintSuffix": "تصفح",
+        "networkHint": "لصق رابط الملف",
+        "networkUrlInvalid": "عنوان URL غير صالح. تحقق من عنوان URL وحاول مرة أخرى.",
+        "networkAction": "تضمين",
+        "fileTooBigError": "حجم الملف كبير جدًا، يرجى رفع ملف بحجم أقل من 10 ميجا بايت",
+        "renameFile": {
+          "title": "إعادة تسمية الملف",
+          "description": "أدخل الاسم الجديد لهذا الملف",
+          "nameEmptyError": "لا يمكن ترك اسم الملف فارغًا."
+        },
+        "uploadedAt": "تم الرفع في {}",
+        "linkedAt": "تمت إضافة الرابط في {}",
+        "failedToOpenMsg": "فشل في الفتح، لم يتم العثور على الملف"
       },
+      "subPage": {
+        "handlingPasteHint": " - (التعامل مع اللصق)",
+        "errors": {
+          "failedDeletePage": "فشل في حذف الصفحة",
+          "failedCreatePage": "فشل في إنشاء الصفحة",
+          "failedMovePage": "فشل نقل الصفحة إلى هذا المستند",
+          "failedDuplicatePage": "فشل في تكرار الصفحة",
+          "failedDuplicateFindView": "فشل في تكرار الصفحة - لم يتم العثور على العرض الأصلي"
+        }
+      },
+      "cannotMoveToItsChildren": "لا يمكن الانتقال إلى أطفاله",
       "autoCompletionMenuItemName": "عنصر قائمة الإكمال التلقائي"
+    },
+    "outlineBlock": {
+      "placeholder": "جدول المحتويات"
     },
     "textBlock": {
       "placeholder": "اكتب \"/\" للأوامر"
@@ -1956,7 +1988,9 @@
         "invalidImage": "صورة غير صالحة",
         "invalidImageSize": "يجب أن يكون حجم الصورة أقل من 5 ميغا بايت",
         "invalidImageFormat": "تنسيق الصورة غير مدعوم. التنسيقات المدعومة: JPEG ، PNG ، GIF ، SVG",
-        "invalidImageUrl": "عنوان URL للصورة غير صالح"
+        "invalidImageUrl": "عنوان URL للصورة غير صالح",
+        "noImage": "لا يوجد مثل هذا الملف أو الدليل",
+        "multipleImagesFailed": "فشلت عملية رفع صورة واحدة أو أكثر، يرجى المحاولة مرة أخرى"
       },
       "embedLink": {
         "label": "رابط متضمن",
