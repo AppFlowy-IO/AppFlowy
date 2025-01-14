@@ -2005,6 +2005,24 @@
       "failedToAddImageToGallery": "فشلت إضافة الصورة إلى المعرض",
       "successToAddImageToGallery": "تمت إضافة الصورة إلى المعرض بنجاح",
       "unableToLoadImage": "غير قادر على تحميل الصورة",
+      "maximumImageSize": "الحد الأقصى لحجم الصورة المسموح برفعها هو 10 ميجا بايت",
+      "uploadImageErrorImageSizeTooBig": "يجب أن يكون حجم الصورة أقل من 10 ميجا بايت",
+      "imageIsUploading": "جاري رفع الصورة",
+      "openFullScreen": "افتح في الشاشة الكاملة",
+      "interactiveViewer": {
+        "toolbar": {
+          "previousImageTooltip": "الصورة السابقة",
+          "nextImageTooltip": "الصورة التالية",
+          "zoomOutTooltip": "تصغير",
+          "zoomInTooltip": "تكبير",
+          "changeZoomLevelTooltip": "تغيير مستوى التكبير",
+          "openLocalImage": "افتح الصورة",
+          "downloadImage": "تنزيل الصورة",
+          "closeViewer": "إغلاق العارض التفاعلي",
+          "scalePercentage": "{}%",
+          "deleteImageTooltip": "حذف الصورة"
+        }
+      },
       "pleaseInputYourStabilityAIKey": "يرجى إدخال مفتاح Stability AI الخاص بك في صفحة الإعدادات"
     },
     "codeBlock": {
@@ -2036,7 +2054,13 @@
       "page": {
         "label": "رابط إلى الصفحة",
         "tooltip": "انقر لفتح الصفحة"
-      }
+      },
+      "deleted": "تم الحذف",
+      "deletedContent": "هذا المحتوى غير موجود أو تم حذفه",
+      "noAccess": "لا يوجد وصول",
+      "deletedPage": "الصفحة المحذوفة",
+      "trashHint": " - في سلة المهملات",
+      "morePages": "المزيد من الصفحات"
     },
     "toolbar": {
       "resetToDefaultFont": "إعادة تعيين إلى الافتراضي"
