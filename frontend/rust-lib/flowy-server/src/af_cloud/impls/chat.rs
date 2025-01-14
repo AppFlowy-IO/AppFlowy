@@ -100,7 +100,7 @@ where
     workspace_id: &str,
     chat_id: &str,
     message_id: i64,
-    format: ResponseFormat,
+    format: Option<ResponseFormat>,
   ) -> Result<StreamAnswer, FlowyError> {
     trace!(
       "stream_answer: workspace_id={}, chat_id={}, format={:?}",
