@@ -2550,12 +2550,60 @@
           "auto": "آلي",
           "light": "فاتح",
           "dark": "داكن"
-        }
+        },
+        "language": "لغة"
       }
+    },
+    "syncState": {
+      "syncing": "المزامنة",
+      "synced": "متزامنة",
+      "noNetworkConnected": "لا يوجد شبكة متصلة"
     }
   },
   "pageStyle": {
-    "presets": "الإعدادات المسبقة"
+    "title": "نمط الصفحة",
+    "layout": "تَخطِيط",
+    "coverImage": "صورة الغلاف",
+    "pageIcon": "أيقونة الصفحة",
+    "colors": "الألوان",
+    "gradient": "متدرج",
+    "backgroundImage": "صورة الخلفية",
+    "presets": "الإعدادات المسبقة",
+    "photo": "صورة",
+    "unsplash": "Unsplash",
+    "pageCover": "غلاف الصفحة",
+    "none": "لا شيء",
+    "openSettings": "افتح الإعدادات",
+    "photoPermissionTitle": "يرغب @:appName في الوصول إلى مكتبة الصور الخاصة بك",
+    "photoPermissionDescription": "يحتاج @:appName إلى الوصول إلى صورك للسماح لك بإضافة صور إلى مستنداتك",
+    "cameraPermissionTitle": "يريد @:appName الوصول إلى الكاميرا الخاصة بك",
+    "cameraPermissionDescription": "يحتاج @:appName إلى الوصول إلى الكاميرا للسماح لك بإضافة صور إلى مستنداتك من الكاميرا",
+    "doNotAllow": "لا تسمح",
+    "image": "صورة"
+  },
+  "commandPalette": {
+    "placeholder": "ابحث أو اطرح سؤالا...",
+    "bestMatches": "أفضل المطابقات",
+    "recentHistory": "التاريخ الحديث",
+    "navigateHint": "للتنقل",
+    "loadingTooltip": "نحن نبحث عن نتائج...",
+    "betaLabel": "النسخة التجريبية",
+    "betaTooltip": "نحن ندعم حاليًا البحث عن الصفحات والمحتوى في المستندات فقط",
+    "fromTrashHint": "من سلة المحذوفات",
+    "noResultsHint": "لم نعثر على ما تبحث عنه، حاول البحث عن مصطلح آخر.",
+    "clearSearchTooltip": "مسح حقل البحث"
+  },
+  "space": {
+    "delete": "حذف",
+    "deleteConfirmation": "حذف: ",
+    "deleteConfirmationDescription": "سيتم حذف جميع الصفحات الموجودة ضمن هذه المساحة ونقلها إلى سلة المحذوفات، وسيتم إلغاء نشر أي صفحات منشورة.",
+    "rename": "إعادة تسمية المساحة",
+    "changeIcon": "تغيير الأيقونة",
+    "manage": "إدارة المساحة",
+    "addNewSpace": "إنشاء مساحة",
+    "collapseAllSubPages": "طي كل الصفحات الفرعية",
+    "createNewSpace": "إنشاء مساحة جديدة",
+    "createSpaceDescription": "إنشاء مساحات عامة وخاصة متعددة لتنظيم عملك بشكل أفضل."
   },
   "gallery": {
     "resetZoom": "إعادة ضبط التكبير"
