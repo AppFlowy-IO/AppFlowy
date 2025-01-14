@@ -1782,7 +1782,23 @@
           "insertRight": "إدراج إلى اليمين",
           "insertAbove": "إدراج أعلاه",
           "insertBelow": "إدراج أدناه",
-          "headerColumn": "عمود رأس الصفحة"
+          "headerColumn": "عمود رأس الصفحة",
+          "headerRow": "صف رأس الصفحة",
+          "clearContents": "مسح المحتويات",
+          "setToPageWidth": "اضبط على عرض الصفحة",
+          "distributeColumnsWidth": "توزيع الأعمدة بالتساوي",
+          "duplicateRow": "صف مكرر",
+          "duplicateColumn": "عمود مكرر",
+          "textColor": "لون النص",
+          "cellBackgroundColor": "لون خلفية الخلية",
+          "duplicateTable": "جدول مكرر"
+        },
+        "clickToAddNewRow": "انقر لإضافة صف جديد",
+        "clickToAddNewColumn": "انقر لإضافة عمود جديد",
+        "clickToAddNewRowAndColumn": "انقر لإضافة صف وعمود جديدين",
+        "headerName": {
+          "table": "الجدول",
+          "alignText": "محاذاة النص"
         }
       },
       "cover": {
@@ -1800,6 +1816,7 @@
         "back": "خلف",
         "saveToGallery": "حفظ في المعرض",
         "removeIcon": "إزالة الرمز",
+        "removeCover": "إزالة الغلاف",
         "pasteImageUrl": "لصق عنوان URL للصورة",
         "or": "أو",
         "pickFromFiles": "اختر من الملفات",
@@ -1818,6 +1835,8 @@
       "optionAction": {
         "click": "انقر",
         "toOpenMenu": " لفتح القائمة",
+        "drag": "سحب",
+        "toMove": " حرك",
         "delete": "يمسح",
         "duplicate": "ينسخ",
         "turnInto": "تحول إلى",
@@ -1828,11 +1847,19 @@
         "left": "غادر",
         "center": "مركز",
         "right": "يمين",
-        "defaultColor": "تقصير"
+        "defaultColor": "تقصير",
+        "depth": "عمق"
       },
       "image": {
         "addAnImage": "أضف صورة",
-        "copiedToPasteBoard": "تم نسخ رابط الصورة إلى الحافظة"
+        "copiedToPasteBoard": "تم نسخ رابط الصورة إلى الحافظة",
+        "addAnImageDesktop": "أضف صورة",
+        "addAnImageMobile": "انقر لإضافة صورة واحدة أو أكثر",
+        "dropImageToInsert": "إسقاط الصور لإدراجها",
+        "imageUploadFailed": "فشل رفع الصورة",
+        "imageDownloadFailed": "فشل تنزيل الصورة، يرجى المحاولة مرة أخرى",
+        "imageDownloadFailedToken": "فشل تنزيل الصورة بسبب عدم وجود رمز المستخدم، يرجى المحاولة مرة أخرى",
+        "errorCode": "كود الخطأ"
       },
       "outline": {
         "addHeadingToCreateOutline": "أضف عناوين لإنشاء جدول محتويات."
