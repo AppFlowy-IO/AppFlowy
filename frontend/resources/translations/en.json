@@ -233,7 +233,7 @@
       "number": "Numbered list",
       "table": "Table",
       "blankDescription": "Format response",
-      "defaultDescription": "Auto",
+      "defaultDescription": "Auto mode",
       "textWithImageDescription": "@:chat.changeFormat.text with image",
       "numberWithImageDescription": "@:chat.changeFormat.number with image",
       "bulletWithImageDescription": "@:chat.changeFormat.bullet with image",
@@ -3069,7 +3069,7 @@
       }
     }
   },
-  "ai":{
+  "ai": {
     "contentPolicyViolation": "Image generation failed due to sensitive content. Please rephrase your input and try again"
   }
 }
