@@ -180,7 +180,7 @@ void main() {
         databaseIcon.evaluate().first.widget as RawEmojiIconWidget;
     final databaseIconsData =
         IconsData.fromJson(jsonDecode(databaseIconWidget.emoji.emoji));
-    expect(icon.iconContent, databaseIconsData.iconContent);
+    expect(icon.svgString, databaseIconsData.svgString);
     expect(icon.color, isNotEmpty);
     expect(icon.color, databaseIconsData.color);
 

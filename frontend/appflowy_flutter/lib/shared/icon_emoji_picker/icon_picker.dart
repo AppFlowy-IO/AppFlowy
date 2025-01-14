@@ -247,7 +247,7 @@ class IconsData {
 
   EmojiIconData toEmojiIconData() => EmojiIconData.icon(this);
 
-  IconsData noColor() => IconsData(groupName, iconContent, iconName, null);
+  IconsData noColor() => IconsData(groupName, iconName, null);
 
   static IconsData fromJson(dynamic json) {
     return IconsData(
