@@ -28,7 +28,6 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show
         AppFlowyEditorLogLevel,
-        DeleteOperation,
         EditorState,
         Position,
         Selection,
@@ -41,7 +40,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'document_bloc.freezed.dart';
 
-bool enableDocumentInternalLog = true;
+bool enableDocumentInternalLog = false;
 
 final Map<String, DocumentBloc> _documentBlocMap = {};
 
