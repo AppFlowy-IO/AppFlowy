@@ -2,161 +2,171 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
+/// DocumentDiff compares two document states and generates operations needed
+/// to transform one state into another.
 class DocumentDiff {
-  DocumentDiff({
+  const DocumentDiff({
     this.enableDebugLog = false,
   });
 
   final bool enableDebugLog;
 
+  // Using DeepCollectionEquality for deep comparison of collections
   static const _equality = DeepCollectionEquality();
 
-  /// Diff two documents and return the operations can be applied to the old document
-  /// to make it the same as the new document.
+  /// Generates operations needed to transform oldDocument into newDocument.
+  /// Returns a list of operations (Insert, Delete, Update) that can be applied sequentially.
   List<Operation> diffDocument(Document oldDocument, Document newDocument) {
     return diffNode(oldDocument.root, newDocument.root);
   }
 
-  /// Diff two nodes and return the operations can be applied to the old node
-  /// to make it the same as the new node.
+  /// Compares two nodes and their children recursively to generate transformation operations.
+  /// Returns a list of operations that will transform oldNode into newNode.
   List<Operation> diffNode(Node oldNode, Node newNode) {
-    List<Operation> operations = [];
+    final operations = <Operation>[];
 
+    // Compare and update node attributes if they're different.
+    //  Using DeepCollectionEquality instead of == for deep comparison of collections
     if (!_equality.equals(oldNode.attributes, newNode.attributes)) {
       operations.add(
         UpdateOperation(oldNode.path, newNode.attributes, oldNode.attributes),
       );
     }
 
-    final oldChildrenById = {
-      for (final child in oldNode.children) child.id: child,
-    };
-    final newChildrenById = {
-      for (final child in newNode.children) child.id: child,
-    };
+    final oldChildrenById = Map<String, Node>.fromEntries(
+      oldNode.children.map((child) => MapEntry(child.id, child)),
+    );
+    final newChildrenById = Map<String, Node>.fromEntries(
+      newNode.children.map((child) => MapEntry(child.id, child)),
+    );
 
-    // Identify insertions and updates
+    // Insertion or Update
     for (final newChild in newNode.children) {
       final oldChild = oldChildrenById[newChild.id];
       if (oldChild == null) {
-        // Insert operation
+        // If the node doesn't exist in the old document, it's a new node.
         operations.add(InsertOperation(newChild.path, [newChild]));
       } else {
-        // Recursive diff for updates
+        // If the node exists in the old document, recursively compare its children
         operations.addAll(diffNode(oldChild, newChild));
       }
     }
 
-    // Identify deletions
-    oldChildrenById.keys
-        .where((id) => !newChildrenById.containsKey(id))
-        .forEach((id) {
-      final oldChild = oldChildrenById[id]!;
-      operations.add(DeleteOperation(oldChild.path, [oldChild]));
-    });
+    // Deletion
+    for (final id in oldChildrenById.keys) {
+      // If the node doesn't exist in the new document, it's a deletion.
+      if (!newChildrenById.containsKey(id)) {
+        final oldChild = oldChildrenById[id]!;
+        operations.add(DeleteOperation(oldChild.path, [oldChild]));
+      }
+    }
 
-    // Combine the operation in operations
-    operations = mergeInsertOperations(operations);
-    operations = mergeDeleteOperations(operations);
-
-    return operations;
+    // Optimize operations by merging consecutive inserts and deletes
+    return _optimizeOperations(operations);
   }
 
-  /// Merge the insert operations if their paths are consecutive.
-  ///
-  /// For example, if the operations are:
-  /// [InsertOperation(path: [0], nodes: [node1]), InsertOperation(path: [1], nodes: [node2])]
-  /// The result will be:
-  /// [InsertOperation(path: [0], nodes: [node1, node2])]
+  /// Optimizes the list of operations by merging consecutive operations where possible.
+  /// This reduces the total number of operations that need to be applied.
+  List<Operation> _optimizeOperations(List<Operation> operations) {
+    // Optimize the insert operations first, then the delete operations
+    final optimizedOps = mergeDeleteOperations(
+      mergeInsertOperations(
+        operations,
+      ),
+    );
+    return optimizedOps;
+  }
+
+  /// Merges consecutive insert operations to reduce the number of operations.
+  /// Operations are merged if they target consecutive paths in the document.
   List<Operation> mergeInsertOperations(List<Operation> operations) {
     if (enableDebugLog) {
-      debugPrint(
-        'mergeInsertOperations[before]: ${operations.map((op) => op.toJson()).toList()}',
-      );
+      _logOperations('mergeInsertOperations[before]', operations);
     }
 
-    List<Operation> copy = [...operations];
-
-    // merge the insert operations
+    final copy = [...operations];
     final insertOperations = operations
         .whereType<InsertOperation>()
-        .sorted((a, b) => a.path <= b.path ? -1 : 1)
+        .sorted(_descendingCompareTo)
         .toList();
-    for (var i = insertOperations.length - 1; i > 0; i--) {
-      final op = insertOperations[i];
-      final previousOp = insertOperations[i - 1];
 
-      if (op.path.equals(previousOp.path.next)) {
-        // merge the two operations
-        insertOperations.removeAt(i);
-        insertOperations[i - 1] = InsertOperation(
-          previousOp.path,
-          [...previousOp.nodes, ...op.nodes],
-        );
-      }
-    }
+    _mergeConsecutiveOperations<InsertOperation>(
+      insertOperations,
+      (prev, current) => InsertOperation(
+        prev.path,
+        [...prev.nodes, ...current.nodes],
+      ),
+    );
 
     if (insertOperations.isNotEmpty) {
-      copy.removeWhere((op) => op is InsertOperation);
-      // Note: the insert operations must be at the front of the list
-      copy = [
-        ...insertOperations,
-        ...copy,
-      ];
+      copy
+        ..removeWhere((op) => op is InsertOperation)
+        ..insertAll(0, insertOperations); // Insert ops must be at the start
     }
 
     if (enableDebugLog) {
-      debugPrint(
-        'mergeInsertOperations[after]: ${copy.map((op) => op.toJson()).toList()}',
-      );
+      _logOperations('mergeInsertOperations[after]', copy);
     }
 
     return copy;
   }
 
+  /// Merges consecutive delete operations to reduce the number of operations.
+  /// Operations are merged if they target consecutive paths in the document.
   List<Operation> mergeDeleteOperations(List<Operation> operations) {
     if (enableDebugLog) {
-      debugPrint(
-        'mergeDeleteOperations[before]: ${operations.map((op) => op.toJson()).toList()}',
-      );
+      _logOperations('mergeDeleteOperations[before]', operations);
     }
 
-    List<Operation> copy = [...operations];
-
-    // merge the insert operations
+    final copy = [...operations];
     final deleteOperations = operations
         .whereType<DeleteOperation>()
-        .sorted((a, b) => a.path <= b.path ? -1 : 1)
+        .sorted(_descendingCompareTo)
         .toList();
-    for (var i = deleteOperations.length - 1; i > 0; i--) {
-      final op = deleteOperations[i];
-      final previousOp = deleteOperations[i - 1];
 
-      if (op.path.equals(previousOp.path.next)) {
-        // merge the two operations
-        deleteOperations.removeAt(i);
-        deleteOperations[i - 1] = DeleteOperation(
-          previousOp.path,
-          [...previousOp.nodes, ...op.nodes],
-        );
-      }
-    }
+    _mergeConsecutiveOperations<DeleteOperation>(
+      deleteOperations,
+      (prev, current) => DeleteOperation(
+        prev.path,
+        [...prev.nodes, ...current.nodes],
+      ),
+    );
 
     if (deleteOperations.isNotEmpty) {
-      copy.removeWhere((op) => op is DeleteOperation);
-      // Note: the delete operations must be at the end of the list
-      copy = [
-        ...copy,
-        ...deleteOperations,
-      ];
+      copy
+        ..removeWhere((op) => op is DeleteOperation)
+        ..addAll(deleteOperations); // Delete ops must be at the end
     }
 
     if (enableDebugLog) {
-      debugPrint(
-        'mergeDeleteOperations[after]: ${copy.map((op) => op.toJson()).toList()}',
-      );
+      _logOperations('mergeDeleteOperations[after]', copy);
     }
 
     return copy;
+  }
+
+  /// Merge consecutive operations of the same type
+  void _mergeConsecutiveOperations<T extends Operation>(
+    List<T> operations,
+    T Function(T prev, T current) merge,
+  ) {
+    for (var i = operations.length - 1; i > 0; i--) {
+      final op = operations[i];
+      final previousOp = operations[i - 1];
+
+      if (op.path.equals(previousOp.path.next)) {
+        operations
+          ..removeAt(i)
+          ..[i - 1] = merge(previousOp, op);
+      }
+    }
+  }
+
+  void _logOperations(String prefix, List<Operation> operations) {
+    debugPrint('$prefix: ${operations.map((op) => op.toJson()).toList()}');
+  }
+
+  int _descendingCompareTo(Operation a, Operation b) {
+    return a.path > b.path ? 1 : -1;
   }
 }

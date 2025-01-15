@@ -24,7 +24,7 @@ class DocumentCollabAdapter {
 
   final EditorState editorState;
   final String docId;
-  final DocumentDiff diff = DocumentDiff(enableDebugLog: true);
+  final DocumentDiff diff = const DocumentDiff();
 
   final _service = DocumentService();
 

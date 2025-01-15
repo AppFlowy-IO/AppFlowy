@@ -13,7 +13,7 @@ void main() {
       Log.shared.disableLog = false;
     });
 
-    final diff = DocumentDiff();
+    const diff = DocumentDiff();
 
     Node createNodeWithId({required String id, required String text}) {
       return Node(
