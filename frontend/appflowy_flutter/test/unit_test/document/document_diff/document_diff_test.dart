@@ -326,5 +326,78 @@ void main() {
 
       await applyOperationAndVerifyDocument(previous, next, operations);
     });
+
+    test('multiple insert and update diff', () async {
+      final node11 = createNodeWithId(
+        id: '1',
+        text: 'Hello AppFlowy - First line',
+      );
+      final node12 = createNodeWithId(
+        id: '2',
+        text: 'Hello AppFlowy - Second line',
+      );
+      final node13 = createNodeWithId(
+        id: '3',
+        text: 'Hello AppFlowy - Third line',
+      );
+      final node21 = createNodeWithId(
+        id: '1',
+        text: 'Hello AppFlowy - First line',
+      );
+      final node22 = createNodeWithId(
+        id: '2',
+        text: 'Hello AppFlowy - Second line - Updated',
+      );
+      final node23 = createNodeWithId(
+        id: '3',
+        text: 'Hello AppFlowy - Third line - Updated',
+      );
+      final node24 = createNodeWithId(
+        id: '4',
+        text: 'Hello AppFlowy - Fourth line - Updated',
+      );
+      final node25 = createNodeWithId(
+        id: '5',
+        text: 'Hello AppFlowy - Fifth line - Updated',
+      );
+
+      final previous = Document.blank()
+        ..insert(
+          [0],
+          [
+            node11,
+            node12,
+            node13,
+          ],
+        );
+      final next = Document.blank()
+        ..insert(
+          [0],
+          [
+            node21,
+            node22,
+            node23,
+            node24,
+            node25,
+          ],
+        );
+
+      final operations = diff.diffDocument(previous, next);
+
+      expect(operations.length, 3);
+      final op1 = operations[0] as InsertOperation;
+      expect(op1.path, [3]);
+      expect(op1.nodes, [node24, node25]);
+
+      final op2 = operations[1] as UpdateOperation;
+      expect(op2.path, [1]);
+      expect(op2.attributes, node22.attributes);
+
+      final op3 = operations[2] as UpdateOperation;
+      expect(op3.path, [2]);
+      expect(op3.attributes, node23.attributes);
+
+      await applyOperationAndVerifyDocument(previous, next, operations);
+    });
   });
 }
