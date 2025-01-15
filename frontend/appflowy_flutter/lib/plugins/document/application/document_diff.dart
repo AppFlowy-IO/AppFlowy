@@ -2,8 +2,8 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
-class EditorDiff {
-  EditorDiff({
+class DocumentDiff {
+  DocumentDiff({
     this.enableDebugLog = false,
   });
 
