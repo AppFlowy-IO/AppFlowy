@@ -17,10 +17,14 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 class DocumentCollabAdapter {
-  DocumentCollabAdapter(this.editorState, this.docId);
+  DocumentCollabAdapter(
+    this.editorState,
+    this.docId,
+  );
 
   final EditorState editorState;
   final String docId;
+  final EditorDiff diff = EditorDiff(enableDebugLog: true);
 
   final _service = DocumentService();
 
@@ -76,7 +80,7 @@ class DocumentCollabAdapter {
       return;
     }
 
-    final ops = diffDocument(editorState.document, document);
+    final ops = diff.diffDocument(editorState.document, document);
     if (ops.isEmpty) {
       return;
     }
