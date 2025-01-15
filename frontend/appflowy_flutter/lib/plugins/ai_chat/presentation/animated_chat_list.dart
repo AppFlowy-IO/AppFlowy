@@ -71,7 +71,7 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
             event.message != null,
             'Message must be provided when inserting a message.',
           );
-          _onInserted(0, event.message!);
+          _onInserted(event.index!, event.message!);
           _oldList = List.from(_chatController.messages);
           break;
         case ChatOperationType.remove:
@@ -208,7 +208,7 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
     if (data.id == _lastInsertedMessageId &&
         widget.scrollController.offset >
             widget.scrollController.position.minScrollExtent &&
-        (user.id == data.author.id || !_userHasScrolled)) {
+        (user.id == data.author.id && _userHasScrolled)) {
       if (widget.scrollToEndAnimationDuration == Duration.zero) {
         widget.scrollController
             .jumpTo(widget.scrollController.position.minScrollExtent);
@@ -234,7 +234,7 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
       if (data.id == _lastInsertedMessageId &&
           widget.scrollController.offset >
               widget.scrollController.position.minScrollExtent &&
-          (user.id == data.author.id || !_userHasScrolled)) {
+          (user.id == data.author.id && _userHasScrolled)) {
         widget.scrollController
             .jumpTo(widget.scrollController.position.minScrollExtent);
       }
@@ -311,21 +311,22 @@ class ChatAnimatedListReversedState extends State<ChatAnimatedListReversed>
     // If for some reason `_userHasScrolled` is true and the user is not at the
     // bottom of the list, set `_userHasScrolled` to false so that the scroll
     // animation is triggered.
-    if (_userHasScrolled &&
+    if (position == 0 &&
+        _userHasScrolled &&
         widget.scrollController.offset >
             widget.scrollController.position.minScrollExtent) {
       _userHasScrolled = false;
     }
 
     _listKey.currentState!.insertItem(
-      position,
+      0,
       duration: widget.insertAnimationDuration,
     );
 
     // Used later to trigger scroll to end only for the last inserted message.
     _lastInsertedMessageId = data.id;
 
-    if (position == 0) {
+    if (position == _oldList.length) {
       _scrollToEnd(data);
     }
   }

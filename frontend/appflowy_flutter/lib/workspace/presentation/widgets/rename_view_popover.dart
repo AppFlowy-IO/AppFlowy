@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji_picker_button.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
@@ -17,6 +18,7 @@ class RenameViewPopover extends StatefulWidget {
     required this.emoji,
     this.icon,
     this.showIconChanger = true,
+    this.tabs = const [PickerTabType.emoji, PickerTabType.icon],
   });
 
   final String viewId;
@@ -25,6 +27,7 @@ class RenameViewPopover extends StatefulWidget {
   final EmojiIconData emoji;
   final Widget? icon;
   final bool showIconChanger;
+  final List<PickerTabType> tabs;
 
   @override
   State<RenameViewPopover> createState() => _RenameViewPopoverState();
@@ -61,6 +64,7 @@ class _RenameViewPopoverState extends State<RenameViewPopover> {
               direction: PopoverDirection.bottomWithCenterAligned,
               offset: const Offset(0, 18),
               onSubmitted: _updateViewIcon,
+              tabs: widget.tabs,
             ),
           ),
           const HSpace(6),
