@@ -169,12 +169,12 @@ dependency_overrides:
   url_protocol:
     git:
       url: https://github.com/LucasXu0/flutter_url_protocol.git
-      commit: 737681d
+      commit: 737681
 
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "5352bb4"
+      ref: "2a03498"
 
   appflowy_editor_plugins:
     git:
