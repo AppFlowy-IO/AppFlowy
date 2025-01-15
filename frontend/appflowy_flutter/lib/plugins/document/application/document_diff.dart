@@ -56,10 +56,6 @@ class EditorDiff {
     });
 
     // Combine the operation in operations
-
-    // Sort the operations by path
-    operations.sort((a, b) => a.path <= b.path ? -1 : 1);
-
     operations = mergeInsertOperations(operations);
     operations = mergeDeleteOperations(operations);
 
@@ -67,8 +63,6 @@ class EditorDiff {
   }
 
   /// Merge the insert operations if their paths are consecutive.
-  ///
-  /// The [operations] must be sorted by path.
   ///
   /// For example, if the operations are:
   /// [InsertOperation(path: [0], nodes: [node1]), InsertOperation(path: [1], nodes: [node2])]
@@ -84,7 +78,10 @@ class EditorDiff {
     List<Operation> copy = [...operations];
 
     // merge the insert operations
-    final insertOperations = operations.whereType<InsertOperation>().toList();
+    final insertOperations = operations
+        .whereType<InsertOperation>()
+        .sorted((a, b) => a.path <= b.path ? -1 : 1)
+        .toList();
     for (var i = insertOperations.length - 1; i > 0; i--) {
       final op = insertOperations[i];
       final previousOp = insertOperations[i - 1];
@@ -127,7 +124,10 @@ class EditorDiff {
     List<Operation> copy = [...operations];
 
     // merge the insert operations
-    final deleteOperations = operations.whereType<DeleteOperation>().toList();
+    final deleteOperations = operations
+        .whereType<DeleteOperation>()
+        .sorted((a, b) => a.path <= b.path ? -1 : 1)
+        .toList();
     for (var i = deleteOperations.length - 1; i > 0; i--) {
       final op = deleteOperations[i];
       final previousOp = deleteOperations[i - 1];
