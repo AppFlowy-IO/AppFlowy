@@ -83,5 +83,55 @@ void main() {
 
       await applyOperationAndVerifyDocument(previous, next, operations);
     });
+
+    test('insert single text diff', () async {
+      final node1 = createNodeWithId(
+        id: '1',
+        text: 'Hello AppFlowy - First line',
+      );
+      final node21 = createNodeWithId(
+        id: '1',
+        text: 'Hello AppFlowy - First line',
+      );
+      final node22 = createNodeWithId(
+        id: '2',
+        text: 'Hello AppFlowy - Second line',
+      );
+
+      final previous = Document.blank()..insert([0], [node1]);
+      final next = Document.blank()..insert([0], [node21, node22]);
+
+      final operations = diff.diffDocument(previous, next);
+
+      expect(operations.length, 1);
+      expect(operations[0], isA<InsertOperation>());
+
+      await applyOperationAndVerifyDocument(previous, next, operations);
+    });
+
+    test('delete single text diff', () async {
+      final node11 = createNodeWithId(
+        id: '1',
+        text: 'Hello AppFlowy - First line',
+      );
+      final node12 = createNodeWithId(
+        id: '2',
+        text: 'Hello AppFlowy - Second line',
+      );
+      final node21 = createNodeWithId(
+        id: '1',
+        text: 'Hello AppFlowy - First line',
+      );
+
+      final previous = Document.blank()..insert([0], [node11, node12]);
+      final next = Document.blank()..insert([0], [node21]);
+
+      final operations = diff.diffDocument(previous, next);
+
+      expect(operations.length, 1);
+      expect(operations[0], isA<DeleteOperation>());
+
+      await applyOperationAndVerifyDocument(previous, next, operations);
+    });
   });
 }
