@@ -2605,7 +2605,8 @@
     "createNewSpace": "إنشاء مساحة جديدة",
     "createSpaceDescription": "إنشاء مساحات عامة وخاصة متعددة لتنظيم عملك بشكل أفضل.",
     "spaceName": "اسم المساحة",
-    "spaceNamePlaceholder": "على سبيل المثال التسويق والهندسة والموارد البشرية"
+    "spaceNamePlaceholder": "على سبيل المثال التسويق والهندسة والموارد البشرية",
+    "permission": "إذن الفضاء"
   },
   "gallery": {
     "resetZoom": "إعادة ضبط التكبير"
