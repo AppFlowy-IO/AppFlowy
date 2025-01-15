@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:appflowy/plugins/document/application/document_awareness_metadata.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
+import 'package:appflowy/plugins/document/application/document_diff.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy/startup/tasks/device_info_task.dart';
@@ -75,13 +76,13 @@ class DocumentCollabAdapter {
       return;
     }
 
-    final ops = diffNodes(editorState.document.root, document.root);
+    final ops = diffDocument(editorState.document, document);
     if (ops.isEmpty) {
       return;
     }
 
     // Use for debugging, DO NOT REMOVE
-    // prettyPrintJson(ops.map((op) => op.toJson()).toList());
+    prettyPrintJson(ops.map((op) => op.toJson()).toList());
 
     final transaction = editorState.transaction;
     for (final op in ops) {
@@ -90,17 +91,17 @@ class DocumentCollabAdapter {
     await editorState.apply(transaction, isRemote: true);
 
     // Use for debugging, DO NOT REMOVE
-    // assert(() {
-    //   final local = editorState.document.root.toJson();
-    //   final remote = document.root.toJson();
-    //   if (!const DeepCollectionEquality().equals(local, remote)) {
-    //     Log.error('Invalid diff status');
-    //     Log.error('Local: $local');
-    //     Log.error('Remote: $remote');
-    //     return false;
-    //   }
-    //   return true;
-    // }());
+    assert(() {
+      final local = editorState.document.root.toJson();
+      final remote = document.root.toJson();
+      if (!const DeepCollectionEquality().equals(local, remote)) {
+        Log.error('Invalid diff status');
+        Log.error('Local: $local');
+        Log.error('Remote: $remote');
+        return false;
+      }
+      return true;
+    }());
   }
 
   Future<void> forceReload() async {

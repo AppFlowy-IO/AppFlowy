@@ -267,9 +267,9 @@ dependencies = [
 
 [[package]]
 name = "async-compression"
-version = "0.4.17"
+version = "0.4.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0cb8f1d480b0ea3783ab015936d2a55c87e219676f0c0b7dec61494043f21857"
+checksum = "df895a515f70646414f4b45c0b79082783b80552b373a68283012928df56f522"
 dependencies = [
  "bzip2",
  "deflate64",
@@ -898,7 +898,6 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=98463cc#98463cc764da69ef58e5cd894d1885ef4990bf9e"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -923,7 +922,6 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=98463cc#98463cc764da69ef58e5cd894d1885ef4990bf9e"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -963,7 +961,6 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=98463cc#98463cc764da69ef58e5cd894d1885ef4990bf9e"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -984,7 +981,6 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=98463cc#98463cc764da69ef58e5cd894d1885ef4990bf9e"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1004,7 +1000,6 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=98463cc#98463cc764da69ef58e5cd894d1885ef4990bf9e"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -1026,7 +1021,6 @@ dependencies = [
 [[package]]
 name = "collab-importer"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=98463cc#98463cc764da69ef58e5cd894d1885ef4990bf9e"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -1090,7 +1084,6 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=98463cc#98463cc764da69ef58e5cd894d1885ef4990bf9e"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -1170,7 +1163,6 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=98463cc#98463cc764da69ef58e5cd894d1885ef4990bf9e"
 dependencies = [
  "anyhow",
  "collab",
@@ -2781,9 +2773,9 @@ checksum = "a44623e20b9681a318efdd71c299b6b222ed6f231972bfe2f224ebad6311f0c1"
 
 [[package]]
 name = "futures-lite"
-version = "2.3.0"
+version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "52527eb5074e35e9339c6b4e8d12600c7128b68fb25dcb9fa9dec18f7c25f3a5"
+checksum = "f5edaec856126859abb19ed65f39e90fea3a9574b9707f13539acf4abf7eb532"
 dependencies = [
  "fastrand",
  "futures-core",

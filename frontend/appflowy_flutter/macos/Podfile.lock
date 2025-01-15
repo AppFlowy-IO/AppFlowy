@@ -130,31 +130,31 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/window_manager/macos
 
 SPEC CHECKSUMS:
-  app_links: 10e0a0ab602ffaf34d142cd4862f29d34b303b2a
-  appflowy_backend: 865496343de667fc8c600e04b9fd05234e130cf9
-  bitsdojo_window_macos: 44e3b8fe3dd463820e0321f6256c5b1c16bb6a00
-  connectivity_plus: 18d3c32514c886e046de60e9c13895109866c747
-  desktop_drop: 69eeff437544aa619c8db7f4481b3a65f7696898
-  device_info_plus: ce1b7762849d3ec103d0e0517299f2db7ad60720
-  file_selector_macos: cc3858c981fe6889f364731200d6232dac1d812d
-  flowy_infra_ui: 03301a39ad118771adbf051a664265c61c507f38
+  app_links: 9028728e32c83a0831d9db8cf91c526d16cc5468
+  appflowy_backend: 464aeb3e5c6966a41641a2111e5ead72ce2695f7
+  bitsdojo_window_macos: 7959fb0ca65a3ccda30095c181ecb856fae48ea9
+  connectivity_plus: e74b9f74717d2d99d45751750e266e55912baeb5
+  desktop_drop: e0b672a7d84c0a6cbc378595e82cdb15f2970a43
+  device_info_plus: a56e6e74dbbd2bb92f2da12c64ddd4f67a749041
+  file_selector_macos: 6280b52b459ae6c590af5d78fc35c7267a3c4b31
+  flowy_infra_ui: 8760ff42a789de40bf5007a5f176b454722a341e
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   HotKey: e96d8a2ddbf4591131e2bb3f54e69554d90cdca6
-  hotkey_manager: c32bf0bfe8f934b7bc17ab4ad5c4c142960b023c
-  irondash_engine_context: da62996ee25616d2f01bbeb85dc115d813359478
-  local_notifier: e9506bc66fc70311e8bc7291fb70f743c081e4ff
-  package_info_plus: 12f1c5c2cfe8727ca46cbd0b26677728972d9a5b
-  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
+  hotkey_manager: b443f35f4d772162937aa73fd8995e579f8ac4e2
+  irondash_engine_context: 893c7d96d20ce361d7e996f39d360c4c2f9869ba
+  local_notifier: ebf072651e35ae5e47280ad52e2707375cb2ae4e
+  package_info_plus: f0052d280d17aa382b932f399edf32507174e870
+  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
   ReachabilitySwift: 7f151ff156cea1481a8411701195ac6a984f4979
-  screen_retriever: 59634572a57080243dd1bf715e55b6c54f241a38
+  screen_retriever: 4f97c103641aab8ce183fa5af3b87029df167936
   Sentry: 1fe34e9c2cbba1e347623610d26db121dcb569f1
-  sentry_flutter: a39c2a2d67d5e5b9cb0b94a4985c76dd5b3fc737
-  share_plus: 1fa619de8392a4398bfaf176d441853922614e89
-  shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
-  sqflite: 673a0e54cc04b7d6dba8d24fb8095b31c3a99eec
-  super_native_extensions: 85efee3a7495b46b04befcfc86ed12069264ebf3
-  url_launcher_macos: c82c93949963e55b228a30115bd219499a6fe404
-  window_manager: 3a1844359a6295ab1e47659b1a777e36773cd6e8
+  sentry_flutter: e24b397f9a61fa5bbefd8279c3b2242ca86faa90
+  share_plus: 510bf0af1a42cd602274b4629920c9649c52f4cc
+  shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
+  sqflite: c35dad70033b8862124f8337cc994a809fcd9fa3
+  super_native_extensions: c2795d6d9aedf4a79fae25cb6160b71b50549189
+  url_launcher_macos: 0fba8ddabfc33ce0a9afe7c5fef5aab3d8d2d673
+  window_manager: 1d01fa7ac65a6e6f83b965471b1a7fdd3f06166c
 
 PODFILE CHECKSUM: 0532f3f001ca3110b8be345d6491fff690e95823
 
