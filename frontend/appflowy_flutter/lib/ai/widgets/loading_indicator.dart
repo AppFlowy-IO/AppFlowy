@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 /// An animated generating indicator for an AI response
-class ChatAILoading extends StatelessWidget {
-  const ChatAILoading({
+class AILoadingIndicator extends StatelessWidget {
+  const AILoadingIndicator({
     super.key,
     this.text = "",
     this.duration = const Duration(seconds: 1),

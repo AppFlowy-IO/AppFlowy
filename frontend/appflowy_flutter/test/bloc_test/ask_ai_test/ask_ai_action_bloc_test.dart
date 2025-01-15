@@ -1,7 +1,7 @@
-import 'package:appflowy/ai/ai_client.dart';
-import 'package:appflowy/ai/error.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_action.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_action_bloc.dart';
+import 'package:appflowy/ai/service/ai_client.dart';
+import 'package:appflowy/ai/service/appflowy_ai_service.dart';
+import 'package:appflowy/ai/service/error.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/widgets/ask_ai_action_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';

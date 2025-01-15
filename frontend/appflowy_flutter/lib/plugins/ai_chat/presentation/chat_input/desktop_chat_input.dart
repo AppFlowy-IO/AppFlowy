@@ -1,27 +1,21 @@
+import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../application/chat_entity.dart';
 import '../layout_define.dart';
-import 'ai_prompt_buttons.dart';
-import 'chat_input_file.dart';
-import 'chat_input_span.dart';
-import 'chat_mention_page_menu.dart';
-import 'predefined_format_buttons.dart';
-import 'select_sources_menu.dart';
 
-class DesktopAIPromptInput extends StatefulWidget {
-  const DesktopAIPromptInput({
+class DesktopChatInput extends StatefulWidget {
+  const DesktopChatInput({
     super.key,
     required this.chatId,
     required this.isStreaming,
@@ -38,10 +32,10 @@ class DesktopAIPromptInput extends StatefulWidget {
   final void Function(List<String>) onUpdateSelectedSources;
 
   @override
-  State<DesktopAIPromptInput> createState() => _DesktopAIPromptInputState();
+  State<DesktopChatInput> createState() => _DesktopChatInputState();
 }
 
-class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
+class _DesktopChatInputState extends State<DesktopChatInput> {
   final textFieldKey = GlobalKey();
   final layerLink = LayerLink();
   final overlayController = OverlayPortalController();
@@ -55,6 +49,7 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
     textFormat: TextFormat.bulletList,
   );
   late SendButtonState sendButtonState;
+  bool isComposing = false;
 
   @override
   void initState() {
@@ -110,8 +105,8 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
         child: OverlayPortal(
           controller: overlayController,
           overlayChildBuilder: (context) {
-            return ChatMentionPageMenu(
-              anchor: ChatInputAnchor(textFieldKey, layerLink),
+            return PromptInputMentionPageMenu(
+              anchor: PromptInputAnchor(textFieldKey, layerLink),
               textController: textController,
               onPageSelected: handlePageSelected,
             );
@@ -125,7 +120,7 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
                 width: focusNode.hasFocus ? 1.5 : 1.0,
                 strokeAlign: BorderSide.strokeAlignOutside,
               ),
-              borderRadius: DesktopAIPromptSizes.promptFrameRadius,
+              borderRadius: const BorderRadius.all(Radius.circular(12.0)),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -137,7 +132,7 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
                             DesktopAIPromptSizes.attachedFilesPreviewHeight,
                   ),
                   child: TextFieldTapRegion(
-                    child: ChatInputFile(
+                    child: PromptInputFile(
                       chatId: widget.chatId,
                       onDeleted: (file) => context
                           .read<AIPromptInputBloc>()
@@ -161,12 +156,7 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
                                 const EdgeInsetsDirectional.only(start: 8.0),
                             child: ChangeFormatBar(
                               predefinedFormat: predefinedFormat,
-                              spacing: DesktopAIPromptSizes
-                                  .predefinedFormatBarButtonSpacing,
-                              iconSize: DesktopAIPromptSizes
-                                  .predefinedFormatIconHeight,
-                              buttonSize: DesktopAIPromptSizes
-                                  .predefinedFormatButtonHeight,
+                              spacing: 4.0,
                               onSelectPredefinedFormat: (format) {
                                 setState(() => predefinedFormat = format);
                               },
@@ -182,8 +172,7 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
                           overlayController: overlayController,
                           focusNode: focusNode,
                           showPredefinedFormats: showPredefinedFormatSection,
-                          predefinedFormat: predefinedFormat.imageFormat,
-                          predefinedTextFormat: predefinedFormat.textFormat,
+                          predefinedFormat: predefinedFormat,
                           onTogglePredefinedFormatSection: () {
                             setState(() {
                               showPredefinedFormatSection =
@@ -191,7 +180,7 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
                             });
                           },
                           sendButtonState: sendButtonState,
-                          onSendPressed: handleSendPressed,
+                          onSendPressed: handleSend,
                           onStopStreaming: widget.onStopStreaming,
                           onUpdateSelectedSources:
                               widget.onUpdateSelectedSources,
@@ -206,18 +195,6 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
         ),
       ),
     );
-  }
-
-  BoxConstraints getTextFieldConstraints() {
-    double minHeight = DesktopAIPromptSizes.textFieldMinHeight +
-        DesktopAIPromptSizes.actionBarHeight +
-        DesktopAIPromptSizes.actionBarPadding.vertical;
-    double maxHeight = 300;
-    if (showPredefinedFormatSection) {
-      minHeight += DesktopAIPromptSizes.predefinedFormatButtonHeight;
-      maxHeight += DesktopAIPromptSizes.predefinedFormatButtonHeight;
-    }
-    return BoxConstraints(minHeight: minHeight, maxHeight: maxHeight);
   }
 
   void cancelMentionPage() {
@@ -237,7 +214,7 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
     }
   }
 
-  void handleSendPressed() {
+  void handleSend() {
     if (widget.isStreaming) {
       return;
     }
@@ -260,12 +237,15 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
   }
 
   void handleTextControllerChanged() {
-    if (!textController.value.composing.isCollapsed) {
+    setState(() {
+      // update whether send button is clickable
+      updateSendButtonState();
+      isComposing = !textController.value.composing.isCollapsed;
+    });
+
+    if (isComposing) {
       return;
     }
-
-    // update whether send button is clickable
-    setState(() => updateSendButtonState());
 
     // handle text and selection changes ONLY when mentioning a page
 
@@ -323,6 +303,16 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
     }
   }
 
+  KeyEventResult handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (event.character == '@') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        inputControlCubit.startSearching(textController.value);
+        overlayController.show();
+      });
+    }
+    return KeyEventResult.ignored;
+  }
+
   void handlePageSelected(ViewPB view) {
     final newText = textController.text.replaceRange(
       inputControlCubit.filterStartPosition,
@@ -341,34 +331,67 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
     overlayController.hide();
   }
 
+  BoxConstraints getTextFieldConstraints() {
+    double minHeight = DesktopAIPromptSizes.textFieldMinHeight +
+        DesktopAIPromptSizes.actionBarSendButtonSize +
+        DesktopAIChatSizes.inputActionBarMargin.vertical;
+    double maxHeight = 300;
+    if (showPredefinedFormatSection) {
+      minHeight += DesktopAIPromptSizes.predefinedFormatButtonHeight;
+      maxHeight += DesktopAIPromptSizes.predefinedFormatButtonHeight;
+    }
+    return BoxConstraints(minHeight: minHeight, maxHeight: maxHeight);
+  }
+
   Widget inputTextField() {
-    return Actions(
-      actions: buildActions(),
-      child: CompositedTransformTarget(
-        link: layerLink,
-        child: BlocBuilder<AIPromptInputBloc, AIPromptInputState>(
-          builder: (context, state) {
-            return _PromptTextField(
-              key: textFieldKey,
-              cubit: inputControlCubit,
-              textController: textController,
-              textFieldFocusNode: focusNode,
-              showPredefinedFormatSection: showPredefinedFormatSection,
-              hintText: switch (state.aiType) {
-                AIType.appflowyAI => LocaleKeys.chat_inputMessageHint.tr(),
-                AIType.localAI => LocaleKeys.chat_inputLocalAIMessageHint.tr()
-              },
-              // onStartMentioningPage: () {
-              //   WidgetsBinding.instance.addPostFrameCallback((_) {
-              //     inputControlCubit.startSearching(textController.value);
-              //     overlayController.show();
-              //   });
-              // },
-            );
-          },
+    return Shortcuts(
+      shortcuts: buildShortcuts(),
+      child: Actions(
+        actions: buildActions(),
+        child: CompositedTransformTarget(
+          link: layerLink,
+          child: BlocBuilder<AIPromptInputBloc, AIPromptInputState>(
+            builder: (context, state) {
+              return PromptInputTextField(
+                key: textFieldKey,
+                cubit: inputControlCubit,
+                textController: textController,
+                textFieldFocusNode: focusNode,
+                contentPadding: calculateContentPadding(),
+                hintText: switch (state.aiType) {
+                  AIType.appflowyAI => LocaleKeys.chat_inputMessageHint.tr(),
+                  AIType.localAI => LocaleKeys.chat_inputLocalAIMessageHint.tr()
+                },
+              );
+            },
+          ),
         ),
       ),
     );
+  }
+
+  EdgeInsetsGeometry calculateContentPadding() {
+    final top = showPredefinedFormatSection
+        ? DesktopAIPromptSizes.predefinedFormatButtonHeight
+        : 0.0;
+    final bottom = DesktopAIPromptSizes.actionBarSendButtonSize +
+        DesktopAIChatSizes.inputActionBarMargin.vertical;
+
+    return DesktopAIPromptSizes.textFieldContentPadding
+        .add(EdgeInsets.only(top: top, bottom: bottom));
+  }
+
+  Map<ShortcutActivator, Intent> buildShortcuts() {
+    if (isComposing) {
+      return const {};
+    }
+
+    return const {
+      SingleActivator(LogicalKeyboardKey.arrowUp): _FocusPreviousItemIntent(),
+      SingleActivator(LogicalKeyboardKey.arrowDown): _FocusNextItemIntent(),
+      SingleActivator(LogicalKeyboardKey.escape): _CancelMentionPageIntent(),
+      SingleActivator(LogicalKeyboardKey.enter): _SubmitOrMentionPageIntent(),
+    };
   }
 
   Map<Type, Action<Intent>> buildActions() {
@@ -404,120 +427,11 @@ class _DesktopAIPromptInputState extends State<DesktopAIPromptInput> {
               orElse: () {},
             );
           } else {
-            handleSendPressed();
+            handleSend();
           }
           return;
         },
       ),
-    };
-  }
-}
-
-class _PromptTextField extends StatefulWidget {
-  const _PromptTextField({
-    super.key,
-    required this.cubit,
-    required this.textController,
-    required this.textFieldFocusNode,
-    this.showPredefinedFormatSection = false,
-    this.hintText = "",
-    // this.onStartMentioningPage,
-  });
-
-  final ChatInputControlCubit cubit;
-  final TextEditingController textController;
-  final FocusNode textFieldFocusNode;
-  final bool showPredefinedFormatSection;
-  final String hintText;
-  // final void Function()? onStartMentioningPage;
-
-  @override
-  State<_PromptTextField> createState() => _PromptTextFieldState();
-}
-
-class _PromptTextFieldState extends State<_PromptTextField> {
-  bool isComposing = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // widget.textFieldFocusNode.onKeyEvent = handleKeyEvent;
-    widget.textController.addListener(onTextChanged);
-  }
-
-  @override
-  void dispose() {
-    // widget.textFieldFocusNode.onKeyEvent = null;
-    widget.textController.removeListener(onTextChanged);
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Shortcuts(
-      shortcuts: buildShortcuts(),
-      child: ExtendedTextField(
-        controller: widget.textController,
-        focusNode: widget.textFieldFocusNode,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          contentPadding: calculateContentPadding(),
-          hintText: widget.hintText,
-          hintStyle: AIChatUILayout.inputHintTextStyle(context),
-          isCollapsed: true,
-          isDense: true,
-        ),
-        keyboardType: TextInputType.multiline,
-        textCapitalization: TextCapitalization.sentences,
-        minLines: 1,
-        maxLines: null,
-        style: Theme.of(context).textTheme.bodyMedium,
-        specialTextSpanBuilder: ChatInputTextSpanBuilder(
-          inputControlCubit: widget.cubit,
-          specialTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.w600,
-              ),
-        ),
-      ),
-    );
-  }
-
-  // KeyEventResult handleKeyEvent(FocusNode node, KeyEvent event) {
-  //   if (event.character == '@') {
-  //     widget.onStartMentioningPage();
-  //   }
-  //   return KeyEventResult.ignored;
-  // }
-
-  void onTextChanged() {
-    setState(
-      () => isComposing = !widget.textController.value.composing.isCollapsed,
-    );
-  }
-
-  EdgeInsetsGeometry calculateContentPadding() {
-    final top = widget.showPredefinedFormatSection
-        ? DesktopAIPromptSizes.predefinedFormatButtonHeight
-        : 0.0;
-    const bottom = DesktopAIPromptSizes.actionBarHeight;
-
-    return DesktopAIPromptSizes.textFieldContentPadding
-        .add(EdgeInsets.only(top: top, bottom: bottom));
-  }
-
-  Map<ShortcutActivator, Intent> buildShortcuts() {
-    if (isComposing) {
-      return const {};
-    }
-
-    return const {
-      SingleActivator(LogicalKeyboardKey.arrowUp): _FocusPreviousItemIntent(),
-      SingleActivator(LogicalKeyboardKey.arrowDown): _FocusNextItemIntent(),
-      SingleActivator(LogicalKeyboardKey.escape): _CancelMentionPageIntent(),
-      SingleActivator(LogicalKeyboardKey.enter): _SubmitOrMentionPageIntent(),
     };
   }
 }
@@ -545,7 +459,6 @@ class _PromptBottomActions extends StatelessWidget {
     required this.focusNode,
     required this.sendButtonState,
     required this.predefinedFormat,
-    required this.predefinedTextFormat,
     required this.onTogglePredefinedFormatSection,
     required this.showPredefinedFormats,
     required this.onSendPressed,
@@ -557,8 +470,7 @@ class _PromptBottomActions extends StatelessWidget {
   final OverlayPortalController overlayController;
   final FocusNode focusNode;
   final bool showPredefinedFormats;
-  final ImageFormat predefinedFormat;
-  final TextFormat? predefinedTextFormat;
+  final PredefinedFormat predefinedFormat;
   final void Function() onTogglePredefinedFormatSection;
   final SendButtonState sendButtonState;
   final void Function() onSendPressed;
@@ -568,8 +480,8 @@ class _PromptBottomActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: DesktopAIPromptSizes.actionBarHeight,
-      margin: DesktopAIPromptSizes.actionBarPadding,
+      height: DesktopAIPromptSizes.actionBarSendButtonSize,
+      margin: DesktopAIChatSizes.inputActionBarMargin,
       child: BlocBuilder<AIPromptInputBloc, AIPromptInputState>(
         builder: (context, state) {
           if (state.chatState == null) {
@@ -585,7 +497,7 @@ class _PromptBottomActions extends StatelessWidget {
               if (state.aiType == AIType.appflowyAI) ...[
                 _selectSourcesButton(context),
                 const HSpace(
-                  DesktopAIPromptSizes.actionBarButtonSpacing,
+                  DesktopAIChatSizes.inputActionBarButtonSpacing,
                 ),
               ],
               // _mentionButton(context),
@@ -595,7 +507,7 @@ class _PromptBottomActions extends StatelessWidget {
               if (state.supportChatWithFile) ...[
                 _attachmentButton(context),
                 const HSpace(
-                  DesktopAIPromptSizes.actionBarButtonSpacing,
+                  DesktopAIChatSizes.inputActionBarButtonSpacing,
                 ),
               ],
               _sendButton(),
@@ -610,7 +522,6 @@ class _PromptBottomActions extends StatelessWidget {
     return PromptInputDesktopToggleFormatButton(
       showFormatBar: showPredefinedFormats,
       predefinedFormat: predefinedFormat,
-      predefinedTextFormat: predefinedTextFormat,
       onTap: onTogglePredefinedFormatSection,
     );
   }
@@ -669,8 +580,6 @@ class _PromptBottomActions extends StatelessWidget {
 
   Widget _sendButton() {
     return PromptInputSendButton(
-      buttonSize: DesktopAIPromptSizes.actionBarHeight,
-      iconSize: DesktopAIPromptSizes.sendButtonSize,
       state: sendButtonState,
       onSendPressed: onSendPressed,
       onStopStreaming: onStopStreaming,

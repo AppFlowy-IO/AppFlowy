@@ -5,21 +5,20 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 
-import '../layout_define.dart';
+import 'layout_define.dart';
 
 class PromptInputDesktopToggleFormatButton extends StatelessWidget {
   const PromptInputDesktopToggleFormatButton({
     super.key,
     required this.showFormatBar,
     required this.predefinedFormat,
-    required this.predefinedTextFormat,
     required this.onTap,
   });
 
   final bool showFormatBar;
-  final ImageFormat predefinedFormat;
-  final TextFormat? predefinedTextFormat;
+  final PredefinedFormat predefinedFormat;
   final VoidCallback onTap;
 
   @override
@@ -49,15 +48,11 @@ class ChangeFormatBar extends StatelessWidget {
   const ChangeFormatBar({
     super.key,
     required this.predefinedFormat,
-    required this.buttonSize,
-    required this.iconSize,
     required this.spacing,
     required this.onSelectPredefinedFormat,
   });
 
   final PredefinedFormat? predefinedFormat;
-  final double buttonSize;
-  final double iconSize;
   final double spacing;
   final void Function(PredefinedFormat) onSelectPredefinedFormat;
 
@@ -106,15 +101,15 @@ class ChangeFormatBar extends StatelessWidget {
       child: FlowyTooltip(
         message: format.i18n,
         child: SizedBox.square(
-          dimension: buttonSize,
+          dimension: _buttonSize,
           child: FlowyHover(
             isSelected: () => format == predefinedFormat?.imageFormat,
             child: Center(
               child: FlowySvg(
                 format.icon,
                 size: format == ImageFormat.textAndImage
-                    ? Size(21.0 / 16.0 * iconSize, iconSize)
-                    : Size.square(iconSize),
+                    ? Size(21.0 / 16.0 * _iconSize, _iconSize)
+                    : Size.square(_iconSize),
               ),
             ),
           ),
@@ -152,19 +147,31 @@ class ChangeFormatBar extends StatelessWidget {
       child: FlowyTooltip(
         message: format.i18n,
         child: SizedBox.square(
-          dimension: buttonSize,
+          dimension: _buttonSize,
           child: FlowyHover(
             isSelected: () => format == predefinedFormat?.textFormat,
             child: Center(
               child: FlowySvg(
                 format.icon,
-                size: Size.square(iconSize),
+                size: Size.square(_iconSize),
               ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  double get _buttonSize {
+    return UniversalPlatform.isMobile
+        ? MobileAIPromptSizes.predefinedFormatButtonHeight
+        : DesktopAIPromptSizes.predefinedFormatButtonHeight;
+  }
+
+  double get _iconSize {
+    return UniversalPlatform.isMobile
+        ? MobileAIPromptSizes.predefinedFormatIconHeight
+        : DesktopAIPromptSizes.predefinedFormatIconHeight;
   }
 }
 

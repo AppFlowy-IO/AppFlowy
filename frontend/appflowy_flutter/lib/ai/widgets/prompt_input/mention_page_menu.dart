@@ -19,30 +19,32 @@ const double _noPageHeight = 20.0;
 const double _fixedWidth = 360.0;
 const double _maxHeight = 328.0;
 
-class ChatInputAnchor {
-  ChatInputAnchor(this.anchorKey, this.layerLink);
+class PromptInputAnchor {
+  PromptInputAnchor(this.anchorKey, this.layerLink);
 
   final GlobalKey<State<StatefulWidget>> anchorKey;
   final LayerLink layerLink;
 }
 
-class ChatMentionPageMenu extends StatefulWidget {
-  const ChatMentionPageMenu({
+class PromptInputMentionPageMenu extends StatefulWidget {
+  const PromptInputMentionPageMenu({
     super.key,
     required this.anchor,
     required this.textController,
     required this.onPageSelected,
   });
 
-  final ChatInputAnchor anchor;
+  final PromptInputAnchor anchor;
   final TextEditingController textController;
   final void Function(ViewPB view) onPageSelected;
 
   @override
-  State<ChatMentionPageMenu> createState() => _ChatMentionPageMenuState();
+  State<PromptInputMentionPageMenu> createState() =>
+      _PromptInputMentionPageMenuState();
 }
 
-class _ChatMentionPageMenuState extends State<ChatMentionPageMenu> {
+class _PromptInputMentionPageMenuState
+    extends State<PromptInputMentionPageMenu> {
   @override
   void initState() {
     super.initState();
@@ -92,7 +94,7 @@ class _ChatMentionPageMenuState extends State<ChatMentionPageMenu> {
                   ],
                 ),
                 child: TextFieldTapRegion(
-                  child: ChatMentionPageList(
+                  child: PromptInputMentionPageList(
                     onPageSelected: widget.onPageSelected,
                   ),
                 ),
@@ -143,8 +145,8 @@ class _ChatMentionPageMenuState extends State<ChatMentionPageMenu> {
   }
 }
 
-class ChatMentionPageList extends StatefulWidget {
-  const ChatMentionPageList({
+class PromptInputMentionPageList extends StatefulWidget {
+  const PromptInputMentionPageList({
     super.key,
     required this.onPageSelected,
   });
@@ -152,10 +154,12 @@ class ChatMentionPageList extends StatefulWidget {
   final void Function(ViewPB view) onPageSelected;
 
   @override
-  State<ChatMentionPageList> createState() => _ChatMentionPageListState();
+  State<PromptInputMentionPageList> createState() =>
+      _PromptInputMentionPageListState();
 }
 
-class _ChatMentionPageListState extends State<ChatMentionPageList> {
+class _PromptInputMentionPageListState
+    extends State<PromptInputMentionPageList> {
   final autoScrollController = SimpleAutoScrollController(
     suggestedRowHeight: _itemHeight,
     beginGetter: (rect) => rect.top + 8.0,

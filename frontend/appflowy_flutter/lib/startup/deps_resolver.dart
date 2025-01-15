@@ -3,13 +3,13 @@ import 'package:appflowy/core/network_monitor.dart';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
-import 'package:appflowy/ai/ai_client.dart';
+import 'package:appflowy/ai/service/ai_client.dart';
 import 'package:appflowy/plugins/trash/application/prelude.dart';
 import 'package:appflowy/shared/appflowy_cache_manager.dart';
 import 'package:appflowy/shared/custom_image_cache_manager.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/appflowy_cloud_task.dart';
-import 'package:appflowy/ai/appflowy_ai_service.dart';
+import 'package:appflowy/ai/service/appflowy_ai_service.dart';
 import 'package:appflowy/user/application/auth/af_cloud_auth_service.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
@@ -87,12 +87,8 @@ void _resolveCommonService(
     () async {
       final result = await UserBackendService.getCurrentUserProfile();
       return result.fold(
-        (s) {
-          return AppFlowyAIService();
-        },
-        (e) {
-          throw Exception('Failed to get user profile: ${e.msg}');
-        },
+        (s) => AppFlowyAIService(),
+        (e) => throw Exception('Failed to get user profile: ${e.msg}'),
       );
     },
   );

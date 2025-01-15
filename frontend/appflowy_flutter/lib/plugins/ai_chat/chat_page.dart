@@ -24,8 +24,8 @@ import 'application/chat_entity.dart';
 import 'application/chat_member_bloc.dart';
 import 'application/chat_message_stream.dart';
 import 'presentation/animated_chat_list.dart';
-import 'presentation/chat_input/desktop_ai_prompt_input.dart';
-import 'presentation/chat_input/mobile_ai_prompt_input.dart';
+import 'presentation/chat_input/desktop_chat_input.dart';
+import 'presentation/chat_input/mobile_chat_input.dart';
 import 'presentation/chat_related_question.dart';
 import 'presentation/chat_welcome_page.dart';
 import 'presentation/layout_define.dart';
@@ -285,7 +285,7 @@ class _ChatContentPage extends StatelessWidget {
           final chatBloc = context.read<ChatBloc>();
 
           return UniversalPlatform.isDesktop
-              ? DesktopAIPromptInput(
+              ? DesktopChatInput(
                   chatId: view.id,
                   isStreaming: !canSendMessage,
                   onStopStreaming: () {
@@ -308,7 +308,7 @@ class _ChatContentPage extends StatelessWidget {
                     );
                   },
                 )
-              : MobileAIPromptInput(
+              : MobileChatInput(
                   chatId: view.id,
                   isStreaming: !canSendMessage,
                   onStopStreaming: () {
