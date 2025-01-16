@@ -322,11 +322,7 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
       configuration,
       styleCustomizer,
     ),
-    AIWriterBlockKeys.type: _buildAIWriterBlockComponentBuilder(
-      context,
-      configuration,
-    ),
-    AskAIBlockKeys.type: _buildAskAIBlockComponentBuilder(
+    AiWriterBlockKeys.type: _buildAIWriterBlockComponentBuilder(
       context,
       configuration,
     ),
@@ -800,13 +796,6 @@ AIWriterBlockComponentBuilder _buildAIWriterBlockComponentBuilder(
   BlockComponentConfiguration configuration,
 ) {
   return AIWriterBlockComponentBuilder();
-}
-
-AskAIBlockComponentBuilder _buildAskAIBlockComponentBuilder(
-  BuildContext context,
-  BlockComponentConfiguration configuration,
-) {
-  return AskAIBlockComponentBuilder();
 }
 
 ToggleListBlockComponentBuilder _buildToggleListBlockComponentBuilder(
