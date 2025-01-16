@@ -381,7 +381,10 @@ SimpleTableBlockComponentBuilder _buildSimpleTableBlockComponentBuilder(
       }
     },
   );
-  return SimpleTableBlockComponentBuilder(configuration: copiedConfiguration);
+  return SimpleTableBlockComponentBuilder(
+    configuration: copiedConfiguration,
+    alwaysDistributeColumnWidths: alwaysDistributeColumnWidths,
+  );
 }
 
 SimpleTableRowBlockComponentBuilder _buildSimpleTableRowBlockComponentBuilder(
