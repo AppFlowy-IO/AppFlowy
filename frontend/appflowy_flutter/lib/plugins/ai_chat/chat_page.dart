@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_message_selector_banner.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
@@ -19,14 +20,12 @@ import 'package:string_validator/string_validator.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'application/ai_prompt_input_bloc.dart';
 import 'application/chat_bloc.dart';
 import 'application/chat_entity.dart';
 import 'application/chat_member_bloc.dart';
 import 'application/chat_select_message_bloc.dart';
 import 'application/chat_message_stream.dart';
 import 'presentation/animated_chat_list.dart';
-import 'presentation/chat_input/desktop_chat_input.dart';
 import 'presentation/chat_input/mobile_chat_input.dart';
 import 'presentation/chat_related_question.dart';
 import 'presentation/chat_welcome_page.dart';
@@ -146,7 +145,7 @@ class _ChatContentPage extends StatelessWidget {
                   ),
                 ),
                 _wrapConstraints(
-                  _builtInput(context),
+                  _Input(view: view),
                 ),
               ],
             ),
@@ -300,7 +299,42 @@ class _ChatContentPage extends StatelessWidget {
     );
   }
 
-  Widget _builtInput(BuildContext context) {
+  void _onSelectMetadata(
+    BuildContext context,
+    ChatMessageRefSource metadata,
+  ) async {
+    if (isURL(metadata.name)) {
+      late Uri uri;
+      try {
+        uri = Uri.parse(metadata.name);
+        // `Uri` identifies `localhost` as a scheme
+        if (!uri.hasScheme || uri.scheme == 'localhost') {
+          uri = Uri.parse("http://${metadata.name}");
+          await InternetAddress.lookup(uri.host);
+        }
+        await launchUrl(uri);
+      } catch (err) {
+        Log.error("failed to open url $err");
+      }
+    } else {
+      final sidebarView =
+          await ViewBackendService.getView(metadata.id).toNullable();
+      if (context.mounted) {
+        openPageFromMessage(context, sidebarView);
+      }
+    }
+  }
+}
+
+class _Input extends StatelessWidget {
+  const _Input({
+    required this.view,
+  });
+
+  final ViewPB view;
+
+  @override
+  Widget build(BuildContext context) {
     return BlocSelector<ChatSelectMessageBloc, ChatSelectMessageState, bool>(
       selector: (state) => state.isSelectingMessages,
       builder: (context, isSelectingMessages) {
@@ -326,8 +360,7 @@ class _ChatContentPage extends StatelessWidget {
                       final chatBloc = context.read<ChatBloc>();
 
                       return UniversalPlatform.isDesktop
-                          ? DesktopChatInput(
-                              chatId: view.id,
+                          ? DesktopPromptInput(
                               isStreaming: !canSendMessage,
                               onStopStreaming: () {
                                 chatBloc.add(const ChatEvent.stopStream());
@@ -341,6 +374,8 @@ class _ChatContentPage extends StatelessWidget {
                                   ),
                                 );
                               },
+                              selectedSourcesNotifier:
+                                  chatBloc.selectedSourcesNotifier,
                               onUpdateSelectedSources: (ids) {
                                 chatBloc.add(
                                   ChatEvent.updateSelectedSources(
@@ -350,7 +385,6 @@ class _ChatContentPage extends StatelessWidget {
                               },
                             )
                           : MobileChatInput(
-                              chatId: view.id,
                               isStreaming: !canSendMessage,
                               onStopStreaming: () {
                                 chatBloc.add(const ChatEvent.stopStream());
@@ -364,6 +398,8 @@ class _ChatContentPage extends StatelessWidget {
                                   ),
                                 );
                               },
+                              selectedSourcesNotifier:
+                                  chatBloc.selectedSourcesNotifier,
                               onUpdateSelectedSources: (ids) {
                                 chatBloc.add(
                                   ChatEvent.updateSelectedSources(
@@ -378,31 +414,5 @@ class _ChatContentPage extends StatelessWidget {
         );
       },
     );
-  }
-
-  void _onSelectMetadata(
-    BuildContext context,
-    ChatMessageRefSource metadata,
-  ) async {
-    if (isURL(metadata.name)) {
-      late Uri uri;
-      try {
-        uri = Uri.parse(metadata.name);
-        // `Uri` identifies `localhost` as a scheme
-        if (!uri.hasScheme || uri.scheme == 'localhost') {
-          uri = Uri.parse("http://${metadata.name}");
-          await InternetAddress.lookup(uri.host);
-        }
-        await launchUrl(uri);
-      } catch (err) {
-        Log.error("failed to open url $err");
-      }
-    } else {
-      final sidebarView =
-          await ViewBackendService.getView(metadata.id).toNullable();
-      if (context.mounted) {
-        openPageFromMessage(context, sidebarView);
-      }
-    }
   }
 }

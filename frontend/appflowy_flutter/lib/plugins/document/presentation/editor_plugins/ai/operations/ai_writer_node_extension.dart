@@ -1,7 +1,29 @@
 import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
-extension AskAINodeExtension on EditorState {
+import '../ai_writer_block_component.dart';
+import 'ai_writer_entities.dart';
+
+extension AiWriterExtension on Node {
+  bool get isAiWriterInitialized {
+    return attributes[AiWriterBlockKeys.isInitialized];
+  }
+
+  Selection? get aiWriterSelection {
+    final selection = attributes[AiWriterBlockKeys.selection];
+    if (selection == null) {
+      return null;
+    }
+    return Selection.fromJson(selection);
+  }
+
+  AiWriterCommand get aiWriterCommand {
+    final index = attributes[AiWriterBlockKeys.command];
+    return AiWriterCommand.values[index];
+  }
+}
+
+extension AiWriterNodeExtension on EditorState {
   Future<String> getMarkdownInSelection(Selection? selection) async {
     selection ??= this.selection?.normalized;
     if (selection == null || selection.isCollapsed) {

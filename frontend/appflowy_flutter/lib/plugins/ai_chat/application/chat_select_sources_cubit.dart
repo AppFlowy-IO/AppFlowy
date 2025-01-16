@@ -113,9 +113,8 @@ class ChatSettingsCubit extends Cubit<ChatSettingsState> {
   String filter = '';
 
   void updateSelectedSources(List<String> newSelectedSourceIds) {
-    selectedSourceIds
-      ..clear
-      ..addAll(newSelectedSourceIds);
+    selectedSourceIds.clear();
+    selectedSourceIds.addAll(newSelectedSourceIds);
   }
 
   void refreshSources(List<ViewPB> spaceViews, ViewPB? currentSpace) async {

@@ -7,7 +7,7 @@ part 'error.g.dart';
 class AIError with _$AIError {
   const factory AIError({
     required String message,
-    @Default(AIErrorCode.other) AIErrorCode code,
+    required AIErrorCode code,
   }) = _AIError;
 
   factory AIError.fromJson(Map<String, Object?> json) =>

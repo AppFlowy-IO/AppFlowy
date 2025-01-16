@@ -29,7 +29,7 @@ void main() {
         // mock the delay of the text robot
         await Future.delayed(const Duration(milliseconds: 10));
       }
-      await markdownTextRobot.stop();
+      await markdownTextRobot.persist();
 
       expect(editorState);
     }
@@ -43,7 +43,7 @@ void main() {
 
       markdownTextRobot.start();
       await markdownTextRobot.appendMarkdownText(_sample1);
-      await markdownTextRobot.stop();
+      await markdownTextRobot.persist();
 
       final nodes = editorState.document.root.children;
       // 4 from the sample, 1 from the original empty paragraph node

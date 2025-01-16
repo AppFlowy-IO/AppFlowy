@@ -50,7 +50,7 @@ List<SelectionMenuItem> _defaultSlashMenuItems({
   DocumentBloc? documentBloc,
 }) {
   return [
-    // disable ai writer in local mode
+    // ai
     if (!isLocalMode) aiWriterSlashMenuItem,
 
     paragraphSlashMenuItem,

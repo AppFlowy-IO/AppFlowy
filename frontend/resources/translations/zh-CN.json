@@ -356,7 +356,6 @@
     "storageLimitDialogTitle": "你已用尽免费存储。升级以解锁无限制存储",
     "storageLimitDialogTitleIOS": "你已用尽免费存储。",
     "aiResponseLimitTitle": "你已用尽免费 AI 回应。升级到专业版或者购买 AI 插件来解锁无限制回应",
-    "aiResponseLimitTitleIOS": "你已用尽免费 AI 回应。",
     "aiResponseLimitDialogTitle": "已达到 AI 回应限额",
     "aiResponseLimit": "你已用尽了免费 AI 回应。\n\n转到“设置 -> 计划 -> 点击 AI Max 或 Pro 计划”获取更多 AI 回应",
     "askOwnerToUpgradeToPro": "你的工作区即将用尽免费存储。请联系工作区所有者升级到专业版计划",
