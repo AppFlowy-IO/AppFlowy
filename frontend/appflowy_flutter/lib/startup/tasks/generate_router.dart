@@ -289,6 +289,8 @@ GoRoute _mobileEmojiPickerPageRoute() {
       final selectedType = state
           .uri.queryParameters[MobileEmojiPickerScreen.iconSelectedType]
           ?.toPickerTabType();
+      final documentId =
+          state.uri.queryParameters[MobileEmojiPickerScreen.uploadDocumentId];
       List<PickerTabType> tabs = [];
       try {
         tabs = selectTabs
@@ -300,11 +302,16 @@ GoRoute _mobileEmojiPickerPageRoute() {
       }
       return MaterialExtendedPage(
         child: tabs.isEmpty
-            ? MobileEmojiPickerScreen(title: title, selectedType: selectedType)
+            ? MobileEmojiPickerScreen(
+                title: title,
+                selectedType: selectedType,
+                documentId: documentId,
+              )
             : MobileEmojiPickerScreen(
                 title: title,
                 selectedType: selectedType,
                 tabs: tabs,
+                documentId: documentId,
               ),
       );
     },

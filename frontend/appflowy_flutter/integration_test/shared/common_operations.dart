@@ -671,6 +671,8 @@ extension CommonOperations on WidgetTester {
       await tapEmoji(icon.emoji);
     } else if (icon.type == FlowyIconType.icon) {
       await tapIcon(icon);
+    } else if (icon.type == FlowyIconType.custom) {
+      await pickImage(icon);
     }
     await pumpAndSettle();
   }

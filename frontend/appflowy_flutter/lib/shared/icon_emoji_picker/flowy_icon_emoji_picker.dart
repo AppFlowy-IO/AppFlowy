@@ -9,6 +9,8 @@ import 'package:flutter/material.dart' hide Icon;
 import 'package:flutter/services.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import 'icon_uploader.dart';
+
 extension ToProto on FlowyIconType {
   ViewIconTypePB toProto() {
     switch (this) {
@@ -60,6 +62,9 @@ class EmojiIconData {
   factory EmojiIconData.icon(IconsData icon) =>
       EmojiIconData(FlowyIconType.icon, icon.iconString);
 
+  factory EmojiIconData.custom(String url) =>
+      EmojiIconData(FlowyIconType.custom, url);
+
   const EmojiIconData(
     this.type,
     this.emoji,
@@ -104,14 +109,19 @@ class FlowyIconEmojiPicker extends StatefulWidget {
     super.key,
     this.onSelectedEmoji,
     this.initialType,
+    this.documentId,
     this.enableBackgroundColorSelection = true,
-    this.tabs = const [PickerTabType.emoji, PickerTabType.icon],
+    this.tabs = const [
+      PickerTabType.emoji,
+      PickerTabType.icon,
+    ],
   });
 
   final ValueChanged<SelectedEmojiIconResult>? onSelectedEmoji;
   final bool enableBackgroundColorSelection;
   final List<PickerTabType> tabs;
   final PickerTabType? initialType;
+  final String? documentId;
 
   @override
   State<FlowyIconEmojiPicker> createState() => _FlowyIconEmojiPickerState();
@@ -178,6 +188,8 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
                   return _buildEmojiPicker();
                 case PickerTabType.icon:
                   return _buildIconPicker();
+                case PickerTabType.custom:
+                  return _buildIconUploader();
               }
             }).toList(),
           ),
@@ -216,6 +228,16 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
           r.data.toEmojiIconData().toSelectedResult(keepOpen: r.isRandom),
         );
         SystemChannels.textInput.invokeMethod('TextInput.hide');
+      },
+    );
+  }
+
+  Widget _buildIconUploader() {
+    return IconUploader(
+      documentId: widget.documentId ?? '',
+      onUrl: (url) {
+        widget.onSelectedEmoji
+            ?.call(SelectedEmojiIconResult(EmojiIconData.custom(url), false));
       },
     );
   }

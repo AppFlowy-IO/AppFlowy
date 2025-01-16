@@ -64,6 +64,7 @@ class _RenameViewPopoverState extends State<RenameViewPopover> {
               direction: PopoverDirection.bottomWithCenterAligned,
               offset: const Offset(0, 18),
               onSubmitted: _updateViewIcon,
+              documentId: widget.viewId,
               tabs: widget.tabs,
             ),
           ),

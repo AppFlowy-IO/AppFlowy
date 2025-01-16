@@ -4,6 +4,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
@@ -652,6 +653,12 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         isIconPickerOpened = true;
         return FlowyIconEmojiPicker(
           initialType: iconData.type.toPickerTabType(),
+          tabs: const [
+            PickerTabType.emoji,
+            PickerTabType.icon,
+            PickerTabType.custom,
+          ],
+          documentId: widget.view.id,
           onSelectedEmoji: (r) {
             ViewBackendService.updateViewIcon(
               viewId: widget.view.id,
