@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_select_sources_cubit.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -24,9 +24,11 @@ import 'mention_page_menu.dart';
 class PromptInputDesktopSelectSourcesButton extends StatefulWidget {
   const PromptInputDesktopSelectSourcesButton({
     super.key,
+    required this.selectedSourcesNotifier,
     required this.onUpdateSelectedSources,
   });
 
+  final ValueNotifier<List<String>> selectedSourcesNotifier;
   final void Function(List<String>) onUpdateSelectedSources;
 
   @override
@@ -42,15 +44,15 @@ class _PromptInputDesktopSelectSourcesButtonState
   @override
   void initState() {
     super.initState();
+    widget.selectedSourcesNotifier.addListener(onSelectedSourcesChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      cubit.updateSelectedSources(
-        context.read<ChatBloc>().state.selectedSourceIds,
-      );
+      onSelectedSourcesChanged();
     });
   }
 
   @override
   void dispose() {
+    widget.selectedSourcesNotifier.removeListener(onSelectedSourcesChanged);
     cubit.close();
     super.dispose();
   }
@@ -76,51 +78,53 @@ class _PromptInputDesktopSelectSourcesButtonState
       ],
       child: BlocBuilder<SpaceBloc, SpaceState>(
         builder: (context, state) {
-          return BlocListener<ChatBloc, ChatState>(
-            listener: (context, state) {
-              cubit
-                ..updateSelectedSources(state.selectedSourceIds)
-                ..updateSelectedStatus();
+          return AppFlowyPopover(
+            constraints: BoxConstraints.loose(const Size(320, 380)),
+            offset: const Offset(0.0, -10.0),
+            direction: PopoverDirection.topWithCenterAligned,
+            margin: EdgeInsets.zero,
+            controller: popoverController,
+            onOpen: () {
+              context
+                  .read<ChatSettingsCubit>()
+                  .refreshSources(state.spaces, state.currentSpace);
             },
-            child: AppFlowyPopover(
-              constraints: BoxConstraints.loose(const Size(320, 380)),
-              offset: const Offset(0.0, -10.0),
-              direction: PopoverDirection.topWithCenterAligned,
-              margin: EdgeInsets.zero,
-              controller: popoverController,
-              onOpen: () {
-                context
-                    .read<ChatSettingsCubit>()
-                    .refreshSources(state.spaces, state.currentSpace);
-              },
-              onClose: () {
-                widget.onUpdateSelectedSources(cubit.selectedSourceIds);
-                context
-                    .read<ChatSettingsCubit>()
-                    .refreshSources(state.spaces, state.currentSpace);
-              },
-              popupBuilder: (_) {
-                return BlocProvider.value(
-                  value: context.read<ChatSettingsCubit>(),
-                  child: const _PopoverContent(),
-                );
-              },
-              child: _IndicatorButton(
-                onTap: () => popoverController.show(),
-              ),
+            onClose: () {
+              widget.onUpdateSelectedSources(cubit.selectedSourceIds);
+              context
+                  .read<ChatSettingsCubit>()
+                  .refreshSources(state.spaces, state.currentSpace);
+            },
+            popupBuilder: (_) {
+              return BlocProvider.value(
+                value: context.read<ChatSettingsCubit>(),
+                child: const _PopoverContent(),
+              );
+            },
+            child: _IndicatorButton(
+              selectedSourcesNotifier: widget.selectedSourcesNotifier,
+              onTap: () => popoverController.show(),
             ),
           );
         },
       ),
     );
   }
+
+  void onSelectedSourcesChanged() {
+    cubit
+      ..updateSelectedSources(widget.selectedSourcesNotifier.value)
+      ..updateSelectedStatus();
+  }
 }
 
 class _IndicatorButton extends StatelessWidget {
   const _IndicatorButton({
+    required this.selectedSourcesNotifier,
     required this.onTap,
   });
 
+  final ValueNotifier<List<String>> selectedSourcesNotifier;
   final VoidCallback onTap;
 
   @override
@@ -144,11 +148,19 @@ class _IndicatorButton extends StatelessWidget {
                   color: Theme.of(context).iconTheme.color,
                 ),
                 const HSpace(2.0),
-                BlocBuilder<ChatBloc, ChatState>(
-                  builder: (context, state) {
+                ValueListenableBuilder(
+                  valueListenable: selectedSourcesNotifier,
+                  builder: (context, selectedSourceIds, _) {
+                    final documentId =
+                        context.read<DocumentBloc?>()?.documentId;
+                    final label = documentId != null &&
+                            selectedSourceIds.length == 1 &&
+                            selectedSourceIds[0] == documentId
+                        ? LocaleKeys.chat_currentPage.tr()
+                        : selectedSourceIds.length.toString();
                     return FlowyText(
-                      state.selectedSourceIds.length.toString(),
-                      fontSize: 14,
+                      label,
+                      fontSize: 12,
                       figmaLineHeight: 16,
                       color: Theme.of(context).hintColor,
                     );

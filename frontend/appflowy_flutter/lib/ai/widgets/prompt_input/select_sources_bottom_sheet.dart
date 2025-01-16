@@ -2,7 +2,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/flowy_search_text_field.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_select_sources_cubit.dart';
 import 'package:appflowy/plugins/base/drag_handler.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
@@ -19,9 +18,11 @@ import 'select_sources_menu.dart';
 class PromptInputMobileSelectSourcesButton extends StatefulWidget {
   const PromptInputMobileSelectSourcesButton({
     super.key,
+    required this.selectedSourcesNotifier,
     required this.onUpdateSelectedSources,
   });
 
+  final ValueNotifier<List<String>> selectedSourcesNotifier;
   final void Function(List<String>) onUpdateSelectedSources;
 
   @override
@@ -36,15 +37,15 @@ class _PromptInputMobileSelectSourcesButtonState
   @override
   void initState() {
     super.initState();
+    widget.selectedSourcesNotifier.addListener(onSelectedSourcesChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      cubit.updateSelectedSources(
-        context.read<ChatBloc>().state.selectedSourceIds,
-      );
+      onSelectedSourcesChanged();
     });
   }
 
   @override
   void dispose() {
+    widget.selectedSourcesNotifier.removeListener(onSelectedSourcesChanged);
     cubit.close();
     super.dispose();
   }
@@ -70,62 +71,61 @@ class _PromptInputMobileSelectSourcesButtonState
           ],
           child: BlocBuilder<SpaceBloc, SpaceState>(
             builder: (context, state) {
-              return BlocListener<ChatBloc, ChatState>(
-                listener: (context, state) {
-                  cubit
-                    ..updateSelectedSources(state.selectedSourceIds)
-                    ..updateSelectedStatus();
-                },
-                child: FlowyButton(
-                  margin: const EdgeInsetsDirectional.fromSTEB(4, 6, 2, 6),
-                  expandText: false,
-                  text: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FlowySvg(
-                        FlowySvgs.ai_page_s,
-                        color: Theme.of(context).iconTheme.color,
-                        size: const Size.square(20.0),
-                      ),
-                      FlowySvg(
-                        FlowySvgs.ai_source_drop_down_s,
-                        color: Theme.of(context).hintColor,
-                        size: const Size.square(10),
-                      ),
-                    ],
-                  ),
-                  onTap: () async {
-                    context
-                        .read<ChatSettingsCubit>()
-                        .refreshSources(state.spaces, state.currentSpace);
-                    await showMobileBottomSheet<void>(
-                      context,
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      maxChildSize: 0.98,
-                      enableDraggableScrollable: true,
-                      scrollableWidgetBuilder: (_, scrollController) {
-                        return Expanded(
-                          child: BlocProvider.value(
-                            value: cubit,
-                            child: _MobileSelectSourcesSheetBody(
-                              scrollController: scrollController,
-                            ),
-                          ),
-                        );
-                      },
-                      builder: (context) => const SizedBox.shrink(),
-                    );
-                    if (context.mounted) {
-                      widget.onUpdateSelectedSources(cubit.selectedSourceIds);
-                    }
-                  },
+              return FlowyButton(
+                margin: const EdgeInsetsDirectional.fromSTEB(4, 6, 2, 6),
+                expandText: false,
+                text: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FlowySvg(
+                      FlowySvgs.ai_page_s,
+                      color: Theme.of(context).iconTheme.color,
+                      size: const Size.square(20.0),
+                    ),
+                    FlowySvg(
+                      FlowySvgs.ai_source_drop_down_s,
+                      color: Theme.of(context).hintColor,
+                      size: const Size.square(10),
+                    ),
+                  ],
                 ),
+                onTap: () async {
+                  context
+                      .read<ChatSettingsCubit>()
+                      .refreshSources(state.spaces, state.currentSpace);
+                  await showMobileBottomSheet<void>(
+                    context,
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    maxChildSize: 0.98,
+                    enableDraggableScrollable: true,
+                    scrollableWidgetBuilder: (_, scrollController) {
+                      return Expanded(
+                        child: BlocProvider.value(
+                          value: cubit,
+                          child: _MobileSelectSourcesSheetBody(
+                            scrollController: scrollController,
+                          ),
+                        ),
+                      );
+                    },
+                    builder: (context) => const SizedBox.shrink(),
+                  );
+                  if (context.mounted) {
+                    widget.onUpdateSelectedSources(cubit.selectedSourceIds);
+                  }
+                },
               );
             },
           ),
         );
       },
     );
+  }
+
+  void onSelectedSourcesChanged() {
+    cubit
+      ..updateSelectedSources(widget.selectedSourcesNotifier.value)
+      ..updateSelectedStatus();
   }
 }
 

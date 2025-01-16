@@ -1,11 +1,11 @@
 import 'dart:convert';
 
+import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_edit_document_service.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_select_message_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
@@ -22,7 +22,6 @@ import 'package:go_router/go_router.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import '../chat_avatar.dart';
-import '../../../../ai/widgets/prompt_input/mention_page_bottom_sheet.dart';
 import '../layout_define.dart';
 import 'ai_message_action_bar.dart';
 import 'ai_change_format_bottom_sheet.dart';
@@ -377,7 +376,7 @@ class ChatAIMessagePopup extends StatelessWidget {
         onRegenerate?.call();
         Navigator.of(context).pop();
       },
-      icon: FlowySvgs.ai_undo_s,
+      icon: FlowySvgs.ai_try_again_s,
       iconSize: const Size.square(20),
       text: LocaleKeys.chat_regenerate.tr(),
     );
