@@ -757,10 +757,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_chat_core
-      sha256: "6144ee33232b8ce2d4e20b650eaa324f960fa7dd92767039094334c9ddd55f9f"
+      sha256: "14557aaac7c71b80c279eca41781d214853940cf01727934c742b5845c42dd1e"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.4"
+    version: "0.0.2"
   flutter_chat_types:
     dependency: transitive
     description:
@@ -773,10 +773,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_chat_ui
-      sha256: cfc369306f07462c6947988135285f1d4af022307c7fccf9c7c654be7f30fca8
+      sha256: "2afd22eaebaf0f6ec8425048921479c3dd1a229604015dca05b174c6e8e44292"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0-dev.3"
+    version: "2.0.0-dev.1"
   flutter_driver:
     dependency: transitive
     description: flutter
@@ -1015,42 +1015,10 @@ packages:
     dependency: "direct main"
     description:
       name: hotkey_manager
-      sha256: "06f0655b76c8dd322fb7101dc615afbdbf39c3d3414df9e059c33892104479cd"
+      sha256: "8aaa0aeaca7015b8c561a58d02eb7ebba95e93357fc9540398c5751ee24afd7c"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.3"
-  hotkey_manager_linux:
-    dependency: transitive
-    description:
-      name: hotkey_manager_linux
-      sha256: "83676bda8210a3377bc6f1977f193bc1dbdd4c46f1bdd02875f44b6eff9a8473"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
-  hotkey_manager_macos:
-    dependency: transitive
-    description:
-      name: hotkey_manager_macos
-      sha256: "03b5967e64357b9ac05188ea4a5df6fe4ed4205762cb80aaccf8916ee1713c96"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
-  hotkey_manager_platform_interface:
-    dependency: transitive
-    description:
-      name: hotkey_manager_platform_interface
-      sha256: "98ffca25b8cc9081552902747b2942e3bc37855389a4218c9d50ca316b653b13"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
-  hotkey_manager_windows:
-    dependency: transitive
-    description:
-      name: hotkey_manager_windows
-      sha256: "0d03ced9fe563ed0b68f0a0e1b22c9ffe26eb8053cb960e401f68a4f070e0117"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
+    version: "0.1.8"
   html:
     dependency: transitive
     description:
@@ -1816,14 +1784,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.8"
-  scrollview_observer:
-    dependency: transitive
-    description:
-      name: scrollview_observer
-      sha256: d607bc97165113b4ce6aa860a3865cfa6b849445a48c216461d74bc96be6cb94
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.24.0"
   sentry:
     dependency: "direct main"
     description:
@@ -2238,14 +2198,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
-  uni_platform:
-    dependency: transitive
-    description:
-      name: uni_platform
-      sha256: e02213a7ee5352212412ca026afd41d269eb00d982faa552f419ffc2debfad84
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.3"
   universal_html:
     dependency: transitive
     description:
