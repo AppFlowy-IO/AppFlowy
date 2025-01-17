@@ -869,13 +869,13 @@ packages:
     source: hosted
     version: "0.7.0"
   flutter_sticky_header:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: flutter_sticky_header
-      sha256: "017f398fbb45a589e01491861ca20eb6570a763fd9f3888165a978e11248c709"
+      sha256: "7f76d24d119424ca0c95c146b8627a457e8de8169b0d584f766c2c545db8f8be"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.5"
+    version: "0.7.0"
   flutter_svg:
     dependency: transitive
     description:
@@ -1691,10 +1691,11 @@ packages:
   reorderable_tabbar:
     dependency: "direct main"
     description:
-      name: reorderable_tabbar
-      sha256: dd19d7b6f60f0dec4be02ba0a2c860f9acbe5a392cb8b5b8c1417cbfcbfe923f
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "93c4977"
+      resolved-ref: "93c4977ffab68906694cdeaea262be6045543c94"
+      url: "https://github.com/LucasXu0/reorderable_tabbar"
+    source: git
     version: "1.0.6"
   reorderables:
     dependency: "direct main"
@@ -2315,10 +2316,10 @@ packages:
     dependency: transitive
     description:
       name: value_layout_builder
-      sha256: "98202ec1807e94ac72725b7f0d15027afde513c55c69ff3f41bcfccb950831bc"
+      sha256: c02511ea91ca5c643b514a33a38fa52536f74aa939ec367d02938b5ede6807fa
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.1"
+    version: "0.4.0"
   vector_graphics:
     dependency: transitive
     description:

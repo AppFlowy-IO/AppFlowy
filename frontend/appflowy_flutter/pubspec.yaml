@@ -196,6 +196,14 @@ dependency_overrides:
       commit: fbab857b1b1d209240a146d32f496379b9f62276
       path: flutter_cache_manager
 
+  flutter_sticky_header: ^0.7.0
+
+  reorderable_tabbar:
+    git:
+      url: https://github.com/LucasXu0/reorderable_tabbar
+      ref: 93c4977
+
+
 flutter:
   generate: true
   uses-material-design: true
