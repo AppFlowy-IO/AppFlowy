@@ -10,9 +10,7 @@ import 'package:string_validator/string_validator.dart';
 import 'layout_define.dart';
 
 class ChatAIAvatar extends StatelessWidget {
-  const ChatAIAvatar({
-    super.key,
-  });
+  const ChatAIAvatar({super.key});
 
   @override
   Widget build(BuildContext context) {

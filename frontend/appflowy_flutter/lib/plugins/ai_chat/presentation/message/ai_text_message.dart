@@ -38,6 +38,7 @@ class ChatAIMessageWidget extends StatelessWidget {
     this.onChangeFormat,
     this.isLastMessage = false,
     this.isStreaming = false,
+    this.isSelectingMessages = false,
   });
 
   final User user;
@@ -53,6 +54,7 @@ class ChatAIMessageWidget extends StatelessWidget {
   final void Function(PredefinedFormat)? onChangeFormat;
   final bool isStreaming;
   final bool isLastMessage;
+  final bool isSelectingMessages;
 
   @override
   Widget build(BuildContext context) {
@@ -98,6 +100,7 @@ class ChatAIMessageWidget extends StatelessWidget {
                           showActions: stream == null &&
                               state.text.isNotEmpty &&
                               !isStreaming,
+                          isSelectingMessages: isSelectingMessages,
                           onRegenerate: onRegenerate,
                           onChangeFormat: onChangeFormat,
                           child: Column(
