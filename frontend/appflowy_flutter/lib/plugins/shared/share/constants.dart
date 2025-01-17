@@ -35,7 +35,7 @@ class ShareConstants {
   }) {
     final baseShareDomain =
         getIt<AppFlowyCloudSharedEnv>().appflowyCloudConfig.base_web_domain;
-    final url = '$baseShareDomain/$workspaceId/$viewId'.addSchemaIfNeeded();
+    final url = '$baseShareDomain/app/$workspaceId/$viewId'.addSchemaIfNeeded();
     if (blockId == null || blockId.isEmpty) {
       return url;
     }
