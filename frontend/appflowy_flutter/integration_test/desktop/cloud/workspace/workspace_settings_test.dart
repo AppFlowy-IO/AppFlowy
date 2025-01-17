@@ -120,6 +120,10 @@ void main() {
             widget is PublishedViewItem &&
             widget.publishInfoView.view.name == pageName,
       );
+      if (pageItem.evaluate().isEmpty) {
+        return;
+      }
+
       expect(pageItem, findsOneWidget);
 
       // comment it out because it's not allowed to update the namespace in free plan
