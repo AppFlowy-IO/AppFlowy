@@ -365,14 +365,14 @@ class _NotificationNavigationBar extends StatelessWidget {
 extension on BuildContext {
   Color get backgroundColor {
     return Theme.of(this).isLightMode
-        ? Colors.white.withOpacity(0.95)
-        : const Color(0xFF23262B).withOpacity(0.95);
+        ? Colors.white.withValues(alpha: 0.95)
+        : const Color(0xFF23262B).withValues(alpha: 0.95);
   }
 
   Color get borderColor {
     return Theme.of(this).isLightMode
         ? const Color(0x141F2329)
-        : const Color(0xFF23262B).withOpacity(0.5);
+        : const Color(0xFF23262B).withValues(alpha: 0.5);
   }
 
   Border? get border {

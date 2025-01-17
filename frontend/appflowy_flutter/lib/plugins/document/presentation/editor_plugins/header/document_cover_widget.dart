@@ -628,7 +628,7 @@ class DocumentCoverState extends State<DocumentCover> {
                     fillColor: Theme.of(context)
                         .colorScheme
                         .onSurfaceVariant
-                        .withOpacity(0.5),
+                        .withValues(alpha: 0.5),
                     height: 32,
                     title: LocaleKeys.document_plugins_cover_changeCover.tr(),
                   ),
@@ -714,8 +714,10 @@ class DocumentCoverState extends State<DocumentCover> {
                 onPressed: () => popoverController.show(),
                 hoverColor: Theme.of(context).colorScheme.surface,
                 textColor: Theme.of(context).colorScheme.tertiary,
-                fillColor:
-                    Theme.of(context).colorScheme.surface.withOpacity(0.5),
+                fillColor: Theme.of(context)
+                    .colorScheme
+                    .surface
+                    .withValues(alpha: 0.5),
                 title: LocaleKeys.document_plugins_cover_changeCover.tr(),
               ),
             ),
@@ -809,8 +811,8 @@ class DeleteCoverButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fillColor = UniversalPlatform.isDesktopOrWeb
-        ? Theme.of(context).colorScheme.surface.withOpacity(0.5)
-        : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5);
+        ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.5)
+        : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5);
     final svgColor = UniversalPlatform.isDesktopOrWeb
         ? Theme.of(context).colorScheme.tertiary
         : Theme.of(context).colorScheme.onPrimary;

@@ -140,7 +140,7 @@ class HeadingPopup extends StatelessWidget {
       },
       child: FlowyButton(
         useIntrinsicWidth: true,
-        hoverColor: Colors.grey.withOpacity(0.3),
+        hoverColor: Colors.grey.withValues(alpha: 0.3),
         text: child,
       ),
     );
@@ -209,7 +209,7 @@ class HeadingButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyButton(
       useIntrinsicWidth: true,
-      hoverColor: Colors.grey.withOpacity(0.3),
+      hoverColor: Colors.grey.withValues(alpha: 0.3),
       onTap: onTap,
       text: FlowyTooltip(
         message: tooltip,

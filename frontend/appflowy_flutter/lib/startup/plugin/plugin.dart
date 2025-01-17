@@ -1,4 +1,4 @@
-library flowy_plugin;
+library;
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';

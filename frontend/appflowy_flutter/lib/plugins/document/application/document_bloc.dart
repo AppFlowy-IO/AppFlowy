@@ -394,7 +394,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     final basicColor = ColorGenerator(id.toString()).toColor();
     final metadata = DocumentAwarenessMetadata(
       cursorColor: basicColor.toHexString(),
-      selectionColor: basicColor.withOpacity(0.6).toHexString(),
+      selectionColor: basicColor.withValues(alpha: 0.6).toHexString(),
       userName: user.name,
       userAvatar: user.iconUrl,
     );
@@ -417,7 +417,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     final basicColor = ColorGenerator(id.toString()).toColor();
     final metadata = DocumentAwarenessMetadata(
       cursorColor: basicColor.toHexString(),
-      selectionColor: basicColor.withOpacity(0.6).toHexString(),
+      selectionColor: basicColor.withValues(alpha: 0.6).toHexString(),
       userName: user.name,
       userAvatar: user.iconUrl,
     );

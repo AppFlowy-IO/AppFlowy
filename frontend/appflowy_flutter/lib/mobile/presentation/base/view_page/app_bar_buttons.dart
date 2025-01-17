@@ -42,7 +42,7 @@ class MobileViewPageImmersiveAppBar extends StatelessWidget
       valueListenable: appBarOpacity,
       builder: (_, opacity, __) => FlowyAppBar(
         backgroundColor:
-            AppBarTheme.of(context).backgroundColor?.withOpacity(opacity),
+            AppBarTheme.of(context).backgroundColor?.withValues(alpha: opacity),
         showDivider: false,
         title: Opacity(opacity: opacity >= 0.99 ? 1.0 : 0, child: title),
         leadingWidth: 44,
@@ -220,7 +220,7 @@ class _ImmersiveAppBarButton extends StatelessWidget {
               child = DecoratedBox(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(dimension / 2.0),
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withValues(alpha: 0.2),
                 ),
                 child: child,
               );

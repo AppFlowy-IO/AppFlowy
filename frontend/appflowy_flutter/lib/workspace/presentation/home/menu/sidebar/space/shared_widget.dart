@@ -250,16 +250,16 @@ enum ConfirmPopupStyle {
 class ConfirmPopupColor {
   static Color titleColor(BuildContext context) {
     if (Theme.of(context).isLightMode) {
-      return const Color(0xFF171717).withOpacity(0.8);
+      return const Color(0xFF171717).withValues(alpha: 0.8);
     }
-    return const Color(0xFFffffff).withOpacity(0.8);
+    return const Color(0xFFffffff).withValues(alpha: 0.8);
   }
 
   static Color descriptionColor(BuildContext context) {
     if (Theme.of(context).isLightMode) {
-      return const Color(0xFF171717).withOpacity(0.7);
+      return const Color(0xFF171717).withValues(alpha: 0.7);
     }
-    return const Color(0xFFffffff).withOpacity(0.7);
+    return const Color(0xFFffffff).withValues(alpha: 0.7);
   }
 }
 
