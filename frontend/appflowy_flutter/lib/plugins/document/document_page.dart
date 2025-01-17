@@ -178,7 +178,9 @@ class _DocumentPageState extends State<DocumentPage>
         editorState: state.editorState!,
         child: Column(
           children: [
-            if (state.isDeleted) buildBanner(context),
+            // the banner only shows on desktop
+            if (state.isDeleted && UniversalPlatform.isDesktop)
+              buildBanner(context),
             Expanded(child: child),
           ],
         ),
