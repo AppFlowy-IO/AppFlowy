@@ -74,12 +74,14 @@ class DocumentCoverWidget extends StatefulWidget {
     required this.editorState,
     required this.onIconChanged,
     required this.view,
+    required this.tabs,
   });
 
   final Node node;
   final EditorState editorState;
   final ValueChanged<EmojiIconData> onIconChanged;
   final ViewPB view;
+  final List<PickerTabType> tabs;
 
   @override
   State<DocumentCoverWidget> createState() => _DocumentCoverWidgetState();
@@ -172,6 +174,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
                     offset: offset,
                     isCoverTitleHovered: isCoverTitleHovered,
                     documentId: view.id,
+                    tabs: widget.tabs,
                   ),
                 ),
                 if (hasCover)
@@ -344,6 +347,7 @@ class DocumentHeaderToolbar extends StatefulWidget {
     required this.offset,
     this.documentId,
     required this.isCoverTitleHovered,
+    required this.tabs,
   });
 
   final Node node;
@@ -355,6 +359,7 @@ class DocumentHeaderToolbar extends StatefulWidget {
   final double offset;
   final String? documentId;
   final ValueNotifier<bool> isCoverTitleHovered;
+  final List<PickerTabType> tabs;
 
   @override
   State<DocumentHeaderToolbar> createState() => _DocumentHeaderToolbarState();
@@ -473,11 +478,7 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           popupBuilder: (BuildContext popoverContext) {
             isPopoverOpen = true;
             return FlowyIconEmojiPicker(
-              tabs: const [
-                PickerTabType.emoji,
-                PickerTabType.icon,
-                PickerTabType.custom,
-              ],
+              tabs: widget.tabs,
               documentId: widget.documentId,
               onSelectedEmoji: (r) {
                 widget.onIconOrCoverChanged(icon: r.data);

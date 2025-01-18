@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
@@ -137,13 +139,19 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
     super.initState();
     final initialType = widget.initialType;
     if (initialType != null) {
-      currentIndex = widget.tabs.indexOf(initialType);
+      currentIndex = max(widget.tabs.indexOf(initialType), 0);
     }
     controller = TabController(
       initialIndex: currentIndex,
       length: widget.tabs.length,
       vsync: this,
     );
+    controller.addListener(() {
+      final currentType = widget.tabs[currentIndex];
+      if (currentType == PickerTabType.custom) {
+        SystemChannels.textInput.invokeMethod('TextInput.hide');
+      }
+    });
   }
 
   @override

@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/document/presentation/document_collaborators.da
 import 'package:appflowy/plugins/shared/share/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/shared/feature_flags.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
@@ -107,6 +108,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
 
   final ViewInfoBloc bloc;
   final ViewPluginNotifier notifier;
+
   ViewPB get view => notifier.view;
   int? deletedViewIndex;
   final Selection? initialSelection;
@@ -130,6 +132,11 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
 
     final fixedTitle = data?[MobileDocumentScreen.viewFixedTitle];
     final blockId = initialBlockId ?? data?[MobileDocumentScreen.viewBlockId];
+    final tabs = data?[MobileDocumentScreen.viewSelectTabs] ??
+        const [
+          PickerTabType.emoji,
+          PickerTabType.icon,
+        ];
 
     return BlocProvider<ViewInfoBloc>.value(
       value: bloc,
@@ -141,6 +148,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
           initialSelection: initialSelection,
           initialBlockId: blockId,
           fixedTitle: fixedTitle,
+          tabs: tabs,
         ),
       ),
     );

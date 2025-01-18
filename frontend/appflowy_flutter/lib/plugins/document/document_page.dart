@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_con
 import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
@@ -28,6 +29,7 @@ class DocumentPage extends StatefulWidget {
     super.key,
     required this.view,
     required this.onDeleted,
+    required this.tabs,
     this.initialSelection,
     this.initialBlockId,
     this.fixedTitle,
@@ -38,6 +40,7 @@ class DocumentPage extends StatefulWidget {
   final Selection? initialSelection;
   final String? initialBlockId;
   final String? fixedTitle;
+  final List<PickerTabType> tabs;
 
   @override
   State<DocumentPage> createState() => _DocumentPageState();
@@ -208,6 +211,7 @@ class _DocumentPageState extends State<DocumentPage>
       return DocumentImmersiveCover(
         fixedTitle: widget.fixedTitle,
         view: widget.view,
+        tabs: widget.tabs,
         userProfilePB: userProfilePB,
       );
     }
@@ -215,6 +219,7 @@ class _DocumentPageState extends State<DocumentPage>
     final page = editorState.document.root;
     return DocumentCoverWidget(
       node: page,
+      tabs: widget.tabs,
       editorState: editorState,
       view: widget.view,
       onIconChanged: (icon) async => ViewBackendService.updateViewIcon(

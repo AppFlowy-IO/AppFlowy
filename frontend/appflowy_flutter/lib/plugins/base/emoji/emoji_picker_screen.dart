@@ -36,6 +36,7 @@ class MobileEmojiPickerScreen extends StatelessWidget {
       body: SafeArea(
         child: FlowyIconEmojiPicker(
           tabs: tabs,
+          documentId: documentId,
           initialType: selectedType,
           onSelectedEmoji: (r) {
             context.pop<EmojiIconData>(r.data);
