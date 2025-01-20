@@ -11,6 +11,7 @@ import 'package:appflowy/plugins/document/application/editor_transaction_adapter
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/startup/tasks/device_info_task.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/util/color_generator/color_generator.dart';
@@ -18,6 +19,7 @@ import 'package:appflowy/util/color_to_hex_string.dart';
 import 'package:appflowy/util/debounce.dart';
 import 'package:appflowy/util/throttle.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
@@ -25,11 +27,11 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show
-        EditorState,
         AppFlowyEditorLogLevel,
-        TransactionTime,
-        Selection,
+        EditorState,
         Position,
+        Selection,
+        TransactionTime,
         paragraphNode;
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter/foundation.dart';
@@ -304,7 +306,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         ..level = AppFlowyEditorLogLevel.all
         ..handler = (log) {
           if (enableDocumentInternalLog) {
-            Log.info(log);
+            // Log.info(log);
           }
         };
     }
@@ -363,6 +365,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   void _throttleSyncDoc(DocEventPB docEvent) {
+    if (enableDocumentInternalLog) {
+      Log.info('[DocumentBloc] throttle sync doc: ${docEvent.toProto3Json()}');
+    }
     _syncThrottle.call(() {
       _onDocumentStateUpdate(docEvent);
     });
@@ -448,9 +453,17 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     if (!deepEqual) {
       Log.error('document integrity check failed');
       // Enable it to debug the document integrity check failed
-      // Log.error('cloud doc: $cloudJson');
-      // Log.error('local doc: $localJson');
-      assert(false, 'document integrity check failed');
+      Log.error('cloud doc: $cloudJson');
+      Log.error('local doc: $localJson');
+
+      final context = AppGlobals.rootNavKey.currentContext;
+      if (context != null && context.mounted) {
+        showToastNotification(
+          context,
+          message: 'document integrity check failed',
+          type: ToastificationType.error,
+        );
+      }
     }
   }
 }

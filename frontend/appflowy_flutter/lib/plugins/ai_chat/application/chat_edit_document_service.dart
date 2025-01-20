@@ -14,6 +14,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 class ChatEditDocumentService {
+  const ChatEditDocumentService._();
+
   static Future<ViewPB?> saveMessagesToNewPage(
     String chatPageName,
     String parentViewId,
@@ -45,12 +47,13 @@ class ChatEditDocumentService {
     ).toNullable();
   }
 
-  static Future<void> addMessageToPage(
+  static Future<void> addMessagesToPage(
     String documentId,
-    TextMessage message,
+    List<TextMessage> messages,
   ) async {
-    if (message.text.isEmpty) {
-      Log.error('Message is empty');
+    // Convert messages to markdown and trim the last empty newline.
+    final completeMessage = messages.map((m) => m.text).join('\n').trimRight();
+    if (completeMessage.isEmpty) {
       return;
     }
 
@@ -69,7 +72,7 @@ class ChatEditDocumentService {
       return;
     }
 
-    final messageDocument = customMarkdownToDocument(message.text);
+    final messageDocument = customMarkdownToDocument(completeMessage);
     if (messageDocument.isEmpty) {
       Log.error('Failed to convert message to document');
       return;
