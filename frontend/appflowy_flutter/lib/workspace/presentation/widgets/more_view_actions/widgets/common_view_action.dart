@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -11,6 +12,8 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -95,5 +98,40 @@ class ViewAction extends StatelessWidget {
       default:
         throw UnimplementedError();
     }
+  }
+}
+
+class CustomViewAction extends StatelessWidget {
+  const CustomViewAction({
+    super.key,
+    required this.view,
+    required this.leftIcon,
+    required this.label,
+    this.onTap,
+    this.mutex,
+  });
+
+  final ViewPB view;
+  final FlowySvgData leftIcon;
+  final String label;
+  final VoidCallback? onTap;
+  final PopoverMutex? mutex;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 34,
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
+      child: FlowyIconTextButton(
+        margin: const EdgeInsets.symmetric(horizontal: 6),
+        onTap: onTap,
+        leftIconBuilder: (onHover) => FlowySvg(leftIcon),
+        iconPadding: 10.0,
+        textBuilder: (onHover) => FlowyText(
+          label,
+          figmaLineHeight: 18.0,
+        ),
+      ),
+    );
   }
 }

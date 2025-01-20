@@ -25,7 +25,7 @@ class ShareConstants {
     if (!withHttps) {
       url = url.replaceFirst('https://', '');
     }
-    return '$url/app/$nameSpace';
+    return '$url/$nameSpace';
   }
 
   static String buildShareUrl({

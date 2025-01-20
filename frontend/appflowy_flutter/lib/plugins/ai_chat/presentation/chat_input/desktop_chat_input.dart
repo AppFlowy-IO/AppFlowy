@@ -118,7 +118,6 @@ class _DesktopChatInputState extends State<DesktopChatInput> {
                     ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.outline,
                 width: focusNode.hasFocus ? 1.5 : 1.0,
-                strokeAlign: BorderSide.strokeAlignOutside,
               ),
               borderRadius: const BorderRadius.all(Radius.circular(12.0)),
             ),
