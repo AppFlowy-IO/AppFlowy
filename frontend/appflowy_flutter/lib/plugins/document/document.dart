@@ -136,6 +136,7 @@ class DocumentPluginWidgetBuilder extends PluginWidgetBuilder
         const [
           PickerTabType.emoji,
           PickerTabType.icon,
+          PickerTabType.custom,
         ];
 
     return BlocProvider<ViewInfoBloc>.value(
