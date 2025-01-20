@@ -121,8 +121,8 @@ dependencies:
   scaled_app: ^2.3.0
   scroll_to_index: ^3.0.1
   scrollable_positioned_list: ^0.3.8
-  sentry: ^8.12.0
-  sentry_flutter: ^8.12.0
+  sentry: 8.8.0
+  sentry_flutter: 8.8.0
   share_plus: ^10.0.2
   shared_preferences: ^2.2.2
   sheet:
@@ -202,7 +202,6 @@ dependency_overrides:
     git:
       url: https://github.com/LucasXu0/reorderable_tabbar
       ref: 93c4977
-
 
 flutter:
   generate: true
