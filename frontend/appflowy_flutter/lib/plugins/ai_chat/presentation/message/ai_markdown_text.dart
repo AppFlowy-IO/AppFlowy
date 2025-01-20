@@ -52,7 +52,7 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
   void initState() {
     super.initState();
 
-    editorState = _parseMarkdown(widget.markdown);
+    editorState = _parseMarkdown(widget.markdown.trim());
     scrollController = EditorScrollController(
       editorState: editorState,
       shrinkWrap: true,
@@ -65,7 +65,7 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
 
     if (oldWidget.markdown != widget.markdown) {
       editorState.dispose();
-      editorState = _parseMarkdown(widget.markdown);
+      editorState = _parseMarkdown(widget.markdown.trim());
       scrollController.dispose();
       scrollController = EditorScrollController(
         editorState: editorState,
