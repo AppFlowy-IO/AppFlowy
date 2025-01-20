@@ -544,6 +544,7 @@ GoRoute _mobileEditorScreenRoute() {
       if (tabs.isEmpty) {
         tabs = const [PickerTabType.emoji, PickerTabType.icon];
       }
+
       return MaterialExtendedPage(
         child: MobileDocumentScreen(
           id: id,

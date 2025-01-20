@@ -2,7 +2,11 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -115,9 +119,9 @@ class _DatabaseTabBarState extends State<DatabaseTabBar> {
                   view: state.tabBars[index].view,
                   isSelected: state.selectedIndex == index,
                   onTap: (selectedView) {
-                    context.read<DatabaseTabBarBloc>().add(
-                          DatabaseTabBarEvent.selectView(selectedView.id),
-                        );
+                    context
+                        .read<DatabaseTabBarBloc>()
+                        .add(DatabaseTabBarEvent.selectView(selectedView.id));
                   },
                 ),
           separatorBuilder: (context, index) => VerticalDivider(
@@ -179,7 +183,7 @@ class DatabaseTabBarItem extends StatelessWidget {
   }
 }
 
-class TabBarItemButton extends StatelessWidget {
+class TabBarItemButton extends StatefulWidget {
   const TabBarItemButton({
     super.key,
     required this.view,
@@ -192,76 +196,149 @@ class TabBarItemButton extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<TabBarItemButton> createState() => _TabBarItemButtonState();
+}
+
+class _TabBarItemButtonState extends State<TabBarItemButton> {
+  final menuController = PopoverController();
+  final iconController = PopoverController();
+
+  @override
   Widget build(BuildContext context) {
-    return PopoverActionList<TabBarViewAction>(
+    Color? color;
+    if (!widget.isSelected) {
+      color = Theme.of(context).hintColor;
+    }
+    if (Theme.of(context).brightness == Brightness.dark) {
+      color = null;
+    }
+    return AppFlowyPopover(
+      controller: menuController,
+      constraints: const BoxConstraints(
+        minWidth: 120,
+        maxWidth: 460,
+        maxHeight: 300,
+      ),
       direction: PopoverDirection.bottomWithCenterAligned,
-      actions: TabBarViewAction.values,
-      buildChild: (controller) {
-        Color? color;
-        if (!isSelected) {
-          color = Theme.of(context).hintColor;
-        }
-        if (Theme.of(context).brightness == Brightness.dark) {
-          color = null;
-        }
-        return IntrinsicWidth(
-          child: FlowyButton(
-            radius: Corners.s6Border,
-            hoverColor: AFThemeExtension.of(context).greyHover,
-            onTap: onTap,
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-            onSecondaryTap: () {
-              controller.show();
-            },
-            leftIcon: FlowySvg(
-              view.iconData,
-              size: const Size(14, 14),
-              color: color,
-            ),
-            text: FlowyText(
-              view.nameOrDefault,
-              lineHeight: 1.0,
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
-              color: color,
-              fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
+      clickHandler: PopoverClickHandler.gestureDetector,
+      popupBuilder: (_) {
+        return IntrinsicHeight(
+          child: IntrinsicWidth(
+            child: Column(
+              children: [
+                ActionCellWidget(
+                  action: TabBarViewAction.rename,
+                  itemHeight: ActionListSizes.itemHeight,
+                  onSelected: (action) {
+                    NavigatorTextFieldDialog(
+                      title: LocaleKeys.menuAppHeader_renameDialog.tr(),
+                      value: widget.view.nameOrDefault,
+                      onConfirm: (newValue, _) {
+                        context.read<DatabaseTabBarBloc>().add(
+                              DatabaseTabBarEvent.renameView(
+                                widget.view.id,
+                                newValue,
+                              ),
+                            );
+                      },
+                    ).show(context);
+                    menuController.close();
+                  },
+                ),
+                AppFlowyPopover(
+                  controller: iconController,
+                  direction: PopoverDirection.rightWithCenterAligned,
+                  constraints: BoxConstraints.loose(const Size(364, 356)),
+                  margin: const EdgeInsets.all(0),
+                  child: ActionCellWidget(
+                    action: TabBarViewAction.changeIcon,
+                    itemHeight: ActionListSizes.itemHeight,
+                    onSelected: (action) {
+                      iconController.show();
+                    },
+                  ),
+                  popupBuilder: (context) {
+                    return FlowyIconEmojiPicker(
+                      tabs: const [PickerTabType.icon],
+                      enableBackgroundColorSelection: false,
+                      onSelectedEmoji: (r) {
+                        ViewBackendService.updateViewIcon(
+                          viewId: widget.view.id,
+                          viewIcon: r.data,
+                        );
+                        if (!r.keepOpen) {
+                          iconController.close();
+                          menuController.close();
+                        }
+                      },
+                    );
+                  },
+                ),
+                ActionCellWidget(
+                  action: TabBarViewAction.delete,
+                  itemHeight: ActionListSizes.itemHeight,
+                  onSelected: (action) {
+                    NavigatorAlertDialog(
+                      title: LocaleKeys.grid_deleteView.tr(),
+                      confirm: () {
+                        context.read<DatabaseTabBarBloc>().add(
+                              DatabaseTabBarEvent.deleteView(widget.view.id),
+                            );
+                      },
+                    ).show(context);
+                    menuController.close();
+                  },
+                ),
+              ],
             ),
           ),
         );
       },
-      onSelected: (action, controller) {
-        switch (action) {
-          case TabBarViewAction.rename:
-            NavigatorTextFieldDialog(
-              title: LocaleKeys.menuAppHeader_renameDialog.tr(),
-              value: view.nameOrDefault,
-              onConfirm: (newValue, _) {
-                context.read<DatabaseTabBarBloc>().add(
-                      DatabaseTabBarEvent.renameView(view.id, newValue),
-                    );
-              },
-            ).show(context);
-            break;
-          case TabBarViewAction.delete:
-            NavigatorAlertDialog(
-              title: LocaleKeys.grid_deleteView.tr(),
-              confirm: () {
-                context.read<DatabaseTabBarBloc>().add(
-                      DatabaseTabBarEvent.deleteView(view.id),
-                    );
-              },
-            ).show(context);
-
-            break;
-        }
-        controller.close();
-      },
+      child: IntrinsicWidth(
+        child: FlowyButton(
+          radius: Corners.s6Border,
+          hoverColor: AFThemeExtension.of(context).greyHover,
+          onTap: () {
+            if (widget.isSelected) menuController.show();
+            widget.onTap.call();
+          },
+          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+          onSecondaryTap: () {
+            menuController.show();
+          },
+          leftIcon: _buildViewIcon(),
+          text: FlowyText(
+            widget.view.nameOrDefault,
+            lineHeight: 1.0,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            color: color,
+            fontWeight: widget.isSelected ? FontWeight.w500 : FontWeight.w400,
+          ),
+        ),
+      ),
     );
+  }
+
+  Widget _buildViewIcon() {
+    final iconData = widget.view.icon.toEmojiIconData();
+    Widget icon;
+    if (iconData.isEmpty || iconData.type != FlowyIconType.icon) {
+      icon = widget.view.defaultIcon();
+    } else {
+      icon = RawEmojiIconWidget(
+        emoji: iconData,
+        emojiSize: 14.0,
+        enableColor: false,
+      );
+    }
+    return Opacity(opacity: 0.6, child: icon);
   }
 }
 
 enum TabBarViewAction implements ActionCell {
   rename,
+  changeIcon,
   delete;
 
   @override
@@ -269,6 +346,8 @@ enum TabBarViewAction implements ActionCell {
     switch (this) {
       case TabBarViewAction.rename:
         return LocaleKeys.disclosureAction_rename.tr();
+      case TabBarViewAction.changeIcon:
+        return LocaleKeys.disclosureAction_changeIcon.tr();
       case TabBarViewAction.delete:
         return LocaleKeys.disclosureAction_delete.tr();
     }
@@ -278,6 +357,8 @@ enum TabBarViewAction implements ActionCell {
     switch (this) {
       case TabBarViewAction.rename:
         return const FlowySvg(FlowySvgs.edit_s);
+      case TabBarViewAction.changeIcon:
+        return const FlowySvg(FlowySvgs.change_icon_s);
       case TabBarViewAction.delete:
         return const FlowySvg(FlowySvgs.delete_s);
     }

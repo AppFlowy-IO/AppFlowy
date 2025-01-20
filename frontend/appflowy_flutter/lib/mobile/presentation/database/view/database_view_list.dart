@@ -5,6 +5,8 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
@@ -163,9 +165,20 @@ class MobileDatabaseViewListButton extends StatelessWidget {
   }
 
   Widget _buildViewIconButton(BuildContext context, ViewPB view) {
+    final iconData = view.icon.toEmojiIconData();
+    Widget icon;
+    if (iconData.isEmpty || iconData.type != FlowyIconType.icon) {
+      icon = view.defaultIcon();
+    } else {
+      icon = RawEmojiIconWidget(
+        emoji: iconData,
+        emojiSize: 14.0,
+        enableColor: false,
+      );
+    }
     return SizedBox.square(
       dimension: 20.0,
-      child: view.defaultIcon(),
+      child: icon,
     );
   }
 

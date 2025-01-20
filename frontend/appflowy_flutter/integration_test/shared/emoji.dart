@@ -25,7 +25,7 @@ extension EmojiTestExtension on WidgetTester {
     await tapButton(emojiWidget);
   }
 
-  Future<void> tapIcon(EmojiIconData icon) async {
+  Future<void> tapIcon(EmojiIconData icon, {bool enableColor = true}) async {
     final iconsData = IconsData.fromJson(jsonDecode(icon.emoji));
     final pickTab = find.byType(PickerTab);
     expect(pickTab, findsOneWidget);
@@ -44,24 +44,28 @@ extension EmojiTestExtension on WidgetTester {
     );
 
     await tapButton(selectedSvg.first);
-    final colorPicker = find.byType(IconColorPicker);
-    expect(colorPicker, findsOneWidget);
-    final selectedColor = find.descendant(
-      of: colorPicker,
-      matching: find.byWidgetPredicate((w) {
-        if (w is Container) {
-          final d = w.decoration;
-          if (d is ShapeDecoration) {
-            if (d.color ==
-                Color(int.parse(iconsData.color ?? builtInSpaceColors.first))) {
-              return true;
+    if (enableColor) {
+      final colorPicker = find.byType(IconColorPicker);
+      expect(colorPicker, findsOneWidget);
+      final selectedColor = find.descendant(
+        of: colorPicker,
+        matching: find.byWidgetPredicate((w) {
+          if (w is Container) {
+            final d = w.decoration;
+            if (d is ShapeDecoration) {
+              if (d.color ==
+                  Color(
+                    int.parse(iconsData.color ?? builtInSpaceColors.first),
+                  )) {
+                return true;
+              }
             }
           }
-        }
-        return false;
-      }),
-    );
-    await tapButton(selectedColor);
+          return false;
+        }),
+      );
+      await tapButton(selectedColor);
+    }
   }
 
   Future<void> pickImage(EmojiIconData icon) async {
