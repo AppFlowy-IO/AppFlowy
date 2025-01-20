@@ -15,6 +15,14 @@ const tableFromNotion = '''
             <td id="Wi`b" class="">January</td>
             <td id="|EyR" class="">\$250</td>
         </tr>
+        <tr id="18196b61-6923-80b1-bef5-e15e1d302dfd">
+            <td id="Wi`b" class="">February</td>
+            <td id="|EyR" class="">\$80</td>
+        </tr>
+        <tr id="18196b61-6923-8079-aefa-d96c17230695">
+            <td id="Wi`b" class="">March</td>
+            <td id="|EyR" class="">\$420</td>
+        </tr>
     </tbody>
 </table>
 ''';
