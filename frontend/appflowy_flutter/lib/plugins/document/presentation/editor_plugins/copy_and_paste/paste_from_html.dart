@@ -41,8 +41,8 @@ extension PasteFromHtml on EditorState {
 
     // 3. verify the nodes is empty or contains google table flag
     // The table from Google Docs will contain the flag 'Google Table'
-    const googleTableFlag = 'Google Table';
-    final isPasteFromGoogleDocs = html.contains(googleTableFlag);
+    const googleDocsFlag = 'docs-internal-guid-';
+    final isPasteFromGoogleDocs = html.contains(googleDocsFlag);
     if (nodes.isEmpty || isPasteFromGoogleDocs) {
       // fallback to the markdown parser
       final markdown = html2md.convert(html);
