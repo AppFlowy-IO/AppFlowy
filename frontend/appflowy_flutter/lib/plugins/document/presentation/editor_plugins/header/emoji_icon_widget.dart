@@ -61,10 +61,12 @@ class RawEmojiIconWidget extends StatelessWidget {
     super.key,
     required this.emoji,
     required this.emojiSize,
+    this.enableColor = true,
   });
 
   final EmojiIconData emoji;
   final double emojiSize;
+  final bool enableColor;
 
   @override
   Widget build(BuildContext context) {
@@ -79,13 +81,19 @@ class RawEmojiIconWidget extends StatelessWidget {
     try {
       switch (emoji.type) {
         case FlowyIconType.emoji:
-          return EmojiText(
-            emoji: emoji.emoji,
-            fontSize: emojiSize,
-            textAlign: TextAlign.center,
+          return SizedBox(
+            width: emojiSize,
+            child: EmojiText(
+              emoji: emoji.emoji,
+              fontSize: emojiSize,
+              textAlign: TextAlign.justify,
+            ),
           );
         case FlowyIconType.icon:
-          final iconData = IconsData.fromJson(jsonDecode(emoji.emoji));
+          IconsData iconData = IconsData.fromJson(jsonDecode(emoji.emoji));
+          if (!enableColor) {
+            iconData = iconData.noColor();
+          }
 
           /// Under the same width conditions, icons on macOS seem to appear
           /// larger than emojis, so 0.9 is used here to slightly reduce the

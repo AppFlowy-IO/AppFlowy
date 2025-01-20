@@ -523,6 +523,21 @@ GoRoute _mobileEditorScreenRoute() {
       final blockId =
           state.uri.queryParameters[MobileDocumentScreen.viewBlockId];
 
+      final selectTabs =
+          state.uri.queryParameters[MobileDocumentScreen.viewSelectTabs] ?? '';
+      List<PickerTabType> tabs = [];
+      try {
+        tabs = selectTabs
+            .split('-')
+            .map((e) => PickerTabType.values.byName(e))
+            .toList();
+      } on ArgumentError catch (e) {
+        Log.error('convert selectTabs to pickerTab error', e);
+      }
+      if (tabs.isEmpty) {
+        tabs = const [PickerTabType.emoji, PickerTabType.icon];
+      }
+
       return MaterialExtendedPage(
         child: MobileDocumentScreen(
           id: id,
@@ -530,6 +545,7 @@ GoRoute _mobileEditorScreenRoute() {
           showMoreButton: showMoreButton ?? true,
           fixedTitle: fixedTitle,
           blockId: blockId,
+          tabs: tabs,
         ),
       );
     },
