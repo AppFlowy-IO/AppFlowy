@@ -87,6 +87,7 @@ dependencies:
   highlight: ^0.7.0
   hive_flutter: ^1.1.0
   hotkey_manager: ^0.1.7
+  html2md: ^1.3.2
   http: ^1.0.0
   image_picker: ^1.0.4
 
