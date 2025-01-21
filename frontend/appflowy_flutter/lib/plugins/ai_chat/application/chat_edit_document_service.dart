@@ -31,7 +31,10 @@ class ChatEditDocumentService {
       return null;
     }
 
-    final document = customMarkdownToDocument(completeMessage);
+    final document = customMarkdownToDocument(
+      completeMessage,
+      tableWidth: 250.0,
+    );
     final initialBytes =
         DocumentDataPBFromTo.fromDocument(document)?.writeToBuffer();
     if (initialBytes == null) {
@@ -72,7 +75,10 @@ class ChatEditDocumentService {
       return;
     }
 
-    final messageDocument = customMarkdownToDocument(completeMessage);
+    final messageDocument = customMarkdownToDocument(
+      completeMessage,
+      tableWidth: 250.0,
+    );
     if (messageDocument.isEmpty) {
       Log.error('Failed to convert message to document');
       return;

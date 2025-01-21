@@ -300,7 +300,8 @@ class _SingleMobileInnerViewItemState extends State<SingleMobileInnerViewItem> {
   }
 
   Widget _buildViewIcon() {
-    final icon = widget.view.icon.value.isNotEmpty
+    final iconData = widget.view.icon.toEmojiIconData();
+    final icon = iconData.isNotEmpty
         ? EmojiIconWidget(
             emoji: widget.view.icon.toEmojiIconData(),
             emojiSize: Platform.isAndroid ? 16.0 : 18.0,

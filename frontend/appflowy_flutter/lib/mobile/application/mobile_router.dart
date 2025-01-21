@@ -21,6 +21,7 @@ extension MobileRouter on BuildContext {
     bool showMoreButton = true,
     String? fixedTitle,
     String? blockId,
+    List<String>? tabs,
   }) async {
     // set the current view before pushing the new view
     getIt<MenuSharedState>().latestOpenView = view;
@@ -36,6 +37,9 @@ extension MobileRouter on BuildContext {
       if (blockId != null) {
         queryParameters[MobileDocumentScreen.viewBlockId] = blockId;
       }
+    }
+    if (tabs != null) {
+      queryParameters[MobileDocumentScreen.viewSelectTabs] = tabs;
     }
 
     final uri = Uri(

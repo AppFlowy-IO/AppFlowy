@@ -222,6 +222,8 @@ where
             metadata: meta.metadata,
           },
           data,
+          comments_enabled: true,
+          duplicate_enabled: true,
         })
       })
       .collect::<Vec<_>>();
@@ -277,6 +279,8 @@ where
         &[PatchPublishedCollab {
           view_id,
           publish_name: Some(new_name),
+          comments_enabled: Some(true),
+          duplicate_enabled: Some(true),
         }],
       )
       .await

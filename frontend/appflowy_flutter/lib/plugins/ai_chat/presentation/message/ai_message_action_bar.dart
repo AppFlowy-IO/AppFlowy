@@ -164,7 +164,10 @@ class CopyButton extends StatelessWidget {
           size: const Size.square(16),
         ),
         onPressed: () async {
-          final document = customMarkdownToDocument(textMessage.text);
+          final document = customMarkdownToDocument(
+            textMessage.text,
+            tableWidth: 250.0,
+          );
           await getIt<ClipboardService>().setData(
             ClipboardServiceData(
               plainText: textMessage.text,
