@@ -739,6 +739,7 @@
       "keybindings": {
         "toggleToDoList": "التبديل إلى قائمة المهام",
         "insertNewParagraphInCodeblock": "إدراج فقرة جديدة",
+        "pasteInCodeblock": "لصق في كتلة الكود",
         "selectAllCodeblock": "حدد الكل",
         "indentLineCodeblock": "أدخل فراغين فاصلين في بداية السطر",
         "outdentLineCodeblock": "حذف فراغين فاصلين في بداية السطر",
@@ -806,7 +807,12 @@
         "backSpaceInTableCell": "توقف في بداية الخلية"
       },
       "commands": {
-        "codeBlockNewParagraph": "إدراج فقرة جديدة بجوار كتلة التعليمات البرمجية",
+        "codeBlockNewParagraph": "إدراج فقرة جديدة بجوار كتلة الكود",
+        "codeBlockIndentLines": "أدخل مسافتين في بداية السطر في كتلة الكود",
+        "codeBlockOutdentLines": "حذف مسافتين في بداية السطر في كتلة الكود",
+        "codeBlockAddTwoSpaces": "أدخل مسافتين في موضع المؤشر في كتلة الكود",
+        "codeBlockSelectAll": "تحديد كل المحتوى داخل كتلة الكود",
+        "codeBlockPasteText": "لصق النص في كتلة الكود",
         "textAlignLeft": "محاذاة النص إلى اليسار",
         "textAlignCenter": "محاذاة النص إلى الوسط",
         "textAlignRight": "محاذاة النص إلى اليمين"
@@ -1742,7 +1748,7 @@
     },
     "selectionMenu": {
       "outline": "الخطوط العريضة",
-      "codeBlock": "حقل الكود"
+      "codeBlock": "كتلة الكود"
     },
     "plugins": {
       "referencedBoard": "المجلس المشار إليه",
