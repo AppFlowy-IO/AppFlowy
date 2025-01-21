@@ -2655,7 +2655,94 @@
       "other": "نشر {} عروض محددة"
     },
     "mustSelectPrimaryDatabase": "يجب تحديد العرض الأساسي",
-    "noDatabaseSelected": "لم يتم تحديد أي قاعدة بيانات، يرجى تحديد قاعدة بيانات واحدة على الأقل."
+    "noDatabaseSelected": "لم يتم تحديد أي قاعدة بيانات، يرجى تحديد قاعدة بيانات واحدة على الأقل.",
+    "unableToDeselectPrimaryDatabase": "غير قادر على إلغاء تحديد قاعدة البيانات الأساسية",
+    "saveThisPage": "ابدأ بهذا القالب",
+    "duplicateTitle": "أين تريد أن تضيف",
+    "selectWorkspace": "حدد مساحة العمل",
+    "addTo": "أضف إلى",
+    "duplicateSuccessfully": "تمت إضافته إلى مساحة العمل الخاصة بك",
+    "duplicateSuccessfullyDescription": "لم تقم بتثبيت AppFlowy؟ سيبدأ التنزيل تلقائيًا بعد النقر فوق \"تنزيل\".",
+    "downloadIt": "تنزيل",
+    "openApp": "افتح في التطبيق",
+    "duplicateFailed": "مكررة فشلت",
+    "membersCount": {
+      "zero": "لا يوجد أعضاء",
+      "one": "1 عضو",
+      "many": "{count} عضوا",
+      "other": "{count} عضوا"
+    },
+    "useThisTemplate": "استخدم القالب"
+  },
+  "web": {
+    "continue": "متابعة",
+    "or": "أو",
+    "continueWithGoogle": "متابعة مع جوجل",
+    "continueWithGithub": "متابعة مع GitHub",
+    "continueWithDiscord": "متابعة مع Discord",
+    "continueWithApple": "متابعة مع Apple ",
+    "moreOptions": "المزيد من الخيارات",
+    "collapse": "طي",
+    "signInAgreement": "بالنقر فوق \"متابعة\" أعلاه، فإنك توافق على شروط استخدام AppFlowy",
+    "and": "و",
+    "termOfUse": "شروط",
+    "privacyPolicy": "سياسة الخصوصية",
+    "signInError": "خطأ في تسجيل الدخول",
+    "login": "سجل أو قم بتسجيل الدخول",
+    "fileBlock": {
+      "uploadedAt": "تم الرفع في {time}",
+      "linkedAt": "تمت إضافة الرابط في {time}",
+      "empty": "رفع أو تضمين ملف",
+      "uploadFailed": "فشل الرفع، يرجى المحاولة مرة أخرى",
+      "retry": "إعادة المحاولة"
+    },
+    "importNotion": "الاستيراد من Notion",
+    "import": "الاستيراد",
+    "importSuccess": "تم الرفع بنجاح",
+    "importSuccessMessage": "سنخطرك عند اكتمال عملية الاستيراد. بعد ذلك، يمكنك عرض الصفحات المستوردة في الشريط الجانبي.",
+    "importFailed": "فشل الاستيراد، يرجى التحقق من تنسيق الملف",
+    "dropNotionFile": "قم بإسقاط ملف Notion zip الخاص بك هنا للرفع، أو انقر للاستعراض",
+    "error": {
+      "pageNameIsEmpty": "اسم الصفحة فارغ، الرجاء تجربة صفحة أخرى"
+    }
+  },
+  "globalComment": {
+    "comments": "تعليقات",
+    "addComment": "أضف تعليق",
+    "reactedBy": "تفاعل من قبل",
+    "addReaction": "إضافة تفاعل",
+    "reactedByMore": "و {count} آخرين",
+    "showSeconds": {
+      "one": "منذ ثانية واحدة",
+      "other": "منذ {count} ثانية",
+      "zero": "الآن",
+      "many": "منذ {count} ثانية"
+    },
+    "showMinutes": {
+      "one": "منذ دقيقة واحدة",
+      "other": "منذ {count} دقيقة",
+      "many": "منذ {count} دقيقة"
+    },
+    "showHours": {
+      "one": "منذ ساعة واحدة",
+      "other": "منذ {count} ساعة",
+      "many": "منذ {count} ساعة"
+    },
+    "showDays": {
+      "one": "منذ يوم واحد",
+      "other": "منذ {count} يوم",
+      "many": "منذ {count} يوم"
+    },
+    "showMonths": {
+      "one": "منذ شهر واحد",
+      "other": "منذ {count} شهر",
+      "many": "منذ {count} شهر"
+    },
+    "showYears": {
+      "one": "منذ سنة واحدة",
+      "other": "منذ {count} سنة",
+      "many": "منذ {count} سنة"
+    }
   },
   "gallery": {
     "resetZoom": "إعادة ضبط التكبير"
