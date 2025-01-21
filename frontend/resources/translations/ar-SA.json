@@ -240,6 +240,12 @@
       "numberWithImageDescription": "@:chat.changeFormat.number مع الصورة",
       "bulletWithImageDescription": "@:chat.changeFormat.bullet مع الصورة",
       "tableWithImageDescription": "@:chat.changeFormat.table مع الصورة"
+    },
+    "selectBanner": {
+      "saveButton": "أضف إلى...",
+      "selectMessages": "حدد الرسائل",
+      "nSelected": "{} تم التحديد",
+      "allSelected": "جميعها محددة"
     }
   },
   "trash": {
@@ -2170,11 +2176,11 @@
       "layoutDateField": "تقويم التخطيط بواسطة",
       "changeLayoutDateField": "تغيير حقل التخطيط",
       "noDateTitle": "بدون تاريخ",
+      "noDateHint": "ستظهر الأحداث غير المجدولة هنا",
       "unscheduledEventsTitle": "الأحداث غير المجدولة",
       "clickToAdd": "انقر للإضافة إلى التقويم",
       "name": "تخطيط التقويم",
-      "clickToOpen": "انقر لفتح السجل",
-      "noDateHint": "ستظهر الأحداث غير المجدولة هنا"
+      "clickToOpen": "انقر لفتح السجل"
     },
     "referencedCalendarPrefix": "نظرا ل",
     "quickJumpYear": "انتقل إلى",
@@ -2606,6 +2612,27 @@
     "createSpaceDescription": "إنشاء مساحات عامة وخاصة متعددة لتنظيم عملك بشكل أفضل.",
     "spaceName": "اسم المساحة",
     "spaceNamePlaceholder": "على سبيل المثال التسويق والهندسة والموارد البشرية",
+    "permission": "إذن المساحة",
+    "publicPermission": "عام",
+    "publicPermissionDescription": "جميع أعضاء مساحة العمل لديهم إمكانية الوصول الكامل",
+    "privatePermission": "خاص",
+    "privatePermissionDescription": "أنت فقط من يمكنه الوصول إلى هذه المساحة",
+    "spaceIconBackground": "لون الخلفية",
+    "spaceIcon": "أيقونة",
+    "dangerZone": "منطقة الخطر",
+    "unableToDeleteLastSpace": "غير قادر على حذف المساحة الأخيرة",
+    "unableToDeleteSpaceNotCreatedByYou": "غير قادر على حذف المساحات التي أنشأها الآخرون",
+    "enableSpacesForYourWorkspace": "تمكين المساحات لمساحة العمل الخاصة بك",
+    "title": "المساحات",
+    "defaultSpaceName": "عام",
+    "upgradeSpaceTitle": "تمكين المساحات",
+    "upgradeSpaceDescription": "قم بإنشاء مساحات عامة وخاصة متعددة لتنظيم مساحة عملك بشكل أفضل.",
+    "upgrade": "تحديث",
+    "upgradeYourSpace": "إنشاء مساحات متعددة",
+    "quicklySwitch": "انتقل بسرعة إلى المساحة التالية",
+    "duplicate": "مساحة مكررة",
+    "movePageToSpace": "نقل الصفحة إلى المساحة",
+    "cannotMovePageToDatabase": "لا يمكن نقل الصفحة إلى قاعدة البيانات",
     "switchSpace": "تبديل المساحة",
     "spaceNameCannotBeEmpty": "لا يمكن أن يكون اسم المساحة فارغًا",
     "success": {
@@ -2798,9 +2825,46 @@
       "deleteCreator": "حذف المبدع",
       "deleteCreatorDescription": "هل أنت متأكد أنك تريد حذف هذا المبدع؟",
       "typeToSearch": "اكتب للبحث عن المبدعين..."
-    }
+    },
+    "uploadSuccess": "تم تحميل القالب بنجاح",
+    "uploadSuccessDescription": "لقد تم رفع القالب الخاص بك بنجاح. يمكنك الآن عرضه في معرض القوالب.",
+    "viewTemplate": "عرض القالب",
+    "deleteTemplate": "حذف القالب",
+    "deleteSuccess": "تم حذف القالب بنجاح",
+    "deleteTemplateDescription": "لن يؤثر هذا على الصفحة الحالية أو حالة النشر. هل أنت متأكد من أنك تريد حذف هذا القالب؟",
+    "addRelatedTemplate": "إضافة قالب ذو صلة",
+    "removeRelatedTemplate": "إزالة القالب ذو الصلة",
+    "uploadAvatar": "رفع الصورة الرمزية",
+    "searchInCategory": "البحث في {category}",
+    "label": "القوالب"
+  },
+  "fileDropzone": {
+    "dropFile": "انقر أو اسحب الملف إلى هذه المنطقة لتحميله",
+    "uploading": "جاري الرفع...",
+    "uploadFailed": "فشل الرفع",
+    "uploadSuccess": "تم الرفع بنجاح",
+    "uploadSuccessDescription": "تم رفع الملف بنجاح",
+    "uploadFailedDescription": "فشل رفع الملف",
+    "uploadingDescription": "جاري رفع الملف"
   },
   "gallery": {
-    "resetZoom": "إعادة ضبط التكبير"
+    "preview": "افتح في شاشة كاملة",
+    "copy": "نسخ",
+    "download": "تنزيل",
+    "prev": "السابق",
+    "next": "التالي",
+    "resetZoom": "إعادة ضبط التكبير",
+    "zoomIn": "التكبير ",
+    "zoomOut": "التصغير"
+  },
+  "invitation": {
+    "join": "الانضمام",
+    "on": "على",
+    "invitedBy": "بدعوة من",
+    "membersCount": {
+      "zero": "{count} عضوا",
+      "one": "{count} عضو",
+      "many": "{count} عضوا"
+    }
   }
 }
