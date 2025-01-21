@@ -8,12 +8,12 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_plain_text.dart';
 import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/util/default_extensions.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
 import 'package:string_validator/string_validator.dart';
 
 /// - support
@@ -154,17 +154,14 @@ Future<bool> _pasteAsLinkPreview(
   EditorState editorState,
   String? text,
 ) async {
-  // 1. the url should contains a protocol
-  // 2. the url should not be an image url
-  if (text == null ||
-      text.isImageUrl() ||
-      !isURL(text, {'require_protocol': true})) {
+  // the url should contain a protocol
+  if (text == null || !isURL(text, {'require_protocol': true})) {
     return false;
   }
 
   final selection = editorState.selection;
   // Apply the update only when the selection is collapsed
-  //  and at the start of the current line
+  // and at the start of the current line
   if (selection == null ||
       !selection.isCollapsed ||
       selection.startIndex != 0) {
@@ -173,44 +170,52 @@ Future<bool> _pasteAsLinkPreview(
 
   final node = editorState.getNodeAtPath(selection.start.path);
   // Apply the update only when the current node is a paragraph
-  //  and the paragraph is empty
+  // and the paragraph is empty
   if (node == null ||
       node.type != ParagraphBlockKeys.type ||
       node.delta?.toPlainText().isNotEmpty == true) {
     return false;
   }
 
-  // 1. insert the text with link format
-  // 2. convert it the link preview node
-  final textTransaction = editorState.transaction;
-  textTransaction.insertText(
-    node,
-    0,
-    text,
-    attributes: {AppFlowyRichTextKeys.href: text},
-  );
+  final bool isImageUrl;
+  try {
+    isImageUrl = await _isImageUrl(text);
+  } catch (e) {
+    Log.info('unable to get content header');
+    return false;
+  }
+
+  // insert the text with link format
+  final textTransaction = editorState.transaction
+    ..insertText(
+      node,
+      0,
+      text,
+      attributes: {AppFlowyRichTextKeys.href: text},
+    );
   await editorState.apply(
     textTransaction,
     skipHistoryDebounce: true,
   );
 
-  final linkPreviewTransaction = editorState.transaction;
-  final insertedNodes = [
-    linkPreviewNode(url: text),
+  // convert it to image or link preview node
+  final replacementInsertedNodes = [
+    if (isImageUrl) imageNode(url: text) else linkPreviewNode(url: text),
     // if the next node is null, insert a empty paragraph node
     if (node.next == null) paragraphNode(),
   ];
-  linkPreviewTransaction.insertNodes(
-    selection.start.path,
-    insertedNodes,
-  );
-  linkPreviewTransaction.deleteNode(node);
-  linkPreviewTransaction.afterSelection = Selection.collapsed(
-    Position(
-      path: node.path.next,
-    ),
-  );
-  await editorState.apply(linkPreviewTransaction);
+
+  final replacementTransaction = editorState.transaction
+    ..insertNodes(
+      selection.start.path,
+      replacementInsertedNodes,
+    )
+    ..deleteNode(node)
+    ..afterSelection = Selection.collapsed(
+      Position(path: node.path.next),
+    );
+
+  await editorState.apply(replacementTransaction);
 
   return true;
 }
@@ -234,4 +239,17 @@ Future<void> doPlainPaste(EditorState editorState) async {
 
   Log.info('unable to parse the clipboard content');
   return;
+}
+
+Future<bool> _isImageUrl(String text) async {
+  final response = await http.head(Uri.parse(text));
+
+  if (response.statusCode == 200) {
+    final contentType = response.headers['content-type'];
+    if (contentType != null) {
+      return contentType.startsWith('image/');
+    }
+  }
+
+  throw 'bad status code';
 }
