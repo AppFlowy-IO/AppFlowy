@@ -151,7 +151,7 @@
     "charCountLabel": "Character count: ",
     "createdAtLabel": "Created: ",
     "syncedAtLabel": "Synced: ",
-    "saveAsNewPage": "Save messages to page"
+    "saveAsNewPage": "Add messages to page"
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",
@@ -241,7 +241,7 @@
       "tableWithImageDescription": "@:chat.changeFormat.table with image"
     },
     "selectBanner": {
-      "saveButton": "Add to...",
+      "saveButton": "Add to …",
       "selectMessages": "Select messages",
       "nSelected": "{} selected",
       "allSelected": "All selected"
