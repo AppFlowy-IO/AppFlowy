@@ -359,6 +359,9 @@ pub enum ErrorCode {
 
   #[error("Requested namespace has one or more invalid characters")]
   AIServiceUnavailable = 123,
+
+  #[error("AI Image Response limit exceeded")]
+  AIImageResponseLimitExceeded = 124,
 }
 
 impl ErrorCode {

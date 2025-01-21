@@ -98,6 +98,13 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
               ),
             );
           },
+          onAIImageResponseLimit: () {
+            emit(
+              state.copyWith(
+                messageState: const MessageState.onAIImageResponseLimit(),
+              ),
+            );
+          },
           receiveMetadata: (metadata) {
             Log.debug("AI Steps: ${metadata.progress?.step}");
             emit(
@@ -129,6 +136,11 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
           add(const ChatAIMessageEvent.onAIResponseLimit());
         }
       },
+      onAIImageResponseLimit: () {
+        if (!isClosed) {
+          add(const ChatAIMessageEvent.onAIImageResponseLimit());
+        }
+      },
       onMetadata: (metadata) {
         if (!isClosed) {
           add(ChatAIMessageEvent.receiveMetadata(metadata));
@@ -145,6 +157,8 @@ class ChatAIMessageEvent with _$ChatAIMessageEvent {
   const factory ChatAIMessageEvent.retry() = _Retry;
   const factory ChatAIMessageEvent.retryResult(String text) = _RetryResult;
   const factory ChatAIMessageEvent.onAIResponseLimit() = _OnAIResponseLimit;
+  const factory ChatAIMessageEvent.onAIImageResponseLimit() =
+      _OnAIImageResponseLimit;
   const factory ChatAIMessageEvent.receiveMetadata(
     MetadataCollection metadata,
   ) = _ReceiveMetadata;
@@ -178,6 +192,7 @@ class ChatAIMessageState with _$ChatAIMessageState {
 class MessageState with _$MessageState {
   const factory MessageState.onError(String error) = _Error;
   const factory MessageState.onAIResponseLimit() = _AIResponseLimit;
+  const factory MessageState.onAIImageResponseLimit() = _AIImageResponseLimit;
   const factory MessageState.ready() = _Ready;
   const factory MessageState.loading() = _Loading;
 }
