@@ -16,8 +16,8 @@ class ThemeUploadDecoration extends StatelessWidget {
         borderRadius: BorderRadius.circular(ThemeUploadWidget.borderRadius),
         color: Theme.of(context).colorScheme.surface,
         border: Border.all(
-          color: AFThemeExtension.of(context).onBackground.withOpacity(
-                ThemeUploadWidget.fadeOpacity,
+          color: AFThemeExtension.of(context).onBackground.withValues(
+                alpha: ThemeUploadWidget.fadeOpacity,
               ),
         ),
       ),
@@ -28,7 +28,7 @@ class ThemeUploadDecoration extends StatelessWidget {
         color: Theme.of(context)
             .colorScheme
             .onSurface
-            .withOpacity(ThemeUploadWidget.fadeOpacity),
+            .withValues(alpha: ThemeUploadWidget.fadeOpacity),
         radius: const Radius.circular(ThemeUploadWidget.borderRadius),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(ThemeUploadWidget.borderRadius),

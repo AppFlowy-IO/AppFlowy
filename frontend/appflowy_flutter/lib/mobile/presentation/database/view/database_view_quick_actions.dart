@@ -84,7 +84,11 @@ class MobileDatabaseViewQuickActions extends StatelessWidget {
                 );
               },
               builder: (_) => const SizedBox.shrink(),
-            ).then((_) => Navigator.pop(context));
+            ).then((_) {
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+            });
           },
           !isInline,
         ),

@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
-
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flutter/material.dart';
 
 class FlowyGradientButton extends StatefulWidget {
   const FlowyGradientButton({
@@ -49,7 +48,7 @@ class _FlowyGradientButtonState extends State<FlowyGradientButton> {
             boxShadow: [
               BoxShadow(
                 blurRadius: 4,
-                color: Colors.black.withOpacity(0.25),
+                color: Colors.black.withValues(alpha: 0.25),
                 offset: const Offset(0, 2),
               ),
             ],

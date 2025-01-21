@@ -622,7 +622,7 @@ class _SimpleTableHeaderActionButtonState
             fit: BoxFit.fill,
             child: CupertinoSwitch(
               value: value,
-              activeColor: Theme.of(context).colorScheme.primary,
+              activeTrackColor: Theme.of(context).colorScheme.primary,
               onChanged: (_) => _toggle(),
             ),
           ),

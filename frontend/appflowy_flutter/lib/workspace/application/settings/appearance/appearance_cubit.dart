@@ -309,7 +309,6 @@ ThemeModePB _themeModeToPB(ThemeMode themeMode) {
     case ThemeMode.dark:
       return ThemeModePB.Dark;
     case ThemeMode.system:
-    default:
       return ThemeModePB.System;
   }
 }
@@ -358,8 +357,6 @@ enum AppFlowyTextDirection {
         return TextDirectionPB.RTL;
       case AppFlowyTextDirection.auto:
         return TextDirectionPB.AUTO;
-      default:
-        return TextDirectionPB.FALLBACK;
     }
   }
 }

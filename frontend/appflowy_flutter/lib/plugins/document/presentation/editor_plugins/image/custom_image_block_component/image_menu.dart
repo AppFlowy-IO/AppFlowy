@@ -59,7 +59,7 @@ class _ImageMenuState extends State<ImageMenu> {
               BoxShadow(
                 blurRadius: 5,
                 spreadRadius: 1,
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
               ),
             ],
             borderRadius: BorderRadius.circular(4.0),

@@ -49,7 +49,9 @@ class _PromptInputMentionPageMenuState
   void initState() {
     super.initState();
     Future.delayed(Duration.zero, () {
-      context.read<ChatInputControlCubit>().refreshViews();
+      if (mounted) {
+        context.read<ChatInputControlCubit>().refreshViews();
+      }
     });
   }
 

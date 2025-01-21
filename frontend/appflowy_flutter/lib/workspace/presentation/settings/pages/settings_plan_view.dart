@@ -602,8 +602,8 @@ class _PlanProgressIndicator extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               color: AFThemeExtension.of(context).progressBarBGColor,
               border: Border.all(
-                color: const Color(0xFFDDF1F7).withOpacity(
-                  theme.brightness == Brightness.light ? 1 : 0.1,
+                color: const Color(0xFFDDF1F7).withValues(
+                  alpha: theme.brightness == Brightness.light ? 1 : 0.1,
                 ),
               ),
             ),
@@ -673,7 +673,7 @@ class _AddOnBox extends StatelessWidget {
         border: Border.all(
           color: isActive ? const Color(0xFFBDBDBD) : const Color(0xFF9C00FB),
         ),
-        color: const Color(0xFFF7F8FC).withOpacity(0.05),
+        color: const Color(0xFFF7F8FC).withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(

@@ -49,7 +49,7 @@ class MobileAppearance extends BaseAppearance {
             error: const Color(0xffFB006D),
             onError: const Color(0xffFB006D),
             outline: const Color(0xffe3e3e3),
-            outlineVariant: const Color(0xffCBD5E0).withOpacity(0.24),
+            outlineVariant: const Color(0xffCBD5E0).withValues(alpha: 0.24),
             //Snack bar
             surface: Colors.white,
             onSurface: _onSurfaceColor, // text/body color

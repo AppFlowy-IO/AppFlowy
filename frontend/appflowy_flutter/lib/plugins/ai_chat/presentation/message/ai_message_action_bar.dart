@@ -88,14 +88,14 @@ class _AIMessageActionBarState extends State<AIMessageActionBar> {
                   spreadRadius: -2,
                   color: isLightMode
                       ? const Color(0x051F2329)
-                      : Theme.of(context).shadowColor.withOpacity(0.02),
+                      : Theme.of(context).shadowColor.withValues(alpha: 0.02),
                 ),
                 BoxShadow(
                   offset: const Offset(0, 2),
                   blurRadius: 4,
                   color: isLightMode
                       ? const Color(0x051F2329)
-                      : Theme.of(context).shadowColor.withOpacity(0.02),
+                      : Theme.of(context).shadowColor.withValues(alpha: 0.02),
                 ),
                 BoxShadow(
                   offset: const Offset(0, 2),
@@ -103,7 +103,7 @@ class _AIMessageActionBarState extends State<AIMessageActionBar> {
                   spreadRadius: 2,
                   color: isLightMode
                       ? const Color(0x051F2329)
-                      : Theme.of(context).shadowColor.withOpacity(0.02),
+                      : Theme.of(context).shadowColor.withValues(alpha: 0.02),
                 ),
               ],
             ),
@@ -327,14 +327,14 @@ class _ChangeFormatPopoverContentState
             spreadRadius: -2,
             color: isLightMode
                 ? const Color(0x051F2329)
-                : Theme.of(context).shadowColor.withOpacity(0.02),
+                : Theme.of(context).shadowColor.withValues(alpha: 0.02),
           ),
           BoxShadow(
             offset: const Offset(0, 2),
             blurRadius: 4,
             color: isLightMode
                 ? const Color(0x051F2329)
-                : Theme.of(context).shadowColor.withOpacity(0.02),
+                : Theme.of(context).shadowColor.withValues(alpha: 0.02),
           ),
           BoxShadow(
             offset: const Offset(0, 2),
@@ -342,7 +342,7 @@ class _ChangeFormatPopoverContentState
             spreadRadius: 2,
             color: isLightMode
                 ? const Color(0x051F2329)
-                : Theme.of(context).shadowColor.withOpacity(0.02),
+                : Theme.of(context).shadowColor.withValues(alpha: 0.02),
           ),
         ],
       ),

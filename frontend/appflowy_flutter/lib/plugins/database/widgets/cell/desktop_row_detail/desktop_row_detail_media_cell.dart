@@ -202,7 +202,7 @@ class _FilePreviewFeedback extends StatelessWidget {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF1F2329).withOpacity(.2),
+              color: const Color(0xFF1F2329).withValues(alpha: .2),
               blurRadius: 6,
               offset: const Offset(0, 3),
             ),
@@ -431,7 +431,8 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
           Positioned.fill(
             child: DecoratedBox(
               position: DecorationPosition.foreground,
-              decoration: BoxDecoration(color: Colors.black.withOpacity(0.5)),
+              decoration:
+                  BoxDecoration(color: Colors.black.withValues(alpha: 0.5)),
               child: child,
             ),
           ),
@@ -543,7 +544,7 @@ class _FilePreviewRenderState extends State<_FilePreviewRender> {
                           setState(() => isSelected = true);
                           controller.show();
                         },
-                        fillColor: Colors.black.withOpacity(0.4),
+                        fillColor: Colors.black.withValues(alpha: 0.4),
                         width: 18,
                         radius: BorderRadius.circular(4),
                         icon: const FlowySvg(

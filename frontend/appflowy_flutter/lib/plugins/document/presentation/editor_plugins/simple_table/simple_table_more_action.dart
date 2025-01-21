@@ -412,7 +412,9 @@ class SimpleTableActionMenu extends StatelessWidget {
             editorState.service.keyboardService?.closeKeyboard();
             // delay the bottom sheet show to make sure the keyboard is closed
             Future.delayed(Durations.short3, () {
-              _showTableActionBottomSheet(context);
+              if (context.mounted) {
+                _showTableActionBottomSheet(context);
+              }
             });
           },
           child: Container(

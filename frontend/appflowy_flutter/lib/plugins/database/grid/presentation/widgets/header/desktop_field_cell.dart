@@ -1,17 +1,16 @@
-import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
-import 'package:appflowy/util/theme_extension.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database/application/field/field_cell_bloc.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/widgets/field/field_editor.dart';
+import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/util/field_type_extension.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/field_entities.pb.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../layout/sizes.dart';
@@ -261,7 +260,7 @@ class FieldIcon extends StatelessWidget {
     return svgContent == null
         ? FlowySvg(
             fieldInfo.fieldType.svgData,
-            color: color.withOpacity(0.6),
+            color: color.withValues(alpha: 0.6),
             size: Size.square(dimension),
           )
         : SizedBox.square(
@@ -269,7 +268,7 @@ class FieldIcon extends StatelessWidget {
             child: Center(
               child: FlowySvg.string(
                 svgContent,
-                color: color.withOpacity(0.45),
+                color: color.withValues(alpha: 0.45),
                 size: Size.square(dimension - 2),
               ),
             ),

@@ -3,8 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'models/emoji_category_models.dart';
 import 'emoji_picker.dart';
+import 'models/emoji_category_models.dart';
 
 part 'emji_picker_config.freezed.dart';
 
@@ -87,8 +87,6 @@ class EmojiPickerConfig with _$EmojiPickerConfig {
         return emojiCategoryIcons.flagIcon;
       case EmojiCategory.SEARCH:
         return emojiCategoryIcons.searchIcon;
-      default:
-        throw Exception('Unsupported EmojiCategory');
     }
   }
 }

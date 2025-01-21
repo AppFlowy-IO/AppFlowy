@@ -1,5 +1,7 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+
 import 'flowy_overlay.dart';
 
 class PopoverLayoutDelegate extends SingleChildLayoutDelegate {
@@ -133,8 +135,6 @@ class PopoverLayoutDelegate extends SingleChildLayoutDelegate {
           case AnchorDirection.custom:
             childConstraints = constraints.loosen();
             break;
-          default:
-            throw UnimplementedError();
         }
         return childConstraints;
     }

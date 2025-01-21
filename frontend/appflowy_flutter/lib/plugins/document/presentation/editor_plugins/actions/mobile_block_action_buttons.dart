@@ -110,7 +110,6 @@ class MobileBlockActionButtons extends StatelessWidget {
                     ),
                   );
                 break;
-              default:
             }
 
             if (transaction.operations.isNotEmpty) {

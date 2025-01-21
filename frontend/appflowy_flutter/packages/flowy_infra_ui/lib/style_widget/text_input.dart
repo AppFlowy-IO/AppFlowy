@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'package:flowy_infra/size.dart';
 
 class FlowyFormTextInput extends StatelessWidget {
   static EdgeInsets kDefaultTextInputPadding = const EdgeInsets.only(bottom: 2);
@@ -68,7 +67,7 @@ class FlowyFormTextInput extends StatelessWidget {
       hintStyle: Theme.of(context)
           .textTheme
           .bodyMedium!
-          .copyWith(color: Theme.of(context).hintColor.withOpacity(0.7)),
+          .copyWith(color: Theme.of(context).hintColor.withValues(alpha: 0.7)),
       isDense: true,
       inputBorder: const ThinUnderlineBorder(
         borderSide: BorderSide(width: 5, color: Colors.red),

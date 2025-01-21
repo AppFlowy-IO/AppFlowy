@@ -61,7 +61,7 @@ class _SettingsDropdownState<T> extends State<SettingsDropdown<T>> {
                   const WidgetStatePropertyAll(Size(double.infinity, 250)),
               elevation: const WidgetStatePropertyAll(10),
               shadowColor:
-                  WidgetStatePropertyAll(Colors.black.withOpacity(0.4)),
+                  WidgetStatePropertyAll(Colors.black.withValues(alpha: 0.4)),
               backgroundColor: WidgetStatePropertyAll(
                 Theme.of(context).cardColor,
               ),

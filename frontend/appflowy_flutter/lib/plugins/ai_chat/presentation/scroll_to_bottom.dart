@@ -41,21 +41,21 @@ class CustomScrollToBottom extends StatelessWidget {
                   spreadRadius: 8,
                   color: isLightMode
                       ? const Color(0x0F1F2329)
-                      : Theme.of(context).shadowColor.withOpacity(0.06),
+                      : Theme.of(context).shadowColor.withValues(alpha: 0.06),
                 ),
                 BoxShadow(
                   offset: const Offset(0, 4),
                   blurRadius: 8,
                   color: isLightMode
                       ? const Color(0x141F2329)
-                      : Theme.of(context).shadowColor.withOpacity(0.08),
+                      : Theme.of(context).shadowColor.withValues(alpha: 0.08),
                 ),
                 BoxShadow(
                   offset: const Offset(0, 2),
                   blurRadius: 4,
                   color: isLightMode
                       ? const Color(0x1F1F2329)
-                      : Theme.of(context).shadowColor.withOpacity(0.12),
+                      : Theme.of(context).shadowColor.withValues(alpha: 0.12),
                 ),
               ],
             ),

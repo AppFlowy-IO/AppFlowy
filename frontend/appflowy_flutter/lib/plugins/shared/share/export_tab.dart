@@ -198,7 +198,7 @@ class _ExportButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = Theme.of(context).isLightMode
         ? const Color(0x1E14171B)
-        : Colors.white.withOpacity(0.1);
+        : Colors.white.withValues(alpha: 0.1);
     final radius = BorderRadius.circular(10.0);
     return FlowyButton(
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),

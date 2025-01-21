@@ -326,7 +326,7 @@ class _SecondaryViewState extends State<SecondaryView>
                                       ? const Color(0x1F1F2329)
                                       : Theme.of(context)
                                           .shadowColor
-                                          .withOpacity(0.08),
+                                          .withValues(alpha: 0.08),
                                 ),
                               ],
                             ),

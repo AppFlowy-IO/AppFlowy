@@ -18,7 +18,6 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         BulletedListBlockKeys,
         blockComponentDelta;
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
-import 'package:collection/collection.dart';
 import 'package:nanoid/nanoid.dart';
 
 class ExternalValues extends NodeExternalValues {
@@ -105,7 +104,7 @@ extension DocumentDataPBFromTo on DocumentDataPB {
 
     final children = <Node>[];
     if (childrenIds != null && childrenIds.isNotEmpty) {
-      children.addAll(childrenIds.map((e) => buildNode(e)).whereNotNull());
+      children.addAll(childrenIds.map((e) => buildNode(e)).nonNulls);
     }
 
     final node = block?.toNode(

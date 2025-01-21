@@ -119,7 +119,7 @@ class InteractiveImageToolbar extends StatelessWidget {
                       child: FlowyHover(
                         resetHoverOnRebuild: false,
                         style: HoverStyle(
-                          hoverColor: Colors.white.withOpacity(0.1),
+                          hoverColor: Colors.white.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Padding(
@@ -204,7 +204,7 @@ class InteractiveImageToolbar extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(6),
-        color: Colors.black.withOpacity(0.6),
+        color: Colors.black.withValues(alpha: 0.6),
       ),
       child: Padding(
         padding: const EdgeInsets.all(4),
@@ -284,8 +284,9 @@ class _ToolbarItem extends StatelessWidget {
         child: FlowyHover(
           resetHoverOnRebuild: false,
           style: HoverStyle(
-            hoverColor:
-                isDisabled ? Colors.transparent : Colors.white.withOpacity(0.1),
+            hoverColor: isDisabled
+                ? Colors.transparent
+                : Colors.white.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(4),
           ),
           child: Container(

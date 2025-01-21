@@ -128,11 +128,11 @@ class SingleSettingAction extends StatelessWidget {
 
   Color? hoverColor(BuildContext context) {
     if (buttonType.isDangerous) {
-      return Theme.of(context).colorScheme.error.withOpacity(0.1);
+      return Theme.of(context).colorScheme.error.withValues(alpha: 0.1);
     }
 
     if (buttonType.isPrimary) {
-      return Theme.of(context).colorScheme.primary.withOpacity(0.9);
+      return Theme.of(context).colorScheme.primary.withValues(alpha: 0.9);
     }
 
     if (buttonType.isHighlight) {

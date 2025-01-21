@@ -128,7 +128,7 @@ class OverlayContainer extends StatelessWidget {
         padding: padding,
         decoration: FlowyDecoration.decoration(
           Theme.of(context).colorScheme.surface,
-          Theme.of(context).colorScheme.shadow.withOpacity(0.15),
+          Theme.of(context).colorScheme.shadow.withValues(alpha: 0.15),
         ),
         constraints: constraints,
         child: child,

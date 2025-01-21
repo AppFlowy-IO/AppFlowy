@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
@@ -31,6 +28,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:string_validator/string_validator.dart';
@@ -278,8 +277,10 @@ class _RowCoverState extends State<RowCover> {
                 onPressed: () => popoverController.show(),
                 hoverColor: Theme.of(context).colorScheme.surface,
                 textColor: Theme.of(context).colorScheme.tertiary,
-                fillColor:
-                    Theme.of(context).colorScheme.surface.withOpacity(0.5),
+                fillColor: Theme.of(context)
+                    .colorScheme
+                    .surface
+                    .withValues(alpha: 0.5),
                 title: LocaleKeys.document_plugins_cover_changeCover.tr(),
               ),
             ),

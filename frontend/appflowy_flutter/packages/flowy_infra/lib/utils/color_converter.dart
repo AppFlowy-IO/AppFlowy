@@ -13,5 +13,12 @@ class ColorConverter implements JsonConverter<Color, String> {
   }
 
   @override
-  String toJson(Color color) => "0x${color.value.toRadixString(16)}";
+  String toJson(Color color) {
+    final alpha = (color.a * 255).toInt().toRadixString(16).padLeft(2, '0');
+    final red = (color.r * 255).toInt().toRadixString(16).padLeft(2, '0');
+    final green = (color.g * 255).toInt().toRadixString(16).padLeft(2, '0');
+    final blue = (color.b * 255).toInt().toRadixString(16).padLeft(2, '0');
+
+    return '0x$alpha$red$green$blue'.toLowerCase();
+  }
 }

@@ -138,7 +138,7 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
               radius: Corners.s8Border,
               backgroundColor: Theme.of(context).colorScheme.primary,
               hoverColor:
-                  Theme.of(context).colorScheme.primary.withOpacity(0.9),
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
               margin: const EdgeInsets.all(5),
               text: FlowyText(
                 LocaleKeys.document_plugins_file_uploadMobileGallery.tr(),
@@ -155,7 +155,7 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
               radius: Corners.s8Border,
               backgroundColor: Theme.of(context).colorScheme.primary,
               hoverColor:
-                  Theme.of(context).colorScheme.primary.withOpacity(0.9),
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
               margin: const EdgeInsets.all(5),
               text: FlowyText(
                 LocaleKeys.document_plugins_file_uploadMobile.tr(),
@@ -241,7 +241,7 @@ class _FileUploadNetworkState extends State<_FileUploadNetwork> {
             child: FlowyButton(
               backgroundColor: Theme.of(context).colorScheme.primary,
               hoverColor:
-                  Theme.of(context).colorScheme.primary.withOpacity(0.9),
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
               radius: Corners.s8Border,
               margin: const EdgeInsets.all(5),
               text: FlowyText(

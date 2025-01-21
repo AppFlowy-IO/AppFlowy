@@ -7,10 +7,9 @@ import 'package:diffutil_dart/diffutil.dart' as diffutil;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:provider/provider.dart';
-
 import 'package:flutter_chat_ui/src/scroll_to_bottom.dart';
 import 'package:flutter_chat_ui/src/utils/message_list_diff.dart';
+import 'package:provider/provider.dart';
 
 class ChatAnimatedListReversed extends StatefulWidget {
   const ChatAnimatedListReversed({

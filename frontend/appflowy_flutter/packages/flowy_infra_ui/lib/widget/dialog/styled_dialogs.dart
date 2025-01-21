@@ -96,7 +96,7 @@ class Dialogs {
       {required Widget child}) async {
     return await Navigator.of(context).push(
       StyledDialogRoute(
-        barrier: DialogBarrier(color: Colors.black.withOpacity(0.4)),
+        barrier: DialogBarrier(color: Colors.black.withValues(alpha: 0.4)),
         pageBuilder: (BuildContext buildContext, Animation<double> animation,
             Animation<double> secondaryAnimation) {
           return SafeArea(child: child);

@@ -212,7 +212,7 @@ class _DeletedFilesListView extends StatelessWidget {
                     ?.copyWith(color: theme.colorScheme.onSurface),
               ),
               horizontalTitleGap: 0,
-              tileColor: theme.colorScheme.onSurface.withOpacity(0.1),
+              tileColor: theme.colorScheme.onSurface.withValues(alpha: 0.1),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),

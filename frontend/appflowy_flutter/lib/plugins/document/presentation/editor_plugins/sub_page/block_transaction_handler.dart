@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/block_transaction_handler/block_transaction_handler.dart';
@@ -14,6 +12,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
+import 'package:flutter/material.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 class SubPageBlockTransactionHandler extends BlockTransactionHandler {
@@ -162,7 +161,9 @@ class SubPageBlockTransactionHandler extends BlockTransactionHandler {
             if (UniversalPlatform.isDesktop) {
               getIt<TabsBloc>().openPlugin(view);
             } else {
-              await context.pushView(view);
+              if (context.mounted) {
+                await context.pushView(view);
+              }
             }
           });
         },

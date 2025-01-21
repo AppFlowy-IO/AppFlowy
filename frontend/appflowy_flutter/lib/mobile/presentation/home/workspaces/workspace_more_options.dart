@@ -101,8 +101,6 @@ class WorkspaceMenuMoreOptions extends StatelessWidget {
             WorkspaceMenuMoreOption.leave,
           ),
         );
-      default:
-        return const Placeholder();
     }
   }
 }

@@ -502,11 +502,11 @@ class _AFDropdownMenuState<T> extends State<AFDropdownMenu<T>> {
 
       // Simulate the focused state because the text field should always be focused
       // during traversal. If the menu item has a custom foreground color, the "focused"
-      // color will also change to foregroundColor.withOpacity(0.12).
+      // color will also change to foregroundColor.withValues(alpha: 0.12).
       effectiveStyle = entry.enabled && i == focusedIndex
           ? effectiveStyle.copyWith(
               backgroundColor: WidgetStatePropertyAll<Color>(
-                focusedBackgroundColor.withOpacity(0.12),
+                focusedBackgroundColor.withValues(alpha: 0.12),
               ),
             )
           : effectiveStyle;

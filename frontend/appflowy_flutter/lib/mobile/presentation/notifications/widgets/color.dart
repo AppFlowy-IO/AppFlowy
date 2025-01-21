@@ -6,6 +6,6 @@ extension NotificationItemColors on BuildContext {
     if (Theme.of(this).isLightMode) {
       return const Color(0xFF171717);
     }
-    return const Color(0xFFffffff).withOpacity(0.8);
+    return const Color(0xFFffffff).withValues(alpha: 0.8);
   }
 }
