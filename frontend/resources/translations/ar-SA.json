@@ -752,6 +752,7 @@
         "alignRight": "محاذاة النص إلى اليمين",
         "undo": "التراجع",
         "redo": "الإعادة",
+        "convertToParagraph": "تحويل الكتلة إلى فقرة",
         "backspace": "الحذف",
         "deleteLeftWord": "حذف الكلمة اليسرى",
         "deleteLeftSentence": "حذف الجملة اليسرى",
@@ -1863,7 +1864,8 @@
         "center": "مركز",
         "right": "يمين",
         "defaultColor": "تقصير",
-        "depth": "عمق"
+        "depth": "عمق",
+        "copyLinkToBlock": "نسخ الرابط إلى الكتلة"
       },
       "image": {
         "addAnImage": "أضف صورة",
@@ -2082,7 +2084,10 @@
     },
     "errorBlock": {
       "theBlockIsNotSupported": "الإصدار الحالي لا يدعم هذا الحقل.",
-      "blockContentHasBeenCopied": "تم نسخ محتوى الحقل."
+      "clickToCopyTheBlockContent": "انقر هنا لنسخ محتوى الكتلة",
+      "blockContentHasBeenCopied": "تم نسخ محتوى الحقل.",
+      "parseError": "حدث خطأ أثناء تحليل الكتلة {}.",
+      "copyBlockContent": "نسخ محتوى الكتلة"
     },
     "mobilePageSelector": {
       "title": "حدد الصفحة",
