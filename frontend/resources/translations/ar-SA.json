@@ -154,7 +154,8 @@
     "wordCountLabel": "عدد الكلمات: ",
     "charCountLabel": "عدد الأحرف: ",
     "createdAtLabel": "تم إنشاؤه: ",
-    "syncedAtLabel": "تم المزامنة: "
+    "syncedAtLabel": "تم المزامنة: ",
+    "saveAsNewPage": "حفظ الرسائل في الصفحة"
   },
   "importPanel": {
     "textAndMarkdown": "نص و Markdown",
@@ -197,6 +198,7 @@
     "clickToRetry": "انقر لإعادة المحاولة",
     "regenerateAnswer": "إعادة توليد",
     "question1": "كيفية استخدام كانبان لإدارة المهام",
+    "question2": "شرح طريقة GTD",
     "question3": "لماذا تستخدم Rust",
     "question4": "وصفة بما في مطبخي",
     "question5": "إنشاء رسم توضيحي لصفحتي",
@@ -206,6 +208,7 @@
     "indexFileSuccess": "تم فهرسة الملف بنجاح",
     "inputActionNoPages": "لا توجد نتائج للصفحة",
     "referenceSource": {
+      "zero": "تم العثور على 0 من مصادر",
       "one": "تم العثور على {count} مصدر",
       "other": "تم العثور على {count} مصادر"
     },
