@@ -39,7 +39,7 @@ extension MobileRouter on BuildContext {
       }
     }
     if (tabs != null) {
-      queryParameters[MobileDocumentScreen.viewSelectTabs] = tabs;
+      queryParameters[MobileDocumentScreen.viewSelectTabs] = tabs.join('-');
     }
 
     final uri = Uri(

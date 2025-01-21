@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/move_to/move_page_menu.dart';
@@ -176,6 +177,12 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
       margin: const EdgeInsets.all(0),
       clickHandler: PopoverClickHandler.gestureDetector,
       popupBuilder: (_) => FlowyIconEmojiPicker(
+        tabs: const [
+          PickerTabType.emoji,
+          PickerTabType.icon,
+          PickerTabType.custom,
+        ],
+        documentId: sourceView.id,
         initialType: sourceView.icon.toEmojiIconData().type.toPickerTabType(),
         onSelectedEmoji: (result) => onTap(controller, result),
       ),

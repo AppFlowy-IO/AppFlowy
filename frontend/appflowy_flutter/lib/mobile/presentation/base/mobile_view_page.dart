@@ -196,6 +196,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
           data: {
             MobileDocumentScreen.viewFixedTitle: widget.fixedTitle,
             MobileDocumentScreen.viewBlockId: widget.blockId,
+            MobileDocumentScreen.viewSelectTabs: widget.tabs,
           },
         );
       },
