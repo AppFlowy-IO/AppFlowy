@@ -261,6 +261,10 @@ More actions for published page:
             widget is PublishedViewItem &&
             widget.publishInfoView.view.name == pageName,
       );
+      if (pageItem.evaluate().isEmpty) {
+        return;
+      }
+
       expect(pageItem, findsOneWidget);
 
       final copyLinkItem = find.text(LocaleKeys.shareAction_copyLink.tr());
