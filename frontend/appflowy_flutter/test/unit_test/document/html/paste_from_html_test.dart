@@ -1,5 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_html.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -32,6 +32,19 @@ void main() {
 
     test('sample 3 - paste table from Google Sheets', () {
       checkTable(tableFromGoogleSheets);
+    });
+
+    test('sample 4 - paste table from ChatGPT', () {
+      final nodes = EditorState.blank().convertHtmlToNodes(tableFromChatGPT);
+      final table =
+          nodes.where((node) => node.type == SimpleTableBlockKeys.type).first;
+
+      expect(table.columnLength, 3);
+      expect(table.rowLength, 7);
+
+      final dividers =
+          nodes.where((node) => node.type == DividerBlockKeys.type);
+      expect(dividers.length, 5);
     });
   });
 }

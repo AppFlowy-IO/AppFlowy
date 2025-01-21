@@ -40,6 +40,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'document_bloc.freezed.dart';
 
+/// Enable this flag to enable the internal log for
+/// - document diff
+/// - document integrity check
+/// - document sync state
+/// - document awareness states
 bool enableDocumentInternalLog = false;
 
 final Map<String, DocumentBloc> _documentBlocMap = {};
