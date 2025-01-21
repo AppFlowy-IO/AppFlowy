@@ -2170,11 +2170,11 @@
       "layoutDateField": "تقويم التخطيط بواسطة",
       "changeLayoutDateField": "تغيير حقل التخطيط",
       "noDateTitle": "بدون تاريخ",
-      "noDateHint": "ستظهر الأحداث غير المجدولة هنا",
       "unscheduledEventsTitle": "الأحداث غير المجدولة",
       "clickToAdd": "انقر للإضافة إلى التقويم",
       "name": "تخطيط التقويم",
-      "clickToOpen": "انقر لفتح السجل"
+      "clickToOpen": "انقر لفتح السجل",
+      "noDateHint": "ستظهر الأحداث غير المجدولة هنا"
     },
     "referencedCalendarPrefix": "نظرا ل",
     "quickJumpYear": "انتقل إلى",
@@ -2605,7 +2605,57 @@
     "createNewSpace": "إنشاء مساحة جديدة",
     "createSpaceDescription": "إنشاء مساحات عامة وخاصة متعددة لتنظيم عملك بشكل أفضل.",
     "spaceName": "اسم المساحة",
-    "spaceNamePlaceholder": "على سبيل المثال التسويق والهندسة والموارد البشرية"
+    "spaceNamePlaceholder": "على سبيل المثال التسويق والهندسة والموارد البشرية",
+    "switchSpace": "تبديل المساحة",
+    "spaceNameCannotBeEmpty": "لا يمكن أن يكون اسم المساحة فارغًا",
+    "success": {
+      "deleteSpace": "تم حذف المساحة بنجاح",
+      "renameSpace": "تم إعادة تسمية المساحة بنجاح",
+      "duplicateSpace": "تم تكرار المساحة بنجاح",
+      "updateSpace": "تم تحديث المساحة بنجاح"
+    },
+    "error": {
+      "deleteSpace": "فشل في حذف المساحة",
+      "renameSpace": "فشل في إعادة تسمية المساحة",
+      "duplicateSpace": "فشل في تكرار المساحة",
+      "updateSpace": "فشل في تحديث المساحة"
+    },
+    "createSpace": "إنشاء مساحة",
+    "manageSpace": "إدارة المساحة",
+    "renameSpace": "إعادة تسمية المساحة",
+    "mSpaceIconColor": "لون أيقونة المساحة",
+    "mSpaceIcon": "أيقونة المساحة"
+  },
+  "publish": {
+    "hasNotBeenPublished": "لم يتم نشر هذه الصفحة بعد",
+    "spaceHasNotBeenPublished": "لم يتم دعم نشر المساحة بعد",
+    "reportPage": "صفحة التقرير",
+    "databaseHasNotBeenPublished": "لم يتم دعم نشر قاعدة البيانات بعد.",
+    "createdWith": "تم إنشاؤه باستخدام",
+    "downloadApp": "تنزيل AppFlowy",
+    "copy": {
+      "imageBlock": "تم نسخ رابط الصورة إلى الحافظة",
+      "mathBlock": "تم نسخ المعادلة الرياضية إلى الحافظة",
+      "fileBlock": "تم نسخ رابط الملف إلى الحافظة"
+    },
+    "containsPublishedPage": "تحتوي هذه الصفحة على صفحة واحدة أو أكثر منشورة. إذا تابعت، فسيتم إلغاء نشرها. هل تريد متابعة الحذف؟",
+    "publishSuccessfully": "تم النشر بنجاح",
+    "unpublishSuccessfully": "تم إلغاء النشر بنجاح",
+    "publishFailed": "فشل في النشر",
+    "unpublishFailed": "فشل في إلغاء النشر",
+    "noAccessToVisit": "لا يمكن الوصول إلى هذه الصفحة...",
+    "createWithAppFlowy": "إنشاء موقع ويب مع AppFlowy",
+    "fastWithAI": "سريع وسهل مع الذكاء الاصطناعي.",
+    "tryItNow": "جربها الآن",
+    "onlyGridViewCanBePublished": "لا يمكن نشر سوى عرض الشبكة",
+    "database": {
+      "zero": "نشر {} عرض محدد",
+      "one": "نشر {} عروض محددة",
+      "many": "نشر {} عروض محددة",
+      "other": "نشر {} عروض محددة"
+    },
+    "mustSelectPrimaryDatabase": "يجب تحديد العرض الأساسي",
+    "noDatabaseSelected": "لم يتم تحديد أي قاعدة بيانات، يرجى تحديد قاعدة بيانات واحدة على الأقل."
   },
   "gallery": {
     "resetZoom": "إعادة ضبط التكبير"
