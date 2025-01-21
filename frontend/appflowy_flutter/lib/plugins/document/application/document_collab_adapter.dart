@@ -85,8 +85,9 @@ class DocumentCollabAdapter {
       return;
     }
 
-    // Use for debugging, DO NOT REMOVE
-    prettyPrintJson(ops.map((op) => op.toJson()).toList());
+    if (enableDocumentInternalLog) {
+      prettyPrintJson(ops.map((op) => op.toJson()).toList());
+    }
 
     final transaction = editorState.transaction;
     for (final op in ops) {
@@ -94,18 +95,19 @@ class DocumentCollabAdapter {
     }
     await editorState.apply(transaction, isRemote: true);
 
-    // Use for debugging, DO NOT REMOVE
-    assert(() {
-      final local = editorState.document.root.toJson();
-      final remote = document.root.toJson();
-      if (!const DeepCollectionEquality().equals(local, remote)) {
-        Log.error('Invalid diff status');
-        Log.error('Local: $local');
-        Log.error('Remote: $remote');
-        return false;
-      }
-      return true;
-    }());
+    if (enableDocumentInternalLog) {
+      assert(() {
+        final local = editorState.document.root.toJson();
+        final remote = document.root.toJson();
+        if (!const DeepCollectionEquality().equals(local, remote)) {
+          Log.error('Invalid diff status');
+          Log.error('Local: $local');
+          Log.error('Remote: $remote');
+          return false;
+        }
+        return true;
+      }());
+    }
   }
 
   Future<void> forceReload() async {
