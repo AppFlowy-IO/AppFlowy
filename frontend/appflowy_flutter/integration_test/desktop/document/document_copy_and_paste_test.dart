@@ -19,7 +19,7 @@ import '../../shared/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('copy and paste in document', () {
+  group('copy and paste in document:', () {
     testWidgets('paste multiple lines at the first line', (tester) async {
       // mock the clipboard
       const lines = 3;
@@ -470,6 +470,16 @@ void main() {
     });
   });
 
+  testWidgets('paste image url without extension', (tester) async {
+    const plainText =
+        'https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&dl=david-marcu-78A265wPiO4-unsplash.jpg&w=640';
+    await tester.pasteContent(plainText: plainText, (editorState) {
+      final node = editorState.getNodeAtPath([0])!;
+      expect(node.type, ImageBlockKeys.type);
+      expect(node.attributes[ImageBlockKeys.url], isNotEmpty);
+    });
+  });
+
   const testMarkdownText = '''
 # I'm h1
 ## I'm h2
@@ -546,7 +556,7 @@ extension on WidgetTester {
       isShiftPressed: pasteAsPlain,
       isMetaPressed: Platform.isMacOS,
     );
-    await pumpAndSettle();
+    await pumpAndSettle(const Duration(milliseconds: 1000));
 
     test(editor.getCurrentEditorState());
   }
