@@ -2986,6 +2986,68 @@
   },
   "openFileMessage": {
     "success": "تم فتح الملف بنجاح",
-    "fileNotFound": "لم يتم العثور على الملف"
+    "fileNotFound": "لم يتم العثور على الملف",
+    "noAppToOpenFile": "لا يوجد تطبيق لفتح هذا الملف",
+    "permissionDenied": "لا يوجد إذن لفتح هذا الملف",
+    "unknownError": "فشل فتح الملف"
+  },
+  "inviteMember": {
+    "requestInviteMembers": "دعوة إلى مكان مساحة عملك",
+    "inviteFailedMemberLimit": "لقد تم الوصول إلى الحد الأقصى للأعضاء، يرجى ",
+    "upgrade": "ترقية",
+    "addEmail": "email@example.com، email2@example.com...",
+    "requestInvites": "إرسال الدعوات",
+    "inviteAlready": "لقد قمت بالفعل بدعوة هذا البريد الإلكتروني: {email}",
+    "inviteSuccess": "تم إرسال الدعوة بنجاح",
+    "description": "أدخل رسائل البريد الإلكتروني أدناه مع وضع فاصلة بينها. تعتمد الرسوم على عدد الأعضاء.",
+    "emails": "بريد إلكتروني"
+  },
+  "quickNote": {
+    "label": "ملاحظة سريعة",
+    "quickNotes": "ملاحظات سريعة",
+    "search": "بحث ملاحظات سريعة",
+    "collapseFullView": "طي العرض الكامل",
+    "expandFullView": "توسيع العرض الكامل",
+    "createFailed": "فشل في إنشاء ملاحظة سريعة",
+    "quickNotesEmpty": "لا توجد ملاحظات سريعة",
+    "emptyNote": "ملاحظة فارغة",
+    "deleteNotePrompt": "سيتم حذف الملاحظة المحددة بشكل دائم. هل أنت متأكد من أنك تريد حذفها؟",
+    "addNote": "ملاحظة جديدة",
+    "noAdditionalText": "لا يوجد نص إضافي"
+  },
+  "subscribe": {
+    "upgradePlanTitle": "قارن واختر الخطة",
+    "yearly": "سنوي",
+    "save": "وفر {discount}%",
+    "monthly": "شهريا",
+    "priceIn": "السعر في ",
+    "free": "مجاني",
+    "pro": "احترافي",
+    "freeDescription": "للأفراد حتى عضوين لتنظيم كل شيء",
+    "proDescription": "للفرق الصغيرة لإدارة المشاريع ومعرفة الفريق",
+    "proDuration": {
+      "monthly": "لكل عضو شهريا\nيتم دفع الفاتورة شهريا",
+      "yearly": "لكل عضو شهريا\nيتم دفعها سنويا"
+    },
+    "cancel": "يرجع إلى إصدار أقدم",
+    "changePlan": "الترقية إلى الخطة الاحترافية",
+    "everythingInFree": "كل شيء مجاني +",
+    "currentPlan": "الحالي",
+    "freeDuration": "للأبد",
+    "freePoints": {
+      "first": "مساحة عمل تعاونية واحدة تتسع لعضوين كحد أقصى",
+      "three": "سعة تخزين 5 جيجا بايت",
+      "four": "البحث الذكي",
+      "five": "20 استجابة الذكاء الاصطناعي",
+      "six": "تطبيق الجوال",
+      "seven": "التعاون في الوقت الحقيقي"
+    },
+    "proPoints": {
+      "first": "تخزين غير محدود",
+      "second": "ما يصل إلى 10 أعضاء في مساحة العمل",
+      "three": "استجابات الذكاء الاصطناعي غير المحدودة",
+      "four": "رفع ملفات غير محدودة",
+      "five": "مساحة اسم مخصصة"
+    }
   }
 }
