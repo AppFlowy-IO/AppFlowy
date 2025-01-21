@@ -523,7 +523,7 @@ extension on WidgetTester {
     await tapAnonymousSignInButton();
 
     // create a new document
-    await createNewPageWithNameUnderParent(name: 'Test Document');
+    await createNewPageWithNameUnderParent();
     // tap the editor
     await tapButton(find.byType(AppFlowyEditor));
 
