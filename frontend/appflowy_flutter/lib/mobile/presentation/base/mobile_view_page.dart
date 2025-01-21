@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/document/presentation/document_collaborators.da
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
@@ -34,6 +35,7 @@ class MobileViewPage extends StatefulWidget {
     this.fixedTitle,
     this.showMoreButton = true,
     this.blockId,
+    this.tabs = const [PickerTabType.emoji, PickerTabType.icon],
   });
 
   /// view id
@@ -43,6 +45,7 @@ class MobileViewPage extends StatefulWidget {
   final Map<String, dynamic>? arguments;
   final bool showMoreButton;
   final String? blockId;
+  final List<PickerTabType> tabs;
 
   // only used in row page
   final String? fixedTitle;
@@ -193,6 +196,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
           data: {
             MobileDocumentScreen.viewFixedTitle: widget.fixedTitle,
             MobileDocumentScreen.viewBlockId: widget.blockId,
+            MobileDocumentScreen.viewSelectTabs: widget.tabs,
           },
         );
       },
@@ -242,6 +246,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
           view: view,
           isImmersiveMode: isImmersiveMode,
           appBarOpacity: _appBarOpacity,
+          tabs: widget.tabs,
         ),
       ]);
     }

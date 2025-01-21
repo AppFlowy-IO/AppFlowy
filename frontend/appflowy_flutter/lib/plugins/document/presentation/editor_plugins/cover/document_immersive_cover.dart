@@ -11,6 +11,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/flowy_gradient_colors.dart';
 import 'package:appflowy/shared/google_fonts_extension.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -36,12 +37,14 @@ class DocumentImmersiveCover extends StatefulWidget {
     super.key,
     required this.view,
     required this.userProfilePB,
+    required this.tabs,
     this.fixedTitle,
   });
 
   final ViewPB view;
   final UserProfilePB userProfilePB;
   final String? fixedTitle;
+  final List<PickerTabType> tabs;
 
   @override
   State<DocumentImmersiveCover> createState() => _DocumentImmersiveCoverState();
@@ -228,6 +231,8 @@ class _DocumentImmersiveCoverState extends State<DocumentImmersiveCover> {
               child: Expanded(
                 child: FlowyIconEmojiPicker(
                   initialType: icon.type.toPickerTabType(),
+                  tabs: widget.tabs,
+                  documentId: widget.view.id,
                   onSelectedEmoji: (r) {
                     pageStyleIconBloc.add(
                       PageStyleIconEvent.updateIcon(r.data, true),

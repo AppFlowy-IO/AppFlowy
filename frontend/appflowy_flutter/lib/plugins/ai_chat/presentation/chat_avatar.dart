@@ -10,15 +10,13 @@ import 'package:string_validator/string_validator.dart';
 import 'layout_define.dart';
 
 class ChatAIAvatar extends StatelessWidget {
-  const ChatAIAvatar({
-    super.key,
-  });
+  const ChatAIAvatar({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: DesktopAIConvoSizes.avatarSize,
-      height: DesktopAIConvoSizes.avatarSize,
+      width: DesktopAIChatSizes.avatarSize,
+      height: DesktopAIChatSizes.avatarSize,
       clipBehavior: Clip.hardEdge,
       decoration: const BoxDecoration(shape: BoxShape.circle),
       foregroundDecoration: ShapeDecoration(
@@ -61,8 +59,8 @@ class ChatUserAvatar extends StatelessWidget {
       child = _buildEmojiAvatar(context);
     }
     return Container(
-      width: DesktopAIConvoSizes.avatarSize,
-      height: DesktopAIConvoSizes.avatarSize,
+      width: DesktopAIChatSizes.avatarSize,
+      height: DesktopAIChatSizes.avatarSize,
       clipBehavior: Clip.hardEdge,
       decoration: const BoxDecoration(shape: BoxShape.circle),
       foregroundDecoration: ShapeDecoration(
@@ -102,7 +100,7 @@ class ChatUserAvatar extends StatelessWidget {
   Widget _buildUrlAvatar(BuildContext context) {
     return CircleAvatar(
       backgroundColor: Colors.transparent,
-      radius: DesktopAIConvoSizes.avatarSize / 2,
+      radius: DesktopAIChatSizes.avatarSize / 2,
       child: Image.network(
         iconUrl,
         fit: BoxFit.cover,
@@ -115,7 +113,7 @@ class ChatUserAvatar extends StatelessWidget {
   Widget _buildEmojiAvatar(BuildContext context) {
     return CircleAvatar(
       backgroundColor: Colors.transparent,
-      radius: DesktopAIConvoSizes.avatarSize / 2,
+      radius: DesktopAIChatSizes.avatarSize / 2,
       child: builtInSVGIcons.contains(iconUrl)
           ? FlowySvg(
               FlowySvgData('emoji/$iconUrl'),

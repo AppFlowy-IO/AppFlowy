@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:appflowy/ai/widgets/prompt_input/layout_define.dart';
+import 'package:appflowy/ai/widgets/prompt_input/predefined_format_buttons.dart';
+import 'package:appflowy/ai/widgets/prompt_input/select_sources_menu.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
@@ -30,8 +33,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
-import '../chat_input/predefined_format_buttons.dart';
-import '../chat_input/select_sources_menu.dart';
 import '../layout_define.dart';
 import 'message_util.dart';
 
@@ -64,16 +65,15 @@ class _AIMessageActionBarState extends State<AIMessageActionBar> {
 
     final child = SeparatedRow(
       mainAxisSize: MainAxisSize.min,
-      separatorBuilder: () =>
-          const HSpace(DesktopAIConvoSizes.actionBarIconSpacing),
+      separatorBuilder: () => const HSpace(8.0),
       children: _buildChildren(),
     );
 
     return widget.showDecoration
         ? Container(
-            padding: const EdgeInsets.all(2.0),
+            padding: DesktopAIChatSizes.messageHoverActionBarPadding,
             decoration: BoxDecoration(
-              borderRadius: DesktopAIConvoSizes.hoverActionBarRadius,
+              borderRadius: DesktopAIChatSizes.messageHoverActionBarRadius,
               border: Border.all(
                 color: isLightMode
                     ? const Color(0x1F1F2329)
@@ -153,18 +153,21 @@ class CopyButton extends StatelessWidget {
     return FlowyTooltip(
       message: LocaleKeys.settings_menu_clickToCopy.tr(),
       child: FlowyIconButton(
-        width: DesktopAIConvoSizes.actionBarIconSize,
+        width: DesktopAIChatSizes.messageActionBarIconSize,
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         radius: isInHoverBar
-            ? DesktopAIConvoSizes.hoverActionBarIconRadius
-            : DesktopAIConvoSizes.actionBarIconRadius,
+            ? DesktopAIChatSizes.messageHoverActionBarIconRadius
+            : DesktopAIChatSizes.messageActionBarIconRadius,
         icon: FlowySvg(
           FlowySvgs.copy_s,
           color: Theme.of(context).hintColor,
           size: const Size.square(16),
         ),
         onPressed: () async {
-          final document = customMarkdownToDocument(textMessage.text);
+          final document = customMarkdownToDocument(
+            textMessage.text,
+            tableWidth: 250.0,
+          );
           await getIt<ClipboardService>().setData(
             ClipboardServiceData(
               plainText: textMessage.text,
@@ -198,11 +201,11 @@ class RegenerateButton extends StatelessWidget {
     return FlowyTooltip(
       message: LocaleKeys.chat_regenerate.tr(),
       child: FlowyIconButton(
-        width: DesktopAIConvoSizes.actionBarIconSize,
+        width: DesktopAIChatSizes.messageActionBarIconSize,
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         radius: isInHoverBar
-            ? DesktopAIConvoSizes.hoverActionBarIconRadius
-            : DesktopAIConvoSizes.actionBarIconRadius,
+            ? DesktopAIChatSizes.messageHoverActionBarIconRadius
+            : DesktopAIChatSizes.messageActionBarIconRadius,
         icon: FlowySvg(
           FlowySvgs.ai_undo_s,
           color: Theme.of(context).hintColor,
@@ -258,11 +261,11 @@ class _ChangeFormatButtonState extends State<ChangeFormatButton> {
       message: LocaleKeys.chat_changeFormat_actionButton.tr(),
       child: FlowyIconButton(
         width: 32.0,
-        height: DesktopAIConvoSizes.actionBarIconSize,
+        height: DesktopAIChatSizes.messageActionBarIconSize,
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         radius: widget.isInHoverBar
-            ? DesktopAIConvoSizes.hoverActionBarIconRadius
-            : DesktopAIConvoSizes.actionBarIconRadius,
+            ? DesktopAIChatSizes.messageHoverActionBarIconRadius
+            : DesktopAIChatSizes.messageActionBarIconRadius,
         icon: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -309,7 +312,7 @@ class _ChangeFormatPopoverContentState
     return Container(
       padding: const EdgeInsets.all(2.0),
       decoration: BoxDecoration(
-        borderRadius: DesktopAIConvoSizes.hoverActionBarRadius,
+        borderRadius: DesktopAIChatSizes.messageHoverActionBarRadius,
         border: Border.all(
           color: isLightMode
               ? const Color(0x1F1F2329)
@@ -348,8 +351,6 @@ class _ChangeFormatPopoverContentState
         children: [
           ChangeFormatBar(
             spacing: 2.0,
-            iconSize: 16.0,
-            buttonSize: DesktopAIPromptSizes.predefinedFormatButtonHeight,
             predefinedFormat: predefinedFormat,
             onSelectPredefinedFormat: (format) {
               setState(() => predefinedFormat = format);
@@ -456,11 +457,11 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
     return FlowyTooltip(
       message: LocaleKeys.chat_addToPageButton.tr(),
       child: FlowyIconButton(
-        width: DesktopAIConvoSizes.actionBarIconSize,
+        width: DesktopAIChatSizes.messageActionBarIconSize,
         hoverColor: AFThemeExtension.of(context).lightGreyHover,
         radius: widget.isInHoverBar
-            ? DesktopAIConvoSizes.hoverActionBarIconRadius
-            : DesktopAIConvoSizes.actionBarIconRadius,
+            ? DesktopAIChatSizes.messageHoverActionBarIconRadius
+            : DesktopAIChatSizes.messageActionBarIconRadius,
         icon: FlowySvg(
           FlowySvgs.ai_add_to_page_s,
           color: Theme.of(context).hintColor,
@@ -490,7 +491,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
   Widget buildPopover(BuildContext context) {
     return BlocProvider.value(
       value: context.read<ChatSettingsCubit>(),
-      child: _SaveToPagePopoverContent(
+      child: SaveToPagePopoverContent(
         onAddToNewPage: (parentViewId) {
           addMessageToNewPage(context, parentViewId);
           popoverController.close();
@@ -513,9 +514,9 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
     BuildContext context,
     String documentId,
   ) async {
-    await ChatEditDocumentService.addMessageToPage(
+    await ChatEditDocumentService.addMessagesToPage(
       documentId,
-      widget.textMessage,
+      [widget.textMessage],
     );
     await Future.delayed(const Duration(milliseconds: 500));
     final view = await ViewBackendService.getView(documentId).toNullable();
@@ -541,35 +542,6 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
         openPageFromMessage(context, newView);
       }
     }
-  }
-
-  void showSaveMessageSuccessToast(BuildContext context, ViewPB? view) {
-    if (view == null) {
-      return;
-    }
-    showToastNotification(
-      context,
-      richMessage: TextSpan(
-        children: [
-          TextSpan(
-            text: LocaleKeys.chat_addToNewPageSuccessToast.tr(),
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFFFFFFFF),
-                ),
-          ),
-          const TextSpan(
-            text: ' ',
-          ),
-          TextSpan(
-            text: view.nameOrDefault,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFFFFFFFF),
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-        ],
-      ),
-    );
   }
 
   Future<void> forceReload(String documentId) async {
@@ -607,8 +579,9 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
   }
 }
 
-class _SaveToPagePopoverContent extends StatelessWidget {
-  const _SaveToPagePopoverContent({
+class SaveToPagePopoverContent extends StatelessWidget {
+  const SaveToPagePopoverContent({
+    super.key,
     required this.onAddToNewPage,
     required this.onAddToExistingPage,
   });

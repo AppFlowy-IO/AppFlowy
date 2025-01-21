@@ -5,8 +5,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:extended_text_library/extended_text_library.dart';
 import 'package:flutter/material.dart';
 
-class ChatInputTextSpanBuilder extends SpecialTextSpanBuilder {
-  ChatInputTextSpanBuilder({
+class PromptInputTextSpanBuilder extends SpecialTextSpanBuilder {
+  PromptInputTextSpanBuilder({
     required this.inputControlCubit,
     this.specialTextStyle,
   });

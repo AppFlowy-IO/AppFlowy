@@ -4,6 +4,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_icon_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/_page_style_util.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -17,9 +18,11 @@ class PageStyleIcon extends StatefulWidget {
   const PageStyleIcon({
     super.key,
     required this.view,
+    required this.tabs,
   });
 
   final ViewPB view;
+  final List<PickerTabType> tabs;
 
   @override
   State<PageStyleIcon> createState() => _PageStyleIconState();
@@ -33,9 +36,9 @@ class _PageStyleIconState extends State<PageStyleIcon> {
         ..add(const PageStyleIconEvent.initial()),
       child: BlocBuilder<PageStyleIconBloc, PageStyleIconState>(
         builder: (context, state) {
-          final icon = state.icon ?? EmojiIconData.none();
+          final icon = state.icon;
           return GestureDetector(
-            onTap: () => _showIconSelector(context, icon),
+            onTap: () => icon == null ? null : _showIconSelector(context, icon),
             behavior: HitTestBehavior.opaque,
             child: Container(
               height: 52,
@@ -48,14 +51,14 @@ class _PageStyleIconState extends State<PageStyleIcon> {
                   const HSpace(16.0),
                   FlowyText(LocaleKeys.document_plugins_emoji.tr()),
                   const Spacer(),
-                  icon.isEmpty
+                  (icon?.isEmpty ?? true)
                       ? FlowyText(
                           LocaleKeys.pageStyle_none.tr(),
                           fontSize: 16.0,
                         )
                       : RawEmojiIconWidget(
-                          emoji: icon,
-                          emojiSize: 22.0,
+                          emoji: icon!,
+                          emojiSize: 16.0,
                         ),
                   const HSpace(6.0),
                   const FlowySvg(FlowySvgs.m_page_style_arrow_right_s),
@@ -89,6 +92,8 @@ class _PageStyleIconState extends State<PageStyleIcon> {
           child: Expanded(
             child: FlowyIconEmojiPicker(
               initialType: icon.type.toPickerTabType(),
+              documentId: widget.view.id,
+              tabs: widget.tabs,
               onSelectedEmoji: (r) {
                 pageStyleIconBloc.add(
                   PageStyleIconEvent.updateIcon(r.data, true),

@@ -8,10 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
-import '../layout_define.dart';
+import 'layout_define.dart';
 
-class ChatInputFile extends StatelessWidget {
-  const ChatInputFile({
+class PromptInputFile extends StatelessWidget {
+  const PromptInputFile({
     super.key,
     required this.chatId,
     required this.onDeleted,

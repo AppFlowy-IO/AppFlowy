@@ -1,13 +1,13 @@
 import 'dart:async';
 
+import 'package:appflowy/ai/service/appflowy_ai_service.dart';
+import 'package:appflowy/ai/service/error.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/ai/ai_client.dart';
-import 'package:appflowy/ai/error.dart';
+import 'package:appflowy/ai/service/ai_client.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ai_limit_dialog.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_action.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_action_bloc.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ask_ai_block_widgets.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/widgets/ai_limit_dialog.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/widgets/ask_ai_action_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/widgets/ask_ai_block_widgets.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -167,7 +167,7 @@ class _AskAIBlockComponentWidgetState extends State<AskAIBlockComponentWidget> {
             return BlocProvider.value(
               // request the result when opening the popover
               value: askAIBloc..add(const AskAIEvent.started()),
-              child: const AskAiInputContent(),
+              child: const AskAIInputContent(),
             );
           },
           child: const SizedBox(

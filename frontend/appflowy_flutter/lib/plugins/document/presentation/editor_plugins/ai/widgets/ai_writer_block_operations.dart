@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/openai/widgets/ai_writer_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/ai_writer_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 /// Notes: All the operation related to the AI writer block will be applied

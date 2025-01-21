@@ -6,6 +6,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_edit_document_service.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
+import 'package:appflowy/plugins/ai_chat/application/chat_select_message_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -15,12 +16,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:go_router/go_router.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import '../chat_avatar.dart';
-import '../chat_input/chat_mention_page_bottom_sheet.dart';
+import '../../../../ai/widgets/prompt_input/mention_page_bottom_sheet.dart';
 import '../layout_define.dart';
 import 'ai_message_action_bar.dart';
 import 'ai_change_format_bottom_sheet.dart';
@@ -37,6 +39,7 @@ class ChatAIMessageBubble extends StatelessWidget {
     required this.child,
     required this.showActions,
     this.isLastMessage = false,
+    this.isSelectingMessages = false,
     this.onRegenerate,
     this.onChangeFormat,
   });
@@ -45,27 +48,25 @@ class ChatAIMessageBubble extends StatelessWidget {
   final Widget child;
   final bool showActions;
   final bool isLastMessage;
+  final bool isSelectingMessages;
   final void Function()? onRegenerate;
   final void Function(PredefinedFormat)? onChangeFormat;
 
   @override
   Widget build(BuildContext context) {
-    final avatarAndMessage = Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const ChatAIAvatar(),
-        const HSpace(DesktopAIConvoSizes.avatarAndChatBubbleSpacing),
-        Expanded(child: child),
-      ],
+    final messageWidget = _WrapIsSelectingMessage(
+      isSelectingMessages: isSelectingMessages,
+      message: message,
+      child: child,
     );
 
-    return showActions
+    return !isSelectingMessages && showActions
         ? UniversalPlatform.isMobile
-            ? _wrapPopMenu(avatarAndMessage)
+            ? _wrapPopMenu(messageWidget)
             : isLastMessage
-                ? _wrapBottomActions(avatarAndMessage)
-                : _wrapHover(avatarAndMessage)
-        : avatarAndMessage;
+                ? _wrapBottomActions(messageWidget)
+                : _wrapHover(messageWidget)
+        : messageWidget;
   }
 
   Widget _wrapBottomActions(Widget child) {
@@ -119,8 +120,8 @@ class ChatAIBottomInlineActions extends StatelessWidget {
         const VSpace(16.0),
         Padding(
           padding: const EdgeInsetsDirectional.only(
-            start: DesktopAIConvoSizes.avatarSize +
-                DesktopAIConvoSizes.avatarAndChatBubbleSpacing,
+            start: DesktopAIChatSizes.avatarSize +
+                DesktopAIChatSizes.avatarAndChatBubbleSpacing,
           ),
           child: AIMessageActionBar(
             message: message,
@@ -199,8 +200,8 @@ class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
             link: layerLink,
             targetAnchor: Alignment.bottomLeft,
             offset: const Offset(
-              DesktopAIConvoSizes.avatarSize +
-                  DesktopAIConvoSizes.avatarAndChatBubbleSpacing,
+              DesktopAIChatSizes.avatarSize +
+                  DesktopAIChatSizes.avatarAndChatBubbleSpacing,
               0,
             ),
             child: Align(
@@ -220,10 +221,10 @@ class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
                 child: Container(
                   constraints: BoxConstraints(
                     maxWidth: 784,
-                    maxHeight: DesktopAIConvoSizes.actionBarIconSize +
-                        DesktopAIConvoSizes.hoverActionBarPadding.vertical,
+                    maxHeight: DesktopAIChatSizes.messageActionBarIconSize +
+                        DesktopAIChatSizes
+                            .messageHoverActionBarPadding.vertical,
                   ),
-                  alignment: Alignment.topLeft,
                   child: hoverBubble || hoverActionBar || overrideVisibility
                       ? AIMessageActionBar(
                           message: widget.message,
@@ -283,8 +284,8 @@ class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
 
     return messageOffset.dy +
             messageHeight +
-            DesktopAIConvoSizes.actionBarIconSize +
-            DesktopAIConvoSizes.hoverActionBarPadding.vertical <=
+            DesktopAIChatSizes.messageActionBarIconSize +
+            DesktopAIChatSizes.messageHoverActionBarPadding.vertical <=
         scrollableOffset.dy + scrollableHeight;
   }
 
@@ -413,9 +414,9 @@ class ChatAIMessagePopup extends StatelessWidget {
           return;
         }
 
-        await ChatEditDocumentService.addMessageToPage(
+        await ChatEditDocumentService.addMessagesToPage(
           selectedView.id,
-          message as TextMessage,
+          [message as TextMessage],
         );
 
         if (context.mounted) {
@@ -426,6 +427,88 @@ class ChatAIMessagePopup extends StatelessWidget {
       icon: FlowySvgs.ai_add_to_page_s,
       iconSize: const Size.square(20),
       text: LocaleKeys.chat_addToPageButton.tr(),
+    );
+  }
+}
+
+class _WrapIsSelectingMessage extends StatelessWidget {
+  const _WrapIsSelectingMessage({
+    required this.message,
+    required this.child,
+    this.isSelectingMessages = false,
+  });
+
+  final Message message;
+  final Widget child;
+  final bool isSelectingMessages;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ChatSelectMessageBloc, ChatSelectMessageState>(
+      builder: (context, state) {
+        final isSelected =
+            context.read<ChatSelectMessageBloc>().isMessageSelected(message.id);
+        return GestureDetector(
+          onTap: () {
+            if (isSelectingMessages) {
+              context
+                  .read<ChatSelectMessageBloc>()
+                  .add(ChatSelectMessageEvent.toggleSelectMessage(message));
+            }
+          },
+          behavior: isSelectingMessages ? HitTestBehavior.opaque : null,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? Theme.of(context).colorScheme.tertiaryContainer
+                  : null,
+              borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (isSelectingMessages)
+                  ChatSelectMessageIndicator(isSelected: isSelected)
+                else
+                  const ChatAIAvatar(),
+                const HSpace(DesktopAIChatSizes.avatarAndChatBubbleSpacing),
+                Expanded(
+                  child: IgnorePointer(
+                    ignoring: isSelectingMessages,
+                    child: child,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class ChatSelectMessageIndicator extends StatelessWidget {
+  const ChatSelectMessageIndicator({
+    super.key,
+    required this.isSelected,
+  });
+
+  final bool isSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: SizedBox.square(
+        dimension: DesktopAIChatSizes.avatarSize,
+        child: Center(
+          child: FlowySvg(
+            isSelected ? FlowySvgs.check_filled_s : FlowySvgs.uncheck_s,
+            blendMode: BlendMode.dst,
+            size: const Size.square(20),
+          ),
+        ),
+      ),
     );
   }
 }

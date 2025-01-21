@@ -3,6 +3,7 @@ import 'package:appflowy/mobile/application/mobile_router.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/home/section_folder/mobile_home_section_folder_header.dart';
 import 'package:appflowy/mobile/presentation/page_item/mobile_view_item.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -101,7 +102,14 @@ class _Pages extends StatelessWidget {
               level: 0,
               leftPadding: HomeSpaceViewSizes.leftPadding,
               isFeedback: false,
-              onSelected: context.pushView,
+              onSelected: (v) => context.pushView(
+                v,
+                tabs: [
+                  PickerTabType.emoji,
+                  PickerTabType.icon,
+                  PickerTabType.custom,
+                ].map((e) => e.name).toList(),
+              ),
               endActionPane: (context) {
                 final view = context.read<ViewBloc>().state.view;
                 return buildEndActionPane(

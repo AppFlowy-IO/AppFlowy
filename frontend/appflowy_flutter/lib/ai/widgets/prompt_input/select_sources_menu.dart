@@ -18,8 +18,8 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../layout_define.dart';
-import 'chat_mention_page_menu.dart';
+import 'layout_define.dart';
+import 'mention_page_menu.dart';
 
 class PromptInputDesktopSelectSourcesButton extends StatefulWidget {
   const PromptInputDesktopSelectSourcesButton({

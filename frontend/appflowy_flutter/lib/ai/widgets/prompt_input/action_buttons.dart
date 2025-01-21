@@ -6,9 +6,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 
-import '../layout_define.dart';
-
-enum SendButtonState { enabled, streaming, disabled }
+import 'layout_define.dart';
 
 class PromptInputAttachmentButton extends StatelessWidget {
   const PromptInputAttachmentButton({required this.onTap, super.key});
@@ -64,60 +62,6 @@ class PromptInputMentionButton extends StatelessWidget {
         ),
         onPressed: onTap,
       ),
-    );
-  }
-}
-
-class PromptInputSendButton extends StatelessWidget {
-  const PromptInputSendButton({
-    super.key,
-    required this.buttonSize,
-    required this.iconSize,
-    required this.state,
-    required this.onSendPressed,
-    required this.onStopStreaming,
-  });
-
-  final double buttonSize;
-  final double iconSize;
-  final SendButtonState state;
-  final VoidCallback onSendPressed;
-  final VoidCallback onStopStreaming;
-
-  @override
-  Widget build(BuildContext context) {
-    return FlowyIconButton(
-      width: buttonSize,
-      icon: switch (state) {
-        SendButtonState.enabled => FlowySvg(
-            FlowySvgs.ai_send_filled_s,
-            size: Size.square(iconSize),
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        SendButtonState.disabled => FlowySvg(
-            FlowySvgs.ai_send_filled_s,
-            size: Size.square(iconSize),
-            color: Theme.of(context).disabledColor,
-          ),
-        SendButtonState.streaming => FlowySvg(
-            FlowySvgs.ai_stop_filled_s,
-            size: Size.square(iconSize),
-            color: Theme.of(context).colorScheme.primary,
-          ),
-      },
-      onPressed: () {
-        switch (state) {
-          case SendButtonState.enabled:
-            onSendPressed();
-            break;
-          case SendButtonState.streaming:
-            onStopStreaming();
-            break;
-          case SendButtonState.disabled:
-            break;
-        }
-      },
-      hoverColor: Colors.transparent,
     );
   }
 }

@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mo
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
@@ -339,6 +340,11 @@ Future<void> _handleTap(
       await context.pushView(
         view,
         blockId: blockId,
+        tabs: [
+          PickerTabType.emoji,
+          PickerTabType.icon,
+          PickerTabType.custom,
+        ].map((e) => e.name).toList(),
       );
     }
   } else {

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/chat_message_selector_banner.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -22,10 +23,11 @@ import 'application/ai_prompt_input_bloc.dart';
 import 'application/chat_bloc.dart';
 import 'application/chat_entity.dart';
 import 'application/chat_member_bloc.dart';
+import 'application/chat_select_message_bloc.dart';
 import 'application/chat_message_stream.dart';
 import 'presentation/animated_chat_list.dart';
-import 'presentation/chat_input/desktop_ai_prompt_input.dart';
-import 'presentation/chat_input/mobile_ai_prompt_input.dart';
+import 'presentation/chat_input/desktop_chat_input.dart';
+import 'presentation/chat_input/mobile_chat_input.dart';
 import 'presentation/chat_related_question.dart';
 import 'presentation/chat_welcome_page.dart';
 import 'presentation/layout_define.dart';
@@ -106,20 +108,22 @@ class _ChatContentPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 784),
-        margin: UniversalPlatform.isDesktop
-            ? const EdgeInsets.symmetric(horizontal: 60.0)
-            : null,
-        child: ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-          child: BlocBuilder<ChatBloc, ChatState>(
-            builder: (context, state) {
-              return switch (state.loadingState) {
-                LoadChatMessageStatus.ready => Column(
-                    children: [
-                      Expanded(
+    return BlocBuilder<ChatBloc, ChatState>(
+      builder: (context, state) {
+        return switch (state.loadingState) {
+          LoadChatMessageStatus.ready => Column(
+              children: [
+                ChatMessageSelectorBanner(
+                  view: view,
+                  allMessages: context.read<ChatBloc>().chatController.messages,
+                ),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: _wrapConstraints(
+                      ScrollConfiguration(
+                        behavior: ScrollConfiguration.of(context)
+                            .copyWith(scrollbars: false),
                         child: Chat(
                           chatController:
                               context.read<ChatBloc>().chatController,
@@ -135,15 +139,27 @@ class _ChatContentPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      _buildInput(context),
-                    ],
+                    ),
                   ),
-                _ => const Center(child: CircularProgressIndicator.adaptive()),
-              };
-            },
-          ),
-        ),
-      ),
+                ),
+                _wrapConstraints(
+                  _builtInput(context),
+                ),
+              ],
+            ),
+          _ => const Center(child: CircularProgressIndicator.adaptive()),
+        };
+      },
+    );
+  }
+
+  Widget _wrapConstraints(Widget child) {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 784),
+      margin: UniversalPlatform.isDesktop
+          ? const EdgeInsets.symmetric(horizontal: 60.0)
+          : null,
+      child: child,
     );
   }
 
@@ -193,31 +209,38 @@ class _ChatContentPage extends StatelessWidget {
     final refSourceJsonString =
         message.metadata?[messageRefSourceJsonStringKey] as String?;
 
-    return BlocBuilder<ChatBloc, ChatState>(
-      builder: (context, state) {
-        final chatController = context.read<ChatBloc>().chatController;
-        final messages = chatController.messages
-            .where((e) => onetimeMessageTypeFromMeta(e.metadata) == null);
-        final isLastMessage =
-            messages.isEmpty ? false : messages.last.id == message.id;
-        return ChatAIMessageWidget(
-          user: message.author,
-          messageUserId: message.id,
-          message: message,
-          stream: stream is AnswerStream ? stream : null,
-          questionId: questionId,
-          chatId: view.id,
-          refSourceJsonString: refSourceJsonString,
-          isStreaming: state.promptResponseState != PromptResponseState.ready,
-          isLastMessage: isLastMessage,
-          onSelectedMetadata: (metadata) =>
-              _onSelectMetadata(context, metadata),
-          onRegenerate: () => context
-              .read<ChatBloc>()
-              .add(ChatEvent.regenerateAnswer(message.id, null)),
-          onChangeFormat: (format) => context
-              .read<ChatBloc>()
-              .add(ChatEvent.regenerateAnswer(message.id, format)),
+    return BlocSelector<ChatSelectMessageBloc, ChatSelectMessageState, bool>(
+      selector: (state) => state.isSelectingMessages,
+      builder: (context, isSelectingMessages) {
+        return BlocBuilder<ChatBloc, ChatState>(
+          builder: (context, state) {
+            final chatController = context.read<ChatBloc>().chatController;
+            final messages = chatController.messages
+                .where((e) => onetimeMessageTypeFromMeta(e.metadata) == null);
+            final isLastMessage =
+                messages.isEmpty ? false : messages.last.id == message.id;
+            return ChatAIMessageWidget(
+              user: message.author,
+              messageUserId: message.id,
+              message: message,
+              stream: stream is AnswerStream ? stream : null,
+              questionId: questionId,
+              chatId: view.id,
+              refSourceJsonString: refSourceJsonString,
+              isStreaming:
+                  state.promptResponseState != PromptResponseState.ready,
+              isLastMessage: isLastMessage,
+              isSelectingMessages: isSelectingMessages,
+              onSelectedMetadata: (metadata) =>
+                  _onSelectMetadata(context, metadata),
+              onRegenerate: () => context
+                  .read<ChatBloc>()
+                  .add(ChatEvent.regenerateAnswer(message.id, null)),
+              onChangeFormat: (format) => context
+                  .read<ChatBloc>()
+                  .add(ChatEvent.regenerateAnswer(message.id, format)),
+            );
+          },
         );
       },
     );
@@ -265,74 +288,100 @@ class _ChatContentPage extends StatelessWidget {
       );
     }
 
-    return ChatAnimatedListReversed(
-      scrollController: scrollController,
-      itemBuilder: itemBuilder,
-      onLoadPreviousMessages: () {
-        bloc.add(const ChatEvent.loadPreviousMessages());
+    return BlocSelector<ChatSelectMessageBloc, ChatSelectMessageState, bool>(
+      selector: (state) => state.isSelectingMessages,
+      builder: (context, isSelectingMessages) {
+        return ChatAnimatedListReversed(
+          scrollController: scrollController,
+          itemBuilder: itemBuilder,
+          bottomPadding: isSelectingMessages
+              ? 48.0 + DesktopAIChatSizes.messageActionBarIconSize
+              : 8.0,
+          onLoadPreviousMessages: () {
+            bloc.add(const ChatEvent.loadPreviousMessages());
+          },
+        );
       },
     );
   }
 
-  Widget _buildInput(BuildContext context) {
-    return Padding(
-      padding: AIChatUILayout.safeAreaInsets(context),
-      child: BlocSelector<ChatBloc, ChatState, bool>(
-        selector: (state) {
-          return state.promptResponseState == PromptResponseState.ready;
-        },
-        builder: (context, canSendMessage) {
-          final chatBloc = context.read<ChatBloc>();
+  Widget _builtInput(BuildContext context) {
+    return BlocSelector<ChatSelectMessageBloc, ChatSelectMessageState, bool>(
+      selector: (state) => state.isSelectingMessages,
+      builder: (context, isSelectingMessages) {
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 150),
+          transitionBuilder: (child, animation) {
+            return SizeTransition(
+              sizeFactor: animation,
+              axisAlignment: -1,
+              child: child,
+            );
+          },
+          child: isSelectingMessages
+              ? const SizedBox.shrink()
+              : Padding(
+                  padding: AIChatUILayout.safeAreaInsets(context),
+                  child: BlocSelector<ChatBloc, ChatState, bool>(
+                    selector: (state) {
+                      return state.promptResponseState ==
+                          PromptResponseState.ready;
+                    },
+                    builder: (context, canSendMessage) {
+                      final chatBloc = context.read<ChatBloc>();
 
-          return UniversalPlatform.isDesktop
-              ? DesktopAIPromptInput(
-                  chatId: view.id,
-                  isStreaming: !canSendMessage,
-                  onStopStreaming: () {
-                    chatBloc.add(const ChatEvent.stopStream());
-                  },
-                  onSubmitted: (text, format, metadata) {
-                    chatBloc.add(
-                      ChatEvent.sendMessage(
-                        message: text,
-                        format: format,
-                        metadata: metadata,
-                      ),
-                    );
-                  },
-                  onUpdateSelectedSources: (ids) {
-                    chatBloc.add(
-                      ChatEvent.updateSelectedSources(
-                        selectedSourcesIds: ids,
-                      ),
-                    );
-                  },
-                )
-              : MobileAIPromptInput(
-                  chatId: view.id,
-                  isStreaming: !canSendMessage,
-                  onStopStreaming: () {
-                    chatBloc.add(const ChatEvent.stopStream());
-                  },
-                  onSubmitted: (text, format, metadata) {
-                    chatBloc.add(
-                      ChatEvent.sendMessage(
-                        message: text,
-                        format: format,
-                        metadata: metadata,
-                      ),
-                    );
-                  },
-                  onUpdateSelectedSources: (ids) {
-                    chatBloc.add(
-                      ChatEvent.updateSelectedSources(
-                        selectedSourcesIds: ids,
-                      ),
-                    );
-                  },
-                );
-        },
-      ),
+                      return UniversalPlatform.isDesktop
+                          ? DesktopChatInput(
+                              chatId: view.id,
+                              isStreaming: !canSendMessage,
+                              onStopStreaming: () {
+                                chatBloc.add(const ChatEvent.stopStream());
+                              },
+                              onSubmitted: (text, format, metadata) {
+                                chatBloc.add(
+                                  ChatEvent.sendMessage(
+                                    message: text,
+                                    format: format,
+                                    metadata: metadata,
+                                  ),
+                                );
+                              },
+                              onUpdateSelectedSources: (ids) {
+                                chatBloc.add(
+                                  ChatEvent.updateSelectedSources(
+                                    selectedSourcesIds: ids,
+                                  ),
+                                );
+                              },
+                            )
+                          : MobileChatInput(
+                              chatId: view.id,
+                              isStreaming: !canSendMessage,
+                              onStopStreaming: () {
+                                chatBloc.add(const ChatEvent.stopStream());
+                              },
+                              onSubmitted: (text, format, metadata) {
+                                chatBloc.add(
+                                  ChatEvent.sendMessage(
+                                    message: text,
+                                    format: format,
+                                    metadata: metadata,
+                                  ),
+                                );
+                              },
+                              onUpdateSelectedSources: (ids) {
+                                chatBloc.add(
+                                  ChatEvent.updateSelectedSources(
+                                    selectedSourcesIds: ids,
+                                  ),
+                                );
+                              },
+                            );
+                    },
+                  ),
+                ),
+        );
+      },
     );
   }
 

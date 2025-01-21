@@ -150,7 +150,8 @@
     "wordCountLabel": "Word count: ",
     "charCountLabel": "Character count: ",
     "createdAtLabel": "Created: ",
-    "syncedAtLabel": "Synced: "
+    "syncedAtLabel": "Synced: ",
+    "saveAsNewPage": "Save messages to page"
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",
@@ -238,6 +239,12 @@
       "numberWithImageDescription": "@:chat.changeFormat.number with image",
       "bulletWithImageDescription": "@:chat.changeFormat.bullet with image",
       "tableWithImageDescription": "@:chat.changeFormat.table with image"
+    },
+    "selectBanner": {
+      "saveButton": "Add to...",
+      "selectMessages": "Select messages",
+      "nSelected": "{} selected",
+      "allSelected": "All selected"
     }
   },
   "trash": {

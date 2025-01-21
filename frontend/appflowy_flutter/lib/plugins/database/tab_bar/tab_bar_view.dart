@@ -288,7 +288,7 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
           const HSpace(10),
           ViewFavoriteButton(view: view),
           const HSpace(4),
-          MoreViewActions(view: view, isDocument: false),
+          MoreViewActions(view: view),
         ],
       ),
     );

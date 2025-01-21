@@ -279,7 +279,13 @@ impl Chat {
       let content = answer_stream_buffer.lock().await.take_content();
       let metadata = answer_stream_buffer.lock().await.take_metadata();
       let answer = cloud_service
-        .create_answer(&workspace_id, &chat_id, &content, question_id, metadata)
+        .create_answer(
+          &workspace_id,
+          &chat_id,
+          content.trim(),
+          question_id,
+          metadata,
+        )
         .await?;
       save_and_notify_message(uid, &chat_id, &user_service, answer)?;
       Ok::<(), FlowyError>(())

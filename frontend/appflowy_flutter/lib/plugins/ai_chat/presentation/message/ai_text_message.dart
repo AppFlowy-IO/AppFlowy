@@ -1,3 +1,4 @@
+import 'package:appflowy/ai/widgets/loading_indicator.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
@@ -15,7 +16,6 @@ import '../layout_define.dart';
 import 'ai_markdown_text.dart';
 import 'ai_message_bubble.dart';
 import 'ai_metadata.dart';
-import 'loading_indicator.dart';
 import 'error_text_message.dart';
 
 /// [ChatAIMessageWidget] includes both the text of the AI response as well as
@@ -38,6 +38,7 @@ class ChatAIMessageWidget extends StatelessWidget {
     this.onChangeFormat,
     this.isLastMessage = false,
     this.isStreaming = false,
+    this.isSelectingMessages = false,
   });
 
   final User user;
@@ -53,6 +54,7 @@ class ChatAIMessageWidget extends StatelessWidget {
   final void Function(PredefinedFormat)? onChangeFormat;
   final bool isStreaming;
   final bool isLastMessage;
+  final bool isSelectingMessages;
 
   @override
   Widget build(BuildContext context) {
@@ -83,14 +85,14 @@ class ChatAIMessageWidget extends StatelessWidget {
                 loading: () => ChatAIMessageBubble(
                   message: message,
                   showActions: false,
-                  child: ChatAILoading(text: loadingText),
+                  child: AILoadingIndicator(text: loadingText),
                 ),
                 ready: () {
                   return state.text.isEmpty
                       ? ChatAIMessageBubble(
                           message: message,
                           showActions: false,
-                          child: ChatAILoading(text: loadingText),
+                          child: AILoadingIndicator(text: loadingText),
                         )
                       : ChatAIMessageBubble(
                           message: message,
@@ -98,6 +100,7 @@ class ChatAIMessageWidget extends StatelessWidget {
                           showActions: stream == null &&
                               state.text.isNotEmpty &&
                               !isStreaming,
+                          isSelectingMessages: isSelectingMessages,
                           onRegenerate: onRegenerate,
                           onChangeFormat: onChangeFormat,
                           child: Column(

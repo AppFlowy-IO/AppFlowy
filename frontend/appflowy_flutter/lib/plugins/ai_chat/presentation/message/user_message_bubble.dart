@@ -58,13 +58,13 @@ class ChatUserMessageBubble extends StatelessWidget {
       return [
         const Spacer(),
         _buildBubble(context),
-        const HSpace(DesktopAIConvoSizes.avatarAndChatBubbleSpacing),
+        const HSpace(DesktopAIChatSizes.avatarAndChatBubbleSpacing),
         _buildAvatar(),
       ];
     } else {
       return [
         _buildAvatar(),
-        const HSpace(DesktopAIConvoSizes.avatarAndChatBubbleSpacing),
+        const HSpace(DesktopAIChatSizes.avatarAndChatBubbleSpacing),
         _buildBubble(context),
         const Spacer(),
       ];

@@ -13,6 +13,7 @@ import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:flowy_infra/uuid.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
@@ -234,6 +235,25 @@ extension AppFlowyTestBase on WidgetTester {
 
   Future<void> wait(int milliseconds) async {
     await pumpAndSettle(Duration(milliseconds: milliseconds));
+  }
+
+  Future<void> slideToValue(
+    Finder slider,
+    double value, {
+    double paddingOffset = 24.0,
+  }) async {
+    final sliderWidget = slider.evaluate().first.widget as Slider;
+    final range = sliderWidget.max - sliderWidget.min;
+    final initialRate = (value - sliderWidget.min) / range;
+    final totalWidth = getSize(slider).width - (2 * paddingOffset);
+    final zeroPoint = getTopLeft(slider) +
+        Offset(
+          paddingOffset + initialRate * totalWidth,
+          getSize(slider).height / 2,
+        );
+    final calculatedOffset = value * (totalWidth / 100);
+    await dragFrom(zeroPoint, Offset(calculatedOffset, 0));
+    await pumpAndSettle();
   }
 }
 
