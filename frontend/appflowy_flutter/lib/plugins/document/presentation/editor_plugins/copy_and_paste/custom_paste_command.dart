@@ -200,7 +200,7 @@ Future<bool> _pasteAsLinkPreview(
 
   // convert it to image or link preview node
   final replacementInsertedNodes = [
-    if (isImageUrl) imageNode(url: text) else linkPreviewNode(url: text),
+    isImageUrl ? imageNode(url: text) : linkPreviewNode(url: text),
     // if the next node is null, insert a empty paragraph node
     if (node.next == null) paragraphNode(),
   ];

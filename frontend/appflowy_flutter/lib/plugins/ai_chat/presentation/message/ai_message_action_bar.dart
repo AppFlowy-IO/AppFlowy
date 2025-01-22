@@ -188,9 +188,6 @@ class CopyButton extends StatelessWidget {
 
   String _getTrimmedPlainText(String plainText) {
     // match and capture inner url as group
-    final singleLineMarkdownImageRegex =
-        RegExp("^!\\[.*\\]\\((${hrefRegex.pattern})\\)\$");
-
     final matches = singleLineMarkdownImageRegex.allMatches(plainText);
     if (matches.length != 1) {
       return plainText;
