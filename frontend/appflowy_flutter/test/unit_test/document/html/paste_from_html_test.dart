@@ -46,6 +46,10 @@ void main() {
           nodes.where((node) => node.type == DividerBlockKeys.type);
       expect(dividers.length, 5);
     });
+
+    test('sample 5 - paste table from Apple Notes', () {
+      checkTable(tableFromAppleNotes);
+    });
   });
 }
 

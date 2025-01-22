@@ -51,3 +51,7 @@ final localPathRegex = RegExp(_localPathPattern, caseSensitive: false);
 
 const _wordPattern = r"\S+";
 final wordRegex = RegExp(_wordPattern);
+
+const _appleNotesPattern =
+    r'<meta\s+name="Generator"\s+content="Cocoa HTML Writer"\s*>\s*<meta\s+name="CocoaVersion"\s+content="\d+"\s*>';
+final appleNotesRegex = RegExp(_appleNotesPattern);

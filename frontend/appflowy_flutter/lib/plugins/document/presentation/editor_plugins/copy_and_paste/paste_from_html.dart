@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
+import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:html2md/html2md.dart' as html2md;
 
@@ -43,11 +44,13 @@ extension PasteFromHtml on EditorState {
     // The table from Google Docs will contain the flag 'Google Table'
     const googleDocsFlag = 'docs-internal-guid-';
     final isPasteFromGoogleDocs = html.contains(googleDocsFlag);
+    final isPasteFromAppleNotes = appleNotesRegex.hasMatch(html);
     final containsTable = nodes.any(
       (node) =>
           [TableBlockKeys.type, SimpleTableBlockKeys.type].contains(node.type),
     );
-    if (nodes.isEmpty || isPasteFromGoogleDocs || containsTable) {
+    if ((nodes.isEmpty || isPasteFromGoogleDocs || containsTable) &&
+        !isPasteFromAppleNotes) {
       // fallback to the markdown parser
       final markdown = html2md.convert(html);
       nodes = customMarkdownToDocument(markdown, tableWidth: 200)
