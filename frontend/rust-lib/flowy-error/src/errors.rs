@@ -91,6 +91,10 @@ impl FlowyError {
     self.code == ErrorCode::AIResponseLimitExceeded
   }
 
+  pub fn is_ai_image_response_limit_exceeded(&self) -> bool {
+    self.code == ErrorCode::AIImageResponseLimitExceeded
+  }
+
   static_flowy_error!(internal, ErrorCode::Internal);
   static_flowy_error!(record_not_found, ErrorCode::RecordNotFound);
   static_flowy_error!(workspace_initialize, ErrorCode::WorkspaceInitializeError);

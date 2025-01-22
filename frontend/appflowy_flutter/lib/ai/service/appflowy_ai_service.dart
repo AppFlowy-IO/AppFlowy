@@ -139,6 +139,15 @@ class CompletionStream {
           );
         }
 
+        if (event == "AI_IMAGE_RESPONSE_LIMIT") {
+          onError(
+            AIError(
+              message: LocaleKeys.sideBar_aiImageResponseLimit.tr(),
+              code: AIErrorCode.aiImageResponseLimitExceeded,
+            ),
+          );
+        }
+
         if (event.startsWith("start:")) {
           await onStart();
         }
