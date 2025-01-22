@@ -380,7 +380,7 @@
     "askOwnerToUpgradeToProIOS": "Your workspace is running out of free storage.",
     "askOwnerToUpgradeToAIMax": "Your workspace has ran out of free AI responses. Please ask your workspace owner to upgrade the plan or purchase AI add-ons",
     "askOwnerToUpgradeToAIMaxIOS": "Your workspace is running out of free AI responses.",
-    "purchaseAIMax": "Your workspace has ran out of free AI Image responses. Please ask your workspace owner to purchase AI Max",
+    "purchaseAIMax": "Your workspace has ran out of AI Image responses. Please ask your workspace owner to purchase AI Max",
     "aiImageResponseLimit": "You have run out of AI image responses.\n\nGo to Settings -> Plan -> Click AI Max to get more AI image responses",
     "purchaseStorageSpace": "Purchase Storage Space",
     "singleFileProPlanLimitationDescription": "You have exceeded the maximum file upload size allowed in the free plan. Please upgrade to the Pro Plan to upload larger files",
