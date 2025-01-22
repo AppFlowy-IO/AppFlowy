@@ -1191,6 +1191,7 @@
         "system": "Adapt to System"
       },
       "fontScaleFactor": "Font Scale Factor",
+      "displaySize": "Display Size",
       "documentSettings": {
         "cursorColor": "Document cursor color",
         "selectionColor": "Document selection color",
