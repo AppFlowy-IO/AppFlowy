@@ -13,6 +13,9 @@ const _imgUrlPattern =
     r'(https?:\/\/)([^\s(["<,>/]*)(\/)[^\s[",><]*(.png|.jpg|.jpeg|.gif|.webm|.webp|.bmp)(\?[^\s[",><]*)?';
 final imgUrlRegex = RegExp(_imgUrlPattern);
 
+const _singleLineMarkdownImagePattern = "^!\\[.*\\]\\(($_hrefPattern)\\)\$";
+final singleLineMarkdownImageRegex = RegExp(_singleLineMarkdownImagePattern);
+
 /// This pattern allows for both HTTP and HTTPS Scheme
 /// It allows for query parameters
 /// It only allows the following video extensions:
