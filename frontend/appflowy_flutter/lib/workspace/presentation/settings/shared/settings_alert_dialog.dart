@@ -1,12 +1,10 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
+import 'package:flutter/material.dart';
 
 class SettingsAlertDialog extends StatefulWidget {
   const SettingsAlertDialog({
@@ -201,18 +199,16 @@ class _Actions extends StatelessWidget {
       children: [
         if (!hideCancelButton) ...[
           SizedBox(
-            height: 24,
-            child: FlowyTextButton(
-              LocaleKeys.button_cancel.tr(),
-              padding: const EdgeInsets.symmetric(
+            height: 48,
+            child: PrimaryRoundedButton(
+              text: LocaleKeys.button_cancel.tr(),
+              margin: const EdgeInsets.symmetric(
                 horizontal: 24,
                 vertical: 12,
               ),
-              fontColor: AFThemeExtension.of(context).textColor,
-              fillColor: Colors.transparent,
-              hoverColor: Colors.transparent,
-              radius: Corners.s12Border,
-              onPressed: () {
+              fontWeight: FontWeight.w600,
+              radius: 12.0,
+              onTap: () {
                 cancel?.call();
                 Navigator.of(context).pop();
               },
