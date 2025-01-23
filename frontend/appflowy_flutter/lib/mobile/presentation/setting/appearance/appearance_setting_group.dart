@@ -19,7 +19,7 @@ class AppearanceSettingGroup extends StatelessWidget {
       settingItemList: const [
         ThemeSetting(),
         FontSetting(),
-        TextScaleSetting(),
+        DisplaySizeSetting(),
         RTLSetting(),
       ],
     );
