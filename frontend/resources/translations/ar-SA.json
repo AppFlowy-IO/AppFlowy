@@ -154,7 +154,8 @@
     "wordCountLabel": "عدد الكلمات: ",
     "charCountLabel": "عدد الأحرف: ",
     "createdAtLabel": "تم إنشاؤه: ",
-    "syncedAtLabel": "تم المزامنة: "
+    "syncedAtLabel": "تم المزامنة: ",
+    "saveAsNewPage": "حفظ الرسائل في الصفحة"
   },
   "importPanel": {
     "textAndMarkdown": "نص و Markdown",
@@ -197,6 +198,7 @@
     "clickToRetry": "انقر لإعادة المحاولة",
     "regenerateAnswer": "إعادة توليد",
     "question1": "كيفية استخدام كانبان لإدارة المهام",
+    "question2": "شرح طريقة GTD",
     "question3": "لماذا تستخدم Rust",
     "question4": "وصفة بما في مطبخي",
     "question5": "إنشاء رسم توضيحي لصفحتي",
@@ -206,6 +208,7 @@
     "indexFileSuccess": "تم فهرسة الملف بنجاح",
     "inputActionNoPages": "لا توجد نتائج للصفحة",
     "referenceSource": {
+      "zero": "تم العثور على 0 من مصادر",
       "one": "تم العثور على {count} مصدر",
       "other": "تم العثور على {count} مصادر"
     },
@@ -240,6 +243,12 @@
       "numberWithImageDescription": "@:chat.changeFormat.number مع الصورة",
       "bulletWithImageDescription": "@:chat.changeFormat.bullet مع الصورة",
       "tableWithImageDescription": "@:chat.changeFormat.table مع الصورة"
+    },
+    "selectBanner": {
+      "saveButton": "أضف إلى...",
+      "selectMessages": "حدد الرسائل",
+      "nSelected": "{} تم التحديد",
+      "allSelected": "جميعها محددة"
     }
   },
   "trash": {
@@ -730,6 +739,7 @@
       "keybindings": {
         "toggleToDoList": "التبديل إلى قائمة المهام",
         "insertNewParagraphInCodeblock": "إدراج فقرة جديدة",
+        "pasteInCodeblock": "لصق في كتلة الكود",
         "selectAllCodeblock": "حدد الكل",
         "indentLineCodeblock": "أدخل فراغين فاصلين في بداية السطر",
         "outdentLineCodeblock": "حذف فراغين فاصلين في بداية السطر",
@@ -742,6 +752,7 @@
         "alignRight": "محاذاة النص إلى اليمين",
         "undo": "التراجع",
         "redo": "الإعادة",
+        "convertToParagraph": "تحويل الكتلة إلى فقرة",
         "backspace": "الحذف",
         "deleteLeftWord": "حذف الكلمة اليسرى",
         "deleteLeftSentence": "حذف الجملة اليسرى",
@@ -797,7 +808,12 @@
         "backSpaceInTableCell": "توقف في بداية الخلية"
       },
       "commands": {
-        "codeBlockNewParagraph": "إدراج فقرة جديدة بجوار كتلة التعليمات البرمجية",
+        "codeBlockNewParagraph": "إدراج فقرة جديدة بجوار كتلة الكود",
+        "codeBlockIndentLines": "أدخل مسافتين في بداية السطر في كتلة الكود",
+        "codeBlockOutdentLines": "حذف مسافتين في بداية السطر في كتلة الكود",
+        "codeBlockAddTwoSpaces": "أدخل مسافتين في موضع المؤشر في كتلة الكود",
+        "codeBlockSelectAll": "تحديد كل المحتوى داخل كتلة الكود",
+        "codeBlockPasteText": "لصق النص في كتلة الكود",
         "textAlignLeft": "محاذاة النص إلى اليسار",
         "textAlignCenter": "محاذاة النص إلى الوسط",
         "textAlignRight": "محاذاة النص إلى اليمين"
@@ -1733,7 +1749,7 @@
     },
     "selectionMenu": {
       "outline": "الخطوط العريضة",
-      "codeBlock": "حقل الكود"
+      "codeBlock": "كتلة الكود"
     },
     "plugins": {
       "referencedBoard": "المجلس المشار إليه",
@@ -1848,7 +1864,8 @@
         "center": "مركز",
         "right": "يمين",
         "defaultColor": "تقصير",
-        "depth": "عمق"
+        "depth": "عمق",
+        "copyLinkToBlock": "نسخ الرابط إلى الكتلة"
       },
       "image": {
         "addAnImage": "أضف صورة",
@@ -2067,7 +2084,10 @@
     },
     "errorBlock": {
       "theBlockIsNotSupported": "الإصدار الحالي لا يدعم هذا الحقل.",
-      "blockContentHasBeenCopied": "تم نسخ محتوى الحقل."
+      "clickToCopyTheBlockContent": "انقر هنا لنسخ محتوى الكتلة",
+      "blockContentHasBeenCopied": "تم نسخ محتوى الحقل.",
+      "parseError": "حدث خطأ أثناء تحليل الكتلة {}.",
+      "copyBlockContent": "نسخ محتوى الكتلة"
     },
     "mobilePageSelector": {
       "title": "حدد الصفحة",
@@ -2605,9 +2625,486 @@
     "createNewSpace": "إنشاء مساحة جديدة",
     "createSpaceDescription": "إنشاء مساحات عامة وخاصة متعددة لتنظيم عملك بشكل أفضل.",
     "spaceName": "اسم المساحة",
-    "spaceNamePlaceholder": "على سبيل المثال التسويق والهندسة والموارد البشرية"
+    "spaceNamePlaceholder": "على سبيل المثال التسويق والهندسة والموارد البشرية",
+    "permission": "إذن المساحة",
+    "publicPermission": "عام",
+    "publicPermissionDescription": "جميع أعضاء مساحة العمل لديهم إمكانية الوصول الكامل",
+    "privatePermission": "خاص",
+    "privatePermissionDescription": "أنت فقط من يمكنه الوصول إلى هذه المساحة",
+    "spaceIconBackground": "لون الخلفية",
+    "spaceIcon": "أيقونة",
+    "dangerZone": "منطقة الخطر",
+    "unableToDeleteLastSpace": "غير قادر على حذف المساحة الأخيرة",
+    "unableToDeleteSpaceNotCreatedByYou": "غير قادر على حذف المساحات التي أنشأها الآخرون",
+    "enableSpacesForYourWorkspace": "تمكين المساحات لمساحة العمل الخاصة بك",
+    "title": "المساحات",
+    "defaultSpaceName": "عام",
+    "upgradeSpaceTitle": "تمكين المساحات",
+    "upgradeSpaceDescription": "قم بإنشاء مساحات عامة وخاصة متعددة لتنظيم مساحة عملك بشكل أفضل.",
+    "upgrade": "تحديث",
+    "upgradeYourSpace": "إنشاء مساحات متعددة",
+    "quicklySwitch": "انتقل بسرعة إلى المساحة التالية",
+    "duplicate": "مساحة مكررة",
+    "movePageToSpace": "نقل الصفحة إلى المساحة",
+    "cannotMovePageToDatabase": "لا يمكن نقل الصفحة إلى قاعدة البيانات",
+    "switchSpace": "تبديل المساحة",
+    "spaceNameCannotBeEmpty": "لا يمكن أن يكون اسم المساحة فارغًا",
+    "success": {
+      "deleteSpace": "تم حذف المساحة بنجاح",
+      "renameSpace": "تم إعادة تسمية المساحة بنجاح",
+      "duplicateSpace": "تم تكرار المساحة بنجاح",
+      "updateSpace": "تم تحديث المساحة بنجاح"
+    },
+    "error": {
+      "deleteSpace": "فشل في حذف المساحة",
+      "renameSpace": "فشل في إعادة تسمية المساحة",
+      "duplicateSpace": "فشل في تكرار المساحة",
+      "updateSpace": "فشل في تحديث المساحة"
+    },
+    "createSpace": "إنشاء مساحة",
+    "manageSpace": "إدارة المساحة",
+    "renameSpace": "إعادة تسمية المساحة",
+    "mSpaceIconColor": "لون أيقونة المساحة",
+    "mSpaceIcon": "أيقونة المساحة"
+  },
+  "publish": {
+    "hasNotBeenPublished": "لم يتم نشر هذه الصفحة بعد",
+    "spaceHasNotBeenPublished": "لم يتم دعم نشر المساحة بعد",
+    "reportPage": "صفحة التقرير",
+    "databaseHasNotBeenPublished": "لم يتم دعم نشر قاعدة البيانات بعد.",
+    "createdWith": "تم إنشاؤه باستخدام",
+    "downloadApp": "تنزيل AppFlowy",
+    "copy": {
+      "codeBlock": "تم نسخ محتوى كتلة الكود إلى الحافظة",
+      "imageBlock": "تم نسخ رابط الصورة إلى الحافظة",
+      "mathBlock": "تم نسخ المعادلة الرياضية إلى الحافظة",
+      "fileBlock": "تم نسخ رابط الملف إلى الحافظة"
+    },
+    "containsPublishedPage": "تحتوي هذه الصفحة على صفحة واحدة أو أكثر منشورة. إذا تابعت، فسيتم إلغاء نشرها. هل تريد متابعة الحذف؟",
+    "publishSuccessfully": "تم النشر بنجاح",
+    "unpublishSuccessfully": "تم إلغاء النشر بنجاح",
+    "publishFailed": "فشل في النشر",
+    "unpublishFailed": "فشل في إلغاء النشر",
+    "noAccessToVisit": "لا يمكن الوصول إلى هذه الصفحة...",
+    "createWithAppFlowy": "إنشاء موقع ويب مع AppFlowy",
+    "fastWithAI": "سريع وسهل مع الذكاء الاصطناعي.",
+    "tryItNow": "جربها الآن",
+    "onlyGridViewCanBePublished": "لا يمكن نشر سوى عرض الشبكة",
+    "database": {
+      "zero": "نشر {} عرض محدد",
+      "one": "نشر {} عروض محددة",
+      "many": "نشر {} عروض محددة",
+      "other": "نشر {} عروض محددة"
+    },
+    "mustSelectPrimaryDatabase": "يجب تحديد العرض الأساسي",
+    "noDatabaseSelected": "لم يتم تحديد أي قاعدة بيانات، يرجى تحديد قاعدة بيانات واحدة على الأقل.",
+    "unableToDeselectPrimaryDatabase": "غير قادر على إلغاء تحديد قاعدة البيانات الأساسية",
+    "saveThisPage": "ابدأ بهذا القالب",
+    "duplicateTitle": "أين تريد أن تضيف",
+    "selectWorkspace": "حدد مساحة العمل",
+    "addTo": "أضف إلى",
+    "duplicateSuccessfully": "تمت إضافته إلى مساحة العمل الخاصة بك",
+    "duplicateSuccessfullyDescription": "لم تقم بتثبيت AppFlowy؟ سيبدأ التنزيل تلقائيًا بعد النقر فوق \"تنزيل\".",
+    "downloadIt": "تنزيل",
+    "openApp": "افتح في التطبيق",
+    "duplicateFailed": "مكررة فشلت",
+    "membersCount": {
+      "zero": "لا يوجد أعضاء",
+      "one": "1 عضو",
+      "many": "{count} عضوا",
+      "other": "{count} عضوا"
+    },
+    "useThisTemplate": "استخدم القالب"
+  },
+  "web": {
+    "continue": "متابعة",
+    "or": "أو",
+    "continueWithGoogle": "متابعة مع جوجل",
+    "continueWithGithub": "متابعة مع GitHub",
+    "continueWithDiscord": "متابعة مع Discord",
+    "continueWithApple": "متابعة مع Apple ",
+    "moreOptions": "المزيد من الخيارات",
+    "collapse": "طي",
+    "signInAgreement": "بالنقر فوق \"متابعة\" أعلاه، فإنك توافق على شروط استخدام AppFlowy",
+    "and": "و",
+    "termOfUse": "شروط",
+    "privacyPolicy": "سياسة الخصوصية",
+    "signInError": "خطأ في تسجيل الدخول",
+    "login": "سجل أو قم بتسجيل الدخول",
+    "fileBlock": {
+      "uploadedAt": "تم الرفع في {time}",
+      "linkedAt": "تمت إضافة الرابط في {time}",
+      "empty": "رفع أو تضمين ملف",
+      "uploadFailed": "فشل الرفع، يرجى المحاولة مرة أخرى",
+      "retry": "إعادة المحاولة"
+    },
+    "importNotion": "الاستيراد من Notion",
+    "import": "الاستيراد",
+    "importSuccess": "تم الرفع بنجاح",
+    "importSuccessMessage": "سنخطرك عند اكتمال عملية الاستيراد. بعد ذلك، يمكنك عرض الصفحات المستوردة في الشريط الجانبي.",
+    "importFailed": "فشل الاستيراد، يرجى التحقق من تنسيق الملف",
+    "dropNotionFile": "قم بإسقاط ملف Notion zip الخاص بك هنا للرفع، أو انقر للاستعراض",
+    "error": {
+      "pageNameIsEmpty": "اسم الصفحة فارغ، الرجاء تجربة صفحة أخرى"
+    }
+  },
+  "globalComment": {
+    "comments": "تعليقات",
+    "addComment": "أضف تعليق",
+    "reactedBy": "تفاعل من قبل",
+    "addReaction": "إضافة تفاعل",
+    "reactedByMore": "و {count} آخرين",
+    "showSeconds": {
+      "one": "منذ ثانية واحدة",
+      "other": "منذ {count} ثانية",
+      "zero": "الآن",
+      "many": "منذ {count} ثانية"
+    },
+    "showMinutes": {
+      "one": "منذ دقيقة واحدة",
+      "other": "منذ {count} دقيقة",
+      "many": "منذ {count} دقيقة"
+    },
+    "showHours": {
+      "one": "منذ ساعة واحدة",
+      "other": "منذ {count} ساعة",
+      "many": "منذ {count} ساعة"
+    },
+    "showDays": {
+      "one": "منذ يوم واحد",
+      "other": "منذ {count} يوم",
+      "many": "منذ {count} يوم"
+    },
+    "showMonths": {
+      "one": "منذ شهر واحد",
+      "other": "منذ {count} شهر",
+      "many": "منذ {count} شهر"
+    },
+    "showYears": {
+      "one": "منذ سنة واحدة",
+      "other": "منذ {count} سنة",
+      "many": "منذ {count} سنة"
+    },
+    "reply": "رد",
+    "deleteComment": "حذف التعليق",
+    "youAreNotOwner": "أنت لست صاحب هذا التعليق",
+    "confirmDeleteDescription": "هل أنت متأكد أنك تريد حذف هذا التعليق؟",
+    "hasBeenDeleted": "تم الحذف",
+    "replyingTo": "الرد على",
+    "noAccessDeleteComment": "لا يجوز لك حذف هذا التعليق",
+    "collapse": "طي",
+    "readMore": "اقرأ المزيد",
+    "failedToAddComment": "فشل في إضافة التعليق",
+    "commentAddedSuccessfully": "تمت إضافة التعليق بنجاح.",
+    "commentAddedSuccessTip": "لقد قمت للتو بإضافة تعليق أو الرد عليه. هل ترغب في الانتقال إلى الأعلى لمشاهدة أحدث التعليقات؟"
+  },
+  "template": {
+    "asTemplate": "حفظ كقالب",
+    "name": "اسم القالب",
+    "description": "وصف القالب",
+    "about": "قالب حول",
+    "deleteFromTemplate": "حذف من القوالب",
+    "preview": "معاينة القالب",
+    "categories": "فئات القوالب",
+    "isNewTemplate": "PIN إلى قالب جديد",
+    "featured": "PIN إلى المميز",
+    "relatedTemplates": "القوالب ذات الصلة",
+    "requiredField": "{field} مطلوب",
+    "addCategory": "أضف \"{category}\"",
+    "addNewCategory": "إضافة فئة جديدة",
+    "addNewCreator": "إضافة مبدع جديد",
+    "deleteCategory": "حذف الفئة",
+    "editCategory": "تعديل الفئة",
+    "editCreator": "مبدع التعديل",
+    "category": {
+      "name": "اسم الفئة",
+      "icon": "أيقونة الفئة",
+      "bgColor": "لون خلفية الفئة",
+      "priority": "أولوية الفئة",
+      "desc": "وصف الفئة",
+      "type": "نوع الفئة",
+      "icons": "أيقونات الفئة",
+      "colors": "فئة الألوان",
+      "byUseCase": "حسب حالة الاستخدام",
+      "byFeature": "حسب الميزة",
+      "deleteCategory": "حذف الفئة",
+      "deleteCategoryDescription": "هل أنت متأكد أنك تريد حذف هذه الفئة؟",
+      "typeToSearch": "اكتب للبحث عن الفئات..."
+    },
+    "creator": {
+      "label": "مبدع القالب",
+      "name": "اسم المنشئ",
+      "avatar": "الصورة الرمزية للمبدع",
+      "accountLinks": "روابط حسابات المبدع",
+      "uploadAvatar": "انقر هنا لتحميل الصورة الرمزية",
+      "deleteCreator": "حذف المبدع",
+      "deleteCreatorDescription": "هل أنت متأكد أنك تريد حذف هذا المبدع؟",
+      "typeToSearch": "اكتب للبحث عن المبدعين..."
+    },
+    "uploadSuccess": "تم تحميل القالب بنجاح",
+    "uploadSuccessDescription": "لقد تم رفع القالب الخاص بك بنجاح. يمكنك الآن عرضه في معرض القوالب.",
+    "viewTemplate": "عرض القالب",
+    "deleteTemplate": "حذف القالب",
+    "deleteSuccess": "تم حذف القالب بنجاح",
+    "deleteTemplateDescription": "لن يؤثر هذا على الصفحة الحالية أو حالة النشر. هل أنت متأكد من أنك تريد حذف هذا القالب؟",
+    "addRelatedTemplate": "إضافة قالب ذو صلة",
+    "removeRelatedTemplate": "إزالة القالب ذو الصلة",
+    "uploadAvatar": "رفع الصورة الرمزية",
+    "searchInCategory": "البحث في {category}",
+    "label": "القوالب"
+  },
+  "fileDropzone": {
+    "dropFile": "انقر أو اسحب الملف إلى هذه المنطقة لتحميله",
+    "uploading": "جاري الرفع...",
+    "uploadFailed": "فشل الرفع",
+    "uploadSuccess": "تم الرفع بنجاح",
+    "uploadSuccessDescription": "تم رفع الملف بنجاح",
+    "uploadFailedDescription": "فشل رفع الملف",
+    "uploadingDescription": "جاري رفع الملف"
   },
   "gallery": {
-    "resetZoom": "إعادة ضبط التكبير"
+    "preview": "افتح في شاشة كاملة",
+    "copy": "نسخ",
+    "download": "تنزيل",
+    "prev": "السابق",
+    "next": "التالي",
+    "resetZoom": "إعادة ضبط التكبير",
+    "zoomIn": "التكبير ",
+    "zoomOut": "التصغير"
+  },
+  "invitation": {
+    "join": "الانضمام",
+    "on": "على",
+    "invitedBy": "بدعوة من",
+    "membersCount": {
+      "zero": "{count} عضوا",
+      "one": "{count} عضو",
+      "many": "{count} عضوا",
+      "other": "{count} عضوا"
+    },
+    "tip": "لقد تمت دعوتك للانضمام إلى مساحة العمل هذه باستخدام معلومات الاتصال أدناه. إذا كانت هذه المعلومات غير صحيحة، فاتصل بالمسؤول لإعادة إرسال الدعوة.",
+    "joinWorkspace": "انضم إلى مساحة العمل",
+    "success": "لقد انضممت بنجاح إلى مساحة العمل",
+    "successMessage": "يمكنك الآن الوصول إلى كافة الصفحات ومساحات العمل الموجودة بداخله.",
+    "openWorkspace": "افتح AppFlowy",
+    "alreadyAccepted": "لقد قبلت الدعوة بالفعل",
+    "errorModal": {
+      "title": "لقد حدث خطأ ما",
+      "description": "قد لا يكون لحسابك الحالي {email} حق الوصول إلى مساحة العمل هذه. يرجى تسجيل الدخول بالحساب الصحيح أو الاتصال بمالك مساحة العمل للحصول على المساعدة.",
+      "contactOwner": "اتصل بالمالك",
+      "close": "العودة إلى الرئيسية",
+      "changeAccount": "تغيير الحساب"
+    }
+  },
+  "requestAccess": {
+    "title": "لا يمكن الوصول إلى هذه الصفحة",
+    "subtitle": "يمكنك طلب الوصول من مالك هذه الصفحة. بمجرد الموافقة، يمكنك عرض الصفحة.",
+    "requestAccess": "طلب الوصول",
+    "backToHome": "العودة إلى الرئيسية",
+    "tip": "لقد قمت بتسجيل الدخول حاليًا باسم<link/> .",
+    "mightBe": "قد تحتاج إلى<login/> مع حساب مختلف.",
+    "successful": "تم إرسال الطلب بنجاح",
+    "successfulMessage": "سيتم إعلامك بمجرد موافقة المالك على طلبك.",
+    "requestError": "فشل في طلب الوصول",
+    "repeatRequestError": "لقد طلبت بالفعل الوصول إلى هذه الصفحة"
+  },
+  "approveAccess": {
+    "title": "الموافقة على طلب الانضمام إلى مساحة العمل",
+    "requestSummary": "<user/>طلبات الانضمام<workspace/> والوصول<page/>",
+    "upgrade": "ترقية",
+    "downloadApp": "تنزيل AppFlowy",
+    "approveButton": "موافقة",
+    "approveSuccess": "تمت الموافقة بنجاح",
+    "approveError": "فشل في الموافقة، تأكد من عدم تجاوز حد خطة مساحة العمل",
+    "getRequestInfoError": "فشل في الحصول على معلومات الطلب",
+    "memberCount": {
+      "zero": "لا يوجد أعضاء",
+      "one": "عضو واحد",
+      "many": "{count} عضوا",
+      "other": "{count} عضوا"
+    },
+    "alreadyProTitle": "لقد وصلت إلى الحد الأقصى لخطة مساحة العمل",
+    "alreadyProMessage": "اطلب منهم الاتصال<email/> لإلغاء تأمين المزيد من الأعضاء",
+    "repeatApproveError": "لقد وافقت بالفعل على هذا الطلب",
+    "ensurePlanLimit": "تأكد من عدم تجاوز حد خطة مساحة العمل. إذا تم تجاوز الحد، ففكر في<upgrade/> خطة مساحة العمل أو<download/> .",
+    "requestToJoin": "طلب الانضمام",
+    "asMember": "كعضو"
+  },
+  "upgradePlanModal": {
+    "title": "الترقية إلى الإصدار الاحترافي",
+    "message": "وصل {name} إلى الحد الأقصى للعضوية المجانية. قم بالترقية إلى الخطة الاحترافية لدعوة المزيد من الأعضاء.",
+    "upgradeSteps": "كيفية ترقية خطتك على AppFlowy:",
+    "step1": "1. انتقل إلى الإعدادات",
+    "step2": "2. انقر فوق \"الخطة\"",
+    "step3": "3. حدد \"تغيير الخطة\"",
+    "appNote": "ملحوظة: ",
+    "actionButton": "ترقية",
+    "downloadLink": "تنزيل التطبيق",
+    "laterButton": "لاحقاً",
+    "refreshNote": "بعد الترقية الناجحة، انقر فوق<refresh/> لتفعيل ميزاتك الجديدة.",
+    "refresh": "هنا"
+  },
+  "breadcrumbs": {
+    "label": "مسارات التنقل"
+  },
+  "time": {
+    "justNow": "الآن",
+    "seconds": {
+      "one": "ثانية واحدة",
+      "other": "{count} من الثواني"
+    },
+    "minutes": {
+      "one": "دقيقة واحدة",
+      "other": "{count} من الدقائق"
+    },
+    "hours": {
+      "one": "ساعة واحدة",
+      "other": "{count} من الساعات"
+    },
+    "days": {
+      "one": "يوم واحد",
+      "other": "{count} من الأيام"
+    },
+    "weeks": {
+      "one": "اسبوع واحد",
+      "other": "{count} من الأسابيع"
+    },
+    "months": {
+      "one": "شهر واحد",
+      "other": "{count} من الاشهر"
+    },
+    "years": {
+      "one": "سنة واحدة",
+      "other": "{count} من السنوات"
+    },
+    "ago": "منذ",
+    "yesterday": "أمس",
+    "today": "اليوم"
+  },
+  "members": {
+    "zero": "لا يوجد أعضاء",
+    "one": "عضو واحد",
+    "many": "{count} من الأعضاء",
+    "other": "{count} من الأعضاء"
+  },
+  "tabMenu": {
+    "close": "إغلاق",
+    "closeDisabledHint": "لا يمكن إغلاق علامة تبويب مثبتة، يرجى إلغاء التثبيت أولاً",
+    "closeOthers": "إغلاق علامات التبويب الأخرى",
+    "closeOthersHint": "سيؤدي هذا إلى إغلاق جميع علامات التبويب غير المثبتة باستثناء هذه العلامة",
+    "closeOthersDisabledHint": "تم تثبيت جميع علامات التبويب، ولا يمكن العثور على أي علامات تبويب لإغلاقها",
+    "favorite": "مفضل",
+    "unfavorite": "غير مفضل",
+    "favoriteDisabledHint": "لا يمكن إضافة هذا العرض إلى المفضلة",
+    "pinTab": "تثبيت",
+    "unpinTab": "إزالة التثبيت"
+  },
+  "openFileMessage": {
+    "success": "تم فتح الملف بنجاح",
+    "fileNotFound": "لم يتم العثور على الملف",
+    "noAppToOpenFile": "لا يوجد تطبيق لفتح هذا الملف",
+    "permissionDenied": "لا يوجد إذن لفتح هذا الملف",
+    "unknownError": "فشل فتح الملف"
+  },
+  "inviteMember": {
+    "requestInviteMembers": "دعوة إلى مكان مساحة عملك",
+    "inviteFailedMemberLimit": "لقد تم الوصول إلى الحد الأقصى للأعضاء، يرجى ",
+    "upgrade": "ترقية",
+    "addEmail": "email@example.com، email2@example.com...",
+    "requestInvites": "إرسال الدعوات",
+    "inviteAlready": "لقد قمت بالفعل بدعوة هذا البريد الإلكتروني: {email}",
+    "inviteSuccess": "تم إرسال الدعوة بنجاح",
+    "description": "أدخل رسائل البريد الإلكتروني أدناه مع وضع فاصلة بينها. تعتمد الرسوم على عدد الأعضاء.",
+    "emails": "بريد إلكتروني"
+  },
+  "quickNote": {
+    "label": "ملاحظة سريعة",
+    "quickNotes": "ملاحظات سريعة",
+    "search": "بحث ملاحظات سريعة",
+    "collapseFullView": "طي العرض الكامل",
+    "expandFullView": "توسيع العرض الكامل",
+    "createFailed": "فشل في إنشاء ملاحظة سريعة",
+    "quickNotesEmpty": "لا توجد ملاحظات سريعة",
+    "emptyNote": "ملاحظة فارغة",
+    "deleteNotePrompt": "سيتم حذف الملاحظة المحددة بشكل دائم. هل أنت متأكد من أنك تريد حذفها؟",
+    "addNote": "ملاحظة جديدة",
+    "noAdditionalText": "لا يوجد نص إضافي"
+  },
+  "subscribe": {
+    "upgradePlanTitle": "قارن واختر الخطة",
+    "yearly": "سنوي",
+    "save": "وفر {discount}%",
+    "monthly": "شهريا",
+    "priceIn": "السعر في ",
+    "free": "مجاني",
+    "pro": "احترافي",
+    "freeDescription": "للأفراد حتى عضوين لتنظيم كل شيء",
+    "proDescription": "للفرق الصغيرة لإدارة المشاريع ومعرفة الفريق",
+    "proDuration": {
+      "monthly": "لكل عضو شهريا\nيتم دفع الفاتورة شهريا",
+      "yearly": "لكل عضو شهريا\nيتم دفعها سنويا"
+    },
+    "cancel": "يرجع إلى إصدار أقدم",
+    "changePlan": "الترقية إلى الخطة الاحترافية",
+    "everythingInFree": "كل شيء مجاني +",
+    "currentPlan": "الحالي",
+    "freeDuration": "للأبد",
+    "freePoints": {
+      "first": "مساحة عمل تعاونية واحدة تتسع لعضوين كحد أقصى",
+      "second": "صفحات وكتل غير محدودة",
+      "three": "سعة تخزين 5 جيجا بايت",
+      "four": "البحث الذكي",
+      "five": "20 استجابة الذكاء الاصطناعي",
+      "six": "تطبيق الجوال",
+      "seven": "التعاون في الوقت الحقيقي"
+    },
+    "proPoints": {
+      "first": "تخزين غير محدود",
+      "second": "ما يصل إلى 10 أعضاء في مساحة العمل",
+      "three": "استجابات الذكاء الاصطناعي غير المحدودة",
+      "four": "رفع ملفات غير محدودة",
+      "five": "مساحة اسم مخصصة"
+    },
+    "cancelPlan": {
+      "title": "نأسف على مغادرتك",
+      "success": "لقد تم إلغاء اشتراكك بنجاح",
+      "description": "يؤسفنا رحيلك. يسعدنا سماع تعليقاتك لمساعدتنا على تحسين AppFlowy. يُرجى تخصيص بعض الوقت للإجابة على بعض الأسئلة.",
+      "commonOther": "آخر",
+      "otherHint": "اكتب إجابتك هنا",
+      "questionOne": {
+        "question": "ما الذي دفعك إلى إلغاء اشتراكك في AppFlowy Pro؟",
+        "answerOne": "التكلفة مرتفعة للغاية",
+        "answerTwo": "الميزات لم ترق إلى مستوى التوقعات",
+        "answerThree": "وجدت بديلا أفضل",
+        "answerFour": "لم أستخدمه بشكل كافي لتبرير التكلفة",
+        "answerFive": "مشكلة في الخدمة أو صعوبات فنية"
+      },
+      "questionTwo": {
+        "question": "ما مدى احتمالية تفكيرك في إعادة الاشتراك في AppFlowy Pro في المستقبل؟",
+        "answerOne": "من المرجح جدًا",
+        "answerTwo": "من المحتمل إلى حد ما",
+        "answerThree": "غير متأكد",
+        "answerFour": "من غير المحتمل",
+        "answerFive": "من غير المحتمل جدًا"
+      },
+      "questionThree": {
+        "question": "ما هي الميزة الاحترافية التي تقدرها أكثر أثناء اشتراكك؟",
+        "answerOne": "التعاون بين المستخدمين المتعددين",
+        "answerTwo": "سجل تاريخ الإصدارات لفترة أطول",
+        "answerThree": "استجابات الذكاء الاصطناعي غير المحدودة",
+        "answerFour": "الوصول إلى نماذج الذكاء الاصطناعي المحلية"
+      },
+      "questionFour": {
+        "question": "كيف تصف تجربتك الشاملة مع AppFlowy؟",
+        "answerOne": "عظيمة",
+        "answerTwo": "جيدة",
+        "answerThree": "متوسطة",
+        "answerFour": "أقل من المتوسط",
+        "answerFive": "غير راضٍ"
+      }
+    }
+  },
+  "ai": {
+    "contentPolicyViolation": "فشل إنشاء الصورة بسبب محتوى حساس. يرجى إعادة صياغة إدخالك والمحاولة مرة أخرى"
   }
 }
