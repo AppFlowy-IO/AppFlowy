@@ -15,6 +15,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/style_widget/primary_rounded_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -96,19 +97,31 @@ class _IconUploaderState extends State<IconUploader> {
         color: Theme.of(context).hintColor,
       );
 
-  Widget previewImage() => Image.file(
-        File(pickedImages.first),
+  Widget previewImage() {
+    final url = pickedImages.first;
+    if (url.endsWith(_svgSuffix)) {
+      return SvgPicture.file(
+        File(url),
         width: 200,
         height: 200,
-        fit: BoxFit.cover,
       );
+    }
+    return Image.file(
+      File(url),
+      width: 200,
+      height: 200,
+      fit: BoxFit.cover,
+    );
+  }
 
   void loadImage(List<XFile> files) {
     final imageFiles = files
         .where(
           (file) =>
               file.mimeType?.startsWith('image/') ??
-              false || imgExtensionRegex.hasMatch(file.name),
+              false ||
+                  imgExtensionRegex.hasMatch(file.name) ||
+                  file.name.endsWith(_svgSuffix),
         )
         .toList();
     if (imageFiles.isEmpty) return;
@@ -126,7 +139,7 @@ class _IconUploaderState extends State<IconUploader> {
       final result = await getIt<FilePickerService>().pickFiles(
         dialogTitle: '',
         type: FileType.custom,
-        allowedExtensions: defaultImageExtensions,
+        allowedExtensions: List.of(defaultImageExtensions)..add('svg'),
       );
       loadImage(result?.files.map((f) => f.xFile).toList() ?? const []);
     } else {
@@ -192,3 +205,5 @@ class _ConfirmButton extends StatelessWidget {
     );
   }
 }
+
+const _svgSuffix = '.svg';

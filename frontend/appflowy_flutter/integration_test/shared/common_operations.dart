@@ -50,6 +50,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import 'emoji.dart';
@@ -934,6 +936,24 @@ extension CommonOperations on WidgetTester {
         builtInSpaceColors.first,
       ),
     );
+  }
+
+  Future<EmojiIconData> prepareImageIcon() async {
+    final imagePath = await rootBundle.load('assets/test/images/sample.jpeg');
+    final tempDirectory = await getTemporaryDirectory();
+    final localImagePath = p.join(tempDirectory.path, 'sample.jpeg');
+    final imageFile = File(localImagePath)
+      ..writeAsBytesSync(imagePath.buffer.asUint8List());
+    return EmojiIconData.custom(imageFile.path);
+  }
+
+  Future<EmojiIconData> prepareSvgIcon() async {
+    final imagePath = await rootBundle.load('assets/test/images/sample.svg');
+    final tempDirectory = await getTemporaryDirectory();
+    final localImagePath = p.join(tempDirectory.path, 'sample.svg');
+    final imageFile = File(localImagePath)
+      ..writeAsBytesSync(imagePath.buffer.asUint8List());
+    return EmojiIconData.custom(imageFile.path);
   }
 }
 
