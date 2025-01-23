@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/paste_from_plain_text.dart';
 import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/default_extensions.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -247,7 +248,8 @@ Future<bool> _isImageUrl(String text) async {
   if (response.statusCode == 200) {
     final contentType = response.headers['content-type'];
     if (contentType != null) {
-      return contentType.startsWith('image/');
+      return contentType.startsWith('image/') &&
+          defaultImageExtensions.any(contentType.contains);
     }
   }
 

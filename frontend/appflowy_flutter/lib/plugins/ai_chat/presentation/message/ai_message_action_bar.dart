@@ -165,13 +165,14 @@ class CopyButton extends StatelessWidget {
           size: const Size.square(16),
         ),
         onPressed: () async {
+          final messageText = textMessage.text.trim();
           final document = customMarkdownToDocument(
-            textMessage.text,
+            messageText,
             tableWidth: 250.0,
           );
           await getIt<ClipboardService>().setData(
             ClipboardServiceData(
-              plainText: _getTrimmedPlainText(textMessage.text),
+              plainText: _stripMarkdownIfNecessary(messageText),
               inAppJson: jsonEncode(document.toJson()),
             ),
           );
@@ -186,9 +187,10 @@ class CopyButton extends StatelessWidget {
     );
   }
 
-  String _getTrimmedPlainText(String plainText) {
+  String _stripMarkdownIfNecessary(String plainText) {
     // match and capture inner url as group
     final matches = singleLineMarkdownImageRegex.allMatches(plainText);
+
     if (matches.length != 1) {
       return plainText;
     }
