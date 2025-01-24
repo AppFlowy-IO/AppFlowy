@@ -5,6 +5,8 @@ import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
+import 'custom_image_cache_manager.dart';
+
 class FlowyNetworkSvg extends StatefulWidget {
   FlowyNetworkSvg(
     this.url, {
@@ -26,7 +28,7 @@ class FlowyNetworkSvg extends StatefulWidget {
     this.colorFilter,
     this.placeholderBuilder,
     BaseCacheManager? cacheManager,
-  })  : cacheManager = cacheManager ?? DefaultCacheManager(),
+  })  : cacheManager = cacheManager ?? CustomImageCacheManager(),
         super(key: key ?? ValueKey(url));
 
   final String url;
