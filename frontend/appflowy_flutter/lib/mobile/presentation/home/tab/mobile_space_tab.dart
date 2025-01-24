@@ -73,7 +73,14 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
             listener: (context, state) {
               final lastCreatedPage = state.lastCreatedPage;
               if (lastCreatedPage != null) {
-                context.pushView(lastCreatedPage);
+                context.pushView(
+                  lastCreatedPage,
+                  tabs: [
+                    PickerTabType.emoji,
+                    PickerTabType.icon,
+                    PickerTabType.custom,
+                  ].map((e) => e.name).toList(),
+                );
               }
             },
           ),

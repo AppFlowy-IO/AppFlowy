@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/document_cover_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
+import 'package:appflowy/shared/appflowy_network_svg.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
@@ -252,16 +253,19 @@ extension Expectation on WidgetTester {
       );
       expect(icon, findsOneWidget);
     } else if (type == FlowyIconType.custom) {
+      final isSvg = data.emoji.endsWith('.svg');
       if (isURL(data.emoji)) {
         final image = find.descendant(
           of: pageName,
-          matching: find.byType(FlowyNetworkImage),
+          matching: isSvg
+              ? find.byType(FlowyNetworkSvg)
+              : find.byType(FlowyNetworkImage),
         );
         expect(image, findsOneWidget);
       } else {
         final image = find.descendant(
           of: pageName,
-          matching: find.byType(Image),
+          matching: isSvg ? find.byType(SvgPicture) : find.byType(Image),
         );
         expect(image, findsOneWidget);
       }
@@ -290,16 +294,26 @@ extension Expectation on WidgetTester {
       );
       expect(icon, findsOneWidget);
     } else if (type == FlowyIconType.custom) {
+      final isSvg = data.emoji.endsWith('.svg');
       if (isURL(data.emoji)) {
         final image = find.descendant(
           of: find.byType(ViewTitleBar),
-          matching: find.byType(FlowyNetworkImage),
+          matching: isSvg
+              ? find.byType(FlowyNetworkSvg)
+              : find.byType(FlowyNetworkImage),
         );
         expect(image, findsOneWidget);
       } else {
         final image = find.descendant(
           of: find.byType(ViewTitleBar),
-          matching: find.byType(Image),
+          matching: isSvg
+              ? find.byWidgetPredicate((w) {
+                  if (w is! SvgPicture) return false;
+                  final loader = w.bytesLoader;
+                  if (loader is! SvgFileLoader) return false;
+                  return loader.file.path.endsWith('.svg');
+                })
+              : find.byType(Image),
         );
         expect(image, findsOneWidget);
       }
