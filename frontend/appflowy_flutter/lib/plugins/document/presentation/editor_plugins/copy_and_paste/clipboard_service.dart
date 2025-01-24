@@ -129,9 +129,14 @@ class ClipboardService {
     }
 
     final plainText = await reader.readValue(Formats.plainText);
-    final html = await reader.readValue(Formats.htmlText);
+    var html = await reader.readValue(Formats.htmlText);
     final inAppJson = await reader.readValue(inAppJsonFormat);
     final tableJson = await reader.readValue(tableJsonFormat);
+    final uri = await reader.readValue(Formats.uri);
+    if (uri != null && html == null) {
+      html = '<span><a href="${uri.uri.toString()}">${uri.name ?? uri.uri.toString()}</a></span>';
+      Log.info('link converted to html: $html');
+    }
     (String, Uint8List?)? image;
     if (reader.canProvide(Formats.png)) {
       image = ('png', await reader.readFile(Formats.png));
