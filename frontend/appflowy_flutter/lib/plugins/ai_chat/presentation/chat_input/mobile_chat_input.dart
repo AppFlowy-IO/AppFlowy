@@ -138,16 +138,18 @@ class _MobileChatInputState extends State<MobileChatInput> {
                 else
                   const VSpace(8.0),
                 inputTextField(context),
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Row(
-                    children: [
-                      const HSpace(8.0),
-                      leadingButtons(context),
-                      const Spacer(),
-                      sendButton(),
-                      const HSpace(12.0),
-                    ],
+                TextFieldTapRegion(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      children: [
+                        const HSpace(8.0),
+                        leadingButtons(context),
+                        const Spacer(),
+                        sendButton(),
+                        const HSpace(12.0),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -281,6 +283,7 @@ class _MobileChatInputState extends State<MobileChatInput> {
                   fontWeight: FontWeight.w600,
                 ),
           ),
+          onTapOutside: (_) => focusNode.unfocus(),
         );
       },
     );
