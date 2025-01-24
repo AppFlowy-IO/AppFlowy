@@ -15,7 +15,6 @@ class FlowyText extends StatelessWidget {
   final TextDecoration? decoration;
   final Color? decorationColor;
   final double? decorationThickness;
-  final bool selectable;
   final String? fontFamily;
   final List<String>? fallbackFontFamily;
   final bool withTooltip;
@@ -41,7 +40,6 @@ class FlowyText extends StatelessWidget {
     this.maxLines = 1,
     this.decoration,
     this.decorationColor,
-    this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
     // // https://api.flutter.dev/flutter/painting/TextStyle/height.html
@@ -63,7 +61,6 @@ class FlowyText extends StatelessWidget {
     this.maxLines = 1,
     this.decoration,
     this.decorationColor,
-    this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
     this.lineHeight,
@@ -86,7 +83,6 @@ class FlowyText extends StatelessWidget {
     this.maxLines = 1,
     this.decoration,
     this.decorationColor,
-    this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
     this.lineHeight,
@@ -108,7 +104,6 @@ class FlowyText extends StatelessWidget {
     this.maxLines = 1,
     this.decoration,
     this.decorationColor,
-    this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
     this.lineHeight,
@@ -130,7 +125,6 @@ class FlowyText extends StatelessWidget {
     this.maxLines = 1,
     this.decoration,
     this.decorationColor,
-    this.selectable = false,
     this.fontFamily,
     this.fallbackFontFamily,
     this.lineHeight,
@@ -153,7 +147,6 @@ class FlowyText extends StatelessWidget {
     this.maxLines = 1,
     this.decoration,
     this.decorationColor,
-    this.selectable = false,
     this.lineHeight,
     this.withTooltip = false,
     this.strutStyle = const StrutStyle(forceStrutHeight: true),
@@ -211,32 +204,21 @@ class FlowyText extends StatelessWidget {
               : null,
         );
 
-    if (selectable) {
-      child = IntrinsicHeight(
-        child: SelectableText(
-          text,
-          maxLines: maxLines,
-          textAlign: textAlign,
-          style: textStyle,
-        ),
-      );
-    } else {
-      child = Text(
-        text,
-        maxLines: maxLines,
-        textAlign: textAlign,
-        overflow: overflow ?? TextOverflow.clip,
-        style: textStyle,
-        strutStyle: !isEmoji || (isEmoji && optimizeEmojiAlign)
-            ? StrutStyle.fromTextStyle(
-                textStyle,
-                forceStrutHeight: true,
-                leadingDistribution: TextLeadingDistribution.even,
-                height: lineHeight,
-              )
-            : null,
-      );
-    }
+    child = Text(
+      text,
+      maxLines: maxLines,
+      textAlign: textAlign,
+      overflow: overflow ?? TextOverflow.clip,
+      style: textStyle,
+      strutStyle: !isEmoji || (isEmoji && optimizeEmojiAlign)
+          ? StrutStyle.fromTextStyle(
+              textStyle,
+              forceStrutHeight: true,
+              leadingDistribution: TextLeadingDistribution.even,
+              height: lineHeight,
+            )
+          : null,
+    );
 
     if (withTooltip) {
       child = FlowyTooltip(
