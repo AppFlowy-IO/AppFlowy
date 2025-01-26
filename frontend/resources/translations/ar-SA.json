@@ -2190,11 +2190,11 @@
       "layoutDateField": "تقويم التخطيط بواسطة",
       "changeLayoutDateField": "تغيير حقل التخطيط",
       "noDateTitle": "بدون تاريخ",
-      "noDateHint": "ستظهر الأحداث غير المجدولة هنا",
       "unscheduledEventsTitle": "الأحداث غير المجدولة",
       "clickToAdd": "انقر للإضافة إلى التقويم",
       "name": "تخطيط التقويم",
-      "clickToOpen": "انقر لفتح السجل"
+      "clickToOpen": "انقر لفتح السجل",
+      "noDateHint": "ستظهر الأحداث غير المجدولة هنا"
     },
     "referencedCalendarPrefix": "نظرا ل",
     "quickJumpYear": "انتقل إلى",
