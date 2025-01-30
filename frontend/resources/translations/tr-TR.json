@@ -1111,7 +1111,7 @@
       "changeServerTip": "Sunucuyu değiştirdikten sonra, değişikliklerin etkili olması için yeniden başlat düğmesine tıklamalısınız",
       "enableEncryptPrompt": "Verilerinizi bu anahtar ile güvence altına almak için şifrelemeyi etkinleştirin. Güvenli bir şekilde saklayın; etkinleştirildikten sonra kapatılamaz. Kaybedilirse, verileriniz kurtarılamaz hale gelir. Kopyalamak için tıklayın",
       "inputEncryptPrompt": "Lütfen şifreleme anahtarlarını girin",
-      "clickToCopySecret": "anahtarı kopyalamak için tıklayın",
+      "clickToCopySecret": "Anahtarı kopyalamak için tıklayın",
       "configServerSetting": "Sunucu ayarlarınızı yapılandırın",
       "configServerGuide": "'Hızlı Başlangıç'ı seçtikten sonra, 'Ayarlar'a ve ardından \"Bulut Ayarları\"na giderek kendi kendine barındırılan sunucunuzu yapılandırın.",
       "inputTextFieldHint": "Anahtarınız",
