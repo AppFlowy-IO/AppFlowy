@@ -1,4 +1,3 @@
-use std::str::FromStr;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
@@ -7,7 +6,6 @@ use crate::af_cloud::define::ServerUser;
 use anyhow::Error;
 use arc_swap::ArcSwap;
 use client_api::collab_sync::ServerCollabMessage;
-use client_api::entity::ai_dto::AIModel;
 use client_api::entity::UserMessage;
 use client_api::notify::{TokenState, TokenStateReceiver};
 use client_api::ws::{
@@ -124,7 +122,7 @@ impl AppFlowyServer for AppFlowyCloudServer {
   }
 
   fn set_ai_model(&self, ai_model: &str) -> Result<(), Error> {
-    self.client.set_ai_model(AIModel::from_str(ai_model)?);
+    self.client.set_ai_model(ai_model.to_string());
     Ok(())
   }
 
