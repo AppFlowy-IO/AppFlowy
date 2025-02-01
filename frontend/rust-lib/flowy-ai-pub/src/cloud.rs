@@ -1,7 +1,7 @@
 use bytes::Bytes;
 pub use client_api::entity::ai_dto::{
   AppFlowyOfflineAI, CompleteTextParams, CompletionMetadata, CompletionType, CreateChatContext,
-  LLMModel, LocalAIConfig, ModelInfo, OutputContent, OutputLayout, RelatedQuestion,
+  LLMModel, LocalAIConfig, ModelInfo, ModelList, OutputContent, OutputLayout, RelatedQuestion,
   RepeatedRelatedQuestion, ResponseFormat, StringOrMessage,
 };
 pub use client_api::entity::billing_dto::SubscriptionPlan;
@@ -119,4 +119,6 @@ pub trait ChatCloudService: Send + Sync + 'static {
     chat_id: &str,
     params: UpdateChatParams,
   ) -> Result<(), FlowyError>;
+
+  async fn get_available_models(&self, workspace_id: &str) -> Result<ModelList, FlowyError>;
 }

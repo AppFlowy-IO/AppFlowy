@@ -1,13 +1,11 @@
-use std::convert::TryInto;
-use std::str::FromStr;
-
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_user_pub::entities::*;
 use lib_infra::validator_fn::required_not_empty_str;
+use std::convert::TryInto;
 use validator::Validate;
 
 use crate::entities::parser::{UserEmail, UserIcon, UserName, UserOpenaiKey, UserPassword};
-use crate::entities::{AIModelPB, AuthenticatorPB};
+use crate::entities::AuthenticatorPB;
 use crate::errors::ErrorCode;
 
 use super::parser::UserStabilityAIKey;
@@ -58,7 +56,7 @@ pub struct UserProfilePB {
   pub stability_ai_key: String,
 
   #[pb(index = 11)]
-  pub ai_model: AIModelPB,
+  pub ai_model: String,
 }
 
 #[derive(ProtoBuf_Enum, Eq, PartialEq, Debug, Clone)]
@@ -79,6 +77,10 @@ impl From<UserProfile> for UserProfilePB {
       EncryptionType::NoEncryption => ("".to_string(), EncryptionTypePB::NoEncryption),
       EncryptionType::SelfEncryption(sign) => (sign, EncryptionTypePB::Symmetric),
     };
+    let mut ai_model = user_profile.ai_model;
+    if ai_model.is_empty() {
+      ai_model = "Default".to_string();
+    }
     Self {
       id: user_profile.uid,
       email: user_profile.email,
@@ -90,7 +92,7 @@ impl From<UserProfile> for UserProfilePB {
       encryption_sign,
       encryption_type: encryption_ty,
       stability_ai_key: user_profile.stability_ai_key,
-      ai_model: AIModelPB::from_str(&user_profile.ai_model).unwrap_or_default(),
+      ai_model,
     }
   }
 }

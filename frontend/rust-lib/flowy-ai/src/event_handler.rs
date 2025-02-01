@@ -108,6 +108,15 @@ pub(crate) async fn regenerate_response_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_available_model_list_handler(
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> DataResult<ModelConfigPB, FlowyError> {
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let models = serde_json::to_string(&ai_manager.get_available_models().await?)?;
+  data_result_ok(ModelConfigPB { models })
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn load_prev_message_handler(
   data: AFPluginData<LoadPrevChatMessagePB>,
   ai_manager: AFPluginState<Weak<AIManager>>,
