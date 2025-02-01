@@ -382,14 +382,14 @@ pub struct UseAISettingPB {
   pub disable_search_indexing: bool,
 
   #[pb(index = 2)]
-  pub ai_model: AIModelPB,
+  pub ai_model: String,
 }
 
 impl From<AFWorkspaceSettings> for UseAISettingPB {
   fn from(value: AFWorkspaceSettings) -> Self {
     Self {
       disable_search_indexing: value.disable_search_indexing,
-      ai_model: AIModelPB::from_str(&value.ai_model).unwrap_or_default(),
+      ai_model: value.ai_model,
     }
   }
 }
@@ -404,7 +404,7 @@ pub struct UpdateUserWorkspaceSettingPB {
   pub disable_search_indexing: Option<bool>,
 
   #[pb(index = 3, one_of)]
-  pub ai_model: Option<AIModelPB>,
+  pub ai_model: Option<String>,
 }
 
 impl From<UpdateUserWorkspaceSettingPB> for AFWorkspaceSettingsChange {
@@ -414,7 +414,7 @@ impl From<UpdateUserWorkspaceSettingPB> for AFWorkspaceSettingsChange {
       change = change.disable_search_indexing(disable_search_indexing);
     }
     if let Some(ai_model) = value.ai_model {
-      change = change.ai_model(ai_model.to_str().to_string());
+      change = change.ai_model(ai_model);
     }
     change
   }

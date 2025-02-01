@@ -10,7 +10,7 @@ use std::collections::HashMap;
 
 use appflowy_plugin::manager::PluginManager;
 use dashmap::DashMap;
-use flowy_ai_pub::cloud::{ChatCloudService, ChatSettings, UpdateChatParams};
+use flowy_ai_pub::cloud::{ChatCloudService, ChatSettings, ModelList, UpdateChatParams};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
@@ -239,6 +239,15 @@ impl AIManager {
       .stream_regenerate_response(question_message_id, answer_stream_port, format)
       .await?;
     Ok(())
+  }
+
+  pub async fn get_available_models(&self) -> FlowyResult<ModelList> {
+    let workspace_id = self.user_service.workspace_id()?;
+    let list = self
+      .cloud_service_wm
+      .get_available_models(&workspace_id)
+      .await?;
+    Ok(list)
   }
 
   pub async fn get_or_create_chat_instance(&self, chat_id: &str) -> Result<Arc<Chat>, FlowyError> {
