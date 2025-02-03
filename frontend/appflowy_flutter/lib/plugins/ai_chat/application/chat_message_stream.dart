@@ -28,6 +28,14 @@ class AnswerStream {
         } else if (event == "AI_IMAGE_RESPONSE_LIMIT") {
           _aiImageLimitReached = true;
           _onAIImageResponseLimit?.call();
+        } else if (event.startsWith("AI_MAX_REQUIRED:")) {
+          final msg = event.substring(16);
+          // If the callback is not registered yet, add the event to the buffer.
+          if (_onAIMaxRequired != null) {
+            _onAIMaxRequired!(msg);
+          } else {
+            _pendingAIMaxRequiredEvents.add(msg);
+          }
         }
       },
       onDone: () {
@@ -56,7 +64,11 @@ class AnswerStream {
   void Function(String error)? _onError;
   void Function()? _onAIResponseLimit;
   void Function()? _onAIImageResponseLimit;
+  void Function(String message)? _onAIMaxRequired;
   void Function(MetadataCollection metadataCollection)? _onMetadata;
+
+  // Buffer for events that occur before listen() is called.
+  final List<String> _pendingAIMaxRequiredEvents = [];
 
   int get nativePort => _port.sendPort.nativePort;
   bool get hasStarted => _hasStarted;
@@ -78,6 +90,7 @@ class AnswerStream {
     void Function(String error)? onError,
     void Function()? onAIResponseLimit,
     void Function()? onAIImageResponseLimit,
+    void Function(String message)? onAIMaxRequired,
     void Function(MetadataCollection metadata)? onMetadata,
   }) {
     _onData = onData;
@@ -87,6 +100,15 @@ class AnswerStream {
     _onAIResponseLimit = onAIResponseLimit;
     _onAIImageResponseLimit = onAIImageResponseLimit;
     _onMetadata = onMetadata;
+    _onAIMaxRequired = onAIMaxRequired;
+
+    // Flush any buffered AI_MAX_REQUIRED events.
+    if (_onAIMaxRequired != null && _pendingAIMaxRequiredEvents.isNotEmpty) {
+      for (final msg in _pendingAIMaxRequiredEvents) {
+        _onAIMaxRequired!(msg);
+      }
+      _pendingAIMaxRequiredEvents.clear();
+    }
 
     _onStart?.call();
   }

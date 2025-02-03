@@ -22,6 +22,7 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
         _userService = UserBackendService(userId: userProfile.id),
         super(
           SettingsAIState(
+            selectedAIModel: userProfile.aiModel,
             userProfile: userProfile,
             currentWorkspaceMemberRole: currentWorkspaceMemberRole,
           ),
@@ -98,7 +99,25 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
           Log.info("Available models: $decodedJson");
           if (decodedJson is Map<String, dynamic>) {
             final models = ModelList.fromJson(decodedJson).models;
-            emit(state.copyWith(availableModels: models));
+            if (models.isEmpty) {
+              // If available models is empty, then we just show the
+              // Default
+              emit(state.copyWith(availableModels: ["Default"]));
+              return;
+            }
+
+            if (!models.contains(state.selectedAIModel)) {
+              // Use first model as default model if current selected model
+              // is not available
+              emit(
+                state.copyWith(
+                  availableModels: models,
+                  selectedAIModel: models[0],
+                ),
+              );
+            } else {
+              emit(state.copyWith(availableModels: models));
+            }
           }
         },
         refreshMember: (member) {
@@ -185,8 +204,9 @@ class SettingsAIState with _$SettingsAIState {
   const factory SettingsAIState({
     required UserProfilePB userProfile,
     UseAISettingPB? aiSettings,
+    @Default("Default") String selectedAIModel,
     AFRolePB? currentWorkspaceMemberRole,
-    @Default(["default"]) List<String> availableModels,
+    @Default(["Default"]) List<String> availableModels,
     @Default(true) bool enableSearchIndexing,
   }) = _SettingsAIState;
 }
