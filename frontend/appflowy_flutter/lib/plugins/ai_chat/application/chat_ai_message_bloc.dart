@@ -98,6 +98,20 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
               ),
             );
           },
+          onAIImageResponseLimit: () {
+            emit(
+              state.copyWith(
+                messageState: const MessageState.onAIImageResponseLimit(),
+              ),
+            );
+          },
+          onAIMaxRequired: (message) {
+            emit(
+              state.copyWith(
+                messageState: MessageState.onAIMaxRequired(message),
+              ),
+            );
+          },
           receiveMetadata: (metadata) {
             Log.debug("AI Steps: ${metadata.progress?.step}");
             emit(
@@ -129,9 +143,20 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
           add(const ChatAIMessageEvent.onAIResponseLimit());
         }
       },
+      onAIImageResponseLimit: () {
+        if (!isClosed) {
+          add(const ChatAIMessageEvent.onAIImageResponseLimit());
+        }
+      },
       onMetadata: (metadata) {
         if (!isClosed) {
           add(ChatAIMessageEvent.receiveMetadata(metadata));
+        }
+      },
+      onAIMaxRequired: (message) {
+        if (!isClosed) {
+          Log.info(message);
+          add(ChatAIMessageEvent.onAIMaxRequired(message));
         }
       },
     );
@@ -145,6 +170,10 @@ class ChatAIMessageEvent with _$ChatAIMessageEvent {
   const factory ChatAIMessageEvent.retry() = _Retry;
   const factory ChatAIMessageEvent.retryResult(String text) = _RetryResult;
   const factory ChatAIMessageEvent.onAIResponseLimit() = _OnAIResponseLimit;
+  const factory ChatAIMessageEvent.onAIImageResponseLimit() =
+      _OnAIImageResponseLimit;
+  const factory ChatAIMessageEvent.onAIMaxRequired(String message) =
+      _OnAIMaxRquired;
   const factory ChatAIMessageEvent.receiveMetadata(
     MetadataCollection metadata,
   ) = _ReceiveMetadata;
@@ -178,6 +207,8 @@ class ChatAIMessageState with _$ChatAIMessageState {
 class MessageState with _$MessageState {
   const factory MessageState.onError(String error) = _Error;
   const factory MessageState.onAIResponseLimit() = _AIResponseLimit;
+  const factory MessageState.onAIImageResponseLimit() = _AIImageResponseLimit;
+  const factory MessageState.onAIMaxRequired(String message) = _AIMaxRequired;
   const factory MessageState.ready() = _Ready;
   const factory MessageState.loading() = _Loading;
 }

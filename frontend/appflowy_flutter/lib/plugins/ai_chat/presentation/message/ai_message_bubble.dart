@@ -500,7 +500,7 @@ class ChatSelectMessageIndicator extends StatelessWidget {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: SizedBox.square(
-        dimension: DesktopAIChatSizes.avatarSize,
+        dimension: 30.0,
         child: Center(
           child: FlowySvg(
             isSelected ? FlowySvgs.check_filled_s : FlowySvgs.uncheck_s,

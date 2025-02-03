@@ -4,8 +4,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/ai/settings_ai_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/af_dropdown_menu_entry.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_dropdown.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,18 +28,18 @@ class AIModelSelection extends StatelessWidget {
               ),
               const Spacer(),
               Flexible(
-                child: SettingsDropdown<AIModelPB>(
+                child: SettingsDropdown<String>(
                   key: const Key('_AIModelSelection'),
                   onChanged: (model) => context
                       .read<SettingsAIBloc>()
                       .add(SettingsAIEvent.selectModel(model)),
-                  selectedOption: state.userProfile.aiModel,
-                  options: _availableModels
+                  selectedOption: state.selectedAIModel,
+                  options: state.availableModels
                       .map(
-                        (format) => buildDropdownMenuEntry<AIModelPB>(
+                        (model) => buildDropdownMenuEntry<String>(
                           context,
-                          value: format,
-                          label: _titleForAIModel(format),
+                          value: model,
+                          label: model,
                         ),
                       )
                       .toList(),
@@ -52,31 +50,5 @@ class AIModelSelection extends StatelessWidget {
         );
       },
     );
-  }
-}
-
-List<AIModelPB> _availableModels = [
-  AIModelPB.DefaultModel,
-  AIModelPB.Claude3Opus,
-  AIModelPB.Claude3Sonnet,
-  AIModelPB.GPT4oMini,
-  AIModelPB.GPT4o,
-];
-
-String _titleForAIModel(AIModelPB model) {
-  switch (model) {
-    case AIModelPB.DefaultModel:
-      return "Default";
-    case AIModelPB.Claude3Opus:
-      return "Claude 3 Opus";
-    case AIModelPB.Claude3Sonnet:
-      return "Claude 3 Sonnet";
-    case AIModelPB.GPT4oMini:
-      return "GPT-4o-mini";
-    case AIModelPB.GPT4o:
-      return "GPT-4o";
-    default:
-      Log.error("Unknown AI model: $model, fallback to default");
-      return "Default";
   }
 }

@@ -25,6 +25,17 @@ class AnswerStream {
         } else if (event == "AI_RESPONSE_LIMIT") {
           _aiLimitReached = true;
           _onAIResponseLimit?.call();
+        } else if (event == "AI_IMAGE_RESPONSE_LIMIT") {
+          _aiImageLimitReached = true;
+          _onAIImageResponseLimit?.call();
+        } else if (event.startsWith("AI_MAX_REQUIRED:")) {
+          final msg = event.substring(16);
+          // If the callback is not registered yet, add the event to the buffer.
+          if (_onAIMaxRequired != null) {
+            _onAIMaxRequired!(msg);
+          } else {
+            _pendingAIMaxRequiredEvents.add(msg);
+          }
         }
       },
       onDone: () {
@@ -42,6 +53,7 @@ class AnswerStream {
   late StreamSubscription<String> _subscription;
   bool _hasStarted = false;
   bool _aiLimitReached = false;
+  bool _aiImageLimitReached = false;
   String? _error;
   String _text = "";
 
@@ -51,11 +63,17 @@ class AnswerStream {
   void Function()? _onEnd;
   void Function(String error)? _onError;
   void Function()? _onAIResponseLimit;
+  void Function()? _onAIImageResponseLimit;
+  void Function(String message)? _onAIMaxRequired;
   void Function(MetadataCollection metadataCollection)? _onMetadata;
+
+  // Buffer for events that occur before listen() is called.
+  final List<String> _pendingAIMaxRequiredEvents = [];
 
   int get nativePort => _port.sendPort.nativePort;
   bool get hasStarted => _hasStarted;
   bool get aiLimitReached => _aiLimitReached;
+  bool get aiImageLimitReached => _aiImageLimitReached;
   String? get error => _error;
   String get text => _text;
 
@@ -71,6 +89,8 @@ class AnswerStream {
     void Function()? onEnd,
     void Function(String error)? onError,
     void Function()? onAIResponseLimit,
+    void Function()? onAIImageResponseLimit,
+    void Function(String message)? onAIMaxRequired,
     void Function(MetadataCollection metadata)? onMetadata,
   }) {
     _onData = onData;
@@ -78,7 +98,17 @@ class AnswerStream {
     _onEnd = onEnd;
     _onError = onError;
     _onAIResponseLimit = onAIResponseLimit;
+    _onAIImageResponseLimit = onAIImageResponseLimit;
     _onMetadata = onMetadata;
+    _onAIMaxRequired = onAIMaxRequired;
+
+    // Flush any buffered AI_MAX_REQUIRED events.
+    if (_onAIMaxRequired != null && _pendingAIMaxRequiredEvents.isNotEmpty) {
+      for (final msg in _pendingAIMaxRequiredEvents) {
+        _onAIMaxRequired!(msg);
+      }
+      _pendingAIMaxRequiredEvents.clear();
+    }
 
     _onStart?.call();
   }
