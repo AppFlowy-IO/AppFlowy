@@ -99,7 +99,6 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
           Log.info("Available models: $decodedJson");
           if (decodedJson is Map<String, dynamic>) {
             final models = ModelList.fromJson(decodedJson).models;
-
             if (models.isEmpty) {
               // If available models is empty, then we just show the
               // Default

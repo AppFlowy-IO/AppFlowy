@@ -901,7 +901,6 @@
             "description": "Unlimited AI responses powered by advanced AI models, and 50 AI images per month",
             "price": "{}",
             "priceInfo": "Per user per month billed annually"
-
           },
           "aiOnDevice": {
             "title": "AI On-device for Mac",
