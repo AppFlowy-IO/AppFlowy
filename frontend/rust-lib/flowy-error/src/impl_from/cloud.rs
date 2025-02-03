@@ -25,6 +25,7 @@ impl From<AppResponseError> for FlowyError {
       AppErrorCode::WorkspaceMemberLimitExceeded => ErrorCode::WorkspaceMemberLimitExceeded,
       AppErrorCode::AIResponseLimitExceeded => ErrorCode::AIResponseLimitExceeded,
       AppErrorCode::AIImageResponseLimitExceeded => ErrorCode::AIImageResponseLimitExceeded,
+      AppErrorCode::AIMaxRequired => ErrorCode::AIMaxRequired,
       AppErrorCode::FileStorageLimitExceeded => ErrorCode::FileStorageLimitExceeded,
       AppErrorCode::SingleUploadLimitExceeded => ErrorCode::SingleUploadLimitExceeded,
       AppErrorCode::CustomNamespaceDisabled => ErrorCode::CustomNamespaceRequirePlanUpgrade,

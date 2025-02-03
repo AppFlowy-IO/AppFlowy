@@ -33,7 +33,7 @@ class AIModelSelection extends StatelessWidget {
                   onChanged: (model) => context
                       .read<SettingsAIBloc>()
                       .add(SettingsAIEvent.selectModel(model)),
-                  selectedOption: state.userProfile.aiModel,
+                  selectedOption: state.selectedAIModel,
                   options: state.availableModels
                       .map(
                         (model) => buildDropdownMenuEntry<String>(
