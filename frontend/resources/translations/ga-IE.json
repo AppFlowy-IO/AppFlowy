@@ -1,0 +1,18 @@
+{
+  "appName": "Appflowy",
+  "defaultUsername": "Liom",
+  "welcomeText": "Fáilte go @:appName",
+  "welcomeTo": "Fáilte chuig",
+  "githubStarText": "Réalta ar GitHub",
+  "subscribeNewsletterText": "Liostáil le Nuachtlitir",
+  "title": "Teideal",
+  "and": "agus",
+  "blockActions": {
+    "addAboveCmd": "Alt+cliceáil",
+    "addAboveMacCmd": "Option+cliceáil"
+  },
+  "signUp": {
+    "buttonText": "Cláraigh",
+    "title": "Cláraigh le @:appName"
+  }
+}
