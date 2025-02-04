@@ -70,8 +70,12 @@ class _ResizableImageState extends State<ResizableImage> {
   @override
   void initState() {
     super.initState();
+
     imageWidth = widget.width;
-    _userProfilePB = context.read<UserWorkspaceBloc?>()?.userProfile;
+
+    // read the user profile from the user workspace bloc or the document bloc
+    _userProfilePB = context.read<UserWorkspaceBloc?>()?.userProfile ??
+        context.read<DocumentBloc>().state.userProfilePB;
   }
 
   @override
@@ -97,11 +101,6 @@ class _ResizableImageState extends State<ResizableImage> {
     Widget child;
     final src = widget.src;
     if (isURL(src)) {
-      // load network image
-      if (widget.type == CustomImageType.internal && _userProfilePB == null) {
-        return _buildLoading(context);
-      }
-
       _cacheImage = FlowyNetworkImage(
         url: widget.src,
         width: imageWidth - moveDistance,
