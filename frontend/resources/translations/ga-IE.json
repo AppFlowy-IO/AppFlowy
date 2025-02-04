@@ -13,6 +13,21 @@
   },
   "signUp": {
     "buttonText": "Cláraigh",
-    "title": "Cláraigh le @:appName"
+    "title": "Cláraigh le @:appName",
+    "emailHint": "Ríomhphost",
+    "passwordHint": "Pasfhocal",
+    "repeatPasswordHint": "Déan pasfhocal arís",
+    "signUpWith": "Cláraigh le:"
+  },
+  "signIn": {
+    "loginTitle": "Logáil isteach ar @:appName",
+    "loginButtonText": "Logáil isteach",
+    "loginStartWithAnonymous": "Lean ar aghaidh le seisiún gan ainm",
+    "continueAnonymousUser": "Lean ar aghaidh le seisiún gan ainm",
+    "anonymous": "Gan ainm",
+    "buttonText": "Sínigh Isteach",
+    "emailHint": "Ríomhphost",
+    "passwordHint": "Pasfhocal",
+    "createAccount": "Cruthaigh cuntas"
   }
 }
