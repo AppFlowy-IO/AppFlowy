@@ -67,6 +67,19 @@
   "workspace": {
     "defaultName": "Mo Spás Oibre",
     "create": "Cruthaigh spás oibre",
-    "new": "Spás oibre nua"
+    "new": "Spás oibre nua",
+    "importFromNotion": "Iompórtáil ó Notion",
+    "learnMore": "Foghlaim níos mó",
+    "reset": "Athshocraigh spás oibre",
+    "renameWorkspace": "Athainmnigh spás oibre",
+    "workspaceNameCannotBeEmpty": "Ní féidir leis an ainm spás oibre a bheith folamh",
+    "hint": "spás oibre",
+    "errorActions": {
+      "reportIssue": "Tuairiscigh saincheist",
+      "reportIssueOnGithub": "Tuairiscigh ceist faoi Github",
+      "exportLogFiles": "Easpórtáil comhaid logáil",
+      "reachOut": "Bhaint amach le Discord"
+    },
+    "leaveCurrentWorkspace": "Fág spás óibre"
   }
 }
