@@ -28,6 +28,11 @@
     "buttonText": "Sínigh Isteach",
     "emailHint": "Ríomhphost",
     "passwordHint": "Pasfhocal",
-    "createAccount": "Cruthaigh cuntas"
+    "createAccount": "Cruthaigh cuntas",
+    "logIn": "Logáil isteach",
+    "LogInWithGoogle": "Logáil isteach le Google",
+    "LogInWithGithub": "Logáil isteach le Github",
+    "LogInWithDiscord": "Logáil isteach le Discord",
+    "logInWithMagicLink": "Logáil isteach le nasc draíochta"
   }
 }
