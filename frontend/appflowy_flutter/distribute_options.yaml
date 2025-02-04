@@ -1,0 +1,13 @@
+output: dist/
+releases:
+  - name: prod
+    jobs:
+      - name: macos-zip
+        package:
+          platform: macos
+          target: zip
+
+      - name: windows-exe
+        package:
+          platform: windows
+          target: exe
