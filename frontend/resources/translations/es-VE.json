@@ -36,6 +36,7 @@
     "loginButtonText": "Ingresar",
     "loginStartWithAnonymous": "Comience una sesión anónima",
     "continueAnonymousUser": "Continuar con una sesión anónima",
+    "anonymous": "Anónimo",
     "buttonText": "Ingresar",
     "signingInText": "Iniciando sesión...",
     "forgotPassword": "¿Olvidó su contraseña?",
@@ -50,6 +51,8 @@
     "signInWithGoogle": "Iniciar sesión con Google",
     "signInWithGithub": "Iniciar sesión con Github",
     "signInWithDiscord": "Iniciar sesión con Discord",
+    "signInWithApple": "Continuar con Apple",
+    "continueAnotherWay": "Continuar por otro camino",
     "signUpWithGoogle": "Registrarse con Google",
     "signUpWithGithub": "Registrarse con Github",
     "signUpWithDiscord": "Registrarse con Discord",
@@ -68,8 +71,12 @@
   },
   "workspace": {
     "chooseWorkspace": "Elige tu espacio de trabajo",
+    "defaultName": "Mi espacio de trabajo",
     "create": "Crear espacio de trabajo",
+    "new": "Nuevo espacio de trabajo",
+    "learnMore": "Más información",
     "reset": "Restablecer espacio de trabajo",
+    "renameWorkspace": "Cambiar el nombre del espacio de trabajo",
     "resetWorkspacePrompt": "Al restablecer el espacio de trabajo se eliminarán todas las páginas y datos que contiene. ¿Está seguro de que desea restablecer el espacio de trabajo? Alternativamente, puede comunicarse con el equipo de soporte para restaurar el espacio de trabajo.",
     "hint": "Espacio de trabajo",
     "notFoundError": "Espacio de trabajo no encontrado",
@@ -105,7 +112,8 @@
     "html": "HTML",
     "clipboard": "Copiar al portapapeles",
     "csv": "CSV",
-    "copyLink": "Copiar enlace"
+    "copyLink": "Copiar enlace",
+    "publish": "Publicar"
   },
   "moreAction": {
     "small": "pequeño",
