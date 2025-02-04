@@ -288,7 +288,10 @@
     "emptyRecent": "Sin documentos recientes",
     "favoriteSpace": "Favoritos",
     "RecentSpace": "Reciente",
-    "Spaces": "Espacios"
+    "Spaces": "Espacios",
+    "aiImageResponseLimit": "Se ha quedado sin respuestas de imágenes de IA.\n\nVaya a Configuración -> Plan -> Haga clic en AI Max para obtener más respuestas de imágenes de IA",
+    "purchaseStorageSpace": "Comprar espacio de almacenamiento",
+    "purchaseAIResponse": "Compra "
   },
   "notifications": {
     "export": {
@@ -322,6 +325,7 @@
     "upload": "Subir",
     "edit": "Editar",
     "delete": "Borrar",
+    "copy": "Copiar",
     "duplicate": "Duplicar",
     "putback": "Volver",
     "update": "Actualizar",
@@ -333,6 +337,7 @@
     "helpCenter": "Centro de ayuda",
     "add": "Añadir",
     "yes": "Si",
+    "no": "No",
     "clear": "Limpiar",
     "remove": "Eliminar",
     "dontRemove": "no quitar",
@@ -347,7 +352,12 @@
     "signInDiscord": "Iniciar sesión con discordia",
     "more": "Más",
     "create": "Crear",
-    "close": "Cerca"
+    "close": "Cerca",
+    "next": "Próximo",
+    "previous": "Anterior",
+    "submit": "Entregar",
+    "download": "Descargar",
+    "backToHome": "Volver a Inicio"
   },
   "label": {
     "welcome": "¡Bienvenido!",
@@ -371,6 +381,9 @@
   },
   "settings": {
     "title": "Ajustes",
+    "popupMenuItem": {
+      "settings": "Ajustes"
+    },
     "accountPage": {
       "menuLabel": "Mi cuenta",
       "title": "Mi cuenta",
