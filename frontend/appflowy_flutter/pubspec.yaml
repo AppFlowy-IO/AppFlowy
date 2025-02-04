@@ -197,6 +197,10 @@ dependency_overrides:
       commit: fbab857b1b1d209240a146d32f496379b9f62276
       path: flutter_cache_manager
 
+  # Don't upgrade file_picker until the issue is fixed
+  # https://github.com/miguelpruivo/flutter_file_picker/issues/1652
+  file_picker: 8.1.4
+
 flutter:
   generate: true
   uses-material-design: true
