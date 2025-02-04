@@ -97,11 +97,6 @@ class _ResizableImageState extends State<ResizableImage> {
     Widget child;
     final src = widget.src;
     if (isURL(src)) {
-      // load network image
-      if (widget.type == CustomImageType.internal && _userProfilePB == null) {
-        return _buildLoading(context);
-      }
-
       _cacheImage = FlowyNetworkImage(
         url: widget.src,
         width: imageWidth - moveDistance,
