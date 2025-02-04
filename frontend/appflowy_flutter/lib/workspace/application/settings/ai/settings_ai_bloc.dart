@@ -109,10 +109,12 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
             if (!models.contains(state.selectedAIModel)) {
               // Use first model as default model if current selected model
               // is not available
+              final selectedModel = models[0];
+              _updateUserWorkspaceSetting(model: selectedModel);
               emit(
                 state.copyWith(
                   availableModels: models,
-                  selectedAIModel: models[0],
+                  selectedAIModel: selectedModel,
                 ),
               );
             } else {
