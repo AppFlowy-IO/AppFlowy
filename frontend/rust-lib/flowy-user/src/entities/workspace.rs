@@ -393,7 +393,7 @@ impl From<AFWorkspaceSettings> for UseAISettingPB {
   }
 }
 
-#[derive(ProtoBuf, Default, Clone, Validate)]
+#[derive(ProtoBuf, Default, Clone, Validate, Debug)]
 pub struct UpdateUserWorkspaceSettingPB {
   #[pb(index = 1)]
   #[validate(custom(function = "required_not_empty_str"))]
@@ -410,10 +410,10 @@ impl From<UpdateUserWorkspaceSettingPB> for AFWorkspaceSettingsChange {
   fn from(value: UpdateUserWorkspaceSettingPB) -> Self {
     let mut change = AFWorkspaceSettingsChange::new();
     if let Some(disable_search_indexing) = value.disable_search_indexing {
-      change = change.disable_search_indexing(disable_search_indexing);
+      change.disable_search_indexing = Some(disable_search_indexing);
     }
     if let Some(ai_model) = value.ai_model {
-      change = change.ai_model(ai_model);
+      change.ai_model = Some(ai_model);
     }
     change
   }
