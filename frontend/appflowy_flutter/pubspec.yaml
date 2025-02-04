@@ -28,6 +28,7 @@ dependencies:
 
   archive: ^3.4.10
   auto_size_text_field: ^2.2.3
+  auto_updater: ^1.0.0
   avatar_stack: ^1.2.0
 
   # BitsDojo Window for Windows
