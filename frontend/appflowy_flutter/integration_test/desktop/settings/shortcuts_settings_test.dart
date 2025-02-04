@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/settings_shortcuts_view.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -88,6 +89,81 @@ void main() {
       expect(
         second.command.command,
         '',
+      );
+    });
+
+    testWidgets('can reset an individual shortcut', (tester) async {
+      // In order to reset a shortcut, we must first override it.
+
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      await tester.openSettings();
+      await tester.openSettingsPage(SettingsPage.shortcuts);
+      await tester.pumpAndSettle();
+
+      final pageUpCmdText =
+          LocaleKeys.settings_shortcutsPage_keybindings_pageUp.tr();
+      final defaultPageUpCmd = pageUpCommand.command;
+
+      // Input "Page Up text" into the search field
+      // This test works because we only have one input field on the shortcuts page.
+      await tester.enterText(find.byType(TextField), pageUpCmdText);
+      await tester.pumpAndSettle();
+
+      await tester.hoverOnWidget(
+        find.descendant(
+          of: find.byType(ShortcutSettingTile),
+          matching: find.text(pageUpCmdText),
+        ),
+        onHover: () async {
+          // changing the shortcut
+          await tester.tap(find.byFlowySvg(FlowySvgs.edit_s));
+          await tester.pumpAndSettle();
+
+          await FlowyTestKeyboard.simulateKeyDownEvent(
+            [
+              LogicalKeyboardKey.backquote,
+              LogicalKeyboardKey.enter,
+            ],
+            tester: tester,
+          );
+          await tester.pumpAndSettle();
+        },
+      );
+
+      // We expect the first ShortcutSettingTile to have one
+      // [KeyBadge] with `backquote` label
+      // which will confirm that we have changed the command
+      final theOnlyTile = tester.widget(find.byType(ShortcutSettingTile).first)
+          as ShortcutSettingTile;
+      expect(
+        theOnlyTile.command.command,
+        'backquote',
+      );
+
+      // hover on the ShortcutSettingTile and click the restore button
+      await tester.hoverOnWidget(
+        find.descendant(
+          of: find.byType(ShortcutSettingTile),
+          matching: find.text(pageUpCmdText),
+        ),
+        onHover: () async {
+          await tester.tap(
+            find.descendant(
+              of: find.byType(ShortcutSettingTile).first,
+              matching: find.byFlowySvg(FlowySvgs.restore_s),
+            ),
+          );
+          await tester.pumpAndSettle();
+        },
+      );
+
+      // We expect the first ShortcutSettingTile to have one
+      // [KeyBadge] with `page up` label
+      expect(
+        theOnlyTile.command.command,
+        defaultPageUpCmd,
       );
     });
   });

@@ -2,10 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/custom_text_align_command.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/custom_copy_command.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/custom_cut_command.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/custom_paste_command.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/toggle/toggle_block_shortcuts.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
@@ -195,6 +192,7 @@ class _ResetButton extends StatelessWidget {
             horizontal: 6,
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const FlowySvg(
                 FlowySvgs.restore_s,
@@ -335,6 +333,18 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
     _finishEditing();
   }
 
+  void _resetIndividualCommand(CommandShortcutEvent shortcut) {
+    context.read<ShortcutsCubit>().resetIndividualShortcut(shortcut);
+  }
+
+  bool canResetCommand(CommandShortcutEvent shortcut) {
+    final defaultShortcut = defaultCommandShortcutEvents.firstWhere(
+      (el) => el.key == shortcut.key && el.handler == shortcut.handler,
+    );
+
+    return defaultShortcut.command != shortcut.command;
+  }
+
   @override
   void dispose() {
     focusNode.dispose();
@@ -387,40 +397,43 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
     );
   }
 
-  Widget _renderKeybindings(bool isHovering) => Row(
-        children: [
-          if (widget.command.keybindings.isNotEmpty) ...[
-            ..._toParts(widget.command.keybindings.first).map(
-              (key) => KeyBadge(keyLabel: key),
-            ),
-          ] else ...[
-            const SizedBox(height: 24),
-          ],
-          const Spacer(),
-          if (isHovering)
-            GestureDetector(
-              onTap: () {
-                if (widget.canStartEditing()) {
-                  setState(() {
-                    widget.onStartEditing();
-                    isEditing = true;
-                  });
-                }
-              },
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: FlowyTooltip(
-                  message: LocaleKeys.settings_shortcutsPage_editTooltip.tr(),
-                  child: const FlowySvg(
-                    FlowySvgs.edit_s,
-                    size: Size.square(16),
-                  ),
-                ),
-              ),
-            ),
-          const HSpace(8),
+  Widget _renderKeybindings(bool isHovering) {
+    final canReset = canResetCommand(widget.command);
+
+    return Row(
+      children: [
+        if (widget.command.keybindings.isNotEmpty) ...[
+          ..._toParts(widget.command.keybindings.first).map(
+            (key) => KeyBadge(keyLabel: key),
+          ),
+        ] else ...[
+          const SizedBox(height: 24),
         ],
-      );
+        const Spacer(),
+        if (isHovering)
+          Row(
+            children: [
+              _EditShortcutBtn(
+                onEdit: () {
+                  if (widget.canStartEditing()) {
+                    setState(() {
+                      widget.onStartEditing();
+                      isEditing = true;
+                    });
+                  }
+                },
+              ),
+              const HSpace(16),
+              _ResetShortcutBtn(
+                onReset: () => _resetIndividualCommand(widget.command),
+                canReset: canReset,
+              ),
+            ],
+          ),
+        const HSpace(8),
+      ],
+    );
+  }
 
   Widget _renderKeybindEditor() => TapRegion(
         onTapOutside: canClickOutside ? null : (_) => _finishEditing(),
@@ -461,6 +474,65 @@ class _ShortcutSettingTileState extends State<ShortcutSettingTile> {
     }
 
     return keys..add(binding.keyLabel);
+  }
+}
+
+class _EditShortcutBtn extends StatelessWidget {
+  const _EditShortcutBtn({
+    required this.onEdit,
+  });
+
+  final VoidCallback onEdit;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onEdit,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: FlowyTooltip(
+          message: LocaleKeys.settings_shortcutsPage_editTooltip.tr(),
+          child: const FlowySvg(
+            FlowySvgs.edit_s,
+            size: Size.square(16),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ResetShortcutBtn extends StatelessWidget {
+  const _ResetShortcutBtn({
+    required this.onReset,
+    required this.canReset,
+  });
+
+  final bool canReset;
+  final VoidCallback onReset;
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: canReset ? 1 : 0.5,
+      child: GestureDetector(
+        onTap: canReset ? onReset : null,
+        child: MouseRegion(
+          cursor: canReset ? SystemMouseCursors.click : MouseCursor.defer,
+          child: FlowyTooltip(
+            message: canReset
+                ? LocaleKeys.settings_shortcutsPage_resetSingleTooltip.tr()
+                : LocaleKeys
+                    .settings_shortcutsPage_unavailableResetSingleTooltip
+                    .tr(),
+            child: const FlowySvg(
+              FlowySvgs.restore_s,
+              size: Size.square(16),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
