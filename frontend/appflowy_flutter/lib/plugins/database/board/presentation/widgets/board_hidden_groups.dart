@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
@@ -426,10 +427,13 @@ class HiddenGroupPopupItemList extends StatelessWidget {
                     onPressed: () {
                       FlowyOverlay.show(
                         context: context,
-                        builder: (_) => RowDetailPage(
-                          databaseController: databaseController,
-                          rowController: rowController,
-                          userProfile: context.read<BoardBloc>().userProfile,
+                        builder: (_) => BlocProvider.value(
+                          value: context.read<UserWorkspaceBloc>(),
+                          child: RowDetailPage(
+                            databaseController: databaseController,
+                            rowController: rowController,
+                            userProfile: context.read<BoardBloc>().userProfile,
+                          ),
                         ),
                       );
                       PopoverContainer.of(context).close();

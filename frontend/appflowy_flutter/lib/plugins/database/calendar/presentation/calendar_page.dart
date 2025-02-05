@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:flutter/material.dart';
 
@@ -390,7 +391,7 @@ void showEventDetails({
     context: context,
     builder: (BuildContext overlayContext) {
       return BlocProvider.value(
-        value: context.read<ViewBloc>(),
+        value: context.read<UserWorkspaceBloc>(),
         child: RowDetailPage(
           rowController: rowController,
           databaseController: databaseController,

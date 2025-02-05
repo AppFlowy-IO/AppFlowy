@@ -73,9 +73,7 @@ class _ResizableImageState extends State<ResizableImage> {
 
     imageWidth = widget.width;
 
-    // read the user profile from the user workspace bloc or the document bloc
-    _userProfilePB = context.read<UserWorkspaceBloc?>()?.userProfile ??
-        context.read<DocumentBloc>().state.userProfilePB;
+    _userProfilePB = context.read<UserWorkspaceBloc?>()?.userProfile;
   }
 
   @override
