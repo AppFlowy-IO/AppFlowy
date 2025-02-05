@@ -4,6 +4,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/me
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-document/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -190,14 +192,25 @@ class ViewBackendService {
   }
 
   static Future<FlowyResult<void, FlowyError>> updateViewIcon({
-    required String viewId,
+    required ViewPB view,
     required EmojiIconData viewIcon,
   }) {
+    final viewId = view.id;
+    final oldIcon = view.icon.toEmojiIconData();
     final icon = viewIcon.toViewIcon();
     final payload = UpdateViewIconPayloadPB.create()
       ..viewId = viewId
       ..icon = icon;
-
+    if (oldIcon.type == FlowyIconType.custom &&
+        viewIcon.emoji != oldIcon.emoji) {
+      DocumentEventDeleteFile(
+        DeleteFilePB(url: oldIcon.emoji),
+      ).send().onFailure((e) {
+        Log.error(
+          'updateViewIcon error while deleting :${oldIcon.emoji}, error: ${e.msg}, ${e.code}',
+        );
+      });
+    }
     return FolderEventUpdateViewIcon(payload).send();
   }
 
