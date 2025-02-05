@@ -25,6 +25,7 @@
     "emptyPasswordError": "Ní féidir le pasfhocal a bheith folamh",
     "repeatPasswordEmptyError": "Ní féidir an pasfhocal athdhéanta a bheith folamh",
     "unmatchedPasswordError": "Ní ionann pasfhocal athdhéanta agus pasfhocal",
+    "alreadyHaveAnAccount": "An bhfuil cuntas agat cheana féin?",
     "emailHint": "Ríomhphost",
     "passwordHint": "Pasfhocal",
     "repeatPasswordHint": "Déan pasfhocal arís",
@@ -41,7 +42,11 @@
     "forgotPassword": "Pasfhocal Dearmadta?",
     "emailHint": "Ríomhphost",
     "passwordHint": "Pasfhocal",
+    "dontHaveAnAccount": "Nach bhfuil cuntas agat?",
     "createAccount": "Cruthaigh cuntas",
+    "repeatPasswordEmptyError": "Ní féidir an pasfhocal athdhéanta a bheith folamh",
+    "unmatchedPasswordError": "Ní hionann pasfhocal athdhéanta agus pasfhocal",
+    "syncPromptMessage": "Seans go dtógfaidh sé tamall na sonraí a shioncronú. Ná dún an leathanach seo, le do thoil",
     "or": "NÓ",
     "signInWithGoogle": "Lean ar aghaidh le Google",
     "signInWithGithub": "Lean ar aghaidh le GitHub",
@@ -57,10 +62,15 @@
     "signUpWithMagicLink": "Cláraigh le Magic Link",
     "pleaseInputYourEmail": "Cuir isteach do sheoladh ríomhphoist",
     "settings": "Socruithe",
+    "magicLinkSent": "Magic Link seolta!",
+    "invalidEmail": "Cuir isteach seoladh ríomhphoist bailí",
+    "alreadyHaveAnAccount": "An bhfuil cuntas agat cheana féin?",
     "logIn": "Logáil isteach",
-    "generalError": "Chuaigh rud éigin mícheart. Bain triail eile as ar ball"
+    "generalError": "Chuaigh rud éigin mícheart. Bain triail eile as ar ball",
+    "limitRateError": "Ar chúiseanna slándála, ní féidir leat nasc draíochta a iarraidh ach gach 60 soicind"
   },
   "workspace": {
+    "chooseWorkspace": "Roghnaigh do spás oibre",
     "defaultName": "Mo Spás Oibre",
     "create": "Cruthaigh spás oibre",
     "new": "Spás oibre nua",
@@ -70,12 +80,31 @@
     "renameWorkspace": "Athainmnigh spás oibre",
     "workspaceNameCannotBeEmpty": "Ní féidir leis an ainm spás oibre a bheith folamh",
     "hint": "spás oibre",
+    "notFoundError": "Spás oibre gan aimsiú",
     "errorActions": {
       "reportIssue": "Tuairiscigh saincheist",
       "reportIssueOnGithub": "Tuairiscigh ceist faoi Github",
       "exportLogFiles": "Easpórtáil comhaid logáil",
       "reachOut": "Bhaint amach le Discord"
     },
+    "menuTitle": "Spásanna oibre",
+    "createSuccess": "Cruthaíodh spás oibre go rathúil",
     "leaveCurrentWorkspace": "Fág spás óibre"
+  },
+  "shareAction": {
+    "buttonText": "Comhroinn",
+    "workInProgress": "Ag teacht go luath",
+    "markdown": "Markdown",
+    "html": "HTML",
+    "clipboard": "Cóipeáil chuig an ngearrthaisce",
+    "csv": "CSV",
+    "copyLink": "Cóipeáil nasc",
+    "publishToTheWeb": "Foilsigh don Ghréasán",
+    "publishToTheWebHint": "Cruthaigh suíomh Gréasáin le AppFlowy",
+    "publish": "Foilsigh",
+    "unPublish": "Dífhoilsiú",
+    "visitSite": "Tabhair cuairt ar an suíomh",
+    "publishTab": "Foilsigh",
+    "shareTab": "Comhroinn"
   }
 }
