@@ -362,6 +362,9 @@ pub enum ErrorCode {
 
   #[error("AI Image Response limit exceeded")]
   AIImageResponseLimitExceeded = 124,
+
+  #[error("AI Max Required")]
+  AIMaxRequired = 125,
 }
 
 impl ErrorCode {

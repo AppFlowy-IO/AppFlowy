@@ -182,6 +182,12 @@ pub struct ChatMessageListPB {
   pub total: i64,
 }
 
+#[derive(Default, ProtoBuf, Validate, Clone, Debug)]
+pub struct ModelConfigPB {
+  #[pb(index = 1)]
+  pub models: String,
+}
+
 impl From<RepeatedChatMessage> for ChatMessageListPB {
   fn from(repeated_chat_message: RepeatedChatMessage) -> Self {
     let messages = repeated_chat_message

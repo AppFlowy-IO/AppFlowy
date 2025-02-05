@@ -148,6 +148,15 @@ class CompletionStream {
           );
         }
 
+        if (event.startsWith("AI_MAX_REQUIRED:")) {
+          final msg = event.substring(16);
+          onError(
+            AIError(
+              message: msg,
+            ),
+          );
+        }
+
         if (event.startsWith("start:")) {
           await onStart();
         }

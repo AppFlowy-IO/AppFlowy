@@ -478,3 +478,64 @@ const tableFromChatGPT = '''
     By following the guidelines above, you can work toward achieving a healthier and happier life.
 </p>
 ''';
+
+// | Month | Savings |
+// | -------- | ------- |
+// | January | $250 |
+// | February | $80 |
+// | March | $420 |
+const tableFromAppleNotes = '''
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<title></title>
+<meta name="Generator" content="Cocoa HTML Writer">
+<meta name="CocoaVersion" content="2566">
+<style type="text/css">
+p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px '.AppleSystemUIFont'}
+table.t1 {border-collapse: collapse}
+td.td1 {border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #9a9a9a #9a9a9a #9a9a9a #9a9a9a; padding: 1.0px 5.0px 1.0px 5.0px}
+</style>
+</head>
+<body>
+<table cellspacing="0" cellpadding="0" class="t1">
+<tbody>
+<tr>
+<td valign="top" class="td1">
+<p class="p1">Month</p>
+</td>
+<td valign="top" class="td1">
+<p class="p1">Savings</p>
+</td>
+</tr>
+<tr>
+<td valign="top" class="td1">
+<p class="p1">January</p>
+</td>
+<td valign="top" class="td1">
+<p class="p1">\$250</p>
+</td>
+</tr>
+<tr>
+<td valign="top" class="td1">
+<p class="p1">February</p>
+</td>
+<td valign="top" class="td1">
+<p class="p1">\$80</p>
+</td>
+</tr>
+<tr>
+<td valign="top" class="td1">
+<p class="p1">March</p>
+</td>
+<td valign="top" class="td1">
+<p class="p1">\$420</p>
+</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
+''';
