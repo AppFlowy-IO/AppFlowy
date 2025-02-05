@@ -178,7 +178,7 @@ class AIChatPagePluginWidgetBuilder extends PluginWidgetBuilder
                   customActions: [
                     CustomViewAction(
                       view: notifier.view,
-                      leftIcon: FlowySvgs.download_s,
+                      leftIcon: FlowySvgs.ai_add_to_page_s,
                       label: LocaleKeys.moreAction_saveAsNewPage.tr(),
                       onTap: () {
                         chatMessageSelectorBloc.add(

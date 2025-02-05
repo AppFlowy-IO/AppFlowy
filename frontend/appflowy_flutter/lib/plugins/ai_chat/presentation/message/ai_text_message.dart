@@ -132,6 +132,16 @@ class ChatAIMessageWidget extends StatelessWidget {
                         LocaleKeys.sideBar_askOwnerToUpgradeToAIMax.tr(),
                   );
                 },
+                onAIImageResponseLimit: () {
+                  return ChatErrorMessageWidget(
+                    errorMessage: LocaleKeys.sideBar_purchaseAIMax.tr(),
+                  );
+                },
+                onAIMaxRequired: (message) {
+                  return ChatErrorMessageWidget(
+                    errorMessage: message,
+                  );
+                },
               ),
             ),
           );

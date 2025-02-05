@@ -10,9 +10,9 @@ use std::collections::HashMap;
 
 use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
-  CompleteTextParams, LocalAIConfig, MessageCursor, RelatedQuestion, RepeatedChatMessage,
-  RepeatedRelatedQuestion, ResponseFormat, StreamAnswer, StreamComplete, SubscriptionPlan,
-  UpdateChatParams,
+  CompleteTextParams, LocalAIConfig, MessageCursor, ModelList, RelatedQuestion,
+  RepeatedChatMessage, RepeatedRelatedQuestion, ResponseFormat, StreamAnswer, StreamComplete,
+  SubscriptionPlan, UpdateChatParams,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use futures::{stream, Sink, StreamExt, TryStreamExt};
@@ -352,5 +352,9 @@ impl ChatCloudService for AICloudServiceMiddleware {
       .cloud_service
       .update_chat_settings(workspace_id, chat_id, params)
       .await
+  }
+
+  async fn get_available_models(&self, workspace_id: &str) -> Result<ModelList, FlowyError> {
+    self.cloud_service.get_available_models(workspace_id).await
   }
 }

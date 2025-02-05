@@ -128,9 +128,9 @@ class MobileViewPageLayoutButton extends StatelessWidget {
   });
 
   final ViewPB view;
+  final List<PickerTabType> tabs;
   final bool isImmersiveMode;
   final ValueListenable appBarOpacity;
-  final List<PickerTabType> tabs;
 
   @override
   Widget build(BuildContext context) {

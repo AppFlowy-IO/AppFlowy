@@ -255,6 +255,14 @@ impl Chat {
           error!("[Chat] failed to start streaming: {}", err);
           if err.is_ai_response_limit_exceeded() {
             let _ = answer_sink.send("AI_RESPONSE_LIMIT".to_string()).await;
+          } else if err.is_ai_image_response_limit_exceeded() {
+            let _ = answer_sink
+              .send("AI_IMAGE_RESPONSE_LIMIT".to_string())
+              .await;
+          } else if err.is_ai_max_required() {
+            let _ = answer_sink
+              .send(format!("AI_MAX_REQUIRED:{}", err.msg))
+              .await;
           } else {
             let _ = answer_sink.send(format!("error:{}", err)).await;
           }

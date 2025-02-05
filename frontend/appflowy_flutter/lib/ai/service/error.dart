@@ -17,6 +17,8 @@ class AIError with _$AIError {
 enum AIErrorCode {
   @JsonValue('AIResponseLimitExceeded')
   aiResponseLimitExceeded,
+  @JsonValue('AIImageResponseLimitExceeded')
+  aiImageResponseLimitExceeded,
   @JsonValue('Other')
   other,
 }

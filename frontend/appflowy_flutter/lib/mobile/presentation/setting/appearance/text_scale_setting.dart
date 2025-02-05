@@ -15,16 +15,16 @@ const int _divisions = 4;
 const double _minMobileScaleFactor = 0.8;
 const double _maxMobileScaleFactor = 1.2;
 
-class TextScaleSetting extends StatefulWidget {
-  const TextScaleSetting({
+class DisplaySizeSetting extends StatefulWidget {
+  const DisplaySizeSetting({
     super.key,
   });
 
   @override
-  State<TextScaleSetting> createState() => _TextScaleSettingState();
+  State<DisplaySizeSetting> createState() => _DisplaySizeSettingState();
 }
 
-class _TextScaleSettingState extends State<TextScaleSetting> {
+class _DisplaySizeSettingState extends State<DisplaySizeSetting> {
   double scaleFactor = 1.0;
   final windowSizeManager = WindowSizeManager();
 
@@ -44,7 +44,7 @@ class _TextScaleSettingState extends State<TextScaleSetting> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return MobileSettingItem(
-      name: LocaleKeys.settings_appearance_fontScaleFactor.tr(),
+      name: LocaleKeys.settings_appearance_displaySize.tr(),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -61,7 +61,7 @@ class _TextScaleSettingState extends State<TextScaleSetting> {
           showHeader: true,
           showDragHandle: true,
           showDivider: false,
-          title: LocaleKeys.settings_appearance_fontScaleFactor.tr(),
+          title: LocaleKeys.settings_appearance_displaySize.tr(),
           builder: (context) {
             return FontSizeStepper(
               value: scaleFactor,

@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
+import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:html2md/html2md.dart' as html2md;
 
@@ -43,10 +44,19 @@ extension PasteFromHtml on EditorState {
     // The table from Google Docs will contain the flag 'Google Table'
     const googleDocsFlag = 'docs-internal-guid-';
     final isPasteFromGoogleDocs = html.contains(googleDocsFlag);
-    if (nodes.isEmpty || isPasteFromGoogleDocs) {
+    final isPasteFromAppleNotes = appleNotesRegex.hasMatch(html);
+    final containsTable = nodes.any(
+      (node) =>
+          [TableBlockKeys.type, SimpleTableBlockKeys.type].contains(node.type),
+    );
+    if ((nodes.isEmpty || isPasteFromGoogleDocs || containsTable) &&
+        !isPasteFromAppleNotes) {
       // fallback to the markdown parser
       final markdown = html2md.convert(html);
-      nodes = customMarkdownToDocument(markdown).root.children.toList();
+      nodes = customMarkdownToDocument(markdown, tableWidth: 200)
+          .root
+          .children
+          .toList();
     }
 
     // 4. check if the first node and the last node is bold, because google docs will wrap the table with bold tags

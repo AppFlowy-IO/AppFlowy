@@ -2,9 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
+import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
+import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:flutter/material.dart';
+import 'package:string_validator/string_validator.dart';
 
 import '../../../../../shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import '../../../../base/icon/icon_widget.dart';
@@ -105,6 +108,44 @@ class RawEmojiIconWidget extends StatelessWidget {
           return IconWidget(
             iconsData: iconData,
             size: iconSize,
+          );
+        case FlowyIconType.custom:
+          final url = emoji.emoji;
+          if (isURL(url)) {
+            return SizedBox.square(
+              dimension: emojiSize,
+              child: FutureBuilder(
+                future: UserBackendService.getCurrentUserProfile(),
+                builder: (context, value) {
+                  final userProfile = value.data?.fold(
+                    (userProfile) => userProfile,
+                    (l) => null,
+                  );
+                  if (userProfile == null) return const SizedBox.shrink();
+                  return FlowyNetworkImage(
+                    url: url,
+                    width: emojiSize,
+                    height: emojiSize,
+                    userProfilePB: userProfile,
+                    errorWidgetBuilder: (context, url, error) =>
+                        const SizedBox.shrink(),
+                  );
+                },
+              ),
+            );
+          }
+          final imageFile = File(url);
+          if (!imageFile.existsSync()) {
+            throw PathNotFoundException(url, const OSError());
+          }
+          return SizedBox.square(
+            dimension: emojiSize,
+            child: Image.file(
+              imageFile,
+              fit: BoxFit.cover,
+              width: emojiSize,
+              height: emojiSize,
+            ),
           );
         default:
           return defaultEmoji;

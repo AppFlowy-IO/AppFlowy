@@ -359,3 +359,183 @@ const tableFromGoogleSheets = '''
 </google-sheets-html-origin>
 
 ''';
+
+// # The Benefits of a Balanced Diet
+// A balanced diet is crucial for maintaining overall health and well-being. It provides the necessary nutrients your body needs to function effectively, supports growth and development, and helps prevent chronic diseases. In this guide, we will explore the key benefits of a balanced diet and how it can improve your life.
+// ---
+// ## Key Components of a Balanced Diet
+// A balanced diet consists of various food groups, each providing essential nutrients. The main components include:
+// 1.  **Carbohydrates** – Provide energy for daily activities.
+// 1.  **Proteins** – Support growth, muscle repair, and immune function.
+// 1.  **Fats** – Aid in cell function and energy storage.
+// 1.  **Vitamins and Minerals** – Essential for immune function, bone health, and overall bodily processes.
+// 1.  **Fiber** – Promotes healthy digestion and reduces the risk of chronic diseases.
+// 1.  **Water** – Vital for hydration and proper bodily functions.
+// ---
+// ## Health Benefits of a Balanced Diet
+// Maintaining a balanced diet can have profound effects on your health. Below are some of the most significant benefits:
+// ---
+// ### 1. **Improved Heart Health**
+// A balanced diet rich in fruits, vegetables, and healthy fats helps lower cholesterol levels, reduce inflammation, and maintain a healthy blood pressure.
+// ### 2. **Better Weight Management**
+// By consuming nutrient-dense foods and avoiding overeating, you can achieve and maintain a healthy weight.
+// ### 3. **Enhanced Mental Health**
+// Proper nutrition supports brain function, which can improve mood, cognitive performance, and mental well-being.
+// ### 4. **Stronger Immune System**
+// A diet full of vitamins and minerals strengthens the immune system and helps the body fight off infections.
+// ---
+// ## Recommended Daily Nutrient Intake
+// Below is a table that outlines the recommended daily intake for adults based on the different food groups:
+// |Nutrient|Recommended Daily Intake|Example Foods|
+// |---|---|---|
+// |**Carbohydrates**|45-65% of total calories|Whole grains, fruits, vegetables|
+// |**Proteins**|10-35% of total calories|Lean meats, beans, legumes, nuts, dairy|
+// |**Fats**|20-35% of total calories|Olive oil, avocado, nuts, fatty fish|
+// |**Fiber**|25-30 grams|Whole grains, fruits, vegetables, legumes|
+// |**Vitamins & Minerals**|Varies (See below)|Fruits, vegetables, dairy, fortified cereals|
+// |**Water**|2-3 liters/day|Water, herbal teas, soups|
+// ---
+// ## Conclusion
+// Incorporating a variety of nutrient-rich foods into your diet is essential for maintaining your health. A balanced diet helps improve your physical and mental well-being, boosts energy levels, and reduces the risk of chronic conditions. By following the guidelines above, you can work toward achieving a healthier and happier life.
+const tableFromChatGPT = '''
+<meta charset="utf-8" />
+<h1>The Benefits of a Balanced Diet</h1>
+<p>
+    A balanced diet is crucial for maintaining overall health and well-being. It provides the necessary nutrients your body needs to function effectively, supports growth and development, and helps prevent chronic diseases. In this guide,
+    we will explore the key benefits of a balanced diet and how it can improve your life.
+</p>
+<hr />
+<h2>Key Components of a Balanced Diet</h2>
+<p>A balanced diet consists of various food groups, each providing essential nutrients. The main components include:</p>
+<ol>
+    <li><strong>Carbohydrates</strong> – Provide energy for daily activities.</li>
+    <li><strong>Proteins</strong> – Support growth, muscle repair, and immune function.</li>
+    <li><strong>Fats</strong> – Aid in cell function and energy storage.</li>
+    <li><strong>Vitamins and Minerals</strong> – Essential for immune function, bone health, and overall bodily processes.</li>
+    <li><strong>Fiber</strong> – Promotes healthy digestion and reduces the risk of chronic diseases.</li>
+    <li><strong>Water</strong> – Vital for hydration and proper bodily functions.</li>
+</ol>
+<hr />
+<h2>Health Benefits of a Balanced Diet</h2>
+<p>Maintaining a balanced diet can have profound effects on your health. Below are some of the most significant benefits:</p>
+<hr />
+<h3>1. <strong>Improved Heart Health</strong></h3>
+<p>A balanced diet rich in fruits, vegetables, and healthy fats helps lower cholesterol levels, reduce inflammation, and maintain a healthy blood pressure.</p>
+<h3>2. <strong>Better Weight Management</strong></h3>
+<p>By consuming nutrient-dense foods and avoiding overeating, you can achieve and maintain a healthy weight.</p>
+<h3>3. <strong>Enhanced Mental Health</strong></h3>
+<p>Proper nutrition supports brain function, which can improve mood, cognitive performance, and mental well-being.</p>
+<h3>4. <strong>Stronger Immune System</strong></h3>
+<p>A diet full of vitamins and minerals strengthens the immune system and helps the body fight off infections.</p>
+<hr />
+<h2>Recommended Daily Nutrient Intake</h2>
+<p>Below is a table that outlines the recommended daily intake for adults based on the different food groups:</p>
+<table>
+    <thead>
+        <tr>
+            <th>Nutrient</th>
+            <th>Recommended Daily Intake</th>
+            <th>Example Foods</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Carbohydrates</strong></td>
+            <td>45-65% of total calories</td>
+            <td>Whole grains, fruits, vegetables</td>
+        </tr>
+        <tr>
+            <td><strong>Proteins</strong></td>
+            <td>10-35% of total calories</td>
+            <td>Lean meats, beans, legumes, nuts, dairy</td>
+        </tr>
+        <tr>
+            <td><strong>Fats</strong></td>
+            <td>20-35% of total calories</td>
+            <td>Olive oil, avocado, nuts, fatty fish</td>
+        </tr>
+        <tr>
+            <td><strong>Fiber</strong></td>
+            <td>25-30 grams</td>
+            <td>Whole grains, fruits, vegetables, legumes</td>
+        </tr>
+        <tr>
+            <td><strong>Vitamins &amp; Minerals</strong></td>
+            <td>Varies (See below)</td>
+            <td>Fruits, vegetables, dairy, fortified cereals</td>
+        </tr>
+        <tr>
+            <td><strong>Water</strong></td>
+            <td>2-3 liters/day</td>
+            <td>Water, herbal teas, soups</td>
+        </tr>
+    </tbody>
+</table>
+<hr />
+<h2>Conclusion</h2>
+<p>
+    Incorporating a variety of nutrient-rich foods into your diet is essential for maintaining your health. A balanced diet helps improve your physical and mental well-being, boosts energy levels, and reduces the risk of chronic conditions.
+    By following the guidelines above, you can work toward achieving a healthier and happier life.
+</p>
+''';
+
+// | Month | Savings |
+// | -------- | ------- |
+// | January | $250 |
+// | February | $80 |
+// | March | $420 |
+const tableFromAppleNotes = '''
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<title></title>
+<meta name="Generator" content="Cocoa HTML Writer">
+<meta name="CocoaVersion" content="2566">
+<style type="text/css">
+p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px '.AppleSystemUIFont'}
+table.t1 {border-collapse: collapse}
+td.td1 {border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #9a9a9a #9a9a9a #9a9a9a #9a9a9a; padding: 1.0px 5.0px 1.0px 5.0px}
+</style>
+</head>
+<body>
+<table cellspacing="0" cellpadding="0" class="t1">
+<tbody>
+<tr>
+<td valign="top" class="td1">
+<p class="p1">Month</p>
+</td>
+<td valign="top" class="td1">
+<p class="p1">Savings</p>
+</td>
+</tr>
+<tr>
+<td valign="top" class="td1">
+<p class="p1">January</p>
+</td>
+<td valign="top" class="td1">
+<p class="p1">\$250</p>
+</td>
+</tr>
+<tr>
+<td valign="top" class="td1">
+<p class="p1">February</p>
+</td>
+<td valign="top" class="td1">
+<p class="p1">\$80</p>
+</td>
+</tr>
+<tr>
+<td valign="top" class="td1">
+<p class="p1">March</p>
+</td>
+<td valign="top" class="td1">
+<p class="p1">\$420</p>
+</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
+''';

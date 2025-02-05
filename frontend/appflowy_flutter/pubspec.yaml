@@ -175,7 +175,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "7b33754"
+      ref: "e4648cc"
 
   appflowy_editor_plugins:
     git:
@@ -203,6 +203,9 @@ dependency_overrides:
     git:
       url: https://github.com/LucasXu0/reorderable_tabbar
       ref: 93c4977
+  # Don't upgrade file_picker until the issue is fixed
+  # https://github.com/miguelpruivo/flutter_file_picker/issues/1652
+  file_picker: 8.1.4
 
 flutter:
   generate: true

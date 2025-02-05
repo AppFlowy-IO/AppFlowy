@@ -141,6 +141,7 @@ class SettingsDialog extends StatelessWidget {
       case SettingsPage.ai:
         if (user.authenticator == AuthenticatorPB.AppFlowyCloud) {
           return SettingsAIView(
+            key: ValueKey(user.hashCode),
             userProfile: user,
             currentWorkspaceMemberRole: currentWorkspaceMemberRole,
             workspaceId: workspaceId,

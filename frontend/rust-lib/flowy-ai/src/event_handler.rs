@@ -13,6 +13,7 @@ use flowy_ai_pub::cloud::{ChatMessageMetadata, ChatMessageType, ChatRAGData, Con
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use lib_infra::isolate_stream::IsolateSink;
+use serde_json::json;
 use std::sync::{Arc, Weak};
 use tracing::trace;
 use validator::Validate;
@@ -105,6 +106,22 @@ pub(crate) async fn regenerate_response_handler(
     )
     .await?;
   Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_available_model_list_handler(
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> DataResult<ModelConfigPB, FlowyError> {
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let available_models = ai_manager.get_available_models().await?;
+  let models = available_models
+    .models
+    .into_iter()
+    .map(|m| m.name)
+    .collect::<Vec<String>>();
+
+  let models = serde_json::to_string(&json!({"models": models}))?;
+  data_result_ok(ModelConfigPB { models })
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]

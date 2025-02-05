@@ -13,6 +13,9 @@ const _imgUrlPattern =
     r'(https?:\/\/)([^\s(["<,>/]*)(\/)[^\s[",><]*(.png|.jpg|.jpeg|.gif|.webm|.webp|.bmp)(\?[^\s[",><]*)?';
 final imgUrlRegex = RegExp(_imgUrlPattern);
 
+const _singleLineMarkdownImagePattern = "^!\\[.*\\]\\(($_hrefPattern)\\)\$";
+final singleLineMarkdownImageRegex = RegExp(_singleLineMarkdownImagePattern);
+
 /// This pattern allows for both HTTP and HTTPS Scheme
 /// It allows for query parameters
 /// It only allows the following video extensions:
@@ -48,3 +51,7 @@ final localPathRegex = RegExp(_localPathPattern, caseSensitive: false);
 
 const _wordPattern = r"\S+";
 final wordRegex = RegExp(_wordPattern);
+
+const _appleNotesPattern =
+    r'<meta\s+name="Generator"\s+content="Cocoa HTML Writer"\s*>\s*<meta\s+name="CocoaVersion"\s+content="\d+"\s*>';
+final appleNotesRegex = RegExp(_appleNotesPattern);

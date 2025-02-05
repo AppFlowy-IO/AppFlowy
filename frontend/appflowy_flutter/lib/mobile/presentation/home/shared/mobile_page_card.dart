@@ -11,6 +11,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emo
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/flowy_gradient_colors.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
@@ -81,7 +82,14 @@ class MobileViewPage extends StatelessWidget {
               spaceRatio: 4,
             ),
             child: AnimatedGestureDetector(
-              onTapUp: () => context.pushView(view),
+              onTapUp: () => context.pushView(
+                view,
+                tabs: [
+                  PickerTabType.emoji,
+                  PickerTabType.icon,
+                  PickerTabType.custom,
+                ].map((e) => e.name).toList(),
+              ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -140,7 +148,8 @@ class MobileViewPage extends StatelessWidget {
     final iconUrl = userProfile?.iconUrl;
     if (iconUrl == null ||
         iconUrl.isEmpty ||
-        view.createdBy != userProfile?.id) {
+        view.createdBy != userProfile?.id ||
+        !isURL(iconUrl)) {
       return const SizedBox.shrink();
     }
 
@@ -182,7 +191,7 @@ class MobileViewPage extends StatelessWidget {
             WidgetSpan(
               child: SizedBox(
                 width: 20,
-                child: EmojiIconWidget(
+                child: RawEmojiIconWidget(
                   emoji: icon,
                   emojiSize: 18.0,
                 ),
@@ -206,7 +215,7 @@ class MobileViewPage extends StatelessWidget {
   Widget _buildAuthor(BuildContext context, RecentViewState state) {
     return FlowyText.regular(
       // view.createdBy.toString(),
-      'Lucas',
+      '',
       fontSize: 12.0,
       color: Theme.of(context).hintColor,
       overflow: TextOverflow.ellipsis,

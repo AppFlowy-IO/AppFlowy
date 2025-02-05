@@ -60,6 +60,10 @@ pub fn init(ai_manager: Weak<AIManager>) -> AFPlugin {
     .event(AIEvent::GetChatSettings, get_chat_settings_handler)
     .event(AIEvent::UpdateChatSettings, update_chat_settings_handler)
     .event(AIEvent::RegenerateResponse, regenerate_response_handler)
+    .event(
+      AIEvent::GetAvailableModels,
+      get_available_model_list_handler,
+    )
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -154,4 +158,7 @@ pub enum AIEvent {
 
   #[event(input = "RegenerateResponsePB")]
   RegenerateResponse = 27,
+
+  #[event(output = "ModelConfigPB")]
+  GetAvailableModels = 28,
 }

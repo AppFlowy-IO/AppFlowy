@@ -13,6 +13,7 @@ import 'package:appflowy/plugins/ai_chat/application/chat_select_sources_cubit.d
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
+import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
@@ -164,13 +165,14 @@ class CopyButton extends StatelessWidget {
           size: const Size.square(16),
         ),
         onPressed: () async {
+          final messageText = textMessage.text.trim();
           final document = customMarkdownToDocument(
-            textMessage.text,
+            messageText,
             tableWidth: 250.0,
           );
           await getIt<ClipboardService>().setData(
             ClipboardServiceData(
-              plainText: textMessage.text,
+              plainText: _stripMarkdownIfNecessary(messageText),
               inAppJson: jsonEncode(document.toJson()),
             ),
           );
@@ -183,6 +185,17 @@ class CopyButton extends StatelessWidget {
         },
       ),
     );
+  }
+
+  String _stripMarkdownIfNecessary(String plainText) {
+    // match and capture inner url as group
+    final matches = singleLineMarkdownImageRegex.allMatches(plainText);
+
+    if (matches.length != 1) {
+      return plainText;
+    }
+
+    return matches.first[1] ?? plainText;
   }
 }
 

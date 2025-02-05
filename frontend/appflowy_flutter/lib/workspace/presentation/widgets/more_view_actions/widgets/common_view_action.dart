@@ -125,7 +125,10 @@ class CustomViewAction extends StatelessWidget {
       child: FlowyIconTextButton(
         margin: const EdgeInsets.symmetric(horizontal: 6),
         onTap: onTap,
-        leftIconBuilder: (onHover) => FlowySvg(leftIcon),
+        leftIconBuilder: (onHover) => FlowySvg(
+          leftIcon,
+          size: const Size.square(16.0),
+        ),
         iconPadding: 10.0,
         textBuilder: (onHover) => FlowyText(
           label,
