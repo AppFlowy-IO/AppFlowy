@@ -458,7 +458,7 @@ void main() {
     });
 
     testWidgets('paste the image url', (tester) async {
-      const plainText = 'https://appflowy.io/1.jpg';
+      const plainText = 'http://example.com/1.jpg';
       final image = await rootBundle.load('assets/test/images/sample.jpeg');
       final bytes = image.buffer.asUint8List();
       await tester.pasteContent(plainText: plainText, image: ('jpeg', bytes),

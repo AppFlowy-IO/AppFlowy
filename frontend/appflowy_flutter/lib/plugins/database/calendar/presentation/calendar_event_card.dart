@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/database/application/row/row_controller.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/mobile/presentation/database/card/card_detail/mobile_card_detail_screen.dart';
@@ -178,10 +179,13 @@ class _EventCardState extends State<EventCard> {
 
               FlowyOverlay.show(
                 context: context,
-                builder: (_) => RowDetailPage(
-                  databaseController: widget.databaseController,
-                  rowController: rowController,
-                  userProfile: context.read<CalendarBloc>().userProfile,
+                builder: (_) => BlocProvider.value(
+                  value: context.read<UserWorkspaceBloc>(),
+                  child: RowDetailPage(
+                    databaseController: widget.databaseController,
+                    rowController: rowController,
+                    userProfile: context.read<CalendarBloc>().userProfile,
+                  ),
                 ),
               );
             },
