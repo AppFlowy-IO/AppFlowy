@@ -14,13 +14,11 @@
                 https://your_domain/your_path/release_notes.html
             </sparkle:releaseNotesLink>
             <pubDate>Wed, 04 Feb 2025 12:00:00 +0800</pubDate>
-            <sparkle:criticalUpdate>
-                <sparkle:version>0.8.2</sparkle:version> <!-- All versions below 2.0.0 must update -->
-            </sparkle:criticalUpdate>
             <enclosure url="0.8.3/AppFlowy-0.8.3.zip"
                 sparkle:edSignature="W5nQ7+xsYltj+plgl6mZC93lmIx7fc70/ZrVzhzWgMK4PVOdAVSjJ/RSwtX5iVXEWwZgBOfJAvGqpGDJvU5kCA=="
                 sparkle:os="macos"
                 length="126728517"
+                sparkle:criticalUpdate="true"
                 type="application/octet-stream" />
         </item>
         <item>
