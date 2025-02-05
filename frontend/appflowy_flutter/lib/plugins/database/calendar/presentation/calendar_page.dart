@@ -14,7 +14,6 @@ import 'package:appflowy/plugins/database/calendar/application/calendar_bloc.dar
 import 'package:appflowy/plugins/database/calendar/application/unschedule_event_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
-import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -458,14 +457,18 @@ class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
                 ),
               ),
             ),
-            popupBuilder: (_) => BlocProvider.value(
-              value: context.read<CalendarBloc>(),
-              child: BlocProvider.value(
-                value: context.read<ViewBloc>(),
-                child: UnscheduleEventsList(
-                  databaseController: widget.databaseController,
-                  unscheduleEvents: state.unscheduleEvents,
+            popupBuilder: (_) => MultiBlocProvider(
+              providers: [
+                BlocProvider.value(
+                  value: context.read<CalendarBloc>(),
                 ),
+                BlocProvider.value(
+                  value: context.read<UserWorkspaceBloc>(),
+                ),
+              ],
+              child: UnscheduleEventsList(
+                databaseController: widget.databaseController,
+                unscheduleEvents: state.unscheduleEvents,
               ),
             ),
           );
