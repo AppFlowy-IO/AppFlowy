@@ -488,9 +488,7 @@ pub(crate) async fn delete_file_handler(
   params: AFPluginData<DeleteFilePB>,
   manager: AFPluginState<Weak<DocumentManager>>,
 ) -> FlowyResult<()> {
-  let DeleteFilePB {
-    url,
-  } = params.try_into_inner()?;
+  let DeleteFilePB { url } = params.try_into_inner()?;
   let manager = upgrade_document(manager)?;
   manager.delete_file(url).await
 }

@@ -5,6 +5,7 @@ import 'package:appflowy/shared/icon_emoji_picker/recent_icons.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
+import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -287,6 +288,59 @@ void main() {
         value,
         iconData,
       );
+    }
+  });
+
+  testWidgets('Update page custom svg icon in title bar by pasting a link',
+      (tester) async {
+    await tester.initializeAppFlowy();
+    await tester.tapAnonymousSignInButton();
+
+    /// prepare local image
+    const testIconLink =
+        'https://beta.appflowy.cloud/api/file_storage/008e6f23-516b-4d8d-b1fe-2b75c51eee26/v1/blob/6bdf8dff%2D0e54%2D4d35%2D9981%2Dcde68bef1141/BGpLnRtb3AGBNgSJsceu70j83zevYKrMLzqsTIJcBeI=.svg';
+
+    /// create document, board, grid and calendar views
+    for (final value in ViewLayoutPB.values) {
+      if (value == ViewLayoutPB.Chat) {
+        continue;
+      }
+
+      await tester.createNewPageWithNameUnderParent(
+        name: value.name,
+        parentName: gettingStarted,
+        layout: value,
+      );
+
+      /// update its icon
+      await tester.updatePageIconInTitleBarByPasteALink(
+        name: value.name,
+        layout: value,
+        iconLink: testIconLink,
+      );
+
+      /// check if there is a svg in page
+      final pageName = tester.findPageName(
+        value.name,
+        layout: value,
+      );
+      final imageInPage = find.descendant(
+        of: pageName,
+        matching: find.byType(SvgPicture),
+      );
+      expect(imageInPage, findsOneWidget);
+
+      /// check if there is a svg in title
+      final imageInTitle = find.descendant(
+        of: find.byType(ViewTitleBar),
+        matching: find.byWidgetPredicate((w) {
+          if (w is! SvgPicture) return false;
+          final loader = w.bytesLoader;
+          if (loader is! SvgFileLoader) return false;
+          return loader.file.path.endsWith('.svg');
+        }),
+      );
+      expect(imageInTitle, findsOneWidget);
     }
   });
 }

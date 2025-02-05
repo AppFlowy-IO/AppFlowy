@@ -679,6 +679,25 @@ extension CommonOperations on WidgetTester {
     await pumpAndSettle();
   }
 
+  Future<void> updatePageIconInTitleBarByPasteALink({
+    required String name,
+    required ViewLayoutPB layout,
+    required String iconLink,
+  }) async {
+    await openPage(
+      name,
+      layout: layout,
+    );
+    final title = find.descendant(
+      of: find.byType(ViewTitleBar),
+      matching: find.text(name),
+    );
+    await tapButton(title);
+    await tapButton(find.byType(EmojiPickerButton));
+    await pasteImageLinkAsIcon(iconLink);
+    await pumpAndSettle();
+  }
+
   Future<void> openNotificationHub({int tabIndex = 0}) async {
     final finder = find.descendant(
       of: find.byType(NotificationButton),
