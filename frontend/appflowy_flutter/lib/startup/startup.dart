@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:appflowy/env/cloud_env.dart';
-import 'package:appflowy/startup/tasks/feature_flag_task.dart';
 import 'package:appflowy/util/expand_views.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
@@ -139,6 +138,8 @@ class FlowyRunner {
           // The DeviceOrApplicationInfoTask should be placed before the AppWidgetTask to fetch the app information.
           // It is unable to get the device information from the test environment.
           const ApplicationInfoTask(),
+          // The auto update task should be placed after the ApplicationInfoTask to fetch the latest version.
+          AutoUpdateTask(),
           const HotKeyTask(),
           if (isAppFlowyCloudEnabled) InitAppFlowyCloudTask(),
           const InitAppWidgetTask(),

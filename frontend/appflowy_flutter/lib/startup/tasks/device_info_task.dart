@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:appflowy_backend/log.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:version/version.dart';
 
 import '../startup.dart';
 
@@ -15,6 +17,20 @@ class ApplicationInfo {
   // macOS major version
   static int? macOSMajorVersion;
   static int? macOSMinorVersion;
+
+  // latest version
+  static ValueNotifier<String> latestVersionNotifier = ValueNotifier('');
+  // the version number is like 0.9.0
+  static String get latestVersion => latestVersionNotifier.value;
+
+  // If the latest version is greater than the current version, it means there is an update available
+  static bool get isUpdateAvailable {
+    try {
+      return Version.parse(latestVersion) > Version.parse(applicationVersion);
+    } catch (e) {
+      return false;
+    }
+  }
 }
 
 class ApplicationInfoTask extends LaunchTask {
@@ -36,10 +52,8 @@ class ApplicationInfoTask extends LaunchTask {
       ApplicationInfo.androidSDKVersion = androidInfo.version.sdkInt;
     }
 
-    if (Platform.isAndroid || Platform.isIOS) {
-      ApplicationInfo.applicationVersion = packageInfo.version;
-      ApplicationInfo.buildNumber = packageInfo.buildNumber;
-    }
+    ApplicationInfo.applicationVersion = packageInfo.version;
+    ApplicationInfo.buildNumber = packageInfo.buildNumber;
 
     String? deviceId;
     try {

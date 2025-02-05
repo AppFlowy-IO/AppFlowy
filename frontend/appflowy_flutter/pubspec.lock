@@ -124,26 +124,23 @@ packages:
   auto_updater:
     dependency: "direct main"
     description:
-      name: auto_updater
-      sha256: "74fd008b021d15e4fc50fb5f1923870e6374ae831bb1168241c23bc35a4e898b"
-      url: "https://pub.dev"
-    source: hosted
+      path: "/Users/lucas.xu/Desktop/auto_updater/packages/auto_updater"
+      relative: false
+    source: path
     version: "1.0.0"
   auto_updater_macos:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: auto_updater_macos
-      sha256: ef9de0daf38d782d2243fe131503a9404d62df762f5386e5360020e43c01867f
-      url: "https://pub.dev"
-    source: hosted
+      path: "/Users/lucas.xu/Desktop/auto_updater/packages/auto_updater_macos"
+      relative: false
+    source: path
     version: "1.0.0"
   auto_updater_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: auto_updater_platform_interface
-      sha256: ed5dff8cea18c58bc5ac787ff9122fedd1644272e02015d28c9b592f8078c5dc
-      url: "https://pub.dev"
-    source: hosted
+      path: "/Users/lucas.xu/Desktop/auto_updater/packages/auto_updater_platform_interface"
+      relative: false
+    source: path
     version: "1.0.0"
   auto_updater_windows:
     dependency: transitive
@@ -2298,6 +2295,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  version:
+    dependency: "direct main"
+    description:
+      name: version
+      sha256: "3d4140128e6ea10d83da32fef2fa4003fccbf6852217bb854845802f04191f94"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.2"
   visibility_detector:
     dependency: transitive
     description:

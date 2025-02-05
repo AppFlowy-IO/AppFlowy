@@ -115,4 +115,9 @@ class KVKeys {
   ///
   /// The value is a json string of [RecentIcons]
   static const String recentIcons = 'kRecentIcons';
+
+  /// The key for saving the skipped version
+  ///
+  /// The value is a json string of [String]
+  static const String skippedVersion = 'skippedVersion';
 }
