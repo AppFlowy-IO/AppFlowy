@@ -72,8 +72,8 @@
     "LogInWithGoogle": "Se connecter avec Google",
     "LogInWithGithub": "Se connecter avec Github",
     "LogInWithDiscord": "Se connecter avec Discord",
-    "loginAsGuestButtonText": "Commencer",
-    "logInWithMagicLink": "Connectez-vous avec Magic Link"
+    "logInWithMagicLink": "Connectez-vous avec Magic Link",
+    "loginAsGuestButtonText": "Commencer"
   },
   "workspace": {
     "chooseWorkspace": "Choisissez votre espace de travail",

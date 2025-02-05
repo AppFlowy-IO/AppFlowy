@@ -58,11 +58,7 @@
     "pleaseInputYourEmail": "Cuir isteach do sheoladh ríomhphoist",
     "settings": "Socruithe",
     "logIn": "Logáil isteach",
-    "generalError": "Chuaigh rud éigin mícheart. Bain triail eile as ar ball",
-    "LogInWithGoogle": "Logáil isteach le Google",
-    "LogInWithGithub": "Logáil isteach le Github",
-    "LogInWithDiscord": "Logáil isteach le Discord",
-    "logInWithMagicLink": "Logáil isteach le nasc draíochta"
+    "generalError": "Chuaigh rud éigin mícheart. Bain triail eile as ar ball"
   },
   "workspace": {
     "defaultName": "Mo Spás Oibre",
