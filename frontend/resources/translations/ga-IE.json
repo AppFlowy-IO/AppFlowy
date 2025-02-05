@@ -106,5 +106,14 @@
     "visitSite": "Tabhair cuairt ar an suíomh",
     "publishTab": "Foilsigh",
     "shareTab": "Comhroinn"
+  },
+  "moreAction": {
+    "small": "beag",
+    "medium": "meánach",
+    "large": "mór",
+    "fontSize": "Clómhéid",
+    "import": "Iompórtáil",
+    "createdAt": "Cruthaithe: {}",
+    "deleteView": "Scrios"
   }
 }
