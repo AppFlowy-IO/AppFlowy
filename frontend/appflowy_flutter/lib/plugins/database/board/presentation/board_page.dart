@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/util/field_type_extension.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
 
@@ -856,10 +857,13 @@ void _openCard({
 
   FlowyOverlay.show(
     context: context,
-    builder: (_) => RowDetailPage(
-      databaseController: databaseController,
-      rowController: rowController,
-      userProfile: context.read<BoardBloc>().userProfile,
+    builder: (_) => BlocProvider.value(
+      value: context.read<UserWorkspaceBloc>(),
+      child: RowDetailPage(
+        databaseController: databaseController,
+        rowController: rowController,
+        userProfile: context.read<BoardBloc>().userProfile,
+      ),
     ),
   );
 }

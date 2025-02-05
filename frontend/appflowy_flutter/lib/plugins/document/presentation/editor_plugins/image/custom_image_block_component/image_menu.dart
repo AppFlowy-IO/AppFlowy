@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu/block_menu_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/common.dart';
@@ -145,7 +146,8 @@ class _ImageMenuState extends State<ImageMenu> {
     showDialog(
       context: context,
       builder: (_) => InteractiveImageViewer(
-        userProfile: context.read<UserWorkspaceBloc>().userProfile,
+        userProfile: context.read<UserWorkspaceBloc?>()?.userProfile ??
+            context.read<DocumentBloc>().state.userProfilePB,
         imageProvider: AFBlockImageProvider(
           images: [
             ImageBlockData(
