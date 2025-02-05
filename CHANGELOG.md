@@ -3,7 +3,7 @@
 ### New Features
 - Support OpenAI o3-mini model
 ### Bug Fixes
-- Fixed an issue where users were unable to upload images or photo galleries in row pages
+- Fixed an issue where users were unable to upload images in row pages
 - Fixed an issue where users were unable to upload files on Android devices
 
 ## Version 0.8.2 - 23/01/2025
