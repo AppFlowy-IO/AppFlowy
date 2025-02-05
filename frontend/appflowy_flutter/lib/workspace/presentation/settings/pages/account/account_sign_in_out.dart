@@ -28,15 +28,21 @@ class AccountSignInOutButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PrimaryRoundedButton(
-      text: signIn
-          ? LocaleKeys.settings_accountPage_login_loginLabel.tr()
-          : LocaleKeys.settings_accountPage_login_logoutLabel.tr(),
-      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      fontWeight: FontWeight.w600,
-      radius: 12.0,
-      onTap: () =>
-          signIn ? _showSignInDialog(context) : _showLogoutDialog(context),
+    return Row(
+      children: [
+        const FlowyText.regular('Account login'),
+        const Spacer(),
+        PrimaryRoundedButton(
+          text: signIn
+              ? LocaleKeys.settings_accountPage_login_loginLabel.tr()
+              : LocaleKeys.settings_accountPage_login_logoutLabel.tr(),
+          margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          fontWeight: FontWeight.w500,
+          radius: 8.0,
+          onTap: () =>
+              signIn ? _showSignInDialog(context) : _showLogoutDialog(context),
+        ),
+      ],
     );
   }
 
