@@ -199,32 +199,32 @@ dependency_overrides:
       commit: fbab857b1b1d209240a146d32f496379b9f62276
       path: flutter_cache_manager
 
-  # auto_updater:
-  #   git:
-  #     url: https://github.com/LucasXu0/auto_updater.git
-  #     path: packages/auto_updater
-  #     ref: 03e9b75
-
-  # auto_updater_macos:
-  #   git:
-  #     url: https://github.com/LucasXu0/auto_updater.git
-  #     path: packages/auto_updater_macos
-  #     ref: 03e9b75
-
-  # auto_updater_platform_interface:
-  #   git:
-  #     url: https://github.com/LucasXu0/auto_updater.git
-  #     path: packages/auto_updater_platform_interface
-  #     ref: 03e9b75
-
   auto_updater:
-    path: /Users/lucas.xu/Desktop/auto_updater/packages/auto_updater
+    git:
+      url: https://github.com/LucasXu0/auto_updater.git
+      path: packages/auto_updater
+      ref: a1ed0ba
 
   auto_updater_macos:
-    path: /Users/lucas.xu/Desktop/auto_updater/packages/auto_updater_macos
+    git:
+      url: https://github.com/LucasXu0/auto_updater.git
+      path: packages/auto_updater_macos
+      ref: a1ed0ba
 
   auto_updater_platform_interface:
-    path: /Users/lucas.xu/Desktop/auto_updater/packages/auto_updater_platform_interface
+    git:
+      url: https://github.com/LucasXu0/auto_updater.git
+      path: packages/auto_updater_platform_interface
+      ref: a1ed0ba
+
+  # auto_updater:
+  #   path: /Users/lucas.xu/Desktop/auto_updater/packages/auto_updater
+
+  # auto_updater_macos:
+  #   path: /Users/lucas.xu/Desktop/auto_updater/packages/auto_updater_macos
+
+  # auto_updater_platform_interface:
+  #   path: /Users/lucas.xu/Desktop/auto_updater/packages/auto_updater_platform_interface
 
 flutter:
   generate: true

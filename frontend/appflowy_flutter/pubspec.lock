@@ -124,23 +124,29 @@ packages:
   auto_updater:
     dependency: "direct main"
     description:
-      path: "/Users/lucas.xu/Desktop/auto_updater/packages/auto_updater"
-      relative: false
-    source: path
+      path: "packages/auto_updater"
+      ref: a1ed0ba
+      resolved-ref: a1ed0baae725d3d0be210149b24bb4d6dcfa896a
+      url: "https://github.com/LucasXu0/auto_updater.git"
+    source: git
     version: "1.0.0"
   auto_updater_macos:
     dependency: "direct overridden"
     description:
-      path: "/Users/lucas.xu/Desktop/auto_updater/packages/auto_updater_macos"
-      relative: false
-    source: path
+      path: "packages/auto_updater_macos"
+      ref: a1ed0ba
+      resolved-ref: a1ed0baae725d3d0be210149b24bb4d6dcfa896a
+      url: "https://github.com/LucasXu0/auto_updater.git"
+    source: git
     version: "1.0.0"
   auto_updater_platform_interface:
     dependency: "direct overridden"
     description:
-      path: "/Users/lucas.xu/Desktop/auto_updater/packages/auto_updater_platform_interface"
-      relative: false
-    source: path
+      path: "packages/auto_updater_platform_interface"
+      ref: a1ed0ba
+      resolved-ref: a1ed0baae725d3d0be210149b24bb4d6dcfa896a
+      url: "https://github.com/LucasXu0/auto_updater.git"
+    source: git
     version: "1.0.0"
   auto_updater_windows:
     dependency: transitive
