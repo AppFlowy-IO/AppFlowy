@@ -135,15 +135,26 @@ class _AppFlowyAutoUpdaterListener extends UpdaterListener {
   }
 
   @override
-  void onUpdaterUserUpdateChoice(
-    UserUpdateChoice? choice,
-    AppcastItem? appcastItem,
-  ) {
-    _updateVersionNotifier(appcastItem);
-    Log.info('[AutoUpdate] User update choice: $choice');
+  void onUpdaterUpdateCancelled(AppcastItem? item) {
+    _updateVersionNotifier(item);
+
+    Log.info('[AutoUpdate] Update cancelled: ${item?.displayVersionString}');
   }
 
-  // call this function when getting the latest appcast item
+  @override
+  void onUpdaterUpdateInstalled(AppcastItem? item) {
+    _updateVersionNotifier(item);
+
+    Log.info('[AutoUpdate] Update installed: ${item?.displayVersionString}');
+  }
+
+  @override
+  void onUpdaterUpdateSkipped(AppcastItem? item) {
+    _updateVersionNotifier(item);
+
+    Log.info('[AutoUpdate] Update skipped: ${item?.displayVersionString}');
+  }
+
   void _updateVersionNotifier(AppcastItem? item) {
     if (item != null) {
       ApplicationInfo.latestAppcastItem = item;

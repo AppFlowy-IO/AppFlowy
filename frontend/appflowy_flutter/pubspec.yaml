@@ -207,19 +207,19 @@ dependency_overrides:
     git:
       url: https://github.com/LucasXu0/auto_updater.git
       path: packages/auto_updater
-      ref: b61573aa64bfcdf9df6bdfc250920765619d97eb
+      ref: 1d81a824f3633f1d0200ba51b78fe0f9ce429458
 
   auto_updater_macos:
     git:
       url: https://github.com/LucasXu0/auto_updater.git
       path: packages/auto_updater_macos
-      ref: b61573aa64bfcdf9df6bdfc250920765619d97eb
+      ref: 1d81a824f3633f1d0200ba51b78fe0f9ce429458
 
   auto_updater_platform_interface:
     git:
       url: https://github.com/LucasXu0/auto_updater.git
       path: packages/auto_updater_platform_interface
-      ref: b61573aa64bfcdf9df6bdfc250920765619d97eb
+      ref: 1d81a824f3633f1d0200ba51b78fe0f9ce429458
 
   # auto_updater:
   #   path: /Users/lucas.xu/Desktop/auto_updater/packages/auto_updater

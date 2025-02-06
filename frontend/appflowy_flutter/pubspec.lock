@@ -125,8 +125,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/auto_updater"
-      ref: b61573aa64bfcdf9df6bdfc250920765619d97eb
-      resolved-ref: b61573aa64bfcdf9df6bdfc250920765619d97eb
+      ref: "1d81a824f3633f1d0200ba51b78fe0f9ce429458"
+      resolved-ref: "1d81a824f3633f1d0200ba51b78fe0f9ce429458"
       url: "https://github.com/LucasXu0/auto_updater.git"
     source: git
     version: "1.0.0"
@@ -134,8 +134,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "packages/auto_updater_macos"
-      ref: b61573aa64bfcdf9df6bdfc250920765619d97eb
-      resolved-ref: b61573aa64bfcdf9df6bdfc250920765619d97eb
+      ref: "1d81a824f3633f1d0200ba51b78fe0f9ce429458"
+      resolved-ref: "1d81a824f3633f1d0200ba51b78fe0f9ce429458"
       url: "https://github.com/LucasXu0/auto_updater.git"
     source: git
     version: "1.0.0"
@@ -143,8 +143,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "packages/auto_updater_platform_interface"
-      ref: b61573aa64bfcdf9df6bdfc250920765619d97eb
-      resolved-ref: b61573aa64bfcdf9df6bdfc250920765619d97eb
+      ref: "1d81a824f3633f1d0200ba51b78fe0f9ce429458"
+      resolved-ref: "1d81a824f3633f1d0200ba51b78fe0f9ce429458"
       url: "https://github.com/LucasXu0/auto_updater.git"
     source: git
     version: "1.0.0"
