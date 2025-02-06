@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/database_node_parser.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -36,7 +37,7 @@ String customDocumentToMarkdown(Document document) {
 }
 
 Future<String> documentToMarkdownFiles(Document document, String path) async {
-  final List<Future<File>> fileFutures = [];
+  final List<Future<ArchiveFile>> fileFutures = [];
   final id = document.root.id;
 
   /// create root Archive
@@ -55,6 +56,9 @@ Future<String> documentToMarkdownFiles(Document document, String path) async {
       const ToggleListNodeParser(),
       CustomImageNodeFileParser(fileFutures, resourceDir.name),
       CustomMultiImageNodeFileParser(fileFutures, resourceDir.name),
+      GridNodeParser(fileFutures, resourceDir.name),
+      BoardNodeParser(fileFutures, resourceDir.name),
+      CalendarNodeParser(fileFutures, resourceDir.name),
       const SimpleTableNodeParser(),
       const LinkPreviewNodeParser(),
       const FileBlockNodeParser(),
@@ -68,16 +72,7 @@ Future<String> documentToMarkdownFiles(Document document, String path) async {
   archive.addFile(ArchiveFile.string('$fileName-$id.md', markdown));
 
   for (final fileFuture in fileFutures) {
-    final file = await fileFuture;
-    if (!file.existsSync()) continue;
-    final bytes = file.readAsBytesSync();
-    archive.addFile(
-      ArchiveFile(
-        p.join(resourceDir.name, p.basename(file.path)),
-        bytes.length,
-        bytes,
-      ),
-    );
+    archive.addFile(await fileFuture);
   }
   if (archive.isNotEmpty) {
     final zipEncoder = ZipEncoder();

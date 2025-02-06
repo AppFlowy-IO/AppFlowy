@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:archive/archive.dart';
 import 'package:path/path.dart' as p;
 
 import '../image/custom_image_block_component/custom_image_block_component.dart';
@@ -24,7 +25,7 @@ class CustomImageNodeParser extends NodeParser {
 class CustomImageNodeFileParser extends NodeParser {
   const CustomImageNodeFileParser(this.files, this.dirPath);
 
-  final List<Future<File>> files;
+  final List<Future<ArchiveFile>> files;
   final String dirPath;
 
   @override
@@ -36,7 +37,12 @@ class CustomImageNodeFileParser extends NodeParser {
     final url = node.attributes[CustomImageBlockKeys.url];
     final hasFile = File(url).existsSync();
     if (hasFile) {
-      files.add(Future.value(File(url)));
+      final bytes = File(url).readAsBytesSync();
+      files.add(
+        Future.value(
+          ArchiveFile(p.join(dirPath, p.basename(url)), bytes.length, bytes),
+        ),
+      );
       return '![](${p.join(dirPath, p.basename(url))})\n';
     }
     assert(url != null);
@@ -47,7 +53,7 @@ class CustomImageNodeFileParser extends NodeParser {
 class CustomMultiImageNodeFileParser extends NodeParser {
   const CustomMultiImageNodeFileParser(this.files, this.dirPath);
 
-  final List<Future<File>> files;
+  final List<Future<ArchiveFile>> files;
   final String dirPath;
 
   @override
@@ -63,8 +69,12 @@ class CustomMultiImageNodeFileParser extends NodeParser {
       if (url.isEmpty) continue;
       final hasFile = File(url).existsSync();
       if (hasFile) {
-        files.add(Future.value(File(url)));
-        markdownImages.add('![](${p.join(dirPath, p.basename(url))})');
+        final bytes = File(url).readAsBytesSync();
+        final filePath = p.join(dirPath, p.basename(url));
+        files.add(
+          Future.value(ArchiveFile(filePath, bytes.length, bytes)),
+        );
+        markdownImages.add('![]($filePath)');
       } else {
         markdownImages.add('![]($url})');
       }
