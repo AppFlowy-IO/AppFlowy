@@ -704,7 +704,7 @@ impl ChatCloudService for ServerProvider {
     workspace_id: &str,
     chat_id: &str,
     message_id: i64,
-    format: Option<ResponseFormat>,
+    format: ResponseFormat,
   ) -> Result<StreamAnswer, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let chat_id = chat_id.to_string();

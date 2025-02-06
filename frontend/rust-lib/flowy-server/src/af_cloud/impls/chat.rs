@@ -100,9 +100,8 @@ where
     workspace_id: &str,
     chat_id: &str,
     message_id: i64,
-    format: Option<ResponseFormat>,
+    format: ResponseFormat,
   ) -> Result<StreamAnswer, FlowyError> {
-    let format = format.unwrap_or_default();
     trace!(
       "stream_answer: workspace_id={}, chat_id={}, format={:?}",
       workspace_id,

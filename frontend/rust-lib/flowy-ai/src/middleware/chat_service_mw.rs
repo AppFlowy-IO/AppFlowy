@@ -156,7 +156,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
     workspace_id: &str,
     chat_id: &str,
     question_id: i64,
-    format: Option<ResponseFormat>,
+    format: ResponseFormat,
   ) -> Result<StreamAnswer, FlowyError> {
     if self.local_llm_controller.is_running() {
       let row = self.get_message_record(question_id)?;

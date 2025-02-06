@@ -54,7 +54,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
     workspace_id: &str,
     chat_id: &str,
     message_id: i64,
-    format: Option<ResponseFormat>,
+    format: ResponseFormat,
   ) -> Result<StreamAnswer, FlowyError>;
 
   async fn get_answer(

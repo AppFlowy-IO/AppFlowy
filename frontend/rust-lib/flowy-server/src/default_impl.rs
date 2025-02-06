@@ -51,7 +51,7 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     _workspace_id: &str,
     _chat_id: &str,
     _message_id: i64,
-    _format: Option<ResponseFormat>,
+    _format: ResponseFormat,
   ) -> Result<StreamAnswer, FlowyError> {
     Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
