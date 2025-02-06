@@ -138,7 +138,7 @@ impl Chat {
     // Save message to disk
     save_and_notify_message(uid, &self.chat_id, &self.user_service, question.clone())?;
 
-    let format = params.format.clone().unwrap_or_default().into();
+    let format = params.format.clone().map(Into::into).unwrap_or_default();
 
     self.stream_response(
       params.answer_stream_port,
@@ -171,7 +171,7 @@ impl Chat {
       .store(false, std::sync::atomic::Ordering::SeqCst);
     self.stream_buffer.lock().await.clear();
 
-    let format = format.unwrap_or_default().into();
+    let format = format.map(Into::into).unwrap_or_default();
 
     let answer_stream_buffer = self.stream_buffer.clone();
     let uid = self.user_service.user_id()?;
