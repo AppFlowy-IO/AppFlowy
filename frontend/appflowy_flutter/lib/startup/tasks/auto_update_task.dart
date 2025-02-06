@@ -1,9 +1,11 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/startup/tasks/device_info_task.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:auto_updater/auto_updater.dart';
 import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -34,6 +36,7 @@ class AutoUpdateTask extends LaunchTask {
         .replaceAll('{os}', ApplicationInfo.os)
         .replaceAll('{arch}', ApplicationInfo.architecture);
     Log.info('[AutoUpdate] feed url: $feedUrl');
+
     await autoUpdater.setFeedURL(feedUrl);
     await autoUpdater.checkForUpdateInformation();
 
@@ -54,16 +57,20 @@ class AutoUpdateTask extends LaunchTask {
   void _showCriticalUpdateDialog() {
     showCustomConfirmDialog(
       context: AppGlobals.rootNavKey.currentContext!,
-      title: 'Critical update',
-      description:
-          'A critical update is available. Please update to the latest version.',
+      title: LocaleKeys.autoUpdate_criticalUpdateTitle.tr(),
+      description: LocaleKeys.autoUpdate_criticalUpdateDescription.tr(
+        namedArgs: {
+          'currentVersion': ApplicationInfo.applicationVersion,
+          'newVersion': ApplicationInfo.latestVersion,
+        },
+      ),
       builder: (context) => const SizedBox.shrink(),
       // if the update is critical, dont allow the user to dismiss the dialog
       barrierDismissible: false,
       showCloseButton: false,
       enableKeyboardListener: false,
       closeOnConfirm: false,
-      confirmLabel: 'Update now',
+      confirmLabel: LocaleKeys.autoUpdate_criticalUpdateButton.tr(),
       onConfirm: () async {
         await autoUpdater.checkForUpdates();
       },
