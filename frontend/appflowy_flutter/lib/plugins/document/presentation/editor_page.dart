@@ -111,6 +111,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
   }
 
   EditorStyleCustomizer get styleCustomizer => widget.styleCustomizer;
+
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
 
   late final EditorScrollController editorScrollController;

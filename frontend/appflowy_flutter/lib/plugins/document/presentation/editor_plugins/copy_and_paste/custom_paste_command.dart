@@ -144,6 +144,13 @@ Future<void> doPaste(EditorState editorState) async {
   }
 
   if (plainText != null && plainText.isNotEmpty) {
+    final currentSelection = editorState.selection;
+    if (currentSelection == null) {
+      await editorState.updateSelectionWithReason(
+        selection,
+        reason: SelectionUpdateReason.uiEvent,
+      );
+    }
     await editorState.pasteText(plainText);
     return Log.info('Pasted plain text');
   }
