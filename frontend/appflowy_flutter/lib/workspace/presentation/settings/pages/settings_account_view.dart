@@ -2,6 +2,7 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/user/settings_user_bloc.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/about/app_version.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/account/account.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_category.dart';
@@ -74,23 +75,24 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
                   title: LocaleKeys.settings_accountPage_email_title.tr(),
                   children: [
                     FlowyText.regular(state.userProfile.email),
+                    AccountSignInOutButton(
+                      userProfile: state.userProfile,
+                      onAction: state.userProfile.authenticator ==
+                              AuthenticatorPB.Local
+                          ? widget.didLogin
+                          : widget.didLogout,
+                      signIn: state.userProfile.authenticator ==
+                          AuthenticatorPB.Local,
+                    ),
                   ],
                 ),
               ],
 
-              // user sign in/out
-              SettingsCategory(
-                title: LocaleKeys.settings_accountPage_login_title.tr(),
+              // App version
+              const SettingsCategory(
+                title: 'About AppFlowy',
                 children: [
-                  AccountSignInOutButton(
-                    userProfile: state.userProfile,
-                    onAction:
-                        state.userProfile.authenticator == AuthenticatorPB.Local
-                            ? widget.didLogin
-                            : widget.didLogout,
-                    signIn: state.userProfile.authenticator ==
-                        AuthenticatorPB.Local,
-                  ),
+                  SettingsAppVersion(),
                 ],
               ),
 
