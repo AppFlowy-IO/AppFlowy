@@ -43,6 +43,7 @@ List<CharacterShortcutEvent> buildCharacterShortcutEvents(
     ),
 
     customFormatGreaterEqual,
+    customFormatDashGreater,
 
     customFormatNumberToNumberedList,
     customFormatSignToHeading,

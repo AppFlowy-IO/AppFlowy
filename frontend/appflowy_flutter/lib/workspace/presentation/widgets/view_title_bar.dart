@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
@@ -14,6 +13,7 @@ import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
@@ -285,6 +285,11 @@ class _ViewTitleState extends State<ViewTitle> {
           popoverController: popoverController,
           icon: widget.view.defaultIcon(),
           emoji: state.icon,
+          tabs: const [
+            PickerTabType.emoji,
+            PickerTabType.icon,
+            PickerTabType.custom,
+          ],
         );
       },
       child: SizedBox(

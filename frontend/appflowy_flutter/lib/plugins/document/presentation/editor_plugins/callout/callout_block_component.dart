@@ -164,7 +164,8 @@ class _CalloutBlockComponentWidgetState
   // get the emoji of the note block from the node's attributes or default to '📌'
   EmojiIconData get emoji {
     final icon = node.attributes[CalloutBlockKeys.icon];
-    final type = node.attributes[CalloutBlockKeys.iconType];
+    final type =
+        node.attributes[CalloutBlockKeys.iconType] ?? FlowyIconType.emoji;
     EmojiIconData result = EmojiIconData.emoji('📌');
     try {
       result = EmojiIconData(FlowyIconType.values.byName(type), icon);

@@ -1,9 +1,14 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:markdown/markdown.dart' as md;
+import 'package:universal_platform/universal_platform.dart';
 
 class MarkdownSimpleTableParser extends CustomMarkdownParser {
-  const MarkdownSimpleTableParser();
+  const MarkdownSimpleTableParser({
+    this.tableWidth,
+  });
+
+  final double? tableWidth;
 
   @override
   List<Node> transform(
@@ -98,6 +103,13 @@ class MarkdownSimpleTableParser extends CustomMarkdownParser {
       );
     }
 
-    return [simpleTableBlockNode(children: rows)];
+    return [
+      simpleTableBlockNode(
+        children: rows,
+        columnWidths: UniversalPlatform.isMobile || tableWidth == null
+            ? null
+            : {for (var i = 0; i < th.length; i++) i.toString(): tableWidth!},
+      ),
+    ];
   }
 }

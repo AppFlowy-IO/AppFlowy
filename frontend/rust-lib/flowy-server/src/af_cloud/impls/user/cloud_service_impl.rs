@@ -18,7 +18,7 @@ use client_api::entity::{
 use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::{Client, ClientConfiguration};
 use collab_entity::{CollabObject, CollabType};
-use tracing::instrument;
+use tracing::{instrument, trace};
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_user_pub::cloud::{UserCloudService, UserCollabParams, UserUpdate, UserUpdateReceiver};
@@ -586,6 +586,7 @@ where
     workspace_id: &str,
     workspace_settings: AFWorkspaceSettingsChange,
   ) -> Result<AFWorkspaceSettings, FlowyError> {
+    trace!("Sync workspace settings: {:?}", workspace_settings);
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.server.try_get_client();
     let client = try_get_client?;

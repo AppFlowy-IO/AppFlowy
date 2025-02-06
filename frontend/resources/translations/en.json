@@ -150,7 +150,8 @@
     "wordCountLabel": "Word count: ",
     "charCountLabel": "Character count: ",
     "createdAtLabel": "Created: ",
-    "syncedAtLabel": "Synced: "
+    "syncedAtLabel": "Synced: ",
+    "saveAsNewPage": "Add messages to page"
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",
@@ -238,6 +239,12 @@
       "numberWithImageDescription": "@:chat.changeFormat.number with image",
       "bulletWithImageDescription": "@:chat.changeFormat.bullet with image",
       "tableWithImageDescription": "@:chat.changeFormat.table with image"
+    },
+    "selectBanner": {
+      "saveButton": "Add to …",
+      "selectMessages": "Select messages",
+      "nSelected": "{} selected",
+      "allSelected": "All selected"
     }
   },
   "trash": {
@@ -373,6 +380,8 @@
     "askOwnerToUpgradeToProIOS": "Your workspace is running out of free storage.",
     "askOwnerToUpgradeToAIMax": "Your workspace has ran out of free AI responses. Please ask your workspace owner to upgrade the plan or purchase AI add-ons",
     "askOwnerToUpgradeToAIMaxIOS": "Your workspace is running out of free AI responses.",
+    "purchaseAIMax": "Your workspace has ran out of AI Image responses. Please ask your workspace owner to purchase AI Max",
+    "aiImageResponseLimit": "You have run out of AI image responses.\n\nGo to Settings -> Plan -> Click AI Max to get more AI image responses",
     "purchaseStorageSpace": "Purchase Storage Space",
     "singleFileProPlanLimitationDescription": "You have exceeded the maximum file upload size allowed in the free plan. Please upgrade to the Pro Plan to upload larger files",
     "purchaseAIResponse": "Purchase ",
@@ -889,7 +898,7 @@
           "activeLabel": "Added",
           "aiMax": {
             "title": "AI Max",
-            "description": "Unlimited AI responses powered by GPT-4o, Claude 3.5 Sonnet, and more",
+            "description": "Unlimited AI responses powered by advanced AI models, and 50 AI images per month",
             "price": "{}",
             "priceInfo": "Per user per month billed annually"
           },
@@ -1181,6 +1190,7 @@
         "system": "Adapt to System"
       },
       "fontScaleFactor": "Font Scale Factor",
+      "displaySize": "Display Size",
       "documentSettings": {
         "cursorColor": "Document cursor color",
         "selectionColor": "Document selection color",

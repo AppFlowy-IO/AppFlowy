@@ -206,13 +206,13 @@
     "addBlockBelow": "Tambahkan blok di bawah ini"
   },
   "sideBar": {
-    "closeSidebar": "Close sidebar",
-    "openSidebar": "Open sidebar",
+    "closeSidebar": "Tutup sidebar",
+    "openSidebar": "Buka sidebar",
     "personal": "Pribadi",
     "favorites": "Favorit",
-    "clickToHidePersonal": "Klik untuk menutup seksi pribadi",
-    "clickToHideFavorites": "Klik untuk menutup seksi favorit",
-    "addAPage": "Tambah sebuah page"
+    "clickToHidePersonal": "Klik untuk menutup Pribadi",
+    "clickToHideFavorites": "Klik untuk menutup Favorit",
+    "addAPage": "Tambah halaman baru"
   },
   "notifications": {
     "export": {
@@ -305,28 +305,28 @@
     "appearance": {
       "resetSetting": "Mengatur ulang pengaturan ini",
       "fontFamily": {
-        "label": "Keluarga Fon",
-        "search": "Mencari"
+        "label": "Jenis Font",
+        "search": "Cari"
       },
       "themeMode": {
-        "label": "Theme Mode",
-        "light": "Mode Terang",
-        "dark": "Mode Gelap",
-        "system": "Adapt to System"
+        "label": "Tema",
+        "light": "Terang",
+        "dark": "Gelap",
+        "system": "Sesuai Sistem"
       },
       "layoutDirection": {
-        "label": "Arah Layout",
-        "hint": "Mengontrol aliran konten pada layar Anda, dari kiri ke kanan atau kanan ke kiri.",
-        "ltr": "LTR",
-        "rtl": "RTL"
+        "label": "Arah Tampilan",
+        "hint": "Mengatur arah tampilan konten, apakah dari kiri ke kanan atau kanan ke kiri.",
+        "ltr": "Kiri ke Kanan",
+        "rtl": "Kanan ke Kiri"
       },
       "textDirection": {
-        "label": "Arah teks default",
-        "hint": "Menentukan apakah teks harus dimulai dari kiri atau kanan sebagai default.",
-        "ltr": "LTR",
-        "rtl": "RTL",
-        "auto": "AUTO",
-        "fallback": "Sama seperti arah layout"
+        "label": "Arah Teks Bawaan",
+        "hint": "Atur arah teks bawaan, apakah dari kiri ke kanan atau kanan ke kiri.",
+        "ltr": "Kiri ke Kanan",
+        "rtl": "Kanan ke Kiri",
+        "auto": "Otomatis",
+        "fallback": "Sesuai Arah Tampilan"
       },
       "themeUpload": {
         "button": "Mengunggah",

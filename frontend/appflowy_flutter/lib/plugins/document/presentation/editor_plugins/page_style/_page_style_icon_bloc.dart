@@ -34,11 +34,7 @@ class PageStyleIconBloc extends Bloc<PageStyleIconEvent, PageStyleIconState> {
             );
           },
           updateIcon: (icon, shouldUpdateRemote) async {
-            emit(
-              state.copyWith(
-                icon: icon,
-              ),
-            );
+            emit(state.copyWith(icon: icon));
             if (shouldUpdateRemote && icon != null) {
               await ViewBackendService.updateViewIcon(
                 viewId: view.id,

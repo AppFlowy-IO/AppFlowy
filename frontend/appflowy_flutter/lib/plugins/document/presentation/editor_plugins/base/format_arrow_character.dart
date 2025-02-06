@@ -2,8 +2,10 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 
 const _greater = '>';
+const _dash = '-';
 const _equals = '=';
-const _arrow = '⇒';
+const _equalGreater = '⇒';
+const _dashGreater = '→';
 
 /// format '=' + '>' into an ⇒
 ///
@@ -18,8 +20,26 @@ final CharacterShortcutEvent customFormatGreaterEqual = CharacterShortcutEvent(
   handler: (editorState) async => _handleDoubleCharacterReplacement(
     editorState: editorState,
     character: _greater,
-    replacement: _arrow,
+    replacement: _equalGreater,
     prefixCharacter: _equals,
+  ),
+);
+
+/// format '-' + '>' into ⇒
+///
+/// - support
+///   - desktop
+///   - mobile
+///   - web
+///
+final CharacterShortcutEvent customFormatDashGreater = CharacterShortcutEvent(
+  key: 'format - + > into ->',
+  character: _greater,
+  handler: (editorState) async => _handleDoubleCharacterReplacement(
+    editorState: editorState,
+    character: _greater,
+    replacement: _dashGreater,
+    prefixCharacter: _dash,
   ),
 );
 

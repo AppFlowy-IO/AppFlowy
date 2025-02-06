@@ -49,6 +49,21 @@ void main() {
       expect(tableNode.rowLength, equals(4));
       expect(tableNode.columnLength, equals(4));
     });
+
+    test('convert markdown to simple table (2)', () async {
+      final document = customMarkdownToDocument(
+        _sampleMarkdown1,
+        tableWidth: 200,
+      );
+      expect(document, isNotNull);
+      final tableNode = document.nodeAtPath([0])!;
+      expect(tableNode, isNotNull);
+      expect(tableNode.type, equals(SimpleTableBlockKeys.type));
+      expect(tableNode.columnWidths.length, 4);
+      for (final entry in tableNode.columnWidths.entries) {
+        expect(entry.value, equals(200));
+      }
+    });
   });
 }
 

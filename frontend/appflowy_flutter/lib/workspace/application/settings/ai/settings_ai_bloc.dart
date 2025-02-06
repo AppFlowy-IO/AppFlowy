@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -9,6 +11,7 @@ import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'settings_ai_bloc.freezed.dart';
+part 'settings_ai_bloc.g.dart';
 
 class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
   SettingsAIBloc(
@@ -19,6 +22,7 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
         _userService = UserBackendService(userId: userProfile.id),
         super(
           SettingsAIState(
+            selectedAIModel: userProfile.aiModel,
             userProfile: userProfile,
             currentWorkspaceMemberRole: currentWorkspaceMemberRole,
           ),
@@ -65,6 +69,7 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
             },
           );
           _loadUserWorkspaceSetting();
+          _loadModelList();
         },
         didReceiveUserProfile: (userProfile) {
           emit(state.copyWith(userProfile: userProfile));
@@ -78,7 +83,7 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
                 !(state.aiSettings?.disableSearchIndexing ?? false),
           );
         },
-        selectModel: (AIModelPB model) {
+        selectModel: (String model) {
           _updateUserWorkspaceSetting(model: model);
         },
         didLoadAISetting: (UseAISettingPB settings) {
@@ -89,6 +94,34 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
             ),
           );
         },
+        didLoadAvailableModels: (String models) {
+          final dynamic decodedJson = jsonDecode(models);
+          Log.info("Available models: $decodedJson");
+          if (decodedJson is Map<String, dynamic>) {
+            final models = ModelList.fromJson(decodedJson).models;
+            if (models.isEmpty) {
+              // If available models is empty, then we just show the
+              // Default
+              emit(state.copyWith(availableModels: ["Default"]));
+              return;
+            }
+
+            if (!models.contains(state.selectedAIModel)) {
+              // Use first model as default model if current selected model
+              // is not available
+              final selectedModel = models[0];
+              _updateUserWorkspaceSetting(model: selectedModel);
+              emit(
+                state.copyWith(
+                  availableModels: models,
+                  selectedAIModel: selectedModel,
+                ),
+              );
+            } else {
+              emit(state.copyWith(availableModels: models));
+            }
+          }
+        },
         refreshMember: (member) {
           emit(state.copyWith(currentWorkspaceMemberRole: member.role));
         },
@@ -98,7 +131,7 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
 
   void _updateUserWorkspaceSetting({
     bool? disableSearchIndexing,
-    AIModelPB? model,
+    String? model,
   }) {
     final payload = UpdateUserWorkspaceSettingPB(
       workspaceId: workspaceId,
@@ -132,6 +165,18 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
       });
     });
   }
+
+  void _loadModelList() {
+    AIEventGetAvailableModels().send().then((result) {
+      result.fold((config) {
+        if (!isClosed) {
+          add(SettingsAIEvent.didLoadAvailableModels(config.models));
+        }
+      }, (err) {
+        Log.error(err);
+      });
+    });
+  }
 }
 
 @freezed
@@ -145,11 +190,15 @@ class SettingsAIEvent with _$SettingsAIEvent {
   const factory SettingsAIEvent.refreshMember(WorkspaceMemberPB member) =
       _RefreshMember;
 
-  const factory SettingsAIEvent.selectModel(AIModelPB model) = _SelectAIModel;
+  const factory SettingsAIEvent.selectModel(String model) = _SelectAIModel;
 
   const factory SettingsAIEvent.didReceiveUserProfile(
     UserProfilePB newUserProfile,
   ) = _DidReceiveUserProfile;
+
+  const factory SettingsAIEvent.didLoadAvailableModels(
+    String models,
+  ) = _DidLoadAvailableModels;
 }
 
 @freezed
@@ -157,7 +206,23 @@ class SettingsAIState with _$SettingsAIState {
   const factory SettingsAIState({
     required UserProfilePB userProfile,
     UseAISettingPB? aiSettings,
+    @Default("Default") String selectedAIModel,
     AFRolePB? currentWorkspaceMemberRole,
+    @Default(["Default"]) List<String> availableModels,
     @Default(true) bool enableSearchIndexing,
   }) = _SettingsAIState;
+}
+
+@JsonSerializable()
+class ModelList {
+  ModelList({
+    required this.models,
+  });
+
+  factory ModelList.fromJson(Map<String, dynamic> json) =>
+      _$ModelListFromJson(json);
+
+  final List<String> models;
+
+  Map<String, dynamic> toJson() => _$ModelListToJson(this);
 }

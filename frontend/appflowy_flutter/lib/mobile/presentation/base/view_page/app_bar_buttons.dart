@@ -9,6 +9,7 @@ import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/page_style/page_style_bottom_sheet.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -123,9 +124,11 @@ class MobileViewPageLayoutButton extends StatelessWidget {
     required this.view,
     required this.isImmersiveMode,
     required this.appBarOpacity,
+    required this.tabs,
   });
 
   final ViewPB view;
+  final List<PickerTabType> tabs;
   final bool isImmersiveMode;
   final ValueListenable appBarOpacity;
 
@@ -156,6 +159,7 @@ class MobileViewPageLayoutButton extends StatelessWidget {
             ],
             child: PageStyleBottomSheet(
               view: context.read<ViewBloc>().state.view,
+              tabs: tabs,
             ),
           ),
         );

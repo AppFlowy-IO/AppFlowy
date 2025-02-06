@@ -255,6 +255,14 @@ impl Chat {
           error!("[Chat] failed to start streaming: {}", err);
           if err.is_ai_response_limit_exceeded() {
             let _ = answer_sink.send("AI_RESPONSE_LIMIT".to_string()).await;
+          } else if err.is_ai_image_response_limit_exceeded() {
+            let _ = answer_sink
+              .send("AI_IMAGE_RESPONSE_LIMIT".to_string())
+              .await;
+          } else if err.is_ai_max_required() {
+            let _ = answer_sink
+              .send(format!("AI_MAX_REQUIRED:{}", err.msg))
+              .await;
           } else {
             let _ = answer_sink.send(format!("error:{}", err)).await;
           }
@@ -279,7 +287,13 @@ impl Chat {
       let content = answer_stream_buffer.lock().await.take_content();
       let metadata = answer_stream_buffer.lock().await.take_metadata();
       let answer = cloud_service
-        .create_answer(&workspace_id, &chat_id, &content, question_id, metadata)
+        .create_answer(
+          &workspace_id,
+          &chat_id,
+          content.trim(),
+          question_id,
+          metadata,
+        )
         .await?;
       save_and_notify_message(uid, &chat_id, &user_service, answer)?;
       Ok::<(), FlowyError>(())

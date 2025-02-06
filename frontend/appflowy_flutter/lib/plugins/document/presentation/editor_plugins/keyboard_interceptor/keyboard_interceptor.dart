@@ -1,9 +1,43 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_shortcuts/simple_table_command_extension.dart';
+import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class EditorKeyboardInterceptor extends AppFlowyKeyboardServiceInterceptor {
+  @override
+  Future<bool> interceptInsert(
+    TextEditingDeltaInsertion insertion,
+    EditorState editorState,
+    List<CharacterShortcutEvent> characterShortcutEvents,
+  ) async {
+    // Only check on the mobile platform: check if the inserted text is a link, if so, try to paste it as a link preview
+    final text = insertion.textInserted;
+    if (UniversalPlatform.isMobile && hrefRegex.hasMatch(text)) {
+      final result = customPasteCommand.execute(editorState);
+      return result == KeyEventResult.handled;
+    }
+    return false;
+  }
+
+  @override
+  Future<bool> interceptReplace(
+    TextEditingDeltaReplacement replacement,
+    EditorState editorState,
+    List<CharacterShortcutEvent> characterShortcutEvents,
+  ) async {
+    // Only check on the mobile platform: check if the replaced text is a link, if so, try to paste it as a link preview
+    final text = replacement.replacementText;
+    if (UniversalPlatform.isMobile && hrefRegex.hasMatch(text)) {
+      final result = customPasteCommand.execute(editorState);
+      return result == KeyEventResult.handled;
+    }
+    return false;
+  }
+
   @override
   Future<bool> interceptNonTextUpdate(
     TextEditingDeltaNonTextUpdate nonTextUpdate,

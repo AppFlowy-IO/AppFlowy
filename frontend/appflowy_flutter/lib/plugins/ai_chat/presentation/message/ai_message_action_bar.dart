@@ -13,6 +13,7 @@ import 'package:appflowy/plugins/ai_chat/application/chat_select_sources_cubit.d
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
+import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
@@ -164,10 +165,14 @@ class CopyButton extends StatelessWidget {
           size: const Size.square(16),
         ),
         onPressed: () async {
-          final document = customMarkdownToDocument(textMessage.text);
+          final messageText = textMessage.text.trim();
+          final document = customMarkdownToDocument(
+            messageText,
+            tableWidth: 250.0,
+          );
           await getIt<ClipboardService>().setData(
             ClipboardServiceData(
-              plainText: textMessage.text,
+              plainText: _stripMarkdownIfNecessary(messageText),
               inAppJson: jsonEncode(document.toJson()),
             ),
           );
@@ -180,6 +185,17 @@ class CopyButton extends StatelessWidget {
         },
       ),
     );
+  }
+
+  String _stripMarkdownIfNecessary(String plainText) {
+    // match and capture inner url as group
+    final matches = singleLineMarkdownImageRegex.allMatches(plainText);
+
+    if (matches.length != 1) {
+      return plainText;
+    }
+
+    return matches.first[1] ?? plainText;
   }
 }
 
@@ -488,7 +504,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
   Widget buildPopover(BuildContext context) {
     return BlocProvider.value(
       value: context.read<ChatSettingsCubit>(),
-      child: _SaveToPagePopoverContent(
+      child: SaveToPagePopoverContent(
         onAddToNewPage: (parentViewId) {
           addMessageToNewPage(context, parentViewId);
           popoverController.close();
@@ -511,9 +527,9 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
     BuildContext context,
     String documentId,
   ) async {
-    await ChatEditDocumentService.addMessageToPage(
+    await ChatEditDocumentService.addMessagesToPage(
       documentId,
-      widget.textMessage,
+      [widget.textMessage],
     );
     await Future.delayed(const Duration(milliseconds: 500));
     final view = await ViewBackendService.getView(documentId).toNullable();
@@ -539,35 +555,6 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
         openPageFromMessage(context, newView);
       }
     }
-  }
-
-  void showSaveMessageSuccessToast(BuildContext context, ViewPB? view) {
-    if (view == null) {
-      return;
-    }
-    showToastNotification(
-      context,
-      richMessage: TextSpan(
-        children: [
-          TextSpan(
-            text: LocaleKeys.chat_addToNewPageSuccessToast.tr(),
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFFFFFFFF),
-                ),
-          ),
-          const TextSpan(
-            text: ' ',
-          ),
-          TextSpan(
-            text: view.nameOrDefault,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFFFFFFFF),
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-        ],
-      ),
-    );
   }
 
   Future<void> forceReload(String documentId) async {
@@ -605,8 +592,9 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
   }
 }
 
-class _SaveToPagePopoverContent extends StatelessWidget {
-  const _SaveToPagePopoverContent({
+class SaveToPagePopoverContent extends StatelessWidget {
+  const SaveToPagePopoverContent({
+    super.key,
     required this.onAddToNewPage,
     required this.onAddToExistingPage,
   });
