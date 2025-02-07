@@ -147,8 +147,6 @@ class RawEmojiIconWidget extends StatelessWidget {
               height: emojiSize,
             ),
           );
-        default:
-          return defaultEmoji;
       }
     } catch (e) {
       Log.error("Display widget error: $e");
