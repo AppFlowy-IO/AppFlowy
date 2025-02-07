@@ -13,10 +13,10 @@ abstract class DatabaseNodeParser extends NodeParser {
 
   @override
   String transform(Node node, DocumentMarkdownEncoder? encoder) {
-    final String viewId = node.attributes['view_id'] ?? '';
+    final String viewId = node.attributes[DatabaseBlockKeys.viewID] ?? '';
     if (viewId.isEmpty) return '';
     files.add(_convertDatabaseToCSV(viewId));
-    return '''[](${p.join(dirPath, '$viewId.csv')})''';
+    return '[](${p.join(dirPath, '$viewId.csv')})\n';
   }
 
   Future<ArchiveFile> _convertDatabaseToCSV(String viewId) async {

@@ -12,15 +12,24 @@ class CustomParagraphNodeParser extends NodeParser {
   String transform(Node node, DocumentMarkdownEncoder? encoder) {
     final delta = node.delta;
     if (delta != null) {
-      /// filter date reminder node, and return it
       for (final o in delta) {
         final attribute = o.attributes ?? {};
         final Map? mention = attribute[MentionBlockKeys.mention] ?? {};
-        final String date = mention?['date'] ?? '';
-        if (date.isEmpty) continue;
-        final dateTime = DateTime.tryParse(date);
-        if (dateTime == null) continue;
-        return '\n\n${DateFormat.yMMMd().format(dateTime)}\n\n';
+        if (mention == null) continue;
+
+        /// filter date reminder node, and return it
+        final String date = mention[MentionBlockKeys.date] ?? '';
+        if (date.isNotEmpty) {
+          final dateTime = DateTime.tryParse(date);
+          if (dateTime == null) continue;
+          return '${DateFormat.yMMMd().format(dateTime)}\n';
+        }
+
+        /// filter reference page
+        final String pageId = mention[MentionBlockKeys.pageId] ?? '';
+        if (pageId.isNotEmpty) {
+          return '[]($pageId)\n';
+        }
       }
     }
     return const TextNodeParser().transform(node, encoder);

@@ -79,6 +79,6 @@ class CustomMultiImageNodeFileParser extends NodeParser {
         markdownImages.add('![]($url})');
       }
     }
-    return markdownImages.join('\n\n');
+    return markdownImages.join('\n');
   }
 }

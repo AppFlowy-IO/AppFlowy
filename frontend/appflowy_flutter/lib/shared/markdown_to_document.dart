@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/sub_page_node_parser.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -57,6 +58,7 @@ Future<String> documentToMarkdownFiles(Document document, String path) async {
       BoardNodeParser(fileFutures, dirName),
       CalendarNodeParser(fileFutures, dirName),
       const CustomParagraphNodeParser(),
+      const SubPageNodeParser(),
       const SimpleTableNodeParser(),
       const LinkPreviewNodeParser(),
       const FileBlockNodeParser(),
