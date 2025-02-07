@@ -1,5 +1,5 @@
 /// AppFlowyBoard library
-library appflowy_popover;
+library;
 
 export 'src/mutex.dart';
 export 'src/popover.dart';

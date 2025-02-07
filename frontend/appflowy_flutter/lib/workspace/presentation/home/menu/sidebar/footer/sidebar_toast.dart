@@ -174,8 +174,8 @@ class _PlanIndicatorState extends State<PlanIndicator> {
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
       colors: [
-        const Color(0xFF8032FF).withOpacity(.1),
-        const Color(0xFFEF35FF).withOpacity(.1),
+        const Color(0xFF8032FF).withValues(alpha: .1),
+        const Color(0xFFEF35FF).withValues(alpha: .1),
       ],
     );
 

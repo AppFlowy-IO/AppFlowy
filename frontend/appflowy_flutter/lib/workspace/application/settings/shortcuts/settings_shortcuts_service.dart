@@ -53,8 +53,8 @@ class SettingsShortcutService {
     }
   }
 
-  /// Extracts shortcuts from the saved json file. The shortcuts in the saved file consist of [List<CommandShortcutModel>].
-  /// This list needs to be converted to List<CommandShortcutEvent\>. This function is intended to facilitate the same.
+  // Extracts shortcuts from the saved json file. The shortcuts in the saved file consist of [List<CommandShortcutModel>].
+  // This list needs to be converted to List<CommandShortcutEvent\>. This function is intended to facilitate the same.
   List<CommandShortcutModel> getShortcutsFromJson(String savedJson) {
     final shortcuts = EditorShortcuts.fromJson(jsonDecode(savedJson));
     return shortcuts.commandShortcuts;

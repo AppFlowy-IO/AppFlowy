@@ -294,7 +294,7 @@ extension SimpleTableColors on BuildContext {
 
   Color get simpleTableDividerColor => Theme.of(this).isLightMode
       ? const Color(0x141F2329)
-      : const Color(0xFF23262B).withOpacity(0.5);
+      : const Color(0xFF23262B).withValues(alpha: 0.5);
 
   Color get simpleTableMoreActionBackgroundColor => Theme.of(this).isLightMode
       ? const Color(0xFFF2F3F5)

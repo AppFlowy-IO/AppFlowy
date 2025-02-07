@@ -42,7 +42,7 @@ class FloatingAIEntry extends StatelessWidget {
           blurRadius: 20,
           spreadRadius: 1,
           offset: const Offset(0, 4),
-          color: Colors.black.withOpacity(0.05),
+          color: Colors.black.withValues(alpha: 0.05),
         ),
       ],
     );
@@ -51,8 +51,8 @@ class FloatingAIEntry extends StatelessWidget {
   BoxDecoration _buildWrapperDecoration(BuildContext context) {
     final outlineColor = Theme.of(context).colorScheme.outline;
     final borderColor = Theme.of(context).isLightMode
-        ? outlineColor.withOpacity(0.7)
-        : outlineColor.withOpacity(0.3);
+        ? outlineColor.withValues(alpha: 0.7)
+        : outlineColor.withValues(alpha: 0.3);
     return BoxDecoration(
       borderRadius: BorderRadius.circular(30),
       color: Theme.of(context).colorScheme.surface,

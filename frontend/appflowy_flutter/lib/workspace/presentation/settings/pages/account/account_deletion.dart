@@ -76,7 +76,8 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
               padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 10),
               fillColor: Colors.transparent,
               radius: Corners.s8Border,
-              hoverColor: Theme.of(context).colorScheme.error.withOpacity(0.1),
+              hoverColor:
+                  Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
               fontColor: Theme.of(context).colorScheme.error,
               fontSize: 12,
               isDangerous: true,

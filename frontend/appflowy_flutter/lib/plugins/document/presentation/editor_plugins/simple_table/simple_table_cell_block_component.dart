@@ -468,7 +468,7 @@ class SimpleTableCellBlockWidgetState extends State<SimpleTableCellBlockWidget>
     final isSelectingTable =
         simpleTableContext?.isSelectingTable.value ?? false;
     if (isSelectingTable) {
-      return Theme.of(context).colorScheme.primary.withOpacity(0.1);
+      return Theme.of(context).colorScheme.primary.withValues(alpha: 0.1);
     }
 
     final columnColor = node.buildColumnColor(context);

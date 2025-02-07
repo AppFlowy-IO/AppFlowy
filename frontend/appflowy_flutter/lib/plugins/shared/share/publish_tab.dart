@@ -217,7 +217,7 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
       title: LocaleKeys.shareAction_visitSite.tr(),
       borderRadius: const BorderRadius.all(Radius.circular(10)),
       fillColor: Theme.of(context).colorScheme.primary,
-      hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.9),
+      hoverColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
       textColor: Theme.of(context).colorScheme.onPrimary,
     );
   }
@@ -508,7 +508,7 @@ class _PublishDatabaseSelector extends StatefulWidget {
 class _PublishDatabaseSelectorState extends State<_PublishDatabaseSelector> {
   final PropertyValueNotifier<List<(ViewPB, bool)>> _databaseStatus =
       PropertyValueNotifier<List<(ViewPB, bool)>>([]);
-  late final _borderColor = Theme.of(context).hintColor.withOpacity(0.3);
+  late final _borderColor = Theme.of(context).hintColor.withValues(alpha: 0.3);
 
   @override
   void initState() {

@@ -98,12 +98,15 @@ class EventEditorControls extends StatelessWidget {
                 size: const Size.square(16),
                 color: Theme.of(context).iconTheme.color,
               ),
-              onPressed: () => context.read<CalendarBloc>().add(
-                    CalendarEvent.duplicateEvent(
-                      rowController.viewId,
-                      rowController.rowId,
-                    ),
-                  ),
+              onPressed: () {
+                context.read<CalendarBloc>().add(
+                      CalendarEvent.duplicateEvent(
+                        rowController.viewId,
+                        rowController.rowId,
+                      ),
+                    );
+                PopoverContainer.of(context).close();
+              },
             ),
           ),
           const HSpace(8.0),
@@ -126,6 +129,7 @@ class EventEditorControls extends StatelessWidget {
                           rowController.rowId,
                         ),
                       );
+                  PopoverContainer.of(context).close();
                 },
               );
             },

@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
-
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/material.dart';
 
 enum AccessoryType {
   edit,
@@ -45,7 +44,7 @@ class CardAccessoryContainer extends StatelessWidget {
         width: 1,
         thickness: 1,
         color: Theme.of(context).brightness == Brightness.light
-            ? const Color(0xFF1F2329).withOpacity(0.12)
+            ? const Color(0xFF1F2329).withValues(alpha: 0.12)
             : const Color(0xff59647a),
       ),
     );
@@ -77,19 +76,19 @@ class CardAccessoryContainer extends StatelessWidget {
       border: Border.fromBorderSide(
         BorderSide(
           color: Theme.of(context).brightness == Brightness.light
-              ? const Color(0xFF1F2329).withOpacity(0.12)
+              ? const Color(0xFF1F2329).withValues(alpha: 0.12)
               : const Color(0xff59647a),
         ),
       ),
       boxShadow: [
         BoxShadow(
           blurRadius: 4,
-          color: const Color(0xFF1F2329).withOpacity(0.02),
+          color: const Color(0xFF1F2329).withValues(alpha: 0.02),
         ),
         BoxShadow(
           blurRadius: 4,
           spreadRadius: -2,
-          color: const Color(0xFF1F2329).withOpacity(0.02),
+          color: const Color(0xFF1F2329).withValues(alpha: 0.02),
         ),
       ],
     );

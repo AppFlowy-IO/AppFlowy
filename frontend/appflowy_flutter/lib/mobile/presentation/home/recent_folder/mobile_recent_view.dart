@@ -134,7 +134,8 @@ class _RecentCover extends StatelessWidget {
   Widget build(BuildContext context) {
     final placeholder = Container(
       // random color, update it once we have a better placeholder
-      color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.2),
+      color:
+          Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
     );
     final value = this.value;
     if (value == null) {

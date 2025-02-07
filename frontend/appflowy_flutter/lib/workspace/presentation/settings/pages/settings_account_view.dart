@@ -88,6 +88,24 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
                 ),
               ],
 
+              if (isAuthEnabled &&
+                  state.userProfile.authenticator == AuthenticatorPB.Local) ...[
+                SettingsCategory(
+                  title: LocaleKeys.settings_accountPage_login_title.tr(),
+                  children: [
+                    AccountSignInOutSection(
+                      userProfile: state.userProfile,
+                      onAction: state.userProfile.authenticator ==
+                              AuthenticatorPB.Local
+                          ? widget.didLogin
+                          : widget.didLogout,
+                      signIn: state.userProfile.authenticator ==
+                          AuthenticatorPB.Local,
+                    ),
+                  ],
+                ),
+              ],
+
               // App version
               SettingsCategory(
                 title: LocaleKeys.newSettings_myAccount_aboutAppFlowy.tr(),

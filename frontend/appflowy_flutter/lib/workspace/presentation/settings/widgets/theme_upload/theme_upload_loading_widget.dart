@@ -14,7 +14,7 @@ class ThemeUploadLoadingWidget extends StatelessWidget {
       color: Theme.of(context)
           .colorScheme
           .surface
-          .withOpacity(ThemeUploadWidget.fadeOpacity),
+          .withValues(alpha: ThemeUploadWidget.fadeOpacity),
       constraints: const BoxConstraints.expand(),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
