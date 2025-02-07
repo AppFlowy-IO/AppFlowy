@@ -21,12 +21,12 @@ extension AppFlowyAuthTest on WidgetTester {
   Future<void> logout() async {
     final scrollable = find.findSettingsScrollable();
     await scrollUntilVisible(
-      find.byType(AccountSignInOutButton),
+      find.byType(AccountSignInOutSection),
       100,
       scrollable: scrollable,
     );
 
-    await tapButton(find.byType(AccountSignInOutButton));
+    await tapButton(find.byType(AccountSignInOutSection));
 
     expectToSeeText(LocaleKeys.button_ok.tr());
     await tapButtonWithName(LocaleKeys.button_ok.tr());

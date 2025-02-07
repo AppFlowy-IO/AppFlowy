@@ -14,8 +14,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class AccountSignInOutButton extends StatelessWidget {
-  const AccountSignInOutButton({
+class AccountSignInOutSection extends StatelessWidget {
+  const AccountSignInOutSection({
     super.key,
     required this.userProfile,
     required this.onAction,
@@ -30,19 +30,41 @@ class AccountSignInOutButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const FlowyText.regular('Account login'),
+        FlowyText.regular(LocaleKeys.settings_accountPage_login_title.tr()),
         const Spacer(),
-        PrimaryRoundedButton(
-          text: signIn
-              ? LocaleKeys.settings_accountPage_login_loginLabel.tr()
-              : LocaleKeys.settings_accountPage_login_logoutLabel.tr(),
-          margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          fontWeight: FontWeight.w500,
-          radius: 8.0,
-          onTap: () =>
-              signIn ? _showSignInDialog(context) : _showLogoutDialog(context),
+        AccountSignInOutButton(
+          userProfile: userProfile,
+          onAction: onAction,
+          signIn: signIn,
         ),
       ],
+    );
+  }
+}
+
+class AccountSignInOutButton extends StatelessWidget {
+  const AccountSignInOutButton({
+    super.key,
+    required this.userProfile,
+    required this.onAction,
+    this.signIn = true,
+  });
+
+  final UserProfilePB userProfile;
+  final VoidCallback onAction;
+  final bool signIn;
+
+  @override
+  Widget build(BuildContext context) {
+    return PrimaryRoundedButton(
+      text: signIn
+          ? LocaleKeys.settings_accountPage_login_loginLabel.tr()
+          : LocaleKeys.settings_accountPage_login_logoutLabel.tr(),
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      fontWeight: FontWeight.w500,
+      radius: 8.0,
+      onTap: () =>
+          signIn ? _showSignInDialog(context) : _showLogoutDialog(context),
     );
   }
 

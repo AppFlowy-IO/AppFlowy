@@ -33,11 +33,11 @@ void main() {
 
       // Scroll to sign-out
       await tester.scrollUntilVisible(
-        find.byType(AccountSignInOutButton),
+        find.byType(AccountSignInOutSection),
         100,
         scrollable: find.findSettingsScrollable(),
       );
-      await tester.tapButton(find.byType(AccountSignInOutButton));
+      await tester.tapButton(find.byType(AccountSignInOutSection));
 
       tester.expectToSeeText(LocaleKeys.button_ok.tr());
       await tester.tapButtonWithName(LocaleKeys.button_ok.tr());
@@ -59,11 +59,11 @@ void main() {
 
       // Scroll to sign-in
       await tester.scrollUntilVisible(
-        find.byType(AccountSignInOutButton),
+        find.byType(AccountSignInOutSection),
         100,
         scrollable: find.findSettingsScrollable(),
       );
-      await tester.tapButton(find.byType(AccountSignInOutButton));
+      await tester.tapButton(find.byType(AccountSignInOutSection));
 
       tester.expectToSeeGoogleLoginButton();
     });
