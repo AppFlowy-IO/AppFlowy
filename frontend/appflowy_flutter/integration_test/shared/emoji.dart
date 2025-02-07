@@ -90,7 +90,7 @@ extension EmojiTestExtension on WidgetTester {
     final dropTargetWidget = dropTarget.evaluate().first.widget as DropTarget;
     dropTargetWidget.onDragDone?.call(
       DropDoneDetails(
-        files: [XFile(icon.emoji)],
+        files: [DropItemFile(icon.emoji)],
         localPosition: Offset.zero,
         globalPosition: Offset.zero,
       ),
