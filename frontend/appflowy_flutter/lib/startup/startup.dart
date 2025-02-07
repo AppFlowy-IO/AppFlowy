@@ -139,7 +139,7 @@ class FlowyRunner {
           // It is unable to get the device information from the test environment.
           const ApplicationInfoTask(),
           // The auto update task should be placed after the ApplicationInfoTask to fetch the latest version.
-          AutoUpdateTask(),
+          if (!mode.isIntegrationTest) AutoUpdateTask(),
           const HotKeyTask(),
           if (isAppFlowyCloudEnabled) InitAppFlowyCloudTask(),
           const InitAppWidgetTask(),

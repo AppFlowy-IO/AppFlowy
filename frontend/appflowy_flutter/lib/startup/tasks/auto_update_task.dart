@@ -14,35 +14,37 @@ import '../startup.dart';
 class AutoUpdateTask extends LaunchTask {
   AutoUpdateTask();
 
-  static const _feedUrl =
-      'https://github.com/LucasXu0/AppFlowy/releases/latest/download/appcast-{os}-{arch}.xml';
+  // static const _feedUrl =
+  //     'https://github.com/LucasXu0/AppFlowy/releases/latest/download/appcast-{os}-{arch}.xml';
   final _listener = _AppFlowyAutoUpdaterListener();
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    // the auto updater is not supported on mobile and linux
-    if (UniversalPlatform.isMobile || UniversalPlatform.isLinux) {
-      return;
-    }
+    // Enable auto update when the integration of Windows and Linux is completed.
+    return;
+    // // the auto updater is not supported on mobile and linux
+    // if (UniversalPlatform.isMobile || UniversalPlatform.isLinux) {
+    //   return;
+    // }
 
-    Log.info(
-      '[AutoUpdate] current version: ${ApplicationInfo.applicationVersion}, current cpu architecture: ${ApplicationInfo.architecture}',
-    );
+    // Log.info(
+    //   '[AutoUpdate] current version: ${ApplicationInfo.applicationVersion}, current cpu architecture: ${ApplicationInfo.architecture}',
+    // );
 
-    autoUpdater.addListener(_listener);
+    // autoUpdater.addListener(_listener);
 
-    // Since the appcast.xml is not supported the arch, we separate the feed url by os and arch.
-    final feedUrl = _feedUrl
-        .replaceAll('{os}', ApplicationInfo.os)
-        .replaceAll('{arch}', ApplicationInfo.architecture);
-    Log.info('[AutoUpdate] feed url: $feedUrl');
+    // // Since the appcast.xml is not supported the arch, we separate the feed url by os and arch.
+    // final feedUrl = _feedUrl
+    //     .replaceAll('{os}', ApplicationInfo.os)
+    //     .replaceAll('{arch}', ApplicationInfo.architecture);
+    // Log.info('[AutoUpdate] feed url: $feedUrl');
 
-    await autoUpdater.setFeedURL(feedUrl);
-    await autoUpdater.checkForUpdateInformation();
+    // await autoUpdater.setFeedURL(feedUrl);
+    // await autoUpdater.checkForUpdateInformation();
 
-    ApplicationInfo.isCriticalUpdateNotifier.addListener(
-      _showCriticalUpdateDialog,
-    );
+    // ApplicationInfo.isCriticalUpdateNotifier.addListener(
+    //   _showCriticalUpdateDialog,
+    // );
   }
 
   @override
