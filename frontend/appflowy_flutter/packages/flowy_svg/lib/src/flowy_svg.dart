@@ -80,7 +80,7 @@ class FlowySvg extends StatelessWidget {
   Widget build(BuildContext context) {
     Color? iconColor = color ?? Theme.of(context).iconTheme.color;
     if (opacity != null) {
-      iconColor = iconColor?.withOpacity(opacity!);
+      iconColor = iconColor?.withValues(alpha: opacity!);
     }
 
     final textScaleFactor = MediaQuery.textScalerOf(context).scale(1);

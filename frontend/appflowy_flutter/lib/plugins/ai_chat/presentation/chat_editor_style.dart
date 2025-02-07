@@ -75,7 +75,8 @@ class ChatEditorStyleCustomizer extends EditorStyleCustomizer {
             fontSize: fontSize,
             fontWeight: FontWeight.normal,
             color: Colors.red,
-            backgroundColor: theme.colorScheme.inverseSurface.withOpacity(0.8),
+            backgroundColor:
+                theme.colorScheme.inverseSurface.withValues(alpha: 0.8),
           ),
         ),
       ),
@@ -144,7 +145,7 @@ class ChatEditorStyleCustomizer extends EditorStyleCustomizer {
     return TextStyle(
       fontFamily: defaultFontFamily,
       height: 1.5,
-      color: AFThemeExtension.of(context).onBackground.withOpacity(0.6),
+      color: AFThemeExtension.of(context).onBackground.withValues(alpha: 0.6),
     );
   }
 }

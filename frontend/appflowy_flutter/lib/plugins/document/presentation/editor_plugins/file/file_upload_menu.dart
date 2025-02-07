@@ -141,7 +141,8 @@ class _FileUploadLocalState extends State<_FileUploadLocal> {
           height: 32,
           child: FlowyButton(
             backgroundColor: Theme.of(context).colorScheme.primary,
-            hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.9),
+            hoverColor:
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
             showDefaultBoxDecorationOnMobile: true,
             margin: const EdgeInsets.all(5),
             text: FlowyText(
@@ -295,7 +296,7 @@ class _FileUploadNetworkState extends State<_FileUploadNetwork> {
             child: FlowyButton(
               backgroundColor: Theme.of(context).colorScheme.primary,
               hoverColor:
-                  Theme.of(context).colorScheme.primary.withOpacity(0.9),
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
               showDefaultBoxDecorationOnMobile: true,
               margin: const EdgeInsets.all(5),
               text: FlowyText(

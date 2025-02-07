@@ -226,7 +226,7 @@ class _ResizableImageState extends State<ResizableImage> {
                   child: Container(
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.5),
+                      color: Colors.black.withValues(alpha: 0.5),
                       borderRadius: const BorderRadius.all(
                         Radius.circular(5.0),
                       ),
@@ -262,7 +262,7 @@ class _ImageLoadFailedWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(4.0)),
-        border: Border.all(color: Colors.grey.withOpacity(0.6)),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.6)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -280,7 +280,7 @@ class _ImageLoadFailedWidget extends StatelessWidget {
             FlowyText(
               error,
               textAlign: TextAlign.center,
-              color: Theme.of(context).hintColor.withOpacity(0.6),
+              color: Theme.of(context).hintColor.withValues(alpha: 0.6),
               fontSize: 10,
               maxLines: 2,
             ),

@@ -57,7 +57,8 @@ class _EmbedImageUrlWidgetState extends State<EmbedImageUrlWidget> {
           width: 300,
           child: FlowyButton(
             backgroundColor: Theme.of(context).colorScheme.primary,
-            hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.9),
+            hoverColor:
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
             showDefaultBoxDecorationOnMobile: true,
             radius:
                 UniversalPlatform.isMobile ? BorderRadius.circular(8) : null,

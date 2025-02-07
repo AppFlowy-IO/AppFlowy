@@ -46,7 +46,7 @@ class CollaboratorAvatarStack extends StatelessWidget {
       width: width,
       child: WidgetStack(
         positions: settings,
-        buildInfoWidget: (value) => plusWidgetBuilder(value, border),
+        buildInfoWidget: (value, _) => plusWidgetBuilder(value, border),
         stackedWidgets: avatars
             .map(
               (avatar) => CircleAvatar(

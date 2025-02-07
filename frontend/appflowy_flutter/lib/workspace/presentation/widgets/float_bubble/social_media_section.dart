@@ -79,9 +79,6 @@ extension QuestionBubbleExtension on SocialMedia {
 
       case SocialMedia.forum:
         return Theme.of(context).hintColor;
-
-      default:
-        return null;
     }
   }
 

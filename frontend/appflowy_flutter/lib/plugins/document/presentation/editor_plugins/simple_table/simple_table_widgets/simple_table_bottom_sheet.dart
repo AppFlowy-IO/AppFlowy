@@ -264,7 +264,7 @@ class _SimpleTableCellBottomSheetState
   }
 
   void _onTextColorSelected(Color color) {
-    final hex = color.alpha == 0 ? null : color.toHex();
+    final hex = color.a == 0 ? null : color.toHex();
     switch (widget.type) {
       case SimpleTableMoreActionType.column:
         widget.editorState.updateColumnTextColor(
@@ -284,7 +284,7 @@ class _SimpleTableCellBottomSheetState
   }
 
   void _onCellBackgroundColorSelected(Color color) {
-    final hex = color.alpha == 0 ? null : color.toHex();
+    final hex = color.a == 0 ? null : color.toHex();
     switch (widget.type) {
       case SimpleTableMoreActionType.column:
         widget.editorState.updateColumnBackgroundColor(

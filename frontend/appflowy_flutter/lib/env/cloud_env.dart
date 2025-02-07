@@ -180,7 +180,7 @@ Future<void> useLocalServer() async {
   await _setAuthenticatorType(AuthenticatorType.local);
 }
 
-/// Use getIt<AppFlowyCloudSharedEnv>() to get the shared environment.
+// Use getIt<AppFlowyCloudSharedEnv>() to get the shared environment.
 class AppFlowyCloudSharedEnv {
   AppFlowyCloudSharedEnv({
     required AuthenticatorType authenticatorType,
