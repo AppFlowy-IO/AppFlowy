@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy/plugins/document/presentation/editor_plugins/shortcuts/heading_block_shortcuts.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/shortcuts/numbered_list_block_shortcuts.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/plugins/emoji/emoji_actions_command.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_command.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -51,10 +52,14 @@ List<CharacterShortcutEvent> buildCharacterShortcutEvents(
     ...standardCharacterShortcutEvents
       ..removeWhere(
         (shortcut) => [
-          slashCommand, // Remove default slash command
-          formatGreaterEqual, // Overridden by customFormatGreaterEqual
-          formatNumberToNumberedList, // Overridden by customFormatNumberToNumberedList
-          formatSignToHeading, // Overridden by customFormatSignToHeading
+          slashCommand,
+          // Remove default slash command
+          formatGreaterEqual,
+          // Overridden by customFormatGreaterEqual
+          formatNumberToNumberedList,
+          // Overridden by customFormatNumberToNumberedList
+          formatSignToHeading,
+          // Overridden by customFormatSignToHeading
         ].contains(shortcut),
       ),
 
@@ -80,5 +85,9 @@ List<CharacterShortcutEvent> buildCharacterShortcutEvents(
       documentBloc.documentId,
       styleCustomizer.inlineActionsMenuStyleBuilder(),
     ),
+
+    /// show emoji list
+    /// - Using `:`
+    emojiCommand(context),
   ];
 }
