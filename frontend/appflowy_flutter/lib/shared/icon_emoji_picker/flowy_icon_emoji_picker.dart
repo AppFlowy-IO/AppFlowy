@@ -243,6 +243,7 @@ class _FlowyIconEmojiPickerState extends State<FlowyIconEmojiPicker>
   Widget _buildIconUploader() {
     return IconUploader(
       documentId: widget.documentId ?? '',
+      ensureFocus: true,
       onUrl: (url) {
         widget.onSelectedEmoji
             ?.call(SelectedEmojiIconResult(EmojiIconData.custom(url), false));

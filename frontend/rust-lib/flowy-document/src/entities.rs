@@ -115,6 +115,13 @@ pub struct DownloadFilePB {
   pub local_file_path: String,
 }
 
+#[derive(Default, ProtoBuf, Validate)]
+pub struct DeleteFilePB {
+  #[pb(index = 1)]
+  #[validate(url)]
+  pub url: String,
+}
+
 #[derive(Default, ProtoBuf)]
 pub struct CreateDocumentPayloadPB {
   #[pb(index = 1)]

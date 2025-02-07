@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+export 'package:flutter_svg/flutter_svg.dart';
+
 /// The class for FlowySvgData that the code generator will implement
 class FlowySvgData {
   /// The svg data
