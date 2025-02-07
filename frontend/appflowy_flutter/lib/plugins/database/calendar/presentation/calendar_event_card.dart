@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/database/widgets/cell/card_cell_builder.dart';
 import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/calendar_card_cell_style.dart';
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -176,10 +177,13 @@ class _EventCardState extends State<EventCard> {
 
               FlowyOverlay.show(
                 context: context,
-                builder: (_) => RowDetailPage(
-                  databaseController: widget.databaseController,
-                  rowController: rowController,
-                  userProfile: context.read<CalendarBloc>().userProfile,
+                builder: (_) => BlocProvider.value(
+                  value: context.read<UserWorkspaceBloc>(),
+                  child: RowDetailPage(
+                    databaseController: widget.databaseController,
+                    rowController: rowController,
+                    userProfile: context.read<CalendarBloc>().userProfile,
+                  ),
                 ),
               );
             },

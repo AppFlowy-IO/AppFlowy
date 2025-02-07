@@ -320,7 +320,7 @@
         "ltr": "Kiri ke Kanan",
         "rtl": "Kanan ke Kiri"
       },
-     "textDirection": {
+      "textDirection": {
         "label": "Arah Teks Bawaan",
         "hint": "Atur arah teks bawaan, apakah dari kiri ke kanan atau kanan ke kiri.",
         "ltr": "Kiri ke Kanan",

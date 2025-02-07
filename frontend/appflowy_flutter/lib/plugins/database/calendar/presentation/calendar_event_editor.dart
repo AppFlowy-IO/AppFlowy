@@ -12,6 +12,7 @@ import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dar
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/text.dart';
 import 'package:appflowy/plugins/database/widgets/row/accessory/cell_accessory.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -92,11 +93,11 @@ class EventEditorControls extends StatelessWidget {
             message: LocaleKeys.calendar_duplicateEvent.tr(),
             child: FlowyIconButton(
               width: 20,
-              icon: const FlowySvg(
+              icon: FlowySvg(
                 FlowySvgs.m_duplicate_s,
-                size: Size.square(17),
+                size: const Size.square(16),
+                color: Theme.of(context).iconTheme.color,
               ),
-              iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
               onPressed: () => context.read<CalendarBloc>().add(
                     CalendarEvent.duplicateEvent(
                       rowController.viewId,
@@ -108,20 +109,35 @@ class EventEditorControls extends StatelessWidget {
           const HSpace(8.0),
           FlowyIconButton(
             width: 20,
-            icon: const FlowySvg(FlowySvgs.delete_s),
-            iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
-            onPressed: () => context.read<CalendarBloc>().add(
-                  CalendarEvent.deleteEvent(
-                    rowController.viewId,
-                    rowController.rowId,
-                  ),
-                ),
+            icon: FlowySvg(
+              FlowySvgs.delete_s,
+              size: const Size.square(16),
+              color: Theme.of(context).iconTheme.color,
+            ),
+            onPressed: () {
+              showConfirmDeletionDialog(
+                context: context,
+                name: LocaleKeys.grid_row_label.tr(),
+                description: LocaleKeys.grid_row_deleteRowPrompt.tr(),
+                onConfirm: () {
+                  context.read<CalendarBloc>().add(
+                        CalendarEvent.deleteEvent(
+                          rowController.viewId,
+                          rowController.rowId,
+                        ),
+                      );
+                },
+              );
+            },
           ),
           const HSpace(8.0),
           FlowyIconButton(
             width: 20,
-            icon: const FlowySvg(FlowySvgs.full_view_s),
-            iconColorOnHover: Theme.of(context).colorScheme.onSecondary,
+            icon: FlowySvg(
+              FlowySvgs.full_view_s,
+              size: const Size.square(16),
+              color: Theme.of(context).iconTheme.color,
+            ),
             onPressed: () {
               PopoverContainer.of(context).close();
               onExpand.call();

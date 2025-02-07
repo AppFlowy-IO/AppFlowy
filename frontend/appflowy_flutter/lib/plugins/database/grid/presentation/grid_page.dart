@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/database/domain/sort_service.dart';
@@ -11,7 +10,7 @@ import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dar
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
-import 'package:appflowy/workspace/application/view/view_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -194,7 +193,7 @@ class _GridPageState extends State<GridPage> {
       FlowyOverlay.show(
         context: context,
         builder: (_) => BlocProvider.value(
-          value: context.read<ViewBloc>(),
+          value: context.read<UserWorkspaceBloc>(),
           child: RowDetailPage(
             databaseController: context.read<GridBloc>().databaseController,
             rowController: rowController,
@@ -231,7 +230,7 @@ class _GridPageState extends State<GridPage> {
             FlowyOverlay.show(
               context: context,
               builder: (_) => BlocProvider.value(
-                value: context.read<ViewBloc>(),
+                value: context.read<UserWorkspaceBloc>(),
                 child: RowDetailPage(
                   databaseController:
                       context.read<GridBloc>().databaseController,
@@ -557,7 +556,7 @@ class _GridRowsState extends State<_GridRows> {
           }
 
           return BlocProvider.value(
-            value: context.read<ViewBloc>(),
+            value: context.read<UserWorkspaceBloc>(),
             child: RowDetailPage(
               rowController: RowController(
                 viewId: viewId,
