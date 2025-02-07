@@ -20,8 +20,8 @@ class AutoUpdateTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    // the auto updater is not supported on mobile
-    if (UniversalPlatform.isMobile) {
+    // the auto updater is not supported on mobile and linux
+    if (UniversalPlatform.isMobile || UniversalPlatform.isLinux) {
       return;
     }
 
