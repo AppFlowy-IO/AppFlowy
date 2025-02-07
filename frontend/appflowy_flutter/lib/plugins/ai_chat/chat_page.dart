@@ -121,21 +121,24 @@ class _ChatContentPage extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.topCenter,
                     child: _wrapConstraints(
-                      ScrollConfiguration(
-                        behavior: ScrollConfiguration.of(context)
-                            .copyWith(scrollbars: false),
-                        child: Chat(
-                          chatController:
-                              context.read<ChatBloc>().chatController,
-                          user: User(id: userProfile.id.toString()),
-                          darkTheme: ChatTheme.fromThemeData(Theme.of(context)),
-                          theme: ChatTheme.fromThemeData(Theme.of(context)),
-                          builders: Builders(
-                            inputBuilder: (_) => const SizedBox.shrink(),
-                            textMessageBuilder: _buildTextMessage,
-                            chatMessageBuilder: _buildChatMessage,
-                            scrollToBottomBuilder: _buildScrollToBottom,
-                            chatAnimatedListBuilder: _buildChatAnimatedList,
+                      SelectionArea(
+                        child: ScrollConfiguration(
+                          behavior: ScrollConfiguration.of(context)
+                              .copyWith(scrollbars: false),
+                          child: Chat(
+                            chatController:
+                                context.read<ChatBloc>().chatController,
+                            user: User(id: userProfile.id.toString()),
+                            darkTheme:
+                                ChatTheme.fromThemeData(Theme.of(context)),
+                            theme: ChatTheme.fromThemeData(Theme.of(context)),
+                            builders: Builders(
+                              inputBuilder: (_) => const SizedBox.shrink(),
+                              textMessageBuilder: _buildTextMessage,
+                              chatMessageBuilder: _buildChatMessage,
+                              scrollToBottomBuilder: _buildScrollToBottom,
+                              chatAnimatedListBuilder: _buildChatAnimatedList,
+                            ),
                           ),
                         ),
                       ),
