@@ -57,12 +57,6 @@ void main() {
       await tester.openSettings();
       await tester.openSettingsPage(SettingsPage.account);
 
-      // Scroll to sign-in
-      await tester.scrollUntilVisible(
-        find.byType(AccountSignInOutButton),
-        100,
-        scrollable: find.findSettingsScrollable(),
-      );
       await tester.tapButton(find.byType(AccountSignInOutButton));
 
       tester.expectToSeeGoogleLoginButton();

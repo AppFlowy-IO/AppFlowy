@@ -31,12 +31,6 @@ void main() {
       await tester.enterUserName('local_user');
 
       // Scroll to sign-in
-      await tester.scrollUntilVisible(
-        find.byType(AccountSignInOutButton),
-        100,
-        scrollable: find.findSettingsScrollable(),
-      );
-
       await tester.tapButton(find.byType(AccountSignInOutButton));
 
       // sign up with Google

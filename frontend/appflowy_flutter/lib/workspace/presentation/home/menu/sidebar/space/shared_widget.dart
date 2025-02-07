@@ -275,6 +275,8 @@ class ConfirmPopup extends StatefulWidget {
     this.confirmButtonColor,
     this.child,
     this.closeOnAction = true,
+    this.showCloseButton = true,
+    this.enableKeyboardListener = true,
   });
 
   final String title;
@@ -303,6 +305,16 @@ class ConfirmPopup extends StatefulWidget {
   ///
   final bool closeOnAction;
 
+  /// Show close button.
+  /// Defaults to true.
+  ///
+  final bool showCloseButton;
+
+  /// Enable keyboard listener.
+  /// Defaults to true.
+  ///
+  final bool enableKeyboardListener;
+
   @override
   State<ConfirmPopup> createState() => _ConfirmPopupState();
 }
@@ -316,14 +328,16 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
       focusNode: focusNode,
       autofocus: true,
       onKeyEvent: (event) {
-        if (event is KeyDownEvent &&
-            event.logicalKey == LogicalKeyboardKey.escape) {
-          Navigator.of(context).pop();
-        } else if (event is KeyUpEvent &&
-            event.logicalKey == LogicalKeyboardKey.enter) {
-          widget.onConfirm();
-          if (widget.closeOnAction) {
+        if (widget.enableKeyboardListener) {
+          if (event is KeyDownEvent &&
+              event.logicalKey == LogicalKeyboardKey.escape) {
             Navigator.of(context).pop();
+          } else if (event is KeyUpEvent &&
+              event.logicalKey == LogicalKeyboardKey.enter) {
+            widget.onConfirm();
+            if (widget.closeOnAction) {
+              Navigator.of(context).pop();
+            }
           }
         }
       },
@@ -367,15 +381,17 @@ class _ConfirmPopupState extends State<ConfirmPopup> {
           ),
         ),
         const HSpace(6.0),
-        FlowyButton(
-          margin: const EdgeInsets.all(3),
-          useIntrinsicWidth: true,
-          text: const FlowySvg(
-            FlowySvgs.upgrade_close_s,
-            size: Size.square(18.0),
+        if (widget.showCloseButton) ...[
+          FlowyButton(
+            margin: const EdgeInsets.all(3),
+            useIntrinsicWidth: true,
+            text: const FlowySvg(
+              FlowySvgs.upgrade_close_s,
+              size: Size.square(18.0),
+            ),
+            onTap: () => Navigator.of(context).pop(),
           ),
-          onTap: () => Navigator.of(context).pop(),
-        ),
+        ],
       ],
     );
   }

@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/document/presentation/editor_notification.dart'
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/shared/loading.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/startup/tasks/device_info_task.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/command_palette/command_palette_bloc.dart';
@@ -23,6 +24,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_footer.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_upgarde_application_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/header/sidebar_top_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/header/sidebar_user.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/shared/sidebar_folder.dart';
@@ -34,6 +36,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:auto_updater/auto_updater.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -261,6 +264,9 @@ class _SidebarState extends State<_Sidebar> {
   final _isHovered = ValueNotifier(false);
   final _scrollOffset = ValueNotifier<double>(0);
 
+  // mute the update button during the current application lifecycle.
+  final _muteUpdateButton = ValueNotifier(false);
+
   @override
   void initState() {
     super.initState();
@@ -347,6 +353,7 @@ class _SidebarState extends State<_Sidebar> {
             const VSpace(8),
 
             _renderUpgradeSpaceButton(menuHorizontalInset),
+            _buildUpgradeApplicationButton(menuHorizontalInset),
 
             const VSpace(8),
             Padding(
@@ -430,6 +437,42 @@ class _SidebarState extends State<_Sidebar> {
                 ),
             child: const SpaceMigration(),
           );
+  }
+
+  Widget _buildUpgradeApplicationButton(EdgeInsets menuHorizontalInset) {
+    return ValueListenableBuilder(
+      valueListenable: _muteUpdateButton,
+      builder: (_, mute, child) {
+        if (mute) {
+          return const SizedBox.shrink();
+        }
+
+        return ValueListenableBuilder(
+          valueListenable: ApplicationInfo.latestVersionNotifier,
+          builder: (_, latestVersion, child) {
+            if (!ApplicationInfo.isUpdateAvailable) {
+              return const SizedBox.shrink();
+            }
+
+            return Padding(
+              padding: menuHorizontalInset +
+                  const EdgeInsets.only(
+                    left: 4.0,
+                    right: 4.0,
+                  ),
+              child: SidebarUpgradeApplicationButton(
+                onUpdateButtonTap: () {
+                  autoUpdater.checkForUpdates();
+                },
+                onCloseButtonTap: () {
+                  _muteUpdateButton.value = true;
+                },
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   void _onScrollChanged() {
