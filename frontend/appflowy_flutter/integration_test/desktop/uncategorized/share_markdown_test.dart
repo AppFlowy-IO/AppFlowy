@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:appflowy/plugins/shared/share/share_button.dart';
+import 'package:archive/archive.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
@@ -18,7 +20,7 @@ void main() {
 
       // mock the file picker
       final path = await mockSaveFilePath(
-        p.join(context.applicationDataDirectory, 'test.md'),
+        p.join(context.applicationDataDirectory, 'test.zip'),
       );
       // click the share button and select markdown
       await tester.tapShareButton();
@@ -28,10 +30,14 @@ void main() {
       tester.expectToExportSuccess();
 
       final file = File(path);
-      final isExist = file.existsSync();
-      expect(isExist, true);
-      final markdown = file.readAsStringSync();
-      expect(markdown, expectedMarkdown);
+      expect(file.existsSync(), true);
+      final archive = ZipDecoder().decodeBytes(file.readAsBytesSync());
+      for (final entry in archive) {
+        if (entry.isFile && entry.name.endsWith('.md')) {
+          final markdown = utf8.decode(entry.content);
+          expect(markdown, expectedMarkdown);
+        }
+      }
     });
 
     testWidgets(
@@ -57,7 +63,7 @@ void main() {
         final path = await mockSaveFilePath(
           p.join(
             context.applicationDataDirectory,
-            '${shareButtonState.view.name}.md',
+            '${shareButtonState.view.name}.zip',
           ),
         );
 
@@ -69,8 +75,14 @@ void main() {
         tester.expectToExportSuccess();
 
         final file = File(path);
-        final isExist = file.existsSync();
-        expect(isExist, true);
+        expect(file.existsSync(), true);
+        final archive = ZipDecoder().decodeBytes(file.readAsBytesSync());
+        for (final entry in archive) {
+          if (entry.isFile && entry.name.endsWith('.md')) {
+            final markdown = utf8.decode(entry.content);
+            expect(markdown, expectedMarkdown);
+          }
+        }
       },
     );
   });

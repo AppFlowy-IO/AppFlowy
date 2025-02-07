@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:archive/archive.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 
@@ -36,7 +37,11 @@ String customDocumentToMarkdown(Document document) {
   );
 }
 
-Future<String> documentToMarkdownFiles(Document document, String path) async {
+Future<String> documentToMarkdownFiles(
+  Document document,
+  String path, {
+  AsyncValueSetter<Archive>? onArchive,
+}) async {
   final List<Future<ArchiveFile>> fileFutures = [];
 
   /// create root Archive and directory
@@ -75,18 +80,22 @@ Future<String> documentToMarkdownFiles(Document document, String path) async {
     archive.addFile(await fileFuture);
   }
   if (archive.isNotEmpty) {
-    final zipEncoder = ZipEncoder();
-    final zip = zipEncoder.encode(archive);
-    if (zip != null) {
-      final zipFile = await File(path).writeAsBytes(zip);
-      if (Platform.isIOS) {
-        await Share.shareUri(zipFile.uri);
-        await zipFile.delete();
-      } else if (Platform.isAndroid) {
-        await Share.shareXFiles([XFile(zipFile.path)]);
-        await zipFile.delete();
+    if (onArchive == null) {
+      final zipEncoder = ZipEncoder();
+      final zip = zipEncoder.encode(archive);
+      if (zip != null) {
+        final zipFile = await File(path).writeAsBytes(zip);
+        if (Platform.isIOS) {
+          await Share.shareUri(zipFile.uri);
+          await zipFile.delete();
+        } else if (Platform.isAndroid) {
+          await Share.shareXFiles([XFile(zipFile.path)]);
+          await zipFile.delete();
+        }
+        Log.info('documentToMarkdownFiles to $path');
       }
-      Log.info('documentToMarkdownFiles to $path');
+    } else {
+      await onArchive.call(archive);
     }
   }
   return markdown;

@@ -76,7 +76,7 @@ class CustomMultiImageNodeFileParser extends NodeParser {
         );
         markdownImages.add('![]($filePath)');
       } else {
-        markdownImages.add('![]($url})');
+        markdownImages.add('![]($url)');
       }
     }
     return markdownImages.join('\n');

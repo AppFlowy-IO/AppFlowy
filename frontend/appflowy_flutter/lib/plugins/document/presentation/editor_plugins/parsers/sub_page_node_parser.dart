@@ -13,7 +13,7 @@ class SubPageNodeParser extends NodeParser {
     final String viewId = node.attributes[SubPageBlockKeys.viewId] ?? '';
     if (viewId.isNotEmpty) {
       final view = pageMemorizer[viewId];
-      return '(${view?.name ?? ''})[$viewId]\n';
+      return '[$viewId](${view?.name ?? ''})\n';
     }
     return '';
   }
