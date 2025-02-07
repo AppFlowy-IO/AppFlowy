@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/database_node_parser.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -38,15 +37,13 @@ String customDocumentToMarkdown(Document document) {
 
 Future<String> documentToMarkdownFiles(Document document, String path) async {
   final List<Future<ArchiveFile>> fileFutures = [];
-  final id = document.root.id;
 
-  /// create root Archive
-  final archive = Archive();
-  final fileName = p.basenameWithoutExtension(path);
-
-  /// create directory
-  final resourceDir = ArchiveFile('$id/', 0, null);
-  resourceDir.isFile = false;
+  /// create root Archive and directory
+  final id = document.root.id,
+      archive = Archive(),
+      resourceDir = ArchiveFile('$id/', 0, null)..isFile = false,
+      fileName = p.basenameWithoutExtension(path),
+      dirName = resourceDir.name;
 
   final markdown = documentToMarkdown(
     document,
@@ -54,11 +51,12 @@ Future<String> documentToMarkdownFiles(Document document, String path) async {
       const MathEquationNodeParser(),
       const CalloutNodeParser(),
       const ToggleListNodeParser(),
-      CustomImageNodeFileParser(fileFutures, resourceDir.name),
-      CustomMultiImageNodeFileParser(fileFutures, resourceDir.name),
-      GridNodeParser(fileFutures, resourceDir.name),
-      BoardNodeParser(fileFutures, resourceDir.name),
-      CalendarNodeParser(fileFutures, resourceDir.name),
+      CustomImageNodeFileParser(fileFutures, dirName),
+      CustomMultiImageNodeFileParser(fileFutures, dirName),
+      GridNodeParser(fileFutures, dirName),
+      BoardNodeParser(fileFutures, dirName),
+      CalendarNodeParser(fileFutures, dirName),
+      const CustomParagraphNodeParser(),
       const SimpleTableNodeParser(),
       const LinkPreviewNodeParser(),
       const FileBlockNodeParser(),
