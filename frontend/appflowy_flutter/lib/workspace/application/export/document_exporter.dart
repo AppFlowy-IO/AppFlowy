@@ -45,10 +45,12 @@ class DocumentExporter {
             return FlowyResult.success(jsonEncode(document));
           case DocumentExportType.markdown:
             if (path != null) {
-              await documentToMarkdownFiles(document, path);
+              await customDocumentToMarkdown(document, path: path);
               return FlowyResult.success('');
             } else {
-              return FlowyResult.success(customDocumentToMarkdown(document));
+              return FlowyResult.success(
+                await customDocumentToMarkdown(document),
+              );
             }
           case DocumentExportType.text:
             throw UnimplementedError();

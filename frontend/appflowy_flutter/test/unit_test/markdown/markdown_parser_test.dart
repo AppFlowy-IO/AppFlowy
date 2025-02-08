@@ -8,12 +8,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  Future<void> emptyCallback(_) async {
-    return;
-  }
-
-  const testDirectory = 'test/';
-
   group('export markdown to document', () {
     test('file block', () async {
       final document = Document.blank()
@@ -26,11 +20,7 @@ void main() {
             ),
           ],
         );
-      final markdown = await documentToMarkdownFiles(
-        document,
-        testDirectory,
-        onArchive: emptyCallback,
-      );
+      final markdown = await customDocumentToMarkdown(document);
       expect(markdown, '[file.txt](https://file.com)\n');
     });
 
@@ -40,11 +30,7 @@ void main() {
           [0],
           [linkPreviewNode(url: 'https://www.link_preview.com')],
         );
-      final markdown = await documentToMarkdownFiles(
-        document,
-        testDirectory,
-        onArchive: emptyCallback,
-      );
+      final markdown = await customDocumentToMarkdown(document);
       expect(
         markdown,
         '[https://www.link_preview.com](https://www.link_preview.com)\n',
@@ -72,11 +58,7 @@ void main() {
             ),
           ],
         );
-      final markdown = await documentToMarkdownFiles(
-        document,
-        testDirectory,
-        onArchive: emptyCallback,
-      );
+      final markdown = await customDocumentToMarkdown(document);
       expect(
         markdown,
         '![]($png1)\n![]($png2)',
@@ -91,11 +73,7 @@ void main() {
           [0],
           [subpageNode],
         );
-      final markdown = await documentToMarkdownFiles(
-        document,
-        testDirectory,
-        onArchive: emptyCallback,
-      );
+      final markdown = await customDocumentToMarkdown(document);
       expect(
         markdown,
         '[]($testSubpageId)\n',
@@ -109,11 +87,7 @@ void main() {
           [0],
           [dateMentionNode()],
         );
-      final markdown = await documentToMarkdownFiles(
-        document,
-        testDirectory,
-        onArchive: emptyCallback,
-      );
+      final markdown = await customDocumentToMarkdown(document);
       expect(
         markdown,
         '${DateFormat.yMMMd().format(dateTime)}\n',

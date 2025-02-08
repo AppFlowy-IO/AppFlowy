@@ -22,24 +22,9 @@ Document customMarkdownToDocument(
   );
 }
 
-String customDocumentToMarkdown(Document document) {
-  return documentToMarkdown(
-    document,
-    customParsers: [
-      const MathEquationNodeParser(),
-      const CalloutNodeParser(),
-      const ToggleListNodeParser(),
-      const CustomImageNodeParser(),
-      const SimpleTableNodeParser(),
-      const LinkPreviewNodeParser(),
-      const FileBlockNodeParser(),
-    ],
-  );
-}
-
-Future<String> documentToMarkdownFiles(
-  Document document,
-  String path, {
+Future<String> customDocumentToMarkdown(
+  Document document, {
+  String path = '',
   AsyncValueSetter<Archive>? onArchive,
 }) async {
   final List<Future<ArchiveFile>> fileFutures = [];
@@ -79,7 +64,7 @@ Future<String> documentToMarkdownFiles(
   for (final fileFuture in fileFutures) {
     archive.addFile(await fileFuture);
   }
-  if (archive.isNotEmpty) {
+  if (archive.isNotEmpty && path.isNotEmpty) {
     if (onArchive == null) {
       final zipEncoder = ZipEncoder();
       final zip = zipEncoder.encode(archive);
