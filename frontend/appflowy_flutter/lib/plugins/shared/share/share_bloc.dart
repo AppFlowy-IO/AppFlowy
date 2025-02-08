@@ -324,18 +324,20 @@ class ShareBloc extends Bloc<ShareEvent, ShareState> {
         (f) => FlowyResult.failure(f),
       );
     } else {
-      result = await documentExporter.export(type.documentExportType);
+      result =
+          await documentExporter.export(type.documentExportType, path: path);
     }
     return result.fold(
       (s) {
         if (path != null) {
           switch (type) {
-            case ShareType.markdown:
             case ShareType.html:
             case ShareType.csv:
             case ShareType.json:
             case ShareType.rawDatabaseData:
               File(path).writeAsStringSync(s);
+              return FlowyResult.success(type);
+            case ShareType.markdown:
               return FlowyResult.success(type);
             default:
               break;
@@ -387,22 +389,30 @@ enum ShareType {
 @freezed
 class ShareEvent with _$ShareEvent {
   const factory ShareEvent.initial() = _Initial;
+
   const factory ShareEvent.share(
     ShareType type,
     String? path,
   ) = _Share;
+
   const factory ShareEvent.publish(
     String nameSpace,
     String pageId,
     List<String> selectedViewIds,
   ) = _Publish;
+
   const factory ShareEvent.unPublish() = _UnPublish;
+
   const factory ShareEvent.updateViewName(String name, String viewId) =
       _UpdateViewName;
+
   const factory ShareEvent.updatePublishStatus() = _UpdatePublishStatus;
+
   const factory ShareEvent.setPublishStatus(bool isPublished) =
       _SetPublishStatus;
+
   const factory ShareEvent.updatePathName(String pathName) = _UpdatePathName;
+
   const factory ShareEvent.clearPathNameResult() = _ClearPathNameResult;
 }
 

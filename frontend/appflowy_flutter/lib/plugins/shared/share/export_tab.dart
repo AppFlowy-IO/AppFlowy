@@ -105,7 +105,7 @@ class ExportTab extends StatelessWidget {
     final viewName = context.read<ShareBloc>().state.viewName;
     final exportPath = await getIt<FilePickerService>().saveFile(
       dialogTitle: '',
-      fileName: '${viewName.toFileName()}.md',
+      fileName: '${viewName.toFileName()}.zip',
     );
     if (context.mounted && exportPath != null) {
       context.read<ShareBloc>().add(
