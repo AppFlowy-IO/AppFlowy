@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:appflowy/plugins/shared/share/share_button.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pbenum.dart';
 import 'package:archive/archive.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -9,6 +10,7 @@ import 'package:path/path.dart' as p;
 
 import '../../shared/mock/mock_file_picker.dart';
 import '../../shared/util.dart';
+import '../document/document_with_database_test.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -85,6 +87,34 @@ void main() {
         }
       },
     );
+
+    testWidgets('share the markdown with database', (tester) async {
+      final context = await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+      await insertLinkedDatabase(tester, ViewLayoutPB.Grid);
+
+      // mock the file picker
+      final path = await mockSaveFilePath(
+        p.join(context.applicationDataDirectory, 'test.zip'),
+      );
+      // click the share button and select markdown
+      await tester.tapShareButton();
+      await tester.tapMarkdownButton();
+
+      // expect to see the success dialog
+      tester.expectToExportSuccess();
+
+      final file = File(path);
+      expect(file.existsSync(), true);
+      final archive = ZipDecoder().decodeBytes(file.readAsBytesSync());
+      bool hasCsvFile = false;
+      for (final entry in archive) {
+        if (entry.isFile && entry.name.endsWith('.csv')) {
+          hasCsvFile = true;
+        }
+      }
+      expect(hasCsvFile, true);
+    });
   });
 }
 
