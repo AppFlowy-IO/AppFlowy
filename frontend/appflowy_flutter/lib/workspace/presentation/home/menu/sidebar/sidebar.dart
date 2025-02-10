@@ -7,6 +7,7 @@ import 'package:appflowy/plugins/blank/blank.dart';
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/shared/loading.dart';
+import 'package:appflowy/shared/version_checker/version_checker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/startup/tasks/device_info_task.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
@@ -36,7 +37,6 @@ import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart'
     show UserProfilePB;
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:auto_updater/auto_updater.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -462,7 +462,7 @@ class _SidebarState extends State<_Sidebar> {
                   ),
               child: SidebarUpgradeApplicationButton(
                 onUpdateButtonTap: () {
-                  autoUpdater.checkForUpdates();
+                  versionChecker.checkForUpdate();
                 },
                 onCloseButtonTap: () {
                   _muteUpdateButton.value = true;

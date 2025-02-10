@@ -19,8 +19,6 @@ class AutoUpdateTask extends LaunchTask {
       'https://github.com/LucasXu0/AppFlowy/releases/latest/download/appcast-{os}-{arch}.xml';
   final _listener = _AppFlowyAutoUpdaterListener();
 
-  final _versionChecker = VersionChecker();
-
   @override
   Future<void> initialize(LaunchContext context) async {
     // the auto updater is not supported on mobile
@@ -59,13 +57,12 @@ class AutoUpdateTask extends LaunchTask {
     // the auto updater is only supported on macOS and windows, so we don't need to check the platform
     if (UniversalPlatform.isMacOS || UniversalPlatform.isWindows) {
       autoUpdater.addListener(_listener);
-
-      Log.info('[AutoUpdate] feed url: $feedUrl');
-      await autoUpdater.setFeedURL(feedUrl);
     }
 
-    _versionChecker.setFeedUrl(feedUrl);
-    final item = await _versionChecker.checkForUpdate();
+    Log.info('[AutoUpdate] feed url: $feedUrl');
+
+    versionChecker.setFeedUrl(feedUrl);
+    final item = await versionChecker.checkForUpdateInformation();
     if (item != null) {
       ApplicationInfo.latestAppcastItem = item;
       ApplicationInfo.latestVersionNotifier.value =
@@ -91,7 +88,7 @@ class AutoUpdateTask extends LaunchTask {
       closeOnConfirm: false,
       confirmLabel: LocaleKeys.autoUpdate_criticalUpdateButton.tr(),
       onConfirm: () async {
-        await autoUpdater.checkForUpdates();
+        await versionChecker.checkForUpdate();
       },
     );
   }
