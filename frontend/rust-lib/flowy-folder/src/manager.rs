@@ -977,6 +977,24 @@ impl FolderManager {
       .await
   }
 
+  /// Lock the view with the given view id.
+  ///
+  /// If the view is locked, it cannot be edited.
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn lock_view(&self, view_id: &str) -> FlowyResult<()> {
+    self
+      .update_view(view_id, |update| update.set_page_lock_status(true).done())
+      .await
+  }
+
+  /// Unlock the view with the given view id.
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn unlock_view(&self, view_id: &str) -> FlowyResult<()> {
+    self
+      .update_view(view_id, |update| update.set_page_lock_status(false).done())
+      .await
+  }
+
   /// Duplicate the view with the given view id.
   ///
   /// Including the view data (icon, cover, extra) and the child views.

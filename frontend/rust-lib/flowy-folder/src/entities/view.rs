@@ -72,6 +72,11 @@ pub struct ViewPB {
   // user_id
   #[pb(index = 12, one_of)]
   pub last_edited_by: Option<i64>,
+
+  // is_locked
+  // If true, the view is locked and cannot be edited.
+  #[pb(index = 13, one_of)]
+  pub is_locked: Option<bool>,
 }
 
 pub fn view_pb_without_child_views(view: View) -> ViewPB {
@@ -88,6 +93,7 @@ pub fn view_pb_without_child_views(view: View) -> ViewPB {
     created_by: view.created_by,
     last_edited: view.last_edited_time,
     last_edited_by: view.last_edited_by,
+    is_locked: view.is_locked,
   }
 }
 
@@ -105,6 +111,7 @@ pub fn view_pb_without_child_views_from_arc(view: Arc<View>) -> ViewPB {
     created_by: view.created_by,
     last_edited: view.last_edited_time,
     last_edited_by: view.last_edited_by,
+    is_locked: view.is_locked,
   }
 }
 
@@ -126,6 +133,7 @@ pub fn view_pb_with_child_views(view: Arc<View>, child_views: Vec<Arc<View>>) ->
     created_by: view.created_by,
     last_edited: view.last_edited_time,
     last_edited_by: view.last_edited_by,
+    is_locked: view.is_locked,
   }
 }
 

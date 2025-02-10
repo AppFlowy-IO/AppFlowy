@@ -533,3 +533,25 @@ pub(crate) async fn remove_default_publish_view_handler(
   folder.remove_default_published_view().await?;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip(data, folder))]
+pub(crate) async fn lock_view_handler(
+  data: AFPluginData<ViewIdPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let view_id = data.into_inner().value;
+  folder.lock_view(&view_id).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder))]
+pub(crate) async fn unlock_view_handler(
+  data: AFPluginData<ViewIdPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let view_id = data.into_inner().value;
+  folder.unlock_view(&view_id).await?;
+  Ok(())
+}
