@@ -72,13 +72,14 @@
     "LogInWithGoogle": "使用 Google 登录",
     "LogInWithGithub": "使用 Github 登录",
     "LogInWithDiscord": "使用 Discord 登录",
-    "logInWithMagicLink": "使用魔法链接登录",
-    "loginAsGuestButtonText": "开始使用"
+    "loginAsGuestButtonText": "开始使用",
+    "logInWithMagicLink": "使用魔法链接登录"
   },
   "workspace": {
     "chooseWorkspace": "选择您的工作区",
     "defaultName": "我的工作区",
     "create": "新建工作区",
+    "new": "新的工作空间",
     "importFromNotion": "从 Notion 导入",
     "learnMore": "了解更多",
     "reset": "重置工作区",
@@ -170,7 +171,9 @@
     "addToFavorites": "添加到收藏夹",
     "copyLink": "复制链接",
     "changeIcon": "更改图标",
-    "collapseAllPages": "收起全部子页面"
+    "collapseAllPages": "收起全部子页面",
+    "movePageTo": "将页面移动至",
+    "move": "移动"
   },
   "blankPageTitle": "空白页",
   "newPageText": "新页面",
@@ -186,6 +189,7 @@
     "relatedQuestion": "相关问题",
     "serverUnavailable": "服务暂时不可用，请稍后再试",
     "aiServerUnavailable": "🌈 不妙！🌈 一只独角兽吃掉了我们的回复。请重试！",
+    "retry": "重试",
     "clickToRetry": "点击重试",
     "regenerateAnswer": "重新生成",
     "question1": "如何使用 Kanban 来管理任务",
@@ -200,6 +204,10 @@
     "uploadFile": "上传聊天使用的 PDF、md 或 txt 文件",
     "questionDetail": "{} 你好！我能怎么帮到你？",
     "indexingFile": "正在索引 {}",
+    "openPagePreviewFailedToast": "打开页面失败",
+    "changeFormat": {
+      "actionButton": "变更样式"
+    },
     "referenceSource": "找到 {} 个来源",
     "referenceSources": "找到 {} 个来源",
     "questionTitle": "想法"
@@ -453,7 +461,14 @@
       "homepageHeader": "主页",
       "updateNamespace": "更新名字空间",
       "removeHomepage": "移除主页",
-      "selectHomePage": "选择一个页面"
+      "selectHomePage": "选择一个页面",
+      "publishedPage": {
+        "description": "管理您已发布的页面",
+        "noPublishedPages": "没有已发布的页面",
+        "settings": "发布设置",
+        "clickToOpenPageInApp": "在 App 中打开页面",
+        "clickToOpenPageInBrowser": "在浏览器中打开页面"
+      }
     },
     "accountPage": {
       "menuLabel": "我的账户",
