@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/version_checker/version_checker.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
 import 'package:appflowy/startup/tasks/device_info_task.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -14,37 +15,22 @@ import '../startup.dart';
 class AutoUpdateTask extends LaunchTask {
   AutoUpdateTask();
 
-  // static const _feedUrl =
-  //     'https://github.com/LucasXu0/AppFlowy/releases/latest/download/appcast-{os}-{arch}.xml';
+  static const _feedUrl =
+      'https://github.com/LucasXu0/AppFlowy/releases/latest/download/appcast-{os}-{arch}.xml';
   final _listener = _AppFlowyAutoUpdaterListener();
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    // Enable auto update when the integration of Windows and Linux is completed.
-    return;
-    // // the auto updater is not supported on mobile and linux
-    // if (UniversalPlatform.isMobile || UniversalPlatform.isLinux) {
-    //   return;
-    // }
+    // the auto updater is not supported on mobile
+    if (UniversalPlatform.isMobile) {
+      return;
+    }
 
-    // Log.info(
-    //   '[AutoUpdate] current version: ${ApplicationInfo.applicationVersion}, current cpu architecture: ${ApplicationInfo.architecture}',
-    // );
+    await _setupAutoUpdater();
 
-    // autoUpdater.addListener(_listener);
-
-    // // Since the appcast.xml is not supported the arch, we separate the feed url by os and arch.
-    // final feedUrl = _feedUrl
-    //     .replaceAll('{os}', ApplicationInfo.os)
-    //     .replaceAll('{arch}', ApplicationInfo.architecture);
-    // Log.info('[AutoUpdate] feed url: $feedUrl');
-
-    // await autoUpdater.setFeedURL(feedUrl);
-    // await autoUpdater.checkForUpdateInformation();
-
-    // ApplicationInfo.isCriticalUpdateNotifier.addListener(
-    //   _showCriticalUpdateDialog,
-    // );
+    ApplicationInfo.isCriticalUpdateNotifier.addListener(
+      _showCriticalUpdateDialog,
+    );
   }
 
   @override
@@ -54,6 +40,34 @@ class AutoUpdateTask extends LaunchTask {
     ApplicationInfo.isCriticalUpdateNotifier.removeListener(
       _showCriticalUpdateDialog,
     );
+  }
+
+  // On macOS and windows, we use auto_updater to check for updates.
+  // On linux, we use the version checker to check for updates because the auto_updater is not supported.
+  Future<void> _setupAutoUpdater() async {
+    Log.info(
+      '[AutoUpdate] current version: ${ApplicationInfo.applicationVersion}, current cpu architecture: ${ApplicationInfo.architecture}',
+    );
+
+    // Since the appcast.xml is not supported the arch, we separate the feed url by os and arch.
+    final feedUrl = _feedUrl
+        .replaceAll('{os}', ApplicationInfo.os)
+        .replaceAll('{arch}', ApplicationInfo.architecture);
+
+    // the auto updater is only supported on macOS and windows, so we don't need to check the platform
+    if (UniversalPlatform.isMacOS || UniversalPlatform.isWindows) {
+      autoUpdater.addListener(_listener);
+    }
+
+    Log.info('[AutoUpdate] feed url: $feedUrl');
+
+    versionChecker.setFeedUrl(feedUrl);
+    final item = await versionChecker.checkForUpdateInformation();
+    if (item != null) {
+      ApplicationInfo.latestAppcastItem = item;
+      ApplicationInfo.latestVersionNotifier.value =
+          item.displayVersionString ?? '';
+    }
   }
 
   void _showCriticalUpdateDialog() {
@@ -74,7 +88,7 @@ class AutoUpdateTask extends LaunchTask {
       closeOnConfirm: false,
       confirmLabel: LocaleKeys.autoUpdate_criticalUpdateButton.tr(),
       onConfirm: () async {
-        await autoUpdater.checkForUpdates();
+        await versionChecker.checkForUpdate();
       },
     );
   }

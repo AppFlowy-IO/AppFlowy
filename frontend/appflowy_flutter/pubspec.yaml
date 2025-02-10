@@ -144,6 +144,7 @@ dependencies:
 
   # Window Manager for MacOS and Linux
   version: ^3.0.2
+  xml: ^6.5.0
   window_manager: ^0.4.3
 
 dev_dependencies:
