@@ -5,6 +5,7 @@ import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bar_bloc.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
@@ -29,8 +30,14 @@ class ViewTitleBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => ViewTitleBarBloc(view: view),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => ViewTitleBarBloc(view: view)),
+        BlocProvider(
+          create: (_) => ViewLockStatusBloc(view: view)
+            ..add(const ViewLockStatusEvent.initial()),
+        ),
+      ],
       child: BlocBuilder<ViewTitleBarBloc, ViewTitleBarState>(
         builder: (context, state) {
           final ancestors = state.ancestors;
@@ -42,16 +49,33 @@ class ViewTitleBar extends StatelessWidget {
             child: SizedBox(
               height: 24,
               child: Row(
-                children: _buildViewTitles(
-                  context,
-                  ancestors,
-                  state.isDeleted,
-                ),
+                children: [
+                  ..._buildViewTitles(
+                    context,
+                    ancestors,
+                    state.isDeleted,
+                  ),
+                  _buildLockPageStatus(context),
+                ],
               ),
             ),
           );
         },
       ),
+    );
+  }
+
+  Widget _buildLockPageStatus(BuildContext context) {
+    return BlocBuilder<ViewLockStatusBloc, ViewLockStatusState>(
+      builder: (context, state) {
+        if (state.isLocked) {
+          return Container(
+            color: Colors.red,
+            child: const FlowyText.regular('Locked'),
+          );
+        }
+        return const SizedBox.shrink();
+      },
     );
   }
 

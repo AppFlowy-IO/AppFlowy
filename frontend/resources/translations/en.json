@@ -174,7 +174,8 @@
     "changeIcon": "Change icon",
     "collapseAllPages": "Collapse all subpages",
     "movePageTo": "Move page to",
-    "move": "Move"
+    "move": "Move",
+    "lockPage": "Lock page"
   },
   "blankPageTitle": "Blank page",
   "newPageText": "New page",

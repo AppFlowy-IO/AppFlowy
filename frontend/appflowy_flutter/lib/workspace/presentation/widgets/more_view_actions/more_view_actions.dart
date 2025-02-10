@@ -9,6 +9,7 @@ import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/common_view_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/font_size_action.dart';
+import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/lock_page_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/view_meta_info.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -110,6 +111,7 @@ class _MoreViewActionsState extends State<MoreViewActions> {
     final timeFormat = appearanceSettings.timeFormat;
 
     final viewMoreActionTypes = [
+      ViewMoreActionType.divider,
       if (widget.view.layout != ViewLayoutPB.Chat) ViewMoreActionType.duplicate,
       ViewMoreActionType.moveTo,
       ViewMoreActionType.delete,
@@ -126,6 +128,9 @@ class _MoreViewActionsState extends State<MoreViewActions> {
           mutex: popoverMutex,
         ),
       ],
+      LockPageAction(
+        view: widget.view,
+      ),
       ...viewMoreActionTypes.map(
         (type) => ViewAction(
           type: type,
