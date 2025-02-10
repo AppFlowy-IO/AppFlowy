@@ -23,9 +23,18 @@ class SettingsAppVersion extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const FlowyText.regular('AppFlowy is up to date!'),
-        FlowyText.regular(
-          'Version ${ApplicationInfo.applicationVersion} (Official build)',
+        const FlowyText.regular(
+          'AppFlowy is up to date!',
+          figmaLineHeight: 17,
+        ),
+        const VSpace(4),
+        Opacity(
+          opacity: 0.7,
+          child: FlowyText.regular(
+            'Version ${ApplicationInfo.applicationVersion} (Official build)',
+            fontSize: 12,
+            figmaLineHeight: 13,
+          ),
         ),
       ],
     );

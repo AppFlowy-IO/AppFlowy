@@ -23,12 +23,12 @@ class AutoUpdateTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    // the auto updater is not supported on mobile and linux
+    // the auto updater is not supported on mobile
     if (UniversalPlatform.isMobile) {
       return;
     }
 
-    _setupAutoUpdater();
+    await _setupAutoUpdater();
 
     ApplicationInfo.isCriticalUpdateNotifier.addListener(
       _showCriticalUpdateDialog,
@@ -51,27 +51,25 @@ class AutoUpdateTask extends LaunchTask {
       '[AutoUpdate] current version: ${ApplicationInfo.applicationVersion}, current cpu architecture: ${ApplicationInfo.architecture}',
     );
 
+    // Since the appcast.xml is not supported the arch, we separate the feed url by os and arch.
+    final feedUrl = _feedUrl
+        .replaceAll('{os}', ApplicationInfo.os)
+        .replaceAll('{arch}', ApplicationInfo.architecture);
+
+    // the auto updater is only supported on macOS and windows, so we don't need to check the platform
     if (UniversalPlatform.isMacOS || UniversalPlatform.isWindows) {
       autoUpdater.addListener(_listener);
 
-      // Since the appcast.xml is not supported the arch, we separate the feed url by os and arch.
-      final feedUrl = _feedUrl
-          .replaceAll('{os}', ApplicationInfo.os)
-          .replaceAll('{arch}', ApplicationInfo.architecture);
       Log.info('[AutoUpdate] feed url: $feedUrl');
-
       await autoUpdater.setFeedURL(feedUrl);
-      await autoUpdater.checkForUpdateInformation();
-    } else if (UniversalPlatform.isLinux) {
-      _versionChecker.setFeedUrl(_feedUrl);
-      final item = await _versionChecker.checkForUpdate();
-      if (item != null) {
-        ApplicationInfo.latestAppcastItem = item;
-        ApplicationInfo.latestVersionNotifier.value =
-            item.displayVersionString ?? '';
-      }
-    } else {
-      Log.error('[AutoUpdate] Auto updater is not supported on this platform');
+    }
+
+    _versionChecker.setFeedUrl(feedUrl);
+    final item = await _versionChecker.checkForUpdate();
+    if (item != null) {
+      ApplicationInfo.latestAppcastItem = item;
+      ApplicationInfo.latestVersionNotifier.value =
+          item.displayVersionString ?? '';
     }
   }
 

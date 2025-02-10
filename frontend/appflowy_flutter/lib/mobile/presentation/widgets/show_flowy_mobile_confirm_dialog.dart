@@ -99,7 +99,7 @@ Future<T?> showFlowyCupertinoConfirmDialog<T>({
 }) {
   return showDialog(
     context: context ?? AppGlobals.context,
-    barrierColor: Colors.black.withOpacity(0.25),
+    barrierColor: Colors.black.withValues(alpha: 0.25),
     builder: (context) => CupertinoAlertDialog(
       title: FlowyText.medium(
         title,

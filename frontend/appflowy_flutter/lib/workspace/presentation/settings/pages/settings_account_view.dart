@@ -75,7 +75,25 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
                   title: LocaleKeys.settings_accountPage_email_title.tr(),
                   children: [
                     FlowyText.regular(state.userProfile.email),
-                    AccountSignInOutButton(
+                    AccountSignInOutSection(
+                      userProfile: state.userProfile,
+                      onAction: state.userProfile.authenticator ==
+                              AuthenticatorPB.Local
+                          ? widget.didLogin
+                          : widget.didLogout,
+                      signIn: state.userProfile.authenticator ==
+                          AuthenticatorPB.Local,
+                    ),
+                  ],
+                ),
+              ],
+
+              if (isAuthEnabled &&
+                  state.userProfile.authenticator == AuthenticatorPB.Local) ...[
+                SettingsCategory(
+                  title: LocaleKeys.settings_accountPage_login_title.tr(),
+                  children: [
+                    AccountSignInOutSection(
                       userProfile: state.userProfile,
                       onAction: state.userProfile.authenticator ==
                               AuthenticatorPB.Local
@@ -89,9 +107,9 @@ class _SettingsAccountViewState extends State<SettingsAccountView> {
               ],
 
               // App version
-              const SettingsCategory(
-                title: 'About AppFlowy',
-                children: [
+              SettingsCategory(
+                title: LocaleKeys.newSettings_myAccount_aboutAppFlowy.tr(),
+                children: const [
                   SettingsAppVersion(),
                 ],
               ),

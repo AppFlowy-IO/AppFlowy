@@ -1,8 +1,5 @@
 import 'dart:io';
 
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
@@ -12,6 +9,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/image/mult
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/multi_image_block_component/multi_image_block_component.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
 import 'package:appflowy/shared/patterns/file_type_patterns.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
@@ -24,6 +22,7 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../image_render.dart';
@@ -137,7 +136,8 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
                                       ),
                                     DecoratedBox(
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.5),
+                                        color:
+                                            Colors.white.withValues(alpha: 0.5),
                                       ),
                                       child: Center(
                                         child: FlowyText(
@@ -226,8 +226,9 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
                 ? const SizedBox.shrink()
                 : SizedBox.expand(
                     child: DecoratedBox(
-                      decoration:
-                          BoxDecoration(color: Colors.white.withOpacity(0.5)),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.5),
+                      ),
                       child: Center(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -387,8 +388,8 @@ class _ThumbnailItemState extends State<ThumbnailItem> {
                     child: FlowyHover(
                       resetHoverOnRebuild: false,
                       style: HoverStyle(
-                        backgroundColor: Colors.black.withOpacity(0.6),
-                        hoverColor: Colors.black.withOpacity(0.9),
+                        backgroundColor: Colors.black.withValues(alpha: 0.6),
+                        hoverColor: Colors.black.withValues(alpha: 0.9),
                       ),
                       child: const Padding(
                         padding: EdgeInsets.all(4),

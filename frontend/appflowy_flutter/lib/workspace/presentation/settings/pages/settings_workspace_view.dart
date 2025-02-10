@@ -1090,9 +1090,11 @@ class _FontListPopupState extends State<_FontListPopup> {
                     hoverColor: Theme.of(context)
                         .colorScheme
                         .onSurface
-                        .withOpacity(0.12),
-                    selectedTileColor:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.12),
+                        .withValues(alpha: 0.12),
+                    selectedTileColor: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.12),
                     contentPadding:
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                     minTileHeight: 0,

@@ -53,8 +53,8 @@ class PrimaryRoundedButton extends StatelessWidget {
       ),
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 14.0),
       backgroundColor: backgroundColor ?? Theme.of(context).colorScheme.primary,
-      hoverColor:
-          hoverColor ?? Theme.of(context).colorScheme.primary.withOpacity(0.9),
+      hoverColor: hoverColor ??
+          Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
       radius: BorderRadius.circular(radius ?? 10.0),
       onTap: onTap,
     );

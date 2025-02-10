@@ -111,6 +111,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
   }
 
   EditorStyleCustomizer get styleCustomizer => widget.styleCustomizer;
+
   DocumentBloc get documentBloc => context.read<DocumentBloc>();
 
   late final EditorScrollController editorScrollController;
@@ -356,7 +357,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
           ),
         ),
         dropTargetStyle: AppFlowyDropTargetStyle(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
           margin: const EdgeInsets.only(left: 44),
         ),
       ),

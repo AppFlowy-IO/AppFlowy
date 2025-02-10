@@ -132,6 +132,7 @@ class ClipboardService {
     final html = await reader.readValue(Formats.htmlText);
     final inAppJson = await reader.readValue(inAppJsonFormat);
     final tableJson = await reader.readValue(tableJsonFormat);
+    final uri = await reader.readValue(Formats.uri);
     (String, Uint8List?)? image;
     if (reader.canProvide(Formats.png)) {
       image = ('png', await reader.readFile(Formats.png));
@@ -144,7 +145,7 @@ class ClipboardService {
     }
 
     return ClipboardServiceData(
-      plainText: plainText,
+      plainText: plainText ?? uri?.uri.toString(),
       html: html,
       image: image,
       inAppJson: inAppJson,

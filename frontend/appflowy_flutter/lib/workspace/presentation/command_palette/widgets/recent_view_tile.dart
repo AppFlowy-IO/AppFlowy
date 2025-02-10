@@ -33,8 +33,8 @@ class RecentViewTile extends StatelessWidget {
           ),
         ],
       ),
-      focusColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-      hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+      focusColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+      hoverColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
       onTap: () {
         onSelected();
 

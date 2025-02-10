@@ -15,7 +15,7 @@ class UploadNewThemeWidget extends StatelessWidget {
       color: Theme.of(context)
           .colorScheme
           .surface
-          .withOpacity(ThemeUploadWidget.fadeOpacity),
+          .withValues(alpha: ThemeUploadWidget.fadeOpacity),
       padding: ThemeUploadWidget.padding,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
