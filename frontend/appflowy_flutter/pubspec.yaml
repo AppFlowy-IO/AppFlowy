@@ -28,6 +28,7 @@ dependencies:
 
   archive: ^3.4.10
   auto_size_text_field: ^2.2.3
+  auto_updater: ^1.0.0
   avatar_stack: ^3.0.0
 
   # BitsDojo Window for Windows
@@ -142,6 +143,7 @@ dependencies:
   url_protocol:
 
   # Window Manager for MacOS and Linux
+  version: ^3.0.2
   window_manager: ^0.4.3
 
 dev_dependencies:
@@ -206,6 +208,33 @@ dependency_overrides:
   # Don't upgrade file_picker until the issue is fixed
   # https://github.com/miguelpruivo/flutter_file_picker/issues/1652
   file_picker: 8.1.4
+
+  auto_updater:
+    git:
+      url: https://github.com/LucasXu0/auto_updater.git
+      path: packages/auto_updater
+      ref: 1d81a824f3633f1d0200ba51b78fe0f9ce429458
+
+  auto_updater_macos:
+    git:
+      url: https://github.com/LucasXu0/auto_updater.git
+      path: packages/auto_updater_macos
+      ref: 1d81a824f3633f1d0200ba51b78fe0f9ce429458
+
+  auto_updater_platform_interface:
+    git:
+      url: https://github.com/LucasXu0/auto_updater.git
+      path: packages/auto_updater_platform_interface
+      ref: 1d81a824f3633f1d0200ba51b78fe0f9ce429458
+
+  # auto_updater:
+  #   path: /Users/lucas.xu/Desktop/auto_updater/packages/auto_updater
+
+  # auto_updater_macos:
+  #   path: /Users/lucas.xu/Desktop/auto_updater/packages/auto_updater_macos
+
+  # auto_updater_platform_interface:
+  #   path: /Users/lucas.xu/Desktop/auto_updater/packages/auto_updater_platform_interface
 
 flutter:
   generate: true

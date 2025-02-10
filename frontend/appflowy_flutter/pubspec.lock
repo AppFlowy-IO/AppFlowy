@@ -150,6 +150,41 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.4"
+  auto_updater:
+    dependency: "direct main"
+    description:
+      path: "packages/auto_updater"
+      ref: "1d81a824f3633f1d0200ba51b78fe0f9ce429458"
+      resolved-ref: "1d81a824f3633f1d0200ba51b78fe0f9ce429458"
+      url: "https://github.com/LucasXu0/auto_updater.git"
+    source: git
+    version: "1.0.0"
+  auto_updater_macos:
+    dependency: "direct overridden"
+    description:
+      path: "packages/auto_updater_macos"
+      ref: "1d81a824f3633f1d0200ba51b78fe0f9ce429458"
+      resolved-ref: "1d81a824f3633f1d0200ba51b78fe0f9ce429458"
+      url: "https://github.com/LucasXu0/auto_updater.git"
+    source: git
+    version: "1.0.0"
+  auto_updater_platform_interface:
+    dependency: "direct overridden"
+    description:
+      path: "packages/auto_updater_platform_interface"
+      ref: "1d81a824f3633f1d0200ba51b78fe0f9ce429458"
+      resolved-ref: "1d81a824f3633f1d0200ba51b78fe0f9ce429458"
+      url: "https://github.com/LucasXu0/auto_updater.git"
+    source: git
+    version: "1.0.0"
+  auto_updater_windows:
+    dependency: transitive
+    description:
+      name: auto_updater_windows
+      sha256: "2bba20a71eee072f49b7267fedd5c4f1406c4b1b1e5b83932c634dbab75b80c9"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   avatar_stack:
     dependency: "direct main"
     description:
@@ -162,10 +197,10 @@ packages:
     dependency: transitive
     description:
       name: barcode
-      sha256: ab180ce22c6555d77d45f0178a523669db67f95856e3378259ef2ffeb43e6003
+      sha256: "7b6729c37e3b7f34233e2318d866e8c48ddb46c1f7ad01ff7bb2a8de1da2b9f4"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.8"
+    version: "2.2.9"
   bidi:
     dependency: transitive
     description:
@@ -1540,10 +1575,10 @@ packages:
     dependency: transitive
     description:
       name: pdf
-      sha256: "05df53f8791587402493ac97b9869d3824eccbc77d97855f4545cf72df3cae07"
+      sha256: adbdec5bc84d20e6c8d67f9c64270aa64d1e9e1ed529f0fef7e7bc7e9400f894
       url: "https://pub.dev"
     source: hosted
-    version: "3.11.1"
+    version: "3.11.2"
   percent_indicator:
     dependency: "direct main"
     description:
@@ -2360,6 +2395,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  version:
+    dependency: "direct main"
+    description:
+      name: version
+      sha256: "3d4140128e6ea10d83da32fef2fa4003fccbf6852217bb854845802f04191f94"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.2"
   visibility_detector:
     dependency: transitive
     description:
