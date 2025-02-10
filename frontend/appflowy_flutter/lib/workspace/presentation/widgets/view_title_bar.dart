@@ -10,6 +10,7 @@ import 'package:appflowy/workspace/application/view_title/view_title_bar_bloc.da
 import 'package:appflowy/workspace/application/view_title/view_title_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -66,13 +67,21 @@ class ViewTitleBar extends StatelessWidget {
   }
 
   Widget _buildLockPageStatus(BuildContext context) {
-    return BlocBuilder<ViewLockStatusBloc, ViewLockStatusState>(
+    return BlocConsumer<ViewLockStatusBloc, ViewLockStatusState>(
+      listener: (context, state) {
+        if (state.isLocked) {
+          showToastNotification(
+            context,
+            message:
+                'Page locked. Editing is disabled until someone unlocks it.',
+          );
+        }
+      },
       builder: (context, state) {
         if (state.isLocked) {
-          return Container(
-            color: Colors.red,
-            child: const FlowyText.regular('Locked'),
-          );
+          return _Lock();
+        } else if (!state.isLocked && state.lockCounter > 0) {
+          return _ReLock();
         }
         return const SizedBox.shrink();
       },
@@ -372,5 +381,81 @@ class _ViewTitleState extends State<ViewTitle> {
         baseOffset: 0,
         extentOffset: state.name.length,
       );
+  }
+}
+
+class _Lock extends StatelessWidget {
+  const _Lock();
+
+  @override
+  Widget build(BuildContext context) {
+    final color = const Color(0xFFD95A0B);
+    return FlowyTooltip(
+      // todo: i18n
+      message: 'Locked by XXX to prevent accidental editing. Click to unlock.',
+      child: DecoratedBox(
+        decoration: ShapeDecoration(
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: color),
+            borderRadius: BorderRadius.circular(6),
+          ),
+        ),
+        child: FlowyButton(
+          useIntrinsicWidth: true,
+          margin: const EdgeInsets.symmetric(
+            horizontal: 4.0,
+            vertical: 4.0,
+          ),
+          iconPadding: 4.0,
+          text: FlowyText.regular(
+            'Locked',
+            color: color,
+            fontSize: 12.0,
+          ),
+          hoverColor: color.withValues(alpha: 0.1),
+          leftIcon: FlowySvg(FlowySvgs.lock_page_s, color: color),
+          onTap: () => context.read<ViewLockStatusBloc>().add(
+                const ViewLockStatusEvent.unlock(),
+              ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ReLock extends StatelessWidget {
+  const _ReLock();
+
+  @override
+  Widget build(BuildContext context) {
+    final iconColor = const Color(0xFF8F959E);
+    return DecoratedBox(
+      decoration: ShapeDecoration(
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: iconColor),
+          borderRadius: BorderRadius.circular(6),
+        ),
+      ),
+      child: FlowyButton(
+        useIntrinsicWidth: true,
+        margin: const EdgeInsets.symmetric(
+          horizontal: 4.0,
+          vertical: 4.0,
+        ),
+        iconPadding: 4.0,
+        text: FlowyText.regular(
+          'Re-lock',
+          fontSize: 12.0,
+        ),
+        leftIcon: FlowySvg(
+          FlowySvgs.unlock_page_s,
+          color: iconColor,
+          blendMode: null,
+        ),
+        onTap: () => context.read<ViewLockStatusBloc>().add(
+              const ViewLockStatusEvent.lock(),
+            ),
+      ),
+    );
   }
 }

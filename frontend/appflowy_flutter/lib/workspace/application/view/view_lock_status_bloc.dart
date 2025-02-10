@@ -48,7 +48,11 @@ class ViewLockStatusBloc
               (_) => true,
               (_) => false,
             );
-            add(ViewLockStatusEvent.updateLockStatus(isLocked));
+            add(
+              ViewLockStatusEvent.updateLockStatus(
+                isLocked,
+              ),
+            );
           },
           unlock: () async {
             final result = await ViewBackendService.unlockView(view.id);
@@ -56,10 +60,20 @@ class ViewLockStatusBloc
               (_) => false,
               (_) => true,
             );
-            add(ViewLockStatusEvent.updateLockStatus(isLocked));
+            add(
+              ViewLockStatusEvent.updateLockStatus(
+                isLocked,
+                lockCounter: state.lockCounter + 1,
+              ),
+            );
           },
-          updateLockStatus: (isLocked) async {
-            emit(state.copyWith(isLocked: isLocked));
+          updateLockStatus: (isLocked, lockCounter) {
+            emit(
+              state.copyWith(
+                isLocked: isLocked,
+                lockCounter: lockCounter ?? state.lockCounter,
+              ),
+            );
           },
         );
       },
@@ -84,8 +98,10 @@ class ViewLockStatusEvent with _$ViewLockStatusEvent {
 
   const factory ViewLockStatusEvent.lock() = Lock;
   const factory ViewLockStatusEvent.unlock() = Unlock;
-  const factory ViewLockStatusEvent.updateLockStatus(bool isLocked) =
-      UpdateLockStatus;
+  const factory ViewLockStatusEvent.updateLockStatus(
+    bool isLocked, {
+    int? lockCounter,
+  }) = UpdateLockStatus;
 }
 
 @freezed
@@ -93,10 +109,12 @@ class ViewLockStatusState with _$ViewLockStatusState {
   const factory ViewLockStatusState({
     required ViewPB view,
     required bool isLocked,
+    required int lockCounter,
   }) = _ViewLockStatusState;
 
   factory ViewLockStatusState.init(ViewPB view) => ViewLockStatusState(
         view: view,
         isLocked: false,
+        lockCounter: 0,
       );
 }
