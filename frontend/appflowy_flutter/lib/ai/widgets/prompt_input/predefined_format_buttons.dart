@@ -69,7 +69,7 @@ class ChangeFormatBar extends StatelessWidget {
           _buildFormatButton(context, ImageFormat.image),
           if (predefinedFormat?.imageFormat.hasText ?? true) ...[
             _buildDivider(),
-            _buildTextFormatButton(context, TextFormat.auto),
+            _buildTextFormatButton(context, TextFormat.paragraph),
             _buildTextFormatButton(context, TextFormat.bulletList),
             _buildTextFormatButton(context, TextFormat.numberedList),
             _buildTextFormatButton(context, TextFormat.table),
@@ -88,7 +88,8 @@ class ChangeFormatBar extends StatelessWidget {
           return;
         }
         if (format.hasText) {
-          final textFormat = predefinedFormat?.textFormat ?? TextFormat.auto;
+          final textFormat =
+              predefinedFormat?.textFormat ?? TextFormat.paragraph;
           onSelectPredefinedFormat(
             PredefinedFormat(imageFormat: format, textFormat: textFormat),
           );
