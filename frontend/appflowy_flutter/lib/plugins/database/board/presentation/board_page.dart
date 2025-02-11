@@ -17,6 +17,7 @@ import 'package:appflowy/shared/conditional_listenable_builder.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
@@ -205,6 +206,7 @@ class _DesktopBoardPageState extends State<DesktopBoardPage> {
             onEditStateChanged: widget.onEditStateChanged,
             focusScope: _focusScope,
             boardController: _boardController,
+            view: widget.view,
           ),
         ),
       ),
@@ -239,6 +241,7 @@ class _BoardContent extends StatefulWidget {
   const _BoardContent({
     required this.boardController,
     required this.focusScope,
+    required this.view,
     this.onEditStateChanged,
     this.shrinkWrap = false,
   });
@@ -247,6 +250,7 @@ class _BoardContent extends StatefulWidget {
   final BoardFocusScope focusScope;
   final VoidCallback? onEditStateChanged;
   final bool shrinkWrap;
+  final ViewPB view;
 
   @override
   State<_BoardContent> createState() => _BoardContentState();
@@ -366,7 +370,7 @@ class _BoardContentState extends State<_BoardContent> {
                   scrollManager: scrollManager,
                 ),
               ),
-              cardBuilder: (_, column, columnItem) => MultiBlocProvider(
+              cardBuilder: (context, column, columnItem) => MultiBlocProvider(
                 key: ValueKey("board_card_${column.id}_${columnItem.id}"),
                 providers: [
                   BlocProvider<BoardBloc>.value(
@@ -375,13 +379,24 @@ class _BoardContentState extends State<_BoardContent> {
                   BlocProvider.value(
                     value: context.read<BoardActionsCubit>(),
                   ),
+                  BlocProvider(
+                    create: (_) => ViewLockStatusBloc(view: widget.view)
+                      ..add(ViewLockStatusEvent.initial()),
+                  ),
                 ],
-                child: _BoardCard(
-                  afGroupData: column,
-                  groupItem: columnItem as GroupItem,
-                  boardConfig: config,
-                  notifier: widget.focusScope,
-                  cellBuilder: cellBuilder,
+                child: BlocBuilder<ViewLockStatusBloc, ViewLockStatusState>(
+                  builder: (context, state) {
+                    return IgnorePointer(
+                      ignoring: state.isLocked,
+                      child: _BoardCard(
+                        afGroupData: column,
+                        groupItem: columnItem as GroupItem,
+                        boardConfig: config,
+                        notifier: widget.focusScope,
+                        cellBuilder: cellBuilder,
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
