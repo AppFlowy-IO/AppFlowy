@@ -6,6 +6,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart';
 
 part 'view_lock_status_bloc.freezed.dart';
 
@@ -65,8 +66,13 @@ class ViewLockStatusBloc
             );
           },
           updateLockStatus: (isLocked, lockCounter) {
+            state.view.freeze();
+            final updatedView = state.view.rebuild(
+              (update) => update.isLocked = isLocked,
+            );
             emit(
               state.copyWith(
+                view: updatedView,
                 isLocked: isLocked,
                 lockCounter: lockCounter ?? state.lockCounter,
               ),

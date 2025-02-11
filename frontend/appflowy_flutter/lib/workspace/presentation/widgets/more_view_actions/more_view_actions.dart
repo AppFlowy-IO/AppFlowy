@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/common_view_action.dart';
@@ -78,6 +79,10 @@ class _MoreViewActionsState extends State<MoreViewActions> {
             ),
         ),
         BlocProvider(
+          create: (_) => ViewLockStatusBloc(view: widget.view)
+            ..add(ViewLockStatusEvent.initial()),
+        ),
+        BlocProvider(
           create: (context) => SpaceBloc(
             userProfile: userProfile,
             workspaceId: workspaceId,
@@ -96,8 +101,8 @@ class _MoreViewActionsState extends State<MoreViewActions> {
               }
 
               final actions = _buildActions(
+                context,
                 viewInfoState,
-                viewState.view,
               );
               return ListView.builder(
                 key: ValueKey(state.spaces.hashCode),
@@ -114,13 +119,13 @@ class _MoreViewActionsState extends State<MoreViewActions> {
     );
   }
 
-  List<Widget> _buildActions(ViewInfoState state, ViewPB view) {
+  List<Widget> _buildActions(BuildContext context, ViewInfoState state) {
+    final view = context.watch<ViewLockStatusBloc>().state.view;
     final appearanceSettings = context.watch<AppearanceSettingsCubit>().state;
     final dateFormat = appearanceSettings.dateFormat;
     final timeFormat = appearanceSettings.timeFormat;
 
     final viewMoreActionTypes = [
-      ViewMoreActionType.divider,
       if (widget.view.layout != ViewLayoutPB.Chat) ViewMoreActionType.duplicate,
       ViewMoreActionType.moveTo,
       ViewMoreActionType.delete,
@@ -137,9 +142,16 @@ class _MoreViewActionsState extends State<MoreViewActions> {
           mutex: popoverMutex,
         ),
       ],
-      LockPageAction(
-        view: widget.view,
-      ),
+      if (widget.view.isDocument || widget.view.isDatabase) ...[
+        LockPageAction(
+          view: view,
+        ),
+        ViewAction(
+          type: ViewMoreActionType.divider,
+          view: view,
+          mutex: popoverMutex,
+        ),
+      ],
       ...viewMoreActionTypes.map(
         (type) => ViewAction(
           type: type,

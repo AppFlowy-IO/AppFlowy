@@ -86,7 +86,7 @@ class DatabaseTabBarView extends StatelessWidget {
         ),
       ],
       child: BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-        builder: (_, state) {
+        builder: (innerContext, state) {
           final layout = state.tabBars[state.selectedIndex].layout;
           final isLocked =
               context.read<ViewBloc?>()?.state.view.isLocked ?? false;
@@ -105,9 +105,17 @@ class DatabaseTabBarView extends StatelessWidget {
                     return const SizedBox.shrink();
                   }
 
-                  return UniversalPlatform.isDesktop
+                  Widget child = UniversalPlatform.isDesktop
                       ? const TabBarHeader()
                       : const MobileTabBarHeader();
+
+                  if (innerContext.watch<ViewBloc>().state.view.isLocked) {
+                    child = IgnorePointer(
+                      child: child,
+                    );
+                  }
+
+                  return child;
                 },
               ),
               pageSettingBarExtensionFromState(context, state),
