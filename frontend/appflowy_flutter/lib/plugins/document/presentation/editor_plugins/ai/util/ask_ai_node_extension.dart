@@ -2,7 +2,7 @@ import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 extension AskAINodeExtension on EditorState {
-  String getMarkdownInSelection(Selection? selection) {
+  Future<String> getMarkdownInSelection(Selection? selection) async {
     selection ??= this.selection?.normalized;
     if (selection == null || selection.isCollapsed) {
       return '';
@@ -33,7 +33,7 @@ extension AskAINodeExtension on EditorState {
       slicedNodes.add(copiedNode);
     }
 
-    final markdown = customDocumentToMarkdown(
+    final markdown = await customDocumentToMarkdown(
       Document.blank()..insert([0], slicedNodes),
     );
 

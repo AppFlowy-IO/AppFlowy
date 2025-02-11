@@ -571,7 +571,9 @@
         "title": "Account login",
         "loginLabel": "Log in",
         "logoutLabel": "Log out"
-      }
+      },
+      "isUpToDate": "@:appName is up to date!",
+      "officialVersion": "Version {version} (Official build)"
     },
     "workspacePage": {
       "menuLabel": "Workspace",
@@ -2511,6 +2513,7 @@
       "accountLogin": "Account Login",
       "updateNameError": "Failed to update name",
       "updateIconError": "Failed to update icon",
+      "aboutAppFlowy": "About @:appName",
       "deleteAccount": {
         "title": "Delete Account",
         "subtitle": "Permanently delete your account and all of your data.",
@@ -3081,5 +3084,17 @@
   },
   "ai": {
     "contentPolicyViolation": "Image generation failed due to sensitive content. Please rephrase your input and try again"
+  },
+  "autoUpdate": {
+    "criticalUpdateTitle": "Update required to continue",
+    "criticalUpdateDescription": "We've made improvements to enhance your experience! Please update from {currentVersion} to {newVersion} to keep using the app.",
+    "criticalUpdateButton": "Update now",
+    "bannerUpdateTitle": "New Version Available!",
+    "bannerUpdateDescription": "Get the latest features and bug fixes. Click \"Update\" to install now",
+    "bannerUpdateButton": "Update",
+    "settingsUpdateTitle": "New Version ({newVersion}) Available!",
+    "settingsUpdateDescription": "Current version: {currentVersion} (Official build) → {newVersion}",
+    "settingsUpdateButton": "Update now",
+    "settingsUpdateWhatsNew": "What's new"
   }
 }

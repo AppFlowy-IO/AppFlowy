@@ -204,8 +204,6 @@ class _ImportPanelState extends State<ImportPanel> {
               ..importType = ImportTypePB.AFDatabase,
           );
           break;
-        default:
-          break;
       }
     }
 

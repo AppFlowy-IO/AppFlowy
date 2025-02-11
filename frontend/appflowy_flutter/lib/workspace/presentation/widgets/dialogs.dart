@@ -673,9 +673,13 @@ Future<void> showCustomConfirmDialog({
   String? confirmLabel,
   ConfirmPopupStyle style = ConfirmPopupStyle.onlyOk,
   bool closeOnConfirm = true,
+  bool showCloseButton = true,
+  bool enableKeyboardListener = true,
+  bool barrierDismissible = true,
 }) {
   return showDialog(
     context: context,
+    barrierDismissible: barrierDismissible,
     builder: (context) {
       return Dialog(
         shape: RoundedRectangleBorder(
@@ -692,6 +696,8 @@ Future<void> showCustomConfirmDialog({
             confirmButtonColor: Theme.of(context).colorScheme.primary,
             style: style,
             closeOnAction: closeOnConfirm,
+            showCloseButton: showCloseButton,
+            enableKeyboardListener: enableKeyboardListener,
             child: builder(context),
           ),
         ),

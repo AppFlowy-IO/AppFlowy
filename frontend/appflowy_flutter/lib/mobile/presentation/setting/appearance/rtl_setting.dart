@@ -83,7 +83,6 @@ class RTLSetting extends StatelessWidget {
       case AppFlowyTextDirection.rtl:
         return LocaleKeys.settings_appearance_textDirection_rtl.tr();
       case AppFlowyTextDirection.ltr:
-      default:
         return LocaleKeys.settings_appearance_textDirection_ltr.tr();
     }
   }

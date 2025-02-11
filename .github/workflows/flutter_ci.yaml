@@ -25,7 +25,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  FLUTTER_VERSION: "3.22.2"
+  FLUTTER_VERSION: "3.27.4"
   RUST_TOOLCHAIN: "1.81.0"
   CARGO_MAKE_VERSION: "0.37.18"
   CLOUD_VERSION: 0.6.54-amd64
@@ -40,7 +40,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -74,7 +74,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ windows-latest ]
+        os: [windows-latest]
         include:
           - os: windows-latest
             flutter_profile: development-windows-x86
@@ -101,7 +101,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ macos-latest ]
+        os: [macos-latest]
         include:
           - os: macos-latest
             flutter_profile: development-mac-x86_64
@@ -123,12 +123,12 @@ jobs:
           flutter_profile: ${{ matrix.flutter_profile }}
 
   unit_test:
-    needs: [ prepare-linux ]
+    needs: [prepare-linux]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -217,11 +217,11 @@ jobs:
         shell: bash
 
   cloud_integration_test:
-    needs: [ prepare-linux ]
+    needs: [prepare-linux]
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
@@ -340,13 +340,13 @@ jobs:
         shell: bash
 
   integration_test:
-    needs: [ prepare-linux ]
+    needs: [prepare-linux]
     if: github.event.pull_request.draft != true
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
-        test_number: [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
+        os: [ubuntu-latest]
+        test_number: [1, 2, 3, 4, 5, 6, 7, 8, 9]
         include:
           - os: ubuntu-latest
             target: "x86_64-unknown-linux-gnu"

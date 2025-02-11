@@ -9,7 +9,6 @@ import 'package:appflowy/shared/icon_emoji_picker/icon_uploader.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
-import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flowy_infra_ui/style_widget/primary_rounded_button.dart';
 import 'package:flowy_svg/flowy_svg.dart';
@@ -95,7 +94,7 @@ extension EmojiTestExtension on WidgetTester {
     final dropTargetWidget = dropTarget.evaluate().first.widget as DropTarget;
     dropTargetWidget.onDragDone?.call(
       DropDoneDetails(
-        files: [XFile(icon.emoji)],
+        files: [DropItemFile(icon.emoji)],
         localPosition: Offset.zero,
         globalPosition: Offset.zero,
       ),

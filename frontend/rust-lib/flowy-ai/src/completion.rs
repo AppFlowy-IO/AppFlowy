@@ -104,8 +104,10 @@ impl CompletionTask {
           custom_prompt: None,
           metadata: Some(CompletionMetadata {
             object_id: self.context.object_id,
+            workspace_id: None,
             rag_ids: Some(self.context.rag_ids),
           }),
+          format: Default::default(),
         };
 
         info!("start completion: {:?}", params);

@@ -180,8 +180,6 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
           );
         case MobileSpaceTabType.favorites:
           return MobileFavoriteSpace(userProfile: widget.userProfile);
-        default:
-          throw Exception('Unknown tab type: $tab');
       }
     }).toList();
   }

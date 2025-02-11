@@ -36,6 +36,7 @@
     "loginButtonText": "Ingresar",
     "loginStartWithAnonymous": "Comience una sesión anónima",
     "continueAnonymousUser": "Continuar con una sesión anónima",
+    "anonymous": "Anónimo",
     "buttonText": "Ingresar",
     "signingInText": "Iniciando sesión...",
     "forgotPassword": "¿Olvidó su contraseña?",
@@ -50,6 +51,8 @@
     "signInWithGoogle": "Iniciar sesión con Google",
     "signInWithGithub": "Iniciar sesión con Github",
     "signInWithDiscord": "Iniciar sesión con Discord",
+    "signInWithApple": "Continuar con Apple",
+    "continueAnotherWay": "Continuar por otro camino",
     "signUpWithGoogle": "Registrarse con Google",
     "signUpWithGithub": "Registrarse con Github",
     "signUpWithDiscord": "Registrarse con Discord",
@@ -68,8 +71,12 @@
   },
   "workspace": {
     "chooseWorkspace": "Elige tu espacio de trabajo",
+    "defaultName": "Mi espacio de trabajo",
     "create": "Crear espacio de trabajo",
+    "new": "Nuevo espacio de trabajo",
+    "learnMore": "Más información",
     "reset": "Restablecer espacio de trabajo",
+    "renameWorkspace": "Cambiar el nombre del espacio de trabajo",
     "resetWorkspacePrompt": "Al restablecer el espacio de trabajo se eliminarán todas las páginas y datos que contiene. ¿Está seguro de que desea restablecer el espacio de trabajo? Alternativamente, puede comunicarse con el equipo de soporte para restaurar el espacio de trabajo.",
     "hint": "Espacio de trabajo",
     "notFoundError": "Espacio de trabajo no encontrado",
@@ -105,7 +112,9 @@
     "html": "HTML",
     "clipboard": "Copiar al portapapeles",
     "csv": "CSV",
-    "copyLink": "Copiar enlace"
+    "copyLink": "Copiar enlace",
+    "publish": "Publicar",
+    "publishTab": "Publicar"
   },
   "moreAction": {
     "small": "pequeño",
@@ -118,7 +127,9 @@
     "charCount": "Número de caracteres : {}",
     "createdAt": "Creado: {}",
     "deleteView": "Borrar",
-    "duplicateView": "Duplicar"
+    "duplicateView": "Duplicar",
+    "createdAtLabel": "Creado: ",
+    "syncedAtLabel": "Sincronizado: "
   },
   "importPanel": {
     "textAndMarkdown": "Texto y Markdown",
@@ -136,7 +147,8 @@
     "openNewTab": "Abrir en una pestaña nueva",
     "moveTo": "Mover a",
     "addToFavorites": "Añadira los favoritos",
-    "copyLink": "Copiar Enlace"
+    "copyLink": "Copiar Enlace",
+    "move": "Mover"
   },
   "blankPageTitle": "Página en blanco",
   "newPageText": "Nueva página",
@@ -149,16 +161,31 @@
     "relatedQuestion": "Relacionado",
     "serverUnavailable": "Servicio temporalmente no disponible. Por favor, inténtelo de nuevo más tarde.",
     "aiServerUnavailable": "🌈 ¡Uh-oh! 🌈. Un unicornio se comió nuestra respuesta. ¡Por favor, intenta de nuevo!",
+    "retry": "Rever",
     "clickToRetry": "Haga clic para volver a intentarlo",
     "regenerateAnswer": "Regenerar",
     "question1": "Cómo utilizar Kanban para gestionar tareas",
     "question2": "Explica el método GTD",
     "question3": "¿Por qué usar Rust?",
-    "aiMistakePrompt": "La IA puede cometer errores. Consulta información importante."
+    "aiMistakePrompt": "La IA puede cometer errores. Consulta información importante.",
+    "referenceSource": {
+      "one": "Se encontró {count} fuente",
+      "other": "Se encontraron {count} fuentes"
+    },
+    "regenerate": "Intentar otra vez",
+    "addToNewPage": "Crear nueva página",
+    "changeFormat": {
+      "textOnly": "Texto",
+      "text": "Párrafo"
+    },
+    "selectBanner": {
+      "saveButton": "Añadir …"
+    }
   },
   "trash": {
     "text": "Papelera",
     "restoreAll": "Recuperar todo",
+    "restore": "Restaurar",
     "deleteAll": "Eliminar todo",
     "pageHeader": {
       "fileName": "Nombre de archivo",
@@ -204,7 +231,8 @@
     "moreButtonToolTip": "Eliminar, renombrar y más...",
     "addPageTooltip": "Inserta una página",
     "defaultNewPageName": "Sin Título",
-    "renameDialog": "Renombrar"
+    "renameDialog": "Renombrar",
+    "pageNameSuffix": "Copiar"
   },
   "noPagesInside": "No hay páginas dentro",
   "toolbar": {
@@ -260,7 +288,10 @@
     "emptyRecent": "Sin documentos recientes",
     "favoriteSpace": "Favoritos",
     "RecentSpace": "Reciente",
-    "Spaces": "Espacios"
+    "Spaces": "Espacios",
+    "aiImageResponseLimit": "Se ha quedado sin respuestas de imágenes de IA.\n\nVaya a Configuración -> Plan -> Haga clic en AI Max para obtener más respuestas de imágenes de IA",
+    "purchaseStorageSpace": "Comprar espacio de almacenamiento",
+    "purchaseAIResponse": "Compra "
   },
   "notifications": {
     "export": {
@@ -294,6 +325,7 @@
     "upload": "Subir",
     "edit": "Editar",
     "delete": "Borrar",
+    "copy": "Copiar",
     "duplicate": "Duplicar",
     "putback": "Volver",
     "update": "Actualizar",
@@ -305,6 +337,7 @@
     "helpCenter": "Centro de ayuda",
     "add": "Añadir",
     "yes": "Si",
+    "no": "No",
     "clear": "Limpiar",
     "remove": "Eliminar",
     "dontRemove": "no quitar",
@@ -319,7 +352,12 @@
     "signInDiscord": "Iniciar sesión con discordia",
     "more": "Más",
     "create": "Crear",
-    "close": "Cerca"
+    "close": "Cerca",
+    "next": "Próximo",
+    "previous": "Anterior",
+    "submit": "Entregar",
+    "download": "Descargar",
+    "backToHome": "Volver a Inicio"
   },
   "label": {
     "welcome": "¡Bienvenido!",
@@ -343,6 +381,9 @@
   },
   "settings": {
     "title": "Ajustes",
+    "popupMenuItem": {
+      "settings": "Ajustes"
+    },
     "accountPage": {
       "menuLabel": "Mi cuenta",
       "title": "Mi cuenta",

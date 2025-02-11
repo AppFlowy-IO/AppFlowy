@@ -384,6 +384,8 @@
     "askOwnerToUpgradeToProIOS": "مساحة العمل الخاصة بك على وشك النفاد من مساحة التخزين المجانية.",
     "askOwnerToUpgradeToAIMax": "لقد نفدت الاستجابات المجانية للذكاء الاصطناعي من مساحة العمل الخاصة بك. يرجى مطالبة مالك مساحة العمل الخاصة بك بترقية الخطة أو شراء إضافات الذكاء الاصطناعي",
     "askOwnerToUpgradeToAIMaxIOS": "مساحة العمل الخاصة بك تفتقر إلى الاستجابات المجانية للذكاء الاصطناعي.",
+    "purchaseAIMax": "لقد نفدت استجابات الصور بالذكاء الاصطناعي من مساحة العمل الخاصة بك. يرجى مطالبة مالك مساحة العمل الخاصة بك بشراء AI Max",
+    "aiImageResponseLimit": "لقد نفدت استجابات الصور الخاصة بالذكاء الاصطناعي.<inlang-LineFeed>\nانتقل إلى الإعدادات -&gt; الخطة -&gt; انقر فوق AI Max للحصول على المزيد من استجابات صور AI",
     "purchaseStorageSpace": "شراء مساحة تخزين",
     "singleFileProPlanLimitationDescription": "لقد تجاوزت الحد الأقصى لحجم تحميل الملف المسموح به في الخطة المجانية. يرجى الترقية إلى الخطة الاحترافية لتحميل ملفات أكبر حجمًا",
     "purchaseAIResponse": "شراء",
@@ -1194,6 +1196,7 @@
         "system": "التكيف مع النظام"
       },
       "fontScaleFactor": "عامل مقياس الخط",
+      "displaySize": "حجم العرض",
       "documentSettings": {
         "cursorColor": "لون مؤشر المستند",
         "selectionColor": "لون اختيار المستند",
@@ -2190,11 +2193,11 @@
       "layoutDateField": "تقويم التخطيط بواسطة",
       "changeLayoutDateField": "تغيير حقل التخطيط",
       "noDateTitle": "بدون تاريخ",
+      "noDateHint": "ستظهر الأحداث غير المجدولة هنا",
       "unscheduledEventsTitle": "الأحداث غير المجدولة",
       "clickToAdd": "انقر للإضافة إلى التقويم",
       "name": "تخطيط التقويم",
-      "clickToOpen": "انقر لفتح السجل",
-      "noDateHint": "ستظهر الأحداث غير المجدولة هنا"
+      "clickToOpen": "انقر لفتح السجل"
     },
     "referencedCalendarPrefix": "نظرا ل",
     "quickJumpYear": "انتقل إلى",

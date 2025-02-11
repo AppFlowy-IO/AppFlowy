@@ -41,7 +41,10 @@ class _EmojiIconWidgetState extends State<EmojiIconWidget> {
       child: Container(
         decoration: BoxDecoration(
           color: !hover
-              ? Theme.of(context).colorScheme.inverseSurface.withOpacity(0.5)
+              ? Theme.of(context)
+                  .colorScheme
+                  .inverseSurface
+                  .withValues(alpha: 0.5)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
@@ -181,8 +184,6 @@ class _RawEmojiIconWidgetState extends State<RawEmojiIconWidget> {
                     height: widget.emojiSize,
                   ),
           );
-        default:
-          return defaultEmoji;
       }
     } catch (e) {
       Log.error("Display widget error: $e");
