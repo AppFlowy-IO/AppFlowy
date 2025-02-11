@@ -133,7 +133,7 @@ class ViewTitleBar extends StatelessWidget {
         message: view.name,
         child: ViewTitle(
           view: view,
-          behavior: i == views.length - 1
+          behavior: i == views.length - 1 && !view.isLocked
               ? ViewTitleBehavior.editable // only the last one is editable
               : ViewTitleBehavior.uneditable, // others are not editable
           onUpdated: () {
