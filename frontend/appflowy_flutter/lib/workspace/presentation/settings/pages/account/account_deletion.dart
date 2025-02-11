@@ -60,7 +60,7 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
         const VSpace(8),
         Row(
           children: [
-            Flexible(
+            Expanded(
               child: FlowyText.regular(
                 LocaleKeys.newSettings_myAccount_deleteAccount_description.tr(),
                 fontSize: 12.0,
@@ -69,7 +69,6 @@ class _AccountDeletionButtonState extends State<AccountDeletionButton> {
                 color: textColor,
               ),
             ),
-            const HSpace(32),
             FlowyTextButton(
               LocaleKeys.button_deleteAccount.tr(),
               constraints: const BoxConstraints(minHeight: 32),

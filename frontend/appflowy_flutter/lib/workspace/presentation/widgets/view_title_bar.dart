@@ -68,6 +68,9 @@ class ViewTitleBar extends StatelessWidget {
 
   Widget _buildLockPageStatus(BuildContext context) {
     return BlocConsumer<ViewLockStatusBloc, ViewLockStatusState>(
+      listenWhen: (previous, current) =>
+          previous.isLoadingLockStatus == current.isLoadingLockStatus &&
+          current.isLoadingLockStatus == false,
       listener: (context, state) {
         if (state.isLocked) {
           showToastNotification(
