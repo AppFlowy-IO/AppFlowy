@@ -316,7 +316,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
     );
 
     final isViewDeleted = context.read<DocumentBloc>().state.isDeleted;
-    final isLocked = context.read<ViewLockStatusBloc>().state.isLocked;
+    final isLocked =
+        context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
     final editor = Directionality(
       textDirection: textDirection,
       child: AppFlowyEditor(

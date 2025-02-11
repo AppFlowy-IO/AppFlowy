@@ -79,13 +79,19 @@ class DatabaseTabBarView extends StatelessWidget {
             ..add(const DatabaseTabBarEvent.initial()),
         ),
         BlocProvider<ViewBloc>(
-          create: (_) => ViewBloc(view: view)..add(const ViewEvent.initial()),
+          create: (_) => ViewBloc(view: view)
+            ..add(
+              const ViewEvent.initial(),
+            ),
         ),
       ],
       child: BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
         builder: (_, state) {
           final layout = state.tabBars[state.selectedIndex].layout;
-          return Column(
+          final isLocked =
+              context.read<ViewBloc?>()?.state.view.isLocked ?? false;
+
+          final Widget child = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (UniversalPlatform.isMobile) const VSpace(12),
@@ -111,6 +117,12 @@ class DatabaseTabBarView extends StatelessWidget {
               ),
             ],
           );
+
+          if (isLocked) {
+            return IgnorePointer(child: child);
+          }
+
+          return child;
         },
       ),
     );
