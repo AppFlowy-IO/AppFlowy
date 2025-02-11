@@ -27,7 +27,7 @@ import 'package:provider/provider.dart';
 
 import '../image_render.dart';
 
-const _thumbnailItemSize = 100.0;
+const _thumbnailItemSize = 100.0, _imageHeight = 400.0;
 
 class ImageBrowserLayout extends ImageBlockMultiLayout {
   const ImageBrowserLayout({
@@ -59,13 +59,13 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    final gallery = Stack(
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              height: 400,
+              height: _imageHeight,
               width: MediaQuery.of(context).size.width,
               child: GestureDetector(
                 onDoubleTap: () => _openInteractiveViewer(context),
@@ -257,6 +257,10 @@ class _ImageBrowserLayoutState extends State<ImageBrowserLayout> {
           ),
         ),
       ],
+    );
+    return SizedBox(
+      height: _imageHeight + _thumbnailItemSize + 20,
+      child: gallery,
     );
   }
 
