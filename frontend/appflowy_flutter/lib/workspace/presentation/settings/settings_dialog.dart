@@ -141,6 +141,7 @@ class SettingsDialog extends StatelessWidget {
       case SettingsPage.ai:
         if (user.authenticator == AuthenticatorPB.AppFlowyCloud) {
           return SettingsAIView(
+            key: ValueKey(user.hashCode),
             userProfile: user,
             currentWorkspaceMemberRole: currentWorkspaceMemberRole,
             workspaceId: workspaceId,
@@ -170,8 +171,6 @@ class SettingsDialog extends StatelessWidget {
         );
       case SettingsPage.featureFlags:
         return const FeatureFlagsPage();
-      default:
-        return const SizedBox.shrink();
     }
   }
 }

@@ -66,7 +66,7 @@ extension FlowyToolTipExtension on BuildContext {
   }
 
   TextStyle? tooltipHintTextStyle({double? fontSize}) => tooltipTextStyle(
-        fontColor: tooltipFontColor().withOpacity(0.7),
+        fontColor: tooltipFontColor().withValues(alpha: 0.7),
         fontSize: fontSize,
       );
 

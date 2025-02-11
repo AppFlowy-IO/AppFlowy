@@ -249,7 +249,7 @@ class _FreePlanUpgradeButton extends StatelessWidget {
             horizontal: 8.0,
             vertical: 6.0,
           ),
-          hoverColor: context.proSecondaryColor.withOpacity(0.9),
+          hoverColor: context.proSecondaryColor.withValues(alpha: 0.9),
           onTap: () {
             if (isOwner) {
               showToastNotification(

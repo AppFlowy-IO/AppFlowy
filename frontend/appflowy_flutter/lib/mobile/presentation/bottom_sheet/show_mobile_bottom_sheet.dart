@@ -74,7 +74,7 @@ Future<T?> showMobileBottomSheet<T>(
   backgroundColor ??= Theme.of(context).brightness == Brightness.light
       ? const Color(0xFFF7F8FB)
       : const Color(0xFF23262B);
-  barrierColor ??= Colors.black.withOpacity(0.3);
+  barrierColor ??= Colors.black.withValues(alpha: 0.3);
 
   return showModalBottomSheet<T>(
     context: context,

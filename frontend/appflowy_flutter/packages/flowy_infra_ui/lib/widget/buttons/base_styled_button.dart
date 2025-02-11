@@ -121,7 +121,7 @@ class BaseStyledBtnState extends State<BaseStyledButton> {
         fillColor: Colors.transparent,
         hoverColor: widget.hoverColor ?? Colors.transparent,
         highlightColor: widget.highlightColor ?? Colors.transparent,
-        focusColor: widget.focusColor ?? Colors.grey.withOpacity(0.35),
+        focusColor: widget.focusColor ?? Colors.grey.withValues(alpha: 0.35),
         constraints: BoxConstraints(
             minHeight: widget.minHeight ?? 0, minWidth: widget.minWidth ?? 0),
         onPressed: widget.onPressed,

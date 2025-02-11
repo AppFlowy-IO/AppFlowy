@@ -256,16 +256,16 @@ class NewEventButton extends StatelessWidget {
               boxShadow: [
                 BoxShadow(
                   spreadRadius: -2,
-                  color: const Color(0xFF1F2329).withOpacity(0.02),
+                  color: const Color(0xFF1F2329).withValues(alpha: 0.02),
                   blurRadius: 2,
                 ),
                 BoxShadow(
-                  color: const Color(0xFF1F2329).withOpacity(0.02),
+                  color: const Color(0xFF1F2329).withValues(alpha: 0.02),
                   blurRadius: 4,
                 ),
                 BoxShadow(
                   spreadRadius: 2,
-                  color: const Color(0xFF1F2329).withOpacity(0.02),
+                  color: const Color(0xFF1F2329).withValues(alpha: 0.02),
                   blurRadius: 8,
                 ),
               ],

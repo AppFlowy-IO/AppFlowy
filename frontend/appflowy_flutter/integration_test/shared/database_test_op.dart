@@ -1464,6 +1464,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
     );
 
     await tapButton(button);
+    await tapButtonWithName(LocaleKeys.button_delete.tr());
   }
 
   Future<void> dragDropRescheduleCalendarEvent() async {

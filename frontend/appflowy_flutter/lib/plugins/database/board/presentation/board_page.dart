@@ -1,9 +1,5 @@
 import 'dart:io';
 
-import 'package:appflowy/util/field_type_extension.dart';
-import 'package:flutter/material.dart' hide Card;
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/database/board/mobile_board_page.dart';
@@ -19,6 +15,8 @@ import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/desk
 import 'package:appflowy/plugins/database/widgets/row/row_detail.dart';
 import 'package:appflowy/shared/conditional_listenable_builder.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
+import 'package:appflowy/util/field_type_extension.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_board/appflowy_board.dart';
@@ -26,13 +24,14 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
+import 'package:flutter/material.dart' hide Card;
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import '../../widgets/card/card.dart';
 import '../../widgets/cell/card_cell_builder.dart';
 import '../application/board_bloc.dart';
-
 import 'toolbar/board_setting_bar.dart';
 import 'widgets/board_focus_scope.dart';
 import 'widgets/board_hidden_groups.dart';
@@ -714,19 +713,19 @@ class _BoardCardState extends State<_BoardCard> {
                   .isFocused(GroupedRowId(rowId: rowId, groupId: groupId))
               ? Theme.of(context).colorScheme.primary
               : Theme.of(context).brightness == Brightness.light
-                  ? const Color(0xFF1F2329).withOpacity(0.12)
+                  ? const Color(0xFF1F2329).withValues(alpha: 0.12)
                   : const Color(0xFF59647A),
         ),
       ),
       boxShadow: [
         BoxShadow(
           blurRadius: 4,
-          color: const Color(0xFF1F2329).withOpacity(0.02),
+          color: const Color(0xFF1F2329).withValues(alpha: 0.02),
         ),
         BoxShadow(
           blurRadius: 4,
           spreadRadius: -2,
-          color: const Color(0xFF1F2329).withOpacity(0.02),
+          color: const Color(0xFF1F2329).withValues(alpha: 0.02),
         ),
       ],
     );
@@ -856,10 +855,13 @@ void _openCard({
 
   FlowyOverlay.show(
     context: context,
-    builder: (_) => RowDetailPage(
-      databaseController: databaseController,
-      rowController: rowController,
-      userProfile: context.read<BoardBloc>().userProfile,
+    builder: (_) => BlocProvider.value(
+      value: context.read<UserWorkspaceBloc>(),
+      child: RowDetailPage(
+        databaseController: databaseController,
+        rowController: rowController,
+        userProfile: context.read<BoardBloc>().userProfile,
+      ),
     ),
   );
 }
