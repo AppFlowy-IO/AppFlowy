@@ -17,7 +17,14 @@ enum ViewMoreActionType {
   divider,
   lastModified,
   created,
-  lockPage,
+  lockPage;
+
+  static const disableInLockedView = [
+    delete,
+    rename,
+    moveTo,
+    changeIcon,
+  ];
 }
 
 extension ViewMoreActionTypeExtension on ViewMoreActionType {

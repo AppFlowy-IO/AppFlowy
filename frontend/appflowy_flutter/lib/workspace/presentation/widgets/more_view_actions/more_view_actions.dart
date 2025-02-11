@@ -63,18 +63,19 @@ class _MoreViewActionsState extends State<MoreViewActions> {
     );
   }
 
-  Widget _buildPopup(ViewInfoState state) {
+  Widget _buildPopup(ViewInfoState viewInfoState) {
     final userWorkspaceBloc = context.read<UserWorkspaceBloc>();
     final userProfile = userWorkspaceBloc.userProfile;
     final workspaceId =
         userWorkspaceBloc.state.currentWorkspace?.workspaceId ?? '';
-    final actions = _buildActions(state);
 
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) =>
-              ViewBloc(view: widget.view)..add(const ViewEvent.initial()),
+          create: (_) => ViewBloc(view: widget.view)
+            ..add(
+              const ViewEvent.initial(),
+            ),
         ),
         BlocProvider(
           create: (context) => SpaceBloc(
@@ -85,27 +86,35 @@ class _MoreViewActionsState extends State<MoreViewActions> {
             ),
         ),
       ],
-      child: BlocBuilder<SpaceBloc, SpaceState>(
-        builder: (context, state) {
-          if (state.spaces.isEmpty &&
-              userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) {
-            return const SizedBox.shrink();
-          }
+      child: BlocBuilder<ViewBloc, ViewState>(
+        builder: (context, viewState) {
+          return BlocBuilder<SpaceBloc, SpaceState>(
+            builder: (context, state) {
+              if (state.spaces.isEmpty &&
+                  userProfile.authenticator == AuthenticatorPB.AppFlowyCloud) {
+                return const SizedBox.shrink();
+              }
 
-          return ListView.builder(
-            key: ValueKey(state.spaces.hashCode),
-            shrinkWrap: true,
-            padding: EdgeInsets.zero,
-            itemCount: actions.length,
-            physics: StyledScrollPhysics(),
-            itemBuilder: (_, index) => actions[index],
+              final actions = _buildActions(
+                viewInfoState,
+                viewState.view,
+              );
+              return ListView.builder(
+                key: ValueKey(state.spaces.hashCode),
+                shrinkWrap: true,
+                padding: EdgeInsets.zero,
+                itemCount: actions.length,
+                physics: StyledScrollPhysics(),
+                itemBuilder: (_, index) => actions[index],
+              );
+            },
           );
         },
       ),
     );
   }
 
-  List<Widget> _buildActions(ViewInfoState state) {
+  List<Widget> _buildActions(ViewInfoState state, ViewPB view) {
     final appearanceSettings = context.watch<AppearanceSettingsCubit>().state;
     final dateFormat = appearanceSettings.dateFormat;
     final timeFormat = appearanceSettings.timeFormat;
@@ -124,7 +133,7 @@ class _MoreViewActionsState extends State<MoreViewActions> {
         const FontSizeAction(),
         ViewAction(
           type: ViewMoreActionType.divider,
-          view: widget.view,
+          view: view,
           mutex: popoverMutex,
         ),
       ],
@@ -134,7 +143,7 @@ class _MoreViewActionsState extends State<MoreViewActions> {
       ...viewMoreActionTypes.map(
         (type) => ViewAction(
           type: type,
-          view: widget.view,
+          view: view,
           mutex: popoverMutex,
         ),
       ),

@@ -6,6 +6,7 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -92,5 +93,27 @@ class _LockPageActionState extends State<LockPageAction> {
         );
 
     Log.info('update page(${widget.view.id}) lock status: $isLocked');
+  }
+}
+
+class LockPageButtonWrapper extends StatelessWidget {
+  const LockPageButtonWrapper({
+    super.key,
+    required this.child,
+  });
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyTooltip(
+      message: LocaleKeys.lockPage_lockedOperationTooltip.tr(),
+      child: IgnorePointer(
+        child: Opacity(
+          opacity: 0.5,
+          child: child,
+        ),
+      ),
+    );
   }
 }
