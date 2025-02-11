@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -27,32 +26,21 @@ class _LockPageActionState extends State<LockPageAction> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ViewLockStatusBloc(view: widget.view),
-      child: BlocConsumer<ViewLockStatusBloc, ViewLockStatusState>(
-        listener: (context, state) {
-          if (state.isLocked) {
-            showToastNotification(
-              context,
-              // todo: i18n
-              message:
-                  'Page locked. Editing is disabled until someone unlocks it.',
-            );
-          }
-        },
+      create: (context) => ViewLockStatusBloc(view: widget.view)
+        ..add(
+          ViewLockStatusEvent.initial(),
+        ),
+      child: BlocBuilder<ViewLockStatusBloc, ViewLockStatusState>(
         builder: (context, state) {
-          return _buildTextButton(
-            context,
-            isLocked: state.isLocked,
-          );
+          return _buildTextButton(context);
         },
       ),
     );
   }
 
   Widget _buildTextButton(
-    BuildContext context, {
-    required bool isLocked,
-  }) {
+    BuildContext context,
+  ) {
     return Container(
       height: 34,
       padding: const EdgeInsets.symmetric(vertical: 2.0),
@@ -70,16 +58,17 @@ class _LockPageActionState extends State<LockPageAction> {
         ),
         rightIconBuilder: (_) => _buildSwitch(
           context,
-          isLocked: isLocked,
         ),
       ),
     );
   }
 
-  Widget _buildSwitch(
-    BuildContext context, {
-    required bool isLocked,
-  }) {
+  Widget _buildSwitch(BuildContext context) {
+    final lockState = context.read<ViewLockStatusBloc>().state;
+    if (lockState.isLoadingLockStatus) {
+      return SizedBox.shrink();
+    }
+
     return Container(
       width: 30,
       height: 20,
@@ -87,7 +76,7 @@ class _LockPageActionState extends State<LockPageAction> {
       child: FittedBox(
         fit: BoxFit.fill,
         child: CupertinoSwitch(
-          value: isLocked,
+          value: lockState.isLocked,
           activeTrackColor: Theme.of(context).colorScheme.primary,
           onChanged: (_) => _toggle(context),
         ),

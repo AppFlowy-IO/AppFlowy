@@ -72,8 +72,7 @@ class ViewTitleBar extends StatelessWidget {
         if (state.isLocked) {
           showToastNotification(
             context,
-            message:
-                'Page locked. Editing is disabled until someone unlocks it.',
+            message: LocaleKeys.lockPage_pageLockedToast.tr(),
           );
         }
       },
@@ -391,8 +390,7 @@ class _Lock extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = const Color(0xFFD95A0B);
     return FlowyTooltip(
-      // todo: i18n
-      message: 'Locked by XXX to prevent accidental editing. Click to unlock.',
+      message: LocaleKeys.lockPage_lockTooltip.tr(),
       child: DecoratedBox(
         decoration: ShapeDecoration(
           shape: RoundedRectangleBorder(
@@ -408,7 +406,7 @@ class _Lock extends StatelessWidget {
           ),
           iconPadding: 4.0,
           text: FlowyText.regular(
-            'Locked',
+            LocaleKeys.lockPage_lockPage.tr(),
             color: color,
             fontSize: 12.0,
           ),
@@ -444,7 +442,7 @@ class _ReLock extends StatelessWidget {
         ),
         iconPadding: 4.0,
         text: FlowyText.regular(
-          'Re-lock',
+          LocaleKeys.lockPage_reLockPage.tr(),
           fontSize: 12.0,
         ),
         leftIcon: FlowySvg(

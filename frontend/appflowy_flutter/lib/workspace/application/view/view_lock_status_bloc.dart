@@ -26,19 +26,16 @@ class ViewLockStatusBloc
               },
             );
 
-            final latestView = await ViewBackendService.getView(view.id);
-            latestView.fold(
-              (view) => emit(
-                state.copyWith(
-                  view: view,
-                  isLocked: view.isLocked,
-                ),
-              ),
-              (_) => emit(
-                state.copyWith(
-                  view: view,
-                  isLocked: false,
-                ),
+            final result = await ViewBackendService.getView(view.id);
+            final latestView = result.fold(
+              (view) => view,
+              (_) => view,
+            );
+            emit(
+              state.copyWith(
+                view: latestView,
+                isLocked: latestView.isLocked,
+                isLoadingLockStatus: false,
               ),
             );
           },
@@ -95,7 +92,6 @@ class ViewLockStatusBloc
 @freezed
 class ViewLockStatusEvent with _$ViewLockStatusEvent {
   const factory ViewLockStatusEvent.initial() = Initial;
-
   const factory ViewLockStatusEvent.lock() = Lock;
   const factory ViewLockStatusEvent.unlock() = Unlock;
   const factory ViewLockStatusEvent.updateLockStatus(
@@ -110,6 +106,7 @@ class ViewLockStatusState with _$ViewLockStatusState {
     required ViewPB view,
     required bool isLocked,
     required int lockCounter,
+    @Default(true) bool isLoadingLockStatus,
   }) = _ViewLockStatusState;
 
   factory ViewLockStatusState.init(ViewPB view) => ViewLockStatusState(
