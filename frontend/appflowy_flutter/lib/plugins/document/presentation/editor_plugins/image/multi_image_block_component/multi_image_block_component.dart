@@ -13,10 +13,11 @@ import 'package:universal_platform/universal_platform.dart';
 
 const kMultiImagePlaceholderKey = 'multiImagePlaceholderKey';
 
-Node multiImageNode() => Node(
+Node multiImageNode({List<ImageBlockData>? images}) => Node(
       type: MultiImageBlockKeys.type,
       attributes: {
-        MultiImageBlockKeys.images: MultiImageData(images: []).toJson(),
+        MultiImageBlockKeys.images:
+            MultiImageData(images: images ?? []).toJson(),
         MultiImageBlockKeys.layout: MultiImageLayout.browser.toIntValue(),
       },
     );
