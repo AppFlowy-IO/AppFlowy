@@ -473,9 +473,11 @@
       "namespace": {
         "upgradeToPro": "请升级至 Pro 订阅计划以设置主页",
         "redirectToPayment": "正在重定向至付款页面......",
-        "onlyWorkspaceOwnerCanSetHomePage": "仅工作空间的所有者能为其设置主页"
+        "onlyWorkspaceOwnerCanSetHomePage": "仅工作空间的所有者能为其设置主页",
+        "pleaseAskOwnerToSetHomePage": "请联系工作空间所有者更新至 Pro 订阅计划"
       },
       "publishedPage": {
+        "title": "所有已发布页面",
         "description": "管理您已发布的页面",
         "noPublishedPages": "没有已发布的页面",
         "settings": "发布设置",
@@ -648,7 +650,11 @@
         "resetDefault": "重置为默认"
       },
       "resetDialog": {
+        "title": "重置快捷键",
         "description": "这将会将所有按键绑定重置为默认，之后无法撤销。你确定要继续吗？"
+      },
+      "conflictDialog": {
+        "confirmLabel": "继续"
       },
       "keybindings": {
         "selectAllCodeblock": "全选",
