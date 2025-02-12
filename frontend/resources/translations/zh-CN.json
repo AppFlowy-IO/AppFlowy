@@ -471,6 +471,8 @@
       "selectHomePage": "选择一个页面",
       "customUrl": "自定义 URL",
       "namespace": {
+        "upgradeToPro": "请升级至 Pro 订阅计划以设置主页",
+        "redirectToPayment": "正在重定向至付款页面......",
         "onlyWorkspaceOwnerCanSetHomePage": "仅工作空间的所有者能为其设置主页"
       },
       "publishedPage": {
