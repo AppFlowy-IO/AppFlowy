@@ -1,0 +1,128 @@
+name: Auto Update Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (leave empty for latest)"
+        required: false
+        type: string
+      platform:
+        description: "Target platform (windows/macos)"
+        required: true
+        type: choice
+        options:
+          - macos
+          - windows
+
+jobs:
+  generate-update:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: AppFlowy-IO/AppFlowy
+          ref: main
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          cache: true
+          channel: "stable"
+          flutter-version: 3.27.4
+
+      - name: Get latest release if version not specified
+        if: ${{ github.event.inputs.version == '' }}
+        id: latest_release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const release = await github.rest.repos.getLatestRelease({
+              owner: 'AppFlowy-IO',
+              repo: 'AppFlowy'
+            });
+            core.setOutput('version', release.data.tag_name);
+
+      - name: Get specific release if version specified
+        if: ${{ github.event.inputs.version != '' }}
+        id: specific_release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const release = await github.rest.repos.getReleaseByTag({
+              owner: 'AppFlowy-IO',
+              repo: 'AppFlowy',
+              tag: '${{ github.event.inputs.version }}'
+            });
+            core.setOutput('version', release.data.tag_name);
+
+      - name: Download release asset
+        working-directory: frontend/appflowy_flutter
+        run: |
+          VERSION=${{ steps.latest_release.outputs.version || steps.specific_release.outputs.version }}
+
+          if [ "${{ github.event.inputs.platform }}" = "windows" ]; then
+            ASSETS_URL=https://github.com/AppFlowy-IO/AppFlowy/releases/download/$VERSION/AppFlowy-$VERSION-windows-x86_64.exe
+            echo "Downloading $ASSETS_URL"
+            curl -L -o app.exe $ASSETS_URL
+          else
+            ASSETS_URL=https://github.com/AppFlowy-IO/AppFlowy/releases/download/$VERSION/AppFlowy-$VERSION-macos-universal.dmg
+            echo "Downloading $ASSETS_URL"
+            curl -L -o app.dmg $ASSETS_URL
+          fi
+
+      - name: Generate EdSignature for Windows
+        if: ${{ github.event.inputs.platform == 'windows' }}
+        run: |
+          dart run auto_updater:sign_update app.exe
+
+      - name: Generate EdSignature for macOS
+        if: ${{ github.event.inputs.platform == 'macos' }}
+        working-directory: frontend/appflowy_flutter
+        run: |
+          flutter pub get
+          flutter packages pub get
+          cd macos
+          pod install
+          cd ..
+          echo "AlHXpSapv40mPYfsO7lvnQuuH7J7W3IJ6kq5mJo88MA=" > private_key
+          dart run auto_updater:sign_update -f private_key app.dmg > edSignature.txt
+
+      - name: Generate Appcast.xml
+        working-directory: frontend/appflowy_flutter
+        run: |
+          VERSION=${{ steps.latest_release.outputs.version || steps.specific_release.outputs.version }}
+          SIGNATURE=$(grep -o 'sparkle:edSignature="[^"]*"' edSignature.txt | cut -d'"' -f2)
+          LENGTH=$(grep -o 'length="[^"]*"' edSignature.txt | cut -d'"' -f2)
+
+          # Create appcast.xml
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > appcast.xml
+          echo '<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">' >> appcast.xml
+          echo '    <channel>' >> appcast.xml
+          echo '        <title>AppFlowy</title>' >> appcast.xml
+          echo '        <description>Most recent updates to AppFlowy</description>' >> appcast.xml
+          echo '        <language>en</language>' >> appcast.xml
+          echo '        <item>' >> appcast.xml
+          echo "            <title>Version $VERSION</title>" >> appcast.xml
+          echo "            <sparkle:version>$VERSION</sparkle:version>" >> appcast.xml
+          echo "            <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>" >> appcast.xml
+          echo "            <pubDate>$(date -R)</pubDate>" >> appcast.xml
+          echo "            <enclosure" >> appcast.xml
+          echo "                sparkle:os=\"${{ github.event.inputs.platform }}\"" >> appcast.xml
+          echo "                type=\"application/octet-stream\"" >> appcast.xml
+          echo "                sparkle:edSignature=\"$SIGNATURE\"" >> appcast.xml
+          echo "                length=\"$LENGTH\"" >> appcast.xml
+          echo "                />" >> appcast.xml
+          echo '        </item>' >> appcast.xml
+          echo '    </channel>' >> appcast.xml
+          echo '</rss>' >> appcast.xml
+
+          echo "Appcast.xml:"
+          cat appcast.xml
+
+      - name: Upload Appcast.xml
+        uses: actions/upload-artifact@v4
+        with:
+          name: appcast.xml
+          path: frontend/appflowy_flutter/appcast.xml
