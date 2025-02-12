@@ -379,7 +379,8 @@ class _CalendarPageState extends State<CalendarPage> {
     // is implemnted in the develop branch(WIP). Will be replaced with that.
     final events = calenderEvents.map((value) => value.event!).toList()
       ..sort((a, b) => a.event.timestamp.compareTo(b.event.timestamp));
-    final isLocked = context.watch<ViewLockStatusBloc>().state.isLocked;
+    final isLocked =
+        context.watch<ViewLockStatusBloc?>()?.state.isLocked ?? false;
 
     return IgnorePointer(
       ignoring: isLocked,
