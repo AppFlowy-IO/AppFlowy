@@ -150,7 +150,9 @@
     "charCount": "字符数:{}",
     "createdAt": "创建于 :{}",
     "deleteView": "删除",
-    "duplicateView": "复制"
+    "duplicateView": "复制",
+    "wordCountLabel": "词总数:",
+    "charCountLabel": "字符总数:"
   },
   "importPanel": {
     "textAndMarkdown": "文本 和 Markdown",
@@ -204,6 +206,7 @@
     "uploadFile": "上传聊天使用的 PDF、md 或 txt 文件",
     "questionDetail": "{} 你好！我能怎么帮到你？",
     "indexingFile": "正在索引 {}",
+    "regenerate": "请重试",
     "openPagePreviewFailedToast": "打开页面失败",
     "changeFormat": {
       "actionButton": "变更样式"
@@ -266,7 +269,8 @@
     "moreButtonToolTip": "删除、重命名等等...",
     "addPageTooltip": "在其中快速添加页面",
     "defaultNewPageName": "未命名页面",
-    "renameDialog": "重命名"
+    "renameDialog": "重命名",
+    "pageNameSuffix": "复制"
   },
   "noPagesInside": "里面没有页面",
   "toolbar": {
@@ -383,6 +387,7 @@
     "upload": "上传",
     "edit": "编辑",
     "delete": "删除",
+    "copy": "复制",
     "duplicate": "复制",
     "putback": "放回去",
     "update": "更新",
@@ -421,6 +426,8 @@
     "viewing": "查看",
     "editing": "编辑",
     "gotIt": "我知道了",
+    "retry": "重试",
+    "uploadFailed": "上传失败",
     "Done": "完成",
     "Cancel": "取消",
     "OK": "确认"
@@ -462,6 +469,10 @@
       "updateNamespace": "更新名字空间",
       "removeHomepage": "移除主页",
       "selectHomePage": "选择一个页面",
+      "customUrl": "自定义 URL",
+      "namespace": {
+        "onlyWorkspaceOwnerCanSetHomePage": "仅工作空间的所有者能为其设置主页"
+      },
       "publishedPage": {
         "description": "管理您已发布的页面",
         "noPublishedPages": "没有已发布的页面",
