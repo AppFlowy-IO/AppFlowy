@@ -90,8 +90,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "6f5c957"
-      resolved-ref: "6f5c957049c90d942e56314171c7630b3d6d858d"
+      ref: "2745294"
+      resolved-ref: "2745294587cd3e2ff7ac0b6b91135c3ddcbb4274"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "5.0.0"
@@ -1764,6 +1764,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.27.7"
+  saver_gallery:
+    dependency: "direct main"
+    description:
+      name: saver_gallery
+      sha256: bf59475e50b73d666630bed7a5fdb621fed92d637f64e3c61ce81653ec6a833c
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.1"
   scaled_app:
     dependency: "direct main"
     description:
