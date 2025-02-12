@@ -8,6 +8,7 @@ import 'package:appflowy/workspace/application/recent/recent_views_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -131,6 +132,11 @@ enum MobilePaneActionType {
                     BlocProvider.value(value: favoriteBloc),
                     if (recentViewsBloc != null)
                       BlocProvider.value(value: recentViewsBloc),
+                    BlocProvider(
+                      create: (_) =>
+                          ViewLockStatusBloc(view: viewBloc.state.view)
+                            ..add(const ViewLockStatusEvent.initial()),
+                    ),
                   ],
                   child: BlocBuilder<ViewBloc, ViewState>(
                     builder: (context, state) {

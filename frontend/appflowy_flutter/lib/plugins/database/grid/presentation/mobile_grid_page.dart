@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -182,6 +183,8 @@ class _GridPageContentState extends State<GridPageContent> {
 
   @override
   Widget build(BuildContext context) {
+    final isLocked =
+        context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
     return BlocListener<GridBloc, GridState>(
       listenWhen: (previous, current) =>
           previous.createdRow != current.createdRow,
@@ -215,7 +218,7 @@ class _GridPageContentState extends State<GridPageContent> {
               ),
             ],
           ),
-          if (!widget.shrinkWrap)
+          if (!widget.shrinkWrap && !isLocked)
             Positioned(
               bottom: 16,
               right: 16,
@@ -356,7 +359,7 @@ class _GridRows extends StatelessWidget {
 
     final databaseController = context.read<GridBloc>().databaseController;
 
-    final child = MobileGridRow(
+    Widget child = MobileGridRow(
       key: ValueKey(rowMeta.id),
       rowId: rowId,
       isDraggable: isDraggable,
@@ -373,8 +376,16 @@ class _GridRows extends StatelessWidget {
     );
 
     if (animation != null) {
-      return SizeTransition(
+      child = SizeTransition(
         sizeFactor: animation,
+        child: child,
+      );
+    }
+
+    final isLocked =
+        context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
+    if (isLocked) {
+      child = IgnorePointer(
         child: child,
       );
     }
