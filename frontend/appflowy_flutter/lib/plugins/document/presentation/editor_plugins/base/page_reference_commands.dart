@@ -47,6 +47,7 @@ CharacterShortcutEvent pageReferenceShortcutPlusSign(
     );
 
 InlineActionsMenuService? selectionMenuService;
+
 Future<bool> inlinePageReferenceCommandHandler(
   String character,
   BuildContext context,
@@ -135,7 +136,7 @@ Future<bool> inlinePageReferenceCommandHandler(
       },
     );
 
-    selectionMenuService?.show();
+    await selectionMenuService?.show();
   }
 
   return true;

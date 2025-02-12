@@ -75,9 +75,7 @@ class MobileSelectionMenu extends SelectionMenuService {
           height: editorHeight,
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () {
-              dismiss();
-            },
+            onTap: dismiss,
             child: Stack(
               children: [
                 Positioned(

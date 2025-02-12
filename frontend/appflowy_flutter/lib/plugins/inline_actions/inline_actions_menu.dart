@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/inline_actions/inline_actions_result.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
 import 'package:appflowy/plugins/inline_actions/widgets/inline_actions_handler.dart';
@@ -7,7 +9,8 @@ import 'package:flutter/material.dart';
 abstract class InlineActionsMenuService {
   InlineActionsMenuStyle get style;
 
-  void show();
+  Future<void> show();
+
   void dismiss();
 }
 
@@ -59,8 +62,13 @@ class InlineActionsMenu extends InlineActionsMenuService {
   void _onSelectionUpdate() => selectionChangedByMenu = true;
 
   @override
-  void show() {
-    WidgetsBinding.instance.addPostFrameCallback((_) => _show());
+  Future<void> show() {
+    final completer = Completer<void>();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _show();
+      completer.complete();
+    });
+    return completer.future;
   }
 
   void _show() {
