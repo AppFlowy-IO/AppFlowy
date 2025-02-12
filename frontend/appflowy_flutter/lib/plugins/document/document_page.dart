@@ -252,7 +252,7 @@ class _DocumentPageState extends State<DocumentPage>
       editorState: editorState,
       view: widget.view,
       onIconChanged: (icon) async => ViewBackendService.updateViewIcon(
-        viewId: widget.view.id,
+        view: widget.view,
         viewIcon: icon,
       ),
     );

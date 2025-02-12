@@ -616,7 +616,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         offset: const Offset(0, 5),
         direction: PopoverDirection.bottomWithLeftAligned,
         popupBuilder: (_) => RenameViewPopover(
-          viewId: widget.view.id,
+          view: widget.view,
           name: widget.view.name,
           emoji: widget.view.icon.toEmojiIconData(),
           popoverController: popoverController,
@@ -662,7 +662,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
           documentId: widget.view.id,
           onSelectedEmoji: (r) {
             ViewBackendService.updateViewIcon(
-              viewId: widget.view.id,
+              view: widget.view,
               viewIcon: r.data,
             );
             if (!r.keepOpen) controller.close();
@@ -801,7 +801,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
                 return;
               }
               await ViewBackendService.updateViewIcon(
-                viewId: widget.view.id,
+                view: widget.view,
                 viewIcon: data.data,
               );
               break;

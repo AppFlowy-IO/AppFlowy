@@ -315,7 +315,7 @@ class _ViewTitleState extends State<ViewTitle> {
         // icon + textfield
         _resetTextEditingController(state);
         return RenameViewPopover(
-          viewId: widget.view.id,
+          view: widget.view,
           name: widget.view.name,
           popoverController: popoverController,
           icon: widget.view.defaultIcon(),
