@@ -1,9 +1,3 @@
-import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
-import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
-import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
@@ -12,21 +6,26 @@ import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/calendar/application/calendar_bloc.dart';
 import 'package:appflowy/plugins/database/calendar/application/unschedule_event_bloc.dart';
+import 'package:appflowy/plugins/database/grid/presentation/grid_page.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import '../../application/row/row_controller.dart';
 import '../../widgets/row/row_detail.dart';
-
 import 'calendar_day.dart';
 import 'layout/sizes.dart';
 import 'toolbar/calendar_setting_bar.dart';
@@ -123,8 +122,18 @@ class _CalendarPageState extends State<CalendarPage> {
   Widget build(BuildContext context) {
     return CalendarControllerProvider(
       controller: _eventController,
-      child: BlocProvider<CalendarBloc>.value(
-        value: _calendarBloc,
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<CalendarBloc>.value(
+            value: _calendarBloc,
+          ),
+          BlocProvider(
+            create: (context) => ViewLockStatusBloc(view: widget.view)
+              ..add(
+                ViewLockStatusEvent.initial(),
+              ),
+          ),
+        ],
         child: MultiBlocListener(
           listeners: [
             BlocListener<CalendarBloc, CalendarState>(
@@ -235,7 +244,21 @@ class _CalendarPageState extends State<CalendarPage> {
               showBorder: false,
               headerBuilder: _headerNavigatorBuilder,
               weekDayBuilder: _headerWeekDayBuilder,
-              cellBuilder: _calendarDayBuilder,
+              cellBuilder: (
+                date,
+                calenderEvents,
+                isToday,
+                isInMonth,
+                position,
+              ) =>
+                  _calendarDayBuilder(
+                context,
+                date,
+                calenderEvents,
+                isToday,
+                isInMonth,
+                position,
+              ),
               useAvailableVerticalSpace: widget.shrinkWrap,
             ),
           ),
@@ -344,6 +367,7 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   Widget _calendarDayBuilder(
+    BuildContext context,
     DateTime date,
     List<CalendarEventData<CalendarDayEvent>> calenderEvents,
     isToday,
@@ -355,17 +379,21 @@ class _CalendarPageState extends State<CalendarPage> {
     // is implemnted in the develop branch(WIP). Will be replaced with that.
     final events = calenderEvents.map((value) => value.event!).toList()
       ..sort((a, b) => a.event.timestamp.compareTo(b.event.timestamp));
+    final isLocked = context.watch<ViewLockStatusBloc>().state.isLocked;
 
-    return CalendarDayCard(
-      viewId: widget.view.id,
-      isToday: isToday,
-      isInMonth: isInMonth,
-      events: events,
-      date: date,
-      rowCache: _calendarBloc.rowCache,
-      onCreateEvent: (date) =>
-          _calendarBloc.add(CalendarEvent.createEvent(date)),
-      position: position,
+    return IgnorePointer(
+      ignoring: isLocked,
+      child: CalendarDayCard(
+        viewId: widget.view.id,
+        isToday: isToday,
+        isInMonth: isInMonth,
+        events: events,
+        date: date,
+        rowCache: _calendarBloc.rowCache,
+        onCreateEvent: (date) =>
+            _calendarBloc.add(CalendarEvent.createEvent(date)),
+        position: position,
+      ),
     );
   }
 

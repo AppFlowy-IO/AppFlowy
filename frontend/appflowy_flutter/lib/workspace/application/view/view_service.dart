@@ -392,4 +392,14 @@ class ViewBackendService {
 
     return (publishedPages.isNotEmpty, publishedPages);
   }
+
+  static Future<FlowyResult<void, FlowyError>> lockView(String viewId) async {
+    final payload = ViewIdPB()..value = viewId;
+    return FolderEventLockView(payload).send();
+  }
+
+  static Future<FlowyResult<void, FlowyError>> unlockView(String viewId) async {
+    final payload = ViewIdPB()..value = viewId;
+    return FolderEventUnlockView(payload).send();
+  }
 }

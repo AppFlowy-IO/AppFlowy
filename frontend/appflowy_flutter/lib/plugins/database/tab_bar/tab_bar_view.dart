@@ -79,13 +79,19 @@ class DatabaseTabBarView extends StatelessWidget {
             ..add(const DatabaseTabBarEvent.initial()),
         ),
         BlocProvider<ViewBloc>(
-          create: (_) => ViewBloc(view: view)..add(const ViewEvent.initial()),
+          create: (_) => ViewBloc(view: view)
+            ..add(
+              const ViewEvent.initial(),
+            ),
         ),
       ],
       child: BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
-        builder: (_, state) {
+        builder: (innerContext, state) {
           final layout = state.tabBars[state.selectedIndex].layout;
-          return Column(
+          final isLocked =
+              context.read<ViewBloc?>()?.state.view.isLocked ?? false;
+
+          final Widget child = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (UniversalPlatform.isMobile) const VSpace(12),
@@ -99,9 +105,17 @@ class DatabaseTabBarView extends StatelessWidget {
                     return const SizedBox.shrink();
                   }
 
-                  return UniversalPlatform.isDesktop
+                  Widget child = UniversalPlatform.isDesktop
                       ? const TabBarHeader()
                       : const MobileTabBarHeader();
+
+                  if (innerContext.watch<ViewBloc>().state.view.isLocked) {
+                    child = IgnorePointer(
+                      child: child,
+                    );
+                  }
+
+                  return child;
                 },
               ),
               pageSettingBarExtensionFromState(context, state),
@@ -111,6 +125,12 @@ class DatabaseTabBarView extends StatelessWidget {
               ),
             ],
           );
+
+          if (isLocked) {
+            return IgnorePointer(child: child);
+          }
+
+          return child;
         },
       ),
     );

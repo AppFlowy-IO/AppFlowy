@@ -898,7 +898,7 @@ dependencies = [
 [[package]]
 name = "collab"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=98463cc#98463cc764da69ef58e5cd894d1885ef4990bf9e"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=68fd31892b2170568cae3f01206986fddd6d0988#68fd31892b2170568cae3f01206986fddd6d0988"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -923,7 +923,7 @@ dependencies = [
 [[package]]
 name = "collab-database"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=98463cc#98463cc764da69ef58e5cd894d1885ef4990bf9e"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=68fd31892b2170568cae3f01206986fddd6d0988#68fd31892b2170568cae3f01206986fddd6d0988"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -963,7 +963,7 @@ dependencies = [
 [[package]]
 name = "collab-document"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=98463cc#98463cc764da69ef58e5cd894d1885ef4990bf9e"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=68fd31892b2170568cae3f01206986fddd6d0988#68fd31892b2170568cae3f01206986fddd6d0988"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -984,7 +984,7 @@ dependencies = [
 [[package]]
 name = "collab-entity"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=98463cc#98463cc764da69ef58e5cd894d1885ef4990bf9e"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=68fd31892b2170568cae3f01206986fddd6d0988#68fd31892b2170568cae3f01206986fddd6d0988"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1004,7 +1004,7 @@ dependencies = [
 [[package]]
 name = "collab-folder"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=98463cc#98463cc764da69ef58e5cd894d1885ef4990bf9e"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=68fd31892b2170568cae3f01206986fddd6d0988#68fd31892b2170568cae3f01206986fddd6d0988"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -1026,7 +1026,7 @@ dependencies = [
 [[package]]
 name = "collab-importer"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=98463cc#98463cc764da69ef58e5cd894d1885ef4990bf9e"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=68fd31892b2170568cae3f01206986fddd6d0988#68fd31892b2170568cae3f01206986fddd6d0988"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -1090,7 +1090,7 @@ dependencies = [
 [[package]]
 name = "collab-plugins"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=98463cc#98463cc764da69ef58e5cd894d1885ef4990bf9e"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=68fd31892b2170568cae3f01206986fddd6d0988#68fd31892b2170568cae3f01206986fddd6d0988"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -1170,7 +1170,7 @@ dependencies = [
 [[package]]
 name = "collab-user"
 version = "0.2.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=98463cc#98463cc764da69ef58e5cd894d1885ef4990bf9e"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-Collab?rev=68fd31892b2170568cae3f01206986fddd6d0988#68fd31892b2170568cae3f01206986fddd6d0988"
 dependencies = [
  "anyhow",
  "collab",
@@ -1400,7 +1400,7 @@ dependencies = [
  "cssparser-macros",
  "dtoa-short",
  "itoa",
- "phf 0.11.2",
+ "phf 0.8.0",
  "smallvec",
 ]
 
@@ -4624,7 +4624,7 @@ version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3dfb61232e34fcb633f43d12c58f83c1df82962dcdfa565a4e866ffc17dafe12"
 dependencies = [
- "phf_macros 0.8.0",
+ "phf_macros",
  "phf_shared 0.8.0",
  "proc-macro-hack",
 ]
@@ -4644,7 +4644,6 @@ version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ade2d8b8f33c7333b51bcf0428d37e217e9f32192ae4772156f65063b8ce03dc"
 dependencies = [
- "phf_macros 0.11.3",
  "phf_shared 0.11.2",
 ]
 
@@ -4710,19 +4709,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
-]
-
-[[package]]
-name = "phf_macros"
-version = "0.11.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f84ac04429c13a7ff43785d75ad27569f2951ce0ffd30a3321230db2fc727216"
-dependencies = [
- "phf_generator 0.11.2",
- "phf_shared 0.11.2",
- "proc-macro2",
- "quote",
- "syn 2.0.94",
 ]
 
 [[package]]
