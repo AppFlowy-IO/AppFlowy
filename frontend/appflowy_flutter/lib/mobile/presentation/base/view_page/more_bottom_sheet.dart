@@ -14,6 +14,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
+import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -43,7 +44,8 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
         },
         child: ViewPageBottomSheet(
           view: view,
-          onAction: (action) async => _onAction(context, action),
+          onAction: (action, {arguments}) async =>
+              _onAction(context, action, arguments),
           onRename: (name) {
             _onRename(context, name);
             context.pop();
@@ -56,6 +58,7 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
   Future<void> _onAction(
     BuildContext context,
     MobileViewBottomSheetBodyAction action,
+    Map<String, dynamic>? arguments,
   ) async {
     switch (action) {
       case MobileViewBottomSheetBodyAction.duplicate:
@@ -107,9 +110,29 @@ class MobileViewPageMoreBottomSheet extends StatelessWidget {
         break;
       case MobileViewBottomSheetBodyAction.updatePathName:
         _updatePathName(context);
+      case MobileViewBottomSheetBodyAction.lockPage:
+        final isLocked =
+            arguments?[MobileViewBottomSheetBodyActionArguments.isLockedKey] ??
+                false;
+        await _lockPage(context, isLocked: isLocked);
+        // context.pop();
+        break;
       case MobileViewBottomSheetBodyAction.rename:
         // no need to implement, rename is handled by the onRename callback.
         throw UnimplementedError();
+    }
+  }
+
+  Future<void> _lockPage(
+    BuildContext context, {
+    required bool isLocked,
+  }) async {
+    if (isLocked) {
+      context.read<ViewLockStatusBloc>().add(const ViewLockStatusEvent.lock());
+    } else {
+      context
+          .read<ViewLockStatusBloc>()
+          .add(const ViewLockStatusEvent.unlock());
     }
   }
 

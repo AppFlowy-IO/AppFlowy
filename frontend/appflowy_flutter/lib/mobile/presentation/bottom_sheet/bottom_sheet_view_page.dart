@@ -4,9 +4,11 @@ import 'package:appflowy/mobile/application/base/mobile_view_page_bloc.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -25,11 +27,20 @@ enum MobileViewBottomSheetBodyAction {
   visitSite,
   copyShareLink,
   updatePathName,
+  lockPage;
+}
+
+class MobileViewBottomSheetBodyActionArguments {
+  static const isLockedKey = 'is_locked';
 }
 
 typedef MobileViewBottomSheetBodyActionCallback = void Function(
   MobileViewBottomSheetBodyAction action,
-);
+  // for the [MobileViewBottomSheetBodyAction.lockPage] action,
+  // it will pass the [isLocked] value to the callback.
+  {
+  Map<String, dynamic>? arguments,
+});
 
 class ViewPageBottomSheet extends StatefulWidget {
   const ViewPageBottomSheet({
@@ -56,7 +67,7 @@ class _ViewPageBottomSheetState extends State<ViewPageBottomSheet> {
       case MobileBottomSheetType.view:
         return MobileViewBottomSheetBody(
           view: widget.view,
-          onAction: (action) {
+          onAction: (action, {arguments}) {
             switch (action) {
               case MobileViewBottomSheetBodyAction.rename:
                 setState(() {
@@ -64,7 +75,7 @@ class _ViewPageBottomSheetState extends State<ViewPageBottomSheet> {
                 });
                 break;
               default:
-                widget.onAction(action);
+                widget.onAction(action, arguments: arguments);
             }
           },
         );
@@ -116,6 +127,25 @@ class MobileViewBottomSheetBody extends StatelessWidget {
                 ? MobileViewBottomSheetBodyAction.removeFromFavorites
                 : MobileViewBottomSheetBodyAction.addToFavorites,
           ),
+        ),
+        _divider(),
+        MobileQuickActionButton(
+          text: LocaleKeys.disclosureAction_lockPage.tr(),
+          icon: FlowySvgs.lock_page_s,
+          iconSize: const Size.square(18),
+          rightIconBuilder: (context) => _LockPageRightIconBuilder(
+            onAction: onAction,
+          ),
+          onTap: () {
+            final isLocked =
+                context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
+            onAction(
+              MobileViewBottomSheetBodyAction.lockPage,
+              arguments: {
+                MobileViewBottomSheetBodyActionArguments.isLockedKey: !isLocked,
+              },
+            );
+          },
         ),
         _divider(),
         MobileQuickActionButton(
@@ -205,4 +235,37 @@ class MobileViewBottomSheetBody extends StatelessWidget {
   }
 
   Widget _divider() => const MobileQuickActionDivider();
+}
+
+class _LockPageRightIconBuilder extends StatelessWidget {
+  const _LockPageRightIconBuilder({
+    required this.onAction,
+  });
+
+  final MobileViewBottomSheetBodyActionCallback onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    final isLocked =
+        context.watch<ViewLockStatusBloc?>()?.state.isLocked ?? false;
+    return SizedBox(
+      width: 46,
+      height: 30,
+      child: FittedBox(
+        fit: BoxFit.fill,
+        child: CupertinoSwitch(
+          value: isLocked,
+          activeTrackColor: Theme.of(context).colorScheme.primary,
+          onChanged: (value) {
+            onAction(
+              MobileViewBottomSheetBodyAction.lockPage,
+              arguments: {
+                MobileViewBottomSheetBodyActionArguments.isLockedKey: !value,
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
 }

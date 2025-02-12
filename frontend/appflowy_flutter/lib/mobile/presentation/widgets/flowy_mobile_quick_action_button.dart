@@ -12,6 +12,7 @@ class MobileQuickActionButton extends StatelessWidget {
     this.iconColor,
     this.iconSize,
     this.enable = true,
+    this.rightIconBuilder,
   });
 
   final VoidCallback onTap;
@@ -21,6 +22,7 @@ class MobileQuickActionButton extends StatelessWidget {
   final Color? iconColor;
   final Size? iconSize;
   final bool enable;
+  final WidgetBuilder? rightIconBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +50,7 @@ class MobileQuickActionButton extends StatelessWidget {
                 color: enable ? textColor : Theme.of(context).disabledColor,
               ),
             ),
+            if (rightIconBuilder != null) rightIconBuilder!(context),
           ],
         ),
       ),
