@@ -935,6 +935,13 @@ extension CommonOperations on WidgetTester {
       ),
     );
   }
+
+  /// create new page and show slash menu
+  Future<void> createPageAndShowSlashMenu(String title) async {
+    await createNewDocumentOnMobile(title);
+    await editor.tapLineOfEditorAt(0);
+    await editor.showSlashMenu();
+  }
 }
 
 extension SettingsFinder on CommonFinders {
