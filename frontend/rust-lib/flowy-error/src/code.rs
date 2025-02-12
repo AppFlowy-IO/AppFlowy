@@ -365,6 +365,9 @@ pub enum ErrorCode {
 
   #[error("AI Max Required")]
   AIMaxRequired = 125,
+
+  #[error("View is locked")]
+  ViewIsLocked = 126,
 }
 
 impl ErrorCode {

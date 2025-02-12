@@ -1,8 +1,8 @@
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/version_checker/version_checker.dart';
 import 'package:appflowy/startup/tasks/device_info_task.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:auto_updater/auto_updater.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -23,15 +23,19 @@ class SettingsAppVersion extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const FlowyText.regular(
-          'AppFlowy is up to date!',
+        FlowyText.regular(
+          LocaleKeys.settings_accountPage_isUpToDate.tr(),
           figmaLineHeight: 17,
         ),
         const VSpace(4),
         Opacity(
           opacity: 0.7,
           child: FlowyText.regular(
-            'Version ${ApplicationInfo.applicationVersion} (Official build)',
+            LocaleKeys.settings_accountPage_officialVersion.tr(
+              namedArgs: {
+                'version': ApplicationInfo.applicationVersion,
+              },
+            ),
             fontSize: 12,
             figmaLineHeight: 13,
           ),
@@ -62,7 +66,7 @@ class _UpdateAppSection extends StatelessWidget {
       radius: 8.0,
       onTap: () {
         Log.info('[AutoUpdater] Checking for updates');
-        autoUpdater.checkForUpdates();
+        versionChecker.checkForUpdate();
       },
     );
   }

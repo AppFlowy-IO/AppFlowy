@@ -5,10 +5,12 @@ import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bar_bloc.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -29,8 +31,14 @@ class ViewTitleBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => ViewTitleBarBloc(view: view),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => ViewTitleBarBloc(view: view)),
+        BlocProvider(
+          create: (_) => ViewLockStatusBloc(view: view)
+            ..add(const ViewLockStatusEvent.initial()),
+        ),
+      ],
       child: BlocBuilder<ViewTitleBarBloc, ViewTitleBarState>(
         builder: (context, state) {
           final ancestors = state.ancestors;
@@ -42,16 +50,43 @@ class ViewTitleBar extends StatelessWidget {
             child: SizedBox(
               height: 24,
               child: Row(
-                children: _buildViewTitles(
-                  context,
-                  ancestors,
-                  state.isDeleted,
-                ),
+                children: [
+                  ..._buildViewTitles(
+                    context,
+                    ancestors,
+                    state.isDeleted,
+                  ),
+                  _buildLockPageStatus(context),
+                ],
               ),
             ),
           );
         },
       ),
+    );
+  }
+
+  Widget _buildLockPageStatus(BuildContext context) {
+    return BlocConsumer<ViewLockStatusBloc, ViewLockStatusState>(
+      listenWhen: (previous, current) =>
+          previous.isLoadingLockStatus == current.isLoadingLockStatus &&
+          current.isLoadingLockStatus == false,
+      listener: (context, state) {
+        if (state.isLocked) {
+          showToastNotification(
+            context,
+            message: LocaleKeys.lockPage_pageLockedToast.tr(),
+          );
+        }
+      },
+      builder: (context, state) {
+        if (state.isLocked) {
+          return _Lock();
+        } else if (!state.isLocked && state.lockCounter > 0) {
+          return _ReLock();
+        }
+        return const SizedBox.shrink();
+      },
     );
   }
 
@@ -98,7 +133,7 @@ class ViewTitleBar extends StatelessWidget {
         message: view.name,
         child: ViewTitle(
           view: view,
-          behavior: i == views.length - 1
+          behavior: i == views.length - 1 && !view.isLocked
               ? ViewTitleBehavior.editable // only the last one is editable
               : ViewTitleBehavior.uneditable, // others are not editable
           onUpdated: () {
@@ -348,5 +383,80 @@ class _ViewTitleState extends State<ViewTitle> {
         baseOffset: 0,
         extentOffset: state.name.length,
       );
+  }
+}
+
+class _Lock extends StatelessWidget {
+  const _Lock();
+
+  @override
+  Widget build(BuildContext context) {
+    final color = const Color(0xFFD95A0B);
+    return FlowyTooltip(
+      message: LocaleKeys.lockPage_lockTooltip.tr(),
+      child: DecoratedBox(
+        decoration: ShapeDecoration(
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: color),
+            borderRadius: BorderRadius.circular(6),
+          ),
+        ),
+        child: FlowyButton(
+          useIntrinsicWidth: true,
+          margin: const EdgeInsets.symmetric(
+            horizontal: 4.0,
+            vertical: 4.0,
+          ),
+          iconPadding: 4.0,
+          text: FlowyText.regular(
+            LocaleKeys.lockPage_lockPage.tr(),
+            color: color,
+            fontSize: 12.0,
+          ),
+          hoverColor: color.withValues(alpha: 0.1),
+          leftIcon: FlowySvg(FlowySvgs.lock_page_s, color: color),
+          onTap: () => context.read<ViewLockStatusBloc>().add(
+                const ViewLockStatusEvent.unlock(),
+              ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ReLock extends StatelessWidget {
+  const _ReLock();
+
+  @override
+  Widget build(BuildContext context) {
+    final iconColor = const Color(0xFF8F959E);
+    return DecoratedBox(
+      decoration: ShapeDecoration(
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: iconColor),
+          borderRadius: BorderRadius.circular(6),
+        ),
+      ),
+      child: FlowyButton(
+        useIntrinsicWidth: true,
+        margin: const EdgeInsets.symmetric(
+          horizontal: 4.0,
+          vertical: 4.0,
+        ),
+        iconPadding: 4.0,
+        text: FlowyText.regular(
+          LocaleKeys.lockPage_reLockPage.tr(),
+          fontSize: 12.0,
+        ),
+        leftIcon: FlowySvg(
+          FlowySvgs.unlock_page_s,
+          color: iconColor,
+          blendMode: null,
+        ),
+        onTap: () => context.read<ViewLockStatusBloc>().add(
+              const ViewLockStatusEvent.lock(),
+            ),
+      ),
+    );
   }
 }
