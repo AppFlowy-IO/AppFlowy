@@ -8,6 +8,7 @@ import 'package:appflowy/mobile/presentation/presentation.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_state_container.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/document_collaborators.dart';
+import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
@@ -20,6 +21,7 @@ import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -320,7 +322,16 @@ class _MobileViewPageState extends State<MobileViewPage> {
       listenWhen: (previous, current) =>
           previous.isLoadingLockStatus == current.isLoadingLockStatus &&
           current.isLoadingLockStatus == false,
-      listener: (context, state) {},
+      listener: (context, state) {
+        if (state.isLocked) {
+          showToastNotification(
+            context,
+            message: LocaleKeys.lockPage_pageLockedToast.tr(),
+          );
+
+          EditorNotification.exitEditing().post();
+        }
+      },
       builder: (context, state) {
         if (state.isLocked) {
           return LockedPageStatus();
@@ -337,7 +348,14 @@ class _MobileViewPageState extends State<MobileViewPage> {
       listenWhen: (previous, current) =>
           previous.isLoadingLockStatus == current.isLoadingLockStatus &&
           current.isLoadingLockStatus == false,
-      listener: (context, state) {},
+      listener: (context, state) {
+        if (state.isLocked) {
+          showToastNotification(
+            context,
+            message: LocaleKeys.lockPage_pageLockedToast.tr(),
+          );
+        }
+      },
       builder: (context, state) {
         if (state.isLocked) {
           return FlowySvg(

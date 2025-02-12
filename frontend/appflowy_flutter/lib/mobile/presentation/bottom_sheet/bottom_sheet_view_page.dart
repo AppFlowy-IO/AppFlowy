@@ -28,6 +28,13 @@ enum MobileViewBottomSheetBodyAction {
   copyShareLink,
   updatePathName,
   lockPage;
+
+  static const disableInLockedView = [
+    undo,
+    redo,
+    rename,
+    delete,
+  ];
 }
 
 class MobileViewBottomSheetBodyActionArguments {
@@ -104,6 +111,8 @@ class MobileViewBottomSheetBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isFavorite = view.isFavorite;
+    final isLocked =
+        context.watch<ViewLockStatusBloc?>()?.state.isLocked ?? false;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -111,6 +120,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
           text: LocaleKeys.button_rename.tr(),
           icon: FlowySvgs.view_item_rename_s,
           iconSize: const Size.square(18),
+          enable: !isLocked,
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.rename,
           ),
@@ -174,6 +184,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
           icon: FlowySvgs.trash_s,
           iconColor: Theme.of(context).colorScheme.error,
           iconSize: const Size.square(18),
+          enable: !isLocked,
           onTap: () => onAction(
             MobileViewBottomSheetBodyAction.delete,
           ),

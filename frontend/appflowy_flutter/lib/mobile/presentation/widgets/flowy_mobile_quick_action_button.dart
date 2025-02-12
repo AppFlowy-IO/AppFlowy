@@ -27,31 +27,34 @@ class MobileQuickActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final iconSize = this.iconSize ?? const Size.square(18);
-    return InkWell(
-      onTap: enable ? onTap : null,
-      overlayColor:
-          enable ? null : const WidgetStatePropertyAll(Colors.transparent),
-      splashColor: Colors.transparent,
-      child: Container(
-        height: 52,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            FlowySvg(
-              icon,
-              size: iconSize,
-              color: enable ? iconColor : Theme.of(context).disabledColor,
-            ),
-            HSpace(30 - iconSize.width),
-            Expanded(
-              child: FlowyText.regular(
-                text,
-                fontSize: 16,
-                color: enable ? textColor : Theme.of(context).disabledColor,
+    return Opacity(
+      opacity: enable ? 1.0 : 0.5,
+      child: InkWell(
+        onTap: enable ? onTap : null,
+        overlayColor:
+            enable ? null : const WidgetStatePropertyAll(Colors.transparent),
+        splashColor: Colors.transparent,
+        child: Container(
+          height: 52,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              FlowySvg(
+                icon,
+                size: iconSize,
+                color: iconColor,
               ),
-            ),
-            if (rightIconBuilder != null) rightIconBuilder!(context),
-          ],
+              HSpace(30 - iconSize.width),
+              Expanded(
+                child: FlowyText.regular(
+                  text,
+                  fontSize: 16,
+                  color: textColor,
+                ),
+              ),
+              if (rightIconBuilder != null) rightIconBuilder!(context),
+            ],
+          ),
         ),
       ),
     );

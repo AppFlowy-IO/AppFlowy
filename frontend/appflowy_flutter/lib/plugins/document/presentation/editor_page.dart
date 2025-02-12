@@ -323,6 +323,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       child: AppFlowyEditor(
         editorState: widget.editorState,
         editable: !isViewDeleted && !isLocked,
+        disableSelectionService: UniversalPlatform.isMobile && isLocked,
+        disableKeyboardService: UniversalPlatform.isMobile && isLocked,
         editorScrollController: editorScrollController,
         // setup the auto focus parameters
         autoFocus: widget.autoFocus ?? autoFocus,
@@ -348,6 +350,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
         contextMenuItems: customContextMenuItems,
         // customize the header and footer.
         header: widget.header,
+
         footer: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () async {
