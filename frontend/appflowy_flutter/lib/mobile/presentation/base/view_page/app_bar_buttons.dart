@@ -29,12 +29,13 @@ class MobileViewPageImmersiveAppBar extends StatelessWidget
     required this.appBarOpacity,
     required this.title,
     required this.actions,
+    required this.view,
   });
 
   final ValueListenable appBarOpacity;
   final Widget title;
   final List<Widget> actions;
-
+  final ViewPB? view;
   @override
   final Size preferredSize;
 
@@ -46,7 +47,7 @@ class MobileViewPageImmersiveAppBar extends StatelessWidget
         backgroundColor:
             AppBarTheme.of(context).backgroundColor?.withValues(alpha: opacity),
         showDivider: false,
-        title: Opacity(opacity: opacity >= 0.99 ? 1.0 : 0, child: title),
+        title: _buildTitle(context, opacity: opacity),
         leadingWidth: 44,
         leading: Padding(
           padding: const EdgeInsets.only(top: 4.0, bottom: 4.0, left: 12.0),
@@ -55,6 +56,13 @@ class MobileViewPageImmersiveAppBar extends StatelessWidget
         actions: actions,
       ),
     );
+  }
+
+  Widget _buildTitle(
+    BuildContext context, {
+    required double opacity,
+  }) {
+    return title;
   }
 
   Widget _buildAppBarBackButton(BuildContext context) {

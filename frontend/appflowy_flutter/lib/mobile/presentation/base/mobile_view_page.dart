@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/base/mobile_view_page_bloc.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
@@ -18,6 +19,8 @@ import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
+import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -91,7 +94,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
           final body = _buildBody(context, state);
 
           if (view == null) {
-            return _buildApp(context, null, body);
+            return SizedBox.shrink();
           }
 
           return MultiBlocProvider(
@@ -121,6 +124,11 @@ class _MobileViewPageState extends State<MobileViewPage> {
                 BlocProvider(
                   create: (_) => DocumentPageStyleBloc(view: view)
                     ..add(const DocumentPageStyleEvent.initial()),
+                ),
+              if (view.layout.isDocumentView || view.layout.isDatabaseView)
+                BlocProvider(
+                  create: (_) => ViewLockStatusBloc(view: view)
+                    ..add(const ViewLockStatusEvent.initial()),
                 ),
             ],
             child: Builder(
@@ -152,6 +160,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
             title: title,
             appBarOpacity: _appBarOpacity,
             actions: actions,
+            view: view,
           )
         : FlowyAppBar(title: title, actions: actions);
     final body = isDocument
@@ -270,25 +279,80 @@ class _MobileViewPageState extends State<MobileViewPage> {
 
   Widget _buildTitle(BuildContext context, ViewPB? view) {
     final icon = view?.icon;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (icon != null && icon.value.isNotEmpty) ...[
-          RawEmojiIconWidget(
-            emoji: icon.toEmojiIconData(),
-            emojiSize: 15,
+    return ValueListenableBuilder(
+      valueListenable: _appBarOpacity,
+      builder: (_, value, child) {
+        if (value < 0.99) {
+          return Padding(
+            padding: const EdgeInsets.only(left: 6.0),
+            child: _buildLockStatus(context, view),
+          );
+        }
+
+        return Opacity(
+          opacity: value,
+          child: Row(
+            children: [
+              if (icon != null && icon.value.isNotEmpty) ...[
+                RawEmojiIconWidget(
+                  emoji: icon.toEmojiIconData(),
+                  emojiSize: 15,
+                ),
+                const HSpace(4),
+              ],
+              FlowyText.medium(
+                widget.fixedTitle ?? view?.name ?? widget.title ?? '',
+                fontSize: 15.0,
+                overflow: TextOverflow.ellipsis,
+                figmaLineHeight: 18.0,
+              ),
+              const HSpace(4.0),
+              _buildLockStatusIcon(context, view),
+            ],
           ),
-          const HSpace(4),
-        ],
-        Expanded(
-          child: FlowyText.medium(
-            widget.fixedTitle ?? view?.name ?? widget.title ?? '',
-            fontSize: 15.0,
-            overflow: TextOverflow.ellipsis,
-            figmaLineHeight: 18.0,
-          ),
-        ),
-      ],
+        );
+      },
+    );
+  }
+
+  Widget _buildLockStatus(BuildContext context, ViewPB? view) {
+    return BlocConsumer<ViewLockStatusBloc, ViewLockStatusState>(
+      listenWhen: (previous, current) =>
+          previous.isLoadingLockStatus == current.isLoadingLockStatus &&
+          current.isLoadingLockStatus == false,
+      listener: (context, state) {},
+      builder: (context, state) {
+        if (state.isLocked) {
+          return LockedPageStatus();
+        } else if (!state.isLocked && state.lockCounter > 0) {
+          return ReLockedPageStatus();
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _buildLockStatusIcon(BuildContext context, ViewPB? view) {
+    return BlocConsumer<ViewLockStatusBloc, ViewLockStatusState>(
+      listenWhen: (previous, current) =>
+          previous.isLoadingLockStatus == current.isLoadingLockStatus &&
+          current.isLoadingLockStatus == false,
+      listener: (context, state) {},
+      builder: (context, state) {
+        if (state.isLocked) {
+          return FlowySvg(
+            FlowySvgs.lock_page_s,
+            color: const Color(0xFFD95A0B),
+          );
+        } else if (!state.isLocked && state.lockCounter > 0) {
+          return FlowySvg(
+            FlowySvgs.unlock_page_s,
+            color: Color(0xFF8F959E),
+            blendMode: null,
+          );
+        }
+        return const SizedBox.shrink();
+      },
     );
   }
 

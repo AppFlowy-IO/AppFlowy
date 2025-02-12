@@ -81,9 +81,9 @@ class ViewTitleBar extends StatelessWidget {
       },
       builder: (context, state) {
         if (state.isLocked) {
-          return _Lock();
+          return LockedPageStatus();
         } else if (!state.isLocked && state.lockCounter > 0) {
-          return _ReLock();
+          return ReLockedPageStatus();
         }
         return const SizedBox.shrink();
       },
@@ -386,8 +386,8 @@ class _ViewTitleState extends State<ViewTitle> {
   }
 }
 
-class _Lock extends StatelessWidget {
-  const _Lock();
+class LockedPageStatus extends StatelessWidget {
+  const LockedPageStatus({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -424,8 +424,8 @@ class _Lock extends StatelessWidget {
   }
 }
 
-class _ReLock extends StatelessWidget {
-  const _ReLock();
+class ReLockedPageStatus extends StatelessWidget {
+  const ReLockedPageStatus({super.key});
 
   @override
   Widget build(BuildContext context) {
