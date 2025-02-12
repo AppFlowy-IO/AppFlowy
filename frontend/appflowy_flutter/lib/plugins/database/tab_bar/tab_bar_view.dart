@@ -126,10 +126,6 @@ class DatabaseTabBarView extends StatelessWidget {
             ],
           );
 
-          if (isLocked) {
-            return IgnorePointer(child: child);
-          }
-
           return child;
         },
       ),
