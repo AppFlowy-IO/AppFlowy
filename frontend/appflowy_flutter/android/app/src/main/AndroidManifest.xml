@@ -46,6 +46,8 @@
     <meta-data android:name="io.flutter.embedding.android.EnableImpeller"
       android:value="false" />
   </application>
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    tools:ignore="ScopedStorage" />
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   <!-- Permission to read files from external storage (outside application container).
