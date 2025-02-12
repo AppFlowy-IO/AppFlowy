@@ -233,6 +233,8 @@ class _MobileViewPageState extends State<MobileViewPage> {
 
     final isImmersiveMode =
         context.read<MobileViewPageBloc>().state.isImmersiveMode;
+    final isLocked =
+        context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
     final actions = <Widget>[];
 
     if (FeatureFlag.syncDocument.isOn) {
@@ -251,7 +253,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
       }
     }
 
-    if (view.layout.isDocumentView) {
+    if (view.layout.isDocumentView && !isLocked) {
       actions.addAll([
         MobileViewPageLayoutButton(
           view: view,
