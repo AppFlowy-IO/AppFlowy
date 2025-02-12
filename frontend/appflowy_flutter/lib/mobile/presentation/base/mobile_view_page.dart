@@ -320,6 +320,10 @@ class _MobileViewPageState extends State<MobileViewPage> {
   }
 
   Widget _buildLockStatus(BuildContext context, ViewPB? view) {
+    if (view == null || view.layout == ViewLayoutPB.Chat) {
+      return const SizedBox.shrink();
+    }
+
     return BlocConsumer<ViewLockStatusBloc, ViewLockStatusState>(
       listenWhen: (previous, current) =>
           previous.isLoadingLockStatus == current.isLoadingLockStatus &&
@@ -346,6 +350,10 @@ class _MobileViewPageState extends State<MobileViewPage> {
   }
 
   Widget _buildLockStatusIcon(BuildContext context, ViewPB? view) {
+    if (view == null || view.layout == ViewLayoutPB.Chat) {
+      return const SizedBox.shrink();
+    }
+
     return BlocConsumer<ViewLockStatusBloc, ViewLockStatusState>(
       listenWhen: (previous, current) =>
           previous.isLoadingLockStatus == current.isLoadingLockStatus &&

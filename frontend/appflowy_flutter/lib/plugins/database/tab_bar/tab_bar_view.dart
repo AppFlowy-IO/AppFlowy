@@ -88,8 +88,6 @@ class DatabaseTabBarView extends StatelessWidget {
       child: BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
         builder: (innerContext, state) {
           final layout = state.tabBars[state.selectedIndex].layout;
-          final isLocked =
-              context.read<ViewBloc?>()?.state.view.isLocked ?? false;
 
           final Widget child = Column(
             crossAxisAlignment: CrossAxisAlignment.start,

@@ -4,6 +4,7 @@ import 'package:appflowy/mobile/application/base/mobile_view_page_bloc.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/flowy_mobile_quick_action_button.dart';
 import 'package:appflowy/plugins/shared/share/share_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -139,25 +140,28 @@ class MobileViewBottomSheetBody extends StatelessWidget {
           ),
         ),
         _divider(),
-        MobileQuickActionButton(
-          text: LocaleKeys.disclosureAction_lockPage.tr(),
-          icon: FlowySvgs.lock_page_s,
-          iconSize: const Size.square(18),
-          rightIconBuilder: (context) => _LockPageRightIconBuilder(
-            onAction: onAction,
+        if (view.layout.isDatabaseView || view.layout.isDocumentView) ...[
+          MobileQuickActionButton(
+            text: LocaleKeys.disclosureAction_lockPage.tr(),
+            icon: FlowySvgs.lock_page_s,
+            iconSize: const Size.square(18),
+            rightIconBuilder: (context) => _LockPageRightIconBuilder(
+              onAction: onAction,
+            ),
+            onTap: () {
+              final isLocked =
+                  context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
+              onAction(
+                MobileViewBottomSheetBodyAction.lockPage,
+                arguments: {
+                  MobileViewBottomSheetBodyActionArguments.isLockedKey:
+                      !isLocked,
+                },
+              );
+            },
           ),
-          onTap: () {
-            final isLocked =
-                context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
-            onAction(
-              MobileViewBottomSheetBodyAction.lockPage,
-              arguments: {
-                MobileViewBottomSheetBodyActionArguments.isLockedKey: !isLocked,
-              },
-            );
-          },
-        ),
-        _divider(),
+          _divider(),
+        ],
         MobileQuickActionButton(
           text: LocaleKeys.button_duplicate.tr(),
           icon: FlowySvgs.duplicate_s,
