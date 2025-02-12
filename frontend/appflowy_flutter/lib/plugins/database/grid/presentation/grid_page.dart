@@ -12,6 +12,7 @@ import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -138,8 +139,16 @@ class _GridPageState extends State<GridPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<GridBloc>(
-      create: (_) => gridBloc,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<GridBloc>(
+          create: (_) => gridBloc,
+        ),
+        BlocProvider(
+          create: (context) => ViewLockStatusBloc(view: widget.view)
+            ..add(ViewLockStatusEvent.initial()),
+        ),
+      ],
       child: BlocListener<ActionNavigationBloc, ActionNavigationState>(
         listener: (context, state) {
           final action = state.action;
@@ -286,7 +295,10 @@ class _GridPageContentState extends State<GridPageContent> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _GridHeader(headerScrollController: headerScrollController),
+        _GridHeader(
+          headerScrollController: headerScrollController,
+          editable: !context.read<ViewLockStatusBloc>().state.isLocked,
+        ),
         _GridRows(
           viewId: widget.view.id,
           scrollController: _scrollController,
@@ -298,18 +310,30 @@ class _GridPageContentState extends State<GridPageContent> {
 }
 
 class _GridHeader extends StatelessWidget {
-  const _GridHeader({required this.headerScrollController});
+  const _GridHeader({
+    required this.headerScrollController,
+    required this.editable,
+  });
 
   final ScrollController headerScrollController;
+  final bool editable;
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GridBloc, GridState>(
+    Widget child = BlocBuilder<GridBloc, GridState>(
       builder: (_, state) => GridHeaderSliverAdaptor(
         viewId: state.viewId,
         anchorScrollController: headerScrollController,
       ),
     );
+
+    if (!editable) {
+      child = IgnorePointer(
+        child: child,
+      );
+    }
+
+    return child;
   }
 }
 
@@ -502,12 +526,21 @@ class _GridRowsState extends State<_GridRows> {
       itemCount: itemCount,
       itemBuilder: (context, index) {
         if (index == itemCount - 1) {
-          return Column(
+          final child = Column(
             key: const Key('grid_footer'),
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: footer,
           );
+
+          if (context.read<ViewLockStatusBloc>().state.isLocked) {
+            return IgnorePointer(
+              key: const Key('grid_footer'),
+              child: child,
+            );
+          }
+
+          return child;
         }
 
         return _renderRow(
@@ -542,6 +575,7 @@ class _GridRowsState extends State<_GridRows> {
       rowId: rowId,
       viewId: viewId,
       index: index,
+      editable: !context.watch<ViewLockStatusBloc>().state.isLocked,
       rowController: RowController(
         viewId: viewId,
         rowMeta: rowMeta,

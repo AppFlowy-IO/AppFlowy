@@ -3,9 +3,12 @@ import 'dart:io';
 
 import 'package:appflowy/plugins/base/emoji/emoji_text.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
+import 'package:appflowy/shared/appflowy_network_svg.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:string_validator/string_validator.dart';
 
@@ -62,7 +65,7 @@ class _EmojiIconWidgetState extends State<EmojiIconWidget> {
   }
 }
 
-class RawEmojiIconWidget extends StatelessWidget {
+class RawEmojiIconWidget extends StatefulWidget {
   const RawEmojiIconWidget({
     super.key,
     required this.emoji,
@@ -75,63 +78,91 @@ class RawEmojiIconWidget extends StatelessWidget {
   final bool enableColor;
 
   @override
+  State<RawEmojiIconWidget> createState() => _RawEmojiIconWidgetState();
+}
+
+class _RawEmojiIconWidgetState extends State<RawEmojiIconWidget> {
+  UserProfilePB? userProfile;
+
+  EmojiIconData get emoji => widget.emoji;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserProfile();
+  }
+
+  @override
+  void didUpdateWidget(RawEmojiIconWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    loadUserProfile();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final defaultEmoji = SizedBox(
-      width: emojiSize,
+      width: widget.emojiSize,
       child: EmojiText(
         emoji: '❓',
-        fontSize: emojiSize,
+        fontSize: widget.emojiSize,
         textAlign: TextAlign.center,
       ),
     );
     try {
-      switch (emoji.type) {
+      switch (widget.emoji.type) {
         case FlowyIconType.emoji:
           return SizedBox(
-            width: emojiSize,
+            width: widget.emojiSize,
             child: EmojiText(
-              emoji: emoji.emoji,
-              fontSize: emojiSize,
+              emoji: widget.emoji.emoji,
+              fontSize: widget.emojiSize,
               textAlign: TextAlign.justify,
             ),
           );
         case FlowyIconType.icon:
-          IconsData iconData = IconsData.fromJson(jsonDecode(emoji.emoji));
-          if (!enableColor) {
+          IconsData iconData =
+              IconsData.fromJson(jsonDecode(widget.emoji.emoji));
+          if (!widget.enableColor) {
             iconData = iconData.noColor();
           }
 
           /// Under the same width conditions, icons on macOS seem to appear
           /// larger than emojis, so 0.9 is used here to slightly reduce the
           /// size of the icons
-          final iconSize = Platform.isMacOS ? emojiSize * 0.9 : emojiSize;
+          final iconSize =
+              Platform.isMacOS ? widget.emojiSize * 0.9 : widget.emojiSize;
           return IconWidget(
             iconsData: iconData,
             size: iconSize,
           );
         case FlowyIconType.custom:
-          final url = emoji.emoji;
+          final url = widget.emoji.emoji;
+          final isSvg = url.endsWith('.svg');
+          final hasUserProfile = userProfile != null;
           if (isURL(url)) {
-            return SizedBox.square(
-              dimension: emojiSize,
-              child: FutureBuilder(
-                future: UserBackendService.getCurrentUserProfile(),
-                builder: (context, value) {
-                  final userProfile = value.data?.fold(
-                    (userProfile) => userProfile,
-                    (l) => null,
-                  );
-                  if (userProfile == null) return const SizedBox.shrink();
-                  return FlowyNetworkImage(
-                    url: url,
-                    width: emojiSize,
-                    height: emojiSize,
-                    userProfilePB: userProfile,
-                    errorWidgetBuilder: (context, url, error) =>
-                        const SizedBox.shrink(),
-                  );
+            Widget child = const SizedBox.shrink();
+            if (isSvg) {
+              child = FlowyNetworkSvg(
+                url,
+                headers:
+                    hasUserProfile ? _buildRequestHeader(userProfile!) : {},
+                width: widget.emojiSize,
+                height: widget.emojiSize,
+              );
+            } else if (hasUserProfile) {
+              child = FlowyNetworkImage(
+                url: url,
+                width: widget.emojiSize,
+                height: widget.emojiSize,
+                userProfilePB: userProfile,
+                errorWidgetBuilder: (context, url, error) {
+                  return const SizedBox.shrink();
                 },
-              ),
+              );
+            }
+            return SizedBox.square(
+              dimension: widget.emojiSize,
+              child: child,
             );
           }
           final imageFile = File(url);
@@ -139,18 +170,52 @@ class RawEmojiIconWidget extends StatelessWidget {
             throw PathNotFoundException(url, const OSError());
           }
           return SizedBox.square(
-            dimension: emojiSize,
-            child: Image.file(
-              imageFile,
-              fit: BoxFit.cover,
-              width: emojiSize,
-              height: emojiSize,
-            ),
+            dimension: widget.emojiSize,
+            child: isSvg
+                ? SvgPicture.file(
+                    File(url),
+                    width: widget.emojiSize,
+                    height: widget.emojiSize,
+                  )
+                : Image.file(
+                    imageFile,
+                    fit: BoxFit.cover,
+                    width: widget.emojiSize,
+                    height: widget.emojiSize,
+                  ),
           );
       }
     } catch (e) {
       Log.error("Display widget error: $e");
       return defaultEmoji;
+    }
+  }
+
+  Map<String, String> _buildRequestHeader(UserProfilePB userProfilePB) {
+    final header = <String, String>{};
+    final token = userProfilePB.token;
+    try {
+      final decodedToken = jsonDecode(token);
+      header['Authorization'] = 'Bearer ${decodedToken['access_token']}';
+    } catch (e) {
+      Log.error('Unable to decode token: $e');
+    }
+    return header;
+  }
+
+  Future<void> loadUserProfile() async {
+    if (userProfile != null) return;
+    if (emoji.type == FlowyIconType.custom) {
+      final userProfile =
+          (await UserBackendService.getCurrentUserProfile()).fold(
+        (userProfile) => userProfile,
+        (l) => null,
+      );
+      if (mounted) {
+        setState(() {
+          this.userProfile = userProfile;
+        });
+      }
     }
   }
 }

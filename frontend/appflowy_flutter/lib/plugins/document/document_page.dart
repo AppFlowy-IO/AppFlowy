@@ -16,6 +16,7 @@ import 'package:appflowy/workspace/application/action_navigation/action_navigati
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -63,6 +64,7 @@ class _DocumentPageState extends State<DocumentPage>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     documentBloc.close();
+
     super.dispose();
   }
 
@@ -82,31 +84,56 @@ class _DocumentPageState extends State<DocumentPage>
       providers: [
         BlocProvider.value(value: getIt<ActionNavigationBloc>()),
         BlocProvider.value(value: documentBloc),
+        BlocProvider.value(
+          value: ViewLockStatusBloc(view: widget.view)
+            ..add(
+              ViewLockStatusEvent.initial(),
+            ),
+        ),
       ],
-      child: BlocBuilder<DocumentBloc, DocumentState>(
-        buildWhen: shouldRebuildDocument,
-        builder: (context, state) {
-          if (state.isLoading) {
-            return const Center(child: CircularProgressIndicator.adaptive());
+      child: BlocConsumer<ViewLockStatusBloc, ViewLockStatusState>(
+        listenWhen: (prev, curr) => curr.isLocked != prev.isLocked,
+        listener: (context, lockStatusState) {
+          if (lockStatusState.isLoadingLockStatus) {
+            return;
           }
+          editorState?.editable = !lockStatusState.isLocked;
+        },
+        builder: (context, lockStatusState) {
+          return BlocBuilder<DocumentBloc, DocumentState>(
+            buildWhen: shouldRebuildDocument,
+            builder: (context, state) {
+              if (state.isLoading) {
+                return const Center(
+                  child: CircularProgressIndicator.adaptive(),
+                );
+              }
 
-          final editorState = state.editorState;
-          this.editorState = editorState;
-          final error = state.error;
-          if (error != null || editorState == null) {
-            Log.error(error);
-            return Center(child: AppFlowyErrorPage(error: error));
-          }
+              final editorState = state.editorState;
+              this.editorState = editorState;
+              final error = state.error;
+              if (error != null || editorState == null) {
+                Log.error(error);
+                return Center(child: AppFlowyErrorPage(error: error));
+              }
 
-          if (state.forceClose) {
-            widget.onDeleted();
-            return const SizedBox.shrink();
-          }
+              if (state.forceClose) {
+                widget.onDeleted();
+                return const SizedBox.shrink();
+              }
 
-          return BlocListener<ActionNavigationBloc, ActionNavigationState>(
-            listenWhen: (_, curr) => curr.action != null,
-            listener: onNotificationAction,
-            child: buildEditorPage(context, state),
+              return BlocListener<ViewLockStatusBloc, ViewLockStatusState>(
+                listener: (context, state) {
+                  editorState.editable = !state.isLocked;
+                },
+                child:
+                    BlocListener<ActionNavigationBloc, ActionNavigationState>(
+                  listenWhen: (_, curr) => curr.action != null,
+                  listener: onNotificationAction,
+                  child: buildEditorPage(context, state),
+                ),
+              );
+            },
           );
         },
       ),
@@ -225,7 +252,7 @@ class _DocumentPageState extends State<DocumentPage>
       editorState: editorState,
       view: widget.view,
       onIconChanged: (icon) async => ViewBackendService.updateViewIcon(
-        viewId: widget.view.id,
+        view: widget.view,
         viewIcon: icon,
       ),
     );

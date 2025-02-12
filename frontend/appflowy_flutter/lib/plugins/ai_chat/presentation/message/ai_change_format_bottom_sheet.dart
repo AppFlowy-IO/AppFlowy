@@ -122,7 +122,7 @@ class _Body extends StatelessWidget {
           opacity: predefinedFormat?.imageFormat.hasText ?? true ? 1 : 0,
           child: Column(
             children: [
-              _buildTextFormatButton(TextFormat.auto, true),
+              _buildTextFormatButton(TextFormat.paragraph, true),
               _buildTextFormatButton(TextFormat.bulletList),
               _buildTextFormatButton(TextFormat.numberedList),
               _buildTextFormatButton(TextFormat.table),
@@ -153,7 +153,8 @@ class _Body extends StatelessWidget {
           return;
         }
         if (format.hasText) {
-          final textFormat = predefinedFormat?.textFormat ?? TextFormat.auto;
+          final textFormat =
+              predefinedFormat?.textFormat ?? TextFormat.paragraph;
           onSelectPredefinedFormat(
             PredefinedFormat(imageFormat: format, textFormat: textFormat),
           );

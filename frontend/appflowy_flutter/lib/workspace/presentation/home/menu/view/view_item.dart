@@ -21,6 +21,7 @@ import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/lock_page_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -615,7 +616,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         offset: const Offset(0, 5),
         direction: PopoverDirection.bottomWithLeftAligned,
         popupBuilder: (_) => RenameViewPopover(
-          viewId: widget.view.id,
+          view: widget.view,
           name: widget.view.name,
           emoji: widget.view.icon.toEmojiIconData(),
           popoverController: popoverController,
@@ -634,7 +635,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         ? RawEmojiIconWidget(emoji: iconData, emojiSize: 16.0)
         : Opacity(opacity: 0.6, child: widget.view.defaultIcon());
 
-    return AppFlowyPopover(
+    final Widget child = AppFlowyPopover(
       offset: const Offset(20, 0),
       controller: controller,
       direction: PopoverDirection.rightWithCenterAligned,
@@ -661,7 +662,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
           documentId: widget.view.id,
           onSelectedEmoji: (r) {
             ViewBackendService.updateViewIcon(
-              viewId: widget.view.id,
+              view: widget.view,
               viewIcon: r.data,
             );
             if (!r.keepOpen) controller.close();
@@ -669,6 +670,14 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
         );
       },
     );
+
+    if (widget.view.isLocked) {
+      return LockPageButtonWrapper(
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   // > button or · button
@@ -792,7 +801,7 @@ class _SingleInnerViewItemState extends State<SingleInnerViewItem> {
                 return;
               }
               await ViewBackendService.updateViewIcon(
-                viewId: widget.view.id,
+                view: widget.view,
                 viewIcon: data.data,
               );
               break;

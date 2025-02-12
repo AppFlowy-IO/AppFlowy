@@ -262,7 +262,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           },
           updateIcon: (value) async {
             await ViewBackendService.updateViewIcon(
-              viewId: view.id,
+              view: view,
               viewIcon: view.icon.toEmojiIconData(),
             );
           },

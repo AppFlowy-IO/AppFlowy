@@ -377,8 +377,9 @@ class _ChangeFormatPopoverContentState
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () {
-                  widget.onRegenerate
-                      ?.call(predefinedFormat ?? const PredefinedFormat.auto());
+                  if (predefinedFormat != null) {
+                    widget.onRegenerate?.call(predefinedFormat!);
+                  }
                 },
                 child: SizedBox.square(
                   dimension: DesktopAIPromptSizes.predefinedFormatButtonHeight,

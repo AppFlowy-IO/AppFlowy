@@ -149,7 +149,7 @@ class PredefinedFormat extends Equatable {
 
   const PredefinedFormat.auto()
       : imageFormat = ImageFormat.text,
-        textFormat = TextFormat.auto;
+        textFormat = TextFormat.paragraph;
 
   final ImageFormat imageFormat;
   final TextFormat? textFormat;
@@ -162,7 +162,7 @@ class PredefinedFormat extends Equatable {
         ImageFormat.textAndImage => ResponseImageFormatPB.TextAndImage,
       },
       textFormat: switch (textFormat) {
-        TextFormat.auto => ResponseTextFormatPB.Paragraph,
+        TextFormat.paragraph => ResponseTextFormatPB.Paragraph,
         TextFormat.bulletList => ResponseTextFormatPB.BulletedList,
         TextFormat.numberedList => ResponseTextFormatPB.NumberedList,
         TextFormat.table => ResponseTextFormatPB.Table,
@@ -201,14 +201,14 @@ enum ImageFormat {
 }
 
 enum TextFormat {
-  auto,
+  paragraph,
   bulletList,
   numberedList,
   table;
 
   FlowySvgData get icon {
     return switch (this) {
-      TextFormat.auto => FlowySvgs.ai_paragraph_s,
+      TextFormat.paragraph => FlowySvgs.ai_paragraph_s,
       TextFormat.bulletList => FlowySvgs.ai_list_s,
       TextFormat.numberedList => FlowySvgs.ai_number_list_s,
       TextFormat.table => FlowySvgs.ai_table_s,
@@ -217,7 +217,7 @@ enum TextFormat {
 
   String get i18n {
     return switch (this) {
-      TextFormat.auto => LocaleKeys.chat_changeFormat_text.tr(),
+      TextFormat.paragraph => LocaleKeys.chat_changeFormat_text.tr(),
       TextFormat.bulletList => LocaleKeys.chat_changeFormat_bullet.tr(),
       TextFormat.numberedList => LocaleKeys.chat_changeFormat_number.tr(),
       TextFormat.table => LocaleKeys.chat_changeFormat_table.tr(),

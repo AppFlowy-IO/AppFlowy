@@ -11,8 +11,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'widgets/ask_ai_action.dart';
 import 'ask_ai_block_component.dart';
+import 'widgets/ask_ai_action.dart';
 
 const _kAskAIToolbarItemId = 'appflowy.editor.ask_ai';
 
@@ -118,7 +118,7 @@ class _AskAIActionListState extends State<AskAIActionList> {
       return;
     }
 
-    final markdown = editorState.getMarkdownInSelection(selection);
+    final markdown = await editorState.getMarkdownInSelection(selection);
 
     final transaction = editorState.transaction;
     transaction.insertNode(

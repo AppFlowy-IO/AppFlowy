@@ -174,7 +174,8 @@
     "changeIcon": "Change icon",
     "collapseAllPages": "Collapse all subpages",
     "movePageTo": "Move page to",
-    "move": "Move"
+    "move": "Move",
+    "lockPage": "Lock page"
   },
   "blankPageTitle": "Blank page",
   "newPageText": "New page",
@@ -3101,5 +3102,12 @@
     "settingsUpdateDescription": "Current version: {currentVersion} (Official build) → {newVersion}",
     "settingsUpdateButton": "Update now",
     "settingsUpdateWhatsNew": "What's new"
+  },
+  "lockPage": {
+    "lockPage": "Locked",
+    "reLockPage": "Re-lock",
+    "lockTooltip": "Page locked to prevent accidental editing. Click to unlock.",
+    "pageLockedToast": "Page locked. Editing is disabled until someone unlocks it.",
+    "lockedOperationTooltip": "Page locked to prevent accidental editing."
   }
 }
