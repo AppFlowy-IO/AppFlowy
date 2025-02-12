@@ -974,6 +974,20 @@ extension CommonOperations on WidgetTester {
       ..writeAsBytesSync(imagePath.buffer.asUint8List());
     return EmojiIconData.custom(imageFile.path);
   }
+
+  /// create new page and show slash menu
+  Future<void> createPageAndShowSlashMenu(String title) async {
+    await createNewDocumentOnMobile(title);
+    await editor.tapLineOfEditorAt(0);
+    await editor.showSlashMenu();
+  }
+
+  /// create new page and show at menu
+  Future<void> createPageAndShowAtMenu(String title) async {
+    await createNewDocumentOnMobile(title);
+    await editor.tapLineOfEditorAt(0);
+    await editor.showAtMenu();
+  }
 }
 
 extension SettingsFinder on CommonFinders {

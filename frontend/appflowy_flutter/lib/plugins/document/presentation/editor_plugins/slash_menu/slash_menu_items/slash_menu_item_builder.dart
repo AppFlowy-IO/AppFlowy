@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/selec
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 /// Builder function for the slash menu item.
 Widget slashMenuItemNameBuilder(
@@ -49,9 +50,10 @@ class SlashMenuItemNameBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = UniversalPlatform.isMobile;
     return FlowyText.regular(
       name,
-      fontSize: 12.0,
+      fontSize: isMobile ? 16.0 : 12.0,
       figmaLineHeight: 15.0,
       color: isSelected
           ? style.selectionMenuItemSelectedTextColor
@@ -80,9 +82,11 @@ class SlashMenuIconBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = UniversalPlatform.isMobile;
     return SelectableSvgWidget(
       data: data,
       isSelected: isSelected,
+      size: isMobile ? Size.square(20) : null,
       style: style,
     );
   }

@@ -1,7 +1,9 @@
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:universal_platform/universal_platform.dart';
 
+import 'slash_menu_items/mobile_items.dart';
 import 'slash_menu_items/slash_menu_items.dart';
 
 /// Build slash menu items
@@ -13,14 +15,22 @@ List<SelectionMenuItem> slashMenuItemsBuilder({
   Node? node,
 }) {
   final isInTable = node != null && node.parentTableCellNode != null;
-
-  if (isInTable) {
-    return _simpleTableSlashMenuItems();
+  final isMobile = UniversalPlatform.isMobile;
+  if (isMobile) {
+    if (isInTable) {
+      return mobileItemsInTale;
+    } else {
+      return mobileItems;
+    }
   } else {
-    return _defaultSlashMenuItems(
-      isLocalMode: isLocalMode,
-      documentBloc: documentBloc,
-    );
+    if (isInTable) {
+      return _simpleTableSlashMenuItems();
+    } else {
+      return _defaultSlashMenuItems(
+        isLocalMode: isLocalMode,
+        documentBloc: documentBloc,
+      );
+    }
   }
 }
 
