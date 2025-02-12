@@ -481,6 +481,10 @@
         "settings": "发布设置",
         "clickToOpenPageInApp": "在 App 中打开页面",
         "clickToOpenPageInBrowser": "在浏览器中打开页面"
+      },
+      "success": {
+        "setHomepageSuccess": "成功设置主页",
+        "removeHomePageSuccess": "成功删除主页"
       }
     },
     "accountPage": {
