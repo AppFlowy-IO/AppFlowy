@@ -275,7 +275,7 @@ class _LockPageRightIconBuilder extends StatelessWidget {
             onAction(
               MobileViewBottomSheetBodyAction.lockPage,
               arguments: {
-                MobileViewBottomSheetBodyActionArguments.isLockedKey: !value,
+                MobileViewBottomSheetBodyActionArguments.isLockedKey: value,
               },
             );
           },
