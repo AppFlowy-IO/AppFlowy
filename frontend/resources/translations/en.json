@@ -1684,6 +1684,11 @@
         "selectADocumentToLinkTo": "Select a Document to link to"
       },
       "name": {
+        "textStyle": "Text Style",
+        "list": "List",
+        "fileOrMedia": "File or Media",
+        "decorations": "Decorations",
+        "advanced": "Advanced",
         "text": "Text",
         "heading1": "Heading 1",
         "heading2": "Heading 2",
