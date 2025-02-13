@@ -988,6 +988,13 @@ extension CommonOperations on WidgetTester {
     await editor.tapLineOfEditorAt(0);
     await editor.showAtMenu();
   }
+
+  /// create new page and show plus menu
+  Future<void> createPageAndShowPlusMenu(String title) async {
+    await createNewDocumentOnMobile(title);
+    await editor.tapLineOfEditorAt(0);
+    await editor.showPlusMenu();
+  }
 }
 
 extension SettingsFinder on CommonFinders {

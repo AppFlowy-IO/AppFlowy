@@ -1,3 +1,4 @@
+import 'package:appflowy/mobile/presentation/inline_actions/mobile_inline_actions_menu.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/child_page.dart';
 import 'package:appflowy/plugins/inline_actions/handlers/inline_page_reference.dart';
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
@@ -57,7 +58,7 @@ Future<bool> inlinePageReferenceCommandHandler(
   String? previousChar,
 }) async {
   final selection = editorState.selection;
-  if (UniversalPlatform.isMobile || selection == null) {
+  if (selection == null) {
     return false;
   }
 
@@ -111,32 +112,47 @@ Future<bool> inlinePageReferenceCommandHandler(
   }
 
   if (context.mounted) {
-    selectionMenuService = InlineActionsMenu(
-      context: service.context!,
-      editorState: editorState,
-      service: service,
-      initialResults: initialResults,
-      style: style,
-      startCharAmount: previousChar != null ? 2 : 1,
-      cancelBySpaceHandler: () {
-        if (character == _plusChar) {
-          final currentSelection = editorState.selection;
-          if (currentSelection == null) {
-            return false;
-          }
-          // check if the space is after the character
-          if (currentSelection.isCollapsed &&
-              currentSelection.start.offset ==
-                  selection.start.offset + character.length) {
-            _cancelInlinePageReferenceMenu(editorState);
-            return true;
-          }
-        }
-        return false;
-      },
-    );
+    keepEditorFocusNotifier.increase();
+    selectionMenuService?.dismiss();
+    selectionMenuService = UniversalPlatform.isMobile
+        ? MobileInlineActionsMenu(
+            context: service.context!,
+            editorState: editorState,
+            service: service,
+            initialResults: initialResults,
+            style: style,
+          )
+        : InlineActionsMenu(
+            context: service.context!,
+            editorState: editorState,
+            service: service,
+            initialResults: initialResults,
+            style: style,
+            startCharAmount: previousChar != null ? 2 : 1,
+            cancelBySpaceHandler: () {
+              if (character == _plusChar) {
+                final currentSelection = editorState.selection;
+                if (currentSelection == null) {
+                  return false;
+                }
+                // check if the space is after the character
+                if (currentSelection.isCollapsed &&
+                    currentSelection.start.offset ==
+                        selection.start.offset + character.length) {
+                  _cancelInlinePageReferenceMenu(editorState);
+                  return true;
+                }
+              }
+              return false;
+            },
+          );
+    // disable the keyboard service
+    editorState.service.keyboardService?.disable();
 
     await selectionMenuService?.show();
+
+    // enable the keyboard service
+    editorState.service.keyboardService?.enable();
   }
 
   return true;
