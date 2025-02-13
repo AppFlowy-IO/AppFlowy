@@ -182,6 +182,7 @@ class MobileViewBottomSheetBody extends StatelessWidget {
         ),
         _divider(),
         ..._buildPublishActions(context),
+        _divider(),
         MobileQuickActionButton(
           text: LocaleKeys.button_delete.tr(),
           textColor: Theme.of(context).colorScheme.error,
