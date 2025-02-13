@@ -11,10 +11,11 @@ final List<SelectionMenuItem> mobileItems = [
   textStyleMobileSlashMenuItem,
   listMobileSlashMenuItem,
   toggleListMobileSlashMenuItem,
-  fileOrMediaMobileSlashMenuItem,
-  decorationsMobileSlashMenuItem,
+  fileAndMediaMobileSlashMenuItem,
   tableSlashMenuItem,
+  visualsMobileSlashMenuItem,
   dateOrReminderSlashMenuItem,
+  subPageSlashMenuItem,
   advancedMobileSlashMenuItem,
 ];
 
@@ -22,9 +23,10 @@ final List<SelectionMenuItem> mobileItemsInTale = [
   textStyleMobileSlashMenuItem,
   listMobileSlashMenuItem,
   toggleListMobileSlashMenuItem,
-  fileOrMediaMobileSlashMenuItem,
-  decorationsMobileSlashMenuItem,
+  fileAndMediaMobileSlashMenuItem,
+  visualsMobileSlashMenuItem,
   dateOrReminderSlashMenuItem,
+  subPageSlashMenuItem,
   advancedMobileSlashMenuItem,
 ];
 
@@ -64,7 +66,7 @@ MobileSelectionMenuItem listMobileSlashMenuItem = MobileSelectionMenuItem(
 );
 
 MobileSelectionMenuItem toggleListMobileSlashMenuItem = MobileSelectionMenuItem(
-  getName: LocaleKeys.document_slashMenu_name_toggleList.tr,
+  getName: LocaleKeys.document_slashMenu_name_toggle.tr,
   handler: _handler,
   icon: (_, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_toggle_s,
@@ -80,9 +82,9 @@ MobileSelectionMenuItem toggleListMobileSlashMenuItem = MobileSelectionMenuItem(
   ],
 );
 
-MobileSelectionMenuItem fileOrMediaMobileSlashMenuItem =
+MobileSelectionMenuItem fileAndMediaMobileSlashMenuItem =
     MobileSelectionMenuItem(
-  getName: LocaleKeys.document_slashMenu_name_fileOrMedia.tr,
+  getName: LocaleKeys.document_slashMenu_name_fileAndMedia.tr,
   handler: _handler,
   icon: (_, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_file_s,
@@ -97,9 +99,8 @@ MobileSelectionMenuItem fileOrMediaMobileSlashMenuItem =
   ],
 );
 
-MobileSelectionMenuItem decorationsMobileSlashMenuItem =
-    MobileSelectionMenuItem(
-  getName: LocaleKeys.document_slashMenu_name_decorations.tr,
+MobileSelectionMenuItem visualsMobileSlashMenuItem = MobileSelectionMenuItem(
+  getName: LocaleKeys.document_slashMenu_name_visuals.tr,
   handler: _handler,
   icon: (_, isSelected, style) => SelectableSvgWidget(
     data: FlowySvgs.slash_menu_icon_simple_table_s,
@@ -108,8 +109,9 @@ MobileSelectionMenuItem decorationsMobileSlashMenuItem =
   ),
   nameBuilder: slashMenuItemNameBuilder,
   children: [
-    quoteSlashMenuItem,
+    calloutSlashMenuItem,
     dividerSlashMenuItem,
+    quoteSlashMenuItem,
   ],
 );
 
@@ -123,8 +125,6 @@ MobileSelectionMenuItem advancedMobileSlashMenuItem = MobileSelectionMenuItem(
   ),
   nameBuilder: slashMenuItemNameBuilder,
   children: [
-    subPageSlashMenuItem,
-    calloutSlashMenuItem,
     codeBlockSlashMenuItem,
     mathEquationSlashMenuItem,
   ],

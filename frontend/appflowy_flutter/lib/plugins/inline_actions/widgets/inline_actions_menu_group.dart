@@ -107,10 +107,12 @@ class _InlineActionsWidgetState extends State<InlineActionsWidget> {
                 icon.call(widget.isSelected),
                 SizedBox(width: 12),
               ],
-              FlowyText.regular(
-                widget.item.label,
-                figmaLineHeight: 18,
-                overflow: TextOverflow.ellipsis,
+              Flexible(
+                child: FlowyText.regular(
+                  widget.item.label,
+                  figmaLineHeight: 18,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
