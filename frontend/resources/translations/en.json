@@ -995,6 +995,7 @@
         "itemFour": "Real-time collaboration",
         "itemFive": "Mobile app",
         "itemSix": "AI Responses",
+        "itemSeven": "AI Images",
         "itemFileUpload": "File uploads",
         "customNamespace": "Custom namespace",
         "tooltipSix": "Lifetime means the number of responses never reset",
@@ -1009,6 +1010,7 @@
         "itemFour": "yes",
         "itemFive": "yes",
         "itemSix": "10 lifetime",
+        "itemSeven": "2 lifetime",
         "itemFileUpload": "Up to 7 MB",
         "intelligentSearch": "Intelligent search"
       },
@@ -1019,6 +1021,7 @@
         "itemFour": "yes",
         "itemFive": "yes",
         "itemSix": "Unlimited",
+        "itemSeven": "10 images per month",
         "itemFileUpload": "Unlimited",
         "intelligentSearch": "Intelligent search"
       },
