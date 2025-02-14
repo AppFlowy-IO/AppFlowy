@@ -5,6 +5,7 @@ import 'package:appflowy/mobile/presentation/selection_menu/mobile_selection_men
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
+import 'mobile_selection_menu_item_widget.dart';
 import 'mobile_selection_menu_widget.dart';
 
 class MobileSelectionMenu extends SelectionMenuService {
@@ -14,7 +15,7 @@ class MobileSelectionMenu extends SelectionMenuService {
     required this.selectionMenuItems,
     this.deleteSlashByDefault = false,
     this.deleteKeywordsByDefault = false,
-    this.style = SelectionMenuStyle.light,
+    this.style = MobileSelectionMenuStyle.light,
     this.itemCountFilter = 0,
     this.startOffset = 0,
     this.singleColumn = false,
@@ -28,7 +29,7 @@ class MobileSelectionMenu extends SelectionMenuService {
   final bool singleColumn;
 
   @override
-  final SelectionMenuStyle style;
+  final MobileSelectionMenuStyle style;
 
   OverlayEntry? _selectionMenuEntry;
   Offset _offset = Offset.zero;

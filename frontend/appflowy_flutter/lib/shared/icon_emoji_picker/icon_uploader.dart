@@ -22,6 +22,7 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -249,12 +250,38 @@ class _IconUploaderState extends State<IconUploader> {
     final data = await getIt<ClipboardService>().getData();
     final plainText = data.plainText;
     Log.info('pasteAsAnImage plainText:$plainText');
-    if (isURL(plainText)) {
+    if (plainText == null) return;
+    if (isURL(plainText) && (await validateImage(plainText))) {
       setState(() {
         pickedImages.clear();
-        pickedImages.add(_NetworkImage(plainText!));
+        pickedImages.add(_NetworkImage(plainText));
       });
     }
+  }
+
+  Future<bool> validateImage(String imageUrl) async {
+    Response res;
+    try {
+      res = await get(Uri.parse(imageUrl));
+    } catch (e) {
+      return false;
+    }
+    if (res.statusCode != 200) return false;
+    final Map<String, dynamic> data = res.headers;
+    return checkIfImage(data['content-type']);
+  }
+
+  bool checkIfImage(String? param) {
+    if (param == 'image/jpeg' ||
+        param == 'image/png' ||
+        param == 'image/gif' ||
+        param == 'image/tiff' ||
+        param == 'image/webp' ||
+        param == 'image/svg+xml' ||
+        param == 'image/svg') {
+      return true;
+    }
+    return false;
   }
 }
 

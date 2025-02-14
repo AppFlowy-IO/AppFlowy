@@ -32,7 +32,7 @@ class MobileSelectionMenuWidget extends StatefulWidget {
 
   final VoidCallback onExit;
 
-  final SelectionMenuStyle selectionMenuStyle;
+  final MobileSelectionMenuStyle selectionMenuStyle;
 
   final bool deleteSlashByDefault;
   final bool singleColumn;
@@ -105,10 +105,9 @@ class _MobileSelectionMenuWidgetState extends State<MobileSelectionMenuWidget> {
         !(widget.deleteSlashByDefault && _searchCounter < 2)) {
       return widget.onExit();
     }
-    setState(() {
-      selectedIndex = 0;
-      _showingItems = items;
-    });
+
+    _showingItems = items;
+    refreshSelectedIndex();
 
     if (_showingItems.isEmpty) {
       _searchCounter++;
@@ -132,10 +131,8 @@ class _MobileSelectionMenuWidgetState extends State<MobileSelectionMenuWidget> {
         if (!mounted) return false;
         final hasItemsChanged = !isInitialItems();
         if (keyword.isEmpty && hasItemsChanged) {
-          setState(() {
-            _showingItems = buildInitialItems();
-            selectedIndex = 0;
-          });
+          _showingItems = buildInitialItems();
+          refreshSelectedIndex();
           return true;
         }
         return false;
@@ -228,6 +225,7 @@ class _MobileSelectionMenuWidgetState extends State<MobileSelectionMenuWidget> {
     if (widget.singleColumn) {
       final List<Widget> itemWidgets = [];
       for (var i = 0; i < items.length; i++) {
+        final item = items[i];
         itemWidgets.add(
           GestureDetector(
             onTapDown: (e) {
@@ -236,11 +234,14 @@ class _MobileSelectionMenuWidgetState extends State<MobileSelectionMenuWidget> {
               });
             },
             child: MobileSelectionMenuItemWidget(
-              item: items[i],
+              item: item,
               isSelected: i == selectedIndex,
               editorState: editorState,
               menuService: menuService,
               selectionMenuStyle: widget.selectionMenuStyle,
+              onTap: () {
+                if (item is MobileSelectionMenuItem) refreshSelectedIndex();
+              },
             ),
           ),
         );
@@ -266,6 +267,7 @@ class _MobileSelectionMenuWidgetState extends State<MobileSelectionMenuWidget> {
       }
 
       for (var i = 0; i < items.length; i++) {
+        final item = items[i];
         if (i != 0 && i % (widget.maxItemInRow) == 0) {
           columns.add(
             Column(
@@ -277,11 +279,14 @@ class _MobileSelectionMenuWidgetState extends State<MobileSelectionMenuWidget> {
         }
         itemWidgets.add(
           MobileSelectionMenuItemWidget(
-            item: items[i],
+            item: item,
             isSelected: false,
             editorState: editorState,
             menuService: menuService,
             selectionMenuStyle: widget.selectionMenuStyle,
+            onTap: () {
+              if (item is MobileSelectionMenuItem) refreshSelectedIndex();
+            },
           ),
         );
       }
@@ -299,6 +304,13 @@ class _MobileSelectionMenuWidgetState extends State<MobileSelectionMenuWidget> {
         children: columns,
       );
     }
+  }
+
+  void refreshSelectedIndex() {
+    if (!mounted) return;
+    setState(() {
+      selectedIndex = 0;
+    });
   }
 
   Widget _buildNoResultsWidget(BuildContext context) {

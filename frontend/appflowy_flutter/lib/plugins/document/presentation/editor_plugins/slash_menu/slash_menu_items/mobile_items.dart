@@ -12,7 +12,7 @@ final List<SelectionMenuItem> mobileItems = [
   listMobileSlashMenuItem,
   toggleListMobileSlashMenuItem,
   fileAndMediaMobileSlashMenuItem,
-  tableSlashMenuItem,
+  mobileTableSlashMenuItem,
   visualsMobileSlashMenuItem,
   dateOrReminderSlashMenuItem,
   subPageSlashMenuItem,
@@ -103,7 +103,7 @@ MobileSelectionMenuItem visualsMobileSlashMenuItem = MobileSelectionMenuItem(
   getName: LocaleKeys.document_slashMenu_name_visuals.tr,
   handler: _handler,
   icon: (_, isSelected, style) => SelectableSvgWidget(
-    data: FlowySvgs.slash_menu_icon_simple_table_s,
+    data: FlowySvgs.slash_menu_icon_visuals_s,
     isSelected: isSelected,
     style: style,
   ),
@@ -119,7 +119,7 @@ MobileSelectionMenuItem advancedMobileSlashMenuItem = MobileSelectionMenuItem(
   getName: LocaleKeys.document_slashMenu_name_advanced.tr,
   handler: _handler,
   icon: (_, isSelected, style) => SelectableSvgWidget(
-    data: FlowySvgs.m_aa_font_color_m,
+    data: FlowySvgs.drag_element_s,
     isSelected: isSelected,
     style: style,
   ),
