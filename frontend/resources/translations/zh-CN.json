@@ -72,8 +72,8 @@
     "LogInWithGoogle": "使用 Google 登录",
     "LogInWithGithub": "使用 Github 登录",
     "LogInWithDiscord": "使用 Discord 登录",
-    "logInWithMagicLink": "使用魔法链接登录",
-    "loginAsGuestButtonText": "开始使用"
+    "loginAsGuestButtonText": "开始使用",
+    "logInWithMagicLink": "使用魔法链接登录"
   },
   "workspace": {
     "chooseWorkspace": "选择您的工作区",

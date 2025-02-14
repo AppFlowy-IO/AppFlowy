@@ -382,7 +382,28 @@
   "settings": {
     "title": "Ajustes",
     "popupMenuItem": {
-      "settings": "Ajustes"
+      "settings": "Ajustes",
+      "members": "Miembros",
+      "trash": "Basura",
+      "helpAndSupport": "Ayuda y soporte"
+    },
+    "sites": {
+      "title": "Sitios",
+      "namespaceTitle": "Espacio de nombres",
+      "namespaceDescription": "Administra tu espacio de nombres y página de inicio",
+      "namespaceHeader": "Espacio de nombres",
+      "homepageHeader": "Página principal",
+      "updateNamespace": "Actualizar espacio de nombres",
+      "removeHomepage": "Eliminar página de inicio",
+      "selectHomePage": "Seleccione una página",
+      "customUrl": "URL personalizada",
+      "namespace": {
+        "redirectToPayment": "Redireccionando a la página de pago..."
+      },
+      "publishedPage": {
+        "page": "Página",
+        "clickToOpenPageInApp": "Abrir página en la aplicación"
+      }
     },
     "accountPage": {
       "menuLabel": "Mi cuenta",
