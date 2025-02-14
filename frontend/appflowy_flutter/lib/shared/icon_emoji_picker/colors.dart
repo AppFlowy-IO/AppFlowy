@@ -5,7 +5,7 @@ extension PickerColors on BuildContext {
   Color get pickerTextColor {
     return Theme.of(this).isLightMode
         ? const Color(0x80171717)
-        : Colors.white.withOpacity(0.5);
+        : Colors.white.withValues(alpha: 0.5);
   }
 
   Color get pickerIconColor {
@@ -15,12 +15,12 @@ extension PickerColors on BuildContext {
   Color get pickerSearchBarBorderColor {
     return Theme.of(this).isLightMode
         ? const Color(0x1E171717)
-        : Colors.white.withOpacity(0.12);
+        : Colors.white.withValues(alpha: 0.12);
   }
 
   Color get pickerButtonBoarderColor {
     return Theme.of(this).isLightMode
         ? const Color(0x1E171717)
-        : Colors.white.withOpacity(0.12);
+        : Colors.white.withValues(alpha: 0.12);
   }
 }

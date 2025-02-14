@@ -12,6 +12,7 @@ import 'package:appflowy/plugins/shared/share/share_bloc.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
+import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -28,12 +29,13 @@ class MobileViewPageImmersiveAppBar extends StatelessWidget
     required this.appBarOpacity,
     required this.title,
     required this.actions,
+    required this.view,
   });
 
   final ValueListenable appBarOpacity;
   final Widget title;
   final List<Widget> actions;
-
+  final ViewPB? view;
   @override
   final Size preferredSize;
 
@@ -43,9 +45,9 @@ class MobileViewPageImmersiveAppBar extends StatelessWidget
       valueListenable: appBarOpacity,
       builder: (_, opacity, __) => FlowyAppBar(
         backgroundColor:
-            AppBarTheme.of(context).backgroundColor?.withOpacity(opacity),
+            AppBarTheme.of(context).backgroundColor?.withValues(alpha: opacity),
         showDivider: false,
-        title: Opacity(opacity: opacity >= 0.99 ? 1.0 : 0, child: title),
+        title: _buildTitle(context, opacity: opacity),
         leadingWidth: 44,
         leading: Padding(
           padding: const EdgeInsets.only(top: 4.0, bottom: 4.0, left: 12.0),
@@ -54,6 +56,13 @@ class MobileViewPageImmersiveAppBar extends StatelessWidget
         actions: actions,
       ),
     );
+  }
+
+  Widget _buildTitle(
+    BuildContext context, {
+    required double opacity,
+  }) {
+    return title;
   }
 
   Widget _buildAppBarBackButton(BuildContext context) {
@@ -102,6 +111,12 @@ class MobileViewPageMoreButton extends StatelessWidget {
               BlocProvider.value(value: context.read<FavoriteBloc>()),
               BlocProvider.value(value: context.read<MobileViewPageBloc>()),
               BlocProvider.value(value: context.read<ShareBloc>()),
+              BlocProvider(
+                create: (context) => ViewLockStatusBloc(view: view)
+                  ..add(
+                    ViewLockStatusEvent.initial(),
+                  ),
+              ),
             ],
             child: MobileViewPageMoreBottomSheet(view: view),
           ),
@@ -224,7 +239,7 @@ class _ImmersiveAppBarButton extends StatelessWidget {
               child = DecoratedBox(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(dimension / 2.0),
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withValues(alpha: 0.2),
                 ),
                 child: child,
               );

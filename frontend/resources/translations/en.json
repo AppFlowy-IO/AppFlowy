@@ -174,7 +174,8 @@
     "changeIcon": "Change icon",
     "collapseAllPages": "Collapse all subpages",
     "movePageTo": "Move page to",
-    "move": "Move"
+    "move": "Move",
+    "lockPage": "Lock page"
   },
   "blankPageTitle": "Blank page",
   "newPageText": "New page",
@@ -555,7 +556,7 @@
       }
     },
     "accountPage": {
-      "menuLabel": "My account",
+      "menuLabel": "Account & App",
       "title": "My account",
       "general": {
         "title": "Account name & profile image",
@@ -571,7 +572,9 @@
         "title": "Account login",
         "loginLabel": "Log in",
         "logoutLabel": "Log out"
-      }
+      },
+      "isUpToDate": "@:appName is up to date!",
+      "officialVersion": "Version {version} (Official build)"
     },
     "workspacePage": {
       "menuLabel": "Workspace",
@@ -992,6 +995,7 @@
         "itemFour": "Real-time collaboration",
         "itemFive": "Mobile app",
         "itemSix": "AI Responses",
+        "itemSeven": "AI Images",
         "itemFileUpload": "File uploads",
         "customNamespace": "Custom namespace",
         "tooltipSix": "Lifetime means the number of responses never reset",
@@ -1006,6 +1010,7 @@
         "itemFour": "yes",
         "itemFive": "yes",
         "itemSix": "10 lifetime",
+        "itemSeven": "2 lifetime",
         "itemFileUpload": "Up to 7 MB",
         "intelligentSearch": "Intelligent search"
       },
@@ -1016,6 +1021,7 @@
         "itemFour": "yes",
         "itemFive": "yes",
         "itemSix": "Unlimited",
+        "itemSeven": "10 images per month",
         "itemFileUpload": "Unlimited",
         "intelligentSearch": "Intelligent search"
       },
@@ -1681,6 +1687,11 @@
         "selectADocumentToLinkTo": "Select a Document to link to"
       },
       "name": {
+        "textStyle": "Text Style",
+        "list": "List",
+        "fileOrMedia": "File or Media",
+        "decorations": "Decorations",
+        "advanced": "Advanced",
         "text": "Text",
         "heading1": "Heading 1",
         "heading2": "Heading 2",
@@ -1997,8 +2008,8 @@
       "searchForAnImage": "Search for an image",
       "pleaseInputYourOpenAIKey": "please input your AI key in Settings page",
       "saveImageToGallery": "Save image",
-      "failedToAddImageToGallery": "Failed to add image to gallery",
-      "successToAddImageToGallery": "Image added to gallery successfully",
+      "failedToAddImageToGallery": "Failed to save image",
+      "successToAddImageToGallery": "Saved image to Photos",
       "unableToLoadImage": "Unable to load image",
       "maximumImageSize": "Maximum supported upload image size is 10MB",
       "uploadImageErrorImageSizeTooBig": "Image size must be less than 10MB",
@@ -2511,6 +2522,7 @@
       "accountLogin": "Account Login",
       "updateNameError": "Failed to update name",
       "updateIconError": "Failed to update icon",
+      "aboutAppFlowy": "About @:appName",
       "deleteAccount": {
         "title": "Delete Account",
         "subtitle": "Permanently delete your account and all of your data.",
@@ -3081,5 +3093,24 @@
   },
   "ai": {
     "contentPolicyViolation": "Image generation failed due to sensitive content. Please rephrase your input and try again"
+  },
+  "autoUpdate": {
+    "criticalUpdateTitle": "Update required to continue",
+    "criticalUpdateDescription": "We've made improvements to enhance your experience! Please update from {currentVersion} to {newVersion} to keep using the app.",
+    "criticalUpdateButton": "Update",
+    "bannerUpdateTitle": "New Version Available!",
+    "bannerUpdateDescription": "Get the latest features and fixes. Click \"Update\" to install now",
+    "bannerUpdateButton": "Update",
+    "settingsUpdateTitle": "New Version ({newVersion}) Available!",
+    "settingsUpdateDescription": "Current version: {currentVersion} (Official build) → {newVersion}",
+    "settingsUpdateButton": "Update",
+    "settingsUpdateWhatsNew": "What's new"
+  },
+  "lockPage": {
+    "lockPage": "Locked",
+    "reLockPage": "Re-lock",
+    "lockTooltip": "Page locked to prevent accidental editing. Click to unlock.",
+    "pageLockedToast": "Page locked. Editing is disabled until someone unlocks it.",
+    "lockedOperationTooltip": "Page locked to prevent accidental editing."
   }
 }

@@ -79,6 +79,7 @@
     "chooseWorkspace": "选择您的工作区",
     "defaultName": "我的工作区",
     "create": "新建工作区",
+    "new": "新的工作空间",
     "importFromNotion": "从 Notion 导入",
     "learnMore": "了解更多",
     "reset": "重置工作区",
@@ -149,7 +150,9 @@
     "charCount": "字符数:{}",
     "createdAt": "创建于 :{}",
     "deleteView": "删除",
-    "duplicateView": "复制"
+    "duplicateView": "复制",
+    "wordCountLabel": "词总数:",
+    "charCountLabel": "字符总数:"
   },
   "importPanel": {
     "textAndMarkdown": "文本 和 Markdown",
@@ -170,7 +173,9 @@
     "addToFavorites": "添加到收藏夹",
     "copyLink": "复制链接",
     "changeIcon": "更改图标",
-    "collapseAllPages": "收起全部子页面"
+    "collapseAllPages": "收起全部子页面",
+    "movePageTo": "将页面移动至",
+    "move": "移动"
   },
   "blankPageTitle": "空白页",
   "newPageText": "新页面",
@@ -186,6 +191,7 @@
     "relatedQuestion": "相关问题",
     "serverUnavailable": "服务暂时不可用，请稍后再试",
     "aiServerUnavailable": "🌈 不妙！🌈 一只独角兽吃掉了我们的回复。请重试！",
+    "retry": "重试",
     "clickToRetry": "点击重试",
     "regenerateAnswer": "重新生成",
     "question1": "如何使用 Kanban 来管理任务",
@@ -200,6 +206,11 @@
     "uploadFile": "上传聊天使用的 PDF、md 或 txt 文件",
     "questionDetail": "{} 你好！我能怎么帮到你？",
     "indexingFile": "正在索引 {}",
+    "regenerate": "请重试",
+    "openPagePreviewFailedToast": "打开页面失败",
+    "changeFormat": {
+      "actionButton": "变更样式"
+    },
     "referenceSource": "找到 {} 个来源",
     "referenceSources": "找到 {} 个来源",
     "questionTitle": "想法"
@@ -258,7 +269,8 @@
     "moreButtonToolTip": "删除、重命名等等...",
     "addPageTooltip": "在其中快速添加页面",
     "defaultNewPageName": "未命名页面",
-    "renameDialog": "重命名"
+    "renameDialog": "重命名",
+    "pageNameSuffix": "复制"
   },
   "noPagesInside": "里面没有页面",
   "toolbar": {
@@ -375,6 +387,7 @@
     "upload": "上传",
     "edit": "编辑",
     "delete": "删除",
+    "copy": "复制",
     "duplicate": "复制",
     "putback": "放回去",
     "update": "更新",
@@ -413,6 +426,8 @@
     "viewing": "查看",
     "editing": "编辑",
     "gotIt": "我知道了",
+    "retry": "重试",
+    "uploadFailed": "上传失败",
     "Done": "完成",
     "Cancel": "取消",
     "OK": "确认"
@@ -453,7 +468,26 @@
       "homepageHeader": "主页",
       "updateNamespace": "更新名字空间",
       "removeHomepage": "移除主页",
-      "selectHomePage": "选择一个页面"
+      "selectHomePage": "选择一个页面",
+      "customUrl": "自定义 URL",
+      "namespace": {
+        "upgradeToPro": "请升级至 Pro 订阅计划以设置主页",
+        "redirectToPayment": "正在重定向至付款页面......",
+        "onlyWorkspaceOwnerCanSetHomePage": "仅工作空间的所有者能为其设置主页",
+        "pleaseAskOwnerToSetHomePage": "请联系工作空间所有者更新至 Pro 订阅计划"
+      },
+      "publishedPage": {
+        "title": "所有已发布页面",
+        "description": "管理您已发布的页面",
+        "noPublishedPages": "没有已发布的页面",
+        "settings": "发布设置",
+        "clickToOpenPageInApp": "在 App 中打开页面",
+        "clickToOpenPageInBrowser": "在浏览器中打开页面"
+      },
+      "success": {
+        "setHomepageSuccess": "成功设置主页",
+        "removeHomePageSuccess": "成功删除主页"
+      }
     },
     "accountPage": {
       "menuLabel": "我的账户",
@@ -616,10 +650,20 @@
         "resetDefault": "重置为默认"
       },
       "resetDialog": {
+        "title": "重置快捷键",
         "description": "这将会将所有按键绑定重置为默认，之后无法撤销。你确定要继续吗？"
       },
+      "conflictDialog": {
+        "confirmLabel": "继续"
+      },
       "keybindings": {
-        "selectAllCodeblock": "全选"
+        "selectAllCodeblock": "全选",
+        "alignLeft": "文本居左对齐",
+        "alignCenter": "文本居中对齐",
+        "alignRight": "文本居右对齐",
+        "undo": "撤销",
+        "redo": "重做",
+        "convertToParagraph": "将块转换为段落"
       }
     },
     "aiPage": {

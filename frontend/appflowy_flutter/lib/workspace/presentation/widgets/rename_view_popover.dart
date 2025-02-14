@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/emoji_picker_button.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -12,7 +13,7 @@ import '../../../shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 class RenameViewPopover extends StatefulWidget {
   const RenameViewPopover({
     super.key,
-    required this.viewId,
+    required this.view,
     required this.name,
     required this.popoverController,
     required this.emoji,
@@ -21,7 +22,7 @@ class RenameViewPopover extends StatefulWidget {
     this.tabs = const [PickerTabType.emoji, PickerTabType.icon],
   });
 
-  final String viewId;
+  final ViewPB view;
   final String name;
   final PopoverController popoverController;
   final EmojiIconData emoji;
@@ -64,7 +65,7 @@ class _RenameViewPopoverState extends State<RenameViewPopover> {
               direction: PopoverDirection.bottomWithCenterAligned,
               offset: const Offset(0, 18),
               onSubmitted: _updateViewIcon,
-              documentId: widget.viewId,
+              documentId: widget.view.id,
               tabs: widget.tabs,
             ),
           ),
@@ -88,7 +89,7 @@ class _RenameViewPopoverState extends State<RenameViewPopover> {
   Future<void> _updateViewName(String name) async {
     if (name.isNotEmpty && name != widget.name) {
       await ViewBackendService.updateView(
-        viewId: widget.viewId,
+        viewId: widget.view.id,
         name: _controller.text,
       );
       widget.popoverController.close();
@@ -100,7 +101,7 @@ class _RenameViewPopoverState extends State<RenameViewPopover> {
     PopoverController? _,
   ) async {
     await ViewBackendService.updateViewIcon(
-      viewId: widget.viewId,
+      view: widget.view,
       viewIcon: r.data,
     );
     if (!r.keepOpen) {

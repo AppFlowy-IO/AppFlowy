@@ -1,5 +1,5 @@
 PODS:
-  - app_links (0.0.1):
+  - app_links (0.0.2):
     - Flutter
   - appflowy_backend (0.0.1):
     - Flutter
@@ -66,6 +66,8 @@ PODS:
   - permission_handler_apple (9.3.0):
     - Flutter
   - ReachabilitySwift (5.0.0)
+  - saver_gallery (0.0.1):
+    - Flutter
   - SDWebImage (5.14.2):
     - SDWebImage/Core (= 5.14.2)
   - SDWebImage/Core (5.14.2)
@@ -79,7 +81,7 @@ PODS:
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - sqflite (0.0.3):
+  - sqflite_darwin (0.0.4):
     - Flutter
     - FlutterMacOS
   - super_native_extensions (0.0.1):
@@ -90,6 +92,7 @@ PODS:
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
+    - FlutterMacOS
 
 DEPENDENCIES:
   - app_links (from `.symlinks/plugins/app_links/ios`)
@@ -108,13 +111,14 @@ DEPENDENCIES:
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - saver_gallery (from `.symlinks/plugins/saver_gallery/ios`)
   - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
-  - sqflite (from `.symlinks/plugins/sqflite/darwin`)
+  - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
   - super_native_extensions (from `.symlinks/plugins/super_native_extensions/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
-  - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/ios`)
+  - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
 
 SPEC REPOS:
   trunk:
@@ -159,52 +163,55 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
+  saver_gallery:
+    :path: ".symlinks/plugins/saver_gallery/ios"
   sentry_flutter:
     :path: ".symlinks/plugins/sentry_flutter/ios"
   share_plus:
     :path: ".symlinks/plugins/share_plus/ios"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
-  sqflite:
-    :path: ".symlinks/plugins/sqflite/darwin"
+  sqflite_darwin:
+    :path: ".symlinks/plugins/sqflite_darwin/darwin"
   super_native_extensions:
     :path: ".symlinks/plugins/super_native_extensions/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   webview_flutter_wkwebview:
-    :path: ".symlinks/plugins/webview_flutter_wkwebview/ios"
+    :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
-  app_links: e70ca16b4b0f88253b3b3660200d4a10b4ea9795
-  appflowy_backend: 144c20d8bfb298c4e10fa3fa6701a9f41bf98b88
-  connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
-  device_info_plus: 97af1d7e84681a90d0693e63169a5d50e0839a0d
+  app_links: 3da4c36b46cac3bf24eb897f1a6ce80bda109874
+  appflowy_backend: 78f6a053f756e6bc29bcc5a2106cbe77b756e97a
+  connectivity_plus: 481668c94744c30c53b8895afb39159d1e619bdf
+  device_info_plus: 71ffc6ab7634ade6267c7a93088ed7e4f74e5896
   DKImagePickerController: b512c28220a2b8ac7419f21c491fc8534b7601ac
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
-  file_picker: 09aa5ec1ab24135ccd7a1621c46c84134bfd6655
-  flowy_infra_ui: 0455e1fa8c51885aa1437848e361e99419f34ebc
+  file_picker: 9b3292d7c8bc68c8a7bf8eb78f730e49c8efc517
+  flowy_infra_ui: 931b73a18b54a392ab6152eebe29a63a30751f53
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  fluttertoast: e9a18c7be5413da53898f660530c56f35edfba9c
-  image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
-  integration_test: ce0a3ffa1de96d1a89ca0ac26fca7ea18a749ef4
-  irondash_engine_context: 3458bf979b90d616ffb8ae03a150bafe2e860cc9
-  keyboard_height_plugin: 43fa8bba20fd5c4fdeed5076466b8b9d43cc6b86
-  open_filex: 6e26e659846ec990262224a12ef1c528bb4edbe4
-  package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
-  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
-  permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
+  fluttertoast: 76fea30fcf04176325f6864c87306927bd7d2038
+  image_picker_ios: 7fe1ff8e34c1790d6fff70a32484959f563a928a
+  integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
+  irondash_engine_context: 8e58ca8e0212ee9d1c7dc6a42121849986c88486
+  keyboard_height_plugin: ef70a8181b29f27670e9e2450814ca6b6dc05b05
+  open_filex: 432f3cd11432da3e39f47fcc0df2b1603854eff1
+  package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
+  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
+  permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
+  saver_gallery: af2d0c762dafda254e0ad025ef0dabd6506cd490
   SDWebImage: b9a731e1d6307f44ca703b3976d18c24ca561e84
   Sentry: 1fe34e9c2cbba1e347623610d26db121dcb569f1
-  sentry_flutter: a39c2a2d67d5e5b9cb0b94a4985c76dd5b3fc737
-  share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
-  shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
-  sqflite: 673a0e54cc04b7d6dba8d24fb8095b31c3a99eec
-  super_native_extensions: 4916b3c627a9c7fffdc48a23a9eca0b1ac228fa7
+  sentry_flutter: e24b397f9a61fa5bbefd8279c3b2242ca86faa90
+  share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
+  shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
+  sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
+  super_native_extensions: b763c02dc3a8fd078389f410bf15149179020cb4
   SwiftyGif: 6c3eafd0ce693cad58bb63d2b2fb9bacb8552780
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
-  url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
-  webview_flutter_wkwebview: 2a23822e9039b7b1bc52e5add778e5d89ad488d1
+  url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
+  webview_flutter_wkwebview: 44d4dee7d7056d5ad185d25b38404436d56c547c
 
 PODFILE CHECKSUM: d0d9b4ff572d8695c38eb3f9b490f55cdfc57eca
 

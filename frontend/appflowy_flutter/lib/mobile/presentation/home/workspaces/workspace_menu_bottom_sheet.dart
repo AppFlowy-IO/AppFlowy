@@ -139,7 +139,7 @@ class _CreateWorkspaceButton extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0x01717171).withOpacity(0.12),
+          color: const Color(0x01717171).withValues(alpha: 0.12),
           width: 0.8,
         ),
       ),

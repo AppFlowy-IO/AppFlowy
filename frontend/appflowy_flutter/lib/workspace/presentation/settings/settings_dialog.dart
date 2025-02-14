@@ -171,8 +171,6 @@ class SettingsDialog extends StatelessWidget {
         );
       case SettingsPage.featureFlags:
         return const FeatureFlagsPage();
-      default:
-        return const SizedBox.shrink();
     }
   }
 }

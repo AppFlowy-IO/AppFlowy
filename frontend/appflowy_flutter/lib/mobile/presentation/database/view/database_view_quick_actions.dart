@@ -75,7 +75,7 @@ class MobileDatabaseViewQuickActions extends StatelessWidget {
                     enableBackgroundColorSelection: false,
                     onSelectedEmoji: (r) {
                       ViewBackendService.updateViewIcon(
-                        viewId: view.id,
+                        view: view,
                         viewIcon: r.data,
                       );
                       Navigator.pop(context);
@@ -84,7 +84,11 @@ class MobileDatabaseViewQuickActions extends StatelessWidget {
                 );
               },
               builder: (_) => const SizedBox.shrink(),
-            ).then((_) => Navigator.pop(context));
+            ).then((_) {
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+            });
           },
           !isInline,
         ),

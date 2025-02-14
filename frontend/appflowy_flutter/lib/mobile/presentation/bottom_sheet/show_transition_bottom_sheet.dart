@@ -329,7 +329,7 @@ class CupertinoSheetBottomRouteTransition extends StatelessWidget {
                         (Theme.of(context).brightness == Brightness.dark
                                 ? Colors.grey
                                 : Colors.black)
-                            .withOpacity(secondaryAnimation.value * 0.1),
+                            .withValues(alpha: secondaryAnimation.value * 0.1),
                         BlendMode.srcOver,
                       ),
                       child: child,

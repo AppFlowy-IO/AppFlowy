@@ -1,19 +1,18 @@
 import 'dart:async';
 
-import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
-import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
-import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/row/row_service.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/database/domain/sort_service.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/calculations/calculations_row.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/grid_setting_bar.dart';
+import 'package:appflowy/plugins/database/tab_bar/desktop/setting_menu.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -21,6 +20,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:provider/provider.dart';
@@ -30,7 +30,6 @@ import '../../application/row/row_controller.dart';
 import '../../tab_bar/tab_bar_view.dart';
 import '../../widgets/row/row_detail.dart';
 import '../application/grid_bloc.dart';
-
 import 'grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
@@ -140,8 +139,16 @@ class _GridPageState extends State<GridPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<GridBloc>(
-      create: (_) => gridBloc,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<GridBloc>(
+          create: (_) => gridBloc,
+        ),
+        BlocProvider(
+          create: (context) => ViewLockStatusBloc(view: widget.view)
+            ..add(ViewLockStatusEvent.initial()),
+        ),
+      ],
       child: BlocListener<ActionNavigationBloc, ActionNavigationState>(
         listener: (context, state) {
           final action = state.action;
@@ -288,7 +295,10 @@ class _GridPageContentState extends State<GridPageContent> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _GridHeader(headerScrollController: headerScrollController),
+        _GridHeader(
+          headerScrollController: headerScrollController,
+          editable: !context.read<ViewLockStatusBloc>().state.isLocked,
+        ),
         _GridRows(
           viewId: widget.view.id,
           scrollController: _scrollController,
@@ -300,18 +310,30 @@ class _GridPageContentState extends State<GridPageContent> {
 }
 
 class _GridHeader extends StatelessWidget {
-  const _GridHeader({required this.headerScrollController});
+  const _GridHeader({
+    required this.headerScrollController,
+    required this.editable,
+  });
 
   final ScrollController headerScrollController;
+  final bool editable;
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GridBloc, GridState>(
+    Widget child = BlocBuilder<GridBloc, GridState>(
       builder: (_, state) => GridHeaderSliverAdaptor(
         viewId: state.viewId,
         anchorScrollController: headerScrollController,
       ),
     );
+
+    if (!editable) {
+      child = IgnorePointer(
+        child: child,
+      );
+    }
+
+    return child;
   }
 }
 
@@ -474,7 +496,7 @@ class _GridRowsState extends State<_GridRows> {
       proxyDecorator: (child, _, __) => Provider.value(
         value: context.read<DatabasePluginWidgetBuilderSize>(),
         child: Material(
-          color: Colors.white.withOpacity(.1),
+          color: Colors.white.withValues(alpha: .1),
           child: Opacity(opacity: .5, child: child),
         ),
       ),
@@ -504,12 +526,21 @@ class _GridRowsState extends State<_GridRows> {
       itemCount: itemCount,
       itemBuilder: (context, index) {
         if (index == itemCount - 1) {
-          return Column(
+          final child = Column(
             key: const Key('grid_footer'),
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: footer,
           );
+
+          if (context.read<ViewLockStatusBloc>().state.isLocked) {
+            return IgnorePointer(
+              key: const Key('grid_footer'),
+              child: child,
+            );
+          }
+
+          return child;
         }
 
         return _renderRow(
@@ -544,6 +575,7 @@ class _GridRowsState extends State<_GridRows> {
       rowId: rowId,
       viewId: viewId,
       index: index,
+      editable: !context.watch<ViewLockStatusBloc>().state.isLocked,
       rowController: RowController(
         viewId: viewId,
         rowMeta: rowMeta,

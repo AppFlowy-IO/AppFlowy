@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+export 'package:flutter_svg/flutter_svg.dart';
+
 /// The class for FlowySvgData that the code generator will implement
 class FlowySvgData {
   /// The svg data
@@ -80,7 +82,7 @@ class FlowySvg extends StatelessWidget {
   Widget build(BuildContext context) {
     Color? iconColor = color ?? Theme.of(context).iconTheme.color;
     if (opacity != null) {
-      iconColor = iconColor?.withOpacity(opacity!);
+      iconColor = iconColor?.withValues(alpha: opacity!);
     }
 
     final textScaleFactor = MediaQuery.textScalerOf(context).scale(1);

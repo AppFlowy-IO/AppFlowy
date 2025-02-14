@@ -113,7 +113,7 @@ class TransactionAdapter {
   ) {
     return transaction.operations
         .map((op) => op.toBlockAction(editorState, documentId))
-        .whereNotNull()
+        .nonNulls
         .expand((element) => element)
         .toList(growable: false); // avoid lazy evaluation
   }

@@ -25,12 +25,13 @@ class DocumentExporter {
   final ViewPB view;
 
   Future<FlowyResult<String, FlowyError>> export(
-    DocumentExportType type,
-  ) async {
+    DocumentExportType type, {
+    String? path,
+  }) async {
     final documentService = DocumentService();
     final result = await documentService.openDocument(documentId: view.id);
     return result.fold(
-      (r) {
+      (r) async {
         final document = r.toDocument();
         if (document == null) {
           return FlowyResult.failure(
@@ -43,8 +44,14 @@ class DocumentExporter {
           case DocumentExportType.json:
             return FlowyResult.success(jsonEncode(document));
           case DocumentExportType.markdown:
-            final markdown = customDocumentToMarkdown(document);
-            return FlowyResult.success(markdown);
+            if (path != null) {
+              await customDocumentToMarkdown(document, path: path);
+              return FlowyResult.success('');
+            } else {
+              return FlowyResult.success(
+                await customDocumentToMarkdown(document),
+              );
+            }
           case DocumentExportType.text:
             throw UnimplementedError();
           case DocumentExportType.html:

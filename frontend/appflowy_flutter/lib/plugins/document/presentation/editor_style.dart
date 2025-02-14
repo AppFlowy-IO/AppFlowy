@@ -32,11 +32,13 @@ class EditorStyleCustomizer {
     required this.context,
     required this.padding,
     this.width,
+    this.editorState,
   });
 
   final BuildContext context;
   final EdgeInsets padding;
   final double? width;
+  final EditorState? editorState;
 
   static const double maxDocumentWidth = 480 * 4;
   static const double minDocumentWidth = 480;
@@ -76,11 +78,15 @@ class EditorStyleCustomizer {
       fontFamily = appearanceFont;
     }
 
+    final cursorColor = (editorState?.editable ?? true)
+        ? (appearance.cursorColor ??
+            DefaultAppearanceSettings.getDefaultCursorColor(context))
+        : Colors.transparent;
+
     return EditorStyle.desktop(
       padding: padding,
       maxWidth: width,
-      cursorColor: appearance.cursorColor ??
-          DefaultAppearanceSettings.getDefaultCursorColor(context),
+      cursorColor: cursorColor,
       selectionColor: appearance.selectionColor ??
           DefaultAppearanceSettings.getDefaultSelectionColor(context),
       defaultTextDirection: appearance.defaultTextDirection,
@@ -111,7 +117,8 @@ class EditorStyleCustomizer {
             fontSize: fontSize,
             fontWeight: FontWeight.normal,
             color: Colors.red,
-            backgroundColor: theme.colorScheme.inverseSurface.withOpacity(0.8),
+            backgroundColor:
+                theme.colorScheme.inverseSurface.withValues(alpha: 0.8),
           ),
         ),
       ),
@@ -159,7 +166,7 @@ class EditorStyleCustomizer {
             fontSize: fontSize,
             fontWeight: FontWeight.normal,
             color: Colors.red,
-            backgroundColor: Colors.grey.withOpacity(0.3),
+            backgroundColor: Colors.grey.withValues(alpha: 0.3),
           ),
         ),
         applyHeightToFirstAscent: true,
@@ -241,7 +248,7 @@ class EditorStyleCustomizer {
       fontFamily: defaultFontFamily,
       fontSize: fontSize,
       height: 1.5,
-      color: AFThemeExtension.of(context).onBackground.withOpacity(0.6),
+      color: AFThemeExtension.of(context).onBackground.withValues(alpha: 0.6),
     );
   }
 
@@ -281,7 +288,7 @@ class EditorStyleCustomizer {
     final afThemeExtension = AFThemeExtension.of(context);
     return InlineActionsMenuStyle(
       backgroundColor: theme.cardColor,
-      groupTextColor: afThemeExtension.onBackground.withOpacity(.8),
+      groupTextColor: afThemeExtension.onBackground.withValues(alpha: .8),
       menuItemTextColor: afThemeExtension.onBackground,
       menuItemSelectedColor: theme.colorScheme.secondary,
       menuItemSelectedTextColor: theme.colorScheme.onSurface,
@@ -470,7 +477,7 @@ class EditorStyleCustomizer {
         padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: FlowyHover(
           style: HoverStyle(
-            hoverColor: Colors.grey.withOpacity(0.3),
+            hoverColor: Colors.grey.withValues(alpha: 0.3),
           ),
           child: child,
         ),

@@ -668,6 +668,10 @@ final _planLabels = [
     tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipSix.tr(),
   ),
   _PlanItem(
+    label: LocaleKeys.settings_comparePlanDialog_planLabels_itemSeven.tr(),
+    tooltip: LocaleKeys.settings_comparePlanDialog_planLabels_tooltipSix.tr(),
+  ),
+  _PlanItem(
     label: LocaleKeys.settings_comparePlanDialog_planLabels_itemFileUpload.tr(),
   ),
   _PlanItem(
@@ -713,6 +717,9 @@ final List<_CellItem> _freeLabels = [
     label: LocaleKeys.settings_comparePlanDialog_freeLabels_itemSix.tr(),
   ),
   _CellItem(
+    label: LocaleKeys.settings_comparePlanDialog_freeLabels_itemSeven.tr(),
+  ),
+  _CellItem(
     label: LocaleKeys.settings_comparePlanDialog_freeLabels_itemFileUpload.tr(),
   ),
   const _CellItem(
@@ -745,6 +752,9 @@ final List<_CellItem> _proLabels = [
   ),
   _CellItem(
     label: LocaleKeys.settings_comparePlanDialog_proLabels_itemSix.tr(),
+  ),
+  _CellItem(
+    label: LocaleKeys.settings_comparePlanDialog_proLabels_itemSeven.tr(),
   ),
   _CellItem(
     label: LocaleKeys.settings_comparePlanDialog_proLabels_itemFileUpload.tr(),

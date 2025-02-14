@@ -124,8 +124,6 @@ class MentionBlock extends StatelessWidget {
           reminderOption: reminderOption ?? ReminderOption.none,
           includeTime: mention[MentionBlockKeys.includeTime] ?? false,
         );
-      default:
-        return const SizedBox.shrink();
     }
   }
 }

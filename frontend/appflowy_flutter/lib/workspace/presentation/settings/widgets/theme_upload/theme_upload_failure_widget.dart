@@ -15,7 +15,7 @@ class ThemeUploadFailureWidget extends StatelessWidget {
       color: Theme.of(context)
           .colorScheme
           .error
-          .withOpacity(ThemeUploadWidget.fadeOpacity),
+          .withValues(alpha: ThemeUploadWidget.fadeOpacity),
       constraints: const BoxConstraints.expand(),
       padding: ThemeUploadWidget.padding,
       child: Column(
