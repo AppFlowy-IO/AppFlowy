@@ -556,7 +556,7 @@
       }
     },
     "accountPage": {
-      "menuLabel": "My account",
+      "menuLabel": "Account & App",
       "title": "My account",
       "general": {
         "title": "Account name & profile image",
