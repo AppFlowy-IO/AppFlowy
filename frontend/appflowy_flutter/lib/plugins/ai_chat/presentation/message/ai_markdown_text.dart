@@ -101,7 +101,7 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
       styleCustomizer: styleCustomizer,
       // the editor is not editable in the chat
       editable: false,
-      alwaysDistributeSimpleTableColumnWidths: true,
+      alwaysDistributeSimpleTableColumnWidths: UniversalPlatform.isDesktop,
     );
     return IntrinsicHeight(
       child: AppFlowyEditor(
@@ -109,6 +109,7 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
         // the editor is not editable in the chat
         editable: false,
         disableKeyboardService: UniversalPlatform.isMobile,
+        disableSelectionService: UniversalPlatform.isMobile,
         editorStyle: editorStyle,
         editorScrollController: scrollController,
         blockComponentBuilders: blockBuilders,

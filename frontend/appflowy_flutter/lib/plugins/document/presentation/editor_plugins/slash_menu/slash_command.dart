@@ -1,8 +1,6 @@
-import 'dart:io';
-
+import 'package:appflowy/mobile/presentation/selection_menu/mobile_selection_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -50,6 +48,7 @@ CharacterShortcutEvent customAppFlowySlashCommand({
 }
 
 SelectionMenuService? _selectionMenuService;
+
 Future<bool> _showSlashMenu(
   EditorState editorState, {
   required SlashMenuItemsBuilder itemsBuilder,
@@ -59,10 +58,6 @@ Future<bool> _showSlashMenu(
   SelectionMenuStyle style = SelectionMenuStyle.light,
   required Set<String> supportSlashMenuNodeTypes,
 }) async {
-  if (UniversalPlatform.isMobile) {
-    return false;
-  }
-
   final selection = editorState.selection;
   if (selection == null) {
     return false;
@@ -99,25 +94,32 @@ Future<bool> _showSlashMenu(
 
   final context = editorState.getNodeAtPath(selection.start.path)?.context;
   if (context != null && context.mounted) {
-    _selectionMenuService = SelectionMenu(
-      context: context,
-      editorState: editorState,
-      selectionMenuItems: items,
-      deleteSlashByDefault: shouldInsertSlash,
-      deleteKeywordsByDefault: deleteKeywordsByDefault,
-      singleColumn: singleColumn,
-      style: style,
-    );
+    _selectionMenuService?.dismiss();
+    _selectionMenuService = UniversalPlatform.isMobile
+        ? MobileSelectionMenu(
+            context: context,
+            editorState: editorState,
+            selectionMenuItems: items,
+            deleteSlashByDefault: shouldInsertSlash,
+            deleteKeywordsByDefault: deleteKeywordsByDefault,
+            singleColumn: singleColumn,
+            style: style,
+            startOffset: editorState.selection?.start.offset ?? 0,
+          )
+        : SelectionMenu(
+            context: context,
+            editorState: editorState,
+            selectionMenuItems: items,
+            deleteSlashByDefault: shouldInsertSlash,
+            deleteKeywordsByDefault: deleteKeywordsByDefault,
+            singleColumn: singleColumn,
+            style: style,
+          );
 
     // disable the keyboard service
     editorState.service.keyboardService?.disable();
 
-    if (!kIsWeb && Platform.environment.containsKey('FLUTTER_TEST')) {
-      await _selectionMenuService?.show();
-    } else {
-      await _selectionMenuService?.show();
-    }
-
+    await _selectionMenuService?.show();
     // enable the keyboard service
     editorState.service.keyboardService?.enable();
   }

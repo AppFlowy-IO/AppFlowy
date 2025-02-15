@@ -75,7 +75,7 @@ class MobileDatabaseViewQuickActions extends StatelessWidget {
                     enableBackgroundColorSelection: false,
                     onSelectedEmoji: (r) {
                       ViewBackendService.updateViewIcon(
-                        viewId: view.id,
+                        view: view,
                         viewIcon: r.data,
                       );
                       Navigator.pop(context);

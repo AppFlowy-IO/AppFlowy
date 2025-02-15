@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
@@ -18,9 +18,15 @@ extension TableHeaderOperation on EditorState {
       'toggle enable header column: $enable in table ${tableNode.id}',
     );
 
+    final columnColors = tableNode.columnColors;
+
     final transaction = this.transaction;
     transaction.updateNode(tableNode, {
       SimpleTableBlockKeys.enableHeaderColumn: enable,
+      // remove the previous background color if the header column is enable again
+      if (enable)
+        SimpleTableBlockKeys.columnColors: columnColors
+          ..removeWhere((key, _) => key == '0'),
     });
     await apply(transaction);
   }
@@ -38,9 +44,15 @@ extension TableHeaderOperation on EditorState {
 
     Log.info('toggle enable header row: $enable in table ${tableNode.id}');
 
+    final rowColors = tableNode.rowColors;
+
     final transaction = this.transaction;
     transaction.updateNode(tableNode, {
       SimpleTableBlockKeys.enableHeaderRow: enable,
+      // remove the previous background color if the header row is enable again
+      if (enable)
+        SimpleTableBlockKeys.rowColors: rowColors
+          ..removeWhere((key, _) => key == '0'),
     });
     await apply(transaction);
   }

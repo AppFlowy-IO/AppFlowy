@@ -191,7 +191,7 @@ class SimpleTableContext {
 
 class SimpleTableConstants {
   /// Table
-  static const defaultColumnWidth = 120.0;
+  static const defaultColumnWidth = 160.0;
   static const minimumColumnWidth = 36.0;
 
   static const defaultRowHeight = 36.0;

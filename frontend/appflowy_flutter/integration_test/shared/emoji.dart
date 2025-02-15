@@ -1,19 +1,24 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_color_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_uploader.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flowy_infra_ui/style_widget/primary_rounded_button.dart';
 import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_emoji_mart/flutter_emoji_mart.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'base.dart';
+import 'common_operations.dart';
 
 extension EmojiTestExtension on WidgetTester {
   Future<void> tapEmoji(String emoji) async {
@@ -95,6 +100,39 @@ extension EmojiTestExtension on WidgetTester {
       ),
     );
     await pumpAndSettle(const Duration(seconds: 3));
+
+    /// confirm to upload
+    final confirmButton = find.descendant(
+      of: find.byType(IconUploader),
+      matching: find.byType(PrimaryRoundedButton),
+    );
+    await tapButton(confirmButton);
+  }
+
+  Future<void> pasteImageLinkAsIcon(String link) async {
+    final pickTab = find.byType(PickerTab);
+    expect(pickTab, findsOneWidget);
+    await pumpAndSettle();
+
+    /// switch to custom tab
+    final iconTab = find.descendant(
+      of: pickTab,
+      matching: find.text(PickerTabType.custom.tr),
+    );
+    expect(iconTab, findsOneWidget);
+    await tapButton(iconTab);
+
+    // mock the clipboard
+    await getIt<ClipboardService>()
+        .setData(ClipboardServiceData(plainText: link));
+
+    // paste the link
+    await simulateKeyEvent(
+      LogicalKeyboardKey.keyV,
+      isControlPressed: Platform.isLinux || Platform.isWindows,
+      isMetaPressed: Platform.isMacOS,
+    );
+    await pumpAndSettle(const Duration(seconds: 5));
 
     /// confirm to upload
     final confirmButton = find.descendant(

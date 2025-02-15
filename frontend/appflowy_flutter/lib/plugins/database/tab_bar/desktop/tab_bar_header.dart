@@ -263,7 +263,7 @@ class _TabBarItemButtonState extends State<TabBarItemButton> {
                       enableBackgroundColorSelection: false,
                       onSelectedEmoji: (r) {
                         ViewBackendService.updateViewIcon(
-                          viewId: widget.view.id,
+                          view: widget.view,
                           viewIcon: r.data,
                         );
                         if (!r.keepOpen) {

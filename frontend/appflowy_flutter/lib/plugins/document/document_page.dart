@@ -165,6 +165,7 @@ class _DocumentPageState extends State<DocumentPage>
             context: context,
             width: width,
             padding: EditorStyleCustomizer.documentPadding,
+            editorState: editorState,
           ),
           header: buildCoverAndIcon(context, state),
           initialSelection: initialSelection,
@@ -183,6 +184,7 @@ class _DocumentPageState extends State<DocumentPage>
             context: context,
             width: width,
             padding: EditorStyleCustomizer.documentPadding,
+            editorState: editorState,
           ),
           header: buildCoverAndIcon(context, state),
           initialSelection: initialSelection,
@@ -252,7 +254,7 @@ class _DocumentPageState extends State<DocumentPage>
       editorState: editorState,
       view: widget.view,
       onIconChanged: (icon) async => ViewBackendService.updateViewIcon(
-        viewId: widget.view.id,
+        view: widget.view,
         viewIcon: icon,
       ),
     );

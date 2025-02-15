@@ -10,7 +10,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:universal_platform/universal_platform.dart';
 
 import '../layout_define.dart';
 import 'ai_markdown_text.dart';
@@ -106,10 +105,7 @@ class ChatAIMessageWidget extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              IgnorePointer(
-                                ignoring: UniversalPlatform.isMobile,
-                                child: AIMarkdownText(markdown: state.text),
-                              ),
+                              AIMarkdownText(markdown: state.text),
                               if (state.sources.isNotEmpty)
                                 AIMessageMetadata(
                                   sources: state.sources,
