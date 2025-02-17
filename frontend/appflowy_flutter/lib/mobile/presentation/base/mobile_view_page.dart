@@ -293,6 +293,9 @@ class _MobileViewPageState extends State<MobileViewPage> {
           );
         }
 
+        final name =
+            widget.fixedTitle ?? view?.nameOrDefault ?? widget.title ?? '';
+
         return Opacity(
           opacity: value,
           child: Row(
@@ -305,7 +308,7 @@ class _MobileViewPageState extends State<MobileViewPage> {
                 const HSpace(4),
               ],
               FlowyText.medium(
-                widget.fixedTitle ?? view?.name ?? widget.title ?? '',
+                name,
                 fontSize: 15.0,
                 overflow: TextOverflow.ellipsis,
                 figmaLineHeight: 18.0,
