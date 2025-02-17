@@ -980,13 +980,13 @@
         "itemFour": "Gäste",
         "itemFive": "Speicher",
         "itemSix": "Zusammenarbeit in Echtzeit",
+        "itemSeven": "Mobile App",
         "itemFileUpload": "Datei-Uploads",
         "customNamespace": "Benutzerdefinierter Namensraum",
         "tooltipSix": "Lebenslang bedeutet, dass die Anzahl der Antworten nie zurückgesetzt wird",
         "intelligentSearch": "Intelligente Suche",
         "tooltipSeven": "Ermöglicht dir, einen Teil der URL für deinen Arbeitsbereich anzupassen",
         "customNamespaceTooltip": "Benutzerdefinierte veröffentlichte Seiten-URL",
-        "itemSeven": "Mobile App",
         "tooltipThree": "Gäste haben nur Leserechte für die speziell freigegebenen Inhalte",
         "tooltipFour": "Gäste werden als ein Sitzplatz abgerechnet",
         "itemEight": "AI-Antworten",
@@ -999,9 +999,9 @@
         "itemFour": "0",
         "itemFive": "5 GB",
         "itemSix": "10 Lebenszeiten",
+        "itemSeven": "ja",
         "itemFileUpload": "Bis zu 7 MB",
         "intelligentSearch": "Intelligente Suche",
-        "itemSeven": "ja",
         "itemEight": "1.000 lebenslang"
       },
       "proLabels": {
@@ -1011,9 +1011,9 @@
         "itemFour": "10 Gäste werden als ein Sitzplatz berechnet",
         "itemFive": "unbegrenzt",
         "itemSix": "ja",
+        "itemSeven": "ja",
         "itemFileUpload": "Unbegrenzt",
         "intelligentSearch": "Intelligente Suche",
-        "itemSeven": "ja",
         "itemEight": "10.000 monatlich"
       },
       "paymentSuccess": {

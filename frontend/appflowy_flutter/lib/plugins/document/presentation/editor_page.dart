@@ -14,6 +14,7 @@ import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
+import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/af_focus_manager.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -315,11 +316,15 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
     );
 
     final isViewDeleted = context.read<DocumentBloc>().state.isDeleted;
+    final isLocked =
+        context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
     final editor = Directionality(
       textDirection: textDirection,
       child: AppFlowyEditor(
         editorState: widget.editorState,
-        editable: !isViewDeleted,
+        editable: !isViewDeleted && !isLocked,
+        disableSelectionService: UniversalPlatform.isMobile && isLocked,
+        disableKeyboardService: UniversalPlatform.isMobile && isLocked,
         editorScrollController: editorScrollController,
         // setup the auto focus parameters
         autoFocus: widget.autoFocus ?? autoFocus,
@@ -345,6 +350,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
         contextMenuItems: customContextMenuItems,
         // customize the header and footer.
         header: widget.header,
+
         footer: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () async {

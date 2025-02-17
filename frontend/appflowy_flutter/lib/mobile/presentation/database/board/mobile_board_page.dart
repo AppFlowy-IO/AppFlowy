@@ -11,6 +11,7 @@ import 'package:appflowy/plugins/database/widgets/cell/card_cell_style_maps/mobi
 import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
+import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_board/appflowy_board.dart';
@@ -142,6 +143,8 @@ class _BoardContentState extends State<_BoardContent> {
         return state.maybeMap(
           orElse: () => const SizedBox.shrink(),
           ready: (state) {
+            final isLocked =
+                context.watch<ViewLockStatusBloc?>()?.state.isLocked ?? false;
             final showCreateGroupButton = context
                     .read<BoardBloc>()
                     .groupingFieldType
@@ -159,15 +162,20 @@ class _BoardContentState extends State<_BoardContent> {
                       padding: config.groupHeaderPadding,
                     )
                   : const HSpace(16),
-              trailing: showCreateGroupButton
+              trailing: showCreateGroupButton && !isLocked
                   ? const MobileBoardTrailing()
                   : const HSpace(16),
-              headerBuilder: (_, groupData) => BlocProvider<BoardBloc>.value(
-                value: context.read<BoardBloc>(),
-                child: GroupCardHeader(
-                  groupData: groupData,
-                ),
-              ),
+              headerBuilder: (_, groupData) {
+                final isLocked =
+                    context.read<ViewLockStatusBloc?>()?.state.isLocked ??
+                        false;
+                return IgnorePointer(
+                  ignoring: isLocked,
+                  child: GroupCardHeader(
+                    groupData: groupData,
+                  ),
+                );
+              },
               footerBuilder: _buildFooter,
               cardBuilder: (_, column, columnItem) => _buildCard(
                 context: context,
@@ -183,34 +191,39 @@ class _BoardContentState extends State<_BoardContent> {
   }
 
   Widget _buildFooter(BuildContext context, AppFlowyGroupData columnData) {
+    final isLocked =
+        context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
     final style = Theme.of(context);
 
     return SizedBox(
       height: 42,
       width: double.infinity,
-      child: TextButton.icon(
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.only(left: 8),
-          alignment: Alignment.centerLeft,
-        ),
-        icon: FlowySvg(
-          FlowySvgs.add_m,
-          color: style.colorScheme.onSurface,
-        ),
-        label: Text(
-          LocaleKeys.board_column_createNewCard.tr(),
-          style: style.textTheme.bodyMedium?.copyWith(
+      child: IgnorePointer(
+        ignoring: isLocked,
+        child: TextButton.icon(
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.only(left: 8),
+            alignment: Alignment.centerLeft,
+          ),
+          icon: FlowySvg(
+            FlowySvgs.add_m,
             color: style.colorScheme.onSurface,
           ),
-        ),
-        onPressed: () => context.read<BoardBloc>().add(
-              BoardEvent.createRow(
-                columnData.id,
-                OrderObjectPositionTypePB.End,
-                null,
-                null,
-              ),
+          label: Text(
+            LocaleKeys.board_column_createNewCard.tr(),
+            style: style.textTheme.bodyMedium?.copyWith(
+              color: style.colorScheme.onSurface,
             ),
+          ),
+          onPressed: () => context.read<BoardBloc>().add(
+                BoardEvent.createRow(
+                  columnData.id,
+                  OrderObjectPositionTypePB.End,
+                  null,
+                  null,
+                ),
+              ),
+        ),
       ),
     );
   }
@@ -230,6 +243,8 @@ class _BoardContentState extends State<_BoardContent> {
         CardCellBuilder(databaseController: boardBloc.databaseController);
 
     final groupItemId = groupItem.row.id + groupData.group.groupId;
+    final isLocked =
+        context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
 
     return Container(
       key: ValueKey(groupItemId),
@@ -237,31 +252,34 @@ class _BoardContentState extends State<_BoardContent> {
       decoration: _makeBoxDecoration(context),
       child: BlocProvider.value(
         value: boardBloc,
-        child: RowCard(
-          fieldController: boardBloc.fieldController,
-          rowMeta: rowMeta,
-          viewId: boardBloc.viewId,
-          rowCache: boardBloc.rowCache,
-          groupingFieldId: groupItem.fieldInfo.id,
-          isEditing: false,
-          cellBuilder: cellBuilder,
-          onTap: (context) {
-            context.push(
-              MobileRowDetailPage.routeName,
-              extra: {
-                MobileRowDetailPage.argRowId: rowMeta.id,
-                MobileRowDetailPage.argDatabaseController:
-                    context.read<BoardBloc>().databaseController,
-              },
-            );
-          },
-          onStartEditing: () {},
-          onEndEditing: () {},
-          styleConfiguration: RowCardStyleConfiguration(
-            cellStyleMap: mobileBoardCardCellStyleMap(context),
-            showAccessory: false,
+        child: IgnorePointer(
+          ignoring: isLocked,
+          child: RowCard(
+            fieldController: boardBloc.fieldController,
+            rowMeta: rowMeta,
+            viewId: boardBloc.viewId,
+            rowCache: boardBloc.rowCache,
+            groupingFieldId: groupItem.fieldInfo.id,
+            isEditing: false,
+            cellBuilder: cellBuilder,
+            onTap: (context) {
+              context.push(
+                MobileRowDetailPage.routeName,
+                extra: {
+                  MobileRowDetailPage.argRowId: rowMeta.id,
+                  MobileRowDetailPage.argDatabaseController:
+                      context.read<BoardBloc>().databaseController,
+                },
+              );
+            },
+            onStartEditing: () {},
+            onEndEditing: () {},
+            styleConfiguration: RowCardStyleConfiguration(
+              cellStyleMap: mobileBoardCardCellStyleMap(context),
+              showAccessory: false,
+            ),
+            userProfile: boardBloc.userProfile,
           ),
-          userProfile: boardBloc.userProfile,
         ),
       ),
     );

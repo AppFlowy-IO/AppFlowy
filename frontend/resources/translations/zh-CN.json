@@ -72,13 +72,14 @@
     "LogInWithGoogle": "使用 Google 登录",
     "LogInWithGithub": "使用 Github 登录",
     "LogInWithDiscord": "使用 Discord 登录",
-    "logInWithMagicLink": "使用魔法链接登录",
-    "loginAsGuestButtonText": "开始使用"
+    "loginAsGuestButtonText": "开始使用",
+    "logInWithMagicLink": "使用魔法链接登录"
   },
   "workspace": {
     "chooseWorkspace": "选择您的工作区",
     "defaultName": "我的工作区",
     "create": "新建工作区",
+    "new": "新的工作空间",
     "importFromNotion": "从 Notion 导入",
     "learnMore": "了解更多",
     "reset": "重置工作区",
@@ -136,7 +137,8 @@
     "copyLinkFailed": "无法将链接复制到剪贴板",
     "copyLinkToBlockSuccess": "区块链接已复制到剪贴板",
     "copyLinkToBlockFailed": "无法将区块链接复制到剪贴板",
-    "manageAllSites": "管理所有站点"
+    "manageAllSites": "管理所有站点",
+    "updatePathName": "更新路径名称"
   },
   "moreAction": {
     "small": "小",
@@ -149,7 +151,12 @@
     "charCount": "字符数:{}",
     "createdAt": "创建于 :{}",
     "deleteView": "删除",
-    "duplicateView": "复制"
+    "duplicateView": "复制",
+    "wordCountLabel": "词总数:",
+    "charCountLabel": "字符总数:",
+    "createdAtLabel": "已创建的:",
+    "syncedAtLabel": "已同步的:",
+    "saveAsNewPage": "在页面中添加消息"
   },
   "importPanel": {
     "textAndMarkdown": "文本 和 Markdown",
@@ -170,7 +177,10 @@
     "addToFavorites": "添加到收藏夹",
     "copyLink": "复制链接",
     "changeIcon": "更改图标",
-    "collapseAllPages": "收起全部子页面"
+    "collapseAllPages": "收起全部子页面",
+    "movePageTo": "将页面移动至",
+    "move": "移动",
+    "lockPage": "锁定页面"
   },
   "blankPageTitle": "空白页",
   "newPageText": "新页面",
@@ -186,6 +196,7 @@
     "relatedQuestion": "相关问题",
     "serverUnavailable": "服务暂时不可用，请稍后再试",
     "aiServerUnavailable": "🌈 不妙！🌈 一只独角兽吃掉了我们的回复。请重试！",
+    "retry": "重试",
     "clickToRetry": "点击重试",
     "regenerateAnswer": "重新生成",
     "question1": "如何使用 Kanban 来管理任务",
@@ -200,6 +211,20 @@
     "uploadFile": "上传聊天使用的 PDF、md 或 txt 文件",
     "questionDetail": "{} 你好！我能怎么帮到你？",
     "indexingFile": "正在索引 {}",
+    "generatingResponse": "正在生成相应",
+    "sourceUnsupported": "我们当前不支持基于数据库的交流",
+    "regenerate": "请重试",
+    "addToPageTitle": "添加消息至......",
+    "addToNewPage": "创建新的页面",
+    "openPagePreviewFailedToast": "打开页面失败",
+    "changeFormat": {
+      "actionButton": "变更样式",
+      "confirmButton": "基于该样式重新生成",
+      "imageOnly": "仅图片",
+      "textAndImage": "文本与图片",
+      "text": "段落",
+      "table": "表格"
+    },
     "referenceSource": "找到 {} 个来源",
     "referenceSources": "找到 {} 个来源",
     "questionTitle": "想法"
@@ -258,7 +283,8 @@
     "moreButtonToolTip": "删除、重命名等等...",
     "addPageTooltip": "在其中快速添加页面",
     "defaultNewPageName": "未命名页面",
-    "renameDialog": "重命名"
+    "renameDialog": "重命名",
+    "pageNameSuffix": "复制"
   },
   "noPagesInside": "里面没有页面",
   "toolbar": {
@@ -337,6 +363,7 @@
     "askOwnerToUpgradeToProIOS": "你的工作区即将用尽免费存储。",
     "askOwnerToUpgradeToAIMax": "你的工作区即将用尽免费 AI 回应。请联系工作区所有者升级计划或购买 AI 插件",
     "askOwnerToUpgradeToAIMaxIOS": "你的工作区即将用尽免费 AI 回应限额。",
+    "aiImageResponseLimit": "你已消耗完你的 AI 图像响应额度。\n转到 设置 -> 方案 -> 点击 AI Max 去获得更多的图像响应额度",
     "purchaseStorageSpace": "购买存储空间",
     "purchaseAIResponse": "购买",
     "askOwnerToUpgradeToLocalAI": "联系工作区所有者启用设备上 AI",
@@ -375,6 +402,7 @@
     "upload": "上传",
     "edit": "编辑",
     "delete": "删除",
+    "copy": "复制",
     "duplicate": "复制",
     "putback": "放回去",
     "update": "更新",
@@ -413,6 +441,8 @@
     "viewing": "查看",
     "editing": "编辑",
     "gotIt": "我知道了",
+    "retry": "重试",
+    "uploadFailed": "上传失败",
     "Done": "完成",
     "Cancel": "取消",
     "OK": "确认"
@@ -453,7 +483,53 @@
       "homepageHeader": "主页",
       "updateNamespace": "更新名字空间",
       "removeHomepage": "移除主页",
-      "selectHomePage": "选择一个页面"
+      "selectHomePage": "选择一个页面",
+      "customUrl": "自定义 URL",
+      "namespace": {
+        "updateExistingNamespace": "更新现有的名称空间",
+        "upgradeToPro": "请升级至 Pro 订阅计划以设置主页",
+        "redirectToPayment": "正在重定向至付款页面......",
+        "onlyWorkspaceOwnerCanSetHomePage": "仅工作空间的所有者能为其设置主页",
+        "pleaseAskOwnerToSetHomePage": "请联系工作空间所有者更新至 Pro 订阅计划"
+      },
+      "publishedPage": {
+        "title": "所有已发布页面",
+        "description": "管理您已发布的页面",
+        "date": "已发布的数据",
+        "emptyHinText": "在当前工作空间没有已发布的页面",
+        "noPublishedPages": "没有已发布的页面",
+        "settings": "发布设置",
+        "clickToOpenPageInApp": "在 App 中打开页面",
+        "clickToOpenPageInBrowser": "在浏览器中打开页面"
+      },
+      "error": {
+        "failedToUpdateNamespace": "更新名称空间失败",
+        "proPlanLimitation": "您需要升级至 Pro 方案以更新名称空间",
+        "namespaceAlreadyInUse": "该名称空间已被占用你，请尝试其他名称空间",
+        "invalidNamespace": "无效的名称空间，请尝试其他的名称空间",
+        "namespaceLengthAtLeast2Characters": "名称空间应不少于 2 个字符长度",
+        "onlyWorkspaceOwnerCanUpdateNamespace": "仅工作空间所有者可更新名称空间",
+        "onlyWorkspaceOwnerCanRemoveHomepage": "仅工作空间所有者可移除主页",
+        "setHomepageFailed": "设置主页失败",
+        "namespaceTooLong": "该名称空间过长，请尝试其他名称空间",
+        "namespaceTooShort": "该名称空间过短，请尝试其他名称空间",
+        "namespaceIsReserved": "该名称空间已被占用，请尝试其他名称空间",
+        "updatePathNameFailed": "更新路径名称失败",
+        "removeHomePageFailed": "移除主页失败",
+        "publishNameContainsInvalidCharacters": "该路径名称包含无效的字符，请尝试其他的路径名称",
+        "publishNameTooShort": "路径名称过短，请尝试其他路径名称",
+        "publishNameTooLong": "路径名称过长，请尝试其他路径名称",
+        "publishNameAlreadyInUse": "该路径名称已被使用，请尝试其他路径名称",
+        "namespaceContainsInvalidCharacters": "该名称空间包含无效的字符，请尝试其他名称空间",
+        "publishPermissionDenied": "仅工作空间所有者或页面发布者可管理发布设置",
+        "publishNameCannotBeEmpty": "该路径名称不能为空，请尝试其他路径名称"
+      },
+      "success": {
+        "namespaceUpdated": "更新名称空间成功",
+        "setHomepageSuccess": "成功设置主页",
+        "updatePathNameSuccess": "更新路径名称成功",
+        "removeHomePageSuccess": "成功删除主页"
+      }
     },
     "accountPage": {
       "menuLabel": "我的账户",
@@ -594,6 +670,7 @@
         "descriptionEncrypted": "你的数据已加密。",
         "action": "加密数据",
         "dialog": {
+          "title": "加密您的所有数据？",
           "description": "加密所有数据将保证数据安全。此操作无法撤消。您确定要继续吗？"
         }
       },
@@ -612,14 +689,46 @@
       }
     },
     "shortcutsPage": {
+      "menuLabel": "快捷键",
+      "title": "快捷键",
       "actions": {
         "resetDefault": "重置为默认"
       },
+      "errorPage": {
+        "howToFix": "请再次尝试，如果该问题依然存在，请在 Github 上联系我们"
+      },
       "resetDialog": {
+        "title": "重置快捷键",
         "description": "这将会将所有按键绑定重置为默认，之后无法撤销。你确定要继续吗？"
       },
+      "conflictDialog": {
+        "confirmLabel": "继续"
+      },
       "keybindings": {
-        "selectAllCodeblock": "全选"
+        "insertNewParagraphInCodeblock": "插入新的段落",
+        "pasteInCodeblock": "粘贴为代码块",
+        "selectAllCodeblock": "全选",
+        "copy": "复制选中的内容",
+        "alignLeft": "文本居左对齐",
+        "alignCenter": "文本居中对齐",
+        "alignRight": "文本居右对齐",
+        "undo": "撤销",
+        "redo": "重做",
+        "convertToParagraph": "将块转换为段落",
+        "backspace": "删除",
+        "deleteLeftWord": "删除左侧文字",
+        "deleteLeftSentence": "删除左侧句子",
+        "delete": "删除右侧字符",
+        "deleteMacOS": "删除左侧字符",
+        "deleteRightWord": "删除右侧文字",
+        "moveCursorLeft": "将光标移至左侧",
+        "moveCursorBeginning": "将光标移至开头",
+        "moveCursorLeftWord": "将光标移至文字左侧",
+        "moveCursorRight": "将光标移至右侧",
+        "moveCursorEnd": "将光标移至末尾",
+        "moveCursorRightWord": "将光标移至文字右侧",
+        "home": "滚动至顶部",
+        "end": "滚动至底部"
       }
     },
     "aiPage": {

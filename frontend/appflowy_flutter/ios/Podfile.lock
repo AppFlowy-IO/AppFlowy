@@ -1,5 +1,5 @@
 PODS:
-  - app_links (0.0.1):
+  - app_links (0.0.2):
     - Flutter
   - appflowy_backend (0.0.1):
     - Flutter
@@ -66,6 +66,8 @@ PODS:
   - permission_handler_apple (9.3.0):
     - Flutter
   - ReachabilitySwift (5.0.0)
+  - saver_gallery (0.0.1):
+    - Flutter
   - SDWebImage (5.14.2):
     - SDWebImage/Core (= 5.14.2)
   - SDWebImage/Core (5.14.2)
@@ -79,7 +81,7 @@ PODS:
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - sqflite (0.0.3):
+  - sqflite_darwin (0.0.4):
     - Flutter
     - FlutterMacOS
   - super_native_extensions (0.0.1):
@@ -90,6 +92,7 @@ PODS:
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
+    - FlutterMacOS
 
 DEPENDENCIES:
   - app_links (from `.symlinks/plugins/app_links/ios`)
@@ -108,13 +111,14 @@ DEPENDENCIES:
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - saver_gallery (from `.symlinks/plugins/saver_gallery/ios`)
   - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
-  - sqflite (from `.symlinks/plugins/sqflite/darwin`)
+  - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
   - super_native_extensions (from `.symlinks/plugins/super_native_extensions/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
-  - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/ios`)
+  - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
 
 SPEC REPOS:
   trunk:
@@ -159,23 +163,25 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
+  saver_gallery:
+    :path: ".symlinks/plugins/saver_gallery/ios"
   sentry_flutter:
     :path: ".symlinks/plugins/sentry_flutter/ios"
   share_plus:
     :path: ".symlinks/plugins/share_plus/ios"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
-  sqflite:
-    :path: ".symlinks/plugins/sqflite/darwin"
+  sqflite_darwin:
+    :path: ".symlinks/plugins/sqflite_darwin/darwin"
   super_native_extensions:
     :path: ".symlinks/plugins/super_native_extensions/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   webview_flutter_wkwebview:
-    :path: ".symlinks/plugins/webview_flutter_wkwebview/ios"
+    :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
-  app_links: c5161ac5ab5383ad046884568b4b91cb52df5d91
+  app_links: 3da4c36b46cac3bf24eb897f1a6ce80bda109874
   appflowy_backend: 78f6a053f756e6bc29bcc5a2106cbe77b756e97a
   connectivity_plus: 481668c94744c30c53b8895afb39159d1e619bdf
   device_info_plus: 71ffc6ab7634ade6267c7a93088ed7e4f74e5896
@@ -186,7 +192,7 @@ SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   fluttertoast: 76fea30fcf04176325f6864c87306927bd7d2038
   image_picker_ios: 7fe1ff8e34c1790d6fff70a32484959f563a928a
-  integration_test: d5929033778cc4991a187e4e1a85396fa4f59b3a
+  integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   irondash_engine_context: 8e58ca8e0212ee9d1c7dc6a42121849986c88486
   keyboard_height_plugin: ef70a8181b29f27670e9e2450814ca6b6dc05b05
   open_filex: 432f3cd11432da3e39f47fcc0df2b1603854eff1
@@ -194,17 +200,18 @@ SPEC CHECKSUMS:
   path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
   permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
+  saver_gallery: af2d0c762dafda254e0ad025ef0dabd6506cd490
   SDWebImage: b9a731e1d6307f44ca703b3976d18c24ca561e84
   Sentry: 1fe34e9c2cbba1e347623610d26db121dcb569f1
   sentry_flutter: e24b397f9a61fa5bbefd8279c3b2242ca86faa90
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
-  sqflite: c35dad70033b8862124f8337cc994a809fcd9fa3
+  sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
   super_native_extensions: b763c02dc3a8fd078389f410bf15149179020cb4
   SwiftyGif: 6c3eafd0ce693cad58bb63d2b2fb9bacb8552780
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
-  webview_flutter_wkwebview: 45a041c7831641076618876de3ba75c712860c6b
+  webview_flutter_wkwebview: 44d4dee7d7056d5ad185d25b38404436d56c547c
 
 PODFILE CHECKSUM: d0d9b4ff572d8695c38eb3f9b490f55cdfc57eca
 

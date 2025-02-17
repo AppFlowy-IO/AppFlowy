@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/mobile/presentation/inline_actions/mobile_inline_actions_menu.dart';
+import 'package:appflowy/mobile/presentation/inline_actions/mobile_inline_actions_menu_group.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -84,6 +87,33 @@ void main() {
         editorState.selection,
         equals(Selection.collapsed(Position(path: [2]))),
       );
+    });
+
+    const title = 'Test Plus Menu';
+    testWidgets('show plus menu', (tester) async {
+      await tester.launchInAnonymousMode();
+      await tester.createPageAndShowPlusMenu(title);
+      final menuWidget = find.byType(MobileInlineActionsMenu);
+      expect(menuWidget, findsOneWidget);
+    });
+
+    testWidgets('search by plus menu', (tester) async {
+      await tester.launchInAnonymousMode();
+      await tester.createPageAndShowPlusMenu(title);
+      const searchText = gettingStarted;
+      await tester.ime.insertText(searchText);
+      final actionWidgets = find.byType(MobileInlineActionsWidget);
+      expect(actionWidgets, findsNWidgets(2));
+    });
+
+    testWidgets('tap plus menu', (tester) async {
+      await tester.launchInAnonymousMode();
+      await tester.createPageAndShowPlusMenu(title);
+      const searchText = gettingStarted;
+      await tester.ime.insertText(searchText);
+      final actionWidgets = find.byType(MobileInlineActionsWidget);
+      await tester.tap(actionWidgets.last);
+      expect(find.byType(MentionPageBlock), findsOneWidget);
     });
   });
 }
