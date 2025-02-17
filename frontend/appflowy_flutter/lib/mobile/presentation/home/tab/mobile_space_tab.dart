@@ -11,7 +11,6 @@ import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -193,7 +192,7 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
     if (context.read<SpaceBloc>().state.spaces.isNotEmpty) {
       context.read<SpaceBloc>().add(
             SpaceEvent.createPage(
-              name: layout.defaultName,
+              name: '',
               layout: layout,
               openAfterCreate: true,
             ),
@@ -202,7 +201,7 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
       // only support create document in section
       context.read<SidebarSectionsBloc>().add(
             SidebarSectionsEvent.createRootViewInSection(
-              name: layout.defaultName,
+              name: '',
               index: 0,
               viewSection: FolderSpaceType.public.toViewSectionPB,
             ),
