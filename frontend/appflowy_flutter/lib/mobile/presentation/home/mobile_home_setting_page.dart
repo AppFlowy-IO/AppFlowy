@@ -3,16 +3,19 @@ import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
 import 'package:appflowy/mobile/presentation/presentation.dart';
+import 'package:appflowy/mobile/presentation/setting/ai/ai_settings_group.dart';
 import 'package:appflowy/mobile/presentation/setting/cloud/cloud_setting_group.dart';
 import 'package:appflowy/mobile/presentation/setting/user_session_setting_group.dart';
 import 'package:appflowy/mobile/presentation/setting/workspace/workspace_setting_group.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/auth/auth_service.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MobileHomeSettingPage extends StatefulWidget {
   const MobileHomeSettingPage({
@@ -70,29 +73,47 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
   Widget _buildSettingsWidget(UserProfilePB userProfile) {
     // show the third-party sign in buttons if user logged in with local session and auth is enabled.
 
-    final showThirdPartyLogin =
+    final isLocalAuthEnabled =
         userProfile.authenticator == AuthenticatorPB.Local && isAuthEnabled;
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            PersonalInfoSettingGroup(
-              userProfile: userProfile,
+    '';
+
+    return BlocProvider(
+      create: (context) => UserWorkspaceBloc(userProfile: userProfile)
+        ..add(const UserWorkspaceEvent.initial()),
+      child: BlocBuilder<UserWorkspaceBloc, UserWorkspaceState>(
+        builder: (context, state) {
+          final currentWorkspaceId = state.currentWorkspace?.workspaceId ?? '';
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  PersonalInfoSettingGroup(
+                    userProfile: userProfile,
+                  ),
+                  const WorkspaceSettingGroup(),
+                  const AppearanceSettingGroup(),
+                  const LanguageSettingGroup(),
+                  if (Env.enableCustomCloud) const CloudSettingGroup(),
+                  if (isAuthEnabled)
+                    AiSettingsGroup(
+                      key: ValueKey(currentWorkspaceId),
+                      userProfile: userProfile,
+                      workspaceId: currentWorkspaceId,
+                      currentWorkspaceMemberRole: state.currentWorkspace?.role,
+                    ),
+                  const SupportSettingGroup(),
+                  const AboutSettingGroup(),
+                  UserSessionSettingGroup(
+                    userProfile: userProfile,
+                    showThirdPartyLogin: isLocalAuthEnabled,
+                  ),
+                  const VSpace(20),
+                ],
+              ),
             ),
-            const WorkspaceSettingGroup(),
-            const AppearanceSettingGroup(),
-            const LanguageSettingGroup(),
-            if (Env.enableCustomCloud) const CloudSettingGroup(),
-            const SupportSettingGroup(),
-            const AboutSettingGroup(),
-            UserSessionSettingGroup(
-              userProfile: userProfile,
-              showThirdPartyLogin: showThirdPartyLogin,
-            ),
-            const VSpace(20),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
