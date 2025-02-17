@@ -57,8 +57,8 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
   }
 
   void _dispatch() {
-    on<SettingsAIEvent>((event, emit) {
-      event.when(
+    on<SettingsAIEvent>((event, emit) async {
+      await event.when(
         started: () {
           _userListener.start(
             onProfileUpdated: _onProfileUpdated,
@@ -83,13 +83,14 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
                 !(state.aiSettings?.disableSearchIndexing ?? false),
           );
         },
-        selectModel: (String model) {
-          _updateUserWorkspaceSetting(model: model);
+        selectModel: (String model) async {
+          await _updateUserWorkspaceSetting(model: model);
         },
         didLoadAISetting: (UseAISettingPB settings) {
           emit(
             state.copyWith(
               aiSettings: settings,
+              selectedAIModel: settings.aiModel,
               enableSearchIndexing: !settings.disableSearchIndexing,
             ),
           );
@@ -129,10 +130,10 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
     });
   }
 
-  void _updateUserWorkspaceSetting({
+  Future<FlowyResult<void, FlowyError>> _updateUserWorkspaceSetting({
     bool? disableSearchIndexing,
     String? model,
-  }) {
+  }) async {
     final payload = UpdateUserWorkspaceSettingPB(
       workspaceId: workspaceId,
     );
@@ -142,7 +143,12 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
     if (model != null) {
       payload.aiModel = model;
     }
-    UserEventUpdateWorkspaceSetting(payload).send();
+    final result = await UserEventUpdateWorkspaceSetting(payload).send();
+    result.fold(
+      (ok) => Log.info('Update workspace setting success'),
+      (err) => Log.error('Update workspace setting failed: $err'),
+    );
+    return result;
   }
 
   void _onProfileUpdated(

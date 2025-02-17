@@ -91,7 +91,9 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
               await _service.toggleFavorite(view.item.id);
               await _service.toggleFavorite(view.item.id);
             }
-            add(const FavoriteEvent.fetchFavorites());
+            if (!isClosed) {
+              add(const FavoriteEvent.fetchFavorites());
+            }
             isReordering = false;
           },
         );
