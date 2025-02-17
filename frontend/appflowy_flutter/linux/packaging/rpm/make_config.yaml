@@ -29,6 +29,6 @@ priority: optional
 
 supportedMimeType: x-scheme-handler/appflowy-flutter
 
-requires:
-  - libnotify-bin
-  - libkeybinder
+dependencies:
+  - libnotify
+  - keybinder
