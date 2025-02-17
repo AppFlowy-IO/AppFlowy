@@ -1,0 +1,34 @@
+icon: assets/logo.png
+group: Application/Office
+vendor: AppFlowy
+packager: AppFlowy
+packagerEmail: support@appflowy.io
+url: https://appflowy.io
+
+display_name: AppFlowy
+
+keywords:
+  - AppFlowy
+  - Office
+  - Document
+  - Database
+  - Note
+  - Kanban
+  - Note
+
+generic_name: AppFlowy
+
+categories:
+  - Office
+  - Productivity
+
+startup_notify: true
+
+section: x11
+priority: optional
+
+supportedMimeType: x-scheme-handler/appflowy-flutter
+
+requires:
+  - libnotify-bin
+  - libkeybinder
