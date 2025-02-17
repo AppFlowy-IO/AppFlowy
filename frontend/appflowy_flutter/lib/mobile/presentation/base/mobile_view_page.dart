@@ -307,11 +307,13 @@ class _MobileViewPageState extends State<MobileViewPage> {
                 ),
                 const HSpace(4),
               ],
-              FlowyText.medium(
-                name,
-                fontSize: 15.0,
-                overflow: TextOverflow.ellipsis,
-                figmaLineHeight: 18.0,
+              Flexible(
+                child: FlowyText.medium(
+                  name,
+                  fontSize: 15.0,
+                  overflow: TextOverflow.ellipsis,
+                  figmaLineHeight: 18.0,
+                ),
               ),
               const HSpace(4.0),
               _buildLockStatusIcon(context, view),
