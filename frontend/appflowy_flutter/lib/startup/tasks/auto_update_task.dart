@@ -16,7 +16,7 @@ class AutoUpdateTask extends LaunchTask {
   AutoUpdateTask();
 
   static const _feedUrl =
-      'https://github.com/LucasXu0/AppFlowy/releases/latest/download/appcast-{os}-{arch}.xml';
+      'https://github.com/AppFlowy-IO/AppFlowy/releases/latest/download/appcast-{os}-{arch}.xml';
   final _listener = _AppFlowyAutoUpdaterListener();
 
   @override
