@@ -384,6 +384,7 @@ jobs:
         working-directory: frontend
         run: |
           flutter config --enable-linux-desktop
+          dart pub global activate flutter_distributor
           dart ./scripts/flutter_release_build/build_flowy.dart run . ${{ github.ref_name }}
 
       - name: Archive Asset
@@ -391,15 +392,18 @@ jobs:
         run: tar -czf ${{ env.LINUX_ZIP_NAME }} *
 
       - name: Build Linux package (.deb)
-        working-directory: frontend
+        working-directory: frontend/appflowy_flutter
         run: |
-          sh scripts/linux_distribution/deb/build_deb.sh appflowy_flutter/product/${{ github.ref_name }}/linux/Release ${{ github.ref_name }} ${{ env.LINUX_PACKAGE_DEB_NAME }}
+          flutter_distributor release --name=dev --jobs=release-dev-linux-deb --skip-clean
+          cd dist/${{ github.ref_name }}
+          cp appflowy-${{ github.ref_name }}+${{ github.ref_name }}-linux.deb ${{ env.LINUX_PACKAGE_DEB_NAME }}
 
       - name: Build Linux package (.rpm)
-        working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
+        working-directory: frontend/appflowy_flutter
         run: |
-          sudo alien -r ${{ env.LINUX_PACKAGE_DEB_NAME }}
-          cp -r ${{ env.LINUX_PACKAGE_TMP_RPM_NAME }} ${{ env.LINUX_PACKAGE_RPM_NAME }}
+          flutter_distributor release --name=dev --jobs=release-dev-linux-rpm --skip-clean
+          cd dist/${{ github.ref_name }}
+          cp appflowy-${{ github.ref_name }}+${{ github.ref_name }}-linux.rpm ${{ env.LINUX_PACKAGE_RPM_NAME }}
 
       - name: Build Linux package (.AppImage)
         working-directory: frontend
