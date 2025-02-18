@@ -165,6 +165,15 @@
     "csv": "CSV",
     "database": "قاعدة البيانات"
   },
+  "emojiIconPicker": {
+    "iconUploader": {
+      "placeholderLeft": "اسحب وأفلِت ملفًا، وانقر فوقه ",
+      "placeholderUpload": "رفع",
+      "placeholderRight": "أو قم بلصق رابط الصورة.",
+      "dropToUpload": "إفلات ملف لتحميله",
+      "change": "تغير"
+    }
+  },
   "disclosureAction": {
     "rename": "إعادة تسمية",
     "delete": "يمسح",
@@ -178,7 +187,8 @@
     "changeIcon": "تغيير الأيقونة",
     "collapseAllPages": "طي جميع الصفحات الفرعية",
     "movePageTo": "تحريك الصفحة إلى",
-    "move": "تحريك"
+    "move": "تحريك",
+    "lockPage": "إلغاء تأمين الصفحة"
   },
   "blankPageTitle": "صفحة فارغة",
   "newPageText": "صفحة جديدة",
@@ -576,7 +586,9 @@
         "title": "تسجيل الدخول إلى الحساب",
         "loginLabel": "تسجيل الدخول",
         "logoutLabel": "تسجيل الخروج"
-      }
+      },
+      "isUpToDate": "تم تحديث @:appName !",
+      "officialVersion": "الإصدار {version} (الإصدار الرسمي)"
     },
     "workspacePage": {
       "menuLabel": "مساحة العمل",
@@ -997,6 +1009,7 @@
         "itemFour": "التعاون في الزمن الحقيقي",
         "itemFive": "تطبيق الجوال",
         "itemSix": "استجابات الذكاء الاصطناعي",
+        "itemSeven": "صور الذكاء الاصطناعي",
         "itemFileUpload": "رفع الملفات",
         "customNamespace": "مساحة اسم مخصصة",
         "tooltipSix": "تعني مدة الحياة أن عدد الاستجابات لا يتم إعادة ضبطه أبدًا",
@@ -1011,6 +1024,7 @@
         "itemFour": "نعم",
         "itemFive": "نعم",
         "itemSix": "10 مدى الحياة",
+        "itemSeven": "2 مدى الحياة",
         "itemFileUpload": "حتى 7 ميجا بايت",
         "intelligentSearch": "البحث الذكي"
       },
@@ -1021,6 +1035,7 @@
         "itemFour": "نعم",
         "itemFive": "نعم",
         "itemSix": "غير محدود",
+        "itemSeven": "10 صور شهريا",
         "itemFileUpload": "غير محدود",
         "intelligentSearch": "البحث الذكي"
       },
@@ -1705,6 +1720,14 @@
         "selectADocumentToLinkTo": "حدد مستندًا للارتباط به"
       },
       "name": {
+        "textStyle": "نمط النص",
+        "list": "قائمة",
+        "toggle": "تبديل",
+        "fileAndMedia": "الملفات والوسائط",
+        "simpleTable": "جدول بسيط",
+        "visuals": "المرئيات",
+        "document": "وثيقة",
+        "advanced": "متقدم",
         "text": "نص",
         "heading1": "العنوان 1",
         "heading2": "العنوان 2",
@@ -2193,11 +2216,11 @@
       "layoutDateField": "تقويم التخطيط بواسطة",
       "changeLayoutDateField": "تغيير حقل التخطيط",
       "noDateTitle": "بدون تاريخ",
+      "noDateHint": "ستظهر الأحداث غير المجدولة هنا",
       "unscheduledEventsTitle": "الأحداث غير المجدولة",
       "clickToAdd": "انقر للإضافة إلى التقويم",
       "name": "تخطيط التقويم",
-      "clickToOpen": "انقر لفتح السجل",
-      "noDateHint": "ستظهر الأحداث غير المجدولة هنا"
+      "clickToOpen": "انقر لفتح السجل"
     },
     "referencedCalendarPrefix": "نظرا ل",
     "quickJumpYear": "انتقل إلى",
