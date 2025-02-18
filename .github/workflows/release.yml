@@ -396,13 +396,19 @@ jobs:
         working-directory: frontend/appflowy_flutter
         run: |
           flutter_distributor release --name=dev --jobs=release-dev-linux-deb --skip-clean
-          cp -r dist/${{ github.ref_name }}/appflowy-${{ github.ref_name }}+${{ github.ref_name }}-linux.deb ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_DEB_NAME }}
+          mkdir -p ${{ env.LINUX_APP_RELEASE_PATH }}
+          cp dist/${{ github.ref_name }}/appflowy-${{ github.ref_name }}+${{ github.ref_name }}-linux.deb ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_DEB_NAME }}
+          cd ${{ env.LINUX_APP_RELEASE_PATH }}
+          ls -a
 
       - name: Build Linux package (.rpm)
         working-directory: frontend/appflowy_flutter
         run: |
           flutter_distributor release --name=dev --jobs=release-dev-linux-rpm --skip-clean
-          cp -r dist/${{ github.ref_name }}/appflowy-${{ github.ref_name }}+${{ github.ref_name }}-linux.rpm ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_RPM_NAME }}
+          mkdir -p ${{ env.LINUX_APP_RELEASE_PATH }}
+          cp dist/${{ github.ref_name }}/appflowy-${{ github.ref_name }}+${{ github.ref_name }}-linux.rpm ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_RPM_NAME }}
+          cd ${{ env.LINUX_APP_RELEASE_PATH }}
+          ls -a
 
       - name: Build Linux package (.AppImage)
         working-directory: frontend
