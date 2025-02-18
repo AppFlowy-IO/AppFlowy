@@ -1,4 +1,15 @@
 # Release Notes
+## Version 0.8.4 - 18/02/2025
+### New Features
+- Switch AI mode on mobile
+- Support locking page
+- Support uploading svg file as icon
+- Support the slash, at, and plus menus on mobile
+### Bug Fixes
+- Gallery not rendering in row page
+- Save image should not copy the image (mobile)
+- Support exporting more content to markdown
+
 ## Version 0.8.2 - 23/01/2025
 ### New Features
 - Customized database view icons
