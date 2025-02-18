@@ -1,11 +1,13 @@
-icon: assets/logo.png
-group: Application/Office
+display_name: AppFlowy
+icon: linux/packaging/assets/logo.png
+group: Applications/Office
 vendor: AppFlowy
 packager: AppFlowy
 packagerEmail: support@appflowy.io
-url: https://appflowy.io
+license: APGL-3.0
+url: https://github.com/AppFlowy-IO/appflowy
 
-display_name: AppFlowy
+build_arch: x86_64
 
 keywords:
   - AppFlowy
@@ -16,7 +18,7 @@ keywords:
   - Kanban
   - Note
 
-generic_name: AppFlowy
+generic_name: appflowy
 
 categories:
   - Office
@@ -24,11 +26,8 @@ categories:
 
 startup_notify: true
 
-section: x11
-priority: optional
-
 supportedMimeType: x-scheme-handler/appflowy-flutter
 
-dependencies:
+requires:
   - libnotify
   - keybinder
