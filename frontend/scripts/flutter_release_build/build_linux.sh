@@ -27,8 +27,12 @@ show_help() {
     echo "                - all: Build all package types"
     echo "                - zip: Build only zip package"
     echo "                - deb: Build only deb package"
-    echo "                - rpm: Build only rpm package"
-    echo "                - appimage: Build only AppImage package"
+    echo "                - rpm: Build only rpm package."
+    echo "                  Please install the \033[33mrpm\033[0m and \033[33mpatchelf\033[0m before building the rpm package."
+    echo "                  For more information, please refer to the https://distributor.leanflutter.dev/makers/rpm/."
+    echo "                - appimage: Build only AppImage package."
+    echo "                  Please install the \033[33mlocate\033[0m and \033[33mappimagetool\033[0m before building the AppImage package."
+    echo "                  For more information, please refer to the https://distributor.leanflutter.dev/makers/appimage/."
     echo "  version       The version number (e.g. 0.8.2)"
     exit 0
 }

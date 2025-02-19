@@ -18,3 +18,18 @@ releases:
         package:
           platform: linux
           target: zip
+
+      # Because the flutter_distribute plugin does not support the deep code-signing for macos, we need to manually sign the app.
+      # So we don't use the flutter_distribute plugin to distribute the macos app.
+      # - name: release-prod-macos-dmg
+      #   package:
+      #     platform: macos
+      #     target: dmg
+      # - name: release-prod-macos-pkg
+      #   package:
+      #     platform: macos
+      #     target: pkg
+      - name: release-prod-macos-zip
+        package:
+          platform: macos
+          target: zip

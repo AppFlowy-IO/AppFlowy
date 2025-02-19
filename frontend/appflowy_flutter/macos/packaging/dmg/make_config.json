@@ -1,0 +1,29 @@
+{
+  "title": "AppFlowy",
+  "icon-size": 94,
+  "window": {
+    "size": {
+      "width": 600,
+      "height": 450
+    }
+  },
+  "background": "../../macos/packaging/assets/background.jpg",
+  "contents": [
+    {
+      "x": 141,
+      "y": 249,
+      "type": "file",
+      "path": "AppFlowy.app",
+      "name": "AppFlowy.app"
+    },
+    {
+      "x": 458,
+      "y": 249,
+      "type": "link",
+      "path": "/Applications"
+    }
+  ],
+  "code-sign": {
+    "signing-identity": "Developer ID Application: APPFLOWY PTE. LTD"
+  }
+}
