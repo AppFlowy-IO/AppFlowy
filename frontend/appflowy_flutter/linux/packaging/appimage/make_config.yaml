@@ -1,0 +1,28 @@
+display_name: AppFlowy
+
+icon: linux/packaging/assets/logo.png
+
+keywords:
+  - AppFlowy
+  - Office
+  - Document
+  - Database
+  - Note
+  - Kanban
+  - Note
+
+generic_name: AppFlowy
+
+categories:
+  - Office
+  - Productivity
+
+startup_notify: true
+
+include:
+  - libc6:amd64
+  - libnotify4:amd64
+  - libkeybinder-3.0-0:amd64
+  - libwayland-cursor0:amd64
+  - libwayland-client0:amd64
+  - libwayland-egl1:amd64

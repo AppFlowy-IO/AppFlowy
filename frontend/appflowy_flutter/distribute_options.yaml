@@ -1,12 +1,16 @@
-output: dist/
+output: build/
 releases:
-  - name: dev
+  - name: prod
     jobs:
-      - name: release-dev-linux-deb
+      - name: release-prod-linux-deb
         package:
           platform: linux
           target: deb
-      - name: release-dev-linux-rpm
+      - name: release-prod-linux-rpm
         package:
           platform: linux
           target: rpm
+      - name: release-prod-linux-appimage
+        package:
+          platform: linux
+          target: appimage

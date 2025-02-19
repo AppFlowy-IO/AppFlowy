@@ -14,7 +14,7 @@ keywords:
   - Kanban
   - Note
 
-installed_size: 100000
+installed_size: 100000 # the installed size is meaningless here.
 icon: linux/packaging/assets/logo.png
 
 generic_name: AppFlowy
