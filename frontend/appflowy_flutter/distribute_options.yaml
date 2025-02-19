@@ -14,3 +14,7 @@ releases:
         package:
           platform: linux
           target: appimage
+      - name: release-prod-linux-zip
+        package:
+          platform: linux
+          target: zip
