@@ -322,14 +322,11 @@ jobs:
     runs-on: ${{ matrix.job.os }}
     needs: create-release
     env:
-      LINUX_APP_RELEASE_PATH: frontend/appflowy_flutter/product/${{ github.ref_name }}/linux/Release
-      LINUX_ZIP_NAME: AppFlowy-${{ matrix.job.target }}-x86_64.tar.gz
+      LINUX_APP_RELEASE_PATH: frontend/appflowy_flutter/build/${{ github.ref_name }}
       LINUX_PACKAGE_DEB_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.deb
       LINUX_PACKAGE_RPM_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.rpm
-      LINUX_PACKAGE_TMP_RPM_NAME: AppFlowy-${{ github.ref_name }}-2.x86_64.rpm
-      LINUX_PACKAGE_TMP_APPIMAGE_NAME: AppFlowy-${{ github.ref_name }}-x86_64.AppImage
       LINUX_PACKAGE_APPIMAGE_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.AppImage
-      LINUX_PACKAGE_ZIP_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.tar.gz
+      LINUX_PACKAGE_ZIP_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.zip
 
     strategy:
       fail-fast: false
@@ -364,15 +361,22 @@ jobs:
       - name: Install prerequisites
         working-directory: frontend
         run: |
+          # Install dependencies
           sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
           sudo apt-get update
-          sudo apt-get install -y build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
-          sudo apt-get install keybinder-3.0
-          sudo apt-get install -y alien libnotify-dev
-          sudo apt install rpm patchelf
+          sudo apt-get install -y build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
+          sudo apt install rpm patchelf locate
+
+          # Install appimagetool
+          wget -O appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+          chmod +x appimagetool
+          mv appimagetool /usr/local/bin/
+
+          # Install cargo-make and duckscript
           source $HOME/.cargo/env
           cargo install --force --locked cargo-make
           cargo install --force --locked duckscript_cli
+
           rustup target add ${{ matrix.job.target }}
 
       - name: Install gcc-aarch64-linux-gnu
@@ -386,41 +390,7 @@ jobs:
         run: |
           flutter config --enable-linux-desktop
           dart pub global activate flutter_distributor
-          dart ./scripts/flutter_release_build/build_flowy.dart run . ${{ github.ref_name }}
-
-      - name: Archive Asset
-        working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
-        run: tar -czf ${{ env.LINUX_ZIP_NAME }} *
-
-      - name: Build Linux package (.deb)
-        working-directory: frontend/appflowy_flutter
-        run: |
-          flutter_distributor release --name=dev --jobs=release-dev-linux-deb --skip-clean
-
-          SOURCE_PATH=build/${{ github.ref_name }}/appflowy-${{ github.ref_name }}+${{ github.ref_name }}-linux.deb
-          DESTINATION_PATH=../../${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_DEB_NAME }}
-          cp -r $SOURCE_PATH $DESTINATION_PATH
-          cd $DESTINATION_PATH
-          ls -a
-
-      - name: Build Linux package (.rpm)
-        working-directory: frontend/appflowy_flutter
-        run: |
-          flutter_distributor release --name=dev --jobs=release-dev-linux-rpm --skip-clean
-
-          SOURCE_PATH=build/${{ github.ref_name }}/appflowy-${{ github.ref_name }}+${{ github.ref_name }}-linux.rpm
-          DESTINATION_PATH=../../${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_RPM_NAME }}
-          cp -r $SOURCE_PATH $DESTINATION_PATH
-          cd $DESTINATION_PATH
-          ls -a
-
-      - name: Build Linux package (.AppImage)
-        working-directory: frontend
-        continue-on-error: true
-        run: |
-          sh scripts/linux_distribution/appimage/build_appimage.sh ${{ github.ref_name }}
-          cd ..
-          cp -r frontend/${{ env.LINUX_PACKAGE_TMP_APPIMAGE_NAME }} ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_APPIMAGE_NAME }}
+          ./scripts/flutter_release_build/build_linux.sh --build_type all --build_arch x86_64 --version ${{ github.ref_name }}
 
       - name: Upload Asset
         id: upload-release-asset
@@ -429,11 +399,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_ZIP_NAME }}
+          asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_ZIP_NAME }}
           asset_name: ${{ env.LINUX_PACKAGE_ZIP_NAME }}
           asset_content_type: application/octet-stream
 
-      - name: Upload Debian package
+      - name: Upload DEB package
         id: upload-release-asset-install-package-deb
         uses: actions/upload-release-asset@v1
         env:

@@ -1,3 +1,4 @@
+#!/bin/bash
 # This Script is used to build the AppFlowy linux zip, deb, rpm or appimage
 #
 # Usage: ./scripts/flutter_release_build/build_linux.sh --build_type <type> --build_arch <arch> --version <version> [--skip-code-generation] [--skip-rebuild-core]
@@ -128,7 +129,7 @@ build_zip() {
     cd appflowy_flutter
     flutter_distributor release --name=prod --jobs=release-prod-linux-zip --skip-clean
     cd ..
-    mv appflowy_flutter/build/$VERSION/appflowy-$VERSION+$VERSION-linux.zip appflowy_flutter/build/$VERSION/appflowy-$VERSION-linux-x86_64.zip
+    mv appflowy_flutter/build/$VERSION/appflowy-$VERSION+$VERSION-linux.zip appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.zip
 
     echo "Zip package built successfully"
 }
@@ -141,7 +142,7 @@ build_deb() {
     cd appflowy_flutter
     flutter_distributor release --name=prod --jobs=release-prod-linux-deb --skip-clean
     cd ..
-    mv appflowy_flutter/build/$VERSION/appflowy-$VERSION+$VERSION-linux.deb appflowy_flutter/build/$VERSION/appflowy-$VERSION-linux-x86_64.deb
+    mv appflowy_flutter/build/$VERSION/appflowy-$VERSION+$VERSION-linux.deb appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.deb
 
     echo "Deb package built successfully"
 }
@@ -154,7 +155,7 @@ build_rpm() {
     cd appflowy_flutter
     flutter_distributor release --name=prod --jobs=release-prod-linux-rpm --skip-clean
     cd ..
-    mv appflowy_flutter/build/$VERSION/appflowy-$VERSION+$VERSION-linux.rpm appflowy_flutter/build/$VERSION/appflowy-$VERSION-linux-x86_64.rpm
+    mv appflowy_flutter/build/$VERSION/appflowy-$VERSION+$VERSION-linux.rpm appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.rpm
 
     echo "RPM package built successfully"
 }
@@ -168,7 +169,7 @@ build_appimage() {
     cd appflowy_flutter
     flutter_distributor release --name=prod --jobs=release-prod-linux-appimage --skip-clean
     cd ..
-    mv appflowy_flutter/build/$VERSION/appflowy-$VERSION+$VERSION-linux.AppImage appflowy_flutter/build/$VERSION/appflowy-$VERSION-linux-x86_64.AppImage
+    mv appflowy_flutter/build/$VERSION/appflowy-$VERSION+$VERSION-linux.AppImage appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.AppImage
 
     echo "AppImage package built successfully"
 }
