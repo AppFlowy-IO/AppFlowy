@@ -102,12 +102,22 @@ if [ "$BUILD_TYPE" != "all" ] && [ "$BUILD_TYPE" != "zip" ] && [ "$BUILD_TYPE" !
     exit 1
 fi
 
+has_built_core=false
+has_generated_code=false
+
 prepare_build() {
     echo "Preparing build..."
 
     # Build the rust-lib with version
-    cargo make --env APP_VERSION=$VERSION --profile production-linux-$BUILD_ARCH appflowy-core-release
-    cargo make --env APP_VERSION=$VERSION --profile production-linux-$BUILD_ARCH code_generation
+    if [ "$SKIP_REBUILD_CORE" != "true" ] && [ "$has_built_core" != "true" ]; then
+        cargo make --env APP_VERSION=$VERSION --profile production-linux-$BUILD_ARCH appflowy-core-release
+        has_built_core=true
+    fi
+
+    if [ "$SKIP_CODE_GENERATION" != "true" ] && [ "$has_generated_code" != "true" ]; then
+        cargo make --env APP_VERSION=$VERSION --profile production-linux-$BUILD_ARCH code_generation
+        has_generated_code=true
+    fi
 }
 
 build_zip() {
