@@ -15,5 +15,3 @@ contents:
     y: 249
     type: "link"
     path: "/Applications"
-code-sign:
-  signing-identity: "Developer ID Application: APPFLOWY PTE. LTD"
