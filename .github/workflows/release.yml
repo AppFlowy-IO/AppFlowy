@@ -162,8 +162,13 @@ jobs:
           cargo install --force --locked cargo-make
           cargo install --force --locked duckscript_cli
 
-      - name: Add codesign certificate
+      - name: Build AppFlowy
+        working-directory: frontend
         run: |
+          flutter config --enable-macos-desktop
+          flutter pub global activate flutter_distributor
+
+          # Add codesign certificate
           echo ${{ secrets.MACOS_CERTIFICATE }} | base64 --decode > certificate.p12
           security create-keychain -p action build.keychain
           security default-keychain -s build.keychain
@@ -171,12 +176,7 @@ jobs:
           security import certificate.p12 -k build.keychain -P ${{ secrets.MACOS_CERTIFICATE_PWD }} -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k action build.keychain
 
-      - name: Build AppFlowy
-        working-directory: frontend
-        run: |
-          flutter config --enable-macos-desktop
-          flutter pub global activate flutter_distributor
-          sh scripts/flutter_release_build/build_macos.sh --build_type dmg --build_arch x86_64 --version ${{ github.ref_name }} --apple-id ${{ secrets.MACOS_NOTARY_USER }} --team-id ${{ secrets.MACOS_TEAM_ID }} --password ${{ secrets.MACOS_NOTARY_PWD }}
+          sudo sh scripts/flutter_release_build/build_macos.sh --build_type dmg --build_arch x86_64 --version ${{ github.ref_name }} --apple-id ${{ secrets.MACOS_NOTARY_USER }} --team-id ${{ secrets.MACOS_TEAM_ID }} --password ${{ secrets.MACOS_NOTARY_PWD }}
 
       - name: Upload Asset
         uses: actions/upload-release-asset@v1
@@ -239,8 +239,13 @@ jobs:
           cargo install --force --locked cargo-make
           cargo install --force --locked duckscript_cli
 
-      - name: Add codesign certificate
+      - name: Build AppFlowy
+        working-directory: frontend
         run: |
+          flutter config --enable-macos-desktop
+          dart pub global activate flutter_distributor
+
+          # Add codesign certificate
           echo ${{ secrets.MACOS_CERTIFICATE }} | base64 --decode > certificate.p12
           security create-keychain -p action build.keychain
           security default-keychain -s build.keychain
@@ -248,12 +253,7 @@ jobs:
           security import certificate.p12 -k build.keychain -P ${{ secrets.MACOS_CERTIFICATE_PWD }} -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k action build.keychain
 
-      - name: Build AppFlowy
-        working-directory: frontend
-        run: |
-          flutter config --enable-macos-desktop
-          dart pub global activate flutter_distributor
-          sh scripts/flutter_release_build/build_macos.sh --build_type dmg --build_arch arm64 --version ${{ github.ref_name }} --apple-id ${{ secrets.MACOS_NOTARY_USER }} --team-id ${{ secrets.MACOS_TEAM_ID }} --password ${{ secrets.MACOS_NOTARY_PWD }}
+          sudo sh scripts/flutter_release_build/build_macos.sh --build_type dmg --build_arch arm64 --version ${{ github.ref_name }} --apple-id ${{ secrets.MACOS_NOTARY_USER }} --team-id ${{ secrets.MACOS_TEAM_ID }} --password ${{ secrets.MACOS_NOTARY_PWD }}
 
       - name: Upload Asset
         uses: actions/upload-release-asset@v1

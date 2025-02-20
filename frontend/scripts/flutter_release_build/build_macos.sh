@@ -1,6 +1,6 @@
 # This Script is used to build the AppFlowy macOS zip, dmg or pkg
 #
-# Usage: ./scripts/flutter_release_build/build_macos.sh --build_type <type> --build_arch <arch> --version <version> [--skip-code-generation] [--skip-rebuild-core]
+# Usage: ./scripts/flutter_release_build/build_macos.sh --build_type <type> --build_arch <arch> --version <version> --apple-id <apple-id> --team-id <team-id> --password <password> [--skip-code-generation] [--skip-rebuild-core]
 #
 # Options:
 #   -h, --help    Show this help message and exit
@@ -20,7 +20,7 @@
 #   --password      The password to use for the notary service
 
 show_help() {
-    echo "Usage: ./scripts/flutter_release_build/build_macos.sh --build_type <type> --build_arch <arch> --version <version> [--skip-code-generation] [--skip-rebuild-core]"
+    echo "Usage: ./scripts/flutter_release_build/build_macos.sh --build_type <type> --build_arch <arch> --version <version> --apple-id <apple-id> --team-id <team-id> --password <password> [--skip-code-generation] [--skip-rebuild-core]"
     echo ""
     echo "Options:"
     echo "  -h, --help    Show this help message and exit"
@@ -188,14 +188,14 @@ build_zip() {
     fi
 
     # step 2: unzip the zip package and codesign the app
-    unzip -o appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-macos-$BUILD_ARCH.zip >/dev/null 2>&1
+    unzip -o appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-macos-$BUILD_ARCH.zip
 
     # step 3: codesign the app
     # note: You must install the certificate to the system before codesigning
-    /usr/bin/codesign --force --options runtime --deep --sign "Developer ID Application: APPFLOWY PTE. LTD" --deep --verbose AppFlowy.app -v
+    sudo /usr/bin/codesign --force --options runtime --deep --sign "Developer ID Application: APPFLOWY PTE. LTD" --deep --verbose AppFlowy.app -v
 
     # step 4: zip the app again
-    7z a appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-macos-$BUILD_ARCH.zip AppFlowy.app >/dev/null 2>&1
+    7z a appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-macos-$BUILD_ARCH.zip AppFlowy.app
 
     info "Zip package built successfully"
 }
@@ -210,7 +210,7 @@ build_dmg() {
     fi
 
     # step 2: unzip the zip package and copy the make_config.json file to the build directory
-    unzip appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-macos-$BUILD_ARCH.zip -d appflowy_flutter/build/$VERSION/ >/dev/null 2>&1
+    unzip appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-macos-$BUILD_ARCH.zip -d appflowy_flutter/build/$VERSION/
     cp appflowy_flutter/macos/packaging/dmg/make_config.json appflowy_flutter/build/$VERSION/
 
     # check if the AppFlowy.app doesn't exist, exit the script
