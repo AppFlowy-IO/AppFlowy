@@ -1,0 +1,21 @@
+display_name: AppFlowy
+
+icon: linux/packaging/assets/logo.png
+
+keywords:
+  - AppFlowy
+  - Office
+  - Document
+  - Database
+  - Note
+  - Kanban
+  - Note
+
+generic_name: AppFlowy
+
+categories:
+  - Office
+
+startup_notify: true
+
+supportedMimeType: x-scheme-handler/appflowy-flutter

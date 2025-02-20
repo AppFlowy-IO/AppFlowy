@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-if [ -e /usr/bin/AppFlowy ]; then
+if [ -e /usr/bin/appflowy ]; then
     echo "Symlink already exists, skipping."
 else
     echo "Creating Symlink in /usr/bin/appflowy"
-    ln -s /usr/lib/AppFlowy/AppFlowy /usr/bin/AppFlowy
+    ln -s /usr/lib/appflowy/appflowy /usr/bin/appflowy
     ln -s /usr/lib/AppFlowy/launcher.sh /usr/bin/AppFlowyLauncher.sh
 fi

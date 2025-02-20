@@ -79,7 +79,7 @@ USER $user
 WORKDIR /home/$user
 COPY --from=builder /appflowy/frontend/appflowy_flutter/build/linux/x64/release/bundle .
 RUN xdg-user-dirs-update && \
-    test -e ./AppFlowy && \
-    file ./AppFlowy
+    test -e ./appflowy && \
+    file ./appflowy
 
-CMD ["./AppFlowy"]
+CMD ["./appflowy"]

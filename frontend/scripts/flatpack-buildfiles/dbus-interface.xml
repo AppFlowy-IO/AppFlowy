@@ -1,5 +1,5 @@
-<node name="/io/appflowy/AppFlowy/Object">
-	<interface name="io.appflowy.AppFlowy">
+<node name="/io/appflowy/appflowy/Object">
+	<interface name="io.appflowy.appflowy">
 		<method name="Activate">
 			<arg type="a{sv}" name="platform_data" direction="in" />
 		</method>

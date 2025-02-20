@@ -2,7 +2,7 @@
 Type=Application
 Name=AppFlowy
 Icon=/usr/share/icons/hicolor/scalable/apps/appflowy.svg
-Exec=/usr/bin/AppFlowy %U
+Exec=/usr/bin/appflowy %U
 Categories=Network;Productivity;
 Keywords=Notes
 Terminal=false
