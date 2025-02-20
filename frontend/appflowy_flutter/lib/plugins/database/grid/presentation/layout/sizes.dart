@@ -11,7 +11,7 @@ class GridSize {
   static double get horizontalHeaderPadding =>
       UniversalPlatform.isDesktop ? 40 * scale : 16 * scale;
   static double get cellHPadding => 10 * scale;
-  static double get cellVPadding => 10 * scale;
+  static double get cellVPadding => 8 * scale;
   static double get popoverItemHeight => 26 * scale;
   static double get typeOptionSeparatorHeight => 4 * scale;
   static double get newPropertyButtonWidth => 140 * scale;
