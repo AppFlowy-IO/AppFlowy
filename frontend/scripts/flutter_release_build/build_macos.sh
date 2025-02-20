@@ -219,6 +219,12 @@ build_dmg() {
         exit 1
     fi
 
+    # check if the appdmg has been installed
+    if ! command -v appdmg &>/dev/null; then
+        info "appdmg is not installed. Installing appdmg..."
+        npm install -g appdmg
+    fi
+
     # step 3: build the dmg package using appdmg
     # note: You must install the appdmg to the system before building the dmg package
     appdmg appflowy_flutter/build/$VERSION/make_config.json appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-macos-$BUILD_ARCH.dmg
@@ -226,6 +232,12 @@ build_dmg() {
     # step 4: clear the temp files
     rm -rf appflowy_flutter/build/$VERSION/AppFlowy.app
     rm -rf appflowy_flutter/build/$VERSION/make_config.json
+
+    # check if the dmg package is built
+    if [ ! -f "appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-macos-$BUILD_ARCH.dmg" ]; then
+        error "DMG package is not built. Please check the build process."
+        exit 1
+    fi
 
     info "DMG package built successfully. The dmg package is located at appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-macos-$BUILD_ARCH.dmg"
 

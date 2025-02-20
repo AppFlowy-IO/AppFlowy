@@ -162,6 +162,15 @@ jobs:
           cargo install --force --locked cargo-make
           cargo install --force --locked duckscript_cli
 
+      - name: Add codesign certificate
+        run: |
+          echo ${{ secrets.MACOS_CERTIFICATE }} | base64 --decode > certificate.p12
+          security create-keychain -p action build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p action build.keychain
+          security import certificate.p12 -k build.keychain -P ${{ secrets.MACOS_CERTIFICATE_PWD }} -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k action build.keychain
+
       - name: Build AppFlowy
         working-directory: frontend
         run: |
@@ -230,6 +239,15 @@ jobs:
           cargo install --force --locked cargo-make
           cargo install --force --locked duckscript_cli
 
+      - name: Add codesign certificate
+        run: |
+          echo ${{ secrets.MACOS_CERTIFICATE }} | base64 --decode > certificate.p12
+          security create-keychain -p action build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p action build.keychain
+          security import certificate.p12 -k build.keychain -P ${{ secrets.MACOS_CERTIFICATE_PWD }} -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k action build.keychain
+
       - name: Build AppFlowy
         working-directory: frontend
         run: |
@@ -297,6 +315,15 @@ jobs:
           brew install p7zip
           cargo install --force --locked cargo-make
           cargo install --force --locked duckscript_cli
+
+      - name: Add codesign certificate
+        run: |
+          echo ${{ secrets.MACOS_CERTIFICATE }} | base64 --decode > certificate.p12
+          security create-keychain -p action build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p action build.keychain
+          security import certificate.p12 -k build.keychain -P ${{ secrets.MACOS_CERTIFICATE_PWD }} -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k action build.keychain
 
       - name: Build AppFlowy
         working-directory: frontend
