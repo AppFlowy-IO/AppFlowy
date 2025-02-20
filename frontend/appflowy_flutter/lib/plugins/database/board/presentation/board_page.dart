@@ -285,6 +285,9 @@ class _BoardContentState extends State<_BoardContent> {
 
   @override
   Widget build(BuildContext context) {
+    final horizontalPadding =
+        context.read<DatabasePluginWidgetBuilderSize?>()?.horizontalPadding ??
+            0.0;
     return MultiBlocListener(
       listeners: [
         BlocListener<BoardBloc, BoardState>(
@@ -343,7 +346,12 @@ class _BoardContentState extends State<_BoardContent> {
               controller: context.read<BoardBloc>().boardController,
               groupConstraints: const BoxConstraints.tightFor(width: 256),
               config: config,
-              leading: HiddenGroupsColumn(margin: config.groupHeaderPadding),
+              leading: HiddenGroupsColumn(
+                margin: config.groupHeaderPadding +
+                    EdgeInsets.only(
+                      left: widget.shrinkWrap ? horizontalPadding : 0.0,
+                    ),
+              ),
               trailing: context
                           .read<BoardBloc>()
                           .groupingFieldType

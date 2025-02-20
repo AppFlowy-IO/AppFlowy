@@ -37,6 +37,7 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
   Widget build(BuildContext context) {
     final fieldController =
         context.read<GridBloc>().databaseController.fieldController;
+
     return BlocProvider(
       create: (context) {
         return GridHeaderBloc(
