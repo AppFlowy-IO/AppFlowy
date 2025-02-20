@@ -192,7 +192,7 @@ build_zip() {
 
     # step 3: codesign the app
     # note: You must install the certificate to the system before codesigning
-    codesign --force --options runtime --deep --sign "Developer ID Application: APPFLOWY PTE. LTD" --deep --verbose AppFlowy.app -v
+    /usr/bin/codesign --force --options runtime --deep --sign "Developer ID Application: APPFLOWY PTE. LTD" --deep --verbose AppFlowy.app -v
 
     # step 4: zip the app again
     7z a appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-macos-$BUILD_ARCH.zip AppFlowy.app >/dev/null 2>&1
