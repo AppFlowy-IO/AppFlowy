@@ -4,6 +4,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -162,6 +163,35 @@ void main() {
         (textPosition.bottom - inlineMathEquationPosition.bottom).abs(),
         lessThan(5),
       );
+    });
+
+    testWidgets('insert a math equation by shortcut', (tester) async {
+      await tester.initializeAppFlowy();
+      await tester.tapAnonymousSignInButton();
+
+      // create a new document
+      await tester.createNewPageWithNameUnderParent(
+        name: 'insert math equation by shortcut',
+      );
+
+      // tap the first line of the document
+      await tester.editor.tapLineOfEditorAt(0);
+
+      // mock key event
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyE,
+        isShiftPressed: true,
+        isControlPressed: true,
+      );
+
+      final mathEquationDialog = find.byType(AlertDialog);
+      expect(mathEquationDialog, findsOneWidget);
+
+      // close the dialog
+      await tester.simulateKeyEvent(LogicalKeyboardKey.escape);
+
+      final node = tester.editor.getNodeAtPath([0]);
+      expect(node.type, MathEquationBlockKeys.type);
     });
   });
 }
