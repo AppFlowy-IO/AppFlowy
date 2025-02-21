@@ -1,3 +1,5 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/columns/columns_block_constant.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
@@ -46,7 +48,8 @@ class _ColumnWidthResizerState extends State<ColumnWidthResizer> {
     // update the column width in memory
     final columnNode = widget.columnNode;
     final rect = columnNode.rect;
-    final width = columnNode.attributes[SimpleColumnBlockKeys.width] ?? rect.width;
+    final width =
+        columnNode.attributes[SimpleColumnBlockKeys.width] ?? rect.width;
     final newWidth = width + details.delta.dx;
     final transaction = widget.editorState.transaction;
     transaction.updateNode(columnNode, {

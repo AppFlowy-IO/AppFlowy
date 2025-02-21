@@ -963,7 +963,9 @@ SimpleColumnsBlockComponentBuilder _buildSimpleColumnsBlockComponentBuilder(
   BlockComponentConfiguration configuration,
 ) {
   return SimpleColumnsBlockComponentBuilder(
-    configuration: configuration,
+    configuration: configuration.copyWith(
+      padding: (_) => EdgeInsets.zero,
+    ),
   );
 }
 
@@ -972,7 +974,9 @@ SimpleColumnBlockComponentBuilder _buildSimpleColumnBlockComponentBuilder(
   BlockComponentConfiguration configuration,
 ) {
   return SimpleColumnBlockComponentBuilder(
-    configuration: configuration,
+    configuration: configuration.copyWith(
+      padding: (_) => EdgeInsets.zero,
+    ),
   );
 }
 

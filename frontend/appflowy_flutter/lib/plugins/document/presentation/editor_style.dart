@@ -280,6 +280,15 @@ class EditorStyleCustomizer {
       selectionMenuItemSelectedIconColor: theme.colorScheme.onSurface,
       selectionMenuItemSelectedTextColor: theme.colorScheme.onSurface,
       selectionMenuItemSelectedColor: afThemeExtension.greyHover,
+      selectionMenuUnselectedLabelColor: afThemeExtension.onBackground,
+      selectionMenuDividerColor: afThemeExtension.greyHover,
+      selectionMenuLinkBorderColor: afThemeExtension.greyHover,
+      selectionMenuInvalidLinkColor: afThemeExtension.onBackground,
+      selectionMenuButtonColor: afThemeExtension.greyHover,
+      selectionMenuButtonTextColor: afThemeExtension.onBackground,
+      selectionMenuButtonIconColor: afThemeExtension.onBackground,
+      selectionMenuButtonBorderColor: afThemeExtension.greyHover,
+      selectionMenuTabIndicatorColor: afThemeExtension.greyHover,
     );
   }
 
