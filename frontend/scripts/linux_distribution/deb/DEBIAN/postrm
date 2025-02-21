@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-if [ -e /usr/bin/AppFlowy ]; then
-    rm /usr/bin/AppFlowy
+if [ -e /usr/bin/appflowy ]; then
+    rm /usr/bin/appflowy
     rm /usr/bin/AppFlowyLauncher.sh
 fi
