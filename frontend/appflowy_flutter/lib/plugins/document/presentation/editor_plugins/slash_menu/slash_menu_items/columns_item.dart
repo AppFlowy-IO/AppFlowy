@@ -5,20 +5,19 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/slash_menu
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 final _keywords = [
-  'columns',
-  'column',
-  'column block',
-  'columnblock',
+  'columns'
+      'column block',
   'two columns',
   'three columns',
   'four columns',
+  'five columns',
 ];
 
 // code block menu item
 SelectionMenuItem columnsSlashMenuItem = SelectionMenuItem.node(
   getName: () => 'Columns',
   keywords: _keywords,
-  nodeBuilder: (_, __) => columnsNode(columnCount: 2),
+  nodeBuilder: (_, __) => simpleColumnsNode(),
   replace: (_, node) => node.delta?.isEmpty ?? false,
   nameBuilder: slashMenuItemNameBuilder,
   iconBuilder: (_, isSelected, style) => SelectableSvgWidget(

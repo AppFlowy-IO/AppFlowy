@@ -3,28 +3,34 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-Node columnNode({
+Node simpleColumnNode({
   List<Node>? children,
+  double? width,
 }) {
   return Node(
-    type: ColumnBlockKeys.type,
+    type: SimpleColumnBlockKeys.type,
     children: children ?? [paragraphNode()],
+    attributes: {
+      SimpleColumnBlockKeys.width: width,
+    },
   );
 }
 
-class ColumnBlockKeys {
-  const ColumnBlockKeys._();
+class SimpleColumnBlockKeys {
+  const SimpleColumnBlockKeys._();
 
   static const String type = 'column';
+
+  static const String width = 'width';
 }
 
-class ColumnBlockComponentBuilder extends BlockComponentBuilder {
-  ColumnBlockComponentBuilder({super.configuration});
+class SimpleColumnBlockComponentBuilder extends BlockComponentBuilder {
+  SimpleColumnBlockComponentBuilder({super.configuration});
 
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
-    return ColumnBlockComponent(
+    return SimpleColumnBlockComponent(
       key: node.key,
       node: node,
       showActions: showActions(node),
@@ -37,8 +43,8 @@ class ColumnBlockComponentBuilder extends BlockComponentBuilder {
   BlockComponentValidate get validate => (node) => node.children.isNotEmpty;
 }
 
-class ColumnBlockComponent extends BlockComponentStatefulWidget {
-  const ColumnBlockComponent({
+class SimpleColumnBlockComponent extends BlockComponentStatefulWidget {
+  const SimpleColumnBlockComponent({
     super.key,
     required super.node,
     super.showActions,
@@ -47,10 +53,10 @@ class ColumnBlockComponent extends BlockComponentStatefulWidget {
   });
 
   @override
-  State<ColumnBlockComponent> createState() => ColumnBlockComponentState();
+  State<SimpleColumnBlockComponent> createState() => SimpleColumnBlockComponentState();
 }
 
-class ColumnBlockComponentState extends State<ColumnBlockComponent>
+class SimpleColumnBlockComponentState extends State<SimpleColumnBlockComponent>
     with SelectableMixin, BlockComponentConfigurable {
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
@@ -89,6 +95,7 @@ class ColumnBlockComponentState extends State<ColumnBlockComponent>
     );
 
     child = Padding(
+      key: columnKey,
       padding: padding,
       child: child,
     );
