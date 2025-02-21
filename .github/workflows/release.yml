@@ -362,7 +362,7 @@ jobs:
           - {
               arch: x86_64,
               target: x86_64-unknown-linux-gnu,
-              os: ubuntu-20.04,
+              os: ubuntu-22.04,
               extra-build-args: "",
               flutter_profile: production-linux-x86_64,
             }

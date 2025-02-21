@@ -18,4 +18,5 @@ categories:
 
 startup_notify: true
 
-supportedMimeType: x-scheme-handler/appflowy-flutter
+supported_mime_type:
+  - x-scheme-handler/appflowy-flutter

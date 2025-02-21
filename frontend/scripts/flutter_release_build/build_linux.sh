@@ -83,16 +83,16 @@ while [ $# -gt 0 ]; do
 done
 
 clear_cache() {
-    echo "Clearing the cache..."
+    echo -e "Clearing the cache..."
     rm -rf appflowy_flutter/build/$VERSION/
 }
 
 info() {
-    echo "🚀 \033[32m$1\033[0m"
+    echo -e "🚀 \033[32m$1\033[0m"
 }
 
 error() {
-    echo "🚨 \033[31m$1\033[0m"
+    echo -e "🚨 \033[31m$1\033[0m"
 }
 
 # Validate build type argument
@@ -201,7 +201,7 @@ build_tar_xz() {
     fi
 
     # step 2: unzip the zip package
-    unzip appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.zip -d appflowy_flutter/build/$VERSION/
+    unzip appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.zip -d appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64
 
     # check if the AppFlowy directory exists
     if [ ! -d "appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64" ]; then
@@ -210,10 +210,7 @@ build_tar_xz() {
     fi
 
     # step 3: build the tar.xz package
-    tar -cJvf appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.tar.xz -C appflowy_flutter/build/$VERSION/ AppFlowy-$VERSION-linux-x86_64
-
-    # step 4: clean up the extracted directory
-    rm -rf appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64
+    tar -cJvf appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.tar.xz appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64/*
 
     info "Tar.xz package built successfully. The tar.xz package is located at appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.tar.xz"
 }
@@ -226,7 +223,6 @@ case $BUILD_TYPE in
     build_zip
     build_deb
     build_rpm
-    build_tar_xz
     build_appimage
     ;;
 "zip")
