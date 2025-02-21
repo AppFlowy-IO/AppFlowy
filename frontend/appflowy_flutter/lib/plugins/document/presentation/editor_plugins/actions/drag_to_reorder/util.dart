@@ -66,11 +66,6 @@ Future<void> dragToMoveNode(
   if (verticalPosition == VerticalPosition.bottom) {
     if (horizontalPosition == HorizontalPosition.left) {
       newPath = newPath.next;
-      final node = editorState.document.nodeAtPath(newPath);
-      if (node == null) {
-        // if node is null, it means the node is the last one of the document.
-        newPath = targetNode.path;
-      }
     } else if (horizontalPosition == HorizontalPosition.center &&
         nodeTypesThatCanContainChildNode.contains(targetNode.type)) {
       // check if the target node can contain a child node

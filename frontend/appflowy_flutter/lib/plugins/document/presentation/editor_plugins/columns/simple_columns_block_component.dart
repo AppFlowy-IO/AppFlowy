@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/columns/columns_block_constant.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/columns/simple_columns_block_constant.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';

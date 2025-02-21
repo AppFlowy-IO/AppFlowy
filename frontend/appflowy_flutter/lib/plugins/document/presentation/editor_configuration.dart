@@ -184,6 +184,11 @@ void _customBlockOptionActions(
         if (node.type != SimpleTableBlockKeys.type && parentTableNode != null) {
           return false;
         }
+        // columns block and column block do not show the option action button
+        if (node.type == SimpleTableBlockKeys.type ||
+            node.type == SimpleColumnBlockKeys.type) {
+          return false;
+        }
         return true;
       };
 
