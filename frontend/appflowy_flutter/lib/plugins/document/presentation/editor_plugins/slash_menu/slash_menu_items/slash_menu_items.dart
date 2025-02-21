@@ -2,6 +2,7 @@ export 'ai_writer_item.dart';
 export 'bulleted_list_item.dart';
 export 'callout_item.dart';
 export 'code_block_item.dart';
+export 'columns_item.dart';
 export 'database_items.dart';
 export 'date_item.dart';
 export 'divider_item.dart';

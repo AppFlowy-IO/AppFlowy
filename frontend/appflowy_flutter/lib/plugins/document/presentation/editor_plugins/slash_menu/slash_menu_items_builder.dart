@@ -80,6 +80,9 @@ List<SelectionMenuItem> _defaultSlashMenuItems({
     // link to page
     linkToPageSlashMenuItem,
 
+    // columns
+    columnsSlashMenuItem,
+
     // grid
     if (documentBloc != null) gridSlashMenuItem(documentBloc),
     referencedGridSlashMenuItem,

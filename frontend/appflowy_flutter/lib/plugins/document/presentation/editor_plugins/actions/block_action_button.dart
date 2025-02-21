@@ -48,8 +48,6 @@ class BlockActionButton extends StatelessWidget {
       );
     }
 
-    return Align(
-      child: child,
-    );
+    return child;
   }
 }
