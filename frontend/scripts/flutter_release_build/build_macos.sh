@@ -8,6 +8,7 @@
 #                 - all: Build all package types
 #                 - zip: Build only zip package
 #                 - dmg: Build only dmg package
+#                 - tar.xz: Build only tar.xz package
 #   --build_arch  The architecture to build. Must be one of:
 #                 - x86_64: Build for x86_64 architecture
 #                 - arm64: Build for arm64 architecture
@@ -31,6 +32,7 @@ show_help() {
     echo "                - zip: Build only zip package"
     echo "                  Please install the \033[33mp7zip\033[0m before building the zip package."
     echo "                  For more information, please refer to the https://distributor.leanflutter.dev/makers/zip/."
+    echo "                - tar.xz: Build only tar.xz package"
     echo "                - dmg: Build only dmg package"
     echo "                  Please install the \033[33mappdmg\033[0m before building the dmg package."
     echo "                  For more information, please refer to the https://distributor.leanflutter.dev/makers/dmg/."
@@ -95,29 +97,6 @@ while [ $# -gt 0 ]; do
     esac
 done
 
-# Validate build type argument
-if [ -z "$BUILD_TYPE" ]; then
-    echo "Please specify build type with --build_type: zip, dmg"
-    exit 1
-fi
-
-# Validate version argument
-if [ -z "$VERSION" ]; then
-    echo "Please specify version number with --version (e.g. 0.8.2)"
-    exit 1
-fi
-
-# Validate build arch argument
-if [ -z "$BUILD_ARCH" ]; then
-    echo "Please specify build arch with --build_arch: x86_64, arm64 or universal"
-    exit 1
-fi
-
-if [ "$BUILD_TYPE" != "all" ] && [ "$BUILD_TYPE" != "zip" ] && [ "$BUILD_TYPE" != "dmg" ]; then
-    echo "Invalid build type. Must be one of: zip, dmg"
-    exit 1
-fi
-
 clear_cache() {
     echo "Clearing the cache..."
     rm -rf appflowy_flutter/build/$VERSION/
@@ -130,6 +109,29 @@ info() {
 error() {
     echo "🚨 \033[31m$1\033[0m"
 }
+
+# Validate build type argument
+if [ -z "$BUILD_TYPE" ]; then
+    error "Please specify build type with --build_type: all, zip, dmg, tar.xz"
+    exit 1
+fi
+
+# Validate version argument
+if [ -z "$VERSION" ]; then
+    error "Please specify version number with --version (e.g. 0.8.2)"
+    exit 1
+fi
+
+# Validate build arch argument
+if [ -z "$BUILD_ARCH" ]; then
+    error "Please specify build arch with --build_arch: x86_64, arm64 or universal"
+    exit 1
+fi
+
+if [ "$BUILD_TYPE" != "all" ] && [ "$BUILD_TYPE" != "zip" ] && [ "$BUILD_TYPE" != "dmg" ] && [ "$BUILD_TYPE" != "tar.xz" ]; then
+    error "Invalid build type. Must be one of: all, zip, dmg, tar.xz"
+    exit 1
+fi
 
 prepare_build() {
     info "Preparing build..."
@@ -250,6 +252,30 @@ build_dmg() {
     fi
 }
 
+build_tar_xz() {
+    info "Building tar.xz package version $VERSION..."
+
+    # step 1: check if the macos zip package is built, if not, build the zip package
+    if [ ! -f "appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-macos-$BUILD_ARCH.zip" ]; then
+        info "macOS zip package is not built. Building the zip package..."
+        build_zip
+    fi
+
+    # step 2: unzip the zip package and copy the make_config.json file to the build directory
+    unzip appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-macos-$BUILD_ARCH.zip -d appflowy_flutter/build/$VERSION/
+
+    # check if the AppFlowy.app doesn't exist, exit the script
+    if [ ! -d "appflowy_flutter/build/$VERSION/AppFlowy.app" ]; then
+        error "AppFlowy.app doesn't exist. Please check the zip package."
+        exit 1
+    fi
+
+    # step 3: build the tar.xz package
+    tar -cJvf appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-macos-$BUILD_ARCH.tar.xz appflowy_flutter/build/$VERSION/AppFlowy.app
+
+    info "Tar.xz package built successfully. The tar.xz package is located at appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-macos-$BUILD_ARCH.tar.xz"
+}
+
 clear_cache
 
 # Build packages based on build type
@@ -257,11 +283,15 @@ case $BUILD_TYPE in
 "all")
     build_zip
     build_dmg
+    build_tar_xz
     ;;
 "zip")
     build_zip
     ;;
 "dmg")
     build_dmg
+    ;;
+"tar.xz")
+    build_tar_xz
     ;;
 esac

@@ -8,6 +8,7 @@
 #   --build_type  The type of package to build. Must be one of:
 #                 - all: Build all package types
 #                 - zip: Build only zip package
+#                 - tar.xz: Build only tar.xz package
 #                 - deb: Build only deb package
 #                 - rpm: Build only rpm package
 #                 - appimage: Build only appimage package
@@ -28,6 +29,7 @@ show_help() {
     echo "  --build_type    The type of package to build. Must be one of:"
     echo "                - all: Build all package types"
     echo "                - zip: Build only zip package"
+    echo "                - tar.xz: Build only tar.xz package"
     echo "                - deb: Build only deb package"
     echo "                - rpm: Build only rpm package"
     echo "                  Please install the \033[33mrpm-build\033[0m and \033[33mpatchelf\033[0m before building the rpm and appimage package."
@@ -80,26 +82,39 @@ while [ $# -gt 0 ]; do
     esac
 done
 
+clear_cache() {
+    echo "Clearing the cache..."
+    rm -rf appflowy_flutter/build/$VERSION/
+}
+
+info() {
+    echo "🚀 \033[32m$1\033[0m"
+}
+
+error() {
+    echo "🚨 \033[31m$1\033[0m"
+}
+
 # Validate build type argument
 if [ -z "$BUILD_TYPE" ]; then
-    echo "Please specify build type with --build_type: zip, deb, rpm, appimage"
+    error "Please specify build type with --build_type: all, zip, tar.xz, deb, rpm, appimage"
     exit 1
 fi
 
 # Validate version argument
 if [ -z "$VERSION" ]; then
-    echo "Please specify version number with --version (e.g. 0.8.2)"
+    error "Please specify version number with --version (e.g. 0.8.2)"
     exit 1
 fi
 
 # Validate build arch argument
 if [ -z "$BUILD_ARCH" ]; then
-    echo "Please specify build arch with --build_arch: x86_64, arm64 or universal"
+    error "Please specify build arch with --build_arch: x86_64, arm64 or universal"
     exit 1
 fi
 
-if [ "$BUILD_TYPE" != "all" ] && [ "$BUILD_TYPE" != "zip" ] && [ "$BUILD_TYPE" != "deb" ] && [ "$BUILD_TYPE" != "rpm" ] && [ "$BUILD_TYPE" != "appimage" ]; then
-    echo "Invalid build type. Must be one of: zip, deb, rpm, appimage"
+if [ "$BUILD_TYPE" != "all" ] && [ "$BUILD_TYPE" != "zip" ] && [ "$BUILD_TYPE" != "tar.xz" ] && [ "$BUILD_TYPE" != "deb" ] && [ "$BUILD_TYPE" != "rpm" ] && [ "$BUILD_TYPE" != "appimage" ]; then
+    error "Invalid build type. Must be one of: all, zip, tar.xz, deb, rpm, appimage"
     exit 1
 fi
 
@@ -107,7 +122,7 @@ has_built_core=false
 has_generated_code=false
 
 prepare_build() {
-    echo "Preparing build..."
+    info "Preparing build..."
 
     # Build the rust-lib with version
     if [ "$SKIP_REBUILD_CORE" != "true" ] && [ "$has_built_core" != "true" ]; then
@@ -122,7 +137,7 @@ prepare_build() {
 }
 
 build_zip() {
-    echo "Building zip package version $VERSION..."
+    info "Building zip package version $VERSION..."
 
     prepare_build
 
@@ -131,11 +146,11 @@ build_zip() {
     cd ..
     mv appflowy_flutter/build/$VERSION/appflowy-$VERSION+$VERSION-linux.zip appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.zip
 
-    echo "Zip package built successfully"
+    info "Zip package built successfully. The zip package is located at appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.zip"
 }
 
 build_deb() {
-    echo "Building deb package version $VERSION..."
+    info "Building deb package version $VERSION..."
 
     prepare_build
 
@@ -144,11 +159,11 @@ build_deb() {
     cd ..
     mv appflowy_flutter/build/$VERSION/appflowy-$VERSION+$VERSION-linux.deb appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.deb
 
-    echo "Deb package built successfully"
+    info "Deb package built successfully. The deb package is located at appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.deb"
 }
 
 build_rpm() {
-    echo "Building rpm package version $VERSION..."
+    info "Building rpm package version $VERSION..."
 
     prepare_build
 
@@ -157,12 +172,12 @@ build_rpm() {
     cd ..
     mv appflowy_flutter/build/$VERSION/appflowy-$VERSION+$VERSION-linux.rpm appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.rpm
 
-    echo "RPM package built successfully"
+    info "RPM package built successfully. The RPM package is located at appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.rpm"
 }
 
 # Function to build AppImage package
 build_appimage() {
-    echo "Building AppImage package version $VERSION..."
+    info "Building AppImage package version $VERSION..."
 
     prepare_build
 
@@ -171,8 +186,39 @@ build_appimage() {
     cd ..
     mv appflowy_flutter/build/$VERSION/appflowy-$VERSION+$VERSION-linux.AppImage appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.AppImage
 
-    echo "AppImage package built successfully"
+    info "AppImage package built successfully. The AppImage package is located at appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.AppImage"
 }
+
+build_tar_xz() {
+    info "Building tar.xz package version $VERSION..."
+
+    prepare_build
+
+    # step 1: check if the linux zip package is built, if not, build the zip package
+    if [ ! -f "appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.zip" ]; then
+        info "Linux zip package is not built. Building the zip package..."
+        build_zip
+    fi
+
+    # step 2: unzip the zip package
+    unzip appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.zip -d appflowy_flutter/build/$VERSION/
+
+    # check if the AppFlowy directory exists
+    if [ ! -d "appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64" ]; then
+        error "AppFlowy directory doesn't exist. Please check the zip package."
+        exit 1
+    fi
+
+    # step 3: build the tar.xz package
+    tar -cJvf appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.tar.xz -C appflowy_flutter/build/$VERSION/ AppFlowy-$VERSION-linux-x86_64
+
+    # step 4: clean up the extracted directory
+    rm -rf appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64
+
+    info "Tar.xz package built successfully. The tar.xz package is located at appflowy_flutter/build/$VERSION/AppFlowy-$VERSION-linux-x86_64.tar.xz"
+}
+
+clear_cache
 
 # Build packages based on build type
 case $BUILD_TYPE in
@@ -180,6 +226,7 @@ case $BUILD_TYPE in
     build_zip
     build_deb
     build_rpm
+    build_tar_xz
     build_appimage
     ;;
 "zip")
@@ -193,5 +240,8 @@ case $BUILD_TYPE in
     ;;
 "appimage")
     build_appimage
+    ;;
+"tar.xz")
+    build_tar_xz
     ;;
 esac

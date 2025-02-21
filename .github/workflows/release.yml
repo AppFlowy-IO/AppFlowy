@@ -353,6 +353,7 @@ jobs:
       LINUX_PACKAGE_RPM_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.rpm
       LINUX_PACKAGE_APPIMAGE_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.AppImage
       LINUX_PACKAGE_ZIP_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.zip
+      LINUX_PACKAGE_TAR_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.tar.gz
 
     strategy:
       fail-fast: false
@@ -460,6 +461,17 @@ jobs:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_APPIMAGE_NAME }}
           asset_name: ${{ env.LINUX_PACKAGE_APPIMAGE_NAME }}
+          asset_content_type: application/octet-stream
+
+      - name: Upload TAR package
+        id: upload-release-asset-install-package-tar
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_TAR_NAME }}
+          asset_name: ${{ env.LINUX_PACKAGE_TAR_NAME }}
           asset_content_type: application/octet-stream
 
   build-for-docker:
