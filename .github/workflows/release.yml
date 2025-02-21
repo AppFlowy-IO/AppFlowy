@@ -393,6 +393,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
           sudo apt install rpm patchelf locate
+          sudo add-apt-repository universe
+          sudo apt install libfuse2
 
           # Install appimagetool
           wget -O appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
@@ -461,17 +463,6 @@ jobs:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_APPIMAGE_NAME }}
           asset_name: ${{ env.LINUX_PACKAGE_APPIMAGE_NAME }}
-          asset_content_type: application/octet-stream
-
-      - name: Upload TAR package
-        id: upload-release-asset-install-package-tar
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_TAR_NAME }}
-          asset_name: ${{ env.LINUX_PACKAGE_TAR_NAME }}
           asset_content_type: application/octet-stream
 
   build-for-docker:
