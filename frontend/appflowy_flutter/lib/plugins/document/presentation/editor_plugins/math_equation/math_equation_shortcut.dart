@@ -5,7 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 /// Windows / Linux : ctrl + shift + e
-/// macOS           : ctrl + shift + e
+/// macOS           : cmd + shift + e
 /// Allows the user to insert math equation by shortcut
 ///
 /// - support
