@@ -8,6 +8,7 @@ import 'package:appflowy/plugins/document/application/document_data_pb_extension
 import 'package:appflowy/plugins/document/application/document_listener.dart';
 import 'package:appflowy/plugins/document/application/document_service.dart';
 import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -28,7 +29,11 @@ import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     show
         AppFlowyEditorLogLevel,
+        DeleteOperation,
         EditorState,
+        EditorTransactionValue,
+        Path,
+        PathExtensions,
         Position,
         Selection,
         TransactionTime,
@@ -287,8 +292,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         // apply transaction to backend
         await _transactionAdapter.apply(transaction, editorState);
 
-        // check if the document is empty.
-        await _applyRules();
+// check if the document is empty.
+        await _applyRules(value: event);
 
         if (enableDocumentInternalLog) {
           Log.debug(
@@ -319,13 +324,18 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     return editorState;
   }
 
-  Future<void> _applyRules() async {
+  Future<void> _applyRules({
+    required EditorTransactionValue value,
+  }) async {
     await Future.wait([
-      _ensureAtLeastOneParagraphExists(),
+      _ensureAtLeastOneParagraphExists(value: value),
+      _removeColumnIfItIsEmpty(value: value),
     ]);
   }
 
-  Future<void> _ensureAtLeastOneParagraphExists() async {
+  Future<void> _ensureAtLeastOneParagraphExists({
+    required EditorTransactionValue value,
+  }) async {
     final editorState = state.editorState;
     if (editorState == null) {
       return;
@@ -338,6 +348,53 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         Position(path: [0]),
       );
       await editorState.apply(transaction);
+    }
+  }
+
+  Future<void> _removeColumnIfItIsEmpty({
+    required EditorTransactionValue value,
+  }) async {
+    final transaction = value.$2;
+    final options = value.$3;
+
+    if (options.inMemoryUpdate) {
+      return;
+    }
+
+    final editorState = state.editorState;
+    if (editorState == null) {
+      return;
+    }
+
+    for (final operation in transaction.operations) {
+      final newTransaction = editorState.transaction;
+      if (operation is DeleteOperation) {
+        final path = operation.path;
+        final column = editorState.document.nodeAtPath(path.parent);
+        if (column != null && column.type == SimpleColumnBlockKeys.type) {
+          // check if the column is empty
+          final children = column.children;
+          if (children.isEmpty) {
+            // delete the column or the columns
+            // check if the columns is empty
+            final columns = column.parent;
+            if (columns != null &&
+                columns.type == SimpleColumnsBlockKeys.type) {
+              // move the children in columns out of the column
+              final children = columns.children
+                  .map((e) => e.children)
+                  .expand((e) => e)
+                  .map((e) => e.deepCopy())
+                  .toList();
+              newTransaction.insertNodes(columns.path, children);
+              newTransaction.deleteNode(columns);
+            }
+          }
+        }
+      }
+      if (newTransaction.operations.isNotEmpty) {
+        await editorState.apply(newTransaction);
+      }
     }
   }
 
