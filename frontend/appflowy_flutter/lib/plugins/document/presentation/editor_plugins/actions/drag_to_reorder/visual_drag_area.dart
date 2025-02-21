@@ -58,7 +58,23 @@ class VisualDragArea extends StatelessWidget {
       color: Theme.of(context).colorScheme.primary,
     );
 
+    // if the horizontal position is right, we need to show the indicator on the right side of the target node
+    //  which represent moving the target node and drag node inside the column block.
     if (horizontalPosition == HorizontalPosition.right) {
+      return Positioned(
+        top: globalBlockRect.top,
+        height: globalBlockRect.height,
+        left: globalBlockRect.right - 2,
+        child: Container(
+          width: 2,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      );
+    }
+
+    // If the horizontal position is center, we need to show two indicators
+    //which represent moving the block as the child of the target node.
+    if (horizontalPosition == HorizontalPosition.center) {
       const breakWidth = 22.0;
       const padding = 8.0;
       child = Row(

@@ -1,4 +1,4 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +7,15 @@ import 'package:provider/provider.dart';
 enum HorizontalPosition { left, center, right }
 
 enum VerticalPosition { top, middle, bottom }
+
+List<String> nodeTypesThatCanContainChildNode = [
+  ParagraphBlockKeys.type,
+  BulletedListBlockKeys.type,
+  NumberedListBlockKeys.type,
+  QuoteBlockKeys.type,
+  TodoListBlockKeys.type,
+  ToggleListBlockKeys.type,
+];
 
 Future<void> dragToMoveNode(
   BuildContext context, {
@@ -35,6 +44,23 @@ Future<void> dragToMoveNode(
   final (verticalPosition, horizontalPosition, _) = position;
   Path newPath = targetNode.path;
 
+  // if the horizontal position is right, creating a column block to contain the target node and the drag node
+  if (horizontalPosition == HorizontalPosition.right) {
+    final columnsNode = simpleColumnsNode(
+      children: [
+        simpleColumnNode(children: [targetNode.deepCopy()]),
+        simpleColumnNode(children: [node.deepCopy()]),
+      ],
+    );
+
+    final transaction = editorState.transaction;
+    transaction.insertNode(newPath, columnsNode);
+    transaction.deleteNode(targetNode);
+    transaction.deleteNode(node);
+    await editorState.apply(transaction);
+    return;
+  }
+
   // Determine the new path based on drop position
   // For VerticalPosition.top, we keep the target node's path
   if (verticalPosition == VerticalPosition.bottom) {
@@ -45,7 +71,9 @@ Future<void> dragToMoveNode(
         // if node is null, it means the node is the last one of the document.
         newPath = targetNode.path;
       }
-    } else {
+    } else if (horizontalPosition == HorizontalPosition.center &&
+        nodeTypesThatCanContainChildNode.contains(targetNode.type)) {
+      // check if the target node can contain a child node
       newPath = newPath.child(0);
     }
   }
@@ -106,10 +134,11 @@ Future<void> dragToMoveNode(
   // Horizontal position
   if (dragOffset.dx < globalBlockRect.left + 88) {
     horizontalPosition = HorizontalPosition.left;
-  } else if (indentableBlockTypes.contains(dragTargetNode.type)) {
-    // For indentable blocks, it means the block can contain a child block.
-    // ignore the middle here, it's not used in this example
+  } else if (dragTargetNode.level == 1 &&
+      dragOffset.dx > globalBlockRect.right / 3.0 * 2.0) {
     horizontalPosition = HorizontalPosition.right;
+  } else if (nodeTypesThatCanContainChildNode.contains(dragTargetNode.type)) {
+    horizontalPosition = HorizontalPosition.center;
   }
 
   // Vertical position
