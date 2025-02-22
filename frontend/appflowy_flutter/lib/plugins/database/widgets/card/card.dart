@@ -462,7 +462,7 @@ class RowCardStyleConfiguration {
   const RowCardStyleConfiguration({
     required this.cellStyleMap,
     this.showAccessory = true,
-    this.cardPadding = const EdgeInsets.all(8),
+    this.cardPadding = const EdgeInsets.all(4),
     this.hoverStyle,
   });
 

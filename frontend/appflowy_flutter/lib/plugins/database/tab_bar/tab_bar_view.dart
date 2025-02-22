@@ -13,6 +13,7 @@ import 'package:appflowy/workspace/presentation/widgets/more_view_actions/more_v
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -60,11 +61,17 @@ class DatabaseTabBarView extends StatelessWidget {
     super.key,
     required this.view,
     required this.shrinkWrap,
+    required this.showActions,
     this.initialRowId,
+    this.actionBuilder,
+    this.node,
   });
 
   final ViewPB view;
   final bool shrinkWrap;
+  final BlockComponentActionBuilder? actionBuilder;
+  final bool showActions;
+  final Node? node;
 
   /// Used to open a Row on plugin load
   ///
@@ -88,9 +95,12 @@ class DatabaseTabBarView extends StatelessWidget {
       child: BlocBuilder<DatabaseTabBarBloc, DatabaseTabBarState>(
         builder: (innerContext, state) {
           final layout = state.tabBars[state.selectedIndex].layout;
-
+          final isCalendar = layout == ViewLayoutPB.Calendar;
+          final horizontalPadding =
+              context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding;
           final Widget child = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               if (UniversalPlatform.isMobile) const VSpace(12),
               ValueListenableBuilder<bool>(
@@ -113,13 +123,37 @@ class DatabaseTabBarView extends StatelessWidget {
                     );
                   }
 
+                  if (showActions && actionBuilder != null && node != null) {
+                    child = BlockComponentActionWrapper(
+                      node: node!,
+                      actionBuilder: actionBuilder!,
+                      child: Padding(
+                        padding: EdgeInsets.only(right: horizontalPadding),
+                        child: child,
+                      ),
+                    );
+                  }
+
+                  if (UniversalPlatform.isDesktop) {
+                    child = Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: horizontalPadding),
+                      child: child,
+                    );
+                  }
+
                   return child;
                 },
               ),
               pageSettingBarExtensionFromState(context, state),
               wrapContent(
                 layout: layout,
-                child: pageContentFromState(context, state),
+                child: Padding(
+                  padding: (isCalendar && shrinkWrap)
+                      ? EdgeInsets.only(left: 42)
+                      : EdgeInsets.zero,
+                  child: pageContentFromState(context, state),
+                ),
               ),
             ],
           );
@@ -226,6 +260,9 @@ class DatabaseTabBarViewPlugin extends Plugin {
 }
 
 const kDatabasePluginWidgetBuilderHorizontalPadding = 'horizontal_padding';
+const kDatabasePluginWidgetBuilderShowActions = 'show_actions';
+const kDatabasePluginWidgetBuilderActionBuilder = 'action_builder';
+const kDatabasePluginWidgetBuilderNode = 'node';
 
 class DatabasePluginWidgetBuilderSize {
   const DatabasePluginWidgetBuilderSize({required this.horizontalPadding});
@@ -274,6 +311,11 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
     final horizontalPadding =
         data?[kDatabasePluginWidgetBuilderHorizontalPadding] as double? ??
             GridSize.horizontalHeaderPadding + 40;
+    final BlockComponentActionBuilder? actionBuilder =
+        data?[kDatabasePluginWidgetBuilderActionBuilder];
+    final bool showActions =
+        data?[kDatabasePluginWidgetBuilderShowActions] ?? false;
+    final Node? node = data?[kDatabasePluginWidgetBuilderNode];
 
     return Provider(
       create: (context) => DatabasePluginWidgetBuilderSize(
@@ -284,6 +326,9 @@ class DatabasePluginWidgetBuilder extends PluginWidgetBuilder {
         view: notifier.view,
         shrinkWrap: shrinkWrap,
         initialRowId: initialRowId,
+        actionBuilder: actionBuilder,
+        showActions: showActions,
+        node: node,
       ),
     );
   }

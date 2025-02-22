@@ -21,11 +21,13 @@ class GridHeaderSliverAdaptor extends StatefulWidget {
   const GridHeaderSliverAdaptor({
     super.key,
     required this.viewId,
+    required this.shrinkWrap,
     required this.anchorScrollController,
   });
 
   final String viewId;
   final ScrollController anchorScrollController;
+  final bool shrinkWrap;
 
   @override
   State<GridHeaderSliverAdaptor> createState() =>
@@ -37,6 +39,9 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
   Widget build(BuildContext context) {
     final fieldController =
         context.read<GridBloc>().databaseController.fieldController;
+    final horizontalPadding =
+        context.read<DatabasePluginWidgetBuilderSize?>()?.horizontalPadding ??
+            0.0;
     return BlocProvider(
       create: (context) {
         return GridHeaderBloc(
@@ -47,9 +52,14 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         controller: widget.anchorScrollController,
-        child: _GridHeader(
-          viewId: widget.viewId,
-          fieldController: fieldController,
+        child: Padding(
+          padding: widget.shrinkWrap
+              ? EdgeInsets.symmetric(horizontal: horizontalPadding)
+              : EdgeInsets.zero,
+          child: _GridHeader(
+            viewId: widget.viewId,
+            fieldController: fieldController,
+          ),
         ),
       ),
     );
