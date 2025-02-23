@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/align_toolbar_item/custom_text_align_command.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/math_equation/math_equation_shortcut.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/shortcuts/custom_delete_command.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/undo_redo/custom_undo_redo_commands.dart';
@@ -39,6 +40,7 @@ List<CommandShortcutEvent> commandShortcutEvents = [
   ...customTextAlignCommands,
 
   customDeleteCommand,
+  insertInlineMathEquationCommand,
 
   // remove standard shortcuts for copy, cut, paste, todo
   ...standardCommandShortcutEvents

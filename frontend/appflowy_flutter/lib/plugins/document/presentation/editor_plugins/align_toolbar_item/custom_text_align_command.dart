@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 
 final List<CommandShortcutEvent> customTextAlignCommands = [
   customTextLeftAlignCommand,
@@ -26,8 +25,8 @@ final CommandShortcutEvent customTextLeftAlignCommand = CommandShortcutEvent(
   handler: (editorState) => _textAlignHandler(editorState, leftAlignmentKey),
 );
 
-/// Windows / Linux : ctrl + shift + e
-/// macOS           : ctrl + shift + e
+/// Windows / Linux : ctrl + shift + c
+/// macOS           : ctrl + shift + c
 /// Allows the user to align text to the center
 ///
 /// - support
@@ -36,7 +35,7 @@ final CommandShortcutEvent customTextLeftAlignCommand = CommandShortcutEvent(
 ///
 final CommandShortcutEvent customTextCenterAlignCommand = CommandShortcutEvent(
   key: 'Align text to the center',
-  command: 'ctrl+shift+e',
+  command: 'ctrl+shift+c',
   getDescription: LocaleKeys.settings_shortcutsPage_commands_textAlignCenter.tr,
   handler: (editorState) => _textAlignHandler(editorState, centerAlignmentKey),
 );

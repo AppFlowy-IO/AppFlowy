@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/strin
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/custom_copy_command.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/custom_cut_command.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/custom_paste_command.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/math_equation/math_equation_shortcut.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toggle/toggle_block_shortcuts.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
@@ -597,6 +598,10 @@ extension CommandLabel on CommandShortcutEvent {
       label = LocaleKeys.settings_shortcutsPage_keybindings_alignCenter.tr();
     } else if (key == customTextRightAlignCommand.key) {
       label = LocaleKeys.settings_shortcutsPage_keybindings_alignRight.tr();
+    } else if (key == insertInlineMathEquationCommand.key) {
+      label = LocaleKeys
+          .settings_shortcutsPage_keybindings_insertInlineMathEquation
+          .tr();
     } else if (key == undoCommand.key) {
       label = LocaleKeys.settings_shortcutsPage_keybindings_undo.tr();
     } else if (key == redoCommand.key) {
