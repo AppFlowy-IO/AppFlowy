@@ -1,49 +1,53 @@
-import 'package:appflowy/ai/service/appflowy_ai_service.dart';
-import 'package:appflowy/ai/service/error.dart';
+import 'package:appflowy/ai/ai.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/message/ai_markdown_text.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/base/build_context_extension.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/base/markdown_text_robot.dart';
+import 'package:appflowy/util/theme_extension.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/colorscheme/default_colorscheme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-import 'widgets/ai_limit_dialog.dart';
-import 'widgets/ai_writer_block_operations.dart';
-import 'widgets/ai_writer_block_widgets.dart';
-import 'widgets/discard_dialog.dart';
-import 'widgets/barrier_dialog.dart';
+import 'operations/ai_writer_cubit.dart';
+import 'operations/ai_writer_entities.dart';
+import 'operations/ai_writer_node_extension.dart';
+import 'suggestion_action_bar.dart';
 
-class AIWriterBlockKeys {
-  const AIWriterBlockKeys._();
+class AiWriterBlockKeys {
+  const AiWriterBlockKeys._();
 
   static const String type = 'ai_writer';
-  static const String prompt = 'prompt';
-  static const String startSelection = 'start_selection';
-  static const String generationCount = 'generation_count';
 
-  static String getRewritePrompt(String previousOutput, String prompt) {
-    return 'I am not satisfied with your previous response ($previousOutput) to the query ($prompt). Please provide an alternative response.';
-  }
+  static const String isInitialized = 'is_initialized';
+  static const String selection = 'selection';
+  static const String command = 'command';
+
+  /// Sample usage:
+  ///
+  /// `attributes: {
+  ///   'ai_writer_delta_suggestion': 'original'
+  /// }`
+  static const String suggestion = 'ai_writer_delta_suggestion';
+  static const String suggestionOriginal = 'original';
+  static const String suggestionReplacement = 'replacement';
 }
 
 Node aiWriterNode({
-  String prompt = '',
-  required Selection start,
+  required Selection? selection,
+  required AiWriterCommand command,
 }) {
   return Node(
-    type: AIWriterBlockKeys.type,
+    type: AiWriterBlockKeys.type,
     attributes: {
-      AIWriterBlockKeys.prompt: prompt,
-      AIWriterBlockKeys.startSelection: start.toJson(),
-      AIWriterBlockKeys.generationCount: 0,
+      AiWriterBlockKeys.isInitialized: false,
+      AiWriterBlockKeys.selection: selection?.toJson(),
+      AiWriterBlockKeys.command: command.index,
     },
   );
 }
@@ -54,7 +58,7 @@ class AIWriterBlockComponentBuilder extends BlockComponentBuilder {
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
-    return AIWriterBlockComponent(
+    return AiWriterBlockComponent(
       key: node.key,
       node: node,
       showActions: showActions(node),
@@ -68,12 +72,13 @@ class AIWriterBlockComponentBuilder extends BlockComponentBuilder {
   @override
   BlockComponentValidate get validate => (node) =>
       node.children.isEmpty &&
-      node.attributes[AIWriterBlockKeys.prompt] is String &&
-      node.attributes[AIWriterBlockKeys.startSelection] is Map;
+      node.attributes[AiWriterBlockKeys.isInitialized] is bool &&
+      node.attributes[AiWriterBlockKeys.selection] is Map? &&
+      node.attributes[AiWriterBlockKeys.command] is int;
 }
 
-class AIWriterBlockComponent extends BlockComponentStatefulWidget {
-  const AIWriterBlockComponent({
+class AiWriterBlockComponent extends BlockComponentStatefulWidget {
+  const AiWriterBlockComponent({
     super.key,
     required super.node,
     super.showActions,
@@ -82,51 +87,42 @@ class AIWriterBlockComponent extends BlockComponentStatefulWidget {
   });
 
   @override
-  State<AIWriterBlockComponent> createState() => _AIWriterBlockComponentState();
+  State<AiWriterBlockComponent> createState() => _AIWriterBlockComponentState();
 }
 
-class _AIWriterBlockComponentState extends State<AIWriterBlockComponent> {
-  final controller = TextEditingController();
+class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
+  final key = GlobalKey();
+  final textController = TextEditingController();
   final textFieldFocusNode = FocusNode();
+  final overlayController = OverlayPortalController();
+  final layerLink = LayerLink();
 
   late final editorState = context.read<EditorState>();
-  late final SelectionGestureInterceptor interceptor;
-  late final aiWriterOperations = AIWriterBlockOperations(
+  late final aiWriterCubit = AiWriterCubit(
+    documentId: context.read<DocumentBloc>().documentId,
     editorState: editorState,
-    aiWriterNode: widget.node,
+    getAiWriterNode: () => widget.node,
+    initialCommand: widget.node.aiWriterCommand,
   );
-
-  String get prompt => widget.node.attributes[AIWriterBlockKeys.prompt];
-  int get generationCount =>
-      widget.node.attributes[AIWriterBlockKeys.generationCount] ?? 0;
-  Selection? get startSelection {
-    final selection = widget.node.attributes[AIWriterBlockKeys.startSelection];
-    if (selection != null) {
-      return Selection.fromJson(selection);
-    }
-    return null;
-  }
-
-  bool isGenerating = false;
 
   @override
   void initState() {
     super.initState();
 
-    _subscribeSelectionGesture();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      editorState.selection = null;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      overlayController.show();
       textFieldFocusNode.requestFocus();
+      if (!widget.node.isAiWriterInitialized) {
+        aiWriterCubit.init();
+      }
     });
   }
 
   @override
   void dispose() {
-    _onExit();
-    _unsubscribeSelectionGesture();
-    controller.dispose();
+    textController.dispose();
     textFieldFocusNode.dispose();
-
+    aiWriterCubit.close();
     super.dispose();
   }
 
@@ -136,277 +132,442 @@ class _AIWriterBlockComponentState extends State<AIWriterBlockComponent> {
       return const SizedBox.shrink();
     }
 
-    final child = Focus(
-      onKeyEvent: (node, event) {
-        if (event is! KeyDownEvent) {
-          return KeyEventResult.ignored;
-        }
-        if (event.logicalKey == LogicalKeyboardKey.enter) {
-          if (!isGenerating) {
-            _onGenerate();
-          }
-          return KeyEventResult.handled;
-        }
-        return KeyEventResult.ignored;
-      },
-      child: Card(
-        elevation: 5,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(
+          value: aiWriterCubit,
         ),
-        color: Theme.of(context).colorScheme.surface,
-        child: Container(
-          margin: const EdgeInsets.all(10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const AIWriterBlockHeader(),
-              const Space(0, 10),
-              if (prompt.isEmpty && generationCount < 1) ...[
-                _buildInputWidget(context),
-                const Space(0, 10),
-                AIWriterBlockInputField(
-                  onGenerate: _onGenerate,
-                  onExit: _onExit,
-                ),
-              ] else ...[
-                AIWriterBlockFooter(
-                  onKeep: _onExit,
-                  onRewrite: _onRewrite,
-                  onDiscard: _onDiscard,
-                ),
-              ],
-            ],
-          ),
+        BlocProvider(
+          create: (context) => AIPromptInputBloc(),
         ),
+      ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return OverlayPortal(
+            controller: overlayController,
+            overlayChildBuilder: (context) {
+              return Stack(
+                children: [
+                  BlocBuilder<AiWriterCubit, AiWriterState>(
+                    builder: (context, state) {
+                      final hitTestBehavior = state is GeneratingAiWriterState
+                          ? HitTestBehavior.opaque
+                          : HitTestBehavior.translucent;
+                      return MouseRegion(
+                        cursor: SystemMouseCursors.basic,
+                        hitTestBehavior: hitTestBehavior,
+                        child: Listener(
+                          behavior: hitTestBehavior,
+                          onPointerDown: (_) => onTapOutside(),
+                        ),
+                      );
+                    },
+                  ),
+                  CompositedTransformFollower(
+                    link: layerLink,
+                    showWhenUnlinked: false,
+                    child: Container(
+                      padding: const EdgeInsets.only(
+                        left: 40.0,
+                        bottom: 16.0,
+                      ),
+                      width: constraints.maxWidth,
+                      child: OverlayContent(
+                        node: widget.node,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+            child: CompositedTransformTarget(
+              link: layerLink,
+              child: BlocBuilder<AiWriterCubit, AiWriterState>(
+                builder: (context, state) {
+                  return SizedBox(
+                    key: key,
+                    width: double.infinity,
+                  );
+                },
+              ),
+            ),
+          );
+        },
       ),
     );
-
-    return Padding(
-      padding: const EdgeInsets.only(left: 40),
-      child: child,
-    );
   }
 
-  Widget _buildInputWidget(BuildContext context) {
-    return FlowyTextField(
-      hintText: LocaleKeys.document_plugins_autoGeneratorHintText.tr(),
-      controller: controller,
-      maxLines: 5,
-      focusNode: textFieldFocusNode,
-      autoFocus: false,
-      hintTextConstraints: const BoxConstraints(),
-    );
-  }
-
-  Future<void> _onExit() async {
-    await aiWriterOperations.removeAIWriterNode(widget.node);
-  }
-
-  Future<void> _onGenerate() async {
-    if (isGenerating) {
-      return;
-    }
-
-    isGenerating = true;
-
-    await aiWriterOperations.updatePromptText(controller.text);
-
-    if (!_isAIWriterEnabled) {
-      Log.error('AI Writer is not enabled');
-      return;
-    }
-
-    final markdownTextRobot = MarkdownTextRobot(
-      editorState: editorState,
-    );
-
-    BarrierDialog? barrierDialog;
-
-    final aiRepository = AppFlowyAIService();
-    final objectId =
-        editorState.document.root.context?.read<DocumentBloc>().documentId ??
-            "";
-
-    await aiRepository.streamCompletion(
-      objectId: objectId,
-      text: controller.text,
-      completionType: CompletionTypePB.ContinueWriting,
-      onStart: () async {
-        if (mounted) {
-          barrierDialog = BarrierDialog(context);
-          barrierDialog?.show();
-          await aiWriterOperations.ensurePreviousNodeIsEmptyParagraphNode();
-          markdownTextRobot.start();
-        }
-      },
-      onProcess: (text) async {
-        await markdownTextRobot.appendMarkdownText(text);
-      },
-      onEnd: () async {
-        barrierDialog?.dismiss();
-        await markdownTextRobot.stop();
-        editorState.service.keyboardService?.enable();
-      },
-      onError: (error) async {
-        barrierDialog?.dismiss();
-        _showAIWriterError(error);
-      },
-    );
-
-    await aiWriterOperations.updateGenerationCount(generationCount + 1);
-
-    isGenerating = false;
-  }
-
-  Future<void> _onDiscard() async {
-    await aiWriterOperations.discardCurrentResponse(
-      aiWriterNode: widget.node,
-      selection: startSelection,
-    );
-    return _onExit();
-  }
-
-  Future<void> _onRewrite() async {
-    if (isGenerating) {
-      return;
-    }
-
-    isGenerating = true;
-
-    final previousOutput = _getPreviousOutput();
-    if (previousOutput == null) {
-      return;
-    }
-
-    // discard the current response
-    await aiWriterOperations.discardCurrentResponse(
-      aiWriterNode: widget.node,
-      selection: startSelection,
-    );
-
-    if (!_isAIWriterEnabled) {
-      return;
-    }
-
-    final markdownTextRobot = MarkdownTextRobot(
-      editorState: editorState,
-    );
-    final aiService = AppFlowyAIService();
-    final objectId =
-        editorState.document.root.context?.read<DocumentBloc>().documentId ??
-            "";
-    await aiService.streamCompletion(
-      objectId: objectId,
-      text: AIWriterBlockKeys.getRewritePrompt(previousOutput, prompt),
-      completionType: CompletionTypePB.ContinueWriting,
-      onStart: () async {
-        await aiWriterOperations.ensurePreviousNodeIsEmptyParagraphNode();
-
-        markdownTextRobot.start();
-      },
-      onProcess: (text) async {
-        await markdownTextRobot.appendMarkdownText(text);
-      },
-      onEnd: () async {
-        await markdownTextRobot.stop();
-      },
-      onError: (error) {
-        _showAIWriterError(error);
-      },
-    );
-
-    await aiWriterOperations.updateGenerationCount(generationCount + 1);
-
-    isGenerating = false;
-  }
-
-  String? _getPreviousOutput() {
-    final startSelection = this.startSelection;
-    if (startSelection != null) {
-      final end = widget.node.previous?.path;
-
-      if (end != null) {
-        final result = editorState
-            .getNodesInSelection(
-          startSelection.copyWith(end: Position(path: end)),
-        )
-            .fold(
-          '',
-          (previousValue, element) {
-            final delta = element.delta;
-            if (delta != null) {
-              return "$previousValue\n${delta.toPlainText()}";
-            } else {
-              return previousValue;
-            }
-          },
-        );
-        return result.trim();
-      }
-    }
-    return null;
-  }
-
-  void _subscribeSelectionGesture() {
-    interceptor = SelectionGestureInterceptor(
-      key: AIWriterBlockKeys.type,
-      canTap: (details) {
-        if (!context.isOffsetInside(details.globalPosition)) {
-          if (prompt.isNotEmpty || controller.text.isNotEmpty) {
-            // show dialog
-            showDialog(
-              context: context,
-              builder: (_) => DiscardDialog(
-                onConfirm: _onDiscard,
-                onCancel: () {},
-              ),
-            );
-          } else if (controller.text.isEmpty) {
-            _onExit();
-          }
-        }
-        editorState.service.keyboardService?.disable();
-        return false;
-      },
-    );
-    editorState.service.selectionService.registerGestureInterceptor(
-      interceptor,
-    );
-  }
-
-  void _unsubscribeSelectionGesture() {
-    editorState.service.selectionService.unregisterGestureInterceptor(
-      AIWriterBlockKeys.type,
-    );
-  }
-
-  void _showAIWriterError(AIError error) {
-    if (mounted) {
-      if (error.isLimitExceeded) {
-        showAILimitDialog(context, error.message);
-      } else {
-        showToastNotification(
-          context,
-          message: error.message,
-          type: ToastificationType.error,
-        );
-      }
-    }
-  }
-
-  bool get _isAIWriterEnabled {
-    final userProfile = context.read<DocumentBloc>().state.userProfilePB;
-    final isAIWriterEnabled = userProfile != null;
-
-    if (!isAIWriterEnabled) {
-      showToastNotification(
-        context,
-        message: LocaleKeys.document_plugins_autoGeneratorCantGetOpenAIKey.tr(),
-        type: ToastificationType.error,
+  void onTapOutside() {
+    if (aiWriterCubit.hasUnusedResponse()) {
+      showConfirmDialog(
+        context: context,
+        title: LocaleKeys.button_discard.tr(),
+        description: LocaleKeys.document_plugins_discardResponse.tr(),
+        confirmLabel: LocaleKeys.button_discard.tr(),
+        style: ConfirmPopupStyle.cancelAndOk,
+        onConfirm: () => aiWriterCubit
+          ..stopStream()
+          ..exit(),
+        onCancel: () {},
       );
+    } else {
+      aiWriterCubit
+        ..stopStream()
+        ..exit();
     }
+  }
+}
 
-    return isAIWriterEnabled;
+class OverlayContent extends StatelessWidget {
+  const OverlayContent({
+    super.key,
+    required this.node,
+  });
+
+  final Node node;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AiWriterCubit, AiWriterState>(
+      builder: (context, state) {
+        final selection = node.aiWriterSelection;
+        final showSuggestionPopup =
+            state is ReadyAiWriterState && !state.isInitial;
+        final showActionPopup = state is ReadyAiWriterState && state.isInitial;
+        final markdownText = switch (state) {
+          final ReadyAiWriterState ready => ready.markdownText,
+          final GeneratingAiWriterState generating => generating.markdownText,
+          _ => '',
+        };
+        final hasSelection = selection != null && !selection.isCollapsed;
+
+        final isLightMode = Theme.of(context).isLightMode;
+        final darkBorderColor =
+            isLightMode ? Color(0x1F1F2329) : Color(0xFF505469);
+        final lightBorderColor =
+            Theme.of(context).brightness == Brightness.light
+                ? ColorSchemeConstants.lightBorderColor
+                : ColorSchemeConstants.darkBorderColor;
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (showSuggestionPopup) ...[
+              Container(
+                padding: EdgeInsets.all(4.0),
+                decoration: _getModalDecoration(
+                  context,
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  borderColor: darkBorderColor,
+                ),
+                child: SuggestionActionBar(
+                  actions: _getSuggestedActions(
+                    currentCommand: state.command,
+                    hasSelection: hasSelection,
+                  ),
+                  onTap: (action) {
+                    context.read<AiWriterCubit>().runResponseAction(action);
+                  },
+                ),
+              ),
+              const VSpace(4.0 + 1.0),
+            ],
+            DecoratedBox(
+              decoration: _getModalDecoration(
+                context,
+                color: null,
+                borderColor: darkBorderColor,
+                borderRadius: BorderRadius.all(Radius.circular(12.0)),
+              ),
+              child: Column(
+                children: [
+                  if (markdownText.isNotEmpty) ...[
+                    DecoratedBox(
+                      decoration: _getHelperChildDecoration(context),
+                      child: Container(
+                        constraints: BoxConstraints(maxHeight: 140),
+                        width: double.infinity,
+                        child: SingleChildScrollView(
+                          padding: EdgeInsets.symmetric(
+                            vertical: 8.0,
+                            horizontal: 14,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                height: 24.0,
+                                alignment: AlignmentDirectional.centerStart,
+                                child: FlowyText(
+                                  state.command.i18n,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF666D76),
+                                ),
+                              ),
+                              const VSpace(4.0),
+                              AIMarkdownText(
+                                markdown: markdownText,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Divider(
+                      height: 1.0,
+                    ),
+                  ],
+                  DecoratedBox(
+                    decoration: markdownText.isNotEmpty
+                        ? _getInputChildDecoration(context)
+                        : _getSingleChildDeocoration(context),
+                    child: MainContentArea(),
+                  ),
+                ],
+              ),
+            ),
+            if (showActionPopup) ...[
+              const VSpace(4.0 + 1.0),
+              Container(
+                padding: EdgeInsets.all(8.0),
+                constraints: BoxConstraints(minWidth: 240.0),
+                decoration: _getModalDecoration(
+                  context,
+                  color: Theme.of(context).colorScheme.surface,
+                  borderColor: lightBorderColor,
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                ),
+                child: IntrinsicWidth(
+                  child: SeparatedColumn(
+                    separatorBuilder: () => const VSpace(4.0),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: _getCommands(
+                      hasSelection: hasSelection,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _bottomButton(AiWriterCommand command) {
+    return Builder(
+      builder: (context) {
+        return SizedBox(
+          height: 30.0,
+          child: FlowyButton(
+            leftIcon: FlowySvg(
+              command.icon,
+              size: const Size.square(16),
+              color: Theme.of(context).iconTheme.color,
+            ),
+            margin: const EdgeInsets.all(6.0),
+            text: FlowyText(
+              command.i18n,
+              figmaLineHeight: 20,
+            ),
+            onTap: () {
+              context.read<AiWriterCubit>().runCommand(command);
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  BoxDecoration _getModalDecoration(
+    BuildContext context, {
+    required Color? color,
+    required Color borderColor,
+    required BorderRadius borderRadius,
+  }) {
+    return BoxDecoration(
+      color: color,
+      border: Border.all(
+        color: borderColor,
+        strokeAlign: BorderSide.strokeAlignOutside,
+      ),
+      borderRadius: borderRadius,
+      boxShadow: const [
+        BoxShadow(
+          offset: Offset(0, 4),
+          blurRadius: 20,
+          color: Color(0x1A1F2329),
+        ),
+      ],
+    );
+  }
+
+  BoxDecoration _getSingleChildDeocoration(BuildContext context) {
+    return BoxDecoration(
+      color: Theme.of(context).colorScheme.surface,
+      borderRadius: BorderRadius.all(Radius.circular(12.0)),
+    );
+  }
+
+  BoxDecoration _getHelperChildDecoration(BuildContext context) {
+    return BoxDecoration(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      borderRadius: BorderRadius.vertical(top: Radius.circular(12.0)),
+    );
+  }
+
+  BoxDecoration _getInputChildDecoration(BuildContext context) {
+    return BoxDecoration(
+      color: Theme.of(context).colorScheme.surface,
+      borderRadius: BorderRadius.vertical(bottom: Radius.circular(12.0)),
+    );
+  }
+
+  List<Widget> _getCommands({required bool hasSelection}) {
+    if (hasSelection) {
+      return [
+        _bottomButton(AiWriterCommand.improveWriting),
+        _bottomButton(AiWriterCommand.fixSpellingAndGrammar),
+        _bottomButton(AiWriterCommand.explain),
+        const Divider(height: 1.0, thickness: 1.0),
+        _bottomButton(AiWriterCommand.makeLonger),
+        _bottomButton(AiWriterCommand.makeShorter),
+      ];
+    } else {
+      return [
+        _bottomButton(AiWriterCommand.continueWriting),
+      ];
+    }
+  }
+
+  List<SuggestionAction> _getSuggestedActions({
+    required AiWriterCommand currentCommand,
+    required bool hasSelection,
+  }) {
+    if (hasSelection) {
+      return switch (currentCommand) {
+        AiWriterCommand.userQuestion || AiWriterCommand.continueWriting => [
+            SuggestionAction.keep,
+            SuggestionAction.discard,
+            SuggestionAction.rewrite,
+          ],
+        AiWriterCommand.explain => [
+            SuggestionAction.insertBelow,
+            SuggestionAction.tryAgain,
+            SuggestionAction.close,
+          ],
+        AiWriterCommand.fixSpellingAndGrammar ||
+        AiWriterCommand.improveWriting ||
+        AiWriterCommand.makeShorter ||
+        AiWriterCommand.makeLonger =>
+          [
+            SuggestionAction.accept,
+            SuggestionAction.discard,
+            SuggestionAction.insertBelow,
+            SuggestionAction.rewrite,
+          ],
+      };
+    } else {
+      return switch (currentCommand) {
+        AiWriterCommand.userQuestion || AiWriterCommand.continueWriting => [
+            SuggestionAction.keep,
+            SuggestionAction.discard,
+            SuggestionAction.rewrite,
+          ],
+        AiWriterCommand.explain => [
+            SuggestionAction.insertBelow,
+            SuggestionAction.tryAgain,
+            SuggestionAction.close,
+          ],
+        _ => [
+            SuggestionAction.keep,
+            SuggestionAction.discard,
+            SuggestionAction.rewrite,
+          ],
+      };
+    }
+  }
+}
+
+class MainContentArea extends StatelessWidget {
+  const MainContentArea({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AiWriterCubit, AiWriterState>(
+      builder: (context, state) {
+        final cubit = context.read<AiWriterCubit>();
+
+        if (state is ReadyAiWriterState) {
+          return DesktopPromptInput(
+            isStreaming: false,
+            hideDecoration: true,
+            onSubmitted: (message, format, _) => cubit.submit(message, format),
+            onStopStreaming: () => cubit.stopStream(),
+            selectedSourcesNotifier: cubit.selectedSourcesNotifier,
+            onUpdateSelectedSources: (sources) {
+              cubit.selectedSourcesNotifier.value = [
+                ...sources,
+              ];
+            },
+          );
+        }
+        if (state is GeneratingAiWriterState) {
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                const HSpace(6.0),
+                Expanded(
+                  child: AILoadingIndicator(
+                    text: LocaleKeys.ai_editing.tr(),
+                  ),
+                ),
+                const HSpace(8.0),
+                PromptInputSendButton(
+                  state: SendButtonState.streaming,
+                  onSendPressed: () {},
+                  onStopStreaming: () => cubit.stopStream(),
+                ),
+              ],
+            ),
+          );
+        }
+        if (state is ErrorAiWriterState) {
+          return Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                const FlowySvg(
+                  FlowySvgs.toast_error_filled_s,
+                  blendMode: null,
+                ),
+                const HSpace(8.0),
+                Expanded(
+                  child: FlowyText(
+                    state.error.message,
+                    maxLines: null,
+                  ),
+                ),
+                const HSpace(8.0),
+                FlowyIconButton(
+                  width: 32,
+                  hoverColor: Colors.transparent,
+                  icon: FlowySvg(
+                    FlowySvgs.toast_close_s,
+                    size: Size.square(20),
+                  ),
+                  onPressed: () => cubit.exit(),
+                ),
+              ],
+            ),
+          );
+        }
+        return const SizedBox.shrink();
+      },
+    );
   }
 }
