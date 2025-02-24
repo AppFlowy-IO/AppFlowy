@@ -32,7 +32,6 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         DeleteOperation,
         EditorState,
         EditorTransactionValue,
-        Path,
         PathExtensions,
         Position,
         Selection,
