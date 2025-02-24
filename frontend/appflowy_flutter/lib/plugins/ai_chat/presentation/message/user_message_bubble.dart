@@ -42,10 +42,9 @@ class ChatUserMessageBubble extends StatelessWidget {
             const VSpace(6),
           ],
           Row(
-            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              const Spacer(),
               _buildBubble(context),
               const HSpace(DesktopAIChatSizes.avatarAndChatBubbleSpacing),
               _buildAvatar(),

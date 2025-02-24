@@ -191,14 +191,8 @@ class _ChatContentPage extends StatelessWidget {
       );
     }
 
-    if (message.author.id == userProfile.id.toString()) {
-      return ChatUserMessageWidget(
-        user: message.author,
-        message: message,
-      );
-    }
-
-    if (isOtherUserMessage(message)) {
+    if (message.author.id == userProfile.id.toString() ||
+        isOtherUserMessage(message)) {
       return ChatUserMessageWidget(
         user: message.author,
         message: message,
