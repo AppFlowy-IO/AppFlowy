@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -105,6 +106,15 @@ class SimpleColumnBlockComponentState extends State<SimpleColumnBlockComponent>
       padding: padding,
       child: child,
     );
+
+    if (kDebugMode) {
+      child = Container(
+        color: Colors.red.withValues(
+          alpha: 0.2,
+        ),
+        child: child,
+      );
+    }
 
     return child;
   }
