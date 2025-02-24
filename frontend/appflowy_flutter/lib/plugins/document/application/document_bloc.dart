@@ -6,9 +6,9 @@ import 'package:appflowy/plugins/document/application/document_awareness_metadat
 import 'package:appflowy/plugins/document/application/document_collab_adapter.dart';
 import 'package:appflowy/plugins/document/application/document_data_pb_extension.dart';
 import 'package:appflowy/plugins/document/application/document_listener.dart';
+import 'package:appflowy/plugins/document/application/document_rules.dart';
 import 'package:appflowy/plugins/document/application/document_service.dart';
 import 'package:appflowy/plugins/document/application/editor_transaction_adapter.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/trash/application/trash_service.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -93,6 +93,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     documentId: documentId,
     documentService: _documentService,
   );
+
+  late final DocumentRules _documentRules;
 
   StreamSubscription? _transactionSubscription;
 
@@ -266,13 +268,14 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     final editorState = EditorState(document: document);
 
     _documentCollabAdapter = DocumentCollabAdapter(editorState, documentId);
+    _documentRules = DocumentRules(editorState: editorState);
 
     // subscribe to the document change from the editor
     _transactionSubscription = editorState.transactionStream.listen(
-      (event) async {
-        final time = event.$1;
-        final transaction = event.$2;
-        final options = event.$3;
+      (value) async {
+        final time = value.$1;
+        final transaction = value.$2;
+        final options = value.$3;
         if (time != TransactionTime.before) {
           return;
         }
@@ -291,8 +294,8 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         // apply transaction to backend
         await _transactionAdapter.apply(transaction, editorState);
 
-// check if the document is empty.
-        await _applyRules(value: event);
+        // check if the document is empty.
+        await _documentRules.applyRules(value: value);
 
         if (enableDocumentInternalLog) {
           Log.debug(
@@ -321,80 +324,6 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     }
 
     return editorState;
-  }
-
-  Future<void> _applyRules({
-    required EditorTransactionValue value,
-  }) async {
-    await Future.wait([
-      _ensureAtLeastOneParagraphExists(value: value),
-      _removeColumnIfItIsEmpty(value: value),
-    ]);
-  }
-
-  Future<void> _ensureAtLeastOneParagraphExists({
-    required EditorTransactionValue value,
-  }) async {
-    final editorState = state.editorState;
-    if (editorState == null) {
-      return;
-    }
-    final document = editorState.document;
-    if (document.root.children.isEmpty) {
-      final transaction = editorState.transaction;
-      transaction.insertNode([0], paragraphNode());
-      transaction.afterSelection = Selection.collapsed(
-        Position(path: [0]),
-      );
-      await editorState.apply(transaction);
-    }
-  }
-
-  Future<void> _removeColumnIfItIsEmpty({
-    required EditorTransactionValue value,
-  }) async {
-    final transaction = value.$2;
-    final options = value.$3;
-
-    if (options.inMemoryUpdate) {
-      return;
-    }
-
-    final editorState = state.editorState;
-    if (editorState == null) {
-      return;
-    }
-
-    for (final operation in transaction.operations) {
-      final newTransaction = editorState.transaction;
-      if (operation is DeleteOperation) {
-        final path = operation.path;
-        final column = editorState.document.nodeAtPath(path.parent);
-        if (column != null && column.type == SimpleColumnBlockKeys.type) {
-          // check if the column is empty
-          final children = column.children;
-          if (children.isEmpty) {
-            // delete the column or the columns
-            // check if the columns is empty
-            final columns = column.parent;
-            if (columns != null &&
-                columns.type == SimpleColumnsBlockKeys.type) {
-              // move the children in columns out of the column
-              final children = columns.children
-                  .map((e) => e.children)
-                  .expand((e) => e)
-                  .map((e) => e.deepCopy())
-                  .toList();
-              newTransaction.insertNodes(columns.path, children);
-              newTransaction.deleteNode(columns);
-            }
-          }
-        }
-      }
-      if (newTransaction.operations.isNotEmpty) {
-        await editorState.apply(newTransaction);
-      }
-    }
   }
 
   Future<void> _onDocumentStateUpdate(DocEventPB docEvent) async {
