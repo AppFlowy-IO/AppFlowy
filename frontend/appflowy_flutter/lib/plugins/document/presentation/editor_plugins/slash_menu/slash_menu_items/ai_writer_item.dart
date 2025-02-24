@@ -31,6 +31,22 @@ SelectionMenuItem aiWriterSlashMenuItem = SelectionMenuItem(
   nameBuilder: slashMenuItemNameBuilder,
 );
 
+SelectionMenuItem continueWritingSlashMenuItem = SelectionMenuItem(
+  getName: LocaleKeys.document_plugins_aiWriter_continueWriting.tr,
+  keywords: [
+    ..._keywords,
+    LocaleKeys.document_plugins_aiWriter_continueWriting.tr(),
+  ],
+  handler: (editorState, _, __) async =>
+      _insertAiWriter(editorState, AiWriterCommand.continueWriting),
+  icon: (_, isSelected, style) => SelectableSvgWidget(
+    data: AiWriterCommand.continueWriting.icon,
+    isSelected: isSelected,
+    style: style,
+  ),
+  nameBuilder: slashMenuItemNameBuilder,
+);
+
 Future<void> _insertAiWriter(
   EditorState editorState,
   AiWriterCommand action,
