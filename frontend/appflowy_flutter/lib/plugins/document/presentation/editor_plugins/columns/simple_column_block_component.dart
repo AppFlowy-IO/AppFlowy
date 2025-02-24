@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -53,7 +54,8 @@ class SimpleColumnBlockComponent extends BlockComponentStatefulWidget {
   });
 
   @override
-  State<SimpleColumnBlockComponent> createState() => SimpleColumnBlockComponentState();
+  State<SimpleColumnBlockComponent> createState() =>
+      SimpleColumnBlockComponentState();
 }
 
 class SimpleColumnBlockComponentState extends State<SimpleColumnBlockComponent>
@@ -85,13 +87,17 @@ class SimpleColumnBlockComponentState extends State<SimpleColumnBlockComponent>
     Widget child = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: node.children
-          .map(
-            (e) => IntrinsicHeight(
-              child: editorState.renderer.build(context, e),
-            ),
-          )
-          .toList(),
+      children: node.children.map(
+        (e) {
+          Widget child = IntrinsicHeight(
+            child: editorState.renderer.build(context, e),
+          );
+          if (e.type == CustomImageBlockKeys.type) {
+            child = IntrinsicWidth(child: child);
+          }
+          return child;
+        },
+      ).toList(),
     );
 
     child = Padding(
