@@ -46,8 +46,7 @@ void main() {
       await markdownTextRobot.persist();
 
       final nodes = editorState.document.root.children;
-      // 4 from the sample, 1 from the original empty paragraph node
-      expect(nodes.length, 5);
+      expect(nodes.length, 4);
 
       final n1 = nodes[0];
       expect(n1.delta!.toPlainText(), 'The Curious Cat');
@@ -116,7 +115,7 @@ void main() {
         _liveRefreshSample2,
         expect: (editorState) {
           final nodes = editorState.document.root.children;
-          expect(nodes.length, 5);
+          expect(nodes.length, 4);
 
           final n1 = nodes[0];
           expect(n1.type, HeadingBlockKeys.type);
@@ -164,7 +163,7 @@ void main() {
         _liveRefreshSample3,
         expect: (editorState) {
           final nodes = editorState.document.root.children;
-          expect(nodes.length, 6);
+          expect(nodes.length, 5);
 
           final n1 = nodes[0];
           expect(n1.type, HeadingBlockKeys.type);
@@ -275,7 +274,7 @@ void main() {
         _liveRefreshSample4,
         expect: (editorState) {
           final nodes = editorState.document.root.children;
-          expect(nodes.length, 3);
+          expect(nodes.length, 2);
 
           final n1 = nodes[0];
           expect(n1.type, ParagraphBlockKeys.type);

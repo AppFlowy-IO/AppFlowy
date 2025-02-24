@@ -178,6 +178,15 @@ void main() {
         isA<GeneratingAiWriterState>()
             .having((s) => s.markdownText, 'result', isNotEmpty)
             .having((s) => s.markdownText, 'result', contains('UPDATED:')),
+        isA<GeneratingAiWriterState>()
+            .having((s) => s.markdownText, 'result', isNotEmpty)
+            .having((s) => s.markdownText, 'result', contains('UPDATED:')),
+        isA<GeneratingAiWriterState>()
+            .having((s) => s.markdownText, 'result', isNotEmpty)
+            .having((s) => s.markdownText, 'result', contains('UPDATED:')),
+        isA<ReadyAiWriterState>()
+            .having((s) => s.markdownText, 'result', isNotEmpty)
+            .having((s) => s.markdownText, 'result', contains('UPDATED:')),
       ],
     );
 
