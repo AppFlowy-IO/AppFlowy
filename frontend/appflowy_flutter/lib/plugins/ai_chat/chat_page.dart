@@ -195,7 +195,6 @@ class _ChatContentPage extends StatelessWidget {
       return ChatUserMessageWidget(
         user: message.author,
         message: message,
-        isCurrentUser: true,
       );
     }
 
@@ -203,7 +202,6 @@ class _ChatContentPage extends StatelessWidget {
       return ChatUserMessageWidget(
         user: message.author,
         message: message,
-        isCurrentUser: false,
       );
     }
 

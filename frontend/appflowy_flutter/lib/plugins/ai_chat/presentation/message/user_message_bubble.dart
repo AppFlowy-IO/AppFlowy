@@ -15,13 +15,11 @@ class ChatUserMessageBubble extends StatelessWidget {
     super.key,
     required this.message,
     required this.child,
-    required this.isCurrentUser,
     this.files = const [],
   });
 
   final Message message;
   final Widget child;
-  final bool isCurrentUser;
   final List<ChatFile> files;
 
   @override
@@ -46,29 +44,16 @@ class ChatUserMessageBubble extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: getChildren(context),
+            children: [
+              const Spacer(),
+              _buildBubble(context),
+              const HSpace(DesktopAIChatSizes.avatarAndChatBubbleSpacing),
+              _buildAvatar(),
+            ],
           ),
         ],
       ),
     );
-  }
-
-  List<Widget> getChildren(BuildContext context) {
-    if (isCurrentUser) {
-      return [
-        const Spacer(),
-        _buildBubble(context),
-        const HSpace(DesktopAIChatSizes.avatarAndChatBubbleSpacing),
-        _buildAvatar(),
-      ];
-    } else {
-      return [
-        _buildAvatar(),
-        const HSpace(DesktopAIChatSizes.avatarAndChatBubbleSpacing),
-        _buildBubble(context),
-        const Spacer(),
-      ];
-    }
   }
 
   Widget _buildAvatar() {
