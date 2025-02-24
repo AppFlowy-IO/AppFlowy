@@ -27,16 +27,7 @@ import 'package:appflowy_backend/protobuf/flowy-document/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
-    show
-        AppFlowyEditorLogLevel,
-        DeleteOperation,
-        EditorState,
-        EditorTransactionValue,
-        PathExtensions,
-        Position,
-        Selection,
-        TransactionTime,
-        paragraphNode;
+    show AppFlowyEditorLogLevel, EditorState, TransactionTime;
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -3,7 +3,6 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -108,37 +107,19 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
       child: child,
     );
 
-    if (kDebugMode) {
+    if (SimpleColumnsBlockConstants.enableDebugBorder) {
       child = DecoratedBox(
         decoration: BoxDecoration(
           border: Border.all(
-            color: Colors.blue,
+            color: Colors.red,
           ),
         ),
         child: child,
       );
     }
 
-    // check if we should enable the block actions and selection for the columns block
-    // if (UniversalPlatform.isDesktopOrWeb) {
-    //   child = BlockSelectionContainer(
-    //     node: node,
-    //     delegate: this,
-    //     listenable: editorState.selectionNotifier,
-    //     blockColor: editorState.editorStyle.selectionColor,
-    //     supportTypes: const [BlockSelectionType.block],
-    //     child: child,
-    //   );
-    // }
-
-    // if (widget.showActions && widget.actionBuilder != null) {
-    //   child = BlockComponentActionWrapper(
-    //     node: node,
-    //     actionBuilder: widget.actionBuilder!,
-    //     child: child,
-    //   );
-    // }
-
+    // the columns block does not support the block actions and selection
+    // because the columns block is a layout wrapper, it does not have a content
     return child;
   }
 

@@ -129,8 +129,7 @@ Future<void> dragToMoveNode(
   // Horizontal position
   if (dragOffset.dx < globalBlockRect.left + 88) {
     horizontalPosition = HorizontalPosition.left;
-  } else if (dragTargetNode.level == 1 &&
-      dragOffset.dx > globalBlockRect.right / 3.0 * 2.0) {
+  } else if (dragOffset.dx > globalBlockRect.right / 3.0 * 2.0) {
     horizontalPosition = HorizontalPosition.right;
   } else if (nodeTypesThatCanContainChildNode.contains(dragTargetNode.type)) {
     horizontalPosition = HorizontalPosition.center;

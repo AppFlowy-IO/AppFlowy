@@ -1,7 +1,7 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/columns/simple_columns_block_constant.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -96,6 +96,16 @@ class SimpleColumnBlockComponentState extends State<SimpleColumnBlockComponent>
           if (e.type == CustomImageBlockKeys.type) {
             child = IntrinsicWidth(child: child);
           }
+          if (SimpleColumnsBlockConstants.enableDebugBorder) {
+            child = DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.blue,
+                ),
+              ),
+              child: child,
+            );
+          }
           return child;
         },
       ).toList(),
@@ -107,15 +117,17 @@ class SimpleColumnBlockComponentState extends State<SimpleColumnBlockComponent>
       child: child,
     );
 
-    if (kDebugMode) {
+    if (SimpleColumnsBlockConstants.enableDebugBorder) {
       child = Container(
-        color: Colors.red.withValues(
+        color: Colors.green.withValues(
           alpha: 0.2,
         ),
         child: child,
       );
     }
 
+    // the column block does not support the block actions and selection
+    // because the column block is a layout wrapper, it does not have a content
     return child;
   }
 
