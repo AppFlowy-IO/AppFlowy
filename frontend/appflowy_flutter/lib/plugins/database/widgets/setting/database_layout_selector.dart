@@ -1,35 +1,33 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/layout/layout_bloc.dart';
+import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
+import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/setting_entities.pb.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../grid/presentation/layout/sizes.dart';
-
-class DatabaseLayoutSelector extends StatefulWidget {
+class DatabaseLayoutSelector extends StatelessWidget {
   const DatabaseLayoutSelector({
     super.key,
     required this.viewId,
-    required this.currentLayout,
+    required this.databaseController,
   });
 
   final String viewId;
-  final DatabaseLayoutPB currentLayout;
+  final DatabaseController databaseController;
 
-  @override
-  State<StatefulWidget> createState() => _DatabaseLayoutSelectorState();
-}
-
-class _DatabaseLayoutSelectorState extends State<DatabaseLayoutSelector> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => DatabaseLayoutBloc(
-        viewId: widget.viewId,
-        databaseLayout: widget.currentLayout,
+        viewId: viewId,
+        databaseLayout: databaseController.databaseLayout,
       )..add(const DatabaseLayoutEvent.initial()),
       child: BlocBuilder<DatabaseLayoutBloc, DatabaseLayoutState>(
         builder: (context, state) {
@@ -44,14 +42,55 @@ class _DatabaseLayoutSelectorState extends State<DatabaseLayoutSelector> {
                 ),
               )
               .toList();
-
-          return ListView.separated(
-            shrinkWrap: true,
-            itemCount: cells.length,
+          return Padding(
             padding: const EdgeInsets.symmetric(vertical: 6.0),
-            itemBuilder: (_, int index) => cells[index],
-            separatorBuilder: (_, __) =>
-                VSpace(GridSize.typeOptionSeparatorHeight),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: cells.length,
+                  padding: EdgeInsets.zero,
+                  itemBuilder: (_, int index) => cells[index],
+                  separatorBuilder: (_, __) =>
+                      VSpace(GridSize.typeOptionSeparatorHeight),
+                ),
+                Container(
+                  height: 1,
+                  margin: EdgeInsets.symmetric(horizontal: 8),
+                  color: Color(0xFFF2F2F2),
+                ),
+                SizedBox(
+                  height: GridSize.popoverItemHeight,
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: FlowyText(
+                            LocaleKeys.grid_settings_compactMode.tr(),
+                          ),
+                        ),
+                        ValueListenableBuilder(
+                          valueListenable:
+                              databaseController.compactModeNotifier,
+                          builder: (context, compactMode, child) {
+                            return Toggle(
+                              value: compactMode,
+                              onChanged: (value) =>
+                                  databaseController.setCompactMode(value),
+                              padding: EdgeInsets.zero,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),

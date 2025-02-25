@@ -21,6 +21,7 @@ class DesktopGridURLSkin extends IEditableURLCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     URLCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,
@@ -28,28 +29,36 @@ class DesktopGridURLSkin extends IEditableURLCellSkin {
   ) {
     return BlocSelector<URLCellBloc, URLCellState, bool>(
       selector: (state) => state.wrap,
-      builder: (context, wrap) => TextField(
-        controller: textEditingController,
-        focusNode: focusNode,
-        maxLines: wrap ? null : 1,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              decoration: TextDecoration.underline,
+      builder: (context, wrap) => ValueListenableBuilder(
+        valueListenable: compactModeNotifier,
+        builder: (context, compactMode, _) {
+          final padding = compactMode
+              ? GridSize.compactCellContentInsets
+              : GridSize.cellContentInsets;
+          return TextField(
+            controller: textEditingController,
+            focusNode: focusNode,
+            maxLines: wrap ? null : 1,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  decoration: TextDecoration.underline,
+                ),
+            decoration: InputDecoration(
+              contentPadding: padding,
+              border: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              errorBorder: InputBorder.none,
+              disabledBorder: InputBorder.none,
+              hintStyle: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: Theme.of(context).hintColor),
+              isDense: true,
             ),
-        decoration: InputDecoration(
-          contentPadding: GridSize.cellContentInsets,
-          border: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          errorBorder: InputBorder.none,
-          disabledBorder: InputBorder.none,
-          hintStyle: Theme.of(context)
-              .textTheme
-              .bodyMedium
-              ?.copyWith(color: Theme.of(context).hintColor),
-          isDense: true,
-        ),
-        onTapOutside: (_) => focusNode.unfocus(),
+            onTapOutside: (_) => focusNode.unfocus(),
+          );
+        },
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/text_cell_bloc.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +11,7 @@ class DesktopRowDetailTextCellSkin extends IEditableTextCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     TextCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,

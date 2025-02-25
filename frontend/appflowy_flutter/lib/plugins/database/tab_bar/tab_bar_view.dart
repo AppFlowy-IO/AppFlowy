@@ -79,11 +79,14 @@ class DatabaseTabBarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compactModeId = node?.id ?? view.id;
     return MultiBlocProvider(
       providers: [
         BlocProvider<DatabaseTabBarBloc>(
-          create: (_) => DatabaseTabBarBloc(view: view)
-            ..add(const DatabaseTabBarEvent.initial()),
+          create: (_) => DatabaseTabBarBloc(
+            view: view,
+            compactModeId: compactModeId,
+          )..add(const DatabaseTabBarEvent.initial()),
         ),
         BlocProvider<ViewBloc>(
           create: (_) => ViewBloc(view: view)
@@ -136,8 +139,9 @@ class DatabaseTabBarView extends StatelessWidget {
 
                   if (UniversalPlatform.isDesktop) {
                     child = Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: horizontalPadding),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: horizontalPadding,
+                      ),
                       child: child,
                     );
                   }
