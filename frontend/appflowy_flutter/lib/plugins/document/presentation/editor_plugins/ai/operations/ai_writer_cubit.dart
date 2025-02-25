@@ -63,7 +63,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       completionType: command.toCompletionType(),
       onStart: () async {
         final transaction = editorState.transaction;
-        ensurePreviousNodeIsEmptyParagraph(editorState, node, transaction);
+        final position =
+            ensurePreviousNodeIsEmptyParagraph(editorState, node, transaction);
+        transaction.afterSelection = null;
         await editorState.apply(
           transaction,
           options: ApplyOptions(
@@ -71,7 +73,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
             recordUndo: false,
           ),
         );
-        _textRobot.start();
+        _textRobot.start(position: position);
       },
       onProcess: (text) async {
         await _textRobot.appendMarkdownText(
@@ -80,7 +82,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
         );
       },
       onEnd: () async {
-        editorState.service.keyboardService?.enable();
+        await _textRobot.stop(
+          attributes: ApplySuggestionFormatType.replace.attributes,
+        );
         emit(ReadyAiWriterState(command, isInitial: false));
       },
       onError: (error) async {
@@ -192,7 +196,6 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       await editorState.apply(
         transaction,
         options: const ApplyOptions(inMemoryUpdate: true, recordUndo: false),
-        withUpdateSelection: false,
       );
     }
 
@@ -227,7 +230,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       );
       await editorState.apply(
         transaction,
-        options: const ApplyOptions(inMemoryUpdate: true, recordUndo: false),
+        options: const ApplyOptions(recordUndo: false),
         withUpdateSelection: false,
       );
     }
@@ -267,7 +270,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       completionType: command.toCompletionType(),
       onStart: () async {
         final transaction = editorState.transaction;
-        ensurePreviousNodeIsEmptyParagraph(editorState, node, transaction);
+        final position =
+            ensurePreviousNodeIsEmptyParagraph(editorState, node, transaction);
+        transaction.afterSelection = null;
         await editorState.apply(
           transaction,
           options: ApplyOptions(
@@ -275,7 +280,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
             recordUndo: false,
           ),
         );
-        _textRobot.start();
+        _textRobot.start(position: position);
       },
       onProcess: (text) async {
         await _textRobot.appendMarkdownText(
@@ -286,6 +291,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       onEnd: () async {
         editorState.service.keyboardService?.enable();
         if (state case GeneratingAiWriterState _) {
+          await _textRobot.stop(
+            attributes: ApplySuggestionFormatType.replace.attributes,
+          );
           emit(ReadyAiWriterState(command, isInitial: false));
         }
       },
@@ -322,7 +330,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           transaction,
           ApplySuggestionFormatType.original,
         );
-        ensurePreviousNodeIsEmptyParagraph(editorState, node, transaction);
+        final position =
+            ensurePreviousNodeIsEmptyParagraph(editorState, node, transaction);
+        transaction.afterSelection = null;
         await editorState.apply(
           transaction,
           options: ApplyOptions(
@@ -330,7 +340,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
             recordUndo: false,
           ),
         );
-        _textRobot.start();
+        _textRobot.start(position: position);
       },
       onProcess: (text) async {
         await _textRobot.appendMarkdownText(
@@ -340,6 +350,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       },
       onEnd: () async {
         if (state is GeneratingAiWriterState) {
+          await _textRobot.stop(
+            attributes: ApplySuggestionFormatType.replace.attributes,
+          );
           emit(
             ReadyAiWriterState(
               command,

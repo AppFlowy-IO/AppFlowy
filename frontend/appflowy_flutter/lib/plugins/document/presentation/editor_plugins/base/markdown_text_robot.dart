@@ -42,10 +42,9 @@ class MarkdownTextRobot {
     }
     return Selection(
       start: position,
-      end: editorState.selection?.end ??
-          Position(
-            path: position.path.nextNPath(_insertedNodes.length - 1),
-          ),
+      end: Position(
+        path: position.path.nextNPath(_insertedNodes.length - 1),
+      ),
     );
   }
 
@@ -54,9 +53,10 @@ class MarkdownTextRobot {
     return selection == null ? [] : editorState.getNodesInSelection(selection);
   }
 
-  /// This function must be called before
-  void start() {
-    _insertPosition ??= editorState.selection?.start;
+  void start({
+    Position? position,
+  }) {
+    _insertPosition ??= position ?? editorState.selection?.start;
 
     if (_enableDebug) {
       Log.info(
@@ -85,6 +85,18 @@ class MarkdownTextRobot {
         'MarkdownTextRobot receive markdown: ${jsonEncode(_debugMarkdownTexts)}',
       );
     }
+  }
+
+  Future<void> stop({
+    Map<String, dynamic>? attributes,
+  }) async {
+    await _lock.synchronized(() async {
+      await _refresh(
+        inMemoryUpdate: true,
+        updateSelection: false,
+        attributes: attributes,
+      );
+    });
   }
 
   /// Persist the text into the document
@@ -141,6 +153,7 @@ class MarkdownTextRobot {
 
   Future<void> _refresh({
     required bool inMemoryUpdate,
+    bool updateSelection = true,
     Map<String, dynamic>? attributes,
   }) async {
     final position = _insertPosition;
@@ -183,6 +196,10 @@ class MarkdownTextRobot {
           offset: lastDelta.length,
         ),
       );
+    }
+
+    if (!updateSelection) {
+      transaction.afterSelection = null;
     }
 
     await editorState.apply(

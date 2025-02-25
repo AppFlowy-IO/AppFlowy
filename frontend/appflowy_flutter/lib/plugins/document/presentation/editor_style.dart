@@ -575,6 +575,7 @@ class EditorStyleCustomizer {
           decoration: TextDecoration.underline,
           decorationColor: underlineColor,
           decorationThickness: 1.0,
+          // hack: https://jtmuller5.medium.com/the-ultimate-guide-to-underlining-text-in-flutter-57936f5c79bb
           shadows: [
             Shadow(
               color: textColor,

@@ -70,7 +70,7 @@ void formatSelection(
   transaction.compose();
 }
 
-void ensurePreviousNodeIsEmptyParagraph(
+Position ensurePreviousNodeIsEmptyParagraph(
   EditorState editorState,
   Node aiWriterNode,
   Transaction transaction,
@@ -80,19 +80,19 @@ void ensurePreviousNodeIsEmptyParagraph(
       previous.type != ParagraphBlockKeys.type ||
       (previous.delta?.toPlainText().isNotEmpty ?? false);
 
-  final Selection selection;
+  final Position position;
   if (needsEmptyParagraphNode) {
-    selection = Selection.collapsed(Position(path: aiWriterNode.path));
+    position = Position(path: aiWriterNode.path);
     transaction.insertNode(aiWriterNode.path, paragraphNode());
   } else {
-    selection = Selection.collapsed(Position(path: previous.path));
+    position = Position(path: previous.path);
   }
 
-  transaction
-    ..updateNode(aiWriterNode, {
-      AiWriterBlockKeys.isInitialized: true,
-    })
-    ..afterSelection = selection;
+  transaction.updateNode(aiWriterNode, {
+    AiWriterBlockKeys.isInitialized: true,
+  });
+
+  return position;
 }
 
 extension SaveAIResponseExtension on EditorState {
