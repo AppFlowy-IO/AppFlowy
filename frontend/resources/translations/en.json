@@ -3130,7 +3130,8 @@
       "orPurchaseAn": "or purchase an",
       "aiAddon": "AI add-on"
     },
-    "editing": "Editing"
+    "editing": "Editing",
+    "analyzing": "Analyzing"
   },
   "autoUpdate": {
     "criticalUpdateTitle": "Update required to continue",

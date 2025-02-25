@@ -231,8 +231,9 @@ class OverlayContent extends StatelessWidget {
     return BlocBuilder<AiWriterCubit, AiWriterState>(
       builder: (context, state) {
         final selection = node.aiWriterSelection;
-        final showSuggestionPopup =
-            state is ReadyAiWriterState && !state.isInitial;
+        final showSuggestionPopup = state is ReadyAiWriterState &&
+            !state.isInitial &&
+            state.command != AiWriterCommand.explain;
         final showActionPopup = state is ReadyAiWriterState && state.isInitial;
         final markdownText = switch (state) {
           final ReadyAiWriterState ready => ready.markdownText,
@@ -290,15 +291,14 @@ class OverlayContent extends StatelessWidget {
                         constraints: BoxConstraints(maxHeight: 140),
                         width: double.infinity,
                         child: SingleChildScrollView(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8.0,
-                            horizontal: 14,
-                          ),
+                          padding: EdgeInsets.all(8.0),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Container(
                                 height: 24.0,
+                                padding: EdgeInsets.symmetric(horizontal: 6.0),
                                 alignment: AlignmentDirectional.centerStart,
                                 child: FlowyText(
                                   state.command.i18n,
@@ -308,8 +308,23 @@ class OverlayContent extends StatelessWidget {
                                 ),
                               ),
                               const VSpace(4.0),
-                              AIMarkdownText(
-                                markdown: markdownText,
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 6.0),
+                                child: AIMarkdownText(
+                                  markdown: markdownText,
+                                ),
+                              ),
+                              const VSpace(4.0),
+                              SuggestionActionBar(
+                                actions: _getSuggestedActions(
+                                  currentCommand: state.command,
+                                  hasSelection: hasSelection,
+                                ),
+                                onTap: (action) {
+                                  context
+                                      .read<AiWriterCubit>()
+                                      .runResponseAction(action);
+                                },
                               ),
                             ],
                           ),
@@ -523,7 +538,9 @@ class MainContentArea extends StatelessWidget {
                 const HSpace(6.0),
                 Expanded(
                   child: AILoadingIndicator(
-                    text: LocaleKeys.ai_editing.tr(),
+                    text: state.command == AiWriterCommand.explain
+                        ? LocaleKeys.ai_analyzing.tr()
+                        : LocaleKeys.ai_editing.tr(),
                   ),
                 ),
                 const HSpace(8.0),
