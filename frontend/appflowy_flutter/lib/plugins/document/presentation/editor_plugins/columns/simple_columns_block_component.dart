@@ -6,13 +6,17 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+// if the children is not provided, it will create two columns by default.
+// if the columnCount is provided, it will create the specified number of columns.
 Node simpleColumnsNode({
   List<Node>? children,
+  int? columnCount,
 }) {
-  children ??= [
-    columnNode(children: [paragraphNode()]),
-    columnNode(children: [paragraphNode()]),
-  ];
+  columnCount ??= 2;
+  children ??= List.generate(
+    columnCount,
+    (index) => simpleColumnNode(children: [paragraphNode()]),
+  );
 
   // check the type of children
   for (final child in children) {

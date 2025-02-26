@@ -56,18 +56,56 @@ class DocumentRules {
           final children = column.children;
           if (children.isEmpty) {
             // delete the column or the columns
-            // check if the columns is empty
             final columns = column.parent;
+
             if (columns != null &&
                 columns.type == SimpleColumnsBlockKeys.type) {
-              // move the children in columns out of the column
-              final children = columns.children
-                  .map((e) => e.children)
-                  .expand((e) => e)
-                  .map((e) => e.deepCopy())
-                  .toList();
-              deleteColumnsTransaction.insertNodes(columns.path, children);
-              deleteColumnsTransaction.deleteNode(columns);
+              final emptyColumn = columns.children.fold(1, (p, c) {
+                if (c.children.isEmpty) {
+                  return p + 1;
+                }
+                return p;
+              });
+
+              // Example:
+              // columns
+              //  - column 1
+              //    - paragraph 1-1
+              //    - paragraph 1-2
+              //  - column 2
+              //    - paragraph 2
+              //  - column 3
+              //    - paragraph 3
+              //
+              // case 1: delete the paragraph 3 from column 3.
+              // because there is only one child in column 3, we should delete the column 3 as well.
+              // the result should be:
+              // columns
+              //  - column 1
+              //    - paragraph 1
+              //  - column 2
+              //    - paragraph 2
+              //
+              // case 2: delete the paragraph 3 from column 3 and delete the paragraph 2 from column 2.
+              // in this case, there will be only one column left, so we should delete the columns block and flatten the children.
+              // the result should be:
+              // paragraph 1-1
+              // paragraph 1-2
+
+              // if there is only one empty column left, delete the columns block and flatten the children
+              if (emptyColumn == 1) {
+                // move the children in columns out of the column
+                final children = columns.children
+                    .map((e) => e.children)
+                    .expand((e) => e)
+                    .map((e) => e.deepCopy())
+                    .toList();
+                deleteColumnsTransaction.insertNodes(columns.path, children);
+                deleteColumnsTransaction.deleteNode(columns);
+              } else {
+                // otherwise, delete the column
+                deleteColumnsTransaction.deleteNode(column);
+              }
             }
           }
         }
