@@ -60,12 +60,10 @@ class DocumentRules {
 
             if (columns != null &&
                 columns.type == SimpleColumnsBlockKeys.type) {
-              final emptyColumn = columns.children.fold(1, (p, c) {
-                if (c.children.isEmpty) {
-                  return p + 1;
-                }
-                return p;
-              });
+              final emptyColumn = columns.children.fold(
+                1,
+                (p, c) => c.children.isEmpty ? p + 1 : 0,
+              );
 
               // Example:
               // columns

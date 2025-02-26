@@ -74,8 +74,37 @@ Future<void> dragToMoveNode(
       await editorState.apply(transaction);
     }
     return;
-  }
+  } else if (horizontalPosition == HorizontalPosition.left &&
+      verticalPosition == VerticalPosition.middle) {
+    // 1. if the target node is a column block, we should create a column block to contain the node and insert the column node to the target node's parent
+    // 2. if the target node is not a column block, we should create a columns block to contain the target node and the drag node
+    final transaction = editorState.transaction;
+    final targetNodeParent = targetNode.parentColumnsBlock;
+    if (targetNodeParent != null) {
+      final columnNode = simpleColumnNode(
+        children: [node.deepCopy()],
+      );
 
+      transaction.insertNode(targetNode.path.previous, columnNode);
+      transaction.deleteNode(node);
+    } else {
+      final columnsNode = simpleColumnsNode(
+        children: [
+          simpleColumnNode(children: [node.deepCopy()]),
+          simpleColumnNode(children: [targetNode.deepCopy()]),
+        ],
+      );
+
+      transaction.insertNode(newPath, columnsNode);
+      transaction.deleteNode(targetNode);
+      transaction.deleteNode(node);
+    }
+
+    if (transaction.operations.isNotEmpty) {
+      await editorState.apply(transaction);
+    }
+    return;
+  }
   // Determine the new path based on drop position
   // For VerticalPosition.top, we keep the target node's path
   if (verticalPosition == VerticalPosition.bottom) {
@@ -157,11 +186,18 @@ Future<void> dragToMoveNode(
   }
 
   // Vertical position
-  if (dragOffset.dy < globalBlockRect.top + globalBlockRect.height / 2) {
+  if (dragOffset.dy < globalBlockRect.top + globalBlockRect.height * 1 / 3) {
     verticalPosition = VerticalPosition.top;
+  } else if (dragOffset.dy <
+      globalBlockRect.top + globalBlockRect.height * 2 / 3) {
+    verticalPosition = VerticalPosition.middle;
   } else {
     verticalPosition = VerticalPosition.bottom;
   }
+
+  debugPrint(
+    'verticalPosition: $verticalPosition, horizontalPosition: $horizontalPosition',
+  );
 
   return (verticalPosition, horizontalPosition, globalBlockRect);
 }

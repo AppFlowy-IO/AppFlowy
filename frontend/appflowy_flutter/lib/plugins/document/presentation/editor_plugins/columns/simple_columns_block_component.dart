@@ -35,8 +35,6 @@ class SimpleColumnsBlockKeys {
   const SimpleColumnsBlockKeys._();
 
   static const String type = 'simple_columns';
-
-  static const String columnCount = 'column_count';
 }
 
 class SimpleColumnsBlockComponentBuilder extends BlockComponentBuilder {

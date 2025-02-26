@@ -101,6 +101,12 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
           if (position != null && position.$2 == HorizontalPosition.right) {
             return parentColumnNode;
           }
+
+          if (position != null &&
+              position.$2 == HorizontalPosition.left &&
+              position.$1 == VerticalPosition.middle) {
+            return parentColumnNode;
+          }
         }
 
         return targetNode;
@@ -145,6 +151,12 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
           );
 
           if (position != null && position.$2 == HorizontalPosition.right) {
+            return parentColumnNode;
+          }
+
+          if (position != null &&
+              position.$2 == HorizontalPosition.left &&
+              position.$1 == VerticalPosition.middle) {
             return parentColumnNode;
           }
         }
