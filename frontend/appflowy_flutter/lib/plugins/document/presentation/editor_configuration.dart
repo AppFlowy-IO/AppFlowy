@@ -376,11 +376,11 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
       configuration,
       alwaysDistributeColumnWidths: alwaysDistributeSimpleTableColumnWidths,
     ),
-    ColumnsBlockKeys.type: _buildSimpleColumnsBlockComponentBuilder(
+    SimpleColumnsBlockKeys.type: _buildSimpleColumnsBlockComponentBuilder(
       context,
       configuration,
     ),
-    ColumnBlockKeys.type: _buildSimpleColumnBlockComponentBuilder(
+    SimpleColumnBlockKeys.type: _buildSimpleColumnBlockComponentBuilder(
       context,
       configuration,
     ),

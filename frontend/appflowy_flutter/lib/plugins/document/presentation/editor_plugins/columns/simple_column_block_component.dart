@@ -21,7 +21,7 @@ Node simpleColumnNode({
 class SimpleColumnBlockKeys {
   const SimpleColumnBlockKeys._();
 
-  static const String type = 'column';
+  static const String type = 'simple_column';
 
   static const String width = 'width';
 }

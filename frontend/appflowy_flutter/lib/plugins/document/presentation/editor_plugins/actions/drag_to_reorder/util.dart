@@ -46,18 +46,33 @@ Future<void> dragToMoveNode(
 
   // if the horizontal position is right, creating a column block to contain the target node and the drag node
   if (horizontalPosition == HorizontalPosition.right) {
-    final columnsNode = simpleColumnsNode(
-      children: [
-        simpleColumnNode(children: [targetNode.deepCopy()]),
-        simpleColumnNode(children: [node.deepCopy()]),
-      ],
-    );
-
+    // 1. if the targetNode is a column block, it means we should create a column block to contain the node and insert the column node to the target node's parent
+    // 2. if the targetNode is not a column block, it means we should create a columns block to contain the target node and the drag node
     final transaction = editorState.transaction;
-    transaction.insertNode(newPath, columnsNode);
-    transaction.deleteNode(targetNode);
-    transaction.deleteNode(node);
-    await editorState.apply(transaction);
+    final targetNodeParent = targetNode.parentColumnsBlock;
+    if (targetNodeParent != null) {
+      final columnNode = simpleColumnNode(
+        children: [node.deepCopy()],
+      );
+
+      transaction.insertNode(targetNode.path.next, columnNode);
+      transaction.deleteNode(node);
+    } else {
+      final columnsNode = simpleColumnsNode(
+        children: [
+          simpleColumnNode(children: [targetNode.deepCopy()]),
+          simpleColumnNode(children: [node.deepCopy()]),
+        ],
+      );
+
+      transaction.insertNode(newPath, columnsNode);
+      transaction.deleteNode(targetNode);
+      transaction.deleteNode(node);
+    }
+
+    if (transaction.operations.isNotEmpty) {
+      await editorState.apply(transaction);
+    }
     return;
   }
 
@@ -126,10 +141,16 @@ Future<void> dragToMoveNode(
   HorizontalPosition horizontalPosition = HorizontalPosition.left;
   VerticalPosition verticalPosition;
 
-  // Horizontal position
+  // | ----------------------------- block ----------------------------- |
+  // | 1. -- 88px --| 2. ---------------------------- | 3. ---- 1/4 ---- |
+  // 1. drag the node under the block as a sibling node
+  // 2. drag the node inside the block as a child node
+  // 3. create a column block to contain the node and the drag node
+
+  // Horizontal position, please refer to the diagram above
   if (dragOffset.dx < globalBlockRect.left + 88) {
     horizontalPosition = HorizontalPosition.left;
-  } else if (dragOffset.dx > globalBlockRect.right / 3.0 * 2.0) {
+  } else if (dragOffset.dx > globalBlockRect.right * 4.0 / 5.0) {
     horizontalPosition = HorizontalPosition.right;
   } else if (nodeTypesThatCanContainChildNode.contains(dragTargetNode.type)) {
     horizontalPosition = HorizontalPosition.center;

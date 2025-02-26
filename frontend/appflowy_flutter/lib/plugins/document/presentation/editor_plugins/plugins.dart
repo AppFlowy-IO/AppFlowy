@@ -13,6 +13,7 @@ export 'code_block/code_block_language_selector.dart';
 export 'code_block/code_block_menu_item.dart';
 export 'columns/simple_column_block_component.dart';
 export 'columns/simple_column_block_width_resizer.dart';
+export 'columns/simple_column_node_extension.dart';
 export 'columns/simple_columns_block_component.dart';
 export 'context_menu/custom_context_menu.dart';
 export 'copy_and_paste/custom_copy_command.dart';

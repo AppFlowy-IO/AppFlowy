@@ -30,7 +30,7 @@ Node simpleColumnsNode({
 class SimpleColumnsBlockKeys {
   const SimpleColumnsBlockKeys._();
 
-  static const String type = 'columns';
+  static const String type = 'simple_columns';
 
   static const String columnCount = 'column_count';
 }
@@ -112,6 +112,7 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
         decoration: BoxDecoration(
           border: Border.all(
             color: Colors.red,
+            width: 3.0,
           ),
         ),
         child: child,
