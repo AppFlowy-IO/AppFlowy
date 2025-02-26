@@ -26,7 +26,7 @@ void formatSelection(
 
   if (nodes.length == 1) {
     final node = nodes.removeAt(0);
-    if (node.isParagraph) {
+    if (node.delta != null) {
       final delta = Delta()
         ..retain(selection.start.offset)
         ..retain(
@@ -39,7 +39,7 @@ void formatSelection(
     final firstNode = nodes.removeAt(0);
     final lastNode = nodes.removeLast();
 
-    if (firstNode.isParagraph) {
+    if (firstNode.delta != null) {
       final text = firstNode.delta!.toPlainText();
       final remainderLength = text.length - selection.start.offset;
       final delta = Delta()
@@ -48,14 +48,14 @@ void formatSelection(
       transaction.addDeltaToComposeMap(firstNode, delta);
     }
 
-    if (lastNode.isParagraph) {
+    if (lastNode.delta != null) {
       final delta = Delta()
         ..retain(selection.end.offset, attributes: formatType.attributes);
       transaction.addDeltaToComposeMap(lastNode, delta);
     }
 
     for (final node in nodes) {
-      if (!node.isParagraph) {
+      if (node.delta == null) {
         continue;
       }
       final length = node.delta!.length;
@@ -205,11 +205,5 @@ extension SaveAIResponseExtension on EditorState {
       start: selection.start,
       end: end,
     );
-  }
-}
-
-extension _IsEmptyParagraphExtension on Node {
-  bool get isParagraph {
-    return type == ParagraphBlockKeys.type && delta != null;
   }
 }

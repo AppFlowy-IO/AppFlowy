@@ -195,7 +195,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       );
       await editorState.apply(
         transaction,
-        options: const ApplyOptions(inMemoryUpdate: true, recordUndo: false),
+        options: const ApplyOptions(recordUndo: false),
       );
     }
 
