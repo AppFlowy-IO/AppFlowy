@@ -45,7 +45,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     await super.close();
   }
 
-  void init() => runCommand(initialCommand);
+  void init() => runCommand(initialCommand, null);
 
   void submit(
     String prompt,
@@ -103,21 +103,22 @@ class AiWriterCubit extends Cubit<AiWriterState> {
   }
 
   void runCommand(
-    AiWriterCommand command, {
+    AiWriterCommand command,
+    PredefinedFormat? predefinedFormat, {
     bool isRetry = false,
   }) async {
     switch (command) {
       case AiWriterCommand.continueWriting:
-        await _startContinueWriting(command);
+        await _startContinueWriting(command, predefinedFormat);
         break;
       case AiWriterCommand.fixSpellingAndGrammar:
       case AiWriterCommand.improveWriting:
       case AiWriterCommand.makeLonger:
       case AiWriterCommand.makeShorter:
-        await _startSuggestingEdits(command);
+        await _startSuggestingEdits(command, predefinedFormat);
         break;
       case AiWriterCommand.explain:
-        await _startInforming(command);
+        await _startInforming(command, predefinedFormat);
         break;
       case AiWriterCommand.userQuestion:
         if (isRetry && _previousPrompt != null) {
@@ -174,7 +175,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     if (action case SuggestionAction.rewrite || SuggestionAction.tryAgain) {
       await _textRobot.discard();
       _textRobot.reset();
-      runCommand(state.command, isRetry: true);
+      runCommand(state.command, null, isRetry: true);
       return;
     }
 
@@ -267,6 +268,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
 
   Future<void> _startContinueWriting(
     AiWriterCommand command,
+    PredefinedFormat? predefinedFormat,
   ) async {
     final node = getAiWriterNode();
 
@@ -326,6 +328,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
 
   Future<void> _startSuggestingEdits(
     AiWriterCommand command,
+    PredefinedFormat? predefinedFormat,
   ) async {
     final node = getAiWriterNode();
     final selection = node.aiWriterSelection;
@@ -390,6 +393,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
 
   Future<void> _startInforming(
     AiWriterCommand command,
+    PredefinedFormat? predefinedFormat,
   ) async {
     final node = getAiWriterNode();
     final selection = node.aiWriterSelection;

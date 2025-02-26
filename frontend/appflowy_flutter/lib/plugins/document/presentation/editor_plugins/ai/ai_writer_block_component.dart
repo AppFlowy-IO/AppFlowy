@@ -138,7 +138,9 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
           value: aiWriterCubit,
         ),
         BlocProvider(
-          create: (context) => AIPromptInputBloc(),
+          create: (_) => AIPromptInputBloc(
+            predefinedFormat: null,
+          ),
         ),
       ],
       child: LayoutBuilder(
@@ -387,7 +389,15 @@ class OverlayContent extends StatelessWidget {
               figmaLineHeight: 20,
             ),
             onTap: () {
-              context.read<AiWriterCubit>().runCommand(command);
+              final aiInputBloc = context.read<AIPromptInputBloc>();
+              final showPredefinedFormats =
+                  aiInputBloc.state.showPredefinedFormats;
+              final predefinedFormat = aiInputBloc.state.predefinedFormat;
+
+              context.read<AiWriterCubit>().runCommand(
+                    command,
+                    showPredefinedFormats ? predefinedFormat : null,
+                  );
             },
           ),
         );

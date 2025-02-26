@@ -13,12 +13,10 @@ class PromptInputDesktopToggleFormatButton extends StatelessWidget {
   const PromptInputDesktopToggleFormatButton({
     super.key,
     required this.showFormatBar,
-    required this.predefinedFormat,
     required this.onTap,
   });
 
   final bool showFormatBar;
-  final PredefinedFormat predefinedFormat;
   final VoidCallback onTap;
 
   @override

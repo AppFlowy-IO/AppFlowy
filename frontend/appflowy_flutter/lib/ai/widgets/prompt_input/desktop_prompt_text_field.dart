@@ -44,11 +44,6 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
   final focusNode = FocusNode();
   final textController = TextEditingController();
 
-  bool showPredefinedFormatSection = true;
-  PredefinedFormat predefinedFormat = const PredefinedFormat(
-    imageFormat: ImageFormat.text,
-    textFormat: TextFormat.bulletList,
-  );
   late SendButtonState sendButtonState;
   bool isComposing = false;
 
@@ -134,54 +129,63 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
                   ),
                 ),
                 const VSpace(4.0),
-                Stack(
-                  children: [
-                    ConstrainedBox(
-                      constraints: getTextFieldConstraints(),
-                      child: inputTextField(),
-                    ),
-                    if (showPredefinedFormatSection)
-                      Positioned.fill(
-                        bottom: null,
-                        child: TextFieldTapRegion(
-                          child: Padding(
-                            padding: const EdgeInsetsDirectional.only(
-                              start: 8.0,
+                BlocBuilder<AIPromptInputBloc, AIPromptInputState>(
+                  builder: (context, state) {
+                    return Stack(
+                      children: [
+                        ConstrainedBox(
+                          constraints: getTextFieldConstraints(
+                            state.showPredefinedFormats,
+                          ),
+                          child: inputTextField(),
+                        ),
+                        if (state.showPredefinedFormats)
+                          Positioned.fill(
+                            bottom: null,
+                            child: TextFieldTapRegion(
+                              child: Padding(
+                                padding: const EdgeInsetsDirectional.only(
+                                  start: 8.0,
+                                ),
+                                child: ChangeFormatBar(
+                                  predefinedFormat: state.predefinedFormat,
+                                  spacing: 4.0,
+                                  onSelectPredefinedFormat: (format) =>
+                                      context.read<AIPromptInputBloc>().add(
+                                            AIPromptInputEvent
+                                                .updatePredefinedFormat(
+                                              format,
+                                            ),
+                                          ),
+                                ),
+                              ),
                             ),
-                            child: ChangeFormatBar(
-                              predefinedFormat: predefinedFormat,
-                              spacing: 4.0,
-                              onSelectPredefinedFormat: (format) {
-                                setState(() => predefinedFormat = format);
-                              },
+                          ),
+                        Positioned.fill(
+                          top: null,
+                          child: TextFieldTapRegion(
+                            child: _PromptBottomActions(
+                              showPredefinedFormats:
+                                  state.showPredefinedFormats,
+                              onTogglePredefinedFormatSection: () =>
+                                  context.read<AIPromptInputBloc>().add(
+                                        AIPromptInputEvent
+                                            .toggleShowPredefinedFormat(),
+                                      ),
+                              onStartMention: startMentionPageFromButton,
+                              sendButtonState: sendButtonState,
+                              onSendPressed: handleSend,
+                              onStopStreaming: widget.onStopStreaming,
+                              selectedSourcesNotifier:
+                                  widget.selectedSourcesNotifier,
+                              onUpdateSelectedSources:
+                                  widget.onUpdateSelectedSources,
                             ),
                           ),
                         ),
-                      ),
-                    Positioned.fill(
-                      top: null,
-                      child: TextFieldTapRegion(
-                        child: _PromptBottomActions(
-                          showPredefinedFormats: showPredefinedFormatSection,
-                          predefinedFormat: predefinedFormat,
-                          onTogglePredefinedFormatSection: () {
-                            setState(() {
-                              showPredefinedFormatSection =
-                                  !showPredefinedFormatSection;
-                            });
-                          },
-                          onStartMention: startMentionPageFromButton,
-                          sendButtonState: sendButtonState,
-                          onSendPressed: handleSend,
-                          onStopStreaming: widget.onStopStreaming,
-                          selectedSourcesNotifier:
-                              widget.selectedSourcesNotifier,
-                          onUpdateSelectedSources:
-                              widget.onUpdateSelectedSources,
-                        ),
-                      ),
-                    ),
-                  ],
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
@@ -257,9 +261,13 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
     // get the attached files and mentioned pages
     final metadata = context.read<AIPromptInputBloc>().consumeMetadata();
 
+    final bloc = context.read<AIPromptInputBloc>();
+    final showPredefinedFormats = bloc.state.showPredefinedFormats;
+    final predefinedFormat = bloc.state.predefinedFormat;
+
     widget.onSubmitted(
       trimmedText,
-      showPredefinedFormatSection ? predefinedFormat : null,
+      showPredefinedFormats ? predefinedFormat : null,
       metadata,
     );
   }
@@ -373,7 +381,8 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
                 cubit: inputControlCubit,
                 textController: textController,
                 textFieldFocusNode: focusNode,
-                contentPadding: calculateContentPadding(),
+                contentPadding:
+                    calculateContentPadding(state.showPredefinedFormats),
                 hintText: switch (state.aiType) {
                   AIType.appflowyAI => LocaleKeys.chat_inputMessageHint.tr(),
                   AIType.localAI => LocaleKeys.chat_inputLocalAIMessageHint.tr()
@@ -386,20 +395,20 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
     );
   }
 
-  BoxConstraints getTextFieldConstraints() {
+  BoxConstraints getTextFieldConstraints(bool showPredefinedFormats) {
     double minHeight = DesktopAIPromptSizes.textFieldMinHeight +
         DesktopAIPromptSizes.actionBarSendButtonSize +
         DesktopAIChatSizes.inputActionBarMargin.vertical;
     double maxHeight = 300;
-    if (showPredefinedFormatSection) {
+    if (showPredefinedFormats) {
       minHeight += DesktopAIPromptSizes.predefinedFormatButtonHeight;
       maxHeight += DesktopAIPromptSizes.predefinedFormatButtonHeight;
     }
     return BoxConstraints(minHeight: minHeight, maxHeight: maxHeight);
   }
 
-  EdgeInsetsGeometry calculateContentPadding() {
-    final top = showPredefinedFormatSection
+  EdgeInsetsGeometry calculateContentPadding(bool showPredefinedFormats) {
+    final top = showPredefinedFormats
         ? DesktopAIPromptSizes.predefinedFormatButtonHeight
         : 0.0;
     final bottom = DesktopAIPromptSizes.actionBarSendButtonSize +
@@ -538,7 +547,6 @@ class PromptInputTextField extends StatelessWidget {
 class _PromptBottomActions extends StatelessWidget {
   const _PromptBottomActions({
     required this.sendButtonState,
-    required this.predefinedFormat,
     required this.showPredefinedFormats,
     required this.onTogglePredefinedFormatSection,
     required this.onStartMention,
@@ -549,7 +557,6 @@ class _PromptBottomActions extends StatelessWidget {
   });
 
   final bool showPredefinedFormats;
-  final PredefinedFormat predefinedFormat;
   final void Function() onTogglePredefinedFormatSection;
   final void Function() onStartMention;
   final SendButtonState sendButtonState;
@@ -602,7 +609,6 @@ class _PromptBottomActions extends StatelessWidget {
   Widget _predefinedFormatButton() {
     return PromptInputDesktopToggleFormatButton(
       showFormatBar: showPredefinedFormats,
-      predefinedFormat: predefinedFormat,
       onTap: onTogglePredefinedFormatSection,
     );
   }

@@ -35,11 +35,6 @@ class _MobileChatInputState extends State<MobileChatInput> {
   final focusNode = FocusNode();
   final textController = TextEditingController();
 
-  bool showPredefinedFormatSection = true;
-  PredefinedFormat predefinedFormat = const PredefinedFormat(
-    imageFormat: ImageFormat.text,
-    textFormat: TextFormat.bulletList,
-  );
   late SendButtonState sendButtonState;
 
   @override
@@ -103,52 +98,62 @@ class _MobileChatInputState extends State<MobileChatInput> {
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(8.0)),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight:
-                        MobileAIPromptSizes.attachedFilesBarPadding.vertical +
+            child: BlocBuilder<AIPromptInputBloc, AIPromptInputState>(
+              builder: (context, state) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: MobileAIPromptSizes
+                                .attachedFilesBarPadding.vertical +
                             MobileAIPromptSizes.attachedFilesPreviewHeight,
-                  ),
-                  child: PromptInputFile(
-                    onDeleted: (file) => context
-                        .read<AIPromptInputBloc>()
-                        .add(AIPromptInputEvent.removeFile(file)),
-                  ),
-                ),
-                if (showPredefinedFormatSection)
-                  TextFieldTapRegion(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ChangeFormatBar(
-                        predefinedFormat: predefinedFormat,
-                        spacing: 8.0,
-                        onSelectPredefinedFormat: (format) {
-                          setState(() => predefinedFormat = format);
-                        },
+                      ),
+                      child: PromptInputFile(
+                        onDeleted: (file) => context
+                            .read<AIPromptInputBloc>()
+                            .add(AIPromptInputEvent.removeFile(file)),
                       ),
                     ),
-                  )
-                else
-                  const VSpace(8.0),
-                inputTextField(context),
-                TextFieldTapRegion(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Row(
-                      children: [
-                        const HSpace(8.0),
-                        leadingButtons(context),
-                        const Spacer(),
-                        sendButton(),
-                        const HSpace(12.0),
-                      ],
+                    if (state.showPredefinedFormats)
+                      TextFieldTapRegion(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ChangeFormatBar(
+                            predefinedFormat: state.predefinedFormat,
+                            spacing: 8.0,
+                            onSelectPredefinedFormat: (format) =>
+                                context.read<AIPromptInputBloc>().add(
+                                      AIPromptInputEvent.updatePredefinedFormat(
+                                        format,
+                                      ),
+                                    ),
+                          ),
+                        ),
+                      )
+                    else
+                      const VSpace(8.0),
+                    inputTextField(context),
+                    TextFieldTapRegion(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Row(
+                          children: [
+                            const HSpace(8.0),
+                            leadingButtons(
+                              context,
+                              state.showPredefinedFormats,
+                            ),
+                            const Spacer(),
+                            sendButton(),
+                            const HSpace(12.0),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ],
+                  ],
+                );
+              },
             ),
           ),
         ),
@@ -181,9 +186,13 @@ class _MobileChatInputState extends State<MobileChatInput> {
     // get the attached files and mentioned pages
     final metadata = context.read<AIPromptInputBloc>().consumeMetadata();
 
+    final bloc = context.read<AIPromptInputBloc>();
+    final showPredefinedFormats = bloc.state.showPredefinedFormats;
+    final predefinedFormat = bloc.state.predefinedFormat;
+
     widget.onSubmitted(
       trimmedText,
-      showPredefinedFormatSection ? predefinedFormat : null,
+      showPredefinedFormats ? predefinedFormat : null,
       metadata,
     );
   }
@@ -293,7 +302,7 @@ class _MobileChatInputState extends State<MobileChatInput> {
         );
   }
 
-  Widget leadingButtons(BuildContext context) {
+  Widget leadingButtons(BuildContext context, bool showPredefinedFormats) {
     return _LeadingActions(
       // onMention: () {
       //   textController.text += '@';
@@ -304,12 +313,11 @@ class _MobileChatInputState extends State<MobileChatInput> {
       //     mentionPage(context);
       //   });
       // },
-      showPredefinedFormatSection: showPredefinedFormatSection,
-      predefinedFormat: predefinedFormat,
+      showPredefinedFormats: showPredefinedFormats,
       onTogglePredefinedFormatSection: () {
-        setState(() {
-          showPredefinedFormatSection = !showPredefinedFormatSection;
-        });
+        context
+            .read<AIPromptInputBloc>()
+            .add(AIPromptInputEvent.toggleShowPredefinedFormat());
       },
       selectedSourcesNotifier: widget.selectedSourcesNotifier,
       onUpdateSelectedSources: widget.onUpdateSelectedSources,
@@ -327,15 +335,13 @@ class _MobileChatInputState extends State<MobileChatInput> {
 
 class _LeadingActions extends StatelessWidget {
   const _LeadingActions({
-    required this.showPredefinedFormatSection,
-    required this.predefinedFormat,
+    required this.showPredefinedFormats,
     required this.onTogglePredefinedFormatSection,
     required this.selectedSourcesNotifier,
     required this.onUpdateSelectedSources,
   });
 
-  final bool showPredefinedFormatSection;
-  final PredefinedFormat predefinedFormat;
+  final bool showPredefinedFormats;
   final void Function() onTogglePredefinedFormatSection;
   final ValueNotifier<List<String>> selectedSourcesNotifier;
   final void Function(List<String>) onUpdateSelectedSources;
@@ -353,7 +359,7 @@ class _LeadingActions extends StatelessWidget {
             onUpdateSelectedSources: onUpdateSelectedSources,
           ),
           PromptInputMobileToggleFormatButton(
-            showFormatBar: showPredefinedFormatSection,
+            showFormatBar: showPredefinedFormats,
             onTap: onTogglePredefinedFormatSection,
           ),
         ],
