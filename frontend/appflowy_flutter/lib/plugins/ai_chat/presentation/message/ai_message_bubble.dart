@@ -469,7 +469,9 @@ class _WrapIsSelectingMessage extends StatelessWidget {
                 if (isSelectingMessages)
                   ChatSelectMessageIndicator(isSelected: isSelected)
                 else
-                  const ChatAIAvatar(),
+                  SelectionContainer.disabled(
+                    child: const ChatAIAvatar(),
+                  ),
                 const HSpace(DesktopAIChatSizes.avatarAndChatBubbleSpacing),
                 Expanded(
                   child: IgnorePointer(

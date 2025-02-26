@@ -113,9 +113,11 @@ class ChatAIMessageWidget extends StatelessWidget {
                             children: [
                               AIMarkdownText(markdown: state.text),
                               if (state.sources.isNotEmpty)
-                                AIMessageMetadata(
-                                  sources: state.sources,
-                                  onSelectedMetadata: onSelectedMetadata,
+                                SelectionContainer.disabled(
+                                  child: AIMessageMetadata(
+                                    sources: state.sources,
+                                    onSelectedMetadata: onSelectedMetadata,
+                                  ),
                                 ),
                               if (state.sources.isNotEmpty && !isLastMessage)
                                 const VSpace(8.0),
