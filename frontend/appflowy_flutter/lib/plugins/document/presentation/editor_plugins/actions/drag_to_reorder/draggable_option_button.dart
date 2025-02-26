@@ -10,7 +10,6 @@ import 'draggable_option_button_feedback.dart';
 import 'option_button.dart';
 
 // this flag is used to disable the tooltip of the block when it is dragged
-@visibleForTesting
 ValueNotifier<bool> isDraggingAppFlowyEditorBlock = ValueNotifier(false);
 
 class DraggableOptionButton extends StatefulWidget {

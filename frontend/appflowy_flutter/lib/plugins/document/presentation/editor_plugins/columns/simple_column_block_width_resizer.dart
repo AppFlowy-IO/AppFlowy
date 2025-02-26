@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/drag_to_reorder/draggable_option_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/columns/simple_columns_block_constant.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -26,7 +27,6 @@ class _ColumnBlockWidthResizerState extends State<ColumnBlockWidthResizer> {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      cursor: SystemMouseCursors.resizeLeftRight,
       onEnter: (_) => isHovering.value = true,
       onExit: (_) {
         // delay the hover state change to avoid flickering
@@ -45,12 +45,18 @@ class _ColumnBlockWidthResizerState extends State<ColumnBlockWidthResizer> {
         child: ValueListenableBuilder<bool>(
           valueListenable: isHovering,
           builder: (context, isHovering, child) {
-            return Container(
-              width: 2,
-              margin: EdgeInsets.symmetric(horizontal: 2),
-              color: isHovering
-                  ? Theme.of(context).colorScheme.primary
-                  : Colors.transparent,
+            if (isDraggingAppFlowyEditorBlock.value) {
+              return SizedBox.shrink();
+            }
+            return MouseRegion(
+              cursor: SystemMouseCursors.resizeLeftRight,
+              child: Container(
+                width: 2,
+                margin: EdgeInsets.symmetric(horizontal: 2),
+                color: isHovering
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.transparent,
+              ),
             );
           },
         ),
