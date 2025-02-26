@@ -171,12 +171,13 @@ Future<void> dragToMoveNode(
   VerticalPosition verticalPosition;
 
   // | ----------------------------- block ----------------------------- |
-  // | 1. -- 88px --| 2. ---------------------------- | 3. ---- 1/4 ---- |
+  // | 1. -- 88px --| 2. ---------------------------- | 3. ---- 1/5 ---- |
   // 1. drag the node under the block as a sibling node
   // 2. drag the node inside the block as a child node
   // 3. create a column block to contain the node and the drag node
 
   // Horizontal position, please refer to the diagram above
+  // 88px is a hardcoded value, it can be changed based on the project's design
   if (dragOffset.dx < globalBlockRect.left + 88) {
     horizontalPosition = HorizontalPosition.left;
   } else if (dragOffset.dx > globalBlockRect.right * 4.0 / 5.0) {
@@ -185,11 +186,15 @@ Future<void> dragToMoveNode(
     horizontalPosition = HorizontalPosition.center;
   }
 
+  // | ----------------------------------------------------------------- | <- if the drag position is in this area, the vertical position is top
+  // | ----------------------------- block ----------------------------- | <- if the drag position is in this area, the vertical position is middle
+  // | ----------------------------------------------------------------- | <- if the drag position is in this area, the vertical position is bottom
+
   // Vertical position
-  if (dragOffset.dy < globalBlockRect.top + globalBlockRect.height * 1 / 3) {
+  final heightThird = globalBlockRect.height / 3;
+  if (dragOffset.dy < globalBlockRect.top + heightThird) {
     verticalPosition = VerticalPosition.top;
-  } else if (dragOffset.dy <
-      globalBlockRect.top + globalBlockRect.height * 2 / 3) {
+  } else if (dragOffset.dy < globalBlockRect.top + heightThird * 2) {
     verticalPosition = VerticalPosition.middle;
   } else {
     verticalPosition = VerticalPosition.bottom;
