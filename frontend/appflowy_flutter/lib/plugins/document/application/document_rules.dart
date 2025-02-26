@@ -60,9 +60,9 @@ class DocumentRules {
 
             if (columns != null &&
                 columns.type == SimpleColumnsBlockKeys.type) {
-              final emptyColumn = columns.children.fold(
-                1,
-                (p, c) => c.children.isEmpty ? p + 1 : 0,
+              final nonEmptyColumnCount = columns.children.fold(
+                0,
+                (p, c) => c.children.isEmpty ? p : p + 1,
               );
 
               // Example:
@@ -80,7 +80,8 @@ class DocumentRules {
               // the result should be:
               // columns
               //  - column 1
-              //    - paragraph 1
+              //    - paragraph 1-1
+              //    - paragraph 1-2
               //  - column 2
               //    - paragraph 2
               //
@@ -91,7 +92,7 @@ class DocumentRules {
               // paragraph 1-2
 
               // if there is only one empty column left, delete the columns block and flatten the children
-              if (emptyColumn == 1) {
+              if (nonEmptyColumnCount <= 1) {
                 // move the children in columns out of the column
                 final children = columns.children
                     .map((e) => e.children)
@@ -108,6 +109,7 @@ class DocumentRules {
           }
         }
       }
+
       if (deleteColumnsTransaction.operations.isNotEmpty) {
         await editorState.apply(deleteColumnsTransaction);
       }
