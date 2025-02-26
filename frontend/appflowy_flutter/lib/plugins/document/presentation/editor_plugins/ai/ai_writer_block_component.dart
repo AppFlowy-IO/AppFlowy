@@ -153,13 +153,9 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
                       final hitTestBehavior = state is GeneratingAiWriterState
                           ? HitTestBehavior.opaque
                           : HitTestBehavior.translucent;
-                      return MouseRegion(
-                        cursor: SystemMouseCursors.basic,
-                        hitTestBehavior: hitTestBehavior,
-                        child: Listener(
-                          behavior: hitTestBehavior,
-                          onPointerDown: (_) => onTapOutside(),
-                        ),
+                      return GestureDetector(
+                        behavior: hitTestBehavior,
+                        onTap: () => onTapOutside(),
                       );
                     },
                   ),
