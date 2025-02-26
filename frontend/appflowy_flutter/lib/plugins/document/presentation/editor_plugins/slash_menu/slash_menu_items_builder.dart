@@ -81,10 +81,10 @@ List<SelectionMenuItem> _defaultSlashMenuItems({
     linkToPageSlashMenuItem,
 
     // columns
+    // 2-4 columns
     twoColumnsSlashMenuItem,
     threeColumnsSlashMenuItem,
     fourColumnsSlashMenuItem,
-    fiveColumnsSlashMenuItem,
 
     // grid
     if (documentBloc != null) gridSlashMenuItem(documentBloc),
