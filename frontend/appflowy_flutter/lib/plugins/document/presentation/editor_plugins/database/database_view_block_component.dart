@@ -13,7 +13,7 @@ class DatabaseBlockKeys {
 
   static const String parentID = 'parent_id';
   static const String viewID = 'view_id';
-  static const String compactMode = 'compact_mode';
+  static const String enableCompactMode = 'enable_compact_mode';
 }
 
 const overflowTypes = {

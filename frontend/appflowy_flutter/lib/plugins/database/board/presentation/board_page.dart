@@ -346,11 +346,13 @@ class _BoardContentState extends State<_BoardContent> {
                 return AppFlowyBoard(
                   boardScrollController: scrollManager,
                   scrollController: scrollController,
+                  shrinkWrap: widget.shrinkWrap,
                   controller: context.read<BoardBloc>().boardController,
                   groupConstraints:
                       BoxConstraints.tightFor(width: compactMode ? 196 : 256),
                   config: config,
                   leading: HiddenGroupsColumn(
+                    shrinkWrap: widget.shrinkWrap,
                     margin: config.groupHeaderPadding +
                         EdgeInsets.only(
                           left: widget.shrinkWrap ? horizontalPadding : 0.0,
