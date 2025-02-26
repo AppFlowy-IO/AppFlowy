@@ -11,7 +11,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'ai_writer_block_component.dart';
 import 'operations/ai_writer_entities.dart';
 
+const _improveWritingToolbarItemId = 'appflowy.editor.ai_improve_writing';
 const _aiWriterToolbarItemId = 'appflowy.editor.ai_writer';
+
+final ToolbarItem improveWritingItem = ToolbarItem(
+  id: _improveWritingToolbarItemId,
+  group: 0,
+  isActive: onlyShowInSingleSelectionAndTextType,
+  builder: (context, editorState, _, __, tooltipBuilder) =>
+      ImproveWritingButton(
+    editorState: editorState,
+    tooltipBuilder: tooltipBuilder,
+  ),
+);
 
 final ToolbarItem aiWriterItem = ToolbarItem(
   id: _aiWriterToolbarItemId,
@@ -87,7 +99,7 @@ class _AiWriterToolbarActionListState extends State<AiWriterToolbarActionList> {
         ),
         onTap: () {
           popoverController.close();
-          insertAiNode(command);
+          _insertAiNode(widget.editorState, command);
         },
       ),
     );
@@ -101,27 +113,30 @@ class _AiWriterToolbarActionListState extends State<AiWriterToolbarActionList> {
   }
 
   Widget buildChild() {
-    final child = FlowyButton(
-      text: FlowyText(
-        LocaleKeys.document_plugins_smartEdit.tr(),
-        fontSize: 14.0,
-        figmaLineHeight: 20.0,
-        color: Colors.white,
-      ),
+    final child = FlowyIconButton(
       hoverColor: Colors.transparent,
-      useIntrinsicWidth: true,
-      leftIcon: const FlowySvg(
-        FlowySvgs.ai_sparks_s,
-        size: Size.square(16.0),
-        color: Color(0xFFD08EED),
+      width: 36,
+      height: 24,
+      icon: Row(
+        children: [
+          const FlowySvg(
+            FlowySvgs.ai_sparks_s,
+            size: Size.square(16.0),
+            color: Color(0xFFD08EED),
+          ),
+          const FlowySvg(
+            FlowySvgs.ai_source_drop_down_s,
+            size: Size.square(12),
+            color: Color(0xFF8F959E),
+          ),
+        ],
       ),
-      iconPadding: 4.0,
-      margin: const EdgeInsets.symmetric(
+      iconPadding: const EdgeInsets.symmetric(
         horizontal: 4.0,
         vertical: 2.0,
       ),
-      onTap: () {
-        if (isAIEnabled) {
+      onPressed: () {
+        if (_isAIEnabled(widget.editorState)) {
           keepEditorFocusNotifier.increase();
           popoverController.show();
         } else {
@@ -136,43 +151,91 @@ class _AiWriterToolbarActionListState extends State<AiWriterToolbarActionList> {
     return widget.tooltipBuilder?.call(
           context,
           _aiWriterToolbarItemId,
-          isAIEnabled
+          _isAIEnabled(widget.editorState)
               ? LocaleKeys.document_plugins_aiWriter_userQuestion.tr()
               : LocaleKeys.document_plugins_appflowyAIEditDisabled.tr(),
           child,
         ) ??
         child;
   }
+}
 
-  void insertAiNode(AiWriterCommand command) async {
-    final selection = widget.editorState.selection?.normalized;
-    if (selection == null) {
-      return;
-    }
+class ImproveWritingButton extends StatelessWidget {
+  const ImproveWritingButton({
+    super.key,
+    required this.editorState,
+    this.tooltipBuilder,
+  });
 
-    final transaction = widget.editorState.transaction
-      ..insertNode(
-        selection.end.path.next,
-        aiWriterNode(
-          selection: selection,
-          command: command,
-        ),
-      )
-      ..afterSelection = selection
-      ..selectionExtraInfo = {selectionExtraInfoDisableToolbar: true};
+  final EditorState editorState;
+  final ToolbarTooltipBuilder? tooltipBuilder;
 
-    await widget.editorState.apply(
-      transaction,
-      options: const ApplyOptions(
-        recordUndo: false,
-        inMemoryUpdate: true,
+  @override
+  Widget build(BuildContext context) {
+    final child = FlowyIconButton(
+      hoverColor: Colors.transparent,
+      width: 24,
+      icon: const FlowySvg(
+        FlowySvgs.ai_improve_writing_s,
+        size: Size.square(16.0),
+        color: Color(0xFFD08EED),
       ),
+      iconPadding: const EdgeInsets.symmetric(
+        horizontal: 4.0,
+        vertical: 2.0,
+      ),
+      onPressed: () {
+        if (_isAIEnabled(editorState)) {
+          keepEditorFocusNotifier.increase();
+        } else {
+          showToastNotification(
+            context,
+            message: LocaleKeys.document_plugins_appflowyAIEditDisabled.tr(),
+          );
+        }
+      },
     );
+
+    return tooltipBuilder?.call(
+          context,
+          _aiWriterToolbarItemId,
+          _isAIEnabled(editorState)
+              ? LocaleKeys.document_plugins_aiWriter_improveWriting.tr()
+              : LocaleKeys.document_plugins_appflowyAIEditDisabled.tr(),
+          child,
+        ) ??
+        child;
+  }
+}
+
+void _insertAiNode(EditorState editorState, AiWriterCommand command) async {
+  final selection = editorState.selection?.normalized;
+  if (selection == null) {
+    return;
   }
 
-  bool get isAIEnabled {
-    final documentContext = widget.editorState.document.root.context;
-    return documentContext == null ||
-        !documentContext.read<DocumentBloc>().isLocalMode;
-  }
+  final transaction = editorState.transaction
+    ..insertNode(
+      selection.end.path.next,
+      aiWriterNode(
+        selection: selection,
+        command: command,
+      ),
+    )
+    ..afterSelection = selection
+    ..selectionExtraInfo = {selectionExtraInfoDisableToolbar: true};
+
+  await editorState.apply(
+    transaction,
+    options: const ApplyOptions(
+      recordUndo: false,
+      inMemoryUpdate: true,
+    ),
+  );
+}
+
+bool _isAIEnabled(EditorState editorState) {
+  final documentContext = editorState.document.root.context;
+  return documentContext == null ||
+      !documentContext.read<DocumentBloc>().isLocalMode;
 }
