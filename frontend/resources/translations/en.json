@@ -3131,7 +3131,9 @@
       "aiAddon": "AI add-on"
     },
     "editing": "Editing",
-    "analyzing": "Analyzing"
+    "analyzing": "Analyzing",
+    "continueWritingEmptyDocumentTitle": "Continue writing error",
+    "continueWritingEmptyDocumentDescription": "We are having trouble expanding on the content in your document. Write a small intro and we can take it from there!"
   },
   "autoUpdate": {
     "criticalUpdateTitle": "Update required to continue",

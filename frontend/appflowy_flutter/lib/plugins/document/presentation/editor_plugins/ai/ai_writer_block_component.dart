@@ -145,48 +145,60 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
       ],
       child: LayoutBuilder(
         builder: (context, constraints) {
-          return OverlayPortal(
-            controller: overlayController,
-            overlayChildBuilder: (context) {
-              return Stack(
-                children: [
-                  BlocBuilder<AiWriterCubit, AiWriterState>(
-                    builder: (context, state) {
-                      final hitTestBehavior = state is GeneratingAiWriterState
-                          ? HitTestBehavior.opaque
-                          : HitTestBehavior.translucent;
-                      return GestureDetector(
-                        behavior: hitTestBehavior,
-                        onTap: () => onTapOutside(),
-                      );
-                    },
-                  ),
-                  CompositedTransformFollower(
-                    link: layerLink,
-                    showWhenUnlinked: false,
-                    child: Container(
-                      padding: const EdgeInsets.only(
-                        left: 40.0,
-                        bottom: 16.0,
-                      ),
-                      width: constraints.maxWidth,
-                      child: OverlayContent(
-                        node: widget.node,
+          return BlocListener<AiWriterCubit, AiWriterState>(
+            listener: (context, state) {
+              if (state is SingleShotAiWriterState) {
+                showConfirmDialog(
+                  context: context,
+                  title: state.title,
+                  description: state.description,
+                  onConfirm: state.onDismiss,
+                );
+              }
+            },
+            child: OverlayPortal(
+              controller: overlayController,
+              overlayChildBuilder: (context) {
+                return Stack(
+                  children: [
+                    BlocBuilder<AiWriterCubit, AiWriterState>(
+                      builder: (context, state) {
+                        final hitTestBehavior = state is GeneratingAiWriterState
+                            ? HitTestBehavior.opaque
+                            : HitTestBehavior.translucent;
+                        return GestureDetector(
+                          behavior: hitTestBehavior,
+                          onTap: () => onTapOutside(),
+                        );
+                      },
+                    ),
+                    CompositedTransformFollower(
+                      link: layerLink,
+                      showWhenUnlinked: false,
+                      child: Container(
+                        padding: const EdgeInsets.only(
+                          left: 40.0,
+                          bottom: 16.0,
+                        ),
+                        width: constraints.maxWidth,
+                        child: OverlayContent(
+                          node: widget.node,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              );
-            },
-            child: CompositedTransformTarget(
-              link: layerLink,
-              child: BlocBuilder<AiWriterCubit, AiWriterState>(
-                builder: (context, state) {
-                  return SizedBox(
-                    key: key,
-                    width: double.infinity,
-                  );
-                },
+                  ],
+                );
+              },
+              child: CompositedTransformTarget(
+                link: layerLink,
+                child: BlocBuilder<AiWriterCubit, AiWriterState>(
+                  builder: (context, state) {
+                    return SizedBox(
+                      key: key,
+                      width: double.infinity,
+                    );
+                  },
+                ),
               ),
             ),
           );
@@ -230,8 +242,8 @@ class OverlayContent extends StatelessWidget {
       builder: (context, state) {
         final selection = node.aiWriterSelection;
         final showSuggestionPopup =
-            state is ReadyAiWriterState && !state.isInitial;
-        final showActionPopup = state is ReadyAiWriterState && state.isInitial;
+            state is ReadyAiWriterState && !state.isFirstRun;
+        final showActionPopup = state is ReadyAiWriterState && state.isFirstRun;
         final markdownText = switch (state) {
           final ReadyAiWriterState ready => ready.markdownText,
           final GeneratingAiWriterState generating => generating.markdownText,

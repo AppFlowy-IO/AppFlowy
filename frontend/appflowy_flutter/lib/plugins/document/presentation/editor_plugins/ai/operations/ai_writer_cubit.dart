@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:appflowy/ai/ai.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:bloc/bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../base/markdown_text_robot.dart';
@@ -25,7 +27,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
         super(
           ReadyAiWriterState(
             initialCommand,
-            isInitial: true,
+            isFirstRun: true,
           ),
         );
 
@@ -45,7 +47,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     await super.close();
   }
 
-  void init() => runCommand(initialCommand, null);
+  void init() {
+    runCommand(initialCommand, null, isImmediateRun: true);
+  }
 
   void submit(
     String prompt,
@@ -85,7 +89,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
         await _textRobot.stop(
           attributes: ApplySuggestionFormatType.replace.attributes,
         );
-        emit(ReadyAiWriterState(command, isInitial: false));
+        emit(ReadyAiWriterState(command, isFirstRun: false));
       },
       onError: (error) async {
         emit(ErrorAiWriterState(state.command, error: error));
@@ -105,11 +109,16 @@ class AiWriterCubit extends Cubit<AiWriterState> {
   void runCommand(
     AiWriterCommand command,
     PredefinedFormat? predefinedFormat, {
+    bool isImmediateRun = false,
     bool isRetry = false,
   }) async {
     switch (command) {
       case AiWriterCommand.continueWriting:
-        await _startContinueWriting(command, predefinedFormat);
+        await _startContinueWriting(
+          command,
+          predefinedFormat,
+          isImmediateRun: isImmediateRun,
+        );
         break;
       case AiWriterCommand.fixSpellingAndGrammar:
       case AiWriterCommand.improveWriting:
@@ -141,7 +150,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     emit(
       ReadyAiWriterState(
         state.command,
-        isInitial: false,
+        isFirstRun: false,
         markdownText: generatingState.markdownText,
       ),
     );
@@ -257,7 +266,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
   bool hasUnusedResponse() {
     return switch (state) {
       ReadyAiWriterState(
-        isInitial: final isInitial,
+        isFirstRun: final isInitial,
         markdownText: final markdownText,
       ) =>
         !isInitial && (markdownText.isNotEmpty || _textRobot.hasAnyResult),
@@ -268,8 +277,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
 
   Future<void> _startContinueWriting(
     AiWriterCommand command,
-    PredefinedFormat? predefinedFormat,
-  ) async {
+    PredefinedFormat? predefinedFormat, {
+    required bool isImmediateRun,
+  }) async {
     final node = getAiWriterNode();
 
     final cursorPosition = getAiWriterNode().aiWriterSelection?.start;
@@ -280,6 +290,29 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       start: Position(path: [0]),
       end: cursorPosition,
     ).normalized;
+
+    final text = await editorState.getMarkdownInSelection(selection);
+    if (text.isEmpty) {
+      if (state is! ReadyAiWriterState) {
+        return;
+      }
+      final readyState = state as ReadyAiWriterState;
+      emit(
+        SingleShotAiWriterState(
+          command,
+          title: LocaleKeys.ai_continueWritingEmptyDocumentTitle.tr(),
+          description:
+              LocaleKeys.ai_continueWritingEmptyDocumentDescription.tr(),
+          onDismiss: () {
+            if (isImmediateRun) {
+              removeAiWriterNode(editorState, node);
+            }
+          },
+        ),
+      );
+      emit(readyState);
+      return;
+    }
 
     final stream = await _aiService.streamCompletion(
       objectId: documentId,
@@ -311,7 +344,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           await _textRobot.stop(
             attributes: ApplySuggestionFormatType.replace.attributes,
           );
-          emit(ReadyAiWriterState(command, isInitial: false));
+          emit(ReadyAiWriterState(command, isFirstRun: false));
         }
       },
       onError: (error) async {
@@ -374,7 +407,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           emit(
             ReadyAiWriterState(
               command,
-              isInitial: false,
+              isFirstRun: false,
             ),
           );
         }
@@ -423,7 +456,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           emit(
             ReadyAiWriterState(
               command,
-              isInitial: false,
+              isFirstRun: false,
               markdownText: generatingState.markdownText,
             ),
           );
@@ -450,11 +483,11 @@ sealed class AiWriterState {
 class ReadyAiWriterState extends AiWriterState {
   const ReadyAiWriterState(
     super.command, {
-    required this.isInitial,
+    required this.isFirstRun,
     this.markdownText = '',
   });
 
-  final bool isInitial;
+  final bool isFirstRun;
   final String markdownText;
 }
 
@@ -478,4 +511,17 @@ class ErrorAiWriterState extends AiWriterState {
   });
 
   final AIError error;
+}
+
+class SingleShotAiWriterState extends AiWriterState {
+  const SingleShotAiWriterState(
+    super.command, {
+    required this.title,
+    required this.description,
+    required this.onDismiss,
+  });
+
+  final String title;
+  final String description;
+  final void Function() onDismiss;
 }
