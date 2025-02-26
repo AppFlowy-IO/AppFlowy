@@ -227,9 +227,8 @@ class OverlayContent extends StatelessWidget {
     return BlocBuilder<AiWriterCubit, AiWriterState>(
       builder: (context, state) {
         final selection = node.aiWriterSelection;
-        final showSuggestionPopup = state is ReadyAiWriterState &&
-            !state.isInitial &&
-            state.command != AiWriterCommand.explain;
+        final showSuggestionPopup =
+            state is ReadyAiWriterState && !state.isInitial;
         final showActionPopup = state is ReadyAiWriterState && state.isInitial;
         final markdownText = switch (state) {
           final ReadyAiWriterState ready => ready.markdownText,
@@ -250,7 +249,8 @@ class OverlayContent extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (showSuggestionPopup) ...[
+            if (showSuggestionPopup &&
+                state.command != AiWriterCommand.explain) ...[
               Container(
                 padding: EdgeInsets.all(4.0),
                 decoration: _getModalDecoration(
@@ -310,18 +310,20 @@ class OverlayContent extends StatelessWidget {
                                   markdown: markdownText,
                                 ),
                               ),
-                              const VSpace(4.0),
-                              SuggestionActionBar(
-                                actions: _getSuggestedActions(
-                                  currentCommand: state.command,
-                                  hasSelection: hasSelection,
+                              if (showSuggestionPopup) ...[
+                                const VSpace(4.0),
+                                SuggestionActionBar(
+                                  actions: _getSuggestedActions(
+                                    currentCommand: state.command,
+                                    hasSelection: hasSelection,
+                                  ),
+                                  onTap: (action) {
+                                    context
+                                        .read<AiWriterCubit>()
+                                        .runResponseAction(action);
+                                  },
                                 ),
-                                onTap: (action) {
-                                  context
-                                      .read<AiWriterCubit>()
-                                      .runResponseAction(action);
-                                },
-                              ),
+                              ],
                             ],
                           ),
                         ),

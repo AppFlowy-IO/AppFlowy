@@ -216,6 +216,21 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     if (action case SuggestionAction.insertBelow) {
       if (state case final ReadyAiWriterState readyState
           when readyState.markdownText.isNotEmpty) {
+        final transaction = editorState.transaction;
+        final position = ensurePreviousNodeIsEmptyParagraph(
+          editorState,
+          getAiWriterNode(),
+          transaction,
+        );
+        transaction.afterSelection = null;
+        await editorState.apply(
+          transaction,
+          options: ApplyOptions(
+            inMemoryUpdate: true,
+            recordUndo: false,
+          ),
+        );
+        _textRobot.start(position: position);
         await _textRobot.persist(markdownText: readyState.markdownText);
       } else {
         await _textRobot.persist();
