@@ -759,6 +759,7 @@
         "alignLeft": "Align text left",
         "alignCenter": "Align text center",
         "alignRight": "Align text right",
+        "insertInlineMathEquation": "Insert inline math eqaution",
         "undo": "Undo",
         "redo": "Redo",
         "convertToParagraph": "Convert block to paragraph",
