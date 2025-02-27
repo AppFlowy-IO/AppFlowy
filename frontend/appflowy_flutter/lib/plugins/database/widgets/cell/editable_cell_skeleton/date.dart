@@ -1,12 +1,12 @@
+import 'package:appflowy/plugins/database/application/cell/bloc/date_cell_bloc.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/date_cell_editor_bloc.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller.dart';
 import 'package:appflowy/plugins/database/application/cell/cell_controller_builder.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/application/field/type_option/type_option_data_parser.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
-import 'package:appflowy/plugins/database/application/cell/bloc/date_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_builder.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +33,7 @@ abstract class IEditableDateCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     DateCellBloc bloc,
     DateCellState state,
     PopoverController popoverController,
@@ -79,6 +80,7 @@ class _DateCellState extends GridCellState<EditableDateCell> {
           return widget.skin.build(
             context,
             widget.cellContainerNotifier,
+            widget.databaseController.compactModeNotifier,
             cellBloc,
             state,
             _popover,

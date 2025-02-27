@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar.dart';
@@ -29,6 +27,7 @@ import 'package:appflowy_backend/protobuf/flowy-database2/row_entities.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
@@ -59,7 +58,9 @@ class _MobileRowDetailPageState extends State<MobileRowDetailPage> {
   late final PageController _pageController;
 
   String get viewId => widget.databaseController.viewId;
+
   RowCache get rowCache => widget.databaseController.rowCache;
+
   FieldController get fieldController =>
       widget.databaseController.fieldController;
 
@@ -380,7 +381,9 @@ class MobileRowDetailPageContentState
   late final EditableCellBuilder cellBuilder;
 
   String get viewId => widget.databaseController.viewId;
+
   RowCache get rowCache => widget.databaseController.rowCache;
+
   FieldController get fieldController =>
       widget.databaseController.fieldController;
   ValueNotifier<String> primaryFieldId = ValueNotifier('');
@@ -542,6 +545,7 @@ class _TitleSkin extends IEditableTextCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     TextCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,

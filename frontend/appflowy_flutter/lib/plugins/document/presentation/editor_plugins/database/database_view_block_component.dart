@@ -13,7 +13,13 @@ class DatabaseBlockKeys {
 
   static const String parentID = 'parent_id';
   static const String viewID = 'view_id';
+  static const String enableCompactMode = 'enable_compact_mode';
 }
+
+const overflowTypes = {
+  DatabaseBlockKeys.gridType,
+  DatabaseBlockKeys.boardType,
+};
 
 class DatabaseViewBlockComponentBuilder extends BlockComponentBuilder {
   DatabaseViewBlockComponentBuilder({
@@ -71,29 +77,24 @@ class _DatabaseBlockComponentWidgetState
     Widget child = BuiltInPageWidget(
       node: widget.node,
       editorState: editorState,
-      builder: (view) => DatabaseViewWidget(key: ValueKey(view.id), view: view),
-    );
-
-    child = Padding(
-      padding: padding,
-      child: FocusScope(
-        skipTraversal: true,
-        onFocusChange: (value) {
-          if (value && keepEditorFocusNotifier.value == 0) {
-            context.read<EditorState>().selection = null;
-          }
-        },
-        child: child,
+      builder: (view) => DatabaseViewWidget(
+        key: ValueKey(view.id),
+        view: view,
+        actionBuilder: widget.actionBuilder,
+        showActions: widget.showActions,
+        node: widget.node,
       ),
     );
 
-    if (widget.showActions && widget.actionBuilder != null) {
-      child = BlockComponentActionWrapper(
-        node: widget.node,
-        actionBuilder: widget.actionBuilder!,
-        child: child,
-      );
-    }
+    child = FocusScope(
+      skipTraversal: true,
+      onFocusChange: (value) {
+        if (value && keepEditorFocusNotifier.value == 0) {
+          context.read<EditorState>().selection = null;
+        }
+      },
+      child: child,
+    );
 
     if (!editorState.editable) {
       child = IgnorePointer(

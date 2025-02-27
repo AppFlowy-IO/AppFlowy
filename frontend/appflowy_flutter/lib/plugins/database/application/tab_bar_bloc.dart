@@ -1,6 +1,11 @@
+import 'dart:convert';
+
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/plugins/database/domain/database_view_service.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
@@ -17,8 +22,10 @@ part 'tab_bar_bloc.freezed.dart';
 
 class DatabaseTabBarBloc
     extends Bloc<DatabaseTabBarEvent, DatabaseTabBarState> {
-  DatabaseTabBarBloc({required ViewPB view})
-      : super(DatabaseTabBarState.initial(view)) {
+  DatabaseTabBarBloc({
+    required ViewPB view,
+    required String compactModeId,
+  }) : super(DatabaseTabBarState.initial(view, compactModeId)) {
     on<DatabaseTabBarEvent>(
       (event, emit) async {
         await event.when(
@@ -154,10 +161,12 @@ class DatabaseTabBarBloc
   ) {
     final tabBarControllerByViewId = {...state.tabBarControllerByViewId};
     for (final view in newViews) {
-      final controller = DatabaseTabBarController(view: view);
-      controller.onViewUpdated = (newView) {
-        add(DatabaseTabBarEvent.viewDidUpdate(newView));
-      };
+      final controller = DatabaseTabBarController(
+        view: view,
+        compactModeId: state.compactModeId,
+      )..onViewUpdated = (newView) {
+          add(DatabaseTabBarEvent.viewDidUpdate(newView));
+        };
 
       tabBarControllerByViewId[view.id] = controller;
     }
@@ -205,20 +214,27 @@ class DatabaseTabBarBloc
 @freezed
 class DatabaseTabBarEvent with _$DatabaseTabBarEvent {
   const factory DatabaseTabBarEvent.initial() = _Initial;
+
   const factory DatabaseTabBarEvent.didLoadChildViews(
     List<ViewPB> childViews,
   ) = _DidLoadChildViews;
+
   const factory DatabaseTabBarEvent.selectView(String viewId) = _DidSelectView;
+
   const factory DatabaseTabBarEvent.createView(
     DatabaseLayoutPB layout,
     String? name,
   ) = _CreateView;
+
   const factory DatabaseTabBarEvent.renameView(String viewId, String newName) =
       _RenameView;
+
   const factory DatabaseTabBarEvent.deleteView(String viewId) = _DeleteView;
+
   const factory DatabaseTabBarEvent.didUpdateChildViews(
     ChildViewUpdatePB updatePB,
   ) = _DidUpdateChildViews;
+
   const factory DatabaseTabBarEvent.viewDidUpdate(ViewPB view) = _ViewDidUpdate;
 }
 
@@ -227,19 +243,25 @@ class DatabaseTabBarState with _$DatabaseTabBarState {
   const factory DatabaseTabBarState({
     required ViewPB parentView,
     required int selectedIndex,
+    required String compactModeId,
     required List<DatabaseTabBar> tabBars,
     required Map<String, DatabaseTabBarController> tabBarControllerByViewId,
   }) = _DatabaseTabBarState;
 
-  factory DatabaseTabBarState.initial(ViewPB view) {
+  factory DatabaseTabBarState.initial(
+    ViewPB view,
+    String compactModeId,
+  ) {
     final tabBar = DatabaseTabBar(view: view);
     return DatabaseTabBarState(
       parentView: view,
       selectedIndex: 0,
+      compactModeId: compactModeId,
       tabBars: [tabBar],
       tabBarControllerByViewId: {
         view.id: DatabaseTabBarController(
           view: view,
+          compactModeId: compactModeId,
         ),
       },
     );
@@ -257,7 +279,9 @@ class DatabaseTabBar extends Equatable {
   final DatabaseTabBarItemBuilder _builder;
 
   String get viewId => view.id;
+
   DatabaseTabBarItemBuilder get builder => _builder;
+
   ViewLayoutPB get layout => view.layout;
 
   @override
@@ -274,8 +298,35 @@ typedef OnViewChildViewChanged = void Function(
 );
 
 class DatabaseTabBarController {
-  DatabaseTabBarController({required this.view})
-      : controller = DatabaseController(view: view),
+  DatabaseTabBarController({
+    required this.view,
+    required String compactModeId,
+  })  : controller = DatabaseController(view: view)
+          ..fetchCompactMode(compactModeId)
+          ..addListener(
+            onCompactModeChanged: (v) async {
+              Set<String> compactModeIds = {};
+              try {
+                final localIds = await getIt<KeyValueStorage>().get(
+                  KVKeys.compactModeIds,
+                );
+                final List<dynamic> decodedList = jsonDecode(localIds ?? '');
+                compactModeIds =
+                    Set.from(decodedList.map((item) => item as String));
+              } catch (e) {
+                Log.warn('get compact mode ids failed', e);
+              }
+              if (v) {
+                compactModeIds.add(compactModeId);
+              } else {
+                compactModeIds.remove(compactModeId);
+              }
+              await getIt<KeyValueStorage>().set(
+                KVKeys.compactModeIds,
+                jsonEncode(compactModeIds.toList()),
+              );
+            },
+          ),
         viewListener = ViewListener(viewId: view.id) {
     viewListener.start(
       onViewChildViewsUpdated: (update) => onViewChildViewChanged?.call(update),

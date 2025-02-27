@@ -2,9 +2,9 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/show_mobile_bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/database/date_picker/mobile_date_picker_screen.dart';
+import 'package:appflowy/plugins/database/application/cell/bloc/date_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/date.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
-import 'package:appflowy/plugins/database/application/cell/bloc/date_cell_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +14,7 @@ class MobileRowDetailDateCellSkin extends IEditableDateCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     DateCellBloc bloc,
     DateCellState state,
     PopoverController popoverController,

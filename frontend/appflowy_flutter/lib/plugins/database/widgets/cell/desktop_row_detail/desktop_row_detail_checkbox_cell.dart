@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/checkbox_cell_bloc.dart';
+import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +11,7 @@ class DesktopRowDetailCheckboxCellSkin extends IEditableCheckboxCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     CheckboxCellBloc bloc,
     CheckboxCellState state,
   ) {

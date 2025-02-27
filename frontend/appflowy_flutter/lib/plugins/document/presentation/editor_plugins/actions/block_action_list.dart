@@ -42,7 +42,7 @@ class BlockActionList extends StatelessWidget {
           editorState: editorState,
           blockComponentBuilder: blockComponentBuilder,
         ),
-        const HSpace(8.0),
+        const HSpace(5.0),
       ],
     );
   }

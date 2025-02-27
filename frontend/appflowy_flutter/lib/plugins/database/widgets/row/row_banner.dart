@@ -624,6 +624,7 @@ class _TitleSkin extends IEditableTextCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     TextCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,
