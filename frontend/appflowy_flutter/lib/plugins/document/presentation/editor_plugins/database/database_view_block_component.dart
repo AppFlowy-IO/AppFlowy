@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/database/widgets/database_view_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/built_in_page_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -77,12 +78,15 @@ class _DatabaseBlockComponentWidgetState
     Widget child = BuiltInPageWidget(
       node: widget.node,
       editorState: editorState,
-      builder: (view) => DatabaseViewWidget(
-        key: ValueKey(view.id),
-        view: view,
-        actionBuilder: widget.actionBuilder,
-        showActions: widget.showActions,
-        node: widget.node,
+      builder: (view) => Provider.value(
+        value: ReferenceState(true),
+        child: DatabaseViewWidget(
+          key: ValueKey(view.id),
+          view: view,
+          actionBuilder: widget.actionBuilder,
+          showActions: widget.showActions,
+          node: widget.node,
+        ),
       ),
     );
 
