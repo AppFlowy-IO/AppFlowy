@@ -48,7 +48,7 @@ void main() {
       await tester.editor.showSlashMenu();
       await tester.editor.tapSlashMenuItemWithName(
         LocaleKeys.document_slashMenu_name_photoGallery.tr(),
-        offset: 80,
+        offset: 100,
       );
       expect(find.byType(MultiImageBlockComponent), findsOneWidget);
       expect(find.byType(MultiImagePlaceholder), findsOneWidget);
@@ -146,7 +146,7 @@ void main() {
       await tester.editor.showSlashMenu();
       await tester.editor.tapSlashMenuItemWithName(
         LocaleKeys.document_slashMenu_name_photoGallery.tr(),
-        offset: 80,
+        offset: 100,
       );
       expect(find.byType(MultiImageBlockComponent), findsOneWidget);
       expect(find.byType(MultiImagePlaceholder), findsOneWidget);
