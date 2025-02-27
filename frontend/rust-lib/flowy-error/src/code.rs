@@ -164,8 +164,8 @@ pub enum ErrorCode {
   #[error("Sql error")]
   SqlError = 58,
 
-  #[error("Http error")]
-  HttpError = 59,
+  #[error("Network error")]
+  NetworkError = 59,
 
   #[error("The content should not be empty")]
   UnexpectedEmpty = 60,
@@ -368,6 +368,9 @@ pub enum ErrorCode {
 
   #[error("View is locked")]
   ViewIsLocked = 126,
+
+  #[error("Request timeout")]
+  RequestTimeout = 127,
 }
 
 impl ErrorCode {
