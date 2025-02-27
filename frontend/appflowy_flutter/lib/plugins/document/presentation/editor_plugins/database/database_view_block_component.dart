@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database/widgets/database_view_widget.dart';
+import 'package:appflowy/plugins/document/presentation/compact_mode_event.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/built_in_page_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -72,9 +75,38 @@ class _DatabaseBlockComponentWidgetState
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
 
+  late StreamSubscription<CompactModeEvent> compactModeSubscription;
+  EditorState? editorState;
+
+  @override
+  void initState() {
+    super.initState();
+    compactModeSubscription =
+        compactModeEventBus.on<CompactModeEvent>().listen((event) {
+      if (event.id != node.id) return;
+      final newAttributes = {
+        ...node.attributes,
+        DatabaseBlockKeys.enableCompactMode: event.enable,
+      };
+      final theEditorState = editorState;
+      if (theEditorState == null) return;
+      final transaction = theEditorState.transaction;
+      transaction.updateNode(node, newAttributes);
+      theEditorState.apply(transaction);
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    compactModeSubscription.cancel();
+    editorState = null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final editorState = Provider.of<EditorState>(context, listen: false);
+    this.editorState = editorState;
     Widget child = BuiltInPageWidget(
       node: widget.node,
       editorState: editorState,

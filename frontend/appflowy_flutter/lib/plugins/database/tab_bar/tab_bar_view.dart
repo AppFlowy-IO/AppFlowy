@@ -1,9 +1,17 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:appflowy/core/config/kv.dart';
+import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/plugins/database/application/database_controller.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
+import 'package:appflowy/plugins/document/presentation/compact_mode_event.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/database/database_view_block_component.dart';
 import 'package:appflowy/plugins/shared/share/share_button.dart';
 import 'package:appflowy/plugins/util.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
@@ -12,6 +20,7 @@ import 'package:appflowy/workspace/presentation/widgets/favorite_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/more_view_actions.dart';
 import 'package:appflowy/workspace/presentation/widgets/tab_bar_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/view_title_bar.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -56,7 +65,7 @@ abstract class DatabaseTabBarItemBuilder {
   void dispose() {}
 }
 
-class DatabaseTabBarView extends StatelessWidget {
+class DatabaseTabBarView extends StatefulWidget {
   const DatabaseTabBarView({
     super.key,
     required this.view,
@@ -78,18 +87,62 @@ class DatabaseTabBarView extends StatelessWidget {
   final String? initialRowId;
 
   @override
+  State<DatabaseTabBarView> createState() => _DatabaseTabBarViewState();
+}
+
+class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
+  bool enableCompactMode = false;
+  bool initialed = false;
+  StreamSubscription<CompactModeEvent>? compactModeSubscription;
+
+  String get compactModeId => widget.node?.id ?? widget.view.id;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.node != null) {
+      enableCompactMode =
+          widget.node!.attributes[DatabaseBlockKeys.enableCompactMode] ?? false;
+      setState(() {
+        initialed = true;
+      });
+    } else {
+      fetchLocalCompactMode(compactModeId).then((v) {
+        if (mounted) {
+          setState(() {
+            enableCompactMode = v;
+            initialed = true;
+          });
+        }
+      });
+      compactModeSubscription =
+          compactModeEventBus.on<CompactModeEvent>().listen((event) {
+        if (event.id != widget.view.id) return;
+        updateLocalCompactMode(event.enable);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    compactModeSubscription?.cancel();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final compactModeId = node?.id ?? view.id;
+    if (!initialed) return Center(child: CircularProgressIndicator());
     return MultiBlocProvider(
       providers: [
         BlocProvider<DatabaseTabBarBloc>(
           create: (_) => DatabaseTabBarBloc(
-            view: view,
+            view: widget.view,
             compactModeId: compactModeId,
+            enableCompactMode: enableCompactMode,
           )..add(const DatabaseTabBarEvent.initial()),
         ),
         BlocProvider<ViewBloc>(
-          create: (_) => ViewBloc(view: view)
+          create: (_) => ViewBloc(view: widget.view)
             ..add(
               const ViewEvent.initial(),
             ),
@@ -126,10 +179,12 @@ class DatabaseTabBarView extends StatelessWidget {
                     );
                   }
 
-                  if (showActions && actionBuilder != null && node != null) {
+                  if (widget.showActions &&
+                      widget.actionBuilder != null &&
+                      widget.node != null) {
                     child = BlockComponentActionWrapper(
-                      node: node!,
-                      actionBuilder: actionBuilder!,
+                      node: widget.node!,
+                      actionBuilder: widget.actionBuilder!,
                       child: Padding(
                         padding: EdgeInsets.only(right: horizontalPadding),
                         child: child,
@@ -153,7 +208,7 @@ class DatabaseTabBarView extends StatelessWidget {
               wrapContent(
                 layout: layout,
                 child: Padding(
-                  padding: (isCalendar && shrinkWrap)
+                  padding: (isCalendar && widget.shrinkWrap)
                       ? EdgeInsets.only(left: 42)
                       : EdgeInsets.zero,
                   child: pageContentFromState(context, state),
@@ -168,8 +223,44 @@ class DatabaseTabBarView extends StatelessWidget {
     );
   }
 
+  Future<bool> fetchLocalCompactMode(String compactModeId) async {
+    Set<String> compactModeIds = {};
+    try {
+      final localIds = await getIt<KeyValueStorage>().get(
+        KVKeys.compactModeIds,
+      );
+      final List<dynamic> decodedList = jsonDecode(localIds ?? '');
+      compactModeIds = Set.from(decodedList.map((item) => item as String));
+    } catch (e) {
+      Log.warn('fetch local compact mode from id :$compactModeId failed', e);
+    }
+    return compactModeIds.contains(compactModeId);
+  }
+
+  Future<void> updateLocalCompactMode(bool enableCompactMode) async {
+    Set<String> compactModeIds = {};
+    try {
+      final localIds = await getIt<KeyValueStorage>().get(
+        KVKeys.compactModeIds,
+      );
+      final List<dynamic> decodedList = jsonDecode(localIds ?? '');
+      compactModeIds = Set.from(decodedList.map((item) => item as String));
+    } catch (e) {
+      Log.warn('get compact mode ids failed', e);
+    }
+    if (enableCompactMode) {
+      compactModeIds.add(compactModeId);
+    } else {
+      compactModeIds.remove(compactModeId);
+    }
+    await getIt<KeyValueStorage>().set(
+      KVKeys.compactModeIds,
+      jsonEncode(compactModeIds.toList()),
+    );
+  }
+
   Widget wrapContent({required ViewLayoutPB layout, required Widget child}) {
-    if (shrinkWrap) {
+    if (widget.shrinkWrap) {
       if (layout.shrinkWrappable) {
         return child;
       }
@@ -191,8 +282,8 @@ class DatabaseTabBarView extends StatelessWidget {
       context,
       tab.view,
       controller,
-      shrinkWrap,
-      initialRowId,
+      widget.shrinkWrap,
+      widget.initialRowId,
     );
   }
 

@@ -1,15 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:appflowy/core/config/kv.dart';
-import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/view/view_cache.dart';
 import 'package:appflowy/plugins/database/domain/database_view_service.dart';
 import 'package:appflowy/plugins/database/domain/group_listener.dart';
 import 'package:appflowy/plugins/database/domain/layout_service.dart';
 import 'package:appflowy/plugins/database/domain/layout_setting_listener.dart';
-import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -403,20 +399,9 @@ class DatabaseController {
     );
   }
 
-  Future<void> fetchCompactMode(String compactModeId) async {
-    Set<String> compactModeIds = {};
-    try {
-      final localIds = await getIt<KeyValueStorage>().get(
-        KVKeys.compactModeIds,
-      );
-      final List<dynamic> decodedList = jsonDecode(localIds ?? '');
-      compactModeIds = Set.from(decodedList.map((item) => item as String));
-    } catch (e) {
-      Log.warn('fetch compact mode ids failed', e);
-    }
-    final compactMode = compactModeIds.contains(compactModeId);
-    if (_compactMode.value != compactMode) {
-      _compactMode.value = compactMode;
+  void initCompactMode(bool enableCompactMode) {
+    if (_compactMode.value != enableCompactMode) {
+      _compactMode.value = enableCompactMode;
     }
   }
 }

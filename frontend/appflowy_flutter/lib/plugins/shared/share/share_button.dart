@@ -33,6 +33,7 @@ class ShareButton extends StatelessWidget {
             create: (context) => DatabaseTabBarBloc(
               view: view,
               compactModeId: view.id,
+              enableCompactMode: false,
             )..add(const DatabaseTabBarEvent.initial()),
           ),
       ],

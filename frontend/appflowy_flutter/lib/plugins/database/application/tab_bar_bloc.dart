@@ -1,11 +1,7 @@
-import 'dart:convert';
-
-import 'package:appflowy/core/config/kv.dart';
-import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/plugins/database/domain/database_view_service.dart';
 import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database/widgets/database_layout_ext.dart';
-import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/plugins/document/presentation/compact_mode_event.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/log.dart';
@@ -25,7 +21,14 @@ class DatabaseTabBarBloc
   DatabaseTabBarBloc({
     required ViewPB view,
     required String compactModeId,
-  }) : super(DatabaseTabBarState.initial(view, compactModeId)) {
+    required bool enableCompactMode,
+  }) : super(
+          DatabaseTabBarState.initial(
+            view,
+            compactModeId,
+            enableCompactMode,
+          ),
+        ) {
     on<DatabaseTabBarEvent>(
       (event, emit) async {
         await event.when(
@@ -164,6 +167,7 @@ class DatabaseTabBarBloc
       final controller = DatabaseTabBarController(
         view: view,
         compactModeId: state.compactModeId,
+        enableCompactMode: state.enableCompactMode,
       )..onViewUpdated = (newView) {
           add(DatabaseTabBarEvent.viewDidUpdate(newView));
         };
@@ -244,6 +248,7 @@ class DatabaseTabBarState with _$DatabaseTabBarState {
     required ViewPB parentView,
     required int selectedIndex,
     required String compactModeId,
+    required bool enableCompactMode,
     required List<DatabaseTabBar> tabBars,
     required Map<String, DatabaseTabBarController> tabBarControllerByViewId,
   }) = _DatabaseTabBarState;
@@ -251,17 +256,20 @@ class DatabaseTabBarState with _$DatabaseTabBarState {
   factory DatabaseTabBarState.initial(
     ViewPB view,
     String compactModeId,
+    bool enableCompactMode,
   ) {
     final tabBar = DatabaseTabBar(view: view);
     return DatabaseTabBarState(
       parentView: view,
       selectedIndex: 0,
       compactModeId: compactModeId,
+      enableCompactMode: enableCompactMode,
       tabBars: [tabBar],
       tabBarControllerByViewId: {
         view.id: DatabaseTabBarController(
           view: view,
           compactModeId: compactModeId,
+          enableCompactMode: enableCompactMode,
         ),
       },
     );
@@ -301,30 +309,13 @@ class DatabaseTabBarController {
   DatabaseTabBarController({
     required this.view,
     required String compactModeId,
+    required bool enableCompactMode,
   })  : controller = DatabaseController(view: view)
-          ..fetchCompactMode(compactModeId)
+          ..initCompactMode(enableCompactMode)
           ..addListener(
             onCompactModeChanged: (v) async {
-              Set<String> compactModeIds = {};
-              try {
-                final localIds = await getIt<KeyValueStorage>().get(
-                  KVKeys.compactModeIds,
-                );
-                final List<dynamic> decodedList = jsonDecode(localIds ?? '');
-                compactModeIds =
-                    Set.from(decodedList.map((item) => item as String));
-              } catch (e) {
-                Log.warn('get compact mode ids failed', e);
-              }
-              if (v) {
-                compactModeIds.add(compactModeId);
-              } else {
-                compactModeIds.remove(compactModeId);
-              }
-              await getIt<KeyValueStorage>().set(
-                KVKeys.compactModeIds,
-                jsonEncode(compactModeIds.toList()),
-              );
+              compactModeEventBus
+                  .fire(CompactModeEvent(id: compactModeId, enable: v));
             },
           ),
         viewListener = ViewListener(viewId: view.id) {
