@@ -190,9 +190,16 @@ class _ChatContentPage extends StatelessWidget {
       return RelatedQuestionList(
         relatedQuestions: message.metadata!['questions'],
         onQuestionSelected: (question) {
-          context
-              .read<ChatBloc>()
-              .add(ChatEvent.sendMessage(message: question));
+          final bloc = context.read<AIPromptInputBloc>();
+          final showPredefinedFormats = bloc.state.showPredefinedFormats;
+          final predefinedFormat = bloc.state.predefinedFormat;
+
+          context.read<ChatBloc>().add(
+                ChatEvent.sendMessage(
+                  message: question,
+                  format: showPredefinedFormats ? predefinedFormat : null,
+                ),
+              );
         },
       );
     }
@@ -284,7 +291,16 @@ class _ChatContentPage extends StatelessWidget {
       return ChatWelcomePage(
         userProfile: userProfile,
         onSelectedQuestion: (question) {
-          bloc.add(ChatEvent.sendMessage(message: question));
+          final aiPromptInputBloc = context.read<AIPromptInputBloc>();
+          final showPredefinedFormats =
+              aiPromptInputBloc.state.showPredefinedFormats;
+          final predefinedFormat = aiPromptInputBloc.state.predefinedFormat;
+          bloc.add(
+            ChatEvent.sendMessage(
+              message: question,
+              format: showPredefinedFormats ? predefinedFormat : null,
+            ),
+          );
         },
       );
     }
