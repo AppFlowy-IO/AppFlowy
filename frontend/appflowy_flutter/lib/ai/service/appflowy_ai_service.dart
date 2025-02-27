@@ -3,137 +3,109 @@ import 'dart:ffi';
 import 'dart:isolate';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart' as fixnum;
 
-import 'ai_client.dart';
+import 'ai_entities.dart';
 import 'error.dart';
-import 'text_completion.dart';
 
-enum AskAIAction {
-  summarize,
-  fixSpelling,
-  improveWriting,
-  makeItLonger;
-
-  String get toInstruction => switch (this) {
-        summarize => 'Tl;dr',
-        fixSpelling => 'Correct this to standard English:',
-        improveWriting => 'Rewrite this in your own words:',
-        makeItLonger => 'Make this text longer:',
-      };
-
-  String prompt(String input) => switch (this) {
-        summarize => '$input\n\n$toInstruction',
-        _ => "$toInstruction\n\n$input",
-      };
-
-  static AskAIAction from(int index) => switch (index) {
-        0 => summarize,
-        1 => fixSpelling,
-        2 => improveWriting,
-        3 => makeItLonger,
-        _ => fixSpelling
-      };
-
-  String get name => switch (this) {
-        summarize => LocaleKeys.document_plugins_smartEditSummarize.tr(),
-        fixSpelling => LocaleKeys.document_plugins_smartEditFixSpelling.tr(),
-        improveWriting =>
-          LocaleKeys.document_plugins_smartEditImproveWriting.tr(),
-        makeItLonger => LocaleKeys.document_plugins_smartEditMakeLonger.tr(),
-      };
+abstract class AIRepository {
+  Future<void> streamCompletion({
+    String? objectId,
+    required String text,
+    PredefinedFormat? format,
+    required CompletionTypePB completionType,
+    required Future<void> Function() onStart,
+    required Future<void> Function(String text) onProcess,
+    required Future<void> Function() onEnd,
+    required void Function(AIError error) onError,
+  });
 }
 
 class AppFlowyAIService implements AIRepository {
   @override
-  Future<FlowyResult<List<String>, AIError>> generateImage({
-    required String prompt,
-    int n = 1,
-  }) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> getStreamedCompletions({
-    required String prompt,
-    required Future<void> Function() onStart,
-    required Future<void> Function(TextCompletionResponse response) onProcess,
-    required Future<void> Function() onEnd,
-    required void Function(AIError error) onError,
-    String? suffix,
-    int maxTokens = 2048,
-    double temperature = 0.3,
-    bool useAction = false,
-  }) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<CompletionStream> streamCompletion({
+  Future<(String, CompletionStream)?> streamCompletion({
     String? objectId,
     required String text,
+    PredefinedFormat? format,
+    List<String> sourceIds = const [],
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
     required Future<void> Function(String text) onProcess,
     required Future<void> Function() onEnd,
     required void Function(AIError error) onError,
   }) async {
-    final stream = CompletionStream(
-      onStart,
-      onProcess,
-      onEnd,
-      onError,
+    final stream = AppFlowyCompletionStream(
+      onStart: onStart,
+      onProcess: onProcess,
+      onEnd: onEnd,
+      onError: onError,
     );
-    final List<String> ragIds = [];
-    if (objectId != null) {
-      ragIds.add(objectId);
-    }
 
     final payload = CompleteTextPB(
       text: text,
       completionType: completionType,
+      format: format?.toPB(),
       streamPort: fixnum.Int64(stream.nativePort),
-      objectId: objectId ?? "",
-      ragIds: ragIds,
+      objectId: objectId ?? '',
+      ragIds: [
+        if (objectId != null) objectId,
+        ...sourceIds,
+      ].unique(),
     );
 
-    // ignore: unawaited_futures
-    AIEventCompleteText(payload).send();
-    return stream;
+    return AIEventCompleteText(payload).send().fold(
+      (task) => (task.taskId, stream),
+      (error) {
+        Log.error(error);
+        return null;
+      },
+    );
   }
 }
 
-CompletionTypePB completionTypeFromInt(AskAIAction action) {
-  switch (action) {
-    case AskAIAction.summarize:
-      return CompletionTypePB.MakeShorter;
-    case AskAIAction.fixSpelling:
-      return CompletionTypePB.SpellingAndGrammar;
-    case AskAIAction.improveWriting:
-      return CompletionTypePB.ImproveWriting;
-    case AskAIAction.makeItLonger:
-      return CompletionTypePB.MakeLonger;
-  }
+abstract class CompletionStream {
+  CompletionStream({
+    required this.onStart,
+    required this.onProcess,
+    required this.onEnd,
+    required this.onError,
+  });
+
+  final Future<void> Function() onStart;
+  final Future<void> Function(String text) onProcess;
+  final Future<void> Function() onEnd;
+  final void Function(AIError error) onError;
 }
 
-class CompletionStream {
-  CompletionStream(
-    Future<void> Function() onStart,
-    Future<void> Function(String text) onProcess,
-    Future<void> Function() onEnd,
-    void Function(AIError error) onError,
-  ) {
+class AppFlowyCompletionStream extends CompletionStream {
+  AppFlowyCompletionStream({
+    required super.onStart,
+    required super.onProcess,
+    required super.onEnd,
+    required super.onError,
+  }) {
+    _startListening();
+  }
+
+  final RawReceivePort _port = RawReceivePort();
+  final StreamController<String> _controller = StreamController.broadcast();
+  late StreamSubscription<String> _subscription;
+  int get nativePort => _port.sendPort.nativePort;
+
+  void _startListening() {
     _port.handler = _controller.add;
     _subscription = _controller.stream.listen(
       (event) async {
         if (event == "AI_RESPONSE_LIMIT") {
           onError(
             AIError(
-              message: LocaleKeys.sideBar_aiResponseLimit.tr(),
+              message: LocaleKeys.ai_textLimitReachedDescription.tr(),
               code: AIErrorCode.aiResponseLimitExceeded,
             ),
           );
@@ -142,7 +114,7 @@ class CompletionStream {
         if (event == "AI_IMAGE_RESPONSE_LIMIT") {
           onError(
             AIError(
-              message: LocaleKeys.sideBar_aiImageResponseLimit.tr(),
+              message: LocaleKeys.ai_imageLimitReachedDescription.tr(),
               code: AIErrorCode.aiImageResponseLimitExceeded,
             ),
           );
@@ -153,6 +125,7 @@ class CompletionStream {
           onError(
             AIError(
               message: msg,
+              code: AIErrorCode.other,
             ),
           );
         }
@@ -170,26 +143,17 @@ class CompletionStream {
         }
 
         if (event.startsWith("error:")) {
-          onError(AIError(message: event.substring(6)));
+          onError(
+            AIError(message: event.substring(6), code: AIErrorCode.other),
+          );
         }
       },
     );
   }
 
-  final RawReceivePort _port = RawReceivePort();
-  final StreamController<String> _controller = StreamController.broadcast();
-  late StreamSubscription<String> _subscription;
-  int get nativePort => _port.sendPort.nativePort;
-
   Future<void> dispose() async {
     await _controller.close();
     await _subscription.cancel();
     _port.close();
-  }
-
-  StreamSubscription<String> listen(
-    void Function(String event)? onData,
-  ) {
-    return _controller.stream.listen(onData);
   }
 }

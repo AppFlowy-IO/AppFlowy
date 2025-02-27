@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
+import 'package:appflowy/ai/service/ai_prompt_input_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_file_bloc.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -13,11 +13,9 @@ import 'layout_define.dart';
 class PromptInputFile extends StatelessWidget {
   const PromptInputFile({
     super.key,
-    required this.chatId,
     required this.onDeleted,
   });
 
-  final String chatId;
   final void Function(ChatFile) onDeleted;
 
   @override
@@ -37,7 +35,6 @@ class PromptInputFile extends StatelessWidget {
           ),
           itemCount: files.length,
           itemBuilder: (context, index) => ChatFilePreview(
-            chatId: chatId,
             file: files[index],
             onDeleted: () => onDeleted(files[index]),
           ),
@@ -49,13 +46,11 @@ class PromptInputFile extends StatelessWidget {
 
 class ChatFilePreview extends StatefulWidget {
   const ChatFilePreview({
-    required this.chatId,
     required this.file,
     required this.onDeleted,
     super.key,
   });
 
-  final String chatId;
   final ChatFile file;
   final VoidCallback onDeleted;
 

@@ -365,13 +365,16 @@ pub struct CompleteTextPB {
   #[pb(index = 2)]
   pub completion_type: CompletionTypePB,
 
-  #[pb(index = 3)]
-  pub stream_port: i64,
+  #[pb(index = 3, one_of)]
+  pub format: Option<PredefinedFormatPB>,
 
   #[pb(index = 4)]
-  pub object_id: String,
+  pub stream_port: i64,
 
   #[pb(index = 5)]
+  pub object_id: String,
+
+  #[pb(index = 6)]
   pub rag_ids: Vec<String>,
 }
 
@@ -383,13 +386,14 @@ pub struct CompleteTextTaskPB {
 
 #[derive(Clone, Debug, ProtoBuf_Enum, Default)]
 pub enum CompletionTypePB {
-  UnknownCompletionType = 0,
   #[default]
-  ImproveWriting = 1,
-  SpellingAndGrammar = 2,
-  MakeShorter = 3,
-  MakeLonger = 4,
-  ContinueWriting = 5,
+  UserQuestion = 0,
+  ExplainSelected = 1,
+  ContinueWriting = 2,
+  SpellingAndGrammar = 3,
+  ImproveWriting = 4,
+  MakeShorter = 5,
+  MakeLonger = 6,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]

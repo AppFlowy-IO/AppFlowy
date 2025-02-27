@@ -1,41 +1,42 @@
 import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/ai_chat/application/ai_prompt_input_bloc.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.dart';
+import 'package:appflowy/plugins/ai_chat/presentation/layout_define.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../layout_define.dart';
-
-class DesktopChatInput extends StatefulWidget {
-  const DesktopChatInput({
+class DesktopPromptInput extends StatefulWidget {
+  const DesktopPromptInput({
     super.key,
-    required this.chatId,
     required this.isStreaming,
     required this.onStopStreaming,
     required this.onSubmitted,
+    required this.selectedSourcesNotifier,
     required this.onUpdateSelectedSources,
+    this.hideDecoration = false,
   });
 
-  final String chatId;
   final bool isStreaming;
   final void Function() onStopStreaming;
   final void Function(String, PredefinedFormat?, Map<String, dynamic>)
       onSubmitted;
+  final ValueNotifier<List<String>> selectedSourcesNotifier;
   final void Function(List<String>) onUpdateSelectedSources;
+  final bool hideDecoration;
 
   @override
-  State<DesktopChatInput> createState() => _DesktopChatInputState();
+  State<DesktopPromptInput> createState() => _DesktopPromptInputState();
 }
 
-class _DesktopChatInputState extends State<DesktopChatInput> {
+class _DesktopPromptInputState extends State<DesktopPromptInput> {
   final textFieldKey = GlobalKey();
   final layerLink = LayerLink();
   final overlayController = OverlayPortalController();
@@ -43,11 +44,6 @@ class _DesktopChatInputState extends State<DesktopChatInput> {
   final focusNode = FocusNode();
   final textController = TextEditingController();
 
-  bool showPredefinedFormatSection = true;
-  PredefinedFormat predefinedFormat = const PredefinedFormat(
-    imageFormat: ImageFormat.text,
-    textFormat: TextFormat.bulletList,
-  );
   late SendButtonState sendButtonState;
   bool isComposing = false;
 
@@ -57,13 +53,15 @@ class _DesktopChatInputState extends State<DesktopChatInput> {
 
     textController.addListener(handleTextControllerChanged);
 
-    // refresh border color on focus change and hide menu when lost focus
     focusNode.addListener(
-      () => setState(() {
-        if (!focusNode.hasFocus) {
-          cancelMentionPage();
+      () {
+        if (!widget.hideDecoration) {
+          setState(() {}); // refresh border color
         }
-      }),
+        if (!focusNode.hasFocus) {
+          cancelMentionPage(); // hide menu when lost focus
+        }
+      },
     );
 
     updateSendButtonState();
@@ -112,15 +110,7 @@ class _DesktopChatInputState extends State<DesktopChatInput> {
             );
           },
           child: DecoratedBox(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: focusNode.hasFocus
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.outline,
-                width: focusNode.hasFocus ? 1.5 : 1.0,
-              ),
-              borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-            ),
+            decoration: decoration(context),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -132,7 +122,6 @@ class _DesktopChatInputState extends State<DesktopChatInput> {
                   ),
                   child: TextFieldTapRegion(
                     child: PromptInputFile(
-                      chatId: widget.chatId,
                       onDeleted: (file) => context
                           .read<AIPromptInputBloc>()
                           .add(AIPromptInputEvent.removeFile(file)),
@@ -140,53 +129,63 @@ class _DesktopChatInputState extends State<DesktopChatInput> {
                   ),
                 ),
                 const VSpace(4.0),
-                Stack(
-                  children: [
-                    Container(
-                      constraints: getTextFieldConstraints(),
-                      child: inputTextField(),
-                    ),
-                    if (showPredefinedFormatSection)
-                      Positioned.fill(
-                        bottom: null,
-                        child: TextFieldTapRegion(
-                          child: Padding(
-                            padding:
-                                const EdgeInsetsDirectional.only(start: 8.0),
-                            child: ChangeFormatBar(
-                              predefinedFormat: predefinedFormat,
-                              spacing: 4.0,
-                              onSelectPredefinedFormat: (format) {
-                                setState(() => predefinedFormat = format);
-                              },
+                BlocBuilder<AIPromptInputBloc, AIPromptInputState>(
+                  builder: (context, state) {
+                    return Stack(
+                      children: [
+                        ConstrainedBox(
+                          constraints: getTextFieldConstraints(
+                            state.showPredefinedFormats,
+                          ),
+                          child: inputTextField(),
+                        ),
+                        if (state.showPredefinedFormats)
+                          Positioned.fill(
+                            bottom: null,
+                            child: TextFieldTapRegion(
+                              child: Padding(
+                                padding: const EdgeInsetsDirectional.only(
+                                  start: 8.0,
+                                ),
+                                child: ChangeFormatBar(
+                                  predefinedFormat: state.predefinedFormat,
+                                  spacing: 4.0,
+                                  onSelectPredefinedFormat: (format) =>
+                                      context.read<AIPromptInputBloc>().add(
+                                            AIPromptInputEvent
+                                                .updatePredefinedFormat(
+                                              format,
+                                            ),
+                                          ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        Positioned.fill(
+                          top: null,
+                          child: TextFieldTapRegion(
+                            child: _PromptBottomActions(
+                              showPredefinedFormats:
+                                  state.showPredefinedFormats,
+                              onTogglePredefinedFormatSection: () =>
+                                  context.read<AIPromptInputBloc>().add(
+                                        AIPromptInputEvent
+                                            .toggleShowPredefinedFormat(),
+                                      ),
+                              onStartMention: startMentionPageFromButton,
+                              sendButtonState: sendButtonState,
+                              onSendPressed: handleSend,
+                              onStopStreaming: widget.onStopStreaming,
+                              selectedSourcesNotifier:
+                                  widget.selectedSourcesNotifier,
+                              onUpdateSelectedSources:
+                                  widget.onUpdateSelectedSources,
                             ),
                           ),
                         ),
-                      ),
-                    Positioned.fill(
-                      top: null,
-                      child: TextFieldTapRegion(
-                        child: _PromptBottomActions(
-                          textController: textController,
-                          overlayController: overlayController,
-                          focusNode: focusNode,
-                          showPredefinedFormats: showPredefinedFormatSection,
-                          predefinedFormat: predefinedFormat,
-                          onTogglePredefinedFormatSection: () {
-                            setState(() {
-                              showPredefinedFormatSection =
-                                  !showPredefinedFormatSection;
-                            });
-                          },
-                          sendButtonState: sendButtonState,
-                          onSendPressed: handleSend,
-                          onStopStreaming: widget.onStopStreaming,
-                          onUpdateSelectedSources:
-                              widget.onUpdateSelectedSources,
-                        ),
-                      ),
-                    ),
-                  ],
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
@@ -194,6 +193,40 @@ class _DesktopChatInputState extends State<DesktopChatInput> {
         ),
       ),
     );
+  }
+
+  BoxDecoration decoration(BuildContext context) {
+    if (widget.hideDecoration) {
+      return BoxDecoration();
+    }
+    return BoxDecoration(
+      color: Theme.of(context).colorScheme.surface,
+      border: Border.all(
+        color: focusNode.hasFocus
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.outline,
+        width: focusNode.hasFocus ? 1.5 : 1.0,
+      ),
+      borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+    );
+  }
+
+  void startMentionPageFromButton() {
+    if (overlayController.isShowing) {
+      return;
+    }
+    if (!focusNode.hasFocus) {
+      focusNode.requestFocus();
+    }
+    textController.text += '@';
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted) {
+        context
+            .read<ChatInputControlCubit>()
+            .startSearching(textController.value);
+        overlayController.show();
+      }
+    });
   }
 
   void cancelMentionPage() {
@@ -228,9 +261,13 @@ class _DesktopChatInputState extends State<DesktopChatInput> {
     // get the attached files and mentioned pages
     final metadata = context.read<AIPromptInputBloc>().consumeMetadata();
 
+    final bloc = context.read<AIPromptInputBloc>();
+    final showPredefinedFormats = bloc.state.showPredefinedFormats;
+    final predefinedFormat = bloc.state.predefinedFormat;
+
     widget.onSubmitted(
       trimmedText,
-      showPredefinedFormatSection ? predefinedFormat : null,
+      showPredefinedFormats ? predefinedFormat : null,
       metadata,
     );
   }
@@ -330,18 +367,6 @@ class _DesktopChatInputState extends State<DesktopChatInput> {
     overlayController.hide();
   }
 
-  BoxConstraints getTextFieldConstraints() {
-    double minHeight = DesktopAIPromptSizes.textFieldMinHeight +
-        DesktopAIPromptSizes.actionBarSendButtonSize +
-        DesktopAIChatSizes.inputActionBarMargin.vertical;
-    double maxHeight = 300;
-    if (showPredefinedFormatSection) {
-      minHeight += DesktopAIPromptSizes.predefinedFormatButtonHeight;
-      maxHeight += DesktopAIPromptSizes.predefinedFormatButtonHeight;
-    }
-    return BoxConstraints(minHeight: minHeight, maxHeight: maxHeight);
-  }
-
   Widget inputTextField() {
     return Shortcuts(
       shortcuts: buildShortcuts(),
@@ -356,7 +381,8 @@ class _DesktopChatInputState extends State<DesktopChatInput> {
                 cubit: inputControlCubit,
                 textController: textController,
                 textFieldFocusNode: focusNode,
-                contentPadding: calculateContentPadding(),
+                contentPadding:
+                    calculateContentPadding(state.showPredefinedFormats),
                 hintText: switch (state.aiType) {
                   AIType.appflowyAI => LocaleKeys.chat_inputMessageHint.tr(),
                   AIType.localAI => LocaleKeys.chat_inputLocalAIMessageHint.tr()
@@ -369,8 +395,20 @@ class _DesktopChatInputState extends State<DesktopChatInput> {
     );
   }
 
-  EdgeInsetsGeometry calculateContentPadding() {
-    final top = showPredefinedFormatSection
+  BoxConstraints getTextFieldConstraints(bool showPredefinedFormats) {
+    double minHeight = DesktopAIPromptSizes.textFieldMinHeight +
+        DesktopAIPromptSizes.actionBarSendButtonSize +
+        DesktopAIChatSizes.inputActionBarMargin.vertical;
+    double maxHeight = 300;
+    if (showPredefinedFormats) {
+      minHeight += DesktopAIPromptSizes.predefinedFormatButtonHeight;
+      maxHeight += DesktopAIPromptSizes.predefinedFormatButtonHeight;
+    }
+    return BoxConstraints(minHeight: minHeight, maxHeight: maxHeight);
+  }
+
+  EdgeInsetsGeometry calculateContentPadding(bool showPredefinedFormats) {
+    final top = showPredefinedFormats
         ? DesktopAIPromptSizes.predefinedFormatButtonHeight
         : 0.0;
     final bottom = DesktopAIPromptSizes.actionBarSendButtonSize +
@@ -451,29 +489,80 @@ class _FocusNextItemIntent extends Intent {
   const _FocusNextItemIntent();
 }
 
+class PromptInputTextField extends StatelessWidget {
+  const PromptInputTextField({
+    super.key,
+    required this.cubit,
+    required this.textController,
+    required this.textFieldFocusNode,
+    required this.contentPadding,
+    this.hintText = "",
+  });
+
+  final ChatInputControlCubit cubit;
+  final TextEditingController textController;
+  final FocusNode textFieldFocusNode;
+  final EdgeInsetsGeometry contentPadding;
+  final String hintText;
+
+  @override
+  Widget build(BuildContext context) {
+    return ExtendedTextField(
+      controller: textController,
+      focusNode: textFieldFocusNode,
+      decoration: InputDecoration(
+        border: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        contentPadding: contentPadding,
+        hintText: hintText,
+        hintStyle: inputHintTextStyle(context),
+        isCollapsed: true,
+        isDense: true,
+      ),
+      keyboardType: TextInputType.multiline,
+      textCapitalization: TextCapitalization.sentences,
+      minLines: 1,
+      maxLines: null,
+      style: Theme.of(context).textTheme.bodyMedium,
+      specialTextSpanBuilder: PromptInputTextSpanBuilder(
+        inputControlCubit: cubit,
+        specialTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.w600,
+            ),
+      ),
+    );
+  }
+
+  TextStyle? inputHintTextStyle(BuildContext context) {
+    return Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: Theme.of(context).isLightMode
+              ? const Color(0xFFBDC2C8)
+              : const Color(0xFF3C3E51),
+        );
+  }
+}
+
 class _PromptBottomActions extends StatelessWidget {
   const _PromptBottomActions({
-    required this.textController,
-    required this.overlayController,
-    required this.focusNode,
     required this.sendButtonState,
-    required this.predefinedFormat,
-    required this.onTogglePredefinedFormatSection,
     required this.showPredefinedFormats,
+    required this.onTogglePredefinedFormatSection,
+    required this.onStartMention,
     required this.onSendPressed,
     required this.onStopStreaming,
+    required this.selectedSourcesNotifier,
     required this.onUpdateSelectedSources,
   });
 
-  final TextEditingController textController;
-  final OverlayPortalController overlayController;
-  final FocusNode focusNode;
   final bool showPredefinedFormats;
-  final PredefinedFormat predefinedFormat;
   final void Function() onTogglePredefinedFormatSection;
+  final void Function() onStartMention;
   final SendButtonState sendButtonState;
   final void Function() onSendPressed;
   final void Function() onStopStreaming;
+  final ValueNotifier<List<String>> selectedSourcesNotifier;
   final void Function(List<String>) onUpdateSelectedSources;
 
   @override
@@ -520,7 +609,6 @@ class _PromptBottomActions extends StatelessWidget {
   Widget _predefinedFormatButton() {
     return PromptInputDesktopToggleFormatButton(
       showFormatBar: showPredefinedFormats,
-      predefinedFormat: predefinedFormat,
       onTap: onTogglePredefinedFormatSection,
     );
   }
@@ -528,6 +616,7 @@ class _PromptBottomActions extends StatelessWidget {
   Widget _selectSourcesButton(BuildContext context) {
     return PromptInputDesktopSelectSourcesButton(
       onUpdateSelectedSources: onUpdateSelectedSources,
+      selectedSourcesNotifier: selectedSourcesNotifier,
     );
   }
 
@@ -535,21 +624,7 @@ class _PromptBottomActions extends StatelessWidget {
   //   return PromptInputMentionButton(
   //     iconSize: DesktopAIPromptSizes.actionBarIconSize,
   //     buttonSize: DesktopAIPromptSizes.actionBarButtonSize,
-  //     onTap: () {
-  //       if (overlayController.isShowing) {
-  //         return;
-  //       }
-  //       if (!focusNode.hasFocus) {
-  //         focusNode.requestFocus();
-  //       }
-  //       textController.text += '@';
-  //       Future.delayed(Duration.zero, () {
-  //         context
-  //             .read<ChatInputControlCubit>()
-  //             .startSearching(textController.value);
-  //         overlayController.show();
-  //       });
-  //     },
+  //     onTap: onStartMention,
   //   );
   // }
 
