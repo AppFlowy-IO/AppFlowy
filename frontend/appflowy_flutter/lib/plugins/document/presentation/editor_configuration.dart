@@ -31,6 +31,10 @@ final Set<String> supportSlashMenuNodeTypes = {
   SimpleTableBlockKeys.type,
   SimpleTableRowBlockKeys.type,
   SimpleTableCellBlockKeys.type,
+
+  // Columns
+  SimpleColumnsBlockKeys.type,
+  SimpleColumnBlockKeys.type,
 };
 
 /// Build the block component builders.
@@ -371,6 +375,14 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
       context,
       configuration,
       alwaysDistributeColumnWidths: alwaysDistributeSimpleTableColumnWidths,
+    ),
+    SimpleColumnsBlockKeys.type: _buildSimpleColumnsBlockComponentBuilder(
+      context,
+      configuration,
+    ),
+    SimpleColumnBlockKeys.type: _buildSimpleColumnBlockComponentBuilder(
+      context,
+      configuration,
     ),
   };
 
@@ -942,6 +954,28 @@ SubPageBlockComponentBuilder _buildSubPageBlockComponentBuilder(
         }
         return configuration.padding(node);
       },
+    ),
+  );
+}
+
+SimpleColumnsBlockComponentBuilder _buildSimpleColumnsBlockComponentBuilder(
+  BuildContext context,
+  BlockComponentConfiguration configuration,
+) {
+  return SimpleColumnsBlockComponentBuilder(
+    configuration: configuration.copyWith(
+      padding: (_) => EdgeInsets.zero,
+    ),
+  );
+}
+
+SimpleColumnBlockComponentBuilder _buildSimpleColumnBlockComponentBuilder(
+  BuildContext context,
+  BlockComponentConfiguration configuration,
+) {
+  return SimpleColumnBlockComponentBuilder(
+    configuration: configuration.copyWith(
+      padding: (_) => EdgeInsets.zero,
     ),
   );
 }

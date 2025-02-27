@@ -1736,7 +1736,10 @@
         "aiWriter": "AI Writer",
         "dateOrReminder": "Date or Reminder",
         "photoGallery": "Photo Gallery",
-        "file": "File"
+        "file": "File",
+        "twoColumns": "Two Columns",
+        "threeColumns": "Three Columns",
+        "fourColumns": "Four Columns"
       },
       "subPage": {
         "name": "Document",
