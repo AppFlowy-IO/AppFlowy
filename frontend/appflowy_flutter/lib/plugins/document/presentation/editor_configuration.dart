@@ -353,6 +353,11 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
       context,
       configuration,
     ),
+    // Flutter doesn't support the video widget, so we forward the video block to the link preview block
+    VideoBlockKeys.type: _buildLinkPreviewBlockComponentBuilder(
+      context,
+      configuration,
+    ),
     FileBlockKeys.type: _buildFileBlockComponentBuilder(
       context,
       configuration,
