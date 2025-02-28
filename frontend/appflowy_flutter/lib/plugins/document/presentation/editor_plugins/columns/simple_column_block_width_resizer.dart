@@ -1,11 +1,12 @@
+import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/drag_to_reorder/draggable_option_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/columns/simple_columns_block_constant.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
-class ColumnBlockWidthResizer extends StatefulWidget {
-  const ColumnBlockWidthResizer({
+class SimpleColumnBlockWidthResizer extends StatefulWidget {
+  const SimpleColumnBlockWidthResizer({
     super.key,
     required this.columnNode,
     required this.editorState,
@@ -15,11 +16,12 @@ class ColumnBlockWidthResizer extends StatefulWidget {
   final EditorState editorState;
 
   @override
-  State<ColumnBlockWidthResizer> createState() =>
-      _ColumnBlockWidthResizerState();
+  State<SimpleColumnBlockWidthResizer> createState() =>
+      _SimpleColumnBlockWidthResizerState();
 }
 
-class _ColumnBlockWidthResizerState extends State<ColumnBlockWidthResizer> {
+class _SimpleColumnBlockWidthResizerState
+    extends State<SimpleColumnBlockWidthResizer> {
   bool isDragging = false;
 
   ValueNotifier<bool> isHovering = ValueNotifier(false);
@@ -66,6 +68,7 @@ class _ColumnBlockWidthResizerState extends State<ColumnBlockWidthResizer> {
 
   void _onHorizontalDragStart(DragStartDetails details) {
     isDragging = true;
+    EditorGlobalConfiguration.enableDragMenu.value = false;
   }
 
   void _onHorizontalDragUpdate(DragUpdateDetails details) {
@@ -102,6 +105,7 @@ class _ColumnBlockWidthResizerState extends State<ColumnBlockWidthResizer> {
 
   void _onHorizontalDragEnd(DragEndDetails details) {
     isHovering.value = false;
+    EditorGlobalConfiguration.enableDragMenu.value = true;
 
     if (!isDragging) {
       return;
@@ -120,5 +124,6 @@ class _ColumnBlockWidthResizerState extends State<ColumnBlockWidthResizer> {
   void _onHorizontalDragCancel() {
     isDragging = false;
     isHovering.value = false;
+    EditorGlobalConfiguration.enableDragMenu.value = true;
   }
 }
