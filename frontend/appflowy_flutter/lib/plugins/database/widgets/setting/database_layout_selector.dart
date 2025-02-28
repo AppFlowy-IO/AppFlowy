@@ -61,31 +61,32 @@ class DatabaseLayoutSelector extends StatelessWidget {
                   margin: EdgeInsets.symmetric(horizontal: 8),
                   color: Color(0xFFF2F2F2),
                 ),
-                SizedBox(
-                  height: GridSize.popoverItemHeight,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: FlowyText(
-                            LocaleKeys.grid_settings_compactMode.tr(),
-                          ),
-                        ),
-                        ValueListenableBuilder(
-                          valueListenable:
-                              databaseController.compactModeNotifier,
-                          builder: (context, compactMode, child) {
-                            return Toggle(
-                              value: compactMode,
-                              onChanged: (value) =>
-                                  databaseController.setCompactMode(value),
-                              padding: EdgeInsets.zero,
-                            );
-                          },
-                        ),
-                      ],
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 4, 8, 2),
+                  child: SizedBox(
+                    height: 30,
+                    child: FlowyButton(
+                      resetHoverOnRebuild: false,
+                      text: FlowyText(
+                        LocaleKeys.grid_settings_compactMode.tr(),
+                        lineHeight: 1.0,
+                      ),
+                      onTap: () {
+                        databaseController.setCompactMode(
+                          !databaseController.compactModeNotifier.value,
+                        );
+                      },
+                      rightIcon: ValueListenableBuilder(
+                        valueListenable: databaseController.compactModeNotifier,
+                        builder: (context, compactMode, child) {
+                          return Toggle(
+                            value: compactMode,
+                            onChanged: (value) =>
+                                databaseController.setCompactMode(value),
+                            padding: EdgeInsets.zero,
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
