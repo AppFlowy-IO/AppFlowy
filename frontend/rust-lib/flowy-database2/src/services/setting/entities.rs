@@ -94,7 +94,10 @@ pub struct BoardLayoutSetting {
 
 impl BoardLayoutSetting {
   pub fn new() -> Self {
-    Self::default()
+    Self {
+      hide_ungrouped_column: false,
+      collapse_hidden_groups: true,
+    }
   }
 }
 
