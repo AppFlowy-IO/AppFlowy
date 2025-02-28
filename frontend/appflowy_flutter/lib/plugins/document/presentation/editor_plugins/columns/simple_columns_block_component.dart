@@ -11,11 +11,15 @@ import 'package:provider/provider.dart';
 Node simpleColumnsNode({
   List<Node>? children,
   int? columnCount,
+  double? width,
 }) {
   columnCount ??= 2;
   children ??= List.generate(
     columnCount,
-    (index) => simpleColumnNode(children: [paragraphNode()]),
+    (index) => simpleColumnNode(
+      width: width,
+      children: [paragraphNode()],
+    ),
   );
 
   // check the type of children
@@ -95,11 +99,18 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
 
   @override
   Widget build(BuildContext context) {
-    Widget child = IntrinsicHeight(
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: _buildChildren(),
+    Widget child = Align(
+      alignment: Alignment.topLeft,
+      child: IntrinsicHeight(
+        child: Scrollbar(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: _buildChildren(),
+            ),
+          ),
+        ),
       ),
     );
 
@@ -130,33 +141,26 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
     final children = <Widget>[];
     for (var i = 0; i < node.children.length; i++) {
       final childNode = node.children[i];
-      final double? width = childNode.attributes[SimpleColumnBlockKeys.width];
+      final width = childNode.attributes[SimpleColumnBlockKeys.width] ??
+          SimpleColumnsBlockConstants.minimumColumnWidth;
       Widget child = editorState.renderer.build(context, childNode);
 
-      if (width != null) {
-        child = SizedBox(
-          width: width.clamp(
-            SimpleColumnsBlockConstants.minimumColumnWidth,
-            double.infinity,
-          ),
-          child: child,
-        );
-      } else {
-        child = Expanded(
-          child: child,
-        );
-      }
+      child = SizedBox(
+        width: width.clamp(
+          SimpleColumnsBlockConstants.minimumColumnWidth,
+          double.infinity,
+        ),
+        child: child,
+      );
 
       children.add(child);
 
-      if (i != node.children.length - 1) {
-        children.add(
-          ColumnBlockWidthResizer(
-            columnNode: childNode,
-            editorState: editorState,
-          ),
-        );
-      }
+      children.add(
+        ColumnBlockWidthResizer(
+          columnNode: childNode,
+          editorState: editorState,
+        ),
+      );
     }
     return children;
   }

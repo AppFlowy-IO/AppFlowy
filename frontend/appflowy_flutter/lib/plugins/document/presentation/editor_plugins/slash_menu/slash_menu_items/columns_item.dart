@@ -39,7 +39,17 @@ final _fiveColumnsKeywords = [
 SelectionMenuItem twoColumnsSlashMenuItem = SelectionMenuItem.node(
   getName: () => LocaleKeys.document_slashMenu_name_twoColumns.tr(),
   keywords: _twoColumnsKeywords,
-  nodeBuilder: (_, __) => simpleColumnsNode(columnCount: 2),
+  nodeBuilder: (editorState, __) {
+    final selection = editorState.selection;
+    double? width;
+    if (selection != null) {
+      final parentNode = editorState.getNodeAtPath(selection.start.path);
+      if (parentNode != null) {
+        width = parentNode.rect.width / 2.0;
+      }
+    }
+    return simpleColumnsNode(columnCount: 2, width: width);
+  },
   replace: (_, node) => node.delta?.isEmpty ?? false,
   nameBuilder: slashMenuItemNameBuilder,
   iconBuilder: (_, isSelected, style) => SelectableSvgWidget(
