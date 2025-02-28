@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/checkbox_cell_bloc.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flutter/material.dart';
 
 import '../editable_cell_skeleton/checkbox.dart';
 
@@ -12,6 +11,7 @@ class MobileRowDetailCheckboxCellSkin extends IEditableCheckboxCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     CheckboxCellBloc bloc,
     CheckboxCellState state,
   ) {

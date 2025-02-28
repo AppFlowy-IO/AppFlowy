@@ -9,6 +9,7 @@ class MobileRowDetailSummaryCellSkin extends IEditableSummaryCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     SummaryCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,

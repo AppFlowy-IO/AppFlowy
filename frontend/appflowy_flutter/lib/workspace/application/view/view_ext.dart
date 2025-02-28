@@ -334,6 +334,7 @@ extension ViewLayoutExtension on ViewLayoutPB {
 
   bool get shrinkWrappable => switch (this) {
         ViewLayoutPB.Grid => true,
+        ViewLayoutPB.Board => true,
         _ => false,
       };
 

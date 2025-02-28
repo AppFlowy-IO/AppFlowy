@@ -102,37 +102,35 @@ class _RowEditor extends StatelessWidget {
 
           return BlocProvider<ViewInfoBloc>(
             create: (context) => ViewInfoBloc(view: view),
-            child: IntrinsicHeight(
-              child: Container(
-                constraints: const BoxConstraints(minHeight: 300),
-                child: Provider(
-                  create: (_) {
-                    final context = SharedEditorContext();
-                    context.isInDatabaseRowPage = true;
-                    return context;
-                  },
-                  dispose: (_, editorContext) => editorContext.dispose(),
-                  child: EditorDropHandler(
+            child: Container(
+              constraints: const BoxConstraints(minHeight: 300),
+              child: Provider(
+                create: (_) {
+                  final context = SharedEditorContext();
+                  context.isInDatabaseRowPage = true;
+                  return context;
+                },
+                dispose: (_, editorContext) => editorContext.dispose(),
+                child: EditorDropHandler(
+                  viewId: view.id,
+                  editorState: editorState,
+                  isLocalMode: context.read<DocumentBloc>().isLocalMode,
+                  dropManagerState: context.read<EditorDropManagerState>(),
+                  child: EditorTransactionService(
                     viewId: view.id,
                     editorState: editorState,
-                    isLocalMode: context.read<DocumentBloc>().isLocalMode,
-                    dropManagerState: context.read<EditorDropManagerState>(),
-                    child: EditorTransactionService(
-                      viewId: view.id,
+                    child: AppFlowyEditorPage(
+                      shrinkWrap: true,
+                      autoFocus: false,
                       editorState: editorState,
-                      child: AppFlowyEditorPage(
-                        shrinkWrap: true,
-                        autoFocus: false,
-                        editorState: editorState,
-                        styleCustomizer: EditorStyleCustomizer(
-                          context: context,
-                          padding: const EdgeInsets.only(left: 16, right: 54),
-                        ),
-                        showParagraphPlaceholder: (editorState, _) =>
-                            editorState.document.isEmpty,
-                        placeholderText: (_) =>
-                            LocaleKeys.cardDetails_notesPlaceholder.tr(),
+                      styleCustomizer: EditorStyleCustomizer(
+                        context: context,
+                        padding: const EdgeInsets.only(left: 16, right: 54),
                       ),
+                      showParagraphPlaceholder: (editorState, _) =>
+                          editorState.document.isEmpty,
+                      placeholderText: (_) =>
+                          LocaleKeys.cardDetails_notesPlaceholder.tr(),
                     ),
                   ),
                 ),

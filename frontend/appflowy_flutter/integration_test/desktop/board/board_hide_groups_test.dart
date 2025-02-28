@@ -23,30 +23,33 @@ void main() {
       final expandFinder = find.byFlowySvg(FlowySvgs.hamburger_s_s);
 
       // Is expanded by default
-      expect(collapseFinder, findsOneWidget);
-      expect(expandFinder, findsNothing);
-
-      // Collapse hidden groups
-      await tester.tap(collapseFinder);
-      await tester.pumpAndSettle();
-
-      // Is collapsed
       expect(collapseFinder, findsNothing);
       expect(expandFinder, findsOneWidget);
 
-      // Expand hidden groups
+      // Collapse hidden groups
       await tester.tap(expandFinder);
       await tester.pumpAndSettle();
 
-      // Is expanded
+      // Is collapsed
       expect(collapseFinder, findsOneWidget);
       expect(expandFinder, findsNothing);
+
+      // Expand hidden groups
+      await tester.tap(collapseFinder);
+      await tester.pumpAndSettle();
+
+      // Is expanded
+      expect(collapseFinder, findsNothing);
+      expect(expandFinder, findsOneWidget);
     });
 
     testWidgets('hide first group, and show it again', (tester) async {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Board);
+
+      final expandFinder = find.byFlowySvg(FlowySvgs.hamburger_s_s);
+      await tester.tapButton(expandFinder);
 
       // Tap the options of the first group
       final optionsFinder = find

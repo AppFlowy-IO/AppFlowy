@@ -160,6 +160,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
         final offset = _calculateIconLeft(context, constraints);
         return Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Stack(
               children: [

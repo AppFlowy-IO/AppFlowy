@@ -72,7 +72,7 @@ class GridMediaCellSkin extends IEditableMediaCellSkin {
 
         if (!isMobile && wrapContent) {
           return Padding(
-            padding: const EdgeInsets.all(4),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
             child: SizedBox(
               width: double.infinity,
               child: Wrap(
@@ -233,7 +233,7 @@ class _FilePreviewRender extends StatelessWidget {
           height: 28,
           width: 28,
           clipBehavior: Clip.antiAlias,
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
             color: AFThemeExtension.of(context).greyHover,
             borderRadius: BorderRadius.circular(4),

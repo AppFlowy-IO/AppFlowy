@@ -617,7 +617,7 @@ extension CommonOperations on WidgetTester {
         );
     final distanceY = getCenter(to).dy - getCenter(from).dx;
     await drag(from, Offset(0, distanceY));
-    await pumpAndSettle();
+    await pumpAndSettle(const Duration(seconds: 1));
   }
 
   // tap the button with [FlowySvgData]

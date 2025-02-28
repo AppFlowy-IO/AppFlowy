@@ -1,6 +1,5 @@
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
-
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 
@@ -58,7 +57,7 @@ class CellContainer extends StatelessWidget {
               }
             },
             child: Container(
-              constraints: BoxConstraints(maxWidth: width, minHeight: 36),
+              constraints: BoxConstraints(maxWidth: width, minHeight: 32),
               decoration: _makeBoxDecoration(context, isFocus),
               child: container,
             ),
