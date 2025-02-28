@@ -58,8 +58,8 @@ class DatabaseLayoutSelector extends StatelessWidget {
                 ),
                 Container(
                   height: 1,
-                  margin: EdgeInsets.symmetric(horizontal: 8),
-                  color: Color(0xFFF2F2F2),
+                  margin: EdgeInsets.fromLTRB(8, 4, 8, 0),
+                  color: AFThemeExtension.of(context).borderColor,
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(8, 4, 8, 2),
@@ -116,7 +116,7 @@ class DatabaseViewLayoutCell extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: SizedBox(
-        height: GridSize.popoverItemHeight,
+        height: 30,
         child: FlowyButton(
           hoverColor: AFThemeExtension.of(context).lightGreyHover,
           text: FlowyText(
