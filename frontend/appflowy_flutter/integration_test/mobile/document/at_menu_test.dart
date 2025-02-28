@@ -37,5 +37,20 @@ void main() {
       await tester.tap(actionWidgets.last);
       expect(find.byType(MentionPageBlock), findsOneWidget);
     });
+
+    testWidgets('create subpage with at menu', (tester) async {
+      await tester.launchInAnonymousMode();
+      await tester.createNewDocumentOnMobile(title);
+      await tester.editor.tapLineOfEditorAt(0);
+      const subpageName = 'Subpage';
+      await tester.ime.insertText('[[$subpageName');
+      await tester.pumpAndSettle();
+      final actionWidgets = find.byType(MobileInlineActionsWidget);
+      await tester.tapButton(actionWidgets.first);
+      final firstNode =
+          tester.editor.getCurrentEditorState().getNodeAtPath([0]);
+      assert(firstNode != null);
+      expect(firstNode!.delta?.toPlainText().contains('['), false);
+    });
   });
 }
