@@ -210,26 +210,30 @@ void _customBlockOptionActions(
         return ValueListenableBuilder(
           valueListenable: editorState.editableNotifier,
           builder: (_, editable, child) {
-            return Opacity(
-              opacity: editable ? 1.0 : 0.0,
-              child: Padding(
-                padding: EdgeInsets.only(top: top),
-                child: BlockActionList(
-                  blockComponentContext: context,
-                  blockComponentState: state,
-                  editorState: editorState,
-                  blockComponentBuilder: builders,
-                  actions: actions,
-                  showSlashMenu: slashMenuItemsBuilder != null
-                      ? () => customAppFlowySlashCommand(
-                            itemsBuilder: slashMenuItemsBuilder,
-                            shouldInsertSlash: false,
-                            deleteKeywordsByDefault: true,
-                            style: styleCustomizer.selectionMenuStyleBuilder(),
-                            supportSlashMenuNodeTypes:
-                                supportSlashMenuNodeTypes,
-                          ).handler.call(editorState)
-                      : () {},
+            return IgnorePointer(
+              ignoring: !editable,
+              child: Opacity(
+                opacity: editable ? 1.0 : 0.0,
+                child: Padding(
+                  padding: EdgeInsets.only(top: top),
+                  child: BlockActionList(
+                    blockComponentContext: context,
+                    blockComponentState: state,
+                    editorState: editorState,
+                    blockComponentBuilder: builders,
+                    actions: actions,
+                    showSlashMenu: slashMenuItemsBuilder != null
+                        ? () => customAppFlowySlashCommand(
+                              itemsBuilder: slashMenuItemsBuilder,
+                              shouldInsertSlash: false,
+                              deleteKeywordsByDefault: true,
+                              style:
+                                  styleCustomizer.selectionMenuStyleBuilder(),
+                              supportSlashMenuNodeTypes:
+                                  supportSlashMenuNodeTypes,
+                            ).handler.call(editorState)
+                        : () {},
+                  ),
                 ),
               ),
             );
