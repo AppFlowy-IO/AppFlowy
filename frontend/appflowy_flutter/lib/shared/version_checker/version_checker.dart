@@ -54,7 +54,7 @@ class VersionChecker {
           .nonNulls
           .firstWhereOrNull((e) => e.os == ApplicationInfo.os);
     } catch (e) {
-      Log.error('Failed to check for updates: $e');
+      Log.info('Failed to check for updates: $e');
     }
 
     return null;
