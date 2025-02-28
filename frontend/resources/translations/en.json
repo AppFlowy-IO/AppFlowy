@@ -1737,9 +1737,9 @@
         "dateOrReminder": "Date or Reminder",
         "photoGallery": "Photo Gallery",
         "file": "File",
-        "twoColumns": "Two Columns",
-        "threeColumns": "Three Columns",
-        "fourColumns": "Four Columns"
+        "twoColumns": "2 Columns",
+        "threeColumns": "3 Columns",
+        "fourColumns": "4 Columns"
       },
       "subPage": {
         "name": "Document",

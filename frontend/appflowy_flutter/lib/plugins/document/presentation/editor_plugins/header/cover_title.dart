@@ -243,6 +243,8 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
       return _moveCursorToNextLine(event.logicalKey);
     } else if (event.logicalKey == LogicalKeyboardKey.escape) {
       return _exitEditing();
+    } else if (event.logicalKey == LogicalKeyboardKey.tab) {
+      return KeyEventResult.handled;
     }
 
     return KeyEventResult.ignored;

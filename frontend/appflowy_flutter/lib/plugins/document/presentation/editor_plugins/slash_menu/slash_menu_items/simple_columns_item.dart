@@ -47,6 +47,12 @@ SelectionMenuItem twoColumnsSlashMenuItem = SelectionMenuItem.node(
     isSelected: isSelected,
     style: style,
   ),
+  updateSelection: (_, path, __, ___) {
+    return Selection.single(
+      path: path.child(0).child(0),
+      startOffset: 0,
+    );
+  },
 );
 
 // 3 columns menu item
@@ -61,6 +67,12 @@ SelectionMenuItem threeColumnsSlashMenuItem = SelectionMenuItem.node(
     isSelected: isSelected,
     style: style,
   ),
+  updateSelection: (_, path, __, ___) {
+    return Selection.single(
+      path: path.child(0).child(0),
+      startOffset: 0,
+    );
+  },
 );
 
 // 4 columns menu item
@@ -75,6 +87,12 @@ SelectionMenuItem fourColumnsSlashMenuItem = SelectionMenuItem.node(
     isSelected: isSelected,
     style: style,
   ),
+  updateSelection: (_, path, __, ___) {
+    return Selection.single(
+      path: path.child(0).child(0),
+      startOffset: 0,
+    );
+  },
 );
 
 // 5 columns menu item
@@ -89,4 +107,10 @@ SelectionMenuItem fiveColumnsSlashMenuItem = SelectionMenuItem.node(
     isSelected: isSelected,
     style: style,
   ),
+  updateSelection: (_, path, __, ___) {
+    return Selection.single(
+      path: path.child(0).child(0),
+      startOffset: 0,
+    );
+  },
 );
