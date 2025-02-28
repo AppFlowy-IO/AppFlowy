@@ -5,6 +5,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 // if the children is not provided, it will create two columns by default.
 // if the columnCount is provided, it will create the specified number of columns.
@@ -99,18 +100,25 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
 
   @override
   Widget build(BuildContext context) {
-    Widget child = Align(
+    Widget child = SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: _buildChildren(),
+      ),
+    );
+
+    if (UniversalPlatform.isDesktop) {
+      // only show the scrollbar on desktop
+      child = Scrollbar(
+        child: child,
+      );
+    }
+
+    child = Align(
       alignment: Alignment.topLeft,
       child: IntrinsicHeight(
-        child: Scrollbar(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: _buildChildren(),
-            ),
-          ),
-        ),
+        child: child,
       ),
     );
 

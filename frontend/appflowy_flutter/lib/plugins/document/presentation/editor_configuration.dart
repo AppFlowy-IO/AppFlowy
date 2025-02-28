@@ -964,7 +964,13 @@ SimpleColumnsBlockComponentBuilder _buildSimpleColumnsBlockComponentBuilder(
 ) {
   return SimpleColumnsBlockComponentBuilder(
     configuration: configuration.copyWith(
-      padding: (_) => EdgeInsets.zero,
+      padding: (node) {
+        if (UniversalPlatform.isMobile) {
+          return configuration.padding(node);
+        }
+
+        return EdgeInsets.zero;
+      },
     ),
   );
 }

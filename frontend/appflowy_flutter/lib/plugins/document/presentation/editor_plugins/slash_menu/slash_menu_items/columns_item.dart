@@ -39,17 +39,7 @@ final _fiveColumnsKeywords = [
 SelectionMenuItem twoColumnsSlashMenuItem = SelectionMenuItem.node(
   getName: () => LocaleKeys.document_slashMenu_name_twoColumns.tr(),
   keywords: _twoColumnsKeywords,
-  nodeBuilder: (editorState, __) {
-    final selection = editorState.selection;
-    double? width;
-    if (selection != null) {
-      final parentNode = editorState.getNodeAtPath(selection.start.path);
-      if (parentNode != null) {
-        width = parentNode.rect.width / 2.0;
-      }
-    }
-    return simpleColumnsNode(columnCount: 2, width: width);
-  },
+  nodeBuilder: (editorState, __) => _buildColumnsNode(editorState, 2),
   replace: (_, node) => node.delta?.isEmpty ?? false,
   nameBuilder: slashMenuItemNameBuilder,
   iconBuilder: (_, isSelected, style) => SelectableSvgWidget(
@@ -63,7 +53,7 @@ SelectionMenuItem twoColumnsSlashMenuItem = SelectionMenuItem.node(
 SelectionMenuItem threeColumnsSlashMenuItem = SelectionMenuItem.node(
   getName: () => LocaleKeys.document_slashMenu_name_threeColumns.tr(),
   keywords: _threeColumnsKeywords,
-  nodeBuilder: (_, __) => simpleColumnsNode(columnCount: 3),
+  nodeBuilder: (editorState, __) => _buildColumnsNode(editorState, 3),
   replace: (_, node) => node.delta?.isEmpty ?? false,
   nameBuilder: slashMenuItemNameBuilder,
   iconBuilder: (_, isSelected, style) => SelectableSvgWidget(
@@ -77,7 +67,7 @@ SelectionMenuItem threeColumnsSlashMenuItem = SelectionMenuItem.node(
 SelectionMenuItem fourColumnsSlashMenuItem = SelectionMenuItem.node(
   getName: () => LocaleKeys.document_slashMenu_name_fourColumns.tr(),
   keywords: _fourColumnsKeywords,
-  nodeBuilder: (_, __) => simpleColumnsNode(columnCount: 4),
+  nodeBuilder: (editorState, __) => _buildColumnsNode(editorState, 4),
   replace: (_, node) => node.delta?.isEmpty ?? false,
   nameBuilder: slashMenuItemNameBuilder,
   iconBuilder: (_, isSelected, style) => SelectableSvgWidget(
@@ -87,16 +77,14 @@ SelectionMenuItem fourColumnsSlashMenuItem = SelectionMenuItem.node(
   ),
 );
 
-// 5 columns menu item
-SelectionMenuItem fiveColumnsSlashMenuItem = SelectionMenuItem.node(
-  getName: () => '5 Columns',
-  keywords: _fiveColumnsKeywords,
-  nodeBuilder: (_, __) => simpleColumnsNode(columnCount: 5),
-  replace: (_, node) => node.delta?.isEmpty ?? false,
-  nameBuilder: slashMenuItemNameBuilder,
-  iconBuilder: (_, isSelected, style) => SelectableSvgWidget(
-    data: FlowySvgs.slash_menu_icon_code_block_s,
-    isSelected: isSelected,
-    style: style,
-  ),
-);
+Node _buildColumnsNode(EditorState editorState, int columnCount) {
+  final selection = editorState.selection;
+  double? width;
+  if (selection != null) {
+    final parentNode = editorState.getNodeAtPath(selection.start.path);
+    if (parentNode != null) {
+      width = parentNode.rect.width / columnCount;
+    }
+  }
+  return simpleColumnsNode(columnCount: columnCount, width: width);
+}
