@@ -10,12 +10,15 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'ai_entities.dart';
+
 part 'ai_prompt_input_bloc.freezed.dart';
 
 class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
-  AIPromptInputBloc()
-      : _listener = LocalLLMListener(),
-        super(AIPromptInputState.initial()) {
+  AIPromptInputBloc({
+    required PredefinedFormat? predefinedFormat,
+  })  : _listener = LocalLLMListener(),
+        super(AIPromptInputState.initial(predefinedFormat)) {
     _dispatch();
     _startListening();
     _init();
@@ -64,6 +67,16 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
                 aiType: aiType,
               ),
             );
+          },
+          toggleShowPredefinedFormat: () {
+            emit(
+              state.copyWith(
+                showPredefinedFormats: !state.showPredefinedFormats,
+              ),
+            );
+          },
+          updatePredefinedFormat: (format) {
+            emit(state.copyWith(predefinedFormat: format));
           },
           attachFile: (filePath, fileName) {
             final newFile = ChatFile.fromFilePath(filePath);
@@ -152,6 +165,11 @@ class AIPromptInputEvent with _$AIPromptInputEvent {
   const factory AIPromptInputEvent.updatePluginState(
     LocalAIPluginStatePB chatState,
   ) = _UpdatePluginState;
+  const factory AIPromptInputEvent.toggleShowPredefinedFormat() =
+      _ToggleShowPredefinedFormat;
+  const factory AIPromptInputEvent.updatePredefinedFormat(
+    PredefinedFormat format,
+  ) = _UpdatePredefinedFormat;
   const factory AIPromptInputEvent.attachFile(
     String filePath,
     String fileName,
@@ -167,14 +185,19 @@ class AIPromptInputState with _$AIPromptInputState {
   const factory AIPromptInputState({
     required AIType aiType,
     required bool supportChatWithFile,
+    required bool showPredefinedFormats,
+    required PredefinedFormat? predefinedFormat,
     required LocalAIChatPB? chatState,
     required List<ChatFile> attachedFiles,
     required List<ViewPB> mentionedPages,
   }) = _AIPromptInputState;
 
-  factory AIPromptInputState.initial() => const AIPromptInputState(
+  factory AIPromptInputState.initial(PredefinedFormat? format) =>
+      AIPromptInputState(
         aiType: AIType.appflowyAI,
         supportChatWithFile: false,
+        showPredefinedFormats: format != null,
+        predefinedFormat: format,
         chatState: null,
         attachedFiles: [],
         mentionedPages: [],

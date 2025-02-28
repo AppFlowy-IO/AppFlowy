@@ -59,9 +59,11 @@ class ChatUserMessageBubble extends StatelessWidget {
     return BlocBuilder<ChatMemberBloc, ChatMemberState>(
       builder: (context, state) {
         final member = state.members[message.author.id];
-        return ChatUserAvatar(
-          iconUrl: member?.info.avatarUrl ?? "",
-          name: member?.info.name ?? "",
+        return SelectionContainer.disabled(
+          child: ChatUserAvatar(
+            iconUrl: member?.info.avatarUrl ?? "",
+            name: member?.info.name ?? "",
+          ),
         );
       },
     );

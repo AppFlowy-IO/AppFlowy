@@ -1,8 +1,7 @@
 export 'actions/block_action_list.dart';
 export 'actions/option/option_actions.dart';
 export 'ai/ai_writer_block_component.dart';
-export 'ai/ask_ai_block_component.dart';
-export 'ai/ask_ai_toolbar_item.dart';
+export 'ai/ai_writer_toolbar_item.dart';
 export 'align_toolbar_item/align_toolbar_item.dart';
 export 'base/backtick_character_command.dart';
 export 'base/cover_title_command.dart';

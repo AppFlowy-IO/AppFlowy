@@ -80,7 +80,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
   ];
 
   final List<ToolbarItem> toolbarItems = [
-    askAIItem..isActive = onlyShowInTextType,
+    improveWritingItem..isActive = onlyShowInTextType,
+    aiWriterItem..isActive = onlyShowInTextType,
     paragraphItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
     headingsToolbarItem
       ..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,

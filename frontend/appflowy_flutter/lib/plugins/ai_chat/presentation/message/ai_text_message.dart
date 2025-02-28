@@ -1,4 +1,4 @@
-import 'package:appflowy/ai/widgets/loading_indicator.dart';
+import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
@@ -84,14 +84,20 @@ class ChatAIMessageWidget extends StatelessWidget {
                 loading: () => ChatAIMessageBubble(
                   message: message,
                   showActions: false,
-                  child: AILoadingIndicator(text: loadingText),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: AILoadingIndicator(text: loadingText),
+                  ),
                 ),
                 ready: () {
                   return state.text.isEmpty
                       ? ChatAIMessageBubble(
                           message: message,
                           showActions: false,
-                          child: AILoadingIndicator(text: loadingText),
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: AILoadingIndicator(text: loadingText),
+                          ),
                         )
                       : ChatAIMessageBubble(
                           message: message,
@@ -107,9 +113,11 @@ class ChatAIMessageWidget extends StatelessWidget {
                             children: [
                               AIMarkdownText(markdown: state.text),
                               if (state.sources.isNotEmpty)
-                                AIMessageMetadata(
-                                  sources: state.sources,
-                                  onSelectedMetadata: onSelectedMetadata,
+                                SelectionContainer.disabled(
+                                  child: AIMessageMetadata(
+                                    sources: state.sources,
+                                    onSelectedMetadata: onSelectedMetadata,
+                                  ),
                                 ),
                               if (state.sources.isNotEmpty && !isLastMessage)
                                 const VSpace(8.0),
