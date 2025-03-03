@@ -187,6 +187,7 @@ class ImproveWritingButton extends StatelessWidget {
       onPressed: () {
         if (_isAIEnabled(editorState)) {
           keepEditorFocusNotifier.increase();
+          _insertAiNode(editorState, AiWriterCommand.improveWriting);
         } else {
           showToastNotification(
             context,
