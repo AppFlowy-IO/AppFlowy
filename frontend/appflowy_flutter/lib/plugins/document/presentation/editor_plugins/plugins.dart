@@ -76,3 +76,4 @@ export 'table/table_option_action.dart';
 export 'todo_list/todo_list_icon.dart';
 export 'toggle/toggle_block_component.dart';
 export 'toggle/toggle_block_shortcuts.dart';
+export 'video/video_block_component.dart';
