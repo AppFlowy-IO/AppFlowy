@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'filter_button.dart';
 import 'sort_button.dart';
+import 'view_database_button.dart';
 
 class GridSettingBar extends StatelessWidget {
   const GridSettingBar({
@@ -52,9 +53,9 @@ class GridSettingBar extends StatelessWidget {
                 const HSpace(6),
                 SortButton(toggleExtension: toggleExtension),
                 const HSpace(6),
-                SettingButton(
-                  databaseController: controller,
-                ),
+                SettingButton(databaseController: controller),
+                const HSpace(6),
+                ViewDatabaseButton(view: controller.view),
               ],
             ),
           );
