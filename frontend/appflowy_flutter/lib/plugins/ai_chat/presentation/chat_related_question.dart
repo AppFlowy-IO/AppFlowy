@@ -70,7 +70,7 @@ class RelatedQuestionItem extends StatelessWidget {
         child: FlowyText(
           question,
           lineHeight: 1.4,
-          overflow: TextOverflow.ellipsis,
+          maxLines: null,
         ),
       ),
       expandText: false,
