@@ -3,6 +3,7 @@ import 'package:appflowy/plugins/database/application/cell/bloc/relation_cell_bl
 import 'package:appflowy/plugins/database/grid/presentation/layout/sizes.dart';
 import 'package:appflowy/plugins/database/widgets/cell_editor/relation_cell_editor.dart';
 import 'package:appflowy/plugins/database/widgets/row/cells/cell_container.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -21,6 +22,7 @@ class DesktopGridRelationCellSkin extends IEditableRelationCellSkin {
     RelationCellState state,
     PopoverController popoverController,
   ) {
+    final userWorkspaceBloc = context.read<UserWorkspaceBloc>();
     return AppFlowyPopover(
       controller: popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
@@ -28,8 +30,11 @@ class DesktopGridRelationCellSkin extends IEditableRelationCellSkin {
       margin: EdgeInsets.zero,
       onClose: () => cellContainerNotifier.isFocus = false,
       popupBuilder: (context) {
-        return BlocProvider.value(
-          value: bloc,
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: userWorkspaceBloc),
+            BlocProvider.value(value: bloc),
+          ],
           child: const RelationCellEditor(),
         );
       },
