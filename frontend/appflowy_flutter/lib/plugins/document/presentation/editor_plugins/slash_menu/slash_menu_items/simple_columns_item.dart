@@ -95,7 +95,7 @@ Node _buildColumnsNode(EditorState editorState, int columnCount) {
   if (selection != null) {
     final parentNode = editorState.getNodeAtPath(selection.start.path);
     if (parentNode != null) {
-      width = parentNode.rect.width / columnCount;
+      width = parentNode.rect.width / columnCount - 16;
     }
   }
   return simpleColumnsNode(columnCount: columnCount, width: width);

@@ -81,17 +81,23 @@ Future<void> dragToMoveNode(
     final transaction = editorState.transaction;
     final targetNodeParent = targetNode.parentColumnsBlock;
     if (targetNodeParent != null) {
+      // find the previous sibling node of the target node
+      final width = (node.rect.width /
+              (targetNode.parentColumnsBlock?.children.length ?? 2)) -
+          16;
       final columnNode = simpleColumnNode(
         children: [node.deepCopy()],
+        width: width,
       );
 
       transaction.insertNode(targetNode.path.previous, columnNode);
       transaction.deleteNode(node);
     } else {
+      final width = targetNode.rect.width / 2 - 16;
       final columnsNode = simpleColumnsNode(
         children: [
-          simpleColumnNode(children: [node.deepCopy()]),
-          simpleColumnNode(children: [targetNode.deepCopy()]),
+          simpleColumnNode(children: [node.deepCopy()], width: width),
+          simpleColumnNode(children: [targetNode.deepCopy()], width: width),
         ],
       );
 
