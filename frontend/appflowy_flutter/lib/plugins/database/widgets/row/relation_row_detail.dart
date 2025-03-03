@@ -23,7 +23,7 @@ class RelatedRowDetailPage extends StatelessWidget {
         initialRowId: rowId,
       ),
       child: BlocBuilder<RelatedRowDetailPageBloc, RelatedRowDetailPageState>(
-        builder: (context, state) {
+        builder: (_, state) {
           return state.when(
             loading: () => const SizedBox.shrink(),
             ready: (databaseController, rowController) {
