@@ -15,6 +15,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+/// A global configuration for the editor.
+class EditorGlobalConfiguration {
+  /// Whether to enable the drag menu in the editor.
+  ///
+  /// Case 1, resizing the columns block in the desktop, then the drag menu will be disabled.
+  static ValueNotifier<bool> enableDragMenu = ValueNotifier(true);
+}
+
 /// The node types that support slash menu.
 final Set<String> supportSlashMenuNodeTypes = {
   ParagraphBlockKeys.type,
@@ -208,34 +216,39 @@ void _customBlockOptionActions(
           top += 2.0;
         }
         return ValueListenableBuilder(
-          valueListenable: editorState.editableNotifier,
-          builder: (_, editable, child) {
-            return IgnorePointer(
-              ignoring: !editable,
-              child: Opacity(
-                opacity: editable ? 1.0 : 0.0,
-                child: Padding(
-                  padding: EdgeInsets.only(top: top),
-                  child: BlockActionList(
-                    blockComponentContext: context,
-                    blockComponentState: state,
-                    editorState: editorState,
-                    blockComponentBuilder: builders,
-                    actions: actions,
-                    showSlashMenu: slashMenuItemsBuilder != null
-                        ? () => customAppFlowySlashCommand(
-                              itemsBuilder: slashMenuItemsBuilder,
-                              shouldInsertSlash: false,
-                              deleteKeywordsByDefault: true,
-                              style:
-                                  styleCustomizer.selectionMenuStyleBuilder(),
-                              supportSlashMenuNodeTypes:
-                                  supportSlashMenuNodeTypes,
-                            ).handler.call(editorState)
-                        : () {},
+          valueListenable: EditorGlobalConfiguration.enableDragMenu,
+          builder: (_, enableDragMenu, child) {
+            return ValueListenableBuilder(
+              valueListenable: editorState.editableNotifier,
+              builder: (_, editable, child) {
+                return IgnorePointer(
+                  ignoring: !editable,
+                  child: Opacity(
+                    opacity: editable && enableDragMenu ? 1.0 : 0.0,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: top),
+                      child: BlockActionList(
+                        blockComponentContext: context,
+                        blockComponentState: state,
+                        editorState: editorState,
+                        blockComponentBuilder: builders,
+                        actions: actions,
+                        showSlashMenu: slashMenuItemsBuilder != null
+                            ? () => customAppFlowySlashCommand(
+                                  itemsBuilder: slashMenuItemsBuilder,
+                                  shouldInsertSlash: false,
+                                  deleteKeywordsByDefault: true,
+                                  style: styleCustomizer
+                                      .selectionMenuStyleBuilder(),
+                                  supportSlashMenuNodeTypes:
+                                      supportSlashMenuNodeTypes,
+                                ).handler.call(editorState)
+                            : () {},
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             );
           },
         );
@@ -973,7 +986,13 @@ SimpleColumnsBlockComponentBuilder _buildSimpleColumnsBlockComponentBuilder(
 ) {
   return SimpleColumnsBlockComponentBuilder(
     configuration: configuration.copyWith(
-      padding: (_) => EdgeInsets.zero,
+      padding: (node) {
+        if (UniversalPlatform.isMobile) {
+          return configuration.padding(node);
+        }
+
+        return EdgeInsets.zero;
+      },
     ),
   );
 }

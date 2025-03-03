@@ -400,6 +400,7 @@ class LockedPageStatus extends StatelessWidget {
             side: BorderSide(color: color),
             borderRadius: BorderRadius.circular(6),
           ),
+          color: Colors.white.withValues(alpha: 0.75),
         ),
         child: FlowyButton(
           useIntrinsicWidth: true,
@@ -414,7 +415,10 @@ class LockedPageStatus extends StatelessWidget {
             fontSize: 12.0,
           ),
           hoverColor: color.withValues(alpha: 0.1),
-          leftIcon: FlowySvg(FlowySvgs.lock_page_s, color: color),
+          leftIcon: FlowySvg(
+            FlowySvgs.lock_page_fill_s,
+            blendMode: null,
+          ),
           onTap: () => context.read<ViewLockStatusBloc>().add(
                 const ViewLockStatusEvent.unlock(),
               ),
@@ -436,6 +440,7 @@ class ReLockedPageStatus extends StatelessWidget {
           side: BorderSide(color: iconColor),
           borderRadius: BorderRadius.circular(6),
         ),
+        color: Colors.white.withValues(alpha: 0.75),
       ),
       child: FlowyButton(
         useIntrinsicWidth: true,
