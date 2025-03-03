@@ -57,7 +57,7 @@ void main() {
       // move the checkbox to the child of the block at path [9]
       await tester.editor.dragBlock(
         [10],
-        const Offset(80, -30),
+        const Offset(120, -20),
       );
 
       // wait for the move animation to complete

@@ -120,6 +120,7 @@ Future<bool> inlinePageReferenceCommandHandler(
             editorState: editorState,
             service: service,
             initialResults: initialResults,
+            startCharAmount: previousChar != null ? 2 : 1,
             style: style,
           )
         : InlineActionsMenu(

@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
@@ -20,6 +21,7 @@ import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -188,6 +190,9 @@ class _DocumentPageState extends State<DocumentPage>
           ),
           header: buildCoverAndIcon(context, state),
           initialSelection: initialSelection,
+          placeholderText: (node) => node.type == ParagraphBlockKeys.type
+              ? LocaleKeys.editor_slashPlaceHolder.tr()
+              : '',
         ),
       );
     }

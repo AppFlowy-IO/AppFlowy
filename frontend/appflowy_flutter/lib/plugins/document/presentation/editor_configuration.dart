@@ -17,6 +17,14 @@ import 'package:universal_platform/universal_platform.dart';
 
 import 'editor_plugins/page_block/custom_page_block_component.dart';
 
+/// A global configuration for the editor.
+class EditorGlobalConfiguration {
+  /// Whether to enable the drag menu in the editor.
+  ///
+  /// Case 1, resizing the columns block in the desktop, then the drag menu will be disabled.
+  static ValueNotifier<bool> enableDragMenu = ValueNotifier(true);
+}
+
 /// The node types that support slash menu.
 final Set<String> supportSlashMenuNodeTypes = {
   ParagraphBlockKeys.type,
@@ -33,6 +41,10 @@ final Set<String> supportSlashMenuNodeTypes = {
   SimpleTableBlockKeys.type,
   SimpleTableRowBlockKeys.type,
   SimpleTableCellBlockKeys.type,
+
+  // Columns
+  SimpleColumnsBlockKeys.type,
+  SimpleColumnBlockKeys.type,
 };
 
 /// Build the block component builders.
@@ -209,30 +221,39 @@ void _customBlockOptionActions(
           top = top / 2;
         }
         return ValueListenableBuilder(
-          valueListenable: editorState.editableNotifier,
-          builder: (_, editable, child) {
-            return Opacity(
-              opacity: editable ? 1.0 : 0.0,
-              child: Padding(
-                padding: EdgeInsets.only(top: top),
-                child: BlockActionList(
-                  blockComponentContext: context,
-                  blockComponentState: state,
-                  editorState: editorState,
-                  blockComponentBuilder: builders,
-                  actions: actions,
-                  showSlashMenu: slashMenuItemsBuilder != null
-                      ? () => customAppFlowySlashCommand(
-                            itemsBuilder: slashMenuItemsBuilder,
-                            shouldInsertSlash: false,
-                            deleteKeywordsByDefault: true,
-                            style: styleCustomizer.selectionMenuStyleBuilder(),
-                            supportSlashMenuNodeTypes:
-                                supportSlashMenuNodeTypes,
-                          ).handler.call(editorState)
-                      : () {},
-                ),
-              ),
+          valueListenable: EditorGlobalConfiguration.enableDragMenu,
+          builder: (_, enableDragMenu, child) {
+            return ValueListenableBuilder(
+              valueListenable: editorState.editableNotifier,
+              builder: (_, editable, child) {
+                return IgnorePointer(
+                  ignoring: !editable,
+                  child: Opacity(
+                    opacity: editable && enableDragMenu ? 1.0 : 0.0,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: top),
+                      child: BlockActionList(
+                        blockComponentContext: context,
+                        blockComponentState: state,
+                        editorState: editorState,
+                        blockComponentBuilder: builders,
+                        actions: actions,
+                        showSlashMenu: slashMenuItemsBuilder != null
+                            ? () => customAppFlowySlashCommand(
+                                  itemsBuilder: slashMenuItemsBuilder,
+                                  shouldInsertSlash: false,
+                                  deleteKeywordsByDefault: true,
+                                  style: styleCustomizer
+                                      .selectionMenuStyleBuilder(),
+                                  supportSlashMenuNodeTypes:
+                                      supportSlashMenuNodeTypes,
+                                ).handler.call(editorState)
+                            : () {},
+                      ),
+                    ),
+                  ),
+                );
+              },
             );
           },
         );
@@ -350,6 +371,11 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
       context,
       configuration,
     ),
+    // Flutter doesn't support the video widget, so we forward the video block to the link preview block
+    VideoBlockKeys.type: _buildLinkPreviewBlockComponentBuilder(
+      context,
+      configuration,
+    ),
     FileBlockKeys.type: _buildFileBlockComponentBuilder(
       context,
       configuration,
@@ -376,6 +402,14 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
       context,
       configuration,
       alwaysDistributeColumnWidths: alwaysDistributeSimpleTableColumnWidths,
+    ),
+    SimpleColumnsBlockKeys.type: _buildSimpleColumnsBlockComponentBuilder(
+      context,
+      configuration,
+    ),
+    SimpleColumnBlockKeys.type: _buildSimpleColumnBlockComponentBuilder(
+      context,
+      configuration,
     ),
   };
 
@@ -947,6 +981,34 @@ SubPageBlockComponentBuilder _buildSubPageBlockComponentBuilder(
         }
         return configuration.padding(node);
       },
+    ),
+  );
+}
+
+SimpleColumnsBlockComponentBuilder _buildSimpleColumnsBlockComponentBuilder(
+  BuildContext context,
+  BlockComponentConfiguration configuration,
+) {
+  return SimpleColumnsBlockComponentBuilder(
+    configuration: configuration.copyWith(
+      padding: (node) {
+        if (UniversalPlatform.isMobile) {
+          return configuration.padding(node);
+        }
+
+        return EdgeInsets.zero;
+      },
+    ),
+  );
+}
+
+SimpleColumnBlockComponentBuilder _buildSimpleColumnBlockComponentBuilder(
+  BuildContext context,
+  BlockComponentConfiguration configuration,
+) {
+  return SimpleColumnBlockComponentBuilder(
+    configuration: configuration.copyWith(
+      padding: (_) => EdgeInsets.zero,
     ),
   );
 }

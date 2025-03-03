@@ -280,6 +280,15 @@ class EditorStyleCustomizer {
       selectionMenuItemSelectedIconColor: theme.colorScheme.onSurface,
       selectionMenuItemSelectedTextColor: theme.colorScheme.onSurface,
       selectionMenuItemSelectedColor: afThemeExtension.greyHover,
+      selectionMenuUnselectedLabelColor: afThemeExtension.onBackground,
+      selectionMenuDividerColor: afThemeExtension.greyHover,
+      selectionMenuLinkBorderColor: afThemeExtension.greyHover,
+      selectionMenuInvalidLinkColor: afThemeExtension.onBackground,
+      selectionMenuButtonColor: afThemeExtension.greyHover,
+      selectionMenuButtonTextColor: afThemeExtension.onBackground,
+      selectionMenuButtonIconColor: afThemeExtension.onBackground,
+      selectionMenuButtonBorderColor: afThemeExtension.greyHover,
+      selectionMenuTabIndicatorColor: afThemeExtension.greyHover,
     );
   }
 
@@ -494,6 +503,10 @@ class EditorStyleCustomizer {
       'italic': (LocaleKeys.toolbar_italic.tr(), 'I'),
       'strikethrough': (LocaleKeys.toolbar_strike.tr(), 'Shift+S'),
       'code': (LocaleKeys.toolbar_inlineCode.tr(), 'E'),
+      'editor.inline_math_equation': (
+        LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+        'Shift+E'
+      ),
     };
 
     final markdownItemIds = markdownItemTooltips.keys.toSet();
