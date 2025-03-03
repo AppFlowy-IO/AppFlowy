@@ -154,6 +154,9 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
           final isCalendar = layout == ViewLayoutPB.Calendar;
           final horizontalPadding =
               context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding;
+          final showActionWrapper = widget.showActions &&
+              widget.actionBuilder != null &&
+              widget.node != null;
           final Widget child = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -179,9 +182,7 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
                     );
                   }
 
-                  if (widget.showActions &&
-                      widget.actionBuilder != null &&
-                      widget.node != null) {
+                  if (showActionWrapper) {
                     child = BlockComponentActionWrapper(
                       node: widget.node!,
                       actionBuilder: widget.actionBuilder!,
@@ -208,9 +209,10 @@ class _DatabaseTabBarViewState extends State<DatabaseTabBarView> {
               wrapContent(
                 layout: layout,
                 child: Padding(
-                  padding: (isCalendar && widget.shrinkWrap)
-                      ? EdgeInsets.only(left: 42)
-                      : EdgeInsets.zero,
+                  padding:
+                      (isCalendar && widget.shrinkWrap || showActionWrapper)
+                          ? EdgeInsets.only(left: 42 - horizontalPadding)
+                          : EdgeInsets.zero,
                   child: pageContentFromState(context, state),
                 ),
               ),

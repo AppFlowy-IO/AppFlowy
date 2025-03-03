@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/application/row/row_document_bloc.dart';
+import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_drop_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_drop_manager.dart';
@@ -119,18 +120,22 @@ class _RowEditor extends StatelessWidget {
                   child: EditorTransactionService(
                     viewId: view.id,
                     editorState: editorState,
-                    child: AppFlowyEditorPage(
-                      shrinkWrap: true,
-                      autoFocus: false,
-                      editorState: editorState,
-                      styleCustomizer: EditorStyleCustomizer(
-                        context: context,
-                        padding: const EdgeInsets.only(left: 16, right: 54),
+                    child: Provider(
+                      create: (context) =>
+                          DatabasePluginWidgetBuilderSize(horizontalPadding: 0),
+                      child: AppFlowyEditorPage(
+                        shrinkWrap: true,
+                        autoFocus: false,
+                        editorState: editorState,
+                        styleCustomizer: EditorStyleCustomizer(
+                          context: context,
+                          padding: const EdgeInsets.only(left: 16, right: 54),
+                        ),
+                        showParagraphPlaceholder: (editorState, _) =>
+                            editorState.document.isEmpty,
+                        placeholderText: (_) =>
+                            LocaleKeys.cardDetails_notesPlaceholder.tr(),
                       ),
-                      showParagraphPlaceholder: (editorState, _) =>
-                          editorState.document.isEmpty,
-                      placeholderText: (_) =>
-                          LocaleKeys.cardDetails_notesPlaceholder.tr(),
                     ),
                   ),
                 ),

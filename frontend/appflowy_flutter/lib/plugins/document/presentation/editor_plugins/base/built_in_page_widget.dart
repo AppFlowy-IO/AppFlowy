@@ -84,7 +84,10 @@ class _BuiltInPageWidgetState extends State<BuiltInPageWidget> {
           widget.editorState.service.selectionService.clearSelection();
         }
       },
-      child: widget.builder(view),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: widget.builder(view),
+      ),
     );
   }
 

@@ -24,42 +24,38 @@ class DesktopGridTextCellSkin extends IEditableTextCellSkin {
         final padding = compactMode
             ? GridSize.compactCellContentInsets
             : GridSize.cellContentInsets;
-        return SizedBox(
-          height: compactMode ? 32 : 36,
-          child: Padding(
-            padding: padding,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const _IconOrEmoji(),
-                Expanded(
-                  child: TextField(
-                    controller: textEditingController,
-                    focusNode: focusNode,
-                    maxLines:
-                        context.watch<TextCellBloc>().state.wrap ? null : 1,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: context
-                                  .read<TextCellBloc>()
-                                  .cellController
-                                  .fieldInfo
-                                  .isPrimary
-                              ? FontWeight.w500
-                              : null,
-                        ),
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      errorBorder: InputBorder.none,
-                      disabledBorder: InputBorder.none,
-                      isDense: true,
-                      isCollapsed: true,
-                    ),
+        return Padding(
+          padding: padding,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _IconOrEmoji(),
+              Expanded(
+                child: TextField(
+                  controller: textEditingController,
+                  focusNode: focusNode,
+                  maxLines: context.watch<TextCellBloc>().state.wrap ? null : 1,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: context
+                                .read<TextCellBloc>()
+                                .cellController
+                                .fieldInfo
+                                .isPrimary
+                            ? FontWeight.w500
+                            : null,
+                      ),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
+                    isDense: true,
+                    isCollapsed: true,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },

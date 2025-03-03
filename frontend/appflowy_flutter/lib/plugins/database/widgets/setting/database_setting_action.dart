@@ -88,6 +88,7 @@ extension DatabaseSettingActionExtension on DatabaseSettingAction {
             iconData(),
             color: Theme.of(context).iconTheme.color,
           ),
+          rightIcon: FlowySvg(FlowySvgs.database_settings_arrow_right_s),
         ),
       ),
       popupBuilder: (context) => popover,

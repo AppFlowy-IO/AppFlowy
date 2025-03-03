@@ -5,6 +5,7 @@ import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DatabaseViewWidget extends StatefulWidget {
   const DatabaseViewWidget({
@@ -57,9 +58,14 @@ class _DatabaseViewWidgetState extends State<DatabaseViewWidget> {
 
   @override
   Widget build(BuildContext context) {
-    double horizontalPadding = 0.0;
+    double? horizontalPadding = 0.0;
+    final databasePluginWidgetBuilderSize =
+        Provider.of<DatabasePluginWidgetBuilderSize?>(context);
     if (view.layout == ViewLayoutPB.Grid || view.layout == ViewLayoutPB.Board) {
       horizontalPadding = 40.0;
+    }
+    if (databasePluginWidgetBuilderSize != null) {
+      horizontalPadding = databasePluginWidgetBuilderSize.horizontalPadding;
     }
 
     return ValueListenableBuilder<ViewLayoutPB>(
