@@ -206,7 +206,7 @@ class MarkdownTextRobot {
       transaction,
       options: ApplyOptions(
         inMemoryUpdate: inMemoryUpdate,
-        recordUndo: false,
+        recordUndo: !inMemoryUpdate,
       ),
     );
 
