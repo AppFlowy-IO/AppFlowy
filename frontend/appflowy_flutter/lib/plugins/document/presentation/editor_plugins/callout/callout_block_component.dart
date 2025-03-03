@@ -210,6 +210,9 @@ class _CalloutBlockComponentWidgetState
             key: ValueKey(widget.node.id + emoji.emoji),
             enable: editorState.editable,
             title: '',
+            margin: UniversalPlatform.isMobile
+                ? const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0)
+                : EdgeInsets.zero,
             emoji: emoji,
             emojiSize: emojiSize,
             showBorder: false,

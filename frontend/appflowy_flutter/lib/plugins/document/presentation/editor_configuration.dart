@@ -704,7 +704,14 @@ TableBlockComponentBuilder _buildTableBlockComponentBuilder(
   BlockComponentConfiguration configuration,
 ) {
   return TableBlockComponentBuilder(
-    menuBuilder: (node, editorState, position, dir, onBuild, onClose) =>
+    menuBuilder: (
+      node,
+      editorState,
+      position,
+      dir,
+      onBuild,
+      onClose,
+    ) =>
         TableMenu(
       node: node,
       editorState: editorState,
@@ -731,7 +738,14 @@ TableCellBlockComponentBuilder _buildTableCellBlockComponentBuilder(
       }
       return buildEditorCustomizedColor(context, node, colorString);
     },
-    menuBuilder: (node, editorState, position, dir, onBuild, onClose) =>
+    menuBuilder: (
+      node,
+      editorState,
+      position,
+      dir,
+      onBuild,
+      onClose,
+    ) =>
         TableMenu(
       node: node,
       editorState: editorState,

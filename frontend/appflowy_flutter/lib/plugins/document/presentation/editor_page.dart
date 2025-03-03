@@ -153,7 +153,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
     ]);
 
     indentableBlockTypes.add(ToggleListBlockKeys.type);
-    convertibleBlockTypes.add(ToggleListBlockKeys.type);
+    convertibleBlockTypes.addAll([
+      ToggleListBlockKeys.type,
+      CalloutBlockKeys.type,
+    ]);
 
     effectiveScrollController = widget.scrollController ?? ScrollController();
     // disable the color parse in the HTML decoder.
