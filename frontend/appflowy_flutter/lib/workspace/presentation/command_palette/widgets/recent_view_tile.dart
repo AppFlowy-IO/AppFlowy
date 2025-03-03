@@ -27,9 +27,11 @@ class RecentViewTile extends StatelessWidget {
         children: [
           icon,
           const HSpace(6),
-          FlowyText(
-            view.nameOrDefault,
-            overflow: TextOverflow.ellipsis,
+          Expanded(
+            child: FlowyText(
+              view.nameOrDefault,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
