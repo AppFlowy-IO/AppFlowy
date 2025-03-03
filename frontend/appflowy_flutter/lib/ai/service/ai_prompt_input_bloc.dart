@@ -44,6 +44,7 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
             final aiType = chatState.pluginState.state == RunningStatePB.Running
                 ? AIType.localAI
                 : AIType.appflowyAI;
+
             emit(
               state.copyWith(
                 aiType: aiType,
@@ -69,9 +70,17 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
             );
           },
           toggleShowPredefinedFormat: () {
+            final predefinedFormat =
+                !state.showPredefinedFormats && state.predefinedFormat == null
+                    ? PredefinedFormat(
+                        imageFormat: ImageFormat.text,
+                        textFormat: TextFormat.paragraph,
+                      )
+                    : null;
             emit(
               state.copyWith(
                 showPredefinedFormats: !state.showPredefinedFormats,
+                predefinedFormat: predefinedFormat,
               ),
             );
           },
