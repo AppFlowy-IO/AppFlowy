@@ -12,6 +12,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/settings/application_data_storage.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/image_provider.dart';
 import 'package:appflowy/workspace/presentation/widgets/image_viewer/interactive_image_viewer.dart';
 import 'package:appflowy_backend/log.dart';
@@ -216,9 +217,9 @@ class _MultiImageMenuState extends State<MultiImageMenu> {
     Clipboard.setData(
       ClipboardData(text: images[widget.indexNotifier.value].url),
     );
-    showSnackBarMessage(
+    showToastNotification(
       context,
-      LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
+      message: LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
     );
   }
 
