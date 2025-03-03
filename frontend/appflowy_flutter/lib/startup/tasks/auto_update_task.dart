@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/version_checker/version_checker.dart';
 import 'package:appflowy/startup/tasks/app_widget.dart';
@@ -26,7 +28,8 @@ class AutoUpdateTask extends LaunchTask {
       return;
     }
 
-    await _setupAutoUpdater();
+    // don't use await here, because the auto updater is not a blocking operation
+    unawaited(_setupAutoUpdater());
 
     ApplicationInfo.isCriticalUpdateNotifier.addListener(
       _showCriticalUpdateDialog,

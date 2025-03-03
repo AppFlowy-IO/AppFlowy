@@ -29,12 +29,6 @@ final _fourColumnsKeywords = [
   '4 columns',
 ];
 
-final _fiveColumnsKeywords = [
-  ..._baseKeywords,
-  'five columns',
-  '5 columns',
-];
-
 // 2 columns menu item
 SelectionMenuItem twoColumnsSlashMenuItem = SelectionMenuItem.node(
   getName: () => LocaleKeys.document_slashMenu_name_twoColumns.tr(),
@@ -47,6 +41,12 @@ SelectionMenuItem twoColumnsSlashMenuItem = SelectionMenuItem.node(
     isSelected: isSelected,
     style: style,
   ),
+  updateSelection: (_, path, __, ___) {
+    return Selection.single(
+      path: path.child(0).child(0),
+      startOffset: 0,
+    );
+  },
 );
 
 // 3 columns menu item
@@ -61,6 +61,12 @@ SelectionMenuItem threeColumnsSlashMenuItem = SelectionMenuItem.node(
     isSelected: isSelected,
     style: style,
   ),
+  updateSelection: (_, path, __, ___) {
+    return Selection.single(
+      path: path.child(0).child(0),
+      startOffset: 0,
+    );
+  },
 );
 
 // 4 columns menu item
@@ -75,6 +81,12 @@ SelectionMenuItem fourColumnsSlashMenuItem = SelectionMenuItem.node(
     isSelected: isSelected,
     style: style,
   ),
+  updateSelection: (_, path, __, ___) {
+    return Selection.single(
+      path: path.child(0).child(0),
+      startOffset: 0,
+    );
+  },
 );
 
 Node _buildColumnsNode(EditorState editorState, int columnCount) {
