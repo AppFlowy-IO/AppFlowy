@@ -1,8 +1,7 @@
 import 'dart:io';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
-import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 class BlockActionButton extends StatelessWidget {
@@ -23,31 +22,22 @@ class BlockActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget child = MouseRegion(
-      cursor: Platform.isWindows
-          ? SystemMouseCursors.click
-          : SystemMouseCursors.grab,
-      child: IgnoreParentGestureWidget(
-        onPress: onPointerDown,
-        child: GestureDetector(
-          onTap: onTap,
-          behavior: HitTestBehavior.deferToChild,
-          child: FlowySvg(
-            svg,
-            size: const Size.square(18.0),
-            color: Theme.of(context).iconTheme.color,
-          ),
+    return FlowyIconButton(
+      width: 18.0,
+      hoverColor: Colors.transparent,
+      iconColorOnHover: Theme.of(context).iconTheme.color,
+      onPressed: onTap,
+      richTooltipText: showTooltip ? richMessage : null,
+      icon: MouseRegion(
+        cursor: Platform.isWindows
+            ? SystemMouseCursors.click
+            : SystemMouseCursors.grab,
+        child: FlowySvg(
+          svg,
+          size: const Size.square(18.0),
+          color: Theme.of(context).iconTheme.color,
         ),
       ),
     );
-
-    if (showTooltip) {
-      child = FlowyTooltip(
-        richMessage: richMessage,
-        child: child,
-      );
-    }
-
-    return child;
   }
 }
