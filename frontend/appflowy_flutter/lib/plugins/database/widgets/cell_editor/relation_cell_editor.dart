@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/database/widgets/row/relation_row_detail.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -112,8 +113,11 @@ class _RelationCellEditorContentState
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: bloc,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: bloc),
+        BlocProvider.value(value: context.read<UserWorkspaceBloc>()),
+      ],
       child: BlocBuilder<RelationRowSearchBloc, RelationRowSearchState>(
         buildWhen: (previous, current) =>
             !listEquals(previous.filteredRows, current.filteredRows),
@@ -316,13 +320,16 @@ class _SearchField extends StatelessWidget {
                 FlowyOverlay.show(
                   context: context,
                   builder: (BuildContext overlayContext) {
-                    return RelatedRowDetailPage(
-                      databaseId: context
-                          .read<RelationCellBloc>()
-                          .state
-                          .relatedDatabaseMeta!
-                          .databaseId,
-                      rowId: row.rowId,
+                    return BlocProvider.value(
+                      value: context.read<UserWorkspaceBloc>(),
+                      child: RelatedRowDetailPage(
+                        databaseId: context
+                            .read<RelationCellBloc>()
+                            .state
+                            .relatedDatabaseMeta!
+                            .databaseId,
+                        rowId: row.rowId,
+                      ),
                     );
                   },
                 );
@@ -391,13 +398,17 @@ class _RowListItem extends StatelessWidget {
       ),
       child: GestureDetector(
         onTap: () {
+          final userWorkspaceBloc = context.read<UserWorkspaceBloc>();
           if (isSelected) {
             FlowyOverlay.show(
               context: context,
               builder: (BuildContext overlayContext) {
-                return RelatedRowDetailPage(
-                  databaseId: databaseId,
-                  rowId: row.rowId,
+                return BlocProvider.value(
+                  value: userWorkspaceBloc,
+                  child: RelatedRowDetailPage(
+                    databaseId: databaseId,
+                    rowId: row.rowId,
+                  ),
                 );
               },
             );

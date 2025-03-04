@@ -90,15 +90,14 @@ class UserAvatar extends StatelessWidget {
                   : null,
             ),
         child: ClipRRect(
-          borderRadius: Corners.s5Border,
-          child: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            child: Image.network(
-              iconUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) =>
-                  _buildEmptyAvatar(context),
-            ),
+          borderRadius: BorderRadius.circular(size / 2),
+          child: Image.network(
+            iconUrl,
+            width: size,
+            height: size,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) =>
+                _buildEmptyAvatar(context),
           ),
         ),
       ),

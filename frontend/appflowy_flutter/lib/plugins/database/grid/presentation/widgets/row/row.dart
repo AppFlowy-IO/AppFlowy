@@ -308,14 +308,20 @@ class RowContent extends StatelessWidget {
   Widget _finalCellDecoration(BuildContext context) {
     return MouseRegion(
       cursor: SystemMouseCursors.basic,
-      child: Container(
-        width: GridSize.newPropertyButtonWidth,
-        constraints: const BoxConstraints(minHeight: 36),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: AFThemeExtension.of(context).borderColor),
-          ),
-        ),
+      child: ValueListenableBuilder(
+        valueListenable: cellBuilder.databaseController.compactModeNotifier,
+        builder: (context, compactMode, _) {
+          return Container(
+            width: GridSize.newPropertyButtonWidth,
+            constraints: BoxConstraints(minHeight: compactMode ? 32 : 36),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom:
+                    BorderSide(color: AFThemeExtension.of(context).borderColor),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

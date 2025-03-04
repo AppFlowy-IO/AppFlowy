@@ -1,0 +1,34 @@
+display_name: AppFlowy
+icon: linux/packaging/assets/logo.png
+group: Applications/Office
+vendor: AppFlowy
+packager: AppFlowy
+packagerEmail: support@appflowy.io
+license: APGL-3.0
+url: https://github.com/AppFlowy-IO/appflowy
+
+build_arch: x86_64
+
+keywords:
+  - AppFlowy
+  - Office
+  - Document
+  - Database
+  - Note
+  - Kanban
+  - Note
+
+generic_name: AppFlowy
+
+categories:
+  - Office
+  - Productivity
+
+startup_notify: true
+
+supported_mime_type:
+  - x-scheme-handler/appflowy-flutter
+
+requires:
+  - libnotify
+  - keybinder

@@ -387,8 +387,8 @@ class _MobileViewPageState extends State<MobileViewPage> {
                 bottom: 4.0,
               ),
               child: FlowySvg(
-                FlowySvgs.lock_page_s,
-                color: const Color(0xFFD95A0B),
+                FlowySvgs.lock_page_fill_s,
+                blendMode: null,
               ),
             ),
           );

@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy/plugins/inline_actions/inline_actions_menu.dart';
 import 'package:appflowy/shared/google_fonts_extension.dart';
 import 'package:appflowy/util/font_family_extension.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
@@ -280,6 +281,15 @@ class EditorStyleCustomizer {
       selectionMenuItemSelectedIconColor: theme.colorScheme.onSurface,
       selectionMenuItemSelectedTextColor: theme.colorScheme.onSurface,
       selectionMenuItemSelectedColor: afThemeExtension.greyHover,
+      selectionMenuUnselectedLabelColor: afThemeExtension.onBackground,
+      selectionMenuDividerColor: afThemeExtension.greyHover,
+      selectionMenuLinkBorderColor: afThemeExtension.greyHover,
+      selectionMenuInvalidLinkColor: afThemeExtension.onBackground,
+      selectionMenuButtonColor: afThemeExtension.greyHover,
+      selectionMenuButtonTextColor: afThemeExtension.onBackground,
+      selectionMenuButtonIconColor: afThemeExtension.onBackground,
+      selectionMenuButtonBorderColor: afThemeExtension.greyHover,
+      selectionMenuTabIndicatorColor: afThemeExtension.greyHover,
     );
   }
 
@@ -327,6 +337,11 @@ class EditorStyleCustomizer {
       return before;
     }
 
+    final suggestion = attributes[AiWriterBlockKeys.suggestion] as String?;
+    final newStyle = suggestion == null
+        ? after.style
+        : _styleSuggestion(after.style, suggestion);
+
     if (attributes.backgroundColor != null) {
       final color = EditorFontColors.fromBuiltInColors(
         context,
@@ -335,7 +350,7 @@ class EditorStyleCustomizer {
       if (color != null) {
         return TextSpan(
           text: before.text,
-          style: after.style?.merge(
+          style: newStyle?.merge(
             TextStyle(backgroundColor: color),
           ),
         );
@@ -350,7 +365,7 @@ class EditorStyleCustomizer {
         } else {
           return TextSpan(
             text: before.text,
-            style: after.style?.merge(
+            style: newStyle?.merge(
               getGoogleFontSafely(attributes.fontFamily!),
             ),
           );
@@ -367,7 +382,7 @@ class EditorStyleCustomizer {
       final type = mention[MentionBlockKeys.type];
       return WidgetSpan(
         alignment: PlaceholderAlignment.middle,
-        style: after.style,
+        style: newStyle,
         child: MentionBlock(
           key: ValueKey(
             switch (type) {
@@ -379,7 +394,7 @@ class EditorStyleCustomizer {
           node: node,
           index: index,
           mention: mention,
-          textStyle: after.style,
+          textStyle: newStyle,
         ),
       );
     }
@@ -442,6 +457,13 @@ class EditorStyleCustomizer {
       );
     }
 
+    if (suggestion != null) {
+      return TextSpan(
+        text: before.text,
+        style: newStyle,
+      );
+    }
+
     return defaultTextSpanDecoratorForAttribute(
       context,
       node,
@@ -494,6 +516,10 @@ class EditorStyleCustomizer {
       'italic': (LocaleKeys.toolbar_italic.tr(), 'I'),
       'strikethrough': (LocaleKeys.toolbar_strike.tr(), 'Shift+S'),
       'code': (LocaleKeys.toolbar_inlineCode.tr(), 'E'),
+      'editor.inline_math_equation': (
+        LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+        'Shift+E'
+      ),
     };
 
     final markdownItemIds = markdownItemTooltips.keys.toSet();
@@ -529,5 +555,35 @@ class EditorStyleCustomizer {
     );
 
     return textSpan;
+  }
+
+  TextStyle? _styleSuggestion(TextStyle? style, String suggestion) {
+    if (style == null) {
+      return null;
+    }
+    final fontSize = style.fontSize ?? 14.0;
+    final isLight = Theme.of(context).isLightMode;
+    final textColor = isLight ? Color(0xFF007296) : Color(0xFF49CFF4);
+    final underlineColor = isLight ? Color(0x33005A7A) : Color(0x3349CFF4);
+    return switch (suggestion) {
+      AiWriterBlockKeys.suggestionOriginal => style.copyWith(
+          color: Theme.of(context).disabledColor,
+          decoration: TextDecoration.lineThrough,
+        ),
+      AiWriterBlockKeys.suggestionReplacement => style.copyWith(
+          color: Colors.transparent,
+          decoration: TextDecoration.underline,
+          decorationColor: underlineColor,
+          decorationThickness: 1.0,
+          // hack: https://jtmuller5.medium.com/the-ultimate-guide-to-underlining-text-in-flutter-57936f5c79bb
+          shadows: [
+            Shadow(
+              color: textColor,
+              offset: Offset(0, -fontSize * 0.2),
+            ),
+          ],
+        ),
+      _ => style,
+    };
   }
 }

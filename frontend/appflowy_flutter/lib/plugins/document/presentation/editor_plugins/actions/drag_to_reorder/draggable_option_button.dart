@@ -1,6 +1,7 @@
 import 'package:appflowy/plugins/document/presentation/editor_notification.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/drag_to_reorder/util.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/drag_to_reorder/visual_drag_area.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,6 @@ import 'draggable_option_button_feedback.dart';
 import 'option_button.dart';
 
 // this flag is used to disable the tooltip of the block when it is dragged
-@visibleForTesting
 ValueNotifier<bool> isDraggingAppFlowyEditorBlock = ValueNotifier(false);
 
 class DraggableOptionButton extends StatefulWidget {
@@ -82,8 +82,34 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
   void _onDragUpdate(DragUpdateDetails details) {
     isDraggingAppFlowyEditorBlock.value = true;
 
+    final offset = details.globalPosition;
+
     widget.editorState.selectionService.renderDropTargetForOffset(
-      details.globalPosition,
+      offset,
+      interceptor: (context, targetNode) {
+        // if the cursor node is in a columns block or a column block,
+        //  we will return the node's parent instead to support dragging a node to the inside of a columns block or a column block.
+        final parentColumnNode = targetNode.parentColumn;
+        if (parentColumnNode != null) {
+          final position = getDragAreaPosition(
+            context,
+            targetNode,
+            offset,
+          );
+
+          if (position != null && position.$2 == HorizontalPosition.right) {
+            return parentColumnNode;
+          }
+
+          if (position != null &&
+              position.$2 == HorizontalPosition.left &&
+              position.$1 == VerticalPosition.middle) {
+            return parentColumnNode;
+          }
+        }
+
+        return targetNode;
+      },
       builder: (context, data) {
         return VisualDragArea(
           editorState: widget.editorState,
@@ -112,6 +138,30 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
 
     final data = widget.editorState.selectionService.getDropTargetRenderData(
       globalPosition!,
+      interceptor: (context, targetNode) {
+        // if the cursor node is in a columns block or a column block,
+        //  we will return the node's parent instead to support dragging a node to the inside of a columns block or a column block.
+        final parentColumnNode = targetNode.parentColumn;
+        if (parentColumnNode != null) {
+          final position = getDragAreaPosition(
+            context,
+            targetNode,
+            globalPosition!,
+          );
+
+          if (position != null && position.$2 == HorizontalPosition.right) {
+            return parentColumnNode;
+          }
+
+          if (position != null &&
+              position.$2 == HorizontalPosition.left &&
+              position.$1 == VerticalPosition.middle) {
+            return parentColumnNode;
+          }
+        }
+
+        return targetNode;
+      },
     );
     dragToMoveNode(
       context,

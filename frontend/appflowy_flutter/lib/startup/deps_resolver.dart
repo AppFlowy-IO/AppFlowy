@@ -1,5 +1,3 @@
-import 'package:appflowy/ai/service/ai_client.dart';
-import 'package:appflowy/ai/service/appflowy_ai_service.dart';
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/network_monitor.dart';
 import 'package:appflowy/env/cloud_env.dart';
@@ -15,7 +13,6 @@ import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/prelude.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/user/application/user_listener.dart';
-import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy/user/presentation/router.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/edit_panel/edit_panel_bloc.dart';
@@ -81,16 +78,6 @@ void _resolveCommonService(
 
   getIt.registerFactory<ApplicationDataStorage>(
     () => mode.isTest ? MockApplicationDataStorage() : ApplicationDataStorage(),
-  );
-
-  getIt.registerFactoryAsync<AIRepository>(
-    () async {
-      final result = await UserBackendService.getCurrentUserProfile();
-      return result.fold(
-        (s) => AppFlowyAIService(),
-        (e) => throw Exception('Failed to get user profile: ${e.msg}'),
-      );
-    },
   );
 
   getIt.registerFactory<ClipboardService>(

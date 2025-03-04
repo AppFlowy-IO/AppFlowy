@@ -1,6 +1,6 @@
 <h1 align="center" style="border-bottom: none">
     <b>
-        <a href="https://www.appflowy.io">AppFlowy.IO</a><br>
+        <a href="https://www.appflowy.com">AppFlowy</a><br>
     </b>
     ⭐️  The Open Source Alternative To Notion  ⭐️ <br>
 </h1>
@@ -18,18 +18,18 @@ AppFlowy is the AI workspace where you achieve more without losing control of yo
 </p>
 
 <p align="center">
-    <a href="https://www.appflowy.io"><b>Website</b></a> •
+    <a href="https://www.appflowy.com"><b>Website</b></a> •
     <a href="https://forum.appflowy.io/"><b>Forum</b></a> •
     <a href="https://discord.gg/9Q2xaN37tV"><b>Discord</b></a> •
     <a href="https://www.reddit.com/r/AppFlowy"><b>Reddit</b></a> •
     <a href="https://twitter.com/appflowy"><b>Twitter</b></a>
 </p>
 
-<p align="center"><img src="https://appflowy.io/_next/static/media/tasks.796c753e.png" alt="AppFlowy Kanban Board for To-dos"  /></p>
-<p align="center"><img src="https://appflowy.io/_next/static/media/Grid.9e30484b.png" alt="AppFlowy Databases for Tasks and Projects"  /></p>
-<p align="center"><img src="https://appflowy.io/_next/static/media/sites.a8d5b2b9.png" alt="AppFlowy Sites for Beautiful documentation"  /></p>
-<p align="center"><img src="https://appflowy.io/_next/static/media/ai.e1460982.png" alt="AppFlowy AI" /></p>
-<p align="center"><img src="https://appflowy.io/_next/static/media/template.9ea13c3b.png" alt="AppFlowy Templates"  /></p>
+<p align="center"><img src="https://appflowy.com/_next/static/media/tasks.796c753e.png" alt="AppFlowy Kanban Board for To-dos"  /></p>
+<p align="center"><img src="https://appflowy.com/_next/static/media/Grid.9e30484b.png" alt="AppFlowy Databases for Tasks and Projects"  /></p>
+<p align="center"><img src="https://appflowy.com/_next/static/media/sites.a8d5b2b9.png" alt="AppFlowy Sites for Beautiful documentation"  /></p>
+<p align="center"><img src="https://appflowy.com/_next/static/media/ai.e1460982.png" alt="AppFlowy AI" /></p>
+<p align="center"><img src="https://appflowy.com/_next/static/media/template.9ea13c3b.png" alt="AppFlowy Templates"  /></p>
 
 <br></br>
 <p align="center" >
@@ -48,7 +48,7 @@ AppFlowy is the AI workspace where you achieve more without losing control of yo
     - [App Store](https://apps.apple.com/app/appflowy/id6457261352): iPhone
     - [Play Store](https://play.google.com/store/apps/details?id=io.appflowy.appflowy): Android 10 or above; ARMv7 is
       not supported
-- [Self-hosting AppFlowy](https://docs.appflowy.io/docs/guides/appflowy/self-hosting-appflowy)
+- [Self-hosting AppFlowy](https://appflowy.com/docs/self-host-appflowy-overview)
 - [Source](https://docs.appflowy.io/docs/documentation/appflowy/from-source)
 
 ## Built With
@@ -78,7 +78,7 @@ report [here](https://github.com/AppFlowy-IO/AppFlowy/issues/new?assignees=&labe
 
 ## **Releases**
 
-Please see the [changelog](https://www.appflowy.io/whatsnew) for more details about a given release.
+Please see the [changelog](https://appflowy.com/what-is-new) for more details about a given release.
 
 ## Contributing
 
@@ -89,9 +89,7 @@ for details.
 
 If your Pull Request is accepted as it fixes a bug, adds functionality, or makes AppFlowy's codebase significantly
 easier to use or understand, **Congratulations!** If your administrative and managerial work behind the scenes sustains
-the community, **Congratulations!** You are now an official contributor to AppFlowy. Get in touch with
-us ([link](https://tally.so/r/mKP5z3)) to receive the very special Contributor T-shirt!
-Proudly wear your T-shirt and show it to us by tagging [@appflowy](https://twitter.com/appflowy) on Twitter.
+the community, **Congratulations!** You are now an official contributor to AppFlowy.
 
 ## Translations 🌎🗺
 
@@ -152,7 +150,7 @@ more information.
 
 ## Acknowledgments
 
-Special thanks to these amazing projects which help power AppFlowy.IO:
+Special thanks to these amazing projects which help power AppFlowy:
 
 - [cargo-make](https://github.com/sagiegurari/cargo-make)
 - [contrib.rocks](https://contrib.rocks)

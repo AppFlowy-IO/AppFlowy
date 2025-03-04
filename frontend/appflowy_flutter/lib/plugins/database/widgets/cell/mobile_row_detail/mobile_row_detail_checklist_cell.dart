@@ -17,6 +17,7 @@ class MobileRowDetailChecklistCellSkin extends IEditableChecklistCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     ChecklistCellBloc bloc,
     PopoverController popoverController,
   ) {

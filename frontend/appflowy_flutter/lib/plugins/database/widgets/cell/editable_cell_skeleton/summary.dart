@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/cell/bloc/summary_cell_bloc.dart';
@@ -22,6 +19,8 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class IEditableSummaryCellSkin {
@@ -39,6 +38,7 @@ abstract class IEditableSummaryCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     SummaryCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,
@@ -98,6 +98,7 @@ class _SummaryCellState extends GridEditableTextCell<EditableSummaryCell> {
             return widget.skin.build(
               context,
               widget.cellContainerNotifier,
+              widget.databaseController.compactModeNotifier,
               cellBloc,
               focusNode,
               _textEditingController,

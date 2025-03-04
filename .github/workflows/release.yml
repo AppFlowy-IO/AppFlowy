@@ -128,9 +128,9 @@ jobs:
     runs-on: ${{ matrix.job.os }}
     needs: create-release
     env:
-      MACOS_APP_RELEASE_PATH: frontend/appflowy_flutter/product/${{ github.ref_name }}/macos/Release
+      MACOS_APP_RELEASE_PATH: frontend/appflowy_flutter/build/${{ github.ref_name }}
       MACOS_X86_ZIP_NAME: AppFlowy-${{ github.ref_name }}-macos-x86_64.zip
-      MACOS_DMG_NAME: AppFlowy-${{ github.ref_name }}-macos-x86_64
+      MACOS_DMG_NAME: AppFlowy-${{ github.ref_name }}-macos-x86_64.dmg
     strategy:
       fail-fast: false
       matrix:
@@ -158,46 +158,22 @@ jobs:
       - name: Install prerequisites
         working-directory: frontend
         run: |
+          brew install p7zip
           cargo install --force --locked cargo-make
           cargo install --force --locked duckscript_cli
+
+      - name: Import codesign certificate
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.MACOS_CERTIFICATE }}
+          p12-password: ${{ secrets.MACOS_CERTIFICATE_PWD }}
 
       - name: Build AppFlowy
         working-directory: frontend
         run: |
           flutter config --enable-macos-desktop
-          dart ./scripts/flutter_release_build/build_flowy.dart run . ${{ github.ref_name }}
-
-      - name: Codesign AppFlowy
-        run: |
-          echo ${{ secrets.MACOS_CERTIFICATE }} | base64 --decode > certificate.p12
-          security create-keychain -p action build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p action build.keychain
-          security import certificate.p12 -k build.keychain -P ${{ secrets.MACOS_CERTIFICATE_PWD }} -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k action build.keychain
-          /usr/bin/codesign --force --options runtime --deep --sign "${{ secrets.MACOS_CODESIGN_ID }}" "${{ env.MACOS_APP_RELEASE_PATH }}/AppFlowy.app" -v
-
-      - name: Create macOS dmg
-        run: |
-          brew install create-dmg
-          create-dmg \
-          --volname ${{ env.MACOS_DMG_NAME }} \
-          --hide-extension "AppFlowy.app" \
-          --background frontend/scripts/dmg_assets/AppFlowyInstallerBackground.jpg \
-          --window-size 600 450 \
-          --icon-size 94 \
-          --icon "AppFlowy.app" 141 249 \
-          --app-drop-link 458 249 \
-          "${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg" \
-          "${{ env.MACOS_APP_RELEASE_PATH }}/AppFlowy.app"
-
-      - name: Notarize AppFlowy
-        run: |
-          xcrun notarytool submit ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg --apple-id ${{ secrets.MACOS_NOTARY_USER }} --team-id ${{ secrets.MACOS_TEAM_ID }} --password ${{ secrets.MACOS_NOTARY_PWD }} -v -f "json" --wait
-
-      - name: Archive Asset
-        working-directory: ${{ env.MACOS_APP_RELEASE_PATH }}
-        run: zip --symlinks -qr ${{ env.MACOS_X86_ZIP_NAME }} AppFlowy.app
+          flutter pub global activate flutter_distributor
+          sh scripts/flutter_release_build/build_macos.sh --build_type dmg --build_arch x86_64 --version ${{ github.ref_name }} --apple-id ${{ secrets.MACOS_NOTARY_USER }} --team-id ${{ secrets.MACOS_TEAM_ID }} --password ${{ secrets.MACOS_NOTARY_PWD }}
 
       - name: Upload Asset
         uses: actions/upload-release-asset@v1
@@ -215,8 +191,82 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg
-          asset_name: ${{ env.MACOS_DMG_NAME }}.dmg
+          asset_path: ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}
+          asset_name: ${{ env.MACOS_DMG_NAME }}
+          asset_content_type: application/octet-stream
+
+  build-for-macOS-arm64:
+    name: ${{ matrix.job.target }} (${{ matrix.job.os }}) [${{ matrix.job.extra-build-args }}]
+    runs-on: ${{ matrix.job.os }}
+    needs: create-release
+    env:
+      MACOS_APP_RELEASE_PATH: frontend/appflowy_flutter/build/${{ github.ref_name }}
+      MACOS_AARCH64_ZIP_NAME: AppFlowy-${{ github.ref_name }}-macos-arm64.zip
+      MACOS_DMG_NAME: AppFlowy-${{ github.ref_name }}-macos-arm64.dmg
+    strategy:
+      fail-fast: false
+      matrix:
+        job:
+          - {
+              targets: "aarch64-apple-darwin",
+              os: macos-latest,
+              extra-build-args: "",
+            }
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          targets: ${{ matrix.job.targets }}
+          components: rustfmt
+
+      - name: Install prerequisites
+        working-directory: frontend
+        run: |
+          brew install p7zip
+          cargo install --force --locked cargo-make
+          cargo install --force --locked duckscript_cli
+
+      - name: Import codesign certificate
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.MACOS_CERTIFICATE }}
+          p12-password: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+
+      - name: Build AppFlowy
+        working-directory: frontend
+        run: |
+          flutter config --enable-macos-desktop
+          dart pub global activate flutter_distributor
+          sh scripts/flutter_release_build/build_macos.sh --build_type dmg --build_arch arm64 --version ${{ github.ref_name }} --apple-id ${{ secrets.MACOS_NOTARY_USER }} --team-id ${{ secrets.MACOS_TEAM_ID }} --password ${{ secrets.MACOS_NOTARY_PWD }}
+
+      - name: Upload Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_AARCH64_ZIP_NAME }}
+          asset_name: ${{ env.MACOS_AARCH64_ZIP_NAME }}
+          asset_content_type: application/octet-stream
+
+      - name: Upload DMG Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}
+          asset_name: ${{ env.MACOS_DMG_NAME }}
           asset_content_type: application/octet-stream
 
   build-for-macOS-universal:
@@ -224,9 +274,9 @@ jobs:
     runs-on: ${{ matrix.job.os }}
     needs: create-release
     env:
-      MACOS_APP_RELEASE_PATH: frontend/appflowy_flutter/product/${{ github.ref_name }}/macos/Release
+      MACOS_APP_RELEASE_PATH: frontend/appflowy_flutter/build/${{ github.ref_name }}
       MACOS_AARCH64_ZIP_NAME: AppFlowy-${{ github.ref_name }}-macos-universal.zip
-      MACOS_DMG_NAME: AppFlowy-${{ github.ref_name }}-macos-universal
+      MACOS_DMG_NAME: AppFlowy-${{ github.ref_name }}-macos-universal.dmg
     strategy:
       fail-fast: false
       matrix:
@@ -256,46 +306,22 @@ jobs:
       - name: Install prerequisites
         working-directory: frontend
         run: |
+          brew install p7zip
           cargo install --force --locked cargo-make
           cargo install --force --locked duckscript_cli
+
+      - name: Import codesign certificate
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.MACOS_CERTIFICATE }}
+          p12-password: ${{ secrets.MACOS_CERTIFICATE_PWD }}
 
       - name: Build AppFlowy
         working-directory: frontend
         run: |
           flutter config --enable-macos-desktop
-          sh scripts/flutter_release_build/build_universal_package_for_macos.sh ${{ github.ref_name }}
-
-      - name: Codesign AppFlowy
-        run: |
-          echo ${{ secrets.MACOS_CERTIFICATE }} | base64 --decode > certificate.p12
-          security create-keychain -p action build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p action build.keychain
-          security import certificate.p12 -k build.keychain -P ${{ secrets.MACOS_CERTIFICATE_PWD }} -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k action build.keychain
-          /usr/bin/codesign --force --options runtime --deep --sign "${{ secrets.MACOS_CODESIGN_ID }}" "${{ env.MACOS_APP_RELEASE_PATH }}/AppFlowy.app" -v
-
-      - name: Create macOS dmg
-        run: |
-          brew install create-dmg
-          create-dmg \
-          --volname ${{ env.MACOS_DMG_NAME }} \
-          --hide-extension "AppFlowy.app" \
-          --background frontend/scripts/dmg_assets/AppFlowyInstallerBackground.jpg \
-          --window-size 600 450 \
-          --icon-size 94 \
-          --icon "AppFlowy.app" 141 249 \
-          --app-drop-link 458 249 \
-          "${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg" \
-          "${{ env.MACOS_APP_RELEASE_PATH }}/AppFlowy.app"
-
-      - name: Notarize AppFlowy
-        run: |
-          xcrun notarytool submit ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg --apple-id ${{ secrets.MACOS_NOTARY_USER }} --team-id ${{ secrets.MACOS_TEAM_ID }} --password ${{ secrets.MACOS_NOTARY_PWD }} -v -f "json" --wait
-
-      - name: Archive Asset
-        working-directory: ${{ env.MACOS_APP_RELEASE_PATH }}
-        run: zip --symlinks -qr ${{ env.MACOS_AARCH64_ZIP_NAME }} AppFlowy.app
+          dart pub global activate flutter_distributor
+          sh scripts/flutter_release_build/build_macos.sh --build_type dmg --build_arch universal --version ${{ github.ref_name }} --apple-id ${{ secrets.MACOS_NOTARY_USER }} --team-id ${{ secrets.MACOS_TEAM_ID }} --password ${{ secrets.MACOS_NOTARY_PWD }}
 
       - name: Upload Asset
         uses: actions/upload-release-asset@v1
@@ -313,8 +339,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg
-          asset_name: ${{ env.MACOS_DMG_NAME }}.dmg
+          asset_path: ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}
+          asset_name: ${{ env.MACOS_DMG_NAME }}
           asset_content_type: application/octet-stream
 
   build-for-linux:
@@ -322,14 +348,12 @@ jobs:
     runs-on: ${{ matrix.job.os }}
     needs: create-release
     env:
-      LINUX_APP_RELEASE_PATH: frontend/appflowy_flutter/product/${{ github.ref_name }}/linux/Release
-      LINUX_ZIP_NAME: AppFlowy-${{ matrix.job.target }}-x86_64.tar.gz
+      LINUX_APP_RELEASE_PATH: frontend/appflowy_flutter/build/${{ github.ref_name }}
       LINUX_PACKAGE_DEB_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.deb
       LINUX_PACKAGE_RPM_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.rpm
-      LINUX_PACKAGE_TMP_RPM_NAME: AppFlowy-${{ github.ref_name }}-2.x86_64.rpm
-      LINUX_PACKAGE_TMP_APPIMAGE_NAME: AppFlowy-${{ github.ref_name }}-x86_64.AppImage
       LINUX_PACKAGE_APPIMAGE_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.AppImage
-      LINUX_PACKAGE_ZIP_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.tar.gz
+      LINUX_PACKAGE_ZIP_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.zip
+      LINUX_PACKAGE_TAR_NAME: AppFlowy-${{ github.ref_name }}-linux-x86_64.tar.gz
 
     strategy:
       fail-fast: false
@@ -338,7 +362,7 @@ jobs:
           - {
               arch: x86_64,
               target: x86_64-unknown-linux-gnu,
-              os: ubuntu-20.04,
+              os: ubuntu-22.04,
               extra-build-args: "",
               flutter_profile: production-linux-x86_64,
             }
@@ -364,14 +388,24 @@ jobs:
       - name: Install prerequisites
         working-directory: frontend
         run: |
+          # Install dependencies
           sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
           sudo apt-get update
-          sudo apt-get install -y build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
-          sudo apt-get install keybinder-3.0
-          sudo apt-get install -y alien libnotify-dev
+          sudo apt-get install -y build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev keybinder-3.0 libnotify-dev
+          sudo apt install rpm patchelf locate
+          sudo add-apt-repository universe
+          sudo apt install libfuse2
+
+          # Install appimagetool
+          wget -O appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+          chmod +x appimagetool
+          mv appimagetool /usr/local/bin/
+
+          # Install cargo-make and duckscript
           source $HOME/.cargo/env
           cargo install --force --locked cargo-make
           cargo install --force --locked duckscript_cli
+
           rustup target add ${{ matrix.job.target }}
 
       - name: Install gcc-aarch64-linux-gnu
@@ -384,30 +418,8 @@ jobs:
         working-directory: frontend
         run: |
           flutter config --enable-linux-desktop
-          dart ./scripts/flutter_release_build/build_flowy.dart run . ${{ github.ref_name }}
-
-      - name: Archive Asset
-        working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
-        run: tar -czf ${{ env.LINUX_ZIP_NAME }} *
-
-      - name: Build Linux package (.deb)
-        working-directory: frontend
-        run: |
-          sh scripts/linux_distribution/deb/build_deb.sh appflowy_flutter/product/${{ github.ref_name }}/linux/Release ${{ github.ref_name }} ${{ env.LINUX_PACKAGE_DEB_NAME }}
-
-      - name: Build Linux package (.rpm)
-        working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
-        run: |
-          sudo alien -r ${{ env.LINUX_PACKAGE_DEB_NAME }}
-          cp -r ${{ env.LINUX_PACKAGE_TMP_RPM_NAME }} ${{ env.LINUX_PACKAGE_RPM_NAME }}
-
-      - name: Build Linux package (.AppImage)
-        working-directory: frontend
-        continue-on-error: true
-        run: |
-          sh scripts/linux_distribution/appimage/build_appimage.sh ${{ github.ref_name }}
-          cd ..
-          cp -r frontend/${{ env.LINUX_PACKAGE_TMP_APPIMAGE_NAME }} ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_APPIMAGE_NAME }}
+          dart pub global activate flutter_distributor
+          ./scripts/flutter_release_build/build_linux.sh --build_type all --build_arch x86_64 --version ${{ github.ref_name }}
 
       - name: Upload Asset
         id: upload-release-asset
@@ -416,11 +428,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_ZIP_NAME }}
+          asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_ZIP_NAME }}
           asset_name: ${{ env.LINUX_PACKAGE_ZIP_NAME }}
           asset_content_type: application/octet-stream
 
-      - name: Upload Debian package
+      - name: Upload DEB package
         id: upload-release-asset-install-package-deb
         uses: actions/upload-release-asset@v1
         env:

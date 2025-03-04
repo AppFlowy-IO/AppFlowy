@@ -34,11 +34,3 @@ class AppFlowyChatTest {
     });
   }
 }
-
-Future<void> boardResponseFuture() {
-  return Future.delayed(boardResponseDuration());
-}
-
-Duration boardResponseDuration({int milliseconds = 200}) {
-  return Duration(milliseconds: milliseconds);
-}

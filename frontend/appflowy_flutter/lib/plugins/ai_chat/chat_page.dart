@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/chat_message_selector_banner.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
@@ -19,14 +20,12 @@ import 'package:string_validator/string_validator.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'application/ai_prompt_input_bloc.dart';
 import 'application/chat_bloc.dart';
 import 'application/chat_entity.dart';
 import 'application/chat_member_bloc.dart';
 import 'application/chat_select_message_bloc.dart';
 import 'application/chat_message_stream.dart';
 import 'presentation/animated_chat_list.dart';
-import 'presentation/chat_input/desktop_chat_input.dart';
 import 'presentation/chat_input/mobile_chat_input.dart';
 import 'presentation/chat_related_question.dart';
 import 'presentation/chat_welcome_page.dart';
@@ -71,7 +70,14 @@ class AIChatPage extends StatelessWidget {
         ),
 
         /// [AIPromptInputBloc] is used to handle the user prompt
-        BlocProvider(create: (_) => AIPromptInputBloc()),
+        BlocProvider(
+          create: (_) => AIPromptInputBloc(
+            predefinedFormat: PredefinedFormat(
+              imageFormat: ImageFormat.text,
+              textFormat: TextFormat.bulletList,
+            ),
+          ),
+        ),
         BlocProvider(create: (_) => ChatMemberBloc()),
       ],
       child: Builder(
@@ -146,7 +152,7 @@ class _ChatContentPage extends StatelessWidget {
                   ),
                 ),
                 _wrapConstraints(
-                  _builtInput(context),
+                  _Input(view: view),
                 ),
               ],
             ),
@@ -184,26 +190,25 @@ class _ChatContentPage extends StatelessWidget {
       return RelatedQuestionList(
         relatedQuestions: message.metadata!['questions'],
         onQuestionSelected: (question) {
-          context
-              .read<ChatBloc>()
-              .add(ChatEvent.sendMessage(message: question));
+          final bloc = context.read<AIPromptInputBloc>();
+          final showPredefinedFormats = bloc.state.showPredefinedFormats;
+          final predefinedFormat = bloc.state.predefinedFormat;
+
+          context.read<ChatBloc>().add(
+                ChatEvent.sendMessage(
+                  message: question,
+                  format: showPredefinedFormats ? predefinedFormat : null,
+                ),
+              );
         },
       );
     }
 
-    if (message.author.id == userProfile.id.toString()) {
+    if (message.author.id == userProfile.id.toString() ||
+        isOtherUserMessage(message)) {
       return ChatUserMessageWidget(
         user: message.author,
         message: message,
-        isCurrentUser: true,
-      );
-    }
-
-    if (isOtherUserMessage(message)) {
-      return ChatUserMessageWidget(
-        user: message.author,
-        message: message,
-        isCurrentUser: false,
       );
     }
 
@@ -286,7 +291,16 @@ class _ChatContentPage extends StatelessWidget {
       return ChatWelcomePage(
         userProfile: userProfile,
         onSelectedQuestion: (question) {
-          bloc.add(ChatEvent.sendMessage(message: question));
+          final aiPromptInputBloc = context.read<AIPromptInputBloc>();
+          final showPredefinedFormats =
+              aiPromptInputBloc.state.showPredefinedFormats;
+          final predefinedFormat = aiPromptInputBloc.state.predefinedFormat;
+          bloc.add(
+            ChatEvent.sendMessage(
+              message: question,
+              format: showPredefinedFormats ? predefinedFormat : null,
+            ),
+          );
         },
       );
     }
@@ -303,86 +317,6 @@ class _ChatContentPage extends StatelessWidget {
           onLoadPreviousMessages: () {
             bloc.add(const ChatEvent.loadPreviousMessages());
           },
-        );
-      },
-    );
-  }
-
-  Widget _builtInput(BuildContext context) {
-    return BlocSelector<ChatSelectMessageBloc, ChatSelectMessageState, bool>(
-      selector: (state) => state.isSelectingMessages,
-      builder: (context, isSelectingMessages) {
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 150),
-          transitionBuilder: (child, animation) {
-            return SizeTransition(
-              sizeFactor: animation,
-              axisAlignment: -1,
-              child: child,
-            );
-          },
-          child: isSelectingMessages
-              ? const SizedBox.shrink()
-              : Padding(
-                  padding: AIChatUILayout.safeAreaInsets(context),
-                  child: BlocSelector<ChatBloc, ChatState, bool>(
-                    selector: (state) {
-                      return state.promptResponseState ==
-                          PromptResponseState.ready;
-                    },
-                    builder: (context, canSendMessage) {
-                      final chatBloc = context.read<ChatBloc>();
-
-                      return UniversalPlatform.isDesktop
-                          ? DesktopChatInput(
-                              chatId: view.id,
-                              isStreaming: !canSendMessage,
-                              onStopStreaming: () {
-                                chatBloc.add(const ChatEvent.stopStream());
-                              },
-                              onSubmitted: (text, format, metadata) {
-                                chatBloc.add(
-                                  ChatEvent.sendMessage(
-                                    message: text,
-                                    format: format,
-                                    metadata: metadata,
-                                  ),
-                                );
-                              },
-                              onUpdateSelectedSources: (ids) {
-                                chatBloc.add(
-                                  ChatEvent.updateSelectedSources(
-                                    selectedSourcesIds: ids,
-                                  ),
-                                );
-                              },
-                            )
-                          : MobileChatInput(
-                              chatId: view.id,
-                              isStreaming: !canSendMessage,
-                              onStopStreaming: () {
-                                chatBloc.add(const ChatEvent.stopStream());
-                              },
-                              onSubmitted: (text, format, metadata) {
-                                chatBloc.add(
-                                  ChatEvent.sendMessage(
-                                    message: text,
-                                    format: format,
-                                    metadata: metadata,
-                                  ),
-                                );
-                              },
-                              onUpdateSelectedSources: (ids) {
-                                chatBloc.add(
-                                  ChatEvent.updateSelectedSources(
-                                    selectedSourcesIds: ids,
-                                  ),
-                                );
-                              },
-                            );
-                    },
-                  ),
-                ),
         );
       },
     );
@@ -412,5 +346,96 @@ class _ChatContentPage extends StatelessWidget {
         openPageFromMessage(context, sidebarView);
       }
     }
+  }
+}
+
+class _Input extends StatelessWidget {
+  const _Input({
+    required this.view,
+  });
+
+  final ViewPB view;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<ChatSelectMessageBloc, ChatSelectMessageState, bool>(
+      selector: (state) => state.isSelectingMessages,
+      builder: (context, isSelectingMessages) {
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 150),
+          transitionBuilder: (child, animation) {
+            return SizeTransition(
+              sizeFactor: animation,
+              axisAlignment: -1,
+              child: child,
+            );
+          },
+          child: isSelectingMessages
+              ? const SizedBox.shrink()
+              : Padding(
+                  padding: AIChatUILayout.safeAreaInsets(context),
+                  child: BlocSelector<ChatBloc, ChatState, bool>(
+                    selector: (state) {
+                      return state.promptResponseState ==
+                          PromptResponseState.ready;
+                    },
+                    builder: (context, canSendMessage) {
+                      final chatBloc = context.read<ChatBloc>();
+
+                      return UniversalPlatform.isDesktop
+                          ? DesktopPromptInput(
+                              isStreaming: !canSendMessage,
+                              onStopStreaming: () {
+                                chatBloc.add(const ChatEvent.stopStream());
+                              },
+                              onSubmitted: (text, format, metadata) {
+                                chatBloc.add(
+                                  ChatEvent.sendMessage(
+                                    message: text,
+                                    format: format,
+                                    metadata: metadata,
+                                  ),
+                                );
+                              },
+                              selectedSourcesNotifier:
+                                  chatBloc.selectedSourcesNotifier,
+                              onUpdateSelectedSources: (ids) {
+                                chatBloc.add(
+                                  ChatEvent.updateSelectedSources(
+                                    selectedSourcesIds: ids,
+                                  ),
+                                );
+                              },
+                            )
+                          : MobileChatInput(
+                              isStreaming: !canSendMessage,
+                              onStopStreaming: () {
+                                chatBloc.add(const ChatEvent.stopStream());
+                              },
+                              onSubmitted: (text, format, metadata) {
+                                chatBloc.add(
+                                  ChatEvent.sendMessage(
+                                    message: text,
+                                    format: format,
+                                    metadata: metadata,
+                                  ),
+                                );
+                              },
+                              selectedSourcesNotifier:
+                                  chatBloc.selectedSourcesNotifier,
+                              onUpdateSelectedSources: (ids) {
+                                chatBloc.add(
+                                  ChatEvent.updateSelectedSources(
+                                    selectedSourcesIds: ids,
+                                  ),
+                                );
+                              },
+                            );
+                    },
+                  ),
+                ),
+        );
+      },
+    );
   }
 }

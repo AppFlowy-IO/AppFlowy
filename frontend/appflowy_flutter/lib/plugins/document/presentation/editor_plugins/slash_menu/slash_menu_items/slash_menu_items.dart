@@ -15,6 +15,7 @@ export 'outline_item.dart';
 export 'paragraph_item.dart';
 export 'photo_gallery_item.dart';
 export 'quote_item.dart';
+export 'simple_columns_item.dart';
 export 'simple_table_item.dart';
 export 'slash_menu_item_builder.dart';
 export 'sub_page_item.dart';

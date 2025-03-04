@@ -15,6 +15,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import 'editor_plugins/page_block/custom_page_block_component.dart';
+
+/// A global configuration for the editor.
+class EditorGlobalConfiguration {
+  /// Whether to enable the drag menu in the editor.
+  ///
+  /// Case 1, resizing the columns block in the desktop, then the drag menu will be disabled.
+  static ValueNotifier<bool> enableDragMenu = ValueNotifier(true);
+}
+
 /// The node types that support slash menu.
 final Set<String> supportSlashMenuNodeTypes = {
   ParagraphBlockKeys.type,
@@ -31,6 +41,10 @@ final Set<String> supportSlashMenuNodeTypes = {
   SimpleTableBlockKeys.type,
   SimpleTableRowBlockKeys.type,
   SimpleTableCellBlockKeys.type,
+
+  // Columns
+  SimpleColumnsBlockKeys.type,
+  SimpleColumnBlockKeys.type,
 };
 
 /// Build the block component builders.
@@ -203,31 +217,43 @@ void _customBlockOptionActions(
         } else {
           top += 2.0;
         }
+        if (overflowTypes.contains(type)) {
+          top = top / 2;
+        }
         return ValueListenableBuilder(
-          valueListenable: editorState.editableNotifier,
-          builder: (_, editable, child) {
-            return Opacity(
-              opacity: editable ? 1.0 : 0.0,
-              child: Padding(
-                padding: EdgeInsets.only(top: top),
-                child: BlockActionList(
-                  blockComponentContext: context,
-                  blockComponentState: state,
-                  editorState: editorState,
-                  blockComponentBuilder: builders,
-                  actions: actions,
-                  showSlashMenu: slashMenuItemsBuilder != null
-                      ? () => customAppFlowySlashCommand(
-                            itemsBuilder: slashMenuItemsBuilder,
-                            shouldInsertSlash: false,
-                            deleteKeywordsByDefault: true,
-                            style: styleCustomizer.selectionMenuStyleBuilder(),
-                            supportSlashMenuNodeTypes:
-                                supportSlashMenuNodeTypes,
-                          ).handler.call(editorState)
-                      : () {},
-                ),
-              ),
+          valueListenable: EditorGlobalConfiguration.enableDragMenu,
+          builder: (_, enableDragMenu, child) {
+            return ValueListenableBuilder(
+              valueListenable: editorState.editableNotifier,
+              builder: (_, editable, child) {
+                return IgnorePointer(
+                  ignoring: !editable,
+                  child: Opacity(
+                    opacity: editable && enableDragMenu ? 1.0 : 0.0,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: top),
+                      child: BlockActionList(
+                        blockComponentContext: context,
+                        blockComponentState: state,
+                        editorState: editorState,
+                        blockComponentBuilder: builders,
+                        actions: actions,
+                        showSlashMenu: slashMenuItemsBuilder != null
+                            ? () => customAppFlowySlashCommand(
+                                  itemsBuilder: slashMenuItemsBuilder,
+                                  shouldInsertSlash: false,
+                                  deleteKeywordsByDefault: true,
+                                  style: styleCustomizer
+                                      .selectionMenuStyleBuilder(),
+                                  supportSlashMenuNodeTypes:
+                                      supportSlashMenuNodeTypes,
+                                ).handler.call(editorState)
+                            : () {},
+                      ),
+                    ),
+                  ),
+                );
+              },
             );
           },
         );
@@ -247,7 +273,7 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
   bool alwaysDistributeSimpleTableColumnWidths = false,
 }) {
   final customBlockComponentBuilderMap = {
-    PageBlockKeys.type: PageBlockComponentBuilder(),
+    PageBlockKeys.type: CustomPageBlockComponentBuilder(),
     ParagraphBlockKeys.type: _buildParagraphBlockComponentBuilder(
       context,
       configuration,
@@ -322,11 +348,7 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
       configuration,
       styleCustomizer,
     ),
-    AIWriterBlockKeys.type: _buildAIWriterBlockComponentBuilder(
-      context,
-      configuration,
-    ),
-    AskAIBlockKeys.type: _buildAskAIBlockComponentBuilder(
+    AiWriterBlockKeys.type: _buildAIWriterBlockComponentBuilder(
       context,
       configuration,
     ),
@@ -342,6 +364,11 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
       styleCustomizer,
     ),
     LinkPreviewBlockKeys.type: _buildLinkPreviewBlockComponentBuilder(
+      context,
+      configuration,
+    ),
+    // Flutter doesn't support the video widget, so we forward the video block to the link preview block
+    VideoBlockKeys.type: _buildLinkPreviewBlockComponentBuilder(
       context,
       configuration,
     ),
@@ -371,6 +398,14 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
       context,
       configuration,
       alwaysDistributeColumnWidths: alwaysDistributeSimpleTableColumnWidths,
+    ),
+    SimpleColumnsBlockKeys.type: _buildSimpleColumnsBlockComponentBuilder(
+      context,
+      configuration,
+    ),
+    SimpleColumnBlockKeys.type: _buildSimpleColumnBlockComponentBuilder(
+      context,
+      configuration,
     ),
   };
 
@@ -670,7 +705,14 @@ TableBlockComponentBuilder _buildTableBlockComponentBuilder(
   BlockComponentConfiguration configuration,
 ) {
   return TableBlockComponentBuilder(
-    menuBuilder: (node, editorState, position, dir, onBuild, onClose) =>
+    menuBuilder: (
+      node,
+      editorState,
+      position,
+      dir,
+      onBuild,
+      onClose,
+    ) =>
         TableMenu(
       node: node,
       editorState: editorState,
@@ -697,7 +739,14 @@ TableCellBlockComponentBuilder _buildTableCellBlockComponentBuilder(
       }
       return buildEditorCustomizedColor(context, node, colorString);
     },
-    menuBuilder: (node, editorState, position, dir, onBuild, onClose) =>
+    menuBuilder: (
+      node,
+      editorState,
+      position,
+      dir,
+      onBuild,
+      onClose,
+    ) =>
         TableMenu(
       node: node,
       editorState: editorState,
@@ -800,13 +849,6 @@ AIWriterBlockComponentBuilder _buildAIWriterBlockComponentBuilder(
   BlockComponentConfiguration configuration,
 ) {
   return AIWriterBlockComponentBuilder();
-}
-
-AskAIBlockComponentBuilder _buildAskAIBlockComponentBuilder(
-  BuildContext context,
-  BlockComponentConfiguration configuration,
-) {
-  return AskAIBlockComponentBuilder();
 }
 
 ToggleListBlockComponentBuilder _buildToggleListBlockComponentBuilder(
@@ -942,6 +984,34 @@ SubPageBlockComponentBuilder _buildSubPageBlockComponentBuilder(
         }
         return configuration.padding(node);
       },
+    ),
+  );
+}
+
+SimpleColumnsBlockComponentBuilder _buildSimpleColumnsBlockComponentBuilder(
+  BuildContext context,
+  BlockComponentConfiguration configuration,
+) {
+  return SimpleColumnsBlockComponentBuilder(
+    configuration: configuration.copyWith(
+      padding: (node) {
+        if (UniversalPlatform.isMobile) {
+          return configuration.padding(node);
+        }
+
+        return EdgeInsets.zero;
+      },
+    ),
+  );
+}
+
+SimpleColumnBlockComponentBuilder _buildSimpleColumnBlockComponentBuilder(
+  BuildContext context,
+  BlockComponentConfiguration configuration,
+) {
+  return SimpleColumnBlockComponentBuilder(
+    configuration: configuration.copyWith(
+      padding: (_) => EdgeInsets.zero,
     ),
   );
 }

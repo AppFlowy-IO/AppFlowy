@@ -75,7 +75,7 @@ void main() {
         [
           LogicalKeyboardKey.control,
           LogicalKeyboardKey.shift,
-          LogicalKeyboardKey.keyE,
+          LogicalKeyboardKey.keyC,
         ],
         tester: tester,
         withKeyUp: true,

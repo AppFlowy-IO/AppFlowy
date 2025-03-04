@@ -50,8 +50,11 @@ List<SelectionMenuItem> _defaultSlashMenuItems({
   DocumentBloc? documentBloc,
 }) {
   return [
-    // disable ai writer in local mode
-    if (!isLocalMode) aiWriterSlashMenuItem,
+    // ai
+    if (!isLocalMode) ...[
+      continueWritingSlashMenuItem,
+      aiWriterSlashMenuItem,
+    ],
 
     paragraphSlashMenuItem,
 
@@ -79,6 +82,12 @@ List<SelectionMenuItem> _defaultSlashMenuItems({
 
     // link to page
     linkToPageSlashMenuItem,
+
+    // columns
+    // 2-4 columns
+    twoColumnsSlashMenuItem,
+    threeColumnsSlashMenuItem,
+    fourColumnsSlashMenuItem,
 
     // grid
     if (documentBloc != null) gridSlashMenuItem(documentBloc),
