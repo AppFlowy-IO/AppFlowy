@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/background_color/theme_background_color.dart';
@@ -158,6 +159,15 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       ToggleListBlockKeys.type,
       CalloutBlockKeys.type,
     ]);
+
+    editorLaunchUrl = (url) {
+      if (url != null) {
+        afLaunchUrlString(url);
+      }
+
+      return Future.value(true);
+    };
+
 
     effectiveScrollController = widget.scrollController ?? ScrollController();
     // disable the color parse in the HTML decoder.
