@@ -235,7 +235,7 @@ class MarkdownTextRobot {
     List<Node>? children;
     if (node.children.isNotEmpty) {
       children = node.children
-          .map((child) => _styleDelta(node: node, attributes: attributes))
+          .map((child) => _styleDelta(node: child, attributes: attributes))
           .toList();
     }
 

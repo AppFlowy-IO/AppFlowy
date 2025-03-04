@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/columns/simple_columns_block_constant.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -51,17 +52,36 @@ Future<void> dragToMoveNode(
     final transaction = editorState.transaction;
     final targetNodeParent = targetNode.parentColumnsBlock;
     if (targetNodeParent != null) {
+      final length = targetNodeParent.children.length;
       final columnNode = simpleColumnNode(
         children: [node.deepCopy()],
+        width: (node.rect.width * 1 / (length + 1)).clamp(
+          SimpleColumnsBlockConstants.minimumColumnWidth,
+          double.infinity,
+        ),
       );
+
+      for (final column in targetNodeParent.children) {
+        final width =
+            column.attributes[SimpleColumnBlockKeys.width]?.toDouble() ??
+                SimpleColumnsBlockConstants.minimumColumnWidth;
+        transaction.updateNode(column, {
+          ...column.attributes,
+          SimpleColumnBlockKeys.width: (width * length / (length + 1)).clamp(
+            SimpleColumnsBlockConstants.minimumColumnWidth,
+            double.infinity,
+          ),
+        });
+      }
 
       transaction.insertNode(targetNode.path.next, columnNode);
       transaction.deleteNode(node);
     } else {
+      final width = targetNode.rect.width / 2 - 16;
       final columnsNode = simpleColumnsNode(
         children: [
-          simpleColumnNode(children: [targetNode.deepCopy()]),
-          simpleColumnNode(children: [node.deepCopy()]),
+          simpleColumnNode(children: [targetNode.deepCopy()], width: width),
+          simpleColumnNode(children: [node.deepCopy()], width: width),
         ],
       );
 
@@ -82,13 +102,27 @@ Future<void> dragToMoveNode(
     final targetNodeParent = targetNode.parentColumnsBlock;
     if (targetNodeParent != null) {
       // find the previous sibling node of the target node
-      final width = (node.rect.width /
-              (targetNode.parentColumnsBlock?.children.length ?? 2)) -
-          16;
+      final length = targetNodeParent.children.length;
       final columnNode = simpleColumnNode(
         children: [node.deepCopy()],
-        width: width,
+        width: (node.rect.width * 1 / (length + 1)).clamp(
+          SimpleColumnsBlockConstants.minimumColumnWidth,
+          double.infinity,
+        ),
       );
+
+      for (final column in targetNodeParent.children) {
+        final width =
+            column.attributes[SimpleColumnBlockKeys.width]?.toDouble() ??
+                SimpleColumnsBlockConstants.minimumColumnWidth;
+        transaction.updateNode(column, {
+          ...column.attributes,
+          SimpleColumnBlockKeys.width: (width * length / (length + 1)).clamp(
+            SimpleColumnsBlockConstants.minimumColumnWidth,
+            double.infinity,
+          ),
+        });
+      }
 
       transaction.insertNode(targetNode.path.previous, columnNode);
       transaction.deleteNode(node);
