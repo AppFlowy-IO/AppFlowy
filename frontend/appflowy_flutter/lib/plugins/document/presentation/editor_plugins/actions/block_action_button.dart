@@ -22,20 +22,22 @@ class BlockActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyIconButton(
-      width: 18.0,
-      hoverColor: Colors.transparent,
-      iconColorOnHover: Theme.of(context).iconTheme.color,
-      onPressed: onTap,
-      richTooltipText: showTooltip ? richMessage : null,
-      icon: MouseRegion(
-        cursor: Platform.isWindows
-            ? SystemMouseCursors.click
-            : SystemMouseCursors.grab,
-        child: FlowySvg(
-          svg,
-          size: const Size.square(18.0),
-          color: Theme.of(context).iconTheme.color,
+    return FlowyTooltip(
+      richMessage: showTooltip ? richMessage : null,
+      child: FlowyIconButton(
+        width: 18.0,
+        hoverColor: Colors.transparent,
+        iconColorOnHover: Theme.of(context).iconTheme.color,
+        onPressed: onTap,
+        icon: MouseRegion(
+          cursor: Platform.isWindows
+              ? SystemMouseCursors.click
+              : SystemMouseCursors.grab,
+          child: FlowySvg(
+            svg,
+            size: const Size.square(18.0),
+            color: Theme.of(context).iconTheme.color,
+          ),
         ),
       ),
     );
