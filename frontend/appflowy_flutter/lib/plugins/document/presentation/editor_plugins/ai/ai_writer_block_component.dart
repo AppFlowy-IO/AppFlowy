@@ -169,6 +169,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
                         return GestureDetector(
                           behavior: hitTestBehavior,
                           onTap: () => onTapOutside(),
+                          onTapDown: (_) => onTapOutside(),
                         );
                       },
                     ),
