@@ -88,13 +88,12 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
 
   late final EditorState editorState = context.read<EditorState>();
 
-  @override
-  void initState() {
-    super.initState();
-  }
+  final ScrollController scrollController = ScrollController();
 
   @override
   void dispose() {
+    scrollController.dispose();
+
     super.dispose();
   }
 
@@ -102,6 +101,7 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
   Widget build(BuildContext context) {
     Widget child = SingleChildScrollView(
       scrollDirection: Axis.horizontal,
+      controller: scrollController,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: _buildChildren(),
@@ -111,6 +111,7 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
     if (UniversalPlatform.isDesktop) {
       // only show the scrollbar on desktop
       child = Scrollbar(
+        controller: scrollController,
         child: child,
       );
     }
@@ -149,8 +150,9 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
     final children = <Widget>[];
     for (var i = 0; i < node.children.length; i++) {
       final childNode = node.children[i];
-      final width = childNode.attributes[SimpleColumnBlockKeys.width] ??
-          SimpleColumnsBlockConstants.minimumColumnWidth;
+      final width =
+          childNode.attributes[SimpleColumnBlockKeys.width]?.toDouble() ??
+              SimpleColumnsBlockConstants.minimumColumnWidth;
       Widget child = editorState.renderer.build(context, childNode);
 
       child = SizedBox(

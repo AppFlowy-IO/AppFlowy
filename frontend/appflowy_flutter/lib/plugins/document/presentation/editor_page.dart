@@ -162,12 +162,11 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
 
     editorLaunchUrl = (url) {
       if (url != null) {
-        afLaunchUrlString(url);
+        afLaunchUrlString(url, addingHttpSchemeWhenFailed: true);
       }
 
       return Future.value(true);
     };
-
 
     effectiveScrollController = widget.scrollController ?? ScrollController();
     // disable the color parse in the HTML decoder.
