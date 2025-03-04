@@ -190,9 +190,10 @@ class _DocumentPageState extends State<DocumentPage>
           ),
           header: buildCoverAndIcon(context, state),
           initialSelection: initialSelection,
-          placeholderText: (node) => node.type == ParagraphBlockKeys.type
-              ? LocaleKeys.editor_slashPlaceHolder.tr()
-              : '',
+          placeholderText: (node) =>
+              node.type == ParagraphBlockKeys.type && !node.isInTable
+                  ? LocaleKeys.editor_slashPlaceHolder.tr()
+                  : '',
         ),
       );
     }
