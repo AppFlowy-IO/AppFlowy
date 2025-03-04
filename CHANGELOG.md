@@ -1,4 +1,14 @@
 # Release Notes
+## Version 0.8.5 - 04/03/2025
+### New Features
+- Columns in Documents: Arrange content side by side using drag-and-drop or the slash menu
+- AI Writers: New AI assistants in documents with response formatting options (list, table, text with images, image-only), follow-up questions, contextual memory, and more
+- Compact Mode for Databases: Enable compact mode for grid and kanban views (full-page and inline) to increase information density, displaying more data per screen
+### Bug Fixes
+- Fixed an issue where callout blocks couldn’t be deleted when appearing as the first line in a document
+- Fixed a bug preventing the relation field in databases from opening
+- Fixed an issue where links in documents were unclickable on Linux
+
 ## Version 0.8.4 - 18/02/2025
 ### New Features
 - Switch AI mode on mobile
