@@ -42,6 +42,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
 
   final ValueNotifier<List<String>> selectedSourcesNotifier;
   (String, PredefinedFormat?)? _previousPrompt;
+  bool acceptReplacesOriginal = false;
 
   @override
   Future<void> close() async {
@@ -215,7 +216,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     if (action case SuggestionAction.accept || SuggestionAction.keep) {
       await _textRobot.persist();
 
-      if (state.command.acceptWillReplace) {
+      if (acceptReplacesOriginal) {
         final nodes = editorState.getNodesInSelection(selection);
         final transaction = editorState.transaction..deleteNodes(nodes);
         await editorState.apply(
@@ -369,6 +370,8 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     if (selection == null) {
       return;
     }
+
+    acceptReplacesOriginal = true;
 
     final stream = await _aiService.streamCompletion(
       objectId: documentId,
