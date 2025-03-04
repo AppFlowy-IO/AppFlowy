@@ -162,12 +162,6 @@ class MarkdownTextRobot {
       return;
     }
 
-    final node = editorState.getNodeAtPath(position.path);
-    if (node == null) {
-      Log.error("Cannot find node at position: ${position.path}");
-      return;
-    }
-
     // Convert markdown and deep copy the nodes, prevent ing the linked
     // entities from being changed
     final documentNodes = customMarkdownToDocument(
@@ -184,29 +178,40 @@ class MarkdownTextRobot {
     if (newNodes.isEmpty) {
       return;
     }
-    final transaction = editorState.transaction
-      ..insertNodes(position.path, newNodes)
+
+    final deleteTransaction = editorState.transaction
       ..deleteNodes(getInsertedNodes());
+
+    await editorState.apply(
+      deleteTransaction,
+      options: ApplyOptions(
+        inMemoryUpdate: inMemoryUpdate,
+        recordUndo: false,
+      ),
+    );
+
+    final insertTransaction = editorState.transaction
+      ..insertNodes(position.path, newNodes);
 
     final lastDelta = newNodes.lastOrNull?.delta;
     if (lastDelta != null) {
-      transaction.afterSelection = Selection.collapsed(
+      insertTransaction.afterSelection = Selection.collapsed(
         Position(
           path: position.path.nextNPath(newNodes.length - 1),
           offset: lastDelta.length,
         ),
       );
-    }
 
-    if (!updateSelection) {
-      transaction.afterSelection = null;
+      if (!updateSelection) {
+        insertTransaction.afterSelection = null;
+      }
     }
 
     await editorState.apply(
-      transaction,
+      insertTransaction,
       options: ApplyOptions(
         inMemoryUpdate: inMemoryUpdate,
-        recordUndo: false,
+        recordUndo: !inMemoryUpdate,
       ),
     );
 

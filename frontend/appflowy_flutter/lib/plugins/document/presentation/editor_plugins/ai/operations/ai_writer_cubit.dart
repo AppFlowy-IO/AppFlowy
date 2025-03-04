@@ -29,7 +29,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
             initialCommand,
             isFirstRun: true,
           ),
-        );
+        ) {
+    editorState.service.keyboardService?.disable();
+  }
 
   final String documentId;
   final EditorState editorState;
@@ -40,10 +42,12 @@ class AiWriterCubit extends Cubit<AiWriterState> {
 
   final ValueNotifier<List<String>> selectedSourcesNotifier;
   (String, PredefinedFormat?)? _previousPrompt;
+  bool acceptReplacesOriginal = false;
 
   @override
   Future<void> close() async {
     selectedSourcesNotifier.dispose();
+    editorState.service.keyboardService?.enable();
     await super.close();
   }
 
@@ -212,7 +216,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     if (action case SuggestionAction.accept || SuggestionAction.keep) {
       await _textRobot.persist();
 
-      if (state.command.acceptWillReplace) {
+      if (acceptReplacesOriginal) {
         final nodes = editorState.getNodesInSelection(selection);
         final transaction = editorState.transaction..deleteNodes(nodes);
         await editorState.apply(
@@ -339,7 +343,6 @@ class AiWriterCubit extends Cubit<AiWriterState> {
         );
       },
       onEnd: () async {
-        editorState.service.keyboardService?.enable();
         if (state case GeneratingAiWriterState _) {
           await _textRobot.stop(
             attributes: ApplySuggestionFormatType.replace.attributes,
@@ -348,7 +351,6 @@ class AiWriterCubit extends Cubit<AiWriterState> {
         }
       },
       onError: (error) async {
-        editorState.service.keyboardService?.enable();
         emit(ErrorAiWriterState(command, error: error));
       },
     );
@@ -368,6 +370,8 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     if (selection == null) {
       return;
     }
+
+    acceptReplacesOriginal = true;
 
     final stream = await _aiService.streamCompletion(
       objectId: documentId,
@@ -413,7 +417,6 @@ class AiWriterCubit extends Cubit<AiWriterState> {
         }
       },
       onError: (error) async {
-        editorState.service.keyboardService?.enable();
         emit(ErrorAiWriterState(command, error: error));
       },
     );
@@ -451,7 +454,6 @@ class AiWriterCubit extends Cubit<AiWriterState> {
         }
       },
       onEnd: () async {
-        editorState.service.keyboardService?.enable();
         if (state case final GeneratingAiWriterState generatingState) {
           emit(
             ReadyAiWriterState(

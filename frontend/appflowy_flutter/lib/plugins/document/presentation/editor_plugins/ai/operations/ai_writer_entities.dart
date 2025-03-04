@@ -108,15 +108,6 @@ enum AiWriterCommand {
         makeShorter => CompletionTypePB.MakeShorter,
         makeLonger => CompletionTypePB.MakeLonger,
       };
-
-  bool get acceptWillReplace => switch (this) {
-        AiWriterCommand.fixSpellingAndGrammar ||
-        AiWriterCommand.improveWriting ||
-        AiWriterCommand.makeLonger ||
-        AiWriterCommand.makeShorter =>
-          true,
-        _ => false,
-      };
 }
 
 enum ApplySuggestionFormatType {

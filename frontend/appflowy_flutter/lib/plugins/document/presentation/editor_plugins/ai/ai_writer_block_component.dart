@@ -169,6 +169,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
                         return GestureDetector(
                           behavior: hitTestBehavior,
                           onTap: () => onTapOutside(),
+                          onTapDown: (_) => onTapOutside(),
                         );
                       },
                     ),
@@ -300,46 +301,59 @@ class OverlayContent extends StatelessWidget {
                       child: Container(
                         constraints: BoxConstraints(maxHeight: 140),
                         width: double.infinity,
-                        child: SingleChildScrollView(
-                          padding: EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                height: 24.0,
-                                padding: EdgeInsets.symmetric(horizontal: 6.0),
-                                alignment: AlignmentDirectional.centerStart,
-                                child: FlowyText(
-                                  state.command.i18n,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF666D76),
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: SingleChildScrollView(
+                                physics: ClampingScrollPhysics(),
+                                padding: EdgeInsets.only(top: 8.0),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      height: 24.0,
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 6.0),
+                                      alignment:
+                                          AlignmentDirectional.centerStart,
+                                      child: FlowyText(
+                                        state.command.i18n,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF666D76),
+                                      ),
+                                    ),
+                                    const VSpace(4.0),
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 6.0),
+                                      child: AIMarkdownText(
+                                        markdown: markdownText,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
+                            ),
+                            if (showSuggestionPopup) ...[
                               const VSpace(4.0),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 6.0),
-                                child: AIMarkdownText(
-                                  markdown: markdownText,
+                              SuggestionActionBar(
+                                actions: _getSuggestedActions(
+                                  currentCommand: state.command,
+                                  hasSelection: hasSelection,
                                 ),
+                                onTap: (action) {
+                                  context
+                                      .read<AiWriterCubit>()
+                                      .runResponseAction(action);
+                                },
                               ),
-                              if (showSuggestionPopup) ...[
-                                const VSpace(4.0),
-                                SuggestionActionBar(
-                                  actions: _getSuggestedActions(
-                                    currentCommand: state.command,
-                                    hasSelection: hasSelection,
-                                  ),
-                                  onTap: (action) {
-                                    context
-                                        .read<AiWriterCubit>()
-                                        .runResponseAction(action);
-                                  },
-                                ),
-                              ],
                             ],
-                          ),
+                            const VSpace(8.0),
+                          ],
                         ),
                       ),
                     ),

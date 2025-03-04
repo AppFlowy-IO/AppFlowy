@@ -104,7 +104,7 @@ impl CompletionTask {
           custom_prompt: None,
           metadata: Some(CompletionMetadata {
             object_id: self.context.object_id,
-            workspace_id: None,
+            workspace_id: Some(self.workspace_id.clone()),
             rag_ids: Some(self.context.rag_ids),
           }),
           format: self.context.format.map(Into::into).unwrap_or_default(),
