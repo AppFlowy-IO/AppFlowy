@@ -85,39 +85,51 @@ class _RowDetailPageState extends State<RowDetailPage> {
           ],
           child: BlocBuilder<RowDetailBloc, RowDetailState>(
             builder: (context, state) => Stack(
+              fit: StackFit.expand,
               children: [
-                ListView(
-                  controller: scrollController,
-                  physics: const ClampingScrollPhysics(),
-                  children: [
-                    RowBanner(
-                      databaseController: widget.databaseController,
-                      rowController: widget.rowController,
-                      cellBuilder: cellBuilder,
-                      allowOpenAsFullPage: widget.allowOpenAsFullPage,
-                      userProfile: widget.userProfile,
-                    ),
-                    const VSpace(16),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 40, right: 60),
-                      child: RowPropertyList(
-                        cellBuilder: cellBuilder,
-                        viewId: widget.databaseController.viewId,
-                        fieldController:
-                            widget.databaseController.fieldController,
-                      ),
-                    ),
-                    const VSpace(20),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 60),
-                      child: Divider(height: 1.0),
-                    ),
-                    const VSpace(20),
-                    RowDocument(
+                Positioned.fill(
+                  child: NestedScrollView(
+                    controller: scrollController,
+                    headerSliverBuilder:
+                        (BuildContext context, bool innerBoxIsScrolled) {
+                      return <Widget>[
+                        SliverToBoxAdapter(
+                          child: Column(
+                            children: [
+                              RowBanner(
+                                databaseController: widget.databaseController,
+                                rowController: widget.rowController,
+                                cellBuilder: cellBuilder,
+                                allowOpenAsFullPage: widget.allowOpenAsFullPage,
+                                userProfile: widget.userProfile,
+                              ),
+                              const VSpace(16),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 40, right: 60),
+                                child: RowPropertyList(
+                                  cellBuilder: cellBuilder,
+                                  viewId: widget.databaseController.viewId,
+                                  fieldController:
+                                      widget.databaseController.fieldController,
+                                ),
+                              ),
+                              const VSpace(20),
+                              const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 60),
+                                child: Divider(height: 1.0),
+                              ),
+                              const VSpace(20),
+                            ],
+                          ),
+                        ),
+                      ];
+                    },
+                    body: RowDocument(
                       viewId: widget.rowController.viewId,
                       rowId: widget.rowController.rowId,
                     ),
-                  ],
+                  ),
                 ),
                 Positioned(
                   top: calculateActionsOffset(

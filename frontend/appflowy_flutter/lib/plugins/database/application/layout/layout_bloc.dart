@@ -31,6 +31,7 @@ class DatabaseLayoutBloc
 @freezed
 class DatabaseLayoutEvent with _$DatabaseLayoutEvent {
   const factory DatabaseLayoutEvent.initial() = _Initial;
+
   const factory DatabaseLayoutEvent.updateLayout(DatabaseLayoutPB layout) =
       _UpdateLayout;
 }

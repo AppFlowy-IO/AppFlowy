@@ -1392,6 +1392,7 @@
       "filterBy": "Filter by",
       "typeAValue": "Type a value...",
       "layout": "Layout",
+      "compactMode": "Compact mode",
       "databaseLayout": "Layout",
       "viewList": {
         "zero": "0 views",

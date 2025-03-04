@@ -62,6 +62,12 @@ Node pageMentionNode(String viewId) {
   );
 }
 
+class ReferenceState {
+  ReferenceState(this.isReference);
+
+  final bool isReference;
+}
+
 class MentionPageBlock extends StatefulWidget {
   const MentionPageBlock({
     super.key,

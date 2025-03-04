@@ -16,6 +16,7 @@ class DesktopRowDetailRelationCellSkin extends IEditableRelationCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     RelationCellBloc bloc,
     RelationCellState state,
     PopoverController popoverController,

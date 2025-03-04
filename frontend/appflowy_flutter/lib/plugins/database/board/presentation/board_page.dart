@@ -285,6 +285,9 @@ class _BoardContentState extends State<_BoardContent> {
 
   @override
   Widget build(BuildContext context) {
+    final horizontalPadding =
+        context.read<DatabasePluginWidgetBuilderSize?>()?.horizontalPadding ??
+            0.0;
     return MultiBlocListener(
       listeners: [
         BlocListener<BoardBloc, BoardState>(
@@ -337,68 +340,85 @@ class _BoardContentState extends State<_BoardContent> {
           focusScope: widget.focusScope,
           child: Padding(
             padding: const EdgeInsets.only(top: 8.0),
-            child: AppFlowyBoard(
-              boardScrollController: scrollManager,
-              scrollController: scrollController,
-              controller: context.read<BoardBloc>().boardController,
-              groupConstraints: const BoxConstraints.tightFor(width: 256),
-              config: config,
-              leading: HiddenGroupsColumn(margin: config.groupHeaderPadding),
-              trailing: context
-                          .read<BoardBloc>()
-                          .groupingFieldType
-                          ?.canCreateNewGroup ??
-                      false
-                  ? BoardTrailing(scrollController: scrollController)
-                  : const HSpace(40),
-              headerBuilder: (_, groupData) => BlocProvider.value(
-                value: context.read<BoardBloc>(),
-                child: BoardColumnHeader(
-                  databaseController: databaseController,
-                  groupData: groupData,
-                  margin: config.groupHeaderPadding,
-                ),
-              ),
-              footerBuilder: (_, groupData) => MultiBlocProvider(
-                providers: [
-                  BlocProvider.value(value: context.read<BoardBloc>()),
-                  BlocProvider.value(value: context.read<BoardActionsCubit>()),
-                ],
-                child: BoardColumnFooter(
-                  columnData: groupData,
-                  boardConfig: config,
-                  scrollManager: scrollManager,
-                ),
-              ),
-              cardBuilder: (context, column, columnItem) => MultiBlocProvider(
-                key: ValueKey("board_card_${column.id}_${columnItem.id}"),
-                providers: [
-                  BlocProvider<BoardBloc>.value(
+            child: ValueListenableBuilder(
+              valueListenable: databaseController.compactModeNotifier,
+              builder: (context, compactMode, _) {
+                return AppFlowyBoard(
+                  boardScrollController: scrollManager,
+                  scrollController: scrollController,
+                  shrinkWrap: widget.shrinkWrap,
+                  controller: context.read<BoardBloc>().boardController,
+                  groupConstraints:
+                      BoxConstraints.tightFor(width: compactMode ? 196 : 256),
+                  config: config,
+                  leading: HiddenGroupsColumn(
+                    shrinkWrap: widget.shrinkWrap,
+                    margin: config.groupHeaderPadding +
+                        EdgeInsets.only(
+                          left: widget.shrinkWrap ? horizontalPadding : 0.0,
+                        ),
+                  ),
+                  trailing: context
+                              .read<BoardBloc>()
+                              .groupingFieldType
+                              ?.canCreateNewGroup ??
+                          false
+                      ? BoardTrailing(scrollController: scrollController)
+                      : const HSpace(40),
+                  headerBuilder: (_, groupData) => BlocProvider.value(
                     value: context.read<BoardBloc>(),
+                    child: BoardColumnHeader(
+                      databaseController: databaseController,
+                      groupData: groupData,
+                      margin: config.groupHeaderPadding,
+                    ),
                   ),
-                  BlocProvider.value(
-                    value: context.read<BoardActionsCubit>(),
-                  ),
-                  BlocProvider(
-                    create: (_) => ViewLockStatusBloc(view: widget.view)
-                      ..add(ViewLockStatusEvent.initial()),
-                  ),
-                ],
-                child: BlocBuilder<ViewLockStatusBloc, ViewLockStatusState>(
-                  builder: (context, state) {
-                    return IgnorePointer(
-                      ignoring: state.isLocked,
-                      child: _BoardCard(
-                        afGroupData: column,
-                        groupItem: columnItem as GroupItem,
-                        boardConfig: config,
-                        notifier: widget.focusScope,
-                        cellBuilder: cellBuilder,
+                  footerBuilder: (_, groupData) => MultiBlocProvider(
+                    providers: [
+                      BlocProvider.value(value: context.read<BoardBloc>()),
+                      BlocProvider.value(
+                        value: context.read<BoardActionsCubit>(),
                       ),
-                    );
-                  },
-                ),
-              ),
+                    ],
+                    child: BoardColumnFooter(
+                      columnData: groupData,
+                      boardConfig: config,
+                      scrollManager: scrollManager,
+                    ),
+                  ),
+                  cardBuilder: (context, column, columnItem) =>
+                      MultiBlocProvider(
+                    key: ValueKey("board_card_${column.id}_${columnItem.id}"),
+                    providers: [
+                      BlocProvider<BoardBloc>.value(
+                        value: context.read<BoardBloc>(),
+                      ),
+                      BlocProvider.value(
+                        value: context.read<BoardActionsCubit>(),
+                      ),
+                      BlocProvider(
+                        create: (_) => ViewLockStatusBloc(view: widget.view)
+                          ..add(ViewLockStatusEvent.initial()),
+                      ),
+                    ],
+                    child: BlocBuilder<ViewLockStatusBloc, ViewLockStatusState>(
+                      builder: (context, state) {
+                        return IgnorePointer(
+                          ignoring: state.isLocked,
+                          child: _BoardCard(
+                            afGroupData: column,
+                            groupItem: columnItem as GroupItem,
+                            boardConfig: config,
+                            notifier: widget.focusScope,
+                            cellBuilder: cellBuilder,
+                            compactMode: compactMode,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ),
@@ -560,6 +580,7 @@ class _BoardCard extends StatefulWidget {
     required this.boardConfig,
     required this.cellBuilder,
     required this.notifier,
+    required this.compactMode,
   });
 
   final AppFlowyGroupData afGroupData;
@@ -567,6 +588,7 @@ class _BoardCard extends StatefulWidget {
   final AppFlowyBoardConfig boardConfig;
   final CardCellBuilder cellBuilder;
   final BoardFocusScope notifier;
+  final bool compactMode;
 
   @override
   State<_BoardCard> createState() => _BoardCardState();
@@ -653,15 +675,21 @@ class _BoardCardState extends State<_BoardCard> {
 
             return previousContainsFocus != currentContainsFocus;
           },
-          builder: (context, focusedItems, child) => Container(
-            margin: widget.boardConfig.cardMargin,
-            decoration: _makeBoxDecoration(
-              context,
-              groupData.group.groupId,
-              widget.groupItem.id,
-            ),
-            child: child,
-          ),
+          builder: (context, focusedItems, child) {
+            final cardMargin = widget.boardConfig.cardMargin;
+            final margin = widget.compactMode
+                ? cardMargin - EdgeInsets.symmetric(horizontal: 2)
+                : cardMargin;
+            return Container(
+              margin: margin,
+              decoration: _makeBoxDecoration(
+                context,
+                groupData.group.groupId,
+                widget.groupItem.id,
+              ),
+              child: child,
+            );
+          },
           child: RowCard(
             fieldController: databaseController.fieldController,
             rowMeta: rowMeta,

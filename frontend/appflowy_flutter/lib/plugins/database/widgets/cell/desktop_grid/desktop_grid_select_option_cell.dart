@@ -15,6 +15,7 @@ class DesktopGridSelectOptionCellSkin extends IEditableSelectOptionCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     SelectOptionCellBloc bloc,
     PopoverController popoverController,
   ) {
@@ -35,63 +36,92 @@ class DesktopGridSelectOptionCellSkin extends IEditableSelectOptionCellSkin {
           return Align(
             alignment: AlignmentDirectional.centerStart,
             child: state.wrap
-                ? _buildWrapOptions(context, state.selectedOptions)
-                : _buildNoWrapOptions(context, state.selectedOptions),
+                ? _buildWrapOptions(
+                    context,
+                    state.selectedOptions,
+                    compactModeNotifier,
+                  )
+                : _buildNoWrapOptions(
+                    context,
+                    state.selectedOptions,
+                    compactModeNotifier,
+                  ),
           );
         },
       ),
     );
   }
 
-  Widget _buildWrapOptions(BuildContext context, List<SelectOptionPB> options) {
-    return Padding(
-      padding: GridSize.cellContentInsets,
-      child: Wrap(
-        runSpacing: 4,
-        children: options.map(
-          (option) {
-            return Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: SelectOptionTag(
-                option: option,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 4,
-                  horizontal: 8,
-                ),
-              ),
-            );
-          },
-        ).toList(),
-      ),
+  Widget _buildWrapOptions(
+    BuildContext context,
+    List<SelectOptionPB> options,
+    ValueNotifier<bool> compactModeNotifier,
+  ) {
+    return ValueListenableBuilder(
+      valueListenable: compactModeNotifier,
+      builder: (context, compactMode, _) {
+        final padding = compactMode
+            ? GridSize.compactCellContentInsets
+            : GridSize.cellContentInsets;
+        return Padding(
+          padding: padding,
+          child: Wrap(
+            runSpacing: 4,
+            children: options.map(
+              (option) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: SelectOptionTag(
+                    option: option,
+                    padding: EdgeInsets.symmetric(
+                      vertical: compactMode ? 2 : 4,
+                      horizontal: 8,
+                    ),
+                  ),
+                );
+              },
+            ).toList(),
+          ),
+        );
+      },
     );
   }
 
   Widget _buildNoWrapOptions(
     BuildContext context,
     List<SelectOptionPB> options,
+    ValueNotifier<bool> compactModeNotifier,
   ) {
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
       scrollDirection: Axis.horizontal,
-      child: Padding(
-        padding: GridSize.cellContentInsets,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: options.map(
-            (option) {
-              return Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: SelectOptionTag(
-                  option: option,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 1,
-                    horizontal: 8,
-                  ),
-                ),
-              );
-            },
-          ).toList(),
-        ),
+      child: ValueListenableBuilder(
+        valueListenable: compactModeNotifier,
+        builder: (context, compactMode, _) {
+          final padding = compactMode
+              ? GridSize.compactCellContentInsets
+              : GridSize.cellContentInsets;
+          return Padding(
+            padding: padding,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: options.map(
+                (option) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: SelectOptionTag(
+                      option: option,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 1,
+                        horizontal: 8,
+                      ),
+                    ),
+                  );
+                },
+              ).toList(),
+            ),
+          );
+        },
       ),
     );
   }

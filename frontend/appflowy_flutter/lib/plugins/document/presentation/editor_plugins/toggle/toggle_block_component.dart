@@ -1,8 +1,10 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 class ToggleListBlockKeys {
@@ -172,6 +174,7 @@ class _ToggleListBlockComponentWidgetState
       );
 
   bool get collapsed => node.attributes[ToggleListBlockKeys.collapsed] ?? false;
+
   int? get level => node.attributes[ToggleListBlockKeys.level] as int?;
 
   @override
@@ -194,12 +197,16 @@ class _ToggleListBlockComponentWidgetState
               color: backgroundColor,
             ),
           ),
-        NestedListWidget(
-          indentPadding: indentPadding,
-          child: buildComponent(context),
-          children: editorState.renderer.buildList(
-            context,
-            widget.node.children,
+        Provider(
+          create: (context) =>
+              DatabasePluginWidgetBuilderSize(horizontalPadding: 0.0),
+          child: NestedListWidget(
+            indentPadding: indentPadding,
+            child: buildComponent(context),
+            children: editorState.renderer.buildList(
+              context,
+              widget.node.children,
+            ),
           ),
         ),
       ],

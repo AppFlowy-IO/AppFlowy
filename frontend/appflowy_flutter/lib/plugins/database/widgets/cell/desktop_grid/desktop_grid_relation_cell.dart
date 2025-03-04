@@ -17,6 +17,7 @@ class DesktopGridRelationCellSkin extends IEditableRelationCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     RelationCellBloc bloc,
     RelationCellState state,
     PopoverController popoverController,
@@ -39,9 +40,14 @@ class DesktopGridRelationCellSkin extends IEditableRelationCellSkin {
       },
       child: Align(
         alignment: AlignmentDirectional.centerStart,
-        child: state.wrap
-            ? _buildWrapRows(context, state.rows)
-            : _buildNoWrapRows(context, state.rows),
+        child: ValueListenableBuilder(
+          valueListenable: compactModeNotifier,
+          builder: (context, compactMode, _) {
+            return state.wrap
+                ? _buildWrapRows(context, state.rows, compactMode)
+                : _buildNoWrapRows(context, state.rows, compactMode);
+          },
+        ),
       ),
     );
   }
@@ -49,9 +55,12 @@ class DesktopGridRelationCellSkin extends IEditableRelationCellSkin {
   Widget _buildWrapRows(
     BuildContext context,
     List<RelatedRowDataPB> rows,
+    bool compactMode,
   ) {
     return Padding(
-      padding: GridSize.cellContentInsets,
+      padding: compactMode
+          ? GridSize.compactCellContentInsets
+          : GridSize.cellContentInsets,
       child: Wrap(
         runSpacing: 4,
         spacing: 4.0,
@@ -73,6 +82,7 @@ class DesktopGridRelationCellSkin extends IEditableRelationCellSkin {
   Widget _buildNoWrapRows(
     BuildContext context,
     List<RelatedRowDataPB> rows,
+    bool compactMode,
   ) {
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),

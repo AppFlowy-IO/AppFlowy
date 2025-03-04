@@ -15,6 +15,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import 'editor_plugins/page_block/custom_page_block_component.dart';
+
 /// A global configuration for the editor.
 class EditorGlobalConfiguration {
   /// Whether to enable the drag menu in the editor.
@@ -215,6 +217,9 @@ void _customBlockOptionActions(
         } else {
           top += 2.0;
         }
+        if (overflowTypes.contains(type)) {
+          top = top / 2;
+        }
         return ValueListenableBuilder(
           valueListenable: EditorGlobalConfiguration.enableDragMenu,
           builder: (_, enableDragMenu, child) {
@@ -268,7 +273,7 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
   bool alwaysDistributeSimpleTableColumnWidths = false,
 }) {
   final customBlockComponentBuilderMap = {
-    PageBlockKeys.type: PageBlockComponentBuilder(),
+    PageBlockKeys.type: CustomPageBlockComponentBuilder(),
     ParagraphBlockKeys.type: _buildParagraphBlockComponentBuilder(
       context,
       configuration,

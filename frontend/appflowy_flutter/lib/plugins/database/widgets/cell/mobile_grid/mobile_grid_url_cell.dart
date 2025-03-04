@@ -13,6 +13,7 @@ class MobileGridURLCellSkin extends IEditableURLCellSkin {
   Widget build(
     BuildContext context,
     CellContainerNotifier cellContainerNotifier,
+    ValueNotifier<bool> compactModeNotifier,
     URLCellBloc bloc,
     FocusNode focusNode,
     TextEditingController textEditingController,

@@ -18,7 +18,7 @@ dependencies:
   appflowy_board:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
-      ref: 5517c8704c0dbeaeda5601e9baadb4cc2b29990d
+      ref: e8317c0d1af8d23dc5707b02ea43864536b6de91
   appflowy_editor:
   appflowy_editor_plugins:
   appflowy_popover:
@@ -135,6 +135,7 @@ dependencies:
   synchronized: ^3.1.0+1
   table_calendar: ^3.0.9
   time: ^2.1.3
+  event_bus: ^2.0.1
 
   toastification: ^2.0.0
   universal_platform: ^1.1.0

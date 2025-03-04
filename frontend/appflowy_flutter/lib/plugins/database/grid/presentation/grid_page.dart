@@ -298,6 +298,7 @@ class _GridPageContentState extends State<GridPageContent> {
         _GridHeader(
           headerScrollController: headerScrollController,
           editable: !context.read<ViewLockStatusBloc>().state.isLocked,
+          shrinkWrap: widget.shrinkWrap,
         ),
         _GridRows(
           viewId: widget.view.id,
@@ -313,10 +314,12 @@ class _GridHeader extends StatelessWidget {
   const _GridHeader({
     required this.headerScrollController,
     required this.editable,
+    required this.shrinkWrap,
   });
 
   final ScrollController headerScrollController;
   final bool editable;
+  final bool shrinkWrap;
 
   @override
   Widget build(BuildContext context) {
@@ -324,6 +327,7 @@ class _GridHeader extends StatelessWidget {
       builder: (_, state) => GridHeaderSliverAdaptor(
         viewId: state.viewId,
         anchorScrollController: headerScrollController,
+        shrinkWrap: shrinkWrap,
       ),
     );
 
@@ -416,12 +420,13 @@ class _GridRowsState extends State<_GridRows> {
             constraints: BoxConstraints(
               maxWidth: GridLayout.headerWidth(
                 context
-                    .read<DatabasePluginWidgetBuilderSize>()
-                    .horizontalPadding,
+                        .read<DatabasePluginWidgetBuilderSize>()
+                        .horizontalPadding *
+                    3,
                 context.read<GridBloc>().state.fields,
               ),
             ),
-            child: _renderList(context),
+            child: _shrinkWrapRenderList(context),
           ),
         ),
       );
@@ -452,9 +457,31 @@ class _GridRowsState extends State<_GridRows> {
     return Flexible(child: child);
   }
 
+  Widget _shrinkWrapRenderList(BuildContext context) {
+    final state = context.read<GridBloc>().state;
+    final horizontalPadding =
+        context.read<DatabasePluginWidgetBuilderSize?>()?.horizontalPadding ??
+            0.0;
+    return ListView(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+      children: [
+        widget.shrinkWrap
+            ? _reorderableListView(state)
+            : Expanded(child: _reorderableListView(state)),
+        if (showFloatingCalculations && !widget.shrinkWrap) ...[
+          _PositionedCalculationsRow(
+            viewId: widget.viewId,
+            isAtBottom: isAtBottom,
+          ),
+        ],
+      ],
+    );
+  }
+
   Widget _renderList(BuildContext context) {
     final state = context.read<GridBloc>().state;
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
