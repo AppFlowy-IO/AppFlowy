@@ -1,43 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>io.appflowy.appflowy</id>
-
+  <id>io.appflowy.AppFlowy</id>
+  
   <name>AppFlowy</name>
-  <summary>Open Source Notion Alternative</summary>
-
+  <summary>Open Source  Notion Alternative</summary>
+  
   <metadata_license>CC-BY-4.0</metadata_license>
   <project_license>AGPL-3.0-only</project_license>
-
+  
   <description>
     <p>
-      # Built for teams that need more control and flexibility ## 100% data control You can host
-      AppFlowy wherever you want; no vendor lock-in.
+      # Built for teams that need more control and flexibility ## 100% data control You can host AppFlowy wherever you want; no vendor lock-in.
     </p>
     <p>
       ## Unlimited customizations Design and modify AppFlowy your way with an open core codebase.
     </p>
     <p>
-      ## One codebase supporting multiple platforms AppFlowy is built with Flutter and Rust. What
-      does this mean? Faster development, better native experience, and more reliable performance.
+      ## One codebase supporting multiple platforms AppFlowy is built with Flutter and Rust. What does this mean? Faster development, better native experience, and more reliable performance.
     </p>
     <p>
-      # Built for individuals who care about data security and mobile experience ## 100% control of
-      your data Download and install AppFlowy on your local machine. You own and control your
-      personal data.
+      # Built for individuals who care about data security and mobile experience ## 100% control of your data Download and install AppFlowy on your local machine. You own and control your personal data.
     </p>
     <p>
-      ## Extensively extensible For those with no coding experience, AppFlowy enables you to create
-      apps that suit your needs. It&apos;s built on a community-driven toolbox, including templates,
-      plugins, themes, and more.
+      ## Extensively extensible For those with no coding experience, AppFlowy enables you to create apps that suit your needs. It&apos;s built on a community-driven toolbox, including templates, plugins, themes, and more.
     </p>
     <p>
-      ## Truly native experience Faster, more stable with support for offline mode. It&apos;s also
-      better integrated with different devices. Moreover, AppFlowy enables users to access features
-      and possibilities not available on the web.
+      ## Truly native experience Faster, more stable with support for offline mode. It&apos;s also better integrated with different devices. Moreover, AppFlowy enables users to access features and possibilities not available on the web.
     </p>
   </description>
-
-  <launchable type="desktop-id">io.appflowy.appflowy.desktop</launchable>
+  
+  <launchable type="desktop-id">io.appflowy.AppFlowy.desktop</launchable>
   <screenshots>
     <screenshot type="default">
       <image>https://github.com/AppFlowy-IO/appflowy/raw/main/doc/imgs/welcome.png</image>

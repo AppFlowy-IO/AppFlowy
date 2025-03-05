@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-if [ -e /usr/local/bin/appflowy ]; then
+if [ -e /usr/local/bin/AppFlowy ]; then
     echo "Symlink already exists, skipping."
 else
     echo "Creating Symlink in /usr/local/bin/appflowy"
-    ln -s /opt/appflowy/appflowy /usr/local/bin/appflowy
+    ln -s /opt/AppFlowy/AppFlowy /usr/local/bin/AppFlowy
 fi

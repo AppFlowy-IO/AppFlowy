@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
 Name=AppFlowy
-Icon=io.appflowy.appflowy
-Exec=appflowy %U
+Icon=io.appflowy.AppFlowy
+Exec=AppFlowy %U
 Categories=Network;Productivity;
 Keywords=Notes
 DBusActivatable=true

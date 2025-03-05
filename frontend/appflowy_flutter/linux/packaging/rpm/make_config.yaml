@@ -26,8 +26,7 @@ categories:
 
 startup_notify: true
 
-supported_mime_type:
-  - x-scheme-handler/appflowy-flutter
+supportedMimeType: x-scheme-handler/appflowy-flutter
 
 requires:
   - libnotify

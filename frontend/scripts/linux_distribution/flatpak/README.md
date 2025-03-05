@@ -1,1 +1,1 @@
-Please refer to https://github.com/flathub/io.appflowy.appflowy repo.
+Please refer to https://github.com/flathub/io.appflowy.AppFlowy repo.
