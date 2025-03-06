@@ -400,7 +400,7 @@ class LockedPageStatus extends StatelessWidget {
             side: BorderSide(color: color),
             borderRadius: BorderRadius.circular(6),
           ),
-          color: Colors.white.withValues(alpha: 0.75),
+          color: context.lockedPageButtonBackground,
         ),
         child: FlowyButton(
           useIntrinsicWidth: true,
@@ -440,7 +440,7 @@ class ReLockedPageStatus extends StatelessWidget {
           side: BorderSide(color: iconColor),
           borderRadius: BorderRadius.circular(6),
         ),
-        color: Colors.white.withValues(alpha: 0.75),
+        color: context.lockedPageButtonBackground,
       ),
       child: FlowyButton(
         useIntrinsicWidth: true,
@@ -463,5 +463,14 @@ class ReLockedPageStatus extends StatelessWidget {
             ),
       ),
     );
+  }
+}
+
+extension on BuildContext {
+  Color get lockedPageButtonBackground {
+    if (Theme.of(this).brightness == Brightness.light) {
+      return Colors.white.withValues(alpha: 0.75);
+    }
+    return Color(0xB21B1A22);
   }
 }
