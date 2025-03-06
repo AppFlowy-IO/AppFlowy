@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
@@ -295,32 +297,39 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       end: cursorPosition,
     ).normalized;
 
-    final text = await editorState.getMarkdownInSelection(selection);
+    String text = await editorState.getMarkdownInSelection(selection);
     if (text.isEmpty) {
       if (state is! ReadyAiWriterState) {
         return;
       }
-      final readyState = state as ReadyAiWriterState;
-      emit(
-        SingleShotAiWriterState(
-          command,
-          title: LocaleKeys.ai_continueWritingEmptyDocumentTitle.tr(),
-          description:
-              LocaleKeys.ai_continueWritingEmptyDocumentDescription.tr(),
-          onDismiss: () {
-            if (isImmediateRun) {
-              removeAiWriterNode(editorState, node);
-            }
-          },
-        ),
-      );
-      emit(readyState);
-      return;
+      final view = await ViewBackendService.getView(documentId).toNullable();
+      if (view == null ||
+          view.name.isEmpty ||
+          view.name == LocaleKeys.menuAppHeader_defaultNewPageName.tr()) {
+        final readyState = state as ReadyAiWriterState;
+        emit(
+          SingleShotAiWriterState(
+            command,
+            title: LocaleKeys.ai_continueWritingEmptyDocumentTitle.tr(),
+            description:
+                LocaleKeys.ai_continueWritingEmptyDocumentDescription.tr(),
+            onDismiss: () {
+              if (isImmediateRun) {
+                removeAiWriterNode(editorState, node);
+              }
+            },
+          ),
+        );
+        emit(readyState);
+        return;
+      } else {
+        text += view.name;
+      }
     }
 
     final stream = await _aiService.streamCompletion(
       objectId: documentId,
-      text: await editorState.getMarkdownInSelection(selection),
+      text: text,
       completionType: command.toCompletionType(),
       onStart: () async {
         final transaction = editorState.transaction;
