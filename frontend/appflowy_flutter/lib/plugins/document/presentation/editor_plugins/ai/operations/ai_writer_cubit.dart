@@ -186,11 +186,14 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     await removeAiWriterNode(editorState, getAiWriterNode());
   }
 
-  void runResponseAction(SuggestionAction action) async {
+  void runResponseAction(
+    SuggestionAction action, [
+    PredefinedFormat? predefinedFormat,
+  ]) async {
     if (action case SuggestionAction.rewrite || SuggestionAction.tryAgain) {
       await _textRobot.discard();
       _textRobot.reset();
-      runCommand(state.command, null, isRetry: true);
+      runCommand(state.command, predefinedFormat, isRetry: true);
       return;
     }
 

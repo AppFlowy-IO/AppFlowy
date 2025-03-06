@@ -280,7 +280,7 @@ class OverlayContent extends StatelessWidget {
                     hasSelection: hasSelection,
                   ),
                   onTap: (action) {
-                    context.read<AiWriterCubit>().runResponseAction(action);
+                    _onSelectSuggestionAction(context, action);
                   },
                 ),
               ),
@@ -346,9 +346,7 @@ class OverlayContent extends StatelessWidget {
                                   hasSelection: hasSelection,
                                 ),
                                 onTap: (action) {
-                                  context
-                                      .read<AiWriterCubit>()
-                                      .runResponseAction(action);
+                                  _onSelectSuggestionAction(context, action);
                                 },
                               ),
                             ],
@@ -538,6 +536,18 @@ class OverlayContent extends StatelessWidget {
           ],
       };
     }
+  }
+
+  void _onSelectSuggestionAction(
+    BuildContext context,
+    SuggestionAction action,
+  ) {
+    final predefinedFormat =
+        context.read<AIPromptInputBloc>().state.predefinedFormat;
+    context.read<AiWriterCubit>().runResponseAction(
+          action,
+          predefinedFormat,
+        );
   }
 }
 
