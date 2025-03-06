@@ -1,7 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_appearance_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
-import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/text_field/text_filed_with_metric_lines.dart';
 import 'package:appflowy/workspace/application/appearance_defaults.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
@@ -93,7 +92,6 @@ class _InnerCoverTitleState extends State<_InnerCoverTitle> {
       builder: (context, state) {
         final appearance = context.read<DocumentAppearanceCubit>().state;
         return Container(
-          padding: EditorStyleCustomizer.documentPaddingWithOptionMenu,
           constraints: BoxConstraints(maxWidth: width),
           child: Theme(
             data: Theme.of(context).copyWith(
