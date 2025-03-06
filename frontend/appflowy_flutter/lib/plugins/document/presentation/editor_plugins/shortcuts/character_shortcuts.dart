@@ -44,6 +44,7 @@ List<CharacterShortcutEvent> buildCharacterShortcutEvents(
 
     customFormatGreaterEqual,
     customFormatDashGreater,
+    customFormatDoubleHyphenEmDash,
 
     customFormatNumberToNumberedList,
     customFormatSignToHeading,
@@ -55,6 +56,7 @@ List<CharacterShortcutEvent> buildCharacterShortcutEvents(
           formatGreaterEqual, // Overridden by customFormatGreaterEqual
           formatNumberToNumberedList, // Overridden by customFormatNumberToNumberedList
           formatSignToHeading, // Overridden by customFormatSignToHeading
+          formatDoubleHyphenEmDash, // Overridden by customFormatDoubleHyphenEmDash
         ].contains(shortcut),
       ),
 
