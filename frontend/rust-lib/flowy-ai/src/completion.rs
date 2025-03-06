@@ -94,7 +94,7 @@ impl CompletionTask {
           CompletionTypePB::MakeLonger => CompletionType::MakeLonger,
           CompletionTypePB::ContinueWriting => CompletionType::ContinueWriting,
           CompletionTypePB::ExplainSelected => CompletionType::Explain,
-          _ => CompletionType::ContinueWriting,
+          CompletionTypePB::UserQuestion => CompletionType::UserQuestion,
         };
 
         let _ = sink.send("start:".to_string()).await;
