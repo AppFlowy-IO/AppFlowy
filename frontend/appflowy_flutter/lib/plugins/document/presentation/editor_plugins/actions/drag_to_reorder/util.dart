@@ -36,6 +36,15 @@ Future<void> dragToMoveNode(
     return;
   }
 
+  if (shouldIgnoreDragTarget(
+    editorState: editorState,
+    dragNode: node,
+    targetPath: acceptedPath,
+  )) {
+    Log.info('Drop ignored: node($node, ${node.path}), path($acceptedPath)');
+    return;
+  }
+
   final position = getDragAreaPosition(context, targetNode, dragOffset);
   if (position == null) {
     Log.info('position is null');
@@ -182,6 +191,7 @@ Future<void> dragToMoveNode(
   Node dragTargetNode,
   Offset dragOffset,
 ) {
+  debugPrint('getDragAreaPosition - dragTargetNode: ${dragTargetNode.type}');
   final selectable = dragTargetNode.selectable;
   final renderBox = selectable?.context.findRenderObject() as RenderBox?;
   if (selectable == null || renderBox == null) {
