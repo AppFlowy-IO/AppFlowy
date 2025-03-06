@@ -32,7 +32,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
             isFirstRun: true,
           ),
         ) {
-    editorState.service.keyboardService?.disable();
+    editorState.service.keyboardService?.disableShortcuts();
   }
 
   final String documentId;
@@ -49,7 +49,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
   @override
   Future<void> close() async {
     selectedSourcesNotifier.dispose();
-    editorState.service.keyboardService?.enable();
+    editorState.service.keyboardService?.enableShortcuts();
     await super.close();
   }
 

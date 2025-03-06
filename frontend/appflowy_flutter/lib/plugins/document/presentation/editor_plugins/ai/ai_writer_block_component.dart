@@ -163,11 +163,8 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
                   children: [
                     BlocBuilder<AiWriterCubit, AiWriterState>(
                       builder: (context, state) {
-                        final hitTestBehavior = state is GeneratingAiWriterState
-                            ? HitTestBehavior.opaque
-                            : HitTestBehavior.translucent;
                         return GestureDetector(
-                          behavior: hitTestBehavior,
+                          behavior: HitTestBehavior.opaque,
                           onTap: () => onTapOutside(),
                           onTapDown: (_) => onTapOutside(),
                         );

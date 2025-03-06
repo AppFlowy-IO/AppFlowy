@@ -223,7 +223,6 @@ void _insertAiNode(EditorState editorState, AiWriterCommand command) async {
         command: command,
       ),
     )
-    ..afterSelection = selection
     ..selectionExtraInfo = {selectionExtraInfoDisableToolbar: true};
 
   await editorState.apply(
@@ -232,6 +231,7 @@ void _insertAiNode(EditorState editorState, AiWriterCommand command) async {
       recordUndo: false,
       inMemoryUpdate: true,
     ),
+    withUpdateSelection: false,
   );
 }
 
