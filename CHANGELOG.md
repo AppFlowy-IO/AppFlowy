@@ -1,4 +1,17 @@
 # Release Notes
+## Version 0.8.6 - 06/03/2025
+### Bug Fixes
+- Fix the incorrect title positioning when adjusting the document width setting
+- Enhance the user experience of the icon color picker for smoother interactions
+- Add missing icons to the database to ensure completeness and consistency
+- Resolve the issue with links not functioning correctly on Linux systems
+- Improve the outline feature to work seamlessly within columns
+- Center the bulleted list icon within columns for better visual alignment
+- Enable dragging blocks under tables in the second column to enhance flexibility
+- Disable the AI writer feature within tables to prevent conflicts and improve usability
+- Automatically enable the header row when converting content from Markdown to ensure proper formatting
+- Use the "Undo" function to revert the auto-formatting
+
 ## Version 0.8.5 - 04/03/2025
 ### New Features
 - Columns in Documents: Arrange content side by side using drag-and-drop or the slash menu
