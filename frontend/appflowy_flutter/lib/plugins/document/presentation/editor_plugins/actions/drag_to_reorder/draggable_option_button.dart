@@ -108,6 +108,12 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
           }
         }
 
+        // return simple table block if the target node is in a simple table block
+        final parentSimpleTableNode = targetNode.parentTableNode;
+        if (parentSimpleTableNode != null) {
+          return parentSimpleTableNode;
+        }
+
         return targetNode;
       },
       builder: (context, data) {
@@ -160,9 +166,16 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
           }
         }
 
+        // return simple table block if the target node is in a simple table block
+        final parentSimpleTableNode = targetNode.parentTableNode;
+        if (parentSimpleTableNode != null) {
+          return parentSimpleTableNode;
+        }
+
         return targetNode;
       },
     );
+
     dragToMoveNode(
       context,
       node: widget.blockComponentContext.node,

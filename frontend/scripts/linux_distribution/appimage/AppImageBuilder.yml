@@ -11,11 +11,11 @@ script:
 AppDir:
   path: ./AppDir
   app_info:
-    id: io.appflowy.appflowy
+    id: io.appflowy.AppFlowy
     name: AppFlowy
     icon: appflowy.svg
     version: [CHANGE_THIS]
-    exec: appflowy
+    exec: AppFlowy
     exec_args: $@
   apt:
     arch:
