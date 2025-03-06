@@ -163,11 +163,8 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
                   children: [
                     BlocBuilder<AiWriterCubit, AiWriterState>(
                       builder: (context, state) {
-                        final hitTestBehavior = state is GeneratingAiWriterState
-                            ? HitTestBehavior.opaque
-                            : HitTestBehavior.translucent;
                         return GestureDetector(
-                          behavior: hitTestBehavior,
+                          behavior: HitTestBehavior.opaque,
                           onTap: () => onTapOutside(),
                           onTapDown: (_) => onTapOutside(),
                         );
@@ -280,7 +277,7 @@ class OverlayContent extends StatelessWidget {
                     hasSelection: hasSelection,
                   ),
                   onTap: (action) {
-                    context.read<AiWriterCubit>().runResponseAction(action);
+                    _onSelectSuggestionAction(context, action);
                   },
                 ),
               ),
@@ -346,9 +343,7 @@ class OverlayContent extends StatelessWidget {
                                   hasSelection: hasSelection,
                                 ),
                                 onTap: (action) {
-                                  context
-                                      .read<AiWriterCubit>()
-                                      .runResponseAction(action);
+                                  _onSelectSuggestionAction(context, action);
                                 },
                               ),
                             ],
@@ -538,6 +533,18 @@ class OverlayContent extends StatelessWidget {
           ],
       };
     }
+  }
+
+  void _onSelectSuggestionAction(
+    BuildContext context,
+    SuggestionAction action,
+  ) {
+    final predefinedFormat =
+        context.read<AIPromptInputBloc>().state.predefinedFormat;
+    context.read<AiWriterCubit>().runResponseAction(
+          action,
+          predefinedFormat,
+        );
   }
 }
 

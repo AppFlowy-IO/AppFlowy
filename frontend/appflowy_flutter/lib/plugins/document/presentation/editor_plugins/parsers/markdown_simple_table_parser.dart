@@ -106,6 +106,7 @@ class MarkdownSimpleTableParser extends CustomMarkdownParser {
     return [
       simpleTableBlockNode(
         children: rows,
+        enableHeaderRow: true,
         columnWidths: UniversalPlatform.isMobile || tableWidth == null
             ? null
             : {for (var i = 0; i < th.length; i++) i.toString(): tableWidth!},

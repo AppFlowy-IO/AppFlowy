@@ -81,6 +81,7 @@ class DatabaseLayoutSelector extends StatelessWidget {
                         builder: (context, compactMode, child) {
                           return Toggle(
                             value: compactMode,
+                            duration: Duration.zero,
                             onChanged: (value) =>
                                 databaseController.setCompactMode(value),
                             padding: EdgeInsets.zero,
