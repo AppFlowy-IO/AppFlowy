@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:string_validator/string_validator.dart';
+import 'package:universal_platform/universal_platform.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 
 typedef OnFailureCallback = void Function(Uri uri);

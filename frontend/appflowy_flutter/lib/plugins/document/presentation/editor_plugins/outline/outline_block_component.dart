@@ -263,10 +263,13 @@ class OutlineItemWidget extends StatelessWidget {
         textDirection: textDirection,
         children: [
           HSpace(node.leftIndent),
-          Text(
-            node.outlineItemText,
-            textDirection: textDirection,
-            style: style,
+          Flexible(
+            child: Text(
+              node.outlineItemText,
+              textDirection: textDirection,
+              style: style,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
