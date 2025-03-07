@@ -205,9 +205,12 @@ void _customBlockOptionActions(
       );
 
       builder.actionTrailingBuilder = (context, state) {
-        // if (context.node.parent?.type == QuoteBlockKeys.type) {
-        //   return const QuoteIcon();
-        // }
+        if (context.node.parent?.type == QuoteBlockKeys.type) {
+          return const SizedBox(
+            width: 24,
+            height: 24,
+          );
+        }
         return const SizedBox.shrink();
       };
 
@@ -600,7 +603,7 @@ QuoteBlockComponentBuilder _buildQuoteBlockComponentBuilder(
         node: node,
         configuration: configuration,
       ),
-      indentPadding: (node, _) => EdgeInsets.zero,
+      indentPadding: (node, _) => EdgeInsets.only(),
     ),
   );
 }
