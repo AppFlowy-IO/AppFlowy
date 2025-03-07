@@ -47,7 +47,7 @@ CharacterShortcutEventHandler _insertNewLineHandler = (editorState) async {
       ),
     );
     await editorState.apply(transaction);
-  }
+  } else {}
 
   return true;
 };
