@@ -89,11 +89,9 @@ packages:
   appflowy_editor:
     dependency: "direct main"
     description:
-      path: "."
-      ref: e2c9713
-      resolved-ref: e2c9713104f00658c83ac7d1657e7a0fade171ad
-      url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
-    source: git
+      path: "/Users/lucas.xu/Desktop/appflowy-editor"
+      relative: false
+    source: path
     version: "5.1.0"
   appflowy_editor_plugins:
     dependency: "direct main"
@@ -1583,10 +1581,10 @@ packages:
     dependency: transitive
     description:
       name: pdf
-      sha256: adbdec5bc84d20e6c8d67f9c64270aa64d1e9e1ed529f0fef7e7bc7e9400f894
+      sha256: "28eacad99bffcce2e05bba24e50153890ad0255294f4dd78a17075a2ba5c8416"
       url: "https://pub.dev"
     source: hosted
-    version: "3.11.2"
+    version: "3.11.3"
   percent_indicator:
     dependency: "direct main"
     description:
