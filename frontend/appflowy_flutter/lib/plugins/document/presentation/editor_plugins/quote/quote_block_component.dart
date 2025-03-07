@@ -113,9 +113,67 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
       layoutDirection: Directionality.maybeOf(context),
     );
 
-    Widget child = node.children.isEmpty
+    final Widget child = node.children.isEmpty
         ? buildComponent(context)
         : buildComponentWithChildren(context);
+
+    return child;
+  }
+
+  @override
+  Widget buildComponentWithChildren(BuildContext context) {
+    final textDirection = calculateTextDirection(
+      layoutDirection: Directionality.maybeOf(context),
+    );
+
+    Widget child = AppFlowyRichText(
+      key: forwardKey,
+      delegate: this,
+      node: widget.node,
+      editorState: editorState,
+      textAlign: alignment?.toTextAlign ?? textAlign,
+      placeholderText: placeholderText,
+      textSpanDecorator: (textSpan) => textSpan.updateTextStyle(
+        textStyleWithTextSpan(textSpan: textSpan),
+      ),
+      placeholderTextSpanDecorator: (textSpan) => textSpan.updateTextStyle(
+        placeholderTextStyleWithTextSpan(textSpan: textSpan),
+      ),
+      textDirection: textDirection,
+      cursorColor: editorState.editorStyle.cursorColor,
+      selectionColor: editorState.editorStyle.selectionColor,
+      cursorWidth: editorState.editorStyle.cursorWidth,
+    );
+
+    child = Stack(
+      children: [
+        Positioned.fill(
+          left: cachedLeft,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(6.0)),
+              color: backgroundColor,
+            ),
+          ),
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            child,
+            Padding(
+              padding: indentPadding,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: editorState.renderer.buildList(
+                  context,
+                  widget.node.children,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
 
     child = Container(
       width: double.infinity,
@@ -128,7 +186,7 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
           children: [
             widget.iconBuilder != null
                 ? widget.iconBuilder!(context, node)
-                : const _QuoteIcon(),
+                : const QuoteIcon(),
             Flexible(
               child: child,
             ),
@@ -170,31 +228,6 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
   }
 
   @override
-  Widget buildComponentWithChildren(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned.fill(
-          left: cachedLeft,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(6.0)),
-              color: backgroundColor,
-            ),
-          ),
-        ),
-        NestedListWidget(
-          indentPadding: indentPadding,
-          child: buildComponent(context, withBackgroundColor: false),
-          children: editorState.renderer.buildList(
-            context,
-            widget.node.children,
-          ),
-        ),
-      ],
-    );
-  }
-
-  @override
   Widget buildComponent(
     BuildContext context, {
     bool withBackgroundColor = true,
@@ -203,7 +236,7 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
       layoutDirection: Directionality.maybeOf(context),
     );
 
-    final Widget child = AppFlowyRichText(
+    Widget child = AppFlowyRichText(
       key: forwardKey,
       delegate: this,
       node: widget.node,
@@ -222,12 +255,63 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
       cursorWidth: editorState.editorStyle.cursorWidth,
     );
 
+    child = Container(
+      color: backgroundColor,
+      child: Padding(
+        key: blockComponentKey,
+        padding: padding,
+        child: child,
+      ),
+    );
+
+    if (widget.node.children.isEmpty) {
+      child = Container(
+        width: double.infinity,
+        alignment: alignment,
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            textDirection: textDirection,
+            children: [
+              widget.iconBuilder != null
+                  ? widget.iconBuilder!(context, node)
+                  : const QuoteIcon(),
+              Flexible(
+                child: child,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    child = BlockSelectionContainer(
+      node: node,
+      delegate: this,
+      listenable: editorState.selectionNotifier,
+      remoteSelection: editorState.remoteSelections,
+      blockColor: editorState.editorStyle.selectionColor,
+      supportTypes: const [
+        BlockSelectionType.block,
+      ],
+      child: child,
+    );
+
+    if (widget.showActions && widget.actionBuilder != null) {
+      child = BlockComponentActionWrapper(
+        node: node,
+        actionBuilder: widget.actionBuilder!,
+        child: child,
+      );
+    }
+
     return child;
   }
 }
 
-class _QuoteIcon extends StatelessWidget {
-  const _QuoteIcon();
+class QuoteIcon extends StatelessWidget {
+  const QuoteIcon({super.key});
 
   @override
   Widget build(BuildContext context) {

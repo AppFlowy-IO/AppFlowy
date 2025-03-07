@@ -204,6 +204,13 @@ void _customBlockOptionActions(
         ),
       );
 
+      builder.actionTrailingBuilder = (context, state) {
+        // if (context.node.parent?.type == QuoteBlockKeys.type) {
+        //   return const QuoteIcon();
+        // }
+        return const SizedBox.shrink();
+      };
+
       builder.actionBuilder = (context, state) {
         double top = builder.configuration.padding(context.node).top;
         final type = context.node.type;
