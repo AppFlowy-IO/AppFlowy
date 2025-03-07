@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 typedef QuoteBlockIconBuilder = Widget Function(
-    BuildContext context, Node node);
+  BuildContext context,
+  Node node,
+);
 
 class QuoteBlockKeys {
   const QuoteBlockKeys._();
@@ -86,7 +88,8 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
         BlockComponentConfigurable,
         BlockComponentBackgroundColorMixin,
         BlockComponentTextDirectionMixin,
-        BlockComponentAlignMixin {
+        BlockComponentAlignMixin,
+        NestedBlockComponentStatefulWidgetMixin {
   @override
   final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
 
@@ -105,15 +108,16 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
   Node get node => widget.node;
 
   @override
-  late final editorState = Provider.of<EditorState>(context, listen: false);
-
-  @override
   Widget build(BuildContext context) {
     final textDirection = calculateTextDirection(
       layoutDirection: Directionality.maybeOf(context),
     );
 
-    Widget child = Container(
+    Widget child = node.children.isEmpty
+        ? buildComponent(context)
+        : buildComponentWithChildren(context);
+
+    child = Container(
       width: double.infinity,
       alignment: alignment,
       child: IntrinsicHeight(
@@ -126,25 +130,7 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
                 ? widget.iconBuilder!(context, node)
                 : const _QuoteIcon(),
             Flexible(
-              child: AppFlowyRichText(
-                key: forwardKey,
-                delegate: this,
-                node: widget.node,
-                editorState: editorState,
-                textAlign: alignment?.toTextAlign ?? textAlign,
-                placeholderText: placeholderText,
-                textSpanDecorator: (textSpan) => textSpan.updateTextStyle(
-                  textStyleWithTextSpan(textSpan: textSpan),
-                ),
-                placeholderTextSpanDecorator: (textSpan) =>
-                    textSpan.updateTextStyle(
-                  placeholderTextStyleWithTextSpan(textSpan: textSpan),
-                ),
-                textDirection: textDirection,
-                cursorColor: editorState.editorStyle.cursorColor,
-                selectionColor: editorState.editorStyle.selectionColor,
-                cursorWidth: editorState.editorStyle.cursorWidth,
-              ),
+              child: child,
             ),
           ],
         ),
@@ -182,6 +168,62 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
 
     return child;
   }
+
+  @override
+  Widget buildComponentWithChildren(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned.fill(
+          left: cachedLeft,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(6.0)),
+              color: backgroundColor,
+            ),
+          ),
+        ),
+        NestedListWidget(
+          indentPadding: indentPadding,
+          child: buildComponent(context, withBackgroundColor: false),
+          children: editorState.renderer.buildList(
+            context,
+            widget.node.children,
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget buildComponent(
+    BuildContext context, {
+    bool withBackgroundColor = true,
+  }) {
+    final textDirection = calculateTextDirection(
+      layoutDirection: Directionality.maybeOf(context),
+    );
+
+    final Widget child = AppFlowyRichText(
+      key: forwardKey,
+      delegate: this,
+      node: widget.node,
+      editorState: editorState,
+      textAlign: alignment?.toTextAlign ?? textAlign,
+      placeholderText: placeholderText,
+      textSpanDecorator: (textSpan) => textSpan.updateTextStyle(
+        textStyleWithTextSpan(textSpan: textSpan),
+      ),
+      placeholderTextSpanDecorator: (textSpan) => textSpan.updateTextStyle(
+        placeholderTextStyleWithTextSpan(textSpan: textSpan),
+      ),
+      textDirection: textDirection,
+      cursorColor: editorState.editorStyle.cursorColor,
+      selectionColor: editorState.editorStyle.selectionColor,
+      cursorWidth: editorState.editorStyle.cursorWidth,
+    );
+
+    return child;
+  }
 }
 
 class _QuoteIcon extends StatelessWidget {
@@ -194,10 +236,10 @@ class _QuoteIcon extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       constraints:
-          const BoxConstraints(minWidth: 26, minHeight: 22) * textScaleFactor,
-      padding: const EdgeInsets.only(right: 4.0),
+          const BoxConstraints(minWidth: 22, minHeight: 22) * textScaleFactor,
+      padding: const EdgeInsets.only(right: 6.0),
       child: Container(
-        width: 4 * textScaleFactor,
+        width: 3 * textScaleFactor,
         color: '#00BCF0'.tryToColor(),
       ),
     );
