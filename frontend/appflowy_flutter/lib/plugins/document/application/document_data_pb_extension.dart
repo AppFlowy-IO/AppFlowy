@@ -13,7 +13,6 @@ import 'package:appflowy_editor/appflowy_editor.dart'
         NodeIterator,
         NodeExternalValues,
         HeadingBlockKeys,
-        QuoteBlockKeys,
         NumberedListBlockKeys,
         BulletedListBlockKeys,
         blockComponentDelta;

@@ -6,7 +6,8 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/mo
 import 'package:appflowy/plugins/document/presentation/editor_plugins/code_block/code_block_copy_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart'
+    hide QuoteBlockComponentBuilder, quoteNode, QuoteBlockKeys;
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
@@ -202,6 +203,16 @@ void _customBlockOptionActions(
           vertical: 1,
         ),
       );
+
+      builder.actionTrailingBuilder = (context, state) {
+        if (context.node.parent?.type == QuoteBlockKeys.type) {
+          return const SizedBox(
+            width: 24,
+            height: 24,
+          );
+        }
+        return const SizedBox.shrink();
+      };
 
       builder.actionBuilder = (context, state) {
         double top = builder.configuration.padding(context.node).top;
@@ -592,6 +603,7 @@ QuoteBlockComponentBuilder _buildQuoteBlockComponentBuilder(
         node: node,
         configuration: configuration,
       ),
+      indentPadding: (node, _) => EdgeInsets.only(),
     ),
   );
 }
@@ -798,8 +810,14 @@ CalloutBlockComponentBuilder _buildCalloutBlockComponentBuilder(
         configuration: configuration,
         textSpan: textSpan,
       ),
+      indentPadding: (node, _) => EdgeInsets.only(left: 38),
     ),
-    inlinePadding: const EdgeInsets.symmetric(vertical: 8.0),
+    inlinePadding: (node) {
+      if (node.children.isEmpty) {
+        return const EdgeInsets.symmetric(vertical: 8.0);
+      }
+      return EdgeInsets.only(top: 8.0, bottom: 2.0);
+    },
     defaultColor: calloutBGColor,
   );
 }

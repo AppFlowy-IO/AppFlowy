@@ -1,7 +1,8 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_option_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart'
+    hide quoteNode, QuoteBlockKeys;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 

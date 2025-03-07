@@ -154,7 +154,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       InlineMathEquationKeys.formula,
     ]);
 
-    indentableBlockTypes.add(ToggleListBlockKeys.type);
+    indentableBlockTypes.addAll([
+      ToggleListBlockKeys.type,
+      CalloutBlockKeys.type,
+    ]);
     convertibleBlockTypes.addAll([
       ToggleListBlockKeys.type,
       CalloutBlockKeys.type,

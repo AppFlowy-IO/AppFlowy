@@ -9,7 +9,6 @@ import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import '../base/emoji_picker_button.dart';
@@ -80,7 +79,7 @@ class CalloutBlockComponentBuilder extends BlockComponentBuilder {
   });
 
   final Color defaultColor;
-  final EdgeInsets inlinePadding;
+  final EdgeInsets Function(Node node) inlinePadding;
 
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
@@ -100,8 +99,7 @@ class CalloutBlockComponentBuilder extends BlockComponentBuilder {
   }
 
   @override
-  BlockComponentValidate get validate =>
-      (node) => node.delta != null && node.children.isEmpty;
+  BlockComponentValidate get validate => (node) => node.delta != null;
 }
 
 // the main widget for rendering the callout block
@@ -117,7 +115,7 @@ class CalloutBlockComponentWidget extends BlockComponentStatefulWidget {
   });
 
   final Color defaultColor;
-  final EdgeInsets inlinePadding;
+  final EdgeInsets Function(Node node) inlinePadding;
 
   @override
   State<CalloutBlockComponentWidget> createState() =>
@@ -132,7 +130,8 @@ class _CalloutBlockComponentWidgetState
         BlockComponentConfigurable,
         BlockComponentTextDirectionMixin,
         BlockComponentAlignMixin,
-        BlockComponentBackgroundColorMixin {
+        BlockComponentBackgroundColorMixin,
+        NestedBlockComponentStatefulWidgetMixin {
   // the key used to forward focus to the richtext child
   @override
   final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
@@ -170,21 +169,45 @@ class _CalloutBlockComponentWidgetState
     try {
       result = EmojiIconData(FlowyIconType.values.byName(type), icon);
     } catch (e) {
-      Log.error(
-        'get emoji error with icon:[$icon], type:[$type] within alloutBlockComponentWidget',
+      Log.info(
+        'get emoji error with icon:[$icon], type:[$type] within calloutBlockComponentWidget',
         e,
       );
     }
     return result;
   }
 
-  // get access to the editor state via provider
   @override
-  late final editorState = Provider.of<EditorState>(context, listen: false);
+  Widget buildComponentWithChildren(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned.fill(
+          left: cachedLeft,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(6.0)),
+              color: backgroundColor,
+            ),
+          ),
+        ),
+        NestedListWidget(
+          indentPadding: indentPadding.copyWith(bottom: 8),
+          child: buildComponent(context, withBackgroundColor: false),
+          children: editorState.renderer.buildList(
+            context,
+            widget.node.children,
+          ),
+        ),
+      ],
+    );
+  }
 
   // build the callout block widget
   @override
-  Widget build(BuildContext context) {
+  Widget buildComponent(
+    BuildContext context, {
+    bool withBackgroundColor = true,
+  }) {
     final textDirection = calculateTextDirection(
       layoutDirection: Directionality.maybeOf(context),
     );
@@ -192,10 +215,10 @@ class _CalloutBlockComponentWidgetState
 
     Widget child = Container(
       decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+        borderRadius: const BorderRadius.all(Radius.circular(6.0)),
         color: backgroundColor,
       ),
-      padding: widget.inlinePadding,
+      padding: widget.inlinePadding(widget.node),
       width: double.infinity,
       alignment: alignment,
       child: Row(
@@ -236,7 +259,7 @@ class _CalloutBlockComponentWidgetState
 
     child = Padding(
       key: blockComponentKey,
-      padding: padding,
+      padding: EdgeInsets.zero,
       child: child,
     );
 
@@ -245,6 +268,7 @@ class _CalloutBlockComponentWidgetState
       delegate: this,
       listenable: editorState.selectionNotifier,
       blockColor: editorState.editorStyle.selectionColor,
+      selectionAboveBlock: true,
       supportTypes: const [
         BlockSelectionType.block,
       ],

@@ -63,6 +63,7 @@ export 'outline/outline_block_component.dart';
 export 'parsers/document_markdown_parsers.dart';
 export 'parsers/markdown_parsers.dart';
 export 'parsers/markdown_simple_table_parser.dart';
+export 'quote/quote_block_component.dart';
 export 'quote/quote_block_shortcuts.dart';
 export 'shortcuts/character_shortcuts.dart';
 export 'shortcuts/command_shortcuts.dart';
