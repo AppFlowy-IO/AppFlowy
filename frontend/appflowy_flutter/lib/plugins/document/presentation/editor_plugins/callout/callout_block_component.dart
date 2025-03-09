@@ -226,7 +226,7 @@ class _CalloutBlockComponentWidgetState
         mainAxisSize: MainAxisSize.min,
         textDirection: textDirection,
         children: [
-          if (UniversalPlatform.isDesktopOrWeb) const HSpace(4.0),
+          if (UniversalPlatform.isDesktopOrWeb) const HSpace(6.0),
           // the emoji picker button for the note
           EmojiPickerButton(
             // force to refresh the popover state
@@ -245,7 +245,7 @@ class _CalloutBlockComponentWidgetState
               if (!r.keepOpen) controller?.close();
             },
           ),
-          if (UniversalPlatform.isDesktopOrWeb) const HSpace(4.0),
+          if (UniversalPlatform.isDesktopOrWeb) const HSpace(6.0),
           Flexible(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),

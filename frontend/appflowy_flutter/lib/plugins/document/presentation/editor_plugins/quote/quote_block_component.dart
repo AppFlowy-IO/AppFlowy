@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -109,20 +111,30 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
 
   ValueNotifier<double> quoteBlockHeightNotifier = ValueNotifier(0);
 
+  StreamSubscription<EditorTransactionValue>? _transactionSubscription;
+
   final GlobalKey layoutBuilderKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _observerQuoteBlockChanges();
+  }
+
+  @override
+  void dispose() {
+    _transactionSubscription?.cancel();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final renderObject =
-            layoutBuilderKey.currentContext?.findRenderObject();
-        if (renderObject != null && renderObject is RenderBox) {
-          quoteBlockHeightNotifier.value =
-              renderObject.size.height - padding.top * 2;
-        } else {
-          quoteBlockHeightNotifier.value = 0;
-        }
+        _updateQuoteBlockHeight();
+
         return KeyedSubtree(
           key: layoutBuilderKey,
           child: node.children.isEmpty
@@ -216,6 +228,36 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
     }
 
     return child;
+  }
+
+  void _updateQuoteBlockHeight() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      final renderObject = layoutBuilderKey.currentContext?.findRenderObject();
+      if (renderObject != null && renderObject is RenderBox) {
+        quoteBlockHeightNotifier.value =
+            renderObject.size.height - padding.top * 2;
+      } else {
+        quoteBlockHeightNotifier.value = 0;
+      }
+    });
+  }
+
+  void _observerQuoteBlockChanges() {
+    _transactionSubscription = editorState.transactionStream.listen((event) {
+      final time = event.$1;
+
+      if (time != TransactionTime.before) {
+        return;
+      }
+
+      final transaction = event.$2;
+      final operations = transaction.operations;
+      for (final operation in operations) {
+        if (node.path.isAncestorOf(operation.path)) {
+          _updateQuoteBlockHeight();
+        }
+      }
+    });
   }
 }
 

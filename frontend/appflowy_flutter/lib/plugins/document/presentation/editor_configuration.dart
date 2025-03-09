@@ -128,8 +128,9 @@ BlockComponentConfiguration _buildDefaultConfiguration(BuildContext context) {
         padding += EditorStyleCustomizer.nodeHorizontalPadding;
       }
 
-      // in the quote block, we reduce the indent padding for the first level block. So we have to add more padding for the second level and the following blocks.
-      if (node.isInQuote && node.level >= 2) {
+      // in the quote block, we reduce the indent padding for the first level block.
+      //  So we have to add more padding for the second level to avoid the drag menu overlay the quote icon.
+      if (node.isInQuote && node.level == 2) {
         padding += 24;
       }
 
@@ -817,7 +818,7 @@ CalloutBlockComponentBuilder _buildCalloutBlockComponentBuilder(
         configuration: configuration,
         textSpan: textSpan,
       ),
-      indentPadding: (node, _) => EdgeInsets.only(left: 38),
+      indentPadding: (node, _) => EdgeInsets.only(left: 42),
     ),
     inlinePadding: (node) {
       if (node.children.isEmpty) {
