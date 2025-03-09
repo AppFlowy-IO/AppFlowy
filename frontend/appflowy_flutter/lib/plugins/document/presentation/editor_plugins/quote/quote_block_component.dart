@@ -112,30 +112,23 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
   final GlobalKey layoutBuilderKey = GlobalKey();
 
   @override
-  void didUpdateWidget(QuoteBlockComponentWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.node != widget.node) {
-      quoteBlockHeightNotifier.value =
-          layoutBuilderKey.currentContext?.size?.height ?? 0;
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return NotificationListener<SizeChangedLayoutNotification>(
-      child: SizeChangedLayoutNotifier(
-        key: layoutBuilderKey,
-        child: node.children.isEmpty
-            ? buildComponent(context)
-            : buildComponentWithChildren(context),
-      ),
-      onNotification: (notification) {
-        quoteBlockHeightNotifier.value =
-            layoutBuilderKey.currentContext?.size?.height ?? 0 - 24;
-        debugPrint(
-          'quoteBlockHeightNotifier.value: $quoteBlockHeightNotifier.value',
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final renderObject =
+            layoutBuilderKey.currentContext?.findRenderObject();
+        if (renderObject != null && renderObject is RenderBox) {
+          quoteBlockHeightNotifier.value =
+              renderObject.size.height - padding.top * 2;
+        } else {
+          quoteBlockHeightNotifier.value = 0;
+        }
+        return KeyedSubtree(
+          key: layoutBuilderKey,
+          child: node.children.isEmpty
+              ? buildComponent(context)
+              : buildComponentWithChildren(context),
         );
-        return true;
       },
     );
   }
@@ -241,19 +234,20 @@ class QuoteIcon extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       constraints:
-          const BoxConstraints(minWidth: 22, minHeight: 22, maxHeight: 44) *
+          const BoxConstraints(minWidth: 22, minHeight: 22, maxHeight: 22) *
               textScaleFactor,
       padding: const EdgeInsets.only(right: 6.0),
-      child: Container(
+      child: SizedBox(
         width: 3 * textScaleFactor,
-        color: '#00BCF0'.tryToColor(),
+
+        // use overflow box to ensure the container can overflow the height so that the children of the quote block can have the quote
         child: OverflowBox(
           alignment: Alignment.topCenter,
           maxHeight: height,
           child: Container(
             width: 3 * textScaleFactor,
             height: height,
-            color: '#00BCF0'.tryToColor(),
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
       ),

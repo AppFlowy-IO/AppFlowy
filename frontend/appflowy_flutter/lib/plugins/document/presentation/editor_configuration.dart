@@ -122,10 +122,17 @@ BlockComponentConfiguration _buildDefaultConfiguration(BuildContext context) {
     },
     indentPadding: (node, textDirection) {
       double padding = 26.0;
+
       // only add indent padding for the top level node to align the children
       if (UniversalPlatform.isMobile && node.path.length == 1) {
         padding += EditorStyleCustomizer.nodeHorizontalPadding;
       }
+
+      // in the quote block, we reduce the indent padding for the first level block. So we have to add more padding for the second level and the following blocks.
+      if (node.isInQuote && node.level >= 2) {
+        padding += 24;
+      }
+
       return textDirection == TextDirection.ltr
           ? EdgeInsets.only(left: padding)
           : EdgeInsets.only(right: padding);
@@ -603,7 +610,7 @@ QuoteBlockComponentBuilder _buildQuoteBlockComponentBuilder(
         node: node,
         configuration: configuration,
       ),
-      indentPadding: (node, _) => EdgeInsets.only(),
+      indentPadding: (node, _) => EdgeInsets.zero,
     ),
   );
 }
@@ -1082,4 +1089,17 @@ TextAlign _buildTextAlignInTableCell(
   }
 
   return node.tableAlign.textAlign;
+}
+
+extension on Node {
+  bool get isInQuote {
+    Node? parent = this.parent;
+    while (parent != null) {
+      if (parent.type == QuoteBlockKeys.type) {
+        return true;
+      }
+      parent = parent.parent;
+    }
+    return false;
+  }
 }
