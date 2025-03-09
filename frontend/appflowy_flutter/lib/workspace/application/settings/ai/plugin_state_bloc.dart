@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_llm_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -16,13 +15,18 @@ class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
       : listener = LocalLLMListener(),
         super(
           const PluginStateState(
-            action: PluginStateAction.init(),
+            action: PluginStateAction.unknown(),
           ),
         ) {
     listener.start(
       stateCallback: (pluginState) {
         if (!isClosed) {
-          add(PluginStateEvent.updateState(pluginState));
+          add(PluginStateEvent.updateLocalAIState(pluginState));
+        }
+      },
+      resourceCallback: (data) {
+        if (!isClosed) {
+          add(PluginStateEvent.resourceStateChange(data));
         }
       },
     );
@@ -44,66 +48,82 @@ class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
   ) async {
     await event.when(
       started: () async {
-        final result = await AIEventGetLocalAIPluginState().send();
+        final result = await AIEventGetLocalAIState().send();
         result.fold(
           (pluginState) {
             if (!isClosed) {
-              add(PluginStateEvent.updateState(pluginState));
+              add(PluginStateEvent.updateLocalAIState(pluginState));
             }
           },
           (err) => Log.error(err.toString()),
         );
       },
-      updateState: (LocalAIPluginStatePB pluginState) {
+      updateLocalAIState: (LocalAIPB aiState) {
         // if the offline ai is not started, ask user to start it
-        if (pluginState.offlineAiReady) {
+        if (aiState.isAppDownloaded) {
+          if (aiState.hasLackOfResource()) {
+            emit(
+              PluginStateState(
+                action:
+                    PluginStateAction.lackOfResource(aiState.lackOfResource),
+              ),
+            );
+            return;
+          }
+
           // Chech state of the plugin
-          switch (pluginState.state) {
+          switch (aiState.state) {
+            case RunningStatePB.ReadyToRun:
+              emit(
+                const PluginStateState(
+                  action: PluginStateAction.readToRun(),
+                ),
+              );
+
             case RunningStatePB.Connecting:
               emit(
                 const PluginStateState(
-                  action: PluginStateAction.loadingPlugin(),
+                  action: PluginStateAction.initializingPlugin(),
                 ),
               );
             case RunningStatePB.Running:
-              emit(const PluginStateState(action: PluginStateAction.ready()));
+              emit(const PluginStateState(action: PluginStateAction.running()));
               break;
-            default:
+            case RunningStatePB.Stopped:
               emit(
                 state.copyWith(action: const PluginStateAction.restartPlugin()),
               );
+            default:
               break;
           }
         } else {
           emit(
             const PluginStateState(
-              action: PluginStateAction.startAIOfflineApp(),
+              action: PluginStateAction.downloadLocalAIApp(),
             ),
           );
         }
       },
       restartLocalAI: () async {
         emit(
-          const PluginStateState(action: PluginStateAction.loadingPlugin()),
+          const PluginStateState(action: PluginStateAction.restartPlugin()),
         );
-        unawaited(AIEventRestartLocalAIChat().send());
-      },
-      openModelDirectory: () async {
-        final result = await AIEventGetModelStorageDirectory().send();
-        result.fold(
-          (data) {
-            afLaunchUri(Uri.file(data.filePath));
-          },
-          (err) => Log.error(err.toString()),
-        );
+        unawaited(AIEventRestartLocalAI().send());
       },
       downloadOfflineAIApp: () async {
-        final result = await AIEventGetOfflineAIAppLink().send();
+        final result = await AIEventGetLocalAIDownloadLink().send();
         await result.fold(
           (app) async {
             await launchUrl(Uri.parse(app.link));
           },
           (err) {},
+        );
+      },
+      resourceStateChange: (data) {
+        emit(
+          PluginStateState(
+            action: PluginStateAction.lackOfResource(data.resourceDesc),
+          ),
         );
       },
     );
@@ -113,12 +133,12 @@ class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
 @freezed
 class PluginStateEvent with _$PluginStateEvent {
   const factory PluginStateEvent.started() = _Started;
-  const factory PluginStateEvent.updateState(LocalAIPluginStatePB pluginState) =
-      _UpdatePluginState;
+  const factory PluginStateEvent.updateLocalAIState(LocalAIPB aiState) =
+      _UpdateLocalAIState;
   const factory PluginStateEvent.restartLocalAI() = _RestartLocalAI;
-  const factory PluginStateEvent.openModelDirectory() =
-      _OpenModelStorageDirectory;
   const factory PluginStateEvent.downloadOfflineAIApp() = _DownloadOfflineAIApp;
+  const factory PluginStateEvent.resourceStateChange(LackOfAIResourcePB data) =
+      _ResourceStateChange;
 }
 
 @freezed
@@ -130,9 +150,11 @@ class PluginStateState with _$PluginStateState {
 
 @freezed
 class PluginStateAction with _$PluginStateAction {
-  const factory PluginStateAction.init() = _Init;
-  const factory PluginStateAction.loadingPlugin() = _LoadingPlugin;
-  const factory PluginStateAction.ready() = _Ready;
+  const factory PluginStateAction.unknown() = _Unknown;
+  const factory PluginStateAction.readToRun() = _ReadyToRun;
+  const factory PluginStateAction.initializingPlugin() = _InitializingPlugin;
+  const factory PluginStateAction.running() = _PluginRunning;
   const factory PluginStateAction.restartPlugin() = _RestartPlugin;
-  const factory PluginStateAction.startAIOfflineApp() = _StartAIOfflineApp;
+  const factory PluginStateAction.downloadLocalAIApp() = _DownloadLocalAIApp;
+  const factory PluginStateAction.lackOfResource(String desc) = _LackOfResource;
 }

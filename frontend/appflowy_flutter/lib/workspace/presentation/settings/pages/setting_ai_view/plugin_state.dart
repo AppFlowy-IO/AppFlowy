@@ -3,6 +3,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/ai/download_offline_ai_app_bloc.dart';
 import 'package:appflowy/workspace/application/settings/ai/plugin_state_bloc.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/init_local_ai.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -23,17 +24,19 @@ class PluginStateIndicator extends StatelessWidget {
       child: BlocBuilder<PluginStateBloc, PluginStateState>(
         builder: (context, state) {
           return state.action.when(
-            init: () => const _InitPlugin(),
-            ready: () => const _LocalAIReadyToUse(),
-            restartPlugin: () => const _ReloadButton(),
-            loadingPlugin: () => const _InitPlugin(),
-            startAIOfflineApp: () => OpenOrDownloadOfflineAIApp(
+            unknown: () => const SizedBox.shrink(),
+            readToRun: () => const SizedBox.shrink(),
+            initializingPlugin: () => const InitLocalAIIndicator(),
+            running: () => const _LocalAIRunning(),
+            restartPlugin: () => const _RestartPluginButton(),
+            downloadLocalAIApp: () => OpenOrDownloadOfflineAIApp(
               onRetry: () {
                 context
                     .read<PluginStateBloc>()
                     .add(const PluginStateEvent.started());
               },
             ),
+            lackOfResource: (desc) => _LackOfResource(desc: desc),
           );
         },
       ),
@@ -41,26 +44,8 @@ class PluginStateIndicator extends StatelessWidget {
   }
 }
 
-class _InitPlugin extends StatelessWidget {
-  const _InitPlugin();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        FlowyText(LocaleKeys.settings_aiPage_keys_localAIStart.tr()),
-        const Spacer(),
-        const SizedBox(
-          height: 20,
-          child: CircularProgressIndicator.adaptive(),
-        ),
-      ],
-    );
-  }
-}
-
-class _ReloadButton extends StatelessWidget {
-  const _ReloadButton();
+class _RestartPluginButton extends StatelessWidget {
+  const _RestartPluginButton();
 
   @override
   Widget build(BuildContext context) {
@@ -91,8 +76,8 @@ class _ReloadButton extends StatelessWidget {
   }
 }
 
-class _LocalAIReadyToUse extends StatelessWidget {
-  const _LocalAIReadyToUse();
+class _LocalAIRunning extends StatelessWidget {
+  const _LocalAIRunning();
 
   @override
   Widget build(BuildContext context) {
@@ -119,29 +104,13 @@ class _LocalAIReadyToUse extends StatelessWidget {
                   const HSpace(6),
                   Flexible(
                     child: FlowyText(
-                      LocaleKeys.settings_aiPage_keys_localAILoaded.tr(),
+                      LocaleKeys.settings_aiPage_keys_localAIRunning.tr(),
                       fontSize: 11,
                       color: const Color(0xFF1E4620),
                       maxLines: 3,
                     ),
                   ),
                 ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: FlowyButton(
-                useIntrinsicWidth: true,
-                text: FlowyText(
-                  LocaleKeys.settings_aiPage_keys_openModelDirectory.tr(),
-                  fontSize: 11,
-                  color: const Color(0xFF1E4620),
-                ),
-                onTap: () {
-                  context.read<PluginStateBloc>().add(
-                        const PluginStateEvent.openModelDirectory(),
-                      );
-                },
               ),
             ),
           ],
@@ -232,24 +201,21 @@ class OpenOrDownloadOfflineAIApp extends StatelessWidget {
                   ],
                 ),
               ),
-              // const SizedBox(
-              //   height: 6,
-              // ), // Replaced VSpace with SizedBox for simplicity
-              // SizedBox(
-              //   height: 30,
-              //   child: FlowyButton(
-              //     useIntrinsicWidth: true,
-              //     margin: const EdgeInsets.symmetric(horizontal: 12),
-              //     text: FlowyText(
-              //       LocaleKeys.settings_aiPage_keys_activeOfflineAI.tr(),
-              //     ),
-              //     onTap: onRetry,
-              //   ),
-              // ),
             ],
           );
         },
       ),
     );
+  }
+}
+
+class _LackOfResource extends StatelessWidget {
+  const _LackOfResource({required this.desc});
+
+  final String desc;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyText(desc);
   }
 }

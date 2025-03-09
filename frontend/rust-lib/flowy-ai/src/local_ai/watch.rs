@@ -1,4 +1,4 @@
-use crate::local_ai::local_llm_resource::WatchDiskEvent;
+use crate::local_ai::resource::WatchDiskEvent;
 use flowy_error::{FlowyError, FlowyResult};
 use std::path::PathBuf;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver};
@@ -20,7 +20,7 @@ pub fn watch_offline_app() -> FlowyResult<(WatchContext, UnboundedReceiver<Watch
     FlowyError::internal().with_context("Unsupported platform for offline app watching")
   })?;
   let (tx, rx) = unbounded_channel();
-  let app_path = offline_app_path();
+  let app_path = ollama_plugin_path();
   let mut watcher = notify::recommended_watcher(move |res: Result<Event, _>| match res {
     Ok(event) => {
       if event.paths.iter().any(|path| path == &app_path) {
@@ -81,8 +81,8 @@ pub(crate) fn offline_app_path() -> PathBuf {
 }
 
 #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
-pub(crate) fn offline_app_path() -> PathBuf {
-  let offline_app = "appflowy_ai_plugin";
+pub(crate) fn ollama_plugin_path() -> PathBuf {
+  let offline_app = "ollama_ai_plugin";
   #[cfg(target_os = "windows")]
   return PathBuf::from(format!("/usr/local/bin/{}", offline_app));
 

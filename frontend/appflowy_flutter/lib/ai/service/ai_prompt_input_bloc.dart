@@ -36,36 +36,19 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
     on<AIPromptInputEvent>(
       (event, emit) {
         event.when(
-          updateChatState: (LocalAIChatPB chatState) {
+          updateAIState: (LocalAIPB localAIState) {
             // Only user enable chat with file and the plugin is already running
-            final supportChatWithFile = chatState.fileEnabled &&
-                chatState.pluginState.state == RunningStatePB.Running;
+            final supportChatWithFile = localAIState.enabled &&
+                localAIState.state == RunningStatePB.Running;
 
-            final aiType = chatState.pluginState.state == RunningStatePB.Running
-                ? AIType.localAI
-                : AIType.appflowyAI;
+            final aiType =
+                localAIState.enabled ? AIType.localAI : AIType.appflowyAI;
 
             emit(
               state.copyWith(
                 aiType: aiType,
                 supportChatWithFile: supportChatWithFile,
-                chatState: chatState,
-              ),
-            );
-          },
-          updatePluginState: (LocalAIPluginStatePB chatState) {
-            final fileEnabled = state.chatState?.fileEnabled ?? false;
-            final supportChatWithFile =
-                fileEnabled && chatState.state == RunningStatePB.Running;
-
-            final aiType = chatState.state == RunningStatePB.Running
-                ? AIType.localAI
-                : AIType.appflowyAI;
-
-            emit(
-              state.copyWith(
-                supportChatWithFile: supportChatWithFile,
-                aiType: aiType,
+                localAIState: localAIState,
               ),
             );
           },
@@ -130,22 +113,17 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
     _listener.start(
       stateCallback: (pluginState) {
         if (!isClosed) {
-          add(AIPromptInputEvent.updatePluginState(pluginState));
-        }
-      },
-      chatStateCallback: (chatState) {
-        if (!isClosed) {
-          add(AIPromptInputEvent.updateChatState(chatState));
+          add(AIPromptInputEvent.updateAIState(pluginState));
         }
       },
     );
   }
 
   void _init() {
-    AIEventGetLocalAIChatState().send().fold(
-      (chatState) {
+    AIEventGetLocalAIState().send().fold(
+      (localAIState) {
         if (!isClosed) {
-          add(AIPromptInputEvent.updateChatState(chatState));
+          add(AIPromptInputEvent.updateAIState(localAIState));
         }
       },
       Log.error,
@@ -168,12 +146,8 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
 
 @freezed
 class AIPromptInputEvent with _$AIPromptInputEvent {
-  const factory AIPromptInputEvent.updateChatState(
-    LocalAIChatPB chatState,
-  ) = _UpdateChatState;
-  const factory AIPromptInputEvent.updatePluginState(
-    LocalAIPluginStatePB chatState,
-  ) = _UpdatePluginState;
+  const factory AIPromptInputEvent.updateAIState(LocalAIPB localAIState) =
+      _UpdateAIState;
   const factory AIPromptInputEvent.toggleShowPredefinedFormat() =
       _ToggleShowPredefinedFormat;
   const factory AIPromptInputEvent.updatePredefinedFormat(
@@ -196,7 +170,7 @@ class AIPromptInputState with _$AIPromptInputState {
     required bool supportChatWithFile,
     required bool showPredefinedFormats,
     required PredefinedFormat? predefinedFormat,
-    required LocalAIChatPB? chatState,
+    required LocalAIPB? localAIState,
     required List<ChatFile> attachedFiles,
     required List<ViewPB> mentionedPages,
   }) = _AIPromptInputState;
@@ -207,7 +181,7 @@ class AIPromptInputState with _$AIPromptInputState {
         supportChatWithFile: false,
         showPredefinedFormats: format != null,
         predefinedFormat: format,
-        chatState: null,
+        localAIState: null,
         attachedFiles: [],
         mentionedPages: [],
       );
