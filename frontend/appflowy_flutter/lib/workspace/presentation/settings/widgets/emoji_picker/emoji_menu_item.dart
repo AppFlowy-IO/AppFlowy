@@ -56,6 +56,7 @@ void showEmojiPickerMenu(
         child: EmojiSelectionMenu(
           onSubmitted: (emoji) {
             editorState.insertTextAtCurrentSelection(emoji);
+            emojiPickerMenuEntry.remove();
           },
           onExit: () {
             // close emoji panel
