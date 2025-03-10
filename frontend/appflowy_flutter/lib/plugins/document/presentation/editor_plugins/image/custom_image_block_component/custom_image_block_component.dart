@@ -227,6 +227,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
         delegate: this,
         listenable: editorState.selectionNotifier,
         blockColor: editorState.editorStyle.selectionColor,
+        selectionAboveBlock: true,
         supportTypes: const [BlockSelectionType.block],
         child: child,
       );
@@ -313,7 +314,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
   }) {
     final imageBox = imageKey.currentContext?.findRenderObject();
     if (imageBox is RenderBox) {
-      return Offset.zero & imageBox.size;
+      return padding.topLeft & imageBox.size;
     }
     return Rect.zero;
   }
