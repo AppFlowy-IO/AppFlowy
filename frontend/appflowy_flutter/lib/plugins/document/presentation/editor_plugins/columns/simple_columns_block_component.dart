@@ -150,7 +150,6 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
     // because the columns block is a layout wrapper, it does not have a content
     return LayoutBuilder(
       builder: (context, constraints) {
-        debugPrint('constraints: $constraints');
         maxEditorWidth.value = constraints.maxWidth;
         return child;
       },
