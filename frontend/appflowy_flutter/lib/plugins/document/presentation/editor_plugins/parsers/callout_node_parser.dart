@@ -19,7 +19,7 @@ class CalloutNodeParser extends NodeParser {
         .map((e) => '> $e')
         .join('\n');
     final type = node.attributes[CalloutBlockKeys.iconType];
-    final icon = type == FlowyIconType.emoji.name
+    final icon = type == FlowyIconType.emoji.name || type == null || type == ""
         ? node.attributes[CalloutBlockKeys.icon]
         : null;
 
