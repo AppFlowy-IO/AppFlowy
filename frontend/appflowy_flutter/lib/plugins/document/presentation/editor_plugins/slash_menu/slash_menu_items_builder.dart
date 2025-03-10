@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -13,9 +14,16 @@ List<SelectionMenuItem> slashMenuItemsBuilder({
   DocumentBloc? documentBloc,
   EditorState? editorState,
   Node? node,
+  ViewPB? view,
 }) {
   final isInTable = node != null && node.parentTableCellNode != null;
   final isMobile = UniversalPlatform.isMobile;
+  bool isEmpty = false;
+  if (editorState == null || isDocumentEmptyForAI(editorState.document)) {
+    if (view == null || view.name.isEmpty) {
+      isEmpty = true;
+    }
+  }
   if (isMobile) {
     if (isInTable) {
       return mobileItemsInTale;
@@ -29,6 +37,7 @@ List<SelectionMenuItem> slashMenuItemsBuilder({
       return _defaultSlashMenuItems(
         isLocalMode: isLocalMode,
         documentBloc: documentBloc,
+        isEmpty: isEmpty,
       );
     }
   }
@@ -48,11 +57,12 @@ List<SelectionMenuItem> slashMenuItemsBuilder({
 List<SelectionMenuItem> _defaultSlashMenuItems({
   bool isLocalMode = false,
   DocumentBloc? documentBloc,
+  bool isEmpty = false,
 }) {
   return [
     // ai
     if (!isLocalMode) ...[
-      continueWritingSlashMenuItem,
+      if (!isEmpty) continueWritingSlashMenuItem,
       aiWriterSlashMenuItem,
     ],
 

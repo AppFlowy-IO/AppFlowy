@@ -3,7 +3,10 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/message/ai_markdown_text.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/document_markdown_parsers.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/sub_page_node_parser.dart';
 import 'package:appflowy/util/theme_extension.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -180,6 +183,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
                         ),
                         width: constraints.maxWidth,
                         child: OverlayContent(
+                          editorState: editorState,
                           node: widget.node,
                         ),
                       ),
@@ -229,9 +233,11 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
 class OverlayContent extends StatelessWidget {
   const OverlayContent({
     super.key,
+    required this.editorState,
     required this.node,
   });
 
+  final EditorState editorState;
   final Node node;
 
   @override
@@ -365,28 +371,12 @@ class OverlayContent extends StatelessWidget {
                 ],
               ),
             ),
-            if (showActionPopup) ...[
-              const VSpace(4.0 + 1.0),
-              Container(
-                padding: EdgeInsets.all(8.0),
-                constraints: BoxConstraints(minWidth: 240.0),
-                decoration: _getModalDecoration(
-                  context,
-                  color: Theme.of(context).colorScheme.surface,
-                  borderColor: lightBorderColor,
-                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                ),
-                child: IntrinsicWidth(
-                  child: SeparatedColumn(
-                    separatorBuilder: () => const VSpace(4.0),
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _getCommands(
-                      hasSelection: hasSelection,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ..._bottomActions(
+              context,
+              showActionPopup,
+              hasSelection,
+              lightBorderColor,
+            ),
           ],
         );
       },
@@ -468,6 +458,52 @@ class OverlayContent extends StatelessWidget {
       color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.vertical(bottom: Radius.circular(12.0)),
     );
+  }
+
+  List<Widget> _bottomActions(
+    BuildContext context,
+    bool showActionPopup,
+    bool hasSelection,
+    Color borderColor,
+  ) {
+    if (!showActionPopup) {
+      return [];
+    }
+
+    final document = editorState.document;
+    if (isDocumentEmptyForAI(document)) {
+      final documentContext = editorState.document.root.context;
+      if (documentContext == null) {
+        return [];
+      }
+      final view = documentContext.read<ViewBloc>().state.view;
+      if (view.name.isEmpty) {
+        return [];
+      }
+    }
+
+    return [
+      const VSpace(4.0 + 1.0),
+      Container(
+        padding: EdgeInsets.all(8.0),
+        constraints: BoxConstraints(minWidth: 240.0),
+        decoration: _getModalDecoration(
+          context,
+          color: Theme.of(context).colorScheme.surface,
+          borderColor: borderColor,
+          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+        ),
+        child: IntrinsicWidth(
+          child: SeparatedColumn(
+            separatorBuilder: () => const VSpace(4.0),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: _getCommands(
+              hasSelection: hasSelection,
+            ),
+          ),
+        ),
+      ),
+    ];
   }
 
   List<Widget> _getCommands({required bool hasSelection}) {
@@ -628,4 +664,26 @@ class MainContentArea extends StatelessWidget {
       },
     );
   }
+}
+
+bool isDocumentEmptyForAI(Document document) {
+  if (document.root.children.isEmpty) {
+    return true;
+  }
+
+  final markdown = documentToMarkdown(
+    document,
+    customParsers: [
+      const MathEquationNodeParser(),
+      const CalloutNodeParser(),
+      const ToggleListNodeParser(),
+      const CustomParagraphNodeParser(),
+      const SubPageNodeParser(),
+      const SimpleTableNodeParser(),
+      const LinkPreviewNodeParser(),
+      const FileBlockNodeParser(),
+    ],
+  );
+
+  return markdown.trim().isEmpty;
 }

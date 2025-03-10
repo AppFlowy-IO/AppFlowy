@@ -92,6 +92,10 @@ class _DocumentPageState extends State<DocumentPage>
               ViewLockStatusEvent.initial(),
             ),
         ),
+        BlocProvider(
+          create: (_) =>
+              ViewBloc(view: widget.view)..add(const ViewEvent.initial()),
+        ),
       ],
       child: BlocConsumer<ViewLockStatusBloc, ViewLockStatusState>(
         listenWhen: (prev, curr) => curr.isLocked != prev.isLocked,
