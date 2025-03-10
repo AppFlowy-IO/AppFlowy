@@ -36,12 +36,16 @@ class MobileSelectionMenu extends SelectionMenuService {
   Alignment _alignment = Alignment.topLeft;
   final int itemCountFilter;
   final int startOffset;
+  ValueNotifier<_Position> _positionNotifier = ValueNotifier(_Position.zero);
 
   @override
   void dismiss() {
     if (_selectionMenuEntry != null) {
       editorState.service.keyboardService?.enable();
       editorState.service.scrollService?.enable();
+      editorState
+          .removeScrollViewScrolledListener(_checkPositionAfterScrolling);
+      _positionNotifier.dispose();
     }
 
     _selectionMenuEntry?.remove();
@@ -53,23 +57,20 @@ class MobileSelectionMenu extends SelectionMenuService {
     final completer = Completer<void>();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _show();
+      editorState.addScrollViewScrolledListener(_checkPositionAfterScrolling);
       completer.complete();
     });
     return completer.future;
   }
 
   void _show() {
-    final selectionRects = editorState.selectionRects();
-    if (selectionRects.isEmpty) {
-      return;
-    }
-
-    calculateSelectionMenuOffset(selectionRects.first);
-    final (left, top, right, bottom) = getPosition();
+    final position = _getCurrentPosition();
+    if (position == null) return;
 
     final editorHeight = editorState.renderBox!.size.height;
     final editorWidth = editorState.renderBox!.size.width;
 
+    _positionNotifier = ValueNotifier(position);
     _selectionMenuEntry = OverlayEntry(
       builder: (context) {
         return SizedBox(
@@ -80,47 +81,54 @@ class MobileSelectionMenu extends SelectionMenuService {
             onTap: dismiss,
             child: Stack(
               children: [
-                Positioned(
-                  top: top,
-                  bottom: bottom,
-                  left: left,
-                  right: right,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: MobileSelectionMenuWidget(
-                      selectionMenuStyle: style,
-                      singleColumn: singleColumn,
-                      items: selectionMenuItems
-                        ..forEach((element) {
-                          if (element is MobileSelectionMenuItem) {
-                            element.deleteSlash = false;
-                            element.deleteKeywords = deleteKeywordsByDefault;
-                            for (final e in element.children) {
-                              e.deleteSlash = deleteSlashByDefault;
-                              e.deleteKeywords = deleteKeywordsByDefault;
-                              e.onSelected = () {
-                                dismiss();
-                              };
-                            }
-                          } else {
-                            element.deleteSlash = deleteSlashByDefault;
-                            element.deleteKeywords = deleteKeywordsByDefault;
-                            element.onSelected = () {
-                              dismiss();
-                            };
-                          }
-                        }),
-                      maxItemInRow: 5,
-                      editorState: editorState,
-                      itemCountFilter: itemCountFilter,
-                      startOffset: startOffset,
-                      menuService: this,
-                      onExit: () {
-                        dismiss();
-                      },
-                      deleteSlashByDefault: deleteSlashByDefault,
-                    ),
-                  ),
+                ValueListenableBuilder(
+                  valueListenable: _positionNotifier,
+                  builder: (context, value, _) {
+                    return Positioned(
+                      top: value.top,
+                      bottom: value.bottom,
+                      left: value.left,
+                      right: value.right,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: MobileSelectionMenuWidget(
+                          selectionMenuStyle: style,
+                          singleColumn: singleColumn,
+                          items: selectionMenuItems
+                            ..forEach((element) {
+                              if (element is MobileSelectionMenuItem) {
+                                element.deleteSlash = false;
+                                element.deleteKeywords =
+                                    deleteKeywordsByDefault;
+                                for (final e in element.children) {
+                                  e.deleteSlash = deleteSlashByDefault;
+                                  e.deleteKeywords = deleteKeywordsByDefault;
+                                  e.onSelected = () {
+                                    dismiss();
+                                  };
+                                }
+                              } else {
+                                element.deleteSlash = deleteSlashByDefault;
+                                element.deleteKeywords =
+                                    deleteKeywordsByDefault;
+                                element.onSelected = () {
+                                  dismiss();
+                                };
+                              }
+                            }),
+                          maxItemInRow: 5,
+                          editorState: editorState,
+                          itemCountFilter: itemCountFilter,
+                          startOffset: startOffset,
+                          menuService: this,
+                          onExit: () {
+                            dismiss();
+                          },
+                          deleteSlashByDefault: deleteSlashByDefault,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -133,6 +141,34 @@ class MobileSelectionMenu extends SelectionMenuService {
 
     editorState.service.keyboardService?.disable(showCursor: true);
     editorState.service.scrollService?.disable();
+  }
+
+  /// the workaround for: editor auto scrolling that will cause wrong position
+  /// of slash menu
+  void _checkPositionAfterScrolling() {
+    final position = _getCurrentPosition();
+    if (position == null) return;
+    if (position == _positionNotifier.value) {
+      Future.delayed(const Duration(milliseconds: 100)).then((_) {
+        final position = _getCurrentPosition();
+        if (position == null) return;
+        if (position != _positionNotifier.value) {
+          _positionNotifier.value = position;
+        }
+      });
+    } else {
+      _positionNotifier.value = position;
+    }
+  }
+
+  _Position? _getCurrentPosition() {
+    final selectionRects = editorState.selectionRects();
+    if (selectionRects.isEmpty) {
+      return null;
+    }
+    calculateSelectionMenuOffset(selectionRects.first);
+    final (left, top, right, bottom) = getPosition();
+    return _Position(left, top, right, bottom);
   }
 
   @override
@@ -166,7 +202,6 @@ class MobileSelectionMenu extends SelectionMenuService {
         bottom = offset.dy;
         break;
     }
-
     return (left, top, right, bottom);
   }
 
@@ -217,4 +252,29 @@ class MobileSelectionMenu extends SelectionMenuService {
       );
     }
   }
+}
+
+class _Position {
+  const _Position(this.left, this.top, this.right, this.bottom);
+
+  final double? left;
+  final double? top;
+  final double? right;
+  final double? bottom;
+
+  static const _Position zero = _Position(0, 0, 0, 0);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is _Position &&
+          runtimeType == other.runtimeType &&
+          left == other.left &&
+          top == other.top &&
+          right == other.right &&
+          bottom == other.bottom;
+
+  @override
+  int get hashCode =>
+      left.hashCode ^ top.hashCode ^ right.hashCode ^ bottom.hashCode;
 }
