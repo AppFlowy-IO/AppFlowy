@@ -10,7 +10,6 @@ class CalloutNodeParser extends NodeParser {
   @override
   String transform(Node node, DocumentMarkdownEncoder? encoder) {
     assert(node.children.isEmpty);
-    final icon = node.attributes[CalloutBlockKeys.icon];
     final delta = node.delta ?? Delta()
       ..insert('');
     final String markdown = DeltaMarkdownEncoder()
@@ -19,7 +18,6 @@ class CalloutNodeParser extends NodeParser {
         .map((e) => '> $e')
         .join('\n');
     return '''
-> $icon
 $markdown
 
 ''';
