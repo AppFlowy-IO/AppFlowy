@@ -74,7 +74,7 @@ Future<void> dragToMoveNode(
 
       final columnNode = simpleColumnNode(
         children: [node.deepCopy()],
-        ratio: 1.0 / length,
+        ratio: 1.0 / (length + 1),
       );
       for (final (index, column) in targetNodeParent.children.indexed) {
         transaction.updateNode(column, {

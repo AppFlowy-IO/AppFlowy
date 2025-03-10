@@ -146,7 +146,7 @@ class SimpleColumnBlockComponentState extends State<SimpleColumnBlockComponent>
     if (SimpleColumnsBlockConstants.enableDebugBorder) {
       child = Container(
         color: Colors.green.withValues(
-          alpha: 0.2,
+          alpha: 0.3,
         ),
         child: child,
       );
