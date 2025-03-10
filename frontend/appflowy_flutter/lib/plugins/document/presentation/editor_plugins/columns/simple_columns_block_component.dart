@@ -93,6 +93,13 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
   final ScrollController scrollController = ScrollController();
 
   @override
+  void initState() {
+    super.initState();
+
+    _updateColumnsBlock();
+  }
+
+  @override
   void dispose() {
     scrollController.dispose();
 
@@ -163,6 +170,26 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
       );
     }
     return children;
+  }
+
+  // Update the existing columns block data
+  // if the column ratio is not existing, it will be set to 1.0 / columnCount
+  void _updateColumnsBlock() {
+    final transaction = editorState.transaction;
+    final length = node.children.length;
+    for (int i = 0; i < length; i++) {
+      final childNode = node.children[i];
+      final ratio = childNode.attributes[SimpleColumnBlockKeys.ratio];
+      if (ratio == null) {
+        transaction.updateNode(childNode, {
+          ...childNode.attributes,
+          SimpleColumnBlockKeys.ratio: 1.0 / length,
+        });
+      }
+    }
+    if (transaction.operations.isNotEmpty) {
+      editorState.apply(transaction);
+    }
   }
 
   @override
