@@ -31,8 +31,20 @@ CharacterShortcutEventHandler _insertNewLineHandler = (editorState) async {
 
   if (HardwareKeyboard.instance.isShiftPressed) {
     await editorState.insertNewLine();
-  } else {
-    await editorState.insertTextAtCurrentSelection('\n');
+  } else if (node.children.isEmpty) {
+    // insert a new paragraph within the callout block
+    final path = node.path.child(0);
+    final transaction = editorState.transaction;
+    transaction.insertNode(
+      path,
+      paragraphNode(),
+    );
+    transaction.afterSelection = Selection.collapsed(
+      Position(
+        path: path,
+      ),
+    );
+    await editorState.apply(transaction);
   }
 
   return true;

@@ -73,6 +73,7 @@ class SubPageBlockComponent extends BlockComponentStatefulWidget {
     required super.node,
     super.showActions,
     super.actionBuilder,
+    super.actionTrailingBuilder,
     super.configuration = const BlockComponentConfiguration(),
   });
 
@@ -295,6 +296,7 @@ class SubPageBlockComponentState extends State<SubPageBlockComponent>
           child = BlockComponentActionWrapper(
             node: node,
             actionBuilder: widget.actionBuilder!,
+            actionTrailingBuilder: widget.actionTrailingBuilder,
             child: child,
           );
         }
