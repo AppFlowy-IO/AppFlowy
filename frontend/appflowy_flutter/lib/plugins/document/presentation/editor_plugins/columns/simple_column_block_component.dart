@@ -7,15 +7,39 @@ import 'package:provider/provider.dart';
 
 Node simpleColumnNode({
   List<Node>? children,
-  double? width,
+  double? ratio,
 }) {
   return Node(
     type: SimpleColumnBlockKeys.type,
     children: children ?? [paragraphNode()],
     attributes: {
-      SimpleColumnBlockKeys.width: width,
+      SimpleColumnBlockKeys.ratio: ratio,
     },
   );
+}
+
+extension SimpleColumnBlockAttributes on Node {
+  // get the next column node of the current column node
+  // if the current column node is the last column node, return null
+  Node? get nextColumn {
+    final index = path.last;
+    final parent = this.parent;
+    if (parent == null || index == parent.children.length - 1) {
+      return null;
+    }
+    return parent.children[index + 1];
+  }
+
+  // get the previous column node of the current column node
+  // if the current column node is the first column node, return null
+  Node? get previousColumn {
+    final index = path.last;
+    final parent = this.parent;
+    if (parent == null || index == 0) {
+      return null;
+    }
+    return parent.children[index - 1];
+  }
 }
 
 class SimpleColumnBlockKeys {
@@ -23,11 +47,22 @@ class SimpleColumnBlockKeys {
 
   static const String type = 'simple_column';
 
+  /// @Deprecated Use [SimpleColumnBlockKeys.ratio] instead.
+  ///
+  /// This field is no longer used since v0.6.9
+  @Deprecated('Use [SimpleColumnBlockKeys.ratio] instead.')
   static const String width = 'width';
+
+  /// The ratio of the column width.
+  ///
+  /// The value is a double number between 0 and 1.
+  static const String ratio = 'ratio';
 }
 
 class SimpleColumnBlockComponentBuilder extends BlockComponentBuilder {
-  SimpleColumnBlockComponentBuilder({super.configuration});
+  SimpleColumnBlockComponentBuilder({
+    super.configuration,
+  });
 
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
@@ -73,16 +108,6 @@ class SimpleColumnBlockComponentState extends State<SimpleColumnBlockComponent>
   final columnKey = GlobalKey();
 
   late final EditorState editorState = context.read<EditorState>();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {

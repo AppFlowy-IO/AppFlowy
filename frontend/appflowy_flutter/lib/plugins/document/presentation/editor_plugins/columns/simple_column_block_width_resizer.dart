@@ -1,6 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_configuration.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/drag_to_reorder/draggable_option_button.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/columns/simple_columns_block_constant.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +24,13 @@ class _SimpleColumnBlockWidthResizerState
   bool isDragging = false;
 
   ValueNotifier<bool> isHovering = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    isHovering.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,37 +84,46 @@ class _SimpleColumnBlockWidthResizerState
 
     // update the column width in memory
     final columnNode = widget.columnNode;
+    final columnsNode = columnNode.columnsParent;
+    if (columnsNode == null) {
+      return;
+    }
+    final editorWidth = columnsNode.rect.width;
     final rect = columnNode.rect;
-    final width =
-        columnNode.attributes[SimpleColumnBlockKeys.width] ?? rect.width;
+    final width = rect.width;
+    final originalRatio = columnNode.attributes[SimpleColumnBlockKeys.ratio];
     final newWidth = width + details.delta.dx;
+
     final transaction = widget.editorState.transaction;
+    final newRatio = newWidth / editorWidth;
     transaction.updateNode(columnNode, {
       ...columnNode.attributes,
-      SimpleColumnBlockKeys.width: newWidth.clamp(
-        SimpleColumnsBlockConstants.minimumColumnWidth,
-        double.infinity,
-      ),
+      SimpleColumnBlockKeys.ratio: newRatio,
     });
 
-    final index = columnNode.path.last;
-    final child = columnNode.parent!.children[index + 1];
-    final childRect = child.rect;
-    final childWidth =
-        child.attributes[SimpleColumnBlockKeys.width] ?? childRect.width;
-    final newChildWidth = childWidth - details.delta.dx;
-    transaction.updateNode(child, {
-      ...child.attributes,
-      SimpleColumnBlockKeys.width: newChildWidth,
-    });
+    if (newRatio < 0.1 && newRatio < originalRatio) {
+      return;
+    }
 
-    final columnsNode = columnNode.parent;
-    if (columnsNode != null) {
-      transaction.updateNode(columnsNode, {
-        ...columnsNode.attributes,
-        ColumnsBlockKeys.columnCount: columnsNode.children.length,
+    final nextColumn = columnNode.nextColumn;
+    if (nextColumn != null) {
+      final nextColumnRect = nextColumn.rect;
+      final nextColumnWidth = nextColumnRect.width;
+      final newNextColumnWidth = nextColumnWidth - details.delta.dx;
+      final newNextColumnRatio = newNextColumnWidth / editorWidth;
+      if (newNextColumnRatio < 0.1) {
+        return;
+      }
+      transaction.updateNode(nextColumn, {
+        ...nextColumn.attributes,
+        SimpleColumnBlockKeys.ratio: newNextColumnRatio,
       });
     }
+
+    transaction.updateNode(columnsNode, {
+      ...columnsNode.attributes,
+      ColumnsBlockKeys.columnCount: columnsNode.children.length,
+    });
 
     widget.editorState.apply(
       transaction,
@@ -126,9 +141,15 @@ class _SimpleColumnBlockWidthResizerState
 
     // apply the transaction again to make sure the width is updated
     final transaction = widget.editorState.transaction;
-    transaction.updateNode(widget.columnNode, {
-      ...widget.columnNode.attributes,
-    });
+    final columnsNode = widget.columnNode.columnsParent;
+    if (columnsNode == null) {
+      return;
+    }
+    for (final columnNode in columnsNode.children) {
+      transaction.updateNode(columnNode, {
+        ...columnNode.attributes,
+      });
+    }
     widget.editorState.apply(transaction);
 
     isDragging = false;

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:appflowy/plugins/document/presentation/editor_plugins/columns/simple_columns_block_constant.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_backend/log.dart';
@@ -11,13 +13,13 @@ import 'package:provider/provider.dart';
 Node simpleColumnsNode({
   List<Node>? children,
   int? columnCount,
-  double? width,
+  double? ratio,
 }) {
   columnCount ??= 2;
   children ??= List.generate(
     columnCount,
     (index) => simpleColumnNode(
-      width: width,
+      ratio: ratio,
       children: [paragraphNode()],
     ),
   );
@@ -90,36 +92,20 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
 
   final ScrollController scrollController = ScrollController();
 
-  ValueNotifier<double?> maxEditorWidth = ValueNotifier(null);
-
   @override
   void dispose() {
     scrollController.dispose();
-    maxEditorWidth.dispose();
 
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget child = ValueListenableBuilder<double?>(
-      valueListenable: maxEditorWidth,
-      builder: (context, maxEditorWidth, child) {
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: _buildChildren(maxEditorWidth: maxEditorWidth),
-        );
-      },
+    Widget child = Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: _buildChildren(),
     );
-
-    // if (UniversalPlatform.isDesktop) {
-    //   // only show the scrollbar on desktop
-    //   child = Scrollbar(
-    //     controller: scrollController,
-    //     child: child,
-    //   );
-    // }
 
     child = Align(
       alignment: Alignment.topLeft,
@@ -148,39 +134,22 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
 
     // the columns block does not support the block actions and selection
     // because the columns block is a layout wrapper, it does not have a content
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        maxEditorWidth.value = constraints.maxWidth;
-        return child;
-      },
-    );
+    return child;
   }
 
-  List<Widget> _buildChildren({double? maxEditorWidth}) {
-    final sumWidth = node.children.fold<double>(
-      0,
-      (sum, child) =>
-          sum +
-          (child.attributes[SimpleColumnBlockKeys.width]?.toDouble() ??
-              SimpleColumnsBlockConstants.minimumColumnWidth),
-    );
+  List<Widget> _buildChildren() {
+    final length = node.children.length;
     final children = <Widget>[];
-    for (var i = 0; i < node.children.length; i++) {
+    for (var i = 0; i < length; i++) {
       final childNode = node.children[i];
-      double width =
-          childNode.attributes[SimpleColumnBlockKeys.width]?.toDouble() ??
-              SimpleColumnsBlockConstants.minimumColumnWidth;
-      if (maxEditorWidth != null) {
-        width =
-            width * (maxEditorWidth - (node.children.length) * 6) / sumWidth;
-      }
+      final double ratio =
+          childNode.attributes[SimpleColumnBlockKeys.ratio]?.toDouble() ??
+              1.0 / length;
+
       Widget child = editorState.renderer.build(context, childNode);
 
-      child = SizedBox(
-        width: width.clamp(
-          SimpleColumnsBlockConstants.minimumColumnWidth,
-          double.infinity,
-        ),
+      child = Expanded(
+        flex: (max(ratio, 0.1) * 10000).toInt(),
         child: child,
       );
 
