@@ -87,19 +87,18 @@ pub(crate) fn ollama_plugin_path() -> std::path::PathBuf {
     // Use LOCALAPPDATA for a user-specific installation path on Windows.
     let local_appdata =
       std::env::var("LOCALAPPDATA").unwrap_or_else(|_| "C:\\Program Files".to_string());
-    return std::path::PathBuf::from(local_appdata)
-      .join("Programs\\appflowy_plugin\\ollama_ai_plugin.exe");
+    std::path::PathBuf::from(local_appdata).join("Programs\\appflowy_plugin\\ollama_ai_plugin.exe")
   }
 
   #[cfg(target_os = "macos")]
   {
     let offline_app = "ollama_ai_plugin";
-    return std::path::PathBuf::from(format!("/usr/local/bin/{}", offline_app));
+    std::path::PathBuf::from(format!("/usr/local/bin/{}", offline_app))
   }
 
   #[cfg(target_os = "linux")]
   {
     let offline_app = "ollama_ai_plugin";
-    return std::path::PathBuf::from(format!("/usr/local/bin/{}", offline_app));
+    std::path::PathBuf::from(format!("/usr/local/bin/{}", offline_app))
   }
 }

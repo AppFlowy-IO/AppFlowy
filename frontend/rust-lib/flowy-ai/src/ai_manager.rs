@@ -80,8 +80,8 @@ impl AIManager {
     ));
 
     let cloned_local_ai = local_ai.clone();
-    tokio::task::spawn_blocking(move || {
-      futures::executor::block_on(cloned_local_ai.init_plugin_when_first_run());
+    tokio::spawn(async move {
+      cloned_local_ai.observe_plugin_resource().await;
     });
 
     let external_service = Arc::new(query_service);
@@ -103,7 +103,7 @@ impl AIManager {
   }
 
   pub async fn initialize(&self, _workspace_id: &str) -> Result<(), FlowyError> {
-    let _ = self.local_ai.reload().await;
+    self.local_ai.reload().await?;
     Ok(())
   }
 

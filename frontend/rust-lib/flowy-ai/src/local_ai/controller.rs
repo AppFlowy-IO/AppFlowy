@@ -122,7 +122,7 @@ impl LocalAIController {
   }
 
   #[instrument(level = "debug", skip_all)]
-  pub async fn init_plugin_when_first_run(&self) {
+  pub async fn observe_plugin_resource(&self) {
     debug!(
       "[AI Plugin] init plugin when first run. thread: {:?}",
       std::thread::current().id()
@@ -160,24 +160,13 @@ impl LocalAIController {
         }
       }
     });
-
-    // Perform initial initialization if required.
-    if self.should_init_plugin().await {
-      try_init_plugin(&self.resource, &self.ai_plugin).await;
-    } else {
-      trace!("[AI Plugin] local ai is able to start");
-    }
   }
 
   pub async fn reload(&self) -> FlowyResult<()> {
     let is_enabled = self.is_enabled();
+
     self.toggle_plugin(is_enabled).await?;
     Ok(())
-  }
-
-  /// Returns true if the local AI is enabled and ready to use.
-  pub async fn should_init_plugin(&self) -> bool {
-    self.is_enabled() && self.resource.is_resource_ready().await
   }
 
   /// Indicate whether the local AI plugin is running.
@@ -255,17 +244,24 @@ impl LocalAIController {
       setting,
       std::thread::current().id()
     );
-    self.destroy_chat_plugin().await?;
     self.resource.set_llm_setting(setting).await?;
     self.reload().await?;
     Ok(())
   }
 
+  #[instrument(level = "debug", skip_all)]
   pub async fn get_local_ai_state(&self) -> LocalAIPB {
+    let start = std::time::Instant::now();
     let enabled = self.is_enabled();
     let is_app_downloaded = self.resource.is_app_downloaded();
     let state = self.ai_plugin.get_plugin_running_state();
     let lack_of_resource = self.resource.get_lack_of_resource().await;
+    let elapsed = start.elapsed();
+    debug!(
+      "[AI Plugin] get local ai state, elapsed: {:?}, thread: {:?}",
+      elapsed,
+      std::thread::current().id()
+    );
     LocalAIPB {
       enabled,
       is_app_downloaded,
@@ -441,11 +437,15 @@ impl LocalAIController {
 
 #[instrument(level = "debug", skip_all, err)]
 async fn initialize_ai_plugin(
-  llm_chat: &Arc<OllamaAIPlugin>,
+  plugin: &Arc<OllamaAIPlugin>,
   llm_resource: &Arc<LocalAIResourceController>,
   ret: Option<tokio::sync::oneshot::Sender<()>>,
 ) -> FlowyResult<()> {
-  let llm_chat = llm_chat.clone();
+  let plugin = plugin.clone();
+  if plugin.get_plugin_running_state().is_loading() {
+    return Ok(());
+  }
+
   let lack_of_resource = llm_resource.get_lack_of_resource().await;
   chat_notification_builder(
     APPFLOWY_AI_NOTIFICATION_KEY,
@@ -488,7 +488,7 @@ async fn initialize_ai_plugin(
             std::thread::current().id()
           );
 
-          match llm_chat.init_chat_plugin(config).await {
+          match plugin.init_chat_plugin(config).await {
             Ok(_) => {},
             Err(err) => error!("[AI Plugin] failed to setup plugin: {:?}", err),
           }
