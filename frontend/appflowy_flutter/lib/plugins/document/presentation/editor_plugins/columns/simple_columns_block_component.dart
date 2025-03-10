@@ -5,7 +5,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:universal_platform/universal_platform.dart';
 
 // if the children is not provided, it will create two columns by default.
 // if the columnCount is provided, it will create the specified number of columns.
@@ -91,31 +90,36 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
 
   final ScrollController scrollController = ScrollController();
 
+  ValueNotifier<double?> maxEditorWidth = ValueNotifier(null);
+
   @override
   void dispose() {
     scrollController.dispose();
+    maxEditorWidth.dispose();
 
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget child = SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      controller: scrollController,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: _buildChildren(),
-      ),
+    Widget child = ValueListenableBuilder<double?>(
+      valueListenable: maxEditorWidth,
+      builder: (context, maxEditorWidth, child) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: _buildChildren(maxEditorWidth: maxEditorWidth),
+        );
+      },
     );
 
-    if (UniversalPlatform.isDesktop) {
-      // only show the scrollbar on desktop
-      child = Scrollbar(
-        controller: scrollController,
-        child: child,
-      );
-    }
+    // if (UniversalPlatform.isDesktop) {
+    //   // only show the scrollbar on desktop
+    //   child = Scrollbar(
+    //     controller: scrollController,
+    //     child: child,
+    //   );
+    // }
 
     child = Align(
       alignment: Alignment.topLeft,
@@ -144,16 +148,33 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
 
     // the columns block does not support the block actions and selection
     // because the columns block is a layout wrapper, it does not have a content
-    return child;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        debugPrint('constraints: $constraints');
+        maxEditorWidth.value = constraints.maxWidth;
+        return child;
+      },
+    );
   }
 
-  List<Widget> _buildChildren() {
+  List<Widget> _buildChildren({double? maxEditorWidth}) {
+    final sumWidth = node.children.fold<double>(
+      0,
+      (sum, child) =>
+          sum +
+          (child.attributes[SimpleColumnBlockKeys.width]?.toDouble() ??
+              SimpleColumnsBlockConstants.minimumColumnWidth),
+    );
     final children = <Widget>[];
     for (var i = 0; i < node.children.length; i++) {
       final childNode = node.children[i];
-      final width =
+      double width =
           childNode.attributes[SimpleColumnBlockKeys.width]?.toDouble() ??
               SimpleColumnsBlockConstants.minimumColumnWidth;
+      if (maxEditorWidth != null) {
+        width =
+            width * (maxEditorWidth - (node.children.length) * 6) / sumWidth;
+      }
       Widget child = editorState.renderer.build(context, childNode);
 
       child = SizedBox(

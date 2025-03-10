@@ -90,6 +90,18 @@ class _SimpleColumnBlockWidthResizerState
         double.infinity,
       ),
     });
+
+    final index = columnNode.path.last;
+    final child = columnNode.parent!.children[index + 1];
+    final childRect = child.rect;
+    final childWidth =
+        child.attributes[SimpleColumnBlockKeys.width] ?? childRect.width;
+    final newChildWidth = childWidth - details.delta.dx;
+    transaction.updateNode(child, {
+      ...child.attributes,
+      SimpleColumnBlockKeys.width: newChildWidth,
+    });
+
     final columnsNode = columnNode.parent;
     if (columnsNode != null) {
       transaction.updateNode(columnsNode, {
@@ -97,6 +109,7 @@ class _SimpleColumnBlockWidthResizerState
         ColumnsBlockKeys.columnCount: columnsNode.children.length,
       });
     }
+
     widget.editorState.apply(
       transaction,
       options: ApplyOptions(inMemoryUpdate: true),
