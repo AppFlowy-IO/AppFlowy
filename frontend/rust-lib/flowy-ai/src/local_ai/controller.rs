@@ -103,7 +103,7 @@ impl LocalAIController {
           )
           .payload(LocalAIPB {
             enabled,
-            is_executable_ready: ready,
+            is_plugin_executable_ready: ready,
             lack_of_resource,
             state: new_state,
           })
@@ -265,7 +265,7 @@ impl LocalAIController {
     );
     LocalAIPB {
       enabled,
-      is_executable_ready: is_app_downloaded,
+      is_plugin_executable_ready: is_app_downloaded,
       state: RunningStatePB::from(state),
       lack_of_resource,
     }
@@ -439,7 +439,7 @@ impl LocalAIController {
       )
       .payload(LocalAIPB {
         enabled,
-        is_executable_ready: true,
+        is_plugin_executable_ready: true,
         state: RunningStatePB::Stopped,
         lack_of_resource: None,
       })
@@ -467,7 +467,7 @@ async fn initialize_ai_plugin(
   )
   .payload(LocalAIPB {
     enabled: true,
-    is_executable_ready: true,
+    is_plugin_executable_ready: true,
     state: RunningStatePB::ReadyToRun,
     lack_of_resource: lack_of_resource.clone(),
   })

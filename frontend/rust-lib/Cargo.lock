@@ -198,7 +198,7 @@ dependencies = [
 [[package]]
 name = "appflowy-local-ai"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=db15d1f1bb387acbb012979951b38e243f35972b#db15d1f1bb387acbb012979951b38e243f35972b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=eace64bb0e4d2b781c74bbfc77ed7f1de0559b35#eace64bb0e4d2b781c74bbfc77ed7f1de0559b35"
 dependencies = [
  "anyhow",
  "appflowy-plugin",
@@ -218,7 +218,7 @@ dependencies = [
 [[package]]
 name = "appflowy-plugin"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=db15d1f1bb387acbb012979951b38e243f35972b#db15d1f1bb387acbb012979951b38e243f35972b"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=eace64bb0e4d2b781c74bbfc77ed7f1de0559b35#eace64bb0e4d2b781c74bbfc77ed7f1de0559b35"
 dependencies = [
  "anyhow",
  "cfg-if",

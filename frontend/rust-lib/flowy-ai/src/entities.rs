@@ -483,7 +483,7 @@ pub struct LocalAIPB {
   pub enabled: bool,
 
   #[pb(index = 2)]
-  pub is_executable_ready: bool,
+  pub is_plugin_executable_ready: bool,
 
   #[pb(index = 3, one_of)]
   pub lack_of_resource: Option<String>,
