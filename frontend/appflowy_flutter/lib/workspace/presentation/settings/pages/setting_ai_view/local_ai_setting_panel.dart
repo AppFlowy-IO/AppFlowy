@@ -21,70 +21,41 @@ class LocalAISettingPanel extends StatelessWidget {
         ),
       ],
       child: ExpandableNotifier(
-        child: BlocListener<LocalAIChatToggleBloc, LocalAIChatToggleState>(
-          listener: (context, state) {
-            // Listen to the toggle state and expand the panel if the state is ready.
-            final controller = ExpandableController.of(
-              context,
-              required: true,
-            )!;
-
-            // Neet to wrap with WidgetsBinding.instance.addPostFrameCallback otherwise the
-            // ExpandablePanel not expanded sometimes. Maybe because the ExpandablePanel is not
-            // built yet when the listener is called.
-            WidgetsBinding.instance.addPostFrameCallback(
-              (_) {
-                state.pageIndicator.when(
-                  error: (_) => controller.expanded = false,
-                  ready: (enabled) {
-                    controller.expanded = enabled;
-                    context.read<LocalAISettingPanelBloc>().add(
-                          const LocalAISettingPanelEvent.started(),
-                        );
+        initialExpanded: true,
+        child: ExpandablePanel(
+          theme: const ExpandableThemeData(
+            headerAlignment: ExpandablePanelHeaderAlignment.center,
+            tapBodyToCollapse: false,
+            hasIcon: false,
+            tapBodyToExpand: false,
+            tapHeaderToExpand: false,
+          ),
+          header: const SizedBox.shrink(),
+          collapsed: const SizedBox.shrink(),
+          expanded: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                BlocBuilder<LocalAISettingPanelBloc, LocalAISettingPanelState>(
+                  builder: (context, state) {
+                    // If the progress indicator is startLocalAIApp, then don't show the LLM model.
+                    if (state.progressIndicator ==
+                        const LocalAIProgress.downloadLocalAIApp()) {
+                      return const SizedBox.shrink();
+                    } else {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: const [
+                          OllamaSettingPage(),
+                          VSpace(6),
+                          _LocalAIStateWidget(),
+                        ],
+                      );
+                    }
                   },
-                  loading: () => controller.expanded = false,
-                );
-              },
-              debugLabel: 'LocalAI.showLocalAIChatSetting',
-            );
-          },
-          child: ExpandablePanel(
-            theme: const ExpandableThemeData(
-              headerAlignment: ExpandablePanelHeaderAlignment.center,
-              tapBodyToCollapse: false,
-              hasIcon: false,
-              tapBodyToExpand: false,
-              tapHeaderToExpand: false,
-            ),
-            header: const SizedBox.shrink(),
-            collapsed: const SizedBox.shrink(),
-            expanded: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              // child: _LocalLLMInfoWidget(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  BlocBuilder<LocalAISettingPanelBloc,
-                      LocalAISettingPanelState>(
-                    builder: (context, state) {
-                      // If the progress indicator is startLocalAIApp, then don't show the LLM model.
-                      if (state.progressIndicator ==
-                          const LocalAIProgress.downloadLocalAIApp()) {
-                        return const SizedBox.shrink();
-                      } else {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            OllamaSettingPage(),
-                            VSpace(6),
-                            _LocalAIStateWidget(),
-                          ],
-                        );
-                      }
-                    },
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -117,7 +88,7 @@ class _LocalAIStateWidget extends StatelessWidget {
             child: child,
           );
         } else {
-          return const SizedBox.shrink();
+          return const PluginStateIndicator();
         }
       },
     );

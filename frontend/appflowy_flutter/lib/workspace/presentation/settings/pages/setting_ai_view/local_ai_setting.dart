@@ -38,10 +38,11 @@ class _LocalAISettingState extends State<LocalAISetting> {
                 listener: (context, state) {
                   final controller =
                       ExpandableController.of(context, required: true)!;
+
                   state.pageIndicator.when(
-                    error: (_) => controller.expanded = false,
-                    ready: (enabled) => controller.expanded = enabled,
-                    loading: () => controller.expanded = false,
+                    error: (_) => controller.expanded = true,
+                    isEnabled: (enabled) => controller.expanded = enabled,
+                    loading: () => controller.expanded = true,
                   );
                 },
                 child: ExpandablePanel(
@@ -95,9 +96,9 @@ class LocalAISettingHeader extends StatelessWidget {
             return const SizedBox.shrink();
           },
           loading: () {
-            return const CircularProgressIndicator.adaptive();
+            return const SizedBox.shrink();
           },
-          ready: (isEnabled) {
+          isEnabled: (isEnabled) {
             return Row(
               children: [
                 FlowyText(

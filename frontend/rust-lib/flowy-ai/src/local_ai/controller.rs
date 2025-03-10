@@ -44,7 +44,6 @@ impl Default for LocalAISetting {
   }
 }
 
-const APPFLOWY_LOCAL_AI_ENABLED: &str = "appflowy_local_ai_enabled";
 const LOCAL_AI_SETTING_KEY: &str = "appflowy_local_ai_setting:v1";
 
 pub struct LocalAIController {
@@ -87,27 +86,29 @@ impl LocalAIController {
     let mut running_state_rx = local_ai.subscribe_running_state();
     let cloned_llm_res = local_ai_resource.clone();
     let cloned_store_preferences = store_preferences.clone();
+    let cloned_user_service = user_service.clone();
     tokio::spawn(async move {
       while let Some(state) = running_state_rx.next().await {
-        info!("[AI Plugin] state: {:?}", state);
-        let ready = cloned_llm_res.is_app_downloaded();
-        let lack_of_resource = cloned_llm_res.get_lack_of_resource().await;
+        if let Ok(workspace_id) = cloned_user_service.workspace_id() {
+          let key = local_ai_enabled_key(&workspace_id);
+          info!("[AI Plugin] state: {:?}", state);
+          let ready = cloned_llm_res.is_app_downloaded();
+          let lack_of_resource = cloned_llm_res.get_lack_of_resource().await;
 
-        let new_state = RunningStatePB::from(state);
-        let enabled = cloned_store_preferences
-          .get_bool(APPFLOWY_LOCAL_AI_ENABLED)
-          .unwrap_or(true);
-        chat_notification_builder(
-          APPFLOWY_AI_NOTIFICATION_KEY,
-          ChatNotification::UpdateLocalAIState,
-        )
-        .payload(LocalAIPB {
-          enabled,
-          is_app_downloaded: ready,
-          lack_of_resource,
-          state: new_state,
-        })
-        .send();
+          let new_state = RunningStatePB::from(state);
+          let enabled = cloned_store_preferences.get_bool(&key).unwrap_or(true);
+          chat_notification_builder(
+            APPFLOWY_AI_NOTIFICATION_KEY,
+            ChatNotification::UpdateLocalAIState,
+          )
+          .payload(LocalAIPB {
+            enabled,
+            is_app_downloaded: ready,
+            lack_of_resource,
+            state: new_state,
+          })
+          .send();
+        }
       }
     });
 
@@ -428,8 +429,21 @@ impl LocalAIController {
         error!("[AI Plugin] failed to initialize local ai: {:?}", err);
       }
       let _ = rx.await;
-    } else if let Err(err) = self.ai_plugin.destroy_chat_plugin().await {
-      error!("[AI Plugin] failed to destroy plugin: {:?}", err);
+    } else {
+      if let Err(err) = self.ai_plugin.destroy_chat_plugin().await {
+        error!("[AI Plugin] failed to destroy plugin: {:?}", err);
+      }
+      chat_notification_builder(
+        APPFLOWY_AI_NOTIFICATION_KEY,
+        ChatNotification::UpdateLocalAIState,
+      )
+      .payload(LocalAIPB {
+        enabled,
+        is_app_downloaded: true,
+        state: RunningStatePB::Stopped,
+        lack_of_resource: None,
+      })
+      .send();
     }
     Ok(())
   }
@@ -537,6 +551,7 @@ impl LLMResourceService for LLMResourceServiceImpl {
   }
 }
 
+const APPFLOWY_LOCAL_AI_ENABLED: &str = "appflowy_local_ai_enabled";
 fn local_ai_enabled_key(workspace_id: &str) -> String {
   format!("{}:{}", APPFLOWY_LOCAL_AI_ENABLED, workspace_id)
 }
