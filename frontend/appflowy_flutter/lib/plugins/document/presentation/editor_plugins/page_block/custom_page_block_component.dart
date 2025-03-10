@@ -25,6 +25,7 @@ class CustomPageBlockComponent extends BlockComponentStatelessWidget {
     required super.node,
     super.showActions,
     super.actionBuilder,
+    super.actionTrailingBuilder,
     super.configuration = const BlockComponentConfiguration(),
     this.header,
     this.footer,
