@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 class CalloutNodeParser extends NodeParser {
@@ -17,8 +18,15 @@ class CalloutNodeParser extends NodeParser {
         .split('\n')
         .map((e) => '> $e')
         .join('\n');
+    final type = node.attributes[CalloutBlockKeys.iconType];
+    final icon = type == FlowyIconType.emoji.name
+        ? node.attributes[CalloutBlockKeys.icon]
+        : null;
+
+    final content = icon == null ? markdown : "> $icon\n$markdown";
+
     return '''
-$markdown
+$content
 
 ''';
   }
