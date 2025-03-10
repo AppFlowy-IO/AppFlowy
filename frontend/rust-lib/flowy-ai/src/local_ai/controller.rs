@@ -502,7 +502,7 @@ async fn initialize_ai_plugin(
             std::thread::current().id()
           );
 
-          match plugin.init_chat_plugin(config).await {
+          match plugin.init_plugin(config).await {
             Ok(_) => {},
             Err(err) => error!("[AI Plugin] failed to setup plugin: {:?}", err),
           }

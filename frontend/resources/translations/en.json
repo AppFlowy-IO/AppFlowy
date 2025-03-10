@@ -866,9 +866,9 @@
         "activeOfflineAI": "Active",
         "downloadOfflineAI": "Download",
         "openModelDirectory": "Open folder",
-        "localAISetupInstruction1": "Follow the",
-        "localAISetupInstruction2": "instruction",
-        "localAISetupInstruction3": "to setup your Ollama",
+        "localAISetupInstruction1": "Follow these",
+        "localAISetupInstruction2": "instructions",
+        "localAISetupInstruction3": "to set up Ollama and AppFlowy Local AI. Skip if you've already set it up",
         "startLocalAI": "It may take a few seconds to start the local AI"
       }
     },

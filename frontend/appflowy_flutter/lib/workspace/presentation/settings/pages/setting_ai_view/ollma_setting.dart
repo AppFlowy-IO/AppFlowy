@@ -28,8 +28,6 @@ class OllamaSettingPage extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _InstallOllamaInstruction(),
-              const VSpace(12),
               ListView.separated(
                 shrinkWrap: true,
                 itemCount: state.inputItems.length,
@@ -40,6 +38,10 @@ class OllamaSettingPage extends StatelessWidget {
                 },
               ),
               const VSpace(6),
+              Opacity(
+                opacity: 0.6,
+                child: _InstallOllamaInstruction(),
+              ),
               _SaveButton(isEdited: state.isEdited),
             ],
           );

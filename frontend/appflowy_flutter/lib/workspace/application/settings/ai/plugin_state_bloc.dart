@@ -6,7 +6,6 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:url_launcher/url_launcher.dart' show launchUrl;
 
 part 'plugin_state_bloc.freezed.dart';
 
@@ -60,48 +59,46 @@ class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
       },
       updateLocalAIState: (LocalAIPB aiState) {
         // if the offline ai is not started, ask user to start it
-        if (aiState.isAppDownloaded) {
-          if (aiState.hasLackOfResource()) {
-            emit(
-              PluginStateState(
-                action:
-                    PluginStateAction.lackOfResource(aiState.lackOfResource),
-              ),
-            );
-            return;
-          }
-
-          // Chech state of the plugin
-          switch (aiState.state) {
-            case RunningStatePB.ReadyToRun:
-              emit(
-                const PluginStateState(
-                  action: PluginStateAction.readToRun(),
-                ),
-              );
-
-            case RunningStatePB.Connecting:
-              emit(
-                const PluginStateState(
-                  action: PluginStateAction.initializingPlugin(),
-                ),
-              );
-            case RunningStatePB.Running:
-              emit(const PluginStateState(action: PluginStateAction.running()));
-              break;
-            case RunningStatePB.Stopped:
-              emit(
-                state.copyWith(action: const PluginStateAction.restartPlugin()),
-              );
-            default:
-              break;
-          }
-        } else {
+        if (aiState.hasLackOfResource()) {
           emit(
-            const PluginStateState(
-              action: PluginStateAction.downloadLocalAIApp(),
+            PluginStateState(
+              action: PluginStateAction.lackOfResource(aiState.lackOfResource),
             ),
           );
+          return;
+        }
+
+        // Chech state of the plugin
+        switch (aiState.state) {
+          case RunningStatePB.ReadyToRun:
+            emit(
+              const PluginStateState(
+                action: PluginStateAction.readToRun(),
+              ),
+            );
+
+          case RunningStatePB.Connecting:
+            emit(
+              const PluginStateState(
+                action: PluginStateAction.initializingPlugin(),
+              ),
+            );
+          case RunningStatePB.Connected:
+            emit(
+              const PluginStateState(
+                action: PluginStateAction.initializingPlugin(),
+              ),
+            );
+            break;
+          case RunningStatePB.Running:
+            emit(const PluginStateState(action: PluginStateAction.running()));
+            break;
+          case RunningStatePB.Stopped:
+            emit(
+              state.copyWith(action: const PluginStateAction.restartPlugin()),
+            );
+          default:
+            break;
         }
       },
       restartLocalAI: () async {
@@ -109,15 +106,6 @@ class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
           const PluginStateState(action: PluginStateAction.restartPlugin()),
         );
         unawaited(AIEventRestartLocalAI().send());
-      },
-      downloadOfflineAIApp: () async {
-        final result = await AIEventGetLocalAIDownloadLink().send();
-        await result.fold(
-          (app) async {
-            await launchUrl(Uri.parse(app.link));
-          },
-          (err) {},
-        );
       },
       resourceStateChange: (data) {
         emit(
@@ -136,7 +124,6 @@ class PluginStateEvent with _$PluginStateEvent {
   const factory PluginStateEvent.updateLocalAIState(LocalAIPB aiState) =
       _UpdateLocalAIState;
   const factory PluginStateEvent.restartLocalAI() = _RestartLocalAI;
-  const factory PluginStateEvent.downloadOfflineAIApp() = _DownloadOfflineAIApp;
   const factory PluginStateEvent.resourceStateChange(LackOfAIResourcePB data) =
       _ResourceStateChange;
 }
@@ -155,6 +142,5 @@ class PluginStateAction with _$PluginStateAction {
   const factory PluginStateAction.initializingPlugin() = _InitializingPlugin;
   const factory PluginStateAction.running() = _PluginRunning;
   const factory PluginStateAction.restartPlugin() = _RestartPlugin;
-  const factory PluginStateAction.downloadLocalAIApp() = _DownloadLocalAIApp;
   const factory PluginStateAction.lackOfResource(String desc) = _LackOfResource;
 }

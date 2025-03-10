@@ -29,13 +29,6 @@ class PluginStateIndicator extends StatelessWidget {
             initializingPlugin: () => const InitLocalAIIndicator(),
             running: () => const _LocalAIRunning(),
             restartPlugin: () => const _RestartPluginButton(),
-            downloadLocalAIApp: () => OpenOrDownloadOfflineAIApp(
-              onRetry: () {
-                context
-                    .read<PluginStateBloc>()
-                    .add(const PluginStateEvent.started());
-              },
-            ),
             lackOfResource: (desc) => _LackOfResource(desc: desc),
           );
         },
@@ -216,6 +209,22 @@ class _LackOfResource extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyText(desc);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        FlowySvg(
+          FlowySvgs.toast_warning_filled_s,
+          size: const Size.square(20.0),
+          blendMode: null,
+        ),
+        const HSpace(6),
+        Expanded(
+          child: FlowyText(
+            desc,
+            maxLines: 3,
+          ),
+        )
+      ],
+    );
   }
 }

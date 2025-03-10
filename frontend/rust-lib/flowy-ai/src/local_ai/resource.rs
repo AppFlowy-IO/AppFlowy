@@ -38,18 +38,16 @@ pub enum WatchDiskEvent {
 
 pub enum PendingResource {
   LocalAIAppNotDownloaded,
-  OllamaServerNotFound,
-  OllamaNotInstalled,
+  OllamaServerNotReady,
   MissingModel(String),
 }
 
 impl PendingResource {
   pub fn desc(self) -> String {
     match self {
-      PendingResource::LocalAIAppNotDownloaded => "Local AI app not downloaded".to_string(),
-      PendingResource::OllamaServerNotFound => "Ollama server not ready".to_string(),
-      PendingResource::OllamaNotInstalled => "Ollama not installed".to_string(),
-      PendingResource::MissingModel(model) => format!("Missing model: {}", model),
+      PendingResource::LocalAIAppNotDownloaded => "The Local AI app was not installed correctly. Please follow the instructions to install the Local AI application".to_string(),
+      PendingResource::OllamaServerNotReady => "Ollama is not ready. Please follow the instructions to install Ollama".to_string(),
+      PendingResource::MissingModel(model) => format!("Cannot find the model: {}. Please use the ollama pull command to install the model", model),
     }
   }
 }
@@ -184,7 +182,7 @@ impl LocalAIResourceController {
           "[LLM Resource] Ollama server is not responding at {}",
           setting.ollama_server_url
         );
-        resources.push(PendingResource::OllamaServerNotFound);
+        resources.push(PendingResource::OllamaServerNotReady);
         return Ok(resources);
       },
     }
@@ -217,11 +215,11 @@ impl LocalAIResourceController {
           "[LLM Resource] 'ollama list' command failed with status: {:?}",
           output.status
         );
-        resources.push(PendingResource::OllamaNotInstalled);
+        resources.push(PendingResource::OllamaServerNotReady);
       },
       Err(e) => {
         error!("[LLM Resource] failed to execute 'ollama list': {:?}", e);
-        resources.push(PendingResource::OllamaNotInstalled);
+        resources.push(PendingResource::OllamaServerNotReady);
       },
     }
 

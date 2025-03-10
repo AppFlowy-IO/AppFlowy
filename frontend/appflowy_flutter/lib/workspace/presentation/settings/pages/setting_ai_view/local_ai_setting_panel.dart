@@ -71,25 +71,7 @@ class _LocalAIStateWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<LocalAISettingPanelBloc, LocalAISettingPanelState>(
       builder: (context, state) {
-        if (state.progressIndicator != null) {
-          final child = state.progressIndicator!.when(
-            downloadLocalAIApp: () => OpenOrDownloadOfflineAIApp(
-              onRetry: () {
-                context
-                    .read<LocalAISettingPanelBloc>()
-                    .add(const LocalAISettingPanelEvent.started());
-              },
-            ),
-            checkPluginState: () => const PluginStateIndicator(),
-          );
-
-          return Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: child,
-          );
-        } else {
-          return const PluginStateIndicator();
-        }
+        return const PluginStateIndicator();
       },
     );
   }
