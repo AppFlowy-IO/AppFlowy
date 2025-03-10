@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/locale_keys.g.dart' show LocaleKeys;
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart'
@@ -217,7 +219,7 @@ class _CalloutBlockComponentWidgetState
       layoutDirection: Directionality.maybeOf(context),
     );
     final (emojiSize, emojiButtonSize) = calculateEmojiSize();
-
+    final documentId = context.read<DocumentBloc?>()?.documentId;
     Widget child = Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(6.0)),
@@ -227,7 +229,6 @@ class _CalloutBlockComponentWidgetState
       width: double.infinity,
       alignment: alignment,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         textDirection: textDirection,
         children: [
@@ -245,6 +246,12 @@ class _CalloutBlockComponentWidgetState
             emojiSize: emojiSize,
             showBorder: false,
             buttonSize: emojiButtonSize,
+            documentId: documentId,
+            tabs: const [
+              PickerTabType.emoji,
+              PickerTabType.icon,
+              PickerTabType.custom,
+            ],
             onSubmitted: (r, controller) {
               setEmojiIconData(r.data);
               if (!r.keepOpen) controller?.close();
