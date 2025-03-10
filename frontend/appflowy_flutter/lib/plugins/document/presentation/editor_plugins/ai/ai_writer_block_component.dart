@@ -18,6 +18,7 @@ import 'operations/ai_writer_cubit.dart';
 import 'operations/ai_writer_entities.dart';
 import 'operations/ai_writer_node_extension.dart';
 import 'suggestion_action_bar.dart';
+import 'widgets/ai_writer_gesture_detector.dart';
 
 class AiWriterBlockKeys {
   const AiWriterBlockKeys._();
@@ -168,10 +169,11 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
                   children: [
                     BlocBuilder<AiWriterCubit, AiWriterState>(
                       builder: (context, state) {
-                        return GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => onTapOutside(),
-                          onTapDown: (_) => onTapOutside(),
+                        return AiWriterGestureDetector(
+                          behavior: state is GeneratingAiWriterState
+                              ? HitTestBehavior.opaque
+                              : HitTestBehavior.translucent,
+                          onPointerEvent: () => onTapOutside(),
                         );
                       },
                     ),
