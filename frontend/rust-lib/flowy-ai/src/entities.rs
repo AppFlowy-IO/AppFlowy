@@ -448,7 +448,7 @@ pub enum PendingResourceTypePB {
 impl From<PendingResource> for PendingResourceTypePB {
   fn from(value: PendingResource) -> Self {
     match value {
-      PendingResource::LocalAIAppNotDownloaded { .. } => PendingResourceTypePB::LocalAIAppRes,
+      PendingResource::PluginExecutableNotReady { .. } => PendingResourceTypePB::LocalAIAppRes,
       _ => PendingResourceTypePB::AIModel,
     }
   }
@@ -483,7 +483,7 @@ pub struct LocalAIPB {
   pub enabled: bool,
 
   #[pb(index = 2)]
-  pub is_app_downloaded: bool,
+  pub is_executable_ready: bool,
 
   #[pb(index = 3, one_of)]
   pub lack_of_resource: Option<String>,

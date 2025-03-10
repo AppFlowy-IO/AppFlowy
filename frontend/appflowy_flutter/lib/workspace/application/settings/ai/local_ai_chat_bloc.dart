@@ -45,7 +45,7 @@ class LocalAISettingPanelBloc
         );
       },
       updateAIState: (LocalAIPB pluginState) {
-        if (pluginState.isAppDownloaded) {
+        if (pluginState.isExecutableReady) {
           emit(
             state.copyWith(
               runningState: pluginState.state,

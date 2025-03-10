@@ -1,6 +1,7 @@
 use crate::local_ai::resource::WatchDiskEvent;
 use flowy_error::{FlowyError, FlowyResult};
 use std::path::PathBuf;
+use std::process::Command;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver};
 use tracing::{error, trace};
 
@@ -100,5 +101,20 @@ pub(crate) fn ollama_plugin_path() -> std::path::PathBuf {
   {
     let offline_app = "ollama_ai_plugin";
     std::path::PathBuf::from(format!("/usr/local/bin/{}", offline_app))
+  }
+}
+
+pub(crate) fn ollama_plugin_command_available() -> bool {
+  let command = if cfg!(windows) { "where" } else { "command" };
+  let args = if cfg!(windows) {
+    vec!["/c", "where", "ollama_ai_plugin"]
+  } else {
+    vec!["-v", "ollama_ai_plugin"]
+  };
+
+  let output = Command::new(command).args(args).output();
+  match output {
+    Ok(output) => !output.stdout.is_empty(),
+    Err(_) => false,
   }
 }

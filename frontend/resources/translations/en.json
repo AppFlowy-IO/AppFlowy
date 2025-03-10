@@ -851,7 +851,7 @@
         "localAILoading": "Local AI Chat Model is loading...",
         "localAIStopped": "Local AI stopped",
         "localAIRunning": "Local AI is running",
-        "localAIInitializing": "Local AI is initializing...",
+        "localAIInitializing": "Local AI is initializing and may take a few minutes, depending on your device",
         "failToLoadLocalAI": "Failed to start local AI",
         "restartLocalAI": "Restart Local AI",
         "disableLocalAITitle": "Disable local AI",

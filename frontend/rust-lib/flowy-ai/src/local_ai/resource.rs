@@ -5,7 +5,7 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_infra::async_trait::async_trait;
 
 use crate::entities::LackOfAIResourcePB;
-use crate::local_ai::watch::ollama_plugin_path;
+use crate::local_ai::watch::{ollama_plugin_command_available, ollama_plugin_path};
 #[cfg(target_os = "macos")]
 use crate::local_ai::watch::{watch_offline_app, WatchContext};
 use crate::notification::{
@@ -37,7 +37,7 @@ pub enum WatchDiskEvent {
 }
 
 pub enum PendingResource {
-  LocalAIAppNotDownloaded,
+  PluginExecutableNotReady,
   OllamaServerNotReady,
   MissingModel(String),
 }
@@ -45,7 +45,7 @@ pub enum PendingResource {
 impl PendingResource {
   pub fn desc(self) -> String {
     match self {
-      PendingResource::LocalAIAppNotDownloaded => "The Local AI app was not installed correctly. Please follow the instructions to install the Local AI application".to_string(),
+      PendingResource::PluginExecutableNotReady => "The Local AI app was not installed correctly. Please follow the instructions to install the Local AI application".to_string(),
       PendingResource::OllamaServerNotReady => "Ollama is not ready. Please follow the instructions to install Ollama".to_string(),
       PendingResource::MissingModel(model) => format!("Cannot find the model: {}. Please use the ollama pull command to install the model", model),
     }
@@ -123,8 +123,8 @@ impl LocalAIResourceController {
     }
   }
 
-  pub fn is_app_downloaded(&self) -> bool {
-    ollama_plugin_path().exists()
+  pub fn is_plugin_ready(&self) -> bool {
+    ollama_plugin_path().exists() || ollama_plugin_command_available()
   }
 
   pub async fn get_plugin_download_link(&self) -> FlowyResult<String> {
@@ -164,8 +164,11 @@ impl LocalAIResourceController {
     let mut resources = vec![];
     let app_path = ollama_plugin_path();
     if !app_path.exists() {
-      trace!("[LLM Resource] offline app not found: {:?}", app_path);
-      resources.push(PendingResource::LocalAIAppNotDownloaded);
+      if !ollama_plugin_command_available() {
+        trace!("[LLM Resource] offline app not found: {:?}", app_path);
+        resources.push(PendingResource::PluginExecutableNotReady);
+        return Ok(resources);
+      }
     }
 
     let setting = self.get_llm_setting();
@@ -254,6 +257,7 @@ impl LocalAIResourceController {
 
     let mut config = OllamaPluginConfig::new(
       bin_path,
+      "ollama_ai_plugin".to_string(),
       llm_setting.chat_model_name.clone(),
       llm_setting.embedding_model_name.clone(),
       Some(llm_setting.ollama_server_url.clone()),

@@ -223,7 +223,7 @@ class _LackOfResource extends StatelessWidget {
             desc,
             maxLines: 3,
           ),
-        )
+        ),
       ],
     );
   }

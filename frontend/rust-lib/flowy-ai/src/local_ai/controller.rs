@@ -92,7 +92,7 @@ impl LocalAIController {
         if let Ok(workspace_id) = cloned_user_service.workspace_id() {
           let key = local_ai_enabled_key(&workspace_id);
           info!("[AI Plugin] state: {:?}", state);
-          let ready = cloned_llm_res.is_app_downloaded();
+          let ready = cloned_llm_res.is_plugin_ready();
           let lack_of_resource = cloned_llm_res.get_lack_of_resource().await;
 
           let new_state = RunningStatePB::from(state);
@@ -103,7 +103,7 @@ impl LocalAIController {
           )
           .payload(LocalAIPB {
             enabled,
-            is_app_downloaded: ready,
+            is_executable_ready: ready,
             lack_of_resource,
             state: new_state,
           })
@@ -254,7 +254,7 @@ impl LocalAIController {
   pub async fn get_local_ai_state(&self) -> LocalAIPB {
     let start = std::time::Instant::now();
     let enabled = self.is_enabled();
-    let is_app_downloaded = self.resource.is_app_downloaded();
+    let is_app_downloaded = self.resource.is_plugin_ready();
     let state = self.ai_plugin.get_plugin_running_state();
     let lack_of_resource = self.resource.get_lack_of_resource().await;
     let elapsed = start.elapsed();
@@ -265,7 +265,7 @@ impl LocalAIController {
     );
     LocalAIPB {
       enabled,
-      is_app_downloaded,
+      is_executable_ready: is_app_downloaded,
       state: RunningStatePB::from(state),
       lack_of_resource,
     }
@@ -439,7 +439,7 @@ impl LocalAIController {
       )
       .payload(LocalAIPB {
         enabled,
-        is_app_downloaded: true,
+        is_executable_ready: true,
         state: RunningStatePB::Stopped,
         lack_of_resource: None,
       })
@@ -467,7 +467,7 @@ async fn initialize_ai_plugin(
   )
   .payload(LocalAIPB {
     enabled: true,
-    is_app_downloaded: true,
+    is_executable_ready: true,
     state: RunningStatePB::ReadyToRun,
     lack_of_resource: lack_of_resource.clone(),
   })
