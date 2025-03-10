@@ -89,7 +89,7 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
       interceptor: (context, targetNode) {
         // if the cursor node is in a columns block or a column block,
         //  we will return the node's parent instead to support dragging a node to the inside of a columns block or a column block.
-        final parentColumnNode = targetNode.parentColumn;
+        final parentColumnNode = targetNode.columnParent;
         if (parentColumnNode != null) {
           final position = getDragAreaPosition(
             context,
@@ -147,7 +147,7 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
       interceptor: (context, targetNode) {
         // if the cursor node is in a columns block or a column block,
         //  we will return the node's parent instead to support dragging a node to the inside of a columns block or a column block.
-        final parentColumnNode = targetNode.parentColumn;
+        final parentColumnNode = targetNode.columnParent;
         if (parentColumnNode != null) {
           final position = getDragAreaPosition(
             context,
