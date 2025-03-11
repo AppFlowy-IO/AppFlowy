@@ -366,7 +366,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
         contextMenuItems: customContextMenuItems,
         // customize the header and footer.
         header: widget.header,
-
+        autoScrollEdgeOffset: UniversalPlatform.isDesktopOrWeb
+            ? 250
+            : appFlowyEditorAutoScrollEdgeOffset,
         footer: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () async {
@@ -375,7 +377,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
           },
           child: SizedBox(
             width: double.infinity,
-            height: UniversalPlatform.isDesktopOrWeb ? 200 : 400,
+            height: UniversalPlatform.isDesktopOrWeb ? 300 : 400,
           ),
         ),
         dropTargetStyle: AppFlowyDropTargetStyle(

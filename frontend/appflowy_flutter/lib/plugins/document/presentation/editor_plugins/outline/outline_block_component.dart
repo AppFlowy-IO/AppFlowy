@@ -81,7 +81,9 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
     with
         BlockComponentConfigurable,
         BlockComponentTextDirectionMixin,
-        BlockComponentBackgroundColorMixin {
+        BlockComponentBackgroundColorMixin,
+        DefaultSelectableMixin,
+        SelectableMixin {
   // Change the value if the heading block type supports heading levels greater than '3'
   static const maxVisibleDepth = 6;
 
@@ -96,11 +98,35 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
   late Stream<EditorTransactionValue> stream = editorState.transactionStream;
 
   @override
+  GlobalKey<State<StatefulWidget>> blockComponentKey = GlobalKey(
+    debugLabel: OutlineBlockKeys.type,
+  );
+
+  @override
+  GlobalKey<State<StatefulWidget>> get containerKey => widget.node.key;
+
+  @override
+  GlobalKey<State<StatefulWidget>> get forwardKey => widget.node.key;
+
+  @override
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: stream,
       builder: (context, snapshot) {
         Widget child = _buildOutlineBlock();
+
+        child = BlockSelectionContainer(
+          node: node,
+          delegate: this,
+          listenable: editorState.selectionNotifier,
+          remoteSelection: editorState.remoteSelections,
+          blockColor: editorState.editorStyle.selectionColor,
+          selectionAboveBlock: true,
+          supportTypes: const [
+            BlockSelectionType.block,
+          ],
+          child: child,
+        );
 
         if (UniversalPlatform.isDesktopOrWeb) {
           if (widget.showActions && widget.actionBuilder != null) {
@@ -176,6 +202,7 @@ class _OutlineBlockWidgetState extends State<OutlineBlockWidget>
     }
 
     return Container(
+      key: blockComponentKey,
       constraints: const BoxConstraints(
         minHeight: 40.0,
       ),
