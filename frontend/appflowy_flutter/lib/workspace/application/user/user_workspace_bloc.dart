@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/feature_flags.dart';
+import 'package:appflowy/src/rust/folder/folder.dart';
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
@@ -50,6 +51,13 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               'init workspace, current workspace: ${currentWorkspace?.workspaceId}, '
               'workspaces: ${workspaces.map((e) => e.workspaceId)}, isCollabWorkspaceOn: $isCollabWorkspaceOn',
             );
+            // TODO(Lucas): Move it the task
+            final folderManager = FolderManager(
+              baseUrl: 'https://beta.appflowy.cloud',
+              workspaceId: currentWorkspace?.workspaceId ?? '',
+            );
+            final folderList = await folderManager.getFolderList();
+            Log.info('folder list: $folderList');
             if (currentWorkspace != null && result.$3 == true) {
               Log.info('init open workspace: ${currentWorkspace.workspaceId}');
               await _userService.openWorkspace(currentWorkspace.workspaceId);

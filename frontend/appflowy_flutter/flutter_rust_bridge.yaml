@@ -1,3 +1,4 @@
-rust_input: crate::api
+rust_input: crate::core, crate::folder
 rust_root: rust/
 dart_output: lib/src/rust
+enable_lifetime: true
