@@ -89,7 +89,7 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
       interceptor: (context, targetNode) {
         // if the cursor node is in a columns block or a column block,
         //  we will return the node's parent instead to support dragging a node to the inside of a columns block or a column block.
-        final parentColumnNode = targetNode.parentColumn;
+        final parentColumnNode = targetNode.columnParent;
         if (parentColumnNode != null) {
           final position = getDragAreaPosition(
             context,
@@ -106,6 +106,12 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
               position.$1 == VerticalPosition.middle) {
             return parentColumnNode;
           }
+        }
+
+        // return simple table block if the target node is in a simple table block
+        final parentSimpleTableNode = targetNode.parentTableNode;
+        if (parentSimpleTableNode != null) {
+          return parentSimpleTableNode;
         }
 
         return targetNode;
@@ -141,7 +147,7 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
       interceptor: (context, targetNode) {
         // if the cursor node is in a columns block or a column block,
         //  we will return the node's parent instead to support dragging a node to the inside of a columns block or a column block.
-        final parentColumnNode = targetNode.parentColumn;
+        final parentColumnNode = targetNode.columnParent;
         if (parentColumnNode != null) {
           final position = getDragAreaPosition(
             context,
@@ -160,9 +166,16 @@ class _DraggableOptionButtonState extends State<DraggableOptionButton> {
           }
         }
 
+        // return simple table block if the target node is in a simple table block
+        final parentSimpleTableNode = targetNode.parentTableNode;
+        if (parentSimpleTableNode != null) {
+          return parentSimpleTableNode;
+        }
+
         return targetNode;
       },
     );
+
     dragToMoveNode(
       context,
       node: widget.blockComponentContext.node,

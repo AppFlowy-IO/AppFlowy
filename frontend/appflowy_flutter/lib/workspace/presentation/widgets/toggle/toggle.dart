@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
-
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flutter/material.dart';
 
 class ToggleStyle {
   const ToggleStyle({
@@ -38,6 +37,7 @@ class Toggle extends StatelessWidget {
     this.thumbColor,
     this.activeBackgroundColor,
     this.inactiveBackgroundColor,
+    this.duration = const Duration(milliseconds: 150),
     this.padding = const EdgeInsets.all(8.0),
   });
 
@@ -48,6 +48,7 @@ class Toggle extends StatelessWidget {
   final Color? activeBackgroundColor;
   final Color? inactiveBackgroundColor;
   final EdgeInsets padding;
+  final Duration duration;
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +71,7 @@ class Toggle extends StatelessWidget {
               ),
             ),
             AnimatedPositioned(
-              duration: const Duration(milliseconds: 150),
+              duration: duration,
               top: (style.height - style.thumbRadius) / 2,
               left: value ? style.width - style.thumbRadius - 1 : 1,
               child: Container(

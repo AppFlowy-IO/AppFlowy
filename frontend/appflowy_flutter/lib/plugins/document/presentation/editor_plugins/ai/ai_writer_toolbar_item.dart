@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -8,7 +9,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'ai_writer_block_component.dart';
 import 'operations/ai_writer_entities.dart';
 
 const _improveWritingToolbarItemId = 'appflowy.editor.ai_improve_writing';
@@ -223,7 +223,6 @@ void _insertAiNode(EditorState editorState, AiWriterCommand command) async {
         command: command,
       ),
     )
-    ..afterSelection = selection
     ..selectionExtraInfo = {selectionExtraInfoDisableToolbar: true};
 
   await editorState.apply(
@@ -232,6 +231,7 @@ void _insertAiNode(EditorState editorState, AiWriterCommand command) async {
       recordUndo: false,
       inMemoryUpdate: true,
     ),
+    withUpdateSelection: false,
   );
 }
 
@@ -239,4 +239,10 @@ bool _isAIEnabled(EditorState editorState) {
   final documentContext = editorState.document.root.context;
   return documentContext == null ||
       !documentContext.read<DocumentBloc>().isLocalMode;
+}
+
+bool onlyShowInTextTypeAndExcludeTable(
+  EditorState editorState,
+) {
+  return onlyShowInTextType(editorState) && notShowInTable(editorState);
 }

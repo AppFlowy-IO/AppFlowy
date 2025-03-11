@@ -221,7 +221,7 @@ impl Chat {
                     answer_stream_buffer.lock().await.push_str(&value);
                     // trace!("[Chat] stream answer: {}", value);
                     if let Err(err) = answer_sink.send(format!("data:{}", value)).await {
-                      error!("Failed to stream answer: {}", err);
+                      error!("Failed to stream answer via IsolateSink: {}", err);
                     }
                   },
                   QuestionStreamValue::Metadata { value } => {

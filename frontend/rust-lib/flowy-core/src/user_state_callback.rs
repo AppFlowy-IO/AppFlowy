@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use anyhow::Context;
 use client_api::entity::billing_dto::SubscriptionPlan;
-use tracing::{event, info};
+use tracing::{error, event, info};
 
 use collab_entity::CollabType;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
@@ -15,6 +15,7 @@ use flowy_storage::manager::StorageManager;
 use flowy_user::event_map::UserStatusCallback;
 use flowy_user_pub::cloud::{UserCloudConfig, UserCloudServiceProvider};
 use flowy_user_pub::entities::{Authenticator, UserProfile, UserWorkspace};
+use lib_dispatch::runtime::AFPluginRuntime;
 use lib_infra::async_trait::async_trait;
 
 use crate::server_layer::{Server, ServerProvider};
@@ -27,6 +28,20 @@ pub(crate) struct UserStatusCallbackImpl {
   pub(crate) server_provider: Arc<ServerProvider>,
   pub(crate) storage_manager: Arc<StorageManager>,
   pub(crate) ai_manager: Arc<AIManager>,
+  // By default, all callback will run on the caller thread. If you don't want to block the caller
+  // thread, you can use runtime to spawn a new task.
+  pub(crate) runtime: Arc<AFPluginRuntime>,
+}
+
+impl UserStatusCallbackImpl {
+  fn init_ai_component(&self, workspace_id: String) {
+    let cloned_ai_manager = self.ai_manager.clone();
+    self.runtime.spawn(async move {
+      if let Err(err) = cloned_ai_manager.initialize(&workspace_id).await {
+        error!("Failed to initialize AIManager: {:?}", err);
+      }
+    });
+  }
 }
 
 #[async_trait]
@@ -70,7 +85,9 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .initialize(user_id, authenticator == &Authenticator::Local)
       .await?;
     self.document_manager.initialize(user_id).await?;
-    self.ai_manager.initialize(&user_workspace.id).await?;
+
+    let workspace_id = user_workspace.id.clone();
+    self.init_ai_component(workspace_id);
     Ok(())
   }
 
@@ -97,6 +114,9 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .initialize(user_id, authenticator.is_local())
       .await?;
     self.document_manager.initialize(user_id).await?;
+
+    let workspace_id = user_workspace.id.clone();
+    self.init_ai_component(workspace_id);
     Ok(())
   }
 
@@ -175,6 +195,9 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .initialize_with_new_user(user_profile.uid)
       .await
       .context("DocumentManager error")?;
+
+    let workspace_id = user_workspace.id.clone();
+    self.init_ai_component(workspace_id);
     Ok(())
   }
 

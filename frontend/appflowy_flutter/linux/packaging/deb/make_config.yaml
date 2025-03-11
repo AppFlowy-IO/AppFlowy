@@ -29,8 +29,7 @@ essential: false
 section: x11
 priority: optional
 
-supported_mime_type:
-  - x-scheme-handler/appflowy-flutter
+supportedMimeType: x-scheme-handler/appflowy-flutter
 
 dependencies:
   - libnotify-bin

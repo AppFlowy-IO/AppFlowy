@@ -18,6 +18,7 @@ import 'operations/ai_writer_cubit.dart';
 import 'operations/ai_writer_entities.dart';
 import 'operations/ai_writer_node_extension.dart';
 import 'suggestion_action_bar.dart';
+import 'widgets/ai_writer_gesture_detector.dart';
 
 class AiWriterBlockKeys {
   const AiWriterBlockKeys._();
@@ -66,6 +67,10 @@ class AIWriterBlockComponentBuilder extends BlockComponentBuilder {
         blockComponentContext,
         state,
       ),
+      actionTrailingBuilder: (context, state) => actionTrailingBuilder(
+        blockComponentContext,
+        state,
+      ),
     );
   }
 
@@ -83,6 +88,7 @@ class AiWriterBlockComponent extends BlockComponentStatefulWidget {
     required super.node,
     super.showActions,
     super.actionBuilder,
+    super.actionTrailingBuilder,
     super.configuration = const BlockComponentConfiguration(),
   });
 
@@ -163,13 +169,11 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
                   children: [
                     BlocBuilder<AiWriterCubit, AiWriterState>(
                       builder: (context, state) {
-                        final hitTestBehavior = state is GeneratingAiWriterState
-                            ? HitTestBehavior.opaque
-                            : HitTestBehavior.translucent;
-                        return GestureDetector(
-                          behavior: hitTestBehavior,
-                          onTap: () => onTapOutside(),
-                          onTapDown: (_) => onTapOutside(),
+                        return AiWriterGestureDetector(
+                          behavior: state is GeneratingAiWriterState
+                              ? HitTestBehavior.opaque
+                              : HitTestBehavior.translucent,
+                          onPointerEvent: () => onTapOutside(),
                         );
                       },
                     ),
@@ -280,7 +284,7 @@ class OverlayContent extends StatelessWidget {
                     hasSelection: hasSelection,
                   ),
                   onTap: (action) {
-                    context.read<AiWriterCubit>().runResponseAction(action);
+                    _onSelectSuggestionAction(context, action);
                   },
                 ),
               ),
@@ -346,9 +350,7 @@ class OverlayContent extends StatelessWidget {
                                   hasSelection: hasSelection,
                                 ),
                                 onTap: (action) {
-                                  context
-                                      .read<AiWriterCubit>()
-                                      .runResponseAction(action);
+                                  _onSelectSuggestionAction(context, action);
                                 },
                               ),
                             ],
@@ -538,6 +540,18 @@ class OverlayContent extends StatelessWidget {
           ],
       };
     }
+  }
+
+  void _onSelectSuggestionAction(
+    BuildContext context,
+    SuggestionAction action,
+  ) {
+    final predefinedFormat =
+        context.read<AIPromptInputBloc>().state.predefinedFormat;
+    context.read<AiWriterCubit>().runResponseAction(
+          action,
+          predefinedFormat,
+        );
   }
 }
 

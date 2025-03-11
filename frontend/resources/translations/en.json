@@ -850,6 +850,8 @@
         "localAIStart": "Local AI Chat is starting...",
         "localAILoading": "Local AI Chat Model is loading...",
         "localAIStopped": "Local AI stopped",
+        "localAIRunning": "Local AI is running",
+        "localAIInitializing": "Local AI is initializing and may take a few minutes, depending on your device",
         "failToLoadLocalAI": "Failed to start local AI",
         "restartLocalAI": "Restart Local AI",
         "disableLocalAITitle": "Disable local AI",
@@ -863,7 +865,11 @@
         "offlineAIDownload3": "it first",
         "activeOfflineAI": "Active",
         "downloadOfflineAI": "Download",
-        "openModelDirectory": "Open folder"
+        "openModelDirectory": "Open folder",
+        "localAISetupInstruction1": "Follow these",
+        "localAISetupInstruction2": "instructions",
+        "localAISetupInstruction3": "to set up Ollama and AppFlowy Local AI. Skip if you've already set it up",
+        "startLocalAI": "It may take a few seconds to start the local AI"
       }
     },
     "planPage": {

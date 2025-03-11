@@ -208,7 +208,7 @@ class _MobileEmojiPickerButton extends StatelessWidget {
                     MobileEmojiPickerScreen.iconSelectedType: emoji.type.name,
                     MobileEmojiPickerScreen.uploadDocumentId: documentId,
                     MobileEmojiPickerScreen.selectTabs:
-                        tabs.map((e) => e.name).toList(),
+                        tabs.map((e) => e.name).toList().join('-'),
                   },
                 ).toString(),
               );

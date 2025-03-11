@@ -50,7 +50,6 @@ class _BlockOptionButtonState extends State<BlockOptionButton> {
       child: BlocBuilder<BlockActionOptionCubit, BlockActionOptionState>(
         builder: (context, _) => PopoverActionList<PopoverAction>(
           actions: _buildPopoverActions(context),
-          popoverMutex: PopoverMutex(),
           animationDuration: Durations.short3,
           slideDistance: 5,
           beginScaleFactor: 1.0,

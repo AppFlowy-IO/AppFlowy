@@ -284,81 +284,108 @@ class IconPicker extends StatefulWidget {
 
 class _IconPickerState extends State<IconPicker> {
   final mutex = PopoverMutex();
+  PopoverController? childPopoverController;
+
+  @override
+  void dispose() {
+    super.dispose();
+    childPopoverController = null;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: widget.iconGroups.length,
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      itemBuilder: (context, index) {
-        final iconGroup = widget.iconGroups[index];
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            FlowyText(
-              iconGroup.displayName.capitalize(),
-              fontSize: 12,
-              figmaLineHeight: 18.0,
-              color: context.pickerTextColor,
-            ),
-            const VSpace(4.0),
-            GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: widget.iconPerLine,
-              ),
-              itemCount: iconGroup.icons.length,
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                final icon = iconGroup.icons[index];
-                return widget.enableBackgroundColorSelection
-                    ? _Icon(
-                        icon: icon,
-                        mutex: mutex,
-                        onSelectedColor: (context, color) {
-                          String groupName = iconGroup.name;
-                          if (groupName == _kRecentIconGroupName) {
-                            groupName = getGroupName(index);
-                          }
-                          widget.onSelectedIcon(
-                            IconsData(
-                              groupName,
-                              icon.name,
-                              color,
-                            ),
+    return GestureDetector(
+      onTap: hideColorSelector,
+      child: NotificationListener(
+        onNotification: (notificationInfo) {
+          if (notificationInfo is ScrollStartNotification) {
+            hideColorSelector();
+          }
+          return true;
+        },
+        child: ListView.builder(
+          itemCount: widget.iconGroups.length,
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          itemBuilder: (context, index) {
+            final iconGroup = widget.iconGroups[index];
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FlowyText(
+                  iconGroup.displayName.capitalize(),
+                  fontSize: 12,
+                  figmaLineHeight: 18.0,
+                  color: context.pickerTextColor,
+                ),
+                const VSpace(4.0),
+                GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: widget.iconPerLine,
+                  ),
+                  itemCount: iconGroup.icons.length,
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    final icon = iconGroup.icons[index];
+                    return widget.enableBackgroundColorSelection
+                        ? _Icon(
+                            icon: icon,
+                            mutex: mutex,
+                            onOpen: (childPopoverController) {
+                              this.childPopoverController =
+                                  childPopoverController;
+                            },
+                            onSelectedColor: (context, color) {
+                              String groupName = iconGroup.name;
+                              if (groupName == _kRecentIconGroupName) {
+                                groupName = getGroupName(index);
+                              }
+                              widget.onSelectedIcon(
+                                IconsData(
+                                  groupName,
+                                  icon.name,
+                                  color,
+                                ),
+                              );
+                              RecentIcons.putIcon(RecentIcon(icon, groupName));
+                              PopoverContainer.of(context).close();
+                            },
+                          )
+                        : _IconNoBackground(
+                            icon: icon,
+                            onSelectedIcon: () {
+                              String groupName = iconGroup.name;
+                              if (groupName == _kRecentIconGroupName) {
+                                groupName = getGroupName(index);
+                              }
+                              widget.onSelectedIcon(
+                                IconsData(
+                                  groupName,
+                                  icon.name,
+                                  null,
+                                ),
+                              );
+                              RecentIcons.putIcon(RecentIcon(icon, groupName));
+                            },
                           );
-                          RecentIcons.putIcon(RecentIcon(icon, groupName));
-                          PopoverContainer.of(context).close();
-                        },
-                      )
-                    : _IconNoBackground(
-                        icon: icon,
-                        onSelectedIcon: () {
-                          String groupName = iconGroup.name;
-                          if (groupName == _kRecentIconGroupName) {
-                            groupName = getGroupName(index);
-                          }
-                          widget.onSelectedIcon(
-                            IconsData(
-                              groupName,
-                              icon.name,
-                              null,
-                            ),
-                          );
-                          RecentIcons.putIcon(RecentIcon(icon, groupName));
-                        },
-                      );
-              },
-            ),
-            const VSpace(12.0),
-            if (index == widget.iconGroups.length - 1) ...[
-              const StreamlinePermit(),
-              const VSpace(12.0),
-            ],
-          ],
-        );
-      },
+                  },
+                ),
+                const VSpace(12.0),
+                if (index == widget.iconGroups.length - 1) ...[
+                  const StreamlinePermit(),
+                  const VSpace(12.0),
+                ],
+              ],
+            );
+          },
+        ),
+      ),
     );
+  }
+
+  void hideColorSelector() {
+    childPopoverController?.close();
+    childPopoverController = null;
   }
 
   String getGroupName(int index) {
@@ -376,9 +403,11 @@ class _IconNoBackground extends StatelessWidget {
   const _IconNoBackground({
     required this.icon,
     required this.onSelectedIcon,
+    this.isSelected = false,
   });
 
   final Icon icon;
+  final bool isSelected;
   final VoidCallback onSelectedIcon;
 
   @override
@@ -387,6 +416,7 @@ class _IconNoBackground extends StatelessWidget {
       message: icon.displayName,
       preferBelow: false,
       child: FlowyButton(
+        isSelected: isSelected,
         useIntrinsicWidth: true,
         onTap: () => onSelectedIcon(),
         margin: const EdgeInsets.all(8.0),
@@ -408,11 +438,13 @@ class _Icon extends StatefulWidget {
     required this.icon,
     required this.mutex,
     required this.onSelectedColor,
+    this.onOpen,
   });
 
   final Icon icon;
   final PopoverMutex mutex;
   final void Function(BuildContext context, String color) onSelectedColor;
+  final ValueChanged<PopoverController>? onOpen;
 
   @override
   State<_Icon> createState() => _IconState();
@@ -420,6 +452,7 @@ class _Icon extends StatefulWidget {
 
 class _IconState extends State<_Icon> {
   final PopoverController _popoverController = PopoverController();
+  bool isSelected = false;
 
   @override
   void dispose() {
@@ -434,10 +467,18 @@ class _IconState extends State<_Icon> {
       controller: _popoverController,
       offset: const Offset(0, 6),
       mutex: widget.mutex,
+      onClose: () {
+        updateIsSelected(false);
+      },
       clickHandler: PopoverClickHandler.gestureDetector,
       child: _IconNoBackground(
         icon: widget.icon,
-        onSelectedIcon: () => _popoverController.show(),
+        isSelected: isSelected,
+        onSelectedIcon: () {
+          updateIsSelected(true);
+          _popoverController.show();
+          widget.onOpen?.call(_popoverController);
+        },
       ),
       popupBuilder: (context) {
         return Container(
@@ -448,6 +489,12 @@ class _IconState extends State<_Icon> {
         );
       },
     );
+  }
+
+  void updateIsSelected(bool isSelected) {
+    setState(() {
+      this.isSelected = isSelected;
+    });
   }
 }
 

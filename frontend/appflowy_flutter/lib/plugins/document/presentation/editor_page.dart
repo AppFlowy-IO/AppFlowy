@@ -81,8 +81,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
   ];
 
   final List<ToolbarItem> toolbarItems = [
-    improveWritingItem..isActive = onlyShowInTextType,
-    aiWriterItem..isActive = onlyShowInTextType,
+    improveWritingItem..isActive = onlyShowInTextTypeAndExcludeTable,
+    aiWriterItem..isActive = onlyShowInTextTypeAndExcludeTable,
     paragraphItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
     headingsToolbarItem
       ..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
@@ -154,7 +154,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       InlineMathEquationKeys.formula,
     ]);
 
-    indentableBlockTypes.add(ToggleListBlockKeys.type);
+    indentableBlockTypes.addAll([
+      ToggleListBlockKeys.type,
+      CalloutBlockKeys.type,
+    ]);
     convertibleBlockTypes.addAll([
       ToggleListBlockKeys.type,
       CalloutBlockKeys.type,
@@ -363,7 +366,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
         contextMenuItems: customContextMenuItems,
         // customize the header and footer.
         header: widget.header,
-
+        autoScrollEdgeOffset: UniversalPlatform.isDesktopOrWeb
+            ? 250
+            : appFlowyEditorAutoScrollEdgeOffset,
         footer: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () async {
@@ -372,7 +377,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
           },
           child: SizedBox(
             width: double.infinity,
-            height: UniversalPlatform.isDesktopOrWeb ? 200 : 400,
+            height: UniversalPlatform.isDesktopOrWeb ? 300 : 400,
           ),
         ),
         dropTargetStyle: AppFlowyDropTargetStyle(

@@ -54,12 +54,14 @@ class GridSettingBar extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 FilterButton(toggleExtension: toggleExtension),
-                const HSpace(6),
+                const HSpace(2),
                 SortButton(toggleExtension: toggleExtension),
-                const HSpace(6),
+                if (isReference) ...[
+                  const HSpace(2),
+                  ViewDatabaseButton(view: controller.view),
+                ],
+                const HSpace(2),
                 SettingButton(databaseController: controller),
-                if (isReference) const HSpace(6),
-                if (isReference) ViewDatabaseButton(view: controller.view),
               ],
             ),
           );

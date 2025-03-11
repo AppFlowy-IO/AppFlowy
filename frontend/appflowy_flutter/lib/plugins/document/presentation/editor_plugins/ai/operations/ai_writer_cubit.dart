@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
@@ -30,7 +32,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
             isFirstRun: true,
           ),
         ) {
-    editorState.service.keyboardService?.disable();
+    editorState.service.keyboardService?.disableShortcuts();
   }
 
   final String documentId;
@@ -47,7 +49,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
   @override
   Future<void> close() async {
     selectedSourcesNotifier.dispose();
-    editorState.service.keyboardService?.enable();
+    editorState.service.keyboardService?.enableShortcuts();
     await super.close();
   }
 
@@ -184,11 +186,14 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     await removeAiWriterNode(editorState, getAiWriterNode());
   }
 
-  void runResponseAction(SuggestionAction action) async {
+  void runResponseAction(
+    SuggestionAction action, [
+    PredefinedFormat? predefinedFormat,
+  ]) async {
     if (action case SuggestionAction.rewrite || SuggestionAction.tryAgain) {
       await _textRobot.discard();
       _textRobot.reset();
-      runCommand(state.command, null, isRetry: true);
+      runCommand(state.command, predefinedFormat, isRetry: true);
       return;
     }
 
@@ -295,32 +300,39 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       end: cursorPosition,
     ).normalized;
 
-    final text = await editorState.getMarkdownInSelection(selection);
+    String text = await editorState.getMarkdownInSelection(selection);
     if (text.isEmpty) {
       if (state is! ReadyAiWriterState) {
         return;
       }
-      final readyState = state as ReadyAiWriterState;
-      emit(
-        SingleShotAiWriterState(
-          command,
-          title: LocaleKeys.ai_continueWritingEmptyDocumentTitle.tr(),
-          description:
-              LocaleKeys.ai_continueWritingEmptyDocumentDescription.tr(),
-          onDismiss: () {
-            if (isImmediateRun) {
-              removeAiWriterNode(editorState, node);
-            }
-          },
-        ),
-      );
-      emit(readyState);
-      return;
+      final view = await ViewBackendService.getView(documentId).toNullable();
+      if (view == null ||
+          view.name.isEmpty ||
+          view.name == LocaleKeys.menuAppHeader_defaultNewPageName.tr()) {
+        final readyState = state as ReadyAiWriterState;
+        emit(
+          SingleShotAiWriterState(
+            command,
+            title: LocaleKeys.ai_continueWritingEmptyDocumentTitle.tr(),
+            description:
+                LocaleKeys.ai_continueWritingEmptyDocumentDescription.tr(),
+            onDismiss: () {
+              if (isImmediateRun) {
+                removeAiWriterNode(editorState, node);
+              }
+            },
+          ),
+        );
+        emit(readyState);
+        return;
+      } else {
+        text += view.name;
+      }
     }
 
     final stream = await _aiService.streamCompletion(
       objectId: documentId,
-      text: await editorState.getMarkdownInSelection(selection),
+      text: text,
       completionType: command.toCompletionType(),
       onStart: () async {
         final transaction = editorState.transaction;

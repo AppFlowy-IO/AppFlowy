@@ -90,8 +90,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: b2672f2
-      resolved-ref: b2672f297b0e9e7a028ea217ae6a57c8dca3da4e
+      ref: "5841b4c"
+      resolved-ref: "5841b4c1bab170da66c52c60977690f2817b8fc4"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
     version: "5.1.0"
@@ -1583,10 +1583,10 @@ packages:
     dependency: transitive
     description:
       name: pdf
-      sha256: adbdec5bc84d20e6c8d67f9c64270aa64d1e9e1ed529f0fef7e7bc7e9400f894
+      sha256: "28eacad99bffcce2e05bba24e50153890ad0255294f4dd78a17075a2ba5c8416"
       url: "https://pub.dev"
     source: hosted
-    version: "3.11.2"
+    version: "3.11.3"
   percent_indicator:
     dependency: "direct main"
     description:

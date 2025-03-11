@@ -1,7 +1,7 @@
-import 'package:appflowy/plugins/document/presentation/editor_plugins/columns/simple_columns_block_constant.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart'
+    hide QuoteBlockKeys, quoteNode;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -36,6 +36,15 @@ Future<void> dragToMoveNode(
     return;
   }
 
+  if (shouldIgnoreDragTarget(
+    editorState: editorState,
+    dragNode: node,
+    targetPath: acceptedPath,
+  )) {
+    Log.info('Drop ignored: node($node, ${node.path}), path($acceptedPath)');
+    return;
+  }
+
   final position = getDragAreaPosition(context, targetNode, dragOffset);
   if (position == null) {
     Log.info('position is null');
@@ -50,38 +59,37 @@ Future<void> dragToMoveNode(
     // 1. if the targetNode is a column block, it means we should create a column block to contain the node and insert the column node to the target node's parent
     // 2. if the targetNode is not a column block, it means we should create a columns block to contain the target node and the drag node
     final transaction = editorState.transaction;
-    final targetNodeParent = targetNode.parentColumnsBlock;
+    final targetNodeParent = targetNode.columnsParent;
+
     if (targetNodeParent != null) {
       final length = targetNodeParent.children.length;
+      final ratios = targetNodeParent.children
+          .map(
+            (e) =>
+                e.attributes[SimpleColumnBlockKeys.ratio]?.toDouble() ??
+                1.0 / length,
+          )
+          .map((e) => e * length / (length + 1))
+          .toList();
+
       final columnNode = simpleColumnNode(
         children: [node.deepCopy()],
-        width: (node.rect.width * 1 / (length + 1)).clamp(
-          SimpleColumnsBlockConstants.minimumColumnWidth,
-          double.infinity,
-        ),
+        ratio: 1.0 / (length + 1),
       );
-
-      for (final column in targetNodeParent.children) {
-        final width =
-            column.attributes[SimpleColumnBlockKeys.width]?.toDouble() ??
-                SimpleColumnsBlockConstants.minimumColumnWidth;
+      for (final (index, column) in targetNodeParent.children.indexed) {
         transaction.updateNode(column, {
           ...column.attributes,
-          SimpleColumnBlockKeys.width: (width * length / (length + 1)).clamp(
-            SimpleColumnsBlockConstants.minimumColumnWidth,
-            double.infinity,
-          ),
+          SimpleColumnBlockKeys.ratio: ratios[index],
         });
       }
 
       transaction.insertNode(targetNode.path.next, columnNode);
       transaction.deleteNode(node);
     } else {
-      final width = targetNode.rect.width / 2 - 16;
       final columnsNode = simpleColumnsNode(
         children: [
-          simpleColumnNode(children: [targetNode.deepCopy()], width: width),
-          simpleColumnNode(children: [node.deepCopy()], width: width),
+          simpleColumnNode(children: [targetNode.deepCopy()], ratio: 0.5),
+          simpleColumnNode(children: [node.deepCopy()], ratio: 0.5),
         ],
       );
 
@@ -99,39 +107,37 @@ Future<void> dragToMoveNode(
     // 1. if the target node is a column block, we should create a column block to contain the node and insert the column node to the target node's parent
     // 2. if the target node is not a column block, we should create a columns block to contain the target node and the drag node
     final transaction = editorState.transaction;
-    final targetNodeParent = targetNode.parentColumnsBlock;
+    final targetNodeParent = targetNode.columnsParent;
     if (targetNodeParent != null) {
       // find the previous sibling node of the target node
       final length = targetNodeParent.children.length;
+      final ratios = targetNodeParent.children
+          .map(
+            (e) =>
+                e.attributes[SimpleColumnBlockKeys.ratio]?.toDouble() ??
+                1.0 / length,
+          )
+          .map((e) => e * length / (length + 1))
+          .toList();
       final columnNode = simpleColumnNode(
         children: [node.deepCopy()],
-        width: (node.rect.width * 1 / (length + 1)).clamp(
-          SimpleColumnsBlockConstants.minimumColumnWidth,
-          double.infinity,
-        ),
+        ratio: 1.0 / (length + 1),
       );
 
-      for (final column in targetNodeParent.children) {
-        final width =
-            column.attributes[SimpleColumnBlockKeys.width]?.toDouble() ??
-                SimpleColumnsBlockConstants.minimumColumnWidth;
+      for (final (index, column) in targetNodeParent.children.indexed) {
         transaction.updateNode(column, {
           ...column.attributes,
-          SimpleColumnBlockKeys.width: (width * length / (length + 1)).clamp(
-            SimpleColumnsBlockConstants.minimumColumnWidth,
-            double.infinity,
-          ),
+          SimpleColumnBlockKeys.ratio: ratios[index],
         });
       }
 
       transaction.insertNode(targetNode.path.previous, columnNode);
       transaction.deleteNode(node);
     } else {
-      final width = targetNode.rect.width / 2 - 16;
       final columnsNode = simpleColumnsNode(
         children: [
-          simpleColumnNode(children: [node.deepCopy()], width: width),
-          simpleColumnNode(children: [targetNode.deepCopy()], width: width),
+          simpleColumnNode(children: [node.deepCopy()], ratio: 0.5),
+          simpleColumnNode(children: [targetNode.deepCopy()], ratio: 0.5),
         ],
       );
 
@@ -182,6 +188,7 @@ Future<void> dragToMoveNode(
   Node dragTargetNode,
   Offset dragOffset,
 ) {
+  debugPrint('getDragAreaPosition - dragTargetNode: ${dragTargetNode.type}');
   final selectable = dragTargetNode.selectable;
   final renderBox = selectable?.context.findRenderObject() as RenderBox?;
   if (selectable == null || renderBox == null) {

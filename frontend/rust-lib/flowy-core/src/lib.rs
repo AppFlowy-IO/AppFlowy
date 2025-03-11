@@ -255,6 +255,7 @@ impl AppFlowyCore {
       server_provider: server_provider.clone(),
       storage_manager: storage_manager.clone(),
       ai_manager: ai_manager.clone(),
+      runtime: runtime.clone(),
     };
 
     let collab_interact_impl = CollabInteractImpl {

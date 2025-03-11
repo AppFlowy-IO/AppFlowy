@@ -22,7 +22,7 @@ class InitLocalAIIndicator extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        child: BlocBuilder<LocalAIChatSettingBloc, LocalAIChatSettingState>(
+        child: BlocBuilder<LocalAISettingPanelBloc, LocalAISettingPanelState>(
           builder: (context, state) {
             switch (state.runningState) {
               case RunningStatePB.Connecting:
@@ -31,7 +31,7 @@ class InitLocalAIIndicator extends StatelessWidget {
                   children: [
                     const HSpace(8),
                     FlowyText(
-                      LocaleKeys.settings_aiPage_keys_localAILoading.tr(),
+                      LocaleKeys.settings_aiPage_keys_localAIInitializing.tr(),
                       fontSize: 11,
                       color: const Color(0xFF1E4620),
                     ),
