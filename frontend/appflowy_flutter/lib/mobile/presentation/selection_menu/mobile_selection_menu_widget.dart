@@ -1,6 +1,8 @@
 import 'dart:math';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import 'mobile_selection_menu_item.dart';
@@ -314,15 +316,32 @@ class _MobileSelectionMenuWidgetState extends State<MobileSelectionMenuWidget> {
   }
 
   Widget _buildNoResultsWidget(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(8.0),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 5,
+            spreadRadius: 1,
+            color: Colors.black.withValues(alpha: 0.1),
+          ),
+        ],
+        borderRadius: BorderRadius.circular(12.0),
+      ),
       child: SizedBox(
-        width: 140,
-        child: Material(
-          child: Text(
-            "No results",
-            style: TextStyle(fontSize: 18.0, color: Colors.grey),
-            textAlign: TextAlign.center,
+        width: 240,
+        height: 48,
+        child: Padding(
+          padding: const EdgeInsets.all(6.0),
+          child: Material(
+            color: Colors.transparent,
+            child: Center(
+              child: Text(
+                LocaleKeys.inlineActions_noResults.tr(),
+                style: TextStyle(fontSize: 18.0, color: Color(0x801F2225)),
+                textAlign: TextAlign.center,
+              ),
+            ),
           ),
         ),
       ),
