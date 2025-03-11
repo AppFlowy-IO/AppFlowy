@@ -283,10 +283,10 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
       return;
     }
 
-    // handle text and selection changes ONLY when mentioning a page
-
     // disable mention
     return;
+
+    // handle text and selection changes ONLY when mentioning a page
     // ignore: dead_code
     if (!overlayController.isShowing ||
         inputControlCubit.filterStartPosition == -1) {
@@ -384,8 +384,8 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
                 contentPadding:
                     calculateContentPadding(state.showPredefinedFormats),
                 hintText: switch (state.aiType) {
-                  AIType.appflowyAI => LocaleKeys.chat_inputMessageHint.tr(),
-                  AIType.localAI => LocaleKeys.chat_inputLocalAIMessageHint.tr()
+                  AiType.cloud => LocaleKeys.chat_inputMessageHint.tr(),
+                  AiType.local => LocaleKeys.chat_inputLocalAIMessageHint.tr()
                 },
               );
             },
@@ -578,29 +578,34 @@ class _PromptBottomActions extends StatelessWidget {
               child: _sendButton(),
             );
           }
-          return Row(
-            children: [
-              _predefinedFormatButton(),
-              const Spacer(),
-              if (state.aiType == AIType.appflowyAI) ...[
-                _selectSourcesButton(context),
-                const HSpace(
-                  DesktopAIChatSizes.inputActionBarButtonSpacing,
-                ),
-              ],
-              // _mentionButton(context),
-              // const HSpace(
-              //   DesktopAIPromptSizes.actionBarButtonSpacing,
-              // ),
-              if (state.supportChatWithFile) ...[
-                _attachmentButton(context),
-                const HSpace(
-                  DesktopAIChatSizes.inputActionBarButtonSpacing,
-                ),
-              ],
-              _sendButton(),
-            ],
-          );
+          return state.aiType.isLocal
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (state.supportChatWithFile) ...[
+                      _attachmentButton(context),
+                      const HSpace(
+                        DesktopAIChatSizes.inputActionBarButtonSpacing,
+                      ),
+                    ],
+                    _sendButton(),
+                  ],
+                )
+              : Row(
+                  children: [
+                    _predefinedFormatButton(),
+                    const Spacer(),
+                    _selectSourcesButton(context),
+                    const HSpace(
+                      DesktopAIChatSizes.inputActionBarButtonSpacing,
+                    ),
+                    // _mentionButton(context),
+                    // const HSpace(
+                    //   DesktopAIPromptSizes.actionBarButtonSpacing,
+                    // ),
+                    _sendButton(),
+                  ],
+                );
         },
       ),
     );
