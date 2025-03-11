@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/operations/ai_writer_node_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -19,7 +20,7 @@ List<SelectionMenuItem> slashMenuItemsBuilder({
   final isInTable = node != null && node.parentTableCellNode != null;
   final isMobile = UniversalPlatform.isMobile;
   bool isEmpty = false;
-  if (editorState == null || isDocumentEmptyForAI(editorState.document)) {
+  if (editorState == null || editorState.isEmptyForContinueWriting()) {
     if (view == null || view.name.isEmpty) {
       isEmpty = true;
     }

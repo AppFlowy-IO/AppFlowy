@@ -3,8 +3,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/message/ai_markdown_text.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/document_markdown_parsers.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/parsers/sub_page_node_parser.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
@@ -475,8 +473,7 @@ class OverlayContent extends StatelessWidget {
       return [];
     }
 
-    final document = editorState.document;
-    if (isDocumentEmptyForAI(document)) {
+    if (editorState.isEmptyForContinueWriting()) {
       final documentContext = editorState.document.root.context;
       if (documentContext == null) {
         return [];
@@ -488,6 +485,9 @@ class OverlayContent extends StatelessWidget {
     }
 
     return [
+      // add one here to take into account the border of the main message box.
+      // It is configured to be on the outside to hide some graphical
+      // artifacts.
       const VSpace(4.0 + 1.0),
       Container(
         padding: EdgeInsets.all(8.0),
@@ -669,26 +669,4 @@ class MainContentArea extends StatelessWidget {
       },
     );
   }
-}
-
-bool isDocumentEmptyForAI(Document document) {
-  if (document.root.children.isEmpty) {
-    return true;
-  }
-
-  final markdown = documentToMarkdown(
-    document,
-    customParsers: [
-      const MathEquationNodeParser(),
-      const CalloutNodeParser(),
-      const ToggleListNodeParser(),
-      const CustomParagraphNodeParser(),
-      const SubPageNodeParser(),
-      const SimpleTableNodeParser(),
-      const LinkPreviewNodeParser(),
-      const FileBlockNodeParser(),
-    ],
-  );
-
-  return markdown.trim().isEmpty;
 }
