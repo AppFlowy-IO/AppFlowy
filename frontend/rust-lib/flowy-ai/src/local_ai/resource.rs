@@ -5,9 +5,7 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_infra::async_trait::async_trait;
 
 use crate::entities::LackOfAIResourcePB;
-use crate::local_ai::watch::{
-  is_plugin_ready, ollama_plugin_command_available, ollama_plugin_path,
-};
+use crate::local_ai::watch::{is_plugin_ready, ollama_plugin_path};
 #[cfg(target_os = "macos")]
 use crate::local_ai::watch::{watch_offline_app, WatchContext};
 use crate::notification::{
@@ -125,10 +123,6 @@ impl LocalAIResourceController {
     }
   }
 
-  pub fn is_plugin_ready(&self) -> bool {
-    ollama_plugin_path().exists() || ollama_plugin_command_available()
-  }
-
   pub async fn get_plugin_download_link(&self) -> FlowyResult<String> {
     let ai_config = self.get_local_ai_configuration().await?;
     Ok(ai_config.plugin.url)
@@ -165,7 +159,7 @@ impl LocalAIResourceController {
   pub async fn calculate_pending_resources(&self) -> FlowyResult<Vec<PendingResource>> {
     let mut resources = vec![];
     let app_path = ollama_plugin_path();
-    if !app_path.exists() && !ollama_plugin_command_available() {
+    if !is_plugin_ready() {
       trace!("[LLM Resource] offline app not found: {:?}", app_path);
       resources.push(PendingResource::PluginExecutableNotReady);
       return Ok(resources);

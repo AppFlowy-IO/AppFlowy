@@ -139,7 +139,7 @@ pub(crate) fn ollama_plugin_command_available() -> bool {
     false
   } else {
     let output = Command::new("command")
-      .args(&["-v", "ollama_ai_plugin"])
+      .args(["-v", "ollama_ai_plugin"])
       .output();
     match output {
       Ok(o) => !o.stdout.is_empty(),

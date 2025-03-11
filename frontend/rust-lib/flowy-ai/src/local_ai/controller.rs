@@ -13,6 +13,7 @@ use futures::Sink;
 use lib_infra::async_trait::async_trait;
 use std::collections::HashMap;
 
+use crate::local_ai::watch::is_plugin_ready;
 use crate::stream_message::StreamMessage;
 use appflowy_local_ai::ollama_plugin::OllamaAIPlugin;
 use arc_swap::ArcSwapOption;
@@ -92,7 +93,7 @@ impl LocalAIController {
         if let Ok(workspace_id) = cloned_user_service.workspace_id() {
           let key = local_ai_enabled_key(&workspace_id);
           info!("[AI Plugin] state: {:?}", state);
-          let ready = cloned_llm_res.is_plugin_ready();
+          let ready = is_plugin_ready();
           let lack_of_resource = cloned_llm_res.get_lack_of_resource().await;
 
           let new_state = RunningStatePB::from(state);
@@ -254,7 +255,7 @@ impl LocalAIController {
   pub async fn get_local_ai_state(&self) -> LocalAIPB {
     let start = std::time::Instant::now();
     let enabled = self.is_enabled();
-    let is_app_downloaded = self.resource.is_plugin_ready();
+    let is_app_downloaded = is_plugin_ready();
     let state = self.ai_plugin.get_plugin_running_state();
     let lack_of_resource = self.resource.get_lack_of_resource().await;
     let elapsed = start.elapsed();
