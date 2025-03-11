@@ -431,9 +431,10 @@ impl LocalAIController {
       }
       let _ = rx.await;
     } else {
-      if let Err(err) = self.ai_plugin.destroy_chat_plugin().await {
+      if let Err(err) = self.ai_plugin.destroy_plugin().await {
         error!("[AI Plugin] failed to destroy plugin: {:?}", err);
       }
+
       chat_notification_builder(
         APPFLOWY_AI_NOTIFICATION_KEY,
         ChatNotification::UpdateLocalAIState,

@@ -134,46 +134,6 @@ class _SettingsPlanViewState extends State<SettingsPlanView> {
                       ),
                     ),
                     const HSpace(8),
-
-                    // Currently, the AI Local tile is only available on macOS
-                    // TODO(nathan): enable windows and linux
-                    if (Platform.isMacOS)
-                      Flexible(
-                        child: _AddOnBox(
-                          title: LocaleKeys
-                              .settings_planPage_planUsage_addons_aiOnDevice_title
-                              .tr(),
-                          description: LocaleKeys
-                              .settings_planPage_planUsage_addons_aiOnDevice_description
-                              .tr(),
-                          price: LocaleKeys
-                              .settings_planPage_planUsage_addons_aiOnDevice_price
-                              .tr(
-                            args: [
-                              SubscriptionPlanPB.AiLocal.priceAnnualBilling,
-                            ],
-                          ),
-                          priceInfo: LocaleKeys
-                              .settings_planPage_planUsage_addons_aiOnDevice_priceInfo
-                              .tr(),
-                          recommend: LocaleKeys
-                              .settings_planPage_planUsage_addons_aiOnDevice_recommend
-                              .tr(
-                            args: [
-                              SubscriptionPlanPB.AiLocal.priceMonthBilling,
-                            ],
-                          ),
-                          buttonText: state.subscriptionInfo.hasAIOnDevice
-                              ? LocaleKeys
-                                  .settings_planPage_planUsage_addons_activeLabel
-                                  .tr()
-                              : LocaleKeys
-                                  .settings_planPage_planUsage_addons_addLabel
-                                  .tr(),
-                          isActive: state.subscriptionInfo.hasAIOnDevice,
-                          plan: SubscriptionPlanPB.AiLocal,
-                        ),
-                      ),
                   ],
                 ),
               ],
@@ -432,23 +392,6 @@ class _PlanUsageSummary extends StatelessWidget {
                   context.read<SettingsPlanBloc>().add(
                         const SettingsPlanEvent.addSubscription(
                           SubscriptionPlanPB.AiMax,
-                        ),
-                      );
-                  await Future.delayed(const Duration(seconds: 2), () {});
-                },
-              ),
-            ],
-            if (!subscriptionInfo.hasAIOnDevice) ...[
-              _ToggleMore(
-                value: false,
-                label: LocaleKeys.settings_planPage_planUsage_aiOnDeviceToggle
-                    .tr(),
-                badgeLabel:
-                    LocaleKeys.settings_planPage_planUsage_aiOnDeviceBadge.tr(),
-                onTap: () async {
-                  context.read<SettingsPlanBloc>().add(
-                        const SettingsPlanEvent.addSubscription(
-                          SubscriptionPlanPB.AiLocal,
                         ),
                       );
                   await Future.delayed(const Duration(seconds: 2), () {});
