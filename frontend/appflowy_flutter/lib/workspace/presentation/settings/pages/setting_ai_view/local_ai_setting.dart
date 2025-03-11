@@ -12,14 +12,9 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class LocalAISetting extends StatefulWidget {
+class LocalAISetting extends StatelessWidget {
   const LocalAISetting({super.key});
 
-  @override
-  State<LocalAISetting> createState() => _LocalAISettingState();
-}
-
-class _LocalAISettingState extends State<LocalAISetting> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SettingsAIBloc, SettingsAIState>(

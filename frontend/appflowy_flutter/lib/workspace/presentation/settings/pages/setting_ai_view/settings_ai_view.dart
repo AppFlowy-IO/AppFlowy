@@ -13,7 +13,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -150,23 +149,21 @@ class _LocalAIOnBoarding extends StatelessWidget {
             child: BlocBuilder<LocalAIOnBoardingBloc, LocalAIOnBoardingState>(
               builder: (context, state) {
                 // Show the local AI settings if the user has purchased the AI Local plan
-                if (kDebugMode || state.isPurchaseAILocal) {
+                if (state.isPurchaseAILocal) {
                   return const LocalAISetting();
+                } else if (currentWorkspaceMemberRole?.isOwner ?? false) {
+                  // Show the upgrade to AI Local plan button if the user has not purchased the AI Local plan
+                  return _UpgradeToAILocalPlan(
+                    onTap: () {
+                      context.read<LocalAIOnBoardingBloc>().add(
+                            const LocalAIOnBoardingEvent.addSubscription(
+                              SubscriptionPlanPB.AiLocal,
+                            ),
+                          );
+                    },
+                  );
                 } else {
-                  if (currentWorkspaceMemberRole?.isOwner ?? false) {
-                    // Show the upgrade to AI Local plan button if the user has not purchased the AI Local plan
-                    return _UpgradeToAILocalPlan(
-                      onTap: () {
-                        context.read<LocalAIOnBoardingBloc>().add(
-                              const LocalAIOnBoardingEvent.addSubscription(
-                                SubscriptionPlanPB.AiLocal,
-                              ),
-                            );
-                      },
-                    );
-                  } else {
-                    return const _AskOwnerUpgradeToLocalAI();
-                  }
+                  return const _AskOwnerUpgradeToLocalAI();
                 }
               },
             ),

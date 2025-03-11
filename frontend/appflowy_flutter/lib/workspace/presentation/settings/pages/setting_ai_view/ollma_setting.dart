@@ -29,6 +29,7 @@ class OllamaSettingPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ListView.separated(
+                physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: state.inputItems.length,
                 separatorBuilder: (_, __) => const VSpace(10),
