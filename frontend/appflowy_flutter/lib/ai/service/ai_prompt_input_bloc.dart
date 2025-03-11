@@ -46,14 +46,11 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
               supportChatWithFile = false;
             }
 
-            final showPredefinedFormats =
-                aiType.isCloud && state.showPredefinedFormats;
             emit(
               state.copyWith(
                 aiType: aiType,
                 supportChatWithFile: supportChatWithFile,
                 localAIState: localAIState,
-                showPredefinedFormats: showPredefinedFormats,
               ),
             );
           },

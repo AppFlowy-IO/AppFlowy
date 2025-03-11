@@ -148,14 +148,13 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
                                   start: 8.0,
                                 ),
                                 child: ChangeFormatBar(
+                                  showImageFormats: state.aiType.isCloud,
                                   predefinedFormat: state.predefinedFormat,
                                   spacing: 4.0,
                                   onSelectPredefinedFormat: (format) =>
                                       context.read<AIPromptInputBloc>().add(
                                             AIPromptInputEvent
-                                                .updatePredefinedFormat(
-                                              format,
-                                            ),
+                                                .updatePredefinedFormat(format),
                                           ),
                                 ),
                               ),
@@ -578,34 +577,29 @@ class _PromptBottomActions extends StatelessWidget {
               child: _sendButton(),
             );
           }
-          return state.aiType.isLocal
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (state.supportChatWithFile) ...[
-                      _attachmentButton(context),
-                      const HSpace(
-                        DesktopAIChatSizes.inputActionBarButtonSpacing,
-                      ),
-                    ],
-                    _sendButton(),
-                  ],
-                )
-              : Row(
-                  children: [
-                    _predefinedFormatButton(),
-                    const Spacer(),
-                    _selectSourcesButton(context),
-                    const HSpace(
-                      DesktopAIChatSizes.inputActionBarButtonSpacing,
-                    ),
-                    // _mentionButton(context),
-                    // const HSpace(
-                    //   DesktopAIPromptSizes.actionBarButtonSpacing,
-                    // ),
-                    _sendButton(),
-                  ],
-                );
+          return Row(
+            children: [
+              _predefinedFormatButton(),
+              const Spacer(),
+              if (state.aiType.isCloud) ...[
+                _selectSourcesButton(context),
+                const HSpace(
+                  DesktopAIChatSizes.inputActionBarButtonSpacing,
+                ),
+              ],
+              // _mentionButton(context),
+              // const HSpace(
+              //   DesktopAIPromptSizes.actionBarButtonSpacing,
+              // ),
+              if (state.supportChatWithFile) ...[
+                _attachmentButton(context),
+                const HSpace(
+                  DesktopAIChatSizes.inputActionBarButtonSpacing,
+                ),
+              ],
+              _sendButton(),
+            ],
+          );
         },
       ),
     );

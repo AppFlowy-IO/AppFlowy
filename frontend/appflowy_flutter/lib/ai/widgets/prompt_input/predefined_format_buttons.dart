@@ -48,25 +48,30 @@ class ChangeFormatBar extends StatelessWidget {
     required this.predefinedFormat,
     required this.spacing,
     required this.onSelectPredefinedFormat,
+    this.showImageFormats = false,
   });
 
   final PredefinedFormat? predefinedFormat;
   final double spacing;
   final void Function(PredefinedFormat) onSelectPredefinedFormat;
+  final bool showImageFormats;
 
   @override
   Widget build(BuildContext context) {
+    final showTextFormats = predefinedFormat?.imageFormat.hasText ?? true;
     return SizedBox(
       height: DesktopAIPromptSizes.predefinedFormatButtonHeight,
       child: SeparatedRow(
         mainAxisSize: MainAxisSize.min,
         separatorBuilder: () => HSpace(spacing),
         children: [
-          _buildFormatButton(context, ImageFormat.text),
-          _buildFormatButton(context, ImageFormat.textAndImage),
-          _buildFormatButton(context, ImageFormat.image),
-          if (predefinedFormat?.imageFormat.hasText ?? true) ...[
-            _buildDivider(),
+          if (showImageFormats) ...[
+            _buildFormatButton(context, ImageFormat.text),
+            _buildFormatButton(context, ImageFormat.textAndImage),
+            _buildFormatButton(context, ImageFormat.image),
+          ],
+          if (showImageFormats && showTextFormats) _buildDivider(),
+          if (showTextFormats) ...[
             _buildTextFormatButton(context, TextFormat.paragraph),
             _buildTextFormatButton(context, TextFormat.bulletList),
             _buildTextFormatButton(context, TextFormat.numberedList),
