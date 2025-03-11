@@ -163,12 +163,10 @@ impl LocalAIResourceController {
   pub async fn calculate_pending_resources(&self) -> FlowyResult<Vec<PendingResource>> {
     let mut resources = vec![];
     let app_path = ollama_plugin_path();
-    if !app_path.exists() {
-      if !ollama_plugin_command_available() {
-        trace!("[LLM Resource] offline app not found: {:?}", app_path);
-        resources.push(PendingResource::PluginExecutableNotReady);
-        return Ok(resources);
-      }
+    if !app_path.exists() && !ollama_plugin_command_available() {
+      trace!("[LLM Resource] offline app not found: {:?}", app_path);
+      resources.push(PendingResource::PluginExecutableNotReady);
+      return Ok(resources);
     }
 
     let setting = self.get_llm_setting();
