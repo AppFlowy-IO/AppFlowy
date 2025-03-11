@@ -5,6 +5,9 @@ use std::process::Command;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver};
 use tracing::{error, trace};
 
+#[cfg(windows)]
+use winreg::{enums::*, RegKey};
+
 #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
 #[allow(dead_code)]
 pub struct WatchContext {
@@ -105,16 +108,72 @@ pub(crate) fn ollama_plugin_path() -> std::path::PathBuf {
 }
 
 pub(crate) fn ollama_plugin_command_available() -> bool {
-  let command = if cfg!(windows) { "where" } else { "command" };
-  let args = if cfg!(windows) {
-    vec!["/c", "where", "ollama_ai_plugin"]
-  } else {
-    vec!["-v", "ollama_ai_plugin"]
-  };
+  if cfg!(windows) {
+    #[cfg(windows)]
+    {
+      // 1. Try "where" command first
+      let output = Command::new("cmd")
+        .args(["/C", "where", "ollama_ai_plugin"])
+        .output();
+      if let Ok(output) = output {
+        if !output.stdout.is_empty() {
+          return true;
+        }
+      }
 
-  let output = Command::new(command).args(args).output();
-  match output {
-    Ok(output) => !output.stdout.is_empty(),
-    Err(_) => false,
+      // 2. Fallback: Check registry PATH for the executable
+      let path_dirs = get_windows_path_dirs();
+      let plugin_exe = "ollama_ai_plugin.exe"; // Adjust name if needed
+
+      path_dirs.iter().any(|dir| {
+        let full_path = std::path::Path::new(dir).join(plugin_exe);
+        full_path.exists()
+      })
+    }
+
+    #[cfg(not(windows))]
+    false
+  } else {
+    let output = Command::new("command")
+      .args(&["-v", "ollama_ai_plugin"])
+      .output();
+    match output {
+      Ok(o) => !o.stdout.is_empty(),
+      _ => false,
+    }
+  }
+}
+
+#[cfg(windows)]
+fn get_windows_path_dirs() -> Vec<String> {
+  let mut paths = Vec::new();
+
+  // Check HKEY_CURRENT_USER\Environment
+  let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+  if let Ok(env) = hkcu.open_subkey("Environment") {
+    if let Ok(path) = env.get_value::<String, _>("Path") {
+      paths.extend(path.split(';').map(|s| s.trim().to_string()));
+    }
+  }
+
+  // Check HKEY_LOCAL_MACHINE\SYSTEM\...\Environment
+  let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
+  if let Ok(env) = hklm.open_subkey(r"SYSTEM\CurrentControlSet\Control\Session Manager\Environment")
+  {
+    if let Ok(path) = env.get_value::<String, _>("Path") {
+      paths.extend(path.split(';').map(|s| s.trim().to_string()));
+    }
+  }
+  paths
+}
+
+#[cfg(test)]
+mod tests {
+  use crate::local_ai::watch::ollama_plugin_command_available;
+
+  #[test]
+  fn test_command_import() {
+    let result = ollama_plugin_command_available();
+    println!("ollama plugin exist: {:?}", result);
   }
 }
