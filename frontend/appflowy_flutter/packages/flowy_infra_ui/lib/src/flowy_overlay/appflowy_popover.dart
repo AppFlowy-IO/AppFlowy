@@ -144,7 +144,7 @@ class _PopoverContainer extends StatelessWidget {
   }
 }
 
-extension on BuildContext {
+extension PopoverDecoration on BuildContext {
   /// The decoration of the popover.
   ///
   /// Don't customize the entire decoration of the popover,

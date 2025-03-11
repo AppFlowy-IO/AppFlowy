@@ -9,8 +9,6 @@ import 'package:appflowy/workspace/application/settings/appearance/appearance_cu
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/setting_list_tile.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/setting_value_dropdown.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -20,68 +18,6 @@ import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-const kFontToolbarItemId = 'editor.font';
-
-@visibleForTesting
-const kFontFamilyToolbarItemKey = ValueKey('FontFamilyToolbarItem');
-
-final customizeFontToolbarItem = ToolbarItem(
-  id: kFontToolbarItemId,
-  group: 4,
-  isActive: onlyShowInTextType,
-  builder: (context, editorState, highlightColor, _, tooltipBuilder) {
-    final selection = editorState.selection!;
-    final popoverController = PopoverController();
-    final String? currentFontFamily = editorState
-        .getDeltaAttributeValueInSelection(AppFlowyRichTextKeys.fontFamily);
-
-    Widget child = FontFamilyDropDown(
-      currentFontFamily: currentFontFamily ?? '',
-      offset: const Offset(0, 12),
-      popoverController: popoverController,
-      onOpen: () => keepEditorFocusNotifier.increase(),
-      onClose: () => keepEditorFocusNotifier.decrease(),
-      onFontFamilyChanged: (fontFamily) async {
-        popoverController.close();
-        try {
-          await editorState.formatDelta(selection, {
-            AppFlowyRichTextKeys.fontFamily: fontFamily,
-          });
-        } catch (e) {
-          Log.error('Failed to set font family: $e');
-        }
-      },
-      onResetFont: () async {
-        popoverController.close();
-        await editorState
-            .formatDelta(selection, {AppFlowyRichTextKeys.fontFamily: null});
-      },
-      child: FlowyButton(
-        key: kFontFamilyToolbarItemKey,
-        useIntrinsicWidth: true,
-        hoverColor: Colors.grey.withValues(alpha: 0.3),
-        onTap: () => popoverController.show(),
-        text: const FlowySvg(
-          FlowySvgs.font_family_s,
-          size: Size.square(16.0),
-          color: Colors.white,
-        ),
-      ),
-    );
-
-    if (tooltipBuilder != null) {
-      child = tooltipBuilder(
-        context,
-        kFontToolbarItemId,
-        LocaleKeys.document_plugins_fonts.tr(),
-        child,
-      );
-    }
-
-    return child;
-  },
-);
 
 class ThemeFontFamilySetting extends StatefulWidget {
   const ThemeFontFamilySetting({
@@ -163,6 +99,12 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
       popoverKey: ThemeFontFamilySetting.popoverKey,
       popoverController: widget.popoverController,
       currentValue: currentValue,
+      margin: EdgeInsets.zero,
+      boxConstraints: const BoxConstraints(
+        maxWidth: 240,
+        minHeight: 36,
+        maxHeight: 360,
+      ),
       onClose: () {
         query.value = '';
         widget.onClose?.call();
@@ -171,27 +113,22 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
       child: widget.child,
       popupBuilder: (_) {
         widget.onOpen?.call();
-        return CustomScrollView(
-          shrinkWrap: true,
-          slivers: [
-            SliverPadding(
-              padding: const EdgeInsets.only(right: 8),
-              sliver: SliverToBoxAdapter(
-                child: FlowyTextField(
-                  key: ThemeFontFamilySetting.textFieldKey,
-                  hintText:
-                      LocaleKeys.settings_appearance_fontFamily_search.tr(),
-                  autoFocus: false,
-                  debounceDuration: const Duration(milliseconds: 300),
-                  onChanged: (value) {
-                    query.value = value;
-                  },
-                ),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: FlowyTextField(
+                key: ThemeFontFamilySetting.textFieldKey,
+                hintText: LocaleKeys.settings_appearance_fontFamily_search.tr(),
+                autoFocus: false,
+                debounceDuration: const Duration(milliseconds: 300),
+                onChanged: (value) {
+                  query.value = value;
+                },
               ),
             ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 4),
-            ),
+            Container(height: 1, color: Theme.of(context).dividerColor),
             ValueListenableBuilder(
               valueListenable: query,
               builder: (context, value, child) {
@@ -206,13 +143,15 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
                       .sorted((a, b) => levenshtein(a, b))
                       .toList();
                 }
-                return SliverFixedExtentList.builder(
-                  itemBuilder: (context, index) => _fontFamilyItemButton(
-                    context,
-                    getGoogleFontSafely(displayed[index]),
+                return Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(8.0),
+                    itemBuilder: (context, index) => _fontFamilyItemButton(
+                      context,
+                      getGoogleFontSafely(displayed[index]),
+                    ),
+                    itemCount: displayed.length,
                   ),
-                  itemCount: displayed.length,
-                  itemExtent: 32,
                 );
               },
             ),
@@ -233,16 +172,18 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
       waitDuration: const Duration(milliseconds: 150),
       child: SizedBox(
         key: ValueKey(buttonFontFamily),
-        height: 32,
+        height: 36,
         child: FlowyButton(
           onHover: (_) => FocusScope.of(context).unfocus(),
-          text: FlowyText.medium(
+          text: FlowyText(
             buttonFontFamily.fontFamilyDisplayName,
             fontFamily: buttonFontFamily,
+            figmaLineHeight: 20,
+            fontWeight: FontWeight.w400,
           ),
           rightIcon:
               buttonFontFamily == widget.currentFontFamily.parseFontFamilyName()
-                  ? const FlowySvg(FlowySvgs.check_s)
+                  ? const FlowySvg(FlowySvgs.toolbar_check_m)
                   : null,
           onTap: () {
             if (widget.onFontFamilyChanged != null) {

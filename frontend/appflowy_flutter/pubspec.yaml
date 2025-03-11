@@ -180,7 +180,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "5841b4c"
+      ref: "68ec1b842b947c11faaa78de402337de1a728c1b"
 
   appflowy_editor_plugins:
     git:
@@ -280,6 +280,7 @@ flutter:
     - assets/images/built_in_cover_images/
     - assets/flowy_icons/
     - assets/flowy_icons/16x/
+    - assets/flowy_icons/20x/
     - assets/flowy_icons/24x/
     - assets/flowy_icons/32x/
     - assets/flowy_icons/40x/

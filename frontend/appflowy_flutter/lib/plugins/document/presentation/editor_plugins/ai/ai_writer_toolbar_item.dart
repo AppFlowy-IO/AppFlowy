@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.da
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,6 +54,7 @@ class AiWriterToolbarActionList extends StatefulWidget {
 
 class _AiWriterToolbarActionListState extends State<AiWriterToolbarActionList> {
   final popoverController = PopoverController();
+  bool isSelected = false;
 
   @override
   Widget build(BuildContext context) {
@@ -60,11 +62,15 @@ class _AiWriterToolbarActionListState extends State<AiWriterToolbarActionList> {
       controller: popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(-8.0, 2.0),
-      margin: const EdgeInsets.all(8.0),
       onOpen: () => keepEditorFocusNotifier.increase(),
-      onClose: () => keepEditorFocusNotifier.decrease(),
+      onClose: () {
+        setState(() {
+          isSelected = false;
+        });
+        keepEditorFocusNotifier.decrease();
+      },
       popupBuilder: (context) => buildPopoverContent(),
-      child: buildChild(),
+      child: buildChild(context),
     );
   }
 
@@ -87,12 +93,11 @@ class _AiWriterToolbarActionListState extends State<AiWriterToolbarActionList> {
 
   Widget actionWrapper(AiWriterCommand command) {
     return SizedBox(
-      height: 30.0,
+      height: 36,
       child: FlowyButton(
-        leftIcon: FlowySvg(
-          command.icon,
-          size: const Size.square(16),
-        ),
+        leftIconSize: const Size.square(20),
+        leftIcon: FlowySvg(command.icon),
+        iconPadding: 12,
         text: FlowyText(
           command.i18n,
           figmaLineHeight: 20,
@@ -112,33 +117,35 @@ class _AiWriterToolbarActionListState extends State<AiWriterToolbarActionList> {
     );
   }
 
-  Widget buildChild() {
+  Widget buildChild(BuildContext context) {
+    final iconColor = Theme.of(context).iconTheme.color;
     final child = FlowyIconButton(
-      hoverColor: Colors.transparent,
-      width: 36,
-      height: 24,
+      width: 52,
+      height: 32,
+      isSelected: isSelected,
+      hoverColor: AFThemeExtension.of(context).toolbarHoverColor,
       icon: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const FlowySvg(
-            FlowySvgs.ai_sparks_s,
-            size: Size.square(16.0),
-            color: Color(0xFFD08EED),
+          FlowySvg(
+            FlowySvgs.toolbar_ai_writer_m,
+            size: Size.square(20),
+            color: iconColor,
           ),
-          const FlowySvg(
-            FlowySvgs.ai_source_drop_down_s,
-            size: Size.square(12),
-            color: Color(0xFF8F959E),
+          FlowySvg(
+            FlowySvgs.toolbar_arrow_down_m,
+            size: Size.square(20),
+            color: iconColor,
           ),
         ],
-      ),
-      iconPadding: const EdgeInsets.symmetric(
-        horizontal: 4.0,
-        vertical: 2.0,
       ),
       onPressed: () {
         if (_isAIEnabled(widget.editorState)) {
           keepEditorFocusNotifier.increase();
           popoverController.show();
+          setState(() {
+            isSelected = true;
+          });
         } else {
           showToastNotification(
             context,
@@ -173,16 +180,13 @@ class ImproveWritingButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final child = FlowyIconButton(
-      hoverColor: Colors.transparent,
-      width: 24,
-      icon: const FlowySvg(
-        FlowySvgs.ai_improve_writing_s,
-        size: Size.square(16.0),
-        color: Color(0xFFD08EED),
-      ),
-      iconPadding: const EdgeInsets.symmetric(
-        horizontal: 4.0,
-        vertical: 2.0,
+      width: 36,
+      height: 32,
+      hoverColor: AFThemeExtension.of(context).toolbarHoverColor,
+      icon: FlowySvg(
+        FlowySvgs.toolbar_ai_improve_writing_m,
+        size: Size.square(20.0),
+        color: Theme.of(context).iconTheme.color,
       ),
       onPressed: () {
         if (_isAIEnabled(editorState)) {

@@ -21,10 +21,19 @@ import 'package:appflowy/workspace/presentation/home/af_focus_manager.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
+
+import 'editor_plugins/toolbar_item/custom_format_toolbar_items.dart';
+import 'editor_plugins/toolbar_item/custom_hightlight_color_toolbar_item.dart';
+import 'editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
+import 'editor_plugins/toolbar_item/custom_text_align_toolbar_item.dart';
+import 'editor_plugins/toolbar_item/custom_text_color_toolbar_item.dart';
+import 'editor_plugins/toolbar_item/more_option_toolbar_item.dart';
+import 'editor_plugins/toolbar_item/text_heading_toolbar_item.dart';
 
 /// Wrapper for the appflowy editor.
 class AppFlowyEditorPage extends StatefulWidget {
@@ -83,21 +92,16 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
   final List<ToolbarItem> toolbarItems = [
     improveWritingItem..isActive = onlyShowInTextTypeAndExcludeTable,
     aiWriterItem..isActive = onlyShowInTextTypeAndExcludeTable,
-    paragraphItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
-    headingsToolbarItem
+    customTextHeadingItem
       ..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
-    ...markdownFormatItems..forEach((e) => e.isActive = showInAnyTextType),
-    quoteItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
-    bulletedListItem
-      ..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
-    numberedListItem
-      ..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
-    inlineMathEquationItem,
-    linkItem,
-    alignToolbarItem,
-    buildTextColorItem()..isActive = showInAnyTextType,
-    buildHighlightColorItem()..isActive = showInAnyTextType,
-    customizeFontToolbarItem..isActive = showInAnyTextType,
+    ...customMarkdownFormatItems
+      ..forEach((e) => e.isActive = showInAnyTextType),
+    customTextColorItem..isActive = showInAnyTextType,
+    customHighlightColorItem..isActive = showInAnyTextType,
+    inlineCodeItem..isActive = showInAnyTextType,
+    customLinkItem,
+    customTextAlignItem,
+    moreOptionItem,
   ];
 
   List<CharacterShortcutEvent> get characterShortcutEvents {
@@ -407,6 +411,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
             anchor: anchor,
             closeToolbar: closeToolbar,
           ),
+          floatingToolbarHeight: 32,
           child: editor,
         ),
       );
@@ -414,8 +419,13 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
 
     return Center(
       child: FloatingToolbar(
+        floatingToolbarHeight: 40,
+        padding: EdgeInsets.symmetric(horizontal: 6),
         style: styleCustomizer.floatingToolbarStyleBuilder(),
         items: toolbarItems,
+        decoration: context.getPopoverDecoration(
+          borderRadius: BorderRadius.circular(6),
+        ),
         editorState: editorState,
         editorScrollController: editorScrollController,
         textDirection: textDirection,

@@ -12,6 +12,8 @@ class SettingValueDropDown extends StatefulWidget {
     this.child,
     this.popoverController,
     this.offset,
+    this.boxConstraints,
+    this.margin = const EdgeInsets.all(6),
   });
 
   final String currentValue;
@@ -21,6 +23,8 @@ class SettingValueDropDown extends StatefulWidget {
   final Widget? child;
   final PopoverController? popoverController;
   final Offset? offset;
+  final BoxConstraints? boxConstraints;
+  final EdgeInsets margin;
 
   @override
   State<SettingValueDropDown> createState() => _SettingValueDropDownState();
@@ -33,12 +37,14 @@ class _SettingValueDropDownState extends State<SettingValueDropDown> {
       key: widget.popoverKey,
       controller: widget.popoverController,
       direction: PopoverDirection.bottomWithCenterAligned,
+      margin: widget.margin,
       popupBuilder: widget.popupBuilder,
-      constraints: const BoxConstraints(
-        minWidth: 80,
-        maxWidth: 160,
-        maxHeight: 400,
-      ),
+      constraints: widget.boxConstraints ??
+          const BoxConstraints(
+            minWidth: 80,
+            maxWidth: 160,
+            maxHeight: 400,
+          ),
       offset: widget.offset,
       onClose: widget.onClose,
       child: widget.child ??

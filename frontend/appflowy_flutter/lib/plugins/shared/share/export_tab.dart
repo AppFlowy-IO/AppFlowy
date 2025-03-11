@@ -70,7 +70,7 @@ class ExportTab extends StatelessWidget {
         const VSpace(10),
         _ExportButton(
           title: LocaleKeys.shareAction_csv.tr(),
-          svg: FlowySvgs.database_layout_m,
+          svg: FlowySvgs.database_layout_s,
           onTap: () => _exportCSV(context),
         ),
         if (kDebugMode) ...[
