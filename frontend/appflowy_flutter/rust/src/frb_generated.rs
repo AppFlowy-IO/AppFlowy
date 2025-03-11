@@ -190,19 +190,68 @@ impl SseDecode for flutter_rust_bridge::for_generated::anyhow::Error {
     }
 }
 
-impl SseDecode for std::collections::HashMap<String, String> {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut inner = <Vec<(String, String)>>::sse_decode(deserializer);
-        return inner.into_iter().collect();
-    }
-}
-
 impl SseDecode for String {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut inner = <Vec<u8>>::sse_decode(deserializer);
         return String::from_utf8(inner).unwrap();
+    }
+}
+
+impl SseDecode for bool {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_u8().unwrap() != 0
+    }
+}
+
+impl SseDecode for crate::folder::folder::FolderExtra {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_isSpace = <bool>::sse_decode(deserializer);
+        let mut var_spaceCreatedAt = <i64>::sse_decode(deserializer);
+        let mut var_spaceIcon = <String>::sse_decode(deserializer);
+        let mut var_spaceIconColor = <String>::sse_decode(deserializer);
+        let mut var_spacePermission = <i32>::sse_decode(deserializer);
+        return crate::folder::folder::FolderExtra {
+            is_space: var_isSpace,
+            space_created_at: var_spaceCreatedAt,
+            space_icon: var_spaceIcon,
+            space_icon_color: var_spaceIconColor,
+            space_permission: var_spacePermission,
+        };
+    }
+}
+
+impl SseDecode for crate::folder::folder::FolderItem {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_viewId = <String>::sse_decode(deserializer);
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_icon = <Option<String>>::sse_decode(deserializer);
+        let mut var_isSpace = <bool>::sse_decode(deserializer);
+        let mut var_isPrivate = <bool>::sse_decode(deserializer);
+        let mut var_isPublished = <bool>::sse_decode(deserializer);
+        let mut var_layout = <i32>::sse_decode(deserializer);
+        let mut var_createdAt = <String>::sse_decode(deserializer);
+        let mut var_lastEditedTime = <String>::sse_decode(deserializer);
+        let mut var_isLocked = <Option<bool>>::sse_decode(deserializer);
+        let mut var_extra = <Option<crate::folder::folder::FolderExtra>>::sse_decode(deserializer);
+        let mut var_children = <Vec<crate::folder::folder::FolderItem>>::sse_decode(deserializer);
+        return crate::folder::folder::FolderItem {
+            view_id: var_viewId,
+            name: var_name,
+            icon: var_icon,
+            is_space: var_isSpace,
+            is_private: var_isPrivate,
+            is_published: var_isPublished,
+            layout: var_layout,
+            created_at: var_createdAt,
+            last_edited_time: var_lastEditedTime,
+            is_locked: var_isLocked,
+            extra: var_extra,
+            children: var_children,
+        };
     }
 }
 
@@ -218,6 +267,48 @@ impl SseDecode for crate::folder::folder::FolderManager {
     }
 }
 
+impl SseDecode for crate::folder::folder::FolderResponse {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_data = <crate::folder::folder::RootFolder>::sse_decode(deserializer);
+        let mut var_code = <i32>::sse_decode(deserializer);
+        let mut var_message = <String>::sse_decode(deserializer);
+        return crate::folder::folder::FolderResponse {
+            data: var_data,
+            code: var_code,
+            message: var_message,
+        };
+    }
+}
+
+impl SseDecode for i32 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_i32::<NativeEndian>().unwrap()
+    }
+}
+
+impl SseDecode for i64 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_i64::<NativeEndian>().unwrap()
+    }
+}
+
+impl SseDecode for Vec<crate::folder::folder::FolderItem> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::folder::folder::FolderItem>::sse_decode(
+                deserializer,
+            ));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<u8> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -230,24 +321,70 @@ impl SseDecode for Vec<u8> {
     }
 }
 
-impl SseDecode for Vec<(String, String)> {
+impl SseDecode for Option<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut len_ = <i32>::sse_decode(deserializer);
-        let mut ans_ = vec![];
-        for idx_ in 0..len_ {
-            ans_.push(<(String, String)>::sse_decode(deserializer));
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<String>::sse_decode(deserializer));
+        } else {
+            return None;
         }
-        return ans_;
     }
 }
 
-impl SseDecode for (String, String) {
+impl SseDecode for Option<bool> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut var_field0 = <String>::sse_decode(deserializer);
-        let mut var_field1 = <String>::sse_decode(deserializer);
-        return (var_field0, var_field1);
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<bool>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::folder::folder::FolderExtra> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::folder::folder::FolderExtra>::sse_decode(
+                deserializer,
+            ));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for crate::folder::folder::RootFolder {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_viewId = <String>::sse_decode(deserializer);
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_icon = <Option<String>>::sse_decode(deserializer);
+        let mut var_isSpace = <bool>::sse_decode(deserializer);
+        let mut var_isPrivate = <bool>::sse_decode(deserializer);
+        let mut var_isPublished = <bool>::sse_decode(deserializer);
+        let mut var_layout = <i32>::sse_decode(deserializer);
+        let mut var_createdAt = <String>::sse_decode(deserializer);
+        let mut var_lastEditedTime = <String>::sse_decode(deserializer);
+        let mut var_isLocked = <Option<bool>>::sse_decode(deserializer);
+        let mut var_extra = <Option<crate::folder::folder::FolderExtra>>::sse_decode(deserializer);
+        let mut var_children = <Vec<crate::folder::folder::FolderItem>>::sse_decode(deserializer);
+        return crate::folder::folder::RootFolder {
+            view_id: var_viewId,
+            name: var_name,
+            icon: var_icon,
+            is_space: var_isSpace,
+            is_private: var_isPrivate,
+            is_published: var_isPublished,
+            layout: var_layout,
+            created_at: var_createdAt,
+            last_edited_time: var_lastEditedTime,
+            is_locked: var_isLocked,
+            extra: var_extra,
+            children: var_children,
+        };
     }
 }
 
@@ -261,20 +398,6 @@ impl SseDecode for u8 {
 impl SseDecode for () {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {}
-}
-
-impl SseDecode for i32 {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        deserializer.cursor.read_i32::<NativeEndian>().unwrap()
-    }
-}
-
-impl SseDecode for bool {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        deserializer.cursor.read_u8().unwrap() != 0
-    }
 }
 
 fn pde_ffi_dispatcher_primary_impl(
@@ -314,6 +437,61 @@ fn pde_ffi_dispatcher_sync_impl(
 // Section: rust2dart
 
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::folder::folder::FolderExtra {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.is_space.into_into_dart().into_dart(),
+            self.space_created_at.into_into_dart().into_dart(),
+            self.space_icon.into_into_dart().into_dart(),
+            self.space_icon_color.into_into_dart().into_dart(),
+            self.space_permission.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::folder::folder::FolderExtra
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::folder::folder::FolderExtra>
+    for crate::folder::folder::FolderExtra
+{
+    fn into_into_dart(self) -> crate::folder::folder::FolderExtra {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::folder::folder::FolderItem {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.view_id.into_into_dart().into_dart(),
+            self.name.into_into_dart().into_dart(),
+            self.icon.into_into_dart().into_dart(),
+            self.is_space.into_into_dart().into_dart(),
+            self.is_private.into_into_dart().into_dart(),
+            self.is_published.into_into_dart().into_dart(),
+            self.layout.into_into_dart().into_dart(),
+            self.created_at.into_into_dart().into_dart(),
+            self.last_edited_time.into_into_dart().into_dart(),
+            self.is_locked.into_into_dart().into_dart(),
+            self.extra.into_into_dart().into_dart(),
+            self.children.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::folder::folder::FolderItem
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::folder::folder::FolderItem>
+    for crate::folder::folder::FolderItem
+{
+    fn into_into_dart(self) -> crate::folder::folder::FolderItem {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::folder::folder::FolderManager {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -334,18 +512,64 @@ impl flutter_rust_bridge::IntoIntoDart<crate::folder::folder::FolderManager>
         self
     }
 }
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::folder::folder::FolderResponse {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.data.into_into_dart().into_dart(),
+            self.code.into_into_dart().into_dart(),
+            self.message.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::folder::folder::FolderResponse
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::folder::folder::FolderResponse>
+    for crate::folder::folder::FolderResponse
+{
+    fn into_into_dart(self) -> crate::folder::folder::FolderResponse {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::folder::folder::RootFolder {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.view_id.into_into_dart().into_dart(),
+            self.name.into_into_dart().into_dart(),
+            self.icon.into_into_dart().into_dart(),
+            self.is_space.into_into_dart().into_dart(),
+            self.is_private.into_into_dart().into_dart(),
+            self.is_published.into_into_dart().into_dart(),
+            self.layout.into_into_dart().into_dart(),
+            self.created_at.into_into_dart().into_dart(),
+            self.last_edited_time.into_into_dart().into_dart(),
+            self.is_locked.into_into_dart().into_dart(),
+            self.extra.into_into_dart().into_dart(),
+            self.children.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::folder::folder::RootFolder
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::folder::folder::RootFolder>
+    for crate::folder::folder::RootFolder
+{
+    fn into_into_dart(self) -> crate::folder::folder::RootFolder {
+        self
+    }
+}
 
 impl SseEncode for flutter_rust_bridge::for_generated::anyhow::Error {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(format!("{:?}", self), serializer);
-    }
-}
-
-impl SseEncode for std::collections::HashMap<String, String> {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <Vec<(String, String)>>::sse_encode(self.into_iter().collect(), serializer);
     }
 }
 
@@ -356,11 +580,80 @@ impl SseEncode for String {
     }
 }
 
+impl SseEncode for bool {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer.cursor.write_u8(self as _).unwrap();
+    }
+}
+
+impl SseEncode for crate::folder::folder::FolderExtra {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_space, serializer);
+        <i64>::sse_encode(self.space_created_at, serializer);
+        <String>::sse_encode(self.space_icon, serializer);
+        <String>::sse_encode(self.space_icon_color, serializer);
+        <i32>::sse_encode(self.space_permission, serializer);
+    }
+}
+
+impl SseEncode for crate::folder::folder::FolderItem {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.view_id, serializer);
+        <String>::sse_encode(self.name, serializer);
+        <Option<String>>::sse_encode(self.icon, serializer);
+        <bool>::sse_encode(self.is_space, serializer);
+        <bool>::sse_encode(self.is_private, serializer);
+        <bool>::sse_encode(self.is_published, serializer);
+        <i32>::sse_encode(self.layout, serializer);
+        <String>::sse_encode(self.created_at, serializer);
+        <String>::sse_encode(self.last_edited_time, serializer);
+        <Option<bool>>::sse_encode(self.is_locked, serializer);
+        <Option<crate::folder::folder::FolderExtra>>::sse_encode(self.extra, serializer);
+        <Vec<crate::folder::folder::FolderItem>>::sse_encode(self.children, serializer);
+    }
+}
+
 impl SseEncode for crate::folder::folder::FolderManager {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.base_url, serializer);
         <String>::sse_encode(self.workspace_id, serializer);
+    }
+}
+
+impl SseEncode for crate::folder::folder::FolderResponse {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::folder::folder::RootFolder>::sse_encode(self.data, serializer);
+        <i32>::sse_encode(self.code, serializer);
+        <String>::sse_encode(self.message, serializer);
+    }
+}
+
+impl SseEncode for i32 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer.cursor.write_i32::<NativeEndian>(self).unwrap();
+    }
+}
+
+impl SseEncode for i64 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer.cursor.write_i64::<NativeEndian>(self).unwrap();
+    }
+}
+
+impl SseEncode for Vec<crate::folder::folder::FolderItem> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::folder::folder::FolderItem>::sse_encode(item, serializer);
+        }
     }
 }
 
@@ -374,21 +667,51 @@ impl SseEncode for Vec<u8> {
     }
 }
 
-impl SseEncode for Vec<(String, String)> {
+impl SseEncode for Option<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <i32>::sse_encode(self.len() as _, serializer);
-        for item in self {
-            <(String, String)>::sse_encode(item, serializer);
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <String>::sse_encode(value, serializer);
         }
     }
 }
 
-impl SseEncode for (String, String) {
+impl SseEncode for Option<bool> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <String>::sse_encode(self.0, serializer);
-        <String>::sse_encode(self.1, serializer);
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <bool>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::folder::folder::FolderExtra> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::folder::folder::FolderExtra>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for crate::folder::folder::RootFolder {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.view_id, serializer);
+        <String>::sse_encode(self.name, serializer);
+        <Option<String>>::sse_encode(self.icon, serializer);
+        <bool>::sse_encode(self.is_space, serializer);
+        <bool>::sse_encode(self.is_private, serializer);
+        <bool>::sse_encode(self.is_published, serializer);
+        <i32>::sse_encode(self.layout, serializer);
+        <String>::sse_encode(self.created_at, serializer);
+        <String>::sse_encode(self.last_edited_time, serializer);
+        <Option<bool>>::sse_encode(self.is_locked, serializer);
+        <Option<crate::folder::folder::FolderExtra>>::sse_encode(self.extra, serializer);
+        <Vec<crate::folder::folder::FolderItem>>::sse_encode(self.children, serializer);
     }
 }
 
@@ -402,20 +725,6 @@ impl SseEncode for u8 {
 impl SseEncode for () {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {}
-}
-
-impl SseEncode for i32 {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        serializer.cursor.write_i32::<NativeEndian>(self).unwrap();
-    }
-}
-
-impl SseEncode for bool {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        serializer.cursor.write_u8(self as _).unwrap();
-    }
 }
 
 #[cfg(not(target_family = "wasm"))]

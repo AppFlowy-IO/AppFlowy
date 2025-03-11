@@ -79,7 +79,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 }
 
 abstract class RustLibApi extends BaseApi {
-  Future<Map<String, String>> crateFolderFolderFolderManagerGetFolderList(
+  Future<FolderResponse> crateFolderFolderFolderManagerGetFolderList(
       {required FolderManager that});
 
   FolderManager crateFolderFolderFolderManagerNew(
@@ -99,7 +99,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
-  Future<Map<String, String>> crateFolderFolderFolderManagerGetFolderList(
+  Future<FolderResponse> crateFolderFolderFolderManagerGetFolderList(
       {required FolderManager that}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
@@ -109,7 +109,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             funcId: 1, port: port_);
       },
       codec: SseCodec(
-        decodeSuccessData: sse_decode_Map_String_String_None,
+        decodeSuccessData: sse_decode_folder_response,
         decodeErrorData: sse_decode_AnyhowException,
       ),
       constMeta: kCrateFolderFolderFolderManagerGetFolderListConstMeta,
@@ -203,22 +203,70 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Map<String, String> dco_decode_Map_String_String_None(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    return Map.fromEntries(dco_decode_list_record_string_string(raw)
-        .map((e) => MapEntry(e.$1, e.$2)));
-  }
-
-  @protected
   String dco_decode_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as String;
   }
 
   @protected
+  bool dco_decode_bool(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as bool;
+  }
+
+  @protected
+  bool dco_decode_box_autoadd_bool(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as bool;
+  }
+
+  @protected
+  FolderExtra dco_decode_box_autoadd_folder_extra(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_folder_extra(raw);
+  }
+
+  @protected
   FolderManager dco_decode_box_autoadd_folder_manager(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_folder_manager(raw);
+  }
+
+  @protected
+  FolderExtra dco_decode_folder_extra(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
+    return FolderExtra(
+      isSpace: dco_decode_bool(arr[0]),
+      spaceCreatedAt: dco_decode_i_64(arr[1]),
+      spaceIcon: dco_decode_String(arr[2]),
+      spaceIconColor: dco_decode_String(arr[3]),
+      spacePermission: dco_decode_i_32(arr[4]),
+    );
+  }
+
+  @protected
+  FolderItem dco_decode_folder_item(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 12)
+      throw Exception('unexpected arr length: expect 12 but see ${arr.length}');
+    return FolderItem(
+      viewId: dco_decode_String(arr[0]),
+      name: dco_decode_String(arr[1]),
+      icon: dco_decode_opt_String(arr[2]),
+      isSpace: dco_decode_bool(arr[3]),
+      isPrivate: dco_decode_bool(arr[4]),
+      isPublished: dco_decode_bool(arr[5]),
+      layout: dco_decode_i_32(arr[6]),
+      createdAt: dco_decode_String(arr[7]),
+      lastEditedTime: dco_decode_String(arr[8]),
+      isLocked: dco_decode_opt_box_autoadd_bool(arr[9]),
+      extra: dco_decode_opt_box_autoadd_folder_extra(arr[10]),
+      children: dco_decode_list_folder_item(arr[11]),
+    );
   }
 
   @protected
@@ -234,27 +282,79 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  FolderResponse dco_decode_folder_response(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return FolderResponse(
+      data: dco_decode_root_folder(arr[0]),
+      code: dco_decode_i_32(arr[1]),
+      message: dco_decode_String(arr[2]),
+    );
+  }
+
+  @protected
+  int dco_decode_i_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
+  }
+
+  @protected
+  PlatformInt64 dco_decode_i_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dcoDecodeI64(raw);
+  }
+
+  @protected
+  List<FolderItem> dco_decode_list_folder_item(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_folder_item).toList();
+  }
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as Uint8List;
   }
 
   @protected
-  List<(String, String)> dco_decode_list_record_string_string(dynamic raw) {
+  String? dco_decode_opt_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return (raw as List<dynamic>).map(dco_decode_record_string_string).toList();
+    return raw == null ? null : dco_decode_String(raw);
   }
 
   @protected
-  (String, String) dco_decode_record_string_string(dynamic raw) {
+  bool? dco_decode_opt_box_autoadd_bool(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_bool(raw);
+  }
+
+  @protected
+  FolderExtra? dco_decode_opt_box_autoadd_folder_extra(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_folder_extra(raw);
+  }
+
+  @protected
+  RootFolder dco_decode_root_folder(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 2) {
-      throw Exception('Expected 2 elements, got ${arr.length}');
-    }
-    return (
-      dco_decode_String(arr[0]),
-      dco_decode_String(arr[1]),
+    if (arr.length != 12)
+      throw Exception('unexpected arr length: expect 12 but see ${arr.length}');
+    return RootFolder(
+      viewId: dco_decode_String(arr[0]),
+      name: dco_decode_String(arr[1]),
+      icon: dco_decode_opt_String(arr[2]),
+      isSpace: dco_decode_bool(arr[3]),
+      isPrivate: dco_decode_bool(arr[4]),
+      isPublished: dco_decode_bool(arr[5]),
+      layout: dco_decode_i_32(arr[6]),
+      createdAt: dco_decode_String(arr[7]),
+      lastEditedTime: dco_decode_String(arr[8]),
+      isLocked: dco_decode_opt_box_autoadd_bool(arr[9]),
+      extra: dco_decode_opt_box_autoadd_folder_extra(arr[10]),
+      children: dco_decode_list_folder_item(arr[11]),
     );
   }
 
@@ -278,14 +378,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Map<String, String> sse_decode_Map_String_String_None(
-      SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    var inner = sse_decode_list_record_string_string(deserializer);
-    return Map.fromEntries(inner.map((e) => MapEntry(e.$1, e.$2)));
-  }
-
-  @protected
   String sse_decode_String(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_list_prim_u_8_strict(deserializer);
@@ -293,10 +385,75 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  bool sse_decode_bool(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getUint8() != 0;
+  }
+
+  @protected
+  bool sse_decode_box_autoadd_bool(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_bool(deserializer));
+  }
+
+  @protected
+  FolderExtra sse_decode_box_autoadd_folder_extra(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_folder_extra(deserializer));
+  }
+
+  @protected
   FolderManager sse_decode_box_autoadd_folder_manager(
       SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_folder_manager(deserializer));
+  }
+
+  @protected
+  FolderExtra sse_decode_folder_extra(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_isSpace = sse_decode_bool(deserializer);
+    var var_spaceCreatedAt = sse_decode_i_64(deserializer);
+    var var_spaceIcon = sse_decode_String(deserializer);
+    var var_spaceIconColor = sse_decode_String(deserializer);
+    var var_spacePermission = sse_decode_i_32(deserializer);
+    return FolderExtra(
+        isSpace: var_isSpace,
+        spaceCreatedAt: var_spaceCreatedAt,
+        spaceIcon: var_spaceIcon,
+        spaceIconColor: var_spaceIconColor,
+        spacePermission: var_spacePermission);
+  }
+
+  @protected
+  FolderItem sse_decode_folder_item(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_viewId = sse_decode_String(deserializer);
+    var var_name = sse_decode_String(deserializer);
+    var var_icon = sse_decode_opt_String(deserializer);
+    var var_isSpace = sse_decode_bool(deserializer);
+    var var_isPrivate = sse_decode_bool(deserializer);
+    var var_isPublished = sse_decode_bool(deserializer);
+    var var_layout = sse_decode_i_32(deserializer);
+    var var_createdAt = sse_decode_String(deserializer);
+    var var_lastEditedTime = sse_decode_String(deserializer);
+    var var_isLocked = sse_decode_opt_box_autoadd_bool(deserializer);
+    var var_extra = sse_decode_opt_box_autoadd_folder_extra(deserializer);
+    var var_children = sse_decode_list_folder_item(deserializer);
+    return FolderItem(
+        viewId: var_viewId,
+        name: var_name,
+        icon: var_icon,
+        isSpace: var_isSpace,
+        isPrivate: var_isPrivate,
+        isPublished: var_isPublished,
+        layout: var_layout,
+        createdAt: var_createdAt,
+        lastEditedTime: var_lastEditedTime,
+        isLocked: var_isLocked,
+        extra: var_extra,
+        children: var_children);
   }
 
   @protected
@@ -309,6 +466,39 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  FolderResponse sse_decode_folder_response(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_data = sse_decode_root_folder(deserializer);
+    var var_code = sse_decode_i_32(deserializer);
+    var var_message = sse_decode_String(deserializer);
+    return FolderResponse(data: var_data, code: var_code, message: var_message);
+  }
+
+  @protected
+  int sse_decode_i_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getInt32();
+  }
+
+  @protected
+  PlatformInt64 sse_decode_i_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getPlatformInt64();
+  }
+
+  @protected
+  List<FolderItem> sse_decode_list_folder_item(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <FolderItem>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_folder_item(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var len_ = sse_decode_i_32(deserializer);
@@ -316,25 +506,67 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  List<(String, String)> sse_decode_list_record_string_string(
-      SseDeserializer deserializer) {
+  String? sse_decode_opt_String(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
-    var len_ = sse_decode_i_32(deserializer);
-    var ans_ = <(String, String)>[];
-    for (var idx_ = 0; idx_ < len_; ++idx_) {
-      ans_.add(sse_decode_record_string_string(deserializer));
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_String(deserializer));
+    } else {
+      return null;
     }
-    return ans_;
   }
 
   @protected
-  (String, String) sse_decode_record_string_string(
+  bool? sse_decode_opt_box_autoadd_bool(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_bool(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  FolderExtra? sse_decode_opt_box_autoadd_folder_extra(
       SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    var var_field0 = sse_decode_String(deserializer);
-    var var_field1 = sse_decode_String(deserializer);
-    return (var_field0, var_field1);
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_folder_extra(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  RootFolder sse_decode_root_folder(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_viewId = sse_decode_String(deserializer);
+    var var_name = sse_decode_String(deserializer);
+    var var_icon = sse_decode_opt_String(deserializer);
+    var var_isSpace = sse_decode_bool(deserializer);
+    var var_isPrivate = sse_decode_bool(deserializer);
+    var var_isPublished = sse_decode_bool(deserializer);
+    var var_layout = sse_decode_i_32(deserializer);
+    var var_createdAt = sse_decode_String(deserializer);
+    var var_lastEditedTime = sse_decode_String(deserializer);
+    var var_isLocked = sse_decode_opt_box_autoadd_bool(deserializer);
+    var var_extra = sse_decode_opt_box_autoadd_folder_extra(deserializer);
+    var var_children = sse_decode_list_folder_item(deserializer);
+    return RootFolder(
+        viewId: var_viewId,
+        name: var_name,
+        icon: var_icon,
+        isSpace: var_isSpace,
+        isPrivate: var_isPrivate,
+        isPublished: var_isPublished,
+        layout: var_layout,
+        createdAt: var_createdAt,
+        lastEditedTime: var_lastEditedTime,
+        isLocked: var_isLocked,
+        extra: var_extra,
+        children: var_children);
   }
 
   @protected
@@ -349,18 +581,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  int sse_decode_i_32(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return deserializer.buffer.getInt32();
-  }
-
-  @protected
-  bool sse_decode_bool(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return deserializer.buffer.getUint8() != 0;
-  }
-
-  @protected
   void sse_encode_AnyhowException(
       AnyhowException self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -368,17 +588,28 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_Map_String_String_None(
-      Map<String, String> self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_list_record_string_string(
-        self.entries.map((e) => (e.key, e.value)).toList(), serializer);
-  }
-
-  @protected
   void sse_encode_String(String self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_list_prim_u_8_strict(utf8.encoder.convert(self), serializer);
+  }
+
+  @protected
+  void sse_encode_bool(bool self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putUint8(self ? 1 : 0);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_bool(bool self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_bool(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_folder_extra(
+      FolderExtra self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_folder_extra(self, serializer);
   }
 
   @protected
@@ -389,10 +620,68 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_folder_extra(FolderExtra self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_bool(self.isSpace, serializer);
+    sse_encode_i_64(self.spaceCreatedAt, serializer);
+    sse_encode_String(self.spaceIcon, serializer);
+    sse_encode_String(self.spaceIconColor, serializer);
+    sse_encode_i_32(self.spacePermission, serializer);
+  }
+
+  @protected
+  void sse_encode_folder_item(FolderItem self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.viewId, serializer);
+    sse_encode_String(self.name, serializer);
+    sse_encode_opt_String(self.icon, serializer);
+    sse_encode_bool(self.isSpace, serializer);
+    sse_encode_bool(self.isPrivate, serializer);
+    sse_encode_bool(self.isPublished, serializer);
+    sse_encode_i_32(self.layout, serializer);
+    sse_encode_String(self.createdAt, serializer);
+    sse_encode_String(self.lastEditedTime, serializer);
+    sse_encode_opt_box_autoadd_bool(self.isLocked, serializer);
+    sse_encode_opt_box_autoadd_folder_extra(self.extra, serializer);
+    sse_encode_list_folder_item(self.children, serializer);
+  }
+
+  @protected
   void sse_encode_folder_manager(FolderManager self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.baseUrl, serializer);
     sse_encode_String(self.workspaceId, serializer);
+  }
+
+  @protected
+  void sse_encode_folder_response(
+      FolderResponse self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_root_folder(self.data, serializer);
+    sse_encode_i_32(self.code, serializer);
+    sse_encode_String(self.message, serializer);
+  }
+
+  @protected
+  void sse_encode_i_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putInt32(self);
+  }
+
+  @protected
+  void sse_encode_i_64(PlatformInt64 self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putPlatformInt64(self);
+  }
+
+  @protected
+  void sse_encode_list_folder_item(
+      List<FolderItem> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_folder_item(item, serializer);
+    }
   }
 
   @protected
@@ -404,21 +693,51 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_list_record_string_string(
-      List<(String, String)> self, SseSerializer serializer) {
+  void sse_encode_opt_String(String? self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_i_32(self.length, serializer);
-    for (final item in self) {
-      sse_encode_record_string_string(item, serializer);
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_String(self, serializer);
     }
   }
 
   @protected
-  void sse_encode_record_string_string(
-      (String, String) self, SseSerializer serializer) {
+  void sse_encode_opt_box_autoadd_bool(bool? self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_String(self.$1, serializer);
-    sse_encode_String(self.$2, serializer);
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_bool(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_folder_extra(
+      FolderExtra? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_folder_extra(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_root_folder(RootFolder self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.viewId, serializer);
+    sse_encode_String(self.name, serializer);
+    sse_encode_opt_String(self.icon, serializer);
+    sse_encode_bool(self.isSpace, serializer);
+    sse_encode_bool(self.isPrivate, serializer);
+    sse_encode_bool(self.isPublished, serializer);
+    sse_encode_i_32(self.layout, serializer);
+    sse_encode_String(self.createdAt, serializer);
+    sse_encode_String(self.lastEditedTime, serializer);
+    sse_encode_opt_box_autoadd_bool(self.isLocked, serializer);
+    sse_encode_opt_box_autoadd_folder_extra(self.extra, serializer);
+    sse_encode_list_folder_item(self.children, serializer);
   }
 
   @protected
@@ -430,17 +749,5 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   void sse_encode_unit(void self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-  }
-
-  @protected
-  void sse_encode_i_32(int self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    serializer.buffer.putInt32(self);
-  }
-
-  @protected
-  void sse_encode_bool(bool self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    serializer.buffer.putUint8(self ? 1 : 0);
   }
 }

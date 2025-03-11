@@ -2351,6 +2351,8 @@ dependencies = [
  "collab-entity",
  "flutter_rust_bridge",
  "reqwest",
+ "serde",
+ "serde_json",
  "tokio",
 ]
 

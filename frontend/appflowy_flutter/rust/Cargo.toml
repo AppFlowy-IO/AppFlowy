@@ -11,6 +11,8 @@ flutter_rust_bridge = "=2.9.0"
 reqwest = { version = "0.12", features = ["json"] }
 tokio = { version = "1", features = ["full"] }
 anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 
 collab = { version = "0.2" }
 collab-entity = { version = "0.2" }

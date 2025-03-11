@@ -22,25 +22,55 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AnyhowException dco_decode_AnyhowException(dynamic raw);
 
   @protected
-  Map<String, String> dco_decode_Map_String_String_None(dynamic raw);
+  String dco_decode_String(dynamic raw);
 
   @protected
-  String dco_decode_String(dynamic raw);
+  bool dco_decode_bool(dynamic raw);
+
+  @protected
+  bool dco_decode_box_autoadd_bool(dynamic raw);
+
+  @protected
+  FolderExtra dco_decode_box_autoadd_folder_extra(dynamic raw);
 
   @protected
   FolderManager dco_decode_box_autoadd_folder_manager(dynamic raw);
 
   @protected
+  FolderExtra dco_decode_folder_extra(dynamic raw);
+
+  @protected
+  FolderItem dco_decode_folder_item(dynamic raw);
+
+  @protected
   FolderManager dco_decode_folder_manager(dynamic raw);
+
+  @protected
+  FolderResponse dco_decode_folder_response(dynamic raw);
+
+  @protected
+  int dco_decode_i_32(dynamic raw);
+
+  @protected
+  PlatformInt64 dco_decode_i_64(dynamic raw);
+
+  @protected
+  List<FolderItem> dco_decode_list_folder_item(dynamic raw);
 
   @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
-  List<(String, String)> dco_decode_list_record_string_string(dynamic raw);
+  String? dco_decode_opt_String(dynamic raw);
 
   @protected
-  (String, String) dco_decode_record_string_string(dynamic raw);
+  bool? dco_decode_opt_box_autoadd_bool(dynamic raw);
+
+  @protected
+  FolderExtra? dco_decode_opt_box_autoadd_folder_extra(dynamic raw);
+
+  @protected
+  RootFolder dco_decode_root_folder(dynamic raw);
 
   @protected
   int dco_decode_u_8(dynamic raw);
@@ -52,29 +82,57 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
   @protected
-  Map<String, String> sse_decode_Map_String_String_None(
-      SseDeserializer deserializer);
+  String sse_decode_String(SseDeserializer deserializer);
 
   @protected
-  String sse_decode_String(SseDeserializer deserializer);
+  bool sse_decode_bool(SseDeserializer deserializer);
+
+  @protected
+  bool sse_decode_box_autoadd_bool(SseDeserializer deserializer);
+
+  @protected
+  FolderExtra sse_decode_box_autoadd_folder_extra(SseDeserializer deserializer);
 
   @protected
   FolderManager sse_decode_box_autoadd_folder_manager(
       SseDeserializer deserializer);
 
   @protected
+  FolderExtra sse_decode_folder_extra(SseDeserializer deserializer);
+
+  @protected
+  FolderItem sse_decode_folder_item(SseDeserializer deserializer);
+
+  @protected
   FolderManager sse_decode_folder_manager(SseDeserializer deserializer);
+
+  @protected
+  FolderResponse sse_decode_folder_response(SseDeserializer deserializer);
+
+  @protected
+  int sse_decode_i_32(SseDeserializer deserializer);
+
+  @protected
+  PlatformInt64 sse_decode_i_64(SseDeserializer deserializer);
+
+  @protected
+  List<FolderItem> sse_decode_list_folder_item(SseDeserializer deserializer);
 
   @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
-  List<(String, String)> sse_decode_list_record_string_string(
+  String? sse_decode_opt_String(SseDeserializer deserializer);
+
+  @protected
+  bool? sse_decode_opt_box_autoadd_bool(SseDeserializer deserializer);
+
+  @protected
+  FolderExtra? sse_decode_opt_box_autoadd_folder_extra(
       SseDeserializer deserializer);
 
   @protected
-  (String, String) sse_decode_record_string_string(
-      SseDeserializer deserializer);
+  RootFolder sse_decode_root_folder(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_8(SseDeserializer deserializer);
@@ -83,52 +141,71 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_decode_unit(SseDeserializer deserializer);
 
   @protected
-  int sse_decode_i_32(SseDeserializer deserializer);
-
-  @protected
-  bool sse_decode_bool(SseDeserializer deserializer);
-
-  @protected
   void sse_encode_AnyhowException(
       AnyhowException self, SseSerializer serializer);
 
   @protected
-  void sse_encode_Map_String_String_None(
-      Map<String, String> self, SseSerializer serializer);
+  void sse_encode_String(String self, SseSerializer serializer);
 
   @protected
-  void sse_encode_String(String self, SseSerializer serializer);
+  void sse_encode_bool(bool self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_bool(bool self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_folder_extra(
+      FolderExtra self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_folder_manager(
       FolderManager self, SseSerializer serializer);
 
   @protected
+  void sse_encode_folder_extra(FolderExtra self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_folder_item(FolderItem self, SseSerializer serializer);
+
+  @protected
   void sse_encode_folder_manager(FolderManager self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_folder_response(
+      FolderResponse self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_i_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_i_64(PlatformInt64 self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_folder_item(
+      List<FolderItem> self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_prim_u_8_strict(
       Uint8List self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_record_string_string(
-      List<(String, String)> self, SseSerializer serializer);
+  void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_record_string_string(
-      (String, String) self, SseSerializer serializer);
+  void sse_encode_opt_box_autoadd_bool(bool? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_folder_extra(
+      FolderExtra? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_root_folder(RootFolder self, SseSerializer serializer);
 
   @protected
   void sse_encode_u_8(int self, SseSerializer serializer);
 
   @protected
   void sse_encode_unit(void self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_i_32(int self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_bool(bool self, SseSerializer serializer);
 }
 
 // Section: wire_class
