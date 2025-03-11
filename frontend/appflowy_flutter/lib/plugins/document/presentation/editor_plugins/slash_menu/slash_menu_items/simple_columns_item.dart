@@ -90,13 +90,8 @@ SelectionMenuItem fourColumnsSlashMenuItem = SelectionMenuItem.node(
 );
 
 Node _buildColumnsNode(EditorState editorState, int columnCount) {
-  final selection = editorState.selection;
-  double? width;
-  if (selection != null) {
-    final parentNode = editorState.getNodeAtPath(selection.start.path);
-    if (parentNode != null) {
-      width = parentNode.rect.width / columnCount - 16;
-    }
-  }
-  return simpleColumnsNode(columnCount: columnCount, width: width);
+  return simpleColumnsNode(
+    columnCount: columnCount,
+    ratio: 1.0 / columnCount,
+  );
 }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:appflowy/plugins/document/presentation/editor_plugins/columns/simple_columns_block_constant.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_backend/log.dart';
@@ -5,20 +7,19 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:universal_platform/universal_platform.dart';
 
 // if the children is not provided, it will create two columns by default.
 // if the columnCount is provided, it will create the specified number of columns.
 Node simpleColumnsNode({
   List<Node>? children,
   int? columnCount,
-  double? width,
+  double? ratio,
 }) {
   columnCount ??= 2;
   children ??= List.generate(
     columnCount,
     (index) => simpleColumnNode(
-      width: width,
+      ratio: ratio,
       children: [paragraphNode()],
     ),
   );
@@ -67,6 +68,7 @@ class ColumnsBlockComponent extends BlockComponentStatefulWidget {
     required super.node,
     super.showActions,
     super.actionBuilder,
+    super.actionTrailingBuilder,
     super.configuration = const BlockComponentConfiguration(),
   });
 
@@ -91,6 +93,13 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
   final ScrollController scrollController = ScrollController();
 
   @override
+  void initState() {
+    super.initState();
+
+    _updateColumnsBlock();
+  }
+
+  @override
   void dispose() {
     scrollController.dispose();
 
@@ -99,22 +108,11 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
 
   @override
   Widget build(BuildContext context) {
-    Widget child = SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      controller: scrollController,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: _buildChildren(),
-      ),
+    Widget child = Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: _buildChildren(),
     );
-
-    if (UniversalPlatform.isDesktop) {
-      // only show the scrollbar on desktop
-      child = Scrollbar(
-        controller: scrollController,
-        child: child,
-      );
-    }
 
     child = Align(
       alignment: Alignment.topLeft,
@@ -147,19 +145,18 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
   }
 
   List<Widget> _buildChildren() {
+    final length = node.children.length;
     final children = <Widget>[];
-    for (var i = 0; i < node.children.length; i++) {
+    for (var i = 0; i < length; i++) {
       final childNode = node.children[i];
-      final width =
-          childNode.attributes[SimpleColumnBlockKeys.width]?.toDouble() ??
-              SimpleColumnsBlockConstants.minimumColumnWidth;
+      final double ratio =
+          childNode.attributes[SimpleColumnBlockKeys.ratio]?.toDouble() ??
+              1.0 / length;
+
       Widget child = editorState.renderer.build(context, childNode);
 
-      child = SizedBox(
-        width: width.clamp(
-          SimpleColumnsBlockConstants.minimumColumnWidth,
-          double.infinity,
-        ),
+      child = Expanded(
+        flex: (max(ratio, 0.1) * 10000).toInt(),
         child: child,
       );
 
@@ -173,6 +170,26 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
       );
     }
     return children;
+  }
+
+  // Update the existing columns block data
+  // if the column ratio is not existing, it will be set to 1.0 / columnCount
+  void _updateColumnsBlock() {
+    final transaction = editorState.transaction;
+    final length = node.children.length;
+    for (int i = 0; i < length; i++) {
+      final childNode = node.children[i];
+      final ratio = childNode.attributes[SimpleColumnBlockKeys.ratio];
+      if (ratio == null) {
+        transaction.updateNode(childNode, {
+          ...childNode.attributes,
+          SimpleColumnBlockKeys.ratio: 1.0 / length,
+        });
+      }
+    }
+    if (transaction.operations.isNotEmpty) {
+      editorState.apply(transaction);
+    }
   }
 
   @override

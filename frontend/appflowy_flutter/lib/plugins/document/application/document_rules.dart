@@ -104,6 +104,28 @@ class DocumentRules {
               } else {
                 // otherwise, delete the column
                 deleteColumnsTransaction.deleteNode(column);
+
+                final deletedColumnRatio =
+                    column.attributes[SimpleColumnBlockKeys.ratio];
+                if (deletedColumnRatio != null) {
+                  // update the ratio of the columns
+                  final columnsNode = column.columnsParent;
+                  if (columnsNode != null) {
+                    final length = columnsNode.children.length;
+                    for (final columnNode in columnsNode.children) {
+                      final ratio =
+                          columnNode.attributes[SimpleColumnBlockKeys.ratio] ??
+                              1.0 / length;
+                      if (ratio != null) {
+                        deleteColumnsTransaction.updateNode(columnNode, {
+                          ...columnNode.attributes,
+                          SimpleColumnBlockKeys.ratio:
+                              ratio + deletedColumnRatio / (length - 1),
+                        });
+                      }
+                    }
+                  }
+                }
               }
             }
           }
