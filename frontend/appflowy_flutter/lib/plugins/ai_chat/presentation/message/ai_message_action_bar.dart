@@ -260,8 +260,11 @@ class _ChangeFormatButtonState extends State<ChangeFormatButton> {
       constraints: const BoxConstraints(),
       onClose: () => widget.onOverrideVisibility?.call(false),
       child: buildButton(context),
-      popupBuilder: (_) => _ChangeFormatPopoverContent(
-        onRegenerate: widget.onRegenerate,
+      popupBuilder: (_) => BlocProvider.value(
+        value: context.read<AIPromptInputBloc>(),
+        child: _ChangeFormatPopoverContent(
+          onRegenerate: widget.onRegenerate,
+        ),
       ),
     );
   }
@@ -359,11 +362,16 @@ class _ChangeFormatPopoverContentState
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ChangeFormatBar(
-            spacing: 2.0,
-            predefinedFormat: predefinedFormat,
-            onSelectPredefinedFormat: (format) {
-              setState(() => predefinedFormat = format);
+          BlocBuilder<AIPromptInputBloc, AIPromptInputState>(
+            builder: (context, state) {
+              return ChangeFormatBar(
+                spacing: 2.0,
+                showImageFormats: state.aiType.isCloud,
+                predefinedFormat: predefinedFormat,
+                onSelectPredefinedFormat: (format) {
+                  setState(() => predefinedFormat = format);
+                },
+              );
             },
           ),
           const HSpace(4.0),
