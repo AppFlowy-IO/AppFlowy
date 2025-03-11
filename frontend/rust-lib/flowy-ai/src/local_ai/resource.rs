@@ -5,7 +5,9 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_infra::async_trait::async_trait;
 
 use crate::entities::LackOfAIResourcePB;
-use crate::local_ai::watch::{ollama_plugin_command_available, ollama_plugin_path};
+use crate::local_ai::watch::{
+  is_plugin_ready, ollama_plugin_command_available, ollama_plugin_path,
+};
 #[cfg(target_os = "macos")]
 use crate::local_ai::watch::{watch_offline_app, WatchContext};
 use crate::notification::{
@@ -236,14 +238,14 @@ impl LocalAIResourceController {
     let llm_setting = self.get_llm_setting();
     let bin_path = match get_operating_system() {
       OperatingSystem::MacOS | OperatingSystem::Windows => {
-        let path = ollama_plugin_path();
-        if !path.exists() {
+        if !is_plugin_ready() {
           return Err(FlowyError::new(
-            ErrorCode::AIOfflineNotInstalled,
-            format!("AppFlowy Offline not installed at path: {:?}", path),
+            ErrorCode::AppFlowyLAINotReady,
+            "AppFlowyLAI not found",
           ));
         }
-        path
+
+        ollama_plugin_path()
       },
       _ => {
         return Err(
