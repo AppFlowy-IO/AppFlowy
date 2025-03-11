@@ -52,7 +52,8 @@ class LocalAIToggleBloc extends Bloc<LocalAIToggleEvent, LocalAIToggleState> {
       (localAI) {
         emit(
           state.copyWith(
-            pageIndicator: LocalAIToggleStateIndicator.ready(localAI.enabled),
+            pageIndicator:
+                LocalAIToggleStateIndicator.isEnabled(localAI.enabled),
           ),
         );
       },
@@ -88,6 +89,6 @@ class LocalAIToggleState with _$LocalAIToggleState {
 class LocalAIToggleStateIndicator with _$LocalAIToggleStateIndicator {
   // when start downloading the model
   const factory LocalAIToggleStateIndicator.error(FlowyError error) = _OnError;
-  const factory LocalAIToggleStateIndicator.ready(bool isEnabled) = _Ready;
+  const factory LocalAIToggleStateIndicator.isEnabled(bool isEnabled) = _Ready;
   const factory LocalAIToggleStateIndicator.loading() = _Loading;
 }

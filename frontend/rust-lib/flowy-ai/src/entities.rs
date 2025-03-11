@@ -1,8 +1,8 @@
-use crate::local_ai::local_llm_chat::LLMModelInfo;
 use appflowy_plugin::core::plugin::RunningState;
 use std::collections::HashMap;
 
-use crate::local_ai::local_llm_resource::PendingResource;
+use crate::local_ai::controller::LocalAISetting;
+use crate::local_ai::resource::PendingResource;
 use flowy_ai_pub::cloud::{
   ChatMessage, ChatMessageMetadata, ChatMessageType, LLMModel, OutputContent, OutputLayout,
   RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion, ResponseFormat,
@@ -310,24 +310,6 @@ impl From<RepeatedRelatedQuestion> for RepeatedRelatedQuestionPB {
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct LLMModelInfoPB {
-  #[pb(index = 1)]
-  pub selected_model: LLMModelPB,
-
-  #[pb(index = 2)]
-  pub models: Vec<LLMModelPB>,
-}
-
-impl From<LLMModelInfo> for LLMModelInfoPB {
-  fn from(value: LLMModelInfo) -> Self {
-    LLMModelInfoPB {
-      selected_model: LLMModelPB::from(value.selected_model),
-      models: value.models.into_iter().map(LLMModelPB::from).collect(),
-    }
-  }
-}
-
-#[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct LLMModelPB {
   #[pb(index = 1)]
   pub llm_id: i64,
@@ -424,17 +406,6 @@ pub struct ChatFilePB {
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
-pub struct DownloadLLMPB {
-  #[pb(index = 1)]
-  pub progress_stream: i64,
-}
-
-#[derive(Default, ProtoBuf, Clone, Debug)]
-pub struct DownloadTaskPB {
-  #[pb(index = 1)]
-  pub task_id: String,
-}
-#[derive(Default, ProtoBuf, Clone, Debug)]
 pub struct LocalModelStatePB {
   #[pb(index = 1)]
   pub model_name: String,
@@ -449,18 +420,6 @@ pub struct LocalModelStatePB {
   pub requirements: String,
 
   #[pb(index = 5)]
-  pub is_downloading: bool,
-}
-
-#[derive(Default, ProtoBuf, Clone, Debug)]
-pub struct LocalModelResourcePB {
-  #[pb(index = 1)]
-  pub is_ready: bool,
-
-  #[pb(index = 2)]
-  pub pending_resources: Vec<PendingResourcePB>,
-
-  #[pb(index = 3)]
   pub is_downloading: bool,
 }
 
@@ -482,40 +441,33 @@ pub struct PendingResourcePB {
 #[derive(Debug, Default, Clone, ProtoBuf_Enum, PartialEq, Eq, Copy)]
 pub enum PendingResourceTypePB {
   #[default]
-  OfflineApp = 0,
+  LocalAIAppRes = 0,
   AIModel = 1,
 }
 
 impl From<PendingResource> for PendingResourceTypePB {
   fn from(value: PendingResource) -> Self {
     match value {
-      PendingResource::OfflineApp { .. } => PendingResourceTypePB::OfflineApp,
-      PendingResource::ModelInfoRes { .. } => PendingResourceTypePB::AIModel,
+      PendingResource::PluginExecutableNotReady { .. } => PendingResourceTypePB::LocalAIAppRes,
+      _ => PendingResourceTypePB::AIModel,
     }
   }
-}
-
-#[derive(Default, ProtoBuf, Clone, Debug)]
-pub struct LocalAIPluginStatePB {
-  #[pb(index = 1)]
-  pub state: RunningStatePB,
-
-  #[pb(index = 2)]
-  pub offline_ai_ready: bool,
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf_Enum, PartialEq, Eq, Copy)]
 pub enum RunningStatePB {
   #[default]
-  Connecting = 0,
-  Connected = 1,
-  Running = 2,
-  Stopped = 3,
+  ReadyToRun = 0,
+  Connecting = 1,
+  Connected = 2,
+  Running = 3,
+  Stopped = 4,
 }
 
 impl From<RunningState> for RunningStatePB {
   fn from(value: RunningState) -> Self {
     match value {
+      RunningState::ReadyToConnect => RunningStatePB::ReadyToRun,
       RunningState::Connecting => RunningStatePB::Connecting,
       RunningState::Connected { .. } => RunningStatePB::Connected,
       RunningState::Running { .. } => RunningStatePB::Running,
@@ -529,28 +481,19 @@ impl From<RunningState> for RunningStatePB {
 pub struct LocalAIPB {
   #[pb(index = 1)]
   pub enabled: bool,
-}
-
-#[derive(Default, ProtoBuf, Clone, Debug)]
-pub struct LocalAIChatPB {
-  #[pb(index = 1)]
-  pub enabled: bool,
 
   #[pb(index = 2)]
-  pub file_enabled: bool,
+  pub is_plugin_executable_ready: bool,
 
-  #[pb(index = 3)]
-  pub plugin_state: LocalAIPluginStatePB,
+  #[pb(index = 3, one_of)]
+  pub lack_of_resource: Option<String>,
+
+  #[pb(index = 4)]
+  pub state: RunningStatePB,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
-pub struct LocalModelStoragePB {
-  #[pb(index = 1)]
-  pub file_path: String,
-}
-
-#[derive(Default, ProtoBuf, Clone, Debug)]
-pub struct OfflineAIPB {
+pub struct LocalAIAppLinkPB {
   #[pb(index = 1)]
   pub link: String,
 }
@@ -635,4 +578,45 @@ impl From<PredefinedFormatPB> for ResponseFormat {
       output_content_metadata: None,
     }
   }
+}
+
+#[derive(Default, ProtoBuf, Validate, Clone, Debug)]
+pub struct LocalAISettingPB {
+  #[pb(index = 1)]
+  #[validate(custom(function = "required_not_empty_str"))]
+  pub server_url: String,
+
+  #[pb(index = 2)]
+  #[validate(custom(function = "required_not_empty_str"))]
+  pub chat_model_name: String,
+
+  #[pb(index = 3)]
+  #[validate(custom(function = "required_not_empty_str"))]
+  pub embedding_model_name: String,
+}
+
+impl From<LocalAISetting> for LocalAISettingPB {
+  fn from(value: LocalAISetting) -> Self {
+    LocalAISettingPB {
+      server_url: value.ollama_server_url,
+      chat_model_name: value.chat_model_name,
+      embedding_model_name: value.embedding_model_name,
+    }
+  }
+}
+
+impl From<LocalAISettingPB> for LocalAISetting {
+  fn from(value: LocalAISettingPB) -> Self {
+    LocalAISetting {
+      ollama_server_url: value.server_url,
+      chat_model_name: value.chat_model_name,
+      embedding_model_name: value.embedding_model_name,
+    }
+  }
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct LackOfAIResourcePB {
+  #[pb(index = 1)]
+  pub resource_desc: String,
 }

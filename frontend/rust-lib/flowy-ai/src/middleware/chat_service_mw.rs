@@ -1,6 +1,6 @@
 use crate::ai_manager::AIUserService;
 use crate::entities::{ChatStatePB, ModelTypePB};
-use crate::local_ai::local_llm_chat::LocalAIController;
+use crate::local_ai::controller::LocalAIController;
 use crate::notification::{
   chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
 };
@@ -30,7 +30,7 @@ use tracing::trace;
 pub struct AICloudServiceMiddleware {
   cloud_service: Arc<dyn ChatCloudService>,
   user_service: Arc<dyn AIUserService>,
-  local_llm_controller: Arc<LocalAIController>,
+  local_ai: Arc<LocalAIController>,
   storage_service: Weak<dyn StorageService>,
 }
 
@@ -38,19 +38,19 @@ impl AICloudServiceMiddleware {
   pub fn new(
     user_service: Arc<dyn AIUserService>,
     cloud_service: Arc<dyn ChatCloudService>,
-    local_llm_controller: Arc<LocalAIController>,
+    local_ai: Arc<LocalAIController>,
     storage_service: Weak<dyn StorageService>,
   ) -> Self {
     Self {
       user_service,
       cloud_service,
-      local_llm_controller,
+      local_ai,
       storage_service,
     }
   }
 
   pub fn is_local_ai_enabled(&self) -> bool {
-    self.local_llm_controller.is_enabled()
+    self.local_ai.is_enabled()
   }
 
   pub async fn index_message_metadata(
@@ -68,7 +68,7 @@ impl AICloudServiceMiddleware {
         .await;
 
       self
-        .local_llm_controller
+        .local_ai
         .index_message_metadata(chat_id, metadata_list, index_process_sink)
         .await?;
       let _ = index_process_sink
@@ -97,7 +97,7 @@ impl AICloudServiceMiddleware {
     ) {
       chat_notification_builder(
         APPFLOWY_AI_NOTIFICATION_KEY,
-        ChatNotification::UpdateChatPluginState,
+        ChatNotification::UpdateLocalAIState,
       )
       .payload(ChatStatePB {
         model_type: ModelTypePB::LocalAI,
@@ -158,11 +158,11 @@ impl ChatCloudService for AICloudServiceMiddleware {
     question_id: i64,
     format: ResponseFormat,
   ) -> Result<StreamAnswer, FlowyError> {
-    if self.local_llm_controller.is_running() {
+    if self.local_ai.is_running() {
       let row = self.get_message_record(question_id)?;
       match self
-        .local_llm_controller
-        .stream_question(chat_id, &row.content, json!([]))
+        .local_ai
+        .stream_question(chat_id, &row.content, json!({}))
         .await
       {
         Ok(stream) => Ok(QuestionStream::new(stream).boxed()),
@@ -185,13 +185,9 @@ impl ChatCloudService for AICloudServiceMiddleware {
     chat_id: &str,
     question_message_id: i64,
   ) -> Result<ChatMessage, FlowyError> {
-    if self.local_llm_controller.is_running() {
+    if self.local_ai.is_running() {
       let content = self.get_message_record(question_message_id)?.content;
-      match self
-        .local_llm_controller
-        .ask_question(chat_id, &content)
-        .await
-      {
+      match self.local_ai.ask_question(chat_id, &content).await {
         Ok(answer) => {
           // TODO(nathan): metadata
           let message = self
@@ -244,9 +240,9 @@ impl ChatCloudService for AICloudServiceMiddleware {
     chat_id: &str,
     message_id: i64,
   ) -> Result<RepeatedRelatedQuestion, FlowyError> {
-    if self.local_llm_controller.is_running() {
+    if self.local_ai.is_running() {
       let questions = self
-        .local_llm_controller
+        .local_ai
         .get_related_question(chat_id)
         .await
         .map_err(|err| FlowyError::local_ai().with_context(err))?;
@@ -274,9 +270,9 @@ impl ChatCloudService for AICloudServiceMiddleware {
     workspace_id: &str,
     params: CompleteTextParams,
   ) -> Result<StreamComplete, FlowyError> {
-    if self.local_llm_controller.is_running() {
+    if self.local_ai.is_running() {
       match self
-        .local_llm_controller
+        .local_ai
         .complete_text(&params.text, params.completion_type.unwrap() as u8)
         .await
       {
@@ -305,9 +301,9 @@ impl ChatCloudService for AICloudServiceMiddleware {
     chat_id: &str,
     metadata: Option<HashMap<String, Value>>,
   ) -> Result<(), FlowyError> {
-    if self.local_llm_controller.is_running() {
+    if self.local_ai.is_running() {
       self
-        .local_llm_controller
+        .local_ai
         .index_file(chat_id, Some(file_path.to_path_buf()), None, metadata)
         .await
         .map_err(|err| FlowyError::local_ai().with_context(err))?;

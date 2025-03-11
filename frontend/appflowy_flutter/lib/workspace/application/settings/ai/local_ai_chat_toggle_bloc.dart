@@ -20,24 +20,8 @@ class LocalAIChatToggleBloc
   ) async {
     await event.when(
       started: () async {
-        final result = await AIEventGetLocalAIChatState().send();
+        final result = await AIEventGetLocalAIState().send();
         _handleResult(emit, result);
-      },
-      toggle: () async {
-        emit(
-          state.copyWith(
-            pageIndicator: const LocalAIChatToggleStateIndicator.loading(),
-          ),
-        );
-        unawaited(
-          AIEventToggleLocalAIChat().send().then(
-            (result) {
-              if (!isClosed) {
-                add(LocalAIChatToggleEvent.handleResult(result));
-              }
-            },
-          ),
-        );
       },
       handleResult: (result) {
         _handleResult(emit, result);
@@ -47,7 +31,7 @@ class LocalAIChatToggleBloc
 
   void _handleResult(
     Emitter<LocalAIChatToggleState> emit,
-    FlowyResult<LocalAIChatPB, FlowyError> result,
+    FlowyResult<LocalAIPB, FlowyError> result,
   ) {
     result.fold(
       (localAI) {
@@ -72,9 +56,8 @@ class LocalAIChatToggleBloc
 @freezed
 class LocalAIChatToggleEvent with _$LocalAIChatToggleEvent {
   const factory LocalAIChatToggleEvent.started() = _Started;
-  const factory LocalAIChatToggleEvent.toggle() = _Toggle;
   const factory LocalAIChatToggleEvent.handleResult(
-    FlowyResult<LocalAIChatPB, FlowyError> result,
+    FlowyResult<LocalAIPB, FlowyError> result,
   ) = _HandleResult;
 }
 

@@ -51,10 +51,10 @@ impl DatabaseAIService for DatabaseAIServiceMiddleware {
     object_id: &str,
     summary_row: SummaryRowContent,
   ) -> Result<String, FlowyError> {
-    if self.ai_manager.local_ai_controller.is_running() {
+    if self.ai_manager.local_ai.is_running() {
       self
         .ai_manager
-        .local_ai_controller
+        .local_ai
         .summary_database_row(summary_row)
         .await
         .map_err(|err| FlowyError::local_ai().with_context(err))
@@ -72,7 +72,7 @@ impl DatabaseAIService for DatabaseAIServiceMiddleware {
     translate_row: TranslateRowContent,
     language: &str,
   ) -> Result<TranslateRowResponse, FlowyError> {
-    if self.ai_manager.local_ai_controller.is_running() {
+    if self.ai_manager.local_ai.is_running() {
       let data = LocalAITranslateRowData {
         cells: translate_row
           .into_iter()
@@ -86,7 +86,7 @@ impl DatabaseAIService for DatabaseAIServiceMiddleware {
       };
       let resp = self
         .ai_manager
-        .local_ai_controller
+        .local_ai
         .translate_database_row(data)
         .await
         .map_err(|err| FlowyError::local_ai().with_context(err))?;

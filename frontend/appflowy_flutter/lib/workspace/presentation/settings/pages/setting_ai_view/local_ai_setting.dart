@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_ai_bloc.dart';
 import 'package:appflowy/workspace/application/settings/ai/settings_ai_bloc.dart';
-import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/local_ai_chat_setting.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/local_ai_setting_panel.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -38,10 +38,11 @@ class _LocalAISettingState extends State<LocalAISetting> {
                 listener: (context, state) {
                   final controller =
                       ExpandableController.of(context, required: true)!;
+
                   state.pageIndicator.when(
-                    error: (_) => controller.expanded = false,
-                    ready: (enabled) => controller.expanded = enabled,
-                    loading: () => controller.expanded = false,
+                    error: (_) => controller.expanded = true,
+                    isEnabled: (enabled) => controller.expanded = enabled,
+                    loading: () => controller.expanded = true,
                   );
                 },
                 child: ExpandablePanel(
@@ -68,7 +69,7 @@ class _LocalAISettingState extends State<LocalAISetting> {
                         child: const Padding(
                           padding:
                               EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          child: LocalAIChatSetting(),
+                          child: LocalAISettingPanel(),
                         ),
                       ),
                     ],
@@ -95,9 +96,9 @@ class LocalAISettingHeader extends StatelessWidget {
             return const SizedBox.shrink();
           },
           loading: () {
-            return const CircularProgressIndicator.adaptive();
+            return const SizedBox.shrink();
           },
-          ready: (isEnabled) {
+          isEnabled: (isEnabled) {
             return Row(
               children: [
                 FlowyText(

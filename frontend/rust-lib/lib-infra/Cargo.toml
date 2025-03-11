@@ -22,7 +22,7 @@ validator = { workspace = true, features = ["derive"] }
 tracing.workspace = true
 atomic_refcell = "0.1"
 allo-isolate = { version = "^0.1", features = ["catch-unwind"], optional = true }
-futures = "0.3.30"
+futures = "0.3.31"
 cfg-if = "1.0.0"
 futures-util = "0.3.30"
 
@@ -36,7 +36,7 @@ base64 = { version = "0.22.1" }
 
 [dev-dependencies]
 rand = "0.8.5"
-futures = "0.3.30"
+futures = "0.3.31"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 zip = { version = "2.2.0", features = ["deflate"] }

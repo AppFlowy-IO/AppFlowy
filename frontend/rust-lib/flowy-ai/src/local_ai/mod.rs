@@ -1,6 +1,6 @@
-pub mod local_llm_chat;
-pub mod local_llm_resource;
-mod model_request;
+pub mod controller;
+mod request;
+pub mod resource;
 
 pub mod stream_util;
 pub mod watch;

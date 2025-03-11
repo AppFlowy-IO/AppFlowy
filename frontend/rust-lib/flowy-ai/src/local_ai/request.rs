@@ -12,6 +12,7 @@ use tokio::io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt};
 use tokio_util::sync::CancellationToken;
 use tracing::{instrument, trace};
 
+#[allow(dead_code)]
 type ProgressCallback = Arc<dyn Fn(u64, u64) + Send + Sync>;
 
 #[instrument(level = "trace", skip_all, err)]
@@ -95,6 +96,7 @@ pub async fn download_model(
   Ok(download_path)
 }
 
+#[allow(dead_code)]
 async fn make_request(
   client: &Client,
   url: &str,
