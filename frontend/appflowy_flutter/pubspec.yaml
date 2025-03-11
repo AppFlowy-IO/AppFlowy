@@ -148,6 +148,9 @@ dependencies:
   xml: ^6.5.0
   window_manager: ^0.4.3
   saver_gallery: ^4.0.1
+  rust_lib_appflowy:
+    path: rust_builder
+  flutter_rust_bridge: 2.9.0
 
 dev_dependencies:
   bloc_test: ^9.1.2
