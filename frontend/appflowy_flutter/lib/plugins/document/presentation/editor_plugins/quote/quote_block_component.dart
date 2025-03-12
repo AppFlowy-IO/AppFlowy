@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 typedef QuoteBlockIconBuilder = Widget Function(
   BuildContext context,
@@ -148,6 +149,31 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
             : buildComponentWithChildren(context),
       ),
     );
+  }
+
+  @override
+  Widget buildComponentWithChildren(BuildContext context) {
+    final Widget child = Stack(
+      children: [
+        Positioned.fill(
+          left: UniversalPlatform.isMobile ? padding.left : cachedLeft,
+          right: UniversalPlatform.isMobile ? padding.right : 0,
+          child: Container(
+            color: backgroundColor,
+          ),
+        ),
+        NestedListWidget(
+          indentPadding: indentPadding,
+          child: buildComponent(context, withBackgroundColor: false),
+          children: editorState.renderer.buildList(
+            context,
+            widget.node.children,
+          ),
+        ),
+      ],
+    );
+
+    return child;
   }
 
   @override
