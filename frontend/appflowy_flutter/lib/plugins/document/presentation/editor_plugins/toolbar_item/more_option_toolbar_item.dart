@@ -203,14 +203,17 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
 
   Widget buildFontSelector() {
     final selection = editorState.selection!;
+    final String? currentFontFamily = editorState
+        .getDeltaAttributeValueInSelection(AppFlowyRichTextKeys.fontFamily);
     return FontFamilyDropDown(
-      currentFontFamily: '',
+      currentFontFamily: currentFontFamily ?? '',
       offset: const Offset(-240, 0),
       popoverController: fontPopoverController,
       onOpen: () => keepEditorFocusNotifier.increase(),
       onClose: () => keepEditorFocusNotifier.decrease(),
       onFontFamilyChanged: (fontFamily) async {
         fontPopoverController.close();
+        popoverController.close();
         try {
           await editorState.formatDelta(selection, {
             AppFlowyRichTextKeys.fontFamily: fontFamily,

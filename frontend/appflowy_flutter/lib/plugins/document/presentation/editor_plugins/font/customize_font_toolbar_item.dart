@@ -102,8 +102,7 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
       margin: EdgeInsets.zero,
       boxConstraints: const BoxConstraints(
         maxWidth: 240,
-        minHeight: 36,
-        maxHeight: 360,
+        maxHeight: 420,
       ),
       onClose: () {
         query.value = '';
@@ -115,6 +114,7 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
         widget.onOpen?.call();
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -124,7 +124,9 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
                 autoFocus: false,
                 debounceDuration: const Duration(milliseconds: 300),
                 onChanged: (value) {
-                  query.value = value;
+                  setState(() {
+                    query.value = value;
+                  });
                 },
               ),
             ),
@@ -143,16 +145,32 @@ class _FontFamilyDropDownState extends State<FontFamilyDropDown> {
                       .sorted((a, b) => levenshtein(a, b))
                       .toList();
                 }
-                return Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(8.0),
-                    itemBuilder: (context, index) => _fontFamilyItemButton(
-                      context,
-                      getGoogleFontSafely(displayed[index]),
-                    ),
-                    itemCount: displayed.length,
-                  ),
-                );
+                return displayed.length >= 10
+                    ? Flexible(
+                        child: ListView.builder(
+                          padding: const EdgeInsets.all(8.0),
+                          itemBuilder: (context, index) =>
+                              _fontFamilyItemButton(
+                            context,
+                            getGoogleFontSafely(displayed[index]),
+                          ),
+                          itemCount: displayed.length,
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: List.generate(
+                            displayed.length,
+                            (index) => _fontFamilyItemButton(
+                              context,
+                              getGoogleFontSafely(displayed[index]),
+                            ),
+                          ),
+                        ),
+                      );
               },
             ),
           ],

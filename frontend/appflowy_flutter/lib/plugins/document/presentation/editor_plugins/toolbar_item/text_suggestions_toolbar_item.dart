@@ -16,6 +16,12 @@ import 'text_heading_toolbar_item.dart';
 
 const _kSuggestionsItemId = 'editor.suggestions';
 
+@visibleForTesting
+const kSuggestionsItemKey = ValueKey('SuggestionsItem');
+
+@visibleForTesting
+const kSuggestionsItemListKey = ValueKey('SuggestionsItemList');
+
 final ToolbarItem suggestionsItem = ToolbarItem(
   id: _kSuggestionsItemId,
   group: 3,
@@ -109,6 +115,7 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
       child: FlowyTooltip(
         preferBelow: true,
         child: RawMaterialButton(
+          key: kSuggestionsItemKey,
           constraints: BoxConstraints(maxHeight: 32, minWidth: 60),
           clipBehavior: Clip.antiAlias,
           hoverElevation: 0,
@@ -161,6 +168,7 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
     final textColor = Color(0xff99A1A8);
     return MouseRegion(
       child: SingleChildScrollView(
+        key: kSuggestionsItemListKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
