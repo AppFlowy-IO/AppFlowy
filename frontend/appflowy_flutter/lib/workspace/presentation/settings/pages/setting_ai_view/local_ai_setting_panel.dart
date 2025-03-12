@@ -1,5 +1,4 @@
-import 'package:appflowy/workspace/application/settings/ai/local_ai_chat_bloc.dart';
-import 'package:appflowy/workspace/application/settings/ai/local_ai_chat_toggle_bloc.dart';
+import 'package:appflowy/workspace/application/settings/ai/local_ai_setting_panel_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/ollma_setting.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -12,14 +11,8 @@ class LocalAISettingPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (context) => LocalAISettingPanelBloc()),
-        BlocProvider(
-          create: (context) => LocalAIChatToggleBloc()
-            ..add(const LocalAIChatToggleEvent.started()),
-        ),
-      ],
+    return BlocProvider(
+      create: (context) => LocalAISettingPanelBloc(),
       child: ExpandableNotifier(
         initialExpanded: true,
         child: ExpandablePanel(
@@ -34,45 +27,28 @@ class LocalAISettingPanel extends StatelessWidget {
           collapsed: const SizedBox.shrink(),
           expanded: Padding(
             padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+            child:
                 BlocBuilder<LocalAISettingPanelBloc, LocalAISettingPanelState>(
-                  builder: (context, state) {
+              builder: (context, state) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     // If the progress indicator is startLocalAIApp, then don't show the LLM model.
                     if (state.progressIndicator ==
-                        const LocalAIProgress.downloadLocalAIApp()) {
-                      return const SizedBox.shrink();
-                    } else {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const [
-                          OllamaSettingPage(),
-                          VSpace(6),
-                          _LocalAIStateWidget(),
-                        ],
-                      );
-                    }
-                  },
-                ),
-              ],
+                        const LocalAIProgress.downloadLocalAIApp())
+                      const SizedBox.shrink()
+                    else ...[
+                      OllamaSettingPage(),
+                      VSpace(6),
+                      PluginStateIndicator(),
+                    ],
+                  ],
+                );
+              },
             ),
           ),
         ),
       ),
-    );
-  }
-}
-
-class _LocalAIStateWidget extends StatelessWidget {
-  const _LocalAIStateWidget();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<LocalAISettingPanelBloc, LocalAISettingPanelState>(
-      builder: (context, state) {
-        return const PluginStateIndicator();
-      },
     );
   }
 }

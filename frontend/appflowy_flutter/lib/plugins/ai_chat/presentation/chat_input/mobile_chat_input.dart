@@ -268,8 +268,8 @@ class _MobileChatInputState extends State<MobileChatInput> {
             focusedBorder: InputBorder.none,
             contentPadding: MobileAIPromptSizes.textFieldContentPadding,
             hintText: switch (state.aiType) {
-              AIType.appflowyAI => LocaleKeys.chat_inputMessageHint.tr(),
-              AIType.localAI => LocaleKeys.chat_inputLocalAIMessageHint.tr()
+              AiType.cloud => LocaleKeys.chat_inputMessageHint.tr(),
+              AiType.local => LocaleKeys.chat_inputLocalAIMessageHint.tr()
             },
             hintStyle: inputHintTextStyle(context),
             isCollapsed: true,

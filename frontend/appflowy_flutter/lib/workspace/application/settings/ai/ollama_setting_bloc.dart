@@ -8,6 +8,7 @@ import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:equatable/equatable.dart';
+
 part 'ollama_setting_bloc.freezed.dart';
 
 class OllamaSettingBloc extends Bloc<OllamaSettingEvent, OllamaSettingState> {

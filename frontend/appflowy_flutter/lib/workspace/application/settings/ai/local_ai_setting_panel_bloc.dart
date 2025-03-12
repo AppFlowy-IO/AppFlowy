@@ -8,13 +8,15 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'local_ai_chat_bloc.freezed.dart';
+part 'local_ai_setting_panel_bloc.freezed.dart';
 
 class LocalAISettingPanelBloc
     extends Bloc<LocalAISettingPanelEvent, LocalAISettingPanelState> {
   LocalAISettingPanelBloc()
       : listener = LocalLLMListener(),
         super(const LocalAISettingPanelState()) {
+    on<LocalAISettingPanelEvent>(_handleEvent);
+
     listener.start(
       stateCallback: (newState) {
         if (!isClosed) {
@@ -23,7 +25,14 @@ class LocalAISettingPanelBloc
       },
     );
 
-    on<LocalAISettingPanelEvent>(_handleEvent);
+    AIEventGetLocalAIState().send().fold(
+      (localAIState) {
+        if (!isClosed) {
+          add(LocalAISettingPanelEvent.updateAIState(localAIState));
+        }
+      },
+      Log.error,
+    );
   }
 
   final LocalLLMListener listener;
@@ -34,16 +43,6 @@ class LocalAISettingPanelBloc
     Emitter<LocalAISettingPanelState> emit,
   ) async {
     event.when(
-      started: () {
-        AIEventGetLocalAIState().send().fold(
-          (localAIState) {
-            if (!isClosed) {
-              add(LocalAISettingPanelEvent.updateAIState(localAIState));
-            }
-          },
-          Log.error,
-        );
-      },
       updateAIState: (LocalAIPB pluginState) {
         if (pluginState.isPluginExecutableReady) {
           emit(
@@ -72,7 +71,6 @@ class LocalAISettingPanelBloc
 
 @freezed
 class LocalAISettingPanelEvent with _$LocalAISettingPanelEvent {
-  const factory LocalAISettingPanelEvent.started() = _Started;
   const factory LocalAISettingPanelEvent.updateAIState(
     LocalAIPB aiState,
   ) = _UpdateAIState;
