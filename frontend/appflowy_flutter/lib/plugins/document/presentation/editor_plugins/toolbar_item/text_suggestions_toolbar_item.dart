@@ -3,11 +3,11 @@ import 'dart:collection';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     hide QuoteBlockComponentBuilder, quoteNode, QuoteBlockKeys;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
@@ -102,7 +102,7 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
     final child = FlowyHover(
       isSelected: () => isSelected,
       style: HoverStyle(
-        hoverColor: AFThemeExtension.of(context).toolbarHoverColor,
+        hoverColor: EditorStyleCustomizer.toolbarHoverColor(context),
         foregroundColorOnHover: Theme.of(context).iconTheme.color,
       ),
       resetHoverOnRebuild: false,

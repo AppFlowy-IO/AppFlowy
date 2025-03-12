@@ -1,6 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 
@@ -22,7 +22,7 @@ final customLinkItem = ToolbarItem(
     final child = FlowyIconButton(
       width: 36,
       height: 32,
-      hoverColor: AFThemeExtension.of(context).toolbarHoverColor,
+      hoverColor: EditorStyleCustomizer.toolbarHoverColor(context),
       icon: FlowySvg(
         FlowySvgs.toolbar_link_m,
         size: Size.square(20.0),

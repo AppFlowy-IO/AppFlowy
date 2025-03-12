@@ -421,7 +421,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       child: FloatingToolbar(
         floatingToolbarHeight: 40,
         padding: EdgeInsets.symmetric(horizontal: 6),
-        style: styleCustomizer.floatingToolbarStyleBuilder(),
+        style: FloatingToolbarStyle(
+          backgroundColor: Theme.of(context).cardColor,
+          toolbarElevation: 10,
+        ),
         items: toolbarItems,
         decoration: context.getPopoverDecoration(
           borderRadius: BorderRadius.circular(6),

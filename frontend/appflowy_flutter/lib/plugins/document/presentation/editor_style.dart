@@ -61,6 +61,12 @@ class EditorStyleCustomizer {
 
   static double get optionMenuWidth => UniversalPlatform.isMobile ? 0 : 44;
 
+  static Color? toolbarHoverColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Theme.of(context).colorScheme.secondary
+        : AFThemeExtension.of(context).toolbarHoverColor;
+  }
+
   EditorStyle style() {
     if (UniversalPlatform.isDesktopOrWeb) {
       return desktop();
@@ -306,11 +312,6 @@ class EditorStyleCustomizer {
       menuItemSelectedTextColor: theme.colorScheme.onSurface,
     );
   }
-
-  FloatingToolbarStyle floatingToolbarStyleBuilder() => FloatingToolbarStyle(
-        backgroundColor: Theme.of(context).cardColor,
-        toolbarElevation: 10,
-      );
 
   TextStyle baseTextStyle(String? fontFamily, {FontWeight? fontWeight}) {
     if (fontFamily == null || fontFamily == defaultFontFamily) {

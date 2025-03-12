@@ -57,10 +57,14 @@ class _FormatToolbarItem extends ToolbarItem {
                   delta.everyAttributes((attr) => attr[name] == true),
             );
 
+            final hoverColor = Theme.of(context).brightness == Brightness.dark
+                ? Theme.of(context).hoverColor
+                : AFThemeExtension.of(context).toolbarHoverColor;
+
             final child = FlowyIconButton(
               width: 36,
               height: 32,
-              hoverColor: AFThemeExtension.of(context).toolbarHoverColor,
+              hoverColor: hoverColor,
               icon: FlowySvg(
                 svg,
                 size: Size.square(20.0),
