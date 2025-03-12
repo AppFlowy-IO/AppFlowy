@@ -204,7 +204,7 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
     );
 
     child = Container(
-      color: backgroundColor,
+      color: withBackgroundColor ? backgroundColor : null,
       child: Padding(
         key: blockComponentKey,
         padding: padding,
@@ -270,7 +270,6 @@ class QuoteIcon extends StatelessWidget {
       padding: const EdgeInsets.only(right: 6.0),
       child: SizedBox(
         width: 3 * textScaleFactor,
-
         // use overflow box to ensure the container can overflow the height so that the children of the quote block can have the quote
         child: OverflowBox(
           alignment: Alignment.topCenter,

@@ -224,16 +224,17 @@ class _CalloutBlockComponentWidgetState
     Widget child = Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(6.0)),
-        color: backgroundColor,
+        color: withBackgroundColor ? backgroundColor : null,
       ),
       padding: widget.inlinePadding(widget.node),
       width: double.infinity,
       alignment: alignment,
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         textDirection: textDirection,
         children: [
-          if (UniversalPlatform.isDesktopOrWeb) const HSpace(6.0),
+          const HSpace(6.0),
           // the emoji picker button for the note
           EmojiPickerButton(
             // force to refresh the popover state
