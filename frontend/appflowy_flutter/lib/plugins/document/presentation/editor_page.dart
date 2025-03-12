@@ -19,7 +19,7 @@ import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/af_focus_manager.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide QuoteBlockKeys;
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
@@ -158,10 +158,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
     indentableBlockTypes.addAll([
       ToggleListBlockKeys.type,
       CalloutBlockKeys.type,
+      QuoteBlockKeys.type,
     ]);
     convertibleBlockTypes.addAll([
       ToggleListBlockKeys.type,
       CalloutBlockKeys.type,
+      QuoteBlockKeys.type,
     ]);
 
     editorLaunchUrl = (url) {
