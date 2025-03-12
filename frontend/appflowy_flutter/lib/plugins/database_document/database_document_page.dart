@@ -21,6 +21,8 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../workspace/application/view/view_bloc.dart';
+
 // This widget is largely copied from `plugins/document/document_page.dart` intentionally instead of opting for an abstraction. We can make an abstraction after the view refactor is done and there's more clarity in that department.
 
 class DatabaseDocumentPage extends StatefulWidget {
@@ -71,6 +73,10 @@ class _DatabaseDocumentPageState extends State<DatabaseDocumentPage> {
             rowId: widget.rowId,
             documentId: widget.documentId,
           )..add(const DocumentEvent.initial()),
+        ),
+        BlocProvider(
+          create: (_) =>
+              ViewBloc(view: widget.view)..add(const ViewEvent.initial()),
         ),
       ],
       child: BlocBuilder<DocumentBloc, DocumentState>(
