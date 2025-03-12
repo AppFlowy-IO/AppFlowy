@@ -118,9 +118,6 @@ class SimpleColumnBlockComponentState extends State<SimpleColumnBlockComponent>
           Widget child = IntrinsicHeight(
             child: editorState.renderer.build(context, e),
           );
-          // if (e.type == CustomImageBlockKeys.type) {
-          //   child = IntrinsicWidth(child: child);
-          // }
           if (SimpleColumnsBlockConstants.enableDebugBorder) {
             child = DecoratedBox(
               decoration: BoxDecoration(
