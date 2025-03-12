@@ -131,7 +131,8 @@ BlockComponentConfiguration _buildDefaultConfiguration(BuildContext context) {
 
       // in the quote block, we reduce the indent padding for the first level block.
       //  So we have to add more padding for the second level to avoid the drag menu overlay the quote icon.
-      if (node.isInQuote && node.level == 2 && UniversalPlatform.isDesktop) {
+      if (node.parent?.type == QuoteBlockKeys.type &&
+          UniversalPlatform.isDesktop) {
         padding += 22;
       }
 
@@ -1098,15 +1099,3 @@ TextAlign _buildTextAlignInTableCell(
   return node.tableAlign.textAlign;
 }
 
-extension on Node {
-  bool get isInQuote {
-    Node? parent = this.parent;
-    while (parent != null) {
-      if (parent.type == QuoteBlockKeys.type) {
-        return true;
-      }
-      parent = parent.parent;
-    }
-    return false;
-  }
-}
