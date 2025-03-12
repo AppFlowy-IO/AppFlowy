@@ -187,10 +187,10 @@ class _CalloutBlockComponentWidgetState
 
   @override
   Widget buildComponentWithChildren(BuildContext context) {
-    return Stack(
+    Widget child = Stack(
       children: [
         Positioned.fill(
-          left: cachedLeft,
+          left: UniversalPlatform.isMobile ? 0 : cachedLeft,
           child: Container(
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(Radius.circular(6.0)),
@@ -208,6 +208,15 @@ class _CalloutBlockComponentWidgetState
         ),
       ],
     );
+
+    if (UniversalPlatform.isMobile) {
+      child = Padding(
+        padding: padding,
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   // build the callout block widget
@@ -271,11 +280,19 @@ class _CalloutBlockComponentWidgetState
       ),
     );
 
-    child = Padding(
-      key: blockComponentKey,
-      padding: EdgeInsets.zero,
-      child: child,
-    );
+    if (UniversalPlatform.isMobile && node.children.isEmpty) {
+      child = Padding(
+        key: blockComponentKey,
+        padding: padding,
+        child: child,
+      );
+    } else {
+      child = Padding(
+        key: blockComponentKey,
+        padding: EdgeInsets.zero,
+        child: child,
+      );
+    }
 
     child = BlockSelectionContainer(
       node: node,
