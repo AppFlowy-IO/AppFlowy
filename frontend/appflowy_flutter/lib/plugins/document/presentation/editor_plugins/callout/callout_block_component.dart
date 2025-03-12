@@ -187,10 +187,10 @@ class _CalloutBlockComponentWidgetState
 
   @override
   Widget buildComponentWithChildren(BuildContext context) {
-    return Stack(
+    Widget child = Stack(
       children: [
         Positioned.fill(
-          left: cachedLeft,
+          left: UniversalPlatform.isMobile ? 0 : cachedLeft,
           child: Container(
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(Radius.circular(6.0)),
@@ -208,6 +208,15 @@ class _CalloutBlockComponentWidgetState
         ),
       ],
     );
+
+    if (UniversalPlatform.isMobile) {
+      child = Padding(
+        padding: padding,
+        child: child,
+      );
+    }
+
+    return child;
   }
 
   // build the callout block widget
@@ -224,16 +233,17 @@ class _CalloutBlockComponentWidgetState
     Widget child = Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(6.0)),
-        color: backgroundColor,
+        color: withBackgroundColor ? backgroundColor : null,
       ),
       padding: widget.inlinePadding(widget.node),
       width: double.infinity,
       alignment: alignment,
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         textDirection: textDirection,
         children: [
-          if (UniversalPlatform.isDesktopOrWeb) const HSpace(6.0),
+          const HSpace(6.0),
           // the emoji picker button for the note
           EmojiPickerButton(
             // force to refresh the popover state
@@ -270,11 +280,19 @@ class _CalloutBlockComponentWidgetState
       ),
     );
 
-    child = Padding(
-      key: blockComponentKey,
-      padding: EdgeInsets.zero,
-      child: child,
-    );
+    if (UniversalPlatform.isMobile && node.children.isEmpty) {
+      child = Padding(
+        key: blockComponentKey,
+        padding: padding,
+        child: child,
+      );
+    } else {
+      child = Padding(
+        key: blockComponentKey,
+        padding: EdgeInsets.zero,
+        child: child,
+      );
+    }
 
     child = BlockSelectionContainer(
       node: node,

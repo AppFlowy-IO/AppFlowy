@@ -228,6 +228,7 @@
     "indexingFile": "الفهرسة {}",
     "generatingResponse": "توليد الاستجابة",
     "selectSources": "اختر المصادر",
+    "currentPage": "الصفحة الحالية",
     "sourcesLimitReached": "يمكنك فقط تحديد ما يصل إلى 3 مستندات من المستوى العلوي ومستنداتها الفرعية",
     "sourceUnsupported": "نحن لا ندعم الدردشة مع قواعد البيانات في الوقت الحالي",
     "regenerate": "حاول ثانية",
@@ -763,6 +764,7 @@
         "alignLeft": "محاذاة النص إلى اليسار",
         "alignCenter": "محاذاة النص إلى الوسط",
         "alignRight": "محاذاة النص إلى اليمين",
+        "insertInlineMathEquation": "إدراج معادلة رياضية مضمنة",
         "undo": "التراجع",
         "redo": "الإعادة",
         "convertToParagraph": "تحويل الكتلة إلى فقرة",
@@ -853,6 +855,8 @@
         "localAIStart": "بدأت الدردشة المحلية بالذكاء الاصطناعي...",
         "localAILoading": "جاري تحميل نموذج الدردشة المحلية للذكاء الاصطناعي...",
         "localAIStopped": "تم إيقاف الذكاء الاصطناعي المحلي",
+        "localAIRunning": "الذكاء الاصطناعي المحلي قيد التشغيل",
+        "localAIInitializing": "يتم تهيئة الذكاء الاصطناعي المحلي وقد يستغرق الأمر بضع دقائق، حسب جهازك",
         "failToLoadLocalAI": "فشل في بدء تشغيل الذكاء الاصطناعي المحلي",
         "restartLocalAI": "إعادة تشغيل الذكاء الاصطناعي المحلي",
         "disableLocalAITitle": "تعطيل الذكاء الاصطناعي المحلي",
@@ -866,7 +870,11 @@
         "offlineAIDownload3": "إنه أولا",
         "activeOfflineAI": "نشط",
         "downloadOfflineAI": "التنزيل",
-        "openModelDirectory": "افتح المجلد"
+        "openModelDirectory": "افتح المجلد",
+        "localAISetupInstruction1": "اتبع هؤلاء",
+        "localAISetupInstruction2": "التعليمات",
+        "localAISetupInstruction3": "لإعداد Ollama وAppFlowy Local AI. تخطَّ هذه الخطوة إذا كنت قد قمت بإعدادها بالفعل",
+        "startLocalAI": "قد يستغرق الأمر بضع ثوانٍ لبدء تشغيل الذكاء الاصطناعي المحلي"
       }
     },
     "planPage": {
@@ -1411,6 +1419,7 @@
       "filterBy": "مصنف بواسطة...",
       "typeAValue": "اكتب قيمة ...",
       "layout": "تَخطِيط",
+      "compactMode": "الوضع المضغوط",
       "databaseLayout": "تَخطِيط",
       "viewList": {
         "zero": "0 مشاهدات",
@@ -1758,7 +1767,10 @@
         "aiWriter": "كاتب الذكاء الاصطناعي",
         "dateOrReminder": "التاريخ أو التذكير",
         "photoGallery": "معرض الصور",
-        "file": "الملف"
+        "file": "الملف",
+        "twoColumns": "عمودين",
+        "threeColumns": "3 أعمدة",
+        "fourColumns": "4 أعمدة"
       },
       "subPage": {
         "name": "المستند",
@@ -1781,6 +1793,16 @@
       "referencedGrid": "الشبكة المشار إليها",
       "referencedCalendar": "التقويم المشار إليه",
       "referencedDocument": "الوثيقة المشار إليها",
+      "aiWriter": {
+        "userQuestion": "اسأل الذكاء الاصطناعي عن أي شيء",
+        "continueWriting": "استمر في الكتابة",
+        "fixSpelling": "تصحيح الأخطاء الإملائية والنحوية",
+        "improveWriting": "تحسين الكتابة",
+        "summarize": "تلخيص",
+        "explain": "اشرح",
+        "makeShorter": "اجعلها أقصر",
+        "makeLonger": "اجعلها أطول"
+      },
       "autoGeneratorMenuItemName": "كاتب AI",
       "autoGeneratorTitleName": "AI: اطلب من الذكاء الاصطناعي كتابة أي شيء ...",
       "autoGeneratorLearnMore": "يتعلم أكثر",
@@ -2561,6 +2583,7 @@
       "accountLogin": "تسجيل الدخول إلى الحساب",
       "updateNameError": "فشل في تحديث الاسم",
       "updateIconError": "فشل في تحديث الأيقونة",
+      "aboutAppFlowy": "حول appName",
       "deleteAccount": {
         "title": "حذف الحساب",
         "subtitle": "احذف حسابك وجميع بياناتك بشكل دائم.",
@@ -3130,6 +3153,25 @@
     }
   },
   "ai": {
-    "contentPolicyViolation": "فشل إنشاء الصورة بسبب محتوى حساس. يرجى إعادة صياغة إدخالك والمحاولة مرة أخرى"
+    "contentPolicyViolation": "فشل إنشاء الصورة بسبب محتوى حساس. يرجى إعادة صياغة إدخالك والمحاولة مرة أخرى",
+    "textLimitReachedDescription": "لقد نفدت الاستجابات المجانية للذكاء الاصطناعي من مساحة عملك. قم بالترقية إلى الخطة الاحترافية أو قم بشراء إضافة للذكاء الاصطناعي لفتح عدد غير محدود من الاستجابات",
+    "imageLimitReachedDescription": "لقد استنفدت حصتك المجانية من صور الذكاء الاصطناعي. يُرجى الترقية إلى الخطة الاحترافية أو شراء إضافة الذكاء الاصطناعي لفتح عدد غير محدود من الاستجابات",
+    "limitReachedAction": {
+      "textDescription": "لقد نفدت الاستجابات المجانية للذكاء الاصطناعي من مساحة عملك. للحصول على المزيد من الاستجابات، يرجى",
+      "imageDescription": "لقد استنفدت حصتك المجانية من صور الذكاء الاصطناعي. يرجى",
+      "upgrade": "ترقية",
+      "toThe": "الى",
+      "proPlan": "الخطة الاحترافية",
+      "orPurchaseAn": "أو شراء",
+      "aiAddon": "مَرافِق الذكاء الاصطناعي"
+    },
+    "editing": "تحرير",
+    "analyzing": "تحليل",
+    "continueWritingEmptyDocumentTitle": "استمر في كتابة الخطأ",
+    "continueWritingEmptyDocumentDescription": "نواجه مشكلة في توسيع نطاق المحتوى في مستندك. اكتب مقدمة قصيرة وسنتولى الأمر من هناك!"
+  },
+  "autoUpdate": {
+    "criticalUpdateTitle": "التحديث ضروري للمتابعة",
+    "criticalUpdateDescription": "لقد أجرينا تحسينات لتحسين تجربتك! يُرجى التحديث من {currentVersion} إلى {newVersion} لمواصلة استخدام التطبيق."
   }
 }

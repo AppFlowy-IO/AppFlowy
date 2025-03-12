@@ -79,13 +79,19 @@ pub(crate) fn install_path() -> Option<PathBuf> {
   return None;
 }
 
-#[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
-pub(crate) fn offline_app_path() -> PathBuf {
-  PathBuf::new()
-}
-
+#[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
 pub fn is_plugin_ready() -> bool {
   ollama_plugin_path().exists() || ollama_plugin_command_available()
+}
+
+#[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
+pub fn is_plugin_ready() -> bool {
+  false
+}
+
+#[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
+pub(crate) fn ollama_plugin_path() -> PathBuf {
+  PathBuf::new()
 }
 
 #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]

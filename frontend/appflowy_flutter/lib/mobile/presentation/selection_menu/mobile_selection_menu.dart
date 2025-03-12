@@ -186,8 +186,9 @@ class MobileSelectionMenu extends SelectionMenuService {
     final bottomRight = rect.bottomRight;
     final topRight = rect.topRight;
     var offset = bottomRight + menuOffset;
+    final limitX = editorWidth - menuWidth + editorOffset.dx;
     _offset = Offset(
-      offset.dx,
+      min(offset.dx, limitX),
       offset.dy,
     );
 
@@ -196,10 +197,9 @@ class MobileSelectionMenu extends SelectionMenuService {
       offset = topRight - menuOffset;
       _alignment = Alignment.bottomLeft;
 
-      final limitX = editorWidth - menuWidth;
       _offset = Offset(
-        min(offset.dx, limitX),
-        MediaQuery.of(context).size.height - offset.dy,
+        offset.dx,
+        editorOffset.dy + editorHeight - offset.dy,
       );
     }
 
@@ -210,7 +210,6 @@ class MobileSelectionMenu extends SelectionMenuService {
           : Alignment.bottomRight;
 
       final x = editorWidth - _offset.dx + editorOffset.dx;
-      final limitX = editorWidth - menuWidth + editorOffset.dx;
       _offset = Offset(
         min(x, limitX),
         _offset.dy,

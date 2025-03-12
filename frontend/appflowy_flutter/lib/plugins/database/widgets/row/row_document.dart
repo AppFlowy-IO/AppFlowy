@@ -9,6 +9,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_con
 import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -71,9 +72,16 @@ class _RowEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) =>
-          DocumentBloc(documentId: view.id)..add(const DocumentEvent.initial()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => DocumentBloc(documentId: view.id)
+            ..add(const DocumentEvent.initial()),
+        ),
+        BlocProvider(
+          create: (_) => ViewBloc(view: view)..add(const ViewEvent.initial()),
+        ),
+      ],
       child: BlocConsumer<DocumentBloc, DocumentState>(
         listenWhen: (previous, current) =>
             previous.isDocumentEmpty != current.isDocumentEmpty,

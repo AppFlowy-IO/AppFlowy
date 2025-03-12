@@ -198,7 +198,7 @@ dependencies = [
 [[package]]
 name = "appflowy-local-ai"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=a76364694d696767488c8b12e210eefa58453c89#a76364694d696767488c8b12e210eefa58453c89"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=8fea7ed2375eb54c8dfb8af6db6e32a61854fb2e#8fea7ed2375eb54c8dfb8af6db6e32a61854fb2e"
 dependencies = [
  "anyhow",
  "appflowy-plugin",
@@ -218,7 +218,7 @@ dependencies = [
 [[package]]
 name = "appflowy-plugin"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=a76364694d696767488c8b12e210eefa58453c89#a76364694d696767488c8b12e210eefa58453c89"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=8fea7ed2375eb54c8dfb8af6db6e32a61854fb2e#8fea7ed2375eb54c8dfb8af6db6e32a61854fb2e"
 dependencies = [
  "anyhow",
  "cfg-if",
@@ -232,6 +232,7 @@ dependencies = [
  "tokio",
  "tokio-stream",
  "tracing",
+ "winreg 0.55.0",
  "xattr",
 ]
 

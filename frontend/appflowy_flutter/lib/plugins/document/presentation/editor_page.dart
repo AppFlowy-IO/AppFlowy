@@ -15,6 +15,7 @@ import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/af_focus_manager.dart';
@@ -450,11 +451,13 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
   }) {
     final documentBloc = context.read<DocumentBloc>();
     final isLocalMode = documentBloc.isLocalMode;
+    final view = context.read<ViewBloc>().state.view;
     return slashMenuItemsBuilder(
       editorState: editorState,
       node: node,
       isLocalMode: isLocalMode,
       documentBloc: documentBloc,
+      view: view,
     );
   }
 

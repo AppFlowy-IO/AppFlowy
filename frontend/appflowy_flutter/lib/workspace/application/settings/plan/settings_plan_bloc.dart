@@ -148,7 +148,7 @@ class SettingsPlanBloc extends Bloc<SettingsPlanEvent, SettingsPlanState> {
 
           usage.freeze();
           final newUsage = usage.rebuild((value) {
-            if (!newInfo.hasAIMax && !newInfo.hasAIOnDevice) {
+            if (!newInfo.hasAIMax) {
               value.aiResponsesUnlimited = false;
             }
 
