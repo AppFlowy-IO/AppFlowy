@@ -36,7 +36,7 @@ void main() {
 
       // tap the more options button
       final moreOptionButton = find.findFlowyTooltip(
-        LocaleKeys.toolbar_moreOptions.tr(),
+        LocaleKeys.document_toolbar_moreOptions.tr(),
       );
       await tester.tapButton(moreOptionButton);
 
@@ -87,7 +87,7 @@ void main() {
 
       // tap the more options button
       final moreOptionButton = find.findFlowyTooltip(
-        LocaleKeys.toolbar_moreOptions.tr(),
+        LocaleKeys.document_toolbar_moreOptions.tr(),
       );
       await tester.tapButton(moreOptionButton);
 
@@ -143,7 +143,7 @@ void main() {
 
       // tap the more options button
       final moreOptionButton = find.findFlowyTooltip(
-        LocaleKeys.toolbar_moreOptions.tr(),
+        LocaleKeys.document_toolbar_moreOptions.tr(),
       );
       await tester.tapButton(moreOptionButton);
 

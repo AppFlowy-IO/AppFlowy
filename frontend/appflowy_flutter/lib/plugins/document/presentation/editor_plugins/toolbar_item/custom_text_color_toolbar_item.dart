@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
@@ -9,7 +10,7 @@ const _kTextColorItemId = 'editor.textColor';
 final customTextColorItem = ToolbarItem(
   id: _kTextColorItemId,
   group: 1,
-  isActive: onlyShowInTextType,
+  isActive: showInAnyTextType,
   builder: (context, editorState, highlightColor, iconColor, tooltipBuilder) {
     String? textColorHex;
     final selection = editorState.selection!;

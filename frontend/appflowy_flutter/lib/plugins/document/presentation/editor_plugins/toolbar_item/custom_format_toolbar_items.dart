@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 // ignore: implementation_imports
 import 'package:appflowy_editor/src/editor/toolbar/desktop/items/utils/tooltip_util.dart';
@@ -24,7 +25,7 @@ final List<ToolbarItem> customMarkdownFormatItems = [
   ),
 ];
 
-final ToolbarItem inlineCodeItem = _FormatToolbarItem(
+final ToolbarItem customInlineCodeItem = _FormatToolbarItem(
   id: 'code',
   name: 'code',
   svg: FlowySvgs.toolbar_inline_code_m,
@@ -39,7 +40,7 @@ class _FormatToolbarItem extends ToolbarItem {
     super.group = 1,
   }) : super(
           id: 'editor.$id',
-          isActive: onlyShowInTextType,
+          isActive: showInAnyTextType,
           builder: (
             context,
             editorState,

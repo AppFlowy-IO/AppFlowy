@@ -331,11 +331,7 @@
     "header": "Header",
     "highlight": "Highlight",
     "color": "Color",
-    "addLink": "Add Link",
-    "link": "Link",
-    "textAlign": "Text Align",
-    "moreOptions": "More Options",
-    "font": "Font"
+    "addLink": "Add Link"
   },
   "tooltip": {
     "lightMode": "Switch to Light mode",
@@ -2111,7 +2107,13 @@
       "h3": "Heading 3",
       "alignLeft": "Align Left",
       "alignRight": "Align Right",
-      "alignCenter": "Align Center"
+      "alignCenter": "Align Center",
+      "link": "Link",
+      "textAlign": "Text Align",
+      "moreOptions": "More Options",
+      "font": "Font",
+      "suggestions": "Suggestions",
+      "turnInto": "Turn Into"
     },
     "errorBlock": {
       "theBlockIsNotSupported": "Unable to parse the block content",

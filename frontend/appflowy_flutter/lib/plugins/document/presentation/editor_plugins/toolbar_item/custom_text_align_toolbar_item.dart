@@ -114,7 +114,7 @@ class _TextAlignActionListState extends State<TextAlignActionList> {
     return widget.tooltipBuilder?.call(
           context,
           _kTextAlignItemId,
-          LocaleKeys.toolbar_textAlign.tr(),
+          LocaleKeys.document_toolbar_textAlign.tr(),
           child,
         ) ??
         child;

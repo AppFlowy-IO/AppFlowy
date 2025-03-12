@@ -114,7 +114,7 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
     return widget.tooltipBuilder?.call(
           context,
           _kMoreOptionItemId,
-          LocaleKeys.toolbar_moreOptions.tr(),
+          LocaleKeys.document_toolbar_moreOptions.tr(),
           child,
         ) ??
         child;
@@ -242,7 +242,7 @@ enum MoreOptionCommand {
   String get title {
     switch (this) {
       case font:
-        return LocaleKeys.toolbar_font.tr();
+        return LocaleKeys.document_toolbar_font.tr();
       case strikethrough:
         return LocaleKeys.editor_strikethrough.tr();
       case formula:

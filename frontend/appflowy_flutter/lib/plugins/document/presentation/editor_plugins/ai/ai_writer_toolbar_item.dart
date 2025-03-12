@@ -18,7 +18,7 @@ const _aiWriterToolbarItemId = 'appflowy.editor.ai_writer';
 final ToolbarItem improveWritingItem = ToolbarItem(
   id: _improveWritingToolbarItemId,
   group: 0,
-  isActive: onlyShowInSingleSelectionAndTextType,
+  isActive: onlyShowInTextTypeAndExcludeTable,
   builder: (context, editorState, _, __, tooltipBuilder) =>
       ImproveWritingButton(
     editorState: editorState,
@@ -29,7 +29,7 @@ final ToolbarItem improveWritingItem = ToolbarItem(
 final ToolbarItem aiWriterItem = ToolbarItem(
   id: _aiWriterToolbarItemId,
   group: 0,
-  isActive: onlyShowInSingleSelectionAndTextType,
+  isActive: onlyShowInTextTypeAndExcludeTable,
   builder: (context, editorState, _, __, tooltipBuilder) =>
       AiWriterToolbarActionList(
     editorState: editorState,

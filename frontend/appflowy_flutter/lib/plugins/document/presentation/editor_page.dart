@@ -34,6 +34,7 @@ import 'editor_plugins/toolbar_item/custom_text_align_toolbar_item.dart';
 import 'editor_plugins/toolbar_item/custom_text_color_toolbar_item.dart';
 import 'editor_plugins/toolbar_item/more_option_toolbar_item.dart';
 import 'editor_plugins/toolbar_item/text_heading_toolbar_item.dart';
+import 'editor_plugins/toolbar_item/text_suggestions_toolbar_item.dart';
 
 /// Wrapper for the appflowy editor.
 class AppFlowyEditorPage extends StatefulWidget {
@@ -90,15 +91,14 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
   ];
 
   final List<ToolbarItem> toolbarItems = [
-    improveWritingItem..isActive = onlyShowInTextTypeAndExcludeTable,
-    aiWriterItem..isActive = onlyShowInTextTypeAndExcludeTable,
-    customTextHeadingItem
-      ..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
-    ...customMarkdownFormatItems
-      ..forEach((e) => e.isActive = showInAnyTextType),
-    customTextColorItem..isActive = showInAnyTextType,
-    customHighlightColorItem..isActive = showInAnyTextType,
-    inlineCodeItem..isActive = showInAnyTextType,
+    improveWritingItem,
+    aiWriterItem,
+    customTextHeadingItem,
+    ...customMarkdownFormatItems,
+    customTextColorItem,
+    customHighlightColorItem,
+    customInlineCodeItem,
+    suggestionsItem,
     customLinkItem,
     customTextAlignItem,
     moreOptionItem,
