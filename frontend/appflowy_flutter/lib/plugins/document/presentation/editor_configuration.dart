@@ -37,6 +37,7 @@ final Set<String> supportSlashMenuNodeTypes = {
   NumberedListBlockKeys.type,
   QuoteBlockKeys.type,
   ToggleListBlockKeys.type,
+  CalloutBlockKeys.type,
 
   // Simple table
   SimpleTableBlockKeys.type,
