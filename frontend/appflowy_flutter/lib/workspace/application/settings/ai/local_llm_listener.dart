@@ -11,8 +11,8 @@ import 'package:appflowy_result/appflowy_result.dart';
 typedef PluginStateCallback = void Function(LocalAIPB state);
 typedef PluginResourceCallback = void Function(LackOfAIResourcePB data);
 
-class LocalLLMListener {
-  LocalLLMListener() {
+class LocalAIStateListener {
+  LocalAIStateListener() {
     _parser =
         ChatNotificationParser(id: "appflowy_ai_plugin", callback: _callback);
     _subscription = RustStreamReceiver.listen(

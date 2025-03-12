@@ -13,7 +13,7 @@ part 'local_ai_setting_panel_bloc.freezed.dart';
 class LocalAISettingPanelBloc
     extends Bloc<LocalAISettingPanelEvent, LocalAISettingPanelState> {
   LocalAISettingPanelBloc()
-      : listener = LocalLLMListener(),
+      : listener = LocalAIStateListener(),
         super(const LocalAISettingPanelState()) {
     on<LocalAISettingPanelEvent>(_handleEvent);
 
@@ -35,7 +35,7 @@ class LocalAISettingPanelBloc
     );
   }
 
-  final LocalLLMListener listener;
+  final LocalAIStateListener listener;
 
   /// Handles incoming events and dispatches them to the appropriate handler.
   Future<void> _handleEvent(

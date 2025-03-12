@@ -371,6 +371,9 @@ pub enum ErrorCode {
 
   #[error("Request timeout")]
   RequestTimeout = 127,
+
+  #[error("Local AI is not ready")]
+  LocalAINotReady = 128,
 }
 
 impl ErrorCode {

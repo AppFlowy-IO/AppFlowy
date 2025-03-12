@@ -1,11 +1,9 @@
 import 'package:appflowy/ai/ai.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/layout_define.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -52,7 +50,6 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
     super.initState();
 
     textController.addListener(handleTextControllerChanged);
-
     focusNode.addListener(
       () {
         if (!widget.hideDecoration) {
@@ -377,15 +374,13 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
             builder: (context, state) {
               return PromptInputTextField(
                 key: textFieldKey,
+                editable: state.editable,
                 cubit: inputControlCubit,
                 textController: textController,
                 textFieldFocusNode: focusNode,
                 contentPadding:
                     calculateContentPadding(state.showPredefinedFormats),
-                hintText: switch (state.aiType) {
-                  AiType.cloud => LocaleKeys.chat_inputMessageHint.tr(),
-                  AiType.local => LocaleKeys.chat_inputLocalAIMessageHint.tr()
-                },
+                hintText: state.hintText,
               );
             },
           ),
@@ -491,6 +486,7 @@ class _FocusNextItemIntent extends Intent {
 class PromptInputTextField extends StatelessWidget {
   const PromptInputTextField({
     super.key,
+    required this.editable,
     required this.cubit,
     required this.textController,
     required this.textFieldFocusNode,
@@ -502,6 +498,7 @@ class PromptInputTextField extends StatelessWidget {
   final TextEditingController textController;
   final FocusNode textFieldFocusNode;
   final EdgeInsetsGeometry contentPadding;
+  final bool editable;
   final String hintText;
 
   @override
@@ -509,6 +506,8 @@ class PromptInputTextField extends StatelessWidget {
     return ExtendedTextField(
       controller: textController,
       focusNode: textFieldFocusNode,
+      readOnly: !editable,
+      enabled: editable,
       decoration: InputDecoration(
         border: InputBorder.none,
         enabledBorder: InputBorder.none,

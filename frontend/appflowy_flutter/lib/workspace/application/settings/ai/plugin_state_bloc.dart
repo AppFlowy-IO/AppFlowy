@@ -11,7 +11,7 @@ part 'plugin_state_bloc.freezed.dart';
 
 class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
   PluginStateBloc()
-      : listener = LocalLLMListener(),
+      : listener = LocalAIStateListener(),
         super(
           const PluginStateState(
             action: PluginStateAction.unknown(),
@@ -33,7 +33,7 @@ class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
     on<PluginStateEvent>(_handleEvent);
   }
 
-  final LocalLLMListener listener;
+  final LocalAIStateListener listener;
 
   @override
   Future<void> close() async {

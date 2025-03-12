@@ -247,6 +247,9 @@ class _ChatContentPage extends StatelessWidget {
               onChangeFormat: (format) => context
                   .read<ChatBloc>()
                   .add(ChatEvent.regenerateAnswer(message.id, format)),
+              onStopStream: () => context.read<ChatBloc>().add(
+                    const ChatEvent.stopStream(),
+                  ),
             );
           },
         );
