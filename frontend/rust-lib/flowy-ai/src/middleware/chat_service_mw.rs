@@ -158,18 +158,22 @@ impl ChatCloudService for AICloudServiceMiddleware {
     question_id: i64,
     format: ResponseFormat,
   ) -> Result<StreamAnswer, FlowyError> {
-    if self.local_ai.is_running() {
-      let row = self.get_message_record(question_id)?;
-      match self
-        .local_ai
-        .stream_question(chat_id, &row.content, json!({}))
-        .await
-      {
-        Ok(stream) => Ok(QuestionStream::new(stream).boxed()),
-        Err(err) => {
-          self.handle_plugin_error(err);
-          Ok(stream::once(async { Err(FlowyError::local_ai_unavailable()) }).boxed())
-        },
+    if self.local_ai.is_enabled() {
+      if self.local_ai.is_running() {
+        let row = self.get_message_record(question_id)?;
+        match self
+          .local_ai
+          .stream_question(chat_id, &row.content, json!({}))
+          .await
+        {
+          Ok(stream) => Ok(QuestionStream::new(stream).boxed()),
+          Err(err) => {
+            self.handle_plugin_error(err);
+            Ok(stream::once(async { Err(FlowyError::local_ai_unavailable()) }).boxed())
+          },
+        }
+      } else {
+        Err(FlowyError::local_ai_not_ready())
       }
     } else {
       self

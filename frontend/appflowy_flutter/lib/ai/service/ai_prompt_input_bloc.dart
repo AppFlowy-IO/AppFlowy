@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_llm_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -7,6 +8,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -17,14 +19,14 @@ part 'ai_prompt_input_bloc.freezed.dart';
 class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
   AIPromptInputBloc({
     required PredefinedFormat? predefinedFormat,
-  })  : _listener = LocalLLMListener(),
+  })  : _listener = LocalAIStateListener(),
         super(AIPromptInputState.initial(predefinedFormat)) {
     _dispatch();
     _startListening();
     _init();
   }
 
-  final LocalLLMListener _listener;
+  final LocalAIStateListener _listener;
 
   @override
   Future<void> close() async {
@@ -41,9 +43,23 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
             bool supportChatWithFile =
                 aiType.isLocal && localAIState.state == RunningStatePB.Running;
 
+            // If local ai is enabled, user can only send messages when the AI is running
+            final editable = localAIState.enabled
+                ? localAIState.state == RunningStatePB.Running
+                : true;
+
             if (localAIState.hasLackOfResource()) {
               aiType = AiType.cloud;
               supportChatWithFile = false;
+            }
+
+            var hintText = aiType.isLocal
+                ? LocaleKeys.chat_inputLocalAIMessageHint.tr()
+                : LocaleKeys.chat_inputMessageHint.tr();
+
+            if (editable == false && aiType.isLocal) {
+              hintText =
+                  LocaleKeys.settings_aiPage_keys_localAIInitializing.tr();
             }
 
             emit(
@@ -51,6 +67,8 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
                 aiType: aiType,
                 supportChatWithFile: supportChatWithFile,
                 localAIState: localAIState,
+                editable: editable,
+                hintText: hintText,
               ),
             );
           },
@@ -179,6 +197,8 @@ class AIPromptInputState with _$AIPromptInputState {
     required LocalAIPB? localAIState,
     required List<ChatFile> attachedFiles,
     required List<ViewPB> mentionedPages,
+    required bool editable,
+    required String hintText,
   }) = _AIPromptInputState;
 
   factory AIPromptInputState.initial(PredefinedFormat? format) =>
@@ -190,6 +210,8 @@ class AIPromptInputState with _$AIPromptInputState {
         localAIState: null,
         attachedFiles: [],
         mentionedPages: [],
+        editable: true,
+        hintText: '',
       );
 }
 

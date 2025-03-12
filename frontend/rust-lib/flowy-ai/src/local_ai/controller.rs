@@ -72,6 +72,10 @@ impl LocalAIController {
     user_service: Arc<dyn AIUserService>,
     cloud_service: Arc<dyn ChatCloudService>,
   ) -> Self {
+    debug!(
+      "[AI Plugin] init local ai controller, thread: {:?}",
+      std::thread::current().id()
+    );
     let local_ai = Arc::new(OllamaAIPlugin::new(plugin_manager));
     let res_impl = LLMResourceServiceImpl {
       user_service: user_service.clone(),
@@ -176,7 +180,7 @@ impl LocalAIController {
     if !self.is_enabled() {
       return false;
     }
-    self.ai_plugin.get_plugin_running_state().is_ready()
+    self.ai_plugin.get_plugin_running_state().is_running()
   }
 
   /// Indicate whether the local AI is enabled.
