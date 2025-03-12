@@ -1098,4 +1098,3 @@ TextAlign _buildTextAlignInTableCell(
 
   return node.tableAlign.textAlign;
 }
-
