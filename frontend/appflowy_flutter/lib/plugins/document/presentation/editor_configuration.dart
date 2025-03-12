@@ -124,14 +124,14 @@ BlockComponentConfiguration _buildDefaultConfiguration(BuildContext context) {
       double padding = 26.0;
 
       // only add indent padding for the top level node to align the children
-      if (UniversalPlatform.isMobile && node.path.length == 1) {
-        padding += EditorStyleCustomizer.nodeHorizontalPadding;
+      if (UniversalPlatform.isMobile && node.level == 1) {
+        padding += EditorStyleCustomizer.nodeHorizontalPadding - 4;
       }
 
       // in the quote block, we reduce the indent padding for the first level block.
       //  So we have to add more padding for the second level to avoid the drag menu overlay the quote icon.
-      if (node.isInQuote && node.level == 2) {
-        padding += 24;
+      if (node.isInQuote && node.level == 2 && UniversalPlatform.isDesktop) {
+        padding += 22;
       }
 
       return textDirection == TextDirection.ltr
@@ -611,7 +611,12 @@ QuoteBlockComponentBuilder _buildQuoteBlockComponentBuilder(
         node: node,
         configuration: configuration,
       ),
-      indentPadding: (node, _) => EdgeInsets.zero,
+      indentPadding: (node, textDirection) {
+        if (UniversalPlatform.isMobile) {
+          return configuration.indentPadding(node, textDirection);
+        }
+        return EdgeInsets.zero;
+      },
     ),
   );
 }
