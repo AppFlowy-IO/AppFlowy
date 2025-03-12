@@ -107,6 +107,7 @@ class CustomViewAction extends StatelessWidget {
     required this.view,
     required this.leftIcon,
     required this.label,
+    this.disabled = false,
     this.onTap,
     this.mutex,
   });
@@ -114,6 +115,7 @@ class CustomViewAction extends StatelessWidget {
   final ViewPB view;
   final FlowySvgData leftIcon;
   final String label;
+  final bool disabled;
   final VoidCallback? onTap;
   final PopoverMutex? mutex;
 
@@ -122,17 +124,20 @@ class CustomViewAction extends StatelessWidget {
     return Container(
       height: 34,
       padding: const EdgeInsets.symmetric(vertical: 2.0),
-      child: FlowyIconTextButton(
+      child: FlowyButton(
         margin: const EdgeInsets.symmetric(horizontal: 6),
+        disable: disabled,
         onTap: onTap,
-        leftIconBuilder: (onHover) => FlowySvg(
+        leftIcon: FlowySvg(
           leftIcon,
           size: const Size.square(16.0),
+          color: disabled ? Theme.of(context).disabledColor : null,
         ),
         iconPadding: 10.0,
-        textBuilder: (onHover) => FlowyText(
+        text: FlowyText(
           label,
           figmaLineHeight: 18.0,
+          color: disabled ? Theme.of(context).disabledColor : null,
         ),
       ),
     );

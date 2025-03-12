@@ -178,6 +178,7 @@ class AIChatPagePluginWidgetBuilder extends PluginWidgetBuilder
                   customActions: [
                     CustomViewAction(
                       view: notifier.view,
+                      disabled: !state.enabled,
                       leftIcon: FlowySvgs.ai_add_to_page_s,
                       label: LocaleKeys.moreAction_saveAsNewPage.tr(),
                       onTap: () {

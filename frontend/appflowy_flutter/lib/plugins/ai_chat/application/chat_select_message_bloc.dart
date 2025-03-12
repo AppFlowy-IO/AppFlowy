@@ -19,9 +19,17 @@ class ChatSelectMessageBloc
     on<ChatSelectMessageEvent>(
       (event, emit) {
         event.when(
+          enableStartSelectingMessages: () {
+            emit(state.copyWith(enabled: true));
+          },
           toggleSelectingMessages: () {
             if (state.isSelectingMessages) {
-              emit(ChatSelectMessageState.initial());
+              emit(
+                state.copyWith(
+                  isSelectingMessages: false,
+                  selectedMessages: [],
+                ),
+              );
             } else {
               emit(state.copyWith(isSelectingMessages: true));
             }
@@ -50,8 +58,13 @@ class ChatSelectMessageBloc
           unselectAllMessages: () {
             emit(state.copyWith(selectedMessages: const []));
           },
-          saveAsPage: () {
-            emit(ChatSelectMessageState.initial());
+          reset: () {
+            emit(
+              state.copyWith(
+                isSelectingMessages: false,
+                selectedMessages: [],
+              ),
+            );
           },
         );
       },
@@ -70,6 +83,8 @@ class ChatSelectMessageBloc
 
 @freezed
 class ChatSelectMessageEvent with _$ChatSelectMessageEvent {
+  const factory ChatSelectMessageEvent.enableStartSelectingMessages() =
+      _EnableStartSelectingMessages;
   const factory ChatSelectMessageEvent.toggleSelectingMessages() =
       _ToggleSelectingMessages;
   const factory ChatSelectMessageEvent.toggleSelectMessage(Message message) =
@@ -79,7 +94,7 @@ class ChatSelectMessageEvent with _$ChatSelectMessageEvent {
   ) = _SelectAllMessages;
   const factory ChatSelectMessageEvent.unselectAllMessages() =
       _UnselectAllMessages;
-  const factory ChatSelectMessageEvent.saveAsPage() = _SaveAsPage;
+  const factory ChatSelectMessageEvent.reset() = _Reset;
 }
 
 @freezed
@@ -87,9 +102,11 @@ class ChatSelectMessageState with _$ChatSelectMessageState {
   const factory ChatSelectMessageState({
     required bool isSelectingMessages,
     required List<Message> selectedMessages,
+    required bool enabled,
   }) = _ChatSelectMessageState;
 
   factory ChatSelectMessageState.initial() => const ChatSelectMessageState(
+        enabled: false,
         isSelectingMessages: false,
         selectedMessages: [],
       );
