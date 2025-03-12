@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -33,9 +34,15 @@ void main() {
         Selection.single(path: [0], startOffset: 0, endOffset: formula.length),
       );
 
+      // tap the more options button
+      final moreOptionButton = find.findFlowyTooltip(
+        LocaleKeys.toolbar_moreOptions.tr(),
+      );
+      await tester.tapButton(moreOptionButton);
+
       // tap the inline math equation button
-      final inlineMathEquationButton = find.findFlowyTooltip(
-        LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+      final inlineMathEquationButton = find.text(
+        LocaleKeys.editor_mathEquationShortForm.tr(),
       );
       await tester.tapButton(inlineMathEquationButton);
 
@@ -78,10 +85,15 @@ void main() {
         Selection.single(path: [0], startOffset: 0, endOffset: formula.length),
       );
 
-      // tap the inline math equation button
-      var inlineMathEquationButton = find.findFlowyTooltip(
-        LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+      // tap the more options button
+      final moreOptionButton = find.findFlowyTooltip(
+        LocaleKeys.toolbar_moreOptions.tr(),
       );
+      await tester.tapButton(moreOptionButton);
+
+      // tap the inline math equation button
+      final inlineMathEquationButton =
+          find.byFlowySvg(FlowySvgs.type_formula_m);
       await tester.tapButton(inlineMathEquationButton);
 
       // expect to see the math equation block
@@ -93,15 +105,10 @@ void main() {
         Selection.single(path: [0], startOffset: 0, endOffset: 1),
       );
 
+      await tester.tapButton(moreOptionButton);
       // expect to the see the inline math equation button is highlighted
-      inlineMathEquationButton = find.descendant(
-        of: find.findFlowyTooltip(
-          LocaleKeys.document_plugins_createInlineMathEquation.tr(),
-        ),
-        matching: find.byType(SVGIconItemWidget),
-      );
       expect(
-        tester.widget<SVGIconItemWidget>(inlineMathEquationButton).isHighlight,
+        tester.widget<FlowySvg>(inlineMathEquationButton).color != null,
         isTrue,
       );
 
@@ -134,10 +141,15 @@ void main() {
         Selection.single(path: [0], startOffset: 0, endOffset: formula.length),
       );
 
-      // tap the inline math equation button
-      final inlineMathEquationButton = find.findFlowyTooltip(
-        LocaleKeys.document_plugins_createInlineMathEquation.tr(),
+      // tap the more options button
+      final moreOptionButton = find.findFlowyTooltip(
+        LocaleKeys.toolbar_moreOptions.tr(),
       );
+      await tester.tapButton(moreOptionButton);
+
+      // tap the inline math equation button
+      final inlineMathEquationButton =
+          find.byFlowySvg(FlowySvgs.type_formula_m);
       await tester.tapButton(inlineMathEquationButton);
 
       // expect to see the math equation block

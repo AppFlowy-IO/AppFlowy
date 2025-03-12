@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 
 import '../../editor_page.dart';
 
-const _kMoreOptionItemId = 'editor.text_align';
+const _kMoreOptionItemId = 'editor.more_option';
 const kFontToolbarItemId = 'editor.font';
 
 @visibleForTesting
@@ -114,10 +114,40 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
     return widget.tooltipBuilder?.call(
           context,
           _kMoreOptionItemId,
-          LocaleKeys.document_toolbar_textSize.tr(),
+          LocaleKeys.toolbar_moreOptions.tr(),
           child,
         ) ??
         child;
+  }
+
+  Color? getFormulaColor() {
+    if (isFormulaHighlight(editorState)) {
+      return widget.highlightColor;
+    }
+    return null;
+  }
+
+  Color? getStrikethroughColor() {
+    final selection = editorState.selection;
+    if (selection == null || selection.isCollapsed) {
+      return null;
+    }
+    final node = editorState.getNodeAtPath(selection.start.path);
+    final delta = node?.delta;
+    if (node == null || delta == null) {
+      return null;
+    }
+
+    final nodes = editorState.getNodesInSelection(selection);
+    final isHighlight = nodes.allSatisfyInSelection(
+      selection,
+      (delta) =>
+          delta.isNotEmpty &&
+          delta.everyAttributes(
+            (attr) => attr[MoreOptionCommand.strikethrough.name] == true,
+          ),
+    );
+    return isHighlight ? widget.highlightColor : null;
   }
 
   Widget buildPopoverContent() {
@@ -128,14 +158,21 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
         separatorBuilder: () => const VSpace(4.0),
         children: [
           buildFontSelector(),
-          buildCommandItem(MoreOptionCommand.strikethrough),
-          if (showFormula) buildCommandItem(MoreOptionCommand.formula),
+          buildCommandItem(
+            MoreOptionCommand.strikethrough,
+            getStrikethroughColor(),
+          ),
+          if (showFormula)
+            buildCommandItem(
+              MoreOptionCommand.formula,
+              getFormulaColor(),
+            ),
         ],
       ),
     );
   }
 
-  Widget buildCommandItem(MoreOptionCommand command) {
+  Widget buildCommandItem(MoreOptionCommand command, Color? color) {
     return SizedBox(
       height: 36,
       child: FlowyButton(
@@ -145,12 +182,14 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
         leftIconSize: const Size.square(20),
         leftIcon: FlowySvg(
           command.svg,
+          color: color,
         ),
         iconPadding: 12,
         text: FlowyText(
           command.title,
           figmaLineHeight: 20,
           fontWeight: FontWeight.w400,
+          color: color,
         ),
         onTap: () {
           command.onExecute(editorState);
@@ -182,10 +221,11 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
       },
       onResetFont: () async {
         fontPopoverController.close();
+        popoverController.close();
         await editorState
             .formatDelta(selection, {AppFlowyRichTextKeys.fontFamily: null});
       },
-      child: buildCommandItem(MoreOptionCommand.font),
+      child: buildCommandItem(MoreOptionCommand.font, null),
     );
   }
 }
@@ -211,8 +251,7 @@ enum MoreOptionCommand {
   }
 
   Future<void> onExecute(EditorState editorState) async {
-    if (this == font) {
-    } else if (this == strikethrough) {
+    if (this == strikethrough) {
       await editorState.toggleAttribute(name);
     } else if (this == formula) {
       final selection = editorState.selection;
@@ -226,12 +265,7 @@ enum MoreOptionCommand {
       }
 
       final transaction = editorState.transaction;
-      final nodes = editorState.getNodesInSelection(selection);
-      final isHighlight = nodes.allSatisfyInSelection(selection, (delta) {
-        return delta.everyAttributes(
-          (attributes) => attributes[InlineMathEquationKeys.formula] != null,
-        );
-      });
+      final isHighlight = isFormulaHighlight(editorState);
       if (isHighlight) {
         final formula = delta
             .slice(selection.startIndex, selection.endIndex)
@@ -265,4 +299,23 @@ enum MoreOptionCommand {
       await editorState.apply(transaction);
     }
   }
+}
+
+bool isFormulaHighlight(EditorState editorState) {
+  final selection = editorState.selection;
+  if (selection == null || selection.isCollapsed) {
+    return false;
+  }
+  final node = editorState.getNodeAtPath(selection.start.path);
+  final delta = node?.delta;
+  if (node == null || delta == null) {
+    return false;
+  }
+
+  final nodes = editorState.getNodesInSelection(selection);
+  return nodes.allSatisfyInSelection(selection, (delta) {
+    return delta.everyAttributes(
+      (attributes) => attributes[InlineMathEquationKeys.formula] != null,
+    );
+  });
 }

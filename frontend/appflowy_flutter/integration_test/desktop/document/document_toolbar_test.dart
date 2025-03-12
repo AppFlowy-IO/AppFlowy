@@ -1,3 +1,4 @@
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toolbar_item/more_option_toolbar_item.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -27,6 +28,8 @@ void main() {
         ),
       );
 
+      // tap more options button
+      await tester.tapButtonWithFlowySvgData(FlowySvgs.toolbar_more_m);
       // tap the font family button
       final fontFamilyButton = find.byKey(kFontFamilyToolbarItemKey);
       await tester.tapButton(fontFamilyButton);

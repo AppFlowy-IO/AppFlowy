@@ -333,6 +333,8 @@
     "color": "Color",
     "addLink": "Add Link",
     "link": "Link",
+    "textAlign": "Text Align",
+    "moreOptions": "More Options",
     "font": "Font"
   },
   "tooltip": {
