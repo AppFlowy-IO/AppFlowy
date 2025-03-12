@@ -125,6 +125,7 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
     super.initState();
 
     _observerQuoteBlockChanges();
+    _updateQuoteBlockHeight();
   }
 
   @override
@@ -136,17 +137,11 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        _updateQuoteBlockHeight();
-
-        return KeyedSubtree(
-          key: layoutBuilderKey,
-          child: node.children.isEmpty
-              ? buildComponent(context)
-              : buildComponentWithChildren(context),
-        );
-      },
+    return KeyedSubtree(
+      key: layoutBuilderKey,
+      child: node.children.isEmpty
+          ? buildComponent(context)
+          : buildComponentWithChildren(context),
     );
   }
 
