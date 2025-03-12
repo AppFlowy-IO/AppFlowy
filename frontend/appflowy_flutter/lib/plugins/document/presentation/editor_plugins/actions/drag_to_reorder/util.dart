@@ -188,7 +188,6 @@ Future<void> dragToMoveNode(
   Node dragTargetNode,
   Offset dragOffset,
 ) {
-  debugPrint('getDragAreaPosition - dragTargetNode: ${dragTargetNode.type}');
   final selectable = dragTargetNode.selectable;
   final renderBox = selectable?.context.findRenderObject() as RenderBox?;
   if (selectable == null || renderBox == null) {
@@ -246,10 +245,6 @@ Future<void> dragToMoveNode(
   } else {
     verticalPosition = VerticalPosition.bottom;
   }
-
-  debugPrint(
-    'verticalPosition: $verticalPosition, horizontalPosition: $horizontalPosition',
-  );
 
   return (verticalPosition, horizontalPosition, globalBlockRect);
 }
