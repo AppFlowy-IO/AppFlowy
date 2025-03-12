@@ -10,6 +10,7 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
 import '../../base/markdown_text_robot.dart';
 import 'ai_writer_block_operations.dart';
@@ -32,6 +33,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
             isFirstRun: true,
           ),
         ) {
+    HardwareKeyboard.instance.addHandler(_cancelShortcutHandler);
     editorState.service.keyboardService?.disableShortcuts();
   }
 
@@ -49,6 +51,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
   @override
   Future<void> close() async {
     selectedSourcesNotifier.dispose();
+    HardwareKeyboard.instance.removeHandler(_cancelShortcutHandler);
     editorState.service.keyboardService?.enableShortcuts();
     await super.close();
   }
@@ -147,6 +150,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     if (state is! GeneratingAiWriterState) {
       return;
     }
+    await _textRobot.stop(
+      attributes: ApplySuggestionFormatType.replace.attributes,
+    );
     final generatingState = state as GeneratingAiWriterState;
     await AIEventStopCompleteText(
       CompleteTextTaskPB(
@@ -311,12 +317,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           view.name == LocaleKeys.menuAppHeader_defaultNewPageName.tr()) {
         final readyState = state as ReadyAiWriterState;
         emit(
-          SingleShotAiWriterState(
+          FailedContinueWritingAiWriterState(
             command,
-            title: LocaleKeys.ai_continueWritingEmptyDocumentTitle.tr(),
-            description:
-                LocaleKeys.ai_continueWritingEmptyDocumentDescription.tr(),
-            onDismiss: () {
+            onConfirm: () {
               if (isImmediateRun) {
                 removeAiWriterNode(editorState, node);
               }
@@ -486,6 +489,46 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       );
     }
   }
+
+  bool _cancelShortcutHandler(KeyEvent event) {
+    if (event is! KeyUpEvent) {
+      return false;
+    }
+
+    switch (event.logicalKey) {
+      case LogicalKeyboardKey.escape:
+        if (state case GeneratingAiWriterState _) {
+          stopStream();
+        } else if (hasUnusedResponse()) {
+          final saveState = state;
+          emit(
+            FailedContinueWritingAiWriterState(
+              state.command,
+              onConfirm: () {
+                stopStream();
+                exit();
+              },
+            ),
+          );
+          emit(saveState);
+        } else {
+          stopStream();
+          exit();
+        }
+        return true;
+      case LogicalKeyboardKey.keyC
+          when HardwareKeyboard.instance.logicalKeysPressed
+              .contains(LogicalKeyboardKey.controlLeft):
+        if (state case GeneratingAiWriterState _) {
+          stopStream();
+        }
+        return true;
+      default:
+        break;
+    }
+
+    return false;
+  }
 }
 
 sealed class AiWriterState {
@@ -527,15 +570,20 @@ class ErrorAiWriterState extends AiWriterState {
   final AIError error;
 }
 
-class SingleShotAiWriterState extends AiWriterState {
-  const SingleShotAiWriterState(
+class FailedContinueWritingAiWriterState extends AiWriterState {
+  const FailedContinueWritingAiWriterState(
     super.command, {
-    required this.title,
-    required this.description,
-    required this.onDismiss,
+    required this.onConfirm,
   });
 
-  final String title;
-  final String description;
-  final void Function() onDismiss;
+  final void Function() onConfirm;
+}
+
+class DiscardResponseAiWriterState extends AiWriterState {
+  const DiscardResponseAiWriterState(
+    super.command, {
+    required this.onDiscard,
+  });
+
+  final void Function() onDiscard;
 }

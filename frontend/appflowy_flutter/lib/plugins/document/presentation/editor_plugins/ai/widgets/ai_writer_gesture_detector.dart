@@ -21,18 +21,14 @@ class AiWriterGestureDetector extends StatelessWidget {
         TapGestureRecognizer:
             GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
           () => TapGestureRecognizer(),
-          (instance) {
-            instance
-              ..onTap = onPointerEvent
-              ..onTapDown = (_) => onPointerEvent();
-          },
+          (instance) => instance..onTapDown = (_) => onPointerEvent(),
         ),
         ImmediateMultiDragGestureRecognizer:
             GestureRecognizerFactoryWithHandlers<
-                    ImmediateMultiDragGestureRecognizer>(
-                () => ImmediateMultiDragGestureRecognizer(), (instance) {
-          instance.onStart = (offset) => null;
-        }),
+                ImmediateMultiDragGestureRecognizer>(
+          () => ImmediateMultiDragGestureRecognizer(),
+          (instance) => instance.onStart = (offset) => null,
+        ),
       },
       child: child,
     );
