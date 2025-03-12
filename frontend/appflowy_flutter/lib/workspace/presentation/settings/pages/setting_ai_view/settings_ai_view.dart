@@ -55,16 +55,13 @@ class SettingsAIView extends StatelessWidget {
           ];
 
           children.add(const _AISearchToggle(value: false));
-
-          if (state.currentWorkspaceMemberRole != null) {
-            children.add(
-              _LocalAIOnBoarding(
-                userProfile: userProfile,
-                currentWorkspaceMemberRole: state.currentWorkspaceMemberRole!,
-                workspaceId: workspaceId,
-              ),
-            );
-          }
+          children.add(
+            _LocalAIOnBoarding(
+              userProfile: userProfile,
+              currentWorkspaceMemberRole: state.currentWorkspaceMemberRole!,
+              workspaceId: workspaceId,
+            ),
+          );
 
           return SettingsBody(
             title: LocaleKeys.settings_aiPage_title.tr(),
