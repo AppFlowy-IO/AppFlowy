@@ -36,9 +36,7 @@ class MobileSelectionMenuItemWidget extends StatelessWidget {
         ),
         style: ButtonStyle(
           alignment: Alignment.centerLeft,
-          overlayColor: WidgetStateProperty.all(
-            style.selectionMenuItemSelectedColor,
-          ),
+          overlayColor: WidgetStateProperty.all(Colors.transparent),
           backgroundColor: isSelected
               ? WidgetStateProperty.all(
                   style.selectionMenuItemSelectedColor,
