@@ -12,6 +12,7 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart'
@@ -92,9 +93,19 @@ class AIChatPage extends StatelessWidget {
                 }
               }
             },
-            child: _ChatContentPage(
-              view: view,
-              userProfile: userProfile,
+            child: CallbackShortcuts(
+              bindings: {
+                SingleActivator(LogicalKeyboardKey.escape): () {
+                  context.read<ChatBloc>().add(ChatEvent.stopStream());
+                },
+                SingleActivator(control: true, LogicalKeyboardKey.keyC): () {
+                  context.read<ChatBloc>().add(ChatEvent.stopStream());
+                },
+              },
+              child: _ChatContentPage(
+                view: view,
+                userProfile: userProfile,
+              ),
             ),
           );
         },

@@ -100,7 +100,6 @@ class AiWriterBlockComponent extends BlockComponentStatefulWidget {
 class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
   final key = GlobalKey();
   final textController = TextEditingController();
-  final textFieldFocusNode = FocusNode();
   final overlayController = OverlayPortalController();
   final layerLink = LayerLink();
 
@@ -118,7 +117,6 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       overlayController.show();
-      textFieldFocusNode.requestFocus();
       if (!widget.node.isAiWriterInitialized) {
         aiWriterCubit.init();
       }
@@ -128,7 +126,6 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
   @override
   void dispose() {
     textController.dispose();
-    textFieldFocusNode.dispose();
     aiWriterCubit.close();
     super.dispose();
   }
@@ -154,12 +151,24 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
         builder: (context, constraints) {
           return BlocListener<AiWriterCubit, AiWriterState>(
             listener: (context, state) {
-              if (state is SingleShotAiWriterState) {
+              if (state is FailedContinueWritingAiWriterState) {
                 showConfirmDialog(
                   context: context,
-                  title: state.title,
-                  description: state.description,
-                  onConfirm: state.onDismiss,
+                  title: LocaleKeys.ai_continueWritingEmptyDocumentTitle.tr(),
+                  description: LocaleKeys
+                      .ai_continueWritingEmptyDocumentDescription
+                      .tr(),
+                  onConfirm: state.onConfirm,
+                );
+              } else if (state is DiscardResponseAiWriterState) {
+                showConfirmDialog(
+                  context: context,
+                  title: LocaleKeys.button_discard.tr(),
+                  description: LocaleKeys.document_plugins_discardResponse.tr(),
+                  confirmLabel: LocaleKeys.button_discard.tr(),
+                  style: ConfirmPopupStyle.cancelAndOk,
+                  onConfirm: state.onDiscard,
+                  onCancel: () {},
                 );
               }
             },
@@ -174,7 +183,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
                           behavior: state is GeneratingAiWriterState
                               ? HitTestBehavior.opaque
                               : HitTestBehavior.translucent,
-                          onPointerEvent: () => onTapOutside(),
+                          onPointerEvent: onTapOutside,
                         );
                       },
                     ),
