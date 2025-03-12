@@ -617,6 +617,13 @@ QuoteBlockComponentBuilder _buildQuoteBlockComponentBuilder(
         if (UniversalPlatform.isMobile) {
           return configuration.indentPadding(node, textDirection);
         }
+
+        if (node.isInTable) {
+          return textDirection == TextDirection.ltr
+              ? EdgeInsets.only(left: 24)
+              : EdgeInsets.only(right: 24);
+        }
+
         return EdgeInsets.zero;
       },
     ),
