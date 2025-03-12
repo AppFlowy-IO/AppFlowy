@@ -162,12 +162,14 @@ class ColumnsBlockComponentState extends State<ColumnsBlockComponent>
 
       children.add(child);
 
-      children.add(
-        SimpleColumnBlockWidthResizer(
-          columnNode: childNode,
-          editorState: editorState,
-        ),
-      );
+      if (i != length - 1) {
+        children.add(
+          SimpleColumnBlockWidthResizer(
+            columnNode: childNode,
+            editorState: editorState,
+          ),
+        );
+      }
     }
     return children;
   }

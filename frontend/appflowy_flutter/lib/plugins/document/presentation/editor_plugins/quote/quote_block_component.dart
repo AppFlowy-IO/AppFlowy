@@ -124,7 +124,6 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
   void initState() {
     super.initState();
 
-    _observerQuoteBlockChanges();
     _updateQuoteBlockHeight();
   }
 
@@ -137,11 +136,17 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
 
   @override
   Widget build(BuildContext context) {
-    return KeyedSubtree(
+    return NotificationListener<SizeChangedLayoutNotification>(
       key: layoutBuilderKey,
-      child: node.children.isEmpty
-          ? buildComponent(context)
-          : buildComponentWithChildren(context),
+      onNotification: (notification) {
+        _updateQuoteBlockHeight();
+        return true;
+      },
+      child: SizeChangedLayoutNotifier(
+        child: node.children.isEmpty
+            ? buildComponent(context)
+            : buildComponentWithChildren(context),
+      ),
     );
   }
 
@@ -213,6 +218,7 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
       listenable: editorState.selectionNotifier,
       remoteSelection: editorState.remoteSelections,
       blockColor: editorState.editorStyle.selectionColor,
+      selectionAboveBlock: true,
       supportTypes: const [
         BlockSelectionType.block,
       ],
@@ -239,24 +245,6 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
             renderObject.size.height - padding.top * 2;
       } else {
         quoteBlockHeightNotifier.value = 0;
-      }
-    });
-  }
-
-  void _observerQuoteBlockChanges() {
-    _transactionSubscription = editorState.transactionStream.listen((event) {
-      final time = event.$1;
-
-      if (time != TransactionTime.before) {
-        return;
-      }
-
-      final transaction = event.$2;
-      final operations = transaction.operations;
-      for (final operation in operations) {
-        if (node.path.isAncestorOf(operation.path)) {
-          _updateQuoteBlockHeight();
-        }
       }
     });
   }
