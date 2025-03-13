@@ -147,7 +147,7 @@ impl LocalAIController {
       resource: &Arc<LocalAIResourceController>,
       ai_plugin: &Arc<OllamaAIPlugin>,
     ) {
-      if let Err(err) = initialize_ai_plugin(ai_plugin, resource, None, false).await {
+      if let Err(err) = initialize_ai_plugin(ai_plugin, resource, None).await {
         error!("[AI Plugin] failed to setup plugin: {:?}", err);
       }
     }
@@ -289,7 +289,7 @@ impl LocalAIController {
 
   #[instrument(level = "debug", skip_all)]
   pub async fn restart_plugin(&self) {
-    if let Err(err) = initialize_ai_plugin(&self.ai_plugin, &self.resource, None, true).await {
+    if let Err(err) = initialize_ai_plugin(&self.ai_plugin, &self.resource, None).await {
       error!("[AI Plugin] failed to setup plugin: {:?}", err);
     }
   }
@@ -441,8 +441,7 @@ impl LocalAIController {
     );
     if enabled {
       let (tx, rx) = tokio::sync::oneshot::channel();
-      if let Err(err) = initialize_ai_plugin(&self.ai_plugin, &self.resource, Some(tx), false).await
-      {
+      if let Err(err) = initialize_ai_plugin(&self.ai_plugin, &self.resource, Some(tx)).await {
         error!("[AI Plugin] failed to initialize local ai: {:?}", err);
       }
       let _ = rx.await;
@@ -472,17 +471,10 @@ async fn initialize_ai_plugin(
   plugin: &Arc<OllamaAIPlugin>,
   llm_resource: &Arc<LocalAIResourceController>,
   ret: Option<tokio::sync::oneshot::Sender<()>>,
-  force: bool,
 ) -> FlowyResult<()> {
   let plugin = plugin.clone();
-
-  if !force {
-    if plugin.get_plugin_running_state().is_loading() {
-      return Ok(());
-    }
-  }
-
   let lack_of_resource = llm_resource.get_lack_of_resource().await;
+
   chat_notification_builder(
     APPFLOWY_AI_NOTIFICATION_KEY,
     ChatNotification::UpdateLocalAIState,
@@ -509,6 +501,13 @@ async fn initialize_ai_plugin(
       resource_desc: lack_of_resource,
     })
     .send();
+
+    if let Err(err) = plugin.destroy_plugin().await {
+      error!(
+        "[AI Plugin] failed to destroy plugin when lack of resource: {:?}",
+        err
+      );
+    }
 
     return Ok(());
   }

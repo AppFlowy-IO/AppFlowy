@@ -846,7 +846,7 @@
         "downloadAIModelButton": "Download",
         "downloadingModel": "Downloading",
         "localAILoaded": "Local AI Model successfully added and ready to use",
-        "localAIStart": "Local AI Chat is starting...",
+        "localAIStart": "Local AI is starting...",
         "localAILoading": "Local AI Chat Model is loading...",
         "localAIStopped": "Local AI stopped",
         "localAIRunning": "Local AI is running",
