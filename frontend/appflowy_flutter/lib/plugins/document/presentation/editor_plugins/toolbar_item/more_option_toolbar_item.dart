@@ -73,7 +73,7 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
     return AppFlowyPopover(
       controller: popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
-      offset: const Offset(-8.0, 2.0),
+      offset: const Offset(0, 2.0),
       onOpen: () => keepEditorFocusNotifier.increase(),
       onClose: () {
         setState(() {
@@ -172,18 +172,22 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
     );
   }
 
-  Widget buildCommandItem(MoreOptionCommand command, Color? color) {
+  Widget buildCommandItem(
+    MoreOptionCommand command,
+    Color? color, {
+    Widget? rightIcon,
+  }) {
+    final isFontCommand = command == MoreOptionCommand.font;
     return SizedBox(
       height: 36,
       child: FlowyButton(
-        key: command == MoreOptionCommand.font
-            ? kFontFamilyToolbarItemKey
-            : null,
+        key: isFontCommand ? kFontFamilyToolbarItemKey : null,
         leftIconSize: const Size.square(20),
         leftIcon: FlowySvg(
           command.svg,
           color: color,
         ),
+        rightIcon: rightIcon,
         iconPadding: 12,
         text: FlowyText(
           command.title,
@@ -228,7 +232,11 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
         await editorState
             .formatDelta(selection, {AppFlowyRichTextKeys.fontFamily: null});
       },
-      child: buildCommandItem(MoreOptionCommand.font, null),
+      child: buildCommandItem(
+        MoreOptionCommand.font,
+        null,
+        rightIcon: FlowySvg(FlowySvgs.toolbar_arrow_right_m),
+      ),
     );
   }
 }

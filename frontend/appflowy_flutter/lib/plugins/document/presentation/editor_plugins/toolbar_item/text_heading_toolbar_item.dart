@@ -115,6 +115,7 @@ class _TextHeadingActionListState extends State<TextHeadingActionList> {
   }
 
   Widget buildPopoverContent() {
+    final selectingCommand = getSelectingCommand();
     return MouseRegion(
       child: SeparatedColumn(
         mainAxisSize: MainAxisSize.min,
@@ -132,6 +133,9 @@ class _TextHeadingActionListState extends State<TextHeadingActionList> {
                 fontWeight: FontWeight.w400,
                 figmaLineHeight: 20,
               ),
+              rightIcon: selectingCommand == command
+                  ? FlowySvg(FlowySvgs.toolbar_check_m)
+                  : null,
               onTap: () {
                 command.onExecute(widget.editorState);
                 popoverController.close();
@@ -141,6 +145,27 @@ class _TextHeadingActionListState extends State<TextHeadingActionList> {
         }),
       ),
     );
+  }
+
+  TextHeadingCommand? getSelectingCommand() {
+    final editorState = widget.editorState;
+    final selection = editorState.selection;
+    if (selection == null || !selection.isSingle) {
+      return null;
+    }
+    final node = editorState.getNodeAtPath(selection.start.path);
+    if (node == null || node.delta == null) {
+      return null;
+    }
+    final nodeType = node.type;
+    if (nodeType == ParagraphBlockKeys.type) return TextHeadingCommand.text;
+    if (nodeType == HeadingBlockKeys.type) {
+      final level = node.attributes[HeadingBlockKeys.level] ?? 1;
+      if (level == 1) return TextHeadingCommand.h1;
+      if (level == 2) return TextHeadingCommand.h2;
+      if (level == 3) return TextHeadingCommand.h3;
+    }
+    return null;
   }
 }
 

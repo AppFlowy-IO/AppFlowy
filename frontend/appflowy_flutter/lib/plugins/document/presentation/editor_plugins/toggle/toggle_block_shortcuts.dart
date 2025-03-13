@@ -98,7 +98,8 @@ CharacterShortcutEvent insertChildNodeInsideToggleList = CharacterShortcutEvent(
     }
     final slicedDelta = delta.slice(selection.start.offset);
     final transaction = editorState.transaction;
-    final collapsed = node.attributes[ToggleListBlockKeys.collapsed] as bool;
+    final bool collapsed =
+        node.attributes[ToggleListBlockKeys.collapsed] ?? false;
     if (collapsed) {
       // if the delta is empty, clear the format
       if (delta.isEmpty) {
