@@ -25,6 +25,7 @@
 
 // Section: imports
 
+use crate::folder::folder::*;
 use flutter_rust_bridge::for_generated::byteorder::{NativeEndian, ReadBytesExt, WriteBytesExt};
 use flutter_rust_bridge::for_generated::{transform_result_dco, Lifetimeable, Lockable};
 use flutter_rust_bridge::{Handler, IntoIntoDart};
@@ -37,7 +38,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.9.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1519719864;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1947322930;
 
 // Section: executor
 
@@ -45,7 +46,104 @@ flutter_rust_bridge::frb_generated_default_handler!();
 
 // Section: wire_funcs
 
-fn wire__crate__folder__folder__folder_manager_get_folder_list_impl(
+fn wire__crate__folder__folder__FolderManager_auto_accessor_get_base_url_impl(
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "FolderManager_auto_accessor_get_base_url",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<FolderManager>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            transform_result_sse::<_, ()>((move || {
+                let mut api_that_guard = None;
+                let decode_indices_ =
+                    flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                        flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                            &api_that, 0, false,
+                        ),
+                    ]);
+                for i in decode_indices_ {
+                    match i {
+                        0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                        _ => unreachable!(),
+                    }
+                }
+                let api_that_guard = api_that_guard.unwrap();
+                let output_ok = Result::<_, ()>::Ok(api_that_guard.base_url.clone())?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__folder__folder__FolderManager_auto_accessor_set_base_url_impl(
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "FolderManager_auto_accessor_set_base_url",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<FolderManager>,
+            >>::sse_decode(&mut deserializer);
+            let api_base_url = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            transform_result_sse::<_, ()>((move || {
+                let mut api_that_guard = None;
+                let decode_indices_ =
+                    flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                        flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                            &api_that, 0, true,
+                        ),
+                    ]);
+                for i in decode_indices_ {
+                    match i {
+                        0 => api_that_guard = Some(api_that.lockable_decode_sync_ref_mut()),
+                        _ => unreachable!(),
+                    }
+                }
+                let mut api_that_guard = api_that_guard.unwrap();
+                let output_ok = Result::<_, ()>::Ok({
+                    {
+                        api_that_guard.base_url = api_base_url;
+                    };
+                })?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__folder__folder__FolderManager_get_folder_list_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -53,7 +151,7 @@ fn wire__crate__folder__folder__folder_manager_get_folder_list_impl(
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "folder_manager_get_folder_list",
+            debug_name: "FolderManager_get_folder_list",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
@@ -67,13 +165,38 @@ fn wire__crate__folder__folder__folder_manager_get_folder_list_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_that = <crate::folder::folder::FolderManager>::sse_decode(&mut deserializer);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<FolderManager>,
+            >>::sse_decode(&mut deserializer);
+            let api_workspace_id = <String>::sse_decode(&mut deserializer);
+            let api_depth = <Option<i32>>::sse_decode(&mut deserializer);
+            let api_root_view_id = <Option<String>>::sse_decode(&mut deserializer);
+            let api_bearer_token = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok =
-                            crate::folder::folder::FolderManager::get_folder_list(&api_that)?;
+                        let mut api_that_guard = None;
+                        let decode_indices_ =
+                            flutter_rust_bridge::for_generated::lockable_compute_decode_order(
+                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                    &api_that, 0, false,
+                                )],
+                            );
+                        for i in decode_indices_ {
+                            match i {
+                                0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                                _ => unreachable!(),
+                            }
+                        }
+                        let api_that_guard = api_that_guard.unwrap();
+                        let output_ok = crate::folder::folder::FolderManager::get_folder_list(
+                            &*api_that_guard,
+                            api_workspace_id,
+                            api_depth,
+                            api_root_view_id,
+                            api_bearer_token,
+                        )?;
                         Ok(output_ok)
                     })(),
                 )
@@ -81,14 +204,14 @@ fn wire__crate__folder__folder__folder_manager_get_folder_list_impl(
         },
     )
 }
-fn wire__crate__folder__folder__folder_manager_new_impl(
+fn wire__crate__folder__folder__FolderManager_new_impl(
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
     data_len_: i32,
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "folder_manager_new",
+            debug_name: "FolderManager_new",
             port: None,
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
         },
@@ -103,43 +226,10 @@ fn wire__crate__folder__folder__folder_manager_new_impl(
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_base_url = <String>::sse_decode(&mut deserializer);
-            let api_workspace_id = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             transform_result_sse::<_, ()>((move || {
-                let output_ok = Result::<_, ()>::Ok(crate::folder::folder::FolderManager::new(
-                    api_base_url,
-                    api_workspace_id,
-                ))?;
-                Ok(output_ok)
-            })())
-        },
-    )
-}
-fn wire__crate__folder__folder__greet_impl(
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
-        flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "greet",
-            port: None,
-            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
-        },
-        move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_name = <String>::sse_decode(&mut deserializer);
-            deserializer.end();
-            transform_result_sse::<_, ()>((move || {
-                let output_ok = Result::<_, ()>::Ok(crate::folder::folder::greet(api_name))?;
+                let output_ok =
+                    Result::<_, ()>::Ok(crate::folder::folder::FolderManager::new(api_base_url))?;
                 Ok(output_ok)
             })())
         },
@@ -180,6 +270,12 @@ fn wire__crate__core__core__init_app_impl(
     )
 }
 
+// Section: related_funcs
+
+flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
+    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<FolderManager>
+);
+
 // Section: dart2rust
 
 impl SseDecode for flutter_rust_bridge::for_generated::anyhow::Error {
@@ -187,6 +283,26 @@ impl SseDecode for flutter_rust_bridge::for_generated::anyhow::Error {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut inner = <String>::sse_decode(deserializer);
         return flutter_rust_bridge::for_generated::anyhow::anyhow!("{}", inner);
+    }
+}
+
+impl SseDecode for FolderManager {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <RustOpaqueMoi<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<FolderManager>,
+        >>::sse_decode(deserializer);
+        return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
+    }
+}
+
+impl SseDecode
+    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<FolderManager>>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <usize>::sse_decode(deserializer);
+        return decode_rust_opaque_moi(inner);
     }
 }
 
@@ -205,30 +321,38 @@ impl SseDecode for bool {
     }
 }
 
-impl SseDecode for crate::folder::folder::FolderExtra {
+impl SseDecode for crate::folder::entities::FolderIcon {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut var_isSpace = <bool>::sse_decode(deserializer);
-        let mut var_spaceCreatedAt = <i64>::sse_decode(deserializer);
-        let mut var_spaceIcon = <String>::sse_decode(deserializer);
-        let mut var_spaceIconColor = <String>::sse_decode(deserializer);
-        let mut var_spacePermission = <i32>::sse_decode(deserializer);
-        return crate::folder::folder::FolderExtra {
-            is_space: var_isSpace,
-            space_created_at: var_spaceCreatedAt,
-            space_icon: var_spaceIcon,
-            space_icon_color: var_spaceIconColor,
-            space_permission: var_spacePermission,
+        let mut var_ty = <i32>::sse_decode(deserializer);
+        let mut var_value = <String>::sse_decode(deserializer);
+        return crate::folder::entities::FolderIcon {
+            ty: var_ty,
+            value: var_value,
         };
     }
 }
 
-impl SseDecode for crate::folder::folder::FolderItem {
+impl SseDecode for crate::folder::entities::FolderListResponse {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_data = <crate::folder::entities::FolderView>::sse_decode(deserializer);
+        let mut var_code = <i32>::sse_decode(deserializer);
+        let mut var_message = <String>::sse_decode(deserializer);
+        return crate::folder::entities::FolderListResponse {
+            data: var_data,
+            code: var_code,
+            message: var_message,
+        };
+    }
+}
+
+impl SseDecode for crate::folder::entities::FolderView {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_viewId = <String>::sse_decode(deserializer);
         let mut var_name = <String>::sse_decode(deserializer);
-        let mut var_icon = <Option<String>>::sse_decode(deserializer);
+        let mut var_icon = <Option<crate::folder::entities::FolderIcon>>::sse_decode(deserializer);
         let mut var_isSpace = <bool>::sse_decode(deserializer);
         let mut var_isPrivate = <bool>::sse_decode(deserializer);
         let mut var_isPublished = <bool>::sse_decode(deserializer);
@@ -236,9 +360,10 @@ impl SseDecode for crate::folder::folder::FolderItem {
         let mut var_createdAt = <String>::sse_decode(deserializer);
         let mut var_lastEditedTime = <String>::sse_decode(deserializer);
         let mut var_isLocked = <Option<bool>>::sse_decode(deserializer);
-        let mut var_extra = <Option<crate::folder::folder::FolderExtra>>::sse_decode(deserializer);
-        let mut var_children = <Vec<crate::folder::folder::FolderItem>>::sse_decode(deserializer);
-        return crate::folder::folder::FolderItem {
+        let mut var_extra =
+            <Option<crate::folder::entities::FolderViewExtra>>::sse_decode(deserializer);
+        let mut var_children = <Vec<crate::folder::entities::FolderView>>::sse_decode(deserializer);
+        return crate::folder::entities::FolderView {
             view_id: var_viewId,
             name: var_name,
             icon: var_icon,
@@ -255,28 +380,20 @@ impl SseDecode for crate::folder::folder::FolderItem {
     }
 }
 
-impl SseDecode for crate::folder::folder::FolderManager {
+impl SseDecode for crate::folder::entities::FolderViewExtra {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut var_baseUrl = <String>::sse_decode(deserializer);
-        let mut var_workspaceId = <String>::sse_decode(deserializer);
-        return crate::folder::folder::FolderManager {
-            base_url: var_baseUrl,
-            workspace_id: var_workspaceId,
-        };
-    }
-}
-
-impl SseDecode for crate::folder::folder::FolderResponse {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut var_data = <crate::folder::folder::RootFolder>::sse_decode(deserializer);
-        let mut var_code = <i32>::sse_decode(deserializer);
-        let mut var_message = <String>::sse_decode(deserializer);
-        return crate::folder::folder::FolderResponse {
-            data: var_data,
-            code: var_code,
-            message: var_message,
+        let mut var_isSpace = <bool>::sse_decode(deserializer);
+        let mut var_spaceCreatedAt = <i64>::sse_decode(deserializer);
+        let mut var_spaceIcon = <String>::sse_decode(deserializer);
+        let mut var_spaceIconColor = <String>::sse_decode(deserializer);
+        let mut var_spacePermission = <i32>::sse_decode(deserializer);
+        return crate::folder::entities::FolderViewExtra {
+            is_space: var_isSpace,
+            space_created_at: var_spaceCreatedAt,
+            space_icon: var_spaceIcon,
+            space_icon_color: var_spaceIconColor,
+            space_permission: var_spacePermission,
         };
     }
 }
@@ -295,13 +412,13 @@ impl SseDecode for i64 {
     }
 }
 
-impl SseDecode for Vec<crate::folder::folder::FolderItem> {
+impl SseDecode for Vec<crate::folder::entities::FolderView> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut len_ = <i32>::sse_decode(deserializer);
         let mut ans_ = vec![];
         for idx_ in 0..len_ {
-            ans_.push(<crate::folder::folder::FolderItem>::sse_decode(
+            ans_.push(<crate::folder::entities::FolderView>::sse_decode(
                 deserializer,
             ));
         }
@@ -343,11 +460,11 @@ impl SseDecode for Option<bool> {
     }
 }
 
-impl SseDecode for Option<crate::folder::folder::FolderExtra> {
+impl SseDecode for Option<crate::folder::entities::FolderIcon> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
-            return Some(<crate::folder::folder::FolderExtra>::sse_decode(
+            return Some(<crate::folder::entities::FolderIcon>::sse_decode(
                 deserializer,
             ));
         } else {
@@ -356,35 +473,27 @@ impl SseDecode for Option<crate::folder::folder::FolderExtra> {
     }
 }
 
-impl SseDecode for crate::folder::folder::RootFolder {
+impl SseDecode for Option<crate::folder::entities::FolderViewExtra> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut var_viewId = <String>::sse_decode(deserializer);
-        let mut var_name = <String>::sse_decode(deserializer);
-        let mut var_icon = <Option<String>>::sse_decode(deserializer);
-        let mut var_isSpace = <bool>::sse_decode(deserializer);
-        let mut var_isPrivate = <bool>::sse_decode(deserializer);
-        let mut var_isPublished = <bool>::sse_decode(deserializer);
-        let mut var_layout = <i32>::sse_decode(deserializer);
-        let mut var_createdAt = <String>::sse_decode(deserializer);
-        let mut var_lastEditedTime = <String>::sse_decode(deserializer);
-        let mut var_isLocked = <Option<bool>>::sse_decode(deserializer);
-        let mut var_extra = <Option<crate::folder::folder::FolderExtra>>::sse_decode(deserializer);
-        let mut var_children = <Vec<crate::folder::folder::FolderItem>>::sse_decode(deserializer);
-        return crate::folder::folder::RootFolder {
-            view_id: var_viewId,
-            name: var_name,
-            icon: var_icon,
-            is_space: var_isSpace,
-            is_private: var_isPrivate,
-            is_published: var_isPublished,
-            layout: var_layout,
-            created_at: var_createdAt,
-            last_edited_time: var_lastEditedTime,
-            is_locked: var_isLocked,
-            extra: var_extra,
-            children: var_children,
-        };
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::folder::entities::FolderViewExtra>::sse_decode(
+                deserializer,
+            ));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<i32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<i32>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
     }
 }
 
@@ -400,6 +509,13 @@ impl SseDecode for () {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {}
 }
 
+impl SseDecode for usize {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_u64::<NativeEndian>().unwrap() as _
+    }
+}
+
 fn pde_ffi_dispatcher_primary_impl(
     func_id: i32,
     port: flutter_rust_bridge::for_generated::MessagePort,
@@ -409,13 +525,13 @@ fn pde_ffi_dispatcher_primary_impl(
 ) {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        1 => wire__crate__folder__folder__folder_manager_get_folder_list_impl(
+        3 => wire__crate__folder__folder__FolderManager_get_folder_list_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        4 => wire__crate__core__core__init_app_impl(port, ptr, rust_vec_len, data_len),
+        5 => wire__crate__core__core__init_app_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -428,8 +544,17 @@ fn pde_ffi_dispatcher_sync_impl(
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        2 => wire__crate__folder__folder__folder_manager_new_impl(ptr, rust_vec_len, data_len),
-        3 => wire__crate__folder__folder__greet_impl(ptr, rust_vec_len, data_len),
+        1 => wire__crate__folder__folder__FolderManager_auto_accessor_get_base_url_impl(
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        2 => wire__crate__folder__folder__FolderManager_auto_accessor_set_base_url_impl(
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        4 => wire__crate__folder__folder__FolderManager_new_impl(ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -437,7 +562,96 @@ fn pde_ffi_dispatcher_sync_impl(
 // Section: rust2dart
 
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::folder::folder::FolderExtra {
+impl flutter_rust_bridge::IntoDart for FrbWrapper<FolderManager> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self.0)
+            .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for FrbWrapper<FolderManager> {}
+
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<FolderManager>> for FolderManager {
+    fn into_into_dart(self) -> FrbWrapper<FolderManager> {
+        self.into()
+    }
+}
+
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::folder::entities::FolderIcon {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.ty.into_into_dart().into_dart(),
+            self.value.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::folder::entities::FolderIcon
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::folder::entities::FolderIcon>
+    for crate::folder::entities::FolderIcon
+{
+    fn into_into_dart(self) -> crate::folder::entities::FolderIcon {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::folder::entities::FolderListResponse {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.data.into_into_dart().into_dart(),
+            self.code.into_into_dart().into_dart(),
+            self.message.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::folder::entities::FolderListResponse
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::folder::entities::FolderListResponse>
+    for crate::folder::entities::FolderListResponse
+{
+    fn into_into_dart(self) -> crate::folder::entities::FolderListResponse {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::folder::entities::FolderView {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.view_id.into_into_dart().into_dart(),
+            self.name.into_into_dart().into_dart(),
+            self.icon.into_into_dart().into_dart(),
+            self.is_space.into_into_dart().into_dart(),
+            self.is_private.into_into_dart().into_dart(),
+            self.is_published.into_into_dart().into_dart(),
+            self.layout.into_into_dart().into_dart(),
+            self.created_at.into_into_dart().into_dart(),
+            self.last_edited_time.into_into_dart().into_dart(),
+            self.is_locked.into_into_dart().into_dart(),
+            self.extra.into_into_dart().into_dart(),
+            self.children.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::folder::entities::FolderView
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::folder::entities::FolderView>
+    for crate::folder::entities::FolderView
+{
+    fn into_into_dart(self) -> crate::folder::entities::FolderView {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::folder::entities::FolderViewExtra {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.is_space.into_into_dart().into_dart(),
@@ -450,118 +664,13 @@ impl flutter_rust_bridge::IntoDart for crate::folder::folder::FolderExtra {
     }
 }
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::folder::folder::FolderExtra
+    for crate::folder::entities::FolderViewExtra
 {
 }
-impl flutter_rust_bridge::IntoIntoDart<crate::folder::folder::FolderExtra>
-    for crate::folder::folder::FolderExtra
+impl flutter_rust_bridge::IntoIntoDart<crate::folder::entities::FolderViewExtra>
+    for crate::folder::entities::FolderViewExtra
 {
-    fn into_into_dart(self) -> crate::folder::folder::FolderExtra {
-        self
-    }
-}
-// Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::folder::folder::FolderItem {
-    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
-        [
-            self.view_id.into_into_dart().into_dart(),
-            self.name.into_into_dart().into_dart(),
-            self.icon.into_into_dart().into_dart(),
-            self.is_space.into_into_dart().into_dart(),
-            self.is_private.into_into_dart().into_dart(),
-            self.is_published.into_into_dart().into_dart(),
-            self.layout.into_into_dart().into_dart(),
-            self.created_at.into_into_dart().into_dart(),
-            self.last_edited_time.into_into_dart().into_dart(),
-            self.is_locked.into_into_dart().into_dart(),
-            self.extra.into_into_dart().into_dart(),
-            self.children.into_into_dart().into_dart(),
-        ]
-        .into_dart()
-    }
-}
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::folder::folder::FolderItem
-{
-}
-impl flutter_rust_bridge::IntoIntoDart<crate::folder::folder::FolderItem>
-    for crate::folder::folder::FolderItem
-{
-    fn into_into_dart(self) -> crate::folder::folder::FolderItem {
-        self
-    }
-}
-// Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::folder::folder::FolderManager {
-    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
-        [
-            self.base_url.into_into_dart().into_dart(),
-            self.workspace_id.into_into_dart().into_dart(),
-        ]
-        .into_dart()
-    }
-}
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::folder::folder::FolderManager
-{
-}
-impl flutter_rust_bridge::IntoIntoDart<crate::folder::folder::FolderManager>
-    for crate::folder::folder::FolderManager
-{
-    fn into_into_dart(self) -> crate::folder::folder::FolderManager {
-        self
-    }
-}
-// Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::folder::folder::FolderResponse {
-    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
-        [
-            self.data.into_into_dart().into_dart(),
-            self.code.into_into_dart().into_dart(),
-            self.message.into_into_dart().into_dart(),
-        ]
-        .into_dart()
-    }
-}
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::folder::folder::FolderResponse
-{
-}
-impl flutter_rust_bridge::IntoIntoDart<crate::folder::folder::FolderResponse>
-    for crate::folder::folder::FolderResponse
-{
-    fn into_into_dart(self) -> crate::folder::folder::FolderResponse {
-        self
-    }
-}
-// Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::folder::folder::RootFolder {
-    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
-        [
-            self.view_id.into_into_dart().into_dart(),
-            self.name.into_into_dart().into_dart(),
-            self.icon.into_into_dart().into_dart(),
-            self.is_space.into_into_dart().into_dart(),
-            self.is_private.into_into_dart().into_dart(),
-            self.is_published.into_into_dart().into_dart(),
-            self.layout.into_into_dart().into_dart(),
-            self.created_at.into_into_dart().into_dart(),
-            self.last_edited_time.into_into_dart().into_dart(),
-            self.is_locked.into_into_dart().into_dart(),
-            self.extra.into_into_dart().into_dart(),
-            self.children.into_into_dart().into_dart(),
-        ]
-        .into_dart()
-    }
-}
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::folder::folder::RootFolder
-{
-}
-impl flutter_rust_bridge::IntoIntoDart<crate::folder::folder::RootFolder>
-    for crate::folder::folder::RootFolder
-{
-    fn into_into_dart(self) -> crate::folder::folder::RootFolder {
+    fn into_into_dart(self) -> crate::folder::entities::FolderViewExtra {
         self
     }
 }
@@ -570,6 +679,24 @@ impl SseEncode for flutter_rust_bridge::for_generated::anyhow::Error {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(format!("{:?}", self), serializer);
+    }
+}
+
+impl SseEncode for FolderManager {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<FolderManager>>>::sse_encode(flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self), serializer);
+    }
+}
+
+impl SseEncode
+    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<FolderManager>>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        let (ptr, size) = self.sse_encode_raw();
+        <usize>::sse_encode(ptr, serializer);
+        <i32>::sse_encode(size, serializer);
     }
 }
 
@@ -587,23 +714,29 @@ impl SseEncode for bool {
     }
 }
 
-impl SseEncode for crate::folder::folder::FolderExtra {
+impl SseEncode for crate::folder::entities::FolderIcon {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <bool>::sse_encode(self.is_space, serializer);
-        <i64>::sse_encode(self.space_created_at, serializer);
-        <String>::sse_encode(self.space_icon, serializer);
-        <String>::sse_encode(self.space_icon_color, serializer);
-        <i32>::sse_encode(self.space_permission, serializer);
+        <i32>::sse_encode(self.ty, serializer);
+        <String>::sse_encode(self.value, serializer);
     }
 }
 
-impl SseEncode for crate::folder::folder::FolderItem {
+impl SseEncode for crate::folder::entities::FolderListResponse {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::folder::entities::FolderView>::sse_encode(self.data, serializer);
+        <i32>::sse_encode(self.code, serializer);
+        <String>::sse_encode(self.message, serializer);
+    }
+}
+
+impl SseEncode for crate::folder::entities::FolderView {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.view_id, serializer);
         <String>::sse_encode(self.name, serializer);
-        <Option<String>>::sse_encode(self.icon, serializer);
+        <Option<crate::folder::entities::FolderIcon>>::sse_encode(self.icon, serializer);
         <bool>::sse_encode(self.is_space, serializer);
         <bool>::sse_encode(self.is_private, serializer);
         <bool>::sse_encode(self.is_published, serializer);
@@ -611,25 +744,19 @@ impl SseEncode for crate::folder::folder::FolderItem {
         <String>::sse_encode(self.created_at, serializer);
         <String>::sse_encode(self.last_edited_time, serializer);
         <Option<bool>>::sse_encode(self.is_locked, serializer);
-        <Option<crate::folder::folder::FolderExtra>>::sse_encode(self.extra, serializer);
-        <Vec<crate::folder::folder::FolderItem>>::sse_encode(self.children, serializer);
+        <Option<crate::folder::entities::FolderViewExtra>>::sse_encode(self.extra, serializer);
+        <Vec<crate::folder::entities::FolderView>>::sse_encode(self.children, serializer);
     }
 }
 
-impl SseEncode for crate::folder::folder::FolderManager {
+impl SseEncode for crate::folder::entities::FolderViewExtra {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <String>::sse_encode(self.base_url, serializer);
-        <String>::sse_encode(self.workspace_id, serializer);
-    }
-}
-
-impl SseEncode for crate::folder::folder::FolderResponse {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <crate::folder::folder::RootFolder>::sse_encode(self.data, serializer);
-        <i32>::sse_encode(self.code, serializer);
-        <String>::sse_encode(self.message, serializer);
+        <bool>::sse_encode(self.is_space, serializer);
+        <i64>::sse_encode(self.space_created_at, serializer);
+        <String>::sse_encode(self.space_icon, serializer);
+        <String>::sse_encode(self.space_icon_color, serializer);
+        <i32>::sse_encode(self.space_permission, serializer);
     }
 }
 
@@ -647,12 +774,12 @@ impl SseEncode for i64 {
     }
 }
 
-impl SseEncode for Vec<crate::folder::folder::FolderItem> {
+impl SseEncode for Vec<crate::folder::entities::FolderView> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
-            <crate::folder::folder::FolderItem>::sse_encode(item, serializer);
+            <crate::folder::entities::FolderView>::sse_encode(item, serializer);
         }
     }
 }
@@ -687,31 +814,33 @@ impl SseEncode for Option<bool> {
     }
 }
 
-impl SseEncode for Option<crate::folder::folder::FolderExtra> {
+impl SseEncode for Option<crate::folder::entities::FolderIcon> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
-            <crate::folder::folder::FolderExtra>::sse_encode(value, serializer);
+            <crate::folder::entities::FolderIcon>::sse_encode(value, serializer);
         }
     }
 }
 
-impl SseEncode for crate::folder::folder::RootFolder {
+impl SseEncode for Option<crate::folder::entities::FolderViewExtra> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <String>::sse_encode(self.view_id, serializer);
-        <String>::sse_encode(self.name, serializer);
-        <Option<String>>::sse_encode(self.icon, serializer);
-        <bool>::sse_encode(self.is_space, serializer);
-        <bool>::sse_encode(self.is_private, serializer);
-        <bool>::sse_encode(self.is_published, serializer);
-        <i32>::sse_encode(self.layout, serializer);
-        <String>::sse_encode(self.created_at, serializer);
-        <String>::sse_encode(self.last_edited_time, serializer);
-        <Option<bool>>::sse_encode(self.is_locked, serializer);
-        <Option<crate::folder::folder::FolderExtra>>::sse_encode(self.extra, serializer);
-        <Vec<crate::folder::folder::FolderItem>>::sse_encode(self.children, serializer);
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::folder::entities::FolderViewExtra>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<i32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <i32>::sse_encode(value, serializer);
+        }
     }
 }
 
@@ -727,6 +856,16 @@ impl SseEncode for () {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {}
 }
 
+impl SseEncode for usize {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer
+            .cursor
+            .write_u64::<NativeEndian>(self as _)
+            .unwrap();
+    }
+}
+
 #[cfg(not(target_family = "wasm"))]
 mod io {
     // This file is automatically generated, so please do not edit it.
@@ -735,6 +874,7 @@ mod io {
     // Section: imports
 
     use super::*;
+    use crate::folder::folder::*;
     use flutter_rust_bridge::for_generated::byteorder::{
         NativeEndian, ReadBytesExt, WriteBytesExt,
     };
@@ -744,6 +884,20 @@ mod io {
     // Section: boilerplate
 
     flutter_rust_bridge::frb_generated_boilerplate_io!();
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_appflowy_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<FolderManager>>::increment_strong_count(ptr as _);
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_appflowy_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<FolderManager>>::decrement_strong_count(ptr as _);
+    }
 }
 #[cfg(not(target_family = "wasm"))]
 pub use io::*;
@@ -757,6 +911,7 @@ mod web {
     // Section: imports
 
     use super::*;
+    use crate::folder::folder::*;
     use flutter_rust_bridge::for_generated::byteorder::{
         NativeEndian, ReadBytesExt, WriteBytesExt,
     };
@@ -768,6 +923,20 @@ mod web {
     // Section: boilerplate
 
     flutter_rust_bridge::frb_generated_boilerplate_web!();
+
+    #[wasm_bindgen]
+    pub fn rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<FolderManager>>::increment_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<FolderManager>>::decrement_strong_count(ptr as _);
+    }
 }
 #[cfg(target_family = "wasm")]
 pub use web::*;

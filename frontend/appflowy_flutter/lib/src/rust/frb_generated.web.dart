@@ -8,6 +8,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'folder/entities.dart';
 import 'folder/folder.dart';
 import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_web.dart';
@@ -20,8 +21,32 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     required super.portManager,
   });
 
+  CrossPlatformFinalizerArg
+      get rust_arc_decrement_strong_count_FolderManagerPtr => wire
+          .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager;
+
   @protected
   AnyhowException dco_decode_AnyhowException(dynamic raw);
+
+  @protected
+  FolderManager
+      dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+          dynamic raw);
+
+  @protected
+  FolderManager
+      dco_decode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+          dynamic raw);
+
+  @protected
+  FolderManager
+      dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+          dynamic raw);
+
+  @protected
+  FolderManager
+      dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+          dynamic raw);
 
   @protected
   String dco_decode_String(dynamic raw);
@@ -33,22 +58,25 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   bool dco_decode_box_autoadd_bool(dynamic raw);
 
   @protected
-  FolderExtra dco_decode_box_autoadd_folder_extra(dynamic raw);
+  FolderIcon dco_decode_box_autoadd_folder_icon(dynamic raw);
 
   @protected
-  FolderManager dco_decode_box_autoadd_folder_manager(dynamic raw);
+  FolderViewExtra dco_decode_box_autoadd_folder_view_extra(dynamic raw);
 
   @protected
-  FolderExtra dco_decode_folder_extra(dynamic raw);
+  int dco_decode_box_autoadd_i_32(dynamic raw);
 
   @protected
-  FolderItem dco_decode_folder_item(dynamic raw);
+  FolderIcon dco_decode_folder_icon(dynamic raw);
 
   @protected
-  FolderManager dco_decode_folder_manager(dynamic raw);
+  FolderListResponse dco_decode_folder_list_response(dynamic raw);
 
   @protected
-  FolderResponse dco_decode_folder_response(dynamic raw);
+  FolderView dco_decode_folder_view(dynamic raw);
+
+  @protected
+  FolderViewExtra dco_decode_folder_view_extra(dynamic raw);
 
   @protected
   int dco_decode_i_32(dynamic raw);
@@ -57,7 +85,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   PlatformInt64 dco_decode_i_64(dynamic raw);
 
   @protected
-  List<FolderItem> dco_decode_list_folder_item(dynamic raw);
+  List<FolderView> dco_decode_list_folder_view(dynamic raw);
 
   @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
@@ -69,10 +97,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   bool? dco_decode_opt_box_autoadd_bool(dynamic raw);
 
   @protected
-  FolderExtra? dco_decode_opt_box_autoadd_folder_extra(dynamic raw);
+  FolderIcon? dco_decode_opt_box_autoadd_folder_icon(dynamic raw);
 
   @protected
-  RootFolder dco_decode_root_folder(dynamic raw);
+  FolderViewExtra? dco_decode_opt_box_autoadd_folder_view_extra(dynamic raw);
+
+  @protected
+  int? dco_decode_opt_box_autoadd_i_32(dynamic raw);
 
   @protected
   int dco_decode_u_8(dynamic raw);
@@ -81,7 +112,30 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void dco_decode_unit(dynamic raw);
 
   @protected
+  BigInt dco_decode_usize(dynamic raw);
+
+  @protected
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
+
+  @protected
+  FolderManager
+      sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+          SseDeserializer deserializer);
+
+  @protected
+  FolderManager
+      sse_decode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+          SseDeserializer deserializer);
+
+  @protected
+  FolderManager
+      sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+          SseDeserializer deserializer);
+
+  @protected
+  FolderManager
+      sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+          SseDeserializer deserializer);
 
   @protected
   String sse_decode_String(SseDeserializer deserializer);
@@ -93,23 +147,27 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   bool sse_decode_box_autoadd_bool(SseDeserializer deserializer);
 
   @protected
-  FolderExtra sse_decode_box_autoadd_folder_extra(SseDeserializer deserializer);
+  FolderIcon sse_decode_box_autoadd_folder_icon(SseDeserializer deserializer);
 
   @protected
-  FolderManager sse_decode_box_autoadd_folder_manager(
+  FolderViewExtra sse_decode_box_autoadd_folder_view_extra(
       SseDeserializer deserializer);
 
   @protected
-  FolderExtra sse_decode_folder_extra(SseDeserializer deserializer);
+  int sse_decode_box_autoadd_i_32(SseDeserializer deserializer);
 
   @protected
-  FolderItem sse_decode_folder_item(SseDeserializer deserializer);
+  FolderIcon sse_decode_folder_icon(SseDeserializer deserializer);
 
   @protected
-  FolderManager sse_decode_folder_manager(SseDeserializer deserializer);
+  FolderListResponse sse_decode_folder_list_response(
+      SseDeserializer deserializer);
 
   @protected
-  FolderResponse sse_decode_folder_response(SseDeserializer deserializer);
+  FolderView sse_decode_folder_view(SseDeserializer deserializer);
+
+  @protected
+  FolderViewExtra sse_decode_folder_view_extra(SseDeserializer deserializer);
 
   @protected
   int sse_decode_i_32(SseDeserializer deserializer);
@@ -118,7 +176,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   PlatformInt64 sse_decode_i_64(SseDeserializer deserializer);
 
   @protected
-  List<FolderItem> sse_decode_list_folder_item(SseDeserializer deserializer);
+  List<FolderView> sse_decode_list_folder_view(SseDeserializer deserializer);
 
   @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
@@ -130,11 +188,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   bool? sse_decode_opt_box_autoadd_bool(SseDeserializer deserializer);
 
   @protected
-  FolderExtra? sse_decode_opt_box_autoadd_folder_extra(
+  FolderIcon? sse_decode_opt_box_autoadd_folder_icon(
       SseDeserializer deserializer);
 
   @protected
-  RootFolder sse_decode_root_folder(SseDeserializer deserializer);
+  FolderViewExtra? sse_decode_opt_box_autoadd_folder_view_extra(
+      SseDeserializer deserializer);
+
+  @protected
+  int? sse_decode_opt_box_autoadd_i_32(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_8(SseDeserializer deserializer);
@@ -143,8 +205,31 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_decode_unit(SseDeserializer deserializer);
 
   @protected
+  BigInt sse_decode_usize(SseDeserializer deserializer);
+
+  @protected
   void sse_encode_AnyhowException(
       AnyhowException self, SseSerializer serializer);
+
+  @protected
+  void
+      sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+          FolderManager self, SseSerializer serializer);
+
+  @protected
+  void
+      sse_encode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+          FolderManager self, SseSerializer serializer);
+
+  @protected
+  void
+      sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+          FolderManager self, SseSerializer serializer);
+
+  @protected
+  void
+      sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+          FolderManager self, SseSerializer serializer);
 
   @protected
   void sse_encode_String(String self, SseSerializer serializer);
@@ -156,25 +241,29 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_box_autoadd_bool(bool self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_folder_extra(
-      FolderExtra self, SseSerializer serializer);
+  void sse_encode_box_autoadd_folder_icon(
+      FolderIcon self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_folder_manager(
-      FolderManager self, SseSerializer serializer);
+  void sse_encode_box_autoadd_folder_view_extra(
+      FolderViewExtra self, SseSerializer serializer);
 
   @protected
-  void sse_encode_folder_extra(FolderExtra self, SseSerializer serializer);
+  void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer);
 
   @protected
-  void sse_encode_folder_item(FolderItem self, SseSerializer serializer);
+  void sse_encode_folder_icon(FolderIcon self, SseSerializer serializer);
 
   @protected
-  void sse_encode_folder_manager(FolderManager self, SseSerializer serializer);
+  void sse_encode_folder_list_response(
+      FolderListResponse self, SseSerializer serializer);
 
   @protected
-  void sse_encode_folder_response(
-      FolderResponse self, SseSerializer serializer);
+  void sse_encode_folder_view(FolderView self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_folder_view_extra(
+      FolderViewExtra self, SseSerializer serializer);
 
   @protected
   void sse_encode_i_32(int self, SseSerializer serializer);
@@ -183,8 +272,8 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_i_64(PlatformInt64 self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_folder_item(
-      List<FolderItem> self, SseSerializer serializer);
+  void sse_encode_list_folder_view(
+      List<FolderView> self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_prim_u_8_strict(
@@ -197,23 +286,42 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_opt_box_autoadd_bool(bool? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_folder_extra(
-      FolderExtra? self, SseSerializer serializer);
+  void sse_encode_opt_box_autoadd_folder_icon(
+      FolderIcon? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_root_folder(RootFolder self, SseSerializer serializer);
+  void sse_encode_opt_box_autoadd_folder_view_extra(
+      FolderViewExtra? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_i_32(int? self, SseSerializer serializer);
 
   @protected
   void sse_encode_u_8(int self, SseSerializer serializer);
 
   @protected
   void sse_encode_unit(void self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_usize(BigInt self, SseSerializer serializer);
 }
 
 // Section: wire_class
 
 class RustLibWire implements BaseWire {
   RustLibWire.fromExternalLibrary(ExternalLibrary lib);
+
+  void rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+          int ptr) =>
+      wasmModule
+          .rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+              ptr);
+
+  void rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+          int ptr) =>
+      wasmModule
+          .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+              ptr);
 }
 
 @JS('wasm_bindgen')
@@ -221,4 +329,12 @@ external RustLibWasmModule get wasmModule;
 
 @JS()
 @anonymous
-extension type RustLibWasmModule._(JSObject _) implements JSObject {}
+extension type RustLibWasmModule._(JSObject _) implements JSObject {
+  external void
+      rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+          int ptr);
+
+  external void
+      rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerFolderManager(
+          int ptr);
+}

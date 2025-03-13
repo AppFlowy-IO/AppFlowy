@@ -4,225 +4,25 @@
 // ignore_for_file: invalid_use_of_internal_member, unused_import, unnecessary_import
 
 import '../frb_generated.dart';
+import 'entities.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `FolderHttpUrlProvider`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `fmt`, `fmt`
+// These functions are ignored (category: IgnoreBecauseOwnerTyShouldIgnore): `get_folder_list_url`, `new`
 
-String greet({required String name}) =>
-    RustLib.instance.api.crateFolderFolderGreet(name: name);
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<FolderManager>>
+abstract class FolderManager implements RustOpaqueInterface {
+  String get baseUrl;
 
-class FolderExtra {
-  final bool isSpace;
-  final PlatformInt64 spaceCreatedAt;
-  final String spaceIcon;
-  final String spaceIconColor;
-  final int spacePermission;
+  set baseUrl(String baseUrl);
 
-  const FolderExtra({
-    required this.isSpace,
-    required this.spaceCreatedAt,
-    required this.spaceIcon,
-    required this.spaceIconColor,
-    required this.spacePermission,
-  });
+  Future<FolderListResponse> getFolderList(
+      {required String workspaceId,
+      int? depth,
+      String? rootViewId,
+      required String bearerToken});
 
-  @override
-  int get hashCode =>
-      isSpace.hashCode ^
-      spaceCreatedAt.hashCode ^
-      spaceIcon.hashCode ^
-      spaceIconColor.hashCode ^
-      spacePermission.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FolderExtra &&
-          runtimeType == other.runtimeType &&
-          isSpace == other.isSpace &&
-          spaceCreatedAt == other.spaceCreatedAt &&
-          spaceIcon == other.spaceIcon &&
-          spaceIconColor == other.spaceIconColor &&
-          spacePermission == other.spacePermission;
-}
-
-class FolderItem {
-  final String viewId;
-  final String name;
-  final String? icon;
-  final bool isSpace;
-  final bool isPrivate;
-  final bool isPublished;
-  final int layout;
-  final String createdAt;
-  final String lastEditedTime;
-  final bool? isLocked;
-  final FolderExtra? extra;
-  final List<FolderItem> children;
-
-  const FolderItem({
-    required this.viewId,
-    required this.name,
-    this.icon,
-    required this.isSpace,
-    required this.isPrivate,
-    required this.isPublished,
-    required this.layout,
-    required this.createdAt,
-    required this.lastEditedTime,
-    this.isLocked,
-    this.extra,
-    required this.children,
-  });
-
-  @override
-  int get hashCode =>
-      viewId.hashCode ^
-      name.hashCode ^
-      icon.hashCode ^
-      isSpace.hashCode ^
-      isPrivate.hashCode ^
-      isPublished.hashCode ^
-      layout.hashCode ^
-      createdAt.hashCode ^
-      lastEditedTime.hashCode ^
-      isLocked.hashCode ^
-      extra.hashCode ^
-      children.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FolderItem &&
-          runtimeType == other.runtimeType &&
-          viewId == other.viewId &&
-          name == other.name &&
-          icon == other.icon &&
-          isSpace == other.isSpace &&
-          isPrivate == other.isPrivate &&
-          isPublished == other.isPublished &&
-          layout == other.layout &&
-          createdAt == other.createdAt &&
-          lastEditedTime == other.lastEditedTime &&
-          isLocked == other.isLocked &&
-          extra == other.extra &&
-          children == other.children;
-}
-
-class FolderManager {
-  final String baseUrl;
-  final String workspaceId;
-
-  const FolderManager.raw({
-    required this.baseUrl,
-    required this.workspaceId,
-  });
-
-  Future<FolderResponse> getFolderList() =>
-      RustLib.instance.api.crateFolderFolderFolderManagerGetFolderList(
-        that: this,
-      );
-
-  factory FolderManager(
-          {required String baseUrl, required String workspaceId}) =>
-      RustLib.instance.api.crateFolderFolderFolderManagerNew(
-          baseUrl: baseUrl, workspaceId: workspaceId);
-
-  @override
-  int get hashCode => baseUrl.hashCode ^ workspaceId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FolderManager &&
-          runtimeType == other.runtimeType &&
-          baseUrl == other.baseUrl &&
-          workspaceId == other.workspaceId;
-}
-
-class FolderResponse {
-  final RootFolder data;
-  final int code;
-  final String message;
-
-  const FolderResponse({
-    required this.data,
-    required this.code,
-    required this.message,
-  });
-
-  @override
-  int get hashCode => data.hashCode ^ code.hashCode ^ message.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FolderResponse &&
-          runtimeType == other.runtimeType &&
-          data == other.data &&
-          code == other.code &&
-          message == other.message;
-}
-
-class RootFolder {
-  final String viewId;
-  final String name;
-  final String? icon;
-  final bool isSpace;
-  final bool isPrivate;
-  final bool isPublished;
-  final int layout;
-  final String createdAt;
-  final String lastEditedTime;
-  final bool? isLocked;
-  final FolderExtra? extra;
-  final List<FolderItem> children;
-
-  const RootFolder({
-    required this.viewId,
-    required this.name,
-    this.icon,
-    required this.isSpace,
-    required this.isPrivate,
-    required this.isPublished,
-    required this.layout,
-    required this.createdAt,
-    required this.lastEditedTime,
-    this.isLocked,
-    this.extra,
-    required this.children,
-  });
-
-  @override
-  int get hashCode =>
-      viewId.hashCode ^
-      name.hashCode ^
-      icon.hashCode ^
-      isSpace.hashCode ^
-      isPrivate.hashCode ^
-      isPublished.hashCode ^
-      layout.hashCode ^
-      createdAt.hashCode ^
-      lastEditedTime.hashCode ^
-      isLocked.hashCode ^
-      extra.hashCode ^
-      children.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is RootFolder &&
-          runtimeType == other.runtimeType &&
-          viewId == other.viewId &&
-          name == other.name &&
-          icon == other.icon &&
-          isSpace == other.isSpace &&
-          isPrivate == other.isPrivate &&
-          isPublished == other.isPublished &&
-          layout == other.layout &&
-          createdAt == other.createdAt &&
-          lastEditedTime == other.lastEditedTime &&
-          isLocked == other.isLocked &&
-          extra == other.extra &&
-          children == other.children;
+  factory FolderManager({required String baseUrl}) =>
+      RustLib.instance.api.crateFolderFolderFolderManagerNew(baseUrl: baseUrl);
 }

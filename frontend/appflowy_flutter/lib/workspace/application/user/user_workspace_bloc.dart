@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/src/rust/folder/folder.dart';
@@ -54,9 +56,12 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             // TODO(Lucas): Move it the task
             final folderManager = FolderManager(
               baseUrl: 'https://beta.appflowy.cloud',
-              workspaceId: currentWorkspace?.workspaceId ?? '',
             );
-            final folderList = await folderManager.getFolderList();
+            final token = jsonDecode(userProfile.token)['access_token'];
+            final folderList = await folderManager.getFolderList(
+              workspaceId: currentWorkspace?.workspaceId ?? '',
+              bearerToken: token,
+            );
             Log.info('folder list: $folderList');
             if (currentWorkspace != null && result.$3 == true) {
               Log.info('init open workspace: ${currentWorkspace.workspaceId}');
