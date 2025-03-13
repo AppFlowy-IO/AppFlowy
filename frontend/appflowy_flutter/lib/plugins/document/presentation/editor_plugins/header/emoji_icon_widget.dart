@@ -111,13 +111,10 @@ class _RawEmojiIconWidgetState extends State<RawEmojiIconWidget> {
     try {
       switch (widget.emoji.type) {
         case FlowyIconType.emoji:
-          return SizedBox(
-            width: widget.emojiSize,
-            child: EmojiText(
-              emoji: widget.emoji.emoji,
-              fontSize: widget.emojiSize,
-              textAlign: TextAlign.justify,
-            ),
+          return EmojiText(
+            emoji: widget.emoji.emoji,
+            fontSize: widget.emojiSize,
+            textAlign: TextAlign.justify,
           );
         case FlowyIconType.icon:
           IconsData iconData =
