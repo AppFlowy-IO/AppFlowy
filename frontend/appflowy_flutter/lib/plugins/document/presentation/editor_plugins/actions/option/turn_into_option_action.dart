@@ -237,12 +237,13 @@ class _TurnInfoButton extends StatelessWidget {
       leftIcon: FlowySvg(leftIcon),
       rightIcon: rightIcon,
       itemHeight: ActionListSizes.itemHeight,
-      onTap: () => context.read<BlockActionOptionCubit>().turnIntoBlock(
-            type,
-            node,
-            level: level,
-            currentViewId: getIt<MenuSharedState>().latestOpenView?.id,
-          ),
+      onTap: () => BlockActionOptionCubit.turnIntoBlock(
+        type,
+        node,
+        context.read<BlockActionOptionCubit>().editorState,
+        level: level,
+        currentViewId: getIt<MenuSharedState>().latestOpenView?.id,
+      ),
     );
   }
 

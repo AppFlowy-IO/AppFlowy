@@ -426,13 +426,13 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
         padding: EdgeInsets.symmetric(horizontal: 6),
         style: FloatingToolbarStyle(
           backgroundColor: Theme.of(context).cardColor,
-          dividerColor: Color(0xffE8ECF3),
           toolbarElevation: 10,
         ),
         items: toolbarItems,
         decoration: context.getPopoverDecoration(
           borderRadius: BorderRadius.circular(6),
         ),
+        placeHolderBuilder: (_) => placeholderItem,
         editorState: editorState,
         editorScrollController: editorScrollController,
         textDirection: textDirection,

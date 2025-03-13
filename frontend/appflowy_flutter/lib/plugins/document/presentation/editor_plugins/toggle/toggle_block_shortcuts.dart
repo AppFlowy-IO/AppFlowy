@@ -47,15 +47,12 @@ Future<void> _formatGreaterToToggleHeading(
   delta = delta.compose(Delta()..delete(_greater.length));
   // if the previous block is heading block, convert it to toggle heading block
   if (type == HeadingBlockKeys.type && level != null) {
-    final cubit = BlockActionOptionCubit(
-      editorState: editorState,
-      blockComponentBuilder: {},
-    );
-    await cubit.turnIntoSingleToggleHeading(
+    await BlockActionOptionCubit.turnIntoSingleToggleHeading(
       type: ToggleListBlockKeys.type,
       selectedNodes: [node],
       level: level,
       delta: delta,
+      editorState: editorState,
       afterSelection: afterSelection,
     );
     return;

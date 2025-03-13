@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_option_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -137,6 +138,7 @@ class _TextHeadingActionListState extends State<TextHeadingActionList> {
                   ? FlowySvg(FlowySvgs.toolbar_check_m)
                   : null,
               onTap: () {
+                if (command == selectingCommand) return;
                 command.onExecute(widget.editorState);
                 popoverController.close();
               },
@@ -192,21 +194,32 @@ enum TextHeadingCommand {
     }
   }
 
-  void onExecute(EditorState editorState) {
+  void onExecute(EditorState state) {
     switch (this) {
       case text:
-        formatNodeToText(editorState);
+        formatNodeToText(state);
         break;
       case h1:
-        onHeadingLevelChanged(editorState, 1);
+        _turnInto(state, 1);
         break;
       case h2:
-        onHeadingLevelChanged(editorState, 2);
+        _turnInto(state, 2);
         break;
       case h3:
-        onHeadingLevelChanged(editorState, 3);
+        _turnInto(state, 3);
         break;
     }
+  }
+
+  Future<void> _turnInto(EditorState state, int level) async {
+    final selection = state.selection!;
+    final node = state.getNodeAtPath(selection.start.path)!;
+    await BlockActionOptionCubit.turnIntoBlock(
+      HeadingBlockKeys.type,
+      node,
+      state,
+      level: level,
+    );
   }
 }
 
@@ -227,112 +240,4 @@ void formatNodeToText(EditorState editorState) {
       },
     ),
   );
-}
-
-Future<void> onHeadingLevelChanged(
-  EditorState editorState,
-  int newLevel,
-) async {
-  final selection = editorState.selection!;
-  final node = editorState.getNodeAtPath(selection.start.path)!;
-  final delta = (node.delta ?? Delta()).toJson();
-  final level = node.attributes[HeadingBlockKeys.level] ?? 1;
-  final originLevel = level;
-  final type = newLevel == originLevel && node.type == HeadingBlockKeys.type
-      ? ParagraphBlockKeys.type
-      : HeadingBlockKeys.type;
-
-  if (type == HeadingBlockKeys.type) {
-    // from paragraph to heading
-    final newNode = node.copyWith(
-      type: type,
-      attributes: {
-        HeadingBlockKeys.level: newLevel,
-        blockComponentBackgroundColor:
-            node.attributes[blockComponentBackgroundColor],
-        blockComponentTextDirection:
-            node.attributes[blockComponentTextDirection],
-        blockComponentDelta: delta,
-      },
-    );
-    final children = node.children.map((child) => child.deepCopy());
-
-    final transaction = editorState.transaction;
-    transaction.insertNodes(
-      selection.start.path.next,
-      [newNode, ...children],
-    );
-    transaction.deleteNode(node);
-    await editorState.apply(transaction);
-  } else {
-    // from heading to paragraph
-    await editorState.formatNode(
-      selection,
-      (node) => node.copyWith(
-        type: type,
-        attributes: {
-          HeadingBlockKeys.level: newLevel,
-          blockComponentBackgroundColor:
-              node.attributes[blockComponentBackgroundColor],
-          blockComponentTextDirection:
-              node.attributes[blockComponentTextDirection],
-          blockComponentDelta: delta,
-        },
-      ),
-    );
-  }
-}
-
-Future<void> onToggleLevelChanged(
-  EditorState editorState,
-  int? newLevel,
-) async {
-  final selection = editorState.selection!;
-  final node = editorState.getNodeAtPath(selection.start.path)!;
-  final delta = (node.delta ?? Delta()).toJson();
-  final level = node.attributes[ToggleListBlockKeys.level];
-  final originLevel = level;
-
-  final type = newLevel == originLevel && node.type == ToggleListBlockKeys.type
-      ? ParagraphBlockKeys.type
-      : ToggleListBlockKeys.type;
-
-  if (type == ToggleListBlockKeys.type) {
-    // from paragraph to heading
-    final newNode = node.copyWith(
-      type: type,
-      attributes: {
-        if (newLevel != null) ToggleListBlockKeys.level: newLevel,
-        blockComponentBackgroundColor:
-            node.attributes[blockComponentBackgroundColor],
-        blockComponentTextDirection:
-            node.attributes[blockComponentTextDirection],
-        blockComponentDelta: delta,
-      },
-    );
-    final children = node.children.map((child) => child.deepCopy());
-
-    final transaction = editorState.transaction;
-    transaction.insertNodes(
-      selection.start.path.next,
-      [newNode, ...children],
-    );
-    transaction.deleteNode(node);
-    await editorState.apply(transaction);
-  } else {
-    // from heading to paragraph
-    await editorState.formatNode(
-      selection,
-      (node) => node.copyWith(
-        type: type,
-        attributes: {
-          blockComponentBackgroundColor:
-              node.attributes[blockComponentBackgroundColor],
-          blockComponentTextDirection:
-              node.attributes[blockComponentTextDirection],
-          blockComponentDelta: delta,
-        },
-      ),
-    );
-  }
 }
