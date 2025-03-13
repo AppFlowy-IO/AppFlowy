@@ -256,7 +256,9 @@
       "selectMessages": "Select messages",
       "nSelected": "{} selected",
       "allSelected": "All selected"
-    }
+    },
+    "stopTooltip": "Stop generating"
+
   },
   "trash": {
     "text": "Trash",
