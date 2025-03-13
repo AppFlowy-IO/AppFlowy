@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'dart:isolate';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/operations/ai_writer_entities.dart';
 import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -34,6 +35,7 @@ class AppFlowyAIService implements AIRepository {
     required String text,
     PredefinedFormat? format,
     List<String> sourceIds = const [],
+    List<AiWriterRecord> history = const [],
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
     required Future<void> Function(String text) onProcess,
@@ -47,6 +49,8 @@ class AppFlowyAIService implements AIRepository {
       onError: onError,
     );
 
+    final records = history.map((record) => record.toPB()).toList();
+
     final payload = CompleteTextPB(
       text: text,
       completionType: completionType,
@@ -57,6 +61,7 @@ class AppFlowyAIService implements AIRepository {
         if (objectId != null) objectId,
         ...sourceIds,
       ].unique(),
+      history: records,
     );
 
     return AIEventCompleteText(payload).send().fold(
