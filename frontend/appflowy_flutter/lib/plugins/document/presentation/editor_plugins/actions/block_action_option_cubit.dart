@@ -322,9 +322,8 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
         },
       );
 
-      // heading block and callout block should not have children
-      if ([HeadingBlockKeys.type, CalloutBlockKeys.type, QuoteBlockKeys.type]
-          .contains(toType)) {
+      // heading block should not have children
+      if ([HeadingBlockKeys.type].contains(toType)) {
         afterNode = afterNode.copyWith(children: []);
         afterNode = await _handleSubPageNode(afterNode, node);
         insertedNode.add(afterNode);

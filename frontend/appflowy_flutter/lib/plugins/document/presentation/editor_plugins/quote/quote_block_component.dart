@@ -267,8 +267,13 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       final renderObject = layoutBuilderKey.currentContext?.findRenderObject();
       if (renderObject != null && renderObject is RenderBox) {
-        quoteBlockHeightNotifier.value =
-            renderObject.size.height - padding.top * 2;
+        if (UniversalPlatform.isMobile) {
+          quoteBlockHeightNotifier.value =
+              renderObject.size.height - padding.top;
+        } else {
+          quoteBlockHeightNotifier.value =
+              renderObject.size.height - padding.top * 2;
+        }
       } else {
         quoteBlockHeightNotifier.value = 0;
       }

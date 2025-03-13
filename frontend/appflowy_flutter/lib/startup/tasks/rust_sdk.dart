@@ -5,7 +5,6 @@ import 'package:appflowy/env/backend_env.dart';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/user/application/auth/device_id.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
-import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
@@ -29,7 +28,6 @@ class InitRustSDKTask extends LaunchTask {
     final dir = customApplicationPath ?? applicationPath;
     final deviceId = await getDeviceId();
 
-    debugPrint('application path: ${applicationPath.path}');
     // Pass the environment variables to the Rust SDK
     final env = _makeAppFlowyConfiguration(
       root.path,

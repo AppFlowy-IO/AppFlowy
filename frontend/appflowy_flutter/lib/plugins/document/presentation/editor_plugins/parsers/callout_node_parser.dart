@@ -10,7 +10,6 @@ class CalloutNodeParser extends NodeParser {
 
   @override
   String transform(Node node, DocumentMarkdownEncoder? encoder) {
-    assert(node.children.isEmpty);
     final delta = node.delta ?? Delta()
       ..insert('');
     final String markdown = DeltaMarkdownEncoder()

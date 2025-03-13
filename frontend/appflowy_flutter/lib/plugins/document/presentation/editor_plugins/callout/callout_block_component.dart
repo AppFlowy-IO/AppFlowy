@@ -186,6 +186,22 @@ class _CalloutBlockComponentWidgetState
   }
 
   @override
+  Widget build(BuildContext context) {
+    Widget child = node.children.isEmpty
+        ? buildComponent(context)
+        : buildComponentWithChildren(context);
+
+    if (UniversalPlatform.isDesktop) {
+      child = Padding(
+        padding: EdgeInsets.symmetric(vertical: 2.0),
+        child: child,
+      );
+    }
+
+    return child;
+  }
+
+  @override
   Widget buildComponentWithChildren(BuildContext context) {
     Widget child = Stack(
       children: [
@@ -287,7 +303,7 @@ class _CalloutBlockComponentWidgetState
         child: child,
       );
     } else {
-      child = Padding(
+      child = Container(
         key: blockComponentKey,
         padding: EdgeInsets.zero,
         child: child,
