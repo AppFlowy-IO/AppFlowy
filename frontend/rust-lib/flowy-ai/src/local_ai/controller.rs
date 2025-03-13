@@ -198,7 +198,7 @@ impl LocalAIController {
       .workspace_id()
       .map(|workspace_id| local_ai_enabled_key(&workspace_id))
     {
-      self.store_preferences.get_bool(&key).unwrap_or(true)
+      self.store_preferences.get_bool(&key).unwrap_or(false)
     } else {
       false
     }
