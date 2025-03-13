@@ -242,7 +242,13 @@ String varNameFor(File file, Options options) {
   return simplified;
 }
 
-const sizeMap = {r'$16x': 's', r'$24x': 'm', r'$32x': 'lg', r'$40x': 'xl'};
+const sizeMap = {
+  r'$16x': 's',
+  r'$20x': 'm',
+  r'$24x': 'm',
+  r'$32x': 'lg',
+  r'$40x': 'xl'
+};
 
 /// cleans the path segment before rejoining the path into a variable name
 String clean(String segment) {

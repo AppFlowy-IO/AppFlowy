@@ -24,11 +24,11 @@ extension DatabaseSettingActionExtension on DatabaseSettingAction {
       case DatabaseSettingAction.showProperties:
         return FlowySvgs.multiselect_s;
       case DatabaseSettingAction.showLayout:
-        return FlowySvgs.database_layout_m;
+        return FlowySvgs.database_layout_s;
       case DatabaseSettingAction.showGroup:
         return FlowySvgs.group_s;
       case DatabaseSettingAction.showCalendarLayout:
-        return FlowySvgs.calendar_layout_m;
+        return FlowySvgs.calendar_layout_s;
     }
   }
 

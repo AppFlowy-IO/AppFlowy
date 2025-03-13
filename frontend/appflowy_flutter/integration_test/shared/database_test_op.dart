@@ -1,17 +1,9 @@
 import 'dart:io';
 
-import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/condition_list.dart';
-import 'package:appflowy/plugins/database/widgets/cell/desktop_row_detail/desktop_row_detail_checklist_cell.dart';
-import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
-import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/calculations/calculation_type_ext.dart';
+import 'package:appflowy/plugins/database/application/field/filter_entities.dart';
 import 'package:appflowy/plugins/database/board/presentation/board_page.dart';
 import 'package:appflowy/plugins/database/board/presentation/widgets/board_column_header.dart';
 import 'package:appflowy/plugins/database/calendar/application/calendar_bloc.dart';
@@ -27,10 +19,11 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/common/type_
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checkbox.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/checklist.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/choicechip.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/date.dart';
+import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/condition_list.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/option_list.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/select_option/select_option.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/text.dart';
-import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/choicechip/date.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/create_filter_list.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/filter/disclosure_button.dart';
 import 'package:appflowy/plugins/database/grid/presentation/widgets/footer/grid_footer.dart';
@@ -44,6 +37,7 @@ import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/filt
 import 'package:appflowy/plugins/database/grid/presentation/widgets/toolbar/sort_button.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/tab_bar_add_button.dart';
 import 'package:appflowy/plugins/database/tab_bar/desktop/tab_bar_header.dart';
+import 'package:appflowy/plugins/database/widgets/cell/desktop_row_detail/desktop_row_detail_checklist_cell.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/checkbox.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/checklist.dart';
 import 'package:appflowy/plugins/database/widgets/cell/editable_cell_skeleton/date.dart';
@@ -76,6 +70,8 @@ import 'package:appflowy/plugins/database/widgets/setting/database_setting_actio
 import 'package:appflowy/plugins/database/widgets/setting/database_settings_list.dart';
 import 'package:appflowy/plugins/database/widgets/setting/setting_button.dart';
 import 'package:appflowy/plugins/database/widgets/setting/setting_property_list.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/util/field_type_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/clear_date_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/date_picker/widgets/date_type_option_button.dart';
@@ -90,6 +86,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text_input.dart';
 import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 // Non-exported member of the table_calendar library
@@ -1572,7 +1571,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
         of: textField,
         matching: find.byWidgetPredicate(
           (widget) =>
-              widget is FlowySvg && widget.svg == FlowySvgs.close_filled_m,
+              widget is FlowySvg && widget.svg == FlowySvgs.close_filled_s,
         ),
       ),
     );

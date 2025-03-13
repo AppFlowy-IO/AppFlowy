@@ -41,6 +41,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     required this.borderColor,
     required this.scrollbarColor,
     required this.scrollbarHoverColor,
+    required this.toolbarHoverColor,
     required this.lightIconColor,
   });
 
@@ -86,6 +87,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
   final Color scrollbarColor;
   final Color scrollbarHoverColor;
 
+  final Color toolbarHoverColor;
   final Color lightIconColor;
 
   @override
@@ -123,6 +125,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
     Color? scrollbarColor,
     Color? scrollbarHoverColor,
     Color? lightIconColor,
+    Color? toolbarHoverColor,
   }) =>
       AFThemeExtension(
         warning: warning ?? this.warning,
@@ -159,6 +162,7 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
         scrollbarColor: scrollbarColor ?? this.scrollbarColor,
         scrollbarHoverColor: scrollbarHoverColor ?? this.scrollbarHoverColor,
         lightIconColor: lightIconColor ?? this.lightIconColor,
+        toolbarHoverColor: toolbarHoverColor ?? this.toolbarHoverColor,
       );
 
   @override
@@ -215,6 +219,8 @@ class AFThemeExtension extends ThemeExtension<AFThemeExtension> {
       scrollbarHoverColor:
           Color.lerp(scrollbarHoverColor, other.scrollbarHoverColor, t)!,
       lightIconColor: Color.lerp(lightIconColor, other.lightIconColor, t)!,
+      toolbarHoverColor:
+          Color.lerp(toolbarHoverColor, other.toolbarHoverColor, t)!,
     );
   }
 }
