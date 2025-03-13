@@ -93,14 +93,24 @@ class AIChatPage extends StatelessWidget {
                 }
               }
             },
-            child: CallbackShortcuts(
-              bindings: {
-                SingleActivator(LogicalKeyboardKey.escape): () {
-                  context.read<ChatBloc>().add(ChatEvent.stopStream());
-                },
-                SingleActivator(control: true, LogicalKeyboardKey.keyC): () {
-                  context.read<ChatBloc>().add(ChatEvent.stopStream());
-                },
+            child: FocusScope(
+              onKeyEvent: (focusNode, event) {
+                if (event is! KeyUpEvent) {
+                  return KeyEventResult.ignored;
+                }
+
+                if (event.logicalKey == LogicalKeyboardKey.escape ||
+                    event.logicalKey == LogicalKeyboardKey.keyC &&
+                        HardwareKeyboard.instance.isControlPressed) {
+                  final chatBloc = context.read<ChatBloc>();
+                  if (chatBloc.state.promptResponseState !=
+                      PromptResponseState.ready) {
+                    chatBloc.add(ChatEvent.stopStream());
+                    return KeyEventResult.handled;
+                  }
+                }
+
+                return KeyEventResult.ignored;
               },
               child: _ChatContentPage(
                 view: view,
