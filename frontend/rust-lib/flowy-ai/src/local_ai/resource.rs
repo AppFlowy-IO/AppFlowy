@@ -14,10 +14,21 @@ use crate::notification::{
 use appflowy_local_ai::ollama_plugin::OllamaPluginConfig;
 use lib_infra::util::{get_operating_system, OperatingSystem};
 use reqwest::Client;
+use serde::Deserialize;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 use tracing::{error, info, instrument, trace};
+
+#[derive(Debug, Deserialize)]
+struct TagsResponse {
+  models: Vec<ModelEntry>,
+}
+
+#[derive(Debug, Deserialize)]
+struct ModelEntry {
+  name: String,
+}
 
 #[async_trait]
 pub trait LLMResourceService: Send + Sync + 'static {
@@ -155,7 +166,6 @@ impl LocalAIResourceController {
     resources.pop().map(|r| r.desc())
   }
 
-  /// Returns true when all resources are downloaded and ready to use.
   pub async fn calculate_pending_resources(&self) -> FlowyResult<Vec<PendingResource>> {
     let mut resources = vec![];
     let app_path = ollama_plugin_path();
@@ -184,39 +194,40 @@ impl LocalAIResourceController {
       },
     }
 
-    let required_models = vec![
-      setting.chat_model_name,
-      setting.embedding_model_name,
-      // Add any additional required models here.
-    ];
-    match tokio::process::Command::new("ollama")
-      .arg("list")
-      .output()
-      .await
-    {
-      Ok(output) if output.status.success() => {
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        for model in &required_models {
-          if !stdout.contains(model.as_str()) {
+    let required_models = vec![setting.chat_model_name, setting.embedding_model_name];
+
+    // Query the /api/tags endpoint to get a structured list of locally available models.
+    let tags_url = format!("{}/api/tags", setting.ollama_server_url);
+
+    match client.get(&tags_url).send().await {
+      Ok(resp) if resp.status().is_success() => {
+        let tags: TagsResponse = resp.json().await.map_err(|e| {
+          log::error!(
+            "[LLM Resource] Failed to parse /api/tags JSON response: {:?}",
+            e
+          );
+          e
+        })?;
+        // Check each required model is present in the response.
+        for required in &required_models {
+          if !tags.models.iter().any(|m| m.name.contains(required)) {
             log::trace!(
-              "[LLM Resource] required model '{}' not found in ollama list",
-              model
+              "[LLM Resource] required model '{}' not found in API response",
+              required
             );
-            resources.push(PendingResource::MissingModel(model.clone()));
+            resources.push(PendingResource::MissingModel(required.clone()));
+            // Optionally, you could continue checking all models rather than returning early.
             return Ok(resources);
           }
         }
       },
-      Ok(output) => {
+      _ => {
         error!(
-          "[LLM Resource] 'ollama list' command failed with status: {:?}",
-          output.status
+          "[LLM Resource] Failed to fetch models from {} (GET /api/tags)",
+          setting.ollama_server_url
         );
         resources.push(PendingResource::OllamaServerNotReady);
-      },
-      Err(e) => {
-        error!("[LLM Resource] failed to execute 'ollama list': {:?}", e);
-        resources.push(PendingResource::OllamaServerNotReady);
+        return Ok(resources);
       },
     }
 
