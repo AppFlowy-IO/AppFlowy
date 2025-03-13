@@ -3,7 +3,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 
 extension SimpleColumnNodeExtension on Node {
   /// Returns the parent [Node] of the current node if it is a [SimpleColumnsBlock].
-  Node? get parentColumnsBlock {
+  Node? get columnsParent {
     Node? currentNode = parent;
     while (currentNode != null) {
       if (currentNode.type == SimpleColumnsBlockKeys.type) {
@@ -15,7 +15,7 @@ extension SimpleColumnNodeExtension on Node {
   }
 
   /// Returns the parent [Node] of the current node if it is a [SimpleColumnBlock].
-  Node? get parentColumn {
+  Node? get columnParent {
     Node? currentNode = parent;
     while (currentNode != null) {
       if (currentNode.type == SimpleColumnBlockKeys.type) {
@@ -27,8 +27,8 @@ extension SimpleColumnNodeExtension on Node {
   }
 
   /// Returns whether the current node is in a [SimpleColumnsBlock].
-  bool get isInColumnsBlock => parentColumnsBlock != null;
+  bool get isInColumnsBlock => columnsParent != null;
 
   /// Returns whether the current node is in a [SimpleColumnBlock].
-  bool get isInColumnBlock => parentColumn != null;
+  bool get isInColumnBlock => columnParent != null;
 }

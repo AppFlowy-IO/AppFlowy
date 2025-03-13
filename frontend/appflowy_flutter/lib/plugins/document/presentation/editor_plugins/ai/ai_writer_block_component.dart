@@ -4,6 +4,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/message/ai_markdown_text.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/util/theme_extension.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -18,6 +19,7 @@ import 'operations/ai_writer_cubit.dart';
 import 'operations/ai_writer_entities.dart';
 import 'operations/ai_writer_node_extension.dart';
 import 'suggestion_action_bar.dart';
+import 'widgets/ai_writer_gesture_detector.dart';
 
 class AiWriterBlockKeys {
   const AiWriterBlockKeys._();
@@ -66,6 +68,10 @@ class AIWriterBlockComponentBuilder extends BlockComponentBuilder {
         blockComponentContext,
         state,
       ),
+      actionTrailingBuilder: (context, state) => actionTrailingBuilder(
+        blockComponentContext,
+        state,
+      ),
     );
   }
 
@@ -83,6 +89,7 @@ class AiWriterBlockComponent extends BlockComponentStatefulWidget {
     required super.node,
     super.showActions,
     super.actionBuilder,
+    super.actionTrailingBuilder,
     super.configuration = const BlockComponentConfiguration(),
   });
 
@@ -163,10 +170,11 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
                   children: [
                     BlocBuilder<AiWriterCubit, AiWriterState>(
                       builder: (context, state) {
-                        return GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => onTapOutside(),
-                          onTapDown: (_) => onTapOutside(),
+                        return AiWriterGestureDetector(
+                          behavior: state is GeneratingAiWriterState
+                              ? HitTestBehavior.opaque
+                              : HitTestBehavior.translucent,
+                          onPointerEvent: () => onTapOutside(),
                         );
                       },
                     ),
@@ -180,6 +188,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
                         ),
                         width: constraints.maxWidth,
                         child: OverlayContent(
+                          editorState: editorState,
                           node: widget.node,
                         ),
                       ),
@@ -229,9 +238,11 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
 class OverlayContent extends StatelessWidget {
   const OverlayContent({
     super.key,
+    required this.editorState,
     required this.node,
   });
 
+  final EditorState editorState;
   final Node node;
 
   @override
@@ -365,28 +376,12 @@ class OverlayContent extends StatelessWidget {
                 ],
               ),
             ),
-            if (showActionPopup) ...[
-              const VSpace(4.0 + 1.0),
-              Container(
-                padding: EdgeInsets.all(8.0),
-                constraints: BoxConstraints(minWidth: 240.0),
-                decoration: _getModalDecoration(
-                  context,
-                  color: Theme.of(context).colorScheme.surface,
-                  borderColor: lightBorderColor,
-                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                ),
-                child: IntrinsicWidth(
-                  child: SeparatedColumn(
-                    separatorBuilder: () => const VSpace(4.0),
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _getCommands(
-                      hasSelection: hasSelection,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ..._bottomActions(
+              context,
+              showActionPopup,
+              hasSelection,
+              lightBorderColor,
+            ),
           ],
         );
       },
@@ -468,6 +463,54 @@ class OverlayContent extends StatelessWidget {
       color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.vertical(bottom: Radius.circular(12.0)),
     );
+  }
+
+  List<Widget> _bottomActions(
+    BuildContext context,
+    bool showActionPopup,
+    bool hasSelection,
+    Color borderColor,
+  ) {
+    if (!showActionPopup) {
+      return [];
+    }
+
+    if (editorState.isEmptyForContinueWriting()) {
+      final documentContext = editorState.document.root.context;
+      if (documentContext == null) {
+        return [];
+      }
+      final view = documentContext.read<ViewBloc>().state.view;
+      if (view.name.isEmpty) {
+        return [];
+      }
+    }
+
+    return [
+      // add one here to take into account the border of the main message box.
+      // It is configured to be on the outside to hide some graphical
+      // artifacts.
+      const VSpace(4.0 + 1.0),
+      Container(
+        padding: EdgeInsets.all(8.0),
+        constraints: BoxConstraints(minWidth: 240.0),
+        decoration: _getModalDecoration(
+          context,
+          color: Theme.of(context).colorScheme.surface,
+          borderColor: borderColor,
+          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+        ),
+        child: IntrinsicWidth(
+          child: SeparatedColumn(
+            separatorBuilder: () => const VSpace(4.0),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: _getCommands(
+              hasSelection: hasSelection,
+            ),
+          ),
+        ),
+      ),
+    ];
   }
 
   List<Widget> _getCommands({required bool hasSelection}) {

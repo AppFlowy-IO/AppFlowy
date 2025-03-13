@@ -123,6 +123,7 @@ class CustomImageBlockComponent extends BlockComponentStatefulWidget {
     required super.node,
     super.showActions,
     super.actionBuilder,
+    super.actionTrailingBuilder,
     super.configuration = const BlockComponentConfiguration(),
     this.showMenu = false,
     this.menuBuilder,
@@ -226,6 +227,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
         delegate: this,
         listenable: editorState.selectionNotifier,
         blockColor: editorState.editorStyle.selectionColor,
+        selectionAboveBlock: true,
         supportTypes: const [BlockSelectionType.block],
         child: child,
       );
@@ -235,6 +237,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
       child = BlockComponentActionWrapper(
         node: node,
         actionBuilder: widget.actionBuilder!,
+        actionTrailingBuilder: widget.actionTrailingBuilder,
         child: child,
       );
     }
@@ -311,7 +314,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
   }) {
     final imageBox = imageKey.currentContext?.findRenderObject();
     if (imageBox is RenderBox) {
-      return Offset.zero & imageBox.size;
+      return padding.topLeft & imageBox.size;
     }
     return Rect.zero;
   }

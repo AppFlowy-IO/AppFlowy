@@ -55,7 +55,7 @@ tokio-postgres = { version = "0.7.8" }
 chrono = "0.4.31"
 zip.workspace = true
 walkdir = "2.5.0"
-futures = "0.3.30"
+futures = "0.3.31"
 flowy-ai-pub = { workspace = true }
 
 [features]

@@ -79,7 +79,7 @@ diesel = { version = "2.1.0", features = [
 ] }
 uuid = { version = "1.5.0", features = ["serde", "v4", "v5"] }
 serde_repr = "0.1"
-futures = "0.3.29"
+futures = "0.3.31"
 tokio = "1.38.0"
 tokio-stream = "0.1.14"
 async-trait = "0.1.81"
@@ -152,5 +152,5 @@ collab-importer = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFl
 # To update the commit ID, run:
 # scripts/tool/update_local_ai_rev.sh new_rev_id
 # ⚠️⚠️⚠️️
-appflowy-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "6f064efe232268f8d396edbb4b84d57fbb640f13" }
-appflowy-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "6f064efe232268f8d396edbb4b84d57fbb640f13" }
+appflowy-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "8fea7ed2375eb54c8dfb8af6db6e32a61854fb2e" }
+appflowy-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "8fea7ed2375eb54c8dfb8af6db6e32a61854fb2e" }

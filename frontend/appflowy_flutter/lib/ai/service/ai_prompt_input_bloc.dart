@@ -36,42 +36,28 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
     on<AIPromptInputEvent>(
       (event, emit) {
         event.when(
-          updateChatState: (LocalAIChatPB chatState) {
-            // Only user enable chat with file and the plugin is already running
-            final supportChatWithFile = chatState.fileEnabled &&
-                chatState.pluginState.state == RunningStatePB.Running;
+          updateAIState: (localAIState) {
+            AiType aiType = localAIState.enabled ? AiType.local : AiType.cloud;
+            bool supportChatWithFile =
+                aiType.isLocal && localAIState.state == RunningStatePB.Running;
 
-            final aiType = chatState.pluginState.state == RunningStatePB.Running
-                ? AIType.localAI
-                : AIType.appflowyAI;
+            if (localAIState.hasLackOfResource()) {
+              aiType = AiType.cloud;
+              supportChatWithFile = false;
+            }
 
             emit(
               state.copyWith(
                 aiType: aiType,
                 supportChatWithFile: supportChatWithFile,
-                chatState: chatState,
-              ),
-            );
-          },
-          updatePluginState: (LocalAIPluginStatePB chatState) {
-            final fileEnabled = state.chatState?.fileEnabled ?? false;
-            final supportChatWithFile =
-                fileEnabled && chatState.state == RunningStatePB.Running;
-
-            final aiType = chatState.state == RunningStatePB.Running
-                ? AIType.localAI
-                : AIType.appflowyAI;
-
-            emit(
-              state.copyWith(
-                supportChatWithFile: supportChatWithFile,
-                aiType: aiType,
+                localAIState: localAIState,
               ),
             );
           },
           toggleShowPredefinedFormat: () {
+            final showPredefinedFormats = !state.showPredefinedFormats;
             final predefinedFormat =
-                !state.showPredefinedFormats && state.predefinedFormat == null
+                showPredefinedFormats && state.predefinedFormat == null
                     ? PredefinedFormat(
                         imageFormat: ImageFormat.text,
                         textFormat: TextFormat.paragraph,
@@ -79,12 +65,15 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
                     : null;
             emit(
               state.copyWith(
-                showPredefinedFormats: !state.showPredefinedFormats,
+                showPredefinedFormats: showPredefinedFormats,
                 predefinedFormat: predefinedFormat,
               ),
             );
           },
           updatePredefinedFormat: (format) {
+            if (!state.showPredefinedFormats) {
+              return;
+            }
             emit(state.copyWith(predefinedFormat: format));
           },
           attachFile: (filePath, fileName) {
@@ -130,22 +119,17 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
     _listener.start(
       stateCallback: (pluginState) {
         if (!isClosed) {
-          add(AIPromptInputEvent.updatePluginState(pluginState));
-        }
-      },
-      chatStateCallback: (chatState) {
-        if (!isClosed) {
-          add(AIPromptInputEvent.updateChatState(chatState));
+          add(AIPromptInputEvent.updateAIState(pluginState));
         }
       },
     );
   }
 
   void _init() {
-    AIEventGetLocalAIChatState().send().fold(
-      (chatState) {
+    AIEventGetLocalAIState().send().fold(
+      (localAIState) {
         if (!isClosed) {
-          add(AIPromptInputEvent.updateChatState(chatState));
+          add(AIPromptInputEvent.updateAIState(localAIState));
         }
       },
       Log.error,
@@ -168,12 +152,8 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
 
 @freezed
 class AIPromptInputEvent with _$AIPromptInputEvent {
-  const factory AIPromptInputEvent.updateChatState(
-    LocalAIChatPB chatState,
-  ) = _UpdateChatState;
-  const factory AIPromptInputEvent.updatePluginState(
-    LocalAIPluginStatePB chatState,
-  ) = _UpdatePluginState;
+  const factory AIPromptInputEvent.updateAIState(LocalAIPB localAIState) =
+      _UpdateAIState;
   const factory AIPromptInputEvent.toggleShowPredefinedFormat() =
       _ToggleShowPredefinedFormat;
   const factory AIPromptInputEvent.updatePredefinedFormat(
@@ -192,30 +172,31 @@ class AIPromptInputEvent with _$AIPromptInputEvent {
 @freezed
 class AIPromptInputState with _$AIPromptInputState {
   const factory AIPromptInputState({
-    required AIType aiType,
+    required AiType aiType,
     required bool supportChatWithFile,
     required bool showPredefinedFormats,
     required PredefinedFormat? predefinedFormat,
-    required LocalAIChatPB? chatState,
+    required LocalAIPB? localAIState,
     required List<ChatFile> attachedFiles,
     required List<ViewPB> mentionedPages,
   }) = _AIPromptInputState;
 
   factory AIPromptInputState.initial(PredefinedFormat? format) =>
       AIPromptInputState(
-        aiType: AIType.appflowyAI,
+        aiType: AiType.cloud,
         supportChatWithFile: false,
         showPredefinedFormats: format != null,
         predefinedFormat: format,
-        chatState: null,
+        localAIState: null,
         attachedFiles: [],
         mentionedPages: [],
       );
 }
 
-enum AIType {
-  appflowyAI,
-  localAI;
+enum AiType {
+  cloud,
+  local;
 
-  bool get isLocalAI => this == localAI;
+  bool get isCloud => this == cloud;
+  bool get isLocal => this == local;
 }

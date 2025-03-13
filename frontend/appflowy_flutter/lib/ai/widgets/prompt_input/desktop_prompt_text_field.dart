@@ -148,14 +148,13 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
                                   start: 8.0,
                                 ),
                                 child: ChangeFormatBar(
+                                  showImageFormats: state.aiType.isCloud,
                                   predefinedFormat: state.predefinedFormat,
                                   spacing: 4.0,
                                   onSelectPredefinedFormat: (format) =>
                                       context.read<AIPromptInputBloc>().add(
                                             AIPromptInputEvent
-                                                .updatePredefinedFormat(
-                                              format,
-                                            ),
+                                                .updatePredefinedFormat(format),
                                           ),
                                 ),
                               ),
@@ -283,10 +282,10 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
       return;
     }
 
-    // handle text and selection changes ONLY when mentioning a page
-
     // disable mention
     return;
+
+    // handle text and selection changes ONLY when mentioning a page
     // ignore: dead_code
     if (!overlayController.isShowing ||
         inputControlCubit.filterStartPosition == -1) {
@@ -384,8 +383,8 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
                 contentPadding:
                     calculateContentPadding(state.showPredefinedFormats),
                 hintText: switch (state.aiType) {
-                  AIType.appflowyAI => LocaleKeys.chat_inputMessageHint.tr(),
-                  AIType.localAI => LocaleKeys.chat_inputLocalAIMessageHint.tr()
+                  AiType.cloud => LocaleKeys.chat_inputMessageHint.tr(),
+                  AiType.local => LocaleKeys.chat_inputLocalAIMessageHint.tr()
                 },
               );
             },
@@ -572,7 +571,7 @@ class _PromptBottomActions extends StatelessWidget {
       margin: DesktopAIChatSizes.inputActionBarMargin,
       child: BlocBuilder<AIPromptInputBloc, AIPromptInputState>(
         builder: (context, state) {
-          if (state.chatState == null) {
+          if (state.localAIState == null) {
             return Align(
               alignment: AlignmentDirectional.centerEnd,
               child: _sendButton(),
@@ -582,7 +581,7 @@ class _PromptBottomActions extends StatelessWidget {
             children: [
               _predefinedFormatButton(),
               const Spacer(),
-              if (state.aiType == AIType.appflowyAI) ...[
+              if (state.aiType.isCloud) ...[
                 _selectSourcesButton(context),
                 const HSpace(
                   DesktopAIChatSizes.inputActionBarButtonSpacing,

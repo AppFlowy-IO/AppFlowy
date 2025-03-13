@@ -111,6 +111,10 @@ class ToggleListBlockComponentBuilder extends BlockComponentBuilder {
         blockComponentContext,
         state,
       ),
+      actionTrailingBuilder: (context, state) => actionTrailingBuilder(
+        blockComponentContext,
+        state,
+      ),
     );
   }
 
@@ -124,6 +128,7 @@ class ToggleListBlockComponentWidget extends BlockComponentStatefulWidget {
     required super.node,
     super.showActions,
     super.actionBuilder,
+    super.actionTrailingBuilder,
     super.configuration = const BlockComponentConfiguration(),
     this.padding = const EdgeInsets.all(0),
     this.textStyleBuilder,
@@ -247,6 +252,7 @@ class _ToggleListBlockComponentWidgetState
       child = BlockComponentActionWrapper(
         node: node,
         actionBuilder: widget.actionBuilder!,
+        actionTrailingBuilder: widget.actionTrailingBuilder,
         child: child,
       );
     }
