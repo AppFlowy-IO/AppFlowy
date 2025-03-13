@@ -16,6 +16,7 @@ use std::collections::HashMap;
 use crate::local_ai::watch::is_plugin_ready;
 use crate::stream_message::StreamMessage;
 use appflowy_local_ai::ollama_plugin::OllamaAIPlugin;
+use appflowy_plugin::core::plugin::RunningState;
 use arc_swap::ArcSwapOption;
 use futures_util::SinkExt;
 use lib_infra::util::get_operating_system;
@@ -97,11 +98,16 @@ impl LocalAIController {
         if let Ok(workspace_id) = cloned_user_service.workspace_id() {
           let key = local_ai_enabled_key(&workspace_id);
           info!("[AI Plugin] state: {:?}", state);
-          let ready = is_plugin_ready();
-          let lack_of_resource = cloned_llm_res.get_lack_of_resource().await;
 
           let new_state = RunningStatePB::from(state);
           let enabled = cloned_store_preferences.get_bool(&key).unwrap_or(true);
+          let mut ready = false;
+          let mut lack_of_resource = None;
+          if enabled {
+            ready = is_plugin_ready();
+            lack_of_resource = cloned_llm_res.get_lack_of_resource().await;
+          }
+
           chat_notification_builder(
             APPFLOWY_AI_NOTIFICATION_KEY,
             ChatNotification::UpdateLocalAIState,
@@ -259,9 +265,14 @@ impl LocalAIController {
   pub async fn get_local_ai_state(&self) -> LocalAIPB {
     let start = std::time::Instant::now();
     let enabled = self.is_enabled();
-    let is_app_downloaded = is_plugin_ready();
-    let state = self.ai_plugin.get_plugin_running_state();
-    let lack_of_resource = self.resource.get_lack_of_resource().await;
+    let mut is_plugin_executable_ready = false;
+    let mut state = RunningState::ReadyToConnect;
+    let mut lack_of_resource = None;
+    if enabled {
+      is_plugin_executable_ready = is_plugin_ready();
+      state = self.ai_plugin.get_plugin_running_state();
+      lack_of_resource = self.resource.get_lack_of_resource().await;
+    }
     let elapsed = start.elapsed();
     debug!(
       "[AI Plugin] get local ai state, elapsed: {:?}, thread: {:?}",
@@ -270,7 +281,7 @@ impl LocalAIController {
     );
     LocalAIPB {
       enabled,
-      is_plugin_executable_ready: is_app_downloaded,
+      is_plugin_executable_ready,
       state: RunningStatePB::from(state),
       lack_of_resource,
     }

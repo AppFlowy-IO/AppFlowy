@@ -237,21 +237,15 @@ impl LocalAIResourceController {
   #[instrument(level = "info", skip_all)]
   pub async fn get_plugin_config(&self, rag_enabled: bool) -> FlowyResult<OllamaPluginConfig> {
     if !self.is_resource_ready().await {
-      return Err(FlowyError::local_ai().with_context("Local AI resources are not ready"));
+      return Err(FlowyError::new(
+        ErrorCode::AppFlowyLAINotReady,
+        "AppFlowyLAI not found",
+      ));
     }
 
     let llm_setting = self.get_llm_setting();
     let bin_path = match get_operating_system() {
-      OperatingSystem::MacOS | OperatingSystem::Windows => {
-        if !is_plugin_ready() {
-          return Err(FlowyError::new(
-            ErrorCode::AppFlowyLAINotReady,
-            "AppFlowyLAI not found",
-          ));
-        }
-
-        ollama_plugin_path()
-      },
+      OperatingSystem::MacOS | OperatingSystem::Windows => ollama_plugin_path(),
       _ => {
         return Err(
           FlowyError::local_ai_unavailable()
