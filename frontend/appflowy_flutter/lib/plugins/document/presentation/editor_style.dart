@@ -28,6 +28,8 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import 'editor_plugins/toolbar_item/more_option_toolbar_item.dart';
+
 class EditorStyleCustomizer {
   EditorStyleCustomizer({
     required this.context,
@@ -58,6 +60,12 @@ class EditorStyleCustomizer {
       documentPadding + EdgeInsets.only(left: optionMenuWidth);
 
   static double get optionMenuWidth => UniversalPlatform.isMobile ? 0 : 44;
+
+  static Color? toolbarHoverColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Theme.of(context).colorScheme.secondary
+        : AFThemeExtension.of(context).toolbarHoverColor;
+  }
 
   EditorStyle style() {
     if (UniversalPlatform.isDesktopOrWeb) {
@@ -305,10 +313,6 @@ class EditorStyleCustomizer {
     );
   }
 
-  FloatingToolbarStyle floatingToolbarStyleBuilder() => FloatingToolbarStyle(
-        backgroundColor: Theme.of(context).colorScheme.onTertiary,
-      );
-
   TextStyle baseTextStyle(String? fontFamily, {FontWeight? fontWeight}) {
     if (fontFamily == null || fontFamily == defaultFontFamily) {
       return TextStyle(fontWeight: fontWeight);
@@ -484,7 +488,7 @@ class EditorStyleCustomizer {
     child = FlowyTooltip(
       richMessage: tooltipMessage,
       preferBelow: false,
-      verticalOffset: 20,
+      verticalOffset: 24,
       child: child,
     );
 
@@ -496,7 +500,7 @@ class EditorStyleCustomizer {
 
     if (!toolbarItemsWithoutHover.contains(id)) {
       child = Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        padding: const EdgeInsets.symmetric(vertical: 6),
         child: FlowyHover(
           style: HoverStyle(
             hoverColor: Colors.grey.withValues(alpha: 0.3),
@@ -547,9 +551,9 @@ class EditorStyleCustomizer {
         ),
         TextSpan(
           text: (Platform.isMacOS ? '⌘+' : 'Ctrl+\\') + tooltip.$2,
-          style: context
-              .tooltipTextStyle()
-              ?.copyWith(color: Theme.of(context).hintColor),
+          style: context.tooltipTextStyle()?.copyWith(
+                color: Theme.of(context).hintColor,
+              ),
         ),
       ],
     );

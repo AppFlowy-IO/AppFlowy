@@ -847,7 +847,7 @@ class _BoardTrailingState extends State<BoardTrailing> {
                       suffixIcon: Padding(
                         padding: const EdgeInsets.only(left: 4, bottom: 8.0),
                         child: FlowyIconButton(
-                          icon: const FlowySvg(FlowySvgs.close_filled_m),
+                          icon: const FlowySvg(FlowySvgs.close_filled_s),
                           hoverColor: Colors.transparent,
                           onPressed: () => _textController.clear(),
                         ),

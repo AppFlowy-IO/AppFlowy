@@ -331,8 +331,7 @@
     "header": "Header",
     "highlight": "Highlight",
     "color": "Color",
-    "addLink": "Add Link",
-    "link": "Link"
+    "addLink": "Add Link"
   },
   "tooltip": {
     "lightMode": "Switch to Light mode",
@@ -2101,7 +2100,20 @@
       "morePages": "more pages"
     },
     "toolbar": {
-      "resetToDefaultFont": "Reset to default"
+      "resetToDefaultFont": "Reset to default",
+      "textSize": "Text Size",
+      "h1": "Heading 1",
+      "h2": "Heading 2",
+      "h3": "Heading 3",
+      "alignLeft": "Align Left",
+      "alignRight": "Align Right",
+      "alignCenter": "Align Center",
+      "link": "Link",
+      "textAlign": "Text Align",
+      "moreOptions": "More Options",
+      "font": "Font",
+      "suggestions": "Suggestions",
+      "turnInto": "Turn Into"
     },
     "errorBlock": {
       "theBlockIsNotSupported": "Unable to parse the block content",

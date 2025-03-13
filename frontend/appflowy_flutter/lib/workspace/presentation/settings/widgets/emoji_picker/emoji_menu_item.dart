@@ -33,15 +33,39 @@ void showEmojiPickerMenu(
   Alignment alignment,
   Offset offset,
 ) {
-  final top = alignment == Alignment.topLeft ? offset.dy : null;
-  final bottom = alignment == Alignment.bottomLeft ? offset.dy : null;
+  (double? left, double? top, double? right, double? bottom) getPosition() {
+    double? left, top, right, bottom;
+    switch (alignment) {
+      case Alignment.topLeft:
+        left = offset.dx;
+        top = offset.dy;
+        break;
+      case Alignment.bottomLeft:
+        left = offset.dx;
+        bottom = offset.dy;
+        break;
+      case Alignment.topRight:
+        right = offset.dx;
+        top = offset.dy;
+        break;
+      case Alignment.bottomRight:
+        right = offset.dx;
+        bottom = offset.dy;
+        break;
+    }
+
+    return (left, top, right, bottom);
+  }
+
+  final (left, top, right, bottom) = getPosition();
 
   keepEditorFocusNotifier.increase();
   late OverlayEntry emojiPickerMenuEntry;
   emojiPickerMenuEntry = FullScreenOverlayEntry(
+    left: left,
     top: top,
     bottom: bottom,
-    left: offset.dx,
+    right: right,
     dismissCallback: () => keepEditorFocusNotifier.decrease(),
     builder: (context) => Material(
       type: MaterialType.transparency,
@@ -56,6 +80,7 @@ void showEmojiPickerMenu(
         child: EmojiSelectionMenu(
           onSubmitted: (emoji) {
             editorState.insertTextAtCurrentSelection(emoji);
+            emojiPickerMenuEntry.remove();
           },
           onExit: () {
             // close emoji panel
