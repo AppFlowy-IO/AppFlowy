@@ -92,8 +92,11 @@ class CloudTypeSwitcher extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDevelopMode = integrationMode().isDevelop;
     // Only show the appflowyCloudDevelop in develop mode
+    // And remove the Local option
     final values = AuthenticatorType.values.where((element) {
       return isDevelopMode || element != AuthenticatorType.appflowyCloudDevelop;
+    }).where((element) {
+      return element != AuthenticatorType.local;
     }).toList();
     return UniversalPlatform.isDesktopOrWeb
         ? SettingsDropdown(
