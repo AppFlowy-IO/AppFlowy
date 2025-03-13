@@ -245,7 +245,9 @@ impl LocalAIResourceController {
 
     let llm_setting = self.get_llm_setting();
     let bin_path = match get_operating_system() {
-      OperatingSystem::MacOS | OperatingSystem::Windows => ollama_plugin_path(),
+      OperatingSystem::MacOS | OperatingSystem::Windows | OperatingSystem::Linux => {
+        ollama_plugin_path()
+      },
       _ => {
         return Err(
           FlowyError::local_ai_unavailable()
