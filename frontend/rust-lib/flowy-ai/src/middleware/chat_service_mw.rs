@@ -163,7 +163,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
         let row = self.get_message_record(question_id)?;
         match self
           .local_ai
-          .stream_question(chat_id, &row.content, json!({}))
+          .stream_question(chat_id, &row.content, Some(json!(format)), json!({}))
           .await
         {
           Ok(stream) => Ok(QuestionStream::new(stream).boxed()),
@@ -277,7 +277,11 @@ impl ChatCloudService for AICloudServiceMiddleware {
     if self.local_ai.is_running() {
       match self
         .local_ai
-        .complete_text(&params.text, params.completion_type.unwrap() as u8)
+        .complete_text(
+          &params.text,
+          params.completion_type.unwrap() as u8,
+          Some(json!(params.format)),
+        )
         .await
       {
         Ok(stream) => Ok(
@@ -298,7 +302,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
     }
   }
 
-  async fn index_file(
+  async fn embed_file(
     &self,
     workspace_id: &str,
     file_path: &Path,
@@ -308,14 +312,14 @@ impl ChatCloudService for AICloudServiceMiddleware {
     if self.local_ai.is_running() {
       self
         .local_ai
-        .index_file(chat_id, Some(file_path.to_path_buf()), None, metadata)
+        .embed_file(chat_id, Some(file_path.to_path_buf()), None, metadata)
         .await
         .map_err(|err| FlowyError::local_ai().with_context(err))?;
       Ok(())
     } else {
       self
         .cloud_service
-        .index_file(workspace_id, file_path, chat_id, metadata)
+        .embed_file(workspace_id, file_path, chat_id, metadata)
         .await
     }
   }
