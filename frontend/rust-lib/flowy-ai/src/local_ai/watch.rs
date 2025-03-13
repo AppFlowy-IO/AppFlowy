@@ -121,9 +121,11 @@ pub(crate) fn ollama_plugin_command_available() -> bool {
   if cfg!(windows) {
     #[cfg(windows)]
     {
-      // 1. Try "where" command first
+      use std::os::windows::process::CommandExt;
+      const CREATE_NO_WINDOW: u32 = 0x08000000;
       let output = Command::new("cmd")
-        .args(["/C", "where", "ollama_ai_plugin"])
+        .args(&["/C", "where", "ollama_ai_plugin"])
+        .creation_flags(CREATE_NO_WINDOW)
         .output();
       if let Ok(output) = output {
         if !output.stdout.is_empty() {
