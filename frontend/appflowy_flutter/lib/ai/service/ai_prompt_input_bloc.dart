@@ -39,19 +39,14 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
       (event, emit) {
         event.when(
           updateAIState: (localAIState) {
-            AiType aiType = localAIState.enabled ? AiType.local : AiType.cloud;
-            bool supportChatWithFile =
+            final aiType = localAIState.enabled ? AiType.local : AiType.cloud;
+            final supportChatWithFile =
                 aiType.isLocal && localAIState.state == RunningStatePB.Running;
 
             // If local ai is enabled, user can only send messages when the AI is running
             final editable = localAIState.enabled
                 ? localAIState.state == RunningStatePB.Running
                 : true;
-
-            if (localAIState.hasLackOfResource()) {
-              aiType = AiType.cloud;
-              supportChatWithFile = false;
-            }
 
             var hintText = aiType.isLocal
                 ? LocaleKeys.chat_inputLocalAIMessageHint.tr()
