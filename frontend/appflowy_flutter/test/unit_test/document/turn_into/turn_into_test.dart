@@ -164,8 +164,6 @@ void main() {
 
     for (final type in [
       HeadingBlockKeys.type,
-      QuoteBlockKeys.type,
-      CalloutBlockKeys.type,
     ]) {
       test('from nested bulleted list to $type', () async {
         const text = 'bulleted list';
@@ -230,8 +228,6 @@ void main() {
 
     for (final type in [
       HeadingBlockKeys.type,
-      QuoteBlockKeys.type,
-      CalloutBlockKeys.type,
     ]) {
       test('from nested numbered list to $type', () async {
         const text = 'numbered list';
@@ -296,8 +292,6 @@ void main() {
 
     for (final type in [
       HeadingBlockKeys.type,
-      QuoteBlockKeys.type,
-      CalloutBlockKeys.type,
     ]) {
       // numbered list, bulleted list, todo list
       // before
@@ -392,6 +386,8 @@ void main() {
       BulletedListBlockKeys.type,
       NumberedListBlockKeys.type,
       TodoListBlockKeys.type,
+      QuoteBlockKeys.type,
+      CalloutBlockKeys.type,
     ]) {
       // numbered list, bulleted list, todo list
       // before
