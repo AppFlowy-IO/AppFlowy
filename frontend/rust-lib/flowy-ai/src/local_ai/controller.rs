@@ -392,7 +392,7 @@ impl LocalAIController {
       .await;
 
     let result = self
-      .index_file(chat_id, file_path, content, Some(index_metadata.clone()))
+      .embed_file(chat_id, file_path, content, Some(index_metadata.clone()))
       .await;
     match result {
       Ok(_) => {

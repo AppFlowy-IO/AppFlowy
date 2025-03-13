@@ -92,7 +92,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
     params: CompleteTextParams,
   ) -> Result<StreamComplete, FlowyError>;
 
-  async fn index_file(
+  async fn embed_file(
     &self,
     workspace_id: &str,
     file_path: &Path,

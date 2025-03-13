@@ -781,7 +781,7 @@ impl ChatCloudService for ServerProvider {
       .await
   }
 
-  async fn index_file(
+  async fn embed_file(
     &self,
     workspace_id: &str,
     file_path: &Path,
@@ -791,7 +791,7 @@ impl ChatCloudService for ServerProvider {
     self
       .get_server()?
       .chat_service()
-      .index_file(workspace_id, file_path, chat_id, metadata)
+      .embed_file(workspace_id, file_path, chat_id, metadata)
       .await
   }
 
