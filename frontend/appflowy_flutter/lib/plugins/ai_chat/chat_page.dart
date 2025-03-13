@@ -319,6 +319,10 @@ class _ChatContentPage extends StatelessWidget {
       );
     }
 
+    context
+        .read<ChatSelectMessageBloc>()
+        .add(ChatSelectMessageEvent.enableStartSelectingMessages());
+
     return BlocSelector<ChatSelectMessageBloc, ChatSelectMessageState, bool>(
       selector: (state) => state.isSelectingMessages,
       builder: (context, isSelectingMessages) {
