@@ -339,7 +339,7 @@ class _TurnInfoButton extends StatelessWidget {
       case NumberedListBlockKeys.type:
         return LocaleKeys.document_slashMenu_name_numberedList.tr();
       case TodoListBlockKeys.type:
-        return LocaleKeys.document_slashMenu_name_todoList.tr();
+        return LocaleKeys.editor_checkbox.tr();
       case CalloutBlockKeys.type:
         return LocaleKeys.document_slashMenu_name_callout.tr();
       case SubPageBlockKeys.type:

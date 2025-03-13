@@ -297,7 +297,7 @@ enum SuggestionType {
   h1(SuggestionGroup.textHeading),
   h2(SuggestionGroup.textHeading),
   h3(SuggestionGroup.textHeading),
-  todo(SuggestionGroup.list),
+  checkbox(SuggestionGroup.list),
   bulleted(SuggestionGroup.list),
   numbered(SuggestionGroup.list),
   toggle(SuggestionGroup.toggle),
@@ -335,13 +335,13 @@ final h2SuggestionItem = SuggestionItem(
 
 final h3SuggestionItem = SuggestionItem(
   type: SuggestionType.h3,
-  title: LocaleKeys.document_slashMenu_name_todoList.tr(),
+  title: LocaleKeys.document_toolbar_h3.tr(),
   svg: FlowySvgs.type_h3_m,
   onTap: (state) => _turnInto(state, HeadingBlockKeys.type, level: 3),
 );
 
 final checkboxSuggestionItem = SuggestionItem(
-  type: SuggestionType.todo,
+  type: SuggestionType.checkbox,
   title: LocaleKeys.editor_checkbox.tr(),
   svg: FlowySvgs.type_todo_m,
   onTap: (state) => _turnInto(state, TodoListBlockKeys.type),
@@ -435,6 +435,6 @@ final nodeType2SuggestionType = UnmodifiableMapView({
   NumberedListBlockKeys.type: SuggestionType.numbered,
   BulletedListBlockKeys.type: SuggestionType.bulleted,
   QuoteBlockKeys.type: SuggestionType.quote,
-  TodoListBlockKeys.type: SuggestionType.todo,
+  TodoListBlockKeys.type: SuggestionType.checkbox,
   CalloutBlockKeys.type: SuggestionType.callOut,
 });
