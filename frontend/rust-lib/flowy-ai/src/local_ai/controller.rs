@@ -310,10 +310,7 @@ impl LocalAIController {
     let key = local_ai_enabled_key(&workspace_id);
     let enabled = !self.store_preferences.get_bool(&key).unwrap_or(true);
     self.store_preferences.set_bool(&key, enabled)?;
-
-    if self.resource.is_resource_ready().await {
-      self.toggle_plugin(enabled).await?;
-    }
+    self.toggle_plugin(enabled).await?;
 
     Ok(enabled)
   }
