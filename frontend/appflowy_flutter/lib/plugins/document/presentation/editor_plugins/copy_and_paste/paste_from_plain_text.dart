@@ -32,8 +32,11 @@ extension PasteFromPlainText on EditorState {
 
     await deleteSelectionIfNeeded();
 
+    /// try to parse the plain text as markdown
     final nodes = customMarkdownToDocument(plainText).root.children;
     if (nodes.isEmpty) {
+      /// if the markdown parser failed, fallback to the plain text parser
+      await pastePlainText(plainText);
       return;
     }
     if (nodes.length == 1) {
