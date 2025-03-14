@@ -10,10 +10,8 @@ import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -107,6 +105,7 @@ class CustomViewAction extends StatelessWidget {
     required this.view,
     required this.leftIcon,
     required this.label,
+    this.tooltipMessage,
     this.disabled = false,
     this.onTap,
     this.mutex,
@@ -116,6 +115,7 @@ class CustomViewAction extends StatelessWidget {
   final FlowySvgData leftIcon;
   final String label;
   final bool disabled;
+  final String? tooltipMessage;
   final VoidCallback? onTap;
   final PopoverMutex? mutex;
 
@@ -124,20 +124,23 @@ class CustomViewAction extends StatelessWidget {
     return Container(
       height: 34,
       padding: const EdgeInsets.symmetric(vertical: 2.0),
-      child: FlowyButton(
-        margin: const EdgeInsets.symmetric(horizontal: 6),
-        disable: disabled,
-        onTap: onTap,
-        leftIcon: FlowySvg(
-          leftIcon,
-          size: const Size.square(16.0),
-          color: disabled ? Theme.of(context).disabledColor : null,
-        ),
-        iconPadding: 10.0,
-        text: FlowyText(
-          label,
-          figmaLineHeight: 18.0,
-          color: disabled ? Theme.of(context).disabledColor : null,
+      child: FlowyTooltip(
+        message: tooltipMessage,
+        child: FlowyButton(
+          margin: const EdgeInsets.symmetric(horizontal: 6),
+          disable: disabled,
+          onTap: onTap,
+          leftIcon: FlowySvg(
+            leftIcon,
+            size: const Size.square(16.0),
+            color: disabled ? Theme.of(context).disabledColor : null,
+          ),
+          iconPadding: 10.0,
+          text: FlowyText(
+            label,
+            figmaLineHeight: 18.0,
+            color: disabled ? Theme.of(context).disabledColor : null,
+          ),
         ),
       ),
     );
