@@ -152,6 +152,8 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
 
   Widget buildPopoverContent() {
     final showFormula = onlyShowInSingleSelectionAndTextType(editorState);
+    final strikethroughColor = getStrikethroughColor();
+    final Color? formulaColor = showFormula ? getFormulaColor() : null;
     return MouseRegion(
       child: SeparatedColumn(
         mainAxisSize: MainAxisSize.min,
@@ -160,12 +162,14 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
           buildFontSelector(),
           buildCommandItem(
             MoreOptionCommand.strikethrough,
-            getStrikethroughColor(),
+            strikethroughColor,
+            strikethroughColor != null,
           ),
           if (showFormula)
             buildCommandItem(
               MoreOptionCommand.formula,
-              getFormulaColor(),
+              formulaColor,
+              formulaColor != null,
             ),
         ],
       ),
@@ -174,7 +178,8 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
 
   Widget buildCommandItem(
     MoreOptionCommand command,
-    Color? color, {
+    Color? color,
+    bool isSelected, {
     Widget? rightIcon,
   }) {
     final isFontCommand = command == MoreOptionCommand.font;
@@ -182,18 +187,16 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
       height: 36,
       child: FlowyButton(
         key: isFontCommand ? kFontFamilyToolbarItemKey : null,
+        isSelected: isSelected,
+        hoverColor: color,
         leftIconSize: const Size.square(20),
-        leftIcon: FlowySvg(
-          command.svg,
-          color: color,
-        ),
+        leftIcon: FlowySvg(command.svg),
         rightIcon: rightIcon,
         iconPadding: 12,
         text: FlowyText(
           command.title,
           figmaLineHeight: 20,
           fontWeight: FontWeight.w400,
-          color: color,
         ),
         onTap: () {
           command.onExecute(editorState);
@@ -235,6 +238,7 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
       child: buildCommandItem(
         MoreOptionCommand.font,
         null,
+        false,
         rightIcon: FlowySvg(FlowySvgs.toolbar_arrow_right_m),
       ),
     );

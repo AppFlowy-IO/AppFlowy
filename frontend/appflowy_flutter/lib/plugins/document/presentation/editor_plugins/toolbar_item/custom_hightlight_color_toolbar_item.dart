@@ -55,10 +55,12 @@ class _HighlightColorPickerWidgetState
   @override
   Widget build(BuildContext context) {
     final selectionRectList = editorState.selectionRects();
+    final top =
+        selectionRectList.isEmpty ? 0.0 : selectionRectList.first.height;
     return AppFlowyPopover(
       controller: popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
-      offset: Offset(0, selectionRectList.first.height),
+      offset: Offset(0, top),
       onOpen: () => keepEditorFocusNotifier.increase(),
       onClose: () {
         setState(() {

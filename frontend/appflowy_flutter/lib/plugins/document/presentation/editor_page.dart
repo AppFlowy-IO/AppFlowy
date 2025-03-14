@@ -426,6 +426,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
         padding: EdgeInsets.symmetric(horizontal: 6),
         style: FloatingToolbarStyle(
           backgroundColor: Theme.of(context).cardColor,
+          toolbarActiveColor: Color(0xffe0f8fd),
           toolbarElevation: 10,
         ),
         items: toolbarItems,
