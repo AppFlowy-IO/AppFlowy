@@ -1064,6 +1064,11 @@ TextStyle _buildTextStyleInTableCell(
 }) {
   TextStyle textStyle = configuration.textStyle(node, textSpan: textSpan);
 
+  textStyle = textStyle.copyWith(
+    fontFamily: textSpan?.style?.fontFamily,
+    fontSize: textSpan?.style?.fontSize,
+  );
+
   if (node.isInHeaderColumn ||
       node.isInHeaderRow ||
       node.isInBoldColumn ||

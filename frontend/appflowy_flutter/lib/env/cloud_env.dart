@@ -100,6 +100,10 @@ bool get isAuthEnabled {
   return false;
 }
 
+bool get isLocalAuthEnabled {
+  return currentCloudType().isLocal;
+}
+
 /// Determines if AppFlowy Cloud is enabled.
 bool get isAppFlowyCloudEnabled {
   return currentCloudType().isAppFlowyCloudEnabled;

@@ -1,3 +1,4 @@
+import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/anon_user_bloc.dart';
@@ -134,6 +135,32 @@ class SignInAnonymousButtonV2 extends StatelessWidget {
             ),
           ),
         );
+      },
+    );
+  }
+}
+
+class ChangeCloudModeButton extends StatelessWidget {
+  const ChangeCloudModeButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyButton(
+      useIntrinsicWidth: true,
+      text: FlowyText(
+        'Cloud',
+        decoration: TextDecoration.underline,
+        color: Colors.grey,
+        fontSize: 12,
+      ),
+      onTap: () async {
+        await useAppFlowyBetaCloudWithURL(
+          kAppflowyCloudUrl,
+          AuthenticatorType.appflowyCloud,
+        );
+        await runAppFlowy();
       },
     );
   }
