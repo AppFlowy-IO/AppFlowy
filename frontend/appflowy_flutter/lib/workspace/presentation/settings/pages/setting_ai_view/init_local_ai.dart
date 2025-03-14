@@ -30,10 +30,14 @@ class InitLocalAIIndicator extends StatelessWidget {
                 return Row(
                   children: [
                     const HSpace(8),
-                    FlowyText(
-                      LocaleKeys.settings_aiPage_keys_localAIInitializing.tr(),
-                      fontSize: 11,
-                      color: const Color(0xFF1E4620),
+                    Expanded(
+                      child: FlowyText(
+                        LocaleKeys.settings_aiPage_keys_localAIInitializing
+                            .tr(),
+                        fontSize: 11,
+                        color: const Color(0xFF1E4620),
+                        maxLines: 3,
+                      ),
                     ),
                   ],
                 );

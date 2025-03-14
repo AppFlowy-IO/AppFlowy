@@ -849,7 +849,7 @@
         "downloadAIModelButton": "Download",
         "downloadingModel": "Downloading",
         "localAILoaded": "Local AI Model successfully added and ready to use",
-        "localAIStart": "Local AI is starting. If you find it take too long, you can disable it and enable it again",
+        "localAIStart": "Local AI is starting. If it’s slow, try toggling it off and on",
         "localAILoading": "Local AI Chat Model is loading...",
         "localAIStopped": "Local AI stopped",
         "localAIRunning": "Local AI is running",
