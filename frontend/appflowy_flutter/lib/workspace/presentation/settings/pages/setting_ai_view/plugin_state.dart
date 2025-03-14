@@ -44,7 +44,12 @@ class _PrepareRunning extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        FlowyText(LocaleKeys.settings_aiPage_keys_localAIStart.tr()),
+        Expanded(
+          child: FlowyText(
+            LocaleKeys.settings_aiPage_keys_localAIStart.tr(),
+            maxLines: 3,
+          ),
+        ),
       ],
     );
   }
