@@ -151,7 +151,8 @@
     "charCountLabel": "Character count: ",
     "createdAtLabel": "Created: ",
     "syncedAtLabel": "Synced: ",
-    "saveAsNewPage": "Add messages to page"
+    "saveAsNewPage": "Add messages to page",
+    "saveAsNewPageDisabled": "No messages available"
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",
