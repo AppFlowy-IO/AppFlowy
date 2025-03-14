@@ -30,6 +30,8 @@ class MarkdownTextRobot {
 
   bool get hasAnyResult => _markdownText.isNotEmpty;
 
+  String get markdownText => _markdownText;
+
   Selection? getInsertedSelection() {
     final position = _insertPosition;
     if (position == null) {

@@ -4,8 +4,8 @@ use std::collections::HashMap;
 use crate::local_ai::controller::LocalAISetting;
 use crate::local_ai::resource::PendingResource;
 use flowy_ai_pub::cloud::{
-  ChatMessage, ChatMessageMetadata, ChatMessageType, LLMModel, OutputContent, OutputLayout,
-  RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion, ResponseFormat,
+  ChatMessage, ChatMessageMetadata, ChatMessageType, CompletionRecord, LLMModel, OutputContent,
+  OutputLayout, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion, ResponseFormat,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_infra::validator_fn::required_not_empty_str;
@@ -358,6 +358,9 @@ pub struct CompleteTextPB {
 
   #[pb(index = 6)]
   pub rag_ids: Vec<String>,
+
+  #[pb(index = 7)]
+  pub history: Vec<CompletionRecordPB>,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
@@ -376,6 +379,28 @@ pub enum CompletionTypePB {
   ImproveWriting = 4,
   MakeShorter = 5,
   MakeLonger = 6,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct CompletionRecordPB {
+  #[pb(index = 1)]
+  pub role: ChatMessageTypePB,
+
+  #[pb(index = 2)]
+  pub content: String,
+}
+
+impl From<&CompletionRecordPB> for CompletionRecord {
+  fn from(value: &CompletionRecordPB) -> Self {
+    CompletionRecord {
+      role: match value.role {
+        // Coerce ChatMessageTypePB::System to AI
+        ChatMessageTypePB::System => "ai".to_string(),
+        ChatMessageTypePB::User => "human".to_string(),
+      },
+      content: value.content.clone(),
+    }
+  }
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]

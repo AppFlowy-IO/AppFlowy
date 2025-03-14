@@ -1,8 +1,8 @@
 use bytes::Bytes;
 pub use client_api::entity::ai_dto::{
-  AppFlowyOfflineAI, CompleteTextParams, CompletionMetadata, CompletionType, CreateChatContext,
-  LLMModel, LocalAIConfig, ModelInfo, ModelList, OutputContent, OutputLayout, RelatedQuestion,
-  RepeatedRelatedQuestion, ResponseFormat, StringOrMessage,
+  AppFlowyOfflineAI, CompleteTextParams, CompletionMetadata, CompletionRecord, CompletionType,
+  CreateChatContext, LLMModel, LocalAIConfig, ModelInfo, ModelList, OutputContent, OutputLayout,
+  RelatedQuestion, RepeatedRelatedQuestion, ResponseFormat, StringOrMessage,
 };
 pub use client_api::entity::billing_dto::SubscriptionPlan;
 pub use client_api::entity::chat_dto::{
