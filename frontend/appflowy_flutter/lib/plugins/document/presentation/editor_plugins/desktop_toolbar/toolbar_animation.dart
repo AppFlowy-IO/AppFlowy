@@ -4,7 +4,7 @@ class ToolbarAnimationWidget extends StatefulWidget {
   const ToolbarAnimationWidget({
     super.key,
     required this.child,
-    this.duration = const Duration(milliseconds: 100),
+    this.duration = const Duration(milliseconds: 150),
     this.beginOpacity = 0.0,
     this.endOpacity = 1.0,
     this.beginScaleFactor = 0.95,

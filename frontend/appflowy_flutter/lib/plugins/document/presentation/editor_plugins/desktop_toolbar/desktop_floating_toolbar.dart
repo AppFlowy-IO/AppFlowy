@@ -51,7 +51,7 @@ class _DesktopFloatingToolbarState extends State<DesktopFloatingToolbar> {
     Rect rect,
   ) {
     final bool isLongMenu = onlyShowInSingleSelectionAndTextType(editorState);
-    final menuWidth = isLongMenu ? 660.0 : 420.0;
+    final menuWidth = isLongMenu ? 650.0 : 420.0;
     final editorOffset =
         editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
     final editorSize = editorState.renderBox?.size ?? Size.zero;
