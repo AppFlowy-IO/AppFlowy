@@ -6,6 +6,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 const _kHighlightColorItemId = 'editor.highlightColor';
+String? _customHighlightColorHex;
 
 final customHighlightColorItem = ToolbarItem(
   id: _kHighlightColorItemId,
@@ -133,8 +134,12 @@ class _HighlightColorPickerWidgetState
         title: AppFlowyEditorL10n.current.highlightColor,
         showClearButton: showClearButton,
         selectedColorHex: highlightColorHex,
+        customColorHex: _customHighlightColorHex,
         colorOptions: generateHighlightColorOptions(),
-        onSubmittedColorHex: (color) {
+        onSubmittedColorHex: (color, isCustomColor) {
+          if (isCustomColor) {
+            _customHighlightColorHex = color;
+          }
           formatHighlightColor(
             editorState,
             editorState.selection,

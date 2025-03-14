@@ -133,24 +133,20 @@ class _TextAlignActionListState extends State<TextAlignActionList> {
           final isHighlight = nodes.every(
             (n) => n.attributes[blockComponentAlign] == command.name,
           );
-          final color =
-              isHighlight ? highlightColor : Theme.of(context).iconTheme.color;
 
           return SizedBox(
             height: 36,
             child: FlowyButton(
               leftIconSize: const Size.square(20),
-              leftIcon: FlowySvg(
-                command.svg,
-                color: color,
-              ),
+              leftIcon: FlowySvg(command.svg),
               iconPadding: 12,
               text: FlowyText(
                 command.title,
                 fontWeight: FontWeight.w400,
                 figmaLineHeight: 20,
-                color: color,
               ),
+              rightIcon:
+                  isHighlight ? FlowySvg(FlowySvgs.toolbar_check_m) : null,
               onTap: () {
                 command.onAlignChanged(editorState);
                 popoverController.close();
@@ -194,6 +190,10 @@ enum TextAlignCommand {
           blockComponentAlign: name,
         },
       ),
+      selectionExtraInfo: {
+        selectionExtraInfoDoNotAttachTextService: true,
+        selectionExtraInfoDisableFloatingToolbar: true,
+      },
     );
   }
 }

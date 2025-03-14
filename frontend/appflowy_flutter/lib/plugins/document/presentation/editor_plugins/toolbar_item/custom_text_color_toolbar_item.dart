@@ -6,6 +6,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
 const _kTextColorItemId = 'editor.textColor';
+String? _customColorHex;
 
 final customTextColorItem = ToolbarItem(
   id: _kTextColorItemId,
@@ -133,8 +134,12 @@ class _TextColorPickerWidgetState extends State<TextColorPickerWidget> {
         title: AppFlowyEditorL10n.current.textColor,
         showClearButton: showClearButton,
         selectedColorHex: textColorHex,
+        customColorHex: _customColorHex,
         colorOptions: generateTextColorOptions(),
-        onSubmittedColorHex: (color) {
+        onSubmittedColorHex: (color, isCustomColor) {
+          if (isCustomColor) {
+            _customColorHex = color;
+          }
           formatFontColor(
             editorState,
             editorState.selection,

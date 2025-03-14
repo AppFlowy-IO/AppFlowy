@@ -162,14 +162,16 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
           buildFontSelector(),
           buildCommandItem(
             MoreOptionCommand.strikethrough,
-            strikethroughColor,
-            strikethroughColor != null,
+            rightIcon: strikethroughColor != null
+                ? FlowySvg(FlowySvgs.toolbar_check_m)
+                : null,
           ),
           if (showFormula)
             buildCommandItem(
               MoreOptionCommand.formula,
-              formulaColor,
-              formulaColor != null,
+              rightIcon: formulaColor != null
+                  ? FlowySvg(FlowySvgs.toolbar_check_m)
+                  : null,
             ),
         ],
       ),
@@ -177,9 +179,7 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
   }
 
   Widget buildCommandItem(
-    MoreOptionCommand command,
-    Color? color,
-    bool isSelected, {
+    MoreOptionCommand command, {
     Widget? rightIcon,
   }) {
     final isFontCommand = command == MoreOptionCommand.font;
@@ -187,8 +187,6 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
       height: 36,
       child: FlowyButton(
         key: isFontCommand ? kFontFamilyToolbarItemKey : null,
-        isSelected: isSelected,
-        hoverColor: color,
         leftIconSize: const Size.square(20),
         leftIcon: FlowySvg(command.svg),
         rightIcon: rightIcon,
@@ -237,8 +235,6 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
       },
       child: buildCommandItem(
         MoreOptionCommand.font,
-        null,
-        false,
         rightIcon: FlowySvg(FlowySvgs.toolbar_arrow_right_m),
       ),
     );

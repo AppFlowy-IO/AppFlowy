@@ -7,17 +7,21 @@ import 'package:appflowy_editor/src/editor/toolbar/desktop/items/utils/tooltip_u
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 
+import 'custom_placeholder_toolbar_item.dart';
+
 final List<ToolbarItem> customMarkdownFormatItems = [
   _FormatToolbarItem(
     id: 'bold',
     name: 'bold',
     svg: FlowySvgs.toolbar_bold_m,
   ),
+  group1PaddingItem,
   _FormatToolbarItem(
     id: 'underline',
     name: 'underline',
     svg: FlowySvgs.toolbar_underline_m,
   ),
+  group1PaddingItem,
   _FormatToolbarItem(
     id: 'italic',
     name: 'italic',
