@@ -27,7 +27,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::select;
 use tokio_stream::StreamExt;
-use tracing::{debug, error, info, instrument, trace, warn};
+use tracing::{debug, error, info, instrument, trace};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct LocalAISetting {
@@ -193,14 +193,6 @@ impl LocalAIController {
   /// AppFlowy store the value in local storage isolated by workspace id. Each workspace can have
   /// different settings.
   pub fn is_enabled(&self) -> bool {
-    if !get_operating_system().is_desktop() {
-      warn!(
-        "[AI Plugin] unsupported platform when checking local ai is enabled: {:?}",
-        get_operating_system()
-      );
-      return false;
-    }
-
     if let Ok(key) = self
       .user_service
       .workspace_id()
