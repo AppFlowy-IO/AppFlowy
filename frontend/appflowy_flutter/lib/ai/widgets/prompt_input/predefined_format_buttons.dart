@@ -48,7 +48,7 @@ class ChangeFormatBar extends StatelessWidget {
     required this.predefinedFormat,
     required this.spacing,
     required this.onSelectPredefinedFormat,
-    this.showImageFormats = false,
+    this.showImageFormats = true,
   });
 
   final PredefinedFormat? predefinedFormat;
