@@ -115,7 +115,7 @@ impl Chat {
         &self.chat_id,
         params.message,
         params.message_type.clone(),
-        &params.metadata,
+        &[],
       )
       .await
       .map_err(|err| {
@@ -126,6 +126,7 @@ impl Chat {
     let _ = question_sink
       .send(StreamMessage::MessageId(question.message_id).to_string())
       .await;
+
     if let Err(err) = self
       .chat_service
       .index_message_metadata(&self.chat_id, &params.metadata, &mut question_sink)
