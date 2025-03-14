@@ -144,9 +144,10 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
                   fontWeight: FontWeight.w400,
                   figmaLineHeight: 20,
                 ),
+                HSpace(4),
                 FlowySvg(
                   FlowySvgs.toolbar_arrow_down_m,
-                  size: Size.square(20),
+                  size: Size(12, 20),
                   color: iconColor,
                 ),
               ],

@@ -91,9 +91,10 @@ class _TextHeadingActionListState extends State<TextHeadingActionList> {
             size: Size.square(20),
             color: iconColor,
           ),
+          HSpace(4),
           FlowySvg(
             FlowySvgs.toolbar_arrow_down_m,
-            size: Size.square(20),
+            size: Size(12, 20),
             color: iconColor,
           ),
         ],
