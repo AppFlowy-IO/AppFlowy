@@ -24,11 +24,6 @@ void main() {
       void Function(EditorState editorState, Node node)? afterTurnInto,
     }) async {
       final editorState = EditorState(document: document);
-      final cubit = BlockActionOptionCubit(
-        editorState: editorState,
-        blockComponentBuilder: {},
-      );
-
       final types = toType == null
           ? EditorOptionActionType.turnInto.supportTypes
           : [toType];
@@ -43,7 +38,12 @@ void main() {
 
         final node = editorState.getNodeAtPath([0])!;
         expect(node.type, originalType);
-        final result = await cubit.turnIntoBlock(type, node, level: level);
+        final result = await BlockActionOptionCubit.turnIntoBlock(
+          type,
+          node,
+          editorState,
+          level: level,
+        );
         expect(result, true);
         final newNode = editorState.getNodeAtPath([0])!;
         expect(newNode.type, type);
@@ -59,9 +59,10 @@ void main() {
             Selection.collapsed(
               Position(path: [0]),
             );
-        await cubit.turnIntoBlock(
+        await BlockActionOptionCubit.turnIntoBlock(
           originalType,
           newNode,
+          editorState,
         );
         expect(result, true);
       }

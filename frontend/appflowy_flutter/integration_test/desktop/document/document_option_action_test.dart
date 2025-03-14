@@ -81,8 +81,7 @@ void main() {
         LocaleKeys.document_slashMenu_name_numberedList.tr():
             NumberedListBlockKeys.type,
         LocaleKeys.document_slashMenu_name_quote.tr(): QuoteBlockKeys.type,
-        LocaleKeys.document_slashMenu_name_todoList.tr():
-            TodoListBlockKeys.type,
+        LocaleKeys.editor_checkbox.tr(): TodoListBlockKeys.type,
         LocaleKeys.document_slashMenu_name_callout.tr(): CalloutBlockKeys.type,
         LocaleKeys.document_slashMenu_name_text.tr(): ParagraphBlockKeys.type,
       };
@@ -122,8 +121,7 @@ void main() {
         LocaleKeys.document_slashMenu_name_numberedList.tr():
             NumberedListBlockKeys.type,
         LocaleKeys.document_slashMenu_name_quote.tr(): QuoteBlockKeys.type,
-        LocaleKeys.document_slashMenu_name_todoList.tr():
-            TodoListBlockKeys.type,
+        LocaleKeys.editor_checkbox.tr(): TodoListBlockKeys.type,
         LocaleKeys.document_slashMenu_name_callout.tr(): CalloutBlockKeys.type,
         LocaleKeys.document_slashMenu_name_text.tr(): ParagraphBlockKeys.type,
       };

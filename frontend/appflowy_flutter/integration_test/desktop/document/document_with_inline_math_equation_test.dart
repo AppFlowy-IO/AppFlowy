@@ -108,8 +108,8 @@ void main() {
       await tester.tapButton(moreOptionButton);
       // expect to the see the inline math equation button is highlighted
       expect(
-        tester.widget<FlowySvg>(inlineMathEquationButton).color != null,
-        isTrue,
+        find.byFlowySvg(FlowySvgs.toolbar_check_m),
+        findsOneWidget,
       );
 
       // cancel the format

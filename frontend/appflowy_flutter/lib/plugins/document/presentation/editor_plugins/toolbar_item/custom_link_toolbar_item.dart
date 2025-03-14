@@ -19,14 +19,19 @@ final customLinkItem = ToolbarItem(
       );
     });
 
+    final hoverColor = isHref
+        ? highlightColor
+        : EditorStyleCustomizer.toolbarHoverColor(context);
+
     final child = FlowyIconButton(
       width: 36,
       height: 32,
-      hoverColor: EditorStyleCustomizer.toolbarHoverColor(context),
+      hoverColor: hoverColor,
+      isSelected: isHref,
       icon: FlowySvg(
         FlowySvgs.toolbar_link_m,
         size: Size.square(20.0),
-        color: isHref ? highlightColor : Theme.of(context).iconTheme.color,
+        color: Theme.of(context).iconTheme.color,
       ),
       onPressed: () => showLinkMenu(context, editorState, selection, isHref),
     );

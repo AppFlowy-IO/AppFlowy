@@ -90,7 +90,7 @@ enum AiWriterCommand {
 
   FlowySvgData get icon => switch (this) {
         userQuestion => FlowySvgs.ai_sparks_s,
-        explain => FlowySvgs.ai_explain_s,
+        explain => FlowySvgs.ai_explain_m,
         // summarize => FlowySvgs.ai_summarize_s,
         continueWriting || improveWriting => FlowySvgs.ai_improve_writing_s,
         fixSpellingAndGrammar => FlowySvgs.ai_fix_spelling_grammar_s,

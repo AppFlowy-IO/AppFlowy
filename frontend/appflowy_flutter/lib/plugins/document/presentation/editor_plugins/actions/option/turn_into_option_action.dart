@@ -237,12 +237,13 @@ class _TurnInfoButton extends StatelessWidget {
       leftIcon: FlowySvg(leftIcon),
       rightIcon: rightIcon,
       itemHeight: ActionListSizes.itemHeight,
-      onTap: () => context.read<BlockActionOptionCubit>().turnIntoBlock(
-            type,
-            node,
-            level: level,
-            currentViewId: getIt<MenuSharedState>().latestOpenView?.id,
-          ),
+      onTap: () => BlockActionOptionCubit.turnIntoBlock(
+        type,
+        node,
+        context.read<BlockActionOptionCubit>().editorState,
+        level: level,
+        currentViewId: getIt<MenuSharedState>().latestOpenView?.id,
+      ),
     );
   }
 
@@ -338,7 +339,7 @@ class _TurnInfoButton extends StatelessWidget {
       case NumberedListBlockKeys.type:
         return LocaleKeys.document_slashMenu_name_numberedList.tr();
       case TodoListBlockKeys.type:
-        return LocaleKeys.document_slashMenu_name_todoList.tr();
+        return LocaleKeys.editor_checkbox.tr();
       case CalloutBlockKeys.type:
         return LocaleKeys.document_slashMenu_name_callout.tr();
       case SubPageBlockKeys.type:

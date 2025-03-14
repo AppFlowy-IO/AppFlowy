@@ -1,11 +1,13 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 // ignore: implementation_imports
 import 'package:appflowy_editor/src/editor/toolbar/desktop/items/utils/tooltip_util.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
+
+import 'custom_placeholder_toolbar_item.dart';
 
 final List<ToolbarItem> customMarkdownFormatItems = [
   _FormatToolbarItem(
@@ -13,11 +15,13 @@ final List<ToolbarItem> customMarkdownFormatItems = [
     name: 'bold',
     svg: FlowySvgs.toolbar_bold_m,
   ),
+  group1PaddingItem,
   _FormatToolbarItem(
     id: 'underline',
     name: 'underline',
     svg: FlowySvgs.toolbar_underline_m,
   ),
+  group1PaddingItem,
   _FormatToolbarItem(
     id: 'italic',
     name: 'italic',
@@ -57,20 +61,19 @@ class _FormatToolbarItem extends ToolbarItem {
                   delta.everyAttributes((attr) => attr[name] == true),
             );
 
-            final hoverColor = Theme.of(context).brightness == Brightness.dark
-                ? Theme.of(context).hoverColor
-                : AFThemeExtension.of(context).toolbarHoverColor;
+            final hoverColor = isHighlight
+                ? highlightColor
+                : EditorStyleCustomizer.toolbarHoverColor(context);
 
             final child = FlowyIconButton(
               width: 36,
               height: 32,
               hoverColor: hoverColor,
+              isSelected: isHighlight,
               icon: FlowySvg(
                 svg,
                 size: Size.square(20.0),
-                color: isHighlight
-                    ? highlightColor
-                    : Theme.of(context).iconTheme.color,
+                color: Theme.of(context).iconTheme.color,
               ),
               onPressed: () => editorState.toggleAttribute(name),
             );
