@@ -1,11 +1,8 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/shared/feature_flags.dart';
-import 'package:appflowy/workspace/application/settings/ai/local_ai_on_boarding_bloc.dart';
 import 'package:appflowy/workspace/application/settings/ai/settings_ai_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/local_ai_setting.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/model_selection.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
-import 'package:appflowy/workspace/presentation/settings/widgets/setting_appflowy_cloud.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -109,41 +106,5 @@ class _AISearchToggle extends StatelessWidget {
         ),
       ],
     );
-  }
-}
-
-// ignore: unused_element
-class _LocalAIOnBoarding extends StatelessWidget {
-  const _LocalAIOnBoarding({
-    required this.userProfile,
-    required this.currentWorkspaceMemberRole,
-    required this.workspaceId,
-  });
-  final UserProfilePB userProfile;
-  final AFRolePB? currentWorkspaceMemberRole;
-  final String workspaceId;
-
-  @override
-  Widget build(BuildContext context) {
-    if (FeatureFlag.planBilling.isOn) {
-      return BillingGateGuard(
-        builder: (context) {
-          return BlocProvider(
-            create: (context) => LocalAIOnBoardingBloc(
-              userProfile,
-              currentWorkspaceMemberRole,
-              workspaceId,
-            )..add(const LocalAIOnBoardingEvent.started()),
-            child: BlocBuilder<LocalAIOnBoardingBloc, LocalAIOnBoardingState>(
-              builder: (context, state) {
-                return const LocalAISetting();
-              },
-            ),
-          );
-        },
-      );
-    } else {
-      return const SizedBox.shrink();
-    }
   }
 }
