@@ -74,14 +74,24 @@ class _TextColorPickerWidgetState extends State<TextColorPickerWidget> {
   }
 
   Widget buildChild(BuildContext context) {
+    final iconColor = Theme.of(context).iconTheme.color;
     final child = FlowyIconButton(
       width: 36,
       height: 32,
       hoverColor: EditorStyleCustomizer.toolbarHoverColor(context),
-      icon: FlowySvg(
-        FlowySvgs.toolbar_text_color_m,
-        size: Size.square(20.0),
-        color: Theme.of(context).iconTheme.color,
+      icon: SizedBox(
+        width: 20,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FlowySvg(
+              FlowySvgs.toolbar_text_color_m,
+              size: Size(20, 16),
+              color: iconColor,
+            ),
+            buildColorfulDivider(iconColor),
+          ],
+        ),
       ),
       onPressed: () {
         setState(() {
@@ -100,9 +110,8 @@ class _TextColorPickerWidgetState extends State<TextColorPickerWidget> {
         child;
   }
 
-  Widget buildPopoverContent() {
-    bool showClearButton = false;
-    String? textColorHex;
+  Widget buildColorfulDivider(Color? iconColor) {
+    final List<String> colors = [];
     final selection = editorState.selection!;
     final nodes = editorState.getNodesInSelection(selection);
     nodes.allSatisfyInSelection(selection, (delta) {
@@ -111,7 +120,49 @@ class _TextColorPickerWidgetState extends State<TextColorPickerWidget> {
       }
 
       return delta.everyAttributes((attr) {
-        textColorHex = attr[AppFlowyRichTextKeys.textColor];
+        final textColorHex = attr[AppFlowyRichTextKeys.textColor];
+        if (textColorHex != null) colors.add(textColorHex);
+        return (textColorHex != null);
+      });
+    });
+
+    final colorLength = colors.length;
+    if (colors.isEmpty) {
+      return Container(
+        width: 20,
+        height: 4,
+        color: iconColor,
+      );
+    }
+    return SizedBox(
+      width: 20,
+      height: 4,
+      child: Row(
+        children: List.generate(colorLength, (index) {
+          final currentColor = int.tryParse(colors[index]);
+          return Container(
+            width: 20 / colorLength,
+            height: 4,
+            color: currentColor == null ? iconColor : Color(currentColor),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget buildPopoverContent() {
+    bool showClearButton = false;
+    final List<String> colors = [];
+    final selection = editorState.selection!;
+    final nodes = editorState.getNodesInSelection(selection);
+    nodes.allSatisfyInSelection(selection, (delta) {
+      if (delta.everyAttributes((attr) => attr.isEmpty)) {
+        return false;
+      }
+
+      return delta.everyAttributes((attr) {
+        final textColorHex = attr[AppFlowyRichTextKeys.textColor];
+        if (textColorHex != null) colors.add(textColorHex);
         return (textColorHex != null);
       });
     });
@@ -133,7 +184,7 @@ class _TextColorPickerWidgetState extends State<TextColorPickerWidget> {
       child: ColorPicker(
         title: AppFlowyEditorL10n.current.textColor,
         showClearButton: showClearButton,
-        selectedColorHex: textColorHex,
+        selectedColorHex: colors.length == 1 ? colors.first : null,
         customColorHex: _customColorHex,
         colorOptions: generateTextColorOptions(),
         onSubmittedColorHex: (color, isCustomColor) {

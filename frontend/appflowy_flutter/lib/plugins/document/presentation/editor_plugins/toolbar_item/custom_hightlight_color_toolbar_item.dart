@@ -76,14 +76,25 @@ class _HighlightColorPickerWidgetState
   }
 
   Widget buildChild(BuildContext context) {
+    final iconColor = Theme.of(context).iconTheme.color;
+
     final child = FlowyIconButton(
       width: 36,
       height: 32,
       hoverColor: EditorStyleCustomizer.toolbarHoverColor(context),
-      icon: FlowySvg(
-        FlowySvgs.toolbar_text_highlight_m,
-        size: Size.square(20.0),
-        color: Theme.of(context).iconTheme.color,
+      icon: SizedBox(
+        width: 20,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FlowySvg(
+              FlowySvgs.toolbar_text_highlight_m,
+              size: Size(20, 16),
+              color: iconColor,
+            ),
+            buildColorfulDivider(iconColor),
+          ],
+        ),
       ),
       onPressed: () {
         setState(() {
@@ -96,14 +107,54 @@ class _HighlightColorPickerWidgetState
     return widget.tooltipBuilder?.call(
           context,
           _kHighlightColorItemId,
-          AppFlowyEditorL10n.current.textColor,
+          AppFlowyEditorL10n.current.highlightColor,
           child,
         ) ??
         child;
   }
 
+  Widget buildColorfulDivider(Color? iconColor) {
+    final List<String> colors = [];
+    final selection = editorState.selection!;
+    final nodes = editorState.getNodesInSelection(selection);
+    nodes.allSatisfyInSelection(selection, (delta) {
+      if (delta.everyAttributes((attr) => attr.isEmpty)) {
+        return false;
+      }
+
+      return delta.everyAttributes((attr) {
+        final textColorHex = attr[AppFlowyRichTextKeys.backgroundColor];
+        if (textColorHex != null) colors.add(textColorHex);
+        return (textColorHex != null);
+      });
+    });
+
+    final colorLength = colors.length;
+    if (colors.isEmpty) {
+      return Container(
+        width: 20,
+        height: 4,
+        color: iconColor,
+      );
+    }
+    return SizedBox(
+      width: 20,
+      height: 4,
+      child: Row(
+        children: List.generate(colorLength, (index) {
+          final currentColor = int.tryParse(colors[index]);
+          return Container(
+            width: 20 / colorLength,
+            height: 4,
+            color: currentColor == null ? iconColor : Color(currentColor),
+          );
+        }),
+      ),
+    );
+  }
+
   Widget buildPopoverContent() {
-    String? highlightColorHex;
+    final List<String> colors = [];
 
     final selection = editorState.selection!;
     final nodes = editorState.getNodesInSelection(selection);
@@ -113,7 +164,9 @@ class _HighlightColorPickerWidgetState
       }
 
       return delta.everyAttributes((attributes) {
-        highlightColorHex = attributes[AppFlowyRichTextKeys.backgroundColor];
+        final highlightColorHex =
+            attributes[AppFlowyRichTextKeys.backgroundColor];
+        if (highlightColorHex != null) colors.add(highlightColorHex);
         return highlightColorHex != null;
       });
     });
@@ -133,7 +186,7 @@ class _HighlightColorPickerWidgetState
       child: ColorPicker(
         title: AppFlowyEditorL10n.current.highlightColor,
         showClearButton: showClearButton,
-        selectedColorHex: highlightColorHex,
+        selectedColorHex: colors.length == 1 ? colors.first : null,
         customColorHex: _customHighlightColorHex,
         colorOptions: generateHighlightColorOptions(),
         onSubmittedColorHex: (color, isCustomColor) {
