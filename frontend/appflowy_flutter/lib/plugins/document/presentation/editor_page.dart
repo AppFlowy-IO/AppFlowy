@@ -28,6 +28,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import 'editor_plugins/desktop_toolbar/desktop_floating_toolbar.dart';
 import 'editor_plugins/toolbar_item/custom_format_toolbar_items.dart';
 import 'editor_plugins/toolbar_item/custom_hightlight_color_toolbar_item.dart';
 import 'editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
@@ -441,6 +442,10 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
         items: toolbarItems,
         decoration: context.getPopoverDecoration(
           borderRadius: BorderRadius.circular(6),
+        ),
+        toolbarBuilder: (context, child) => DesktopFloatingToolbar(
+          editorState: editorState,
+          child: child,
         ),
         placeHolderBuilder: (_) => customPlaceholderItem,
         editorState: editorState,
