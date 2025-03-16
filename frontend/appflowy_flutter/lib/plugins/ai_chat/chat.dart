@@ -181,6 +181,9 @@ class AIChatPagePluginWidgetBuilder extends PluginWidgetBuilder
                       disabled: !state.enabled,
                       leftIcon: FlowySvgs.ai_add_to_page_s,
                       label: LocaleKeys.moreAction_saveAsNewPage.tr(),
+                      tooltipMessage: state.enabled
+                          ? null
+                          : LocaleKeys.moreAction_saveAsNewPageDisabled.tr(),
                       onTap: () {
                         chatMessageSelectorBloc.add(
                           const ChatSelectMessageEvent

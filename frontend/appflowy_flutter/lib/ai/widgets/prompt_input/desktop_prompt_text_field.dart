@@ -1,9 +1,11 @@
 import 'package:appflowy/ai/ai.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_input_control_cubit.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/layout_define.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flowy_infra/file_picker/file_picker_service.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -372,7 +374,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
           link: layerLink,
           child: BlocBuilder<AIPromptInputBloc, AIPromptInputState>(
             builder: (context, state) {
-              return PromptInputTextField(
+              Widget textField = PromptInputTextField(
                 key: textFieldKey,
                 editable: state.editable,
                 cubit: inputControlCubit,
@@ -382,6 +384,17 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
                     calculateContentPadding(state.showPredefinedFormats),
                 hintText: state.hintText,
               );
+
+              if (!state.editable) {
+                textField = FlowyTooltip(
+                  message: LocaleKeys
+                      .settings_aiPage_keys_localAINotReadyTextFieldPrompt
+                      .tr(),
+                  child: textField,
+                );
+              }
+
+              return textField;
             },
           ),
         ),

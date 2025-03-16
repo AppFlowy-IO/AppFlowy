@@ -2285,10 +2285,11 @@ packages:
   unsplash_client:
     dependency: "direct main"
     description:
-      name: unsplash_client
-      sha256: "9827f4c1036b7a6ac8cb3f404ac179df7441eee69371d9b17f181817fe502fd7"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: a8411fc
+      resolved-ref: a8411fcead178834d1f4572f64dc78b059ffa221
+      url: "https://github.com/LucasXu0/unsplash_client.git"
+    source: git
     version: "2.2.0"
   url_launcher:
     dependency: "direct main"

@@ -151,7 +151,8 @@
     "charCountLabel": "Character count: ",
     "createdAtLabel": "Created: ",
     "syncedAtLabel": "Synced: ",
-    "saveAsNewPage": "Add messages to page"
+    "saveAsNewPage": "Add messages to page",
+    "saveAsNewPageDisabled": "No messages available"
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",
@@ -256,7 +257,9 @@
       "selectMessages": "Select messages",
       "nSelected": "{} selected",
       "allSelected": "All selected"
-    }
+    },
+    "stopTooltip": "Stop generating"
+
   },
   "trash": {
     "text": "Trash",
@@ -846,11 +849,12 @@
         "downloadAIModelButton": "Download",
         "downloadingModel": "Downloading",
         "localAILoaded": "Local AI Model successfully added and ready to use",
-        "localAIStart": "Local AI Chat is starting...",
+        "localAIStart": "Local AI is starting. If it’s slow, try toggling it off and on",
         "localAILoading": "Local AI Chat Model is loading...",
         "localAIStopped": "Local AI stopped",
         "localAIRunning": "Local AI is running",
-        "localAIInitializing": "Local AI is initializing and may take a few minutes, depending on your device",
+        "localAIInitializing": "Local AI is loading and may take ßa few minutes, depending on your device",
+        "localAINotReadyTextFieldPrompt": "You can not edit while Local AI is loading",
         "failToLoadLocalAI": "Failed to start local AI",
         "restartLocalAI": "Restart Local AI",
         "disableLocalAITitle": "Disable local AI",
