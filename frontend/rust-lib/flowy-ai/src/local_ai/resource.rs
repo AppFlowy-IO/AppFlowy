@@ -264,6 +264,8 @@ impl LocalAIResourceController {
       Some(llm_setting.ollama_server_url.clone()),
     )?;
 
+    //config = config.with_log_level("debug".to_string());
+
     if rag_enabled {
       let resource_dir = self.resource_dir()?;
       let persist_directory = resource_dir.join("vectorstore");
