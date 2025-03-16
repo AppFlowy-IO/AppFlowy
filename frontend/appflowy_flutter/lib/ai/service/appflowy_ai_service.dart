@@ -20,6 +20,8 @@ abstract class AIRepository {
     String? objectId,
     required String text,
     PredefinedFormat? format,
+    List<String> sourceIds = const [],
+    List<AiWriterRecord> history = const [],
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
     required Future<void> Function(String text) onProcess,

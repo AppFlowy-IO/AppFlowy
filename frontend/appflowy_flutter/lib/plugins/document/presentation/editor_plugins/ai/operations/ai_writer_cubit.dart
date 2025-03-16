@@ -76,6 +76,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       format: format,
       sourceIds: selectedSourcesNotifier.value,
       completionType: command.toCompletionType(),
+      history: records,
       onStart: () async {
         final transaction = editorState.transaction;
         final position =
@@ -348,6 +349,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       objectId: documentId,
       text: text,
       completionType: command.toCompletionType(),
+      history: records,
       onStart: () async {
         final transaction = editorState.transaction;
         final position =
@@ -409,6 +411,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       objectId: documentId,
       text: await editorState.getMarkdownInSelection(selection),
       completionType: command.toCompletionType(),
+      history: records,
       onStart: () async {
         final transaction = editorState.transaction;
         formatSelection(
@@ -479,6 +482,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       objectId: documentId,
       text: await editorState.getMarkdownInSelection(selection),
       completionType: command.toCompletionType(),
+      history: records,
       onStart: () async {},
       onProcess: (text) async {
         if (state case final GeneratingAiWriterState generatingState) {
