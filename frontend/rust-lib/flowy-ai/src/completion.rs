@@ -106,6 +106,7 @@ impl CompletionTask {
             object_id: self.context.object_id,
             workspace_id: Some(self.workspace_id.clone()),
             rag_ids: Some(self.context.rag_ids),
+            completion_history: None,
           }),
           format: self.context.format.map(Into::into).unwrap_or_default(),
         };

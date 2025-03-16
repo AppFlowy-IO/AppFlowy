@@ -113,7 +113,9 @@ class ChatAIMessageWidget extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              AIMarkdownText(markdown: state.text),
+                              AIMarkdownText(
+                                markdown: state.text,
+                              ),
                               if (state.sources.isNotEmpty)
                                 SelectionContainer.disabled(
                                   child: AIMessageMetadata(
@@ -128,26 +130,22 @@ class ChatAIMessageWidget extends StatelessWidget {
                         );
                 },
                 onError: (error) {
-                  onStopStream();
                   return ChatErrorMessageWidget(
                     errorMessage: LocaleKeys.chat_aiServerUnavailable.tr(),
                   );
                 },
                 onAIResponseLimit: () {
-                  onStopStream();
                   return ChatErrorMessageWidget(
                     errorMessage:
                         LocaleKeys.sideBar_askOwnerToUpgradeToAIMax.tr(),
                   );
                 },
                 onAIImageResponseLimit: () {
-                  onStopStream();
                   return ChatErrorMessageWidget(
                     errorMessage: LocaleKeys.sideBar_purchaseAIMax.tr(),
                   );
                 },
                 onAIMaxRequired: (message) {
-                  onStopStream();
                   return ChatErrorMessageWidget(
                     errorMessage: message,
                   );
