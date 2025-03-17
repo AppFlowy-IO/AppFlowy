@@ -1,4 +1,4 @@
-use client_api::entity::workspace_dto::PublishInfoView;
+use client_api::entity::workspace_dto::{FolderView, PublishInfoView};
 use client_api::entity::{
   workspace_dto::CreateWorkspaceParam, CollabParams, PublishCollabItem, PublishCollabMetadata,
   QueryCollab, QueryCollabParams,
@@ -373,5 +373,16 @@ where
     );
     client.upload_import_file(&file_path, &url).await?;
     Ok(())
+  }
+
+  async fn get_workspace_folder(&self, workspace_id: &str) -> Result<FolderView, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    let client = try_get_client?;
+    // todo: support depth and root_view_id
+    let folder = client
+      .get_workspace_folder(&workspace_id, None, None)
+      .await?;
+    Ok(folder)
   }
 }

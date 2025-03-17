@@ -1,3 +1,4 @@
+use client_api::entity::workspace_dto::FolderView;
 use collab_folder::{View, ViewIcon, ViewLayout};
 use std::collections::HashMap;
 use std::convert::TryInto;
@@ -193,6 +194,68 @@ pub struct SectionViewsPB {
 pub struct RepeatedViewPB {
   #[pb(index = 1)]
   pub items: Vec<ViewPB>,
+}
+
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
+pub struct FolderViewPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub name: String,
+
+  #[pb(index = 3, one_of)]
+  pub icon: Option<ViewIconPB>,
+
+  #[pb(index = 4)]
+  pub is_space: bool,
+
+  #[pb(index = 5)]
+  pub is_private: bool,
+
+  #[pb(index = 6)]
+  pub is_published: bool,
+
+  #[pb(index = 7)]
+  pub layout: ViewLayoutPB,
+
+  #[pb(index = 8)]
+  pub created_at: i64,
+
+  #[pb(index = 9)]
+  pub last_edited_time: i64,
+
+  #[pb(index = 10, one_of)]
+  pub is_locked: Option<bool>,
+
+  #[pb(index = 11, one_of)]
+  pub extra: Option<String>,
+
+  #[pb(index = 12)]
+  pub children: Vec<FolderViewPB>,
+}
+
+impl From<FolderView> for FolderViewPB {
+  fn from(folder_view: FolderView) -> Self {
+    FolderViewPB {
+      view_id: folder_view.view_id,
+      name: folder_view.name,
+      icon: folder_view.icon.map(|icon| icon.into()),
+      is_space: folder_view.is_space,
+      is_private: folder_view.is_private,
+      is_published: folder_view.is_published,
+      layout: folder_view.layout.into(),
+      created_at: folder_view.created_at.timestamp_millis() as i64,
+      last_edited_time: folder_view.last_edited_time.timestamp_millis() as i64,
+      is_locked: folder_view.is_locked,
+      extra: folder_view.extra.map(|extra| extra.to_string()),
+      children: folder_view
+        .children
+        .into_iter()
+        .map(|child| child.into())
+        .collect(),
+    }
+  }
 }
 
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]

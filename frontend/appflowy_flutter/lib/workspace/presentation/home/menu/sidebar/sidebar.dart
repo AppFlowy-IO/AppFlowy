@@ -18,12 +18,14 @@ import 'package:appflowy/workspace/application/favorite/prelude.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy/workspace/application/sidebar/billing/sidebar_plan_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_footer.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_upgarde_application_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/header/sidebar_top_menu.dart';
@@ -130,6 +132,11 @@ class HomeSideBar extends StatelessWidget {
                   userProfile: userProfile,
                   workspaceId: workspaceId,
                 )..add(const SpaceEvent.initial(openFirstPage: false)),
+              ),
+              BlocProvider(
+                create: (_) => FolderV2Bloc(
+                  workspaceId: workspaceId,
+                )..add(FolderV2GetView()),
               ),
             ],
             child: MultiBlocListener(
@@ -342,7 +349,8 @@ class _SidebarState extends State<_Sidebar> {
               ),
             ),
 
-            _renderFolderOrSpace(menuHorizontalInset),
+            // _renderFolderOrSpace(menuHorizontalInset),
+            _renderFolderV2(menuHorizontalInset),
 
             // trash
             Padding(
@@ -363,6 +371,26 @@ class _SidebarState extends State<_Sidebar> {
             ),
             const VSpace(14),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _renderFolderV2(EdgeInsets menuHorizontalInset) {
+    return Expanded(
+      child: Padding(
+        padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
+        child: FlowyScrollbar(
+          controller: _scrollController,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.only(right: 6),
+            controller: _scrollController,
+            physics: const ClampingScrollPhysics(),
+            child: SidebarFolderV2(
+              userProfile: widget.userProfile,
+              isHoverEnabled: !_isScrolling,
+            ),
+          ),
         ),
       ),
     );

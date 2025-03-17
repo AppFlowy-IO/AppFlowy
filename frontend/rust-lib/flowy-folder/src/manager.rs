@@ -19,7 +19,7 @@ use crate::view_operation::{
   create_view, FolderOperationHandler, FolderOperationHandlers, GatherEncodedCollab, ViewData,
 };
 use arc_swap::ArcSwapOption;
-use client_api::entity::workspace_dto::PublishInfoView;
+use client_api::entity::workspace_dto::{FolderView, PublishInfoView};
 use client_api::entity::PublishInfo;
 use collab::core::collab::DataSource;
 use collab::lock::RwLock;
@@ -2037,6 +2037,14 @@ impl FolderManager {
       .remove_indices_for_workspace(workspace_id)?;
 
     Ok(())
+  }
+
+  pub async fn get_workspace_folder(&self, workspace_id: &str) -> FlowyResult<FolderView> {
+    let folder_view = self
+      .cloud_service
+      .get_workspace_folder(workspace_id)
+      .await?;
+    Ok(folder_view)
   }
 }
 

@@ -55,6 +55,7 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::RemoveDefaultPublishView, remove_default_publish_view_handler)
     .event(FolderEvent::LockView, lock_view_handler)
     .event(FolderEvent::UnlockView, unlock_view_handler)
+    .event(FolderEvent::GetWorkspaceFolder, get_workspace_folder_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -228,4 +229,8 @@ pub enum FolderEvent {
 
   #[event(input = "ViewIdPB")]
   UnlockView = 55,
+
+  // All the events below are used for the HTTP API
+  #[event(input = "GetWorkspaceViewPB", output = "FolderViewPB")]
+  GetWorkspaceFolder = 100,
 }

@@ -1,8 +1,9 @@
 use std::sync::Arc;
 
-use client_api::entity::workspace_dto::PublishInfoView;
+use client_api::entity::workspace_dto::{FolderView, PublishInfoView};
 use client_api::entity::PublishInfo;
 use collab_entity::CollabType;
+use collab_folder::View;
 
 use crate::local_server::LocalServerDB;
 use flowy_error::FlowyError;
@@ -152,5 +153,9 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     _params: FullSyncCollabParams,
   ) -> Result<(), FlowyError> {
     Ok(())
+  }
+
+  async fn get_workspace_folder(&self, _workspace_id: &str) -> Result<FolderView, FlowyError> {
+    Err(FlowyError::local_version_not_support())
   }
 }

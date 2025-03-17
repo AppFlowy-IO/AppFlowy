@@ -555,3 +555,14 @@ pub(crate) async fn unlock_view_handler(
   folder.unlock_view(&view_id).await?;
   Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip(data, folder))]
+pub(crate) async fn get_workspace_folder_handler(
+  data: AFPluginData<GetWorkspaceViewPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> DataResult<FolderViewPB, FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let view_id = data.into_inner().value;
+  let folder_view = folder.get_workspace_folder(&view_id).await?;
+  data_result_ok(folder_view.into())
+}

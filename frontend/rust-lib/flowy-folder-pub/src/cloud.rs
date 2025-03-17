@@ -1,8 +1,12 @@
 use crate::entities::PublishPayload;
 pub use anyhow::Error;
-use client_api::entity::{workspace_dto::PublishInfoView, PublishInfo};
+use client_api::entity::{
+  workspace_dto::{FolderView, PublishInfoView},
+  PublishInfo,
+};
 use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
+use collab_folder::View;
 pub use collab_folder::{Folder, FolderData, Workspace};
 use flowy_error::FlowyError;
 use lib_infra::async_trait::async_trait;
@@ -103,6 +107,9 @@ pub trait FolderCloudService: Send + Sync + 'static {
   async fn get_publish_namespace(&self, workspace_id: &str) -> Result<String, FlowyError>;
 
   async fn import_zip(&self, file_path: &str) -> Result<(), FlowyError>;
+
+  /// Get the workspace folder
+  async fn get_workspace_folder(&self, workspace_id: &str) -> Result<FolderView, FlowyError>;
 }
 
 #[derive(Debug)]

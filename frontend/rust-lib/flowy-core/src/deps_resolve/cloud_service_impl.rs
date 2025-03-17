@@ -1,7 +1,7 @@
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use client_api::entity::ai_dto::RepeatedRelatedQuestion;
 use client_api::entity::search_dto::SearchDocumentResponseItem;
-use client_api::entity::workspace_dto::PublishInfoView;
+use client_api::entity::workspace_dto::{FolderView, PublishInfoView};
 use client_api::entity::PublishInfo;
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::entity::EncodedCollab;
@@ -428,6 +428,14 @@ impl FolderCloudService for ServerProvider {
       .get_server()?
       .folder_service()
       .full_sync_collab_object(workspace_id, params)
+      .await
+  }
+
+  async fn get_workspace_folder(&self, workspace_id: &str) -> Result<FolderView, FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .get_workspace_folder(workspace_id)
       .await
   }
 }
