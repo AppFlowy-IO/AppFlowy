@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import 'operations/ai_scroll_service.dart';
 import 'operations/ai_writer_cubit.dart';
 import 'operations/ai_writer_entities.dart';
 import 'operations/ai_writer_node_extension.dart';
@@ -110,6 +111,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent>
     editorState: editorState,
     getAiWriterNode: () => widget.node,
     initialCommand: widget.node.aiWriterCommand,
+    aiScrollService: context.read<AiScrollService>(),
   );
 
   @override
@@ -139,6 +141,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent>
     }
 
     return MultiBlocProvider(
+      key: key,
       providers: [
         BlocProvider.value(
           value: aiWriterCubit,
@@ -182,9 +185,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent>
                     BlocBuilder<AiWriterCubit, AiWriterState>(
                       builder: (context, state) {
                         return AiWriterGestureDetector(
-                          behavior: state is GeneratingAiWriterState
-                              ? HitTestBehavior.opaque
-                              : HitTestBehavior.translucent,
+                          behavior: HitTestBehavior.translucent,
                           onPointerEvent: onTapOutside,
                         );
                       },
@@ -212,7 +213,6 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent>
                 child: BlocBuilder<AiWriterCubit, AiWriterState>(
                   builder: (context, state) {
                     return SizedBox(
-                      key: key,
                       width: double.infinity,
                     );
                   },

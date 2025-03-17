@@ -27,6 +27,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import 'presentation/editor_plugins/ai/operations/ai_scroll_service.dart';
+
 class DocumentPage extends StatefulWidget {
   const DocumentPage({
     super.key,
@@ -57,6 +59,17 @@ class _DocumentPageState extends State<DocumentPage>
     ..add(const DocumentEvent.initial());
   late final viewBloc = ViewBloc(view: widget.view)
     ..add(const ViewEvent.initial());
+
+  bool userHasScrolled = false;
+  bool aiWriterRegistered = false;
+
+  void debounceResetUserHasScrolled() {
+    Debounce.debounce(
+      'user_has_scrolled',
+      const Duration(seconds: 3),
+      () => userHasScrolled = false,
+    );
+  }
 
   @override
   void initState() {
@@ -126,15 +139,28 @@ class _DocumentPageState extends State<DocumentPage>
                 return const SizedBox.shrink();
               }
 
-              return BlocListener<ViewLockStatusBloc, ViewLockStatusState>(
-                listener: (context, state) {
-                  editorState.editable = !state.isLocked;
-                },
-                child:
-                    BlocListener<ActionNavigationBloc, ActionNavigationState>(
-                  listenWhen: (_, curr) => curr.action != null,
-                  listener: onNotificationAction,
-                  child: buildEditorPage(context, state),
+              return MultiBlocListener(
+                listeners: [
+                  BlocListener<ViewLockStatusBloc, ViewLockStatusState>(
+                    listener: (context, state) {
+                      editorState.editable = !state.isLocked;
+                    },
+                  ),
+                  BlocListener<ActionNavigationBloc, ActionNavigationState>(
+                    listenWhen: (_, curr) => curr.action != null,
+                    listener: onNotificationAction,
+                  ),
+                ],
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: handleScrollNotification,
+                  child: Provider(
+                    create: (context) => AiScrollService(
+                      onCreateAiWriter: () => aiWriterRegistered = true,
+                      onDisposeAiWriter: () => aiWriterRegistered = false,
+                      canScrollEditor: () => !userHasScrolled,
+                    ),
+                    child: buildEditorPage(context, state),
+                  ),
                 ),
               );
             },
@@ -369,5 +395,23 @@ class _DocumentPageState extends State<DocumentPage>
     }
 
     return null;
+  }
+
+  bool handleScrollNotification(ScrollNotification notification) {
+    if (!aiWriterRegistered) {
+      return false;
+    }
+
+    if (notification is ScrollStartNotification) {
+      userHasScrolled = true;
+      return true;
+    }
+
+    if (notification is UserScrollNotification && userHasScrolled) {
+      debounceResetUserHasScrolled();
+      return true;
+    }
+
+    return false;
   }
 }

@@ -13,6 +13,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../../base/markdown_text_robot.dart';
+import 'ai_scroll_service.dart';
 import 'ai_writer_block_operations.dart';
 import 'ai_writer_entities.dart';
 import 'ai_writer_node_extension.dart';
@@ -23,9 +24,11 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     required this.editorState,
     required this.getAiWriterNode,
     required this.initialCommand,
+    required AiScrollService aiScrollService,
     AppFlowyAIService? aiService,
   })  : _aiService = aiService ?? AppFlowyAIService(),
         _textRobot = MarkdownTextRobot(editorState: editorState),
+        _aiScrollService = aiScrollService,
         selectedSourcesNotifier = ValueNotifier([documentId]),
         super(
           ReadyAiWriterState(
@@ -35,6 +38,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
         ) {
     HardwareKeyboard.instance.addHandler(_cancelShortcutHandler);
     editorState.service.keyboardService?.disableShortcuts();
+    _aiScrollService.onCreateAiWriter();
   }
 
   final String documentId;
@@ -43,6 +47,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
   final AiWriterCommand initialCommand;
   final AppFlowyAIService _aiService;
   final MarkdownTextRobot _textRobot;
+  final AiScrollService _aiScrollService;
 
   final List<AiWriterRecord> records = [];
   final ValueNotifier<List<String>> selectedSourcesNotifier;
@@ -54,6 +59,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     selectedSourcesNotifier.dispose();
     HardwareKeyboard.instance.removeHandler(_cancelShortcutHandler);
     editorState.service.keyboardService?.enableShortcuts();
+    _aiScrollService.onDisposeAiWriter();
     await super.close();
   }
 
@@ -81,13 +87,13 @@ class AiWriterCubit extends Cubit<AiWriterState> {
         final transaction = editorState.transaction;
         final position =
             ensurePreviousNodeIsEmptyParagraph(editorState, node, transaction);
-        transaction.afterSelection = null;
         await editorState.apply(
           transaction,
           options: ApplyOptions(
             inMemoryUpdate: true,
             recordUndo: false,
           ),
+          withUpdateSelection: false,
         );
         _textRobot.start(position: position);
         records.add(
@@ -97,6 +103,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       onProcess: (text) async {
         await _textRobot.appendMarkdownText(
           text,
+          updateSelection: _aiScrollService.canScrollEditor(),
           attributes: ApplySuggestionFormatType.replace.attributes,
         );
       },
@@ -233,6 +240,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       await editorState.apply(
         transaction,
         options: const ApplyOptions(recordUndo: false),
+        withUpdateSelection: false,
       );
     }
 
@@ -266,6 +274,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
             inMemoryUpdate: true,
             recordUndo: false,
           ),
+          withUpdateSelection: false,
         );
         _textRobot.start(position: position);
         await _textRobot.persist(markdownText: readyState.markdownText);
@@ -361,12 +370,14 @@ class AiWriterCubit extends Cubit<AiWriterState> {
             inMemoryUpdate: true,
             recordUndo: false,
           ),
+          withUpdateSelection: false,
         );
         _textRobot.start(position: position);
       },
       onProcess: (text) async {
         await _textRobot.appendMarkdownText(
           text,
+          updateSelection: _aiScrollService.canScrollEditor(),
           attributes: ApplySuggestionFormatType.replace.attributes,
         );
       },
@@ -429,12 +440,14 @@ class AiWriterCubit extends Cubit<AiWriterState> {
             inMemoryUpdate: true,
             recordUndo: false,
           ),
+          withUpdateSelection: false,
         );
         _textRobot.start(position: position);
       },
       onProcess: (text) async {
         await _textRobot.appendMarkdownText(
           text,
+          updateSelection: _aiScrollService.canScrollEditor(),
           attributes: ApplySuggestionFormatType.replace.attributes,
         );
       },
