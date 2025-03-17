@@ -51,6 +51,11 @@ AppFlowy is the AI workspace where you achieve more without losing control of yo
 - [Self-hosting AppFlowy](https://appflowy.com/docs/self-host-appflowy-overview)
 - [Source](https://docs.appflowy.io/docs/documentation/appflowy/from-source)
 
+## Help and Documentation
+- Learn how to use AppFlowy's essential features: [Product Guide](https://appflowy.com/guide)
+- Get quick support on Discord: [Join the Server](https://discord.gg/9Q2xaN37tV)
+- Ask on Reddit: [Create Post](https://www.reddit.com/r/AppFlowy/submit/?type=TEXT)
+
 ## Built With
 
 - [Flutter](https://flutter.dev/)
