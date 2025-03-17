@@ -1,6 +1,5 @@
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -22,7 +21,7 @@ class FolderViews extends StatelessWidget {
     this.shouldIgnoreView,
   });
 
-  final ViewPB space;
+  final FolderViewPB space;
   final ValueNotifier<bool> isHovered;
   final PropertyValueNotifier<bool> isExpandedNotifier;
   final bool disableSelectedStatus;
@@ -35,15 +34,15 @@ class FolderViews extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: space.childViews
+      children: space.children
           .map(
             (view) => ViewItem(
-              key: ValueKey('${space.id} ${view.id}'),
-              spaceType: space.spacePermission == SpacePermission.publicToAll
+              key: ValueKey('${space.viewId} ${view.viewId}'),
+              spaceType: !space.isPrivate
                   ? FolderSpaceType.public
                   : FolderSpaceType.private,
-              isFirstChild: view.id == space.childViews.first.id,
-              view: view,
+              isFirstChild: view.viewId == space.children.first.viewId,
+              view: view.viewPB,
               level: 0,
               leftPadding: HomeSpaceViewSizes.leftPadding,
               isFeedback: false,
