@@ -97,7 +97,8 @@ class AiWriterBlockComponent extends BlockComponentStatefulWidget {
   State<AiWriterBlockComponent> createState() => _AIWriterBlockComponentState();
 }
 
-class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
+class _AIWriterBlockComponentState extends State<AiWriterBlockComponent>
+    with AutomaticKeepAliveClientMixin {
   final key = GlobalKey();
   final textController = TextEditingController();
   final overlayController = OverlayPortalController();
@@ -132,6 +133,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     if (UniversalPlatform.isMobile) {
       return const SizedBox.shrink();
     }
@@ -242,6 +244,9 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
         ..exit();
     }
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class OverlayContent extends StatelessWidget {
