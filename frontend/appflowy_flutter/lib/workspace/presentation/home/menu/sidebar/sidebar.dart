@@ -135,8 +135,8 @@ class HomeSideBar extends StatelessWidget {
               ),
               BlocProvider(
                 create: (_) => FolderV2Bloc(
-                  workspaceId: workspaceId,
-                )..add(FolderV2GetView()),
+                  currentWorkspaceId: workspaceId,
+                )..add(FolderV2GetFolderViews()),
               ),
             ],
             child: MultiBlocListener(
@@ -189,21 +189,27 @@ class HomeSideBar extends StatelessWidget {
                     if (actionType == UserWorkspaceActionType.create ||
                         actionType == UserWorkspaceActionType.delete ||
                         actionType == UserWorkspaceActionType.open) {
+                      final workspaceId = state.currentWorkspace?.workspaceId ??
+                          workspaceSetting.workspaceId;
                       if (context.read<SpaceBloc>().state.spaces.isEmpty) {
                         context.read<SidebarSectionsBloc>().add(
                               SidebarSectionsEvent.reload(
                                 userProfile,
-                                state.currentWorkspace?.workspaceId ??
-                                    workspaceSetting.workspaceId,
+                                workspaceId,
                               ),
                             );
                       } else {
                         context.read<SpaceBloc>().add(
                               SpaceEvent.reset(
                                 userProfile,
-                                state.currentWorkspace?.workspaceId ??
-                                    workspaceSetting.workspaceId,
+                                workspaceId,
                                 true,
+                              ),
+                            );
+
+                        context.read<FolderV2Bloc>().add(
+                              FolderV2ReloadFolderViews(
+                                workspaceId: workspaceId,
                               ),
                             );
                       }

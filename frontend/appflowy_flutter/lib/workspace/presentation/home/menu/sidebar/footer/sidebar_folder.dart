@@ -9,6 +9,7 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/view/folder_vi
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -153,6 +154,12 @@ class _FolderV2LoadedState extends State<_FolderV2Loaded> {
                   context.read<TabsBloc>().openTab(view),
             ),
           ),
+        FlowyTextButton(
+          'Refresh',
+          onPressed: () {
+            context.read<FolderV2Bloc>().add(FolderV2ReloadFolderViews());
+          },
+        ),
       ],
     );
   }

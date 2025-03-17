@@ -23,23 +23,24 @@ extension FolderViewPBExtension on FolderViewPB {
 
 class FolderV2Bloc extends Bloc<FolderV2Event, FolderV2State> {
   FolderV2Bloc({
-    required this.workspaceId,
+    required this.currentWorkspaceId,
   }) : super(const FolderV2Initial()) {
-    on<FolderV2GetView>(_onGetView);
+    on<FolderV2GetFolderViews>(_onGetView);
     on<FolderV2SwitchCurrentSpace>(_onSwitchCurrentSpace);
     on<FolderV2ExpandSpace>(_onExpandSpace);
+    on<FolderV2ReloadFolderViews>(_onReloadFolderViews);
   }
 
-  final String workspaceId;
+  String currentWorkspaceId;
 
   Future<void> _onGetView(
-    FolderV2GetView event,
+    FolderV2GetFolderViews event,
     Emitter<FolderV2State> emit,
   ) async {
     emit(const FolderV2Loading());
 
     final request = GetWorkspaceFolderViewPB(
-      workspaceId: workspaceId,
+      workspaceId: currentWorkspaceId,
       depth: 10,
     );
     final response = await FolderEventGetWorkspaceFolder(request).send();
@@ -86,6 +87,17 @@ class FolderV2Bloc extends Bloc<FolderV2Event, FolderV2State> {
       );
     }
   }
+
+  Future<void> _onReloadFolderViews(
+    FolderV2ReloadFolderViews event,
+    Emitter<FolderV2State> emit,
+  ) async {
+    emit(const FolderV2Loading());
+
+    currentWorkspaceId = event.workspaceId ?? currentWorkspaceId;
+
+    add(const FolderV2GetFolderViews());
+  }
 }
 
 sealed class FolderV2Event extends Equatable {
@@ -95,8 +107,8 @@ sealed class FolderV2Event extends Equatable {
   List<Object?> get props => [];
 }
 
-final class FolderV2GetView extends FolderV2Event {
-  const FolderV2GetView();
+final class FolderV2GetFolderViews extends FolderV2Event {
+  const FolderV2GetFolderViews();
 }
 
 final class FolderV2SwitchCurrentSpace extends FolderV2Event {
@@ -119,6 +131,17 @@ final class FolderV2ExpandSpace extends FolderV2Event {
 
   @override
   List<Object?> get props => [isExpanded];
+}
+
+final class FolderV2ReloadFolderViews extends FolderV2Event {
+  const FolderV2ReloadFolderViews({
+    this.workspaceId,
+  });
+
+  final String? workspaceId;
+
+  @override
+  List<Object?> get props => [workspaceId];
 }
 
 sealed class FolderV2State extends Equatable {
