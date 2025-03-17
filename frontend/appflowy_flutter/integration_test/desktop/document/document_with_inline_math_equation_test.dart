@@ -42,7 +42,7 @@ void main() {
 
       // tap the inline math equation button
       final inlineMathEquationButton = find.text(
-        LocaleKeys.editor_mathEquationShortForm.tr(),
+        LocaleKeys.document_toolbar_equation.tr(),
       );
       await tester.tapButton(inlineMathEquationButton);
 
