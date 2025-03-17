@@ -107,14 +107,9 @@ extension TableOptionOperation on EditorState {
     required Node tableCellNode,
     required TableAlign align,
   }) async {
-    await clearColumnTextAlign(tableCellNode: tableCellNode);
-
-    final columnIndex = tableCellNode.columnIndex;
-    await _updateTableAttributes(
+    await clearOrAdjustColumnTextAlign(
       tableCellNode: tableCellNode,
-      attributeKey: SimpleTableBlockKeys.columnAligns,
-      source: tableCellNode.columnAligns,
-      duplicatedEntry: MapEntry(columnIndex.toString(), align.key),
+      align: align,
     );
   }
 
@@ -136,14 +131,9 @@ extension TableOptionOperation on EditorState {
     required Node tableCellNode,
     required TableAlign align,
   }) async {
-    await clearRowTextAlign(tableCellNode: tableCellNode);
-
-    final rowIndex = tableCellNode.rowIndex;
-    await _updateTableAttributes(
+    await clearOrAdjustRowTextAlign(
       tableCellNode: tableCellNode,
-      attributeKey: SimpleTableBlockKeys.rowAligns,
-      source: tableCellNode.rowAligns,
-      duplicatedEntry: MapEntry(rowIndex.toString(), align.key),
+      align: align,
     );
   }
 
@@ -162,18 +152,26 @@ extension TableOptionOperation on EditorState {
       return;
     }
 
-    final transaction = this.transaction;
-    Attributes attributes = tableNode.attributes;
-    for (var i = 0; i < tableNode.columnLength; i++) {
-      attributes = attributes.mergeValues(
-        SimpleTableBlockKeys.columnAligns,
-        attributes[SimpleTableBlockKeys.columnAligns] ??
-            SimpleTableColumnAlignMap(),
-        duplicatedEntry: MapEntry(i.toString(), align.key),
-      );
+    final transaction = this.transaction,
+        columnLength = tableNode.columnLength,
+        rowLength = tableNode.rowLength;
+    for (var i = 0; i < columnLength; i++) {
+      for (var j = 0; j < rowLength; ++j) {
+        final cell = tableNode.getTableCellNode(
+          rowIndex: j,
+          columnIndex: i,
+        );
+        if (cell == null) {
+          continue;
+        }
+        for (final child in cell.children) {
+          transaction.updateNode(child, {blockComponentAlign: align.key});
+        }
+      }
     }
-    transaction.updateNode(tableNode, attributes);
-    await apply(transaction);
+    if (transaction.operations.isNotEmpty) {
+      await apply(transaction);
+    }
   }
 
   /// Update the background color of the column at the index where the table cell node is located.
@@ -380,9 +378,10 @@ extension TableOptionOperation on EditorState {
     await apply(transaction);
   }
 
-  /// Clear the text align of the column at the index where the table cell node is located.
-  Future<void> clearColumnTextAlign({
+  /// Clear or adjust the text align of the column at the index where the table cell node is located.
+  Future<void> clearOrAdjustColumnTextAlign({
     required Node tableCellNode,
+    TableAlign? align,
   }) async {
     final parentTableNode = tableCellNode.parentTableNode;
     if (parentTableNode == null) {
@@ -400,9 +399,7 @@ extension TableOptionOperation on EditorState {
         continue;
       }
       for (final child in cell.children) {
-        transaction.updateNode(child, {
-          blockComponentAlign: null,
-        });
+        transaction.updateNode(child, {blockComponentAlign: align?.key});
       }
     }
     if (transaction.operations.isNotEmpty) {
@@ -410,9 +407,10 @@ extension TableOptionOperation on EditorState {
     }
   }
 
-  /// Clear the text align of the row at the index where the table cell node is located.
-  Future<void> clearRowTextAlign({
+  /// Clear or adjust the text align of the row at the index where the table cell node is located.
+  Future<void> clearOrAdjustRowTextAlign({
     required Node tableCellNode,
+    TableAlign? align,
   }) async {
     final parentTableNode = tableCellNode.parentTableNode;
     if (parentTableNode == null) {
@@ -430,12 +428,7 @@ extension TableOptionOperation on EditorState {
         continue;
       }
       for (final child in cell.children) {
-        transaction.updateNode(
-          child,
-          {
-            blockComponentAlign: null,
-          },
-        );
+        transaction.updateNode(child, {blockComponentAlign: align?.key});
       }
     }
     if (transaction.operations.isNotEmpty) {
