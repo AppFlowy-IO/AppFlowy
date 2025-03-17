@@ -12,11 +12,12 @@ final ToolbarItem customPlaceholderItem = ToolbarItem(
   group: -1,
   isActive: (editorState) => true,
   builder: (context, __, ___, ____, _____) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 5),
       child: Container(
         width: 1,
-        color: Color(0xffE8ECF3),
+        color: Color(0xffE8ECF3).withAlpha(isDark ? 40 : 100),
       ),
     );
   },

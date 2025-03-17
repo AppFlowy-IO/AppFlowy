@@ -64,6 +64,7 @@ class _FormatToolbarItem extends ToolbarItem {
             final hoverColor = isHighlight
                 ? highlightColor
                 : EditorStyleCustomizer.toolbarHoverColor(context);
+            final isDark = Theme.of(context).brightness == Brightness.dark;
 
             final child = FlowyIconButton(
               width: 36,
@@ -73,7 +74,9 @@ class _FormatToolbarItem extends ToolbarItem {
               icon: FlowySvg(
                 svg,
                 size: Size.square(20.0),
-                color: Theme.of(context).iconTheme.color,
+                color: (isDark && isHighlight)
+                    ? Color(0xFF282E3A)
+                    : Theme.of(context).iconTheme.color,
               ),
               onPressed: () => editorState.toggleAttribute(name),
             );

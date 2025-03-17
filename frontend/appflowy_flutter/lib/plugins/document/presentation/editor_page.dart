@@ -430,16 +430,13 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       );
     }
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: FloatingToolbar(
         floatingToolbarHeight: 40,
         padding: EdgeInsets.symmetric(horizontal: 6),
         style: FloatingToolbarStyle(
           backgroundColor: Theme.of(context).cardColor,
-          toolbarActiveColor: isDark
-              ? Theme.of(context).colorScheme.secondary
-              : Color(0xffe0f8fd),
+          toolbarActiveColor: Color(0xffe0f8fd),
           toolbarElevation: 10,
         ),
         items: toolbarItems,
