@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+/// In memory cache of the quote block height to avoid flashing when the quote block is updated.
+Map<String, double> _quoteBlockHeightCache = {};
+
 typedef QuoteBlockIconBuilder = Widget Function(
   BuildContext context,
   Node node,
@@ -115,7 +118,9 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
   @override
   Node get node => widget.node;
 
-  ValueNotifier<double> quoteBlockHeightNotifier = ValueNotifier(0);
+  late ValueNotifier<double> quoteBlockHeightNotifier = ValueNotifier(
+    _quoteBlockHeightCache[node.id] ?? 0,
+  );
 
   StreamSubscription<EditorTransactionValue>? _transactionSubscription;
 
@@ -266,17 +271,19 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
   void _updateQuoteBlockHeight() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       final renderObject = layoutBuilderKey.currentContext?.findRenderObject();
+      double height = _quoteBlockHeightCache[node.id] ?? 0;
       if (renderObject != null && renderObject is RenderBox) {
         if (UniversalPlatform.isMobile) {
-          quoteBlockHeightNotifier.value =
-              renderObject.size.height - padding.top;
+          height = renderObject.size.height - padding.top;
         } else {
-          quoteBlockHeightNotifier.value =
-              renderObject.size.height - padding.top * 2;
+          height = renderObject.size.height - padding.top * 2;
         }
       } else {
-        quoteBlockHeightNotifier.value = 0;
+        height = 0;
       }
+
+      quoteBlockHeightNotifier.value = height;
+      _quoteBlockHeightCache[node.id] = height;
     });
   }
 }
