@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_option_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
@@ -143,9 +144,10 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
                   fontWeight: FontWeight.w400,
                   figmaLineHeight: 20,
                 ),
+                HSpace(4),
                 FlowySvg(
                   FlowySvgs.toolbar_arrow_down_m,
-                  size: Size.square(20),
+                  size: Size(12, 20),
                   color: iconColor,
                 ),
               ],
@@ -263,7 +265,8 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
     suggestionItems.clear();
     turnIntoItems.clear();
     for (final item in suggestions) {
-      if (item.type.group == suggestionType.group) {
+      if (item.type.group == suggestionType.group &&
+          item.type != suggestionType) {
         suggestionItems.add(item);
       } else {
         turnIntoItems.add(item);
@@ -321,137 +324,100 @@ final h1SuggestionItem = SuggestionItem(
   type: SuggestionType.h1,
   title: LocaleKeys.document_toolbar_h1.tr(),
   svg: FlowySvgs.type_h1_m,
-  onTap: (state) => onHeadingLevelChanged(state, 1),
+  onTap: (state) => _turnInto(state, HeadingBlockKeys.type, level: 1),
 );
 
 final h2SuggestionItem = SuggestionItem(
   type: SuggestionType.h2,
   title: LocaleKeys.document_toolbar_h2.tr(),
   svg: FlowySvgs.type_h2_m,
-  onTap: (state) => onHeadingLevelChanged(state, 2),
+  onTap: (state) => _turnInto(state, HeadingBlockKeys.type, level: 2),
 );
 
 final h3SuggestionItem = SuggestionItem(
   type: SuggestionType.h3,
   title: LocaleKeys.document_toolbar_h3.tr(),
   svg: FlowySvgs.type_h3_m,
-  onTap: (state) => onHeadingLevelChanged(state, 3),
+  onTap: (state) => _turnInto(state, HeadingBlockKeys.type, level: 3),
 );
 
 final checkboxSuggestionItem = SuggestionItem(
   type: SuggestionType.checkbox,
   title: LocaleKeys.editor_checkbox.tr(),
   svg: FlowySvgs.type_todo_m,
-  onTap: (state) {
-    final selection = state.selection!;
-    final node = state.getNodeAtPath(selection.start.path)!;
-    final isHighlight = node.type == TodoListBlockKeys.type;
-    state.formatNode(
-      selection,
-      (node) => node.copyWith(
-        type: isHighlight ? ParagraphBlockKeys.type : TodoListBlockKeys.type,
-      ),
-    );
-  },
+  onTap: (state) => _turnInto(state, TodoListBlockKeys.type),
 );
 
 final bulletedSuggestionItem = SuggestionItem(
   type: SuggestionType.bulleted,
   title: LocaleKeys.editor_bulletedListShortForm.tr(),
   svg: FlowySvgs.type_bulleted_list_m,
-  onTap: (state) {
-    final selection = state.selection!;
-    final node = state.getNodeAtPath(selection.start.path)!;
-    final isHighlight = node.type == BulletedListBlockKeys.type;
-    state.formatNode(
-      selection,
-      (node) => node.copyWith(
-        type:
-            isHighlight ? ParagraphBlockKeys.type : BulletedListBlockKeys.type,
-      ),
-    );
-  },
+  onTap: (state) => _turnInto(state, BulletedListBlockKeys.type),
 );
 
 final numberedSuggestionItem = SuggestionItem(
   type: SuggestionType.numbered,
   title: LocaleKeys.editor_numberedListShortForm.tr(),
   svg: FlowySvgs.type_numbered_list_m,
-  onTap: (state) {
-    final selection = state.selection!;
-    final node = state.getNodeAtPath(selection.start.path)!;
-    final isHighlight = node.type == NumberedListBlockKeys.type;
-    state.formatNode(
-      selection,
-      (node) => node.copyWith(
-        type:
-            isHighlight ? ParagraphBlockKeys.type : NumberedListBlockKeys.type,
-      ),
-    );
-  },
+  onTap: (state) => _turnInto(state, NumberedListBlockKeys.type),
 );
 
 final toggleSuggestionItem = SuggestionItem(
   type: SuggestionType.toggle,
   title: LocaleKeys.editor_toggleListShortForm.tr(),
   svg: FlowySvgs.type_toggle_list_m,
-  onTap: (state) => onToggleLevelChanged(state, null),
+  onTap: (state) => _turnInto(state, ToggleListBlockKeys.type),
 );
 
 final toggleH1SuggestionItem = SuggestionItem(
   type: SuggestionType.toggleH1,
   title: LocaleKeys.editor_toggleHeading1ShortForm.tr(),
   svg: FlowySvgs.type_toggle_h1_m,
-  onTap: (state) => onToggleLevelChanged(state, 1),
+  onTap: (state) => _turnInto(state, ToggleListBlockKeys.type, level: 1),
 );
 
 final toggleH2SuggestionItem = SuggestionItem(
   type: SuggestionType.toggleH2,
   title: LocaleKeys.editor_toggleHeading2ShortForm.tr(),
   svg: FlowySvgs.type_toggle_h2_m,
-  onTap: (state) => onToggleLevelChanged(state, 2),
+  onTap: (state) => _turnInto(state, ToggleListBlockKeys.type, level: 2),
 );
 
 final toggleH3SuggestionItem = SuggestionItem(
   type: SuggestionType.toggleH3,
   title: LocaleKeys.editor_toggleHeading3ShortForm.tr(),
   svg: FlowySvgs.type_toggle_h3_m,
-  onTap: (state) => onToggleLevelChanged(state, 3),
+  onTap: (state) => _turnInto(state, ToggleListBlockKeys.type, level: 3),
 );
 
 final callOutSuggestionItem = SuggestionItem(
   type: SuggestionType.callOut,
   title: LocaleKeys.document_plugins_callout.tr(),
   svg: FlowySvgs.type_callout_m,
-  onTap: (state) {
-    final selection = state.selection!;
-    final node = state.getNodeAtPath(selection.start.path)!;
-    final isHighlight = node.type == CalloutBlockKeys.type;
-    state.formatNode(
-      selection,
-      (node) => node.copyWith(
-        type: isHighlight ? ParagraphBlockKeys.type : CalloutBlockKeys.type,
-      ),
-    );
-  },
+  onTap: (state) => _turnInto(state, CalloutBlockKeys.type),
 );
 
 final quoteSuggestionItem = SuggestionItem(
   type: SuggestionType.quote,
   title: LocaleKeys.editor_quote.tr(),
   svg: FlowySvgs.type_quote_m,
-  onTap: (state) {
-    final selection = state.selection!;
-    final node = state.getNodeAtPath(selection.start.path)!;
-    final isHighlight = node.type == QuoteBlockKeys.type;
-    state.formatNode(
-      selection,
-      (node) => node.copyWith(
-        type: isHighlight ? ParagraphBlockKeys.type : QuoteBlockKeys.type,
-      ),
-    );
-  },
+  onTap: (state) => _turnInto(state, QuoteBlockKeys.type),
 );
+
+Future<void> _turnInto(EditorState state, String type, {int? level}) async {
+  final selection = state.selection!;
+  final node = state.getNodeAtPath(selection.start.path)!;
+  await BlockActionOptionCubit.turnIntoBlock(
+    type,
+    node,
+    state,
+    level: level,
+  );
+  await state.updateSelectionWithReason(
+    selection,
+    reason: SelectionUpdateReason.uiEvent,
+  );
+}
 
 final suggestions = UnmodifiableListView([
   textSuggestionItem,
