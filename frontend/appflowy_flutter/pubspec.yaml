@@ -180,7 +180,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "4ce444b"
+      ref: "2b5830d"
 
   appflowy_editor_plugins:
     git:
@@ -229,6 +229,11 @@ dependency_overrides:
       url: https://github.com/LucasXu0/auto_updater.git
       path: packages/auto_updater_platform_interface
       ref: 1d81a824f3633f1d0200ba51b78fe0f9ce429458
+
+  unsplash_client:
+    git:
+      url: https://github.com/LucasXu0/unsplash_client.git
+      ref: a8411fc
 
   # auto_updater:
   #   path: /Users/lucas.xu/Desktop/auto_updater/packages/auto_updater

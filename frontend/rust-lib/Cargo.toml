@@ -103,8 +103,8 @@ dashmap = "6.0.1"
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "eb92783" }
-client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "eb92783" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "1634d17dd48488f6b55a7e0b874390343f18ebbf" }
+client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "1634d17dd48488f6b55a7e0b874390343f18ebbf" }
 
 [profile.dev]
 opt-level = 0
@@ -152,5 +152,5 @@ collab-importer = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFl
 # To update the commit ID, run:
 # scripts/tool/update_local_ai_rev.sh new_rev_id
 # ⚠️⚠️⚠️️
-appflowy-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "f4000af60ac18ad36a5dfb3fdc72c6d3ae967127" }
-appflowy-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "f4000af60ac18ad36a5dfb3fdc72c6d3ae967127" }
+appflowy-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "19f9ea7f9cc7c811eef3349ac3f1c5e6fce5c900" }
+appflowy-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "19f9ea7f9cc7c811eef3349ac3f1c5e6fce5c900" }

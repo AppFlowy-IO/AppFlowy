@@ -14,7 +14,7 @@ use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{
   ChatCloudService, ChatMessage, MessageCursor, QuestionStreamValue, ResponseFormat,
 };
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_sqlite::DBConnection;
 use futures::{SinkExt, StreamExt};
 use lib_infra::isolate_stream::IsolateSink;
@@ -115,7 +115,7 @@ impl Chat {
         &self.chat_id,
         params.message,
         params.message_type.clone(),
-        &params.metadata,
+        &[],
       )
       .await
       .map_err(|err| {
@@ -126,6 +126,7 @@ impl Chat {
     let _ = question_sink
       .send(StreamMessage::MessageId(question.message_id).to_string())
       .await;
+
     if let Err(err) = self
       .chat_service
       .index_message_metadata(&self.chat_id, &params.metadata, &mut question_sink)
@@ -133,11 +134,9 @@ impl Chat {
     {
       error!("Failed to index file: {}", err);
     }
-    let _ = question_sink.send(StreamMessage::Done.to_string()).await;
 
     // Save message to disk
     save_and_notify_message(uid, &self.chat_id, &self.user_service, question.clone())?;
-
     let format = params.format.clone().map(Into::into).unwrap_or_default();
 
     self.stream_response(
@@ -219,8 +218,10 @@ impl Chat {
                 match message {
                   QuestionStreamValue::Answer { value } => {
                     answer_stream_buffer.lock().await.push_str(&value);
-                    // trace!("[Chat] stream answer: {}", value);
-                    if let Err(err) = answer_sink.send(format!("data:{}", value)).await {
+                    if let Err(err) = answer_sink
+                      .send(StreamMessage::OnData(value).to_string())
+                      .await
+                    {
                       error!("Failed to stream answer via IsolateSink: {}", err);
                     }
                   },
@@ -228,7 +229,9 @@ impl Chat {
                     if let Ok(s) = serde_json::to_string(&value) {
                       // trace!("[Chat] stream metadata: {}", s);
                       answer_stream_buffer.lock().await.set_metadata(value);
-                      let _ = answer_sink.send(format!("metadata:{}", s)).await;
+                      let _ = answer_sink
+                        .send(StreamMessage::Metadata(s).to_string())
+                        .await;
                     }
                   },
                   QuestionStreamValue::KeepAlive => {
@@ -237,16 +240,23 @@ impl Chat {
                 }
               },
               Err(err) => {
-                error!("[Chat] failed to stream answer: {}", err);
-                let _ = answer_sink.send(format!("error:{}", err)).await;
-                let pb = ChatMessageErrorPB {
-                  chat_id: chat_id.clone(),
-                  error_message: err.to_string(),
-                };
-                chat_notification_builder(&chat_id, ChatNotification::StreamChatMessageError)
-                  .payload(pb)
-                  .send();
-                return Err(err);
+                if err.code == ErrorCode::RequestTimeout || err.code == ErrorCode::Internal {
+                  error!("[Chat] unexpected stream error: {}", err);
+                  let _ = answer_sink.send(StreamMessage::Done.to_string()).await;
+                } else {
+                  error!("[Chat] failed to stream answer: {}", err);
+                  let _ = answer_sink
+                    .send(StreamMessage::OnError(err.msg.clone()).to_string())
+                    .await;
+                  let pb = ChatMessageErrorPB {
+                    chat_id: chat_id.clone(),
+                    error_message: err.to_string(),
+                  };
+                  chat_notification_builder(&chat_id, ChatNotification::StreamChatMessageError)
+                    .payload(pb)
+                    .send();
+                  return Err(err);
+                }
               },
             }
           }
@@ -268,7 +278,9 @@ impl Chat {
               .send(format!("LOCAL_AI_NOT_READY:{}", err.msg))
               .await;
           } else {
-            let _ = answer_sink.send(format!("error:{}", err)).await;
+            let _ = answer_sink
+              .send(StreamMessage::OnError(err.msg.clone()).to_string())
+              .await;
           }
 
           let pb = ChatMessageErrorPB {

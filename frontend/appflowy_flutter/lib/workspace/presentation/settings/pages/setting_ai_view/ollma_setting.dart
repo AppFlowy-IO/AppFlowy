@@ -148,7 +148,7 @@ class _InstallOllamaInstruction extends StatelessWidget {
                     ),
                 recognizer: TapGestureRecognizer()
                   ..onTap = () => afLaunchUrlString(
-                        "https://docs.appflowy.io/docs/appflowy/product/appflowy-ai-ollama",
+                        "https://appflowy.com/guide/appflowy-local-ai-ollama",
                       ),
               ),
               TextSpan(

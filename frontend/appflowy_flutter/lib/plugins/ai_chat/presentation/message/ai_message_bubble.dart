@@ -217,22 +217,22 @@ class _ChatAIMessageHoverState extends State<ChatAIMessageHover> {
                     setState(() => hoverActionBar = false);
                   }
                 },
-                child: Container(
-                  constraints: BoxConstraints(
-                    maxWidth: 784,
-                    maxHeight: DesktopAIChatSizes.messageActionBarIconSize +
-                        DesktopAIChatSizes
-                            .messageHoverActionBarPadding.vertical,
-                  ),
+                child: SizedBox(
+                  width: 784,
+                  height: DesktopAIChatSizes.messageActionBarIconSize +
+                      DesktopAIChatSizes.messageHoverActionBarPadding.vertical,
                   child: hoverBubble || hoverActionBar || overrideVisibility
-                      ? AIMessageActionBar(
-                          message: widget.message,
-                          showDecoration: true,
-                          onRegenerate: widget.onRegenerate,
-                          onChangeFormat: widget.onChangeFormat,
-                          onOverrideVisibility: (visibility) {
-                            overrideVisibility = visibility;
-                          },
+                      ? Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: AIMessageActionBar(
+                            message: widget.message,
+                            showDecoration: true,
+                            onRegenerate: widget.onRegenerate,
+                            onChangeFormat: widget.onChangeFormat,
+                            onOverrideVisibility: (visibility) {
+                              overrideVisibility = visibility;
+                            },
+                          ),
                         )
                       : null,
                 ),
