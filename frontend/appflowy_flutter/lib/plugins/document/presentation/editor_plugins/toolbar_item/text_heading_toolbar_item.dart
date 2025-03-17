@@ -221,6 +221,10 @@ enum TextHeadingCommand {
       state,
       level: level,
     );
+    await state.updateSelectionWithReason(
+      selection,
+      reason: SelectionUpdateReason.uiEvent,
+    );
   }
 }
 

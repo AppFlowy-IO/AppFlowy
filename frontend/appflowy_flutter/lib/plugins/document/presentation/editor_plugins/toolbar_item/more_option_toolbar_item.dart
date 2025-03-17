@@ -257,7 +257,7 @@ enum MoreOptionCommand {
       case strikethrough:
         return LocaleKeys.editor_strikethrough.tr();
       case formula:
-        return LocaleKeys.editor_mathEquationShortForm.tr();
+        return LocaleKeys.document_toolbar_equation.tr();
     }
   }
 

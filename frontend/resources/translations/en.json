@@ -2116,7 +2116,8 @@
       "moreOptions": "More Options",
       "font": "Font",
       "suggestions": "Suggestions",
-      "turnInto": "Turn Into"
+      "turnInto": "Turn Into",
+      "equation": "Equation"
     },
     "errorBlock": {
       "theBlockIsNotSupported": "Unable to parse the block content",
