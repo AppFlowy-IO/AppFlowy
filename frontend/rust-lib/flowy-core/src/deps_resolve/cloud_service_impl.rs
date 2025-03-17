@@ -431,11 +431,16 @@ impl FolderCloudService for ServerProvider {
       .await
   }
 
-  async fn get_workspace_folder(&self, workspace_id: &str) -> Result<FolderView, FlowyError> {
+  async fn get_workspace_folder(
+    &self,
+    workspace_id: &str,
+    depth: Option<u32>,
+    root_view_id: Option<String>,
+  ) -> Result<FolderView, FlowyError> {
     let server = self.get_server()?;
     server
       .folder_service()
-      .get_workspace_folder(workspace_id)
+      .get_workspace_folder(workspace_id, depth, root_view_id)
       .await
   }
 }

@@ -4,8 +4,8 @@ import 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc.dar
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_folder.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_header.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/view/folder_views.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -69,7 +69,7 @@ class _FolderV2 extends StatelessWidget {
           case FolderV2Loading():
             return const _FolderV2Loading();
           case FolderV2Loaded():
-            return _FolderV2Loaded(view: state.view);
+            return _FolderV2Loaded(folderView: state.folderView);
           case FolderV2Error():
             return const SizedBox.shrink();
         }
@@ -91,10 +91,10 @@ class _FolderV2Loading extends StatelessWidget {
 
 class _FolderV2Loaded extends StatefulWidget {
   const _FolderV2Loaded({
-    required this.view,
+    required this.folderView,
   });
 
-  final FolderViewPB view;
+  final FolderViewPB folderView;
 
   @override
   State<_FolderV2Loaded> createState() => _FolderV2LoadedState();
@@ -118,7 +118,7 @@ class _FolderV2LoadedState extends State<_FolderV2Loaded> {
 
   @override
   Widget build(BuildContext context) {
-    final currentSpace = widget.view.children.first.viewItem;
+    final currentSpace = widget.folderView.viewPB.childViews.first;
     return Column(
       children: [
         SidebarSpaceHeader(
@@ -132,7 +132,7 @@ class _FolderV2LoadedState extends State<_FolderV2Loaded> {
           MouseRegion(
             onEnter: (_) => isHovered.value = true,
             onExit: (_) => isHovered.value = false,
-            child: SpacePages(
+            child: FolderViews(
               isExpandedNotifier: isExpandedNotifier,
               space: currentSpace,
               isHovered: isHovered,
@@ -152,14 +152,18 @@ class _FolderV2LoadedState extends State<_FolderV2Loaded> {
 }
 
 extension on FolderViewPB {
-  ViewPB get viewItem => ViewPB(
-        id: viewId,
-        name: name,
-        icon: icon,
-        layout: layout,
-        createTime: createdAt,
-        lastEdited: lastEditedTime,
-        extra: extra,
-        childViews: children.map((e) => e.viewItem).toList(),
-      );
+  ViewPB get viewPB {
+    debugPrint('viewPB: $viewId, name: $name');
+    final children = this.children.map((e) => e.viewPB).toList();
+    return ViewPB(
+      id: viewId,
+      name: name,
+      icon: icon,
+      layout: layout,
+      createTime: createdAt,
+      lastEdited: lastEditedTime,
+      extra: extra,
+      childViews: children,
+    );
+  }
 }

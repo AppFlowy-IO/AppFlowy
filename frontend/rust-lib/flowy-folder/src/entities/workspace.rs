@@ -133,6 +133,37 @@ impl TryInto<GetWorkspaceViewParams> for GetWorkspaceViewPB {
   }
 }
 
+#[derive(Clone, ProtoBuf, Default, Debug)]
+pub struct GetWorkspaceFolderViewPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2, one_of)]
+  pub depth: Option<u32>,
+
+  #[pb(index = 3, one_of)]
+  pub root_view_id: Option<String>,
+}
+
+#[derive(Clone, Debug)]
+pub struct GetWorkspaceFolderViewParams {
+  pub workspace_id: String,
+  pub depth: Option<u32>,
+  pub root_view_id: Option<String>,
+}
+
+impl TryInto<GetWorkspaceFolderViewParams> for GetWorkspaceFolderViewPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<GetWorkspaceFolderViewParams, Self::Error> {
+    Ok(GetWorkspaceFolderViewParams {
+      workspace_id: self.workspace_id,
+      depth: self.depth,
+      root_view_id: self.root_view_id,
+    })
+  }
+}
+
 #[derive(Default, ProtoBuf, Debug, Clone)]
 pub struct WorkspaceSettingPB {
   #[pb(index = 1)]

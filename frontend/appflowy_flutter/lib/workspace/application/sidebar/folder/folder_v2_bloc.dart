@@ -20,10 +20,13 @@ class FolderV2Bloc extends Bloc<FolderV2Event, FolderV2State> {
   ) async {
     emit(const FolderV2Loading());
 
-    final request = GetWorkspaceViewPB(value: workspaceId);
+    final request = GetWorkspaceFolderViewPB(
+      workspaceId: workspaceId,
+      depth: 10,
+    );
     final response = await FolderEventGetWorkspaceFolder(request).send();
     response.fold(
-      (view) => emit(FolderV2Loaded(view: view)),
+      (folderView) => emit(FolderV2Loaded(folderView: folderView)),
       (error) => emit(FolderV2Error(error)),
     );
   }
@@ -63,13 +66,13 @@ class FolderV2Loading extends FolderV2State {
 
 class FolderV2Loaded extends FolderV2State {
   const FolderV2Loaded({
-    required this.view,
+    required this.folderView,
   });
 
-  final FolderViewPB view;
+  final FolderViewPB folderView;
 
   @override
-  List<Object?> get props => [view];
+  List<Object?> get props => [folderView];
 }
 
 final class FolderV2Error extends FolderV2State {

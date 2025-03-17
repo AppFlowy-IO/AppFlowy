@@ -109,7 +109,12 @@ pub trait FolderCloudService: Send + Sync + 'static {
   async fn import_zip(&self, file_path: &str) -> Result<(), FlowyError>;
 
   /// Get the workspace folder
-  async fn get_workspace_folder(&self, workspace_id: &str) -> Result<FolderView, FlowyError>;
+  async fn get_workspace_folder(
+    &self,
+    workspace_id: &str,
+    depth: Option<u32>,
+    root_view_id: Option<String>,
+  ) -> Result<FolderView, FlowyError>;
 }
 
 #[derive(Debug)]

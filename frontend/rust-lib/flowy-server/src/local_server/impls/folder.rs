@@ -155,7 +155,12 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     Ok(())
   }
 
-  async fn get_workspace_folder(&self, _workspace_id: &str) -> Result<FolderView, FlowyError> {
+  async fn get_workspace_folder(
+    &self,
+    _workspace_id: &str,
+    _depth: Option<u32>,
+    _root_view_id: Option<String>,
+  ) -> Result<FolderView, FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
 }

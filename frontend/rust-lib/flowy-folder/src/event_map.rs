@@ -231,6 +231,6 @@ pub enum FolderEvent {
   UnlockView = 55,
 
   // All the events below are used for the HTTP API
-  #[event(input = "GetWorkspaceViewPB", output = "FolderViewPB")]
+  #[event(input = "GetWorkspaceFolderViewPB", output = "FolderViewPB")]
   GetWorkspaceFolder = 100,
 }

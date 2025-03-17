@@ -375,13 +375,18 @@ where
     Ok(())
   }
 
-  async fn get_workspace_folder(&self, workspace_id: &str) -> Result<FolderView, FlowyError> {
+  async fn get_workspace_folder(
+    &self,
+    workspace_id: &str,
+    depth: Option<u32>,
+    root_view_id: Option<String>,
+  ) -> Result<FolderView, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.inner.try_get_client();
     let client = try_get_client?;
     // todo: support depth and root_view_id
     let folder = client
-      .get_workspace_folder(&workspace_id, None, None)
+      .get_workspace_folder(&workspace_id, depth, root_view_id)
       .await?;
     Ok(folder)
   }

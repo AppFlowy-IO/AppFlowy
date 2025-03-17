@@ -2039,10 +2039,15 @@ impl FolderManager {
     Ok(())
   }
 
-  pub async fn get_workspace_folder(&self, workspace_id: &str) -> FlowyResult<FolderView> {
+  pub async fn get_workspace_folder(
+    &self,
+    workspace_id: &str,
+    depth: Option<u32>,
+    root_view_id: Option<String>,
+  ) -> FlowyResult<FolderView> {
     let folder_view = self
       .cloud_service
-      .get_workspace_folder(workspace_id)
+      .get_workspace_folder(workspace_id, depth, root_view_id)
       .await?;
     Ok(folder_view)
   }
