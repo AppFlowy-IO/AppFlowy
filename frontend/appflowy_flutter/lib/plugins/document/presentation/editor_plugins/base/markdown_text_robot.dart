@@ -70,7 +70,7 @@ class MarkdownTextRobot {
   /// The text will be inserted into the document but only in memory
   Future<void> appendMarkdownText(
     String text, {
-    required bool updateSelection,
+    bool updateSelection = true,
     Map<String, dynamic>? attributes,
   }) async {
     _markdownText += text;

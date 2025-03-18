@@ -162,20 +162,21 @@ void main() {
         );
         final editorState = EditorState(document: document)
           ..selection = selection;
-        final command = AiWriterCommand.explain;
-        final node = aiWriterNode(
-          command: command,
-          selection: selection,
-        );
         return AiWriterCubit(
           documentId: '',
-          getAiWriterNode: () => node,
           editorState: editorState,
-          initialCommand: command,
           aiService: _MockAIRepository(),
         );
       },
-      act: (bloc) => bloc.init(),
+      act: (bloc) => bloc.register(
+        aiWriterNode(
+          command: AiWriterCommand.explain,
+          selection: Selection(
+            start: Position(path: [0]),
+            end: Position(path: [2], offset: text3.length),
+          ),
+        ),
+      ),
       expect: () => [
         isA<GeneratingAiWriterState>()
             .having((s) => s.markdownText, 'result', isEmpty),
@@ -216,19 +217,21 @@ void main() {
         );
         final editorState = EditorState(document: document)
           ..selection = selection;
-        final node = aiWriterNode(
-          command: AiWriterCommand.explain,
-          selection: selection,
-        );
         return AiWriterCubit(
           documentId: '',
-          getAiWriterNode: () => node,
           editorState: editorState,
-          initialCommand: AiWriterCommand.explain,
           aiService: _MockErrorRepository(),
         );
       },
-      act: (bloc) => bloc.init(),
+      act: (bloc) => bloc.register(
+        aiWriterNode(
+          command: AiWriterCommand.explain,
+          selection: Selection(
+            start: Position(path: [0]),
+            end: Position(path: [2], offset: text3.length),
+          ),
+        ),
+      ),
       expect: () => [
         isA<GeneratingAiWriterState>()
             .having((s) => s.markdownText, 'result', isEmpty),
@@ -264,12 +267,10 @@ void main() {
       final aiNode = editorState.getNodeAtPath([3])!;
       final bloc = AiWriterCubit(
         documentId: '',
-        getAiWriterNode: () => aiNode,
         editorState: editorState,
-        initialCommand: AiWriterCommand.improveWriting,
         aiService: _MockAIRepository(),
       );
-      bloc.init();
+      bloc.register(aiNode);
       await blocResponseFuture();
       bloc.runResponseAction(SuggestionAction.accept);
       await blocResponseFuture();
@@ -314,12 +315,10 @@ void main() {
       final aiNode = editorState.getNodeAtPath([3])!;
       final bloc = AiWriterCubit(
         documentId: '',
-        getAiWriterNode: () => aiNode,
         editorState: editorState,
-        initialCommand: AiWriterCommand.improveWriting,
         aiService: _MockAIRepository(),
       );
-      bloc.init();
+      bloc.register(aiNode);
       await blocResponseFuture();
       bloc.runResponseAction(SuggestionAction.discard);
       await blocResponseFuture();
@@ -355,12 +354,10 @@ void main() {
       final aiNode = editorState.getNodeAtPath([3])!;
       final bloc = AiWriterCubit(
         documentId: '',
-        getAiWriterNode: () => aiNode,
         editorState: editorState,
-        initialCommand: AiWriterCommand.improveWriting,
         aiService: _MockAIRepositoryLess(),
       );
-      bloc.init();
+      bloc.register(aiNode);
       await blocResponseFuture();
       bloc.runResponseAction(SuggestionAction.accept);
       await blocResponseFuture();
@@ -394,12 +391,10 @@ void main() {
       final aiNode = editorState.getNodeAtPath([3])!;
       final bloc = AiWriterCubit(
         documentId: '',
-        getAiWriterNode: () => aiNode,
         editorState: editorState,
-        initialCommand: AiWriterCommand.improveWriting,
         aiService: _MockAIRepositoryMore(),
       );
-      bloc.init();
+      bloc.register(aiNode);
       await blocResponseFuture();
       bloc.runResponseAction(SuggestionAction.accept);
       await blocResponseFuture();

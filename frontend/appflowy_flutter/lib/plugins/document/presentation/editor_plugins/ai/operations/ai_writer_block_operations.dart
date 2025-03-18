@@ -4,7 +4,26 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import '../ai_writer_block_component.dart';
 import 'ai_writer_entities.dart';
 
-Future<void> removeAiWriterNode(EditorState editorState, Node node) async {
+Future<void> setAiWriterNodeIsInitialized(
+  EditorState editorState,
+  Node node,
+) async {
+  final transaction = editorState.transaction
+    ..updateNode(node, {
+      AiWriterBlockKeys.isInitialized: true,
+    });
+
+  await editorState.apply(
+    transaction,
+    options: const ApplyOptions(recordUndo: false),
+    withUpdateSelection: false,
+  );
+}
+
+Future<void> removeAiWriterNode(
+  EditorState editorState,
+  Node node,
+) async {
   final transaction = editorState.transaction..deleteNode(node);
   await editorState.apply(
     transaction,
@@ -87,10 +106,6 @@ Position ensurePreviousNodeIsEmptyParagraph(
   } else {
     position = Position(path: previous.path);
   }
-
-  transaction.updateNode(aiWriterNode, {
-    AiWriterBlockKeys.isInitialized: true,
-  });
 
   return position;
 }

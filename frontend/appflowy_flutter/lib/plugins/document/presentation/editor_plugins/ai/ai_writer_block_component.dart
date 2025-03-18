@@ -2,11 +2,8 @@ import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/message/ai_markdown_text.dart';
-import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/colorscheme/default_colorscheme.dart';
@@ -15,12 +12,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-import 'operations/ai_scroll_service.dart';
 import 'operations/ai_writer_cubit.dart';
 import 'operations/ai_writer_entities.dart';
 import 'operations/ai_writer_node_extension.dart';
 import 'suggestion_action_bar.dart';
-import 'widgets/ai_writer_gesture_detector.dart';
 
 class AiWriterBlockKeys {
   const AiWriterBlockKeys._();
@@ -98,21 +93,12 @@ class AiWriterBlockComponent extends BlockComponentStatefulWidget {
   State<AiWriterBlockComponent> createState() => _AIWriterBlockComponentState();
 }
 
-class _AIWriterBlockComponentState extends State<AiWriterBlockComponent>
-    with AutomaticKeepAliveClientMixin {
-  final key = GlobalKey();
+class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
   final textController = TextEditingController();
   final overlayController = OverlayPortalController();
   final layerLink = LayerLink();
 
   late final editorState = context.read<EditorState>();
-  late final aiWriterCubit = AiWriterCubit(
-    documentId: context.read<DocumentBloc>().documentId,
-    editorState: editorState,
-    getAiWriterNode: () => widget.node,
-    initialCommand: widget.node.aiWriterCommand,
-    aiScrollService: context.read<AiScrollService>(),
-  );
 
   @override
   void initState() {
@@ -121,7 +107,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       overlayController.show();
       if (!widget.node.isAiWriterInitialized) {
-        aiWriterCubit.init();
+        context.read<AiWriterCubit>().register(widget.node);
       }
     });
   }
@@ -129,94 +115,51 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent>
   @override
   void dispose() {
     textController.dispose();
-    aiWriterCubit.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     if (UniversalPlatform.isMobile) {
       return const SizedBox.shrink();
     }
 
-    return MultiBlocProvider(
-      key: key,
-      providers: [
-        BlocProvider.value(
-          value: aiWriterCubit,
-        ),
-        BlocProvider(
-          create: (_) => AIPromptInputBloc(
-            predefinedFormat: null,
-          ),
-        ),
-      ],
+    return BlocProvider(
+      create: (_) => AIPromptInputBloc(
+        predefinedFormat: null,
+      ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          return BlocListener<AiWriterCubit, AiWriterState>(
-            listener: (context, state) {
-              if (state is FailedContinueWritingAiWriterState) {
-                showConfirmDialog(
-                  context: context,
-                  title: LocaleKeys.ai_continueWritingEmptyDocumentTitle.tr(),
-                  description: LocaleKeys
-                      .ai_continueWritingEmptyDocumentDescription
-                      .tr(),
-                  onConfirm: state.onConfirm,
-                );
-              } else if (state is DiscardResponseAiWriterState) {
-                showConfirmDialog(
-                  context: context,
-                  title: LocaleKeys.button_discard.tr(),
-                  description: LocaleKeys.document_plugins_discardResponse.tr(),
-                  confirmLabel: LocaleKeys.button_discard.tr(),
-                  style: ConfirmPopupStyle.cancelAndOk,
-                  onConfirm: state.onDiscard,
-                  onCancel: () {},
-                );
-              }
-            },
-            child: OverlayPortal(
-              controller: overlayController,
-              overlayChildBuilder: (context) {
-                return Stack(
-                  children: [
-                    BlocBuilder<AiWriterCubit, AiWriterState>(
-                      builder: (context, state) {
-                        return AiWriterGestureDetector(
-                          behavior: HitTestBehavior.translucent,
-                          onPointerEvent: onTapOutside,
-                        );
-                      },
+          return OverlayPortal(
+            controller: overlayController,
+            overlayChildBuilder: (context) {
+              return Center(
+                child: CompositedTransformFollower(
+                  link: layerLink,
+                  showWhenUnlinked: false,
+                  child: Container(
+                    padding: const EdgeInsets.only(
+                      left: 40.0,
+                      bottom: 16.0,
                     ),
-                    CompositedTransformFollower(
-                      link: layerLink,
-                      showWhenUnlinked: false,
-                      child: Container(
-                        padding: const EdgeInsets.only(
-                          left: 40.0,
-                          bottom: 16.0,
-                        ),
-                        width: constraints.maxWidth,
-                        child: OverlayContent(
-                          editorState: editorState,
-                          node: widget.node,
-                        ),
-                      ),
+                    width: constraints.maxWidth,
+                    child: OverlayContent(
+                      editorState: editorState,
+                      node: widget.node,
                     ),
-                  ],
-                );
-              },
-              child: CompositedTransformTarget(
-                link: layerLink,
-                child: BlocBuilder<AiWriterCubit, AiWriterState>(
-                  builder: (context, state) {
-                    return SizedBox(
-                      width: double.infinity,
-                    );
-                  },
+                  ),
                 ),
+              );
+            },
+            child: CompositedTransformTarget(
+              link: layerLink,
+              child: BlocBuilder<AiWriterCubit, AiWriterState>(
+                builder: (context, state) {
+                  return SizedBox(
+                    width: double.infinity,
+                    height: 1.0,
+                  );
+                },
               ),
             ),
           );
@@ -224,29 +167,6 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent>
       ),
     );
   }
-
-  void onTapOutside() {
-    if (aiWriterCubit.hasUnusedResponse()) {
-      showConfirmDialog(
-        context: context,
-        title: LocaleKeys.button_discard.tr(),
-        description: LocaleKeys.document_plugins_discardResponse.tr(),
-        confirmLabel: LocaleKeys.button_discard.tr(),
-        style: ConfirmPopupStyle.cancelAndOk,
-        onConfirm: () => aiWriterCubit
-          ..stopStream()
-          ..exit(),
-        onCancel: () {},
-      );
-    } else {
-      aiWriterCubit
-        ..stopStream()
-        ..exit();
-    }
-  }
-
-  @override
-  bool get wantKeepAlive => true;
 }
 
 class OverlayContent extends StatelessWidget {
@@ -263,6 +183,9 @@ class OverlayContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AiWriterCubit, AiWriterState>(
       builder: (context, state) {
+        if (state is IdleAiWriterState) {
+          return const SizedBox.shrink();
+        }
         final selection = node.aiWriterSelection;
         final showSuggestionPopup =
             state is ReadyAiWriterState && !state.isFirstRun;
@@ -342,7 +265,9 @@ class OverlayContent extends StatelessWidget {
                                       alignment:
                                           AlignmentDirectional.centerStart,
                                       child: FlowyText(
-                                        state.command.i18n,
+                                        (state as RegisteredAiWriter)
+                                            .command
+                                            .i18n,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                         color: Color(0xFF666D76),
@@ -426,7 +351,9 @@ class OverlayContent extends StatelessWidget {
 
               context.read<AiWriterCubit>().runCommand(
                     command,
-                    showPredefinedFormats ? predefinedFormat : null,
+                    predefinedFormat:
+                        showPredefinedFormats ? predefinedFormat : null,
+                    isFirstRun: false,
                   );
             },
           ),
