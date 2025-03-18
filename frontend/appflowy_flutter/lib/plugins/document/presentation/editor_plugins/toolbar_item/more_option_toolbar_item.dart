@@ -165,8 +165,8 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
             rightIcon: FlowyText(
               shortcutTooltips(
                 '⌘⇧S',
-                'CTRL+SHIFT+S',
-                'CTRL+SHIFT+S',
+                'Ctrl⇧S',
+                'Ctrl⇧S',
               ).trim(),
               color: fontColor,
               fontSize: 12,
@@ -180,8 +180,8 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
               rightIcon: FlowyText(
                 shortcutTooltips(
                   '⌘⇧E',
-                  'CTRL+SHIFT+E',
-                  'CTRL+SHIFT+E',
+                  'Ctrl⇧E',
+                  'Ctrl⇧E',
                 ).trim(),
                 color: fontColor,
                 fontSize: 12,

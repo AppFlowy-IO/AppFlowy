@@ -107,7 +107,7 @@ class _TextColorPickerWidgetState extends State<TextColorPickerWidget> {
     return widget.tooltipBuilder?.call(
           context,
           _kTextColorItemId,
-          AppFlowyEditorL10n.current.textColor,
+          LocaleKeys.document_toolbar_textColor.tr(),
           child,
         ) ??
         child;
