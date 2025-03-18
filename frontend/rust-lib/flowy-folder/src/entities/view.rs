@@ -1,4 +1,7 @@
-use client_api::entity::workspace_dto::FolderView;
+use client_api::entity::workspace_dto::{
+  CreatePageParams, CreateSpaceParams, DuplicatePageParams, FolderView, MovePageParams,
+  SpacePermission, UpdatePageParams, UpdateSpaceParams,
+};
 use collab_folder::{View, ViewIcon, ViewLayout};
 use std::collections::HashMap;
 use std::convert::TryInto;
@@ -165,6 +168,18 @@ impl std::convert::From<ViewLayout> for ViewLayoutPB {
       ViewLayout::Document => ViewLayoutPB::Document,
       ViewLayout::Calendar => ViewLayoutPB::Calendar,
       ViewLayout::Chat => ViewLayoutPB::Chat,
+    }
+  }
+}
+
+impl From<ViewLayoutPB> for client_api::entity::workspace_dto::ViewLayout {
+  fn from(val: ViewLayoutPB) -> Self {
+    match val {
+      ViewLayoutPB::Grid => client_api::entity::workspace_dto::ViewLayout::Grid,
+      ViewLayoutPB::Board => client_api::entity::workspace_dto::ViewLayout::Board,
+      ViewLayoutPB::Document => client_api::entity::workspace_dto::ViewLayout::Document,
+      ViewLayoutPB::Calendar => client_api::entity::workspace_dto::ViewLayout::Calendar,
+      ViewLayoutPB::Chat => client_api::entity::workspace_dto::ViewLayout::Chat,
     }
   }
 }
@@ -727,58 +742,229 @@ impl TryInto<DuplicateViewParams> for DuplicateViewPayloadPB {
   }
 }
 
-// impl<'de> Deserialize<'de> for ViewDataType {
-//     fn deserialize<D>(deserializer: D) -> Result<Self, <D as Deserializer<'de>>::Error>
-//     where
-//         D: Deserializer<'de>,
-//     {
-//         struct ViewTypeVisitor();
-//
-//         impl<'de> Visitor<'de> for ViewTypeVisitor {
-//             type Value = ViewDataType;
-//             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-//                 formatter.write_str("RichText, PlainText")
-//             }
-//
-//             fn visit_u8<E>(self, v: u8) -> Result<Self::Value, E>
-//             where
-//                 E: de::Error,
-//             {
-//                 let data_type;
-//                 match v {
-//                     0 => {
-//                         data_type = ViewDataType::RichText;
-//                     }
-//                     1 => {
-//                         data_type = ViewDataType::PlainText;
-//                     }
-//                     _ => {
-//                         return Err(de::Error::invalid_value(Unexpected::Unsigned(v as u64), &self));
-//                     }
-//                 }
-//                 Ok(data_type)
-//             }
-//
-//             fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
-//             where
-//                 E: de::Error,
-//             {
-//                 let data_type;
-//                 match s {
-//                     "Doc" | "RichText" => {
-//                         // Rename ViewDataType::Doc to ViewDataType::RichText, So we need to migrate the ViewType manually.
-//                         data_type = ViewDataType::RichText;
-//                     }
-//                     "PlainText" => {
-//                         data_type = ViewDataType::PlainText;
-//                     }
-//                     unknown => {
-//                         return Err(de::Error::invalid_value(Unexpected::Str(unknown), &self));
-//                     }
-//                 }
-//                 Ok(data_type)
-//             }
-//         }
-//         deserializer.deserialize_any(ViewTypeVisitor())
-//     }
-// }
+#[derive(Default, ProtoBuf)]
+pub struct CreatePagePayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2, one_of)]
+  pub name: Option<String>,
+
+  #[pb(index = 3)]
+  pub layout: ViewLayoutPB,
+
+  #[pb(index = 4)]
+  pub parent_view_id: String,
+  // todo: support page_data
+  // #[pb(index = 4, one_of)]
+  // pub page_data: Option<serde_json::Value>,
+}
+
+impl TryInto<CreatePageParams> for CreatePagePayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<CreatePageParams, Self::Error> {
+    let parent_view_id = ViewIdentify::parse(self.parent_view_id)?.0;
+    let layout = self.layout.into();
+    let name = match self.name {
+      Some(name) => Some(ViewName::parse(name)?.0),
+      None => None,
+    };
+    Ok(CreatePageParams {
+      name,
+      layout,
+      parent_view_id,
+      page_data: None,
+    })
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UpdatePagePayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub view_id: String,
+
+  #[pb(index = 3)]
+  pub name: String,
+
+  #[pb(index = 4, one_of)]
+  pub icon: Option<ViewIconPB>,
+
+  #[pb(index = 5, one_of)]
+  pub is_locked: Option<bool>,
+  // todo: support extra
+  // #[pb(index = 4, one_of)]
+  // pub extra: Option<String>,
+}
+
+impl TryInto<UpdatePageParams> for UpdatePagePayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<UpdatePageParams, Self::Error> {
+    let name = ViewName::parse(self.name)?.0;
+    let is_locked = self.is_locked;
+    Ok(UpdatePageParams {
+      name,
+      icon: self.icon.map(|icon| icon.into()),
+      is_locked,
+      extra: None,
+    })
+  }
+}
+
+#[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Default)]
+pub enum SpacePermissionPB {
+  #[default]
+  PublicSpace = 0,
+
+  // Note that enum values use C++ scoping rules, meaning that enum values are siblings of their type, not children of it.  Therefore, "Private" must be unique within the global scope, not just within "SpacePermissionPB".
+  PrivateSpace = 1,
+}
+
+impl From<SpacePermissionPB> for SpacePermission {
+  fn from(value: SpacePermissionPB) -> Self {
+    match value {
+      SpacePermissionPB::PublicSpace => SpacePermission::PublicToAll,
+      SpacePermissionPB::PrivateSpace => SpacePermission::Private,
+    }
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct CreateSpacePayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub name: String,
+
+  #[pb(index = 3)]
+  pub space_permission: SpacePermissionPB,
+
+  #[pb(index = 4)]
+  pub space_icon: String,
+
+  #[pb(index = 5)]
+  pub space_icon_color: String,
+}
+
+impl TryInto<CreateSpaceParams> for CreateSpacePayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<CreateSpaceParams, Self::Error> {
+    let name = ViewName::parse(self.name)?.0;
+    let space_permission = self.space_permission.into();
+    Ok(CreateSpaceParams {
+      name,
+      space_permission,
+      space_icon: self.space_icon,
+      space_icon_color: self.space_icon_color,
+    })
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UpdateSpacePayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub space_id: String,
+
+  #[pb(index = 3)]
+  pub name: String,
+
+  #[pb(index = 4)]
+  pub space_permission: SpacePermissionPB,
+
+  #[pb(index = 5)]
+  pub space_icon: String,
+
+  #[pb(index = 6)]
+  pub space_icon_color: String,
+}
+
+impl TryInto<UpdateSpaceParams> for UpdateSpacePayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<UpdateSpaceParams, Self::Error> {
+    let name = ViewName::parse(self.name)?.0;
+    let space_permission = self.space_permission.into();
+    Ok(UpdateSpaceParams {
+      name,
+      space_permission,
+      space_icon: self.space_icon,
+      space_icon_color: self.space_icon_color,
+    })
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct MovePageToTrashPayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub view_id: String,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct RestorePageFromTrashPayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub view_id: String,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct DuplicatePagePayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub view_id: String,
+
+  #[pb(index = 3, one_of)]
+  pub suffix: Option<String>,
+}
+
+impl TryInto<DuplicatePageParams> for DuplicatePagePayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<DuplicatePageParams, Self::Error> {
+    let suffix = self.suffix;
+    Ok(DuplicatePageParams { suffix })
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct MovePagePayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub view_id: String,
+
+  #[pb(index = 3)]
+  pub new_parent_view_id: String,
+
+  #[pb(index = 4, one_of)]
+  pub prev_view_id: Option<String>,
+}
+
+impl TryInto<MovePageParams> for MovePagePayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<MovePageParams, Self::Error> {
+    let new_parent_view_id = ViewIdentify::parse(self.new_parent_view_id)?.0;
+    let prev_view_id = self.prev_view_id;
+    Ok(MovePageParams {
+      new_parent_view_id,
+      prev_view_id,
+    })
+  }
+}

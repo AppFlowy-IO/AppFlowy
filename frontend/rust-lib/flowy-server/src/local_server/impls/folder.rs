@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use client_api::entity::workspace_dto::{
-  CreatePageParams, DuplicatePageParams, FolderView, MovePageParams, PublishInfoView,
-  UpdatePageParams, UpdateSpaceParams,
+  CreatePageParams, CreateSpaceParams, DuplicatePageParams, FolderView, MovePageParams,
+  PublishInfoView, UpdatePageParams, UpdateSpaceParams,
 };
 use client_api::entity::PublishInfo;
 use collab_entity::CollabType;
@@ -222,6 +222,14 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     _workspace_id: &str,
     _space_id: &str,
     _params: UpdateSpaceParams,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn create_space(
+    &self,
+    _workspace_id: &str,
+    _params: CreateSpaceParams,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::local_version_not_support())
   }

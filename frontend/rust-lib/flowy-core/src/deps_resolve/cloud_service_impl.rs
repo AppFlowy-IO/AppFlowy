@@ -2,8 +2,8 @@ use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use client_api::entity::ai_dto::RepeatedRelatedQuestion;
 use client_api::entity::search_dto::SearchDocumentResponseItem;
 use client_api::entity::workspace_dto::{
-  CreatePageParams, DuplicatePageParams, FolderView, MovePageParams, PublishInfoView,
-  UpdatePageParams, UpdateSpaceParams,
+  CreatePageParams, CreateSpaceParams, DuplicatePageParams, FolderView, MovePageParams,
+  PublishInfoView, UpdatePageParams, UpdateSpaceParams,
 };
 use client_api::entity::PublishInfo;
 use collab::core::origin::{CollabClient, CollabOrigin};
@@ -515,6 +515,18 @@ impl FolderCloudService for ServerProvider {
     server
       .folder_service()
       .update_view(workspace_id, view_id, params)
+      .await
+  }
+
+  async fn create_space(
+    &self,
+    workspace_id: &str,
+    params: CreateSpaceParams,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .create_space(workspace_id, params)
       .await
   }
 

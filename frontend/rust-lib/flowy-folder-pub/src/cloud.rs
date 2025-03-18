@@ -2,8 +2,8 @@ use crate::entities::PublishPayload;
 pub use anyhow::Error;
 use client_api::entity::{
   workspace_dto::{
-    CreatePageParams, DuplicatePageParams, FolderView, MovePageParams, PublishInfoView,
-    UpdatePageParams, UpdateSpaceParams,
+    CreatePageParams, CreateSpaceParams, DuplicatePageParams, FolderView, MovePageParams,
+    PublishInfoView, UpdatePageParams, UpdateSpaceParams,
   },
   PublishInfo,
 };
@@ -165,6 +165,12 @@ pub trait FolderCloudService: Send + Sync + 'static {
     workspace_id: &str,
     space_id: &str,
     params: UpdateSpaceParams,
+  ) -> Result<(), FlowyError>;
+
+  async fn create_space(
+    &self,
+    workspace_id: &str,
+    params: CreateSpaceParams,
   ) -> Result<(), FlowyError>;
 }
 

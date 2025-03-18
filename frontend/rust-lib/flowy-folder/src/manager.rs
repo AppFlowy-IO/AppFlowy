@@ -19,7 +19,10 @@ use crate::view_operation::{
   create_view, FolderOperationHandler, FolderOperationHandlers, GatherEncodedCollab, ViewData,
 };
 use arc_swap::ArcSwapOption;
-use client_api::entity::workspace_dto::{FolderView, PublishInfoView};
+use client_api::entity::workspace_dto::{
+  CreatePageParams, CreateSpaceParams, DuplicatePageParams, FolderView, MovePageParams,
+  PublishInfoView, UpdatePageParams, UpdateSpaceParams,
+};
 use client_api::entity::PublishInfo;
 use collab::core::collab::DataSource;
 use collab::lock::RwLock;
@@ -2051,8 +2054,96 @@ impl FolderManager {
       .await?;
     Ok(folder_view)
   }
-}
 
+  pub async fn create_page(&self, workspace_id: &str, params: CreatePageParams) -> FlowyResult<()> {
+    self.cloud_service.create_view(workspace_id, params).await?;
+    Ok(())
+  }
+
+  pub async fn update_page(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: UpdatePageParams,
+  ) -> FlowyResult<()> {
+    self
+      .cloud_service
+      .update_view(workspace_id, view_id, params)
+      .await?;
+    Ok(())
+  }
+
+  pub async fn move_page_to_trash(&self, workspace_id: &str, view_id: &str) -> FlowyResult<()> {
+    self
+      .cloud_service
+      .move_view_to_trash(workspace_id, view_id)
+      .await?;
+    Ok(())
+  }
+
+  pub async fn restore_page_from_trash(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+  ) -> FlowyResult<()> {
+    self
+      .cloud_service
+      .restore_view_from_trash(workspace_id, view_id)
+      .await?;
+    Ok(())
+  }
+
+  pub async fn duplicate_page(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: DuplicatePageParams,
+  ) -> FlowyResult<()> {
+    self
+      .cloud_service
+      .duplicate_view(workspace_id, view_id, params)
+      .await?;
+    Ok(())
+  }
+
+  pub async fn move_page(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: MovePageParams,
+  ) -> FlowyResult<()> {
+    self
+      .cloud_service
+      .move_view(workspace_id, view_id, params)
+      .await?;
+    Ok(())
+  }
+
+  pub async fn create_space(
+    &self,
+    workspace_id: &str,
+    params: CreateSpaceParams,
+  ) -> FlowyResult<()> {
+    self
+      .cloud_service
+      .create_space(workspace_id, params)
+      .await?;
+    Ok(())
+  }
+
+  pub async fn update_space(
+    &self,
+    workspace_id: &str,
+    space_id: &str,
+    params: UpdateSpaceParams,
+  ) -> FlowyResult<()> {
+    self
+      .cloud_service
+      .update_space(workspace_id, space_id, params)
+      .await?;
+    Ok(())
+  }
+}
 /// Return the views that belong to the workspace. The views are filtered by the trash and all the private views.
 pub(crate) fn get_workspace_public_view_pbs(workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
   // get the trash ids

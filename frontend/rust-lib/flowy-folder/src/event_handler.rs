@@ -1,3 +1,7 @@
+use client_api::entity::workspace_dto::{
+  CreatePageParams, CreateSpaceParams, DuplicatePageParams, MovePageParams, UpdatePageParams,
+  UpdateSpaceParams,
+};
 use std::sync::{Arc, Weak};
 use tracing::instrument;
 
@@ -294,7 +298,7 @@ pub(crate) async fn read_favorites_handler(
   data_result_ok(RepeatedFavoriteViewPB { items: views })
 }
 
-#[tracing::instrument(level = "debug", skip(folder), err)]
+#[tracing::instrument(level = "debug", skip(data, folder), err)]
 pub(crate) async fn read_recent_views_handler(
   data: AFPluginData<ReadRecentViewsPB>,
   folder: AFPluginState<Weak<FolderManager>>,
@@ -570,4 +574,118 @@ pub(crate) async fn get_workspace_folder_handler(
     .get_workspace_folder(&workspace_id, depth, root_view_id)
     .await?;
   data_result_ok(folder_view.into())
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder))]
+pub(crate) async fn create_page_handler(
+  data: AFPluginData<CreatePagePayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let payload = data.into_inner();
+  let workspace_id = payload.workspace_id.clone();
+  let params: CreatePageParams = payload.try_into()?;
+  let _ = folder.create_page(&workspace_id, params).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder))]
+pub(crate) async fn update_page_handler(
+  data: AFPluginData<UpdatePagePayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let payload = data.into_inner();
+  let workspace_id = payload.workspace_id.clone();
+  let view_id = payload.view_id.clone();
+  let params: UpdatePageParams = payload.try_into()?;
+  let _ = folder.update_page(&workspace_id, &view_id, params).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder))]
+pub(crate) async fn move_page_to_trash_handler(
+  data: AFPluginData<MovePageToTrashPayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let payload = data.into_inner();
+  let workspace_id = payload.workspace_id.clone();
+  let view_id = payload.view_id.clone();
+  folder.move_page_to_trash(&workspace_id, &view_id).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder))]
+pub(crate) async fn restore_page_from_trash_handler(
+  data: AFPluginData<RestorePageFromTrashPayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let payload = data.into_inner();
+  let workspace_id = payload.workspace_id.clone();
+  let view_id = payload.view_id.clone();
+  folder
+    .restore_page_from_trash(&workspace_id, &view_id)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder))]
+pub(crate) async fn create_space_handler(
+  data: AFPluginData<CreateSpacePayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let payload = data.into_inner();
+  let workspace_id = payload.workspace_id.clone();
+  let params: CreateSpaceParams = payload.try_into()?;
+  let _ = folder.create_space(&workspace_id, params).await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder))]
+pub(crate) async fn update_space_handler(
+  data: AFPluginData<UpdateSpacePayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let payload = data.into_inner();
+  let workspace_id = payload.workspace_id.clone();
+  let space_id = payload.space_id.clone();
+  let params: UpdateSpaceParams = payload.try_into()?;
+  let _ = folder
+    .update_space(&workspace_id, &space_id, params)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder))]
+pub(crate) async fn duplicate_page_handler(
+  data: AFPluginData<DuplicatePagePayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let payload = data.into_inner();
+  let workspace_id = payload.workspace_id.clone();
+  let view_id = payload.view_id.clone();
+  let params: DuplicatePageParams = payload.try_into()?;
+  let _ = folder
+    .duplicate_page(&workspace_id, &view_id, params)
+    .await?;
+  Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, folder))]
+pub(crate) async fn move_page_handler(
+  data: AFPluginData<MovePagePayloadPB>,
+  folder: AFPluginState<Weak<FolderManager>>,
+) -> Result<(), FlowyError> {
+  let folder = upgrade_folder(folder)?;
+  let payload = data.into_inner();
+  let workspace_id = payload.workspace_id.clone();
+  let view_id = payload.view_id.clone();
+  let params: MovePageParams = payload.try_into()?;
+  let _ = folder.move_page(&workspace_id, &view_id, params).await?;
+  Ok(())
 }

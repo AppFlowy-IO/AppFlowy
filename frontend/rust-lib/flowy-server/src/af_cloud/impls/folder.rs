@@ -1,6 +1,6 @@
 use client_api::entity::workspace_dto::{
-  CreatePageParams, DuplicatePageParams, FolderView, MovePageParams, PublishInfoView,
-  UpdatePageParams, UpdateSpaceParams,
+  CreatePageParams, CreateSpaceParams, DuplicatePageParams, FolderView, MovePageParams,
+  PublishInfoView, UpdatePageParams, UpdateSpaceParams,
 };
 use client_api::entity::{
   workspace_dto::CreateWorkspaceParam, CollabParams, PublishCollabItem, PublishCollabMetadata,
@@ -474,6 +474,20 @@ where
     let client = try_get_client?;
     client
       .update_workspace_page_view(Uuid::parse_str(&workspace_id).unwrap(), view_id, &params)
+      .await?;
+    Ok(())
+  }
+
+  async fn create_space(
+    &self,
+    workspace_id: &str,
+    params: CreateSpaceParams,
+  ) -> Result<(), FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    let client = try_get_client?;
+    client
+      .create_space(Uuid::parse_str(&workspace_id).unwrap(), &params)
       .await?;
     Ok(())
   }

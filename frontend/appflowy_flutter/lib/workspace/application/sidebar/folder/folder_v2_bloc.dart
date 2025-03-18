@@ -1,8 +1,8 @@
+import 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc_event.dart';
+import 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc_state.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 extension FolderViewPBExtension on FolderViewPB {
@@ -98,93 +98,4 @@ class FolderV2Bloc extends Bloc<FolderV2Event, FolderV2State> {
 
     add(const FolderV2GetFolderViews());
   }
-}
-
-sealed class FolderV2Event extends Equatable {
-  const FolderV2Event();
-
-  @override
-  List<Object?> get props => [];
-}
-
-final class FolderV2GetFolderViews extends FolderV2Event {
-  const FolderV2GetFolderViews();
-}
-
-final class FolderV2SwitchCurrentSpace extends FolderV2Event {
-  const FolderV2SwitchCurrentSpace({
-    required this.spaceId,
-  });
-
-  final String spaceId;
-
-  @override
-  List<Object?> get props => [spaceId];
-}
-
-final class FolderV2ExpandSpace extends FolderV2Event {
-  const FolderV2ExpandSpace({
-    required this.isExpanded,
-  });
-
-  final bool isExpanded;
-
-  @override
-  List<Object?> get props => [isExpanded];
-}
-
-final class FolderV2ReloadFolderViews extends FolderV2Event {
-  const FolderV2ReloadFolderViews({
-    this.workspaceId,
-  });
-
-  final String? workspaceId;
-
-  @override
-  List<Object?> get props => [workspaceId];
-}
-
-sealed class FolderV2State extends Equatable {
-  const FolderV2State();
-
-  @override
-  List<Object?> get props => [];
-}
-
-final class FolderV2Initial extends FolderV2State {
-  const FolderV2Initial();
-
-  @override
-  List<Object?> get props => [];
-}
-
-class FolderV2Loading extends FolderV2State {
-  const FolderV2Loading();
-
-  @override
-  List<Object?> get props => [];
-}
-
-class FolderV2Loaded extends FolderV2State {
-  const FolderV2Loaded({
-    required this.folderView,
-    required this.currentSpace,
-    this.isExpanded = true,
-  });
-
-  final FolderViewPB folderView;
-  final FolderViewPB currentSpace;
-  final bool isExpanded;
-
-  @override
-  List<Object?> get props => [folderView, currentSpace, isExpanded];
-}
-
-final class FolderV2Error extends FolderV2State {
-  const FolderV2Error(this.error);
-
-  final FlowyError error;
-
-  @override
-  List<Object?> get props => [error];
 }

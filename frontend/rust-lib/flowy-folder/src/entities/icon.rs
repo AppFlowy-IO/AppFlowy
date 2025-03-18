@@ -21,6 +21,16 @@ impl std::convert::From<ViewIconTypePB> for IconType {
   }
 }
 
+impl std::convert::From<ViewIconTypePB> for client_api::entity::workspace_dto::IconType {
+  fn from(rev: ViewIconTypePB) -> Self {
+    match rev {
+      ViewIconTypePB::Emoji => client_api::entity::workspace_dto::IconType::Emoji,
+      ViewIconTypePB::Url => client_api::entity::workspace_dto::IconType::Url,
+      ViewIconTypePB::Icon => client_api::entity::workspace_dto::IconType::Icon,
+    }
+  }
+}
+
 impl From<IconType> for ViewIconTypePB {
   fn from(val: IconType) -> Self {
     match val {
@@ -52,6 +62,15 @@ pub struct ViewIconPB {
 impl From<ViewIconPB> for ViewIcon {
   fn from(rev: ViewIconPB) -> Self {
     ViewIcon {
+      ty: rev.ty.into(),
+      value: rev.value,
+    }
+  }
+}
+
+impl From<ViewIconPB> for client_api::entity::workspace_dto::ViewIcon {
+  fn from(rev: ViewIconPB) -> Self {
+    client_api::entity::workspace_dto::ViewIcon {
       ty: rev.ty.into(),
       value: rev.value,
     }

@@ -55,7 +55,16 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::RemoveDefaultPublishView, remove_default_publish_view_handler)
     .event(FolderEvent::LockView, lock_view_handler)
     .event(FolderEvent::UnlockView, unlock_view_handler)
+    // the events below are used for the HTTP API
     .event(FolderEvent::GetWorkspaceFolder, get_workspace_folder_handler)
+    .event(FolderEvent::CreateSpace, create_space_handler)
+    .event(FolderEvent::UpdateSpace, update_space_handler)
+    .event(FolderEvent::CreatePage, create_page_handler)
+    .event(FolderEvent::UpdatePage, update_page_handler)
+    .event(FolderEvent::MovePageToTrash, move_page_to_trash_handler)
+    .event(FolderEvent::RestorePageFromTrash, restore_page_from_trash_handler)
+    .event(FolderEvent::DuplicatePage, duplicate_page_handler)
+    .event(FolderEvent::MovePage, move_page_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -233,4 +242,28 @@ pub enum FolderEvent {
   // All the events below are used for the HTTP API
   #[event(input = "GetWorkspaceFolderViewPB", output = "FolderViewPB")]
   GetWorkspaceFolder = 100,
+
+  #[event(input = "CreateSpacePayloadPB")]
+  CreateSpace = 101,
+
+  #[event(input = "UpdateSpacePayloadPB")]
+  UpdateSpace = 102,
+
+  #[event(input = "CreatePagePayloadPB")]
+  CreatePage = 103,
+
+  #[event(input = "UpdatePagePayloadPB")]
+  UpdatePage = 104,
+
+  #[event(input = "MovePageToTrashPayloadPB")]
+  MovePageToTrash = 105,
+
+  #[event(input = "RestorePageFromTrashPayloadPB")]
+  RestorePageFromTrash = 106,
+
+  #[event(input = "DuplicatePagePayloadPB")]
+  DuplicatePage = 107,
+
+  #[event(input = "MovePagePayloadPB")]
+  MovePage = 108,
 }
