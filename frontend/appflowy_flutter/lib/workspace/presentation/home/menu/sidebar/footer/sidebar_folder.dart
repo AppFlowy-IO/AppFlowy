@@ -132,8 +132,21 @@ class _FolderV2LoadedState extends State<_FolderV2Loaded> {
         FolderSpaceMenu(
           isExpanded: widget.isExpanded,
           space: widget.currentSpace,
-          onAdded: (layout) {},
-          onCreateNewSpace: () {},
+          onAdded: (layout) {
+            context.read<FolderV2Bloc>().add(
+                  FolderV2CreatePage(
+                    layout: layout,
+                    parentViewId: widget.currentSpace.viewId,
+                  ),
+                );
+          },
+          onCreateNewSpace: () {
+            context.read<FolderV2Bloc>().add(
+                  FolderV2CreateSpace(
+                    name: 'New Space',
+                  ),
+                );
+          },
           onCollapseAllPages: () {},
         ),
         if (widget.isExpanded)

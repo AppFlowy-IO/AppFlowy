@@ -33,6 +33,17 @@ enum SpacePermission {
   private,
 }
 
+extension SpacePermissionToViewSectionPBExtension on SpacePermission {
+  SpacePermissionPB toSpacePermissionPB() {
+    switch (this) {
+      case SpacePermission.publicToAll:
+        return SpacePermissionPB.PublicSpace;
+      case SpacePermission.private:
+        return SpacePermissionPB.PrivateSpace;
+    }
+  }
+}
+
 class SidebarSection {
   const SidebarSection({
     required this.publicViews,

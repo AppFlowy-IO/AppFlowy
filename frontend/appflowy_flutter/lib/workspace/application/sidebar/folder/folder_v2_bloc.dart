@@ -116,7 +116,13 @@ class FolderV2Bloc extends Bloc<FolderV2Event, FolderV2State> {
     FolderV2CreatePage event,
     Emitter<FolderV2State> emit,
   ) async {
-    final response = await FolderEventCreatePage(event.payload).send();
+    final request = CreatePagePayloadPB(
+      workspaceId: currentWorkspaceId,
+      name: event.name,
+      layout: event.layout,
+      parentViewId: event.parentViewId,
+    );
+    final response = await FolderEventCreatePage(request).send();
     response.fold(
       // todo: update the in memory data
       (folderView) => add(const FolderV2GetFolderViews()),
@@ -147,7 +153,12 @@ class FolderV2Bloc extends Bloc<FolderV2Event, FolderV2State> {
     FolderV2DuplicatePage event,
     Emitter<FolderV2State> emit,
   ) async {
-    final response = await FolderEventDuplicatePage(event.payload).send();
+    final request = DuplicatePagePayloadPB(
+      workspaceId: currentWorkspaceId,
+      viewId: event.viewId,
+      suffix: event.suffix,
+    );
+    final response = await FolderEventDuplicatePage(request).send();
     response.fold(
       // todo: update the in memory data
       (folderView) => add(const FolderV2GetFolderViews()),
@@ -159,7 +170,13 @@ class FolderV2Bloc extends Bloc<FolderV2Event, FolderV2State> {
     FolderV2MovePage event,
     Emitter<FolderV2State> emit,
   ) async {
-    final response = await FolderEventMovePage(event.payload).send();
+    final request = MovePagePayloadPB(
+      workspaceId: currentWorkspaceId,
+      viewId: event.viewId,
+      newParentViewId: event.newParentViewId,
+      prevViewId: event.prevViewId,
+    );
+    final response = await FolderEventMovePage(request).send();
     response.fold(
       // todo: update the in memory data
       (folderView) => add(const FolderV2GetFolderViews()),
@@ -171,7 +188,11 @@ class FolderV2Bloc extends Bloc<FolderV2Event, FolderV2State> {
     FolderV2MovePageToTrash event,
     Emitter<FolderV2State> emit,
   ) async {
-    final response = await FolderEventMovePageToTrash(event.payload).send();
+    final request = MovePageToTrashPayloadPB(
+      workspaceId: currentWorkspaceId,
+      viewId: event.viewId,
+    );
+    final response = await FolderEventMovePageToTrash(request).send();
     response.fold(
       // todo: update the in memory data
       (folderView) => add(const FolderV2GetFolderViews()),
@@ -183,8 +204,11 @@ class FolderV2Bloc extends Bloc<FolderV2Event, FolderV2State> {
     FolderV2RestorePageFromTrash event,
     Emitter<FolderV2State> emit,
   ) async {
-    final response =
-        await FolderEventRestorePageFromTrash(event.payload).send();
+    final request = RestorePageFromTrashPayloadPB(
+      workspaceId: currentWorkspaceId,
+      viewId: event.viewId,
+    );
+    final response = await FolderEventRestorePageFromTrash(request).send();
     response.fold(
       // todo: update the in memory data
       (folderView) => add(const FolderV2GetFolderViews()),
@@ -196,7 +220,14 @@ class FolderV2Bloc extends Bloc<FolderV2Event, FolderV2State> {
     FolderV2CreateSpace event,
     Emitter<FolderV2State> emit,
   ) async {
-    final response = await FolderEventCreateSpace(event.payload).send();
+    final request = CreateSpacePayloadPB(
+      workspaceId: currentWorkspaceId,
+      name: event.name,
+      spacePermission: event.spacePermission,
+      spaceIcon: event.spaceIcon,
+      spaceIconColor: event.spaceIconColor,
+    );
+    final response = await FolderEventCreateSpace(request).send();
     response.fold(
       // todo: update the in memory data
       (folderView) => add(const FolderV2GetFolderViews()),
@@ -208,7 +239,15 @@ class FolderV2Bloc extends Bloc<FolderV2Event, FolderV2State> {
     FolderV2UpdateSpace event,
     Emitter<FolderV2State> emit,
   ) async {
-    final response = await FolderEventUpdateSpace(event.payload).send();
+    final request = UpdateSpacePayloadPB(
+      workspaceId: currentWorkspaceId,
+      spaceId: event.spaceId,
+      name: event.name,
+      spacePermission: event.spacePermission,
+      spaceIcon: event.spaceIcon,
+      spaceIconColor: event.spaceIconColor,
+    );
+    final response = await FolderEventUpdateSpace(request).send();
     response.fold(
       // todo: update the in memory data
       (folderView) => add(const FolderV2GetFolderViews()),

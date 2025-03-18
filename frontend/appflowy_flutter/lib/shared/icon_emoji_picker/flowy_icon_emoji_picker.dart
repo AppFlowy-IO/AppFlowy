@@ -101,6 +101,25 @@ class SelectedEmojiIconResult {
   String get emoji => data.emoji;
 }
 
+extension EmojiIconDataToViewIconPBExtension on EmojiIconData {
+  ViewIconPB toViewIconPB() {
+    switch (type) {
+      case FlowyIconType.emoji:
+        return ViewIconPB()
+          ..ty = ViewIconTypePB.Emoji
+          ..value = emoji;
+      case FlowyIconType.icon:
+        return ViewIconPB()
+          ..ty = ViewIconTypePB.Icon
+          ..value = emoji;
+      case FlowyIconType.custom:
+        return ViewIconPB()
+          ..ty = ViewIconTypePB.Url
+          ..value = emoji;
+    }
+  }
+}
+
 extension EmojiIconDataToSelectedResultExtension on EmojiIconData {
   SelectedEmojiIconResult toSelectedResult({bool keepOpen = false}) =>
       SelectedEmojiIconResult(this, keepOpen);

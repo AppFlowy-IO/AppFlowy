@@ -209,7 +209,11 @@ class _FolderSpaceMenuState extends State<FolderSpaceMenu> {
         _showDeleteSpaceDialog(context);
         break;
       case SpaceMoreActionType.duplicate:
-        context.read<SpaceBloc>().add(const SpaceEvent.duplicate());
+        context.read<FolderV2Bloc>().add(
+              FolderV2DuplicatePage(
+                viewId: widget.space.viewId,
+              ),
+            );
         break;
       case SpaceMoreActionType.divider:
         break;
@@ -428,7 +432,7 @@ class _CreateSpaceButton extends StatelessWidget {
   }
 
   void _showCreateSpaceDialog(BuildContext context) {
-    // todo: replace the create space popup with the folder create space popup
+    final folderV2Bloc = context.read<FolderV2Bloc>();
     showDialog(
       context: context,
       builder: (_) {
@@ -436,7 +440,10 @@ class _CreateSpaceButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.0),
           ),
-          child: const CreateSpacePopup(),
+          child: BlocProvider.value(
+            value: folderV2Bloc,
+            child: const CreateSpacePopup(),
+          ),
         );
       },
     );

@@ -47,13 +47,17 @@ final class FolderV2ReloadFolderViews extends FolderV2Event {
 
 final class FolderV2CreatePage extends FolderV2Event {
   const FolderV2CreatePage({
-    required this.payload,
+    this.name,
+    this.layout,
+    this.parentViewId,
   });
 
-  final CreatePagePayloadPB payload;
+  final String? name;
+  final ViewLayoutPB? layout;
+  final String? parentViewId;
 
   @override
-  List<Object?> get props => [payload];
+  List<Object?> get props => [name, layout, parentViewId];
 }
 
 final class FolderV2UpdatePage extends FolderV2Event {
@@ -75,66 +79,92 @@ final class FolderV2UpdatePage extends FolderV2Event {
 
 final class FolderV2MovePageToTrash extends FolderV2Event {
   const FolderV2MovePageToTrash({
-    required this.payload,
+    required this.viewId,
   });
 
-  final MovePageToTrashPayloadPB payload;
+  final String viewId;
 
   @override
-  List<Object?> get props => [payload];
+  List<Object?> get props => [viewId];
 }
 
 final class FolderV2RestorePageFromTrash extends FolderV2Event {
   const FolderV2RestorePageFromTrash({
-    required this.payload,
+    required this.viewId,
   });
 
-  final RestorePageFromTrashPayloadPB payload;
+  final String viewId;
 
   @override
-  List<Object?> get props => [payload];
+  List<Object?> get props => [viewId];
 }
 
 final class FolderV2CreateSpace extends FolderV2Event {
   const FolderV2CreateSpace({
-    required this.payload,
+    this.name,
+    this.spacePermission,
+    this.spaceIcon,
+    this.spaceIconColor,
   });
 
-  final CreateSpacePayloadPB payload;
+  final String? name;
+  final SpacePermissionPB? spacePermission;
+  final String? spaceIcon;
+  final String? spaceIconColor;
 
   @override
-  List<Object?> get props => [payload];
+  List<Object?> get props => [name, spacePermission, spaceIcon, spaceIconColor];
 }
 
 final class FolderV2UpdateSpace extends FolderV2Event {
   const FolderV2UpdateSpace({
-    required this.payload,
+    required this.spaceId,
+    this.name,
+    this.spacePermission,
+    this.spaceIcon,
+    this.spaceIconColor,
   });
 
-  final UpdateSpacePayloadPB payload;
+  final String spaceId;
+  final String? name;
+  final SpacePermissionPB? spacePermission;
+  final String? spaceIcon;
+  final String? spaceIconColor;
 
   @override
-  List<Object?> get props => [payload];
+  List<Object?> get props => [
+        spaceId,
+        name,
+        spacePermission,
+        spaceIcon,
+        spaceIconColor,
+      ];
 }
 
 final class FolderV2DuplicatePage extends FolderV2Event {
   const FolderV2DuplicatePage({
-    required this.payload,
+    required this.viewId,
+    this.suffix,
   });
 
-  final DuplicatePagePayloadPB payload;
+  final String viewId;
+  final String? suffix;
 
   @override
-  List<Object?> get props => [payload];
+  List<Object?> get props => [viewId, suffix];
 }
 
 final class FolderV2MovePage extends FolderV2Event {
   const FolderV2MovePage({
-    required this.payload,
+    required this.viewId,
+    required this.newParentViewId,
+    this.prevViewId,
   });
 
-  final MovePagePayloadPB payload;
+  final String viewId;
+  final String newParentViewId;
+  final String? prevViewId;
 
   @override
-  List<Object?> get props => [payload];
+  List<Object?> get props => [viewId, newParentViewId, prevViewId];
 }

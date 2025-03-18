@@ -698,22 +698,17 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
     bool openAfterCreated,
     bool createNewView,
   ) {
-    final viewBloc = context.read<ViewBloc>();
-
     // the name of new document should be empty
     final viewName = pluginBuilder.layoutType != ViewLayoutPB.Document
         ? LocaleKeys.menuAppHeader_defaultNewPageName.tr()
         : '';
-    viewBloc.add(
-      ViewEvent.createView(
-        viewName,
-        pluginBuilder.layoutType!,
-        openAfterCreated: openAfterCreated,
-        section: widget.spaceType.toViewSectionPB,
-      ),
-    );
-
-    viewBloc.add(const ViewEvent.setIsExpanded(true));
+    context.read<FolderV2Bloc>().add(
+          FolderV2CreatePage(
+            name: viewName,
+            layout: pluginBuilder.layoutType!,
+            parentViewId: widget.view.viewId,
+          ),
+        );
   }
 
   // ··· more action button
@@ -752,11 +747,13 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
                   autoSelectAllText: true,
                   value: widget.view.name,
                   maxLength: 256,
-                  onConfirm: (newValue, _) {
+                  onConfirm: (newName, _) {
                     context.read<FolderV2Bloc>().add(
                           FolderV2UpdatePage(
                             viewId: widget.view.viewId,
-                            name: newValue,
+                            name: newName,
+                            icon: widget.view.icon,
+                            isLocked: widget.view.isLocked,
                           ),
                         );
                   },
@@ -774,15 +771,20 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
                   context: context,
                   name: widget.view.name,
                   description: LocaleKeys.publish_containsPublishedPage.tr(),
-                  onConfirm: () =>
-                      context.read<ViewBloc>().add(const ViewEvent.delete()),
+                  onConfirm: () => context
+                      .read<FolderV2Bloc>()
+                      .add(FolderV2MovePageToTrash(viewId: widget.view.viewId)),
                 );
               } else if (context.mounted) {
-                context.read<ViewBloc>().add(const ViewEvent.delete());
+                context
+                    .read<FolderV2Bloc>()
+                    .add(FolderV2MovePageToTrash(viewId: widget.view.viewId));
               }
               break;
             case ViewMoreActionType.duplicate:
-              context.read<ViewBloc>().add(const ViewEvent.duplicate());
+              context
+                  .read<FolderV2Bloc>()
+                  .add(FolderV2DuplicatePage(viewId: widget.view.viewId));
               break;
             case ViewMoreActionType.openInNewTab:
               context.read<TabsBloc>().openTab(widget.view.viewPB);
@@ -794,10 +796,12 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
               if (data is! SelectedEmojiIconResult) {
                 return;
               }
-              await ViewBackendService.updateViewIcon(
-                view: widget.view.viewPB,
-                viewIcon: data.data,
-              );
+              context.read<FolderV2Bloc>().add(
+                    FolderV2UpdatePage(
+                      viewId: widget.view.viewId,
+                      icon: data.data.toViewIconPB(),
+                    ),
+                  );
               break;
             case ViewMoreActionType.moveTo:
               final value = data;
