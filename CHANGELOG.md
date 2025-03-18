@@ -1,4 +1,18 @@
 # Release Notes
+## Version 0.8.7 - 18/03/2025
+### New Features
+- Made local AI free and integrated with Ollama
+- Supported nested lists within callout and quote blocks
+- Revamped the document's floating toolbar and added Turn Into
+- Enabled custom icons in callout blocks
+### Bug Fixes
+- Fixed occasional incorrect positioning of the slash menu
+- Improved AI Chat and AI Writers with various bug fixes
+- Adjusted the columns block to match the width of the editor
+- Fixed a potential segfault caused by infinite recursion in the trash view
+- Resolved an issue where the first added cover might be invisible
+- Fixed adding cover images via Unsplash
+
 ## Version 0.8.6 - 06/03/2025
 ### Bug Fixes
 - Fix the incorrect title positioning when adjusting the document width setting
