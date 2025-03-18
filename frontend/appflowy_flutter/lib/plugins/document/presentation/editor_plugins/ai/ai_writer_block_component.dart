@@ -4,6 +4,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/message/ai_markdown_text.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/util/theme_extension.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -99,7 +100,6 @@ class AiWriterBlockComponent extends BlockComponentStatefulWidget {
 class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
   final key = GlobalKey();
   final textController = TextEditingController();
-  final textFieldFocusNode = FocusNode();
   final overlayController = OverlayPortalController();
   final layerLink = LayerLink();
 
@@ -117,7 +117,6 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       overlayController.show();
-      textFieldFocusNode.requestFocus();
       if (!widget.node.isAiWriterInitialized) {
         aiWriterCubit.init();
       }
@@ -127,7 +126,6 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
   @override
   void dispose() {
     textController.dispose();
-    textFieldFocusNode.dispose();
     aiWriterCubit.close();
     super.dispose();
   }
@@ -153,12 +151,24 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
         builder: (context, constraints) {
           return BlocListener<AiWriterCubit, AiWriterState>(
             listener: (context, state) {
-              if (state is SingleShotAiWriterState) {
+              if (state is FailedContinueWritingAiWriterState) {
                 showConfirmDialog(
                   context: context,
-                  title: state.title,
-                  description: state.description,
-                  onConfirm: state.onDismiss,
+                  title: LocaleKeys.ai_continueWritingEmptyDocumentTitle.tr(),
+                  description: LocaleKeys
+                      .ai_continueWritingEmptyDocumentDescription
+                      .tr(),
+                  onConfirm: state.onConfirm,
+                );
+              } else if (state is DiscardResponseAiWriterState) {
+                showConfirmDialog(
+                  context: context,
+                  title: LocaleKeys.button_discard.tr(),
+                  description: LocaleKeys.document_plugins_discardResponse.tr(),
+                  confirmLabel: LocaleKeys.button_discard.tr(),
+                  style: ConfirmPopupStyle.cancelAndOk,
+                  onConfirm: state.onDiscard,
+                  onCancel: () {},
                 );
               }
             },
@@ -173,7 +183,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
                           behavior: state is GeneratingAiWriterState
                               ? HitTestBehavior.opaque
                               : HitTestBehavior.translucent,
-                          onPointerEvent: () => onTapOutside(),
+                          onPointerEvent: onTapOutside,
                         );
                       },
                     ),
@@ -187,6 +197,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
                         ),
                         width: constraints.maxWidth,
                         child: OverlayContent(
+                          editorState: editorState,
                           node: widget.node,
                         ),
                       ),
@@ -236,9 +247,11 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
 class OverlayContent extends StatelessWidget {
   const OverlayContent({
     super.key,
+    required this.editorState,
     required this.node,
   });
 
+  final EditorState editorState;
   final Node node;
 
   @override
@@ -372,28 +385,12 @@ class OverlayContent extends StatelessWidget {
                 ],
               ),
             ),
-            if (showActionPopup) ...[
-              const VSpace(4.0 + 1.0),
-              Container(
-                padding: EdgeInsets.all(8.0),
-                constraints: BoxConstraints(minWidth: 240.0),
-                decoration: _getModalDecoration(
-                  context,
-                  color: Theme.of(context).colorScheme.surface,
-                  borderColor: lightBorderColor,
-                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                ),
-                child: IntrinsicWidth(
-                  child: SeparatedColumn(
-                    separatorBuilder: () => const VSpace(4.0),
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _getCommands(
-                      hasSelection: hasSelection,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ..._bottomActions(
+              context,
+              showActionPopup,
+              hasSelection,
+              lightBorderColor,
+            ),
           ],
         );
       },
@@ -475,6 +472,54 @@ class OverlayContent extends StatelessWidget {
       color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.vertical(bottom: Radius.circular(12.0)),
     );
+  }
+
+  List<Widget> _bottomActions(
+    BuildContext context,
+    bool showActionPopup,
+    bool hasSelection,
+    Color borderColor,
+  ) {
+    if (!showActionPopup) {
+      return [];
+    }
+
+    if (editorState.isEmptyForContinueWriting()) {
+      final documentContext = editorState.document.root.context;
+      if (documentContext == null) {
+        return [];
+      }
+      final view = documentContext.read<ViewBloc>().state.view;
+      if (view.name.isEmpty) {
+        return [];
+      }
+    }
+
+    return [
+      // add one here to take into account the border of the main message box.
+      // It is configured to be on the outside to hide some graphical
+      // artifacts.
+      const VSpace(4.0 + 1.0),
+      Container(
+        padding: EdgeInsets.all(8.0),
+        constraints: BoxConstraints(minWidth: 240.0),
+        decoration: _getModalDecoration(
+          context,
+          color: Theme.of(context).colorScheme.surface,
+          borderColor: borderColor,
+          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+        ),
+        child: IntrinsicWidth(
+          child: SeparatedColumn(
+            separatorBuilder: () => const VSpace(4.0),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: _getCommands(
+              hasSelection: hasSelection,
+            ),
+          ),
+        ),
+      ),
+    ];
   }
 
   List<Widget> _getCommands({required bool hasSelection}) {

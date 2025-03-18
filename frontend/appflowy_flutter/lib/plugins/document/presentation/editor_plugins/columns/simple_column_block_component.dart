@@ -1,5 +1,4 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/columns/simple_columns_block_constant.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -119,9 +118,6 @@ class SimpleColumnBlockComponentState extends State<SimpleColumnBlockComponent>
           Widget child = IntrinsicHeight(
             child: editorState.renderer.build(context, e),
           );
-          if (e.type == CustomImageBlockKeys.type) {
-            child = IntrinsicWidth(child: child);
-          }
           if (SimpleColumnsBlockConstants.enableDebugBorder) {
             child = DecoratedBox(
               decoration: BoxDecoration(

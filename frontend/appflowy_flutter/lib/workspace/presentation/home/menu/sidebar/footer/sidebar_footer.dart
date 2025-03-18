@@ -60,7 +60,7 @@ class SidebarTemplateButton extends StatelessWidget {
         FlowySvgs.icon_template_s,
       ),
       text: LocaleKeys.template_label.tr(),
-      onTap: () => afLaunchUrlString('https://appflowy.io/templates'),
+      onTap: () => afLaunchUrlString('https://appflowy.com/templates'),
     );
   }
 }

@@ -62,6 +62,7 @@ class WidgetTestApp extends StatelessWidget {
                 scrollbarColor: Colors.transparent,
                 scrollbarHoverColor: Colors.transparent,
                 lightIconColor: Colors.transparent,
+                toolbarHoverColor: Colors.transparent,
               ),
             ],
           ),

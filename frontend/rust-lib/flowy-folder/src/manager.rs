@@ -2074,16 +2074,11 @@ pub(crate) fn get_workspace_public_view_pbs(workspace_id: &str, folder: &Folder)
 
 /// Get all the child views belong to the view id, including the child views of the child views.
 fn get_all_child_view_ids(folder: &Folder, view_id: &str) -> Vec<String> {
-  let child_view_ids = folder
-    .get_views_belong_to(view_id)
-    .into_iter()
+  folder
+    .get_view_recursively(view_id)
+    .iter()
     .map(|view| view.id.clone())
-    .collect::<Vec<String>>();
-  let mut all_child_view_ids = child_view_ids.clone();
-  for child_view_id in child_view_ids {
-    all_child_view_ids.extend(get_all_child_view_ids(folder, &child_view_id));
-  }
-  all_child_view_ids
+    .collect()
 }
 
 /// Get the current private views of the user.

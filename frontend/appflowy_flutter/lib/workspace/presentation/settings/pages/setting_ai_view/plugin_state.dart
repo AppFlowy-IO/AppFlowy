@@ -25,7 +25,7 @@ class PluginStateIndicator extends StatelessWidget {
         builder: (context, state) {
           return state.action.when(
             unknown: () => const SizedBox.shrink(),
-            readToRun: () => const SizedBox.shrink(),
+            readToRun: () => const _PrepareRunning(),
             initializingPlugin: () => const InitLocalAIIndicator(),
             running: () => const _LocalAIRunning(),
             restartPlugin: () => const _RestartPluginButton(),
@@ -33,6 +33,24 @@ class PluginStateIndicator extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+class _PrepareRunning extends StatelessWidget {
+  const _PrepareRunning();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: FlowyText(
+            LocaleKeys.settings_aiPage_keys_localAIStart.tr(),
+            maxLines: 3,
+          ),
+        ),
+      ],
     );
   }
 }

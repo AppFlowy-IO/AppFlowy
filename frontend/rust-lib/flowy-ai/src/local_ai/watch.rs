@@ -79,13 +79,19 @@ pub(crate) fn install_path() -> Option<PathBuf> {
   return None;
 }
 
-#[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
-pub(crate) fn offline_app_path() -> PathBuf {
-  PathBuf::new()
-}
-
+#[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
 pub fn is_plugin_ready() -> bool {
   ollama_plugin_path().exists() || ollama_plugin_command_available()
+}
+
+#[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
+pub fn is_plugin_ready() -> bool {
+  false
+}
+
+#[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
+pub(crate) fn ollama_plugin_path() -> PathBuf {
+  PathBuf::new()
 }
 
 #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
@@ -115,9 +121,11 @@ pub(crate) fn ollama_plugin_command_available() -> bool {
   if cfg!(windows) {
     #[cfg(windows)]
     {
-      // 1. Try "where" command first
+      use std::os::windows::process::CommandExt;
+      const CREATE_NO_WINDOW: u32 = 0x08000000;
       let output = Command::new("cmd")
-        .args(["/C", "where", "ollama_ai_plugin"])
+        .args(&["/C", "where", "ollama_ai_plugin"])
+        .creation_flags(CREATE_NO_WINDOW)
         .output();
       if let Ok(output) = output {
         if !output.stdout.is_empty() {

@@ -35,7 +35,7 @@ CommandShortcutEventHandler _emojiShortcutHandler = (editorState) {
   // Calculate the offset and alignment
   // Don't like these values being hardcoded but unsure how to grab the
   // values dynamically to match the /emoji command.
-  const menuHeight = 200.0;
+  const menuHeight = 380.0;
   const menuOffset = Offset(10, 10); // Tried (0, 10) but that looked off
 
   final editorOffset =
@@ -47,7 +47,7 @@ CommandShortcutEventHandler _emojiShortcutHandler = (editorState) {
   alignment = Alignment.topLeft;
   final bottomRight = rect.bottomRight;
   final topRight = rect.topRight;
-  final newOffset = bottomRight + menuOffset;
+  var newOffset = bottomRight + menuOffset;
   offset = Offset(
     newOffset.dx,
     newOffset.dy,
@@ -55,12 +55,12 @@ CommandShortcutEventHandler _emojiShortcutHandler = (editorState) {
 
   // show above
   if (newOffset.dy + menuHeight >= editorOffset.dy + editorHeight) {
-    offset = topRight - menuOffset;
+    newOffset = topRight - menuOffset;
     alignment = Alignment.bottomLeft;
 
     offset = Offset(
       newOffset.dx,
-      MediaQuery.of(context).size.height - newOffset.dy,
+      editorHeight + editorOffset.dy - newOffset.dy,
     );
   }
 

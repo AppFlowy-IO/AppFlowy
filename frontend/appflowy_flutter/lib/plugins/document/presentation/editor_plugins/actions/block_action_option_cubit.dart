@@ -259,9 +259,10 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     emit(BlockActionOptionState()); // Emit a new state to trigger UI update
   }
 
-  Future<bool> turnIntoBlock(
+  static Future<bool> turnIntoBlock(
     String type,
-    Node node, {
+    Node node,
+    EditorState editorState, {
     int? level,
     String? currentViewId,
   }) async {
@@ -287,6 +288,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       type: toType,
       selectedNodes: selectedNodes,
       level: level,
+      editorState: editorState,
     )) {
       return true;
     }
@@ -298,6 +300,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
           selectedNodes: selectedNodes,
           selection: selection,
           currentViewId: currentViewId,
+          editorState: editorState,
         )) {
       return true;
     }
@@ -322,9 +325,8 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
         },
       );
 
-      // heading block and callout block should not have children
-      if ([HeadingBlockKeys.type, CalloutBlockKeys.type, QuoteBlockKeys.type]
-          .contains(toType)) {
+      // heading block should not have children
+      if ([HeadingBlockKeys.type].contains(toType)) {
         afterNode = afterNode.copyWith(children: []);
         afterNode = await _handleSubPageNode(afterNode, node);
         insertedNode.add(afterNode);
@@ -354,7 +356,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
   ///
   /// Returns the altered [Node] with the delta as the Views' name.
   ///
-  Future<Node> _handleSubPageNode(Node node, Node subPageNode) async {
+  static Future<Node> _handleSubPageNode(Node node, Node subPageNode) async {
     if (subPageNode.type != SubPageBlockKeys.type) {
       return node;
     }
@@ -371,7 +373,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
   /// Returns the [Delta] from a SubPage [Node], where the
   /// [Delta] is the views' name.
   ///
-  Future<Delta?> _deltaFromSubPageNode(Node node) async {
+  static Future<Delta?> _deltaFromSubPageNode(Node node) async {
     if (node.type != SubPageBlockKeys.type) {
       return null;
     }
@@ -401,9 +403,10 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
   // - paragraph 1
   // - paragraph 2
   // when turning "Toggle Heading 1" into toggle heading, the bulleted items will be moved into the toggle heading
-  Future<bool> turnIntoSingleToggleHeading({
+  static Future<bool> turnIntoSingleToggleHeading({
     required String type,
     required List<Node> selectedNodes,
+    required EditorState editorState,
     int? level,
     Delta? delta,
     Selection? afterSelection,
@@ -493,11 +496,12 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     return true;
   }
 
-  Future<bool> turnIntoPage({
+  static Future<bool> turnIntoPage({
     required String type,
     required List<Node> selectedNodes,
     required Selection selection,
     required String currentViewId,
+    required EditorState editorState,
   }) async {
     if (type != SubPageBlockKeys.type || selectedNodes.isEmpty) {
       return false;
@@ -553,7 +557,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     return true;
   }
 
-  Future<String> _extractNameFromNodes(List<Node>? nodes) async {
+  static Future<String> _extractNameFromNodes(List<Node>? nodes) async {
     if (nodes == null || nodes.isEmpty) {
       return '';
     }
@@ -603,7 +607,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     return name.substring(0, name.length > 30 ? 30 : name.length);
   }
 
-  List<String> _extractChildViewIds(List<Node> nodes) {
+  static List<String> _extractChildViewIds(List<Node> nodes) {
     final List<String> viewIds = [];
     for (final node in nodes) {
       if (node.type == SubPageBlockKeys.type) {

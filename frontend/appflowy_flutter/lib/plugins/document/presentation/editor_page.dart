@@ -15,16 +15,29 @@ import 'package:appflowy/plugins/inline_actions/inline_actions_service.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/shortcuts/settings_shortcuts_service.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/af_focus_manager.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide QuoteBlockKeys;
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
+
+import 'editor_plugins/desktop_toolbar/desktop_floating_toolbar.dart';
+import 'editor_plugins/toolbar_item/custom_format_toolbar_items.dart';
+import 'editor_plugins/toolbar_item/custom_hightlight_color_toolbar_item.dart';
+import 'editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
+import 'editor_plugins/toolbar_item/custom_placeholder_toolbar_item.dart';
+import 'editor_plugins/toolbar_item/custom_text_align_toolbar_item.dart';
+import 'editor_plugins/toolbar_item/custom_text_color_toolbar_item.dart';
+import 'editor_plugins/toolbar_item/more_option_toolbar_item.dart';
+import 'editor_plugins/toolbar_item/text_heading_toolbar_item.dart';
+import 'editor_plugins/toolbar_item/text_suggestions_toolbar_item.dart';
 
 /// Wrapper for the appflowy editor.
 class AppFlowyEditorPage extends StatefulWidget {
@@ -81,23 +94,25 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
   ];
 
   final List<ToolbarItem> toolbarItems = [
-    improveWritingItem..isActive = onlyShowInTextTypeAndExcludeTable,
-    aiWriterItem..isActive = onlyShowInTextTypeAndExcludeTable,
-    paragraphItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
-    headingsToolbarItem
-      ..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
-    ...markdownFormatItems..forEach((e) => e.isActive = showInAnyTextType),
-    quoteItem..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
-    bulletedListItem
-      ..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
-    numberedListItem
-      ..isActive = onlyShowInSingleTextTypeSelectionAndExcludeTable,
-    inlineMathEquationItem,
-    linkItem,
-    alignToolbarItem,
-    buildTextColorItem()..isActive = showInAnyTextType,
-    buildHighlightColorItem()..isActive = showInAnyTextType,
-    customizeFontToolbarItem..isActive = showInAnyTextType,
+    improveWritingItem,
+    group0PaddingItem,
+    aiWriterItem,
+    customTextHeadingItem,
+    buildPaddingPlaceholderItem(
+      1,
+      isActive: onlyShowInSingleTextTypeSelectionAndExcludeTable,
+    ),
+    ...customMarkdownFormatItems,
+    group1PaddingItem,
+    customTextColorItem,
+    group1PaddingItem,
+    customHighlightColorItem,
+    customInlineCodeItem,
+    suggestionsItem,
+    customLinkItem,
+    group4PaddingItem,
+    customTextAlignItem,
+    moreOptionItem,
   ];
 
   List<CharacterShortcutEvent> get characterShortcutEvents {
@@ -157,10 +172,12 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
     indentableBlockTypes.addAll([
       ToggleListBlockKeys.type,
       CalloutBlockKeys.type,
+      QuoteBlockKeys.type,
     ]);
     convertibleBlockTypes.addAll([
       ToggleListBlockKeys.type,
       CalloutBlockKeys.type,
+      QuoteBlockKeys.type,
     ]);
 
     editorLaunchUrl = (url) {
@@ -407,6 +424,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
             anchor: anchor,
             closeToolbar: closeToolbar,
           ),
+          floatingToolbarHeight: 32,
           child: editor,
         ),
       );
@@ -414,8 +432,22 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
 
     return Center(
       child: FloatingToolbar(
-        style: styleCustomizer.floatingToolbarStyleBuilder(),
+        floatingToolbarHeight: 40,
+        padding: EdgeInsets.symmetric(horizontal: 6),
+        style: FloatingToolbarStyle(
+          backgroundColor: Theme.of(context).cardColor,
+          toolbarActiveColor: Color(0xffe0f8fd),
+          toolbarElevation: 10,
+        ),
         items: toolbarItems,
+        decoration: context.getPopoverDecoration(
+          borderRadius: BorderRadius.circular(6),
+        ),
+        toolbarBuilder: (context, child) => DesktopFloatingToolbar(
+          editorState: editorState,
+          child: child,
+        ),
+        placeHolderBuilder: (_) => customPlaceholderItem,
         editorState: editorState,
         editorScrollController: editorScrollController,
         textDirection: textDirection,
@@ -437,11 +469,13 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
   }) {
     final documentBloc = context.read<DocumentBloc>();
     final isLocalMode = documentBloc.isLocalMode;
+    final view = context.read<ViewBloc>().state.view;
     return slashMenuItemsBuilder(
       editorState: editorState,
       node: node,
       isLocalMode: isLocalMode,
       documentBloc: documentBloc,
+      view: view,
     );
   }
 

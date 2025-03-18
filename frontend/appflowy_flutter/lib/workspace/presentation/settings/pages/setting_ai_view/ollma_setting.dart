@@ -29,6 +29,7 @@ class OllamaSettingPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ListView.separated(
+                physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: state.inputItems.length,
                 separatorBuilder: (_, __) => const VSpace(10),
@@ -147,7 +148,7 @@ class _InstallOllamaInstruction extends StatelessWidget {
                     ),
                 recognizer: TapGestureRecognizer()
                   ..onTap = () => afLaunchUrlString(
-                        "https://docs.appflowy.io/docs/appflowy/product/appflowy-ai-ollama",
+                        "https://appflowy.com/guide/appflowy-local-ai-ollama",
                       ),
               ),
               TextSpan(

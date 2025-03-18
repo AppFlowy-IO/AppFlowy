@@ -200,7 +200,7 @@ where
     Ok(stream.boxed())
   }
 
-  async fn index_file(
+  async fn embed_file(
     &self,
     _workspace_id: &str,
     _file_path: &Path,

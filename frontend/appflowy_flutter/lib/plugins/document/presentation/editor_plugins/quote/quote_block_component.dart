@@ -3,6 +3,10 @@ import 'dart:async';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
+
+/// In memory cache of the quote block height to avoid flashing when the quote block is updated.
+Map<String, double> _quoteBlockHeightCache = {};
 
 typedef QuoteBlockIconBuilder = Widget Function(
   BuildContext context,
@@ -114,7 +118,9 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
   @override
   Node get node => widget.node;
 
-  ValueNotifier<double> quoteBlockHeightNotifier = ValueNotifier(0);
+  late ValueNotifier<double> quoteBlockHeightNotifier = ValueNotifier(
+    _quoteBlockHeightCache[node.id] ?? 0,
+  );
 
   StreamSubscription<EditorTransactionValue>? _transactionSubscription;
 
@@ -124,7 +130,7 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
   void initState() {
     super.initState();
 
-    _observerQuoteBlockChanges();
+    _updateQuoteBlockHeight();
   }
 
   @override
@@ -136,18 +142,43 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
+    return NotificationListener<SizeChangedLayoutNotification>(
+      key: layoutBuilderKey,
+      onNotification: (notification) {
         _updateQuoteBlockHeight();
-
-        return KeyedSubtree(
-          key: layoutBuilderKey,
-          child: node.children.isEmpty
-              ? buildComponent(context)
-              : buildComponentWithChildren(context),
-        );
+        return true;
       },
+      child: SizeChangedLayoutNotifier(
+        child: node.children.isEmpty
+            ? buildComponent(context)
+            : buildComponentWithChildren(context),
+      ),
     );
+  }
+
+  @override
+  Widget buildComponentWithChildren(BuildContext context) {
+    final Widget child = Stack(
+      children: [
+        Positioned.fill(
+          left: UniversalPlatform.isMobile ? padding.left : cachedLeft,
+          right: UniversalPlatform.isMobile ? padding.right : 0,
+          child: Container(
+            color: backgroundColor,
+          ),
+        ),
+        NestedListWidget(
+          indentPadding: indentPadding,
+          child: buildComponent(context, withBackgroundColor: false),
+          children: editorState.renderer.buildList(
+            context,
+            widget.node.children,
+          ),
+        ),
+      ],
+    );
+
+    return child;
   }
 
   @override
@@ -204,7 +235,7 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
     );
 
     child = Container(
-      color: backgroundColor,
+      color: withBackgroundColor ? backgroundColor : null,
       child: Padding(
         key: blockComponentKey,
         padding: padding,
@@ -218,6 +249,7 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
       listenable: editorState.selectionNotifier,
       remoteSelection: editorState.remoteSelections,
       blockColor: editorState.editorStyle.selectionColor,
+      selectionAboveBlock: true,
       supportTypes: const [
         BlockSelectionType.block,
       ],
@@ -239,30 +271,19 @@ class _QuoteBlockComponentWidgetState extends State<QuoteBlockComponentWidget>
   void _updateQuoteBlockHeight() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       final renderObject = layoutBuilderKey.currentContext?.findRenderObject();
+      double height = _quoteBlockHeightCache[node.id] ?? 0;
       if (renderObject != null && renderObject is RenderBox) {
-        quoteBlockHeightNotifier.value =
-            renderObject.size.height - padding.top * 2;
-      } else {
-        quoteBlockHeightNotifier.value = 0;
-      }
-    });
-  }
-
-  void _observerQuoteBlockChanges() {
-    _transactionSubscription = editorState.transactionStream.listen((event) {
-      final time = event.$1;
-
-      if (time != TransactionTime.before) {
-        return;
-      }
-
-      final transaction = event.$2;
-      final operations = transaction.operations;
-      for (final operation in operations) {
-        if (node.path.isAncestorOf(operation.path)) {
-          _updateQuoteBlockHeight();
+        if (UniversalPlatform.isMobile) {
+          height = renderObject.size.height - padding.top;
+        } else {
+          height = renderObject.size.height - padding.top * 2;
         }
+      } else {
+        height = 0;
       }
+
+      quoteBlockHeightNotifier.value = height;
+      _quoteBlockHeightCache[node.id] = height;
     });
   }
 }
@@ -287,7 +308,6 @@ class QuoteIcon extends StatelessWidget {
       padding: const EdgeInsets.only(right: 6.0),
       child: SizedBox(
         width: 3 * textScaleFactor,
-
         // use overflow box to ensure the container can overflow the height so that the children of the quote block can have the quote
         child: OverflowBox(
           alignment: Alignment.topCenter,

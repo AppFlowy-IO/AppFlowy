@@ -250,7 +250,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
       showSaveMessageSuccessToast(context, view);
     }
 
-    bloc.add(const ChatSelectMessageEvent.saveAsPage());
+    bloc.add(const ChatSelectMessageEvent.reset());
 
     return view;
   }
@@ -275,7 +275,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
       showSaveMessageSuccessToast(context, newView);
       openPageFromMessage(context, newView);
     }
-    bloc.add(const ChatSelectMessageEvent.saveAsPage());
+    bloc.add(const ChatSelectMessageEvent.reset());
   }
 
   Future<void> forceReload(String documentId) async {

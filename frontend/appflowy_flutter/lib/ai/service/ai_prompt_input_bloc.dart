@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_llm_listener.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -7,6 +8,7 @@ import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -17,14 +19,14 @@ part 'ai_prompt_input_bloc.freezed.dart';
 class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
   AIPromptInputBloc({
     required PredefinedFormat? predefinedFormat,
-  })  : _listener = LocalLLMListener(),
+  })  : _listener = LocalAIStateListener(),
         super(AIPromptInputState.initial(predefinedFormat)) {
     _dispatch();
     _startListening();
     _init();
   }
 
-  final LocalLLMListener _listener;
+  final LocalAIStateListener _listener;
 
   @override
   Future<void> close() async {
@@ -36,35 +38,38 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
     on<AIPromptInputEvent>(
       (event, emit) {
         event.when(
-          updateAIState: (LocalAIPB localAIState) {
-            if (localAIState.hasLackOfResource()) {
-              emit(
-                state.copyWith(
-                  aiType: AIType.appflowyAI,
-                  supportChatWithFile: false,
-                  localAIState: localAIState,
-                ),
-              );
-              return;
-            }
-            // Only user enable chat with file and the plugin is already running
-            final supportChatWithFile = localAIState.enabled &&
-                localAIState.state == RunningStatePB.Running;
+          updateAIState: (localAIState) {
+            final aiType = localAIState.enabled ? AiType.local : AiType.cloud;
+            // final supportChatWithFile =
+            //     aiType.isLocal && localAIState.state == RunningStatePB.Running;
+            // If local ai is enabled, user can only send messages when the AI is running
+            final editable = localAIState.enabled
+                ? localAIState.state == RunningStatePB.Running
+                : true;
 
-            final aiType =
-                localAIState.enabled ? AIType.localAI : AIType.appflowyAI;
+            var hintText = aiType.isLocal
+                ? LocaleKeys.chat_inputLocalAIMessageHint.tr()
+                : LocaleKeys.chat_inputMessageHint.tr();
+
+            if (editable == false && aiType.isLocal) {
+              hintText =
+                  LocaleKeys.settings_aiPage_keys_localAIInitializing.tr();
+            }
 
             emit(
               state.copyWith(
                 aiType: aiType,
-                supportChatWithFile: supportChatWithFile,
+                supportChatWithFile: false,
                 localAIState: localAIState,
+                editable: editable,
+                hintText: hintText,
               ),
             );
           },
           toggleShowPredefinedFormat: () {
+            final showPredefinedFormats = !state.showPredefinedFormats;
             final predefinedFormat =
-                !state.showPredefinedFormats && state.predefinedFormat == null
+                showPredefinedFormats && state.predefinedFormat == null
                     ? PredefinedFormat(
                         imageFormat: ImageFormat.text,
                         textFormat: TextFormat.paragraph,
@@ -72,12 +77,15 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
                     : null;
             emit(
               state.copyWith(
-                showPredefinedFormats: !state.showPredefinedFormats,
+                showPredefinedFormats: showPredefinedFormats,
                 predefinedFormat: predefinedFormat,
               ),
             );
           },
           updatePredefinedFormat: (format) {
+            if (!state.showPredefinedFormats) {
+              return;
+            }
             emit(state.copyWith(predefinedFormat: format));
           },
           attachFile: (filePath, fileName) {
@@ -176,30 +184,35 @@ class AIPromptInputEvent with _$AIPromptInputEvent {
 @freezed
 class AIPromptInputState with _$AIPromptInputState {
   const factory AIPromptInputState({
-    required AIType aiType,
+    required AiType aiType,
     required bool supportChatWithFile,
     required bool showPredefinedFormats,
     required PredefinedFormat? predefinedFormat,
     required LocalAIPB? localAIState,
     required List<ChatFile> attachedFiles,
     required List<ViewPB> mentionedPages,
+    required bool editable,
+    required String hintText,
   }) = _AIPromptInputState;
 
   factory AIPromptInputState.initial(PredefinedFormat? format) =>
       AIPromptInputState(
-        aiType: AIType.appflowyAI,
+        aiType: AiType.cloud,
         supportChatWithFile: false,
         showPredefinedFormats: format != null,
         predefinedFormat: format,
         localAIState: null,
         attachedFiles: [],
         mentionedPages: [],
+        editable: true,
+        hintText: '',
       );
 }
 
-enum AIType {
-  appflowyAI,
-  localAI;
+enum AiType {
+  cloud,
+  local;
 
-  bool get isLocalAI => this == localAI;
+  bool get isCloud => this == cloud;
+  bool get isLocal => this == local;
 }

@@ -12,6 +12,7 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart'
@@ -92,9 +93,29 @@ class AIChatPage extends StatelessWidget {
                 }
               }
             },
-            child: _ChatContentPage(
-              view: view,
-              userProfile: userProfile,
+            child: FocusScope(
+              onKeyEvent: (focusNode, event) {
+                if (event is! KeyUpEvent) {
+                  return KeyEventResult.ignored;
+                }
+
+                if (event.logicalKey == LogicalKeyboardKey.escape ||
+                    event.logicalKey == LogicalKeyboardKey.keyC &&
+                        HardwareKeyboard.instance.isControlPressed) {
+                  final chatBloc = context.read<ChatBloc>();
+                  if (chatBloc.state.promptResponseState !=
+                      PromptResponseState.ready) {
+                    chatBloc.add(ChatEvent.stopStream());
+                    return KeyEventResult.handled;
+                  }
+                }
+
+                return KeyEventResult.ignored;
+              },
+              child: _ChatContentPage(
+                view: view,
+                userProfile: userProfile,
+              ),
             ),
           );
         },
@@ -247,6 +268,9 @@ class _ChatContentPage extends StatelessWidget {
               onChangeFormat: (format) => context
                   .read<ChatBloc>()
                   .add(ChatEvent.regenerateAnswer(message.id, format)),
+              onStopStream: () => context.read<ChatBloc>().add(
+                    const ChatEvent.stopStream(),
+                  ),
             );
           },
         );
@@ -305,6 +329,10 @@ class _ChatContentPage extends StatelessWidget {
       );
     }
 
+    context
+        .read<ChatSelectMessageBloc>()
+        .add(ChatSelectMessageEvent.enableStartSelectingMessages());
+
     return BlocSelector<ChatSelectMessageBloc, ChatSelectMessageState, bool>(
       selector: (state) => state.isSelectingMessages,
       builder: (context, isSelectingMessages) {
@@ -326,25 +354,32 @@ class _ChatContentPage extends StatelessWidget {
     BuildContext context,
     ChatMessageRefSource metadata,
   ) async {
-    if (isURL(metadata.name)) {
-      late Uri uri;
-      try {
-        uri = Uri.parse(metadata.name);
-        // `Uri` identifies `localhost` as a scheme
-        if (!uri.hasScheme || uri.scheme == 'localhost') {
-          uri = Uri.parse("http://${metadata.name}");
-          await InternetAddress.lookup(uri.host);
-        }
-        await launchUrl(uri);
-      } catch (err) {
-        Log.error("failed to open url $err");
-      }
-    } else {
+    // When the source of metatdata is appflowy, which means it is a appflowy page
+    if (metadata.source == "appflowy") {
       final sidebarView =
           await ViewBackendService.getView(metadata.id).toNullable();
       if (context.mounted) {
         openPageFromMessage(context, sidebarView);
       }
+      return;
+    }
+
+    if (metadata.source == "web") {
+      if (isURL(metadata.name)) {
+        late Uri uri;
+        try {
+          uri = Uri.parse(metadata.name);
+          // `Uri` identifies `localhost` as a scheme
+          if (!uri.hasScheme || uri.scheme == 'localhost') {
+            uri = Uri.parse("http://${metadata.name}");
+            await InternetAddress.lookup(uri.host);
+          }
+          await launchUrl(uri);
+        } catch (err) {
+          Log.error("failed to open url $err");
+        }
+      }
+      return;
     }
   }
 }

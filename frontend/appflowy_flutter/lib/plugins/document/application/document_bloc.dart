@@ -272,12 +272,12 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         }
 
         if (options.inMemoryUpdate) {
-          Log.info('skip transaction for in-memory update');
+          Log.trace('skip transaction for in-memory update');
           return;
         }
 
         if (enableDocumentInternalLog) {
-          Log.debug(
+          Log.trace(
             '[TransactionAdapter] 1. transaction before apply: ${transaction.hashCode}',
           );
         }
@@ -289,7 +289,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         await _documentRules.applyRules(value: value);
 
         if (enableDocumentInternalLog) {
-          Log.debug(
+          Log.trace(
             '[TransactionAdapter] 4. transaction after apply: ${transaction.hashCode}',
           );
         }

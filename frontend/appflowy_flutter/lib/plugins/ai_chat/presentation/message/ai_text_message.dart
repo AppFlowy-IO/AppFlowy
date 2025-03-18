@@ -32,6 +32,7 @@ class ChatAIMessageWidget extends StatelessWidget {
     required this.questionId,
     required this.chatId,
     required this.refSourceJsonString,
+    required this.onStopStream,
     this.onSelectedMetadata,
     this.onRegenerate,
     this.onChangeFormat,
@@ -50,6 +51,7 @@ class ChatAIMessageWidget extends StatelessWidget {
   final String? refSourceJsonString;
   final void Function(ChatMessageRefSource metadata)? onSelectedMetadata;
   final void Function()? onRegenerate;
+  final void Function() onStopStream;
   final void Function(PredefinedFormat)? onChangeFormat;
   final bool isStreaming;
   final bool isLastMessage;
@@ -111,7 +113,9 @@ class ChatAIMessageWidget extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              AIMarkdownText(markdown: state.text),
+                              AIMarkdownText(
+                                markdown: state.text,
+                              ),
                               if (state.sources.isNotEmpty)
                                 SelectionContainer.disabled(
                                   child: AIMessageMetadata(
@@ -144,6 +148,15 @@ class ChatAIMessageWidget extends StatelessWidget {
                 onAIMaxRequired: (message) {
                   return ChatErrorMessageWidget(
                     errorMessage: message,
+                  );
+                },
+                onInitializingLocalAI: () {
+                  onStopStream();
+
+                  return ChatErrorMessageWidget(
+                    errorMessage: LocaleKeys
+                        .settings_aiPage_keys_localAIInitializing
+                        .tr(),
                   );
                 },
               ),

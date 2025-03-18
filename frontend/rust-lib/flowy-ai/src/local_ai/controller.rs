@@ -16,6 +16,7 @@ use std::collections::HashMap;
 use crate::local_ai::watch::is_plugin_ready;
 use crate::stream_message::StreamMessage;
 use appflowy_local_ai::ollama_plugin::OllamaAIPlugin;
+use appflowy_plugin::core::plugin::RunningState;
 use arc_swap::ArcSwapOption;
 use futures_util::SinkExt;
 use lib_infra::util::get_operating_system;
@@ -26,7 +27,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::select;
 use tokio_stream::StreamExt;
-use tracing::{debug, error, info, instrument, trace};
+use tracing::{debug, error, info, instrument};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct LocalAISetting {
@@ -72,6 +73,10 @@ impl LocalAIController {
     user_service: Arc<dyn AIUserService>,
     cloud_service: Arc<dyn ChatCloudService>,
   ) -> Self {
+    debug!(
+      "[AI Plugin] init local ai controller, thread: {:?}",
+      std::thread::current().id()
+    );
     let local_ai = Arc::new(OllamaAIPlugin::new(plugin_manager));
     let res_impl = LLMResourceServiceImpl {
       user_service: user_service.clone(),
@@ -93,11 +98,16 @@ impl LocalAIController {
         if let Ok(workspace_id) = cloned_user_service.workspace_id() {
           let key = local_ai_enabled_key(&workspace_id);
           info!("[AI Plugin] state: {:?}", state);
-          let ready = is_plugin_ready();
-          let lack_of_resource = cloned_llm_res.get_lack_of_resource().await;
 
           let new_state = RunningStatePB::from(state);
           let enabled = cloned_store_preferences.get_bool(&key).unwrap_or(true);
+          let mut ready = false;
+          let mut lack_of_resource = None;
+          if enabled {
+            ready = is_plugin_ready();
+            lack_of_resource = cloned_llm_res.get_lack_of_resource().await;
+          }
+
           chat_notification_builder(
             APPFLOWY_AI_NOTIFICATION_KEY,
             ChatNotification::UpdateLocalAIState,
@@ -176,7 +186,7 @@ impl LocalAIController {
     if !self.is_enabled() {
       return false;
     }
-    self.ai_plugin.get_plugin_running_state().is_ready()
+    self.ai_plugin.get_plugin_running_state().is_running()
   }
 
   /// Indicate whether the local AI is enabled.
@@ -188,7 +198,7 @@ impl LocalAIController {
       .workspace_id()
       .map(|workspace_id| local_ai_enabled_key(&workspace_id))
     {
-      self.store_preferences.get_bool(&key).unwrap_or(true)
+      self.store_preferences.get_bool(&key).unwrap_or(false)
     } else {
       false
     }
@@ -255,9 +265,14 @@ impl LocalAIController {
   pub async fn get_local_ai_state(&self) -> LocalAIPB {
     let start = std::time::Instant::now();
     let enabled = self.is_enabled();
-    let is_app_downloaded = is_plugin_ready();
-    let state = self.ai_plugin.get_plugin_running_state();
-    let lack_of_resource = self.resource.get_lack_of_resource().await;
+    let mut is_plugin_executable_ready = false;
+    let mut state = RunningState::ReadyToConnect;
+    let mut lack_of_resource = None;
+    if enabled {
+      is_plugin_executable_ready = is_plugin_ready();
+      state = self.ai_plugin.get_plugin_running_state();
+      lack_of_resource = self.resource.get_lack_of_resource().await;
+    }
     let elapsed = start.elapsed();
     debug!(
       "[AI Plugin] get local ai state, elapsed: {:?}, thread: {:?}",
@@ -266,7 +281,7 @@ impl LocalAIController {
     );
     LocalAIPB {
       enabled,
-      is_plugin_executable_ready: is_app_downloaded,
+      is_plugin_executable_ready,
       state: RunningStatePB::from(state),
       lack_of_resource,
     }
@@ -295,14 +310,12 @@ impl LocalAIController {
     let key = local_ai_enabled_key(&workspace_id);
     let enabled = !self.store_preferences.get_bool(&key).unwrap_or(true);
     self.store_preferences.set_bool(&key, enabled)?;
-
-    if self.resource.is_resource_ready().await {
-      self.toggle_plugin(enabled).await?;
-    }
+    self.toggle_plugin(enabled).await?;
 
     Ok(enabled)
   }
 
+  #[instrument(level = "debug", skip_all)]
   pub async fn index_message_metadata(
     &self,
     chat_id: &str,
@@ -310,23 +323,27 @@ impl LocalAIController {
     index_process_sink: &mut (impl Sink<String> + Unpin),
   ) -> FlowyResult<()> {
     if !self.is_enabled() {
+      info!("[AI Plugin] local ai is disabled, skip indexing");
       return Ok(());
     }
 
     for metadata in metadata_list {
-      if let Err(err) = metadata.data.validate() {
-        error!(
-          "[AI Plugin] invalid metadata: {:?}, error: {:?}",
-          metadata, err
-        );
-        continue;
-      }
+      let mut file_metadata = HashMap::new();
+      file_metadata.insert("id".to_string(), json!(&metadata.id));
+      file_metadata.insert("name".to_string(), json!(&metadata.name));
+      file_metadata.insert("source".to_string(), json!(&metadata.source));
 
-      let mut index_metadata = HashMap::new();
-      index_metadata.insert("id".to_string(), json!(&metadata.id));
-      index_metadata.insert("name".to_string(), json!(&metadata.name));
-      index_metadata.insert("at_name".to_string(), json!(format!("@{}", &metadata.name)));
-      index_metadata.insert("source".to_string(), json!(&metadata.source));
+      let file_path = Path::new(&metadata.data.content);
+      if !file_path.exists() {
+        return Err(
+          FlowyError::record_not_found().with_context(format!("File not found: {:?}", file_path)),
+        );
+      }
+      info!(
+        "[AI Plugin] embed file: {:?}, with metadata: {:?}",
+        file_path, file_metadata
+      );
+
       match &metadata.data.content_type {
         ContextLoader::Unknown => {
           error!(
@@ -334,34 +351,15 @@ impl LocalAIController {
             metadata.data.content_type
           );
         },
-        ContextLoader::Text | ContextLoader::Markdown => {
-          trace!("[AI Plugin]: index text: {}", metadata.data.content);
+        ContextLoader::Text | ContextLoader::Markdown | ContextLoader::PDF => {
           self
             .process_index_file(
               chat_id,
-              None,
-              Some(metadata.data.content.clone()),
-              metadata,
-              &index_metadata,
+              file_path.to_path_buf(),
+              &file_metadata,
               index_process_sink,
             )
             .await?;
-        },
-        ContextLoader::PDF => {
-          trace!("[AI Plugin]: index pdf file: {}", metadata.data.content);
-          let file_path = Path::new(&metadata.data.content);
-          if file_path.exists() {
-            self
-              .process_index_file(
-                chat_id,
-                Some(file_path.to_path_buf()),
-                None,
-                metadata,
-                &index_metadata,
-                index_process_sink,
-              )
-              .await?;
-          }
         },
       }
     }
@@ -372,43 +370,38 @@ impl LocalAIController {
   async fn process_index_file(
     &self,
     chat_id: &str,
-    file_path: Option<PathBuf>,
-    content: Option<String>,
-    metadata: &ChatMessageMetadata,
+    file_path: PathBuf,
     index_metadata: &HashMap<String, serde_json::Value>,
     index_process_sink: &mut (impl Sink<String> + Unpin),
   ) -> Result<(), FlowyError> {
+    let file_name = file_path
+      .file_name()
+      .unwrap_or_default()
+      .to_string_lossy()
+      .to_string();
+
     let _ = index_process_sink
       .send(
         StreamMessage::StartIndexFile {
-          file_name: metadata.name.clone(),
+          file_name: file_name.clone(),
         }
         .to_string(),
       )
       .await;
 
     let result = self
-      .index_file(chat_id, file_path, content, Some(index_metadata.clone()))
+      .ai_plugin
+      .embed_file(chat_id, file_path, Some(index_metadata.clone()))
       .await;
     match result {
       Ok(_) => {
         let _ = index_process_sink
-          .send(
-            StreamMessage::EndIndexFile {
-              file_name: metadata.name.clone(),
-            }
-            .to_string(),
-          )
+          .send(StreamMessage::EndIndexFile { file_name }.to_string())
           .await;
       },
       Err(err) => {
         let _ = index_process_sink
-          .send(
-            StreamMessage::IndexFileError {
-              file_name: metadata.name.clone(),
-            }
-            .to_string(),
-          )
+          .send(StreamMessage::IndexFileError { file_name }.to_string())
           .await;
         error!("[AI Plugin] failed to index file: {:?}", err);
       },
@@ -431,9 +424,10 @@ impl LocalAIController {
       }
       let _ = rx.await;
     } else {
-      if let Err(err) = self.ai_plugin.destroy_chat_plugin().await {
+      if let Err(err) = self.ai_plugin.destroy_plugin().await {
         error!("[AI Plugin] failed to destroy plugin: {:?}", err);
       }
+
       chat_notification_builder(
         APPFLOWY_AI_NOTIFICATION_KEY,
         ChatNotification::UpdateLocalAIState,
@@ -457,11 +451,8 @@ async fn initialize_ai_plugin(
   ret: Option<tokio::sync::oneshot::Sender<()>>,
 ) -> FlowyResult<()> {
   let plugin = plugin.clone();
-  if plugin.get_plugin_running_state().is_loading() {
-    return Ok(());
-  }
-
   let lack_of_resource = llm_resource.get_lack_of_resource().await;
+
   chat_notification_builder(
     APPFLOWY_AI_NOTIFICATION_KEY,
     ChatNotification::UpdateLocalAIState,
@@ -488,6 +479,13 @@ async fn initialize_ai_plugin(
       resource_desc: lack_of_resource,
     })
     .send();
+
+    if let Err(err) = plugin.destroy_plugin().await {
+      error!(
+        "[AI Plugin] failed to destroy plugin when lack of resource: {:?}",
+        err
+      );
+    }
 
     return Ok(());
   }

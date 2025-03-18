@@ -55,6 +55,8 @@ class _DocumentPageState extends State<DocumentPage>
   Selection? initialSelection;
   late final documentBloc = DocumentBloc(documentId: widget.view.id)
     ..add(const DocumentEvent.initial());
+  late final viewBloc = ViewBloc(view: widget.view)
+    ..add(const ViewEvent.initial());
 
   @override
   void initState() {
@@ -66,6 +68,7 @@ class _DocumentPageState extends State<DocumentPage>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     documentBloc.close();
+    viewBloc.close();
 
     super.dispose();
   }
@@ -88,10 +91,9 @@ class _DocumentPageState extends State<DocumentPage>
         BlocProvider.value(value: documentBloc),
         BlocProvider.value(
           value: ViewLockStatusBloc(view: widget.view)
-            ..add(
-              ViewLockStatusEvent.initial(),
-            ),
+            ..add(ViewLockStatusEvent.initial()),
         ),
+        BlocProvider.value(value: viewBloc),
       ],
       child: BlocConsumer<ViewLockStatusBloc, ViewLockStatusState>(
         listenWhen: (prev, curr) => curr.isLocked != prev.isLocked,

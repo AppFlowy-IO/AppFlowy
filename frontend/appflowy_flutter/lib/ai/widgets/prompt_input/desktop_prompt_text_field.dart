@@ -52,7 +52,6 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
     super.initState();
 
     textController.addListener(handleTextControllerChanged);
-
     focusNode.addListener(
       () {
         if (!widget.hideDecoration) {
@@ -148,14 +147,13 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
                                   start: 8.0,
                                 ),
                                 child: ChangeFormatBar(
+                                  showImageFormats: state.aiType.isCloud,
                                   predefinedFormat: state.predefinedFormat,
                                   spacing: 4.0,
                                   onSelectPredefinedFormat: (format) =>
                                       context.read<AIPromptInputBloc>().add(
                                             AIPromptInputEvent
-                                                .updatePredefinedFormat(
-                                              format,
-                                            ),
+                                                .updatePredefinedFormat(format),
                                           ),
                                 ),
                               ),
@@ -283,10 +281,10 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
       return;
     }
 
-    // handle text and selection changes ONLY when mentioning a page
-
     // disable mention
     return;
+
+    // handle text and selection changes ONLY when mentioning a page
     // ignore: dead_code
     if (!overlayController.isShowing ||
         inputControlCubit.filterStartPosition == -1) {
@@ -376,18 +374,27 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
           link: layerLink,
           child: BlocBuilder<AIPromptInputBloc, AIPromptInputState>(
             builder: (context, state) {
-              return PromptInputTextField(
+              Widget textField = PromptInputTextField(
                 key: textFieldKey,
+                editable: state.editable,
                 cubit: inputControlCubit,
                 textController: textController,
                 textFieldFocusNode: focusNode,
                 contentPadding:
                     calculateContentPadding(state.showPredefinedFormats),
-                hintText: switch (state.aiType) {
-                  AIType.appflowyAI => LocaleKeys.chat_inputMessageHint.tr(),
-                  AIType.localAI => LocaleKeys.chat_inputLocalAIMessageHint.tr()
-                },
+                hintText: state.hintText,
               );
+
+              if (!state.editable) {
+                textField = FlowyTooltip(
+                  message: LocaleKeys
+                      .settings_aiPage_keys_localAINotReadyTextFieldPrompt
+                      .tr(),
+                  child: textField,
+                );
+              }
+
+              return textField;
             },
           ),
         ),
@@ -492,6 +499,7 @@ class _FocusNextItemIntent extends Intent {
 class PromptInputTextField extends StatelessWidget {
   const PromptInputTextField({
     super.key,
+    required this.editable,
     required this.cubit,
     required this.textController,
     required this.textFieldFocusNode,
@@ -503,6 +511,7 @@ class PromptInputTextField extends StatelessWidget {
   final TextEditingController textController;
   final FocusNode textFieldFocusNode;
   final EdgeInsetsGeometry contentPadding;
+  final bool editable;
   final String hintText;
 
   @override
@@ -510,6 +519,8 @@ class PromptInputTextField extends StatelessWidget {
     return ExtendedTextField(
       controller: textController,
       focusNode: textFieldFocusNode,
+      readOnly: !editable,
+      enabled: editable,
       decoration: InputDecoration(
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
@@ -582,7 +593,7 @@ class _PromptBottomActions extends StatelessWidget {
             children: [
               _predefinedFormatButton(),
               const Spacer(),
-              if (state.aiType == AIType.appflowyAI) ...[
+              if (state.aiType.isCloud) ...[
                 _selectSourcesButton(context),
                 const HSpace(
                   DesktopAIChatSizes.inputActionBarButtonSpacing,

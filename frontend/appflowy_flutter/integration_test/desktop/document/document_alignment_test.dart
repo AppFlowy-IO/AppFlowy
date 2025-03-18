@@ -27,8 +27,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // click the align center
-      await tester.tapButtonWithFlowySvgData(FlowySvgs.toolbar_align_left_s);
-      await tester.tapButtonWithFlowySvgData(FlowySvgs.toolbar_align_center_s);
+      await tester.tapButtonWithFlowySvgData(FlowySvgs.toolbar_alignment_m);
+      await tester
+          .tapButtonWithFlowySvgData(FlowySvgs.toolbar_text_align_center_m);
 
       // expect to see the align center
       final editorState = tester.editor.getCurrentEditorState();
@@ -36,13 +37,15 @@ void main() {
       expect(first.attributes[blockComponentAlign], 'center');
 
       // click the align right
-      await tester.tapButtonWithFlowySvgData(FlowySvgs.toolbar_align_center_s);
-      await tester.tapButtonWithFlowySvgData(FlowySvgs.toolbar_align_right_s);
+      await tester.tapButtonWithFlowySvgData(FlowySvgs.toolbar_alignment_m);
+      await tester
+          .tapButtonWithFlowySvgData(FlowySvgs.toolbar_text_align_right_m);
       expect(first.attributes[blockComponentAlign], 'right');
 
       // click the align left
-      await tester.tapButtonWithFlowySvgData(FlowySvgs.toolbar_align_right_s);
-      await tester.tapButtonWithFlowySvgData(FlowySvgs.toolbar_align_left_s);
+      await tester.tapButtonWithFlowySvgData(FlowySvgs.toolbar_alignment_m);
+      await tester
+          .tapButtonWithFlowySvgData(FlowySvgs.toolbar_text_align_left_m);
       expect(first.attributes[blockComponentAlign], 'left');
     });
 
