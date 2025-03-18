@@ -117,7 +117,7 @@ class _TextColorPickerWidgetState extends State<TextColorPickerWidget> {
     final List<String> colors = [];
     final selection = editorState.selection!;
     final nodes = editorState.getNodesInSelection(selection);
-    nodes.allSatisfyInSelection(selection, (delta) {
+    final isHighLight = nodes.allSatisfyInSelection(selection, (delta) {
       if (delta.everyAttributes((attr) => attr.isEmpty)) {
         return false;
       }
@@ -130,7 +130,7 @@ class _TextColorPickerWidgetState extends State<TextColorPickerWidget> {
     });
 
     final colorLength = colors.length;
-    if (colors.isEmpty) {
+    if (colors.isEmpty || !isHighLight) {
       return Container(
         width: 20,
         height: 4,
@@ -158,7 +158,7 @@ class _TextColorPickerWidgetState extends State<TextColorPickerWidget> {
     final List<String> colors = [];
     final selection = editorState.selection!;
     final nodes = editorState.getNodesInSelection(selection);
-    nodes.allSatisfyInSelection(selection, (delta) {
+    final isHighLight = nodes.allSatisfyInSelection(selection, (delta) {
       if (delta.everyAttributes((attr) => attr.isEmpty)) {
         return false;
       }
@@ -187,7 +187,8 @@ class _TextColorPickerWidgetState extends State<TextColorPickerWidget> {
       child: ColorPicker(
         title: LocaleKeys.document_toolbar_textColor.tr(),
         showClearButton: showClearButton,
-        selectedColorHex: colors.length == 1 ? colors.first : null,
+        selectedColorHex:
+            (colors.length == 1 && isHighLight) ? colors.first : null,
         customColorHex: _customColorHex,
         colorOptions: generateTextColorOptions(),
         onSubmittedColorHex: (color, isCustomColor) {

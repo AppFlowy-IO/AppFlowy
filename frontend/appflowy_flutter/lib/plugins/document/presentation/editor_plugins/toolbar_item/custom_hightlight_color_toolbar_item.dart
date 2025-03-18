@@ -118,7 +118,7 @@ class _HighlightColorPickerWidgetState
     final List<String> colors = [];
     final selection = editorState.selection!;
     final nodes = editorState.getNodesInSelection(selection);
-    nodes.allSatisfyInSelection(selection, (delta) {
+    final isHighLight = nodes.allSatisfyInSelection(selection, (delta) {
       if (delta.everyAttributes((attr) => attr.isEmpty)) {
         return false;
       }
@@ -131,7 +131,7 @@ class _HighlightColorPickerWidgetState
     });
 
     final colorLength = colors.length;
-    if (colors.isEmpty) {
+    if (colors.isEmpty || !isHighLight) {
       return Container(
         width: 20,
         height: 4,
@@ -159,7 +159,7 @@ class _HighlightColorPickerWidgetState
 
     final selection = editorState.selection!;
     final nodes = editorState.getNodesInSelection(selection);
-    nodes.allSatisfyInSelection(selection, (delta) {
+    final isHighlight = nodes.allSatisfyInSelection(selection, (delta) {
       if (delta.everyAttributes((attr) => attr.isEmpty)) {
         return false;
       }
@@ -187,7 +187,8 @@ class _HighlightColorPickerWidgetState
       child: ColorPicker(
         title: AppFlowyEditorL10n.current.highlightColor,
         showClearButton: showClearButton,
-        selectedColorHex: colors.length == 1 ? colors.first : null,
+        selectedColorHex:
+            (colors.length == 1 && isHighlight) ? colors.first : null,
         customColorHex: _customHighlightColorHex,
         colorOptions: generateHighlightColorOptions(),
         onSubmittedColorHex: (color, isCustomColor) {
