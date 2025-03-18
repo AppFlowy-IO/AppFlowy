@@ -2116,7 +2116,8 @@
       "moreOptions": "More Options",
       "font": "Font",
       "suggestions": "Suggestions",
-      "turnInto": "Turn Into"
+      "turnInto": "Turn Into",
+      "equation": "Equation"
     },
     "errorBlock": {
       "theBlockIsNotSupported": "Unable to parse the block content",
@@ -2418,9 +2419,9 @@
     "link": "Link",
     "numberedList": "Numbered list",
     "numberedListShortForm": "Numbered",
-    "toggleHeading1ShortForm": "Toggle h1",
-    "toggleHeading2ShortForm": "Toggle h2",
-    "toggleHeading3ShortForm": "Toggle h3",
+    "toggleHeading1ShortForm": "Toggle H1",
+    "toggleHeading2ShortForm": "Toggle H2",
+    "toggleHeading3ShortForm": "Toggle H3",
     "quote": "Quote",
     "strikethrough": "Strikethrough",
     "text": "Text",

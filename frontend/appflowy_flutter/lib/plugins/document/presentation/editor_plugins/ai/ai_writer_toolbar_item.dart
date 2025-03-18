@@ -120,7 +120,7 @@ class _AiWriterToolbarActionListState extends State<AiWriterToolbarActionList> {
   Widget buildChild(BuildContext context) {
     final iconColor = Theme.of(context).iconTheme.color;
     final child = FlowyIconButton(
-      width: 52,
+      width: 48,
       height: 32,
       isSelected: isSelected,
       hoverColor: EditorStyleCustomizer.toolbarHoverColor(context),
@@ -132,9 +132,10 @@ class _AiWriterToolbarActionListState extends State<AiWriterToolbarActionList> {
             size: Size.square(20),
             color: iconColor,
           ),
+          HSpace(4),
           FlowySvg(
             FlowySvgs.toolbar_arrow_down_m,
-            size: Size.square(20),
+            size: Size(12, 20),
             color: iconColor,
           ),
         ],

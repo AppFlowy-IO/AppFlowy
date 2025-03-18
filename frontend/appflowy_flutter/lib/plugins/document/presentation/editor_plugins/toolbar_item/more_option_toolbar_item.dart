@@ -73,7 +73,7 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
     return AppFlowyPopover(
       controller: popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
-      offset: const Offset(-8.0, 2.0),
+      offset: const Offset(0, 2.0),
       onOpen: () => keepEditorFocusNotifier.increase(),
       onClose: () {
         setState(() {
@@ -152,6 +152,8 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
 
   Widget buildPopoverContent() {
     final showFormula = onlyShowInSingleSelectionAndTextType(editorState);
+    final strikethroughColor = getStrikethroughColor();
+    final Color? formulaColor = showFormula ? getFormulaColor() : null;
     return MouseRegion(
       child: SeparatedColumn(
         mainAxisSize: MainAxisSize.min,
@@ -160,36 +162,39 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
           buildFontSelector(),
           buildCommandItem(
             MoreOptionCommand.strikethrough,
-            getStrikethroughColor(),
+            rightIcon: strikethroughColor != null
+                ? FlowySvg(FlowySvgs.toolbar_check_m)
+                : null,
           ),
           if (showFormula)
             buildCommandItem(
               MoreOptionCommand.formula,
-              getFormulaColor(),
+              rightIcon: formulaColor != null
+                  ? FlowySvg(FlowySvgs.toolbar_check_m)
+                  : null,
             ),
         ],
       ),
     );
   }
 
-  Widget buildCommandItem(MoreOptionCommand command, Color? color) {
+  Widget buildCommandItem(
+    MoreOptionCommand command, {
+    Widget? rightIcon,
+  }) {
+    final isFontCommand = command == MoreOptionCommand.font;
     return SizedBox(
       height: 36,
       child: FlowyButton(
-        key: command == MoreOptionCommand.font
-            ? kFontFamilyToolbarItemKey
-            : null,
+        key: isFontCommand ? kFontFamilyToolbarItemKey : null,
         leftIconSize: const Size.square(20),
-        leftIcon: FlowySvg(
-          command.svg,
-          color: color,
-        ),
+        leftIcon: FlowySvg(command.svg),
+        rightIcon: rightIcon,
         iconPadding: 12,
         text: FlowyText(
           command.title,
           figmaLineHeight: 20,
           fontWeight: FontWeight.w400,
-          color: color,
         ),
         onTap: () {
           command.onExecute(editorState);
@@ -228,7 +233,10 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
         await editorState
             .formatDelta(selection, {AppFlowyRichTextKeys.fontFamily: null});
       },
-      child: buildCommandItem(MoreOptionCommand.font, null),
+      child: buildCommandItem(
+        MoreOptionCommand.font,
+        rightIcon: FlowySvg(FlowySvgs.toolbar_arrow_right_m),
+      ),
     );
   }
 }
@@ -249,7 +257,7 @@ enum MoreOptionCommand {
       case strikethrough:
         return LocaleKeys.editor_strikethrough.tr();
       case formula:
-        return LocaleKeys.editor_mathEquationShortForm.tr();
+        return LocaleKeys.document_toolbar_equation.tr();
     }
   }
 
