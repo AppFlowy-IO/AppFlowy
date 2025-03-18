@@ -274,40 +274,40 @@ class _TurnInfoButton extends StatelessWidget {
 
   FlowySvgData _buildLeftIcon(String type, {int? level}) {
     if (type == ParagraphBlockKeys.type) {
-      return FlowySvgs.slash_menu_icon_text_s;
+      return FlowySvgs.type_text_m;
     } else if (type == HeadingBlockKeys.type) {
       switch (level) {
         case 1:
-          return FlowySvgs.slash_menu_icon_h1_s;
+          return FlowySvgs.type_h1_m;
         case 2:
-          return FlowySvgs.slash_menu_icon_h2_s;
+          return FlowySvgs.type_h2_m;
         case 3:
-          return FlowySvgs.slash_menu_icon_h3_s;
+          return FlowySvgs.type_h3_m;
         default:
-          return FlowySvgs.slash_menu_icon_text_s;
+          return FlowySvgs.type_text_m;
       }
     } else if (type == QuoteBlockKeys.type) {
-      return FlowySvgs.slash_menu_icon_quote_s;
+      return FlowySvgs.type_quote_m;
     } else if (type == BulletedListBlockKeys.type) {
-      return FlowySvgs.slash_menu_icon_bulleted_list_s;
+      return FlowySvgs.type_bulleted_list_m;
     } else if (type == NumberedListBlockKeys.type) {
-      return FlowySvgs.slash_menu_icon_numbered_list_s;
+      return FlowySvgs.type_numbered_list_m;
     } else if (type == TodoListBlockKeys.type) {
-      return FlowySvgs.slash_menu_icon_checkbox_s;
+      return FlowySvgs.type_todo_m;
     } else if (type == CalloutBlockKeys.type) {
-      return FlowySvgs.slash_menu_icon_callout_s;
+      return FlowySvgs.type_callout_m;
     } else if (type == SubPageBlockKeys.type) {
       return FlowySvgs.icon_document_s;
     } else if (type == ToggleListBlockKeys.type) {
       switch (level) {
         case 1:
-          return FlowySvgs.toggle_heading1_s;
+          return FlowySvgs.type_toggle_h1_m;
         case 2:
-          return FlowySvgs.toggle_heading2_s;
+          return FlowySvgs.type_toggle_h2_m;
         case 3:
-          return FlowySvgs.toggle_heading3_s;
+          return FlowySvgs.type_toggle_h3_m;
         default:
-          return FlowySvgs.slash_menu_icon_toggle_s;
+          return FlowySvgs.type_toggle_list_m;
       }
     }
 
@@ -335,9 +335,9 @@ class _TurnInfoButton extends StatelessWidget {
       case QuoteBlockKeys.type:
         return LocaleKeys.document_slashMenu_name_quote.tr();
       case BulletedListBlockKeys.type:
-        return LocaleKeys.document_slashMenu_name_bulletedList.tr();
+        return LocaleKeys.editor_bulletedListShortForm.tr();
       case NumberedListBlockKeys.type:
-        return LocaleKeys.document_slashMenu_name_numberedList.tr();
+        return LocaleKeys.editor_numberedListShortForm.tr();
       case TodoListBlockKeys.type:
         return LocaleKeys.editor_checkbox.tr();
       case CalloutBlockKeys.type:
@@ -347,13 +347,13 @@ class _TurnInfoButton extends StatelessWidget {
       case ToggleListBlockKeys.type:
         switch (level) {
           case 1:
-            return LocaleKeys.document_slashMenu_name_toggleHeading1.tr();
+            return LocaleKeys.editor_toggleHeading1ShortForm.tr();
           case 2:
-            return LocaleKeys.document_slashMenu_name_toggleHeading2.tr();
+            return LocaleKeys.editor_toggleHeading2ShortForm.tr();
           case 3:
-            return LocaleKeys.document_slashMenu_name_toggleHeading3.tr();
+            return LocaleKeys.editor_toggleHeading3ShortForm.tr();
           default:
-            return LocaleKeys.document_slashMenu_name_toggleList.tr();
+            return LocaleKeys.editor_toggleListShortForm.tr();
         }
     }
 
