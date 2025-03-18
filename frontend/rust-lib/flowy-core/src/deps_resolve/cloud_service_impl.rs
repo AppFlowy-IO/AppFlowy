@@ -1,7 +1,10 @@
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use client_api::entity::ai_dto::RepeatedRelatedQuestion;
 use client_api::entity::search_dto::SearchDocumentResponseItem;
-use client_api::entity::workspace_dto::{FolderView, PublishInfoView};
+use client_api::entity::workspace_dto::{
+  CreatePageParams, DuplicatePageParams, FolderView, MovePageParams, PublishInfoView,
+  UpdatePageParams, UpdateSpaceParams,
+};
 use client_api::entity::PublishInfo;
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::entity::EncodedCollab;
@@ -441,6 +444,90 @@ impl FolderCloudService for ServerProvider {
     server
       .folder_service()
       .get_workspace_folder(workspace_id, depth, root_view_id)
+      .await
+  }
+
+  async fn create_view(
+    &self,
+    workspace_id: &str,
+    params: CreatePageParams,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .create_view(workspace_id, params)
+      .await
+  }
+
+  async fn duplicate_view(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: DuplicatePageParams,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .duplicate_view(workspace_id, view_id, params)
+      .await
+  }
+
+  async fn move_view(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: MovePageParams,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .move_view(workspace_id, view_id, params)
+      .await
+  }
+
+  async fn move_view_to_trash(&self, workspace_id: &str, view_id: &str) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .move_view_to_trash(workspace_id, view_id)
+      .await
+  }
+
+  async fn restore_view_from_trash(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .restore_view_from_trash(workspace_id, view_id)
+      .await
+  }
+
+  async fn update_view(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: UpdatePageParams,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .update_view(workspace_id, view_id, params)
+      .await
+  }
+
+  async fn update_space(
+    &self,
+    workspace_id: &str,
+    space_id: &str,
+    params: UpdateSpaceParams,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .update_space(workspace_id, space_id, params)
       .await
   }
 }

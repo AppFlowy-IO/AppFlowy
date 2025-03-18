@@ -1,4 +1,7 @@
-use client_api::entity::workspace_dto::{FolderView, PublishInfoView};
+use client_api::entity::workspace_dto::{
+  CreatePageParams, DuplicatePageParams, FolderView, MovePageParams, PublishInfoView,
+  UpdatePageParams, UpdateSpaceParams,
+};
 use client_api::entity::{
   workspace_dto::CreateWorkspaceParam, CollabParams, PublishCollabItem, PublishCollabMetadata,
   QueryCollab, QueryCollabParams,
@@ -389,5 +392,104 @@ where
       .get_workspace_folder(&workspace_id, depth, root_view_id)
       .await?;
     Ok(folder)
+  }
+
+  async fn create_view(
+    &self,
+    workspace_id: &str,
+    params: CreatePageParams,
+  ) -> Result<(), FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    let client = try_get_client?;
+    // change the workspace_id to uuid
+    client
+      .create_workspace_page_view(Uuid::parse_str(&workspace_id).unwrap(), &params)
+      .await?;
+    Ok(())
+  }
+
+  async fn duplicate_view(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: DuplicatePageParams,
+  ) -> Result<(), FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    let client = try_get_client?;
+    client
+      .duplicate_view_and_children(Uuid::parse_str(&workspace_id).unwrap(), view_id, &params)
+      .await?;
+    Ok(())
+  }
+
+  async fn move_view(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: MovePageParams,
+  ) -> Result<(), FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    let client = try_get_client?;
+    client
+      .move_workspace_page_view(Uuid::parse_str(&workspace_id).unwrap(), view_id, &params)
+      .await?;
+    Ok(())
+  }
+
+  async fn move_view_to_trash(&self, workspace_id: &str, view_id: &str) -> Result<(), FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    let client = try_get_client?;
+    client
+      .move_workspace_page_view_to_trash(Uuid::parse_str(&workspace_id).unwrap(), view_id)
+      .await?;
+    Ok(())
+  }
+
+  async fn restore_view_from_trash(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+  ) -> Result<(), FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    let client = try_get_client?;
+    client
+      .restore_workspace_page_view_from_trash(Uuid::parse_str(&workspace_id).unwrap(), view_id)
+      .await?;
+    Ok(())
+  }
+
+  async fn update_view(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: UpdatePageParams,
+  ) -> Result<(), FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    let client = try_get_client?;
+    client
+      .update_workspace_page_view(Uuid::parse_str(&workspace_id).unwrap(), view_id, &params)
+      .await?;
+    Ok(())
+  }
+
+  async fn update_space(
+    &self,
+    workspace_id: &str,
+    space_id: &str,
+    params: UpdateSpaceParams,
+  ) -> Result<(), FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    let client = try_get_client?;
+    client
+      .update_space(Uuid::parse_str(&workspace_id).unwrap(), space_id, &params)
+      .await?;
+    Ok(())
   }
 }

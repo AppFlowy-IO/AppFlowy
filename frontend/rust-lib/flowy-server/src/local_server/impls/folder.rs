@@ -1,9 +1,11 @@
 use std::sync::Arc;
 
-use client_api::entity::workspace_dto::{FolderView, PublishInfoView};
+use client_api::entity::workspace_dto::{
+  CreatePageParams, DuplicatePageParams, FolderView, MovePageParams, PublishInfoView,
+  UpdatePageParams, UpdateSpaceParams,
+};
 use client_api::entity::PublishInfo;
 use collab_entity::CollabType;
-use collab_folder::View;
 
 use crate::local_server::LocalServerDB;
 use flowy_error::FlowyError;
@@ -161,6 +163,66 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     _depth: Option<u32>,
     _root_view_id: Option<String>,
   ) -> Result<FolderView, FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn create_view(
+    &self,
+    _workspace_id: &str,
+    _params: CreatePageParams,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn duplicate_view(
+    &self,
+    _workspace_id: &str,
+    _view_id: &str,
+    _params: DuplicatePageParams,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn move_view(
+    &self,
+    _workspace_id: &str,
+    _view_id: &str,
+    _params: MovePageParams,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn move_view_to_trash(
+    &self,
+    _workspace_id: &str,
+    _view_id: &str,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn restore_view_from_trash(
+    &self,
+    _workspace_id: &str,
+    _view_id: &str,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn update_view(
+    &self,
+    _workspace_id: &str,
+    _view_id: &str,
+    _params: UpdatePageParams,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn update_space(
+    &self,
+    _workspace_id: &str,
+    _space_id: &str,
+    _params: UpdateSpaceParams,
+  ) -> Result<(), FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
 }
