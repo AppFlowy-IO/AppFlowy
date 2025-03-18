@@ -5,6 +5,9 @@ import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+export 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc_event.dart';
+export 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc_state.dart';
+
 extension FolderViewPBExtension on FolderViewPB {
   ViewPB get viewPB {
     final children = this.children.map((e) => e.viewPB).toList();

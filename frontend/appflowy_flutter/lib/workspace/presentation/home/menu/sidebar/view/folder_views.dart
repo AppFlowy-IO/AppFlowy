@@ -1,7 +1,6 @@
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
-import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/view/folder_view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -25,10 +24,10 @@ class FolderViews extends StatelessWidget {
   final ValueNotifier<bool> isHovered;
   final PropertyValueNotifier<bool> isExpandedNotifier;
   final bool disableSelectedStatus;
-  final ViewItemRightIconsBuilder? rightIconsBuilder;
-  final ViewItemOnSelected onSelected;
-  final ViewItemOnSelected? onTertiarySelected;
-  final IgnoreViewType Function(ViewPB view)? shouldIgnoreView;
+  final FolderViewItemRightIconsBuilder? rightIconsBuilder;
+  final FolderViewItemOnSelected onSelected;
+  final FolderViewItemOnSelected? onTertiarySelected;
+  final IgnoreViewType Function(FolderViewPB view)? shouldIgnoreView;
 
   @override
   Widget build(BuildContext context) {
@@ -36,13 +35,13 @@ class FolderViews extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: space.children
           .map(
-            (view) => ViewItem(
+            (view) => FolderViewItem(
               key: ValueKey('${space.viewId} ${view.viewId}'),
               spaceType: !space.isPrivate
                   ? FolderSpaceType.public
                   : FolderSpaceType.private,
               isFirstChild: view.viewId == space.children.first.viewId,
-              view: view.viewPB,
+              view: view,
               level: 0,
               leftPadding: HomeSpaceViewSizes.leftPadding,
               isFeedback: false,

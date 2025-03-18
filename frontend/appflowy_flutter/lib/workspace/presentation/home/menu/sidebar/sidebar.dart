@@ -136,7 +136,7 @@ class HomeSideBar extends StatelessWidget {
               BlocProvider(
                 create: (_) => FolderV2Bloc(
                   currentWorkspaceId: workspaceId,
-                )..add(FolderV2GetFolderViews()),
+                )..add(const FolderV2GetFolderViews()),
               ),
             ],
             child: MultiBlocListener(

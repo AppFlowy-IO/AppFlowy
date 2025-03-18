@@ -7,8 +7,9 @@ import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
+import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
@@ -16,10 +17,10 @@ import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/view/folder_view_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
-import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/lock_page_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
@@ -35,14 +36,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 typedef FolderViewItemOnSelected = void Function(
-    BuildContext context, ViewPB view);
+  BuildContext context,
+  FolderViewPB view,
+);
 typedef FolderViewItemLeftIconBuilder = Widget Function(
   BuildContext context,
-  ViewPB view,
+  FolderViewPB view,
 );
 typedef FolderViewItemRightIconsBuilder = List<Widget> Function(
   BuildContext context,
-  ViewPB view,
+  FolderViewPB view,
 );
 
 enum IgnoreViewType { none, hide, disable }
@@ -76,8 +79,8 @@ class FolderViewItem extends StatelessWidget {
     this.enableRightClickContext = false,
   });
 
-  final ViewPB view;
-  final ViewPB? parentView;
+  final FolderViewPB view;
+  final FolderViewPB? parentView;
 
   final FolderSpaceType spaceType;
 
@@ -128,13 +131,13 @@ class FolderViewItem extends StatelessWidget {
   final bool shouldLoadChildViews;
   final PropertyValueNotifier<bool>? isExpandedNotifier;
 
-  final List<Widget> Function(ViewPB view)? extendBuilder;
+  final List<Widget> Function(FolderViewPB view)? extendBuilder;
 
   // disable the selected status of the view item
   final bool? disableSelectedStatus;
 
   // ignore the views when rendering the child views
-  final IgnoreViewType Function(ViewPB view)? shouldIgnoreView;
+  final IgnoreViewType Function(FolderViewPB view)? shouldIgnoreView;
 
   /// Whether to add right-click to show the view action context menu
   ///
@@ -145,73 +148,56 @@ class FolderViewItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => ViewBloc(
-        view: view,
-        shouldLoadChildViews: shouldLoadChildViews,
-        engagedInExpanding: engagedInExpanding,
-      )..add(const ViewEvent.initial()),
-      child: BlocConsumer<ViewBloc, ViewState>(
-        listenWhen: (p, c) =>
-            c.lastCreatedView != null &&
-            p.lastCreatedView?.id != c.lastCreatedView!.id,
-        listener: (context, state) =>
-            context.read<TabsBloc>().openPlugin(state.lastCreatedView!),
-        builder: (context, state) {
-          // filter the child views that should be ignored
-          List<ViewPB> childViews = state.view.childViews;
-          if (shouldIgnoreView != null) {
-            childViews = childViews
-                .where((v) => shouldIgnoreView!(v) != IgnoreViewType.hide)
-                .toList();
-          }
+    List<FolderViewPB> childViews = view.children;
+    if (shouldIgnoreView != null) {
+      childViews = childViews
+          .where((v) => shouldIgnoreView!(v) != IgnoreViewType.hide)
+          .toList();
+    }
 
-          final Widget child = InnerFolderViewItem(
-            view: state.view,
-            parentView: parentView,
-            childViews: childViews,
-            spaceType: spaceType,
-            level: level,
-            leftPadding: leftPadding,
-            showActions: state.isEditing,
-            enableRightClickContext: enableRightClickContext,
-            isExpanded: state.isExpanded,
-            disableSelectedStatus: disableSelectedStatus,
-            onSelected: onSelected,
-            onTertiarySelected: onTertiarySelected,
-            isFirstChild: isFirstChild,
-            isDraggable: isDraggable,
-            isFeedback: isFeedback,
-            height: height,
-            isHoverEnabled: isHoverEnabled,
-            isPlaceholder: isPlaceholder,
-            isHovered: isHovered,
-            shouldRenderChildren: shouldRenderChildren,
-            leftIconBuilder: leftIconBuilder,
-            rightIconsBuilder: rightIconsBuilder,
-            isExpandedNotifier: isExpandedNotifier,
-            extendBuilder: extendBuilder,
-            shouldIgnoreView: shouldIgnoreView,
-            engagedInExpanding: engagedInExpanding,
-          );
-
-          if (shouldIgnoreView?.call(view) == IgnoreViewType.disable) {
-            return Opacity(
-              opacity: 0.5,
-              child: FlowyTooltip(
-                message: LocaleKeys.space_cannotMovePageToDatabase.tr(),
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.forbidden,
-                  child: IgnorePointer(child: child),
-                ),
-              ),
-            );
-          }
-
-          return child;
-        },
-      ),
+    final Widget child = InnerFolderViewItem(
+      view: view,
+      parentView: parentView,
+      childViews: childViews,
+      spaceType: spaceType,
+      level: level,
+      leftPadding: leftPadding,
+      showActions: false,
+      enableRightClickContext: enableRightClickContext,
+      isExpanded: false,
+      disableSelectedStatus: disableSelectedStatus,
+      onSelected: onSelected,
+      onTertiarySelected: onTertiarySelected,
+      isFirstChild: isFirstChild,
+      isDraggable: isDraggable,
+      isFeedback: isFeedback,
+      height: height,
+      isHoverEnabled: isHoverEnabled,
+      isPlaceholder: isPlaceholder,
+      isHovered: isHovered,
+      shouldRenderChildren: shouldRenderChildren,
+      leftIconBuilder: leftIconBuilder,
+      rightIconsBuilder: rightIconsBuilder,
+      isExpandedNotifier: isExpandedNotifier,
+      extendBuilder: extendBuilder,
+      shouldIgnoreView: shouldIgnoreView,
+      engagedInExpanding: engagedInExpanding,
     );
+
+    if (shouldIgnoreView?.call(view) == IgnoreViewType.disable) {
+      return Opacity(
+        opacity: 0.5,
+        child: FlowyTooltip(
+          message: LocaleKeys.space_cannotMovePageToDatabase.tr(),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.forbidden,
+            child: IgnorePointer(child: child),
+          ),
+        ),
+      );
+    }
+
+    return child;
   }
 }
 
@@ -249,9 +235,9 @@ class InnerFolderViewItem extends StatefulWidget {
     required this.shouldIgnoreView,
   });
 
-  final ViewPB view;
-  final ViewPB? parentView;
-  final List<ViewPB> childViews;
+  final FolderViewPB view;
+  final FolderViewPB? parentView;
+  final List<FolderViewPB> childViews;
   final FolderSpaceType spaceType;
 
   final bool isDraggable;
@@ -279,8 +265,8 @@ class InnerFolderViewItem extends StatefulWidget {
   final FolderViewItemRightIconsBuilder? rightIconsBuilder;
 
   final PropertyValueNotifier<bool>? isExpandedNotifier;
-  final List<Widget> Function(ViewPB view)? extendBuilder;
-  final IgnoreViewType Function(ViewPB view)? shouldIgnoreView;
+  final List<Widget> Function(FolderViewPB view)? extendBuilder;
+  final IgnoreViewType Function(FolderViewPB view)? shouldIgnoreView;
   final bool engagedInExpanding;
 
   @override
@@ -305,7 +291,7 @@ class _InnerFolderViewItemState extends State<InnerFolderViewItem> {
     Widget child = ValueListenableBuilder(
       valueListenable: getIt<MenuSharedState>().notifier,
       builder: (context, value, _) {
-        final isSelected = value?.id == widget.view.id;
+        final isSelected = value?.id == widget.view.viewId;
         return SingleInnerFolderViewItem(
           view: widget.view,
           parentView: widget.parentView,
@@ -338,10 +324,10 @@ class _InnerFolderViewItemState extends State<InnerFolderViewItem> {
         widget.childViews.isNotEmpty) {
       final children = widget.childViews.map((childView) {
         return FolderViewItem(
-          key: ValueKey('${widget.spaceType.name} ${childView.id}'),
+          key: ValueKey('${widget.spaceType.name} ${childView.viewId}'),
           parentView: widget.view,
           spaceType: widget.spaceType,
-          isFirstChild: childView.id == widget.childViews.first.id,
+          isFirstChild: childView.viewId == widget.childViews.first.viewId,
           view: childView,
           level: widget.level + 1,
           enableRightClickContext: widget.enableRightClickContext,
@@ -369,21 +355,18 @@ class _InnerFolderViewItemState extends State<InnerFolderViewItem> {
 
     // wrap the child with DraggableItem if isDraggable is true
     if ((widget.isDraggable || widget.isPlaceholder) &&
-        !isReferencedDatabaseView(widget.view, widget.parentView)) {
+        !isReferencedDatabaseView(
+          widget.view.viewPB,
+          widget.parentView?.viewPB,
+        )) {
       child = DraggableViewItem(
         isFirstChild: widget.isFirstChild,
-        view: widget.view,
+        view: widget.view.viewPB,
         onDragging: (isDragging) => _isDragging = isDragging,
         onMove: widget.isPlaceholder
-            ? (from, to) => moveViewCrossSpace(
-                  context,
-                  null,
-                  widget.view,
-                  widget.parentView,
-                  widget.spaceType,
-                  from,
-                  to.parentViewId,
-                )
+            ? (from, to) => {
+                  // todo: implement the move logic
+                }
             : null,
         feedback: (context) => Container(
           width: 250,
@@ -457,8 +440,8 @@ class SingleInnerFolderViewItem extends StatefulWidget {
     required this.isSelected,
   });
 
-  final ViewPB view;
-  final ViewPB? parentView;
+  final FolderViewPB view;
+  final FolderViewPB? parentView;
   final bool isExpanded;
 
   // identify if the view item is rendered as feedback widget inside DraggableItem
@@ -482,8 +465,8 @@ class SingleInnerFolderViewItem extends StatefulWidget {
   final FolderViewItemLeftIconBuilder? leftIconBuilder;
   final FolderViewItemRightIconsBuilder? rightIconsBuilder;
 
-  final List<Widget> Function(ViewPB view)? extendBuilder;
-  final IgnoreViewType Function(ViewPB view)? shouldIgnoreView;
+  final List<Widget> Function(FolderViewPB view)? extendBuilder;
+  final IgnoreViewType Function(FolderViewPB view)? shouldIgnoreView;
   final bool isSelected;
 
   @override
@@ -528,7 +511,9 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
 
   Widget _buildFolderViewItem(bool onHover, [bool isSelected = false]) {
     final name = FlowyText.regular(
-      widget.view.nameOrDefault,
+      widget.view.name.orDefault(
+        LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+      ),
       overflow: TextOverflow.ellipsis,
       fontSize: 14.0,
       figmaLineHeight: 18.0,
@@ -618,7 +603,7 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
         offset: const Offset(0, 5),
         direction: PopoverDirection.bottomWithLeftAligned,
         popupBuilder: (_) => RenameViewPopover(
-          view: widget.view,
+          view: widget.view.viewPB,
           name: widget.view.name,
           emoji: widget.view.icon.toEmojiIconData(),
           popoverController: popoverController,
@@ -635,7 +620,7 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
     final iconData = widget.view.icon.toEmojiIconData();
     final icon = iconData.isNotEmpty
         ? RawEmojiIconWidget(emoji: iconData, emojiSize: 16.0)
-        : Opacity(opacity: 0.6, child: widget.view.defaultIcon());
+        : Opacity(opacity: 0.6, child: widget.view.viewPB.defaultIcon());
 
     final Widget child = AppFlowyPopover(
       offset: const Offset(20, 0),
@@ -661,12 +646,9 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
             PickerTabType.icon,
             PickerTabType.custom,
           ],
-          documentId: widget.view.id,
+          documentId: widget.view.viewId,
           onSelectedEmoji: (r) {
-            ViewBackendService.updateViewIcon(
-              view: widget.view,
-              viewIcon: r.data,
-            );
+            // todo: update the view icon
             if (!r.keepOpen) controller.close();
           },
         );
@@ -700,7 +682,7 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
     return FlowyTooltip(
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: ViewAddButton(
-        parentViewId: widget.view.id,
+        parentViewId: widget.view.viewId,
         onEditing: (value) =>
             context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
         onSelected: _onSelected,
@@ -744,7 +726,7 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
         userProfile: context.read<SpaceBloc>().userProfile,
         workspaceId: context.read<SpaceBloc>().workspaceId,
       )..add(const SpaceEvent.initial(openFirstPage: false)),
-      child: ViewMoreActionPopover(
+      child: FolderViewMoreActionPopover(
         view: widget.view,
         controller: controller,
         isExpanded: widget.isExpanded,
@@ -756,19 +738,25 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
           switch (action) {
             case ViewMoreActionType.favorite:
             case ViewMoreActionType.unFavorite:
-              context
-                  .read<FavoriteBloc>()
-                  .add(FavoriteEvent.toggle(widget.view));
+              // todo: replace with folder v2
+
               break;
             case ViewMoreActionType.rename:
               unawaited(
                 NavigatorTextFieldDialog(
                   title: LocaleKeys.disclosureAction_rename.tr(),
                   autoSelectAllText: true,
-                  value: widget.view.nameOrDefault,
+                  value: widget.view.name,
                   maxLength: 256,
                   onConfirm: (newValue, _) {
-                    context.read<ViewBloc>().add(ViewEvent.rename(newValue));
+                    context.read<FolderV2Bloc>().add(
+                          FolderV2UpdatePage(
+                            payload: UpdatePagePayloadPB(
+                              viewId: widget.view.viewId,
+                              name: newValue,
+                            ),
+                          ),
+                        );
                   },
                 ).show(context),
               );
@@ -776,7 +764,9 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
             case ViewMoreActionType.delete:
               // get if current page contains published child views
               final (containPublishedPage, _) =
-                  await ViewBackendService.containPublishedPage(widget.view);
+                  await ViewBackendService.containPublishedPage(
+                widget.view.viewPB,
+              );
               if (containPublishedPage && context.mounted) {
                 await showConfirmDeletionDialog(
                   context: context,
@@ -793,7 +783,7 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
               context.read<ViewBloc>().add(const ViewEvent.duplicate());
               break;
             case ViewMoreActionType.openInNewTab:
-              context.read<TabsBloc>().openTab(widget.view);
+              context.read<TabsBloc>().openTab(widget.view.viewPB);
               break;
             case ViewMoreActionType.collapseAllPages:
               context.read<ViewBloc>().add(const ViewEvent.collapseAllPages());
@@ -803,7 +793,7 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
                 return;
               }
               await ViewBackendService.updateViewIcon(
-                view: widget.view,
+                view: widget.view.viewPB,
                 viewIcon: data.data,
               );
               break;
@@ -817,10 +807,10 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
               moveViewCrossSpace(
                 context,
                 space,
-                widget.view,
-                widget.parentView,
+                widget.view.viewPB,
+                widget.parentView?.viewPB,
                 widget.spaceType,
-                widget.view,
+                widget.view.viewPB,
                 target.id,
               );
             default:
@@ -899,19 +889,19 @@ class FolderViewItemDefaultLeftIcon extends StatelessWidget {
     required this.isHovered,
   });
 
-  final ViewPB view;
-  final ViewPB? parentView;
+  final FolderViewPB view;
+  final FolderViewPB? parentView;
   final bool isExpanded;
   final double leftPadding;
   final ValueNotifier<bool>? isHovered;
 
   @override
   Widget build(BuildContext context) {
-    if (isReferencedDatabaseView(view, parentView)) {
+    if (isReferencedDatabaseView(view.viewPB, parentView?.viewPB)) {
       return const _DotIconWidget();
     }
 
-    if (context.read<ViewBloc>().state.view.childViews.isEmpty) {
+    if (view.children.isEmpty) {
       return HSpace(leftPadding);
     }
 

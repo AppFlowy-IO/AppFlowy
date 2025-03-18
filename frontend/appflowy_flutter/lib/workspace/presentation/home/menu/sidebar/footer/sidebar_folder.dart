@@ -146,12 +146,12 @@ class _FolderV2LoadedState extends State<_FolderV2Loaded> {
               isHovered: isHovered,
               onSelected: (context, view) {
                 if (HardwareKeyboard.instance.isControlPressed) {
-                  context.read<TabsBloc>().openTab(view);
+                  context.read<TabsBloc>().openTab(view.viewPB);
                 }
-                context.read<TabsBloc>().openPlugin(view);
+                context.read<TabsBloc>().openPlugin(view.viewPB);
               },
               onTertiarySelected: (context, view) =>
-                  context.read<TabsBloc>().openTab(view),
+                  context.read<TabsBloc>().openTab(view.viewPB),
             ),
           ),
         FlowyTextButton(
