@@ -480,10 +480,11 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
 
   bool isIconPickerOpened = false;
 
+  late bool showActions = widget.showActions;
+
   @override
   Widget build(BuildContext context) {
     bool isSelected = widget.isSelected;
-
     if (widget.disableSelectedStatus == true) {
       isSelected = false;
     }
@@ -501,10 +502,10 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
 
     return FlowyHover(
       style: HoverStyle(hoverColor: Theme.of(context).colorScheme.secondary),
-      resetHoverOnRebuild: widget.showActions || !isIconPickerOpened,
+      resetHoverOnRebuild: showActions || !isIconPickerOpened,
       buildWhenOnHover: () =>
-          !widget.showActions && !_isDragging && !isIconPickerOpened,
-      isSelected: () => widget.showActions || isSelected,
+          !showActions && !_isDragging && !isIconPickerOpened,
+      isSelected: () => showActions || isSelected,
       builder: (_, onHover) => _buildFolderViewItem(onHover, isSelected),
     );
   }
@@ -731,8 +732,11 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
         controller: controller,
         isExpanded: widget.isExpanded,
         spaceType: widget.spaceType,
-        onEditing: (value) =>
-            context.read<ViewBloc>().add(ViewEvent.setIsEditing(value)),
+        onEditing: (value) {
+          // fixme: remove this
+          // context.read<ViewBloc>().add(ViewEvent.setIsEditing(value));
+          showActions = value;
+        },
         buildChild: buildChild,
         onAction: (action, data) async {
           switch (action) {
@@ -751,10 +755,8 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
                   onConfirm: (newValue, _) {
                     context.read<FolderV2Bloc>().add(
                           FolderV2UpdatePage(
-                            payload: UpdatePagePayloadPB(
-                              viewId: widget.view.viewId,
-                              name: newValue,
-                            ),
+                            viewId: widget.view.viewId,
+                            name: newValue,
                           ),
                         );
                   },

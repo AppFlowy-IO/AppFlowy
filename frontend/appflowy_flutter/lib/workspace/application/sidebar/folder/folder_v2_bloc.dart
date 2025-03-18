@@ -48,7 +48,9 @@ class FolderV2Bloc extends Bloc<FolderV2Event, FolderV2State> {
     FolderV2GetFolderViews event,
     Emitter<FolderV2State> emit,
   ) async {
-    emit(const FolderV2Loading());
+    if (state is! FolderV2Loaded) {
+      emit(const FolderV2Loading());
+    }
 
     final request = GetWorkspaceFolderViewPB(
       workspaceId: currentWorkspaceId,
@@ -126,7 +128,14 @@ class FolderV2Bloc extends Bloc<FolderV2Event, FolderV2State> {
     FolderV2UpdatePage event,
     Emitter<FolderV2State> emit,
   ) async {
-    final response = await FolderEventUpdatePage(event.payload).send();
+    final payload = UpdatePagePayloadPB(
+      workspaceId: currentWorkspaceId,
+      viewId: event.viewId,
+      name: event.name,
+      icon: event.icon,
+      isLocked: event.isLocked,
+    );
+    final response = await FolderEventUpdatePage(payload).send();
     response.fold(
       // todo: update the in memory data
       (folderView) => add(const FolderV2GetFolderViews()),

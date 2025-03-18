@@ -58,13 +58,19 @@ final class FolderV2CreatePage extends FolderV2Event {
 
 final class FolderV2UpdatePage extends FolderV2Event {
   const FolderV2UpdatePage({
-    required this.payload,
+    required this.viewId,
+    this.name,
+    this.icon,
+    this.isLocked,
   });
 
-  final UpdatePagePayloadPB payload;
+  final String viewId;
+  final String? name;
+  final ViewIconPB? icon;
+  final bool? isLocked;
 
   @override
-  List<Object?> get props => [payload];
+  List<Object?> get props => [viewId, name, icon, isLocked];
 }
 
 final class FolderV2MovePageToTrash extends FolderV2Event {
