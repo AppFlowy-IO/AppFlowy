@@ -79,35 +79,46 @@ class LocalAISettingHeader extends StatelessWidget {
           error: (error) => SizedBox.shrink(),
           loading: () => const SizedBox.shrink(),
           isEnabled: (isEnabled) {
-            return Row(
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                FlowyText(
-                  LocaleKeys.settings_aiPage_keys_localAIToggleTitle.tr(),
+                Row(
+                  children: [
+                    FlowyText(
+                      LocaleKeys.settings_aiPage_keys_localAIToggleTitle.tr(),
+                    ),
+                    const Spacer(),
+                    Toggle(
+                      value: isEnabled,
+                      onChanged: (_) {
+                        if (isEnabled) {
+                          showConfirmDialog(
+                            context: context,
+                            title: LocaleKeys
+                                .settings_aiPage_keys_disableLocalAITitle
+                                .tr(),
+                            description: LocaleKeys
+                                .settings_aiPage_keys_disableLocalAIDescription
+                                .tr(),
+                            confirmLabel: LocaleKeys.button_confirm.tr(),
+                            onConfirm: () => context
+                                .read<LocalAIToggleBloc>()
+                                .add(const LocalAIToggleEvent.toggle()),
+                          );
+                        } else {
+                          context
+                              .read<LocalAIToggleBloc>()
+                              .add(const LocalAIToggleEvent.toggle());
+                        }
+                      },
+                    ),
+                  ],
                 ),
-                const Spacer(),
-                Toggle(
-                  value: isEnabled,
-                  onChanged: (_) {
-                    if (isEnabled) {
-                      showConfirmDialog(
-                        context: context,
-                        title: LocaleKeys
-                            .settings_aiPage_keys_disableLocalAITitle
-                            .tr(),
-                        description: LocaleKeys
-                            .settings_aiPage_keys_disableLocalAIDescription
-                            .tr(),
-                        confirmLabel: LocaleKeys.button_confirm.tr(),
-                        onConfirm: () => context
-                            .read<LocalAIToggleBloc>()
-                            .add(const LocalAIToggleEvent.toggle()),
-                      );
-                    } else {
-                      context
-                          .read<LocalAIToggleBloc>()
-                          .add(const LocalAIToggleEvent.toggle());
-                    }
-                  },
+                const VSpace(4),
+                FlowyText(
+                  LocaleKeys.settings_aiPage_keys_localAIToggleSubTitle.tr(),
+                  maxLines: 3,
+                  fontSize: 12,
                 ),
               ],
             );
