@@ -220,10 +220,7 @@ enum TextHeadingCommand {
       node,
       state,
       level: level,
-    );
-    await state.updateSelectionWithReason(
-      selection,
-      reason: SelectionUpdateReason.uiEvent,
+      keepSelection: true,
     );
   }
 }
