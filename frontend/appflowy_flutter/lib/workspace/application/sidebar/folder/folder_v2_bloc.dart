@@ -29,6 +29,14 @@ class FolderV2Bloc extends Bloc<FolderV2Event, FolderV2State> {
     on<FolderV2SwitchCurrentSpace>(_onSwitchCurrentSpace);
     on<FolderV2ExpandSpace>(_onExpandSpace);
     on<FolderV2ReloadFolderViews>(_onReloadFolderViews);
+    on<FolderV2CreatePage>(_onCreatePage);
+    on<FolderV2UpdatePage>(_onUpdatePage);
+    on<FolderV2DuplicatePage>(_onDuplicatePage);
+    on<FolderV2MovePage>(_onMovePage);
+    on<FolderV2MovePageToTrash>(_onMovePageToTrash);
+    on<FolderV2RestorePageFromTrash>(_onRestorePageFromTrash);
+    on<FolderV2CreateSpace>(_onCreateSpace);
+    on<FolderV2UpdateSpace>(_onUpdateSpace);
   }
 
   String currentWorkspaceId;
@@ -97,5 +105,102 @@ class FolderV2Bloc extends Bloc<FolderV2Event, FolderV2State> {
     currentWorkspaceId = event.workspaceId ?? currentWorkspaceId;
 
     add(const FolderV2GetFolderViews());
+  }
+
+  Future<void> _onCreatePage(
+    FolderV2CreatePage event,
+    Emitter<FolderV2State> emit,
+  ) async {
+    final response = await FolderEventCreatePage(event.payload).send();
+    response.fold(
+      // todo: update the in memory data
+      (folderView) => add(const FolderV2GetFolderViews()),
+      (error) => emit(FolderV2Error(error)),
+    );
+  }
+
+  Future<void> _onUpdatePage(
+    FolderV2UpdatePage event,
+    Emitter<FolderV2State> emit,
+  ) async {
+    final response = await FolderEventUpdatePage(event.payload).send();
+    response.fold(
+      // todo: update the in memory data
+      (folderView) => add(const FolderV2GetFolderViews()),
+      (error) => emit(FolderV2Error(error)),
+    );
+  }
+
+  Future<void> _onDuplicatePage(
+    FolderV2DuplicatePage event,
+    Emitter<FolderV2State> emit,
+  ) async {
+    final response = await FolderEventDuplicatePage(event.payload).send();
+    response.fold(
+      // todo: update the in memory data
+      (folderView) => add(const FolderV2GetFolderViews()),
+      (error) => emit(FolderV2Error(error)),
+    );
+  }
+
+  Future<void> _onMovePage(
+    FolderV2MovePage event,
+    Emitter<FolderV2State> emit,
+  ) async {
+    final response = await FolderEventMovePage(event.payload).send();
+    response.fold(
+      // todo: update the in memory data
+      (folderView) => add(const FolderV2GetFolderViews()),
+      (error) => emit(FolderV2Error(error)),
+    );
+  }
+
+  Future<void> _onMovePageToTrash(
+    FolderV2MovePageToTrash event,
+    Emitter<FolderV2State> emit,
+  ) async {
+    final response = await FolderEventMovePageToTrash(event.payload).send();
+    response.fold(
+      // todo: update the in memory data
+      (folderView) => add(const FolderV2GetFolderViews()),
+      (error) => emit(FolderV2Error(error)),
+    );
+  }
+
+  Future<void> _onRestorePageFromTrash(
+    FolderV2RestorePageFromTrash event,
+    Emitter<FolderV2State> emit,
+  ) async {
+    final response =
+        await FolderEventRestorePageFromTrash(event.payload).send();
+    response.fold(
+      // todo: update the in memory data
+      (folderView) => add(const FolderV2GetFolderViews()),
+      (error) => emit(FolderV2Error(error)),
+    );
+  }
+
+  Future<void> _onCreateSpace(
+    FolderV2CreateSpace event,
+    Emitter<FolderV2State> emit,
+  ) async {
+    final response = await FolderEventCreateSpace(event.payload).send();
+    response.fold(
+      // todo: update the in memory data
+      (folderView) => add(const FolderV2GetFolderViews()),
+      (error) => emit(FolderV2Error(error)),
+    );
+  }
+
+  Future<void> _onUpdateSpace(
+    FolderV2UpdateSpace event,
+    Emitter<FolderV2State> emit,
+  ) async {
+    final response = await FolderEventUpdateSpace(event.payload).send();
+    response.fold(
+      // todo: update the in memory data
+      (folderView) => add(const FolderV2GetFolderViews()),
+      (error) => emit(FolderV2Error(error)),
+    );
   }
 }
