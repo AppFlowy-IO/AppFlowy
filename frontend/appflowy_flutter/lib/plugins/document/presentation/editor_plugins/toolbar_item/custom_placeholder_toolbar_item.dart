@@ -17,7 +17,7 @@ final ToolbarItem customPlaceholderItem = ToolbarItem(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 5),
       child: Container(
         width: 1,
-        color: Color(0xffE8ECF3).withAlpha(isDark ? 40 : 100),
+        color: Color(0xffE8ECF3).withAlpha(isDark ? 40 : 255),
       ),
     );
   },

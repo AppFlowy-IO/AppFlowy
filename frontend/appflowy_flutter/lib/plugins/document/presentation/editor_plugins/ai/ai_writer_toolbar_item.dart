@@ -61,7 +61,7 @@ class _AiWriterToolbarActionListState extends State<AiWriterToolbarActionList> {
     return AppFlowyPopover(
       controller: popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
-      offset: const Offset(-8.0, 2.0),
+      offset: const Offset(0, 2.0),
       onOpen: () => keepEditorFocusNotifier.increase(),
       onClose: () {
         setState(() {

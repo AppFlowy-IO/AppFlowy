@@ -22,7 +22,6 @@ import 'package:appflowy/workspace/presentation/home/af_focus_manager.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide QuoteBlockKeys;
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -440,8 +439,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
           toolbarElevation: 10,
         ),
         items: toolbarItems,
-        decoration: context.getPopoverDecoration(
-          borderRadius: BorderRadius.circular(6),
+        decoration: ShapeDecoration(
+          color: Theme.of(context).cardColor,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         ),
         toolbarBuilder: (context, child) => DesktopFloatingToolbar(
           editorState: editorState,

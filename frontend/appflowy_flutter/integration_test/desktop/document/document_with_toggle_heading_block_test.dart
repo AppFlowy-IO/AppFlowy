@@ -109,9 +109,9 @@ Future<void> _insertToggleHeadingBlockInDocument(
   int level,
 ) async {
   final name = switch (level) {
-    1 => LocaleKeys.editor_toggleHeading1ShortForm.tr(),
-    2 => LocaleKeys.editor_toggleHeading2ShortForm.tr(),
-    3 => LocaleKeys.editor_toggleHeading3ShortForm.tr(),
+    1 => LocaleKeys.document_slashMenu_name_toggleHeading1.tr(),
+    2 => LocaleKeys.document_slashMenu_name_toggleHeading2.tr(),
+    3 => LocaleKeys.document_slashMenu_name_toggleHeading3.tr(),
     _ => throw Exception('Invalid level: $level'),
   };
   await tester.editor.showSlashMenu();
