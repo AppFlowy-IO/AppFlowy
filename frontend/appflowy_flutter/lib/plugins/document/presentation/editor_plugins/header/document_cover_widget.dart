@@ -197,11 +197,14 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
             ),
             Padding(
               padding: EdgeInsets.fromLTRB(offset, 0, offset, 12),
-              child: MouseRegion(
-                onEnter: (event) => isCoverTitleHovered.value = true,
-                onExit: (event) => isCoverTitleHovered.value = false,
-                child: CoverTitle(
-                  view: widget.view,
+              child: Visibility(
+                visible: offset != 0,
+                child: MouseRegion(
+                  onEnter: (event) => isCoverTitleHovered.value = true,
+                  onExit: (event) => isCoverTitleHovered.value = false,
+                  child: CoverTitle(
+                    view: widget.view,
+                  ),
                 ),
               ),
             ),

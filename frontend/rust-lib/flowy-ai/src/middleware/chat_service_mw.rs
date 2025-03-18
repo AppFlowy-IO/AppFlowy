@@ -66,14 +66,15 @@ impl AICloudServiceMiddleware {
       let _ = index_process_sink
         .send(StreamMessage::IndexStart.to_string())
         .await;
-
-      self
+      let result = self
         .local_ai
         .index_message_metadata(chat_id, metadata_list, index_process_sink)
-        .await?;
+        .await;
       let _ = index_process_sink
         .send(StreamMessage::IndexEnd.to_string())
         .await;
+
+      result?
     } else if let Some(_storage_service) = self.storage_service.upgrade() {
       //
     }
@@ -312,7 +313,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
     if self.local_ai.is_running() {
       self
         .local_ai
-        .embed_file(chat_id, Some(file_path.to_path_buf()), None, metadata)
+        .embed_file(chat_id, file_path.to_path_buf(), metadata)
         .await
         .map_err(|err| FlowyError::local_ai().with_context(err))?;
       Ok(())

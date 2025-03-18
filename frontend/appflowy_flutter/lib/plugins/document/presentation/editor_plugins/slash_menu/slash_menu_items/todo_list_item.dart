@@ -15,7 +15,7 @@ final _keywords = [
 ];
 
 final todoListSlashMenuItem = SelectionMenuItem(
-  getName: () => LocaleKeys.document_slashMenu_name_todoList.tr(),
+  getName: () => LocaleKeys.editor_checkbox.tr(),
   keywords: _keywords,
   handler: (editorState, _, __) async => insertCheckboxAfterSelection(
     editorState,

@@ -376,7 +376,6 @@ impl AIManager {
       .await?;
 
     let chat_setting_store_key = setting_store_key(chat_id);
-
     if let Some(settings) = self
       .store_preferences
       .get_object::<ChatSettings>(&chat_setting_store_key)

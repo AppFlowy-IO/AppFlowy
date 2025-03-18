@@ -42,7 +42,7 @@ void main() {
 
       // tap the inline math equation button
       final inlineMathEquationButton = find.text(
-        LocaleKeys.editor_mathEquationShortForm.tr(),
+        LocaleKeys.document_toolbar_equation.tr(),
       );
       await tester.tapButton(inlineMathEquationButton);
 
@@ -108,8 +108,8 @@ void main() {
       await tester.tapButton(moreOptionButton);
       // expect to the see the inline math equation button is highlighted
       expect(
-        tester.widget<FlowySvg>(inlineMathEquationButton).color != null,
-        isTrue,
+        find.byFlowySvg(FlowySvgs.toolbar_check_m),
+        findsOneWidget,
       );
 
       // cancel the format
