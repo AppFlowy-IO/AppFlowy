@@ -1,8 +1,6 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
-import 'toolbar_animation.dart';
-
 class DesktopFloatingToolbar extends StatefulWidget {
   const DesktopFloatingToolbar({
     super.key,
@@ -41,9 +39,7 @@ class _DesktopFloatingToolbarState extends State<DesktopFloatingToolbar> {
       left: position!.left,
       top: position!.top,
       right: position!.right,
-      child: ToolbarAnimationWidget(
-        child: widget.child,
-      ),
+      child: widget.child,
     );
   }
 
