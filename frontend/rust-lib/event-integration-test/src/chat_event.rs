@@ -100,6 +100,7 @@ impl EventIntegrationTest {
       object_id: "".to_string(),
       rag_ids: vec![],
       format: None,
+      history: vec![],
     };
     EventBuilder::new(self.clone())
       .event(AIEvent::CompleteText)

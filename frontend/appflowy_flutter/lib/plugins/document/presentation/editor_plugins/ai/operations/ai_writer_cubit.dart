@@ -44,6 +44,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
   final AppFlowyAIService _aiService;
   final MarkdownTextRobot _textRobot;
 
+  final List<AiWriterRecord> records = [];
   final ValueNotifier<List<String>> selectedSourcesNotifier;
   (String, PredefinedFormat?)? _previousPrompt;
   bool acceptReplacesOriginal = false;
@@ -66,6 +67,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
   ) async {
     final command = AiWriterCommand.userQuestion;
     final node = getAiWriterNode();
+
     _previousPrompt = (prompt, format);
 
     final stream = await _aiService.streamCompletion(
@@ -74,6 +76,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       format: format,
       sourceIds: selectedSourcesNotifier.value,
       completionType: command.toCompletionType(),
+      history: records,
       onStart: () async {
         final transaction = editorState.transaction;
         final position =
@@ -87,6 +90,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           ),
         );
         _textRobot.start(position: position);
+        records.add(
+          AiWriterRecord.user(content: prompt),
+        );
       },
       onProcess: (text) async {
         await _textRobot.appendMarkdownText(
@@ -99,9 +105,15 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           attributes: ApplySuggestionFormatType.replace.attributes,
         );
         emit(ReadyAiWriterState(command, isFirstRun: false));
+        records.add(
+          AiWriterRecord.ai(content: _textRobot.markdownText),
+        );
       },
       onError: (error) async {
         emit(ErrorAiWriterState(state.command, error: error));
+        records.add(
+          AiWriterRecord.ai(content: _textRobot.markdownText),
+        );
       },
     );
 
@@ -337,6 +349,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       objectId: documentId,
       text: text,
       completionType: command.toCompletionType(),
+      history: records,
       onStart: () async {
         final transaction = editorState.transaction;
         final position =
@@ -364,9 +377,15 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           );
           emit(ReadyAiWriterState(command, isFirstRun: false));
         }
+        records.add(
+          AiWriterRecord.ai(content: _textRobot.markdownText),
+        );
       },
       onError: (error) async {
         emit(ErrorAiWriterState(command, error: error));
+        records.add(
+          AiWriterRecord.ai(content: _textRobot.markdownText),
+        );
       },
     );
     if (stream != null) {
@@ -392,6 +411,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       objectId: documentId,
       text: await editorState.getMarkdownInSelection(selection),
       completionType: command.toCompletionType(),
+      history: records,
       onStart: () async {
         final transaction = editorState.transaction;
         formatSelection(
@@ -429,10 +449,16 @@ class AiWriterCubit extends Cubit<AiWriterState> {
               isFirstRun: false,
             ),
           );
+          records.add(
+            AiWriterRecord.ai(content: _textRobot.markdownText),
+          );
         }
       },
       onError: (error) async {
         emit(ErrorAiWriterState(command, error: error));
+        records.add(
+          AiWriterRecord.ai(content: _textRobot.markdownText),
+        );
       },
     );
     if (stream != null) {
@@ -456,6 +482,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       objectId: documentId,
       text: await editorState.getMarkdownInSelection(selection),
       completionType: command.toCompletionType(),
+      history: records,
       onStart: () async {},
       onProcess: (text) async {
         if (state case final GeneratingAiWriterState generatingState) {
@@ -477,9 +504,17 @@ class AiWriterCubit extends Cubit<AiWriterState> {
               markdownText: generatingState.markdownText,
             ),
           );
+          records.add(
+            AiWriterRecord.ai(content: generatingState.markdownText),
+          );
         }
       },
       onError: (error) async {
+        if (state case final GeneratingAiWriterState generatingState) {
+          records.add(
+            AiWriterRecord.ai(content: generatingState.markdownText),
+          );
+        }
         emit(ErrorAiWriterState(command, error: error));
       },
     );

@@ -98,6 +98,8 @@ impl CompletionTask {
         };
 
         let _ = sink.send("start:".to_string()).await;
+        let completion_history = Some(self.context.history.iter().map(Into::into).collect());
+        let format = self.context.format.map(Into::into).unwrap_or_default();
         let params = CompleteTextParams {
           text: self.context.text,
           completion_type: Some(complete_type),
@@ -106,9 +108,9 @@ impl CompletionTask {
             object_id: self.context.object_id,
             workspace_id: Some(self.workspace_id.clone()),
             rag_ids: Some(self.context.rag_ids),
-            completion_history: None,
+            completion_history,
           }),
-          format: self.context.format.map(Into::into).unwrap_or_default(),
+          format,
         };
 
         info!("start completion: {:?}", params);
