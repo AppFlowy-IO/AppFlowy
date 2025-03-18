@@ -177,6 +177,7 @@ void main() {
           ),
         ),
       ),
+      wait: Duration(seconds: 1),
       expect: () => [
         isA<GeneratingAiWriterState>()
             .having((s) => s.markdownText, 'result', isEmpty),
@@ -232,6 +233,7 @@ void main() {
           ),
         ),
       ),
+      wait: Duration(seconds: 1),
       expect: () => [
         isA<GeneratingAiWriterState>()
             .having((s) => s.markdownText, 'result', isEmpty),
