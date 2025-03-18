@@ -170,7 +170,7 @@ class _IndicatorButton extends StatelessWidget {
                 FlowySvg(
                   FlowySvgs.ai_source_drop_down_s,
                   color: Theme.of(context).hintColor,
-                  size: const Size.square(10),
+                  size: const Size.square(8),
                 ),
               ],
             ),
