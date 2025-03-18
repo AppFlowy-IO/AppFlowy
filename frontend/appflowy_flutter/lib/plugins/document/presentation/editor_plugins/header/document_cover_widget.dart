@@ -223,7 +223,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     }
 
     return Positioned(
-      bottom: 0,
+      bottom: hasCover ? kToolbarHeight - kIconHeight / 2 : kToolbarHeight,
       left: 0,
       right: 0,
       child: Center(
