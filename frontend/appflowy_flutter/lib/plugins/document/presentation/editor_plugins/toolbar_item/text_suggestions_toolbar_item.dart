@@ -193,6 +193,7 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
   }
 
   Widget buildItem(SuggestionItem item) {
+    final isSelected = item.type == currentSuggestionItem.type;
     return SizedBox(
       height: 36,
       child: FlowyButton(
@@ -204,6 +205,7 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
           fontWeight: FontWeight.w400,
           figmaLineHeight: 20,
         ),
+        rightIcon: isSelected ? FlowySvg(FlowySvgs.toolbar_check_m) : null,
         onTap: () {
           item.onTap(widget.editorState);
           popoverController.close();
