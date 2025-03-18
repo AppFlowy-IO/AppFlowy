@@ -1,3 +1,4 @@
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:equatable/equatable.dart';
 
 sealed class FolderV2Event extends Equatable {
@@ -42,4 +43,92 @@ final class FolderV2ReloadFolderViews extends FolderV2Event {
 
   @override
   List<Object?> get props => [workspaceId];
+}
+
+final class FolderV2CreatePage extends FolderV2Event {
+  const FolderV2CreatePage({
+    required this.payload,
+  });
+
+  final CreatePagePayloadPB payload;
+
+  @override
+  List<Object?> get props => [payload];
+}
+
+final class FolderV2UpdatePage extends FolderV2Event {
+  const FolderV2UpdatePage({
+    required this.payload,
+  });
+
+  final UpdatePagePayloadPB payload;
+
+  @override
+  List<Object?> get props => [payload];
+}
+
+final class FolderV2MovePageToTrash extends FolderV2Event {
+  const FolderV2MovePageToTrash({
+    required this.payload,
+  });
+
+  final MovePageToTrashPayloadPB payload;
+
+  @override
+  List<Object?> get props => [payload];
+}
+
+final class FolderV2RestorePageFromTrash extends FolderV2Event {
+  const FolderV2RestorePageFromTrash({
+    required this.payload,
+  });
+
+  final RestorePageFromTrashPayloadPB payload;
+
+  @override
+  List<Object?> get props => [payload];
+}
+
+final class FolderV2CreateSpace extends FolderV2Event {
+  const FolderV2CreateSpace({
+    required this.payload,
+  });
+
+  final CreateSpacePayloadPB payload;
+
+  @override
+  List<Object?> get props => [payload];
+}
+
+final class FolderV2UpdateSpace extends FolderV2Event {
+  const FolderV2UpdateSpace({
+    required this.payload,
+  });
+
+  final UpdateSpacePayloadPB payload;
+
+  @override
+  List<Object?> get props => [payload];
+}
+
+final class FolderV2DuplicatePage extends FolderV2Event {
+  const FolderV2DuplicatePage({
+    required this.payload,
+  });
+
+  final DuplicatePagePayloadPB payload;
+
+  @override
+  List<Object?> get props => [payload];
+}
+
+final class FolderV2MovePage extends FolderV2Event {
+  const FolderV2MovePage({
+    required this.payload,
+  });
+
+  final MovePagePayloadPB payload;
+
+  @override
+  List<Object?> get props => [payload];
 }
