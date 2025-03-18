@@ -1,7 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/color_picker.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide ColorPicker;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -114,7 +117,7 @@ class _TextColorPickerWidgetState extends State<TextColorPickerWidget> {
     final List<String> colors = [];
     final selection = editorState.selection!;
     final nodes = editorState.getNodesInSelection(selection);
-    nodes.allSatisfyInSelection(selection, (delta) {
+    final isHighLight = nodes.allSatisfyInSelection(selection, (delta) {
       if (delta.everyAttributes((attr) => attr.isEmpty)) {
         return false;
       }
@@ -127,7 +130,7 @@ class _TextColorPickerWidgetState extends State<TextColorPickerWidget> {
     });
 
     final colorLength = colors.length;
-    if (colors.isEmpty) {
+    if (colors.isEmpty || !isHighLight) {
       return Container(
         width: 20,
         height: 4,
@@ -155,7 +158,7 @@ class _TextColorPickerWidgetState extends State<TextColorPickerWidget> {
     final List<String> colors = [];
     final selection = editorState.selection!;
     final nodes = editorState.getNodesInSelection(selection);
-    nodes.allSatisfyInSelection(selection, (delta) {
+    final isHighLight = nodes.allSatisfyInSelection(selection, (delta) {
       if (delta.everyAttributes((attr) => attr.isEmpty)) {
         return false;
       }
@@ -182,9 +185,10 @@ class _TextColorPickerWidgetState extends State<TextColorPickerWidget> {
     );
     return MouseRegion(
       child: ColorPicker(
-        title: AppFlowyEditorL10n.current.textColor,
+        title: LocaleKeys.document_toolbar_textColor.tr(),
         showClearButton: showClearButton,
-        selectedColorHex: colors.length == 1 ? colors.first : null,
+        selectedColorHex:
+            (colors.length == 1 && isHighLight) ? colors.first : null,
         customColorHex: _customColorHex,
         colorOptions: generateTextColorOptions(),
         onSubmittedColorHex: (color, isCustomColor) {

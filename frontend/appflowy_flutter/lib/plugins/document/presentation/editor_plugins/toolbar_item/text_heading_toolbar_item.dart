@@ -58,7 +58,7 @@ class _TextHeadingActionListState extends State<TextHeadingActionList> {
     return AppFlowyPopover(
       controller: popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
-      offset: const Offset(-8.0, 2.0),
+      offset: const Offset(0, 2.0),
       onOpen: () => keepEditorFocusNotifier.increase(),
       onClose: () {
         setState(() {
@@ -220,10 +220,7 @@ enum TextHeadingCommand {
       node,
       state,
       level: level,
-    );
-    await state.updateSelectionWithReason(
-      selection,
-      reason: SelectionUpdateReason.uiEvent,
+      keepSelection: true,
     );
   }
 }
