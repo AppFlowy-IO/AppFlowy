@@ -85,7 +85,7 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
     return AppFlowyPopover(
       controller: popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
-      offset: const Offset(-8.0, 2.0),
+      offset: const Offset(0, 2.0),
       onOpen: () => keepEditorFocusNotifier.increase(),
       onClose: () {
         setState(() {
@@ -193,6 +193,7 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
   }
 
   Widget buildItem(SuggestionItem item) {
+    final isSelected = item.type == currentSuggestionItem.type;
     return SizedBox(
       height: 36,
       child: FlowyButton(
@@ -204,6 +205,7 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
           fontWeight: FontWeight.w400,
           figmaLineHeight: 20,
         ),
+        rightIcon: isSelected ? FlowySvg(FlowySvgs.toolbar_check_m) : null,
         onTap: () {
           item.onTap(widget.editorState);
           popoverController.close();
@@ -412,10 +414,7 @@ Future<void> _turnInto(EditorState state, String type, {int? level}) async {
     node,
     state,
     level: level,
-  );
-  await state.updateSelectionWithReason(
-    selection,
-    reason: SelectionUpdateReason.uiEvent,
+    keepSelection: true,
   );
 }
 

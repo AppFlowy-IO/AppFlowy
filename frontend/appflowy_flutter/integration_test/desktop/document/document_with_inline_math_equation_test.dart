@@ -106,11 +106,6 @@ void main() {
       );
 
       await tester.tapButton(moreOptionButton);
-      // expect to the see the inline math equation button is highlighted
-      expect(
-        find.byFlowySvg(FlowySvgs.toolbar_check_m),
-        findsOneWidget,
-      );
 
       // cancel the format
       await tester.tapButton(inlineMathEquationButton);

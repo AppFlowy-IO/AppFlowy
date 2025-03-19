@@ -265,6 +265,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
     EditorState editorState, {
     int? level,
     String? currentViewId,
+    bool keepSelection = false,
   }) async {
     final selection = editorState.selection;
     if (selection == null) {
@@ -289,6 +290,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       selectedNodes: selectedNodes,
       level: level,
       editorState: editorState,
+      afterSelection: keepSelection ? selection : null,
     )) {
       return true;
     }
@@ -347,6 +349,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
       insertedNode,
     );
     transaction.deleteNodes(selectedNodes);
+    if (keepSelection) transaction.afterSelection = selection;
     await editorState.apply(transaction);
 
     return true;

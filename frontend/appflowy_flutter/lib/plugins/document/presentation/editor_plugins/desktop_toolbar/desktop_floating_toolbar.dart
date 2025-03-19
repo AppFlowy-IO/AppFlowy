@@ -1,8 +1,6 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
-import 'toolbar_animation.dart';
-
 class DesktopFloatingToolbar extends StatefulWidget {
   const DesktopFloatingToolbar({
     super.key,
@@ -41,15 +39,14 @@ class _DesktopFloatingToolbarState extends State<DesktopFloatingToolbar> {
       left: position!.left,
       top: position!.top,
       right: position!.right,
-      child: ToolbarAnimationWidget(
-        child: widget.child,
-      ),
+      child: widget.child,
     );
   }
 
   _Position calculateSelectionMenuOffset(
     Rect rect,
   ) {
+    const toolbarHeight = 40, topLimit = toolbarHeight + 8;
     final bool isLongMenu = onlyShowInSingleSelectionAndTextType(editorState);
     final menuWidth = isLongMenu ? 650.0 : 420.0;
     final editorOffset =
@@ -57,7 +54,8 @@ class _DesktopFloatingToolbarState extends State<DesktopFloatingToolbar> {
     final editorSize = editorState.renderBox?.size ?? Size.zero;
     final editorRect = editorOffset & editorSize;
     final left = rect.left, leftStart = 50;
-    final top = rect.top < 40 ? rect.bottom + 40 : rect.top - 40;
+    final top =
+        rect.top < topLimit ? rect.bottom + topLimit : rect.top - topLimit;
     if (left + menuWidth > editorRect.right) {
       return _Position(
         editorRect.right - menuWidth,

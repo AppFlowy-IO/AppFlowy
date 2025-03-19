@@ -1,15 +1,17 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_block.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_util.dart';
 import 'package:appflowy/workspace/application/settings/appearance/appearance_cubit.dart';
 import 'package:appflowy/workspace/application/settings/date_time/date_format_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FileBlockMenu extends StatefulWidget {
@@ -46,6 +48,7 @@ class _FileBlockMenuState extends State<FileBlockMenu> {
   @override
   void dispose() {
     errorMessage.dispose();
+    nameController.dispose();
     super.dispose();
   }
 
@@ -59,11 +62,37 @@ class _FileBlockMenuState extends State<FileBlockMenu> {
     final dateFormat = context.read<AppearanceSettingsCubit>().state.dateFormat;
     final urlType =
         FileUrlType.fromIntValue(widget.node.attributes[FileBlockKeys.urlType]);
-
+    final fileUploadType = urlType.toFileUploadTypePB();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
+        HoverButton(
+          itemHeight: 20,
+          leftIcon: const FlowySvg(FlowySvgs.download_s),
+          name: LocaleKeys.button_download.tr(),
+          onTap: () {
+            final userProfile = widget.editorState.document.root.context
+                ?.read<DocumentBloc>()
+                .state
+                .userProfilePB;
+            final url = widget.node.attributes[FileBlockKeys.url];
+            final name = widget.node.attributes[FileBlockKeys.name];
+            if (url != null && name != null) {
+              final filePB = MediaFilePB(
+                url: url,
+                name: name,
+                uploadType: fileUploadType,
+              );
+              downloadMediaFile(
+                context,
+                filePB,
+                userProfile: userProfile,
+              );
+            }
+          },
+        ),
+        const VSpace(4),
         HoverButton(
           itemHeight: 20,
           leftIcon: const FlowySvg(FlowySvgs.edit_s),

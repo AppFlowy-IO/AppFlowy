@@ -1,14 +1,15 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+// ignore: implementation_imports
+import 'package:appflowy_editor/src/editor/toolbar/desktop/items/utils/tooltip_util.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-
-import '../../editor_page.dart';
 
 const _kMoreOptionItemId = 'editor.more_option';
 const kFontToolbarItemId = 'editor.font';
@@ -152,8 +153,7 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
 
   Widget buildPopoverContent() {
     final showFormula = onlyShowInSingleSelectionAndTextType(editorState);
-    final strikethroughColor = getStrikethroughColor();
-    final Color? formulaColor = showFormula ? getFormulaColor() : null;
+    const fontColor = Color(0xff99A1A8);
     return MouseRegion(
       child: SeparatedColumn(
         mainAxisSize: MainAxisSize.min,
@@ -162,16 +162,32 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
           buildFontSelector(),
           buildCommandItem(
             MoreOptionCommand.strikethrough,
-            rightIcon: strikethroughColor != null
-                ? FlowySvg(FlowySvgs.toolbar_check_m)
-                : null,
+            rightIcon: FlowyText(
+              shortcutTooltips(
+                '⌘⇧S',
+                'CTRL+SHIFT+S',
+                'CTRL+SHIFT+S',
+              ).trim(),
+              color: fontColor,
+              fontSize: 12,
+              figmaLineHeight: 16,
+              fontWeight: FontWeight.w400,
+            ),
           ),
           if (showFormula)
             buildCommandItem(
               MoreOptionCommand.formula,
-              rightIcon: formulaColor != null
-                  ? FlowySvg(FlowySvgs.toolbar_check_m)
-                  : null,
+              rightIcon: FlowyText(
+                shortcutTooltips(
+                  '⌘⇧E',
+                  'CTRL+SHIFT+E',
+                  'CTRL+SHIFT+E',
+                ).trim(),
+                color: fontColor,
+                fontSize: 12,
+                figmaLineHeight: 16,
+                fontWeight: FontWeight.w400,
+              ),
             ),
         ],
       ),

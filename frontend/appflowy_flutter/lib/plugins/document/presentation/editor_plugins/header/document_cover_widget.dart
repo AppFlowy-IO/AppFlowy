@@ -188,52 +188,65 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
                     onChangeCover: (type, details) =>
                         _saveIconOrCover(cover: (type, details)),
                   ),
-                _buildCoverIcon(
-                  context,
-                  constraints,
-                  offset,
-                ),
+                _buildAlignedCoverIcon(context),
               ],
             ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(offset, 0, offset, 12),
-              child: Visibility(
-                visible: offset != 0,
-                child: MouseRegion(
-                  onEnter: (event) => isCoverTitleHovered.value = true,
-                  onExit: (event) => isCoverTitleHovered.value = false,
-                  child: CoverTitle(
-                    view: widget.view,
-                  ),
-                ),
-              ),
-            ),
+            _buildAlignedTitle(context),
           ],
         );
       },
     );
   }
 
-  Widget _buildCoverIcon(
-    BuildContext context,
-    BoxConstraints constraints,
-    double offset,
-  ) {
-    if (!hasIcon || offset == 0) {
+  Widget _buildAlignedTitle(BuildContext context) {
+    return Center(
+      child: Container(
+        constraints: BoxConstraints(
+          maxWidth: widget.editorState.editorStyle.maxWidth ?? double.infinity,
+        ),
+        padding: widget.editorState.editorStyle.padding +
+            const EdgeInsets.symmetric(horizontal: 44),
+        child: MouseRegion(
+          onEnter: (event) => isCoverTitleHovered.value = true,
+          onExit: (event) => isCoverTitleHovered.value = false,
+          child: CoverTitle(
+            view: widget.view,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAlignedCoverIcon(BuildContext context) {
+    if (!hasIcon) {
       return const SizedBox.shrink();
     }
 
     return Positioned(
-      // if hasCover, there shouldn't be icons present so the icon can
-      // be closer to the bottom.
-      left: offset,
       bottom: hasCover ? kToolbarHeight - kIconHeight / 2 : kToolbarHeight,
-      child: DocumentIcon(
-        editorState: widget.editorState,
-        node: widget.node,
-        icon: viewIcon,
-        documentId: view.id,
-        onChangeIcon: (icon) => _saveIconOrCover(icon: icon),
+      left: 0,
+      right: 0,
+      child: Center(
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth:
+                widget.editorState.editorStyle.maxWidth ?? double.infinity,
+          ),
+          padding: widget.editorState.editorStyle.padding +
+              const EdgeInsets.symmetric(horizontal: 44),
+          child: Row(
+            children: [
+              DocumentIcon(
+                editorState: widget.editorState,
+                node: widget.node,
+                icon: viewIcon,
+                documentId: view.id,
+                onChangeIcon: (icon) => _saveIconOrCover(icon: icon),
+              ),
+              Spacer(),
+            ],
+          ),
+        ),
       ),
     );
   }
