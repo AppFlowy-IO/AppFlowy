@@ -56,14 +56,25 @@ class FolderV2Bloc extends Bloc<FolderV2Event, FolderV2State> {
       workspaceId: currentWorkspaceId,
       depth: 10,
     );
+
     final response = await FolderEventGetWorkspaceFolder(request).send();
     response.fold(
-      (folderView) => emit(
-        FolderV2Loaded(
-          folderView: folderView,
-          currentSpace: folderView.children.first,
-        ),
-      ),
+      (folderView) {
+        FolderViewPB currentSpace;
+        if (state is FolderV2Loaded) {
+          currentSpace = folderView.children.firstWhere(
+            (e) => e.viewId == (state as FolderV2Loaded).currentSpace.viewId,
+          );
+        } else {
+          currentSpace = folderView.children.first;
+        }
+        emit(
+          FolderV2Loaded(
+            folderView: folderView,
+            currentSpace: currentSpace,
+          ),
+        );
+      },
       (error) => emit(FolderV2Error(error)),
     );
   }
