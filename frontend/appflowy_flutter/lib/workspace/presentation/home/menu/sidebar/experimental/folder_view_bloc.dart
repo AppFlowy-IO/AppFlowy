@@ -167,46 +167,42 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
             );
           },
           move: (value) async {
-            // final result = await ViewBackendService.moveViewV2(
-            //   viewId: value.from.viewId,
-            //   newParentId: value.newParentId,
-            //   prevViewId: value.prevId,
-            //   fromSection: value.fromSection,
-            //   toSection: value.toSection,
-            // );
-            // emit(
-            //   result.fold(
-            //     (l) {
-            //       return state.copyWith(
-            //         successOrFailure: FlowyResult.success(null),
-            //       );
-            //     },
-            //     (error) => state.copyWith(
-            //       successOrFailure: FlowyResult.failure(error),
-            //     ),
-            //   ),
-            // );
+            final request = MovePagePayloadPB(
+              workspaceId: currentWorkspaceId,
+              viewId: value.from.viewId,
+              newParentViewId: value.newParentId,
+              prevViewId: value.prevId,
+            );
+            final response = await FolderEventMovePage(request).send();
+            emit(
+              response.fold(
+                (l) => state.copyWith(
+                  successOrFailure: FlowyResult.success(null),
+                ),
+                (error) => state.copyWith(
+                  successOrFailure: FlowyResult.failure(error),
+                ),
+              ),
+            );
           },
           createView: (e) async {
-            // final result = await ViewBackendService.createView(
-            //   parentViewId: view.viewId,
-            //   name: e.name,
-            //   layoutType: e.layoutType,
-            //   ext: {},
-            //   openAfterCreate: e.openAfterCreated,
-            //   section: e.section,
-            // );
-            // emit(
-            //   result.fold(
-            //     (view) => state.copyWith(
-            //       lastCreatedView: view,
-            //       successOrFailure: FlowyResult.success(null),
-            //     ),
-            //     (error) => state.copyWith(
-            //       successOrFailure: FlowyResult.failure(error),
-            //     ),
-            //   ),
-            // );
+            final request = CreatePagePayloadPB(
+              workspaceId: currentWorkspaceId,
+              parentViewId: view.viewId,
+              name: e.name,
+              layout: e.layoutType,
+            );
+            final response = await FolderEventCreatePage(request).send();
+            emit(
+              response.fold(
+                (view) => state.copyWith(
+                  successOrFailure: FlowyResult.success(null),
+                ),
+                (error) => state.copyWith(
+                  successOrFailure: FlowyResult.failure(error),
+                ),
+              ),
+            );
           },
           viewUpdateChildView: (e) async {
             emit(
@@ -216,17 +212,10 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
             );
           },
           updateViewVisibility: (value) async {
-            // final view = value.view;
-            // await ViewBackendService.updateViewsVisibility(
-            //   [view],
-            //   value.isPublic,
-            // );
+            // do nothing
           },
           updateIcon: (value) async {
-            // await ViewBackendService.updateViewIcon(
-            //   view: view,
-            //   viewIcon: view.icon.toEmojiIconData(),
-            // );
+            // fixme: update icon
           },
           collapseAllPages: (value) async {
             for (final childView in view.children) {
