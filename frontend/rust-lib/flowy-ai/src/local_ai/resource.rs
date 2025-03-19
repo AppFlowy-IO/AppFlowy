@@ -258,7 +258,7 @@ impl LocalAIResourceController {
 
     let mut config = OllamaPluginConfig::new(
       bin_path,
-      "ollama_ai_plugin".to_string(),
+      "af_ollama_plugin".to_string(),
       llm_setting.chat_model_name.clone(),
       llm_setting.embedding_model_name.clone(),
       Some(llm_setting.ollama_server_url.clone()),
