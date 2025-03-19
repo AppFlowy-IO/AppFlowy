@@ -101,18 +101,18 @@ pub(crate) fn ollama_plugin_path() -> std::path::PathBuf {
     // Use LOCALAPPDATA for a user-specific installation path on Windows.
     let local_appdata =
       std::env::var("LOCALAPPDATA").unwrap_or_else(|_| "C:\\Program Files".to_string());
-    std::path::PathBuf::from(local_appdata).join("Programs\\appflowy_plugin\\ollama_ai_plugin.exe")
+    std::path::PathBuf::from(local_appdata).join("Programs\\appflowy_plugin\\af_ollama_plugin.exe")
   }
 
   #[cfg(target_os = "macos")]
   {
-    let offline_app = "ollama_ai_plugin";
+    let offline_app = "af_ollama_plugin";
     std::path::PathBuf::from(format!("/usr/local/bin/{}", offline_app))
   }
 
   #[cfg(target_os = "linux")]
   {
-    let offline_app = "ollama_ai_plugin";
+    let offline_app = "af_ollama_plugin";
     std::path::PathBuf::from(format!("/usr/local/bin/{}", offline_app))
   }
 }
@@ -124,7 +124,7 @@ pub(crate) fn ollama_plugin_command_available() -> bool {
       use std::os::windows::process::CommandExt;
       const CREATE_NO_WINDOW: u32 = 0x08000000;
       let output = Command::new("cmd")
-        .args(&["/C", "where", "ollama_ai_plugin"])
+        .args(&["/C", "where", "af_ollama_plugin"])
         .creation_flags(CREATE_NO_WINDOW)
         .output();
       if let Ok(output) = output {
@@ -135,7 +135,7 @@ pub(crate) fn ollama_plugin_command_available() -> bool {
 
       // 2. Fallback: Check registry PATH for the executable
       let path_dirs = get_windows_path_dirs();
-      let plugin_exe = "ollama_ai_plugin.exe"; // Adjust name if needed
+      let plugin_exe = "af_ollama_plugin.exe"; // Adjust name if needed
 
       path_dirs.iter().any(|dir| {
         let full_path = std::path::Path::new(dir).join(plugin_exe);
@@ -147,7 +147,7 @@ pub(crate) fn ollama_plugin_command_available() -> bool {
     false
   } else {
     let output = Command::new("command")
-      .args(["-v", "ollama_ai_plugin"])
+      .args(["-v", "af_ollama_plugin"])
       .output();
     match output {
       Ok(o) => !o.stdout.is_empty(),

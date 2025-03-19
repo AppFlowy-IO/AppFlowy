@@ -45,7 +45,7 @@ class LocalAISetting extends StatelessWidget {
               collapsed: const SizedBox.shrink(),
               expanded: Column(
                 children: [
-                  const VSpace(6),
+                  const VSpace(12),
                   DecoratedBox(
                     decoration: BoxDecoration(
                       color:
