@@ -10,29 +10,30 @@ import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 
 import 'custom_placeholder_toolbar_item.dart';
+import 'toolbar_id_enum.dart';
 
 final List<ToolbarItem> customMarkdownFormatItems = [
   _FormatToolbarItem(
-    id: 'bold',
+    id: ToolbarId.bold,
     name: 'bold',
     svg: FlowySvgs.toolbar_bold_m,
   ),
   group1PaddingItem,
   _FormatToolbarItem(
-    id: 'underline',
+    id: ToolbarId.underline,
     name: 'underline',
     svg: FlowySvgs.toolbar_underline_m,
   ),
   group1PaddingItem,
   _FormatToolbarItem(
-    id: 'italic',
+    id: ToolbarId.italic,
     name: 'italic',
     svg: FlowySvgs.toolbar_inline_italic_m,
   ),
 ];
 
 final ToolbarItem customInlineCodeItem = _FormatToolbarItem(
-  id: 'code',
+  id: ToolbarId.code,
   name: 'code',
   svg: FlowySvgs.toolbar_inline_code_m,
   group: 2,
@@ -40,12 +41,12 @@ final ToolbarItem customInlineCodeItem = _FormatToolbarItem(
 
 class _FormatToolbarItem extends ToolbarItem {
   _FormatToolbarItem({
-    required String id,
+    required ToolbarId id,
     required String name,
     required FlowySvgData svg,
     super.group = 1,
   }) : super(
-          id: 'editor.$id',
+          id: id.id,
           isActive: showInAnyTextType,
           builder: (
             context,
@@ -89,8 +90,8 @@ class _FormatToolbarItem extends ToolbarItem {
             if (tooltipBuilder != null) {
               return tooltipBuilder(
                 context,
-                id,
-                getTooltipText(id),
+                id.id,
+                _getTooltipText(id),
                 child,
               );
             }
@@ -99,44 +100,32 @@ class _FormatToolbarItem extends ToolbarItem {
         );
 }
 
-String getTooltipText(String id) {
+String _getTooltipText(ToolbarId id) {
   switch (id) {
-    case 'underline':
+    case ToolbarId.underline:
       return '${LocaleKeys.toolbar_underline.tr()}${shortcutTooltips(
         '⌘ + U',
         'CTRL + U',
         'CTRL + U',
       )}';
-    case 'bold':
+    case ToolbarId.bold:
       return '${LocaleKeys.toolbar_bold.tr()}${shortcutTooltips(
         '⌘ + B',
         'CTRL + B',
         'CTRL + B',
       )}';
-    case 'italic':
+    case ToolbarId.italic:
       return '${LocaleKeys.toolbar_italic.tr()}${shortcutTooltips(
         '⌘ + I',
         'CTRL + I',
         'CTRL + I',
       )}';
-    case 'strikethrough':
-      return '${LocaleKeys.toolbar_strike.tr()}${shortcutTooltips(
-        '⌘ + SHIFT + S',
-        'CTRL + SHIFT + S',
-        'CTRL + SHIFT + S',
-      )}';
-    case 'code':
+    case ToolbarId.code:
       return '${LocaleKeys.document_toolbar_inlineCode.tr()}${shortcutTooltips(
         '⌘ + E',
         'CTRL + E',
         'CTRL + E',
       )}';
-    case 'align_left':
-      return LocaleKeys.document_toolbar_alignLeft.tr();
-    case 'align_center':
-      return LocaleKeys.document_toolbar_alignCenter.tr();
-    case 'align_right':
-      return LocaleKeys.document_toolbar_alignRight.tr();
     default:
       return '';
   }

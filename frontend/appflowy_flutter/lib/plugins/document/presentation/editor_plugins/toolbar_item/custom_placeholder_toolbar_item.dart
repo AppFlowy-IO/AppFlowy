@@ -4,11 +4,10 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-const placeholderItemId = 'editor.placeholder';
-const paddingPlaceholderItemId = 'editor.padding_placeholder';
+import 'toolbar_id_enum.dart';
 
 final ToolbarItem customPlaceholderItem = ToolbarItem(
-  id: placeholderItemId,
+  id: ToolbarId.placeholder.id,
   group: -1,
   isActive: (editorState) => true,
   builder: (context, __, ___, ____, _____) {
@@ -28,7 +27,7 @@ ToolbarItem buildPaddingPlaceholderItem(
   bool Function(EditorState editorState)? isActive,
 }) =>
     ToolbarItem(
-      id: paddingPlaceholderItemId,
+      id: ToolbarId.paddingPlaceHolder.id,
       group: group,
       isActive: isActive,
       builder: (context, __, ___, ____, _____) => HSpace(4),

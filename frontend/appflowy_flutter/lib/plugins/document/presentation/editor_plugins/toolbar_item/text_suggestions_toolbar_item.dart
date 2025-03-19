@@ -14,8 +14,7 @@ import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 
 import 'text_heading_toolbar_item.dart';
-
-const _kSuggestionsItemId = 'editor.suggestions';
+import 'toolbar_id_enum.dart';
 
 @visibleForTesting
 const kSuggestionsItemKey = ValueKey('SuggestionsItem');
@@ -24,7 +23,7 @@ const kSuggestionsItemKey = ValueKey('SuggestionsItem');
 const kSuggestionsItemListKey = ValueKey('SuggestionsItemList');
 
 final ToolbarItem suggestionsItem = ToolbarItem(
-  id: _kSuggestionsItemId,
+  id: ToolbarId.suggestions.id,
   group: 3,
   isActive: enableSuggestions,
   builder: (
@@ -159,7 +158,7 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
 
     return widget.tooltipBuilder?.call(
           context,
-          _kSuggestionsItemId,
+          ToolbarId.suggestions.id,
           currentSuggestionItem.title,
           child,
         ) ??

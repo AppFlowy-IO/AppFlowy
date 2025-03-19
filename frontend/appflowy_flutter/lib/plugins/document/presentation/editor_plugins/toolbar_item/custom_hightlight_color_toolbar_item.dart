@@ -6,11 +6,12 @@ import 'package:appflowy_editor/appflowy_editor.dart' hide ColorPicker;
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-const _kHighlightColorItemId = 'editor.highlightColor';
+import 'toolbar_id_enum.dart';
+
 String? _customHighlightColorHex;
 
 final customHighlightColorItem = ToolbarItem(
-  id: _kHighlightColorItemId,
+  id: ToolbarId.highlightColor.id,
   group: 1,
   isActive: showInAnyTextType,
   builder: (context, editorState, highlightColor, iconColor, tooltipBuilder) =>
@@ -107,7 +108,7 @@ class _HighlightColorPickerWidgetState
 
     return widget.tooltipBuilder?.call(
           context,
-          _kHighlightColorItemId,
+          ToolbarId.highlightColor.id,
           AppFlowyEditorL10n.current.highlightColor,
           child,
         ) ??
