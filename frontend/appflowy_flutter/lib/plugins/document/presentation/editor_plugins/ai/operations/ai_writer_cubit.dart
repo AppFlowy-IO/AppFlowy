@@ -318,7 +318,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       end: cursorPosition,
     ).normalized;
 
-    String text = await editorState.getMarkdownInSelection(selection);
+    String text = (await editorState.getMarkdownInSelection(selection)).trim();
     if (text.isEmpty) {
       if (state is! ReadyAiWriterState) {
         return;
