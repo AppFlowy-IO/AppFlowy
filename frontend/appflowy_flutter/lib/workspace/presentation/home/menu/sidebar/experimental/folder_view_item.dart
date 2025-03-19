@@ -17,8 +17,8 @@ import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/draggable_folder_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/folder_view_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
@@ -376,9 +376,9 @@ class _InnerFolderViewItemState extends State<InnerFolderViewItem> {
     // wrap the child with DraggableItem if isDraggable is true
     if ((widget.isDraggable || widget.isPlaceholder) &&
         !isReferencedDatabaseView(widget.view, widget.parentView)) {
-      child = DraggableViewItem(
+      child = DraggableFolderViewItem(
         isFirstChild: widget.isFirstChild,
-        view: widget.view.viewPB,
+        view: widget.view,
         onDragging: (isDragging) => _isDragging = isDragging,
         onMove: widget.isPlaceholder
             ? (from, to) => {
@@ -415,7 +415,9 @@ class _InnerFolderViewItemState extends State<InnerFolderViewItem> {
     } else {
       // keep the same height of the DraggableItem
       child = Padding(
-        padding: const EdgeInsets.only(top: kDraggableViewItemDividerHeight),
+        padding: const EdgeInsets.only(
+          top: kDraggableFolderViewItemDividerHeight,
+        ),
         child: child,
       );
     }
