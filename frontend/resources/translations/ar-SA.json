@@ -155,7 +155,8 @@
     "charCountLabel": "عدد الأحرف: ",
     "createdAtLabel": "تم إنشاؤه: ",
     "syncedAtLabel": "تم المزامنة: ",
-    "saveAsNewPage": "حفظ الرسائل في الصفحة"
+    "saveAsNewPage": "حفظ الرسائل في الصفحة",
+    "saveAsNewPageDisabled": "لا توجد رسائل متاحة"
   },
   "importPanel": {
     "textAndMarkdown": "نص و Markdown",
@@ -260,7 +261,8 @@
       "selectMessages": "حدد الرسائل",
       "nSelected": "{} تم التحديد",
       "allSelected": "جميعها محددة"
-    }
+    },
+    "stopTooltip": "توقف عن التوليد"
   },
   "trash": {
     "text": "المهملات",
@@ -857,11 +859,13 @@
         "localAIStopped": "تم إيقاف الذكاء الاصطناعي المحلي",
         "localAIRunning": "الذكاء الاصطناعي المحلي قيد التشغيل",
         "localAIInitializing": "يتم تهيئة الذكاء الاصطناعي المحلي وقد يستغرق الأمر بضع دقائق، حسب جهازك",
+        "localAINotReadyTextFieldPrompt": "لا يمكنك التحرير أثناء تحميل الذكاء الاصطناعي المحلي",
         "failToLoadLocalAI": "فشل في بدء تشغيل الذكاء الاصطناعي المحلي",
         "restartLocalAI": "إعادة تشغيل الذكاء الاصطناعي المحلي",
         "disableLocalAITitle": "تعطيل الذكاء الاصطناعي المحلي",
         "disableLocalAIDescription": "هل تريد تعطيل الذكاء الاصطناعي المحلي؟",
         "localAIToggleTitle": "التبديل لتفعيل أو تعطيل الذكاء الاصطناعي المحلي",
+        "localAIToggleSubTitle": "قم بتشغيل نماذج الذكاء الاصطناعي المحلية الأكثر تقدمًا داخل AppFlowy للحصول على أقصى درجات الخصوصية والأمان",
         "offlineAIInstruction1": "اتبع",
         "offlineAIInstruction2": "تعليمات",
         "offlineAIInstruction3": "لتفعيل الذكاء الاصطناعي دون اتصال بالإنترنت.",
@@ -2127,7 +2131,21 @@
       "morePages": "المزيد من الصفحات"
     },
     "toolbar": {
-      "resetToDefaultFont": "إعادة تعيين إلى الافتراضي"
+      "resetToDefaultFont": "إعادة تعيين إلى الافتراضي",
+      "textSize": "حجم النص",
+      "h1": "العنوان 1",
+      "h2": "العنوان 2",
+      "h3": "العنوان 3",
+      "alignLeft": "محاذاة إلى اليسار",
+      "alignRight": "محاذاة إلى اليمين",
+      "alignCenter": "محاذاة إلى الوسط",
+      "link": "وصلة",
+      "textAlign": "محاذاة النص",
+      "moreOptions": "المزيد من الخيارات",
+      "font": "الخط",
+      "suggestions": "اقتراحات",
+      "turnInto": "تحول إلى",
+      "equation": "معادلة"
     },
     "errorBlock": {
       "theBlockIsNotSupported": "الإصدار الحالي لا يدعم هذا الحقل.",
@@ -2774,6 +2792,7 @@
     "moreOptions": "المزيد من الخيارات",
     "collapse": "طي",
     "signInAgreement": "بالنقر فوق \"متابعة\" أعلاه، فإنك توافق على شروط استخدام AppFlowy",
+    "signInLocalAgreement": "من خلال النقر على \"البدء\" أعلاه، فإنك توافق على شروط وأحكام AppFlowy",
     "and": "و",
     "termOfUse": "شروط",
     "privacyPolicy": "سياسة الخصوصية",
@@ -3172,6 +3191,30 @@
   },
   "autoUpdate": {
     "criticalUpdateTitle": "التحديث ضروري للمتابعة",
-    "criticalUpdateDescription": "لقد أجرينا تحسينات لتحسين تجربتك! يُرجى التحديث من {currentVersion} إلى {newVersion} لمواصلة استخدام التطبيق."
+    "criticalUpdateDescription": "لقد أجرينا تحسينات لتحسين تجربتك! يُرجى التحديث من {currentVersion} إلى {newVersion} لمواصلة استخدام التطبيق.",
+    "criticalUpdateButton": "تحديث",
+    "bannerUpdateTitle": "النسخة الجديدة متاحة!",
+    "bannerUpdateDescription": "احصل على أحدث الميزات والإصلاحات. انقر على \"تحديث\" للتثبيت الآن.",
+    "bannerUpdateButton": "تحديث",
+    "settingsUpdateTitle": "الإصدار الجديد ({newVersion}) متاح!",
+    "settingsUpdateDescription": "الإصدار الحالي: {currentVersion} (الإصدار الرسمي) → {newVersion}",
+    "settingsUpdateButton": "تحديث",
+    "settingsUpdateWhatsNew": "ما الجديد"
+  },
+  "lockPage": {
+    "lockPage": "مقفل",
+    "reLockPage": "إعادة القفل",
+    "lockTooltip": "تم قفل الصفحة لمنع التعديل غير المقصود. انقر لفتح القفل.",
+    "pageLockedToast": "الصفحة مقفلة. التعديل معطل حتى يفتحها أحد.",
+    "lockedOperationTooltip": "تم قفل الصفحة لمنع التعديل غير المقصود."
+  },
+  "suggestion": {
+    "accept": "يقبل",
+    "keep": "يحفظ",
+    "discard": "تجاهل",
+    "close": "يغلق",
+    "tryAgain": "حاول ثانية",
+    "rewrite": "إعادة كتابة",
+    "insertBelow": "أدخل أدناه"
   }
 }
