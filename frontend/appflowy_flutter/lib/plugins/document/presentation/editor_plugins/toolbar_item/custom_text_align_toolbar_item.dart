@@ -6,10 +6,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-const _kTextAlignItemId = 'editor.text_align';
+import 'toolbar_id_enum.dart';
 
 final ToolbarItem customTextAlignItem = ToolbarItem(
-  id: _kTextAlignItemId,
+  id: ToolbarId.textAlign.id,
   group: 4,
   isActive: onlyShowInSingleSelectionAndTextType,
   builder: (
@@ -114,7 +114,7 @@ class _TextAlignActionListState extends State<TextAlignActionList> {
 
     return widget.tooltipBuilder?.call(
           context,
-          _kTextAlignItemId,
+          ToolbarId.textAlign.id,
           LocaleKeys.document_toolbar_textAlign.tr(),
           child,
         ) ??

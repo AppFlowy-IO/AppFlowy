@@ -4,10 +4,10 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 
-const _kLinkItemId = 'editor.link';
+import 'toolbar_id_enum.dart';
 
 final customLinkItem = ToolbarItem(
-  id: _kLinkItemId,
+  id: ToolbarId.link.id,
   group: 4,
   isActive: onlyShowInSingleSelectionAndTextType,
   builder: (context, editorState, highlightColor, iconColor, tooltipBuilder) {
@@ -39,7 +39,7 @@ final customLinkItem = ToolbarItem(
     if (tooltipBuilder != null) {
       return tooltipBuilder(
         context,
-        _kLinkItemId,
+        ToolbarId.highlightColor.id,
         AppFlowyEditorL10n.current.link,
         child,
       );

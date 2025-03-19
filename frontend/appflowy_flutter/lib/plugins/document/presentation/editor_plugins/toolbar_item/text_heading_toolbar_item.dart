@@ -8,10 +8,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-const _kTextHeadingItemId = 'editor.text_heading';
+import 'toolbar_id_enum.dart';
 
 final ToolbarItem customTextHeadingItem = ToolbarItem(
-  id: _kTextHeadingItemId,
+  id: ToolbarId.textHeading.id,
   group: 1,
   isActive: onlyShowInSingleTextTypeSelectionAndExcludeTable,
   builder: (
@@ -109,7 +109,7 @@ class _TextHeadingActionListState extends State<TextHeadingActionList> {
 
     return widget.tooltipBuilder?.call(
           context,
-          _kTextHeadingItemId,
+          ToolbarId.textHeading.id,
           LocaleKeys.document_toolbar_textSize.tr(),
           child,
         ) ??
