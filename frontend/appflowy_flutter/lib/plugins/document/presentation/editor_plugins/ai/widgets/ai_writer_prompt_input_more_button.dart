@@ -46,7 +46,7 @@ class AiWriterPromptMoreButton extends StatelessWidget {
                   FlowySvg(
                     FlowySvgs.ai_sparks_s,
                     color: isEnabled
-                        ? Theme.of(context).iconTheme.color
+                        ? Theme.of(context).hintColor
                         : Theme.of(context).disabledColor,
                   ),
                   const HSpace(2.0),

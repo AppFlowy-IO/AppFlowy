@@ -145,7 +145,7 @@ class _IndicatorButton extends StatelessWidget {
               children: [
                 FlowySvg(
                   FlowySvgs.ai_page_s,
-                  color: Theme.of(context).iconTheme.color,
+                  color: Theme.of(context).hintColor,
                 ),
                 const HSpace(2.0),
                 ValueListenableBuilder(
