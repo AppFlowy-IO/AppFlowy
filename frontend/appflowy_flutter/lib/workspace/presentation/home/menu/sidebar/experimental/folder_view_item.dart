@@ -153,6 +153,7 @@ class FolderViewItem extends StatelessWidget {
     return BlocProvider(
       create: (_) => FolderViewBloc(
         view: view,
+        currentWorkspaceId: context.read<SpaceBloc>().workspaceId,
         shouldLoadChildViews: shouldLoadChildViews,
         engagedInExpanding: engagedInExpanding,
       )..add(const FolderViewEvent.initial()),

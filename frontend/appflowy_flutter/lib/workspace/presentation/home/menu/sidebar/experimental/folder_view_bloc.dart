@@ -3,23 +3,31 @@ import 'dart:convert';
 
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/expand_views.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_listener.dart';
+import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
+import 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:protobuf/protobuf.dart';
 
 part 'folder_view_bloc.freezed.dart';
 
 class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
   FolderViewBloc({
     required this.view,
+    required this.currentWorkspaceId,
     this.shouldLoadChildViews = true,
     this.engagedInExpanding = false,
   })  : viewBackendSvc = ViewBackendService(),
@@ -42,6 +50,8 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
   final FavoriteListener favoriteListener;
   final bool shouldLoadChildViews;
   final bool engagedInExpanding;
+  final String currentWorkspaceId;
+
   late ViewExpander expander;
 
   @override
@@ -60,92 +70,101 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
         await event.map(
           initial: (e) async {
             final isExpanded = await _getViewIsExpanded(view);
-            emit(state.copyWith(isExpanded: isExpanded, view: view));
-            if (shouldLoadChildViews) {
-              await _loadChildViews(emit);
-            }
+            emit(
+              state.copyWith(
+                isExpanded: isExpanded,
+                view: view,
+              ),
+            );
           },
           setIsEditing: (e) {
-            emit(state.copyWith(isEditing: e.isEditing));
+            emit(
+              state.copyWith(isEditing: e.isEditing),
+            );
           },
           setIsExpanded: (e) async {
-            if (e.isExpanded && !state.isExpanded) {
-              await _loadViewsWhenExpanded(emit, true);
-            } else {
-              emit(state.copyWith(isExpanded: e.isExpanded));
-            }
+            emit(state.copyWith(isExpanded: e.isExpanded));
+
             await _setViewIsExpanded(view, e.isExpanded);
           },
-          viewDidUpdate: (e) async {},
+          viewDidUpdate: (e) async {
+            // do nothing
+          },
           rename: (e) async {
-            // final result = await ViewBackendService.updateView(
-            //   viewId: view.viewId,
-            //   name: e.newName,
-            // );
-            // emit(
-            //   result.fold(
-            //     (l) {
-            //       final view = state.view;
-            //       view.freeze();
-            //       final newView = view.rebuild(
-            //         (b) => b.name = e.newName,
-            //       );
-            //       Log.info('rename view: ${newView.viewId} to ${newView.name}');
-            //       return state.copyWith(
-            //         successOrFailure: FlowyResult.success(null),
-            //         view: newView,
-            //       );
-            //     },
-            //     (error) {
-            //       Log.error('rename view failed: $error');
-            //       return state.copyWith(
-            //         successOrFailure: FlowyResult.failure(error),
-            //       );
-            //     },
-            //   ),
-            // );
+            // keep the original icon and isLocked status
+            final payload = UpdatePagePayloadPB(
+              workspaceId: currentWorkspaceId,
+              viewId: view.viewId,
+              icon: view.icon,
+              isLocked: view.isLocked,
+              name: e.newName,
+            );
+            final response = await FolderEventUpdatePage(payload).send();
+            emit(
+              response.fold(
+                (l) {
+                  final view = state.view;
+                  view.freeze();
+                  final newView = view.rebuild(
+                    (b) => b.name = e.newName,
+                  );
+                  Log.info('rename view: ${newView.viewId} to ${newView.name}');
+                  return state.copyWith(
+                    successOrFailure: FlowyResult.success(null),
+                    view: newView,
+                  );
+                },
+                (error) {
+                  Log.error('rename view failed: $error');
+                  return state.copyWith(
+                    successOrFailure: FlowyResult.failure(error),
+                  );
+                },
+              ),
+            );
           },
           delete: (e) async {
             // unpublish the page and all its child pages if they are published
-            // await _unpublishPage(view);
+            await _unpublishPage(view);
 
-            // final result = await ViewBackendService.deleteView(viewId: view.viewId);
+            final request = MovePageToTrashPayloadPB(
+              workspaceId: currentWorkspaceId,
+              viewId: view.viewId,
+            );
+            final response = await FolderEventMovePageToTrash(request).send();
+            final newState = response.fold(
+              (folderView) => state.copyWith(
+                successOrFailure: FlowyResult.success(null),
+                isDeleted: true,
+              ),
+              (error) => state.copyWith(
+                successOrFailure: FlowyResult.failure(error),
+              ),
+            );
 
-            // emit(
-            //   result.fold(
-            //     (l) {
-            //       return state.copyWith(
-            //         successOrFailure: FlowyResult.success(null),
-            //         isDeleted: true,
-            //       );
-            //     },
-            //     (error) => state.copyWith(
-            //       successOrFailure: FlowyResult.failure(error),
-            //     ),
-            //   ),
-            // );
-            // await getIt<CachedRecentService>().updateRecentViews(
-            //   [view.viewId],
-            //   false,
-            // );
+            emit(newState);
+            await getIt<CachedRecentService>().updateRecentViews(
+              [view.viewId],
+              false,
+            );
           },
           duplicate: (e) async {
-            // final result = await ViewBackendService.duplicate(
-            //   view: view,
-            //   openAfterDuplicate: true,
-            //   syncAfterDuplicate: true,
-            //   includeChildren: true,
-            //   suffix: ' (${LocaleKeys.menuAppHeader_pageNameSuffix.tr()})',
-            // );
-            // emit(
-            //   result.fold(
-            //     (l) =>
-            //         state.copyWith(successOrFailure: FlowyResult.success(null)),
-            //     (error) => state.copyWith(
-            //       successOrFailure: FlowyResult.failure(error),
-            //     ),
-            //   ),
-            // );
+            final request = DuplicatePagePayloadPB(
+              workspaceId: currentWorkspaceId,
+              viewId: view.viewId,
+              suffix: ' (${LocaleKeys.menuAppHeader_pageNameSuffix.tr()})',
+            );
+            final response = await FolderEventDuplicatePage(request).send();
+            emit(
+              response.fold(
+                (l) => state.copyWith(
+                  successOrFailure: FlowyResult.success(null),
+                ),
+                (error) => state.copyWith(
+                  successOrFailure: FlowyResult.failure(error),
+                ),
+              ),
+            );
           },
           move: (value) async {
             // final result = await ViewBackendService.moveViewV2(
@@ -227,76 +246,6 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
     );
   }
 
-  Future<void> _loadViewsWhenExpanded(
-    Emitter<FolderViewState> emit,
-    bool isExpanded,
-  ) async {
-    if (!isExpanded) {
-      emit(
-        state.copyWith(
-          view: view,
-          isExpanded: false,
-          isLoading: false,
-        ),
-      );
-      return;
-    }
-
-    // final viewsOrFailed =
-    //     await ViewBackendService.getChildViews(viewId: state.view.viewId);
-
-    // viewsOrFailed.fold(
-    //   (childViews) {
-    //     state.view.freeze();
-    //     final viewWithChildViews = state.view.rebuild((b) {
-    //       b.children.clear();
-    //       b.children.addAll(childViews);
-    //     });
-    //     emit(
-    //       state.copyWith(
-    //         view: viewWithChildViews,
-    //         isExpanded: true,
-    //         isLoading: false,
-    //       ),
-    //     );
-    //   },
-    //   (error) => emit(
-    //     state.copyWith(
-    //       successOrFailure: FlowyResult.failure(error),
-    //       isExpanded: true,
-    //       isLoading: false,
-    //     ),
-    //   ),
-    // );
-  }
-
-  Future<void> _loadChildViews(
-    Emitter<FolderViewState> emit,
-  ) async {
-    // final viewsOrFailed =
-    //     await ViewBackendService.getChildViews(viewId: state.view.viewId);
-
-    // viewsOrFailed.fold(
-    //   (childViews) {
-    //     state.view.freeze();
-    //     final viewWithChildViews = state.view.rebuild((b) {
-    //       b.children.clear();
-    //       b.children.addAll(childViews);
-    //     });
-    //     emit(
-    //       state.copyWith(
-    //         view: viewWithChildViews,
-    //       ),
-    //     );
-    //   },
-    //   (error) => emit(
-    //     state.copyWith(
-    //       successOrFailure: FlowyResult.failure(error),
-    //     ),
-    //   ),
-    // );
-  }
-
   Future<void> _setViewIsExpanded(FolderViewPB view, bool isExpanded) async {
     final result = await getIt<KeyValueStorage>().get(KVKeys.expandedViews);
     final Map map;
@@ -324,17 +273,19 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
   }
 
   // unpublish the page and all its child pages
-  Future<void> _unpublishPage(FolderViewPB views) async {
-    // final (_, publishedPages) = await ViewBackendService.containPublishedPage(
-    //   view,
-    // );
+  Future<void> _unpublishPage(FolderViewPB view) async {
+    final publishedPages =
+        view.children.where((view) => view.isPublished).toList();
+    if (view.isPublished) {
+      publishedPages.add(view);
+    }
 
-    // await Future.wait(
-    //   publishedPages.map((view) async {
-    //     Log.info('unpublishing page: ${view.viewId}, ${view.name}');
-    //     await ViewBackendService.unpublish(view);
-    //   }),
-    // );
+    await Future.wait(
+      publishedPages.map((view) async {
+        Log.info('unpublishing page: ${view.viewId}, ${view.name}');
+        await ViewBackendService.unpublish(view.viewPB);
+      }),
+    );
   }
 
   bool _isSameViewIgnoreChildren(FolderViewPB from, FolderViewPB to) {

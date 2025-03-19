@@ -355,8 +355,8 @@ class _SidebarState extends State<_Sidebar> {
               ),
             ),
 
-            _renderFolderOrSpace(menuHorizontalInset),
-            // _renderFolderV2(menuHorizontalInset),
+            // _renderFolderOrSpace(menuHorizontalInset),
+            _renderFolderV2(menuHorizontalInset),
 
             // trash
             Padding(
