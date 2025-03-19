@@ -113,8 +113,8 @@ class BottomCommandButtons extends StatelessWidget {
         ],
       ),
       child: IntrinsicWidth(
-        child: SeparatedColumn(
-          separatorBuilder: () => const VSpace(4.0),
+        child: Column(
+          spacing: 4.0,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: _getCommands(
             hasSelection: hasSelection,
@@ -144,33 +144,30 @@ class BottomCommandButtons extends StatelessWidget {
   Widget _bottomButton(AiWriterCommand command) {
     return Builder(
       builder: (context) {
-        return SizedBox(
-          height: 30.0,
-          child: FlowyButton(
-            leftIcon: FlowySvg(
-              command.icon,
-              size: const Size.square(16),
-              color: Theme.of(context).iconTheme.color,
-            ),
-            margin: const EdgeInsets.all(6.0),
-            text: FlowyText(
-              command.i18n,
-              figmaLineHeight: 20,
-            ),
-            onTap: () {
-              final aiInputBloc = context.read<AIPromptInputBloc>();
-              final showPredefinedFormats =
-                  aiInputBloc.state.showPredefinedFormats;
-              final predefinedFormat = aiInputBloc.state.predefinedFormat;
-
-              context.read<AiWriterCubit>().runCommand(
-                    command,
-                    predefinedFormat:
-                        showPredefinedFormats ? predefinedFormat : null,
-                    isFirstRun: false,
-                  );
-            },
+        return FlowyButton(
+          leftIcon: FlowySvg(
+            command.icon,
+            size: const Size.square(16),
+            color: Theme.of(context).iconTheme.color,
           ),
+          margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+          text: FlowyText(
+            command.i18n,
+            figmaLineHeight: 20,
+          ),
+          onTap: () {
+            final aiInputBloc = context.read<AIPromptInputBloc>();
+            final showPredefinedFormats =
+                aiInputBloc.state.showPredefinedFormats;
+            final predefinedFormat = aiInputBloc.state.predefinedFormat;
+
+            context.read<AiWriterCubit>().runCommand(
+                  command,
+                  predefinedFormat:
+                      showPredefinedFormats ? predefinedFormat : null,
+                  isFirstRun: false,
+                );
+          },
         );
       },
     );
