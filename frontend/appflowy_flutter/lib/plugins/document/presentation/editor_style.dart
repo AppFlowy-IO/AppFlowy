@@ -550,7 +550,7 @@ class EditorStyleCustomizer {
           style: context.tooltipTextStyle(),
         ),
         TextSpan(
-          text: (Platform.isMacOS ? '⌘+' : 'Ctrl+\\') + tooltip.$2,
+          text: (Platform.isMacOS ? '⌘+' : 'Ctrl+') + tooltip.$2,
           style: context.tooltipTextStyle()?.copyWith(
                 color: Theme.of(context).hintColor,
               ),
