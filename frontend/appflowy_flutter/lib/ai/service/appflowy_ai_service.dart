@@ -151,6 +151,10 @@ class AppFlowyCompletionStream extends CompletionStream {
           await onProcess(event.substring(5));
         }
 
+        if (event.startsWith("comment:")) {
+          await onComment(event.substring(8));
+        }
+
         if (event.startsWith("finish:")) {
           await onEnd();
         }
