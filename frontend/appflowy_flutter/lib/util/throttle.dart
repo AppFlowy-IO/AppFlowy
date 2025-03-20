@@ -16,6 +16,10 @@ class Throttler {
     });
   }
 
+  void cancel() {
+    _timer?.cancel();
+  }
+
   void dispose() {
     _timer?.cancel();
     _timer = null;

@@ -2,14 +2,10 @@ import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/message/ai_markdown_text.dart';
-import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/colorscheme/default_colorscheme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,8 +14,8 @@ import 'package:universal_platform/universal_platform.dart';
 import 'operations/ai_writer_cubit.dart';
 import 'operations/ai_writer_entities.dart';
 import 'operations/ai_writer_node_extension.dart';
-import 'suggestion_action_bar.dart';
-import 'widgets/ai_writer_gesture_detector.dart';
+import 'widgets/ai_writer_suggestion_actions.dart';
+import 'widgets/ai_writer_prompt_input_more_button.dart';
 
 class AiWriterBlockKeys {
   const AiWriterBlockKeys._();
@@ -98,18 +94,11 @@ class AiWriterBlockComponent extends BlockComponentStatefulWidget {
 }
 
 class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
-  final key = GlobalKey();
   final textController = TextEditingController();
   final overlayController = OverlayPortalController();
   final layerLink = LayerLink();
 
   late final editorState = context.read<EditorState>();
-  late final aiWriterCubit = AiWriterCubit(
-    documentId: context.read<DocumentBloc>().documentId,
-    editorState: editorState,
-    getAiWriterNode: () => widget.node,
-    initialCommand: widget.node.aiWriterCommand,
-  );
 
   @override
   void initState() {
@@ -118,7 +107,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       overlayController.show();
       if (!widget.node.isAiWriterInitialized) {
-        aiWriterCubit.init();
+        context.read<AiWriterCubit>().register(widget.node);
       }
     });
   }
@@ -126,7 +115,6 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
   @override
   void dispose() {
     textController.dispose();
-    aiWriterCubit.close();
     super.dispose();
   }
 
@@ -136,85 +124,42 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
       return const SizedBox.shrink();
     }
 
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider.value(
-          value: aiWriterCubit,
-        ),
-        BlocProvider(
-          create: (_) => AIPromptInputBloc(
-            predefinedFormat: null,
-          ),
-        ),
-      ],
+    return BlocProvider(
+      create: (_) => AIPromptInputBloc(
+        predefinedFormat: null,
+      ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          return BlocListener<AiWriterCubit, AiWriterState>(
-            listener: (context, state) {
-              if (state is FailedContinueWritingAiWriterState) {
-                showConfirmDialog(
-                  context: context,
-                  title: LocaleKeys.ai_continueWritingEmptyDocumentTitle.tr(),
-                  description: LocaleKeys
-                      .ai_continueWritingEmptyDocumentDescription
-                      .tr(),
-                  onConfirm: state.onConfirm,
-                );
-              } else if (state is DiscardResponseAiWriterState) {
-                showConfirmDialog(
-                  context: context,
-                  title: LocaleKeys.button_discard.tr(),
-                  description: LocaleKeys.document_plugins_discardResponse.tr(),
-                  confirmLabel: LocaleKeys.button_discard.tr(),
-                  style: ConfirmPopupStyle.cancelAndOk,
-                  onConfirm: state.onDiscard,
-                  onCancel: () {},
-                );
-              }
-            },
-            child: OverlayPortal(
-              controller: overlayController,
-              overlayChildBuilder: (context) {
-                return Stack(
-                  children: [
-                    BlocBuilder<AiWriterCubit, AiWriterState>(
-                      builder: (context, state) {
-                        return AiWriterGestureDetector(
-                          behavior: state is GeneratingAiWriterState
-                              ? HitTestBehavior.opaque
-                              : HitTestBehavior.translucent,
-                          onPointerEvent: onTapOutside,
-                        );
-                      },
+          return OverlayPortal(
+            controller: overlayController,
+            overlayChildBuilder: (context) {
+              return Center(
+                child: CompositedTransformFollower(
+                  link: layerLink,
+                  showWhenUnlinked: false,
+                  child: Container(
+                    padding: const EdgeInsets.only(
+                      left: 40.0,
+                      bottom: 16.0,
                     ),
-                    CompositedTransformFollower(
-                      link: layerLink,
-                      showWhenUnlinked: false,
-                      child: Container(
-                        padding: const EdgeInsets.only(
-                          left: 40.0,
-                          bottom: 16.0,
-                        ),
-                        width: constraints.maxWidth,
-                        child: OverlayContent(
-                          editorState: editorState,
-                          node: widget.node,
-                        ),
-                      ),
+                    width: constraints.maxWidth,
+                    child: OverlayContent(
+                      editorState: editorState,
+                      node: widget.node,
                     ),
-                  ],
-                );
-              },
-              child: CompositedTransformTarget(
-                link: layerLink,
-                child: BlocBuilder<AiWriterCubit, AiWriterState>(
-                  builder: (context, state) {
-                    return SizedBox(
-                      key: key,
-                      width: double.infinity,
-                    );
-                  },
+                  ),
                 ),
+              );
+            },
+            child: CompositedTransformTarget(
+              link: layerLink,
+              child: BlocBuilder<AiWriterCubit, AiWriterState>(
+                builder: (context, state) {
+                  return SizedBox(
+                    width: double.infinity,
+                    height: 1.0,
+                  );
+                },
               ),
             ),
           );
@@ -222,29 +167,9 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
       ),
     );
   }
-
-  void onTapOutside() {
-    if (aiWriterCubit.hasUnusedResponse()) {
-      showConfirmDialog(
-        context: context,
-        title: LocaleKeys.button_discard.tr(),
-        description: LocaleKeys.document_plugins_discardResponse.tr(),
-        confirmLabel: LocaleKeys.button_discard.tr(),
-        style: ConfirmPopupStyle.cancelAndOk,
-        onConfirm: () => aiWriterCubit
-          ..stopStream()
-          ..exit(),
-        onCancel: () {},
-      );
-    } else {
-      aiWriterCubit
-        ..stopStream()
-        ..exit();
-    }
-  }
 }
 
-class OverlayContent extends StatelessWidget {
+class OverlayContent extends StatefulWidget {
   const OverlayContent({
     super.key,
     required this.editorState,
@@ -255,13 +180,30 @@ class OverlayContent extends StatelessWidget {
   final Node node;
 
   @override
+  State<OverlayContent> createState() => _OverlayContentState();
+}
+
+class _OverlayContentState extends State<OverlayContent> {
+  final showCommandsToggle = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    showCommandsToggle.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocBuilder<AiWriterCubit, AiWriterState>(
       builder: (context, state) {
-        final selection = node.aiWriterSelection;
+        if (state is IdleAiWriterState) {
+          return const SizedBox.shrink();
+        }
+        final selection = widget.node.aiWriterSelection;
         final showSuggestionPopup =
             state is ReadyAiWriterState && !state.isFirstRun;
-        final showActionPopup = state is ReadyAiWriterState && state.isFirstRun;
+        final isInitialReadyState =
+            state is ReadyAiWriterState && state.isFirstRun;
         final markdownText = switch (state) {
           final ReadyAiWriterState ready => ready.markdownText,
           final GeneratingAiWriterState generating => generating.markdownText,
@@ -272,10 +214,6 @@ class OverlayContent extends StatelessWidget {
         final isLightMode = Theme.of(context).isLightMode;
         final darkBorderColor =
             isLightMode ? Color(0x1F1F2329) : Color(0xFF505469);
-        final lightBorderColor =
-            Theme.of(context).brightness == Brightness.light
-                ? ColorSchemeConstants.lightBorderColor
-                : ColorSchemeConstants.darkBorderColor;
 
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -292,10 +230,8 @@ class OverlayContent extends StatelessWidget {
                   borderColor: darkBorderColor,
                 ),
                 child: SuggestionActionBar(
-                  actions: _getSuggestedActions(
-                    currentCommand: state.command,
-                    hasSelection: hasSelection,
-                  ),
+                  currentCommand: state.command,
+                  hasSelection: hasSelection,
                   onTap: (action) {
                     _onSelectSuggestionAction(context, action);
                   },
@@ -337,7 +273,9 @@ class OverlayContent extends StatelessWidget {
                                       alignment:
                                           AlignmentDirectional.centerStart,
                                       child: FlowyText(
-                                        state.command.i18n,
+                                        (state as RegisteredAiWriter)
+                                            .command
+                                            .i18n,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                         color: Color(0xFF666D76),
@@ -358,10 +296,8 @@ class OverlayContent extends StatelessWidget {
                             if (showSuggestionPopup) ...[
                               const VSpace(4.0),
                               SuggestionActionBar(
-                                actions: _getSuggestedActions(
-                                  currentCommand: state.command,
-                                  hasSelection: hasSelection,
-                                ),
+                                currentCommand: state.command,
+                                hasSelection: hasSelection,
                                 onTap: (action) {
                                   _onSelectSuggestionAction(context, action);
                                 },
@@ -380,51 +316,45 @@ class OverlayContent extends StatelessWidget {
                     decoration: markdownText.isNotEmpty
                         ? _getInputChildDecoration(context)
                         : _getSingleChildDeocoration(context),
-                    child: MainContentArea(),
+                    child: MainContentArea(
+                      isDocumentEmpty: _isDocumentEmpty(),
+                      isInitialReadyState: isInitialReadyState,
+                      showCommandsToggle: showCommandsToggle,
+                    ),
                   ),
                 ],
               ),
             ),
-            ..._bottomActions(
-              context,
-              showActionPopup,
-              hasSelection,
-              lightBorderColor,
+            ValueListenableBuilder(
+              valueListenable: showCommandsToggle,
+              builder: (context, value, child) {
+                if (!value || !isInitialReadyState) {
+                  return const SizedBox.shrink();
+                }
+                return Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: BottomCommandButtons(
+                    hasSelection: hasSelection,
+                    editorState: widget.editorState,
+                    onSelectCommand: (command) {
+                      final promptInputBloc = context.read<AIPromptInputBloc>();
+                      final showPredefinedFormats =
+                          promptInputBloc.state.showPredefinedFormats;
+                      final predefinedFormat =
+                          promptInputBloc.state.predefinedFormat;
+
+                      context.read<AiWriterCubit>().runCommand(
+                            command,
+                            predefinedFormat:
+                                showPredefinedFormats ? predefinedFormat : null,
+                            isFirstRun: true,
+                          );
+                    },
+                  ),
+                );
+              },
             ),
           ],
-        );
-      },
-    );
-  }
-
-  Widget _bottomButton(AiWriterCommand command) {
-    return Builder(
-      builder: (context) {
-        return SizedBox(
-          height: 30.0,
-          child: FlowyButton(
-            leftIcon: FlowySvg(
-              command.icon,
-              size: const Size.square(16),
-              color: Theme.of(context).iconTheme.color,
-            ),
-            margin: const EdgeInsets.all(6.0),
-            text: FlowyText(
-              command.i18n,
-              figmaLineHeight: 20,
-            ),
-            onTap: () {
-              final aiInputBloc = context.read<AIPromptInputBloc>();
-              final showPredefinedFormats =
-                  aiInputBloc.state.showPredefinedFormats;
-              final predefinedFormat = aiInputBloc.state.predefinedFormat;
-
-              context.read<AiWriterCubit>().runCommand(
-                    command,
-                    showPredefinedFormats ? predefinedFormat : null,
-                  );
-            },
-          ),
         );
       },
     );
@@ -474,119 +404,6 @@ class OverlayContent extends StatelessWidget {
     );
   }
 
-  List<Widget> _bottomActions(
-    BuildContext context,
-    bool showActionPopup,
-    bool hasSelection,
-    Color borderColor,
-  ) {
-    if (!showActionPopup) {
-      return [];
-    }
-
-    if (editorState.isEmptyForContinueWriting()) {
-      final documentContext = editorState.document.root.context;
-      if (documentContext == null) {
-        return [];
-      }
-      final view = documentContext.read<ViewBloc>().state.view;
-      if (view.name.isEmpty) {
-        return [];
-      }
-    }
-
-    return [
-      // add one here to take into account the border of the main message box.
-      // It is configured to be on the outside to hide some graphical
-      // artifacts.
-      const VSpace(4.0 + 1.0),
-      Container(
-        padding: EdgeInsets.all(8.0),
-        constraints: BoxConstraints(minWidth: 240.0),
-        decoration: _getModalDecoration(
-          context,
-          color: Theme.of(context).colorScheme.surface,
-          borderColor: borderColor,
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-        ),
-        child: IntrinsicWidth(
-          child: SeparatedColumn(
-            separatorBuilder: () => const VSpace(4.0),
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: _getCommands(
-              hasSelection: hasSelection,
-            ),
-          ),
-        ),
-      ),
-    ];
-  }
-
-  List<Widget> _getCommands({required bool hasSelection}) {
-    if (hasSelection) {
-      return [
-        _bottomButton(AiWriterCommand.improveWriting),
-        _bottomButton(AiWriterCommand.fixSpellingAndGrammar),
-        _bottomButton(AiWriterCommand.explain),
-        const Divider(height: 1.0, thickness: 1.0),
-        _bottomButton(AiWriterCommand.makeLonger),
-        _bottomButton(AiWriterCommand.makeShorter),
-      ];
-    } else {
-      return [
-        _bottomButton(AiWriterCommand.continueWriting),
-      ];
-    }
-  }
-
-  List<SuggestionAction> _getSuggestedActions({
-    required AiWriterCommand currentCommand,
-    required bool hasSelection,
-  }) {
-    if (hasSelection) {
-      return switch (currentCommand) {
-        AiWriterCommand.userQuestion || AiWriterCommand.continueWriting => [
-            SuggestionAction.keep,
-            SuggestionAction.discard,
-            SuggestionAction.rewrite,
-          ],
-        AiWriterCommand.explain => [
-            SuggestionAction.insertBelow,
-            SuggestionAction.tryAgain,
-            SuggestionAction.close,
-          ],
-        AiWriterCommand.fixSpellingAndGrammar ||
-        AiWriterCommand.improveWriting ||
-        AiWriterCommand.makeShorter ||
-        AiWriterCommand.makeLonger =>
-          [
-            SuggestionAction.accept,
-            SuggestionAction.discard,
-            SuggestionAction.insertBelow,
-            SuggestionAction.rewrite,
-          ],
-      };
-    } else {
-      return switch (currentCommand) {
-        AiWriterCommand.userQuestion || AiWriterCommand.continueWriting => [
-            SuggestionAction.keep,
-            SuggestionAction.discard,
-            SuggestionAction.rewrite,
-          ],
-        AiWriterCommand.explain => [
-            SuggestionAction.insertBelow,
-            SuggestionAction.tryAgain,
-            SuggestionAction.close,
-          ],
-        _ => [
-            SuggestionAction.keep,
-            SuggestionAction.discard,
-            SuggestionAction.rewrite,
-          ],
-      };
-    }
-  }
-
   void _onSelectSuggestionAction(
     BuildContext context,
     SuggestionAction action,
@@ -598,10 +415,33 @@ class OverlayContent extends StatelessWidget {
           predefinedFormat,
         );
   }
+
+  bool _isDocumentEmpty() {
+    if (widget.editorState.isEmptyForContinueWriting()) {
+      final documentContext = widget.editorState.document.root.context;
+      if (documentContext == null) {
+        return true;
+      }
+      final view = documentContext.read<ViewBloc>().state.view;
+      if (view.name.isEmpty) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
 
 class MainContentArea extends StatelessWidget {
-  const MainContentArea({super.key});
+  const MainContentArea({
+    super.key,
+    required this.isInitialReadyState,
+    required this.isDocumentEmpty,
+    required this.showCommandsToggle,
+  });
+
+  final bool isInitialReadyState;
+  final bool isDocumentEmpty;
+  final ValueNotifier<bool> showCommandsToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -621,6 +461,18 @@ class MainContentArea extends StatelessWidget {
                 ...sources,
               ];
             },
+            extraBottomActionButton: isInitialReadyState
+                ? ValueListenableBuilder(
+                    valueListenable: showCommandsToggle,
+                    builder: (context, value, _) {
+                      return AiWriterPromptMoreButton(
+                        isEnabled: !isDocumentEmpty,
+                        isSelected: value,
+                        onTap: () => showCommandsToggle.value = !value,
+                      );
+                    },
+                  )
+                : null,
           );
         }
         if (state is GeneratingAiWriterState) {
