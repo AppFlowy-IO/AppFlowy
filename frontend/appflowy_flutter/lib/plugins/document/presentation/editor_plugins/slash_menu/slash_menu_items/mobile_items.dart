@@ -15,7 +15,7 @@ final List<SelectionMenuItem> mobileItems = [
   mobileTableSlashMenuItem,
   visualsMobileSlashMenuItem,
   dateOrReminderSlashMenuItem,
-  subPageSlashMenuItem,
+  buildSubpageSlashMenuItem(svg: FlowySvgs.type_page_m),
   advancedMobileSlashMenuItem,
 ];
 
@@ -26,7 +26,7 @@ final List<SelectionMenuItem> mobileItemsInTale = [
   fileAndMediaMobileSlashMenuItem,
   visualsMobileSlashMenuItem,
   dateOrReminderSlashMenuItem,
-  subPageSlashMenuItem,
+  buildSubpageSlashMenuItem(svg: FlowySvgs.type_page_m),
   advancedMobileSlashMenuItem,
 ];
 
@@ -93,7 +93,7 @@ MobileSelectionMenuItem fileAndMediaMobileSlashMenuItem =
   ),
   nameBuilder: slashMenuItemNameBuilder,
   children: [
-    imageSlashMenuItem,
+    buildImageSlashMenuItem(svg: FlowySvgs.slash_menu_image_m),
     photoGallerySlashMenuItem,
     fileSlashMenuItem,
   ],
