@@ -11,12 +11,12 @@ Future<void> setAiWriterNodeIsInitialized(
   final transaction = editorState.transaction
     ..updateNode(node, {
       AiWriterBlockKeys.isInitialized: true,
-    });
+    })
+    ..afterSelection = null;
 
   await editorState.apply(
     transaction,
     options: const ApplyOptions(recordUndo: false),
-    withUpdateSelection: false,
   );
 }
 
