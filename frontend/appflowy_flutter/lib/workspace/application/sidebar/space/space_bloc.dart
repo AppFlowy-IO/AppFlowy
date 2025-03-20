@@ -125,9 +125,21 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             );
           },
           update: (space, name, icon, iconColor, permission) async {
-            debugPrint(
-              'update space: $name, icon: $icon, iconColor: $iconColor',
+            space ??= state.currentSpace;
+            if (space == null) {
+              Log.error('update space failed, space is null');
+              return;
+            }
+
+            await _workspaceService.updateSpace(
+              space: space,
+              name: name,
+              icon: icon,
+              iconColor: iconColor,
+              permission: permission,
             );
+
+            add(const SpaceEvent.didReceiveSpaceUpdate());
           },
           open: (space) async {
             await _openSpace(space);
@@ -294,7 +306,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       name: name,
       icon: icon,
       iconColor: iconColor,
-      permission: permission.toSpacePermissionPB(),
+      permission: permission,
     );
     return response.fold((_) {
       Log.info('Created space: $name, icon: $icon, iconColor: $iconColor');

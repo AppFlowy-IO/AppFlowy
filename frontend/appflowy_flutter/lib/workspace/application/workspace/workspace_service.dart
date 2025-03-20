@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
@@ -135,12 +136,12 @@ class WorkspaceService {
     required String name,
     required String icon,
     required String iconColor,
-    required SpacePermissionPB permission,
+    required SpacePermission permission,
   }) {
     final payload = CreateSpacePayloadPB.create()
       ..workspaceId = workspaceId
       ..name = name
-      ..spacePermission = permission
+      ..spacePermission = permission.toSpacePermissionPB()
       ..spaceIcon = icon
       ..spaceIconColor = iconColor;
 
@@ -186,6 +187,32 @@ class WorkspaceService {
       suffix: ' (${LocaleKeys.menuAppHeader_pageNameSuffix.tr()})',
     );
     return FolderEventDuplicatePage(payload).send();
+  }
+
+  /// Update the space in the workspace.
+  ///
+  /// [space] is the space you want to update.
+  /// [name] is the name of the space.
+  /// [icon] is the icon of the space.
+  /// [iconColor] is the color of the icon.
+  /// [permission] is the permission of the space.
+  Future<FlowyResult<void, FlowyError>> updateSpace({
+    required FolderViewPB space,
+    String? name,
+    String? icon,
+    String? iconColor,
+    SpacePermission? permission,
+  }) {
+    final payload = UpdateSpacePayloadPB.create()
+      ..workspaceId = workspaceId
+      ..spaceId = space.viewId
+      ..name = name ?? space.name
+      ..spacePermission =
+          permission?.toSpacePermissionPB() ?? space.spacePermissionPB
+      ..spaceIcon = icon ?? space.spaceIcon ?? ''
+      ..spaceIconColor = iconColor ?? space.spaceIconColor ?? '';
+
+    return FolderEventUpdateSpace(payload).send();
   }
 
   /// Update the space icon in the workspace.
