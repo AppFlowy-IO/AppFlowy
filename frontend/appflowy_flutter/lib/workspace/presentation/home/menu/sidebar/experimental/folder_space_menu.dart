@@ -5,7 +5,6 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
-import 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/create_space_popup.dart';
@@ -64,8 +63,8 @@ class _FolderSpaceMenuState extends State<FolderSpaceMenu> {
           onExit: (_) => isHovered.value = false,
           child: GestureDetector(
             onTap: () => context
-                .read<FolderV2Bloc>()
-                .add(FolderV2ExpandSpace(isExpanded: !widget.isExpanded)),
+                .read<SpaceBloc>()
+                .add(SpaceEvent.expand(widget.space, !widget.isExpanded)),
             child: _buildSpaceName(onHover),
           ),
         );
@@ -209,10 +208,8 @@ class _FolderSpaceMenuState extends State<FolderSpaceMenu> {
         _showDeleteSpaceDialog(context);
         break;
       case SpaceMoreActionType.duplicate:
-        context.read<FolderV2Bloc>().add(
-              FolderV2DuplicatePage(
-                viewId: widget.space.viewId,
-              ),
+        context.read<SpaceBloc>().add(
+              SpaceEvent.duplicate(space: widget.space),
             );
         break;
       case SpaceMoreActionType.divider:
@@ -295,7 +292,7 @@ class _FolderSpacePopup extends StatelessWidget {
         clickHandler: PopoverClickHandler.gestureDetector,
         offset: const Offset(0, 4),
         popupBuilder: (_) => BlocProvider.value(
-          value: context.read<FolderV2Bloc>(),
+          value: context.read<SpaceBloc>(),
           child: _FolderSwitchSpaceMenu(
             showCreateButton: showCreateButton,
           ),
@@ -321,39 +318,39 @@ class _FolderSwitchSpaceMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<FolderV2Bloc, FolderV2State>(
+    return BlocBuilder<SpaceBloc, SpaceState>(
       builder: (context, state) {
-        switch (state) {
-          case FolderV2Initial():
-          case FolderV2Loading():
-          case FolderV2Error():
-            return const SizedBox.shrink();
-          case FolderV2Loaded():
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const VSpace(4.0),
-                for (final space in state.folderView.children)
-                  SizedBox(
-                    height: HomeSpaceViewSizes.viewHeight,
-                    child: _FolderSpaceMenuItem(
-                      space: space,
-                      isSelected: state.currentSpace.viewId == space.viewId,
-                    ),
-                  ),
-                if (showCreateButton) ...[
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                    child: FlowyDivider(),
-                  ),
-                  const SizedBox(
-                    height: HomeSpaceViewSizes.viewHeight,
-                    child: _CreateSpaceButton(),
-                  ),
-                ],
-              ],
-            );
+        final spaces = state.spaces;
+        if (spaces.isEmpty) {
+          return const SizedBox.shrink();
         }
+
+        final currentSpace = state.currentSpace ?? spaces.first;
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const VSpace(4.0),
+            for (final space in spaces)
+              SizedBox(
+                height: HomeSpaceViewSizes.viewHeight,
+                child: _FolderSpaceMenuItem(
+                  space: space,
+                  isSelected: currentSpace.viewId == space.viewId,
+                ),
+              ),
+            if (showCreateButton) ...[
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: FlowyDivider(),
+              ),
+              const SizedBox(
+                height: HomeSpaceViewSizes.viewHeight,
+                child: _CreateSpaceButton(),
+              ),
+            ],
+          ],
+        );
       },
     );
   }
@@ -404,9 +401,9 @@ class _FolderSpaceMenuItem extends StatelessWidget {
             )
           : null,
       onTap: () {
-        context
-            .read<FolderV2Bloc>()
-            .add(FolderV2SwitchCurrentSpace(spaceId: space.viewId));
+        context.read<SpaceBloc>().add(
+              SpaceEvent.switchCurrentSpace(spaceId: space.viewId),
+            );
         PopoverContainer.of(context).close();
       },
     );
@@ -432,7 +429,7 @@ class _CreateSpaceButton extends StatelessWidget {
   }
 
   void _showCreateSpaceDialog(BuildContext context) {
-    final folderV2Bloc = context.read<FolderV2Bloc>();
+    final spaceBloc = context.read<SpaceBloc>();
     showDialog(
       context: context,
       builder: (_) {
@@ -441,7 +438,7 @@ class _CreateSpaceButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(12.0),
           ),
           child: BlocProvider.value(
-            value: folderV2Bloc,
+            value: spaceBloc,
             child: const CreateSpacePopup(),
           ),
         );

@@ -1,5 +1,4 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/_extension.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
@@ -79,12 +78,12 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
   }
 
   void _createSpace() {
-    context.read<FolderV2Bloc>().add(
-          FolderV2CreateSpace(
+    context.read<SpaceBloc>().add(
+          SpaceEvent.createSpace(
             name: spaceName,
-            spacePermission: spacePermission.toSpacePermissionPB(),
-            spaceIcon: spaceIcon!,
-            spaceIconColor: spaceIconColor!,
+            permission: spacePermission,
+            icon: spaceIcon!,
+            iconColor: spaceIconColor!,
           ),
         );
 

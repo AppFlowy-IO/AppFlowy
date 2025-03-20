@@ -8,21 +8,23 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/expand_views.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_listener.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
-import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
 
 part 'folder_view_bloc.freezed.dart';
+
+final ValueNotifier<int> refreshNotifier = ValueNotifier(0);
 
 class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
   FolderViewBloc({
@@ -31,6 +33,7 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
     this.shouldLoadChildViews = true,
     this.engagedInExpanding = false,
   })  : viewBackendSvc = ViewBackendService(),
+        workspaceService = WorkspaceService(workspaceId: currentWorkspaceId),
         listener = ViewListener(viewId: view.viewId),
         favoriteListener = FavoriteListener(),
         super(FolderViewState.init(view)) {
@@ -46,6 +49,7 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
 
   final FolderViewPB view;
   final ViewBackendService viewBackendSvc;
+  final WorkspaceService workspaceService;
   final ViewListener listener;
   final FavoriteListener favoriteListener;
   final bool shouldLoadChildViews;
@@ -88,18 +92,14 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
             await _setViewIsExpanded(view, e.isExpanded);
           },
           viewDidUpdate: (e) async {
-            // do nothing
+            // delete this event after integrate the websocket notification
+            refreshNotifier.value = refreshNotifier.value + 1;
           },
           rename: (e) async {
-            // keep the original icon and isLocked status
-            final payload = UpdatePagePayloadPB(
-              workspaceId: currentWorkspaceId,
-              viewId: view.viewId,
-              icon: view.icon,
-              isLocked: view.isLocked,
+            final response = await workspaceService.updatePageName(
+              page: view,
               name: e.newName,
             );
-            final response = await FolderEventUpdatePage(payload).send();
             emit(
               response.fold(
                 (l) {
@@ -122,16 +122,20 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
                 },
               ),
             );
+
+            add(
+              FolderViewEvent.viewDidUpdate(
+                FlowyResult.success(FolderViewPB()),
+              ),
+            );
           },
           delete: (e) async {
             // unpublish the page and all its child pages if they are published
             await _unpublishPage(view);
 
-            final request = MovePageToTrashPayloadPB(
-              workspaceId: currentWorkspaceId,
-              viewId: view.viewId,
+            final response = await workspaceService.deletePage(
+              page: view,
             );
-            final response = await FolderEventMovePageToTrash(request).send();
             final newState = response.fold(
               (folderView) => state.copyWith(
                 successOrFailure: FlowyResult.success(null),
@@ -141,20 +145,23 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
                 successOrFailure: FlowyResult.failure(error),
               ),
             );
-
             emit(newState);
             await getIt<CachedRecentService>().updateRecentViews(
               [view.viewId],
               false,
             );
+
+            add(
+              FolderViewEvent.viewDidUpdate(
+                FlowyResult.success(FolderViewPB()),
+              ),
+            );
           },
           duplicate: (e) async {
-            final request = DuplicatePagePayloadPB(
-              workspaceId: currentWorkspaceId,
-              viewId: view.viewId,
+            final response = await workspaceService.duplicatePage(
+              page: view,
               suffix: ' (${LocaleKeys.menuAppHeader_pageNameSuffix.tr()})',
             );
-            final response = await FolderEventDuplicatePage(request).send();
             emit(
               response.fold(
                 (l) => state.copyWith(
@@ -165,15 +172,19 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
                 ),
               ),
             );
+
+            add(
+              FolderViewEvent.viewDidUpdate(
+                FlowyResult.success(FolderViewPB()),
+              ),
+            );
           },
           move: (value) async {
-            final request = MovePagePayloadPB(
-              workspaceId: currentWorkspaceId,
-              viewId: value.from.viewId,
+            final response = await workspaceService.movePage(
+              page: view,
               newParentViewId: value.newParentId,
               prevViewId: value.prevId,
             );
-            final response = await FolderEventMovePage(request).send();
             emit(
               response.fold(
                 (l) => state.copyWith(
@@ -186,13 +197,11 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
             );
           },
           createView: (e) async {
-            final request = CreatePagePayloadPB(
-              workspaceId: currentWorkspaceId,
+            final response = await workspaceService.createPage(
               parentViewId: view.viewId,
               name: e.name,
               layout: e.layoutType,
             );
-            final response = await FolderEventCreatePage(request).send();
             emit(
               response.fold(
                 (view) => state.copyWith(
@@ -203,19 +212,21 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
                 ),
               ),
             );
-          },
-          viewUpdateChildView: (e) async {
-            emit(
-              state.copyWith(
-                view: e.result,
+
+            add(
+              FolderViewEvent.viewDidUpdate(
+                FlowyResult.success(FolderViewPB()),
               ),
             );
+          },
+          viewUpdateChildView: (e) async {
+            // do nothing
           },
           updateViewVisibility: (value) async {
             // do nothing
           },
           updateIcon: (value) async {
-            // fixme: update icon
+            // do nothing
           },
           collapseAllPages: (value) async {
             for (final childView in view.children) {
@@ -263,18 +274,7 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
 
   // unpublish the page and all its child pages
   Future<void> _unpublishPage(FolderViewPB view) async {
-    final publishedPages =
-        view.children.where((view) => view.isPublished).toList();
-    if (view.isPublished) {
-      publishedPages.add(view);
-    }
-
-    await Future.wait(
-      publishedPages.map((view) async {
-        Log.info('unpublishing page: ${view.viewId}, ${view.name}');
-        await ViewBackendService.unpublish(view.viewPB);
-      }),
-    );
+    await workspaceService.unpublishPage(page: view);
   }
 }
 

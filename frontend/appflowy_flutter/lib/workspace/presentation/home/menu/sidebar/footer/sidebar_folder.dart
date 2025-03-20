@@ -1,6 +1,6 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc.dart';
+import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
@@ -63,22 +63,17 @@ class _FolderV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<FolderV2Bloc, FolderV2State>(
+    return BlocBuilder<SpaceBloc, SpaceState>(
       builder: (context, state) {
-        switch (state) {
-          case FolderV2Initial():
-            return const SizedBox.shrink();
-          case FolderV2Loading():
-            return const _FolderV2Loading();
-          case FolderV2Loaded():
-            return _FolderV2Loaded(
-              folderView: state.folderView,
-              currentSpace: state.currentSpace,
-              isExpanded: state.isExpanded,
-            );
-          case FolderV2Error():
-            return const SizedBox.shrink();
+        final spaces = state.spaces;
+        final currentSpace = state.currentSpace ?? spaces.firstOrNull;
+        if (spaces.isEmpty || currentSpace == null) {
+          return const SizedBox.shrink();
         }
+        return _FolderV2Loaded(
+          currentSpace: currentSpace,
+          isExpanded: state.isExpanded,
+        );
       },
     );
   }
@@ -97,12 +92,10 @@ class _FolderV2Loading extends StatelessWidget {
 
 class _FolderV2Loaded extends StatefulWidget {
   const _FolderV2Loaded({
-    required this.folderView,
     required this.currentSpace,
     required this.isExpanded,
   });
 
-  final FolderViewPB folderView;
   final bool isExpanded;
   final FolderViewPB currentSpace;
 
@@ -134,17 +127,21 @@ class _FolderV2LoadedState extends State<_FolderV2Loaded> {
           isExpanded: widget.isExpanded,
           space: widget.currentSpace,
           onAdded: (layout) {
-            context.read<FolderV2Bloc>().add(
-                  FolderV2CreatePage(
+            context.read<SpaceBloc>().add(
+                  SpaceEvent.createPage(
                     layout: layout,
-                    parentViewId: widget.currentSpace.viewId,
+                    name: '',
+                    openAfterCreate: true,
                   ),
                 );
           },
           onCreateNewSpace: () {
-            context.read<FolderV2Bloc>().add(
-                  FolderV2CreateSpace(
+            context.read<SpaceBloc>().add(
+                  SpaceEvent.createSpace(
                     name: 'New Space',
+                    permission: SpacePermission.publicToAll,
+                    icon: '🌈',
+                    iconColor: '#FF0000',
                   ),
                 );
           },
@@ -171,7 +168,9 @@ class _FolderV2LoadedState extends State<_FolderV2Loaded> {
         FlowyTextButton(
           'Refresh',
           onPressed: () {
-            context.read<FolderV2Bloc>().add(FolderV2ReloadFolderViews());
+            context
+                .read<SpaceBloc>()
+                .add(const SpaceEvent.didReceiveSpaceUpdate());
           },
         ),
       ],

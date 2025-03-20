@@ -8,6 +8,7 @@ import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_sections_listener.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/folder_view_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -107,10 +108,8 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             );
           },
           rename: (space, name) async {
-            await _workspaceService.updateSpaceName(
-              space: space,
-              name: name,
-            );
+            await _rename(space, name);
+            add(const SpaceEvent.didReceiveSpaceUpdate());
           },
           changeIcon: (space, icon, iconColor) async {
             space ??= state.currentSpace;
@@ -125,7 +124,11 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               iconColor: iconColor,
             );
           },
-          update: (space, name, icon, iconColor, permission) async {},
+          update: (space, name, icon, iconColor, permission) async {
+            debugPrint(
+              'update space: $name, icon: $icon, iconColor: $iconColor',
+            );
+          },
           open: (space) async {
             await _openSpace(space);
 
@@ -153,40 +156,30 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             emit(state.copyWith(isExpanded: isExpanded));
           },
           createPage: (name, layout, index, openAfterCreate) async {
-            // final parentViewId = state.currentSpace?.viewId;
-            // if (parentViewId == null) {
-            //   return;
-            // }
+            final parentViewId = state.currentSpace?.viewId;
+            if (parentViewId == null) {
+              Log.error('create page failed, parent view id is null');
+              return;
+            }
 
-            // final result = await ViewBackendService.createView(
-            //   name: name,
-            //   layoutType: layout,
-            //   parentViewId: parentViewId,
-            //   index: index,
-            //   openAfterCreate: openAfterCreate,
-            // );
-            // result.fold(
-            //   (view) {
-            //     emit(
-            //       state.copyWith(
-            //         lastCreatedPage: openAfterCreate ? view : null,
-            //         createPageResult: FlowyResult.success(null),
-            //       ),
-            //     );
-            //   },
-            //   (error) {
-            //     Log.error('Failed to create root view: $error');
-            //     emit(
-            //       state.copyWith(
-            //         createPageResult: FlowyResult.failure(error),
-            //       ),
-            //     );
-            //   },
-            // );
+            await _createPage(
+              parentViewId,
+              name,
+              layout,
+            );
+
+            add(const SpaceEvent.didReceiveSpaceUpdate());
           },
           didReceiveSpaceUpdate: () async {
-            // deprecated
-            // do nothing
+            final spaces = await _getSpaces();
+            emit(
+              state.copyWith(
+                spaces: spaces,
+                currentSpace: spaces.firstWhereOrNull(
+                  (e) => e.viewId == state.currentSpace?.viewId,
+                ),
+              ),
+            );
           },
           reset: (userProfile, workspaceId, openFirstPage) async {
             if (this.workspaceId == workspaceId) {
@@ -240,6 +233,25 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
             emit(state.copyWith(isDuplicatingSpace: false));
           },
+          createSpace: (name, permission, icon, iconColor) async {
+            await _createSpace(
+              name: name,
+              icon: icon,
+              iconColor: iconColor,
+              permission: permission,
+            );
+          },
+          switchCurrentSpace: (spaceId) async {
+            final spaces = state.spaces;
+            final space = spaces.firstWhereOrNull((e) => e.viewId == spaceId);
+            if (space == null) {
+              return;
+            }
+            await _openSpace(space);
+            emit(
+              state.copyWith(currentSpace: space),
+            );
+          },
         );
       },
     );
@@ -253,16 +265,17 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
   @override
   Future<void> close() async {
+    refreshNotifier.removeListener(_refresh);
     await _listener?.stop();
     _listener = null;
     return super.close();
   }
 
   Future<List<FolderViewPB>> _getSpaces() async {
-    final response = await _workspaceService.getSpaces();
+    final response = await _workspaceService.getFolderView();
     final List<FolderViewPB> spaces = response.fold(
-      (children) {
-        return children;
+      (folderView) {
+        return folderView.children.where((e) => e.isSpace).toList();
       },
       (error) {
         Log.error('Failed to get folder view: $error');
@@ -291,9 +304,25 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     });
   }
 
+  Future<void> _createPage(
+    String parentViewId,
+    String name,
+    ViewLayoutPB layout,
+  ) async {
+    final response = await _workspaceService.createPage(
+      parentViewId: parentViewId,
+      name: name,
+      layout: layout,
+    );
+    return response.fold((_) {
+      Log.info('Created page: $name, layout: $layout');
+    }, (error) {
+      Log.error('Failed to create page: $error');
+    });
+  }
+
   Future<FolderViewPB> _rename(FolderViewPB space, String name) async {
     final response = await _workspaceService.updateSpaceName(
-      spaceId: space.viewId,
       space: space,
       name: name,
     );
@@ -311,11 +340,22 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     this.workspaceId = workspaceId;
 
     _workspaceService = WorkspaceService(workspaceId: workspaceId);
+
+    refreshNotifier.addListener(_refresh);
+  }
+
+  void _refresh() {
+    if (isClosed) {
+      return;
+    }
+    add(const SpaceEvent.didReceiveSpaceUpdate());
   }
 
   void _reset(UserProfilePB userProfile, String workspaceId) {
     this.userProfile = userProfile;
     this.workspaceId = workspaceId;
+
+    _workspaceService = WorkspaceService(workspaceId: workspaceId);
   }
 
   Future<FolderViewPB?> _getLastOpenedSpace(List<FolderViewPB> spaces) async {
@@ -431,6 +471,15 @@ class SpaceEvent with _$SpaceEvent {
   ) = _Reset;
   const factory SpaceEvent.migrate() = _Migrate;
   const factory SpaceEvent.switchToNextSpace() = _SwitchToNextSpace;
+  const factory SpaceEvent.createSpace({
+    required String name,
+    required SpacePermission permission,
+    required String icon,
+    required String iconColor,
+  }) = _CreateSpace;
+  const factory SpaceEvent.switchCurrentSpace({
+    required String spaceId,
+  }) = _SwitchCurrentSpace;
 }
 
 @freezed

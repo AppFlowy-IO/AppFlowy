@@ -385,6 +385,7 @@ class _SidebarState extends State<_Sidebar> {
   }
 
   Widget _renderFolderV2(EdgeInsets menuHorizontalInset) {
+    final spaceState = context.read<SpaceBloc>().state;
     return Expanded(
       child: Padding(
         padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
