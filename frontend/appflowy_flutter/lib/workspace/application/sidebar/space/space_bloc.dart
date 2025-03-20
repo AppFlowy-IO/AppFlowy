@@ -3,23 +3,18 @@ import 'dart:convert';
 
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
-import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/user_service.dart';
-import 'package:appflowy/util/string_extension.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_sections_listener.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
-import 'package:flowy_infra/uuid.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -44,32 +39,6 @@ extension SpacePermissionToViewSectionPBExtension on SpacePermission {
   }
 }
 
-class SidebarSection {
-  const SidebarSection({
-    required this.publicViews,
-    required this.privateViews,
-  });
-
-  const SidebarSection.empty()
-      : publicViews = const [],
-        privateViews = const [];
-
-  final List<ViewPB> publicViews;
-  final List<ViewPB> privateViews;
-
-  List<ViewPB> get views => publicViews + privateViews;
-
-  SidebarSection copyWith({
-    List<ViewPB>? publicViews,
-    List<ViewPB>? privateViews,
-  }) {
-    return SidebarSection(
-      publicViews: publicViews ?? this.publicViews,
-      privateViews: privateViews ?? this.privateViews,
-    );
-  }
-}
-
 /// The [SpaceBloc] is responsible for
 ///   managing the root views in different sections of the workspace.
 class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
@@ -85,13 +54,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
             _initial(userProfile, workspaceId);
 
-            final (spaces, publicViews, privateViews) = await _getSpaces();
-
-            final shouldShowUpgradeDialog = await this.shouldShowUpgradeDialog(
-              spaces: spaces,
-              publicViews: publicViews,
-              privateViews: privateViews,
-            );
+            final spaces = await _getSpaces();
 
             final currentSpace = await _getLastOpenedSpace(spaces);
             final isExpanded = await _getSpaceExpandStatus(currentSpace);
@@ -100,16 +63,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
                 spaces: spaces,
                 currentSpace: currentSpace,
                 isExpanded: isExpanded,
-                shouldShowUpgradeDialog: shouldShowUpgradeDialog,
+                shouldShowUpgradeDialog: false,
                 isInitialized: true,
               ),
             );
-
-            if (shouldShowUpgradeDialog && !integrationMode().isTest) {
-              if (!isClosed) {
-                add(const SpaceEvent.migrate());
-              }
-            }
 
             if (openFirstPage) {
               if (currentSpace != null) {
@@ -296,7 +253,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               } else {
                 emit(
                   state.copyWith(
-                    lastCreatedPage: ViewPB(),
+                    lastCreatedPage: FolderViewPB(),
                   ),
                 );
               }
@@ -339,25 +296,8 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             );
           },
           didReceiveSpaceUpdate: () async {
-            final (spaces, _, _) = await _getSpaces();
-            final currentSpace = await _getLastOpenedSpace(spaces);
-
-            Log.info(
-              'receive space update, current space: ${currentSpace?.name}(${currentSpace?.id})',
-            );
-
-            for (var i = 0; i < spaces.length; i++) {
-              Log.info(
-                'receive space update[$i]: ${spaces[i].name}(${spaces[i].id})',
-              );
-            }
-
-            emit(
-              state.copyWith(
-                spaces: spaces,
-                currentSpace: currentSpace,
-              ),
-            );
+            // deprecated
+            // do nothing
           },
           reset: (userProfile, workspaceId, openFirstPage) async {
             if (this.workspaceId == workspaceId) {
@@ -373,8 +313,8 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             );
           },
           migrate: () async {
-            final result = await migrate();
-            emit(state.copyWith(shouldShowUpgradeDialog: !result));
+            // deprecated
+            // do nothing
           },
           switchToNextSpace: () async {
             final spaces = state.spaces;
@@ -429,60 +369,46 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     return super.close();
   }
 
-  Future<(List<ViewPB>, List<ViewPB>, List<ViewPB>)> _getSpaces() async {
-    final sectionViews = await _getSectionViews();
-    if (sectionViews == null || sectionViews.views.isEmpty) {
-      return (<ViewPB>[], <ViewPB>[], <ViewPB>[]);
-    }
-
-    final publicViews = sectionViews.publicViews.unique((e) => e.id);
-    final privateViews = sectionViews.privateViews.unique((e) => e.id);
-
-    final publicSpaces = publicViews.where((e) => e.isSpace);
-    final privateSpaces = privateViews.where((e) => e.isSpace);
-
-    return ([...publicSpaces, ...privateSpaces], publicViews, privateViews);
+  Future<List<FolderViewPB>> _getSpaces() async {
+    final response = await _workspaceService.getSpaces();
+    final List<FolderViewPB> spaces = response.fold(
+      (children) {
+        return children;
+      },
+      (error) {
+        Log.error('Failed to get folder view: $error');
+        return [];
+      },
+    );
+    return spaces;
   }
 
-  Future<ViewPB?> _createSpace({
+  Future<void> _createSpace({
     required String name,
     required String icon,
     required String iconColor,
     required SpacePermission permission,
-    String? viewId,
   }) async {
-    final section = switch (permission) {
-      SpacePermission.publicToAll => ViewSectionPB.Public,
-      SpacePermission.private => ViewSectionPB.Private,
-    };
-
-    final extra = {
-      ViewExtKeys.isSpaceKey: true,
-      ViewExtKeys.spaceIconKey: icon,
-      ViewExtKeys.spaceIconColorKey: iconColor,
-      ViewExtKeys.spacePermissionKey: permission.index,
-      ViewExtKeys.spaceCreatedAtKey: DateTime.now().millisecondsSinceEpoch,
-    };
-    final result = await _workspaceService.createView(
+    final response = await _workspaceService.createSpace(
       name: name,
-      viewSection: section,
-      setAsCurrent: true,
-      viewId: viewId,
-      extra: jsonEncode(extra),
+      icon: icon,
+      iconColor: iconColor,
+      permission: permission.toSpacePermissionPB(),
     );
-    return await result.fold((space) async {
-      Log.info('Space created: $space');
-      return space;
+    return response.fold((_) {
+      Log.info('Created space: $name, icon: $icon, iconColor: $iconColor');
     }, (error) {
       Log.error('Failed to create space: $error');
-      return null;
     });
   }
 
-  Future<ViewPB> _rename(ViewPB space, String name) async {
-    final result =
-        await ViewBackendService.updateView(viewId: space.id, name: name);
-    return result.fold((_) {
+  Future<FolderViewPB> _rename(FolderViewPB space, String name) async {
+    final response = await _workspaceService.updateSpaceName(
+      spaceId: space.viewId,
+      space: space,
+      name: name,
+    );
+    return response.fold((_) {
       space.freeze();
       return space.rebuild((b) => b.name = name);
     }, (error) {
@@ -491,51 +417,17 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     });
   }
 
-  Future<SidebarSection?> _getSectionViews() async {
-    try {
-      final publicViews = await _workspaceService.getPublicViews().getOrThrow();
-      final privateViews =
-          await _workspaceService.getPrivateViews().getOrThrow();
-      return SidebarSection(
-        publicViews: publicViews,
-        privateViews: privateViews,
-      );
-    } catch (e) {
-      Log.error('Failed to get section views: $e');
-      return null;
-    }
-  }
-
   void _initial(UserProfilePB userProfile, String workspaceId) {
-    Log.info('initial(or reset) space bloc: $workspaceId, ${userProfile.id}');
-    _workspaceService = WorkspaceService(workspaceId: workspaceId);
-
     this.userProfile = userProfile;
     this.workspaceId = workspaceId;
-
-    _listener = WorkspaceSectionsListener(
-      user: userProfile,
-      workspaceId: workspaceId,
-    )..start(
-        sectionChanged: (result) async {
-          Log.info('did receive section views changed');
-          if (isClosed) {
-            return;
-          }
-          add(const SpaceEvent.didReceiveSpaceUpdate());
-        },
-      );
   }
 
   void _reset(UserProfilePB userProfile, String workspaceId) {
-    _listener?.stop();
-    _listener = null;
-
     this.userProfile = userProfile;
     this.workspaceId = workspaceId;
   }
 
-  Future<ViewPB?> _getLastOpenedSpace(List<ViewPB> spaces) async {
+  Future<FolderViewPB?> _getLastOpenedSpace(List<FolderViewPB> spaces) async {
     if (spaces.isEmpty) {
       return null;
     }
@@ -547,15 +439,18 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     }
 
     final space =
-        spaces.firstWhereOrNull((e) => e.id == spaceId) ?? spaces.first;
+        spaces.firstWhereOrNull((e) => e.viewId == spaceId) ?? spaces.first;
     return space;
   }
 
-  Future<void> _openSpace(ViewPB space) async {
-    await getIt<KeyValueStorage>().set(KVKeys.lastOpenedSpaceId, space.id);
+  Future<void> _openSpace(FolderViewPB space) async {
+    await getIt<KeyValueStorage>().set(KVKeys.lastOpenedSpaceId, space.viewId);
   }
 
-  Future<void> _setSpaceExpandStatus(ViewPB? space, bool isExpanded) async {
+  Future<void> _setSpaceExpandStatus(
+    FolderViewPB? space,
+    bool isExpanded,
+  ) async {
     if (space == null) {
       return;
     }
@@ -567,15 +462,15 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     }
     if (isExpanded) {
       // set expand status to true if it's not expanded
-      map[space.id] = true;
+      map[space.viewId] = true;
     } else {
       // remove the expand status if it's expanded
-      map.remove(space.id);
+      map.remove(space.viewId);
     }
     await getIt<KeyValueStorage>().set(KVKeys.expandedViews, jsonEncode(map));
   }
 
-  Future<bool> _getSpaceExpandStatus(ViewPB? space) async {
+  Future<bool> _getSpaceExpandStatus(FolderViewPB? space) async {
     if (space == null) {
       return true;
     }
@@ -585,180 +480,13 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
         return true;
       }
       final map = jsonDecode(result);
-      return map[space.id] ?? true;
+      return map[space.viewId] ?? true;
     });
   }
 
-  Future<bool> migrate({bool auto = true}) async {
-    try {
-      final user =
-          await UserBackendService.getCurrentUserProfile().getOrThrow();
-      final service = UserBackendService(userId: user.id);
-      final members =
-          await service.getWorkspaceMembers(workspaceId).getOrThrow();
-      final isOwner = members.items
-          .any((e) => e.role == AFRolePB.Owner && e.email == user.email);
-
-      if (members.items.isEmpty) {
-        return true;
-      }
-
-      // only one member in the workspace, migrate it immediately
-      // only the owner can migrate the public space
-      if (members.items.length == 1 || isOwner) {
-        // create a new public space and a new private space
-        // move all the views in the workspace to the new public/private space
-        var publicViews = await _workspaceService.getPublicViews().getOrThrow();
-        final containsPublicSpace = publicViews.any(
-          (e) => e.isSpace && e.spacePermission == SpacePermission.publicToAll,
-        );
-        publicViews = publicViews.where((e) => !e.isSpace).toList();
-
-        for (final view in publicViews) {
-          Log.info(
-            'migrating: the public view should be migrated: ${view.name}(${view.id})',
-          );
-        }
-
-        // if there is already a public space, don't migrate the public space
-        // only migrate the public space if there are any public views
-        if (publicViews.isEmpty || containsPublicSpace) {
-          return true;
-        }
-
-        final viewId = fixedUuid(
-          user.id.toInt() + workspaceId.hashCode,
-          UuidType.publicSpace,
-        );
-        final publicSpace = await _createSpace(
-          name: 'Shared',
-          icon: builtInSpaceIcons.first,
-          iconColor: builtInSpaceColors.first,
-          permission: SpacePermission.publicToAll,
-          viewId: viewId,
-        );
-
-        Log.info('migrating: created a new public space: ${publicSpace?.id}');
-
-        if (publicSpace != null) {
-          for (final view in publicViews.reversed) {
-            if (view.isSpace) {
-              continue;
-            }
-            await ViewBackendService.moveViewV2(
-              viewId: view.id,
-              newParentId: publicSpace.id,
-              prevViewId: null,
-            );
-            Log.info(
-              'migrating: migrate ${view.name}(${view.id}) to public space(${publicSpace.id})',
-            );
-          }
-        }
-      }
-
-      // create a new private space
-      final viewId = fixedUuid(user.id.toInt(), UuidType.privateSpace);
-      var privateViews = await _workspaceService.getPrivateViews().getOrThrow();
-      // if there is already a private space, don't migrate the private space
-      final containsPrivateSpace = privateViews.any(
-        (e) => e.isSpace && e.spacePermission == SpacePermission.private,
-      );
-      privateViews = privateViews.where((e) => !e.isSpace).toList();
-
-      for (final view in privateViews) {
-        Log.info(
-          'migrating: the private view should be migrated: ${view.name}(${view.id})',
-        );
-      }
-
-      if (privateViews.isEmpty || containsPrivateSpace) {
-        return true;
-      }
-      // only migrate the private space if there are any private views
-      final privateSpace = await _createSpace(
-        name: 'Private',
-        icon: builtInSpaceIcons.last,
-        iconColor: builtInSpaceColors.last,
-        permission: SpacePermission.private,
-        viewId: viewId,
-      );
-      Log.info('migrating: created a new private space: ${privateSpace?.id}');
-
-      if (privateSpace != null) {
-        for (final view in privateViews.reversed) {
-          if (view.isSpace) {
-            continue;
-          }
-          await ViewBackendService.moveViewV2(
-            viewId: view.id,
-            newParentId: privateSpace.id,
-            prevViewId: null,
-          );
-          Log.info(
-            'migrating: migrate ${view.name}(${view.id}) to private space(${privateSpace.id})',
-          );
-        }
-      }
-
-      return true;
-    } catch (e) {
-      Log.error('migrate space error: $e');
-      return false;
-    }
-  }
-
-  Future<bool> shouldShowUpgradeDialog({
-    required List<ViewPB> spaces,
-    required List<ViewPB> publicViews,
-    required List<ViewPB> privateViews,
-  }) async {
-    final publicSpaces = spaces.where(
-      (e) => e.spacePermission == SpacePermission.publicToAll,
-    );
-    if (publicSpaces.isEmpty && publicViews.isNotEmpty) {
-      return true;
-    }
-
-    final privateSpaces = spaces.where(
-      (e) => e.spacePermission == SpacePermission.private,
-    );
-    if (privateSpaces.isEmpty && privateViews.isNotEmpty) {
-      return true;
-    }
-
-    return false;
-  }
-
-  Future<ViewPB?> _duplicateSpace(ViewPB space) async {
-    // if the space is not duplicated, try to create a new space
-    final icon = space.spaceIcon.orDefault(builtInSpaceIcons.first);
-    final iconColor = space.spaceIconColor.orDefault(builtInSpaceColors.first);
-    final newSpace = await _createSpace(
-      name: '${space.name} (copy)',
-      icon: icon,
-      iconColor: iconColor,
-      permission: space.spacePermission,
-    );
-
-    if (newSpace == null) {
-      return null;
-    }
-
-    for (final view in space.childViews) {
-      await ViewBackendService.duplicate(
-        view: view,
-        openAfterDuplicate: true,
-        syncAfterDuplicate: true,
-        includeChildren: true,
-        parentViewId: newSpace.id,
-        suffix: '',
-      );
-    }
-
-    Log.info('Space duplicated: $newSpace');
-
-    return newSpace;
+  Future<FolderViewPB?> _duplicateSpace(FolderViewPB space) async {
+    // fixme: duplicate space
+    return null;
   }
 }
 
@@ -776,33 +504,34 @@ class SpaceEvent with _$SpaceEvent {
     required bool openAfterCreate,
   }) = _Create;
   const factory SpaceEvent.rename({
-    required ViewPB space,
+    required FolderViewPB space,
     required String name,
   }) = _Rename;
   const factory SpaceEvent.changeIcon({
-    ViewPB? space,
+    FolderViewPB? space,
     String? icon,
     String? iconColor,
   }) = _ChangeIcon;
   const factory SpaceEvent.duplicate({
-    ViewPB? space,
+    FolderViewPB? space,
   }) = _Duplicate;
   const factory SpaceEvent.update({
-    ViewPB? space,
+    FolderViewPB? space,
     String? name,
     String? icon,
     String? iconColor,
     SpacePermission? permission,
   }) = _Update;
-  const factory SpaceEvent.open(ViewPB space) = _Open;
-  const factory SpaceEvent.expand(ViewPB space, bool isExpanded) = _Expand;
+  const factory SpaceEvent.open(FolderViewPB space) = _Open;
+  const factory SpaceEvent.expand(FolderViewPB space, bool isExpanded) =
+      _Expand;
   const factory SpaceEvent.createPage({
     required String name,
     required ViewLayoutPB layout,
     int? index,
     required bool openAfterCreate,
   }) = _CreatePage;
-  const factory SpaceEvent.delete(ViewPB? space) = _Delete;
+  const factory SpaceEvent.delete(FolderViewPB? space) = _Delete;
   const factory SpaceEvent.didReceiveSpaceUpdate() = _DidReceiveSpaceUpdate;
   const factory SpaceEvent.reset(
     UserProfilePB userProfile,
@@ -817,10 +546,10 @@ class SpaceEvent with _$SpaceEvent {
 class SpaceState with _$SpaceState {
   const factory SpaceState({
     // use root view with space attributes to represent the space
-    @Default([]) List<ViewPB> spaces,
-    @Default(null) ViewPB? currentSpace,
+    @Default([]) List<FolderViewPB> spaces,
+    @Default(null) FolderViewPB? currentSpace,
     @Default(true) bool isExpanded,
-    @Default(null) ViewPB? lastCreatedPage,
+    @Default(null) FolderViewPB? lastCreatedPage,
     FlowyResult<void, FlowyError>? createPageResult,
     @Default(false) bool shouldShowUpgradeDialog,
     @Default(false) bool isDuplicatingSpace,
