@@ -104,7 +104,7 @@ extension AiWriterNodeExtension on EditorState {
       start: Position(path: [0]),
       end: selection?.normalized.end ??
           this.selection?.normalized.end ??
-          Position(path: [0]),
+          Position(path: getLastSelectable()?.$1.path ?? [0]),
     );
 
     // if the selected nodes are not entirely selected, slice the nodes

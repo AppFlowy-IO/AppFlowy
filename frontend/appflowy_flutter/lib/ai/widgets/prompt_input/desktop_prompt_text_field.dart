@@ -22,6 +22,7 @@ class DesktopPromptInput extends StatefulWidget {
     required this.selectedSourcesNotifier,
     required this.onUpdateSelectedSources,
     this.hideDecoration = false,
+    this.extraBottomActionButton,
   });
 
   final bool isStreaming;
@@ -31,6 +32,7 @@ class DesktopPromptInput extends StatefulWidget {
   final ValueNotifier<List<String>> selectedSourcesNotifier;
   final void Function(List<String>) onUpdateSelectedSources;
   final bool hideDecoration;
+  final Widget? extraBottomActionButton;
 
   @override
   State<DesktopPromptInput> createState() => _DesktopPromptInputState();
@@ -178,6 +180,8 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
                                   widget.selectedSourcesNotifier,
                               onUpdateSelectedSources:
                                   widget.onUpdateSelectedSources,
+                              extraBottomActionButton:
+                                  widget.extraBottomActionButton,
                             ),
                           ),
                         ),
@@ -565,6 +569,7 @@ class _PromptBottomActions extends StatelessWidget {
     required this.onStopStreaming,
     required this.selectedSourcesNotifier,
     required this.onUpdateSelectedSources,
+    this.extraBottomActionButton,
   });
 
   final bool showPredefinedFormats;
@@ -575,6 +580,7 @@ class _PromptBottomActions extends StatelessWidget {
   final void Function() onStopStreaming;
   final ValueNotifier<List<String>> selectedSourcesNotifier;
   final void Function(List<String>) onUpdateSelectedSources;
+  final Widget? extraBottomActionButton;
 
   @override
   Widget build(BuildContext context) {
@@ -595,6 +601,12 @@ class _PromptBottomActions extends StatelessWidget {
               const Spacer(),
               if (state.aiType.isCloud) ...[
                 _selectSourcesButton(context),
+                const HSpace(
+                  DesktopAIChatSizes.inputActionBarButtonSpacing,
+                ),
+              ],
+              if (extraBottomActionButton != null) ...[
+                extraBottomActionButton!,
                 const HSpace(
                   DesktopAIChatSizes.inputActionBarButtonSpacing,
                 ),
