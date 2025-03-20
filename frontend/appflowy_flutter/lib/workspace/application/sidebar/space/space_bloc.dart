@@ -4,8 +4,6 @@ import 'dart:convert';
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/view/prelude.dart';
-import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
 import 'package:appflowy/workspace/application/workspace/workspace_sections_listener.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/folder_view_bloc.dart';
@@ -101,11 +99,13 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               return;
             }
 
-            await ViewBackendService.deleteView(viewId: deletedSpace.viewId);
+            await _workspaceService.deleteSpace(space: deletedSpace);
 
             Log.info(
               'delete space: ${deletedSpace.name}(${deletedSpace.viewId})',
             );
+
+            add(const SpaceEvent.didReceiveSpaceUpdate());
           },
           rename: (space, name) async {
             await _rename(space, name);
@@ -123,6 +123,8 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               icon: icon,
               iconColor: iconColor,
             );
+
+            add(const SpaceEvent.didReceiveSpaceUpdate());
           },
           update: (space, name, icon, iconColor, permission) async {
             space ??= state.currentSpace;

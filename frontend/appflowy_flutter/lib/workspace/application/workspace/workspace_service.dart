@@ -249,13 +249,13 @@ class WorkspaceService {
 
   /// Delete the space in the workspace.
   ///
-  /// [spaceId] is the id of the space you want to delete.
+  /// [space] is the space you want to delete.
   Future<FlowyResult<void, FlowyError>> deleteSpace({
-    required String spaceId,
+    required FolderViewPB space,
   }) {
     final payload = MovePageToTrashPayloadPB.create()
       ..workspaceId = workspaceId
-      ..viewId = spaceId;
+      ..viewId = space.viewId;
     return FolderEventMovePageToTrash(payload).send();
   }
 
