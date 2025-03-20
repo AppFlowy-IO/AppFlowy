@@ -24,7 +24,8 @@ abstract class AIRepository {
     List<AiWriterRecord> history = const [],
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
-    required Future<void> Function(String text) onProcess,
+    required Future<void> Function(String text) processMessage,
+    required Future<void> Function(String text) processAssistMessage,
     required Future<void> Function() onEnd,
     required void Function(AIError error) onError,
   });
@@ -40,18 +41,17 @@ class AppFlowyAIService implements AIRepository {
     List<AiWriterRecord> history = const [],
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
-    required Future<void> Function(String text) onProcess,
+    required Future<void> Function(String text) processMessage,
+    required Future<void> Function(String text) processAssistMessage,
     required Future<void> Function() onEnd,
     required void Function(AIError error) onError,
   }) async {
     final stream = AppFlowyCompletionStream(
       onStart: onStart,
-      onProcess: onProcess,
+      processMessage: processMessage,
+      processAssistMessage: processAssistMessage,
+      processError: onError,
       onEnd: onEnd,
-      onError: onError,
-      onComment: (String text) async {
-        Log.info('Comment: $text');
-      },
     );
 
     final records = history.map((record) => record.toPB()).toList();
@@ -82,26 +82,26 @@ class AppFlowyAIService implements AIRepository {
 abstract class CompletionStream {
   CompletionStream({
     required this.onStart,
-    required this.onProcess,
-    required this.onComment,
+    required this.processMessage,
+    required this.processAssistMessage,
+    required this.processError,
     required this.onEnd,
-    required this.onError,
   });
 
   final Future<void> Function() onStart;
-  final Future<void> Function(String text) onProcess;
-  final Future<void> Function(String text) onComment;
+  final Future<void> Function(String text) processMessage;
+  final Future<void> Function(String text) processAssistMessage;
+  final void Function(AIError error) processError;
   final Future<void> Function() onEnd;
-  final void Function(AIError error) onError;
 }
 
 class AppFlowyCompletionStream extends CompletionStream {
   AppFlowyCompletionStream({
     required super.onStart,
-    required super.onProcess,
-    required super.onComment,
+    required super.processMessage,
+    required super.processAssistMessage,
+    required super.processError,
     required super.onEnd,
-    required super.onError,
   }) {
     _startListening();
   }
@@ -116,7 +116,7 @@ class AppFlowyCompletionStream extends CompletionStream {
     _subscription = _controller.stream.listen(
       (event) async {
         if (event == "AI_RESPONSE_LIMIT") {
-          onError(
+          processError(
             AIError(
               message: LocaleKeys.ai_textLimitReachedDescription.tr(),
               code: AIErrorCode.aiResponseLimitExceeded,
@@ -125,7 +125,7 @@ class AppFlowyCompletionStream extends CompletionStream {
         }
 
         if (event == "AI_IMAGE_RESPONSE_LIMIT") {
-          onError(
+          processError(
             AIError(
               message: LocaleKeys.ai_imageLimitReachedDescription.tr(),
               code: AIErrorCode.aiImageResponseLimitExceeded,
@@ -135,7 +135,7 @@ class AppFlowyCompletionStream extends CompletionStream {
 
         if (event.startsWith("AI_MAX_REQUIRED:")) {
           final msg = event.substring(16);
-          onError(
+          processError(
             AIError(
               message: msg,
               code: AIErrorCode.other,
@@ -148,11 +148,11 @@ class AppFlowyCompletionStream extends CompletionStream {
         }
 
         if (event.startsWith("data:")) {
-          await onProcess(event.substring(5));
+          await processMessage(event.substring(5));
         }
 
         if (event.startsWith("comment:")) {
-          await onComment(event.substring(8));
+          await processAssistMessage(event.substring(8));
         }
 
         if (event.startsWith("finish:")) {
@@ -160,7 +160,7 @@ class AppFlowyCompletionStream extends CompletionStream {
         }
 
         if (event.startsWith("error:")) {
-          onError(
+          processError(
             AIError(message: event.substring(6), code: AIErrorCode.other),
           );
         }
