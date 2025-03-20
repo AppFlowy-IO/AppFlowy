@@ -20,7 +20,7 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
   String spaceName = LocaleKeys.space_defaultSpaceName.tr();
   String? spaceIcon = kDefaultSpaceIconId;
   String? spaceIconColor = builtInSpaceColors.first;
-  SpacePermission spacePermission = SpacePermission.publicToAll;
+  SpacePermission spacePermission = SpacePermission.public;
 
   @override
   Widget build(BuildContext context) {

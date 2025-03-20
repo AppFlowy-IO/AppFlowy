@@ -18,7 +18,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/draggable_folder_view_item.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/folder_view_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/space/folder_view_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
@@ -153,8 +153,7 @@ class FolderViewItem extends StatelessWidget {
     return BlocProvider(
       create: (_) => FolderViewBloc(
         view: view,
-        currentWorkspaceId: context.read<SpaceBloc>().workspaceId,
-        shouldLoadChildViews: shouldLoadChildViews,
+        workspaceId: context.read<SpaceBloc>().workspaceId,
         engagedInExpanding: engagedInExpanding,
       )..add(const FolderViewEvent.initial()),
       child: BlocConsumer<FolderViewBloc, FolderViewState>(

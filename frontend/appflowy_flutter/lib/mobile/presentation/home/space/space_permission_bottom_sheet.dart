@@ -25,13 +25,13 @@ class SpacePermissionBottomSheet extends StatelessWidget {
           leftIcon: const FlowySvg(
             FlowySvgs.space_permission_public_s,
           ),
-          trailing: permission == SpacePermission.publicToAll
+          trailing: permission == SpacePermission.public
               ? const FlowySvg(
                   FlowySvgs.m_blue_check_s,
                   blendMode: null,
                 )
               : null,
-          onTap: () => onAction(SpacePermission.publicToAll),
+          onTap: () => onAction(SpacePermission.public),
         ),
         FlowyOptionTile.text(
           text: LocaleKeys.space_privatePermission.tr(),

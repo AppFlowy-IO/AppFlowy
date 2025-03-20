@@ -7,11 +7,8 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/expand_views.dart';
-import 'package:appflowy/workspace/application/favorite/favorite_listener.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
-import 'package:appflowy/workspace/application/view/view_listener.dart';
-import 'package:appflowy/workspace/application/view/view_service.dart';
-import 'package:appflowy/workspace/application/workspace/workspace_service.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/services/workspace_http_services.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -30,13 +27,9 @@ final ValueNotifier<int> refreshNotifier = ValueNotifier(0);
 class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
   FolderViewBloc({
     required this.view,
-    required this.currentWorkspaceId,
-    this.shouldLoadChildViews = true,
+    required this.workspaceId,
     this.engagedInExpanding = false,
-  })  : viewBackendSvc = ViewBackendService(),
-        workspaceService = WorkspaceService(workspaceId: currentWorkspaceId),
-        listener = ViewListener(viewId: view.viewId),
-        favoriteListener = FavoriteListener(),
+  })  : pageService = PageHttpService(workspaceId: workspaceId),
         super(FolderViewState.init(view)) {
     _dispatch();
     if (engagedInExpanding) {
@@ -49,20 +42,14 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
   }
 
   final FolderViewPB view;
-  final ViewBackendService viewBackendSvc;
-  final WorkspaceService workspaceService;
-  final ViewListener listener;
-  final FavoriteListener favoriteListener;
-  final bool shouldLoadChildViews;
+  final PageHttpService pageService;
   final bool engagedInExpanding;
-  final String currentWorkspaceId;
+  final String workspaceId;
 
   late ViewExpander expander;
 
   @override
   Future<void> close() async {
-    await listener.stop();
-    await favoriteListener.stop();
     if (engagedInExpanding) {
       getIt<ViewExpanderRegistry>().unregister(view.viewId, expander);
     }
@@ -97,7 +84,7 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
             refreshNotifier.value = refreshNotifier.value + 1;
           },
           rename: (e) async {
-            final response = await workspaceService.updatePageName(
+            final response = await pageService.updatePageName(
               page: view,
               name: e.newName,
             );
@@ -134,7 +121,7 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
             // unpublish the page and all its child pages if they are published
             await _unpublishPage(view);
 
-            final response = await workspaceService.deletePage(
+            final response = await pageService.deletePage(
               page: view,
             );
             final newState = response.fold(
@@ -159,7 +146,7 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
             );
           },
           duplicate: (e) async {
-            final response = await workspaceService.duplicatePage(
+            final response = await pageService.duplicatePage(
               page: view,
               suffix: ' (${LocaleKeys.menuAppHeader_pageNameSuffix.tr()})',
             );
@@ -181,7 +168,7 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
             );
           },
           move: (value) async {
-            final response = await workspaceService.movePage(
+            final response = await pageService.movePage(
               page: view,
               newParentViewId: value.newParentId,
               prevViewId: value.prevId,
@@ -198,7 +185,7 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
             );
           },
           createView: (e) async {
-            final response = await workspaceService.createPage(
+            final response = await pageService.createPage(
               parentViewId: view.viewId,
               name: e.name,
               layout: e.layoutType,
@@ -227,7 +214,7 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
             // do nothing
           },
           updateIcon: (value) async {
-            final response = await workspaceService.updatePageIcon(
+            final response = await pageService.updatePageIcon(
               page: view,
               icon: value.icon?.toViewIconPB(),
             );
@@ -294,7 +281,7 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
 
   // unpublish the page and all its child pages
   Future<void> _unpublishPage(FolderViewPB view) async {
-    await workspaceService.unpublishPage(page: view);
+    await pageService.unpublishPage(page: view);
   }
 }
 

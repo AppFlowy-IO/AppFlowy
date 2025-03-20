@@ -4,7 +4,7 @@ import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_search_bloc.dart';
 import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/folder_view_item.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/space/folder_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';

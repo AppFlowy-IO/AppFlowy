@@ -22,7 +22,7 @@ extension FolderViewPBExtension on FolderViewPB {
     if (isPrivate == true) {
       return SpacePermission.private;
     }
-    return SpacePermission.publicToAll;
+    return SpacePermission.public;
   }
 
   /// Get all the published page recursively.

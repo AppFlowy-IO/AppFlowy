@@ -130,7 +130,7 @@ class _Pages extends StatelessWidget {
           ViewBloc(view: space)..add(const ViewEvent.initial()),
       child: BlocBuilder<ViewBloc, ViewState>(
         builder: (context, state) {
-          final spaceType = space.spacePermission == SpacePermission.publicToAll
+          final spaceType = space.spacePermission == SpacePermission.public
               ? FolderSpaceType.public
               : FolderSpaceType.private;
           final childViews = state.view.childViews.unique((view) => view.id);

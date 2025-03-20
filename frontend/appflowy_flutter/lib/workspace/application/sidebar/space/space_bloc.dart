@@ -4,9 +4,8 @@ import 'dart:convert';
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/workspace/prelude.dart';
-import 'package:appflowy/workspace/application/workspace/workspace_sections_listener.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/folder_view_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/services/workspace_http_services.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/space/folder_view_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -22,14 +21,14 @@ import 'package:universal_platform/universal_platform.dart';
 part 'space_bloc.freezed.dart';
 
 enum SpacePermission {
-  publicToAll,
+  public,
   private,
 }
 
 extension SpacePermissionToViewSectionPBExtension on SpacePermission {
   SpacePermissionPB toSpacePermissionPB() {
     switch (this) {
-      case SpacePermission.publicToAll:
+      case SpacePermission.public:
         return SpacePermissionPB.PublicSpace;
       case SpacePermission.private:
         return SpacePermissionPB.PrivateSpace;
@@ -99,7 +98,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               return;
             }
 
-            await _workspaceService.deleteSpace(space: deletedSpace);
+            await spaceService.deleteSpace(space: deletedSpace);
 
             Log.info(
               'delete space: ${deletedSpace.name}(${deletedSpace.viewId})',
@@ -118,7 +117,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               return;
             }
 
-            await _workspaceService.updateSpaceIcon(
+            await spaceService.updateSpaceIcon(
               space: space,
               icon: icon,
               iconColor: iconColor,
@@ -133,7 +132,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               return;
             }
 
-            await _workspaceService.updateSpace(
+            await spaceService.updateSpace(
               space: space,
               name: name,
               icon: icon,
@@ -270,31 +269,26 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     );
   }
 
-  late WorkspaceService _workspaceService;
+  late SpaceHttpService spaceService;
+  late PageHttpService pageService;
   late String workspaceId;
   late UserProfilePB userProfile;
-  WorkspaceSectionsListener? _listener;
+
   bool openFirstPage = false;
 
   @override
   Future<void> close() async {
     refreshNotifier.removeListener(_refresh);
-    await _listener?.stop();
-    _listener = null;
+
     return super.close();
   }
 
   Future<List<FolderViewPB>> _getSpaces() async {
-    final response = await _workspaceService.getFolderView();
-    final List<FolderViewPB> spaces = response.fold(
-      (folderView) {
-        return folderView.children.where((e) => e.isSpace).toList();
-      },
-      (error) {
-        Log.error('Failed to get folder view: $error');
-        return [];
-      },
-    );
+    final response = await spaceService.getSpaceList();
+    final List<FolderViewPB> spaces = response.getOrElse((error) {
+      Log.error('Failed to get space list: $error');
+      return [];
+    });
     return spaces;
   }
 
@@ -304,7 +298,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     required String iconColor,
     required SpacePermission permission,
   }) async {
-    final response = await _workspaceService.createSpace(
+    final response = await spaceService.createSpace(
       name: name,
       icon: icon,
       iconColor: iconColor,
@@ -322,7 +316,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     String name,
     ViewLayoutPB layout,
   ) async {
-    final response = await _workspaceService.createPage(
+    final response = await pageService.createPage(
       parentViewId: parentViewId,
       name: name,
       layout: layout,
@@ -335,7 +329,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   }
 
   Future<FolderViewPB> _rename(FolderViewPB space, String name) async {
-    final response = await _workspaceService.updateSpaceName(
+    final response = await spaceService.updateSpaceName(
       space: space,
       name: name,
     );
@@ -352,7 +346,8 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     this.userProfile = userProfile;
     this.workspaceId = workspaceId;
 
-    _workspaceService = WorkspaceService(workspaceId: workspaceId);
+    spaceService = SpaceHttpService(workspaceId: workspaceId);
+    pageService = PageHttpService(workspaceId: workspaceId);
 
     refreshNotifier.addListener(_refresh);
   }
@@ -368,7 +363,8 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     this.userProfile = userProfile;
     this.workspaceId = workspaceId;
 
-    _workspaceService = WorkspaceService(workspaceId: workspaceId);
+    spaceService = SpaceHttpService(workspaceId: workspaceId);
+    pageService = PageHttpService(workspaceId: workspaceId);
   }
 
   Future<FolderViewPB?> _getLastOpenedSpace(List<FolderViewPB> spaces) async {
@@ -429,7 +425,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   }
 
   Future<void> _duplicateSpace(FolderViewPB space) async {
-    final response = await _workspaceService.duplicateSpace(space: space);
+    final response = await spaceService.duplicateSpace(space: space);
     response.fold((newSpace) {
       Log.info('Duplicated space: ${space.name}(${space.viewId})');
     }, (error) {

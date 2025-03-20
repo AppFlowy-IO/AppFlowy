@@ -6,8 +6,8 @@ import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/folder_view_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/folder_view_item.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/space/folder_view_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/space/folder_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/_extension.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
@@ -41,7 +41,7 @@ class SpacePermissionSwitch extends StatefulWidget {
 
 class _SpacePermissionSwitchState extends State<SpacePermissionSwitch> {
   late SpacePermission spacePermission =
-      widget.spacePermission ?? SpacePermission.publicToAll;
+      widget.spacePermission ?? SpacePermission.public;
   final popoverController = PopoverController();
 
   @override
@@ -88,8 +88,8 @@ class _SpacePermissionSwitchState extends State<SpacePermissionSwitch> {
         mainAxisSize: MainAxisSize.min,
         children: [
           SpacePermissionButton(
-            permission: SpacePermission.publicToAll,
-            onTap: () => _onPermissionChanged(SpacePermission.publicToAll),
+            permission: SpacePermission.public,
+            onTap: () => _onPermissionChanged(SpacePermission.public),
           ),
           SpacePermissionButton(
             permission: SpacePermission.private,
@@ -126,7 +126,7 @@ class SpacePermissionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (title, desc, icon) = switch (permission) {
-      SpacePermission.publicToAll => (
+      SpacePermission.public => (
           LocaleKeys.space_publicPermission.tr(),
           LocaleKeys.space_publicPermissionDescription.tr(),
           FlowySvgs.space_permission_public_s
@@ -589,7 +589,7 @@ class SpacePages extends StatelessWidget {
             '';
     return BlocProvider(
       create: (_) => FolderViewBloc(
-        currentWorkspaceId: workspaceId,
+        workspaceId: workspaceId,
         view: space,
       )..add(const FolderViewEvent.initial()),
       child: BlocBuilder<FolderViewBloc, FolderViewState>(
@@ -607,10 +607,9 @@ class SpacePages extends StatelessWidget {
                 .map(
                   (view) => FolderViewItem(
                     key: ValueKey('${space.viewId} ${view.viewId}'),
-                    spaceType:
-                        space.spacePermission == SpacePermission.publicToAll
-                            ? FolderSpaceType.public
-                            : FolderSpaceType.private,
+                    spaceType: space.spacePermission == SpacePermission.public
+                        ? FolderSpaceType.public
+                        : FolderSpaceType.private,
                     isFirstChild: view.viewId == childViews.first.viewId,
                     view: view,
                     level: 0,

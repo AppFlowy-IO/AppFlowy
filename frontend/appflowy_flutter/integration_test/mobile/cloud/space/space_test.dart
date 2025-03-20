@@ -243,7 +243,7 @@ void main() {
           tester.widgetList<MobileSpaceMenuItem>(spaceItems2).last;
       final space2 = spaceWidget2.space;
       expect(space2.name, 'AppFlowy');
-      expect(space2.spacePermission, SpacePermission.publicToAll);
+      expect(space2.spacePermission, SpacePermission.public);
       expect(space2.spaceIcon, icon2.iconPath);
       expect(space2.spaceIconColor, color2);
       final manageSuccess = find.text(

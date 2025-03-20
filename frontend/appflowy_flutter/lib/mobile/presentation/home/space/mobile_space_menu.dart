@@ -126,7 +126,7 @@ class _CreateSpaceButton extends StatefulWidget {
 class _CreateSpaceButtonState extends State<_CreateSpaceButton> {
   final controller = TextEditingController();
   final permission = ValueNotifier<SpacePermission>(
-    SpacePermission.publicToAll,
+    SpacePermission.public,
   );
   final selectedColor = ValueNotifier<String>(
     builtInSpaceColors.first,
@@ -209,7 +209,7 @@ class _CreateSpaceButtonState extends State<_CreateSpaceButton> {
 
   void _resetState() {
     controller.clear();
-    permission.value = SpacePermission.publicToAll;
+    permission.value = SpacePermission.public;
     selectedColor.value = builtInSpaceColors.first;
     selectedIcon.value = kIconGroups?.first.icons.first;
   }
@@ -232,7 +232,7 @@ class SpaceMenuItemTrailing extends StatefulWidget {
 class _SpaceMenuItemTrailingState extends State<SpaceMenuItemTrailing> {
   final controller = TextEditingController();
   final permission = ValueNotifier<SpacePermission>(
-    SpacePermission.publicToAll,
+    SpacePermission.public,
   );
   final selectedColor = ValueNotifier<String>(
     builtInSpaceColors.first,
