@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/application/workspace/prelude.dart';
@@ -108,14 +107,9 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             );
           },
           rename: (space, name) async {
-            add(
-              SpaceEvent.update(
-                space: space,
-                name: name,
-                icon: space.spaceIcon,
-                iconColor: space.spaceIconColor,
-                permission: space.spacePermission,
-              ),
+            await _workspaceService.updateSpaceName(
+              space: space,
+              name: name,
             );
           },
           changeIcon: (space, icon, iconColor) async {
@@ -126,9 +120,9 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             }
 
             await _workspaceService.updateSpaceIcon(
-              spaceId: space.viewId,
               space: space,
               icon: icon,
+              iconColor: iconColor,
             );
           },
           update: (space, name, icon, iconColor, permission) async {},

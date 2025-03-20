@@ -148,20 +148,27 @@ class WorkspaceService {
 
   /// Update the space name in the workspace.
   ///
-  /// [spaceId] is the id of the space you want to update.
   /// [name] is the name of the space.
   Future<FlowyResult<void, FlowyError>> updateSpaceName({
-    required String spaceId,
     required FolderViewPB space,
     required String name,
   }) {
     final payload = UpdateSpacePayloadPB.create()
       ..workspaceId = workspaceId
-      ..spaceId = spaceId
+      ..spaceId = space.viewId
       ..name = name
-      ..spaceIcon = space.icon.encode()
       ..spacePermission = space.spacePermissionPB;
-    // todo: space icon color
+
+    final spaceIcon = space.spaceIcon;
+
+    if (spaceIcon != null) {
+      payload.spaceIcon = spaceIcon;
+    }
+
+    final spaceIconColor = space.spaceIconColor;
+    if (spaceIconColor != null) {
+      payload.spaceIconColor = spaceIconColor;
+    }
 
     return FolderEventUpdateSpace(payload).send();
   }
@@ -172,18 +179,28 @@ class WorkspaceService {
   /// [icon] is the icon of the space.
   /// [iconColor] is the color of the icon.
   Future<FlowyResult<void, FlowyError>> updateSpaceIcon({
-    required String spaceId,
     required FolderViewPB space,
     String? icon,
-    ViewIconPB? iconPB,
+    String? iconColor,
   }) {
-    assert(icon != null || iconPB != null);
+    assert(icon != null || iconColor != null);
+
     final payload = UpdateSpacePayloadPB.create()
       ..workspaceId = workspaceId
-      ..spaceId = spaceId
-      ..spaceIcon = icon ?? iconPB?.encode() ?? ''
+      ..name = space.name
+      ..spaceId = space.viewId
       ..spacePermission = space.spacePermissionPB;
-    // todo: space icon color
+
+    icon ??= space.spaceIcon;
+    iconColor ??= space.spaceIconColor;
+
+    if (icon != null) {
+      payload.spaceIcon = icon;
+    }
+
+    if (iconColor != null) {
+      payload.spaceIconColor = iconColor;
+    }
 
     return FolderEventUpdateSpace(payload).send();
   }
