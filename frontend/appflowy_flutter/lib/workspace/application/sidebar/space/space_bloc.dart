@@ -224,12 +224,11 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
             emit(state.copyWith(isDuplicatingSpace: true));
 
-            final newSpace = await _duplicateSpace(space);
+            await _duplicateSpace(space);
+
             // open the duplicated space
-            if (newSpace != null) {
-              add(const SpaceEvent.didReceiveSpaceUpdate());
-              add(SpaceEvent.open(newSpace));
-            }
+            add(const SpaceEvent.didReceiveSpaceUpdate());
+            add(SpaceEvent.open(space));
 
             emit(state.copyWith(isDuplicatingSpace: false));
           },
@@ -415,9 +414,13 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     });
   }
 
-  Future<FolderViewPB?> _duplicateSpace(FolderViewPB space) async {
-    // fixme: duplicate space
-    return null;
+  Future<void> _duplicateSpace(FolderViewPB space) async {
+    final response = await _workspaceService.duplicateSpace(space: space);
+    response.fold((newSpace) {
+      Log.info('Duplicated space: ${space.name}(${space.viewId})');
+    }, (error) {
+      Log.error('Failed to duplicate space: $error');
+    });
   }
 }
 

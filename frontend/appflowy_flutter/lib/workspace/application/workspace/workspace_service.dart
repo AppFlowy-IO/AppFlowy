@@ -174,6 +174,20 @@ class WorkspaceService {
     return FolderEventUpdateSpace(payload).send();
   }
 
+  /// Duplicate the space in the workspace.
+  ///
+  /// [space] is the space you want to duplicate.
+  Future<FlowyResult<void, FlowyError>> duplicateSpace({
+    required FolderViewPB space,
+  }) {
+    final payload = DuplicatePagePayloadPB(
+      workspaceId: workspaceId,
+      viewId: space.viewId,
+      suffix: ' (${LocaleKeys.menuAppHeader_pageNameSuffix.tr()})',
+    );
+    return FolderEventDuplicatePage(payload).send();
+  }
+
   /// Update the space icon in the workspace.
   ///
   /// [spaceId] is the id of the space you want to update.
