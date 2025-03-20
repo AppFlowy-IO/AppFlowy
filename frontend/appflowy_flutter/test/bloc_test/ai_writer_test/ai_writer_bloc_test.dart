@@ -26,7 +26,7 @@ class _MockAIRepository extends Mock implements AppFlowyAIService {
     List<AiWriterRecord> history = const [],
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
-    required Future<void> Function(String text) onProcess,
+    required Future<void> Function(String text) processMessage,
     required Future<void> Function() onEnd,
     required void Function(AIError error) onError,
   }) async {
@@ -37,7 +37,7 @@ class _MockAIRepository extends Mock implements AppFlowyAIService {
         final lines = text.split('\n');
         for (final line in lines) {
           if (line.isNotEmpty) {
-            await onProcess('$_aiResponse $line\n\n');
+            await processMessage('$_aiResponse $line\n\n');
           }
         }
         await onEnd();
@@ -57,7 +57,7 @@ class _MockAIRepositoryLess extends Mock implements AppFlowyAIService {
     List<AiWriterRecord> history = const [],
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
-    required Future<void> Function(String text) onProcess,
+    required Future<void> Function(String text) processMessage,
     required Future<void> Function() onEnd,
     required void Function(AIError error) onError,
   }) async {
@@ -66,7 +66,7 @@ class _MockAIRepositoryLess extends Mock implements AppFlowyAIService {
       Future(() async {
         await onStart();
         // only return 1 line.
-        await onProcess('Hello World');
+        await processMessage('Hello World');
         await onEnd();
       }),
     );
@@ -84,7 +84,7 @@ class _MockAIRepositoryMore extends Mock implements AppFlowyAIService {
     List<AiWriterRecord> history = const [],
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
-    required Future<void> Function(String text) onProcess,
+    required Future<void> Function(String text) processMessage,
     required Future<void> Function() onEnd,
     required void Function(AIError error) onError,
   }) async {
@@ -94,7 +94,7 @@ class _MockAIRepositoryMore extends Mock implements AppFlowyAIService {
         await onStart();
         // return 10 lines
         for (var i = 0; i < 10; i++) {
-          await onProcess('Hello World\n\n');
+          await processMessage('Hello World\n\n');
         }
         await onEnd();
       }),
@@ -113,7 +113,7 @@ class _MockErrorRepository extends Mock implements AppFlowyAIService {
     List<AiWriterRecord> history = const [],
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
-    required Future<void> Function(String text) onProcess,
+    required Future<void> Function(String text) processMessage,
     required Future<void> Function() onEnd,
     required void Function(AIError error) onError,
   }) async {

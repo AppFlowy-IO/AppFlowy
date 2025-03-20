@@ -293,7 +293,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           AiWriterRecord.user(content: prompt),
         );
       },
-      onProcess: (text) async {
+      processMessage: (text) async {
         await _textRobot.appendMarkdownText(
           text,
           updateSelection: false,
@@ -301,14 +301,33 @@ class AiWriterCubit extends Cubit<AiWriterState> {
         );
         onAppendToDocument?.call();
       },
+      processAssistMessage: (text) async {
+        if (state case final GeneratingAiWriterState generatingState) {
+          emit(
+            GeneratingAiWriterState(
+              command,
+              taskId: generatingState.taskId,
+              markdownText: generatingState.markdownText + text,
+            ),
+          );
+        }
+      },
       onEnd: () async {
-        await _textRobot.stop(
-          attributes: ApplySuggestionFormatType.replace.attributes,
-        );
-        emit(ReadyAiWriterState(command, isFirstRun: false));
-        records.add(
-          AiWriterRecord.ai(content: _textRobot.markdownText),
-        );
+        if (state case final GeneratingAiWriterState generatingState) {
+          await _textRobot.stop(
+            attributes: ApplySuggestionFormatType.replace.attributes,
+          );
+          emit(
+            ReadyAiWriterState(
+              command,
+              isFirstRun: false,
+              markdownText: generatingState.markdownText,
+            ),
+          );
+          records.add(
+            AiWriterRecord.ai(content: _textRobot.markdownText),
+          );
+        }
       },
       onError: (error) async {
         emit(ErrorAiWriterState(command, error: error));
@@ -392,7 +411,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
         );
         _textRobot.start(position: position);
       },
-      onProcess: (text) async {
+      processMessage: (text) async {
         await _textRobot.appendMarkdownText(
           text,
           updateSelection: false,
@@ -400,12 +419,29 @@ class AiWriterCubit extends Cubit<AiWriterState> {
         );
         onAppendToDocument?.call();
       },
+      processAssistMessage: (text) async {
+        if (state case final GeneratingAiWriterState generatingState) {
+          emit(
+            GeneratingAiWriterState(
+              command,
+              taskId: generatingState.taskId,
+              markdownText: generatingState.markdownText + text,
+            ),
+          );
+        }
+      },
       onEnd: () async {
-        if (state case GeneratingAiWriterState _) {
+        if (state case final GeneratingAiWriterState generatingState) {
           await _textRobot.stop(
             attributes: ApplySuggestionFormatType.replace.attributes,
           );
-          emit(ReadyAiWriterState(command, isFirstRun: false));
+          emit(
+            ReadyAiWriterState(
+              command,
+              isFirstRun: false,
+              markdownText: generatingState.markdownText,
+            ),
+          );
         }
         records.add(
           AiWriterRecord.ai(content: _textRobot.markdownText),
@@ -468,7 +504,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
         );
         _textRobot.start(position: position);
       },
-      onProcess: (text) async {
+      processMessage: (text) async {
         await _textRobot.appendMarkdownText(
           text,
           updateSelection: false,
@@ -476,8 +512,19 @@ class AiWriterCubit extends Cubit<AiWriterState> {
         );
         onAppendToDocument?.call();
       },
+      processAssistMessage: (text) async {
+        if (state case final GeneratingAiWriterState generatingState) {
+          emit(
+            GeneratingAiWriterState(
+              command,
+              taskId: generatingState.taskId,
+              markdownText: generatingState.markdownText + text,
+            ),
+          );
+        }
+      },
       onEnd: () async {
-        if (state is GeneratingAiWriterState) {
+        if (state case final GeneratingAiWriterState generatingState) {
           await _textRobot.stop(
             attributes: ApplySuggestionFormatType.replace.attributes,
           );
@@ -485,6 +532,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
             ReadyAiWriterState(
               command,
               isFirstRun: false,
+              markdownText: generatingState.markdownText,
             ),
           );
           records.add(
@@ -524,7 +572,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       completionType: command.toCompletionType(),
       history: records,
       onStart: () async {},
-      onProcess: (text) async {
+      processMessage: (text) async {
         if (state case final GeneratingAiWriterState generatingState) {
           emit(
             GeneratingAiWriterState(
@@ -535,6 +583,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           );
         }
       },
+      processAssistMessage: (_) async {},
       onEnd: () async {
         if (state case final GeneratingAiWriterState generatingState) {
           emit(

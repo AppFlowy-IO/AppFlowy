@@ -197,6 +197,7 @@ where
       .await
       .map_err(FlowyError::from)?
       .map_err(FlowyError::from);
+
     Ok(stream.boxed())
   }
 
