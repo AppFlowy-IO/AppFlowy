@@ -656,7 +656,7 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
           child: SizedBox(width: 16.0, child: icon),
         ),
       ),
-      popupBuilder: (context) {
+      popupBuilder: (_) {
         isIconPickerOpened = true;
         return FlowyIconEmojiPicker(
           initialType: iconData.type.toPickerTabType(),
@@ -667,10 +667,9 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
           ],
           documentId: widget.view.viewId,
           onSelectedEmoji: (r) {
-            ViewBackendService.updateViewIcon(
-              view: widget.view.viewPB,
-              viewIcon: r.data,
-            );
+            context
+                .read<FolderViewBloc>()
+                .add(FolderViewEvent.updateIcon(r.data));
             if (!r.keepOpen) controller.close();
           },
         );

@@ -36,7 +36,7 @@ class FolderViews extends StatelessWidget {
       children: space.children
           .map(
             (view) => FolderViewItem(
-              key: ValueKey('${space.viewId} ${view.viewId}'),
+              key: view.toValueKey(),
               spaceType: !space.isPrivate
                   ? FolderSpaceType.public
                   : FolderSpaceType.private,
@@ -58,4 +58,8 @@ class FolderViews extends StatelessWidget {
           .toList(),
     );
   }
+}
+
+extension on FolderViewPB {
+  ValueKey toValueKey() => ValueKey(hashCode);
 }

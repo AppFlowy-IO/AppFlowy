@@ -18,7 +18,6 @@ import 'package:appflowy/workspace/application/favorite/prelude.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy/workspace/application/sidebar/billing/sidebar_plan_bloc.dart';
-import 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
@@ -134,11 +133,6 @@ class HomeSideBar extends StatelessWidget {
                   workspaceId: workspaceId,
                 )..add(const SpaceEvent.initial(openFirstPage: false)),
               ),
-              BlocProvider(
-                create: (_) => FolderV2Bloc(
-                  currentWorkspaceId: workspaceId,
-                )..add(const FolderV2GetFolderViews()),
-              ),
             ],
             child: MultiBlocListener(
               listeners: [
@@ -206,12 +200,6 @@ class HomeSideBar extends StatelessWidget {
                                 userProfile,
                                 workspaceId,
                                 true,
-                              ),
-                            );
-
-                        context.read<FolderV2Bloc>().add(
-                              FolderV2ReloadFolderViews(
-                                workspaceId: workspaceId,
                               ),
                             );
                       }

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/expand_views.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_listener.dart';
@@ -226,7 +227,26 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
             // do nothing
           },
           updateIcon: (value) async {
-            // do nothing
+            final response = await workspaceService.updatePageIcon(
+              page: view,
+              icon: value.icon?.toViewIconPB(),
+            );
+            emit(
+              response.fold(
+                (l) => state.copyWith(
+                  successOrFailure: FlowyResult.success(null),
+                ),
+                (error) => state.copyWith(
+                  successOrFailure: FlowyResult.failure(error),
+                ),
+              ),
+            );
+
+            add(
+              FolderViewEvent.viewDidUpdate(
+                FlowyResult.success(FolderViewPB()),
+              ),
+            );
           },
           collapseAllPages: (value) async {
             for (final childView in view.children) {
@@ -320,7 +340,7 @@ class FolderViewEvent with _$FolderViewEvent {
     bool isPublic,
   ) = UpdateViewVisibility;
 
-  const factory FolderViewEvent.updateIcon(String? icon) = UpdateIcon;
+  const factory FolderViewEvent.updateIcon(EmojiIconData? icon) = UpdateIcon;
 
   const factory FolderViewEvent.collapseAllPages() = CollapseAllPages;
 
