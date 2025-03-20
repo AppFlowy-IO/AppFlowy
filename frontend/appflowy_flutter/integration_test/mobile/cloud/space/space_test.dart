@@ -10,7 +10,7 @@ import 'package:appflowy/mobile/presentation/home/space/widgets.dart';
 import 'package:appflowy/mobile/presentation/home/workspaces/create_workspace_menu.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -33,10 +33,10 @@ void main() {
 
     Future<void> openSpaceMenuMoreOptions(
       WidgetTester tester,
-      ViewPB space,
+      FolderViewPB space,
     ) async {
       final spaceMenuItemTrailing = find.byWidgetPredicate(
-        (w) => w is SpaceMenuItemTrailing && w.space.id == space.id,
+        (w) => w is SpaceMenuItemTrailing && w.space.viewId == space.viewId,
       );
       final moreOptions = find.descendant(
         of: spaceMenuItemTrailing,

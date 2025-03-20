@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/create_space_popup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
@@ -32,7 +32,7 @@ class SidebarSpaceMenu extends StatelessWidget {
                 height: HomeSpaceViewSizes.viewHeight,
                 child: SidebarSpaceMenuItem(
                   space: space,
-                  isSelected: state.currentSpace?.id == space.id,
+                  isSelected: state.currentSpace?.viewId == space.viewId,
                 ),
               ),
             if (showCreateButton) ...[
@@ -59,7 +59,7 @@ class SidebarSpaceMenuItem extends StatelessWidget {
     required this.isSelected,
   });
 
-  final ViewPB space;
+  final FolderViewPB space;
   final bool isSelected;
 
   @override

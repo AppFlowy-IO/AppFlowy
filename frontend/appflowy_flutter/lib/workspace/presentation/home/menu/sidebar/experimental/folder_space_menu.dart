@@ -123,7 +123,7 @@ class _FolderSpaceMenuState extends State<FolderSpaceMenu> {
     return FlowyTooltip(
       richMessage: textSpan,
       child: CurrentSpace(
-        space: widget.space.viewPB,
+        space: widget.space,
         isHovered: isHovered,
       ),
     );
@@ -137,7 +137,7 @@ class _FolderSpaceMenuState extends State<FolderSpaceMenu> {
         child: Row(
           children: [
             SpaceMorePopup(
-              space: widget.space.viewPB,
+              space: widget.space,
               onEditing: (value) => this.onEditing.value = value,
               onAction: _onAction,
               isHovered: isHovered,
@@ -229,7 +229,7 @@ class _FolderSpaceMenuState extends State<FolderSpaceMenu> {
       onConfirm: (name, _) {
         context.read<SpaceBloc>().add(
               SpaceEvent.rename(
-                space: widget.space.viewPB,
+                space: widget.space,
                 name: name,
               ),
             );
@@ -392,7 +392,7 @@ class _FolderSpaceMenuItem extends StatelessWidget {
       iconPadding: 10,
       leftIcon: SpaceIcon(
         dimension: 20,
-        space: space.viewPB,
+        space: space,
         svgSize: 12.0,
         cornerRadius: 6.0,
       ),

@@ -2,7 +2,9 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_search_bloc.dart';
+import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/folder_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -13,7 +15,10 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-typedef MovePageMenuOnSelected = void Function(ViewPB space, ViewPB view);
+typedef MovePageMenuOnSelected = void Function(
+  FolderViewPB space,
+  FolderViewPB view,
+);
 
 class MovePageMenu extends StatefulWidget {
   const MovePageMenu({
@@ -22,7 +27,7 @@ class MovePageMenu extends StatefulWidget {
     required this.onSelected,
   });
 
-  final ViewPB sourceView;
+  final FolderViewPB sourceView;
   final MovePageMenuOnSelected onSelected;
 
   @override
@@ -66,7 +71,10 @@ class _MovePageMenuState extends State<MovePageMenu> {
                     return Expanded(child: _buildSpace(space));
                   }
                   return Expanded(
-                    child: _buildGroupedViews(space, state.queryResults!),
+                    child: _buildGroupedViews(
+                      space,
+                      state.queryResults!.folderViews,
+                    ),
                   );
                 },
               ),
@@ -77,17 +85,17 @@ class _MovePageMenuState extends State<MovePageMenu> {
     );
   }
 
-  Widget _buildGroupedViews(ViewPB space, List<ViewPB> views) {
+  Widget _buildGroupedViews(FolderViewPB space, List<FolderViewPB> views) {
     final groupedViews = views
         .where((v) => !_shouldIgnoreView(v, widget.sourceView) && !v.isSpace)
         .toList();
     return _MovePageGroupedViews(
-      views: groupedViews,
-      onSelected: (view) => widget.onSelected(space, view),
+      views: groupedViews.viewPBs,
+      onSelected: (view) => widget.onSelected(space, view.folderViewPB),
     );
   }
 
-  Column _buildSpace(ViewPB space) {
+  Column _buildSpace(FolderViewPB space) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -109,18 +117,18 @@ class _MovePageMenuState extends State<MovePageMenu> {
           child: SingleChildScrollView(
             physics: const ClampingScrollPhysics(),
             child: SpacePages(
-              key: ValueKey(space.id),
+              key: ValueKey(space.viewId),
               space: space,
               isHovered: isHoveredNotifier,
               isExpandedNotifier: isExpandedNotifier,
               shouldIgnoreView: (view) {
                 if (_shouldIgnoreView(view, widget.sourceView)) {
-                  return IgnoreViewType.hide;
+                  return IgnoreFolderViewType.hide;
                 }
                 if (view.layout != ViewLayoutPB.Document) {
-                  return IgnoreViewType.disable;
+                  return IgnoreFolderViewType.disable;
                 }
-                return IgnoreViewType.none;
+                return IgnoreFolderViewType.none;
               },
               // hide the hover status and disable the editing actions
               disableSelectedStatus: true,
@@ -167,6 +175,6 @@ class _MovePageGroupedViews extends StatelessWidget {
   }
 }
 
-bool _shouldIgnoreView(ViewPB view, ViewPB sourceView) {
-  return view.id == sourceView.id;
+bool _shouldIgnoreView(FolderViewPB view, FolderViewPB sourceView) {
+  return view.viewId == sourceView.viewId;
 }

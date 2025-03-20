@@ -8,6 +8,7 @@ import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/shared/list_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
@@ -45,8 +46,8 @@ class MobileSpace extends StatelessWidget {
                 left: HomeSpaceViewSizes.mHorizontalPadding,
               ),
               child: _Pages(
-                key: ValueKey(currentSpace.id),
-                space: currentSpace,
+                key: ValueKey(currentSpace.viewId),
+                space: currentSpace.viewPB,
               ),
             ),
           ],
@@ -80,7 +81,7 @@ class MobileSpace extends StatelessWidget {
     );
   }
 
-  void _showCreatePageMenu(BuildContext context, ViewPB space) {
+  void _showCreatePageMenu(BuildContext context, FolderViewPB space) {
     final title = space.name;
     showMobileBottomSheet(
       context,
@@ -93,7 +94,7 @@ class MobileSpace extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (sheetContext) {
         return AddNewPageWidgetBottomSheet(
-          view: space,
+          view: space.viewPB,
           onAction: (layout) {
             Navigator.of(sheetContext).pop();
             context.read<SpaceBloc>().add(

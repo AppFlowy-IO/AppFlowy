@@ -27,7 +27,7 @@ class FolderViews extends StatelessWidget {
   final FolderViewItemRightIconsBuilder? rightIconsBuilder;
   final FolderViewItemOnSelected onSelected;
   final FolderViewItemOnSelected? onTertiarySelected;
-  final IgnoreViewType Function(FolderViewPB view)? shouldIgnoreView;
+  final IgnoreFolderViewType Function(FolderViewPB view)? shouldIgnoreView;
 
   @override
   Widget build(BuildContext context) {

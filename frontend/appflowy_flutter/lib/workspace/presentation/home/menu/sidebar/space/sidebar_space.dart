@@ -3,6 +3,7 @@ import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_folder.dart';
@@ -117,7 +118,7 @@ class _SpaceState extends State<_Space> {
                   key: ValueKey(
                     Object.hashAll([
                       currentWorkspace?.workspaceId ?? '',
-                      currentSpace.id,
+                      currentSpace.viewId,
                     ]),
                   ),
                   isExpandedNotifier: isExpandedNotifier,
@@ -125,12 +126,12 @@ class _SpaceState extends State<_Space> {
                   isHovered: isHovered,
                   onSelected: (context, view) {
                     if (HardwareKeyboard.instance.isControlPressed) {
-                      context.read<TabsBloc>().openTab(view);
+                      context.read<TabsBloc>().openTab(view.viewPB);
                     }
-                    context.read<TabsBloc>().openPlugin(view);
+                    context.read<TabsBloc>().openPlugin(view.viewPB);
                   },
                   onTertiarySelected: (context, view) =>
-                      context.read<TabsBloc>().openTab(view),
+                      context.read<TabsBloc>().openTab(view.viewPB),
                 ),
               ),
           ],
@@ -157,7 +158,7 @@ class _SpaceState extends State<_Space> {
 
   void _showCreatePagePopup(
     BuildContext context,
-    ViewPB space,
+    FolderViewPB space,
     ViewLayoutPB layout,
   ) {
     context.read<SpaceBloc>().add(

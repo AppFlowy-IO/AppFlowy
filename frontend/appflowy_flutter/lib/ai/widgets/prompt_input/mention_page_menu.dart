@@ -327,7 +327,7 @@ class MentionViewIcon extends StatelessWidget {
       return SpaceIcon(
         dimension: 16.0,
         svgSize: 9.68,
-        space: view,
+        space: view.folderViewPB,
         cornerRadius: 4,
       );
     }

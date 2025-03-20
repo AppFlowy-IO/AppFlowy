@@ -877,7 +877,7 @@ void moveViewCrossSpace(
   final currentSpace = context.read<SpaceBloc>().state.currentSpace;
   if (currentSpace != null &&
       toSpace != null &&
-      currentSpace.id != toSpace.id) {
+      currentSpace.viewId != toSpace.id) {
     Log.info(
       'Move view(${from.name}) to another space(${toSpace.name}), unpublish the view',
     );

@@ -22,6 +22,7 @@ import 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc.dar
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
@@ -152,11 +153,12 @@ class HomeSideBar extends StatelessWidget {
                 ),
                 BlocListener<SpaceBloc, SpaceState>(
                   listenWhen: (prev, curr) =>
-                      prev.lastCreatedPage?.id != curr.lastCreatedPage?.id ||
+                      prev.lastCreatedPage?.viewId !=
+                          curr.lastCreatedPage?.viewId ||
                       prev.isDuplicatingSpace != curr.isDuplicatingSpace,
                   listener: (context, state) {
                     final page = state.lastCreatedPage;
-                    if (page == null || page.id.isEmpty) {
+                    if (page == null || page.viewId.isEmpty) {
                       // open the blank page
                       context
                           .read<TabsBloc>()
@@ -164,7 +166,7 @@ class HomeSideBar extends StatelessWidget {
                     } else {
                       context.read<TabsBloc>().add(
                             TabsEvent.openPlugin(
-                              plugin: state.lastCreatedPage!.plugin(),
+                              plugin: state.lastCreatedPage!.viewPB.plugin(),
                             ),
                           );
                     }

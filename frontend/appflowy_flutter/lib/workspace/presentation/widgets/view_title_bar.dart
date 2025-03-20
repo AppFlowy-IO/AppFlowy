@@ -9,7 +9,6 @@ import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bar_bloc.dart';
 import 'package:appflowy/workspace/application/view_title/view_title_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -352,12 +351,13 @@ class _ViewTitleState extends State<ViewTitle> {
             const HSpace(4.0),
           ],
           if (state.view?.isSpace == true && spaceIcon != null) ...[
-            SpaceIcon(
-              dimension: 14,
-              svgSize: 8.5,
-              space: state.view!,
-              cornerRadius: 4,
-            ),
+            // TODO: fixme: use the new space icon
+            // SpaceIcon(
+            //   dimension: 14,
+            //   svgSize: 8.5,
+            //   space: state.view!,
+            //   cornerRadius: 4,
+            // ),
             const HSpace(6.0),
           ],
           Opacity(

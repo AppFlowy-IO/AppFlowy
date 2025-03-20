@@ -8,22 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 export 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc_event.dart';
 export 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc_state.dart';
 
-extension FolderViewPBExtension on FolderViewPB {
-  ViewPB get viewPB {
-    final children = this.children.map((e) => e.viewPB).toList();
-    return ViewPB(
-      id: viewId,
-      name: name,
-      icon: icon,
-      layout: layout,
-      createTime: createdAt,
-      lastEdited: lastEditedTime,
-      extra: extra,
-      childViews: children,
-    );
-  }
-}
-
 class FolderV2Bloc extends Bloc<FolderV2Event, FolderV2State> {
   FolderV2Bloc({
     required this.currentWorkspaceId,

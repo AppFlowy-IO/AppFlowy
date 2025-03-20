@@ -8,7 +8,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/expand_views.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_listener.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
-import 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc.dart';
+import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_listener.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
@@ -276,18 +276,6 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
       }),
     );
   }
-
-  bool _isSameViewIgnoreChildren(FolderViewPB from, FolderViewPB to) {
-    return _hash(from) == _hash(to);
-  }
-
-  int _hash(FolderViewPB view) => Object.hash(
-        view.viewId,
-        view.name,
-        view.createdAt,
-        view.icon,
-        view.layout,
-      );
 }
 
 @freezed

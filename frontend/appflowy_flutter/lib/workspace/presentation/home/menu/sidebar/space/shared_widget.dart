@@ -3,13 +3,14 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/folder_view_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/folder_view_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/_extension.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
-import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -496,7 +497,7 @@ class CurrentSpace extends StatelessWidget {
     this.isHovered = false,
   });
 
-  final ViewPB space;
+  final FolderViewPB space;
   final VoidCallback? onTapBlankArea;
   final bool isHovered;
 
@@ -572,39 +573,45 @@ class SpacePages extends StatelessWidget {
     this.shouldIgnoreView,
   });
 
-  final ViewPB space;
+  final FolderViewPB space;
   final ValueNotifier<bool> isHovered;
   final PropertyValueNotifier<bool> isExpandedNotifier;
   final bool disableSelectedStatus;
-  final ViewItemRightIconsBuilder? rightIconsBuilder;
-  final ViewItemOnSelected onSelected;
-  final ViewItemOnSelected? onTertiarySelected;
-  final IgnoreViewType Function(ViewPB view)? shouldIgnoreView;
+  final FolderViewItemRightIconsBuilder? rightIconsBuilder;
+  final FolderViewItemOnSelected onSelected;
+  final FolderViewItemOnSelected? onTertiarySelected;
+  final IgnoreFolderViewType Function(FolderViewPB view)? shouldIgnoreView;
 
   @override
   Widget build(BuildContext context) {
+    final workspaceId =
+        context.read<UserWorkspaceBloc>().state.currentWorkspace?.workspaceId ??
+            '';
     return BlocProvider(
-      create: (_) => ViewBloc(view: space)..add(const ViewEvent.initial()),
-      child: BlocBuilder<ViewBloc, ViewState>(
+      create: (_) => FolderViewBloc(
+        currentWorkspaceId: workspaceId,
+        view: space,
+      )..add(const FolderViewEvent.initial()),
+      child: BlocBuilder<FolderViewBloc, FolderViewState>(
         builder: (context, state) {
           // filter the child views that should be ignored
-          List<ViewPB> childViews = state.view.childViews;
+          List<FolderViewPB> childViews = state.view.children;
           if (shouldIgnoreView != null) {
             childViews = childViews
-                .where((v) => shouldIgnoreView!(v) != IgnoreViewType.hide)
+                .where((v) => shouldIgnoreView!(v) != IgnoreFolderViewType.hide)
                 .toList();
           }
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: childViews
                 .map(
-                  (view) => ViewItem(
-                    key: ValueKey('${space.id} ${view.id}'),
+                  (view) => FolderViewItem(
+                    key: ValueKey('${space.viewId} ${view.viewId}'),
                     spaceType:
                         space.spacePermission == SpacePermission.publicToAll
                             ? FolderSpaceType.public
                             : FolderSpaceType.private,
-                    isFirstChild: view.id == childViews.first.id,
+                    isFirstChild: view.viewId == childViews.first.viewId,
                     view: view,
                     level: 0,
                     leftPadding: HomeSpaceViewSizes.leftPadding,

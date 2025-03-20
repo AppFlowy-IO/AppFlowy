@@ -9,10 +9,10 @@ import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
+import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
@@ -50,7 +50,7 @@ typedef FolderViewItemRightIconsBuilder = List<Widget> Function(
   FolderViewPB view,
 );
 
-enum IgnoreViewType { none, hide, disable }
+enum IgnoreFolderViewType { none, hide, disable }
 
 class FolderViewItem extends StatelessWidget {
   const FolderViewItem({
@@ -139,7 +139,7 @@ class FolderViewItem extends StatelessWidget {
   final bool? disableSelectedStatus;
 
   // ignore the views when rendering the child views
-  final IgnoreViewType Function(FolderViewPB view)? shouldIgnoreView;
+  final IgnoreFolderViewType Function(FolderViewPB view)? shouldIgnoreView;
 
   /// Whether to add right-click to show the view action context menu
   ///
@@ -168,7 +168,7 @@ class FolderViewItem extends StatelessWidget {
           List<FolderViewPB> childViews = state.view.children;
           if (shouldIgnoreView != null) {
             childViews = childViews
-                .where((v) => shouldIgnoreView!(v) != IgnoreViewType.hide)
+                .where((v) => shouldIgnoreView!(v) != IgnoreFolderViewType.hide)
                 .toList();
           }
 
@@ -201,7 +201,7 @@ class FolderViewItem extends StatelessWidget {
             engagedInExpanding: engagedInExpanding,
           );
 
-          if (shouldIgnoreView?.call(view) == IgnoreViewType.disable) {
+          if (shouldIgnoreView?.call(view) == IgnoreFolderViewType.disable) {
             return Opacity(
               opacity: 0.5,
               child: FlowyTooltip(
@@ -286,7 +286,7 @@ class InnerFolderViewItem extends StatefulWidget {
 
   final PropertyValueNotifier<bool>? isExpandedNotifier;
   final List<Widget> Function(FolderViewPB view)? extendBuilder;
-  final IgnoreViewType Function(FolderViewPB view)? shouldIgnoreView;
+  final IgnoreFolderViewType Function(FolderViewPB view)? shouldIgnoreView;
   final bool engagedInExpanding;
 
   @override
@@ -487,7 +487,7 @@ class SingleInnerFolderViewItem extends StatefulWidget {
   final FolderViewItemRightIconsBuilder? rightIconsBuilder;
 
   final List<Widget> Function(FolderViewPB view)? extendBuilder;
-  final IgnoreViewType Function(FolderViewPB view)? shouldIgnoreView;
+  final IgnoreFolderViewType Function(FolderViewPB view)? shouldIgnoreView;
   final bool isSelected;
 
   @override
@@ -896,7 +896,7 @@ void moveViewCrossSpace(
   final currentSpace = context.read<SpaceBloc>().state.currentSpace;
   if (currentSpace != null &&
       toSpace != null &&
-      currentSpace.id != toSpace.viewId) {
+      currentSpace.viewId != toSpace.viewId) {
     Log.info(
       'Move view(${from.name}) to another space(${toSpace.name}), unpublish the view',
     );

@@ -29,7 +29,7 @@ class SidebarSpaceHeader extends StatefulWidget {
     required this.isExpanded,
   });
 
-  final ViewPB space;
+  final FolderViewPB space;
   final void Function(ViewLayoutPB layout) onAdded;
   final VoidCallback onCreateNewSpace;
   final VoidCallback onCollapseAllPages;
@@ -142,7 +142,7 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
             FlowyTooltip(
               message: LocaleKeys.sideBar_addAPage.tr(),
               child: ViewAddButton(
-                parentViewId: widget.space.id,
+                parentViewId: widget.space.viewId,
                 onEditing: (_) {},
                 onSelected: (
                   pluginBuilder,

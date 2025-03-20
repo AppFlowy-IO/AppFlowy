@@ -296,6 +296,18 @@ extension ViewExtension on ViewPB {
       return PageStyleFontLayout.normal;
     }
   }
+
+  FolderViewPB get folderViewPB {
+    final children = childViews.map((e) => e.folderViewPB).toList();
+    return FolderViewPB(
+      viewId: id,
+      name: name,
+      icon: icon,
+      layout: layout,
+      extra: extra,
+      children: children,
+    );
+  }
 }
 
 extension ViewLayoutExtension on ViewLayoutPB {
@@ -362,5 +374,13 @@ extension ViewFinder on List<ViewPB> {
     }
 
     return null;
+  }
+
+  List<FolderViewPB> get folderViews {
+    final views = <FolderViewPB>[];
+    for (final view in this) {
+      views.add(view.folderViewPB);
+    }
+    return views;
   }
 }

@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/string_extension.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
+import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy_backend/log.dart';
@@ -21,7 +22,7 @@ class SpaceIcon extends StatelessWidget {
   final double dimension;
   final double? textDimension;
   final double cornerRadius;
-  final ViewPB space;
+  final FolderViewPB space;
   final double? svgSize;
 
   @override
@@ -42,8 +43,7 @@ class SpaceIcon extends StatelessWidget {
   }
 
   (Widget, Color?) _buildSpaceIcon(BuildContext context) {
-    final spaceIcon = space.spaceIcon;
-    if (spaceIcon == null || spaceIcon.isEmpty == true) {
+    if (space.hasIcon()) {
       // if space icon is null, use the first character of space name as icon
       return _buildEmptySpaceIcon(context);
     } else {

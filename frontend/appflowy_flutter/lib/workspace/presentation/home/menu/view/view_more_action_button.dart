@@ -3,6 +3,7 @@ import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/move_to/move_page_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/lock_page_action.dart';
@@ -236,7 +237,7 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
               return BlocProvider.value(
                 value: context.read<SpaceBloc>(),
                 child: MovePageMenu(
-                  sourceView: sourceView,
+                  sourceView: sourceView.folderViewPB,
                   onSelected: (space, view) {
                     onTap(controller, (space, view));
                   },

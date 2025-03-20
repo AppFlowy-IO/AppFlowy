@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -155,10 +156,11 @@ class WorkspaceService {
     required String name,
   }) {
     final payload = UpdateSpacePayloadPB.create()
+      ..workspaceId = workspaceId
       ..spaceId = spaceId
       ..name = name
       ..spaceIcon = space.icon.encode()
-      ..spacePermission = space.spacePermission;
+      ..spacePermission = space.spacePermissionPB;
     // todo: space icon color
 
     return FolderEventUpdateSpace(payload).send();
@@ -177,26 +179,44 @@ class WorkspaceService {
   }) {
     assert(icon != null || iconPB != null);
     final payload = UpdateSpacePayloadPB.create()
+      ..workspaceId = workspaceId
       ..spaceId = spaceId
       ..spaceIcon = icon ?? iconPB?.encode() ?? ''
-      ..spacePermission = space.spacePermission;
+      ..spacePermission = space.spacePermissionPB;
     // todo: space icon color
 
     return FolderEventUpdateSpace(payload).send();
+  }
+
+  /// Delete the space in the workspace.
+  ///
+  /// [spaceId] is the id of the space you want to delete.
+  Future<FlowyResult<void, FlowyError>> deleteSpace({
+    required String spaceId,
+  }) {
+    final payload = MovePageToTrashPayloadPB.create()
+      ..workspaceId = workspaceId
+      ..viewId = spaceId;
+    return FolderEventMovePageToTrash(payload).send();
+  }
+
+  /// Unpublish the space in the workspace.
+  ///
+  /// [spaceView] is the space view you want to unpublish.
+  Future<FlowyResult<void, FlowyError>> unpublishSpace({
+    required FolderViewPB spaceView,
+  }) {
+    // get all the published views in the space
+    final publishedPages = spaceView.publishedPages;
+
+    final payload = UnpublishViewsPayloadPB.create()
+      ..viewIds.addAll(publishedPages.map((e) => e.viewId));
+    return FolderEventUnpublishViews(payload).send();
   }
 }
 
 extension on ViewIconPB {
   String encode() {
     return jsonEncode(toProto3Json());
-  }
-}
-
-extension on FolderViewPB {
-  SpacePermissionPB get spacePermission {
-    if (isPrivate == true) {
-      return SpacePermissionPB.PrivateSpace;
-    }
-    return SpacePermissionPB.PublicSpace;
   }
 }

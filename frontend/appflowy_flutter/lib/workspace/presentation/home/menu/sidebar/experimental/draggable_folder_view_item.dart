@@ -1,5 +1,5 @@
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
-import 'package:appflowy/workspace/application/sidebar/folder/folder_v2_bloc.dart';
+import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/folder_view_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/draggable_view_item.dart';

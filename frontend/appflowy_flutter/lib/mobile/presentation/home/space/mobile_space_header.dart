@@ -17,7 +17,7 @@ class MobileSpaceHeader extends StatelessWidget {
     required this.isExpanded,
   });
 
-  final ViewPB space;
+  final FolderViewPB space;
   final VoidCallback onPressed;
   final VoidCallback onAdded;
   final bool isExpanded;
