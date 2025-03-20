@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/banner.dart';
 import 'package:appflowy/plugins/document/presentation/editor_drop_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/widgets/ai_writer_scroll_wrapper.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/cover/document_immersive_cover.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_context/shared_context.dart';
@@ -55,8 +56,6 @@ class _DocumentPageState extends State<DocumentPage>
   Selection? initialSelection;
   late final documentBloc = DocumentBloc(documentId: widget.view.id)
     ..add(const DocumentEvent.initial());
-  late final viewBloc = ViewBloc(view: widget.view)
-    ..add(const ViewEvent.initial());
 
   @override
   void initState() {
@@ -68,7 +67,6 @@ class _DocumentPageState extends State<DocumentPage>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     documentBloc.close();
-    viewBloc.close();
 
     super.dispose();
   }
@@ -93,7 +91,11 @@ class _DocumentPageState extends State<DocumentPage>
           value: ViewLockStatusBloc(view: widget.view)
             ..add(ViewLockStatusEvent.initial()),
         ),
-        BlocProvider.value(value: viewBloc),
+        BlocProvider(
+          create: (context) =>
+              ViewBloc(view: widget.view)..add(const ViewEvent.initial()),
+          lazy: false,
+        ),
       ],
       child: BlocConsumer<ViewLockStatusBloc, ViewLockStatusState>(
         listenWhen: (prev, curr) => curr.isLocked != prev.isLocked,
@@ -126,14 +128,20 @@ class _DocumentPageState extends State<DocumentPage>
                 return const SizedBox.shrink();
               }
 
-              return BlocListener<ViewLockStatusBloc, ViewLockStatusState>(
-                listener: (context, state) {
-                  editorState.editable = !state.isLocked;
-                },
-                child:
-                    BlocListener<ActionNavigationBloc, ActionNavigationState>(
-                  listenWhen: (_, curr) => curr.action != null,
-                  listener: onNotificationAction,
+              return MultiBlocListener(
+                listeners: [
+                  BlocListener<ViewLockStatusBloc, ViewLockStatusState>(
+                    listener: (context, state) =>
+                        editorState.editable = !state.isLocked,
+                  ),
+                  BlocListener<ActionNavigationBloc, ActionNavigationState>(
+                    listenWhen: (_, curr) => curr.action != null,
+                    listener: onNotificationAction,
+                  ),
+                ],
+                child: AiWriterScrollWrapper(
+                  viewId: widget.view.id,
+                  editorState: editorState,
                   child: buildEditorPage(context, state),
                 ),
               );

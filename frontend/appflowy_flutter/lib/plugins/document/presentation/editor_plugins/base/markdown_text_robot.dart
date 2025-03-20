@@ -70,6 +70,7 @@ class MarkdownTextRobot {
   /// The text will be inserted into the document but only in memory
   Future<void> appendMarkdownText(
     String text, {
+    bool updateSelection = true,
     Map<String, dynamic>? attributes,
   }) async {
     _markdownText += text;
@@ -77,6 +78,7 @@ class MarkdownTextRobot {
     await _lock.synchronized(() async {
       await _refresh(
         inMemoryUpdate: true,
+        updateSelection: updateSelection,
         attributes: attributes,
       );
     });
@@ -95,7 +97,6 @@ class MarkdownTextRobot {
     await _lock.synchronized(() async {
       await _refresh(
         inMemoryUpdate: true,
-        updateSelection: false,
         attributes: attributes,
       );
     });
@@ -155,7 +156,7 @@ class MarkdownTextRobot {
 
   Future<void> _refresh({
     required bool inMemoryUpdate,
-    bool updateSelection = true,
+    bool updateSelection = false,
     Map<String, dynamic>? attributes,
   }) async {
     final position = _insertPosition;
@@ -203,10 +204,6 @@ class MarkdownTextRobot {
           offset: lastDelta.length,
         ),
       );
-
-      if (!updateSelection) {
-        insertTransaction.afterSelection = null;
-      }
     }
 
     await editorState.apply(
@@ -215,6 +212,7 @@ class MarkdownTextRobot {
         inMemoryUpdate: inMemoryUpdate,
         recordUndo: !inMemoryUpdate,
       ),
+      withUpdateSelection: updateSelection,
     );
 
     _insertedNodes = newNodes;
