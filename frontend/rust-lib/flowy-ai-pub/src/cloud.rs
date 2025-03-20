@@ -1,8 +1,7 @@
-use bytes::Bytes;
 pub use client_api::entity::ai_dto::{
-  AppFlowyOfflineAI, CompleteTextParams, CompletionMetadata, CompletionRecord, CompletionType,
-  CreateChatContext, LLMModel, LocalAIConfig, ModelInfo, ModelList, OutputContent, OutputLayout,
-  RelatedQuestion, RepeatedRelatedQuestion, ResponseFormat, StringOrMessage,
+  AppFlowyOfflineAI, CompleteTextParams, CompletionMessage, CompletionMetadata, CompletionType,
+  CreateChatContext, CustomPrompt, LLMModel, LocalAIConfig, ModelInfo, ModelList, OutputContent,
+  OutputLayout, RelatedQuestion, RepeatedRelatedQuestion, ResponseFormat, StringOrMessage,
 };
 pub use client_api::entity::billing_dto::SubscriptionPlan;
 pub use client_api::entity::chat_dto::{
@@ -10,7 +9,8 @@ pub use client_api::entity::chat_dto::{
   MessageCursor, RepeatedChatMessage, UpdateChatParams,
 };
 pub use client_api::entity::QuestionStreamValue;
-use client_api::error::AppResponseError;
+pub use client_api::entity::*;
+pub use client_api::error::{AppResponseError, ErrorCode as AppErrorCode};
 use flowy_error::FlowyError;
 use futures::stream::BoxStream;
 use lib_infra::async_trait::async_trait;
@@ -20,7 +20,7 @@ use std::path::Path;
 
 pub type ChatMessageStream = BoxStream<'static, Result<ChatMessage, AppResponseError>>;
 pub type StreamAnswer = BoxStream<'static, Result<QuestionStreamValue, FlowyError>>;
-pub type StreamComplete = BoxStream<'static, Result<Bytes, FlowyError>>;
+pub type StreamComplete = BoxStream<'static, Result<CompletionStreamValue, FlowyError>>;
 #[async_trait]
 pub trait ChatCloudService: Send + Sync + 'static {
   async fn create_chat(

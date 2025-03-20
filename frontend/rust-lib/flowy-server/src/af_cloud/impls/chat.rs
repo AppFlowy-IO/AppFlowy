@@ -193,7 +193,7 @@ where
     let stream = self
       .inner
       .try_get_client()?
-      .stream_completion_text(workspace_id, params)
+      .stream_completion_v2(workspace_id, params)
       .await
       .map_err(FlowyError::from)?
       .map_err(FlowyError::from);
