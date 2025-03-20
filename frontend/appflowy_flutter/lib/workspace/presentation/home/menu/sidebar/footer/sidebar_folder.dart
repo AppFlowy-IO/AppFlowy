@@ -3,10 +3,12 @@ import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/folder_space_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/folder_views.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_folder.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/create_space_popup.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -110,12 +112,16 @@ class _FolderV2LoadedState extends State<_FolderV2Loaded> {
   @override
   void initState() {
     super.initState();
+
+    switchToTheNextSpace.addListener(_switchToNextSpace);
   }
 
   @override
   void dispose() {
+    switchToTheNextSpace.removeListener(_switchToNextSpace);
     isHovered.dispose();
     isExpandedNotifier.dispose();
+
     super.dispose();
   }
 
@@ -126,26 +132,13 @@ class _FolderV2LoadedState extends State<_FolderV2Loaded> {
         FolderSpaceMenu(
           isExpanded: widget.isExpanded,
           space: widget.currentSpace,
-          onAdded: (layout) {
-            context.read<SpaceBloc>().add(
-                  SpaceEvent.createPage(
-                    layout: layout,
-                    name: '',
-                    openAfterCreate: true,
-                  ),
-                );
-          },
-          onCreateNewSpace: () {
-            context.read<SpaceBloc>().add(
-                  SpaceEvent.createSpace(
-                    name: 'New Space',
-                    permission: SpacePermission.publicToAll,
-                    icon: '🌈',
-                    iconColor: '#FF0000',
-                  ),
-                );
-          },
-          onCollapseAllPages: () {},
+          onAdded: (layout) => _showCreatePagePopup(
+            context,
+            widget.currentSpace,
+            layout,
+          ),
+          onCreateNewSpace: () => _showCreateSpaceDialog(context),
+          onCollapseAllPages: () => isExpandedNotifier.value = true,
         ),
         if (widget.isExpanded)
           MouseRegion(
@@ -175,5 +168,42 @@ class _FolderV2LoadedState extends State<_FolderV2Loaded> {
         ),
       ],
     );
+  }
+
+  void _showCreatePagePopup(
+    BuildContext context,
+    FolderViewPB space,
+    ViewLayoutPB layout,
+  ) {
+    context.read<SpaceBloc>().add(
+          SpaceEvent.createPage(
+            name: '',
+            layout: layout,
+            index: 0,
+            openAfterCreate: true,
+          ),
+        );
+
+    context.read<SpaceBloc>().add(SpaceEvent.expand(space, true));
+  }
+
+  void _showCreateSpaceDialog(BuildContext context) {
+    final spaceBloc = context.read<SpaceBloc>();
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: BlocProvider.value(
+          value: spaceBloc,
+          child: const CreateSpacePopup(),
+        ),
+      ),
+    );
+  }
+
+  void _switchToNextSpace() {
+    context.read<SpaceBloc>().add(const SpaceEvent.switchToNextSpace());
   }
 }

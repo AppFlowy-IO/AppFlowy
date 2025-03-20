@@ -9,7 +9,7 @@ enum SpaceMoreActionType {
   changeIcon,
   collapseAllPages,
   divider,
-  addNewSpace,
+  createSpace,
   manage,
   duplicate,
 }
@@ -25,7 +25,7 @@ extension ViewMoreActionTypeExtension on SpaceMoreActionType {
         return LocaleKeys.space_changeIcon.tr();
       case SpaceMoreActionType.collapseAllPages:
         return LocaleKeys.space_collapseAllSubPages.tr();
-      case SpaceMoreActionType.addNewSpace:
+      case SpaceMoreActionType.createSpace:
         return LocaleKeys.space_addNewSpace.tr();
       case SpaceMoreActionType.manage:
         return LocaleKeys.space_manage.tr();
@@ -46,7 +46,7 @@ extension ViewMoreActionTypeExtension on SpaceMoreActionType {
         return FlowySvgs.change_icon_s;
       case SpaceMoreActionType.collapseAllPages:
         return FlowySvgs.collapse_all_page_s;
-      case SpaceMoreActionType.addNewSpace:
+      case SpaceMoreActionType.createSpace:
         return FlowySvgs.space_add_s;
       case SpaceMoreActionType.manage:
         return FlowySvgs.space_manage_s;
@@ -64,7 +64,7 @@ extension ViewMoreActionTypeExtension on SpaceMoreActionType {
       case SpaceMoreActionType.collapseAllPages:
       case SpaceMoreActionType.divider:
       case SpaceMoreActionType.delete:
-      case SpaceMoreActionType.addNewSpace:
+      case SpaceMoreActionType.createSpace:
       case SpaceMoreActionType.manage:
       case SpaceMoreActionType.duplicate:
         return const SizedBox.shrink();

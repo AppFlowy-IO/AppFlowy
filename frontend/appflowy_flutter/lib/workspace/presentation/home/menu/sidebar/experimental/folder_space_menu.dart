@@ -198,7 +198,7 @@ class _FolderSpaceMenuState extends State<FolderSpaceMenu> {
       case SpaceMoreActionType.manage:
         _showManageSpaceDialog(context);
         break;
-      case SpaceMoreActionType.addNewSpace:
+      case SpaceMoreActionType.createSpace:
         widget.onCreateNewSpace();
         break;
       case SpaceMoreActionType.collapseAllPages:
