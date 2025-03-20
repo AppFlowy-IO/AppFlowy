@@ -4,7 +4,8 @@ use allo_isolate::Isolate;
 
 use dashmap::DashMap;
 use flowy_ai_pub::cloud::{
-  ChatCloudService, CompleteTextParams, CompletionMetadata, CompletionType,
+  ChatCloudService, CompleteTextParams, CompletionMetadata, CompletionStreamValue, CompletionType,
+  CustomPrompt,
 };
 use flowy_error::{FlowyError, FlowyResult};
 
@@ -37,6 +38,15 @@ impl AICompletion {
     &self,
     complete: CompleteTextPB,
   ) -> FlowyResult<CompleteTextTaskPB> {
+    if matches!(complete.completion_type, CompletionTypePB::CustomPrompt)
+      && complete.custom_prompt.is_none()
+    {
+      return Err(
+        FlowyError::invalid_data()
+          .with_context("custom_prompt is required when completion_type is CustomPrompt"),
+      );
+    }
+
     let workspace_id = self
       .user_service
       .upgrade()
@@ -95,6 +105,7 @@ impl CompletionTask {
           CompletionTypePB::ContinueWriting => CompletionType::ContinueWriting,
           CompletionTypePB::ExplainSelected => CompletionType::Explain,
           CompletionTypePB::UserQuestion => CompletionType::UserQuestion,
+          CompletionTypePB::CustomPrompt => CompletionType::CustomPrompt,
         };
 
         let _ = sink.send("start:".to_string()).await;
@@ -103,12 +114,15 @@ impl CompletionTask {
         let params = CompleteTextParams {
           text: self.context.text,
           completion_type: Some(complete_type),
-          custom_prompt: None,
           metadata: Some(CompletionMetadata {
             object_id: self.context.object_id,
             workspace_id: Some(self.workspace_id.clone()),
             rag_ids: Some(self.context.rag_ids),
             completion_history,
+            custom_prompt: self
+              .context
+              .custom_prompt
+              .map(|v| CustomPrompt { system: v }),
           }),
           format,
         };
@@ -124,20 +138,26 @@ impl CompletionTask {
                     return;
                 },
                 result = stream.next() => {
-                    match result {
-                        Some(Ok(data)) => {
-                            let s = String::from_utf8(data.to_vec()).unwrap_or_default();
-                            let _ = sink.send(format!("data:{}", s)).await;
-                        },
-                        Some(Err(error)) => {
-                            handle_error(&mut sink, error).await;
-                            return;
-                        },
-                        None => {
-                            let _ = sink.send(format!("finish:{}", self.task_id)).await;
-                            return;
-                        },
-                    }
+                  match result {
+                    Some(Ok(data)) => {
+                      match data {
+                        CompletionStreamValue::Answer{ value } => {
+                          let _ = sink.send(format!("data:{}", value)).await;
+                        }
+                         CompletionStreamValue::Comment{ value } => {
+                          let _ = sink.send(format!("comment:{}", value)).await;
+                        }
+                      }
+                    },
+                    Some(Err(error)) => {
+                        handle_error(&mut sink, error).await;
+                        return;
+                    },
+                    None => {
+                        let _ = sink.send(format!("finish:{}", self.task_id)).await;
+                        return;
+                    },
+                  }
                 }
             }
           },

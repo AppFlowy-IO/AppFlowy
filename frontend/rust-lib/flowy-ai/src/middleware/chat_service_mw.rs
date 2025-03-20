@@ -9,10 +9,10 @@ use appflowy_plugin::error::PluginError;
 use std::collections::HashMap;
 
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
-  CompleteTextParams, LocalAIConfig, MessageCursor, ModelList, RelatedQuestion,
-  RepeatedChatMessage, RepeatedRelatedQuestion, ResponseFormat, StreamAnswer, StreamComplete,
-  SubscriptionPlan, UpdateChatParams,
+  AppErrorCode, AppResponseError, ChatCloudService, ChatMessage, ChatMessageMetadata,
+  ChatMessageType, ChatSettings, CompleteTextParams, CompletionStream, LocalAIConfig,
+  MessageCursor, ModelList, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
+  ResponseFormat, StreamAnswer, StreamComplete, SubscriptionPlan, UpdateChatParams,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use futures::{stream, Sink, StreamExt, TryStreamExt};
@@ -194,7 +194,6 @@ impl ChatCloudService for AICloudServiceMiddleware {
       let content = self.get_message_record(question_message_id)?.content;
       match self.local_ai.ask_question(chat_id, &content).await {
         Ok(answer) => {
-          // TODO(nathan): metadata
           let message = self
             .cloud_service
             .create_answer(workspace_id, chat_id, &answer, question_message_id, None)
@@ -278,17 +277,20 @@ impl ChatCloudService for AICloudServiceMiddleware {
     if self.local_ai.is_running() {
       match self
         .local_ai
-        .complete_text(
+        .complete_text_v2(
           &params.text,
           params.completion_type.unwrap() as u8,
           Some(json!(params.format)),
+          Some(json!(params.metadata)),
         )
         .await
       {
         Ok(stream) => Ok(
-          stream
-            .map_err(|err| FlowyError::local_ai().with_context(err))
-            .boxed(),
+          CompletionStream::new(
+            stream.map_err(|err| AppResponseError::new(AppErrorCode::Internal, err.to_string())),
+          )
+          .map_err(FlowyError::from)
+          .boxed(),
         ),
         Err(err) => {
           self.handle_plugin_error(err);

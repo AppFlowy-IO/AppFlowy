@@ -49,6 +49,9 @@ class AppFlowyAIService implements AIRepository {
       onProcess: onProcess,
       onEnd: onEnd,
       onError: onError,
+      onComment: (String text) async {
+        Log.info('Comment: $text');
+      },
     );
 
     final records = history.map((record) => record.toPB()).toList();
@@ -80,12 +83,14 @@ abstract class CompletionStream {
   CompletionStream({
     required this.onStart,
     required this.onProcess,
+    required this.onComment,
     required this.onEnd,
     required this.onError,
   });
 
   final Future<void> Function() onStart;
   final Future<void> Function(String text) onProcess;
+  final Future<void> Function(String text) onComment;
   final Future<void> Function() onEnd;
   final void Function(AIError error) onError;
 }
@@ -94,6 +99,7 @@ class AppFlowyCompletionStream extends CompletionStream {
   AppFlowyCompletionStream({
     required super.onStart,
     required super.onProcess,
+    required super.onComment,
     required super.onEnd,
     required super.onError,
   }) {
