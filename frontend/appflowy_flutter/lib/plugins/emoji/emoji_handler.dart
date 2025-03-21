@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:appflowy/plugins/base/emoji/emoji_picker.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +52,7 @@ class _EmojiHandlerState extends State<EmojiHandler> {
     _doSearch();
   }
 
-  int _selectedIndex = 0;
+  final ValueNotifier<int> _selectedIndexNotifier = ValueNotifier(0);
 
   @override
   void initState() {
@@ -77,6 +78,7 @@ class _EmojiHandlerState extends State<EmojiHandler> {
   @override
   void dispose() {
     _focusNode.dispose();
+    _selectedIndexNotifier.dispose();
     super.dispose();
   }
 
@@ -99,21 +101,31 @@ class _EmojiHandlerState extends State<EmojiHandler> {
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: noEmojis
-              ? CircularProgressIndicator()
-              : Flexible(
-                  child: ScrollablePositionedList.builder(
-                    itemCount: searchedEmojis.length,
-                    itemScrollController: controller,
-                    shrinkWrap: true,
-                    physics: const ClampingScrollPhysics(),
-                    itemBuilder: (ctx, index) {
+        child: noEmojis
+            ? SizedBox(
+                width: 400,
+                height: 40,
+                child: Center(
+                  child: SizedBox.square(
+                    dimension: 20,
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+              )
+            : ScrollablePositionedList.builder(
+                itemCount: searchedEmojis.length,
+                itemScrollController: controller,
+                padding: EdgeInsets.all(8),
+                shrinkWrap: true,
+                physics: const ClampingScrollPhysics(),
+                itemBuilder: (ctx, index) {
+                  return ValueListenableBuilder(
+                    valueListenable: _selectedIndexNotifier,
+                    builder: (context, value, __) {
                       final selectedEmoji = searchedEmojis[index];
                       final displayedEmoji =
                           emojiData.getEmojiById(selectedEmoji.id);
-                      final isSelected = _selectedIndex == index;
+                      final isSelected = value == index;
                       return SizedBox(
                         height: 32,
                         child: FlowyButton(
@@ -127,12 +139,14 @@ class _EmojiHandlerState extends State<EmojiHandler> {
                         ),
                       );
                     },
-                  ),
-                ),
-        ),
+                  );
+                },
+              ),
       ),
     );
   }
+
+  void changeSelectedIndex(int index) => _selectedIndexNotifier.value = index;
 
   void loadEmojis(EmojiData data) {
     emojiData = data;
@@ -151,7 +165,7 @@ class _EmojiHandlerState extends State<EmojiHandler> {
     setState(() {
       searchedEmojis.clear();
       searchedEmojis.addAll(searchEmojiData.emojis.values);
-      _selectedIndex = 0;
+      changeSelectedIndex(0);
     });
     if (searchedEmojis.isEmpty) {
       widget.onDismiss.call();
@@ -169,7 +183,7 @@ class _EmojiHandlerState extends State<EmojiHandler> {
     ];
 
     if (event.logicalKey == LogicalKeyboardKey.enter) {
-      onSelect(_selectedIndex);
+      onSelect(_selectedIndexNotifier.value);
       return KeyEventResult.handled;
     } else if (event.logicalKey == LogicalKeyboardKey.escape) {
       // Workaround to bring focus back to editor
@@ -287,37 +301,38 @@ class _EmojiHandlerState extends State<EmojiHandler> {
 
   void _moveSelection(LogicalKeyboardKey key) {
     bool didChange = false;
-
+    final index = _selectedIndexNotifier.value;
     if (key == LogicalKeyboardKey.arrowUp ||
         (key == LogicalKeyboardKey.tab &&
             HardwareKeyboard.instance.isShiftPressed)) {
-      if (_selectedIndex == 0) {
-        _selectedIndex = max(0, searchedEmojis.length - 1);
+      if (index == 0) {
+        changeSelectedIndex(max(0, searchedEmojis.length - 1));
         didChange = true;
-      } else if (_selectedIndex > 0) {
-        _selectedIndex -= 1;
+      } else if (index > 0) {
+        changeSelectedIndex(index - 1);
         didChange = true;
       }
     } else if ([LogicalKeyboardKey.arrowDown, LogicalKeyboardKey.tab]
         .contains(key)) {
-      if (_selectedIndex < searchedEmojis.length - 1) {
-        _selectedIndex += 1;
+      if (index < searchedEmojis.length - 1) {
+        changeSelectedIndex(index + 1);
         didChange = true;
-      } else if (_selectedIndex == searchedEmojis.length - 1) {
-        _selectedIndex = 0;
+      } else if (index == searchedEmojis.length - 1) {
+        changeSelectedIndex(0);
         didChange = true;
       }
     }
 
     if (mounted && didChange) {
-      setState(() {});
       _scrollToItem();
     }
   }
 
   void _scrollToItem() {
+    final noEmojis = searchedEmojis.isEmpty;
+    if (noEmojis) return;
     controller.scrollTo(
-      index: _selectedIndex,
+      index: _selectedIndexNotifier.value,
       duration: const Duration(milliseconds: 200),
       alignment: 0.5,
     );
