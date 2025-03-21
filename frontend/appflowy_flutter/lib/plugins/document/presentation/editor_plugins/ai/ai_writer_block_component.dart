@@ -293,7 +293,8 @@ class _OverlayContentState extends State<OverlayContent> {
                                 ),
                               ),
                             ),
-                            if (showSuggestionPopup) ...[
+                            if (showSuggestionPopup &&
+                                state.command == AiWriterCommand.explain) ...[
                               const VSpace(4.0),
                               SuggestionActionBar(
                                 currentCommand: state.command,

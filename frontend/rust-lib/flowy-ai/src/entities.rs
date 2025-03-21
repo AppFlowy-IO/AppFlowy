@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use crate::local_ai::controller::LocalAISetting;
 use crate::local_ai::resource::PendingResource;
 use flowy_ai_pub::cloud::{
-  ChatMessage, ChatMessageMetadata, ChatMessageType, CompletionRecord, LLMModel, OutputContent,
+  ChatMessage, ChatMessageMetadata, ChatMessageType, CompletionMessage, LLMModel, OutputContent,
   OutputLayout, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion, ResponseFormat,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
@@ -361,6 +361,9 @@ pub struct CompleteTextPB {
 
   #[pb(index = 7)]
   pub history: Vec<CompletionRecordPB>,
+
+  #[pb(index = 8, one_of)]
+  pub custom_prompt: Option<String>,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
@@ -379,6 +382,7 @@ pub enum CompletionTypePB {
   ImproveWriting = 4,
   MakeShorter = 5,
   MakeLonger = 6,
+  CustomPrompt = 7,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
@@ -390,9 +394,9 @@ pub struct CompletionRecordPB {
   pub content: String,
 }
 
-impl From<&CompletionRecordPB> for CompletionRecord {
+impl From<&CompletionRecordPB> for CompletionMessage {
   fn from(value: &CompletionRecordPB) -> Self {
-    CompletionRecord {
+    CompletionMessage {
       role: match value.role {
         // Coerce ChatMessageTypePB::System to AI
         ChatMessageTypePB::System => "ai".to_string(),
