@@ -1,14 +1,14 @@
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/space/folder_view_item.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/presentation/widgets/page_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class FolderViews extends StatelessWidget {
-  const FolderViews({
+class FolderSpacePages extends StatelessWidget {
+  const FolderSpacePages({
     super.key,
     required this.space,
     required this.isHovered,
@@ -24,9 +24,9 @@ class FolderViews extends StatelessWidget {
   final ValueNotifier<bool> isHovered;
   final PropertyValueNotifier<bool> isExpandedNotifier;
   final bool disableSelectedStatus;
-  final FolderViewItemRightIconsBuilder? rightIconsBuilder;
-  final FolderViewItemOnSelected onSelected;
-  final FolderViewItemOnSelected? onTertiarySelected;
+  final PageItemRightIconsBuilder? rightIconsBuilder;
+  final PageItemOnSelected onSelected;
+  final PageItemOnSelected? onTertiarySelected;
   final IgnoreFolderViewType Function(FolderViewPB view)? shouldIgnoreView;
 
   @override
@@ -35,7 +35,7 @@ class FolderViews extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: space.children
           .map(
-            (view) => FolderViewItem(
+            (view) => PageItem(
               key: view.toValueKey(),
               spaceType: !space.isPrivate
                   ? FolderSpaceType.public

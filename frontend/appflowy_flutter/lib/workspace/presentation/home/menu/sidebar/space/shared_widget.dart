@@ -2,12 +2,12 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/page/page_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/space/folder_view_item.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/space/space_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/presentation/widgets/page_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/_extension.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
@@ -577,9 +577,9 @@ class SpacePages extends StatelessWidget {
   final ValueNotifier<bool> isHovered;
   final PropertyValueNotifier<bool> isExpandedNotifier;
   final bool disableSelectedStatus;
-  final FolderViewItemRightIconsBuilder? rightIconsBuilder;
-  final FolderViewItemOnSelected onSelected;
-  final FolderViewItemOnSelected? onTertiarySelected;
+  final PageItemRightIconsBuilder? rightIconsBuilder;
+  final PageItemOnSelected onSelected;
+  final PageItemOnSelected? onTertiarySelected;
   final IgnoreFolderViewType Function(FolderViewPB view)? shouldIgnoreView;
 
   @override
@@ -605,7 +605,7 @@ class SpacePages extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: childViews
                 .map(
-                  (view) => FolderViewItem(
+                  (view) => PageItem(
                     key: ValueKey('${space.viewId} ${view.viewId}'),
                     spaceType: space.spacePermission == SpacePermission.public
                         ? FolderSpaceType.public

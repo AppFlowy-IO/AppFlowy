@@ -10,7 +10,6 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
-import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
@@ -18,7 +17,8 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/page/page_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/draggable_folder_view_item.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/space/space_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/presentation/widgets/draggable_page_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
@@ -36,24 +36,24 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-typedef FolderViewItemOnSelected = void Function(
+typedef PageItemOnSelected = void Function(
   BuildContext context,
   FolderViewPB view,
 );
 
-typedef FolderViewItemLeftIconBuilder = Widget Function(
+typedef PageItemLeftIconBuilder = Widget Function(
   BuildContext context,
   FolderViewPB view,
 );
-typedef FolderViewItemRightIconsBuilder = List<Widget> Function(
+typedef PageItemRightIconsBuilder = List<Widget> Function(
   BuildContext context,
   FolderViewPB view,
 );
 
 enum IgnoreFolderViewType { none, hide, disable }
 
-class FolderViewItem extends StatelessWidget {
-  const FolderViewItem({
+class PageItem extends StatelessWidget {
+  const PageItem({
     super.key,
     required this.view,
     this.parentView,
@@ -95,10 +95,10 @@ class FolderViewItem extends StatelessWidget {
   final double leftPadding;
 
   // Selected by normal conventions
-  final FolderViewItemOnSelected onSelected;
+  final PageItemOnSelected onSelected;
 
   // Selected by middle mouse button
-  final FolderViewItemOnSelected? onTertiarySelected;
+  final PageItemOnSelected? onTertiarySelected;
 
   // used for indicating the first child of the parent view, so that we can
   // add top border to the first child
@@ -114,7 +114,7 @@ class FolderViewItem extends StatelessWidget {
 
   final bool isHoverEnabled;
 
-  // all the view movement depends on the [FolderViewItem] widget, so we have to add a
+  // all the view movement depends on the [PageItem] widget, so we have to add a
   // placeholder widget to receive the drop event when moving view across sections.
   final bool isPlaceholder;
 
@@ -125,10 +125,10 @@ class FolderViewItem extends StatelessWidget {
   final bool shouldRenderChildren;
 
   // custom the left icon widget, if it's null, the default expand/collapse icon will be used
-  final FolderViewItemLeftIconBuilder? leftIconBuilder;
+  final PageItemLeftIconBuilder? leftIconBuilder;
 
   // custom the right icon widget, if it's null, the default ... and + button will be used
-  final FolderViewItemRightIconsBuilder? rightIconsBuilder;
+  final PageItemRightIconsBuilder? rightIconsBuilder;
 
   final bool shouldLoadChildViews;
   final PropertyValueNotifier<bool>? isExpandedNotifier;
@@ -171,7 +171,7 @@ class FolderViewItem extends StatelessWidget {
                 .toList();
           }
 
-          final Widget child = InnerFolderViewItem(
+          final Widget child = InnerPageItem(
             view: state.view,
             parentView: parentView,
             childViews: childViews,
@@ -223,8 +223,8 @@ class FolderViewItem extends StatelessWidget {
 // TODO: We shouldn't have local global variables
 bool _isDragging = false;
 
-class InnerFolderViewItem extends StatefulWidget {
-  const InnerFolderViewItem({
+class InnerPageItem extends StatefulWidget {
+  const InnerPageItem({
     super.key,
     required this.view,
     required this.parentView,
@@ -271,8 +271,8 @@ class InnerFolderViewItem extends StatefulWidget {
 
   final bool showActions;
   final bool enableRightClickContext;
-  final FolderViewItemOnSelected onSelected;
-  final FolderViewItemOnSelected? onTertiarySelected;
+  final PageItemOnSelected onSelected;
+  final PageItemOnSelected? onTertiarySelected;
   final double height;
 
   final bool isHoverEnabled;
@@ -280,8 +280,8 @@ class InnerFolderViewItem extends StatefulWidget {
   final bool? disableSelectedStatus;
   final ValueNotifier<bool>? isHovered;
   final bool shouldRenderChildren;
-  final FolderViewItemLeftIconBuilder? leftIconBuilder;
-  final FolderViewItemRightIconsBuilder? rightIconsBuilder;
+  final PageItemLeftIconBuilder? leftIconBuilder;
+  final PageItemRightIconsBuilder? rightIconsBuilder;
 
   final PropertyValueNotifier<bool>? isExpandedNotifier;
   final List<Widget> Function(FolderViewPB view)? extendBuilder;
@@ -289,10 +289,10 @@ class InnerFolderViewItem extends StatefulWidget {
   final bool engagedInExpanding;
 
   @override
-  State<InnerFolderViewItem> createState() => _InnerFolderViewItemState();
+  State<InnerPageItem> createState() => _InnerPageItemState();
 }
 
-class _InnerFolderViewItemState extends State<InnerFolderViewItem> {
+class _InnerPageItemState extends State<InnerPageItem> {
   @override
   void initState() {
     super.initState();
@@ -311,7 +311,7 @@ class _InnerFolderViewItemState extends State<InnerFolderViewItem> {
       valueListenable: getIt<MenuSharedState>().notifier,
       builder: (context, value, _) {
         final isSelected = value?.id == widget.view.viewId;
-        return SingleInnerFolderViewItem(
+        return SingleInnerPageItem(
           view: widget.view,
           parentView: widget.parentView,
           level: widget.level,
@@ -342,7 +342,7 @@ class _InnerFolderViewItemState extends State<InnerFolderViewItem> {
         widget.shouldRenderChildren &&
         widget.childViews.isNotEmpty) {
       final children = widget.childViews.map((childView) {
-        return FolderViewItem(
+        return PageItem(
           key: ValueKey('${widget.spaceType.name} ${childView.viewId}'),
           parentView: widget.view,
           spaceType: widget.spaceType,
@@ -375,7 +375,7 @@ class _InnerFolderViewItemState extends State<InnerFolderViewItem> {
     // wrap the child with DraggableItem if isDraggable is true
     if ((widget.isDraggable || widget.isPlaceholder) &&
         !isReferencedDatabaseView(widget.view, widget.parentView)) {
-      child = DraggableFolderViewItem(
+      child = DraggablePageItem(
         isFirstChild: widget.isFirstChild,
         view: widget.view,
         onDragging: (isDragging) => _isDragging = isDragging,
@@ -392,7 +392,7 @@ class _InnerFolderViewItemState extends State<InnerFolderViewItem> {
                 : Colors.black54,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: FolderViewItem(
+          child: PageItem(
             view: widget.view,
             parentView: widget.parentView,
             spaceType: widget.spaceType,
@@ -415,7 +415,7 @@ class _InnerFolderViewItemState extends State<InnerFolderViewItem> {
       // keep the same height of the DraggableItem
       child = Padding(
         padding: const EdgeInsets.only(
-          top: kDraggableFolderViewItemDividerHeight,
+          top: kDraggablePageItemDividerHeight,
         ),
         child: child,
       );
@@ -433,8 +433,8 @@ class _InnerFolderViewItemState extends State<InnerFolderViewItem> {
   }
 }
 
-class SingleInnerFolderViewItem extends StatefulWidget {
-  const SingleInnerFolderViewItem({
+class SingleInnerPageItem extends StatefulWidget {
+  const SingleInnerPageItem({
     super.key,
     required this.view,
     required this.parentView,
@@ -473,8 +473,8 @@ class SingleInnerFolderViewItem extends StatefulWidget {
   final bool isDraggable;
   final bool showActions;
   final bool enableRightClickContext;
-  final FolderViewItemOnSelected onSelected;
-  final FolderViewItemOnSelected? onTertiarySelected;
+  final PageItemOnSelected onSelected;
+  final PageItemOnSelected? onTertiarySelected;
   final FolderSpaceType spaceType;
   final double height;
 
@@ -482,19 +482,18 @@ class SingleInnerFolderViewItem extends StatefulWidget {
   final bool isPlaceholder;
   final bool? disableSelectedStatus;
   final ValueNotifier<bool>? isHovered;
-  final FolderViewItemLeftIconBuilder? leftIconBuilder;
-  final FolderViewItemRightIconsBuilder? rightIconsBuilder;
+  final PageItemLeftIconBuilder? leftIconBuilder;
+  final PageItemRightIconsBuilder? rightIconsBuilder;
 
   final List<Widget> Function(FolderViewPB view)? extendBuilder;
   final IgnoreFolderViewType Function(FolderViewPB view)? shouldIgnoreView;
   final bool isSelected;
 
   @override
-  State<SingleInnerFolderViewItem> createState() =>
-      _SingleInnerFolderViewItemState();
+  State<SingleInnerPageItem> createState() => _SingleInnerPageItemState();
 }
 
-class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
+class _SingleInnerPageItemState extends State<SingleInnerPageItem> {
   final controller = PopoverController();
   final viewMoreActionController = PopoverController();
 
@@ -513,7 +512,7 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
     }
 
     if (widget.isFeedback || !widget.isHoverEnabled) {
-      return _buildFolderViewItem(
+      return _buildPageItem(
         false,
         !widget.isHoverEnabled ? isSelected : false,
       );
@@ -525,11 +524,11 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
       buildWhenOnHover: () =>
           !widget.showActions && !_isDragging && !isIconPickerOpened,
       isSelected: () => widget.showActions || isSelected,
-      builder: (_, onHover) => _buildFolderViewItem(onHover, isSelected),
+      builder: (_, onHover) => _buildPageItem(onHover, isSelected),
     );
   }
 
-  Widget _buildFolderViewItem(bool onHover, [bool isSelected = false]) {
+  Widget _buildPageItem(bool onHover, [bool isSelected = false]) {
     final name = FlowyText.regular(
       widget.view.viewPB.nameOrDefault,
       overflow: TextOverflow.ellipsis,
@@ -688,7 +687,7 @@ class _SingleInnerFolderViewItemState extends State<SingleInnerFolderViewItem> {
   // show > if the view is expandable.
   // show · if the view can't contain child views.
   Widget _buildLeftIcon() {
-    return FolderViewItemDefaultLeftIcon(
+    return PageItemDefaultLeftIcon(
       view: widget.view,
       parentView: widget.parentView,
       isExpanded: widget.isExpanded,
@@ -908,8 +907,8 @@ void moveViewCrossSpace(
       .add(FolderViewEvent.move(from, toId, null, null, null));
 }
 
-class FolderViewItemDefaultLeftIcon extends StatelessWidget {
-  const FolderViewItemDefaultLeftIcon({
+class PageItemDefaultLeftIcon extends StatelessWidget {
+  const PageItemDefaultLeftIcon({
     super.key,
     required this.view,
     required this.parentView,

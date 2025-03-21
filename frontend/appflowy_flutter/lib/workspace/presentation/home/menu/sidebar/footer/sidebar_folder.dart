@@ -1,12 +1,12 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
-import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/hotkeys.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/space/folder_space_menu.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/space/folder_views.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/space/space_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/presentation/widgets/folder_space_menu.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/presentation/space/folder_space_pages.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/create_space_popup.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -144,7 +144,7 @@ class _FolderV2LoadedState extends State<_FolderV2Loaded> {
           MouseRegion(
             onEnter: (_) => isHovered.value = true,
             onExit: (_) => isHovered.value = false,
-            child: FolderViews(
+            child: FolderSpacePages(
               isExpandedNotifier: isExpandedNotifier,
               space: widget.currentSpace,
               isHovered: isHovered,

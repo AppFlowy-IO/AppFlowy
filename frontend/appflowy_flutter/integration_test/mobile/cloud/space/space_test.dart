@@ -9,7 +9,7 @@ import 'package:appflowy/mobile/presentation/home/space/space_menu_bottom_sheet.
 import 'package:appflowy/mobile/presentation/home/space/widgets.dart';
 import 'package:appflowy/mobile/presentation/home/workspaces/create_workspace_menu.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
-import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';

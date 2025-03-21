@@ -7,7 +7,7 @@ import 'package:appflowy/plugins/ai_chat/application/chat_select_message_bloc.da
 import 'package:appflowy/plugins/ai_chat/application/chat_select_sources_cubit.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
 import 'package:appflowy/workspace/application/view/folder_view_ext.dart';

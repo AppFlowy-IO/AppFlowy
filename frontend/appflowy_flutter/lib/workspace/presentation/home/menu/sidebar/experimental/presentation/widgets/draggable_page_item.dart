@@ -10,10 +10,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-const kDraggableFolderViewItemDividerHeight = 2.0;
+const kDraggablePageItemDividerHeight = 2.0;
 
-class DraggableFolderViewItem extends StatefulWidget {
-  const DraggableFolderViewItem({
+class DraggablePageItem extends StatefulWidget {
+  const DraggablePageItem({
     super.key,
     required this.view,
     this.feedback,
@@ -37,11 +37,10 @@ class DraggableFolderViewItem extends StatefulWidget {
   final void Function(FolderViewPB from, FolderViewPB to)? onMove;
 
   @override
-  State<DraggableFolderViewItem> createState() =>
-      _DraggableFolderViewItemState();
+  State<DraggablePageItem> createState() => _DraggablePageItemState();
 }
 
-class _DraggableFolderViewItemState extends State<DraggableFolderViewItem> {
+class _DraggablePageItemState extends State<DraggablePageItem> {
   DraggableHoverPosition position = DraggableHoverPosition.none;
 
   final hoverColor = const Color(0xFF00C8FF);
@@ -98,8 +97,8 @@ class _DraggableFolderViewItemState extends State<DraggableFolderViewItem> {
         // only show the top border when the draggable item is the first child
         if (widget.isFirstChild)
           Divider(
-            height: kDraggableFolderViewItemDividerHeight,
-            thickness: kDraggableFolderViewItemDividerHeight,
+            height: kDraggablePageItemDividerHeight,
+            thickness: kDraggablePageItemDividerHeight,
             color: position == DraggableHoverPosition.top
                 ? widget.topHighlightColor ?? hoverColor
                 : Colors.transparent,
@@ -115,8 +114,8 @@ class _DraggableFolderViewItemState extends State<DraggableFolderViewItem> {
           child: widget.child,
         ),
         Divider(
-          height: kDraggableFolderViewItemDividerHeight,
-          thickness: kDraggableFolderViewItemDividerHeight,
+          height: kDraggablePageItemDividerHeight,
+          thickness: kDraggablePageItemDividerHeight,
           color: position == DraggableHoverPosition.bottom
               ? widget.bottomHighlightColor ?? hoverColor
               : Colors.transparent,
@@ -133,10 +132,10 @@ class _DraggableFolderViewItemState extends State<DraggableFolderViewItem> {
             top: 0,
             left: 0,
             right: 0,
-            height: kDraggableFolderViewItemDividerHeight,
+            height: kDraggablePageItemDividerHeight,
             child: Divider(
-              height: kDraggableFolderViewItemDividerHeight,
-              thickness: kDraggableFolderViewItemDividerHeight,
+              height: kDraggablePageItemDividerHeight,
+              thickness: kDraggablePageItemDividerHeight,
               color: position == DraggableHoverPosition.top
                   ? widget.topHighlightColor ??
                       Theme.of(context).colorScheme.secondary
@@ -160,10 +159,10 @@ class _DraggableFolderViewItemState extends State<DraggableFolderViewItem> {
           bottom: 0,
           left: 0,
           right: 0,
-          height: kDraggableFolderViewItemDividerHeight,
+          height: kDraggablePageItemDividerHeight,
           child: Divider(
-            height: kDraggableFolderViewItemDividerHeight,
-            thickness: kDraggableFolderViewItemDividerHeight,
+            height: kDraggablePageItemDividerHeight,
+            thickness: kDraggablePageItemDividerHeight,
             color: position == DraggableHoverPosition.bottom
                 ? widget.bottomHighlightColor ??
                     Theme.of(context).colorScheme.secondary
