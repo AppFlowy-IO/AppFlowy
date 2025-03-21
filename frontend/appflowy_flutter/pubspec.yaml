@@ -1,5 +1,5 @@
-name: appflowy
-description: Bring projects, wikis, and teams together with AI. AppFlowy is an
+name: johnnyrobot
+description: Bring projects, wikis, and teams together with AI. JohnnyRobot is an
   AI collaborative workspace where you achieve more without losing control of
   your data. The best open source alternative to Notion.
 publish_to: "none"
@@ -42,6 +42,7 @@ dependencies:
   collection: ^1.17.1
   connectivity_plus: ^5.0.2
   cross_file: ^0.3.4+1
+  cross_cache: ^0.0.8
 
   # Desktop Drop uses Cross File (XFile) data type
   defer_pointer: ^0.0.2
@@ -293,6 +294,7 @@ flutter:
     - assets/images/login/
     - assets/translations/
     - assets/icons/icons.json
+    - assets/johnnyrobot/
 
     # The following assets will be excluded in release.
     # BEGIN: EXCLUDE_IN_RELEASE

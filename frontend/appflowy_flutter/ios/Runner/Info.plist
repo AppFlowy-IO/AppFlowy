@@ -17,7 +17,7 @@
 			<string>en</string>
 		</array>
 		<key>CFBundleName</key>
-		<string>AppFlowy</string>
+		<string>johnnyrobot</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>
@@ -31,7 +31,7 @@
 				<string></string>
 				<key>CFBundleURLSchemes</key>
 				<array>
-					<string>appflowy-flutter</string>
+					<string>johnnyrobot</string>
 				</array>
 			</dict>
 		</array>
@@ -47,13 +47,13 @@
 			<true />
 		</dict>
 		<key>NSPhotoLibraryUsageDescription</key>
-		<string>AppFlowy needs access to your photos to let you add images to your documents</string>
+		<string>johnnyrobot needs access to your photos to let you add images to your documents</string>
 		<key>NSPhotoLibraryAddUsageDescription</key>
-		<string>AppFlowy needs access to your photos to let you add images to your photo library</string>
+		<string>johnnyrobot needs access to your photos to let you add images to your photo library</string>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true />
 		<key>NSCameraUsageDescription</key>
-		<string>AppFlowy needs access to your camera to let you add images to your documents from
+		<string>johnnyrobot needs access to your camera to let you add images to your documents from
 			camera</string>
 		<key>UILaunchStoryboardName</key>
 		<string>LaunchScreen</string>

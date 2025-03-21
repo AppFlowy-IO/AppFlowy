@@ -6,23 +6,7 @@ extension SelectionColor on EditorState {
     if (selection == null) {
       return null;
     }
-    String? color = toggledStyle[key];
-    if (color == null) {
-      if (selection.isCollapsed && selection.startIndex != 0) {
-        color = getDeltaAttributeValueInSelection<String>(
-          key,
-          selection.copyWith(
-            start: selection.start.copyWith(
-              offset: selection.startIndex - 1,
-            ),
-          ),
-        );
-      } else {
-        color = getDeltaAttributeValueInSelection<String>(
-          key,
-        );
-      }
-    }
+    final String? color = toggledStyle[key];
     return color;
   }
 }

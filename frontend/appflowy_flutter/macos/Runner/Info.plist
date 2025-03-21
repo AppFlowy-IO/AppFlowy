@@ -22,7 +22,7 @@
 			<string>zh</string>
 		</array>
 		<key>CFBundleName</key>
-		<string>$(PRODUCT_NAME)</string>
+		<string>johnnyrobot</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>
@@ -34,7 +34,7 @@
 				<string></string>
 				<key>CFBundleURLSchemes</key>
 				<array>
-					<string>appflowy-flutter</string>
+					<string>johnnyrobot</string>
 				</array>
 			</dict>
 		</array>

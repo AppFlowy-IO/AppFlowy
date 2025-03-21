@@ -294,7 +294,7 @@ class _DocumentPageState extends State<DocumentPage>
 
   Path? _getPathFromAction(NavigationAction action, EditorState editorState) {
     Path? path = action.arguments?[ActionArgumentKeys.nodePath];
-    if (path == null || path.isEmpty) {
+    if (path.isEmpty) {
       final blockId = action.arguments?[ActionArgumentKeys.blockId];
       if (blockId != null) {
         path = _findNodePathByBlockId(editorState, blockId);

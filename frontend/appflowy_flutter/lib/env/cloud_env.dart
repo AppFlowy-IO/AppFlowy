@@ -109,6 +109,11 @@ bool get isAppFlowyCloudEnabled {
   return currentCloudType().isAppFlowyCloudEnabled;
 }
 
+/// Determines if JohnnyRobot Cloud is enabled.
+bool get isJohnnyRobotCloudEnabled {
+  return currentCloudType().isAppFlowyCloudEnabled;
+}
+
 enum AuthenticatorType {
   local,
   appflowyCloud,

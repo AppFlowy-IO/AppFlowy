@@ -137,7 +137,9 @@ void main() {
       () => mockDocumentAppearanceCubit.syncDefaultTextDirection(
         any<String?>(),
       ),
-    ).thenAnswer((_) async {});
+    ).thenAnswer((_) async {
+      return null;
+    });
 
     final radioSelect = tester.widget(radioSelectFinder)
         as SettingsRadioSelect<AppFlowyTextDirection>;

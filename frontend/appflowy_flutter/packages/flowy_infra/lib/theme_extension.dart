@@ -269,14 +269,14 @@ enum FlowyTint {
 
   String get id => switch (this) {
         // DON'T change this name because it's saved in the database!
-        FlowyTint.tint1 => 'appflowy_them_color_tint1',
-        FlowyTint.tint2 => 'appflowy_them_color_tint2',
-        FlowyTint.tint3 => 'appflowy_them_color_tint3',
-        FlowyTint.tint4 => 'appflowy_them_color_tint4',
-        FlowyTint.tint5 => 'appflowy_them_color_tint5',
-        FlowyTint.tint6 => 'appflowy_them_color_tint6',
-        FlowyTint.tint7 => 'appflowy_them_color_tint7',
-        FlowyTint.tint8 => 'appflowy_them_color_tint8',
-        FlowyTint.tint9 => 'appflowy_them_color_tint9',
+        FlowyTint.tint1 => 'johnnyrobot_them_color_tint1',
+        FlowyTint.tint2 => 'johnnyrobot_them_color_tint2',
+        FlowyTint.tint3 => 'johnnyrobot_them_color_tint3',
+        FlowyTint.tint4 => 'johnnyrobot_them_color_tint4',
+        FlowyTint.tint5 => 'johnnyrobot_them_color_tint5',
+        FlowyTint.tint6 => 'johnnyrobot_them_color_tint6',
+        FlowyTint.tint7 => 'johnnyrobot_them_color_tint7',
+        FlowyTint.tint8 => 'johnnyrobot_them_color_tint8',
+        FlowyTint.tint9 => 'johnnyrobot_them_color_tint9',
       };
 }

@@ -78,7 +78,7 @@ class _MobileUser extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const FlowyText.medium('AppFlowy', fontSize: 18),
+              const FlowyText.medium('johnnyrobot.ai', fontSize: 18),
               const VSpace(4),
               FlowyText.regular(
                 userProfile.email.isNotEmpty
@@ -234,7 +234,7 @@ class _UserIcon extends StatelessWidget {
             path: MobileEmojiPickerScreen.routeName,
             queryParameters: {
               MobileEmojiPickerScreen.pageTitle:
-                  LocaleKeys.titleBar_userIcon.tr(),
+                  'johnnyrobot User Icon',
               MobileEmojiPickerScreen.selectTabs: [PickerTabType.emoji.name],
             },
           ).toString(),

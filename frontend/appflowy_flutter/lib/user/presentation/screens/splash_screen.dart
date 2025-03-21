@@ -115,7 +115,7 @@ class Body extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       child: UniversalPlatform.isMobile
-          ? const FlowySvg(FlowySvgs.flowy_logo_xl, blendMode: null)
+          ? Image.asset('assets/johnnyrobot/robot_logo.png', width: 120)
           : const _DesktopSplashBody(),
     );
   }
@@ -136,7 +136,7 @@ class _DesktopSplashBody extends StatelessWidget {
             width: size.width,
             height: size.height,
             image: const AssetImage(
-              'assets/images/appflowy_launch_splash.jpg',
+              'assets/johnnyrobot/robot_logo.png',
             ),
           ),
           const CircularProgressIndicator.adaptive(),

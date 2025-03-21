@@ -21,15 +21,11 @@ extension PasteFromFile on EditorState {
         type = FileUrlType.cloud;
       }
 
-      if (path == null) {
-        continue;
-      }
-
       final t = transaction
         ..insertNode(
           dropPath,
           fileNode(
-            url: path,
+            url: path ?? '',
             type: type,
             name: file.name,
           ),

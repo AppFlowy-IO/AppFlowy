@@ -7,5 +7,5 @@ Future<void> main() async {
     scaleFactor: (_) => 1.0,
   );
 
-  await runAppFlowy();
+  await runJohnnyRobot();
 }

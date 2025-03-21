@@ -51,7 +51,6 @@ class DesktopAppearance extends BaseAppearance {
       visualDensity: VisualDensity.standard,
       useMaterial3: false,
       brightness: brightness,
-      dialogBackgroundColor: theme.surface,
       textTheme: getTextTheme(
         fontFamily: fontFamily,
         fontColor: theme.text,
@@ -152,7 +151,7 @@ class DesktopAppearance extends BaseAppearance {
           lightIconColor: theme.lightIconColor,
           toolbarHoverColor: theme.toolbarHoverColor,
         ),
-      ],
+      ], dialogTheme: DialogThemeData(backgroundColor: theme.surface),
     );
   }
 }

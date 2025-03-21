@@ -79,10 +79,14 @@ void main() {
       findsAtLeastNWidgets(1),
     );
     when(() => appearanceSettingsCubit.setFontFamily(any<String>()))
-        .thenAnswer((_) async {});
+        .thenAnswer((_) async {
+          return null;
+        });
     verifyNever(() => appearanceSettingsCubit.setFontFamily(any<String>()));
     when(() => documentAppearanceCubit.syncFontFamily(any<String>()))
-        .thenAnswer((_) async {});
+        .thenAnswer((_) async {
+          return null;
+        });
     verifyNever(() => documentAppearanceCubit.syncFontFamily(any<String>()));
 
     // Tap on a different font family

@@ -12,7 +12,7 @@ import 'package:window_manager/window_manager.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 class InitAppWindowTask extends LaunchTask with WindowListener {
-  InitAppWindowTask({this.title = 'AppFlowy'});
+  InitAppWindowTask({this.title = 'johnnyrobot'});
 
   final String title;
   final windowSizeManager = WindowSizeManager();

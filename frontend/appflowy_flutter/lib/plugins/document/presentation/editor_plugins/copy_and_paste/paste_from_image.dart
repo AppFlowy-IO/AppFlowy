@@ -44,14 +44,10 @@ extension PasteFromImage on EditorState {
         type = CustomImageType.internal;
       }
 
-      if (path == null) {
-        continue;
-      }
-
       final t = transaction
         ..insertNode(
           dropPath,
-          customImageNode(url: path, type: type),
+          customImageNode(url: path ?? '', type: type),
         );
       await apply(t);
     }
@@ -122,10 +118,8 @@ extension PasteFromImage on EditorState {
         type = CustomImageType.internal;
       }
 
-      if (path != null) {
-        await insertImageNode(path, selection: selection, type: type);
-      }
-
+      await insertImageNode(path ?? '', selection: selection, type: type);
+    
       return true;
     } catch (e) {
       Log.error('cannot copy image file', e);

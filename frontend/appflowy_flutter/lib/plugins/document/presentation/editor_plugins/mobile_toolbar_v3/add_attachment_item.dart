@@ -174,11 +174,9 @@ class _AddAttachmentMenu extends StatelessWidget {
       type = CustomImageType.internal;
     }
 
-    if (path != null) {
-      final node = customImageNode(url: path, type: type);
-      await _insertNode(node);
+    final node = customImageNode(url: path ?? '', type: type);
+    await _insertNode(node);
     }
-  }
 
   Future<void> selectPhoto(BuildContext context) async {
     final image = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -224,11 +222,9 @@ class _AddAttachmentMenu extends StatelessWidget {
         type = FileUrlType.cloud;
       }
 
-      if (path != null) {
-        final node = fileNode(url: path, type: type, name: file.name);
-        await _insertNode(node);
-      }
-    }
+      final node = fileNode(url: path ?? '', type: type, name: file.name);
+      await _insertNode(node);
+        }
 
     if (context.mounted) {
       Navigator.pop(context);

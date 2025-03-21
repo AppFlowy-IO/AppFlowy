@@ -30,8 +30,8 @@ class FlowyRunnerContext {
   final Directory applicationDataDirectory;
 }
 
-Future<void> runAppFlowy({bool isAnon = false}) async {
-  Log.info('restart AppFlowy: isAnon: $isAnon');
+Future<void> runJohnnyRobot({bool isAnon = false}) async {
+  Log.info('restart johnnyrobot: isAnon: $isAnon');
 
   if (kReleaseMode) {
     await FlowyRunner.run(
@@ -50,6 +50,11 @@ Future<void> runAppFlowy({bool isAnon = false}) async {
       isAnon: isAnon,
     );
   }
+}
+
+// Keep for backward compatibility
+Future<void> runAppFlowy({bool isAnon = false}) async {
+  await runJohnnyRobot(isAnon: isAnon);
 }
 
 class FlowyRunner {
@@ -141,7 +146,7 @@ class FlowyRunner {
           // The auto update task should be placed after the ApplicationInfoTask to fetch the latest version.
           if (!mode.isIntegrationTest) AutoUpdateTask(),
           const HotKeyTask(),
-          if (isAppFlowyCloudEnabled) InitAppFlowyCloudTask(),
+          if (isJohnnyRobotCloudEnabled) InitJohnnyRobotCloudTask(),
           const InitAppWidgetTask(),
           const InitPlatformServiceTask(),
           const RecentServiceTask(),

@@ -88,7 +88,7 @@ class FolderOptionsWidget extends StatelessWidget {
         return _FolderCard(
           icon: const FlowySvg(FlowySvgs.archive_m),
           title: LocaleKeys.settings_files_defineWhereYourDataIsStored.tr(),
-          subtitle: subtitle,
+          subtitle: subtitle2,
           trailing: _buildTextButton(
             context,
             LocaleKeys.settings_files_set.tr(),

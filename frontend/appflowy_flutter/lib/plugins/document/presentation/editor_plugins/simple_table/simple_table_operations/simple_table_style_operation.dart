@@ -222,15 +222,13 @@ extension TableOptionOperation on EditorState {
   }) async {
     final columnLength = tableNode.columnLength;
     double? pageWidth = tableNode.renderBox?.size.width;
-    if (pageWidth == null) {
-      Log.warn('table node render box is null');
-      return;
+    if (pageWidth != null) {
+      pageWidth -= SimpleTableConstants.tablePageOffset;
     }
-    pageWidth -= SimpleTableConstants.tablePageOffset;
 
     final transaction = this.transaction;
     final columnWidths = tableNode.columnWidths;
-    final ratio = pageWidth / tableNode.width;
+    final ratio = pageWidth != null ? pageWidth / tableNode.width : 1.0;
     for (var i = 0; i < columnLength; i++) {
       final columnWidth =
           columnWidths[i.toString()] ?? SimpleTableConstants.defaultColumnWidth;

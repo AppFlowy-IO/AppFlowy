@@ -24,7 +24,6 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/style_widget/snap_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -239,16 +238,10 @@ class PageStyleCoverImage extends StatelessWidget {
       if (!context.mounted) {
         return;
       }
-      if (result == null) {
-        return showSnapBar(
-          context,
-          LocaleKeys.document_plugins_image_imageUploadFailed.tr(),
-        );
-      }
 
       context.read<DocumentPageStyleBloc>().add(
             DocumentPageStyleEvent.updateCoverImage(
-              PageStyleCover(type: type, value: result),
+              PageStyleCover(type: type, value: result ?? ''),
             ),
           );
     }

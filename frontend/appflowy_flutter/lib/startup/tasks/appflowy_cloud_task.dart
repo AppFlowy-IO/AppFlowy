@@ -21,10 +21,10 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:flutter/material.dart';
 import 'package:url_protocol/url_protocol.dart';
 
-const appflowyDeepLinkSchema = 'appflowy-flutter';
+const johnnyrobotDeepLinkSchema = 'johnnyrobot';
 
-class AppFlowyCloudDeepLink {
-  AppFlowyCloudDeepLink() {
+class JohnnyRobotCloudDeepLink {
+  JohnnyRobotCloudDeepLink() {
     _deepLinkSubscription = _AppLinkWrapper.instance.listen(
       (Uri? uri) async {
         Log.info('onDeepLink: ${uri.toString()}');
@@ -37,7 +37,7 @@ class AppFlowyCloudDeepLink {
     );
     if (Platform.isWindows) {
       // register deep link for Windows
-      registerProtocolHandler(appflowyDeepLinkSchema);
+      registerProtocolHandler(johnnyrobotDeepLinkSchema);
     }
   }
 
@@ -46,14 +46,14 @@ class AppFlowyCloudDeepLink {
   Completer<FlowyResult<UserProfilePB, FlowyError>>? _completer;
 
   set completer(Completer<FlowyResult<UserProfilePB, FlowyError>>? value) {
-    Log.debug('AppFlowyCloudDeepLink: $hashCode completer');
+    Log.debug('JohnnyRobotCloudDeepLink: $hashCode completer');
     _completer = value;
   }
 
   late final StreamSubscription<Uri?> _deepLinkSubscription;
 
   Future<void> dispose() async {
-    Log.debug('AppFlowyCloudDeepLink: $hashCode dispose');
+    Log.debug('JohnnyRobotCloudDeepLink: $hashCode dispose');
     await _deepLinkSubscription.cancel();
 
     _stateNotifier?.dispose();
@@ -122,7 +122,7 @@ class AppFlowyCloudDeepLink {
         if (_completer == null) {
           await result.fold(
             (_) async {
-              await runAppFlowy();
+              await runJohnnyRobot();
             },
             (err) {
               Log.error(err);
@@ -175,13 +175,13 @@ class AppFlowyCloudDeepLink {
   }
 }
 
-class InitAppFlowyCloudTask extends LaunchTask {
+class InitJohnnyRobotCloudTask extends LaunchTask {
   UserAuthStateListener? _authStateListener;
   bool isLoggingOut = false;
 
   @override
   Future<void> initialize(LaunchContext context) async {
-    if (!isAppFlowyCloudEnabled) {
+    if (!isJohnnyRobotCloudEnabled) {
       return;
     }
     _authStateListener = UserAuthStateListener();
@@ -193,7 +193,7 @@ class InitAppFlowyCloudTask extends LaunchTask {
       onInvalidAuth: (message) async {
         Log.error(message);
         if (!isLoggingOut) {
-          await runAppFlowy();
+          await runJohnnyRobot();
         }
       },
     );
