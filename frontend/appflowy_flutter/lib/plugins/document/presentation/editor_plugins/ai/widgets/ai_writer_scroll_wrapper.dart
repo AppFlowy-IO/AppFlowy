@@ -145,19 +145,11 @@ class _AiWriterScrollWrapperState extends State<AiWriterScrollWrapper> {
         description: LocaleKeys.document_plugins_discardResponse.tr(),
         confirmLabel: LocaleKeys.button_discard.tr(),
         style: ConfirmPopupStyle.cancelAndOk,
-        onConfirm: () {
-          Future(() async {
-            await aiWriterCubit.stopStream();
-            await aiWriterCubit.exit();
-          });
-        },
+        onConfirm: stopAndExit,
         onCancel: () {},
       );
     } else {
-      Future(() async {
-        await aiWriterCubit.stopStream();
-        await aiWriterCubit.exit();
-      });
+      stopAndExit();
     }
   }
 
@@ -177,19 +169,11 @@ class _AiWriterScrollWrapperState extends State<AiWriterScrollWrapper> {
             description: LocaleKeys.document_plugins_discardResponse.tr(),
             confirmLabel: LocaleKeys.button_discard.tr(),
             style: ConfirmPopupStyle.cancelAndOk,
-            onConfirm: () {
-              Future(() async {
-                await aiWriterCubit.stopStream();
-                await aiWriterCubit.exit();
-              });
-            },
+            onConfirm: stopAndExit,
             onCancel: () {},
           );
         } else {
-          Future(() async {
-            await aiWriterCubit.stopStream();
-            await aiWriterCubit.exit();
-          });
+          stopAndExit();
         }
         return true;
       case LogicalKeyboardKey.keyC
@@ -218,6 +202,13 @@ class _AiWriterScrollWrapperState extends State<AiWriterScrollWrapper> {
           Selection.collapsed(Position(path: path)),
         );
       }
+    });
+  }
+
+  void stopAndExit() {
+    Future(() async {
+      await aiWriterCubit.stopStream();
+      await aiWriterCubit.exit();
     });
   }
 }

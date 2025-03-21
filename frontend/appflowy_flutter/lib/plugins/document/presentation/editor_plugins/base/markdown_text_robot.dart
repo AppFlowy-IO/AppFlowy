@@ -140,7 +140,7 @@ class MarkdownTextRobot {
 
     await editorState.apply(
       transaction,
-      options: const ApplyOptions(recordUndo: false),
+      options: const ApplyOptions(recordUndo: false, inMemoryUpdate: true),
     );
 
     if (_enableDebug) {

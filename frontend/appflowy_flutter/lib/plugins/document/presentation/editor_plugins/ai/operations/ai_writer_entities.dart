@@ -1,3 +1,4 @@
+import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
@@ -129,24 +130,22 @@ enum AiRole {
 }
 
 class AiWriterRecord extends Equatable {
-  const AiWriterRecord({
-    required this.role,
-    required this.content,
-  });
-
   const AiWriterRecord.user({
     required this.content,
+    required this.format,
   }) : role = AiRole.user;
 
   const AiWriterRecord.ai({
     required this.content,
-  }) : role = AiRole.ai;
+  })  : role = AiRole.ai,
+        format = null;
 
   final AiRole role;
   final String content;
+  final PredefinedFormat? format;
 
   @override
-  List<Object> get props => [role, content];
+  List<Object?> get props => [role, content, format];
 
   CompletionRecordPB toPB() {
     return CompletionRecordPB(
