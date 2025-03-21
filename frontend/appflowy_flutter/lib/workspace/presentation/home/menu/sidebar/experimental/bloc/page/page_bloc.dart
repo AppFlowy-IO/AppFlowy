@@ -8,7 +8,7 @@ import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/expand_views.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/services/workspace_http_services.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/services/page_http_services.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
@@ -20,7 +20,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
 
-part 'folder_view_bloc.freezed.dart';
+part 'page_bloc.freezed.dart';
 
 final ValueNotifier<int> refreshNotifier = ValueNotifier(0);
 
