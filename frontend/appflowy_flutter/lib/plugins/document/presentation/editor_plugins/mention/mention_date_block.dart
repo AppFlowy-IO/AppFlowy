@@ -60,8 +60,6 @@ class MentionDateBlock extends StatefulWidget {
 }
 
 class _MentionDateBlockState extends State<MentionDateBlock> {
-  final PopoverMutex mutex = PopoverMutex();
-
   late bool _includeTime = widget.includeTime;
   late DateTime? parsedDate = DateTime.tryParse(widget.date);
 
@@ -69,12 +67,6 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
   void didUpdateWidget(covariant oldWidget) {
     parsedDate = DateTime.tryParse(widget.date);
     super.didUpdateWidget(oldWidget);
-  }
-
-  @override
-  void dispose() {
-    mutex.dispose();
-    super.dispose();
   }
 
   @override
@@ -105,7 +97,6 @@ class _MentionDateBlockState extends State<MentionDateBlock> {
 
           final options = DatePickerOptions(
             focusedDay: parsedDate,
-            popoverMutex: mutex,
             selectedDay: parsedDate,
             includeTime: _includeTime,
             dateFormat: appearance.dateFormat,

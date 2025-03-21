@@ -16,7 +16,6 @@ import 'package:flutter/services.dart';
 class DatePickerOptions {
   DatePickerOptions({
     DateTime? focusedDay,
-    this.popoverMutex,
     this.selectedDay,
     this.includeTime = false,
     this.isRange = false,
@@ -31,7 +30,6 @@ class DatePickerOptions {
   }) : focusedDay = focusedDay ?? DateTime.now();
 
   final DateTime focusedDay;
-  final PopoverMutex? popoverMutex;
   final DateTime? selectedDay;
   final bool includeTime;
   final bool isRange;
@@ -48,6 +46,7 @@ class DatePickerOptions {
 
 abstract class DatePickerService {
   void show(Offset offset, {required DatePickerOptions options});
+
   void dismiss();
 }
 
@@ -60,6 +59,7 @@ class DatePickerMenu extends DatePickerService {
 
   final BuildContext context;
   final EditorState editorState;
+  PopoverMutex? popoverMutex;
 
   OverlayEntry? _menuEntry;
 
@@ -67,6 +67,9 @@ class DatePickerMenu extends DatePickerService {
   void dismiss() {
     _menuEntry?.remove();
     _menuEntry = null;
+    popoverMutex?.close();
+    popoverMutex?.dispose();
+    popoverMutex = null;
   }
 
   @override
@@ -97,6 +100,7 @@ class DatePickerMenu extends DatePickerService {
       }
     }
 
+    popoverMutex = PopoverMutex();
     _menuEntry = OverlayEntry(
       builder: (_) => Material(
         type: MaterialType.transparency,
@@ -119,6 +123,7 @@ class DatePickerMenu extends DatePickerService {
                     offset: Offset(offsetX, offsetY),
                     showBelow: showBelow,
                     options: options,
+                    popoverMutex: popoverMutex,
                   ),
                 ],
               ),
@@ -137,11 +142,13 @@ class _AnimatedDatePicker extends StatelessWidget {
     required this.offset,
     required this.showBelow,
     required this.options,
+    this.popoverMutex,
   });
 
   final Offset offset;
   final bool showBelow;
   final DatePickerOptions options;
+  final PopoverMutex? popoverMutex;
 
   @override
   Widget build(BuildContext context) {
@@ -165,11 +172,12 @@ class _AnimatedDatePicker extends StatelessWidget {
           dateFormat: options.dateFormat.simplified,
           timeFormat: options.timeFormat.simplified,
           dateTime: options.selectedDay,
-          popoverMutex: options.popoverMutex,
+          popoverMutex: popoverMutex,
           reminderOption: options.selectedReminderOption ?? ReminderOption.none,
           onDaySelected: options.onDaySelected,
           onRangeSelected: options.onRangeSelected,
           onReminderSelected: options.onReminderSelected,
+          enableDidUpdate: false,
         ),
       ),
     );
