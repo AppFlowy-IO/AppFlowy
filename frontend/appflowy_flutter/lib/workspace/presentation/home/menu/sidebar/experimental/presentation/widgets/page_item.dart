@@ -7,7 +7,6 @@ import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/application/favorite/favorite_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
@@ -16,6 +15,7 @@ import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/favorite/folder_favorite_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/page/page_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/presentation/widgets/draggable_page_item.dart';
@@ -760,8 +760,8 @@ class _SingleInnerPageItemState extends State<SingleInnerPageItem> {
             case ViewMoreActionType.favorite:
             case ViewMoreActionType.unFavorite:
               context
-                  .read<FavoriteBloc>()
-                  .add(FavoriteEvent.toggle(widget.view.viewPB));
+                  .read<FolderFavoriteBloc>()
+                  .add(FolderFavoriteEvent.toggleFavorite(widget.view.viewId));
               break;
             case ViewMoreActionType.rename:
               unawaited(

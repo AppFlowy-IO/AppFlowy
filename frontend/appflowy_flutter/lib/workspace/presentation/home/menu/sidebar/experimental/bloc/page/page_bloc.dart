@@ -8,7 +8,7 @@ import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/expand_views.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/services/page_http_services.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/services/page_http_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';

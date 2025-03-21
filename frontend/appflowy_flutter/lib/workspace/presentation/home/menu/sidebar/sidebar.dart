@@ -18,13 +18,14 @@ import 'package:appflowy/workspace/application/favorite/prelude.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy/workspace/application/sidebar/billing/sidebar_plan_bloc.dart';
-import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/favorite/folder_favorite_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_footer.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_upgarde_application_button.dart';
@@ -133,6 +134,11 @@ class HomeSideBar extends StatelessWidget {
                   workspaceId: workspaceId,
                 )..add(const SpaceEvent.initial(openFirstPage: false)),
               ),
+              BlocProvider<FolderFavoriteBloc>(
+                create: (context) =>
+                    FolderFavoriteBloc(workspaceId: workspaceId)
+                      ..add(const FolderFavoriteEvent.initial()),
+              ),
             ],
             child: MultiBlocListener(
               listeners: [
@@ -207,6 +213,10 @@ class HomeSideBar extends StatelessWidget {
                       context
                           .read<FavoriteBloc>()
                           .add(const FavoriteEvent.fetchFavorites());
+
+                      context
+                          .read<FolderFavoriteBloc>()
+                          .add(const FolderFavoriteEvent.fetchFavorites());
                     }
                   },
                 ),

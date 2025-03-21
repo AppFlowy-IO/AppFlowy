@@ -65,6 +65,10 @@ pub fn init(folder: Weak<FolderManager>) -> AFPlugin {
     .event(FolderEvent::RestorePageFromTrash, restore_page_from_trash_handler)
     .event(FolderEvent::DuplicatePage, duplicate_page_handler)
     .event(FolderEvent::MovePage, move_page_handler)
+    .event(FolderEvent::GetFavoritePages, get_favorite_pages_handler)
+    .event(FolderEvent::GetRecentPages, get_recent_pages_handler)
+    .event(FolderEvent::GetTrashPages, get_trash_pages_handler)
+    .event(FolderEvent::UpdateFavoritePage, update_favorite_page_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
