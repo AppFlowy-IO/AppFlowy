@@ -7,10 +7,12 @@ import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/favorite/folder_favorite_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/page/page_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/extensions/favorite_folder_view_pb_extensions.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/presentation/favorite/favorite_page_item_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/presentation/widgets/page_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_menu.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/favorites/favorite_pin_action.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -151,12 +153,14 @@ class _FavoriteSectionState extends State<_FavoriteSection> {
         Listener(
           child: FavoritePageItemMoreActionButton(view: view),
           onPointerDown: (e) {
-            context.read<ViewBloc>().add(const ViewEvent.setIsEditing(true));
+            context
+                .read<FolderViewBloc>()
+                .add(const FolderViewEvent.setIsEditing(true));
           },
         ),
         const HSpace(8.0),
         Listener(
-          child: FavoritePageItemMoreActionButton(view: view),
+          child: FavoritePinAction(view: view.view.viewPB),
           onPointerDown: (e) {
             context.read<ViewBloc>().add(const ViewEvent.setIsEditing(true));
           },

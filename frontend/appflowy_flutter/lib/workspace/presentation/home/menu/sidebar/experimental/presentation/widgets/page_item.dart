@@ -19,9 +19,9 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/b
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/page/page_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/presentation/widgets/draggable_page_item.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/presentation/widgets/page_item_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
-import 'package:appflowy/workspace/presentation/home/menu/view/view_more_action_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/lock_page_action.dart';
 import 'package:appflowy/workspace/presentation/widgets/rename_view_popover.dart';
@@ -746,8 +746,8 @@ class _SingleInnerPageItemState extends State<SingleInnerPageItem> {
         userProfile: context.read<SpaceBloc>().userProfile,
         workspaceId: context.read<SpaceBloc>().workspaceId,
       )..add(const SpaceEvent.initial(openFirstPage: false)),
-      child: ViewMoreActionPopover(
-        view: widget.view.viewPB,
+      child: PageItemMoreActionPopover(
+        view: widget.view,
         controller: controller,
         isExpanded: widget.isExpanded,
         spaceType: widget.spaceType,

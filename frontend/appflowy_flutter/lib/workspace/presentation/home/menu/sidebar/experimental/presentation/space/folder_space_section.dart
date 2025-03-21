@@ -7,7 +7,6 @@ import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/p
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/create_space_popup.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -101,14 +100,6 @@ class _SpaceState extends State<_Space> {
                   context.read<TabsBloc>().openTab(view.viewPB),
             ),
           ),
-        FlowyTextButton(
-          'Refresh',
-          onPressed: () {
-            context
-                .read<SpaceBloc>()
-                .add(const SpaceEvent.didReceiveSpaceUpdate());
-          },
-        ),
       ],
     );
   }

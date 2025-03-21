@@ -1,8 +1,11 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/favorite/folder_favorite_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/presentation/favorite/folder_favorite_section.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/presentation/space/folder_space_section.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -32,6 +35,17 @@ class SidebarFolderV2 extends StatelessWidget {
             // space section
             FolderSpaceSection(),
             const VSpace(200),
+            FlowyTextButton(
+              'Refresh',
+              onPressed: () {
+                context
+                    .read<SpaceBloc>()
+                    .add(const SpaceEvent.didReceiveSpaceUpdate());
+                context
+                    .read<FolderFavoriteBloc>()
+                    .add(const FolderFavoriteEvent.fetchFavorites());
+              },
+            ),
           ],
         ),
       ),

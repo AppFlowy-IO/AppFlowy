@@ -32,7 +32,14 @@ class FolderFavoriteBloc
                 final views = favoriteViews;
                 // FIXME: backend doesn't return isPinned
                 final pinnedViews = views;
-                final unpinnedViews = [];
+                final unpinnedViews = <FavoriteFolderViewPB>[];
+                emit(
+                  state.copyWith(
+                    views: views,
+                    pinnedViews: pinnedViews,
+                    unpinnedViews: unpinnedViews,
+                  ),
+                );
               },
               (error) => Log.error(error),
             );
@@ -40,9 +47,9 @@ class FolderFavoriteBloc
           toggleFavorite: (viewId) async {
             final isFavorited = state.views.any((v) => v.id == viewId);
             if (isFavorited) {
-              await _service.addFavoritePage(pageId: viewId);
-            } else {
               await _service.removeFavoritePage(pageId: viewId);
+            } else {
+              await _service.addFavoritePage(pageId: viewId);
             }
 
             add(const FolderFavoriteEvent.fetchFavorites());
