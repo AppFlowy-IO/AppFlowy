@@ -51,6 +51,10 @@ class AiWriterCubit extends Cubit<AiWriterState> {
   }
 
   void register(Node node) async {
+    if (aiWriterNode != null && node.id != aiWriterNode!.id) {
+      await removeAiWriterNode(editorState, node);
+      return;
+    }
     aiWriterNode = node;
     onCreateNode?.call();
 
