@@ -27,6 +27,7 @@ class _MockAIRepository extends Mock implements AppFlowyAIService {
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
     required Future<void> Function(String text) processMessage,
+    required Future<void> Function(String text) processAssistMessage,
     required Future<void> Function() onEnd,
     required void Function(AIError error) onError,
   }) async {
@@ -58,6 +59,7 @@ class _MockAIRepositoryLess extends Mock implements AppFlowyAIService {
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
     required Future<void> Function(String text) processMessage,
+    required Future<void> Function(String text) processAssistMessage,
     required Future<void> Function() onEnd,
     required void Function(AIError error) onError,
   }) async {
@@ -85,6 +87,7 @@ class _MockAIRepositoryMore extends Mock implements AppFlowyAIService {
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
     required Future<void> Function(String text) processMessage,
+    required Future<void> Function(String text) processAssistMessage,
     required Future<void> Function() onEnd,
     required void Function(AIError error) onError,
   }) async {
@@ -114,6 +117,7 @@ class _MockErrorRepository extends Mock implements AppFlowyAIService {
     required CompletionTypePB completionType,
     required Future<void> Function() onStart,
     required Future<void> Function(String text) processMessage,
+    required Future<void> Function(String text) processAssistMessage,
     required Future<void> Function() onEnd,
     required void Function(AIError error) onError,
   }) async {
