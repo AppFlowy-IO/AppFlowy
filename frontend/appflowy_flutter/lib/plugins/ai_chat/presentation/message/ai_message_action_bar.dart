@@ -16,6 +16,7 @@ import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/prelude.dart';
+import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/application/view/prelude.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
@@ -446,7 +447,7 @@ class _SaveToPageButtonState extends State<SaveToPageButton> {
         ),
       ],
       child: BlocSelector<SpaceBloc, SpaceState, ViewPB?>(
-        selector: (state) => state.currentSpace,
+        selector: (state) => state.currentSpace?.viewPB,
         builder: (context, spaceView) {
           return AppFlowyPopover(
             controller: popoverController,

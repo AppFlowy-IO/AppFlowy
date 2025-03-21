@@ -1,6 +1,12 @@
 use crate::entities::PublishPayload;
 pub use anyhow::Error;
-use client_api::entity::{workspace_dto::PublishInfoView, PublishInfo};
+use client_api::entity::{
+  workspace_dto::{
+    CreatePageParams, CreateSpaceParams, DuplicatePageParams, FolderView, MovePageParams,
+    PublishInfoView, UpdatePageParams, UpdateSpaceParams,
+  },
+  PublishInfo,
+};
 use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
 pub use collab_folder::{Folder, FolderData, Workspace};
@@ -103,6 +109,69 @@ pub trait FolderCloudService: Send + Sync + 'static {
   async fn get_publish_namespace(&self, workspace_id: &str) -> Result<String, FlowyError>;
 
   async fn import_zip(&self, file_path: &str) -> Result<(), FlowyError>;
+
+  /// Get the workspace folder
+  async fn get_workspace_folder(
+    &self,
+    workspace_id: &str,
+    depth: Option<u32>,
+    root_view_id: Option<String>,
+  ) -> Result<FolderView, FlowyError>;
+
+  /// Create a new view in the workspace
+  async fn create_view(
+    &self,
+    workspace_id: &str,
+    params: CreatePageParams,
+  ) -> Result<(), FlowyError>;
+
+  /// Duplicate a view in the workspace
+  async fn duplicate_view(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: DuplicatePageParams,
+  ) -> Result<(), FlowyError>;
+
+  /// Move a view in the workspace
+  async fn move_view(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: MovePageParams,
+  ) -> Result<(), FlowyError>;
+
+  /// Move a view to trash in the workspace
+  async fn move_view_to_trash(&self, workspace_id: &str, view_id: &str) -> Result<(), FlowyError>;
+
+  /// Restore a view from trash in the workspace
+  async fn restore_view_from_trash(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+  ) -> Result<(), FlowyError>;
+
+  /// Update a view in the workspace
+  async fn update_view(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: UpdatePageParams,
+  ) -> Result<(), FlowyError>;
+
+  /// Update a space in the workspace
+  async fn update_space(
+    &self,
+    workspace_id: &str,
+    space_id: &str,
+    params: UpdateSpaceParams,
+  ) -> Result<(), FlowyError>;
+
+  async fn create_space(
+    &self,
+    workspace_id: &str,
+    params: CreateSpaceParams,
+  ) -> Result<(), FlowyError>;
 }
 
 #[derive(Debug)]

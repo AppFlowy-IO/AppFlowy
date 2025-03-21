@@ -3,7 +3,7 @@ import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/move_to/move_page_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_action_type.dart';
 import 'package:appflowy/workspace/presentation/widgets/more_view_actions/widgets/lock_page_action.dart';
@@ -15,8 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// ··· button beside the view name
-class ViewMoreActionPopover extends StatelessWidget {
-  const ViewMoreActionPopover({
+class FolderViewMoreActionPopover extends StatelessWidget {
+  const FolderViewMoreActionPopover({
     super.key,
     required this.view,
     this.controller,
@@ -28,7 +28,7 @@ class ViewMoreActionPopover extends StatelessWidget {
     this.showAtCursor = false,
   });
 
-  final ViewPB view;
+  final FolderViewPB view;
   final PopoverController? controller;
   final void Function(bool value) onEditing;
   final void Function(ViewMoreActionType type, dynamic data) onAction;
@@ -40,7 +40,7 @@ class ViewMoreActionPopover extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final wrappers = _buildActionTypeWrappers();
-    return PopoverActionList<ViewMoreActionTypeWrapper>(
+    return PopoverActionList<_ViewMoreActionTypeWrapper>(
       controller: controller,
       direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 8),
@@ -54,12 +54,12 @@ class ViewMoreActionPopover extends StatelessWidget {
     );
   }
 
-  List<ViewMoreActionTypeWrapper> _buildActionTypeWrappers() {
+  List<_ViewMoreActionTypeWrapper> _buildActionTypeWrappers() {
     final actionTypes = _buildActionTypes();
     return actionTypes.map(
       (e) {
         final actionWrapper =
-            ViewMoreActionTypeWrapper(e, view, (controller, data) {
+            _ViewMoreActionTypeWrapper(e, view, (controller, data) {
           onEditing(false);
           onAction(e, data);
           bool enableClose = true;
@@ -86,7 +86,7 @@ class ViewMoreActionPopover extends StatelessWidget {
       ]);
     } else {
       actionTypes.add(
-        view.isFavorite
+        view.viewPB.isFavorite
             ? ViewMoreActionType.unFavorite
             : ViewMoreActionType.favorite,
       );
@@ -113,7 +113,7 @@ class ViewMoreActionPopover extends StatelessWidget {
       // Chat doesn't change collapse
       // Only show collapse all pages if the view has child views
       if (view.layout != ViewLayoutPB.Chat &&
-          view.childViews.isNotEmpty &&
+          view.children.isNotEmpty &&
           isExpanded) {
         actionTypes.add(ViewMoreActionType.collapseAllPages);
         actionTypes.add(ViewMoreActionType.divider);
@@ -126,8 +126,8 @@ class ViewMoreActionPopover extends StatelessWidget {
   }
 }
 
-class ViewMoreActionTypeWrapper extends CustomActionCell {
-  ViewMoreActionTypeWrapper(
+class _ViewMoreActionTypeWrapper extends CustomActionCell {
+  _ViewMoreActionTypeWrapper(
     this.inner,
     this.sourceView,
     this.onTap, {
@@ -136,7 +136,7 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
   });
 
   final ViewMoreActionType inner;
-  final ViewPB sourceView;
+  final FolderViewPB sourceView;
   final void Function(PopoverController controller, dynamic data) onTap;
 
   // custom the move to action button
@@ -198,7 +198,7 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
           PickerTabType.icon,
           PickerTabType.custom,
         ],
-        documentId: sourceView.id,
+        documentId: sourceView.viewId,
         initialType: sourceView.icon.toEmojiIconData().type.toPickerTabType(),
         onSelectedEmoji: (result) => onTap(controller, result),
       ),
@@ -237,7 +237,7 @@ class ViewMoreActionTypeWrapper extends CustomActionCell {
               return BlocProvider.value(
                 value: context.read<SpaceBloc>(),
                 child: MovePageMenu(
-                  sourceView: sourceView.folderViewPB,
+                  sourceView: sourceView,
                   onSelected: (space, view) {
                     onTap(controller, (space, view));
                   },

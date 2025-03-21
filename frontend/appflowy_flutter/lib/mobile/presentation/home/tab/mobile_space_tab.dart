@@ -11,6 +11,7 @@ import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
@@ -68,12 +69,12 @@ class _MobileSpaceTabState extends State<MobileSpaceTab>
         listeners: [
           BlocListener<SpaceBloc, SpaceState>(
             listenWhen: (p, c) =>
-                p.lastCreatedPage?.id != c.lastCreatedPage?.id,
+                p.lastCreatedPage?.viewId != c.lastCreatedPage?.viewId,
             listener: (context, state) {
               final lastCreatedPage = state.lastCreatedPage;
               if (lastCreatedPage != null) {
                 context.pushView(
-                  lastCreatedPage,
+                  lastCreatedPage.viewPB,
                   tabs: [
                     PickerTabType.emoji,
                     PickerTabType.icon,

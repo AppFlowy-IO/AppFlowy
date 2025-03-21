@@ -1,14 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/create_space_popup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/manage_space_popup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_action_type.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_more_popup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_add_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -19,8 +22,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart' hide Icon;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SidebarSpaceHeader extends StatefulWidget {
-  const SidebarSpaceHeader({
+class FolderSpaceMenu extends StatefulWidget {
+  const FolderSpaceMenu({
     super.key,
     required this.space,
     required this.onAdded,
@@ -36,10 +39,10 @@ class SidebarSpaceHeader extends StatefulWidget {
   final bool isExpanded;
 
   @override
-  State<SidebarSpaceHeader> createState() => _SidebarSpaceHeaderState();
+  State<FolderSpaceMenu> createState() => _FolderSpaceMenuState();
 }
 
-class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
+class _FolderSpaceMenuState extends State<FolderSpaceMenu> {
   final isHovered = ValueNotifier(false);
   final onEditing = ValueNotifier(false);
 
@@ -86,7 +89,7 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
               top: 3,
               bottom: 3,
               right: isHovered || onEditing ? 88 : 0,
-              child: SpacePopup(
+              child: _FolderSpacePopup(
                 showCreateButton: true,
                 child: _buildChild(isHovered),
               ),
@@ -205,7 +208,9 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
         _showDeleteSpaceDialog(context);
         break;
       case SpaceMoreActionType.duplicate:
-        context.read<SpaceBloc>().add(const SpaceEvent.duplicate());
+        context.read<SpaceBloc>().add(
+              SpaceEvent.duplicate(space: widget.space),
+            );
         break;
       case SpaceMoreActionType.divider:
         break;
@@ -257,6 +262,186 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
       description: LocaleKeys.space_deleteConfirmationDescription.tr(),
       onConfirm: () {
         context.read<SpaceBloc>().add(const SpaceEvent.delete(null));
+      },
+    );
+  }
+}
+
+class _FolderSpacePopup extends StatelessWidget {
+  const _FolderSpacePopup({
+    this.height,
+    this.useIntrinsicWidth = true,
+    this.expand = false,
+    required this.showCreateButton,
+    required this.child,
+  });
+
+  final bool showCreateButton;
+  final bool useIntrinsicWidth;
+  final bool expand;
+  final double? height;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: height ?? HomeSizes.workspaceSectionHeight,
+      child: AppFlowyPopover(
+        constraints: const BoxConstraints(maxWidth: 260),
+        direction: PopoverDirection.bottomWithLeftAligned,
+        clickHandler: PopoverClickHandler.gestureDetector,
+        offset: const Offset(0, 4),
+        popupBuilder: (_) => BlocProvider.value(
+          value: context.read<SpaceBloc>(),
+          child: _FolderSwitchSpaceMenu(
+            showCreateButton: showCreateButton,
+          ),
+        ),
+        child: FlowyButton(
+          useIntrinsicWidth: useIntrinsicWidth,
+          expand: expand,
+          margin: const EdgeInsets.only(left: 3.0, right: 4.0),
+          iconPadding: 10.0,
+          text: child,
+        ),
+      ),
+    );
+  }
+}
+
+class _FolderSwitchSpaceMenu extends StatelessWidget {
+  const _FolderSwitchSpaceMenu({
+    required this.showCreateButton,
+  });
+
+  final bool showCreateButton;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SpaceBloc, SpaceState>(
+      builder: (context, state) {
+        final spaces = state.spaces;
+        if (spaces.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        final currentSpace = state.currentSpace ?? spaces.first;
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const VSpace(4.0),
+            for (final space in spaces)
+              SizedBox(
+                height: HomeSpaceViewSizes.viewHeight,
+                child: _FolderSpaceMenuItem(
+                  space: space,
+                  isSelected: currentSpace.viewId == space.viewId,
+                ),
+              ),
+            if (showCreateButton) ...[
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: FlowyDivider(),
+              ),
+              const SizedBox(
+                height: HomeSpaceViewSizes.viewHeight,
+                child: _CreateSpaceButton(),
+              ),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _FolderSpaceMenuItem extends StatelessWidget {
+  const _FolderSpaceMenuItem({
+    required this.space,
+    required this.isSelected,
+  });
+
+  final FolderViewPB space;
+  final bool isSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyButton(
+      text: Row(
+        children: [
+          Flexible(
+            child: FlowyText.regular(
+              space.name,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const HSpace(6.0),
+          if (space.isPrivate)
+            FlowyTooltip(
+              message: LocaleKeys.space_privatePermissionDescription.tr(),
+              child: const FlowySvg(
+                FlowySvgs.space_lock_s,
+              ),
+            ),
+        ],
+      ),
+      iconPadding: 10,
+      leftIcon: SpaceIcon(
+        dimension: 20,
+        space: space,
+        svgSize: 12.0,
+        cornerRadius: 6.0,
+      ),
+      leftIconSize: const Size.square(20),
+      rightIcon: isSelected
+          ? const FlowySvg(
+              FlowySvgs.workspace_selected_s,
+              blendMode: null,
+            )
+          : null,
+      onTap: () {
+        context.read<SpaceBloc>().add(
+              SpaceEvent.switchCurrentSpace(spaceId: space.viewId),
+            );
+        PopoverContainer.of(context).close();
+      },
+    );
+  }
+}
+
+class _CreateSpaceButton extends StatelessWidget {
+  const _CreateSpaceButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyButton(
+      text: FlowyText.regular(LocaleKeys.space_createNewSpace.tr()),
+      iconPadding: 10,
+      leftIcon: const FlowySvg(
+        FlowySvgs.space_add_s,
+      ),
+      onTap: () {
+        PopoverContainer.of(context).close();
+        _showCreateSpaceDialog(context);
+      },
+    );
+  }
+
+  void _showCreateSpaceDialog(BuildContext context) {
+    final spaceBloc = context.read<SpaceBloc>();
+    showDialog(
+      context: context,
+      builder: (_) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: BlocProvider.value(
+            value: spaceBloc,
+            child: const CreateSpacePopup(),
+          ),
+        );
       },
     );
   }

@@ -371,7 +371,7 @@ class SpaceColorItem extends StatelessWidget {
 extension on SpacePermission {
   String get i18n {
     switch (this) {
-      case SpacePermission.publicToAll:
+      case SpacePermission.public:
         return LocaleKeys.space_publicPermission.tr();
       case SpacePermission.private:
         return LocaleKeys.space_privatePermission.tr();
@@ -380,7 +380,7 @@ extension on SpacePermission {
 
   FlowySvgData get icon {
     switch (this) {
-      case SpacePermission.publicToAll:
+      case SpacePermission.public:
         return FlowySvgs.space_permission_public_s;
       case SpacePermission.private:
         return FlowySvgs.space_permission_private_s;
