@@ -443,8 +443,9 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
           color: Theme.of(context).cardColor,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         ),
-        toolbarBuilder: (context, child) => DesktopFloatingToolbar(
+        toolbarBuilder: (context, child, onDismiss) => DesktopFloatingToolbar(
           editorState: editorState,
+          onDismiss: onDismiss,
           child: child,
         ),
         placeHolderBuilder: (_) => customPlaceholderItem,

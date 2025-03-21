@@ -118,7 +118,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
               view: view,
               content: state.blockContent,
               textStyle: widget.textStyle,
-              handleTap: () => _handleTap(
+              handleTap: () => handleMentionBlockTap(
                 context,
                 widget.editorState,
                 view,
@@ -138,7 +138,7 @@ class _MentionPageBlockState extends State<MentionPageBlock> {
               content: state.blockContent,
               textStyle: widget.textStyle,
               showTrashHint: state.isInTrash,
-              handleTap: () => _handleTap(
+              handleTap: () => handleMentionBlockTap(
                 context,
                 widget.editorState,
                 view,
@@ -221,7 +221,8 @@ class _MentionSubPageBlockState extends State<MentionSubPageBlock> {
               view: view,
               showTrashHint: state.isInTrash,
               textStyle: widget.textStyle,
-              handleTap: () => _handleTap(context, widget.editorState, view),
+              handleTap: () =>
+                  handleMentionBlockTap(context, widget.editorState, view),
               isChildPage: true,
               content: '',
               handleDoubleTap: () => _handleDoubleTap(
@@ -239,7 +240,8 @@ class _MentionSubPageBlockState extends State<MentionSubPageBlock> {
               content: null,
               textStyle: widget.textStyle,
               isChildPage: true,
-              handleTap: () => _handleTap(context, widget.editorState, view),
+              handleTap: () =>
+                  handleMentionBlockTap(context, widget.editorState, view),
             );
           }
         },
@@ -321,7 +323,7 @@ Path? _findNodePathByBlockId(EditorState editorState, String blockId) {
   return null;
 }
 
-Future<void> _handleTap(
+Future<void> handleMentionBlockTap(
   BuildContext context,
   EditorState editorState,
   ViewPB view, {
