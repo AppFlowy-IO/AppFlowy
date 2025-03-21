@@ -101,6 +101,7 @@ impl EventIntegrationTest {
       rag_ids: vec![],
       format: None,
       history: vec![],
+      custom_prompt: None,
     };
     EventBuilder::new(self.clone())
       .event(AIEvent::CompleteText)
