@@ -1,4 +1,52 @@
 # Release Notes
+## Version 0.8.7 - 18/03/2025
+### New Features
+- Made local AI free and integrated with Ollama
+- Supported nested lists within callout and quote blocks
+- Revamped the document's floating toolbar and added Turn Into
+- Enabled custom icons in callout blocks
+### Bug Fixes
+- Fixed occasional incorrect positioning of the slash menu
+- Improved AI Chat and AI Writers with various bug fixes
+- Adjusted the columns block to match the width of the editor
+- Fixed a potential segfault caused by infinite recursion in the trash view
+- Resolved an issue where the first added cover might be invisible
+- Fixed adding cover images via Unsplash
+
+## Version 0.8.6 - 06/03/2025
+### Bug Fixes
+- Fix the incorrect title positioning when adjusting the document width setting
+- Enhance the user experience of the icon color picker for smoother interactions
+- Add missing icons to the database to ensure completeness and consistency
+- Resolve the issue with links not functioning correctly on Linux systems
+- Improve the outline feature to work seamlessly within columns
+- Center the bulleted list icon within columns for better visual alignment
+- Enable dragging blocks under tables in the second column to enhance flexibility
+- Disable the AI writer feature within tables to prevent conflicts and improve usability
+- Automatically enable the header row when converting content from Markdown to ensure proper formatting
+- Use the "Undo" function to revert the auto-formatting
+
+## Version 0.8.5 - 04/03/2025
+### New Features
+- Columns in Documents: Arrange content side by side using drag-and-drop or the slash menu
+- AI Writers: New AI assistants in documents with response formatting options (list, table, text with images, image-only), follow-up questions, contextual memory, and more
+- Compact Mode for Databases: Enable compact mode for grid and kanban views (full-page and inline) to increase information density, displaying more data per screen
+### Bug Fixes
+- Fixed an issue where callout blocks couldn’t be deleted when appearing as the first line in a document
+- Fixed a bug preventing the relation field in databases from opening
+- Fixed an issue where links in documents were unclickable on Linux
+
+## Version 0.8.4 - 18/02/2025
+### New Features
+- Switch AI mode on mobile
+- Support locking page
+- Support uploading svg file as icon
+- Support the slash, at, and plus menus on mobile
+### Bug Fixes
+- Gallery not rendering in row page
+- Save image should not copy the image (mobile)
+- Support exporting more content to markdown
+
 ## Version 0.8.2 - 23/01/2025
 ### New Features
 - Customized database view icons

@@ -10,6 +10,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_p
 import 'package:appflowy/plugins/document/presentation/editor_plugins/file/file_util.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/toast.dart';
+import 'package:appflowy_backend/protobuf/flowy-database2/file_entities.pbenum.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
@@ -95,6 +96,17 @@ enum FileUrlType {
         return 2;
     }
   }
+
+  FileUploadTypePB toFileUploadTypePB() {
+    switch (this) {
+      case FileUrlType.local:
+        return FileUploadTypePB.LocalFile;
+      case FileUrlType.network:
+        return FileUploadTypePB.NetworkFile;
+      case FileUrlType.cloud:
+        return FileUploadTypePB.CloudFile;
+    }
+  }
 }
 
 Node fileNode({
@@ -141,6 +153,7 @@ class FileBlockComponent extends BlockComponentStatefulWidget {
     required super.node,
     super.showActions,
     super.actionBuilder,
+    super.actionTrailingBuilder,
     super.configuration = const BlockComponentConfiguration(),
   });
 
@@ -303,6 +316,7 @@ class FileBlockComponentState extends State<FileBlockComponent>
       child = BlockComponentActionWrapper(
         node: node,
         actionBuilder: widget.actionBuilder!,
+        actionTrailingBuilder: widget.actionTrailingBuilder,
         child: child,
       );
     }

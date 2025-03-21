@@ -12,6 +12,7 @@ import 'package:appflowy/shared/flowy_error_page.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -138,8 +139,16 @@ class _GridPageState extends State<GridPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<GridBloc>(
-      create: (_) => gridBloc,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<GridBloc>(
+          create: (_) => gridBloc,
+        ),
+        BlocProvider(
+          create: (context) => ViewLockStatusBloc(view: widget.view)
+            ..add(ViewLockStatusEvent.initial()),
+        ),
+      ],
       child: BlocListener<ActionNavigationBloc, ActionNavigationState>(
         listener: (context, state) {
           final action = state.action;
@@ -286,7 +295,11 @@ class _GridPageContentState extends State<GridPageContent> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _GridHeader(headerScrollController: headerScrollController),
+        _GridHeader(
+          headerScrollController: headerScrollController,
+          editable: !context.read<ViewLockStatusBloc>().state.isLocked,
+          shrinkWrap: widget.shrinkWrap,
+        ),
         _GridRows(
           viewId: widget.view.id,
           scrollController: _scrollController,
@@ -298,18 +311,33 @@ class _GridPageContentState extends State<GridPageContent> {
 }
 
 class _GridHeader extends StatelessWidget {
-  const _GridHeader({required this.headerScrollController});
+  const _GridHeader({
+    required this.headerScrollController,
+    required this.editable,
+    required this.shrinkWrap,
+  });
 
   final ScrollController headerScrollController;
+  final bool editable;
+  final bool shrinkWrap;
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GridBloc, GridState>(
+    Widget child = BlocBuilder<GridBloc, GridState>(
       builder: (_, state) => GridHeaderSliverAdaptor(
         viewId: state.viewId,
         anchorScrollController: headerScrollController,
+        shrinkWrap: shrinkWrap,
       ),
     );
+
+    if (!editable) {
+      child = IgnorePointer(
+        child: child,
+      );
+    }
+
+    return child;
   }
 }
 
@@ -392,12 +420,13 @@ class _GridRowsState extends State<_GridRows> {
             constraints: BoxConstraints(
               maxWidth: GridLayout.headerWidth(
                 context
-                    .read<DatabasePluginWidgetBuilderSize>()
-                    .horizontalPadding,
+                        .read<DatabasePluginWidgetBuilderSize>()
+                        .horizontalPadding *
+                    3,
                 context.read<GridBloc>().state.fields,
               ),
             ),
-            child: _renderList(context),
+            child: _shrinkWrapRenderList(context),
           ),
         ),
       );
@@ -428,9 +457,31 @@ class _GridRowsState extends State<_GridRows> {
     return Flexible(child: child);
   }
 
+  Widget _shrinkWrapRenderList(BuildContext context) {
+    final state = context.read<GridBloc>().state;
+    final horizontalPadding =
+        context.read<DatabasePluginWidgetBuilderSize?>()?.horizontalPadding ??
+            0.0;
+    return ListView(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+      children: [
+        widget.shrinkWrap
+            ? _reorderableListView(state)
+            : Expanded(child: _reorderableListView(state)),
+        if (showFloatingCalculations && !widget.shrinkWrap) ...[
+          _PositionedCalculationsRow(
+            viewId: widget.viewId,
+            isAtBottom: isAtBottom,
+          ),
+        ],
+      ],
+    );
+  }
+
   Widget _renderList(BuildContext context) {
     final state = context.read<GridBloc>().state;
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -502,12 +553,21 @@ class _GridRowsState extends State<_GridRows> {
       itemCount: itemCount,
       itemBuilder: (context, index) {
         if (index == itemCount - 1) {
-          return Column(
+          final child = Column(
             key: const Key('grid_footer'),
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: footer,
           );
+
+          if (context.read<ViewLockStatusBloc>().state.isLocked) {
+            return IgnorePointer(
+              key: const Key('grid_footer'),
+              child: child,
+            );
+          }
+
+          return child;
         }
 
         return _renderRow(
@@ -542,6 +602,7 @@ class _GridRowsState extends State<_GridRows> {
       rowId: rowId,
       viewId: viewId,
       index: index,
+      editable: !context.watch<ViewLockStatusBloc>().state.isLocked,
       rowController: RowController(
         viewId: viewId,
         rowMeta: rowMeta,

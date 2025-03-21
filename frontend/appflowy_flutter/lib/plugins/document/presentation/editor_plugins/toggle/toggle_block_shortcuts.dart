@@ -47,15 +47,12 @@ Future<void> _formatGreaterToToggleHeading(
   delta = delta.compose(Delta()..delete(_greater.length));
   // if the previous block is heading block, convert it to toggle heading block
   if (type == HeadingBlockKeys.type && level != null) {
-    final cubit = BlockActionOptionCubit(
-      editorState: editorState,
-      blockComponentBuilder: {},
-    );
-    await cubit.turnIntoSingleToggleHeading(
+    await BlockActionOptionCubit.turnIntoSingleToggleHeading(
       type: ToggleListBlockKeys.type,
       selectedNodes: [node],
       level: level,
       delta: delta,
+      editorState: editorState,
       afterSelection: afterSelection,
     );
     return;
@@ -98,7 +95,8 @@ CharacterShortcutEvent insertChildNodeInsideToggleList = CharacterShortcutEvent(
     }
     final slicedDelta = delta.slice(selection.start.offset);
     final transaction = editorState.transaction;
-    final collapsed = node.attributes[ToggleListBlockKeys.collapsed] as bool;
+    final bool collapsed =
+        node.attributes[ToggleListBlockKeys.collapsed] ?? false;
     if (collapsed) {
       // if the delta is empty, clear the format
       if (delta.isEmpty) {

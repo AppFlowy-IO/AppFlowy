@@ -45,6 +45,7 @@ List<CharacterShortcutEvent> buildCharacterShortcutEvents(
 
     customFormatGreaterEqual,
     customFormatDashGreater,
+    customFormatDoubleHyphenEmDash,
 
     customFormatNumberToNumberedList,
     customFormatSignToHeading,
@@ -52,14 +53,11 @@ List<CharacterShortcutEvent> buildCharacterShortcutEvents(
     ...standardCharacterShortcutEvents
       ..removeWhere(
         (shortcut) => [
-          slashCommand,
-          // Remove default slash command
-          formatGreaterEqual,
-          // Overridden by customFormatGreaterEqual
-          formatNumberToNumberedList,
-          // Overridden by customFormatNumberToNumberedList
-          formatSignToHeading,
-          // Overridden by customFormatSignToHeading
+          slashCommand, // Remove default slash command
+          formatGreaterEqual, // Overridden by customFormatGreaterEqual
+          formatNumberToNumberedList, // Overridden by customFormatNumberToNumberedList
+          formatSignToHeading, // Overridden by customFormatSignToHeading
+          formatDoubleHyphenEmDash, // Overridden by customFormatDoubleHyphenEmDash
         ].contains(shortcut),
       ),
 

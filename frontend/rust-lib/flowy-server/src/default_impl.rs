@@ -101,7 +101,7 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     Err(FlowyError::not_support().with_context("complete text is not supported in local server."))
   }
 
-  async fn index_file(
+  async fn embed_file(
     &self,
     _workspace_id: &str,
     _file_path: &Path,

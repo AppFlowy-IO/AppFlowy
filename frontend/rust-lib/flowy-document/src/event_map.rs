@@ -126,7 +126,7 @@ pub enum DocumentEvent {
   UploadFile = 15,
   #[event(input = "DownloadFilePB")]
   DownloadFile = 16,
-  #[event(input = "DownloadFilePB")]
+  #[event(input = "DeleteFilePB")]
   DeleteFile = 17,
 
   #[event(input = "UpdateDocumentAwarenessStatePB")]

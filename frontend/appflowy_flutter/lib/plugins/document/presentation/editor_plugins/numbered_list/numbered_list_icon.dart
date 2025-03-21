@@ -29,7 +29,7 @@ class NumberedListIcon extends StatelessWidget {
     );
 
     return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
+      padding: const EdgeInsets.only(left: 6.0, right: 10.0),
       child: Text(
         node.levelString,
         style: adjustedTextStyle,

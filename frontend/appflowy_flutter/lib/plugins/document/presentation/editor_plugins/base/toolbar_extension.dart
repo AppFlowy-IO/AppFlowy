@@ -1,4 +1,11 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/callout/callout_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/toggle/toggle_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+
+bool _isTableType(String type) {
+  return [TableBlockKeys.type, SimpleTableBlockKeys.type].contains(type);
+}
 
 bool notShowInTable(EditorState editorState) {
   final selection = editorState.selection;
@@ -7,12 +14,12 @@ bool notShowInTable(EditorState editorState) {
   }
   final nodes = editorState.getNodesInSelection(selection);
   return nodes.every((element) {
-    if (element.type == TableBlockKeys.type) {
+    if (_isTableType(element.type)) {
       return false;
     }
     var parent = element.parent;
     while (parent != null) {
-      if (parent.type == TableBlockKeys.type) {
+      if (_isTableType(parent.type)) {
         return false;
       }
       parent = parent.parent;
@@ -27,3 +34,25 @@ bool onlyShowInSingleTextTypeSelectionAndExcludeTable(
   return onlyShowInSingleSelectionAndTextType(editorState) &&
       notShowInTable(editorState);
 }
+
+bool enableSuggestions(
+  EditorState editorState,
+) {
+  final selection = editorState.selection;
+  if (selection == null || !selection.isSingle) {
+    return false;
+  }
+  final node = editorState.getNodeAtPath(selection.start.path);
+  if (node == null) {
+    return false;
+  }
+  return (node.delta != null && suggestionsItemTypes.contains(node.type)) &&
+      notShowInTable(editorState);
+}
+
+final Set<String> suggestionsItemTypes = {
+  ...toolbarItemWhiteList,
+  ToggleListBlockKeys.type,
+  TodoListBlockKeys.type,
+  CalloutBlockKeys.type,
+};

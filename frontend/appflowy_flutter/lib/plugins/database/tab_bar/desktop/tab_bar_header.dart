@@ -1,8 +1,8 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/application/tab_bar_bloc.dart';
-import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -16,6 +16,7 @@ import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 import 'tab_bar_add_button.dart';
 
@@ -26,12 +27,8 @@ class TabBarHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 35,
-      padding: EdgeInsets.symmetric(
-        horizontal:
-            context.read<DatabasePluginWidgetBuilderSize>().horizontalPadding,
-      ),
       child: Stack(
         children: [
           Positioned(
@@ -263,7 +260,7 @@ class _TabBarItemButtonState extends State<TabBarItemButton> {
                       enableBackgroundColorSelection: false,
                       onSelectedEmoji: (r) {
                         ViewBackendService.updateViewIcon(
-                          viewId: widget.view.id,
+                          view: widget.view,
                           viewIcon: r.data,
                         );
                         if (!r.keepOpen) {
@@ -332,7 +329,24 @@ class _TabBarItemButtonState extends State<TabBarItemButton> {
         enableColor: false,
       );
     }
-    return Opacity(opacity: 0.6, child: icon);
+    final isReference =
+        Provider.of<ReferenceState?>(context)?.isReference ?? false;
+    final iconWidget = Opacity(opacity: 0.6, child: icon);
+    return isReference
+        ? Stack(
+            children: [
+              iconWidget,
+              const Positioned(
+                right: 0,
+                bottom: 0,
+                child: FlowySvg(
+                  FlowySvgs.referenced_page_s,
+                  blendMode: BlendMode.dstIn,
+                ),
+              ),
+            ],
+          )
+        : iconWidget;
   }
 }
 

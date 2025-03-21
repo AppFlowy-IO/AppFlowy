@@ -86,6 +86,7 @@ class DandelionColorScheme extends FlowyColorScheme {
           scrollbarColor: const Color(0x3F171717),
           scrollbarHoverColor: const Color(0x7F171717),
           lightIconColor: const Color(0xFF8F959E),
+          toolbarHoverColor: const Color(0xFFF2F4F7),
         );
 
   const DandelionColorScheme.dark()
@@ -144,5 +145,6 @@ class DandelionColorScheme extends FlowyColorScheme {
           scrollbarColor: const Color(0x40FFFFFF),
           scrollbarHoverColor: const Color(0x80FFFFFF),
           lightIconColor: const Color(0xFF8F959E),
+          toolbarHoverColor: _lightShader6,
         );
 }

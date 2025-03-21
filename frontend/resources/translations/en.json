@@ -151,7 +151,8 @@
     "charCountLabel": "Character count: ",
     "createdAtLabel": "Created: ",
     "syncedAtLabel": "Synced: ",
-    "saveAsNewPage": "Add messages to page"
+    "saveAsNewPage": "Add messages to page",
+    "saveAsNewPageDisabled": "No messages available"
   },
   "importPanel": {
     "textAndMarkdown": "Text & Markdown",
@@ -160,6 +161,15 @@
     "notionZip": "Notion Exported Zip File",
     "csv": "CSV",
     "database": "Database"
+  },
+  "emojiIconPicker": {
+    "iconUploader": {
+      "placeholderLeft": "Drag & drop a file, click to ",
+      "placeholderUpload": "Upload",
+      "placeholderRight": ", or paste an image link.",
+      "dropToUpload": "Drop a file to upload",
+      "change": "Change"
+    }
   },
   "disclosureAction": {
     "rename": "Rename",
@@ -174,7 +184,8 @@
     "changeIcon": "Change icon",
     "collapseAllPages": "Collapse all subpages",
     "movePageTo": "Move page to",
-    "move": "Move"
+    "move": "Move",
+    "lockPage": "Lock page"
   },
   "blankPageTitle": "Blank page",
   "newPageText": "New page",
@@ -204,7 +215,7 @@
     "indexFileSuccess": "Indexing file successfully",
     "inputActionNoPages": "No page results",
     "referenceSource": {
-      "zero": "0 sources gefunden",
+      "zero": "0 sources found",
       "one": "{count} source found",
       "other": "{count} sources found"
     },
@@ -214,6 +225,7 @@
     "indexingFile": "Indexing {}",
     "generatingResponse": "Generating response",
     "selectSources": "Select Sources",
+    "currentPage": "Current page",
     "sourcesLimitReached": "You can only select up to 3 top-level documents and its children",
     "sourceUnsupported": "We don't support chatting with databases at this time",
     "regenerate": "Try again",
@@ -245,7 +257,8 @@
       "selectMessages": "Select messages",
       "nSelected": "{} selected",
       "allSelected": "All selected"
-    }
+    },
+    "stopTooltip": "Stop generating"
   },
   "trash": {
     "text": "Trash",
@@ -320,8 +333,7 @@
     "header": "Header",
     "highlight": "Highlight",
     "color": "Color",
-    "addLink": "Add Link",
-    "link": "Link"
+    "addLink": "Add Link"
   },
   "tooltip": {
     "lightMode": "Switch to Light mode",
@@ -373,7 +385,6 @@
     "storageLimitDialogTitle": "You have run out of free storage. Upgrade to unlock unlimited storage",
     "storageLimitDialogTitleIOS": "You have run out of free storage.",
     "aiResponseLimitTitle": "You have run out of free AI responses. Upgrade to the Pro Plan or purchase an AI add-on to unlock unlimited responses",
-    "aiResponseLimitTitleIOS": "You have run out of free AI responses.",
     "aiResponseLimitDialogTitle": "AI Responses limit reached",
     "aiResponseLimit": "You have run out of free AI responses.\n\nGo to Settings -> Plan -> Click AI Max or Pro Plan to get more AI responses",
     "askOwnerToUpgradeToPro": "Your workspace is running out of free storage. Please ask your workspace owner to upgrade to the Pro Plan",
@@ -555,7 +566,7 @@
       }
     },
     "accountPage": {
-      "menuLabel": "My account",
+      "menuLabel": "Account & App",
       "title": "My account",
       "general": {
         "title": "Account name & profile image",
@@ -571,7 +582,9 @@
         "title": "Account login",
         "loginLabel": "Log in",
         "logoutLabel": "Log out"
-      }
+      },
+      "isUpToDate": "@:appName is up to date!",
+      "officialVersion": "Version {version} (Official build)"
     },
     "workspacePage": {
       "menuLabel": "Workspace",
@@ -747,6 +760,7 @@
         "alignLeft": "Align text left",
         "alignCenter": "Align text center",
         "alignRight": "Align text right",
+        "insertInlineMathEquation": "Insert inline math eqaution",
         "undo": "Undo",
         "redo": "Redo",
         "convertToParagraph": "Convert block to paragraph",
@@ -823,7 +837,7 @@
       "menuLabel": "AI Settings",
       "keys": {
         "enableAISearchTitle": "AI Search",
-        "aiSettingsDescription": "Choose your preferred model to power AppFlowy AI. Now includes GPT 4-o, Claude 3,5, Llama 3.1, and Mistral 7B",
+        "aiSettingsDescription": "Choose your preferred model to power AppFlowy AI. Now includes GPT-4o, GPT-o3-mini, DeepSeek R1, Claude 3.5 Sonnet, and models available in Ollama",
         "loginToEnableAIFeature": "AI features are only enabled after logging in with @:appName Cloud. If you don't have an @:appName account, go to 'My Account' to sign up",
         "llmModel": "Language Model",
         "llmModelType": "Language Model Type",
@@ -834,14 +848,18 @@
         "downloadAIModelButton": "Download",
         "downloadingModel": "Downloading",
         "localAILoaded": "Local AI Model successfully added and ready to use",
-        "localAIStart": "Local AI Chat is starting...",
+        "localAIStart": "Local AI is starting. If it’s slow, try toggling it off and on",
         "localAILoading": "Local AI Chat Model is loading...",
         "localAIStopped": "Local AI stopped",
+        "localAIRunning": "Local AI is running",
+        "localAIInitializing": "Local AI is loading and may take a few minutes, depending on your device",
+        "localAINotReadyTextFieldPrompt": "You can not edit while Local AI is loading",
         "failToLoadLocalAI": "Failed to start local AI",
         "restartLocalAI": "Restart Local AI",
         "disableLocalAITitle": "Disable local AI",
         "disableLocalAIDescription": "Do you want to disable local AI?",
-        "localAIToggleTitle": "Toggle to enable or disable local AI",
+        "localAIToggleTitle": "AppFlowy Local AI (LAI)",
+        "localAIToggleSubTitle": "Run the most advanced local AI models within AppFlowy for ultimate privacy and security",
         "offlineAIInstruction1": "Follow the",
         "offlineAIInstruction2": "instruction",
         "offlineAIInstruction3": "to enable offline AI.",
@@ -850,7 +868,11 @@
         "offlineAIDownload3": "it first",
         "activeOfflineAI": "Active",
         "downloadOfflineAI": "Download",
-        "openModelDirectory": "Open folder"
+        "openModelDirectory": "Open folder",
+        "localAISetupInstruction1": "Follow these",
+        "localAISetupInstruction2": "instructions",
+        "localAISetupInstruction3": "to set up Ollama and AppFlowy Local AI. Skip if you've already set it up",
+        "startLocalAI": "It may take a few seconds to start the local AI"
       }
     },
     "planPage": {
@@ -992,6 +1014,7 @@
         "itemFour": "Real-time collaboration",
         "itemFive": "Mobile app",
         "itemSix": "AI Responses",
+        "itemSeven": "AI Images",
         "itemFileUpload": "File uploads",
         "customNamespace": "Custom namespace",
         "tooltipSix": "Lifetime means the number of responses never reset",
@@ -1006,6 +1029,7 @@
         "itemFour": "yes",
         "itemFive": "yes",
         "itemSix": "10 lifetime",
+        "itemSeven": "2 lifetime",
         "itemFileUpload": "Up to 7 MB",
         "intelligentSearch": "Intelligent search"
       },
@@ -1016,6 +1040,7 @@
         "itemFour": "yes",
         "itemFive": "yes",
         "itemSix": "Unlimited",
+        "itemSeven": "10 images per month",
         "itemFileUpload": "Unlimited",
         "intelligentSearch": "Intelligent search"
       },
@@ -1376,6 +1401,7 @@
       "filterBy": "Filter by",
       "typeAValue": "Type a value...",
       "layout": "Layout",
+      "compactMode": "Compact mode",
       "databaseLayout": "Layout",
       "viewList": {
         "zero": "0 views",
@@ -1681,6 +1707,14 @@
         "selectADocumentToLinkTo": "Select a Document to link to"
       },
       "name": {
+        "textStyle": "Text Style",
+        "list": "List",
+        "toggle": "Toggle",
+        "fileAndMedia": "File & Media",
+        "simpleTable": "Simple Table",
+        "visuals": "Visuals",
+        "document": "Document",
+        "advanced": "Advanced",
         "text": "Text",
         "heading1": "Heading 1",
         "heading2": "Heading 2",
@@ -1709,10 +1743,13 @@
         "toggleHeading2": "Toggle heading 2",
         "toggleHeading3": "Toggle heading 3",
         "emoji": "Emoji",
-        "aiWriter": "AI Writer",
+        "aiWriter": "Ask AI Anything",
         "dateOrReminder": "Date or Reminder",
         "photoGallery": "Photo Gallery",
-        "file": "File"
+        "file": "File",
+        "twoColumns": "2 Columns",
+        "threeColumns": "3 Columns",
+        "fourColumns": "4 Columns"
       },
       "subPage": {
         "name": "Document",
@@ -1735,6 +1772,16 @@
       "referencedGrid": "Referenced Grid",
       "referencedCalendar": "Referenced Calendar",
       "referencedDocument": "Referenced Document",
+      "aiWriter": {
+        "userQuestion": "Ask AI anything",
+        "continueWriting": "Continue writing",
+        "fixSpelling": "Fix spelling & grammar",
+        "improveWriting": "Improve writing",
+        "summarize": "Summarize",
+        "explain": "Explain",
+        "makeShorter": "Make shorter",
+        "makeLonger": "Make longer"
+      },
       "autoGeneratorMenuItemName": "AI Writer",
       "autoGeneratorTitleName": "AI: Ask AI to write anything...",
       "autoGeneratorLearnMore": "Learn more",
@@ -1753,7 +1800,7 @@
       "smartEditCouldNotFetchKey": "Could not fetch AI key",
       "smartEditDisabled": "Connect AI in Settings",
       "appflowyAIEditDisabled": "Sign in to enable AI features",
-      "discardResponse": "Do you want to discard the AI responses?",
+      "discardResponse": "Are you sure you want to discard the AI response?",
       "createInlineMathEquation": "Create equation",
       "fonts": "Fonts",
       "insertDate": "Insert date",
@@ -1997,8 +2044,8 @@
       "searchForAnImage": "Search for an image",
       "pleaseInputYourOpenAIKey": "please input your AI key in Settings page",
       "saveImageToGallery": "Save image",
-      "failedToAddImageToGallery": "Failed to add image to gallery",
-      "successToAddImageToGallery": "Image added to gallery successfully",
+      "failedToAddImageToGallery": "Failed to save image",
+      "successToAddImageToGallery": "Saved image to Photos",
       "unableToLoadImage": "Unable to load image",
       "maximumImageSize": "Maximum supported upload image size is 10MB",
       "uploadImageErrorImageSizeTooBig": "Image size must be less than 10MB",
@@ -2057,7 +2104,23 @@
       "morePages": "more pages"
     },
     "toolbar": {
-      "resetToDefaultFont": "Reset to default"
+      "resetToDefaultFont": "Reset to default",
+      "textSize": "Text size",
+      "textColor": "Text color",
+      "h1": "Heading 1",
+      "h2": "Heading 2",
+      "h3": "Heading 3",
+      "alignLeft": "Align left",
+      "alignRight": "Align right",
+      "alignCenter": "Align center",
+      "link": "Link",
+      "textAlign": "Text align",
+      "moreOptions": "More options",
+      "font": "Font",
+      "inlineCode": "Inline code",
+      "suggestions": "Suggestions",
+      "turnInto": "Turn into",
+      "equation": "Equation"
     },
     "errorBlock": {
       "theBlockIsNotSupported": "Unable to parse the block content",
@@ -2359,9 +2422,9 @@
     "link": "Link",
     "numberedList": "Numbered list",
     "numberedListShortForm": "Numbered",
-    "toggleHeading1ShortForm": "Toggle h1",
-    "toggleHeading2ShortForm": "Toggle h2",
-    "toggleHeading3ShortForm": "Toggle h3",
+    "toggleHeading1ShortForm": "Toggle H1",
+    "toggleHeading2ShortForm": "Toggle H2",
+    "toggleHeading3ShortForm": "Toggle H3",
     "quote": "Quote",
     "strikethrough": "Strikethrough",
     "text": "Text",
@@ -2511,6 +2574,7 @@
       "accountLogin": "Account Login",
       "updateNameError": "Failed to update name",
       "updateIconError": "Failed to update icon",
+      "aboutAppFlowy": "About @:appName",
       "deleteAccount": {
         "title": "Delete Account",
         "subtitle": "Permanently delete your account and all of your data.",
@@ -2701,6 +2765,7 @@
     "moreOptions": "More options",
     "collapse": "Collapse",
     "signInAgreement": "By clicking \"Continue\" above, you agreed to AppFlowy's",
+    "signInLocalAgreement": "By clicking \"Get Started\" above, you agreed to AppFlowy's",
     "and": "and",
     "termOfUse": "Terms",
     "privacyPolicy": "Privacy Policy",
@@ -3080,6 +3145,50 @@
     }
   },
   "ai": {
-    "contentPolicyViolation": "Image generation failed due to sensitive content. Please rephrase your input and try again"
+    "contentPolicyViolation": "Image generation failed due to sensitive content. Please rephrase your input and try again",
+    "textLimitReachedDescription": "Your workspace has run out of free AI responses. Upgrade to the Pro Plan or purchase an AI add-on to unlock unlimited responses",
+    "imageLimitReachedDescription": "You've used up your free AI image quota. Please upgrade to the Pro Plan or purchase an AI add-on to unlock unlimited responses",
+    "limitReachedAction": {
+      "textDescription": "Your workspace has run out of free AI responses. To get more responses, please",
+      "imageDescription": "You've used up your free AI image quota. Please",
+      "upgrade": "upgrade",
+      "toThe": "to the",
+      "proPlan": "Pro Plan",
+      "orPurchaseAn": "or purchase an",
+      "aiAddon": "AI add-on"
+    },
+    "editing": "Editing",
+    "analyzing": "Analyzing",
+    "continueWritingEmptyDocumentTitle": "Continue writing error",
+    "continueWritingEmptyDocumentDescription": "We are having trouble expanding on the content in your document. Write a small intro and we can take it from there!",
+    "more": "More"
+  },
+  "autoUpdate": {
+    "criticalUpdateTitle": "Update required to continue",
+    "criticalUpdateDescription": "We've made improvements to enhance your experience! Please update from {currentVersion} to {newVersion} to keep using the app.",
+    "criticalUpdateButton": "Update",
+    "bannerUpdateTitle": "New Version Available!",
+    "bannerUpdateDescription": "Get the latest features and fixes. Click \"Update\" to install now",
+    "bannerUpdateButton": "Update",
+    "settingsUpdateTitle": "New Version ({newVersion}) Available!",
+    "settingsUpdateDescription": "Current version: {currentVersion} (Official build) → {newVersion}",
+    "settingsUpdateButton": "Update",
+    "settingsUpdateWhatsNew": "What's new"
+  },
+  "lockPage": {
+    "lockPage": "Locked",
+    "reLockPage": "Re-lock",
+    "lockTooltip": "Page locked to prevent accidental editing. Click to unlock.",
+    "pageLockedToast": "Page locked. Editing is disabled until someone unlocks it.",
+    "lockedOperationTooltip": "Page locked to prevent accidental editing."
+  },
+  "suggestion": {
+    "accept": "Accept",
+    "keep": "Keep",
+    "discard": "Discard",
+    "close": "Close",
+    "tryAgain": "Try again",
+    "rewrite": "Rewrite",
+    "insertBelow": "Insert below"
   }
 }

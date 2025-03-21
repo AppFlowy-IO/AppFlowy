@@ -9,9 +9,9 @@ import 'package:appflowy/mobile/presentation/widgets/show_flowy_mobile_confirm_d
 import 'package:appflowy/startup/tasks/device_info_task.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class PermissionChecker {
   static Future<bool> checkPhotoPermission(BuildContext context) async {
@@ -48,7 +48,7 @@ class PermissionChecker {
     } else if (status.isDenied) {
       // https://github.com/Baseflow/flutter-permission-handler/issues/1262#issuecomment-2006340937
       Permission permission = Permission.photos;
-      if (defaultTargetPlatform == TargetPlatform.android &&
+      if (UniversalPlatform.isAndroid &&
           ApplicationInfo.androidSDKVersion <= 32) {
         permission = Permission.storage;
       }

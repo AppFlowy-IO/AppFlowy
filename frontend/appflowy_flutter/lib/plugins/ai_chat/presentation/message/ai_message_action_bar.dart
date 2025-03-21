@@ -1,14 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:appflowy/ai/widgets/prompt_input/layout_define.dart';
-import 'package:appflowy/ai/widgets/prompt_input/predefined_format_buttons.dart';
-import 'package:appflowy/ai/widgets/prompt_input/select_sources_menu.dart';
+import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_edit_document_service.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_select_sources_cubit.dart';
 import 'package:appflowy/plugins/document/application/prelude.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
@@ -220,7 +217,7 @@ class RegenerateButton extends StatelessWidget {
             ? DesktopAIChatSizes.messageHoverActionBarIconRadius
             : DesktopAIChatSizes.messageActionBarIconRadius,
         icon: FlowySvg(
-          FlowySvgs.ai_undo_s,
+          FlowySvgs.ai_try_again_s,
           color: Theme.of(context).hintColor,
           size: const Size.square(16),
         ),
@@ -263,8 +260,11 @@ class _ChangeFormatButtonState extends State<ChangeFormatButton> {
       constraints: const BoxConstraints(),
       onClose: () => widget.onOverrideVisibility?.call(false),
       child: buildButton(context),
-      popupBuilder: (_) => _ChangeFormatPopoverContent(
-        onRegenerate: widget.onRegenerate,
+      popupBuilder: (_) => BlocProvider.value(
+        value: context.read<AIPromptInputBloc>(),
+        child: _ChangeFormatPopoverContent(
+          onRegenerate: widget.onRegenerate,
+        ),
       ),
     );
   }
@@ -362,11 +362,16 @@ class _ChangeFormatPopoverContentState
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ChangeFormatBar(
-            spacing: 2.0,
-            predefinedFormat: predefinedFormat,
-            onSelectPredefinedFormat: (format) {
-              setState(() => predefinedFormat = format);
+          BlocBuilder<AIPromptInputBloc, AIPromptInputState>(
+            builder: (context, state) {
+              return ChangeFormatBar(
+                spacing: 2.0,
+                showImageFormats: state.aiType.isCloud,
+                predefinedFormat: predefinedFormat,
+                onSelectPredefinedFormat: (format) {
+                  setState(() => predefinedFormat = format);
+                },
+              );
             },
           ),
           const HSpace(4.0),
@@ -377,8 +382,9 @@ class _ChangeFormatPopoverContentState
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () {
-                  widget.onRegenerate
-                      ?.call(predefinedFormat ?? const PredefinedFormat.auto());
+                  if (predefinedFormat != null) {
+                    widget.onRegenerate?.call(predefinedFormat!);
+                  }
                 },
                 child: SizedBox.square(
                   dimension: DesktopAIPromptSizes.predefinedFormatButtonHeight,

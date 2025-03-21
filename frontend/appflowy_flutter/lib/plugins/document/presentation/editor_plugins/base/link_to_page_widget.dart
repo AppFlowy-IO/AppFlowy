@@ -9,6 +9,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 InlineActionsMenuService? _actionsMenuService;
+
 Future<void> showLinkToPageMenu(
   EditorState editorState,
   SelectionMenuService menuService, {
@@ -60,7 +61,7 @@ Future<void> showLinkToPageMenu(
       startCharAmount: 0,
     );
 
-    _actionsMenuService?.show();
+    await _actionsMenuService?.show();
   }
 }
 

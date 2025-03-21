@@ -3,6 +3,9 @@ PODS:
     - FlutterMacOS
   - appflowy_backend (0.0.1):
     - FlutterMacOS
+  - auto_updater_macos (0.0.1):
+    - FlutterMacOS
+    - Sparkle
   - bitsdojo_window_macos (0.0.1):
     - FlutterMacOS
   - connectivity_plus (0.0.1):
@@ -17,7 +20,7 @@ PODS:
   - flowy_infra_ui (0.0.1):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
-  - HotKey (0.2.0)
+  - HotKey (0.2.1)
   - hotkey_manager (0.0.1):
     - FlutterMacOS
     - HotKey
@@ -30,7 +33,7 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - ReachabilitySwift (5.2.3)
+  - ReachabilitySwift (5.2.4)
   - screen_retriever_macos (0.0.1):
     - FlutterMacOS
   - Sentry/HybridSDK (8.35.1)
@@ -43,6 +46,7 @@ PODS:
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
+  - Sparkle (2.6.4)
   - sqflite_darwin (0.0.4):
     - Flutter
     - FlutterMacOS
@@ -59,6 +63,7 @@ PODS:
 DEPENDENCIES:
   - app_links (from `Flutter/ephemeral/.symlinks/plugins/app_links/macos`)
   - appflowy_backend (from `Flutter/ephemeral/.symlinks/plugins/appflowy_backend/macos`)
+  - auto_updater_macos (from `Flutter/ephemeral/.symlinks/plugins/auto_updater_macos/macos`)
   - bitsdojo_window_macos (from `Flutter/ephemeral/.symlinks/plugins/bitsdojo_window_macos/macos`)
   - connectivity_plus (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos`)
   - desktop_drop (from `Flutter/ephemeral/.symlinks/plugins/desktop_drop/macos`)
@@ -86,12 +91,15 @@ SPEC REPOS:
     - HotKey
     - ReachabilitySwift
     - Sentry
+    - Sparkle
 
 EXTERNAL SOURCES:
   app_links:
     :path: Flutter/ephemeral/.symlinks/plugins/app_links/macos
   appflowy_backend:
     :path: Flutter/ephemeral/.symlinks/plugins/appflowy_backend/macos
+  auto_updater_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/auto_updater_macos/macos
   bitsdojo_window_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/bitsdojo_window_macos/macos
   connectivity_plus:
@@ -138,6 +146,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   app_links: 10e0a0ab602ffaf34d142cd4862f29d34b303b2a
   appflowy_backend: 865496343de667fc8c600e04b9fd05234e130cf9
+  auto_updater_macos: 3e3462c418fe4e731917eacd8d28eef7af84086d
   bitsdojo_window_macos: 44e3b8fe3dd463820e0321f6256c5b1c16bb6a00
   connectivity_plus: 18d3c32514c886e046de60e9c13895109866c747
   desktop_drop: 69eeff437544aa619c8db7f4481b3a65f7696898
@@ -145,18 +154,19 @@ SPEC CHECKSUMS:
   file_selector_macos: cc3858c981fe6889f364731200d6232dac1d812d
   flowy_infra_ui: 03301a39ad118771adbf051a664265c61c507f38
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
-  HotKey: e96d8a2ddbf4591131e2bb3f54e69554d90cdca6
+  HotKey: 400beb7caa29054ea8d864c96f5ba7e5b4852277
   hotkey_manager: c32bf0bfe8f934b7bc17ab4ad5c4c142960b023c
   irondash_engine_context: da62996ee25616d2f01bbeb85dc115d813359478
   local_notifier: e9506bc66fc70311e8bc7291fb70f743c081e4ff
   package_info_plus: 12f1c5c2cfe8727ca46cbd0b26677728972d9a5b
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
-  ReachabilitySwift: 7f151ff156cea1481a8411701195ac6a984f4979
+  ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
   screen_retriever_macos: 776e0fa5d42c6163d2bf772d22478df4b302b161
   Sentry: 1fe34e9c2cbba1e347623610d26db121dcb569f1
   sentry_flutter: a39c2a2d67d5e5b9cb0b94a4985c76dd5b3fc737
   share_plus: 1fa619de8392a4398bfaf176d441853922614e89
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
+  Sparkle: 5f8960a7a119aa7d45dacc0d5837017170bc5675
   sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
   super_native_extensions: 85efee3a7495b46b04befcfc86ed12069264ebf3
   url_launcher_macos: c82c93949963e55b228a30115bd219499a6fe404

@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/database/grid/application/row/row_document_bloc.dart';
+import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_drop_handler.dart';
 import 'package:appflowy/plugins/document/presentation/editor_drop_manager.dart';
@@ -8,6 +9,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/shared_con
 import 'package:appflowy/plugins/document/presentation/editor_plugins/transaction_handler/editor_transaction_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/flowy_error_page.dart';
+import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy/workspace/application/view_info/view_info_bloc.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -70,9 +72,16 @@ class _RowEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) =>
-          DocumentBloc(documentId: view.id)..add(const DocumentEvent.initial()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => DocumentBloc(documentId: view.id)
+            ..add(const DocumentEvent.initial()),
+        ),
+        BlocProvider(
+          create: (_) => ViewBloc(view: view)..add(const ViewEvent.initial()),
+        ),
+      ],
       child: BlocConsumer<DocumentBloc, DocumentState>(
         listenWhen: (previous, current) =>
             previous.isDocumentEmpty != current.isDocumentEmpty,
@@ -102,24 +111,26 @@ class _RowEditor extends StatelessWidget {
 
           return BlocProvider<ViewInfoBloc>(
             create: (context) => ViewInfoBloc(view: view),
-            child: IntrinsicHeight(
-              child: Container(
-                constraints: const BoxConstraints(minHeight: 300),
-                child: Provider(
-                  create: (_) {
-                    final context = SharedEditorContext();
-                    context.isInDatabaseRowPage = true;
-                    return context;
-                  },
-                  dispose: (_, editorContext) => editorContext.dispose(),
-                  child: EditorDropHandler(
+            child: Container(
+              constraints: const BoxConstraints(minHeight: 300),
+              child: Provider(
+                create: (_) {
+                  final context = SharedEditorContext();
+                  context.isInDatabaseRowPage = true;
+                  return context;
+                },
+                dispose: (_, editorContext) => editorContext.dispose(),
+                child: EditorDropHandler(
+                  viewId: view.id,
+                  editorState: editorState,
+                  isLocalMode: context.read<DocumentBloc>().isLocalMode,
+                  dropManagerState: context.read<EditorDropManagerState>(),
+                  child: EditorTransactionService(
                     viewId: view.id,
                     editorState: editorState,
-                    isLocalMode: context.read<DocumentBloc>().isLocalMode,
-                    dropManagerState: context.read<EditorDropManagerState>(),
-                    child: EditorTransactionService(
-                      viewId: view.id,
-                      editorState: editorState,
+                    child: Provider(
+                      create: (context) =>
+                          DatabasePluginWidgetBuilderSize(horizontalPadding: 0),
                       child: AppFlowyEditorPage(
                         shrinkWrap: true,
                         autoFocus: false,

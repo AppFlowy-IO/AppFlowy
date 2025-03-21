@@ -1,24 +1,22 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import '../../service/ai_entities.dart';
 import 'layout_define.dart';
 
 class PromptInputDesktopToggleFormatButton extends StatelessWidget {
   const PromptInputDesktopToggleFormatButton({
     super.key,
     required this.showFormatBar,
-    required this.predefinedFormat,
     required this.onTap,
   });
 
   final bool showFormatBar;
-  final PredefinedFormat predefinedFormat;
   final VoidCallback onTap;
 
   @override
@@ -50,26 +48,31 @@ class ChangeFormatBar extends StatelessWidget {
     required this.predefinedFormat,
     required this.spacing,
     required this.onSelectPredefinedFormat,
+    this.showImageFormats = true,
   });
 
   final PredefinedFormat? predefinedFormat;
   final double spacing;
   final void Function(PredefinedFormat) onSelectPredefinedFormat;
+  final bool showImageFormats;
 
   @override
   Widget build(BuildContext context) {
+    final showTextFormats = predefinedFormat?.imageFormat.hasText ?? true;
     return SizedBox(
       height: DesktopAIPromptSizes.predefinedFormatButtonHeight,
       child: SeparatedRow(
         mainAxisSize: MainAxisSize.min,
         separatorBuilder: () => HSpace(spacing),
         children: [
-          _buildFormatButton(context, ImageFormat.text),
-          _buildFormatButton(context, ImageFormat.textAndImage),
-          _buildFormatButton(context, ImageFormat.image),
-          if (predefinedFormat?.imageFormat.hasText ?? true) ...[
-            _buildDivider(),
-            _buildTextFormatButton(context, TextFormat.auto),
+          if (showImageFormats) ...[
+            _buildFormatButton(context, ImageFormat.text),
+            _buildFormatButton(context, ImageFormat.textAndImage),
+            _buildFormatButton(context, ImageFormat.image),
+          ],
+          if (showImageFormats && showTextFormats) _buildDivider(),
+          if (showTextFormats) ...[
+            _buildTextFormatButton(context, TextFormat.paragraph),
             _buildTextFormatButton(context, TextFormat.bulletList),
             _buildTextFormatButton(context, TextFormat.numberedList),
             _buildTextFormatButton(context, TextFormat.table),
@@ -88,7 +91,8 @@ class ChangeFormatBar extends StatelessWidget {
           return;
         }
         if (format.hasText) {
-          final textFormat = predefinedFormat?.textFormat ?? TextFormat.auto;
+          final textFormat =
+              predefinedFormat?.textFormat ?? TextFormat.paragraph;
           onSelectPredefinedFormat(
             PredefinedFormat(imageFormat: format, textFormat: textFormat),
           );

@@ -1,6 +1,8 @@
 import 'package:appflowy/generated/locale_keys.g.dart' show LocaleKeys;
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
+import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart'
@@ -80,7 +82,7 @@ class CalloutBlockComponentBuilder extends BlockComponentBuilder {
   });
 
   final Color defaultColor;
-  final EdgeInsets inlinePadding;
+  final EdgeInsets Function(Node node) inlinePadding;
 
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
@@ -96,12 +98,15 @@ class CalloutBlockComponentBuilder extends BlockComponentBuilder {
         blockComponentContext,
         state,
       ),
+      actionTrailingBuilder: (context, state) => actionTrailingBuilder(
+        blockComponentContext,
+        state,
+      ),
     );
   }
 
   @override
-  BlockComponentValidate get validate =>
-      (node) => node.delta != null && node.children.isEmpty;
+  BlockComponentValidate get validate => (node) => node.delta != null;
 }
 
 // the main widget for rendering the callout block
@@ -111,13 +116,14 @@ class CalloutBlockComponentWidget extends BlockComponentStatefulWidget {
     required super.node,
     super.showActions,
     super.actionBuilder,
+    super.actionTrailingBuilder,
     super.configuration = const BlockComponentConfiguration(),
     required this.defaultColor,
     required this.inlinePadding,
   });
 
   final Color defaultColor;
-  final EdgeInsets inlinePadding;
+  final EdgeInsets Function(Node node) inlinePadding;
 
   @override
   State<CalloutBlockComponentWidget> createState() =>
@@ -132,7 +138,8 @@ class _CalloutBlockComponentWidgetState
         BlockComponentConfigurable,
         BlockComponentTextDirectionMixin,
         BlockComponentAlignMixin,
-        BlockComponentBackgroundColorMixin {
+        BlockComponentBackgroundColorMixin,
+        NestedBlockComponentStatefulWidgetMixin {
   // the key used to forward focus to the richtext child
   @override
   final forwardKey = GlobalKey(debugLabel: 'flowy_rich_text');
@@ -170,56 +177,114 @@ class _CalloutBlockComponentWidgetState
     try {
       result = EmojiIconData(FlowyIconType.values.byName(type), icon);
     } catch (e) {
-      Log.error(
-        'get emoji error with icon:[$icon], type:[$type] within alloutBlockComponentWidget',
+      Log.info(
+        'get emoji error with icon:[$icon], type:[$type] within calloutBlockComponentWidget',
         e,
       );
     }
     return result;
   }
 
-  // get access to the editor state via provider
   @override
-  late final editorState = Provider.of<EditorState>(context, listen: false);
+  Widget build(BuildContext context) {
+    Widget child = node.children.isEmpty
+        ? buildComponent(context)
+        : buildComponentWithChildren(context);
+
+    if (UniversalPlatform.isDesktop) {
+      child = Padding(
+        padding: EdgeInsets.symmetric(vertical: 2.0),
+        child: child,
+      );
+    }
+
+    return child;
+  }
+
+  @override
+  Widget buildComponentWithChildren(BuildContext context) {
+    Widget child = Stack(
+      children: [
+        Positioned.fill(
+          left: UniversalPlatform.isMobile ? 0 : cachedLeft,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(6.0)),
+              color: backgroundColor,
+            ),
+          ),
+        ),
+        NestedListWidget(
+          indentPadding: indentPadding.copyWith(bottom: 8),
+          child: buildComponent(context, withBackgroundColor: false),
+          children: editorState.renderer.buildList(
+            context,
+            widget.node.children,
+          ),
+        ),
+      ],
+    );
+
+    if (UniversalPlatform.isMobile) {
+      child = Padding(
+        padding: padding,
+        child: child,
+      );
+    }
+
+    return child;
+  }
 
   // build the callout block widget
   @override
-  Widget build(BuildContext context) {
+  Widget buildComponent(
+    BuildContext context, {
+    bool withBackgroundColor = true,
+  }) {
     final textDirection = calculateTextDirection(
       layoutDirection: Directionality.maybeOf(context),
     );
     final (emojiSize, emojiButtonSize) = calculateEmojiSize();
-
+    final documentId = context.read<DocumentBloc?>()?.documentId;
     Widget child = Container(
       decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-        color: backgroundColor,
+        borderRadius: const BorderRadius.all(Radius.circular(6.0)),
+        color: withBackgroundColor ? backgroundColor : null,
       ),
-      padding: widget.inlinePadding,
+      padding: widget.inlinePadding(widget.node),
       width: double.infinity,
       alignment: alignment,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         textDirection: textDirection,
         children: [
-          if (UniversalPlatform.isDesktopOrWeb) const HSpace(4.0),
+          const HSpace(6.0),
           // the emoji picker button for the note
           EmojiPickerButton(
             // force to refresh the popover state
             key: ValueKey(widget.node.id + emoji.emoji),
             enable: editorState.editable,
             title: '',
+            margin: UniversalPlatform.isMobile
+                ? const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0)
+                : EdgeInsets.zero,
             emoji: emoji,
             emojiSize: emojiSize,
             showBorder: false,
             buttonSize: emojiButtonSize,
+            documentId: documentId,
+            tabs: const [
+              PickerTabType.emoji,
+              PickerTabType.icon,
+              PickerTabType.custom,
+            ],
             onSubmitted: (r, controller) {
               setEmojiIconData(r.data);
               if (!r.keepOpen) controller?.close();
             },
           ),
-          if (UniversalPlatform.isDesktopOrWeb) const HSpace(4.0),
+          if (UniversalPlatform.isDesktopOrWeb) const HSpace(6.0),
           Flexible(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -231,17 +296,26 @@ class _CalloutBlockComponentWidgetState
       ),
     );
 
-    child = Padding(
-      key: blockComponentKey,
-      padding: padding,
-      child: child,
-    );
+    if (UniversalPlatform.isMobile && node.children.isEmpty) {
+      child = Padding(
+        key: blockComponentKey,
+        padding: padding,
+        child: child,
+      );
+    } else {
+      child = Container(
+        key: blockComponentKey,
+        padding: EdgeInsets.zero,
+        child: child,
+      );
+    }
 
     child = BlockSelectionContainer(
       node: node,
       delegate: this,
       listenable: editorState.selectionNotifier,
       blockColor: editorState.editorStyle.selectionColor,
+      selectionAboveBlock: true,
       supportTypes: const [
         BlockSelectionType.block,
       ],
@@ -252,6 +326,7 @@ class _CalloutBlockComponentWidgetState
       child = BlockComponentActionWrapper(
         node: widget.node,
         actionBuilder: widget.actionBuilder!,
+        actionTrailingBuilder: widget.actionTrailingBuilder,
         child: child,
       );
     }

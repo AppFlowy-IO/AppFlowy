@@ -70,7 +70,7 @@ class ExportTab extends StatelessWidget {
         const VSpace(10),
         _ExportButton(
           title: LocaleKeys.shareAction_csv.tr(),
-          svg: FlowySvgs.database_layout_m,
+          svg: FlowySvgs.database_layout_s,
           onTap: () => _exportCSV(context),
         ),
         if (kDebugMode) ...[
@@ -105,7 +105,7 @@ class ExportTab extends StatelessWidget {
     final viewName = context.read<ShareBloc>().state.viewName;
     final exportPath = await getIt<FilePickerService>().saveFile(
       dialogTitle: '',
-      fileName: '${viewName.toFileName()}.md',
+      fileName: '${viewName.toFileName()}.zip',
     );
     if (context.mounted && exportPath != null) {
       context.read<ShareBloc>().add(

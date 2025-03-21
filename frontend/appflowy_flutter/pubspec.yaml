@@ -4,7 +4,7 @@ description: Bring projects, wikis, and teams together with AI. AppFlowy is an
   your data. The best open source alternative to Notion.
 publish_to: "none"
 
-version: 0.8.2
+version: 0.8.7
 
 environment:
   flutter: ">=3.27.4"
@@ -18,7 +18,7 @@ dependencies:
   appflowy_board:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-board.git
-      ref: 5517c8704c0dbeaeda5601e9baadb4cc2b29990d
+      ref: e8317c0d1af8d23dc5707b02ea43864536b6de91
   appflowy_editor:
   appflowy_editor_plugins:
   appflowy_popover:
@@ -28,6 +28,7 @@ dependencies:
 
   archive: ^3.4.10
   auto_size_text_field: ^2.2.3
+  auto_updater: ^1.0.0
   avatar_stack: ^3.0.0
 
   # BitsDojo Window for Windows
@@ -134,6 +135,7 @@ dependencies:
   synchronized: ^3.1.0+1
   table_calendar: ^3.0.9
   time: ^2.1.3
+  event_bus: ^2.0.1
 
   toastification: ^2.0.0
   universal_platform: ^1.1.0
@@ -142,7 +144,10 @@ dependencies:
   url_protocol:
 
   # Window Manager for MacOS and Linux
+  version: ^3.0.2
+  xml: ^6.5.0
   window_manager: ^0.4.3
+  saver_gallery: ^4.0.1
 
 dev_dependencies:
   bloc_test: ^9.1.2
@@ -175,7 +180,7 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "55c457f"
+      ref: "5070212"
 
   appflowy_editor_plugins:
     git:
@@ -206,6 +211,38 @@ dependency_overrides:
   # Don't upgrade file_picker until the issue is fixed
   # https://github.com/miguelpruivo/flutter_file_picker/issues/1652
   file_picker: 8.1.4
+
+  auto_updater:
+    git:
+      url: https://github.com/LucasXu0/auto_updater.git
+      path: packages/auto_updater
+      ref: 1d81a824f3633f1d0200ba51b78fe0f9ce429458
+
+  auto_updater_macos:
+    git:
+      url: https://github.com/LucasXu0/auto_updater.git
+      path: packages/auto_updater_macos
+      ref: 1d81a824f3633f1d0200ba51b78fe0f9ce429458
+
+  auto_updater_platform_interface:
+    git:
+      url: https://github.com/LucasXu0/auto_updater.git
+      path: packages/auto_updater_platform_interface
+      ref: 1d81a824f3633f1d0200ba51b78fe0f9ce429458
+
+  unsplash_client:
+    git:
+      url: https://github.com/LucasXu0/unsplash_client.git
+      ref: a8411fc
+
+  # auto_updater:
+  #   path: /Users/lucas.xu/Desktop/auto_updater/packages/auto_updater
+
+  # auto_updater_macos:
+  #   path: /Users/lucas.xu/Desktop/auto_updater/packages/auto_updater_macos
+
+  # auto_updater_platform_interface:
+  #   path: /Users/lucas.xu/Desktop/auto_updater/packages/auto_updater_platform_interface
 
 flutter:
   generate: true
@@ -248,6 +285,7 @@ flutter:
     - assets/images/built_in_cover_images/
     - assets/flowy_icons/
     - assets/flowy_icons/16x/
+    - assets/flowy_icons/20x/
     - assets/flowy_icons/24x/
     - assets/flowy_icons/32x/
     - assets/flowy_icons/40x/

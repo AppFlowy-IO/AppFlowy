@@ -23,11 +23,126 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
             parseMetadata(refSourceJsonString),
           ),
         ) {
-    _dispatch();
+    _registerEventHandlers();
+    _initializeStreamListener();
+    _checkInitialStreamState();
+  }
 
+  final String chatId;
+  final Int64? questionId;
+
+  void _registerEventHandlers() {
+    on<_UpdateText>((event, emit) {
+      emit(
+        state.copyWith(
+          text: event.text,
+          messageState: const MessageState.ready(),
+        ),
+      );
+    });
+
+    on<_ReceiveError>((event, emit) {
+      emit(state.copyWith(messageState: MessageState.onError(event.error)));
+    });
+
+    on<_Retry>((event, emit) async {
+      if (questionId == null) {
+        Log.error("Question id is not valid: $questionId");
+        return;
+      }
+      emit(state.copyWith(messageState: const MessageState.loading()));
+      final payload = ChatMessageIdPB(
+        chatId: chatId,
+        messageId: questionId,
+      );
+      final result = await AIEventGetAnswerForQuestion(payload).send();
+      if (!isClosed) {
+        result.fold(
+          (answer) => add(ChatAIMessageEvent.retryResult(answer.content)),
+          (err) {
+            Log.error("Failed to get answer: $err");
+            add(ChatAIMessageEvent.receiveError(err.toString()));
+          },
+        );
+      }
+    });
+
+    on<_RetryResult>((event, emit) {
+      emit(
+        state.copyWith(
+          text: event.text,
+          messageState: const MessageState.ready(),
+        ),
+      );
+    });
+
+    on<_OnAIResponseLimit>((event, emit) {
+      emit(
+        state.copyWith(
+          messageState: const MessageState.onAIResponseLimit(),
+        ),
+      );
+    });
+
+    on<_OnAIImageResponseLimit>((event, emit) {
+      emit(
+        state.copyWith(
+          messageState: const MessageState.onAIImageResponseLimit(),
+        ),
+      );
+    });
+
+    on<_OnAIMaxRquired>((event, emit) {
+      emit(
+        state.copyWith(
+          messageState: MessageState.onAIMaxRequired(event.message),
+        ),
+      );
+    });
+
+    on<_OnLocalAIInitializing>((event, emit) {
+      emit(
+        state.copyWith(
+          messageState: const MessageState.onInitializingLocalAI(),
+        ),
+      );
+    });
+
+    on<_ReceiveMetadata>((event, emit) {
+      Log.debug("AI Steps: ${event.metadata.progress?.step}");
+      emit(
+        state.copyWith(
+          sources: event.metadata.sources,
+          progress: event.metadata.progress,
+        ),
+      );
+    });
+  }
+
+  void _initializeStreamListener() {
     if (state.stream != null) {
-      _startListening();
+      state.stream!.listen(
+        onData: (text) => _safeAdd(ChatAIMessageEvent.updateText(text)),
+        onError: (error) =>
+            _safeAdd(ChatAIMessageEvent.receiveError(error.toString())),
+        onAIResponseLimit: () =>
+            _safeAdd(const ChatAIMessageEvent.onAIResponseLimit()),
+        onAIImageResponseLimit: () =>
+            _safeAdd(const ChatAIMessageEvent.onAIImageResponseLimit()),
+        onMetadata: (metadata) =>
+            _safeAdd(ChatAIMessageEvent.receiveMetadata(metadata)),
+        onAIMaxRequired: (message) {
+          Log.info(message);
+          _safeAdd(ChatAIMessageEvent.onAIMaxRequired(message));
+        },
+        onLocalAIInitializing: () =>
+            _safeAdd(const ChatAIMessageEvent.onLocalAIInitializing()),
+      );
+    }
+  }
 
+  void _checkInitialStreamState() {
+    if (state.stream != null) {
       if (state.stream!.aiLimitReached) {
         add(const ChatAIMessageEvent.onAIResponseLimit());
       } else if (state.stream!.error != null) {
@@ -36,130 +151,10 @@ class ChatAIMessageBloc extends Bloc<ChatAIMessageEvent, ChatAIMessageState> {
     }
   }
 
-  final String chatId;
-  final Int64? questionId;
-
-  void _dispatch() {
-    on<ChatAIMessageEvent>(
-      (event, emit) {
-        event.when(
-          updateText: (newText) {
-            emit(
-              state.copyWith(
-                text: newText,
-                messageState: const MessageState.ready(),
-              ),
-            );
-          },
-          receiveError: (error) {
-            emit(state.copyWith(messageState: MessageState.onError(error)));
-          },
-          retry: () {
-            if (questionId is! Int64) {
-              Log.error("Question id is not Int64: $questionId");
-              return;
-            }
-            emit(
-              state.copyWith(
-                messageState: const MessageState.loading(),
-              ),
-            );
-
-            final payload = ChatMessageIdPB(
-              chatId: chatId,
-              messageId: questionId,
-            );
-            AIEventGetAnswerForQuestion(payload).send().then((result) {
-              if (!isClosed) {
-                result.fold(
-                  (answer) {
-                    add(ChatAIMessageEvent.retryResult(answer.content));
-                  },
-                  (err) {
-                    Log.error("Failed to get answer: $err");
-                    add(ChatAIMessageEvent.receiveError(err.toString()));
-                  },
-                );
-              }
-            });
-          },
-          retryResult: (String text) {
-            emit(
-              state.copyWith(
-                text: text,
-                messageState: const MessageState.ready(),
-              ),
-            );
-          },
-          onAIResponseLimit: () {
-            emit(
-              state.copyWith(
-                messageState: const MessageState.onAIResponseLimit(),
-              ),
-            );
-          },
-          onAIImageResponseLimit: () {
-            emit(
-              state.copyWith(
-                messageState: const MessageState.onAIImageResponseLimit(),
-              ),
-            );
-          },
-          onAIMaxRequired: (message) {
-            emit(
-              state.copyWith(
-                messageState: MessageState.onAIMaxRequired(message),
-              ),
-            );
-          },
-          receiveMetadata: (metadata) {
-            Log.debug("AI Steps: ${metadata.progress?.step}");
-            emit(
-              state.copyWith(
-                sources: metadata.sources,
-                progress: metadata.progress,
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void _startListening() {
-    state.stream!.listen(
-      onData: (text) {
-        if (!isClosed) {
-          add(ChatAIMessageEvent.updateText(text));
-        }
-      },
-      onError: (error) {
-        if (!isClosed) {
-          add(ChatAIMessageEvent.receiveError(error.toString()));
-        }
-      },
-      onAIResponseLimit: () {
-        if (!isClosed) {
-          add(const ChatAIMessageEvent.onAIResponseLimit());
-        }
-      },
-      onAIImageResponseLimit: () {
-        if (!isClosed) {
-          add(const ChatAIMessageEvent.onAIImageResponseLimit());
-        }
-      },
-      onMetadata: (metadata) {
-        if (!isClosed) {
-          add(ChatAIMessageEvent.receiveMetadata(metadata));
-        }
-      },
-      onAIMaxRequired: (message) {
-        if (!isClosed) {
-          Log.info(message);
-          add(ChatAIMessageEvent.onAIMaxRequired(message));
-        }
-      },
-    );
+  void _safeAdd(ChatAIMessageEvent event) {
+    if (!isClosed) {
+      add(event);
+    }
   }
 }
 
@@ -174,6 +169,8 @@ class ChatAIMessageEvent with _$ChatAIMessageEvent {
       _OnAIImageResponseLimit;
   const factory ChatAIMessageEvent.onAIMaxRequired(String message) =
       _OnAIMaxRquired;
+  const factory ChatAIMessageEvent.onLocalAIInitializing() =
+      _OnLocalAIInitializing;
   const factory ChatAIMessageEvent.receiveMetadata(
     MetadataCollection metadata,
   ) = _ReceiveMetadata;
@@ -209,6 +206,7 @@ class MessageState with _$MessageState {
   const factory MessageState.onAIResponseLimit() = _AIResponseLimit;
   const factory MessageState.onAIImageResponseLimit() = _AIImageResponseLimit;
   const factory MessageState.onAIMaxRequired(String message) = _AIMaxRequired;
+  const factory MessageState.onInitializingLocalAI() = _LocalAIInitializing;
   const factory MessageState.ready() = _Ready;
   const factory MessageState.loading() = _Loading;
 }

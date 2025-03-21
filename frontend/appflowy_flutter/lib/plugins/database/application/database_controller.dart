@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/plugins/database/application/field/field_controller.dart';
 import 'package:appflowy/plugins/database/application/view/view_cache.dart';
 import 'package:appflowy/plugins/database/domain/database_view_service.dart';
@@ -14,6 +12,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 
 import 'defines.dart';
 import 'row/row_cache.dart';
@@ -41,7 +40,9 @@ class GroupCallbacks {
 }
 
 class DatabaseLayoutSettingCallbacks {
-  DatabaseLayoutSettingCallbacks({required this.onLayoutSettingsChanged});
+  DatabaseLayoutSettingCallbacks({
+    required this.onLayoutSettingsChanged,
+  });
 
   final void Function(DatabaseLayoutSettingPB) onLayoutSettingsChanged;
 }
@@ -97,9 +98,11 @@ class DatabaseController {
   final List<DatabaseCallbacks> _databaseCallbacks = [];
   final List<GroupCallbacks> _groupCallbacks = [];
   final List<DatabaseLayoutSettingCallbacks> _layoutCallbacks = [];
+  final Set<ValueChanged<bool>> _compactModeCallbacks = {};
 
   // Getters
   RowCache get rowCache => _viewCache.rowCache;
+
   String get viewId => view.id;
 
   // Listener
@@ -107,17 +110,26 @@ class DatabaseController {
   final DatabaseLayoutSettingListener _layoutListener;
 
   final ValueNotifier<bool> _isLoading = ValueNotifier(true);
+  final ValueNotifier<bool> _compactMode = ValueNotifier(true);
 
-  void setIsLoading(bool isLoading) {
-    _isLoading.value = isLoading;
-  }
+  void setIsLoading(bool isLoading) => _isLoading.value = isLoading;
 
   ValueNotifier<bool> get isLoading => _isLoading;
+
+  void setCompactMode(bool compactMode) {
+    _compactMode.value = compactMode;
+    for (final callback in Set.of(_compactModeCallbacks)) {
+      callback.call(compactMode);
+    }
+  }
+
+  ValueNotifier<bool> get compactModeNotifier => _compactMode;
 
   void addListener({
     DatabaseCallbacks? onDatabaseChanged,
     DatabaseLayoutSettingCallbacks? onLayoutSettingsChanged,
     GroupCallbacks? onGroupChanged,
+    ValueChanged<bool>? onCompactModeChanged,
   }) {
     if (onLayoutSettingsChanged != null) {
       _layoutCallbacks.add(onLayoutSettingsChanged);
@@ -130,12 +142,17 @@ class DatabaseController {
     if (onGroupChanged != null) {
       _groupCallbacks.add(onGroupChanged);
     }
+
+    if (onCompactModeChanged != null) {
+      _compactModeCallbacks.add(onCompactModeChanged);
+    }
   }
 
   void removeListener({
     DatabaseCallbacks? onDatabaseChanged,
     DatabaseLayoutSettingCallbacks? onLayoutSettingsChanged,
     GroupCallbacks? onGroupChanged,
+    ValueChanged<bool>? onCompactModeChanged,
   }) {
     if (onDatabaseChanged != null) {
       _databaseCallbacks.remove(onDatabaseChanged);
@@ -147,6 +164,10 @@ class DatabaseController {
 
     if (onGroupChanged != null) {
       _groupCallbacks.remove(onGroupChanged);
+    }
+
+    if (onCompactModeChanged != null) {
+      _compactModeCallbacks.remove(onCompactModeChanged);
     }
   }
 
@@ -242,6 +263,7 @@ class DatabaseController {
     _databaseCallbacks.clear();
     _groupCallbacks.clear();
     _layoutCallbacks.clear();
+    _compactModeCallbacks.clear();
     _isLoading.dispose();
   }
 
@@ -375,5 +397,11 @@ class DatabaseController {
         );
       },
     );
+  }
+
+  void initCompactMode(bool enableCompactMode) {
+    if (_compactMode.value != enableCompactMode) {
+      _compactMode.value = enableCompactMode;
+    }
   }
 }

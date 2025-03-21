@@ -15,7 +15,7 @@ void handleOpenWorkspaceError(BuildContext context, FlowyError error) {
       getIt<AuthRouter>().pushWorkspaceErrorScreen(context, userFolder, error);
       break;
     case ErrorCode.InvalidEncryptSecret:
-    case ErrorCode.HttpError:
+    case ErrorCode.NetworkError:
       showToastNotification(
         context,
         message: error.msg,

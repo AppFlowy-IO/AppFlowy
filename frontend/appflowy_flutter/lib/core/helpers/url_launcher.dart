@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:string_validator/string_validator.dart';
+import 'package:universal_platform/universal_platform.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 
 typedef OnFailureCallback = void Function(Uri uri);
@@ -36,6 +37,11 @@ Future<bool> afLaunchUri(
       context: context,
       onFailure: onFailure,
     );
+  }
+
+  // on Linux, add http scheme to the url if it is not present
+  if (UniversalPlatform.isLinux && !isURL(url, {'require_protocol': true})) {
+    uri = Uri.parse('https://$url');
   }
 
   // try to launch the uri directly

@@ -767,6 +767,11 @@ impl FolderManager {
       }
 
       if let Some(view) = folder.get_view(view_id) {
+        // if the view is locked, the view can't be moved to trash
+        if view.is_locked.unwrap_or(false) {
+          return Err(FlowyError::view_is_locked());
+        }
+
         Self::unfavorite_view_and_decendants(view.clone(), &mut folder);
         folder.add_trash_view_ids(vec![view_id.to_string()]);
         drop(folder);
@@ -840,6 +845,11 @@ impl FolderManager {
     let from_section = params.from_section;
     let to_section = params.to_section;
     let view = self.get_view_pb(&view_id).await?;
+    // if the view is locked, the view can't be moved
+    if view.is_locked.unwrap_or(false) {
+      return Err(FlowyError::view_is_locked());
+    }
+
     let old_parent_id = view.parent_view_id;
     if let Some(lock) = self.mutex_folder.load_full() {
       let mut folder = lock.write().await;
@@ -863,6 +873,12 @@ impl FolderManager {
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn move_view(&self, view_id: &str, from: usize, to: usize) -> FlowyResult<()> {
     let workspace_id = self.user.workspace_id()?;
+    let view = self.get_view_pb(view_id).await?;
+    // if the view is locked, the view can't be moved
+    if view.is_locked.unwrap_or(false) {
+      return Err(FlowyError::view_is_locked());
+    }
+
     if let Some((is_workspace, parent_view_id, child_views)) = self.get_view_relation(view_id).await
     {
       // The display parent view is the view that is displayed in the UI
@@ -952,7 +968,7 @@ impl FolderManager {
   #[tracing::instrument(level = "trace", skip(self), err)]
   pub async fn update_view_with_params(&self, params: UpdateViewParams) -> FlowyResult<()> {
     self
-      .update_view(&params.view_id, |update| {
+      .update_view(&params.view_id, true, |update| {
         update
           .set_name_if_not_none(params.name)
           .set_desc_if_not_none(params.desc)
@@ -971,8 +987,30 @@ impl FolderManager {
     params: UpdateViewIconParams,
   ) -> FlowyResult<()> {
     self
-      .update_view(&params.view_id, |update| {
+      .update_view(&params.view_id, true, |update| {
         update.set_icon(params.icon).done()
+      })
+      .await
+  }
+
+  /// Lock the view with the given view id.
+  ///
+  /// If the view is locked, it cannot be edited.
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn lock_view(&self, view_id: &str) -> FlowyResult<()> {
+    self
+      .update_view(view_id, false, |update| {
+        update.set_page_lock_status(true).done()
+      })
+      .await
+  }
+
+  /// Unlock the view with the given view id.
+  #[tracing::instrument(level = "debug", skip(self), err)]
+  pub async fn unlock_view(&self, view_id: &str) -> FlowyResult<()> {
+    self
+      .update_view(view_id, false, |update| {
+        update.set_page_lock_status(false).done()
       })
       .await
   }
@@ -1791,7 +1829,10 @@ impl FolderManager {
   }
 
   /// Update the view with the provided view_id using the specified function.
-  async fn update_view<F>(&self, view_id: &str, f: F) -> FlowyResult<()>
+  ///
+  /// If the check_locked is true, it will check the lock status of the view. If the view is locked,
+  /// it will return an error.
+  async fn update_view<F>(&self, view_id: &str, check_locked: bool, f: F) -> FlowyResult<()>
   where
     F: FnOnce(ViewUpdate) -> Option<View>,
   {
@@ -1801,6 +1842,12 @@ impl FolderManager {
       Some(lock) => {
         let mut folder = lock.write().await;
         let old_view = folder.get_view(view_id);
+
+        // Check if the view is locked
+        if check_locked && old_view.as_ref().and_then(|v| v.is_locked).unwrap_or(false) {
+          return Err(FlowyError::view_is_locked());
+        }
+
         let new_view = folder.update_view(view_id, f);
 
         Some((old_view, new_view))
@@ -2027,16 +2074,11 @@ pub(crate) fn get_workspace_public_view_pbs(workspace_id: &str, folder: &Folder)
 
 /// Get all the child views belong to the view id, including the child views of the child views.
 fn get_all_child_view_ids(folder: &Folder, view_id: &str) -> Vec<String> {
-  let child_view_ids = folder
-    .get_views_belong_to(view_id)
-    .into_iter()
+  folder
+    .get_view_recursively(view_id)
+    .iter()
     .map(|view| view.id.clone())
-    .collect::<Vec<String>>();
-  let mut all_child_view_ids = child_view_ids.clone();
-  for child_view_id in child_view_ids {
-    all_child_view_ids.extend(get_all_child_view_ids(folder, &child_view_id));
-  }
-  all_child_view_ids
+    .collect()
 }
 
 /// Get the current private views of the user.

@@ -42,10 +42,8 @@ class BulletedListIcon extends StatelessWidget {
       size: Size.square(size * 0.8),
     );
     return Container(
-      constraints: BoxConstraints(
-        minWidth: size,
-        minHeight: size,
-      ),
+      width: size,
+      height: size,
       margin: const EdgeInsets.only(right: 8.0),
       alignment: Alignment.center,
       child: icon,

@@ -1,7 +1,11 @@
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/operations/ai_writer_node_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:universal_platform/universal_platform.dart';
 
+import 'slash_menu_items/mobile_items.dart';
 import 'slash_menu_items/slash_menu_items.dart';
 
 /// Build slash menu items
@@ -11,16 +15,32 @@ List<SelectionMenuItem> slashMenuItemsBuilder({
   DocumentBloc? documentBloc,
   EditorState? editorState,
   Node? node,
+  ViewPB? view,
 }) {
   final isInTable = node != null && node.parentTableCellNode != null;
-
-  if (isInTable) {
-    return _simpleTableSlashMenuItems();
+  final isMobile = UniversalPlatform.isMobile;
+  bool isEmpty = false;
+  if (editorState == null || editorState.isEmptyForContinueWriting()) {
+    if (view == null || view.name.isEmpty) {
+      isEmpty = true;
+    }
+  }
+  if (isMobile) {
+    if (isInTable) {
+      return mobileItemsInTale;
+    } else {
+      return mobileItems;
+    }
   } else {
-    return _defaultSlashMenuItems(
-      isLocalMode: isLocalMode,
-      documentBloc: documentBloc,
-    );
+    if (isInTable) {
+      return _simpleTableSlashMenuItems();
+    } else {
+      return _defaultSlashMenuItems(
+        isLocalMode: isLocalMode,
+        documentBloc: documentBloc,
+        isEmpty: isEmpty,
+      );
+    }
   }
 }
 
@@ -38,10 +58,14 @@ List<SelectionMenuItem> slashMenuItemsBuilder({
 List<SelectionMenuItem> _defaultSlashMenuItems({
   bool isLocalMode = false,
   DocumentBloc? documentBloc,
+  bool isEmpty = false,
 }) {
   return [
-    // disable ai writer in local mode
-    if (!isLocalMode) aiWriterSlashMenuItem,
+    // ai
+    if (!isLocalMode) ...[
+      if (!isEmpty) continueWritingSlashMenuItem,
+      aiWriterSlashMenuItem,
+    ],
 
     paragraphSlashMenuItem,
 
@@ -69,6 +93,12 @@ List<SelectionMenuItem> _defaultSlashMenuItems({
 
     // link to page
     linkToPageSlashMenuItem,
+
+    // columns
+    // 2-4 columns
+    twoColumnsSlashMenuItem,
+    threeColumnsSlashMenuItem,
+    fourColumnsSlashMenuItem,
 
     // grid
     if (documentBloc != null) gridSlashMenuItem(documentBloc),

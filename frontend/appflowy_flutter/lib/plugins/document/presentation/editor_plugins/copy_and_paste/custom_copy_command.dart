@@ -1,8 +1,7 @@
 import 'dart:convert';
 
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/simple_table/simple_table.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/sub_page/sub_page_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -98,7 +97,13 @@ Document _buildCopiedDocument(
       // if the node is a table cell, we will fetch its children instead.
       filteredNodes.addAll(node.children);
     } else if (node.type == SimpleTableRowBlockKeys.type) {
-      // if the node is a table row, we will fetch its children instead.
+      // if the node is a table row, we will fetch its children's children instead.
+      filteredNodes.addAll(node.children.expand((e) => e.children));
+    } else if (node.type == SimpleColumnBlockKeys.type) {
+      // if the node is a column block, we will fetch its children instead.
+      filteredNodes.addAll(node.children);
+    } else if (node.type == SimpleColumnsBlockKeys.type) {
+      // if the node is a columns block, we will fetch its children's children instead.
       filteredNodes.addAll(node.children.expand((e) => e.children));
     } else {
       filteredNodes.add(node);

@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:appflowy/plugins/database/widgets/database_view_widget.dart';
+import 'package:appflowy/plugins/document/presentation/compact_mode_event.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/built_in_page_widget.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +17,13 @@ class DatabaseBlockKeys {
 
   static const String parentID = 'parent_id';
   static const String viewID = 'view_id';
+  static const String enableCompactMode = 'enable_compact_mode';
 }
+
+const overflowTypes = {
+  DatabaseBlockKeys.gridType,
+  DatabaseBlockKeys.boardType,
+};
 
 class DatabaseViewBlockComponentBuilder extends BlockComponentBuilder {
   DatabaseViewBlockComponentBuilder({
@@ -29,6 +39,10 @@ class DatabaseViewBlockComponentBuilder extends BlockComponentBuilder {
       configuration: configuration,
       showActions: showActions(node),
       actionBuilder: (context, state) => actionBuilder(
+        blockComponentContext,
+        state,
+      ),
+      actionTrailingBuilder: (context, state) => actionTrailingBuilder(
         blockComponentContext,
         state,
       ),
@@ -48,6 +62,7 @@ class DatabaseBlockComponentWidget extends BlockComponentStatefulWidget {
     required super.node,
     super.showActions,
     super.actionBuilder,
+    super.actionTrailingBuilder,
     super.configuration = const BlockComponentConfiguration(),
   });
 
@@ -65,32 +80,65 @@ class _DatabaseBlockComponentWidgetState
   @override
   BlockComponentConfiguration get configuration => widget.configuration;
 
+  late StreamSubscription<CompactModeEvent> compactModeSubscription;
+  EditorState? editorState;
+
+  @override
+  void initState() {
+    super.initState();
+    compactModeSubscription =
+        compactModeEventBus.on<CompactModeEvent>().listen((event) {
+      if (event.id != node.id) return;
+      final newAttributes = {
+        ...node.attributes,
+        DatabaseBlockKeys.enableCompactMode: event.enable,
+      };
+      final theEditorState = editorState;
+      if (theEditorState == null) return;
+      final transaction = theEditorState.transaction;
+      transaction.updateNode(node, newAttributes);
+      theEditorState.apply(transaction);
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    compactModeSubscription.cancel();
+    editorState = null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final editorState = Provider.of<EditorState>(context, listen: false);
+    this.editorState = editorState;
     Widget child = BuiltInPageWidget(
       node: widget.node,
       editorState: editorState,
-      builder: (view) => DatabaseViewWidget(key: ValueKey(view.id), view: view),
-    );
-
-    child = Padding(
-      padding: padding,
-      child: FocusScope(
-        skipTraversal: true,
-        onFocusChange: (value) {
-          if (value && keepEditorFocusNotifier.value == 0) {
-            context.read<EditorState>().selection = null;
-          }
-        },
-        child: child,
+      builder: (view) => Provider.value(
+        value: ReferenceState(true),
+        child: DatabaseViewWidget(
+          key: ValueKey(view.id),
+          view: view,
+          actionBuilder: widget.actionBuilder,
+          showActions: widget.showActions,
+          node: widget.node,
+        ),
       ),
     );
 
-    if (widget.showActions && widget.actionBuilder != null) {
-      child = BlockComponentActionWrapper(
-        node: widget.node,
-        actionBuilder: widget.actionBuilder!,
+    child = FocusScope(
+      skipTraversal: true,
+      onFocusChange: (value) {
+        if (value && keepEditorFocusNotifier.value == 0) {
+          context.read<EditorState>().selection = null;
+        }
+      },
+      child: child,
+    );
+
+    if (!editorState.editable) {
+      child = IgnorePointer(
         child: child,
       );
     }

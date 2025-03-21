@@ -64,8 +64,12 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.markdown != widget.markdown) {
-      editorState.dispose();
-      editorState = _parseMarkdown(widget.markdown.trim());
+      final editorState = _parseMarkdown(
+        widget.markdown.trim(),
+        previousDocument: this.editorState.document,
+      );
+      this.editorState.dispose();
+      this.editorState = editorState;
       scrollController.dispose();
       scrollController = EditorScrollController(
         editorState: editorState,
@@ -101,7 +105,7 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
       styleCustomizer: styleCustomizer,
       // the editor is not editable in the chat
       editable: false,
-      alwaysDistributeSimpleTableColumnWidths: true,
+      alwaysDistributeSimpleTableColumnWidths: UniversalPlatform.isDesktop,
     );
     return IntrinsicHeight(
       child: AppFlowyEditor(
@@ -109,6 +113,7 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
         // the editor is not editable in the chat
         editable: false,
         disableKeyboardService: UniversalPlatform.isMobile,
+        disableSelectionService: UniversalPlatform.isMobile,
         editorStyle: editorStyle,
         editorScrollController: scrollController,
         blockComponentBuilders: blockBuilders,
@@ -128,8 +133,30 @@ class _AppFlowyEditorMarkdownState extends State<_AppFlowyEditorMarkdown> {
     );
   }
 
-  EditorState _parseMarkdown(String markdown) {
+  EditorState _parseMarkdown(
+    String markdown, {
+    Document? previousDocument,
+  }) {
+    // merge the nodes from the previous document with the new document to keep the same node ids
     final document = customMarkdownToDocument(markdown);
+    final documentIterator = NodeIterator(
+      document: document,
+      startNode: document.root,
+    );
+    if (previousDocument != null) {
+      final previousDocumentIterator = NodeIterator(
+        document: previousDocument,
+        startNode: previousDocument.root,
+      );
+      while (
+          documentIterator.moveNext() && previousDocumentIterator.moveNext()) {
+        final currentNode = documentIterator.current;
+        final previousNode = previousDocumentIterator.current;
+        if (currentNode.path.equals(previousNode.path)) {
+          currentNode.id = previousNode.id;
+        }
+      }
+    }
     final editorState = EditorState(document: document);
     return editorState;
   }

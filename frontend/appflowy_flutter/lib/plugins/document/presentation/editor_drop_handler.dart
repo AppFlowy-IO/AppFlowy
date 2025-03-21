@@ -66,12 +66,20 @@ class EditorDropHandler extends StatelessWidget {
           return true;
         },
         onAcceptWithDetails: _onDragViewDone,
-        builder: (context, _, __) => DropTarget(
-          enable: dropState.isDropEnabled,
-          onDragExited: (_) => editorState.selectionService.removeDropTarget(),
-          onDragUpdated: (details) => _onDragUpdated(details.globalPosition),
-          onDragDone: _onDragDone,
-          child: child,
+        builder: (context, _, __) => ValueListenableBuilder(
+          valueListenable: enableDocumentDragNotifier,
+          builder: (context, value, _) {
+            final enableDocumentDrag = value;
+            return DropTarget(
+              enable: dropState.isDropEnabled && enableDocumentDrag,
+              onDragExited: (_) =>
+                  editorState.selectionService.removeDropTarget(),
+              onDragUpdated: (details) =>
+                  _onDragUpdated(details.globalPosition),
+              onDragDone: _onDragDone,
+              child: child,
+            );
+          },
         ),
       ),
     );

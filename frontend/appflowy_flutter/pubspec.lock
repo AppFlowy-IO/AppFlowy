@@ -81,8 +81,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "5517c8704c0dbeaeda5601e9baadb4cc2b29990d"
-      resolved-ref: "5517c8704c0dbeaeda5601e9baadb4cc2b29990d"
+      ref: e8317c0d1af8d23dc5707b02ea43864536b6de91
+      resolved-ref: e8317c0d1af8d23dc5707b02ea43864536b6de91
       url: "https://github.com/AppFlowy-IO/appflowy-board.git"
     source: git
     version: "0.1.2"
@@ -90,11 +90,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "55c457f"
-      resolved-ref: "55c457f472ed997906bd77142ef94bb7f66cc629"
+      ref: "5070212"
+      resolved-ref: "5070212ee0f02182a8acdd760b4d7b42264baec4"
       url: "https://github.com/AppFlowy-IO/appflowy-editor.git"
     source: git
-    version: "5.0.0"
+    version: "5.1.0"
   appflowy_editor_plugins:
     dependency: "direct main"
     description:
@@ -150,6 +150,41 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.4"
+  auto_updater:
+    dependency: "direct main"
+    description:
+      path: "packages/auto_updater"
+      ref: "1d81a824f3633f1d0200ba51b78fe0f9ce429458"
+      resolved-ref: "1d81a824f3633f1d0200ba51b78fe0f9ce429458"
+      url: "https://github.com/LucasXu0/auto_updater.git"
+    source: git
+    version: "1.0.0"
+  auto_updater_macos:
+    dependency: "direct overridden"
+    description:
+      path: "packages/auto_updater_macos"
+      ref: "1d81a824f3633f1d0200ba51b78fe0f9ce429458"
+      resolved-ref: "1d81a824f3633f1d0200ba51b78fe0f9ce429458"
+      url: "https://github.com/LucasXu0/auto_updater.git"
+    source: git
+    version: "1.0.0"
+  auto_updater_platform_interface:
+    dependency: "direct overridden"
+    description:
+      path: "packages/auto_updater_platform_interface"
+      ref: "1d81a824f3633f1d0200ba51b78fe0f9ce429458"
+      resolved-ref: "1d81a824f3633f1d0200ba51b78fe0f9ce429458"
+      url: "https://github.com/LucasXu0/auto_updater.git"
+    source: git
+    version: "1.0.0"
+  auto_updater_windows:
+    dependency: transitive
+    description:
+      name: auto_updater_windows
+      sha256: "2bba20a71eee072f49b7267fedd5c4f1406c4b1b1e5b83932c634dbab75b80c9"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   avatar_stack:
     dependency: "direct main"
     description:
@@ -162,10 +197,10 @@ packages:
     dependency: transitive
     description:
       name: barcode
-      sha256: ab180ce22c6555d77d45f0178a523669db67f95856e3378259ef2ffeb43e6003
+      sha256: "7b6729c37e3b7f34233e2318d866e8c48ddb46c1f7ad01ff7bb2a8de1da2b9f4"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.8"
+    version: "2.2.9"
   bidi:
     dependency: transitive
     description:
@@ -583,6 +618,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.7"
+  event_bus:
+    dependency: "direct main"
+    description:
+      name: event_bus
+      sha256: "1a55e97923769c286d295240048fc180e7b0768902c3c2e869fe059aafa15304"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   expandable:
     dependency: "direct main"
     description:
@@ -1540,10 +1583,10 @@ packages:
     dependency: transitive
     description:
       name: pdf
-      sha256: "05df53f8791587402493ac97b9869d3824eccbc77d97855f4545cf72df3cae07"
+      sha256: "28eacad99bffcce2e05bba24e50153890ad0255294f4dd78a17075a2ba5c8416"
       url: "https://pub.dev"
     source: hosted
-    version: "3.11.1"
+    version: "3.11.3"
   percent_indicator:
     dependency: "direct main"
     description:
@@ -1729,6 +1772,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.27.7"
+  saver_gallery:
+    dependency: "direct main"
+    description:
+      name: saver_gallery
+      sha256: bf59475e50b73d666630bed7a5fdb621fed92d637f64e3c61ce81653ec6a833c
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.1"
   scaled_app:
     dependency: "direct main"
     description:
@@ -2234,10 +2285,11 @@ packages:
   unsplash_client:
     dependency: "direct main"
     description:
-      name: unsplash_client
-      sha256: "9827f4c1036b7a6ac8cb3f404ac179df7441eee69371d9b17f181817fe502fd7"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: a8411fc
+      resolved-ref: a8411fcead178834d1f4572f64dc78b059ffa221
+      url: "https://github.com/LucasXu0/unsplash_client.git"
+    source: git
     version: "2.2.0"
   url_launcher:
     dependency: "direct main"
@@ -2360,6 +2412,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  version:
+    dependency: "direct main"
+    description:
+      name: version
+      sha256: "3d4140128e6ea10d83da32fef2fa4003fccbf6852217bb854845802f04191f94"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.2"
   visibility_detector:
     dependency: transitive
     description:
@@ -2497,7 +2557,7 @@ packages:
     source: hosted
     version: "1.1.0"
   xml:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: xml
       sha256: b015a8ad1c488f66851d762d3090a21c600e479dc75e68328c52774040cf9226

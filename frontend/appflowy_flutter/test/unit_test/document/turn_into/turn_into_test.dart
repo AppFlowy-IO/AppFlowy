@@ -1,7 +1,8 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_option_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart'
+    hide quoteNode, QuoteBlockKeys;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -23,11 +24,6 @@ void main() {
       void Function(EditorState editorState, Node node)? afterTurnInto,
     }) async {
       final editorState = EditorState(document: document);
-      final cubit = BlockActionOptionCubit(
-        editorState: editorState,
-        blockComponentBuilder: {},
-      );
-
       final types = toType == null
           ? EditorOptionActionType.turnInto.supportTypes
           : [toType];
@@ -42,7 +38,12 @@ void main() {
 
         final node = editorState.getNodeAtPath([0])!;
         expect(node.type, originalType);
-        final result = await cubit.turnIntoBlock(type, node, level: level);
+        final result = await BlockActionOptionCubit.turnIntoBlock(
+          type,
+          node,
+          editorState,
+          level: level,
+        );
         expect(result, true);
         final newNode = editorState.getNodeAtPath([0])!;
         expect(newNode.type, type);
@@ -58,9 +59,10 @@ void main() {
             Selection.collapsed(
               Position(path: [0]),
             );
-        await cubit.turnIntoBlock(
+        await BlockActionOptionCubit.turnIntoBlock(
           originalType,
           newNode,
+          editorState,
         );
         expect(result, true);
       }
@@ -163,8 +165,6 @@ void main() {
 
     for (final type in [
       HeadingBlockKeys.type,
-      QuoteBlockKeys.type,
-      CalloutBlockKeys.type,
     ]) {
       test('from nested bulleted list to $type', () async {
         const text = 'bulleted list';
@@ -229,8 +229,6 @@ void main() {
 
     for (final type in [
       HeadingBlockKeys.type,
-      QuoteBlockKeys.type,
-      CalloutBlockKeys.type,
     ]) {
       test('from nested numbered list to $type', () async {
         const text = 'numbered list';
@@ -295,8 +293,6 @@ void main() {
 
     for (final type in [
       HeadingBlockKeys.type,
-      QuoteBlockKeys.type,
-      CalloutBlockKeys.type,
     ]) {
       // numbered list, bulleted list, todo list
       // before
@@ -391,6 +387,8 @@ void main() {
       BulletedListBlockKeys.type,
       NumberedListBlockKeys.type,
       TodoListBlockKeys.type,
+      QuoteBlockKeys.type,
+      CalloutBlockKeys.type,
     ]) {
       // numbered list, bulleted list, todo list
       // before

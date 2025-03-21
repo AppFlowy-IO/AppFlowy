@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/database/application/field/field_controller.dar
 import 'package:appflowy/plugins/database/application/field/field_info.dart';
 import 'package:appflowy/plugins/database/grid/application/grid_bloc.dart';
 import 'package:appflowy/plugins/database/grid/application/grid_header_bloc.dart';
+import 'package:appflowy/workspace/application/view/view_lock_status_bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
@@ -39,6 +40,8 @@ class _MobileGridHeaderState extends State<MobileGridHeader> {
   Widget build(BuildContext context) {
     final fieldController =
         context.read<GridBloc>().databaseController.fieldController;
+    final isLocked =
+        context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
     return BlocProvider(
       create: (context) {
         return GridHeaderBloc(
@@ -76,12 +79,15 @@ class _MobileGridHeaderState extends State<MobileGridHeader> {
               );
             },
           ),
-          SizedBox(
-            height: _kGridHeaderHeight,
-            child: _GridHeader(
-              viewId: widget.viewId,
-              fieldController: fieldController,
-              scrollController: widget.reorderableController,
+          IgnorePointer(
+            ignoring: isLocked,
+            child: SizedBox(
+              height: _kGridHeaderHeight,
+              child: _GridHeader(
+                viewId: widget.viewId,
+                fieldController: fieldController,
+                scrollController: widget.reorderableController,
+              ),
             ),
           ),
         ],

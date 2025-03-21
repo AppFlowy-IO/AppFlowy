@@ -115,4 +115,9 @@ class KVKeys {
   ///
   /// The value is a json string of [RecentIcons]
   static const String recentIcons = 'kRecentIcons';
+
+  /// The key for saving compact mode ids for node or databse view
+  ///
+  /// The value is a json list of id
+  static const String compactModeIds = 'compactModeIds';
 }

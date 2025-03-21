@@ -3,135 +3,244 @@ import 'dart:convert';
 import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flutter/foundation.dart';
 import 'package:synchronized/synchronized.dart';
+
+const _enableDebug = false;
 
 class MarkdownTextRobot {
   MarkdownTextRobot({
     required this.editorState,
-    this.enableDebug = true,
   });
 
   final EditorState editorState;
-  final bool enableDebug;
 
-  final Lock lock = Lock();
+  final Lock _lock = Lock();
 
-  // The selection before the text robot is ready.
-  Selection? _startSelection;
+  /// The text position where new nodes will be inserted
+  Position? _insertPosition;
 
-  // The markdown text to be inserted.
+  /// The markdown text to be inserted
   String _markdownText = '';
 
-  // Only for debug. Enable by [enableDebug].
-  @visibleForTesting
-  final List<String> debugMarkdownTexts = [];
+  /// The nodes inserted in the previous refresh.
+  Iterable<Node> _insertedNodes = [];
 
-  // The nodes inserted in the previous refresh.
-  Iterable<Node> _previousInsertedNodes = [];
+  /// Only for debug via [_enableDebug].
+  final List<String> _debugMarkdownTexts = [];
 
-  /// Start the text robot.
-  ///
-  /// Must call this function before using the text robot.
-  void start() {
-    _startSelection = editorState.selection;
+  bool get hasAnyResult => _markdownText.isNotEmpty;
 
-    if (enableDebug) {
+  String get markdownText => _markdownText;
+
+  Selection? getInsertedSelection() {
+    final position = _insertPosition;
+    if (position == null) {
+      Log.error("Expected non-null insert markdown text position");
+      return null;
+    }
+
+    if (_insertedNodes.isEmpty) {
+      return Selection.collapsed(position);
+    }
+    return Selection(
+      start: position,
+      end: Position(
+        path: position.path.nextNPath(_insertedNodes.length - 1),
+      ),
+    );
+  }
+
+  List<Node> getInsertedNodes() {
+    final selection = getInsertedSelection();
+    return selection == null ? [] : editorState.getNodesInSelection(selection);
+  }
+
+  void start({
+    Position? position,
+  }) {
+    _insertPosition ??= position ?? editorState.selection?.start;
+
+    if (_enableDebug) {
       Log.info(
-        'MarkdownTextRobot prepare, current selection: $_startSelection',
+        'MarkdownTextRobot start with insert text position: $_insertPosition',
       );
     }
   }
 
-  /// Append the markdown text to the text robot.
-  ///
-  /// The text will be inserted into document but not persisted until the text
-  /// robot is stopped.
-  Future<void> appendMarkdownText(String text) async {
+  /// The text will be inserted into the document but only in memory
+  Future<void> appendMarkdownText(
+    String text, {
+    bool updateSelection = true,
+    Map<String, dynamic>? attributes,
+  }) async {
     _markdownText += text;
 
-    await lock.synchronized(() async {
-      await _refresh();
+    await _lock.synchronized(() async {
+      await _refresh(
+        inMemoryUpdate: true,
+        updateSelection: updateSelection,
+        attributes: attributes,
+      );
     });
 
-    if (enableDebug) {
-      debugMarkdownTexts.add(text);
-      Log.info('debug markdown texts: ${jsonEncode(debugMarkdownTexts)}');
+    if (_enableDebug) {
+      _debugMarkdownTexts.add(text);
+      Log.info(
+        'MarkdownTextRobot receive markdown: ${jsonEncode(_debugMarkdownTexts)}',
+      );
     }
   }
 
-  /// Stop the text robot.
-  ///
-  /// The text will be persisted into document.
-  Future<void> stop() async {
-    // persist the markdown text
-    await lock.synchronized(() async {
+  Future<void> stop({
+    Map<String, dynamic>? attributes,
+  }) async {
+    await _lock.synchronized(() async {
+      await _refresh(
+        inMemoryUpdate: true,
+        attributes: attributes,
+      );
+    });
+  }
+
+  /// Persist the text into the document
+  Future<void> persist({String? markdownText}) async {
+    if (markdownText != null) {
+      _markdownText = markdownText;
+    }
+    await _lock.synchronized(() async {
       await _refresh(inMemoryUpdate: false);
     });
 
-    _markdownText = '';
-
-    if (enableDebug) {
-      Log.info(
-        'debug markdown texts: ${jsonEncode(debugMarkdownTexts)}',
-      );
-      debugMarkdownTexts.clear();
+    if (_enableDebug) {
+      Log.info('MarkdownTextRobot stop');
+      _debugMarkdownTexts.clear();
     }
   }
 
-  /// Refreshes the editor state with the current markdown text by:
-  ///
-  /// 1. Converting markdown to document nodes
-  /// 2. Replacing previously inserted nodes with new nodes
-  /// 3. Updating selection position
-  Future<void> _refresh({bool inMemoryUpdate = true}) async {
-    final start = _startSelection?.start;
+  /// Discard the inserted content
+  Future<void> discard() async {
+    final start = _insertPosition;
     if (start == null) {
       return;
     }
-
-    final transaction = editorState.transaction;
-
-    // Convert markdown and deep copy nodes
-    final nodes = customMarkdownToDocument(_markdownText).root.children.map(
-          (node) => node.deepCopy(),
-        ); // deep copy the nodes to avoid the linked entities being changed.
-
-    // Insert new nodes at selection start
-    transaction.insertNodes(start.path, nodes);
-
-    // Remove previously inserted nodes if they exist
-    if (_previousInsertedNodes.isNotEmpty) {
-      // fallback to the calculated position if the selection is null.
-      final end = editorState.selection?.end ??
-          Position(
-            path: start.path.nextNPath(_previousInsertedNodes.length - 1),
-          );
-      final deletedNodes = editorState.getNodesInSelection(
-        Selection(start: start, end: end),
-      );
-      transaction.deleteNodes(deletedNodes);
+    if (_insertedNodes.isEmpty) {
+      return;
     }
 
-    // Update selection to end of inserted content if it contains text
-    final lastDelta = nodes.lastOrNull?.delta;
-    if (lastDelta != null) {
-      transaction.afterSelection = Selection.collapsed(
-        Position(
-          path: start.path.nextNPath(nodes.length - 1),
-          offset: lastDelta.length,
-        ),
-      );
-    }
+    // fallback to the calculated position if the selection is null.
+    final end = Position(
+      path: start.path.nextNPath(_insertedNodes.length - 1),
+    );
+    final deletedNodes = editorState.getNodesInSelection(
+      Selection(start: start, end: end),
+    );
+    final transaction = editorState.transaction
+      ..deleteNodes(deletedNodes)
+      ..afterSelection = Selection.collapsed(start);
 
     await editorState.apply(
       transaction,
+      options: const ApplyOptions(recordUndo: false),
+    );
+
+    if (_enableDebug) {
+      Log.info('MarkdownTextRobot discard');
+    }
+  }
+
+  void reset() {
+    _markdownText = '';
+    _insertedNodes = [];
+    _insertPosition = null;
+  }
+
+  Future<void> _refresh({
+    required bool inMemoryUpdate,
+    bool updateSelection = false,
+    Map<String, dynamic>? attributes,
+  }) async {
+    final position = _insertPosition;
+    if (position == null) {
+      Log.error("Expected non-null insert markdown text position");
+      return;
+    }
+
+    // Convert markdown and deep copy the nodes, prevent ing the linked
+    // entities from being changed
+    final documentNodes = customMarkdownToDocument(
+      _markdownText,
+      tableWidth: 250.0,
+    ).root.children;
+
+    final newNodes = attributes == null
+        ? documentNodes
+        : documentNodes
+            .map((node) => _styleDelta(node: node, attributes: attributes))
+            .toList();
+
+    if (newNodes.isEmpty) {
+      return;
+    }
+
+    final deleteTransaction = editorState.transaction
+      ..deleteNodes(getInsertedNodes());
+
+    await editorState.apply(
+      deleteTransaction,
       options: ApplyOptions(
         inMemoryUpdate: inMemoryUpdate,
         recordUndo: false,
       ),
     );
 
-    _previousInsertedNodes = nodes;
+    final insertTransaction = editorState.transaction
+      ..insertNodes(position.path, newNodes);
+
+    final lastDelta = newNodes.lastOrNull?.delta;
+    if (lastDelta != null) {
+      insertTransaction.afterSelection = Selection.collapsed(
+        Position(
+          path: position.path.nextNPath(newNodes.length - 1),
+          offset: lastDelta.length,
+        ),
+      );
+    }
+
+    await editorState.apply(
+      insertTransaction,
+      options: ApplyOptions(
+        inMemoryUpdate: inMemoryUpdate,
+        recordUndo: !inMemoryUpdate,
+      ),
+      withUpdateSelection: updateSelection,
+    );
+
+    _insertedNodes = newNodes;
+  }
+
+  Node _styleDelta({
+    required Node node,
+    required Map<String, dynamic> attributes,
+  }) {
+    if (node.delta != null) {
+      final delta = node.delta!;
+      final attributeDelta = Delta()
+        ..retain(delta.length, attributes: attributes);
+      final newDelta = delta.compose(attributeDelta);
+      final newAttributes = node.attributes;
+      newAttributes['delta'] = newDelta.toJson();
+      node.updateAttributes(newAttributes);
+    }
+
+    List<Node>? children;
+    if (node.children.isNotEmpty) {
+      children = node.children
+          .map((child) => _styleDelta(node: child, attributes: attributes))
+          .toList();
+    }
+
+    return node.copyWith(
+      children: children,
+    );
   }
 }

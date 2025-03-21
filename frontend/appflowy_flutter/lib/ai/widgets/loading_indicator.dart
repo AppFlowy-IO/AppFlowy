@@ -16,8 +16,7 @@ class AILoadingIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final slice = Duration(milliseconds: duration.inMilliseconds ~/ 5);
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
+    return SelectionContainer.disabled(
       child: SizedBox(
         height: 20,
         child: SeparatedRow(
