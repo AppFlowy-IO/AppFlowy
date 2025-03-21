@@ -1,6 +1,7 @@
 use client_api::entity::workspace_dto::{
-  CreatePageParams, CreateSpaceParams, DuplicatePageParams, FolderView, MovePageParams,
-  PublishInfoView, UpdatePageParams, UpdateSpaceParams,
+  CreatePageParams, CreateSpaceParams, DuplicatePageParams, FavoriteFolderView, FavoritePageParams,
+  FolderView, MovePageParams, PublishInfoView, RecentFolderView, TrashFolderView, UpdatePageParams,
+  UpdateSpaceParams,
 };
 use client_api::entity::{
   workspace_dto::CreateWorkspaceParam, CollabParams, PublishCollabItem, PublishCollabMetadata,
@@ -394,7 +395,7 @@ where
     Ok(folder)
   }
 
-  async fn create_view(
+  async fn create_page(
     &self,
     workspace_id: &str,
     params: CreatePageParams,
@@ -409,7 +410,7 @@ where
     Ok(())
   }
 
-  async fn duplicate_view(
+  async fn duplicate_page(
     &self,
     workspace_id: &str,
     view_id: &str,
@@ -424,7 +425,7 @@ where
     Ok(())
   }
 
-  async fn move_view(
+  async fn move_page(
     &self,
     workspace_id: &str,
     view_id: &str,
@@ -439,7 +440,7 @@ where
     Ok(())
   }
 
-  async fn move_view_to_trash(&self, workspace_id: &str, view_id: &str) -> Result<(), FlowyError> {
+  async fn move_page_to_trash(&self, workspace_id: &str, view_id: &str) -> Result<(), FlowyError> {
     let workspace_id = workspace_id.to_string();
     let try_get_client = self.inner.try_get_client();
     let client = try_get_client?;
@@ -449,7 +450,7 @@ where
     Ok(())
   }
 
-  async fn restore_view_from_trash(
+  async fn restore_page_from_trash(
     &self,
     workspace_id: &str,
     view_id: &str,
@@ -463,7 +464,7 @@ where
     Ok(())
   }
 
-  async fn update_view(
+  async fn update_page(
     &self,
     workspace_id: &str,
     view_id: &str,
@@ -505,5 +506,50 @@ where
       .update_space(Uuid::parse_str(&workspace_id).unwrap(), space_id, &params)
       .await?;
     Ok(())
+  }
+
+  async fn get_favorite_pages(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<FavoriteFolderView>, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    let client = try_get_client?;
+    let favorite_pages = client.get_workspace_favorite(&workspace_id).await?;
+    Ok(favorite_pages.views)
+  }
+
+  async fn update_favorite_page(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: FavoritePageParams,
+  ) -> Result<(), FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    let client = try_get_client?;
+    client
+      .favorite_page_view(Uuid::parse_str(&workspace_id).unwrap(), view_id, &params)
+      .await?;
+    Ok(())
+  }
+
+  async fn get_recent_pages(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<RecentFolderView>, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    let client = try_get_client?;
+    let recent_pages = client.get_workspace_recent(&workspace_id).await?;
+    Ok(recent_pages.views)
+  }
+
+  async fn get_trash_pages(&self, workspace_id: &str) -> Result<Vec<TrashFolderView>, FlowyError> {
+    let workspace_id = workspace_id.to_string();
+    let try_get_client = self.inner.try_get_client();
+    let client = try_get_client?;
+    let trash_pages = client.get_workspace_trash(&workspace_id).await?;
+    Ok(trash_pages.views)
   }
 }

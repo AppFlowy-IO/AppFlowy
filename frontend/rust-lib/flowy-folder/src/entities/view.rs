@@ -1,6 +1,7 @@
 use client_api::entity::workspace_dto::{
-  CreatePageParams, CreateSpaceParams, DuplicatePageParams, FolderView, MovePageParams,
-  SpacePermission, UpdatePageParams, UpdateSpaceParams,
+  CreatePageParams, CreateSpaceParams, DuplicatePageParams, FavoriteFolderView, FavoritePageParams,
+  FolderView, MovePageParams, RecentFolderView, SpacePermission, TrashFolderView, UpdatePageParams,
+  UpdateSpaceParams,
 };
 use collab_folder::{View, ViewIcon, ViewLayout};
 use std::collections::HashMap;
@@ -965,6 +966,140 @@ impl TryInto<MovePageParams> for MovePagePayloadPB {
     Ok(MovePageParams {
       new_parent_view_id,
       prev_view_id,
+    })
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct RepeatedFavoriteFolderViewPB {
+  #[pb(index = 1)]
+  pub items: Vec<FavoriteFolderViewPB>,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct FavoriteFolderViewPB {
+  #[pb(index = 1)]
+  pub view: FolderViewPB,
+
+  #[pb(index = 2)]
+  pub favorited_at: i64,
+}
+
+impl From<FavoriteFolderView> for FavoriteFolderViewPB {
+  fn from(value: FavoriteFolderView) -> Self {
+    FavoriteFolderViewPB {
+      view: value.view.into(),
+      favorited_at: value.favorited_at.timestamp(),
+    }
+  }
+}
+
+impl From<Vec<FavoriteFolderView>> for RepeatedFavoriteFolderViewPB {
+  fn from(values: Vec<FavoriteFolderView>) -> Self {
+    let items = values.into_iter().map(|value| value.into()).collect();
+    RepeatedFavoriteFolderViewPB { items }
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct RepeatedRecentFolderViewPB {
+  #[pb(index = 1)]
+  pub items: Vec<RecentFolderViewPB>,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct RecentFolderViewPB {
+  #[pb(index = 1)]
+  pub view: FolderViewPB,
+
+  #[pb(index = 2)]
+  pub last_viewed_at: i64,
+}
+
+impl From<RecentFolderView> for RecentFolderViewPB {
+  fn from(value: RecentFolderView) -> Self {
+    RecentFolderViewPB {
+      view: value.view.into(),
+      last_viewed_at: value.last_viewed_at.timestamp(),
+    }
+  }
+}
+
+impl From<Vec<RecentFolderView>> for RepeatedRecentFolderViewPB {
+  fn from(values: Vec<RecentFolderView>) -> Self {
+    let items = values.into_iter().map(|value| value.into()).collect();
+    RepeatedRecentFolderViewPB { items }
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct RepeatedTrashFolderViewPB {
+  #[pb(index = 1)]
+  pub items: Vec<TrashFolderViewPB>,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct TrashFolderViewPB {
+  #[pb(index = 1)]
+  pub view: FolderViewPB,
+
+  #[pb(index = 2)]
+  pub deleted_at: i64,
+}
+
+impl From<TrashFolderView> for TrashFolderViewPB {
+  fn from(value: TrashFolderView) -> Self {
+    TrashFolderViewPB {
+      view: value.view.into(),
+      deleted_at: value.deleted_at.timestamp(),
+    }
+  }
+}
+
+impl From<Vec<TrashFolderView>> for RepeatedTrashFolderViewPB {
+  fn from(values: Vec<TrashFolderView>) -> Self {
+    let items = values.into_iter().map(|value| value.into()).collect();
+    RepeatedTrashFolderViewPB { items }
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct GetFavoritePagesPayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct GetRecentPagesPayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct GetTrashPagesPayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UpdateFavoritePagePayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+  #[pb(index = 2)]
+  pub view_id: String,
+  #[pb(index = 3)]
+  pub is_favorite: bool,
+  #[pb(index = 4)]
+  pub is_pinned: bool,
+}
+
+impl TryInto<FavoritePageParams> for UpdateFavoritePagePayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<FavoritePageParams, Self::Error> {
+    Ok(FavoritePageParams {
+      is_favorite: self.is_favorite,
+      is_pinned: self.is_pinned,
     })
   }
 }

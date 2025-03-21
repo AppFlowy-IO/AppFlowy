@@ -20,8 +20,9 @@ use crate::view_operation::{
 };
 use arc_swap::ArcSwapOption;
 use client_api::entity::workspace_dto::{
-  CreatePageParams, CreateSpaceParams, DuplicatePageParams, FolderView, MovePageParams,
-  PublishInfoView, UpdatePageParams, UpdateSpaceParams,
+  CreatePageParams, CreateSpaceParams, DuplicatePageParams, FavoriteFolderView, FavoritePageParams,
+  FolderView, MovePageParams, PublishInfoView, RecentFolderView, TrashFolderView, UpdatePageParams,
+  UpdateSpaceParams,
 };
 use client_api::entity::PublishInfo;
 use collab::core::collab::DataSource;
@@ -2056,7 +2057,7 @@ impl FolderManager {
   }
 
   pub async fn create_page(&self, workspace_id: &str, params: CreatePageParams) -> FlowyResult<()> {
-    self.cloud_service.create_view(workspace_id, params).await?;
+    self.cloud_service.create_page(workspace_id, params).await?;
     Ok(())
   }
 
@@ -2068,7 +2069,7 @@ impl FolderManager {
   ) -> FlowyResult<()> {
     self
       .cloud_service
-      .update_view(workspace_id, view_id, params)
+      .update_page(workspace_id, view_id, params)
       .await?;
     Ok(())
   }
@@ -2076,7 +2077,7 @@ impl FolderManager {
   pub async fn move_page_to_trash(&self, workspace_id: &str, view_id: &str) -> FlowyResult<()> {
     self
       .cloud_service
-      .move_view_to_trash(workspace_id, view_id)
+      .move_page_to_trash(workspace_id, view_id)
       .await?;
     Ok(())
   }
@@ -2088,7 +2089,7 @@ impl FolderManager {
   ) -> FlowyResult<()> {
     self
       .cloud_service
-      .restore_view_from_trash(workspace_id, view_id)
+      .restore_page_from_trash(workspace_id, view_id)
       .await?;
     Ok(())
   }
@@ -2101,7 +2102,7 @@ impl FolderManager {
   ) -> FlowyResult<()> {
     self
       .cloud_service
-      .duplicate_view(workspace_id, view_id, params)
+      .duplicate_page(workspace_id, view_id, params)
       .await?;
     Ok(())
   }
@@ -2114,7 +2115,7 @@ impl FolderManager {
   ) -> FlowyResult<()> {
     self
       .cloud_service
-      .move_view(workspace_id, view_id, params)
+      .move_page(workspace_id, view_id, params)
       .await?;
     Ok(())
   }
@@ -2143,7 +2144,45 @@ impl FolderManager {
       .await?;
     Ok(())
   }
+
+  pub async fn get_favorite_pages(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<FavoriteFolderView>, FlowyError> {
+    let favorite_pages = self.cloud_service.get_favorite_pages(workspace_id).await?;
+    Ok(favorite_pages)
+  }
+
+  pub async fn update_favorite_page(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: FavoritePageParams,
+  ) -> Result<(), FlowyError> {
+    self
+      .cloud_service
+      .update_favorite_page(workspace_id, view_id, params)
+      .await?;
+    Ok(())
+  }
+
+  pub async fn get_recent_pages(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<RecentFolderView>, FlowyError> {
+    let recent_pages = self.cloud_service.get_recent_pages(workspace_id).await?;
+    Ok(recent_pages)
+  }
+
+  pub async fn get_trash_pages(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<TrashFolderView>, FlowyError> {
+    let trash_pages = self.cloud_service.get_trash_pages(workspace_id).await?;
+    Ok(trash_pages)
+  }
 }
+
 /// Return the views that belong to the workspace. The views are filtered by the trash and all the private views.
 pub(crate) fn get_workspace_public_view_pbs(workspace_id: &str, folder: &Folder) -> Vec<ViewPB> {
   // get the trash ids

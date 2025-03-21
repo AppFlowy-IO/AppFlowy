@@ -266,4 +266,22 @@ pub enum FolderEvent {
 
   #[event(input = "MovePagePayloadPB")]
   MovePage = 108,
+
+  #[event(
+    input = "GetFavoritePagesPayloadPB",
+    output = "RepeatedFavoriteFolderViewPB"
+  )]
+  GetFavoritePages = 109,
+
+  #[event(
+    input = "GetRecentPagesPayloadPB",
+    output = "RepeatedRecentFolderViewPB"
+  )]
+  GetRecentPages = 110,
+
+  #[event(input = "GetTrashPagesPayloadPB", output = "RepeatedTrashFolderViewPB")]
+  GetTrashPages = 111,
+
+  #[event(input = "UpdateFavoritePagePayloadPB")]
+  UpdateFavoritePage = 112,
 }
