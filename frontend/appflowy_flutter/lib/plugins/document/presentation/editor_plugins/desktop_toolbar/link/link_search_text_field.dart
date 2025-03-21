@@ -79,7 +79,7 @@ class LinkSearchTextField {
           searchViews(text);
         }
       },
-      decoration: buildLinkTextFieldInputDecoration(
+      decoration: LinkStyle.buildLinkTextFieldInputDecoration(
         LocaleKeys.document_toolbar_linkInputHint.tr(),
       ),
     );
@@ -113,8 +113,8 @@ class LinkSearchTextField {
         ),
       ),
       onRecentViews: () => Container(
-        constraints:
-            BoxConstraints(maxWidth: width, minHeight: 48, maxHeight: 204),
+        width: width,
+        height: recentViews.length.clamp(1, 5) * 32.0 + 48,
         margin: margin,
         padding: EdgeInsets.all(8),
         decoration: buildToolbarLinkDecoration(context),
@@ -230,6 +230,7 @@ class LinkSearchTextField {
     int index = selectedIndex;
     if (key.logicalKey == LogicalKeyboardKey.escape) {
       onEscape?.call();
+      return KeyEventResult.handled;
     } else if (key.logicalKey == LogicalKeyboardKey.arrowUp) {
       index = onSearchResult(
         onLink: () => 0,
@@ -276,6 +277,7 @@ class LinkSearchTextField {
       return KeyEventResult.handled;
     } else if (key.logicalKey == LogicalKeyboardKey.enter) {
       onEnter?.call();
+      return KeyEventResult.handled;
     }
     return KeyEventResult.ignored;
   }

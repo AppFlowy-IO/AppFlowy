@@ -2,13 +2,13 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_styles.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
-import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'link_search_text_field.dart';
 
@@ -134,11 +134,14 @@ class _CreateLinkMenuState extends State<CreateLinkMenu> {
   void onSubmittedLink() => widget.onSubmitted(searchText, false);
 
   void onSubmittedPageLink(ViewPB view) async {
+    final workspaceId = context
+            .read<UserWorkspaceBloc?>()
+            ?.state
+            .currentWorkspace
+            ?.workspaceId ??
+        '';
     final link = ShareConstants.buildShareUrl(
-      workspaceId: await UserBackendService.getCurrentWorkspace().fold(
-        (s) => s.id,
-        (f) => '',
-      ),
+      workspaceId: workspaceId,
       viewId: view.id,
     );
     widget.onSubmitted(link, true);
@@ -159,27 +162,3 @@ ShapeDecoration buildToolbarLinkDecoration(BuildContext context) =>
         ),
       ],
     );
-
-InputDecoration buildLinkTextFieldInputDecoration(String hintText) {
-  const border = OutlineInputBorder(
-    borderRadius: BorderRadius.all(Radius.circular(8.0)),
-    borderSide: BorderSide(color: LinkStyle.borderColor),
-  );
-  final enableBorder =
-      border.copyWith(borderSide: BorderSide(color: LinkStyle.fillThemeThick));
-  const hintStyle = TextStyle(
-    fontSize: 14,
-    height: 20 / 14,
-    fontWeight: FontWeight.w400,
-    color: LinkStyle.textTertiary,
-  );
-  return InputDecoration(
-    hintText: hintText,
-    hintStyle: hintStyle,
-    contentPadding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
-    isDense: true,
-    border: border,
-    enabledBorder: border,
-    focusedBorder: enableBorder,
-  );
-}

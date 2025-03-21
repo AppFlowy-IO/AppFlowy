@@ -1,10 +1,11 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/desktop_floating_toolbar.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/create_link_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/toolbar_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'toolbar_id_enum.dart';
 
@@ -26,7 +27,7 @@ final customLinkItem = ToolbarItem(
     final hoverColor = isHref
         ? highlightColor
         : EditorStyleCustomizer.toolbarHoverColor(context);
-    final toolbarDismissController = InheritedToolbar.of(context)?.controller;
+    final toolbarCubit = context.read<ToolbarCubit?>();
 
     final child = FlowyIconButton(
       width: 36,
@@ -39,7 +40,7 @@ final customLinkItem = ToolbarItem(
         color: Theme.of(context).iconTheme.color,
       ),
       onPressed: () {
-        toolbarDismissController?.dismiss();
+        toolbarCubit?.dismiss();
         if (isHref) {
           removeLink(editorState, selection, isHref);
         } else {

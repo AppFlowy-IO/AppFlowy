@@ -270,7 +270,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
             isPage: linkInfo.isPage,
           );
         },
-        decoration: buildLinkTextFieldInputDecoration(
+        decoration: LinkStyle.buildLinkTextFieldInputDecoration(
           LocaleKeys.document_toolbar_linkNameHint.tr(),
         ),
       ),

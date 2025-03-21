@@ -1,5 +1,8 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'toolbar_cubit.dart';
 
 class DesktopFloatingToolbar extends StatefulWidget {
   const DesktopFloatingToolbar({
@@ -37,8 +40,8 @@ class _DesktopFloatingToolbarState extends State<DesktopFloatingToolbar> {
   @override
   Widget build(BuildContext context) {
     if (position == null) return Container();
-    return InheritedToolbar(
-      controller: ToolbarDismissController(widget.onDismiss),
+    return BlocProvider<ToolbarCubit>(
+      create: (_) => ToolbarCubit(widget.onDismiss),
       child: Positioned(
         left: position!.left,
         top: position!.top,
@@ -75,35 +78,10 @@ class _DesktopFloatingToolbarState extends State<DesktopFloatingToolbar> {
   }
 }
 
-class InheritedToolbar extends InheritedWidget {
-  const InheritedToolbar({
-    required this.controller,
-    required super.child,
-    super.key,
-  });
-
-  final ToolbarDismissController controller;
-
-  @override
-  bool updateShouldNotify(InheritedToolbar oldWidget) =>
-      controller != oldWidget.controller;
-
-  static InheritedToolbar? of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<InheritedToolbar>();
-}
-
 class _Position {
   _Position(this.left, this.top, this.right);
 
   final double? left;
   final double? top;
   final double? right;
-}
-
-class ToolbarDismissController {
-  ToolbarDismissController(this.onDismiss);
-
-  final VoidCallback onDismiss;
-
-  void dismiss() => onDismiss.call();
 }

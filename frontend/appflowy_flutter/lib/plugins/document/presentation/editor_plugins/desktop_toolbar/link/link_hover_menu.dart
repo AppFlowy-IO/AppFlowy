@@ -1,9 +1,12 @@
 import 'dart:math';
 
+import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -56,9 +59,9 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
 
   @override
   void dispose() {
-    super.dispose();
     hoverMenuController.close();
     editMenuController.close();
+    super.dispose();
   }
 
   @override
@@ -194,7 +197,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
     if (isPage) {
       final viewId = href.split('/').lastOrNull ?? '';
       if (viewId.isEmpty) {
-        await safeLaunchUrl(href);
+        await afLaunchUrlString(href);
       } else {
         final (view, isInTrash, isDeleted) =
             await ViewBackendService.getMentionPageStatus(viewId);
@@ -203,13 +206,15 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
         }
       }
     } else {
-      await safeLaunchUrl(href);
+      await afLaunchUrlString(href);
     }
   }
 
   Future<void> copyLink() async {
     final href = widget.attribute.href ?? '';
-    await AppFlowyClipboard.setData(text: href);
+    if (href.isEmpty) return;
+    await getIt<ClipboardService>()
+        .setData(ClipboardServiceData(plainText: href));
     hoverMenuController.close();
   }
 }
