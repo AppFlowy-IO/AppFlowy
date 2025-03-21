@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/create_link_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_create_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/toolbar_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -116,7 +116,7 @@ void _showLinkMenu(
     right: right,
     dismissCallback: () => keepEditorFocusNotifier.decrease(),
     builder: (context) {
-      return CreateLinkMenu(
+      return LinkCreateMenu(
         alignment: alignment,
         editorState: editorState,
         onSubmitted: (link, isPage) async {

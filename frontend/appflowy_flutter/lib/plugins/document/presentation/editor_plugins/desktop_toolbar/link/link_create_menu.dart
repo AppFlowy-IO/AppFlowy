@@ -12,8 +12,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'link_search_text_field.dart';
 
-class CreateLinkMenu extends StatefulWidget {
-  const CreateLinkMenu({
+class LinkCreateMenu extends StatefulWidget {
+  const LinkCreateMenu({
     super.key,
     required this.editorState,
     required this.onSubmitted,
@@ -27,10 +27,10 @@ class CreateLinkMenu extends StatefulWidget {
   final LinkMenuAlignment alignment;
 
   @override
-  State<CreateLinkMenu> createState() => _CreateLinkMenuState();
+  State<LinkCreateMenu> createState() => _LinkCreateMenuState();
 }
 
-class _CreateLinkMenuState extends State<CreateLinkMenu> {
+class _LinkCreateMenuState extends State<LinkCreateMenu> {
   late LinkSearchTextField searchTextField = LinkSearchTextField(
     onEnter: () {
       searchTextField.onSearchResult(
