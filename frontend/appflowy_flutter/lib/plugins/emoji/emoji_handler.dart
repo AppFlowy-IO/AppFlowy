@@ -82,6 +82,7 @@ class _EmojiHandlerState extends State<EmojiHandler> {
 
   @override
   Widget build(BuildContext context) {
+    final noEmojis = searchedEmojis.isEmpty;
     return Focus(
       focusNode: _focusNode,
       onKeyEvent: onKeyEvent,
@@ -94,37 +95,40 @@ class _EmojiHandlerState extends State<EmojiHandler> {
             BoxShadow(
               blurRadius: 5,
               spreadRadius: 1,
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withAlpha(25),
             ),
           ],
         ),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Flexible(
-            child: ScrollablePositionedList.builder(
-              itemCount: searchedEmojis.length,
-              itemScrollController: controller,
-              shrinkWrap: true,
-              physics: const ClampingScrollPhysics(),
-              itemBuilder: (ctx, index) {
-                final selectedEmoji = searchedEmojis[index];
-                final displayedEmoji = emojiData.getEmojiById(selectedEmoji.id);
-                final isSelected = _selectedIndex == index;
-                return SizedBox(
-                  height: 32,
-                  child: FlowyButton(
-                    text: FlowyText.medium(
-                      '$displayedEmoji ${selectedEmoji.name}',
-                      lineHeight: 1.0,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    isSelected: isSelected,
-                    onTap: () => onSelect(index),
+          child: noEmojis
+              ? CircularProgressIndicator()
+              : Flexible(
+                  child: ScrollablePositionedList.builder(
+                    itemCount: searchedEmojis.length,
+                    itemScrollController: controller,
+                    shrinkWrap: true,
+                    physics: const ClampingScrollPhysics(),
+                    itemBuilder: (ctx, index) {
+                      final selectedEmoji = searchedEmojis[index];
+                      final displayedEmoji =
+                          emojiData.getEmojiById(selectedEmoji.id);
+                      final isSelected = _selectedIndex == index;
+                      return SizedBox(
+                        height: 32,
+                        child: FlowyButton(
+                          text: FlowyText.medium(
+                            '$displayedEmoji ${selectedEmoji.name}',
+                            lineHeight: 1.0,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          isSelected: isSelected,
+                          onTap: () => onSelect(index),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
-          ),
+                ),
         ),
       ),
     );

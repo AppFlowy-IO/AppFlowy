@@ -62,12 +62,12 @@ class EmojiMenu extends EmojiMenuService {
       return;
     }
 
-    const double menuHeight = 200.0;
-    const double menuWidth = 150.0;
+    const menuHeight = 400.0, menuWidth = 300.0;
     const Offset menuOffset = Offset(0, 10);
     final Offset editorOffset =
         editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
     final Size editorSize = editorState.renderBox!.size;
+    final editorHeight = editorSize.height, editorWidth = editorSize.width;
     // Default to opening the overlay below
     Alignment alignment = Alignment.topLeft;
 
@@ -78,22 +78,20 @@ class EmojiMenu extends EmojiMenuService {
     if (offset.dy + menuHeight >= editorOffset.dy + editorSize.height) {
       offset = firstRect.topRight - menuOffset;
       alignment = Alignment.bottomLeft;
-
       offset = Offset(
         offset.dx,
-        MediaQuery.of(context).size.height - offset.dy,
+        editorHeight - offset.dy,
       );
     }
 
     // Show on the left
-    final windowWidth = MediaQuery.of(context).size.width;
-    if (offset.dx > (windowWidth - menuWidth)) {
+    if (offset.dx > (editorWidth - menuWidth)) {
       alignment = alignment == Alignment.topLeft
           ? Alignment.topRight
           : Alignment.bottomRight;
 
       offset = Offset(
-        windowWidth - offset.dx,
+        editorWidth - offset.dx,
         offset.dy,
       );
     }
