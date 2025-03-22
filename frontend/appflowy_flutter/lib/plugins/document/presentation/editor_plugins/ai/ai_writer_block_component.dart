@@ -255,26 +255,30 @@ class _OverlayContentState extends State<OverlayContent> {
               ),
               const VSpace(4.0 + 1.0),
             ],
-            DecoratedBox(
+            Container(
               decoration: _getModalDecoration(
                 context,
                 color: null,
                 borderColor: darkBorderColor,
                 borderRadius: BorderRadius.all(Radius.circular(12.0)),
               ),
+              constraints: BoxConstraints(maxHeight: 400),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   if (markdownText.isNotEmpty) ...[
-                    DecoratedBox(
-                      decoration: _secondaryContentDecoration(context),
-                      child: SecondaryContentArea(
-                        markdownText: markdownText,
-                        onSelectSuggestionAction: (action) {
-                          _onSelectSuggestionAction(context, action);
-                        },
-                        command: command,
-                        showSuggestionActions: showSuggestedActionsWithin,
-                        hasSelection: hasSelection,
+                    Flexible(
+                      child: DecoratedBox(
+                        decoration: _secondaryContentDecoration(context),
+                        child: SecondaryContentArea(
+                          markdownText: markdownText,
+                          onSelectSuggestionAction: (action) {
+                            _onSelectSuggestionAction(context, action);
+                          },
+                          command: command,
+                          showSuggestionActions: showSuggestedActionsWithin,
+                          hasSelection: hasSelection,
+                        ),
                       ),
                     ),
                     Divider(height: 1.0),
@@ -415,24 +419,21 @@ class SecondaryContentArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints(maxHeight: 140),
+    return SizedBox(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 8.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
+          Flexible(
             child: SingleChildScrollView(
               physics: ClampingScrollPhysics(),
-              padding: EdgeInsets.only(top: 8.0),
+              padding: EdgeInsets.only(top: 8.0, left: 14.0, right: 14.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
                     height: 24.0,
-                    padding: EdgeInsets.symmetric(horizontal: 6.0),
                     alignment: AlignmentDirectional.centerStart,
                     child: FlowyText(
                       command.i18n,
@@ -442,11 +443,8 @@ class SecondaryContentArea extends StatelessWidget {
                     ),
                   ),
                   const VSpace(4.0),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 6.0),
-                    child: AIMarkdownText(
-                      markdown: markdownText,
-                    ),
+                  AIMarkdownText(
+                    markdown: markdownText,
                   ),
                 ],
               ),
@@ -454,10 +452,13 @@ class SecondaryContentArea extends StatelessWidget {
           ),
           if (showSuggestionActions) ...[
             const VSpace(4.0),
-            SuggestionActionBar(
-              currentCommand: command,
-              hasSelection: hasSelection,
-              onTap: onSelectSuggestionAction,
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              child: SuggestionActionBar(
+                currentCommand: command,
+                hasSelection: hasSelection,
+                onTap: onSelectSuggestionAction,
+              ),
             ),
           ],
           const VSpace(8.0),
