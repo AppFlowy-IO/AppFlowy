@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 import '../ai_writer_block_component.dart';
 import 'ai_writer_entities.dart';
+import 'ai_writer_node_extension.dart';
 
 Future<void> setAiWriterNodeIsInitialized(
   EditorState editorState,
@@ -11,8 +14,7 @@ Future<void> setAiWriterNodeIsInitialized(
   final transaction = editorState.transaction
     ..updateNode(node, {
       AiWriterBlockKeys.isInitialized: true,
-    })
-    ..afterSelection = null;
+    });
 
   await editorState.apply(
     transaction,
@@ -20,7 +22,18 @@ Future<void> setAiWriterNodeIsInitialized(
       recordUndo: false,
       inMemoryUpdate: true,
     ),
+    withUpdateSelection: false,
   );
+
+  final selection = node.aiWriterSelection;
+  if (selection != null && !selection.isCollapsed) {
+    unawaited(
+      editorState.updateSelectionWithReason(
+        selection,
+        extraInfo: {selectionExtraInfoDisableToolbar: true},
+      ),
+    );
+  }
 }
 
 Future<void> removeAiWriterNode(
