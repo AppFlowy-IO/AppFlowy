@@ -1,7 +1,7 @@
 use crate::chat::Chat;
 use crate::entities::{
-  ChatInfoPB, ChatMessageListPB, ChatMessagePB, ChatSettingsPB, FilePB, PredefinedFormatPB,
-  RepeatedRelatedQuestionPB, StreamMessageParams,
+  AIModelPB, AvailableModelsPB, ChatInfoPB, ChatMessageListPB, ChatMessagePB, ChatSettingsPB,
+  FilePB, PredefinedFormatPB, RepeatedRelatedQuestionPB, StreamMessageParams,
 };
 use crate::local_ai::controller::LocalAIController;
 use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
@@ -10,12 +10,13 @@ use std::collections::HashMap;
 
 use appflowy_plugin::manager::PluginManager;
 use dashmap::DashMap;
-use flowy_ai_pub::cloud::{ChatCloudService, ChatSettings, ModelList, UpdateChatParams};
+use flowy_ai_pub::cloud::{AIModel, ChatCloudService, ChatSettings, UpdateChatParams};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 
 use crate::notification::{chat_notification_builder, ChatNotification};
+use crate::util::ai_available_models_key;
 use collab_integrate::persistence::collab_metadata_sql::{
   batch_insert_collab_metadata, batch_select_collab_metadata, AFCollabMetadata,
 };
@@ -24,6 +25,7 @@ use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
+use tokio::sync::RwLock;
 use tracing::{error, info, trace};
 
 pub trait AIUserService: Send + Sync + 'static {
@@ -59,7 +61,8 @@ pub struct AIManager {
   pub external_service: Arc<dyn AIExternalService>,
   chats: Arc<DashMap<String, Arc<Chat>>>,
   pub local_ai: Arc<LocalAIController>,
-  store_preferences: Arc<KVStorePreferences>,
+  pub store_preferences: Arc<KVStorePreferences>,
+  server_models: Arc<RwLock<Vec<String>>>,
 }
 
 impl AIManager {
@@ -99,6 +102,7 @@ impl AIManager {
       local_ai,
       external_service,
       store_preferences,
+      server_models: Arc::new(Default::default()),
     }
   }
 
@@ -114,6 +118,7 @@ impl AIManager {
         chat_id.to_string(),
         self.user_service.clone(),
         self.cloud_service_wm.clone(),
+        self.store_preferences.clone(),
       ))
     });
     if self.local_ai.is_running() {
@@ -205,24 +210,25 @@ impl AIManager {
     save_chat(self.user_service.sqlite_connection(*uid)?, chat_id)?;
 
     let chat = Arc::new(Chat::new(
-      self.user_service.user_id().unwrap(),
+      self.user_service.user_id()?,
       chat_id.to_string(),
       self.user_service.clone(),
       self.cloud_service_wm.clone(),
+      self.store_preferences.clone(),
     ));
     self.chats.insert(chat_id.to_string(), chat.clone());
     Ok(chat)
   }
 
-  pub async fn stream_chat_message<'a>(
-    &'a self,
-    params: &'a StreamMessageParams<'a>,
+  pub async fn stream_chat_message(
+    &self,
+    params: StreamMessageParams,
   ) -> Result<ChatMessagePB, FlowyError> {
-    let chat = self.get_or_create_chat_instance(params.chat_id).await?;
-    let question = chat.stream_chat_message(params).await?;
+    let chat = self.get_or_create_chat_instance(&params.chat_id).await?;
+    let question = chat.stream_chat_message(&params).await?;
     let _ = self
       .external_service
-      .notify_did_send_message(params.chat_id, params.message)
+      .notify_did_send_message(&params.chat_id, &params.message)
       .await;
     Ok(question)
   }
@@ -238,19 +244,149 @@ impl AIManager {
     let question_message_id = chat
       .get_question_id_from_answer_id(answer_message_id)
       .await?;
+
+    let preferred_model = self
+      .store_preferences
+      .get_object::<AIModel>(&ai_available_models_key(chat_id));
     chat
-      .stream_regenerate_response(question_message_id, answer_stream_port, format)
+      .stream_regenerate_response(
+        question_message_id,
+        answer_stream_port,
+        format,
+        preferred_model,
+      )
       .await?;
     Ok(())
   }
 
-  pub async fn get_available_models(&self) -> FlowyResult<ModelList> {
+  pub async fn get_workspace_select_model(&self) -> FlowyResult<String> {
     let workspace_id = self.user_service.workspace_id()?;
+    let model = self
+      .cloud_service_wm
+      .get_workspace_default_model(&workspace_id)
+      .await?;
+    Ok(model)
+  }
+
+  pub async fn get_server_available_models(&self) -> FlowyResult<Vec<String>> {
+    let workspace_id = self.user_service.workspace_id()?;
+
+    // First, try reading from the cache.
+    {
+      let cached_models = self.server_models.read().await;
+      if !cached_models.is_empty() {
+        return Ok(cached_models.clone());
+      }
+    }
+
+    // Cache miss: fetch from the cloud.
     let list = self
       .cloud_service_wm
       .get_available_models(&workspace_id)
       .await?;
-    Ok(list)
+    let models = list
+      .models
+      .into_iter()
+      .map(|m| m.name)
+      .collect::<Vec<String>>();
+
+    // Update the cache.
+    *self.server_models.write().await = models.clone();
+    Ok(models)
+  }
+
+  pub async fn update_selected_model(&self, source: String, model: AIModelPB) -> FlowyResult<()> {
+    let source_key = ai_available_models_key(&source);
+    self
+      .store_preferences
+      .set_object::<AIModel>(&source_key, &model.clone().into())?;
+
+    chat_notification_builder(&source, ChatNotification::DidUpdateSelectedModel)
+      .payload(model)
+      .send();
+    Ok(())
+  }
+
+  pub async fn get_available_models(&self, source: String) -> FlowyResult<AvailableModelsPB> {
+    // Build the models list from server models and mark them as non-local.
+    let mut models: Vec<AIModelPB> = self
+      .get_server_available_models()
+      .await?
+      .into_iter()
+      .map(|name| AIModelPB {
+        name,
+        is_local: false,
+      })
+      .collect();
+
+    // Optionally add the local plugin model.
+    if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
+      models.push(AIModelPB {
+        name: local_model,
+        is_local: true,
+      });
+    }
+
+    if models.is_empty() {
+      return Ok(AvailableModelsPB {
+        models,
+        selected_model: None,
+      });
+    }
+
+    let source_key = ai_available_models_key(&source);
+
+    // Retrieve stored selected model, if any.
+    let stored_selected = self.store_preferences.get_object::<AIModel>(&source_key);
+
+    // Get workspace default model once.
+    let workspace_default = self.get_workspace_select_model().await.ok();
+
+    // Determine the effective selected model.
+    let effective_selected = stored_selected.unwrap_or_else(|| {
+      if let Some(ws_name) = workspace_default.clone() {
+        let model = AIModel {
+          name: ws_name,
+          is_local: false,
+        };
+        // Store the default if not present.
+        let _ = self.store_preferences.set_object(&source_key, &model);
+        model
+      } else {
+        AIModel::default()
+      }
+    });
+
+    // Find a matching model in the available list.
+    let used_model = models
+      .iter()
+      .find(|m| m.name == effective_selected.name)
+      .cloned()
+      .or_else(|| {
+        // If no match, try to use the workspace default if available.
+        if let Some(ws_name) = workspace_default {
+          Some(AIModelPB {
+            name: ws_name,
+            is_local: false,
+          })
+        } else {
+          models.first().cloned()
+        }
+      });
+
+    // Update the stored preference if a different model is used.
+    if let Some(ref used) = used_model {
+      if used.name != effective_selected.name {
+        self
+          .store_preferences
+          .set_object::<AIModel>(&source_key, &AIModel::from(used.clone()))?;
+      }
+    }
+
+    Ok(AvailableModelsPB {
+      models,
+      selected_model: used_model,
+    })
   }
 
   pub async fn get_or_create_chat_instance(&self, chat_id: &str) -> Result<Arc<Chat>, FlowyError> {
@@ -258,10 +394,11 @@ impl AIManager {
     match chat {
       None => {
         let chat = Arc::new(Chat::new(
-          self.user_service.user_id().unwrap(),
+          self.user_service.user_id()?,
           chat_id.to_string(),
           self.user_service.clone(),
           self.cloud_service_wm.clone(),
+          self.store_preferences.clone(),
         ));
         self.chats.insert(chat_id.to_string(), chat.clone());
         Ok(chat)
@@ -363,7 +500,6 @@ impl AIManager {
 
   pub async fn update_rag_ids(&self, chat_id: &str, rag_ids: Vec<String>) -> FlowyResult<()> {
     info!("[Chat] update chat:{} rag ids: {:?}", chat_id, rag_ids);
-
     let workspace_id = self.user_service.workspace_id()?;
     let update_setting = UpdateChatParams {
       name: None,

@@ -247,6 +247,8 @@
       "table": "Table",
       "blankDescription": "Format response",
       "defaultDescription": "Auto mode",
+      "localModel": "Local Model",
+      "switchModel": "Switch model",
       "textWithImageDescription": "@:chat.changeFormat.text with image",
       "numberWithImageDescription": "@:chat.changeFormat.number with image",
       "bulletWithImageDescription": "@:chat.changeFormat.bullet with image",

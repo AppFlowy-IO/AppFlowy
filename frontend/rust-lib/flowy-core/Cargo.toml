@@ -74,14 +74,14 @@ dart = [
   "flowy-ai/dart",
   "flowy-storage/dart",
 ]
-ts = [
-  "flowy-user/tauri_ts",
-  "flowy-folder/tauri_ts",
-  "flowy-search/tauri_ts",
-  "flowy-database2/ts",
-  "flowy-ai/tauri_ts",
-  "flowy-storage/tauri_ts",
-]
+#ts = [
+#  "flowy-user/tauri_ts",
+#  "flowy-folder/tauri_ts",
+#  "flowy-search/tauri_ts",
+#  "flowy-database2/ts",
+#  "flowy-ai/tauri_ts",
+#  "flowy-storage/tauri_ts",
+#]
 openssl_vendored = ["flowy-sqlite/openssl_vendored"]
 
 # Enable/Disable AppFlowy Verbose Log Configuration

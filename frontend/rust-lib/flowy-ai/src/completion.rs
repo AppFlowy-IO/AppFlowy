@@ -4,14 +4,16 @@ use allo_isolate::Isolate;
 
 use dashmap::DashMap;
 use flowy_ai_pub::cloud::{
-  ChatCloudService, CompleteTextParams, CompletionMetadata, CompletionStreamValue, CompletionType,
-  CustomPrompt,
+  AIModel, ChatCloudService, CompleteTextParams, CompletionMetadata, CompletionStreamValue,
+  CompletionType, CustomPrompt,
 };
 use flowy_error::{FlowyError, FlowyResult};
 
 use futures::{SinkExt, StreamExt};
 use lib_infra::isolate_stream::IsolateSink;
 
+use crate::util::ai_available_models_key;
+use flowy_sqlite::kv::KVStorePreferences;
 use std::sync::{Arc, Weak};
 use tokio::select;
 use tracing::info;
@@ -20,17 +22,20 @@ pub struct AICompletion {
   tasks: Arc<DashMap<String, tokio::sync::mpsc::Sender<()>>>,
   cloud_service: Weak<dyn ChatCloudService>,
   user_service: Weak<dyn AIUserService>,
+  store_preferences: Arc<KVStorePreferences>,
 }
 
 impl AICompletion {
   pub fn new(
     cloud_service: Weak<dyn ChatCloudService>,
     user_service: Weak<dyn AIUserService>,
+    store_preferences: Arc<KVStorePreferences>,
   ) -> Self {
     Self {
       tasks: Arc::new(DashMap::new()),
       cloud_service,
       user_service,
+      store_preferences,
     }
   }
 
@@ -53,7 +58,17 @@ impl AICompletion {
       .ok_or_else(FlowyError::internal)?
       .workspace_id()?;
     let (tx, rx) = tokio::sync::mpsc::channel(1);
-    let task = CompletionTask::new(workspace_id, complete, self.cloud_service.clone(), rx);
+    let preferred_model = self
+      .store_preferences
+      .get_object::<AIModel>(&ai_available_models_key(&complete.object_id));
+
+    let task = CompletionTask::new(
+      workspace_id,
+      complete,
+      preferred_model,
+      self.cloud_service.clone(),
+      rx,
+    );
     let task_id = task.task_id.clone();
     self.tasks.insert(task_id.clone(), tx);
 
@@ -74,12 +89,14 @@ pub struct CompletionTask {
   stop_rx: tokio::sync::mpsc::Receiver<()>,
   context: CompleteTextPB,
   cloud_service: Weak<dyn ChatCloudService>,
+  preferred_model: Option<AIModel>,
 }
 
 impl CompletionTask {
   pub fn new(
     workspace_id: String,
     context: CompleteTextPB,
+    preferred_model: Option<AIModel>,
     cloud_service: Weak<dyn ChatCloudService>,
     stop_rx: tokio::sync::mpsc::Receiver<()>,
   ) -> Self {
@@ -89,6 +106,7 @@ impl CompletionTask {
       context,
       cloud_service,
       stop_rx,
+      preferred_model,
     }
   }
 
@@ -129,7 +147,7 @@ impl CompletionTask {
 
         info!("start completion: {:?}", params);
         match cloud_service
-          .stream_complete(&self.workspace_id, params)
+          .stream_complete(&self.workspace_id, params, self.preferred_model)
           .await
         {
           Ok(mut stream) => loop {

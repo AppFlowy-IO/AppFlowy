@@ -73,6 +73,7 @@ class AIChatPage extends StatelessWidget {
         /// [AIPromptInputBloc] is used to handle the user prompt
         BlocProvider(
           create: (_) => AIPromptInputBloc(
+            objectId: view.id,
             predefinedFormat: PredefinedFormat(
               imageFormat: ImageFormat.text,
               textFormat: TextFormat.bulletList,

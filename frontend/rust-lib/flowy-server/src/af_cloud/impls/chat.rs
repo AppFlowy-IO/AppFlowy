@@ -7,8 +7,8 @@ use client_api::entity::chat_dto::{
   RepeatedChatMessage,
 };
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings, LocalAIConfig,
-  ModelList, StreamAnswer, StreamComplete, SubscriptionPlan, UpdateChatParams,
+  AIModel, ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
+  LocalAIConfig, ModelList, StreamAnswer, StreamComplete, SubscriptionPlan, UpdateChatParams,
 };
 use flowy_error::FlowyError;
 use futures_util::{StreamExt, TryStreamExt};
@@ -101,12 +101,14 @@ where
     chat_id: &str,
     message_id: i64,
     format: ResponseFormat,
+    ai_model: Option<AIModel>,
   ) -> Result<StreamAnswer, FlowyError> {
     trace!(
-      "stream_answer: workspace_id={}, chat_id={}, format={:?}",
+      "stream_answer: workspace_id={}, chat_id={}, format={:?}, model: {:?}",
       workspace_id,
       chat_id,
-      format
+      format,
+      ai_model,
     );
     let try_get_client = self.inner.try_get_client();
     let result = try_get_client?
@@ -117,6 +119,7 @@ where
           question_id: message_id,
           format,
         },
+        ai_model.map(|v| v.name),
       )
       .await;
 
@@ -189,11 +192,12 @@ where
     &self,
     workspace_id: &str,
     params: CompleteTextParams,
+    ai_model: Option<AIModel>,
   ) -> Result<StreamComplete, FlowyError> {
     let stream = self
       .inner
       .try_get_client()?
-      .stream_completion_v2(workspace_id, params)
+      .stream_completion_v2(workspace_id, params, ai_model.map(|v| v.name))
       .await
       .map_err(FlowyError::from)?
       .map_err(FlowyError::from);
@@ -279,5 +283,14 @@ where
       .get_model_list(workspace_id)
       .await?;
     Ok(list)
+  }
+
+  async fn get_workspace_default_model(&self, workspace_id: &str) -> Result<String, FlowyError> {
+    let setting = self
+      .inner
+      .try_get_client()?
+      .get_workspace_settings(workspace_id)
+      .await?;
+    Ok(setting.ai_model)
   }
 }
