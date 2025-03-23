@@ -83,6 +83,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
   }
 
   void register(Node node) async {
+    if (node.isAiWriterInitialized) {
+      return;
+    }
     if (aiWriterNode != null && node.id != aiWriterNode!.id) {
       await removeAiWriterNode(editorState, node);
       return;
@@ -109,8 +112,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     String prompt,
     PredefinedFormat? predefinedFormat,
   ) async {
-    final node = aiWriterNode;
-    if (node == null) {
+    if (aiWriterNode == null) {
       return;
     }
 
@@ -159,6 +161,10 @@ class AiWriterCubit extends Cubit<AiWriterState> {
   }
 
   Future<void> stopStream() async {
+    if (aiWriterNode == null) {
+      return;
+    }
+
     if (state is GeneratingAiWriterState) {
       final generatingState = state as GeneratingAiWriterState;
 

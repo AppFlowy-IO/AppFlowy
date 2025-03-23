@@ -107,9 +107,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       overlayController.show();
-      if (!widget.node.isAiWriterInitialized) {
-        context.read<AiWriterCubit>().register(widget.node);
-      }
+      context.read<AiWriterCubit>().register(widget.node);
     });
   }
 
