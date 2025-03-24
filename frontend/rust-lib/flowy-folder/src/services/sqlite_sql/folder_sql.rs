@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use client_api::entity::workspace_dto::FolderView;
 use diesel::prelude::*;
 use diesel::RunQueryDsl;
@@ -26,6 +28,33 @@ pub struct FolderPage {
   pub(crate) sync_status: String,
   pub(crate) last_modified_time: String,
   pub(crate) extra: Option<String>,
+}
+
+impl FolderPage {
+  pub fn build_from_folder_view(
+    folder_view: FolderView,
+    workspace_id: &str,
+    parent_id: Option<String>,
+  ) -> Self {
+    FolderPage {
+      id: folder_view.view_id,
+      workspace_id: workspace_id.to_string(),
+      name: folder_view.name,
+      icon: serde_json::to_string(&folder_view.icon).ok(),
+      is_space: folder_view.is_space,
+      is_private: folder_view.is_private,
+      is_published: folder_view.is_published,
+      is_favorite: folder_view.is_favorite,
+      layout: folder_view.layout as i32,
+      created_at: chrono::Utc::now().to_rfc3339(), // verify if this is correct
+      last_edited_time: chrono::Utc::now().to_rfc3339(), // verify if this is correct
+      is_locked: folder_view.is_locked,
+      parent_id,
+      sync_status: "synced".to_string(),
+      last_modified_time: chrono::Utc::now().to_rfc3339(),
+      extra: serde_json::to_string(&folder_view.extra).ok(),
+    }
+  }
 }
 
 impl From<FolderPage> for FolderView {
@@ -102,18 +131,23 @@ impl From<FolderPage> for FolderView {
 /// A folder view that contains the folder and its children up to the specified depth
 pub fn get_page_by_id(
   conn: &mut DBConnection,
+  workspace_id: &str,
   page_id: &str,
-  depth: Option<usize>,
+  depth: Option<u32>,
 ) -> Result<FolderView, FlowyError> {
   let folder_page = folder_table::table
-    .filter(folder_table::id.eq(page_id))
+    .filter(
+      folder_table::id
+        .eq(page_id)
+        .and(folder_table::workspace_id.eq(workspace_id)),
+    )
     .first::<FolderPage>(conn)
     .map_err(|e| {
       FlowyError::internal().with_context(format!("Failed to get folder page: {}", e))
     })?;
 
   let mut folder_view: FolderView = folder_page.into();
-  folder_view.children = get_page_children_by_id(conn, page_id, depth)?;
+  folder_view.children = get_page_children_by_id(conn, workspace_id, page_id, depth)?;
   Ok(folder_view)
 }
 
@@ -122,6 +156,7 @@ pub fn get_page_by_id(
 /// # Arguments
 ///
 /// * `conn` - The database connection
+/// * `workspace_id` - The id of the workspace
 /// * `parent_id` - The id of the parent page
 /// * `depth` - The maximum depth to retrieve. If None, all children are retrieved.
 ///             If Some(0), no children are retrieved.
@@ -131,8 +166,9 @@ pub fn get_page_by_id(
 /// A vector of FolderView that contains the children of the page up to the specified depth
 fn get_page_children_by_id(
   conn: &mut DBConnection,
+  workspace_id: &str,
   parent_id: &str,
-  depth: Option<usize>,
+  depth: Option<u32>,
 ) -> Result<Vec<FolderView>, FlowyError> {
   // If depth is Some(0), we don't need to retrieve any children
   if depth == Some(0) {
@@ -140,7 +176,11 @@ fn get_page_children_by_id(
   }
 
   let children_pages = folder_table::table
-    .filter(folder_table::parent_id.eq(parent_id))
+    .filter(
+      folder_table::parent_id
+        .eq(parent_id)
+        .and(folder_table::workspace_id.eq(workspace_id)),
+    )
     .load::<FolderPage>(conn)
     .map_err(|e| FlowyError::internal().with_context(format!("Failed to get children: {}", e)))?;
 
@@ -150,13 +190,77 @@ fn get_page_children_by_id(
     let child_id = child_page.id.clone();
     let mut child_view: FolderView = child_page.into();
 
-    // Calculate the new depth for child nodes
     let next_depth = depth.map(|d| d - 1);
 
-    // Only get grandchildren if we haven't reached the depth limit
-    child_view.children = get_page_children_by_id(conn, &child_id, next_depth)?;
+    child_view.children = get_page_children_by_id(conn, workspace_id, &child_id, next_depth)?;
     children_views.push(child_view);
   }
 
   Ok(children_views)
+}
+
+/// Insert a FolderView and its children into the database
+///
+/// # Arguments
+///
+/// * `conn` - The database connection
+/// * `folder_view` - The folder view to insert
+/// * `workspace_id` - The id of the workspace
+/// * `parent_id` - The id of the parent page
+///
+/// # Returns
+///
+/// The number of rows affected by the operation
+pub fn insert_folder_view_with_children(
+  conn: &mut DBConnection,
+  folder_view: FolderView,
+  workspace_id: &str,
+  parent_id: Option<String>,
+) -> Result<usize, FlowyError> {
+  // 1. flatten the folder view
+  let folder_pages = flatten_folder_view(folder_view, workspace_id, parent_id)?;
+  // 2. insert the folder pages
+  let affected_rows = diesel::insert_into(folder_table::table)
+    .values(folder_pages)
+    .execute(conn)
+    .map_err(|e| {
+      FlowyError::internal().with_context(format!("Failed to insert folder pages: {}", e))
+    })?;
+  Ok(affected_rows)
+}
+
+/// Flatten a folder view and its children recursively into a folder page list
+///
+/// # Arguments
+///
+/// * `folder_view` - The folder view to flatten
+/// * `workspace_id` - The id of the workspace
+/// * `parent_id` - The id of the parent page
+///
+/// # Returns
+///
+/// A vector of folder pages
+pub fn flatten_folder_view(
+  folder_view: FolderView,
+  workspace_id: &str,
+  parent_id: Option<String>,
+) -> Result<Vec<FolderPage>, FlowyError> {
+  let mut folder_pages = Vec::new();
+  let mut queue = VecDeque::new();
+
+  // Store the view and its parent ID together in the queue
+  queue.push_back((folder_view, parent_id));
+
+  while let Some((current_view, current_parent_id)) = queue.pop_front() {
+    // Use the provided parent_id instead of the view's own ID
+    let folder_page =
+      FolderPage::build_from_folder_view(current_view.clone(), workspace_id, current_parent_id);
+    folder_pages.push(folder_page);
+
+    // For each child, use the current view's ID as their parent ID
+    for child in current_view.children {
+      queue.push_back((child, Some(current_view.view_id.clone())));
+    }
+  }
+  Ok(folder_pages)
 }

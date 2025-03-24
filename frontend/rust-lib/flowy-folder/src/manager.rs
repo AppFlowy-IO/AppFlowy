@@ -13,6 +13,7 @@ use crate::notification::{
   folder_notification_builder, send_current_workspace_notification, FolderNotification,
 };
 use crate::publish_util::{generate_publish_name, view_pb_to_publish_view};
+use crate::services::sqlite_sql::folder_sql::{get_page_by_id, insert_folder_view_with_children};
 use crate::share::{ImportData, ImportItem, ImportParams};
 use crate::util::{folder_not_init_error, workspace_data_not_sync_error};
 use crate::view_operation::{
@@ -45,6 +46,7 @@ use flowy_folder_pub::entities::{
 };
 use flowy_search_pub::entities::FolderIndexManager;
 use flowy_sqlite::kv::KVStorePreferences;
+use flowy_sqlite::DBConnection;
 use futures::future;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
@@ -56,7 +58,7 @@ pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn workspace_id(&self) -> Result<String, FlowyError>;
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
-
+  fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError>;
   fn is_folder_exist_on_disk(&self, uid: i64, workspace_id: &str) -> FlowyResult<bool>;
 }
 
@@ -2050,12 +2052,31 @@ impl FolderManager {
     root_view_id: Option<String>,
   ) -> FlowyResult<FolderView> {
     // 1. read the data from the local database
-    // 2. get the data from the cloud service
+    let uid = self.user.user_id()?;
+    let mut conn = self.user.sqlite_connection(uid)?;
+    if let Ok(folder_view) = get_page_by_id(
+      &mut conn,
+      workspace_id,
+      root_view_id.as_deref().unwrap_or(workspace_id),
+      depth,
+    ) {
+      return Ok(folder_view);
+    };
 
+    // 2. if the data is not in the local database, get the data from the cloud service
     let folder_view = self
       .cloud_service
       .get_workspace_folder(workspace_id, depth, root_view_id)
       .await?;
+    // 3. save the data to the local database
+    let parent_view_id = folder_view.parent_view_id.clone();
+    let _ = insert_folder_view_with_children(
+      &mut conn,
+      folder_view.clone(),
+      workspace_id,
+      Some(parent_view_id),
+    );
+
     Ok(folder_view)
   }
 

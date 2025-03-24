@@ -15,6 +15,7 @@ use flowy_folder::manager::{FolderManager, FolderUser};
 use flowy_folder::ViewLayout;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_sqlite::kv::KVStorePreferences;
+use flowy_sqlite::DBConnection;
 use flowy_user::services::authenticate_user::AuthenticateUser;
 use flowy_user::services::data_import::load_collab_by_object_id;
 use std::sync::{Arc, Weak};
@@ -99,6 +100,10 @@ impl FolderUser for FolderUserImpl {
 
   fn is_folder_exist_on_disk(&self, uid: i64, workspace_id: &str) -> FlowyResult<bool> {
     self.upgrade_user()?.is_collab_on_disk(uid, workspace_id)
+  }
+
+  fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError> {
+    self.upgrade_user()?.get_sqlite_connection(uid)
   }
 }
 
