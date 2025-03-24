@@ -6,6 +6,7 @@ mod chat;
 mod completion;
 pub mod entities;
 mod local_ai;
+mod mcp;
 mod middleware;
 pub mod notification;
 mod persistence;
