@@ -374,6 +374,9 @@ pub enum ErrorCode {
 
   #[error("Local AI is not ready")]
   LocalAINotReady = 128,
+
+  #[error("MCP error")]
+  MCPError = 129,
 }
 
 impl ErrorCode {
