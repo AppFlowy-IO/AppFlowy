@@ -12,3 +12,4 @@ pub mod notification;
 mod persistence;
 mod protobuf;
 mod stream_message;
+mod util;

@@ -25,6 +25,7 @@ class AppFlowyPopover extends StatelessWidget {
     this.skipTraversal = false,
     this.decorationColor,
     this.borderRadius,
+    this.popoverDecoration,
     this.animationDuration = const Duration(),
     this.slideDistance = 5.0,
     this.beginScaleFactor = 0.9,
@@ -56,6 +57,7 @@ class AppFlowyPopover extends StatelessWidget {
   final double endScaleFactor;
   final double beginOpacity;
   final double endOpacity;
+  final Decoration? popoverDecoration;
 
   /// The widget that will be used to trigger the popover.
   ///
@@ -102,6 +104,7 @@ class AppFlowyPopover extends StatelessWidget {
       popupBuilder: (context) => _PopoverContainer(
         constraints: constraints,
         margin: margin,
+        decoration: popoverDecoration,
         decorationColor: decorationColor,
         borderRadius: borderRadius,
         child: popupBuilder(context),
@@ -116,6 +119,7 @@ class _PopoverContainer extends StatelessWidget {
   const _PopoverContainer({
     this.decorationColor,
     this.borderRadius,
+    this.decoration,
     required this.child,
     required this.margin,
     required this.constraints,
@@ -126,6 +130,7 @@ class _PopoverContainer extends StatelessWidget {
   final EdgeInsets margin;
   final Color? decorationColor;
   final BorderRadius? borderRadius;
+  final Decoration? decoration;
 
   @override
   Widget build(BuildContext context) {
@@ -133,10 +138,11 @@ class _PopoverContainer extends StatelessWidget {
       type: MaterialType.transparency,
       child: Container(
         padding: margin,
-        decoration: context.getPopoverDecoration(
-          color: decorationColor,
-          borderRadius: borderRadius,
-        ),
+        decoration: decoration ??
+            context.getPopoverDecoration(
+              color: decorationColor,
+              borderRadius: borderRadius,
+            ),
         constraints: constraints,
         child: child,
       ),

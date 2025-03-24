@@ -71,11 +71,13 @@ class RawEmojiIconWidget extends StatefulWidget {
     required this.emoji,
     required this.emojiSize,
     this.enableColor = true,
+    this.lineHeight,
   });
 
   final EmojiIconData emoji;
   final double emojiSize;
   final bool enableColor;
+  final double? lineHeight;
 
   @override
   State<RawEmojiIconWidget> createState() => _RawEmojiIconWidgetState();
@@ -115,6 +117,7 @@ class _RawEmojiIconWidgetState extends State<RawEmojiIconWidget> {
             emoji: widget.emoji.emoji,
             fontSize: widget.emojiSize,
             textAlign: TextAlign.justify,
+            lineHeight: widget.lineHeight,
           );
         case FlowyIconType.icon:
           IconsData iconData =

@@ -173,7 +173,7 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
   }
 
   void _loadModelList() {
-    AIEventGetAvailableModels().send().then((result) {
+    AIEventGetServerAvailableModels().send().then((result) {
       result.fold((config) {
         if (!isClosed) {
           add(SettingsAIEvent.didLoadAvailableModels(config.models));

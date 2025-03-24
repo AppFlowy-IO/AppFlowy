@@ -1,15 +1,20 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'toolbar_cubit.dart';
 
 class DesktopFloatingToolbar extends StatefulWidget {
   const DesktopFloatingToolbar({
     super.key,
     required this.editorState,
     required this.child,
+    required this.onDismiss,
   });
 
   final EditorState editorState;
   final Widget child;
+  final VoidCallback onDismiss;
 
   @override
   State<DesktopFloatingToolbar> createState() => _DesktopFloatingToolbarState();
@@ -35,11 +40,14 @@ class _DesktopFloatingToolbarState extends State<DesktopFloatingToolbar> {
   @override
   Widget build(BuildContext context) {
     if (position == null) return Container();
-    return Positioned(
-      left: position!.left,
-      top: position!.top,
-      right: position!.right,
-      child: widget.child,
+    return BlocProvider<ToolbarCubit>(
+      create: (_) => ToolbarCubit(widget.onDismiss),
+      child: Positioned(
+        left: position!.left,
+        top: position!.top,
+        right: position!.right,
+        child: widget.child,
+      ),
     );
   }
 
