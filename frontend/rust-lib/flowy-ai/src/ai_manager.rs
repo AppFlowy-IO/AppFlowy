@@ -284,37 +284,70 @@ impl AIManager {
 
   pub async fn get_server_available_models(&self) -> FlowyResult<Vec<String>> {
     let workspace_id = self.user_service.workspace_id()?;
-    let now = timestamp();
+
+    let now = timestamp(); // This is safer than using SystemTime which could fail
 
     // First, try reading from the cache with expiration check
-    {
+    let should_fetch = {
       let cached_models = self.server_models.read().await;
-      if !cached_models.models.is_empty() {
-        if let Some(timestamp) = cached_models.timestamp {
-          // Cache is valid if less than 5 minutes (300 seconds) old
-          if now - timestamp < 300 {
-            return Ok(cached_models.models.clone());
-          }
-        }
-      }
+      cached_models.models.is_empty() || cached_models.timestamp.map_or(true, |ts| now - ts >= 300)
+    };
+
+    if !should_fetch {
+      // Cache is still valid, return cached data
+      let cached_models = self.server_models.read().await;
+      return Ok(cached_models.models.clone());
     }
 
     // Cache miss or expired: fetch from the cloud.
-    let list = self
+    match self
       .cloud_service_wm
       .get_available_models(&workspace_id)
-      .await?;
-    let models = list
-      .models
-      .into_iter()
-      .map(|m| m.name)
-      .collect::<Vec<String>>();
+      .await
+    {
+      Ok(list) => {
+        let models = list
+          .models
+          .into_iter()
+          .map(|m| m.name)
+          .collect::<Vec<String>>();
 
-    // Update the cache with new timestamp
-    let mut cache = self.server_models.write().await;
-    cache.models = models.clone();
-    cache.timestamp = Some(now);
-    Ok(models)
+        // Update the cache with new timestamp - handle potential errors
+        if let Err(err) = self.update_models_cache(&models, now).await {
+          error!("Failed to update models cache: {}", err);
+          // Still return the fetched models even if caching failed
+        }
+
+        Ok(models)
+      },
+      Err(err) => {
+        error!("Failed to fetch available models: {}", err);
+
+        // Return cached data if available, even if expired
+        let cached_models = self.server_models.read().await;
+        if !cached_models.models.is_empty() {
+          info!("Returning expired cached models due to fetch failure");
+          return Ok(cached_models.models.clone());
+        }
+
+        // If no cached data, return empty list
+        Ok(Vec::new())
+      },
+    }
+  }
+
+  async fn update_models_cache(&self, models: &[String], timestamp: i64) -> FlowyResult<()> {
+    match self.server_models.try_write() {
+      Ok(mut cache) => {
+        cache.models = models.to_vec();
+        cache.timestamp = Some(timestamp);
+        Ok(())
+      },
+      Err(_) => {
+        // Handle lock acquisition failure
+        Err(FlowyError::internal().with_context("Failed to acquire write lock for models cache"))
+      },
+    }
   }
 
   pub async fn update_selected_model(&self, source: String, model: AIModelPB) -> FlowyResult<()> {
