@@ -47,7 +47,10 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     await super.close();
   }
 
-  Future<void> exit({bool withDiscard = true}) async {
+  Future<void> exit({
+    bool withDiscard = true,
+    bool withUnformat = true,
+  }) async {
     if (withDiscard) {
       await _textRobot.discard();
     }
@@ -57,7 +60,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     selectedSourcesNotifier.value = [documentId];
     emit(IdleAiWriterState());
 
-    if (aiWriterNode != null) {
+    if (withUnformat) {
       final selection = aiWriterNode!.aiWriterSelection;
       if (selection == null) {
         return;
@@ -77,6 +80,8 @@ class AiWriterCubit extends Cubit<AiWriterState> {
         ),
         withUpdateSelection: false,
       );
+    }
+    if (aiWriterNode != null) {
       await removeAiWriterNode(editorState, aiWriterNode!);
       aiWriterNode = null;
     }
@@ -223,6 +228,8 @@ class AiWriterCubit extends Cubit<AiWriterState> {
         options: const ApplyOptions(recordUndo: false),
         withUpdateSelection: false,
       );
+      await exit(withDiscard: false, withUnformat: false);
+      return;
     }
 
     if (action case SuggestionAction.keep) {
