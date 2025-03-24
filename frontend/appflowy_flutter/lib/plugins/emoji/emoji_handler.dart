@@ -161,6 +161,10 @@ class _EmojiHandlerState extends State<EmojiHandler> {
 
   Future<void> _doSearch() async {
     if (!loaded) return;
+    if (_search.startsWith(' ')) {
+      widget.onDismiss.call();
+      return;
+    }
     final searchEmojiData = emojiData.filterByKeyword(_search);
     setState(() {
       searchedEmojis.clear();

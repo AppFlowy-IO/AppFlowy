@@ -86,10 +86,8 @@ void main() {
           find.descendant(of: emojiHandler, matching: find.byType(FlowyButton));
 
       /// tap arrow down and arrow up
-      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
-      await tester.pumpAndSettle();
-      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
-      await tester.pumpAndSettle();
+      await tester.simulateKeyEvent(LogicalKeyboardKey.arrowUp);
+      await tester.simulateKeyEvent(LogicalKeyboardKey.arrowDown);
 
       final firstTextFinder = find.descendant(
         of: emojiButtons.first,
@@ -99,8 +97,7 @@ void main() {
           (firstTextFinder.evaluate().first.widget as FlowyText).text;
 
       /// tap enter
-      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-      await tester.pumpAndSettle();
+      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
       final firstNode =
           tester.editor.getCurrentEditorState().getNodeAtPath([0])!;
 
@@ -128,17 +125,30 @@ void main() {
       ];
 
       for (final key in searchText) {
-        await tester.sendKeyEvent(key);
+        await tester.simulateKeyEvent(key);
       }
 
       /// tap enter
-      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-      await tester.pumpAndSettle();
+      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
       final firstNode =
           tester.editor.getCurrentEditorState().getNodeAtPath([0])!;
 
       /// except the emoji is in document
       expect(firstNode.delta!.toPlainText().contains('😄'), true);
+    });
+
+    testWidgets('start searching with sapce', (tester) async {
+      await createNewDocumentAndShowEmojiList(tester);
+
+      /// emoji list is showing
+      final emojiHandler = find.byType(EmojiHandler);
+      expect(emojiHandler, findsOneWidget);
+
+      /// input space
+      await tester.simulateKeyEvent(LogicalKeyboardKey.space);
+
+      /// emoji list is dismissed
+      expect(emojiHandler, findsNothing);
     });
   });
 }
