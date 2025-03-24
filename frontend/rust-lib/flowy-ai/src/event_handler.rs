@@ -7,7 +7,6 @@ use crate::entities::*;
 use flowy_ai_pub::cloud::{ChatMessageMetadata, ChatMessageType, ChatRAGData, ContextLoader};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
-use serde_json::json;
 use std::sync::{Arc, Weak};
 use tracing::trace;
 use validator::Validate;
@@ -108,7 +107,10 @@ pub(crate) async fn get_server_model_list_handler(
 ) -> DataResult<ServerAvailableModelsPB, FlowyError> {
   let ai_manager = upgrade_ai_manager(ai_manager)?;
   let models = ai_manager.get_server_available_models().await?;
-  let models = serde_json::to_string(&json!({"models": models}))?;
+  let models = models
+    .into_iter()
+    .map(AvailableModelPB::from)
+    .collect::<Vec<_>>();
   data_result_ok(ServerAvailableModelsPB { models })
 }
 

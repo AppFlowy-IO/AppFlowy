@@ -739,6 +739,7 @@ class _SelectModelButtonState extends State<SelectModelButton> {
               );
             },
             child: _CurrentModelButton(
+              key: ValueKey(state.availableModels?.selectedModel.name),
               modelName: state.availableModels?.selectedModel.name ?? "",
               onTap: () => popoverController.show(),
             ),
@@ -810,6 +811,7 @@ class _CurrentModelButton extends StatelessWidget {
   const _CurrentModelButton({
     required this.modelName,
     required this.onTap,
+    super.key,
   });
 
   final String modelName;
