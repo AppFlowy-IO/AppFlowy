@@ -2120,7 +2120,12 @@
       "inlineCode": "Inline code",
       "suggestions": "Suggestions",
       "turnInto": "Turn into",
-      "equation": "Equation"
+      "equation": "Equation",
+      "insert": "Insert",
+      "linkInputHint": "Paste link or search pages",
+      "pageOrURL": "Page or URL",
+      "linkName": "Link Name",
+      "linkNameHint": "Input link name"
     },
     "errorBlock": {
       "theBlockIsNotSupported": "Unable to parse the block content",
