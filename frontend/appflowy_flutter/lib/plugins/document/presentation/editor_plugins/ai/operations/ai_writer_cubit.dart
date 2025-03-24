@@ -459,6 +459,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       completionType: command.toCompletionType(),
       history: records,
       sourceIds: selectedSourcesNotifier.value,
+      format: predefinedFormat,
       onStart: () async {
         final transaction = editorState.transaction;
         final position = ensurePreviousNodeIsEmptyParagraph(
@@ -549,6 +550,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     final stream = await _aiService.streamCompletion(
       objectId: documentId,
       text: prompt,
+      format: predefinedFormat,
       completionType: command.toCompletionType(),
       history: records,
       sourceIds: selectedSourcesNotifier.value,
@@ -651,6 +653,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       completionType: command.toCompletionType(),
       history: records,
       sourceIds: selectedSourcesNotifier.value,
+      format: predefinedFormat,
       onStart: () async {
         records.add(
           AiWriterRecord.user(
