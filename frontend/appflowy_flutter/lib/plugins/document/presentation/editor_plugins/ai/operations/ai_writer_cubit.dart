@@ -121,6 +121,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       return;
     }
 
+    await _textRobot.discard();
+    _textRobot.reset();
+
     switch (command) {
       case AiWriterCommand.continueWriting:
         await _startContinueWriting(
@@ -155,8 +158,6 @@ class AiWriterCubit extends Cubit<AiWriterState> {
         records.lastWhereOrNull((record) => record.role == AiRole.user);
 
     if (lastQuestion != null && state is RegisteredAiWriter) {
-      await _textRobot.discard();
-      _textRobot.reset();
       runCommand(
         (state as RegisteredAiWriter).command,
         lastQuestion.content,

@@ -151,7 +151,6 @@ class MarkdownTextRobot {
   void reset() {
     _markdownText = '';
     _insertedNodes = [];
-    _insertPosition = null;
   }
 
   Future<void> _refresh({
