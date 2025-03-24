@@ -10,11 +10,13 @@ use crate::persistence::{
   ChatMessageTable,
 };
 use crate::stream_message::StreamMessage;
+use crate::util::ai_available_models_key;
 use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, MessageCursor, QuestionStreamValue, ResponseFormat,
+  AIModel, ChatCloudService, ChatMessage, MessageCursor, QuestionStreamValue, ResponseFormat,
 };
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
+use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 use futures::{SinkExt, StreamExt};
 use lib_infra::isolate_stream::IsolateSink;
@@ -39,6 +41,7 @@ pub struct Chat {
   latest_message_id: Arc<AtomicI64>,
   stop_stream: Arc<AtomicBool>,
   stream_buffer: Arc<Mutex<StringBuffer>>,
+  store_preferences: Arc<KVStorePreferences>,
 }
 
 impl Chat {
@@ -47,6 +50,7 @@ impl Chat {
     chat_id: String,
     user_service: Arc<dyn AIUserService>,
     chat_service: Arc<AICloudServiceMiddleware>,
+    store_preferences: Arc<KVStorePreferences>,
   ) -> Chat {
     Chat {
       uid,
@@ -57,6 +61,7 @@ impl Chat {
       latest_message_id: Default::default(),
       stop_stream: Arc::new(AtomicBool::new(false)),
       stream_buffer: Arc::new(Mutex::new(StringBuffer::default())),
+      store_preferences,
     }
   }
 
@@ -81,9 +86,9 @@ impl Chat {
   }
 
   #[instrument(level = "info", skip_all, err)]
-  pub async fn stream_chat_message<'a>(
-    &'a self,
-    params: &'a StreamMessageParams<'a>,
+  pub async fn stream_chat_message(
+    &self,
+    params: &StreamMessageParams,
   ) -> Result<ChatMessagePB, FlowyError> {
     trace!(
       "[Chat] stream chat message: chat_id={}, message={}, message_type={:?}, metadata={:?}, format={:?}",
@@ -113,7 +118,7 @@ impl Chat {
       .create_question(
         &workspace_id,
         &self.chat_id,
-        params.message,
+        &params.message,
         params.message_type.clone(),
         &[],
       )
@@ -138,7 +143,9 @@ impl Chat {
     // Save message to disk
     save_and_notify_message(uid, &self.chat_id, &self.user_service, question.clone())?;
     let format = params.format.clone().map(Into::into).unwrap_or_default();
-
+    let preferred_ai_model = self
+      .store_preferences
+      .get_object::<AIModel>(&ai_available_models_key(&self.chat_id));
     self.stream_response(
       params.answer_stream_port,
       answer_stream_buffer,
@@ -146,6 +153,7 @@ impl Chat {
       workspace_id,
       question.message_id,
       format,
+      preferred_ai_model,
     );
 
     let question_pb = ChatMessagePB::from(question);
@@ -158,6 +166,7 @@ impl Chat {
     question_id: i64,
     answer_stream_port: i64,
     format: Option<PredefinedFormatPB>,
+    ai_model: Option<AIModel>,
   ) -> FlowyResult<()> {
     trace!(
       "[Chat] regenerate and stream chat message: chat_id={}",
@@ -183,11 +192,13 @@ impl Chat {
       workspace_id,
       question_id,
       format,
+      ai_model,
     );
 
     Ok(())
   }
 
+  #[allow(clippy::too_many_arguments)]
   fn stream_response(
     &self,
     answer_stream_port: i64,
@@ -196,6 +207,7 @@ impl Chat {
     workspace_id: String,
     question_id: i64,
     format: ResponseFormat,
+    ai_model: Option<AIModel>,
   ) {
     let stop_stream = self.stop_stream.clone();
     let chat_id = self.chat_id.clone();
@@ -204,7 +216,7 @@ impl Chat {
     tokio::spawn(async move {
       let mut answer_sink = IsolateSink::new(Isolate::new(answer_stream_port));
       match cloud_service
-        .stream_answer(&workspace_id, &chat_id, question_id, format)
+        .stream_answer(&workspace_id, &chat_id, question_id, format, ai_model)
         .await
       {
         Ok(mut stream) => {

@@ -60,7 +60,6 @@ quickcheck_macros = "1.0"
 
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
-tauri_ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]
 
 [build-dependencies]
 flowy-codegen.workspace = true

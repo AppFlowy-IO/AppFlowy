@@ -2,6 +2,7 @@ import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/ai_chat/presentation/message/ai_markdown_text.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/view/view_bloc.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -124,9 +125,12 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
       return const SizedBox.shrink();
     }
 
+    final documentId = context.read<DocumentBloc?>()?.documentId;
+
     return BlocProvider(
       create: (_) => AIPromptInputBloc(
         predefinedFormat: null,
+        objectId: documentId ?? editorState.document.root.id,
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {

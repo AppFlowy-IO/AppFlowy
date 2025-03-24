@@ -77,7 +77,7 @@ pub fn dart_gen(crate_name: &str) {
 }
 
 #[allow(unused_variables)]
-pub fn ts_gen(crate_name: &str, dest_folder_name: &str, project: Project) {
+fn ts_gen(crate_name: &str, dest_folder_name: &str, project: Project) {
   // 1. generate the proto files to proto_file_dir
   #[cfg(feature = "proto_gen")]
   let proto_crates = gen_proto_files(crate_name);

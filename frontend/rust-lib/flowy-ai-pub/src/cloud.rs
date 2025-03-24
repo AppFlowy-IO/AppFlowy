@@ -14,6 +14,7 @@ pub use client_api::error::{AppResponseError, ErrorCode as AppErrorCode};
 use flowy_error::FlowyError;
 use futures::stream::BoxStream;
 use lib_infra::async_trait::async_trait;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::path::Path;
@@ -21,6 +22,22 @@ use std::path::Path;
 pub type ChatMessageStream = BoxStream<'static, Result<ChatMessage, AppResponseError>>;
 pub type StreamAnswer = BoxStream<'static, Result<QuestionStreamValue, FlowyError>>;
 pub type StreamComplete = BoxStream<'static, Result<CompletionStreamValue, FlowyError>>;
+
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+pub struct AIModel {
+  pub name: String,
+  pub is_local: bool,
+}
+
+impl Default for AIModel {
+  fn default() -> Self {
+    Self {
+      name: "default".to_string(),
+      is_local: false,
+    }
+  }
+}
+
 #[async_trait]
 pub trait ChatCloudService: Send + Sync + 'static {
   async fn create_chat(
@@ -55,6 +72,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
     chat_id: &str,
     message_id: i64,
     format: ResponseFormat,
+    ai_model: Option<AIModel>,
   ) -> Result<StreamAnswer, FlowyError>;
 
   async fn get_answer(
@@ -90,6 +108,7 @@ pub trait ChatCloudService: Send + Sync + 'static {
     &self,
     workspace_id: &str,
     params: CompleteTextParams,
+    ai_model: Option<AIModel>,
   ) -> Result<StreamComplete, FlowyError>;
 
   async fn embed_file(
@@ -121,4 +140,5 @@ pub trait ChatCloudService: Send + Sync + 'static {
   ) -> Result<(), FlowyError>;
 
   async fn get_available_models(&self, workspace_id: &str) -> Result<ModelList, FlowyError>;
+  async fn get_workspace_default_model(&self, workspace_id: &str) -> Result<String, FlowyError>;
 }
