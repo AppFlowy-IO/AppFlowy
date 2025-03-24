@@ -55,6 +55,20 @@ pub trait AIExternalService: Send + Sync + 'static {
   async fn notify_did_send_message(&self, chat_id: &str, message: &str) -> Result<(), FlowyError>;
 }
 
+struct ServerModelsCache {
+  models: Vec<String>,
+  timestamp: Option<i64>,
+}
+
+impl Default for ServerModelsCache {
+  fn default() -> Self {
+    Self {
+      models: Vec::new(),
+      timestamp: None,
+    }
+  }
+}
+
 pub struct AIManager {
   pub cloud_service_wm: Arc<AICloudServiceMiddleware>,
   pub user_service: Arc<dyn AIUserService>,
@@ -62,7 +76,7 @@ pub struct AIManager {
   chats: Arc<DashMap<String, Arc<Chat>>>,
   pub local_ai: Arc<LocalAIController>,
   pub store_preferences: Arc<KVStorePreferences>,
-  server_models: Arc<RwLock<Vec<String>>>,
+  server_models: Arc<RwLock<ServerModelsCache>>,
 }
 
 impl AIManager {
@@ -270,16 +284,22 @@ impl AIManager {
 
   pub async fn get_server_available_models(&self) -> FlowyResult<Vec<String>> {
     let workspace_id = self.user_service.workspace_id()?;
+    let now = timestamp();
 
-    // First, try reading from the cache.
+    // First, try reading from the cache with expiration check
     {
       let cached_models = self.server_models.read().await;
-      if !cached_models.is_empty() {
-        return Ok(cached_models.clone());
+      if !cached_models.models.is_empty() {
+        if let Some(timestamp) = cached_models.timestamp {
+          // Cache is valid if less than 5 minutes (300 seconds) old
+          if now - timestamp < 300 {
+            return Ok(cached_models.models.clone());
+          }
+        }
       }
     }
 
-    // Cache miss: fetch from the cloud.
+    // Cache miss or expired: fetch from the cloud.
     let list = self
       .cloud_service_wm
       .get_available_models(&workspace_id)
@@ -290,8 +310,10 @@ impl AIManager {
       .map(|m| m.name)
       .collect::<Vec<String>>();
 
-    // Update the cache.
-    *self.server_models.write().await = models.clone();
+    // Update the cache with new timestamp
+    let mut cache = self.server_models.write().await;
+    cache.models = models.clone();
+    cache.timestamp = Some(now);
     Ok(models)
   }
 
