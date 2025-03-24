@@ -13,5 +13,6 @@ mod manager_init;
 mod manager_observer;
 
 pub mod publish_util;
+pub mod services;
 pub mod share;
 mod util;

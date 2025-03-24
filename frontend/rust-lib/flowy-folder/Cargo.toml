@@ -14,15 +14,17 @@ collab-plugins = { workspace = true }
 collab-integrate = { workspace = true }
 flowy-folder-pub = { workspace = true }
 flowy-search-pub = { workspace = true }
-flowy-sqlite = { workspace = true }
-flowy-derive.workspace = true
 flowy-notification = { workspace = true }
 arc-swap.workspace = true
 unicode-segmentation = "1.10"
 tracing.workspace = true
+flowy-derive.workspace = true
+flowy-sqlite = { workspace = true }
 flowy-error = { path = "../flowy-error", features = [
   "impl_from_dispatch_error",
   "impl_from_collab_folder",
+  "impl_from_sqlite",
+  "impl_from_collab_persistence",
 ] }
 lib-dispatch = { workspace = true }
 bytes.workspace = true
@@ -43,7 +45,8 @@ client-api = { workspace = true }
 regex = "1.9.5"
 futures = "0.3.31"
 dashmap.workspace = true
-
+diesel.workspace = true
+diesel_derives = { version = "2.1.0", features = ["sqlite", "r2d2"] }
 
 [build-dependencies]
 flowy-codegen.workspace = true

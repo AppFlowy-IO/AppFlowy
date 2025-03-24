@@ -2049,6 +2049,9 @@ impl FolderManager {
     depth: Option<u32>,
     root_view_id: Option<String>,
   ) -> FlowyResult<FolderView> {
+    // 1. read the data from the local database
+    // 2. get the data from the cloud service
+
     let folder_view = self
       .cloud_service
       .get_workspace_folder(workspace_id, depth, root_view_id)

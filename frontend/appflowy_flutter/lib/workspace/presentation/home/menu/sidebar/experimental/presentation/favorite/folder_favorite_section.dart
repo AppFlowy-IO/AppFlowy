@@ -212,7 +212,7 @@ class _FavoriteSectionHeader extends StatelessWidget {
 }
 
 class _FavoriteMoreButton extends StatelessWidget {
-  const _FavoriteMoreButton({super.key});
+  const _FavoriteMoreButton();
 
   @override
   Widget build(BuildContext context) {

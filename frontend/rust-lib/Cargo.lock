@@ -2350,6 +2350,8 @@ dependencies = [
  "collab-integrate",
  "collab-plugins",
  "dashmap 6.0.1",
+ "diesel",
+ "diesel_derives",
  "flowy-codegen",
  "flowy-derive",
  "flowy-error",

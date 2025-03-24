@@ -55,6 +55,27 @@ diesel::table! {
 }
 
 diesel::table! {
+    folder_table (id) {
+        id -> Text,
+        workspace_id -> Text,
+        name -> Text,
+        icon -> Nullable<Text>,
+        is_space -> Bool,
+        is_private -> Bool,
+        is_published -> Bool,
+        is_favorite -> Bool,
+        layout -> Integer,
+        created_at -> Text,
+        last_edited_time -> Text,
+        is_locked -> Nullable<Bool>,
+        parent_id -> Nullable<Text>,
+        sync_status -> Text,
+        last_modified_time -> Text,
+        extra -> Nullable<Text>,
+    }
+}
+
+diesel::table! {
     upload_file_part (upload_id, e_tag) {
         upload_id -> Text,
         e_tag -> Text,
@@ -128,15 +149,16 @@ diesel::table! {
 }
 
 diesel::allow_tables_to_appear_in_same_query!(
-  af_collab_metadata,
-  chat_local_setting_table,
-  chat_message_table,
-  chat_table,
-  collab_snapshot,
-  upload_file_part,
-  upload_file_table,
-  user_data_migration_records,
-  user_table,
-  user_workspace_table,
-  workspace_members_table,
+    af_collab_metadata,
+    chat_local_setting_table,
+    chat_message_table,
+    chat_table,
+    collab_snapshot,
+    folder_table,
+    upload_file_part,
+    upload_file_table,
+    user_data_migration_records,
+    user_table,
+    user_workspace_table,
+    workspace_members_table,
 );
