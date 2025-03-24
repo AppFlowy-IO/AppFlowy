@@ -239,9 +239,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               ),
             );
           },
-          regenerateAnswer: (id, format) {
+          regenerateAnswer: (id, format, model) {
             _clearRelatedQuestions();
-            _regenerateAnswer(id, format);
+            _regenerateAnswer(id, format, model);
             lastSentMessage = null;
 
             isFetchingRelatedQuestions = false;
@@ -483,6 +483,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   void _regenerateAnswer(
     String answerMessageIdString,
     PredefinedFormat? format,
+    AiModel? model,
   ) async {
     final id = temporaryMessageIDMap.entries
             .firstWhereOrNull((e) => e.value == answerMessageIdString)
@@ -504,6 +505,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
     if (format != null) {
       payload.format = format.toPB();
+    }
+    if (model != null) {
+      payload.model = model.toPB();
     }
 
     await AIEventRegenerateResponse(payload).send().fold(
@@ -637,6 +641,7 @@ class ChatEvent with _$ChatEvent {
   const factory ChatEvent.regenerateAnswer(
     String id,
     PredefinedFormat? format,
+    AiModel? model,
   ) = _RegenerateAnswer;
 
   // streaming answer

@@ -36,6 +36,7 @@ class ChatAIMessageWidget extends StatelessWidget {
     this.onSelectedMetadata,
     this.onRegenerate,
     this.onChangeFormat,
+    this.onChangeModel,
     this.isLastMessage = false,
     this.isStreaming = false,
     this.isSelectingMessages = false,
@@ -53,6 +54,7 @@ class ChatAIMessageWidget extends StatelessWidget {
   final void Function()? onRegenerate;
   final void Function() onStopStream;
   final void Function(PredefinedFormat)? onChangeFormat;
+  final void Function(AiModel)? onChangeModel;
   final bool isStreaming;
   final bool isLastMessage;
   final bool isSelectingMessages;
@@ -110,6 +112,7 @@ class ChatAIMessageWidget extends StatelessWidget {
                           isSelectingMessages: isSelectingMessages,
                           onRegenerate: onRegenerate,
                           onChangeFormat: onChangeFormat,
+                          onChangeModel: onChangeModel,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

@@ -99,6 +99,7 @@ pub(crate) async fn regenerate_response_handler(
       data.answer_message_id,
       data.answer_stream_port,
       data.format,
+      data.model,
     )
     .await?;
   Ok(())
