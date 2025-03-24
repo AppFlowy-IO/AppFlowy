@@ -1,14 +1,12 @@
 import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/operations/ai_writer_cubit.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/colorscheme/default_colorscheme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../operations/ai_writer_entities.dart';
 
@@ -74,8 +72,8 @@ class AiWriterPromptMoreButton extends StatelessWidget {
   }
 }
 
-class BottomCommandButtons extends StatelessWidget {
-  const BottomCommandButtons({
+class MoreAiWriterCommands extends StatelessWidget {
+  const MoreAiWriterCommands({
     super.key,
     required this.hasSelection,
     required this.editorState,
@@ -155,19 +153,7 @@ class BottomCommandButtons extends StatelessWidget {
             command.i18n,
             figmaLineHeight: 20,
           ),
-          onTap: () {
-            final aiInputBloc = context.read<AIPromptInputBloc>();
-            final showPredefinedFormats =
-                aiInputBloc.state.showPredefinedFormats;
-            final predefinedFormat = aiInputBloc.state.predefinedFormat;
-
-            context.read<AiWriterCubit>().runCommand(
-                  command,
-                  predefinedFormat:
-                      showPredefinedFormats ? predefinedFormat : null,
-                  isFirstRun: false,
-                );
-          },
+          onTap: () => onSelectCommand(command),
         );
       },
     );

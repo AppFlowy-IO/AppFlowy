@@ -107,9 +107,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       overlayController.show();
-      if (!widget.node.isAiWriterInitialized) {
-        context.read<AiWriterCubit>().register(widget.node);
-      }
+      context.read<AiWriterCubit>().register(widget.node);
     });
   }
 
@@ -150,6 +148,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
                     child: OverlayContent(
                       editorState: editorState,
                       node: widget.node,
+                      textController: textController,
                     ),
                   ),
                 ),
@@ -178,10 +177,12 @@ class OverlayContent extends StatefulWidget {
     super.key,
     required this.editorState,
     required this.node,
+    required this.textController,
   });
 
   final EditorState editorState;
   final Node node;
+  final TextEditingController textController;
 
   @override
   State<OverlayContent> createState() => _OverlayContentState();
@@ -200,31 +201,40 @@ class _OverlayContentState extends State<OverlayContent> {
   Widget build(BuildContext context) {
     return BlocBuilder<AiWriterCubit, AiWriterState>(
       builder: (context, state) {
-        if (state is IdleAiWriterState) {
+        if (state is IdleAiWriterState ||
+            state is DocumentContentEmptyAiWriterState) {
           return const SizedBox.shrink();
         }
+
+        final command = (state as RegisteredAiWriter).command;
+
         final selection = widget.node.aiWriterSelection;
-        final showSuggestionPopup =
-            state is ReadyAiWriterState && !state.isFirstRun;
-        final isInitialReadyState =
-            state is ReadyAiWriterState && state.isFirstRun;
+        final hasSelection = selection != null && !selection.isCollapsed;
+
         final markdownText = switch (state) {
           final ReadyAiWriterState ready => ready.markdownText,
           final GeneratingAiWriterState generating => generating.markdownText,
           _ => '',
         };
-        final hasSelection = selection != null && !selection.isCollapsed;
 
-        final isLightMode = Theme.of(context).isLightMode;
-        final darkBorderColor =
-            isLightMode ? Color(0x1F1F2329) : Color(0xFF505469);
+        final showSuggestedActions =
+            state is ReadyAiWriterState && !state.isFirstRun;
+        final isInitialReadyState =
+            state is ReadyAiWriterState && state.isFirstRun;
+        final showSuggestedActionsPopup =
+            showSuggestedActions && markdownText.isEmpty;
+        final showSuggestedActionsWithin =
+            showSuggestedActions && markdownText.isNotEmpty;
+
+        final darkBorderColor = Theme.of(context).isLightMode
+            ? Color(0x1F1F2329)
+            : Color(0xFF505469);
 
         return Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (showSuggestionPopup &&
-                state.command != AiWriterCommand.explain) ...[
+            if (showSuggestedActionsPopup) ...[
               Container(
                 padding: EdgeInsets.all(4.0),
                 decoration: _getModalDecoration(
@@ -234,7 +244,7 @@ class _OverlayContentState extends State<OverlayContent> {
                   borderColor: darkBorderColor,
                 ),
                 child: SuggestionActionBar(
-                  currentCommand: state.command,
+                  currentCommand: command,
                   hasSelection: hasSelection,
                   onTap: (action) {
                     _onSelectSuggestionAction(context, action);
@@ -243,85 +253,40 @@ class _OverlayContentState extends State<OverlayContent> {
               ),
               const VSpace(4.0 + 1.0),
             ],
-            DecoratedBox(
+            Container(
               decoration: _getModalDecoration(
                 context,
                 color: null,
                 borderColor: darkBorderColor,
                 borderRadius: BorderRadius.all(Radius.circular(12.0)),
               ),
+              constraints: BoxConstraints(maxHeight: 400),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   if (markdownText.isNotEmpty) ...[
-                    DecoratedBox(
-                      decoration: _getHelperChildDecoration(context),
-                      child: Container(
-                        constraints: BoxConstraints(maxHeight: 140),
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: SingleChildScrollView(
-                                physics: ClampingScrollPhysics(),
-                                padding: EdgeInsets.only(top: 8.0),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Container(
-                                      height: 24.0,
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 6.0),
-                                      alignment:
-                                          AlignmentDirectional.centerStart,
-                                      child: FlowyText(
-                                        (state as RegisteredAiWriter)
-                                            .command
-                                            .i18n,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF666D76),
-                                      ),
-                                    ),
-                                    const VSpace(4.0),
-                                    Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 6.0),
-                                      child: AIMarkdownText(
-                                        markdown: markdownText,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            if (showSuggestionPopup &&
-                                state.command == AiWriterCommand.explain) ...[
-                              const VSpace(4.0),
-                              SuggestionActionBar(
-                                currentCommand: state.command,
-                                hasSelection: hasSelection,
-                                onTap: (action) {
-                                  _onSelectSuggestionAction(context, action);
-                                },
-                              ),
-                            ],
-                            const VSpace(8.0),
-                          ],
+                    Flexible(
+                      child: DecoratedBox(
+                        decoration: _secondaryContentDecoration(context),
+                        child: SecondaryContentArea(
+                          markdownText: markdownText,
+                          onSelectSuggestionAction: (action) {
+                            _onSelectSuggestionAction(context, action);
+                          },
+                          command: command,
+                          showSuggestionActions: showSuggestedActionsWithin,
+                          hasSelection: hasSelection,
                         ),
                       ),
                     ),
-                    Divider(
-                      height: 1.0,
-                    ),
+                    Divider(height: 1.0),
                   ],
                   DecoratedBox(
                     decoration: markdownText.isNotEmpty
-                        ? _getInputChildDecoration(context)
+                        ? _mainContentDecoration(context)
                         : _getSingleChildDeocoration(context),
                     child: MainContentArea(
+                      textController: widget.textController,
                       isDocumentEmpty: _isDocumentEmpty(),
                       isInitialReadyState: isInitialReadyState,
                       showCommandsToggle: showCommandsToggle,
@@ -338,21 +303,19 @@ class _OverlayContentState extends State<OverlayContent> {
                 }
                 return Align(
                   alignment: AlignmentDirectional.centerEnd,
-                  child: BottomCommandButtons(
+                  child: MoreAiWriterCommands(
                     hasSelection: hasSelection,
                     editorState: widget.editorState,
                     onSelectCommand: (command) {
-                      final promptInputBloc = context.read<AIPromptInputBloc>();
-                      final showPredefinedFormats =
-                          promptInputBloc.state.showPredefinedFormats;
-                      final predefinedFormat =
-                          promptInputBloc.state.predefinedFormat;
+                      final state = context.read<AIPromptInputBloc>().state;
+                      final showPredefinedFormats = state.showPredefinedFormats;
+                      final predefinedFormat = state.predefinedFormat;
+                      final text = widget.textController.text;
 
                       context.read<AiWriterCubit>().runCommand(
                             command,
-                            predefinedFormat:
-                                showPredefinedFormats ? predefinedFormat : null,
-                            isFirstRun: true,
+                            text,
+                            showPredefinedFormats ? predefinedFormat : null,
                           );
                     },
                   ),
@@ -395,14 +358,14 @@ class _OverlayContentState extends State<OverlayContent> {
     );
   }
 
-  BoxDecoration _getHelperChildDecoration(BuildContext context) {
+  BoxDecoration _secondaryContentDecoration(BuildContext context) {
     return BoxDecoration(
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
       borderRadius: BorderRadius.vertical(top: Radius.circular(12.0)),
     );
   }
 
-  BoxDecoration _getInputChildDecoration(BuildContext context) {
+  BoxDecoration _mainContentDecoration(BuildContext context) {
     return BoxDecoration(
       color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.vertical(bottom: Radius.circular(12.0)),
@@ -436,14 +399,83 @@ class _OverlayContentState extends State<OverlayContent> {
   }
 }
 
+class SecondaryContentArea extends StatelessWidget {
+  const SecondaryContentArea({
+    super.key,
+    required this.command,
+    required this.markdownText,
+    required this.showSuggestionActions,
+    required this.hasSelection,
+    required this.onSelectSuggestionAction,
+  });
+
+  final AiWriterCommand command;
+  final String markdownText;
+  final bool showSuggestionActions;
+  final bool hasSelection;
+  final void Function(SuggestionAction) onSelectSuggestionAction;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Flexible(
+            child: SingleChildScrollView(
+              physics: ClampingScrollPhysics(),
+              padding: EdgeInsets.only(top: 8.0, left: 14.0, right: 14.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    height: 24.0,
+                    alignment: AlignmentDirectional.centerStart,
+                    child: FlowyText(
+                      command.i18n,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF666D76),
+                    ),
+                  ),
+                  const VSpace(4.0),
+                  AIMarkdownText(
+                    markdown: markdownText,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (showSuggestionActions) ...[
+            const VSpace(4.0),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              child: SuggestionActionBar(
+                currentCommand: command,
+                hasSelection: hasSelection,
+                onTap: onSelectSuggestionAction,
+              ),
+            ),
+          ],
+          const VSpace(8.0),
+        ],
+      ),
+    );
+  }
+}
+
 class MainContentArea extends StatelessWidget {
   const MainContentArea({
     super.key,
+    required this.textController,
     required this.isInitialReadyState,
     required this.isDocumentEmpty,
     required this.showCommandsToggle,
   });
 
+  final TextEditingController textController;
   final bool isInitialReadyState;
   final bool isDocumentEmpty;
   final ValueNotifier<bool> showCommandsToggle;
@@ -458,7 +490,10 @@ class MainContentArea extends StatelessWidget {
           return DesktopPromptInput(
             isStreaming: false,
             hideDecoration: true,
-            onSubmitted: (message, format, _) => cubit.submit(message, format),
+            textController: textController,
+            onSubmitted: (message, format, _) {
+              cubit.runCommand(state.command, message, format);
+            },
             onStopStreaming: () => cubit.stopStream(),
             selectedSourcesNotifier: cubit.selectedSourcesNotifier,
             onUpdateSelectedSources: (sources) {

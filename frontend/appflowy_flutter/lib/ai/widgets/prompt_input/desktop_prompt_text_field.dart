@@ -20,6 +20,7 @@ class DesktopPromptInput extends StatefulWidget {
   const DesktopPromptInput({
     super.key,
     required this.isStreaming,
+    required this.textController,
     required this.onStopStreaming,
     required this.onSubmitted,
     required this.selectedSourcesNotifier,
@@ -29,6 +30,7 @@ class DesktopPromptInput extends StatefulWidget {
   });
 
   final bool isStreaming;
+  final TextEditingController textController;
   final void Function() onStopStreaming;
   final void Function(String, PredefinedFormat?, Map<String, dynamic>)
       onSubmitted;
@@ -47,7 +49,6 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
   final overlayController = OverlayPortalController();
   final inputControlCubit = ChatInputControlCubit();
   final focusNode = FocusNode();
-  final textController = TextEditingController();
 
   late SendButtonState sendButtonState;
   bool isComposing = false;
@@ -56,7 +57,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
   void initState() {
     super.initState();
 
-    textController.addListener(handleTextControllerChanged);
+    widget.textController.addListener(handleTextControllerChanged);
     focusNode.addListener(
       () {
         if (!widget.hideDecoration) {
@@ -84,7 +85,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
   @override
   void dispose() {
     focusNode.dispose();
-    textController.dispose();
+    widget.textController.removeListener(handleTextControllerChanged);
     inputControlCubit.close();
     super.dispose();
   }
@@ -109,7 +110,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
           overlayChildBuilder: (context) {
             return PromptInputMentionPageMenu(
               anchor: PromptInputAnchor(textFieldKey, layerLink),
-              textController: textController,
+              textController: widget.textController,
               onPageSelected: handlePageSelected,
             );
           },
@@ -224,12 +225,12 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
     if (!focusNode.hasFocus) {
       focusNode.requestFocus();
     }
-    textController.text += '@';
+    widget.textController.text += '@';
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.mounted) {
         context
             .read<ChatInputControlCubit>()
-            .startSearching(textController.value);
+            .startSearching(widget.textController.value);
         overlayController.show();
       }
     });
@@ -245,7 +246,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
   void updateSendButtonState() {
     if (widget.isStreaming) {
       sendButtonState = SendButtonState.streaming;
-    } else if (textController.text.trim().isEmpty) {
+    } else if (widget.textController.text.trim().isEmpty) {
       sendButtonState = SendButtonState.disabled;
     } else {
       sendButtonState = SendButtonState.enabled;
@@ -257,9 +258,9 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
       return;
     }
     final trimmedText = inputControlCubit.formatIntputText(
-      textController.text.trim(),
+      widget.textController.text.trim(),
     );
-    textController.clear();
+    widget.textController.clear();
     if (trimmedText.isEmpty) {
       return;
     }
@@ -282,7 +283,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
     setState(() {
       // update whether send button is clickable
       updateSendButtonState();
-      isComposing = !textController.value.composing.isCollapsed;
+      isComposing = !widget.textController.value.composing.isCollapsed;
     });
 
     if (isComposing) {
@@ -300,6 +301,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
     }
 
     // handle cases where mention a page is cancelled
+    final textController = widget.textController;
     final textSelection = textController.value.selection;
     final isSelectingMultipleCharacters = !textSelection.isCollapsed;
     final isCaretBeforeStartOfRange =
@@ -348,7 +350,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
   KeyEventResult handleKeyEvent(FocusNode node, KeyEvent event) {
     if (event.character == '@') {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        inputControlCubit.startSearching(textController.value);
+        inputControlCubit.startSearching(widget.textController.value);
         overlayController.show();
       });
     }
@@ -356,12 +358,12 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
   }
 
   void handlePageSelected(ViewPB view) {
-    final newText = textController.text.replaceRange(
+    final newText = widget.textController.text.replaceRange(
       inputControlCubit.filterStartPosition,
       inputControlCubit.filterEndPosition,
       view.id,
     );
-    textController.value = TextEditingValue(
+    widget.textController.value = TextEditingValue(
       text: newText,
       selection: TextSelection.collapsed(
         offset: inputControlCubit.filterStartPosition + view.id.length,
@@ -386,7 +388,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
                 key: textFieldKey,
                 editable: state.editable,
                 cubit: inputControlCubit,
-                textController: textController,
+                textController: widget.textController,
                 textFieldFocusNode: focusNode,
                 contentPadding:
                     calculateContentPadding(state.showPredefinedFormats),
