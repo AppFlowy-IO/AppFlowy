@@ -77,10 +77,7 @@ impl From<UserProfile> for UserProfilePB {
       EncryptionType::NoEncryption => ("".to_string(), EncryptionTypePB::NoEncryption),
       EncryptionType::SelfEncryption(sign) => (sign, EncryptionTypePB::Symmetric),
     };
-    let mut ai_model = user_profile.ai_model;
-    if ai_model.is_empty() {
-      ai_model = "Default".to_string();
-    }
+    let ai_model = user_profile.ai_model;
     Self {
       id: user_profile.uid,
       email: user_profile.email,

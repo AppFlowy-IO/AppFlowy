@@ -20,6 +20,7 @@ use crate::util::ai_available_models_key;
 use collab_integrate::persistence::collab_metadata_sql::{
   batch_insert_collab_metadata, batch_select_collab_metadata, AFCollabMetadata,
 };
+use flowy_ai_pub::cloud::ai_dto::AvailableModel;
 use flowy_storage_pub::storage::StorageService;
 use lib_infra::async_trait::async_trait;
 use lib_infra::util::timestamp;
@@ -57,7 +58,7 @@ pub trait AIExternalService: Send + Sync + 'static {
 
 #[derive(Debug, Default)]
 struct ServerModelsCache {
-  models: Vec<String>,
+  models: Vec<AvailableModel>,
   timestamp: Option<i64>,
 }
 
@@ -274,10 +275,9 @@ impl AIManager {
     Ok(model)
   }
 
-  pub async fn get_server_available_models(&self) -> FlowyResult<Vec<String>> {
+  pub async fn get_server_available_models(&self) -> FlowyResult<Vec<AvailableModel>> {
     let workspace_id = self.user_service.workspace_id()?;
-
-    let now = timestamp(); // This is safer than using SystemTime which could fail
+    let now = timestamp();
 
     // First, try reading from the cache with expiration check
     let should_fetch = {
@@ -298,16 +298,9 @@ impl AIManager {
       .await
     {
       Ok(list) => {
-        let models = list
-          .models
-          .into_iter()
-          .map(|m| m.name)
-          .collect::<Vec<String>>();
-
-        // Update the cache with new timestamp - handle potential errors
+        let models = list.models;
         if let Err(err) = self.update_models_cache(&models, now).await {
           error!("Failed to update models cache: {}", err);
-          // Still return the fetched models even if caching failed
         }
 
         Ok(models)
@@ -328,7 +321,11 @@ impl AIManager {
     }
   }
 
-  async fn update_models_cache(&self, models: &[String], timestamp: i64) -> FlowyResult<()> {
+  async fn update_models_cache(
+    &self,
+    models: &[AvailableModel],
+    timestamp: i64,
+  ) -> FlowyResult<()> {
     match self.server_models.try_write() {
       Ok(mut cache) => {
         cache.models = models.to_vec();
@@ -360,8 +357,8 @@ impl AIManager {
       .get_server_available_models()
       .await?
       .into_iter()
-      .map(|name| AIModelPB {
-        name,
+      .map(|m| AIModelPB {
+        name: m.name,
         is_local: false,
       })
       .collect();

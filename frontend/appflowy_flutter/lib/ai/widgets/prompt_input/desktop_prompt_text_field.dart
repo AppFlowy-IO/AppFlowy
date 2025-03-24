@@ -739,6 +739,7 @@ class _SelectModelButtonState extends State<SelectModelButton> {
               );
             },
             child: _CurrentModelButton(
+              key: ValueKey(state.availableModels?.selectedModel.name),
               modelName: state.availableModels?.selectedModel.name ?? "",
               onTap: () => popoverController.show(),
             ),
@@ -760,25 +761,90 @@ class _PopoverSelectModel extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SelectModelBloc, SelectModelState>(
       builder: (context, state) {
-        return ListView.builder(
-          shrinkWrap: true,
-          itemCount: state.availableModels?.models.length ?? 0,
+        if (state.availableModels == null ||
+            state.availableModels!.models.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        // Separate models into local and cloud models
+        final localModels = state.availableModels!.models
+            .where((model) => model.isLocal)
+            .toList();
+
+        final cloudModels = state.availableModels!.models
+            .where((model) => !model.isLocal)
+            .toList();
+
+        return Padding(
           padding: const EdgeInsets.fromLTRB(8, 4, 8, 12),
-          itemBuilder: (context, index) {
-            return _ModelItem(
-              model: state.availableModels!.models[index],
-              onTap: () {
-                context.read<SelectModelBloc>().add(
-                      SelectModelEvent.selectModel(
-                        state.availableModels!.models[index],
-                      ),
-                    );
-                onClose();
-              },
-            );
-          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Local AI Models Section
+              if (localModels.isNotEmpty) ...[
+                _ModelSectionHeader(
+                  title: LocaleKeys.chat_changeFormat_localModel.tr(),
+                ),
+                const SizedBox(height: 4),
+                ...localModels.map(
+                  (model) => _ModelItem(
+                    model: model,
+                    onTap: () {
+                      context.read<SelectModelBloc>().add(
+                            SelectModelEvent.selectModel(model),
+                          );
+                      onClose();
+                    },
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+
+              // Cloud AI Models Section
+              if (cloudModels.isNotEmpty) ...[
+                if (localModels.isNotEmpty)
+                  _ModelSectionHeader(
+                    title: LocaleKeys.chat_changeFormat_cloudModel.tr(),
+                  ),
+                const VSpace(4),
+                ...cloudModels.map(
+                  (model) => _ModelItem(
+                    model: model,
+                    onTap: () {
+                      context.read<SelectModelBloc>().add(
+                            SelectModelEvent.selectModel(model),
+                          );
+                      onClose();
+                    },
+                  ),
+                ),
+              ],
+            ],
+          ),
         );
       },
+    );
+  }
+}
+
+class _ModelSectionHeader extends StatelessWidget {
+  const _ModelSectionHeader({
+    required this.title,
+  });
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4, bottom: 2),
+      child: FlowyText(
+        title,
+        fontSize: 12,
+        color: Theme.of(context).hintColor,
+        fontWeight: FontWeight.w500,
+      ),
     );
   }
 }
@@ -794,10 +860,8 @@ class _ModelItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var modelName = model.name;
-    if (model.isLocal) {
-      modelName += " (${LocaleKeys.chat_changeFormat_localModel.tr()})";
-    }
+    final modelName = model.name;
+
     return FlowyTextButton(
       modelName,
       fillColor: Colors.transparent,
@@ -810,6 +874,7 @@ class _CurrentModelButton extends StatelessWidget {
   const _CurrentModelButton({
     required this.modelName,
     required this.onTap,
+    super.key,
   });
 
   final String modelName;
