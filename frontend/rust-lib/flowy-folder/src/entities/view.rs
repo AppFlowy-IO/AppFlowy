@@ -15,6 +15,7 @@ use flowy_folder_pub::cloud::gen_view_id;
 
 use crate::entities::icon::ViewIconPB;
 use crate::entities::parser::view::{ViewIdentify, ViewName, ViewThumbnail};
+use crate::notification::FolderNotificationPayload;
 use crate::view_operation::ViewData;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -271,6 +272,21 @@ impl From<FolderView> for FolderViewPB {
         .map(|child| child.into())
         .collect(),
     }
+  }
+}
+
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
+pub struct FolderPageNotificationPayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub folder_view: FolderViewPB,
+}
+
+impl FolderNotificationPayload for FolderPageNotificationPayloadPB {
+  fn workspace_id(&self) -> &str {
+    &self.workspace_id
   }
 }
 

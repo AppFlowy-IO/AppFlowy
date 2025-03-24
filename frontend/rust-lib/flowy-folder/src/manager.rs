@@ -10,7 +10,7 @@ use crate::manager_observer::{
   ChildViewChangeReason,
 };
 use crate::notification::{
-  folder_notification_builder, send_current_workspace_notification, FolderNotification,
+  send_current_workspace_notification, workspace_notification_builder, FolderNotification,
 };
 use crate::publish_util::{generate_publish_name, view_pb_to_publish_view};
 use crate::services::sqlite_sql::folder_sql::{get_page_by_id, insert_folder_view_with_children};
@@ -783,7 +783,7 @@ impl FolderManager {
         drop(folder);
 
         // notify the parent view that the view is moved to trash
-        folder_notification_builder(view_id, FolderNotification::DidMoveViewToTrash)
+        workspace_notification_builder(view_id, FolderNotification::DidMoveViewToTrash)
           .payload(DeletedViewPB {
             view_id: view_id.to_string(),
             index: None,
@@ -817,7 +817,7 @@ impl FolderManager {
           .map(|v| v.id.clone())
           .collect(),
       );
-      folder_notification_builder("favorite", FolderNotification::DidUnfavoriteView)
+      workspace_notification_builder("favorite", FolderNotification::DidUnfavoriteView)
         .payload(RepeatedViewPB {
           items: favorite_descendant_views,
         })
@@ -1635,13 +1635,13 @@ impl FolderManager {
       } else {
         FolderNotification::DidUnfavoriteView
       };
-      folder_notification_builder("favorite", notification_type)
+      workspace_notification_builder("favorite", notification_type)
         .payload(RepeatedViewPB {
           items: vec![view.clone()],
         })
         .send();
 
-      folder_notification_builder(&view.id, FolderNotification::DidUpdateView)
+      workspace_notification_builder(&view.id, FolderNotification::DidUpdateView)
         .payload(view)
         .send()
     }
@@ -1649,7 +1649,7 @@ impl FolderManager {
 
   async fn send_update_recent_views_notification(&self) {
     let recent_views = self.get_my_recent_sections().await;
-    folder_notification_builder("recent_views", FolderNotification::DidUpdateRecentViews)
+    workspace_notification_builder("recent_views", FolderNotification::DidUpdateRecentViews)
       .payload(RepeatedViewIdPB {
         items: recent_views.into_iter().map(|item| item.id).collect(),
       })
@@ -1679,7 +1679,7 @@ impl FolderManager {
     if let Some(lock) = self.mutex_folder.load_full() {
       let mut folder = lock.write().await;
       folder.remove_all_my_trash_sections();
-      folder_notification_builder("trash", FolderNotification::DidUpdateTrash)
+      workspace_notification_builder("trash", FolderNotification::DidUpdateTrash)
         .payload(RepeatedTrashPB { items: vec![] })
         .send();
     }
@@ -1705,7 +1705,7 @@ impl FolderManager {
       for trash in deleted_trash {
         let _ = self.delete_trash(&trash.id).await;
       }
-      folder_notification_builder("trash", FolderNotification::DidUpdateTrash)
+      workspace_notification_builder("trash", FolderNotification::DidUpdateTrash)
         .payload(RepeatedTrashPB { items: vec![] })
         .send();
     }
@@ -1867,7 +1867,7 @@ impl FolderManager {
     }
 
     if let Ok(view_pb) = self.get_view_pb(view_id).await {
-      folder_notification_builder(&view_pb.id, FolderNotification::DidUpdateView)
+      workspace_notification_builder(&view_pb.id, FolderNotification::DidUpdateView)
         .payload(view_pb)
         .send();
 
@@ -2043,167 +2043,6 @@ impl FolderManager {
       .remove_indices_for_workspace(workspace_id)?;
 
     Ok(())
-  }
-
-  pub async fn get_workspace_folder(
-    &self,
-    workspace_id: &str,
-    depth: Option<u32>,
-    root_view_id: Option<String>,
-  ) -> FlowyResult<FolderView> {
-    // 1. read the data from the local database
-    let uid = self.user.user_id()?;
-    let mut conn = self.user.sqlite_connection(uid)?;
-    if let Ok(folder_view) = get_page_by_id(
-      &mut conn,
-      workspace_id,
-      root_view_id.as_deref().unwrap_or(workspace_id),
-      depth,
-    ) {
-      return Ok(folder_view);
-    };
-
-    // 2. if the data is not in the local database, get the data from the cloud service
-    let folder_view = self
-      .cloud_service
-      .get_workspace_folder(workspace_id, depth, root_view_id)
-      .await?;
-    // 3. save the data to the local database
-    let parent_view_id = folder_view.parent_view_id.clone();
-    let _ = insert_folder_view_with_children(
-      &mut conn,
-      folder_view.clone(),
-      workspace_id,
-      Some(parent_view_id),
-    );
-
-    Ok(folder_view)
-  }
-
-  pub async fn create_page(&self, workspace_id: &str, params: CreatePageParams) -> FlowyResult<()> {
-    self.cloud_service.create_page(workspace_id, params).await?;
-    Ok(())
-  }
-
-  pub async fn update_page(
-    &self,
-    workspace_id: &str,
-    view_id: &str,
-    params: UpdatePageParams,
-  ) -> FlowyResult<()> {
-    self
-      .cloud_service
-      .update_page(workspace_id, view_id, params)
-      .await?;
-    Ok(())
-  }
-
-  pub async fn move_page_to_trash(&self, workspace_id: &str, view_id: &str) -> FlowyResult<()> {
-    self
-      .cloud_service
-      .move_page_to_trash(workspace_id, view_id)
-      .await?;
-    Ok(())
-  }
-
-  pub async fn restore_page_from_trash(
-    &self,
-    workspace_id: &str,
-    view_id: &str,
-  ) -> FlowyResult<()> {
-    self
-      .cloud_service
-      .restore_page_from_trash(workspace_id, view_id)
-      .await?;
-    Ok(())
-  }
-
-  pub async fn duplicate_page(
-    &self,
-    workspace_id: &str,
-    view_id: &str,
-    params: DuplicatePageParams,
-  ) -> FlowyResult<()> {
-    self
-      .cloud_service
-      .duplicate_page(workspace_id, view_id, params)
-      .await?;
-    Ok(())
-  }
-
-  pub async fn move_page(
-    &self,
-    workspace_id: &str,
-    view_id: &str,
-    params: MovePageParams,
-  ) -> FlowyResult<()> {
-    self
-      .cloud_service
-      .move_page(workspace_id, view_id, params)
-      .await?;
-    Ok(())
-  }
-
-  pub async fn create_space(
-    &self,
-    workspace_id: &str,
-    params: CreateSpaceParams,
-  ) -> FlowyResult<()> {
-    self
-      .cloud_service
-      .create_space(workspace_id, params)
-      .await?;
-    Ok(())
-  }
-
-  pub async fn update_space(
-    &self,
-    workspace_id: &str,
-    space_id: &str,
-    params: UpdateSpaceParams,
-  ) -> FlowyResult<()> {
-    self
-      .cloud_service
-      .update_space(workspace_id, space_id, params)
-      .await?;
-    Ok(())
-  }
-
-  pub async fn get_favorite_pages(
-    &self,
-    workspace_id: &str,
-  ) -> Result<Vec<FavoriteFolderView>, FlowyError> {
-    let favorite_pages = self.cloud_service.get_favorite_pages(workspace_id).await?;
-    Ok(favorite_pages)
-  }
-
-  pub async fn update_favorite_page(
-    &self,
-    workspace_id: &str,
-    view_id: &str,
-    params: FavoritePageParams,
-  ) -> Result<(), FlowyError> {
-    self
-      .cloud_service
-      .update_favorite_page(workspace_id, view_id, params)
-      .await?;
-    Ok(())
-  }
-
-  pub async fn get_recent_pages(
-    &self,
-    workspace_id: &str,
-  ) -> Result<Vec<RecentFolderView>, FlowyError> {
-    let recent_pages = self.cloud_service.get_recent_pages(workspace_id).await?;
-    Ok(recent_pages)
-  }
-
-  pub async fn get_trash_pages(
-    &self,
-    workspace_id: &str,
-  ) -> Result<Vec<TrashFolderView>, FlowyError> {
-    let trash_pages = self.cloud_service.get_trash_pages(workspace_id).await?;
-    Ok(trash_pages)
   }
 }
 

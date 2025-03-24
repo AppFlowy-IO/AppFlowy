@@ -9,6 +9,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 
 use crate::entities::*;
+use crate::http_service::FolderHttpService;
 use crate::manager::FolderManager;
 use crate::share::ImportParams;
 

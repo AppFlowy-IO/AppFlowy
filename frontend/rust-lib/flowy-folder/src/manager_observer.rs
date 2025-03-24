@@ -3,7 +3,7 @@ use crate::entities::{
   RepeatedTrashPB, RepeatedViewPB, SectionViewsPB, ViewPB, ViewSectionPB,
 };
 use crate::manager::{get_workspace_private_view_pbs, get_workspace_public_view_pbs, FolderUser};
-use crate::notification::{folder_notification_builder, FolderNotification};
+use crate::notification::{workspace_notification_builder, FolderNotification};
 use collab::core::collab_state::SyncState;
 use collab::lock::RwLock;
 use collab_folder::{
@@ -93,7 +93,7 @@ pub(crate) fn subscribe_folder_sync_state_changed(
         }
       }
 
-      folder_notification_builder(&workspace_id, FolderNotification::DidUpdateFolderSyncUpdate)
+      workspace_notification_builder(&workspace_id, FolderNotification::DidUpdateFolderSyncUpdate)
         .payload(FolderSyncStatePB::from(state))
         .send();
     }
@@ -135,7 +135,7 @@ pub(crate) fn subscribe_folder_trash_changed(
             }
 
             let repeated_trash: RepeatedTrashPB = folder.get_my_trash_info().into();
-            folder_notification_builder("trash", FolderNotification::DidUpdateTrash)
+            workspace_notification_builder("trash", FolderNotification::DidUpdateTrash)
               .payload(repeated_trash)
               .send();
 
@@ -179,7 +179,7 @@ pub(crate) fn notify_parent_view_did_change<T: AsRef<str>>(
 
       // Post the notification
       let parent_view_pb = view_pb_with_child_views(parent_view, child_views);
-      folder_notification_builder(parent_view_id, FolderNotification::DidUpdateView)
+      workspace_notification_builder(parent_view_id, FolderNotification::DidUpdateView)
         .payload(parent_view_pb)
         .send();
     }
@@ -198,7 +198,7 @@ pub(crate) fn notify_did_update_section_views(workspace_id: &str, folder: &Folde
   );
 
   // Notify the public views
-  folder_notification_builder(workspace_id, FolderNotification::DidUpdateSectionViews)
+  workspace_notification_builder(workspace_id, FolderNotification::DidUpdateSectionViews)
     .payload(SectionViewsPB {
       section: ViewSectionPB::Public,
       views: public_views,
@@ -206,7 +206,7 @@ pub(crate) fn notify_did_update_section_views(workspace_id: &str, folder: &Folde
     .send();
 
   // Notify the private views
-  folder_notification_builder(workspace_id, FolderNotification::DidUpdateSectionViews)
+  workspace_notification_builder(workspace_id, FolderNotification::DidUpdateSectionViews)
     .payload(SectionViewsPB {
       section: ViewSectionPB::Private,
       views: private_views,
@@ -216,7 +216,7 @@ pub(crate) fn notify_did_update_section_views(workspace_id: &str, folder: &Folde
 
 pub(crate) fn notify_did_update_workspace(workspace_id: &str, folder: &Folder) {
   let repeated_view: RepeatedViewPB = get_workspace_public_view_pbs(workspace_id, folder).into();
-  folder_notification_builder(workspace_id, FolderNotification::DidUpdateWorkspaceViews)
+  workspace_notification_builder(workspace_id, FolderNotification::DidUpdateWorkspaceViews)
     .payload(repeated_view)
     .send();
 }
@@ -224,7 +224,7 @@ pub(crate) fn notify_did_update_workspace(workspace_id: &str, folder: &Folder) {
 fn notify_view_did_change(view: View) -> Option<()> {
   let view_id = view.id.clone();
   let view_pb = view_pb_without_child_views(view);
-  folder_notification_builder(&view_id, FolderNotification::DidUpdateView)
+  workspace_notification_builder(&view_id, FolderNotification::DidUpdateView)
     .payload(view_pb)
     .send();
   None
@@ -257,7 +257,7 @@ pub(crate) fn notify_child_views_changed(view_pb: ViewPB, reason: ChildViewChang
     },
   }
 
-  folder_notification_builder(&parent_view_id, FolderNotification::DidUpdateChildViews)
+  workspace_notification_builder(&parent_view_id, FolderNotification::DidUpdateChildViews)
     .payload(payload)
     .send();
 }

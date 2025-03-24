@@ -47,6 +47,9 @@ futures = "0.3.31"
 dashmap.workspace = true
 diesel.workspace = true
 diesel_derives = { version = "2.1.0", features = ["sqlite", "r2d2"] }
+num="0.4.3"
+num-traits = "0.2.19"
+num-derive = "0.4.2"
 
 [build-dependencies]
 flowy-codegen.workspace = true
