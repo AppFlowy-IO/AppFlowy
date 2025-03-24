@@ -55,18 +55,10 @@ pub trait AIExternalService: Send + Sync + 'static {
   async fn notify_did_send_message(&self, chat_id: &str, message: &str) -> Result<(), FlowyError>;
 }
 
+#[derive(Debug, Default)]
 struct ServerModelsCache {
   models: Vec<String>,
   timestamp: Option<i64>,
-}
-
-impl Default for ServerModelsCache {
-  fn default() -> Self {
-    Self {
-      models: Vec::new(),
-      timestamp: None,
-    }
-  }
 }
 
 pub struct AIManager {
