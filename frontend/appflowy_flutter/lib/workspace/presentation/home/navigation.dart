@@ -61,9 +61,10 @@ class FlowyNavigation extends StatelessWidget {
 
   Widget _renderCollapse(BuildContext context) {
     return BlocBuilder<HomeSettingBloc, HomeSettingState>(
-      buildWhen: (p, c) => p.isMenuCollapsed != c.isMenuCollapsed,
+      buildWhen: (p, c) => p.menuStatus != c.menuStatus,
       builder: (context, state) {
-        if (!UniversalPlatform.isWindows && state.isMenuCollapsed) {
+        if (!UniversalPlatform.isWindows &&
+            state.menuStatus == MenuStatus.hidden) {
           final textSpan = TextSpan(
             children: [
               TextSpan(
@@ -85,9 +86,8 @@ class FlowyNavigation extends StatelessWidget {
               child: FlowyTooltip(
                 richMessage: textSpan,
                 child: Listener(
-                  onPointerDown: (event) => context
-                      .read<HomeSettingBloc>()
-                      .add(const HomeSettingEvent.collapseMenu()),
+                  onPointerDown: (event) =>
+                      context.read<HomeSettingBloc>().collapseMenu(),
                   child: FlowyIconButton(
                     width: 24,
                     onPressed: () {},
