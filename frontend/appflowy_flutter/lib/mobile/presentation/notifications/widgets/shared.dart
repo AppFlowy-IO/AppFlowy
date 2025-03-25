@@ -114,16 +114,10 @@ class _NotificationContentState extends State<NotificationContent> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // title
-            _buildHeader(),
-
-            // time & page name
-            _buildTimeAndPageName(
-              context,
-              state.createdAt,
-              state.pageTitle,
-            ),
-
+            // title & time
+            _buildHeader(state.createdAt, !widget.reminder.isRead),
+            // page name
+            _buildPageName(context, state.pageTitle),
             // content
             Padding(
               padding: const EdgeInsets.only(right: 16.0),
@@ -162,40 +156,59 @@ class _NotificationContentState extends State<NotificationContent> {
     return const SizedBox.shrink();
   }
 
-  Widget _buildHeader() {
-    return FlowyText.semibold(
-      LocaleKeys.settings_notifications_titles_reminder.tr(),
-      fontSize: 14,
-      figmaLineHeight: 20,
+  Widget _buildHeader(String createAt, bool unread) {
+    return SizedBox(
+      height: 22,
+      child: Row(
+        children: [
+          FlowyText.semibold(
+            LocaleKeys.settings_notifications_titles_reminder.tr(),
+            fontSize: 14,
+            figmaLineHeight: 20,
+          ),
+          Spacer(),
+          if (createAt.isNotEmpty)
+            FlowyText.regular(
+              createAt,
+              fontSize: 12,
+              figmaLineHeight: 18,
+              color: context.notificationItemTextColor,
+            ),
+          if (unread) ...[
+            HSpace(4),
+            const UnreadRedDot(),
+          ],
+        ],
+      ),
     );
   }
 
-  Widget _buildTimeAndPageName(
+  Widget _buildPageName(
     BuildContext context,
-    String createdAt,
     String pageTitle,
   ) {
     return Opacity(
       opacity: 0.5,
-      child: Row(
-        children: [
-          // the legacy reminder doesn't contain the timestamp, so we don't show it
-          if (createdAt.isNotEmpty) ...[
+      child: SizedBox(
+        height: 18,
+        child: Row(
+          children: [
+            /// TODO: need to be replaced after reminder support more types
             FlowyText.regular(
-              createdAt,
+              LocaleKeys.notificationHub_mentionedYou.tr(),
               fontSize: 12,
               figmaLineHeight: 18,
               color: context.notificationItemTextColor,
             ),
             const NotificationEllipse(),
+            FlowyText.regular(
+              pageTitle,
+              fontSize: 12,
+              figmaLineHeight: 18,
+              color: context.notificationItemTextColor,
+            ),
           ],
-          FlowyText.regular(
-            pageTitle,
-            fontSize: 12,
-            figmaLineHeight: 18,
-            color: context.notificationItemTextColor,
-          ),
-        ],
+        ),
       ),
     );
   }

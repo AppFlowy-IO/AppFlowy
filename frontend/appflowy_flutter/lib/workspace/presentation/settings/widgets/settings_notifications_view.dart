@@ -1,11 +1,10 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/setting_list_tile.dart';
 import 'package:appflowy/workspace/presentation/settings/shared/settings_body.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsNotificationsView extends StatelessWidget {
@@ -43,7 +42,7 @@ class SettingsNotificationsView extends StatelessWidget {
                   value: state.isShowNotificationsIconEnabled,
                   onChanged: (_) => context
                       .read<NotificationSettingsCubit>()
-                      .toogleShowNotificationIconEnabled(),
+                      .toggleShowNotificationIconEnabled(),
                 ),
               ],
             ),
