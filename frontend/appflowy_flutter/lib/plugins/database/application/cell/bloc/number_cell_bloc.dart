@@ -47,15 +47,6 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
             if (state.content != text) {
               emit(state.copyWith(content: text));
               await cellController.saveCellData(text);
-
-              // If the input content is "abc" that can't parsered as number then the data stored in the backend will be an empty string.
-              // So for every cell data that will be formatted in the backend.
-              // It needs to get the formatted data after saving.
-              add(
-                NumberCellEvent.didReceiveCellUpdate(
-                  cellController.getCellData(),
-                ),
-              );
             }
           },
         );
