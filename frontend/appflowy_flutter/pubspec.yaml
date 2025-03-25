@@ -186,7 +186,7 @@ dependency_overrides:
     git:
       url: https://github.com/AppFlowy-IO/AppFlowy-plugins.git
       path: "packages/appflowy_editor_plugins"
-      ref: "ca8289099e40e0d6ad0605fbbe01fde3091538bb"
+      ref: "4efcff7"
 
   sheet:
     git:
