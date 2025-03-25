@@ -48,16 +48,16 @@ Future<void> removeAiWriterNode(
   );
 }
 
-void formatSelection(
+Future<void> formatSelection(
   EditorState editorState,
   Selection selection,
-  Transaction transaction,
   ApplySuggestionFormatType formatType,
-) {
+) async {
   final nodes = editorState.getNodesInSelection(selection).toList();
   if (nodes.isEmpty) {
     return;
   }
+  final transaction = editorState.transaction;
 
   if (nodes.length == 1) {
     final node = nodes.removeAt(0);
@@ -103,25 +103,43 @@ void formatSelection(
   }
 
   transaction.compose();
+  await editorState.apply(
+    transaction,
+    options: ApplyOptions(
+      inMemoryUpdate: true,
+      recordUndo: false,
+    ),
+    withUpdateSelection: false,
+  );
 }
 
-Position ensurePreviousNodeIsEmptyParagraph(
+Future<Position> ensurePreviousNodeIsEmptyParagraph(
   EditorState editorState,
   Node aiWriterNode,
-  Transaction transaction,
-) {
+) async {
   final previous = aiWriterNode.previous;
   final needsEmptyParagraphNode = previous == null ||
       previous.type != ParagraphBlockKeys.type ||
       (previous.delta?.toPlainText().isNotEmpty ?? false);
 
   final Position position;
+  final transaction = editorState.transaction;
+
   if (needsEmptyParagraphNode) {
     position = Position(path: aiWriterNode.path);
     transaction.insertNode(aiWriterNode.path, paragraphNode());
   } else {
     position = Position(path: previous.path);
   }
+  transaction.afterSelection = Selection.collapsed(position);
+
+  await editorState.apply(
+    transaction,
+    options: ApplyOptions(
+      inMemoryUpdate: true,
+      recordUndo: false,
+    ),
+  );
 
   return position;
 }

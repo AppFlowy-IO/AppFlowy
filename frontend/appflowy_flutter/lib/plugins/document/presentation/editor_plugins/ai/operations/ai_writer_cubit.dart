@@ -66,20 +66,10 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       if (selection == null) {
         return;
       }
-      final transaction = editorState.transaction;
-      formatSelection(
+      await formatSelection(
         editorState,
         selection,
-        transaction,
         ApplySuggestionFormatType.clear,
-      );
-      await editorState.apply(
-        transaction,
-        options: const ApplyOptions(
-          inMemoryUpdate: true,
-          recordUndo: false,
-        ),
-        withUpdateSelection: false,
       );
     }
     if (aiWriterNode != null) {
@@ -223,11 +213,15 @@ class AiWriterCubit extends Cubit<AiWriterState> {
 
     if (action case SuggestionAction.accept) {
       await _textRobot.persist();
+      await formatSelection(
+        editorState,
+        selection,
+        ApplySuggestionFormatType.clear,
+      );
       final nodes = editorState.getNodesInSelection(selection);
       final transaction = editorState.transaction..deleteNodes(nodes);
       await editorState.apply(
         transaction,
-        options: const ApplyOptions(recordUndo: false),
         withUpdateSelection: false,
       );
       await exit(withDiscard: false, withUnformat: false);
@@ -236,6 +230,8 @@ class AiWriterCubit extends Cubit<AiWriterState> {
 
     if (action case SuggestionAction.keep) {
       await _textRobot.persist();
+      await exit(withDiscard: false);
+      return;
     }
 
     if (action case SuggestionAction.insertBelow) {
@@ -245,20 +241,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       final command = (state as ReadyAiWriterState).command;
       final markdownText = (state as ReadyAiWriterState).markdownText;
       if (command == AiWriterCommand.explain && markdownText.isNotEmpty) {
-        final transaction = editorState.transaction;
-        final position = ensurePreviousNodeIsEmptyParagraph(
+        final position = await ensurePreviousNodeIsEmptyParagraph(
           editorState,
           aiWriterNode!,
-          transaction,
-        );
-        transaction.afterSelection = null;
-        await editorState.apply(
-          transaction,
-          options: ApplyOptions(
-            inMemoryUpdate: true,
-            recordUndo: false,
-          ),
-          withUpdateSelection: false,
         );
         _textRobot.start(position: position);
         await _textRobot.persist(markdownText: markdownText);
@@ -266,21 +251,13 @@ class AiWriterCubit extends Cubit<AiWriterState> {
         await _textRobot.persist();
       }
 
-      final transaction = editorState.transaction;
-      formatSelection(
+      await formatSelection(
         editorState,
         selection,
-        transaction,
         ApplySuggestionFormatType.clear,
       );
-      await editorState.apply(
-        transaction,
-        options: const ApplyOptions(recordUndo: false),
-        withUpdateSelection: false,
-      );
+      await exit(withDiscard: false);
     }
-
-    await exit(withDiscard: false);
   }
 
   bool hasUnusedResponse() {
@@ -359,19 +336,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       sourceIds: selectedSourcesNotifier.value,
       completionType: command.toCompletionType(),
       onStart: () async {
-        final transaction = editorState.transaction;
-        final position = ensurePreviousNodeIsEmptyParagraph(
+        final position = await ensurePreviousNodeIsEmptyParagraph(
           editorState,
           aiWriterNode!,
-          transaction,
-        );
-        await editorState.apply(
-          transaction,
-          options: ApplyOptions(
-            inMemoryUpdate: true,
-            recordUndo: false,
-          ),
-          withUpdateSelection: false,
         );
         _textRobot.start(position: position);
         records.add(
@@ -460,20 +427,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       sourceIds: selectedSourcesNotifier.value,
       format: predefinedFormat,
       onStart: () async {
-        final transaction = editorState.transaction;
-        final position = ensurePreviousNodeIsEmptyParagraph(
+        final position = await ensurePreviousNodeIsEmptyParagraph(
           editorState,
           aiWriterNode!,
-          transaction,
-        );
-        transaction.afterSelection = null;
-        await editorState.apply(
-          transaction,
-          options: ApplyOptions(
-            inMemoryUpdate: true,
-            recordUndo: false,
-          ),
-          withUpdateSelection: false,
         );
         _textRobot.start(position: position);
         records.add(
@@ -554,26 +510,14 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       history: records,
       sourceIds: selectedSourcesNotifier.value,
       onStart: () async {
-        final transaction = editorState.transaction;
-        formatSelection(
+        await formatSelection(
           editorState,
           selection,
-          transaction,
           ApplySuggestionFormatType.original,
         );
-        final position = ensurePreviousNodeIsEmptyParagraph(
+        final position = await ensurePreviousNodeIsEmptyParagraph(
           editorState,
           aiWriterNode!,
-          transaction,
-        );
-        transaction.afterSelection = null;
-        await editorState.apply(
-          transaction,
-          options: ApplyOptions(
-            inMemoryUpdate: true,
-            recordUndo: false,
-          ),
-          withUpdateSelection: false,
         );
         _textRobot.start(position: position);
         records.add(
