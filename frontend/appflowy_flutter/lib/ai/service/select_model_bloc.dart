@@ -36,7 +36,7 @@ class SelectModelBloc extends Bloc<SelectModelEvent, SelectModelState> {
   SelectModelBloc({
     required AIModelStateNotifier aiModelStateNotifier,
   })  : _aiModelStateNotifier = aiModelStateNotifier,
-        super(SelectModelState.initial()) {
+        super(SelectModelState.initial(aiModelStateNotifier)) {
     on<SelectModelEvent>(
       (event, emit) {
         event.when(
@@ -103,8 +103,11 @@ class SelectModelState with _$SelectModelState {
     required AiModel? selectedModel,
   }) = _SelectModelState;
 
-  factory SelectModelState.initial() => SelectModelState(
-        models: [],
-        selectedModel: null,
-      );
+  factory SelectModelState.initial(AIModelStateNotifier notifier) {
+    final (models, selectedModel) = notifier.getAvailableModels();
+    return SelectModelState(
+      models: models,
+      selectedModel: selectedModel,
+    );
+  }
 }
