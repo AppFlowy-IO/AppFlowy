@@ -58,7 +58,7 @@ class MarkdownTextRobot {
   void start({
     Position? position,
   }) {
-    _insertPosition ??= position ?? editorState.selection?.start;
+    _insertPosition = position ?? editorState.selection?.start;
 
     if (_enableDebug) {
       Log.info(

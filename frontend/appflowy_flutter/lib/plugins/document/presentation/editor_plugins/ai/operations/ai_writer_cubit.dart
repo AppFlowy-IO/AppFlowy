@@ -55,6 +55,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       await _textRobot.discard();
     }
     _textRobot.clear();
+    _textRobot.reset();
     onRemoveNode?.call();
     records.clear();
     selectedSourcesNotifier.value = [documentId];
