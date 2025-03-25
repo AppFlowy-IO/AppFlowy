@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/core/notification/folder_notification.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/page/page_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/services/page_http_service.dart';
@@ -274,6 +275,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   late PageHttpService pageService;
   late String workspaceId;
   late UserProfilePB userProfile;
+  late FolderNotificationListener folderListener;
 
   bool openFirstPage = false;
 
@@ -351,6 +353,13 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     pageService = PageHttpService(workspaceId: workspaceId);
 
     refreshNotifier.addListener(_refresh);
+
+    folderListener = FolderNotificationListener(
+      objectId: workspaceId,
+      didUpdateFolderPagesNotifier: (result) {
+        add(SpaceEvent.didReceiveSpaceUpdate());
+      },
+    );
   }
 
   void _refresh() {
@@ -361,6 +370,8 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   }
 
   void _reset(UserProfilePB userProfile, String workspaceId) {
+    folderListener.stop();
+
     this.userProfile = userProfile;
     this.workspaceId = workspaceId;
 

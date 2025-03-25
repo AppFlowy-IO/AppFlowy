@@ -231,9 +231,10 @@ impl FolderHttpService for FolderManager {
 
               // send the notification to the client
               send_folder_notification(
+                &cloud_workspace_id,
                 FolderNotification::DidUpdateFolderPages,
                 FolderPageNotificationPayloadPB {
-                  workspace_id: cloud_workspace_id,
+                  workspace_id: cloud_workspace_id.to_string(),
                   folder_view: folder_view.into(),
                 },
               );

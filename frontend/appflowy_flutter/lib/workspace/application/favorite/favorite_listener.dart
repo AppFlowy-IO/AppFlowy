@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:appflowy/core/notification/folder_notification.dart';
+import 'package:appflowy/core/notification/workspace_notification.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -16,7 +16,7 @@ typedef FavoriteUpdated = void Function(
 
 class FavoriteListener {
   StreamSubscription<SubscribeObject>? _streamSubscription;
-  FolderNotificationParser? _parser;
+  WorkspaceNotificationParser? _parser;
 
   FavoriteUpdated? _favoriteUpdated;
 
@@ -24,7 +24,7 @@ class FavoriteListener {
     FavoriteUpdated? favoritesUpdated,
   }) {
     _favoriteUpdated = favoritesUpdated;
-    _parser = FolderNotificationParser(
+    _parser = WorkspaceNotificationParser(
       id: 'favorite',
       callback: _observableCallback,
     );

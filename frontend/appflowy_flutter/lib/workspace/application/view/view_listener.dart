@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:appflowy/core/notification/folder_notification.dart';
+import 'package:appflowy/core/notification/workspace_notification.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
@@ -30,7 +30,7 @@ class ViewListener {
   void Function(MoveToTrashNotifiedValue)? _moveToTrashNotifier;
   bool _isDisposed = false;
 
-  FolderNotificationParser? _parser;
+  WorkspaceNotificationParser? _parser;
   final String viewId;
 
   void start({
@@ -51,7 +51,7 @@ class ViewListener {
     _moveToTrashNotifier = onViewMoveToTrash;
     _updateViewChildViewsNotifier = onViewChildViewsUpdated;
 
-    _parser = FolderNotificationParser(
+    _parser = WorkspaceNotificationParser(
       id: viewId,
       callback: (ty, result) {
         _handleObservableType(ty, result);

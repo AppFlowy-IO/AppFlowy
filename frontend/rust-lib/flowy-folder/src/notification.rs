@@ -95,10 +95,9 @@ pub trait FolderNotificationPayload: ToBytes {
 }
 
 pub(crate) fn send_folder_notification<T: FolderNotificationPayload>(
+  id: &str,
   ty: FolderNotification,
   payload: T,
 ) {
-  folder_notification_builder(FOLDER_OBSERVABLE_SOURCE, ty)
-    .payload(payload)
-    .send();
+  folder_notification_builder(id, ty).payload(payload).send();
 }

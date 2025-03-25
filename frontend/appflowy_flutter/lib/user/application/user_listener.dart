@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter/foundation.dart';
 
-import 'package:appflowy/core/notification/folder_notification.dart';
+import 'package:appflowy/core/notification/workspace_notification.dart';
 import 'package:appflowy/core/notification/user_notification.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
@@ -122,7 +122,7 @@ class FolderListener {
   final PublishNotifier<WorkspaceSettingNotifyValue> _settingChangedNotifier =
       PublishNotifier();
 
-  FolderNotificationListener? _listener;
+  WorkspaceNotificationListener? _listener;
 
   void start({
     void Function(WorkspaceSettingNotifyValue)? onSettingUpdated,
@@ -133,7 +133,7 @@ class FolderListener {
 
     // The "current-workspace" is predefined in the backend. Do not try to
     // modify it
-    _listener = FolderNotificationListener(
+    _listener = WorkspaceNotificationListener(
       objectId: "current-workspace",
       handler: _handleObservableType,
     );

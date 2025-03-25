@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:appflowy/core/notification/folder_notification.dart';
+import 'package:appflowy/core/notification/workspace_notification.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -26,7 +26,7 @@ class WorkspaceSectionsListener {
   final String workspaceId;
 
   final _sectionNotifier = PublishNotifier<SectionNotifyValue>();
-  late final FolderNotificationListener _listener;
+  late final WorkspaceNotificationListener _listener;
 
   void start({
     void Function(SectionNotifyValue)? sectionChanged,
@@ -35,7 +35,7 @@ class WorkspaceSectionsListener {
       _sectionNotifier.addPublishListener(sectionChanged);
     }
 
-    _listener = FolderNotificationListener(
+    _listener = WorkspaceNotificationListener(
       objectId: workspaceId,
       handler: _handleObservableType,
     );

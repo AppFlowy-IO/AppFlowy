@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/config/kv_keys.dart';
+import 'package:appflowy/core/notification/folder_notification.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -45,6 +46,7 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
   final PageHttpService pageService;
   final bool engagedInExpanding;
   final String workspaceId;
+  late final FolderNotificationListener folderListener;
 
   late ViewExpander expander;
 
@@ -61,6 +63,11 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
       (event, emit) async {
         await event.map(
           initial: (e) async {
+            folderListener = FolderNotificationListener(
+              objectId: view.viewId,
+              didUpdateFolderPagesNotifier: _didUpdateFolderPagesNotifier,
+            );
+
             final isExpanded = await _getViewIsExpanded(view);
             emit(
               state.copyWith(
@@ -81,7 +88,7 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
           },
           viewDidUpdate: (e) async {
             // delete this event after integrate the websocket notification
-            refreshNotifier.value = refreshNotifier.value + 1;
+            // refreshNotifier.value = refreshNotifier.value + 1;
           },
           rename: (e) async {
             final response = await pageService.updatePageName(
@@ -283,22 +290,44 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
   Future<void> _unpublishPage(FolderViewPB view) async {
     await pageService.unpublishPage(page: view);
   }
+
+  void _didUpdateFolderPagesNotifier(
+    FlowyResult<FolderViewPB, FlowyError> result,
+  ) {
+    result.fold(
+      (payload) {
+        Log.info('didUpdateFolderPagesNotifier: $payload');
+        add(FolderViewEvent.viewDidUpdate(FlowyResult.success(payload)));
+      },
+      (error) {
+        Log.error('didUpdateFolderPagesNotifier: $error');
+        add(FolderViewEvent.viewDidUpdate(FlowyResult.failure(error)));
+      },
+    );
+  }
 }
 
 @freezed
 class FolderViewEvent with _$FolderViewEvent {
+  /// The initial event to get the view and its children
   const factory FolderViewEvent.initial() = Initial;
 
+  /// Set the editing state of the view. It used when the popup menu is open.
   const factory FolderViewEvent.setIsEditing(bool isEditing) = SetEditing;
 
+  /// Set the expanded state of the view
   const factory FolderViewEvent.setIsExpanded(bool isExpanded) = SetIsExpanded;
 
+  /// Rename the view
   const factory FolderViewEvent.rename(String newName) = Rename;
 
+  /// Delete the view
   const factory FolderViewEvent.delete() = Delete;
 
+  /// Duplicate the view
   const factory FolderViewEvent.duplicate() = Duplicate;
 
+  /// Move the view to a new parent view
   const factory FolderViewEvent.move(
     FolderViewPB from,
     String newParentId,
@@ -307,6 +336,7 @@ class FolderViewEvent with _$FolderViewEvent {
     ViewSectionPB? toSection,
   ) = Move;
 
+  /// Create a new view
   const factory FolderViewEvent.createView(
     String name,
     ViewLayoutPB layoutType, {
@@ -315,23 +345,31 @@ class FolderViewEvent with _$FolderViewEvent {
     ViewSectionPB? section,
   }) = CreateView;
 
+  /// Update the view
   const factory FolderViewEvent.viewDidUpdate(
     FlowyResult<FolderViewPB, FlowyError> result,
   ) = ViewDidUpdate;
 
+  /// Update the child view
   const factory FolderViewEvent.viewUpdateChildView(FolderViewPB result) =
       ViewUpdateChildView;
 
+  /// Update the visibility of the view
+  ///
+  /// This api is deprecated.
+  @Deprecated('This api is deprecated.')
   const factory FolderViewEvent.updateViewVisibility(
     FolderViewPB view,
     bool isPublic,
   ) = UpdateViewVisibility;
 
+  /// Update the icon of the view
   const factory FolderViewEvent.updateIcon(EmojiIconData? icon) = UpdateIcon;
 
+  /// Collapse all pages
   const factory FolderViewEvent.collapseAllPages() = CollapseAllPages;
 
-  // this event will unpublish the page and all its child pages if they are published
+  /// Unpublish the page and all its child pages if they are published
   const factory FolderViewEvent.unpublish({required bool sync}) = Unpublish;
 }
 
