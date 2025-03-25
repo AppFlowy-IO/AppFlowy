@@ -121,7 +121,7 @@ class AIModelStateNotifier {
       return (AiType.cloud, LocaleKeys.chat_inputMessageHint.tr(), true);
     }
 
-    if (availableModels.selectedModel.isLocal == false) {
+    if (!availableModels.selectedModel.isLocal) {
       return (AiType.cloud, LocaleKeys.chat_inputMessageHint.tr(), true);
     }
 
