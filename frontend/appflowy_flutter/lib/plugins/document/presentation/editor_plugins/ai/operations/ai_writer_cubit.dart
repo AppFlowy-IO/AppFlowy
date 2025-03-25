@@ -54,7 +54,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     if (withDiscard) {
       await _textRobot.discard();
     }
-    _textRobot.reset();
+    _textRobot.clear();
     onRemoveNode?.call();
     records.clear();
     selectedSourcesNotifier.value = [documentId];
@@ -122,7 +122,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     }
 
     await _textRobot.discard();
-    _textRobot.reset();
+    _textRobot.clear();
 
     switch (command) {
       case AiWriterCommand.continueWriting:
