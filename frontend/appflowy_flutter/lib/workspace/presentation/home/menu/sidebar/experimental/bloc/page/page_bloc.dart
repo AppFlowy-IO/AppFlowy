@@ -292,12 +292,13 @@ class FolderViewBloc extends Bloc<FolderViewEvent, FolderViewState> {
   }
 
   void _didUpdateFolderPagesNotifier(
-    FlowyResult<FolderViewPB, FlowyError> result,
+    FlowyResult<FolderPageNotificationPayloadPB, FlowyError> result,
   ) {
     result.fold(
       (payload) {
         Log.info('didUpdateFolderPagesNotifier: $payload');
-        add(FolderViewEvent.viewDidUpdate(FlowyResult.success(payload)));
+        add(FolderViewEvent.viewDidUpdate(
+            FlowyResult.success(payload.folderView)));
       },
       (error) {
         Log.error('didUpdateFolderPagesNotifier: $error');

@@ -14,7 +14,7 @@ use crate::notification::{
 };
 use crate::publish_util::{generate_publish_name, view_pb_to_publish_view};
 use crate::services::sqlite_sql::folder_page_sql::{
-  get_page_by_id, insert_folder_view_with_children,
+  get_page_by_id, upsert_folder_view_with_children,
 };
 use crate::share::{ImportData, ImportItem, ImportParams};
 use crate::sync_worker::SyncWorker;

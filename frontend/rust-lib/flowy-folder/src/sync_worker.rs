@@ -26,7 +26,7 @@ use crate::services::sqlite_sql::{
     get_pending_operations_by_workspace_id, insert_operation, update_operation_status,
     FolderOperation,
   },
-  folder_page_sql::{get_page_by_id, insert_folder_view_with_children, upsert_folder_view},
+  folder_page_sql::{get_page_by_id, upsert_folder_view, upsert_folder_view_with_children},
 };
 
 #[derive(Clone)]
@@ -74,7 +74,7 @@ impl SyncWorker {
       ..Default::default()
     };
 
-    insert_folder_view_with_children(
+    upsert_folder_view_with_children(
       conn,
       folder_view,
       workspace_id,
@@ -134,7 +134,7 @@ impl SyncWorker {
   pub fn start_operation_monitor(&self, mut conn: DBConnection, workspace_id: String) {
     let cloned_self = self.clone();
     tokio::spawn(async move {
-      let mut interval = time::interval(Duration::from_secs(5)); // Check every 5 seconds
+      let mut interval = time::interval(Duration::from_secs(5)); // fixme: use observer instead of interval
       loop {
         interval.tick().await;
 
@@ -176,12 +176,14 @@ impl SyncWorker {
         update_operation_status(conn, operation.id, HTTP_STATUS_COMPLETED.to_string())?;
       },
       UPDATE_PAGE_OPERATION_NAME => {
-        let params: UpdatePageParams = serde_json::from_str(&operation.payload)?;
-        self
-          .update_page(conn, &operation.workspace_id, &operation.page_id, params)
-          .await?;
-        // Update operation status to completed
-        update_operation_status(conn, operation.id, HTTP_STATUS_COMPLETED.to_string())?;
+        if let Some(page_id) = operation.page_id {
+          let params: UpdatePageParams = serde_json::from_str(&operation.payload)?;
+          self
+            .update_page(conn, &operation.workspace_id, &page_id, params)
+            .await?;
+          // Update operation status to completed
+          update_operation_status(conn, operation.id, HTTP_STATUS_COMPLETED.to_string())?;
+        }
       },
       // Add other operation types here
       _ => {

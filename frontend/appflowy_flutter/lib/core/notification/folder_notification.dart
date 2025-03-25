@@ -31,7 +31,7 @@ typedef FolderNotificationHandler = void Function(
 );
 
 typedef FolderDidUpdateFolderPagesHandler = void Function(
-  FlowyResult<FolderViewPB, FlowyError> result,
+  FlowyResult<FolderPageNotificationPayloadPB, FlowyError> result,
 );
 
 class FolderNotificationListener {
@@ -60,8 +60,11 @@ class FolderNotificationListener {
   ) {
     switch (ty) {
       case FolderNotification.DidUpdateFolderPages:
-        final response = result.fold<FlowyResult<FolderViewPB, FlowyError>>(
-          (payload) => FlowyResult.success(FolderViewPB.fromBuffer(payload)),
+        final response = result
+            .fold<FlowyResult<FolderPageNotificationPayloadPB, FlowyError>>(
+          (payload) => FlowyResult.success(
+            FolderPageNotificationPayloadPB.fromBuffer(payload),
+          ),
           (error) => FlowyResult.failure(error),
         );
         didUpdateFolderPagesNotifier?.call(response);

@@ -79,7 +79,7 @@ diesel::table! {
     folder_operation_table (id) {
         id -> Integer,
         workspace_id -> Text,
-        page_id -> Text,
+        page_id -> Nullable<Text>,
         name -> Text,
         method -> Text,
         status -> Text,

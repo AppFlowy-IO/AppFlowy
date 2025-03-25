@@ -200,19 +200,19 @@ fn get_page_children_by_id(
   Ok(children_views)
 }
 
-/// Insert a FolderView and its children into the database
+/// Upsert a FolderView and its children into the database
 ///
 /// # Arguments
 ///
 /// * `conn` - The database connection
-/// * `folder_view` - The folder view to insert
+/// * `folder_view` - The folder view to upsert
 /// * `workspace_id` - The id of the workspace
 /// * `parent_id` - The id of the parent page
 ///
 /// # Returns
 ///
 /// The number of rows affected by the operation
-pub fn insert_folder_view_with_children(
+pub fn upsert_folder_view_with_children(
   conn: &mut DBConnection,
   folder_view: FolderView,
   workspace_id: &str,
@@ -220,14 +220,25 @@ pub fn insert_folder_view_with_children(
 ) -> Result<usize, FlowyError> {
   // 1. flatten the folder view
   let folder_pages = flatten_folder_view(folder_view, workspace_id, parent_id)?;
-  // 2. insert the folder pages
-  let affected_rows = diesel::insert_into(folder_table::table)
-    .values(folder_pages)
-    .execute(conn)
-    .map_err(|e| {
-      FlowyError::internal().with_context(format!("Failed to insert folder pages: {}", e))
-    })?;
-  Ok(affected_rows)
+  // 2. insert the folder pages in a single transaction
+  let affected_rows = conn.transaction::<_, FlowyError, _>(|conn| {
+    let mut total_rows = 0;
+    for folder_page in folder_pages {
+      let result = diesel::insert_into(folder_table::table)
+        .values(&folder_page)
+        .on_conflict(folder_table::id)
+        .do_update()
+        .set(&folder_page)
+        .execute(conn)
+        .map_err(|e| {
+          FlowyError::internal().with_context(format!("Failed to insert/update folder page: {}", e))
+        })?;
+      total_rows += result;
+    }
+    Ok(total_rows)
+  })?;
+
+  return Ok(affected_rows);
 }
 
 /// Upsert a FolderView, not including children

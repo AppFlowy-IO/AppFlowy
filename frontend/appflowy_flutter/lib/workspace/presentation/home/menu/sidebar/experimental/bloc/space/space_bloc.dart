@@ -8,6 +8,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/page/page_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/services/page_http_service.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/services/space_http_service.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/services/workspace_http_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -105,12 +106,9 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             Log.info(
               'delete space: ${deletedSpace.name}(${deletedSpace.viewId})',
             );
-
-            add(const SpaceEvent.didReceiveSpaceUpdate());
           },
           rename: (space, name) async {
             await _rename(space, name);
-            add(const SpaceEvent.didReceiveSpaceUpdate());
           },
           changeIcon: (space, icon, iconColor) async {
             space ??= state.currentSpace;
@@ -124,8 +122,6 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               icon: icon,
               iconColor: iconColor,
             );
-
-            add(const SpaceEvent.didReceiveSpaceUpdate());
           },
           update: (space, name, icon, iconColor, permission) async {
             space ??= state.currentSpace;
@@ -141,8 +137,6 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               iconColor: iconColor,
               permission: permission,
             );
-
-            add(const SpaceEvent.didReceiveSpaceUpdate());
           },
           open: (space) async {
             await _openSpace(space);
@@ -182,11 +176,15 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
               name,
               layout,
             );
-
-            add(const SpaceEvent.didReceiveSpaceUpdate());
           },
-          didReceiveSpaceUpdate: () async {
-            final spaces = await _getSpaces();
+          didReceiveSpaceUpdate: (workspaceFolder) async {
+            if (workspaceFolder == null) {
+              return;
+            }
+
+            final spaces =
+                workspaceFolder.children.where((e) => e.isSpace).toList();
+
             emit(
               state.copyWith(
                 spaces: spaces,
@@ -242,7 +240,6 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             await _duplicateSpace(space);
 
             // open the duplicated space
-            add(const SpaceEvent.didReceiveSpaceUpdate());
             add(SpaceEvent.open(space));
 
             emit(state.copyWith(isDuplicatingSpace: false));
@@ -271,6 +268,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     );
   }
 
+  late WorkspaceHttpService workspaceService;
   late SpaceHttpService spaceService;
   late PageHttpService pageService;
   late String workspaceId;
@@ -349,6 +347,7 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     this.userProfile = userProfile;
     this.workspaceId = workspaceId;
 
+    workspaceService = WorkspaceHttpService(workspaceId: workspaceId);
     spaceService = SpaceHttpService(workspaceId: workspaceId);
     pageService = PageHttpService(workspaceId: workspaceId);
 
@@ -357,7 +356,11 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     folderListener = FolderNotificationListener(
       objectId: workspaceId,
       didUpdateFolderPagesNotifier: (result) {
-        add(SpaceEvent.didReceiveSpaceUpdate());
+        result.fold((payload) {
+          add(SpaceEvent.didReceiveSpaceUpdate(payload.folderView));
+        }, (error) {
+          Log.error('Failed to receive space update: $error');
+        });
       },
     );
   }
@@ -366,7 +369,14 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
     if (isClosed) {
       return;
     }
-    add(const SpaceEvent.didReceiveSpaceUpdate());
+
+    workspaceService.getWorkspaceFolder().then((response) {
+      response.fold((workspaceFolder) {
+        add(SpaceEvent.didReceiveSpaceUpdate(workspaceFolder));
+      }, (error) {
+        Log.error('Failed to get workspace folder: $error');
+      });
+    });
   }
 
   void _reset(UserProfilePB userProfile, String workspaceId) {
@@ -449,19 +459,19 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 @freezed
 class SpaceEvent with _$SpaceEvent {
   const factory SpaceEvent.initial({
-    required bool openFirstPage,
+    required final bool openFirstPage,
   }) = _Initial;
   const factory SpaceEvent.create({
-    required String name,
-    required String icon,
-    required String iconColor,
-    required SpacePermission permission,
-    required bool createNewPageByDefault,
-    required bool openAfterCreate,
+    required final String name,
+    required final String icon,
+    required final String iconColor,
+    required final SpacePermission permission,
+    required final bool createNewPageByDefault,
+    required final bool openAfterCreate,
   }) = _Create;
   const factory SpaceEvent.rename({
-    required FolderViewPB space,
-    required String name,
+    required final FolderViewPB space,
+    required final String name,
   }) = _Rename;
   const factory SpaceEvent.changeIcon({
     FolderViewPB? space,
@@ -478,32 +488,36 @@ class SpaceEvent with _$SpaceEvent {
     String? iconColor,
     SpacePermission? permission,
   }) = _Update;
-  const factory SpaceEvent.open(FolderViewPB space) = _Open;
-  const factory SpaceEvent.expand(FolderViewPB space, bool isExpanded) =
-      _Expand;
+  const factory SpaceEvent.open(final FolderViewPB space) = _Open;
+  const factory SpaceEvent.expand(
+    final FolderViewPB space,
+    final bool isExpanded,
+  ) = _Expand;
   const factory SpaceEvent.createPage({
-    required String name,
-    required ViewLayoutPB layout,
+    required final String name,
+    required final ViewLayoutPB layout,
     int? index,
-    required bool openAfterCreate,
+    required final bool openAfterCreate,
   }) = _CreatePage;
-  const factory SpaceEvent.delete(FolderViewPB? space) = _Delete;
-  const factory SpaceEvent.didReceiveSpaceUpdate() = _DidReceiveSpaceUpdate;
+  const factory SpaceEvent.delete(final FolderViewPB? space) = _Delete;
+  const factory SpaceEvent.didReceiveSpaceUpdate(
+    final FolderViewPB? workspaceFolder,
+  ) = _DidReceiveSpaceUpdate;
   const factory SpaceEvent.reset(
-    UserProfilePB userProfile,
-    String workspaceId,
-    bool openFirstPage,
+    final UserProfilePB userProfile,
+    final String workspaceId,
+    final bool openFirstPage,
   ) = _Reset;
   const factory SpaceEvent.migrate() = _Migrate;
   const factory SpaceEvent.switchToNextSpace() = _SwitchToNextSpace;
   const factory SpaceEvent.createSpace({
-    required String name,
-    required SpacePermission permission,
-    required String icon,
-    required String iconColor,
+    required final String name,
+    required final SpacePermission permission,
+    required final String icon,
+    required final String iconColor,
   }) = _CreateSpace;
   const factory SpaceEvent.switchCurrentSpace({
-    required String spaceId,
+    required final String spaceId,
   }) = _SwitchCurrentSpace;
 }
 

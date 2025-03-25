@@ -417,10 +417,6 @@ class _SidebarState extends State<_Sidebar> {
     final sidebarSectionBloc = context.watch<SidebarSectionsBloc>();
     final containsSpace = sidebarSectionBloc.state.containsSpace;
 
-    if (containsSpace && spaceState.spaces.isEmpty) {
-      context.read<SpaceBloc>().add(const SpaceEvent.didReceiveSpaceUpdate());
-    }
-
     return !containsSpace ||
             spaceState.spaces.isEmpty ||
             !workspaceState.isCollabWorkspaceOn

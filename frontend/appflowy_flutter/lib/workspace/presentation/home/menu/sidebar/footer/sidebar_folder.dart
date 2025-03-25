@@ -1,6 +1,7 @@
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/favorite/folder_favorite_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/page/page_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/presentation/favorite/folder_favorite_section.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/presentation/space/folder_space_section.dart';
@@ -38,9 +39,7 @@ class SidebarFolderV2 extends StatelessWidget {
             FlowyTextButton(
               'Refresh',
               onPressed: () {
-                context
-                    .read<SpaceBloc>()
-                    .add(const SpaceEvent.didReceiveSpaceUpdate());
+                refreshNotifier.value += 1;
                 context
                     .read<FolderFavoriteBloc>()
                     .add(const FolderFavoriteEvent.fetchFavorites());
