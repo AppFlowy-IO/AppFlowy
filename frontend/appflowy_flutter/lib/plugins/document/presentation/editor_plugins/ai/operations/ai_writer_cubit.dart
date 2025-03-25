@@ -309,22 +309,20 @@ class AiWriterCubit extends Cubit<AiWriterState> {
 
     if (command == AiWriterCommand.continueWriting) {
       return (true, '');
-    } else {
-      if (selection.isCollapsed) {
-        return (true, '');
-      } else {
-        final selectionText =
-            await editorState.getMarkdownInSelection(selection);
+    }
+    if (selection.isCollapsed) {
+      return (true, '');
+    }
 
-        if (command == AiWriterCommand.userQuestion) {
-          records.add(
-            AiWriterRecord.user(content: selectionText, format: null),
-          );
-          return (true, '');
-        } else {
-          return (true, selectionText);
-        }
-      }
+    final selectionText = await editorState.getMarkdownInSelection(selection);
+
+    if (command == AiWriterCommand.userQuestion) {
+      records.add(
+        AiWriterRecord.user(content: selectionText, format: null),
+      );
+      return (true, '');
+    } else {
+      return (true, selectionText);
     }
   }
 
