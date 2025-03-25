@@ -7,6 +7,7 @@ import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'settings_ai_bloc.freezed.dart';
@@ -96,14 +97,17 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
         },
         didLoadAvailableModels: (List<AvailableModelPB> models) {
           if (state.selectedAIModel.isEmpty) {
-            final m = models.firstWhere((model) => model.isDefault);
-            _updateUserWorkspaceSetting(model: m.name);
-            emit(
-              state.copyWith(
-                availableModels: models,
-                selectedAIModel: m.name,
-              ),
-            );
+            final defaultModel =
+                models.firstWhereOrNull((model) => model.isDefault);
+            if (defaultModel != null) {
+              _updateUserWorkspaceSetting(model: defaultModel.name);
+              emit(
+                state.copyWith(
+                  availableModels: models,
+                  selectedAIModel: defaultModel.name,
+                ),
+              );
+            }
           } else {
             emit(
               state.copyWith(
