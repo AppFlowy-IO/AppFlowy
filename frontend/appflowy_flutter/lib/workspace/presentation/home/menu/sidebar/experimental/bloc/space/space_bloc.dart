@@ -357,7 +357,9 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       objectId: workspaceId,
       didUpdateFolderPagesNotifier: (result) {
         result.fold((payload) {
-          add(SpaceEvent.didReceiveSpaceUpdate(payload.folderView));
+          if (!isClosed) {
+            add(SpaceEvent.didReceiveSpaceUpdate(payload.folderView));
+          }
         }, (error) {
           Log.error('Failed to receive space update: $error');
         });

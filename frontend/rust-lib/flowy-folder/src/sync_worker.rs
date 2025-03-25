@@ -23,7 +23,7 @@ const HTTP_STATUS_COMPLETED: &str = "completed";
 
 use crate::services::sqlite_sql::{
   folder_operation_sql::{
-    get_pending_operations_by_workspace_id, insert_operation, update_operation_status,
+    get_pending_operations_by_workspace_id, update_operation_status, upsert_operation,
     FolderOperation,
   },
   folder_page_sql::{get_page_by_id, upsert_folder_view, upsert_folder_view_with_children},
@@ -80,7 +80,7 @@ impl SyncWorker {
       workspace_id,
       Some(parent_view_id.clone()),
     )?;
-    insert_operation(conn, operation)?;
+    upsert_operation(conn, operation)?;
 
     Ok(())
   }
@@ -125,7 +125,7 @@ impl SyncWorker {
     let parent_view_id = folder_view.parent_view_id.clone();
 
     upsert_folder_view(conn, folder_view, workspace_id, Some(parent_view_id))?;
-    insert_operation(conn, operation)?;
+    upsert_operation(conn, operation)?;
 
     Ok(())
   }
@@ -144,9 +144,15 @@ impl SyncWorker {
             if !operations.is_empty() {
               info!("Processing {} pending operations", operations.len());
               for operation in operations {
+                let cloned_operation = operation.clone();
                 if let Err(e) = cloned_self.process_operation(&mut conn, operation).await {
                   error!("Failed to process operation: {}", e);
                   break;
+                } else {
+                  info!(
+                    "Operation id: {}, name: {} processed successfully",
+                    cloned_operation.id, cloned_operation.name
+                  );
                 }
               }
             }
@@ -178,11 +184,20 @@ impl SyncWorker {
       UPDATE_PAGE_OPERATION_NAME => {
         if let Some(page_id) = operation.page_id {
           let params: UpdatePageParams = serde_json::from_str(&operation.payload)?;
-          self
-            .update_page(conn, &operation.workspace_id, &page_id, params)
-            .await?;
-          // Update operation status to completed
-          update_operation_status(conn, operation.id, HTTP_STATUS_COMPLETED.to_string())?;
+          let result = self
+            .cloud_service
+            .update_page(&operation.workspace_id, &page_id, params)
+            .await;
+          match result {
+            Ok(_) => {
+              // Only update the operation status to completed if the page is updated successfully
+              update_operation_status(conn, operation.id, HTTP_STATUS_COMPLETED.to_string())?;
+            },
+            Err(e) => {
+              error!("Failed to update page: {}", e);
+              return Err(e);
+            },
+          }
         }
       },
       // Add other operation types here
@@ -190,6 +205,7 @@ impl SyncWorker {
         error!("Unknown operation type: {}", operation.name);
       },
     }
+
     Ok(())
   }
 

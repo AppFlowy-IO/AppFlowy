@@ -8,7 +8,7 @@ use flowy_sqlite::schema::folder_operation_table;
 use flowy_sqlite::DBConnection;
 use flowy_sqlite::ExpressionMethods;
 
-#[derive(Clone, Default, Queryable, Identifiable, Insertable)]
+#[derive(Clone, Default, Queryable, Identifiable, Insertable, AsChangeset)]
 #[diesel(table_name = folder_operation_table)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct FolderOperation {
@@ -45,13 +45,16 @@ impl FolderOperation {
   }
 }
 
-/// Insert a new folder operation and return the ID of the inserted operation
-pub fn insert_operation(
+/// Upsert a new folder operation and return the ID of the inserted operation
+pub fn upsert_operation(
   conn: &mut DBConnection,
   operation: FolderOperation,
 ) -> Result<i32, FlowyError> {
   let _ = diesel::insert_into(folder_operation_table::table)
-    .values(operation)
+    .values(&operation)
+    .on_conflict(folder_operation_table::id)
+    .do_update()
+    .set(&operation)
     .execute(conn)
     .map_err(|e| {
       FlowyError::internal().with_context(format!("Failed to insert folder operation: {}", e))
