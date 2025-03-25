@@ -9,11 +9,11 @@ CREATE TABLE folder_table (
     is_published BOOLEAN NOT NULL DEFAULT FALSE,
     is_favorite BOOLEAN NOT NULL DEFAULT FALSE,
     layout INTEGER NOT NULL DEFAULT 0,
-    created_at TEXT NOT NULL,
-    last_edited_time TEXT NOT NULL,
+    created_at BIGINT NOT NULL,
+    last_edited_time BIGINT NOT NULL,
     is_locked BOOLEAN,
     parent_id TEXT,
     sync_status TEXT NOT NULL,
-    last_modified_time TEXT NOT NULL,
+    last_modified_time BIGINT NOT NULL,
     extra TEXT
 );

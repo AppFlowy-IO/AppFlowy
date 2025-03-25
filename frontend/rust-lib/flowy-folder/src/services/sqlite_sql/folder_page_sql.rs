@@ -8,7 +8,7 @@ use flowy_sqlite::schema::folder_table;
 use flowy_sqlite::DBConnection;
 use flowy_sqlite::ExpressionMethods;
 
-#[derive(Clone, Default, Queryable, Identifiable, Insertable)]
+#[derive(Clone, Default, Queryable, Identifiable, Insertable, AsChangeset)]
 #[diesel(table_name = folder_table)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct FolderPage {
@@ -21,12 +21,12 @@ pub struct FolderPage {
   pub(crate) is_published: bool,
   pub(crate) is_favorite: bool,
   pub(crate) layout: i32,
-  pub(crate) created_at: String,
-  pub(crate) last_edited_time: String,
+  pub(crate) created_at: i64,
+  pub(crate) last_edited_time: i64,
   pub(crate) is_locked: Option<bool>,
   pub(crate) parent_id: Option<String>,
   pub(crate) sync_status: String,
-  pub(crate) last_modified_time: String,
+  pub(crate) last_modified_time: i64,
   pub(crate) extra: Option<String>,
 }
 
@@ -36,6 +36,7 @@ impl FolderPage {
     workspace_id: &str,
     parent_id: Option<String>,
   ) -> Self {
+    let now = chrono::Utc::now().timestamp_millis();
     FolderPage {
       id: folder_view.view_id,
       workspace_id: workspace_id.to_string(),
@@ -46,12 +47,12 @@ impl FolderPage {
       is_published: folder_view.is_published,
       is_favorite: folder_view.is_favorite,
       layout: folder_view.layout as i32,
-      created_at: chrono::Utc::now().to_rfc3339(), // verify if this is correct
-      last_edited_time: chrono::Utc::now().to_rfc3339(), // verify if this is correct
+      created_at: now,
+      last_edited_time: now,
       is_locked: folder_view.is_locked,
       parent_id,
       sync_status: "synced".to_string(),
-      last_modified_time: chrono::Utc::now().to_rfc3339(),
+      last_modified_time: now,
       extra: serde_json::to_string(&folder_view.extra).ok(),
     }
   }
@@ -60,14 +61,13 @@ impl FolderPage {
 impl From<FolderPage> for FolderView {
   fn from(folder: FolderPage) -> Self {
     // Parse created_at and last_edited_time
-    let created_at = chrono::NaiveDateTime::parse_from_str(&folder.created_at, "%Y-%m-%d %H:%M:%S")
+    let created_at = chrono::DateTime::from_timestamp_millis(folder.created_at)
       .unwrap_or_default()
-      .and_utc();
+      .into();
 
-    let last_edited_time =
-      chrono::NaiveDateTime::parse_from_str(&folder.last_edited_time, "%Y-%m-%d %H:%M:%S")
-        .unwrap_or_default()
-        .and_utc();
+    let last_edited_time = chrono::DateTime::from_timestamp_millis(folder.last_edited_time)
+      .unwrap_or_default()
+      .into();
 
     // Parse icon
     let icon = folder.icon.as_ref().and_then(|icon_str| {
@@ -134,6 +134,7 @@ pub fn get_page_by_id(
   workspace_id: &str,
   page_id: &str,
   depth: Option<u32>,
+  with_children: bool,
 ) -> Result<FolderView, FlowyError> {
   let folder_page = folder_table::table
     .filter(
@@ -228,6 +229,54 @@ pub fn insert_folder_view_with_children(
     })?;
   Ok(affected_rows)
 }
+
+/// Upsert a FolderView, not including children
+///
+/// # Arguments
+///
+/// * `conn` - The database connection
+/// * `folder_view` - The folder view to upsert
+/// * `workspace_id` - The id of the workspace
+/// * `parent_id` - The id of the parent page
+///
+/// # Returns
+///
+/// The number of rows affected by the operation
+pub fn upsert_folder_view(
+  conn: &mut DBConnection,
+  folder_view: FolderView,
+  workspace_id: &str,
+  parent_id: Option<String>,
+) -> Result<usize, FlowyError> {
+  let folder_page = FolderPage::build_from_folder_view(folder_view, workspace_id, parent_id);
+  // 1. upsert the folder view
+  let affected_rows = diesel::insert_into(folder_table::table)
+    .values(&folder_page)
+    .on_conflict(folder_table::id)
+    .do_update()
+    .set(&folder_page)
+    .execute(conn)
+    .map_err(|e| {
+      FlowyError::internal().with_context(format!("Failed to upsert folder pages: {}", e))
+    })?;
+  Ok(affected_rows)
+}
+
+// pub fn upsert_folder_view(
+//   conn: &mut DBConnection,
+//   folder_view: FolderView,
+//   workspace_id: &str,
+//   parent_id: Option<String>,
+// ) -> Result<usize, FlowyError> {
+//   let folder_page = FolderPage::build_from_folder_view(folder_view, workspace_id, parent_id);
+//   let affected_rows = diesel::insert_into(folder_table::table)
+//     .values(folder_page)
+//     .execute(conn)
+//     .map_err(|e| {
+//       FlowyError::internal().with_context(format!("Failed to upsert folder page: {}", e))
+//     })?;
+//   Ok(affected_rows)
+// }
 
 /// Flatten a folder view and its children recursively into a folder page list
 ///

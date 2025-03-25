@@ -1,7 +1,9 @@
 use crate::entities::{FolderPageNotificationPayloadPB, FolderViewPB};
 use crate::manager::FolderManager;
 use crate::notification::{send_folder_notification, FolderNotification};
-use crate::services::sqlite_sql::folder_sql::{get_page_by_id, insert_folder_view_with_children};
+use crate::services::sqlite_sql::folder_page_sql::{
+  get_page_by_id, insert_folder_view_with_children,
+};
 
 use async_trait::async_trait;
 use client_api::entity::workspace_dto::{
@@ -186,6 +188,13 @@ pub trait FolderHttpService {
 
 #[async_trait]
 impl FolderHttpService for FolderManager {
+  /// This function will try to return the data from the local database first,
+  ///   if the data is not found, it will try to fetch the data from the cloud service.
+  ///
+  /// # Workflow
+  /// 1. try to get the data from the local database.
+  /// 2. Fetch data from cloud service in the background and persist it
+  /// 3. Return local data if available, otherwise return error
   async fn get_workspace_folder(
     &self,
     workspace_id: &str,
@@ -200,6 +209,7 @@ impl FolderHttpService for FolderManager {
       workspace_id,
       root_view_id.as_deref().unwrap_or(workspace_id),
       depth,
+      true,
     );
 
     // 2. Fetch data from cloud service in the background and persist it
@@ -229,7 +239,7 @@ impl FolderHttpService for FolderManager {
                 folder_view, length
               );
 
-              // send the notification to the client
+              // when the folder is updated, send the notification to the client
               send_folder_notification(
                 &cloud_workspace_id,
                 FolderNotification::DidUpdateFolderPages,
@@ -254,8 +264,19 @@ impl FolderHttpService for FolderManager {
     }
   }
 
+  /// Create a new page and persist it to the local database
+  ///
+  /// # Workflow
+  /// 1. Create a new page in the cloud service
+  /// 2. Persist the page to the local database
+  /// 3. Return the result
   async fn create_page(&self, workspace_id: &str, params: CreatePageParams) -> FlowyResult<()> {
-    self.cloud_service.create_page(workspace_id, params).await?;
+    if let Ok(mut conn) = self.user.sqlite_connection(self.user.user_id()?) {
+      self
+        .sync_worker
+        .create_page(&mut conn, workspace_id, params)
+        .await?;
+    }
     Ok(())
   }
 
@@ -265,10 +286,12 @@ impl FolderHttpService for FolderManager {
     view_id: &str,
     params: UpdatePageParams,
   ) -> FlowyResult<()> {
-    self
-      .cloud_service
-      .update_page(workspace_id, view_id, params)
-      .await?;
+    if let Ok(mut conn) = self.user.sqlite_connection(self.user.user_id()?) {
+      self
+        .sync_worker
+        .update_page(&mut conn, workspace_id, view_id, params)
+        .await?;
+    }
     Ok(())
   }
 

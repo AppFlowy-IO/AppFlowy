@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate num_derive;
-
 pub use collab_folder::ViewLayout;
 
 pub mod entities;
@@ -19,4 +16,5 @@ pub mod http_service;
 pub mod publish_util;
 pub mod services;
 pub mod share;
+mod sync_worker;
 mod util;
