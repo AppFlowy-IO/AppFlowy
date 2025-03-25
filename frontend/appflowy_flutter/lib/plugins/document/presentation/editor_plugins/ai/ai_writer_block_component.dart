@@ -423,28 +423,25 @@ class SecondaryContentArea extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const VSpace(8.0),
+          Container(
+            height: 24.0,
+            padding: EdgeInsets.symmetric(horizontal: 14.0),
+            alignment: AlignmentDirectional.centerStart,
+            child: FlowyText(
+              command.i18n,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF666D76),
+            ),
+          ),
+          const VSpace(4.0),
           Flexible(
             child: SingleChildScrollView(
               physics: ClampingScrollPhysics(),
-              padding: EdgeInsets.only(top: 8.0, left: 14.0, right: 14.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    height: 24.0,
-                    alignment: AlignmentDirectional.centerStart,
-                    child: FlowyText(
-                      command.i18n,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF666D76),
-                    ),
-                  ),
-                  const VSpace(4.0),
-                  AIMarkdownText(
-                    markdown: markdownText,
-                  ),
-                ],
+              padding: EdgeInsets.symmetric(horizontal: 14.0),
+              child: AIMarkdownText(
+                markdown: markdownText,
               ),
             ),
           ),
