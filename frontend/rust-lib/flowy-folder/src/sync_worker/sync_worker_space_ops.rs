@@ -1,23 +1,21 @@
-use client_api::entity::workspace_dto::{
-  CreatePageParams, CreateSpaceParams, MovePageParams, UpdatePageParams,
-};
-use flowy_error::FlowyResult;
+use client_api::entity::workspace_dto::{CreateSpaceParams, UpdateSpaceParams};
+use flowy_error::{FlowyError, FlowyResult};
 
-use crate::services::sqlite_sql::{
-  folder_operation_sql::{upsert_operation, FolderOperation},
-  folder_page_sql::{get_page_by_id, upsert_folder_view, upsert_folder_view_with_children},
+use crate::{
+  services::sqlite_sql::{
+    folder_operation_sql::{upsert_operation, FolderOperation},
+    folder_page_sql::{get_page_by_id, upsert_folder_view},
+  },
+  sync_worker::sync_worker_op_name::MOVE_SPACE_TO_TRASH_OPERATION_NAME,
 };
 
 use super::{
   sync_worker::SyncWorker,
   sync_worker_op_name::{
-    CREATE_PAGE_OPERATION_NAME, DELETE_PAGE_OPERATION_NAME, HTTP_METHOD_POST, HTTP_METHOD_PUT,
-    HTTP_STATUS_PENDING, MOVE_PAGE_OPERATION_NAME, MOVE_PAGE_TO_TRASH_OPERATION_NAME,
-    RESTORE_PAGE_FROM_TRASH_OPERATION_NAME, UPDATE_PAGE_OPERATION_NAME,
+    DELETE_SPACE_OPERATION_NAME, HTTP_METHOD_POST, HTTP_METHOD_PUT, UPDATE_SPACE_OPERATION_NAME,
   },
+  sync_worker_page_ops::SyncWorkerPageOps,
 };
-
-use client_api::entity::workspace_dto::FolderView;
 
 pub trait SyncWorkerSpaceOps {
   async fn create_space(&self, workspace_id: &str, params: CreateSpaceParams) -> FlowyResult<()>;
@@ -27,6 +25,8 @@ pub trait SyncWorkerSpaceOps {
     space_id: &str,
     params: UpdateSpaceParams,
   ) -> FlowyResult<()>;
+  async fn move_space_to_trash(&self, workspace_id: &str, space_id: &str) -> FlowyResult<()>;
+  async fn restore_space_from_trash(&self, workspace_id: &str, space_id: &str) -> FlowyResult<()>;
   async fn delete_space(&self, workspace_id: &str, space_id: &str) -> FlowyResult<()>;
 }
 
@@ -37,188 +37,87 @@ pub trait SyncWorkerSpaceOps {
 // 2. Call the http service to delete a page
 // 3. Persist the page to the local database
 // 4. Send the notification to the client
-impl SyncWorkerPageOps for SyncWorker {
-  /// Create a new page and persist it to the local database
+impl SyncWorkerSpaceOps for SyncWorker {
+  /// Create a new space and persist it to the local database
   ///
   /// # Parameters
   /// * `workspace_id`: The workspace id
-  /// * `params`: The create page params
+  /// * `params`: The create space params
   ///
   /// # Returns
   /// The result of the operation
-  async fn create_page(&self, workspace_id: &str, params: CreatePageParams) -> FlowyResult<()> {
-    let payload = serde_json::to_string(&params).unwrap_or_default();
-    let timestamp = chrono::Utc::now().timestamp_millis();
+  async fn create_space(&self, workspace_id: &str, params: CreateSpaceParams) -> FlowyResult<()> {
+    // todo: implement the offline support
 
-    let operation = FolderOperation::new(
-      workspace_id,
-      None,
-      CREATE_PAGE_OPERATION_NAME,
-      HTTP_METHOD_POST,
-      HTTP_STATUS_PENDING,
-      Some(&payload),
-      timestamp,
-    );
-
-    let parent_view_id = params.parent_view_id;
-    let folder_view = FolderView {
-      view_id: parent_view_id.clone(),
-      name: params.name.unwrap_or_default(),
-      layout: params.layout,
-      ..Default::default()
-    };
-
-    if let Ok(mut conn) = self.user.sqlite_connection(self.user.user_id()?) {
-      upsert_folder_view_with_children(
-        &mut conn,
-        folder_view,
-        workspace_id,
-        Some(parent_view_id.clone()),
-      )?;
-      upsert_operation(&mut conn, operation)?;
-    }
+    self
+      .cloud_service
+      .create_space(workspace_id, params)
+      .await?;
 
     Ok(())
   }
 
-  /// Update a page and persist it to the local database
+  /// Update a space and persist it to the local database
   ///
   /// # Parameters
   /// * `workspace_id`: The workspace id
-  /// * `page_id`: The page id
-  /// * `params`: The update page params
+  /// * `space_id`: The space id
+  /// * `params`: The update space params
   ///
   /// # Returns
   /// The result of the operation
-  async fn update_page(
+  async fn update_space(
     &self,
     workspace_id: &str,
-    page_id: &str,
-    params: UpdatePageParams,
+    space_id: &str,
+    params: UpdateSpaceParams,
   ) -> FlowyResult<()> {
     let payload = serde_json::to_string(&params).unwrap_or_default();
 
     let operation = FolderOperation::pending(
       workspace_id,
-      Some(page_id),
-      UPDATE_PAGE_OPERATION_NAME,
+      Some(space_id),
+      UPDATE_SPACE_OPERATION_NAME,
       HTTP_METHOD_PUT,
       Some(&payload),
     );
 
     if let Ok(mut conn) = self.user.sqlite_connection(self.user.user_id()?) {
-      let folder_view = get_page_by_id(&mut conn, workspace_id, page_id, Some(1), false)?;
-      let folder_view = self.build_update_folder_view(folder_view, params);
-      let parent_view_id = folder_view.parent_view_id.clone();
+      let folder_view = get_page_by_id(&mut conn, workspace_id, space_id, Some(1), false)?;
+      let folder_view = self.build_update_space_view(folder_view, params);
 
-      upsert_folder_view(&mut conn, folder_view, workspace_id, Some(parent_view_id))?;
+      upsert_folder_view(
+        &mut conn,
+        folder_view,
+        workspace_id,
+        Some(workspace_id.to_string()),
+      )?;
       upsert_operation(&mut conn, operation)?;
+
+      return Ok(());
     }
 
-    Ok(())
+    Err(FlowyError::internal().with_context("Failed to update space"))
   }
 
-  /// Move a page and persist it to the local database
+  /// Check the move page to trash function for more details
   ///
-  /// # Parameters
-  /// * `workspace_id`: The workspace id
-  /// * `page_id`: The page id
-  /// * `params`: The move page params
-  ///
-  /// # Returns
-  /// The result of the operation
-  async fn move_page(
-    &self,
-    workspace_id: &str,
-    page_id: &str,
-    params: MovePageParams,
-  ) -> FlowyResult<()> {
-    let payload = serde_json::to_string(&params).unwrap_or_default();
-
-    let operation = FolderOperation::pending(
-      workspace_id,
-      Some(page_id),
-      MOVE_PAGE_OPERATION_NAME,
-      HTTP_METHOD_POST,
-      Some(&payload),
-    );
-
-    if let Ok(mut conn) = self.user.sqlite_connection(self.user.user_id()?) {
-      let folder_view = get_page_by_id(&mut conn, workspace_id, page_id, Some(1), false)?;
-      let folder_view = self.build_moved_folder_view(folder_view, params);
-      let parent_view_id = folder_view.parent_view_id.clone();
-
-      upsert_folder_view(&mut conn, folder_view, workspace_id, Some(parent_view_id))?;
-      upsert_operation(&mut conn, operation)?;
-    }
-
-    Ok(())
+  /// Note: This function share the same workflow as the move page to trash
+  async fn move_space_to_trash(&self, workspace_id: &str, space_id: &str) -> FlowyResult<()> {
+    self.move_page_to_trash(workspace_id, space_id).await
   }
 
-  /// Move the page to the trash and persist it to the local database
+  /// Check the restore page from trash function for more details
   ///
-  /// # Parameters
-  /// * `workspace_id`: The workspace id
-  /// * `page_id`: The page id
-  ///
-  /// # Returns
-  /// The result of the operation
-  async fn move_page_to_trash(&self, workspace_id: &str, page_id: &str) -> FlowyResult<()> {
-    let operation = FolderOperation::pending(
-      workspace_id,
-      Some(page_id),
-      MOVE_PAGE_TO_TRASH_OPERATION_NAME,
-      HTTP_METHOD_POST,
-      None,
-    );
-
-    if let Ok(mut conn) = self.user.sqlite_connection(self.user.user_id()?) {
-      // todo: create a trash table
-      upsert_operation(&mut conn, operation)?;
-    }
-
-    Ok(())
+  /// Note: This function share the same workflow as the restore page from trash
+  async fn restore_space_from_trash(&self, workspace_id: &str, space_id: &str) -> FlowyResult<()> {
+    self.restore_page_from_trash(workspace_id, space_id).await
   }
 
-  /// Restore a page from the trash and persist it to the local database
+  /// Check the delete page function for more details
   ///
-  /// # Parameters
-  /// * `workspace_id`: The workspace id
-  /// * `page_id`: The page id
-  ///
-  /// # Returns
-  /// The result of the operation
-  async fn restore_page_from_trash(&self, workspace_id: &str, page_id: &str) -> FlowyResult<()> {
-    let operation = FolderOperation::pending(
-      workspace_id,
-      Some(page_id),
-      RESTORE_PAGE_FROM_TRASH_OPERATION_NAME,
-      HTTP_METHOD_POST,
-      None,
-    );
-
-    if let Ok(mut conn) = self.user.sqlite_connection(self.user.user_id()?) {
-      // todo: create a trash table
-      upsert_operation(&mut conn, operation)?;
-    }
-
-    Ok(())
-  }
-
-  /// Delete a page and persist it to the local database
-  async fn delete_page(&self, workspace_id: &str, page_id: &str) -> FlowyResult<()> {
-    let operation = FolderOperation::pending(
-      workspace_id,
-      Some(page_id),
-      DELETE_PAGE_OPERATION_NAME,
-      HTTP_METHOD_POST,
-      None,
-    );
-
-    if let Ok(mut conn) = self.user.sqlite_connection(self.user.user_id()?) {
-      upsert_operation(&mut conn, operation)?;
-    }
-
-    Ok(())
+  /// Note: This function share the same workflow as the delete page
+  async fn delete_space(&self, workspace_id: &str, space_id: &str) -> FlowyResult<()> {
+    self.delete_page(workspace_id, space_id).await
   }
 }

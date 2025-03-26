@@ -3,7 +3,9 @@ use flowy_error::FlowyResult;
 
 use crate::services::sqlite_sql::{
   folder_operation_sql::{upsert_operation, FolderOperation},
-  folder_page_sql::{get_page_by_id, upsert_folder_view, upsert_folder_view_with_children},
+  folder_page_sql::{
+    delete_folder_view, get_page_by_id, upsert_folder_view, upsert_folder_view_with_children,
+  },
 };
 
 use super::{
@@ -222,6 +224,7 @@ impl SyncWorkerPageOps for SyncWorker {
     );
 
     if let Ok(mut conn) = self.user.sqlite_connection(self.user.user_id()?) {
+      delete_folder_view(&mut conn, workspace_id, page_id)?;
       upsert_operation(&mut conn, operation)?;
     }
 

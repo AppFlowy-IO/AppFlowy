@@ -5,7 +5,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use client_api::entity::workspace_dto::{
-  CreatePageParams, FolderView, MovePageParams, UpdatePageParams,
+  CreatePageParams, FolderView, MovePageParams, UpdatePageParams, UpdateSpaceParams,
 };
 use flowy_error::FlowyResult;
 use flowy_folder_pub::cloud::FolderCloudService;
@@ -158,6 +158,17 @@ impl SyncWorker {
   ) -> FolderView {
     let mut folder_view = folder_view;
     folder_view.parent_view_id = move_params.new_parent_view_id;
+    folder_view
+  }
+
+  pub fn build_update_space_view(
+    &self,
+    folder_view: FolderView,
+    update_params: UpdateSpaceParams,
+  ) -> FolderView {
+    let mut folder_view = folder_view;
+    folder_view.name = update_params.name;
+    // TODO: update the space icon and color and permission
     folder_view
   }
 }

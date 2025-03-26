@@ -9,6 +9,8 @@ pub const DELETE_PAGE_OPERATION_NAME: &str = "delete_page";
 // Space operations
 pub const CREATE_SPACE_OPERATION_NAME: &str = "create_space";
 pub const UPDATE_SPACE_OPERATION_NAME: &str = "update_space";
+pub const MOVE_SPACE_TO_TRASH_OPERATION_NAME: &str = "move_space_to_trash";
+pub const RESTORE_SPACE_FROM_TRASH_OPERATION_NAME: &str = "restore_space_from_trash";
 pub const DELETE_SPACE_OPERATION_NAME: &str = "delete_space";
 
 // Http methods

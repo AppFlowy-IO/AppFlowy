@@ -275,21 +275,70 @@ pub fn upsert_folder_view(
   Ok(affected_rows)
 }
 
-// pub fn upsert_folder_view(
-//   conn: &mut DBConnection,
-//   folder_view: FolderView,
-//   workspace_id: &str,
-//   parent_id: Option<String>,
-// ) -> Result<usize, FlowyError> {
-//   let folder_page = FolderPage::build_from_folder_view(folder_view, workspace_id, parent_id);
-//   let affected_rows = diesel::insert_into(folder_table::table)
-//     .values(folder_page)
-//     .execute(conn)
-//     .map_err(|e| {
-//       FlowyError::internal().with_context(format!("Failed to upsert folder page: {}", e))
-//     })?;
-//   Ok(affected_rows)
-// }
+/// Delete a FolderView and its children from the database
+///
+/// Note: This function will delete the folder view and all its children
+///
+/// # Arguments
+///
+/// * `conn` - The database connection
+/// * `workspace_id` - The id of the workspace
+/// * `folder_view_id` - The id of the folder view to delete
+///
+/// # Returns
+///
+/// The number of rows affected by the operation
+pub fn delete_folder_view(
+  conn: &mut DBConnection,
+  workspace_id: &str,
+  folder_view_id: &str,
+) -> Result<usize, FlowyError> {
+  let mut pages_to_delete = Vec::new();
+  let mut queue = VecDeque::new();
+
+  queue.push_back(folder_view_id.to_string());
+
+  // Recursively collect all descendants
+  while let Some(current_id) = queue.pop_front() {
+    pages_to_delete.push(current_id.clone());
+
+    // Find all children of the current page
+    let children = folder_table::table
+      .filter(folder_table::parent_id.eq(&current_id))
+      .filter(folder_table::workspace_id.eq(workspace_id))
+      .select(folder_table::id)
+      .load::<String>(conn)
+      .map_err(|e| {
+        FlowyError::internal().with_context(format!("Failed to get child pages: {}", e))
+      })?;
+
+    // Add children to the queue for processing
+    for child_id in children {
+      queue.push_back(child_id);
+    }
+  }
+
+  // Delete all collected pages in a single transaction
+  let affected_rows = conn.transaction::<_, FlowyError, _>(|conn| {
+    let mut total_rows = 0;
+
+    for page_id in pages_to_delete {
+      let result = diesel::delete(folder_table::table)
+        .filter(folder_table::id.eq(page_id))
+        .filter(folder_table::workspace_id.eq(workspace_id))
+        .execute(conn)
+        .map_err(|e| {
+          FlowyError::internal().with_context(format!("Failed to delete folder page: {}", e))
+        })?;
+
+      total_rows += result;
+    }
+
+    Ok(total_rows)
+  })?;
+
+  Ok(affected_rows)
+}
 
 /// Flatten a folder view and its children recursively into a folder page list
 ///
