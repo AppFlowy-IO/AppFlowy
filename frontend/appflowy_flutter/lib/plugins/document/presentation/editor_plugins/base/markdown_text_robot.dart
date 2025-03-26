@@ -1,8 +1,10 @@
 import 'dart:convert';
 
+import 'package:appflowy/plugins/document/presentation/editor_plugins/numbered_list/numbered_list_icon.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:collection/collection.dart';
 import 'package:synchronized/synchronized.dart';
 
 const _enableDebug = false;
@@ -27,6 +29,9 @@ class MarkdownTextRobot {
 
   /// Only for debug via [_enableDebug].
   final List<String> _debugMarkdownTexts = [];
+
+  /// Selection before the refresh.
+  Selection? _previousSelection;
 
   bool get hasAnyResult => _markdownText.isNotEmpty;
 
@@ -56,9 +61,11 @@ class MarkdownTextRobot {
   }
 
   void start({
+    Selection? previousSelection,
     Position? position,
   }) {
-    _insertPosition ??= position ?? editorState.selection?.start;
+    _insertPosition = position ?? editorState.selection?.start;
+    _previousSelection = previousSelection ?? editorState.selection;
 
     if (_enableDebug) {
       Log.info(
@@ -148,9 +155,13 @@ class MarkdownTextRobot {
     }
   }
 
-  void reset() {
+  void clear() {
     _markdownText = '';
     _insertedNodes = [];
+  }
+
+  void reset() {
+    _insertPosition = null;
   }
 
   Future<void> _refresh({
@@ -171,11 +182,40 @@ class MarkdownTextRobot {
       tableWidth: 250.0,
     ).root.children;
 
+    // check if the first selected node before the refresh is a numbered list node
+    final previousSelection = _previousSelection;
+    final previousSelectedNode = previousSelection == null
+        ? null
+        : editorState.getNodeAtPath(previousSelection.start.path);
+    final firstNodeIsNumberedList = previousSelectedNode != null &&
+        previousSelectedNode.type == NumberedListBlockKeys.type;
+
     final newNodes = attributes == null
         ? documentNodes
-        : documentNodes
-            .map((node) => _styleDelta(node: node, attributes: attributes))
-            .toList();
+        : documentNodes.mapIndexed((index, node) {
+            final n = _styleDelta(node: node, attributes: attributes);
+            n.externalValues = AINodeExternalValues(
+              isAINode: true,
+            );
+            if (index == 0 && n.type == NumberedListBlockKeys.type) {
+              if (firstNodeIsNumberedList) {
+                final builder = NumberedListIndexBuilder(
+                  editorState: editorState,
+                  node: previousSelectedNode,
+                );
+                final firstIndex = builder.indexInSameLevel;
+                n.updateAttributes({
+                  NumberedListBlockKeys.number: firstIndex,
+                });
+              }
+
+              n.externalValues = AINodeExternalValues(
+                isAINode: true,
+                isFirstNumberedListNode: true,
+              );
+            }
+            return n;
+          }).toList();
 
     if (newNodes.isEmpty) {
       return;
@@ -242,4 +282,14 @@ class MarkdownTextRobot {
       children: children,
     );
   }
+}
+
+class AINodeExternalValues extends NodeExternalValues {
+  const AINodeExternalValues({
+    this.isAINode = false,
+    this.isFirstNumberedListNode = false,
+  });
+
+  final bool isAINode;
+  final bool isFirstNumberedListNode;
 }

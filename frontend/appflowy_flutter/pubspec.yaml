@@ -4,7 +4,7 @@ description: Bring projects, wikis, and teams together with AI. AppFlowy is an
   your data. The best open source alternative to Notion.
 publish_to: "none"
 
-version: 0.8.7
+version: 0.8.8
 
 environment:
   flutter: ">=3.27.4"
@@ -180,13 +180,13 @@ dependency_overrides:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor.git
-      ref: "50f9724"
+      ref: "f46e991"
 
   appflowy_editor_plugins:
     git:
       url: https://github.com/AppFlowy-IO/AppFlowy-plugins.git
       path: "packages/appflowy_editor_plugins"
-      ref: "ca8289099e40e0d6ad0605fbbe01fde3091538bb"
+      ref: "4efcff7"
 
   sheet:
     git:
