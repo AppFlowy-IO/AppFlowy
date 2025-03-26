@@ -193,6 +193,10 @@ impl LocalAIController {
   /// AppFlowy store the value in local storage isolated by workspace id. Each workspace can have
   /// different settings.
   pub fn is_enabled(&self) -> bool {
+    if !get_operating_system().is_desktop() {
+      return false;
+    }
+
     if let Ok(key) = self
       .user_service
       .workspace_id()
@@ -202,6 +206,13 @@ impl LocalAIController {
     } else {
       false
     }
+  }
+
+  pub fn get_plugin_chat_model(&self) -> Option<String> {
+    if !self.is_enabled() {
+      return None;
+    }
+    Some(self.resource.get_llm_setting().chat_model_name)
   }
 
   pub fn open_chat(&self, chat_id: &str) {

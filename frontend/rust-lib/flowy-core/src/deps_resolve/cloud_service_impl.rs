@@ -25,7 +25,7 @@ use collab_integrate::collab_builder::{
   CollabCloudPluginProvider, CollabPluginProviderContext, CollabPluginProviderType,
 };
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
+  AIModel, ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
   CompleteTextParams, LocalAIConfig, MessageCursor, ModelList, RepeatedChatMessage, ResponseFormat,
   StreamAnswer, StreamComplete, SubscriptionPlan, UpdateChatParams,
 };
@@ -864,13 +864,14 @@ impl ChatCloudService for ServerProvider {
     chat_id: &str,
     message_id: i64,
     format: ResponseFormat,
+    ai_model: Option<AIModel>,
   ) -> Result<StreamAnswer, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let chat_id = chat_id.to_string();
     let server = self.get_server()?;
     server
       .chat_service()
-      .stream_answer(&workspace_id, &chat_id, message_id, format)
+      .stream_answer(&workspace_id, &chat_id, message_id, format, ai_model)
       .await
   }
 
@@ -931,12 +932,13 @@ impl ChatCloudService for ServerProvider {
     &self,
     workspace_id: &str,
     params: CompleteTextParams,
+    ai_model: Option<AIModel>,
   ) -> Result<StreamComplete, FlowyError> {
     let workspace_id = workspace_id.to_string();
     let server = self.get_server()?;
     server
       .chat_service()
-      .stream_complete(&workspace_id, params)
+      .stream_complete(&workspace_id, params, ai_model)
       .await
   }
 
@@ -1003,6 +1005,14 @@ impl ChatCloudService for ServerProvider {
       .get_server()?
       .chat_service()
       .get_available_models(workspace_id)
+      .await
+  }
+
+  async fn get_workspace_default_model(&self, workspace_id: &str) -> Result<String, FlowyError> {
+    self
+      .get_server()?
+      .chat_service()
+      .get_workspace_default_model(workspace_id)
       .await
   }
 }

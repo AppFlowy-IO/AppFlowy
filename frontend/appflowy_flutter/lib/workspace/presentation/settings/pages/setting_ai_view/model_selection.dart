@@ -38,8 +38,8 @@ class AIModelSelection extends StatelessWidget {
                       .map(
                         (model) => buildDropdownMenuEntry<String>(
                           context,
-                          value: model,
-                          label: model,
+                          value: model.name,
+                          label: model.name,
                         ),
                       )
                       .toList(),

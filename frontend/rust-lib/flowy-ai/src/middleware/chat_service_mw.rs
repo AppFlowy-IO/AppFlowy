@@ -9,7 +9,7 @@ use appflowy_plugin::error::PluginError;
 use std::collections::HashMap;
 
 use flowy_ai_pub::cloud::{
-  AppErrorCode, AppResponseError, ChatCloudService, ChatMessage, ChatMessageMetadata,
+  AIModel, AppErrorCode, AppResponseError, ChatCloudService, ChatMessage, ChatMessageMetadata,
   ChatMessageType, ChatSettings, CompleteTextParams, CompletionStream, LocalAIConfig,
   MessageCursor, ModelList, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
   ResponseFormat, StreamAnswer, StreamComplete, SubscriptionPlan, UpdateChatParams,
@@ -25,7 +25,7 @@ use futures_util::SinkExt;
 use serde_json::{json, Value};
 use std::path::Path;
 use std::sync::{Arc, Weak};
-use tracing::trace;
+use tracing::{info, trace};
 
 pub struct AICloudServiceMiddleware {
   cloud_service: Arc<dyn ChatCloudService>,
@@ -156,12 +156,19 @@ impl ChatCloudService for AICloudServiceMiddleware {
     &self,
     workspace_id: &str,
     chat_id: &str,
-    question_id: i64,
+    message_id: i64,
     format: ResponseFormat,
+    ai_model: Option<AIModel>,
   ) -> Result<StreamAnswer, FlowyError> {
-    if self.local_ai.is_enabled() {
+    let use_local_ai = match &ai_model {
+      None => false,
+      Some(model) => model.is_local,
+    };
+
+    info!("stream_answer use model: {:?}", ai_model);
+    if use_local_ai {
       if self.local_ai.is_running() {
-        let row = self.get_message_record(question_id)?;
+        let row = self.get_message_record(message_id)?;
         match self
           .local_ai
           .stream_question(chat_id, &row.content, Some(json!(format)), json!({}))
@@ -179,7 +186,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
     } else {
       self
         .cloud_service
-        .stream_answer(workspace_id, chat_id, question_id, format)
+        .stream_answer(workspace_id, chat_id, message_id, format, ai_model)
         .await
     }
   }
@@ -273,34 +280,45 @@ impl ChatCloudService for AICloudServiceMiddleware {
     &self,
     workspace_id: &str,
     params: CompleteTextParams,
+    ai_model: Option<AIModel>,
   ) -> Result<StreamComplete, FlowyError> {
-    if self.local_ai.is_running() {
-      match self
-        .local_ai
-        .complete_text_v2(
-          &params.text,
-          params.completion_type.unwrap() as u8,
-          Some(json!(params.format)),
-          Some(json!(params.metadata)),
-        )
-        .await
-      {
-        Ok(stream) => Ok(
-          CompletionStream::new(
-            stream.map_err(|err| AppResponseError::new(AppErrorCode::Internal, err.to_string())),
+    let use_local_ai = match &ai_model {
+      None => false,
+      Some(model) => model.is_local,
+    };
+
+    info!("stream_complete use model: {:?}", ai_model);
+    if use_local_ai {
+      if self.local_ai.is_running() {
+        match self
+          .local_ai
+          .complete_text_v2(
+            &params.text,
+            params.completion_type.unwrap() as u8,
+            Some(json!(params.format)),
+            Some(json!(params.metadata)),
           )
-          .map_err(FlowyError::from)
-          .boxed(),
-        ),
-        Err(err) => {
-          self.handle_plugin_error(err);
-          Ok(stream::once(async { Err(FlowyError::local_ai_unavailable()) }).boxed())
-        },
+          .await
+        {
+          Ok(stream) => Ok(
+            CompletionStream::new(
+              stream.map_err(|err| AppResponseError::new(AppErrorCode::Internal, err.to_string())),
+            )
+            .map_err(FlowyError::from)
+            .boxed(),
+          ),
+          Err(err) => {
+            self.handle_plugin_error(err);
+            Ok(stream::once(async { Err(FlowyError::local_ai_unavailable()) }).boxed())
+          },
+        }
+      } else {
+        Err(FlowyError::local_ai_not_ready())
       }
     } else {
       self
         .cloud_service
-        .stream_complete(workspace_id, params)
+        .stream_complete(workspace_id, params, ai_model)
         .await
     }
   }
@@ -363,5 +381,12 @@ impl ChatCloudService for AICloudServiceMiddleware {
 
   async fn get_available_models(&self, workspace_id: &str) -> Result<ModelList, FlowyError> {
     self.cloud_service.get_available_models(workspace_id).await
+  }
+
+  async fn get_workspace_default_model(&self, workspace_id: &str) -> Result<String, FlowyError> {
+    self
+      .cloud_service
+      .get_workspace_default_model(workspace_id)
+      .await
   }
 }

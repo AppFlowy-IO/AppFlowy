@@ -41,7 +41,7 @@ class _MobileChatInputState extends State<MobileChatInput> {
   void initState() {
     super.initState();
 
-    textController.addListener(handleTextControllerChange);
+    textController.addListener(handleTextControllerChanged);
     // focusNode.onKeyEvent = handleKeyEvent;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -197,7 +197,7 @@ class _MobileChatInputState extends State<MobileChatInput> {
     );
   }
 
-  void handleTextControllerChange() {
+  void handleTextControllerChanged() {
     if (textController.value.isComposingRangeValid) {
       return;
     }

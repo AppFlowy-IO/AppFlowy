@@ -7,7 +7,6 @@ use crate::entities::*;
 use flowy_ai_pub::cloud::{ChatMessageMetadata, ChatMessageType, ChatRAGData, ContextLoader};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
-use serde_json::json;
 use std::sync::{Arc, Weak};
 use tracing::trace;
 use validator::Validate;
@@ -69,8 +68,8 @@ pub(crate) async fn stream_chat_message_handler(
   trace!("Stream chat message with metadata: {:?}", metadata);
 
   let params = StreamMessageParams {
-    chat_id: &chat_id,
-    message: &message,
+    chat_id,
+    message,
     message_type,
     answer_stream_port,
     question_stream_port,
@@ -79,7 +78,7 @@ pub(crate) async fn stream_chat_message_handler(
   };
 
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let result = ai_manager.stream_chat_message(&params).await?;
+  let result = ai_manager.stream_chat_message(params).await?;
   data_result_ok(result)
 }
 
@@ -103,19 +102,39 @@ pub(crate) async fn regenerate_response_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn get_model_list_handler(
+pub(crate) async fn get_server_model_list_handler(
   ai_manager: AFPluginState<Weak<AIManager>>,
-) -> DataResult<ModelConfigPB, FlowyError> {
+) -> DataResult<ServerAvailableModelsPB, FlowyError> {
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let available_models = ai_manager.get_available_models().await?;
-  let models = available_models
-    .models
+  let models = ai_manager.get_server_available_models().await?;
+  let models = models
     .into_iter()
-    .map(|m| m.name)
-    .collect::<Vec<String>>();
+    .map(AvailableModelPB::from)
+    .collect::<Vec<_>>();
+  data_result_ok(ServerAvailableModelsPB { models })
+}
 
-  let models = serde_json::to_string(&json!({"models": models}))?;
-  data_result_ok(ModelConfigPB { models })
+#[tracing::instrument(level = "debug", skip_all, err)]
+pub(crate) async fn get_chat_models_handler(
+  data: AFPluginData<AvailableModelsQueryPB>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> DataResult<AvailableModelsPB, FlowyError> {
+  let data = data.try_into_inner()?;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let models = ai_manager.get_available_models(data.source).await?;
+  data_result_ok(models)
+}
+
+pub(crate) async fn update_selected_model_handler(
+  data: AFPluginData<UpdateSelectedModelPB>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
+) -> Result<(), FlowyError> {
+  let data = data.try_into_inner()?;
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  ai_manager
+    .update_selected_model(data.source, data.selected_model)
+    .await?;
+  Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]

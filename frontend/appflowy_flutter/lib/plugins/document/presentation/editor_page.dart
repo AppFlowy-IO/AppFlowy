@@ -393,7 +393,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
           },
           child: SizedBox(
             width: double.infinity,
-            height: UniversalPlatform.isDesktopOrWeb ? 300 : 400,
+            height: UniversalPlatform.isDesktopOrWeb ? 600 : 400,
           ),
         ),
         dropTargetStyle: AppFlowyDropTargetStyle(
