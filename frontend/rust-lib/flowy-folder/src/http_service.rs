@@ -2,7 +2,7 @@ use crate::entities::FolderPageNotificationPayloadPB;
 use crate::manager::FolderManager;
 use crate::notification::{send_folder_notification_with_payload, FolderNotification};
 use crate::services::sqlite_sql::folder_page_sql::{
-  get_page_by_id, upsert_folder_view_with_children,
+  get_page_by_id, overwrite_folder_table, upsert_folder_view_with_children,
 };
 use crate::sync_worker::sync_worker_page_ops::SyncWorkerPageOps;
 use crate::sync_worker::sync_worker_space_ops::SyncWorkerSpaceOps;
@@ -227,7 +227,7 @@ impl FolderHttpService for FolderManager {
         // Save the data to the local database
         if let Ok(mut conn) = user.sqlite_connection(uid) {
           let parent_view_id = folder_view.parent_view_id.clone();
-          let length = upsert_folder_view_with_children(
+          let length = overwrite_folder_table(
             &mut conn,
             folder_view.clone(),
             &cloud_workspace_id,
