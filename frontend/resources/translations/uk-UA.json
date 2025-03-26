@@ -64,7 +64,7 @@
     "settings": "Налаштування",
     "magicLinkSent": "Magic Link надіслано!",
     "invalidEmail": "Будь ласка, введіть дійсну адресу електронної пошти",
-    "alreadyHaveAnAccount": "Вже є аккаунт?",
+    "alreadyHaveAnAccount": "Вже є акаунт?",
     "logIn": "Авторизуватися",
     "generalError": "Щось пішло не так. Будь ласка спробуйте пізніше",
     "limitRateError": "З міркувань безпеки ви можете запитувати чарівне посилання лише кожні 60 секунд",
@@ -362,7 +362,7 @@
     "helpCenter": "Центр допомоги",
     "add": "Додати",
     "yes": "Так",
-    "no": "Немає",
+    "no": "Ні",
     "clear": "Очистити",
     "remove": "Видалити",
     "dontRemove": "Не видаляйте",
@@ -810,7 +810,7 @@
           "description": "Ви впевнені, що хочете видалити {plan}? Ви негайно втратите доступ до функцій і переваг {plan}."
         }
       },
-      "currentPeriodBadge": "ПОТОМ",
+      "currentPeriodBadge": "ПОТОЧНИЙ",
       "changePeriod": "Період зміни",
       "planPeriod": "{} період",
       "monthlyInterval": "Щомісяця",

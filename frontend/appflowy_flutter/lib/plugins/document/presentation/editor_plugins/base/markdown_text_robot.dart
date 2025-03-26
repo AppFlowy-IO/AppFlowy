@@ -58,7 +58,7 @@ class MarkdownTextRobot {
   void start({
     Position? position,
   }) {
-    _insertPosition ??= position ?? editorState.selection?.start;
+    _insertPosition = position ?? editorState.selection?.start;
 
     if (_enableDebug) {
       Log.info(
@@ -148,9 +148,13 @@ class MarkdownTextRobot {
     }
   }
 
-  void reset() {
+  void clear() {
     _markdownText = '';
     _insertedNodes = [];
+  }
+
+  void reset() {
+    _insertPosition = null;
   }
 
   Future<void> _refresh({
