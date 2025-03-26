@@ -13,21 +13,14 @@ use crate::notification::{
   send_current_workspace_notification, workspace_notification_builder, FolderNotification,
 };
 use crate::publish_util::{generate_publish_name, view_pb_to_publish_view};
-use crate::services::sqlite_sql::folder_page_sql::{
-  get_page_by_id, upsert_folder_view_with_children,
-};
 use crate::share::{ImportData, ImportItem, ImportParams};
-use crate::sync_worker::SyncWorker;
+use crate::sync_worker::sync_worker::SyncWorker;
 use crate::util::{folder_not_init_error, workspace_data_not_sync_error};
 use crate::view_operation::{
   create_view, FolderOperationHandler, FolderOperationHandlers, GatherEncodedCollab, ViewData,
 };
 use arc_swap::ArcSwapOption;
-use client_api::entity::workspace_dto::{
-  CreatePageParams, CreateSpaceParams, DuplicatePageParams, FavoriteFolderView, FavoritePageParams,
-  FolderView, MovePageParams, PublishInfoView, RecentFolderView, TrashFolderView, UpdatePageParams,
-  UpdateSpaceParams,
-};
+use client_api::entity::workspace_dto::PublishInfoView;
 use client_api::entity::PublishInfo;
 use collab::core::collab::DataSource;
 use collab::lock::RwLock;
@@ -85,6 +78,7 @@ impl FolderManager {
     store_preferences: Arc<KVStorePreferences>,
   ) -> FlowyResult<Self> {
     let cloned_cloud_service = cloud_service.clone();
+    let cloned_user = user.clone();
     let manager = Self {
       user,
       mutex_folder: Default::default(),
@@ -93,7 +87,7 @@ impl FolderManager {
       cloud_service,
       folder_indexer,
       store_preferences,
-      sync_worker: Arc::new(SyncWorker::new(cloned_cloud_service)),
+      sync_worker: Arc::new(SyncWorker::new(cloned_cloud_service, cloned_user)),
     };
 
     Ok(manager)

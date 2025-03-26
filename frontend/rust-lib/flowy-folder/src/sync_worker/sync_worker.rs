@@ -13,6 +13,7 @@ use tracing::{error, info};
 
 const CREATE_PAGE_OPERATION_NAME: &str = "create_page";
 const UPDATE_PAGE_OPERATION_NAME: &str = "update_page";
+const MOVE_PAGE_OPERATION_NAME: &str = "move_page";
 
 const HTTP_METHOD_POST: &str = "POST";
 const HTTP_METHOD_PUT: &str = "PUT";
@@ -21,23 +22,32 @@ const HTTP_METHOD_DELETE: &str = "DELETE";
 const HTTP_STATUS_PENDING: &str = "pending";
 const HTTP_STATUS_COMPLETED: &str = "completed";
 
-use crate::services::sqlite_sql::{
-  folder_operation_sql::{
-    get_pending_operations_by_workspace_id, update_operation_status, upsert_operation,
-    FolderOperation,
+use crate::{
+  manager::FolderUser,
+  services::sqlite_sql::{
+    folder_operation_sql::{
+      get_pending_operations_by_workspace_id, update_operation_status, upsert_operation,
+      FolderOperation,
+    },
+    folder_page_sql::{get_page_by_id, upsert_folder_view, upsert_folder_view_with_children},
   },
-  folder_page_sql::{get_page_by_id, upsert_folder_view, upsert_folder_view_with_children},
 };
 
 #[derive(Clone)]
 pub struct SyncWorker {
   /// The cloud service to sync the data with
   pub(crate) cloud_service: Arc<dyn FolderCloudService>,
+
+  /// The user to sync the data with
+  pub(crate) user: Arc<dyn FolderUser>,
 }
 
 impl SyncWorker {
-  pub fn new(cloud_service: Arc<dyn FolderCloudService>) -> Self {
-    Self { cloud_service }
+  pub fn new(cloud_service: Arc<dyn FolderCloudService>, user: Arc<dyn FolderUser>) -> Self {
+    Self {
+      cloud_service,
+      user,
+    }
   }
 
   /// Create a new page and persist it to the local database
@@ -47,12 +57,7 @@ impl SyncWorker {
   /// 2. Call the http service to create a new page
   /// 3. Persist the page to the local database
   /// 4. Send the notification to the client
-  pub async fn create_page(
-    &self,
-    conn: &mut DBConnection,
-    workspace_id: &str,
-    params: CreatePageParams,
-  ) -> FlowyResult<()> {
+  pub async fn create_page(&self, workspace_id: &str, params: CreatePageParams) -> FlowyResult<()> {
     let payload = serde_json::to_string(&params).unwrap_or_default();
     let timestamp = chrono::Utc::now().timestamp_millis();
 
@@ -74,13 +79,15 @@ impl SyncWorker {
       ..Default::default()
     };
 
-    upsert_folder_view_with_children(
-      conn,
-      folder_view,
-      workspace_id,
-      Some(parent_view_id.clone()),
-    )?;
-    upsert_operation(conn, operation)?;
+    if let Ok(mut conn) = self.user.sqlite_connection(self.user.user_id()?) {
+      upsert_folder_view_with_children(
+        &mut conn,
+        folder_view,
+        workspace_id,
+        Some(parent_view_id.clone()),
+      )?;
+      upsert_operation(&mut conn, operation)?;
+    }
 
     Ok(())
   }
@@ -102,7 +109,7 @@ impl SyncWorker {
   /// The result of the operation
   pub async fn update_page(
     &self,
-    conn: &mut DBConnection,
+
     workspace_id: &str,
     page_id: &str,
     params: UpdatePageParams,
@@ -120,12 +127,14 @@ impl SyncWorker {
       timestamp,
     );
 
-    let folder_view = get_page_by_id(conn, workspace_id, page_id, Some(1), false)?;
-    let folder_view = self.update_folder_view(folder_view, params);
-    let parent_view_id = folder_view.parent_view_id.clone();
+    if let Ok(mut conn) = self.user.sqlite_connection(self.user.user_id()?) {
+      let folder_view = get_page_by_id(&mut conn, workspace_id, page_id, Some(1), false)?;
+      let folder_view = self.update_folder_view(folder_view, params);
+      let parent_view_id = folder_view.parent_view_id.clone();
 
-    upsert_folder_view(conn, folder_view, workspace_id, Some(parent_view_id))?;
-    upsert_operation(conn, operation)?;
+      upsert_folder_view(&mut conn, folder_view, workspace_id, Some(parent_view_id))?;
+      upsert_operation(&mut conn, operation)?;
+    }
 
     Ok(())
   }

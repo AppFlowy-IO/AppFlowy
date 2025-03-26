@@ -271,13 +271,7 @@ impl FolderHttpService for FolderManager {
   /// 2. Persist the page to the local database
   /// 3. Return the result
   async fn create_page(&self, workspace_id: &str, params: CreatePageParams) -> FlowyResult<()> {
-    if let Ok(mut conn) = self.user.sqlite_connection(self.user.user_id()?) {
-      self
-        .sync_worker
-        .create_page(&mut conn, workspace_id, params)
-        .await?;
-    }
-    Ok(())
+    self.sync_worker.create_page(workspace_id, params).await
   }
 
   async fn update_page(
@@ -286,13 +280,10 @@ impl FolderHttpService for FolderManager {
     view_id: &str,
     params: UpdatePageParams,
   ) -> FlowyResult<()> {
-    if let Ok(mut conn) = self.user.sqlite_connection(self.user.user_id()?) {
-      self
-        .sync_worker
-        .update_page(&mut conn, workspace_id, view_id, params)
-        .await?;
-    }
-    Ok(())
+    self
+      .sync_worker
+      .update_page(workspace_id, view_id, params)
+      .await
   }
 
   async fn move_page_to_trash(&self, workspace_id: &str, view_id: &str) -> FlowyResult<()> {
