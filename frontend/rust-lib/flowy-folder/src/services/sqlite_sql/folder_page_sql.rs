@@ -202,6 +202,64 @@ fn get_page_children_by_id(
   Ok(children_views)
 }
 
+/// Overwrite the folder table with a new folder view
+///
+/// # Arguments
+///
+/// * `conn` - The database connection
+/// * `folder_view` - The folder view to overwrite
+/// * `workspace_id` - The id of the workspace
+/// * `parent_id` - The id of the parent page
+///
+/// # Returns
+///
+/// The number of rows affected by the operation
+pub fn overwrite_folder_table(
+  conn: &mut DBConnection,
+  folder_view: FolderView,
+  workspace_id: &str,
+  parent_id: Option<String>,
+) -> Result<usize, FlowyError> {
+  let folder_pages = flatten_folder_view(folder_view, workspace_id, parent_id)?;
+  let affected_rows = conn.transaction::<_, FlowyError, _>(|conn| {
+    let mut total_rows = 0;
+
+    // remove all the pages are not in the new folder view
+    let new_page_ids = folder_pages
+      .iter()
+      .map(|p| p.id.clone())
+      .collect::<Vec<String>>();
+    let result = diesel::delete(folder_table::table)
+      .filter(folder_table::workspace_id.eq(workspace_id))
+      .filter(folder_table::id.eq_any(new_page_ids))
+      .execute(conn)
+      .map_err(|e| {
+        FlowyError::internal().with_context(format!("Failed to remove old pages: {}", e))
+      })?;
+
+    total_rows += result;
+
+    // upsert the folder pages
+    for folder_page in folder_pages {
+      let result = diesel::insert_into(folder_table::table)
+        .values(&folder_page)
+        .on_conflict(folder_table::id)
+        .do_update()
+        .set(&folder_page)
+        .execute(conn)
+        .map_err(|e| {
+          FlowyError::internal().with_context(format!("Failed to overwrite folder table: {}", e))
+        })?;
+
+      total_rows += result;
+    }
+
+    Ok(total_rows)
+  })?;
+
+  Ok(affected_rows)
+}
+
 /// Upsert a FolderView and its children into the database
 ///
 /// # Arguments

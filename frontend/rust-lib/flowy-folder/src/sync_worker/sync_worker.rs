@@ -58,10 +58,13 @@ impl SyncWorker {
           Ok(operations) => {
             if !operations.is_empty() {
               info!("Processing {} pending operations", operations.len());
+
+              let mut has_error = false;
               for operation in operations {
                 let cloned_operation = operation.clone();
                 if let Err(e) = cloned_self.process_operation(&mut conn, operation).await {
                   error!("Failed to process operation: {}", e);
+                  has_error = true;
                   break;
                 } else {
                   info!(
@@ -70,9 +73,14 @@ impl SyncWorker {
                   );
                 }
               }
-            } else {
-              // If there are no pending operations, send the notification to the client
-              send_folder_notification(&workspace_id, FolderNotification::DidSyncPendingOperations);
+
+              // If all the operations are processed successfully, send the notification to the client
+              if !has_error {
+                send_folder_notification(
+                  &workspace_id,
+                  FolderNotification::DidSyncPendingOperations,
+                );
+              }
             }
           },
           Err(e) => {
