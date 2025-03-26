@@ -64,7 +64,7 @@ class MarkdownTextRobot {
     Selection? previousSelection,
     Position? position,
   }) {
-    _insertPosition ??= position ?? editorState.selection?.start;
+    _insertPosition = position ?? editorState.selection?.start;
     _previousSelection = previousSelection ?? editorState.selection;
 
     if (_enableDebug) {
@@ -147,7 +147,7 @@ class MarkdownTextRobot {
 
     await editorState.apply(
       transaction,
-      options: const ApplyOptions(recordUndo: false),
+      options: const ApplyOptions(recordUndo: false, inMemoryUpdate: true),
     );
 
     if (_enableDebug) {
@@ -155,9 +155,12 @@ class MarkdownTextRobot {
     }
   }
 
-  void reset() {
+  void clear() {
     _markdownText = '';
     _insertedNodes = [];
+  }
+
+  void reset() {
     _insertPosition = null;
   }
 

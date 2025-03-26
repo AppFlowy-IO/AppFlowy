@@ -11,11 +11,11 @@ collab-folder = { workspace = true }
 
 flowy-derive.workspace = true
 flowy-error = { workspace = true, features = [
-    "impl_from_sqlite",
-    "impl_from_dispatch_error",
-    "impl_from_collab_document",
-    "impl_from_tantivy",
-    "impl_from_serde",
+  "impl_from_sqlite",
+  "impl_from_dispatch_error",
+  "impl_from_collab_document",
+  "impl_from_tantivy",
+  "impl_from_serde",
 ] }
 flowy-notification.workspace = true
 flowy-sqlite.workspace = true
@@ -52,4 +52,3 @@ tempfile = "3.10.0"
 
 [features]
 dart = ["flowy-codegen/dart"]
-tauri_ts = ["flowy-codegen/ts"]

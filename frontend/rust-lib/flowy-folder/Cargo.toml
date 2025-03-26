@@ -50,6 +50,4 @@ flowy-codegen.workspace = true
 
 [features]
 dart = ["flowy-codegen/dart", "flowy-notification/dart"]
-tauri_ts = ["flowy-codegen/ts", "flowy-notification/tauri_ts"]
-web_ts = ["flowy-codegen/ts", "flowy-notification/web_ts"]
 test_helper = []

@@ -73,6 +73,7 @@ class AIChatPage extends StatelessWidget {
         /// [AIPromptInputBloc] is used to handle the user prompt
         BlocProvider(
           create: (_) => AIPromptInputBloc(
+            objectId: view.id,
             predefinedFormat: PredefinedFormat(
               imageFormat: ImageFormat.text,
               textFormat: TextFormat.bulletList,
@@ -384,12 +385,25 @@ class _ChatContentPage extends StatelessWidget {
   }
 }
 
-class _Input extends StatelessWidget {
+class _Input extends StatefulWidget {
   const _Input({
     required this.view,
   });
 
   final ViewPB view;
+
+  @override
+  State<_Input> createState() => _InputState();
+}
+
+class _InputState extends State<_Input> {
+  final textController = TextEditingController();
+
+  @override
+  void dispose() {
+    textController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -420,6 +434,7 @@ class _Input extends StatelessWidget {
                       return UniversalPlatform.isDesktop
                           ? DesktopPromptInput(
                               isStreaming: !canSendMessage,
+                              textController: textController,
                               onStopStreaming: () {
                                 chatBloc.add(const ChatEvent.stopStream());
                               },

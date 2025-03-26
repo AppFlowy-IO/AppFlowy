@@ -1,6 +1,6 @@
 use client_api::entity::ai_dto::{LocalAIConfig, RepeatedRelatedQuestion};
 use flowy_ai_pub::cloud::{
-  ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
+  AIModel, ChatCloudService, ChatMessage, ChatMessageMetadata, ChatMessageType, ChatSettings,
   CompleteTextParams, MessageCursor, ModelList, RepeatedChatMessage, ResponseFormat, StreamAnswer,
   StreamComplete, SubscriptionPlan, UpdateChatParams,
 };
@@ -52,6 +52,7 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     _chat_id: &str,
     _message_id: i64,
     _format: ResponseFormat,
+    _ai_model: Option<AIModel>,
   ) -> Result<StreamAnswer, FlowyError> {
     Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
@@ -97,6 +98,7 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
     &self,
     _workspace_id: &str,
     _params: CompleteTextParams,
+    _ai_model: Option<AIModel>,
   ) -> Result<StreamComplete, FlowyError> {
     Err(FlowyError::not_support().with_context("complete text is not supported in local server."))
   }
@@ -146,6 +148,10 @@ impl ChatCloudService for DefaultChatCloudServiceImpl {
   }
 
   async fn get_available_models(&self, _workspace_id: &str) -> Result<ModelList, FlowyError> {
+    Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
+  }
+
+  async fn get_workspace_default_model(&self, _workspace_id: &str) -> Result<String, FlowyError> {
     Err(FlowyError::not_support().with_context("Chat is not supported in local server."))
   }
 }

@@ -1,14 +1,8 @@
 import 'dart:async';
 
-import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/ai/service/ai_input_control.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
-import 'package:appflowy/workspace/application/settings/ai/local_llm_listener.dart';
-import 'package:appflowy_backend/dispatch/dispatch.dart';
-import 'package:appflowy_backend/log.dart';
-import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
-import 'package:appflowy_result/appflowy_result.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -18,19 +12,19 @@ part 'ai_prompt_input_bloc.freezed.dart';
 
 class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
   AIPromptInputBloc({
+    required String objectId,
     required PredefinedFormat? predefinedFormat,
-  })  : _listener = LocalAIStateListener(),
-        super(AIPromptInputState.initial(predefinedFormat)) {
+  })  : _aiModelStateNotifier = AIModelStateNotifier(objectId: objectId),
+        super(AIPromptInputState.initial(objectId, predefinedFormat)) {
     _dispatch();
-    _startListening();
     _init();
   }
 
-  final LocalAIStateListener _listener;
+  final AIModelStateNotifier _aiModelStateNotifier;
 
   @override
   Future<void> close() async {
-    await _listener.stop();
+    await _aiModelStateNotifier.stop();
     return super.close();
   }
 
@@ -38,29 +32,11 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
     on<AIPromptInputEvent>(
       (event, emit) {
         event.when(
-          updateAIState: (localAIState) {
-            final aiType = localAIState.enabled ? AiType.local : AiType.cloud;
-            // final supportChatWithFile =
-            //     aiType.isLocal && localAIState.state == RunningStatePB.Running;
-            // If local ai is enabled, user can only send messages when the AI is running
-            final editable = localAIState.enabled
-                ? localAIState.state == RunningStatePB.Running
-                : true;
-
-            var hintText = aiType.isLocal
-                ? LocaleKeys.chat_inputLocalAIMessageHint.tr()
-                : LocaleKeys.chat_inputMessageHint.tr();
-
-            if (editable == false && aiType.isLocal) {
-              hintText =
-                  LocaleKeys.settings_aiPage_keys_localAIInitializing.tr();
-            }
-
+          updateAIState: (aiType, editable, hintText) {
             emit(
               state.copyWith(
                 aiType: aiType,
                 supportChatWithFile: false,
-                localAIState: localAIState,
                 editable: editable,
                 hintText: hintText,
               ),
@@ -127,25 +103,16 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
     );
   }
 
-  void _startListening() {
-    _listener.start(
-      stateCallback: (pluginState) {
-        if (!isClosed) {
-          add(AIPromptInputEvent.updateAIState(pluginState));
-        }
-      },
-    );
-  }
-
   void _init() {
-    AIEventGetLocalAIState().send().fold(
-      (localAIState) {
+    _aiModelStateNotifier.startListening(
+      onChanged: (aiType, editable, hintText) {
         if (!isClosed) {
-          add(AIPromptInputEvent.updateAIState(localAIState));
+          add(AIPromptInputEvent.updateAIState(aiType, editable, hintText));
         }
       },
-      Log.error,
     );
+
+    _aiModelStateNotifier.init();
   }
 
   Map<String, dynamic> consumeMetadata() {
@@ -164,8 +131,12 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
 
 @freezed
 class AIPromptInputEvent with _$AIPromptInputEvent {
-  const factory AIPromptInputEvent.updateAIState(LocalAIPB localAIState) =
-      _UpdateAIState;
+  const factory AIPromptInputEvent.updateAIState(
+    AiType aiType,
+    bool editable,
+    String hintText,
+  ) = _UpdateAIState;
+
   const factory AIPromptInputEvent.toggleShowPredefinedFormat() =
       _ToggleShowPredefinedFormat;
   const factory AIPromptInputEvent.updatePredefinedFormat(
@@ -184,24 +155,27 @@ class AIPromptInputEvent with _$AIPromptInputEvent {
 @freezed
 class AIPromptInputState with _$AIPromptInputState {
   const factory AIPromptInputState({
+    required String objectId,
     required AiType aiType,
     required bool supportChatWithFile,
     required bool showPredefinedFormats,
     required PredefinedFormat? predefinedFormat,
-    required LocalAIPB? localAIState,
     required List<ChatFile> attachedFiles,
     required List<ViewPB> mentionedPages,
     required bool editable,
     required String hintText,
   }) = _AIPromptInputState;
 
-  factory AIPromptInputState.initial(PredefinedFormat? format) =>
+  factory AIPromptInputState.initial(
+    String objectId,
+    PredefinedFormat? format,
+  ) =>
       AIPromptInputState(
+        objectId: objectId,
         aiType: AiType.cloud,
         supportChatWithFile: false,
         showPredefinedFormats: format != null,
         predefinedFormat: format,
-        localAIState: null,
         attachedFiles: [],
         mentionedPages: [],
         editable: true,

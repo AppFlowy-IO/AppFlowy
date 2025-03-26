@@ -15,6 +15,7 @@ pub enum ChatNotification {
   UpdateLocalAIState = 6,
   DidUpdateChatSettings = 7,
   LocalAIResourceUpdated = 8,
+  DidUpdateSelectedModel = 9,
 }
 
 impl std::convert::From<ChatNotification> for i32 {

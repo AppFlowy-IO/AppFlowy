@@ -1,13 +1,13 @@
-import 'dart:convert';
-
 import 'package:appflowy/user/application/user_listener.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'settings_ai_bloc.freezed.dart';
@@ -95,32 +95,25 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
             ),
           );
         },
-        didLoadAvailableModels: (String models) {
-          final dynamic decodedJson = jsonDecode(models);
-          Log.info("Available models: $decodedJson");
-          if (decodedJson is Map<String, dynamic>) {
-            final models = ModelList.fromJson(decodedJson).models;
-            if (models.isEmpty) {
-              // If available models is empty, then we just show the
-              // Default
-              emit(state.copyWith(availableModels: ["Default"]));
-              return;
-            }
-
-            if (!models.contains(state.selectedAIModel)) {
-              // Use first model as default model if current selected model
-              // is not available
-              final selectedModel = models[0];
-              _updateUserWorkspaceSetting(model: selectedModel);
+        didLoadAvailableModels: (List<AvailableModelPB> models) {
+          if (state.selectedAIModel.isEmpty) {
+            final defaultModel =
+                models.firstWhereOrNull((model) => model.isDefault);
+            if (defaultModel != null) {
+              _updateUserWorkspaceSetting(model: defaultModel.name);
               emit(
                 state.copyWith(
                   availableModels: models,
-                  selectedAIModel: selectedModel,
+                  selectedAIModel: defaultModel.name,
                 ),
               );
-            } else {
-              emit(state.copyWith(availableModels: models));
             }
+          } else {
+            emit(
+              state.copyWith(
+                availableModels: models,
+              ),
+            );
           }
         },
         refreshMember: (member) {
@@ -173,7 +166,7 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
   }
 
   void _loadModelList() {
-    AIEventGetAvailableModels().send().then((result) {
+    AIEventGetServerAvailableModels().send().then((result) {
       result.fold((config) {
         if (!isClosed) {
           add(SettingsAIEvent.didLoadAvailableModels(config.models));
@@ -203,7 +196,7 @@ class SettingsAIEvent with _$SettingsAIEvent {
   ) = _DidReceiveUserProfile;
 
   const factory SettingsAIEvent.didLoadAvailableModels(
-    String models,
+    List<AvailableModelPB> models,
   ) = _DidLoadAvailableModels;
 }
 
@@ -214,7 +207,7 @@ class SettingsAIState with _$SettingsAIState {
     UseAISettingPB? aiSettings,
     @Default("Default") String selectedAIModel,
     AFRolePB? currentWorkspaceMemberRole,
-    @Default(["Default"]) List<String> availableModels,
+    @Default([]) List<AvailableModelPB> availableModels,
     @Default(true) bool enableSearchIndexing,
   }) = _SettingsAIState;
 }

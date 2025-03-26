@@ -24,4 +24,3 @@ flowy-codegen.workspace = true
 
 [features]
 dart = ["flowy-codegen/dart"]
-tauri_ts = ["flowy-codegen/ts"]

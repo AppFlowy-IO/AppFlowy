@@ -3,9 +3,11 @@ use std::collections::HashMap;
 
 use crate::local_ai::controller::LocalAISetting;
 use crate::local_ai::resource::PendingResource;
+use flowy_ai_pub::cloud::ai_dto::AvailableModel;
 use flowy_ai_pub::cloud::{
-  ChatMessage, ChatMessageMetadata, ChatMessageType, CompletionMessage, LLMModel, OutputContent,
-  OutputLayout, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion, ResponseFormat,
+  AIModel, ChatMessage, ChatMessageMetadata, ChatMessageType, CompletionMessage, LLMModel,
+  OutputContent, OutputLayout, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
+  ResponseFormat,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_infra::validator_fn::required_not_empty_str;
@@ -76,9 +78,9 @@ pub struct StreamChatPayloadPB {
 }
 
 #[derive(Default, Debug)]
-pub struct StreamMessageParams<'a> {
-  pub chat_id: &'a str,
-  pub message: &'a str,
+pub struct StreamMessageParams {
+  pub chat_id: String,
+  pub message: String,
   pub message_type: ChatMessageType,
   pub answer_stream_port: i64,
   pub question_stream_port: i64,
@@ -182,10 +184,85 @@ pub struct ChatMessageListPB {
   pub total: i64,
 }
 
-#[derive(Default, ProtoBuf, Validate, Clone, Debug)]
-pub struct ModelConfigPB {
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct ServerAvailableModelsPB {
   #[pb(index = 1)]
-  pub models: String,
+  pub models: Vec<AvailableModelPB>,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct AvailableModelPB {
+  #[pb(index = 1)]
+  pub name: String,
+
+  #[pb(index = 2)]
+  pub is_default: bool,
+}
+
+impl From<AvailableModel> for AvailableModelPB {
+  fn from(value: AvailableModel) -> Self {
+    let is_default = value
+      .metadata
+      .and_then(|v| v.get("is_default").map(|v| v.as_bool().unwrap_or(false)))
+      .unwrap_or(false);
+    Self {
+      name: value.name,
+      is_default,
+    }
+  }
+}
+
+#[derive(Default, ProtoBuf, Validate, Clone, Debug)]
+pub struct AvailableModelsQueryPB {
+  #[pb(index = 1)]
+  #[validate(custom(function = "required_not_empty_str"))]
+  pub source: String,
+}
+
+#[derive(Default, ProtoBuf, Validate, Clone, Debug)]
+pub struct UpdateSelectedModelPB {
+  #[pb(index = 1)]
+  #[validate(custom(function = "required_not_empty_str"))]
+  pub source: String,
+
+  #[pb(index = 2)]
+  pub selected_model: AIModelPB,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct AvailableModelsPB {
+  #[pb(index = 1)]
+  pub models: Vec<AIModelPB>,
+
+  #[pb(index = 2, one_of)]
+  pub selected_model: Option<AIModelPB>,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct AIModelPB {
+  #[pb(index = 1)]
+  pub name: String,
+
+  #[pb(index = 2)]
+  pub is_local: bool,
+}
+
+impl From<AIModel> for AIModelPB {
+  fn from(model: AIModel) -> Self {
+    Self {
+      name: model.name,
+      is_local: model.is_local,
+    }
+  }
+}
+
+impl From<AIModelPB> for AIModel {
+  fn from(value: AIModelPB) -> Self {
+    AIModel {
+      name: value.name,
+      is_local: value.is_local,
+    }
+  }
 }
 
 impl From<RepeatedChatMessage> for ChatMessageListPB {
@@ -471,14 +548,14 @@ pub struct PendingResourcePB {
 pub enum PendingResourceTypePB {
   #[default]
   LocalAIAppRes = 0,
-  AIModel = 1,
+  ModelRes = 1,
 }
 
 impl From<PendingResource> for PendingResourceTypePB {
   fn from(value: PendingResource) -> Self {
     match value {
       PendingResource::PluginExecutableNotReady { .. } => PendingResourceTypePB::LocalAIAppRes,
-      _ => PendingResourceTypePB::AIModel,
+      _ => PendingResourceTypePB::ModelRes,
     }
   }
 }
@@ -559,6 +636,9 @@ pub struct UpdateChatSettingsPB {
 
   #[pb(index = 2)]
   pub rag_ids: Vec<String>,
+
+  #[pb(index = 3)]
+  pub chat_model: String,
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]

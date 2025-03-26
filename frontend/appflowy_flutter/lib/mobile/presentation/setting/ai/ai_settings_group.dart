@@ -87,13 +87,13 @@ class AiSettingsGroup extends StatelessWidget {
           children: availableModels
               .mapIndexed(
                 (index, model) => FlowyOptionTile.checkbox(
-                  text: model,
+                  text: model.name,
                   showTopBorder: index == 0,
-                  isSelected: state.selectedAIModel == model,
+                  isSelected: state.selectedAIModel == model.name,
                   onTap: () {
                     context
                         .read<SettingsAIBloc>()
-                        .add(SettingsAIEvent.selectModel(model));
+                        .add(SettingsAIEvent.selectModel(model.name));
                     context.pop();
                   },
                 ),
