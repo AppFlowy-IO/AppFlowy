@@ -1,3 +1,4 @@
+import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
@@ -15,6 +16,10 @@ class AIModelSelection extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SettingsAIBloc, SettingsAIState>(
       builder: (context, state) {
+        if (state.availableModels == null) {
+          return const SizedBox.shrink();
+        }
+
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
           child: Row(
@@ -28,18 +33,18 @@ class AIModelSelection extends StatelessWidget {
               ),
               const Spacer(),
               Flexible(
-                child: SettingsDropdown<String>(
+                child: SettingsDropdown<AIModelPB>(
                   key: const Key('_AIModelSelection'),
                   onChanged: (model) => context
                       .read<SettingsAIBloc>()
                       .add(SettingsAIEvent.selectModel(model)),
-                  selectedOption: state.selectedAIModel,
-                  options: state.availableModels
+                  selectedOption: state.availableModels!.selectedModel,
+                  options: state.availableModels!.models
                       .map(
-                        (model) => buildDropdownMenuEntry<String>(
+                        (model) => buildDropdownMenuEntry<AIModelPB>(
                           context,
                           value: model,
-                          label: model,
+                          label: model.name,
                         ),
                       )
                       .toList(),

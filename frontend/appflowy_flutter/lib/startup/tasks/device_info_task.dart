@@ -29,6 +29,9 @@ class ApplicationInfo {
   // If the latest version is greater than the current version, it means there is an update available
   static bool get isUpdateAvailable {
     try {
+      if (latestVersion.isEmpty) {
+        return false;
+      }
       return Version.parse(latestVersion) > Version.parse(applicationVersion);
     } catch (e) {
       return false;

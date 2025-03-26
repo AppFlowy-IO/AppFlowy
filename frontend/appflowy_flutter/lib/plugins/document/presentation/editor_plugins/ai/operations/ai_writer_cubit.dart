@@ -1,14 +1,13 @@
 import 'dart:async';
 
 import 'package:appflowy/ai/ai.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../base/markdown_text_robot.dart';
@@ -41,8 +40,6 @@ class AiWriterCubit extends Cubit<AiWriterState> {
 
   final List<AiWriterRecord> records = [];
   final ValueNotifier<List<String>> selectedSourcesNotifier;
-  (String, PredefinedFormat?)? _previousPrompt;
-  bool acceptReplacesOriginal = false;
 
   @override
   Future<void> close() async {
@@ -50,93 +47,131 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     await super.close();
   }
 
+  Future<void> exit({
+    bool withDiscard = true,
+    bool withUnformat = true,
+  }) async {
+    if (withDiscard) {
+      await _textRobot.discard();
+    }
+    _textRobot.clear();
+    _textRobot.reset();
+    onRemoveNode?.call();
+    records.clear();
+    selectedSourcesNotifier.value = [documentId];
+    emit(IdleAiWriterState());
+
+    if (withUnformat) {
+      final selection = aiWriterNode!.aiWriterSelection;
+      if (selection == null) {
+        return;
+      }
+      await formatSelection(
+        editorState,
+        selection,
+        ApplySuggestionFormatType.clear,
+      );
+    }
+    if (aiWriterNode != null) {
+      await removeAiWriterNode(editorState, aiWriterNode!);
+      aiWriterNode = null;
+    }
+  }
+
   void register(Node node) async {
+    if (node.isAiWriterInitialized) {
+      return;
+    }
     if (aiWriterNode != null && node.id != aiWriterNode!.id) {
       await removeAiWriterNode(editorState, node);
       return;
     }
+
     aiWriterNode = node;
     onCreateNode?.call();
 
     await setAiWriterNodeIsInitialized(editorState, node);
 
     final command = node.aiWriterCommand;
-    if (command == AiWriterCommand.userQuestion) {
-      emit(ReadyAiWriterState(AiWriterCommand.userQuestion, isFirstRun: true));
-    } else {
-      runCommand(command, isFirstRun: true);
-    }
-  }
+    final (run, prompt) = await _addSelectionTextToRecords(command);
 
-  Future<void> exit() async {
-    await _textRobot.discard();
-    _textRobot.reset();
-    onRemoveNode?.call();
-    emit(IdleAiWriterState());
-
-    if (aiWriterNode != null) {
-      final selection = aiWriterNode!.aiWriterSelection;
-      if (selection == null) {
-        return;
-      }
-      final transaction = editorState.transaction;
-      formatSelection(
-        editorState,
-        selection,
-        transaction,
-        ApplySuggestionFormatType.clear,
-      );
-      await editorState.apply(
-        transaction,
-        options: const ApplyOptions(
-          inMemoryUpdate: true,
-          recordUndo: false,
-        ),
-        withUpdateSelection: false,
-      );
-      await removeAiWriterNode(editorState, aiWriterNode!);
-      aiWriterNode = null;
+    if (!run) {
+      await exit();
+      return;
     }
+
+    runCommand(command, prompt, null);
   }
 
   void runCommand(
-    AiWriterCommand command, {
-    required bool isFirstRun,
+    AiWriterCommand command,
+    String prompt,
     PredefinedFormat? predefinedFormat,
-    bool isRetry = false,
-  }) async {
+  ) async {
+    if (aiWriterNode == null) {
+      return;
+    }
+
+    await _textRobot.discard();
+    _textRobot.clear();
+
     switch (command) {
       case AiWriterCommand.continueWriting:
         await _startContinueWriting(
           command,
           predefinedFormat,
-          isImmediateRun: isFirstRun,
         );
         break;
       case AiWriterCommand.fixSpellingAndGrammar:
       case AiWriterCommand.improveWriting:
       case AiWriterCommand.makeLonger:
       case AiWriterCommand.makeShorter:
-        await _startSuggestingEdits(command, predefinedFormat);
+        await _startSuggestingEdits(command, prompt, predefinedFormat);
         break;
       case AiWriterCommand.explain:
-        await _startInforming(command, predefinedFormat);
+        await _startInforming(command, prompt, predefinedFormat);
+        break;
+      case AiWriterCommand.userQuestion when prompt.isNotEmpty:
+        _startAskingQuestion(prompt, predefinedFormat);
         break;
       case AiWriterCommand.userQuestion:
-        if (isRetry && _previousPrompt != null) {
-          submit(_previousPrompt!.$1, _previousPrompt!.$2);
-        }
+        emit(
+          ReadyAiWriterState(AiWriterCommand.userQuestion, isFirstRun: true),
+        );
         break;
     }
   }
 
+  void _retry({
+    required PredefinedFormat? predefinedFormat,
+  }) async {
+    final lastQuestion =
+        records.lastWhereOrNull((record) => record.role == AiRole.user);
+
+    if (lastQuestion != null && state is RegisteredAiWriter) {
+      runCommand(
+        (state as RegisteredAiWriter).command,
+        lastQuestion.content,
+        lastQuestion.format,
+      );
+    }
+  }
+
   Future<void> stopStream() async {
+    if (aiWriterNode == null) {
+      return;
+    }
+
     if (state is GeneratingAiWriterState) {
       final generatingState = state as GeneratingAiWriterState;
 
       await _textRobot.stop(
         attributes: ApplySuggestionFormatType.replace.attributes,
       );
+
+      if (_textRobot.hasAnyResult) {
+        records.add(AiWriterRecord.ai(content: _textRobot.markdownText));
+      }
 
       await AIEventStopCompleteText(
         CompleteTextTaskPB(
@@ -162,90 +197,67 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       return;
     }
 
-    if (state is! RegisteredAiWriter) {
-      return;
-    }
-
-    final command = (state as RegisteredAiWriter).command;
-
     if (action case SuggestionAction.rewrite || SuggestionAction.tryAgain) {
-      await _textRobot.discard();
-      _textRobot.reset();
-      runCommand(
-        command,
-        predefinedFormat: predefinedFormat,
-        isRetry: true,
-        isFirstRun: false,
-      );
+      _retry(predefinedFormat: predefinedFormat);
       return;
     }
-
-    final selection = aiWriterNode!.aiWriterSelection;
-    if (selection == null) {
-      return;
-    }
-
     if (action case SuggestionAction.discard || SuggestionAction.close) {
       await exit();
       return;
     }
 
+    final selection = aiWriterNode?.aiWriterSelection;
+    if (selection == null) {
+      return;
+    }
+
     if (action case SuggestionAction.accept) {
       await _textRobot.persist();
+      await formatSelection(
+        editorState,
+        selection,
+        ApplySuggestionFormatType.clear,
+      );
       final nodes = editorState.getNodesInSelection(selection);
       final transaction = editorState.transaction..deleteNodes(nodes);
       await editorState.apply(
         transaction,
-        options: const ApplyOptions(recordUndo: false),
         withUpdateSelection: false,
       );
+      await exit(withDiscard: false, withUnformat: false);
+      return;
     }
 
     if (action case SuggestionAction.keep) {
       await _textRobot.persist();
+      await exit(withDiscard: false);
+      return;
     }
 
     if (action case SuggestionAction.insertBelow) {
-      if (state case final ReadyAiWriterState readyState
-          when readyState.markdownText.isNotEmpty) {
-        final transaction = editorState.transaction;
-        final position = ensurePreviousNodeIsEmptyParagraph(
+      if (state is! ReadyAiWriterState) {
+        return;
+      }
+      final command = (state as ReadyAiWriterState).command;
+      final markdownText = (state as ReadyAiWriterState).markdownText;
+      if (command == AiWriterCommand.explain && markdownText.isNotEmpty) {
+        final position = await ensurePreviousNodeIsEmptyParagraph(
           editorState,
           aiWriterNode!,
-          transaction,
-        );
-        transaction.afterSelection = null;
-        await editorState.apply(
-          transaction,
-          options: ApplyOptions(
-            inMemoryUpdate: true,
-            recordUndo: false,
-          ),
-          withUpdateSelection: false,
         );
         _textRobot.start(position: position);
-        await _textRobot.persist(markdownText: readyState.markdownText);
-      } else {
+        await _textRobot.persist(markdownText: markdownText);
+      } else if (_textRobot.hasAnyResult) {
         await _textRobot.persist();
       }
 
-      final transaction = editorState.transaction;
-      formatSelection(
+      await formatSelection(
         editorState,
         selection,
-        transaction,
         ApplySuggestionFormatType.clear,
       );
-      await editorState.apply(
-        transaction,
-        options: const ApplyOptions(recordUndo: false),
-        withUpdateSelection: false,
-      );
+      await exit(withDiscard: false);
     }
-
-    await removeAiWriterNode(editorState, aiWriterNode!);
-    aiWriterNode = null;
-    emit(IdleAiWriterState());
   }
 
   bool hasUnusedResponse() {
@@ -260,7 +272,54 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     };
   }
 
-  void submit(
+  Future<(bool, String)> _addSelectionTextToRecords(
+    AiWriterCommand command,
+  ) async {
+    final node = aiWriterNode;
+    if (node == null) {
+      return (false, '');
+    }
+    final selection = node.aiWriterSelection?.normalized;
+    if (selection == null) {
+      return (false, '');
+    }
+
+    if (command == AiWriterCommand.continueWriting) {
+      return (true, '');
+    }
+    if (selection.isCollapsed) {
+      return (true, '');
+    }
+
+    final selectionText = await editorState.getMarkdownInSelection(selection);
+
+    if (command == AiWriterCommand.userQuestion) {
+      records.add(
+        AiWriterRecord.user(content: selectionText, format: null),
+      );
+      return (true, '');
+    } else {
+      return (true, selectionText);
+    }
+  }
+
+  Future<String> _getDocumentContentFromTopToPosition(Position position) async {
+    final beginningToCursorSelection = Selection(
+      start: Position(path: [0]),
+      end: position,
+    ).normalized;
+
+    final documentText =
+        (await editorState.getMarkdownInSelection(beginningToCursorSelection))
+            .trim();
+
+    final view = await ViewBackendService.getView(documentId).toNullable();
+    final viewName = view?.name ?? '';
+
+    return "$viewName\n$documentText".trim();
+  }
+
+  void _startAskingQuestion(
     String prompt,
     PredefinedFormat? format,
   ) async {
@@ -268,7 +327,6 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       return;
     }
     final command = AiWriterCommand.userQuestion;
-    _previousPrompt = (prompt, format);
 
     final stream = await _aiService.streamCompletion(
       objectId: documentId,
@@ -278,23 +336,16 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       sourceIds: selectedSourcesNotifier.value,
       completionType: command.toCompletionType(),
       onStart: () async {
-        final transaction = editorState.transaction;
-        final position = ensurePreviousNodeIsEmptyParagraph(
+        final position = await ensurePreviousNodeIsEmptyParagraph(
           editorState,
           aiWriterNode!,
-          transaction,
-        );
-        await editorState.apply(
-          transaction,
-          options: ApplyOptions(
-            inMemoryUpdate: true,
-            recordUndo: false,
-          ),
-          withUpdateSelection: false,
         );
         _textRobot.start(position: position);
         records.add(
-          AiWriterRecord.user(content: prompt),
+          AiWriterRecord.user(
+            content: prompt,
+            format: format,
+          ),
         );
       },
       processMessage: (text) async {
@@ -353,43 +404,19 @@ class AiWriterCubit extends Cubit<AiWriterState> {
 
   Future<void> _startContinueWriting(
     AiWriterCommand command,
-    PredefinedFormat? predefinedFormat, {
-    required bool isImmediateRun,
-  }) async {
-    if (aiWriterNode == null) {
+    PredefinedFormat? predefinedFormat,
+  ) async {
+    final position = aiWriterNode?.aiWriterSelection?.start;
+    if (position == null) {
       return;
     }
-    final cursorPosition = aiWriterNode?.aiWriterSelection?.start;
-    if (cursorPosition == null) {
-      return;
-    }
-    final selection = Selection(
-      start: Position(path: [0]),
-      end: cursorPosition,
-    ).normalized;
+    final text = await _getDocumentContentFromTopToPosition(position);
 
-    String text = (await editorState.getMarkdownInSelection(selection)).trim();
     if (text.isEmpty) {
-      final view = await ViewBackendService.getView(documentId).toNullable();
-      if (view == null ||
-          view.name.isEmpty ||
-          view.name == LocaleKeys.menuAppHeader_defaultNewPageName.tr()) {
-        final stateCopy = state;
-        emit(
-          DocumentContentEmptyAiWriterState(
-            command,
-            onConfirm: () {
-              if (isImmediateRun) {
-                removeAiWriterNode(editorState, aiWriterNode!);
-              }
-            },
-          ),
-        );
-        emit(stateCopy);
-        return;
-      } else {
-        text = view.name;
-      }
+      final stateCopy = state;
+      emit(DocumentContentEmptyAiWriterState(command, onConfirm: exit));
+      emit(stateCopy);
+      return;
     }
 
     final stream = await _aiService.streamCompletion(
@@ -397,23 +424,20 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       text: text,
       completionType: command.toCompletionType(),
       history: records,
+      sourceIds: selectedSourcesNotifier.value,
+      format: predefinedFormat,
       onStart: () async {
-        final transaction = editorState.transaction;
-        final position = ensurePreviousNodeIsEmptyParagraph(
+        final position = await ensurePreviousNodeIsEmptyParagraph(
           editorState,
           aiWriterNode!,
-          transaction,
-        );
-        transaction.afterSelection = null;
-        await editorState.apply(
-          transaction,
-          options: ApplyOptions(
-            inMemoryUpdate: true,
-            recordUndo: false,
-          ),
-          withUpdateSelection: false,
         );
         _textRobot.start(position: position);
+        records.add(
+          AiWriterRecord.user(
+            content: text,
+            format: predefinedFormat,
+          ),
+        );
       },
       processMessage: (text) async {
         await _textRobot.appendMarkdownText(
@@ -467,46 +491,41 @@ class AiWriterCubit extends Cubit<AiWriterState> {
 
   Future<void> _startSuggestingEdits(
     AiWriterCommand command,
+    String prompt,
     PredefinedFormat? predefinedFormat,
   ) async {
-    if (aiWriterNode == null) {
-      return;
-    }
     final selection = aiWriterNode?.aiWriterSelection;
     if (selection == null) {
       return;
     }
-
-    acceptReplacesOriginal = true;
+    if (prompt.isEmpty) {
+      prompt = records.removeAt(0).content;
+    }
 
     final stream = await _aiService.streamCompletion(
       objectId: documentId,
-      text: await editorState.getMarkdownInSelection(selection),
+      text: prompt,
+      format: predefinedFormat,
       completionType: command.toCompletionType(),
       history: records,
+      sourceIds: selectedSourcesNotifier.value,
       onStart: () async {
-        final transaction = editorState.transaction;
-        formatSelection(
+        await formatSelection(
           editorState,
           selection,
-          transaction,
           ApplySuggestionFormatType.original,
         );
-        final position = ensurePreviousNodeIsEmptyParagraph(
+        final position = await ensurePreviousNodeIsEmptyParagraph(
           editorState,
           aiWriterNode!,
-          transaction,
         );
-        transaction.afterSelection = null;
-        await editorState.apply(
-          transaction,
-          options: ApplyOptions(
-            inMemoryUpdate: true,
-            recordUndo: false,
+        _textRobot.start(position: position, previousSelection: selection);
+        records.add(
+          AiWriterRecord.user(
+            content: prompt,
+            format: predefinedFormat,
           ),
-          withUpdateSelection: false,
         );
-        _textRobot.start(position: position);
       },
       processMessage: (text) async {
         await _textRobot.appendMarkdownText(
@@ -560,22 +579,32 @@ class AiWriterCubit extends Cubit<AiWriterState> {
 
   Future<void> _startInforming(
     AiWriterCommand command,
+    String prompt,
     PredefinedFormat? predefinedFormat,
   ) async {
-    if (aiWriterNode == null) {
-      return;
-    }
     final selection = aiWriterNode?.aiWriterSelection;
     if (selection == null) {
       return;
     }
+    if (prompt.isEmpty) {
+      prompt = records.removeAt(0).content;
+    }
 
     final stream = await _aiService.streamCompletion(
       objectId: documentId,
-      text: await editorState.getMarkdownInSelection(selection),
+      text: prompt,
       completionType: command.toCompletionType(),
       history: records,
-      onStart: () async {},
+      sourceIds: selectedSourcesNotifier.value,
+      format: predefinedFormat,
+      onStart: () async {
+        records.add(
+          AiWriterRecord.user(
+            content: prompt,
+            format: predefinedFormat,
+          ),
+        );
+      },
       processMessage: (text) async {
         if (state case final GeneratingAiWriterState generatingState) {
           emit(

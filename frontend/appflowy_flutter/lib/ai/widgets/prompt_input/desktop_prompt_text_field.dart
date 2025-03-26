@@ -20,6 +20,7 @@ class DesktopPromptInput extends StatefulWidget {
   const DesktopPromptInput({
     super.key,
     required this.isStreaming,
+    required this.textController,
     required this.onStopStreaming,
     required this.onSubmitted,
     required this.selectedSourcesNotifier,
@@ -29,6 +30,7 @@ class DesktopPromptInput extends StatefulWidget {
   });
 
   final bool isStreaming;
+  final TextEditingController textController;
   final void Function() onStopStreaming;
   final void Function(String, PredefinedFormat?, Map<String, dynamic>)
       onSubmitted;
@@ -47,7 +49,6 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
   final overlayController = OverlayPortalController();
   final inputControlCubit = ChatInputControlCubit();
   final focusNode = FocusNode();
-  final textController = TextEditingController();
 
   late SendButtonState sendButtonState;
   bool isComposing = false;
@@ -56,7 +57,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
   void initState() {
     super.initState();
 
-    textController.addListener(handleTextControllerChanged);
+    widget.textController.addListener(handleTextControllerChanged);
     focusNode.addListener(
       () {
         if (!widget.hideDecoration) {
@@ -84,7 +85,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
   @override
   void dispose() {
     focusNode.dispose();
-    textController.dispose();
+    widget.textController.removeListener(handleTextControllerChanged);
     inputControlCubit.close();
     super.dispose();
   }
@@ -109,7 +110,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
           overlayChildBuilder: (context) {
             return PromptInputMentionPageMenu(
               anchor: PromptInputAnchor(textFieldKey, layerLink),
-              textController: textController,
+              textController: widget.textController,
               onPageSelected: handlePageSelected,
             );
           },
@@ -224,12 +225,12 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
     if (!focusNode.hasFocus) {
       focusNode.requestFocus();
     }
-    textController.text += '@';
+    widget.textController.text += '@';
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.mounted) {
         context
             .read<ChatInputControlCubit>()
-            .startSearching(textController.value);
+            .startSearching(widget.textController.value);
         overlayController.show();
       }
     });
@@ -245,7 +246,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
   void updateSendButtonState() {
     if (widget.isStreaming) {
       sendButtonState = SendButtonState.streaming;
-    } else if (textController.text.trim().isEmpty) {
+    } else if (widget.textController.text.trim().isEmpty) {
       sendButtonState = SendButtonState.disabled;
     } else {
       sendButtonState = SendButtonState.enabled;
@@ -257,9 +258,9 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
       return;
     }
     final trimmedText = inputControlCubit.formatIntputText(
-      textController.text.trim(),
+      widget.textController.text.trim(),
     );
-    textController.clear();
+    widget.textController.clear();
     if (trimmedText.isEmpty) {
       return;
     }
@@ -282,7 +283,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
     setState(() {
       // update whether send button is clickable
       updateSendButtonState();
-      isComposing = !textController.value.composing.isCollapsed;
+      isComposing = !widget.textController.value.composing.isCollapsed;
     });
 
     if (isComposing) {
@@ -300,6 +301,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
     }
 
     // handle cases where mention a page is cancelled
+    final textController = widget.textController;
     final textSelection = textController.value.selection;
     final isSelectingMultipleCharacters = !textSelection.isCollapsed;
     final isCaretBeforeStartOfRange =
@@ -348,7 +350,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
   KeyEventResult handleKeyEvent(FocusNode node, KeyEvent event) {
     if (event.character == '@') {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        inputControlCubit.startSearching(textController.value);
+        inputControlCubit.startSearching(widget.textController.value);
         overlayController.show();
       });
     }
@@ -356,12 +358,12 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
   }
 
   void handlePageSelected(ViewPB view) {
-    final newText = textController.text.replaceRange(
+    final newText = widget.textController.text.replaceRange(
       inputControlCubit.filterStartPosition,
       inputControlCubit.filterEndPosition,
       view.id,
     );
-    textController.value = TextEditingValue(
+    widget.textController.value = TextEditingValue(
       text: newText,
       selection: TextSelection.collapsed(
         offset: inputControlCubit.filterStartPosition + view.id.length,
@@ -386,7 +388,7 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
                 key: textFieldKey,
                 editable: state.editable,
                 cubit: inputControlCubit,
-                textController: textController,
+                textController: widget.textController,
                 textFieldFocusNode: focusNode,
                 contentPadding:
                     calculateContentPadding(state.showPredefinedFormats),
@@ -737,6 +739,7 @@ class _SelectModelButtonState extends State<SelectModelButton> {
               );
             },
             child: _CurrentModelButton(
+              key: ValueKey(state.availableModels?.selectedModel.name),
               modelName: state.availableModels?.selectedModel.name ?? "",
               onTap: () => popoverController.show(),
             ),
@@ -758,25 +761,90 @@ class _PopoverSelectModel extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SelectModelBloc, SelectModelState>(
       builder: (context, state) {
-        return ListView.builder(
-          shrinkWrap: true,
-          itemCount: state.availableModels?.models.length ?? 0,
+        if (state.availableModels == null ||
+            state.availableModels!.models.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        // Separate models into local and cloud models
+        final localModels = state.availableModels!.models
+            .where((model) => model.isLocal)
+            .toList();
+
+        final cloudModels = state.availableModels!.models
+            .where((model) => !model.isLocal)
+            .toList();
+
+        return Padding(
           padding: const EdgeInsets.fromLTRB(8, 4, 8, 12),
-          itemBuilder: (context, index) {
-            return _ModelItem(
-              model: state.availableModels!.models[index],
-              onTap: () {
-                context.read<SelectModelBloc>().add(
-                      SelectModelEvent.selectModel(
-                        state.availableModels!.models[index],
-                      ),
-                    );
-                onClose();
-              },
-            );
-          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Local AI Models Section
+              if (localModels.isNotEmpty) ...[
+                _ModelSectionHeader(
+                  title: LocaleKeys.chat_changeFormat_localModel.tr(),
+                ),
+                const SizedBox(height: 4),
+                ...localModels.map(
+                  (model) => _ModelItem(
+                    model: model,
+                    onTap: () {
+                      context.read<SelectModelBloc>().add(
+                            SelectModelEvent.selectModel(model),
+                          );
+                      onClose();
+                    },
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+
+              // Cloud AI Models Section
+              if (cloudModels.isNotEmpty) ...[
+                if (localModels.isNotEmpty)
+                  _ModelSectionHeader(
+                    title: LocaleKeys.chat_changeFormat_cloudModel.tr(),
+                  ),
+                const VSpace(4),
+                ...cloudModels.map(
+                  (model) => _ModelItem(
+                    model: model,
+                    onTap: () {
+                      context.read<SelectModelBloc>().add(
+                            SelectModelEvent.selectModel(model),
+                          );
+                      onClose();
+                    },
+                  ),
+                ),
+              ],
+            ],
+          ),
         );
       },
+    );
+  }
+}
+
+class _ModelSectionHeader extends StatelessWidget {
+  const _ModelSectionHeader({
+    required this.title,
+  });
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4, bottom: 2),
+      child: FlowyText(
+        title,
+        fontSize: 12,
+        color: Theme.of(context).hintColor,
+        fontWeight: FontWeight.w500,
+      ),
     );
   }
 }
@@ -792,10 +860,8 @@ class _ModelItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var modelName = model.name;
-    if (model.isLocal) {
-      modelName += " (${LocaleKeys.chat_changeFormat_localModel.tr()})";
-    }
+    final modelName = model.name;
+
     return FlowyTextButton(
       modelName,
       fillColor: Colors.transparent,
@@ -808,6 +874,7 @@ class _CurrentModelButton extends StatelessWidget {
   const _CurrentModelButton({
     required this.modelName,
     required this.onTap,
+    super.key,
   });
 
   final String modelName;

@@ -5,7 +5,6 @@ import 'package:appflowy/workspace/application/settings/ai/local_llm_listener.da
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
-import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:protobuf/protobuf.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -15,18 +14,20 @@ class AIModelStateNotifier {
       : _isDesktop = UniversalPlatform.isDesktop,
         _localAIListener =
             UniversalPlatform.isDesktop ? LocalAIStateListener() : null,
-        _aiModelSwitchListener = AIModelSwitchListener(chatId: objectId);
+        _aiModelSwitchListener = AIModelSwitchListener(objectId: objectId);
 
   final String objectId;
   final bool _isDesktop;
   final LocalAIStateListener? _localAIListener;
   final AIModelSwitchListener _aiModelSwitchListener;
+
   LocalAIPB? _localAIState;
   AvailableModelsPB? _availableModels;
 
-  // callbacks
+  // Callbacks
   void Function(AiType, bool, String)? onChanged;
   void Function(AvailableModelsPB)? onAvailableModelsChanged;
+
   String hintText() {
     final aiType = getCurrentAiType();
     if (aiType.isLocal) {
@@ -38,22 +39,16 @@ class AIModelStateNotifier {
   }
 
   AiType getCurrentAiType() {
-    // On non-desktop platforms, always return cloud type
-    if (!_isDesktop) {
-      return AiType.cloud;
-    }
-
-    return _availableModels?.selectedModel.isLocal == true
+    // On non-desktop platforms, always return cloud type.
+    if (!_isDesktop) return AiType.cloud;
+    return (_availableModels?.selectedModel.isLocal ?? false)
         ? AiType.local
         : AiType.cloud;
   }
 
   bool isEditable() {
-    // On non-desktop platforms, always editable (cloud-only)
-    if (!_isDesktop) {
-      return true;
-    }
-
+    // On non-desktop platforms, always editable.
+    if (!_isDesktop) return true;
     return getCurrentAiType().isLocal
         ? _localAIState?.state == RunningStatePB.Running
         : true;
@@ -64,7 +59,11 @@ class AIModelStateNotifier {
   }
 
   Future<void> init() async {
-    await _loadAvailableModels();
+    // Load both available models and local state concurrently.
+    await Future.wait([
+      _loadAvailableModels(),
+      _loadLocalAIState(),
+    ]);
   }
 
   Future<void> _loadAvailableModels() async {
@@ -76,8 +75,20 @@ class AIModelStateNotifier {
         onAvailableModelsChanged?.call(models);
         _notifyStateChanged();
       },
-      (err) {
-        Log.error("Failed to get available models: $err");
+      (err) => Log.error("Failed to get available models: $err"),
+    );
+  }
+
+  Future<void> _loadLocalAIState() async {
+    final result = await AIEventGetLocalAIState().send();
+    result.fold(
+      (state) {
+        _localAIState = state;
+        _notifyStateChanged();
+      },
+      (error) {
+        Log.error("Failed to get local AI state: $error");
+        _notifyStateChanged();
       },
     );
   }
@@ -89,12 +100,11 @@ class AIModelStateNotifier {
     this.onChanged = onChanged;
     this.onAvailableModelsChanged = onAvailableModelsChanged;
 
-    // Only start local AI listener on desktop platforms
+    // Only start local AI listener on desktop platforms.
     if (_isDesktop) {
       _localAIListener?.start(
         stateCallback: (state) {
           _localAIState = state;
-
           if (state.state == RunningStatePB.Running ||
               state.state == RunningStatePB.Stopped) {
             _loadAvailableModels();
@@ -111,18 +121,8 @@ class AIModelStateNotifier {
           _availableModels = updatedModels;
           onAvailableModelsChanged?.call(updatedModels);
         }
-
         if (model.isLocal && _isDesktop) {
-          AIEventGetLocalAIState().send().fold(
-            (localAIState) {
-              _localAIState = localAIState;
-              _notifyStateChanged();
-            },
-            (error) {
-              Log.error("Failed to get local AI state: $error");
-              _notifyStateChanged();
-            },
-          );
+          _loadLocalAIState();
         } else {
           _notifyStateChanged();
         }

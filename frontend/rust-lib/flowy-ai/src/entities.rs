@@ -3,6 +3,7 @@ use std::collections::HashMap;
 
 use crate::local_ai::controller::LocalAISetting;
 use crate::local_ai::resource::PendingResource;
+use flowy_ai_pub::cloud::ai_dto::AvailableModel;
 use flowy_ai_pub::cloud::{
   AIModel, ChatMessage, ChatMessageMetadata, ChatMessageType, CompletionMessage, LLMModel,
   OutputContent, OutputLayout, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
@@ -186,7 +187,29 @@ pub struct ChatMessageListPB {
 #[derive(Default, ProtoBuf, Clone, Debug)]
 pub struct ServerAvailableModelsPB {
   #[pb(index = 1)]
-  pub models: String,
+  pub models: Vec<AvailableModelPB>,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct AvailableModelPB {
+  #[pb(index = 1)]
+  pub name: String,
+
+  #[pb(index = 2)]
+  pub is_default: bool,
+}
+
+impl From<AvailableModel> for AvailableModelPB {
+  fn from(value: AvailableModel) -> Self {
+    let is_default = value
+      .metadata
+      .and_then(|v| v.get("is_default").map(|v| v.as_bool().unwrap_or(false)))
+      .unwrap_or(false);
+    Self {
+      name: value.name,
+      is_default,
+    }
+  }
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
@@ -211,8 +234,8 @@ pub struct AvailableModelsPB {
   #[pb(index = 1)]
   pub models: Vec<AIModelPB>,
 
-  #[pb(index = 2, one_of)]
-  pub selected_model: Option<AIModelPB>,
+  #[pb(index = 2)]
+  pub selected_model: AIModelPB,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
@@ -222,6 +245,22 @@ pub struct AIModelPB {
 
   #[pb(index = 2)]
   pub is_local: bool,
+}
+
+impl AIModelPB {
+  pub fn server(name: String) -> Self {
+    Self {
+      name,
+      is_local: false,
+    }
+  }
+
+  pub fn local(name: String) -> Self {
+    Self {
+      name,
+      is_local: true,
+    }
+  }
 }
 
 impl From<AIModel> for AIModelPB {

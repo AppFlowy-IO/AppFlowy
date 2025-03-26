@@ -1,1 +1,3 @@
-mod client_manager;
+mod client;
+mod manager;
+mod util;
