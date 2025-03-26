@@ -5,9 +5,10 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use client_api::entity::workspace_dto::{
-  CreatePageParams, FolderView, MovePageParams, UpdatePageParams, UpdateSpaceParams,
+  CreatePageParams, CreateSpaceParams, FolderView, MovePageParams, UpdatePageParams,
+  UpdateSpaceParams,
 };
-use flowy_error::FlowyResult;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_sqlite::DBConnection;
 use tokio::time;
@@ -21,7 +22,9 @@ use crate::{
 };
 
 use super::sync_worker_op_name::{
-  CREATE_PAGE_OPERATION_NAME, HTTP_STATUS_COMPLETED, UPDATE_PAGE_OPERATION_NAME,
+  CREATE_PAGE_OPERATION_NAME, CREATE_SPACE_OPERATION_NAME, DELETE_PAGE_OPERATION_NAME,
+  HTTP_STATUS_COMPLETED, MOVE_PAGE_OPERATION_NAME, MOVE_PAGE_TO_TRASH_OPERATION_NAME,
+  RESTORE_PAGE_FROM_TRASH_OPERATION_NAME, UPDATE_PAGE_OPERATION_NAME, UPDATE_SPACE_OPERATION_NAME,
 };
 
 #[derive(Clone)]
@@ -83,53 +86,30 @@ impl SyncWorker {
     operation: FolderOperation,
   ) -> FlowyResult<()> {
     match operation.name.as_str() {
-      CREATE_PAGE_OPERATION_NAME => {
-        if let Some(payload) = operation.payload {
-          let params: CreatePageParams = serde_json::from_str(&payload)?;
-          let result = self
-            .cloud_service
-            .create_page(&operation.workspace_id, params)
-            .await;
-          // Update operation status to completed
-          match result {
-            Ok(_) => {
-              update_operation_status(conn, operation.id, HTTP_STATUS_COMPLETED.to_string())?;
-            },
-            Err(e) => {
-              error!("Failed to create page: {}", e);
-              return Err(e);
-            },
-          }
-        }
+      // Page operations
+      CREATE_PAGE_OPERATION_NAME => self.create_page_operation(conn, &operation).await,
+      UPDATE_PAGE_OPERATION_NAME => self.update_page_operation(conn, &operation).await,
+      MOVE_PAGE_OPERATION_NAME => self.move_page_operation(conn, &operation).await,
+      #[allow(clippy::match_overlapping_arm)]
+      MOVE_PAGE_TO_TRASH_OPERATION_NAME => {
+        self.move_page_to_trash_operation(conn, &operation).await
       },
-      UPDATE_PAGE_OPERATION_NAME => {
-        if let Some(page_id) = operation.page_id {
-          if let Some(payload) = operation.payload {
-            let params: UpdatePageParams = serde_json::from_str(&payload)?;
-            let result = self
-              .cloud_service
-              .update_page(&operation.workspace_id, &page_id, params)
-              .await;
-            match result {
-              Ok(_) => {
-                // Only update the operation status to completed if the page is updated successfully
-                update_operation_status(conn, operation.id, HTTP_STATUS_COMPLETED.to_string())?;
-              },
-              Err(e) => {
-                error!("Failed to update page: {}", e);
-                return Err(e);
-              },
-            }
-          }
-        }
+      RESTORE_PAGE_FROM_TRASH_OPERATION_NAME => {
+        self
+          .restore_page_from_trash_operation(conn, &operation)
+          .await
       },
-      // Add other operation types here
+      DELETE_PAGE_OPERATION_NAME => self.delete_page_operation(conn, &operation).await,
+
+      // Space operations
+      CREATE_SPACE_OPERATION_NAME => self.create_space_operation(conn, &operation).await,
+      UPDATE_SPACE_OPERATION_NAME => self.update_space_operation(conn, &operation).await,
+
       _ => {
         error!("Unknown operation type: {}", operation.name);
+        Ok(())
       },
     }
-
-    Ok(())
   }
 
   pub fn build_update_folder_view(
@@ -170,5 +150,214 @@ impl SyncWorker {
     folder_view.name = update_params.name;
     // TODO: update the space icon and color and permission
     folder_view
+  }
+
+  async fn create_page_operation(
+    &self,
+    conn: &mut DBConnection,
+    operation: &FolderOperation,
+  ) -> FlowyResult<()> {
+    self
+      .process_operation_with_payload::<CreatePageParams, _, _>(
+        conn,
+        operation,
+        |params| async move {
+          self
+            .cloud_service
+            .create_page(&operation.workspace_id, params)
+            .await
+        },
+      )
+      .await
+  }
+
+  async fn update_page_operation(
+    &self,
+    conn: &mut DBConnection,
+    operation: &FolderOperation,
+  ) -> FlowyResult<()> {
+    if let Some(page_id) = operation.page_id.clone() {
+      self
+        .process_operation_with_payload::<UpdatePageParams, _, _>(
+          conn,
+          operation,
+          |params| async move {
+            self
+              .cloud_service
+              .update_page(&operation.workspace_id, &page_id, params)
+              .await
+          },
+        )
+        .await?;
+    }
+    Ok(())
+  }
+
+  async fn move_page_operation(
+    &self,
+    conn: &mut DBConnection,
+    operation: &FolderOperation,
+  ) -> FlowyResult<()> {
+    if let Some(page_id) = operation.page_id.clone() {
+      self
+        .process_operation_with_payload::<MovePageParams, _, _>(
+          conn,
+          operation,
+          |params| async move {
+            self
+              .cloud_service
+              .move_page(&operation.workspace_id, &page_id, params)
+              .await
+          },
+        )
+        .await?;
+    }
+    Ok(())
+  }
+
+  async fn move_page_to_trash_operation(
+    &self,
+    conn: &mut DBConnection,
+    operation: &FolderOperation,
+  ) -> FlowyResult<()> {
+    if let Some(page_id) = operation.page_id.clone() {
+      self
+        .process_operation_without_payload(conn, operation, || async move {
+          self
+            .cloud_service
+            .move_page_to_trash(&operation.workspace_id, &page_id)
+            .await
+        })
+        .await?;
+    }
+    Ok(())
+  }
+
+  async fn restore_page_from_trash_operation(
+    &self,
+    conn: &mut DBConnection,
+    operation: &FolderOperation,
+  ) -> FlowyResult<()> {
+    if let Some(page_id) = operation.page_id.clone() {
+      self
+        .process_operation_without_payload(conn, operation, || async move {
+          self
+            .cloud_service
+            .restore_page_from_trash(&operation.workspace_id, &page_id)
+            .await
+        })
+        .await?;
+    }
+    Ok(())
+  }
+
+  async fn delete_page_operation(
+    &self,
+    conn: &mut DBConnection,
+    operation: &FolderOperation,
+  ) -> FlowyResult<()> {
+    todo!("Implement delete page operation");
+  }
+
+  async fn create_space_operation(
+    &self,
+    conn: &mut DBConnection,
+    operation: &FolderOperation,
+  ) -> FlowyResult<()> {
+    self
+      .process_operation_with_payload::<CreateSpaceParams, _, _>(
+        conn,
+        operation,
+        |params| async move {
+          self
+            .cloud_service
+            .create_space(&operation.workspace_id, params)
+            .await
+        },
+      )
+      .await
+  }
+
+  async fn update_space_operation(
+    &self,
+    conn: &mut DBConnection,
+    operation: &FolderOperation,
+  ) -> FlowyResult<()> {
+    self
+      .process_operation_with_payload::<UpdateSpaceParams, _, _>(
+        conn,
+        operation,
+        |params| async move {
+          match operation.page_id.as_ref() {
+            Some(page_id) => {
+              self
+                .cloud_service
+                .update_space(&operation.workspace_id, &page_id, params)
+                .await
+            },
+            None => {
+              Err(FlowyError::internal().with_context("Page id is required for update space"))
+            },
+          }
+        },
+      )
+      .await
+  }
+
+  /// Process operations with payload that need to be parsed and sent to cloud service.
+  /// If the operation is successful, the operation status will be updated to completed
+  async fn process_operation_with_payload<T, F, Fut>(
+    &self,
+    conn: &mut DBConnection,
+    operation: &FolderOperation,
+    cloud_operation: F,
+  ) -> FlowyResult<()>
+  where
+    T: serde::de::DeserializeOwned,
+    F: FnOnce(T) -> Fut,
+    Fut: std::future::Future<Output = FlowyResult<()>>,
+  {
+    if let Some(payload) = operation.payload.clone() {
+      let params: T = serde_json::from_str(&payload)?;
+      let result = cloud_operation(params).await;
+      match result {
+        Ok(_) => {
+          update_operation_status(conn, operation.id, HTTP_STATUS_COMPLETED.to_string())?;
+        },
+        Err(e) => {
+          error!(
+            "Operation {} failed: {}, payload: {}",
+            operation.name, e, payload
+          );
+          return Err(e);
+        },
+      }
+    }
+    Ok(())
+  }
+
+  /// Process operations that don't need payload parsing.
+  /// If the operation is successful, the operation status will be updated to completed
+  async fn process_operation_without_payload<F, Fut>(
+    &self,
+    conn: &mut DBConnection,
+    operation: &FolderOperation,
+    cloud_operation: F,
+  ) -> FlowyResult<()>
+  where
+    F: FnOnce() -> Fut,
+    Fut: std::future::Future<Output = FlowyResult<()>>,
+  {
+    let result = cloud_operation().await;
+    match result {
+      Ok(_) => {
+        update_operation_status(conn, operation.id, HTTP_STATUS_COMPLETED.to_string())?;
+      },
+      Err(e) => {
+        error!("Operation {} failed: {}", operation.name, e);
+        return Err(e);
+      },
+    }
+    Ok(())
   }
 }

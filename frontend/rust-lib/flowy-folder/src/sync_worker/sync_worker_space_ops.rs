@@ -1,19 +1,14 @@
 use client_api::entity::workspace_dto::{CreateSpaceParams, UpdateSpaceParams};
 use flowy_error::{FlowyError, FlowyResult};
 
-use crate::{
-  services::sqlite_sql::{
-    folder_operation_sql::{upsert_operation, FolderOperation},
-    folder_page_sql::{get_page_by_id, upsert_folder_view},
-  },
-  sync_worker::sync_worker_op_name::MOVE_SPACE_TO_TRASH_OPERATION_NAME,
+use crate::services::sqlite_sql::{
+  folder_operation_sql::{upsert_operation, FolderOperation},
+  folder_page_sql::{get_page_by_id, upsert_folder_view},
 };
 
 use super::{
   sync_worker::SyncWorker,
-  sync_worker_op_name::{
-    DELETE_SPACE_OPERATION_NAME, HTTP_METHOD_POST, HTTP_METHOD_PUT, UPDATE_SPACE_OPERATION_NAME,
-  },
+  sync_worker_op_name::{HTTP_METHOD_PUT, UPDATE_SPACE_OPERATION_NAME},
   sync_worker_page_ops::SyncWorkerPageOps,
 };
 
@@ -25,9 +20,9 @@ pub trait SyncWorkerSpaceOps {
     space_id: &str,
     params: UpdateSpaceParams,
   ) -> FlowyResult<()>;
-  async fn move_space_to_trash(&self, workspace_id: &str, space_id: &str) -> FlowyResult<()>;
-  async fn restore_space_from_trash(&self, workspace_id: &str, space_id: &str) -> FlowyResult<()>;
-  async fn delete_space(&self, workspace_id: &str, space_id: &str) -> FlowyResult<()>;
+  //   async fn move_space_to_trash(&self, workspace_id: &str, space_id: &str) -> FlowyResult<()>;
+  //   async fn restore_space_from_trash(&self, workspace_id: &str, space_id: &str) -> FlowyResult<()>;
+  //   async fn delete_space(&self, workspace_id: &str, space_id: &str) -> FlowyResult<()>;
 }
 
 // All the operations are using the similar workflow.
@@ -100,24 +95,24 @@ impl SyncWorkerSpaceOps for SyncWorker {
     Err(FlowyError::internal().with_context("Failed to update space"))
   }
 
-  /// Check the move page to trash function for more details
-  ///
-  /// Note: This function share the same workflow as the move page to trash
-  async fn move_space_to_trash(&self, workspace_id: &str, space_id: &str) -> FlowyResult<()> {
-    self.move_page_to_trash(workspace_id, space_id).await
-  }
+  //   /// Check the move page to trash function for more details
+  //   ///
+  //   /// Note: This function share the same workflow as the move page to trash
+  //   async fn move_space_to_trash(&self, workspace_id: &str, space_id: &str) -> FlowyResult<()> {
+  //     self.move_page_to_trash(workspace_id, space_id).await
+  //   }
 
-  /// Check the restore page from trash function for more details
-  ///
-  /// Note: This function share the same workflow as the restore page from trash
-  async fn restore_space_from_trash(&self, workspace_id: &str, space_id: &str) -> FlowyResult<()> {
-    self.restore_page_from_trash(workspace_id, space_id).await
-  }
+  //   /// Check the restore page from trash function for more details
+  //   ///
+  //   /// Note: This function share the same workflow as the restore page from trash
+  //   async fn restore_space_from_trash(&self, workspace_id: &str, space_id: &str) -> FlowyResult<()> {
+  //     self.restore_page_from_trash(workspace_id, space_id).await
+  //   }
 
-  /// Check the delete page function for more details
-  ///
-  /// Note: This function share the same workflow as the delete page
-  async fn delete_space(&self, workspace_id: &str, space_id: &str) -> FlowyResult<()> {
-    self.delete_page(workspace_id, space_id).await
-  }
+  //   /// Check the delete page function for more details
+  //   ///
+  //   /// Note: This function share the same workflow as the delete page
+  //   async fn delete_space(&self, workspace_id: &str, space_id: &str) -> FlowyResult<()> {
+  //     self.delete_page(workspace_id, space_id).await
+  //   }
 }
