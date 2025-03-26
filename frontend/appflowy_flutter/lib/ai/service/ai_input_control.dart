@@ -14,7 +14,7 @@ class AIModelStateNotifier {
       : _isDesktop = UniversalPlatform.isDesktop,
         _localAIListener =
             UniversalPlatform.isDesktop ? LocalAIStateListener() : null,
-        _aiModelSwitchListener = AIModelSwitchListener(chatId: objectId);
+        _aiModelSwitchListener = AIModelSwitchListener(objectId: objectId);
 
   final String objectId;
   final bool _isDesktop;
