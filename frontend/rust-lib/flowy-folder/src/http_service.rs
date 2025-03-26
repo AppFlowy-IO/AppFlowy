@@ -289,10 +289,9 @@ impl FolderHttpService for FolderManager {
 
   async fn move_page_to_trash(&self, workspace_id: &str, view_id: &str) -> FlowyResult<()> {
     self
-      .cloud_service
+      .sync_worker
       .move_page_to_trash(workspace_id, view_id)
-      .await?;
-    Ok(())
+      .await
   }
 
   async fn restore_page_from_trash(&self, workspace_id: &str, view_id: &str) -> FlowyResult<()> {
@@ -323,10 +322,9 @@ impl FolderHttpService for FolderManager {
     params: MovePageParams,
   ) -> FlowyResult<()> {
     self
-      .cloud_service
+      .sync_worker
       .move_page(workspace_id, view_id, params)
-      .await?;
-    Ok(())
+      .await
   }
 
   async fn create_space(&self, workspace_id: &str, params: CreateSpaceParams) -> FlowyResult<()> {

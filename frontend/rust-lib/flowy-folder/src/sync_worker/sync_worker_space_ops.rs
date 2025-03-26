@@ -1,4 +1,6 @@
-use client_api::entity::workspace_dto::{CreatePageParams, MovePageParams, UpdatePageParams};
+use client_api::entity::workspace_dto::{
+  CreatePageParams, CreateSpaceParams, MovePageParams, UpdatePageParams,
+};
 use flowy_error::FlowyResult;
 
 use crate::services::sqlite_sql::{
@@ -17,23 +19,15 @@ use super::{
 
 use client_api::entity::workspace_dto::FolderView;
 
-pub trait SyncWorkerPageOps {
-  async fn create_page(&self, workspace_id: &str, params: CreatePageParams) -> FlowyResult<()>;
-  async fn update_page(
+pub trait SyncWorkerSpaceOps {
+  async fn create_space(&self, workspace_id: &str, params: CreateSpaceParams) -> FlowyResult<()>;
+  async fn update_space(
     &self,
     workspace_id: &str,
-    page_id: &str,
-    params: UpdatePageParams,
+    space_id: &str,
+    params: UpdateSpaceParams,
   ) -> FlowyResult<()>;
-  async fn move_page(
-    &self,
-    workspace_id: &str,
-    page_id: &str,
-    params: MovePageParams,
-  ) -> FlowyResult<()>;
-  async fn move_page_to_trash(&self, workspace_id: &str, page_id: &str) -> FlowyResult<()>;
-  async fn restore_page_from_trash(&self, workspace_id: &str, page_id: &str) -> FlowyResult<()>;
-  async fn delete_page(&self, workspace_id: &str, page_id: &str) -> FlowyResult<()>;
+  async fn delete_space(&self, workspace_id: &str, space_id: &str) -> FlowyResult<()>;
 }
 
 // All the operations are using the similar workflow.

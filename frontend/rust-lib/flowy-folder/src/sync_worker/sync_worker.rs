@@ -4,7 +4,9 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use client_api::entity::workspace_dto::{CreatePageParams, FolderView, UpdatePageParams};
+use client_api::entity::workspace_dto::{
+  CreatePageParams, FolderView, MovePageParams, UpdatePageParams,
+};
 use flowy_error::FlowyResult;
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_sqlite::DBConnection;
@@ -82,30 +84,42 @@ impl SyncWorker {
   ) -> FlowyResult<()> {
     match operation.name.as_str() {
       CREATE_PAGE_OPERATION_NAME => {
-        let params: CreatePageParams = serde_json::from_str(&operation.payload)?;
-        self
-          .cloud_service
-          .create_page(&operation.workspace_id, params)
-          .await?;
-        // Update operation status to completed
-        update_operation_status(conn, operation.id, HTTP_STATUS_COMPLETED.to_string())?;
-      },
-      UPDATE_PAGE_OPERATION_NAME => {
-        if let Some(page_id) = operation.page_id {
-          let params: UpdatePageParams = serde_json::from_str(&operation.payload)?;
+        if let Some(payload) = operation.payload {
+          let params: CreatePageParams = serde_json::from_str(&payload)?;
           let result = self
             .cloud_service
-            .update_page(&operation.workspace_id, &page_id, params)
+            .create_page(&operation.workspace_id, params)
             .await;
+          // Update operation status to completed
           match result {
             Ok(_) => {
-              // Only update the operation status to completed if the page is updated successfully
               update_operation_status(conn, operation.id, HTTP_STATUS_COMPLETED.to_string())?;
             },
             Err(e) => {
-              error!("Failed to update page: {}", e);
+              error!("Failed to create page: {}", e);
               return Err(e);
             },
+          }
+        }
+      },
+      UPDATE_PAGE_OPERATION_NAME => {
+        if let Some(page_id) = operation.page_id {
+          if let Some(payload) = operation.payload {
+            let params: UpdatePageParams = serde_json::from_str(&payload)?;
+            let result = self
+              .cloud_service
+              .update_page(&operation.workspace_id, &page_id, params)
+              .await;
+            match result {
+              Ok(_) => {
+                // Only update the operation status to completed if the page is updated successfully
+                update_operation_status(conn, operation.id, HTTP_STATUS_COMPLETED.to_string())?;
+              },
+              Err(e) => {
+                error!("Failed to update page: {}", e);
+                return Err(e);
+              },
+            }
           }
         }
       },
@@ -118,7 +132,7 @@ impl SyncWorker {
     Ok(())
   }
 
-  pub fn update_folder_view(
+  pub fn build_update_folder_view(
     &self,
     folder_view: FolderView,
     update_params: UpdatePageParams,
@@ -134,6 +148,16 @@ impl SyncWorker {
     if let Some(extra) = update_params.extra {
       folder_view.extra = Some(extra);
     }
+    folder_view
+  }
+
+  pub fn build_moved_folder_view(
+    &self,
+    folder_view: FolderView,
+    move_params: MovePageParams,
+  ) -> FolderView {
+    let mut folder_view = folder_view;
+    folder_view.parent_view_id = move_params.new_parent_view_id;
     folder_view
   }
 }

@@ -6,6 +6,6 @@ CREATE TABLE folder_operation_table (
     name TEXT NOT NULL,
     method TEXT NOT NULL,
     status TEXT NOT NULL,
-    payload TEXT NOT NULL,
+    payload TEXT,
     timestamp TEXT NOT NULL
 );

@@ -83,7 +83,7 @@ diesel::table! {
         name -> Text,
         method -> Text,
         status -> Text,
-        payload -> Text,
+        payload -> Nullable<Text>,
         timestamp -> BigInt,
     }
 }

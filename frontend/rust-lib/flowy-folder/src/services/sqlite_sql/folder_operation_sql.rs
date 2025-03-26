@@ -5,6 +5,8 @@ use flowy_sqlite::schema::folder_operation_table;
 use flowy_sqlite::DBConnection;
 use flowy_sqlite::ExpressionMethods;
 
+use crate::sync_worker::sync_worker_op_name::HTTP_STATUS_PENDING;
+
 #[derive(Clone, Default, Queryable, Identifiable, Insertable, AsChangeset)]
 #[diesel(table_name = folder_operation_table)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -15,7 +17,7 @@ pub struct FolderOperation {
   pub(crate) name: String,
   pub(crate) method: String,
   pub(crate) status: String,
-  pub(crate) payload: String,
+  pub(crate) payload: Option<String>,
   pub(crate) timestamp: i64,
 }
 
@@ -26,7 +28,7 @@ impl FolderOperation {
     name: &str,
     method: &str,
     status: &str,
-    payload: &str,
+    payload: Option<&str>,
     timestamp: i64,
   ) -> Self {
     Self {
@@ -36,9 +38,27 @@ impl FolderOperation {
       name: name.to_string(),
       method: method.to_string(),
       status: status.to_string(),
-      payload: payload.to_string(),
+      payload: payload.map(|s| s.to_string()),
       timestamp,
     }
+  }
+
+  pub fn pending(
+    workspace_id: &str,
+    page_id: Option<&str>,
+    name: &str,
+    method: &str,
+    payload: Option<&str>,
+  ) -> Self {
+    Self::new(
+      workspace_id,
+      page_id,
+      name,
+      method,
+      HTTP_STATUS_PENDING,
+      payload,
+      chrono::Utc::now().timestamp_millis(),
+    )
   }
 }
 
