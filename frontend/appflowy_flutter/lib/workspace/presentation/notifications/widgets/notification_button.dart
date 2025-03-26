@@ -3,6 +3,7 @@ import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/user/application/reminder/reminder_bloc.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/notifications/notification_settings_cubit.dart';
+import 'package:appflowy/workspace/presentation/notifications/number_red_dot.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/reminder.pb.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -83,22 +84,7 @@ class _NotificationButtonState extends State<NotificationButton> {
           child: Container(
             height: 24,
             padding: EdgeInsets.all(3),
-            child: Container(
-              height: 18,
-              padding: EdgeInsets.symmetric(horizontal: 6),
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.all(Radius.circular(16)),
-              ),
-              child: Center(
-                child: FlowyText.medium(
-                  '$unreadReminder',
-                  color: Colors.white,
-                  fontSize: 12,
-                  figmaLineHeight: 14,
-                ),
-              ),
-            ),
+            child: NumberedRedDot(),
           ),
         ),
       );
