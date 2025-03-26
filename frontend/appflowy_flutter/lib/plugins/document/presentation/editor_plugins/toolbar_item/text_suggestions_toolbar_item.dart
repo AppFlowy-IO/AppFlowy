@@ -11,6 +11,7 @@ import 'package:appflowy_editor/appflowy_editor.dart'
     hide QuoteBlockComponentBuilder, quoteNode, QuoteBlockKeys;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/theme_extension_v2.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
@@ -106,7 +107,8 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
   }
 
   Widget buildChild(BuildContext context) {
-    final iconColor = Theme.of(context).iconTheme.color;
+    final themeV2 = AFThemeExtensionV2.of(context);
+
     final child = FlowyHover(
       isSelected: () => isSelected,
       style: HoverStyle(
@@ -149,7 +151,7 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
                 FlowySvg(
                   FlowySvgs.toolbar_arrow_down_m,
                   size: Size(12, 20),
-                  color: iconColor,
+                  color: themeV2.icon_tertiary,
                 ),
               ],
             ),
