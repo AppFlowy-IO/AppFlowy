@@ -115,7 +115,7 @@ pub enum AIEvent {
   #[event(input = "RegenerateResponsePB")]
   RegenerateResponse = 27,
 
-  #[event(output = "ServerAvailableModelsPB")]
+  #[event(output = "AvailableModelsPB")]
   GetServerAvailableModels = 28,
 
   #[event(output = "LocalAISettingPB")]

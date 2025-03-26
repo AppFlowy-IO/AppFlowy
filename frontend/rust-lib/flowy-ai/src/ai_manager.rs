@@ -27,7 +27,7 @@ use lib_infra::util::timestamp;
 use std::path::PathBuf;
 use std::sync::{Arc, Weak};
 use tokio::sync::RwLock;
-use tracing::{error, info, trace};
+use tracing::{error, info, instrument, trace};
 
 pub trait AIUserService: Send + Sync + 'static {
   fn user_id(&self) -> Result<i64, FlowyError>;
@@ -61,6 +61,8 @@ struct ServerModelsCache {
   models: Vec<AvailableModel>,
   timestamp: Option<i64>,
 }
+
+pub const GLOBAL_ACTIVE_MODEL_KEY: &str = "global_active_model";
 
 pub struct AIManager {
   pub cloud_service_wm: Arc<AICloudServiceMiddleware>,
@@ -266,7 +268,7 @@ impl AIManager {
     Ok(())
   }
 
-  pub async fn get_workspace_select_model(&self) -> FlowyResult<String> {
+  async fn get_workspace_select_model(&self) -> FlowyResult<String> {
     let workspace_id = self.user_service.workspace_id()?;
     let model = self
       .cloud_service_wm
@@ -275,7 +277,7 @@ impl AIManager {
     Ok(model)
   }
 
-  pub async fn get_server_available_models(&self) -> FlowyResult<Vec<AvailableModel>> {
+  async fn get_server_available_models(&self) -> FlowyResult<Vec<AvailableModel>> {
     let workspace_id = self.user_service.workspace_id()?;
     let now = timestamp();
 
@@ -339,15 +341,41 @@ impl AIManager {
     }
   }
 
-  pub async fn update_selected_model(&self, source: String, model: AIModelPB) -> FlowyResult<()> {
+  pub async fn update_selected_model(&self, source: String, model: AIModel) -> FlowyResult<()> {
     let source_key = ai_available_models_key(&source);
     self
       .store_preferences
-      .set_object::<AIModel>(&source_key, &model.clone().into())?;
+      .set_object::<AIModel>(&source_key, &model)?;
 
     chat_notification_builder(&source, ChatNotification::DidUpdateSelectedModel)
-      .payload(model)
+      .payload(AIModelPB::from(model))
       .send();
+    Ok(())
+  }
+
+  #[instrument(skip_all, level = "debug")]
+  pub async fn toggle_local_ai(&self) -> FlowyResult<()> {
+    let enabled = self.local_ai.toggle_local_ai().await?;
+    let source_key = ai_available_models_key(GLOBAL_ACTIVE_MODEL_KEY);
+    if enabled {
+      if let Some(name) = self.local_ai.get_plugin_chat_model() {
+        info!("Set global active model to local ai: {}", name);
+        let model = AIModel::local(name);
+        self.update_selected_model(source_key, model).await?;
+      }
+    } else {
+      info!("Set global active model to default");
+      let global_active_model = self
+        .get_workspace_select_model()
+        .await
+        .map(AIModel::server)
+        .unwrap_or_else(|_| AIModel::default());
+
+      self
+        .update_selected_model(source_key, global_active_model)
+        .await?;
+    }
+
     Ok(())
   }
 
@@ -357,79 +385,64 @@ impl AIManager {
       .get_server_available_models()
       .await?
       .into_iter()
-      .map(|m| AIModelPB {
-        name: m.name,
-        is_local: false,
-      })
+      .map(|m| AIModelPB::server(m.name))
       .collect();
 
-    // Optionally add the local plugin model.
+    // If user enable local ai, then add local ai model to the list.
     if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
-      models.push(AIModelPB {
-        name: local_model,
-        is_local: true,
-      });
+      models.push(AIModelPB::local(local_model));
     }
 
     if models.is_empty() {
       return Ok(AvailableModelsPB {
         models,
-        selected_model: None,
+        selected_model: AIModelPB::default(),
       });
     }
 
+    // Global active model is the model selected by the user in the workspace settings.
+    let global_active_model = self
+      .get_workspace_select_model()
+      .await
+      .map(AIModel::server)
+      .unwrap_or_else(|_| AIModel::default());
+
+    let mut user_selected_model = global_active_model.clone();
     let source_key = ai_available_models_key(&source);
 
-    // Retrieve stored selected model, if any.
-    let stored_selected = self.store_preferences.get_object::<AIModel>(&source_key);
-
-    // Get workspace default model once.
-    let workspace_default = self.get_workspace_select_model().await.ok();
-
-    // Determine the effective selected model.
-    let effective_selected = stored_selected.unwrap_or_else(|| {
-      if let Some(ws_name) = workspace_default.clone() {
-        let model = AIModel {
-          name: ws_name,
-          is_local: false,
-        };
-        // Store the default if not present.
-        let _ = self.store_preferences.set_object(&source_key, &model);
-        model
-      } else {
-        AIModel::default()
-      }
-    });
-
-    // Find a matching model in the available list.
-    let used_model = models
-      .iter()
-      .find(|m| m.name == effective_selected.name)
-      .cloned()
-      .or_else(|| {
-        // If no match, try to use the workspace default if available.
-        if let Some(ws_name) = workspace_default {
-          Some(AIModelPB {
-            name: ws_name,
-            is_local: false,
-          })
-        } else {
-          models.first().cloned()
+    // If source is provided, try to get the user-selected model from the store. User selected
+    // model will be used as the active model if it exists.
+    match self.store_preferences.get_object::<AIModel>(&source_key) {
+      None => {
+        // when there is selected model and current local ai is active, then use local ai
+        if let Some(local_ai_model) = models.iter().find(|m| m.is_local) {
+          user_selected_model = AIModel::from(local_ai_model.clone());
         }
-      });
+      },
+      Some(model) => {
+        user_selected_model = model;
+      },
+    }
+
+    // If user selected model is not available in the list, use the global active model.
+    let active_model = models
+      .iter()
+      .find(|m| m.name == user_selected_model.name)
+      .cloned()
+      .or_else(|| Some(AIModelPB::from(global_active_model)));
 
     // Update the stored preference if a different model is used.
-    if let Some(ref used) = used_model {
-      if used.name != effective_selected.name {
+    if let Some(ref active_model) = active_model {
+      if active_model.name != user_selected_model.name {
         self
           .store_preferences
-          .set_object::<AIModel>(&source_key, &AIModel::from(used.clone()))?;
+          .set_object::<AIModel>(&source_key, &AIModel::from(active_model.clone()))?;
       }
     }
 
     Ok(AvailableModelsPB {
       models,
-      selected_model: used_model,
+      selected_model: active_model.unwrap_or_default(),
     })
   }
 

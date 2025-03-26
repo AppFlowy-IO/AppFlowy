@@ -322,7 +322,6 @@ impl LocalAIController {
     let enabled = !self.store_preferences.get_bool(&key).unwrap_or(true);
     self.store_preferences.set_bool(&key, enabled)?;
     self.toggle_plugin(enabled).await?;
-
     Ok(enabled)
   }
 

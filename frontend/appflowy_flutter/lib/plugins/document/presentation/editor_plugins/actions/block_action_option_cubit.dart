@@ -469,7 +469,7 @@ class BlockActionOptionCubit extends Cubit<BlockActionOptionState> {
         blockComponentDelta: newDelta.toJson(),
       },
       children: [
-        ...node.children,
+        ...node.children.map((e) => e.deepCopy()),
         ...insertedNodes.map((e) => e.deepCopy()),
       ],
     );

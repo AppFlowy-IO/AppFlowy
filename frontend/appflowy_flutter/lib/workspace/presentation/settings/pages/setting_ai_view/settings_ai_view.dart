@@ -42,9 +42,8 @@ class SettingsAIView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SettingsAIBloc>(
-      create: (_) =>
-          SettingsAIBloc(userProfile, workspaceId, currentWorkspaceMemberRole)
-            ..add(const SettingsAIEvent.started()),
+      create: (_) => SettingsAIBloc(userProfile, workspaceId)
+        ..add(const SettingsAIEvent.started()),
       child: BlocBuilder<SettingsAIBloc, SettingsAIState>(
         builder: (context, state) {
           final children = <Widget>[

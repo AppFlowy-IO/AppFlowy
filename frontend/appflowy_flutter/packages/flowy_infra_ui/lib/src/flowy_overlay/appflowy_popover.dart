@@ -4,6 +4,23 @@ import 'package:flutter/material.dart';
 
 export 'package:appflowy_popover/appflowy_popover.dart';
 
+class ShadowConstants {
+  ShadowConstants._();
+
+  static const List<BoxShadow> lightSmall = [
+    BoxShadow(offset: Offset(0, 4), blurRadius: 20, color: Color(0x1A1F2329)),
+  ];
+  static const List<BoxShadow> lightMedium = [
+    BoxShadow(offset: Offset(0, 4), blurRadius: 32, color: Color(0x121F2225)),
+  ];
+  static const List<BoxShadow> darkSmall = [
+    BoxShadow(offset: Offset(0, 2), blurRadius: 16, color: Color(0x5C000000)),
+  ];
+  static const List<BoxShadow> darkMedium = [
+    BoxShadow(offset: Offset(0, 4), blurRadius: 32, color: Color(0x5C000000)),
+  ];
+}
+
 class AppFlowyPopover extends StatelessWidget {
   const AppFlowyPopover({
     super.key,
@@ -162,26 +179,9 @@ extension PopoverDecoration on BuildContext {
     final borderColor = Theme.of(this).brightness == Brightness.light
         ? ColorSchemeConstants.lightBorderColor
         : ColorSchemeConstants.darkBorderColor;
-    final shadows = [
-      const BoxShadow(
-        color: Color(0x0A1F2329),
-        blurRadius: 24,
-        offset: Offset(0, 8),
-        spreadRadius: 8,
-      ),
-      const BoxShadow(
-        color: Color(0x0A1F2329),
-        blurRadius: 12,
-        offset: Offset(0, 6),
-        spreadRadius: 0,
-      ),
-      const BoxShadow(
-        color: Color(0x0F1F2329),
-        blurRadius: 8,
-        offset: Offset(0, 4),
-        spreadRadius: -8,
-      )
-    ];
+    final shadows = Theme.of(this).brightness == Brightness.light
+        ? ShadowConstants.lightSmall
+        : ShadowConstants.darkSmall;
     return ShapeDecoration(
       color: color ?? Theme.of(this).cardColor,
       shape: RoundedRectangleBorder(

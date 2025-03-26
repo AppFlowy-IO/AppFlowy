@@ -1,6 +1,7 @@
 import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/colorscheme/default_colorscheme.dart';
@@ -102,13 +103,9 @@ class MoreAiWriterCommands extends StatelessWidget {
           strokeAlign: BorderSide.strokeAlignOutside,
         ),
         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-        boxShadow: const [
-          BoxShadow(
-            offset: Offset(0, 4),
-            blurRadius: 20,
-            color: Color(0x1A1F2329),
-          ),
-        ],
+        boxShadow: Theme.of(context).isLightMode
+            ? ShadowConstants.lightSmall
+            : ShadowConstants.darkSmall,
       ),
       child: IntrinsicWidth(
         child: Column(

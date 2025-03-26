@@ -519,7 +519,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           editorState,
           aiWriterNode!,
         );
-        _textRobot.start(position: position);
+        _textRobot.start(position: position, previousSelection: selection);
         records.add(
           AiWriterRecord.user(
             content: prompt,

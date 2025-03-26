@@ -100,7 +100,6 @@ class _MobileHomeSettingPageState extends State<MobileHomeSettingPage> {
                       key: ValueKey(currentWorkspaceId),
                       userProfile: userProfile,
                       workspaceId: currentWorkspaceId,
-                      currentWorkspaceMemberRole: state.currentWorkspace?.role,
                     ),
                   const SupportSettingGroup(),
                   const AboutSettingGroup(),

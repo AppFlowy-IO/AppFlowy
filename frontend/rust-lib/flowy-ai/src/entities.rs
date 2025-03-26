@@ -234,8 +234,8 @@ pub struct AvailableModelsPB {
   #[pb(index = 1)]
   pub models: Vec<AIModelPB>,
 
-  #[pb(index = 2, one_of)]
-  pub selected_model: Option<AIModelPB>,
+  #[pb(index = 2)]
+  pub selected_model: AIModelPB,
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
@@ -245,6 +245,22 @@ pub struct AIModelPB {
 
   #[pb(index = 2)]
   pub is_local: bool,
+}
+
+impl AIModelPB {
+  pub fn server(name: String) -> Self {
+    Self {
+      name,
+      is_local: false,
+    }
+  }
+
+  pub fn local(name: String) -> Self {
+    Self {
+      name,
+      is_local: true,
+    }
+  }
 }
 
 impl From<AIModel> for AIModelPB {

@@ -1,10 +1,13 @@
 use std::fs;
 use std::path::PathBuf;
 
-use crate::ai_manager::AIManager;
+use crate::ai_manager::{AIManager, GLOBAL_ACTIVE_MODEL_KEY};
 use crate::completion::AICompletion;
 use crate::entities::*;
-use flowy_ai_pub::cloud::{ChatMessageMetadata, ChatMessageType, ChatRAGData, ContextLoader};
+use crate::util::ai_available_models_key;
+use flowy_ai_pub::cloud::{
+  AIModel, ChatMessageMetadata, ChatMessageType, ChatRAGData, ContextLoader,
+};
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use std::sync::{Arc, Weak};
@@ -104,14 +107,11 @@ pub(crate) async fn regenerate_response_handler(
 #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn get_server_model_list_handler(
   ai_manager: AFPluginState<Weak<AIManager>>,
-) -> DataResult<ServerAvailableModelsPB, FlowyError> {
+) -> DataResult<AvailableModelsPB, FlowyError> {
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let models = ai_manager.get_server_available_models().await?;
-  let models = models
-    .into_iter()
-    .map(AvailableModelPB::from)
-    .collect::<Vec<_>>();
-  data_result_ok(ServerAvailableModelsPB { models })
+  let source_key = ai_available_models_key(GLOBAL_ACTIVE_MODEL_KEY);
+  let models = ai_manager.get_available_models(source_key).await?;
+  data_result_ok(models)
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
@@ -132,7 +132,7 @@ pub(crate) async fn update_selected_model_handler(
   let data = data.try_into_inner()?;
   let ai_manager = upgrade_ai_manager(ai_manager)?;
   ai_manager
-    .update_selected_model(data.source, data.selected_model)
+    .update_selected_model(data.source, AIModel::from(data.selected_model))
     .await?;
   Ok(())
 }
@@ -286,7 +286,7 @@ pub(crate) async fn toggle_local_ai_handler(
   ai_manager: AFPluginState<Weak<AIManager>>,
 ) -> DataResult<LocalAIPB, FlowyError> {
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let _ = ai_manager.local_ai.toggle_local_ai().await?;
+  ai_manager.toggle_local_ai().await?;
   let state = ai_manager.local_ai.get_local_ai_state().await;
   data_result_ok(state)
 }
