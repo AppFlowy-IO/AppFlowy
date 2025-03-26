@@ -5,8 +5,6 @@ import 'package:appflowy/mobile/presentation/setting/widgets/mobile_setting_item
 import 'package:appflowy/mobile/presentation/widgets/flowy_option_tile.dart';
 import 'package:appflowy/workspace/application/settings/ai/settings_ai_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-user/workspace.pbenum.dart';
-import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
@@ -18,12 +16,10 @@ class AiSettingsGroup extends StatelessWidget {
     super.key,
     required this.userProfile,
     required this.workspaceId,
-    this.currentWorkspaceMemberRole,
   });
 
   final UserProfilePB userProfile;
   final String workspaceId;
-  final AFRolePB? currentWorkspaceMemberRole;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +28,6 @@ class AiSettingsGroup extends StatelessWidget {
       create: (context) => SettingsAIBloc(
         userProfile,
         workspaceId,
-        currentWorkspaceMemberRole,
       )..add(const SettingsAIEvent.started()),
       child: BlocBuilder<SettingsAIBloc, SettingsAIState>(
         builder: (context, state) {
@@ -48,7 +43,7 @@ class AiSettingsGroup extends StatelessWidget {
                     children: [
                       Flexible(
                         child: FlowyText(
-                          state.selectedAIModel,
+                          state.availableModels?.selectedModel.name ?? "",
                           color: theme.colorScheme.onSurface,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -84,16 +79,19 @@ class AiSettingsGroup extends StatelessWidget {
       title: LocaleKeys.settings_aiPage_keys_llmModelType.tr(),
       builder: (_) {
         return Column(
-          children: availableModels
-              .mapIndexed(
-                (index, model) => FlowyOptionTile.checkbox(
-                  text: model.name,
-                  showTopBorder: index == 0,
-                  isSelected: state.selectedAIModel == model.name,
+          children: (availableModels?.models ?? [])
+              .asMap()
+              .entries
+              .map(
+                (entry) => FlowyOptionTile.checkbox(
+                  text: entry.value.name,
+                  showTopBorder: entry.key == 0,
+                  isSelected:
+                      availableModels?.selectedModel.name == entry.value.name,
                   onTap: () {
                     context
                         .read<SettingsAIBloc>()
-                        .add(SettingsAIEvent.selectModel(model.name));
+                        .add(SettingsAIEvent.selectModel(entry.value));
                     context.pop();
                   },
                 ),

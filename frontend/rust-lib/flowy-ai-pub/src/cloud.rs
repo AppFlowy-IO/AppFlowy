@@ -29,10 +29,26 @@ pub struct AIModel {
   pub is_local: bool,
 }
 
+impl AIModel {
+  pub fn server(name: String) -> Self {
+    Self {
+      name,
+      is_local: false,
+    }
+  }
+
+  pub fn local(name: String) -> Self {
+    Self {
+      name,
+      is_local: true,
+    }
+  }
+}
+
 impl Default for AIModel {
   fn default() -> Self {
     Self {
-      name: "default".to_string(),
+      name: "Auto".to_string(),
       is_local: false,
     }
   }
