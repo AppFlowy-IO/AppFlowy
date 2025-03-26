@@ -506,7 +506,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           ),
           withUpdateSelection: false,
         );
-        _textRobot.start(position: position);
+        _textRobot.start(position: position, previousSelection: selection);
       },
       processMessage: (text) async {
         await _textRobot.appendMarkdownText(
