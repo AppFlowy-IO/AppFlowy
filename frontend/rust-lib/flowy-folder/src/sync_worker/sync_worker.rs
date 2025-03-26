@@ -5,32 +5,21 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use client_api::entity::workspace_dto::{CreatePageParams, FolderView, UpdatePageParams};
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::FlowyResult;
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_sqlite::DBConnection;
 use tokio::time;
 use tracing::{error, info};
 
-const CREATE_PAGE_OPERATION_NAME: &str = "create_page";
-const UPDATE_PAGE_OPERATION_NAME: &str = "update_page";
-const MOVE_PAGE_OPERATION_NAME: &str = "move_page";
-
-const HTTP_METHOD_POST: &str = "POST";
-const HTTP_METHOD_PUT: &str = "PUT";
-const HTTP_METHOD_DELETE: &str = "DELETE";
-
-const HTTP_STATUS_PENDING: &str = "pending";
-const HTTP_STATUS_COMPLETED: &str = "completed";
-
 use crate::{
   manager::FolderUser,
-  services::sqlite_sql::{
-    folder_operation_sql::{
-      get_pending_operations_by_workspace_id, update_operation_status, upsert_operation,
-      FolderOperation,
-    },
-    folder_page_sql::{get_page_by_id, upsert_folder_view, upsert_folder_view_with_children},
+  services::sqlite_sql::folder_operation_sql::{
+    get_pending_operations_by_workspace_id, update_operation_status, FolderOperation,
   },
+};
+
+use super::sync_worker_op_name::{
+  CREATE_PAGE_OPERATION_NAME, HTTP_STATUS_COMPLETED, UPDATE_PAGE_OPERATION_NAME,
 };
 
 #[derive(Clone)]
@@ -48,95 +37,6 @@ impl SyncWorker {
       cloud_service,
       user,
     }
-  }
-
-  /// Create a new page and persist it to the local database
-  ///
-  /// # Workflow
-  /// 1. Persist the http service to the local database (operations table)
-  /// 2. Call the http service to create a new page
-  /// 3. Persist the page to the local database
-  /// 4. Send the notification to the client
-  pub async fn create_page(&self, workspace_id: &str, params: CreatePageParams) -> FlowyResult<()> {
-    let payload = serde_json::to_string(&params).unwrap_or_default();
-    let timestamp = chrono::Utc::now().timestamp_millis();
-
-    let operation = FolderOperation::new(
-      workspace_id,
-      None,
-      CREATE_PAGE_OPERATION_NAME,
-      HTTP_METHOD_POST,
-      HTTP_STATUS_PENDING,
-      &payload,
-      timestamp,
-    );
-
-    let parent_view_id = params.parent_view_id;
-    let folder_view = FolderView {
-      view_id: parent_view_id.clone(),
-      name: params.name.unwrap_or_default(),
-      layout: params.layout,
-      ..Default::default()
-    };
-
-    if let Ok(mut conn) = self.user.sqlite_connection(self.user.user_id()?) {
-      upsert_folder_view_with_children(
-        &mut conn,
-        folder_view,
-        workspace_id,
-        Some(parent_view_id.clone()),
-      )?;
-      upsert_operation(&mut conn, operation)?;
-    }
-
-    Ok(())
-  }
-
-  /// Update a page and persist it to the local database
-  ///
-  /// # Workflow
-  /// 1. Persist the http service to the local database (operations table)
-  /// 2. Call the http service to update a page
-  /// 3. Persist the page to the local database
-  /// 4. Send the notification to the client
-  ///
-  /// # Parameters
-  /// * `conn`: The database connection
-  /// * `workspace_id`: The workspace id
-  /// * `params`: The update page params
-  ///
-  /// # Returns
-  /// The result of the operation
-  pub async fn update_page(
-    &self,
-
-    workspace_id: &str,
-    page_id: &str,
-    params: UpdatePageParams,
-  ) -> FlowyResult<()> {
-    let payload = serde_json::to_string(&params).unwrap_or_default();
-    let timestamp = chrono::Utc::now().timestamp_millis();
-
-    let operation = FolderOperation::new(
-      workspace_id,
-      Some(page_id),
-      UPDATE_PAGE_OPERATION_NAME,
-      HTTP_METHOD_PUT,
-      HTTP_STATUS_PENDING,
-      &payload,
-      timestamp,
-    );
-
-    if let Ok(mut conn) = self.user.sqlite_connection(self.user.user_id()?) {
-      let folder_view = get_page_by_id(&mut conn, workspace_id, page_id, Some(1), false)?;
-      let folder_view = self.update_folder_view(folder_view, params);
-      let parent_view_id = folder_view.parent_view_id.clone();
-
-      upsert_folder_view(&mut conn, folder_view, workspace_id, Some(parent_view_id))?;
-      upsert_operation(&mut conn, operation)?;
-    }
-
-    Ok(())
   }
 
   /// Start a background task to monitor and process pending operations
@@ -218,7 +118,7 @@ impl SyncWorker {
     Ok(())
   }
 
-  fn update_folder_view(
+  pub fn update_folder_view(
     &self,
     folder_view: FolderView,
     update_params: UpdatePageParams,

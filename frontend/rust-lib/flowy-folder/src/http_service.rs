@@ -1,9 +1,10 @@
-use crate::entities::{FolderPageNotificationPayloadPB, FolderViewPB};
+use crate::entities::FolderPageNotificationPayloadPB;
 use crate::manager::FolderManager;
 use crate::notification::{send_folder_notification, FolderNotification};
 use crate::services::sqlite_sql::folder_page_sql::{
   get_page_by_id, upsert_folder_view_with_children,
 };
+use crate::sync_worker::sync_worker_page_ops::SyncWorkerPageOps;
 
 use async_trait::async_trait;
 use client_api::entity::workspace_dto::{

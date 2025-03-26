@@ -1,6 +1,3 @@
-use std::collections::VecDeque;
-
-use client_api::entity::workspace_dto::FolderView;
 use diesel::prelude::*;
 use diesel::RunQueryDsl;
 use flowy_error::FlowyError;

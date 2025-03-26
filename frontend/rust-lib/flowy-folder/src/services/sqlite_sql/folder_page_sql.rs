@@ -148,7 +148,9 @@ pub fn get_page_by_id(
     })?;
 
   let mut folder_view: FolderView = folder_page.into();
-  folder_view.children = get_page_children_by_id(conn, workspace_id, page_id, depth)?;
+  if with_children {
+    folder_view.children = get_page_children_by_id(conn, workspace_id, page_id, depth)?;
+  }
   Ok(folder_view)
 }
 
