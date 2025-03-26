@@ -355,6 +355,10 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
 
     folderListener = FolderNotificationListener(
       objectId: workspaceId,
+      didSyncPendingOperationsNotifier: () {
+        // todo: remove this
+        _refresh();
+      },
       didUpdateFolderPagesNotifier: (result) {
         result.fold((payload) {
           if (!isClosed) {

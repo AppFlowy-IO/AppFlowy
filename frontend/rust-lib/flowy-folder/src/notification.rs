@@ -56,6 +56,7 @@ pub enum FolderNotification {
   DidUpdateFavoritePages = 70,
   DidUpdateTrashPages = 71,
   DidUpdateRecentPages = 72,
+  DidSyncPendingOperations = 73,
   // ------------------------------- End of Page -------------------------------
 }
 

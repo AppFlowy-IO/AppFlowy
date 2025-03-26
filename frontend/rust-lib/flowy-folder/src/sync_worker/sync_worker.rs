@@ -72,10 +72,7 @@ impl SyncWorker {
               }
             } else {
               // If there are no pending operations, send the notification to the client
-              send_folder_notification(
-                &workspace_id,
-                FolderNotification::DidUpdateFolderSyncUpdate,
-              );
+              send_folder_notification(&workspace_id, FolderNotification::DidSyncPendingOperations);
             }
           },
           Err(e) => {

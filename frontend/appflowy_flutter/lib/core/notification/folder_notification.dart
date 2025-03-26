@@ -34,10 +34,13 @@ typedef FolderDidUpdateFolderPagesHandler = void Function(
   FlowyResult<FolderPageNotificationPayloadPB, FlowyError> result,
 );
 
+typedef FolderDidSyncPendingOperationsHandler = void Function();
+
 class FolderNotificationListener {
   FolderNotificationListener({
     required String objectId,
     this.didUpdateFolderPagesNotifier,
+    this.didSyncPendingOperationsNotifier,
   }) {
     _parser = FolderNotificationParser(
       id: objectId,
@@ -50,6 +53,9 @@ class FolderNotificationListener {
 
   /// This handler will be called when the folder pages are updated.
   final FolderDidUpdateFolderPagesHandler? didUpdateFolderPagesNotifier;
+
+  /// This handler will be called when the sync pending operations are updated.
+  final FolderDidSyncPendingOperationsHandler? didSyncPendingOperationsNotifier;
 
   FolderNotificationParser? _parser;
   StreamSubscription<SubscribeObject>? _subscription;
@@ -68,7 +74,9 @@ class FolderNotificationListener {
           (error) => FlowyResult.failure(error),
         );
         didUpdateFolderPagesNotifier?.call(response);
-        break;
+
+      case FolderNotification.DidSyncPendingOperations:
+        didSyncPendingOperationsNotifier?.call();
       default:
         break;
     }
