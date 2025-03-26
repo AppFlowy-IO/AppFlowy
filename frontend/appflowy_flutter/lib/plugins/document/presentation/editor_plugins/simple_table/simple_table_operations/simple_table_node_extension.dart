@@ -239,7 +239,9 @@ extension TableNodeExtension on Node {
       final columnWidths =
           parentTableNode.attributes[SimpleTableBlockKeys.columnWidths];
       final width = columnWidths?[columnIndex.toString()];
-      return width ?? SimpleTableConstants.defaultColumnWidth;
+      return width.toDouble(
+        defaultValue: SimpleTableConstants.defaultColumnWidth,
+      );
     } catch (e) {
       Log.warn('get column width: $e');
       return SimpleTableConstants.defaultColumnWidth;
@@ -854,5 +856,27 @@ extension TableNodeExtension on Node {
       return allRowAlign;
     }
     return TableAlign.left;
+  }
+}
+
+extension on dynamic {
+  double toDouble({double defaultValue = 0.0}) {
+    if (this == null) {
+      return defaultValue;
+    }
+
+    if (this is double) {
+      return this;
+    }
+
+    if (this is int) {
+      return (this as int).toDouble();
+    }
+
+    if (this is String) {
+      return double.tryParse(this) ?? defaultValue;
+    }
+
+    return defaultValue;
   }
 }

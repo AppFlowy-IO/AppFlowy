@@ -16,6 +16,7 @@ use tracing::{error, info};
 
 use crate::{
   manager::FolderUser,
+  notification::{send_folder_notification, FolderNotification},
   services::sqlite_sql::folder_operation_sql::{
     get_pending_operations_by_workspace_id, update_operation_status, FolderOperation,
   },
@@ -69,6 +70,12 @@ impl SyncWorker {
                   );
                 }
               }
+            } else {
+              // If there are no pending operations, send the notification to the client
+              send_folder_notification(
+                &workspace_id,
+                FolderNotification::DidUpdateFolderSyncUpdate,
+              );
             }
           },
           Err(e) => {

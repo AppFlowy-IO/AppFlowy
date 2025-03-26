@@ -94,10 +94,14 @@ pub trait FolderNotificationPayload: ToBytes {
   fn workspace_id(&self) -> &str;
 }
 
-pub(crate) fn send_folder_notification<T: FolderNotificationPayload>(
+pub(crate) fn send_folder_notification_with_payload<T: FolderNotificationPayload>(
   id: &str,
   ty: FolderNotification,
   payload: T,
 ) {
   folder_notification_builder(id, ty).payload(payload).send();
+}
+
+pub(crate) fn send_folder_notification(id: &str, ty: FolderNotification) {
+  folder_notification_builder(id, ty).send();
 }

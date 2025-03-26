@@ -1,6 +1,6 @@
 use crate::entities::FolderPageNotificationPayloadPB;
 use crate::manager::FolderManager;
-use crate::notification::{send_folder_notification, FolderNotification};
+use crate::notification::{send_folder_notification_with_payload, FolderNotification};
 use crate::services::sqlite_sql::folder_page_sql::{
   get_page_by_id, upsert_folder_view_with_children,
 };
@@ -237,12 +237,12 @@ impl FolderHttpService for FolderManager {
           match length {
             Ok(length) => {
               info!(
-                "[Folder] update workspace folder: {:?}, length: {}",
-                folder_view, length
+                "[Folder] update workspace folder successfully, length: {}",
+                length
               );
 
               // when the folder is updated, send the notification to the client
-              send_folder_notification(
+              send_folder_notification_with_payload(
                 &cloud_workspace_id,
                 FolderNotification::DidUpdateFolderPages,
                 FolderPageNotificationPayloadPB {
