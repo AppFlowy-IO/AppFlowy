@@ -5,6 +5,7 @@ use crate::services::sqlite_sql::folder_page_sql::{
   get_page_by_id, upsert_folder_view_with_children,
 };
 use crate::sync_worker::sync_worker_page_ops::SyncWorkerPageOps;
+use crate::sync_worker::sync_worker_space_ops::SyncWorkerSpaceOps;
 
 use async_trait::async_trait;
 use client_api::entity::workspace_dto::{
@@ -296,7 +297,7 @@ impl FolderHttpService for FolderManager {
 
   async fn restore_page_from_trash(&self, workspace_id: &str, view_id: &str) -> FlowyResult<()> {
     self
-      .cloud_service
+      .sync_worker
       .restore_page_from_trash(workspace_id, view_id)
       .await?;
     Ok(())
@@ -328,11 +329,7 @@ impl FolderHttpService for FolderManager {
   }
 
   async fn create_space(&self, workspace_id: &str, params: CreateSpaceParams) -> FlowyResult<()> {
-    self
-      .cloud_service
-      .create_space(workspace_id, params)
-      .await?;
-    Ok(())
+    self.sync_worker.create_space(workspace_id, params).await
   }
 
   async fn update_space(
@@ -342,10 +339,9 @@ impl FolderHttpService for FolderManager {
     params: UpdateSpaceParams,
   ) -> FlowyResult<()> {
     self
-      .cloud_service
+      .sync_worker
       .update_space(workspace_id, space_id, params)
-      .await?;
-    Ok(())
+      .await
   }
 
   async fn get_favorite_pages(
