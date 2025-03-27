@@ -45,7 +45,7 @@ where
     let cloned_user = self.user.clone();
     let params = QueryCollabParams {
       workspace_id: workspace_id.clone(),
-      inner: QueryCollab::new(object_id.clone(), collab_type.clone()),
+      inner: QueryCollab::new(object_id.clone(), collab_type),
     };
     let result = try_get_client?.get_collab(params).await;
     match result {
@@ -102,7 +102,7 @@ where
     let client = try_get_client?;
     let params = object_ids
       .into_iter()
-      .map(|object_id| QueryCollab::new(object_id, object_ty.clone()))
+      .map(|object_id| QueryCollab::new(object_id, object_ty))
       .collect();
     let results = client.batch_get_collab(&workspace_id, params).await?;
     check_request_workspace_id_is_match(&workspace_id, &cloned_user, "batch get database object")?;

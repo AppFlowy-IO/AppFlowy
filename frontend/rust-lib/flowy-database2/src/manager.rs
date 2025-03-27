@@ -776,7 +776,7 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
     collab_type: CollabType,
     encoded_collab: Option<(EncodedCollab, bool)>,
   ) -> Result<Collab, DatabaseError> {
-    let object = self.build_collab_object(object_id, collab_type.clone())?;
+    let object = self.build_collab_object(object_id, collab_type)?;
     let data_source = if self.persistence.is_collab_exist(object_id) {
       trace!(
         "build collab: {}:{} from local encode collab",
@@ -796,7 +796,7 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
             object_id,
             encoded_collab.is_none(),
           );
-          match self.get_encode_collab(object_id, collab_type.clone()).await {
+          match self.get_encode_collab(object_id, collab_type).await {
             Ok(Some(encode_collab)) => {
               info!(
                 "build collab: {}:{} with remote encode collab, {} bytes",
@@ -885,7 +885,7 @@ impl DatabaseCollabService for WorkspaceDatabaseCollabServiceImpl {
       .filter_map(|object_id| {
         self
           .persistence
-          .get_encoded_collab(object_id.as_str(), collab_type.clone())
+          .get_encoded_collab(object_id.as_str(), collab_type)
           .map(|encoded_collab| (object_id.clone(), encoded_collab))
       })
       .collect();

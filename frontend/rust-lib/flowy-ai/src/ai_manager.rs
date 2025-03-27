@@ -390,7 +390,7 @@ impl AIManager {
       .get_server_available_models()
       .await?
       .into_iter()
-      .map(|m| AIModel::from(m))
+      .map(AIModel::from)
       .collect();
 
     trace!("[Model Selection]: Available models: {:?}", models);
@@ -428,7 +428,7 @@ impl AIManager {
       None => {
         // when there is selected model and current local ai is active, then use local ai
         if let Some(local_ai_model) = models.iter().find(|m| m.is_local) {
-          user_selected_model = AIModel::from(local_ai_model.clone());
+          user_selected_model = local_ai_model.clone();
         }
       },
       Some(model) => {
@@ -442,14 +442,14 @@ impl AIManager {
       .iter()
       .find(|m| m.name == user_selected_model.name)
       .cloned()
-      .or_else(|| Some(AIModel::from(server_active_model)));
+      .or(Some(server_active_model));
 
     // Update the stored preference if a different model is used.
     if let Some(ref active_model) = active_model {
       if active_model.name != user_selected_model.name {
         self
           .store_preferences
-          .set_object::<AIModel>(&source_key, &AIModel::from(active_model.clone()))?;
+          .set_object::<AIModel>(&source_key, &active_model.clone())?;
       }
     }
 
