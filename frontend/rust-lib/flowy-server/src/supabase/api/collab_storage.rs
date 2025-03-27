@@ -64,11 +64,8 @@ where
 
   async fn get_doc_state(&self, object: &CollabObject) -> Result<DataSource, Error> {
     let postgrest = self.server.try_get_weak_postgrest()?;
-    let action = FetchObjectUpdateAction::new(
-      object.object_id.clone(),
-      object.collab_type.clone(),
-      postgrest,
-    );
+    let action =
+      FetchObjectUpdateAction::new(object.object_id.clone(), object.collab_type, postgrest);
     let doc_state = action.run().await?;
     Ok(DataSource::DocStateV1(doc_state))
   }
