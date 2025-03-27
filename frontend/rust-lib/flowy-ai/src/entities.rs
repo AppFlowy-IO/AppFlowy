@@ -102,6 +102,9 @@ pub struct RegenerateResponsePB {
 
   #[pb(index = 4, one_of)]
   pub format: Option<PredefinedFormatPB>,
+
+  #[pb(index = 5, one_of)]
+  pub model: Option<AIModelPB>,
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]

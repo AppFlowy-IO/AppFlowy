@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:appflowy/ai/service/ai_input_control.dart';
+import 'package:appflowy/ai/service/ai_model_state_notifier.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,17 +14,18 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
   AIPromptInputBloc({
     required String objectId,
     required PredefinedFormat? predefinedFormat,
-  })  : _aiModelStateNotifier = AIModelStateNotifier(objectId: objectId),
-        super(AIPromptInputState.initial(objectId, predefinedFormat)) {
+  })  : aiModelStateNotifier = AIModelStateNotifier(objectId: objectId),
+        super(AIPromptInputState.initial(predefinedFormat)) {
     _dispatch();
+    _startListening();
     _init();
   }
 
-  final AIModelStateNotifier _aiModelStateNotifier;
+  final AIModelStateNotifier aiModelStateNotifier;
 
   @override
   Future<void> close() async {
-    await _aiModelStateNotifier.stop();
+    await aiModelStateNotifier.dispose();
     return super.close();
   }
 
@@ -36,7 +37,6 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
             emit(
               state.copyWith(
                 aiType: aiType,
-                supportChatWithFile: false,
                 editable: editable,
                 hintText: hintText,
               ),
@@ -103,16 +103,17 @@ class AIPromptInputBloc extends Bloc<AIPromptInputEvent, AIPromptInputState> {
     );
   }
 
-  void _init() {
-    _aiModelStateNotifier.startListening(
-      onChanged: (aiType, editable, hintText) {
-        if (!isClosed) {
-          add(AIPromptInputEvent.updateAIState(aiType, editable, hintText));
-        }
+  void _startListening() {
+    aiModelStateNotifier.addListener(
+      onStateChanged: (aiType, editable, hintText) {
+        add(AIPromptInputEvent.updateAIState(aiType, editable, hintText));
       },
     );
+  }
 
-    _aiModelStateNotifier.init();
+  void _init() {
+    final (aiType, hintText, isEditable) = aiModelStateNotifier.getState();
+    add(AIPromptInputEvent.updateAIState(aiType, isEditable, hintText));
   }
 
   Map<String, dynamic> consumeMetadata() {
@@ -155,7 +156,6 @@ class AIPromptInputEvent with _$AIPromptInputEvent {
 @freezed
 class AIPromptInputState with _$AIPromptInputState {
   const factory AIPromptInputState({
-    required String objectId,
     required AiType aiType,
     required bool supportChatWithFile,
     required bool showPredefinedFormats,
@@ -166,12 +166,8 @@ class AIPromptInputState with _$AIPromptInputState {
     required String hintText,
   }) = _AIPromptInputState;
 
-  factory AIPromptInputState.initial(
-    String objectId,
-    PredefinedFormat? format,
-  ) =>
+  factory AIPromptInputState.initial(PredefinedFormat? format) =>
       AIPromptInputState(
-        objectId: objectId,
         aiType: AiType.cloud,
         supportChatWithFile: false,
         showPredefinedFormats: format != null,
@@ -181,12 +177,4 @@ class AIPromptInputState with _$AIPromptInputState {
         editable: true,
         hintText: '',
       );
-}
-
-enum AiType {
-  cloud,
-  local;
-
-  bool get isCloud => this == cloud;
-  bool get isLocal => this == local;
 }

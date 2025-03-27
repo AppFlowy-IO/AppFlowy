@@ -104,6 +104,7 @@ class ChangeFormatBar extends StatelessWidget {
       },
       child: FlowyTooltip(
         message: format.i18n,
+        preferBelow: false,
         child: SizedBox.square(
           dimension: _buttonSize,
           child: FlowyHover(
@@ -150,6 +151,7 @@ class ChangeFormatBar extends StatelessWidget {
       },
       child: FlowyTooltip(
         message: format.i18n,
+        preferBelow: false,
         child: SizedBox.square(
           dimension: _buttonSize,
           child: FlowyHover(

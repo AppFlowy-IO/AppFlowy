@@ -14,10 +14,10 @@ class ShadowConstants {
     BoxShadow(offset: Offset(0, 4), blurRadius: 32, color: Color(0x121F2225)),
   ];
   static const List<BoxShadow> darkSmall = [
-    BoxShadow(offset: Offset(0, 2), blurRadius: 16, color: Color(0x5C000000)),
+    BoxShadow(offset: Offset(0, 2), blurRadius: 16, color: Color(0x7A000000)),
   ];
   static const List<BoxShadow> darkMedium = [
-    BoxShadow(offset: Offset(0, 4), blurRadius: 32, color: Color(0x5C000000)),
+    BoxShadow(offset: Offset(0, 4), blurRadius: 32, color: Color(0x7A000000)),
   ];
 }
 

@@ -4,6 +4,7 @@ import 'package:appflowy/plugins/ai_chat/application/chat_ai_message_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_bloc.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_entity.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_stream.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -36,6 +37,7 @@ class ChatAIMessageWidget extends StatelessWidget {
     this.onSelectedMetadata,
     this.onRegenerate,
     this.onChangeFormat,
+    this.onChangeModel,
     this.isLastMessage = false,
     this.isStreaming = false,
     this.isSelectingMessages = false,
@@ -53,6 +55,7 @@ class ChatAIMessageWidget extends StatelessWidget {
   final void Function()? onRegenerate;
   final void Function() onStopStream;
   final void Function(PredefinedFormat)? onChangeFormat;
+  final void Function(AIModelPB)? onChangeModel;
   final bool isStreaming;
   final bool isLastMessage;
   final bool isSelectingMessages;
@@ -110,6 +113,7 @@ class ChatAIMessageWidget extends StatelessWidget {
                           isSelectingMessages: isSelectingMessages,
                           onRegenerate: onRegenerate,
                           onChangeFormat: onChangeFormat,
+                          onChangeModel: onChangeModel,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

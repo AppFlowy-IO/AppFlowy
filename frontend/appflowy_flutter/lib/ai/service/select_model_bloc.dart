@@ -1,65 +1,65 @@
 import 'dart:async';
 
-import 'package:appflowy/ai/service/ai_input_control.dart';
+import 'package:appflowy/ai/service/ai_model_state_notifier.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pbserver.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:protobuf/protobuf.dart';
 
 part 'select_model_bloc.freezed.dart';
 
 class SelectModelBloc extends Bloc<SelectModelEvent, SelectModelState> {
   SelectModelBloc({
-    required this.objectId,
-  })  : _aiModelStateNotifier = AIModelStateNotifier(objectId: objectId),
-        super(const SelectModelState()) {
-    _aiModelStateNotifier.init();
-    _aiModelStateNotifier.startListening(
-      onAvailableModelsChanged: (models) {
-        if (!isClosed) {
-          add(SelectModelEvent.didLoadModels(models));
-        }
-      },
-    );
-
+    required AIModelStateNotifier aiModelStateNotifier,
+  })  : _aiModelStateNotifier = aiModelStateNotifier,
+        super(SelectModelState.initial(aiModelStateNotifier)) {
     on<SelectModelEvent>(
-      (event, emit) async {
-        await event.when(
-          selectModel: (AIModelPB model) async {
-            await AIEventUpdateSelectedModel(
+      (event, emit) {
+        event.when(
+          selectModel: (model) {
+            AIEventUpdateSelectedModel(
               UpdateSelectedModelPB(
-                source: objectId,
+                source: _aiModelStateNotifier.objectId,
                 selectedModel: model,
               ),
             ).send();
 
-            state.availableModels?.freeze();
-            final newAvailableModels = state.availableModels?.rebuild((m) {
-              m.selectedModel = model;
-            });
-
+            emit(state.copyWith(selectedModel: model));
+          },
+          didLoadModels: (models, selectedModel) {
             emit(
-              state.copyWith(
-                availableModels: newAvailableModels,
+              SelectModelState(
+                models: models,
+                selectedModel: selectedModel,
               ),
             );
-          },
-          didLoadModels: (AvailableModelsPB models) {
-            emit(state.copyWith(availableModels: models));
           },
         );
       },
     );
+
+    _aiModelStateNotifier.addListener(
+      onAvailableModelsChanged: _onAvailableModelsChanged,
+    );
   }
 
-  final String objectId;
   final AIModelStateNotifier _aiModelStateNotifier;
 
   @override
   Future<void> close() async {
-    await _aiModelStateNotifier.stop();
+    _aiModelStateNotifier.removeListener(
+      onAvailableModelsChanged: _onAvailableModelsChanged,
+    );
     await super.close();
+  }
+
+  void _onAvailableModelsChanged(
+    List<AIModelPB> models,
+    AIModelPB? selectedModel,
+  ) {
+    if (!isClosed) {
+      add(SelectModelEvent.didLoadModels(models, selectedModel));
+    }
   }
 }
 
@@ -70,13 +70,23 @@ class SelectModelEvent with _$SelectModelEvent {
   ) = _SelectModel;
 
   const factory SelectModelEvent.didLoadModels(
-    AvailableModelsPB models,
+    List<AIModelPB> models,
+    AIModelPB? selectedModel,
   ) = _DidLoadModels;
 }
 
 @freezed
 class SelectModelState with _$SelectModelState {
   const factory SelectModelState({
-    AvailableModelsPB? availableModels,
+    required List<AIModelPB> models,
+    required AIModelPB? selectedModel,
   }) = _SelectModelState;
+
+  factory SelectModelState.initial(AIModelStateNotifier notifier) {
+    final (models, selectedModel) = notifier.getAvailableModels();
+    return SelectModelState(
+      models: models,
+      selectedModel: selectedModel,
+    );
+  }
 }

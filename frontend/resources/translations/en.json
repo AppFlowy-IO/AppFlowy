@@ -247,13 +247,15 @@
       "table": "Table",
       "blankDescription": "Format response",
       "defaultDescription": "Auto mode",
-      "localModel": "Local Model",
-      "cloudModel": "Cloud Model",
-      "switchModel": "Switch model",
       "textWithImageDescription": "@:chat.changeFormat.text with image",
       "numberWithImageDescription": "@:chat.changeFormat.number with image",
       "bulletWithImageDescription": "@:chat.changeFormat.bullet with image",
       "tableWithImageDescription": "@:chat.changeFormat.table with image"
+    },
+    "switchModel": {
+      "label": "Switch model",
+      "localModel": "Local Model",
+      "cloudModel": "Cloud Model"
     },
     "selectBanner": {
       "saveButton": "Add to …",
