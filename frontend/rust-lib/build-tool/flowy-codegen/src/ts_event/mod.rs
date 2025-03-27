@@ -153,7 +153,6 @@ pub fn parse_event_crate(event_crate: &TsEventCrate) -> Vec<EventASTContext> {
             attrs
               .iter()
               .filter(|attr| !attr.attrs.event_attrs.ignore)
-              .into_iter()
               .map(|variant| EventASTContext::from(&variant.attrs))
               .collect::<Vec<_>>()
           },

@@ -12,14 +12,14 @@ import 'package:appflowy_result/appflowy_result.dart';
 typedef OnUpdateSelectedModel = void Function(AIModelPB model);
 
 class AIModelSwitchListener {
-  AIModelSwitchListener({required this.chatId}) {
-    _parser = ChatNotificationParser(id: chatId, callback: _callback);
+  AIModelSwitchListener({required this.objectId}) {
+    _parser = ChatNotificationParser(id: objectId, callback: _callback);
     _subscription = RustStreamReceiver.listen(
       (observable) => _parser?.parse(observable),
     );
   }
 
-  final String chatId;
+  final String objectId;
   StreamSubscription<SubscribeObject>? _subscription;
   ChatNotificationParser? _parser;
 

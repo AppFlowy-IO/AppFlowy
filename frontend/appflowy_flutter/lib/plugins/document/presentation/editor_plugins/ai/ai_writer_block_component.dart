@@ -222,11 +222,13 @@ class _OverlayContentState extends State<OverlayContent> {
         final isInitialReadyState =
             state is ReadyAiWriterState && state.isFirstRun;
         final showSuggestedActionsPopup =
-            showSuggestedActions && markdownText.isEmpty;
-        final showSuggestedActionsWithin =
-            showSuggestedActions && markdownText.isNotEmpty;
+            showSuggestedActions && markdownText.isEmpty ||
+                (markdownText.isNotEmpty && command != AiWriterCommand.explain);
+        final showSuggestedActionsWithin = showSuggestedActions &&
+            markdownText.isNotEmpty &&
+            command == AiWriterCommand.explain;
 
-        final darkBorderColor = Theme.of(context).isLightMode
+        final borderColor = Theme.of(context).isLightMode
             ? Color(0x1F1F2329)
             : Color(0xFF505469);
 
@@ -241,7 +243,7 @@ class _OverlayContentState extends State<OverlayContent> {
                   context,
                   color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                  borderColor: darkBorderColor,
+                  borderColor: borderColor,
                 ),
                 child: SuggestionActionBar(
                   currentCommand: command,
@@ -257,7 +259,7 @@ class _OverlayContentState extends State<OverlayContent> {
               decoration: _getModalDecoration(
                 context,
                 color: null,
-                borderColor: darkBorderColor,
+                borderColor: borderColor,
                 borderRadius: BorderRadius.all(Radius.circular(12.0)),
               ),
               constraints: BoxConstraints(maxHeight: 400),
@@ -341,13 +343,9 @@ class _OverlayContentState extends State<OverlayContent> {
         strokeAlign: BorderSide.strokeAlignOutside,
       ),
       borderRadius: borderRadius,
-      boxShadow: const [
-        BoxShadow(
-          offset: Offset(0, 4),
-          blurRadius: 20,
-          color: Color(0x1A1F2329),
-        ),
-      ],
+      boxShadow: Theme.of(context).isLightMode
+          ? ShadowConstants.lightSmall
+          : ShadowConstants.darkSmall,
     );
   }
 

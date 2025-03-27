@@ -265,10 +265,13 @@ class _ChatContentPage extends StatelessWidget {
                   _onSelectMetadata(context, metadata),
               onRegenerate: () => context
                   .read<ChatBloc>()
-                  .add(ChatEvent.regenerateAnswer(message.id, null)),
+                  .add(ChatEvent.regenerateAnswer(message.id, null, null)),
               onChangeFormat: (format) => context
                   .read<ChatBloc>()
-                  .add(ChatEvent.regenerateAnswer(message.id, format)),
+                  .add(ChatEvent.regenerateAnswer(message.id, format, null)),
+              onChangeModel: (model) => context
+                  .read<ChatBloc>()
+                  .add(ChatEvent.regenerateAnswer(message.id, null, model)),
               onStopStream: () => context.read<ChatBloc>().add(
                     const ChatEvent.stopStream(),
                   ),

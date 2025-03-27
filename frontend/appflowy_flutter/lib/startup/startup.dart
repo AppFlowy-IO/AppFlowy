@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_hover_menu.dart';
 import 'package:appflowy/util/expand_views.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
 import 'package:appflowy_backend/appflowy_backend.dart';
@@ -119,7 +120,7 @@ class FlowyRunner {
         // this task should be second task, for handling memory leak.
         // there's a flag named _enable in memory_leak_detector.dart. If it's false, the task will be ignored.
         MemoryLeakDetectorTask(),
-        const DebugTask(),
+        DebugTask(),
         const FeatureFlagTask(),
 
         // localization
@@ -185,6 +186,7 @@ Future<void> initGetIt(
   );
   getIt.registerSingleton<PluginSandbox>(PluginSandbox());
   getIt.registerSingleton<ViewExpanderRegistry>(ViewExpanderRegistry());
+  getIt.registerSingleton<LinkHoverTriggers>(LinkHoverTriggers());
 
   await DependencyResolver.resolve(getIt, mode);
 }

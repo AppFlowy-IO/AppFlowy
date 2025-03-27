@@ -3,7 +3,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/tab.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart'
     show StringTranslateExtension;
@@ -176,12 +175,7 @@ class _CalloutBlockComponentWidgetState
     EmojiIconData result = EmojiIconData.emoji('📌');
     try {
       result = EmojiIconData(FlowyIconType.values.byName(type), icon);
-    } catch (e) {
-      Log.info(
-        'get emoji error with icon:[$icon], type:[$type] within calloutBlockComponentWidget',
-        e,
-      );
-    }
+    } catch (_) {}
     return result;
   }
 

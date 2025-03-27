@@ -22,6 +22,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -42,6 +43,7 @@ class AIMessageActionBar extends StatefulWidget {
     required this.showDecoration,
     this.onRegenerate,
     this.onChangeFormat,
+    this.onChangeModel,
     this.onOverrideVisibility,
   });
 
@@ -49,6 +51,7 @@ class AIMessageActionBar extends StatefulWidget {
   final bool showDecoration;
   final void Function()? onRegenerate;
   final void Function(PredefinedFormat)? onChangeFormat;
+  final void Function(AIModelPB)? onChangeModel;
   final void Function(bool)? onOverrideVisibility;
 
   @override
@@ -124,6 +127,12 @@ class _AIMessageActionBarState extends State<AIMessageActionBar> {
       ChangeFormatButton(
         isInHoverBar: widget.showDecoration,
         onRegenerate: widget.onChangeFormat,
+        popoverMutex: popoverMutex,
+        onOverrideVisibility: widget.onOverrideVisibility,
+      ),
+      ChangeModelButton(
+        isInHoverBar: widget.showDecoration,
+        onRegenerate: widget.onChangeModel,
         popoverMutex: popoverMutex,
         onOverrideVisibility: widget.onOverrideVisibility,
       ),
@@ -401,6 +410,85 @@ class _ChangeFormatPopoverContentState
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ChangeModelButton extends StatefulWidget {
+  const ChangeModelButton({
+    super.key,
+    required this.isInHoverBar,
+    this.popoverMutex,
+    this.onRegenerate,
+    this.onOverrideVisibility,
+  });
+
+  final bool isInHoverBar;
+  final PopoverMutex? popoverMutex;
+  final void Function(AIModelPB)? onRegenerate;
+  final void Function(bool)? onOverrideVisibility;
+
+  @override
+  State<ChangeModelButton> createState() => _ChangeModelButtonState();
+}
+
+class _ChangeModelButtonState extends State<ChangeModelButton> {
+  final popoverController = PopoverController();
+
+  @override
+  Widget build(BuildContext context) {
+    return AppFlowyPopover(
+      controller: popoverController,
+      mutex: widget.popoverMutex,
+      triggerActions: PopoverTriggerFlags.none,
+      margin: EdgeInsets.zero,
+      offset: Offset(8, 0),
+      direction: PopoverDirection.rightWithBottomAligned,
+      constraints: BoxConstraints(maxWidth: 250, maxHeight: 600),
+      onClose: () => widget.onOverrideVisibility?.call(false),
+      child: buildButton(context),
+      popupBuilder: (_) {
+        final bloc = context.read<AIPromptInputBloc>();
+        final (models, _) = bloc.aiModelStateNotifier.getAvailableModels();
+        return SelectModelPopoverContent(
+          models: models,
+          selectedModel: null,
+          onSelectModel: widget.onRegenerate,
+        );
+      },
+    );
+  }
+
+  Widget buildButton(BuildContext context) {
+    return FlowyTooltip(
+      message: LocaleKeys.chat_switchModel_label.tr(),
+      child: FlowyIconButton(
+        width: 32.0,
+        height: DesktopAIChatSizes.messageActionBarIconSize,
+        hoverColor: AFThemeExtension.of(context).lightGreyHover,
+        radius: widget.isInHoverBar
+            ? DesktopAIChatSizes.messageHoverActionBarIconRadius
+            : DesktopAIChatSizes.messageActionBarIconRadius,
+        icon: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FlowySvg(
+              FlowySvgs.ai_sparks_s,
+              color: Theme.of(context).hintColor,
+              size: const Size.square(16),
+            ),
+            FlowySvg(
+              FlowySvgs.ai_source_drop_down_s,
+              color: Theme.of(context).hintColor,
+              size: const Size.square(8),
+            ),
+          ],
+        ),
+        onPressed: () {
+          widget.onOverrideVisibility?.call(true);
+          popoverController.show();
+        },
       ),
     );
   }
