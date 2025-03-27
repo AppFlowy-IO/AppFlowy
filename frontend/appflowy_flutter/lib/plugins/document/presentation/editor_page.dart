@@ -455,7 +455,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
             DesktopFloatingToolbar(
           editorState: editorState,
           onDismiss: onDismiss,
-          enableAnimation: !isMetricsChanged,
+          enableAnimation: false,
           child: child,
         ),
         placeHolderBuilder: (_) => customPlaceholderItem,

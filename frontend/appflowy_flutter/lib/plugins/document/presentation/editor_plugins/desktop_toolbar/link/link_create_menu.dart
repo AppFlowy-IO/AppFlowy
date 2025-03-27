@@ -2,6 +2,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_styles.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -9,6 +10,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:string_validator/string_validator.dart';
 
 import 'link_search_text_field.dart';
 
@@ -48,7 +50,7 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
     },
   );
 
-  bool get isButtonEnable => searchText.isNotEmpty;
+  bool get isButtonEnable => searchText.isNotEmpty && isURL(searchText);
 
   String get searchText => searchTextField.searchText;
 
@@ -96,6 +98,7 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
   }
 
   Widget buildSearchContainer() {
+    final isLight = Theme.of(context).isLightMode;
     return Container(
       width: 320,
       height: 48,
@@ -114,11 +117,12 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
                 padding: EdgeInsets.zero,
                 constraints: BoxConstraints(maxWidth: 72, minHeight: 32),
                 fontSize: 14,
-                fontColor:
-                    isButtonEnable ? Colors.white : LinkStyle.textTertiary,
+                fontColor: isButtonEnable || !isLight
+                    ? Colors.white
+                    : LinkStyle.textTertiary,
                 fillColor: isButtonEnable
                     ? LinkStyle.fillThemeThick
-                    : LinkStyle.borderColor,
+                    : LinkStyle.borderColor.withAlpha(isLight ? 255 : 122),
                 hoverColor: LinkStyle.fillThemeThick,
                 lineHeight: 20 / 14,
                 fontWeight: FontWeight.w600,
@@ -184,6 +188,10 @@ void showLinkCreateMenu(
             BuiltInAttributeKey.href: link,
             kIsPageLink: isPage,
           });
+          await editorState.updateSelectionWithReason(
+            null,
+            reason: SelectionUpdateReason.uiEvent,
+          );
           dismissOverlay();
         },
         onDismiss: dismissOverlay,

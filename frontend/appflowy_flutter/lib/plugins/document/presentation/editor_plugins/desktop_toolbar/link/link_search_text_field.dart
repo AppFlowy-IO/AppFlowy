@@ -177,13 +177,17 @@ class LinkSearchTextField {
     bool isSelected,
     ValueChanged<ViewPB>? onSubmittedPageLink,
   ) {
+    final viewName = view.name;
+    final displayName = viewName.isEmpty
+        ? LocaleKeys.document_title_placeholder.tr()
+        : viewName;
     return SizedBox(
       height: 32,
       child: FlowyButton(
         isSelected: isSelected,
         leftIcon: buildIcon(view),
         text: FlowyText.regular(
-          view.name,
+          displayName,
           overflow: TextOverflow.ellipsis,
           fontSize: 14,
           figmaLineHeight: 20,
@@ -196,10 +200,13 @@ class LinkSearchTextField {
   Widget buildIcon(ViewPB view) {
     if (view.icon.value.isEmpty) return view.defaultIcon(size: Size(20, 20));
     final iconData = view.icon.toEmojiIconData();
-    return RawEmojiIconWidget(
-      emoji: iconData,
-      emojiSize: iconData.type == FlowyIconType.emoji ? 16 : 20,
-      lineHeight: 1,
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: RawEmojiIconWidget(
+        emoji: iconData,
+        emojiSize: iconData.type == FlowyIconType.emoji ? 16 : 20,
+        lineHeight: 1,
+      ),
     );
   }
 

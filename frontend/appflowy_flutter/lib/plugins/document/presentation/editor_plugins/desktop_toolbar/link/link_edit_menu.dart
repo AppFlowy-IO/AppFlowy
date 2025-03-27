@@ -3,6 +3,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
 import 'package:appflowy/user/application/user_service.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -10,6 +11,7 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:string_validator/string_validator.dart';
 
 import 'link_create_menu.dart';
 import 'link_search_text_field.dart';
@@ -49,7 +51,9 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
   ViewPB? currentView;
 
   bool get enableApply =>
-      linkInfo.link.isNotEmpty && linkNameController.text.isNotEmpty;
+      linkInfo.link.isNotEmpty &&
+      linkNameController.text.isNotEmpty &&
+      isURL(linkInfo.link);
 
   @override
   void initState() {
@@ -138,7 +142,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
               child: buildButtons(),
             ),
             Positioned(
-              top: 108,
+              top: 100,
               left: 20,
               child: buildNameTextField(),
             ),
@@ -214,7 +218,9 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
                 constraints: BoxConstraints(maxWidth: 78, minHeight: 32),
                 fontSize: 14,
                 lineHeight: 20 / 14,
-                fontColor: LinkStyle.textPrimary,
+                fontColor: Theme.of(context).isLightMode
+                    ? LinkStyle.textPrimary
+                    : Theme.of(context).iconTheme.color,
                 fillColor: Colors.transparent,
                 fontWeight: FontWeight.w400,
                 onPressed: onDismiss,
@@ -288,21 +294,27 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
         ),
       );
     } else {
+      final viewName = view.name;
+      final displayName = viewName.isEmpty
+          ? LocaleKeys.document_title_placeholder.tr()
+          : viewName;
       child = GestureDetector(
         onTap: showSearchResult,
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: Container(
             height: 32,
-            padding: EdgeInsets.fromLTRB(8, 6, 8, 6),
+            padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
             child: Row(
               children: [
                 searchTextField.buildIcon(view),
-                HSpace(8),
+                HSpace(4),
                 Flexible(
                   child: FlowyText.regular(
-                    view.name,
+                    displayName,
                     overflow: TextOverflow.ellipsis,
+                    figmaLineHeight: 20,
+                    fontSize: 14,
                   ),
                 ),
               ],
