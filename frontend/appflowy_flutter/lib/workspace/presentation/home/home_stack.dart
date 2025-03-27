@@ -129,7 +129,7 @@ class _HomeStackState extends State<HomeStack> {
   }
 
   Widget _buildToggleMenuButton(BuildContext context) {
-    if (!context.read<HomeSettingBloc>().state.isMenuCollapsed) {
+    if (context.read<HomeSettingBloc>().isMenuExpanded) {
       return const SizedBox.shrink();
     }
 
@@ -154,7 +154,7 @@ class _HomeStackState extends State<HomeStack> {
         behavior: HitTestBehavior.translucent,
         onPointerDown: (_) => context
             .read<HomeSettingBloc>()
-            .add(const HomeSettingEvent.collapseMenu()),
+            .add(const HomeSettingEvent.changeMenuStatus(MenuStatus.hidden)),
         child: FlowyHover(
           child: Container(
             width: 24,

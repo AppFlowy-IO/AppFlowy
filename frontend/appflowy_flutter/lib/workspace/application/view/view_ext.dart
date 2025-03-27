@@ -113,8 +113,10 @@ extension ViewExtension on ViewPB {
           initialRowId: rowId,
         );
       case ViewLayoutPB.Document:
-        final Selection? initialSelection =
-            arguments[PluginArgumentKeys.selection];
+        final selectionValue = arguments[PluginArgumentKeys.selection];
+        Selection? initialSelection;
+        if (selectionValue is Selection) initialSelection = selectionValue;
+
         final String? initialBlockId = arguments[PluginArgumentKeys.blockId];
 
         return DocumentPlugin(

@@ -45,7 +45,7 @@ where
     let cloned_user = self.user.clone();
     let params = QueryCollabParams {
       workspace_id: workspace_id.clone(),
-      inner: QueryCollab::new(object_id.clone(), collab_type.clone()),
+      inner: QueryCollab::new(object_id.clone(), collab_type),
     };
     let result = try_get_client?.get_collab(params).await;
     match result {

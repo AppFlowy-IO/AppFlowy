@@ -1248,7 +1248,7 @@ pub async fn upload_collab_objects_data(
         objects.push(UserCollabParams {
           object_id: oid,
           encoded_collab,
-          collab_type: collab_type.clone(),
+          collab_type,
         });
         size_counter += obj_size;
       }

@@ -3,6 +3,7 @@ class HomeSizes {
   static const double topBarHeight = 44;
   static const double editPanelTopBarHeight = 60;
   static const double editPanelWidth = 400;
+  static const double notificationPanelWidth = 380;
   static const double tabBarHeight = 40;
   static const double tabBarWidth = 200;
   static const double workspaceSectionHeight = 32;
