@@ -4,6 +4,14 @@ import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 
+enum AiType {
+  cloud,
+  local;
+
+  bool get isCloud => this == cloud;
+  bool get isLocal => this == local;
+}
+
 class PredefinedFormat extends Equatable {
   const PredefinedFormat({
     required this.imageFormat,
