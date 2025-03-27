@@ -483,7 +483,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   void _regenerateAnswer(
     String answerMessageIdString,
     PredefinedFormat? format,
-    AiModel? model,
+    AIModelPB? model,
   ) async {
     final id = temporaryMessageIDMap.entries
             .firstWhereOrNull((e) => e.value == answerMessageIdString)
@@ -507,7 +507,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       payload.format = format.toPB();
     }
     if (model != null) {
-      payload.model = model.toPB();
+      payload.model = model;
     }
 
     await AIEventRegenerateResponse(payload).send().fold(
@@ -641,7 +641,7 @@ class ChatEvent with _$ChatEvent {
   const factory ChatEvent.regenerateAnswer(
     String id,
     PredefinedFormat? format,
-    AiModel? model,
+    AIModelPB? model,
   ) = _RegenerateAnswer;
 
   // streaming answer

@@ -1,18 +1,18 @@
-import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/app_bar/app_bar_actions.dart';
 import 'package:appflowy/mobile/presentation/bottom_sheet/bottom_sheet.dart';
 import 'package:appflowy/mobile/presentation/widgets/widgets.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
-Future<AiModel?> showChangeModelBottomSheet(
+Future<AIModelPB?> showChangeModelBottomSheet(
   BuildContext context,
-  List<AiModel> models,
+  List<AIModelPB> models,
 ) {
-  return showMobileBottomSheet<AiModel?>(
+  return showMobileBottomSheet<AIModelPB?>(
     context,
     showDragHandle: true,
     builder: (context) => _ChangeModelBottomSheetContent(models: models),
@@ -24,7 +24,7 @@ class _ChangeModelBottomSheetContent extends StatefulWidget {
     required this.models,
   });
 
-  final List<AiModel> models;
+  final List<AIModelPB> models;
 
   @override
   State<_ChangeModelBottomSheetContent> createState() =>
@@ -33,7 +33,7 @@ class _ChangeModelBottomSheetContent extends StatefulWidget {
 
 class _ChangeModelBottomSheetContentState
     extends State<_ChangeModelBottomSheetContent> {
-  AiModel? model;
+  AIModelPB? model;
 
   @override
   Widget build(BuildContext context) {
@@ -113,9 +113,9 @@ class _Body extends StatelessWidget {
     required this.onSelectModel,
   });
 
-  final List<AiModel> models;
-  final AiModel? selectedModel;
-  final void Function(AiModel) onSelectModel;
+  final List<AIModelPB> models;
+  final AIModelPB? selectedModel;
+  final void Function(AIModelPB) onSelectModel;
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +130,7 @@ class _Body extends StatelessWidget {
   }
 
   Widget _buildModelButton(
-    AiModel model, [
+    AIModelPB model, [
     bool isFirst = false,
   ]) {
     return FlowyOptionTile.checkbox(

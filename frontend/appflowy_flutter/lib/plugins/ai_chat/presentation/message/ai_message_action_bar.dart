@@ -21,6 +21,7 @@ import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -49,7 +50,7 @@ class AIMessageActionBar extends StatefulWidget {
   final bool showDecoration;
   final void Function()? onRegenerate;
   final void Function(PredefinedFormat)? onChangeFormat;
-  final void Function(AiModel)? onChangeModel;
+  final void Function(AIModelPB)? onChangeModel;
   final void Function(bool)? onOverrideVisibility;
 
   @override
@@ -424,7 +425,7 @@ class ChangeModelButton extends StatefulWidget {
 
   final bool isInHoverBar;
   final PopoverMutex? popoverMutex;
-  final void Function(AiModel)? onRegenerate;
+  final void Function(AIModelPB)? onRegenerate;
   final void Function(bool)? onOverrideVisibility;
 
   @override

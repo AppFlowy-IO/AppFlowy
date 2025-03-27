@@ -12,8 +12,8 @@ import 'package:universal_platform/universal_platform.dart';
 
 typedef OnModelStateChangedCallback = void Function(AiType, bool, String);
 typedef OnAvailableModelsChangedCallback = void Function(
-  List<AiModel>,
-  AiModel?,
+  List<AIModelPB>,
+  AIModelPB?,
 );
 
 class AIModelStateNotifier {
@@ -133,14 +133,12 @@ class AIModelStateNotifier {
     return (AiType.local, hintText, editable);
   }
 
-  (List<AiModel>, AiModel?) getAvailableModels() {
+  (List<AIModelPB>, AIModelPB?) getAvailableModels() {
     final availableModels = _availableModels;
     if (availableModels == null) {
       return ([], null);
     }
-    final models = availableModels.models.map(AiModel.fromPB).toList();
-    final selectedModel = AiModel.fromPB(availableModels.selectedModel);
-    return (models, selectedModel);
+    return (availableModels.models, availableModels.selectedModel);
   }
 
   void _notifyAvailableModelsChanged() {

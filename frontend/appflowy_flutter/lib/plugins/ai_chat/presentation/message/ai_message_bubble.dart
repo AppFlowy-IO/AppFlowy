@@ -12,6 +12,7 @@ import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -52,7 +53,7 @@ class ChatAIMessageBubble extends StatelessWidget {
   final bool isSelectingMessages;
   final void Function()? onRegenerate;
   final void Function(PredefinedFormat)? onChangeFormat;
-  final void Function(AiModel)? onChangeModel;
+  final void Function(AIModelPB)? onChangeModel;
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +117,7 @@ class ChatAIBottomInlineActions extends StatelessWidget {
   final Message message;
   final void Function()? onRegenerate;
   final void Function(PredefinedFormat)? onChangeFormat;
-  final void Function(AiModel)? onChangeModel;
+  final void Function(AIModelPB)? onChangeModel;
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +159,7 @@ class ChatAIMessageHover extends StatefulWidget {
   final Message message;
   final void Function()? onRegenerate;
   final void Function(PredefinedFormat)? onChangeFormat;
-  final void Function(AiModel)? onChangeModel;
+  final void Function(AIModelPB)? onChangeModel;
 
   @override
   State<ChatAIMessageHover> createState() => _ChatAIMessageHoverState();
@@ -321,7 +322,7 @@ class ChatAIMessagePopup extends StatelessWidget {
   final Message message;
   final void Function()? onRegenerate;
   final void Function(PredefinedFormat)? onChangeFormat;
-  final void Function(AiModel)? onChangeModel;
+  final void Function(AIModelPB)? onChangeModel;
 
   @override
   Widget build(BuildContext context) {

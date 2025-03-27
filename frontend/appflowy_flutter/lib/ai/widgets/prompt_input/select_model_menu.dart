@@ -1,6 +1,7 @@
 import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -72,9 +73,9 @@ class SelectModelPopoverContent extends StatelessWidget {
     this.onSelectModel,
   });
 
-  final List<AiModel> models;
-  final AiModel? selectedModel;
-  final void Function(AiModel)? onSelectModel;
+  final List<AIModelPB> models;
+  final AIModelPB? selectedModel;
+  final void Function(AIModelPB)? onSelectModel;
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +155,7 @@ class _ModelItem extends StatelessWidget {
     required this.onTap,
   });
 
-  final AiModel model;
+  final AIModelPB model;
   final bool isSelected;
   final VoidCallback onTap;
 

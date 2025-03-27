@@ -3,34 +3,10 @@ import 'dart:async';
 import 'package:appflowy/ai/service/ai_model_state_notifier.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pbserver.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'select_model_bloc.freezed.dart';
-
-class AiModel extends Equatable {
-  const AiModel({
-    required this.name,
-    required this.isLocal,
-  });
-
-  factory AiModel.fromPB(AIModelPB pb) {
-    return AiModel(name: pb.name, isLocal: pb.isLocal);
-  }
-
-  AIModelPB toPB() {
-    return AIModelPB()
-      ..name = name
-      ..isLocal = isLocal;
-  }
-
-  final String name;
-  final bool isLocal;
-
-  @override
-  List<Object?> get props => [name, isLocal];
-}
 
 class SelectModelBloc extends Bloc<SelectModelEvent, SelectModelState> {
   SelectModelBloc({
@@ -44,7 +20,7 @@ class SelectModelBloc extends Bloc<SelectModelEvent, SelectModelState> {
             AIEventUpdateSelectedModel(
               UpdateSelectedModelPB(
                 source: _aiModelStateNotifier.objectId,
-                selectedModel: model.toPB(),
+                selectedModel: model,
               ),
             ).send();
 
@@ -77,7 +53,10 @@ class SelectModelBloc extends Bloc<SelectModelEvent, SelectModelState> {
     await super.close();
   }
 
-  void _onAvailableModelsChanged(List<AiModel> models, AiModel? selectedModel) {
+  void _onAvailableModelsChanged(
+    List<AIModelPB> models,
+    AIModelPB? selectedModel,
+  ) {
     if (!isClosed) {
       add(SelectModelEvent.didLoadModels(models, selectedModel));
     }
@@ -87,20 +66,20 @@ class SelectModelBloc extends Bloc<SelectModelEvent, SelectModelState> {
 @freezed
 class SelectModelEvent with _$SelectModelEvent {
   const factory SelectModelEvent.selectModel(
-    AiModel model,
+    AIModelPB model,
   ) = _SelectModel;
 
   const factory SelectModelEvent.didLoadModels(
-    List<AiModel> models,
-    AiModel? selectedModel,
+    List<AIModelPB> models,
+    AIModelPB? selectedModel,
   ) = _DidLoadModels;
 }
 
 @freezed
 class SelectModelState with _$SelectModelState {
   const factory SelectModelState({
-    required List<AiModel> models,
-    required AiModel? selectedModel,
+    required List<AIModelPB> models,
+    required AIModelPB? selectedModel,
   }) = _SelectModelState;
 
   factory SelectModelState.initial(AIModelStateNotifier notifier) {
