@@ -173,7 +173,7 @@ class AIModelStateNotifier {
 
 extension AiModelExtension on AIModelPB {
   bool get isDefault {
-    return name == "Default";
+    return name == "Auto";
   }
 
   String get i18n {
