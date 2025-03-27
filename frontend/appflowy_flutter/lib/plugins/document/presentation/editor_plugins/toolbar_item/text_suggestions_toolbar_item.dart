@@ -1,5 +1,4 @@
 import 'dart:collection';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_option_cubit.dart';
@@ -48,17 +47,28 @@ class SuggestionsActionList extends StatefulWidget {
     super.key,
     required this.editorState,
     this.tooltipBuilder,
+    this.child,
+    this.onSelect,
+    this.popoverController,
+    this.popoverDirection = PopoverDirection.bottomWithLeftAligned,
+    this.showOffset = const Offset(0, 2),
   });
 
   final EditorState editorState;
   final ToolbarTooltipBuilder? tooltipBuilder;
+  final Widget? child;
+  final VoidCallback? onSelect;
+  final PopoverController? popoverController;
+  final PopoverDirection popoverDirection;
+  final Offset showOffset;
 
   @override
   State<SuggestionsActionList> createState() => _SuggestionsActionListState();
 }
 
 class _SuggestionsActionListState extends State<SuggestionsActionList> {
-  final popoverController = PopoverController();
+  late PopoverController popoverController =
+      widget.popoverController ?? PopoverController();
 
   bool isSelected = false;
 
@@ -86,8 +96,8 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       controller: popoverController,
-      direction: PopoverDirection.bottomWithLeftAligned,
-      offset: const Offset(0, 2.0),
+      direction: widget.popoverDirection,
+      offset: widget.showOffset,
       onOpen: () => keepEditorFocusNotifier.increase(),
       onClose: () {
         setState(() {
@@ -97,7 +107,7 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
       },
       constraints: const BoxConstraints(maxWidth: 240, maxHeight: 400),
       popupBuilder: (context) => buildPopoverContent(context),
-      child: buildChild(context),
+      child: widget.child ?? buildChild(context),
     );
   }
 
@@ -211,6 +221,7 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
         rightIcon: isSelected ? FlowySvg(FlowySvgs.toolbar_check_m) : null,
         onTap: () {
           item.onTap(widget.editorState, true);
+          widget.onSelect?.call();
           popoverController.close();
         },
       ),

@@ -16,6 +16,7 @@ class AFThemeExtensionV2 extends ThemeExtension<AFThemeExtensionV2> {
     required this.border_grey_quaternary,
     required this.fill_theme_select,
     required this.fill_grey_thick_alpha_1,
+    required this.shadow_medium,
   });
 
   final Color icon_primary;
@@ -23,6 +24,7 @@ class AFThemeExtensionV2 extends ThemeExtension<AFThemeExtensionV2> {
   final Color border_grey_quaternary;
   final Color fill_theme_select;
   final Color fill_grey_thick_alpha_1;
+  final Color shadow_medium;
 
   @override
   AFThemeExtensionV2 copyWith({
@@ -31,6 +33,7 @@ class AFThemeExtensionV2 extends ThemeExtension<AFThemeExtensionV2> {
     Color? border_grey_quaternary,
     Color? fill_theme_select,
     Color? fill_grey_thick_alpha_1,
+    Color? shadow_medium,
   }) =>
       AFThemeExtensionV2(
         icon_primary: icon_primary ?? this.icon_primary,
@@ -40,6 +43,7 @@ class AFThemeExtensionV2 extends ThemeExtension<AFThemeExtensionV2> {
         fill_theme_select: fill_theme_select ?? this.fill_theme_select,
         fill_grey_thick_alpha_1:
             fill_grey_thick_alpha_1 ?? this.fill_grey_thick_alpha_1,
+        shadow_medium: shadow_medium ?? this.shadow_medium,
       );
 
   @override
@@ -62,6 +66,8 @@ class AFThemeExtensionV2 extends ThemeExtension<AFThemeExtensionV2> {
       fill_grey_thick_alpha_1: Color.lerp(
               fill_grey_thick_alpha_1, other.fill_grey_thick_alpha_1, t) ??
           fill_grey_thick_alpha_1,
+      shadow_medium:
+          Color.lerp(shadow_medium, other.shadow_medium, t) ?? shadow_medium,
     );
   }
 }
@@ -72,6 +78,7 @@ const AFThemeExtensionV2 darkAFThemeV2 = AFThemeExtensionV2(
   border_grey_quaternary: Color(0xFFE8ECF3),
   fill_theme_select: Color(0x00BCF01F),
   fill_grey_thick_alpha_1: Color(0x1F23290F),
+  shadow_medium: Color(0x1F22251F),
 );
 
 const AFThemeExtensionV2 lightAFThemeV2 = AFThemeExtensionV2(
@@ -80,4 +87,5 @@ const AFThemeExtensionV2 lightAFThemeV2 = AFThemeExtensionV2(
   border_grey_quaternary: Color(0xFFE8ECF3),
   fill_theme_select: Color(0x00BCF01F),
   fill_grey_thick_alpha_1: Color(0x1F23290F),
+  shadow_medium: Color(0x1F22251F),
 );
