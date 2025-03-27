@@ -1,5 +1,6 @@
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/ai/ai_writer_toolbar_item.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/toolbar_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -43,5 +44,6 @@ ToolbarItem group1PaddingItem =
 
 ToolbarItem group4PaddingItem = buildPaddingPlaceholderItem(
   4,
-  isActive: onlyShowInSingleSelectionAndTextType,
+  isActive: (state) =>
+      !isNarrowWindow(state) && onlyShowInSingleSelectionAndTextType(state),
 );

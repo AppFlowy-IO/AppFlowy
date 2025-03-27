@@ -17,7 +17,6 @@ import 'package:appflowy/workspace/application/sidebar/rename_view/rename_view_b
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -64,7 +63,6 @@ class InitAppWidgetTask extends LaunchTask {
       child: widget,
     );
 
-    Bloc.observer = ApplicationBlocObserver();
     runApp(
       EasyLocalization(
         supportedLocales: const [
@@ -281,14 +279,6 @@ class AppGlobals {
   static NavigatorState get nav => rootNavKey.currentState!;
 
   static BuildContext get context => rootNavKey.currentContext!;
-}
-
-class ApplicationBlocObserver extends BlocObserver {
-  @override
-  void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
-    Log.debug(error);
-    super.onError(bloc, error, stackTrace);
-  }
 }
 
 Future<AppTheme> appTheme(String themeName) async {

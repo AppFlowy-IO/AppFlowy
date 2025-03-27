@@ -22,6 +22,7 @@ import 'package:appflowy/workspace/presentation/home/af_focus_manager.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide QuoteBlockKeys;
 import 'package:collection/collection.dart';
 import 'package:flowy_infra/theme_extension.dart';
+import 'package:flowy_infra/theme_extension_v2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -350,6 +351,8 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
     final isViewDeleted = context.read<DocumentBloc>().state.isDeleted;
     final isLocked =
         context.read<ViewLockStatusBloc?>()?.state.isLocked ?? false;
+
+    final themeV2 = AFThemeExtensionV2.of(context);
     final editor = Directionality(
       textDirection: textDirection,
       child: AppFlowyEditor(
@@ -428,7 +431,6 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
         ),
       );
     }
-
     return Center(
       child: FloatingToolbar(
         floatingToolbarHeight: 40,
@@ -436,12 +438,18 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
         style: FloatingToolbarStyle(
           backgroundColor: Theme.of(context).cardColor,
           toolbarActiveColor: Color(0xffe0f8fd),
-          toolbarElevation: 10,
         ),
         items: toolbarItems,
-        decoration: ShapeDecoration(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
           color: Theme.of(context).cardColor,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          boxShadow: [
+            BoxShadow(
+              offset: Offset(0, 4),
+              blurRadius: 24,
+              color: themeV2.shadow_medium,
+            ),
+          ],
         ),
         toolbarBuilder: (context, child, onDismiss, isMetricsChanged) =>
             DesktopFloatingToolbar(

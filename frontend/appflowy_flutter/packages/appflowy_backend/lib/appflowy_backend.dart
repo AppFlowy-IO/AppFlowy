@@ -4,11 +4,11 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:logger/logger.dart';
 
 import 'ffi.dart' as ffi;
 
@@ -62,28 +62,15 @@ class RustLogStreamReceiver {
   late StreamController<Uint8List> _streamController;
   late StreamSubscription<Uint8List> _subscription;
   int get port => _ffiPort.sendPort.nativePort;
-  late Logger _logger;
 
   RustLogStreamReceiver._internal() {
     _ffiPort = RawReceivePort();
     _streamController = StreamController();
     _ffiPort.handler = _streamController.add;
-    _logger = Logger(
-      printer: PrettyPrinter(
-        methodCount: 0, // number of method calls to be displayed
-        errorMethodCount: 8, // number of method calls if stacktrace is provided
-        lineLength: 120, // width of the output
-        colors: false, // Colorful log messages
-        printEmojis: false, // Print an emoji for each log message
-        dateTimeFormat:
-            DateTimeFormat.none, // Should each log print contain a timestamp
-      ),
-      level: kDebugMode ? Level.trace : Level.info,
-    );
 
     _subscription = _streamController.stream.listen((data) {
       String decodedString = utf8.decode(data);
-      _logger.i(decodedString);
+      Log.info(decodedString);
     });
   }
 

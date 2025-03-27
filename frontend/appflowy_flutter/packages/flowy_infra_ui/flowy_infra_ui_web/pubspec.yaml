@@ -1,7 +1,7 @@
 name: flowy_infra_ui_web
 description: A new Flutter package project.
 version: 0.0.1
-homepage:
+homepage: https://github.com/appflowy-io/appflowy
 publish_to: none
 
 environment:

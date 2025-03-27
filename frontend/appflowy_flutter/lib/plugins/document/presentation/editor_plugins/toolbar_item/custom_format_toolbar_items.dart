@@ -6,6 +6,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 // ignore: implementation_imports
 import 'package:appflowy_editor/src/editor/toolbar/desktop/items/utils/tooltip_util.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension_v2.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 
@@ -79,7 +80,7 @@ class _FormatToolbarItem extends ToolbarItem {
                 size: Size.square(20.0),
                 color: (isDark && isHighlight)
                     ? Color(0xFF282E3A)
-                    : Theme.of(context).iconTheme.color,
+                    : AFThemeExtensionV2.of(context).icon_primary,
               ),
               onPressed: () => editorState.toggleAttribute(
                 name,

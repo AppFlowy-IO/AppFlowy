@@ -331,16 +331,6 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
             final (spaces, _, _) = await _getSpaces();
             final currentSpace = await _getLastOpenedSpace(spaces);
 
-            Log.info(
-              'receive space update, current space: ${currentSpace?.name}(${currentSpace?.id})',
-            );
-
-            for (var i = 0; i < spaces.length; i++) {
-              Log.info(
-                'receive space update[$i]: ${spaces[i].name}(${spaces[i].id})',
-              );
-            }
-
             emit(
               state.copyWith(
                 spaces: spaces,
@@ -496,7 +486,6 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
   }
 
   void _initial(UserProfilePB userProfile, String workspaceId) {
-    Log.info('initial(or reset) space bloc: $workspaceId, ${userProfile.id}');
     _workspaceService = WorkspaceService(workspaceId: workspaceId);
 
     this.userProfile = userProfile;
@@ -507,7 +496,6 @@ class SpaceBloc extends Bloc<SpaceEvent, SpaceState> {
       workspaceId: workspaceId,
     )..start(
         sectionChanged: (result) async {
-          Log.info('did receive section views changed');
           if (isClosed) {
             return;
           }

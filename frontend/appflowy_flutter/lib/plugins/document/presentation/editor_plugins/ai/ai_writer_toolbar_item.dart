@@ -6,6 +6,7 @@ import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension_v2.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -118,7 +119,7 @@ class _AiWriterToolbarActionListState extends State<AiWriterToolbarActionList> {
   }
 
   Widget buildChild(BuildContext context) {
-    final iconColor = Theme.of(context).iconTheme.color;
+    final themeV2 = AFThemeExtensionV2.of(context);
     final child = FlowyIconButton(
       width: 48,
       height: 32,
@@ -130,13 +131,13 @@ class _AiWriterToolbarActionListState extends State<AiWriterToolbarActionList> {
           FlowySvg(
             FlowySvgs.toolbar_ai_writer_m,
             size: Size.square(20),
-            color: iconColor,
+            color: themeV2.icon_primary,
           ),
           HSpace(4),
           FlowySvg(
             FlowySvgs.toolbar_arrow_down_m,
             size: Size(12, 20),
-            color: iconColor,
+            color: themeV2.icon_tertiary,
           ),
         ],
       ),
@@ -187,7 +188,7 @@ class ImproveWritingButton extends StatelessWidget {
       icon: FlowySvg(
         FlowySvgs.toolbar_ai_improve_writing_m,
         size: Size.square(20.0),
-        color: Theme.of(context).iconTheme.color,
+        color: AFThemeExtensionV2.of(context).icon_primary,
       ),
       onPressed: () {
         if (_isAIEnabled(editorState)) {

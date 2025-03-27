@@ -1,7 +1,7 @@
 name: flowy_infra_ui_platform_interface
 description: A new Flutter package project.
 version: 0.0.1
-homepage:
+homepage: https://github.com/appflowy-io/appflowy
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -17,5 +17,3 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.1
-
-flutter:

@@ -148,6 +148,115 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
   }
 }
 
+void showLinkCreateMenu(
+  BuildContext context,
+  EditorState editorState,
+  Selection selection,
+) {
+  final (left, top, right, bottom, alignment) = _getPosition(editorState);
+
+  final node = editorState.getNodeAtPath(selection.end.path);
+  if (node == null) {
+    return;
+  }
+
+  OverlayEntry? overlay;
+
+  void dismissOverlay() {
+    keepEditorFocusNotifier.decrease();
+    overlay?.remove();
+    overlay = null;
+  }
+
+  keepEditorFocusNotifier.increase();
+  overlay = FullScreenOverlayEntry(
+    top: top,
+    bottom: bottom,
+    left: left,
+    right: right,
+    dismissCallback: () => keepEditorFocusNotifier.decrease(),
+    builder: (context) {
+      return LinkCreateMenu(
+        alignment: alignment,
+        editorState: editorState,
+        onSubmitted: (link, isPage) async {
+          await editorState.formatDelta(selection, {
+            BuiltInAttributeKey.href: link,
+            kIsPageLink: isPage,
+          });
+          dismissOverlay();
+        },
+        onDismiss: dismissOverlay,
+      );
+    },
+  ).build();
+
+  Overlay.of(context, rootOverlay: true).insert(overlay!);
+}
+
+// get a proper position for link menu
+(
+  double? left,
+  double? top,
+  double? right,
+  double? bottom,
+  LinkMenuAlignment alignment,
+) _getPosition(
+  EditorState editorState,
+) {
+  final rect = editorState.selectionRects().first;
+  const menuHeight = 222.0, menuWidth = 320.0;
+
+  double? left, right, top, bottom;
+  LinkMenuAlignment alignment = LinkMenuAlignment.topLeft;
+  final editorOffset = editorState.renderBox!.localToGlobal(Offset.zero),
+      editorSize = editorState.renderBox!.size;
+  final editorBottom = editorSize.height + editorOffset.dy,
+      editorRight = editorSize.width + editorOffset.dx;
+  final overflowBottom = rect.bottom + menuHeight > editorBottom,
+      overflowTop = rect.top - menuHeight < 0,
+      overflowLeft = rect.left - menuWidth < 0,
+      overflowRight = rect.right + menuWidth > editorRight;
+
+  if (overflowTop && !overflowBottom) {
+    /// show at bottom
+    top = rect.bottom;
+  } else if (overflowBottom && !overflowTop) {
+    /// show at top
+    bottom = editorBottom - rect.top;
+  } else if (!overflowTop && !overflowBottom) {
+    /// show at bottom
+    top = rect.bottom;
+  } else {
+    top = 0;
+  }
+
+  if (overflowLeft && !overflowRight) {
+    /// show at right
+    left = rect.left;
+  } else if (overflowRight && !overflowLeft) {
+    /// show at left
+    right = editorRight - rect.right;
+  } else if (!overflowLeft && !overflowRight) {
+    /// show at right
+    left = rect.left;
+  } else {
+    left = 0;
+  }
+
+  if (left != null && top != null) {
+    alignment = LinkMenuAlignment.bottomRight;
+  } else if (left != null && bottom != null) {
+    alignment = LinkMenuAlignment.topRight;
+  } else if (right != null && top != null) {
+    alignment = LinkMenuAlignment.bottomLeft;
+  } else if (right != null && bottom != null) {
+    alignment = LinkMenuAlignment.topLeft;
+  }
+
+  return (left, top, right, bottom, alignment);
+}
+
 ShapeDecoration buildToolbarLinkDecoration(BuildContext context) =>
     ShapeDecoration(
       color: Theme.of(context).cardColor,
