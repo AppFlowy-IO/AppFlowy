@@ -1,14 +1,16 @@
 import 'dart:collection';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/actions/block_action_option_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/workspace/presentation/home/menu/menu_shared_state.dart';
 import 'package:appflowy_editor/appflowy_editor.dart'
     hide QuoteBlockComponentBuilder, quoteNode, QuoteBlockKeys;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/theme_extension_v2.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
@@ -45,17 +47,28 @@ class SuggestionsActionList extends StatefulWidget {
     super.key,
     required this.editorState,
     this.tooltipBuilder,
+    this.child,
+    this.onSelect,
+    this.popoverController,
+    this.popoverDirection = PopoverDirection.bottomWithLeftAligned,
+    this.showOffset = const Offset(0, 2),
   });
 
   final EditorState editorState;
   final ToolbarTooltipBuilder? tooltipBuilder;
+  final Widget? child;
+  final VoidCallback? onSelect;
+  final PopoverController? popoverController;
+  final PopoverDirection popoverDirection;
+  final Offset showOffset;
 
   @override
   State<SuggestionsActionList> createState() => _SuggestionsActionListState();
 }
 
 class _SuggestionsActionListState extends State<SuggestionsActionList> {
-  final popoverController = PopoverController();
+  late PopoverController popoverController =
+      widget.popoverController ?? PopoverController();
 
   bool isSelected = false;
 
@@ -83,8 +96,8 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       controller: popoverController,
-      direction: PopoverDirection.bottomWithLeftAligned,
-      offset: const Offset(0, 2.0),
+      direction: widget.popoverDirection,
+      offset: widget.showOffset,
       onOpen: () => keepEditorFocusNotifier.increase(),
       onClose: () {
         setState(() {
@@ -94,7 +107,7 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
       },
       constraints: const BoxConstraints(maxWidth: 240, maxHeight: 400),
       popupBuilder: (context) => buildPopoverContent(context),
-      child: buildChild(context),
+      child: widget.child ?? buildChild(context),
     );
   }
 
@@ -104,7 +117,8 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
   }
 
   Widget buildChild(BuildContext context) {
-    final iconColor = Theme.of(context).iconTheme.color;
+    final themeV2 = AFThemeExtensionV2.of(context);
+
     final child = FlowyHover(
       isSelected: () => isSelected,
       style: HoverStyle(
@@ -147,7 +161,7 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
                 FlowySvg(
                   FlowySvgs.toolbar_arrow_down_m,
                   size: Size(12, 20),
-                  color: iconColor,
+                  color: themeV2.icon_tertiary,
                 ),
               ],
             ),
@@ -206,7 +220,8 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
         ),
         rightIcon: isSelected ? FlowySvg(FlowySvgs.toolbar_check_m) : null,
         onTap: () {
-          item.onTap(widget.editorState);
+          item.onTap(widget.editorState, true);
+          widget.onSelect?.call();
           popoverController.close();
         },
       ),
@@ -289,10 +304,10 @@ class SuggestionItem {
   final SuggestionType type;
   final String title;
   final FlowySvgData svg;
-  final ValueChanged<EditorState> onTap;
+  final Function(EditorState state, bool keepSelection) onTap;
 }
 
-enum SuggestionGroup { textHeading, list, toggle, quote }
+enum SuggestionGroup { textHeading, list, toggle, quote, page }
 
 enum SuggestionType {
   text(SuggestionGroup.textHeading),
@@ -307,7 +322,8 @@ enum SuggestionType {
   toggleH2(SuggestionGroup.toggle),
   toggleH3(SuggestionGroup.toggle),
   callOut(SuggestionGroup.quote),
-  quote(SuggestionGroup.quote);
+  quote(SuggestionGroup.quote),
+  page(SuggestionGroup.page);
 
   const SuggestionType(this.group);
 
@@ -318,94 +334,166 @@ final textSuggestionItem = SuggestionItem(
   type: SuggestionType.text,
   title: AppFlowyEditorL10n.current.text,
   svg: FlowySvgs.type_text_m,
-  onTap: (state) => formatNodeToText(state),
+  onTap: (state, _) => formatNodeToText(state),
 );
 
 final h1SuggestionItem = SuggestionItem(
   type: SuggestionType.h1,
   title: LocaleKeys.document_toolbar_h1.tr(),
   svg: FlowySvgs.type_h1_m,
-  onTap: (state) => _turnInto(state, HeadingBlockKeys.type, level: 1),
+  onTap: (state, keepSelection) => _turnInto(
+    state,
+    HeadingBlockKeys.type,
+    level: 1,
+    keepSelection: keepSelection,
+  ),
 );
 
 final h2SuggestionItem = SuggestionItem(
   type: SuggestionType.h2,
   title: LocaleKeys.document_toolbar_h2.tr(),
   svg: FlowySvgs.type_h2_m,
-  onTap: (state) => _turnInto(state, HeadingBlockKeys.type, level: 2),
+  onTap: (state, keepSelection) => _turnInto(
+    state,
+    HeadingBlockKeys.type,
+    level: 2,
+    keepSelection: keepSelection,
+  ),
 );
 
 final h3SuggestionItem = SuggestionItem(
   type: SuggestionType.h3,
   title: LocaleKeys.document_toolbar_h3.tr(),
   svg: FlowySvgs.type_h3_m,
-  onTap: (state) => _turnInto(state, HeadingBlockKeys.type, level: 3),
+  onTap: (state, keepSelection) => _turnInto(
+    state,
+    HeadingBlockKeys.type,
+    level: 3,
+    keepSelection: keepSelection,
+  ),
 );
 
 final checkboxSuggestionItem = SuggestionItem(
   type: SuggestionType.checkbox,
   title: LocaleKeys.editor_checkbox.tr(),
   svg: FlowySvgs.type_todo_m,
-  onTap: (state) => _turnInto(state, TodoListBlockKeys.type),
+  onTap: (state, keepSelection) => _turnInto(
+    state,
+    TodoListBlockKeys.type,
+    keepSelection: keepSelection,
+  ),
 );
 
 final bulletedSuggestionItem = SuggestionItem(
   type: SuggestionType.bulleted,
   title: LocaleKeys.editor_bulletedListShortForm.tr(),
   svg: FlowySvgs.type_bulleted_list_m,
-  onTap: (state) => _turnInto(state, BulletedListBlockKeys.type),
+  onTap: (state, keepSelection) => _turnInto(
+    state,
+    BulletedListBlockKeys.type,
+    keepSelection: keepSelection,
+  ),
 );
 
 final numberedSuggestionItem = SuggestionItem(
   type: SuggestionType.numbered,
   title: LocaleKeys.editor_numberedListShortForm.tr(),
   svg: FlowySvgs.type_numbered_list_m,
-  onTap: (state) => _turnInto(state, NumberedListBlockKeys.type),
+  onTap: (state, keepSelection) => _turnInto(
+    state,
+    NumberedListBlockKeys.type,
+    keepSelection: keepSelection,
+  ),
 );
 
 final toggleSuggestionItem = SuggestionItem(
   type: SuggestionType.toggle,
   title: LocaleKeys.editor_toggleListShortForm.tr(),
   svg: FlowySvgs.type_toggle_list_m,
-  onTap: (state) => _turnInto(state, ToggleListBlockKeys.type),
+  onTap: (state, keepSelection) => _turnInto(
+    state,
+    ToggleListBlockKeys.type,
+    keepSelection: keepSelection,
+  ),
 );
 
 final toggleH1SuggestionItem = SuggestionItem(
   type: SuggestionType.toggleH1,
   title: LocaleKeys.editor_toggleHeading1ShortForm.tr(),
   svg: FlowySvgs.type_toggle_h1_m,
-  onTap: (state) => _turnInto(state, ToggleListBlockKeys.type, level: 1),
+  onTap: (state, keepSelection) => _turnInto(
+    state,
+    ToggleListBlockKeys.type,
+    level: 1,
+    keepSelection: keepSelection,
+  ),
 );
 
 final toggleH2SuggestionItem = SuggestionItem(
   type: SuggestionType.toggleH2,
   title: LocaleKeys.editor_toggleHeading2ShortForm.tr(),
   svg: FlowySvgs.type_toggle_h2_m,
-  onTap: (state) => _turnInto(state, ToggleListBlockKeys.type, level: 2),
+  onTap: (state, keepSelection) => _turnInto(
+    state,
+    ToggleListBlockKeys.type,
+    level: 2,
+    keepSelection: keepSelection,
+  ),
 );
 
 final toggleH3SuggestionItem = SuggestionItem(
   type: SuggestionType.toggleH3,
   title: LocaleKeys.editor_toggleHeading3ShortForm.tr(),
   svg: FlowySvgs.type_toggle_h3_m,
-  onTap: (state) => _turnInto(state, ToggleListBlockKeys.type, level: 3),
+  onTap: (state, keepSelection) => _turnInto(
+    state,
+    ToggleListBlockKeys.type,
+    level: 3,
+    keepSelection: keepSelection,
+  ),
 );
 
 final callOutSuggestionItem = SuggestionItem(
   type: SuggestionType.callOut,
   title: LocaleKeys.document_plugins_callout.tr(),
   svg: FlowySvgs.type_callout_m,
-  onTap: (state) => _turnInto(state, CalloutBlockKeys.type),
+  onTap: (state, keepSelection) => _turnInto(
+    state,
+    CalloutBlockKeys.type,
+    keepSelection: keepSelection,
+  ),
 );
 
 final quoteSuggestionItem = SuggestionItem(
   type: SuggestionType.quote,
   title: LocaleKeys.editor_quote.tr(),
   svg: FlowySvgs.type_quote_m,
-  onTap: (state) => _turnInto(state, QuoteBlockKeys.type),
+  onTap: (state, keepSelection) => _turnInto(
+    state,
+    QuoteBlockKeys.type,
+    keepSelection: keepSelection,
+  ),
 );
 
-Future<void> _turnInto(EditorState state, String type, {int? level}) async {
+final pateItem = SuggestionItem(
+  type: SuggestionType.page,
+  title: LocaleKeys.editor_page.tr(),
+  svg: FlowySvgs.icon_document_s,
+  onTap: (state, keepSelection) => _turnInto(
+    state,
+    SubPageBlockKeys.type,
+    viewId: getIt<MenuSharedState>().latestOpenView?.id,
+    keepSelection: keepSelection,
+  ),
+);
+
+Future<void> _turnInto(
+  EditorState state,
+  String type, {
+  int? level,
+  String? viewId,
+  bool keepSelection = true,
+}) async {
   final selection = state.selection!;
   final node = state.getNodeAtPath(selection.start.path)!;
   await BlockActionOptionCubit.turnIntoBlock(
@@ -413,7 +501,8 @@ Future<void> _turnInto(EditorState state, String type, {int? level}) async {
     node,
     state,
     level: level,
-    keepSelection: true,
+    currentViewId: viewId,
+    keepSelection: keepSelection,
   );
 }
 
@@ -431,6 +520,7 @@ final suggestions = UnmodifiableListView([
   toggleH3SuggestionItem,
   callOutSuggestionItem,
   quoteSuggestionItem,
+  pateItem,
 ]);
 
 final nodeType2SuggestionType = UnmodifiableMapView({

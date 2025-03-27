@@ -57,10 +57,19 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
 
   Attributes get attribute => widget.attribute;
 
+  HoverTriggerKey get triggerKey => HoverTriggerKey(widget.node.id, selection);
+
+  @override
+  void initState() {
+    super.initState();
+    getIt<LinkHoverTriggers>()._add(triggerKey, showLinkHoverMenu);
+  }
+
   @override
   void dispose() {
     hoverMenuController.close();
     editMenuController.close();
+    getIt<LinkHoverTriggers>()._remove(triggerKey, showLinkHoverMenu);
     super.dispose();
   }
 
@@ -217,6 +226,31 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
         .setData(ClipboardServiceData(plainText: href));
     hoverMenuController.close();
   }
+
+  void removeLink(
+    EditorState editorState,
+    Selection selection,
+    bool isHref,
+  ) {
+    if (!isHref) return;
+    final node = editorState.getNodeAtPath(selection.end.path);
+    if (node == null) {
+      return;
+    }
+    final index = selection.normalized.startIndex;
+    final length = selection.length;
+    final transaction = editorState.transaction
+      ..formatText(
+        node,
+        index,
+        length,
+        {
+          BuiltInAttributeKey.href: null,
+          kIsPageLink: null,
+        },
+      );
+    editorState.apply(transaction);
+  }
 }
 
 class LinkHoverMenu extends StatelessWidget {
@@ -318,5 +352,46 @@ class LinkHoverMenu extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class HoverTriggerKey {
+  HoverTriggerKey(this.nodeId, this.selection);
+
+  final String nodeId;
+  final Selection selection;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HoverTriggerKey &&
+          runtimeType == other.runtimeType &&
+          nodeId == other.nodeId &&
+          selection == other.selection;
+
+  @override
+  int get hashCode => nodeId.hashCode ^ selection.hashCode;
+}
+
+class LinkHoverTriggers {
+  final Map<HoverTriggerKey, Set<VoidCallback>> _map = {};
+
+  void _add(HoverTriggerKey key, VoidCallback callback) {
+    final callbacks = _map[key] ?? {};
+    callbacks.add(callback);
+    _map[key] = callbacks;
+  }
+
+  void _remove(HoverTriggerKey key, VoidCallback callback) {
+    final callbacks = _map[key] ?? {};
+    callbacks.remove(callback);
+    _map[key] = callbacks;
+  }
+
+  void call(HoverTriggerKey key) {
+    final callbacks = _map[key] ?? {};
+    for (final callback in callbacks) {
+      callback.call();
+    }
   }
 }
