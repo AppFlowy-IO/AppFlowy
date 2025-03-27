@@ -65,11 +65,11 @@ impl AIModel {
   }
 }
 
-const DEFAULT_MODEL_NAME: &str = "Auto";
+pub const DEFAULT_AI_MODEL_NAME: &str = "Auto";
 impl Default for AIModel {
   fn default() -> Self {
     Self {
-      name: DEFAULT_MODEL_NAME.to_string(),
+      name: DEFAULT_AI_MODEL_NAME.to_string(),
       is_local: false,
       desc: "".to_string(),
     }

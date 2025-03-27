@@ -10,7 +10,9 @@ use std::collections::HashMap;
 
 use appflowy_plugin::manager::PluginManager;
 use dashmap::DashMap;
-use flowy_ai_pub::cloud::{AIModel, ChatCloudService, ChatSettings, UpdateChatParams};
+use flowy_ai_pub::cloud::{
+  AIModel, ChatCloudService, ChatSettings, UpdateChatParams, DEFAULT_AI_MODEL_NAME,
+};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
@@ -275,6 +277,10 @@ impl AIManager {
       .cloud_service_wm
       .get_workspace_default_model(&workspace_id)
       .await?;
+
+    if model.is_empty() {
+      return Ok(DEFAULT_AI_MODEL_NAME.to_string());
+    }
     Ok(model)
   }
 
@@ -387,6 +393,8 @@ impl AIManager {
       .map(|m| AIModel::from(m))
       .collect();
 
+    trace!("[Model Selection]: Available models: {:?}", models);
+
     // If user enable local ai, then add local ai model to the list.
     if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
       models.push(AIModel::local(local_model, "".to_string()));
@@ -400,13 +408,18 @@ impl AIManager {
     }
 
     // Global active model is the model selected by the user in the workspace settings.
-    let global_active_model = self
+    let server_active_model = self
       .get_workspace_select_model()
       .await
       .map(|m| AIModel::server(m, "".to_string()))
       .unwrap_or_else(|_| AIModel::default());
 
-    let mut user_selected_model = global_active_model.clone();
+    trace!(
+      "[Model Selection] server active model: {:?}",
+      server_active_model
+    );
+
+    let mut user_selected_model = server_active_model.clone();
     let source_key = ai_available_models_key(&source);
 
     // If source is provided, try to get the user-selected model from the store. User selected
@@ -419,6 +432,7 @@ impl AIManager {
         }
       },
       Some(model) => {
+        trace!("[Model Selection] user select model: {:?}", model);
         user_selected_model = model;
       },
     }
@@ -428,7 +442,7 @@ impl AIManager {
       .iter()
       .find(|m| m.name == user_selected_model.name)
       .cloned()
-      .or_else(|| Some(AIModel::from(global_active_model)));
+      .or_else(|| Some(AIModel::from(server_active_model)));
 
     // Update the stored preference if a different model is used.
     if let Some(ref active_model) = active_model {
@@ -439,6 +453,7 @@ impl AIManager {
       }
     }
 
+    trace!("[Model Selection] final active model: {:?}", active_model);
     let selected_model = AIModelPB::from(active_model.unwrap_or_default());
     Ok(AvailableModelsPB {
       models: models.into_iter().map(|m| m.into()).collect(),
