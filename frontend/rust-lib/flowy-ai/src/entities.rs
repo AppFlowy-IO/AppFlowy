@@ -3,7 +3,6 @@ use std::collections::HashMap;
 
 use crate::local_ai::controller::LocalAISetting;
 use crate::local_ai::resource::PendingResource;
-use flowy_ai_pub::cloud::ai_dto::AvailableModel;
 use flowy_ai_pub::cloud::{
   AIModel, ChatMessage, ChatMessageMetadata, ChatMessageType, CompletionMessage, LLMModel,
   OutputContent, OutputLayout, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,

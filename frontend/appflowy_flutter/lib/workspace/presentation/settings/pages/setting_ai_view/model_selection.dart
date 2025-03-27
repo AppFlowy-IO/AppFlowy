@@ -46,6 +46,8 @@ class AIModelSelection extends StatelessWidget {
                           context,
                           value: model,
                           label: model.i18n,
+                          subLabel: model.desc,
+                          maximumHeight: 49,
                         ),
                       )
                       .toList(),
