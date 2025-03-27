@@ -5,7 +5,7 @@ use crate::notification::{
   chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
 };
 use crate::persistence::{select_single_message, ChatMessageTable};
-use appflowy_plugin::error::PluginError;
+use af_plugin::error::PluginError;
 use std::collections::HashMap;
 
 use flowy_ai_pub::cloud::{

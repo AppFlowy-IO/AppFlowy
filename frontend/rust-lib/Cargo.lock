@@ -343,6 +343,61 @@ dependencies = [
 ]
 
 [[package]]
+name = "af-local-ai"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=bcd9782fa3d6f6d36f2fa6d065e834a1400f156e#bcd9782fa3d6f6d36f2fa6d065e834a1400f156e"
+dependencies = [
+ "af-plugin",
+ "anyhow",
+ "bytes",
+ "futures",
+ "reqwest 0.11.27",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tokio-stream",
+ "tokio-util",
+ "tracing",
+ "zip 2.2.0",
+ "zip-extensions",
+]
+
+[[package]]
+name = "af-mcp"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=bcd9782fa3d6f6d36f2fa6d065e834a1400f156e#bcd9782fa3d6f6d36f2fa6d065e834a1400f156e"
+dependencies = [
+ "anyhow",
+ "futures-util",
+ "mcp_daemon",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "af-plugin"
+version = "0.1.0"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=bcd9782fa3d6f6d36f2fa6d065e834a1400f156e#bcd9782fa3d6f6d36f2fa6d065e834a1400f156e"
+dependencies = [
+ "anyhow",
+ "cfg-if",
+ "crossbeam-utils",
+ "log",
+ "once_cell",
+ "parking_lot 0.12.1",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.64",
+ "tokio",
+ "tokio-stream",
+ "tracing",
+ "winreg 0.55.0",
+ "xattr",
+]
+
+[[package]]
 name = "again"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -434,9 +489,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.94"
+version = "1.0.97"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c1fd03a028ef38ba2276dce7e33fcd6369c158a1bca17946c4b1b701891c1ff7"
+checksum = "dcfed56ad506cb2c684a14971b8861fdc3baaaae314b9e5f9bb532cbe3ba7a4f"
 
 [[package]]
 name = "app-error"
@@ -471,47 +526,6 @@ dependencies = [
  "serde_json",
  "serde_repr",
  "thiserror 1.0.64",
-]
-
-[[package]]
-name = "appflowy-local-ai"
-version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=52ad76f21f8f3a7b510dae029836b5fe86479e5a#52ad76f21f8f3a7b510dae029836b5fe86479e5a"
-dependencies = [
- "anyhow",
- "appflowy-plugin",
- "bytes",
- "futures",
- "reqwest 0.11.27",
- "serde",
- "serde_json",
- "tokio",
- "tokio-stream",
- "tokio-util",
- "tracing",
- "zip 2.2.0",
- "zip-extensions",
-]
-
-[[package]]
-name = "appflowy-plugin"
-version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=52ad76f21f8f3a7b510dae029836b5fe86479e5a#52ad76f21f8f3a7b510dae029836b5fe86479e5a"
-dependencies = [
- "anyhow",
- "cfg-if",
- "crossbeam-utils",
- "log",
- "once_cell",
- "parking_lot 0.12.1",
- "serde",
- "serde_json",
- "thiserror 1.0.64",
- "tokio",
- "tokio-stream",
- "tracing",
- "winreg 0.55.0",
- "xattr",
 ]
 
 [[package]]
@@ -2450,10 +2464,11 @@ dependencies = [
 name = "flowy-ai"
 version = "0.1.0"
 dependencies = [
+ "af-local-ai",
+ "af-mcp",
+ "af-plugin",
  "allo-isolate",
  "anyhow",
- "appflowy-local-ai",
- "appflowy-plugin",
  "arc-swap",
  "base64 0.21.5",
  "bytes",
@@ -2472,7 +2487,6 @@ dependencies = [
  "lib-dispatch",
  "lib-infra",
  "log",
- "mcp_daemon",
  "md5",
  "notify",
  "pin-project",
@@ -2545,8 +2559,8 @@ dependencies = [
 name = "flowy-core"
 version = "0.1.0"
 dependencies = [
+ "af-local-ai",
  "anyhow",
- "appflowy-local-ai",
  "arc-swap",
  "base64 0.21.5",
  "bytes",
@@ -6664,9 +6678,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.128"
+version = "1.0.140"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6ff5456707a1de34e7e37f2a6fd3d3f808c318259cbd01ab6377795054b483d8"
+checksum = "20068b6e96dc6c9bd23e01df8827e6c7e1f2fddd43c21810382803c136b99373"
 dependencies = [
  "itoa",
  "memchr",
@@ -7498,22 +7512,21 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
 name = "tokio"
-version = "1.38.0"
+version = "1.44.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba4f4a02a7a80d6f274636f0aa95c7e383b912d41fe721a31f29e29698585a4a"
+checksum = "f382da615b842244d4b8738c82ed1275e6c5dd90c459a30941cd07080b06c91a"
 dependencies = [
  "backtrace",
  "bytes",
  "libc",
- "mio 0.8.9",
- "num_cpus",
+ "mio 1.0.3",
  "parking_lot 0.12.1",
  "pin-project-lite",
  "signal-hook-registry",
  "socket2 0.5.5",
  "tokio-macros",
  "tracing",
- "windows-sys 0.48.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -7528,9 +7541,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-macros"
-version = "2.3.0"
+version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f5ae998a069d4b5aba8ee9dad856af7d520c3699e6159b185c2acd48155d39a"
+checksum = "6e06d43f1345a3bcd39f6a56dbb7dcab2ba47e68e8ac134855e7e2bdbaf8cab8"
 dependencies = [
  "proc-macro2",
  "quote",

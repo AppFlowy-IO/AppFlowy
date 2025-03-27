@@ -152,5 +152,6 @@ collab-importer = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFl
 # To update the commit ID, run:
 # scripts/tool/update_local_ai_rev.sh new_rev_id
 # ⚠️⚠️⚠️️
-appflowy-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "52ad76f21f8f3a7b510dae029836b5fe86479e5a" }
-appflowy-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "52ad76f21f8f3a7b510dae029836b5fe86479e5a" }
+af-local-ai = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "bcd9782fa3d6f6d36f2fa6d065e834a1400f156e" }
+af-plugin = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "bcd9782fa3d6f6d36f2fa6d065e834a1400f156e" }
+af-mcp = { version = "0.1", git = "https://github.com/AppFlowy-IO/AppFlowy-LocalAI", rev = "bcd9782fa3d6f6d36f2fa6d065e834a1400f156e" }

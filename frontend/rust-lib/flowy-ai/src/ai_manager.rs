@@ -8,7 +8,7 @@ use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
 use crate::persistence::{insert_chat, read_chat_metadata, ChatTable};
 use std::collections::HashMap;
 
-use appflowy_plugin::manager::PluginManager;
+use af_plugin::manager::PluginManager;
 use dashmap::DashMap;
 use flowy_ai_pub::cloud::{AIModel, ChatCloudService, ChatSettings, UpdateChatParams};
 use flowy_error::{FlowyError, FlowyResult};
