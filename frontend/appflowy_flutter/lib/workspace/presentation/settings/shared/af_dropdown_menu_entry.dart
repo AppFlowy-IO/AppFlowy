@@ -9,7 +9,7 @@ DropdownMenuEntry<T> buildDropdownMenuEntry<T>(
   BuildContext context, {
   required T value,
   required String label,
-  String? subLabel,
+  String subLabel = '',
   T? selectedValue,
   Widget? leadingWidget,
   Widget? trailingWidget,
@@ -20,7 +20,7 @@ DropdownMenuEntry<T> buildDropdownMenuEntry<T>(
       ? getGoogleFontSafely(fontFamily).fontFamily ?? defaultFontFamily
       : defaultFontFamily;
   Widget? labelWidget;
-  if (subLabel != null) {
+  if (subLabel.isNotEmpty) {
     labelWidget = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
