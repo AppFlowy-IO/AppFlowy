@@ -255,7 +255,8 @@
     "switchModel": {
       "label": "Switch model",
       "localModel": "Local Model",
-      "cloudModel": "Cloud Model"
+      "cloudModel": "Cloud Model",
+      "autoModel": "Auto"
     },
     "selectBanner": {
       "saveButton": "Add to …",
