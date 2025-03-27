@@ -170,3 +170,13 @@ class AIModelStateNotifier {
         );
   }
 }
+
+extension AiModelExtension on AIModelPB {
+  bool get isDefault {
+    return name == "Default";
+  }
+
+  String get i18n {
+    return isDefault ? LocaleKeys.chat_switchModel_autoModel.tr() : name;
+  }
+}

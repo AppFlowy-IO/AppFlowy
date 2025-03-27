@@ -1,3 +1,4 @@
+import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
 import 'package:flutter/material.dart';
 
@@ -44,7 +45,7 @@ class AIModelSelection extends StatelessWidget {
                         (model) => buildDropdownMenuEntry<AIModelPB>(
                           context,
                           value: model,
-                          label: model.name,
+                          label: model.i18n,
                         ),
                       )
                       .toList(),

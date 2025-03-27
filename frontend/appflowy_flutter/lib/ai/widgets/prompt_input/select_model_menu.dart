@@ -55,7 +55,7 @@ class _SelectModelMenuState extends State<SelectModelMenu> {
               );
             },
             child: _CurrentModelButton(
-              modelName: state.selectedModel!.name,
+              model: state.selectedModel!,
               onTap: () => popoverController.show(),
             ),
           );
@@ -166,7 +166,10 @@ class _ModelItem extends StatelessWidget {
       child: FlowyButton(
         onTap: onTap,
         margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
-        text: FlowyText(model.name),
+        text: FlowyText(
+          model.i18n,
+          overflow: TextOverflow.ellipsis,
+        ),
         rightIcon: isSelected ? FlowySvg(FlowySvgs.check_s) : null,
       ),
     );
@@ -175,11 +178,11 @@ class _ModelItem extends StatelessWidget {
 
 class _CurrentModelButton extends StatelessWidget {
   const _CurrentModelButton({
-    required this.modelName,
+    required this.model,
     required this.onTap,
   });
 
-  final String modelName;
+  final AIModelPB model;
   final VoidCallback onTap;
 
   @override
@@ -199,13 +202,26 @@ class _CurrentModelButton extends StatelessWidget {
               padding: const EdgeInsetsDirectional.all(4.0),
               child: Row(
                 children: [
-                  FlowyText(
-                    modelName,
-                    fontSize: 12,
-                    figmaLineHeight: 16,
-                    color: Theme.of(context).hintColor,
+                  Padding(
+                    // TODO: remove this after change icon to 20px
+                    padding: EdgeInsets.all(2),
+                    child: FlowySvg(
+                      FlowySvgs.ai_sparks_s,
+                      color: Theme.of(context).hintColor,
+                      size: Size.square(16),
+                    ),
                   ),
-                  HSpace(2.0),
+                  if (!model.isDefault)
+                    Padding(
+                      padding: EdgeInsetsDirectional.only(end: 2.0),
+                      child: FlowyText(
+                        model.i18n,
+                        fontSize: 12,
+                        figmaLineHeight: 16,
+                        color: Theme.of(context).hintColor,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   FlowySvg(
                     FlowySvgs.ai_source_drop_down_s,
                     color: Theme.of(context).hintColor,
