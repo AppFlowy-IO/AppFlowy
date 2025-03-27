@@ -23,7 +23,8 @@ class DebugTask extends LaunchTask {
       Bloc.observer = TalkerBlocObserver(
         talker: talker,
         settings: TalkerBlocLoggerSettings(
-          // enable it if you want to observer all the bloc events
+          // the default is false to avoid the log mix with the appflowy logs
+          // you can enable it if you want to observer all the bloc events
           enabled: false,
           printEventFullData: false,
           printStateFullData: false,

@@ -32,7 +32,8 @@ class Log {
     dynamic error,
     StackTrace? stackTrace,
   ]) {
-    // only forward logs to flutter in debug mode
+    // only forward logs to flutter in debug mode, otherwise log to rust to
+    // persist logs in the file system
     if (shared.enableFlutterLog && kDebugMode) {
       shared._logger.log(msg, logLevel: level, stackTrace: stackTrace);
     } else {
