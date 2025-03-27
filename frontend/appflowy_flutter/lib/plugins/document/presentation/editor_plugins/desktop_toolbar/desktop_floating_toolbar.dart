@@ -3,6 +3,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'toolbar_animation.dart';
 import 'toolbar_cubit.dart';
 
 class DesktopFloatingToolbar extends StatefulWidget {
@@ -11,11 +12,13 @@ class DesktopFloatingToolbar extends StatefulWidget {
     required this.editorState,
     required this.child,
     required this.onDismiss,
+    this.enableAnimation = true,
   });
 
   final EditorState editorState;
   final Widget child;
   final VoidCallback onDismiss;
+  final bool enableAnimation;
 
   @override
   State<DesktopFloatingToolbar> createState() => _DesktopFloatingToolbarState();
@@ -47,7 +50,9 @@ class _DesktopFloatingToolbarState extends State<DesktopFloatingToolbar> {
         left: position!.left,
         top: position!.top,
         right: position!.right,
-        child: widget.child,
+        child: widget.enableAnimation
+            ? ToolbarAnimationWidget(child: widget.child)
+            : widget.child,
       ),
     );
   }

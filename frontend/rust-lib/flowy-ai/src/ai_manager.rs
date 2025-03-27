@@ -248,22 +248,23 @@ impl AIManager {
     answer_message_id: i64,
     answer_stream_port: i64,
     format: Option<PredefinedFormatPB>,
+    model: Option<AIModelPB>,
   ) -> FlowyResult<()> {
     let chat = self.get_or_create_chat_instance(chat_id).await?;
     let question_message_id = chat
       .get_question_id_from_answer_id(answer_message_id)
       .await?;
 
-    let preferred_model = self
-      .store_preferences
-      .get_object::<AIModel>(&ai_available_models_key(chat_id));
+    let model = model.map_or_else(
+      || {
+        self
+          .store_preferences
+          .get_object::<AIModel>(&ai_available_models_key(chat_id))
+      },
+      |model| Some(model.into()),
+    );
     chat
-      .stream_regenerate_response(
-        question_message_id,
-        answer_stream_port,
-        format,
-        preferred_model,
-      )
+      .stream_regenerate_response(question_message_id, answer_stream_port, format, model)
       .await?;
     Ok(())
   }
