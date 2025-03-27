@@ -23,8 +23,8 @@ class DebugTask extends LaunchTask {
       Bloc.observer = TalkerBlocObserver(
         talker: talker,
         settings: TalkerBlocLoggerSettings(
-          // the default is false to avoid the log mix with the appflowy logs
-          // you can enable it if you want to observer all the bloc events
+          // Disabled by default to prevent mixing with AppFlowy logs
+          // Enable to observe all bloc events
           enabled: false,
           printEventFullData: false,
           printStateFullData: false,
@@ -32,7 +32,9 @@ class DebugTask extends LaunchTask {
           printClosings: true,
           printCreations: true,
           transitionFilter: (_, transition) {
-            // do the filter here if you need to observer a specific bloc
+            // By default, observe all transitions
+            // You can add your own filter here if needed
+            //  when you want to observer a specific bloc
             return true;
           },
         ),
