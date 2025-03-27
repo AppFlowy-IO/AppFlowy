@@ -113,7 +113,6 @@ class AIModelStateNotifier {
     final localAiState = _localAIState;
 
     if (availableModels == null) {
-      Log.warn("No available models");
       return (AiType.cloud, LocaleKeys.chat_inputMessageHint.tr(), true);
     }
     if (localAiState == null) {
