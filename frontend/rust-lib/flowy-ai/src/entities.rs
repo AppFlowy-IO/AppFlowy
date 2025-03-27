@@ -200,19 +200,9 @@ pub struct AvailableModelPB {
 
   #[pb(index = 2)]
   pub is_default: bool,
-}
 
-impl From<AvailableModel> for AvailableModelPB {
-  fn from(value: AvailableModel) -> Self {
-    let is_default = value
-      .metadata
-      .and_then(|v| v.get("is_default").map(|v| v.as_bool().unwrap_or(false)))
-      .unwrap_or(false);
-    Self {
-      name: value.name,
-      is_default,
-    }
-  }
+  #[pb(index = 3)]
+  pub desc: String,
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
@@ -248,22 +238,9 @@ pub struct AIModelPB {
 
   #[pb(index = 2)]
   pub is_local: bool,
-}
 
-impl AIModelPB {
-  pub fn server(name: String) -> Self {
-    Self {
-      name,
-      is_local: false,
-    }
-  }
-
-  pub fn local(name: String) -> Self {
-    Self {
-      name,
-      is_local: true,
-    }
-  }
+  #[pb(index = 3)]
+  pub desc: String,
 }
 
 impl From<AIModel> for AIModelPB {
@@ -271,6 +248,7 @@ impl From<AIModel> for AIModelPB {
     Self {
       name: model.name,
       is_local: model.is_local,
+      desc: model.desc,
     }
   }
 }
@@ -280,6 +258,7 @@ impl From<AIModelPB> for AIModel {
     AIModel {
       name: value.name,
       is_local: value.is_local,
+      desc: value.desc,
     }
   }
 }

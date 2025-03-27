@@ -361,20 +361,18 @@ impl AIManager {
     if enabled {
       if let Some(name) = self.local_ai.get_plugin_chat_model() {
         info!("Set global active model to local ai: {}", name);
-        let model = AIModel::local(name);
+        let model = AIModel::local(name, "".to_string());
         self.update_selected_model(source_key, model).await?;
       }
     } else {
       info!("Set global active model to default");
-      let global_active_model = self
-        .get_workspace_select_model()
-        .await
-        .map(AIModel::server)
-        .unwrap_or_else(|_| AIModel::default());
-
-      self
-        .update_selected_model(source_key, global_active_model)
-        .await?;
+      let global_active_model = self.get_workspace_select_model().await?;
+      let models = self.get_server_available_models().await?;
+      if let Some(model) = models.into_iter().find(|m| m.name == global_active_model) {
+        self
+          .update_selected_model(source_key, AIModel::from(model))
+          .await?;
+      }
     }
 
     Ok(())
@@ -382,21 +380,21 @@ impl AIManager {
 
   pub async fn get_available_models(&self, source: String) -> FlowyResult<AvailableModelsPB> {
     // Build the models list from server models and mark them as non-local.
-    let mut models: Vec<AIModelPB> = self
+    let mut models: Vec<AIModel> = self
       .get_server_available_models()
       .await?
       .into_iter()
-      .map(|m| AIModelPB::server(m.name))
+      .map(|m| AIModel::from(m))
       .collect();
 
     // If user enable local ai, then add local ai model to the list.
     if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
-      models.push(AIModelPB::local(local_model));
+      models.push(AIModel::local(local_model, "".to_string()));
     }
 
     if models.is_empty() {
       return Ok(AvailableModelsPB {
-        models,
+        models: models.into_iter().map(|m| m.into()).collect(),
         selected_model: AIModelPB::default(),
       });
     }
@@ -405,7 +403,7 @@ impl AIManager {
     let global_active_model = self
       .get_workspace_select_model()
       .await
-      .map(AIModel::server)
+      .map(|m| AIModel::server(m, "".to_string()))
       .unwrap_or_else(|_| AIModel::default());
 
     let mut user_selected_model = global_active_model.clone();
@@ -430,7 +428,7 @@ impl AIManager {
       .iter()
       .find(|m| m.name == user_selected_model.name)
       .cloned()
-      .or_else(|| Some(AIModelPB::from(global_active_model)));
+      .or_else(|| Some(AIModel::from(global_active_model)));
 
     // Update the stored preference if a different model is used.
     if let Some(ref active_model) = active_model {
@@ -441,9 +439,10 @@ impl AIManager {
       }
     }
 
+    let selected_model = AIModelPB::from(active_model.unwrap_or_default());
     Ok(AvailableModelsPB {
-      models,
-      selected_model: active_model.unwrap_or_default(),
+      models: models.into_iter().map(|m| m.into()).collect(),
+      selected_model,
     })
   }
 
