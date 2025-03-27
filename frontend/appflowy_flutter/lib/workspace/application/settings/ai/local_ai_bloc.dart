@@ -8,35 +8,21 @@ import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 part 'local_ai_bloc.freezed.dart';
 
-class LocalAIToggleBloc extends Bloc<LocalAIToggleEvent, LocalAIToggleState> {
-  LocalAIToggleBloc() : super(const LocalAIToggleState()) {
+class LocalAIToggleBloc extends Bloc<LocalAIToggleEvent, LocalAiToggleState> {
+  LocalAIToggleBloc() : super(const LoadingLocalAiToggleState()) {
     on<LocalAIToggleEvent>(_handleEvent);
+    _getLocalAiState();
   }
 
   Future<void> _handleEvent(
     LocalAIToggleEvent event,
-    Emitter<LocalAIToggleState> emit,
+    Emitter<LocalAiToggleState> emit,
   ) async {
     await event.when(
-      started: () async {
-        final result = await AIEventGetLocalAIState().send();
-        _handleResult(emit, result);
-      },
       toggle: () async {
-        emit(
-          state.copyWith(
-            pageIndicator: const LocalAIToggleStateIndicator.loading(),
-          ),
-        );
-        unawaited(
-          AIEventToggleLocalAI().send().then(
-            (result) {
-              if (!isClosed) {
-                add(LocalAIToggleEvent.handleResult(result));
-              }
-            },
-          ),
-        );
+        emit(LoadingLocalAiToggleState());
+        final result = await AIEventToggleLocalAI().send();
+        add(LocalAIToggleEvent.handleResult(result));
       },
       handleResult: (result) {
         _handleResult(emit, result);
@@ -45,50 +31,49 @@ class LocalAIToggleBloc extends Bloc<LocalAIToggleEvent, LocalAIToggleState> {
   }
 
   void _handleResult(
-    Emitter<LocalAIToggleState> emit,
+    Emitter<LocalAiToggleState> emit,
     FlowyResult<LocalAIPB, FlowyError> result,
   ) {
     result.fold(
-      (localAI) {
-        emit(
-          state.copyWith(
-            pageIndicator:
-                LocalAIToggleStateIndicator.isEnabled(localAI.enabled),
-          ),
-        );
-      },
-      (err) {
-        emit(
-          state.copyWith(
-            pageIndicator: LocalAIToggleStateIndicator.error(err),
-          ),
-        );
-      },
+      (localAI) => emit(ReadyLocalAiToggleState(isEnabled: localAI.enabled)),
+      (err) => emit(ErrorLocalAiToggleState(error: err)),
     );
+  }
+
+  void _getLocalAiState() async {
+    final result = await AIEventGetLocalAIState().send();
+    add(LocalAIToggleEvent.handleResult(result));
   }
 }
 
 @freezed
 class LocalAIToggleEvent with _$LocalAIToggleEvent {
-  const factory LocalAIToggleEvent.started() = _Started;
   const factory LocalAIToggleEvent.toggle() = _Toggle;
   const factory LocalAIToggleEvent.handleResult(
     FlowyResult<LocalAIPB, FlowyError> result,
   ) = _HandleResult;
 }
 
-@freezed
-class LocalAIToggleState with _$LocalAIToggleState {
-  const factory LocalAIToggleState({
-    @Default(LocalAIToggleStateIndicator.loading())
-    LocalAIToggleStateIndicator pageIndicator,
-  }) = _LocalAIToggleState;
+sealed class LocalAiToggleState {
+  const LocalAiToggleState();
 }
 
-@freezed
-class LocalAIToggleStateIndicator with _$LocalAIToggleStateIndicator {
-  // when start downloading the model
-  const factory LocalAIToggleStateIndicator.error(FlowyError error) = _OnError;
-  const factory LocalAIToggleStateIndicator.isEnabled(bool isEnabled) = _Ready;
-  const factory LocalAIToggleStateIndicator.loading() = _Loading;
+class ReadyLocalAiToggleState extends LocalAiToggleState {
+  const ReadyLocalAiToggleState({
+    required this.isEnabled,
+  });
+
+  final bool isEnabled;
+}
+
+class LoadingLocalAiToggleState extends LocalAiToggleState {
+  const LoadingLocalAiToggleState();
+}
+
+class ErrorLocalAiToggleState extends LocalAiToggleState {
+  const ErrorLocalAiToggleState({
+    required this.error,
+  });
+
+  final FlowyError error;
 }

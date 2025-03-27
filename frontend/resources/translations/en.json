@@ -861,7 +861,7 @@
         "localAIInitializing": "Local AI is loading and may take a few minutes, depending on your device",
         "localAINotReadyTextFieldPrompt": "You can not edit while Local AI is loading",
         "failToLoadLocalAI": "Failed to start local AI",
-        "restartLocalAI": "Restart Local AI",
+        "restartLocalAI": "Restart",
         "disableLocalAITitle": "Disable local AI",
         "disableLocalAIDescription": "Do you want to disable local AI?",
         "localAIToggleTitle": "AppFlowy Local AI (LAI)",

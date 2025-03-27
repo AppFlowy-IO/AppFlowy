@@ -56,9 +56,14 @@ pub enum PendingResource {
 impl PendingResource {
   pub fn desc(self) -> String {
     match self {
-      PendingResource::PluginExecutableNotReady => "The Local AI app was not installed correctly. Please follow the instructions to install the Local AI application".to_string(),
-      PendingResource::OllamaServerNotReady => "Ollama is not ready. Please follow the instructions to install Ollama".to_string(),
-      PendingResource::MissingModel(model) => format!("Cannot find the model: {}. Please use the ollama pull command to install the model", model),
+      PendingResource::PluginExecutableNotReady => {
+        "The Local AI app was not installed correctly".to_string()
+      },
+      PendingResource::OllamaServerNotReady => "Ollama is not ready".to_string(),
+      PendingResource::MissingModel(model) => format!(
+        "Cannot find the model: {}. Please use the ollama pull command to install the model",
+        model
+      ),
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/settings/ai/download_offline_ai_app_bloc.dart';
 import 'package:appflowy/workspace/application/settings/ai/plugin_state_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/init_local_ai.dart';
@@ -23,13 +24,16 @@ class PluginStateIndicator extends StatelessWidget {
           PluginStateBloc()..add(const PluginStateEvent.started()),
       child: BlocBuilder<PluginStateBloc, PluginStateState>(
         builder: (context, state) {
-          return state.action.when(
-            unknown: () => const SizedBox.shrink(),
-            readToRun: () => const _PrepareRunning(),
-            initializingPlugin: () => const InitLocalAIIndicator(),
-            running: () => const _LocalAIRunning(),
-            restartPlugin: () => const _RestartPluginButton(),
-            lackOfResource: (desc) => _LackOfResource(desc: desc),
+          return SizedBox(
+            height: 32,
+            child: state.action.when(
+              unknown: () => const SizedBox.shrink(),
+              readToRun: () => const _PrepareRunning(),
+              initializingPlugin: () => const InitLocalAIIndicator(),
+              running: () => const _LocalAIRunning(),
+              restartPlugin: () => const _RestartPluginButton(),
+              lackOfResource: (desc) => _LackOfResource(desc: desc),
+            ),
           );
         },
       ),
@@ -42,15 +46,9 @@ class _PrepareRunning extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: FlowyText(
-            LocaleKeys.settings_aiPage_keys_localAIStart.tr(),
-            maxLines: 3,
-          ),
-        ),
-      ],
+    return FlowyText(
+      LocaleKeys.settings_aiPage_keys_localAIStart.tr(),
+      maxLines: 3,
     );
   }
 }
@@ -60,29 +58,41 @@ class _RestartPluginButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const FlowySvg(
-          FlowySvgs.download_warn_s,
-          color: Color(0xFFC62828),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Theme.of(context).isLightMode
+            ? const Color(0x80FFE7EE)
+            : const Color(0x80591734),
+        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        child: Row(
+          children: [
+            const FlowySvg(
+              FlowySvgs.toast_warning_filled_s,
+              color: Color(0xFFC62828),
+            ),
+            const HSpace(6),
+            Expanded(
+              child: FlowyText(
+                LocaleKeys.settings_aiPage_keys_failToLoadLocalAI.tr(),
+              ),
+            ),
+            FlowyButton(
+              useIntrinsicWidth: true,
+              text: FlowyText(
+                LocaleKeys.settings_aiPage_keys_restartLocalAI.tr(),
+              ),
+              onTap: () {
+                context
+                    .read<PluginStateBloc>()
+                    .add(const PluginStateEvent.restartLocalAI());
+              },
+            ),
+          ],
         ),
-        const HSpace(6),
-        FlowyText(LocaleKeys.settings_aiPage_keys_failToLoadLocalAI.tr()),
-        const Spacer(),
-        SizedBox(
-          height: 30,
-          child: FlowyButton(
-            useIntrinsicWidth: true,
-            text:
-                FlowyText(LocaleKeys.settings_aiPage_keys_restartLocalAI.tr()),
-            onTap: () {
-              context.read<PluginStateBloc>().add(
-                    const PluginStateEvent.restartLocalAI(),
-                  );
-            },
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -95,33 +105,22 @@ class _LocalAIRunning extends StatelessWidget {
     return DecoratedBox(
       decoration: const BoxDecoration(
         color: Color(0xFFEDF7ED),
-        borderRadius: BorderRadius.all(
-          Radius.circular(4),
-        ),
+        borderRadius: BorderRadius.all(Radius.circular(8.0)),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            const FlowySvg(
+              FlowySvgs.download_success_s,
+              color: Color(0xFF2E7D32),
+            ),
+            const HSpace(6),
             Flexible(
-              child: Row(
-                children: [
-                  const HSpace(8),
-                  const FlowySvg(
-                    FlowySvgs.download_success_s,
-                    color: Color(0xFF2E7D32),
-                  ),
-                  const HSpace(6),
-                  Flexible(
-                    child: FlowyText(
-                      LocaleKeys.settings_aiPage_keys_localAIRunning.tr(),
-                      fontSize: 11,
-                      color: const Color(0xFF1E4620),
-                      maxLines: 3,
-                    ),
-                  ),
-                ],
+              child: FlowyText(
+                LocaleKeys.settings_aiPage_keys_localAIRunning.tr(),
+                color: const Color(0xFF1E4620),
+                maxLines: 3,
               ),
             ),
           ],
@@ -227,22 +226,32 @@ class _LackOfResource extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        FlowySvg(
-          FlowySvgs.toast_warning_filled_s,
-          size: const Size.square(20.0),
-          blendMode: null,
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Theme.of(context).isLightMode
+            ? const Color(0x80FFE7EE)
+            : const Color(0x80591734),
+        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        child: Row(
+          children: [
+            FlowySvg(
+              FlowySvgs.toast_error_filled_s,
+              size: const Size.square(20.0),
+              blendMode: null,
+            ),
+            const HSpace(6),
+            Expanded(
+              child: FlowyText(
+                desc,
+                maxLines: 3,
+              ),
+            ),
+          ],
         ),
-        const HSpace(6),
-        Expanded(
-          child: FlowyText(
-            desc,
-            maxLines: 3,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

@@ -16,60 +16,38 @@ class InitLocalAIIndicator extends StatelessWidget {
     return DecoratedBox(
       decoration: const BoxDecoration(
         color: Color(0xFFEDF7ED),
-        borderRadius: BorderRadius.all(
-          Radius.circular(4),
-        ),
+        borderRadius: BorderRadius.all(Radius.circular(8)),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
         child: BlocBuilder<LocalAISettingPanelBloc, LocalAISettingPanelState>(
           builder: (context, state) {
             switch (state.runningState) {
               case RunningStatePB.Connecting:
               case RunningStatePB.Connected:
-                return Row(
-                  children: [
-                    const HSpace(8),
-                    Expanded(
-                      child: FlowyText(
-                        LocaleKeys.settings_aiPage_keys_localAIInitializing
-                            .tr(),
-                        fontSize: 11,
-                        color: const Color(0xFF1E4620),
-                        maxLines: 3,
-                      ),
-                    ),
-                  ],
+                return FlowyText(
+                  LocaleKeys.settings_aiPage_keys_localAIInitializing.tr(),
+                  color: const Color(0xFF1E4620),
+                  maxLines: 3,
                 );
               case RunningStatePB.Running:
-                return SizedBox(
-                  height: 30,
-                  child: Row(
-                    children: [
-                      const HSpace(8),
-                      const FlowySvg(
-                        FlowySvgs.download_success_s,
-                        color: Color(0xFF2E7D32),
-                      ),
-                      const HSpace(6),
-                      FlowyText(
-                        LocaleKeys.settings_aiPage_keys_localAILoaded.tr(),
-                        fontSize: 11,
-                        color: const Color(0xFF1E4620),
-                      ),
-                    ],
-                  ),
-                );
-              case RunningStatePB.Stopped:
                 return Row(
                   children: [
-                    const HSpace(8),
+                    const FlowySvg(
+                      FlowySvgs.download_success_s,
+                      color: Color(0xFF2E7D32),
+                    ),
+                    const HSpace(6),
                     FlowyText(
-                      LocaleKeys.settings_aiPage_keys_localAIStopped.tr(),
-                      fontSize: 11,
-                      color: const Color(0xFFC62828),
+                      LocaleKeys.settings_aiPage_keys_localAILoaded.tr(),
+                      color: const Color(0xFF1E4620),
                     ),
                   ],
+                );
+              case RunningStatePB.Stopped:
+                return FlowyText(
+                  LocaleKeys.settings_aiPage_keys_localAIStopped.tr(),
+                  color: const Color(0xFFC62828),
                 );
               default:
                 return const SizedBox.shrink();
