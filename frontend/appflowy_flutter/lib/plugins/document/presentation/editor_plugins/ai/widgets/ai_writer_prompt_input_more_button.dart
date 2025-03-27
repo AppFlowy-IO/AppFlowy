@@ -42,13 +42,6 @@ class AiWriterPromptMoreButton extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  FlowySvg(
-                    FlowySvgs.ai_sparks_s,
-                    color: isEnabled
-                        ? Theme.of(context).hintColor
-                        : Theme.of(context).disabledColor,
-                  ),
-                  const HSpace(2.0),
                   FlowyText(
                     LocaleKeys.ai_more.tr(),
                     fontSize: 12,
