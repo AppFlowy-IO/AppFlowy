@@ -4,6 +4,7 @@ import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/desktop_floating_toolbar.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
@@ -50,6 +51,7 @@ class LinkHoverTrigger extends StatefulWidget {
 class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
   final hoverMenuController = PopoverController();
   final editMenuController = PopoverController();
+  final toolbarController = getIt<FloatingToolbarController>();
   bool isHoverMenuShowing = false;
   bool isHoverMenuHovering = false;
   bool isHoverTriggerHovering = false;
@@ -68,6 +70,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
   void initState() {
     super.initState();
     getIt<LinkHoverTriggers>()._add(triggerKey, showLinkHoverMenu);
+    toolbarController.addDisplayListener(onToolbarShow);
   }
 
   @override
@@ -75,6 +78,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
     hoverMenuController.close();
     editMenuController.close();
     getIt<LinkHoverTriggers>()._remove(triggerKey, showLinkHoverMenu);
+    toolbarController.removeDisplayListener(onToolbarShow);
     super.dispose();
   }
 
@@ -184,8 +188,10 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
     );
   }
 
+  void onToolbarShow() => hoverMenuController.close();
+
   void showLinkHoverMenu() {
-    if (isHoverMenuShowing) return;
+    if (isHoverMenuShowing || toolbarController.isToolbarShowing) return;
     keepEditorFocusNotifier.increase();
     hoverMenuController.show();
   }

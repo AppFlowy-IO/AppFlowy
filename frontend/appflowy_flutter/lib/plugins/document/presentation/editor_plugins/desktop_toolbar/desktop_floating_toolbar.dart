@@ -1,10 +1,9 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/toolbar_extension.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'toolbar_animation.dart';
-import 'toolbar_cubit.dart';
 
 class DesktopFloatingToolbar extends StatefulWidget {
   const DesktopFloatingToolbar({
@@ -39,22 +38,30 @@ class _DesktopFloatingToolbarState extends State<DesktopFloatingToolbar> {
     final selectionRect = editorState.selectionRects();
     if (selectionRect.isEmpty) return;
     position = calculateSelectionMenuOffset(selectionRect.first);
+    getIt<FloatingToolbarController>()._addCallback(dismiss);
+  }
+
+  @override
+  void dispose() {
+    getIt<FloatingToolbarController>()._removeCallback(dismiss);
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     if (position == null) return Container();
-    return BlocProvider<ToolbarCubit>(
-      create: (_) => ToolbarCubit(widget.onDismiss),
-      child: Positioned(
-        left: position!.left,
-        top: position!.top,
-        right: position!.right,
-        child: widget.enableAnimation
-            ? ToolbarAnimationWidget(child: widget.child)
-            : widget.child,
-      ),
+    return Positioned(
+      left: position!.left,
+      top: position!.top,
+      right: position!.right,
+      child: widget.enableAnimation
+          ? ToolbarAnimationWidget(child: widget.child)
+          : widget.child,
     );
+  }
+
+  void dismiss() {
+    widget.onDismiss.call();
   }
 
   _Position calculateSelectionMenuOffset(
@@ -91,4 +98,34 @@ class _Position {
   final double? left;
   final double? top;
   final double? right;
+}
+
+class FloatingToolbarController {
+  final Set<VoidCallback> _dismissCallbacks = {};
+  final Set<VoidCallback> _displayListeners = {};
+
+  void _addCallback(VoidCallback callback) {
+    _dismissCallbacks.add(callback);
+    for (final listener in Set.of(_displayListeners)) {
+      listener.call();
+    }
+  }
+
+  void _removeCallback(VoidCallback callback) =>
+      _dismissCallbacks.remove(callback);
+
+  bool get isToolbarShowing => _dismissCallbacks.isNotEmpty;
+
+  void addDisplayListener(VoidCallback listener) =>
+      _displayListeners.add(listener);
+
+  void removeDisplayListener(VoidCallback listener) =>
+      _displayListeners.remove(listener);
+
+  void hideToolbar() {
+    if (_dismissCallbacks.isEmpty) return;
+    for (final callback in _dismissCallbacks) {
+      callback.call();
+    }
+  }
 }

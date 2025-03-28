@@ -41,8 +41,9 @@ class AFThemeExtensionV2 extends ThemeExtension<AFThemeExtensionV2> {
         border_grey_quaternary:
             border_grey_quaternary ?? this.border_grey_quaternary,
         fill_theme_select: fill_theme_select ?? this.fill_theme_select,
-        fill_grey_thick_alpha_1:fill_grey_thick_alpha_1 ?? this.fill_grey_thick_alpha_1,
-        shadow_medium:shadow_medium ?? this.shadow_medium,
+        fill_grey_thick_alpha_1:
+            fill_grey_thick_alpha_1 ?? this.fill_grey_thick_alpha_1,
+        shadow_medium: shadow_medium ?? this.shadow_medium,
       );
 
   @override
@@ -65,9 +66,8 @@ class AFThemeExtensionV2 extends ThemeExtension<AFThemeExtensionV2> {
       fill_grey_thick_alpha_1: Color.lerp(
               fill_grey_thick_alpha_1, other.fill_grey_thick_alpha_1, t) ??
           fill_grey_thick_alpha_1,
-      shadow_medium: Color.lerp(
-              shadow_medium, other.shadow_medium, t) ??
-          shadow_medium,
+      shadow_medium:
+          Color.lerp(shadow_medium, other.shadow_medium, t) ?? shadow_medium,
     );
   }
 }
