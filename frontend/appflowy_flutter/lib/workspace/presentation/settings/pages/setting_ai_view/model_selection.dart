@@ -12,13 +12,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AIModelSelection extends StatelessWidget {
   const AIModelSelection({super.key});
+  static const double height = 49;
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SettingsAIBloc, SettingsAIState>(
+      buildWhen: (previous, current) =>
+          previous.availableModels != current.availableModels,
       builder: (context, state) {
         if (state.availableModels == null) {
-          return const SizedBox.shrink();
+          return const SizedBox(
+            // Using same height as SettingsDropdown to avoid layout shift
+            height: height,
+          );
         }
 
         return Padding(
@@ -46,6 +52,8 @@ class AIModelSelection extends StatelessWidget {
                           context,
                           value: model,
                           label: model.i18n,
+                          subLabel: model.desc,
+                          maximumHeight: height,
                         ),
                       )
                       .toList(),
