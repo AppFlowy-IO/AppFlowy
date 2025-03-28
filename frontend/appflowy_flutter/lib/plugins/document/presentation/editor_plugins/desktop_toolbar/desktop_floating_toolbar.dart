@@ -1,7 +1,9 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/base/toolbar_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'toolbar_animation.dart';
 import 'toolbar_cubit.dart';
 
 class DesktopFloatingToolbar extends StatefulWidget {
@@ -10,11 +12,13 @@ class DesktopFloatingToolbar extends StatefulWidget {
     required this.editorState,
     required this.child,
     required this.onDismiss,
+    this.enableAnimation = true,
   });
 
   final EditorState editorState;
   final Widget child;
   final VoidCallback onDismiss;
+  final bool enableAnimation;
 
   @override
   State<DesktopFloatingToolbar> createState() => _DesktopFloatingToolbarState();
@@ -46,7 +50,9 @@ class _DesktopFloatingToolbarState extends State<DesktopFloatingToolbar> {
         left: position!.left,
         top: position!.top,
         right: position!.right,
-        child: widget.child,
+        child: widget.enableAnimation
+            ? ToolbarAnimationWidget(child: widget.child)
+            : widget.child,
       ),
     );
   }
@@ -56,10 +62,11 @@ class _DesktopFloatingToolbarState extends State<DesktopFloatingToolbar> {
   ) {
     const toolbarHeight = 40, topLimit = toolbarHeight + 8;
     final bool isLongMenu = onlyShowInSingleSelectionAndTextType(editorState);
-    final menuWidth = isLongMenu ? 650.0 : 420.0;
     final editorOffset =
         editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
     final editorSize = editorState.renderBox?.size ?? Size.zero;
+    final menuWidth =
+        isLongMenu ? (isNarrowWindow(editorState) ? 490.0 : 660.0) : 420.0;
     final editorRect = editorOffset & editorSize;
     final left = rect.left, leftStart = 50;
     final top =

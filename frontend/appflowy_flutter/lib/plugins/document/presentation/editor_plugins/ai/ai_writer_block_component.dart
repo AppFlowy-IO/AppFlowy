@@ -222,9 +222,11 @@ class _OverlayContentState extends State<OverlayContent> {
         final isInitialReadyState =
             state is ReadyAiWriterState && state.isFirstRun;
         final showSuggestedActionsPopup =
-            showSuggestedActions && markdownText.isEmpty;
-        final showSuggestedActionsWithin =
-            showSuggestedActions && markdownText.isNotEmpty;
+            showSuggestedActions && markdownText.isEmpty ||
+                (markdownText.isNotEmpty && command != AiWriterCommand.explain);
+        final showSuggestedActionsWithin = showSuggestedActions &&
+            markdownText.isNotEmpty &&
+            command == AiWriterCommand.explain;
 
         final borderColor = Theme.of(context).isLightMode
             ? Color(0x1F1F2329)

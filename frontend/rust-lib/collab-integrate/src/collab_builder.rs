@@ -284,7 +284,7 @@ impl AppFlowyCollabBuilder {
         object.uid,
         object.workspace_id.clone(),
         object.object_id.to_string(),
-        object.collab_type.clone(),
+        object.collab_type,
         collab_db,
         persistence_config,
       );

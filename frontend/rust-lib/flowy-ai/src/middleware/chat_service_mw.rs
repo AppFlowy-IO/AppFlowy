@@ -287,7 +287,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
       Some(model) => model.is_local,
     };
 
-    info!("stream_complete use model: {:?}", ai_model);
+    info!("stream_complete use custom model: {:?}", ai_model);
     if use_local_ai {
       if self.local_ai.is_running() {
         match self
