@@ -24,8 +24,9 @@ class PluginStateIndicator extends StatelessWidget {
           PluginStateBloc()..add(const PluginStateEvent.started()),
       child: BlocBuilder<PluginStateBloc, PluginStateState>(
         builder: (context, state) {
-          return SizedBox(
+          return Container(
             height: 32,
+            alignment: AlignmentDirectional.centerStart,
             child: state.action.when(
               unknown: () => const SizedBox.shrink(),
               readToRun: () => const _PrepareRunning(),

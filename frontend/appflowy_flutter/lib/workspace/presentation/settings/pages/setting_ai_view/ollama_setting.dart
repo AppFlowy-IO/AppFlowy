@@ -1,13 +1,9 @@
-import 'package:appflowy/core/helpers/url_launcher.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/ai/ollama_setting_bloc.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/style_widget/text_field.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -44,7 +40,6 @@ class OllamaSettingPage extends StatelessWidget {
                   },
                 ),
                 const VSpace(6),
-                _InstallOllamaInstruction(),
                 _SaveButton(isEdited: state.isEdited),
               ],
             ),
@@ -119,49 +114,6 @@ class _SaveButton extends StatelessWidget {
             }
           },
         ),
-      ),
-    );
-  }
-}
-
-class _InstallOllamaInstruction extends StatelessWidget {
-  const _InstallOllamaInstruction();
-
-  @override
-  Widget build(BuildContext context) {
-    final textStyle = Theme.of(context)
-        .textTheme
-        .bodySmall
-        ?.copyWith(fontSize: 12, height: 1.5);
-    return RichText(
-      maxLines: 3,
-      textAlign: TextAlign.left,
-      text: TextSpan(
-        children: <TextSpan>[
-          TextSpan(
-            text: LocaleKeys.settings_aiPage_keys_localAISetupInstruction1.tr(),
-            style: textStyle?.copyWith(
-              color: Theme.of(context).hintColor,
-            ),
-          ),
-          TextSpan(
-            text:
-                " ${LocaleKeys.settings_aiPage_keys_localAISetupInstruction2.tr()} ",
-            style: textStyle?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            recognizer: TapGestureRecognizer()
-              ..onTap = () => afLaunchUrlString(
-                    "https://appflowy.com/guide/appflowy-local-ai-ollama",
-                  ),
-          ),
-          TextSpan(
-            text: LocaleKeys.settings_aiPage_keys_localAISetupInstruction3.tr(),
-            style: textStyle?.copyWith(
-              color: Theme.of(context).hintColor,
-            ),
-          ),
-        ],
       ),
     );
   }
