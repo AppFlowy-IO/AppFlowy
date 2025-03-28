@@ -98,16 +98,17 @@ impl LocalAIController {
         if let Ok(workspace_id) = cloned_user_service.workspace_id() {
           let key = local_ai_enabled_key(&workspace_id);
           info!("[AI Plugin] state: {:?}", state);
-
-          let new_state = RunningStatePB::from(state);
-          let enabled = cloned_store_preferences.get_bool(&key).unwrap_or(true);
           let mut ready = false;
           let mut lack_of_resource = None;
-          if enabled {
-            ready = is_plugin_ready();
-            lack_of_resource = cloned_llm_res.get_lack_of_resource().await;
+          let enabled = cloned_store_preferences.get_bool(&key).unwrap_or(true);
+          if !matches!(state, RunningState::UnexpectedStop { .. }) {
+            if enabled {
+              ready = is_plugin_ready();
+              lack_of_resource = cloned_llm_res.get_lack_of_resource().await;
+            }
           }
 
+          let new_state = RunningStatePB::from(state);
           chat_notification_builder(
             APPFLOWY_AI_NOTIFICATION_KEY,
             ChatNotification::UpdateLocalAIState,
