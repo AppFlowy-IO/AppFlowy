@@ -63,6 +63,15 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
     super.initState();
     searchTextField.requestFocus();
     searchTextField.searchRecentViews();
+    final focusNode = searchTextField.focusNode;
+    bool hasFocus = focusNode.hasFocus;
+    focusNode.addListener(() {
+      if (hasFocus != focusNode.hasFocus && mounted) {
+        setState(() {
+          hasFocus = focusNode.hasFocus;
+        });
+      }
+    });
   }
 
   @override
@@ -134,7 +143,7 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
                   ),
                 ],
               ),
-              if (!isButtonEnable)
+              if (!isButtonEnable && searchTextField.focusNode.hasFocus)
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: FlowyText.regular(
@@ -151,7 +160,10 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
     );
   }
 
-  void onSubmittedLink() => widget.onSubmitted(searchText, false);
+  void onSubmittedLink() {
+    if (!isButtonEnable) return;
+    widget.onSubmitted(searchText, false);
+  }
 
   void onSubmittedPageLink(ViewPB view) async {
     final workspaceId = context

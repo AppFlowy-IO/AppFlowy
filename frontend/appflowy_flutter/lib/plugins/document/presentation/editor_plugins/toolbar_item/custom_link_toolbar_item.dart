@@ -55,7 +55,7 @@ final customLinkItem = ToolbarItem(
           );
         } else {
           final viewId = context.read<DocumentBloc?>()?.documentId ?? '';
-          showLinkCreateMenu(context, editorState, selection,viewId);
+          showLinkCreateMenu(context, editorState, selection, viewId);
         }
       },
     );

@@ -51,7 +51,10 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
   bool isShowingSearchResult = false;
   ViewPB? currentView;
 
-  bool get enableApply => linkNameController.text.isNotEmpty && searchTextField.isButtonEnable && !isShowingSearchResult;
+  bool get enableApply =>
+      linkNameController.text.isNotEmpty &&
+      searchTextField.isButtonEnable &&
+      !isShowingSearchResult;
 
   bool get showErrorText => !linkInfo.isPage && !searchTextField.isButtonEnable;
 
@@ -101,7 +104,6 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
   Widget build(BuildContext context) {
     final showingRecent =
         searchTextField.showingRecent && isShowingSearchResult;
-    final double errorTextHeight = !showErrorText ? 0.0 : 10.0;
     return GestureDetector(
       onTap: onDismiss,
       child: Container(
@@ -114,7 +116,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
               onTap: hideSearchResult,
               child: Container(
                 width: 400,
-                height: 192 + errorTextHeight,
+                height: 192,
                 decoration: buildToolbarLinkDecoration(context),
               ),
             ),
@@ -129,7 +131,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
               ),
             ),
             Positioned(
-              top: 80 + errorTextHeight,
+              top: 80,
               left: 20,
               child: FlowyText.semibold(
                 LocaleKeys.document_toolbar_linkName.tr(),
@@ -139,12 +141,12 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
               ),
             ),
             Positioned(
-              top: 144 + errorTextHeight,
+              top: 144,
               left: 20,
               child: buildButtons(),
             ),
             Positioned(
-              top: 100 + errorTextHeight,
+              top: 100,
               left: 20,
               child: buildNameTextField(),
             ),
@@ -328,70 +330,41 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
         ),
       );
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 360,
-          height: 32,
-          decoration: buildDecoration(),
-          child: child,
-        ),
-        if (showErrorText) ...[
-          VSpace(4),
-          buildErrorText(),
-        ],
-      ],
+    return Container(
+      width: 360,
+      height: 32,
+      decoration: buildDecoration(),
+      child: child,
     );
   }
 
   Widget buildLinkView() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 360,
-          height: 32,
-          decoration: buildDecoration(),
-          child: GestureDetector(
-            onTap: showSearchResult,
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(8, 6, 8, 6),
-                child: Row(
-                  children: [
-                    FlowySvg(FlowySvgs.toolbar_link_earth_m),
-                    HSpace(8),
-                    Flexible(
-                      child: FlowyText.regular(
-                        linkInfo.link,
-                        overflow: TextOverflow.ellipsis,
-                        figmaLineHeight: 20,
-                      ),
-                    ),
-                  ],
+    return Container(
+      width: 360,
+      height: 32,
+      decoration: buildDecoration(),
+      child: GestureDetector(
+        onTap: showSearchResult,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(8, 6, 8, 6),
+            child: Row(
+              children: [
+                FlowySvg(FlowySvgs.toolbar_link_earth_m),
+                HSpace(8),
+                Flexible(
+                  child: FlowyText.regular(
+                    linkInfo.link,
+                    overflow: TextOverflow.ellipsis,
+                    figmaLineHeight: 20,
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ),
-        if (showErrorText) ...[
-          VSpace(4),
-          buildErrorText(),
-        ],
-      ],
-    );
-  }
-
-  Widget buildErrorText() {
-    return FlowyText.regular(
-      LocaleKeys.document_plugins_file_networkUrlInvalid.tr(),
-      color: LinkStyle.textStatusError,
-      fontSize: 12,
-      figmaLineHeight: 16,
+      ),
     );
   }
 
@@ -457,11 +430,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
 
   BoxDecoration buildDecoration() => BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: !showErrorText
-              ? LinkStyle.borderColor
-              : LinkStyle.textStatusError,
-        ),
+        border: Border.all(color: LinkStyle.borderColor),
       );
 }
 
