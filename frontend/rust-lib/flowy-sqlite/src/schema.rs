@@ -60,7 +60,7 @@ diesel::table! {
         workspace_id -> Text,
         prev_id -> Nullable<Text>,
         is_pinned -> Bool,
-        favorite_at -> BigInt,
+        favorited_at -> BigInt,
     }
 }
 

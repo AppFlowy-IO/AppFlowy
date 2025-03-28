@@ -4,5 +4,5 @@ CREATE TABLE favorite_table (
     workspace_id TEXT NOT NULL,
     prev_id TEXT,
     is_pinned BOOLEAN NOT NULL DEFAULT FALSE,
-    favorite_at BIGINT NOT NULL
+    favorited_at BIGINT NOT NULL
 );
