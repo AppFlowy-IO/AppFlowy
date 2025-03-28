@@ -27,6 +27,7 @@ class _DesktopFloatingToolbarState extends State<DesktopFloatingToolbar> {
   EditorState get editorState => widget.editorState;
 
   _Position? position;
+  final toolbarController = getIt<FloatingToolbarController>();
 
   @override
   void initState() {
@@ -38,12 +39,12 @@ class _DesktopFloatingToolbarState extends State<DesktopFloatingToolbar> {
     final selectionRect = editorState.selectionRects();
     if (selectionRect.isEmpty) return;
     position = calculateSelectionMenuOffset(selectionRect.first);
-    getIt<FloatingToolbarController>()._addCallback(dismiss);
+    toolbarController._addCallback(dismiss);
   }
 
   @override
   void dispose() {
-    getIt<FloatingToolbarController>()._removeCallback(dismiss);
+    toolbarController._removeCallback(dismiss);
     super.dispose();
   }
 

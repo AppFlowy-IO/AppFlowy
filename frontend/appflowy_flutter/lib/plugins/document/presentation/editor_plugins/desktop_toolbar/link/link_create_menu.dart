@@ -20,11 +20,13 @@ class LinkCreateMenu extends StatefulWidget {
     required this.onSubmitted,
     required this.onDismiss,
     required this.alignment,
+    required this.currentViewId,
   });
 
   final EditorState editorState;
   final void Function(String link, bool isPage) onSubmitted;
   final VoidCallback onDismiss;
+  final String currentViewId;
   final LinkMenuAlignment alignment;
 
   @override
@@ -33,6 +35,7 @@ class LinkCreateMenu extends StatefulWidget {
 
 class _LinkCreateMenuState extends State<LinkCreateMenu> {
   late LinkSearchTextField searchTextField = LinkSearchTextField(
+    currentViewId: widget.currentViewId,
     onEnter: () {
       searchTextField.onSearchResult(
         onLink: () => onSubmittedLink(),
@@ -169,6 +172,7 @@ void showLinkCreateMenu(
   BuildContext context,
   EditorState editorState,
   Selection selection,
+  String currentViewId,
 ) {
   final (left, top, right, bottom, alignment) = _getPosition(editorState);
 
@@ -195,6 +199,7 @@ void showLinkCreateMenu(
     builder: (context) {
       return LinkCreateMenu(
         alignment: alignment,
+        currentViewId: currentViewId,
         editorState: editorState,
         onSubmitted: (link, isPage) async {
           await editorState.formatDelta(selection, {

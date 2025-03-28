@@ -23,12 +23,14 @@ class LinkEditMenu extends StatefulWidget {
     required this.onDismiss,
     required this.onApply,
     required this.onRemoveLink,
+    required this.currentViewId,
   });
 
   final LinkInfo linkInfo;
   final ValueChanged<LinkInfo> onApply;
   final VoidCallback onRemoveLink;
   final VoidCallback onDismiss;
+  final String currentViewId;
 
   @override
   State<LinkEditMenu> createState() => _LinkEditMenuState();
@@ -49,10 +51,9 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
   bool isShowingSearchResult = false;
   ViewPB? currentView;
 
-  bool get enableApply =>
-      linkNameController.text.isNotEmpty &&
-      searchTextField.isButtonEnable &&
-      !isShowingSearchResult;
+  bool get enableApply => linkNameController.text.isNotEmpty && searchTextField.isButtonEnable && !isShowingSearchResult;
+
+  bool get showErrorText => !linkInfo.isPage && !searchTextField.isButtonEnable;
 
   @override
   void initState() {
@@ -61,6 +62,8 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
     if (isPageLink) getPageView();
     searchTextField = LinkSearchTextField(
       initialSearchText: isPageLink ? '' : linkInfo.link,
+      initialViewId: linkInfo.viewId,
+      currentViewId: widget.currentViewId,
       onEnter: () {
         searchTextField.onSearchResult(
           onLink: onLinkSelected,
@@ -98,6 +101,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
   Widget build(BuildContext context) {
     final showingRecent =
         searchTextField.showingRecent && isShowingSearchResult;
+    final double errorTextHeight = !showErrorText ? 0.0 : 10.0;
     return GestureDetector(
       onTap: onDismiss,
       child: Container(
@@ -110,9 +114,8 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
               onTap: hideSearchResult,
               child: Container(
                 width: 400,
-                height: 192,
+                height: 192 + errorTextHeight,
                 decoration: buildToolbarLinkDecoration(context),
-                padding: EdgeInsets.fromLTRB(20, 16, 20, 16),
               ),
             ),
             Positioned(
@@ -126,7 +129,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
               ),
             ),
             Positioned(
-              top: 80,
+              top: 80 + errorTextHeight,
               left: 20,
               child: FlowyText.semibold(
                 LocaleKeys.document_toolbar_linkName.tr(),
@@ -136,12 +139,12 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
               ),
             ),
             Positioned(
-              top: 152,
+              top: 144 + errorTextHeight,
               left: 20,
               child: buildButtons(),
             ),
             Positioned(
-              top: 100,
+              top: 100 + errorTextHeight,
               left: 20,
               child: buildNameTextField(),
             ),
@@ -163,6 +166,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
     return SizedBox(
       width: 360,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
@@ -324,50 +328,77 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
         ),
       );
     }
-    return Container(
-      width: 360,
-      height: 32,
-      decoration: buildDecoration(),
-      child: child,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 360,
+          height: 32,
+          decoration: buildDecoration(),
+          child: child,
+        ),
+        if (showErrorText) ...[
+          VSpace(4),
+          buildErrorText(),
+        ],
+      ],
     );
   }
 
   Widget buildLinkView() {
-    return Container(
-      width: 360,
-      height: 32,
-      decoration: buildDecoration(),
-      child: GestureDetector(
-        onTap: showSearchResult,
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(8, 6, 8, 6),
-            child: Row(
-              children: [
-                FlowySvg(FlowySvgs.toolbar_link_earth_m),
-                HSpace(8),
-                Flexible(
-                  child: FlowyText.regular(
-                    linkInfo.link,
-                    overflow: TextOverflow.ellipsis,
-                    figmaLineHeight: 20,
-                  ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 360,
+          height: 32,
+          decoration: buildDecoration(),
+          child: GestureDetector(
+            onTap: showSearchResult,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(8, 6, 8, 6),
+                child: Row(
+                  children: [
+                    FlowySvg(FlowySvgs.toolbar_link_earth_m),
+                    HSpace(8),
+                    Flexible(
+                      child: FlowyText.regular(
+                        linkInfo.link,
+                        overflow: TextOverflow.ellipsis,
+                        figmaLineHeight: 20,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
-      ),
+        if (showErrorText) ...[
+          VSpace(4),
+          buildErrorText(),
+        ],
+      ],
+    );
+  }
+
+  Widget buildErrorText() {
+    return FlowyText.regular(
+      LocaleKeys.document_plugins_file_networkUrlInvalid.tr(),
+      color: LinkStyle.textStatusError,
+      fontSize: 12,
+      figmaLineHeight: 16,
     );
   }
 
   Future<void> getPageView() async {
     if (!linkInfo.isPage) return;
-    final link = linkInfo.link;
-    final viewId = link.split('/').lastOrNull ?? '';
     final (view, isInTrash, isDeleted) =
-        await ViewBackendService.getMentionPageStatus(viewId);
+        await ViewBackendService.getMentionPageStatus(linkInfo.viewId);
     if (mounted) {
       setState(() {
         currentView = view;
@@ -426,7 +457,11 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
 
   BoxDecoration buildDecoration() => BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: LinkStyle.borderColor),
+        border: Border.all(
+          color: !showErrorText
+              ? LinkStyle.borderColor
+              : LinkStyle.textStatusError,
+        ),
       );
 }
 
@@ -439,4 +474,6 @@ class LinkInfo {
 
   Attributes toAttribute() =>
       {AppFlowyRichTextKeys.href: link, kIsPageLink: isPage};
+
+  String get viewId => isPage ? link.split('/').lastOrNull ?? '' : '';
 }

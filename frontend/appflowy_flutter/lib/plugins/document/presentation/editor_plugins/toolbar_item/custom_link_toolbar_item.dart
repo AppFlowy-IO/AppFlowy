@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/toolbar_extension.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/desktop_floating_toolbar.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_create_menu.dart';
@@ -10,6 +11,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra/theme_extension_v2.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'toolbar_id_enum.dart';
 
 const kIsPageLink = 'is_page_link';
@@ -52,7 +54,8 @@ final customLinkItem = ToolbarItem(
             HoverTriggerKey(nodes.first.id, selection),
           );
         } else {
-          showLinkCreateMenu(context, editorState, selection);
+          final viewId = context.read<DocumentBloc?>()?.documentId ?? '';
+          showLinkCreateMenu(context, editorState, selection,viewId);
         }
       },
     );

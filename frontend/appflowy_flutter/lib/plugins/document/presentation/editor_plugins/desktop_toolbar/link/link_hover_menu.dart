@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/desktop_floating_toolbar.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
@@ -10,6 +11,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/me
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -19,10 +21,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'link_create_menu.dart';
 import 'link_edit_menu.dart';
-import 'link_styles.dart';
 
 class LinkHoverTrigger extends StatefulWidget {
   const LinkHoverTrigger({
@@ -153,6 +155,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
     final href = attribute.href ?? '',
         isPage = attribute.isPage,
         title = editorState.getTextInSelection(selection).join();
+    final currentViewId = context.read<DocumentBloc?>()?.documentId ?? '';
     return AppFlowyPopover(
       controller: editMenuController,
       direction: PopoverDirection.bottomWithLeftAligned,
@@ -168,6 +171,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
         minHeight: 282,
       ),
       popupBuilder: (context) => LinkEditMenu(
+        currentViewId: currentViewId,
         linkInfo: LinkInfo(name: title, link: href, isPage: isPage),
         onDismiss: () => editMenuController.close(),
         onApply: (info) async {
@@ -331,7 +335,8 @@ class _LinkHoverMenuState extends State<LinkHoverMenu> {
                     Container(
                       height: 20,
                       width: 1,
-                      color: LinkStyle.borderColor,
+                      color: Color(0xffE8ECF3)
+                          .withAlpha(Theme.of(context).isLightMode ? 255 : 40),
                       margin: EdgeInsets.symmetric(horizontal: 6),
                     ),
                     FlowyIconButton(

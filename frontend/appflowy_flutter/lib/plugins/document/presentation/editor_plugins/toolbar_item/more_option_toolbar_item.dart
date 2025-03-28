@@ -1,5 +1,6 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/desktop_floating_toolbar.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_create_menu.dart';
@@ -14,6 +15,7 @@ import 'package:appflowy_editor/src/editor/toolbar/desktop/items/utils/tooltip_u
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'custom_text_align_toolbar_item.dart';
 import 'text_suggestions_toolbar_item.dart';
@@ -384,7 +386,8 @@ enum MoreOptionCommand {
           HoverTriggerKey(nodes.first.id, selection),
         );
       } else {
-        showLinkCreateMenu(context, editorState, selection);
+        final viewId = context.read<DocumentBloc?>()?.documentId ?? '';
+        showLinkCreateMenu(context, editorState, selection, viewId);
       }
     } else if (this == strikethrough) {
       await editorState.toggleAttribute(name);
