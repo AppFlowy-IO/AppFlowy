@@ -10,7 +10,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:string_validator/string_validator.dart';
 
 import 'link_search_text_field.dart';
 
@@ -50,7 +49,7 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
     },
   );
 
-  bool get isButtonEnable => searchText.isNotEmpty && isURL(searchText);
+  bool get isButtonEnable => searchTextField.isButtonEnable;
 
   String get searchText => searchTextField.searchText;
 
@@ -101,33 +100,47 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
     final isLight = Theme.of(context).isLightMode;
     return Container(
       width: 320,
-      height: 48,
       decoration: buildToolbarLinkDecoration(context),
       padding: EdgeInsets.all(8),
       child: ValueListenableBuilder(
         valueListenable: searchTextField.textEditingController,
         builder: (context, _, __) {
-          return Row(
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: searchTextField.buildTextField()),
-              HSpace(8),
-              FlowyTextButton(
-                LocaleKeys.document_toolbar_insert.tr(),
-                mainAxisAlignment: MainAxisAlignment.center,
-                padding: EdgeInsets.zero,
-                constraints: BoxConstraints(maxWidth: 72, minHeight: 32),
-                fontSize: 14,
-                fontColor: isButtonEnable || !isLight
-                    ? Colors.white
-                    : LinkStyle.textTertiary,
-                fillColor: isButtonEnable
-                    ? LinkStyle.fillThemeThick
-                    : LinkStyle.borderColor.withAlpha(isLight ? 255 : 122),
-                hoverColor: LinkStyle.fillThemeThick,
-                lineHeight: 20 / 14,
-                fontWeight: FontWeight.w600,
-                onPressed: isButtonEnable ? () => onSubmittedLink() : null,
+              Row(
+                children: [
+                  Expanded(child: searchTextField.buildTextField()),
+                  HSpace(8),
+                  FlowyTextButton(
+                    LocaleKeys.document_toolbar_insert.tr(),
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(maxWidth: 72, minHeight: 32),
+                    fontSize: 14,
+                    fontColor: isButtonEnable || !isLight
+                        ? Colors.white
+                        : LinkStyle.textTertiary,
+                    fillColor: isButtonEnable
+                        ? LinkStyle.fillThemeThick
+                        : LinkStyle.borderColor.withAlpha(isLight ? 255 : 122),
+                    hoverColor: LinkStyle.fillThemeThick,
+                    lineHeight: 20 / 14,
+                    fontWeight: FontWeight.w600,
+                    onPressed: isButtonEnable ? () => onSubmittedLink() : null,
+                  ),
+                ],
               ),
+              if (!isButtonEnable)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: FlowyText.regular(
+                    LocaleKeys.document_plugins_file_networkUrlInvalid.tr(),
+                    color: LinkStyle.textStatusError,
+                    fontSize: 12,
+                    figmaLineHeight: 16,
+                  ),
+                ),
             ],
           );
         },

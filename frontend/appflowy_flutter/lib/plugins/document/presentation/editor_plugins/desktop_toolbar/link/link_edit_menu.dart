@@ -11,7 +11,6 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:string_validator/string_validator.dart';
 
 import 'link_create_menu.dart';
 import 'link_search_text_field.dart';
@@ -51,9 +50,9 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
   ViewPB? currentView;
 
   bool get enableApply =>
-      linkInfo.link.isNotEmpty &&
       linkNameController.text.isNotEmpty &&
-      isURL(linkInfo.link);
+      searchTextField.isButtonEnable &&
+      !isShowingSearchResult;
 
   @override
   void initState() {
@@ -230,6 +229,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
             ValueListenableBuilder(
               valueListenable: linkNameController,
               builder: (context, _, __) {
+                final isLight = Theme.of(context).isLightMode;
                 return FlowyTextButton(
                   LocaleKeys.settings_appearance_documentSettings_apply.tr(),
                   padding: EdgeInsets.zero,
@@ -238,11 +238,12 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
                   fontSize: 14,
                   lineHeight: 20 / 14,
                   hoverColor: LinkStyle.fillThemeThick.withAlpha(200),
-                  fontColor:
-                      enableApply ? Colors.white : LinkStyle.textTertiary,
+                  fontColor: enableApply || !isLight
+                      ? Colors.white
+                      : LinkStyle.textTertiary,
                   fillColor: enableApply
                       ? LinkStyle.fillThemeThick
-                      : LinkStyle.borderColor,
+                      : LinkStyle.borderColor.withAlpha(isLight ? 255 : 122),
                   fontWeight: FontWeight.w400,
                   onPressed:
                       enableApply ? () => widget.onApply.call(linkInfo) : null,

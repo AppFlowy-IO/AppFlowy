@@ -3,17 +3,25 @@ import 'package:flutter/material.dart';
 class LinkStyle {
   static const borderColor = Color(0xFFE8ECF3);
   static const textTertiary = Color(0xFF99A1A8);
+  static const textStatusError = Color(0xffE71D32);
   static const fillThemeThick = Color(0xFF00B5FF);
   static const shadowMedium = Color(0x1F22251F);
   static const textPrimary = Color(0xFF1F2329);
 
-  static InputDecoration buildLinkTextFieldInputDecoration(String hintText) {
+  static InputDecoration buildLinkTextFieldInputDecoration(
+    String hintText, {
+    bool showErrorBorder = false,
+  }) {
     const border = OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(8.0)),
       borderSide: BorderSide(color: LinkStyle.borderColor),
     );
     final enableBorder = border.copyWith(
-      borderSide: BorderSide(color: LinkStyle.fillThemeThick),
+      borderSide: BorderSide(
+        color: showErrorBorder
+            ? LinkStyle.textStatusError
+            : LinkStyle.fillThemeThick,
+      ),
     );
     const hintStyle = TextStyle(
       fontSize: 14,

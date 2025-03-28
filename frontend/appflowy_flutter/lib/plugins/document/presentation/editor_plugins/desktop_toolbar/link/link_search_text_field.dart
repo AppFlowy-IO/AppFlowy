@@ -16,6 +16,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:string_validator/string_validator.dart';
 
 import 'link_create_menu.dart';
 import 'link_styles.dart';
@@ -43,7 +44,7 @@ class LinkSearchTextField {
 
   String get searchText => textEditingController.text;
 
-  bool get isButtonEnable => searchText.isNotEmpty;
+  bool get isButtonEnable => searchText.isNotEmpty && isURL(searchText);
 
   bool get showingRecent => searchText.isEmpty && recentViews.isNotEmpty;
 
@@ -81,6 +82,7 @@ class LinkSearchTextField {
       },
       decoration: LinkStyle.buildLinkTextFieldInputDecoration(
         LocaleKeys.document_toolbar_linkInputHint.tr(),
+        showErrorBorder: !isButtonEnable,
       ),
     );
   }
