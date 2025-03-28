@@ -98,6 +98,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
   final textController = TextEditingController();
   final overlayController = OverlayPortalController();
   final layerLink = LayerLink();
+  final focusNode = FocusNode();
 
   late final editorState = context.read<EditorState>();
 
@@ -114,6 +115,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
   @override
   void dispose() {
     textController.dispose();
+    focusNode.dispose();
     super.dispose();
   }
 
@@ -145,10 +147,13 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
                       bottom: 16.0,
                     ),
                     width: constraints.maxWidth,
-                    child: OverlayContent(
-                      editorState: editorState,
-                      node: widget.node,
-                      textController: textController,
+                    child: Focus(
+                      focusNode: focusNode,
+                      child: OverlayContent(
+                        editorState: editorState,
+                        node: widget.node,
+                        textController: textController,
+                      ),
                     ),
                   ),
                 ),

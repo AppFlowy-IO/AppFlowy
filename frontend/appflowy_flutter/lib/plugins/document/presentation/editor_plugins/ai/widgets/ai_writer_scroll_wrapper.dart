@@ -36,11 +36,9 @@ class _AiWriterScrollWrapperState extends State<AiWriterScrollWrapper> {
     onCreateNode: () {
       aiWriterRegistered = true;
       widget.editorState.service.keyboardService?.disableShortcuts();
-      HardwareKeyboard.instance.addHandler(cancelShortcutHandler);
     },
     onRemoveNode: () {
       aiWriterRegistered = false;
-      HardwareKeyboard.instance.removeHandler(cancelShortcutHandler);
       widget.editorState.service.keyboardService?.enableShortcuts();
     },
     onAppendToDocument: onAppendToDocument,
@@ -48,6 +46,7 @@ class _AiWriterScrollWrapperState extends State<AiWriterScrollWrapper> {
 
   bool userHasScrolled = false;
   bool aiWriterRegistered = false;
+  bool dialogShown = false;
 
   @override
   void initState() {
@@ -67,46 +66,51 @@ class _AiWriterScrollWrapperState extends State<AiWriterScrollWrapper> {
       value: aiWriterCubit,
       child: NotificationListener<ScrollNotification>(
         onNotification: handleScrollNotification,
-        child: MultiBlocListener(
-          listeners: [
-            BlocListener<AiWriterCubit, AiWriterState>(
-              listener: (context, state) {
-                if (state is DocumentContentEmptyAiWriterState) {
-                  showConfirmDialog(
-                    context: context,
-                    title: LocaleKeys.ai_continueWritingEmptyDocumentTitle.tr(),
-                    description: LocaleKeys
-                        .ai_continueWritingEmptyDocumentDescription
-                        .tr(),
-                    onConfirm: state.onConfirm,
-                  );
-                }
-              },
-            ),
-            BlocListener<AiWriterCubit, AiWriterState>(
-              listenWhen: (previous, current) =>
-                  previous is GeneratingAiWriterState &&
-                  current is ReadyAiWriterState,
-              listener: (context, state) {
-                widget.editorState.updateSelectionWithReason(null);
-              },
-            ),
-          ],
-          child: OverlayPortal(
-            controller: overlayController,
-            overlayChildBuilder: (context) {
-              return BlocBuilder<AiWriterCubit, AiWriterState>(
-                builder: (context, state) {
-                  return AiWriterGestureDetector(
-                    behavior: state is RegisteredAiWriter
-                        ? HitTestBehavior.translucent
-                        : HitTestBehavior.deferToChild,
-                    onPointerEvent: () => onTapOutside(context),
-                  );
+        child: Focus(
+          autofocus: true,
+          onKeyEvent: handleKeyEvent,
+          child: MultiBlocListener(
+            listeners: [
+              BlocListener<AiWriterCubit, AiWriterState>(
+                listener: (context, state) {
+                  if (state is DocumentContentEmptyAiWriterState) {
+                    showConfirmDialog(
+                      context: context,
+                      title:
+                          LocaleKeys.ai_continueWritingEmptyDocumentTitle.tr(),
+                      description: LocaleKeys
+                          .ai_continueWritingEmptyDocumentDescription
+                          .tr(),
+                      onConfirm: state.onConfirm,
+                    );
+                  }
                 },
-              );
-            },
-            child: widget.child,
+              ),
+              BlocListener<AiWriterCubit, AiWriterState>(
+                listenWhen: (previous, current) =>
+                    previous is GeneratingAiWriterState &&
+                    current is ReadyAiWriterState,
+                listener: (context, state) {
+                  widget.editorState.updateSelectionWithReason(null);
+                },
+              ),
+            ],
+            child: OverlayPortal(
+              controller: overlayController,
+              overlayChildBuilder: (context) {
+                return BlocBuilder<AiWriterCubit, AiWriterState>(
+                  builder: (context, state) {
+                    return AiWriterGestureDetector(
+                      behavior: state is RegisteredAiWriter
+                          ? HitTestBehavior.translucent
+                          : HitTestBehavior.deferToChild,
+                      onPointerEvent: () => onTapOutside(context),
+                    );
+                  },
+                );
+              },
+              child: widget.child,
+            ),
           ),
         ),
       ),
@@ -153,9 +157,15 @@ class _AiWriterScrollWrapperState extends State<AiWriterScrollWrapper> {
     }
   }
 
-  bool cancelShortcutHandler(KeyEvent event) {
-    if (event is! KeyUpEvent) {
-      return false;
+  KeyEventResult handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (!aiWriterRegistered) {
+      return KeyEventResult.ignored;
+    }
+    if (dialogShown) {
+      return KeyEventResult.handled;
+    }
+    if (event is! KeyDownEvent) {
+      return KeyEventResult.ignored;
     }
 
     switch (event.logicalKey) {
@@ -163,6 +173,7 @@ class _AiWriterScrollWrapperState extends State<AiWriterScrollWrapper> {
         if (aiWriterCubit.state case GeneratingAiWriterState _) {
           aiWriterCubit.stopStream();
         } else if (aiWriterCubit.hasUnusedResponse()) {
+          dialogShown = true;
           showConfirmDialog(
             context: context,
             title: LocaleKeys.button_discard.tr(),
@@ -171,23 +182,22 @@ class _AiWriterScrollWrapperState extends State<AiWriterScrollWrapper> {
             style: ConfirmPopupStyle.cancelAndOk,
             onConfirm: stopAndExit,
             onCancel: () {},
-          );
+          ).then((_) => dialogShown = false);
         } else {
           stopAndExit();
         }
-        return true;
+        return KeyEventResult.handled;
       case LogicalKeyboardKey.keyC
-          when HardwareKeyboard.instance.logicalKeysPressed
-              .contains(LogicalKeyboardKey.controlLeft):
+          when HardwareKeyboard.instance.isControlPressed:
         if (aiWriterCubit.state case GeneratingAiWriterState _) {
           aiWriterCubit.stopStream();
         }
-        return true;
+        return KeyEventResult.handled;
       default:
         break;
     }
 
-    return false;
+    return KeyEventResult.ignored;
   }
 
   void onAppendToDocument() {

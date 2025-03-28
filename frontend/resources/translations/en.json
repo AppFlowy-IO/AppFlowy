@@ -246,7 +246,7 @@
       "number": "Numbered list",
       "table": "Table",
       "blankDescription": "Format response",
-      "defaultDescription": "Auto mode",
+      "defaultDescription": "Auto response format",
       "textWithImageDescription": "@:chat.changeFormat.text with image",
       "numberWithImageDescription": "@:chat.changeFormat.number with image",
       "bulletWithImageDescription": "@:chat.changeFormat.bullet with image",

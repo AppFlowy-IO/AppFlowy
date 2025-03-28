@@ -84,7 +84,7 @@ class LocalAISettingHeader extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    FlowyText(
+                    FlowyText.medium(
                       LocaleKeys.settings_aiPage_keys_localAIToggleTitle.tr(),
                     ),
                     const Spacer(),
