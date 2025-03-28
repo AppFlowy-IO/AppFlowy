@@ -55,6 +55,29 @@ diesel::table! {
 }
 
 diesel::table! {
+    favorite_table (id) {
+        id -> Text,
+        workspace_id -> Text,
+        prev_id -> Nullable<Text>,
+        is_pinned -> Bool,
+        favorite_at -> BigInt,
+    }
+}
+
+diesel::table! {
+    folder_operation_table (id) {
+        id -> Integer,
+        workspace_id -> Text,
+        page_id -> Nullable<Text>,
+        name -> Text,
+        method -> Text,
+        status -> Text,
+        payload -> Nullable<Text>,
+        timestamp -> BigInt,
+    }
+}
+
+diesel::table! {
     folder_table (id) {
         id -> Text,
         workspace_id -> Text,
@@ -76,15 +99,20 @@ diesel::table! {
 }
 
 diesel::table! {
-    folder_operation_table (id) {
-        id -> Integer,
+    recent_table (id) {
+        id -> Text,
         workspace_id -> Text,
-        page_id -> Nullable<Text>,
-        name -> Text,
-        method -> Text,
-        status -> Text,
-        payload -> Nullable<Text>,
-        timestamp -> BigInt,
+        prev_id -> Nullable<Text>,
+        recent_at -> BigInt,
+    }
+}
+
+diesel::table! {
+    trash_table (id) {
+        id -> Text,
+        workspace_id -> Text,
+        prev_id -> Nullable<Text>,
+        deleted_at -> BigInt,
     }
 }
 
@@ -167,8 +195,11 @@ diesel::allow_tables_to_appear_in_same_query!(
   chat_message_table,
   chat_table,
   collab_snapshot,
+  favorite_table,
   folder_operation_table,
   folder_table,
+  recent_table,
+  trash_table,
   upload_file_part,
   upload_file_table,
   user_data_migration_records,
