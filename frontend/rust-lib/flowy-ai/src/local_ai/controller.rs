@@ -101,11 +101,9 @@ impl LocalAIController {
           let mut ready = false;
           let mut lack_of_resource = None;
           let enabled = cloned_store_preferences.get_bool(&key).unwrap_or(true);
-          if !matches!(state, RunningState::UnexpectedStop { .. }) {
-            if enabled {
-              ready = is_plugin_ready();
-              lack_of_resource = cloned_llm_res.get_lack_of_resource().await;
-            }
+          if !matches!(state, RunningState::UnexpectedStop { .. }) && enabled {
+            ready = is_plugin_ready();
+            lack_of_resource = cloned_llm_res.get_lack_of_resource().await;
           }
 
           let new_state = RunningStatePB::from(state);
