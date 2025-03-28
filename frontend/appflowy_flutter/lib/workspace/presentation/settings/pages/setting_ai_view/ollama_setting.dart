@@ -28,18 +28,10 @@ class OllamaSettingPage extends StatelessWidget {
             padding: EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 10,
               children: [
-                ListView.separated(
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: state.inputItems.length,
-                  separatorBuilder: (_, __) => const VSpace(10),
-                  itemBuilder: (context, index) {
-                    final item = state.inputItems[index];
-                    return _SettingItemWidget(item: item);
-                  },
-                ),
-                const VSpace(6),
+                for (final item in state.inputItems)
+                  _SettingItemWidget(item: item),
                 _SaveButton(isEdited: state.isEdited),
               ],
             ),
@@ -68,7 +60,7 @@ class _SettingItemWidget extends StatelessWidget {
         ),
         const VSpace(4),
         SizedBox(
-          height: 40,
+          height: 32,
           child: FlowyTextField(
             hintText: item.hintText,
             text: item.content,
@@ -95,24 +87,26 @@ class _SaveButton extends StatelessWidget {
       alignment: AlignmentDirectional.centerEnd,
       child: FlowyTooltip(
         message: isEdited ? null : 'No changes',
-        child: FlowyButton(
-          text: FlowyText(
-            'Apply',
-            figmaLineHeight: 20,
-            color: Theme.of(context).colorScheme.onPrimary,
+        child: SizedBox(
+          child: FlowyButton(
+            text: FlowyText(
+              'Apply',
+              figmaLineHeight: 20,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
+            disable: !isEdited,
+            expandText: false,
+            margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            hoverColor: Theme.of(context).colorScheme.primary.withAlpha(200),
+            onTap: () {
+              if (isEdited) {
+                context
+                    .read<OllamaSettingBloc>()
+                    .add(const OllamaSettingEvent.submit());
+              }
+            },
           ),
-          disable: !isEdited,
-          expandText: false,
-          margin: EdgeInsets.all(8.0),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          hoverColor: Theme.of(context).colorScheme.primary.withAlpha(200),
-          onTap: () {
-            if (isEdited) {
-              context
-                  .read<OllamaSettingBloc>()
-                  .add(const OllamaSettingEvent.submit());
-            }
-          },
         ),
       ),
     );

@@ -1,14 +1,17 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/settings/ai/local_ai_bloc.dart';
-import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/local_ai_setting_panel.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy/workspace/presentation/widgets/toggle/toggle.dart';
+import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'ollama_setting.dart';
+import 'plugin_status_indicator.dart';
 
 class LocalAISetting extends StatefulWidget {
   const LocalAISetting({super.key});
@@ -29,11 +32,11 @@ class _LocalAISettingState extends State<LocalAISetting> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => LocalAIToggleBloc(),
-      child: BlocConsumer<LocalAIToggleBloc, LocalAiToggleState>(
+      create: (context) => LocalAiPluginBloc(),
+      child: BlocConsumer<LocalAiPluginBloc, LocalAiPluginState>(
         listener: (context, state) {
           final newIsExpanded = switch (state) {
-            final ReadyLocalAiToggleState readyLocalAiToggleState =>
+            final ReadyLocalAiPluginState readyLocalAiToggleState =>
               readyLocalAiToggleState.isEnabled,
             _ => false,
           };
@@ -49,12 +52,12 @@ class _LocalAISettingState extends State<LocalAISetting> {
               tapHeaderToExpand: false,
             ),
             header: LocalAiSettingHeader(
-              isEnabled: state is ReadyLocalAiToggleState && state.isEnabled,
-              isToggleable: state is ReadyLocalAiToggleState,
+              isEnabled: state is ReadyLocalAiPluginState && state.isEnabled,
+              isToggleable: state is ReadyLocalAiPluginState,
             ),
             collapsed: const SizedBox.shrink(),
-            expanded: Container(
-              margin: EdgeInsets.only(top: 12),
+            expanded: Padding(
+              padding: EdgeInsets.only(top: 12),
               child: LocalAISettingPanel(),
             ),
           );
@@ -118,12 +121,54 @@ class LocalAiSettingHeader extends StatelessWidget {
         confirmLabel: LocaleKeys.button_confirm.tr(),
         onConfirm: () {
           context
-              .read<LocalAIToggleBloc>()
-              .add(const LocalAIToggleEvent.toggle());
+              .read<LocalAiPluginBloc>()
+              .add(const LocalAiPluginEvent.toggle());
         },
       );
     } else {
-      context.read<LocalAIToggleBloc>().add(const LocalAIToggleEvent.toggle());
+      context.read<LocalAiPluginBloc>().add(const LocalAiPluginEvent.toggle());
     }
+  }
+}
+
+class LocalAISettingPanel extends StatelessWidget {
+  const LocalAISettingPanel({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<LocalAiPluginBloc, LocalAiPluginState>(
+      builder: (context, state) {
+        if (state is! ReadyLocalAiPluginState) {
+          return const SizedBox.shrink();
+        }
+
+        final showIndicator = _showIndicator(state);
+        final showSettings = _showSettings(state);
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (showIndicator) const LocalAIStatusIndicator(),
+            if (showSettings && showIndicator) const VSpace(10),
+            if (showSettings) OllamaSettingPage(),
+          ],
+        );
+      },
+    );
+  }
+
+  bool _showIndicator(ReadyLocalAiPluginState state) {
+    return state.runningState != RunningStatePB.Running ||
+        state.lackOfResource != null;
+  }
+
+  bool _showSettings(ReadyLocalAiPluginState state) {
+    return ![
+          RunningStatePB.Connecting,
+          RunningStatePB.Connected,
+        ].contains(state.runningState) &&
+        (state.lackOfResource == null ||
+            state.lackOfResource!.resourceType ==
+                LackOfAIResourceTypePB.MissingModel);
   }
 }
