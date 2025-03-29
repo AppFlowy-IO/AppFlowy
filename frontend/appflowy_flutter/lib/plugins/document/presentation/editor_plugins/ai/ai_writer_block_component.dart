@@ -490,6 +490,12 @@ class MainContentArea extends StatelessWidget {
           return DesktopPromptInput(
             isStreaming: false,
             hideDecoration: true,
+            hideFormats: [
+              AiWriterCommand.fixSpellingAndGrammar,
+              AiWriterCommand.improveWriting,
+              AiWriterCommand.makeLonger,
+              AiWriterCommand.makeShorter,
+            ].contains(state.command),
             textController: textController,
             onSubmitted: (message, format, _) {
               cubit.runCommand(state.command, message, format);

@@ -23,6 +23,7 @@ class DesktopPromptInput extends StatefulWidget {
     required this.selectedSourcesNotifier,
     required this.onUpdateSelectedSources,
     this.hideDecoration = false,
+    this.hideFormats = false,
     this.extraBottomActionButton,
   });
 
@@ -34,6 +35,7 @@ class DesktopPromptInput extends StatefulWidget {
   final ValueNotifier<List<String>> selectedSourcesNotifier;
   final void Function(List<String>) onUpdateSelectedSources;
   final bool hideDecoration;
+  final bool hideFormats;
   final Widget? extraBottomActionButton;
 
   @override
@@ -139,11 +141,11 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
                       children: [
                         ConstrainedBox(
                           constraints: getTextFieldConstraints(
-                            state.showPredefinedFormats,
+                            state.showPredefinedFormats && !widget.hideFormats,
                           ),
                           child: inputTextField(),
                         ),
-                        if (state.showPredefinedFormats)
+                        if (state.showPredefinedFormats && !widget.hideFormats)
                           Positioned.fill(
                             bottom: null,
                             child: TextFieldTapRegion(
@@ -168,8 +170,9 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
                           top: null,
                           child: TextFieldTapRegion(
                             child: _PromptBottomActions(
-                              showPredefinedFormats:
+                              showPredefinedFormatBar:
                                   state.showPredefinedFormats,
+                              showPredefinedFormatButton: !widget.hideFormats,
                               onTogglePredefinedFormatSection: () =>
                                   context.read<AIPromptInputBloc>().add(
                                         AIPromptInputEvent
@@ -571,7 +574,8 @@ class PromptInputTextField extends StatelessWidget {
 class _PromptBottomActions extends StatelessWidget {
   const _PromptBottomActions({
     required this.sendButtonState,
-    required this.showPredefinedFormats,
+    required this.showPredefinedFormatBar,
+    required this.showPredefinedFormatButton,
     required this.onTogglePredefinedFormatSection,
     required this.onStartMention,
     required this.onSendPressed,
@@ -581,7 +585,8 @@ class _PromptBottomActions extends StatelessWidget {
     this.extraBottomActionButton,
   });
 
-  final bool showPredefinedFormats;
+  final bool showPredefinedFormatBar;
+  final bool showPredefinedFormatButton;
   final void Function() onTogglePredefinedFormatSection;
   final void Function() onStartMention;
   final SendButtonState sendButtonState;
@@ -600,10 +605,12 @@ class _PromptBottomActions extends StatelessWidget {
         builder: (context, state) {
           return Row(
             children: [
-              _predefinedFormatButton(),
-              const HSpace(
-                DesktopAIChatSizes.inputActionBarButtonSpacing,
-              ),
+              if (showPredefinedFormatButton) ...[
+                _predefinedFormatButton(),
+                const HSpace(
+                  DesktopAIChatSizes.inputActionBarButtonSpacing,
+                ),
+              ],
               SelectModelMenu(
                 aiModelStateNotifier:
                     context.read<AIPromptInputBloc>().aiModelStateNotifier,
@@ -641,7 +648,7 @@ class _PromptBottomActions extends StatelessWidget {
 
   Widget _predefinedFormatButton() {
     return PromptInputDesktopToggleFormatButton(
-      showFormatBar: showPredefinedFormats,
+      showFormatBar: showPredefinedFormatBar,
       onTap: onTogglePredefinedFormatSection,
     );
   }

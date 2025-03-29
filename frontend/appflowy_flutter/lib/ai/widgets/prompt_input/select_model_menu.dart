@@ -173,7 +173,6 @@ class _ModelItem extends StatelessWidget {
               model.i18n,
               figmaLineHeight: 20,
               overflow: TextOverflow.ellipsis,
-              color: isSelected ? Theme.of(context).colorScheme.primary : null,
             ),
             if (model.desc.isNotEmpty)
               FlowyText(
