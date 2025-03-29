@@ -2519,12 +2519,12 @@
         "dialogTitle": "Supprimer le compte",
         "dialogContent1": "Êtes-vous sûr de vouloir supprimer définitivement votre compte ?",
         "dialogContent2": "Cette action ne peut pas être annulée et supprimera l'accès à tous les espaces d'équipe, effaçant l'intégralité de votre compte, y compris les espaces de travail privés, et vous supprimant de tous les espaces de travail partagés.",
-        "confirmHint1": "Veuillez taper « SUPPRIMER MON COMPTE » pour confirmer.",
+        "confirmHint1": "Veuillez taper « @:newSettings.myAccount.deleteAccount.confirmHint3 » pour confirmer.",
         "confirmHint2": "Je comprends que cette action est irréversible et supprimera définitivement mon compte et toutes les données associées.",
         "confirmHint3": "SUPPRIMER MON COMPTE",
         "checkToConfirmError": "Vous devez cocher la case pour confirmer la suppression",
         "failedToGetCurrentUser": "Impossible d'obtenir l'e-mail de l'utilisateur actuel",
-        "confirmTextValidationFailed": "Votre texte de confirmation ne correspond pas à « SUPPRIMER MON COMPTE »",
+        "confirmTextValidationFailed": "Votre texte de confirmation ne correspond pas à « @:newSettings.myAccount.deleteAccount.confirmHint3 »",
         "deleteAccountSuccess": "Compte supprimé avec succès"
       }
     },

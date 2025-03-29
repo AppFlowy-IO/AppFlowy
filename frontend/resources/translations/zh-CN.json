@@ -1920,7 +1920,14 @@
         "deleteMyAccount": "删除我的账户",
         "dialogTitle": "删除帐户",
         "dialogContent1": "你确定要永久删除您的帐户吗？",
-        "dialogContent2": "此操作无法撤消，并且将删除所有团队空间的访问权限，删除你的整个帐户（包括私人工作区），并将你从所有共享工作区中删除。"
+        "dialogContent2": "此操作无法撤消，并且将删除所有团队空间的访问权限，删除你的整个帐户（包括私人工作区），并将你从所有共享工作区中删除。",
+        "confirmHint1": "请输入 \"@:newSettings.myAccount.deleteAccount.confirmHint3\" 以确认。",
+        "confirmHint2": "我理解此操作是不可逆的，并且将永久删除我的帐户和所有关联数据。",
+        "confirmHint3": "删除我的账户",
+        "checkToConfirmError": "你必须勾选以确认删除。",
+        "failedToGetCurrentUser": "获取当前用户邮箱失败",
+        "confirmTextValidationFailed": "你的确认文本不匹配 \"@:newSettings.myAccount.deleteAccount.confirmHint3\"",
+        "deleteAccountSuccess": "账户删除成功"
       }
     },
     "workplace": {

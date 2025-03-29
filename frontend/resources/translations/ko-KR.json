@@ -2579,12 +2579,12 @@
         "dialogTitle": "계정 삭제",
         "dialogContent1": "계정을 영구적으로 삭제하시겠습니까?",
         "dialogContent2": "이 작업은 되돌릴 수 없으며, 모든 작업 공간에서 액세스를 제거하고, 개인 작업 공간을 포함한 전체 계정을 삭제하며, 모든 공유 작업 공간에서 제거됩니다.",
-        "confirmHint1": "\"내 계정 삭제\"를 입력하여 확인하세요.",
+        "confirmHint1": "\"@:newSettings.myAccount.deleteAccount.confirmHint3\"를 입력하여 확인하세요.",
         "confirmHint2": "이 작업은 되돌릴 수 없으며, 계정과 모든 관련 데이터를 영구적으로 삭제합니다.",
         "confirmHint3": "내 계정 삭제",
         "checkToConfirmError": "삭제를 확인하려면 확인란을 선택해야 합니다",
         "failedToGetCurrentUser": "현재 사용자 이메일을 가져오지 못했습니다",
-        "confirmTextValidationFailed": "확인 텍스트가 \"내 계정 삭제\"와 일치하지 않습니다",
+        "confirmTextValidationFailed": "확인 텍스트가 \"@:newSettings.myAccount.deleteAccount.confirmHint3\"와 일치하지 않습니다",
         "deleteAccountSuccess": "계정이 성공적으로 삭제되었습니다"
       }
     },

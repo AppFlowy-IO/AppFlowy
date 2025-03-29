@@ -14,7 +14,6 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-const _confirmText = 'DELETE MY ACCOUNT';
 const _acceptableConfirmTexts = [
   'delete my account',
   'deletemyaccount',
@@ -135,7 +134,8 @@ class _AccountDeletionDialog extends StatelessWidget {
         ),
         const VSpace(12.0),
         FlowyTextField(
-          hintText: _confirmText,
+          hintText:
+              LocaleKeys.newSettings_myAccount_deleteAccount_confirmHint3.tr(),
           controller: controller,
         ),
         const VSpace(16),
@@ -176,7 +176,8 @@ class _AccountDeletionDialog extends StatelessWidget {
 bool _isConfirmTextValid(String text) {
   // don't convert the text to lower case or upper case,
   //  just check if the text is in the list
-  return _acceptableConfirmTexts.contains(text);
+  return _acceptableConfirmTexts.contains(text) ||
+      text == LocaleKeys.newSettings_myAccount_deleteAccount_confirmHint3.tr();
 }
 
 Future<void> deleteMyAccount(
