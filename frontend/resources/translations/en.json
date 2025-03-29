@@ -854,14 +854,14 @@
         "downloadAIModelButton": "Download",
         "downloadingModel": "Downloading",
         "localAILoaded": "Local AI Model successfully added and ready to use",
-        "localAIStart": "Local AI is starting. If it’s slow, try toggling it off and on",
+        "localAIStart": "Local AI is starting. If it's slow, try toggling it off and on",
         "localAILoading": "Local AI Chat Model is loading...",
         "localAIStopped": "Local AI stopped",
         "localAIRunning": "Local AI is running",
-        "localAIInitializing": "Local AI is loading and may take a few minutes, depending on your device",
+        "localAIInitializing": "Local AI is loading. This may take a few minutes depending on your device",
         "localAINotReadyTextFieldPrompt": "You can not edit while Local AI is loading",
         "failToLoadLocalAI": "Failed to start local AI",
-        "restartLocalAI": "Restart Local AI",
+        "restartLocalAI": "Restart",
         "disableLocalAITitle": "Disable local AI",
         "disableLocalAIDescription": "Do you want to disable local AI?",
         "localAIToggleTitle": "AppFlowy Local AI (LAI)",
@@ -875,10 +875,12 @@
         "activeOfflineAI": "Active",
         "downloadOfflineAI": "Download",
         "openModelDirectory": "Open folder",
-        "localAISetupInstruction1": "Follow these",
+        "localAISetupInstruction1": "Please follow these",
         "localAISetupInstruction2": "instructions",
-        "localAISetupInstruction3": "to set up Ollama and AppFlowy Local AI. Skip if you've already set it up",
-        "startLocalAI": "It may take a few seconds to start the local AI"
+        "localAISetupInstruction3": "to set up Ollama and AppFlowy Local AI.",
+        "laiNotReady": "The Local AI app was not installed correctly.",
+        "ollamaNotReady": "The Ollama server is not ready.",
+        "modelsMissing": "Cannot find the model. You can use the ollama pull command to install them."
       }
     },
     "planPage": {

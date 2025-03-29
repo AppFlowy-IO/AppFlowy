@@ -1,94 +1,121 @@
 import 'dart:async';
 
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/entities.pb.dart';
-import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_result/appflowy_result.dart';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'local_llm_listener.dart';
+
 part 'local_ai_bloc.freezed.dart';
 
-class LocalAIToggleBloc extends Bloc<LocalAIToggleEvent, LocalAIToggleState> {
-  LocalAIToggleBloc() : super(const LocalAIToggleState()) {
-    on<LocalAIToggleEvent>(_handleEvent);
+class LocalAiPluginBloc extends Bloc<LocalAiPluginEvent, LocalAiPluginState> {
+  LocalAiPluginBloc() : super(const LoadingLocalAiPluginState()) {
+    on<LocalAiPluginEvent>(_handleEvent);
+    _startListening();
+    _getLocalAiState();
+  }
+
+  final listener = LocalAIStateListener();
+
+  @override
+  Future<void> close() async {
+    await listener.stop();
+    return super.close();
   }
 
   Future<void> _handleEvent(
-    LocalAIToggleEvent event,
-    Emitter<LocalAIToggleState> emit,
+    LocalAiPluginEvent event,
+    Emitter<LocalAiPluginState> emit,
   ) async {
     await event.when(
-      started: () async {
-        final result = await AIEventGetLocalAIState().send();
-        _handleResult(emit, result);
+      didReceiveAiState: (aiState) {
+        emit(
+          ReadyLocalAiPluginState(
+            isEnabled: aiState.enabled,
+            runningState: aiState.state,
+            lackOfResource:
+                aiState.hasLackOfResource() ? aiState.lackOfResource : null,
+          ),
+        );
+      },
+      didReceiveLackOfResources: (resources) {
+        if (state case final ReadyLocalAiPluginState readyState) {
+          emit(
+            ReadyLocalAiPluginState(
+              isEnabled: readyState.isEnabled,
+              runningState: readyState.runningState,
+              lackOfResource: resources,
+            ),
+          );
+        }
       },
       toggle: () async {
-        emit(
-          state.copyWith(
-            pageIndicator: const LocalAIToggleStateIndicator.loading(),
-          ),
-        );
-        unawaited(
-          AIEventToggleLocalAI().send().then(
-            (result) {
-              if (!isClosed) {
-                add(LocalAIToggleEvent.handleResult(result));
-              }
-            },
-          ),
+        emit(LoadingLocalAiPluginState());
+        await AIEventToggleLocalAI().send().fold(
+          (aiState) {
+            add(LocalAiPluginEvent.didReceiveAiState(aiState));
+          },
+          Log.error,
         );
       },
-      handleResult: (result) {
-        _handleResult(emit, result);
+      restart: () async {
+        emit(LoadingLocalAiPluginState());
+        await AIEventRestartLocalAI().send();
       },
     );
   }
 
-  void _handleResult(
-    Emitter<LocalAIToggleState> emit,
-    FlowyResult<LocalAIPB, FlowyError> result,
-  ) {
-    result.fold(
-      (localAI) {
-        emit(
-          state.copyWith(
-            pageIndicator:
-                LocalAIToggleStateIndicator.isEnabled(localAI.enabled),
-          ),
-        );
+  void _startListening() {
+    listener.start(
+      stateCallback: (pluginState) {
+        add(LocalAiPluginEvent.didReceiveAiState(pluginState));
       },
-      (err) {
-        emit(
-          state.copyWith(
-            pageIndicator: LocalAIToggleStateIndicator.error(err),
-          ),
-        );
+      resourceCallback: (data) {
+        add(LocalAiPluginEvent.didReceiveLackOfResources(data));
       },
+    );
+  }
+
+  void _getLocalAiState() {
+    AIEventGetLocalAIState().send().fold(
+      (aiState) {
+        add(LocalAiPluginEvent.didReceiveAiState(aiState));
+      },
+      Log.error,
     );
   }
 }
 
 @freezed
-class LocalAIToggleEvent with _$LocalAIToggleEvent {
-  const factory LocalAIToggleEvent.started() = _Started;
-  const factory LocalAIToggleEvent.toggle() = _Toggle;
-  const factory LocalAIToggleEvent.handleResult(
-    FlowyResult<LocalAIPB, FlowyError> result,
-  ) = _HandleResult;
+class LocalAiPluginEvent with _$LocalAiPluginEvent {
+  const factory LocalAiPluginEvent.didReceiveAiState(LocalAIPB aiState) =
+      _DidReceiveAiState;
+  const factory LocalAiPluginEvent.didReceiveLackOfResources(
+    LackOfAIResourcePB resources,
+  ) = _DidReceiveLackOfResources;
+  const factory LocalAiPluginEvent.toggle() = _Toggle;
+  const factory LocalAiPluginEvent.restart() = _Restart;
 }
 
-@freezed
-class LocalAIToggleState with _$LocalAIToggleState {
-  const factory LocalAIToggleState({
-    @Default(LocalAIToggleStateIndicator.loading())
-    LocalAIToggleStateIndicator pageIndicator,
-  }) = _LocalAIToggleState;
+sealed class LocalAiPluginState {
+  const LocalAiPluginState();
 }
 
-@freezed
-class LocalAIToggleStateIndicator with _$LocalAIToggleStateIndicator {
-  // when start downloading the model
-  const factory LocalAIToggleStateIndicator.error(FlowyError error) = _OnError;
-  const factory LocalAIToggleStateIndicator.isEnabled(bool isEnabled) = _Ready;
-  const factory LocalAIToggleStateIndicator.loading() = _Loading;
+class ReadyLocalAiPluginState extends LocalAiPluginState {
+  const ReadyLocalAiPluginState({
+    required this.isEnabled,
+    required this.runningState,
+    required this.lackOfResource,
+  });
+
+  final bool isEnabled;
+  final RunningStatePB runningState;
+  final LackOfAIResourcePB? lackOfResource;
+}
+
+class LoadingLocalAiPluginState extends LocalAiPluginState {
+  const LoadingLocalAiPluginState();
 }

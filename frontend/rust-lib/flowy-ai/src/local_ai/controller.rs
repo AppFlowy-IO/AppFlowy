@@ -1,5 +1,5 @@
 use crate::ai_manager::AIUserService;
-use crate::entities::{LackOfAIResourcePB, LocalAIPB, RunningStatePB};
+use crate::entities::{LocalAIPB, RunningStatePB};
 use crate::local_ai::resource::{LLMResourceService, LocalAIResourceController};
 use crate::notification::{
   chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
@@ -274,14 +274,15 @@ impl LocalAIController {
   pub async fn get_local_ai_state(&self) -> LocalAIPB {
     let start = std::time::Instant::now();
     let enabled = self.is_enabled();
-    let mut is_plugin_executable_ready = false;
-    let mut state = RunningState::ReadyToConnect;
-    let mut lack_of_resource = None;
-    if enabled {
-      is_plugin_executable_ready = is_plugin_ready();
-      state = self.ai_plugin.get_plugin_running_state();
-      lack_of_resource = self.resource.get_lack_of_resource().await;
-    }
+    let (is_plugin_executable_ready, state, lack_of_resource) = if enabled {
+      (
+        is_plugin_ready(),
+        self.ai_plugin.get_plugin_running_state(),
+        self.resource.get_lack_of_resource().await,
+      )
+    } else {
+      (false, RunningState::ReadyToConnect, None)
+    };
     let elapsed = start.elapsed();
     debug!(
       "[AI Plugin] get local ai state, elapsed: {:?}, thread: {:?}",
@@ -482,9 +483,7 @@ async fn initialize_ai_plugin(
       APPFLOWY_AI_NOTIFICATION_KEY,
       ChatNotification::LocalAIResourceUpdated,
     )
-    .payload(LackOfAIResourcePB {
-      resource_desc: lack_of_resource,
-    })
+    .payload(lack_of_resource)
     .send();
 
     return Ok(());
