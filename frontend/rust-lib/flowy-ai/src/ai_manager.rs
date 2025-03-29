@@ -117,8 +117,18 @@ impl AIManager {
     }
   }
 
+  #[instrument(skip_all, err)]
   pub async fn initialize(&self, _workspace_id: &str) -> Result<(), FlowyError> {
-    self.local_ai.reload().await?;
+    let local_ai = self.local_ai.clone();
+    tokio::spawn(async move {
+      if let Err(err) = local_ai.destroy_plugin().await {
+        error!("Failed to destroy plugin: {}", err);
+      }
+
+      if let Err(err) = local_ai.reload().await {
+        error!("[AI Manager] failed to reload local AI: {:?}", err);
+      }
+    });
     Ok(())
   }
 
