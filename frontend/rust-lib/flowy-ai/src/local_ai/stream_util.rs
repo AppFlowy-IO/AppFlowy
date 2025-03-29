@@ -1,4 +1,4 @@
-use appflowy_plugin::error::PluginError;
+use af_plugin::error::PluginError;
 
 use flowy_ai_pub::cloud::QuestionStreamValue;
 use flowy_error::FlowyError;

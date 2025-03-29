@@ -1,4 +1,4 @@
-use appflowy_plugin::core::plugin::RunningState;
+use af_plugin::core::plugin::RunningState;
 use std::collections::HashMap;
 
 use crate::local_ai::controller::LocalAISetting;

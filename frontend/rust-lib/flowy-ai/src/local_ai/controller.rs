@@ -4,8 +4,8 @@ use crate::local_ai::resource::{LLMResourceService, LocalAIResourceController};
 use crate::notification::{
   chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
 };
+use af_plugin::manager::PluginManager;
 use anyhow::Error;
-use appflowy_plugin::manager::PluginManager;
 use flowy_ai_pub::cloud::{ChatCloudService, ChatMessageMetadata, ContextLoader, LocalAIConfig};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sqlite::kv::KVStorePreferences;
@@ -15,8 +15,8 @@ use std::collections::HashMap;
 
 use crate::local_ai::watch::is_plugin_ready;
 use crate::stream_message::StreamMessage;
-use appflowy_local_ai::ollama_plugin::OllamaAIPlugin;
-use appflowy_plugin::core::plugin::RunningState;
+use af_local_ai::ollama_plugin::OllamaAIPlugin;
+use af_plugin::core::plugin::RunningState;
 use arc_swap::ArcSwapOption;
 use futures_util::SinkExt;
 use lib_infra::util::get_operating_system;
@@ -98,16 +98,15 @@ impl LocalAIController {
         if let Ok(workspace_id) = cloned_user_service.workspace_id() {
           let key = local_ai_enabled_key(&workspace_id);
           info!("[AI Plugin] state: {:?}", state);
-
-          let new_state = RunningStatePB::from(state);
-          let enabled = cloned_store_preferences.get_bool(&key).unwrap_or(true);
           let mut ready = false;
           let mut lack_of_resource = None;
-          if enabled {
+          let enabled = cloned_store_preferences.get_bool(&key).unwrap_or(true);
+          if !matches!(state, RunningState::UnexpectedStop { .. }) && enabled {
             ready = is_plugin_ready();
             lack_of_resource = cloned_llm_res.get_lack_of_resource().await;
           }
 
+          let new_state = RunningStatePB::from(state);
           chat_notification_builder(
             APPFLOWY_AI_NOTIFICATION_KEY,
             ChatNotification::UpdateLocalAIState,
