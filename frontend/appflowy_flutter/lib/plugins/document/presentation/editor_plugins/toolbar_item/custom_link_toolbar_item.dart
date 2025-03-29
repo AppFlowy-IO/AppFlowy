@@ -1,15 +1,17 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/base/toolbar_extension.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/desktop_floating_toolbar.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_create_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_hover_menu.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/toolbar_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra/theme_extension_v2.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'toolbar_id_enum.dart';
 
 const kIsPageLink = 'is_page_link';
@@ -28,10 +30,10 @@ final customLinkItem = ToolbarItem(
       );
     });
 
+    final isDark = !Theme.of(context).isLightMode;
     final hoverColor = isHref
         ? highlightColor
         : EditorStyleCustomizer.toolbarHoverColor(context);
-    final toolbarCubit = context.read<ToolbarCubit?>();
 
     final child = FlowyIconButton(
       width: 36,
@@ -41,16 +43,20 @@ final customLinkItem = ToolbarItem(
       icon: FlowySvg(
         FlowySvgs.toolbar_link_m,
         size: Size.square(20.0),
-        color: Theme.of(context).iconTheme.color,
+        color: (isDark && isHref)
+            ? Color(0xFF282E3A)
+            : AFThemeExtensionV2.of(context).icon_primary,
       ),
       onPressed: () {
-        toolbarCubit?.dismiss();
-        if (isHref) {
-          getIt<LinkHoverTriggers>().call(
-            HoverTriggerKey(nodes.first.id, selection),
-          );
+        getIt<FloatingToolbarController>().hideToolbar();
+        if (!isHref) {
+          final viewId = context.read<DocumentBloc?>()?.documentId ?? '';
+          showLinkCreateMenu(context, editorState, selection, viewId);
         } else {
-          showLinkCreateMenu(context, editorState, selection);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            getIt<LinkHoverTriggers>()
+                .call(HoverTriggerKey(nodes.first.id, selection));
+          });
         }
       },
     );

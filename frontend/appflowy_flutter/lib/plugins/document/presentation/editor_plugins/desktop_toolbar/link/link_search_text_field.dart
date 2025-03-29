@@ -12,6 +12,8 @@ import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 // ignore: implementation_imports
 import 'package:appflowy_editor/src/flutter/scrollable_positioned_list/scrollable_positioned_list.dart';
+// ignore: implementation_imports
+import 'package:appflowy_editor/src/editor/util/link_util.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -25,12 +27,16 @@ class LinkSearchTextField {
     this.onEscape,
     this.onEnter,
     this.onDataRefresh,
+    this.initialViewId = '',
+    required this.currentViewId,
     String? initialSearchText,
   }) : textEditingController = TextEditingController(
-          text: initialSearchText ?? '',
+          text: isUri(initialSearchText ?? '') ? initialSearchText : '',
         );
 
   final TextEditingController textEditingController;
+  final String initialViewId;
+  final String currentViewId;
   final ItemScrollController searchController = ItemScrollController();
   late FocusNode focusNode = FocusNode(onKeyEvent: onKeyEvent);
   final List<ViewPB> searchedViews = [];
@@ -43,7 +49,7 @@ class LinkSearchTextField {
 
   String get searchText => textEditingController.text;
 
-  bool get isButtonEnable => searchText.isNotEmpty;
+  bool get isTextfieldEnable => searchText.isNotEmpty && isUri(searchText);
 
   bool get showingRecent => searchText.isEmpty && recentViews.isNotEmpty;
 
@@ -58,7 +64,11 @@ class LinkSearchTextField {
     recentViews.clear();
   }
 
-  Widget buildTextField({bool autofocus = false}) {
+  Widget buildTextField({
+    bool autofocus = false,
+    bool showError = false,
+    required BuildContext context,
+  }) {
     return TextFormField(
       autovalidateMode: AutovalidateMode.onUserInteraction,
       autofocus: autofocus,
@@ -81,6 +91,8 @@ class LinkSearchTextField {
       },
       decoration: LinkStyle.buildLinkTextFieldInputDecoration(
         LocaleKeys.document_toolbar_linkInputHint.tr(),
+        context,
+        showErrorBorder: showError,
       ),
     );
   }
@@ -177,29 +189,41 @@ class LinkSearchTextField {
     bool isSelected,
     ValueChanged<ViewPB>? onSubmittedPageLink,
   ) {
+    final viewName = view.name;
+    final displayName = viewName.isEmpty
+        ? LocaleKeys.document_title_placeholder.tr()
+        : viewName;
+    final isCurrent = initialViewId == view.id;
     return SizedBox(
       height: 32,
       child: FlowyButton(
         isSelected: isSelected,
-        leftIcon: buildIcon(view),
+        leftIcon: buildIcon(view, padding: EdgeInsets.zero),
         text: FlowyText.regular(
-          view.name,
+          displayName,
           overflow: TextOverflow.ellipsis,
           fontSize: 14,
           figmaLineHeight: 20,
         ),
+        rightIcon: isCurrent ? FlowySvg(FlowySvgs.toolbar_check_m) : null,
         onTap: () => onSubmittedPageLink?.call(view),
       ),
     );
   }
 
-  Widget buildIcon(ViewPB view) {
+  Widget buildIcon(
+    ViewPB view, {
+    EdgeInsetsGeometry padding = const EdgeInsets.only(top: 4),
+  }) {
     if (view.icon.value.isEmpty) return view.defaultIcon(size: Size(20, 20));
     final iconData = view.icon.toEmojiIconData();
-    return RawEmojiIconWidget(
-      emoji: iconData,
-      emojiSize: iconData.type == FlowyIconType.emoji ? 16 : 20,
-      lineHeight: 1,
+    return Padding(
+      padding: padding,
+      child: RawEmojiIconWidget(
+        emoji: iconData,
+        emojiSize: iconData.type == FlowyIconType.emoji ? 16 : 20,
+        lineHeight: 1,
+      ),
     );
   }
 
@@ -288,6 +312,7 @@ class LinkSearchTextField {
     final views = sectionViews
         .unique((e) => e.item.id)
         .map((e) => e.item)
+        .where((e) => e.id != currentViewId)
         .take(5)
         .toList();
     recentViews.clear();
@@ -303,13 +328,14 @@ class LinkSearchTextField {
         ?.items
         .where(
           (view) =>
-              view.name.toLowerCase().contains(search.toLowerCase()) ||
-              (view.name.isEmpty && search.isEmpty) ||
-              (view.name.isEmpty &&
-                  LocaleKeys.menuAppHeader_defaultNewPageName
-                      .tr()
-                      .toLowerCase()
-                      .contains(search.toLowerCase())),
+              (view.id != currentViewId) &&
+              (view.name.toLowerCase().contains(search.toLowerCase()) ||
+                  (view.name.isEmpty && search.isEmpty) ||
+                  (view.name.isEmpty &&
+                      LocaleKeys.menuAppHeader_defaultNewPageName
+                          .tr()
+                          .toLowerCase()
+                          .contains(search.toLowerCase()))),
         )
         .take(10)
         .toList();

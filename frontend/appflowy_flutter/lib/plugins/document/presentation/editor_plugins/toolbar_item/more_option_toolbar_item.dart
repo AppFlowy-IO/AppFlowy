@@ -1,9 +1,10 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/desktop_floating_toolbar.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_create_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_hover_menu.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/toolbar_cubit.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/startup/startup.dart';
@@ -288,7 +289,7 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
       popoverController: suggestionsPopoverController,
       popoverDirection: PopoverDirection.leftWithTopAligned,
       showOffset: Offset(-8, height),
-      onSelect: () => context.read<ToolbarCubit?>()?.dismiss(),
+      onSelect: () => getIt<FloatingToolbarController>().hideToolbar(),
       child: buildCommandItem(
         MoreOptionCommand.suggestions,
         rightIcon: FlowySvg(FlowySvgs.toolbar_arrow_right_m),
@@ -308,7 +309,7 @@ class _MoreOptionActionListState extends State<MoreOptionActionList> {
       popoverController: textAlignPopoverController,
       popoverDirection: PopoverDirection.leftWithTopAligned,
       showOffset: Offset(-8, 0),
-      onSelect: () => context.read<ToolbarCubit?>()?.dismiss(),
+      onSelect: () => getIt<FloatingToolbarController>().hideToolbar(),
       highlightColor: highlightColor,
       child: buildCommandItem(
         MoreOptionCommand.textAlign,
@@ -379,13 +380,14 @@ enum MoreOptionCommand {
           (attributes) => attributes[AppFlowyRichTextKeys.href] != null,
         );
       });
-      context.read<ToolbarCubit?>()?.dismiss();
+      getIt<FloatingToolbarController>().hideToolbar();
       if (isHref) {
         getIt<LinkHoverTriggers>().call(
           HoverTriggerKey(nodes.first.id, selection),
         );
       } else {
-        showLinkCreateMenu(context, editorState, selection);
+        final viewId = context.read<DocumentBloc?>()?.documentId ?? '';
+        showLinkCreateMenu(context, editorState, selection, viewId);
       }
     } else if (this == strikethrough) {
       await editorState.toggleAttribute(name);
