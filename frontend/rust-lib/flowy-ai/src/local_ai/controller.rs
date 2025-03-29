@@ -175,7 +175,6 @@ impl LocalAIController {
 
   pub async fn reload(&self) -> FlowyResult<()> {
     let is_enabled = self.is_enabled();
-
     self.toggle_plugin(is_enabled).await?;
     Ok(())
   }
@@ -459,7 +458,6 @@ async fn initialize_ai_plugin(
   llm_resource: &Arc<LocalAIResourceController>,
   ret: Option<tokio::sync::oneshot::Sender<()>>,
 ) -> FlowyResult<()> {
-  let plugin = plugin.clone();
   let lack_of_resource = llm_resource.get_lack_of_resource().await;
 
   chat_notification_builder(
@@ -489,16 +487,17 @@ async fn initialize_ai_plugin(
     })
     .send();
 
-    if let Err(err) = plugin.destroy_plugin().await {
-      error!(
-        "[AI Plugin] failed to destroy plugin when lack of resource: {:?}",
-        err
-      );
-    }
-
     return Ok(());
   }
 
+  if let Err(err) = plugin.destroy_plugin().await {
+    error!(
+      "[AI Plugin] failed to destroy plugin when lack of resource: {:?}",
+      err
+    );
+  }
+
+  let plugin = plugin.clone();
   let cloned_llm_res = llm_resource.clone();
   tokio::task::spawn_blocking(move || {
     futures::executor::block_on(async move {
