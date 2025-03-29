@@ -13,7 +13,7 @@ void main() {
         ViewExtKeys.spaceIconKey: '',
         ViewExtKeys.spaceIconColorKey: '',
       };
-      final space = ViewPB(
+      final space = FolderViewPB(
         name: 'test',
         extra: jsonEncode(emptySpaceIcon),
       );
@@ -37,7 +37,7 @@ void main() {
         ViewExtKeys.spaceIconKey: null,
         ViewExtKeys.spaceIconColorKey: null,
       };
-      final space = ViewPB(
+      final space = FolderViewPB(
         name: 'test',
         extra: jsonEncode(emptySpaceIcon),
       );

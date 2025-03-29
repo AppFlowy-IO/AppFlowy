@@ -1,6 +1,10 @@
 use std::sync::Arc;
 
-use client_api::entity::workspace_dto::PublishInfoView;
+use client_api::entity::workspace_dto::{
+  CreatePageParams, CreateSpaceParams, DuplicatePageParams, FavoriteFolderView, FavoritePageParams,
+  FolderView, MovePageParams, PublishInfoView, RecentFolderView, TrashFolderView, UpdatePageParams,
+  UpdateSpaceParams,
+};
 use client_api::entity::PublishInfo;
 use collab_entity::CollabType;
 
@@ -152,5 +156,109 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     _params: FullSyncCollabParams,
   ) -> Result<(), FlowyError> {
     Ok(())
+  }
+
+  async fn get_workspace_folder(
+    &self,
+    _workspace_id: &str,
+    _depth: Option<u32>,
+    _root_view_id: Option<String>,
+  ) -> Result<FolderView, FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn create_page(
+    &self,
+    _workspace_id: &str,
+    _params: CreatePageParams,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn duplicate_page(
+    &self,
+    _workspace_id: &str,
+    _view_id: &str,
+    _params: DuplicatePageParams,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn move_page(
+    &self,
+    _workspace_id: &str,
+    _view_id: &str,
+    _params: MovePageParams,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn move_page_to_trash(
+    &self,
+    _workspace_id: &str,
+    _view_id: &str,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn restore_page_from_trash(
+    &self,
+    _workspace_id: &str,
+    _view_id: &str,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn update_page(
+    &self,
+    _workspace_id: &str,
+    _view_id: &str,
+    _params: UpdatePageParams,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn update_space(
+    &self,
+    _workspace_id: &str,
+    _space_id: &str,
+    _params: UpdateSpaceParams,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn create_space(
+    &self,
+    _workspace_id: &str,
+    _params: CreateSpaceParams,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn get_favorite_pages(
+    &self,
+    _workspace_id: &str,
+  ) -> Result<Vec<FavoriteFolderView>, FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn update_favorite_page(
+    &self,
+    _workspace_id: &str,
+    _view_id: &str,
+    _params: FavoritePageParams,
+  ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn get_recent_pages(
+    &self,
+    _workspace_id: &str,
+  ) -> Result<Vec<RecentFolderView>, FlowyError> {
+    Err(FlowyError::local_version_not_support())
+  }
+
+  async fn get_trash_pages(&self, _workspace_id: &str) -> Result<Vec<TrashFolderView>, FlowyError> {
+    Err(FlowyError::local_version_not_support())
   }
 }

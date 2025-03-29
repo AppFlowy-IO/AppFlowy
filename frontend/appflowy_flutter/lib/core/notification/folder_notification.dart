@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-notification/protobuf.dart';
 import 'package:appflowy_backend/rust_stream.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -10,7 +11,7 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'notification_helper.dart';
 
 // This value should be the same as the FOLDER_OBSERVABLE_SOURCE value
-const String _source = 'Workspace';
+const String _source = 'Folder';
 
 class FolderNotificationParser
     extends NotificationParser<FolderNotification, FlowyError> {
@@ -24,28 +25,66 @@ class FolderNotificationParser
         );
 }
 
-typedef FolderNotificationHandler = Function(
+typedef FolderNotificationHandler = void Function(
   FolderNotification ty,
   FlowyResult<Uint8List, FlowyError> result,
 );
 
+typedef FolderDidUpdateFolderPagesHandler = void Function(
+  FlowyResult<FolderPageNotificationPayloadPB, FlowyError> result,
+);
+
+typedef FolderDidSyncPendingOperationsHandler = void Function();
+
 class FolderNotificationListener {
   FolderNotificationListener({
     required String objectId,
-    required FolderNotificationHandler handler,
-  }) : _parser = FolderNotificationParser(
-          id: objectId,
-          callback: handler,
-        ) {
-    _subscription =
-        RustStreamReceiver.listen((observable) => _parser?.parse(observable));
+    this.didUpdateFolderPagesNotifier,
+    this.didSyncPendingOperationsNotifier,
+  }) {
+    _parser = FolderNotificationParser(
+      id: objectId,
+      callback: callback,
+    );
+    _subscription = RustStreamReceiver.listen(
+      (observable) => _parser?.parse(observable),
+    );
   }
+
+  /// This handler will be called when the folder pages are updated.
+  final FolderDidUpdateFolderPagesHandler? didUpdateFolderPagesNotifier;
+
+  /// This handler will be called when the sync pending operations are updated.
+  final FolderDidSyncPendingOperationsHandler? didSyncPendingOperationsNotifier;
 
   FolderNotificationParser? _parser;
   StreamSubscription<SubscribeObject>? _subscription;
 
+  void callback(
+    FolderNotification ty,
+    FlowyResult<Uint8List, FlowyError> result,
+  ) {
+    switch (ty) {
+      case FolderNotification.DidUpdateFolderPages:
+        final response = result
+            .fold<FlowyResult<FolderPageNotificationPayloadPB, FlowyError>>(
+          (payload) => FlowyResult.success(
+            FolderPageNotificationPayloadPB.fromBuffer(payload),
+          ),
+          (error) => FlowyResult.failure(error),
+        );
+        didUpdateFolderPagesNotifier?.call(response);
+
+      case FolderNotification.DidSyncPendingOperations:
+        didSyncPendingOperationsNotifier?.call();
+      default:
+        break;
+    }
+  }
+
   Future<void> stop() async {
     _parser = null;
     await _subscription?.cancel();
+    _subscription = null;
   }
 }

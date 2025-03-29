@@ -1,5 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/_extension.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
@@ -20,7 +20,7 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
   String spaceName = LocaleKeys.space_defaultSpaceName.tr();
   String? spaceIcon = kDefaultSpaceIconId;
   String? spaceIconColor = builtInSpaceColors.first;
-  SpacePermission spacePermission = SpacePermission.publicToAll;
+  SpacePermission spacePermission = SpacePermission.public;
 
   @override
   Widget build(BuildContext context) {
@@ -79,14 +79,11 @@ class _CreateSpacePopupState extends State<CreateSpacePopup> {
 
   void _createSpace() {
     context.read<SpaceBloc>().add(
-          SpaceEvent.create(
+          SpaceEvent.createSpace(
             name: spaceName,
-            // fixme: space issue
+            permission: spacePermission,
             icon: spaceIcon!,
             iconColor: spaceIconColor!,
-            permission: spacePermission,
-            createNewPageByDefault: true,
-            openAfterCreate: true,
           ),
         );
 

@@ -18,12 +18,15 @@ import 'package:appflowy/workspace/application/favorite/prelude.dart';
 import 'package:appflowy/workspace/application/menu/sidebar_sections_bloc.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy/workspace/application/sidebar/billing/sidebar_plan_bloc.dart';
-import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
 import 'package:appflowy/workspace/application/tabs/tabs_bloc.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/presentation/command_palette/command_palette.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/favorite/folder_favorite_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/space/space_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_folder.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_footer.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/footer/sidebar_upgarde_application_button.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/header/sidebar_top_menu.dart';
@@ -131,6 +134,11 @@ class HomeSideBar extends StatelessWidget {
                   workspaceId: workspaceId,
                 )..add(const SpaceEvent.initial(openFirstPage: false)),
               ),
+              BlocProvider<FolderFavoriteBloc>(
+                create: (context) =>
+                    FolderFavoriteBloc(workspaceId: workspaceId)
+                      ..add(const FolderFavoriteEvent.initial()),
+              ),
             ],
             child: MultiBlocListener(
               listeners: [
@@ -145,11 +153,12 @@ class HomeSideBar extends StatelessWidget {
                 ),
                 BlocListener<SpaceBloc, SpaceState>(
                   listenWhen: (prev, curr) =>
-                      prev.lastCreatedPage?.id != curr.lastCreatedPage?.id ||
+                      prev.lastCreatedPage?.viewId !=
+                          curr.lastCreatedPage?.viewId ||
                       prev.isDuplicatingSpace != curr.isDuplicatingSpace,
                   listener: (context, state) {
                     final page = state.lastCreatedPage;
-                    if (page == null || page.id.isEmpty) {
+                    if (page == null || page.viewId.isEmpty) {
                       // open the blank page
                       context
                           .read<TabsBloc>()
@@ -157,7 +166,7 @@ class HomeSideBar extends StatelessWidget {
                     } else {
                       context.read<TabsBloc>().add(
                             TabsEvent.openPlugin(
-                              plugin: state.lastCreatedPage!.plugin(),
+                              plugin: state.lastCreatedPage!.viewPB.plugin(),
                             ),
                           );
                     }
@@ -182,20 +191,20 @@ class HomeSideBar extends StatelessWidget {
                     if (actionType == UserWorkspaceActionType.create ||
                         actionType == UserWorkspaceActionType.delete ||
                         actionType == UserWorkspaceActionType.open) {
+                      final workspaceId = state.currentWorkspace?.workspaceId ??
+                          workspaceSetting.workspaceId;
                       if (context.read<SpaceBloc>().state.spaces.isEmpty) {
                         context.read<SidebarSectionsBloc>().add(
                               SidebarSectionsEvent.reload(
                                 userProfile,
-                                state.currentWorkspace?.workspaceId ??
-                                    workspaceSetting.workspaceId,
+                                workspaceId,
                               ),
                             );
                       } else {
                         context.read<SpaceBloc>().add(
                               SpaceEvent.reset(
                                 userProfile,
-                                state.currentWorkspace?.workspaceId ??
-                                    workspaceSetting.workspaceId,
+                                workspaceId,
                                 true,
                               ),
                             );
@@ -204,6 +213,10 @@ class HomeSideBar extends StatelessWidget {
                       context
                           .read<FavoriteBloc>()
                           .add(const FavoriteEvent.fetchFavorites());
+
+                      context
+                          .read<FolderFavoriteBloc>()
+                          .add(const FolderFavoriteEvent.fetchFavorites());
                     }
                   },
                 ),
@@ -342,7 +355,8 @@ class _SidebarState extends State<_Sidebar> {
               ),
             ),
 
-            _renderFolderOrSpace(menuHorizontalInset),
+            // _renderFolderOrSpace(menuHorizontalInset),
+            _renderFolderV2(menuHorizontalInset),
 
             // trash
             Padding(
@@ -368,6 +382,27 @@ class _SidebarState extends State<_Sidebar> {
     );
   }
 
+  Widget _renderFolderV2(EdgeInsets menuHorizontalInset) {
+    final spaceState = context.read<SpaceBloc>().state;
+    return Expanded(
+      child: Padding(
+        padding: menuHorizontalInset - const EdgeInsets.only(right: 6),
+        child: FlowyScrollbar(
+          controller: _scrollController,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.only(right: 6),
+            controller: _scrollController,
+            physics: const ClampingScrollPhysics(),
+            child: SidebarFolderV2(
+              userProfile: widget.userProfile,
+              isHoverEnabled: !_isScrolling,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _renderFolderOrSpace(EdgeInsets menuHorizontalInset) {
     final spaceState = context.read<SpaceBloc>().state;
     final workspaceState = context.read<UserWorkspaceBloc>().state;
@@ -381,10 +416,6 @@ class _SidebarState extends State<_Sidebar> {
     // otherwise, show the space
     final sidebarSectionBloc = context.watch<SidebarSectionsBloc>();
     final containsSpace = sidebarSectionBloc.state.containsSpace;
-
-    if (containsSpace && spaceState.spaces.isEmpty) {
-      context.read<SpaceBloc>().add(const SpaceEvent.didReceiveSpaceUpdate());
-    }
 
     return !containsSpace ||
             spaceState.spaces.isEmpty ||

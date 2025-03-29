@@ -12,7 +12,7 @@ import 'package:appflowy/plugins/database/tab_bar/tab_bar_view.dart';
 import 'package:appflowy/plugins/document/document.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/startup/plugin/plugin.dart';
-import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/space/space_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:collection/collection.dart';
@@ -296,6 +296,18 @@ extension ViewExtension on ViewPB {
       return PageStyleFontLayout.normal;
     }
   }
+
+  FolderViewPB get folderViewPB {
+    final children = childViews.map((e) => e.folderViewPB).toList();
+    return FolderViewPB(
+      viewId: id,
+      name: name,
+      icon: icon,
+      layout: layout,
+      extra: extra,
+      children: children,
+    );
+  }
 }
 
 extension ViewLayoutExtension on ViewLayoutPB {
@@ -362,5 +374,13 @@ extension ViewFinder on List<ViewPB> {
     }
 
     return null;
+  }
+
+  List<FolderViewPB> get folderViews {
+    final views = <FolderViewPB>[];
+    for (final view in this) {
+      views.add(view.folderViewPB);
+    }
+    return views;
   }
 }
