@@ -11,7 +11,8 @@ import 'package:appflowy_result/appflowy_result.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-
+// ignore: implementation_imports
+import 'package:appflowy_editor/src/editor/util/link_util.dart';
 import 'link_create_menu.dart';
 import 'link_search_text_field.dart';
 import 'link_styles.dart';
@@ -28,7 +29,7 @@ class LinkEditMenu extends StatefulWidget {
 
   final LinkInfo linkInfo;
   final ValueChanged<LinkInfo> onApply;
-  final VoidCallback onRemoveLink;
+  final ValueChanged<LinkInfo> onRemoveLink;
   final VoidCallback onDismiss;
   final String currentViewId;
 
@@ -39,7 +40,7 @@ class LinkEditMenu extends StatefulWidget {
 class _LinkEditMenuState extends State<LinkEditMenu> {
   ValueChanged<LinkInfo> get onApply => widget.onApply;
 
-  VoidCallback get onRemoveLink => widget.onRemoveLink;
+  ValueChanged<LinkInfo> get onRemoveLink => widget.onRemoveLink;
 
   VoidCallback get onDismiss => widget.onDismiss;
 
@@ -50,13 +51,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
   late LinkSearchTextField searchTextField;
   bool isShowingSearchResult = false;
   ViewPB? currentView;
-
-  bool get enableApply =>
-      linkNameController.text.isNotEmpty &&
-      searchTextField.isButtonEnable &&
-      !isShowingSearchResult;
-
-  bool get showErrorText => !linkInfo.isPage && !searchTextField.isButtonEnable;
+  bool showErrorText = false;
 
   @override
   void initState() {
@@ -67,18 +62,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
       initialSearchText: isPageLink ? '' : linkInfo.link,
       initialViewId: linkInfo.viewId,
       currentViewId: widget.currentViewId,
-      onEnter: () {
-        searchTextField.onSearchResult(
-          onLink: onLinkSelected,
-          onRecentViews: () =>
-              onPageSelected(searchTextField.currentRecentView),
-          onSearchViews: () =>
-              onPageSelected(searchTextField.currentSearchedView),
-          onEmpty: () {
-            searchTextField.unfocus();
-          },
-        );
-      },
+      onEnter: onConfirm,
       onEscape: () {
         if (isShowingSearchResult) {
           hideSearchResult();
@@ -104,6 +88,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
   Widget build(BuildContext context) {
     final showingRecent =
         searchTextField.showingRecent && isShowingSearchResult;
+    final errorHeight = showErrorText ? 20.0 : 0.0;
     return GestureDetector(
       onTap: onDismiss,
       child: Container(
@@ -116,7 +101,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
               onTap: hideSearchResult,
               child: Container(
                 width: 400,
-                height: 192,
+                height: 192 + errorHeight,
                 decoration: buildToolbarLinkDecoration(context),
               ),
             ),
@@ -131,7 +116,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
               ),
             ),
             Positioned(
-              top: 80,
+              top: 80 + errorHeight,
               left: 20,
               child: FlowyText.semibold(
                 LocaleKeys.document_toolbar_linkName.tr(),
@@ -141,12 +126,12 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
               ),
             ),
             Positioned(
-              top: 144,
+              top: 144 + errorHeight,
               left: 20,
               child: buildButtons(),
             ),
             Positioned(
-              top: 100,
+              top: 100 + errorHeight,
               left: 20,
               child: buildNameTextField(),
             ),
@@ -163,30 +148,53 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
 
   Widget buildLinkField() {
     final showPageView = linkInfo.isPage && !isShowingSearchResult;
-    if (showPageView) return buildPageView();
-    if (!isShowingSearchResult) return buildLinkView();
-    return SizedBox(
-      width: 360,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 360,
-            height: 32,
-            child: searchTextField.buildTextField(
-              autofocus: true,
+    Widget child;
+    if (showPageView) {
+      child = buildPageView();
+    } else if (!isShowingSearchResult) {
+      child = buildLinkView();
+    } else {
+      return SizedBox(
+        width: 360,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 360,
+              height: 32,
+              child: searchTextField.buildTextField(
+                autofocus: true,
+                context: context,
+              ),
+            ),
+            VSpace(6),
+            searchTextField.buildResultContainer(
+              context: context,
+              width: 360,
+              onPageLinkSelected: onPageSelected,
+              onLinkSelected: onLinkSelected,
+            ),
+          ],
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        child,
+        if (showErrorText)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: FlowyText.regular(
+              LocaleKeys.document_plugins_file_networkUrlInvalid.tr(),
+              color: LinkStyle.textStatusError,
+              fontSize: 12,
+              figmaLineHeight: 16,
             ),
           ),
-          VSpace(6),
-          searchTextField.buildResultContainer(
-            context: context,
-            width: 360,
-            onPageLinkSelected: onPageSelected,
-            onLinkSelected: onLinkSelected,
-          ),
-        ],
-      ),
+      ],
     );
   }
 
@@ -206,15 +214,15 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
               preferBelow: false,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(8)),
-                border: Border.all(color: LinkStyle.borderColor),
+                border: Border.all(color: LinkStyle.borderColor(context)),
               ),
-              onPressed: onRemoveLink,
+              onPressed: () => onRemoveLink.call(linkInfo),
             ),
             Spacer(),
             DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(8)),
-                border: Border.all(color: LinkStyle.borderColor),
+                border: Border.all(color: LinkStyle.borderColor(context)),
               ),
               child: FlowyTextButton(
                 LocaleKeys.button_cancel.tr(),
@@ -235,7 +243,6 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
             ValueListenableBuilder(
               valueListenable: linkNameController,
               builder: (context, _, __) {
-                final isLight = Theme.of(context).isLightMode;
                 return FlowyTextButton(
                   LocaleKeys.settings_appearance_documentSettings_apply.tr(),
                   padding: EdgeInsets.zero,
@@ -244,15 +251,26 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
                   fontSize: 14,
                   lineHeight: 20 / 14,
                   hoverColor: LinkStyle.fillThemeThick.withAlpha(200),
-                  fontColor: enableApply || !isLight
-                      ? Colors.white
-                      : LinkStyle.textTertiary,
-                  fillColor: enableApply
-                      ? LinkStyle.fillThemeThick
-                      : LinkStyle.borderColor.withAlpha(isLight ? 255 : 122),
+                  fontColor: Colors.white,
+                  fillColor: LinkStyle.fillThemeThick,
                   fontWeight: FontWeight.w400,
-                  onPressed:
-                      enableApply ? () => widget.onApply.call(linkInfo) : null,
+                  onPressed: () {
+                    if (isShowingSearchResult) {
+                      onConfirm();
+                      return;
+                    }
+                    if (linkInfo.link.isEmpty) {
+                      widget.onRemoveLink(linkInfo);
+                      return;
+                    }
+                    if (linkInfo.link.isEmpty || !isUri(linkInfo.link)) {
+                      setState(() {
+                        showErrorText = true;
+                      });
+                      return;
+                    }
+                    widget.onApply.call(linkInfo);
+                  },
                 );
               },
             ),
@@ -285,6 +303,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
         },
         decoration: LinkStyle.buildLinkTextFieldInputDecoration(
           LocaleKeys.document_toolbar_linkNameHint.tr(),
+          context,
         ),
       ),
     );
@@ -368,6 +387,17 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
     );
   }
 
+  void onConfirm() {
+    searchTextField.onSearchResult(
+      onLink: onLinkSelected,
+      onRecentViews: () => onPageSelected(searchTextField.currentRecentView),
+      onSearchViews: () => onPageSelected(searchTextField.currentSearchedView),
+      onEmpty: () {
+        searchTextField.unfocus();
+      },
+    );
+  }
+
   Future<void> getPageView() async {
     if (!linkInfo.isPage) return;
     final (view, isInTrash, isDeleted) =
@@ -430,7 +460,7 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
 
   BoxDecoration buildDecoration() => BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: LinkStyle.borderColor),
+        border: Border.all(color: LinkStyle.borderColor(context)),
       );
 }
 

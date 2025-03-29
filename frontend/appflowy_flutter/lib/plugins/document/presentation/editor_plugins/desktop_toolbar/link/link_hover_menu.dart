@@ -66,7 +66,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
 
   Attributes get attribute => widget.attribute;
 
-  HoverTriggerKey get triggerKey => HoverTriggerKey(widget.node.id, selection);
+  late HoverTriggerKey triggerKey = HoverTriggerKey(widget.node.id, selection);
 
   @override
   void initState() {
@@ -145,7 +145,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
         onOpenLink: openLink,
         onCopyLink: () => copyLink(context),
         onEditLink: showLinkEditMenu,
-        onRemoveLink: () => removeLink(editorState, selection, true),
+        onRemoveLink: () => removeLink(editorState, selection),
       ),
       child: child,
     );
@@ -186,7 +186,8 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
           editMenuController.close();
           await editorState.apply(transaction);
         },
-        onRemoveLink: () => removeLink(editorState, selection, true),
+        onRemoveLink: (linkinfo) =>
+            onRemoveAndReplaceLink(editorState, selection, linkinfo.name),
       ),
       child: child,
     );
@@ -195,7 +196,9 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
   void onToolbarShow() => hoverMenuController.close();
 
   void showLinkHoverMenu() {
-    if (isHoverMenuShowing || toolbarController.isToolbarShowing) return;
+    if (isHoverMenuShowing || toolbarController.isToolbarShowing || !mounted) {
+      return;
+    }
     keepEditorFocusNotifier.increase();
     hoverMenuController.show();
   }
@@ -251,9 +254,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
   void removeLink(
     EditorState editorState,
     Selection selection,
-    bool isHref,
   ) {
-    if (!isHref) return;
     final node = editorState.getNodeAtPath(selection.end.path);
     if (node == null) {
       return;
@@ -266,6 +267,31 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
         index,
         length,
         {
+          BuiltInAttributeKey.href: null,
+          kIsPageLink: null,
+        },
+      );
+    editorState.apply(transaction);
+  }
+
+  void onRemoveAndReplaceLink(
+    EditorState editorState,
+    Selection selection,
+    String text,
+  ) {
+    final node = editorState.getNodeAtPath(selection.end.path);
+    if (node == null) {
+      return;
+    }
+    final index = selection.normalized.startIndex;
+    final length = selection.length;
+    final transaction = editorState.transaction
+      ..replaceText(
+        node,
+        index,
+        length,
+        text,
+        attributes: {
           BuiltInAttributeKey.href: null,
           kIsPageLink: null,
         },
@@ -328,7 +354,7 @@ class _LinkHoverMenuState extends State<LinkHoverMenu> {
                 width: 320,
                 height: 48,
                 decoration: buildToolbarLinkDecoration(context),
-                padding: EdgeInsets.all(8),
+                padding: EdgeInsets.fromLTRB(12, 8, 8, 8),
                 child: Row(
                   children: [
                     Expanded(child: buildLinkWidget()),
@@ -402,33 +428,23 @@ class _LinkHoverMenuState extends State<LinkHoverMenu> {
         child: CircularProgressIndicator(),
       );
     }
+    String text = '';
     if (isPage && view != null) {
-      String viewName = view.name;
-      if (viewName.isEmpty) {
-        viewName = LocaleKeys.document_title_placeholder.tr();
+      text = view.name;
+      if (text.isEmpty) {
+        text = LocaleKeys.document_title_placeholder.tr();
       }
-      return Row(
-        children: [
-          buildIcon(view),
-          HSpace(4),
-          Flexible(
-            child: FlowyText.regular(
-              viewName,
-              overflow: TextOverflow.ellipsis,
-              figmaLineHeight: 20,
-              fontSize: 14,
-            ),
-          ),
-        ],
-      );
     } else {
-      return FlowyText.regular(
-        href,
-        fontSize: 14,
-        figmaLineHeight: 20,
-        overflow: TextOverflow.ellipsis,
-      );
+      text = href;
     }
+    return Flexible(
+      child: FlowyText.regular(
+        text,
+        overflow: TextOverflow.ellipsis,
+        figmaLineHeight: 20,
+        fontSize: 14,
+      ),
+    );
   }
 
   Widget buildIcon(ViewPB view) {

@@ -5,7 +5,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/list_extension.dart';
-import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/recent/cached_recent_service.dart';
 import 'package:appflowy/workspace/application/view/view_ext.dart';
@@ -13,6 +12,8 @@ import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 // ignore: implementation_imports
 import 'package:appflowy_editor/src/flutter/scrollable_positioned_list/scrollable_positioned_list.dart';
+// ignore: implementation_imports
+import 'package:appflowy_editor/src/editor/util/link_util.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,7 @@ class LinkSearchTextField {
     required this.currentViewId,
     String? initialSearchText,
   }) : textEditingController = TextEditingController(
-          text: initialSearchText ?? '',
+          text: isUri(initialSearchText ?? '') ? initialSearchText : '',
         );
 
   final TextEditingController textEditingController;
@@ -48,19 +49,13 @@ class LinkSearchTextField {
 
   String get searchText => textEditingController.text;
 
-  bool get isButtonEnable => searchText.isNotEmpty && isUrl;
+  bool get isTextfieldEnable => searchText.isNotEmpty && isUri(searchText);
 
   bool get showingRecent => searchText.isEmpty && recentViews.isNotEmpty;
 
   ViewPB get currentSearchedView => searchedViews[selectedIndex];
 
   ViewPB get currentRecentView => recentViews[selectedIndex];
-
-  bool get isUrl {
-    return hrefRegex.hasMatch(searchText) ||
-        searchText.startsWith('mailto:') ||
-        searchText.startsWith('file:');
-  }
 
   void dispose() {
     textEditingController.dispose();
@@ -69,7 +64,11 @@ class LinkSearchTextField {
     recentViews.clear();
   }
 
-  Widget buildTextField({bool autofocus = false}) {
+  Widget buildTextField({
+    bool autofocus = false,
+    bool showError = false,
+    required BuildContext context,
+  }) {
     return TextFormField(
       autovalidateMode: AutovalidateMode.onUserInteraction,
       autofocus: autofocus,
@@ -92,7 +91,8 @@ class LinkSearchTextField {
       },
       decoration: LinkStyle.buildLinkTextFieldInputDecoration(
         LocaleKeys.document_toolbar_linkInputHint.tr(),
-        showErrorBorder: !isButtonEnable,
+        context,
+        showErrorBorder: showError,
       ),
     );
   }

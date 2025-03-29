@@ -2,7 +2,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_styles.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
-import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -21,12 +20,14 @@ class LinkCreateMenu extends StatefulWidget {
     required this.onDismiss,
     required this.alignment,
     required this.currentViewId,
+    required this.initialText,
   });
 
   final EditorState editorState;
   final void Function(String link, bool isPage) onSubmitted;
   final VoidCallback onDismiss;
   final String currentViewId;
+  final String initialText;
   final LinkMenuAlignment alignment;
 
   @override
@@ -36,6 +37,7 @@ class LinkCreateMenu extends StatefulWidget {
 class _LinkCreateMenuState extends State<LinkCreateMenu> {
   late LinkSearchTextField searchTextField = LinkSearchTextField(
     currentViewId: widget.currentViewId,
+    initialSearchText: widget.initialText,
     onEnter: () {
       searchTextField.onSearchResult(
         onLink: () => onSubmittedLink(),
@@ -52,11 +54,13 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
     },
   );
 
-  bool get isButtonEnable => searchTextField.isButtonEnable;
+  bool get isTextfieldEnable => searchTextField.isTextfieldEnable;
 
   String get searchText => searchTextField.searchText;
 
   bool get showAtTop => widget.alignment.isTop;
+
+  bool showErrorText = false;
 
   @override
   void initState() {
@@ -109,7 +113,6 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
   }
 
   Widget buildSearchContainer() {
-    final isLight = Theme.of(context).isLightMode;
     return Container(
       width: 320,
       decoration: buildToolbarLinkDecoration(context),
@@ -122,7 +125,9 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
             children: [
               Row(
                 children: [
-                  Expanded(child: searchTextField.buildTextField()),
+                  Expanded(
+                    child: searchTextField.buildTextField(context: context),
+                  ),
                   HSpace(8),
                   FlowyTextButton(
                     LocaleKeys.document_toolbar_insert.tr(),
@@ -130,20 +135,16 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
                     padding: EdgeInsets.zero,
                     constraints: BoxConstraints(maxWidth: 72, minHeight: 32),
                     fontSize: 14,
-                    fontColor: isButtonEnable || !isLight
-                        ? Colors.white
-                        : LinkStyle.textTertiary,
-                    fillColor: isButtonEnable
-                        ? LinkStyle.fillThemeThick
-                        : LinkStyle.borderColor.withAlpha(isLight ? 255 : 122),
-                    hoverColor: LinkStyle.fillThemeThick,
+                    fontColor: Colors.white,
+                    fillColor: LinkStyle.fillThemeThick,
+                    hoverColor: LinkStyle.fillThemeThick.withAlpha(200),
                     lineHeight: 20 / 14,
                     fontWeight: FontWeight.w600,
-                    onPressed: isButtonEnable ? () => onSubmittedLink() : null,
+                    onPressed: onSubmittedLink,
                   ),
                 ],
               ),
-              if (!isButtonEnable && searchTextField.focusNode.hasFocus)
+              if (showErrorText)
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: FlowyText.regular(
@@ -161,7 +162,12 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
   }
 
   void onSubmittedLink() {
-    if (!isButtonEnable) return;
+    if (!isTextfieldEnable) {
+      setState(() {
+        showErrorText = true;
+      });
+      return;
+    }
     widget.onSubmitted(searchText, false);
   }
 
@@ -186,12 +192,14 @@ void showLinkCreateMenu(
   Selection selection,
   String currentViewId,
 ) {
+  if (!context.mounted) return;
   final (left, top, right, bottom, alignment) = _getPosition(editorState);
 
   final node = editorState.getNodeAtPath(selection.end.path);
   if (node == null) {
     return;
   }
+  final selectedText = editorState.getTextInSelection(selection).join();
 
   OverlayEntry? overlay;
 
@@ -211,6 +219,7 @@ void showLinkCreateMenu(
     builder: (context) {
       return LinkCreateMenu(
         alignment: alignment,
+        initialText: selectedText,
         currentViewId: currentViewId,
         editorState: editorState,
         onSubmitted: (link, isPage) async {

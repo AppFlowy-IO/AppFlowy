@@ -49,13 +49,14 @@ final customLinkItem = ToolbarItem(
       ),
       onPressed: () {
         getIt<FloatingToolbarController>().hideToolbar();
-        if (isHref) {
-          getIt<LinkHoverTriggers>().call(
-            HoverTriggerKey(nodes.first.id, selection),
-          );
-        } else {
+        if (!isHref) {
           final viewId = context.read<DocumentBloc?>()?.documentId ?? '';
           showLinkCreateMenu(context, editorState, selection, viewId);
+        } else {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            getIt<LinkHoverTriggers>()
+                .call(HoverTriggerKey(nodes.first.id, selection));
+          });
         }
       },
     );
