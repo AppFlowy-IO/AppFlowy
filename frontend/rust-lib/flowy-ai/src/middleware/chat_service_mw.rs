@@ -181,7 +181,11 @@ impl ChatCloudService for AICloudServiceMiddleware {
           },
         }
       } else {
-        Err(FlowyError::local_ai_not_ready())
+        if self.local_ai.is_enabled() {
+          Err(FlowyError::local_ai_not_ready())
+        } else {
+          Err(FlowyError::local_ai_disabled())
+        }
       }
     } else {
       self
@@ -313,7 +317,11 @@ impl ChatCloudService for AICloudServiceMiddleware {
           },
         }
       } else {
-        Err(FlowyError::local_ai_not_ready())
+        if self.local_ai.is_enabled() {
+          Err(FlowyError::local_ai_not_ready())
+        } else {
+          Err(FlowyError::local_ai_disabled())
+        }
       }
     } else {
       self

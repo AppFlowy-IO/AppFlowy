@@ -289,6 +289,10 @@ impl Chat {
             let _ = answer_sink
               .send(format!("LOCAL_AI_NOT_READY:{}", err.msg))
               .await;
+          } else if err.is_local_ai_disabled() {
+            let _ = answer_sink
+              .send(format!("LOCAL_AI_DISABLED:{}", err.msg))
+              .await;
           } else {
             let _ = answer_sink
               .send(StreamMessage::OnError(err.msg.clone()).to_string())

@@ -198,6 +198,8 @@ async fn handle_error(sink: &mut IsolateSink, err: FlowyError) {
     let _ = sink.send(format!("AI_MAX_REQUIRED:{}", err.msg)).await;
   } else if err.is_local_ai_not_ready() {
     let _ = sink.send(format!("LOCAL_AI_NOT_READY:{}", err.msg)).await;
+  } else if err.is_local_ai_disabled() {
+    let _ = sink.send(format!("LOCAL_AI_DISABLED:{}", err.msg)).await;
   } else {
     let _ = sink
       .send(StreamMessage::OnError(err.msg.clone()).to_string())

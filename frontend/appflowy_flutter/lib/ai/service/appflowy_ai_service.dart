@@ -121,59 +121,7 @@ class AppFlowyCompletionStream extends CompletionStream {
     _port.handler = _controller.add;
     _subscription = _controller.stream.listen(
       (event) async {
-        if (event == "AI_RESPONSE_LIMIT") {
-          processError(
-            AIError(
-              message: LocaleKeys.ai_textLimitReachedDescription.tr(),
-              code: AIErrorCode.aiResponseLimitExceeded,
-            ),
-          );
-        }
-
-        if (event == "AI_IMAGE_RESPONSE_LIMIT") {
-          processError(
-            AIError(
-              message: LocaleKeys.ai_imageLimitReachedDescription.tr(),
-              code: AIErrorCode.aiImageResponseLimitExceeded,
-            ),
-          );
-        }
-
-        if (event.startsWith("AI_MAX_REQUIRED:")) {
-          final msg = event.substring(16);
-          processError(
-            AIError(
-              message: msg,
-              code: AIErrorCode.other,
-            ),
-          );
-        }
-
-        if (event.startsWith("start:")) {
-          await onStart();
-        }
-
-        if (event.startsWith("data:")) {
-          await processMessage(event.substring(5));
-        }
-
-        if (event.startsWith("comment:")) {
-          await processAssistMessage(event.substring(8));
-        }
-
-        if (event.startsWith("finish:")) {
-          await onEnd();
-        }
-
-        if (event.startsWith("LOCAL_AI_NOT_READY:")) {
-          onLocalAIInitializing();
-        }
-
-        if (event.startsWith("error:")) {
-          processError(
-            AIError(message: event.substring(6), code: AIErrorCode.other),
-          );
-        }
+        await _handleEvent(event);
       },
     );
   }
@@ -182,5 +130,68 @@ class AppFlowyCompletionStream extends CompletionStream {
     await _controller.close();
     await _subscription.cancel();
     _port.close();
+  }
+
+  Future<void> _handleEvent(String event) async {
+    // Check simple matches first
+    if (event == AIStreamEventPrefix.aiResponseLimit) {
+      processError(
+        AIError(
+          message: LocaleKeys.ai_textLimitReachedDescription.tr(),
+          code: AIErrorCode.aiResponseLimitExceeded,
+        ),
+      );
+      return;
+    }
+
+    if (event == AIStreamEventPrefix.aiImageResponseLimit) {
+      processError(
+        AIError(
+          message: LocaleKeys.ai_imageLimitReachedDescription.tr(),
+          code: AIErrorCode.aiImageResponseLimitExceeded,
+        ),
+      );
+      return;
+    }
+
+    // Otherwise, parse out prefix:content
+    final colonIndex = event.indexOf(':');
+    final hasColon = colonIndex != -1;
+    final prefix = hasColon ? event.substring(0, colonIndex) : event;
+    final content = hasColon ? event.substring(colonIndex + 1) : '';
+
+    switch (prefix) {
+      case AIStreamEventPrefix.aiMaxRequired:
+        processError(AIError(message: content, code: AIErrorCode.other));
+        break;
+
+      case AIStreamEventPrefix.start:
+        await onStart();
+        break;
+
+      case AIStreamEventPrefix.data:
+        await processMessage(content);
+        break;
+
+      case AIStreamEventPrefix.comment:
+        await processAssistMessage(content);
+        break;
+
+      case AIStreamEventPrefix.finish:
+        await onEnd();
+        break;
+
+      case AIStreamEventPrefix.localAINotReady:
+        onLocalAIInitializing();
+        break;
+
+      case AIStreamEventPrefix.error:
+        processError(AIError(message: content, code: AIErrorCode.other));
+        break;
+
+      default:
+        Log.debug('Unknown AI event: $event');
+        break;
+    }
   }
 }

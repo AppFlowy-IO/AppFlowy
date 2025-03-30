@@ -577,11 +577,10 @@ class MainContentArea extends StatelessWidget {
                 Opacity(
                   opacity: 0.5,
                   child: FlowyText(
-                    LocaleKeys.settings_aiPage_keys_localAIInitializing.tr(),
+                    LocaleKeys.settings_aiPage_keys_localAINotReadyRetryLater
+                        .tr(),
                   ),
                 ),
-                const HSpace(8.0),
-                const CircularProgressIndicator.adaptive(),
               ],
             ),
           );

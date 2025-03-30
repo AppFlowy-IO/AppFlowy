@@ -4,6 +4,20 @@ import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 
+class AIStreamEventPrefix {
+  static const data = 'data:';
+  static const error = 'error:';
+  static const metadata = 'metadata:';
+  static const start = 'start:';
+  static const finish = 'finish:';
+  static const comment = 'comment:';
+  static const aiResponseLimit = 'AI_RESPONSE_LIMIT';
+  static const aiImageResponseLimit = 'AI_IMAGE_RESPONSE_LIMIT';
+  static const aiMaxRequired = 'AI_MAX_REQUIRED:';
+  static const localAINotReady = 'LOCAL_AI_NOT_READY';
+  static const localAIDisabled = 'LOCAL_AI_DISABLED';
+}
+
 enum AiType {
   cloud,
   local;
