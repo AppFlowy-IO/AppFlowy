@@ -12,6 +12,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use futures::{SinkExt, StreamExt};
 use lib_infra::isolate_stream::IsolateSink;
 
+use crate::stream_message::StreamMessage;
 use crate::util::ai_available_models_key;
 use flowy_sqlite::kv::KVStorePreferences;
 use std::sync::{Arc, Weak};
@@ -188,12 +189,18 @@ impl CompletionTask {
   }
 }
 
-async fn handle_error(sink: &mut IsolateSink, error: FlowyError) {
-  if error.is_ai_response_limit_exceeded() {
+async fn handle_error(sink: &mut IsolateSink, err: FlowyError) {
+  if err.is_ai_response_limit_exceeded() {
     let _ = sink.send("AI_RESPONSE_LIMIT".to_string()).await;
-  } else if error.is_ai_image_response_limit_exceeded() {
+  } else if err.is_ai_image_response_limit_exceeded() {
     let _ = sink.send("AI_IMAGE_RESPONSE_LIMIT".to_string()).await;
+  } else if err.is_ai_max_required() {
+    let _ = sink.send(format!("AI_MAX_REQUIRED:{}", err.msg)).await;
+  } else if err.is_local_ai_not_ready() {
+    let _ = sink.send(format!("LOCAL_AI_NOT_READY:{}", err.msg)).await;
   } else {
-    let _ = sink.send(format!("error:{}", error)).await;
+    let _ = sink
+      .send(StreamMessage::OnError(err.msg.clone()).to_string())
+      .await;
   }
 }

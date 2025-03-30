@@ -568,6 +568,24 @@ class MainContentArea extends StatelessWidget {
             ),
           );
         }
+        if (state is LocalAIRunningAiWriterState) {
+          return Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                const HSpace(8.0),
+                Opacity(
+                  opacity: 0.5,
+                  child: FlowyText(
+                    LocaleKeys.settings_aiPage_keys_localAIInitializing.tr(),
+                  ),
+                ),
+                const HSpace(8.0),
+                const CircularProgressIndicator.adaptive(),
+              ],
+            ),
+          );
+        }
         return const SizedBox.shrink();
       },
     );

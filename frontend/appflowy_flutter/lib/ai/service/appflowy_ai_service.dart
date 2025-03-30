@@ -28,6 +28,7 @@ abstract class AIRepository {
     required Future<void> Function(String text) processAssistMessage,
     required Future<void> Function() onEnd,
     required void Function(AIError error) onError,
+    required void Function() onLocalAIInitializing,
   });
 }
 
@@ -45,12 +46,14 @@ class AppFlowyAIService implements AIRepository {
     required Future<void> Function(String text) processAssistMessage,
     required Future<void> Function() onEnd,
     required void Function(AIError error) onError,
+    required void Function() onLocalAIInitializing,
   }) async {
     final stream = AppFlowyCompletionStream(
       onStart: onStart,
       processMessage: processMessage,
       processAssistMessage: processAssistMessage,
       processError: onError,
+      onLocalAIInitializing: onLocalAIInitializing,
       onEnd: onEnd,
     );
 
@@ -85,6 +88,7 @@ abstract class CompletionStream {
     required this.processMessage,
     required this.processAssistMessage,
     required this.processError,
+    required this.onLocalAIInitializing,
     required this.onEnd,
   });
 
@@ -92,6 +96,7 @@ abstract class CompletionStream {
   final Future<void> Function(String text) processMessage;
   final Future<void> Function(String text) processAssistMessage;
   final void Function(AIError error) processError;
+  final void Function() onLocalAIInitializing;
   final Future<void> Function() onEnd;
 }
 
@@ -102,6 +107,7 @@ class AppFlowyCompletionStream extends CompletionStream {
     required super.processAssistMessage,
     required super.processError,
     required super.onEnd,
+    required super.onLocalAIInitializing,
   }) {
     _startListening();
   }
@@ -157,6 +163,10 @@ class AppFlowyCompletionStream extends CompletionStream {
 
         if (event.startsWith("finish:")) {
           await onEnd();
+        }
+
+        if (event.startsWith("LOCAL_AI_NOT_READY:")) {
+          onLocalAIInitializing();
         }
 
         if (event.startsWith("error:")) {

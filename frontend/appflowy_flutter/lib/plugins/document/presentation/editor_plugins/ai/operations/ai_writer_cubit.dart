@@ -390,6 +390,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           AiWriterRecord.ai(content: _textRobot.markdownText),
         );
       },
+      onLocalAIInitializing: () {
+        emit(LocalAIRunningAiWriterState(command));
+      },
     );
 
     if (stream != null) {
@@ -481,6 +484,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           AiWriterRecord.ai(content: _textRobot.markdownText),
         );
       },
+      onLocalAIInitializing: () {
+        emit(LocalAIRunningAiWriterState(command));
+      },
     );
     if (stream != null) {
       emit(
@@ -569,6 +575,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           AiWriterRecord.ai(content: _textRobot.markdownText),
         );
       },
+      onLocalAIInitializing: () {
+        emit(LocalAIRunningAiWriterState(command));
+      },
     );
     if (stream != null) {
       emit(
@@ -638,6 +647,9 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           );
         }
         emit(ErrorAiWriterState(command, error: error));
+      },
+      onLocalAIInitializing: () {
+        emit(LocalAIRunningAiWriterState(command));
       },
     );
     if (stream != null) {
@@ -713,4 +725,12 @@ class DocumentContentEmptyAiWriterState extends AiWriterState
   final AiWriterCommand command;
 
   final void Function() onConfirm;
+}
+
+class LocalAIRunningAiWriterState extends AiWriterState
+    with RegisteredAiWriter {
+  const LocalAIRunningAiWriterState(this.command);
+
+  @override
+  final AiWriterCommand command;
 }
