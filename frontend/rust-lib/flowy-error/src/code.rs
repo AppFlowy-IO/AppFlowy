@@ -377,6 +377,9 @@ pub enum ErrorCode {
 
   #[error("MCP error")]
   MCPError = 129,
+
+  #[error("Local AI disabled")]
+  LocalAIDisabled = 130,
 }
 
 impl ErrorCode {

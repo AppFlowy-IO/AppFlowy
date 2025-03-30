@@ -209,9 +209,13 @@ pub(crate) async fn stop_stream_handler(
 
 pub(crate) async fn start_complete_text_handler(
   data: AFPluginData<CompleteTextPB>,
+  ai_manager: AFPluginState<Weak<AIManager>>,
   tools: AFPluginState<Arc<AICompletion>>,
 ) -> DataResult<CompleteTextTaskPB, FlowyError> {
-  let task = tools.create_complete_task(data.into_inner()).await?;
+  let data = data.into_inner();
+  let ai_manager = upgrade_ai_manager(ai_manager)?;
+  let ai_model = ai_manager.get_active_model(&data.object_id).await;
+  let task = tools.create_complete_task(data, ai_model).await?;
   data_result_ok(task)
 }
 

@@ -180,8 +180,10 @@ impl ChatCloudService for AICloudServiceMiddleware {
             Ok(stream::once(async { Err(FlowyError::local_ai_unavailable()) }).boxed())
           },
         }
-      } else {
+      } else if self.local_ai.is_enabled() {
         Err(FlowyError::local_ai_not_ready())
+      } else {
+        Err(FlowyError::local_ai_disabled())
       }
     } else {
       self
@@ -312,8 +314,10 @@ impl ChatCloudService for AICloudServiceMiddleware {
             Ok(stream::once(async { Err(FlowyError::local_ai_unavailable()) }).boxed())
           },
         }
-      } else {
+      } else if self.local_ai.is_enabled() {
         Err(FlowyError::local_ai_not_ready())
+      } else {
+        Err(FlowyError::local_ai_disabled())
       }
     } else {
       self

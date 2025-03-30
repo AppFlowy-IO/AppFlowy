@@ -2,18 +2,8 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
 
+import 'package:appflowy/ai/service/ai_entities.dart';
 import 'package:appflowy/plugins/ai_chat/application/chat_message_service.dart';
-
-/// Constants for event prefixes.
-class AnswerEventPrefix {
-  static const data = 'data:';
-  static const error = 'error:';
-  static const metadata = 'metadata:';
-  static const aiResponseLimit = 'AI_RESPONSE_LIMIT';
-  static const aiImageResponseLimit = 'AI_IMAGE_RESPONSE_LIMIT';
-  static const aiMaxRequired = 'AI_MAX_REQUIRED:';
-  static const localAINotReady = 'LOCAL_AI_NOT_READY';
-}
 
 /// A stream that receives answer events from an isolate or external process.
 /// It caches events that might occur before a listener is attached.
@@ -68,31 +58,31 @@ class AnswerStream {
 
   /// Handles incoming events from the underlying stream.
   void _handleEvent(String event) {
-    if (event.startsWith(AnswerEventPrefix.data)) {
+    if (event.startsWith(AIStreamEventPrefix.data)) {
       _hasStarted = true;
-      final newText = event.substring(AnswerEventPrefix.data.length);
+      final newText = event.substring(AIStreamEventPrefix.data.length);
       _text += newText;
       _onData?.call(_text);
-    } else if (event.startsWith(AnswerEventPrefix.error)) {
-      _error = event.substring(AnswerEventPrefix.error.length);
+    } else if (event.startsWith(AIStreamEventPrefix.error)) {
+      _error = event.substring(AIStreamEventPrefix.error.length);
       _onError?.call(_error!);
-    } else if (event.startsWith(AnswerEventPrefix.metadata)) {
-      final s = event.substring(AnswerEventPrefix.metadata.length);
+    } else if (event.startsWith(AIStreamEventPrefix.metadata)) {
+      final s = event.substring(AIStreamEventPrefix.metadata.length);
       _onMetadata?.call(parseMetadata(s));
-    } else if (event == AnswerEventPrefix.aiResponseLimit) {
+    } else if (event == AIStreamEventPrefix.aiResponseLimit) {
       _aiLimitReached = true;
       _onAIResponseLimit?.call();
-    } else if (event == AnswerEventPrefix.aiImageResponseLimit) {
+    } else if (event == AIStreamEventPrefix.aiImageResponseLimit) {
       _aiImageLimitReached = true;
       _onAIImageResponseLimit?.call();
-    } else if (event.startsWith(AnswerEventPrefix.aiMaxRequired)) {
-      final msg = event.substring(AnswerEventPrefix.aiMaxRequired.length);
+    } else if (event.startsWith(AIStreamEventPrefix.aiMaxRequired)) {
+      final msg = event.substring(AIStreamEventPrefix.aiMaxRequired.length);
       if (_onAIMaxRequired != null) {
         _onAIMaxRequired!(msg);
       } else {
         _pendingAIMaxRequiredEvents.add(msg);
       }
-    } else if (event.startsWith(AnswerEventPrefix.localAINotReady)) {
+    } else if (event.startsWith(AIStreamEventPrefix.localAINotReady)) {
       if (_onLocalAIInitializing != null) {
         _onLocalAIInitializing!();
       } else {
