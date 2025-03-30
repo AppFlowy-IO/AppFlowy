@@ -1,5 +1,3 @@
-use std::collections::VecDeque;
-
 use super::folder_page_sql::get_page_by_id;
 use client_api::entity::workspace_dto::FavoriteFolderView;
 use diesel::prelude::*;
