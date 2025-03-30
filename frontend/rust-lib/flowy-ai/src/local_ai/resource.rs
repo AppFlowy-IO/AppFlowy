@@ -47,11 +47,20 @@ pub enum WatchDiskEvent {
   Remove,
 }
 
-#[derive(Debug, Clone)]
 pub enum PendingResource {
   PluginExecutableNotReady,
   OllamaServerNotReady,
   MissingModel(String),
+}
+
+impl PendingResource {
+  pub fn desc(self) -> String {
+    match self {
+      PendingResource::PluginExecutableNotReady => "The Local AI app was not installed correctly. Please follow the instructions to install the Local AI application".to_string(),
+      PendingResource::OllamaServerNotReady => "Ollama is not ready. Please follow the instructions to install Ollama".to_string(),
+      PendingResource::MissingModel(model) => format!("Cannot find the model: {}. Please use the ollama pull command to install the model", model),
+    }
+  }
 }
 
 pub struct LocalAIResourceController {
@@ -119,10 +128,10 @@ impl LocalAIResourceController {
       return false;
     }
 
-    self
-      .calculate_pending_resources()
-      .await
-      .is_ok_and(|r| r.is_none())
+    match self.calculate_pending_resources().await {
+      Ok(res) => res.is_empty(),
+      Err(_) => false,
+    }
   }
 
   pub async fn get_plugin_download_link(&self) -> FlowyResult<String> {
@@ -138,35 +147,36 @@ impl LocalAIResourceController {
   #[instrument(level = "info", skip_all, err)]
   pub async fn set_llm_setting(&self, setting: LocalAISetting) -> FlowyResult<()> {
     self.resource_service.store_setting(setting)?;
-    if let Some(resource) = self.calculate_pending_resources().await? {
+    let mut resources = self.calculate_pending_resources().await?;
+    if let Some(resource) = resources.pop() {
       chat_notification_builder(
         APPFLOWY_AI_NOTIFICATION_KEY,
         ChatNotification::LocalAIResourceUpdated,
       )
-      .payload(LackOfAIResourcePB::from(resource))
+      .payload(LackOfAIResourcePB {
+        resource_desc: resource.desc(),
+      })
       .send();
     }
     Ok(())
   }
 
-  pub async fn get_lack_of_resource(&self) -> Option<LackOfAIResourcePB> {
-    self
-      .calculate_pending_resources()
-      .await
-      .ok()?
-      .map(Into::into)
+  pub async fn get_lack_of_resource(&self) -> Option<String> {
+    let mut resources = self.calculate_pending_resources().await.ok()?;
+    resources.pop().map(|r| r.desc())
   }
 
-  pub async fn calculate_pending_resources(&self) -> FlowyResult<Option<PendingResource>> {
+  pub async fn calculate_pending_resources(&self) -> FlowyResult<Vec<PendingResource>> {
+    let mut resources = vec![];
     let app_path = ollama_plugin_path();
     if !is_plugin_ready() {
       trace!("[LLM Resource] offline app not found: {:?}", app_path);
-      return Ok(Some(PendingResource::PluginExecutableNotReady));
+      resources.push(PendingResource::PluginExecutableNotReady);
+      return Ok(resources);
     }
 
     let setting = self.get_llm_setting();
     let client = Client::builder().timeout(Duration::from_secs(5)).build()?;
-
     match client.get(&setting.ollama_server_url).send().await {
       Ok(resp) if resp.status().is_success() => {
         info!(
@@ -179,7 +189,8 @@ impl LocalAIResourceController {
           "[LLM Resource] Ollama server is not responding at {}",
           setting.ollama_server_url
         );
-        return Ok(Some(PendingResource::OllamaServerNotReady));
+        resources.push(PendingResource::OllamaServerNotReady);
+        return Ok(resources);
       },
     }
 
@@ -190,8 +201,12 @@ impl LocalAIResourceController {
 
     match client.get(&tags_url).send().await {
       Ok(resp) if resp.status().is_success() => {
-        let tags: TagsResponse = resp.json().await.inspect_err(|e| {
-          log::error!("[LLM Resource] Failed to parse /api/tags JSON response: {e:?}")
+        let tags: TagsResponse = resp.json().await.map_err(|e| {
+          log::error!(
+            "[LLM Resource] Failed to parse /api/tags JSON response: {:?}",
+            e
+          );
+          e
         })?;
         // Check each required model is present in the response.
         for required in &required_models {
@@ -200,7 +215,9 @@ impl LocalAIResourceController {
               "[LLM Resource] required model '{}' not found in API response",
               required
             );
-            return Ok(Some(PendingResource::MissingModel(required.clone())));
+            resources.push(PendingResource::MissingModel(required.clone()));
+            // Optionally, you could continue checking all models rather than returning early.
+            return Ok(resources);
           }
         }
       },
@@ -209,11 +226,12 @@ impl LocalAIResourceController {
           "[LLM Resource] Failed to fetch models from {} (GET /api/tags)",
           setting.ollama_server_url
         );
-        return Ok(Some(PendingResource::OllamaServerNotReady));
+        resources.push(PendingResource::OllamaServerNotReady);
+        return Ok(resources);
       },
     }
 
-    Ok(None)
+    Ok(resources)
   }
 
   #[instrument(level = "info", skip_all)]

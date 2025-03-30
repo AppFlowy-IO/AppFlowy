@@ -589,7 +589,7 @@ pub struct LocalAIPB {
   pub is_plugin_executable_ready: bool,
 
   #[pb(index = 3, one_of)]
-  pub lack_of_resource: Option<LackOfAIResourcePB>,
+  pub lack_of_resource: Option<String>,
 
   #[pb(index = 4)]
   pub state: RunningStatePB,
@@ -724,35 +724,5 @@ impl From<LocalAISettingPB> for LocalAISetting {
 #[derive(Default, ProtoBuf, Clone, Debug)]
 pub struct LackOfAIResourcePB {
   #[pb(index = 1)]
-  pub resource_type: LackOfAIResourceTypePB,
-
-  #[pb(index = 2)]
-  pub missing_model_names: Vec<String>,
-}
-
-#[derive(Debug, Default, Clone, ProtoBuf_Enum)]
-pub enum LackOfAIResourceTypePB {
-  #[default]
-  PluginExecutableNotReady = 0,
-  OllamaServerNotReady = 1,
-  MissingModel = 2,
-}
-
-impl From<PendingResource> for LackOfAIResourcePB {
-  fn from(value: PendingResource) -> Self {
-    match value {
-      PendingResource::PluginExecutableNotReady => Self {
-        resource_type: LackOfAIResourceTypePB::PluginExecutableNotReady,
-        missing_model_names: vec![],
-      },
-      PendingResource::OllamaServerNotReady => Self {
-        resource_type: LackOfAIResourceTypePB::OllamaServerNotReady,
-        missing_model_names: vec![],
-      },
-      PendingResource::MissingModel(model_name) => Self {
-        resource_type: LackOfAIResourceTypePB::MissingModel,
-        missing_model_names: vec![model_name],
-      },
-    }
-  }
+  pub resource_desc: String,
 }

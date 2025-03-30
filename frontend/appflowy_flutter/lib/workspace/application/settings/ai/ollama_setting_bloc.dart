@@ -80,9 +80,11 @@ class OllamaSettingBloc extends Bloc<OllamaSettingEvent, OllamaSettingState> {
         }
         add(OllamaSettingEvent.updateSetting(setting));
         AIEventUpdateLocalAISetting(setting).send().fold(
-              (_) => Log.info('AI setting updated successfully'),
-              (err) => Log.error("update ai setting failed: $err"),
-            );
+          (_) {
+            Log.info('AI setting updated successfully');
+          },
+          (err) => Log.error("update ai setting failed: $err"),
+        );
       },
     );
   }
