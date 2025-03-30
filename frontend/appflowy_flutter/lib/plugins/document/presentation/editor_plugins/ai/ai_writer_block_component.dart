@@ -568,7 +568,13 @@ class MainContentArea extends StatelessWidget {
             ),
           );
         }
-        if (state is LocalAIRunningAiWriterState) {
+        if (state is LocalAIStreamingAiWriterState) {
+          final text = switch (state.state) {
+            LocalAIStreamingState.notReady =>
+              LocaleKeys.settings_aiPage_keys_localAINotReadyRetryLater.tr(),
+            LocalAIStreamingState.disabled =>
+              LocaleKeys.settings_aiPage_keys_localAIDisabled.tr(),
+          };
           return Padding(
             padding: EdgeInsets.all(8.0),
             child: Row(
@@ -576,10 +582,7 @@ class MainContentArea extends StatelessWidget {
                 const HSpace(8.0),
                 Opacity(
                   opacity: 0.5,
-                  child: FlowyText(
-                    LocaleKeys.settings_aiPage_keys_localAINotReadyRetryLater
-                        .tr(),
-                  ),
+                  child: FlowyText(text),
                 ),
               ],
             ),

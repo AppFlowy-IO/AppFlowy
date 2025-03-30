@@ -15,6 +15,11 @@ import 'package:fixnum/fixnum.dart' as fixnum;
 import 'ai_entities.dart';
 import 'error.dart';
 
+enum LocalAIStreamingState {
+  notReady,
+  disabled,
+}
+
 abstract class AIRepository {
   Future<void> streamCompletion({
     String? objectId,
@@ -28,7 +33,8 @@ abstract class AIRepository {
     required Future<void> Function(String text) processAssistMessage,
     required Future<void> Function() onEnd,
     required void Function(AIError error) onError,
-    required void Function() onLocalAIInitializing,
+    required void Function(LocalAIStreamingState state)
+        onLocalAIStreamingStateChange,
   });
 }
 
@@ -46,14 +52,15 @@ class AppFlowyAIService implements AIRepository {
     required Future<void> Function(String text) processAssistMessage,
     required Future<void> Function() onEnd,
     required void Function(AIError error) onError,
-    required void Function() onLocalAIInitializing,
+    required void Function(LocalAIStreamingState state)
+        onLocalAIStreamingStateChange,
   }) async {
     final stream = AppFlowyCompletionStream(
       onStart: onStart,
       processMessage: processMessage,
       processAssistMessage: processAssistMessage,
       processError: onError,
-      onLocalAIInitializing: onLocalAIInitializing,
+      onLocalAIStreamingStateChange: onLocalAIStreamingStateChange,
       onEnd: onEnd,
     );
 
@@ -88,7 +95,7 @@ abstract class CompletionStream {
     required this.processMessage,
     required this.processAssistMessage,
     required this.processError,
-    required this.onLocalAIInitializing,
+    required this.onLocalAIStreamingStateChange,
     required this.onEnd,
   });
 
@@ -96,7 +103,8 @@ abstract class CompletionStream {
   final Future<void> Function(String text) processMessage;
   final Future<void> Function(String text) processAssistMessage;
   final void Function(AIError error) processError;
-  final void Function() onLocalAIInitializing;
+  final void Function(LocalAIStreamingState state)
+      onLocalAIStreamingStateChange;
   final Future<void> Function() onEnd;
 }
 
@@ -107,7 +115,7 @@ class AppFlowyCompletionStream extends CompletionStream {
     required super.processAssistMessage,
     required super.processError,
     required super.onEnd,
-    required super.onLocalAIInitializing,
+    required super.onLocalAIStreamingStateChange,
   }) {
     _startListening();
   }
@@ -155,43 +163,42 @@ class AppFlowyCompletionStream extends CompletionStream {
     }
 
     // Otherwise, parse out prefix:content
-    final colonIndex = event.indexOf(':');
-    final hasColon = colonIndex != -1;
-    final prefix = hasColon ? event.substring(0, colonIndex) : event;
-    final content = hasColon ? event.substring(colonIndex + 1) : '';
-
-    switch (prefix) {
-      case AIStreamEventPrefix.aiMaxRequired:
-        processError(AIError(message: content, code: AIErrorCode.other));
-        break;
-
-      case AIStreamEventPrefix.start:
-        await onStart();
-        break;
-
-      case AIStreamEventPrefix.data:
-        await processMessage(content);
-        break;
-
-      case AIStreamEventPrefix.comment:
-        await processAssistMessage(content);
-        break;
-
-      case AIStreamEventPrefix.finish:
-        await onEnd();
-        break;
-
-      case AIStreamEventPrefix.localAINotReady:
-        onLocalAIInitializing();
-        break;
-
-      case AIStreamEventPrefix.error:
-        processError(AIError(message: content, code: AIErrorCode.other));
-        break;
-
-      default:
-        Log.debug('Unknown AI event: $event');
-        break;
+    if (event.startsWith(AIStreamEventPrefix.aiMaxRequired)) {
+      processError(
+        AIError(
+          message: event.substring(AIStreamEventPrefix.aiMaxRequired.length),
+          code: AIErrorCode.other,
+        ),
+      );
+    } else if (event.startsWith(AIStreamEventPrefix.start)) {
+      await onStart();
+    } else if (event.startsWith(AIStreamEventPrefix.data)) {
+      await processMessage(
+        event.substring(AIStreamEventPrefix.data.length),
+      );
+    } else if (event.startsWith(AIStreamEventPrefix.comment)) {
+      await processAssistMessage(
+        event.substring(AIStreamEventPrefix.comment.length),
+      );
+    } else if (event.startsWith(AIStreamEventPrefix.finish)) {
+      await onEnd();
+    } else if (event.startsWith(AIStreamEventPrefix.localAIDisabled)) {
+      onLocalAIStreamingStateChange(
+        LocalAIStreamingState.disabled,
+      );
+    } else if (event.startsWith(AIStreamEventPrefix.localAINotReady)) {
+      onLocalAIStreamingStateChange(
+        LocalAIStreamingState.notReady,
+      );
+    } else if (event.startsWith(AIStreamEventPrefix.error)) {
+      processError(
+        AIError(
+          message: event.substring(AIStreamEventPrefix.error.length),
+          code: AIErrorCode.other,
+        ),
+      );
+    } else {
+      Log.debug('Unknown AI event: $event');
     }
   }
 }

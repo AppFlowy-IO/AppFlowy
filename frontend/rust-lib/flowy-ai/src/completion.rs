@@ -13,7 +13,6 @@ use futures::{SinkExt, StreamExt};
 use lib_infra::isolate_stream::IsolateSink;
 
 use crate::stream_message::StreamMessage;
-use crate::util::ai_available_models_key;
 use flowy_sqlite::kv::KVStorePreferences;
 use std::sync::{Arc, Weak};
 use tokio::select;
@@ -23,26 +22,24 @@ pub struct AICompletion {
   tasks: Arc<DashMap<String, tokio::sync::mpsc::Sender<()>>>,
   cloud_service: Weak<dyn ChatCloudService>,
   user_service: Weak<dyn AIUserService>,
-  store_preferences: Arc<KVStorePreferences>,
 }
 
 impl AICompletion {
   pub fn new(
     cloud_service: Weak<dyn ChatCloudService>,
     user_service: Weak<dyn AIUserService>,
-    store_preferences: Arc<KVStorePreferences>,
   ) -> Self {
     Self {
       tasks: Arc::new(DashMap::new()),
       cloud_service,
       user_service,
-      store_preferences,
     }
   }
 
   pub async fn create_complete_task(
     &self,
     complete: CompleteTextPB,
+    preferred_model: Option<AIModel>,
   ) -> FlowyResult<CompleteTextTaskPB> {
     if matches!(complete.completion_type, CompletionTypePB::CustomPrompt)
       && complete.custom_prompt.is_none()
@@ -59,10 +56,6 @@ impl AICompletion {
       .ok_or_else(FlowyError::internal)?
       .workspace_id()?;
     let (tx, rx) = tokio::sync::mpsc::channel(1);
-    let preferred_model = self
-      .store_preferences
-      .get_object::<AIModel>(&ai_available_models_key(&complete.object_id));
-
     let task = CompletionTask::new(
       workspace_id,
       complete,

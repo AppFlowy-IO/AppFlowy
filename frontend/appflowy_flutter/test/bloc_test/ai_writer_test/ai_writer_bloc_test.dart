@@ -30,7 +30,8 @@ class _MockAIRepository extends Mock implements AppFlowyAIService {
     required Future<void> Function(String text) processAssistMessage,
     required Future<void> Function() onEnd,
     required void Function(AIError error) onError,
-    required void Function() onLocalAIInitializing,
+    required void Function(LocalAIStreamingState state)
+        onLocalAIStreamingStateChange,
   }) async {
     final stream = _MockCompletionStream();
     unawaited(
@@ -63,7 +64,8 @@ class _MockAIRepositoryLess extends Mock implements AppFlowyAIService {
     required Future<void> Function(String text) processAssistMessage,
     required Future<void> Function() onEnd,
     required void Function(AIError error) onError,
-    required void Function() onLocalAIInitializing,
+    required void Function(LocalAIStreamingState state)
+        onLocalAIStreamingStateChange,
   }) async {
     final stream = _MockCompletionStream();
     unawaited(
@@ -92,7 +94,8 @@ class _MockAIRepositoryMore extends Mock implements AppFlowyAIService {
     required Future<void> Function(String text) processAssistMessage,
     required Future<void> Function() onEnd,
     required void Function(AIError error) onError,
-    required void Function() onLocalAIInitializing,
+    required void Function(LocalAIStreamingState state)
+        onLocalAIStreamingStateChange,
   }) async {
     final stream = _MockCompletionStream();
     unawaited(
@@ -123,7 +126,8 @@ class _MockErrorRepository extends Mock implements AppFlowyAIService {
     required Future<void> Function(String text) processAssistMessage,
     required Future<void> Function() onEnd,
     required void Function(AIError error) onError,
-    required void Function() onLocalAIInitializing,
+    required void Function(LocalAIStreamingState state)
+        onLocalAIStreamingStateChange,
   }) async {
     final stream = _MockCompletionStream();
     unawaited(

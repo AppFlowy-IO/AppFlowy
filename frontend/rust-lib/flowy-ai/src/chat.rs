@@ -10,7 +10,6 @@ use crate::persistence::{
   ChatMessageTable,
 };
 use crate::stream_message::StreamMessage;
-use crate::util::ai_available_models_key;
 use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatMessage, MessageCursor, QuestionStreamValue, ResponseFormat,
@@ -89,6 +88,7 @@ impl Chat {
   pub async fn stream_chat_message(
     &self,
     params: &StreamMessageParams,
+    preferred_ai_model: Option<AIModel>,
   ) -> Result<ChatMessagePB, FlowyError> {
     trace!(
       "[Chat] stream chat message: chat_id={}, message={}, message_type={:?}, metadata={:?}, format={:?}",
@@ -143,9 +143,6 @@ impl Chat {
     // Save message to disk
     save_and_notify_message(uid, &self.chat_id, &self.user_service, question.clone())?;
     let format = params.format.clone().map(Into::into).unwrap_or_default();
-    let preferred_ai_model = self
-      .store_preferences
-      .get_object::<AIModel>(&ai_available_models_key(&self.chat_id));
     self.stream_response(
       params.answer_stream_port,
       answer_stream_buffer,

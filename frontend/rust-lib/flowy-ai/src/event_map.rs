@@ -13,11 +13,7 @@ pub fn init(ai_manager: Weak<AIManager>) -> AFPlugin {
   let strong_ai_manager = ai_manager.upgrade().unwrap();
   let user_service = Arc::downgrade(&strong_ai_manager.user_service);
   let cloud_service = Arc::downgrade(&strong_ai_manager.cloud_service_wm);
-  let ai_tools = Arc::new(AICompletion::new(
-    cloud_service,
-    user_service,
-    strong_ai_manager.store_preferences.clone(),
-  ));
+  let ai_tools = Arc::new(AICompletion::new(cloud_service, user_service));
   AFPlugin::new()
     .name("flowy-ai")
     .state(ai_manager)

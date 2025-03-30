@@ -246,7 +246,8 @@ impl AIManager {
     params: StreamMessageParams,
   ) -> Result<ChatMessagePB, FlowyError> {
     let chat = self.get_or_create_chat_instance(&params.chat_id).await?;
-    let question = chat.stream_chat_message(&params).await?;
+    let ai_model = self.get_active_model(&params.chat_id).await;
+    let question = chat.stream_chat_message(&params, ai_model).await?;
     let _ = self
       .external_service
       .notify_did_send_message(&params.chat_id, &params.message)
@@ -392,6 +393,20 @@ impl AIManager {
     }
 
     Ok(())
+  }
+
+  pub async fn get_active_model(&self, source: &str) -> Option<AIModel> {
+    let mut model = self
+      .store_preferences
+      .get_object::<AIModel>(&ai_available_models_key(source));
+
+    if model.is_none() {
+      if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
+        model = Some(AIModel::local(local_model, "".to_string()));
+      }
+    }
+
+    model
   }
 
   pub async fn get_available_models(&self, source: String) -> FlowyResult<AvailableModelsPB> {

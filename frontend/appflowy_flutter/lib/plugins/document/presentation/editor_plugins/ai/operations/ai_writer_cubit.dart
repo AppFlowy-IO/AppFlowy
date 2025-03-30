@@ -390,8 +390,8 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           AiWriterRecord.ai(content: _textRobot.markdownText),
         );
       },
-      onLocalAIInitializing: () {
-        emit(LocalAIRunningAiWriterState(command));
+      onLocalAIStreamingStateChange: (state) {
+        emit(LocalAIStreamingAiWriterState(command, state: state));
       },
     );
 
@@ -484,8 +484,8 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           AiWriterRecord.ai(content: _textRobot.markdownText),
         );
       },
-      onLocalAIInitializing: () {
-        emit(LocalAIRunningAiWriterState(command));
+      onLocalAIStreamingStateChange: (state) {
+        emit(LocalAIStreamingAiWriterState(command, state: state));
       },
     );
     if (stream != null) {
@@ -575,8 +575,8 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           AiWriterRecord.ai(content: _textRobot.markdownText),
         );
       },
-      onLocalAIInitializing: () {
-        emit(LocalAIRunningAiWriterState(command));
+      onLocalAIStreamingStateChange: (state) {
+        emit(LocalAIStreamingAiWriterState(command, state: state));
       },
     );
     if (stream != null) {
@@ -648,8 +648,8 @@ class AiWriterCubit extends Cubit<AiWriterState> {
         }
         emit(ErrorAiWriterState(command, error: error));
       },
-      onLocalAIInitializing: () {
-        emit(LocalAIRunningAiWriterState(command));
+      onLocalAIStreamingStateChange: (state) {
+        emit(LocalAIStreamingAiWriterState(command, state: state));
       },
     );
     if (stream != null) {
@@ -727,10 +727,15 @@ class DocumentContentEmptyAiWriterState extends AiWriterState
   final void Function() onConfirm;
 }
 
-class LocalAIRunningAiWriterState extends AiWriterState
+class LocalAIStreamingAiWriterState extends AiWriterState
     with RegisteredAiWriter {
-  const LocalAIRunningAiWriterState(this.command);
+  const LocalAIStreamingAiWriterState(
+    this.command, {
+    required this.state,
+  });
 
   @override
   final AiWriterCommand command;
+
+  final LocalAIStreamingState state;
 }
