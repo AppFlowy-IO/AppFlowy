@@ -23,7 +23,10 @@ class PluginStateIndicator extends StatelessWidget {
             unknown: () => const SizedBox.shrink(),
             readToRun: () => const _PrepareRunning(),
             initializingPlugin: () => const InitLocalAIIndicator(),
-            running: (version) => _LocalAIRunning(version: version),
+            running: (version) => _LocalAIRunning(
+              key: ValueKey(version),
+              version: version,
+            ),
             restartPlugin: () => const _RestartPluginButton(),
             lackOfResource: (desc) => _LackOfResource(desc: desc),
           );
@@ -84,7 +87,7 @@ class _RestartPluginButton extends StatelessWidget {
 }
 
 class _LocalAIRunning extends StatelessWidget {
-  const _LocalAIRunning({required this.version});
+  const _LocalAIRunning({required this.version, super.key});
 
   final String version;
 
@@ -111,13 +114,17 @@ class _LocalAIRunning extends StatelessWidget {
                     color: Color(0xFF2E7D32),
                   ),
                   const HSpace(6),
+                  if (version.isNotEmpty)
+                    Flexible(
+                      child: FlowyText(
+                        "($version) ",
+                        fontSize: 11,
+                        color: const Color(0xFF1E4620),
+                      ),
+                    ),
                   Flexible(
                     child: FlowyText(
-                      LocaleKeys.settings_aiPage_keys_localAIRunning.tr(
-                        args: [
-                          version,
-                        ],
-                      ),
+                      LocaleKeys.settings_aiPage_keys_localAIRunning.tr(),
                       fontSize: 11,
                       color: const Color(0xFF1E4620),
                       maxLines: 3,

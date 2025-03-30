@@ -857,7 +857,7 @@
         "localAIStart": "Local AI is starting. If it’s slow, try toggling it off and on",
         "localAILoading": "Local AI Chat Model is loading...",
         "localAIStopped": "Local AI stopped",
-        "localAIRunning": "Local AI is running. Version: {}",
+        "localAIRunning": "Local AI is running",
         "localAIInitializing": "Local AI is loading and may take a few minutes, depending on your device",
         "localAINotReadyTextFieldPrompt": "You can not edit while Local AI is loading",
         "failToLoadLocalAI": "Failed to start local AI",
