@@ -139,7 +139,6 @@ impl AIManager {
         chat_id.to_string(),
         self.user_service.clone(),
         self.cloud_service_wm.clone(),
-        self.store_preferences.clone(),
       ))
     });
     if self.local_ai.is_running() {
@@ -235,7 +234,6 @@ impl AIManager {
       chat_id.to_string(),
       self.user_service.clone(),
       self.cloud_service_wm.clone(),
-      self.store_preferences.clone(),
     ));
     self.chats.insert(chat_id.to_string(), chat.clone());
     Ok(chat)
@@ -495,7 +493,6 @@ impl AIManager {
           chat_id.to_string(),
           self.user_service.clone(),
           self.cloud_service_wm.clone(),
-          self.store_preferences.clone(),
         ));
         self.chats.insert(chat_id.to_string(), chat.clone());
         Ok(chat)

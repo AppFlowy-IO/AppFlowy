@@ -15,7 +15,6 @@ use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatMessage, MessageCursor, QuestionStreamValue, ResponseFormat,
 };
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 use futures::{SinkExt, StreamExt};
 use lib_infra::isolate_stream::IsolateSink;
@@ -40,7 +39,6 @@ pub struct Chat {
   latest_message_id: Arc<AtomicI64>,
   stop_stream: Arc<AtomicBool>,
   stream_buffer: Arc<Mutex<StringBuffer>>,
-  store_preferences: Arc<KVStorePreferences>,
 }
 
 impl Chat {
@@ -49,7 +47,6 @@ impl Chat {
     chat_id: String,
     user_service: Arc<dyn AIUserService>,
     chat_service: Arc<AICloudServiceMiddleware>,
-    store_preferences: Arc<KVStorePreferences>,
   ) -> Chat {
     Chat {
       uid,
@@ -60,7 +57,6 @@ impl Chat {
       latest_message_id: Default::default(),
       stop_stream: Arc::new(AtomicBool::new(false)),
       stream_buffer: Arc::new(Mutex::new(StringBuffer::default())),
-      store_preferences,
     }
   }
 

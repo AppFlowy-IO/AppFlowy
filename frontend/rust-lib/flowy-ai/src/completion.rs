@@ -13,7 +13,6 @@ use futures::{SinkExt, StreamExt};
 use lib_infra::isolate_stream::IsolateSink;
 
 use crate::stream_message::StreamMessage;
-use flowy_sqlite::kv::KVStorePreferences;
 use std::sync::{Arc, Weak};
 use tokio::select;
 use tracing::info;
