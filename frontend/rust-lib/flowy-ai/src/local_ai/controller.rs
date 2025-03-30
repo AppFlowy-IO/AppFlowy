@@ -77,61 +77,88 @@ impl LocalAIController {
       "[AI Plugin] init local ai controller, thread: {:?}",
       std::thread::current().id()
     );
+
+    // Create the core plugin and resource controller
     let local_ai = Arc::new(OllamaAIPlugin::new(plugin_manager));
     let res_impl = LLMResourceServiceImpl {
       user_service: user_service.clone(),
       cloud_service: cloud_service.clone(),
       store_preferences: store_preferences.clone(),
     };
-
     let local_ai_resource = Arc::new(LocalAIResourceController::new(
       user_service.clone(),
       res_impl,
     ));
-    let current_chat_id = ArcSwapOption::default();
+    // Subscribe to state changes
     let mut running_state_rx = local_ai.subscribe_running_state();
-    let cloned_llm_res = local_ai_resource.clone();
-    let cloned_store_preferences = store_preferences.clone();
-    let cloned_user_service = user_service.clone();
+
+    let cloned_llm_res = Arc::clone(&local_ai_resource);
+    let cloned_store_preferences = Arc::clone(&store_preferences);
+    let cloned_local_ai = Arc::clone(&local_ai);
+    let cloned_user_service = Arc::clone(&user_service);
+
+    // Spawn a background task to listen for plugin state changes
     tokio::spawn(async move {
       while let Some(state) = running_state_rx.next().await {
-        if let Ok(workspace_id) = cloned_user_service.workspace_id() {
-          let key = local_ai_enabled_key(&workspace_id);
-          info!("[AI Plugin] state: {:?}", state);
-          let mut ready = false;
-          let mut lack_of_resource = None;
-          let enabled = cloned_store_preferences.get_bool(&key).unwrap_or(true);
-          if !matches!(state, RunningState::UnexpectedStop { .. }) && enabled {
-            ready = is_plugin_ready();
-            lack_of_resource = cloned_llm_res.get_lack_of_resource().await;
-          }
+        // Skip if we can’t get workspace_id
+        let Ok(workspace_id) = cloned_user_service.workspace_id() else {
+          continue;
+        };
 
-          let new_state = RunningStatePB::from(state);
-          chat_notification_builder(
-            APPFLOWY_AI_NOTIFICATION_KEY,
-            ChatNotification::UpdateLocalAIState,
-          )
-          .payload(LocalAIPB {
-            enabled,
-            is_plugin_executable_ready: ready,
-            lack_of_resource,
-            state: new_state,
-          })
-          .send();
-        }
+        let key = local_ai_enabled_key(&workspace_id);
+        info!("[AI Plugin] state: {:?}", state);
+
+        // Read whether plugin is enabled from store; default to true
+        let enabled = cloned_store_preferences.get_bool(&key).unwrap_or(true);
+
+        // Only check resource status if the plugin isn’t in "UnexpectedStop" and is enabled
+        let (plugin_downloaded, lack_of_resource) =
+          if !matches!(state, RunningState::UnexpectedStop { .. }) && enabled {
+            // Possibly check plugin readiness and resource concurrency in parallel,
+            // but here we do it sequentially for clarity.
+            let downloaded = is_plugin_ready();
+            let resource_lack = cloned_llm_res.get_lack_of_resource().await;
+            (downloaded, resource_lack)
+          } else {
+            (false, None)
+          };
+
+        // If plugin is running, retrieve version
+        let plugin_version = if matches!(state, RunningState::Running { .. }) {
+          match cloned_local_ai.plugin_info().await {
+            Ok(info) => Some(info.version),
+            Err(_) => None,
+          }
+        } else {
+          None
+        };
+
+        // Broadcast the new local AI state
+        let new_state = RunningStatePB::from(state);
+        chat_notification_builder(
+          APPFLOWY_AI_NOTIFICATION_KEY,
+          ChatNotification::UpdateLocalAIState,
+        )
+        .payload(LocalAIPB {
+          enabled,
+          plugin_downloaded,
+          lack_of_resource,
+          state: new_state,
+          plugin_version,
+        })
+        .send();
       }
     });
 
     Self {
       ai_plugin: local_ai,
       resource: local_ai_resource,
-      current_chat_id,
+      current_chat_id: ArcSwapOption::default(),
       store_preferences,
       user_service,
       cloud_service,
     }
   }
-
   #[instrument(level = "debug", skip_all)]
   pub async fn observe_plugin_resource(&self) {
     debug!(
@@ -274,28 +301,56 @@ impl LocalAIController {
   pub async fn get_local_ai_state(&self) -> LocalAIPB {
     let start = std::time::Instant::now();
     let enabled = self.is_enabled();
-    let mut is_plugin_executable_ready = false;
-    let mut state = RunningState::ReadyToConnect;
-    let mut lack_of_resource = None;
-    if enabled {
-      is_plugin_executable_ready = is_plugin_ready();
-      state = self.ai_plugin.get_plugin_running_state();
-      lack_of_resource = self.resource.get_lack_of_resource().await;
+
+    // If not enabled, return immediately.
+    if !enabled {
+      debug!(
+        "[AI Plugin] get local ai state, elapsed: {:?}, thread: {:?}",
+        start.elapsed(),
+        std::thread::current().id()
+      );
+      return LocalAIPB {
+        enabled: false,
+        plugin_downloaded: false,
+        state: RunningStatePB::from(RunningState::ReadyToConnect),
+        lack_of_resource: None,
+        plugin_version: None,
+      };
     }
+
+    let plugin_downloaded = is_plugin_ready();
+    let state = self.ai_plugin.get_plugin_running_state();
+
+    // If the plugin is running, run both requests in parallel.
+    // Otherwise, only fetch the resource info.
+    let (plugin_version, lack_of_resource) = if matches!(state, RunningState::Running { .. }) {
+      // Launch both futures at once
+      let plugin_info_fut = self.ai_plugin.plugin_info();
+      let resource_fut = self.resource.get_lack_of_resource();
+
+      let (plugin_info_res, resource_res) = tokio::join!(plugin_info_fut, resource_fut);
+      let plugin_version = plugin_info_res.ok().map(|info| info.version);
+      (plugin_version, resource_res)
+    } else {
+      let resource_res = self.resource.get_lack_of_resource().await;
+      (None, resource_res)
+    };
+
     let elapsed = start.elapsed();
     debug!(
       "[AI Plugin] get local ai state, elapsed: {:?}, thread: {:?}",
       elapsed,
       std::thread::current().id()
     );
+
     LocalAIPB {
       enabled,
-      is_plugin_executable_ready,
+      plugin_downloaded,
       state: RunningStatePB::from(state),
       lack_of_resource,
+      plugin_version,
     }
   }
-
   #[instrument(level = "debug", skip_all)]
   pub async fn restart_plugin(&self) {
     if let Err(err) = initialize_ai_plugin(&self.ai_plugin, &self.resource, None).await {
@@ -442,9 +497,10 @@ impl LocalAIController {
       )
       .payload(LocalAIPB {
         enabled,
-        is_plugin_executable_ready: true,
+        plugin_downloaded: true,
         state: RunningStatePB::Stopped,
         lack_of_resource: None,
+        plugin_version: None,
       })
       .send();
     }
@@ -466,9 +522,10 @@ async fn initialize_ai_plugin(
   )
   .payload(LocalAIPB {
     enabled: true,
-    is_plugin_executable_ready: true,
+    plugin_downloaded: true,
     state: RunningStatePB::ReadyToRun,
     lack_of_resource: lack_of_resource.clone(),
+    plugin_version: None,
   })
   .send();
 

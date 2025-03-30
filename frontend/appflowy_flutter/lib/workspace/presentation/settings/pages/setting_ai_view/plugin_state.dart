@@ -1,15 +1,11 @@
-import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/workspace/application/settings/ai/download_offline_ai_app_bloc.dart';
 import 'package:appflowy/workspace/application/settings/ai/plugin_state_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/pages/setting_ai_view/init_local_ai.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -27,7 +23,10 @@ class PluginStateIndicator extends StatelessWidget {
             unknown: () => const SizedBox.shrink(),
             readToRun: () => const _PrepareRunning(),
             initializingPlugin: () => const InitLocalAIIndicator(),
-            running: () => const _LocalAIRunning(),
+            running: (version) => _LocalAIRunning(
+              key: ValueKey(version),
+              version: version,
+            ),
             restartPlugin: () => const _RestartPluginButton(),
             lackOfResource: (desc) => _LackOfResource(desc: desc),
           );
@@ -88,7 +87,9 @@ class _RestartPluginButton extends StatelessWidget {
 }
 
 class _LocalAIRunning extends StatelessWidget {
-  const _LocalAIRunning();
+  const _LocalAIRunning({required this.version, super.key});
+
+  final String version;
 
   @override
   Widget build(BuildContext context) {
@@ -113,6 +114,14 @@ class _LocalAIRunning extends StatelessWidget {
                     color: Color(0xFF2E7D32),
                   ),
                   const HSpace(6),
+                  if (version.isNotEmpty)
+                    Flexible(
+                      child: FlowyText(
+                        "($version) ",
+                        fontSize: 11,
+                        color: const Color(0xFF1E4620),
+                      ),
+                    ),
                   Flexible(
                     child: FlowyText(
                       LocaleKeys.settings_aiPage_keys_localAIRunning.tr(),
@@ -126,95 +135,6 @@ class _LocalAIRunning extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class OpenOrDownloadOfflineAIApp extends StatelessWidget {
-  const OpenOrDownloadOfflineAIApp({required this.onRetry, super.key});
-
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => DownloadOfflineAIBloc(),
-      child: BlocBuilder<DownloadOfflineAIBloc, DownloadOfflineAIState>(
-        builder: (context, state) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              RichText(
-                maxLines: 3,
-                textAlign: TextAlign.left,
-                text: TextSpan(
-                  children: <TextSpan>[
-                    TextSpan(
-                      text:
-                          "${LocaleKeys.settings_aiPage_keys_offlineAIInstruction1.tr()} ",
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall!
-                          .copyWith(height: 1.5),
-                    ),
-                    TextSpan(
-                      text:
-                          " ${LocaleKeys.settings_aiPage_keys_offlineAIInstruction2.tr()} ",
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: FontSizes.s14,
-                            color: Theme.of(context).colorScheme.primary,
-                            height: 1.5,
-                          ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () => afLaunchUrlString(
-                              "https://docs.appflowy.io/docs/appflowy/product/appflowy-ai-offline",
-                            ),
-                    ),
-                    TextSpan(
-                      text:
-                          " ${LocaleKeys.settings_aiPage_keys_offlineAIInstruction3.tr()} ",
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall!
-                          .copyWith(height: 1.5),
-                    ),
-                    TextSpan(
-                      text:
-                          "${LocaleKeys.settings_aiPage_keys_offlineAIDownload1.tr()} ",
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall!
-                          .copyWith(height: 1.5),
-                    ),
-                    TextSpan(
-                      text:
-                          " ${LocaleKeys.settings_aiPage_keys_offlineAIDownload2.tr()} ",
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: FontSizes.s14,
-                            color: Theme.of(context).colorScheme.primary,
-                            height: 1.5,
-                          ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap =
-                            () => context.read<DownloadOfflineAIBloc>().add(
-                                  const DownloadOfflineAIEvent.started(),
-                                ),
-                    ),
-                    TextSpan(
-                      text:
-                          " ${LocaleKeys.settings_aiPage_keys_offlineAIDownload3.tr()} ",
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall!
-                          .copyWith(height: 1.5),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          );
-        },
       ),
     );
   }
