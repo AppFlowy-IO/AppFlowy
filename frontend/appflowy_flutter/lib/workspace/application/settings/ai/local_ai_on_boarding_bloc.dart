@@ -26,7 +26,7 @@ class LocalAIOnBoardingBloc
     _dispatch();
   }
 
-  void _onPaymentSuccessful() {
+  Future<void> _onPaymentSuccessful() async {
     if (isClosed) {
       return;
     }
