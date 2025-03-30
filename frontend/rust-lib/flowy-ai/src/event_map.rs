@@ -34,7 +34,6 @@ pub fn init(ai_manager: Weak<AIManager>) -> AFPlugin {
     .event(AIEvent::RestartLocalAI, restart_local_ai_handler)
     .event(AIEvent::ToggleLocalAI, toggle_local_ai_handler)
     .event(AIEvent::GetLocalAIState, get_local_ai_state_handler)
-    .event(AIEvent::GetLocalAIDownloadLink, get_offline_app_handler)
     .event(AIEvent::GetLocalAISetting, get_local_ai_setting_handler)
     .event(
       AIEvent::UpdateLocalAISetting,
@@ -96,9 +95,6 @@ pub enum AIEvent {
   /// Return LocalAIPB that contains the current state of the local AI
   #[event(output = "LocalAIPB")]
   GetLocalAIState = 19,
-
-  #[event(output = "LocalAIAppLinkPB")]
-  GetLocalAIDownloadLink = 22,
 
   #[event(input = "CreateChatContextPB")]
   CreateChatContext = 23,

@@ -585,20 +585,17 @@ pub struct LocalAIPB {
   #[pb(index = 1)]
   pub enabled: bool,
 
-  #[pb(index = 2)]
-  pub is_plugin_executable_ready: bool,
-
-  #[pb(index = 3, one_of)]
+  #[pb(index = 2, one_of)]
   pub lack_of_resource: Option<String>,
 
-  #[pb(index = 4)]
+  #[pb(index = 3)]
   pub state: RunningStatePB,
-}
 
-#[derive(Default, ProtoBuf, Clone, Debug)]
-pub struct LocalAIAppLinkPB {
-  #[pb(index = 1)]
-  pub link: String,
+  #[pb(index = 4, one_of)]
+  pub plugin_version: Option<String>,
+
+  #[pb(index = 5)]
+  pub plugin_downloaded: bool,
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]

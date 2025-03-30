@@ -302,15 +302,6 @@ pub(crate) async fn get_local_ai_state_handler(
 }
 
 #[tracing::instrument(level = "debug", skip_all, err)]
-pub(crate) async fn get_offline_app_handler(
-  ai_manager: AFPluginState<Weak<AIManager>>,
-) -> DataResult<LocalAIAppLinkPB, FlowyError> {
-  let ai_manager = upgrade_ai_manager(ai_manager)?;
-  let link = ai_manager.local_ai.get_plugin_download_link().await?;
-  data_result_ok(LocalAIAppLinkPB { link })
-}
-
-#[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn create_chat_context_handler(
   data: AFPluginData<CreateChatContextPB>,
   _ai_manager: AFPluginState<Weak<AIManager>>,

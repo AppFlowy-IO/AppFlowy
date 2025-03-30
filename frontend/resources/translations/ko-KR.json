@@ -851,7 +851,7 @@
         "localAIStart": "로컬 AI가 시작 중입니다. 느리다면 껐다가 다시 켜보세요",
         "localAILoading": "로컬 AI 채팅 모델이 로드 중입니다...",
         "localAIStopped": "로컬 AI가 중지되었습니다",
-        "localAIRunning": "로컬 AI가 실행 중입니다",
+        "localAIRunning": "로컬 AI가 실행 중입니다. 버전: {}",
         "localAIInitializing": "로컬 AI가 로드 중이며 장치에 따라 몇 분이 소요될 수 있습니다",
         "localAINotReadyTextFieldPrompt": "로컬 AI가 로드되는 동안 편집할 수 없습니다",
         "failToLoadLocalAI": "로컬 AI를 시작하지 못했습니다",
