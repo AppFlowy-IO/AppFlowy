@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -277,10 +278,12 @@ class AiWriterCubit extends Cubit<AiWriterState> {
   ) async {
     final node = aiWriterNode;
     if (node == null) {
+      Log.warn('[AI writer] Node is null');
       return (false, '');
     }
     final selection = node.aiWriterSelection?.normalized;
     if (selection == null) {
+      Log.warn('[AI writer]Selection is null');
       return (false, '');
     }
 
@@ -292,6 +295,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     }
 
     final selectionText = await editorState.getMarkdownInSelection(selection);
+    Log.warn('[AI writer] Selection is null');
 
     if (command == AiWriterCommand.userQuestion) {
       records.add(
