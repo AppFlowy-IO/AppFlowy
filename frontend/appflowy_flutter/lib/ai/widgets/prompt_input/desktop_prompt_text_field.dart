@@ -55,16 +55,18 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
     super.initState();
 
     widget.textController.addListener(handleTextControllerChanged);
-    focusNode.addListener(
-      () {
-        if (!widget.hideDecoration) {
-          setState(() {}); // refresh border color
-        }
-        if (!focusNode.hasFocus) {
-          cancelMentionPage(); // hide menu when lost focus
-        }
-      },
-    );
+    focusNode
+      ..addListener(
+        () {
+          if (!widget.hideDecoration) {
+            setState(() {}); // refresh border color
+          }
+          if (!focusNode.hasFocus) {
+            cancelMentionPage(); // hide menu when lost focus
+          }
+        },
+      )
+      ..onKeyEvent = handleKeyEvent;
 
     updateSendButtonState();
 
@@ -344,11 +346,16 @@ class _DesktopPromptInputState extends State<DesktopPromptInput> {
   }
 
   KeyEventResult handleKeyEvent(FocusNode node, KeyEvent event) {
-    if (event.character == '@') {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        inputControlCubit.startSearching(widget.textController.value);
-        overlayController.show();
-      });
+    // if (event.character == '@') {
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     inputControlCubit.startSearching(widget.textController.value);
+    //     overlayController.show();
+    //   });
+    // }
+    if (event is KeyDownEvent &&
+        event.logicalKey == LogicalKeyboardKey.escape) {
+      node.unfocus();
+      return KeyEventResult.handled;
     }
     return KeyEventResult.ignored;
   }

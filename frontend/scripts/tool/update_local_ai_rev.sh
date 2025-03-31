@@ -15,7 +15,7 @@ for dir in "${directories[@]}"; do
     pushd "$dir" > /dev/null
 
     # Define the crates to update
-    crates=("appflowy-local-ai" "appflowy-plugin")
+    crates=("af-local-ai" "af-plugin" "af-mcp")
 
     for crate in "${crates[@]}"; do
         sed -i.bak "/^${crate}[[:alnum:]-]*[[:space:]]*=/s/rev = \"[a-fA-F0-9]\{6,40\}\"/rev = \"$NEW_REV\"/g" Cargo.toml

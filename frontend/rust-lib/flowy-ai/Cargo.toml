@@ -12,6 +12,7 @@ flowy-error = { path = "../flowy-error", features = [
   "impl_from_dispatch_error",
   "impl_from_collab_folder",
   "impl_from_sqlite",
+  "impl_from_appflowy_cloud",
 ] }
 lib-dispatch = { workspace = true }
 tracing.workspace = true
@@ -34,8 +35,8 @@ serde_json = { workspace = true }
 anyhow = "1.0.86"
 tokio-stream = "0.1.15"
 tokio-util = { workspace = true, features = ["full"] }
-appflowy-local-ai = { version = "0.1.0", features = ["verbose"] }
-appflowy-plugin = { version = "0.1.0" }
+af-local-ai = { version = "0.1.0" }
+af-plugin = { version = "0.1.0" }
 reqwest = { version = "0.11.27", features = ["json"] }
 sha2 = "0.10.7"
 base64 = "0.21.5"
@@ -50,6 +51,7 @@ collab-integrate.workspace = true
 
 [target.'cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))'.dependencies]
 notify = "6.1.1"
+af-mcp = { version = "0.1.0" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 winreg = "0.55"

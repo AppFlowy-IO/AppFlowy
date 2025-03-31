@@ -1,4 +1,4 @@
-use appflowy_local_ai::ai_ops::{LocalAITranslateItem, LocalAITranslateRowData};
+use af_local_ai::ai_ops::{LocalAITranslateItem, LocalAITranslateRowData};
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_ai::ai_manager::AIManager;

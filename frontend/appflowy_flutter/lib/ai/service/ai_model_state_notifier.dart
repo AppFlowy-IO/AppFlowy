@@ -113,7 +113,6 @@ class AIModelStateNotifier {
     final localAiState = _localAIState;
 
     if (availableModels == null) {
-      Log.warn("No available models");
       return (AiType.cloud, LocaleKeys.chat_inputMessageHint.tr(), true);
     }
     if (localAiState == null) {
@@ -173,7 +172,7 @@ class AIModelStateNotifier {
 
 extension AiModelExtension on AIModelPB {
   bool get isDefault {
-    return name == "Default";
+    return name == "Auto";
   }
 
   String get i18n {

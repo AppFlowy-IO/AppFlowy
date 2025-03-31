@@ -91,7 +91,11 @@ class PluginStateBloc extends Bloc<PluginStateEvent, PluginStateState> {
             );
             break;
           case RunningStatePB.Running:
-            emit(const PluginStateState(action: PluginStateAction.running()));
+            emit(
+              PluginStateState(
+                action: PluginStateAction.running(aiState.pluginVersion),
+              ),
+            );
             break;
           case RunningStatePB.Stopped:
             emit(
@@ -140,7 +144,7 @@ class PluginStateAction with _$PluginStateAction {
   const factory PluginStateAction.unknown() = _Unknown;
   const factory PluginStateAction.readToRun() = _ReadyToRun;
   const factory PluginStateAction.initializingPlugin() = _InitializingPlugin;
-  const factory PluginStateAction.running() = _PluginRunning;
+  const factory PluginStateAction.running(String version) = _PluginRunning;
   const factory PluginStateAction.restartPlugin() = _RestartPlugin;
   const factory PluginStateAction.lackOfResource(String desc) = _LackOfResource;
 }

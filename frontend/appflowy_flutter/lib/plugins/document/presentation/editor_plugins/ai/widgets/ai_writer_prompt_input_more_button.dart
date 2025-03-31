@@ -135,9 +135,9 @@ class MoreAiWriterCommands extends StatelessWidget {
         return FlowyButton(
           leftIcon: FlowySvg(
             command.icon,
-            size: const Size.square(16),
             color: Theme.of(context).iconTheme.color,
           ),
+          leftIconSize: const Size.square(20),
           margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
           text: FlowyText(
             command.i18n,
