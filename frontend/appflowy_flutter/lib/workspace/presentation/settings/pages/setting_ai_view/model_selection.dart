@@ -20,25 +20,28 @@ class AIModelSelection extends StatelessWidget {
       buildWhen: (previous, current) =>
           previous.availableModels != current.availableModels,
       builder: (context, state) {
-        if (state.availableModels == null) {
+        final models = state.availableModels?.models;
+
+        if (models == null) {
           return const SizedBox(
             // Using same height as SettingsDropdown to avoid layout shift
             height: height,
           );
         }
 
+        final localModels = models.where((model) => model.isLocal).toList();
+        final cloudModels = models.where((model) => !model.isLocal).toList();
+
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Flexible(
+              Expanded(
                 child: FlowyText.medium(
                   LocaleKeys.settings_aiPage_keys_llmModelType.tr(),
-                  fontSize: 14,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const Spacer(),
               Flexible(
                 child: SettingsDropdown<AIModelPB>(
                   key: const Key('_AIModelSelection'),
@@ -46,12 +49,14 @@ class AIModelSelection extends StatelessWidget {
                       .read<SettingsAIBloc>()
                       .add(SettingsAIEvent.selectModel(model)),
                   selectedOption: state.availableModels!.selectedModel,
-                  options: state.availableModels!.models
+                  options: [...localModels, ...cloudModels]
                       .map(
                         (model) => buildDropdownMenuEntry<AIModelPB>(
                           context,
                           value: model,
-                          label: model.i18n,
+                          label: model.isLocal
+                              ? "${model.i18n} (Local)"
+                              : model.i18n,
                           subLabel: model.desc,
                           maximumHeight: height,
                         ),

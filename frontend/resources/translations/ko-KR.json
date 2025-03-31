@@ -868,9 +868,9 @@
         "activeOfflineAI": "활성화됨",
         "downloadOfflineAI": "다운로드",
         "openModelDirectory": "폴더 열기",
-        "localAISetupInstruction1": "이 지침을 따르세요",
-        "localAISetupInstruction2": "지침",
-        "localAISetupInstruction3": "Ollama 및 AppFlowy 로컬 AI를 설정합니다. 이미 설정한 경우 건너뛰세요",
+        "pleaseFollowThese": "지침",
+        "instructions": "이 지침을 따르세요",
+        "installOllamaLai": "Ollama 및 AppFlowy 로컬 AI를 설정합니다. 이미 설정한 경우 건너뛰세요",
         "startLocalAI": "로컬 AI를 시작하는 데 몇 초가 소요될 수 있습니다"
       }
     },
