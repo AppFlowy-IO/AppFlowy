@@ -46,17 +46,27 @@ class _ReadyToRun extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFFEDF7ED),
-        borderRadius: BorderRadius.all(Radius.circular(8)),
-      ),
-      padding: const EdgeInsets.all(8.0),
-      width: double.infinity,
-      child: FlowyText(
-        LocaleKeys.settings_aiPage_keys_localAIStart.tr(),
-        color: const Color(0xFF1E4620),
-        maxLines: 3,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          const SizedBox.square(
+            dimension: 20.0,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.0,
+              strokeAlign: BorderSide.strokeAlignInside,
+            ),
+          ),
+          const HSpace(8.0),
+          Expanded(
+            child: FlowyText(
+              LocaleKeys.settings_aiPage_keys_localAIStart.tr(),
+              color: const Color(0xFF1E4620),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -67,17 +77,27 @@ class _Initializing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFFEDF7ED),
-        borderRadius: BorderRadius.all(Radius.circular(8)),
-      ),
-      padding: const EdgeInsets.all(8.0),
-      width: double.infinity,
-      child: FlowyText(
-        LocaleKeys.settings_aiPage_keys_localAIInitializing.tr(),
-        color: const Color(0xFF1E4620),
-        maxLines: 3,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          const SizedBox.square(
+            dimension: 20.0,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.0,
+              strokeAlign: BorderSide.strokeAlignInside,
+            ),
+          ),
+          HSpace(8),
+          Expanded(
+            child: FlowyText(
+              LocaleKeys.settings_aiPage_keys_localAIInitializing.tr(),
+              color: const Color(0xFF1E4620),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
     );
   }
