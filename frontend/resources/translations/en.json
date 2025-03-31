@@ -877,12 +877,13 @@
         "activeOfflineAI": "Active",
         "downloadOfflineAI": "Download",
         "openModelDirectory": "Open folder",
-        "localAISetupInstruction1": "Please follow these",
-        "localAISetupInstruction2": "instructions",
-        "localAISetupInstruction3": "to set up Ollama and AppFlowy Local AI.",
         "laiNotReady": "The Local AI app was not installed correctly.",
         "ollamaNotReady": "The Ollama server is not ready.",
-        "modelsMissing": "Cannot find the model. You can use the ollama pull command to install them."
+        "pleaseFollowThese": "Please follow these",
+        "instructions": "instructions",
+        "installOllamaLai": "to set up Ollama and AppFlowy Local AI.",
+        "modelsMissing": "Cannot find the required models.",
+        "downloadModel": "to download them."
       }
     },
     "planPage": {

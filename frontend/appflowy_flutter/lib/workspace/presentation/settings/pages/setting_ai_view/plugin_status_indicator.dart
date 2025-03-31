@@ -274,6 +274,35 @@ class _LackOfResource extends StatelessWidget {
             text: ' ',
             style: textStyle,
           ),
+          TextSpan(
+            text: LocaleKeys.settings_aiPage_keys_pleaseFollowThese.tr(),
+            style: textStyle,
+          ),
+          TextSpan(
+            text: ' ',
+            style: textStyle,
+          ),
+          TextSpan(
+            text: LocaleKeys.settings_aiPage_keys_instructions.tr(),
+            style: textStyle?.copyWith(
+              fontWeight: FontWeight.w600,
+              decoration: TextDecoration.underline,
+            ),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                afLaunchUrlString(
+                  "https://appflowy.com/guide/appflowy-local-ai-ollama",
+                );
+              },
+          ),
+          TextSpan(
+            text: ' ',
+            style: textStyle,
+          ),
+          TextSpan(
+            text: LocaleKeys.settings_aiPage_keys_downloadModel.tr(),
+            style: textStyle,
+          ),
         ],
       ),
     );
@@ -282,7 +311,7 @@ class _LackOfResource extends StatelessWidget {
   List<TextSpan> _downloadInstructions(TextStyle? textStyle) {
     return [
       TextSpan(
-        text: LocaleKeys.settings_aiPage_keys_localAISetupInstruction1.tr(),
+        text: LocaleKeys.settings_aiPage_keys_pleaseFollowThese.tr(),
         style: textStyle,
       ),
       TextSpan(
@@ -290,7 +319,7 @@ class _LackOfResource extends StatelessWidget {
         style: textStyle,
       ),
       TextSpan(
-        text: LocaleKeys.settings_aiPage_keys_localAISetupInstruction2.tr(),
+        text: LocaleKeys.settings_aiPage_keys_instructions.tr(),
         style: textStyle?.copyWith(
           fontWeight: FontWeight.w600,
           decoration: TextDecoration.underline,
@@ -304,7 +333,7 @@ class _LackOfResource extends StatelessWidget {
       ),
       TextSpan(text: ' ', style: textStyle),
       TextSpan(
-        text: LocaleKeys.settings_aiPage_keys_localAISetupInstruction3.tr(),
+        text: LocaleKeys.settings_aiPage_keys_installOllamaLai.tr(),
         style: textStyle,
       ),
     ];
