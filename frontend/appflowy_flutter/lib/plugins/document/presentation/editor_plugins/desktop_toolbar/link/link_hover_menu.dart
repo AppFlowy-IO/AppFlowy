@@ -437,13 +437,11 @@ class _LinkHoverMenuState extends State<LinkHoverMenu> {
     } else {
       text = href;
     }
-    return Flexible(
-      child: FlowyText.regular(
-        text,
-        overflow: TextOverflow.ellipsis,
-        figmaLineHeight: 20,
-        fontSize: 14,
-      ),
+    return FlowyText.regular(
+      text,
+      overflow: TextOverflow.ellipsis,
+      figmaLineHeight: 20,
+      fontSize: 14,
     );
   }
 
