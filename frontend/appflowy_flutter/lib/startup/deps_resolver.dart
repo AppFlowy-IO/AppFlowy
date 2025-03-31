@@ -1,3 +1,4 @@
+import 'package:appflowy/ai/service/appflowy_ai_service.dart';
 import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/network_monitor.dart';
 import 'package:appflowy/env/cloud_env.dart';
@@ -59,6 +60,7 @@ Future<void> _resolveCloudDeps(GetIt getIt) async {
   final env = await AppFlowyCloudSharedEnv.fromEnv();
   Log.info("cloud setting: $env");
   getIt.registerFactory<AppFlowyCloudSharedEnv>(() => env);
+  getIt.registerFactory<AIRepository>(() => AppFlowyAIService());
 
   if (isAppFlowyCloudEnabled) {
     getIt.registerSingleton(

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appflowy/ai/ai.dart';
+import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
 import 'package:appflowy_backend/log.dart';
@@ -23,15 +24,14 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     this.onCreateNode,
     this.onRemoveNode,
     this.onAppendToDocument,
-    AppFlowyAIService? aiService,
-  })  : _aiService = aiService ?? AppFlowyAIService(),
+  })  : _aiService = getIt<AIRepository>(),
         _textRobot = MarkdownTextRobot(editorState: editorState),
         selectedSourcesNotifier = ValueNotifier([documentId]),
         super(IdleAiWriterState());
 
   final String documentId;
   final EditorState editorState;
-  final AppFlowyAIService _aiService;
+  final AIRepository _aiService;
   final MarkdownTextRobot _textRobot;
   final void Function()? onCreateNode;
   final void Function()? onRemoveNode;
@@ -295,7 +295,6 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     }
 
     final selectionText = await editorState.getMarkdownInSelection(selection);
-    Log.warn('[AI writer] Selection is null');
 
     if (command == AiWriterCommand.userQuestion) {
       records.add(

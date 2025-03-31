@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:appflowy/ai/service/appflowy_ai_service.dart';
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/env/cloud_env_test.dart';
 import 'package:appflowy/startup/entry_point.dart';
@@ -20,6 +21,8 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import 'mock/mock_ai.dart';
+
 class FlowyTestContext {
   FlowyTestContext({required this.applicationDataDirectory});
 
@@ -33,8 +36,9 @@ extension AppFlowyTestBase on WidgetTester {
     // use to specify the application data directory, if not specified, a temporary directory will be used.
     String? dataDirectory,
     Size windowSize = const Size(1600, 1200),
-    AuthenticatorType? cloudType,
     String? email,
+    AuthenticatorType? cloudType,
+    AIRepository Function()? aiRepositoryBuilder,
   }) async {
     if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
       // Set the window size
@@ -60,6 +64,10 @@ extension AppFlowyTestBase on WidgetTester {
               rustEnvs["GOTRUE_ADMIN_EMAIL"] = "admin@example.com";
               rustEnvs["GOTRUE_ADMIN_PASSWORD"] = "password";
               break;
+            case AuthenticatorType.appflowyCloudDevelop:
+              rustEnvs["GOTRUE_ADMIN_EMAIL"] = "admin@example.com";
+              rustEnvs["GOTRUE_ADMIN_PASSWORD"] = "password";
+              break;
             default:
               throw Exception("not supported");
           }
@@ -75,11 +83,32 @@ extension AppFlowyTestBase on WidgetTester {
                   await useLocalServer();
                   break;
                 case AuthenticatorType.appflowyCloudSelfHost:
-                  await useTestSelfHostedAppFlowyCloud();
+                  await useSelfHostedAppFlowyCloud(TestEnv.afCloudUrl);
                   getIt.unregister<AuthService>();
+                  getIt.unregister<AIRepository>();
+
                   getIt.registerFactory<AuthService>(
                     () => AppFlowyCloudMockAuthService(email: email),
                   );
+                  getIt.registerFactory<AIRepository>(
+                    aiRepositoryBuilder ?? () => MockAIRepository(),
+                  );
+                case AuthenticatorType.appflowyCloudDevelop:
+                  if (integrationMode().isDevelop) {
+                    await useAppFlowyCloudDevelop("http://localhost");
+                  } else {
+                    await useSelfHostedAppFlowyCloud(TestEnv.afCloudUrl);
+                  }
+                  getIt.unregister<AuthService>();
+                  getIt.unregister<AIRepository>();
+
+                  getIt.registerFactory<AuthService>(
+                    () => AppFlowyCloudMockAuthService(email: email),
+                  );
+                  getIt.registerFactory<AIRepository>(
+                    aiRepositoryBuilder ?? () => MockAIRepository(),
+                  );
+                  break;
                 default:
                   throw Exception("not supported");
               }
@@ -273,10 +302,6 @@ extension AppFlowyFinderTestBase on CommonFinders {
       skipOffstage: skipOffstage,
     );
   }
-}
-
-Future<void> useTestSelfHostedAppFlowyCloud() async {
-  await useSelfHostedAppFlowyCloudWithURL(TestEnv.afCloudUrl);
 }
 
 Future<String> mockApplicationDataStorage({
