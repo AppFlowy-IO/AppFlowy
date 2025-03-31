@@ -41,7 +41,6 @@ extension AppFlowyTestBase on WidgetTester {
     AIRepository Function()? aiRepositoryBuilder,
   }) async {
     if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-      // Set the window size
       await binding.setSurfaceSize(windowSize);
     }
 
@@ -54,73 +53,87 @@ extension AppFlowyTestBase on WidgetTester {
     await FlowyRunner.run(
       AppFlowyApplication(),
       IntegrationMode.integrationTest,
-      rustEnvsBuilder: () {
-        final rustEnvs = <String, String>{};
-        if (cloudType != null) {
-          switch (cloudType) {
-            case AuthenticatorType.local:
-              break;
-            case AuthenticatorType.appflowyCloudSelfHost:
-              rustEnvs["GOTRUE_ADMIN_EMAIL"] = "admin@example.com";
-              rustEnvs["GOTRUE_ADMIN_PASSWORD"] = "password";
-              break;
-            case AuthenticatorType.appflowyCloudDevelop:
-              rustEnvs["GOTRUE_ADMIN_EMAIL"] = "admin@example.com";
-              rustEnvs["GOTRUE_ADMIN_PASSWORD"] = "password";
-              break;
-            default:
-              throw Exception("not supported");
-          }
-        }
-        return rustEnvs;
-      },
-      didInitGetItCallback: () {
-        return Future(
-          () async {
-            if (cloudType != null) {
-              switch (cloudType) {
-                case AuthenticatorType.local:
-                  await useLocalServer();
-                  break;
-                case AuthenticatorType.appflowyCloudSelfHost:
-                  await useSelfHostedAppFlowyCloud(TestEnv.afCloudUrl);
-                  getIt.unregister<AuthService>();
-                  getIt.unregister<AIRepository>();
-
-                  getIt.registerFactory<AuthService>(
-                    () => AppFlowyCloudMockAuthService(email: email),
-                  );
-                  getIt.registerFactory<AIRepository>(
-                    aiRepositoryBuilder ?? () => MockAIRepository(),
-                  );
-                case AuthenticatorType.appflowyCloudDevelop:
-                  if (integrationMode().isDevelop) {
-                    await useAppFlowyCloudDevelop("http://localhost");
-                  } else {
-                    await useSelfHostedAppFlowyCloud(TestEnv.afCloudUrl);
-                  }
-                  getIt.unregister<AuthService>();
-                  getIt.unregister<AIRepository>();
-
-                  getIt.registerFactory<AuthService>(
-                    () => AppFlowyCloudMockAuthService(email: email),
-                  );
-                  getIt.registerFactory<AIRepository>(
-                    aiRepositoryBuilder ?? () => MockAIRepository(),
-                  );
-                  break;
-                default:
-                  throw Exception("not supported");
-              }
-            }
-          },
-        );
-      },
+      rustEnvsBuilder: () => _buildRustEnvs(cloudType),
+      didInitGetItCallback: () => _initializeCloudServices(
+        cloudType: cloudType,
+        email: email,
+        aiRepositoryBuilder: aiRepositoryBuilder,
+      ),
     );
 
     await waitUntilSignInPageShow();
     return FlowyTestContext(
       applicationDataDirectory: applicationDataDirectory,
+    );
+  }
+
+  Map<String, String> _buildRustEnvs(AuthenticatorType? cloudType) {
+    final rustEnvs = <String, String>{};
+    if (cloudType != null) {
+      switch (cloudType) {
+        case AuthenticatorType.local:
+          break;
+        case AuthenticatorType.appflowyCloudSelfHost:
+        case AuthenticatorType.appflowyCloudDevelop:
+          rustEnvs["GOTRUE_ADMIN_EMAIL"] = "admin@example.com";
+          rustEnvs["GOTRUE_ADMIN_PASSWORD"] = "password";
+          break;
+        default:
+          throw Exception("Unsupported cloud type: $cloudType");
+      }
+    }
+    return rustEnvs;
+  }
+
+  Future<void> _initializeCloudServices({
+    required AuthenticatorType? cloudType,
+    String? email,
+    AIRepository Function()? aiRepositoryBuilder,
+  }) async {
+    if (cloudType == null) return;
+
+    switch (cloudType) {
+      case AuthenticatorType.local:
+        await useLocalServer();
+        break;
+      case AuthenticatorType.appflowyCloudSelfHost:
+        await _setupAppFlowyCloud(
+          useLocal: false,
+          email: email,
+          aiRepositoryBuilder: aiRepositoryBuilder,
+        );
+        break;
+      case AuthenticatorType.appflowyCloudDevelop:
+        await _setupAppFlowyCloud(
+          useLocal: integrationMode().isDevelop,
+          email: email,
+          aiRepositoryBuilder: aiRepositoryBuilder,
+        );
+        break;
+      default:
+        throw Exception("Unsupported cloud type: $cloudType");
+    }
+  }
+
+  Future<void> _setupAppFlowyCloud({
+    required bool useLocal,
+    String? email,
+    AIRepository Function()? aiRepositoryBuilder,
+  }) async {
+    if (useLocal) {
+      await useAppFlowyCloudDevelop("http://localhost");
+    } else {
+      await useSelfHostedAppFlowyCloud(TestEnv.afCloudUrl);
+    }
+
+    getIt.unregister<AuthService>();
+    getIt.unregister<AIRepository>();
+
+    getIt.registerFactory<AuthService>(
+      () => AppFlowyCloudMockAuthService(email: email),
+    );
+    getIt.registerFactory<AIRepository>(
+      aiRepositoryBuilder ?? () => MockAIRepository(),
     );
   }
 

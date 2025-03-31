@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu/block_menu_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
@@ -531,7 +530,6 @@ extension on WidgetTester {
     (String, Uint8List?)? image,
   }) async {
     await initializeAppFlowy();
-    await useAppFlowyCloudDevelop("http://localhost");
     await tapAnonymousSignInButton();
 
     // create a new document
