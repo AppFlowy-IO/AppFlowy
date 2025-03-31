@@ -2517,11 +2517,11 @@
         "dialogTitle": "Benutzerkonto löschen",
         "dialogContent1": "Bist du sicher, dass du dein Benutzerkonto unwiderruflich löschen möchtest?",
         "dialogContent2": "Diese Aktion kann nicht rückgängig gemacht werden und führt dazu, dass der Zugriff auf alle Teambereiche aufgehoben wird, dein gesamtes Benutzerkonto, einschließlich privater Arbeitsbereiche, gelöscht wird und du aus allen freigegebenen Arbeitsbereichen entfernt wirst.",
-        "confirmHint1": "Geben Sie zur Bestätigung bitte „MEIN KONTO LÖSCHEN“ ein.",
+        "confirmHint1": "Geben Sie zur Bestätigung bitte „@:newSettings.myAccount.deleteAccount.confirmHint3“ ein.",
         "confirmHint3": "MEIN KONTO LÖSCHEN",
         "checkToConfirmError": "Sie müssen das Kontrollkästchen aktivieren, um das Löschen zu bestätigen",
         "failedToGetCurrentUser": "Aktuelle Benutzer-E-Mail konnte nicht abgerufen werden.",
-        "confirmTextValidationFailed": "Ihr Bestätigungstext stimmt nicht mit „MEIN KONTO LÖSCHEN“ überein.",
+        "confirmTextValidationFailed": "Ihr Bestätigungstext stimmt nicht mit „@:newSettings.myAccount.deleteAccount.confirmHint3“ überein.",
         "deleteAccountSuccess": "Konto erfolgreich gelöscht"
       }
     },

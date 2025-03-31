@@ -2518,12 +2518,12 @@
         "dialogTitle": "Hesabı sil",
         "dialogContent1": "Hesabınızı kalıcı olarak silmek istediğinizden emin misiniz?",
         "dialogContent2": "Bu işlem GERİ ALINAMAZ ve tüm çalışma alanlarından erişiminizi kaldıracak, özel çalışma alanları dahil tüm hesabınızı silecek ve sizi tüm paylaşılan çalışma alanlarından çıkaracaktır.",
-        "confirmHint1": "Onaylamak için lütfen \"HESABIMI SİL\" yazın.",
+        "confirmHint1": "Onaylamak için lütfen \"@:newSettings.myAccount.deleteAccount.confirmHint3\" yazın.",
         "confirmHint2": "Bu işlemin GERİ ALINAMAZ olduğunu ve hesabımı ve ilişkili tüm verileri kalıcı olarak sileceğini anlıyorum.",
         "confirmHint3": "HESABIMI SİL",
         "checkToConfirmError": "Silme işlemini onaylamak için kutuyu işaretlemelisiniz",
         "failedToGetCurrentUser": "Mevcut kullanıcı e-postası alınamadı",
-        "confirmTextValidationFailed": "Onay metniniz \"HESABIMI SİL\" ile eşleşmiyor",
+        "confirmTextValidationFailed": "Onay metniniz \"@:newSettings.myAccount.deleteAccount.confirmHint3\" ile eşleşmiyor",
         "deleteAccountSuccess": "Hesap başarıyla silindi"
       }
     },

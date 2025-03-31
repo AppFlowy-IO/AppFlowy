@@ -3,20 +3,25 @@ import 'dart:math';
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/desktop_floating_toolbar.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
+import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'link_create_menu.dart';
 import 'link_edit_menu.dart';
-import 'link_styles.dart';
 
 class LinkHoverTrigger extends StatefulWidget {
   const LinkHoverTrigger({
@@ -45,6 +50,7 @@ class LinkHoverTrigger extends StatefulWidget {
 class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
   final hoverMenuController = PopoverController();
   final editMenuController = PopoverController();
+  final toolbarController = getIt<FloatingToolbarController>();
   bool isHoverMenuShowing = false;
   bool isHoverMenuHovering = false;
   bool isHoverTriggerHovering = false;
@@ -57,12 +63,13 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
 
   Attributes get attribute => widget.attribute;
 
-  HoverTriggerKey get triggerKey => HoverTriggerKey(widget.node.id, selection);
+  late HoverTriggerKey triggerKey = HoverTriggerKey(widget.node.id, selection);
 
   @override
   void initState() {
     super.initState();
     getIt<LinkHoverTriggers>()._add(triggerKey, showLinkHoverMenu);
+    toolbarController.addDisplayListener(onToolbarShow);
   }
 
   @override
@@ -70,6 +77,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
     hoverMenuController.close();
     editMenuController.close();
     getIt<LinkHoverTriggers>()._remove(triggerKey, showLinkHoverMenu);
+    toolbarController.removeDisplayListener(onToolbarShow);
     super.dispose();
   }
 
@@ -132,9 +140,9 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
           tryToDismissLinkHoverMenu();
         },
         onOpenLink: openLink,
-        onCopyLink: copyLink,
+        onCopyLink: () => copyLink(context),
         onEditLink: showLinkEditMenu,
-        onRemoveLink: () => removeLink(editorState, selection, true),
+        onRemoveLink: () => removeLink(editorState, selection),
       ),
       child: child,
     );
@@ -144,6 +152,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
     final href = attribute.href ?? '',
         isPage = attribute.isPage,
         title = editorState.getTextInSelection(selection).join();
+    final currentViewId = context.read<DocumentBloc?>()?.documentId ?? '';
     return AppFlowyPopover(
       controller: editMenuController,
       direction: PopoverDirection.bottomWithLeftAligned,
@@ -159,6 +168,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
         minHeight: 282,
       ),
       popupBuilder: (context) => LinkEditMenu(
+        currentViewId: currentViewId,
         linkInfo: LinkInfo(name: title, link: href, isPage: isPage),
         onDismiss: () => editMenuController.close(),
         onApply: (info) async {
@@ -173,14 +183,19 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
           editMenuController.close();
           await editorState.apply(transaction);
         },
-        onRemoveLink: () => removeLink(editorState, selection, true),
+        onRemoveLink: (linkinfo) =>
+            onRemoveAndReplaceLink(editorState, selection, linkinfo.name),
       ),
       child: child,
     );
   }
 
+  void onToolbarShow() => hoverMenuController.close();
+
   void showLinkHoverMenu() {
-    if (isHoverMenuShowing) return;
+    if (isHoverMenuShowing || toolbarController.isToolbarShowing || !mounted) {
+      return;
+    }
     keepEditorFocusNotifier.increase();
     hoverMenuController.show();
   }
@@ -219,20 +234,24 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
     }
   }
 
-  Future<void> copyLink() async {
+  Future<void> copyLink(BuildContext context) async {
     final href = widget.attribute.href ?? '';
     if (href.isEmpty) return;
     await getIt<ClipboardService>()
         .setData(ClipboardServiceData(plainText: href));
+    if (context.mounted) {
+      showToastNotification(
+        context,
+        message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
+      );
+    }
     hoverMenuController.close();
   }
 
   void removeLink(
     EditorState editorState,
     Selection selection,
-    bool isHref,
   ) {
-    if (!isHref) return;
     final node = editorState.getNodeAtPath(selection.end.path);
     if (node == null) {
       return;
@@ -251,9 +270,34 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
       );
     editorState.apply(transaction);
   }
+
+  void onRemoveAndReplaceLink(
+    EditorState editorState,
+    Selection selection,
+    String text,
+  ) {
+    final node = editorState.getNodeAtPath(selection.end.path);
+    if (node == null) {
+      return;
+    }
+    final index = selection.normalized.startIndex;
+    final length = selection.length;
+    final transaction = editorState.transaction
+      ..replaceText(
+        node,
+        index,
+        length,
+        text,
+        attributes: {
+          BuiltInAttributeKey.href: null,
+          kIsPageLink: null,
+        },
+      );
+    editorState.apply(transaction);
+  }
 }
 
-class LinkHoverMenu extends StatelessWidget {
+class LinkHoverMenu extends StatefulWidget {
   const LinkHoverMenu({
     super.key,
     required this.attribute,
@@ -276,16 +320,30 @@ class LinkHoverMenu extends StatelessWidget {
   final VoidCallback onRemoveLink;
 
   @override
+  State<LinkHoverMenu> createState() => _LinkHoverMenuState();
+}
+
+class _LinkHoverMenuState extends State<LinkHoverMenu> {
+  ViewPB? currentView;
+  late bool isPage = widget.attribute.isPage;
+  late String href = widget.attribute.href ?? '';
+
+  @override
+  void initState() {
+    super.initState();
+    if (isPage) getPageView();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final href = attribute.href ?? '';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         MouseRegion(
-          onEnter: onEnter,
-          onExit: onExit,
+          onEnter: widget.onEnter,
+          onExit: widget.onExit,
           child: SizedBox(
-            width: max(320, triggerSize.width),
+            width: max(320, widget.triggerSize.width),
             height: 48,
             child: Align(
               alignment: Alignment.centerLeft,
@@ -293,21 +351,15 @@ class LinkHoverMenu extends StatelessWidget {
                 width: 320,
                 height: 48,
                 decoration: buildToolbarLinkDecoration(context),
-                padding: EdgeInsets.all(8),
+                padding: EdgeInsets.fromLTRB(12, 8, 8, 8),
                 child: Row(
                   children: [
-                    Expanded(
-                      child: FlowyText.regular(
-                        href,
-                        fontSize: 14,
-                        figmaLineHeight: 20,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
+                    Expanded(child: buildLinkWidget()),
                     Container(
                       height: 20,
                       width: 1,
-                      color: LinkStyle.borderColor,
+                      color: Color(0xffE8ECF3)
+                          .withAlpha(Theme.of(context).isLightMode ? 255 : 40),
                       margin: EdgeInsets.symmetric(horizontal: 6),
                     ),
                     FlowyIconButton(
@@ -315,21 +367,21 @@ class LinkHoverMenu extends StatelessWidget {
                       tooltipText: LocaleKeys.editor_copyLink.tr(),
                       width: 36,
                       height: 32,
-                      onPressed: onCopyLink,
+                      onPressed: widget.onCopyLink,
                     ),
                     FlowyIconButton(
                       icon: FlowySvg(FlowySvgs.toolbar_link_edit_m),
                       tooltipText: LocaleKeys.editor_editLink.tr(),
                       width: 36,
                       height: 32,
-                      onPressed: onEditLink,
+                      onPressed: widget.onEditLink,
                     ),
                     FlowyIconButton(
                       icon: FlowySvg(FlowySvgs.toolbar_link_unlink_m),
                       tooltipText: LocaleKeys.editor_removeLink.tr(),
                       width: 36,
                       height: 32,
-                      onPressed: onRemoveLink,
+                      onPressed: widget.onRemoveLink,
                     ),
                   ],
                 ),
@@ -339,18 +391,58 @@ class LinkHoverMenu extends StatelessWidget {
         ),
         MouseRegion(
           cursor: SystemMouseCursors.click,
-          onEnter: onEnter,
-          onExit: onExit,
+          onEnter: widget.onEnter,
+          onExit: widget.onExit,
           child: GestureDetector(
-            onTap: onOpenLink,
+            onTap: widget.onOpenLink,
             child: Container(
-              width: triggerSize.width,
-              height: triggerSize.height,
+              width: widget.triggerSize.width,
+              height: widget.triggerSize.height,
               color: Colors.black.withAlpha(1),
             ),
           ),
         ),
       ],
+    );
+  }
+
+  Future<void> getPageView() async {
+    final viewId = href.split('/').lastOrNull ?? '';
+    final (view, isInTrash, isDeleted) =
+        await ViewBackendService.getMentionPageStatus(viewId);
+    if (mounted) {
+      setState(() {
+        currentView = view;
+      });
+    }
+  }
+
+  Widget buildLinkWidget() {
+    final view = currentView;
+    if (isPage && view == null) {
+      return SizedBox.square(
+        dimension: 20,
+        child: CircularProgressIndicator(),
+      );
+    }
+    String text = '';
+    if (isPage && view != null) {
+      text = view.name;
+      if (text.isEmpty) {
+        text = LocaleKeys.document_title_placeholder.tr();
+      }
+    } else {
+      text = href;
+    }
+    return FlowyTooltip(
+      message: text,
+      preferBelow: false,
+      child: FlowyText.regular(
+        text,
+        overflow: TextOverflow.ellipsis,
+        figmaLineHeight: 20,
+        fontSize: 14,
+      ),
     );
   }
 }
@@ -367,7 +459,11 @@ class HoverTriggerKey {
       other is HoverTriggerKey &&
           runtimeType == other.runtimeType &&
           nodeId == other.nodeId &&
-          selection == other.selection;
+          isSelectionSame(other.selection);
+
+  bool isSelectionSame(Selection other) =>
+      (selection.start == other.start && selection.end == other.end) ||
+      (selection.start == other.end && selection.end == other.start);
 
   @override
   int get hashCode => nodeId.hashCode ^ selection.hashCode;

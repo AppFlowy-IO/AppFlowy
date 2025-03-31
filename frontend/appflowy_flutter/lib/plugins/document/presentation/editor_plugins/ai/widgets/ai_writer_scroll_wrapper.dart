@@ -208,11 +208,26 @@ class _AiWriterScrollWrapperState extends State<AiWriterScrollWrapper> {
     throttler.call(() {
       if (aiWriterCubit.aiWriterNode != null) {
         final path = aiWriterCubit.aiWriterNode!.path;
-        if (path.isNotEmpty) {
-          widget.editorState.updateSelectionWithReason(
-            Selection.collapsed(Position(path: path)),
-          );
+
+        if (path.isEmpty) {
+          return;
         }
+
+        if (path.previous.isNotEmpty) {
+          final node = widget.editorState.getNodeAtPath(path.previous);
+          if (node != null && node.delta != null && node.delta!.isNotEmpty) {
+            widget.editorState.updateSelectionWithReason(
+              Selection.collapsed(
+                Position(path: path, offset: node.delta!.length),
+              ),
+            );
+            return;
+          }
+        }
+
+        widget.editorState.updateSelectionWithReason(
+          Selection.collapsed(Position(path: path)),
+        );
       }
     });
   }
