@@ -61,7 +61,6 @@ class _ReadyToRun extends StatelessWidget {
           Expanded(
             child: FlowyText(
               LocaleKeys.settings_aiPage_keys_localAIStart.tr(),
-              color: const Color(0xFF1E4620),
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
@@ -92,7 +91,6 @@ class _Initializing extends StatelessWidget {
           Expanded(
             child: FlowyText(
               LocaleKeys.settings_aiPage_keys_localAIInitializing.tr(),
-              color: const Color(0xFF1E4620),
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
