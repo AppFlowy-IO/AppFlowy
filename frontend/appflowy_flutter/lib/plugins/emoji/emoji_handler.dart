@@ -48,7 +48,7 @@ class _EmojiHandlerState extends State<EmojiHandler> {
   int invalidCounter = 0;
   late int startOffset;
   String _search = '';
-  double emojiHeight = 33.0;
+  double emojiHeight = 36.0;
   final configuration = EmojiPickerConfiguration(
     defaultSkinTone: lastSelectedEmojiSkinTone ?? EmojiSkinTone.none,
   );
@@ -96,7 +96,8 @@ class _EmojiHandlerState extends State<EmojiHandler> {
       focusNode: focusNode,
       onKeyEvent: onKeyEvent,
       child: Container(
-        constraints: const BoxConstraints(maxHeight: 400, maxWidth: 300),
+        constraints: const BoxConstraints(maxHeight: 392, maxWidth: 360),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(6.0),
           color: Theme.of(context).cardColor,
@@ -133,6 +134,7 @@ class _EmojiHandlerState extends State<EmojiHandler> {
       child: GridView.builder(
         controller: scrollController,
         itemCount: searchedEmojis.length,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: configuration.perLine,
         ),
