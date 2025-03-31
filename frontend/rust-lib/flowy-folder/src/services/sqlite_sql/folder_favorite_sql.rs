@@ -14,8 +14,8 @@ pub struct FolderFavorite {
   pub(crate) id: String, // equals to view_id
   pub(crate) workspace_id: String,
   pub(crate) prev_id: Option<String>,
-  pub(crate) favorited_at: i64,
   pub(crate) is_pinned: bool,
+  pub(crate) favorited_at: i64,
 }
 
 impl FolderFavorite {

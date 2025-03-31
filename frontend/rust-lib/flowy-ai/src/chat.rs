@@ -10,13 +10,11 @@ use crate::persistence::{
   ChatMessageTable,
 };
 use crate::stream_message::StreamMessage;
-use crate::util::ai_available_models_key;
 use allo_isolate::Isolate;
 use flowy_ai_pub::cloud::{
   AIModel, ChatCloudService, ChatMessage, MessageCursor, QuestionStreamValue, ResponseFormat,
 };
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_sqlite::kv::KVStorePreferences;
 use flowy_sqlite::DBConnection;
 use futures::{SinkExt, StreamExt};
 use lib_infra::isolate_stream::IsolateSink;
@@ -41,7 +39,6 @@ pub struct Chat {
   latest_message_id: Arc<AtomicI64>,
   stop_stream: Arc<AtomicBool>,
   stream_buffer: Arc<Mutex<StringBuffer>>,
-  store_preferences: Arc<KVStorePreferences>,
 }
 
 impl Chat {
@@ -50,7 +47,6 @@ impl Chat {
     chat_id: String,
     user_service: Arc<dyn AIUserService>,
     chat_service: Arc<AICloudServiceMiddleware>,
-    store_preferences: Arc<KVStorePreferences>,
   ) -> Chat {
     Chat {
       uid,
@@ -61,7 +57,6 @@ impl Chat {
       latest_message_id: Default::default(),
       stop_stream: Arc::new(AtomicBool::new(false)),
       stream_buffer: Arc::new(Mutex::new(StringBuffer::default())),
-      store_preferences,
     }
   }
 
@@ -89,6 +84,7 @@ impl Chat {
   pub async fn stream_chat_message(
     &self,
     params: &StreamMessageParams,
+    preferred_ai_model: Option<AIModel>,
   ) -> Result<ChatMessagePB, FlowyError> {
     trace!(
       "[Chat] stream chat message: chat_id={}, message={}, message_type={:?}, metadata={:?}, format={:?}",
@@ -143,9 +139,6 @@ impl Chat {
     // Save message to disk
     save_and_notify_message(uid, &self.chat_id, &self.user_service, question.clone())?;
     let format = params.format.clone().map(Into::into).unwrap_or_default();
-    let preferred_ai_model = self
-      .store_preferences
-      .get_object::<AIModel>(&ai_available_models_key(&self.chat_id));
     self.stream_response(
       params.answer_stream_port,
       answer_stream_buffer,
@@ -288,6 +281,10 @@ impl Chat {
           } else if err.is_local_ai_not_ready() {
             let _ = answer_sink
               .send(format!("LOCAL_AI_NOT_READY:{}", err.msg))
+              .await;
+          } else if err.is_local_ai_disabled() {
+            let _ = answer_sink
+              .send(format!("LOCAL_AI_DISABLED:{}", err.msg))
               .await;
           } else {
             let _ = answer_sink

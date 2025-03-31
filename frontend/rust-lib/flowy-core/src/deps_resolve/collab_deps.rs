@@ -24,7 +24,7 @@ impl SnapshotPersistence for SnapshotDBImpl {
     collab_type: &CollabType,
     encoded_v1: Vec<u8>,
   ) -> Result<(), PersistenceError> {
-    let collab_type = collab_type.clone();
+    let collab_type = *collab_type;
     let object_id = object_id.to_string();
     let weak_user = self.0.clone();
     tokio::task::spawn_blocking(move || {

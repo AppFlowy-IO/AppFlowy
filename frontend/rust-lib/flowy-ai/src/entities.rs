@@ -1,9 +1,8 @@
-use appflowy_plugin::core::plugin::RunningState;
+use af_plugin::core::plugin::RunningState;
 use std::collections::HashMap;
 
 use crate::local_ai::controller::LocalAISetting;
 use crate::local_ai::resource::PendingResource;
-use flowy_ai_pub::cloud::ai_dto::AvailableModel;
 use flowy_ai_pub::cloud::{
   AIModel, ChatMessage, ChatMessageMetadata, ChatMessageType, CompletionMessage, LLMModel,
   OutputContent, OutputLayout, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
@@ -200,19 +199,9 @@ pub struct AvailableModelPB {
 
   #[pb(index = 2)]
   pub is_default: bool,
-}
 
-impl From<AvailableModel> for AvailableModelPB {
-  fn from(value: AvailableModel) -> Self {
-    let is_default = value
-      .metadata
-      .and_then(|v| v.get("is_default").map(|v| v.as_bool().unwrap_or(false)))
-      .unwrap_or(false);
-    Self {
-      name: value.name,
-      is_default,
-    }
-  }
+  #[pb(index = 3)]
+  pub desc: String,
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
@@ -248,22 +237,9 @@ pub struct AIModelPB {
 
   #[pb(index = 2)]
   pub is_local: bool,
-}
 
-impl AIModelPB {
-  pub fn server(name: String) -> Self {
-    Self {
-      name,
-      is_local: false,
-    }
-  }
-
-  pub fn local(name: String) -> Self {
-    Self {
-      name,
-      is_local: true,
-    }
-  }
+  #[pb(index = 3)]
+  pub desc: String,
 }
 
 impl From<AIModel> for AIModelPB {
@@ -271,6 +247,7 @@ impl From<AIModel> for AIModelPB {
     Self {
       name: model.name,
       is_local: model.is_local,
+      desc: model.desc,
     }
   }
 }
@@ -280,6 +257,7 @@ impl From<AIModelPB> for AIModel {
     AIModel {
       name: value.name,
       is_local: value.is_local,
+      desc: value.desc,
     }
   }
 }
@@ -607,20 +585,17 @@ pub struct LocalAIPB {
   #[pb(index = 1)]
   pub enabled: bool,
 
-  #[pb(index = 2)]
-  pub is_plugin_executable_ready: bool,
-
-  #[pb(index = 3, one_of)]
+  #[pb(index = 2, one_of)]
   pub lack_of_resource: Option<String>,
 
-  #[pb(index = 4)]
+  #[pb(index = 3)]
   pub state: RunningStatePB,
-}
 
-#[derive(Default, ProtoBuf, Clone, Debug)]
-pub struct LocalAIAppLinkPB {
-  #[pb(index = 1)]
-  pub link: String,
+  #[pb(index = 4, one_of)]
+  pub plugin_version: Option<String>,
+
+  #[pb(index = 5)]
+  pub plugin_downloaded: bool,
 }
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]

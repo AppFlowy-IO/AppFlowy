@@ -1,3 +1,4 @@
+use crate::cloud::ai_dto::AvailableModel;
 pub use client_api::entity::ai_dto::{
   AppFlowyOfflineAI, CompleteTextParams, CompletionMessage, CompletionMetadata, CompletionType,
   CreateChatContext, CustomPrompt, LLMModel, LocalAIConfig, ModelInfo, ModelList, OutputContent,
@@ -27,29 +28,50 @@ pub type StreamComplete = BoxStream<'static, Result<CompletionStreamValue, Flowy
 pub struct AIModel {
   pub name: String,
   pub is_local: bool,
+  #[serde(default)]
+  pub desc: String,
+}
+
+impl From<AvailableModel> for AIModel {
+  fn from(value: AvailableModel) -> Self {
+    let desc = value
+      .metadata
+      .as_ref()
+      .and_then(|v| v.get("desc").map(|v| v.as_str().unwrap_or("")))
+      .unwrap_or("");
+    Self {
+      name: value.name,
+      is_local: false,
+      desc: desc.to_string(),
+    }
+  }
 }
 
 impl AIModel {
-  pub fn server(name: String) -> Self {
+  pub fn server(name: String, desc: String) -> Self {
     Self {
       name,
       is_local: false,
+      desc,
     }
   }
 
-  pub fn local(name: String) -> Self {
+  pub fn local(name: String, desc: String) -> Self {
     Self {
       name,
       is_local: true,
+      desc,
     }
   }
 }
 
+pub const DEFAULT_AI_MODEL_NAME: &str = "Auto";
 impl Default for AIModel {
   fn default() -> Self {
     Self {
-      name: "Auto".to_string(),
+      name: DEFAULT_AI_MODEL_NAME.to_string(),
       is_local: false,
+      desc: "".to_string(),
     }
   }
 }

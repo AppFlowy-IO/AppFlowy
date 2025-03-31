@@ -95,6 +95,7 @@ diesel::table! {
         sync_status -> Text,
         last_modified_time -> BigInt,
         extra -> Nullable<Text>,
+        prev_id -> Nullable<Text>,
     }
 }
 

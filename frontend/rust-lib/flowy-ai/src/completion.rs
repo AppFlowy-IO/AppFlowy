@@ -12,8 +12,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use futures::{SinkExt, StreamExt};
 use lib_infra::isolate_stream::IsolateSink;
 
-use crate::util::ai_available_models_key;
-use flowy_sqlite::kv::KVStorePreferences;
+use crate::stream_message::StreamMessage;
 use std::sync::{Arc, Weak};
 use tokio::select;
 use tracing::info;
@@ -22,26 +21,24 @@ pub struct AICompletion {
   tasks: Arc<DashMap<String, tokio::sync::mpsc::Sender<()>>>,
   cloud_service: Weak<dyn ChatCloudService>,
   user_service: Weak<dyn AIUserService>,
-  store_preferences: Arc<KVStorePreferences>,
 }
 
 impl AICompletion {
   pub fn new(
     cloud_service: Weak<dyn ChatCloudService>,
     user_service: Weak<dyn AIUserService>,
-    store_preferences: Arc<KVStorePreferences>,
   ) -> Self {
     Self {
       tasks: Arc::new(DashMap::new()),
       cloud_service,
       user_service,
-      store_preferences,
     }
   }
 
   pub async fn create_complete_task(
     &self,
     complete: CompleteTextPB,
+    preferred_model: Option<AIModel>,
   ) -> FlowyResult<CompleteTextTaskPB> {
     if matches!(complete.completion_type, CompletionTypePB::CustomPrompt)
       && complete.custom_prompt.is_none()
@@ -58,10 +55,6 @@ impl AICompletion {
       .ok_or_else(FlowyError::internal)?
       .workspace_id()?;
     let (tx, rx) = tokio::sync::mpsc::channel(1);
-    let preferred_model = self
-      .store_preferences
-      .get_object::<AIModel>(&ai_available_models_key(&complete.object_id));
-
     let task = CompletionTask::new(
       workspace_id,
       complete,
@@ -188,12 +181,20 @@ impl CompletionTask {
   }
 }
 
-async fn handle_error(sink: &mut IsolateSink, error: FlowyError) {
-  if error.is_ai_response_limit_exceeded() {
+async fn handle_error(sink: &mut IsolateSink, err: FlowyError) {
+  if err.is_ai_response_limit_exceeded() {
     let _ = sink.send("AI_RESPONSE_LIMIT".to_string()).await;
-  } else if error.is_ai_image_response_limit_exceeded() {
+  } else if err.is_ai_image_response_limit_exceeded() {
     let _ = sink.send("AI_IMAGE_RESPONSE_LIMIT".to_string()).await;
+  } else if err.is_ai_max_required() {
+    let _ = sink.send(format!("AI_MAX_REQUIRED:{}", err.msg)).await;
+  } else if err.is_local_ai_not_ready() {
+    let _ = sink.send(format!("LOCAL_AI_NOT_READY:{}", err.msg)).await;
+  } else if err.is_local_ai_disabled() {
+    let _ = sink.send(format!("LOCAL_AI_DISABLED:{}", err.msg)).await;
   } else {
-    let _ = sink.send(format!("error:{}", error)).await;
+    let _ = sink
+      .send(StreamMessage::OnError(err.msg.clone()).to_string())
+      .await;
   }
 }

@@ -11,7 +11,7 @@ use crate::local_ai::watch::{watch_offline_app, WatchContext};
 use crate::notification::{
   chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
 };
-use appflowy_local_ai::ollama_plugin::OllamaPluginConfig;
+use af_local_ai::ollama_plugin::OllamaPluginConfig;
 use lib_infra::util::{get_operating_system, OperatingSystem};
 use reqwest::Client;
 use serde::Deserialize;

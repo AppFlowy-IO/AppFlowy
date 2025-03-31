@@ -15,5 +15,6 @@ CREATE TABLE folder_table (
     parent_id TEXT,
     sync_status TEXT NOT NULL,
     last_modified_time BIGINT NOT NULL,
-    extra TEXT
+    extra TEXT,
+    prev_id TEXT
 );

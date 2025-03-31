@@ -11,13 +11,15 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'settings_ai_bloc.freezed.dart';
 
+const String aiModelsGlobalActiveModel = "ai_models_global_active_model";
+
 class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
   SettingsAIBloc(
     this.userProfile,
     this.workspaceId,
   )   : _userListener = UserListener(userProfile: userProfile),
         _aiModelSwitchListener =
-            AIModelSwitchListener(objectId: "ai_models_global_active_model"),
+            AIModelSwitchListener(objectId: aiModelsGlobalActiveModel),
         super(
           SettingsAIState(
             userProfile: userProfile,
@@ -58,6 +60,7 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
             },
           );
           _loadModelList();
+          _loadUserWorkspaceSetting();
         },
         didReceiveUserProfile: (userProfile) {
           emit(state.copyWith(userProfile: userProfile));
@@ -75,6 +78,12 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
           if (!model.isLocal) {
             await _updateUserWorkspaceSetting(model: model.name);
           }
+          await AIEventUpdateSelectedModel(
+            UpdateSelectedModelPB(
+              source: aiModelsGlobalActiveModel,
+              selectedModel: model,
+            ),
+          ).send();
         },
         didLoadAISetting: (UseAISettingPB settings) {
           emit(
@@ -129,6 +138,19 @@ class SettingsAIBloc extends Bloc<SettingsAIEvent, SettingsAIState> {
       result.fold((models) {
         if (!isClosed) {
           add(SettingsAIEvent.didLoadAvailableModels(models));
+        }
+      }, (err) {
+        Log.error(err);
+      });
+    });
+  }
+
+  void _loadUserWorkspaceSetting() {
+    final payload = UserWorkspaceIdPB(workspaceId: workspaceId);
+    UserEventGetWorkspaceSetting(payload).send().then((result) {
+      result.fold((settings) {
+        if (!isClosed) {
+          add(SettingsAIEvent.didLoadAISetting(settings));
         }
       }, (err) {
         Log.error(err);

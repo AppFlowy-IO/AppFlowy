@@ -202,7 +202,7 @@ impl FolderQueryService for FolderServiceImpl {
   }
 
   async fn get_collab(&self, object_id: &str, collab_type: CollabType) -> Option<QueryCollab> {
-    let encode_collab = get_encoded_collab_v1_from_disk(&self.user, object_id, collab_type.clone())
+    let encode_collab = get_encoded_collab_v1_from_disk(&self.user, object_id, collab_type)
       .await
       .ok();
 

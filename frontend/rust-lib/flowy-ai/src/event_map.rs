@@ -13,11 +13,7 @@ pub fn init(ai_manager: Weak<AIManager>) -> AFPlugin {
   let strong_ai_manager = ai_manager.upgrade().unwrap();
   let user_service = Arc::downgrade(&strong_ai_manager.user_service);
   let cloud_service = Arc::downgrade(&strong_ai_manager.cloud_service_wm);
-  let ai_tools = Arc::new(AICompletion::new(
-    cloud_service,
-    user_service,
-    strong_ai_manager.store_preferences.clone(),
-  ));
+  let ai_tools = Arc::new(AICompletion::new(cloud_service, user_service));
   AFPlugin::new()
     .name("flowy-ai")
     .state(ai_manager)
@@ -34,7 +30,6 @@ pub fn init(ai_manager: Weak<AIManager>) -> AFPlugin {
     .event(AIEvent::RestartLocalAI, restart_local_ai_handler)
     .event(AIEvent::ToggleLocalAI, toggle_local_ai_handler)
     .event(AIEvent::GetLocalAIState, get_local_ai_state_handler)
-    .event(AIEvent::GetLocalAIDownloadLink, get_offline_app_handler)
     .event(AIEvent::GetLocalAISetting, get_local_ai_setting_handler)
     .event(
       AIEvent::UpdateLocalAISetting,
@@ -96,9 +91,6 @@ pub enum AIEvent {
   /// Return LocalAIPB that contains the current state of the local AI
   #[event(output = "LocalAIPB")]
   GetLocalAIState = 19,
-
-  #[event(output = "LocalAIAppLinkPB")]
-  GetLocalAIDownloadLink = 22,
 
   #[event(input = "CreateChatContextPB")]
   CreateChatContext = 23,

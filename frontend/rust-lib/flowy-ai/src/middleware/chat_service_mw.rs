@@ -5,7 +5,7 @@ use crate::notification::{
   chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
 };
 use crate::persistence::{select_single_message, ChatMessageTable};
-use appflowy_plugin::error::PluginError;
+use af_plugin::error::PluginError;
 use std::collections::HashMap;
 
 use flowy_ai_pub::cloud::{
@@ -180,8 +180,10 @@ impl ChatCloudService for AICloudServiceMiddleware {
             Ok(stream::once(async { Err(FlowyError::local_ai_unavailable()) }).boxed())
           },
         }
-      } else {
+      } else if self.local_ai.is_enabled() {
         Err(FlowyError::local_ai_not_ready())
+      } else {
+        Err(FlowyError::local_ai_disabled())
       }
     } else {
       self
@@ -287,7 +289,7 @@ impl ChatCloudService for AICloudServiceMiddleware {
       Some(model) => model.is_local,
     };
 
-    info!("stream_complete use model: {:?}", ai_model);
+    info!("stream_complete use custom model: {:?}", ai_model);
     if use_local_ai {
       if self.local_ai.is_running() {
         match self
@@ -312,8 +314,10 @@ impl ChatCloudService for AICloudServiceMiddleware {
             Ok(stream::once(async { Err(FlowyError::local_ai_unavailable()) }).boxed())
           },
         }
-      } else {
+      } else if self.local_ai.is_enabled() {
         Err(FlowyError::local_ai_not_ready())
+      } else {
+        Err(FlowyError::local_ai_disabled())
       }
     } else {
       self

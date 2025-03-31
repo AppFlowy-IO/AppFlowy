@@ -98,6 +98,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
   final textController = TextEditingController();
   final overlayController = OverlayPortalController();
   final layerLink = LayerLink();
+  final focusNode = FocusNode();
 
   late final editorState = context.read<EditorState>();
 
@@ -114,6 +115,7 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
   @override
   void dispose() {
     textController.dispose();
+    focusNode.dispose();
     super.dispose();
   }
 
@@ -145,10 +147,13 @@ class _AIWriterBlockComponentState extends State<AiWriterBlockComponent> {
                       bottom: 16.0,
                     ),
                     width: constraints.maxWidth,
-                    child: OverlayContent(
-                      editorState: editorState,
-                      node: widget.node,
-                      textController: textController,
+                    child: Focus(
+                      focusNode: focusNode,
+                      child: OverlayContent(
+                        editorState: editorState,
+                        node: widget.node,
+                        textController: textController,
+                      ),
                     ),
                   ),
                 ),
@@ -558,6 +563,26 @@ class MainContentArea extends StatelessWidget {
                     size: Size.square(20),
                   ),
                   onPressed: () => cubit.exit(),
+                ),
+              ],
+            ),
+          );
+        }
+        if (state is LocalAIStreamingAiWriterState) {
+          final text = switch (state.state) {
+            LocalAIStreamingState.notReady =>
+              LocaleKeys.settings_aiPage_keys_localAINotReadyRetryLater.tr(),
+            LocalAIStreamingState.disabled =>
+              LocaleKeys.settings_aiPage_keys_localAIDisabled.tr(),
+          };
+          return Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                const HSpace(8.0),
+                Opacity(
+                  opacity: 0.5,
+                  child: FlowyText(text),
                 ),
               ],
             ),

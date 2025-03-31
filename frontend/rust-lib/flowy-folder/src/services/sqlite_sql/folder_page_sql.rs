@@ -28,6 +28,7 @@ pub struct FolderPage {
   pub(crate) sync_status: String,
   pub(crate) last_modified_time: i64,
   pub(crate) extra: Option<String>,
+  pub(crate) prev_id: Option<String>,
 }
 
 impl FolderPage {
@@ -54,6 +55,7 @@ impl FolderPage {
       sync_status: "synced".to_string(),
       last_modified_time: now,
       extra: serde_json::to_string(&folder_view.extra).ok(),
+      prev_id: folder_view.prev_view_id,
     }
   }
 }
@@ -114,6 +116,7 @@ impl From<FolderPage> for FolderView {
       is_locked: folder.is_locked,
       extra,
       children: Vec::new(), // Initialize with empty vector
+      prev_view_id: folder.prev_id,
     }
   }
 }

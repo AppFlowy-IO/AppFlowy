@@ -161,16 +161,37 @@ class _ModelItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 32,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 32),
       child: FlowyButton(
         onTap: onTap,
         margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
-        text: FlowyText(
-          model.i18n,
-          overflow: TextOverflow.ellipsis,
+        text: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FlowyText(
+              model.i18n,
+              figmaLineHeight: 20,
+              overflow: TextOverflow.ellipsis,
+              color: isSelected ? Theme.of(context).colorScheme.primary : null,
+            ),
+            if (model.desc.isNotEmpty)
+              FlowyText(
+                model.desc,
+                fontSize: 12,
+                figmaLineHeight: 16,
+                color: Theme.of(context).hintColor,
+                overflow: TextOverflow.ellipsis,
+              ),
+          ],
         ),
-        rightIcon: isSelected ? FlowySvg(FlowySvgs.check_s) : null,
+        rightIcon: isSelected
+            ? FlowySvg(
+                FlowySvgs.check_s,
+                size: const Size.square(20),
+                color: Theme.of(context).colorScheme.primary,
+              )
+            : null,
       ),
     );
   }
