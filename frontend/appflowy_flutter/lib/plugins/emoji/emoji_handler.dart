@@ -177,7 +177,7 @@ class _EmojiHandlerState extends State<EmojiHandler> {
   }
 
   KeyEventResult onKeyEvent(focus, KeyEvent event) {
-    if (event is! KeyDownEvent) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
       return KeyEventResult.ignored;
     }
 
