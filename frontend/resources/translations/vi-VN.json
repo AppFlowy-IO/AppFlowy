@@ -2270,12 +2270,12 @@
         "dialogTitle": "Xóa tài khoản",
         "dialogContent1": "Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản của mình không?",
         "dialogContent2": "Không thể hoàn tác hành động này và sẽ xóa quyền truy cập khỏi mọi không gian làm việc nhóm, xóa toàn bộ tài khoản của bạn, bao gồm cả không gian làm việc riêng tư và xóa bạn khỏi mọi không gian làm việc được chia sẻ.",
-        "confirmHint1": "Vui lòng nhập \"XÓA TÀI KHOẢN CỦA TÔI\" để xác nhận.",
+        "confirmHint1": "Vui lòng nhập \"@:newSettings.myAccount.deleteAccount.confirmHint3\" để xác nhận.",
         "confirmHint2": "Tôi hiểu rằng hành động này là không thể đảo ngược và sẽ xóa vĩnh viễn tài khoản của tôi cùng mọi dữ liệu liên quan.",
         "confirmHint3": "XÓA TÀI KHOẢN CỦA TÔI",
         "checkToConfirmError": "Bạn phải đánh dấu vào ô để xác nhận việc xóa",
         "failedToGetCurrentUser": "Không lấy được email người dùng hiện tại",
-        "confirmTextValidationFailed": "Văn bản xác nhận của bạn không khớp với \"XÓA TÀI KHOẢN CỦA TÔI\"",
+        "confirmTextValidationFailed": "Văn bản xác nhận của bạn không khớp với \"@:newSettings.myAccount.deleteAccount.confirmHint3\"",
         "deleteAccountSuccess": "Tài khoản đã được xóa thành công"
       }
     },

@@ -875,9 +875,9 @@
         "activeOfflineAI": "نشط",
         "downloadOfflineAI": "التنزيل",
         "openModelDirectory": "افتح المجلد",
-        "localAISetupInstruction1": "اتبع هؤلاء",
-        "localAISetupInstruction2": "التعليمات",
-        "localAISetupInstruction3": "لإعداد Ollama وAppFlowy Local AI. تخطَّ هذه الخطوة إذا كنت قد قمت بإعدادها بالفعل",
+        "pleaseFollowThese": "اتبع هؤلاء",
+        "instructions": "التعليمات",
+        "installOllamaLai": "لإعداد Ollama وAppFlowy Local AI. تخطَّ هذه الخطوة إذا كنت قد قمت بإعدادها بالفعل",
         "startLocalAI": "قد يستغرق الأمر بضع ثوانٍ لبدء تشغيل الذكاء الاصطناعي المحلي"
       }
     },
@@ -2610,12 +2610,12 @@
         "dialogTitle": "حذف الحساب",
         "dialogContent1": "هل أنت متأكد أنك تريد حذف حسابك نهائياً؟",
         "dialogContent2": "لا يمكن التراجع عن هذا الإجراء، وسوف يؤدي إلى إزالة الوصول من جميع مساحات العمل، ومسح حسابك بالكامل، بما في ذلك مساحات العمل الخاصة، وإزالتك من جميع مساحات العمل المشتركة.",
-        "confirmHint1": "من فضلك اكتب \"حذف حسابي\" للتأكيد.",
+        "confirmHint1": "من فضلك اكتب \"@:newSettings.myAccount.deleteAccount.confirmHint3\" للتأكيد.",
         "confirmHint2": "أفهم أن هذا الإجراء لا رجعة فيه وسيؤدي إلى حذف حسابي وجميع البيانات المرتبطة به بشكل دائم.",
         "confirmHint3": "حذف حسابي",
         "checkToConfirmError": "يجب عليك تحديد المربع لتأكيد الحذف",
         "failedToGetCurrentUser": "فشل في الحصول على البريد الإلكتروني الحالي للمستخدم",
-        "confirmTextValidationFailed": "نص التأكيد الخاص بك لا يتطابق مع \"حذف حسابي\"",
+        "confirmTextValidationFailed": "نص التأكيد الخاص بك لا يتطابق مع \"@:newSettings.myAccount.deleteAccount.confirmHint3\"",
         "deleteAccountSuccess": "تم حذف الحساب بنجاح"
       }
     },

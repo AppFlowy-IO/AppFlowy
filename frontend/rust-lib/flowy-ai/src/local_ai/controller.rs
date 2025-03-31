@@ -1,5 +1,5 @@
 use crate::ai_manager::AIUserService;
-use crate::entities::{LackOfAIResourcePB, LocalAIPB, RunningStatePB};
+use crate::entities::{LocalAIPB, RunningStatePB};
 use crate::local_ai::resource::{LLMResourceService, LocalAIResourceController};
 use crate::notification::{
   chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
@@ -539,9 +539,7 @@ async fn initialize_ai_plugin(
       APPFLOWY_AI_NOTIFICATION_KEY,
       ChatNotification::LocalAIResourceUpdated,
     )
-    .payload(LackOfAIResourcePB {
-      resource_desc: lack_of_resource,
-    })
+    .payload(lack_of_resource)
     .send();
 
     return Ok(());
