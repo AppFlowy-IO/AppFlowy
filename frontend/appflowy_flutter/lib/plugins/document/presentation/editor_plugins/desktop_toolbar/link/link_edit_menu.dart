@@ -328,22 +328,26 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
         onTap: showSearchResult,
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
-          child: Container(
-            height: 32,
-            padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
-            child: Row(
-              children: [
-                searchTextField.buildIcon(view),
-                HSpace(4),
-                Flexible(
-                  child: FlowyText.regular(
-                    displayName,
-                    overflow: TextOverflow.ellipsis,
-                    figmaLineHeight: 20,
-                    fontSize: 14,
+          child: FlowyTooltip(
+            preferBelow: false,
+            message: displayName,
+            child: Container(
+              height: 32,
+              padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
+              child: Row(
+                children: [
+                  searchTextField.buildIcon(view),
+                  HSpace(4),
+                  Flexible(
+                    child: FlowyText.regular(
+                      displayName,
+                      overflow: TextOverflow.ellipsis,
+                      figmaLineHeight: 20,
+                      fontSize: 14,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -362,24 +366,28 @@ class _LinkEditMenuState extends State<LinkEditMenu> {
       width: 360,
       height: 32,
       decoration: buildDecoration(),
-      child: GestureDetector(
-        onTap: showSearchResult,
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(8, 6, 8, 6),
-            child: Row(
-              children: [
-                FlowySvg(FlowySvgs.toolbar_link_earth_m),
-                HSpace(8),
-                Flexible(
-                  child: FlowyText.regular(
-                    linkInfo.link,
-                    overflow: TextOverflow.ellipsis,
-                    figmaLineHeight: 20,
+      child: FlowyTooltip(
+        preferBelow: false,
+        message: linkInfo.link,
+        child: GestureDetector(
+          onTap: showSearchResult,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(8, 6, 8, 6),
+              child: Row(
+                children: [
+                  FlowySvg(FlowySvgs.toolbar_link_earth_m),
+                  HSpace(8),
+                  Flexible(
+                    child: FlowyText.regular(
+                      linkInfo.link,
+                      overflow: TextOverflow.ellipsis,
+                      figmaLineHeight: 20,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

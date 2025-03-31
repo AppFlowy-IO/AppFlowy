@@ -6,13 +6,10 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/desktop_floating_toolbar.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/header/emoji_icon_widget.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
-import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy/util/theme_extension.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -437,23 +434,14 @@ class _LinkHoverMenuState extends State<LinkHoverMenu> {
     } else {
       text = href;
     }
-    return FlowyText.regular(
-      text,
-      overflow: TextOverflow.ellipsis,
-      figmaLineHeight: 20,
-      fontSize: 14,
-    );
-  }
-
-  Widget buildIcon(ViewPB view) {
-    if (view.icon.value.isEmpty) return view.defaultIcon(size: Size(20, 20));
-    final iconData = view.icon.toEmojiIconData();
-    return Padding(
-      padding: const EdgeInsets.only(top: 4),
-      child: RawEmojiIconWidget(
-        emoji: iconData,
-        emojiSize: iconData.type == FlowyIconType.emoji ? 16 : 20,
-        lineHeight: 1,
+    return FlowyTooltip(
+      message: text,
+      preferBelow: false,
+      child: FlowyText.regular(
+        text,
+        overflow: TextOverflow.ellipsis,
+        figmaLineHeight: 20,
+        fontSize: 14,
       ),
     );
   }
