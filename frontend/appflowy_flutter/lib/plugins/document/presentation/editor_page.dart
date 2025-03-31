@@ -432,44 +432,50 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
       );
     }
     return Center(
-      child: FloatingToolbar(
-        floatingToolbarHeight: 40,
-        padding: EdgeInsets.symmetric(horizontal: 6),
-        style: FloatingToolbarStyle(
-          backgroundColor: Theme.of(context).cardColor,
-          toolbarActiveColor: Color(0xffe0f8fd),
-        ),
-        items: toolbarItems,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: Theme.of(context).cardColor,
-          boxShadow: [
-            BoxShadow(
-              offset: Offset(0, 4),
-              blurRadius: 24,
-              color: themeV2.shadow_medium,
+      child: BlocProvider.value(
+        value: context.read<DocumentBloc>(),
+        child: FloatingToolbar(
+          floatingToolbarHeight: 40,
+          padding: EdgeInsets.symmetric(horizontal: 6),
+          style: FloatingToolbarStyle(
+            backgroundColor: Theme.of(context).cardColor,
+            toolbarActiveColor: Color(0xffe0f8fd),
+          ),
+          items: toolbarItems,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: Theme.of(context).cardColor,
+            boxShadow: [
+              BoxShadow(
+                offset: Offset(0, 4),
+                blurRadius: 24,
+                color: themeV2.shadow_medium,
+              ),
+            ],
+          ),
+          toolbarBuilder: (_, child, onDismiss, isMetricsChanged) =>
+              BlocProvider.value(
+            value: context.read<DocumentBloc>(),
+            child: DesktopFloatingToolbar(
+              editorState: editorState,
+              onDismiss: onDismiss,
+              enableAnimation: false,
+              child: child,
             ),
-          ],
-        ),
-        toolbarBuilder: (context, child, onDismiss, isMetricsChanged) =>
-            DesktopFloatingToolbar(
+          ),
+          placeHolderBuilder: (_) => customPlaceholderItem,
           editorState: editorState,
-          onDismiss: onDismiss,
-          enableAnimation: !isMetricsChanged,
-          child: child,
+          editorScrollController: editorScrollController,
+          textDirection: textDirection,
+          tooltipBuilder: (context, id, message, child) =>
+              widget.styleCustomizer.buildToolbarItemTooltip(
+            context,
+            id,
+            message,
+            child,
+          ),
+          child: editor,
         ),
-        placeHolderBuilder: (_) => customPlaceholderItem,
-        editorState: editorState,
-        editorScrollController: editorScrollController,
-        textDirection: textDirection,
-        tooltipBuilder: (context, id, message, child) =>
-            widget.styleCustomizer.buildToolbarItemTooltip(
-          context,
-          id,
-          message,
-          child,
-        ),
-        child: editor,
       ),
     );
   }

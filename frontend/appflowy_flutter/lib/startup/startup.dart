@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/desktop_floating_toolbar.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_hover_menu.dart';
 import 'package:appflowy/util/expand_views.dart';
 import 'package:appflowy/workspace/application/settings/prelude.dart';
@@ -187,6 +188,9 @@ Future<void> initGetIt(
   getIt.registerSingleton<PluginSandbox>(PluginSandbox());
   getIt.registerSingleton<ViewExpanderRegistry>(ViewExpanderRegistry());
   getIt.registerSingleton<LinkHoverTriggers>(LinkHoverTriggers());
+  getIt.registerSingleton<FloatingToolbarController>(
+    FloatingToolbarController(),
+  );
 
   await DependencyResolver.resolve(getIt, mode);
 }

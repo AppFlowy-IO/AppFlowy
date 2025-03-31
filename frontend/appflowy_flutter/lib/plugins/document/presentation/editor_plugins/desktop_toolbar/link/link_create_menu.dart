@@ -19,11 +19,15 @@ class LinkCreateMenu extends StatefulWidget {
     required this.onSubmitted,
     required this.onDismiss,
     required this.alignment,
+    required this.currentViewId,
+    required this.initialText,
   });
 
   final EditorState editorState;
   final void Function(String link, bool isPage) onSubmitted;
   final VoidCallback onDismiss;
+  final String currentViewId;
+  final String initialText;
   final LinkMenuAlignment alignment;
 
   @override
@@ -32,6 +36,8 @@ class LinkCreateMenu extends StatefulWidget {
 
 class _LinkCreateMenuState extends State<LinkCreateMenu> {
   late LinkSearchTextField searchTextField = LinkSearchTextField(
+    currentViewId: widget.currentViewId,
+    initialSearchText: widget.initialText,
     onEnter: () {
       searchTextField.onSearchResult(
         onLink: () => onSubmittedLink(),
@@ -48,17 +54,28 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
     },
   );
 
-  bool get isButtonEnable => searchText.isNotEmpty;
+  bool get isTextfieldEnable => searchTextField.isTextfieldEnable;
 
   String get searchText => searchTextField.searchText;
 
   bool get showAtTop => widget.alignment.isTop;
+
+  bool showErrorText = false;
 
   @override
   void initState() {
     super.initState();
     searchTextField.requestFocus();
     searchTextField.searchRecentViews();
+    final focusNode = searchTextField.focusNode;
+    bool hasFocus = focusNode.hasFocus;
+    focusNode.addListener(() {
+      if (hasFocus != focusNode.hasFocus && mounted) {
+        setState(() {
+          hasFocus = focusNode.hasFocus;
+        });
+      }
+    });
   }
 
   @override
@@ -98,32 +115,45 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
   Widget buildSearchContainer() {
     return Container(
       width: 320,
-      height: 48,
       decoration: buildToolbarLinkDecoration(context),
       padding: EdgeInsets.all(8),
       child: ValueListenableBuilder(
         valueListenable: searchTextField.textEditingController,
         builder: (context, _, __) {
-          return Row(
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: searchTextField.buildTextField()),
-              HSpace(8),
-              FlowyTextButton(
-                LocaleKeys.document_toolbar_insert.tr(),
-                mainAxisAlignment: MainAxisAlignment.center,
-                padding: EdgeInsets.zero,
-                constraints: BoxConstraints(maxWidth: 72, minHeight: 32),
-                fontSize: 14,
-                fontColor:
-                    isButtonEnable ? Colors.white : LinkStyle.textTertiary,
-                fillColor: isButtonEnable
-                    ? LinkStyle.fillThemeThick
-                    : LinkStyle.borderColor,
-                hoverColor: LinkStyle.fillThemeThick,
-                lineHeight: 20 / 14,
-                fontWeight: FontWeight.w600,
-                onPressed: isButtonEnable ? () => onSubmittedLink() : null,
+              Row(
+                children: [
+                  Expanded(
+                    child: searchTextField.buildTextField(context: context),
+                  ),
+                  HSpace(8),
+                  FlowyTextButton(
+                    LocaleKeys.document_toolbar_insert.tr(),
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(maxWidth: 72, minHeight: 32),
+                    fontSize: 14,
+                    fontColor: Colors.white,
+                    fillColor: LinkStyle.fillThemeThick,
+                    hoverColor: LinkStyle.fillThemeThick.withAlpha(200),
+                    lineHeight: 20 / 14,
+                    fontWeight: FontWeight.w600,
+                    onPressed: onSubmittedLink,
+                  ),
+                ],
               ),
+              if (showErrorText)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: FlowyText.regular(
+                    LocaleKeys.document_plugins_file_networkUrlInvalid.tr(),
+                    color: LinkStyle.textStatusError,
+                    fontSize: 12,
+                    figmaLineHeight: 16,
+                  ),
+                ),
             ],
           );
         },
@@ -131,7 +161,15 @@ class _LinkCreateMenuState extends State<LinkCreateMenu> {
     );
   }
 
-  void onSubmittedLink() => widget.onSubmitted(searchText, false);
+  void onSubmittedLink() {
+    if (!isTextfieldEnable) {
+      setState(() {
+        showErrorText = true;
+      });
+      return;
+    }
+    widget.onSubmitted(searchText, false);
+  }
 
   void onSubmittedPageLink(ViewPB view) async {
     final workspaceId = context
@@ -152,13 +190,16 @@ void showLinkCreateMenu(
   BuildContext context,
   EditorState editorState,
   Selection selection,
+  String currentViewId,
 ) {
+  if (!context.mounted) return;
   final (left, top, right, bottom, alignment) = _getPosition(editorState);
 
   final node = editorState.getNodeAtPath(selection.end.path);
   if (node == null) {
     return;
   }
+  final selectedText = editorState.getTextInSelection(selection).join();
 
   OverlayEntry? overlay;
 
@@ -178,12 +219,18 @@ void showLinkCreateMenu(
     builder: (context) {
       return LinkCreateMenu(
         alignment: alignment,
+        initialText: selectedText,
+        currentViewId: currentViewId,
         editorState: editorState,
         onSubmitted: (link, isPage) async {
           await editorState.formatDelta(selection, {
             BuiltInAttributeKey.href: link,
             kIsPageLink: isPage,
           });
+          await editorState.updateSelectionWithReason(
+            null,
+            reason: SelectionUpdateReason.uiEvent,
+          );
           dismissOverlay();
         },
         onDismiss: dismissOverlay,
