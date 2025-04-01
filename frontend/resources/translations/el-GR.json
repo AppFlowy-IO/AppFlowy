@@ -723,7 +723,7 @@
     },
     "url": {
       "launch": "Άνοιγμα συνδέσμου στο πρόγραμμα περιήγησης",
-      "copy": "Copy link to clipboard",
+      "copy": "Copied link to clipboard",
       "textFieldHint": "Enter a URL",
       "copiedNotification": "Copied to clipboard!"
     },
