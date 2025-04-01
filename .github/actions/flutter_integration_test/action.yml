@@ -80,7 +80,7 @@ runs:
         name: ${{ github.run_id }}-${{ inputs.os }}
 
     - name: Uncompressed appflowy_flutter
-      run: tar -xf appflowy_flutter.tar.gz
+      run: tar --dereference -xf appflowy_flutter.tar.gz
       shell: bash
 
     - name: Run Flutter integration tests

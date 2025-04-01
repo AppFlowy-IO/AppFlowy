@@ -104,8 +104,8 @@ jobs:
         os: [macos-latest]
         include:
           - os: macos-latest
-            flutter_profile: development-mac-x86_64
-            target: x86_64-apple-darwin
+            flutter_profile: development-mac-arm64
+            target: aarch64-apple-darwin
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -401,7 +401,7 @@ jobs:
         test_number: [1, 2, 3, 4, 5, 6, 7, 8, 9]
         include:
           - os: macos-latest
-            target: "x86_64-apple-darwin"
+            target: "aarch64-apple-darwin"
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout source code
