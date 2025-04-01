@@ -1,21 +1,17 @@
 class AppFlowySpacing {
   const AppFlowySpacing({
-    required this.spacing0,
-    required this.spacingXs,
-    required this.spacingS,
-    required this.spacingM,
-    required this.spacingL,
-    required this.spacingXl,
-    required this.spacingXxl,
-    required this.spacingFull,
+    required this.xs,
+    required this.s,
+    required this.m,
+    required this.l,
+    required this.xl,
+    required this.xxl,
   });
 
-  final double spacing0;
-  final double spacingXs;
-  final double spacingS;
-  final double spacingM;
-  final double spacingL;
-  final double spacingXl;
-  final double spacingXxl;
-  final double spacingFull;
+  final double xs;
+  final double s;
+  final double m;
+  final double l;
+  final double xl;
+  final double xxl;
 }

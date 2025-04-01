@@ -1,21 +1,17 @@
 class AppFlowyBorderRadius {
   const AppFlowyBorderRadius({
-    required this.radius0,
-    required this.radiusXs,
-    required this.radiusS,
-    required this.radiusM,
-    required this.radiusL,
-    required this.radiusXl,
-    required this.radiusXxl,
-    required this.radiusFull,
+    required this.xs,
+    required this.s,
+    required this.m,
+    required this.l,
+    required this.xl,
+    required this.xxl,
   });
 
-  final double radius0;
-  final double radiusXs;
-  final double radiusS;
-  final double radiusM;
-  final double radiusL;
-  final double radiusXl;
-  final double radiusXxl;
-  final double radiusFull;
+  final double xs;
+  final double s;
+  final double m;
+  final double l;
+  final double xl;
+  final double xxl;
 }

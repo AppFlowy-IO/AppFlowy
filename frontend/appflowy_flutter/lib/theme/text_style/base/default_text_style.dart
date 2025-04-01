@@ -3,38 +3,38 @@ import 'package:flutter/widgets.dart';
 abstract class TextThemeType {
   const TextThemeType();
 
-  TextStyle standard({required String family});
-  TextStyle enhanced({required String family});
-  TextStyle prominent({required String family});
-  TextStyle underline({required String family});
+  TextStyle standard({String family = ''});
+  TextStyle enhanced({String family = ''});
+  TextStyle prominent({String family = ''});
+  TextStyle underline({String family = ''});
 }
 
 class TextThemeHeading extends TextThemeType {
   const TextThemeHeading();
 
   @override
-  TextStyle standard({required String family}) => _defaultTextStyle(
+  TextStyle standard({String family = ''}) => _defaultTextStyle(
         family: family,
         fontSize: 36,
         height: 40 / 36,
       );
 
   @override
-  TextStyle enhanced({required String family}) => _defaultTextStyle(
+  TextStyle enhanced({String family = ''}) => _defaultTextStyle(
         family: family,
         fontSize: 24,
         height: 32 / 24,
       );
 
   @override
-  TextStyle prominent({required String family}) => _defaultTextStyle(
+  TextStyle prominent({String family = ''}) => _defaultTextStyle(
         family: family,
         fontSize: 20,
         height: 28 / 20,
       );
 
   @override
-  TextStyle underline({required String family}) => _defaultTextStyle(
+  TextStyle underline({String family = ''}) => _defaultTextStyle(
         family: family,
         fontSize: 16,
         decoration: TextDecoration.underline,
@@ -64,24 +64,24 @@ class TextThemeHeadline extends TextThemeType {
   const TextThemeHeadline();
 
   @override
-  TextStyle standard({required String family}) => _defaultTextStyle(
+  TextStyle standard({String family = ''}) => _defaultTextStyle(
         family: family,
       );
 
   @override
-  TextStyle enhanced({required String family}) => _defaultTextStyle(
+  TextStyle enhanced({String family = ''}) => _defaultTextStyle(
         family: family,
         weight: FontWeight.w600,
       );
 
   @override
-  TextStyle prominent({required String family}) => _defaultTextStyle(
+  TextStyle prominent({String family = ''}) => _defaultTextStyle(
         family: family,
         weight: FontWeight.bold,
       );
 
   @override
-  TextStyle underline({required String family}) => _defaultTextStyle(
+  TextStyle underline({String family = ''}) => _defaultTextStyle(
         family: family,
         decoration: TextDecoration.underline,
       );
@@ -110,24 +110,24 @@ class TextThemeTitle extends TextThemeType {
   const TextThemeTitle();
 
   @override
-  TextStyle standard({required String family}) => _defaultTextStyle(
+  TextStyle standard({String family = ''}) => _defaultTextStyle(
         family: family,
       );
 
   @override
-  TextStyle enhanced({required String family}) => _defaultTextStyle(
+  TextStyle enhanced({String family = ''}) => _defaultTextStyle(
         family: family,
         weight: FontWeight.w600,
       );
 
   @override
-  TextStyle prominent({required String family}) => _defaultTextStyle(
+  TextStyle prominent({String family = ''}) => _defaultTextStyle(
         family: family,
         weight: FontWeight.bold,
       );
 
   @override
-  TextStyle underline({required String family}) => _defaultTextStyle(
+  TextStyle underline({String family = ''}) => _defaultTextStyle(
         family: family,
         decoration: TextDecoration.underline,
       );
@@ -156,24 +156,24 @@ class TextThemeBody extends TextThemeType {
   const TextThemeBody();
 
   @override
-  TextStyle standard({required String family}) => _defaultTextStyle(
+  TextStyle standard({String family = ''}) => _defaultTextStyle(
         family: family,
       );
 
   @override
-  TextStyle enhanced({required String family}) => _defaultTextStyle(
+  TextStyle enhanced({String family = ''}) => _defaultTextStyle(
         family: family,
         weight: FontWeight.w600,
       );
 
   @override
-  TextStyle prominent({required String family}) => _defaultTextStyle(
+  TextStyle prominent({String family = ''}) => _defaultTextStyle(
         family: family,
         weight: FontWeight.bold,
       );
 
   @override
-  TextStyle underline({required String family}) => _defaultTextStyle(
+  TextStyle underline({String family = ''}) => _defaultTextStyle(
         family: family,
         decoration: TextDecoration.underline,
       );
@@ -202,24 +202,24 @@ class TextThemeCaption extends TextThemeType {
   const TextThemeCaption();
 
   @override
-  TextStyle standard({required String family}) => _defaultTextStyle(
+  TextStyle standard({String family = ''}) => _defaultTextStyle(
         family: family,
       );
 
   @override
-  TextStyle enhanced({required String family}) => _defaultTextStyle(
+  TextStyle enhanced({String family = ''}) => _defaultTextStyle(
         family: family,
         weight: FontWeight.w600,
       );
 
   @override
-  TextStyle prominent({required String family}) => _defaultTextStyle(
+  TextStyle prominent({String family = ''}) => _defaultTextStyle(
         family: family,
         weight: FontWeight.bold,
       );
 
   @override
-  TextStyle underline({required String family}) => _defaultTextStyle(
+  TextStyle underline({String family = ''}) => _defaultTextStyle(
         family: family,
         decoration: TextDecoration.underline,
       );

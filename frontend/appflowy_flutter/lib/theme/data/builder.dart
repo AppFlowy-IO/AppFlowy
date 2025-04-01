@@ -3,7 +3,7 @@ import 'package:appflowy/theme/color_scheme/background/background_color_scheme.d
 import 'package:appflowy/theme/color_scheme/base/base_scheme.dart';
 import 'package:appflowy/theme/color_scheme/border/border.dart';
 import 'package:appflowy/theme/color_scheme/brand/brand_color_scheme.dart';
-import 'package:appflowy/theme/color_scheme/fill/fill.dart';
+import 'package:appflowy/theme/color_scheme/fill/fill_color_scheme.dart';
 import 'package:appflowy/theme/color_scheme/icon/icon_color_theme.dart';
 import 'package:appflowy/theme/color_scheme/surface/surface_color_scheme.dart';
 import 'package:appflowy/theme/color_scheme/text/text_color_scheme.dart';
@@ -300,14 +300,12 @@ class AppFlowyThemeBuilder {
     AppFlowyBaseColorScheme colorScheme,
   ) {
     return AppFlowyBorderRadius(
-      radius0: AppFlowyBorderRadiusConstant.radius0,
-      radiusXs: AppFlowyBorderRadiusConstant.radius100,
-      radiusS: AppFlowyBorderRadiusConstant.radius200,
-      radiusM: AppFlowyBorderRadiusConstant.radius300,
-      radiusL: AppFlowyBorderRadiusConstant.radius400,
-      radiusXl: AppFlowyBorderRadiusConstant.radius500,
-      radiusXxl: AppFlowyBorderRadiusConstant.radius600,
-      radiusFull: AppFlowyBorderRadiusConstant.radius1000,
+      xs: AppFlowyBorderRadiusConstant.radius100,
+      s: AppFlowyBorderRadiusConstant.radius200,
+      m: AppFlowyBorderRadiusConstant.radius300,
+      l: AppFlowyBorderRadiusConstant.radius400,
+      xl: AppFlowyBorderRadiusConstant.radius500,
+      xxl: AppFlowyBorderRadiusConstant.radius600,
     );
   }
 
@@ -315,14 +313,12 @@ class AppFlowyThemeBuilder {
     AppFlowyBaseColorScheme colorScheme,
   ) {
     return AppFlowySpacing(
-      spacing0: AppFlowySpacingConstant.spacing0,
-      spacingXs: AppFlowySpacingConstant.spacing100,
-      spacingS: AppFlowySpacingConstant.spacing200,
-      spacingM: AppFlowySpacingConstant.spacing300,
-      spacingL: AppFlowySpacingConstant.spacing400,
-      spacingXl: AppFlowySpacingConstant.spacing500,
-      spacingXxl: AppFlowySpacingConstant.spacing600,
-      spacingFull: AppFlowySpacingConstant.spacing1000,
+      xs: AppFlowySpacingConstant.spacing100,
+      s: AppFlowySpacingConstant.spacing200,
+      m: AppFlowySpacingConstant.spacing300,
+      l: AppFlowySpacingConstant.spacing400,
+      xl: AppFlowySpacingConstant.spacing500,
+      xxl: AppFlowySpacingConstant.spacing600,
     );
   }
 }

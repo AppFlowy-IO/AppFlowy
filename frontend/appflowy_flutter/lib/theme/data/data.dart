@@ -3,7 +3,7 @@ import 'package:appflowy/theme/color_scheme/background/background_color_scheme.d
 import 'package:appflowy/theme/color_scheme/base/base_scheme.dart';
 import 'package:appflowy/theme/color_scheme/border/border.dart';
 import 'package:appflowy/theme/color_scheme/brand/brand_color_scheme.dart';
-import 'package:appflowy/theme/color_scheme/fill/fill.dart';
+import 'package:appflowy/theme/color_scheme/fill/fill_color_scheme.dart';
 import 'package:appflowy/theme/color_scheme/icon/icon_color_theme.dart';
 import 'package:appflowy/theme/color_scheme/surface/surface_color_scheme.dart';
 import 'package:appflowy/theme/color_scheme/text/text_color_scheme.dart';
