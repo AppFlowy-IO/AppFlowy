@@ -6,6 +6,8 @@ import 'package:appflowy/shared/clipboard_state.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/startup/startup.dart';
+import 'package:appflowy/theme/data/data.dart';
+import 'package:appflowy/theme/theme.dart';
 import 'package:appflowy/user/application/user_settings_service.dart';
 import 'package:appflowy/workspace/application/action_navigation/action_navigation_bloc.dart';
 import 'package:appflowy/workspace/application/action_navigation/navigation_action.dart';
@@ -223,31 +225,34 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
                       Tooltip.dismissAllToolTips();
                     }
                   },
-                  child: MaterialApp.router(
-                    builder: (context, child) => MediaQuery(
-                      // use the 1.0 as the textScaleFactor to avoid the text size
-                      //  affected by the system setting.
-                      data: MediaQuery.of(context).copyWith(
-                        textScaler: TextScaler.linear(state.textScaleFactor),
+                  child: AppFlowyTheme(
+                    data: AppFlowyThemeData.light(),
+                    child: MaterialApp.router(
+                      builder: (context, child) => MediaQuery(
+                        // use the 1.0 as the textScaleFactor to avoid the text size
+                        //  affected by the system setting.
+                        data: MediaQuery.of(context).copyWith(
+                          textScaler: TextScaler.linear(state.textScaleFactor),
+                        ),
+                        child: overlayManagerBuilder(
+                          context,
+                          !UniversalPlatform.isMobile && FeatureFlag.search.isOn
+                              ? CommandPalette(
+                                  notifier: _commandPaletteNotifier,
+                                  child: child,
+                                )
+                              : child,
+                        ),
                       ),
-                      child: overlayManagerBuilder(
-                        context,
-                        !UniversalPlatform.isMobile && FeatureFlag.search.isOn
-                            ? CommandPalette(
-                                notifier: _commandPaletteNotifier,
-                                child: child,
-                              )
-                            : child,
-                      ),
+                      debugShowCheckedModeBanner: false,
+                      theme: state.lightTheme,
+                      darkTheme: state.darkTheme,
+                      themeMode: state.themeMode,
+                      localizationsDelegates: context.localizationDelegates,
+                      supportedLocales: context.supportedLocales,
+                      locale: state.locale,
+                      routerConfig: routerConfig,
                     ),
-                    debugShowCheckedModeBanner: false,
-                    theme: state.lightTheme,
-                    darkTheme: state.darkTheme,
-                    themeMode: state.themeMode,
-                    localizationsDelegates: context.localizationDelegates,
-                    supportedLocales: context.supportedLocales,
-                    locale: state.locale,
-                    routerConfig: routerConfig,
                   ),
                 ),
               ),

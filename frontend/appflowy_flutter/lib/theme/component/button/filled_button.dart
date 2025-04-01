@@ -8,10 +8,23 @@ class AFFilledPrimaryTextButton extends StatelessWidget {
     required this.text,
     required this.onTap,
     this.size = AFButtonSize.m,
+    this.padding,
+    this.borderRadius,
   });
 
   final String text;
   final AFButtonSize size;
+
+  /// The padding of the button.
+  ///
+  /// If not provided, the padding will be used from the [size].
+  final EdgeInsetsGeometry? padding;
+
+  /// The border radius of the button.
+  ///
+  /// If not provided, the border radius will be used from the [size].
+  final double? borderRadius;
+
   final VoidCallback onTap;
 
   @override
@@ -22,8 +35,8 @@ class AFFilledPrimaryTextButton extends StatelessWidget {
       textColor: theme.textColorScheme.onFill,
       backgroundColor: theme.fillColorScheme.themeThick,
       hoverColor: theme.fillColorScheme.themeThickHover,
-      padding: size.buildPadding(context),
-      borderRadius: size.buildBorderRadius(context),
+      padding: padding ?? size.buildPadding(context),
+      borderRadius: borderRadius ?? size.buildBorderRadius(context),
       onTap: onTap,
       child: Text(
         text,

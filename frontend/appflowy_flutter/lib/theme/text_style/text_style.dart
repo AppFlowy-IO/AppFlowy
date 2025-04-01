@@ -9,7 +9,7 @@ class AppFlowyBaseTextStyle {
     this.caption = const TextThemeCaption(),
   });
 
-  final TextThemeType heading;
+  final TextThemeHeading heading;
   final TextThemeType headline;
   final TextThemeType title;
   final TextThemeType body;

@@ -1,5 +1,7 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/theme/component/text_field/text_field.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with_email.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
@@ -26,6 +28,7 @@ class _SignInWithMagicLinkButtonsState
   void dispose() {
     controller.dispose();
     _focusNode.dispose();
+
     super.dispose();
   }
 
@@ -35,27 +38,14 @@ class _SignInWithMagicLinkButtonsState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: UniversalPlatform.isMobile ? 38.0 : 48.0,
-          child: FlowyTextField(
-            autoFocus: false,
-            focusNode: _focusNode,
-            controller: controller,
-            borderRadius: BorderRadius.circular(4.0),
+          height: UniversalPlatform.isMobile ? 38.0 : 40.0,
+          child: AFTextField(
             hintText: LocaleKeys.signIn_pleaseInputYourEmail.tr(),
-            hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontSize: 14.0,
-                  color: Theme.of(context).hintColor,
-                ),
-            textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontSize: 14.0,
-                ),
-            keyboardType: TextInputType.emailAddress,
-            onSubmitted: (_) => _sendMagicLink(context, controller.text),
-            onTapOutside: (_) => _focusNode.unfocus(),
+            radius: 10,
           ),
         ),
         const VSpace(12),
-        _ConfirmButton(
+        ContinueWithEmail(
           onTap: () => _sendMagicLink(context, controller.text),
         ),
       ],

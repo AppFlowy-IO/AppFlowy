@@ -3,6 +3,7 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/settings/show_settings.dart';
 import 'package:appflowy/shared/window_title_bar.dart';
+import 'package:appflowy/theme/theme.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/widgets.dart';
 import 'package:appflowy/user/presentation/widgets/widgets.dart';
@@ -19,6 +20,8 @@ class DesktopSignInScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+
     const indicatorMinHeight = 4.0;
     return BlocBuilder<SignInBloc, SignInState>(
       builder: (context, state) {
@@ -29,18 +32,16 @@ class DesktopSignInScreen extends StatelessWidget {
               children: [
                 const Spacer(),
 
-                const VSpace(20),
-
                 // logo and title
                 FlowyLogoTitle(
                   title: LocaleKeys.welcomeText.tr(),
-                  logoSize: const Size(60, 60),
+                  logoSize: Size.square(36),
                 ),
-                const VSpace(20),
+                VSpace(theme.spacing.xxl),
 
                 // magic link sign in
                 const SignInWithMagicLinkButtons(),
-                const VSpace(20),
+                VSpace(theme.spacing.xxl),
 
                 // third-party sign in.
                 if (isAuthEnabled) ...[
