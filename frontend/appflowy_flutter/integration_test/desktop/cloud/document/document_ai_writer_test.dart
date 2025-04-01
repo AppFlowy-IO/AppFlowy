@@ -121,11 +121,7 @@ void main() {
       );
 
       await tester.pumpAndSettle();
-      await tester.tapButton(find.byType(AiWriterToolbarActionList));
-      await tester.tapButton(
-        find.text(AiWriterCommand.fixSpellingAndGrammar.i18n),
-      );
-      await tester.pumpAndSettle();
+      await tester.selectAIWriter(AiWriterCommand.fixSpellingAndGrammar);
 
       final editorState = tester.editor.getCurrentEditorState();
       final document = editorState.document;
@@ -169,22 +165,38 @@ void main() {
       );
 
       await tester.pumpAndSettle();
-      await tester.tapButton(find.byType(AiWriterToolbarActionList));
-      await tester.tapButton(
-        find.text(AiWriterCommand.userQuestion.i18n),
-      );
-      await tester.pumpAndSettle();
+      await tester.selectAIWriter(AiWriterCommand.userQuestion);
 
       await tester.enterTextInPromptTextField("Explain the concept of TPU");
-
-      // click enter button
       await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
-      await tester.pumpAndSettle(Duration(seconds: 10));
+      await tester.pumpAndSettle();
+
+      await tester.selectModel("GPT-4o-mini");
+
+      await tester.enterTextInPromptTextField("How about GPU?");
+      await tester.simulateKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
     });
   });
 }
 
 class _CompletionHistoryValidator extends StreamCompletionValidator {
+  static const _expectedResponses = {
+    1: "What is TPU?",
+    3: [
+      "What is TPU?",
+      "Explain the concept of TPU",
+      "TPU is a tensor processing unit that is designed to accelerate machine",
+    ],
+    5: [
+      "What is TPU?",
+      "Explain the concept of TPU",
+      "TPU is a tensor processing unit that is designed to accelerate machine",
+      "How about GPU?",
+      "GPU is a graphics processing unit that is designed to accelerate machine learning tasks.",
+    ],
+  };
+
   @override
   bool validate(
     String text,
@@ -195,15 +207,28 @@ class _CompletionHistoryValidator extends StreamCompletionValidator {
     List<AiWriterRecord> history,
   ) {
     assert(completionType == CompletionTypePB.UserQuestion);
-    assert(
-      history.length == 1,
-      "expect history length is 1, but got ${history.length}",
-    );
-    assert(
-      history[0].content.trim() == "What is TPU?",
-      "expect history[0].content is 'What is TPU?', but got '${history[0].content.trim()}'",
-    );
+    if (history.isEmpty) return false;
 
-    return true;
+    final expectedMessages = _expectedResponses[history.length];
+    if (expectedMessages == null) return false;
+
+    if (expectedMessages is String) {
+      _assertMessage(history[0].content, expectedMessages);
+      return true;
+    } else if (expectedMessages is List<String>) {
+      for (var i = 0; i < expectedMessages.length; i++) {
+        _assertMessage(history[i].content, expectedMessages[i]);
+      }
+      return true;
+    }
+
+    return false;
+  }
+
+  void _assertMessage(String actual, String expected) {
+    assert(
+      actual.trim() == expected,
+      "expected '$expected', but got '${actual.trim()}'",
+    );
   }
 }

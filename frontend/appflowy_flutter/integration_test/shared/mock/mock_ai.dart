@@ -43,6 +43,22 @@ final _mockAiMap = <CompletionTypePB, Map<String, List<String>>>{
       "accelerate",
       "machine",
     ],
+    "How about GPU?": [
+      "GPU",
+      "is",
+      "a",
+      "graphics",
+      "processing",
+      "unit",
+      "that",
+      "is",
+      "designed",
+      "to",
+      "accelerate",
+      "machine",
+      "learning",
+      "tasks",
+    ],
   },
 };
 
