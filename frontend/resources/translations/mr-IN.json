@@ -19,23 +19,23 @@
     "openMenuTooltip": "मेनू उघडण्यासाठी क्लिक करा"
   },
   "signUp": {
-    "buttonText": "Sign Up",
-    "title": "Sign Up to @:appName",
-    "getStartedText": "Get Started",
-    "emptyPasswordError": "Password can't be empty",
-    "repeatPasswordEmptyError": "Repeat password can't be empty",
-    "unmatchedPasswordError": "Repeat password is not the same as password",
-    "alreadyHaveAnAccount": "Already have an account?",
+    "buttonText": "साइन अप",
+    "title": "साइन अप to @:appName",
+    "getStartedText": "सुरुवात करा",
+    "emptyPasswordError": "पासवर्ड रिकामा असू शकत नाही",
+    "repeatPasswordEmptyError": "Repeat पासवर्ड रिकामा असू शकत नाही",
+    "unmatchedPasswordError": "पुन्हा लिहिलेला पासवर्ड मूळ पासवर्डशी जुळत नाही",
+    "alreadyHaveAnAccount": "आधीच खाते आहे?",
     "emailHint": "Email",
     "passwordHint": "Password",
-    "repeatPasswordHint": "Repeat password",
-    "signUpWith": "Sign up with:"
+    "repeatPasswordHint": "पासवर्ड पुन्हा लिहा",
+    "signUpWith": "यामध्ये साइन अप करा:"
   },
   "signIn": {
-    "loginTitle": "Login to @:appName",
-    "loginButtonText": "Login",
-    "loginStartWithAnonymous": "Continue with an anonymous session",
-    "continueAnonymousUser": "Continue with an anonymous session",
+    "loginTitle": "@:appName मध्ये लॉगिन करा",
+    "loginButtonText": "लॉगिन",
+    "loginStartWithAnonymous": "अनामिक सत्रासह पुढे जा",
+    "continueAnonymousUser": "अनामिक सत्रासह पुढे जा",
     "anonymous": "Anonymous",
     "buttonText": "Sign In",
     "signingInText": "Signing in...",
@@ -44,8 +44,8 @@
     "passwordHint": "Password",
     "dontHaveAnAccount": "Don't have an account?",
     "createAccount": "Create account",
-    "repeatPasswordEmptyError": "Repeat password can't be empty",
-    "unmatchedPasswordError": "Repeat password is not the same as password",
+    "repeatPasswordEmptyError": "Repeat पासवर्ड रिकामा असू शकत नाही",
+    "unmatchedPasswordError": "पुन्हा लिहिलेला पासवर्ड मूळ पासवर्डशी जुळत नाही",
     "syncPromptMessage": "Syncing the data might take a while. Please don't close this page",
     "or": "OR",
     "signInWithGoogle": "Continue with Google",
@@ -53,42 +53,42 @@
     "signInWithDiscord": "Continue with Discord",
     "signInWithApple": "Continue with Apple",
     "continueAnotherWay": "Continue another way",
-    "signUpWithGoogle": "Sign up with Google",
-    "signUpWithGithub": "Sign up with Github",
-    "signUpWithDiscord": "Sign up with Discord",
+    "signUpWithGoogle": "साइन अप with Google",
+    "signUpWithGithub": "साइन अप with Github",
+    "signUpWithDiscord": "साइन अप with Discord",
     "signInWith": "Continue with:",
     "signInWithEmail": "Continue with Email",
     "signInWithMagicLink": "Continue",
-    "signUpWithMagicLink": "Sign up with Magic Link",
+    "signUpWithMagicLink": "साइन अप with Magic Link",
     "pleaseInputYourEmail": "Please enter your email address",
     "settings": "Settings",
     "magicLinkSent": "Magic Link sent!",
     "invalidEmail": "Please enter a valid email address",
-    "alreadyHaveAnAccount": "Already have an account?",
+    "alreadyHaveAnAccount": "आधीच खाते आहे?",
     "logIn": "Log in",
     "generalError": "Something went wrong. Please try again later",
     "limitRateError": "For security reasons, you can only request a magic link every 60 seconds",
     "magicLinkSentDescription": "A Magic Link was sent to your email. Click the link to complete your login. The link will expire after 5 minutes."
   },
   "workspace": {
-    "chooseWorkspace": "Choose your workspace",
-    "defaultName": "My Workspace",
-    "create": "Create workspace",
-    "new": "New workspace",
-    "importFromNotion": "Import from Notion",
-    "learnMore": "Learn more",
-    "reset": "Reset workspace",
-    "renameWorkspace": "Rename workspace",
-    "workspaceNameCannotBeEmpty": "Workspace name cannot be empty",
-    "resetWorkspacePrompt": "Resetting the workspace will delete all pages and data within it. Are you sure you want to reset the workspace? Alternatively, you can contact the support team to restore the workspace",
+    "chooseWorkspace": "तुमचे workspace निवडा",
+    "defaultName": "माझे Workspace",
+    "create": "नवीन workspace तयार करा",
+    "new": "नवीन workspace",
+    "importFromNotion": "Notion मधून आयात करा",
+    "learnMore": "अधिक जाणून घ्या",
+    "reset": "workspace रीसेट करा",
+    "renameWorkspace": "workspace चे नाव बदला",
+    "workspaceNameCannotBeEmpty": "workspace चे नाव रिकामे असू शकत नाही",
+    "resetWorkspacePrompt": "workspace रीसेट केल्यास त्यातील सर्व पृष्ठे आणि डेटा हटवले जातील. तुम्हाला workspace रीसेट करायचे आहे का? पर्यायी म्हणून तुम्ही सपोर्ट टीमशी संपर्क करू शकता.",
     "hint": "workspace",
-    "notFoundError": "Workspace not found",
-    "failedToLoad": "Something went wrong! Failed to load the workspace. Try to close any open instance of @:appName and try again.",
+    "notFoundError": "workspace सापडले नाही",
+    "failedToLoad": "काहीतरी चूक झाली! workspace लोड होण्यात अयशस्वी. कृपया @:appName चे कोणतेही उघडे instance बंद करा आणि पुन्हा प्रयत्न करा.",
     "errorActions": {
-      "reportIssue": "Report an issue",
-      "reportIssueOnGithub": "Report an issue on Github",
-      "exportLogFiles": "Export log files",
-      "reachOut": "Reach out on Discord"
+      "reportIssue": "समस्या नोंदवा",
+      "reportIssueOnGithub": "Github वर समस्या नोंदवा",
+      "exportLogFiles": "लॉग फाइल्स निर्यात करा",
+      "reachOut": "Discord वर संपर्क करा"
     },
     "menuTitle": "Workspaces",
     "deleteWorkspaceHintText": "Are you sure you want to delete the workspace? This action cannot be undone, and any pages you have published will be unpublished.",
@@ -109,21 +109,21 @@
     "leaveCurrentWorkspacePrompt": "Are you sure you want to leave the current workspace?"
   },
   "shareAction": {
-    "buttonText": "Share",
-    "workInProgress": "Coming soon",
+    "buttonText": "शेअर करा",
+    "workInProgress": "लवकरच येत आहे",
     "markdown": "Markdown",
     "html": "HTML",
-    "clipboard": "Copy to clipboard",
+    "clipboard": "क्लिपबोर्डवर कॉपी करा",
     "csv": "CSV",
-    "copyLink": "Copy link",
-    "publishToTheWeb": "Publish to Web",
+    "copyLink": "लिंक कॉपी करा",
+    "publishToTheWeb": "वेबवर प्रकाशित करा",
     "publishToTheWebHint": "Create a website with AppFlowy",
     "publish": "Publish",
     "unPublish": "Unpublish",
     "visitSite": "Visit site",
     "exportAsTab": "Export as",
     "publishTab": "Publish",
-    "shareTab": "Share",
+    "shareTab": "शेअर करा",
     "publishOnAppFlowy": "Publish on AppFlowy",
     "shareTabTitle": "Invite to collaborate",
     "shareTabDescription": "For easy collaboration with anyone",
@@ -136,546 +136,547 @@
     "updatePathName": "Update path name"
   },
   "moreAction": {
-    "small": "small",
-    "medium": "medium",
-    "large": "large",
-    "fontSize": "Font size",
+    "small": "लहान",
+    "medium": "मध्यम",
+    "large": "मोठा",
+    "fontSize": "फॉन्ट आकार",
     "import": "Import",
-    "moreOptions": "More options",
-    "wordCount": "Word count: {}",
-    "charCount": "Character count: {}",
-    "createdAt": "Created: {}",
-    "deleteView": "Delete",
-    "duplicateView": "Duplicate",
-    "wordCountLabel": "Word count: ",
-    "charCountLabel": "Character count: ",
-    "createdAtLabel": "Created: ",
-    "syncedAtLabel": "Synced: ",
-    "saveAsNewPage": "Add messages to page",
-    "saveAsNewPageDisabled": "No messages available"
+    "moreOptions": "अधिक पर्याय",
+    "wordCount": "शब्द संख्या: {}",
+    "charCount": "अक्षर संख्या: {}",
+    "createdAt": "निर्मिती: {}",
+    "deleteView": "हटवा",
+    "duplicateView": "प्रत बनवा",
+    "wordCountLabel": "शब्द संख्या: ",
+    "charCountLabel": "अक्षर संख्या: ",
+    "createdAtLabel": "निर्मिती: ",
+    "syncedAtLabel": "सिंक केले: ",
+    "saveAsNewPage": "संदेश पृष्ठात जोडा",
+    "saveAsNewPageDisabled": "उपलब्ध संदेश नाहीत"
   },
   "importPanel": {
-    "textAndMarkdown": "Text & Markdown",
-    "documentFromV010": "Document from v0.1.0",
-    "databaseFromV010": "Database from v0.1.0",
-    "notionZip": "Notion Exported Zip File",
-    "csv": "CSV",
-    "database": "Database"
+  "textAndMarkdown": "मजकूर आणि Markdown",
+  "documentFromV010": "v0.1.0 पासून दस्तऐवज",
+  "databaseFromV010": "v0.1.0 पासून डेटाबेस",
+  "notionZip": "Notion निर्यात केलेली Zip फाईल",
+  "csv": "CSV",
+  "database": "डेटाबेस"
   },
   "emojiIconPicker": {
-    "iconUploader": {
-      "placeholderLeft": "Drag & drop a file, click to ",
-      "placeholderUpload": "Upload",
-      "placeholderRight": ", or paste an image link.",
-      "dropToUpload": "Drop a file to upload",
-      "change": "Change"
-    }
+  "iconUploader": {
+    "placeholderLeft": "फाईल ड्रॅग आणि ड्रॉप करा, क्लिक करा ",
+    "placeholderUpload": "अपलोड",
+    "placeholderRight": ", किंवा इमेज लिंक पेस्ट करा.",
+    "dropToUpload": "अपलोडसाठी फाईल ड्रॉप करा",
+    "change": "बदला"
+   }
   },
   "disclosureAction": {
-    "rename": "Rename",
-    "delete": "Delete",
-    "duplicate": "Duplicate",
-    "unfavorite": "Remove from Favorites",
-    "favorite": "Add to Favorites",
-    "openNewTab": "Open in a new tab",
-    "moveTo": "Move to",
-    "addToFavorites": "Add to Favorites",
-    "copyLink": "Copy link",
-    "changeIcon": "Change icon",
-    "collapseAllPages": "Collapse all subpages",
-    "movePageTo": "Move page to",
-    "move": "Move",
-    "lockPage": "Lock page"
+  "rename": "नाव बदला",
+  "delete": "हटवा",
+  "duplicate": "प्रत बनवा",
+  "unfavorite": "आवडतीतून काढा",
+  "favorite": "आवडतीत जोडा",
+  "openNewTab": "नवीन टॅबमध्ये उघडा",
+  "moveTo": "या ठिकाणी हलवा",
+  "addToFavorites": "आवडतीत जोडा",
+  "copyLink": "लिंक कॉपी करा",
+  "changeIcon": "आयकॉन बदला",
+  "collapseAllPages": "सर्व उपपृष्ठे संकुचित करा",
+  "movePageTo": "पृष्ठ हलवा",
+  "move": "हलवा",
+  "lockPage": "पृष्ठ लॉक करा"
   },
-  "blankPageTitle": "Blank page",
-  "newPageText": "New page",
-  "newDocumentText": "New document",
-  "newGridText": "New grid",
-  "newCalendarText": "New calendar",
-  "newBoardText": "New board",
+  "blankPageTitle": "रिक्त पृष्ठ",
+  "newPageText": "नवीन पृष्ठ",
+  "newDocumentText": "नवीन दस्तऐवज",
+  "newGridText": "नवीन ग्रिड",
+  "newCalendarText": "नवीन कॅलेंडर",
+  "newBoardText": "नवीन बोर्ड",
   "chat": {
-    "newChat": "AI Chat",
-    "inputMessageHint": "Ask @:appName AI",
-    "inputLocalAIMessageHint": "Ask @:appName Local AI",
-    "unsupportedCloudPrompt": "This feature is only available when using @:appName Cloud",
-    "relatedQuestion": "Suggested",
-    "serverUnavailable": "Connection lost. Please check your internet and",
-    "aiServerUnavailable": "The AI service is temporarily unavailable. Please try again later.",
-    "retry": "Retry",
-    "clickToRetry": "Click to retry",
-    "regenerateAnswer": "Regenerate",
-    "question1": "How to use Kanban to manage tasks",
-    "question2": "Explain the GTD method",
-    "question3": "Why use Rust",
-    "question4": "Recipe with what's in my kitchen",
-    "question5": "Create an illustration for my page",
-    "question6": "Draw up a to-do list for my upcoming week",
-    "aiMistakePrompt": "AI can make mistakes. Check important info.",
-    "chatWithFilePrompt": "Do you want to chat with the file?",
-    "indexFileSuccess": "Indexing file successfully",
-    "inputActionNoPages": "No page results",
+    "newChat": "AI गप्पा",
+    "inputMessageHint": "@:appName AI ला विचार करा",
+    "inputLocalAIMessageHint": "@:appName लोकल AI ला विचार करा",
+    "unsupportedCloudPrompt": "ही सुविधा फक्त @:appName Cloud वापरताना उपलब्ध आहे",
+    "relatedQuestion": "सूचवलेले",
+    "serverUnavailable": "कनेक्शन गमावले. कृपया तुमचे इंटरनेट तपासा आणि पुन्हा प्रयत्न करा",
+    "aiServerUnavailable": "AI सेवा सध्या अनुपलब्ध आहे. कृपया नंतर पुन्हा प्रयत्न करा.",
+    "retry": "पुन्हा प्रयत्न करा",
+    "clickToRetry": "पुन्हा प्रयत्न करण्यासाठी क्लिक करा",
+    "regenerateAnswer": "उत्तर पुन्हा तयार करा",
+    "question1": "Kanban वापरून कामे कशी व्यवस्थापित करायची",
+    "question2": "GTD पद्धत समजावून सांगा",
+    "question3": "Rust का वापरावा",
+    "question4": "माझ्या स्वयंपाकघरात असलेल्या वस्तूंनी रेसिपी",
+    "question5": "माझ्या पृष्ठासाठी एक चित्र तयार करा",
+    "question6": "या आठवड्याची माझी कामांची यादी तयार करा",
+    "aiMistakePrompt": "AI चुकू शकतो. महत्त्वाची माहिती तपासा.",
+    "chatWithFilePrompt": "तुम्हाला फाइलसोबत गप्पा मारायच्या आहेत का?",
+    "indexFileSuccess": "फाईल यशस्वीरित्या अनुक्रमित केली गेली",
+    "inputActionNoPages": "काहीही पृष्ठे सापडली नाहीत",
     "referenceSource": {
-      "zero": "0 sources found",
-      "one": "{count} source found",
-      "other": "{count} sources found"
-    },
-    "clickToMention": "Mention a page",
-    "uploadFile": "Attach PDFs, text or markdown files",
-    "questionDetail": "Hi {}! How can I help you today?",
-    "indexingFile": "Indexing {}",
-    "generatingResponse": "Generating response",
-    "selectSources": "Select Sources",
-    "currentPage": "Current page",
-    "sourcesLimitReached": "You can only select up to 3 top-level documents and its children",
-    "sourceUnsupported": "We don't support chatting with databases at this time",
-    "regenerate": "Try again",
-    "addToPageButton": "Add message to page",
-    "addToPageTitle": "Add message to...",
-    "addToNewPage": "Create new page",
-    "addToNewPageName": "Messages extracted from \"{}\"",
-    "addToNewPageSuccessToast": "Message added to",
-    "openPagePreviewFailedToast": "Failed to open page",
-    "changeFormat": {
-      "actionButton": "Change format",
-      "confirmButton": "Regenerate with this format",
-      "textOnly": "Text",
-      "imageOnly": "Image only",
-      "textAndImage": "Text and Image",
-      "text": "Paragraph",
-      "bullet": "Bullet list",
-      "number": "Numbered list",
-      "table": "Table",
-      "blankDescription": "Format response",
-      "defaultDescription": "Auto response format",
-      "textWithImageDescription": "@:chat.changeFormat.text with image",
-      "numberWithImageDescription": "@:chat.changeFormat.number with image",
-      "bulletWithImageDescription": "@:chat.changeFormat.bullet with image",
-      "tableWithImageDescription": "@:chat.changeFormat.table with image"
-    },
-    "switchModel": {
-      "label": "Switch model",
-      "localModel": "Local Model",
-      "cloudModel": "Cloud Model",
-      "autoModel": "Auto"
-    },
-    "selectBanner": {
-      "saveButton": "Add to …",
-      "selectMessages": "Select messages",
-      "nSelected": "{} selected",
-      "allSelected": "All selected"
-    },
-    "stopTooltip": "Stop generating"
-  },
-  "trash": {
-    "text": "Trash",
-    "restoreAll": "Restore All",
-    "restore": "Restore",
-    "deleteAll": "Delete All",
-    "pageHeader": {
-      "fileName": "File name",
-      "lastModified": "Last Modified",
-      "created": "Created"
-    },
-    "confirmDeleteAll": {
-      "title": "All pages in trash",
-      "caption": "Are you sure you want to delete everything in Trash? This action cannot be undone."
-    },
-    "confirmRestoreAll": {
-      "title": "Restore all pages in trash",
-      "caption": "This action cannot be undone."
-    },
-    "restorePage": {
-      "title": "Restore: {}",
-      "caption": "Are you sure you want to restore this page?"
-    },
-    "mobile": {
-      "actions": "Trash Actions",
-      "empty": "No pages or spaces in Trash",
-      "emptyDescription": "Move things you don't need to the Trash.",
-      "isDeleted": "is deleted",
-      "isRestored": "is restored"
-    },
-    "confirmDeleteTitle": "Are you sure you want to delete this page permanently?"
-  },
-  "deletePagePrompt": {
-    "text": "This page is in Trash",
-    "restore": "Restore page",
-    "deletePermanent": "Delete permanently",
-    "deletePermanentDescription": "Are you sure you want to delete this page permanently? This is irreversible."
-  },
-  "dialogCreatePageNameHint": "Page name",
-  "questionBubble": {
-    "shortcuts": "Shortcuts",
-    "whatsNew": "What's new?",
-    "help": "Help & Support",
-    "markdown": "Markdown",
-    "debug": {
-      "name": "Debug Info",
-      "success": "Copied debug info to clipboard!",
-      "fail": "Unable to copy debug info to clipboard"
-    },
-    "feedback": "Feedback"
-  },
-  "menuAppHeader": {
-    "moreButtonToolTip": "Remove, rename, and more...",
-    "addPageTooltip": "Quickly add a page inside",
-    "defaultNewPageName": "Untitled",
-    "renameDialog": "Rename",
-    "pageNameSuffix": "Copy"
-  },
-  "noPagesInside": "No pages inside",
-  "toolbar": {
-    "undo": "Undo",
-    "redo": "Redo",
-    "bold": "Bold",
-    "italic": "Italic",
-    "underline": "Underline",
-    "strike": "Strikethrough",
-    "numList": "Numbered list",
-    "bulletList": "Bulleted list",
-    "checkList": "Check List",
-    "inlineCode": "Inline Code",
-    "quote": "Quote Block",
-    "header": "Header",
-    "highlight": "Highlight",
-    "color": "Color",
-    "addLink": "Add Link"
-  },
-  "tooltip": {
-    "lightMode": "Switch to Light mode",
-    "darkMode": "Switch to Dark mode",
-    "openAsPage": "Open as a Page",
-    "addNewRow": "Add a new row",
-    "openMenu": "मेनू उघडण्यासाठी क्लिक करा",
-    "dragRow": "Drag to reorder the row",
-    "viewDataBase": "View database",
-    "referencePage": "This {name} is referenced",
-    "addBlockBelow": "Add a block below",
-    "aiGenerate": "Generate"
-  },
-  "sideBar": {
-    "closeSidebar": "Close sidebar",
-    "openSidebar": "Open sidebar",
-    "expandSidebar": "Expand as full page",
-    "personal": "Personal",
-    "private": "Private",
-    "workspace": "Workspace",
-    "favorites": "Favorites",
-    "clickToHidePrivate": "Click to hide private space\nPages you created here are only visible to you",
-    "clickToHideWorkspace": "Click to hide workspace\nPages you created here are visible to every member",
-    "clickToHidePersonal": "Click to hide personal space",
-    "clickToHideFavorites": "Click to hide favorite space",
-    "addAPage": "Add a new page",
-    "addAPageToPrivate": "Add a page to private space",
-    "addAPageToWorkspace": "Add a page to workspace",
-    "recent": "Recent",
-    "today": "Today",
-    "thisWeek": "This week",
-    "others": "Earlier favorites",
-    "earlier": "Earlier",
-    "justNow": "just now",
-    "minutesAgo": "{count} minutes ago",
-    "lastViewed": "Last viewed",
-    "favoriteAt": "Favorited",
-    "emptyRecent": "No Recent Pages",
-    "emptyRecentDescription": "As you view pages, they will appear here for easy retrieval.",
-    "emptyFavorite": "No Favorite Pages",
-    "emptyFavoriteDescription": "Mark pages as favorites—they'll be listed here for quick access!",
-    "removePageFromRecent": "Remove this page from the Recent?",
-    "removeSuccess": "Removed successfully",
-    "favoriteSpace": "Favorites",
-    "RecentSpace": "Recent",
-    "Spaces": "Spaces",
-    "upgradeToPro": "Upgrade to Pro",
-    "upgradeToAIMax": "Unlock unlimited AI",
-    "storageLimitDialogTitle": "You have run out of free storage. Upgrade to unlock unlimited storage",
-    "storageLimitDialogTitleIOS": "You have run out of free storage.",
-    "aiResponseLimitTitle": "You have run out of free AI responses. Upgrade to the Pro Plan or purchase an AI add-on to unlock unlimited responses",
-    "aiResponseLimitDialogTitle": "AI Responses limit reached",
-    "aiResponseLimit": "You have run out of free AI responses.\n\nGo to Settings -> Plan -> Click AI Max or Pro Plan to get more AI responses",
-    "askOwnerToUpgradeToPro": "Your workspace is running out of free storage. Please ask your workspace owner to upgrade to the Pro Plan",
-    "askOwnerToUpgradeToProIOS": "Your workspace is running out of free storage.",
-    "askOwnerToUpgradeToAIMax": "Your workspace has ran out of free AI responses. Please ask your workspace owner to upgrade the plan or purchase AI add-ons",
-    "askOwnerToUpgradeToAIMaxIOS": "Your workspace is running out of free AI responses.",
-    "purchaseAIMax": "Your workspace has ran out of AI Image responses. Please ask your workspace owner to purchase AI Max",
-    "aiImageResponseLimit": "You have run out of AI image responses.\n\nGo to Settings -> Plan -> Click AI Max to get more AI image responses",
-    "purchaseStorageSpace": "Purchase Storage Space",
-    "singleFileProPlanLimitationDescription": "You have exceeded the maximum file upload size allowed in the free plan. Please upgrade to the Pro Plan to upload larger files",
-    "purchaseAIResponse": "Purchase ",
-    "askOwnerToUpgradeToLocalAI": "Ask workspace owner to enable AI On-device",
-    "upgradeToAILocal": "Run local models on your device for ultimate privacy",
-    "upgradeToAILocalDesc": "Chat with PDFs, improve your writing, and auto-fill tables using local AI"
-  },
-  "notifications": {
-    "export": {
-      "markdown": "Exported Note To Markdown",
-      "path": "Documents/flowy"
+    "zero": "0 स्रोत सापडले",
+    "one": "{count} स्रोत सापडला",
+    "other": "{count} स्रोत सापडले"
     }
   },
-  "contactsPage": {
-    "title": "Contacts",
-    "whatsHappening": "What's happening this week?",
-    "addContact": "Add Contact",
-    "editContact": "Edit Contact"
+    "clickToMention": "पृष्ठाचा उल्लेख करा",
+    "uploadFile": "PDFs, मजकूर किंवा markdown फाइल्स जोडा",
+    "questionDetail": "नमस्कार {}! मी तुम्हाला कशी मदत करू शकतो?",
+    "indexingFile": "{} अनुक्रमित करत आहे",
+    "generatingResponse": "उत्तर तयार होत आहे",
+    "selectSources": "स्रोत निवडा",
+    "currentPage": "सध्याचे पृष्ठ",
+    "sourcesLimitReached": "तुम्ही फक्त ३ मुख्य दस्तऐवज आणि त्यांची उपदस्तऐवज निवडू शकता",
+    "sourceUnsupported": "सध्या डेटाबेससह चॅटिंगसाठी आम्ही समर्थन करत नाही",
+    "regenerate": "पुन्हा प्रयत्न करा",
+    "addToPageButton": "संदेश पृष्ठावर जोडा",
+    "addToPageTitle": "या पृष्ठात संदेश जोडा...",
+    "addToNewPage": "नवीन पृष्ठ तयार करा",
+    "addToNewPageName": "\"{}\" मधून काढलेले संदेश",
+    "addToNewPageSuccessToast": "संदेश जोडण्यात आला",
+    "openPagePreviewFailedToast": "पृष्ठ उघडण्यात अयशस्वी",
+    "changeFormat": {
+      "actionButton": "फॉरमॅट बदला",
+      "confirmButton": "या फॉरमॅटसह पुन्हा तयार करा",
+      "textOnly": "मजकूर",
+      "imageOnly": "फक्त प्रतिमा",
+      "textAndImage": "मजकूर आणि प्रतिमा",
+      "text": "परिच्छेद",
+      "bullet": "बुलेट यादी",
+      "number": "क्रमांकित यादी",
+      "table": "सारणी",
+      "blankDescription": "उत्तराचे फॉरमॅट ठरवा",
+      "defaultDescription": "स्वयंचलित उत्तर फॉरमॅट",
+      "textWithImageDescription": "@:chat.changeFormat.text प्रतिमेसह",
+      "numberWithImageDescription": "@:chat.changeFormat.number प्रतिमेसह",
+      "bulletWithImageDescription": "@:chat.changeFormat.bullet प्रतिमेसह",
+  "   tableWithImageDescription": "@:chat.changeFormat.table प्रतिमेसह"
+  },
+    "switchModel": {
+    "label": "मॉडेल बदला",
+    "localModel": "स्थानिक मॉडेल",
+    "cloudModel": "क्लाऊड मॉडेल",
+    "autoModel": "स्वयंचलित"
+  },
+    "selectBanner": {
+    "saveButton": "… मध्ये जोडा",
+    "selectMessages": "संदेश निवडा",
+    "nSelected": "{} निवडले गेले",
+    "allSelected": "सर्व निवडले गेले"
+  },
+    "stopTooltip": "उत्पन्न करणे थांबवा",
+    "trash": {
+    "text": "कचरा",
+    "restoreAll": "सर्व पुनर्संचयित करा",
+    "restore": "पुनर्संचयित करा",
+    "deleteAll": "सर्व हटवा",
+    "pageHeader": {
+    "fileName": "फाईलचे नाव",
+    "lastModified": "शेवटचा बदल",
+    "created": "निर्मिती"
+    }
+  },
+    "confirmDeleteAll": {
+    "title": "कचरापेटीतील सर्व पृष्ठे",
+    "caption": "तुम्हाला कचरापेटीतील सर्व काही हटवायचे आहे का? ही कृती पूर्ववत केली जाऊ शकत नाही."
+  },
+    "confirmRestoreAll": {
+    "title": "कचरापेटीतील सर्व पृष्ठे पुनर्संचयित करा",
+    "caption": "ही कृती पूर्ववत केली जाऊ शकत नाही."
+  },
+    "restorePage": {
+    "title": "पुनर्संचयित करा: {}",
+    "caption": "तुम्हाला हे पृष्ठ पुनर्संचयित करायचे आहे का?"
+  },
+    "mobile": {
+    "actions": "कचरा क्रिया",
+    "empty": "कचरापेटीत कोणतीही पृष्ठे किंवा जागा नाहीत",
+    "emptyDescription": "जे आवश्यक नाही ते कचरापेटीत हलवा.",
+    "isDeleted": "हटवले गेले आहे",
+    "isRestored": "पुनर्संचयित केले गेले आहे"
+  },
+    "confirmDeleteTitle": "तुम्हाला हे पृष्ठ कायमचे हटवायचे आहे का?",
+    "deletePagePrompt": {
+    "text": "हे पृष्ठ कचरापेटीत आहे",
+    "restore": "पृष्ठ पुनर्संचयित करा",
+    "deletePermanent": "कायमचे हटवा",
+    "deletePermanentDescription": "तुम्हाला हे पृष्ठ कायमचे हटवायचे आहे का? ही कृती पूर्ववत केली जाऊ शकत नाही."
+  },
+  "dialogCreatePageNameHint": "पृष्ठाचे नाव",
+    "questionBubble": {
+    "shortcuts": "शॉर्टकट्स",
+    "whatsNew": "नवीन काय आहे?",
+    "help": "मदत आणि समर्थन",
+    "markdown": "Markdown",
+    "debug": {
+    "name": "डीबग माहिती",
+    "success": "डीबग माहिती क्लिपबोर्डवर कॉपी केली!",
+    "fail": "डीबग माहिती कॉपी करता आली नाही"
+   },
+   "feedback": "अभिप्राय"
+  },
+  "menuAppHeader": {
+    "moreButtonToolTip": "हटवा, नाव बदला आणि अधिक...",
+    "addPageTooltip": "तत्काळ एक पृष्ठ जोडा",
+    "defaultNewPageName": "शीर्षक नसलेले",
+    "renameDialog": "नाव बदला",
+    "pageNameSuffix": "प्रत"
+  },
+  "noPagesInside": "अंदर कोणतीही पृष्ठे नाहीत",
+    "toolbar": {
+    "undo": "पूर्ववत करा",
+    "redo": "पुन्हा करा",
+    "bold": "ठळक",
+    "italic": "तिरकस",
+    "underline": "अधोरेखित",
+    "strike": "मागे ओढलेले",
+    "numList": "क्रमांकित यादी",
+    "bulletList": "बुलेट यादी",
+    "checkList": "चेक यादी",
+    "inlineCode": "इनलाइन कोड",
+    "quote": "उद्धरण ब्लॉक",
+    "header": "शीर्षक",
+    "highlight": "हायलाइट",
+    "color": "रंग",
+    "addLink": "लिंक जोडा"
+  },
+  "tooltip": {
+    "lightMode": "लाइट मोडमध्ये स्विच करा",
+    "darkMode": "डार्क मोडमध्ये स्विच करा",
+    "openAsPage": "पृष्ठ म्हणून उघडा",
+    "addNewRow": "नवीन पंक्ती जोडा",
+    "openMenu": "मेनू उघडण्यासाठी क्लिक करा",
+    "dragRow": "पंक्तीचे स्थान बदलण्यासाठी ड्रॅग करा",
+    "viewDataBase": "डेटाबेस पहा",
+    "referencePage": "हे {name} संदर्भित आहे",
+    "addBlockBelow": "खाली एक ब्लॉक जोडा",
+    "aiGenerate": "निर्मिती करा"
+  },
+  "sideBar": {
+  "closeSidebar": "साइडबार बंद करा",
+  "openSidebar": "साइडबार उघडा",
+  "expandSidebar": "पूर्ण पृष्ठावर विस्तारित करा",
+  "personal": "वैयक्तिक",
+  "private": "खाजगी",
+  "workspace": "कार्यक्षेत्र",
+  "favorites": "आवडती",
+  "clickToHidePrivate": "खाजगी जागा लपवण्यासाठी क्लिक करा\nयेथे तयार केलेली पाने फक्त तुम्हाला दिसतील",
+  "clickToHideWorkspace": "कार्यक्षेत्र लपवण्यासाठी क्लिक करा\nयेथे तयार केलेली पाने सर्व सदस्यांना दिसतील",
+  "clickToHidePersonal": "वैयक्तिक जागा लपवण्यासाठी क्लिक करा",
+  "clickToHideFavorites": "आवडती जागा लपवण्यासाठी क्लिक करा",
+  "addAPage": "नवीन पृष्ठ जोडा",
+  "addAPageToPrivate": "खाजगी जागेत पृष्ठ जोडा",
+  "addAPageToWorkspace": "कार्यक्षेत्रात पृष्ठ जोडा",
+  "recent": "अलीकडील",
+  "today": "आज",
+  "thisWeek": "या आठवड्यात",
+  "others": "पूर्वीच्या आवडती",
+  "earlier": "पूर्वीचे",
+  "justNow": "आत्ताच",
+  "minutesAgo": "{count} मिनिटांपूर्वी",
+  "lastViewed": "शेवटी पाहिलेले",
+  "favoriteAt": "आवडते म्हणून चिन्हांकित",
+  "emptyRecent": "अलीकडील पृष्ठे नाहीत",
+  "emptyRecentDescription": "तुम्ही पाहिलेली पृष्ठे येथे सहज पुन्हा मिळवण्यासाठी दिसतील.",
+  "emptyFavorite": "आवडती पृष्ठे नाहीत",
+  "emptyFavoriteDescription": "पृष्ठांना आवडते म्हणून चिन्हांकित करा—ते येथे झपाट्याने प्रवेशासाठी दिसतील!",
+  "removePageFromRecent": "हे पृष्ठ अलीकडील यादीतून काढायचे?",
+  "removeSuccess": "यशस्वीरित्या काढले गेले",
+  "favoriteSpace": "आवडती",
+  "RecentSpace": "अलीकडील",
+  "Spaces": "जागा",
+  "upgradeToPro": "Pro मध्ये अपग्रेड करा",
+  "upgradeToAIMax": "अमर्यादित AI अनलॉक करा",
+  "storageLimitDialogTitle": "तुमचा मोफत स्टोरेज संपला आहे. अमर्यादित स्टोरेजसाठी अपग्रेड करा",
+  "storageLimitDialogTitleIOS": "तुमचा मोफत स्टोरेज संपला आहे.",
+  "aiResponseLimitTitle": "तुमचे मोफत AI प्रतिसाद संपले आहेत. कृपया Pro प्लॅनला अपग्रेड करा किंवा AI add-on खरेदी करा",
+  "aiResponseLimitDialogTitle": "AI प्रतिसाद मर्यादा गाठली आहे",
+  "aiResponseLimit": "तुमचे मोफत AI प्रतिसाद संपले आहेत.\n\nसेटिंग्ज -> प्लॅन -> AI Max किंवा Pro प्लॅन क्लिक करा",
+  "askOwnerToUpgradeToPro": "तुमच्या कार्यक्षेत्राचे मोफत स्टोरेज संपत चालले आहे. कृपया कार्यक्षेत्र मालकाला Pro प्लॅनमध्ये अपग्रेड करण्यास सांगा",
+  "askOwnerToUpgradeToProIOS": "तुमच्या कार्यक्षेत्राचे मोफत स्टोरेज संपत चालले आहे.",
+  "askOwnerToUpgradeToAIMax": "तुमच्या कार्यक्षेत्राचे मोफत AI प्रतिसाद संपले आहेत. कृपया कार्यक्षेत्र मालकाला प्लॅन अपग्रेड किंवा AI add-ons खरेदी करण्यास सांगा",
+  "askOwnerToUpgradeToAIMaxIOS": "तुमच्या कार्यक्षेत्राचे मोफत AI प्रतिसाद संपले आहेत.",
+  "purchaseAIMax": "तुमच्या कार्यक्षेत्राचे AI प्रतिमा प्रतिसाद संपले आहेत. कृपया कार्यक्षेत्र मालकाला AI Max खरेदी करण्यास सांगा",
+  "aiImageResponseLimit": "तुमचे AI प्रतिमा प्रतिसाद संपले आहेत.\n\nसेटिंग्ज -> प्लॅन -> AI Max क्लिक करा",
+  "purchaseStorageSpace": "स्टोरेज स्पेस खरेदी करा",
+  "singleFileProPlanLimitationDescription": "तुम्ही मोफत प्लॅनमध्ये परवानगी दिलेल्या फाइल अपलोड आकाराची मर्यादा ओलांडली आहे. कृपया Pro प्लॅनमध्ये अपग्रेड करा",
+  "purchaseAIResponse": "AI प्रतिसाद खरेदी करा",
+  "askOwnerToUpgradeToLocalAI": "कार्यक्षेत्र मालकाला ऑन-डिव्हाइस AI सक्षम करण्यास सांगा",
+  "upgradeToAILocal": "अत्याधिक गोपनीयतेसाठी तुमच्या डिव्हाइसवर लोकल मॉडेल चालवा",
+  "upgradeToAILocalDesc": "PDFs सोबत गप्पा मारा, तुमचे लेखन सुधारा आणि लोकल AI वापरून टेबल्स आपोआप भरा"
+},
+  "notifications": {
+    "export": {
+    "markdown": "टीप Markdown मध्ये निर्यात केली",
+    "path": "Documents/flowy"
+    }
+  },
+    "contactsPage": {
+    "title": "संपर्क",
+    "whatsHappening": "या आठवड्यात काय घडत आहे?",
+    "addContact": "संपर्क जोडा",
+    "editContact": "संपर्क संपादित करा"
   },
   "button": {
-    "ok": "Ok",
-    "confirm": "Confirm",
-    "done": "Done",
-    "cancel": "Cancel",
-    "signIn": "Sign In",
-    "signOut": "Sign Out",
-    "complete": "Complete",
-    "save": "Save",
-    "generate": "Generate",
+    "ok": "ठीक आहे",
+    "confirm": "खात्री करा",
+    "done": "पूर्ण",
+    "cancel": "रद्द करा",
+    "signIn": "साइन इन",
+    "signOut": "साइन आउट",
+    "complete": "पूर्ण करा",
+    "save": "जतन करा",
+    "generate": "निर्माण करा",
     "esc": "ESC",
-    "keep": "Keep",
-    "tryAgain": "Try again",
-    "discard": "Discard",
-    "replace": "Replace",
-    "insertBelow": "Insert below",
-    "insertAbove": "Insert above",
-    "upload": "Upload",
-    "edit": "Edit",
-    "delete": "Delete",
-    "copy": "Copy",
-    "duplicate": "Duplicate",
-    "putback": "Put Back",
-    "update": "Update",
-    "share": "Share",
-    "removeFromFavorites": "Remove from Favorites",
-    "removeFromRecent": "Remove from Recent",
-    "addToFavorites": "Add to Favorites",
-    "favoriteSuccessfully": "Favorited success",
-    "unfavoriteSuccessfully": "Unfavorited success",
-    "duplicateSuccessfully": "Duplicated successfully",
-    "rename": "Rename",
-    "helpCenter": "Help Center",
-    "add": "Add",
-    "yes": "Yes",
-    "no": "No",
-    "clear": "Clear",
-    "remove": "Remove",
-    "dontRemove": "Don't remove",
-    "copyLink": "Copy Link",
-    "align": "Align",
-    "login": "Login",
-    "logout": "Log out",
-    "deleteAccount": "Delete account",
-    "back": "Back",
-    "signInGoogle": "Continue with Google",
-    "signInGithub": "Continue with GitHub",
-    "signInDiscord": "Continue with Discord",
-    "more": "More",
-    "create": "Create",
-    "close": "Close",
-    "next": "Next",
-    "previous": "Previous",
-    "submit": "Submit",
-    "download": "Download",
-    "backToHome": "Back to Home",
-    "viewing": "Viewing",
-    "editing": "Editing",
-    "gotIt": "Got it",
-    "retry": "Retry",
-    "uploadFailed": "Upload failed.",
-    "copyLinkOriginal": "Copy link to original"
+    "keep": "ठेवा",
+    "tryAgain": "पुन्हा प्रयत्न करा",
+    "discard": "टाका",
+    "replace": "बदला",
+    "insertBelow": "खाली घाला",
+    "insertAbove": "वर घाला",
+    "upload": "अपलोड करा",
+    "edit": "संपादित करा",
+    "delete": "हटवा",
+    "copy": "कॉपी करा",
+    "duplicate": "प्रत बनवा",
+    "putback": "परत ठेवा",
+    "update": "अद्यतनित करा",
+    "share": "शेअर करा",
+    "removeFromFavorites": "आवडतीतून काढा",
+    "removeFromRecent": "अलीकडील यादीतून काढा",
+    "addToFavorites": "आवडतीत जोडा",
+    "favoriteSuccessfully": "आवडतीत यशस्वीरित्या जोडले",
+    "unfavoriteSuccessfully": "आवडतीतून यशस्वीरित्या काढले",
+    "duplicateSuccessfully": "प्रत यशस्वीरित्या तयार झाली",
+    "rename": "नाव बदला",
+    "helpCenter": "मदत केंद्र",
+    "add": "जोड़ा",
+    "yes": "होय",
+    "no": "नाही",
+    "clear": "साफ करा",
+    "remove": "काढा",
+    "dontRemove": "काढू नका",
+    "copyLink": "लिंक कॉपी करा",
+    "align": "जुळवा",
+    "login": "लॉगिन",
+    "logout": "लॉगआउट",
+    "deleteAccount": "खाते हटवा",
+    "back": "मागे",
+    "signInGoogle": "Google सह पुढे जा",
+    "signInGithub": "GitHub सह पुढे जा",
+    "signInDiscord": "Discord सह पुढे जा",
+    "more": "अधिक",
+    "create": "तयार करा",
+    "close": "बंद करा",
+    "next": "पुढे",
+    "previous": "मागील",
+    "submit": "सबमिट करा",
+    "download": "डाउनलोड करा",
+    "backToHome": "मुख्यपृष्ठावर परत जा",
+    "viewing": "पाहत आहात",
+    "editing": "संपादन करत आहात",
+    "gotIt": "समजले",
+    "retry": "पुन्हा प्रयत्न करा",
+    "uploadFailed": "अपलोड अयशस्वी.",
+    "copyLinkOriginal": "मूळ दुव्याची कॉपी करा"
   },
   "label": {
-    "welcome": "Welcome!",
-    "firstName": "First Name",
-    "middleName": "Middle Name",
-    "lastName": "Last Name",
-    "stepX": "Step {X}"
+    "welcome": "स्वागत आहे!",
+    "firstName": "पहिले नाव",
+    "middleName": "मधले नाव",
+    "lastName": "आडनाव",
+    "stepX": "पायरी {X}"
   },
   "oAuth": {
-    "err": {
-      "failedTitle": "Unable to connect to your account.",
-      "failedMsg": "Please make sure you've completed the sign-in process in your browser."
-    },
-    "google": {
-      "title": "GOOGLE SIGN-IN",
-      "instruction1": "In order to import your Google Contacts, you'll need to authorize this application using your web browser.",
-      "instruction2": "Copy this code to your clipboard by clicking the icon or selecting the text:",
-      "instruction3": "Navigate to the following link in your web browser, and enter the above code:",
-      "instruction4": "Press the button below when you've completed signup:"
+  "err": {
+    "failedTitle": "तुमच्या खात्याशी कनेक्ट होता आले नाही.",
+    "failedMsg": "कृपया खात्री करा की तुम्ही ब्राउझरमध्ये साइन-इन प्रक्रिया पूर्ण केली आहे."
+  },
+  "google": {
+    "title": "GOOGLE साइन-इन",
+    "instruction1": "तुमचे Google Contacts आयात करण्यासाठी, तुम्हाला तुमच्या वेब ब्राउझरचा वापर करून या अ‍ॅप्लिकेशनला अधिकृत करणे आवश्यक आहे.",
+    "instruction2": "ही कोड आयकॉनवर क्लिक करून किंवा मजकूर निवडून क्लिपबोर्डवर कॉपी करा:",
+    "instruction3": "तुमच्या वेब ब्राउझरमध्ये खालील दुव्यावर जा आणि वरील कोड टाका:",
+    "instruction4": "साइनअप पूर्ण झाल्यावर खालील बटण क्लिक करा:"
     }
   },
   "settings": {
-    "title": "Settings",
-    "popupMenuItem": {
-      "settings": "Settings",
-      "members": "Members",
-      "trash": "Trash",
-      "helpAndSupport": "Help & Support"
-    },
-    "sites": {
-      "title": "Sites",
-      "namespaceTitle": "Namespace",
-      "namespaceDescription": "Manage your namespace and homepage",
-      "namespaceHeader": "Namespace",
-      "homepageHeader": "Homepage",
-      "updateNamespace": "Update namespace",
-      "removeHomepage": "Remove homepage",
-      "selectHomePage": "Select a page",
-      "clearHomePage": "Clear the home page for this namespace",
-      "customUrl": "Custom URL",
+  "title": "सेटिंग्ज",
+  "popupMenuItem": {
+    "settings": "सेटिंग्ज",
+    "members": "सदस्य",
+    "trash": "कचरा",
+    "helpAndSupport": "मदत आणि समर्थन"
+  },
+  "sites": {
+      "title": "साइट्स",
+      "namespaceTitle": "नेमस्पेस",
+      "namespaceDescription": "तुमचा नेमस्पेस आणि मुख्यपृष्ठ व्यवस्थापित करा",
+      "namespaceHeader": "नेमस्पेस",
+      "homepageHeader": "मुख्यपृष्ठ",
+      "updateNamespace": "नेमस्पेस अद्यतनित करा",
+      "removeHomepage": "मुख्यपृष्ठ हटवा",
+      "selectHomePage": "एक पृष्ठ निवडा",
+      "clearHomePage": "या नेमस्पेससाठी मुख्यपृष्ठ साफ करा",
+      "customUrl": "स्वतःची URL",
       "namespace": {
-        "description": "This change will apply to all the published pages live on this namespace",
-        "tooltip": "We reserve the rights to remove any inappropriate namespaces",
-        "updateExistingNamespace": "Update existing namespace",
-        "upgradeToPro": "Upgrade to Pro Plan to set a homepage",
-        "redirectToPayment": "Redirecting to payment page...",
-        "onlyWorkspaceOwnerCanSetHomePage": "Only the workspace owner can set a homepage",
-        "pleaseAskOwnerToSetHomePage": "Please ask the workspace owner to upgrade to Pro Plan"
+      "description": "हे बदल सर्व प्रकाशित पृष्ठांवर लागू होतील जे या नेमस्पेसवर चालू आहेत",
+      "tooltip": "कोणताही अनुचित नेमस्पेस आम्ही काढून टाकण्याचा अधिकार राखून ठेवतो",
+      "updateExistingNamespace": "विद्यमान नेमस्पेस अद्यतनित करा",
+      "upgradeToPro": "मुख्यपृष्ठ सेट करण्यासाठी Pro प्लॅनमध्ये अपग्रेड करा",
+      "redirectToPayment": "पेमेंट पृष्ठावर वळवत आहे...",
+      "onlyWorkspaceOwnerCanSetHomePage": "फक्त कार्यक्षेत्र मालकच मुख्यपृष्ठ सेट करू शकतो",
+      "pleaseAskOwnerToSetHomePage": "कृपया कार्यक्षेत्र मालकाला Pro प्लॅनमध्ये अपग्रेड करण्यास सांगा"
       },
       "publishedPage": {
-        "title": "All published pages",
-        "description": "Manage your published pages",
-        "page": "Page",
-        "pathName": "Path name",
-        "date": "Published date",
-        "emptyHinText": "You have no published pages in this workspace",
-        "noPublishedPages": "No published pages",
-        "settings": "Publish settings",
-        "clickToOpenPageInApp": "Open page in app",
-        "clickToOpenPageInBrowser": "Open page in browser"
-      },
-      "error": {
-        "failedToGeneratePaymentLink": "Failed to generate payment link for Pro Plan",
-        "failedToUpdateNamespace": "Failed to update namespace",
-        "proPlanLimitation": "You need to upgrade to Pro Plan to update the namespace",
-        "namespaceAlreadyInUse": "The namespace is already taken, please try another one",
-        "invalidNamespace": "Invalid namespace, please try another one",
-        "namespaceLengthAtLeast2Characters": "The namespace must be at least 2 characters long",
-        "onlyWorkspaceOwnerCanUpdateNamespace": "Only workspace owner can update the namespace",
-        "onlyWorkspaceOwnerCanRemoveHomepage": "Only workspace owner can remove the homepage",
-        "setHomepageFailed": "Failed to set homepage",
-        "namespaceTooLong": "The namespace is too long, please try another one",
-        "namespaceTooShort": "The namespace is too short, please try another one",
-        "namespaceIsReserved": "The namespace is reserved, please try another one",
-        "updatePathNameFailed": "Failed to update path name",
-        "removeHomePageFailed": "Failed to remove homepage",
-        "publishNameContainsInvalidCharacters": "The path name contains invalid character(s), please try another one",
-        "publishNameTooShort": "The path name is too short, please try another one",
-        "publishNameTooLong": "The path name is too long, please try another one",
-        "publishNameAlreadyInUse": "The path name is already in use, please try another one",
-        "namespaceContainsInvalidCharacters": "The namespace contains invalid character(s), please try another one",
-        "publishPermissionDenied": "Only the workspace owner or page publisher can manage the publish settings",
-        "publishNameCannotBeEmpty": "The path name cannot be empty, please try another one"
-      },
+      "title": "सर्व प्रकाशित पृष्ठे",
+      "description": "तुमची प्रकाशित पृष्ठे व्यवस्थापित करा",
+      "page": "पृष्ठ",
+      "pathName": "पथाचे नाव",
+      "date": "प्रकाशन तारीख",
+      "emptyHinText": "या कार्यक्षेत्रात तुमच्याकडे कोणतीही प्रकाशित पृष्ठे नाहीत",
+      "noPublishedPages": "प्रकाशित पृष्ठे नाहीत",
+      "settings": "प्रकाशन सेटिंग्ज",
+      "clickToOpenPageInApp": "पृष्ठ अ‍ॅपमध्ये उघडा",
+      "clickToOpenPageInBrowser": "पृष्ठ ब्राउझरमध्ये उघडा"
+      }
+    }
+  },
+    "error": {
+    "failedToGeneratePaymentLink": "Pro प्लॅनसाठी पेमेंट लिंक तयार करण्यात अयशस्वी",
+    "failedToUpdateNamespace": "नेमस्पेस अद्यतनित करण्यात अयशस्वी",
+    "proPlanLimitation": "नेमस्पेस अद्यतनित करण्यासाठी तुम्हाला Pro प्लॅनमध्ये अपग्रेड करणे आवश्यक आहे",
+    "namespaceAlreadyInUse": "नेमस्पेस आधीच वापरात आहे, कृपया दुसरे प्रयत्न करा",
+    "invalidNamespace": "अवैध नेमस्पेस, कृपया दुसरे प्रयत्न करा",
+    "namespaceLengthAtLeast2Characters": "नेमस्पेस किमान २ अक्षरे लांब असावे",
+    "onlyWorkspaceOwnerCanUpdateNamespace": "फक्त कार्यक्षेत्र मालकच नेमस्पेस अद्यतनित करू शकतो",
+    "onlyWorkspaceOwnerCanRemoveHomepage": "फक्त कार्यक्षेत्र मालकच मुख्यपृष्ठ हटवू शकतो",
+    "setHomepageFailed": "मुख्यपृष्ठ सेट करण्यात अयशस्वी",
+    "namespaceTooLong": "नेमस्पेस खूप लांब आहे, कृपया दुसरे प्रयत्न करा",
+    "namespaceTooShort": "नेमस्पेस खूप लहान आहे, कृपया दुसरे प्रयत्न करा",
+    "namespaceIsReserved": "हा नेमस्पेस राखीव आहे, कृपया दुसरे प्रयत्न करा",
+    "updatePathNameFailed": "पथाचे नाव अद्यतनित करण्यात अयशस्वी",
+    "removeHomePageFailed": "मुख्यपृष्ठ हटवण्यात अयशस्वी",
+    "publishNameContainsInvalidCharacters": "पथाच्या नावामध्ये अवैध अक्षरे आहेत, कृपया दुसरे प्रयत्न करा",
+    "publishNameTooShort": "पथाचे नाव खूप लहान आहे, कृपया दुसरे प्रयत्न करा",
+    "publishNameTooLong": "पथाचे नाव खूप लांब आहे, कृपया दुसरे प्रयत्न करा",
+    "publishNameAlreadyInUse": "हे पथाचे नाव आधीच वापरले गेले आहे, कृपया दुसरे प्रयत्न करा",
+    "namespaceContainsInvalidCharacters": "नेमस्पेसमध्ये अवैध अक्षरे आहेत, कृपया दुसरे प्रयत्न करा",
+    "publishPermissionDenied": "फक्त कार्यक्षेत्र मालक किंवा पृष्ठ प्रकाशकच प्रकाशन सेटिंग्ज व्यवस्थापित करू शकतो",
+    "publishNameCannotBeEmpty": "पथाचे नाव रिकामे असू शकत नाही, कृपया दुसरे प्रयत्न करा"
+  },
       "success": {
-        "namespaceUpdated": "Updated namespace successfully",
-        "setHomepageSuccess": "Set homepage successfully",
-        "updatePathNameSuccess": "Updated path name successfully",
-        "removeHomePageSuccess": "Remove homepage successfully"
-      }
-    },
+    "namespaceUpdated": "नेमस्पेस यशस्वीरित्या अद्यतनित केला",
+    "setHomepageSuccess": "मुख्यपृष्ठ यशस्वीरित्या सेट केले",
+    "updatePathNameSuccess": "पथाचे नाव यशस्वीरित्या अद्यतनित केले",
+    "removeHomePageSuccess": "मुख्यपृष्ठ यशस्वीरित्या हटवले"
+  },
     "accountPage": {
-      "menuLabel": "Account & App",
-      "title": "My account",
-      "general": {
-        "title": "Account name & profile image",
-        "changeProfilePicture": "Change profile picture"
-      },
-      "email": {
-        "title": "Email",
-        "actions": {
-          "change": "Change email"
-        }
-      },
-      "login": {
-        "title": "Account login",
-        "loginLabel": "Log in",
-        "logoutLabel": "Log out"
-      },
-      "isUpToDate": "@:appName is up to date!",
-      "officialVersion": "Version {version} (Official build)"
-    },
+    "menuLabel": "खाते आणि अ‍ॅप",
+    "title": "माझे खाते",
+    "general": {
+    "title": "खात्याचे नाव आणि प्रोफाइल प्रतिमा",
+    "changeProfilePicture": "प्रोफाइल प्रतिमा बदला"
+  },
+  "email": {
+    "title": "ईमेल",
+    "actions": {
+      "change": "ईमेल बदला"
+    }
+  },
+  "login": {
+    "title": "खाते लॉगिन",
+    "loginLabel": "लॉगिन",
+    "logoutLabel": "लॉगआउट"
+  },
+  "isUpToDate": "@:appName अद्ययावत आहे!",
+  "officialVersion": "आवृत्ती {version} (अधिकृत बिल्ड)"
+},
     "workspacePage": {
-      "menuLabel": "Workspace",
-      "title": "Workspace",
-      "description": "Customize your workspace appearance, theme, font, text layout, date-/time-format, and language.",
-      "workspaceName": {
-        "title": "Workspace name"
-      },
-      "workspaceIcon": {
-        "title": "Workspace icon",
-        "description": "Upload an image or use an emoji for your workspace. Icon will show in your sidebar and notifications."
-      },
-      "appearance": {
-        "title": "Appearance",
-        "description": "Customize your workspace appearance, theme, font, text layout, date, time, and language.",
-        "options": {
-          "system": "Auto",
-          "light": "Light",
-          "dark": "Dark"
-        }
-      },
-      "resetCursorColor": {
-        "title": "Reset document cursor color",
-        "description": "Are you sure you want to reset the cursor color?"
-      },
-      "resetSelectionColor": {
-        "title": "Reset document selection color",
-        "description": "Are you sure you want to reset the selection color?"
-      },
-      "resetWidth": {
-        "resetSuccess": "Reset document width successfully"
-      },
-      "theme": {
-        "title": "Theme",
-        "description": "Select a preset theme, or upload your own custom theme.",
-        "uploadCustomThemeTooltip": "Upload a custom theme"
-      },
-      "workspaceFont": {
-        "title": "Workspace font",
-        "noFontHint": "No font found, try another term."
-      },
-      "textDirection": {
-        "title": "Text direction",
-        "leftToRight": "Left to right",
-        "rightToLeft": "Right to left",
-        "auto": "Auto",
-        "enableRTLItems": "Enable RTL toolbar items"
-      },
-      "layoutDirection": {
-        "title": "Layout direction",
-        "leftToRight": "Left to right",
-        "rightToLeft": "Right to left"
-      },
-      "dateTime": {
-        "title": "Date & time",
-        "example": "{} at {} ({})",
-        "24HourTime": "24-hour time",
-        "dateFormat": {
-          "label": "Date format",
-          "local": "Local",
-          "us": "US",
-          "iso": "ISO",
-          "friendly": "Friendly",
-          "dmy": "D/M/Y"
-        }
-      },
-      "language": {
-        "title": "Language"
-      },
-      "deleteWorkspacePrompt": {
-        "title": "Delete workspace",
-        "content": "Are you sure you want to delete this workspace? This action cannot be undone, and any pages you have published will be unpublished."
-      },
-      "leaveWorkspacePrompt": {
-        "title": "Leave workspace",
-        "content": "Are you sure you want to leave this workspace? You will lose access to all pages and data within it.",
-        "success": "You have left the workspace successfully.",
-        "fail": "Failed to leave the workspace."
-      },
-      "manageWorkspace": {
-        "title": "Manage workspace",
-        "leaveWorkspace": "Leave workspace",
-        "deleteWorkspace": "Delete workspace"
+  "menuLabel": "कार्यक्षेत्र",
+  "title": "कार्यक्षेत्र",
+  "description": "तुमचे कार्यक्षेत्र स्वरूप, थीम, फॉन्ट, मजकूर रचना, दिनांक/वेळ फॉरमॅट आणि भाषा सानुकूलित करा.",
+  "workspaceName": {
+    "title": "कार्यक्षेत्राचे नाव"
+  },
+  "workspaceIcon": {
+    "title": "कार्यक्षेत्राचे चिन्ह",
+    "description": "तुमच्या कार्यक्षेत्रासाठी प्रतिमा अपलोड करा किंवा इमोजी वापरा. हे चिन्ह साइडबार आणि सूचना मध्ये दिसेल."
+  },
+  "appearance": {
+    "title": "दृश्यरूप",
+    "description": "कार्यक्षेत्राचे दृश्यरूप, थीम, फॉन्ट, मजकूर रचना, दिनांक, वेळ आणि भाषा सानुकूलित करा.",
+    "options": {
+      "system": "स्वयंचलित",
+      "light": "लाइट",
+      "dark": "डार्क"
       }
-    },
+    }
+  },
+  "resetCursorColor": {
+  "title": "दस्तऐवज कर्सरचा रंग रीसेट करा",
+  "description": "तुम्हाला कर्सरचा रंग रीसेट करायचा आहे का?"
+  },
+  "resetSelectionColor": {
+  "title": "दस्तऐवज निवडीचा रंग रीसेट करा",
+  "description": "तुम्हाला निवडीचा रंग रीसेट करायचा आहे का?"
+  },
+  "resetWidth": {
+  "resetSuccess": "दस्तऐवजाची रुंदी यशस्वीरित्या रीसेट केली"
+  },
+    "theme": {
+    "title": "थीम",
+    "description": "पूर्व-निर्धारित थीम निवडा किंवा तुमची स्वतःची थीम अपलोड करा.",
+    "uploadCustomThemeTooltip": "स्वतःची थीम अपलोड करा"
+  },
+    "workspaceFont": {
+    "title": "कार्यक्षेत्र फॉन्ट",
+    "noFontHint": "कोणताही फॉन्ट सापडला नाही, कृपया दुसरा शब्द वापरून पहा."
+  },
+      "textDirection": {
+     "title": "मजकूर दिशा",
+    "leftToRight": "डावीकडून उजवीकडे",
+    "rightToLeft": "उजवीकडून डावीकडे",
+    "auto": "स्वयंचलित",
+    "enableRTLItems": "RTL टूलबार घटक सक्षम करा"
+  },
+      "layoutDirection": {
+    "title": "लेआउट दिशा",
+    "leftToRight": "डावीकडून उजवीकडे",
+    "rightToLeft": "उजवीकडून डावीकडे"
+  },
+      "dateTime": {
+    "title": "दिनांक आणि वेळ",
+    "example": "{} वाजता {} ({})",
+    "24HourTime": "२४-तास वेळ",
+    "dateFormat": {
+    "label": "दिनांक फॉरमॅट",
+    "local": "स्थानिक",
+    "us": "US",
+    "iso": "ISO",
+    "friendly": "सुलभ",
+    "dmy": "D/M/Y"
+    }
+  },
+    "language": {
+    "title": "भाषा"
+  },
+    "deleteWorkspacePrompt": {
+    "title": "कार्यक्षेत्र हटवा",
+    "content": "तुम्हाला हे कार्यक्षेत्र हटवायचे आहे का? ही कृती पूर्ववत केली जाऊ शकत नाही, आणि तुम्ही प्रकाशित केलेली कोणतीही पृष्ठे अप्रकाशित होतील."
+  },
+    "leaveWorkspacePrompt": {
+    "title": "कार्यक्षेत्र सोडा",
+    "content": "तुम्हाला हे कार्यक्षेत्र सोडायचे आहे का? यानंतर तुम्हाला यामधील सर्व पृष्ठे आणि डेटावर प्रवेश मिळणार नाही.",
+    "success": "तुम्ही कार्यक्षेत्र यशस्वीरित्या सोडले.",
+    "fail": "कार्यक्षेत्र सोडण्यात अयशस्वी."
+  },
+      "manageWorkspace": {
+    "title": "कार्यक्षेत्र व्यवस्थापित करा",
+    "leaveWorkspace": "कार्यक्षेत्र सोडा",
+    "deleteWorkspace": "कार्यक्षेत्र हटवा"
+  },
     "manageDataPage": {
       "menuLabel": "Manage data",
       "title": "Manage data",
@@ -844,7 +845,7 @@
       "keys": {
         "enableAISearchTitle": "AI शोध",
         "aiSettingsDescription": "Choose your preferred model to power AppFlowy AI. Now includes GPT-4o, GPT-o3-mini, DeepSeek R1, Claude 3.5 Sonnet, and models available in Ollama",
-        "loginToEnableAIFeature": "AI features are only enabled after logging in with @:appName Cloud. If you don't have an @:appName account, go to 'My Account' to sign up",
+        "loginToEnableAIFeature": "AI features are only enabled after logging in with @:appName Cloud. If you don't have an @:appName account, go to 'My Account' to साइन अप",
         "llmModel": "Language Model",
         "llmModelType": "Language Model Type",
         "downloadLLMPrompt": "Download {}",
@@ -1152,7 +1153,7 @@
       "configServerGuide": "After selecting `Quick Start`, navigate to `Settings` and then \"Cloud Settings\" to configure your self-hosted server.",
       "inputTextFieldHint": "Your secret",
       "historicalUserList": "User login history",
-      "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'Get Started' button",
+      "historicalUserListTooltip": "This list displays your anonymous accounts. You can click on an account to view its details. Anonymous accounts are created by clicking the 'सुरुवात करा' button",
       "openHistoricalUser": "Click to open the anonymous account",
       "customPathPrompt": "Storing the @:appName data folder in a cloud-synced folder such as Google Drive can pose risks. If the database within this folder is accessed or modified from multiple locations at the same time, it may result in synchronization conflicts and potential data corruption",
       "importAppFlowyData": "Import Data from External @:appName Folder",
@@ -1392,8 +1393,7 @@
       "selectLayout": "Select layout",
       "selectStartingDay": "Select starting day",
       "version": "Version"
-    }
-  },
+    },
   "grid": {
     "deleteView": "Are you sure you want to delete this view?",
     "createView": "New",
@@ -2781,12 +2781,12 @@
     "moreOptions": "More options",
     "collapse": "Collapse",
     "signInAgreement": "By clicking \"Continue\" above, you agreed to AppFlowy's",
-    "signInLocalAgreement": "By clicking \"Get Started\" above, you agreed to AppFlowy's",
+    "signInLocalAgreement": "By clicking \"सुरुवात करा\" above, you agreed to AppFlowy's",
     "and": "and",
     "termOfUse": "Terms",
     "privacyPolicy": "Privacy Policy",
     "signInError": "Sign in error",
-    "login": "Sign up or log in",
+    "login": "साइन अप or log in",
     "fileBlock": {
       "uploadedAt": "Uploaded on {time}",
       "linkedAt": "Link added on {time}",
