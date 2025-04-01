@@ -2,6 +2,7 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_page.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
+import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 // ignore: implementation_imports
 import 'package:appflowy_editor/src/editor/toolbar/desktop/items/utils/tooltip_util.dart';
@@ -68,7 +69,7 @@ class _FormatToolbarItem extends ToolbarItem {
             final hoverColor = isHighlight
                 ? highlightColor
                 : EditorStyleCustomizer.toolbarHoverColor(context);
-            final isDark = Theme.of(context).brightness == Brightness.dark;
+            final isDark = !Theme.of(context).isLightMode;
 
             final child = FlowyIconButton(
               width: 36,

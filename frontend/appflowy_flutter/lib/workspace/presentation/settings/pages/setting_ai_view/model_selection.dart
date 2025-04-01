@@ -54,9 +54,8 @@ class AIModelSelection extends StatelessWidget {
                         (model) => buildDropdownMenuEntry<AIModelPB>(
                           context,
                           value: model,
-                          label: model.isLocal
-                              ? "${model.i18n} (Local)"
-                              : model.i18n,
+                          label:
+                              model.isLocal ? "${model.i18n} 🔐" : model.i18n,
                           subLabel: model.desc,
                           maximumHeight: height,
                         ),
