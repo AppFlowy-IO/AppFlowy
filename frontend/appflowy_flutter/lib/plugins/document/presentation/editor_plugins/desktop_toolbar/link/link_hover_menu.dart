@@ -221,7 +221,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
     if (isPage) {
       final viewId = href.split('/').lastOrNull ?? '';
       if (viewId.isEmpty) {
-        await afLaunchUrlString(href);
+        await afLaunchUrlString(href, addingHttpSchemeWhenFailed: true);
       } else {
         final (view, isInTrash, isDeleted) =
             await ViewBackendService.getMentionPageStatus(viewId);
@@ -230,7 +230,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
         }
       }
     } else {
-      await afLaunchUrlString(href);
+      await afLaunchUrlString(href, addingHttpSchemeWhenFailed: true);
     }
   }
 
@@ -486,8 +486,7 @@ class LinkHoverTriggers {
 
   void call(HoverTriggerKey key) {
     final callbacks = _map[key] ?? {};
-    for (final callback in callbacks) {
-      callback.call();
-    }
+    if (callbacks.isEmpty) return;
+    callbacks.first.call();
   }
 }

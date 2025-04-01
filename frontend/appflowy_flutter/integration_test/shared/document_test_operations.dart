@@ -307,9 +307,11 @@ class EditorOperations {
   Future<void> openTurnIntoMenu(Path path) async {
     await hoverAndClickOptionMenuButton(path);
     await tester.tapButton(
-      find.findTextInFlowyText(
-        LocaleKeys.document_plugins_optionAction_turnInto.tr(),
-      ),
+      find
+          .findTextInFlowyText(
+            LocaleKeys.document_plugins_optionAction_turnInto.tr(),
+          )
+          .first,
     );
     await tester.pumpUntilFound(find.byType(TurnIntoOptionMenu));
   }

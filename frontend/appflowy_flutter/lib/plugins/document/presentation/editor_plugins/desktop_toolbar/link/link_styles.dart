@@ -9,7 +9,7 @@ class LinkStyle {
   static const textPrimary = Color(0xFF1F2329);
 
   static Color borderColor(BuildContext context) =>
-      Theme.of(context).isLightMode ? Color(0xFFE8ECF3) : Color(0xffbdbdbd);
+      Theme.of(context).isLightMode ? Color(0xFFE8ECF3) : Color(0x64BDBDBD);
 
   static InputDecoration buildLinkTextFieldInputDecoration(
     String hintText,
@@ -18,9 +18,7 @@ class LinkStyle {
   }) {
     final border = OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-      borderSide: BorderSide(
-        color: borderColor(context),
-      ),
+      borderSide: BorderSide(color: borderColor(context)),
     );
     final enableBorder = border.copyWith(
       borderSide: BorderSide(
