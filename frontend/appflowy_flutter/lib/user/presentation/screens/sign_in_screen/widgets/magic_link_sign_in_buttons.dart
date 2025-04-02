@@ -38,25 +38,27 @@ class _SignInWithMagicLinkButtonsState
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: UniversalPlatform.isMobile ? 38.0 : 40.0,
-          child: AFTextField(
-            hintText: LocaleKeys.signIn_pleaseInputYourEmail.tr(),
-            radius: 10,
+    return SizedBox(
+      width: 320,
+      child: Column(
+        children: [
+          SizedBox(
+            height: UniversalPlatform.isMobile ? 38.0 : 40.0,
+            child: AFTextField(
+              hintText: LocaleKeys.signIn_pleaseInputYourEmail.tr(),
+              radius: 10,
+            ),
           ),
-        ),
-        VSpace(theme.spacing.l),
-        ContinueWithEmail(
-          onTap: () => _sendMagicLink(context, controller.text),
-        ),
-        VSpace(theme.spacing.l),
-        ContinueWithPassword(
-          onTap: () => _sendMagicLink(context, controller.text),
-        ),
-      ],
+          VSpace(theme.spacing.l),
+          ContinueWithEmail(
+            onTap: () => _sendMagicLink(context, controller.text),
+          ),
+          VSpace(theme.spacing.l),
+          ContinueWithPassword(
+            onTap: () => _sendMagicLink(context, controller.text),
+          ),
+        ],
+      ),
     );
   }
 

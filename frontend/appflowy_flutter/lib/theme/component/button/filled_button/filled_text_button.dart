@@ -117,11 +117,13 @@ class AFFilledTextButton extends StatelessWidget {
       builder: (context, isHovering, disabled) {
         final textColor = this.textColor?.call(context, isHovering, disabled) ??
             AppFlowyTheme.of(context).textColorScheme.onFill;
-        return Text(
-          text,
-          style: size.buildTextStyle(context).copyWith(
-                color: textColor,
-              ),
+        return Center(
+          child: Text(
+            text,
+            style: size.buildTextStyle(context).copyWith(
+                  color: textColor,
+                ),
+          ),
         );
       },
     );
