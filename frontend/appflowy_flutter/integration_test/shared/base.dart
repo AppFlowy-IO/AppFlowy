@@ -43,7 +43,7 @@ extension AppFlowyTestBase on WidgetTester {
     if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
       await binding.setSurfaceSize(windowSize);
     }
-    cloudType = AuthenticatorType.appflowyCloudDevelop;
+    //cloudType = AuthenticatorType.appflowyCloudDevelop;
 
     mockHotKeyManagerHandlers();
     final applicationDataDirectory = dataDirectory ??
