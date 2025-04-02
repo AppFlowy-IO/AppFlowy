@@ -293,7 +293,7 @@ impl LocalAIController {
       std::thread::current().id()
     );
 
-    if let Ok(_) = self.resource.set_llm_setting(setting).await {
+    if self.resource.set_llm_setting(setting).await.is_ok() {
       self.reload().await?;
     }
     Ok(())
