@@ -3,7 +3,7 @@ use crate::entities::{
   AIModelPB, AvailableModelsPB, ChatInfoPB, ChatMessageListPB, ChatMessagePB, ChatSettingsPB,
   FilePB, PredefinedFormatPB, RepeatedRelatedQuestionPB, StreamMessageParams,
 };
-use crate::local_ai::controller::LocalAIController;
+use crate::local_ai::controller::{LocalAIController, LocalAISetting};
 use crate::middleware::chat_service_mw::AICloudServiceMiddleware;
 use crate::persistence::{insert_chat, read_chat_metadata, ChatTable};
 use std::collections::HashMap;
@@ -280,6 +280,24 @@ impl AIManager {
     Ok(())
   }
 
+  pub async fn update_local_ai_setting(&self, setting: LocalAISetting) -> FlowyResult<()> {
+    let previous_model = self.local_ai.get_local_ai_setting().chat_model_name;
+    self.local_ai.update_local_ai_setting(setting).await?;
+    let current_model = self.local_ai.get_local_ai_setting().chat_model_name;
+
+    if previous_model != current_model {
+      info!(
+        "[AI Plugin] update global active model, previous: {}, current: {}",
+        previous_model, current_model
+      );
+      let source_key = ai_available_models_key(GLOBAL_ACTIVE_MODEL_KEY);
+      let model = AIModel::local(current_model, "".to_string());
+      self.update_selected_model(source_key, model).await?;
+    }
+
+    Ok(())
+  }
+
   async fn get_workspace_select_model(&self) -> FlowyResult<String> {
     let workspace_id = self.user_service.workspace_id()?;
     let model = self
@@ -358,6 +376,10 @@ impl AIManager {
   }
 
   pub async fn update_selected_model(&self, source: String, model: AIModel) -> FlowyResult<()> {
+    info!(
+      "[Model Selection] update {} selected model: {:?}",
+      source, model
+    );
     let source_key = ai_available_models_key(&source);
     self
       .store_preferences
@@ -418,9 +440,15 @@ impl AIManager {
 
     trace!("[Model Selection]: Available models: {:?}", models);
 
+    let mut current_active_local_ai_model = None;
+
     // If user enable local ai, then add local ai model to the list.
     if let Some(local_model) = self.local_ai.get_plugin_chat_model() {
-      models.push(AIModel::local(local_model, "".to_string()));
+      let model = AIModel::local(local_model, "".to_string());
+      current_active_local_ai_model = Some(model.clone());
+
+      trace!("[Model Selection] current local ai model: {}", model.name);
+      models.push(model);
     }
 
     if models.is_empty() {
@@ -454,8 +482,16 @@ impl AIManager {
           user_selected_model = local_ai_model.clone();
         }
       },
-      Some(model) => {
-        trace!("[Model Selection] user select model: {:?}", model);
+      Some(mut model) => {
+        trace!("[Model Selection] user previous select model: {:?}", model);
+        if model.is_local {
+          if let Some(local_ai_model) = &current_active_local_ai_model {
+            if local_ai_model.name != model.name {
+              model = local_ai_model.clone();
+            }
+          }
+        }
+
         user_selected_model = model;
       },
     }
