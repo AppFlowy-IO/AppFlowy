@@ -50,6 +50,72 @@ class FlowyTooltip extends StatelessWidget {
   }
 }
 
+class ManualTooltip extends StatefulWidget {
+  const ManualTooltip({
+    super.key,
+    this.message,
+    this.richMessage,
+    this.preferBelow,
+    this.margin,
+    this.verticalOffset,
+    this.padding,
+    this.showAutomaticlly = false,
+    this.child,
+  });
+
+  final String? message;
+  final InlineSpan? richMessage;
+  final bool? preferBelow;
+  final EdgeInsetsGeometry? margin;
+  final Widget? child;
+  final double? verticalOffset;
+  final EdgeInsets? padding;
+  final bool showAutomaticlly;
+
+  @override
+  State<ManualTooltip> createState() => _ManualTooltipState();
+}
+
+class _ManualTooltipState extends State<ManualTooltip> {
+  final key = GlobalKey<TooltipState>();
+
+  @override
+  void initState() {
+    if (widget.showAutomaticlly) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) key.currentState?.ensureTooltipVisible();
+      });
+    }
+    super.initState();
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      key: key,
+      margin: widget.margin,
+      verticalOffset: widget.verticalOffset ?? 16.0,
+      triggerMode: widget.showAutomaticlly ? TooltipTriggerMode.manual : null,
+      padding: widget.padding ??
+          const EdgeInsets.symmetric(
+            horizontal: 12.0,
+            vertical: 8.0,
+          ),
+      decoration: BoxDecoration(
+        color: context.tooltipBackgroundColor(),
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      waitDuration: _tooltipWaitDuration,
+      message: widget.message,
+      textStyle: widget.message != null ? context.tooltipTextStyle() : null,
+      richMessage: widget.richMessage,
+      preferBelow: widget.preferBelow,
+      child: widget.child,
+    );
+  }
+}
+
 extension FlowyToolTipExtension on BuildContext {
   double tooltipFontSize() => 14.0;
 

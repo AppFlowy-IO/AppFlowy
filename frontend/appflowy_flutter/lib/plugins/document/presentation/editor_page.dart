@@ -459,7 +459,7 @@ class _AppFlowyEditorPageState extends State<AppFlowyEditorPage>
             child: DesktopFloatingToolbar(
               editorState: editorState,
               onDismiss: onDismiss,
-              enableAnimation: false,
+              enableAnimation: !isMetricsChanged,
               child: child,
             ),
           ),

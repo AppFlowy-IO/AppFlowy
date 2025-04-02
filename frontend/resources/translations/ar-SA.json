@@ -256,6 +256,12 @@
       "bulletWithImageDescription": "@:chat.changeFormat.bullet مع الصورة",
       "tableWithImageDescription": "@:chat.changeFormat.table مع الصورة"
     },
+    "switchModel": {
+      "label": "تبديل النموذج",
+      "localModel": "النموذج المحلي",
+      "cloudModel": "نموذج السحابة",
+      "autoModel": "آلي"
+    },
     "selectBanner": {
       "saveButton": "أضف إلى...",
       "selectMessages": "حدد الرسائل",
@@ -858,6 +864,8 @@
         "localAILoading": "جاري تحميل نموذج الدردشة المحلية للذكاء الاصطناعي...",
         "localAIStopped": "تم إيقاف الذكاء الاصطناعي المحلي",
         "localAIRunning": "الذكاء الاصطناعي المحلي قيد التشغيل",
+        "localAINotReadyRetryLater": "جاري تهيئة الذكاء الاصطناعي المحلي، يرجى المحاولة مرة أخرى لاحقًا",
+        "localAIDisabled": "أنت تستخدم الذكاء الاصطناعي المحلي، ولكنه مُعطّل. يُرجى الانتقال إلى الإعدادات لتفعيله أو تجربة نموذج آخر.",
         "localAIInitializing": "يتم تهيئة الذكاء الاصطناعي المحلي وقد يستغرق الأمر بضع دقائق، حسب جهازك",
         "localAINotReadyTextFieldPrompt": "لا يمكنك التحرير أثناء تحميل الذكاء الاصطناعي المحلي",
         "failToLoadLocalAI": "فشل في بدء تشغيل الذكاء الاصطناعي المحلي",
@@ -875,9 +883,13 @@
         "activeOfflineAI": "نشط",
         "downloadOfflineAI": "التنزيل",
         "openModelDirectory": "افتح المجلد",
+        "laiNotReady": "لم يتم تثبيت تطبيق الذكاء الاصطناعي المحلي بشكل صحيح.",
+        "ollamaNotReady": "خادم Ollama غير جاهز.",
         "pleaseFollowThese": "اتبع هؤلاء",
         "instructions": "التعليمات",
         "installOllamaLai": "لإعداد Ollama وAppFlowy Local AI. تخطَّ هذه الخطوة إذا كنت قد قمت بإعدادها بالفعل",
+        "modelsMissing": "لم يتم العثور على النماذج المطلوبة.",
+        "downloadModel": "لتنزيلها.",
         "startLocalAI": "قد يستغرق الأمر بضع ثوانٍ لبدء تشغيل الذكاء الاصطناعي المحلي"
       }
     },
@@ -2133,6 +2145,7 @@
     "toolbar": {
       "resetToDefaultFont": "إعادة تعيين إلى الافتراضي",
       "textSize": "حجم النص",
+      "textColor": "لون النص",
       "h1": "العنوان 1",
       "h2": "العنوان 2",
       "h3": "العنوان 3",
@@ -2143,9 +2156,15 @@
       "textAlign": "محاذاة النص",
       "moreOptions": "المزيد من الخيارات",
       "font": "الخط",
+      "inlineCode": "الكود المضمن",
       "suggestions": "اقتراحات",
       "turnInto": "تحول إلى",
-      "equation": "معادلة"
+      "equation": "معادلة",
+      "insert": "إدراج",
+      "linkInputHint": "لصق الرابط أو البحث عن الصفحات",
+      "pageOrURL": "الصفحة أو عنوان URL",
+      "linkName": "اسم الرابط",
+      "linkNameHint": "اسم رابط الإدخال"
     },
     "errorBlock": {
       "theBlockIsNotSupported": "الإصدار الحالي لا يدعم هذا الحقل.",
@@ -2255,11 +2274,11 @@
       "layoutDateField": "تقويم التخطيط بواسطة",
       "changeLayoutDateField": "تغيير حقل التخطيط",
       "noDateTitle": "بدون تاريخ",
+      "noDateHint": "ستظهر الأحداث غير المجدولة هنا",
       "unscheduledEventsTitle": "الأحداث غير المجدولة",
       "clickToAdd": "انقر للإضافة إلى التقويم",
       "name": "تخطيط التقويم",
-      "clickToOpen": "انقر لفتح السجل",
-      "noDateHint": "ستظهر الأحداث غير المجدولة هنا"
+      "clickToOpen": "انقر لفتح السجل"
     },
     "referencedCalendarPrefix": "نظرا ل",
     "quickJumpYear": "انتقل إلى",
@@ -3187,7 +3206,8 @@
     "editing": "تحرير",
     "analyzing": "تحليل",
     "continueWritingEmptyDocumentTitle": "استمر في كتابة الخطأ",
-    "continueWritingEmptyDocumentDescription": "نواجه مشكلة في توسيع نطاق المحتوى في مستندك. اكتب مقدمة قصيرة وسنتولى الأمر من هناك!"
+    "continueWritingEmptyDocumentDescription": "نواجه مشكلة في توسيع نطاق المحتوى في مستندك. اكتب مقدمة قصيرة وسنتولى الأمر من هناك!",
+    "more": "أكثر"
   },
   "autoUpdate": {
     "criticalUpdateTitle": "التحديث ضروري للمتابعة",
