@@ -24,7 +24,7 @@ class InlineChildPageService extends InlineActionsDelegate {
       results.add(
         InlineActionsMenuItem(
           label: LocaleKeys.inlineActions_createPage.tr(args: [search]),
-          icon: (_) => const FlowySvg(FlowySvgs.add_s),
+          iconBuilder: (_) => const FlowySvg(FlowySvgs.add_s),
           onSelected: (context, editorState, service, replacement) =>
               _onSelected(context, editorState, service, replacement, search),
         ),
