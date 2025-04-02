@@ -1,9 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
-import 'package:appflowy/user/presentation/widgets/widgets.dart';
+import 'package:appflowy/theme/component/button/outlined_button/outlined_button.dart';
+import 'package:appflowy/theme/theme.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -153,67 +153,46 @@ class MobileThirdPartySignInButton extends StatelessWidget {
   }
 }
 
-class DesktopSignInButton extends StatelessWidget {
-  const DesktopSignInButton({
+class DesktopThirdPartySignInButton extends StatelessWidget {
+  const DesktopThirdPartySignInButton({
     super.key,
     required this.type,
-    required this.onPressed,
+    required this.onTap,
   });
 
   final ThirdPartySignInButtonType type;
-  final VoidCallback onPressed;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context);
-    // In desktop, the width of button is limited by [AuthFormContainer]
-    return SizedBox(
-      height: 48,
-      width: AuthFormContainer.width,
-      child: OutlinedButton.icon(
-        // In order to align all the labels vertically in a relatively centered position to the button, we use a fixed width container to wrap the icon(align to the right), then use another container to align the label to left.
-        icon: Container(
-          width: AuthFormContainer.width / 4,
-          alignment: Alignment.centerRight,
-          child: SizedBox(
-            // Some icons are not square, so we just use a fixed width here.
-            width: 24,
-            child: FlowySvg(
-              type.icon,
-              blendMode: type.blendMode,
-            ),
-          ),
-        ),
-        label: Container(
-          padding: const EdgeInsets.only(left: 8),
-          alignment: Alignment.centerLeft,
-          child: FlowyText(
-            type.labelText,
-            fontSize: 14,
-          ),
-        ),
-        style: ButtonStyle(
-          overlayColor: WidgetStateProperty.resolveWith<Color?>(
-            (states) {
-              if (states.contains(WidgetState.hovered)) {
-                return style.colorScheme.onSecondaryContainer;
-              }
-              return null;
-            },
-          ),
-          shape: WidgetStateProperty.all(
-            const RoundedRectangleBorder(
-              borderRadius: Corners.s6Border,
-            ),
-          ),
-          side: WidgetStateProperty.all(
-            BorderSide(
-              color: style.dividerColor,
-            ),
-          ),
-        ),
-        onPressed: onPressed,
+    final theme = AppFlowyTheme.of(context);
+    return AFOutlinedButton.normal(
+      onTap: onTap,
+      padding: EdgeInsets.symmetric(
+        horizontal: theme.spacing.xl,
+        vertical: 10,
       ),
+      builder: (context, isHovering, disabled) {
+        return Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FlowySvg(
+                type.icon,
+                size: Size.square(20),
+                blendMode: type.blendMode,
+              ),
+              const HSpace(8.0),
+              Text(
+                type.labelText,
+                style: theme.textStyle.body.enhanced(
+                  color: theme.textColorScheme.primary,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

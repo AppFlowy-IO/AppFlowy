@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-import 'third_party_sign_in_button.dart';
+import 'third_party_sign_in_button/third_party_sign_in_button.dart';
 
 typedef _SignInCallback = void Function(ThirdPartySignInButtonType signInType);
 
@@ -66,15 +66,15 @@ class _DesktopThirdPartySignInState extends State<_DesktopThirdPartySignIn> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        DesktopSignInButton(
+        DesktopThirdPartySignInButton(
           key: signInWithGoogleButtonKey,
           type: ThirdPartySignInButtonType.google,
-          onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.google),
+          onTap: () => widget.onSignIn(ThirdPartySignInButtonType.google),
         ),
         const VSpace(padding),
-        DesktopSignInButton(
+        DesktopThirdPartySignInButton(
           type: ThirdPartySignInButtonType.apple,
-          onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.apple),
+          onTap: () => widget.onSignIn(ThirdPartySignInButtonType.apple),
         ),
         ...isExpanded ? _buildExpandedButtons() : _buildCollapsedButtons(),
       ],
@@ -84,14 +84,14 @@ class _DesktopThirdPartySignInState extends State<_DesktopThirdPartySignIn> {
   List<Widget> _buildExpandedButtons() {
     return [
       const VSpace(padding * 1.5),
-      DesktopSignInButton(
+      DesktopThirdPartySignInButton(
         type: ThirdPartySignInButtonType.github,
-        onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.github),
+        onTap: () => widget.onSignIn(ThirdPartySignInButtonType.github),
       ),
       const VSpace(padding),
-      DesktopSignInButton(
+      DesktopThirdPartySignInButton(
         type: ThirdPartySignInButtonType.discord,
-        onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.discord),
+        onTap: () => widget.onSignIn(ThirdPartySignInButtonType.discord),
       ),
     ];
   }

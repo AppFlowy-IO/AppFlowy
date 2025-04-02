@@ -26,8 +26,9 @@ class _AFTextFieldState extends State<AFTextField> {
   void initState() {
     super.initState();
 
-    if (widget.initialText != null) {
-      controller.text = widget.initialText!;
+    final initialText = widget.initialText;
+    if (initialText != null) {
+      controller.text = initialText;
     }
   }
 
@@ -62,7 +63,13 @@ class _AFTextFieldState extends State<AFTextField> {
         ),
         border: OutlineInputBorder(
           borderSide: BorderSide(
-            color: theme.borderColorScheme.themeThick,
+            color: theme.borderColorScheme.greyTertiary,
+          ),
+          borderRadius: borderRadius,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: theme.borderColorScheme.greyTertiary,
           ),
           borderRadius: borderRadius,
         ),
@@ -72,6 +79,7 @@ class _AFTextFieldState extends State<AFTextField> {
           ),
           borderRadius: borderRadius,
         ),
+        hoverColor: theme.borderColorScheme.greyTertiaryHover,
       ),
     );
   }

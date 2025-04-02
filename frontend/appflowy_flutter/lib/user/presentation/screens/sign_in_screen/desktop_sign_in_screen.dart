@@ -39,8 +39,8 @@ class DesktopSignInScreen extends StatelessWidget {
                 ),
                 VSpace(theme.spacing.xxl),
 
-                // magic link sign in
-                const SignInWithMagicLinkButtons(),
+                // continue with email and password
+                const ContinueWithEmailAndPassword(),
                 VSpace(theme.spacing.xxl),
 
                 // third-party sign in.
@@ -122,14 +122,30 @@ class _OrDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     return Row(
       children: [
-        const Flexible(child: Divider(thickness: 1)),
+        Flexible(
+          child: Divider(
+            thickness: 1,
+            color: theme.borderColorScheme.greyTertiary,
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: FlowyText.regular(LocaleKeys.signIn_or.tr()),
+          child: Text(
+            LocaleKeys.signIn_or.tr(),
+            style: theme.textStyle.body.standard(
+              color: theme.textColorScheme.secondary,
+            ),
+          ),
         ),
-        const Flexible(child: Divider(thickness: 1)),
+        Flexible(
+          child: Divider(
+            thickness: 1,
+            color: theme.borderColorScheme.greyTertiary,
+          ),
+        ),
       ],
     );
   }
