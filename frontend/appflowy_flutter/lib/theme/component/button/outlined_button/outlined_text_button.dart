@@ -177,11 +177,13 @@ class AFOutlinedTextButton extends StatelessWidget {
       builder: (context, isHovering, disabled) {
         final textColor = this.textColor?.call(context, isHovering, disabled) ??
             theme.textColorScheme.primary;
-        return Text(
-          text,
-          style: size.buildTextStyle(context).copyWith(
-                color: textColor,
-              ),
+        return Center(
+          child: Text(
+            text,
+            style: size.buildTextStyle(context).copyWith(
+                  color: textColor,
+                ),
+          ),
         );
       },
     );
