@@ -1,5 +1,5 @@
-import 'package:appflowy/theme/component/button/base.dart';
-import 'package:appflowy/theme/component/button/filled_button.dart';
+import 'package:appflowy/theme/component/button/base_button/base.dart';
+import 'package:appflowy/theme/component/button/base_button/base_button.dart';
 import 'package:appflowy/theme/theme.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +9,7 @@ class AFFilledTextButton extends StatelessWidget {
     required this.text,
     required this.onTap,
     required this.backgroundColor,
-    required this.hoverColor,
+    required this.textColor,
     this.size = AFButtonSize.m,
     this.padding,
     this.borderRadius,
@@ -31,10 +31,17 @@ class AFFilledTextButton extends StatelessWidget {
       size: size,
       padding: padding,
       borderRadius: borderRadius,
-      backgroundColor: (context) =>
-          AppFlowyTheme.of(context).fillColorScheme.themeThick,
-      hoverColor: (context) =>
-          AppFlowyTheme.of(context).fillColorScheme.themeThickHover,
+      textColor: (context, isHovering, disabled) =>
+          AppFlowyTheme.of(context).textColorScheme.onFill,
+      backgroundColor: (context, isHovering, disabled) {
+        if (disabled) {
+          return AppFlowyTheme.of(context).fillColorScheme.primaryAlpha5;
+        }
+        if (isHovering) {
+          return AppFlowyTheme.of(context).fillColorScheme.themeThickHover;
+        }
+        return AppFlowyTheme.of(context).fillColorScheme.themeThick;
+      },
     );
   }
 
@@ -54,10 +61,17 @@ class AFFilledTextButton extends StatelessWidget {
       size: size,
       padding: padding,
       borderRadius: borderRadius,
-      backgroundColor: (context) =>
-          AppFlowyTheme.of(context).fillColorScheme.errorThick,
-      hoverColor: (context) =>
-          AppFlowyTheme.of(context).fillColorScheme.errorThickHover,
+      textColor: (context, isHovering, disabled) =>
+          AppFlowyTheme.of(context).textColorScheme.onFill,
+      backgroundColor: (context, isHovering, disabled) {
+        if (disabled) {
+          return AppFlowyTheme.of(context).fillColorScheme.primaryAlpha5;
+        }
+        if (isHovering) {
+          return AppFlowyTheme.of(context).fillColorScheme.errorThickHover;
+        }
+        return AppFlowyTheme.of(context).fillColorScheme.errorThick;
+      },
     );
   }
 
@@ -76,9 +90,9 @@ class AFFilledTextButton extends StatelessWidget {
       size: size,
       padding: padding,
       borderRadius: borderRadius,
-      backgroundColor: (context) =>
-          AppFlowyTheme.of(context).fillColorScheme.primaryAlpha5,
-      hoverColor: (context) =>
+      textColor: (context, isHovering, disabled) =>
+          AppFlowyTheme.of(context).textColorScheme.tertiary,
+      backgroundColor: (context, isHovering, disabled) =>
           AppFlowyTheme.of(context).fillColorScheme.primaryAlpha5,
     );
   }
@@ -88,24 +102,28 @@ class AFFilledTextButton extends StatelessWidget {
   final AFButtonSize size;
   final EdgeInsetsGeometry? padding;
   final double? borderRadius;
-  final Color Function(BuildContext) backgroundColor;
-  final Color Function(BuildContext) hoverColor;
+
+  final AFBaseButtonColorBuilder? textColor;
+  final AFBaseButtonColorBuilder? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
-    final theme = AppFlowyTheme.of(context);
-
-    return AFFilledButton(
-      textColor: theme.textColorScheme.onFill,
-      backgroundColor: backgroundColor(context),
-      hoverColor: hoverColor(context),
+    return AFBaseButton(
+      backgroundColor: backgroundColor,
+      borderColor: (_, __, ___) => Colors.transparent,
       padding: padding ?? size.buildPadding(context),
       borderRadius: borderRadius ?? size.buildBorderRadius(context),
       onTap: onTap,
-      child: Text(
-        text,
-        style: size.buildTextStyle(context),
-      ),
+      builder: (context, isHovering, disabled) {
+        final textColor = this.textColor?.call(context, isHovering, disabled) ??
+            AppFlowyTheme.of(context).textColorScheme.onFill;
+        return Text(
+          text,
+          style: size.buildTextStyle(context).copyWith(
+                color: textColor,
+              ),
+        );
+      },
     );
   }
 }

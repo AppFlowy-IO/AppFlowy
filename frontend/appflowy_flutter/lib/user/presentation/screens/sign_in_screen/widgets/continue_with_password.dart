@@ -1,5 +1,3 @@
-import 'package:appflowy/theme/component/button/base.dart';
-import 'package:appflowy/theme/component/button/filled_button.dart';
 import 'package:appflowy/theme/component/component.dart';
 import 'package:appflowy/theme/theme.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +14,7 @@ class ContinueWithPassword extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
-    return AFFilledTextButton.primary(
+    return AFOutlinedTextButton.normal(
       text: 'Continue with password',
       size: AFButtonSize.l,
       padding: EdgeInsets.symmetric(

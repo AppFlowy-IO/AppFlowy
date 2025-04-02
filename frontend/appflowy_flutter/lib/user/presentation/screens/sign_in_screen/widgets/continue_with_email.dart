@@ -1,4 +1,3 @@
-import 'package:appflowy/theme/component/button/base.dart';
 import 'package:appflowy/theme/component/component.dart';
 import 'package:appflowy/theme/theme.dart';
 import 'package:flutter/material.dart';

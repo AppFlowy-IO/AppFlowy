@@ -172,7 +172,7 @@ class AppFlowyThemeBuilder {
           themeLight: colorScheme.blue.blue100,
           themeLightHover: colorScheme.blue.blue200,
           themeThick: colorScheme.blue.blue500,
-          themeThickHover: colorScheme.blue.blue400,
+          themeThickHover: colorScheme.blue.blue600,
           themeSelect: colorScheme.blue.alphaBlue50015,
           infoLight: colorScheme.blue.blue100,
           infoLightHover: colorScheme.blue.blue200,
