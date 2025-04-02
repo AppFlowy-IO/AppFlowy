@@ -139,12 +139,14 @@ impl LocalAIResourceController {
   pub async fn set_llm_setting(&self, setting: LocalAISetting) -> FlowyResult<()> {
     self.resource_service.store_setting(setting)?;
     if let Some(resource) = self.calculate_pending_resources().await? {
+      let resource = LackOfAIResourcePB::from(resource);
       chat_notification_builder(
         APPFLOWY_AI_NOTIFICATION_KEY,
         ChatNotification::LocalAIResourceUpdated,
       )
-      .payload(LackOfAIResourcePB::from(resource))
+      .payload(resource.clone())
       .send();
+      return Err(FlowyError::local_ai().with_context(format!("{:?}", resource)));
     }
     Ok(())
   }
