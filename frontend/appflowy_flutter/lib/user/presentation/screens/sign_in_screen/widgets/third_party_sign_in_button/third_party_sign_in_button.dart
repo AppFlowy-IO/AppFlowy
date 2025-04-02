@@ -1,7 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/mobile/presentation/base/animated_gesture.dart';
-import 'package:appflowy/theme/component/button/outlined_button/outlined_button.dart';
+import 'package:appflowy/theme/component/component.dart';
 import 'package:appflowy/theme/theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -102,11 +102,11 @@ class MobileThirdPartySignInButton extends StatelessWidget {
     super.key,
     this.height = 38,
     this.fontSize = 14.0,
-    required this.onPressed,
+    required this.onTap,
     required this.type,
   });
 
-  final VoidCallback onPressed;
+  final VoidCallback onTap;
   final double height;
   final double fontSize;
   final ThirdPartySignInButtonType type;
@@ -117,7 +117,7 @@ class MobileThirdPartySignInButton extends StatelessWidget {
 
     return AnimatedGestureDetector(
       scaleFactor: 1.0,
-      onTapUp: onPressed,
+      onTapUp: onTap,
       child: Container(
         height: height,
         decoration: BoxDecoration(
@@ -166,31 +166,19 @@ class DesktopThirdPartySignInButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
-    return AFOutlinedButton.normal(
+
+    return AFOutlinedIconTextButton.normal(
+      text: type.labelText,
       onTap: onTap,
       padding: EdgeInsets.symmetric(
         horizontal: theme.spacing.xl,
         vertical: 10,
       ),
-      builder: (context, isHovering, disabled) {
-        return Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              FlowySvg(
-                type.icon,
-                size: Size.square(20),
-                blendMode: type.blendMode,
-              ),
-              const HSpace(8.0),
-              Text(
-                type.labelText,
-                style: theme.textStyle.body.enhanced(
-                  color: theme.textColorScheme.primary,
-                ),
-              ),
-            ],
-          ),
+      iconBuilder: (context, isHovering, disabled) {
+        return FlowySvg(
+          type.icon,
+          size: Size.square(18),
+          blendMode: type.blendMode,
         );
       },
     );

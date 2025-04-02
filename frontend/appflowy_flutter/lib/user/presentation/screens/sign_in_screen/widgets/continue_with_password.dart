@@ -14,14 +14,17 @@ class ContinueWithPassword extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppFlowyTheme.of(context);
 
-    return AFOutlinedTextButton.normal(
-      text: 'Continue with password',
-      size: AFButtonSize.l,
-      padding: EdgeInsets.symmetric(
-        horizontal: theme.spacing.xl,
-        vertical: 10,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(),
+      child: AFOutlinedTextButton.normal(
+        text: 'Continue with password',
+        size: AFButtonSize.l,
+        padding: EdgeInsets.symmetric(
+          horizontal: theme.spacing.xl,
+          vertical: 10,
+        ),
+        onTap: onTap,
       ),
-      onTap: onTap,
     );
   }
 }
