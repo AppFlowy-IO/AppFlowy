@@ -2,21 +2,22 @@ import 'package:appflowy_ui/src/component/component.dart';
 import 'package:appflowy_ui/src/theme/appflowy_theme.dart';
 import 'package:flutter/material.dart';
 
-class AFGhostTextButton extends StatelessWidget {
-  const AFGhostTextButton._({
+class AFGhostTextButton extends AFBaseTextButton {
+  const AFGhostTextButton({
     super.key,
-    required this.text,
-    required this.onTap,
-    this.textColor,
-    this.backgroundColor,
-    this.size = AFButtonSize.m,
-    this.padding,
-    this.borderRadius,
-    this.disabled = false,
+    required super.text,
+    required super.onTap,
+    super.textColor,
+    super.backgroundColor,
+    super.size = AFButtonSize.m,
+    super.padding,
+    super.borderRadius,
+    super.disabled = false,
+    super.alignment,
   });
 
   /// Normal ghost text button.
-  factory AFGhostTextButton.normal({
+  factory AFGhostTextButton.primary({
     Key? key,
     required String text,
     required VoidCallback onTap,
@@ -24,8 +25,9 @@ class AFGhostTextButton extends StatelessWidget {
     EdgeInsetsGeometry? padding,
     double? borderRadius,
     bool disabled = false,
+    Alignment? alignment,
   }) {
-    return AFGhostTextButton._(
+    return AFGhostTextButton(
       key: key,
       text: text,
       onTap: onTap,
@@ -33,6 +35,7 @@ class AFGhostTextButton extends StatelessWidget {
       padding: padding,
       borderRadius: borderRadius,
       disabled: disabled,
+      alignment: alignment,
       backgroundColor: (context, isHovering, disabled) {
         final theme = AppFlowyTheme.of(context);
         if (isHovering) {
@@ -60,8 +63,9 @@ class AFGhostTextButton extends StatelessWidget {
     AFButtonSize size = AFButtonSize.m,
     EdgeInsetsGeometry? padding,
     double? borderRadius,
+    Alignment? alignment,
   }) {
-    return AFGhostTextButton._(
+    return AFGhostTextButton(
       key: key,
       text: text,
       onTap: () {},
@@ -69,22 +73,13 @@ class AFGhostTextButton extends StatelessWidget {
       padding: padding,
       borderRadius: borderRadius,
       disabled: true,
+      alignment: alignment,
       textColor: (context, isHovering, disabled) =>
           AppFlowyTheme.of(context).textColorScheme.tertiary,
       backgroundColor: (context, isHovering, disabled) =>
           AppFlowyTheme.of(context).fillColorScheme.transparent,
     );
   }
-
-  final String text;
-  final bool disabled;
-  final VoidCallback onTap;
-  final AFButtonSize size;
-  final EdgeInsetsGeometry? padding;
-  final double? borderRadius;
-
-  final AFBaseButtonColorBuilder? textColor;
-  final AFBaseButtonColorBuilder? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -100,12 +95,21 @@ class AFGhostTextButton extends StatelessWidget {
       builder: (context, isHovering, disabled) {
         final textColor = this.textColor?.call(context, isHovering, disabled) ??
             theme.textColorScheme.primary;
-        return Text(
+
+        Widget child = Text(
           text,
-          style: size.buildTextStyle(context).copyWith(
-                color: textColor,
-              ),
+          style: size.buildTextStyle(context).copyWith(color: textColor),
         );
+
+        final alignment = this.alignment;
+        if (alignment != null) {
+          child = Align(
+            alignment: alignment,
+            child: child,
+          );
+        }
+
+        return child;
       },
     );
   }

@@ -101,21 +101,16 @@ class _DesktopThirdPartySignInState extends State<_DesktopThirdPartySignIn> {
     final theme = AppFlowyTheme.of(context);
     return [
       VSpace(theme.spacing.l),
-      MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: () {
-            setState(() {
-              isExpanded = !isExpanded;
-            });
-          },
-          child: Text(
-            'More options',
-            style: theme.textStyle.body.enhanced(
-              color: theme.textColorScheme.theme,
-            ),
-          ),
-        ),
+      AFGhostTextButton(
+        text: 'More options',
+        textColor: (context, isHovering, disabled) {
+          return theme.textColorScheme.theme;
+        },
+        onTap: () {
+          setState(() {
+            isExpanded = !isExpanded;
+          });
+        },
       ),
     ];
   }

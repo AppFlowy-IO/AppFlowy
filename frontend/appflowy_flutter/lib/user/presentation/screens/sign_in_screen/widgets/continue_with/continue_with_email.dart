@@ -11,15 +11,10 @@ class ContinueWithEmail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = AppFlowyTheme.of(context);
-
     return AFFilledTextButton.primary(
       text: 'Continue with email',
       size: AFButtonSize.l,
-      padding: EdgeInsets.symmetric(
-        horizontal: theme.spacing.xl,
-        vertical: 10,
-      ),
+      alignment: Alignment.center,
       onTap: onTap,
     );
   }

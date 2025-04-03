@@ -2,17 +2,18 @@ import 'package:appflowy_ui/src/component/component.dart';
 import 'package:appflowy_ui/src/theme/appflowy_theme.dart';
 import 'package:flutter/material.dart';
 
-class AFFilledTextButton extends StatelessWidget {
-  const AFFilledTextButton._({
+class AFFilledTextButton extends AFBaseTextButton {
+  const AFFilledTextButton({
     super.key,
-    required this.text,
-    required this.onTap,
-    required this.backgroundColor,
-    required this.textColor,
-    this.size = AFButtonSize.m,
-    this.padding,
-    this.borderRadius,
-    this.disabled = false,
+    required super.text,
+    required super.onTap,
+    required super.backgroundColor,
+    required super.textColor,
+    super.size = AFButtonSize.m,
+    super.padding,
+    super.borderRadius,
+    super.disabled = false,
+    super.alignment,
   });
 
   /// Primary text button.
@@ -24,8 +25,9 @@ class AFFilledTextButton extends StatelessWidget {
     EdgeInsetsGeometry? padding,
     double? borderRadius,
     bool disabled = false,
+    Alignment? alignment,
   }) {
-    return AFFilledTextButton._(
+    return AFFilledTextButton(
       key: key,
       text: text,
       onTap: onTap,
@@ -33,6 +35,7 @@ class AFFilledTextButton extends StatelessWidget {
       padding: padding,
       borderRadius: borderRadius,
       disabled: disabled,
+      alignment: alignment,
       textColor: (context, isHovering, disabled) =>
           AppFlowyTheme.of(context).textColorScheme.onFill,
       backgroundColor: (context, isHovering, disabled) {
@@ -56,8 +59,9 @@ class AFFilledTextButton extends StatelessWidget {
     EdgeInsetsGeometry? padding,
     double? borderRadius,
     bool disabled = false,
+    Alignment? alignment,
   }) {
-    return AFFilledTextButton._(
+    return AFFilledTextButton(
       key: key,
       text: text,
       onTap: onTap,
@@ -65,6 +69,7 @@ class AFFilledTextButton extends StatelessWidget {
       padding: padding,
       borderRadius: borderRadius,
       disabled: disabled,
+      alignment: alignment,
       textColor: (context, isHovering, disabled) =>
           AppFlowyTheme.of(context).textColorScheme.onFill,
       backgroundColor: (context, isHovering, disabled) {
@@ -86,8 +91,9 @@ class AFFilledTextButton extends StatelessWidget {
     AFButtonSize size = AFButtonSize.m,
     EdgeInsetsGeometry? padding,
     double? borderRadius,
+    Alignment? alignment,
   }) {
-    return AFFilledTextButton._(
+    return AFFilledTextButton(
       key: key,
       text: text,
       onTap: () {},
@@ -95,22 +101,13 @@ class AFFilledTextButton extends StatelessWidget {
       padding: padding,
       borderRadius: borderRadius,
       disabled: true,
+      alignment: alignment,
       textColor: (context, isHovering, disabled) =>
           AppFlowyTheme.of(context).textColorScheme.tertiary,
       backgroundColor: (context, isHovering, disabled) =>
           AppFlowyTheme.of(context).fillColorScheme.primaryAlpha5,
     );
   }
-
-  final String text;
-  final bool disabled;
-  final VoidCallback onTap;
-  final AFButtonSize size;
-  final EdgeInsetsGeometry? padding;
-  final double? borderRadius;
-
-  final AFBaseButtonColorBuilder? textColor;
-  final AFBaseButtonColorBuilder? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -124,12 +121,20 @@ class AFFilledTextButton extends StatelessWidget {
       builder: (context, isHovering, disabled) {
         final textColor = this.textColor?.call(context, isHovering, disabled) ??
             AppFlowyTheme.of(context).textColorScheme.onFill;
-        return Text(
+        Widget child = Text(
           text,
-          style: size.buildTextStyle(context).copyWith(
-                color: textColor,
-              ),
+          style: size.buildTextStyle(context).copyWith(color: textColor),
         );
+
+        final alignment = this.alignment;
+        if (alignment != null) {
+          child = Align(
+            alignment: alignment,
+            child: child,
+          );
+        }
+
+        return child;
       },
     );
   }

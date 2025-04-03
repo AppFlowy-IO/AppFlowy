@@ -1,4 +1,4 @@
-export 'continue_with_email_and_password.dart';
+export 'continue_with/continue_with_email_and_password.dart';
 export 'sign_in_agreement.dart';
 export 'sign_in_anonymous_button.dart';
 export 'sign_in_or_logout_button.dart';

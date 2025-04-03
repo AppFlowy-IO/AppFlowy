@@ -1,6 +1,7 @@
 // Base button
 export 'base_button/base.dart';
 export 'base_button/base_button.dart';
+export 'base_button/base_text_button.dart';
 // Filled buttons
 export 'filled_button/filled_button.dart';
 export 'filled_button/filled_icon_text_button.dart';

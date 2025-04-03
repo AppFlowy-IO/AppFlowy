@@ -9,7 +9,7 @@ typedef AFGhostIconBuilder = Widget Function(
 );
 
 class AFGhostIconTextButton extends StatelessWidget {
-  const AFGhostIconTextButton._({
+  const AFGhostIconTextButton({
     super.key,
     required this.text,
     required this.onTap,
@@ -33,7 +33,7 @@ class AFGhostIconTextButton extends StatelessWidget {
     double? borderRadius,
     bool disabled = false,
   }) {
-    return AFGhostIconTextButton._(
+    return AFGhostIconTextButton(
       key: key,
       text: text,
       onTap: onTap,
@@ -71,7 +71,7 @@ class AFGhostIconTextButton extends StatelessWidget {
     EdgeInsetsGeometry? padding,
     double? borderRadius,
   }) {
-    return AFGhostIconTextButton._(
+    return AFGhostIconTextButton(
       key: key,
       text: text,
       iconBuilder: iconBuilder,
@@ -109,6 +109,9 @@ class AFGhostIconTextButton extends StatelessWidget {
     return AFBaseButton(
       disabled: disabled,
       backgroundColor: backgroundColor,
+      borderColor: (context, isHovering, disabled) {
+        return Colors.transparent;
+      },
       padding: padding ?? size.buildPadding(context),
       borderRadius: borderRadius ?? size.buildBorderRadius(context),
       onTap: onTap,
@@ -118,8 +121,12 @@ class AFGhostIconTextButton extends StatelessWidget {
         return Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            iconBuilder(context, isHovering, disabled),
-            SizedBox(width: theme.spacing.s),
+            iconBuilder(
+              context,
+              isHovering,
+              disabled,
+            ),
+            SizedBox(width: theme.spacing.m),
             Text(
               text,
               style: size.buildTextStyle(context).copyWith(

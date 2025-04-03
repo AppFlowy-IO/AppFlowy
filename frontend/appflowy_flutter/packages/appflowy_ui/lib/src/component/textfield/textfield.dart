@@ -13,20 +13,47 @@ class AFTextField extends StatefulWidget {
     this.keyboardType,
     this.radius,
     this.validator,
+    this.controller,
+    this.onChanged,
+    this.onSubmitted,
+    this.autoFocus,
   });
 
+  /// The hint text to display when the text field is empty.
   final String? hintText;
+
+  /// The initial text to display in the text field.
   final String? initialText;
+
+  /// The type of keyboard to display.
   final TextInputType? keyboardType;
+
+  /// The radius of the text field.
   final double? radius;
+
+  /// The validator to use for the text field.
   final AFTextFieldValidator? validator;
+
+  /// The controller to use for the text field.
+  ///
+  /// If it's not provided, the text field will use a new controller.
+  final TextEditingController? controller;
+
+  /// The callback to call when the text field changes.
+  final void Function(String)? onChanged;
+
+  /// The callback to call when the text field is submitted.
+  final void Function(String)? onSubmitted;
+
+  /// Enable auto focus.
+  final bool? autoFocus;
 
   @override
   State<AFTextField> createState() => _AFTextFieldState();
 }
 
 class _AFTextFieldState extends State<AFTextField> {
-  final controller = TextEditingController();
+  late final TextEditingController effectiveController;
 
   bool hasError = false;
   String errorText = '';
@@ -35,18 +62,22 @@ class _AFTextFieldState extends State<AFTextField> {
   void initState() {
     super.initState();
 
+    effectiveController = widget.controller ?? TextEditingController();
+
     final initialText = widget.initialText;
     if (initialText != null) {
-      controller.text = initialText;
+      effectiveController.text = initialText;
     }
 
-    controller.addListener(_validate);
+    effectiveController.addListener(_validate);
   }
 
   @override
   void dispose() {
-    controller.removeListener(_validate);
-    controller.dispose();
+    effectiveController.removeListener(_validate);
+    if (widget.controller == null) {
+      effectiveController.dispose();
+    }
 
     super.dispose();
   }
@@ -61,60 +92,64 @@ class _AFTextFieldState extends State<AFTextField> {
     final errorBorderColor = theme.borderColorScheme.errorThick;
     final defaultBorderColor = theme.borderColorScheme.greyTertiary;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextField(
-          controller: controller,
-          keyboardType: widget.keyboardType,
-          style: theme.textStyle.body.standard(
-            color: theme.textColorScheme.primary,
-          ),
-          decoration: InputDecoration(
-            hintText: widget.hintText,
-            hintStyle: theme.textStyle.body.standard(
-              color: theme.textColorScheme.tertiary,
-            ),
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: theme.spacing.m,
-              vertical: 10,
-            ),
-            border: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: hasError ? errorBorderColor : defaultBorderColor,
-              ),
-              borderRadius: borderRadius,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: hasError ? errorBorderColor : defaultBorderColor,
-              ),
-              borderRadius: borderRadius,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: hasError
-                    ? errorBorderColor
-                    : theme.borderColorScheme.themeThick,
-              ),
-              borderRadius: borderRadius,
-            ),
-            errorBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: errorBorderColor,
-              ),
-              borderRadius: borderRadius,
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: errorBorderColor,
-              ),
-              borderRadius: borderRadius,
-            ),
-            hoverColor: theme.borderColorScheme.greyTertiaryHover,
-          ),
+    Widget child = TextField(
+      controller: effectiveController,
+      keyboardType: widget.keyboardType,
+      style: theme.textStyle.body.standard(
+        color: theme.textColorScheme.primary,
+      ),
+      onChanged: widget.onChanged,
+      onSubmitted: widget.onSubmitted,
+      autofocus: widget.autoFocus ?? false,
+      decoration: InputDecoration(
+        hintText: widget.hintText,
+        hintStyle: theme.textStyle.body.standard(
+          color: theme.textColorScheme.tertiary,
         ),
-        if (hasError && errorText.isNotEmpty) ...[
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: theme.spacing.m,
+          vertical: 10,
+        ),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: hasError ? errorBorderColor : defaultBorderColor,
+          ),
+          borderRadius: borderRadius,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: hasError ? errorBorderColor : defaultBorderColor,
+          ),
+          borderRadius: borderRadius,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: hasError
+                ? errorBorderColor
+                : theme.borderColorScheme.themeThick,
+          ),
+          borderRadius: borderRadius,
+        ),
+        errorBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: errorBorderColor,
+          ),
+          borderRadius: borderRadius,
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: errorBorderColor,
+          ),
+          borderRadius: borderRadius,
+        ),
+        hoverColor: theme.borderColorScheme.greyTertiaryHover,
+      ),
+    );
+
+    if (hasError && errorText.isNotEmpty) {
+      child = Column(
+        children: [
+          child,
           SizedBox(height: theme.spacing.xs),
           Text(
             errorText,
@@ -123,14 +158,16 @@ class _AFTextFieldState extends State<AFTextField> {
             ),
           ),
         ],
-      ],
-    );
+      );
+    }
+
+    return child;
   }
 
   void _validate() {
     final validator = widget.validator;
     if (validator != null) {
-      final result = validator(controller);
+      final result = validator(effectiveController);
       setState(() {
         hasError = result.$1;
         errorText = result.$2;

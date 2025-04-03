@@ -1,7 +1,8 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
-import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with_email.dart';
-import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with_password.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_email.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_magic_link_or_passcode.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_password.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -41,8 +42,13 @@ class _ContinueWithEmailAndPasswordState
         SizedBox(
           height: UniversalPlatform.isMobile ? 38.0 : 40.0,
           child: AFTextField(
+            controller: controller,
             hintText: LocaleKeys.signIn_pleaseInputYourEmail.tr(),
             radius: 10,
+            onSubmitted: (value) => _sendMagicLink(
+              context,
+              value,
+            ),
           ),
         ),
         VSpace(theme.spacing.l),
@@ -74,10 +80,21 @@ class _ContinueWithEmailAndPasswordState
 
     context.read<SignInBloc>().add(SignInEvent.signedWithMagicLink(email));
 
-    showConfirmDialog(
-      context: context,
-      title: LocaleKeys.signIn_magicLinkSent.tr(),
-      description: LocaleKeys.signIn_magicLinkSentDescription.tr(),
+    // showConfirmDialog(
+    //   context: context,
+    //   title: LocaleKeys.signIn_magicLinkSent.tr(),
+    //   description: LocaleKeys.signIn_magicLinkSentDescription.tr(),
+    // );
+
+    // push the a continue with magic link or passcode screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ContinueWithMagicLinkOrPasscode(
+          email: email,
+          backToLogin: () => Navigator.pop(context),
+        ),
+      ),
     );
   }
 }

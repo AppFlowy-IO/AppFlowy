@@ -43,19 +43,23 @@ class _AFBaseButtonState extends State<AFBaseButton> {
     final Color borderColor = _buildBorderColor(context);
     final Color backgroundColor = _buildBackgroundColor(context);
 
-    return InkWell(
-      onTap: widget.disabled ? null : widget.onTap,
-      hoverColor: Colors.transparent,
-      onHover: (value) => setState(() => isHovering = value),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          border: Border.all(color: borderColor),
-          borderRadius: BorderRadius.circular(widget.borderRadius),
-        ),
-        child: Padding(
-          padding: widget.padding,
-          child: widget.builder(context, isHovering, widget.disabled),
+    return MouseRegion(
+      cursor:
+          widget.disabled ? SystemMouseCursors.basic : SystemMouseCursors.click,
+      onEnter: (_) => setState(() => isHovering = true),
+      onExit: (_) => setState(() => isHovering = false),
+      child: GestureDetector(
+        onTap: widget.disabled ? null : widget.onTap,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            border: Border.all(color: borderColor),
+            borderRadius: BorderRadius.circular(widget.borderRadius),
+          ),
+          child: Padding(
+            padding: widget.padding,
+            child: widget.builder(context, isHovering, widget.disabled),
+          ),
         ),
       ),
     );

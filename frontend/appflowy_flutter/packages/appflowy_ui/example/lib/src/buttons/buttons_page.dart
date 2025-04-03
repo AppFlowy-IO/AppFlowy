@@ -189,13 +189,45 @@ class ButtonsPage extends StatelessWidget {
           _buildSection(
             'Ghost Buttons',
             [
-              AFGhostTextButton.normal(
+              AFGhostTextButton.primary(
                 text: 'Primary Button',
                 onTap: () {},
               ),
               const SizedBox(width: 16),
               AFGhostTextButton.disabled(
                 text: 'Disabled Button',
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          _buildSection(
+            'Button with alignment',
+            [
+              SizedBox(
+                width: 200,
+                child: AFFilledTextButton.primary(
+                  text: 'Left Button',
+                  onTap: () {},
+                  alignment: Alignment.centerLeft,
+                ),
+              ),
+              const SizedBox(width: 16),
+              SizedBox(
+                width: 200,
+                child: AFFilledTextButton.primary(
+                  text: 'Center Button',
+                  onTap: () {},
+                  alignment: Alignment.center,
+                ),
+              ),
+              const SizedBox(width: 16),
+              SizedBox(
+                width: 200,
+                child: AFFilledTextButton.primary(
+                  text: 'Right Button',
+                  onTap: () {},
+                  alignment: Alignment.centerRight,
+                ),
               ),
             ],
           ),

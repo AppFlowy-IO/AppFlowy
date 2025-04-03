@@ -164,15 +164,10 @@ class DesktopThirdPartySignInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = AppFlowyTheme.of(context);
-
     return AFOutlinedIconTextButton.normal(
       text: type.labelText,
       onTap: onTap,
-      padding: EdgeInsets.symmetric(
-        horizontal: theme.spacing.xl,
-        vertical: 10,
-      ),
+      size: AFButtonSize.l,
       iconBuilder: (context, isHovering, disabled) {
         return FlowySvg(
           type.icon,

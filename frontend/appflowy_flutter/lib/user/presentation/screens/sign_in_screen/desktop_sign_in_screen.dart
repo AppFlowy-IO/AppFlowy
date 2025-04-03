@@ -1,5 +1,6 @@
 import 'package:appflowy/core/frameless_window.dart';
 import 'package:appflowy/env/cloud_env.dart';
+import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/settings/show_settings.dart';
 import 'package:appflowy/shared/window_title_bar.dart';
@@ -46,9 +47,9 @@ class DesktopSignInScreen extends StatelessWidget {
                 // third-party sign in.
                 if (isAuthEnabled) ...[
                   const _OrDivider(),
-                  const VSpace(20),
+                  VSpace(theme.spacing.xxl),
                   const ThirdPartySignInButtons(),
-                  const VSpace(20),
+                  VSpace(theme.spacing.xxl),
                 ],
 
                 // sign in agreement
@@ -70,7 +71,7 @@ class DesktopSignInScreen extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     DesktopSignInSettingsButton(),
-                    HSpace(42),
+                    HSpace(20),
                     SignInAnonymousButtonV2(),
                   ],
                 ),
@@ -100,18 +101,24 @@ class DesktopSignInSettingsButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyButton(
-      useIntrinsicWidth: true,
-      text: FlowyText(
-        LocaleKeys.signIn_settings.tr(),
-        textAlign: TextAlign.center,
-        fontSize: 12.0,
-        // fontWeight: FontWeight.w500,
-        color: Colors.grey,
-        decoration: TextDecoration.underline,
+    final theme = AppFlowyTheme.of(context);
+    return AFGhostIconTextButton(
+      text: LocaleKeys.signIn_settings.tr(),
+      textColor: (context, isHovering, disabled) {
+        return theme.textColorScheme.secondary;
+      },
+      size: AFButtonSize.s,
+      padding: EdgeInsets.symmetric(
+        horizontal: theme.spacing.m,
+        vertical: theme.spacing.xs,
       ),
-      onTap: () {
-        showSimpleSettingsDialog(context);
+      onTap: () => showSimpleSettingsDialog(context),
+      iconBuilder: (context, isHovering, disabled) {
+        return FlowySvg(
+          FlowySvgs.settings_s,
+          size: Size.square(20),
+          color: theme.textColorScheme.secondary,
+        );
       },
     );
   }

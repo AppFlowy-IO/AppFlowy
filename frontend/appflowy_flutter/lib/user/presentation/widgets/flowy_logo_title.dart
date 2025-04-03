@@ -1,4 +1,4 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/logo/logo.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -21,13 +21,7 @@ class FlowyLogoTitle extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox.fromSize(
-            size: logoSize,
-            child: const FlowySvg(
-              FlowySvgs.flowy_logo_xl,
-              blendMode: null,
-            ),
-          ),
+          AFLogo(size: logoSize),
           const VSpace(20),
           Text(
             title,
