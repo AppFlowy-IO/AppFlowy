@@ -1,6 +1,13 @@
 use crate::entities::PublishPayload;
 pub use anyhow::Error;
-use client_api::entity::{workspace_dto::PublishInfoView, PublishInfo};
+use client_api::entity::{
+  workspace_dto::{
+    CreatePageParams, CreateSpaceParams, DuplicatePageParams, FavoriteFolderView,
+    FavoritePageParams, FolderView, MovePageParams, PublishInfoView, RecentFolderView,
+    TrashFolderView, UpdatePageParams, UpdateSpaceParams,
+  },
+  PublishInfo,
+};
 use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
 pub use collab_folder::{Folder, FolderData, Workspace};
@@ -103,6 +110,86 @@ pub trait FolderCloudService: Send + Sync + 'static {
   async fn get_publish_namespace(&self, workspace_id: &str) -> Result<String, FlowyError>;
 
   async fn import_zip(&self, file_path: &str) -> Result<(), FlowyError>;
+
+  /// Get the workspace folder
+  async fn get_workspace_folder(
+    &self,
+    workspace_id: &str,
+    depth: Option<u32>,
+    root_view_id: Option<String>,
+  ) -> Result<FolderView, FlowyError>;
+
+  /// Create a new view in the workspace
+  async fn create_page(
+    &self,
+    workspace_id: &str,
+    params: CreatePageParams,
+  ) -> Result<(), FlowyError>;
+
+  /// Duplicate a view in the workspace
+  async fn duplicate_page(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: DuplicatePageParams,
+  ) -> Result<(), FlowyError>;
+
+  /// Move a view in the workspace
+  async fn move_page(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: MovePageParams,
+  ) -> Result<(), FlowyError>;
+
+  /// Move a view to trash in the workspace
+  async fn move_page_to_trash(&self, workspace_id: &str, view_id: &str) -> Result<(), FlowyError>;
+
+  /// Restore a view from trash in the workspace
+  async fn restore_page_from_trash(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+  ) -> Result<(), FlowyError>;
+
+  /// Update a view in the workspace
+  async fn update_page(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: UpdatePageParams,
+  ) -> Result<(), FlowyError>;
+
+  /// Update a space in the workspace
+  async fn update_space(
+    &self,
+    workspace_id: &str,
+    space_id: &str,
+    params: UpdateSpaceParams,
+  ) -> Result<(), FlowyError>;
+
+  async fn create_space(
+    &self,
+    workspace_id: &str,
+    params: CreateSpaceParams,
+  ) -> Result<(), FlowyError>;
+
+  async fn get_favorite_pages(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<FavoriteFolderView>, FlowyError>;
+
+  async fn update_favorite_page(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: FavoritePageParams,
+  ) -> Result<(), FlowyError>;
+
+  async fn get_recent_pages(&self, workspace_id: &str)
+    -> Result<Vec<RecentFolderView>, FlowyError>;
+
+  async fn get_trash_pages(&self, workspace_id: &str) -> Result<Vec<TrashFolderView>, FlowyError>;
 }
 
 #[derive(Debug)]

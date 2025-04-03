@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:appflowy/core/notification/folder_notification.dart';
+import 'package:appflowy/core/notification/workspace_notification.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/trash.pb.dart';
@@ -16,11 +16,11 @@ typedef TrashUpdatedCallback = void Function(
 class TrashListener {
   StreamSubscription<SubscribeObject>? _subscription;
   TrashUpdatedCallback? _trashUpdated;
-  FolderNotificationParser? _parser;
+  WorkspaceNotificationParser? _parser;
 
   void start({TrashUpdatedCallback? trashUpdated}) {
     _trashUpdated = trashUpdated;
-    _parser = FolderNotificationParser(
+    _parser = WorkspaceNotificationParser(
       id: "trash",
       callback: _observableCallback,
     );

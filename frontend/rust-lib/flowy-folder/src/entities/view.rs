@@ -1,3 +1,8 @@
+use client_api::entity::workspace_dto::{
+  CreatePageParams, CreateSpaceParams, DuplicatePageParams, FavoriteFolderView, FavoritePageParams,
+  FolderView, MovePageParams, RecentFolderView, SpacePermission, TrashFolderView, UpdatePageParams,
+  UpdateSpaceParams,
+};
 use collab_folder::{View, ViewIcon, ViewLayout};
 use std::collections::HashMap;
 use std::convert::TryInto;
@@ -10,6 +15,7 @@ use flowy_folder_pub::cloud::gen_view_id;
 
 use crate::entities::icon::ViewIconPB;
 use crate::entities::parser::view::{ViewIdentify, ViewName, ViewThumbnail};
+use crate::notification::FolderNotificationPayload;
 use crate::view_operation::ViewData;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -168,6 +174,18 @@ impl std::convert::From<ViewLayout> for ViewLayoutPB {
   }
 }
 
+impl From<ViewLayoutPB> for client_api::entity::workspace_dto::ViewLayout {
+  fn from(val: ViewLayoutPB) -> Self {
+    match val {
+      ViewLayoutPB::Grid => client_api::entity::workspace_dto::ViewLayout::Grid,
+      ViewLayoutPB::Board => client_api::entity::workspace_dto::ViewLayout::Board,
+      ViewLayoutPB::Document => client_api::entity::workspace_dto::ViewLayout::Document,
+      ViewLayoutPB::Calendar => client_api::entity::workspace_dto::ViewLayout::Calendar,
+      ViewLayoutPB::Chat => client_api::entity::workspace_dto::ViewLayout::Chat,
+    }
+  }
+}
+
 impl From<client_api::entity::workspace_dto::ViewLayout> for ViewLayoutPB {
   fn from(val: client_api::entity::workspace_dto::ViewLayout) -> Self {
     match val {
@@ -193,6 +211,83 @@ pub struct SectionViewsPB {
 pub struct RepeatedViewPB {
   #[pb(index = 1)]
   pub items: Vec<ViewPB>,
+}
+
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
+pub struct FolderViewPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+
+  #[pb(index = 2)]
+  pub name: String,
+
+  #[pb(index = 3, one_of)]
+  pub icon: Option<ViewIconPB>,
+
+  #[pb(index = 4)]
+  pub is_space: bool,
+
+  #[pb(index = 5)]
+  pub is_private: bool,
+
+  #[pb(index = 6)]
+  pub is_published: bool,
+
+  #[pb(index = 7)]
+  pub layout: ViewLayoutPB,
+
+  #[pb(index = 8)]
+  pub created_at: i64,
+
+  #[pb(index = 9)]
+  pub last_edited_time: i64,
+
+  #[pb(index = 10, one_of)]
+  pub is_locked: Option<bool>,
+
+  #[pb(index = 11, one_of)]
+  pub extra: Option<String>,
+
+  #[pb(index = 12)]
+  pub children: Vec<FolderViewPB>,
+}
+
+impl From<FolderView> for FolderViewPB {
+  fn from(folder_view: FolderView) -> Self {
+    FolderViewPB {
+      view_id: folder_view.view_id,
+      name: folder_view.name,
+      icon: folder_view.icon.map(|icon| icon.into()),
+      is_space: folder_view.is_space,
+      is_private: folder_view.is_private,
+      is_published: folder_view.is_published,
+      layout: folder_view.layout.into(),
+      created_at: folder_view.created_at.timestamp_millis() as i64,
+      last_edited_time: folder_view.last_edited_time.timestamp_millis() as i64,
+      is_locked: folder_view.is_locked,
+      extra: folder_view.extra.map(|extra| extra.to_string()),
+      children: folder_view
+        .children
+        .into_iter()
+        .map(|child| child.into())
+        .collect(),
+    }
+  }
+}
+
+#[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
+pub struct FolderPageNotificationPayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub folder_view: FolderViewPB,
+}
+
+impl FolderNotificationPayload for FolderPageNotificationPayloadPB {
+  fn workspace_id(&self) -> &str {
+    &self.workspace_id
+  }
 }
 
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
@@ -664,58 +759,363 @@ impl TryInto<DuplicateViewParams> for DuplicateViewPayloadPB {
   }
 }
 
-// impl<'de> Deserialize<'de> for ViewDataType {
-//     fn deserialize<D>(deserializer: D) -> Result<Self, <D as Deserializer<'de>>::Error>
-//     where
-//         D: Deserializer<'de>,
-//     {
-//         struct ViewTypeVisitor();
-//
-//         impl<'de> Visitor<'de> for ViewTypeVisitor {
-//             type Value = ViewDataType;
-//             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-//                 formatter.write_str("RichText, PlainText")
-//             }
-//
-//             fn visit_u8<E>(self, v: u8) -> Result<Self::Value, E>
-//             where
-//                 E: de::Error,
-//             {
-//                 let data_type;
-//                 match v {
-//                     0 => {
-//                         data_type = ViewDataType::RichText;
-//                     }
-//                     1 => {
-//                         data_type = ViewDataType::PlainText;
-//                     }
-//                     _ => {
-//                         return Err(de::Error::invalid_value(Unexpected::Unsigned(v as u64), &self));
-//                     }
-//                 }
-//                 Ok(data_type)
-//             }
-//
-//             fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
-//             where
-//                 E: de::Error,
-//             {
-//                 let data_type;
-//                 match s {
-//                     "Doc" | "RichText" => {
-//                         // Rename ViewDataType::Doc to ViewDataType::RichText, So we need to migrate the ViewType manually.
-//                         data_type = ViewDataType::RichText;
-//                     }
-//                     "PlainText" => {
-//                         data_type = ViewDataType::PlainText;
-//                     }
-//                     unknown => {
-//                         return Err(de::Error::invalid_value(Unexpected::Str(unknown), &self));
-//                     }
-//                 }
-//                 Ok(data_type)
-//             }
-//         }
-//         deserializer.deserialize_any(ViewTypeVisitor())
-//     }
-// }
+#[derive(Default, ProtoBuf)]
+pub struct CreatePagePayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2, one_of)]
+  pub name: Option<String>,
+
+  #[pb(index = 3)]
+  pub layout: ViewLayoutPB,
+
+  #[pb(index = 4)]
+  pub parent_view_id: String,
+  // todo: support page_data
+  // #[pb(index = 4, one_of)]
+  // pub page_data: Option<serde_json::Value>,
+}
+
+impl TryInto<CreatePageParams> for CreatePagePayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<CreatePageParams, Self::Error> {
+    let parent_view_id = ViewIdentify::parse(self.parent_view_id)?.0;
+    let layout = self.layout.into();
+    let name = match self.name {
+      Some(name) => Some(ViewName::parse(name)?.0),
+      None => None,
+    };
+    Ok(CreatePageParams {
+      name,
+      layout,
+      parent_view_id,
+      page_data: None,
+    })
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UpdatePagePayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub view_id: String,
+
+  #[pb(index = 3)]
+  pub name: String,
+
+  #[pb(index = 4, one_of)]
+  pub icon: Option<ViewIconPB>,
+
+  #[pb(index = 5, one_of)]
+  pub is_locked: Option<bool>,
+  // todo: support extra
+  // #[pb(index = 4, one_of)]
+  // pub extra: Option<String>,
+}
+
+impl TryInto<UpdatePageParams> for UpdatePagePayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<UpdatePageParams, Self::Error> {
+    let name = ViewName::parse(self.name)?.0;
+    let is_locked = self.is_locked;
+    Ok(UpdatePageParams {
+      name,
+      icon: self.icon.map(|icon| icon.into()),
+      is_locked,
+      extra: None,
+    })
+  }
+}
+
+#[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone, Default)]
+pub enum SpacePermissionPB {
+  #[default]
+  PublicSpace = 0,
+
+  // Note that enum values use C++ scoping rules, meaning that enum values are siblings of their type, not children of it.  Therefore, "Private" must be unique within the global scope, not just within "SpacePermissionPB".
+  PrivateSpace = 1,
+}
+
+impl From<SpacePermissionPB> for SpacePermission {
+  fn from(value: SpacePermissionPB) -> Self {
+    match value {
+      SpacePermissionPB::PublicSpace => SpacePermission::PublicToAll,
+      SpacePermissionPB::PrivateSpace => SpacePermission::Private,
+    }
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct CreateSpacePayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub name: String,
+
+  #[pb(index = 3)]
+  pub space_permission: SpacePermissionPB,
+
+  #[pb(index = 4)]
+  pub space_icon: String,
+
+  #[pb(index = 5)]
+  pub space_icon_color: String,
+}
+
+impl TryInto<CreateSpaceParams> for CreateSpacePayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<CreateSpaceParams, Self::Error> {
+    let name = ViewName::parse(self.name)?.0;
+    let space_permission = self.space_permission.into();
+    Ok(CreateSpaceParams {
+      name,
+      space_permission,
+      space_icon: self.space_icon,
+      space_icon_color: self.space_icon_color,
+    })
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UpdateSpacePayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub space_id: String,
+
+  #[pb(index = 3)]
+  pub name: String,
+
+  #[pb(index = 4)]
+  pub space_permission: SpacePermissionPB,
+
+  #[pb(index = 5)]
+  pub space_icon: String,
+
+  #[pb(index = 6)]
+  pub space_icon_color: String,
+}
+
+impl TryInto<UpdateSpaceParams> for UpdateSpacePayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<UpdateSpaceParams, Self::Error> {
+    let name = ViewName::parse(self.name)?.0;
+    let space_permission = self.space_permission.into();
+    Ok(UpdateSpaceParams {
+      name,
+      space_permission,
+      space_icon: self.space_icon,
+      space_icon_color: self.space_icon_color,
+    })
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct MovePageToTrashPayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub view_id: String,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct RestorePageFromTrashPayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub view_id: String,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct DuplicatePagePayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub view_id: String,
+
+  #[pb(index = 3, one_of)]
+  pub suffix: Option<String>,
+}
+
+impl TryInto<DuplicatePageParams> for DuplicatePagePayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<DuplicatePageParams, Self::Error> {
+    let suffix = self.suffix;
+    Ok(DuplicatePageParams { suffix })
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct MovePagePayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+
+  #[pb(index = 2)]
+  pub view_id: String,
+
+  #[pb(index = 3)]
+  pub new_parent_view_id: String,
+
+  #[pb(index = 4, one_of)]
+  pub prev_view_id: Option<String>,
+}
+
+impl TryInto<MovePageParams> for MovePagePayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<MovePageParams, Self::Error> {
+    let new_parent_view_id = ViewIdentify::parse(self.new_parent_view_id)?.0;
+    let prev_view_id = self.prev_view_id;
+    Ok(MovePageParams {
+      new_parent_view_id,
+      prev_view_id,
+    })
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct RepeatedFavoriteFolderViewPB {
+  #[pb(index = 1)]
+  pub items: Vec<FavoriteFolderViewPB>,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct FavoriteFolderViewPB {
+  #[pb(index = 1)]
+  pub view: FolderViewPB,
+
+  #[pb(index = 2)]
+  pub favorited_at: i64,
+}
+
+impl From<FavoriteFolderView> for FavoriteFolderViewPB {
+  fn from(value: FavoriteFolderView) -> Self {
+    FavoriteFolderViewPB {
+      view: value.view.into(),
+      favorited_at: value.favorited_at.timestamp(),
+    }
+  }
+}
+
+impl From<Vec<FavoriteFolderView>> for RepeatedFavoriteFolderViewPB {
+  fn from(values: Vec<FavoriteFolderView>) -> Self {
+    let items = values.into_iter().map(|value| value.into()).collect();
+    RepeatedFavoriteFolderViewPB { items }
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct RepeatedRecentFolderViewPB {
+  #[pb(index = 1)]
+  pub items: Vec<RecentFolderViewPB>,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct RecentFolderViewPB {
+  #[pb(index = 1)]
+  pub view: FolderViewPB,
+
+  #[pb(index = 2)]
+  pub last_viewed_at: i64,
+}
+
+impl From<RecentFolderView> for RecentFolderViewPB {
+  fn from(value: RecentFolderView) -> Self {
+    RecentFolderViewPB {
+      view: value.view.into(),
+      last_viewed_at: value.last_viewed_at.timestamp(),
+    }
+  }
+}
+
+impl From<Vec<RecentFolderView>> for RepeatedRecentFolderViewPB {
+  fn from(values: Vec<RecentFolderView>) -> Self {
+    let items = values.into_iter().map(|value| value.into()).collect();
+    RepeatedRecentFolderViewPB { items }
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct RepeatedTrashFolderViewPB {
+  #[pb(index = 1)]
+  pub items: Vec<TrashFolderViewPB>,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct TrashFolderViewPB {
+  #[pb(index = 1)]
+  pub view: FolderViewPB,
+
+  #[pb(index = 2)]
+  pub deleted_at: i64,
+}
+
+impl From<TrashFolderView> for TrashFolderViewPB {
+  fn from(value: TrashFolderView) -> Self {
+    TrashFolderViewPB {
+      view: value.view.into(),
+      deleted_at: value.deleted_at.timestamp(),
+    }
+  }
+}
+
+impl From<Vec<TrashFolderView>> for RepeatedTrashFolderViewPB {
+  fn from(values: Vec<TrashFolderView>) -> Self {
+    let items = values.into_iter().map(|value| value.into()).collect();
+    RepeatedTrashFolderViewPB { items }
+  }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct GetFavoritePagesPayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct GetRecentPagesPayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct GetTrashPagesPayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct UpdateFavoritePagePayloadPB {
+  #[pb(index = 1)]
+  pub workspace_id: String,
+  #[pb(index = 2)]
+  pub view_id: String,
+  #[pb(index = 3)]
+  pub is_favorite: bool,
+  #[pb(index = 4)]
+  pub is_pinned: bool,
+}
+
+impl TryInto<FavoritePageParams> for UpdateFavoritePagePayloadPB {
+  type Error = ErrorCode;
+
+  fn try_into(self) -> Result<FavoritePageParams, Self::Error> {
+    Ok(FavoritePageParams {
+      is_favorite: self.is_favorite,
+      is_pinned: self.is_pinned,
+    })
+  }
+}

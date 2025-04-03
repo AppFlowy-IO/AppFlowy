@@ -48,6 +48,12 @@ impl FolderManager {
       section_change_tx,
     };
 
+    // Start the operation monitor
+    let conn = self.user.sqlite_connection(uid)?;
+    self
+      .sync_worker
+      .start_operation_monitor(conn, workspace_id.clone());
+
     let folder = match initial_data {
       FolderInitDataSource::LocalDisk {
         create_if_not_exist,

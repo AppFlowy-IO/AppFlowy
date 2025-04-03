@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:appflowy/core/notification/folder_notification.dart';
+import 'package:appflowy/core/notification/workspace_notification.dart';
 import 'package:appflowy_backend/protobuf/flowy-error/errors.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/notification.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
@@ -15,7 +15,7 @@ typedef RecentViewsUpdated = void Function(
 
 class RecentViewsListener {
   StreamSubscription<SubscribeObject>? _streamSubscription;
-  FolderNotificationParser? _parser;
+  WorkspaceNotificationParser? _parser;
 
   RecentViewsUpdated? _recentViewsUpdated;
 
@@ -23,7 +23,7 @@ class RecentViewsListener {
     RecentViewsUpdated? recentViewsUpdated,
   }) {
     _recentViewsUpdated = recentViewsUpdated;
-    _parser = FolderNotificationParser(
+    _parser = WorkspaceNotificationParser(
       id: 'recent_views',
       callback: _observableCallback,
     );

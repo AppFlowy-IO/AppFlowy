@@ -10,10 +10,11 @@ use crate::manager_observer::{
   ChildViewChangeReason,
 };
 use crate::notification::{
-  folder_notification_builder, send_current_workspace_notification, FolderNotification,
+  send_current_workspace_notification, workspace_notification_builder, FolderNotification,
 };
 use crate::publish_util::{generate_publish_name, view_pb_to_publish_view};
 use crate::share::{ImportData, ImportItem, ImportParams};
+use crate::sync_worker::sync_worker::SyncWorker;
 use crate::util::{folder_not_init_error, workspace_data_not_sync_error};
 use crate::view_operation::{
   create_view, FolderOperationHandler, FolderOperationHandlers, GatherEncodedCollab, ViewData,
@@ -41,6 +42,7 @@ use flowy_folder_pub::entities::{
 };
 use flowy_search_pub::entities::FolderIndexManager;
 use flowy_sqlite::kv::KVStorePreferences;
+use flowy_sqlite::DBConnection;
 use futures::future;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
@@ -52,7 +54,7 @@ pub trait FolderUser: Send + Sync {
   fn user_id(&self) -> Result<i64, FlowyError>;
   fn workspace_id(&self) -> Result<String, FlowyError>;
   fn collab_db(&self, uid: i64) -> Result<Weak<CollabKVDB>, FlowyError>;
-
+  fn sqlite_connection(&self, uid: i64) -> Result<DBConnection, FlowyError>;
   fn is_folder_exist_on_disk(&self, uid: i64, workspace_id: &str) -> FlowyResult<bool>;
 }
 
@@ -64,6 +66,7 @@ pub struct FolderManager {
   pub cloud_service: Arc<dyn FolderCloudService>,
   pub(crate) folder_indexer: Arc<dyn FolderIndexManager>,
   pub(crate) store_preferences: Arc<KVStorePreferences>,
+  pub(crate) sync_worker: Arc<SyncWorker>,
 }
 
 impl FolderManager {
@@ -74,6 +77,8 @@ impl FolderManager {
     folder_indexer: Arc<dyn FolderIndexManager>,
     store_preferences: Arc<KVStorePreferences>,
   ) -> FlowyResult<Self> {
+    let cloned_cloud_service = cloud_service.clone();
+    let cloned_user = user.clone();
     let manager = Self {
       user,
       mutex_folder: Default::default(),
@@ -82,6 +87,7 @@ impl FolderManager {
       cloud_service,
       folder_indexer,
       store_preferences,
+      sync_worker: Arc::new(SyncWorker::new(cloned_cloud_service, cloned_user)),
     };
 
     Ok(manager)
@@ -777,7 +783,7 @@ impl FolderManager {
         drop(folder);
 
         // notify the parent view that the view is moved to trash
-        folder_notification_builder(view_id, FolderNotification::DidMoveViewToTrash)
+        workspace_notification_builder(view_id, FolderNotification::DidMoveViewToTrash)
           .payload(DeletedViewPB {
             view_id: view_id.to_string(),
             index: None,
@@ -811,7 +817,7 @@ impl FolderManager {
           .map(|v| v.id.clone())
           .collect(),
       );
-      folder_notification_builder("favorite", FolderNotification::DidUnfavoriteView)
+      workspace_notification_builder("favorite", FolderNotification::DidUnfavoriteView)
         .payload(RepeatedViewPB {
           items: favorite_descendant_views,
         })
@@ -1629,13 +1635,13 @@ impl FolderManager {
       } else {
         FolderNotification::DidUnfavoriteView
       };
-      folder_notification_builder("favorite", notification_type)
+      workspace_notification_builder("favorite", notification_type)
         .payload(RepeatedViewPB {
           items: vec![view.clone()],
         })
         .send();
 
-      folder_notification_builder(&view.id, FolderNotification::DidUpdateView)
+      workspace_notification_builder(&view.id, FolderNotification::DidUpdateView)
         .payload(view)
         .send()
     }
@@ -1643,7 +1649,7 @@ impl FolderManager {
 
   async fn send_update_recent_views_notification(&self) {
     let recent_views = self.get_my_recent_sections().await;
-    folder_notification_builder("recent_views", FolderNotification::DidUpdateRecentViews)
+    workspace_notification_builder("recent_views", FolderNotification::DidUpdateRecentViews)
       .payload(RepeatedViewIdPB {
         items: recent_views.into_iter().map(|item| item.id).collect(),
       })
@@ -1673,7 +1679,7 @@ impl FolderManager {
     if let Some(lock) = self.mutex_folder.load_full() {
       let mut folder = lock.write().await;
       folder.remove_all_my_trash_sections();
-      folder_notification_builder("trash", FolderNotification::DidUpdateTrash)
+      workspace_notification_builder("trash", FolderNotification::DidUpdateTrash)
         .payload(RepeatedTrashPB { items: vec![] })
         .send();
     }
@@ -1699,7 +1705,7 @@ impl FolderManager {
       for trash in deleted_trash {
         let _ = self.delete_trash(&trash.id).await;
       }
-      folder_notification_builder("trash", FolderNotification::DidUpdateTrash)
+      workspace_notification_builder("trash", FolderNotification::DidUpdateTrash)
         .payload(RepeatedTrashPB { items: vec![] })
         .send();
     }
@@ -1861,7 +1867,7 @@ impl FolderManager {
     }
 
     if let Ok(view_pb) = self.get_view_pb(view_id).await {
-      folder_notification_builder(&view_pb.id, FolderNotification::DidUpdateView)
+      workspace_notification_builder(&view_pb.id, FolderNotification::DidUpdateView)
         .payload(view_pb)
         .send();
 

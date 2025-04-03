@@ -12,6 +12,9 @@ pub mod view_operation;
 mod manager_init;
 mod manager_observer;
 
+pub mod http_service;
 pub mod publish_util;
+pub mod services;
 pub mod share;
+mod sync_worker;
 mod util;

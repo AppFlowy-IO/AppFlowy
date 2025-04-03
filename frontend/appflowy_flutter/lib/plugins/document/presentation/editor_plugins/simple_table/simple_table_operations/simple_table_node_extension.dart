@@ -241,10 +241,11 @@ extension TableNodeExtension on Node {
       final width = columnWidths?[columnIndex.toString()] as Object?;
       if (width == null) {
         return SimpleTableConstants.defaultColumnWidth;
+      } else {
+        return width.toDouble(
+          defaultValue: SimpleTableConstants.defaultColumnWidth,
+        );
       }
-      return width.toDouble(
-        defaultValue: SimpleTableConstants.defaultColumnWidth,
-      );
     } catch (e) {
       Log.warn('get column width: $e');
       return SimpleTableConstants.defaultColumnWidth;
@@ -863,16 +864,19 @@ extension TableNodeExtension on Node {
 }
 
 extension on Object {
-  double toDouble({double defaultValue = 0}) {
+  double toDouble({double defaultValue = 0.0}) {
     if (this is double) {
       return this as double;
     }
-    if (this is String) {
-      return double.tryParse(this as String) ?? defaultValue;
-    }
+
     if (this is int) {
       return (this as int).toDouble();
     }
+
+    if (this is String) {
+      return double.tryParse(this as String) ?? defaultValue;
+    }
+
     return defaultValue;
   }
 }

@@ -7,7 +7,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/base/strin
 import 'package:appflowy/shared/icon_emoji_picker/colors.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
-import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -371,7 +371,7 @@ class SpaceColorItem extends StatelessWidget {
 extension on SpacePermission {
   String get i18n {
     switch (this) {
-      case SpacePermission.publicToAll:
+      case SpacePermission.public:
         return LocaleKeys.space_publicPermission.tr();
       case SpacePermission.private:
         return LocaleKeys.space_privatePermission.tr();
@@ -380,7 +380,7 @@ extension on SpacePermission {
 
   FlowySvgData get icon {
     switch (this) {
-      case SpacePermission.publicToAll:
+      case SpacePermission.public:
         return FlowySvgs.space_permission_public_s;
       case SpacePermission.private:
         return FlowySvgs.space_permission_private_s;

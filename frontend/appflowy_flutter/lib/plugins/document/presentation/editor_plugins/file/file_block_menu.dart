@@ -48,6 +48,7 @@ class _FileBlockMenuState extends State<FileBlockMenu> {
   @override
   void dispose() {
     errorMessage.dispose();
+    nameController.dispose();
     super.dispose();
   }
 
