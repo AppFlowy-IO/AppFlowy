@@ -3,8 +3,17 @@ import 'package:appflowy_ui_example/src/buttons/buttons_page.dart';
 import 'package:appflowy_ui_example/src/textfield/textfield_page.dart';
 import 'package:flutter/material.dart';
 
+enum ThemeMode {
+  light,
+  dark,
+}
+
+final themeMode = ValueNotifier(ThemeMode.light);
+
 void main() {
-  runApp(const MyApp());
+  runApp(
+    const MyApp(),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -12,20 +21,33 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppFlowyTheme(
-      data: AppFlowyThemeData.light(),
-      child: MaterialApp(
-        title: 'AppFlowy UI Example',
-        home: const MyHomePage(
-          title: 'AppFlowy UI',
-        ),
-      ),
+    return ValueListenableBuilder(
+      valueListenable: themeMode,
+      builder: (context, themeMode, child) {
+        return AppFlowyTheme(
+          data: themeMode == ThemeMode.light
+              ? AppFlowyThemeData.light()
+              : AppFlowyThemeData.dark(),
+          child: MaterialApp(
+            title: 'AppFlowy UI Example',
+            theme: themeMode == ThemeMode.light
+                ? ThemeData.light()
+                : ThemeData.dark(),
+            home: const MyHomePage(
+              title: 'AppFlowy UI',
+            ),
+          ),
+        );
+      },
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({
+    super.key,
+    required this.title,
+  });
 
   final String title;
 
@@ -53,6 +75,17 @@ class _MyHomePageState extends State<MyHomePage> {
               color: theme.textColorScheme.primary,
             ),
           ),
+          actions: [
+            IconButton(
+              icon: Icon(
+                theme.brightness == Brightness.light
+                    ? Icons.dark_mode
+                    : Icons.light_mode,
+              ),
+              onPressed: _toggleTheme,
+              tooltip: 'Toggle theme',
+            ),
+          ],
         ),
         body: TabBarView(
           children: [
@@ -63,7 +96,13 @@ class _MyHomePageState extends State<MyHomePage> {
         bottomNavigationBar: TabBar(
           tabs: tabs,
         ),
+        floatingActionButton: null,
       ),
     );
+  }
+
+  void _toggleTheme() {
+    themeMode.value =
+        themeMode.value == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
   }
 }
