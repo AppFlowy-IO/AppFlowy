@@ -8,10 +8,12 @@ class ContinueWithMagicLinkOrPasscode extends StatefulWidget {
     super.key,
     required this.backToLogin,
     required this.email,
+    required this.onEnterPasscode,
   });
 
-  final VoidCallback backToLogin;
   final String email;
+  final VoidCallback backToLogin;
+  final ValueChanged<String> onEnterPasscode;
 
   @override
   State<ContinueWithMagicLinkOrPasscode> createState() =>
@@ -20,7 +22,16 @@ class ContinueWithMagicLinkOrPasscode extends StatefulWidget {
 
 class _ContinueWithMagicLinkOrPasscodeState
     extends State<ContinueWithMagicLinkOrPasscode> {
+  final passcodeController = TextEditingController();
+
   bool isEnteringPasscode = false;
+
+  @override
+  void dispose() {
+    passcodeController.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,10 +78,12 @@ class _ContinueWithMagicLinkOrPasscodeState
       SizedBox(
         height: 40, // fixme: use the height from the designer
         child: AFTextField(
+          controller: passcodeController,
           hintText: 'Enter code',
           keyboardType: TextInputType.number,
           radius: 10,
           autoFocus: true,
+          onSubmitted: widget.onEnterPasscode,
         ),
       ),
       // todo: ask designer to provide the spacing
@@ -79,7 +92,7 @@ class _ContinueWithMagicLinkOrPasscodeState
       // continue to login
       AFFilledTextButton.primary(
         text: 'Continue to sign up',
-        onTap: () {},
+        onTap: () => widget.onEnterPasscode(passcodeController.text),
         size: AFButtonSize.l,
         alignment: Alignment.center,
       ),

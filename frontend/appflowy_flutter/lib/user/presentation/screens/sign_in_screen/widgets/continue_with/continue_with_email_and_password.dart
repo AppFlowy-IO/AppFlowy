@@ -78,13 +78,9 @@ class _ContinueWithEmailAndPasswordState
       );
     }
 
-    context.read<SignInBloc>().add(SignInEvent.signedWithMagicLink(email));
+    final signInBloc = context.read<SignInBloc>();
 
-    // showConfirmDialog(
-    //   context: context,
-    //   title: LocaleKeys.signIn_magicLinkSent.tr(),
-    //   description: LocaleKeys.signIn_magicLinkSentDescription.tr(),
-    // );
+    signInBloc.add(SignInEvent.signedWithMagicLink(email));
 
     // push the a continue with magic link or passcode screen
     Navigator.push(
@@ -93,6 +89,9 @@ class _ContinueWithEmailAndPasswordState
         builder: (context) => ContinueWithMagicLinkOrPasscode(
           email: email,
           backToLogin: () => Navigator.pop(context),
+          onEnterPasscode: (passcode) => signInBloc.add(
+            SignInEvent.signInWithPasscode(email, passcode),
+          ),
         ),
       ),
     );

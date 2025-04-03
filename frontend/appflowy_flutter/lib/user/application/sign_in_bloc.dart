@@ -210,9 +210,17 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       email: email,
       passcode: passcode,
     );
+
     emit(
       result.fold(
-        (userProfile) => state.copyWith(isSubmitting: false),
+        (gotrueTokenResponse) {
+          getIt<AppFlowyCloudDeepLink>().passGotrueTokenResponse(
+            gotrueTokenResponse,
+          );
+          return state.copyWith(
+            isSubmitting: false,
+          );
+        },
         (error) => _stateFromCode(error),
       ),
     );
