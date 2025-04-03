@@ -1,39 +1,39 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# AppFlowy UI
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+AppFlowy UI is a Flutter package that provides a collection of reusable UI components following the AppFlowy design system. These components are designed to be consistent, accessible, and easy to use.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- **Design System Components**: Buttons, text fields, and more UI components that follow the AppFlowy design system
+- **Theming**: Consistent theming across all components with light and dark mode support
 
-## Getting started
+## Installation
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+Add the following to your `pubspec.yaml` file:
 
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
-```dart
-const like = 'sample';
+```yaml
+dependencies:
+  appflowy_ui: ^1.0.0
 ```
 
-## Additional information
+## Supported components
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+- [x] Button
+- [x] TextField
+- [ ] Avatar
+- [ ] Checkbox
+- [ ] Grid
+- [ ] Link
+- [ ] Loading & Progress Indicator
+- [ ] Menu
+- [ ] Message Box
+- [ ] Navigation Bar
+- [ ] Popover
+- [ ] Scroll Bar
+- [ ] Tab Bar
+- [ ] Toggle
+- [ ] Tooltip
+
+## Reference
+
+Figma: https://www.figma.com/design/aphWa2OgkqyIragpatdk7a/Design-System
