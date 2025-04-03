@@ -25,18 +25,13 @@ class SocialMediaSection extends CustomActionCell {
             action: SocialMediaWrapper(social),
             itemHeight: ActionListSizes.itemHeight,
             onSelected: (action) {
-              switch (action.inner) {
-                case SocialMedia.reddit:
-                  afLaunchUrlString(
-                    'https://www.reddit.com/r/AppFlowy/',
-                  );
-                case SocialMedia.twitter:
-                  afLaunchUrlString(
-                    'https://x.com/appflowy',
-                  );
-                case SocialMedia.forum:
-                  afLaunchUrlString('https://forum.appflowy.io/');
-              }
+              final url = switch (action.inner) {
+                SocialMedia.reddit => 'https://www.reddit.com/r/AppFlowy/',
+                SocialMedia.twitter => 'https://x.com/appflowy',
+                SocialMedia.forum => 'https://forum.appflowy.com/',
+              };
+
+              afLaunchUrlString(url);
             },
           );
         },
@@ -85,11 +80,11 @@ extension QuestionBubbleExtension on SocialMedia {
   String get name {
     switch (this) {
       case SocialMedia.forum:
-        return "Community Forum";
+        return 'Community Forum';
       case SocialMedia.twitter:
-        return "Twitter – @appflowy";
+        return 'Twitter – @appflowy';
       case SocialMedia.reddit:
-        return "Reddit – r/appflowy";
+        return 'Reddit – r/appflowy';
     }
   }
 

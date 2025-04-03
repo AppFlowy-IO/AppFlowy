@@ -84,12 +84,14 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
   void initState() {
     super.initState();
     refreshSuggestions();
+    editorState.selectionNotifier.addListener(refreshSuggestions);
   }
 
   @override
   void dispose() {
-    super.dispose();
+    editorState.selectionNotifier.removeListener(refreshSuggestions);
     popoverController.close();
+    super.dispose();
   }
 
   @override
@@ -290,6 +292,7 @@ class _SuggestionsActionListState extends State<SuggestionsActionList> {
     }
     currentSuggestionItem =
         suggestions.where((item) => item.type == suggestionType).first;
+    if (mounted) setState(() {});
   }
 }
 

@@ -308,7 +308,8 @@
   "questionBubble": {
     "shortcuts": "Shortcuts",
     "whatsNew": "What's new?",
-    "help": "Help & Support",
+    "helpAndDocumentation": "Help & documentation",
+    "getSupport": "Get support",
     "markdown": "Markdown",
     "debug": {
       "name": "Debug Info",
@@ -508,7 +509,8 @@
       "settings": "Settings",
       "members": "Members",
       "trash": "Trash",
-      "helpAndSupport": "Help & Support"
+      "helpAndDocumentation": "Help & documentation",
+      "getSupport": "Get Support"
     },
     "sites": {
       "title": "Sites",
@@ -861,7 +863,7 @@
         "localAIRunning": "Local AI is running",
         "localAINotReadyRetryLater": "Local AI is initializing, please retry later",
         "localAIDisabled": "You are using local AI, but it is disabled. Please go to settings to enable it or try different model",
-        "localAIInitializing": "Local AI is loading. This may take a few minutes depending on your device",
+        "localAIInitializing": "Local AI is loading. This may take a few seconds depending on your device",
         "localAINotReadyTextFieldPrompt": "You can not edit while Local AI is loading",
         "failToLoadLocalAI": "Failed to start local AI.",
         "restartLocalAI": "Restart",
@@ -1646,7 +1648,7 @@
     },
     "url": {
       "launch": "Open link in browser",
-      "copy": "Copy link to clipboard",
+      "copy": "Copied link to clipboard",
       "textFieldHint": "Enter a URL",
       "copiedNotification": "Copied to clipboard!"
     },

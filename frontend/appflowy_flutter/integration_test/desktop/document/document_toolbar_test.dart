@@ -184,6 +184,45 @@ void main() {
         3,
       );
     });
+
+    testWidgets('toolbar will not rebuild after click item', (tester) async {
+      const text = 'Test rebuilding';
+      await prepareForToolbar(tester, text);
+      Finder toolbar = find.byType(DesktopFloatingToolbar);
+      Element toolbarElement = toolbar.evaluate().first;
+      final elementHashcode = toolbarElement.hashCode;
+      final boldButton = find.byFlowySvg(FlowySvgs.toolbar_bold_m),
+          underlineButton = find.byFlowySvg(FlowySvgs.toolbar_underline_m),
+          italicButton = find.byFlowySvg(FlowySvgs.toolbar_inline_italic_m);
+
+      /// tap format buttons
+      await tester.tapButton(boldButton);
+      await tester.tapButton(underlineButton);
+      await tester.tapButton(italicButton);
+      toolbar = find.byType(DesktopFloatingToolbar);
+      toolbarElement = toolbar.evaluate().first;
+
+      /// check if the toolbar is not rebuilt
+      expect(elementHashcode, toolbarElement.hashCode);
+      final editorState = tester.editor.getCurrentEditorState();
+
+      /// check text formats
+      expect(
+        editorState
+            .getDeltaAttributeValueInSelection(AppFlowyRichTextKeys.bold),
+        true,
+      );
+      expect(
+        editorState
+            .getDeltaAttributeValueInSelection(AppFlowyRichTextKeys.italic),
+        true,
+      );
+      expect(
+        editorState
+            .getDeltaAttributeValueInSelection(AppFlowyRichTextKeys.underline),
+        true,
+      );
+    });
   });
 
   group('document toolbar: link', () {
@@ -228,6 +267,7 @@ void main() {
       expect(toolbar, findsNothing);
 
       /// show toolbar again
+      await tester.editor.tapLineOfEditorAt(0);
       await selectText(tester, text);
       await tester.tapButton(linkButton);
 

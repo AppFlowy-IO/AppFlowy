@@ -16,6 +16,8 @@ const double _kMinimumWidth = 112.0;
 
 const double _kDefaultHorizontalPadding = 12.0;
 
+typedef CompareFunction<T> = bool Function(T? left, T? right);
+
 // Navigation shortcuts to move the selected menu items up or down.
 final Map<ShortcutActivator, Intent> _kMenuTraversalShortcuts =
     <ShortcutActivator, Intent>{
@@ -86,6 +88,7 @@ class AFDropdownMenu<T> extends StatefulWidget {
     this.requestFocusOnTap,
     this.expandedInsets,
     this.searchCallback,
+    this.selectOptionCompare,
     required this.dropdownMenuEntries,
   });
 
@@ -267,6 +270,11 @@ class AFDropdownMenu<T> extends StatefulWidget {
   /// which contains the contents of the text input field.
   final SearchCallback<T>? searchCallback;
 
+  /// Defines the compare function for the menu items.
+  ///
+  /// Defaults to null. If this is null, the menu items will be sorted by the label.
+  final CompareFunction<T>? selectOptionCompare;
+
   @override
   State<AFDropdownMenu<T>> createState() => _AFDropdownMenuState<T>();
 }
@@ -301,7 +309,16 @@ class _AFDropdownMenuState<T> extends State<AFDropdownMenu<T>> {
         filteredEntries.any((DropdownMenuEntry<T> entry) => entry.enabled);
 
     final int index = filteredEntries.indexWhere(
-      (DropdownMenuEntry<T> entry) => entry.value == widget.initialSelection,
+      (DropdownMenuEntry<T> entry) {
+        if (widget.selectOptionCompare != null) {
+          return widget.selectOptionCompare!(
+            entry.value,
+            widget.initialSelection,
+          );
+        } else {
+          return entry.value == widget.initialSelection;
+        }
+      },
     );
     if (index != -1) {
       _textEditingController.value = TextEditingValue(
