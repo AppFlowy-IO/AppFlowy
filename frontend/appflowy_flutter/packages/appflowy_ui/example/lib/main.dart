@@ -29,6 +29,7 @@ class MyApp extends StatelessWidget {
               ? AppFlowyThemeData.light()
               : AppFlowyThemeData.dark(),
           child: MaterialApp(
+            debugShowCheckedModeBanner: false,
             title: 'AppFlowy UI Example',
             theme: themeMode == ThemeMode.light
                 ? ThemeData.light()

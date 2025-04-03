@@ -1,5 +1,4 @@
-import 'package:appflowy/theme/component/component.dart';
-import 'package:appflowy/theme/theme.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flutter/material.dart';
 
 class ContinueWithEmail extends StatelessWidget {
