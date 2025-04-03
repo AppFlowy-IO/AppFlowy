@@ -13,7 +13,7 @@ use client_api::entity::workspace_dto::{
 };
 use client_api::entity::{
   AFRole, AFWorkspace, AFWorkspaceInvitation, AFWorkspaceSettings, AFWorkspaceSettingsChange,
-  AuthProvider, CollabParams, CreateCollabParams, QueryWorkspaceMember,
+  AuthProvider, CollabParams, CreateCollabParams, GotrueTokenResponse, QueryWorkspaceMember,
 };
 use client_api::entity::{QueryCollab, QueryCollabParams};
 use client_api::{Client, ClientConfiguration};
@@ -145,6 +145,19 @@ where
       .sign_in_with_magic_link(&email, Some(redirect_to))
       .await?;
     Ok(())
+  }
+
+  async fn sign_in_with_passcode(
+    &self,
+    email: &str,
+    passcode: &str,
+  ) -> Result<GotrueTokenResponse, FlowyError> {
+    let email = email.to_owned();
+    let passcode = passcode.to_owned();
+    let try_get_client = self.server.try_get_client();
+    let client = try_get_client?;
+    let response = client.sign_in_with_passcode(&email, &passcode).await?;
+    Ok(response)
   }
 
   async fn generate_oauth_url_with_provider(&self, provider: &str) -> Result<String, FlowyError> {

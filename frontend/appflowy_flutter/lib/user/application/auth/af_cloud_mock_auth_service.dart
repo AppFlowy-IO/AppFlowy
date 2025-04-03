@@ -106,4 +106,12 @@ class AppFlowyCloudMockAuthService implements AuthService {
   Future<FlowyResult<UserProfilePB, FlowyError>> getUser() async {
     return UserBackendService.getCurrentUserProfile();
   }
+
+  @override
+  Future<FlowyResult<GotrueTokenResponsePB, FlowyError>> signInWithPasscode({
+    required String email,
+    required String passcode,
+  }) async {
+    throw UnimplementedError();
+  }
 }

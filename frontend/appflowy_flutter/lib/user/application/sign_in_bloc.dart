@@ -31,11 +31,20 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       (event, emit) async {
         await event.when(
           signedInWithUserEmailAndPassword: () async => _onSignIn(emit),
-          signedInWithOAuth: (platform) async =>
-              _onSignInWithOAuth(emit, platform),
+          signedInWithOAuth: (platform) async => _onSignInWithOAuth(
+            emit,
+            platform,
+          ),
           signedInAsGuest: () async => _onSignInAsGuest(emit),
-          signedWithMagicLink: (email) async =>
-              _onSignInWithMagicLink(emit, email),
+          signedWithMagicLink: (email) async => _onSignInWithMagicLink(
+            emit,
+            email,
+          ),
+          signInWithPasscode: (email, passcode) async => _onSignInWithPasscode(
+            emit,
+            email,
+            passcode,
+          ),
           deepLinkStateChange: (result) => _onDeepLinkStateChange(emit, result),
           cancel: () {
             emit(
@@ -183,6 +192,32 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     );
   }
 
+  Future<void> _onSignInWithPasscode(
+    Emitter<SignInState> emit,
+    String email,
+    String passcode,
+  ) async {
+    emit(
+      state.copyWith(
+        isSubmitting: true,
+        emailError: null,
+        passwordError: null,
+        successOrFail: null,
+      ),
+    );
+
+    final result = await authService.signInWithPasscode(
+      email: email,
+      passcode: passcode,
+    );
+    emit(
+      result.fold(
+        (userProfile) => state.copyWith(isSubmitting: false),
+        (error) => _stateFromCode(error),
+      ),
+    );
+  }
+
   Future<void> _onSignInAsGuest(
     Emitter<SignInState> emit,
   ) async {
@@ -254,8 +289,10 @@ class SignInEvent with _$SignInEvent {
   const factory SignInEvent.passwordChanged(String password) = PasswordChanged;
   const factory SignInEvent.deepLinkStateChange(DeepLinkResult result) =
       DeepLinkStateChange;
-  const factory SignInEvent.cancel() = _Cancel;
-  const factory SignInEvent.switchLoginType(LoginType type) = _SwitchLoginType;
+  const factory SignInEvent.signInWithPasscode(String email, String passcode) =
+      SignInWithPasscode;
+  const factory SignInEvent.cancel() = Cancel;
+  const factory SignInEvent.switchLoginType(LoginType type) = SwitchLoginType;
 }
 
 // we support sign in directly without sign up, but we want to allow the users to sign up if they want to

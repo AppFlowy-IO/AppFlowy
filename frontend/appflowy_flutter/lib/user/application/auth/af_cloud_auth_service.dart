@@ -107,6 +107,17 @@ class AppFlowyCloudAuthService implements AuthService {
   }
 
   @override
+  Future<FlowyResult<GotrueTokenResponsePB, FlowyError>> signInWithPasscode({
+    required String email,
+    required String passcode,
+  }) async {
+    return _backendAuthService.signInWithPasscode(
+      email: email,
+      passcode: passcode,
+    );
+  }
+
+  @override
   Future<FlowyResult<UserProfilePB, FlowyError>> getUser() async {
     return UserBackendService.getCurrentUserProfile();
   }

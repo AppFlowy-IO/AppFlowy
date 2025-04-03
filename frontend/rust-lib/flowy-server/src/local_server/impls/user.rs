@@ -1,3 +1,4 @@
+use client_api::entity::GotrueTokenResponse;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
 use collab_entity::CollabObject;
@@ -106,6 +107,14 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     _email: &str,
     _redirect_to: &str,
   ) -> Result<(), FlowyError> {
+    Err(FlowyError::local_version_not_support().with_context("Not support"))
+  }
+
+  async fn sign_in_with_passcode(
+    &self,
+    _email: &str,
+    _passcode: &str,
+  ) -> Result<GotrueTokenResponse, FlowyError> {
     Err(FlowyError::local_version_not_support().with_context("Not support"))
   }
 

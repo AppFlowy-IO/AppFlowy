@@ -31,6 +31,7 @@ class _ContinueWithMagicLinkOrPasscodeState
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Logo, title and description
               ..._buildLogoTitleAndDescription(),
 
               // Enter code manually

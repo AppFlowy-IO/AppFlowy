@@ -318,6 +318,19 @@ pub async fn sign_in_with_magic_link_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub async fn sign_in_with_passcode_handler(
+  data: AFPluginData<PasscodeSignInPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<GotrueTokenResponsePB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params = data.into_inner();
+  let response = manager
+    .sign_in_with_passcode(&params.email, &params.passcode)
+    .await?;
+  data_result_ok(response.into())
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub async fn oauth_sign_in_handler(
   data: AFPluginData<OauthSignInPB>,
   manager: AFPluginState<Weak<UserManager>>,

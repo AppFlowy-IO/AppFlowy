@@ -81,7 +81,7 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::UpdateWorkspaceSetting, update_workspace_setting)
     .event(UserEvent::GetWorkspaceSetting, get_workspace_setting)
     .event(UserEvent::NotifyDidSwitchPlan, notify_did_switch_plan_handler)
-
+    .event(UserEvent::PasscodeSignIn, sign_in_with_passcode_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -278,6 +278,9 @@ pub enum UserEvent {
 
   #[event()]
   DeleteAccount = 64,
+
+  #[event(input = "PasscodeSignInPB", output = "GotrueTokenResponsePB")]
+  PasscodeSignIn = 65,
 }
 
 #[async_trait]
