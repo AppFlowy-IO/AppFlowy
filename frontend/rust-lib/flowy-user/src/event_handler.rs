@@ -39,14 +39,16 @@ fn upgrade_store_preferences(
 pub async fn sign_in_with_email_password_handler(
   data: AFPluginData<SignInPayloadPB>,
   manager: AFPluginState<Weak<UserManager>>,
-) -> DataResult<UserProfilePB, FlowyError> {
+) -> DataResult<GotrueTokenResponsePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params: SignInParams = data.into_inner().try_into()?;
-  let auth_type = params.auth_type.clone();
 
   let old_authenticator = manager.cloud_services.get_user_authenticator();
-  match manager.sign_in(params, auth_type).await {
-    Ok(profile) => data_result_ok(UserProfilePB::from(profile)),
+  match manager
+    .sign_in_with_password(&params.email, &params.password)
+    .await
+  {
+    Ok(token) => data_result_ok(token.into()),
     Err(err) => {
       manager
         .cloud_services
@@ -315,6 +317,19 @@ pub async fn sign_in_with_magic_link_handler(
     .sign_in_with_magic_link(&params.email, &params.redirect_to)
     .await?;
   Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub async fn sign_in_with_passcode_handler(
+  data: AFPluginData<PasscodeSignInPB>,
+  manager: AFPluginState<Weak<UserManager>>,
+) -> DataResult<GotrueTokenResponsePB, FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let params = data.into_inner();
+  let response = manager
+    .sign_in_with_passcode(&params.email, &params.passcode)
+    .await?;
+  data_result_ok(response.into())
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]

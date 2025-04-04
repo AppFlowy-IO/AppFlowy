@@ -37,7 +37,7 @@ class MobileSignInScreen extends StatelessWidget {
                 const VSpace(spacing * 2),
                 isLocalAuthEnabled
                     ? const SignInAnonymousButtonV3()
-                    : const SignInWithMagicLinkButtons(),
+                    : const ContinueWithEmailAndPassword(),
                 const VSpace(spacing),
                 if (isAuthEnabled) _buildThirdPartySignInButtons(colorScheme),
                 const VSpace(spacing * 1.5),

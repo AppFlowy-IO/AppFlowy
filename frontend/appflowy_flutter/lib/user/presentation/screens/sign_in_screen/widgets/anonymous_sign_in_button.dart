@@ -34,7 +34,7 @@ class SignInAnonymousButtonV3 extends StatelessWidget {
                     ? () {
                         context
                             .read<SignInBloc>()
-                            .add(const SignInEvent.signedInAsGuest());
+                            .add(const SignInEvent.signInAsGuest());
                       }
                     : () {
                         final bloc = context.read<AnonUserBloc>();
