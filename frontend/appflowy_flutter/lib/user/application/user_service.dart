@@ -86,6 +86,15 @@ class UserBackendService implements IUserBackendService {
     return UserEventMagicLinkSignIn(payload).send();
   }
 
+  static Future<FlowyResult<GotrueTokenResponsePB, FlowyError>>
+      signInWithPasscode(
+    String email,
+    String passcode,
+  ) async {
+    final payload = PasscodeSignInPB(email: email, passcode: passcode);
+    return UserEventPasscodeSignIn(payload).send();
+  }
+
   static Future<FlowyResult<void, FlowyError>> signOut() {
     return UserEventSignOut().send();
   }

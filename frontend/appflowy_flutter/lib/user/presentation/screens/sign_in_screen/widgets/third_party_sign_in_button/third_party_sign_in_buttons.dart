@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +41,7 @@ class ThirdPartySignInButtons extends StatelessWidget {
 
   void _signIn(BuildContext context, String provider) {
     context.read<SignInBloc>().add(
-          SignInEvent.signedInWithOAuth(provider),
+          SignInEvent.signInWithOAuth(platform: provider),
         );
   }
 }
@@ -58,23 +59,22 @@ class _DesktopThirdPartySignIn extends StatefulWidget {
 }
 
 class _DesktopThirdPartySignInState extends State<_DesktopThirdPartySignIn> {
-  static const padding = 12.0;
-
   bool isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
     return Column(
       children: [
-        DesktopSignInButton(
+        DesktopThirdPartySignInButton(
           key: signInWithGoogleButtonKey,
           type: ThirdPartySignInButtonType.google,
-          onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.google),
+          onTap: () => widget.onSignIn(ThirdPartySignInButtonType.google),
         ),
-        const VSpace(padding),
-        DesktopSignInButton(
+        VSpace(theme.spacing.l),
+        DesktopThirdPartySignInButton(
           type: ThirdPartySignInButtonType.apple,
-          onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.apple),
+          onTap: () => widget.onSignIn(ThirdPartySignInButtonType.apple),
         ),
         ...isExpanded ? _buildExpandedButtons() : _buildCollapsedButtons(),
       ],
@@ -82,38 +82,35 @@ class _DesktopThirdPartySignInState extends State<_DesktopThirdPartySignIn> {
   }
 
   List<Widget> _buildExpandedButtons() {
+    final theme = AppFlowyTheme.of(context);
     return [
-      const VSpace(padding * 1.5),
-      DesktopSignInButton(
+      VSpace(theme.spacing.l),
+      DesktopThirdPartySignInButton(
         type: ThirdPartySignInButtonType.github,
-        onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.github),
+        onTap: () => widget.onSignIn(ThirdPartySignInButtonType.github),
       ),
-      const VSpace(padding),
-      DesktopSignInButton(
+      VSpace(theme.spacing.l),
+      DesktopThirdPartySignInButton(
         type: ThirdPartySignInButtonType.discord,
-        onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.discord),
+        onTap: () => widget.onSignIn(ThirdPartySignInButtonType.discord),
       ),
     ];
   }
 
   List<Widget> _buildCollapsedButtons() {
+    final theme = AppFlowyTheme.of(context);
     return [
-      const VSpace(padding),
-      MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: () {
-            setState(() {
-              isExpanded = !isExpanded;
-            });
-          },
-          child: FlowyText(
-            LocaleKeys.signIn_continueAnotherWay.tr(),
-            color: Theme.of(context).colorScheme.onSurface,
-            decoration: TextDecoration.underline,
-            fontSize: 14,
-          ),
-        ),
+      VSpace(theme.spacing.l),
+      AFGhostTextButton(
+        text: 'More options',
+        textColor: (context, isHovering, disabled) {
+          return theme.textColorScheme.theme;
+        },
+        onTap: () {
+          setState(() {
+            isExpanded = !isExpanded;
+          });
+        },
       ),
     ];
   }
@@ -153,14 +150,14 @@ class _MobileThirdPartySignInState extends State<_MobileThirdPartySignIn> {
         if (Platform.isIOS) ...[
           MobileThirdPartySignInButton(
             type: ThirdPartySignInButtonType.apple,
-            onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.apple),
+            onTap: () => widget.onSignIn(ThirdPartySignInButtonType.apple),
           ),
           const VSpace(padding),
         ],
         MobileThirdPartySignInButton(
           key: signInWithGoogleButtonKey,
           type: ThirdPartySignInButtonType.google,
-          onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.google),
+          onTap: () => widget.onSignIn(ThirdPartySignInButtonType.google),
         ),
         ...isExpanded ? _buildExpandedButtons() : _buildCollapsedButtons(),
       ],
@@ -172,12 +169,12 @@ class _MobileThirdPartySignInState extends State<_MobileThirdPartySignIn> {
       const VSpace(padding),
       MobileThirdPartySignInButton(
         type: ThirdPartySignInButtonType.github,
-        onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.github),
+        onTap: () => widget.onSignIn(ThirdPartySignInButtonType.github),
       ),
       const VSpace(padding),
       MobileThirdPartySignInButton(
         type: ThirdPartySignInButtonType.discord,
-        onPressed: () => widget.onSignIn(ThirdPartySignInButtonType.discord),
+        onTap: () => widget.onSignIn(ThirdPartySignInButtonType.discord),
       ),
     ];
   }

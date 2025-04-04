@@ -9,7 +9,7 @@ AppFlowy UI is a Flutter package that provides a collection of reusable UI compo
 
 ## Installation
 
-Add the following to your *app's* `pubspec.yaml` file:
+Add the following to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:

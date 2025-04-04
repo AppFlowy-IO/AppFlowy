@@ -83,6 +83,13 @@ class AppFlowyCloudDeepLink {
   void unsubscribeDeepLinkLoadingState(VoidCallback listener) =>
       _stateNotifier?.removeListener(listener);
 
+  Future<void> passGotrueTokenResponse(
+    GotrueTokenResponsePB gotrueTokenResponse,
+  ) async {
+    final uri = _buildDeepLinkUri(gotrueTokenResponse);
+    await _handleUri(uri);
+  }
+
   Future<void> _handleUri(
     Uri? uri,
   ) async {
@@ -172,6 +179,57 @@ class AppFlowyCloudDeepLink {
 
   bool _isPaymentSuccessUri(Uri uri) {
     return uri.host == 'payment-success';
+  }
+
+  Uri? _buildDeepLinkUri(GotrueTokenResponsePB gotrueTokenResponse) {
+    final params = <String, String>{};
+
+    if (gotrueTokenResponse.hasAccessToken() &&
+        gotrueTokenResponse.accessToken.isNotEmpty) {
+      params['access_token'] = gotrueTokenResponse.accessToken;
+    }
+
+    if (gotrueTokenResponse.hasExpiresAt()) {
+      params['expires_at'] = gotrueTokenResponse.expiresAt.toString();
+    }
+
+    if (gotrueTokenResponse.hasExpiresIn()) {
+      params['expires_in'] = gotrueTokenResponse.expiresIn.toString();
+    }
+
+    if (gotrueTokenResponse.hasProviderRefreshToken() &&
+        gotrueTokenResponse.providerRefreshToken.isNotEmpty) {
+      params['provider_refresh_token'] =
+          gotrueTokenResponse.providerRefreshToken;
+    }
+
+    if (gotrueTokenResponse.hasProviderAccessToken() &&
+        gotrueTokenResponse.providerAccessToken.isNotEmpty) {
+      params['provider_token'] = gotrueTokenResponse.providerAccessToken;
+    }
+
+    if (gotrueTokenResponse.hasRefreshToken() &&
+        gotrueTokenResponse.refreshToken.isNotEmpty) {
+      params['refresh_token'] = gotrueTokenResponse.refreshToken;
+    }
+
+    if (gotrueTokenResponse.hasTokenType() &&
+        gotrueTokenResponse.tokenType.isNotEmpty) {
+      params['token_type'] = gotrueTokenResponse.tokenType;
+    }
+
+    if (params.isEmpty) {
+      return null;
+    }
+
+    final fragment = params.entries
+        .map(
+          (e) =>
+              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+        )
+        .join('&');
+
+    return Uri.parse('appflowy-flutter://login-callback#$fragment');
   }
 }
 

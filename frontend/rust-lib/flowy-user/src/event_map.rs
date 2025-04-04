@@ -81,7 +81,7 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
     .event(UserEvent::UpdateWorkspaceSetting, update_workspace_setting)
     .event(UserEvent::GetWorkspaceSetting, get_workspace_setting)
     .event(UserEvent::NotifyDidSwitchPlan, notify_did_switch_plan_handler)
-
+    .event(UserEvent::PasscodeSignIn, sign_in_with_passcode_handler)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -89,7 +89,7 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
 pub enum UserEvent {
   /// Only use when the [Authenticator] is Local or SelfHosted
   /// Logging into an account using a register email and password
-  #[event(input = "SignInPayloadPB", output = "UserProfilePB")]
+  #[event(input = "SignInPayloadPB", output = "GotrueTokenResponsePB")]
   SignInWithEmailPassword = 0,
 
   /// Only use when the [Authenticator] is Local or SelfHosted
@@ -278,6 +278,9 @@ pub enum UserEvent {
 
   #[event()]
   DeleteAccount = 64,
+
+  #[event(input = "PasscodeSignInPB", output = "GotrueTokenResponsePB")]
+  PasscodeSignIn = 65,
 }
 
 #[async_trait]

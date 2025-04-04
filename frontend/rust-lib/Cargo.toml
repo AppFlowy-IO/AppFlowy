@@ -103,8 +103,8 @@ dashmap = "6.0.1"
 # Run the script.add_workspace_members:
 # scripts/tool/update_client_api_rev.sh  new_rev_id
 # ⚠️⚠️⚠️️
-client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "f7288f46c27dc8e3c7829cda1b70b61118e88336" }
-client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "f7288f46c27dc8e3c7829cda1b70b61118e88336" }
+client-api = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "02315b1e11b9c2b6f71a503b7844a94f9787e31a" }
+client-api-entity = { git = "https://github.com/AppFlowy-IO/AppFlowy-Cloud", rev = "02315b1e11b9c2b6f71a503b7844a94f9787e31a" }
 
 [profile.dev]
 opt-level = 0

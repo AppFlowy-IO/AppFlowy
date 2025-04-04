@@ -8,7 +8,7 @@ class AuthFormContainer extends StatelessWidget {
 
   final List<Widget> children;
 
-  static const double width = 340;
+  static const double width = 320;
 
   @override
   Widget build(BuildContext context) {

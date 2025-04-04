@@ -4,6 +4,7 @@ use client_api::entity::billing_dto::SubscriptionPlanDetail;
 pub use client_api::entity::billing_dto::SubscriptionStatus;
 use client_api::entity::billing_dto::WorkspaceSubscriptionStatus;
 use client_api::entity::billing_dto::WorkspaceUsageAndLimit;
+use client_api::entity::GotrueTokenResponse;
 pub use client_api::entity::{AFWorkspaceSettings, AFWorkspaceSettingsChange};
 use collab_entity::{CollabObject, CollabType};
 use flowy_error::{internal_error, ErrorCode, FlowyError};
@@ -148,10 +149,16 @@ pub trait UserCloudService: Send + Sync + 'static {
     &self,
     email: &str,
     password: &str,
-  ) -> Result<UserProfile, FlowyError>;
+  ) -> Result<GotrueTokenResponse, FlowyError>;
 
   async fn sign_in_with_magic_link(&self, email: &str, redirect_to: &str)
     -> Result<(), FlowyError>;
+
+  async fn sign_in_with_passcode(
+    &self,
+    email: &str,
+    passcode: &str,
+  ) -> Result<GotrueTokenResponse, FlowyError>;
 
   /// When the user opens the OAuth URL, it redirects to the corresponding provider's OAuth web page.
   /// After the user is authenticated, the browser will open a deep link to the AppFlowy app (iOS, macOS, etc.),
