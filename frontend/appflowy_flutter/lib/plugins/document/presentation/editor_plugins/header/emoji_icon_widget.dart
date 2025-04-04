@@ -8,6 +8,7 @@ import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/user/application/user_service.dart';
 import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_svg/flowy_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:string_validator/string_validator.dart';
@@ -113,24 +114,21 @@ class _RawEmojiIconWidgetState extends State<RawEmojiIconWidget> {
     try {
       switch (widget.emoji.type) {
         case FlowyIconType.emoji:
-          return EmojiText(
-            emoji: widget.emoji.emoji,
+          return FlowyText.emoji(
+            widget.emoji.emoji,
             fontSize: widget.emojiSize,
             textAlign: TextAlign.justify,
             lineHeight: widget.lineHeight,
           );
         case FlowyIconType.icon:
-          IconsData iconData =
-              IconsData.fromJson(jsonDecode(widget.emoji.emoji));
+          IconsData iconData = IconsData.fromJson(
+            jsonDecode(widget.emoji.emoji),
+          );
           if (!widget.enableColor) {
             iconData = iconData.noColor();
           }
 
-          /// Under the same width conditions, icons on macOS seem to appear
-          /// larger than emojis, so 0.9 is used here to slightly reduce the
-          /// size of the icons
-          final iconSize =
-              Platform.isMacOS ? widget.emojiSize * 0.9 : widget.emojiSize;
+          final iconSize = widget.emojiSize;
           return IconWidget(
             iconsData: iconData,
             size: iconSize,

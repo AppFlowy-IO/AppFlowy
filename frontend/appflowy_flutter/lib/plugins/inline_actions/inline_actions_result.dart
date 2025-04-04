@@ -12,13 +12,13 @@ typedef SelectItemHandler = void Function(
 class InlineActionsMenuItem {
   InlineActionsMenuItem({
     required this.label,
-    this.icon,
+    this.iconBuilder,
     this.keywords,
     this.onSelected,
   });
 
   final String label;
-  final Widget Function(bool onSelected)? icon;
+  final Widget Function(bool onSelected)? iconBuilder;
   final List<String>? keywords;
   final SelectItemHandler? onSelected;
 }
