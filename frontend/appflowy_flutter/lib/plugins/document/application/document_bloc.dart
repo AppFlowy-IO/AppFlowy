@@ -271,8 +271,10 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           return;
         }
 
-        if (options.inMemoryUpdate && enableDocumentInternalLog) {
-          Log.trace('skip transaction for in-memory update');
+        if (options.inMemoryUpdate) {
+          if (enableDocumentInternalLog) {
+            Log.trace('skip transaction for in-memory update');
+          }
           return;
         }
 

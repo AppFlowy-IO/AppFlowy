@@ -369,9 +369,6 @@ pub(crate) async fn update_local_ai_setting_handler(
 ) -> Result<(), FlowyError> {
   let data = data.try_into_inner()?;
   let ai_manager = upgrade_ai_manager(ai_manager)?;
-  ai_manager
-    .local_ai
-    .update_local_ai_setting(data.into())
-    .await?;
+  ai_manager.update_local_ai_setting(data.into()).await?;
   Ok(())
 }
