@@ -39,7 +39,7 @@ pub fn af_cloud_server(config: AFCloudConfiguration) -> Arc<AppFlowyCloudServer>
 
 struct FakeServerUserImpl;
 impl ServerUser for FakeServerUserImpl {
-  fn workspace_id(&self) -> FlowyResult<String> {
+  fn workspace_id(&self) -> FlowyResult<Uuid> {
     todo!()
   }
 }

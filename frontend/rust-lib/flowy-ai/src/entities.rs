@@ -1,8 +1,6 @@
-use af_plugin::core::plugin::RunningState;
-use std::collections::HashMap;
-
 use crate::local_ai::controller::LocalAISetting;
 use crate::local_ai::resource::PendingResource;
+use af_plugin::core::plugin::RunningState;
 use flowy_ai_pub::cloud::{
   AIModel, ChatMessage, ChatMessageMetadata, ChatMessageType, CompletionMessage, LLMModel,
   OutputContent, OutputLayout, RelatedQuestion, RepeatedChatMessage, RepeatedRelatedQuestion,
@@ -10,6 +8,8 @@ use flowy_ai_pub::cloud::{
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use lib_infra::validator_fn::required_not_empty_str;
+use std::collections::HashMap;
+use uuid::Uuid;
 use validator::Validate;
 
 #[derive(Default, ProtoBuf, Validate, Clone, Debug)]
@@ -78,7 +78,7 @@ pub struct StreamChatPayloadPB {
 
 #[derive(Default, Debug)]
 pub struct StreamMessageParams {
-  pub chat_id: String,
+  pub chat_id: Uuid,
   pub message: String,
   pub message_type: ChatMessageType,
   pub answer_stream_port: i64,

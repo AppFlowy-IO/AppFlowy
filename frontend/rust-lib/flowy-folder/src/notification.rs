@@ -1,6 +1,7 @@
 use flowy_derive::ProtoBuf_Enum;
 use flowy_notification::NotificationBuilder;
 use lib_dispatch::prelude::ToBytes;
+use tracing::trace;
 
 const FOLDER_OBSERVABLE_SOURCE: &str = "Workspace";
 
@@ -68,9 +69,14 @@ impl std::convert::From<i32> for FolderNotification {
   }
 }
 
-#[tracing::instrument(level = "trace")]
-pub(crate) fn folder_notification_builder(id: &str, ty: FolderNotification) -> NotificationBuilder {
-  NotificationBuilder::new(id, ty, FOLDER_OBSERVABLE_SOURCE)
+#[tracing::instrument(level = "trace", skip_all)]
+pub(crate) fn folder_notification_builder<T: ToString>(
+  id: T,
+  ty: FolderNotification,
+) -> NotificationBuilder {
+  let id = id.to_string();
+  trace!("folder_notification_builder: id = {id}, ty = {ty:?}");
+  NotificationBuilder::new(&id, ty, FOLDER_OBSERVABLE_SOURCE)
 }
 
 /// The [CURRENT_WORKSPACE] represents as the current workspace that opened by the

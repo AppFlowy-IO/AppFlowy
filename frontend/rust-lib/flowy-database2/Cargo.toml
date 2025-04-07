@@ -51,6 +51,7 @@ strum_macros = "0.25"
 validator = { workspace = true, features = ["derive"] }
 tokio-util.workspace = true
 moka = { version = "0.12.8", features = ["future"] }
+uuid.workspace = true
 
 [dev-dependencies]
 event-integration-test = { path = "../event-integration-test", default-features = false }

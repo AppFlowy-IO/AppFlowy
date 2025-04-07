@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
+use uuid::Uuid;
 use validator::Validate;
 
 #[derive(Default, ProtoBuf)]
@@ -96,7 +97,7 @@ pub struct ParseType {
 }
 
 pub struct ConvertDocumentParams {
-  pub document_id: String,
+  pub document_id: Uuid,
   pub range: Option<Range>,
   pub parse_types: ParseType,
 }
@@ -140,10 +141,11 @@ impl TryInto<ConvertDocumentParams> for ConvertDocumentPayloadPB {
   fn try_into(self) -> Result<ConvertDocumentParams, Self::Error> {
     let document_id =
       NotEmptyStr::parse(self.document_id).map_err(|_| ErrorCode::DocumentIdIsEmpty)?;
+    let document_id = Uuid::parse_str(&document_id.0).map_err(|_| ErrorCode::InvalidParams)?;
     let range = self.range.map(|data| data.into());
 
     Ok(ConvertDocumentParams {
-      document_id: document_id.0,
+      document_id,
       range,
       parse_types: self.parse_types.into(),
     })
