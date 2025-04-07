@@ -315,7 +315,7 @@ script_runner = "@shell"
 script = [
   """
   cd appflowy_flutter
-  dart run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
+  dart run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en-US.json
   dart run build_runner build -d
   """,
 ]
@@ -325,7 +325,7 @@ script_runner = "@duckscript"
 script = [
   """
   cd ./appflowy_flutter/
-  exec cmd.exe /c dart run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
+  exec cmd.exe /c dart run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en-US.json
   exec cmd.exe /c dart run build_runner build -d
   """,
 ]
