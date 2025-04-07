@@ -3,7 +3,7 @@
  * as well as performing actions on documents. These functions make use of a DocumentManager,
  * which you can think of as a higher-level interface to interact with documents.
  */
-
+use std::str::FromStr;
 use std::sync::{Arc, Weak};
 
 use collab_document::blocks::{
@@ -23,6 +23,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use lib_dispatch::prelude::{data_result_ok, AFPluginData, AFPluginState, DataResult};
 use lib_infra::sync_trace;
 use tracing::instrument;
+use uuid::Uuid;
 
 fn upgrade_document(
   document_manager: AFPluginState<Weak<DocumentManager>>,
@@ -496,7 +497,7 @@ pub(crate) async fn set_awareness_local_state_handler(
 ) -> FlowyResult<()> {
   let manager = upgrade_document(manager)?;
   let data = data.into_inner();
-  let doc_id = data.document_id.clone();
+  let doc_id = Uuid::from_str(&data.document_id)?;
   manager
     .set_document_awareness_local_state(&doc_id, data)
     .await?;

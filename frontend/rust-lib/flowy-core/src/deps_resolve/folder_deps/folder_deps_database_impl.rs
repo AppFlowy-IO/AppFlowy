@@ -19,23 +19,31 @@ use lib_infra::async_trait::async_trait;
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;
+use uuid::Uuid;
 
 pub struct DatabaseFolderOperation(pub Arc<DatabaseManager>);
 
 #[async_trait]
 impl FolderOperationHandler for DatabaseFolderOperation {
-  async fn open_view(&self, view_id: &str) -> Result<(), FlowyError> {
+  async fn open_view(&self, view_id: &Uuid) -> Result<(), FlowyError> {
     self.0.open_database_view(view_id).await?;
     Ok(())
   }
 
-  async fn close_view(&self, view_id: &str) -> Result<(), FlowyError> {
-    self.0.close_database_view(view_id).await?;
+  async fn close_view(&self, view_id: &Uuid) -> Result<(), FlowyError> {
+    self
+      .0
+      .close_database_view(view_id.to_string().as_str())
+      .await?;
     Ok(())
   }
 
-  async fn delete_view(&self, view_id: &str) -> Result<(), FlowyError> {
-    match self.0.delete_database_view(view_id).await {
+  async fn delete_view(&self, view_id: &Uuid) -> Result<(), FlowyError> {
+    match self
+      .0
+      .delete_database_view(view_id.to_string().as_str())
+      .await
+    {
       Ok(_) => tracing::trace!("Delete database view: {}", view_id),
       Err(e) => tracing::error!("🔴delete database failed: {}", e),
     }
@@ -44,19 +52,23 @@ impl FolderOperationHandler for DatabaseFolderOperation {
 
   async fn gather_publish_encode_collab(
     &self,
-    user: &Arc<dyn FolderUser>,
-    view_id: &str,
+    _user: &Arc<dyn FolderUser>,
+    view_id: &Uuid,
   ) -> Result<GatherEncodedCollab, FlowyError> {
-    let workspace_id = user.workspace_id()?;
+    let workspace_id = _user.workspace_id()?;
+    let view_id_str = view_id.to_string();
     // get the collab_object_id for the database.
     //
     // the collab object_id for the database is not the view_id,
     //  we should use the view_id to get the database_id
-    let oid = self.0.get_database_id_with_view_id(view_id).await?;
-    let row_oids = self.0.get_database_row_ids_with_view_id(view_id).await?;
+    let oid = self.0.get_database_id_with_view_id(&view_id_str).await?;
+    let row_oids = self
+      .0
+      .get_database_row_ids_with_view_id(&view_id_str)
+      .await?;
     let row_metas = self
       .0
-      .get_database_row_metas_with_view_id(view_id, row_oids.clone())
+      .get_database_row_metas_with_view_id(&view_id, row_oids.clone())
       .await?;
     let row_document_ids = row_metas
       .iter()
@@ -68,12 +80,12 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       .collect::<Vec<_>>();
     let database_metas = self.0.get_all_databases_meta().await;
 
-    let uid = user
+    let uid = _user
       .user_id()
       .map_err(|e| e.with_context("unable to get the uid: {}"))?;
 
     // get the collab db
-    let collab_db = user
+    let collab_db = _user
       .collab_db(uid)
       .map_err(|e| e.with_context("unable to get the collab"))?;
     let collab_db = collab_db.upgrade().ok_or_else(|| {
@@ -84,7 +96,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
 
     tokio::task::spawn_blocking(move || {
             let collab_read_txn = collab_db.read_txn();
-            let database_collab = load_collab_by_object_id(uid, &collab_read_txn, &workspace_id, &oid)
+            let database_collab = load_collab_by_object_id(uid, &collab_read_txn, &workspace_id.to_string(), &oid)
                 .map_err(|e| {
                     FlowyError::internal().with_context(format!("load database collab failed: {}", e))
                 })?;
@@ -97,7 +109,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
                 })?;
 
             let database_row_encoded_collabs =
-                load_collab_by_object_ids(uid, &workspace_id, &collab_read_txn, &row_oids)
+                load_collab_by_object_ids(uid, &workspace_id.to_string(), &collab_read_txn, &row_oids)
                     .0
                     .into_iter()
                     .map(|(oid, collab)| {
@@ -123,7 +135,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
                 .collect::<HashMap<_, _>>();
 
             let database_row_document_encoded_collabs =
-                load_collab_by_object_ids(uid, &workspace_id, &collab_read_txn, &row_document_ids)
+                load_collab_by_object_ids(uid, &workspace_id.to_string(), &collab_read_txn, &row_document_ids)
                     .0
                     .into_iter()
                     .map(|(oid, collab)| {
@@ -147,7 +159,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
             .await?
   }
 
-  async fn duplicate_view(&self, view_id: &str) -> Result<Bytes, FlowyError> {
+  async fn duplicate_view(&self, view_id: &Uuid) -> Result<Bytes, FlowyError> {
     Ok(Bytes::from(view_id.to_string()))
   }
 
@@ -166,14 +178,14 @@ impl FolderOperationHandler for DatabaseFolderOperation {
             String::from_utf8(data.to_vec()).map_err(|_| FlowyError::invalid_data())?;
           let encoded_collab = self
             .0
-            .duplicate_database(&duplicated_view_id, &params.view_id)
+            .duplicate_database(&duplicated_view_id, &params.view_id.to_string())
             .await?;
           Ok(Some(encoded_collab))
         },
         ViewData::Data(data) => {
           let encoded_collab = self
             .0
-            .create_database_with_data(&params.view_id, data.to_vec())
+            .create_database_with_data(&params.view_id.to_string(), data.to_vec())
             .await?;
           Ok(Some(encoded_collab))
         },
@@ -212,17 +224,18 @@ impl FolderOperationHandler for DatabaseFolderOperation {
   /// these references views.
   async fn create_default_view(
     &self,
-    _user_id: i64,
-    _parent_view_id: &str,
-    view_id: &str,
+    user_id: i64,
+    parent_view_id: &Uuid,
+    view_id: &Uuid,
     name: &str,
     layout: ViewLayout,
   ) -> Result<(), FlowyError> {
     let name = name.to_string();
+    let view_id = view_id.to_string();
     let data = match layout {
-      ViewLayout::Grid => make_default_grid(view_id, &name),
-      ViewLayout::Board => make_default_board(view_id, &name),
-      ViewLayout::Calendar => make_default_calendar(view_id, &name),
+      ViewLayout::Grid => make_default_grid(&view_id, &name),
+      ViewLayout::Board => make_default_board(&view_id, &name),
+      ViewLayout::Calendar => make_default_calendar(&view_id, &name),
       ViewLayout::Document | ViewLayout::Chat => {
         return Err(
           FlowyError::internal().with_context(format!("Can't handle {:?} layout type", layout)),
@@ -244,9 +257,9 @@ impl FolderOperationHandler for DatabaseFolderOperation {
 
   async fn import_from_bytes(
     &self,
-    _uid: i64,
-    view_id: &str,
-    _name: &str,
+    uid: i64,
+    view_id: &Uuid,
+    name: &str,
     import_type: ImportType,
     bytes: Vec<u8>,
   ) -> Result<Vec<ImportedData>, FlowyError> {

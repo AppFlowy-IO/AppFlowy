@@ -1,3 +1,4 @@
+use crate::user_event::TestNotificationSender;
 use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
@@ -15,14 +16,14 @@ use nanoid::nanoid;
 use semver::Version;
 use std::env::temp_dir;
 use std::path::PathBuf;
+use std::str::FromStr;
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::select;
 use tokio::task::LocalSet;
 use tokio::time::sleep;
-
-use crate::user_event::TestNotificationSender;
+use uuid::Uuid;
 
 mod chat_event;
 pub mod database_event;
@@ -145,10 +146,16 @@ impl EventIntegrationTest {
   ) -> Result<Vec<u8>, FlowyError> {
     let server = self.server_provider.get_server().unwrap();
     let workspace_id = self.get_current_workspace().await.id;
+    let oid = Uuid::from_str(oid).unwrap();
     let uid = self.get_user_profile().await?.id;
     let doc_state = server
       .folder_service()
-      .get_folder_doc_state(&workspace_id, uid, collab_type, oid)
+      .get_folder_doc_state(
+        &Uuid::from_str(&workspace_id).unwrap(),
+        uid,
+        collab_type,
+        &oid,
+      )
       .await?;
 
     Ok(doc_state)

@@ -11,4 +11,4 @@ collab = { workspace = true }
 collab-folder = { workspace = true }
 flowy-error = { workspace = true }
 client-api = { workspace = true }
-futures = { workspace = true }
+uuid.workspace = true

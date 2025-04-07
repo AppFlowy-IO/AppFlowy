@@ -1,6 +1,7 @@
 use crate::ai_manager::AIUserService;
 use crate::entities::{CompleteTextPB, CompleteTextTaskPB, CompletionTypePB};
 use allo_isolate::Isolate;
+use std::str::FromStr;
 
 use dashmap::DashMap;
 use flowy_ai_pub::cloud::{
@@ -15,7 +16,8 @@ use lib_infra::isolate_stream::IsolateSink;
 use crate::stream_message::StreamMessage;
 use std::sync::{Arc, Weak};
 use tokio::select;
-use tracing::info;
+use tracing::{error, info};
+use uuid::Uuid;
 
 pub struct AICompletion {
   tasks: Arc<DashMap<String, tokio::sync::mpsc::Sender<()>>>,
@@ -77,7 +79,7 @@ impl AICompletion {
 }
 
 pub struct CompletionTask {
-  workspace_id: String,
+  workspace_id: Uuid,
   task_id: String,
   stop_rx: tokio::sync::mpsc::Receiver<()>,
   context: CompleteTextPB,
@@ -87,7 +89,7 @@ pub struct CompletionTask {
 
 impl CompletionTask {
   pub fn new(
-    workspace_id: String,
+    workspace_id: Uuid,
     context: CompleteTextPB,
     preferred_model: Option<AIModel>,
     cloud_service: Weak<dyn ChatCloudService>,
@@ -122,59 +124,63 @@ impl CompletionTask {
         let _ = sink.send("start:".to_string()).await;
         let completion_history = Some(self.context.history.iter().map(Into::into).collect());
         let format = self.context.format.map(Into::into).unwrap_or_default();
-        let params = CompleteTextParams {
-          text: self.context.text,
-          completion_type: Some(complete_type),
-          metadata: Some(CompletionMetadata {
-            object_id: self.context.object_id,
-            workspace_id: Some(self.workspace_id.clone()),
-            rag_ids: Some(self.context.rag_ids),
-            completion_history,
-            custom_prompt: self
-              .context
-              .custom_prompt
-              .map(|v| CustomPrompt { system: v }),
-          }),
-          format,
-        };
+        if let Ok(object_id) = Uuid::from_str(&self.context.object_id) {
+          let params = CompleteTextParams {
+            text: self.context.text,
+            completion_type: Some(complete_type),
+            metadata: Some(CompletionMetadata {
+              object_id,
+              workspace_id: Some(self.workspace_id.clone()),
+              rag_ids: Some(self.context.rag_ids),
+              completion_history,
+              custom_prompt: self
+                .context
+                .custom_prompt
+                .map(|v| CustomPrompt { system: v }),
+            }),
+            format,
+          };
 
-        info!("start completion: {:?}", params);
-        match cloud_service
-          .stream_complete(&self.workspace_id, params, self.preferred_model)
-          .await
-        {
-          Ok(mut stream) => loop {
-            select! {
-                _ = self.stop_rx.recv() => {
-                    return;
-                },
-                result = stream.next() => {
-                  match result {
-                    Some(Ok(data)) => {
-                      match data {
-                        CompletionStreamValue::Answer{ value } => {
-                          let _ = sink.send(format!("data:{}", value)).await;
+          info!("start completion: {:?}", params);
+          match cloud_service
+            .stream_complete(&self.workspace_id, params, self.preferred_model)
+            .await
+          {
+            Ok(mut stream) => loop {
+              select! {
+                  _ = self.stop_rx.recv() => {
+                      return;
+                  },
+                  result = stream.next() => {
+                    match result {
+                      Some(Ok(data)) => {
+                        match data {
+                          CompletionStreamValue::Answer{ value } => {
+                            let _ = sink.send(format!("data:{}", value)).await;
+                          }
+                           CompletionStreamValue::Comment{ value } => {
+                            let _ = sink.send(format!("comment:{}", value)).await;
+                          }
                         }
-                         CompletionStreamValue::Comment{ value } => {
-                          let _ = sink.send(format!("comment:{}", value)).await;
-                        }
-                      }
-                    },
-                    Some(Err(error)) => {
-                        handle_error(&mut sink, error).await;
-                        return;
-                    },
-                    None => {
-                        let _ = sink.send(format!("finish:{}", self.task_id)).await;
-                        return;
-                    },
+                      },
+                      Some(Err(error)) => {
+                          handle_error(&mut sink, error).await;
+                          return;
+                      },
+                      None => {
+                          let _ = sink.send(format!("finish:{}", self.task_id)).await;
+                          return;
+                      },
+                    }
                   }
-                }
-            }
-          },
-          Err(error) => {
-            handle_error(&mut sink, error).await;
-          },
+              }
+            },
+            Err(error) => {
+              handle_error(&mut sink, error).await;
+            },
+          }
+        } else {
+          error!("Invalid uuid: {}", self.context.object_id);
         }
       }
     });

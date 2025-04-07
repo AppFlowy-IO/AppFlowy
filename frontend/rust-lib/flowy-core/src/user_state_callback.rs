@@ -55,6 +55,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
     _device_id: &str,
     authenticator: &Authenticator,
   ) -> FlowyResult<()> {
+    let workspace_id = user_workspace.workspace_id()?;
     self
       .server_provider
       .set_user_authenticator(user_authenticator);
@@ -74,7 +75,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .folder_manager
       .initialize(
         user_id,
-        &user_workspace.id,
+        &workspace_id,
         FolderInitDataSource::LocalDisk {
           create_if_not_exist: false,
         },
@@ -140,6 +141,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       user_workspace,
       device_id
     );
+    let workspace_id = user_workspace.workspace_id()?;
 
     // In the current implementation, when a user signs up for AppFlowy Cloud, a default workspace
     // is automatically created for them. However, for users who sign up through Supabase, the creation
@@ -149,10 +151,10 @@ impl UserStatusCallback for UserStatusCallbackImpl {
       .folder_manager
       .cloud_service
       .get_folder_doc_state(
-        &user_workspace.id,
+        &workspace_id,
         user_profile.uid,
         CollabType::Folder,
-        &user_workspace.id,
+        &workspace_id,
       )
       .await
     {
@@ -179,7 +181,7 @@ impl UserStatusCallback for UserStatusCallbackImpl {
         &user_profile.token,
         is_new_user,
         data_source,
-        &user_workspace.id,
+        &workspace_id,
       )
       .await
       .context("FolderManager error")?;

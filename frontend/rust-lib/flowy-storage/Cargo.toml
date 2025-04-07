@@ -17,8 +17,6 @@ tokio = { workspace = true, features = ["sync", "io-util"] }
 tracing.workspace = true
 flowy-sqlite.workspace = true
 mime_guess = "2.0.4"
-fxhash = "0.2.1"
-anyhow = "1.0.86"
 chrono = "0.4.33"
 flowy-notification = { workspace = true }
 flowy-derive.workspace = true
@@ -26,8 +24,8 @@ protobuf = { workspace = true }
 dashmap.workspace = true
 strum_macros = "0.25.2"
 allo-isolate = { version = "^0.1", features = ["catch-unwind"] }
-futures-util = "0.3.30"
 collab-importer = { workspace = true }
+uuid.workspace = true
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }
