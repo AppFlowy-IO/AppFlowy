@@ -51,9 +51,18 @@ else
 fi
 
 echo "Processing translation files..."
-for file in $(find "$I18N_DIR" -name "*.json" -type f); do
-    echo "Updating: $(basename "$file")"
-    sed $SED_INPLACE "s/AppFlowy/$CUSTOM_COMPANY_NAME/g" "$file"
-done
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+    for file in "$I18N_DIR"/*.json; do
+        if [ -f "$file" ]; then
+            echo "Updating: $(basename "$file")"
+            sed -i "s/AppFlowy/$CUSTOM_COMPANY_NAME/g" "$file"
+        fi
+    done
+else
+    for file in $(find "$I18N_DIR" -name "*.json" -type f); do
+        echo "Updating: $(basename "$file")"
+        sed $SED_INPLACE "s/AppFlowy/$CUSTOM_COMPANY_NAME/g" "$file"
+    done
+fi
 
 echo "Replacement complete!"
