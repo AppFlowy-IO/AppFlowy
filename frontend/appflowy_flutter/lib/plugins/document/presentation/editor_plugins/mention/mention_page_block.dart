@@ -383,13 +383,13 @@ Future<void> _handleDoubleTap(
   }
 
   final currentViewId = context.read<DocumentBloc>().documentId;
-  final newViewId = await showPageSelectorSheet(
+  final newView = await showPageSelectorSheet(
     context,
     currentViewId: currentViewId,
     selectedViewId: viewId,
   );
 
-  if (newViewId != null) {
+  if (newView != null) {
     // Update this nodes pageId
     final transaction = editorState.transaction
       ..formatText(
@@ -399,7 +399,7 @@ Future<void> _handleDoubleTap(
         {
           MentionBlockKeys.mention: {
             MentionBlockKeys.type: MentionType.page.name,
-            MentionBlockKeys.pageId: newViewId,
+            MentionBlockKeys.pageId: newView.id,
           },
         },
       );
