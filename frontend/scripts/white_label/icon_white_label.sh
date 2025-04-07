@@ -46,19 +46,39 @@ fi
 echo "Replacing icon..."
 
 echo "Processing icon files..."
-for file in $(find "$ICON_DIR" -name "*.svg" -type f); do
-    if [[ " ${ICON_NAME_NEED_REPLACE[@]} " =~ " $(basename "$file") " ]]; then
-        echo "Updating: $(basename "$file")"
-
-        cp "$NEW_ICON_PATH" "$file"
-
-        if [ $? -eq 0 ]; then
-            echo "Successfully replaced $(basename "$file") with new icon"
-        else
-            echo "Error: Failed to replace $(basename "$file")"
-            exit 1
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+    for subdir in "${ICON_DIR}"/*/; do
+        if [ -d "$subdir" ]; then
+            echo "Checking subdirectory: $(basename "$subdir")"
+            for file in "${subdir}"*.svg; do
+                if [ -f "$file" ] && [[ " ${ICON_NAME_NEED_REPLACE[@]} " =~ " $(basename "$file") " ]]; then
+                    echo "Updating: $(basename "$subdir")/$(basename "$file")"
+                    cp "$NEW_ICON_PATH" "$file"
+                    if [ $? -eq 0 ]; then
+                        echo "Successfully replaced $(basename "$file") in $(basename "$subdir") with new icon"
+                    else
+                        echo "Error: Failed to replace $(basename "$file") in $(basename "$subdir")"
+                        exit 1
+                    fi
+                fi
+            done
         fi
-    fi
-done
+    done
+else
+    for file in $(find "$ICON_DIR" -name "*.svg" -type f); do
+        if [[ " ${ICON_NAME_NEED_REPLACE[@]} " =~ " $(basename "$file") " ]]; then
+            echo "Updating: $(basename "$file")"
+
+            cp "$NEW_ICON_PATH" "$file"
+
+            if [ $? -eq 0 ]; then
+                echo "Successfully replaced $(basename "$file") with new icon"
+            else
+                echo "Error: Failed to replace $(basename "$file")"
+                exit 1
+            fi
+        fi
+    done
+fi
 
 echo "Replacement complete!"
