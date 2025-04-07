@@ -5,9 +5,11 @@ use flowy_user_pub::entities::*;
 use lib_dispatch::prelude::*;
 use lib_infra::box_any::BoxAny;
 use serde_json::Value;
+use std::str::FromStr;
 use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
 use tracing::{event, trace};
+use uuid::Uuid;
 
 use crate::entities::*;
 use crate::notification::{send_notification, UserNotification};
@@ -515,7 +517,8 @@ pub async fn open_workspace_handler(
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.try_into_inner()?;
-  manager.open_workspace(&params.workspace_id).await?;
+  let workspace_id = Uuid::from_str(&params.workspace_id)?;
+  manager.open_workspace(&workspace_id).await?;
   Ok(())
 }
 
@@ -645,8 +648,9 @@ pub async fn delete_workspace_member_handler(
 ) -> Result<(), FlowyError> {
   let data = data.try_into_inner()?;
   let manager = upgrade_manager(manager)?;
+  let workspace_id = Uuid::from_str(&data.workspace_id)?;
   manager
-    .remove_workspace_member(data.email, data.workspace_id)
+    .remove_workspace_member(data.email, workspace_id)
     .await?;
   Ok(())
 }
@@ -658,8 +662,9 @@ pub async fn get_workspace_members_handler(
 ) -> DataResult<RepeatedWorkspaceMemberPB, FlowyError> {
   let data = data.try_into_inner()?;
   let manager = upgrade_manager(manager)?;
+  let workspace_id = Uuid::from_str(&data.workspace_id)?;
   let members = manager
-    .get_workspace_members(data.workspace_id)
+    .get_workspace_members(workspace_id)
     .await?
     .into_iter()
     .map(WorkspaceMemberPB::from)
@@ -674,8 +679,9 @@ pub async fn update_workspace_member_handler(
 ) -> Result<(), FlowyError> {
   let data = data.try_into_inner()?;
   let manager = upgrade_manager(manager)?;
+  let workspace_id = Uuid::from_str(&data.workspace_id)?;
   manager
-    .update_workspace_member(data.email, data.workspace_id, data.role.into())
+    .update_workspace_member(data.email, workspace_id, data.role.into())
     .await?;
   Ok(())
 }
@@ -698,6 +704,7 @@ pub async fn delete_workspace_handler(
 ) -> Result<(), FlowyError> {
   let workspace_id = delete_workspace_param.try_into_inner()?.workspace_id;
   let manager = upgrade_manager(manager)?;
+  let workspace_id = Uuid::from_str(&workspace_id)?;
   manager.delete_workspace(&workspace_id).await?;
   Ok(())
 }
@@ -709,8 +716,9 @@ pub async fn rename_workspace_handler(
 ) -> Result<(), FlowyError> {
   let params = rename_workspace_param.try_into_inner()?;
   let manager = upgrade_manager(manager)?;
+  let workspace_id = Uuid::from_str(&params.workspace_id)?;
   manager
-    .patch_workspace(&params.workspace_id, Some(&params.new_name), None)
+    .patch_workspace(&workspace_id, Some(&params.new_name), None)
     .await?;
   Ok(())
 }
@@ -722,8 +730,9 @@ pub async fn change_workspace_icon_handler(
 ) -> Result<(), FlowyError> {
   let params = change_workspace_icon_param.try_into_inner()?;
   let manager = upgrade_manager(manager)?;
+  let workspace_id = Uuid::from_str(&params.workspace_id)?;
   manager
-    .patch_workspace(&params.workspace_id, None, Some(&params.new_icon))
+    .patch_workspace(&workspace_id, None, Some(&params.new_icon))
     .await?;
   Ok(())
 }
@@ -735,8 +744,9 @@ pub async fn invite_workspace_member_handler(
 ) -> Result<(), FlowyError> {
   let param = param.try_into_inner()?;
   let manager = upgrade_manager(manager)?;
+  let workspace_id = Uuid::from_str(&param.workspace_id)?;
   manager
-    .invite_member_to_workspace(param.workspace_id, param.invitee_email, param.role.into())
+    .invite_member_to_workspace(workspace_id, param.invitee_email, param.role.into())
     .await?;
   Ok(())
 }
@@ -772,6 +782,7 @@ pub async fn leave_workspace_handler(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> Result<(), FlowyError> {
   let workspace_id = param.into_inner().workspace_id;
+  let workspace_id = Uuid::from_str(&workspace_id)?;
   let manager = upgrade_manager(manager)?;
   manager.leave_workspace(&workspace_id).await?;
   Ok(())

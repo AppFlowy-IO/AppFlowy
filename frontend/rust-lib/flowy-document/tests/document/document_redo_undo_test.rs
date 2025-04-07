@@ -9,8 +9,8 @@ use crate::document::util::{gen_document_id, gen_id, DocumentTest};
 async fn undo_redo_test() {
   let test = DocumentTest::new();
 
-  let doc_id: String = gen_document_id();
-  let data = default_document_data(&doc_id);
+  let doc_id = gen_document_id();
+  let data = default_document_data(&doc_id.to_string());
 
   // create a document
   _ = test

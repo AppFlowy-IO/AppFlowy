@@ -10,6 +10,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use std::sync::{Arc, Weak};
 use tokio::task::spawn_blocking;
 use tracing::{event, info, Level};
+use uuid::Uuid;
 
 impl FolderManager {
   /// Called immediately after the application launched if the user already sign in/sign up.
@@ -17,7 +18,7 @@ impl FolderManager {
   pub async fn initialize(
     &self,
     uid: i64,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     initial_data: FolderInitDataSource,
   ) -> FlowyResult<()> {
     // Update the workspace id
@@ -37,7 +38,6 @@ impl FolderManager {
       );
     }
 
-    let workspace_id = workspace_id.to_string();
     // Get the collab db for the user with given user id.
     let collab_db = self.user.collab_db(uid)?;
 
@@ -54,20 +54,20 @@ impl FolderManager {
       } => {
         let is_exist = self
           .user
-          .is_folder_exist_on_disk(uid, &workspace_id)
+          .is_folder_exist_on_disk(uid, workspace_id)
           .unwrap_or(false);
         // 1. if the folder exists, open it from local disk
         if is_exist {
           event!(Level::INFO, "Init folder from local disk");
           self
-            .make_folder(uid, &workspace_id, collab_db, None, folder_notifier)
+            .make_folder(uid, workspace_id, collab_db, None, folder_notifier)
             .await?
         } else if create_if_not_exist {
           // 2. if the folder doesn't exist and create_if_not_exist is true, create a default folder
           // Currently, this branch is only used when the server type is supabase. For appflowy cloud,
           // the default workspace is already created when the user sign up.
           self
-            .create_default_folder(uid, &workspace_id, collab_db, folder_notifier)
+            .create_default_folder(uid, workspace_id, collab_db, folder_notifier)
             .await?
         } else {
           // 3. If the folder doesn't exist and create_if_not_exist is false, try to fetch the folder data from cloud/
@@ -147,7 +147,7 @@ impl FolderManager {
   async fn create_default_folder(
     &self,
     uid: i64,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     collab_db: Weak<CollabKVDB>,
     folder_notifier: FolderNotify,
   ) -> Result<Arc<RwLock<Folder>>, FlowyError> {
@@ -170,24 +170,22 @@ impl FolderManager {
     Ok(folder)
   }
 
-  fn handle_index_folder(&self, workspace_id: String, folder: &Folder) {
+  fn handle_index_folder(&self, workspace_id: Uuid, folder: &Folder) {
     let mut index_all = true;
 
     let encoded_collab = self
       .store_preferences
-      .get_object::<EncodedCollab>(&workspace_id);
+      .get_object::<EncodedCollab>(workspace_id.to_string().as_str());
 
     if let Some(encoded_collab) = encoded_collab {
       if let Ok(changes) = folder.calculate_view_changes(encoded_collab) {
         let folder_indexer = self.folder_indexer.clone();
 
         let views = folder.get_all_views();
-        let wid = workspace_id.clone();
-
         if !changes.is_empty() && !views.is_empty() {
           spawn_blocking(move || {
             // We index the changes
-            folder_indexer.index_view_changes(views, changes, wid);
+            folder_indexer.index_view_changes(views, changes, workspace_id);
           });
           index_all = false;
         }
@@ -197,15 +195,13 @@ impl FolderManager {
     if index_all {
       let views = folder.get_all_views();
       let folder_indexer = self.folder_indexer.clone();
-      let wid = workspace_id.clone();
-
       // We spawn a blocking task to index all views in the folder
       spawn_blocking(move || {
         // We remove old indexes just in case
-        let _ = folder_indexer.remove_indices_for_workspace(wid.clone());
+        let _ = folder_indexer.remove_indices_for_workspace(workspace_id.clone());
 
         // We index all views from the workspace
-        folder_indexer.index_all_views(views, wid);
+        folder_indexer.index_all_views(views, workspace_id);
       });
     }
 

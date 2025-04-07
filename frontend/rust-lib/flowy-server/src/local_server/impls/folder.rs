@@ -1,10 +1,9 @@
 use std::sync::Arc;
 
+use crate::local_server::LocalServerDB;
 use client_api::entity::workspace_dto::PublishInfoView;
 use client_api::entity::PublishInfo;
 use collab_entity::CollabType;
-
-use crate::local_server::LocalServerDB;
 use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::{
   gen_workspace_id, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot,
@@ -12,6 +11,7 @@ use flowy_folder_pub::cloud::{
 };
 use flowy_folder_pub::entities::PublishPayload;
 use lib_infra::async_trait::async_trait;
+use uuid::Uuid;
 
 pub(crate) struct LocalServerFolderCloudServiceImpl {
   #[allow(dead_code)]
@@ -29,7 +29,7 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
     ))
   }
 
-  async fn open_workspace(&self, _workspace_id: &str) -> Result<(), FlowyError> {
+  async fn open_workspace(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
     Ok(())
   }
 
@@ -39,8 +39,8 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
 
   async fn get_folder_data(
     &self,
-    _workspace_id: &str,
-    _uid: &i64,
+    workspace_id: &Uuid,
+    uid: &i64,
   ) -> Result<Option<FolderData>, FlowyError> {
     Ok(None)
   }
@@ -55,18 +55,18 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
 
   async fn get_folder_doc_state(
     &self,
-    _workspace_id: &str,
-    _uid: i64,
-    _collab_type: CollabType,
-    _object_id: &str,
+    workspace_id: &Uuid,
+    uid: i64,
+    collab_type: CollabType,
+    object_id: &Uuid,
   ) -> Result<Vec<u8>, FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
 
   async fn batch_create_folder_collab_objects(
     &self,
-    _workspace_id: &str,
-    _objects: Vec<FolderCollabParams>,
+    workspace_id: &Uuid,
+    objects: Vec<FolderCollabParams>,
   ) -> Result<(), FlowyError> {
     Ok(())
   }
@@ -77,68 +77,68 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
 
   async fn publish_view(
     &self,
-    _workspace_id: &str,
-    _payload: Vec<PublishPayload>,
+    workspace_id: &Uuid,
+    payload: Vec<PublishPayload>,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
 
   async fn unpublish_views(
     &self,
-    _workspace_id: &str,
-    _view_ids: Vec<String>,
+    workspace_id: &Uuid,
+    view_ids: Vec<Uuid>,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
 
-  async fn get_publish_info(&self, _view_id: &str) -> Result<PublishInfo, FlowyError> {
+  async fn get_publish_info(&self, view_id: &Uuid) -> Result<PublishInfo, FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
 
   async fn set_publish_namespace(
     &self,
-    _workspace_id: &str,
-    _new_namespace: String,
+    workspace_id: &Uuid,
+    new_namespace: String,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
 
-  async fn get_publish_namespace(&self, _workspace_id: &str) -> Result<String, FlowyError> {
+  async fn get_publish_namespace(&self, workspace_id: &Uuid) -> Result<String, FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
 
   async fn set_publish_name(
     &self,
-    _workspace_id: &str,
-    _view_id: String,
-    _new_name: String,
+    workspace_id: &Uuid,
+    view_id: Uuid,
+    new_name: String,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
 
   async fn list_published_views(
     &self,
-    _workspace_id: &str,
+    workspace_id: &Uuid,
   ) -> Result<Vec<PublishInfoView>, FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
 
   async fn get_default_published_view_info(
     &self,
-    _workspace_id: &str,
+    workspace_id: &Uuid,
   ) -> Result<PublishInfo, FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
 
   async fn set_default_published_view(
     &self,
-    _workspace_id: &str,
-    _view_id: uuid::Uuid,
+    workspace_id: &Uuid,
+    view_id: uuid::Uuid,
   ) -> Result<(), FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
 
-  async fn remove_default_published_view(&self, _workspace_id: &str) -> Result<(), FlowyError> {
+  async fn remove_default_published_view(&self, workspace_id: &Uuid) -> Result<(), FlowyError> {
     Err(FlowyError::local_version_not_support())
   }
 
@@ -148,8 +148,8 @@ impl FolderCloudService for LocalServerFolderCloudServiceImpl {
 
   async fn full_sync_collab_object(
     &self,
-    _workspace_id: &str,
-    _params: FullSyncCollabParams,
+    workspace_id: &Uuid,
+    params: FullSyncCollabParams,
   ) -> Result<(), FlowyError> {
     Ok(())
   }

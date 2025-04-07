@@ -3,10 +3,12 @@ use event_integration_test::user_event::use_localhost_af_cloud;
 use event_integration_test::EventIntegrationTest;
 use flowy_ai::entities::ChatMessageListPB;
 use flowy_ai::notification::ChatNotification;
+use std::str::FromStr;
 
 use flowy_ai_pub::cloud::ChatMessageType;
 
 use std::time::Duration;
+use uuid::Uuid;
 
 #[tokio::test]
 async fn af_cloud_create_chat_message_test() {
@@ -21,8 +23,8 @@ async fn af_cloud_create_chat_message_test() {
   for i in 0..10 {
     let _ = chat_service
       .create_question(
-        &current_workspace.id,
-        &chat_id,
+        &Uuid::from_str(&current_workspace.id).unwrap(),
+        &Uuid::from_str(&chat_id).unwrap(),
         &format!("hello world {}", i),
         ChatMessageType::System,
         &[],
@@ -77,8 +79,8 @@ async fn af_cloud_load_remote_system_message_test() {
   for i in 0..10 {
     let _ = chat_service
       .create_question(
-        &current_workspace.id,
-        &chat_id,
+        &Uuid::from_str(&current_workspace.id).unwrap(),
+        &Uuid::from_str(&chat_id).unwrap(),
         &format!("hello server {}", i),
         ChatMessageType::System,
         &[],

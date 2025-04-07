@@ -4,6 +4,8 @@ use crate::share::{ImportData, ImportItem, ImportParams, ImportType};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::FlowyError;
 use lib_infra::validator_fn::required_not_empty_str;
+use std::str::FromStr;
+use uuid::Uuid;
 use validator::Validate;
 
 #[derive(Clone, Debug, ProtoBuf_Enum)]
@@ -75,6 +77,8 @@ impl TryInto<ImportParams> for ImportPayloadPB {
     let parent_view_id = NotEmptyStr::parse(self.parent_view_id)
       .map_err(|_| FlowyError::invalid_view_id())?
       .0;
+
+    let parent_view_id = Uuid::from_str(&parent_view_id)?;
 
     let items = self
       .items

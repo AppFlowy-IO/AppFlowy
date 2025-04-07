@@ -256,3 +256,9 @@ impl From<collab::error::CollabError> for FlowyError {
     }
   }
 }
+
+impl From<uuid::Error> for FlowyError {
+  fn from(value: uuid::Error) -> Self {
+    FlowyError::internal().with_context(value)
+  }
+}

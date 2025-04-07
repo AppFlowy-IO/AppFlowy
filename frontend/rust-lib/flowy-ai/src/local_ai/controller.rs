@@ -28,6 +28,7 @@ use std::sync::Arc;
 use tokio::select;
 use tokio_stream::StreamExt;
 use tracing::{debug, error, info, instrument};
+use uuid::Uuid;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct LocalAISetting {
@@ -51,7 +52,7 @@ const LOCAL_AI_SETTING_KEY: &str = "appflowy_local_ai_setting:v1";
 pub struct LocalAIController {
   ai_plugin: Arc<OllamaAIPlugin>,
   resource: Arc<LocalAIResourceController>,
-  current_chat_id: ArcSwapOption<String>,
+  current_chat_id: ArcSwapOption<Uuid>,
   store_preferences: Arc<KVStorePreferences>,
   user_service: Arc<dyn AIUserService>,
   #[allow(dead_code)]
@@ -240,7 +241,7 @@ impl LocalAIController {
     Some(self.resource.get_llm_setting().chat_model_name)
   }
 
-  pub fn open_chat(&self, chat_id: &str) {
+  pub fn open_chat(&self, chat_id: &Uuid) {
     if !self.is_enabled() {
       return;
     }
@@ -252,9 +253,7 @@ impl LocalAIController {
       self.close_chat(current_chat_id);
     }
 
-    self
-      .current_chat_id
-      .store(Some(Arc::new(chat_id.to_string())));
+    self.current_chat_id.store(Some(Arc::new(chat_id.clone())));
     let chat_id = chat_id.to_string();
     let weak_ctrl = Arc::downgrade(&self.ai_plugin);
     tokio::spawn(async move {
@@ -266,7 +265,7 @@ impl LocalAIController {
     });
   }
 
-  pub fn close_chat(&self, chat_id: &str) {
+  pub fn close_chat(&self, chat_id: &Uuid) {
     if !self.is_running() {
       return;
     }
@@ -383,7 +382,7 @@ impl LocalAIController {
   #[instrument(level = "debug", skip_all)]
   pub async fn index_message_metadata(
     &self,
-    chat_id: &str,
+    chat_id: &Uuid,
     metadata_list: &[ChatMessageMetadata],
     index_process_sink: &mut (impl Sink<String> + Unpin),
   ) -> FlowyResult<()> {
@@ -434,7 +433,7 @@ impl LocalAIController {
 
   async fn process_index_file(
     &self,
-    chat_id: &str,
+    chat_id: &Uuid,
     file_path: PathBuf,
     index_metadata: &HashMap<String, serde_json::Value>,
     index_process_sink: &mut (impl Sink<String> + Unpin),
@@ -456,7 +455,11 @@ impl LocalAIController {
 
     let result = self
       .ai_plugin
-      .embed_file(chat_id, file_path, Some(index_metadata.clone()))
+      .embed_file(
+        &chat_id.to_string(),
+        file_path,
+        Some(index_metadata.clone()),
+      )
       .await;
     match result {
       Ok(_) => {
@@ -616,6 +619,6 @@ impl LLMResourceService for LLMResourceServiceImpl {
 }
 
 const APPFLOWY_LOCAL_AI_ENABLED: &str = "appflowy_local_ai_enabled";
-fn local_ai_enabled_key(workspace_id: &str) -> String {
-  format!("{}:{}", APPFLOWY_LOCAL_AI_ENABLED, workspace_id)
+fn local_ai_enabled_key(workspace_id: &Uuid) -> String {
+  format!("{}:{}", APPFLOWY_LOCAL_AI_ENABLED, workspace_id.to_string())
 }

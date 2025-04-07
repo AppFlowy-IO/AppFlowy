@@ -1,9 +1,10 @@
 use crate::af_cloud::AFServer;
 use client_api::entity::{CompleteUploadRequest, CreateUploadRequest};
-use flowy_error::{ErrorCode, FlowyError};
+use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_storage_pub::cloud::{ObjectIdentity, ObjectValue, StorageCloudService};
 use flowy_storage_pub::storage::{CompletedPartRequest, CreateUploadResponse, UploadPartResponse};
 use lib_infra::async_trait::async_trait;
+use uuid::Uuid;
 
 pub struct AFCloudFileStorageServiceImpl<T> {
   pub client: T,
@@ -56,10 +57,10 @@ where
 
   async fn get_object_url_v1(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     parent_dir: &str,
     file_id: &str,
-  ) -> Result<String, FlowyError> {
+  ) -> FlowyResult<String> {
     let url = self
       .client
       .try_get_client()?
@@ -67,14 +68,14 @@ where
     Ok(url)
   }
 
-  async fn parse_object_url_v1(&self, url: &str) -> Option<(String, String, String)> {
+  async fn parse_object_url_v1(&self, url: &str) -> Option<(Uuid, String, String)> {
     let value = self.client.try_get_client().ok()?.parse_blob_url_v1(url)?;
     Some(value)
   }
 
   async fn create_upload(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     parent_dir: &str,
     file_id: &str,
     content_type: &str,
@@ -109,7 +110,7 @@ where
 
   async fn upload_part(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     parent_dir: &str,
     upload_id: &str,
     file_id: &str,
@@ -134,7 +135,7 @@ where
 
   async fn complete_upload(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     parent_dir: &str,
     upload_id: &str,
     file_id: &str,

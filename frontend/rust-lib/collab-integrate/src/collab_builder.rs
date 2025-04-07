@@ -1,5 +1,6 @@
 use std::borrow::BorrowMut;
 use std::fmt::{Debug, Display};
+use std::str::FromStr;
 use std::sync::{Arc, Weak};
 
 use crate::CollabKVDB;
@@ -33,8 +34,10 @@ use collab_plugins::local_storage::kv::KVTransactionDB;
 use collab_plugins::local_storage::CollabPersistenceConfig;
 use collab_user::core::{UserAwareness, UserAwarenessNotifier};
 
+use flowy_error::FlowyError;
 use lib_infra::{if_native, if_wasm};
 use tracing::{error, instrument, trace, warn};
+use uuid::Uuid;
 
 #[derive(Clone, Debug)]
 pub enum CollabPluginProviderType {
@@ -66,8 +69,8 @@ impl Display for CollabPluginProviderContext {
 }
 
 pub trait WorkspaceCollabIntegrate: Send + Sync {
-  fn workspace_id(&self) -> Result<String, Error>;
-  fn device_id(&self) -> Result<String, Error>;
+  fn workspace_id(&self) -> Result<Uuid, FlowyError>;
+  fn device_id(&self) -> Result<String, FlowyError>;
 }
 
 pub struct AppFlowyCollabBuilder {
@@ -119,15 +122,15 @@ impl AppFlowyCollabBuilder {
 
   pub fn collab_object(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     uid: i64,
-    object_id: &str,
+    object_id: &Uuid,
     collab_type: CollabType,
   ) -> Result<CollabObject, Error> {
     // Compare the workspace_id with the currently opened workspace_id. Return an error if they do not match.
     // This check is crucial in asynchronous code contexts where the workspace_id might change during operation.
     let actual_workspace_id = self.workspace_integrate.workspace_id()?;
-    if workspace_id != actual_workspace_id {
+    if workspace_id != &actual_workspace_id {
       return Err(anyhow::anyhow!(
         "workspace_id not match when build collab. expect workspace_id: {}, actual workspace_id: {}",
         workspace_id,
@@ -140,7 +143,7 @@ impl AppFlowyCollabBuilder {
       uid,
       object_id.to_string(),
       collab_type,
-      workspace_id,
+      workspace_id.to_string(),
       device_id,
     ))
   }
@@ -399,11 +402,11 @@ impl CollabBuilderConfig {
 pub struct CollabPersistenceImpl {
   pub db: Weak<CollabKVDB>,
   pub uid: i64,
-  pub workspace_id: String,
+  pub workspace_id: Uuid,
 }
 
 impl CollabPersistenceImpl {
-  pub fn new(db: Weak<CollabKVDB>, uid: i64, workspace_id: String) -> Self {
+  pub fn new(db: Weak<CollabKVDB>, uid: i64, workspace_id: Uuid) -> Self {
     Self {
       db,
       uid,
@@ -423,7 +426,8 @@ impl CollabPersistence for CollabPersistenceImpl {
       .upgrade()
       .ok_or_else(|| CollabError::Internal(anyhow!("collab_db is dropped")))?;
 
-    let object_id = collab.object_id().to_string();
+    let object_id =
+      Uuid::from_str(collab.object_id()).map_err(|v| CollabError::Internal(v.into()))?;
     let rocksdb_read = collab_db.read_txn();
 
     if rocksdb_read.is_exist(self.uid, &self.workspace_id, &object_id) {
@@ -461,7 +465,7 @@ impl CollabPersistence for CollabPersistenceImpl {
     write_txn
       .flush_doc(
         self.uid,
-        self.workspace_id.as_str(),
+        self.workspace_id.to_string().as_str(),
         object_id,
         encoded_collab.state_vector.to_vec(),
         encoded_collab.doc_state.to_vec(),

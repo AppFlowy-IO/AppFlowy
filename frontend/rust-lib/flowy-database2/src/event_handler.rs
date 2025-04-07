@@ -1261,7 +1261,7 @@ pub(crate) async fn summarize_row_handler(
   let (tx, rx) = oneshot::channel();
   tokio::spawn(async move {
     let result = manager
-      .summarize_row(data.view_id, row_id, data.field_id)
+      .summarize_row(&data.view_id, row_id, data.field_id)
       .await;
     let _ = tx.send(result);
   });
@@ -1280,7 +1280,7 @@ pub(crate) async fn translate_row_handler(
   let (tx, rx) = oneshot::channel();
   tokio::spawn(async move {
     let result = manager
-      .translate_row(data.view_id, row_id, data.field_id)
+      .translate_row(&data.view_id, row_id, data.field_id)
       .await;
     let _ = tx.send(result);
   });

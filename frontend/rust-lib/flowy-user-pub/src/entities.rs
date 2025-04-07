@@ -3,6 +3,7 @@ use std::str::FromStr;
 use chrono::{DateTime, Utc};
 pub use client_api::entity::billing_dto::RecurringInterval;
 use client_api::entity::AFRole;
+use flowy_error::FlowyResult;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_repr::*;
@@ -151,6 +152,11 @@ pub struct UserWorkspace {
 }
 
 impl UserWorkspace {
+  pub fn workspace_id(&self) -> FlowyResult<Uuid> {
+    let id = Uuid::from_str(&self.id)?;
+    Ok(id)
+  }
+
   pub fn new_local(workspace_id: &str, _uid: i64) -> Self {
     Self {
       id: workspace_id.to_string(),
