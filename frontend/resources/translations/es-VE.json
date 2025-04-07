@@ -218,14 +218,14 @@
   "questionBubble": {
     "shortcuts": "Atajos",
     "whatsNew": "¿Qué hay de nuevo?",
-    "help": "Ayuda y Soporte",
     "markdown": "Reducción",
     "debug": {
       "name": "Información de depuración",
       "success": "¡Información copiada!",
       "fail": "No fue posible copiar la información"
     },
-    "feedback": "Comentario"
+    "feedback": "Comentario",
+    "help": "Ayuda y Soporte"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "Eliminar, renombrar y más...",

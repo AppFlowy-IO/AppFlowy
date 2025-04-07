@@ -216,14 +216,14 @@
   "questionBubble": {
     "shortcuts": "快捷鍵",
     "whatsNew": "有什麼新功能？",
-    "help": "幫助 & 支援",
     "markdown": "Markdown",
     "debug": {
       "name": "除錯資訊",
       "success": "已將除錯資訊複製到剪貼簿！",
       "fail": "無法將除錯資訊複製到剪貼簿"
     },
-    "feedback": "意見回饋"
+    "feedback": "意見回饋",
+    "help": "幫助 & 支援"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "移除、重新命名等等...",

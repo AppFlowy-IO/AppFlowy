@@ -263,14 +263,14 @@
   "questionBubble": {
     "shortcuts": "ショートカット",
     "whatsNew": "新着情報",
-    "help": "ヘルプ & サポート",
     "markdown": "Markdown",
     "debug": {
       "name": "デバッグ情報",
       "success": "デバッグ情報をクリップボードにコピーしました！",
       "fail": "デバッグ情報をクリップボードにコピーできませんでした"
     },
-    "feedback": "フィードバック"
+    "feedback": "フィードバック",
+    "help": "ヘルプ & サポート"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "削除、名前の変更、その他...",

@@ -206,14 +206,14 @@
   "questionBubble": {
     "shortcuts": "מקשי קיצור",
     "whatsNew": "מה חדש?",
-    "help": "עזרה ותמיכה",
     "markdown": "Markdown",
     "debug": {
       "name": "פרטי ניפוי שגיאות",
       "success": "פרטי ניפוי השגיאות הועתקו ללוח הגזירים!",
       "fail": "לא ניתן להעתיק את פרטי ניפוי השגיאות ללוח הגזירים"
     },
-    "feedback": "משוב"
+    "feedback": "משוב",
+    "help": "עזרה ותמיכה"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "הסרה, שינוי שם ועוד…",
