@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 project(appflowy_flutter LANGUAGES CXX)
 
-set(BINARY_NAME "MyProduct")
+set(BINARY_NAME "MyCompany")
 
 cmake_policy(SET CMP0063 NEW)
 

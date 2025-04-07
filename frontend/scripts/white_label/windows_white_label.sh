@@ -17,9 +17,9 @@ show_usage() {
     echo "  --help            Show this help message"
     echo ""
     echo "Example:"
-    echo "  $0 --app-name \"MyProduct\" --app-identifier \"com.mycompany.myproduct\" \\"
+    echo "  $0 --app-name \"MyCompany\" --app-identifier \"com.mycompany.mycompany\" \\"
     echo "     --company-name \"MyCompany Ltd.\" --copyright \"Copyright © 2025 MyCompany Ltd.\" \\"
-    echo "     --icon-path \"./assets/icons/myproduct.ico\""
+    echo "     --icon-path \"./assets/icons/company.ico\""
 }
 
 while [[ $# -gt 0 ]]; do
@@ -61,27 +61,27 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ -z "$APP_NAME" ]; then
-    echo "Error: Application name is required"
+    echo -e "\033[31mError: Application name is required\033[0m"
     exit 1
 fi
 
 if [ -z "$APP_IDENTIFIER" ]; then
-    echo "Error: Application identifier is required"
+    echo -e "\033[31mError: Application identifier is required\033[0m"
     exit 1
 fi
 
 if [ -z "$COMPANY_NAME" ]; then
-    echo "Error: Company name is required"
+    echo -e "\033[31mError: Company name is required\033[0m"
     exit 1
 fi
 
 if [ -z "$COPYRIGHT" ]; then
-    echo "Error: Copyright information is required"
+    echo -e "\033[31mError: Copyright information is required\033[0m"
     exit 1
 fi
 
 if [ -z "$ICON_PATH" ]; then
-    echo "Error: Icon path is required"
+    echo -e "\033[31mError: Icon path is required\033[0m"
     exit 1
 fi
 
@@ -103,14 +103,19 @@ update_runner_files() {
         sed $SED_INPLACE "s/VALUE \"OriginalFilename\", .*$/VALUE \"OriginalFilename\", \"$APP_NAME.exe\"/" "$runner_dir/Runner.rc"
         sed $SED_INPLACE "s/VALUE \"LegalCopyright\", .*$/VALUE \"LegalCopyright\", \"$COPYRIGHT\"/" "$runner_dir/Runner.rc"
         sed $SED_INPLACE "s/VALUE \"ProductName\", .*$/VALUE \"ProductName\", \"$APP_NAME\"/" "$runner_dir/Runner.rc"
+        echo -e "Runner.rc updated successfully"
+    else
+        echo -e "\033[31mRunner.rc file not found\033[0m"
     fi
 }
 
 update_icon() {
     if [ ! -z "$ICON_PATH" ] && [ -f "$ICON_PATH" ]; then
-        runner_dir="appflowy_flutter/windows/runner"
-        cp "$ICON_PATH" "$runner_dir/resources/app_icon.ico"
-        echo "Application icon updated successfully"
+        app_icon_path="appflowy_flutter/windows/runner/resources/app_icon.ico"
+        cp "$ICON_PATH" "$app_icon_path"
+        echo -e "Application icon updated successfully"
+    else
+        echo -e "\033[31mApplication icon file not found\033[0m"
     fi
 }
 
@@ -118,18 +123,22 @@ update_cmake_lists() {
     cmake_file="appflowy_flutter/windows/CMakeLists.txt"
     if [ -f "$cmake_file" ]; then
         sed $SED_INPLACE "s/set(BINARY_NAME .*)$/set(BINARY_NAME \"$APP_NAME\")/" "$cmake_file"
-        echo "CMake configuration updated successfully"
+        echo -e "CMake configuration updated successfully"
+    else
+        echo -e "\033[31mCMake configuration file not found\033[0m"
     fi
 }
 
 update_main_cpp() {
-    main_cpp_file="appflowy_flutter/windows/main.cpp"
+    main_cpp_file="appflowy_flutter/windows/runner/main.cpp"
     if [ -f "$main_cpp_file" ]; then
         sed $SED_INPLACE "s/HANDLE hMutexInstance = CreateMutex(NULL, TRUE, L\"AppFlowyMutex\");/HANDLE hMutexInstance = CreateMutex(NULL, TRUE, L\"${APP_NAME}Mutex\");/" "$main_cpp_file"
         sed $SED_INPLACE "s/HWND handle = FindWindowA(NULL, \"AppFlowy\");/HWND handle = FindWindowA(NULL, \"$APP_NAME\");/" "$main_cpp_file"
         sed $SED_INPLACE "s/if (window.SendAppLinkToInstance(L\"AppFlowy\")) {/if (window.SendAppLinkToInstance(L\"$APP_NAME\")) {/" "$main_cpp_file"
         sed $SED_INPLACE "s/if (!window.Create(L\"AppFlowy\", origin, size)) {/if (!window.Create(L\"$APP_NAME\", origin, size)) {/" "$main_cpp_file"
-        echo "Main.cpp updated successfully"
+        echo -e "main.cpp updated successfully"
+    else
+        echo -e "\033[31mMain.cpp file not found\033[0m"
     fi
 }
 

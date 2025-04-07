@@ -6,23 +6,27 @@ APP_IDENTIFIER="com.appflowy.appflowy"
 COMPANY_NAME="AppFlowy Inc."
 COPYRIGHT="Copyright © 2025 AppFlowy Inc."
 ICON_PATH=""
+WINDOWS_ICON_PATH=""
 PLATFORMS=("windows" "linux" "macos" "ios" "android")
 
 show_usage() {
     echo "Usage: $0 [options]"
     echo "Options:"
-    echo "  --app-name         Set the application name"
-    echo "  --app-identifier   Set the application identifier"
-    echo "  --company-name     Set the company name"
-    echo "  --copyright        Set the copyright information"
-    echo "  --icon-path        Set the path to the application icon"
-    echo "  --platforms        Comma-separated list of platforms to white label (windows,linux,macos,ios,android)"
-    echo "  --help            Show this help message"
+    echo "  --app-name              Set the application name"
+    echo "  --app-identifier        Set the application identifier"
+    echo "  --company-name          Set the company name"
+    echo "  --copyright             Set the copyright information"
+    echo "  --icon-path             Set the path to the application icon (.svg)"
+    echo "  --windows-icon-path     Set the path to the windows application icon (.ico)"
+    echo "  --platforms             Comma-separated list of platforms to white label (windows,linux,macos,ios,android)"
+    echo "  --help                  Show this help message"
     echo ""
     echo "Example:"
-    echo "  $0 --app-name \"MyCompany\" --app-identifier \"com.mycompany.MyCompany\" \\"
+    echo "  $0 --app-name \"MyCompany\" --app-identifier \"com.mycompany.mycompany\" \\"
     echo "     --company-name \"MyCompany Ltd.\" --copyright \"Copyright © 2025 MyCompany Ltd.\" \\"
-    echo "     --icon-path \"./assets/icons/MyCompany.svg\" --platforms \"windows,linux,macos\""
+    echo "     --platforms \"windows,linux,macos\" \\"
+    echo "     --windows-icon-path \"./assets/icons/mycompany.ico\" \\"
+    echo "     --icon-path \"./assets/icons/mycompany.svg\""
 }
 
 while [[ $# -gt 0 ]]; do
@@ -45,6 +49,10 @@ while [[ $# -gt 0 ]]; do
         ;;
     --icon-path)
         ICON_PATH="$2"
+        shift 2
+        ;;
+    --windows-icon-path)
+        WINDOWS_ICON_PATH="$2"
         shift 2
         ;;
     --platforms)
@@ -74,6 +82,11 @@ if [ ! -f "$ICON_PATH" ]; then
     exit 1
 fi
 
+if [ ! -f "$WINDOWS_ICON_PATH" ]; then
+    echo "Error: Windows icon file not found at $WINDOWS_ICON_PATH"
+    exit 1
+fi
+
 run_platform_script() {
     local platform=$1
     local script_path="scripts/white_label/${platform}_white_label.sh"
@@ -83,13 +96,13 @@ run_platform_script() {
         return
     fi
 
-    echo "Running white label script for $platform..."
+    echo -e "\033[32mRunning white label script for $platform...\033[0m"
     bash "$script_path" \
         --app-name "$APP_NAME" \
         --app-identifier "$APP_IDENTIFIER" \
         --company-name "$COMPANY_NAME" \
         --copyright "$COPYRIGHT" \
-        --icon-path "$ICON_PATH"
+        --icon-path "$WINDOWS_ICON_PATH"
 }
 
 echo -e "\033[32mRunning i18n white label script...\033[0m"
