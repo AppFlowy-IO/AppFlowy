@@ -1,5 +1,3 @@
-use std::sync::{Arc, Weak};
-use uuid::Uuid;
 use crate::deps_resolve::CollabSnapshotSql;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
@@ -10,6 +8,8 @@ use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_storage_pub::storage::StorageService;
 use flowy_user::services::authenticate_user::AuthenticateUser;
+use std::sync::{Arc, Weak};
+use uuid::Uuid;
 
 pub struct DocumentDepsResolver();
 impl DocumentDepsResolver {
