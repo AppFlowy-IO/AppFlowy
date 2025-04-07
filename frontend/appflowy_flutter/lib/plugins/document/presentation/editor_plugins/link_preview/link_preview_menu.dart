@@ -1,7 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu/block_menu_button.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_replace_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_embed/link_embed_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/shared.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/menu/menu_extension.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -11,100 +13,194 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../image/custom_image_block_component/custom_image_block_component.dart';
-
-class LinkPreviewMenu extends StatefulWidget {
-  const LinkPreviewMenu({
+class CustomLinkPreviewMenu extends StatefulWidget {
+  const CustomLinkPreviewMenu({
     super.key,
+    required this.onMenuShowed,
+    required this.onMenuHided,
+    required this.onReload,
     required this.node,
-    required this.state,
   });
-
+  final VoidCallback onMenuShowed;
+  final VoidCallback onMenuHided;
+  final VoidCallback onReload;
   final Node node;
-  final LinkPreviewBlockComponentState state;
 
   @override
-  State<LinkPreviewMenu> createState() => _LinkPreviewMenuState();
+  State<CustomLinkPreviewMenu> createState() => _CustomLinkPreviewMenuState();
 }
 
-class _LinkPreviewMenuState extends State<LinkPreviewMenu> {
+class _CustomLinkPreviewMenuState extends State<CustomLinkPreviewMenu> {
+  final popoverController = PopoverController();
+  final buttonKey = GlobalKey();
+  bool closed = false;
+
+  @override
+  void dispose() {
+    super.dispose();
+    popoverController.close();
+    widget.onMenuHided.call();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      height: 32,
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 5,
-            spreadRadius: 1,
-            color: Colors.black.withValues(alpha: 0.1),
-          ),
-        ],
-        borderRadius: BorderRadius.circular(4.0),
-      ),
-      child: Row(
-        children: [
-          const HSpace(4),
-          MenuBlockButton(
-            tooltip: LocaleKeys.document_plugins_urlPreview_convertToLink.tr(),
-            iconData: FlowySvgs.m_toolbar_link_m,
-            onTap: () async => convertUrlPreviewNodeToLink(
-              context.read<EditorState>(),
-              widget.node,
-            ),
-          ),
-          const HSpace(4),
-          MenuBlockButton(
-            tooltip: LocaleKeys.editor_copyLink.tr(),
-            iconData: FlowySvgs.copy_s,
-            onTap: copyImageLink,
-          ),
-          const _Divider(),
-          MenuBlockButton(
-            tooltip: LocaleKeys.button_delete.tr(),
-            iconData: FlowySvgs.trash_s,
-            onTap: deleteLinkPreviewNode,
-          ),
-          const HSpace(4),
-        ],
+    return AppFlowyPopover(
+      offset: Offset(0, 0.0),
+      direction: PopoverDirection.bottomWithRightAligned,
+      margin: EdgeInsets.zero,
+      controller: popoverController,
+      onOpen: () => keepEditorFocusNotifier.increase(),
+      onClose: () {
+        keepEditorFocusNotifier.decrease();
+        if (!closed) {
+          closed = true;
+          return;
+        } else {
+          closed = false;
+          widget.onMenuHided.call();
+        }
+      },
+      popupBuilder: (context) => buildMenu(),
+      child: FlowyIconButton(
+        key: buttonKey,
+        icon: FlowySvg(FlowySvgs.toolbar_more_m),
+        onPressed: showPopover,
       ),
     );
   }
 
-  void copyImageLink() {
-    final url = widget.node.attributes[CustomImageBlockKeys.url];
-    if (url != null) {
-      Clipboard.setData(ClipboardData(text: url));
-      showToastNotification(
-        context,
-        message: LocaleKeys.document_plugins_urlPreview_copiedToPasteBoard.tr(),
-      );
-    }
+  Widget buildMenu() {
+    return MouseRegion(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SeparatedColumn(
+          mainAxisSize: MainAxisSize.min,
+          separatorBuilder: () => const VSpace(0.0),
+          children:
+              List.generate(LinkPreviewMenuCommand.values.length, (index) {
+            final command = LinkPreviewMenuCommand.values[index];
+            return SizedBox(
+              height: 36,
+              child: FlowyButton(
+                text: FlowyText(
+                  command.title,
+                  fontWeight: FontWeight.w400,
+                  figmaLineHeight: 20,
+                ),
+                onTap: () => onTap(command),
+              ),
+            );
+          }),
+        ),
+      ),
+    );
   }
 
-  Future<void> deleteLinkPreviewNode() async {
-    final node = widget.node;
+  Future<void> onTap(LinkPreviewMenuCommand command) async {
     final editorState = context.read<EditorState>();
-    final transaction = editorState.transaction;
-    transaction.deleteNode(node);
-    transaction.afterSelection = null;
-    await editorState.apply(transaction);
+    final node = widget.node;
+    final url = node.attributes[LinkPreviewBlockKeys.url];
+    switch (command) {
+      case LinkPreviewMenuCommand.convertToMention:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case LinkPreviewMenuCommand.convertToUrl:
+        await convertUrlPreviewNodeToLink(editorState, node);
+        break;
+      case LinkPreviewMenuCommand.convertToEmbed:
+        await convertLinkBlockToOtherLinkBlock(
+          editorState,
+          node,
+          LinkEmbedBlockKeys.type,
+        );
+        break;
+      case LinkPreviewMenuCommand.copyLink:
+        if (url != null) {
+          await Clipboard.setData(ClipboardData(text: url));
+          if (context.mounted) {
+            showToastNotification(
+              // ignore: use_build_context_synchronously
+              context,
+              message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
+            );
+          }
+        }
+        break;
+      case LinkPreviewMenuCommand.replace:
+        final box = buttonKey.currentContext?.findRenderObject() as RenderBox?;
+        if (box == null) return;
+        final p = box.localToGlobal(Offset.zero);
+        showReplaceMenu(
+          context: context,
+          editorState: editorState,
+          node: node,
+          url: url,
+          ltrb: LTRB(left: p.dx - 330, top: p.dy),
+          onReplace: (url) async {
+            await convertLinkBlockToOtherLinkBlock(
+              editorState,
+              node,
+              node.type,
+              url: url,
+            );
+          },
+        );
+        break;
+      case LinkPreviewMenuCommand.reload:
+        widget.onReload.call();
+        break;
+      case LinkPreviewMenuCommand.removeLink:
+        await removeUrlPreviewLink(editorState, node);
+        break;
+    }
+    closePopover();
+  }
+
+  void showPopover() {
+    widget.onMenuShowed.call();
+    keepEditorFocusNotifier.increase();
+    popoverController.show();
+  }
+
+  void closePopover() {
+    popoverController.close();
+    widget.onMenuHided.call();
   }
 }
 
-class _Divider extends StatelessWidget {
-  const _Divider();
+enum LinkPreviewMenuCommand {
+  convertToMention,
+  convertToUrl,
+  convertToEmbed,
+  copyLink,
+  replace,
+  reload,
+  removeLink;
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Container(
-        width: 1,
-        color: Colors.grey,
-      ),
-    );
+  String get title {
+    switch (this) {
+      case convertToMention:
+        return LocaleKeys.document_plugins_linkPreview_linkPreviewMenu_toMetion
+            .tr();
+      case LinkPreviewMenuCommand.convertToUrl:
+        return LocaleKeys.document_plugins_linkPreview_linkPreviewMenu_toUrl
+            .tr();
+      case LinkPreviewMenuCommand.convertToEmbed:
+        return LocaleKeys.document_plugins_linkPreview_linkPreviewMenu_toEmbed
+            .tr();
+      case LinkPreviewMenuCommand.copyLink:
+        return LocaleKeys.document_plugins_linkPreview_linkPreviewMenu_copyLink
+            .tr();
+      case LinkPreviewMenuCommand.replace:
+        return LocaleKeys.document_plugins_linkPreview_linkPreviewMenu_replace
+            .tr();
+      case LinkPreviewMenuCommand.reload:
+        return LocaleKeys.document_plugins_linkPreview_linkPreviewMenu_reload
+            .tr();
+      case LinkPreviewMenuCommand.removeLink:
+        return LocaleKeys
+            .document_plugins_linkPreview_linkPreviewMenu_removeLink
+            .tr();
+    }
   }
 }

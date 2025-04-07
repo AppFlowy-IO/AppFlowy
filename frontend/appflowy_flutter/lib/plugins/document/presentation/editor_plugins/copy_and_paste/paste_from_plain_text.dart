@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/paste_as/paste_as_menu.dart';
 import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -41,6 +42,13 @@ extension PasteFromPlainText on EditorState {
     }
     if (nodes.length == 1) {
       await pasteSingleLineNode(nodes.first);
+      final href = _getLinkFromNode(nodes.first);
+      if (href != null) {
+        final context = document.root.context;
+        if (context != null && context.mounted) {
+          PasteAsMenuService(context: context, editorState: this).show(href);
+        }
+      }
     } else {
       await pasteMultiLineNodes(nodes.toList());
     }
@@ -66,5 +74,13 @@ extension PasteFromPlainText on EditorState {
     });
     await apply(transaction);
     return true;
+  }
+
+  String? _getLinkFromNode(Node node) {
+    for (final insert in node.delta!) {
+      final link = insert.attributes?.href;
+      if (link != null) return link;
+    }
+    return null;
   }
 }

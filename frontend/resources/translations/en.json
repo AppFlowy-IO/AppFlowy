@@ -2009,7 +2009,26 @@
           "failedDuplicateFindView": "Failed to duplicate page - original view not found"
         }
       },
-      "cannotMoveToItsChildren": "Cannot move to its children"
+      "cannotMoveToItsChildren": "Cannot move to its children",
+      "linkPreview": {
+        "typeSelection": {
+          "pasteAs": "Paste as",
+          "mention": "Mention",
+          "URL": "URL",
+          "bookmark": "Bookmark",
+          "embed": "Embed"
+        },
+        "linkPreviewMenu": {
+          "toMetion": "Convert to Mention",
+          "toUrl": "Convert to URL",
+          "toEmbed": "Convert to Embed",
+          "copyLink": "Copy Link",
+          "replace": "Replace",
+          "reload": "Reload",
+          "removeLink": "Remove Link",
+          "pasteHint": "Paste in https://..."
+        }
+      }
     },
     "outlineBlock": {
       "placeholder": "Table of Contents"

@@ -96,9 +96,9 @@ Future<void> doPaste(EditorState editorState) async {
   }
 
   // paste as link preview
-  if (await _pasteAsLinkPreview(editorState, plainText)) {
-    return Log.info('Pasted as link preview');
-  }
+  // if (await _pasteAsLinkPreview(editorState, plainText)) {
+  //   return Log.info('Pasted as link preview');
+  // }
 
   // Order:
   // 1. in app json format
