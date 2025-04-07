@@ -838,8 +838,7 @@
     "url": {
       "launch": "在瀏覽器中開啟",
       "copy": "複製網址",
-      "textFieldHint": "輸入網址",
-      "copiedNotification": "已複製到剪貼簿"
+      "textFieldHint": "輸入網址"
     },
     "menuName": "網格",
     "referencedGridPrefix": "檢視",

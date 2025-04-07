@@ -1625,8 +1625,7 @@
     "url": {
       "launch": "Im Browser öffnen",
       "copy": "Webadresse kopieren",
-      "textFieldHint": "Gebe eine URL ein",
-      "copiedNotification": "In die Zwischenablage kopiert!"
+      "textFieldHint": "Gebe eine URL ein"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "Verwandte Datenbank",

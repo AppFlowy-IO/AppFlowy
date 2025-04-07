@@ -1672,8 +1672,7 @@
     "url": {
       "launch": "فتح في المتصفح",
       "copy": "إنسخ الرابط",
-      "textFieldHint": "أدخل عنوان URL",
-      "copiedNotification": "تمت نسخها إلى الحافظة!"
+      "textFieldHint": "أدخل عنوان URL"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "قاعدة البيانات ذات الصلة",

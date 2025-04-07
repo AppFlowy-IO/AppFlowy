@@ -1270,8 +1270,7 @@
     "url": {
       "launch": "在浏览器中打开链接",
       "copy": "将链接复制到剪贴板",
-      "textFieldHint": "输入 URL",
-      "copiedNotification": "已复制到剪贴板！"
+      "textFieldHint": "输入 URL"
     },
     "relation": {
       "rowSearchTextFieldPlaceholder": "搜索"
