@@ -566,8 +566,8 @@ impl DatabaseManager {
   ) -> FlowyResult<()> {
     let database = self.get_database_editor_with_view_id(view_id).await?;
     let mut summary_row_content = SummaryRowContent::new();
-    if let Some(row) = database.get_row(&view_id, &row_id).await {
-      let fields = database.get_fields(&view_id, None).await;
+    if let Some(row) = database.get_row(view_id, &row_id).await {
+      let fields = database.get_fields(view_id, None).await;
       for field in fields {
         // When summarizing a row, skip the content in the "AI summary" cell; it does not need to
         // be summarized.
@@ -600,7 +600,7 @@ impl DatabaseManager {
 
     // Update the cell with the response from the cloud service.
     database
-      .update_cell_with_changeset(&view_id, &row_id, &field_id, BoxAny::new(response))
+      .update_cell_with_changeset(view_id, &row_id, &field_id, BoxAny::new(response))
       .await?;
     Ok(())
   }

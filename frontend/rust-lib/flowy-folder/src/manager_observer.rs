@@ -99,7 +99,7 @@ pub(crate) fn subscribe_folder_sync_state_changed(
       }
 
       folder_notification_builder(
-        &workspace_id.to_string(),
+        workspace_id.to_string(),
         FolderNotification::DidUpdateFolderSyncUpdate,
       )
       .payload(FolderSyncStatePB::from(state))

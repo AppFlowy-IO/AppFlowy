@@ -56,7 +56,7 @@ pub fn batch_select_collab_metadata(
     .filter(af_collab_metadata::object_id.eq_any(&object_ids))
     .load::<AFCollabMetadata>(&mut conn)?
     .into_iter()
-    .flat_map(|m| Uuid::from_str(&m.object_id).and_then(|v| Ok((v, m))))
+    .flat_map(|m| Uuid::from_str(&m.object_id).map(|v| (v, m)))
     .collect();
   Ok(metadata)
 }

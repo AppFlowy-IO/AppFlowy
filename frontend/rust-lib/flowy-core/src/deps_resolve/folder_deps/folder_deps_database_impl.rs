@@ -1,3 +1,4 @@
+#![allow(unused_variables)]
 use bytes::Bytes;
 use collab::entity::EncodedCollab;
 use collab_entity::CollabType;
@@ -68,7 +69,7 @@ impl FolderOperationHandler for DatabaseFolderOperation {
       .await?;
     let row_metas = self
       .0
-      .get_database_row_metas_with_view_id(&view_id, row_oids.clone())
+      .get_database_row_metas_with_view_id(view_id, row_oids.clone())
       .await?;
     let row_document_ids = row_metas
       .iter()

@@ -47,7 +47,7 @@ impl PeriodicallyCheckBillingState {
     while attempts < max_attempts {
       let plans = cloud_service
         .get_user_service()?
-        .get_workspace_plan(self.workspace_id.clone())
+        .get_workspace_plan(self.workspace_id)
         .await?;
 
       // If the expected plan is not set, return the plans immediately. Otherwise,

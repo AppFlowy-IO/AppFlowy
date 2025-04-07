@@ -196,7 +196,7 @@ impl FolderQueryService for FolderServiceImpl {
             }
           })
           .collect::<Vec<_>>();
-        children.push(parent_view_id.clone());
+        children.push(*parent_view_id);
         children
       },
       _ => vec![],

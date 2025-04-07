@@ -193,7 +193,7 @@ where
   async fn open_workspace(&self, workspace_id: &Uuid) -> Result<UserWorkspace, FlowyError> {
     let try_get_client = self.server.try_get_client();
     let client = try_get_client?;
-    let af_workspace = client.open_workspace(&workspace_id).await?;
+    let af_workspace = client.open_workspace(workspace_id).await?;
     Ok(to_user_workspace(af_workspace))
   }
 
@@ -348,18 +348,18 @@ where
   #[instrument(level = "debug", skip_all)]
   async fn get_user_awareness_doc_state(
     &self,
-    uid: i64,
+    _uid: i64,
     workspace_id: &Uuid,
     object_id: &Uuid,
   ) -> Result<Vec<u8>, FlowyError> {
     let try_get_client = self.server.try_get_client();
     let cloned_user = self.user.clone();
     let params = QueryCollabParams {
-      workspace_id: workspace_id.clone(),
-      inner: QueryCollab::new(object_id.clone(), CollabType::UserAwareness),
+      workspace_id: *workspace_id,
+      inner: QueryCollab::new(*object_id, CollabType::UserAwareness),
     };
     let resp = try_get_client?.get_collab(params).await?;
-    check_request_workspace_id_is_match(&workspace_id, &cloned_user, "get user awareness object")?;
+    check_request_workspace_id_is_match(workspace_id, &cloned_user, "get user awareness object")?;
     Ok(resp.encode_collab.doc_state.to_vec())
   }
 
@@ -403,12 +403,12 @@ where
       .into_iter()
       .flat_map(|object| {
         Uuid::from_str(&object.object_id)
-          .and_then(|object_id| {
-            Ok(CollabParams::new(
+          .map(|object_id| {
+            CollabParams::new(
               object_id,
               u8::from(object.collab_type).into(),
               object.encoded_collab,
-            ))
+            )
           })
           .ok()
       })
@@ -456,7 +456,7 @@ where
     let try_get_client = self.server.try_get_client();
     let client = try_get_client?;
     let params = QueryWorkspaceMember {
-      workspace_id: workspace_id.clone(),
+      workspace_id: *workspace_id,
       uid,
     };
     let member = client.get_workspace_member(params).await?;
