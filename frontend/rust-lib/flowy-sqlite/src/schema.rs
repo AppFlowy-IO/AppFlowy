@@ -55,6 +55,69 @@ diesel::table! {
 }
 
 diesel::table! {
+    favorite_table (id) {
+        id -> Text,
+        workspace_id -> Text,
+        prev_id -> Nullable<Text>,
+        is_pinned -> Bool,
+        favorited_at -> BigInt,
+    }
+}
+
+diesel::table! {
+    folder_operation_table (id) {
+        id -> Integer,
+        workspace_id -> Text,
+        page_id -> Nullable<Text>,
+        name -> Text,
+        method -> Text,
+        status -> Text,
+        payload -> Nullable<Text>,
+        timestamp -> BigInt,
+    }
+}
+
+diesel::table! {
+    folder_table (id) {
+        id -> Text,
+        workspace_id -> Text,
+        name -> Text,
+        icon -> Nullable<Text>,
+        is_space -> Bool,
+        is_private -> Bool,
+        is_published -> Bool,
+        is_favorite -> Bool,
+        layout -> Integer,
+        created_at -> BigInt,
+        last_edited_time -> BigInt,
+        is_locked -> Nullable<Bool>,
+        parent_id -> Nullable<Text>,
+        sync_status -> Text,
+        last_modified_time -> BigInt,
+        extra -> Nullable<Text>,
+        prev_id -> Nullable<Text>,
+    }
+}
+
+diesel::table! {
+    recent_table (id) {
+        id -> Text,
+        workspace_id -> Text,
+        prev_id -> Nullable<Text>,
+        recent_at -> BigInt,
+    }
+}
+
+diesel::table! {
+    trash_table (id) {
+        id -> Text,
+        workspace_id -> Text,
+        prev_id -> Nullable<Text>,
+        deleted_at -> BigInt,
+    }
+}
+
+diesel::table! {
     upload_file_part (upload_id, e_tag) {
         upload_id -> Text,
         e_tag -> Text,
@@ -128,15 +191,20 @@ diesel::table! {
 }
 
 diesel::allow_tables_to_appear_in_same_query!(
-  af_collab_metadata,
-  chat_local_setting_table,
-  chat_message_table,
-  chat_table,
-  collab_snapshot,
-  upload_file_part,
-  upload_file_table,
-  user_data_migration_records,
-  user_table,
-  user_workspace_table,
-  workspace_members_table,
+    af_collab_metadata,
+    chat_local_setting_table,
+    chat_message_table,
+    chat_table,
+    collab_snapshot,
+    favorite_table,
+    folder_operation_table,
+    folder_table,
+    recent_table,
+    trash_table,
+    upload_file_part,
+    upload_file_table,
+    user_data_migration_records,
+    user_table,
+    user_workspace_table,
+    workspace_members_table,
 );

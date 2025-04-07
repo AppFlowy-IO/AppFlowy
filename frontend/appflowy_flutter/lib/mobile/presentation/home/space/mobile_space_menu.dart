@@ -9,8 +9,8 @@ import 'package:appflowy/shared/icon_emoji_picker/icon.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
 import 'package:appflowy/util/navigator_context_extension.dart';
 import 'package:appflowy/util/string_extension.dart';
-import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/space/space_bloc.dart';
+import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_action_type.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon_popup.dart';
@@ -45,7 +45,7 @@ class MobileSpaceMenu extends StatelessWidget {
                   height: SpaceUIConstants.itemHeight,
                   child: MobileSpaceMenuItem(
                     space: space,
-                    isSelected: state.currentSpace?.id == space.id,
+                    isSelected: state.currentSpace?.viewId == space.viewId,
                   ),
                 ),
               const Padding(
@@ -73,7 +73,7 @@ class MobileSpaceMenuItem extends StatelessWidget {
     required this.isSelected,
   });
 
-  final ViewPB space;
+  final FolderViewPB space;
   final bool isSelected;
 
   @override
@@ -104,7 +104,7 @@ class MobileSpaceMenuItem extends StatelessWidget {
       ),
       leftIconSize: const Size.square(24),
       rightIcon: SpaceMenuItemTrailing(
-        key: ValueKey('${space.id}_space_menu_item_trailing'),
+        key: ValueKey('${space.viewId}_space_menu_item_trailing'),
         space: space,
         currentSpace: context.read<SpaceBloc>().state.currentSpace,
       ),
@@ -126,7 +126,7 @@ class _CreateSpaceButton extends StatefulWidget {
 class _CreateSpaceButtonState extends State<_CreateSpaceButton> {
   final controller = TextEditingController();
   final permission = ValueNotifier<SpacePermission>(
-    SpacePermission.publicToAll,
+    SpacePermission.public,
   );
   final selectedColor = ValueNotifier<String>(
     builtInSpaceColors.first,
@@ -209,7 +209,7 @@ class _CreateSpaceButtonState extends State<_CreateSpaceButton> {
 
   void _resetState() {
     controller.clear();
-    permission.value = SpacePermission.publicToAll;
+    permission.value = SpacePermission.public;
     selectedColor.value = builtInSpaceColors.first;
     selectedIcon.value = kIconGroups?.first.icons.first;
   }
@@ -222,8 +222,8 @@ class SpaceMenuItemTrailing extends StatefulWidget {
     this.currentSpace,
   });
 
-  final ViewPB space;
-  final ViewPB? currentSpace;
+  final FolderViewPB space;
+  final FolderViewPB? currentSpace;
 
   @override
   State<SpaceMenuItemTrailing> createState() => _SpaceMenuItemTrailingState();
@@ -232,7 +232,7 @@ class SpaceMenuItemTrailing extends StatefulWidget {
 class _SpaceMenuItemTrailingState extends State<SpaceMenuItemTrailing> {
   final controller = TextEditingController();
   final permission = ValueNotifier<SpacePermission>(
-    SpacePermission.publicToAll,
+    SpacePermission.public,
   );
   final selectedColor = ValueNotifier<String>(
     builtInSpaceColors.first,
@@ -258,7 +258,7 @@ class _SpaceMenuItemTrailingState extends State<SpaceMenuItemTrailing> {
       children: [
         const HSpace(12.0),
         // show the check icon if the space is the current space
-        if (widget.space.id == widget.currentSpace?.id)
+        if (widget.space.viewId == widget.currentSpace?.viewId)
           const FlowySvg(
             FlowySvgs.m_blue_check_s,
             size: iconSize,

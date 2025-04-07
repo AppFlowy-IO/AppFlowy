@@ -2,14 +2,15 @@ import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/util/theme_extension.dart';
 import 'package:appflowy/workspace/application/sidebar/folder/folder_bloc.dart';
-import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_bloc.dart';
-import 'package:appflowy/workspace/application/view/view_ext.dart';
+import 'package:appflowy/workspace/application/user/user_workspace_bloc.dart';
+import 'package:appflowy/workspace/application/view/folder_view_ext.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/page/page_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/space/space_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/presentation/widgets/page_item.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/_extension.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/sidebar_space_menu.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/space_icon.dart';
-import 'package:appflowy/workspace/presentation/home/menu/view/view_item.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/protobuf.dart';
 import 'package:appflowy_backend/protobuf/flowy-folder/view.pb.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -40,7 +41,7 @@ class SpacePermissionSwitch extends StatefulWidget {
 
 class _SpacePermissionSwitchState extends State<SpacePermissionSwitch> {
   late SpacePermission spacePermission =
-      widget.spacePermission ?? SpacePermission.publicToAll;
+      widget.spacePermission ?? SpacePermission.public;
   final popoverController = PopoverController();
 
   @override
@@ -87,8 +88,8 @@ class _SpacePermissionSwitchState extends State<SpacePermissionSwitch> {
         mainAxisSize: MainAxisSize.min,
         children: [
           SpacePermissionButton(
-            permission: SpacePermission.publicToAll,
-            onTap: () => _onPermissionChanged(SpacePermission.publicToAll),
+            permission: SpacePermission.public,
+            onTap: () => _onPermissionChanged(SpacePermission.public),
           ),
           SpacePermissionButton(
             permission: SpacePermission.private,
@@ -125,7 +126,7 @@ class SpacePermissionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (title, desc, icon) = switch (permission) {
-      SpacePermission.publicToAll => (
+      SpacePermission.public => (
           LocaleKeys.space_publicPermission.tr(),
           LocaleKeys.space_publicPermissionDescription.tr(),
           FlowySvgs.space_permission_public_s
@@ -496,7 +497,7 @@ class CurrentSpace extends StatelessWidget {
     this.isHovered = false,
   });
 
-  final ViewPB space;
+  final FolderViewPB space;
   final VoidCallback? onTapBlankArea;
   final bool isHovered;
 
@@ -572,39 +573,44 @@ class SpacePages extends StatelessWidget {
     this.shouldIgnoreView,
   });
 
-  final ViewPB space;
+  final FolderViewPB space;
   final ValueNotifier<bool> isHovered;
   final PropertyValueNotifier<bool> isExpandedNotifier;
   final bool disableSelectedStatus;
-  final ViewItemRightIconsBuilder? rightIconsBuilder;
-  final ViewItemOnSelected onSelected;
-  final ViewItemOnSelected? onTertiarySelected;
-  final IgnoreViewType Function(ViewPB view)? shouldIgnoreView;
+  final PageItemRightIconsBuilder? rightIconsBuilder;
+  final PageItemOnSelected onSelected;
+  final PageItemOnSelected? onTertiarySelected;
+  final IgnoreFolderViewType Function(FolderViewPB view)? shouldIgnoreView;
 
   @override
   Widget build(BuildContext context) {
+    final workspaceId =
+        context.read<UserWorkspaceBloc>().state.currentWorkspace?.workspaceId ??
+            '';
     return BlocProvider(
-      create: (_) => ViewBloc(view: space)..add(const ViewEvent.initial()),
-      child: BlocBuilder<ViewBloc, ViewState>(
+      create: (_) => FolderViewBloc(
+        workspaceId: workspaceId,
+        view: space,
+      )..add(const FolderViewEvent.initial()),
+      child: BlocBuilder<FolderViewBloc, FolderViewState>(
         builder: (context, state) {
           // filter the child views that should be ignored
-          List<ViewPB> childViews = state.view.childViews;
+          List<FolderViewPB> childViews = state.view.children;
           if (shouldIgnoreView != null) {
             childViews = childViews
-                .where((v) => shouldIgnoreView!(v) != IgnoreViewType.hide)
+                .where((v) => shouldIgnoreView!(v) != IgnoreFolderViewType.hide)
                 .toList();
           }
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: childViews
                 .map(
-                  (view) => ViewItem(
-                    key: ValueKey('${space.id} ${view.id}'),
-                    spaceType:
-                        space.spacePermission == SpacePermission.publicToAll
-                            ? FolderSpaceType.public
-                            : FolderSpaceType.private,
-                    isFirstChild: view.id == childViews.first.id,
+                  (view) => PageItem(
+                    key: ValueKey('${space.viewId} ${view.viewId}'),
+                    spaceType: space.spacePermission == SpacePermission.public
+                        ? FolderSpaceType.public
+                        : FolderSpaceType.private,
+                    isFirstChild: view.viewId == childViews.first.viewId,
                     view: view,
                     level: 0,
                     leftPadding: HomeSpaceViewSizes.leftPadding,

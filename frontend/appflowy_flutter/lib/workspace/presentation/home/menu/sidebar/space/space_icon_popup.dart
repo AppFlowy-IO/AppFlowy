@@ -48,7 +48,7 @@ class SpaceIconPopup extends StatefulWidget {
 
   final String? icon;
   final String? iconColor;
-  final ViewPB? space;
+  final FolderViewPB? space;
   final void Function(String? icon, String? color) onIconChanged;
   final double cornerRadius;
 

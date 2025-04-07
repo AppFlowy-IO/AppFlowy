@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/shared/icon_emoji_picker/flowy_icon_emoji_picker.dart';
 import 'package:appflowy/shared/icon_emoji_picker/icon_picker.dart';
-import 'package:appflowy/workspace/application/sidebar/space/space_bloc.dart';
+import 'package:appflowy/workspace/presentation/home/menu/sidebar/experimental/bloc/space/space_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_sizes.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/manage_space_popup.dart';
 import 'package:appflowy/workspace/presentation/home/menu/sidebar/space/shared_widget.dart';
@@ -29,7 +29,7 @@ class SidebarSpaceHeader extends StatefulWidget {
     required this.isExpanded,
   });
 
-  final ViewPB space;
+  final FolderViewPB space;
   final void Function(ViewLayoutPB layout) onAdded;
   final VoidCallback onCreateNewSpace;
   final VoidCallback onCollapseAllPages;
@@ -142,7 +142,7 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
             FlowyTooltip(
               message: LocaleKeys.sideBar_addAPage.tr(),
               child: ViewAddButton(
-                parentViewId: widget.space.id,
+                parentViewId: widget.space.viewId,
                 onEditing: (_) {},
                 onSelected: (
                   pluginBuilder,
@@ -195,7 +195,7 @@ class _SidebarSpaceHeaderState extends State<SidebarSpaceHeader> {
       case SpaceMoreActionType.manage:
         _showManageSpaceDialog(context);
         break;
-      case SpaceMoreActionType.addNewSpace:
+      case SpaceMoreActionType.createSpace:
         widget.onCreateNewSpace();
         break;
       case SpaceMoreActionType.collapseAllPages:

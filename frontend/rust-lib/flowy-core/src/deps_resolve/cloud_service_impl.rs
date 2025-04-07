@@ -1,7 +1,11 @@
 use client_api::collab_sync::{SinkConfig, SyncObject, SyncPlugin};
 use client_api::entity::ai_dto::RepeatedRelatedQuestion;
 use client_api::entity::search_dto::SearchDocumentResponseItem;
-use client_api::entity::workspace_dto::PublishInfoView;
+use client_api::entity::workspace_dto::{
+  CreatePageParams, CreateSpaceParams, DuplicatePageParams, FavoriteFolderView, FavoritePageParams,
+  FolderView, MovePageParams, PublishInfoView, RecentFolderView, TrashFolderView, UpdatePageParams,
+  UpdateSpaceParams,
+};
 use client_api::entity::PublishInfo;
 use collab::core::origin::{CollabClient, CollabOrigin};
 use collab::entity::EncodedCollab;
@@ -429,6 +433,161 @@ impl FolderCloudService for ServerProvider {
       .folder_service()
       .full_sync_collab_object(workspace_id, params)
       .await
+  }
+
+  async fn get_workspace_folder(
+    &self,
+    workspace_id: &str,
+    depth: Option<u32>,
+    root_view_id: Option<String>,
+  ) -> Result<FolderView, FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .get_workspace_folder(workspace_id, depth, root_view_id)
+      .await
+  }
+
+  async fn create_page(
+    &self,
+    workspace_id: &str,
+    params: CreatePageParams,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .create_page(workspace_id, params)
+      .await
+  }
+
+  async fn duplicate_page(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: DuplicatePageParams,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .duplicate_page(workspace_id, view_id, params)
+      .await
+  }
+
+  async fn move_page(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: MovePageParams,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .move_page(workspace_id, view_id, params)
+      .await
+  }
+
+  async fn move_page_to_trash(&self, workspace_id: &str, view_id: &str) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .move_page_to_trash(workspace_id, view_id)
+      .await
+  }
+
+  async fn restore_page_from_trash(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .restore_page_from_trash(workspace_id, view_id)
+      .await
+  }
+
+  async fn update_page(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: UpdatePageParams,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .update_page(workspace_id, view_id, params)
+      .await
+  }
+
+  async fn create_space(
+    &self,
+    workspace_id: &str,
+    params: CreateSpaceParams,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .create_space(workspace_id, params)
+      .await
+  }
+
+  async fn update_space(
+    &self,
+    workspace_id: &str,
+    space_id: &str,
+    params: UpdateSpaceParams,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .update_space(workspace_id, space_id, params)
+      .await
+  }
+
+  async fn get_favorite_pages(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<FavoriteFolderView>, FlowyError> {
+    let server = self.get_server()?;
+    let favorite_pages = server
+      .folder_service()
+      .get_favorite_pages(workspace_id)
+      .await?;
+    Ok(favorite_pages)
+  }
+
+  async fn update_favorite_page(
+    &self,
+    workspace_id: &str,
+    view_id: &str,
+    params: FavoritePageParams,
+  ) -> Result<(), FlowyError> {
+    let server = self.get_server()?;
+    server
+      .folder_service()
+      .update_favorite_page(workspace_id, view_id, params)
+      .await
+  }
+
+  async fn get_recent_pages(
+    &self,
+    workspace_id: &str,
+  ) -> Result<Vec<RecentFolderView>, FlowyError> {
+    let server = self.get_server()?;
+    let recent_pages = server
+      .folder_service()
+      .get_recent_pages(workspace_id)
+      .await?;
+    Ok(recent_pages)
+  }
+
+  async fn get_trash_pages(&self, workspace_id: &str) -> Result<Vec<TrashFolderView>, FlowyError> {
+    let server = self.get_server()?;
+    let trash_pages = server
+      .folder_service()
+      .get_trash_pages(workspace_id)
+      .await?;
+    Ok(trash_pages)
   }
 }
 
