@@ -15,6 +15,7 @@ void main() {
       await tester.initializeAppFlowy();
       await tester.tapAnonymousSignInButton();
 
+      // create a database and add a linked database view
       await tester.createNewPageWithNameUnderParent(layout: ViewLayoutPB.Grid);
       await tester.tapCreateLinkedDatabaseViewButton(DatabaseLayoutPB.Grid);
 
@@ -27,6 +28,10 @@ void main() {
       // hide the field
       await tester.tapGridFieldWithName('New field 1');
       await tester.tapHidePropertyButton();
+      tester.noFieldWithName('New field 1');
+
+      // create another field, New field 1 to be hidden still
+      await tester.tapNewPropertyButton();
       tester.noFieldWithName('New field 1');
 
       // go back to inline database view, expect field to be shown
