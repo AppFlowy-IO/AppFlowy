@@ -1,5 +1,5 @@
 {
-  "appName": "AppFlowy",
+  "appName": "MyCompany",
   "defaultUsername": "Jo",
   "welcomeText": "Benvingut a @:appName",
   "welcomeTo": "Benvingut a",
@@ -270,7 +270,7 @@
       "invalidCloudURLScheme": "Esquema no vàlid",
       "cloudServerType": "Servidor al núvol",
       "cloudLocal": "Local",
-      "cloudAppFlowy": "@:appName Cloud Beta",
+      "cloudMyCompany": "@:appName Cloud Beta",
       "clickToCopy": "Feu clic per copiar",
       "selfHostContent": "document",
       "cloudURLHint": "Introduïu l'URL base del vostre servidor",

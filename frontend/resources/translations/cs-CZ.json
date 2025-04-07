@@ -1,5 +1,5 @@
 {
-  "appName": "AppFlowy",
+  "appName": "MyCompany",
   "defaultUsername": "Já",
   "welcomeText": "Vítej",
   "githubStarText": "Ohvě",
@@ -265,7 +265,7 @@
       "enableSync": "Zapnout synchronizaci",
       "enableEncrypt": "Šifrovat data",
       "cloudURL": "URL adresa serveru",
-      "cloudAppFlowy": "@:appName Cloud Beta",
+      "cloudMyCompany": "@:appName Cloud Beta",
       "enableEncryptPrompt": "Zapněte šifrování a zabezpečte svá ",
       "inputEncryptPrompt": "Vložte prosím Váš šifrovací klíč k",
       "clickToCopySecret": "Kliknutím zkopírujete šifrovací klíč",

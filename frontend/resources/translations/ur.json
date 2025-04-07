@@ -1,5 +1,5 @@
 {
-    "appName": "AppFlowy",
+    "appName": "MyCompany",
     "defaultUsername": "میں",
     "welcomeText": "میں خوش آمدید @:appName",
     "githubStarText": "GitHub پر ستارہ دیں",
@@ -278,7 +278,7 @@
             },
             "themeUpload": {
                 "button": "اپ لوڈ کریں",
-                "description": "نیچے دیے گئے بٹن کا استعمال کرتے ہوئے اپنا اپنا AppFlowy تھیم اپ لوڈ کریں۔",
+                "description": "نیچے دیے گئے بٹن کا استعمال کرتے ہوئے اپنا اپنا MyCompany تھیم اپ لوڈ کریں۔",
                 "failure": "اپ لوڈ کیا گیا تھیم ایک غیر معتبر فارمیٹ میں تھا۔",
                 "loading": "براہ کرم انتظار کریں جب ہم آپ کے تھیم کو تصدیق اور اپ لوڈ کرتے ہیں۔...",
                 "uploadSuccess": "آپ کا تھیم کامیابی کے ساتھ اپ لوڈ کر دیا گیا",
@@ -296,7 +296,7 @@
             "defaultLocation": "فائلیں اور ڈیٹا اسٹوریج کی جگہ پڑھیں",
             "exportData": "اپنے ڈیٹا کو برآمد کریں",
             "doubleTapToCopy": "راستہ کاپی کرنے کے لیے دو بار ٹیپ کریں",
-            "restoreLocation": "AppFlowy ڈیفالٹ راستے پر بحال کریں",
+            "restoreLocation": "MyCompany ڈیفالٹ راستے پر بحال کریں",
             "customizeLocation": "دوسرا فولڈر کھولیں",
             "restartApp": "تبدیلیوں کو لاگو کرنے کے لیے براہ کرم ایپ کو دوبارہ شروع کریں۔",
             "exportDatabase": "ڈیٹابیس برآمد کریں",
@@ -308,10 +308,10 @@
             "defineWhereYourDataIsStored": "تعریف کریں کہ آپ کا ڈیٹا کہاں ذخیرہ کیا گیا ہے",
             "open": "کھولیں",
             "openFolder": "موجودہ فولڈر کھولیں",
-            "openFolderDesc": "اسے پڑھیں اور اپنے موجودہ AppFlowy فولڈر میں لکھیں",
+            "openFolderDesc": "اسے پڑھیں اور اپنے موجودہ MyCompany فولڈر میں لکھیں",
             "folderHintText": "فولڈر کا نام",
             "location": "نیا فولڈر بنانا",
-            "locationDesc": "اپنے AppFlowy ڈیٹا فولڈر کے لیے نام منتخب کریں",
+            "locationDesc": "اپنے MyCompany ڈیٹا فولڈر کے لیے نام منتخب کریں",
             "browser": "براؤز کریں",
             "create": "بنائیں",
             "set": "سیٹ کریں",
@@ -322,7 +322,7 @@
             "change": "تبدیل کریں",
             "openLocationTooltips": "دوسرا ڈیٹا ڈائرکٹری کھولیں",
             "openCurrentDataFolder": "موجودہ ڈیٹا ڈائرکٹری کھولیں",
-            "recoverLocationTooltips": "AppFlowy کی ڈیفالٹ ڈیٹا ڈائرکٹری پر ری سیٹ کریں",
+            "recoverLocationTooltips": "MyCompany کی ڈیفالٹ ڈیٹا ڈائرکٹری پر ری سیٹ کریں",
             "exportFileSuccess": "فائل کو کامیابی کے ساتھ برآمد کیا!",
             "exportFileFail": "فائل برآمد کرنے میں ناکام ہو گیا!",
             "export": "برآمد کریں"
@@ -675,7 +675,7 @@
         "referencedCalendarPrefix": "کے نظارہ"
     },
     "errorDialog": {
-        "title": "AppFlowy کی غلطی",
+        "title": "MyCompany کی غلطی",
         "howToFixFallback": "اس پریشانی کے لیے معذرت چاہتے ہیں! اپنی غلطی کی وضاحت کرنے والا ایک ایشو ہماری گٹ ہب پیج پر جمع کریں۔",
         "github": "گٹ ہب پر دیکھیں"
     },

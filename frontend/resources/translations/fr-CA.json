@@ -1,5 +1,5 @@
 {
-  "appName": "AppFlowy",
+  "appName": "MyCompany",
   "defaultUsername": "Moi",
   "welcomeText": "Bienvenue sur @:appName",
   "welcomeTo": "Bienvenue à",
@@ -121,14 +121,14 @@
     "csv": "CSV",
     "copyLink": "Copier le lien",
     "publishToTheWeb": "Publier sur le Web",
-    "publishToTheWebHint": "Créer un site Internet avec AppFlowy",
+    "publishToTheWebHint": "Créer un site Internet avec MyCompany",
     "publish": "Partager",
     "unPublish": "Annuler la publication",
     "visitSite": "Visitez le site",
     "exportAsTab": "Exporter en tant que",
     "publishTab": "Partager",
     "shareTab": "Partager",
-    "publishOnAppFlowy": "Partager sur AppFlowy"
+    "publishOnMyCompany": "Partager sur MyCompany"
   },
   "moreAction": {
     "small": "petit",
@@ -335,8 +335,8 @@
       "cloudServerType": "Serveur cloud",
       "cloudServerTypeTip": "Veuillez noter qu'il est possible que votre compte actuel soit déconnecté après avoir changé de serveur cloud.",
       "cloudLocal": "Local",
-      "cloudAppFlowy": "@:appName Cloud Bêta",
-      "cloudAppFlowySelfHost": "@:appName Cloud auto-hébergé",
+      "cloudMyCompany": "@:appName Cloud Bêta",
+      "cloudMyCompanySelfHost": "@:appName Cloud auto-hébergé",
       "appFlowyCloudUrlCanNotBeEmpty": "L'URL cloud ne peut pas être vide",
       "clickToCopy": "Cliquez pour copier",
       "selfHostStart": "Si vous n'avez pas de serveur, veuillez vous référer au",
@@ -358,9 +358,9 @@
       "historicalUserListTooltip": "Cette liste affiche vos comptes anonymes. Vous pouvez cliquer sur un compte pour afficher ses détails. Les comptes anonymes sont créés en cliquant sur le bouton « Commencer »",
       "openHistoricalUser": "Cliquez pour ouvrir le compte anonyme",
       "customPathPrompt": "Le stockage du dossier de données @:appName dans un dossier synchronisé avec le cloud tel que Google Drive peut présenter des risques. Si la base de données de ce dossier est consultée ou modifiée à partir de plusieurs emplacements en même temps, cela peut entraîner des conflits de synchronisation et une corruption potentielle des données.",
-      "importAppFlowyData": "Importer des données à partir du dossier @:appName externe",
-      "importingAppFlowyDataTip": "L'importation des données est en cours. Veuillez ne pas fermer l'application",
-      "importAppFlowyDataDescription": "Copiez les données d'un dossier de données @:appName externe et importez-les dans le dossier de données @:appName actuel",
+      "importMyCompanyData": "Importer des données à partir du dossier @:appName externe",
+      "importingMyCompanyDataTip": "L'importation des données est en cours. Veuillez ne pas fermer l'application",
+      "importMyCompanyDataDescription": "Copiez les données d'un dossier de données @:appName externe et importez-les dans le dossier de données @:appName actuel",
       "importSuccess": "Importation réussie du dossier de données @:appName",
       "importFailed": "L'importation du dossier de données @:appName a échoué",
       "importGuide": "Pour plus de détails, veuillez consulter le document référencé"

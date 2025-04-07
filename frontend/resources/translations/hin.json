@@ -1,5 +1,5 @@
 {
-  "appName": "AppFlowy",
+  "appName": "MyCompany",
   "defaultUsername": "मैं",
   "welcomeText": " @:appName में आपका स्वागत है",
   "githubStarText": "गिटहब पर स्टार करे",
@@ -279,7 +279,7 @@
       "themeUpload": {
         "button": "अपलोड करें",
         "uploadTheme": "थीम अपलोड करें",
-        "description": "नीचे दिए गए बटन का उपयोग करके अपनी खुद की AppFlowy थीम अपलोड करें।",
+        "description": "नीचे दिए गए बटन का उपयोग करके अपनी खुद की MyCompany थीम अपलोड करें।",
         "failure": "जो थीम अपलोड किया गया था उसका प्रारूप अमान्य था।",
         "loading": "कृपया तब तक प्रतीक्षा करें जब तक हम आपकी थीम को सत्यापित और अपलोड नहीं कर देते...",
         "uploadSuccess": "आपका थीम सफलतापूर्वक अपलोड किया गया",
@@ -297,7 +297,7 @@
       "defaultLocation": "फ़ाइलें और डेटा संग्रहण स्थान पढ़ें",
       "exportData": "अपना डेटा निर्यात करें",
       "doubleTapToCopy": "पथ को कॉपी करने के लिए दो बार टैप करें",
-      "restoreLocation": "AppFlowy डिफ़ॉल्ट पथ पर रीस्टार्ट करें",
+      "restoreLocation": "MyCompany डिफ़ॉल्ट पथ पर रीस्टार्ट करें",
       "customizeLocation": "कोई अन्य फ़ोल्डर खोलें",
       "restartApp": "परिवर्तनों को प्रभावी बनाने के लिए कृपया ऐप को रीस्टार्ट करें।",
       "exportDatabase": "डेटाबेस निर्यात करें",
@@ -309,10 +309,10 @@
       "defineWhereYourDataIsStored": "परिभाषित करें कि आपका डेटा कहाँ संग्रहीत है",
       "open": "खोलें",
       "openFolder": "मौजूदा फ़ोल्डर खोलें",
-      "openFolderDesc": "इसे पढ़ें और इसे अपने मौजूदा AppFlowy फ़ोल्डर में लिखें",
+      "openFolderDesc": "इसे पढ़ें और इसे अपने मौजूदा MyCompany फ़ोल्डर में लिखें",
       "folderHintText": "फ़ोल्डर का नाम",
       "location": "एक नया फ़ोल्डर बनाना",
-      "locationDesc": "अपने AppFlowy डेटा फ़ोल्डर के लिए एक नाम चुनें",
+      "locationDesc": "अपने MyCompany डेटा फ़ोल्डर के लिए एक नाम चुनें",
       "browser": "ब्राउज़ करें",
       "create": "बनाएँ",
       "set": "सेट",
@@ -323,7 +323,7 @@
       "change": "परिवर्तन",
       "openLocationTooltips": "अन्य डेटा निर्देशिका खोलें",
       "openCurrentDataFolder": "वर्तमान डेटा निर्देशिका खोलें",
-      "recoverLocationTooltips": "AppFlowy की डिफ़ॉल्ट डेटा निर्देशिका पर रीसेट करें",
+      "recoverLocationTooltips": "MyCompany की डिफ़ॉल्ट डेटा निर्देशिका पर रीसेट करें",
       "exportFileSuccess": "फ़ाइल सफलतापूर्वक निर्यात हुई",
       "exportFileFail": "फ़ाइल निर्यात विफल रहा!",
       "export": "निर्यात"
@@ -683,7 +683,7 @@
     "referencedCalendarPrefix": "का दृश्य"
   },
   "errorDialog": {
-    "title": "AppFlowy error",
+    "title": "MyCompany error",
     "howToFixFallback": "असुविधा के लिए हमें खेद है! हमारे GitHub पेज पर एक मुद्दा सबमिट करें जो आपकी error का वर्णन करता है।",
     "github": "GitHub पर देखें  "
   },
