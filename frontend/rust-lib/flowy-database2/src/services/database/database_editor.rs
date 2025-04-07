@@ -133,7 +133,7 @@ impl DatabaseEditor {
       database.clone(),
     )?;
     let this = Arc::new(Self {
-      database_id: database_id.clone(),
+      database_id,
       user,
       database,
       cell_cache,

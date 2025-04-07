@@ -444,7 +444,7 @@ impl DatabaseCloudService for ServerProvider {
     let server = self.get_server()?;
     server
       .database_service()
-      .get_database_encode_collab(object_id, collab_type, &workspace_id)
+      .get_database_encode_collab(object_id, collab_type, workspace_id)
       .await
   }
 
@@ -485,7 +485,7 @@ impl DatabaseCloudService for ServerProvider {
 
     server
       .database_service()
-      .get_database_collab_object_snapshots(&object_id, limit)
+      .get_database_collab_object_snapshots(object_id, limit)
       .await
   }
 }
@@ -686,7 +686,7 @@ impl ChatCloudService for ServerProvider {
     self
       .get_server()?
       .chat_service()
-      .create_question(&workspace_id, &chat_id, &message, message_type, metadata)
+      .create_question(workspace_id, chat_id, &message, message_type, metadata)
       .await
   }
 
@@ -716,7 +716,7 @@ impl ChatCloudService for ServerProvider {
     let server = self.get_server()?;
     server
       .chat_service()
-      .stream_answer(&workspace_id, &chat_id, message_id, format, ai_model)
+      .stream_answer(workspace_id, chat_id, message_id, format, ai_model)
       .await
   }
 

@@ -1,3 +1,4 @@
+#![allow(unused_variables)]
 use client_api::entity::{CreateCollabParams, QueryCollab, QueryCollabParams};
 use collab::core::collab::DataSource;
 use collab::core::origin::CollabOrigin;
@@ -33,8 +34,8 @@ where
     workspace_id: &Uuid,
   ) -> Result<Vec<u8>, FlowyError> {
     let params = QueryCollabParams {
-      workspace_id: workspace_id.clone(),
-      inner: QueryCollab::new(document_id.clone(), CollabType::Document),
+      workspace_id: *workspace_id,
+      inner: QueryCollab::new(*document_id, CollabType::Document),
     };
     let doc_state = self
       .inner
@@ -71,8 +72,8 @@ where
     workspace_id: &Uuid,
   ) -> Result<Option<DocumentData>, FlowyError> {
     let params = QueryCollabParams {
-      workspace_id: workspace_id.clone(),
-      inner: QueryCollab::new(document_id.clone(), CollabType::Document),
+      workspace_id: *workspace_id,
+      inner: QueryCollab::new(*document_id, CollabType::Document),
     };
     let doc_state = self
       .inner
@@ -105,8 +106,8 @@ where
     encoded_collab: EncodedCollab,
   ) -> Result<(), FlowyError> {
     let params = CreateCollabParams {
-      workspace_id: workspace_id.clone(),
-      object_id: document_id.clone(),
+      workspace_id: *workspace_id,
+      object_id: *document_id,
       encoded_collab_v1: encoded_collab
         .encode_to_bytes()
         .map_err(|err| FlowyError::internal().with_context(err))?,

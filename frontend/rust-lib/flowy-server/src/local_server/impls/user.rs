@@ -1,3 +1,4 @@
+#![allow(unused_variables)]
 use collab::core::origin::CollabOrigin;
 use collab::preclude::Collab;
 use collab_entity::CollabObject;

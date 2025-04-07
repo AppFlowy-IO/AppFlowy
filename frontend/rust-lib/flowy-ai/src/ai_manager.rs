@@ -135,10 +135,10 @@ impl AIManager {
   }
 
   pub async fn open_chat(&self, chat_id: &Uuid) -> Result<(), FlowyError> {
-    self.chats.entry(chat_id.clone()).or_insert_with(|| {
+    self.chats.entry(*chat_id).or_insert_with(|| {
       Arc::new(Chat::new(
         self.user_service.user_id().unwrap(),
-        chat_id.clone(),
+        *chat_id,
         self.user_service.clone(),
         self.cloud_service_wm.clone(),
       ))
@@ -152,7 +152,7 @@ impl AIManager {
     let cloud_service_wm = self.cloud_service_wm.clone();
     let store_preferences = self.store_preferences.clone();
     let external_service = self.external_service.clone();
-    let chat_id = chat_id.clone();
+    let chat_id = *chat_id;
     tokio::spawn(async move {
       match refresh_chat_setting(
         &user_service,
@@ -238,11 +238,11 @@ impl AIManager {
 
     let chat = Arc::new(Chat::new(
       self.user_service.user_id()?,
-      chat_id.clone(),
+      *chat_id,
       self.user_service.clone(),
       self.cloud_service_wm.clone(),
     ));
-    self.chats.insert(chat_id.clone(), chat.clone());
+    self.chats.insert(*chat_id, chat.clone());
     Ok(chat)
   }
 
@@ -533,11 +533,11 @@ impl AIManager {
       None => {
         let chat = Arc::new(Chat::new(
           self.user_service.user_id()?,
-          chat_id.clone(),
+          *chat_id,
           self.user_service.clone(),
           self.cloud_service_wm.clone(),
         ));
-        self.chats.insert(chat_id.clone(), chat.clone());
+        self.chats.insert(*chat_id, chat.clone());
         Ok(chat)
       },
       Some(chat) => Ok(chat),
@@ -739,18 +739,15 @@ async fn refresh_chat_setting(
     error!("failed to set chat settings: {}", err);
   }
 
-  chat_notification_builder(
-    &chat_id.to_string(),
-    ChatNotification::DidUpdateChatSettings,
-  )
-  .payload(ChatSettingsPB {
-    rag_ids: settings.rag_ids.clone(),
-  })
-  .send();
+  chat_notification_builder(chat_id.to_string(), ChatNotification::DidUpdateChatSettings)
+    .payload(ChatSettingsPB {
+      rag_ids: settings.rag_ids.clone(),
+    })
+    .send();
 
   Ok(settings)
 }
 
 fn setting_store_key(chat_id: &Uuid) -> String {
-  format!("chat_settings_{}", chat_id.to_string())
+  format!("chat_settings_{}", chat_id)
 }

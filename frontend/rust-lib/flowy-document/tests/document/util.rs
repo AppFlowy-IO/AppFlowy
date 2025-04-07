@@ -1,7 +1,6 @@
 use std::ops::Deref;
 use std::sync::{Arc, OnceLock};
 
-use anyhow::Error;
 use collab::entity::EncodedCollab;
 use collab::preclude::CollabPlugin;
 use collab_document::blocks::DocumentData;
@@ -39,7 +38,7 @@ impl DocumentTest {
     let builder = Arc::new(AppFlowyCollabBuilder::new(
       DefaultCollabStorageProvider(),
       WorkspaceCollabIntegrateImpl {
-        workspace_id: user.workspace_id.clone(),
+        workspace_id: user.workspace_id,
       },
     ));
 
@@ -89,7 +88,7 @@ impl DocumentUserService for FakeUser {
   }
 
   fn workspace_id(&self) -> Result<Uuid, FlowyError> {
-    Ok(self.workspace_id.clone())
+    Ok(self.workspace_id)
   }
 
   fn collab_db(&self, _uid: i64) -> Result<std::sync::Weak<CollabKVDB>, FlowyError> {
@@ -145,7 +144,7 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
   async fn get_document_doc_state(
     &self,
     document_id: &Uuid,
-    workspace_id: &Uuid,
+    _workspace_id: &Uuid,
   ) -> Result<Vec<u8>, FlowyError> {
     let document_id = document_id.to_string();
     Err(FlowyError::new(
@@ -156,26 +155,26 @@ impl DocumentCloudService for LocalTestDocumentCloudServiceImpl {
 
   async fn get_document_snapshots(
     &self,
-    document_id: &Uuid,
-    limit: usize,
-    workspace_id: &str,
+    _document_id: &Uuid,
+    _limit: usize,
+    _workspace_id: &str,
   ) -> Result<Vec<DocumentSnapshot>, FlowyError> {
     Ok(vec![])
   }
 
   async fn get_document_data(
     &self,
-    document_id: &Uuid,
-    workspace_id: &Uuid,
+    _document_id: &Uuid,
+    _workspace_id: &Uuid,
   ) -> Result<Option<DocumentData>, FlowyError> {
     Ok(None)
   }
 
   async fn create_document_collab(
     &self,
-    workspace_id: &Uuid,
-    document_id: &Uuid,
-    encoded_collab: EncodedCollab,
+    _workspace_id: &Uuid,
+    _document_id: &Uuid,
+    _encoded_collab: EncodedCollab,
   ) -> Result<(), FlowyError> {
     Ok(())
   }
@@ -260,7 +259,7 @@ struct WorkspaceCollabIntegrateImpl {
 }
 impl WorkspaceCollabIntegrate for WorkspaceCollabIntegrateImpl {
   fn workspace_id(&self) -> Result<Uuid, FlowyError> {
-    Ok(self.workspace_id.clone())
+    Ok(self.workspace_id)
   }
 
   fn device_id(&self) -> Result<String, FlowyError> {

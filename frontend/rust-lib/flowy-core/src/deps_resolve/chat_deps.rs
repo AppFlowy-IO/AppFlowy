@@ -112,7 +112,7 @@ impl AIExternalService for ChatQueryServiceImpl {
 
       // Perform full sync if changes are detected or no state vector is found
       let params = FullSyncCollabParams {
-        object_id: rag_id.clone(),
+        object_id: rag_id,
         collab_type: CollabType::Document,
         encoded_collab: query_collab.encoded_collab.clone(),
       };

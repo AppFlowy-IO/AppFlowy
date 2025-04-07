@@ -1,3 +1,4 @@
+#![allow(unused_variables)]
 use collab::entity::EncodedCollab;
 use collab_database::database::default_database_data;
 use collab_database::workspace_database::default_workspace_database_data;

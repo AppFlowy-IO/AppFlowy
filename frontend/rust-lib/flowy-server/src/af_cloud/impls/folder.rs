@@ -14,7 +14,7 @@ use std::sync::Arc;
 use tracing::{instrument, trace};
 use uuid::Uuid;
 
-use flowy_error::{ErrorCode, FlowyError};
+use flowy_error::FlowyError;
 use flowy_folder_pub::cloud::{
   Folder, FolderCloudService, FolderCollabParams, FolderData, FolderSnapshot, FullSyncCollabParams,
   Workspace, WorkspaceRecord,
@@ -93,8 +93,8 @@ where
     let try_get_client = self.inner.try_get_client();
     let cloned_user = self.user.clone();
     let params = QueryCollabParams {
-      workspace_id: workspace_id.clone(),
-      inner: QueryCollab::new(workspace_id.clone(), CollabType::Folder),
+      workspace_id: *workspace_id,
+      inner: QueryCollab::new(*workspace_id, CollabType::Folder),
     };
     let doc_state = try_get_client?
       .get_collab(params)
@@ -103,7 +103,7 @@ where
       .encode_collab
       .doc_state
       .to_vec();
-    check_request_workspace_id_is_match(&workspace_id, &cloned_user, "get folder data")?;
+    check_request_workspace_id_is_match(workspace_id, &cloned_user, "get folder data")?;
     let folder = Folder::from_collab_doc_state(
       uid,
       CollabOrigin::Empty,
@@ -126,15 +126,15 @@ where
   async fn get_folder_doc_state(
     &self,
     workspace_id: &Uuid,
-    uid: i64,
+    _uid: i64,
     collab_type: CollabType,
     object_id: &Uuid,
   ) -> Result<Vec<u8>, FlowyError> {
     let try_get_client = self.inner.try_get_client();
     let cloned_user = self.user.clone();
     let params = QueryCollabParams {
-      workspace_id: workspace_id.clone(),
-      inner: QueryCollab::new(object_id.clone(), collab_type),
+      workspace_id: *workspace_id,
+      inner: QueryCollab::new(*object_id, collab_type),
     };
     let doc_state = try_get_client?
       .get_collab(params)
@@ -143,7 +143,7 @@ where
       .encode_collab
       .doc_state
       .to_vec();
-    check_request_workspace_id_is_match(&workspace_id, &cloned_user, "get folder doc state")?;
+    check_request_workspace_id_is_match(workspace_id, &cloned_user, "get folder doc state")?;
     Ok(doc_state)
   }
 
@@ -155,7 +155,7 @@ where
     let try_get_client = self.inner.try_get_client();
     try_get_client?
       .collab_full_sync(
-        &workspace_id,
+        workspace_id,
         &params.object_id,
         params.collab_type,
         params.encoded_collab.doc_state.to_vec(),
@@ -220,7 +220,7 @@ where
       })
       .collect::<Vec<_>>();
     try_get_client?
-      .publish_collabs(&workspace_id, params)
+      .publish_collabs(workspace_id, params)
       .await?;
     Ok(())
   }
@@ -232,7 +232,7 @@ where
   ) -> Result<(), FlowyError> {
     let try_get_client = self.inner.try_get_client();
     try_get_client?
-      .unpublish_collabs(&workspace_id, &view_ids)
+      .unpublish_collabs(workspace_id, &view_ids)
       .await?;
     Ok(())
   }

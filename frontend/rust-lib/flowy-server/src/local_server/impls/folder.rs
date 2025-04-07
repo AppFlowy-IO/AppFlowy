@@ -1,3 +1,4 @@
+#![allow(unused_variables)]
 use std::sync::Arc;
 
 use crate::local_server::LocalServerDB;
