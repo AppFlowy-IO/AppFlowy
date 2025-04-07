@@ -23,6 +23,7 @@ use std::sync::atomic::{AtomicBool, AtomicI64};
 use std::sync::Arc;
 use tokio::sync::{Mutex, RwLock};
 use tracing::{error, instrument, trace};
+use uuid::Uuid;
 
 enum PrevMessageState {
   HasMore,
@@ -31,7 +32,7 @@ enum PrevMessageState {
 }
 
 pub struct Chat {
-  chat_id: String,
+  chat_id: Uuid,
   uid: i64,
   user_service: Arc<dyn AIUserService>,
   chat_service: Arc<AICloudServiceMiddleware>,
@@ -44,7 +45,7 @@ pub struct Chat {
 impl Chat {
   pub fn new(
     uid: i64,
-    chat_id: String,
+    chat_id: Uuid,
     user_service: Arc<dyn AIUserService>,
     chat_service: Arc<AICloudServiceMiddleware>,
   ) -> Chat {
@@ -197,7 +198,7 @@ impl Chat {
     answer_stream_port: i64,
     answer_stream_buffer: Arc<Mutex<StringBuffer>>,
     uid: i64,
-    workspace_id: String,
+    workspace_id: Uuid,
     question_id: i64,
     format: ResponseFormat,
     ai_model: Option<AIModel>,
@@ -254,7 +255,7 @@ impl Chat {
                     .send(StreamMessage::OnError(err.msg.clone()).to_string())
                     .await;
                   let pb = ChatMessageErrorPB {
-                    chat_id: chat_id.clone(),
+                    chat_id: chat_id.to_string(),
                     error_message: err.to_string(),
                   };
                   chat_notification_builder(&chat_id, ChatNotification::StreamChatMessageError)
@@ -293,7 +294,7 @@ impl Chat {
           }
 
           let pb = ChatMessageErrorPB {
-            chat_id: chat_id.clone(),
+            chat_id: chat_id.to_string(),
             error_message: err.to_string(),
           };
           chat_notification_builder(&chat_id, ChatNotification::StreamChatMessageError)
@@ -566,7 +567,7 @@ impl Chat {
     let conn = self.user_service.sqlite_connection(self.uid)?;
     let records = select_chat_messages(
       conn,
-      &self.chat_id,
+      &self.chat_id.to_string(),
       limit,
       after_message_id,
       before_message_id,
@@ -628,7 +629,7 @@ impl Chat {
 
 fn save_chat_message_disk(
   conn: DBConnection,
-  chat_id: &str,
+  chat_id: &Uuid,
   messages: Vec<ChatMessage>,
 ) -> FlowyResult<()> {
   let records = messages
@@ -683,7 +684,7 @@ impl StringBuffer {
 
 pub(crate) fn save_and_notify_message(
   uid: i64,
-  chat_id: &str,
+  chat_id: &Uuid,
   user_service: &Arc<dyn AIUserService>,
   message: ChatMessage,
 ) -> Result<(), FlowyError> {

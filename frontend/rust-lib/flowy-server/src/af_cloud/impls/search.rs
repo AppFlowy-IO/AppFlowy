@@ -2,6 +2,7 @@ use client_api::entity::search_dto::SearchDocumentResponseItem;
 use flowy_error::FlowyError;
 use flowy_search_pub::cloud::SearchCloudService;
 use lib_infra::async_trait::async_trait;
+use uuid::Uuid;
 
 use crate::af_cloud::AFServer;
 
@@ -22,7 +23,7 @@ where
 {
   async fn document_search(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     query: String,
   ) -> Result<Vec<SearchDocumentResponseItem>, FlowyError> {
     let client = self.inner.try_get_client()?;

@@ -14,6 +14,7 @@ use flowy_sqlite::{query_dsl::*, DBConnection, ExpressionMethods};
 use flowy_user_pub::cloud::{UserCloudServiceProvider, UserUpdate};
 use flowy_user_pub::entities::*;
 use flowy_user_pub::workspace_service::UserWorkspaceService;
+use lib_infra::box_any::BoxAny;
 use semver::Version;
 use serde_json::Value;
 use std::string::ToString;
@@ -22,8 +23,7 @@ use std::sync::{Arc, Weak};
 use tokio::sync::Mutex;
 use tokio_stream::StreamExt;
 use tracing::{debug, error, event, info, instrument, warn};
-
-use lib_infra::box_any::BoxAny;
+use uuid::Uuid;
 
 use crate::entities::{AuthStateChangedPB, AuthStatePB, UserProfilePB, UserSettingPB};
 use crate::event_map::{DefaultUserStatusCallback, UserStatusCallback};
@@ -58,7 +58,7 @@ pub struct UserManager {
   auth_process: Mutex<Option<UserAuthProcess>>,
   pub(crate) authenticate_user: Arc<AuthenticateUser>,
   refresh_user_profile_since: AtomicI64,
-  pub(crate) is_loading_awareness: Arc<DashMap<String, bool>>,
+  pub(crate) is_loading_awareness: Arc<DashMap<Uuid, bool>>,
 }
 
 impl UserManager {

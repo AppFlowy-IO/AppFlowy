@@ -1,4 +1,5 @@
 use flowy_folder::view_operation::{GatherEncodedCollab, ViewData};
+use std::str::FromStr;
 use std::sync::Arc;
 
 use collab_folder::{FolderData, View};
@@ -16,6 +17,7 @@ use flowy_user::entities::{
 use flowy_user::errors::FlowyError;
 use flowy_user::event_map::UserEvent;
 use flowy_user_pub::entities::Role;
+use uuid::Uuid;
 
 use crate::event_builder::EventBuilder;
 use crate::EventIntegrationTest;
@@ -123,10 +125,10 @@ impl EventIntegrationTest {
     let create_view_params = views
       .into_iter()
       .map(|view| CreateViewParams {
-        parent_view_id: view.parent_view_id,
+        parent_view_id: Uuid::from_str(&view.parent_view_id).unwrap(),
         name: view.name,
         layout: view.layout.into(),
-        view_id: view.id,
+        view_id: Uuid::from_str(&view.id).unwrap(),
         initial_data: ViewData::Empty,
         meta: Default::default(),
         set_as_current: false,
@@ -195,9 +197,10 @@ impl EventIntegrationTest {
     view_id: &str,
     layout: ViewLayout,
   ) -> GatherEncodedCollab {
+    let view_id = Uuid::from_str(view_id).unwrap();
     self
       .folder_manager
-      .gather_publish_encode_collab(view_id, &layout)
+      .gather_publish_encode_collab(&view_id, &layout)
       .await
       .unwrap()
   }

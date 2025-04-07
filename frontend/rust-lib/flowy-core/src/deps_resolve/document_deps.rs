@@ -1,5 +1,5 @@
 use std::sync::{Arc, Weak};
-
+use uuid::Uuid;
 use crate::deps_resolve::CollabSnapshotSql;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
@@ -97,7 +97,7 @@ impl DocumentUserService for DocumentUserImpl {
       .device_id()
   }
 
-  fn workspace_id(&self) -> Result<String, FlowyError> {
+  fn workspace_id(&self) -> Result<Uuid, FlowyError> {
     self
       .0
       .upgrade()

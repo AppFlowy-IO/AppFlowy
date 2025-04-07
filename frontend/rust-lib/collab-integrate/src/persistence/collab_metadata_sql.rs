@@ -7,6 +7,8 @@ use flowy_sqlite::{
   DBConnection, ExpressionMethods, Identifiable, Insertable, Queryable,
 };
 use std::collections::HashMap;
+use std::str::FromStr;
+use uuid::Uuid;
 
 #[derive(Queryable, Insertable, Identifiable)]
 #[diesel(table_name = af_collab_metadata)]
@@ -43,13 +45,18 @@ pub fn batch_insert_collab_metadata(
 
 pub fn batch_select_collab_metadata(
   mut conn: DBConnection,
-  object_ids: &[String],
-) -> FlowyResult<HashMap<String, AFCollabMetadata>> {
+  object_ids: &[Uuid],
+) -> FlowyResult<HashMap<Uuid, AFCollabMetadata>> {
+  let object_ids = object_ids
+    .iter()
+    .map(|id| id.to_string())
+    .collect::<Vec<String>>();
+
   let metadata = dsl::af_collab_metadata
-    .filter(af_collab_metadata::object_id.eq_any(object_ids))
+    .filter(af_collab_metadata::object_id.eq_any(&object_ids))
     .load::<AFCollabMetadata>(&mut conn)?
     .into_iter()
-    .map(|m| (m.object_id.clone(), m))
+    .flat_map(|m| Uuid::from_str(&m.object_id).and_then(|v| Ok((v, m))))
     .collect();
   Ok(metadata)
 }
