@@ -32,6 +32,7 @@ void main() {
 
       // create another field, New field 1 to be hidden still
       await tester.tapNewPropertyButton();
+      await tester.dismissFieldEditor();
       tester.noFieldWithName('New field 1');
 
       // go back to inline database view, expect field to be shown
