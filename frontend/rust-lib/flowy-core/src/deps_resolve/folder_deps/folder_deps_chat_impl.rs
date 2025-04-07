@@ -30,7 +30,7 @@ impl FolderOperationHandler for ChatFolderOperation {
     self.0.delete_chat(view_id).await
   }
 
-  async fn duplicate_view(&self, view_id: &Uuid) -> Result<Bytes, FlowyError> {
+  async fn duplicate_view(&self, _view_id: &Uuid) -> Result<Bytes, FlowyError> {
     Err(FlowyError::not_support())
   }
 
@@ -47,8 +47,8 @@ impl FolderOperationHandler for ChatFolderOperation {
     user_id: i64,
     parent_view_id: &Uuid,
     view_id: &Uuid,
-    name: &str,
-    layout: ViewLayout,
+    _name: &str,
+    _layout: ViewLayout,
   ) -> Result<(), FlowyError> {
     self
       .0
@@ -59,11 +59,11 @@ impl FolderOperationHandler for ChatFolderOperation {
 
   async fn import_from_bytes(
     &self,
-    uid: i64,
-    view_id: &Uuid,
-    name: &str,
-    import_type: ImportType,
-    bytes: Vec<u8>,
+    _uid: i64,
+    _view_id: &Uuid,
+    _name: &str,
+    _import_type: ImportType,
+    _bytes: Vec<u8>,
   ) -> Result<Vec<ImportedData>, FlowyError> {
     Err(FlowyError::not_support())
   }

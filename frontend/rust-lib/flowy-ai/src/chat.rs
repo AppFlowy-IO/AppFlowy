@@ -204,7 +204,7 @@ impl Chat {
     ai_model: Option<AIModel>,
   ) {
     let stop_stream = self.stop_stream.clone();
-    let chat_id = self.chat_id.clone();
+    let chat_id = self.chat_id;
     let cloud_service = self.chat_service.clone();
     let user_service = self.user_service.clone();
     tokio::spawn(async move {
@@ -258,7 +258,7 @@ impl Chat {
                     chat_id: chat_id.to_string(),
                     error_message: err.to_string(),
                   };
-                  chat_notification_builder(&chat_id, ChatNotification::StreamChatMessageError)
+                  chat_notification_builder(chat_id, ChatNotification::StreamChatMessageError)
                     .payload(pb)
                     .send();
                   return Err(err);
@@ -297,14 +297,14 @@ impl Chat {
             chat_id: chat_id.to_string(),
             error_message: err.to_string(),
           };
-          chat_notification_builder(&chat_id, ChatNotification::StreamChatMessageError)
+          chat_notification_builder(chat_id, ChatNotification::StreamChatMessageError)
             .payload(pb)
             .send();
           return Err(err);
         },
       }
 
-      chat_notification_builder(&chat_id, ChatNotification::FinishStreaming).send();
+      chat_notification_builder(chat_id, ChatNotification::FinishStreaming).send();
       trace!("[Chat] finish streaming");
 
       if answer_stream_buffer.lock().await.is_empty() {
@@ -360,7 +360,7 @@ impl Chat {
         has_more: true,
         total: 0,
       };
-      chat_notification_builder(&self.chat_id, ChatNotification::DidLoadPrevChatMessage)
+      chat_notification_builder(self.chat_id, ChatNotification::DidLoadPrevChatMessage)
         .payload(pb.clone())
         .send();
       return Ok(pb);
@@ -433,7 +433,7 @@ impl Chat {
       after_message_id
     );
     let workspace_id = self.user_service.workspace_id()?;
-    let chat_id = self.chat_id.clone();
+    let chat_id = self.chat_id;
     let cloud_service = self.chat_service.clone();
     let user_service = self.user_service.clone();
     let uid = self.uid;
@@ -481,11 +481,11 @@ impl Chat {
             } else {
               *prev_message_state.write().await = PrevMessageState::NoMore;
             }
-            chat_notification_builder(&chat_id, ChatNotification::DidLoadPrevChatMessage)
+            chat_notification_builder(chat_id, ChatNotification::DidLoadPrevChatMessage)
               .payload(pb)
               .send();
           } else {
-            chat_notification_builder(&chat_id, ChatNotification::DidLoadLatestChatMessage)
+            chat_notification_builder(chat_id, ChatNotification::DidLoadLatestChatMessage)
               .payload(pb)
               .send();
           }
@@ -511,7 +511,7 @@ impl Chat {
     }
 
     let workspace_id = self.user_service.workspace_id()?;
-    let chat_id = self.chat_id.clone();
+    let chat_id = self.chat_id;
     let cloud_service = self.chat_service.clone();
 
     let question = cloud_service

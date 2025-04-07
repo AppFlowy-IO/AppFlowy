@@ -117,9 +117,9 @@ impl FolderOperationHandler for DocumentFolderOperation {
   async fn create_default_view(
     &self,
     user_id: i64,
-    parent_view_id: &Uuid,
+    _parent_view_id: &Uuid,
     view_id: &Uuid,
-    name: &str,
+    _name: &str,
     layout: ViewLayout,
   ) -> Result<(), FlowyError> {
     debug_assert_eq!(layout, ViewLayout::Document);
@@ -139,8 +139,8 @@ impl FolderOperationHandler for DocumentFolderOperation {
     &self,
     uid: i64,
     view_id: &Uuid,
-    name: &str,
-    import_type: ImportType,
+    _name: &str,
+    _import_type: ImportType,
     bytes: Vec<u8>,
   ) -> Result<Vec<ImportedData>, FlowyError> {
     let data = DocumentDataPB::try_from(Bytes::from(bytes))?;

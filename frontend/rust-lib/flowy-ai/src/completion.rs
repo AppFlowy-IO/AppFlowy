@@ -130,7 +130,7 @@ impl CompletionTask {
             completion_type: Some(complete_type),
             metadata: Some(CompletionMetadata {
               object_id,
-              workspace_id: Some(self.workspace_id.clone()),
+              workspace_id: Some(self.workspace_id),
               rag_ids: Some(self.context.rag_ids),
               completion_history,
               custom_prompt: self

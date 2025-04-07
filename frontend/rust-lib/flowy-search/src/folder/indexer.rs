@@ -295,7 +295,7 @@ impl IndexManager for FolderIndexManagerImpl {
 
   fn set_index_content_receiver(&self, mut rx: IndexContentReceiver, workspace_id: Uuid) {
     let indexer = self.clone();
-    let wid = workspace_id.clone();
+    let wid = workspace_id;
     tokio::spawn(async move {
       while let Ok(msg) = rx.recv().await {
         match msg {
@@ -306,7 +306,7 @@ impl IndexManager for FolderIndexManagerImpl {
                 data: view.name,
                 icon: view.icon,
                 layout: view.layout,
-                workspace_id: wid.clone(),
+                workspace_id: wid,
               });
             },
             Err(err) => tracing::error!("FolderIndexManager error deserialize: {:?}", err),
@@ -318,7 +318,7 @@ impl IndexManager for FolderIndexManagerImpl {
                 data: view.name,
                 icon: view.icon,
                 layout: view.layout,
-                workspace_id: wid.clone(),
+                workspace_id: wid,
               });
             },
             Err(err) => tracing::error!("FolderIndexManager error deserialize: {:?}", err),
@@ -424,7 +424,7 @@ impl FolderIndexManager for FolderIndexManagerImpl {
   fn index_all_views(&self, views: Vec<Arc<View>>, workspace_id: Uuid) {
     let indexable_data = views
       .into_iter()
-      .map(|view| IndexableData::from_view(view, workspace_id.clone()))
+      .map(|view| IndexableData::from_view(view, workspace_id))
       .collect();
 
     let _ = self.index_all(indexable_data);
@@ -442,14 +442,14 @@ impl FolderIndexManager for FolderIndexManagerImpl {
         FolderViewChange::Inserted { view_id } => {
           let view = views_iter.find(|view| view.id == view_id);
           if let Some(view) = view {
-            let indexable_data = IndexableData::from_view(view, workspace_id.clone());
+            let indexable_data = IndexableData::from_view(view, workspace_id);
             let _ = self.add_index(indexable_data);
           }
         },
         FolderViewChange::Updated { view_id } => {
           let view = views_iter.find(|view| view.id == view_id);
           if let Some(view) = view {
-            let indexable_data = IndexableData::from_view(view, workspace_id.clone());
+            let indexable_data = IndexableData::from_view(view, workspace_id);
             let _ = self.update_index(indexable_data);
           }
         },

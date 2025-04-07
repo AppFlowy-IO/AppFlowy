@@ -1,3 +1,4 @@
+#![allow(unused_variables)]
 use crate::af_cloud::define::ServerUser;
 use crate::af_cloud::impls::util::check_request_workspace_id_is_match;
 use crate::af_cloud::AFServer;
@@ -41,8 +42,8 @@ where
     let try_get_client = self.inner.try_get_client();
     let cloned_user = self.user.clone();
     let params = QueryCollabParams {
-      workspace_id: workspace_id.clone(),
-      inner: QueryCollab::new(object_id.clone(), collab_type),
+      workspace_id: *workspace_id,
+      inner: QueryCollab::new(*object_id, collab_type),
     };
     let result = try_get_client?.get_collab(params).await;
     match result {
@@ -77,8 +78,8 @@ where
       .encode_to_bytes()
       .map_err(|err| FlowyError::internal().with_context(err))?;
     let params = CreateCollabParams {
-      workspace_id: workspace_id.clone(),
-      object_id: object_id.clone(),
+      workspace_id: *workspace_id,
+      object_id: *object_id,
       encoded_collab_v1,
       collab_type,
     };
@@ -151,7 +152,7 @@ where
       .map(|(key, value)| (key, Value::String(value)))
       .collect();
     let params = SummarizeRowParams {
-      workspace_id: workspace_id.clone(),
+      workspace_id: *workspace_id,
       data: SummarizeRowData::Content(map),
     };
     let data = try_get_client?.summarize_row(params).await?;

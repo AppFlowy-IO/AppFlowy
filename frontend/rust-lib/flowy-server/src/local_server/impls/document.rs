@@ -1,3 +1,4 @@
+#![allow(unused_variables)]
 use collab::entity::EncodedCollab;
 use flowy_document_pub::cloud::*;
 use flowy_error::{ErrorCode, FlowyError};

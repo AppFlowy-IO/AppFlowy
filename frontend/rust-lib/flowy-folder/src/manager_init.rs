@@ -74,13 +74,13 @@ impl FolderManager {
           // This will happen user can't fetch the folder data when the user sign in.
           let doc_state = self
             .cloud_service
-            .get_folder_doc_state(&workspace_id, uid, CollabType::Folder, &workspace_id)
+            .get_folder_doc_state(workspace_id, uid, CollabType::Folder, workspace_id)
             .await?;
 
           self
             .make_folder(
               uid,
-              &workspace_id,
+              workspace_id,
               collab_db.clone(),
               Some(DataSource::DocStateV1(doc_state)),
               folder_notifier.clone(),
@@ -92,14 +92,14 @@ impl FolderManager {
         if doc_state.is_empty() {
           event!(Level::ERROR, "remote folder data is empty, open from local");
           self
-            .make_folder(uid, &workspace_id, collab_db, None, folder_notifier)
+            .make_folder(uid, workspace_id, collab_db, None, folder_notifier)
             .await?
         } else {
           event!(Level::INFO, "Restore folder from remote data");
           self
             .make_folder(
               uid,
-              &workspace_id,
+              workspace_id,
               collab_db.clone(),
               Some(DataSource::DocStateV1(doc_state)),
               folder_notifier.clone(),
@@ -115,27 +115,23 @@ impl FolderManager {
       let index_content_rx = folder.subscribe_index_content();
       self
         .folder_indexer
-        .set_index_content_receiver(index_content_rx, workspace_id.clone());
-      self.handle_index_folder(workspace_id.clone(), &folder);
+        .set_index_content_receiver(index_content_rx, *workspace_id);
+      self.handle_index_folder(*workspace_id, &folder);
       folder_state_rx
     };
 
     self.mutex_folder.store(Some(folder.clone()));
 
     let weak_mutex_folder = Arc::downgrade(&folder);
-    subscribe_folder_sync_state_changed(
-      workspace_id.clone(),
-      folder_state_rx,
-      Arc::downgrade(&self.user),
-    );
+    subscribe_folder_sync_state_changed(*workspace_id, folder_state_rx, Arc::downgrade(&self.user));
     subscribe_folder_trash_changed(
-      workspace_id.clone(),
+      *workspace_id,
       section_change_rx,
       weak_mutex_folder.clone(),
       Arc::downgrade(&self.user),
     );
     subscribe_folder_view_changed(
-      workspace_id.clone(),
+      *workspace_id,
       view_rx,
       weak_mutex_folder.clone(),
       Arc::downgrade(&self.user),
@@ -198,7 +194,7 @@ impl FolderManager {
       // We spawn a blocking task to index all views in the folder
       spawn_blocking(move || {
         // We remove old indexes just in case
-        let _ = folder_indexer.remove_indices_for_workspace(workspace_id.clone());
+        let _ = folder_indexer.remove_indices_for_workspace(workspace_id);
 
         // We index all views from the workspace
         folder_indexer.index_all_views(views, workspace_id);

@@ -158,7 +158,7 @@ impl DocumentManager {
       let cloud_service = self.cloud_service.clone();
       let cloned_encoded_collab = encoded_collab.clone();
       let workspace_id = self.user_service.workspace_id()?;
-      let doc_id = doc_id.clone();
+      let doc_id = *doc_id;
       tokio::spawn(async move {
         let _ = cloud_service
           .create_document_collab(&workspace_id, &doc_id, cloned_encoded_collab)
@@ -260,7 +260,7 @@ impl DocumentManager {
             subscribe_document_snapshot_state(&lock);
             subscribe_document_sync_state(&lock);
           }
-          self.documents.insert(doc_id.clone(), document.clone());
+          self.documents.insert(*doc_id, document.clone());
         }
         Ok(document)
       },
@@ -322,7 +322,7 @@ impl DocumentManager {
         lock.clean_awareness_local_state();
       }
 
-      let clone_doc_id = doc_id.clone();
+      let clone_doc_id = doc_id;
       trace!("move document to removing_documents: {}", doc_id);
       self.removing_documents.insert(doc_id, document);
 

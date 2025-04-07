@@ -253,7 +253,7 @@ impl LocalAIController {
       self.close_chat(current_chat_id);
     }
 
-    self.current_chat_id.store(Some(Arc::new(chat_id.clone())));
+    self.current_chat_id.store(Some(Arc::new(*chat_id)));
     let chat_id = chat_id.to_string();
     let weak_ctrl = Arc::downgrade(&self.ai_plugin);
     tokio::spawn(async move {
@@ -620,5 +620,5 @@ impl LLMResourceService for LLMResourceServiceImpl {
 
 const APPFLOWY_LOCAL_AI_ENABLED: &str = "appflowy_local_ai_enabled";
 fn local_ai_enabled_key(workspace_id: &Uuid) -> String {
-  format!("{}:{}", APPFLOWY_LOCAL_AI_ENABLED, workspace_id.to_string())
+  format!("{}:{}", APPFLOWY_LOCAL_AI_ENABLED, workspace_id)
 }

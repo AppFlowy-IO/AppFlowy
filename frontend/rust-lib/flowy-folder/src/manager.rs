@@ -189,7 +189,7 @@ impl FolderManager {
     let config = CollabBuilderConfig::default().sync_enable(true);
 
     let data_source = data_source.unwrap_or_else(|| {
-      CollabPersistenceImpl::new(collab_db.clone(), uid, workspace_id.clone()).into_data_source()
+      CollabPersistenceImpl::new(collab_db.clone(), uid, *workspace_id).into_data_source()
     });
 
     let object_id = workspace_id;
@@ -245,7 +245,7 @@ impl FolderManager {
         .collab_object(workspace_id, uid, object_id, CollabType::Folder)?;
 
     let doc_state =
-      CollabPersistenceImpl::new(collab_db.clone(), uid, workspace_id.clone()).into_data_source();
+      CollabPersistenceImpl::new(collab_db.clone(), uid, *workspace_id).into_data_source();
     let folder = self
       .collab_builder
       .create_folder(
@@ -1221,7 +1221,7 @@ impl FolderManager {
     }
 
     let workspace_id = self.user.workspace_id()?;
-    let parent_view_id = Uuid::from_str(&parent_view_id)?;
+    let parent_view_id = Uuid::from_str(parent_view_id)?;
 
     // Sync the view to the cloud
     if sync_after_create {
@@ -1815,7 +1815,7 @@ impl FolderManager {
     for data in import_data.items {
       // Import a single file and get the view and encoded collab data
       let (view, encoded_collabs) = self
-        .import_single_file(import_data.parent_view_id.clone(), data)
+        .import_single_file(import_data.parent_view_id, data)
         .await?;
       views.push(view_pb_without_child_views(view));
 
@@ -2054,7 +2054,7 @@ impl FolderManager {
   pub fn remove_indices_for_workspace(&self, workspace_id: &Uuid) -> FlowyResult<()> {
     self
       .folder_indexer
-      .remove_indices_for_workspace(workspace_id.clone())?;
+      .remove_indices_for_workspace(*workspace_id)?;
 
     Ok(())
   }

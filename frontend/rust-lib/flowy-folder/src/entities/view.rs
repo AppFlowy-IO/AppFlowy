@@ -348,12 +348,12 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
   fn try_into(self) -> Result<CreateViewParams, Self::Error> {
     let name = ViewName::parse(self.name)?.0;
     let parent_view_id = ViewIdentify::parse(self.parent_view_id)
-      .and_then(|id| Uuid::from_str(&id.0).map_err(|err| ErrorCode::InvalidParams))?;
+      .and_then(|id| Uuid::from_str(&id.0).map_err(|_| ErrorCode::InvalidParams))?;
     // if view_id is not provided, generate a new view_id
     let view_id = self
       .view_id
       .and_then(|v| Uuid::parse_str(&v).ok())
-      .unwrap_or_else(|| gen_view_id());
+      .unwrap_or_else(gen_view_id);
 
     Ok(CreateViewParams {
       parent_view_id,
@@ -379,7 +379,7 @@ impl TryInto<CreateViewParams> for CreateOrphanViewPayloadPB {
     let view_id = Uuid::parse_str(&self.view_id).map_err(|_| ErrorCode::InvalidParams)?;
 
     Ok(CreateViewParams {
-      parent_view_id: view_id.clone(),
+      parent_view_id: view_id,
       name,
       layout: self.layout,
       view_id,

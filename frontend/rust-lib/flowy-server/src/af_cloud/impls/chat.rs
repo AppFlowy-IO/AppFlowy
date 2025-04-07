@@ -1,3 +1,4 @@
+#![allow(unused_variables)]
 use crate::af_cloud::AFServer;
 use client_api::entity::ai_dto::{
   ChatQuestionQuery, CompleteTextParams, RepeatedRelatedQuestion, ResponseFormat,
