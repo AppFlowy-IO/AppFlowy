@@ -1,6 +1,5 @@
 use std::borrow::BorrowMut;
 use std::fmt::{Debug, Display};
-use std::str::FromStr;
 use std::sync::{Arc, Weak};
 
 use crate::CollabKVDB;
@@ -138,7 +137,6 @@ impl AppFlowyCollabBuilder {
       ));
     }
     let device_id = self.workspace_integrate.device_id()?;
-    let workspace_id = self.workspace_integrate.workspace_id()?;
     Ok(CollabObject::new(
       uid,
       object_id.to_string(),
@@ -426,13 +424,13 @@ impl CollabPersistence for CollabPersistenceImpl {
       .upgrade()
       .ok_or_else(|| CollabError::Internal(anyhow!("collab_db is dropped")))?;
 
-    let object_id =
-      Uuid::from_str(collab.object_id()).map_err(|v| CollabError::Internal(v.into()))?;
+    let object_id = collab.object_id().to_string();
     let rocksdb_read = collab_db.read_txn();
+    let workspace_id = self.workspace_id.to_string();
 
-    if rocksdb_read.is_exist(self.uid, &self.workspace_id, &object_id) {
+    if rocksdb_read.is_exist(self.uid, &workspace_id, &object_id) {
       let mut txn = collab.transact_mut();
-      match rocksdb_read.load_doc_with_txn(self.uid, &self.workspace_id, &object_id, &mut txn) {
+      match rocksdb_read.load_doc_with_txn(self.uid, &workspace_id, &object_id, &mut txn) {
         Ok(update_count) => {
           trace!(
             "did load collab:{}-{} from disk, update_count:{}",
@@ -457,6 +455,7 @@ impl CollabPersistence for CollabPersistenceImpl {
     object_id: &str,
     encoded_collab: EncodedCollab,
   ) -> Result<(), CollabError> {
+    let workspace_id = self.workspace_id.to_string();
     let collab_db = self
       .db
       .upgrade()
@@ -465,7 +464,7 @@ impl CollabPersistence for CollabPersistenceImpl {
     write_txn
       .flush_doc(
         self.uid,
-        self.workspace_id.to_string().as_str(),
+        workspace_id.as_str(),
         object_id,
         encoded_collab.state_vector.to_vec(),
         encoded_collab.doc_state.to_vec(),

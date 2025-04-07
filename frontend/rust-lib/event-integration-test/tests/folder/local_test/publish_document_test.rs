@@ -6,6 +6,7 @@ use flowy_folder::view_operation::GatherEncodedCollab;
 use flowy_folder_pub::entities::{
   PublishDocumentPayload, PublishPayload, PublishViewInfo, PublishViewMeta, PublishViewMetaData,
 };
+use uuid::Uuid;
 
 async fn mock_single_document_view_publish_payload(
   test: &EventIntegrationTest,
@@ -140,11 +141,11 @@ async fn create_nested_document(test: &EventIntegrationTest, view_id: &str, name
 #[tokio::test]
 async fn single_document_get_publish_view_payload_test() {
   let test = EventIntegrationTest::new_anon().await;
-  let view_id = "20240521";
+  let view_id = Uuid::new_v4().to_string();
   let name = "Orphan View";
-  create_single_document(&test, view_id, name).await;
-  let view = test.get_view(view_id).await;
-  let payload = test.get_publish_payload(view_id, true).await;
+  create_single_document(&test, &view_id, name).await;
+  let view = test.get_view(&view_id).await;
+  let payload = test.get_publish_payload(&view_id, true).await;
 
   let expect_payload = mock_single_document_view_publish_payload(
     &test,
@@ -160,10 +161,10 @@ async fn single_document_get_publish_view_payload_test() {
 async fn nested_document_get_publish_view_payload_test() {
   let test = EventIntegrationTest::new_anon().await;
   let name = "Orphan View";
-  let view_id = "20240521";
-  create_nested_document(&test, view_id, name).await;
-  let view = test.get_view(view_id).await;
-  let payload = test.get_publish_payload(view_id, true).await;
+  let view_id = Uuid::new_v4().to_string();
+  create_nested_document(&test, &view_id, name).await;
+  let view = test.get_view(&view_id).await;
+  let payload = test.get_publish_payload(&view_id, true).await;
 
   let expect_payload = mock_nested_document_view_publish_payload(
     &test,
@@ -180,10 +181,10 @@ async fn nested_document_get_publish_view_payload_test() {
 async fn no_children_publish_view_payload_test() {
   let test = EventIntegrationTest::new_anon().await;
   let name = "Orphan View";
-  let view_id = "20240521";
-  create_nested_document(&test, view_id, name).await;
-  let view = test.get_view(view_id).await;
-  let payload = test.get_publish_payload(view_id, false).await;
+  let view_id = Uuid::new_v4().to_string();
+  create_nested_document(&test, &view_id, name).await;
+  let view = test.get_view(&view_id).await;
+  let payload = test.get_publish_payload(&view_id, false).await;
 
   let data = mock_single_document_view_publish_payload(
     &test,

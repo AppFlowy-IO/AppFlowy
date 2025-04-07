@@ -482,7 +482,13 @@ async fn doc_state_from_document_data(
   data: Option<DocumentData>,
 ) -> Result<EncodedCollab, FlowyError> {
   let doc_id = doc_id.to_string();
-  let data = data.unwrap_or_else(|| default_document_data(&doc_id));
+  let data = data.unwrap_or_else(|| {
+    trace!(
+      "{} document data is None, use default document data",
+      doc_id.to_string()
+    );
+    default_document_data(&doc_id)
+  });
   // spawn_blocking is used to avoid blocking the tokio thread pool if the document is large.
   let encoded_collab = tokio::task::spawn_blocking(move || {
     let collab = Collab::new_with_origin(CollabOrigin::Empty, doc_id, vec![], false);
