@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:string_validator/string_validator.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 /// - support
 ///   - desktop
@@ -96,9 +97,9 @@ Future<void> doPaste(EditorState editorState) async {
   }
 
   // paste as link preview
-  // if (await _pasteAsLinkPreview(editorState, plainText)) {
-  //   return Log.info('Pasted as link preview');
-  // }
+  if (await _pasteAsLinkPreview(editorState, plainText)) {
+    return Log.info('Pasted as link preview');
+  }
 
   // Order:
   // 1. in app json format
@@ -162,6 +163,7 @@ Future<bool> _pasteAsLinkPreview(
   EditorState editorState,
   String? text,
 ) async {
+  if (!UniversalPlatform.isMobile) return false;
   // the url should contain a protocol
   if (text == null || !isURL(text, {'require_protocol': true})) {
     return false;

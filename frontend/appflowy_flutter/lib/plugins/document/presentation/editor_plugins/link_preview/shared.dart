@@ -32,6 +32,38 @@ Future<void> convertUrlPreviewNodeToLink(
   return editorState.apply(transaction);
 }
 
+Future<void> convertUrlPreviewNodeToMention(
+  EditorState editorState,
+  Node node,
+) async {
+  if (node.type != LinkPreviewBlockKeys.type) {
+    return;
+  }
+
+  final url = node.attributes[LinkPreviewBlockKeys.url];
+  final delta = Delta()
+    ..insert(
+      MentionBlockKeys.mentionChar,
+      attributes: {
+        MentionBlockKeys.mention: {
+          MentionBlockKeys.type: MentionType.externalLink.name,
+          MentionBlockKeys.url: url,
+        },
+      },
+    );
+  final transaction = editorState.transaction;
+  transaction
+    ..insertNode(node.path, paragraphNode(delta: delta))
+    ..deleteNode(node);
+  transaction.afterSelection = Selection.collapsed(
+    Position(
+      path: node.path,
+      offset: url.length,
+    ),
+  );
+  return editorState.apply(transaction);
+}
+
 Future<void> removeUrlPreviewLink(
   EditorState editorState,
   Node node,

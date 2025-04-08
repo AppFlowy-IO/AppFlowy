@@ -102,8 +102,8 @@ class _CustomLinkPreviewMenuState extends State<CustomLinkPreviewMenu> {
     final url = node.attributes[LinkPreviewBlockKeys.url];
     switch (command) {
       case LinkPreviewMenuCommand.convertToMention:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        await convertUrlPreviewNodeToMention(editorState, node);
+        break;
       case LinkPreviewMenuCommand.convertToUrl:
         await convertUrlPreviewNodeToLink(editorState, node);
         break;

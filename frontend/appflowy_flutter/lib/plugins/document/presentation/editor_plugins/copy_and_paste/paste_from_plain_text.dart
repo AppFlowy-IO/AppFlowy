@@ -2,6 +2,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/link_previ
 import 'package:appflowy/shared/markdown_to_document.dart';
 import 'package:appflowy/shared/patterns/common_patterns.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 extension PasteFromPlainText on EditorState {
   Future<void> pastePlainText(String plainText) async {
@@ -43,7 +44,7 @@ extension PasteFromPlainText on EditorState {
     if (nodes.length == 1) {
       await pasteSingleLineNode(nodes.first);
       final href = _getLinkFromNode(nodes.first);
-      if (href != null) {
+      if (href != null && !UniversalPlatform.isMobile) {
         final context = document.root.context;
         if (context != null && context.mounted) {
           PasteAsMenuService(context: context, editorState: this).show(href);
