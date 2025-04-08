@@ -130,7 +130,7 @@ class CustomAppFlowyCloudView extends StatelessWidget {
     final List<Widget> children = [];
     children.addAll([
       const AppFlowyCloudEnableSync(),
-      const AppFlowyCloudSyncLogEnabled(),
+      // const AppFlowyCloudSyncLogEnabled(),
       const VSpace(40),
     ]);
 

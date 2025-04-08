@@ -83,15 +83,11 @@ impl AppFlowyCoreConfig {
     name: String,
   ) -> Self {
     let cloud_config = AFCloudConfiguration::from_env().ok();
-    let mut log_crates = vec![];
+    // By default enable sync trace log
+    let log_crates = vec!["sync_trace_log".to_string()];
     let storage_path = match &cloud_config {
       None => custom_application_path,
-      Some(config) => {
-        if config.enable_sync_trace {
-          log_crates.push("sync_trace_log".to_string());
-        }
-        make_user_data_folder(&custom_application_path, &config.base_url)
-      },
+      Some(config) => make_user_data_folder(&custom_application_path, &config.base_url),
     };
 
     let log_filter = create_log_filter(
