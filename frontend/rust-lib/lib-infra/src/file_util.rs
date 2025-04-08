@@ -10,7 +10,7 @@ use zip::write::FileOptions;
 use zip::ZipWriter;
 use zip::{CompressionMethod, ZipArchive};
 
-pub fn copy_dir_recursive(src: &Path, dst: &PathBuf) -> io::Result<()> {
+pub fn copy_dir_recursive(src: &Path, dst: &Path) -> io::Result<()> {
   for entry in WalkDir::new(src).into_iter().filter_map(|e| e.ok()) {
     let path = entry.path();
     let relative_path = path.strip_prefix(src).unwrap();
