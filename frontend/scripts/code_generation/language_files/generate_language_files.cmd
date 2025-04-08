@@ -23,7 +23,7 @@ echo Specifying source directory for AppFlowy Localizations.
 call dart run easy_localization:generate -S assets/translations/
 
 echo Generating language files for AppFlowy.
-call dart run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations/ -s en.json
+call dart run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations/ -s en-US.json
 
 echo Done generating language files.
 

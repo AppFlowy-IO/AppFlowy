@@ -71,10 +71,10 @@ fi
 
 if [ "$verbose" = true ]; then
     dart run easy_localization:generate -S assets/translations/
-    dart run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations/ -s en.json
+    dart run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations/ -s en-US.json
 else
     dart run easy_localization:generate -S assets/translations/ >/dev/null 2>&1
-    dart run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations/ -s en.json >/dev/null 2>&1
+    dart run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations/ -s en-US.json >/dev/null 2>&1
 fi
 
 echo "🌍 Done generating language files."
