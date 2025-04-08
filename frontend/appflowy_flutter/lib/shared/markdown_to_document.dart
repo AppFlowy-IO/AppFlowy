@@ -41,6 +41,7 @@ Future<String> customDocumentToMarkdown(
   try {
     markdown = documentToMarkdown(
       document,
+      lineBreak: '\n\n',
       customParsers: [
         const MathEquationNodeParser(),
         const CalloutNodeParser(),

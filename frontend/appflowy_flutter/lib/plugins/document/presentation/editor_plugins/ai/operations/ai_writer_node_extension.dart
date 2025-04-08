@@ -57,11 +57,27 @@ extension AiWriterNodeExtension on EditorState {
       slicedNodes.add(copiedNode);
     }
 
+    for (final (i, node) in slicedNodes.indexed) {
+      final childNodesShouldBeDeleted = <Node>[];
+      for (final child in node.children) {
+        if (!child.path.inSelection(selection)) {
+          childNodesShouldBeDeleted.add(child);
+        }
+      }
+      for (final child in childNodesShouldBeDeleted) {
+        slicedNodes[i] = node.copyWith(
+          children: node.children.where((e) => e.id != child.id).toList(),
+          type: selection.startIndex != 0 ? ParagraphBlockKeys.type : node.type,
+        );
+      }
+    }
+
     final markdown = await customDocumentToMarkdown(
       Document.blank()..insert([0], slicedNodes),
     );
 
-    return markdown;
+    // trim the last \n if it exists
+    return markdown.trimRight();
   }
 
   List<String> getPlainTextInSelection(Selection? selection) {

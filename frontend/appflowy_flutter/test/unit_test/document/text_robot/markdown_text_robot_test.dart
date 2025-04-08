@@ -732,6 +732,75 @@ Email became **widely prevalent**, and instant messaging services like *ICQ* and
         expect(d7.attributes, null);
       }
     });
+
+    test(
+        'the length of the returned response less than the length of the selected text',
+        () async {
+      final document = buildTestDocument();
+      final editorState = EditorState(document: document);
+
+      editorState.selection = Selection(
+        start: Position(
+          path: [0],
+          offset: 'The introduction of the World Wide Web'.length,
+        ),
+        end: Position(
+          path: [2],
+          offset:
+              'Email became widespread, and instant messaging services like ICQ and AOL Instant Messenger gained popularity'
+                  .length,
+        ),
+      );
+
+      final markdownText =
+          ''' in the **early 1990s** marked a *significant turning point* in technological history.''';
+      final markdownTextRobot = MarkdownTextRobot(
+        editorState: editorState,
+      );
+      await markdownTextRobot.replace(
+        selection: editorState.selection!,
+        markdownText: markdownText,
+      );
+
+      final afterNodes = editorState.document.root.children;
+      expect(afterNodes.length, 2);
+
+      {
+        // first paragraph
+        final delta1 = afterNodes[0].delta!.toList();
+        expect(delta1.length, 5);
+
+        final d1 = delta1[0] as TextInsert;
+        expect(d1.text, "The introduction of the World Wide Web in the ");
+        expect(d1.attributes, null);
+
+        final d2 = delta1[1] as TextInsert;
+        expect(d2.text, "early 1990s");
+        expect(d2.attributes, {AppFlowyRichTextKeys.bold: true});
+
+        final d3 = delta1[2] as TextInsert;
+        expect(d3.text, " marked a ");
+        expect(d3.attributes, null);
+
+        final d4 = delta1[3] as TextInsert;
+        expect(d4.text, "significant turning point");
+        expect(d4.attributes, {AppFlowyRichTextKeys.italic: true});
+
+        final d5 = delta1[4] as TextInsert;
+        expect(d5.text, " in technological history.");
+        expect(d5.attributes, null);
+      }
+
+      {
+        // second paragraph
+        final delta2 = afterNodes[1].delta!.toList();
+        expect(delta2.length, 1);
+
+        final d1 = delta2[0] as TextInsert;
+        expect(d1.text, ", allowing for real-time text communication.");
+        expect(d1.attributes, null);
+      }
+    });
   });
 }
 

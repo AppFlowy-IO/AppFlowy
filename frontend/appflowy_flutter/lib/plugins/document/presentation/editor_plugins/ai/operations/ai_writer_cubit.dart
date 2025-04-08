@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:appflowy/ai/ai.dart';
 import 'package:appflowy/workspace/application/view/view_service.dart';
 import 'package:appflowy_backend/dispatch/dispatch.dart';
+import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_backend/protobuf/flowy-ai/protobuf.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_result/appflowy_result.dart';
@@ -14,6 +15,11 @@ import '../../base/markdown_text_robot.dart';
 import 'ai_writer_block_operations.dart';
 import 'ai_writer_entities.dart';
 import 'ai_writer_node_extension.dart';
+
+/// Enable the debug log for the AiWriterCubit.
+///
+/// This is useful for debugging the AI writer cubit.
+const _aiWriterCubitDebugLog = false;
 
 class AiWriterCubit extends Cubit<AiWriterState> {
   AiWriterCubit({
@@ -94,6 +100,10 @@ class AiWriterCubit extends Cubit<AiWriterState> {
 
     final command = node.aiWriterCommand;
     final (run, prompt) = await _addSelectionTextToRecords(command);
+
+    _aiWriterCubitLog(
+      'command: $command, run: $run, prompt: $prompt',
+    );
 
     if (!run) {
       await exit();
@@ -215,23 +225,22 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     //
     // If the user clicks accept, we need to replace the selection with the AI's response
     if (action case SuggestionAction.accept) {
-      await _textRobot.persist();
+      // trim the markdown text to avoid extra new lines
+      final trimmedMarkdownText = _textRobot.markdownText.trim();
 
-      // Clear the format of the selected text.
-      // From grey color to the original color.
-      await formatSelection(
-        editorState,
-        selection,
-        ApplySuggestionFormatType.clear,
+      _aiWriterCubitLog(
+        'trigger accept action, markdown text: $trimmedMarkdownText',
       );
 
-      final nodes = editorState.getNodesInSelection(selection);
-      final transaction = editorState.transaction..deleteNodes(nodes);
-      await editorState.apply(
-        transaction,
-        withUpdateSelection: false,
+      await _textRobot.deleteAINodes();
+
+      await _textRobot.replace(
+        selection: selection,
+        markdownText: trimmedMarkdownText,
       );
+
       await exit(withDiscard: false, withUnformat: false);
+
       return;
     }
 
@@ -283,17 +292,24 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     AiWriterCommand command,
   ) async {
     final node = aiWriterNode;
+
+    // check the node is registered
     if (node == null) {
       return (false, '');
     }
+
+    // check the selection is valid
     final selection = node.aiWriterSelection?.normalized;
     if (selection == null) {
       return (false, '');
     }
 
+    // if the command is continue writing, we don't need to get the selection text
     if (command == AiWriterCommand.continueWriting) {
       return (true, '');
     }
+
+    // if the selection is collapsed, we don't need to get the selection text
     if (selection.isCollapsed) {
       return (true, '');
     }
@@ -304,6 +320,7 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       records.add(
         AiWriterRecord.user(content: selectionText, format: null),
       );
+
       return (true, '');
     } else {
       return (true, selectionText);
@@ -547,6 +564,10 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           attributes: ApplySuggestionFormatType.replace.attributes,
         );
         onAppendToDocument?.call();
+
+        _aiWriterCubitLog(
+          'received message: $text',
+        );
       },
       processAssistMessage: (text) async {
         if (state case final GeneratingAiWriterState generatingState) {
@@ -558,6 +579,10 @@ class AiWriterCubit extends Cubit<AiWriterState> {
             ),
           );
         }
+
+        _aiWriterCubitLog(
+          'received assist message: $text',
+        );
       },
       onEnd: () async {
         if (state case final GeneratingAiWriterState generatingState) {
@@ -573,6 +598,10 @@ class AiWriterCubit extends Cubit<AiWriterState> {
           );
           records.add(
             AiWriterRecord.ai(content: _textRobot.markdownText),
+          );
+
+          _aiWriterCubitLog(
+            'returned response: ${_textRobot.markdownText}',
           );
         }
       },
@@ -663,6 +692,12 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       emit(
         GeneratingAiWriterState(command, taskId: stream.$1),
       );
+    }
+  }
+
+  void _aiWriterCubitLog(String message) {
+    if (_aiWriterCubitDebugLog) {
+      Log.debug('[AiWriterCubit] $message');
     }
   }
 }

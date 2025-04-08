@@ -145,6 +145,16 @@ class MarkdownTextRobot {
     }
   }
 
+  /// Delete the temporary inserted AI nodes
+  Future<void> deleteAINodes() async {
+    final nodes = getInsertedNodes();
+    final transaction = editorState.transaction..deleteNodes(nodes);
+    await editorState.apply(
+      transaction,
+      options: const ApplyOptions(recordUndo: false),
+    );
+  }
+
   /// Discard the inserted content
   Future<void> discard() async {
     final start = _insertPosition;
@@ -333,8 +343,38 @@ class MarkdownTextRobot {
     }
 
     // Convert the markdown text to delta.
+    // Question: Why we need to convert the markdown to document first?
+    // Answer: Because the markdown text may contain the list item,
+    // if we convert the markdown to delta directly, the list item will be
+    // treated as a normal text node, and the delta will be incorrect.
+    // For example, the markdown text is:
+    // ```
+    // 1. item1
+    // ```
+    // if we convert the markdown to delta directly, the delta will be:
+    // ```
+    // [
+    //   {
+    //     "insert": "1. item1"
+    //   }
+    // ]
+    // ```
+    // if we convert the markdown to document first, the document will be:
+    // ```
+    // [
+    //   {
+    //     "type": "numbered_list",
+    //     "children": [
+    //       {
+    //         "insert": "item1"
+    //       }
+    //     ]
+    //   }
+    // ]
+    final document = customMarkdownToDocument(markdownText);
     final decoder = DeltaMarkdownDecoder();
-    final markdownDelta = decoder.convert(markdownText);
+    final markdownDelta =
+        document.nodeAtPath([0])?.delta ?? decoder.convert(markdownText);
 
     // Replace the delta of the selected node.
     final transaction = editorState.transaction;
@@ -366,6 +406,7 @@ class MarkdownTextRobot {
     // Get the selected nodes.
     final nodes = editorState.getNodesInSelection(selection);
 
+    // Note: Don't change its order, otherwise the delta will be incorrect.
     // step 1. merge the first selected node and the first node from the ai response
     // step 2. merge the last selected node and the last node from the ai response
     // step 3. insert the middle nodes from the ai response
@@ -398,9 +439,12 @@ class MarkdownTextRobot {
         lastMarkdownNode != null &&
         lastMarkdownDelta != null) {
       final endIndex = selection.endIndex;
-      transaction
-        ..deleteText(lastNode, 0, endIndex)
-        ..insertTextDelta(lastNode, 0, lastMarkdownDelta);
+      transaction.deleteText(lastNode, 0, endIndex);
+      // if the last node is same as the first node, it means we have replaced the
+      // selected text in the first node.
+      if (lastMarkdownNode.id != firstMarkdownNode?.id) {
+        transaction.insertTextDelta(lastNode, 0, lastMarkdownDelta);
+      }
     }
 
     // step 3
