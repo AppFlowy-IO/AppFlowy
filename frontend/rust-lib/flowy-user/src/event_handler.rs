@@ -76,14 +76,14 @@ pub async fn sign_up(
   let params: SignUpParams = data.into_inner().try_into()?;
   let authenticator = params.auth_type.clone();
 
-  let old_authenticator = manager.cloud_services.get_user_authenticator();
+  let prev_authenticator = manager.cloud_services.get_user_authenticator();
   match manager.sign_up(authenticator, BoxAny::new(params)).await {
     Ok(profile) => data_result_ok(UserProfilePB::from(profile)),
     Err(err) => {
       manager
         .cloud_services
-        .set_user_authenticator(&old_authenticator);
-      return Err(err);
+        .set_user_authenticator(&prev_authenticator);
+      Err(err)
     },
   }
 }

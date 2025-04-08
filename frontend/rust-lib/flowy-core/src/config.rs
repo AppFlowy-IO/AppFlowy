@@ -1,9 +1,10 @@
 use std::fmt;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use base64::Engine;
 use semver::Version;
 use tracing::{error, info};
+use url::Url;
 
 use crate::log_filter::create_log_filter;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
@@ -28,7 +29,25 @@ pub struct AppFlowyCoreConfig {
   pub(crate) log_filter: String,
   pub cloud_config: Option<AFCloudConfiguration>,
 }
+impl AppFlowyCoreConfig {
+  pub fn ensure_path(&self) {
+    let create_if_needed = |path_str: &str, label: &str| {
+      let dir = std::path::Path::new(path_str);
+      if !dir.exists() {
+        match std::fs::create_dir_all(dir) {
+          Ok(_) => info!("Created {} path: {}", label, path_str),
+          Err(err) => error!(
+            "Failed to create {} path: {}. Error: {}",
+            label, path_str, err
+          ),
+        }
+      }
+    };
 
+    create_if_needed(&self.storage_path, "storage");
+    create_if_needed(&self.application_path, "application");
+  }
+}
 impl fmt::Debug for AppFlowyCoreConfig {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     let mut debug = f.debug_struct("AppFlowy Configuration");
@@ -46,30 +65,60 @@ impl fmt::Debug for AppFlowyCoreConfig {
 }
 
 fn make_user_data_folder(root: &str, url: &str) -> String {
-  // Isolate the user data folder by using the base url of AppFlowy cloud. This is to avoid
-  // the user data folder being shared by different AppFlowy cloud.
-  let storage_path = if !url.is_empty() {
-    let server_base64 = URL_SAFE_ENGINE.encode(url);
-    format!("{}_{}", root, server_base64)
+  // If a URL is provided, try to parse it and extract the domain name.
+  // This isolates the user data folder by the domain, which prevents data sharing
+  // between different AppFlowy cloud instances.
+  print!("Creating user data folder for URL: {}, root:{}", url, root);
+  let mut storage_path = if url.is_empty() {
+    PathBuf::from(root)
   } else {
-    root.to_string()
+    let server_base64 = URL_SAFE_ENGINE.encode(url);
+    PathBuf::from(format!("{}_{}", root, server_base64))
   };
+
+  // Only use new storage path if the old one doesn't exist
+  if !storage_path.exists() {
+    let anon_path = format!("{}_anonymous", root);
+    // We use domain name as suffix to isolate the user data folder since version 0.8.9
+    let new_storage_path = if url.is_empty() {
+      // if the url is empty, then it's anonymous mode
+      anon_path
+    } else {
+      match Url::parse(url) {
+        Ok(parsed_url) => {
+          if let Some(domain) = parsed_url.host_str() {
+            format!("{}_{}", root, domain)
+          } else {
+            anon_path
+          }
+        },
+        Err(_) => anon_path,
+      }
+    };
+
+    storage_path = PathBuf::from(new_storage_path);
+  }
 
   // Copy the user data folder from the root path to the isolated path
   // The root path without any suffix is the created by the local version AppFlowy
-  if !Path::new(&storage_path).exists() && Path::new(root).exists() {
-    info!("Copy dir from {} to {}", root, storage_path);
+  if !storage_path.exists() && Path::new(root).exists() {
+    info!("Copy dir from {} to {:?}", root, storage_path);
     let src = Path::new(root);
-    match copy_dir_recursive(src, Path::new(&storage_path)) {
-      Ok(_) => storage_path,
+    match copy_dir_recursive(src, &storage_path) {
+      Ok(_) => storage_path
+        .into_os_string()
+        .into_string()
+        .unwrap_or_else(|_| root.to_string()),
       Err(err) => {
-        // when the copy dir failed, use the root path as the storage path
         error!("Copy dir failed: {}", err);
         root.to_string()
       },
     }
   } else {
     storage_path
+      .into_os_string()
+      .into_string()
+      .unwrap_or_else(|_| root.to_string())
   }
 }
 
