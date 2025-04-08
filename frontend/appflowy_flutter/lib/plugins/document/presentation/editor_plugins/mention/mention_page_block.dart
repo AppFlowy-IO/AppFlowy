@@ -50,12 +50,11 @@ Node pageMentionNode(String viewId) {
       operations: [
         TextInsert(
           MentionBlockKeys.mentionChar,
-          attributes: {
-            MentionBlockKeys.mention: {
-              MentionBlockKeys.type: MentionType.page.name,
-              MentionBlockKeys.pageId: viewId,
-            },
-          },
+          attributes: MentionBlockKeys.buildMentionPageAttributes(
+            mentionType: MentionType.page.name,
+            pageId: viewId,
+            blockId: null,
+          ),
         ),
       ],
     ),
@@ -284,12 +283,11 @@ class _MentionSubPageBlockState extends State<MentionSubPageBlock> {
         widget.node,
         widget.index,
         MentionBlockKeys.mentionChar.length,
-        {
-          MentionBlockKeys.mention: {
-            MentionBlockKeys.type: MentionType.page.name,
-            MentionBlockKeys.pageId: widget.pageId,
-          },
-        },
+        MentionBlockKeys.buildMentionPageAttributes(
+          mentionType: MentionType.page.name,
+          pageId: widget.pageId,
+          blockId: null,
+        ),
       );
 
     widget.editorState.apply(

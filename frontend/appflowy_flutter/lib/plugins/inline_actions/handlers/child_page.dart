@@ -71,12 +71,11 @@ class InlineChildPageService extends InlineActionsDelegate {
         replacement.$1,
         replacement.$2,
         MentionBlockKeys.mentionChar,
-        attributes: {
-          MentionBlockKeys.mention: {
-            MentionBlockKeys.type: MentionType.childPage.name,
-            MentionBlockKeys.pageId: view.id,
-          },
-        },
+        attributes: MentionBlockKeys.buildMentionPageAttributes(
+          mentionType: MentionType.childPage.name,
+          pageId: view.id,
+          blockId: null,
+        ),
       );
 
     await editorState.apply(transaction);

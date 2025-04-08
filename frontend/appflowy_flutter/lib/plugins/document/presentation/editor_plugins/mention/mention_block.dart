@@ -27,12 +27,12 @@ Node dateMentionNode() {
       operations: [
         TextInsert(
           MentionBlockKeys.mentionChar,
-          attributes: {
-            MentionBlockKeys.mention: {
-              MentionBlockKeys.type: MentionType.date.name,
-              MentionBlockKeys.date: DateTime.now().toIso8601String(),
-            },
-          },
+          attributes: MentionBlockKeys.buildMentionDateAttributes(
+            date: DateTime.now().toIso8601String(),
+            reminderId: null,
+            reminderOption: null,
+            includeTime: false,
+          ),
         ),
       ],
     ),

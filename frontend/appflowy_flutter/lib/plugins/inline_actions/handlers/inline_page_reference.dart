@@ -221,12 +221,11 @@ class InlinePageReferenceService extends InlineActionsDelegate {
         replace.$1,
         replace.$2,
         MentionBlockKeys.mentionChar,
-        attributes: {
-          MentionBlockKeys.mention: {
-            MentionBlockKeys.type: MentionType.page.name,
-            MentionBlockKeys.pageId: view.id,
-          },
-        },
+        attributes: MentionBlockKeys.buildMentionPageAttributes(
+          mentionType: MentionType.page.name,
+          pageId: view.id,
+          blockId: null,
+        ),
       );
 
     await editorState.apply(transaction);
