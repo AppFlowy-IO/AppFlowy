@@ -175,7 +175,7 @@ class ExportTab extends StatelessWidget {
         );
         showToastNotification(
           context,
-          message: LocaleKeys.grid_url_copiedNotification.tr(),
+          message: LocaleKeys.message_copy_success.tr(),
         );
       },
       (error) => showToastNotification(context, message: error.msg),

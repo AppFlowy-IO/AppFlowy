@@ -1439,8 +1439,7 @@
     "url": {
       "launch": "Mở liên kết trong trình duyệt",
       "copy": "Sao chép URL",
-      "textFieldHint": "Nhập một URL",
-      "copiedNotification": "Đã sao chép vào bảng tạm!"
+      "textFieldHint": "Nhập một URL"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "Cơ sở dữ liệu liên quan",
