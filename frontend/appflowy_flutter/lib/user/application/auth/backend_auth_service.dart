@@ -70,7 +70,6 @@ class BackendAuthService implements AuthService {
       ..name = LocaleKeys.defaultUsername.tr()
       ..email = userEmail
       ..password = password
-      ..isAnon = true
       // When sign up as guest, the auth type is always local.
       ..authType = AuthenticatorPB.Local
       ..deviceId = await getDeviceId();
