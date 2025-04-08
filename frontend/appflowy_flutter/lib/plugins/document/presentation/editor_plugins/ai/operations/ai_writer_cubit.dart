@@ -211,13 +211,20 @@ class AiWriterCubit extends Cubit<AiWriterState> {
       return;
     }
 
+    // Accept
+    //
+    // If the user clicks accept, we need to replace the selection with the AI's response
     if (action case SuggestionAction.accept) {
       await _textRobot.persist();
+
+      // Clear the format of the selected text.
+      // From grey color to the original color.
       await formatSelection(
         editorState,
         selection,
         ApplySuggestionFormatType.clear,
       );
+
       final nodes = editorState.getNodesInSelection(selection);
       final transaction = editorState.transaction..deleteNodes(nodes);
       await editorState.apply(

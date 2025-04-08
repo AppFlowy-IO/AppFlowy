@@ -294,6 +294,200 @@ void main() {
       );
     });
   });
+
+  group('markdown text robot - replace in same line:', () {
+    final text1 =
+        '''The introduction of the World Wide Web in the early 1990s marked a turning point. ''';
+    final text2 =
+        '''Tim Berners-Lee's invention made the internet accessible to non-technical users, opening the floodgates for mass adoption. ''';
+    final text3 =
+        '''Email became widespread, and instant messaging services like ICQ and AOL Instant Messenger gained popularity, allowing for real-time text communication.''';
+
+    Document buildTestDocument() {
+      return Document(
+        root: pageNode(
+          children: [
+            paragraphNode(delta: Delta()..insert(text1 + text2 + text3)),
+          ],
+        ),
+      );
+    }
+
+    // 1. create a document with a paragraph node
+    // 2. use the text robot to replace the selected content in the same line
+    // 3. check the document
+    test('the selection is in the middle of the text', () async {
+      final document = buildTestDocument();
+      final editorState = EditorState(document: document);
+
+      editorState.selection = Selection(
+        start: Position(
+          path: [0],
+          offset: text1.length,
+        ),
+        end: Position(
+          path: [0],
+          offset: text1.length + text2.length,
+        ),
+      );
+
+      final markdownText =
+          '''Tim Berners-Lee's invention of the **World Wide Web** transformed the internet, making it accessible to _non-technical users_ and opening the floodgates for global mass adoption.''';
+      final markdownTextRobot = MarkdownTextRobot(
+        editorState: editorState,
+      );
+      await markdownTextRobot.replace(
+        selection: editorState.selection!,
+        markdownText: markdownText,
+      );
+
+      final afterDelta = editorState.document.root.children[0].delta!.toList();
+      expect(afterDelta.length, 5);
+
+      final d1 = afterDelta[0] as TextInsert;
+      expect(d1.text, '${text1}Tim Berners-Lee\'s invention of the ');
+      expect(d1.attributes, null);
+
+      final d2 = afterDelta[1] as TextInsert;
+      expect(d2.text, 'World Wide Web');
+      expect(d2.attributes, {AppFlowyRichTextKeys.bold: true});
+
+      final d3 = afterDelta[2] as TextInsert;
+      expect(d3.text, ' transformed the internet, making it accessible to ');
+      expect(d3.attributes, null);
+
+      final d4 = afterDelta[3] as TextInsert;
+      expect(d4.text, 'non-technical users');
+      expect(d4.attributes, {AppFlowyRichTextKeys.italic: true});
+
+      final d5 = afterDelta[4] as TextInsert;
+      expect(
+        d5.text,
+        ' and opening the floodgates for global mass adoption.$text3',
+      );
+      expect(d5.attributes, null);
+    });
+
+    test('replace markdown text with selection from start to middle', () async {
+      final document = buildTestDocument();
+      final editorState = EditorState(document: document);
+
+      editorState.selection = Selection(
+        start: Position(
+          path: [0],
+        ),
+        end: Position(
+          path: [0],
+          offset: text1.length,
+        ),
+      );
+
+      final markdownText =
+          '''The **invention** of the _World Wide Web_ by Tim Berners-Lee transformed how we access information.''';
+      final markdownTextRobot = MarkdownTextRobot(
+        editorState: editorState,
+      );
+      await markdownTextRobot.replace(
+        selection: editorState.selection!,
+        markdownText: markdownText,
+      );
+
+      final afterDelta = editorState.document.root.children[0].delta!.toList();
+      expect(afterDelta.length, 5);
+
+      final d1 = afterDelta[0] as TextInsert;
+      expect(d1.text, 'The ');
+      expect(d1.attributes, null);
+
+      final d2 = afterDelta[1] as TextInsert;
+      expect(d2.text, 'invention');
+      expect(d2.attributes, {AppFlowyRichTextKeys.bold: true});
+
+      final d3 = afterDelta[2] as TextInsert;
+      expect(d3.text, ' of the ');
+      expect(d3.attributes, null);
+
+      final d4 = afterDelta[3] as TextInsert;
+      expect(d4.text, 'World Wide Web');
+      expect(d4.attributes, {AppFlowyRichTextKeys.italic: true});
+
+      final d5 = afterDelta[4] as TextInsert;
+      expect(
+        d5.text,
+        ' by Tim Berners-Lee transformed how we access information.$text2$text3',
+      );
+      expect(d5.attributes, null);
+    });
+
+    test('replace markdown text with selection from middle to end', () async {
+      final document = buildTestDocument();
+      final editorState = EditorState(document: document);
+
+      editorState.selection = Selection(
+        start: Position(
+          path: [0],
+          offset: text1.length + text2.length,
+        ),
+        end: Position(
+          path: [0],
+          offset: text1.length + text2.length + text3.length,
+        ),
+      );
+
+      final markdownText =
+          '''**Email** became widespread, and instant messaging services like *ICQ* and **AOL Instant Messenger** gained tremendous popularity, allowing for seamless real-time text communication across the globe.''';
+      final markdownTextRobot = MarkdownTextRobot(
+        editorState: editorState,
+      );
+      await markdownTextRobot.replace(
+        selection: editorState.selection!,
+        markdownText: markdownText,
+      );
+
+      final afterDelta = editorState.document.root.children[0].delta!.toList();
+      expect(afterDelta.length, 7);
+
+      final d1 = afterDelta[0] as TextInsert;
+      expect(
+        d1.text,
+        text1 + text2,
+      );
+      expect(d1.attributes, null);
+
+      final d2 = afterDelta[1] as TextInsert;
+      expect(d2.text, 'Email');
+      expect(d2.attributes, {AppFlowyRichTextKeys.bold: true});
+
+      final d3 = afterDelta[2] as TextInsert;
+      expect(
+        d3.text,
+        ' became widespread, and instant messaging services like ',
+      );
+      expect(d3.attributes, null);
+
+      final d4 = afterDelta[3] as TextInsert;
+      expect(d4.text, 'ICQ');
+      expect(d4.attributes, {AppFlowyRichTextKeys.italic: true});
+
+      final d5 = afterDelta[4] as TextInsert;
+      expect(d5.text, ' and ');
+      expect(d5.attributes, null);
+
+      final d6 = afterDelta[5] as TextInsert;
+      expect(
+        d6.text,
+        'AOL Instant Messenger',
+      );
+      expect(d6.attributes, {AppFlowyRichTextKeys.bold: true});
+
+      final d7 = afterDelta[6] as TextInsert;
+      expect(
+        d7.text,
+        ' gained tremendous popularity, allowing for seamless real-time text communication across the globe.',
+      );
+      expect(d7.attributes, null);
+    });
+  });
 }
 
 const _sample1 = '''# The Curious Cat

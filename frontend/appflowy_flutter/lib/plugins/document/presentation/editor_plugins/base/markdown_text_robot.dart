@@ -110,10 +110,13 @@ class MarkdownTextRobot {
   }
 
   /// Persist the text into the document
-  Future<void> persist({String? markdownText}) async {
+  Future<void> persist({
+    String? markdownText,
+  }) async {
     if (markdownText != null) {
       _markdownText = markdownText;
     }
+
     await _lock.synchronized(() async {
       await _refresh(inMemoryUpdate: false);
     });
@@ -121,6 +124,24 @@ class MarkdownTextRobot {
     if (_enableDebug) {
       Log.info('MarkdownTextRobot stop');
       _debugMarkdownTexts.clear();
+    }
+  }
+
+  /// Replace the selected content with the AI's response
+  Future<void> replace({
+    required Selection selection,
+    required String markdownText,
+  }) async {
+    if (selection.isSingle) {
+      await _replaceInSameLine(
+        selection: selection,
+        markdownText: markdownText,
+      );
+    } else {
+      await _replaceInMultiLines(
+        selection: selection,
+        markdownText: markdownText,
+      );
     }
   }
 
@@ -281,6 +302,66 @@ class MarkdownTextRobot {
     return node.copyWith(
       children: children,
     );
+  }
+
+  /// If the selected content is in the same line,
+  /// keep the selected node and replace the delta.
+  Future<void> _replaceInSameLine({
+    required Selection selection,
+    required String markdownText,
+  }) async {
+    selection = selection.normalized;
+
+    // If the selection is not a single node, do nothing.
+    if (!selection.isSingle) {
+      assert(false, 'Expected single node selection');
+      Log.error('Expected single node selection');
+      return;
+    }
+
+    final startIndex = selection.startIndex;
+    final endIndex = selection.endIndex;
+    final length = endIndex - startIndex;
+
+    // Get the selected node.
+    final node = editorState.getNodeAtPath(selection.start.path);
+    final delta = node?.delta;
+    if (node == null || delta == null) {
+      assert(false, 'Expected non-null node and delta');
+      Log.error('Expected non-null node and delta');
+      return;
+    }
+
+    // Convert the markdown text to delta.
+    final decoder = DeltaMarkdownDecoder();
+    final markdownDelta = decoder.convert(markdownText);
+
+    // Replace the delta of the selected node.
+    final transaction = editorState.transaction;
+    transaction
+      ..deleteText(node, startIndex, length)
+      ..insertTextDelta(node, startIndex, markdownDelta);
+    await editorState.apply(transaction);
+  }
+
+  /// If the selected content is in multiple lines
+  Future<void> _replaceInMultiLines({
+    required Selection selection,
+    required String markdownText,
+  }) async {
+    selection = selection.normalized;
+
+    // If the selection is a single node, do nothing.
+    if (selection.isSingle) {
+      assert(false, 'Expected multi-line selection');
+      Log.error('Expected multi-line selection');
+      return;
+    }
+
+    // Get the selected nodes.
+    final nodes = editorState.getNodesInSelection(selection);
+
+    // Replace the delta of the selected nodes.
   }
 }
 
