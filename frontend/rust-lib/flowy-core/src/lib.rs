@@ -105,6 +105,8 @@ impl AppFlowyCore {
 
   #[instrument(skip(config, runtime))]
   async fn init(config: AppFlowyCoreConfig, runtime: Arc<AFPluginRuntime>) -> Self {
+    config.ensure_path();
+
     // Init the key value database
     let store_preference = Arc::new(KVStorePreferences::new(&config.storage_path).unwrap());
     info!("🔥{:?}", &config);

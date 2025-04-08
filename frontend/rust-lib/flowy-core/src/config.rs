@@ -29,7 +29,25 @@ pub struct AppFlowyCoreConfig {
   pub(crate) log_filter: String,
   pub cloud_config: Option<AFCloudConfiguration>,
 }
+impl AppFlowyCoreConfig {
+  pub fn ensure_path(&self) {
+    let create_if_needed = |path_str: &str, label: &str| {
+      let dir = std::path::Path::new(path_str);
+      if !dir.exists() {
+        match std::fs::create_dir_all(dir) {
+          Ok(_) => info!("Created {} path: {}", label, path_str),
+          Err(err) => error!(
+            "Failed to create {} path: {}. Error: {}",
+            label, path_str, err
+          ),
+        }
+      }
+    };
 
+    create_if_needed(&self.storage_path, "storage");
+    create_if_needed(&self.application_path, "application");
+  }
+}
 impl fmt::Debug for AppFlowyCoreConfig {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     let mut debug = f.debug_struct("AppFlowy Configuration");
