@@ -58,8 +58,17 @@ class PasteAsMenuService {
               ltrb.buildPositioned(
                 child: PasteAsMenu(
                   onSelect: (t) {
+                    final selection = editorState.selection;
+                    if (selection == null) return;
+                    final end = selection.end;
+                    final urlSelection = Selection(
+                      start: end.copyWith(offset: end.offset - href.length),
+                      end: end,
+                    );
                     if (t == PasteMenuType.bookmark) {
-                      convertUrlToLinkPreview(editorState, href);
+                      convertUrlToLinkPreview(editorState, urlSelection, href);
+                    } else if (t == PasteMenuType.mention) {
+                      convertUrlToMention(editorState, urlSelection);
                     }
                     dismiss();
                   },

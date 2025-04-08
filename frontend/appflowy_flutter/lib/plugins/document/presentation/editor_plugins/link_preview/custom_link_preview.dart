@@ -160,7 +160,6 @@ class CustomLinkPreviewWidget extends StatelessWidget {
       child = FlowyNetworkImage(
         url: imageUrl!,
         width: width,
-        fit: BoxFit.contain,
       );
     } else {
       child = Center(

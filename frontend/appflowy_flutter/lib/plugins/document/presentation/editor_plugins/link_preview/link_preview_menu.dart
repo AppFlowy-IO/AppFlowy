@@ -108,11 +108,12 @@ class _CustomLinkPreviewMenuState extends State<CustomLinkPreviewMenu> {
         await convertUrlPreviewNodeToLink(editorState, node);
         break;
       case LinkPreviewMenuCommand.convertToEmbed:
-        await convertLinkBlockToOtherLinkBlock(
-          editorState,
-          node,
-          LinkEmbedBlockKeys.type,
-        );
+        final transaction = editorState.transaction;
+        transaction.updateNode(node, {
+          LinkPreviewBlockKeys.url: url,
+          LinkEmbedKeys.previewType: LinkEmbedKeys.embed,
+        });
+        await editorState.apply(transaction);
         break;
       case LinkPreviewMenuCommand.copyLink:
         if (url != null) {

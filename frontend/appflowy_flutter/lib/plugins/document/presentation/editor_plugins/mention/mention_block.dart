@@ -6,14 +6,18 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'mention_link_block.dart';
+
 enum MentionType {
   page,
   date,
+  externalLink,
   childPage;
 
   static MentionType fromString(String value) => switch (value) {
         'page' => page,
         'date' => date,
+        'externalLink' => externalLink,
         'childPage' => childPage,
         // Backwards compatibility
         'reminder' => date,
@@ -47,6 +51,7 @@ class MentionBlockKeys {
   static const type = 'type'; // MentionType, String
   static const pageId = 'page_id';
   static const blockId = 'block_id';
+  static const url = 'url';
 
   // Related to Reminder and Date blocks
   static const date = 'date'; // Start Date
@@ -123,6 +128,17 @@ class MentionBlock extends StatelessWidget {
           reminderId: mention[MentionBlockKeys.reminderId],
           reminderOption: reminderOption ?? ReminderOption.none,
           includeTime: mention[MentionBlockKeys.includeTime] ?? false,
+        );
+      case MentionType.externalLink:
+        final String? url = mention[MentionBlockKeys.url] as String?;
+        if (url == null) {
+          return const SizedBox.shrink();
+        }
+        return MentionLinkBlock(
+          url: url,
+          editorState: editorState,
+          node: node,
+          index: index,
         );
     }
   }

@@ -16,7 +16,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-import 'editor_plugins/link_embed/link_embed_block_component.dart';
 import 'editor_plugins/link_preview/custom_link_preview_block_component.dart';
 import 'editor_plugins/page_block/custom_page_block_component.dart';
 
@@ -392,10 +391,6 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilderMap(
     ),
     // Flutter doesn't support the video widget, so we forward the video block to the link preview block
     VideoBlockKeys.type: _buildLinkPreviewBlockComponentBuilder(
-      context,
-      configuration,
-    ),
-    LinkEmbedBlockKeys.type: _buildLinkEmbedBlockComponentBuilder(
       context,
       configuration,
     ),
@@ -980,23 +975,6 @@ CustomLinkPreviewBlockComponentBuilder _buildLinkPreviewBlockComponentBuilder(
   BlockComponentConfiguration configuration,
 ) {
   return CustomLinkPreviewBlockComponentBuilder(
-    configuration: configuration.copyWith(
-      padding: (node) {
-        if (UniversalPlatform.isMobile) {
-          return configuration.padding(node);
-        }
-        return const EdgeInsets.symmetric(vertical: 10);
-      },
-    ),
-    cache: LinkPreviewDataCache(),
-  );
-}
-
-CustomLinkEmbedBlockComponentBuilder _buildLinkEmbedBlockComponentBuilder(
-  BuildContext context,
-  BlockComponentConfiguration configuration,
-) {
-  return CustomLinkEmbedBlockComponentBuilder(
     configuration: configuration.copyWith(
       padding: (node) {
         if (UniversalPlatform.isMobile) {

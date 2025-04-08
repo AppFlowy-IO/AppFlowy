@@ -6,7 +6,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/desktop_floating_toolbar.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/link_embed/link_embed_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/shared.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/toolbar_item/custom_link_toolbar_item.dart';
@@ -280,27 +280,13 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
     Selection selection,
     LinkConvertMenuCommand type,
   ) async {
-    final node = editorState.getNodeAtPath(selection.end.path);
-    if (node == null) {
-      return;
-    }
-    final index = selection.normalized.startIndex;
-    final length = selection.length;
-    final transaction = editorState.transaction;
-
-    if (type == LinkConvertMenuCommand.toBookmark ||
-        type == LinkConvertMenuCommand.toEmbed) {
-      transaction.deleteText(node, index, length);
-      await editorState.apply(transaction);
-      transaction
-        ..insertNodes(node.path, [linkPreviewNode(url: attribute.href ?? ''), paragraphNode()])
-        ..afterSelection = Selection.collapsed(
-          Position(path: node.path.next),
-        );
-      return editorState.apply(transaction);
-    } else {
-
-    }
+    final url = widget.attribute.href ?? '';
+    if (type == LinkConvertMenuCommand.toBookmark) {
+      await convertUrlToLinkPreview(editorState, selection, url);
+    } else if (type == LinkConvertMenuCommand.toMention) {
+      await convertUrlToMention(editorState, selection);
+    } else if (type == LinkConvertMenuCommand.toEmbed) {
+    } else {}
   }
 
   void onRemoveAndReplaceLink(
@@ -407,6 +393,7 @@ class _LinkHoverMenuState extends State<LinkHoverMenu> {
                     FlowyIconButton(
                       icon: FlowySvg(FlowySvgs.toolbar_link_m),
                       tooltipText: LocaleKeys.editor_copyLink.tr(),
+                      preferBelow: false,
                       width: 36,
                       height: 32,
                       onPressed: widget.onCopyLink,
@@ -414,6 +401,7 @@ class _LinkHoverMenuState extends State<LinkHoverMenu> {
                     FlowyIconButton(
                       icon: FlowySvg(FlowySvgs.toolbar_link_edit_m),
                       tooltipText: LocaleKeys.editor_editLink.tr(),
+                      preferBelow: false,
                       width: 36,
                       height: 32,
                       onPressed: widget.onEditLink,
@@ -422,6 +410,7 @@ class _LinkHoverMenuState extends State<LinkHoverMenu> {
                     FlowyIconButton(
                       icon: FlowySvg(FlowySvgs.toolbar_link_unlink_m),
                       tooltipText: LocaleKeys.editor_removeLink.tr(),
+                      preferBelow: false,
                       width: 36,
                       height: 32,
                       onPressed: widget.onRemoveLink,
@@ -496,14 +485,13 @@ class _LinkHoverMenuState extends State<LinkHoverMenu> {
       margin: EdgeInsets.zero,
       controller: popoverController,
       onOpen: () => keepEditorFocusNotifier.increase(),
-      onClose: () {
-        keepEditorFocusNotifier.decrease();
-      },
+      onClose: () => keepEditorFocusNotifier.decrease(),
       popupBuilder: (context) => buildConvertMenu(),
       child: FlowyIconButton(
         icon: FlowySvg(FlowySvgs.turninto_m),
         isSelected: isConvertButtonSelected,
         tooltipText: LocaleKeys.editor_convertTo.tr(),
+        preferBelow: false,
         width: 36,
         height: 32,
         onPressed: () {
@@ -629,7 +617,7 @@ enum LinkConvertMenuCommand {
       case toBookmark:
         return LinkPreviewBlockKeys.type;
       case toEmbed:
-        return LinkEmbedBlockKeys.type;
+        return LinkPreviewBlockKeys.type;
     }
   }
 }

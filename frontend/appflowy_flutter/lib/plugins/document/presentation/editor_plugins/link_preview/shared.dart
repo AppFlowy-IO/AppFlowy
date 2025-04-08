@@ -1,4 +1,5 @@
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_embed/link_embed_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/plugins.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 
@@ -56,27 +57,78 @@ Future<void> removeUrlPreviewLink(
 
 Future<void> convertUrlToLinkPreview(
   EditorState editorState,
-  String href,
-) async {
-  final selection = editorState.selection;
-  if (selection == null || !selection.isCollapsed) return;
-  final node = editorState.getNodeAtPath(selection.start.path);
-  if (node == null) return;
-  final length = href.length;
-  final index = selection.normalized.startIndex - length;
+  Selection selection,
+  String url, {
+  String? previewType,
+}) async {
+  final node = editorState.getNodeAtPath(selection.end.path);
+  if (node == null) {
+    return;
+  }
+  final delta = node.delta;
+  if (delta == null) return;
+  final List<TextInsert> beforeOperations = [], afterOperations = [];
+  int index = 0;
+  for (final insert in delta.whereType<TextInsert>()) {
+    if (index < selection.startIndex) {
+      beforeOperations.add(insert);
+    } else if (index >= selection.endIndex) {
+      afterOperations.add(insert);
+    }
+    index += insert.length;
+  }
   final transaction = editorState.transaction;
-  transaction.deleteText(node, index, length);
-  await editorState.apply(transaction);
   transaction
-    ..insertNodes(node.path, [linkPreviewNode(url: href), paragraphNode()])
-    ..afterSelection = Selection.collapsed(
-      Position(path: node.path.next),
-    );
-  return editorState.apply(transaction);
+    ..deleteNode(node)
+    ..insertNodes(node.path.next, [
+      if (beforeOperations.isNotEmpty)
+        paragraphNode(delta: Delta(operations: beforeOperations)),
+      if (previewType == LinkEmbedKeys.embed)
+        linkEmbedNode(url: url)
+      else
+        linkPreviewNode(url: url),
+      paragraphNode(delta: Delta(operations: afterOperations)),
+    ]);
+  await editorState.apply(transaction);
 }
 
-Future<void> replaceNodeUrl(EditorState editorState, Node node, String url) =>
-    convertLinkBlockToOtherLinkBlock(editorState, node, node.type, url: url);
+Future<void> convertUrlToMention(
+  EditorState editorState,
+  Selection selection,
+) async {
+  final node = editorState.getNodeAtPath(selection.end.path);
+  if (node == null) {
+    return;
+  }
+  final delta = node.delta;
+  if (delta == null) return;
+  String url = '';
+  int index = 0;
+  for (final insert in delta.whereType<TextInsert>()) {
+    if (index >= selection.startIndex && index < selection.endIndex) {
+      final href = insert.attributes?.href ?? '';
+      if (href.isNotEmpty) {
+        url = href;
+        break;
+      }
+    }
+    index += insert.length;
+  }
+  final transaction = editorState.transaction;
+  transaction.replaceText(
+    node,
+    selection.startIndex,
+    selection.length,
+    MentionBlockKeys.mentionChar,
+    attributes: {
+      MentionBlockKeys.mention: {
+        MentionBlockKeys.type: MentionType.externalLink.name,
+        MentionBlockKeys.url: url,
+      },
+    },
+  );
+  await editorState.apply(transaction);
+}
 
 Future<void> convertLinkBlockToOtherLinkBlock(
   EditorState editorState,
@@ -85,7 +137,7 @@ Future<void> convertLinkBlockToOtherLinkBlock(
   String? url,
 }) async {
   final nodeType = node.type;
-  if (_isNotLinkType(nodeType) ||
+  if (nodeType != LinkPreviewBlockKeys.type ||
       (nodeType == toType && url == null)) {
     return;
   }
@@ -113,7 +165,3 @@ Future<void> convertLinkBlockToOtherLinkBlock(
   transaction.deleteNodes([node]);
   await editorState.apply(transaction);
 }
-
-const _linkTypeSet = {LinkPreviewBlockKeys.type, LinkEmbedBlockKeys.type};
-
-bool _isNotLinkType(String type) => !_linkTypeSet.contains(type);
