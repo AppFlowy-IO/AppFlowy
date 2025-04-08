@@ -57,6 +57,9 @@ pub struct SignUpPayloadPB {
 
   #[pb(index = 5)]
   pub device_id: String,
+
+  #[pb(index = 6)]
+  pub is_anon: bool,
 }
 
 impl TryInto<SignUpParams> for SignUpPayloadPB {
@@ -73,6 +76,7 @@ impl TryInto<SignUpParams> for SignUpPayloadPB {
       password: password.0,
       auth_type: self.auth_type.into(),
       device_id: self.device_id,
+      is_anon: self.is_anon,
     })
   }
 }

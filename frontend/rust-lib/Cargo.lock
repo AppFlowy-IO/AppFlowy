@@ -2604,6 +2604,7 @@ dependencies = [
  "tokio",
  "tokio-stream",
  "tracing",
+ "url",
  "uuid",
 ]
 
@@ -3049,7 +3050,6 @@ dependencies = [
  "collab-user",
  "dashmap 6.0.1",
  "diesel",
- "diesel_derives",
  "fake",
  "fancy-regex 0.11.0",
  "flowy-codegen",
@@ -3064,7 +3064,6 @@ dependencies = [
  "lib-dispatch",
  "lib-infra",
  "nanoid",
- "once_cell",
  "protobuf",
  "quickcheck",
  "quickcheck_macros",
@@ -3074,7 +3073,6 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
- "serde_repr",
  "strum",
  "strum_macros 0.25.2",
  "tokio",

@@ -42,6 +42,7 @@ pub struct SignUpParams {
   pub password: String,
   pub auth_type: Authenticator,
   pub device_id: String,
+  pub is_anon: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
