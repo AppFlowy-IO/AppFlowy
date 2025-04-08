@@ -72,7 +72,7 @@ extension InsertDatabase on EditorState {
         0,
         MentionBlockKeys.mentionChar,
         attributes: MentionBlockKeys.buildMentionPageAttributes(
-          mentionType: MentionType.page.name,
+          mentionType: MentionType.page,
           pageId: view.id,
           blockId: null,
         ),

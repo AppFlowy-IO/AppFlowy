@@ -51,7 +51,7 @@ Node pageMentionNode(String viewId) {
         TextInsert(
           MentionBlockKeys.mentionChar,
           attributes: MentionBlockKeys.buildMentionPageAttributes(
-            mentionType: MentionType.page.name,
+            mentionType: MentionType.page,
             pageId: viewId,
             blockId: null,
           ),
@@ -284,7 +284,7 @@ class _MentionSubPageBlockState extends State<MentionSubPageBlock> {
         widget.index,
         MentionBlockKeys.mentionChar.length,
         MentionBlockKeys.buildMentionPageAttributes(
-          mentionType: MentionType.page.name,
+          mentionType: MentionType.page,
           pageId: widget.pageId,
           blockId: null,
         ),
@@ -395,7 +395,7 @@ Future<void> _handleDoubleTap(
         index,
         1,
         MentionBlockKeys.buildMentionPageAttributes(
-          mentionType: MentionType.page.name,
+          mentionType: MentionType.page,
           pageId: newView.id,
           blockId: null,
         ),

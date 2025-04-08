@@ -44,7 +44,7 @@ extension PasteFromBlockLink on EditorState {
       selection.startIndex,
       MentionBlockKeys.mentionChar,
       attributes: MentionBlockKeys.buildMentionPageAttributes(
-        mentionType: MentionType.page.name,
+        mentionType: MentionType.page,
         pageId: pageId,
         blockId: blockId,
       ),

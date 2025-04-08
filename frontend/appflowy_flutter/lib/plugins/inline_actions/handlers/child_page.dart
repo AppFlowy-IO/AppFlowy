@@ -72,7 +72,7 @@ class InlineChildPageService extends InlineActionsDelegate {
         replacement.$2,
         MentionBlockKeys.mentionChar,
         attributes: MentionBlockKeys.buildMentionPageAttributes(
-          mentionType: MentionType.childPage.name,
+          mentionType: MentionType.childPage,
           pageId: view.id,
           blockId: null,
         ),

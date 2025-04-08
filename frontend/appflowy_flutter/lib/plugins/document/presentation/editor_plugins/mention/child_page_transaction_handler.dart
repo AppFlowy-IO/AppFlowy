@@ -196,7 +196,7 @@ class ChildPageTransactionHandler extends MentionTransactionHandler {
           mentionIndex,
           MentionBlockKeys.mentionChar.length,
           MentionBlockKeys.buildMentionPageAttributes(
-            mentionType: MentionType.childPage.name,
+            mentionType: MentionType.childPage,
             pageId: newView.id,
             blockId: null,
           ),

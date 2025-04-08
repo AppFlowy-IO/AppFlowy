@@ -222,7 +222,7 @@ class InlinePageReferenceService extends InlineActionsDelegate {
         replace.$2,
         MentionBlockKeys.mentionChar,
         attributes: MentionBlockKeys.buildMentionPageAttributes(
-          mentionType: MentionType.page.name,
+          mentionType: MentionType.page,
           pageId: view.id,
           blockId: null,
         ),

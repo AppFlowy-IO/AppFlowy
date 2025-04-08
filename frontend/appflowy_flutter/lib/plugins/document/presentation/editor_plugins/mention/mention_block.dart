@@ -57,13 +57,13 @@ class MentionBlockKeys {
   static const mentionChar = '\$';
 
   static Map<String, dynamic> buildMentionPageAttributes({
-    required String mentionType,
+    required MentionType mentionType,
     required String pageId,
     required String? blockId,
   }) {
     return {
       MentionBlockKeys.mention: {
-        MentionBlockKeys.type: mentionType,
+        MentionBlockKeys.type: mentionType.name,
         MentionBlockKeys.pageId: pageId,
         if (blockId != null) MentionBlockKeys.blockId: blockId,
       },
