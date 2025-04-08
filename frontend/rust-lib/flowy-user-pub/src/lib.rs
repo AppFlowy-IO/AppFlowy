@@ -3,4 +3,5 @@ pub mod entities;
 pub mod session;
 pub mod workspace_service;
 
-pub const DEFAULT_USER_NAME: fn() -> String = || "Me".to_string();
+// anonymous user name
+pub const DEFAULT_USER_NAME: fn() -> String = || "Anonymous".to_string();

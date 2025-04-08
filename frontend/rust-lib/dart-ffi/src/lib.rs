@@ -109,6 +109,7 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
   let serde_str = c_str
     .to_str()
     .expect("Failed to convert C string to Rust string");
+
   let configuration = AppFlowyDartConfiguration::from_str(serde_str);
   configuration.write_env();
 
@@ -131,6 +132,7 @@ pub extern "C" fn init_sdk(_port: i64, data: *mut c_char) -> i64 {
     configuration.device_id,
     configuration.platform,
     DEFAULT_NAME.to_string(),
+    configuration.is_anon,
   );
 
   if let Some(core) = &*DART_APPFLOWY_CORE.core.write().unwrap() {

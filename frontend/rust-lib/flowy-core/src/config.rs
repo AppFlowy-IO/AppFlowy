@@ -26,6 +26,7 @@ pub struct AppFlowyCoreConfig {
   /// choose a custom path for the user data, the storage_path will be different from
   /// the origin_application_path.
   pub application_path: String,
+  pub is_anon: bool,
   pub(crate) log_filter: String,
   pub cloud_config: Option<AFCloudConfiguration>,
 }
@@ -64,7 +65,10 @@ impl fmt::Debug for AppFlowyCoreConfig {
   }
 }
 
-fn make_user_data_folder(root: &str, url: &str) -> String {
+fn make_user_data_folder(root: &str, url: &str, is_anon: bool) -> String {
+  if is_anon {
+    return root.to_string();
+  }
   // If a URL is provided, try to parse it and extract the domain name.
   // This isolates the user data folder by the domain, which prevents data sharing
   // between different AppFlowy cloud instances.
@@ -130,13 +134,14 @@ impl AppFlowyCoreConfig {
     device_id: String,
     platform: String,
     name: String,
+    is_anon: bool,
   ) -> Self {
     let cloud_config = AFCloudConfiguration::from_env().ok();
     // By default enable sync trace log
     let log_crates = vec!["sync_trace_log".to_string()];
     let storage_path = match &cloud_config {
       None => custom_application_path,
-      Some(config) => make_user_data_folder(&custom_application_path, &config.base_url),
+      Some(config) => make_user_data_folder(&custom_application_path, &config.base_url, is_anon),
     };
 
     let log_filter = create_log_filter(
@@ -153,6 +158,7 @@ impl AppFlowyCoreConfig {
       device_id,
       platform,
       log_filter,
+      is_anon,
       cloud_config,
     }
   }

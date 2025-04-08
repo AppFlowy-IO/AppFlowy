@@ -99,13 +99,6 @@ void _resolveCommonService(
 
 void _resolveUserDeps(GetIt getIt, IntegrationMode mode) {
   switch (currentCloudType()) {
-    case AuthenticatorType.local:
-      getIt.registerFactory<AuthService>(
-        () => BackendAuthService(
-          AuthenticatorPB.Local,
-        ),
-      );
-      break;
     case AuthenticatorType.appflowyCloud:
     case AuthenticatorType.appflowyCloudSelfHost:
     case AuthenticatorType.appflowyCloudDevelop:

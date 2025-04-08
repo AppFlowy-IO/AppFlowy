@@ -580,6 +580,33 @@ impl UserManager {
       .backup(session.user_id, &session.user_workspace.id);
   }
 
+  pub async fn create_anon_user_once(&self) -> Result<(), FlowyError> {
+    info!("Create anon user once");
+    let params = SignUpParams {
+      email: "anon@appflowy.io".to_string(),
+      name: "Me".to_string(),
+      password: "password".to_string(),
+      auth_type: Authenticator::Local,
+      device_id: "anon device".to_string(),
+    };
+    // check anon user is exist or not, if not, create anon user
+    if let Err(err) = self
+      .sign_up(Authenticator::Local, BoxAny::new(params))
+      .await
+    {
+      error!("Create anon user failed: {}", err);
+    }
+    Ok(())
+  }
+
+  pub async fn active_anon_user(&self) -> FlowyResult<()> {
+    let anon_session = self.get_anon_session().await?;
+    self
+      .authenticate_user
+      .set_session(Some(Arc::new(anon_session)))?;
+    Ok(())
+  }
+
   /// Fetches the user profile for the given user ID.
   pub async fn get_user_profile_from_disk(&self, uid: i64) -> Result<UserProfile, FlowyError> {
     select_user_profile(uid, self.db_connection(uid)?)
