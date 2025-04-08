@@ -942,6 +942,31 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await pumpAndSettle(const Duration(milliseconds: 200));
   }
 
+  Future<void> changeFieldWidth(String fieldName, double width) async {
+    final field = find.byWidgetPredicate(
+      (widget) => widget is GridFieldCell && widget.fieldInfo.name == fieldName,
+    );
+    await hoverOnWidget(
+      field,
+      onHover: () async {
+        final dragHandle = find.descendant(
+          of: field,
+          matching: find.byType(DragToExpandLine),
+        );
+        await drag(dragHandle, Offset(width - getSize(field).width, 0));
+        await pumpAndSettle(const Duration(milliseconds: 200));
+      },
+    );
+  }
+
+  double getFieldWidth(String fieldName) {
+    final field = find.byWidgetPredicate(
+      (widget) => widget is GridFieldCell && widget.fieldInfo.name == fieldName,
+    );
+
+    return getSize(field).width;
+  }
+
   Future<void> findDateEditor(dynamic matcher) async {
     final finder = find.byType(DateCellEditor);
     expect(finder, matcher);
