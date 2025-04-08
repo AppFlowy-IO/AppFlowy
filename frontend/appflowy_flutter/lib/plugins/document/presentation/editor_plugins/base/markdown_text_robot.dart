@@ -358,10 +358,67 @@ class MarkdownTextRobot {
       return;
     }
 
+    final markdownNodes = customMarkdownToDocument(
+      markdownText,
+      tableWidth: 250.0,
+    ).root.children;
+
     // Get the selected nodes.
     final nodes = editorState.getNodesInSelection(selection);
 
-    // Replace the delta of the selected nodes.
+    // step 1. merge the first selected node and the first node from the ai response
+    // step 2. merge the last selected node and the last node from the ai response
+    // step 3. insert the middle nodes from the ai response
+    // step 4. delete the middle nodes
+    final transaction = editorState.transaction;
+
+    // step 1
+    final firstNode = nodes.firstOrNull;
+    final delta = firstNode?.delta;
+    final firstMarkdownNode = markdownNodes.firstOrNull;
+    final firstMarkdownDelta = firstMarkdownNode?.delta;
+    if (firstNode != null &&
+        delta != null &&
+        firstMarkdownNode != null &&
+        firstMarkdownDelta != null) {
+      final startIndex = selection.startIndex;
+      final length = delta.length - startIndex;
+      transaction
+        ..deleteText(firstNode, startIndex, length)
+        ..insertTextDelta(firstNode, startIndex, firstMarkdownDelta);
+    }
+
+    // step 2
+    final lastNode = nodes.lastOrNull;
+    final lastDelta = lastNode?.delta;
+    final lastMarkdownNode = markdownNodes.lastOrNull;
+    final lastMarkdownDelta = lastMarkdownNode?.delta;
+    if (lastNode != null &&
+        lastDelta != null &&
+        lastMarkdownNode != null &&
+        lastMarkdownDelta != null) {
+      final endIndex = selection.endIndex;
+      transaction
+        ..deleteText(lastNode, 0, endIndex)
+        ..insertTextDelta(lastNode, 0, lastMarkdownDelta);
+    }
+
+    // step 3
+    final insertedPath = selection.start.path.nextNPath(1);
+    if (markdownNodes.length > 2) {
+      transaction.insertNodes(
+        insertedPath,
+        markdownNodes.skip(1).take(markdownNodes.length - 2).toList(),
+      );
+    }
+
+    // step 4
+    if (nodes.length > 2) {
+      final middleNodes = nodes.skip(1).take(nodes.length - 2).toList();
+      transaction.deleteNodes(middleNodes);
+    }
+
+    await editorState.apply(transaction);
   }
 }
 
