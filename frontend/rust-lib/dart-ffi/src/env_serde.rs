@@ -16,6 +16,7 @@ pub struct AppFlowyDartConfiguration {
   pub device_id: String,
   pub platform: String,
   pub authenticator_type: AuthenticatorType,
+  pub is_anon: bool,
   pub(crate) appflowy_cloud_config: AFCloudConfiguration,
   #[serde(default)]
   pub(crate) envs: HashMap<String, String>,

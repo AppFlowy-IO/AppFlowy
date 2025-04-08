@@ -1,4 +1,3 @@
-import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/_restart_app_button.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
@@ -22,7 +21,6 @@ class SettingLocalCloud extends StatelessWidget {
     NavigatorAlertDialog(
       title: LocaleKeys.settings_menu_restartAppTip.tr(),
       confirm: () async {
-        await useLocalServer();
         restartAppFlowy();
       },
     ).show(context);

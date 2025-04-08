@@ -1,7 +1,6 @@
 import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/user/application/auth/auth_service.dart';
 import 'package:appflowy/user/application/splash_bloc.dart';
 import 'package:appflowy/user/domain/auth_state.dart';
 import 'package:appflowy/user/presentation/helpers/helpers.dart';
@@ -22,19 +21,7 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isAnon) {
-      return FutureBuilder<void>(
-        future: _registerIfNeeded(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const SizedBox.shrink();
-          }
-          return _buildChild(context);
-        },
-      );
-    } else {
-      return _buildChild(context);
-    }
+    return _buildChild(context);
   }
 
   BlocProvider<SplashBloc> _buildChild(BuildContext context) {
@@ -97,13 +84,6 @@ class SplashScreen extends StatelessWidget {
     } else {
       // if the env is not configured, we will skip to the 'skip login screen'.
       context.go(SkipLogInScreen.routeName);
-    }
-  }
-
-  Future<void> _registerIfNeeded() async {
-    final result = await UserEventGetUserProfile().send();
-    if (result.isFailure) {
-      await getIt<AuthService>().signUpAsGuest();
     }
   }
 }

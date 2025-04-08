@@ -8,6 +8,7 @@ import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/magic_
 import 'package:appflowy/util/navigator_context_extension.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/setting_third_party_login.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:appflowy_backend/protobuf/flowy-user/auth.pb.dart';
 import 'package:appflowy_backend/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -63,8 +64,18 @@ class AccountSignInOutButton extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       fontWeight: FontWeight.w500,
       radius: 8.0,
-      onTap: () =>
-          signIn ? _showSignInDialog(context) : _showLogoutDialog(context),
+      onTap: () {
+        // If current mode is anonymous, we need to pop the dialog and restart app again.
+        // After restarting, the app will switch to non-anonymous mode.
+        if (userProfile.authenticator == AuthenticatorPB.Local) {
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          }
+          runAppFlowy();
+        } else {
+          signIn ? _showSignInDialog(context) : _showLogoutDialog(context);
+        }
+      },
     );
   }
 

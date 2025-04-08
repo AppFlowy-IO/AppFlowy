@@ -9,6 +9,7 @@ use flowy_folder::manager::FolderManager;
 use flowy_search::folder::indexer::FolderIndexManagerImpl;
 use flowy_search::services::manager::SearchManager;
 use flowy_server::af_cloud::define::ServerUser;
+use std::path::Path;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
 use sysinfo::System;
@@ -96,7 +97,26 @@ impl AppFlowyCore {
       );
     }
 
-    Self::init(config, runtime).await
+    let is_anon = config.is_anon;
+    let create_anon = if is_anon {
+      !Path::new(&config.storage_path).exists()
+    } else {
+      false
+    };
+
+    let this = Self::init(config, runtime).await;
+    if is_anon {
+      if create_anon {
+        if let Err(err) = this.user_manager.create_anon_user_once().await {
+          error!("Create anon user failed: {}", err);
+        }
+      } else {
+        if let Err(err) = this.user_manager.active_anon_user().await {
+          error!("Active anon user failed: {}", err);
+        }
+      }
+    }
+    this
   }
 
   pub fn close_db(&self) {

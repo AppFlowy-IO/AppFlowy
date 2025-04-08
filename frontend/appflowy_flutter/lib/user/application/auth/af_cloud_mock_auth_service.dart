@@ -88,10 +88,10 @@ class AppFlowyCloudMockAuthService implements AuthService {
   }
 
   @override
-  Future<FlowyResult<UserProfilePB, FlowyError>> signUpAsGuest({
+  Future<void> signUpAsGuest({
     Map<String, String> params = const {},
   }) async {
-    return _appFlowyAuthService.signUpAsGuest();
+    await _appFlowyAuthService.signUpAsGuest();
   }
 
   @override
