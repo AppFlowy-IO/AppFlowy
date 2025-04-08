@@ -2027,7 +2027,8 @@
           "replace": "Replace",
           "reload": "Reload",
           "removeLink": "Remove Link",
-          "pasteHint": "Paste in https://..."
+          "pasteHint": "Paste in https://...",
+          "refuseConnect": "refued to connect."
         }
       }
     },

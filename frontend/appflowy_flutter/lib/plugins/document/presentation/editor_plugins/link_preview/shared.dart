@@ -119,7 +119,8 @@ Future<void> convertUrlToLinkPreview(
         linkEmbedNode(url: url)
       else
         linkPreviewNode(url: url),
-      paragraphNode(delta: Delta(operations: afterOperations)),
+      if (afterOperations.isNotEmpty)
+        paragraphNode(delta: Delta(operations: afterOperations)),
     ]);
   await editorState.apply(transaction);
 }
@@ -176,10 +177,12 @@ Future<void> convertLinkBlockToOtherLinkBlock(
   final insertedNode = <Node>[];
 
   final afterUrl = url ?? node.attributes[LinkPreviewBlockKeys.url] ?? '';
+  final previewType = node.attributes[LinkEmbedKeys.previewType];
   Node afterNode = node.copyWith(
     type: toType,
     attributes: {
       LinkPreviewBlockKeys.url: afterUrl,
+      LinkEmbedKeys.previewType: previewType,
       blockComponentBackgroundColor:
           node.attributes[blockComponentBackgroundColor],
       blockComponentTextDirection: node.attributes[blockComponentTextDirection],

@@ -1,28 +1,18 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
-
-import 'package:appflowy/core/config/kv.dart';
 import 'package:appflowy/core/helpers/url_launcher.dart';
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_hover_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_embed/link_embed_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/custom_link_parser.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/paste_as/paste_as_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/shared.dart';
-import 'package:appflowy/shared/appflowy_network_svg.dart';
-import 'package:appflowy/startup/startup.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:appflowy_backend/log.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:favicon/favicon.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// ignore: depend_on_referenced_packages
-import 'package:flutter_link_previewer/flutter_link_previewer.dart' hide Size;
 
 import 'mention_link_error_preview.dart';
 import 'mention_link_preview.dart';
@@ -55,11 +45,12 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
   final previewController = PopoverController();
   LinkInfo? linkInfo;
   bool isHovering = false;
-  bool isPreviewShowing = false;
+  int previewFocusNum = 0;
   bool isPreviewHovering = false;
   bool showAtBottom = false;
   final key = GlobalKey();
 
+  bool get isPreviewShowing => previewFocusNum > 0;
   String get url => widget.url;
 
   EditorState get editorState => widget.editorState;
@@ -100,6 +91,7 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
   @override
   Widget build(BuildContext context) {
     return AppFlowyPopover(
+      key: ValueKey(showAtBottom),
       controller: previewController,
       direction: showAtBottom
           ? PopoverDirection.bottomWithLeftAligned
@@ -107,11 +99,11 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
       offset: Offset(0, showAtBottom ? -20 : 20),
       onOpen: () {
         keepEditorFocusNotifier.increase();
-        isPreviewShowing = true;
+        previewFocusNum++;
       },
       onClose: () {
         keepEditorFocusNotifier.decrease();
-        isPreviewShowing = false;
+        previewFocusNum--;
       },
       decorationColor: Colors.transparent,
       popoverDecoration: BoxDecoration(),
@@ -201,26 +193,8 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
         padding: const EdgeInsets.all(2.0),
         child: const CircularProgressIndicator(strokeWidth: 1),
       );
-    } else if (status == _LoadingStatus.error) {
-      icon = defaultWidget;
     } else {
-      final faviconUrl = linkInfo?.faviconUrl;
-      if (faviconUrl != null) {
-        if (faviconUrl.endsWith('.svg')) {
-          icon = FlowyNetworkSvg(
-            faviconUrl,
-            height: 20,
-            errorWidget: defaultWidget,
-          );
-        } else {
-          icon = Image.network(
-            faviconUrl,
-            fit: BoxFit.contain,
-            height: 20,
-            errorBuilder: (context, error, stackTrace) => defaultWidget,
-          );
-        }
-      }
+      icon = linkInfo?.buildIconWidget() ?? defaultWidget;
     }
     return SizedBox(
       height: 20,
@@ -234,14 +208,7 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
   Size getSizeFromKey() => box?.size ?? Size.zero;
 
   Future<void> copyLink(BuildContext context) async {
-    await getIt<ClipboardService>()
-        .setData(ClipboardServiceData(plainText: url));
-    if (context.mounted) {
-      showToastNotification(
-        context,
-        message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
-      );
-    }
+    await context.copyLink(url);
     previewController.close();
   }
 
@@ -260,6 +227,8 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
       await toUrl();
     } else if (type == PasteMenuType.bookmark) {
       await toLinkPreview();
+    } else if (type == PasteMenuType.embed) {
+      await toLinkPreview(previewType: LinkEmbedKeys.embed);
     }
   }
 
@@ -277,7 +246,7 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
     await editorState.apply(transaction);
   }
 
-  Future<void> toLinkPreview() async {
+  Future<void> toLinkPreview({String? previewType}) async {
     final selection = Selection(
       start: Position(path: node.path, offset: index),
       end: Position(path: node.path, offset: index + 1),
@@ -286,11 +255,8 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
       editorState,
       selection,
       url,
+      previewType: previewType,
     );
-    // final transaction = editorState.transaction
-    //   ..deleteText(node, index, 1)
-    //   ..insertNode(node.path, linkPreviewNode(url: url));
-    // await editorState.apply(transaction);
   }
 
   void changeHovering(bool hovering) {
@@ -320,14 +286,6 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
     });
   }
 
-  void showPreview() {
-    if (isPreviewShowing || !mounted) {
-      return;
-    }
-    keepEditorFocusNotifier.increase();
-    previewController.show();
-  }
-
   void onEnter(PointerEnterEvent e) {
     changeHovering(true);
     final location = box?.localToGlobal(Offset.zero) ?? Offset.zero;
@@ -350,6 +308,13 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
     tryToDismissPreview();
   }
 
+  void showPreview() {
+    if (!mounted) return;
+    keepEditorFocusNotifier.increase();
+    previewController.show();
+    previewFocusNum++;
+  }
+
   BoxConstraints getConstraints() {
     final size = getSizeFromKey();
     if (!readyForPreview) {
@@ -361,124 +326,6 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
     return BoxConstraints(
       maxWidth: max(300, size.width),
       maxHeight: 300,
-    );
-  }
-}
-
-class LinkParser {
-  static final LinkInfoCache _cache = LinkInfoCache();
-  final Set<ValueChanged<LinkInfo>> _listeners = <ValueChanged<LinkInfo>>{};
-
-  Future<void> start(String url) async {
-    final data = await _cache.get(url);
-    if (data != null) {
-      refreshLinkInfo(data);
-    }
-    await _getLinkInfo(url);
-  }
-
-  Future<LinkInfo?> _getLinkInfo(String url) async {
-    try {
-      final previewData = await getPreviewData(url);
-      final favicon = await FaviconFinder.getBest(url);
-      final linkInfo = LinkInfo(
-        siteName: previewData.title,
-        description: previewData.description,
-        imageUrl: previewData.image?.url,
-        faviconUrl: favicon?.url,
-      );
-      await _cache.set(url, linkInfo);
-      refreshLinkInfo(linkInfo);
-      return linkInfo;
-    } catch (e, s) {
-      Log.error('get link info error: ', e, s);
-      return null;
-    }
-  }
-
-  void refreshLinkInfo(LinkInfo info) {
-    for (final listener in _listeners) {
-      listener(info);
-    }
-  }
-
-  void addLinkInfoListener(ValueChanged<LinkInfo> listener) {
-    _listeners.add(listener);
-  }
-
-  void dispose() {
-    _listeners.clear();
-  }
-}
-
-class LinkInfo {
-  factory LinkInfo.fromJson(Map<String, dynamic> json) => LinkInfo(
-        siteName: json['siteName'],
-        description: json['description'],
-        imageUrl: json['imageUrl'],
-        faviconUrl: json['faviconUrl'],
-      );
-
-  LinkInfo({
-    this.siteName,
-    this.description,
-    this.imageUrl,
-    this.faviconUrl,
-  });
-
-  final String? siteName;
-  final String? description;
-  final String? imageUrl;
-  final String? faviconUrl;
-
-  Map<String, dynamic> toJson() => {
-        'siteName': siteName,
-        'description': description,
-        'imageUrl': imageUrl,
-        'faviconUrl': faviconUrl,
-      };
-
-  bool isEmpty() {
-    return siteName == null ||
-        description == null ||
-        imageUrl == null ||
-        faviconUrl == null;
-  }
-
-  Widget getIconWidget({Size size = const Size.square(20.0)}) {
-    if (faviconUrl == null) {
-      return FlowySvg(FlowySvgs.toolbar_link_earth_m, size: size);
-    }
-    if (faviconUrl!.endsWith('.svg')) {
-      return FlowyNetworkSvg(
-        faviconUrl!,
-        height: size.height,
-        errorWidget: const FlowySvg(FlowySvgs.toolbar_link_earth_m),
-      );
-    }
-    return Image.network(
-      faviconUrl!,
-      fit: BoxFit.contain,
-      height: size.height,
-      errorBuilder: (context, error, stackTrace) =>
-          const FlowySvg(FlowySvgs.toolbar_link_earth_m),
-    );
-  }
-}
-
-class LinkInfoCache {
-  Future<LinkInfo?> get(String url) async {
-    final option = await getIt<KeyValueStorage>().getWithFormat<LinkInfo?>(
-      url,
-      (value) => LinkInfo.fromJson(jsonDecode(value)),
-    );
-    return option;
-  }
-
-  Future<void> set(String url, LinkInfo data) async {
-    await getIt<KeyValueStorage>().set(
-      url,
-      jsonEncode(data.toJson()),
     );
   }
 }

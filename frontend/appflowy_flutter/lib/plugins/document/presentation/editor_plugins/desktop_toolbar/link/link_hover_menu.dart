@@ -240,15 +240,7 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
 
   Future<void> copyLink(BuildContext context) async {
     final href = widget.attribute.href ?? '';
-    if (href.isEmpty) return;
-    await getIt<ClipboardService>()
-        .setData(ClipboardServiceData(plainText: href));
-    if (context.mounted) {
-      showToastNotification(
-        context,
-        message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
-      );
-    }
+    await context.copyLink(href);
     hoverMenuController.close();
   }
 
@@ -618,6 +610,20 @@ enum LinkConvertMenuCommand {
         return LinkPreviewBlockKeys.type;
       case toEmbed:
         return LinkPreviewBlockKeys.type;
+    }
+  }
+}
+
+extension LinkExtension on BuildContext {
+  Future<void> copyLink(String link) async {
+    if (link.isEmpty) return;
+    await getIt<ClipboardService>()
+        .setData(ClipboardServiceData(plainText: link));
+    if (mounted) {
+      showToastNotification(
+        this,
+        message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
+      );
     }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_embed/link_embed_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,18 @@ class CustomLinkPreviewBlockComponentBuilder extends BlockComponentBuilder {
   @override
   BlockComponentWidget build(BlockComponentContext blockComponentContext) {
     final node = blockComponentContext.node;
+    final isEmbed =
+        node.attributes[LinkEmbedKeys.previewType] == LinkEmbedKeys.embed;
+    if (isEmbed) {
+      return LinkEmbedBlockComponent(
+        key: node.key,
+        node: node,
+        configuration: configuration,
+        showActions: showActions(node),
+        actionBuilder: (_, state) =>
+            actionBuilder(blockComponentContext, state),
+      );
+    }
     return CustomLinkPreviewBlockComponent(
       key: node.key,
       node: node,

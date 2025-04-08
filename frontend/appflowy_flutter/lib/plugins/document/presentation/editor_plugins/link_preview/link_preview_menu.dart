@@ -34,6 +34,7 @@ class _CustomLinkPreviewMenuState extends State<CustomLinkPreviewMenu> {
   final popoverController = PopoverController();
   final buttonKey = GlobalKey();
   bool closed = false;
+  bool selected = false;
 
   @override
   void dispose() {
@@ -59,10 +60,14 @@ class _CustomLinkPreviewMenuState extends State<CustomLinkPreviewMenu> {
           closed = false;
           widget.onMenuHided.call();
         }
+        setState(() {
+          selected = false;
+        });
       },
       popupBuilder: (context) => buildMenu(),
       child: FlowyIconButton(
         key: buttonKey,
+        isSelected: selected,
         icon: FlowySvg(FlowySvgs.toolbar_more_m),
         onPressed: showPopover,
       ),
@@ -161,6 +166,9 @@ class _CustomLinkPreviewMenuState extends State<CustomLinkPreviewMenu> {
     widget.onMenuShowed.call();
     keepEditorFocusNotifier.increase();
     popoverController.show();
+    setState(() {
+      selected = true;
+    });
   }
 
   void closePopover() {

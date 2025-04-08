@@ -54,8 +54,8 @@ class CustomLinkPreviewWidget extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(
           color: isHovering
-              ? borderScheme.greyPrimaryHover
-              : borderScheme.greyPrimary,
+              ? borderScheme.greyTertiaryHover
+              : borderScheme.greyTertiary,
         ),
         borderRadius: BorderRadius.circular(16.0),
       ),
@@ -177,7 +177,7 @@ class CustomLinkPreviewWidget extends StatelessWidget {
       ),
       child: Container(
         width: width,
-        color: fillScheme.primary,
+        color: fillScheme.quaternary,
         child: child,
       ),
     );

@@ -227,7 +227,7 @@ enum PasteMenuType {
   embed,
 }
 
-extension on PasteMenuType {
+extension PasteMenuTypeExtension on PasteMenuType {
   String get title {
     switch (this) {
       case PasteMenuType.mention:

@@ -1,6 +1,7 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_create_menu.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/custom_link_parser.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/paste_as/paste_as_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_style.dart';
 import 'package:appflowy/shared/appflowy_network_image.dart';
@@ -10,8 +11,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'mention_link_block.dart';
 
 class MentionLinkPreview extends StatefulWidget {
   const MentionLinkPreview({
@@ -106,7 +105,7 @@ class _MentionLinkPreviewState extends State<MentionLinkPreview> {
               height: 28,
               child: Row(
                 children: [
-                  linkInfo.getIconWidget(size: Size.square(16)),
+                  linkInfo.buildIconWidget(size: Size.square(16)),
                   HSpace(6),
                   Expanded(
                     child: FlowyText(
