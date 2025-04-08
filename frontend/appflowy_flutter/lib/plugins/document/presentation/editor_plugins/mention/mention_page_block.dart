@@ -396,12 +396,11 @@ Future<void> _handleDoubleTap(
         node,
         index,
         1,
-        {
-          MentionBlockKeys.mention: {
-            MentionBlockKeys.type: MentionType.page.name,
-            MentionBlockKeys.pageId: newView.id,
-          },
-        },
+        MentionBlockKeys.buildMentionPageAttributes(
+          mentionType: MentionType.page.name,
+          pageId: newView.id,
+          blockId: null,
+        ),
       );
 
     await editorState.apply(transaction, withUpdateSelection: false);
