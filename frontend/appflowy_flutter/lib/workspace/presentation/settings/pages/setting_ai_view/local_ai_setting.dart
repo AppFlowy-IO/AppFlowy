@@ -140,10 +140,8 @@ class LocalAISettingPanel extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const LocalAIStatusIndicator(),
-            if (state.showSettings) ...[
-              const VSpace(10),
-              OllamaSettingPage(),
-            ],
+            const VSpace(10),
+            OllamaSettingPage(),
           ],
         );
       },
