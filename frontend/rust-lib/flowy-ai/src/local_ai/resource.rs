@@ -5,13 +5,13 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use lib_infra::async_trait::async_trait;
 
 use crate::entities::LackOfAIResourcePB;
-use crate::local_ai::watch::{is_plugin_ready, ollama_plugin_path};
 #[cfg(target_os = "macos")]
 use crate::local_ai::watch::{watch_offline_app, WatchContext};
 use crate::notification::{
   chat_notification_builder, ChatNotification, APPFLOWY_AI_NOTIFICATION_KEY,
 };
 use af_local_ai::ollama_plugin::OllamaPluginConfig;
+use af_plugin::core::path::{is_plugin_ready, ollama_plugin_path};
 use lib_infra::util::{get_operating_system, OperatingSystem};
 use reqwest::Client;
 use serde::Deserialize;
