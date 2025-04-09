@@ -83,10 +83,12 @@ extension PasteFromPlainText on EditorState {
   }
 
   String? _getLinkFromNode(Node node) {
-    for (final insert in node.delta!) {
-      final link = insert.attributes?.href;
-      if (link != null) return link;
-    }
+    final delta = node.delta;
+    if (delta == null) return null;
+    final inserts = delta.whereType<TextInsert>();
+    if (inserts.isEmpty || inserts.length > 1) return null;
+    final link = inserts.first.attributes?.href;
+    if (link != null) return inserts.first.text;
     return null;
   }
 }

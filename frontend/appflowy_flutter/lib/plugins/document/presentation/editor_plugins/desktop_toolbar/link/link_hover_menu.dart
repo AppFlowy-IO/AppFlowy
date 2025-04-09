@@ -6,6 +6,7 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/application/document_bloc.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/desktop_floating_toolbar.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_embed/link_embed_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/shared.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_page_block.dart';
@@ -278,7 +279,13 @@ class _LinkHoverTriggerState extends State<LinkHoverTrigger> {
     } else if (type == LinkConvertMenuCommand.toMention) {
       await convertUrlToMention(editorState, selection);
     } else if (type == LinkConvertMenuCommand.toEmbed) {
-    } else {}
+      await convertUrlToLinkPreview(
+        editorState,
+        selection,
+        url,
+        previewType: LinkEmbedKeys.embed,
+      );
+    }
   }
 
   void onRemoveAndReplaceLink(
