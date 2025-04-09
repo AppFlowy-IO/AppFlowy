@@ -5,7 +5,11 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_hover_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_embed/link_embed_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/paste_as/paste_as_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_link_block.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_link_error_preview.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_link_preview.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -19,7 +23,8 @@ import '../../shared/util.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  const avaliableLink = 'https://appflowy.io/';
+  const avaliableLink = 'https://appflowy.io/',
+      unavailableLink = 'www.thereIsNoting.com';
 
   Future<void> preparePage(WidgetTester tester, {String? pageName}) async {
     await tester.initializeAppFlowy();
@@ -41,27 +46,16 @@ void main() {
     await tester.pumpAndSettle(Duration(seconds: 1));
   }
 
-  Future<void> pasteAndTurnInto(
+  Future<void> pasteAs(
     WidgetTester tester,
     String link,
-    String title,
-  ) async {
+    PasteMenuType type, {
+    Duration waitTime = const Duration(milliseconds: 500),
+  }) async {
     await pasteLink(tester, link);
-    final convertToLinkButton = find
-        .text(LocaleKeys.document_plugins_linkPreview_typeSelection_URL.tr());
-    await tester.tapButton(convertToLinkButton);
-
-    /// hover link and turn into mention
-    await tester.hoverOnWidget(
-      find.byType(LinkHoverTrigger),
-      onHover: () async {
-        final turnintoButton = find.byFlowySvg(FlowySvgs.turninto_m);
-        await tester.tapButton(turnintoButton);
-        final convertToButton = find.text(title);
-        await tester.tapButton(convertToButton);
-        await tester.pumpAndSettle(Duration(seconds: 1));
-      },
-    );
+    final convertToMentionButton = find.text(type.title);
+    await tester.tapButton(convertToMentionButton);
+    await tester.pumpAndSettle(waitTime);
   }
 
   void checkUrl(Node node, String link) {
@@ -97,7 +91,30 @@ void main() {
   }
 
   group('Paste as URL', () {
-    testWidgets('paste a link text', (tester) async {
+    Future<void> pasteAndTurnInto(
+      WidgetTester tester,
+      String link,
+      String title,
+    ) async {
+      await pasteLink(tester, link);
+      final convertToLinkButton = find
+          .text(LocaleKeys.document_plugins_linkPreview_typeSelection_URL.tr());
+      await tester.tapButton(convertToLinkButton);
+
+      /// hover link and turn into mention
+      await tester.hoverOnWidget(
+        find.byType(LinkHoverTrigger),
+        onHover: () async {
+          final turnintoButton = find.byFlowySvg(FlowySvgs.turninto_m);
+          await tester.tapButton(turnintoButton);
+          final convertToButton = find.text(title);
+          await tester.tapButton(convertToButton);
+          await tester.pumpAndSettle(Duration(seconds: 1));
+        },
+      );
+    }
+
+    testWidgets('paste a link', (tester) async {
       final link = avaliableLink;
       await preparePage(tester);
       await pasteLink(tester, link);
@@ -151,7 +168,134 @@ void main() {
     });
   });
 
-  group('Paste as Mention', () {});
+  group('Paste as Mention', () {
+    Future<void> pasteAsMention(WidgetTester tester, String link) =>
+        pasteAs(tester, link, PasteMenuType.mention);
+
+    String getMentionLink(Node node) {
+      final insert = node.delta?.first as TextInsert?;
+      final mention = insert?.attributes?[MentionBlockKeys.mention]
+          as Map<String, dynamic>?;
+      return mention?[MentionBlockKeys.url] ?? '';
+    }
+
+    Future<void> hoverMentionAndClick(
+      WidgetTester tester,
+      String command, {
+      int retryTime = 0,
+    }) async {
+      if (retryTime > 5) return;
+      final mentionLink = find.byType(MentionLinkBlock);
+      expect(mentionLink, findsOneWidget);
+      await tester.hoverOnWidget(
+        mentionLink,
+        onHover: () async {
+          final errorPreview = find.byType(MentionLinkErrorPreview);
+          expect(errorPreview, findsOneWidget);
+          final convertButton = find.byFlowySvg(FlowySvgs.turninto_m);
+          await tester.tapButton(convertButton);
+          final menuButton = find.text(command);
+          await tester.tapButton(menuButton);
+        },
+      );
+    }
+
+    testWidgets('paste a link as mention', (tester) async {
+      final link = avaliableLink;
+      await preparePage(tester);
+      await pasteAsMention(tester, link);
+      final node = tester.editor.getNodeAtPath([0]);
+      checkMention(node, link);
+    });
+
+
+
+    testWidgets('paste as mention and copy link', (tester) async {
+      final link = avaliableLink;
+      await preparePage(tester);
+      await pasteAsMention(tester, link);
+      final mentionLink = find.byType(MentionLinkBlock);
+      expect(mentionLink, findsOneWidget);
+      await tester.hoverOnWidget(
+        mentionLink,
+        onHover: () async {
+          final preview = find.byType(MentionLinkPreview);
+          if (!preview.hasFound) {
+            final copyButton = find.byFlowySvg(FlowySvgs.toolbar_link_m);
+            await tester.tapButton(copyButton);
+          } else {
+            final moreOptionButton = find.byFlowySvg(FlowySvgs.toolbar_more_m);
+            await tester.tapButton(moreOptionButton);
+            final copyButton =
+                find.text(MentionLinktMenuCommand.copyLink.title);
+            await tester.tapButton(copyButton);
+          }
+        },
+      );
+      final clipboardContent = await getIt<ClipboardService>().getData();
+      expect(clipboardContent.plainText, link);
+    });
+
+
+    testWidgets('paste as error mention and turninto url', (tester) async {
+      String link = unavailableLink;
+      await preparePage(tester);
+      await pasteAsMention(tester, link);
+      Node node = tester.editor.getNodeAtPath([0]);
+      link = getMentionLink(node);
+      await hoverMentionAndClick(
+        tester,
+        MentionLinktErrorMenuCommand.toURL.title,
+      );
+      node = tester.editor.getNodeAtPath([0]);
+      checkUrl(node, link);
+    });
+
+    testWidgets('paste as error mention and turninto embed', (tester) async {
+      String link = unavailableLink;
+      await preparePage(tester);
+      await pasteAsMention(tester, link);
+      Node node = tester.editor.getNodeAtPath([0]);
+      link = getMentionLink(node);
+      await hoverMentionAndClick(
+        tester,
+        MentionLinktErrorMenuCommand.toEmbed.title,
+      );
+      node = tester.editor.getNodeAtPath([0]);
+      checkEmbed(node, link);
+    });
+
+    testWidgets('paste as error mention and turninto bookmark', (tester) async {
+      String link = unavailableLink;
+      await preparePage(tester);
+      await pasteAsMention(tester, link);
+      Node node = tester.editor.getNodeAtPath([0]);
+      link = getMentionLink(node);
+      await hoverMentionAndClick(
+        tester,
+        MentionLinktErrorMenuCommand.toBookmark.title,
+      );
+      node = tester.editor.getNodeAtPath([0]);
+      checkBookmark(node, link);
+    });
+
+    testWidgets('paste as error mention and remove link', (tester) async {
+      String link = unavailableLink;
+      await preparePage(tester);
+      await pasteAsMention(tester, link);
+      Node node = tester.editor.getNodeAtPath([0]);
+      link = getMentionLink(node);
+      await hoverMentionAndClick(
+        tester,
+        MentionLinktErrorMenuCommand.removeLink.title,
+      );
+      node = tester.editor.getNodeAtPath([0]);
+      expect(node.type, ParagraphBlockKeys.type);
+      expect(node.delta!.toJson(), [
+        {'insert': link},
+      ]);
+    });
+  });
 
   group('Paste as Bookmark', () {});
   group('Paste as Embed', () {});

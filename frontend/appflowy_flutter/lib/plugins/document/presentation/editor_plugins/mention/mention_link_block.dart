@@ -125,7 +125,7 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
               onCopyLink: () => copyLink(context),
               onConvertTo: (s) => convertTo(s),
               onRemoveLink: removeLink,
-              onOpenLink: () => openLink(),
+              onOpenLink: openLink,
             )
           : MentionLinkErrorPreview(
               url: url,
@@ -140,7 +140,7 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
               onCopyLink: () => copyLink(context),
               onConvertTo: (s) => convertTo(s),
               onRemoveLink: removeLink,
-              onOpenLink: () => openLink(),
+              onOpenLink: openLink,
             ),
       child: buildIconWithTitle(context),
     );
@@ -153,7 +153,6 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
       cursor: SystemMouseCursors.click,
       onEnter: onEnter,
       onExit: onExit,
-      key: key,
       child: GestureDetector(
         onTap: () async {
           await afLaunchUrlString(url, addingHttpSchemeWhenFailed: true);
@@ -164,6 +163,7 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
           applyStyle: isHovering,
           child: Row(
             mainAxisSize: MainAxisSize.min,
+            key: key,
             children: [
               HSpace(2),
               buildIcon(),
