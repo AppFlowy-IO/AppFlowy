@@ -166,7 +166,7 @@ class CustomLinkPreviewWidget extends StatelessWidget {
         child: FlowySvg(
           FlowySvgs.toolbar_link_earth_m,
           color: iconScheme.secondary,
-          size: Size.square(24),
+          size: Size.square(30),
         ),
       );
     }

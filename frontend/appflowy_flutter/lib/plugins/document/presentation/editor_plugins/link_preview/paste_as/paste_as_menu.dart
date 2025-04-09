@@ -1,4 +1,5 @@
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_embed/link_embed_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/shared.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/menu/menu_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -69,6 +70,13 @@ class PasteAsMenuService {
                       convertUrlToLinkPreview(editorState, urlSelection, href);
                     } else if (t == PasteMenuType.mention) {
                       convertUrlToMention(editorState, urlSelection);
+                    } else if (t == PasteMenuType.embed) {
+                      convertUrlToLinkPreview(
+                        editorState,
+                        urlSelection,
+                        href,
+                        previewType: LinkEmbedKeys.embed,
+                      );
                     }
                     dismiss();
                   },
