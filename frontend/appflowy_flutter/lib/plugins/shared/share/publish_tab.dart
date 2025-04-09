@@ -183,7 +183,7 @@ class _PublishedWidgetState extends State<_PublishedWidget> {
 
             showToastNotification(
               context,
-              message: LocaleKeys.grid_url_copy.tr(),
+              message: LocaleKeys.message_copy_success.tr(),
             );
           },
           onSubmitted: (pathName) {

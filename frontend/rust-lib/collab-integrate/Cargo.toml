@@ -19,14 +19,13 @@ serde.workspace = true
 serde_json.workspace = true
 anyhow.workspace = true
 tracing.workspace = true
-async-trait.workspace = true
 tokio = { workspace = true, features = ["sync"] }
 lib-infra = { workspace = true }
-futures = "0.3.31"
 arc-swap = "1.7"
 flowy-sqlite = { workspace = true }
 diesel.workspace = true
 flowy-error.workspace = true
+uuid.workspace = true
 
 [features]
 default = []

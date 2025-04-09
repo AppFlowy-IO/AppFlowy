@@ -99,14 +99,14 @@
   "questionBubble": {
     "shortcuts": "Lasterbideak",
     "whatsNew": "Ze berri?",
-    "help": "Laguntza",
     "markdown": "Markdown",
     "debug": {
       "name": "Debug informazioa",
       "success": "Debug informazioa kopiatu da!",
       "fail": "Ezin izan da debug informazioa kopiatu"
     },
-    "feedback": "Iritzia"
+    "feedback": "Iritzia",
+    "help": "Laguntza"
   },
   "menuAppHeader": {
     "addPageTooltip": "Gehitu orri bat",

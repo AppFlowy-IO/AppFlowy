@@ -8,6 +8,8 @@ use flowy_document::parser::parser_entities::{
 };
 use serde_json::{json, Value};
 use std::collections::HashMap;
+use std::str::FromStr;
+use uuid::Uuid;
 
 #[tokio::test]
 async fn get_document_event_test() {
@@ -101,8 +103,8 @@ async fn document_size_test() {
     let s = generate_random_string(string_size);
     test.insert_index(&view.id, &s, 1, None).await;
   }
-
-  let encoded_v1 = test.get_encoded_v1(&view.id).await;
+  let view_id = Uuid::from_str(&view.id).unwrap();
+  let encoded_v1 = test.get_encoded_v1(&view_id).await;
   if encoded_v1.doc_state.len() > max_size {
     panic!(
       "The document size is too large. {}",

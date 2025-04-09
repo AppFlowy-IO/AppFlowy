@@ -1647,9 +1647,8 @@
     },
     "url": {
       "launch": "Open link in browser",
-      "copy": "Copied link to clipboard",
-      "textFieldHint": "Enter a URL",
-      "copiedNotification": "Copied to clipboard!"
+      "copy": "Copy link to clipboard",
+      "textFieldHint": "Enter a URL"
     },
     "relation": {
       "relatedDatabasePlaceLabel": "Related Database",
@@ -2294,7 +2293,7 @@
   },
   "message": {
     "copy": {
-      "success": "Copied!",
+      "success": "Copied to clipboard",
       "fail": "Unable to copy"
     }
   },

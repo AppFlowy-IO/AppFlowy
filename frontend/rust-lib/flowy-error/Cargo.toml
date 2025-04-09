@@ -34,6 +34,7 @@ collab-plugins = { workspace = true, optional = true }
 collab-folder = { workspace = true, optional = true }
 client-api = { workspace = true, optional = true }
 tantivy = { version = "0.22.0", optional = true }
+uuid.workspace = true
 
 [features]
 default = ["impl_from_dispatch_error", "impl_from_serde", "impl_from_reqwest", "impl_from_sqlite"]

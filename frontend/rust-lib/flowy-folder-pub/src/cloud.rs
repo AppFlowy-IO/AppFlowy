@@ -15,7 +15,7 @@ pub trait FolderCloudService: Send + Sync + 'static {
   /// Returns error if the cloud service doesn't support multiple workspaces
   async fn create_workspace(&self, uid: i64, name: &str) -> Result<Workspace, FlowyError>;
 
-  async fn open_workspace(&self, workspace_id: &str) -> Result<(), FlowyError>;
+  async fn open_workspace(&self, workspace_id: &Uuid) -> Result<(), FlowyError>;
 
   /// Returns all workspaces of the user.
   /// Returns vec![] if the cloud service doesn't support multiple workspaces
@@ -23,7 +23,7 @@ pub trait FolderCloudService: Send + Sync + 'static {
 
   async fn get_folder_data(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     uid: &i64,
   ) -> Result<Option<FolderData>, FlowyError>;
 
@@ -35,21 +35,21 @@ pub trait FolderCloudService: Send + Sync + 'static {
 
   async fn get_folder_doc_state(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     uid: i64,
     collab_type: CollabType,
-    object_id: &str,
+    object_id: &Uuid,
   ) -> Result<Vec<u8>, FlowyError>;
 
   async fn full_sync_collab_object(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     params: FullSyncCollabParams,
   ) -> Result<(), FlowyError>;
 
   async fn batch_create_folder_collab_objects(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     objects: Vec<FolderCollabParams>,
   ) -> Result<(), FlowyError>;
 
@@ -57,64 +57,64 @@ pub trait FolderCloudService: Send + Sync + 'static {
 
   async fn publish_view(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     payload: Vec<PublishPayload>,
   ) -> Result<(), FlowyError>;
 
   async fn unpublish_views(
     &self,
-    workspace_id: &str,
-    view_ids: Vec<String>,
+    workspace_id: &Uuid,
+    view_ids: Vec<Uuid>,
   ) -> Result<(), FlowyError>;
 
-  async fn get_publish_info(&self, view_id: &str) -> Result<PublishInfo, FlowyError>;
+  async fn get_publish_info(&self, view_id: &Uuid) -> Result<PublishInfo, FlowyError>;
 
   async fn set_publish_name(
     &self,
-    workspace_id: &str,
-    view_id: String,
+    workspace_id: &Uuid,
+    view_id: Uuid,
     new_name: String,
   ) -> Result<(), FlowyError>;
 
   async fn set_publish_namespace(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     new_namespace: String,
   ) -> Result<(), FlowyError>;
 
   async fn list_published_views(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
   ) -> Result<Vec<PublishInfoView>, FlowyError>;
 
   async fn get_default_published_view_info(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
   ) -> Result<PublishInfo, FlowyError>;
 
   async fn set_default_published_view(
     &self,
-    workspace_id: &str,
+    workspace_id: &Uuid,
     view_id: uuid::Uuid,
   ) -> Result<(), FlowyError>;
 
-  async fn remove_default_published_view(&self, workspace_id: &str) -> Result<(), FlowyError>;
+  async fn remove_default_published_view(&self, workspace_id: &Uuid) -> Result<(), FlowyError>;
 
-  async fn get_publish_namespace(&self, workspace_id: &str) -> Result<String, FlowyError>;
+  async fn get_publish_namespace(&self, workspace_id: &Uuid) -> Result<String, FlowyError>;
 
   async fn import_zip(&self, file_path: &str) -> Result<(), FlowyError>;
 }
 
 #[derive(Debug)]
 pub struct FolderCollabParams {
-  pub object_id: String,
+  pub object_id: Uuid,
   pub encoded_collab_v1: Vec<u8>,
   pub collab_type: CollabType,
 }
 
 #[derive(Debug)]
 pub struct FullSyncCollabParams {
-  pub object_id: String,
+  pub object_id: Uuid,
   pub encoded_collab: EncodedCollab,
   pub collab_type: CollabType,
 }

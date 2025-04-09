@@ -6,11 +6,11 @@ use collab_folder::hierarchy_builder::NestedViewBuilder;
 pub use collab_folder::View;
 use collab_folder::ViewLayout;
 use dashmap::DashMap;
+use flowy_error::FlowyError;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-
-use flowy_error::FlowyError;
+use uuid::Uuid;
 
 use lib_infra::util::timestamp;
 
@@ -51,23 +51,23 @@ pub trait FolderOperationHandler: Send + Sync {
     Ok(())
   }
 
-  async fn open_view(&self, view_id: &str) -> Result<(), FlowyError>;
+  async fn open_view(&self, view_id: &Uuid) -> Result<(), FlowyError>;
   /// Closes the view and releases the resources that this view has in
   /// the backend
-  async fn close_view(&self, view_id: &str) -> Result<(), FlowyError>;
+  async fn close_view(&self, view_id: &Uuid) -> Result<(), FlowyError>;
 
   /// Called when the view is deleted.
   /// This will called after the view is deleted from the trash.
-  async fn delete_view(&self, view_id: &str) -> Result<(), FlowyError>;
+  async fn delete_view(&self, view_id: &Uuid) -> Result<(), FlowyError>;
 
   /// Returns the [ViewData] that can be used to create the same view.
-  async fn duplicate_view(&self, view_id: &str) -> Result<Bytes, FlowyError>;
+  async fn duplicate_view(&self, view_id: &Uuid) -> Result<Bytes, FlowyError>;
 
   /// get the encoded collab data from the disk.
   async fn gather_publish_encode_collab(
     &self,
     _user: &Arc<dyn FolderUser>,
-    _view_id: &str,
+    _view_id: &Uuid,
   ) -> Result<GatherEncodedCollab, FlowyError> {
     Err(FlowyError::not_support())
   }
@@ -102,8 +102,8 @@ pub trait FolderOperationHandler: Send + Sync {
   async fn create_default_view(
     &self,
     user_id: i64,
-    parent_view_id: &str,
-    view_id: &str,
+    parent_view_id: &Uuid,
+    view_id: &Uuid,
     name: &str,
     layout: ViewLayout,
   ) -> Result<(), FlowyError>;
@@ -114,7 +114,7 @@ pub trait FolderOperationHandler: Send + Sync {
   async fn import_from_bytes(
     &self,
     uid: i64,
-    view_id: &str,
+    view_id: &Uuid,
     name: &str,
     import_type: ImportType,
     bytes: Vec<u8>,
@@ -152,8 +152,8 @@ impl From<ViewLayoutPB> for ViewLayout {
 pub(crate) fn create_view(uid: i64, params: CreateViewParams, layout: ViewLayout) -> View {
   let time = timestamp();
   View {
-    id: params.view_id,
-    parent_view_id: params.parent_view_id,
+    id: params.view_id.to_string(),
+    parent_view_id: params.parent_view_id.to_string(),
     name: params.name,
     created_at: time,
     is_favorite: false,

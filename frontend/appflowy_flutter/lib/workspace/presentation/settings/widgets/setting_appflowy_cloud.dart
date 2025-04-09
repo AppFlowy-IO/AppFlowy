@@ -3,6 +3,7 @@ import 'package:appflowy/env/cloud_env.dart';
 import 'package:appflowy/env/env.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/shared/share/constants.dart';
+import 'package:appflowy/shared/error_page/error_page.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_setting_bloc.dart';
 import 'package:appflowy/workspace/application/settings/appflowy_cloud_urls_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/_restart_app_button.dart';
@@ -19,7 +20,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -130,7 +130,7 @@ class CustomAppFlowyCloudView extends StatelessWidget {
     final List<Widget> children = [];
     children.addAll([
       const AppFlowyCloudEnableSync(),
-      const AppFlowyCloudSyncLogEnabled(),
+      // const AppFlowyCloudSyncLogEnabled(),
       const VSpace(40),
     ]);
 
