@@ -71,7 +71,7 @@ class AppFlowyCloudViewSetting extends StatelessWidget {
               const VSpace(8),
               const AppFlowyCloudEnableSync(),
               const VSpace(6),
-              const AppFlowyCloudSyncLogEnabled(),
+              // const AppFlowyCloudSyncLogEnabled(),
               const VSpace(12),
               RestartButton(
                 onClick: () {
