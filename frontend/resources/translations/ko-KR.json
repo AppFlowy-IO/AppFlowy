@@ -301,14 +301,14 @@
   "questionBubble": {
     "shortcuts": "단축키",
     "whatsNew": "새로운 기능",
-    "help": "도움말 및 지원",
     "markdown": "Markdown",
     "debug": {
       "name": "디버그 정보",
       "success": "디버그 정보를 클립보드에 복사했습니다!",
       "fail": "디버그 정보를 클립보드에 복사할 수 없습니다"
     },
-    "feedback": "피드백"
+    "feedback": "피드백",
+    "help": "도움말 및 지원"
   },
   "menuAppHeader": {
     "moreButtonToolTip": "제거, 이름 변경 등...",
