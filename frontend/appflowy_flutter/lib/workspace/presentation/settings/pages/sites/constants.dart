@@ -53,7 +53,6 @@ class SettingsPageSitesEvent {
     );
     getIt<ClipboardService>().setData(ClipboardServiceData(plainText: url));
     showToastNotification(
-      context,
       message: LocaleKeys.message_copy_success.tr(),
     );
   }

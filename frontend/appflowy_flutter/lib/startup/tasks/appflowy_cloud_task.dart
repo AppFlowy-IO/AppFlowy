@@ -129,7 +129,7 @@ class AppFlowyCloudDeepLink {
               final context = AppGlobals.rootNavKey.currentState?.context;
               if (context != null) {
                 showToastNotification(
-                  context,
+                  
                   message: err.msg,
                 );
               }

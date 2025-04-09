@@ -25,7 +25,7 @@ Future<void> shareLogFiles(BuildContext? context) async {
   if (archiveLogFiles.isEmpty) {
     if (context != null && context.mounted) {
       showToastNotification(
-        context,
+        
         message: LocaleKeys.noLogFiles.tr(),
         type: ToastificationType.error,
       );
@@ -42,7 +42,7 @@ Future<void> shareLogFiles(BuildContext? context) async {
   if (zip == null) {
     if (context != null && context.mounted) {
       showToastNotification(
-        context,
+        
         message: LocaleKeys.noLogFiles.tr(),
         type: ToastificationType.error,
       );
@@ -72,7 +72,7 @@ Future<void> shareLogFiles(BuildContext? context) async {
   } catch (e) {
     if (context != null && context.mounted) {
       showToastNotification(
-        context,
+        
         message: e.toString(),
         type: ToastificationType.error,
       );

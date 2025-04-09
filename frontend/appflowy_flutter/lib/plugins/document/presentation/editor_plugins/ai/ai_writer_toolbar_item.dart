@@ -150,7 +150,6 @@ class _AiWriterToolbarActionListState extends State<AiWriterToolbarActionList> {
           });
         } else {
           showToastNotification(
-            context,
             message: LocaleKeys.document_plugins_appflowyAIEditDisabled.tr(),
           );
         }
@@ -196,7 +195,6 @@ class ImproveWritingButton extends StatelessWidget {
           _insertAiNode(editorState, AiWriterCommand.improveWriting);
         } else {
           showToastNotification(
-            context,
             message: LocaleKeys.document_plugins_appflowyAIEditDisabled.tr(),
           );
         }

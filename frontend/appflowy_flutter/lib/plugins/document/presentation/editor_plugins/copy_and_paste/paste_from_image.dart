@@ -73,7 +73,6 @@ extension PasteFromImage on EditorState {
       Log.info('unsupported format: $format');
       if (UniversalPlatform.isMobile) {
         showToastNotification(
-          context,
           message: LocaleKeys.document_imageBlock_error_invalidImageFormat.tr(),
         );
       }
@@ -112,7 +111,6 @@ extension PasteFromImage on EditorState {
 
         if (errorMessage != null && context.mounted) {
           showToastNotification(
-            context,
             message: errorMessage,
           );
           return false;
@@ -131,7 +129,6 @@ extension PasteFromImage on EditorState {
       Log.error('cannot copy image file', e);
       if (context.mounted) {
         showToastNotification(
-          context,
           message: LocaleKeys.document_imageBlock_error_invalidImage.tr(),
         );
       }

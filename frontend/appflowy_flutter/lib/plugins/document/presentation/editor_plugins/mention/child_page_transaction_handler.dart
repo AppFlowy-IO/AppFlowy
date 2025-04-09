@@ -100,7 +100,6 @@ class ChildPageTransactionHandler extends MentionTransactionHandler {
         Log.error(error);
         if (context.mounted) {
           showToastNotification(
-            context,
             message: LocaleKeys.document_plugins_subPage_errors_failedDeletePage
                 .tr(),
           );
