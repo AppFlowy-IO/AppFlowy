@@ -38,10 +38,6 @@ Future<bool> emojiCommandHandler(
     return false;
   }
 
-  if (!selection.isCollapsed) {
-    await editorState.deleteSelection(selection);
-  }
-
   final node = editorState.getNodeAtPath(selection.end.path);
   final delta = node?.delta;
   if (node == null ||
@@ -57,6 +53,10 @@ Future<bool> emojiCommandHandler(
     final previousCharacter = plain[selection.end.offset - 1];
     if (previousCharacter != _emojiCharacter) return false;
     if (!context.mounted) return false;
+
+    if (!selection.isCollapsed) {
+      await editorState.deleteSelection(selection);
+    }
 
     await editorState.insertTextAtPosition(
       character,
