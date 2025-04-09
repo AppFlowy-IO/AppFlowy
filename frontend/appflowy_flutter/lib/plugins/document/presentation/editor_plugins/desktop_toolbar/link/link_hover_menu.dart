@@ -628,7 +628,6 @@ extension LinkExtension on BuildContext {
         .setData(ClipboardServiceData(plainText: link));
     if (mounted) {
       showToastNotification(
-        this,
         message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
       );
     }
