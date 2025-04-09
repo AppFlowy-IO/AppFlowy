@@ -5,6 +5,8 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_hover_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_embed/link_embed_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/custom_link_preview_block_component.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/link_preview_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/paste_as/paste_as_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_block.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/mention/mention_link_block.dart';
@@ -181,10 +183,8 @@ void main() {
 
     Future<void> hoverMentionAndClick(
       WidgetTester tester,
-      String command, {
-      int retryTime = 0,
-    }) async {
-      if (retryTime > 5) return;
+      String command,
+    ) async {
       final mentionLink = find.byType(MentionLinkBlock);
       expect(mentionLink, findsOneWidget);
       await tester.hoverOnWidget(
@@ -207,8 +207,6 @@ void main() {
       final node = tester.editor.getNodeAtPath([0]);
       checkMention(node, link);
     });
-
-
 
     testWidgets('paste as mention and copy link', (tester) async {
       final link = avaliableLink;
@@ -235,7 +233,6 @@ void main() {
       final clipboardContent = await getIt<ClipboardService>().getData();
       expect(clipboardContent.plainText, link);
     });
-
 
     testWidgets('paste as error mention and turninto url', (tester) async {
       String link = unavailableLink;
@@ -297,6 +294,103 @@ void main() {
     });
   });
 
-  group('Paste as Bookmark', () {});
-  group('Paste as Embed', () {});
+  group('Paste as Bookmark', () {
+    Future<void> pasteAsBookmark(WidgetTester tester, String link) =>
+        pasteAs(tester, link, PasteMenuType.bookmark);
+
+    Future<void> hoverAndClick(
+      WidgetTester tester,
+      LinkPreviewMenuCommand command,
+    ) async {
+      final bookmark = find.byType(CustomLinkPreviewBlockComponent);
+      expect(bookmark, findsOneWidget);
+      await tester.hoverOnWidget(
+        bookmark,
+        onHover: () async {
+          final menuButton = find.byFlowySvg(FlowySvgs.toolbar_more_m);
+          await tester.tapButton(menuButton);
+          final commandButton = find.text(command.title);
+          await tester.tapButton(commandButton);
+        },
+      );
+    }
+
+    testWidgets('paste a link as bookmark', (tester) async {
+      final link = avaliableLink;
+      await preparePage(tester);
+      await pasteAsBookmark(tester, link);
+      final node = tester.editor.getNodeAtPath([0]);
+      checkBookmark(node, link);
+    });
+
+    testWidgets('paste a link as bookmark and convert to mention',
+        (tester) async {
+      final link = avaliableLink;
+      await preparePage(tester);
+      await pasteAsBookmark(tester, link);
+      await hoverAndClick(tester, LinkPreviewMenuCommand.convertToMention);
+      final node = tester.editor.getNodeAtPath([0]);
+      checkMention(node, link);
+    });
+
+    testWidgets('paste a link as bookmark and convert to url', (tester) async {
+      final link = avaliableLink;
+      await preparePage(tester);
+      await pasteAsBookmark(tester, link);
+      await hoverAndClick(tester, LinkPreviewMenuCommand.convertToUrl);
+      final node = tester.editor.getNodeAtPath([0]);
+      checkUrl(node, link);
+    });
+
+    testWidgets('paste a link as bookmark and convert to embed',
+        (tester) async {
+      final link = avaliableLink;
+      await preparePage(tester);
+      await pasteAsBookmark(tester, link);
+      await hoverAndClick(tester, LinkPreviewMenuCommand.convertToEmbed);
+      final node = tester.editor.getNodeAtPath([0]);
+      checkEmbed(node, link);
+    });
+
+    testWidgets('paste a link as bookmark and copy link', (tester) async {
+      final link = avaliableLink;
+      await preparePage(tester);
+      await pasteAsBookmark(tester, link);
+      await hoverAndClick(tester, LinkPreviewMenuCommand.copyLink);
+      final clipboardContent = await getIt<ClipboardService>().getData();
+      expect(clipboardContent.plainText, link);
+    });
+
+    testWidgets('paste a link as bookmark and replace link', (tester) async {
+      final link = avaliableLink;
+      await preparePage(tester);
+      await pasteAsBookmark(tester, link);
+      await hoverAndClick(tester, LinkPreviewMenuCommand.replace);
+      await tester.simulateKeyEvent(
+        LogicalKeyboardKey.keyA,
+        isControlPressed: Platform.isLinux || Platform.isWindows,
+        isMetaPressed: Platform.isMacOS,
+      );
+      await tester.simulateKeyEvent(LogicalKeyboardKey.delete);
+      await tester.ime.insertText(unavailableLink);
+      await tester.tapButton(find.text(LocaleKeys.button_replace.tr()));
+      final node = tester.editor.getNodeAtPath([0]);
+      checkBookmark(node, unavailableLink);
+    });
+
+    testWidgets('paste a link as bookmark and remove link', (tester) async {
+      final link = avaliableLink;
+      await preparePage(tester);
+      await pasteAsBookmark(tester, link);
+      await hoverAndClick(tester, LinkPreviewMenuCommand.removeLink);
+      final node = tester.editor.getNodeAtPath([0]);
+      expect(node.type, ParagraphBlockKeys.type);
+      expect(node.delta!.toJson(), [
+        {'insert': link},
+      ]);
+    });
+  });
+  group('Paste as Embed', () {
+
+  });
 }

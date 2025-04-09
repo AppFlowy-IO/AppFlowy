@@ -290,7 +290,7 @@ class _MentionLinkBlockState extends State<MentionLinkBlock> {
     changeHovering(true);
     final location = box?.localToGlobal(Offset.zero) ?? Offset.zero;
     if (readyForPreview) {
-      if (location.dy < 280) {
+      if (location.dy < 300) {
         changeShowAtBottom(true);
       } else {
         changeShowAtBottom(false);
