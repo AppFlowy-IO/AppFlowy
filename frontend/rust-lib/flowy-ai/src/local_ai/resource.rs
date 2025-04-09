@@ -195,9 +195,14 @@ impl LocalAIResourceController {
         let tags: TagsResponse = resp.json().await.inspect_err(|e| {
           log::error!("[LLM Resource] Failed to parse /api/tags JSON response: {e:?}")
         })?;
-        // Check each required model is present in the response.
+        // Check if each of our required models exists in the list of available models
+        trace!("[LLM Resource] ollama available models: {:?}", tags.models);
         for required in &required_models {
-          if !tags.models.iter().any(|m| m.name.contains(required)) {
+          if !tags
+            .models
+            .iter()
+            .any(|m| m.name == *required || m.name == format!("{}:latest", required))
+          {
             log::trace!(
               "[LLM Resource] required model '{}' not found in API response",
               required

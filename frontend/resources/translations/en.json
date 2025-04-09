@@ -885,7 +885,7 @@
         "pleaseFollowThese": "Please follow these",
         "instructions": "instructions",
         "installOllamaLai": "to set up Ollama and AppFlowy Local AI.",
-        "modelsMissing": "Cannot find the required models.",
+        "modelsMissing": "Cannot find the required models: ",
         "downloadModel": "to download them."
       }
     },
