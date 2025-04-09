@@ -5,6 +5,7 @@ import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/custom_link_preview.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/paste_as/paste_as_menu.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
@@ -320,6 +321,16 @@ void main() {
       (tester) async {
         const url = 'https://appflowy.io';
         await tester.pasteContent(plainText: url, (editorState) async {
+          final pasteAsMenu = find.byType(PasteAsMenu);
+          expect(pasteAsMenu, findsOneWidget);
+          final bookmarkButton = find.descendant(
+            of: pasteAsMenu,
+            matching: find.text(
+              LocaleKeys.document_plugins_linkPreview_typeSelection_bookmark
+                  .tr(),
+            ),
+          );
+          await tester.tapButton(bookmarkButton);
           // the second one is the paragraph node
           expect(editorState.document.root.children.length, 2);
           final node = editorState.getNodeAtPath([0])!;
@@ -363,6 +374,16 @@ void main() {
       (tester) async {
         const url = 'https://appflowy.io';
         await tester.pasteContent(plainText: url, (editorState) async {
+          final pasteAsMenu = find.byType(PasteAsMenu);
+          expect(pasteAsMenu, findsOneWidget);
+          final bookmarkButton = find.descendant(
+            of: pasteAsMenu,
+            matching: find.text(
+              LocaleKeys.document_plugins_linkPreview_typeSelection_bookmark
+                  .tr(),
+            ),
+          );
+          await tester.tapButton(bookmarkButton);
           // the second one is the paragraph node
           expect(editorState.document.root.children.length, 2);
           final node = editorState.getNodeAtPath([0])!;

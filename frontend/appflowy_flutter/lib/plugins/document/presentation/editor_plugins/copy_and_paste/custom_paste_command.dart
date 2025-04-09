@@ -163,7 +163,7 @@ Future<bool> _pasteAsLinkPreview(
   EditorState editorState,
   String? text,
 ) async {
-  if (!UniversalPlatform.isMobile) return false;
+  final isMobile = UniversalPlatform.isMobile;
   // the url should contain a protocol
   if (text == null || !isURL(text, {'require_protocol': true})) {
     return false;
@@ -194,6 +194,8 @@ Future<bool> _pasteAsLinkPreview(
     Log.info('unable to get content header');
     return false;
   }
+
+  if (!isMobile && !isImageUrl) return false;
 
   // insert the text with link format
   final textTransaction = editorState.transaction

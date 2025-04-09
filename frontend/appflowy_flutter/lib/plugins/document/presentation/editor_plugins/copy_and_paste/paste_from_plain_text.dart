@@ -43,13 +43,7 @@ extension PasteFromPlainText on EditorState {
     }
     if (nodes.length == 1) {
       await pasteSingleLineNode(nodes.first);
-      final href = _getLinkFromNode(nodes.first);
-      if (href != null && !UniversalPlatform.isMobile) {
-        final context = document.root.context;
-        if (context != null && context.mounted) {
-          PasteAsMenuService(context: context, editorState: this).show(href);
-        }
-      }
+      checkToShowPasteAsMenu(nodes.first);
     } else {
       await pasteMultiLineNodes(nodes.toList());
     }
@@ -74,7 +68,18 @@ extension PasteFromPlainText on EditorState {
       AppFlowyRichTextKeys.href: plainText,
     });
     await apply(transaction);
+    checkToShowPasteAsMenu(node);
     return true;
+  }
+
+  void checkToShowPasteAsMenu(Node node) {
+    final href = _getLinkFromNode(node);
+    if (href != null && !UniversalPlatform.isMobile) {
+      final context = document.root.context;
+      if (context != null && context.mounted) {
+        PasteAsMenuService(context: context, editorState: this).show(href);
+      }
+    }
   }
 
   String? _getLinkFromNode(Node node) {
