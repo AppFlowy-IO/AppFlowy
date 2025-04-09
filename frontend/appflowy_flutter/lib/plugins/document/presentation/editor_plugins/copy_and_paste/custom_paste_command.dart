@@ -254,6 +254,7 @@ Future<void> doPlainPaste(EditorState editorState) async {
 }
 
 Future<bool> _isImageUrl(String text) async {
+  if (isNotImageUrl(text)) return false;
   final response = await http.head(Uri.parse(text));
 
   if (response.statusCode == 200) {

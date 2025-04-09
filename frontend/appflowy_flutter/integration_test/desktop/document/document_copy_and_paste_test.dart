@@ -1,10 +1,11 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:appflowy/generated/locale_keys.g.dart';
-import 'package:appflowy/plugins/document/presentation/editor_plugins/block_menu/block_menu_button.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/copy_and_paste/clipboard_service.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/image/custom_image_block_component/custom_image_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/custom_link_preview.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/link_preview_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/paste_as/paste_as_menu.dart';
 import 'package:appflowy/startup/startup.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -323,16 +324,12 @@ void main() {
         await tester.pasteContent(plainText: url, (editorState) async {
           final pasteAsMenu = find.byType(PasteAsMenu);
           expect(pasteAsMenu, findsOneWidget);
-          final bookmarkButton = find.descendant(
-            of: pasteAsMenu,
-            matching: find.text(
-              LocaleKeys.document_plugins_linkPreview_typeSelection_bookmark
-                  .tr(),
-            ),
+          final bookmarkButton = find.text(
+            LocaleKeys.document_plugins_linkPreview_typeSelection_bookmark.tr(),
           );
           await tester.tapButton(bookmarkButton);
           // the second one is the paragraph node
-          expect(editorState.document.root.children.length, 2);
+          expect(editorState.document.root.children.length, 1);
           final node = editorState.getNodeAtPath([0])!;
           expect(node.type, LinkPreviewBlockKeys.type);
           expect(node.attributes[LinkPreviewBlockKeys.url], url);
@@ -344,18 +341,18 @@ void main() {
         await tester.hoverOnWidget(
           find.byType(CustomLinkPreviewWidget),
           onHover: () async {
-            final convertToLinkButton = find.byWidgetPredicate((widget) {
-              return widget is MenuBlockButton &&
-                  widget.tooltip ==
-                      LocaleKeys.document_plugins_urlPreview_convertToLink.tr();
-            });
+            /// show menu
+            final menu = find.byType(CustomLinkPreviewMenu);
+            expect(menu, findsOneWidget);
+            await tester.tapButton(menu);
+
+            final convertToLinkButton = find.text(
+                LocaleKeys.document_plugins_linkPreview_linkPreviewMenu_toUrl.tr(),
+              );
             expect(convertToLinkButton, findsOneWidget);
-            await tester.tap(convertToLinkButton);
-            await tester.pumpAndSettle();
+            await tester.tapButton(convertToLinkButton);
           },
         );
-
-        await tester.pumpAndSettle();
 
         final editorState = tester.editor.getCurrentEditorState();
         final textNode = editorState.getNodeAtPath([0])!;
@@ -376,22 +373,18 @@ void main() {
         await tester.pasteContent(plainText: url, (editorState) async {
           final pasteAsMenu = find.byType(PasteAsMenu);
           expect(pasteAsMenu, findsOneWidget);
-          final bookmarkButton = find.descendant(
-            of: pasteAsMenu,
-            matching: find.text(
-              LocaleKeys.document_plugins_linkPreview_typeSelection_bookmark
-                  .tr(),
-            ),
+          final bookmarkButton = find.text(
+            LocaleKeys.document_plugins_linkPreview_typeSelection_bookmark.tr(),
           );
           await tester.tapButton(bookmarkButton);
           // the second one is the paragraph node
-          expect(editorState.document.root.children.length, 2);
+          expect(editorState.document.root.children.length, 1);
           final node = editorState.getNodeAtPath([0])!;
           expect(node.type, LinkPreviewBlockKeys.type);
           expect(node.attributes[LinkPreviewBlockKeys.url], url);
         });
 
-        await tester.editor.tapLineOfEditorAt(0);
+      
         await tester.simulateKeyEvent(
           LogicalKeyboardKey.keyZ,
           isControlPressed:
@@ -542,7 +535,7 @@ void main() {
 
 extension on WidgetTester {
   Future<void> pasteContent(
-    void Function(EditorState editorState) test, {
+    FutureOr<void> Function(EditorState editorState) test, {
     Future<void> Function(EditorState editorState)? beforeTest,
     String? plainText,
     String? html,
@@ -579,6 +572,6 @@ extension on WidgetTester {
     );
     await pumpAndSettle(const Duration(milliseconds: 1000));
 
-    test(editor.getCurrentEditorState());
+    await test(editor.getCurrentEditorState());
   }
 }

@@ -13,3 +13,11 @@ const List<String> defaultImageExtensions = [
   'webp',
   'bmp',
 ];
+
+bool isNotImageUrl(String url) {
+  final nonImageSuffixRegex = RegExp(
+    r'\.(io|html|php|json|txt|js|css|xml|md|log)(\?.*)?(#.*)?$',
+    caseSensitive: false,
+  );
+  return nonImageSuffixRegex.hasMatch(url);
+}
