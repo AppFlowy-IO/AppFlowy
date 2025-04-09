@@ -74,7 +74,6 @@ class ViewTitleBar extends StatelessWidget {
       listener: (context, state) {
         if (state.isLocked) {
           showToastNotification(
-            context,
             message: LocaleKeys.lockPage_pageLockedToast.tr(),
           );
         }

@@ -174,11 +174,10 @@ class ExportTab extends StatelessWidget {
           ClipboardServiceData(plainText: markdown),
         );
         showToastNotification(
-          context,
           message: LocaleKeys.message_copy_success.tr(),
         );
       },
-      (error) => showToastNotification(context, message: error.msg),
+      (error) => showToastNotification(message: error.msg),
     );
   }
 }

@@ -78,7 +78,6 @@ class _LinkPreviewMenuState extends State<LinkPreviewMenu> {
     if (url != null) {
       Clipboard.setData(ClipboardData(text: url));
       showToastNotification(
-        context,
         message: LocaleKeys.document_plugins_urlPreview_copiedToPasteBoard.tr(),
       );
     }

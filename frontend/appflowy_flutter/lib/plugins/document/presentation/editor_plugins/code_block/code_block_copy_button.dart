@@ -47,7 +47,6 @@ class _CopyButton extends StatelessWidget {
 
             if (context.mounted) {
               showToastNotification(
-                context,
                 message: LocaleKeys.document_codeBlock_codeCopiedSnackbar.tr(),
               );
             }

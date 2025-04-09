@@ -184,7 +184,6 @@ class CopyButton extends StatelessWidget {
           );
           if (context.mounted) {
             showToastNotification(
-              context,
               message: LocaleKeys.message_copy_success.tr(),
             );
           }

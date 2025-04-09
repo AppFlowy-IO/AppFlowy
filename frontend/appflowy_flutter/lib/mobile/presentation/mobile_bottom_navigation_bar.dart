@@ -332,7 +332,6 @@ class _NotificationNavigationBar extends StatelessWidget {
     }
 
     showToastNotification(
-      context,
       message: LocaleKeys
           .settings_notifications_markAsReadNotifications_allSuccess
           .tr(),
@@ -350,7 +349,6 @@ class _NotificationNavigationBar extends StatelessWidget {
     }
 
     showToastNotification(
-      context,
       message: LocaleKeys.settings_notifications_archiveNotifications_allSuccess
           .tr(),
     );
