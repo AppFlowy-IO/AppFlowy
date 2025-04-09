@@ -72,8 +72,11 @@ extension AiWriterNodeExtension on EditorState {
       }
     }
 
+    // use \n\n as line break to improve the ai response
+    // using \n will cause the ai response treat the text as a single line
     final markdown = await customDocumentToMarkdown(
       Document.blank()..insert([0], slicedNodes),
+      lineBreak: '\n\n',
     );
 
     // trim the last \n if it exists

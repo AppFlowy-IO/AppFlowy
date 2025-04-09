@@ -424,6 +424,7 @@ class MarkdownTextRobot {
         firstMarkdownDelta != null) {
       final startIndex = selection.startIndex;
       final length = delta.length - startIndex;
+
       transaction
         ..deleteText(firstNode, startIndex, length)
         ..insertTextDelta(firstNode, startIndex, firstMarkdownDelta);
@@ -439,7 +440,9 @@ class MarkdownTextRobot {
         lastMarkdownNode != null &&
         lastMarkdownDelta != null) {
       final endIndex = selection.endIndex;
+
       transaction.deleteText(lastNode, 0, endIndex);
+
       // if the last node is same as the first node, it means we have replaced the
       // selected text in the first node.
       if (lastMarkdownNode.id != firstMarkdownNode?.id) {
@@ -457,8 +460,9 @@ class MarkdownTextRobot {
     }
 
     // step 4
-    if (nodes.length > 2) {
-      final middleNodes = nodes.skip(1).take(nodes.length - 2).toList();
+    final length = nodes.length - 2;
+    if (length > 0) {
+      final middleNodes = nodes.skip(1).take(length).toList();
       transaction.deleteNodes(middleNodes);
     }
 
