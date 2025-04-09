@@ -345,12 +345,11 @@ dependencies = [
 [[package]]
 name = "af-local-ai"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=4b3d50cbec2f58be2ac385231b8f585f1555e282#4b3d50cbec2f58be2ac385231b8f585f1555e282"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=9d731d89ea2e0fd764da2effa8a456210c5a39c3#9d731d89ea2e0fd764da2effa8a456210c5a39c3"
 dependencies = [
  "af-plugin",
  "anyhow",
  "bytes",
- "futures",
  "reqwest 0.11.27",
  "serde",
  "serde_json",
@@ -358,14 +357,12 @@ dependencies = [
  "tokio-stream",
  "tokio-util",
  "tracing",
- "zip 2.2.0",
- "zip-extensions",
 ]
 
 [[package]]
 name = "af-mcp"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=4b3d50cbec2f58be2ac385231b8f585f1555e282#4b3d50cbec2f58be2ac385231b8f585f1555e282"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=9d731d89ea2e0fd764da2effa8a456210c5a39c3#9d731d89ea2e0fd764da2effa8a456210c5a39c3"
 dependencies = [
  "anyhow",
  "futures-util",
@@ -379,7 +376,7 @@ dependencies = [
 [[package]]
 name = "af-plugin"
 version = "0.1.0"
-source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=4b3d50cbec2f58be2ac385231b8f585f1555e282#4b3d50cbec2f58be2ac385231b8f585f1555e282"
+source = "git+https://github.com/AppFlowy-IO/AppFlowy-LocalAI?rev=9d731d89ea2e0fd764da2effa8a456210c5a39c3#9d731d89ea2e0fd764da2effa8a456210c5a39c3"
 dependencies = [
  "anyhow",
  "cfg-if",
@@ -2504,7 +2501,6 @@ dependencies = [
  "tracing-subscriber",
  "uuid",
  "validator 0.18.1",
- "winreg 0.55.0",
  "zip 2.2.0",
  "zip-extensions",
 ]

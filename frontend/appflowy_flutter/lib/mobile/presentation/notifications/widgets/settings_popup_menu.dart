@@ -108,7 +108,6 @@ class NotificationSettingsPopupMenu extends StatelessWidget {
 
   void _onMarkAllAsRead(BuildContext context) {
     showToastNotification(
-      context,
       message: LocaleKeys
           .settings_notifications_markAsReadNotifications_allSuccess
           .tr(),
@@ -119,7 +118,6 @@ class NotificationSettingsPopupMenu extends StatelessWidget {
 
   void _onArchiveAll(BuildContext context) {
     showToastNotification(
-      context,
       message: LocaleKeys.settings_notifications_archiveNotifications_allSuccess
           .tr(),
     );
@@ -133,7 +131,6 @@ class NotificationSettingsPopupMenu extends StatelessWidget {
     }
 
     showToastNotification(
-      context,
       message: 'Unarchive all success (Debug Mode)',
     );
 

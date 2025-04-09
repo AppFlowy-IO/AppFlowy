@@ -193,7 +193,7 @@ Future<void> deleteMyAccount(
 
   if (!isChecked) {
     showToastNotification(
-      context,
+      
       type: ToastificationType.warning,
       bottomPadding: bottomPadding,
       message: LocaleKeys
@@ -208,7 +208,7 @@ Future<void> deleteMyAccount(
 
   if (confirmText.isEmpty || !_isConfirmTextValid(confirmText)) {
     showToastNotification(
-      context,
+      
       type: ToastificationType.warning,
       bottomPadding: bottomPadding,
       message: LocaleKeys
@@ -226,7 +226,7 @@ Future<void> deleteMyAccount(
 
       loading.stop();
       showToastNotification(
-        context,
+        
         message: LocaleKeys
             .newSettings_myAccount_deleteAccount_deleteAccountSuccess
             .tr(),
@@ -245,7 +245,7 @@ Future<void> deleteMyAccount(
 
       loading.stop();
       showToastNotification(
-        context,
+        
         type: ToastificationType.error,
         bottomPadding: bottomPadding,
         message: f.msg,

@@ -178,7 +178,6 @@ class _SettingsSitesPageView extends StatelessWidget {
         Log.error('Failed to generate payment link for Pro Plan: ${f.msg}');
 
         showToastNotification(
-          context,
           message:
               LocaleKeys.settings_sites_error_failedToGeneratePaymentLink.tr(),
           type: ToastificationType.error,
@@ -188,14 +187,12 @@ class _SettingsSitesPageView extends StatelessWidget {
         result != null) {
       result.fold((_) {
         showToastNotification(
-          context,
           message: LocaleKeys.publish_unpublishSuccessfully.tr(),
         );
       }, (f) {
         Log.error('Failed to unpublish view: ${f.msg}');
 
         showToastNotification(
-          context,
           message: LocaleKeys.publish_unpublishFailed.tr(),
           type: ToastificationType.error,
           description: f.msg,
@@ -204,14 +201,12 @@ class _SettingsSitesPageView extends StatelessWidget {
     } else if (type == SettingsSitesActionType.setHomePage && result != null) {
       result.fold((s) {
         showToastNotification(
-          context,
           message: LocaleKeys.settings_sites_success_setHomepageSuccess.tr(),
         );
       }, (f) {
         Log.error('Failed to set homepage: ${f.msg}');
 
         showToastNotification(
-          context,
           message: LocaleKeys.settings_sites_error_setHomepageFailed.tr(),
           type: ToastificationType.error,
         );
@@ -220,14 +215,12 @@ class _SettingsSitesPageView extends StatelessWidget {
         result != null) {
       result.fold((s) {
         showToastNotification(
-          context,
           message: LocaleKeys.settings_sites_success_removeHomePageSuccess.tr(),
         );
       }, (f) {
         Log.error('Failed to remove homepage: ${f.msg}');
 
         showToastNotification(
-          context,
           message: LocaleKeys.settings_sites_error_removeHomePageFailed.tr(),
           type: ToastificationType.error,
         );

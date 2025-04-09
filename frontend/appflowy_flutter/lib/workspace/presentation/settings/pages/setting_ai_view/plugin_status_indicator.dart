@@ -289,6 +289,10 @@ class _LackOfResource extends StatelessWidget {
             style: textStyle,
           ),
           TextSpan(
+            text: modelNames.join(', '),
+            style: textStyle,
+          ),
+          TextSpan(
             text: ' ',
             style: textStyle,
           ),

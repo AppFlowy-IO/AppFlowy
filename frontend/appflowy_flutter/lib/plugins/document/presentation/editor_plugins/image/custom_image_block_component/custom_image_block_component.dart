@@ -378,7 +378,6 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
         onTap: () async {
           context.pop();
           showToastNotification(
-            context,
             message: LocaleKeys.document_plugins_image_copiedToPasteBoard.tr(),
           );
           await getIt<ClipboardService>().setPlainText(url);
@@ -431,7 +430,6 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
       );
       if (mounted) {
         showToastNotification(
-          context,
           message: result.isSuccess
               ? LocaleKeys.document_imageBlock_successToAddImageToGallery.tr()
               : LocaleKeys.document_imageBlock_failedToAddImageToGallery.tr(),

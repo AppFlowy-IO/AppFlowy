@@ -45,7 +45,6 @@ enum MobilePaneActionType {
           size: 24.0,
           onPressed: (context) {
             showToastNotification(
-              context,
               message: LocaleKeys.button_unfavoriteSuccessfully.tr(),
             );
 
@@ -61,7 +60,6 @@ enum MobilePaneActionType {
           size: 24.0,
           onPressed: (context) {
             showToastNotification(
-              context,
               message: LocaleKeys.button_favoriteSuccessfully.tr(),
             );
 

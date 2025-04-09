@@ -53,11 +53,6 @@ collab-integrate.workspace = true
 notify = "6.1.1"
 af-mcp = { version = "0.1.0" }
 
-[target.'cfg(target_os = "windows")'.dependencies]
-winreg = "0.55"
-
-#cmd_lib = { version = "1.9.5" }
-
 [dev-dependencies]
 dotenv = "0.15.0"
 uuid.workspace = true

@@ -1,16 +1,15 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_hover_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/desktop_toolbar/link/link_replace_menu.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_embed/link_embed_block_component.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/link_preview/shared.dart';
 import 'package:appflowy/plugins/document/presentation/editor_plugins/menu/menu_extension.dart';
-import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor_plugins/appflowy_editor_plugins.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class CustomLinkPreviewMenu extends StatefulWidget {
@@ -122,14 +121,7 @@ class _CustomLinkPreviewMenuState extends State<CustomLinkPreviewMenu> {
         break;
       case LinkPreviewMenuCommand.copyLink:
         if (url != null) {
-          await Clipboard.setData(ClipboardData(text: url));
-          if (context.mounted) {
-            showToastNotification(
-              // ignore: use_build_context_synchronously
-              context,
-              message: LocaleKeys.shareAction_copyLinkSuccess.tr(),
-            );
-          }
+          await context.copyLink(url);
         }
         break;
       case LinkPreviewMenuCommand.replace:
