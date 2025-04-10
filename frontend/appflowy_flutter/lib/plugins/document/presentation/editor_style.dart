@@ -591,10 +591,9 @@ class EditorStyleCustomizer {
     Node node,
     SelectableMixin delegate,
   ) {
+    if (UniversalPlatform.isMobile) return [];
     final delta = node.delta;
-    if (delta == null) {
-      return [];
-    }
+    if (delta == null) return [];
     final widgets = <Widget>[];
     final textInserts = delta.whereType<TextInsert>();
     int index = 0;

@@ -181,7 +181,7 @@ class LinkEmbedBlockComponentState extends State<LinkEmbedBlockComponent>
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             child: FlowyNetworkImage(
               url: linkInfo.imageUrl ?? '',
-              width: double.infinity,
+              width: MediaQuery.of(context).size.width,
             ),
           ),
         ),

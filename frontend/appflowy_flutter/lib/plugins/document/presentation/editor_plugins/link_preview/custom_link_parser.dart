@@ -116,9 +116,11 @@ class LinkInfo {
 }
 
 class LinkInfoCache {
+  final _linkInfoPrefix = 'link_info';
+
   Future<LinkInfo?> get(String url) async {
     final option = await getIt<KeyValueStorage>().getWithFormat<LinkInfo?>(
-      url,
+      _linkInfoPrefix + url,
       (value) => LinkInfo.fromJson(jsonDecode(value)),
     );
     return option;
@@ -126,7 +128,7 @@ class LinkInfoCache {
 
   Future<void> set(String url, LinkInfo data) async {
     await getIt<KeyValueStorage>().set(
-      url,
+      _linkInfoPrefix + url,
       jsonEncode(data.toJson()),
     );
   }

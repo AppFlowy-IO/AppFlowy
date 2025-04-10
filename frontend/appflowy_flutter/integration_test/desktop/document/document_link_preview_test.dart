@@ -373,7 +373,6 @@ void main() {
         isMetaPressed: Platform.isMacOS,
       );
       await tester.simulateKeyEvent(LogicalKeyboardKey.delete);
-      await tester.ime.insertText(unavailableLink);
       await tester.enterText(find.byType(TextFormField), unavailableLink);
       await tester.tapButton(find.text(LocaleKeys.button_replace.tr()));
       final node = tester.editor.getNodeAtPath([0]);
