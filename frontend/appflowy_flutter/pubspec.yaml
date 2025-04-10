@@ -27,7 +27,6 @@ dependencies:
     path: packages/appflowy_result
   appflowy_ui:
     path: packages/appflowy_ui
-
   archive: ^3.4.10
   auto_size_text_field: ^2.2.3
   auto_updater: ^1.0.0

@@ -1,3 +1,4 @@
+use client_api::entity::GotrueTokenResponse;
 use collab_integrate::collab_builder::AppFlowyCollabBuilder;
 use collab_integrate::CollabKVDB;
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
@@ -719,6 +720,19 @@ impl UserManager {
     Ok(url)
   }
 
+  pub(crate) async fn sign_in_with_password(
+    &self,
+    email: &str,
+    password: &str,
+  ) -> Result<GotrueTokenResponse, FlowyError> {
+    self
+      .cloud_services
+      .set_user_authenticator(&Authenticator::AppFlowyCloud);
+    let auth_service = self.cloud_services.get_user_service()?;
+    let response = auth_service.sign_in_with_password(email, password).await?;
+    Ok(response)
+  }
+
   pub(crate) async fn sign_in_with_magic_link(
     &self,
     email: &str,
@@ -732,6 +746,19 @@ impl UserManager {
       .sign_in_with_magic_link(email, redirect_to)
       .await?;
     Ok(())
+  }
+
+  pub(crate) async fn sign_in_with_passcode(
+    &self,
+    email: &str,
+    passcode: &str,
+  ) -> Result<GotrueTokenResponse, FlowyError> {
+    self
+      .cloud_services
+      .set_user_authenticator(&Authenticator::AppFlowyCloud);
+    let auth_service = self.cloud_services.get_user_service()?;
+    let response = auth_service.sign_in_with_passcode(email, passcode).await?;
+    Ok(response)
   }
 
   pub(crate) async fn generate_oauth_url(

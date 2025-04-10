@@ -64,14 +64,16 @@ class _SignInWithMagicLinkButtonsState
 
   void _sendMagicLink(BuildContext context, String email) {
     if (!isEmail(email)) {
-      return showToastNotification(
-        
+      showToastNotification(
         message: LocaleKeys.signIn_invalidEmail.tr(),
         type: ToastificationType.error,
       );
+      return;
     }
 
-    context.read<SignInBloc>().add(SignInEvent.signedWithMagicLink(email));
+    context
+        .read<SignInBloc>()
+        .add(SignInEvent.signInWithMagicLink(email: email));
 
     showConfirmDialog(
       context: context,

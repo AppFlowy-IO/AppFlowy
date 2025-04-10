@@ -104,9 +104,10 @@ Future<void> downloadMediaFile(
     await afLaunchUrlString(file.url);
   } else {
     if (userProfile == null) {
-      return showToastNotification(
+      showToastNotification(
         message: LocaleKeys.grid_media_downloadFailedToken.tr(),
       );
+      return;
     }
 
     final uri = Uri.parse(file.url);

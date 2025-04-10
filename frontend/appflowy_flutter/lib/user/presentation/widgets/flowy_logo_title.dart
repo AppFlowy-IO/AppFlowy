@@ -1,8 +1,7 @@
-import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:flowy_infra/size.dart';
+import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/logo/logo.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class FlowyLogoTitle extends StatelessWidget {
   const FlowyLogoTitle({
@@ -16,24 +15,19 @@ class FlowyLogoTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppFlowyTheme.of(context);
+
     return SizedBox(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox.fromSize(
-            size: logoSize,
-            child: const FlowySvg(
-              FlowySvgs.flowy_logo_xl,
-              blendMode: null,
-            ),
-          ),
+          AFLogo(size: logoSize),
           const VSpace(20),
-          FlowyText.regular(
+          Text(
             title,
-            fontSize: FontSizes.s24,
-            fontFamily:
-                GoogleFonts.poppins(fontWeight: FontWeight.w500).fontFamily,
-            color: Theme.of(context).colorScheme.tertiary,
+            style: theme.textStyle.heading.h3(
+              color: theme.textColorScheme.primary,
+            ),
           ),
         ],
       ),
