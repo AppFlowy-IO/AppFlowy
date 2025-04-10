@@ -57,8 +57,13 @@ class AiWriterCubit extends Cubit<AiWriterState> {
     bool withDiscard = true,
     bool withUnformat = true,
   }) async {
+    if (aiWriterNode == null) {
+      return;
+    }
     if (withDiscard) {
-      await _textRobot.discard();
+      await _textRobot.discard(
+        afterSelection: aiWriterNode!.aiWriterSelection,
+      );
     }
     _textRobot.clear();
     _textRobot.reset();
@@ -230,6 +235,12 @@ class AiWriterCubit extends Cubit<AiWriterState> {
 
       _aiWriterCubitLog(
         'trigger accept action, markdown text: $trimmedMarkdownText',
+      );
+
+      await formatSelection(
+        editorState,
+        selection,
+        ApplySuggestionFormatType.clear,
       );
 
       await _textRobot.deleteAINodes();
